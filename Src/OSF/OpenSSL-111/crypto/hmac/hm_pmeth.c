@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
-//#include <openssl/evp.h>
-//#include <openssl/hmac.h>
-//#include <openssl/err.h>
-//#include <evp_int.h>
 
 /* HMAC pkey context structure */
 

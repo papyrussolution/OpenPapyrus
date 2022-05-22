@@ -13,30 +13,16 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <math.h>
 #include "src/enc/cost_enc.h"
 #include "src/enc/vp8i_enc.h"
 #include "src/enc/vp8li_enc.h"
-//#include "src/utils/utils.h"
-// #define PRINT_MEMORY_INFO
-//#ifdef PRINT_MEMORY_INFO
-	//#include <stdio.h>
-//#endif
 
-//------------------------------------------------------------------------------
-
-int WebPGetEncoderVersion(void) {
-	return (ENC_MAJ_VERSION << 16) | (ENC_MIN_VERSION << 8) | ENC_REV_VERSION;
-}
-
-//------------------------------------------------------------------------------
+int WebPGetEncoderVersion(void) { return (ENC_MAJ_VERSION << 16) | (ENC_MIN_VERSION << 8) | ENC_REV_VERSION; }
+//
 // VP8Encoder
-//------------------------------------------------------------------------------
-
-static void ResetSegmentHeader(VP8Encoder* const enc) {
+//
+static void ResetSegmentHeader(VP8Encoder* const enc) 
+{
 	VP8EncSegmentHeader* const hdr = &enc->segment_hdr_;
 	hdr->num_segments_ = enc->config_->segments;
 	hdr->update_map_  = (hdr->num_segments_ > 1);

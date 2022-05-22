@@ -1678,7 +1678,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaType * type, const xmlChar * valu
 		while((*cur == 0) && (cur != endval)) cur++;
 	}
 	/* @todo what return value ? c.f. bug #158628
-	   if(ret != NULL) {
+	   if(ret) {
 	    TODO
 	   } */
 	SAlloc::F(val);
@@ -2399,7 +2399,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 				    }
 				    else
 					    res = xmlAddID(NULL, pNode->doc, value, attr);
-				    if(res == NULL)
+				    if(!res)
 					    ret = 2;
 				    else
 					    attr->atype = XML_ATTRIBUTE_ID;
@@ -2486,7 +2486,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    local = xmlSplitQName2(value, &prefix);
 			    if(prefix) {
 				    xmlNs * ns = xmlSearchNs(pNode->doc, pNode, prefix);
-				    if(ns == NULL)
+				    if(!ns)
 					    ret = 1;
 				    else if(val)
 					    uri = sstrdup(ns->href);

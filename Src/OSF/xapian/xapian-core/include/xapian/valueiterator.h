@@ -19,8 +19,6 @@
 	#error Never use <xapian/valueiterator.h> directly; include <xapian.h> instead.
 #endif
 
-//#include <iterator>
-//#include <string>
 #include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/types.h>
@@ -45,7 +43,8 @@ public:
 	ValueIterator & operator = (ValueIterator && o) /// Move assignment operator.
 	{
 		if(this != &o) {
-			if(internal) decref();
+			if(internal) 
+				decref();
 			internal = o.internal;
 			o.internal = nullptr;
 		}

@@ -70,10 +70,8 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/buffer.h>
-//#include "internal/bio.h"
 #include <openssl/evp.h>
 #include <openssl/rand.h>
-//#include <evp_int.h>
 
 static int ok_write(BIO * h, const char * buf, int num);
 static int ok_read(BIO * h, char * buf, int size);
@@ -405,7 +403,7 @@ static long ok_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 {
 	long ret = 1;
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	switch(cmd) {
 		default:

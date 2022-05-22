@@ -133,8 +133,7 @@ template <class U> inline bool unpack_uint_last(const char ** p, const char * en
 template <class U> inline void pack_uint_preserving_sort(std::string & s, U value)
 {
 	static_assert(std::is_unsigned<U>::value, "Unsigned type required");
-	static_assert(sizeof(U) <= 8,
-	    "Template type U too wide for database format");
+	static_assert(sizeof(U) <= 8, "Template type U too wide for database format");
 	// The clz() functions are undefined for 0, so handle the smallest band
 	// as a special case.
 	if(value < 0x8000) {

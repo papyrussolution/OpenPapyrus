@@ -5225,7 +5225,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
 						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 						{
 							const CheckShipmentRegionalizationRequest * p_req = static_cast<const CheckShipmentRegionalizationRequest *>(rAppBlk.P_AppParam);
@@ -5319,7 +5319,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						// (?) n_app.PutInner(SXml::nst("app", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 						{
 							const VetisModifyEnterpriseRequest * p_req = static_cast<const VetisModifyEnterpriseRequest *>(rAppBlk.P_AppParam);
@@ -5421,7 +5421,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						// (?) n_app.PutInner(SXml::nst("app", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 						{
 							const VetisModifyActivityLocationsRequest * p_req = static_cast<const VetisModifyActivityLocationsRequest *>(rAppBlk.P_AppParam);
@@ -5476,7 +5476,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						// (?) n_app.PutInner(SXml::nst("app", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
 						n_app.PutInner(SXml::nst("app", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
 						n_app.PutInner(SXml::nst("app", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("app", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						n_app.PutInner(SXml::nst("app", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("app", "data"));
 						{
 							const ModifyProducerStockListOperationRequest * p_req = static_cast<const ModifyProducerStockListOperationRequest *>(rAppBlk.P_AppParam);
@@ -5549,7 +5549,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						n_app.PutInner(SXml::nst(/*"app"*/0, "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
 						n_app.PutInner(SXml::nst(/*"app"*/0, "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
 						n_app.PutInner(SXml::nst(/*"app"*/0, "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst(/*"app"*/0, "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						n_app.PutInner(SXml::nst(/*"app"*/0, "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst(/*"app"*/0, "data"));
 						{
 							VetisWithdrawVetDocumentRequest * p_req = (VetisWithdrawVetDocumentRequest *)rAppBlk.P_AppParam;
@@ -5566,7 +5566,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 							}
 							n_req.PutInner("vetDocumentId", VGuidToStr(r_doc.Uuid, temp_buf));
 							n_req.PutInner("withdrawReason", "Ошибка в оформлении");
-							n_req.PutInner("withdrawDate", temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0));
+							n_req.PutInner("withdrawDate", temp_buf.Z().CatCurDateTime(DATF_ISO8601CENT, 0));
 						}
 					}
 				}
@@ -5593,7 +5593,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, 0));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, 0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 						{
 							const VetisRegisterProductionRequest * p_req = static_cast<const VetisRegisterProductionRequest *>(rAppBlk.P_AppParam);
@@ -5715,7 +5715,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, 0));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, 0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 						{
 							const VetisResolveDiscrepancyRequest * p_req = static_cast<const VetisResolveDiscrepancyRequest *>(rAppBlk.P_AppParam);
@@ -5733,7 +5733,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 							{
 								LDATETIME invdt;
 								invdt.Set(p_req->VdRec.WayBillDate, ZEROTIME);
-								n_req.PutInner(SXml::nst("merc", "inventoryDate"), temp_buf.Z().Cat(invdt, DATF_ISO8601|DATF_CENTURY, 0));
+								n_req.PutInner(SXml::nst("merc", "inventoryDate"), temp_buf.Z().Cat(invdt, DATF_ISO8601CENT, 0));
 							}
 							{
 								SXml::WNode n_n2(srb, SXml::nst("merc", "responsible"));
@@ -5944,7 +5944,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 								n_dr.PutAttrib("for", p_sd_ident);
 								//n_dr.PutInner(SXml::nst("vd", "issueSeries"), "is_s");
 								//n_dr.PutInner(SXml::nst("vd", "issueNumber"), "is_n");
-								//n_dr.PutInner(SXml::nst("vd", "issueDate"), temp_buf.Z().Cat(p_req->VdRec.WayBillDate, DATF_ISO8601|DATF_CENTURY));
+								//n_dr.PutInner(SXml::nst("vd", "issueDate"), temp_buf.Z().Cat(p_req->VdRec.WayBillDate, DATF_ISO8601CENT));
 								{
 									SXml::WNode n_reason(srb, SXml::nst("vd", "reason"));
 									if(p_req->VdRec.Flags & VetisVetDocument::fDiscrepancyLack) {
@@ -5982,7 +5982,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, 0));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, 0));
 						{
 							SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 							{
@@ -5999,7 +5999,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									SXml::WNode n_n2(srb, SXml::nst("merc", "delivery"));
 									LDATETIME dtm;
 									dtm.Set(getcurdate_(), ZEROTIME);
-									n_n2.PutInner(SXml::nst("vd", "deliveryDate"), temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0));
+									n_n2.PutInner(SXml::nst("vd", "deliveryDate"), temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0));
 									{
 										SXml::WNode n_c(srb, SXml::nst("vd", "consignor"));
 										PutSingleGuidEntity(srb, "dt", "businessEntity", "bs", p_req->FromBusinessEntGuid);
@@ -6049,7 +6049,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 											SXml::WNode n_wb(srb, SXml::nst("vd", "waybill"));
 											//n_wb.PutInner(SXml::nst("vd", "issueSeries"), 0);
 											n_wb.PutInner(SXml::nst("vd", "issueNumber"), (temp_buf = p_req->VdRec.WayBillNumber).Transf(CTRANSF_INNER_TO_UTF8));
-											n_wb.PutInner(SXml::nst("vd", "issueDate"), temp_buf.Z().Cat(p_req->VdRec.WayBillDate, DATF_ISO8601|DATF_CENTURY));
+											n_wb.PutInner(SXml::nst("vd", "issueDate"), temp_buf.Z().Cat(p_req->VdRec.WayBillDate, DATF_ISO8601CENT));
 											n_wb.PutInner(SXml::nst("vd", "type"), "1");
 										}
 										{
@@ -6148,7 +6148,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.1" : "mercury-g2b.service"); // @note mercury-g2b.service:2.1 not mercury-g2b.service:2.0
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 						{
 							const VetisGetVetDocumentListRequest * p_req = static_cast<const VetisGetVetDocumentListRequest *>(rAppBlk.P_AppParam);
@@ -6162,8 +6162,8 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 								n_req.PutInnerSkipEmpty(SXml::nst("vd", "vetDocumentStatus"), temp_buf);
 							{
 								SXml::WNode n_n2(srb, SXml::nst("vd", "issueDateInterval"));
-								n_n2.PutInner(SXml::nst("bs", "beginDate"), temp_buf.Z().Cat(p_req->Period.Start, DATF_ISO8601|DATF_CENTURY, 0));
-								n_n2.PutInner(SXml::nst("bs", "endDate"), temp_buf.Z().Cat(p_req->Period.Finish, DATF_ISO8601|DATF_CENTURY, 0));
+								n_n2.PutInner(SXml::nst("bs", "beginDate"), temp_buf.Z().Cat(p_req->Period.Start, DATF_ISO8601CENT, 0));
+								n_n2.PutInner(SXml::nst("bs", "endDate"), temp_buf.Z().Cat(p_req->Period.Finish, DATF_ISO8601CENT, 0));
 							}
 							n_req.PutInner(SXml::nst("dt", "enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
 						}
@@ -6194,7 +6194,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 						{
 							const VetisProcessIncomingConsignmentRequest * p_req = static_cast<const VetisProcessIncomingConsignmentRequest *>(rAppBlk.P_AppParam);
@@ -6207,7 +6207,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 								SXml::WNode n_n2(srb, SXml::nst("merc", "delivery"));
 								LDATETIME dtm;
 								dtm.Set(r_doc.IssueDate, ZEROTIME);
-								n_n2.PutInner(SXml::nst("vd", "deliveryDate"), temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0));
+								n_n2.PutInner(SXml::nst("vd", "deliveryDate"), temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0));
 								{
 									SXml::WNode n_c(srb, SXml::nst("vd", "consignor"));
 									PutSingleGuidEntity(srb, "dt", "businessEntity", "bs", r_doc.CertifiedConsignment.Consignor.BusinessEntity.Guid);
@@ -6403,7 +6403,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 										if(p_waybill_ref_doc->IssueNumber.NotEmpty()) // @v10.5.1
 											n_wb.PutInner(SXml::nst("vd", "issueNumber"), (temp_buf = p_waybill_ref_doc->IssueNumber).Transf(CTRANSF_INNER_TO_UTF8));
 										if(checkdate(p_waybill_ref_doc->IssueDate)) // @v10.5.1
-											n_wb.PutInner(SXml::nst("vd", "issueDate"), temp_buf.Z().Cat(p_waybill_ref_doc->IssueDate, DATF_ISO8601|DATF_CENTURY));
+											n_wb.PutInner(SXml::nst("vd", "issueDate"), temp_buf.Z().Cat(p_waybill_ref_doc->IssueDate, DATF_ISO8601CENT));
 										if(p_waybill_ref_doc->DocumentType > 0) {
 											n_wb.PutInner(SXml::nst("vd", "type"), temp_buf.Z().Cat(p_waybill_ref_doc->DocumentType));
 										}
@@ -6498,7 +6498,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 							{
 								SXml::WNode n_n2(srb, "discrepancyReport");
 								//<discrepancyReport xmlns:d7p1="http://api.vetrf.ru/schema/cdm/mercury/vet-document">
-								n_n2.PutInner(SXml::nst("d7p1", "issueDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
+								n_n2.PutInner(SXml::nst("d7p1", "issueDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601CENT));
 								{
 									SXml::WNode n_reason(srb, SXml::nst("d7p1", "reason"), temp_buf = "abc");
 								}
@@ -6534,7 +6534,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "serviceId"), "mercury-g2b.service:2.0");
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
 						{
 							const VetisGetVetDocumentChangesListRequest * p_req = static_cast<const VetisGetVetDocumentChangesListRequest *>(rAppBlk.P_AppParam);
@@ -6544,8 +6544,8 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 							PutListOptions(srb, "bs", p_req->ListOptions);
 							{
 								SXml::WNode n_n2(srb, SXml::nst("bs", "updateDateInterval"));
-								n_n2.PutInner(SXml::nst("bs", "beginDate"), temp_buf.Z().Cat(p_req->Period.Start, DATF_ISO8601|DATF_CENTURY, 0));
-								n_n2.PutInner(SXml::nst("bs", "endDate"), temp_buf.Z().Cat(p_req->Period.Finish, DATF_ISO8601|DATF_CENTURY, 0));
+								n_n2.PutInner(SXml::nst("bs", "beginDate"), temp_buf.Z().Cat(p_req->Period.Start, DATF_ISO8601CENT, 0));
+								n_n2.PutInner(SXml::nst("bs", "endDate"), temp_buf.Z().Cat(p_req->Period.Finish, DATF_ISO8601CENT, 0));
 							}
 							n_req.PutInner(SXml::nst("dt", "enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
 							if(SIntToSymbTab_GetSymb(VetisVetDocType_SymbTab, SIZEOFARRAY(VetisVetDocType_SymbTab), p_req->DocType, temp_buf))
@@ -6576,7 +6576,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						n_app.PutInner(SXml::nst("app", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
 						n_app.PutInner(SXml::nst("app", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
 						n_app.PutInner(SXml::nst("app", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
-						n_app.PutInner(SXml::nst("app", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601|DATF_CENTURY, /*TIMF_TIMEZONE*/0));
+						n_app.PutInner(SXml::nst("app", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("app", "data"));
 						switch(rAppBlk.P_AppParam->Sign) {
 							case VetisApplicationData::signGetStockEntryByUUID: // @v10.5.9
@@ -6737,8 +6737,8 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									PutListOptions(srb, "bs", p_req->ListOptions);
 									{
 										SXml::WNode n_n2(srb, SXml::nst("bs", "updateDateInterval"));
-										n_n2.PutInner(SXml::nst("bs", "beginDate"), temp_buf.Z().Cat(p_req->Period.Start, DATF_ISO8601|DATF_CENTURY, 0));
-										n_n2.PutInner(SXml::nst("bs", "endDate"), temp_buf.Z().Cat(p_req->Period.Finish, DATF_ISO8601|DATF_CENTURY, 0));
+										n_n2.PutInner(SXml::nst("bs", "beginDate"), temp_buf.Z().Cat(p_req->Period.Start, DATF_ISO8601CENT, 0));
+										n_n2.PutInner(SXml::nst("bs", "endDate"), temp_buf.Z().Cat(p_req->Period.Finish, DATF_ISO8601CENT, 0));
 									}
 									if(rAppBlk.VetisSvcVer == 2)
 										n_req.PutInner(SXml::nst("dt", "enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
@@ -7238,7 +7238,7 @@ int PPVetisInterface::GetProductChangesList(uint offs, uint count, LDATE since, 
 						SXml::WNode n_udi(srb, SXml::nst("base", "updateDateInterval"));
 						LDATETIME dtm_since;
 						dtm_since.Set(checkdate(since) ? since : encodedate(1, 1, 2015), ZEROTIME);
-						n_udi.PutInner(SXml::nst("base", "beginDate"), temp_buf.Z().Cat(dtm_since, DATF_ISO8601|DATF_CENTURY, 0));
+						n_udi.PutInner(SXml::nst("base", "beginDate"), temp_buf.Z().Cat(dtm_since, DATF_ISO8601CENT, 0));
 					}
 				}
 			}
@@ -7297,7 +7297,7 @@ int PPVetisInterface::GetSubProductChangesList(uint offs, uint count, LDATE sinc
 						SXml::WNode n_udi(srb, SXml::nst("base", "updateDateInterval"));
 						LDATETIME dtm_since;
 						dtm_since.Set(checkdate(since) ? since : encodedate(1, 1, 2015), ZEROTIME);
-						n_udi.PutInner(SXml::nst("base", "beginDate"), temp_buf.Z().Cat(dtm_since, DATF_ISO8601|DATF_CENTURY, 0));
+						n_udi.PutInner(SXml::nst("base", "beginDate"), temp_buf.Z().Cat(dtm_since, DATF_ISO8601CENT, 0));
 					}
 				}
 			}

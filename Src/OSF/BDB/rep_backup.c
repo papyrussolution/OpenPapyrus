@@ -39,7 +39,7 @@ static int __rep_filedone(ENV*, DB_THREAD_INFO*ip, int, REP*, __rep_fileinfo_arg
 static int __rep_find_dbs(ENV*, FILE_LIST_CTX *);
 static FILE_WALK_FN __rep_find_inmem;
 static int __rep_get_fileinfo(ENV*, const char *, const char *, __rep_fileinfo_args*, uint8 *);
-static int __rep_get_file_list(ENV*, DB_FH*, uint32, uint32*, DBT *);
+static int __rep_get_file_list(ENV*, DB_FH*, uint32, uint32 *, DBT *);
 static int __rep_is_replicated_db(const char *, const char *);
 static int __rep_log_setup(ENV*, REP*, uint32, uint32, DB_LSN *);
 static int __rep_mpf_open(ENV*, DB_MPOOLFILE**, __rep_fileinfo_args*, uint32);

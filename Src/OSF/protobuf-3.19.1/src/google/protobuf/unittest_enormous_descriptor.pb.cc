@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
-constexpr TestEnormousDescriptor::TestEnormousDescriptor(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestEnormousDescriptor::TestEnormousDescriptor(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : long_field_name_is_looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong_1_(nullptr)
   , long_field_name_is_looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong_2_(nullptr)
   , long_field_name_is_looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong_3_(nullptr)
@@ -20098,8 +20097,7 @@ void TestEnormousDescriptor::ArenaDtor(void* object) {
   TestEnormousDescriptor* _this = reinterpret_cast< TestEnormousDescriptor* >(object);
   (void)_this;
 }
-void TestEnormousDescriptor::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestEnormousDescriptor::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestEnormousDescriptor::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }

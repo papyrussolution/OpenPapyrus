@@ -327,7 +327,7 @@ int tls_parse_ctos_status_request(SSL * s, PACKET * pkt, uint context,
 		return 1;
 
 	/* Not defined if we get one of these in a client Certificate */
-	if(x != NULL)
+	if(x)
 		return 1;
 
 	if(!PACKET_get_1(pkt, (uint*)&s->ext.status_type)) {
@@ -1072,16 +1072,12 @@ int tls_parse_ctos_psk(SSL * s, PACKET * pkt, uint context, X509 * x,
 		}
 
 #ifndef OPENSSL_NO_PSK
-		if(sess == NULL
-		 && s->psk_server_callback != NULL
-		 && idlen <= PSK_MAX_IDENTITY_LEN) {
+		if(sess == NULL && s->psk_server_callback != NULL && idlen <= PSK_MAX_IDENTITY_LEN) {
 			char * pskid = NULL;
 			uchar pskdata[PSK_MAX_PSK_LEN];
 			uint pskdatalen;
-
 			if(!PACKET_strndup(&identity, &pskid)) {
-				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PARSE_CTOS_PSK,
-				    ERR_R_INTERNAL_ERROR);
+				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PARSE_CTOS_PSK, ERR_R_INTERNAL_ERROR);
 				return 0;
 			}
 			pskdatalen = s->psk_server_callback(s, pskid, pskdata,

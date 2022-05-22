@@ -9,10 +9,10 @@
 #ifndef ABSL_BASE_CASTS_H_
 #define ABSL_BASE_CASTS_H_
 
-#include <cstring>
-#include <memory>
-#include <type_traits>
-#include <utility>
+//#include <cstring>
+//#include <memory>
+//#include <type_traits>
+//#include <utility>
 #include "absl/base/internal/identity.h"
 #include "absl/base/macros.h"
 #include "absl/meta/type_traits.h"
@@ -150,14 +150,10 @@ template <
 	typename std::enable_if<
 		!internal_casts::is_bitcastable<Dest, Source>::value,
 		int>::type = 0>
-ABSL_DEPRECATED(
-	"absl::bit_cast type requirements were violated. Update the types "
-	"being used such that they are the same size and are both "
-	"TriviallyCopyable.")
-inline Dest bit_cast(const Source& source) {
-	static_assert(sizeof(Dest) == sizeof(Source),
-	    "Source and destination types should have equal sizes.");
-
+ABSL_DEPRECATED("absl::bit_cast type requirements were violated. Update the types being used such that they are the same size and are both TriviallyCopyable.")
+inline Dest bit_cast(const Source& source) 
+{
+	static_assert(sizeof(Dest) == sizeof(Source), "Source and destination types should have equal sizes.");
 	Dest dest;
 	memcpy(&dest, &source, sizeof(dest));
 	return dest;

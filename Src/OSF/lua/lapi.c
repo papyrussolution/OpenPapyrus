@@ -444,7 +444,7 @@ LUA_API const char * lua_pushlstring(lua_State * L, const char * s, size_t len)
 LUA_API const char * lua_pushstring(lua_State * L, const char * s) 
 {
 	lua_lock(L);
-	if(s == NULL)
+	if(!s)
 		setnilvalue(L->top);
 	else {
 		TString * ts;

@@ -171,13 +171,12 @@ void RBBISymbolTable::addEntry(const UnicodeString & key, RBBINode * val, UError
 		return;
 	}
 	e = (RBBISymbolTableEntry*)uhash_get(fHashTable, &key);
-	if(e != NULL) {
+	if(e) {
 		err = U_BRK_VARIABLE_REDFINITION;
 		return;
 	}
-
 	e = new RBBISymbolTableEntry;
-	if(e == NULL) {
+	if(!e) {
 		err = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
@@ -215,7 +214,7 @@ void RBBISymbolTable::rbbiSymtablePrint() const {
 	const UHashElement  * e   = NULL;
 	for(;;) {
 		e = uhash_nextElement(fHashTable,  &pos);
-		if(e == NULL) {
+		if(!e) {
 			break;
 		}
 		RBBISymbolTableEntry  * s   = (RBBISymbolTableEntry*)e->value.pointer;
@@ -228,7 +227,7 @@ void RBBISymbolTable::rbbiSymtablePrint() const {
 	pos = -1;
 	for(;;) {
 		e = uhash_nextElement(fHashTable,  &pos);
-		if(e == NULL) {
+		if(!e) {
 			break;
 		}
 		RBBISymbolTableEntry  * s   = (RBBISymbolTableEntry*)e->value.pointer;

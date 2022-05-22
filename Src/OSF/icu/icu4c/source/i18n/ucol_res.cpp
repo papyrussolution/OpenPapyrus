@@ -465,7 +465,7 @@ const CollationCacheEntry * CollationLoader::loadFromData(UErrorCode & errorCode
 	t->bundle = bundle;
 	bundle = NULL;
 	const CollationCacheEntry * entry = new CollationCacheEntry(validLocale, t.getAlias());
-	if(entry == NULL) {
+	if(!entry) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return nullptr;
 	}
@@ -500,7 +500,7 @@ const CollationCacheEntry * CollationLoader::makeCacheEntry(const Locale &loc,
 		return entryFromCache;
 	}
 	CollationCacheEntry * entry = new CollationCacheEntry(loc, entryFromCache->tailoring);
-	if(entry == NULL) {
+	if(!entry) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		entryFromCache->removeRef();
 		return NULL;
@@ -566,7 +566,7 @@ U_CAPI UEnumeration* U_EXPORT2 ucol_openAvailableLocales(UErrorCode * status) {
 		return NULL;
 	}
 	StringEnumeration * s = icu::Collator::getAvailableLocales();
-	if(s == NULL) {
+	if(!s) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}

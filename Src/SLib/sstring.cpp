@@ -3066,17 +3066,17 @@ int64 FASTCALL satoi64(const char * pT)
 		size_t src_pos = 0;
 		while(oneof2(_p[src_pos], ' ', '\t'))
 			src_pos++;
-		int    is_neg = 0;
-		int    is_hex = 0;
+		bool   is_neg = false;
+		bool   is_hex = false;
 		if(_p[src_pos] == '-') {
 			src_pos++;
-			is_neg = 1;
+			is_neg = true;
 		}
 		else if(_p[src_pos] == '+')
 			src_pos++;
 		if(_p[src_pos] == '0' && oneof2(_p[src_pos+1], 'x', 'X')) {
 			src_pos += 2;
-			is_hex = 1;
+			is_hex = true;
 		}
 		if(is_hex) {
 			if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
@@ -3086,6 +3086,65 @@ int64 FASTCALL satoi64(const char * pT)
 		}
 		if(is_neg && result)
 			result = -result;
+	}
+	return result;
+}
+
+uint64 FASTCALL satou64(const char * pT)
+{
+	uint64 result = 0;
+	if(!isempty(pT)) {
+		const char * _p = pT;
+		size_t src_pos = 0;
+		while(oneof2(_p[src_pos], ' ', '\t'))
+			src_pos++;
+		//bool   is_neg = false;
+		bool   is_hex = false;
+		if(_p[src_pos] == '-') {
+			src_pos++;
+			//is_neg = true;
+		}
+		else if(_p[src_pos] == '+')
+			src_pos++;
+		if(_p[src_pos] == '0' && oneof2(_p[src_pos+1], 'x', 'X')) {
+			src_pos += 2;
+			is_hex = true;
+		}
+		if(is_hex) {
+			if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
+		}
+		else {
+			if(isdec(_p[src_pos])) { do { result = result * 10 + (_p[src_pos] - '0'); } while(isdec(_p[++src_pos])); }
+		}
+		//if(is_neg && result)
+			//result = -result;
+	}
+	return result;
+}
+
+uint64 FASTCALL sxtou64(const char * pT)
+{
+	uint64 result = 0;
+	if(!isempty(pT)) {
+		const char * _p = pT;
+		size_t src_pos = 0;
+		while(oneof2(_p[src_pos], ' ', '\t'))
+			src_pos++;
+		//bool   is_neg = false;
+		bool   is_hex = true;
+		if(_p[src_pos] == '-') {
+			src_pos++;
+			//is_neg = true;
+		}
+		else if(_p[src_pos] == '+')
+			src_pos++;
+		if(_p[src_pos] == '0' && oneof2(_p[src_pos+1], 'x', 'X')) {
+			src_pos += 2;
+			//is_hex = true;
+		}
+		if(ishex(_p[src_pos])) { do { result = result * 16 + hex(_p[src_pos]); } while(ishex(_p[++src_pos])); }
+		//if(is_neg && result)
+			//result = -result;
 	}
 	return result;
 }
@@ -3821,7 +3880,7 @@ bool FASTCALL SStringU::IsEq(const SStringU & rS) const
 {
 	const size_t len = Len();
 	if(len == rS.Len()) {
-		if(len == 0)
+		if(!len)
 			return true;
 		else {
 			assert(P_Buf && rS.P_Buf);
@@ -3848,7 +3907,7 @@ bool FASTCALL SStringU::IsEq(const wchar_t * pS) const
 	const size_t len = Len();
 	const size_t len2 = sstrlen(pS);
 	if(len == len2) {
-		if(len == 0)
+		if(!len)
 			return true;
 		else {
 			assert(P_Buf);
@@ -8201,7 +8260,8 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), dtm.d);
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_DMY|DATF_CENTURY), "29/02/2016");
 				SLTEST_CHECK_EQ(strtodate_(str, DATF_DMY), dtm.d);
-				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_GERMAN|DATF_CENTURY), "29.02.2016");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_GERMANCENT), "29.02.2016");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_GERMAN|DATF_CENTURY), "29.02.2016"); // Проверяем эквивалентность DATF_GERMANCENT==DATF_GERMAN|DATF_CENTURY
 				SLTEST_CHECK_EQ(strtodate_(str, DATF_GERMAN), dtm.d);
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_AMERICAN|DATF_CENTURY), "02/29/2016");
 				SLTEST_CHECK_EQ(strtodate_(str, DATF_AMERICAN), dtm.d);
@@ -8213,7 +8273,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				SLTEST_CHECK_EQ(strtodate_(str, DATF_ITALIAN), dtm.d);
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_JAPAN), "16/02/29");
 				SLTEST_CHECK_EQ(strtodate_(str, DATF_JAPAN), dtm.d);
-				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ISO8601|DATF_CENTURY), "2016-02-29");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ISO8601CENT), "2016-02-29");
 				SLTEST_CHECK_EQ(strtodate_(str, DATF_ISO8601), dtm.d);
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm.d, DATF_ISO8601), "16-02-29");
 				SLTEST_CHECK_EQ(strtodate_(str, DATF_ISO8601), dtm.d);
@@ -8238,7 +8298,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_MS|TIMF_NODIV), "1702");
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm.t, TIMF_HMS|TIMF_MSEC), "21:17:02.250");
 
-				SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), "2016-02-29T21:17:02");
+				SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_ISO8601CENT, 0), "2016-02-29T21:17:02");
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_ISO8601, 0), "16-02-29T21:17:02");
 				SLTEST_CHECK_EQ(str.Z().Cat(dtm, DATF_MDY|DATF_CENTURY, TIMF_HMS|TIMF_MSEC), "02/29/2016 21:17:02.250");
 				//

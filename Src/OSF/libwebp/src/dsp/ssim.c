@@ -13,22 +13,17 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <stdlib.h>  // for abs()
-//#include "src/dsp/dsp.h"
 
 #if !defined(WEBP_REDUCE_SIZE)
-
-//------------------------------------------------------------------------------
+//
 // SSIM / PSNR
-
+//
 // hat-shaped filter. Sum of coefficients is equal to 16.
-static const uint32_t kWeight[2 * VP8_SSIM_KERNEL + 1] = {
-	1, 2, 3, 4, 3, 2, 1
-};
+static const uint32_t kWeight[2 * VP8_SSIM_KERNEL + 1] = { 1, 2, 3, 4, 3, 2, 1 };
 static const uint32_t kWeightSum = 16 * 16;   // sum{kWeight}^2
 
-static FORCEINLINE double SSIMCalculation(const VP8DistoStats* const stats, uint32_t N /*num samples*/) {
+static FORCEINLINE double SSIMCalculation(const VP8DistoStats* const stats, uint32_t N /*num samples*/) 
+{
 	const uint32_t w2 =  N * N;
 	const uint32_t C1 = 20 * w2;
 	const uint32_t C2 = 60 * w2;
@@ -150,7 +145,7 @@ WEBP_DSP_INIT_FUNC(VP8SSIMDspInit) {
 	VP8AccumulateSSE = AccumulateSSE_C;
 #endif
 
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			VP8SSIMDspInitSSE2();

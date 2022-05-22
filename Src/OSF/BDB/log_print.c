@@ -262,7 +262,7 @@ static int __log_print_dbregister(ENV * env, DBT * recbuf, DB_LOG * dblp)
 	    case DBREG_CHKPNT:
 	    case DBREG_OPEN:
 	    case DBREG_REOPEN:
-		if(dbp != NULL) {
+		if(dbp) {
 			if(memcmp(dbp->fileid, argp->uid.data, DB_FILE_ID_LEN) == 0 && dbp->meta_pgno == argp->meta_pgno)
 				goto done;
 			if((__db_close(dbp, NULL, DB_NOSYNC)) != 0)

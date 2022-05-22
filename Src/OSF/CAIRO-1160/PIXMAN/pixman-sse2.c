@@ -469,8 +469,8 @@ static force_inline __m128i combine4(const __m128i * ps, const __m128i * pm)
 }
 
 static force_inline void core_combine_over_u_sse2_mask(uint32 *    pd,
-    const uint32*    ps,
-    const uint32*    pm,
+    const uint32 *    ps,
+    const uint32 *    pm,
     int w)
 {
 	uint32 s, d;
@@ -548,7 +548,7 @@ static force_inline void core_combine_over_u_sse2_mask(uint32 *    pd,
 }
 
 static force_inline void core_combine_over_u_sse2_no_mask(uint32 * pd,
-    const uint32*    ps,
+    const uint32 *    ps,
     int w)
 {
 	uint32 s, d;
@@ -1127,9 +1127,9 @@ static void sse2_combine_xor_u(pixman_implementation_t * imp,
 {
 	int w = width;
 	uint32 s, d;
-	uint32* pd = dst;
-	const uint32* ps = src;
-	const uint32* pm = mask;
+	uint32 * pd = dst;
+	const uint32 * ps = src;
+	const uint32 * pm = mask;
 
 	__m128i xmm_src, xmm_src_lo, xmm_src_hi;
 	__m128i xmm_dst, xmm_dst_lo, xmm_dst_hi;
@@ -1200,9 +1200,9 @@ static force_inline void sse2_combine_add_u(pixman_implementation_t * imp,
 {
 	int w = width;
 	uint32 s, d;
-	uint32* pd = dst;
-	const uint32* ps = src;
-	const uint32* pm = mask;
+	uint32 * pd = dst;
+	const uint32 * ps = src;
+	const uint32 * pm = mask;
 
 	while(w && (uintptr_t)pd & 15) {
 		s = combine1(ps, pm);
@@ -4173,11 +4173,11 @@ static void sse2_composite_over_8888_8888_8888(pixman_implementation_t * imp, pi
 }
 
 /* A variant of 'sse2_combine_over_u' with minor tweaks */
-static force_inline void scaled_nearest_scanline_sse2_8888_8888_OVER(uint32 * pd, const uint32* ps,
+static force_inline void scaled_nearest_scanline_sse2_8888_8888_OVER(uint32 * pd, const uint32 * ps,
     int32 w, pixman_fixed_t vx, pixman_fixed_t unit_x, pixman_fixed_t src_width_fixed, boolint fully_transparent_src)
 {
 	uint32 s, d;
-	const uint32* pm = NULL;
+	const uint32 * pm = NULL;
 	__m128i xmm_dst_lo, xmm_dst_hi;
 	__m128i xmm_src_lo, xmm_src_hi;
 	__m128i xmm_alpha_lo, xmm_alpha_hi;

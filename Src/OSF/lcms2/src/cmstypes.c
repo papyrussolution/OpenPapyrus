@@ -14,7 +14,7 @@
 //
 #include "lcms2_internal.h"
 #pragma hdrstop
-
+//
 // Tag Serialization  -----------------------------------------------------------------------------
 // This file implements every single tag and tag type as described in the ICC spec. Some types
 // have been deprecated, like ncl and Data. There is no implementation for those types as there
@@ -23,8 +23,7 @@
 // allows to define new tags using any existing type. Next plug-in type allows to define new types
 // and the third one is very specific: allows to extend the number of elements in the multiprocessing
 // elements special type.
-//--------------------------------------------------------------------------------------------------
-
+//
 // Some broken types
 #define cmsCorbisBrokenXYZtype    ((cmsTagTypeSignature)0x17A505B8)
 #define cmsMonacoBrokenCurveType  ((cmsTagTypeSignature)0x9478ee00)
@@ -96,8 +95,8 @@ static cmsTagTypeHandler* GetHandler(cmsTagTypeSignature sig, _cmsTagTypeLinkedL
 static boolint _cmsWriteWCharArray(cmsIOHANDLER* io, uint32 n, const wchar_t * Array)
 {
 	uint32 i;
-	_cmsAssert(io);
-	_cmsAssert(!(Array == NULL && n > 0));
+	assert(io);
+	assert(!(Array == NULL && n > 0));
 	for(i = 0; i < n; i++) {
 		if(!_cmsWriteUInt16Number(io, (uint16)Array[i])) return FALSE;
 	}
@@ -109,7 +108,7 @@ static boolint _cmsReadWCharArray(cmsIOHANDLER* io, uint32 n, wchar_t * Array)
 {
 	uint32 i;
 	uint16 tmp;
-	_cmsAssert(io);
+	assert(io);
 	for(i = 0; i < n; i++) {
 		if(Array != NULL) {
 			if(!_cmsReadUInt16Number(io, &tmp)) return FALSE;
@@ -159,15 +158,13 @@ static boolint ReadPositionTable(struct _cms_typehandler_struct* self, cmsIOHAND
 		// This is the reader callback
 		if(!ElementFn(self, io, Cargo, i, ElementSizes[i])) goto Error;
 	}
-
 	// Success
-	if(ElementOffsets != NULL) _cmsFree(io->ContextID, ElementOffsets);
-	if(ElementSizes != NULL) _cmsFree(io->ContextID, ElementSizes);
+	_cmsFree(io->ContextID, ElementOffsets);
+	_cmsFree(io->ContextID, ElementSizes);
 	return TRUE;
-
 Error:
-	if(ElementOffsets != NULL) _cmsFree(io->ContextID, ElementOffsets);
-	if(ElementSizes != NULL) _cmsFree(io->ContextID, ElementSizes);
+	_cmsFree(io->ContextID, ElementOffsets);
+	_cmsFree(io->ContextID, ElementSizes);
 	return FALSE;
 }
 
@@ -211,16 +208,13 @@ static boolint WritePositionTable(struct _cms_typehandler_struct* self, cmsIOHAN
 		if(!_cmsWriteUInt32Number(io, ElementOffsets[i])) goto Error;
 		if(!_cmsWriteUInt32Number(io, ElementSizes[i])) goto Error;
 	}
-
 	if(!io->Seek(io, CurrentPos)) goto Error;
-
-	if(ElementOffsets != NULL) _cmsFree(io->ContextID, ElementOffsets);
-	if(ElementSizes != NULL) _cmsFree(io->ContextID, ElementSizes);
+	_cmsFree(io->ContextID, ElementOffsets);
+	_cmsFree(io->ContextID, ElementSizes);
 	return TRUE;
-
 Error:
-	if(ElementOffsets != NULL) _cmsFree(io->ContextID, ElementOffsets);
-	if(ElementSizes != NULL) _cmsFree(io->ContextID, ElementSizes);
+	_cmsFree(io->ContextID, ElementOffsets);
+	_cmsFree(io->ContextID, ElementSizes);
 	return FALSE;
 }
 
@@ -232,7 +226,7 @@ Error:
 //values. Tristimulus values must be non-negative. The signed encoding allows for
 //implementation optimizations by minimizing the number of fixed formats.
 
-static void * Type_XYZ_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_XYZ_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsCIEXYZ* xyz;
 	*nItems = 0;
@@ -278,7 +272,7 @@ static cmsTagTypeSignature DecideXYZtype(double ICCVersion, const void * Data)
 // The chromaticity tag type provides basic chromaticity data and type of
 // phosphors or colorants of a monitor to applications and utilities.
 
-static void * Type_Chromaticity_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_Chromaticity_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsCIExyYTRIPLE* chrm;
 	uint16 nChans, Table;
@@ -367,7 +361,7 @@ static void Type_Chromaticity_Free(struct _cms_typehandler_struct* self, void * 
 // used to specify the laydown order of the colorants.
 
 static void * Type_ColorantOrderType_Read(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+    cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint8 * ColorantOrder;
 	uint32 Count;
@@ -422,7 +416,7 @@ static void Type_ColorantOrderType_Free(struct _cms_typehandler_struct* self, vo
 // This type represents an array of generic 4-byte/32-bit fixed point quantity.
 // The number of values is determined from the size of the tag.
 
-static void * Type_S15Fixed16_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_S15Fixed16_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	double *  array_double;
 	uint32 i, n;
@@ -472,7 +466,7 @@ static void Type_S15Fixed16_Free(struct _cms_typehandler_struct* self, void * Pt
 // This type represents an array of generic 4-byte/32-bit quantity.
 // The number of values is determined from the size of the tag.
 
-static void * Type_U16Fixed16_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_U16Fixed16_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	double *  array_double;
 	uint32 v;
@@ -528,7 +522,7 @@ static void Type_U16Fixed16_Free(struct _cms_typehandler_struct* self, void * Pt
 // Typically this type is used for registered tags that can be displayed on many
 // development systems as a sequence of four characters.
 
-static void * Type_Signature_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_Signature_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsSignature* SigPtr = (cmsSignature*)_cmsMalloc(self->ContextID, sizeof(cmsSignature));
 	if(SigPtr == NULL) return NULL;
@@ -564,7 +558,7 @@ static void Type_Signature_Free(struct _cms_typehandler_struct* self, void * Ptr
 // The length of the string is obtained by subtracting 8 from the element size portion
 // of the tag itself. This string must be terminated with a 00h byte.
 
-static void * Type_Text_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_Text_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	char * Text = NULL;
 	// Create a container
@@ -652,7 +646,7 @@ static cmsTagTypeSignature DecideTextType(double ICCVersion, const void * Data)
 // ********************************************************************************
 
 // General purpose data type
-static void * Type_Data_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_Data_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsICCData* BinData;
 	uint32 LenOfData;
@@ -703,7 +697,7 @@ static void Type_Data_Free(struct _cms_typehandler_struct* self, void * Ptr)
 // Type cmsSigTextDescriptionType
 // ********************************************************************************
 
-static void * Type_Text_Description_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems,
+static void * Type_Text_Description_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems,
     uint32 SizeOfTag)
 {
 	char * Text = NULL;
@@ -900,7 +894,7 @@ static cmsTagTypeSignature DecideTextDescType(double ICCVersion, const void * Da
 // Type cmsSigCurveType
 // ********************************************************************************
 
-static void * Type_Curve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_Curve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint32 Count;
 	cmsToneCurve * NewGamma;
@@ -998,7 +992,7 @@ static cmsTagTypeSignature DecideCurveType(double ICCVersion, const void * Data)
 	return cmsSigParametricCurveType;
 }
 
-static void * Type_ParametricCurve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_ParametricCurve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	static const int ParamsByType[] = { 1, 3, 4, 5, 7 };
 	double Params[10];
@@ -1082,7 +1076,7 @@ static void Type_ParametricCurve_Free(struct _cms_typehandler_struct* self, void
 // the dateTimeNumber as UTC, show the equivalent local time (at current locale), or
 // display both UTC and local versions of the dateTimeNumber.
 
-static void * Type_DateTime_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_DateTime_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsDateTimeNumber timestamp;
 	struct tm * NewDateTime;
@@ -1128,7 +1122,7 @@ static void Type_DateTime_Free(struct _cms_typehandler_struct* self, void * Ptr)
    specifications.
  */
 
-static void * Type_Measurement_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_Measurement_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsICCMeasurementConditions mc;
 	memzero(&mc, sizeof(mc));
@@ -1179,7 +1173,7 @@ static void Type_Measurement_Free(struct _cms_typehandler_struct* self, void * P
 //   taken from the size of tag if this tag is embedded as part of bigger structures (profileSequenceDescTag, for
 // instance)
 //
-static void * Type_MLU_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_MLU_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsMLU* mlu;
 	uint32 Count, RecLen, NumOfWchar;
@@ -1441,7 +1435,7 @@ static uint32 uipow(uint32 n, uint32 a, uint32 b)
 // 8 bit lut may be scaled easely to v4 PCS, but we need also to properly adjust
 // PCS on BToAxx tags and AtoB if abstract. We need to fix input direction.
 
-static void * Type_LUT8_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_LUT8_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint8 InputChannels, OutputChannels, CLUTpoints;
 	uint8 * Temp = NULL;
@@ -1669,7 +1663,7 @@ static boolint Write16bitTables(cmsContext ContextID, cmsIOHANDLER* io, _cmsStag
 	uint32 i;
 	uint16 val;
 	uint32 nEntries;
-	_cmsAssert(Tables != NULL);
+	assert(Tables != NULL);
 	nEntries = Tables->TheCurves[0]->nEntries;
 	for(i = 0; i < Tables->nCurves; i++) {
 		for(j = 0; j < nEntries; j++) {
@@ -1682,7 +1676,7 @@ static boolint Write16bitTables(cmsContext ContextID, cmsIOHANDLER* io, _cmsStag
 	CXX_UNUSED(ContextID);
 }
 
-static void * Type_LUT16_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_LUT16_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint8 InputChannels, OutputChannels, CLUTpoints;
 	cmsPipeline * NewLUT = NULL;
@@ -2041,7 +2035,7 @@ Error:
 
  */
 
-static void * Type_LUTA2B_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_LUTA2B_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint32 BaseOffset;
 	uint8 inputChan;        // Number of input channels
@@ -2315,7 +2309,7 @@ static void Type_LUTA2B_Free(struct _cms_typehandler_struct* self, void * Ptr)
 
 // LutBToA type
 
-static void * Type_LUTB2A_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_LUTB2A_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint8 inputChan;        // Number of input channels
 	uint8 outputChan;       // Number of output channels
@@ -2489,7 +2483,7 @@ static void Type_LUTB2A_Free(struct _cms_typehandler_struct* self, void * Ptr)
    of a lut tag, and so on.
  */
 
-static void * Type_ColorantTable_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_ColorantTable_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint32 i, Count;
 	cmsNAMEDCOLORLIST* List;
@@ -2570,7 +2564,7 @@ static void Type_ColorantTable_Free(struct _cms_typehandler_struct* self, void *
 //termination. In order to maintain maximum portability, it is strongly recommended
 //that special characters of the 7-bit ASCII set not be used.
 
-static void * Type_NamedColor_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_NamedColor_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint32 vendorFlag;      // Bottom 16 bits for ICC use
 	uint32 count;           // Count of named colors
@@ -2698,7 +2692,7 @@ static boolint ReadEmbeddedText(struct _cms_typehandler_struct* self, cmsIOHANDL
 	}
 }
 
-static void * Type_ProfileSequenceDesc_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_ProfileSequenceDesc_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsSEQ* OutSeq;
 	uint32 i, Count;
@@ -2798,7 +2792,7 @@ static boolint ReadSeqID(struct _cms_typehandler_struct* self, cmsIOHANDLER* io,
 	return TRUE;
 }
 
-static void * Type_ProfileSequenceId_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_ProfileSequenceId_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsSEQ* OutSeq;
 	uint32 Count;
@@ -2866,7 +2860,7 @@ static void Type_ProfileSequenceId_Free(struct _cms_typehandler_struct* self, vo
    generation and a text string which is a general description of the method used
    for the ucr/bg.
  */
-static void * Type_UcrBg_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_UcrBg_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsUcrBg* n = (cmsUcrBg*)_cmsMallocZero(self->ContextID, sizeof(cmsUcrBg));
 	uint32 CountUcr, CountBg;
@@ -2976,7 +2970,7 @@ static void Type_UcrBg_Free(struct _cms_typehandler_struct* self, void * Ptr)
  */
 
 // Auxiliary, read an string specified as count + string
-static boolint ReadCountAndSting(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsMLU* mlu, uint32* SizeOfTag, const char * Section)
+static boolint ReadCountAndSting(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsMLU* mlu, uint32 * SizeOfTag, const char * Section)
 {
 	uint32 Count;
 	char * Text;
@@ -3008,7 +3002,7 @@ static boolint WriteCountAndSting(struct _cms_typehandler_struct* self, cmsIOHAN
 	return TRUE;
 }
 
-static void * Type_CrdInfo_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_CrdInfo_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsMLU* mlu = cmsMLUalloc(self->ContextID, 5);
 	*nItems = 0;
@@ -3062,7 +3056,7 @@ static void Type_CrdInfo_Free(struct _cms_typehandler_struct* self, void * Ptr)
 //The screeningType describes various screening parameters including screen
 //frequency, screening angle, and spot shape.
 
-static void * Type_Screening_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_Screening_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsScreening* sc = NULL;
 	uint32 i;
@@ -3124,7 +3118,7 @@ static void Type_Screening_Free(struct _cms_typehandler_struct* self, void * Ptr
 //CIE 'absolute' illuminant white point tristimulus values and CIE 'absolute'
 //surround tristimulus values.
 //
-static void * Type_ViewingConditions_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_ViewingConditions_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsICCViewingConditions* vc = NULL;
 	vc = (cmsICCViewingConditions*)_cmsMallocZero(self->ContextID, sizeof(cmsICCViewingConditions));
@@ -3287,7 +3281,7 @@ static boolint ReadMPECurve(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 	CXX_UNUSED(SizeOfTag);
 }
 
-static void * Type_MPEcurve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_MPEcurve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsStage * mpe = NULL;
 	uint16 InputChans, OutputChans;
@@ -3409,7 +3403,7 @@ static boolint Type_MPEcurve_Write(struct _cms_typehandler_struct* self, cmsIOHA
 // is organized as follows:
 // array = [e11, e12, ..., e1P, e21, e22, ..., e2P, ..., eQ1, eQ2, ..., eQP, e1, e2, ..., eQ]
 
-static void * Type_MPEmatrix_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_MPEmatrix_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsStage * mpe;
 	uint16 InputChans, OutputChans;
@@ -3487,7 +3481,7 @@ static boolint Type_MPEmatrix_Write(struct _cms_typehandler_struct* self, cmsIOH
 	CXX_UNUSED(self);
 }
 
-static void * Type_MPEclut_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_MPEclut_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsStage * mpe = NULL;
 	uint16 InputChans, OutputChans;
@@ -3606,7 +3600,7 @@ static boolint ReadMPEElem(struct _cms_typehandler_struct* self, cmsIOHANDLER* i
 }
 
 // This is the main dispatcher for MPE
-static void * Type_MPE_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_MPE_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint16 InputChans, OutputChans;
 	uint32 ElementCount;
@@ -3707,25 +3701,20 @@ static boolint Type_MPE_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER
 
 	// Write the directory
 	CurrentPos = io->Tell(io);
-
 	if(!io->Seek(io, DirectoryPos)) goto Error;
-
 	for(i = 0; i < ElemCount; i++) {
 		if(!_cmsWriteUInt32Number(io, ElementOffsets[i])) goto Error;
 		if(!_cmsWriteUInt32Number(io, ElementSizes[i])) goto Error;
 	}
-
-	if(!io->Seek(io, CurrentPos)) goto Error;
-
-	if(ElementOffsets != NULL) _cmsFree(self->ContextID, ElementOffsets);
-	if(ElementSizes != NULL) _cmsFree(self->ContextID, ElementSizes);
+	if(!io->Seek(io, CurrentPos)) 
+		goto Error;
+	_cmsFree(self->ContextID, ElementOffsets);
+	_cmsFree(self->ContextID, ElementSizes);
 	return TRUE;
-
 Error:
-	if(ElementOffsets != NULL) _cmsFree(self->ContextID, ElementOffsets);
-	if(ElementSizes != NULL) _cmsFree(self->ContextID, ElementSizes);
+	_cmsFree(self->ContextID, ElementOffsets);
+	_cmsFree(self->ContextID, ElementSizes);
 	return FALSE;
-
 	CXX_UNUSED(nItems);
 }
 
@@ -3757,7 +3746,7 @@ typedef struct {
 	double Max;
 } _cmsVCGTGAMMA;
 
-static void * Type_vcgt_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_vcgt_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint32 TagType, n, i;
 	cmsToneCurve ** Curves;
@@ -4140,7 +4129,7 @@ static boolint WriteOneMLUC(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 	return TRUE;
 }
 
-static void * Type_Dictionary_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_Dictionary_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsHANDLE hDict;
 	uint32 i, Count, Length;

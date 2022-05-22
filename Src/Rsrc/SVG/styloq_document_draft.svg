@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 18.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Document"
+   x="0px"
+   y="0px"
+   viewBox="0 0 20 20"
+   enable-background="new 0 0 20 20"
+   xml:space="preserve"
+   sodipodi:docname="styloq_document_draft.svg"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"><metadata
+   id="metadata822"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+   id="defs820" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview818"
+   showgrid="false"
+   inkscape:zoom="40.9"
+   inkscape:cx="4.6877441"
+   inkscape:cy="11.11163"
+   inkscape:window-x="-8"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Document" />
+<path
+   fill-rule="evenodd"
+   clip-rule="evenodd"
+   d="M16,1H4C3.447,1,3,1.447,3,2v16c0,0.552,0.447,1,1,1h12c0.553,0,1-0.448,1-1V2  C17,1.448,16.553,1,16,1z M15,17H5V3h10V17z"
+   id="path815" />
+<g
+   id="g842"
+   transform="matrix(0.01984333,0,0,0.0212406,4.8826736,4.2817584)"
+   style="stroke-width:48.70900345"><g
+     id="g840"
+     style="stroke-width:48.70900345"><path
+       id="path838"
+       d="m 455.1,137.9 -32.4,32.4 -81,-81.1 32.4,-32.4 c 6.6,-6.6 18.1,-6.6 24.7,0 l 56.3,56.4 c 6.8,6.8 6.8,17.9 0,24.7 z m -270.7,271 -81,-81.1 209.4,-209.7 81,81.1 z m -99.7,-42 60.6,60.7 -84.4,23.8 z M 484,84.3 427.7,27.9 c -11,-11 -50.7,-31.8 -82.4,0 L 60,313.4 c -2.5,2.5 -4.3,5.5 -5.2,8.9 l -43,153.1 c -2,7.1 0.1,14.7 5.2,20 5.2,5.3 15.6,6.2 20,5.2 l 153,-43.1 c 3.4,-0.9 6.4,-2.7 8.9,-5.2 L 484,166.8 c 22.7,-22.7 22.7,-59.7 0,-82.5 z"
+       inkscape:connector-curvature="0"
+       style="stroke-width:48.70900345" /></g></g></svg>

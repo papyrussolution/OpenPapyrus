@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
-//#include <openssl/conf.h>
-//#include <openssl/x509v3.h>
 
 /* Multi string module: add table entries from a given section */
 

@@ -86,7 +86,7 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 			if((sp = strchr(p, ' ')) != NULL)
 				archive_strappend_char(&cmdline, '"');
 			archive_strcat(&cmdline, p);
-			if(sp != NULL)
+			if(sp)
 				archive_strappend_char(&cmdline, '"');
 		}
 		else {
@@ -99,7 +99,7 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 		if((sp = strchr(arg0, ' ')) != NULL)
 			archive_strappend_char(&cmdline, '"');
 		archive_strcat(&cmdline, arg0);
-		if(sp != NULL)
+		if(sp)
 			archive_strappend_char(&cmdline, '"');
 	}
 

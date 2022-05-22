@@ -39,12 +39,6 @@
 #if CAIRO_HAS_VG_SURFACE // {
 #include "cairo-vg.h"
 #include "cairo-cache-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-path-fixed-private.h"
-//#include "cairo-recording-surface-inline.h"
-//#include "cairo-surface-clipper-private.h"
 #include <pixman.h>
 #include <VG/openvg.h>
 
@@ -1412,7 +1406,7 @@ static const cairo_surface_backend_t cairo_vg_surface_backend = {
 static cairo_surface_t * _vg_surface_create_internal(cairo_vg_context_t * context, VGImage image, VGImageFormat format, int width, int height)
 {
 	cairo_vg_surface_t * surface = _cairo_malloc(sizeof(cairo_vg_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	surface->context = _vg_context_reference(context);
 	surface->image  = image;

@@ -243,7 +243,7 @@ static int LogLuvDecode24(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 	tmsize_t i;
 	tmsize_t npixels;
 	uchar * bp;
-	uint32* tp;
+	uint32 * tp;
 	assert(s == 0);
 	assert(sp);
 	npixels = occ / sp->pixel_size;
@@ -289,7 +289,7 @@ static int LogLuvDecode32(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 	tmsize_t i;
 	tmsize_t npixels;
 	uchar * bp;
-	uint32* tp;
+	uint32 * tp;
 	uint32 b;
 	tmsize_t cc;
 	int rc;
@@ -485,7 +485,7 @@ static int LogLuvEncode24(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 	tmsize_t npixels;
 	tmsize_t occ;
 	uint8 * op;
-	uint32* tp;
+	uint32 * tp;
 
 	assert(s == 0);
 	assert(sp);
@@ -536,7 +536,7 @@ static int LogLuvEncode32(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 	tmsize_t j;
 	tmsize_t npixels;
 	uint8 * op;
-	uint32* tp;
+	uint32 * tp;
 	uint32 b;
 	tmsize_t occ;
 	int rc = 0, mask;
@@ -942,7 +942,7 @@ static void Luv24toRGB(LogLuvState* sp, uint8 * op, tmsize_t n)
 
 static void Luv24fromXYZ(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
-	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	float* xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		*luv++ = LogLuv24fromXYZ(xyz, sp->encode_meth);
@@ -1021,7 +1021,7 @@ LOGLUV_FUNC_QUALIF uint32 LogLuv32fromXYZ(float XYZ[3], int em)
 
 static void Luv32toXYZ(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
-	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	float* xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		LogLuv32toXYZ(*luv++, xyz);
@@ -1031,7 +1031,7 @@ static void Luv32toXYZ(LogLuvState* sp, uint8 * op, tmsize_t n)
 
 static void Luv32toLuv48(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
-	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	int16* luv3 = reinterpret_cast<int16 *>(op);
 	while(n-- > 0) {
 		double u, v;
@@ -1058,7 +1058,7 @@ static void Luv32toRGB(LogLuvState* sp, uint8 * op, tmsize_t n)
 
 static void Luv32fromXYZ(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
-	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	float* xyz = reinterpret_cast<float *>(op);
 	while(n-- > 0) {
 		*luv++ = LogLuv32fromXYZ(xyz, sp->encode_meth);
@@ -1068,7 +1068,7 @@ static void Luv32fromXYZ(LogLuvState* sp, uint8 * op, tmsize_t n)
 
 static void Luv32fromLuv48(LogLuvState* sp, uint8 * op, tmsize_t n)
 {
-	uint32* luv = reinterpret_cast<uint32 *>(sp->tbuf);
+	uint32 * luv = reinterpret_cast<uint32 *>(sp->tbuf);
 	int16* luv3 = reinterpret_cast<int16 *>(op);
 	if(sp->encode_meth == SGILOGENCODE_NODITHER) {
 		while(n-- > 0) {

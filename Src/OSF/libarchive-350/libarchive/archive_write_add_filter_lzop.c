@@ -113,7 +113,7 @@ int archive_write_add_filter_lzop(struct archive * _a)
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = (write_lzop *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
-		archive_set_error(_a, ENOMEM, "Out of memory");
+		archive_set_error(_a, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	f->name = "lzop";
@@ -141,7 +141,7 @@ int archive_write_add_filter_lzop(struct archive * _a)
 	data->pdata = __archive_write_program_allocate("lzop");
 	if(data->pdata == NULL) {
 		SAlloc::F(data);
-		archive_set_error(_a, ENOMEM, "Out of memory");
+		archive_set_error(_a, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 0;

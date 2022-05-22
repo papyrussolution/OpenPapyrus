@@ -283,7 +283,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    OPENSSL_strlcat(p, "b", sizeof(p));
 #endif
 		    fp = openssl_fopen(static_cast<const char *>(ptr), p);
-		    if(fp == NULL) {
+		    if(!fp) {
 			    SYSerr(SYS_F_FOPEN, get_last_sys_error());
 			    ERR_add_error_data(5, "fopen('", ptr, "','", p, "')");
 			    BIOerr(BIO_F_FILE_CTRL, ERR_R_SYS_LIB);

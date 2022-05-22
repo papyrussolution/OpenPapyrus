@@ -72,12 +72,10 @@ int PPViewAmountType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				break;
 			case 2: // Наименование типа налога
 				if(p_item->Tax == GTAX_VAT) {
-					// @v9.0.2 PPGetWord(PPWORD_VAT, 0, temp_buf);
-					PPLoadString("vat", temp_buf); // @v9.0.2
+					PPLoadString("vat", temp_buf);
 				}
 				else if(p_item->Tax == GTAX_SALES) {
-			 		// @v9.2.6 PPGetWord(PPWORD_STAX, 0, temp_buf);
-			 		PPLoadString("salestax", temp_buf); // @v9.2.6
+			 		PPLoadString("salestax", temp_buf);
 				}
 				pBlk->Set(temp_buf);
 				break;

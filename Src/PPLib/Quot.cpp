@@ -270,27 +270,31 @@ void QuotUpdDialog::GetQuotKindDefaults(int quotCls, PPID qkID, PPID * pAcsID, P
 	PPID   acc_sheet_id = 0;
 	long   qk_sel_extra = 1;
 	PPID   new_qk_id = qkID;
-	if(QuotCls == PPQuot::clsSupplDeal) {
-		acc_sheet_id = GetSupplAccSheet();
-		qk_sel_extra = QuotKindFilt::fSupplDeal;
-		if(!oneof3(new_qk_id, QkSpc.SupplDealID, QkSpc.SupplDevDnID, QkSpc.SupplDevUpID))
-			new_qk_id = QkSpc.SupplDealID;
-	}
-	else if(QuotCls == PPQuot::clsMtx) {
-		qk_sel_extra = QuotKindFilt::fGoodsMatrix;
-		new_qk_id = QkSpc.MtxID;
-	}
-	else if(QuotCls == PPQuot::clsPredictCoeff) {
-		qk_sel_extra = QuotKindFilt::fPredictCoeff;
-		new_qk_id = QkSpc.PredictCoeffID;
-	}
-	else {
-		PPQuotKind qk_rec;
-		if(new_qk_id && QkObj.Fetch(new_qk_id, &qk_rec) > 0 && qk_rec.AccSheetID)
-			acc_sheet_id = qk_rec.AccSheetID;
-		else
-			acc_sheet_id = GetSellAccSheet();
-		qk_sel_extra = 1;
+	switch(QuotCls) {
+		case PPQuot::clsSupplDeal:
+			acc_sheet_id = GetSupplAccSheet();
+			qk_sel_extra = QuotKindFilt::fSupplDeal;
+			if(!oneof3(new_qk_id, QkSpc.SupplDealID, QkSpc.SupplDevDnID, QkSpc.SupplDevUpID))
+				new_qk_id = QkSpc.SupplDealID;
+			break;
+		case PPQuot::clsMtx:
+			qk_sel_extra = QuotKindFilt::fGoodsMatrix;
+			new_qk_id = QkSpc.MtxID;
+			break;
+		case PPQuot::clsPredictCoeff:
+			qk_sel_extra = QuotKindFilt::fPredictCoeff;
+			new_qk_id = QkSpc.PredictCoeffID;
+			break;
+		default:
+			{
+				PPQuotKind qk_rec;
+				if(new_qk_id && QkObj.Fetch(new_qk_id, &qk_rec) > 0 && qk_rec.AccSheetID)
+					acc_sheet_id = qk_rec.AccSheetID;
+				else
+					acc_sheet_id = GetSellAccSheet();
+				qk_sel_extra = 1;
+			}
+			break;
 	}
 	ASSIGN_PTR(pAcsID, acc_sheet_id);
 	ASSIGN_PTR(pDefQkID, new_qk_id);

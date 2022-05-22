@@ -188,7 +188,7 @@ static uint FSE_isLittleEndian(void)
 #if defined(FSE_FORCE_MEMORY_ACCESS) && (FSE_FORCE_MEMORY_ACCESS==2)
 
 static uint16 FSE_read16(const void* memPtr) { return *(const uint16*)memPtr; }
-static uint32 FSE_read32(const void* memPtr) { return *(const uint32*)memPtr; }
+static uint32 FSE_read32(const void* memPtr) { return *(const uint32 *)memPtr; }
 static uint64 FSE_read64(const void* memPtr) { return *(const uint64*)memPtr; }
 
 #elif defined(FSE_FORCE_MEMORY_ACCESS) && (FSE_FORCE_MEMORY_ACCESS==1)
@@ -1259,8 +1259,8 @@ typedef struct {
 
 typedef struct {
 	void* buffer;
-	uint32*  offsetStart;
-	uint32*  offset;
+	uint32 *  offsetStart;
+	uint32 *  offset;
 	BYTE * offCodeStart;
 	BYTE * offCode;
 	BYTE * litStart;
@@ -1690,9 +1690,9 @@ static size_t ZSTD_decompressSequences(void* ctx,
 	const BYTE * const litEnd = litStart + litSize;
 	int nbSeq;
 	const BYTE * dumps;
-	uint32* DTableLL = dctx->LLTable;
-	uint32* DTableML = dctx->MLTable;
-	uint32* DTableOffb = dctx->OffTable;
+	uint32 * DTableLL = dctx->LLTable;
+	uint32 * DTableML = dctx->MLTable;
+	uint32 * DTableOffb = dctx->OffTable;
 	BYTE * const base = (BYTE *)(dctx->base);
 
 	/* Build Decoding Tables */

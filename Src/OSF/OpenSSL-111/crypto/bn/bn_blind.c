@@ -73,7 +73,7 @@ err:
 
 void BN_BLINDING_free(BN_BLINDING * r)
 {
-	if(r == NULL)
+	if(!r)
 		return;
 	BN_free(r->A);
 	BN_free(r->Ai);
@@ -247,7 +247,7 @@ BN_BLINDING * BN_BLINDING_create_param(BN_BLINDING * b,
 	if(ret->Ai == NULL && (ret->Ai = BN_new()) == NULL)
 		goto err;
 
-	if(e != NULL) {
+	if(e) {
 		BN_free(ret->e);
 		ret->e = BN_dup(e);
 	}

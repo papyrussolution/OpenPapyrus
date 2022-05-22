@@ -767,6 +767,7 @@
 	// [Annotations]
 	//
 	#define CXX_UNUSED(X) (void)(X)
+	// (variant from icu) #if UPRV_HAS_CPP_ATTRIBUTE(clang::fallthrough) || (UPRV_HAS_FEATURE(cxx_attributes) && UPRV_HAS_WARNING("-Wimplicit-fallthrough"))
 	#if CXX_CLANG && CXX_CPLUSPLUS >= 201103L
 		#define CXX_FALLTHROUGH [[clang::fallthrough]]
 	#elif CXX_GNU >= CXX_MAKE_VER(7, 0, 0)

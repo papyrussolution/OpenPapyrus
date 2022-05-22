@@ -864,16 +864,10 @@ int do_ssl3_write(SSL * s, int type, const uchar * buf,
 			}
 			SSL3_RECORD_reset_input(&wr[j]);
 		}
-
-		if(SSL_TREAT_AS_TLS13(s)
-		 && s->enc_write_ctx != NULL
-		 && (s->statem.enc_write_state != ENC_WRITE_STATE_WRITE_PLAIN_ALERTS
-		   || type != SSL3_RT_ALERT)) {
+		if(SSL_TREAT_AS_TLS13(s) && s->enc_write_ctx != NULL && (s->statem.enc_write_state != ENC_WRITE_STATE_WRITE_PLAIN_ALERTS || type != SSL3_RT_ALERT)) {
 			size_t rlen, max_send_fragment;
-
 			if(!WPACKET_put_bytes_u8(thispkt, type)) {
-				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DO_SSL3_WRITE,
-				    ERR_R_INTERNAL_ERROR);
+				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DO_SSL3_WRITE, ERR_R_INTERNAL_ERROR);
 				goto err;
 			}
 			SSL3_RECORD_add_length(thiswr, 1);
@@ -1453,12 +1447,12 @@ start:
 			s->msg_callback(0, s->version, SSL3_RT_ALERT, alert_bytes, 2, s,
 			    s->msg_callback_arg);
 
-		if(s->info_callback != NULL)
+		if(s->info_callback)
 			cb = s->info_callback;
-		else if(s->ctx->info_callback != NULL)
+		else if(s->ctx->info_callback)
 			cb = s->ctx->info_callback;
 
-		if(cb != NULL) {
+		if(cb) {
 			j = (alert_level << 8) | alert_descr;
 			cb(s, SSL_CB_READ_ALERT, j);
 		}

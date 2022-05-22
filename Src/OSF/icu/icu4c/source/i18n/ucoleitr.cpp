@@ -196,11 +196,11 @@ uint64_t UCollationPCE::processCE(uint32_t ce)
 	switch(strength) {
 		default:
 		    tertiary = ucol_tertiaryOrder(ce);
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 
 		case UCOL_SECONDARY:
 		    secondary = ucol_secondaryOrder(ce);
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 
 		case UCOL_PRIMARY:
 		    primary = ucol_primaryOrder(ce);

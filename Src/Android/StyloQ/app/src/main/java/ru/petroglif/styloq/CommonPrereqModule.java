@@ -47,7 +47,7 @@ public class CommonPrereqModule {
 	public ArrayList <CommonPrereqModule.TabEntry> TabList;
 	public ArrayList /*<Document.Head>*/<Document.DisplayEntry> OrderHList;
 	public ArrayList<ProcessorEntry> ProcessorListData;
-	protected Document CurrentOrder;
+	private Document CurrentOrder;
 	protected boolean Locker_CommitCurrentDocument;
 	private SLib.SlActivity ActivityInstance;
 	private int ViewPagerResourceId;
@@ -77,6 +77,122 @@ public class CommonPrereqModule {
 		/*View*/SLib.SlFragmentStatic TabView;
 	}
 	// sqbdtSvcReq
+	protected final boolean IsCurrentDocumentEmpty()
+	{
+		return (CurrentOrder == null || CurrentOrder.H == null);
+	}
+	protected final int GetCurrentDocumentTransferListCount()
+	{
+		return (CurrentOrder != null && CurrentOrder.TiList != null) ? CurrentOrder.TiList.size() : 0;
+	}
+	protected final Document GetCurrentDocument()
+	{
+		return CurrentOrder;
+	}
+	protected final int GetCurrentDocumentBookingListCount()
+	{
+		return (CurrentOrder != null && CurrentOrder.BkList != null) ? CurrentOrder.BkList.size() : 0;
+	}
+	protected void InitCurrenDocument(StyloQApp appCtx, int opID) throws StyloQException
+	{
+		if(CurrentOrder == null) {
+			CurrentOrder = new Document(opID, SvcIdent, appCtx);
+			CurrentOrder.H.BaseCurrencySymb = GetBaseCurrencySymb();
+		}
+	}
+	protected void ResetCurrentDocument()
+	{
+		CurrentOrder = null;
+	}
+	protected boolean UpdateMemoInCurrentDocument(String memo)
+	{
+		boolean result = false;
+		if(!IsCurrentDocumentEmpty()) {
+			CurrentOrder.H.Memo = memo;
+			result = true;
+		}
+		return result;
+	}
+	protected boolean UpdateTransferItemQttyInCurrentDocument(final Document.TransferItem srcData)
+	{
+		boolean result = false;
+		if(srcData != null && srcData.Set != null && GetCurrentDocumentTransferListCount() > 0) {
+			for(int i = 0; !result && i < GetCurrentDocumentTransferListCount(); i++) {
+				Document.TransferItem ti = CurrentOrder.TiList.get(i);
+				if(ti.RowIdx == srcData.RowIdx) {
+					if(srcData.Set.Qtty > 0)
+						CurrentOrder.TiList.get(i).Set.Qtty = srcData.Set.Qtty;
+					else
+						CurrentOrder.TiList.remove(i);
+					result = true;
+					break;
+				}
+			}
+		}
+		return result;
+	}
+	protected boolean AddTransferItemToCurrentDocument(StyloQApp appCtx, Document.TransferItem item)
+	{
+		boolean result = false;
+		try {
+			if(item != null && item.GoodsID > 0 && item.Set != null && item.Set.Qtty > 0.0) {
+				CommonPrereqModule.WareEntry goods_item = FindGoodsItemByGoodsID(item.GoodsID);
+				double price = goods_item.JsItem.optDouble("price", 0.0);
+				InitCurrenDocument(appCtx, SLib.PPEDIOP_ORDER);
+				Document.TransferItem ti = item;
+				ti.Set.Price = price;
+				int max_row_idx = 0;
+				boolean merged = false;
+				if(CurrentOrder.TiList != null) {
+					for(int i = 0; !merged && i < CurrentOrder.TiList.size(); i++) {
+						Document.TransferItem iter_ti = CurrentOrder.TiList.get(i);
+						merged = iter_ti.Merge(ti);
+						if(max_row_idx < iter_ti.RowIdx)
+							max_row_idx = iter_ti.RowIdx;
+					}
+				}
+				if(!merged) {
+					ti.RowIdx = max_row_idx + 1;
+					if(CurrentOrder.TiList == null)
+						CurrentOrder.TiList = new ArrayList<Document.TransferItem>();
+					CurrentOrder.TiList.add(ti);
+				}
+				SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
+				//NotifyCurrentOrderChanged();
+				result = true;
+			}
+		} catch(StyloQException exn) {
+			;
+		}
+		return result;
+	}
+	protected ArrayList <SLib.STimeChunk> PutBookingItemToCurrentDocument(StyloQApp appCtx, Document.BookingItem item)
+	{
+		ArrayList <SLib.STimeChunk> result = null;
+		try {
+			if(item != null) {
+				InitCurrenDocument(appCtx, SLib.sqbdtSvcReq);
+				if(CurrentOrder.BkList == null)
+					CurrentOrder.BkList = new ArrayList<Document.BookingItem>();
+				CurrentOrder.BkList.clear();
+				/*
+				Document.BookingItem bk_item = new Document.BookingItem();
+				bk_item.GoodsID = goods_id;
+				bk_item.PrcID = prc_id;
+				bk_item.RowIdx = 1;
+				bk_item.ReqTime = new SLib.LDATETIME(dt, start_tm);
+				bk_item.EstimatedDurationSec = CPM.GetServiceDurationForPrc(prc_id, goods_id);
+				if(bk_item.EstimatedDurationSec <= 0)
+					bk_item.EstimatedDurationSec = 3600; // default value
+				 */
+				CurrentOrder.BkList.add(item);
+				result = GetCurrentDocumentBusyList(item.PrcID);
+			}
+		} catch(StyloQException exn) {
+			;
+		}
+		return result;
+	}
 	protected boolean SetClientToCurrentDocument(StyloQApp appCtx, int cliID, int dlvrLocID) throws StyloQException
 	{
 		boolean result = false;
@@ -155,6 +271,13 @@ public class CommonPrereqModule {
 				if(!Locker_CommitCurrentDocument) {
 					Locker_CommitCurrentDocument = true;
 					if(CurrentOrder != null && CurrentOrder.Finalize()) {
+						if((CurrentOrder.H.Flags & StyloQDatabase.SecStoragePacket.styloqfDocDraft) != 0)
+							CurrentOrder.SetAfterTransmitStatusFlags(StyloQDatabase.SecStoragePacket.styloqfDocWaitForOrdrsp|StyloQDatabase.SecStoragePacket.styloqfDocWaitForDesadv);
+						else if((StyloQDatabase.SecStoragePacket.styloqfDocWaitForOrdrsp|StyloQDatabase.SecStoragePacket.styloqfDocWaitForDesadv) != 0) {
+							CurrentOrder.SetAfterTransmitStatusFlags(CurrentOrder.H.Flags & (StyloQDatabase.SecStoragePacket.styloqfDocWaitForOrdrsp | StyloQDatabase.SecStoragePacket.styloqfDocWaitForDesadv));
+						}
+						else if((CurrentOrder.H.Flags & StyloQDatabase.SecStoragePacket.styloqfDocFinished) != 0)
+							CurrentOrder.SetAfterTransmitStatusFlags(0);
 						StyloQApp.PostDocumentResult result = ((StyloQApp)app_ctx).RunSvcPostDocumentCommand(SvcIdent, CurrentOrder, activity);
 						ok = result.PostResult;
 						if(ok) {
@@ -232,9 +355,11 @@ public class CommonPrereqModule {
 		{
 			JsItem = jsItem;
 			PrcExpandStatus = 0;
+			PrcPrice = 0.0;
 		}
 		JSONObject JsItem;
 		int   PrcExpandStatus; // 0 - no processors, 1 - processors collapsed, 2 - processors expanded
+		double PrcPrice; // Специфическая цена товара для конкретного процессора
 	}
 	public static class ProcessorEntry {
 		ProcessorEntry(JSONObject jsItem)
@@ -506,7 +631,7 @@ public class CommonPrereqModule {
 					if(TabList.get(tidx).TabId == tabId) {
 						View v_lo_tab = ActivityInstance.findViewById(TabLayoutResourceId);
 						if(v_lo_tab != null && v_lo_tab instanceof TabLayout) {
-							TabLayout lo_tab = (TabLayout) v_lo_tab;
+							TabLayout lo_tab = (TabLayout)v_lo_tab;
 							((ViewGroup)lo_tab.getChildAt(0)).getChildAt(tidx).setVisibility(visibilityMode);
 						}
 						break;
@@ -537,6 +662,8 @@ public class CommonPrereqModule {
 										String json_doc = new String(raw_doc);
 										Document local_doc = new Document();
 										if(local_doc.FromJson(json_doc)) {
+											if(local_doc.H != null)
+												local_doc.H.Flags = local_doc_pack.Rec.Flags;
 											if(OrderHList == null)
 												OrderHList = new ArrayList<Document.DisplayEntry>();
 											// Эти операторы нужны на начальном этапе разработки поскольку
@@ -652,6 +779,41 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
+	public double GetPriceForPrc(int prcID, int goodsID)
+	{
+		double result = 0.0;
+		if(goodsID > 0) {
+			try {
+				if(prcID > 0 && ProcessorListData != null) {
+					for(int i = 0; i < ProcessorListData.size(); i++) {
+						ProcessorEntry entry = ProcessorListData.get(i);
+						if(entry != null && entry.JsItem != null && entry.JsItem.optInt("id", 0) == prcID) {
+							JSONArray js_goods_list = entry.JsItem.optJSONArray("goods_list");
+							if(js_goods_list != null) {
+								for(int j = 0; j < js_goods_list.length(); j++) {
+									JSONObject js_goods_item = js_goods_list.getJSONObject(j);
+									int iter_id = (js_goods_item != null) ? js_goods_item.optInt("id", 0) : 0;
+									if(iter_id == goodsID) {
+										result = js_goods_item.optDouble("price", 0.0);
+										break; // В этом цикле такой же товар больше не встретится (если, конечно, нет ошибок в данных)
+									}
+								}
+							}
+							break;
+						}
+					}
+				}
+				if(result <= 0.0) {
+					WareEntry ware_entry = FindGoodsItemByGoodsID(goodsID);
+					if(ware_entry != null)
+						result = ware_entry.JsItem.optDouble("price", 0.0);
+				}
+			} catch(JSONException exn) {
+				;
+			}
+		}
+		return result;
+	}
 	public int GetServiceDurationForPrc(int prcID, int goodsID)
 	{
 		int   result = 0;
@@ -723,13 +885,16 @@ public class CommonPrereqModule {
 							for(int j = 0; j < js_goods_list.length(); j++) {
 								JSONObject js_goods_item = js_goods_list.getJSONObject(j);
 								int iter_id = (js_goods_item != null) ? js_goods_item.optInt("id", 0) : 0;
-								int duration = (js_goods_item != null) ? js_goods_item.optInt("duration", 0) : 0;
 								if(iter_id > 0) {
-									WareEntry ware_entry = FindGoodsItemByGoodsID(iter_id);
-									if(ware_entry != null) {
+									WareEntry org_ware_entry = FindGoodsItemByGoodsID(iter_id);
+									if(org_ware_entry != null) {
+										int duration = (js_goods_item != null) ? js_goods_item.optInt("duration", 0) : 0;
+										double price = (js_goods_item != null) ? js_goods_item.optDouble("price", 0.0) : 0.0;
 										if(result == null)
 											result = new ArrayList<WareEntry>();
-										result.add(ware_entry);
+										WareEntry new_ware_entry = new WareEntry(org_ware_entry.JsItem);
+										new_ware_entry.PrcPrice = price;
+										result.add(new_ware_entry);
 									}
 								}
 							}

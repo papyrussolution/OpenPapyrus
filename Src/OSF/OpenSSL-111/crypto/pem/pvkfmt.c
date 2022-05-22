@@ -270,7 +270,7 @@ static EVP_PKEY * b2i_dss(const uchar ** in, uint bitlen, int ispub)
 		pub_key = BN_new();
 		if(pub_key == NULL)
 			goto memerr;
-		if((ctx = BN_CTX_new()) == NULL)
+		if(!(ctx = BN_CTX_new()))
 			goto memerr;
 		if(!BN_mod_exp(pub_key, gbn, priv_key, pbn, ctx))
 			goto memerr;
@@ -316,7 +316,7 @@ static EVP_PKEY * b2i_rsa(const uchar ** in, uint bitlen, int ispub)
 	if(rsa == NULL || ret == NULL)
 		goto memerr;
 	e = BN_new();
-	if(e == NULL)
+	if(!e)
 		goto memerr;
 	if(!BN_set_word(e, read_ledword(&pin)))
 		goto memerr;

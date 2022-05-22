@@ -1,14 +1,12 @@
+// rbbiscan.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-//
-//  rbbiscan.h
 //
 //  Copyright (C) 2002-2016, International Business Machines Corporation and others.
 //  All Rights Reserved.
 //
 //  This file contains declarations for class RBBIRuleScanner
 //
-
 #ifndef RBBISCAN_H
 #define RBBISCAN_H
 
@@ -28,8 +26,6 @@ U_NAMESPACE_BEGIN
 
 class RBBIRuleBuilder;
 class RBBISymbolTable;
-
-//--------------------------------------------------------------------------------
 //
 //  class RBBIRuleScanner does the lowest level, character-at-a-time
 //                        scanning of break iterator rules.
@@ -38,55 +34,42 @@ class RBBISymbolTable;
 //                        the rule expressions and a list of all Unicode Sets
 //                        encountered.
 //
-//--------------------------------------------------------------------------------
-
 class RBBIRuleScanner : public UMemory {
 public:
-
 	enum {
 		kStackSize = 100    // The size of the state stack for
 	};                          //   rules parsing.  Corresponds roughly
-
 	//   to the depth of parentheses nesting
 	//   that is allowed in the rules.
-
 	struct RBBIRuleChar {
 		UChar32 fChar;
 		bool fEscaped;
-		RBBIRuleChar() : fChar(0), fEscaped(false) {
+		RBBIRuleChar() : fChar(0), fEscaped(false) 
+		{
 		}
 	};
-
 	RBBIRuleScanner(RBBIRuleBuilder  * rb);
-
 	virtual ~RBBIRuleScanner();
-
 	void   nextChar(RBBIRuleChar &c);      // Get the next char from the input stream.
 	// Return false if at end.
-
 	bool       push(const RBBIRuleChar &c);    // Push (unget) one character.
 	                                            //   Only a single character may be pushed.
-
 	void   parse();                        // Parse the rules, generating two parse
 	//   trees, one each for the forward and
 	//   reverse rules,
 	//   and a list of UnicodeSets encountered.
-
 	int32_t numRules();                     // Return the number of rules that have been seen.
-
 	/**
 	 * Return a rules string without unnecessary
 	 * characters.
 	 */
 	static UnicodeString stripRules(const UnicodeString & rules);
 private:
-
 	bool       doParseActions(int32_t a);
 	void   error(UErrorCode e);               // error reporting convenience function.
 	void   fixOpStack(RBBINode::OpPrecedence p);
 	//   a character.
 	void   findSetFor(const UnicodeString & s, RBBINode * node, UnicodeSet * setToAdopt = NULL);
-
 	UChar32 nextCharLL();
 #ifdef RBBI_DEBUG
 	void   printNodeStack(const char * title);

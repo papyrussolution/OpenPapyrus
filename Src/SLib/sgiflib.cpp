@@ -113,7 +113,7 @@ const char * GifErrorString(int ErrorCode)
 		case E_GIF_ERR_HAS_IMAG_DSCR: Err = "Image descriptor is still active"; break;
 		case E_GIF_ERR_NO_COLOR_MAP: Err = "Neither global nor local color map"; break;
 		case E_GIF_ERR_DATA_TOO_BIG: Err = "Number of pixels bigger than width * height"; break;
-		case E_GIF_ERR_NOT_ENOUGH_MEM: Err = "Failed to allocate required memory"; break;
+		case E_GIF_ERR_NOT_ENOUGH_MEM: Err = SlTxtOutOfMem; break;
 		case E_GIF_ERR_DISK_IS_FULL: Err = "Write failed (disk full?)"; break;
 		case E_GIF_ERR_CLOSE_FAILED: Err = "Failed to close given file"; break;
 		case E_GIF_ERR_NOT_WRITEABLE: Err = "Given file was not opened for write"; break;
@@ -125,7 +125,7 @@ const char * GifErrorString(int ErrorCode)
 		case D_GIF_ERR_NO_COLOR_MAP: Err = "Neither global nor local color map"; break;
 		case D_GIF_ERR_WRONG_RECORD: Err = "Wrong record type detected"; break;
 		case D_GIF_ERR_DATA_TOO_BIG: Err = "Number of pixels bigger than width * height"; break;
-		case D_GIF_ERR_NOT_ENOUGH_MEM: Err = "Failed to allocate required memory"; break;
+		case D_GIF_ERR_NOT_ENOUGH_MEM: Err = SlTxtOutOfMem; break;
 		case D_GIF_ERR_CLOSE_FAILED: Err = "Failed to close given file"; break;
 		case D_GIF_ERR_NOT_READABLE: Err = "Given file was not opened for read"; break;
 		case D_GIF_ERR_IMAGE_DEFECT: Err = "Image is defective, decoding aborted"; break;

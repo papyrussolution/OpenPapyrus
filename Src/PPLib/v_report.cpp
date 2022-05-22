@@ -1,5 +1,5 @@
 // V_REPORT.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -21,13 +21,13 @@ IMPLEMENT_PPFILT_FACTORY(Report); ReportFilt::ReportFilt() : PPBaseFilt(PPFILT_R
 PPViewReport::PPViewReport() : PPView(0, &Filt, PPVIEW_REPORT, 0, REPORT_RPTINFO), P_StdRptFile(0), P_RptFile(0), P_TempTbl(0), LocalRptCodepage(866)
 {
 	PPIniFile::GetSectSymb(PPINISECT_SYSTEM, SystemSect);
-	PPIniFile::GetParamSymb(  PPINIPARAM_CODEPAGE,           CodepageParam);
-	PPIniFile::GetParamSymb(  PPINIPARAM_REPORT_FORMAT,      FmtParam);
-	PPIniFile::GetParamSymb(  PPINIPARAM_REPORT_DESTINATION, DestParam);
-	PPIniFile::GetParamSymb(  PPINIPARAM_REPORT_SILENT,      SilentParam);
-	PPIniFile::GetParamSymb(  PPINIPARAM_REPORT_DATA,        DataParam);
-	PPIniFile::GetParamSymb(  PPINIPARAM_REPORT_DESCRIPTION, DescrParam);
-	PPIniFile::GetParamSymb(  PPINIPARAM_REPORT_MODIFDATE,   ModifDtParam);
+	PPIniFile::GetParamSymb(PPINIPARAM_CODEPAGE,           CodepageParam);
+	PPIniFile::GetParamSymb(PPINIPARAM_REPORT_FORMAT,      FmtParam);
+	PPIniFile::GetParamSymb(PPINIPARAM_REPORT_DESTINATION, DestParam);
+	PPIniFile::GetParamSymb(PPINIPARAM_REPORT_SILENT,      SilentParam);
+	PPIniFile::GetParamSymb(PPINIPARAM_REPORT_DATA,        DataParam);
+	PPIniFile::GetParamSymb(PPINIPARAM_REPORT_DESCRIPTION, DescrParam);
+	PPIniFile::GetParamSymb(PPINIPARAM_REPORT_MODIFDATE,   ModifDtParam);
 }
 
 PPViewReport::~PPViewReport()
@@ -324,11 +324,13 @@ int PPViewReport::SendMail(long id)
 	ReportMailDialog * p_dlg = 0;
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
 		ReportMailDialog::Rec data;
-		PPIniFile ini_file;
 		PPAlbatrossConfig alb_cfg;
 		TempReportTbl::Rec & r_rec = P_TempTbl->data;
-		THROW(ini_file.IsValid());
-		THROW_PP(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SUPPORTMAIL, data.SupportMail) > 0, PPERR_SUPPORTMAILNOTDEF);
+		{
+			PPIniFile ini_file;
+			THROW(ini_file.IsValid());
+			THROW_PP(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SUPPORTMAIL, data.SupportMail) > 0, PPERR_SUPPORTMAILNOTDEF);
+		}
 		{
 			DbProvider * p_dict = CurDict;
 			PPLicData lic;
@@ -522,7 +524,7 @@ int PPViewReport::CallCR(long id)
 int PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 {
 	int    ok = 1;
-	int    close_file = 0;
+	bool   do_close_ini_file = false;
 	SCodepage _cp = cp866;
 	uint   i  = 0;
 	long   id = 0;
@@ -533,6 +535,7 @@ int PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 	if(!p_file) {
 		SString filename;
 		p_file = new PPIniFile(PPGetFilePathS(PPPATH_BIN, PPFILNAM_STDRPT_INI, filename));
+		do_close_ini_file = true; // @fix
 	}
 	THROW(p_file->GetSections(&sections));
 	for(i = 0, id = 0; sections.get(&i, sect); id++) {
@@ -571,7 +574,7 @@ int PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 		}
 	}
 	CATCHZOK
-	if(close_file)
+	if(do_close_ini_file)
 		ZDELETE(p_file);
 	return ok;
 }
@@ -621,7 +624,7 @@ int PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, const SStrin
 int PPViewReport::CreateRptList(ReportViewItemArray * pList)
 {
 	int    ok = 1;
-	int    do_close_file = 0;
+	bool   do_close_ini_file = false;
 	int    codepage = 0;
 	uint   i  = 0;
 	long   id = 0;
@@ -632,7 +635,7 @@ int PPViewReport::CreateRptList(ReportViewItemArray * pList)
 	if(!p_file) {
 		SString filename;
 		p_file = new PPIniFile(PPGetFilePathS(PPPATH_BIN, PPFILNAM_REPORT_INI, filename));
-		do_close_file = 1;
+		do_close_ini_file = true;
 	}
 	THROW(p_file->GetSections(&sections));
 	for(i = 0, id = 0; sections.get(&i, sect); id++) {
@@ -652,7 +655,7 @@ int PPViewReport::CreateRptList(ReportViewItemArray * pList)
 		}
 	}
 	CATCHZOK
-	if(do_close_file)
+	if(do_close_ini_file)
 		ZDELETE(p_file);
 	return ok;
 }
@@ -668,13 +671,13 @@ int PPViewReport::CreateRptList(ReportViewItemArray * pList)
 	THROW(P_TempTbl);
 	THROW(CheckTblPtr(p_tbl = new TempReportTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitLongFunc(dbe_type, PPDbqFuncPool::IdReportTypeName, p_tbl->Type);
-	q = & select(p_tbl->ID, 0L);                           // #00
-	q->addField(p_tbl->StdName);                           // #01
-	q->addField(p_tbl->ModifDt);                           // #02
-	q->addField(p_tbl->Descr);                             // #03
-	q->addField(p_tbl->StrucName);                         // #04
-	q->addField(dbe_type);                                 // #05
-	q->addField(p_tbl->Path);                              // #06
+	q = & select(p_tbl->ID, 0L);   // #00
+	q->addField(p_tbl->StdName);   // #01
+	q->addField(p_tbl->ModifDt);   // #02
+	q->addField(p_tbl->Descr);     // #03
+	q->addField(p_tbl->StrucName); // #04
+	q->addField(dbe_type);         // #05
+	q->addField(p_tbl->Path);      // #06
 	q->from(p_tbl, 0L);
 	if(Filt.Order == ReportFilt::ordByStruc)
 		q->orderBy(p_tbl->StrucName, 0L);

@@ -16,12 +16,6 @@
 #ifndef XAPIAN_INCLUDED_EDITDISTANCE_H
 #define XAPIAN_INCLUDED_EDITDISTANCE_H
 
-//#include <cstdlib>
-//#include <climits>
-//#include <vector>
-//#include "omassert.h"
-//#include <xapian/unicode.h>
-
 /** Calculate edit distances to a target string.
  *
  *  Edit distance is defined as the minimum number of edit operations

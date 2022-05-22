@@ -9,14 +9,14 @@
 #ifndef ABSL_RANDOM_DISCRETE_DISTRIBUTION_H_
 #define ABSL_RANDOM_DISCRETE_DISTRIBUTION_H_
 
-#include <cassert>
-#include <cmath>
-#include <istream>
-#include <limits>
-#include <numeric>
-#include <type_traits>
-#include <utility>
-#include <vector>
+//#include <cassert>
+//#include <cmath>
+//#include <istream>
+//#include <limits>
+//#include <numeric>
+//#include <type_traits>
+//#include <utility>
+//#include <vector>
 #include "absl/random/bernoulli_distribution.h"
 #include "absl/random/internal/iostream_state_saver.h"
 #include "absl/random/uniform_int_distribution.h"
@@ -50,23 +50,20 @@ public:
 public:
 		using distribution_type = discrete_distribution;
 
-		param_type() {
+		param_type() 
+		{
 			init();
 		}
-
-		template <typename InputIterator>
-		explicit param_type(InputIterator begin, InputIterator end)
-			: p_(begin, end) {
+		template <typename InputIterator> explicit param_type(InputIterator begin, InputIterator end) : p_(begin, end) 
+		{
 			init();
 		}
-
-		explicit param_type(std::initializer_list<double> weights) : p_(weights) {
+		explicit param_type(std::initializer_list<double> weights) : p_(weights) 
+		{
 			init();
 		}
-
-		template <class UnaryOperation>
-		explicit param_type(size_t nw, double xmin, double xmax,
-		    UnaryOperation fw) {
+		template <class UnaryOperation> explicit param_type(size_t nw, double xmin, double xmax, UnaryOperation fw) 
+		{
 			if(nw > 0) {
 				p_.reserve(nw);
 				double delta = (xmax - xmin) / static_cast<double>(nw);
@@ -78,99 +75,51 @@ public:
 			}
 			init();
 		}
-
-		const std::vector <double>& probabilities() const {
-			return p_;
-		}
-
-		size_t n() const {
-			return p_.size() - 1;
-		}
-
-		friend bool operator ==(const param_type& a, const param_type& b) {
-			return a.probabilities() == b.probabilities();
-		}
-
-		friend bool operator !=(const param_type& a, const param_type& b) {
-			return !(a == b);
-		}
-
+		const std::vector <double>& probabilities() const { return p_; }
+		size_t n() const { return p_.size() - 1; }
+		friend bool operator ==(const param_type& a, const param_type& b) { return a.probabilities() == b.probabilities(); }
+		friend bool operator !=(const param_type& a, const param_type& b) { return !(a == b); }
 private:
 		friend class discrete_distribution;
-
 		void init();
-
 		std::vector <double> p_;         // normalized probabilities
 		std::vector <std::pair<double, size_t> > q_; // (acceptance, alternate) pairs
-
-		static_assert(std::is_integral<result_type>::value,
-		    "Class-template absl::discrete_distribution<> must be "
-		    "parameterized using an integral type.");
+		static_assert(std::is_integral<result_type>::value, "Class-template absl::discrete_distribution<> must be parameterized using an integral type.");
 	};
 
-	discrete_distribution() : param_() {
+	discrete_distribution() : param_() 
+	{
 	}
-
-	explicit discrete_distribution(const param_type& p) : param_(p) {
+	explicit discrete_distribution(const param_type& p) : param_(p) 
+	{
 	}
-
-	template <typename InputIterator>
-	explicit discrete_distribution(InputIterator begin, InputIterator end)
-		: param_(begin, end) {
+	template <typename InputIterator> explicit discrete_distribution(InputIterator begin, InputIterator end) : param_(begin, end) 
+	{
 	}
-
-	explicit discrete_distribution(std::initializer_list<double> weights)
-		: param_(weights) {
+	explicit discrete_distribution(std::initializer_list<double> weights) : param_(weights) 
+	{
 	}
-
-	template <class UnaryOperation>
-	explicit discrete_distribution(size_t nw, double xmin, double xmax,
-	    UnaryOperation fw)
-		: param_(nw, xmin, xmax, std::move(fw)) {
+	template <class UnaryOperation> explicit discrete_distribution(size_t nw, double xmin, double xmax, UnaryOperation fw) : param_(nw, xmin, xmax, std::move(fw)) 
+	{
 	}
-
-	void reset() {
+	void reset() 
+	{
 	}
-
 	// generating functions
-	template <typename URBG>
-	result_type operator()(URBG& g) { // NOLINT(runtime/references)
+	template <typename URBG> result_type operator()(URBG& g) { // NOLINT(runtime/references)
 		return (*this)(g, param_);
 	}
-
-	template <typename URBG>
-	result_type operator()(URBG& g, // NOLINT(runtime/references)
+	template <typename URBG> result_type operator()(URBG& g, // NOLINT(runtime/references)
 	    const param_type& p);
-
-	const param_type& param() const {
-		return param_;
-	}
-
-	void param(const param_type& p) {
-		param_ = p;
-	}
-
+	const param_type& param() const { return param_; }
+	void param(const param_type& p) { param_ = p; }
 	result_type(min)() const { return 0; }
-	result_type(max)() const {
-		return static_cast<result_type>(param_.n());
-	} // inclusive
-
+	result_type(max)() const { return static_cast<result_type>(param_.n()); } // inclusive
 	// NOTE [rand.dist.sample.discrete] returns a std::vector <double> not a
 	// const std::vector <double>&.
-	const std::vector <double>& probabilities() const {
-		return param_.probabilities();
-	}
-
-	friend bool operator ==(const discrete_distribution& a,
-	    const discrete_distribution& b) {
-		return a.param_ == b.param_;
-	}
-
-	friend bool operator !=(const discrete_distribution& a,
-	    const discrete_distribution& b) {
-		return a.param_ != b.param_;
-	}
-
+	const std::vector <double>& probabilities() const { return param_.probabilities(); }
+	friend bool operator ==(const discrete_distribution& a, const discrete_distribution& b) { return a.param_ == b.param_; }
+	friend bool operator !=(const discrete_distribution& a, const discrete_distribution& b) { return a.param_ != b.param_; }
 private:
 	param_type param_;
 };

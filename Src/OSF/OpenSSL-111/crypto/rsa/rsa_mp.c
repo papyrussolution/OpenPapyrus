@@ -64,7 +64,7 @@ int rsa_multip_calc_product(RSA * rsa)
 		goto err;
 	}
 
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		goto err;
 
 	/* calculate pinfo->pp = p * q for first 'extra' prime */

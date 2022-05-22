@@ -13,14 +13,10 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <stdlib.h>
 #include "src/dec/vp8i_dec.h"
 #include "src/dec/vp8li_dec.h"
-//#include "src/dec/webpi_dec.h"
-//#include "src/utils/utils.h"
 #include "src/webp/mux_types.h"  // ALPHA_FLAG
-
-//------------------------------------------------------------------------------
+//
 // RIFF layout is:
 //   Offset  tag
 //   0...3   "RIFF" 4-byte tag
@@ -52,13 +48,11 @@
 // and VP8_STATUS_OK otherwise.
 // In case there are not enough bytes (partial RIFF container), return 0 for
 // *riff_size. Else return the RIFF size extracted from the header.
-static VP8StatusCode ParseRIFF(const uint8** const data,
-    size_t* const data_size, int have_all_data,
-    size_t* const riff_size) {
+static VP8StatusCode ParseRIFF(const uint8** const data, size_t* const data_size, int have_all_data, size_t* const riff_size) 
+{
 	assert(data != NULL);
 	assert(data_size != NULL);
 	assert(riff_size != NULL);
-
 	*riff_size = 0; // Default: no RIFF present.
 	if(*data_size >= RIFF_HEADER_SIZE && !memcmp(*data, "RIFF", TAG_SIZE)) {
 		if(memcmp(*data + 8, "WEBP", TAG_SIZE)) {
@@ -263,9 +257,7 @@ static VP8StatusCode ParseVP8Header(const uint8** const data_ptr,
 
 	return VP8_STATUS_OK;
 }
-
-//------------------------------------------------------------------------------
-
+//
 // Fetch '*width', '*height', '*has_alpha' and fill out 'headers' based on
 // 'data'. All the output parameters may be NULL. If 'headers' is NULL only the
 // minimal amount will be read to fetch the remaining parameters.
@@ -400,8 +392,8 @@ ReturnWidthHeight:
 			// to set this is by looking for alpha data (from an ALPH chunk).
 			*has_alpha |= (hdrs.alpha_data != NULL);
 		}
-		if(width != NULL) *width = image_width;
-		if(height != NULL) *height = image_height;
+		if(width) *width = image_width;
+		if(height) *height = image_height;
 		return VP8_STATUS_OK;
 	}
 	else {
@@ -427,18 +419,16 @@ VP8StatusCode WebPParseHeaders(WebPHeaderStructure* const headers)
 	}
 	return status;
 }
-
-//------------------------------------------------------------------------------
+//
 // WebPDecParams
-
+//
 void WebPResetDecParams(WebPDecParams* const params) 
 {
 	memzero(params, sizeof(*params));
 }
-
-//------------------------------------------------------------------------------
+//
 // "Into" decoding variants
-
+//
 // Main flow
 static VP8StatusCode DecodeInto(const uint8* const data, size_t data_size, WebPDecParams* const params) 
 {
@@ -597,8 +587,6 @@ uint8* WebPDecodeYUVInto(const uint8* data, size_t data_size, uint8* luma, size_
 	return luma;
 }
 
-//------------------------------------------------------------------------------
-
 static uint8* Decode(WEBP_CSP_MODE mode, const uint8* const data, size_t data_size, int* const width, int* const height, WebPDecBuffer* const keep_info) 
 {
 	WebPDecParams params;
@@ -611,8 +599,8 @@ static uint8* Decode(WEBP_CSP_MODE mode, const uint8* const data, size_t data_si
 	if(!WebPGetInfo(data, data_size, &output.width, &output.height)) {
 		return NULL;
 	}
-	if(width != NULL) *width = output.width;
-	if(height != NULL) *height = output.height;
+	if(width) *width = output.width;
+	if(height) *height = output.height;
 
 	// Decode
 	if(DecodeInto(data, data_size, &params) != VP8_STATUS_OK) {
@@ -681,20 +669,19 @@ static VP8StatusCode GetFeatures(const uint8* const data, size_t data_size, WebP
 	return ParseHeadersInternal(data, data_size, &features->width, &features->height,
 		   &features->has_alpha, &features->has_animation, &features->format, NULL);
 }
-
-//------------------------------------------------------------------------------
+//
 // WebPGetInfo()
-
+//
 int WebPGetInfo(const uint8* data, size_t data_size, int* width, int* height) 
 {
 	WebPBitstreamFeatures features;
 	if(GetFeatures(data, data_size, &features) != VP8_STATUS_OK) {
 		return 0;
 	}
-	if(width != NULL) {
+	if(width) {
 		*width  = features.width;
 	}
-	if(height != NULL) {
+	if(height) {
 		*height = features.height;
 	}
 	return 1;
@@ -767,12 +754,11 @@ VP8StatusCode WebPDecode(const uint8* data, size_t data_size, WebPDecoderConfig*
 
 	return status;
 }
-
-//------------------------------------------------------------------------------
+//
 // Cropping and rescaling.
-
-int WebPCheckCropDimensions(int image_width, int image_height,
-    int x, int y, int w, int h) {
+//
+int WebPCheckCropDimensions(int image_width, int image_height, int x, int y, int w, int h) 
+{
 	return !(x < 0 || y < 0 || w <= 0 || h <= 0 ||
 	       x >= image_width || w > image_width || w > image_width - x ||
 	       y >= image_height || h > image_height || h > image_height - y);
@@ -828,11 +814,8 @@ int WebPIoInitFromOptions(const WebPDecoderOptions* const options,
 
 	if(io->use_scaling) {
 		// disable filter (only for large downscaling ratio).
-		io->bypass_filtering |= (io->scaled_width < W * 3 / 4) &&
-		    (io->scaled_height < H * 3 / 4);
+		io->bypass_filtering |= (io->scaled_width < W * 3 / 4) && (io->scaled_height < H * 3 / 4);
 		io->fancy_upsampling = 0;
 	}
 	return 1;
 }
-
-//------------------------------------------------------------------------------

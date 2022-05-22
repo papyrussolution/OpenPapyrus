@@ -327,14 +327,11 @@ string InMemoryAllDocsPostList::get_description() const
 {
 	return "InMemoryAllDocsPostList " + str(did);
 }
-
-///////////////////////////
+//
 // Actual database class //
-///////////////////////////
-
+//
 // Updates are applied immediately so we can't support transactions.
-InMemoryDatabase::InMemoryDatabase()
-	: Xapian::Database::Internal(TRANSACTION_UNIMPLEMENTED),
+InMemoryDatabase::InMemoryDatabase() : Xapian::Database::Internal(TRANSACTION_UNIMPLEMENTED),
 	totdocs(0), totlen(0), positions_present(false), closed(false)
 {
 	// We keep an empty entry in postlists for convenience of implementing

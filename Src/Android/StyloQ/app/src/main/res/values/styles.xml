@@ -122,6 +122,12 @@
         <item name="android:textColor">@color/TextPrimary</item>
         <item name="android:layout_gravity">center_horizontal|center_vertical</item>
     </style>
+    <style name="TSessPriceText">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/Accent</item>
+        <item name="android:layout_gravity">center_horizontal|center_vertical</item>
+    </style>
     <style name="OrderedQtyText">
         <item name="android:textSize">10sp</item>
         <item name="android:textFontWeight">600</item>
@@ -145,5 +151,13 @@
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:layout_marginBottom">4dp</item>
         <item name="android:layout_gravity">center_horizontal|center_vertical</item>
+    </style>
+    <style name="GenericListItemText">
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@color/TextPrimary</item>
     </style>
 </resources>

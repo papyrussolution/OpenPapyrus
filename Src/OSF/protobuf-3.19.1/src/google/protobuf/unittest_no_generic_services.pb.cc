@@ -17,8 +17,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
 namespace no_generic_services_test {
-constexpr TestMessage::TestMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestMessage::TestMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : a_(0){}
 struct TestMessageDefaultTypeInternal {
 	constexpr TestMessageDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -77,17 +76,19 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto(&descriptor_table_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto);
 namespace protobuf_unittest {
 namespace no_generic_services_test {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestEnum_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestEnum_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fno_5fgeneric_5fservices_2eproto[0];
 }
-bool TestEnum_IsValid(int value) {
-  switch (value) {
-    case 1:
-      return true;
-    default:
-      return false;
-  }
+bool TestEnum_IsValid(int value)
+{
+	switch(value) {
+		case 1:
+			return true;
+		default:
+			return false;
+	}
 }
 
 
@@ -137,8 +138,7 @@ void TestMessage::ArenaDtor(void* object) {
   TestMessage* _this = reinterpret_cast< TestMessage* >(object);
   (void)_this;
 }
-void TestMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestMessage::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -184,10 +184,7 @@ const char* TestMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
       CHK_(ptr != nullptr);
       continue;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -249,10 +246,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestMessage::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestMessage::GetClassData() const { return &_class_data_; }
 
-void TestMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestMessage *>(to)->MergeFrom(
-      static_cast<const TestMessage &>(from));
+void TestMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestMessage *>(to)->MergeFrom(static_cast<const TestMessage &>(from));
 }
 
 

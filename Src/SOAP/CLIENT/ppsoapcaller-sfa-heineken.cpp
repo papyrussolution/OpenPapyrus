@@ -1,5 +1,5 @@
 // PPSOAPCALLER-SFA-HEINEKEN.CPP
-// Copyright (c) A.Sobolev 2018, 2019
+// Copyright (c) A.Sobolev 2018, 2019, 2022
 //
 #include <ppsoapclient.h>
 #include "heineken\heinekenSoapDRPServiceSoapProxy.h"
@@ -146,7 +146,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_DeleteSellout(PPSoapClien
 	param._USCORElogin = GetDynamicParamString(rSess.GetUser(), arg_str_pool);
 	param._USCOREpass = GetDynamicParamString(rSess.GetPassword(), arg_str_pool);
 	param._USCOREinvoiceNum = GetDynamicParamString(rCode, arg_str_pool);
-	param._USCOREinvoiceDate = GetDynamicParamString(temp_buf.Z().Cat(date, DATF_ISO8601|DATF_CENTURY), arg_str_pool);
+	param._USCOREinvoiceDate = GetDynamicParamString(temp_buf.Z().Cat(date, DATF_ISO8601CENT), arg_str_pool);
 	THROW(PreprocessCall(proxi, rSess, proxi.DRP_USCOREDeleteSellOut(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
 	p_result = PreprocessAnyResult(resp.DRP_USCOREDeleteSellOutResult->__any);
 	CATCH
@@ -167,7 +167,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_DeleteSellin(PPSoapClient
 	param._USCORElogin = GetDynamicParamString(rSess.GetUser(), arg_str_pool);
 	param._USCOREpass = GetDynamicParamString(rSess.GetPassword(), arg_str_pool);
 	param._USCOREinvoiceNum = GetDynamicParamString(rCode, arg_str_pool);
-	param._USCOREinvoiceDate = GetDynamicParamString(temp_buf.Z().Cat(date, DATF_ISO8601|DATF_CENTURY), arg_str_pool);
+	param._USCOREinvoiceDate = GetDynamicParamString(temp_buf.Z().Cat(date, DATF_ISO8601CENT), arg_str_pool);
 	THROW(PreprocessCall(proxi, rSess, proxi.DRP_USCOREDeleteSellIn(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
 	p_result = PreprocessAnyResult(resp.DRP_USCOREDeleteSellInResult->__any);
 	CATCH
@@ -197,7 +197,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_SendSellin(PPSoapClientSe
 		param._USCOREinvoices->Invoice[i] = p_inv;
 		{
 			p_inv->InvoiceNum = GetDynamicParamString(p_entry->Code, arg_str_pool);
-			temp_buf.Z().Cat(p_entry->Dt, DATF_ISO8601|DATF_CENTURY);
+			temp_buf.Z().Cat(p_entry->Dt, DATF_ISO8601CENT);
 			p_inv->InvoiceDate = GetDynamicParamString(temp_buf, arg_str_pool);
 			if(p_entry->DistributorSalePointDeliveryList.getCount()) {
 				THROW(p_inv->DistributorSalePointDeliveries = new ns1__ArrayOfDistributorSalePointDelivery);
@@ -244,7 +244,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_SendSellout(PPSoapClientS
 		param._USCOREinvoices->Invoice[i] = p_inv;
 		{
 			p_inv->InvoiceNum = GetDynamicParamString(p_entry->Code, arg_str_pool);
-			temp_buf.Z().Cat(p_entry->Dt, DATF_ISO8601|DATF_CENTURY);
+			temp_buf.Z().Cat(p_entry->Dt, DATF_ISO8601CENT);
 			p_inv->InvoiceDate = GetDynamicParamString(temp_buf, arg_str_pool);
 			if(p_entry->OrderList.getCount()) {
 				THROW(p_inv->OrderDeliveries = new ns1__ArrayOfOrderDelivery);

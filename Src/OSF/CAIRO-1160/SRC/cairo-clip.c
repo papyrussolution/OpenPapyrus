@@ -520,20 +520,21 @@ static boolint _cairo_clip_int_rect_to_user(cairo_gstate_t * gstate, const cairo
 
 cairo_rectangle_list_t * _cairo_rectangle_list_create_in_error(cairo_status_t status)
 {
-	cairo_rectangle_list_t * list;
 	if(status == CAIRO_STATUS_NO_MEMORY)
 		return (cairo_rectangle_list_t*)&_cairo_rectangles_nil;
-	if(status == CAIRO_STATUS_CLIP_NOT_REPRESENTABLE)
+	else if(status == CAIRO_STATUS_CLIP_NOT_REPRESENTABLE)
 		return (cairo_rectangle_list_t*)&_cairo_rectangles_not_representable;
-	list = static_cast<cairo_rectangle_list_t *>(_cairo_malloc(sizeof(*list)));
-	if(UNLIKELY(list == NULL)) {
-		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
-		return (cairo_rectangle_list_t*)&_cairo_rectangles_nil;
+	else {
+		cairo_rectangle_list_t * list = static_cast<cairo_rectangle_list_t *>(_cairo_malloc(sizeof(*list)));
+		if(UNLIKELY(list == NULL)) {
+			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
+			return (cairo_rectangle_list_t*)&_cairo_rectangles_nil;
+		}
+		list->status = status;
+		list->rectangles = NULL;
+		list->num_rectangles = 0;
+		return list;
 	}
-	list->status = status;
-	list->rectangles = NULL;
-	list->num_rectangles = 0;
-	return list;
 }
 
 cairo_rectangle_list_t * _cairo_clip_copy_rectangle_list(const cairo_clip_t * clip, cairo_gstate_t * gstate)

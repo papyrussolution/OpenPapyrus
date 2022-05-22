@@ -927,10 +927,10 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response)
 		ssh_set_error_invalid(session);
 		goto error;
 	}
-	if(session->kbdint == NULL) {
+	if(!session->kbdint) {
 		SSH_LOG(SSH_LOG_PROTOCOL, "Warning: Got a keyboard-interactive response but it seems we didn't send the request.");
 		session->kbdint = ssh_kbdint_new();
-		if(session->kbdint == NULL) {
+		if(!session->kbdint) {
 			ssh_set_error_oom(session);
 			goto error;
 		}

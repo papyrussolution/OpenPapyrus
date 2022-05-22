@@ -236,30 +236,18 @@ int32_t swapFormatVersion3(const UDataSwapper * ds,
 
 		/* swap the script to lead bytes */
 		if(header.scriptToLeadByte!=0) {
-			int indexCount = ds->readUInt16(*((uint16*)(inBytes+header.scriptToLeadByte))); // each entry
-				                                                                          // = 2 *
-				                                                                          // uint16
-			int dataCount = ds->readUInt16(*((uint16*)(inBytes+header.scriptToLeadByte + 2))); // each
-				                                                                             // entry =
-				                                                                             // uint16
-			ds->swapArray16(ds, inBytes+header.scriptToLeadByte,
-			    4 + (4 * indexCount) + (2 * dataCount),
-			    outBytes+header.scriptToLeadByte, pErrorCode);
+			int indexCount = ds->readUInt16(*((uint16*)(inBytes+header.scriptToLeadByte))); // each entry = 2 * uint16
+			int dataCount = ds->readUInt16(*((uint16*)(inBytes+header.scriptToLeadByte + 2))); // each entry = uint16
+			ds->swapArray16(ds, inBytes+header.scriptToLeadByte, 4 + (4 * indexCount) + (2 * dataCount), outBytes+header.scriptToLeadByte, pErrorCode);
 		}
 
 		/* swap the lead byte to scripts */
 		if(header.leadByteToScript!=0) {
-			int indexCount = ds->readUInt16(*((uint16*)(inBytes+header.leadByteToScript))); // each entry
-				                                                                          // = uint16
-			int dataCount = ds->readUInt16(*((uint16*)(inBytes+header.leadByteToScript + 2))); // each
-				                                                                             // entry =
-				                                                                             // uint16
-			ds->swapArray16(ds, inBytes+header.leadByteToScript,
-			    4 + (2 * indexCount) + (2 * dataCount),
-			    outBytes+header.leadByteToScript, pErrorCode);
+			int indexCount = ds->readUInt16(*((uint16*)(inBytes+header.leadByteToScript))); // each entry = uint16
+			int dataCount = ds->readUInt16(*((uint16*)(inBytes+header.leadByteToScript + 2))); // each entry = uint16
+			ds->swapArray16(ds, inBytes+header.leadByteToScript, 4 + (2 * indexCount) + (2 * dataCount), outBytes+header.leadByteToScript, pErrorCode);
 		}
 	}
-
 	return header.size;
 }
 

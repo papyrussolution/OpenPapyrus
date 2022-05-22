@@ -288,7 +288,7 @@ int __lock_getlocker_int(DB_LOCKTAB * lt, uint32 locker, int create, DB_LOCKER *
 		SH_TAILQ_INSERT_HEAD(&region->lockers, sh_locker, ulinks, __db_locker);
 		ENV_GET_THREAD_INFO(env, ip);
 #ifdef DIAGNOSTIC
-		if(ip != NULL)
+		if(ip)
 			ip->dbth_locker = R_OFFSET(&lt->reginfo, sh_locker);
 #endif
 	}

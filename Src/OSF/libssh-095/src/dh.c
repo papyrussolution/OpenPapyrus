@@ -685,7 +685,7 @@ char * ssh_get_fingerprint_hash(enum ssh_publickey_hash_type type, uchar * hash,
 	}
 	str_len += 1 + strlen(fingerprint) + 1;
 	str = (char *)SAlloc::M(str_len);
-	if(str == NULL) {
+	if(!str) {
 		ZFREE(fingerprint);
 		return NULL;
 	}

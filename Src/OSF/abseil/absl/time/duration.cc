@@ -859,7 +859,7 @@ bool ConsumeDurationUnit(const char** start, const char* end, Duration* unit) {
 			    default:
 				break;
 		    }
-		    ABSL_FALLTHROUGH_INTENDED;
+		    CXX_FALLTHROUGH;
 		case 1:
 		    switch(**start) {
 			    case 's':

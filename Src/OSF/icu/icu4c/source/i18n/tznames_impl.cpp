@@ -515,7 +515,7 @@ const UChar * ZNStringPool::adopt(const UChar * s, UErrorCode & status) {
 	if(U_FAILURE(status)) {
 		return &EmptyString;
 	}
-	if(s != NULL) {
+	if(s) {
 		pooledString = static_cast<UChar *>(uhash_get(fHash, s));
 		if(pooledString == NULL) {
 			UChar * ncs = const_cast<UChar *>(s);
@@ -1198,22 +1198,21 @@ UnicodeString &TimeZoneNamesImpl::getMetaZoneDisplayName(const UnicodeString & m
 
 	if(znames != NULL) {
 		const UChar * s = znames->getName(type);
-		if(s != NULL) {
+		if(s) {
 			name.setTo(TRUE, s, -1);
 		}
 	}
 	return name;
 }
 
-UnicodeString &TimeZoneNamesImpl::getTimeZoneDisplayName(const UnicodeString & tzID, UTimeZoneNameType type, UnicodeString & name) const {
+UnicodeString &TimeZoneNamesImpl::getTimeZoneDisplayName(const UnicodeString & tzID, UTimeZoneNameType type, UnicodeString & name) const 
+{
 	name.setToBogus(); // cleanup result.
 	if(tzID.isEmpty()) {
 		return name;
 	}
-
 	ZNames * tznames = NULL;
 	TimeZoneNamesImpl * nonConstThis = const_cast<TimeZoneNamesImpl *>(this);
-
 	{
 		Mutex lock(&gDataMutex);
 		UErrorCode status = U_ZERO_ERROR;
@@ -1222,10 +1221,9 @@ UnicodeString &TimeZoneNamesImpl::getTimeZoneDisplayName(const UnicodeString & t
 			return name;
 		}
 	}
-
 	if(tznames != NULL) {
 		const UChar * s = tznames->getName(type);
-		if(s != NULL) {
+		if(s) {
 			name.setTo(TRUE, s, -1);
 		}
 	}
@@ -2221,7 +2219,7 @@ UnicodeString &TZDBTimeZoneNames::getMetaZoneDisplayName(const UnicodeString & m
 	if(U_SUCCESS(status)) {
 		if(tzdbNames != NULL) {
 			const UChar * s = tzdbNames->getName(type);
-			if(s != NULL) {
+			if(s) {
 				name.setTo(TRUE, s, -1);
 			}
 		}

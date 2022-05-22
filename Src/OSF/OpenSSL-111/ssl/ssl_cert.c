@@ -648,7 +648,7 @@ done:
 	BIO_free(in);
 	X509_free(x);
 	lh_X509_NAME_free(name_hash);
-	if(ret != NULL)
+	if(ret)
 		ERR_clear_error();
 	return ret;
 }

@@ -9,8 +9,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "e_os.h"
-//#include <openssl/safestack.h>
 
 #if defined(__i386)  || defined(__i386__)  || defined(_M_IX86) || defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64)
 
@@ -44,8 +42,6 @@ extern uint OPENSSL_ia32cap_P[4];
 		typedef char variant_char;
 		#define ossl_getenv getenv
 	#endif
-
-	//#include <ctype.h>
 
 	static int todigit(variant_char c)
 	{
@@ -155,7 +151,6 @@ void OPENSSL_cpuid_setup(void)
 
 #if defined(_WIN32)
 #include <tchar.h>
-//#include <signal.h>
 #ifdef __WATCOMC__
 	#if defined(_UNICODE) || defined(__UNICODE__)
 		#define _vsntprintf _vsnwprintf
@@ -191,7 +186,7 @@ void OPENSSL_cpuid_setup(void)
 				FARPROC f = NULL;
 				if(mod != NULL)
 					f = GetProcAddress(static_cast<HMODULE>(mod), "_OPENSSL_isservice");
-				if(f == NULL)
+				if(!f)
 					_OPENSSL_isservice.p = (void *)-1;
 				else
 					_OPENSSL_isservice.f = f;
@@ -199,7 +194,7 @@ void OPENSSL_cpuid_setup(void)
 			if(_OPENSSL_isservice.p != (void *)-1)
 				return (*_OPENSSL_isservice.f)();
 			h = GetProcessWindowStation();
-			if(h == NULL)
+			if(!h)
 				return -1;
 			if(GetUserObjectInformationW(h, UOI_NAME, NULL, 0, &len) || GetLastError() != ERROR_INSUFFICIENT_BUFFER)
 				return -1;

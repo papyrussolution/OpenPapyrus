@@ -283,13 +283,8 @@ using ::absl::random_internal::RandenTraits;
 
 // The improved Feistel block shuffle function for 16 blocks.
 inline ABSL_RANDOM_INTERNAL_ATTRIBUTE_ALWAYS_INLINE void BlockShuffle(absl::uint128* state) {
-	static_assert(RandenTraits::kFeistelBlocks == 16,
-	    "Feistel block shuffle only works for 16 blocks.");
-
-	constexpr size_t shuffle[RandenTraits::kFeistelBlocks] = {
-		7, 2, 13, 4, 11, 8, 3, 6, 15, 0, 9, 10, 1, 14, 5, 12
-	};
-
+	static_assert(RandenTraits::kFeistelBlocks == 16, "Feistel block shuffle only works for 16 blocks.");
+	constexpr size_t shuffle[RandenTraits::kFeistelBlocks] = { 7, 2, 13, 4, 11, 8, 3, 6, 15, 0, 9, 10, 1, 14, 5, 12 };
 	// The fully unrolled loop without the memcpy improves the speed by about
 	// 30% over the equivalent:
 #if 0

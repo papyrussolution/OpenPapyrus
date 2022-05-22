@@ -298,7 +298,7 @@ static UResourceDataEntry * init_entry(const char * localeID, const char * path,
 	}
 
 	/* here we try to deduce the right locale name */
-	if(localeID == NULL) { /* if localeID is NULL, we're trying to open default locale */
+	if(!localeID) { /* if localeID is NULL, we're trying to open default locale */
 		name = uloc_getDefault();
 	}
 	else if(*localeID == 0) { /* if localeID is "" then we try to open root locale */
@@ -317,10 +317,10 @@ static UResourceDataEntry * init_entry(const char * localeID, const char * path,
 
 	/* check to see if we already have this entry */
 	r = (UResourceDataEntry*)uhash_get(cache, &find);
-	if(r == NULL) {
+	if(!r) {
 		/* if the entry is not yet in the hash table, we'll try to construct a new one */
 		r = (UResourceDataEntry*)uprv_malloc(sizeof(UResourceDataEntry));
-		if(r == NULL) {
+		if(!r) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			return NULL;
 		}
@@ -717,7 +717,7 @@ static UResourceDataEntry * entryOpen(const char * path, const char * localeID, 
 
 	/* we could still have r == NULL at this point - maybe even default locale is not */
 	/* present */
-	if(r == NULL) {
+	if(!r) {
 		uprv_strcpy(name, kRootLocaleName);
 		r = findFirstExisting(path, name, defaultLocale, &isRoot, &hasChopped, &isDefault, &intStatus);
 		// If we failed due to out-of-memory, report the failure and exit early.
@@ -777,7 +777,7 @@ static UResourceDataEntry * entryOpenDirect(const char * path, const char * loca
 
 	// Note: We need to query the default locale *before* locking resbMutex.
 	// If the localeID is NULL, then we want to use the default locale.
-	if(localeID == NULL) {
+	if(!localeID) {
 		localeID = uloc_getDefault();
 	}
 	else if(*localeID == 0) {
@@ -1260,7 +1260,7 @@ UResourceBundle * init_resb_result(UResourceDataEntry * dataEntry, Resource r, c
 		ures_appendResPath(
 			resB, containerResPath, static_cast<int32_t>(uprv_strlen(containerResPath)), status);
 	}
-	if(key != NULL) {
+	if(key) {
 		ures_appendResPath(resB, key, (int32_t)uprv_strlen(key), status);
 		if(resB->fResPath[resB->fResPathLen-1] != RES_PATH_SEPARATOR) {
 			ures_appendResPath(resB, RES_PATH_SEPARATOR_S, 1, status);
@@ -1303,11 +1303,11 @@ UResourceBundle * ures_copyResb(UResourceBundle * r, const UResourceBundle * ori
 		return r;
 	}
 	if(original != NULL) {
-		if(r == NULL) {
+		if(!r) {
 			isStackObject = FALSE;
 			r = (UResourceBundle*)uprv_malloc(sizeof(UResourceBundle));
 			/* test for NULL */
-			if(r == NULL) {
+			if(!r) {
 				*status = U_MEMORY_ALLOCATION_ERROR;
 				return NULL;
 			}
@@ -1344,7 +1344,7 @@ U_CAPI const UChar * U_EXPORT2 ures_getString(const UResourceBundle * resB, int3
 		return NULL;
 	}
 	s = res_getString({resB}, &resB->getResData(), resB->fRes, len);
-	if(s == NULL) {
+	if(!s) {
 		*status = U_RESOURCE_TYPE_MISMATCH;
 	}
 	return s;
@@ -1588,19 +1588,18 @@ U_CAPI const UChar * U_EXPORT2 ures_getNextString(UResourceBundle * resB, int32_
 			case URES_BINARY:
 			case URES_INT_VECTOR:
 			    *status = U_RESOURCE_TYPE_MISMATCH;
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			default:
 			    return NULL;
 		}
 	}
-
 	return NULL;
 }
 
-U_CAPI UResourceBundle * U_EXPORT2 ures_getNextResource(UResourceBundle * resB, UResourceBundle * fillIn, UErrorCode * status) {
+U_CAPI UResourceBundle * U_EXPORT2 ures_getNextResource(UResourceBundle * resB, UResourceBundle * fillIn, UErrorCode * status) 
+{
 	const char * key = NULL;
 	Resource r = RES_BOGUS;
-
 	if(!status || U_FAILURE(*status)) {
 		/*return NULL;*/
 		return fillIn;
@@ -1648,13 +1647,10 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getNextResource(UResourceBundle * resB, 
 	return fillIn;
 }
 
-U_CAPI UResourceBundle * U_EXPORT2 ures_getByIndex(const UResourceBundle * resB,
-    int32_t indexR,
-    UResourceBundle * fillIn,
-    UErrorCode * status) {
+U_CAPI UResourceBundle * U_EXPORT2 ures_getByIndex(const UResourceBundle * resB, int32_t indexR, UResourceBundle * fillIn, UErrorCode * status) 
+{
 	const char * key = NULL;
 	Resource r = RES_BOGUS;
-
 	if(!status || U_FAILURE(*status)) {
 		/*return NULL;*/
 		return fillIn;
@@ -1664,7 +1660,6 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByIndex(const UResourceBundle * resB,
 		/*return NULL;*/
 		return fillIn;
 	}
-
 	if(indexR >= 0 && resB->fSize > indexR) {
 		switch(RES_GET_TYPE(resB->fRes)) {
 			case URES_INT:
@@ -1700,10 +1695,10 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByIndex(const UResourceBundle * resB,
 	return fillIn;
 }
 
-U_CAPI const UChar * U_EXPORT2 ures_getStringByIndex(const UResourceBundle * resB, int32_t indexS, int32_t* len, UErrorCode * status) {
+U_CAPI const UChar * U_EXPORT2 ures_getStringByIndex(const UResourceBundle * resB, int32_t indexS, int32_t* len, UErrorCode * status) 
+{
 	const char * key = NULL;
 	Resource r = RES_BOGUS;
-
 	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
@@ -1711,7 +1706,6 @@ U_CAPI const UChar * U_EXPORT2 ures_getStringByIndex(const UResourceBundle * res
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
-
 	if(indexS >= 0 && resB->fSize > indexS) {
 		switch(RES_GET_TYPE(resB->fRes)) {
 			case URES_STRING:
@@ -2526,14 +2520,14 @@ static UResourceBundle * ures_openWithType(UResourceBundle * r, const char * pat
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-	if(entry == NULL) {
+	if(!entry) {
 		*status = U_MISSING_RESOURCE_ERROR;
 		return NULL;
 	}
 	bool isStackObject;
-	if(r == NULL) {
+	if(!r) {
 		r = (UResourceBundle*)uprv_malloc(sizeof(UResourceBundle));
-		if(r == NULL) {
+		if(!r) {
 			entryClose(entry);
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			return NULL;

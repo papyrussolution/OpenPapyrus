@@ -576,9 +576,9 @@ ngx_int_t ngx_http_variable_unknown_header(ngx_http_variable_value_t * v, ngx_st
 static ngx_int_t ngx_http_variable_request_line(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
 	u_char * s = r->request_line.data;
-	if(s == NULL) {
+	if(!s) {
 		s = r->request_start;
-		if(s == NULL) {
+		if(!s) {
 			v->not_found = 1;
 			return NGX_OK;
 		}

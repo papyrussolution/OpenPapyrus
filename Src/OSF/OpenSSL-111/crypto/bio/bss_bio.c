@@ -15,10 +15,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-////#include "e_os.h"
-//#include "bio_lcl.h"
-//#include <openssl/err.h>
-//#include <openssl/crypto.h>
 
 static int bio_new(BIO * bio);
 static int bio_free(BIO * bio);
@@ -26,7 +22,6 @@ static int bio_read(BIO * bio, char * buf, int size);
 static int bio_write(BIO * bio, const char * buf, int num);
 static long bio_ctrl(BIO * bio, int cmd, long num, void * ptr);
 static int bio_puts(BIO * bio, const char * str);
-
 static int bio_make_pair(BIO * bio1, BIO * bio2);
 static void bio_destroy_pair(BIO * bio);
 
@@ -210,7 +205,7 @@ static ossl_ssize_t bio_nread0(BIO * bio, char ** buf)
 		num = peer_b->size - peer_b->offset;
 	assert(num > 0);
 
-	if(buf != NULL)
+	if(buf)
 		*buf = peer_b->buf + peer_b->offset;
 	return num;
 }
@@ -343,7 +338,7 @@ static ossl_ssize_t bio_nwrite0(BIO * bio, char ** buf)
 		 */
 		num = b->size - write_offset;
 
-	if(buf != NULL)
+	if(buf)
 		*buf = b->buf + write_offset;
 	assert(write_offset + num <= b->size);
 

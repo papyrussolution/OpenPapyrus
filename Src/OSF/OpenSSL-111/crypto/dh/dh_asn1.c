@@ -82,7 +82,7 @@ DH *d2i_DHxparams(DH **a, const uchar ** pp, long length)
 	int_dhx942_dh * dhx = NULL;
 	DH * dh = NULL;
 	dh = DH_new();
-	if(dh == NULL)
+	if(!dh)
 		return NULL;
 	dhx = d2i_int_dhx(NULL, pp, length);
 	if(dhx == NULL) {

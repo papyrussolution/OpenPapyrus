@@ -93,7 +93,7 @@ int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
 	}
 	if((mont = BN_MONT_CTX_new()) == NULL)
 		goto err;
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		goto err;
 	BN_CTX_start(ctx);
 	r0 = BN_CTX_get(ctx);
@@ -353,7 +353,7 @@ int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
 			memcpy(seed, seed_in, seed_len);
 	}
 
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		goto err;
 
 	if((mont = BN_MONT_CTX_new()) == NULL)
@@ -380,10 +380,9 @@ int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
 	else {
 		p = BN_CTX_get(ctx);
 		q = BN_CTX_get(ctx);
-		if(q == NULL)
+		if(!q)
 			goto err;
 	}
-
 	if(!BN_lshift(test, BN_value_one(), L - 1))
 		goto err;
 	for(;;) {

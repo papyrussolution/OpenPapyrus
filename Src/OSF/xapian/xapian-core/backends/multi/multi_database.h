@@ -11,10 +11,6 @@
 #ifndef XAPIAN_INCLUDED_MULTI_DATABASE_H
 #define XAPIAN_INCLUDED_MULTI_DATABASE_H
 
-//#include "termlist.h"
-//#include "backends/databaseinternal.h"
-//#include "backends/valuelist.h"
-
 class LeafPostList;
 class Matcher;
 class ValueStreamDocument;

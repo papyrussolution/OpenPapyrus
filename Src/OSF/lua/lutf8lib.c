@@ -104,7 +104,7 @@ static int codepoint(lua_State * L)
 	for(s += posi - 1; s < se;) {
 		int code;
 		s = utf8_decode(s, &code);
-		if(s == NULL)
+		if(!s)
 			return luaL_error(L, "invalid UTF-8 code");
 		lua_pushinteger(L, code);
 		n++;

@@ -384,7 +384,7 @@ static int nid_cb(const char * elem, int len, void * arg)
 	size_t i;
 	int nid;
 	char etmp[20];
-	if(elem == NULL)
+	if(!elem)
 		return 0;
 	if(narg->nidcnt == MAX_CURVELIST)
 		return 0;
@@ -1943,7 +1943,7 @@ static int sig_cb(const char * elem, int len, void * arg)
 	const SIGALG_LOOKUP * s;
 	char etmp[TLS_MAX_SIGSTRING_LEN], * p;
 	int sig_alg = NID_undef, hash_alg = NID_undef;
-	if(elem == NULL)
+	if(!elem)
 		return 0;
 	if(sarg->sigalgcnt == TLS_MAX_SIGALGCNT)
 		return 0;
@@ -2212,8 +2212,7 @@ int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
 	if(TLS1_get_version(s) >= TLS1_2_VERSION && strict_mode) {
 		int default_nid;
 		int rsign = 0;
-		if(s->s3->tmp.peer_cert_sigalgs != NULL
-		   || s->s3->tmp.peer_sigalgs != NULL) {
+		if(s->s3->tmp.peer_cert_sigalgs != NULL || s->s3->tmp.peer_sigalgs != NULL) {
 			default_nid = 0;
 			/* If no sigalgs extension use defaults from RFC5246 */
 		}
@@ -2223,7 +2222,6 @@ int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
 				    rsign = EVP_PKEY_RSA;
 				    default_nid = NID_sha1WithRSAEncryption;
 				    break;
-
 				case SSL_PKEY_DSA_SIGN:
 				    rsign = EVP_PKEY_DSA;
 				    default_nid = NID_dsaWithSHA1;

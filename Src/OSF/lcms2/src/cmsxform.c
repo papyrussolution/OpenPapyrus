@@ -65,7 +65,7 @@ _cmsAlarmCodesChunkType _cmsAlarmCodesChunk = { DEFAULT_ALARM_CODES_VALUE };
 void CMSEXPORT cmsSetAlarmCodesTHR(cmsContext ContextID, const uint16 AlarmCodesP[cmsMAXCHANNELS])
 {
 	_cmsAlarmCodesChunkType* ContextAlarmCodes = (_cmsAlarmCodesChunkType*)_cmsContextGetClientChunk(ContextID, AlarmCodesContext);
-	_cmsAssert(ContextAlarmCodes != NULL); // Can't happen
+	assert(ContextAlarmCodes != NULL); // Can't happen
 	memcpy(ContextAlarmCodes->AlarmCodes, AlarmCodesP, sizeof(ContextAlarmCodes->AlarmCodes));
 }
 
@@ -74,19 +74,19 @@ void CMSEXPORT cmsSetAlarmCodesTHR(cmsContext ContextID, const uint16 AlarmCodes
 void CMSEXPORT cmsGetAlarmCodesTHR(cmsContext ContextID, uint16 AlarmCodesP[cmsMAXCHANNELS])
 {
 	_cmsAlarmCodesChunkType* ContextAlarmCodes = (_cmsAlarmCodesChunkType*)_cmsContextGetClientChunk(ContextID, AlarmCodesContext);
-	_cmsAssert(ContextAlarmCodes != NULL); // Can't happen
+	assert(ContextAlarmCodes != NULL); // Can't happen
 	memcpy(AlarmCodesP, ContextAlarmCodes->AlarmCodes, sizeof(ContextAlarmCodes->AlarmCodes));
 }
 
 void CMSEXPORT cmsSetAlarmCodes(const uint16 NewAlarm[cmsMAXCHANNELS])
 {
-	_cmsAssert(NewAlarm != NULL);
+	assert(NewAlarm != NULL);
 	cmsSetAlarmCodesTHR(NULL, NewAlarm);
 }
 
 void CMSEXPORT cmsGetAlarmCodes(uint16 OldAlarm[cmsMAXCHANNELS])
 {
-	_cmsAssert(OldAlarm != NULL);
+	assert(OldAlarm != NULL);
 	cmsGetAlarmCodesTHR(NULL, OldAlarm);
 }
 
@@ -104,7 +104,7 @@ void _cmsAllocAlarmCodesChunk(struct _cmsContext_struct* ctx, const struct _cmsC
 void CMSEXPORT cmsDeleteTransform(cmsHTRANSFORM hTransform)
 {
 	_cmsTRANSFORM * p = (_cmsTRANSFORM*)hTransform;
-	_cmsAssert(p != NULL);
+	assert(p != NULL);
 	cmsPipelineFree(p->GamutCheck);
 	cmsPipelineFree(p->Lut);
 	cmsFreeNamedColorList(p->InputColorant);
@@ -525,7 +525,7 @@ boolint _cmsRegisterTransformPlugin(cmsContext ContextID, cmsPluginBase* Data)
 
 void CMSEXPORT _cmsSetTransformUserData(struct _cmstransform_struct * CMMcargo, void * ptr, _cmsFreeUserDataFn FreePrivateDataFn)
 {
-	_cmsAssert(CMMcargo != NULL);
+	assert(CMMcargo != NULL);
 	CMMcargo->UserData = ptr;
 	CMMcargo->FreeUserData = FreePrivateDataFn;
 }
@@ -533,14 +533,14 @@ void CMSEXPORT _cmsSetTransformUserData(struct _cmstransform_struct * CMMcargo, 
 // returns the pointer defined by the plug-in to store private data
 void * CMSEXPORT _cmsGetTransformUserData(struct _cmstransform_struct * CMMcargo)
 {
-	_cmsAssert(CMMcargo != NULL);
+	assert(CMMcargo != NULL);
 	return CMMcargo->UserData;
 }
 
 // returns the current formatters
 void CMSEXPORT _cmsGetTransformFormatters16(struct _cmstransform_struct * CMMcargo, cmsFormatter16* FromInput, cmsFormatter16* ToOutput)
 {
-	_cmsAssert(CMMcargo != NULL);
+	assert(CMMcargo != NULL);
 	if(FromInput) *FromInput = CMMcargo->FromInput;
 	if(ToOutput) *ToOutput  = CMMcargo->ToOutput;
 }
@@ -549,7 +549,7 @@ void CMSEXPORT _cmsGetTransformFormattersFloat(struct _cmstransform_struct * CMM
     cmsFormatterFloat* FromInput,
     cmsFormatterFloat* ToOutput)
 {
-	_cmsAssert(CMMcargo != NULL);
+	assert(CMMcargo != NULL);
 	if(FromInput) *FromInput = CMMcargo->FromInputFloat;
 	if(ToOutput) *ToOutput  = CMMcargo->ToOutputFloat;
 }
@@ -557,7 +557,7 @@ void CMSEXPORT _cmsGetTransformFormattersFloat(struct _cmstransform_struct * CMM
 // Allocate transform struct and set it to defaults. Ask the optimization plug-in about if those formats are proper
 // for separated transforms. If this is the case,
 static _cmsTRANSFORM* AllocEmptyTransform(cmsContext ContextID, cmsPipeline * lut,
-    uint32 Intent, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags)
+    uint32 Intent, uint32 * InputFormat, uint32 * OutputFormat, uint32 * dwFlags)
 {
 	_cmsTransformPluginChunkType* ctx = (_cmsTransformPluginChunkType*)_cmsContextGetClientChunk(ContextID, TransformPlugin);
 	_cmsTransformCollection* Plugin;
@@ -795,7 +795,7 @@ cmsHTRANSFORM CMSEXPORT cmsCreateExtendedTransform(cmsContext ContextID,
 
 	// Create a pipeline with all transformations
 	Lut = _cmsLinkProfiles(ContextID, nProfiles, Intents, hProfiles, BPC, AdaptationStates, dwFlags);
-	if(Lut == NULL) {
+	if(!Lut) {
 		cmsSignalError(ContextID, cmsERROR_NOT_SUITABLE, "Couldn't link the profiles");
 		return NULL;
 	}
@@ -810,7 +810,7 @@ cmsHTRANSFORM CMSEXPORT cmsCreateExtendedTransform(cmsContext ContextID,
 
 	// All seems ok
 	xform = AllocEmptyTransform(ContextID, Lut, LastIntent, &InputFormat, &OutputFormat, &dwFlags);
-	if(xform == NULL) {
+	if(!xform) {
 		return NULL;
 	}
 

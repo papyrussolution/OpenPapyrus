@@ -828,7 +828,7 @@ INT_PTR CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 						    modifCmd = IDM_SETTING_SHORTCUT_MAPPER_MACRO;
 						    for(size_t i = shortcutIndex; i < nbElem; ++i) { // lower the IDs of the remaining items so there are no gaps
 							    MacroShortcut ms = theMacros[i];
-							    ms.setID(ms.getID() - 1);                   //shift all IDs
+							    ms.setID(ms.getID() - 1); //shift all IDs
 							    theMacros[i] = ms;
 						    }
 					    }
@@ -856,25 +856,21 @@ INT_PTR CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 						    modifCmd = IDM_SETTING_SHORTCUT_MAPPER_RUN;
 						    for(size_t i = shortcutIndex; i < nbElem; ++i) { // lower the IDs of the remaining items so there are no gaps
 							    UserCommand uc = theUserCmds[i];
-							    uc.setID(uc.getID() - 1);                   //shift all IDs
+							    uc.setID(uc.getID() - 1); //shift all IDs
 							    theUserCmds[i] = uc;
 						    }
 					    }
 					    break;
 					}
-
 					// updateShortcuts() will update all menu item - the menu items will be shifted
 					nppParam.getAccelerator()->updateShortcuts();
 					nppParam.setShortcutDirty();
-
-					if(!hMenu) return FALSE;
-
+					if(!hMenu) 
+						return FALSE;
 					// All menu items are shifted up. So we delete the last item
 					::RemoveMenu(hMenu, posBase + static_cast<int32_t>(nbElem), MF_BYPOSITION);
-
 					if(nbElem == 0) {
 						::RemoveMenu(hMenu, modifCmd, MF_BYCOMMAND);
-
 						//remove separator
 						::RemoveMenu(hMenu, posBase-1, MF_BYPOSITION);
 						::RemoveMenu(hMenu, posBase-1, MF_BYPOSITION);
@@ -1039,12 +1035,8 @@ bool ShortcutMapper::findKeyConflicts(__inout_opt generic_string * const keyConf
 			    for(size_t itemIndex = 0; itemIndex < nbItems; ++itemIndex) {
 				    if(!vShortcuts[itemIndex].isEnabled())      //no key assignment
 					    continue;
-
-				    if((itemIndex == itemIndexToTest) && (gridState == static_cast<size_t>(_currentState)))      //don't
-						                                                                                 // catch
-						                                                                                 // oneself
+				    if((itemIndex == itemIndexToTest) && (gridState == static_cast<size_t>(_currentState))) // don't catch oneself
 					    continue;
-
 				    if(isConflict(vShortcuts[itemIndex].getKeyCombo(), itemKeyComboToTest)) {
 					    retIsConflict = true;
 					    if(keyConflictLocation == nullptr)
@@ -1100,14 +1092,10 @@ bool ShortcutMapper::findKeyConflicts(__inout_opt generic_string * const keyConf
 			    vector <UserCommand> & vShortcuts = nppParam.getUserCommandList();
 			    size_t nbItems = vShortcuts.size();
 			    for(size_t itemIndex = 0; itemIndex < nbItems; ++itemIndex) {
-				    if(!vShortcuts[itemIndex].isEnabled())      //no key assignment
+				    if(!vShortcuts[itemIndex].isEnabled()) // no key assignment
 					    continue;
-
-				    if((itemIndex == itemIndexToTest) && (gridState == static_cast<size_t>(_currentState)))      //don't
-						                                                                                 // catch
-						                                                                                 // oneself
+				    if((itemIndex == itemIndexToTest) && (gridState == static_cast<size_t>(_currentState))) // don't catch oneself
 					    continue;
-
 				    if(isConflict(vShortcuts[itemIndex].getKeyCombo(), itemKeyComboToTest)) {
 					    retIsConflict = true;
 					    if(keyConflictLocation == nullptr)
@@ -1135,12 +1123,8 @@ bool ShortcutMapper::findKeyConflicts(__inout_opt generic_string * const keyConf
 			    for(size_t itemIndex = 0; itemIndex < nbItems; ++itemIndex) {
 				    if(!vShortcuts[itemIndex].isEnabled())      //no key assignment
 					    continue;
-
-				    if((itemIndex == itemIndexToTest) && (gridState == static_cast<size_t>(_currentState)))      //don't
-						                                                                                 // catch
-						                                                                                 // oneself
+				    if((itemIndex == itemIndexToTest) && (gridState == static_cast<size_t>(_currentState))) // don't catch oneself
 					    continue;
-
 				    if(isConflict(vShortcuts[itemIndex].getKeyCombo(), itemKeyComboToTest)) {
 					    retIsConflict = true;
 					    if(keyConflictLocation == nullptr)
@@ -1168,12 +1152,8 @@ bool ShortcutMapper::findKeyConflicts(__inout_opt generic_string * const keyConf
 			    for(size_t itemIndex = 0; itemIndex < nbItems; ++itemIndex) {
 				    if(!vShortcuts[itemIndex].isEnabled())      //no key assignment
 					    continue;
-
-				    if((itemIndex == itemIndexToTest) && (gridState == static_cast<size_t>(_currentState)))      //don't
-						                                                                                 // catch
-						                                                                                 // oneself
+				    if((itemIndex == itemIndexToTest) && (gridState == static_cast<size_t>(_currentState))) // don't catch oneself
 					    continue;
-
 				    size_t sciCombos = vShortcuts[itemIndex].getSize();
 				    for(size_t sciIndex = 0; sciIndex < sciCombos; ++sciIndex) {
 					    if(isConflict(vShortcuts[itemIndex].getKeyComboByIndex(sciIndex), itemKeyComboToTest)) {

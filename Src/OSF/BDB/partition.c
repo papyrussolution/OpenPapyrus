@@ -216,7 +216,7 @@ int __partition_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * f
 	}
 	sp = name;
 	np = __db_rpath(fname);
-	if(np == NULL)
+	if(!np)
 		np = fname;
 	else {
 		np++;
@@ -1110,7 +1110,7 @@ int __part_fileid_reset(ENV * env, DB_THREAD_INFO * ip, const char * fname, uint
 	}
 	sp = name;
 	np = __db_rpath(fname);
-	if(np == NULL)
+	if(!np)
 		np = fname;
 	else {
 		np++;

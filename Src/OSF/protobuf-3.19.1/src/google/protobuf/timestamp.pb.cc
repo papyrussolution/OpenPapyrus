@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 PROTOBUF_NAMESPACE_OPEN
-constexpr Timestamp::Timestamp(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Timestamp::Timestamp(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : seconds_(int64_t{0})
   , nanos_(0){}
 struct TimestampDefaultTypeInternal {
@@ -90,17 +89,12 @@ Timestamp::Timestamp(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 Timestamp::Timestamp(const Timestamp& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&seconds_, &from.seconds_,
-    static_cast<size_t>(reinterpret_cast<char*>(&nanos_) -
-    reinterpret_cast<char*>(&seconds_)) + sizeof(nanos_));
+  ::memcpy(&seconds_, &from.seconds_, static_cast<size_t>(reinterpret_cast<char*>(&nanos_) - reinterpret_cast<char*>(&seconds_)) + sizeof(nanos_));
   // @@protoc_insertion_point(copy_constructor:google.protobuf.Timestamp)
 }
 
 inline void Timestamp::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&seconds_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&nanos_) -
-    reinterpret_cast<char*>(&seconds_)) + sizeof(nanos_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&seconds_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&nanos_) - reinterpret_cast<char*>(&seconds_)) + sizeof(nanos_));
 }
 
 Timestamp::~Timestamp() {
@@ -118,8 +112,7 @@ void Timestamp::ArenaDtor(void* object) {
   Timestamp* _this = reinterpret_cast< Timestamp* >(object);
   (void)_this;
 }
-void Timestamp::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Timestamp::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Timestamp::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -130,9 +123,7 @@ void Timestamp::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&seconds_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&nanos_) -
-      reinterpret_cast<char*>(&seconds_)) + sizeof(nanos_));
+  ::memset(&seconds_, 0, static_cast<size_t>(reinterpret_cast<char*>(&nanos_) - reinterpret_cast<char*>(&seconds_)) + sizeof(nanos_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -166,10 +157,7 @@ const char* Timestamp::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -233,10 +221,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Timestamp::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Timestamp::GetClassData() const { return &_class_data_; }
 
-void Timestamp::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Timestamp *>(to)->MergeFrom(
-      static_cast<const Timestamp &>(from));
+void Timestamp::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Timestamp *>(to)->MergeFrom(static_cast<const Timestamp &>(from));
 }
 
 

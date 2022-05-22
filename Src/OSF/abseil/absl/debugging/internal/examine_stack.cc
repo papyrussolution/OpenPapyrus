@@ -119,35 +119,29 @@ static void DumpPCAndFrameSizeAndSymbol(void (*writerfn)(const char*, void*),
 	}
 	char buf[1024];
 	if(framesize <= 0) {
-		snprintf(buf, sizeof(buf), "%s@ %*p  (unknown)  %s\n", prefix,
-		    kPrintfPointerFieldWidth, pc, symbol);
+		snprintf(buf, sizeof(buf), "%s@ %*p  (unknown)  %s\n", prefix, kPrintfPointerFieldWidth, pc, symbol);
 	}
 	else {
-		snprintf(buf, sizeof(buf), "%s@ %*p  %9d  %s\n", prefix,
-		    kPrintfPointerFieldWidth, pc, framesize, symbol);
+		snprintf(buf, sizeof(buf), "%s@ %*p  %9d  %s\n", prefix, kPrintfPointerFieldWidth, pc, framesize, symbol);
 	}
 	writerfn(buf, writerfn_arg);
 }
 
 // Print a program counter and the corresponding stack frame size.
-static void DumpPCAndFrameSize(void (* writerfn)(const char*, void*),
-    void* writerfn_arg, void* pc, int framesize,
-    const char* const prefix) {
+static void DumpPCAndFrameSize(void (* writerfn)(const char*, void*), void* writerfn_arg, void* pc, int framesize, const char* const prefix) 
+{
 	char buf[100];
 	if(framesize <= 0) {
-		snprintf(buf, sizeof(buf), "%s@ %*p  (unknown)\n", prefix,
-		    kPrintfPointerFieldWidth, pc);
+		snprintf(buf, sizeof(buf), "%s@ %*p  (unknown)\n", prefix, kPrintfPointerFieldWidth, pc);
 	}
 	else {
-		snprintf(buf, sizeof(buf), "%s@ %*p  %9d\n", prefix,
-		    kPrintfPointerFieldWidth, pc, framesize);
+		snprintf(buf, sizeof(buf), "%s@ %*p  %9d\n", prefix, kPrintfPointerFieldWidth, pc, framesize);
 	}
 	writerfn(buf, writerfn_arg);
 }
 
-void DumpPCAndFrameSizesAndStackTrace(void* pc, void* const stack[], int frame_sizes[], int depth,
-    int min_dropped_frames, bool symbolize_stacktrace,
-    void (* writerfn)(const char*, void*), void* writerfn_arg) {
+void DumpPCAndFrameSizesAndStackTrace(void* pc, void* const stack[], int frame_sizes[], int depth, int min_dropped_frames, bool symbolize_stacktrace, void (* writerfn)(const char*, void*), void* writerfn_arg) 
+{
 	if(pc != nullptr) {
 		// We don't know the stack frame size for PC, use 0.
 		if(symbolize_stacktrace) {
@@ -164,19 +158,15 @@ void DumpPCAndFrameSizesAndStackTrace(void* pc, void* const stack[], int frame_s
 			// call to a function annotated noreturn (e.g. CHECK). Note that we don't
 			// do this for pc above, as the adjustment is only correct for return
 			// addresses.
-			DumpPCAndFrameSizeAndSymbol(writerfn, writerfn_arg, stack[i],
-			    reinterpret_cast<char*>(stack[i]) - 1,
-			    frame_sizes[i], "    ");
+			DumpPCAndFrameSizeAndSymbol(writerfn, writerfn_arg, stack[i], reinterpret_cast<char*>(stack[i]) - 1, frame_sizes[i], "    ");
 		}
 		else {
-			DumpPCAndFrameSize(writerfn, writerfn_arg, stack[i], frame_sizes[i],
-			    "    ");
+			DumpPCAndFrameSize(writerfn, writerfn_arg, stack[i], frame_sizes[i], "    ");
 		}
 	}
 	if(min_dropped_frames > 0) {
 		char buf[100];
-		snprintf(buf, sizeof(buf), "    @ ... and at least %d more frames\n",
-		    min_dropped_frames);
+		snprintf(buf, sizeof(buf), "    @ ... and at least %d more frames\n", min_dropped_frames);
 		writerfn(buf, writerfn_arg);
 	}
 }

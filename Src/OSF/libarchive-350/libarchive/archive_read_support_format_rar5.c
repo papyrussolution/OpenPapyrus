@@ -883,7 +883,7 @@ static int read_var_sized(struct archive_read* a, size_t* pvalue, size_t* pvalue
 	return ret;
 }
 
-static int read_bits_32(struct rar5* rar, const uint8 * p, uint32* value) 
+static int read_bits_32(struct rar5* rar, const uint8 * p, uint32 * value) 
 {
 	uint32 bits = ((uint32)p[rar->bits.in_addr]) << 24;
 	bits |= p[rar->bits.in_addr + 1] << 16;
@@ -938,7 +938,7 @@ static int read_consume_bits(struct rar5* rar, const uint8 * p, int n,
 	return ARCHIVE_OK;
 }
 
-static int read_u32(struct archive_read* a, uint32* pvalue) {
+static int read_u32(struct archive_read* a, uint32 * pvalue) {
 	const uint8 * p;
 	if(!read_ahead(a, 4, &p))
 		return 0;
@@ -2332,7 +2332,7 @@ static int parse_block_header(struct archive_read* a, const uint8 * p, ssize_t* 
 }
 
 /* Convenience function used during filter processing. */
-static int parse_filter_data(struct rar5* rar, const uint8 * p, uint32* filter_data)
+static int parse_filter_data(struct rar5* rar, const uint8 * p, uint32 * filter_data)
 {
 	int i, bytes;
 	uint32 data = 0;

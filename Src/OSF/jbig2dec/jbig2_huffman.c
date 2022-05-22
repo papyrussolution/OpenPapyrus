@@ -362,7 +362,7 @@ Jbig2HuffmanTable * jbig2_build_huffman_table(Jbig2Ctx * ctx, const Jbig2Huffman
 	jbig2_error(ctx, JBIG2_SEVERITY_DEBUG, JBIG2_UNKNOWN_SEGMENT_NUMBER, "constructing huffman table log size %d", log_table_size);
 	max_j = 1 << log_table_size;
 	result = jbig2_new(ctx, Jbig2HuffmanTable, 1);
-	if(result == NULL) {
+	if(!result) {
 		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate result");
 		jbig2_free(ctx->allocator, LENCOUNT);
 		return NULL;

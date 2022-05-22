@@ -18,6 +18,7 @@ public class Document {
 	ArrayList <TransferItem> TiList;
 	ArrayList <BookingItem> BkList; // Список позиций повременных элементов, связанных с процессорами
 	ArrayList <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
+	private int AfterTransmitStatusFlags; // Флаги статуса документа, которые должны быть установлены в БД после успешной отправки сервису
 
 	public static class Head {
 		long   ID;
@@ -27,6 +28,7 @@ public class Document {
 		int    OpID;
 		int    ClientID;  // service-domain-id
 		int    DlvrLocID; // service-domain-id
+		int    Flags;     // Проекция поля SecTable.Rec.Flags styloqfDocXXX
 		double Amount;    // Номинальная сумма документа
 		String Code;
 		byte [] SvcIdent;
@@ -145,6 +147,14 @@ public class Document {
 			Set = new ValuSet();
 			Memo = null;
 		}
+		double GetAmount_Price()
+		{
+			double result = 0.0;
+			if(Set != null) {
+				result = (Set.Qtty > 0.0) ? (Set.Price * Set.Qtty) : Set.Price;
+			}
+			return result;
+		}
 		SLib.STimeChunk GetEsimatedTimeChunk()
 		{
 			SLib.STimeChunk result = null;
@@ -169,6 +179,7 @@ public class Document {
 	}
 	Document()
 	{
+		AfterTransmitStatusFlags = 0;
 		H = null;
 		TiList = null;
 		BkList = null;
@@ -183,6 +194,7 @@ public class Document {
 			H = new Document.Head();
 			H.CreationTime = System.currentTimeMillis();
 			H.OpID = opID;
+			H.Flags = StyloQDatabase.SecStoragePacket.styloqfDocDraft; // Новый док автоматом является draft-документом
 			H.Uuid = UUID.randomUUID();
 			if(SLib.GetLen(svcIdent) > 0 && appCtx != null) {
 				StyloQDatabase db = appCtx.GetDB();
@@ -199,6 +211,21 @@ public class Document {
 		VXcL = null;
 		return this;
 	}
+	int GetAfterTransmitStatusFlags()
+	{
+		return AfterTransmitStatusFlags;
+	}
+	boolean SetAfterTransmitStatusFlags(int f)
+	{
+		if(f == 0 || (f == StyloQDatabase.SecStoragePacket.styloqfDocDraft) ||
+			(f & (StyloQDatabase.SecStoragePacket.styloqfDocWaitForDesadv|StyloQDatabase.SecStoragePacket.styloqfDocWaitForOrdrsp)) != 0 ||
+			(f == StyloQDatabase.SecStoragePacket.styloqfDocFinished)) {
+			AfterTransmitStatusFlags = f;
+			return true;
+		}
+		else
+			return false;
+	}
 	double GetNominalAmount()
 	{
 		return (H != null) ? H.Amount : 0.0;
@@ -208,9 +235,16 @@ public class Document {
 		double amount = 0.0;
 		if(TiList != null) {
 			for(int i = 0; i < TiList.size(); i++) {
-				TransferItem ti = TiList.get(i);
+				final TransferItem ti = TiList.get(i);
 				if(ti != null)
 					amount += ti.GetAmount_Price();
+			}
+		}
+		if(BkList != null) {
+			for(int i = 0; i < BkList.size(); i++) {
+				final BookingItem bi = BkList.get(i);
+				if(bi != null)
+					amount += bi.GetAmount_Price();
 			}
 		}
 		return amount;

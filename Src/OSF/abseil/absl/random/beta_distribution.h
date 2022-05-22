@@ -4,12 +4,12 @@
 #ifndef ABSL_RANDOM_BETA_DISTRIBUTION_H_
 #define ABSL_RANDOM_BETA_DISTRIBUTION_H_
 
-#include <cassert>
-#include <cmath>
-#include <istream>
-#include <limits>
-#include <ostream>
-#include <type_traits>
+//#include <cassert>
+//#include <cmath>
+//#include <istream>
+//#include <limits>
+//#include <ostream>
+//#include <type_traits>
 #include "absl/meta/type_traits.h"
 #include "absl/random/internal/fast_uniform_bits.h"
 #include "absl/random/internal/fastmath.h"
@@ -187,33 +187,25 @@ private:
 		// Placing this last for optimal alignment.
 		// Whether alpha_ != a_, i.e. true iff alpha_ > beta_.
 		bool inverted_;
-
-		static_assert(std::is_floating_point<RealType>::value,
-		    "Class-template absl::beta_distribution<> must be "
-		    "parameterized using a floating-point type.");
+		static_assert(std::is_floating_point<RealType>::value, "Class-template absl::beta_distribution<> must be parameterized using a floating-point type.");
 	};
-
-	beta_distribution() : beta_distribution(1) {
+	beta_distribution() : beta_distribution(1) 
+	{
 	}
-
-	explicit beta_distribution(result_type alpha, result_type beta = 1)
-		: param_(alpha, beta) {
+	explicit beta_distribution(result_type alpha, result_type beta = 1) : param_(alpha, beta) 
+	{
 	}
-
-	explicit beta_distribution(const param_type& p) : param_(p) {
+	explicit beta_distribution(const param_type& p) : param_(p) 
+	{
 	}
-
-	void reset() {
+	void reset() 
+	{
 	}
-
 	// Generating functions
-	template <typename URBG>
-	result_type operator()(URBG& g) { // NOLINT(runtime/references)
+	template <typename URBG> result_type operator()(URBG& g) { // NOLINT(runtime/references)
 		return (*this)(g, param_);
 	}
-
-	template <typename URBG>
-	result_type operator()(URBG& g, // NOLINT(runtime/references)
+	template <typename URBG> result_type operator()(URBG& g, // NOLINT(runtime/references)
 	    const param_type& p);
 
 	param_type param() const {
@@ -381,15 +373,14 @@ typename beta_distribution<RealType>::result_type beta_distribution<RealType>::A
 	return p.inverted_ ? (1 - w * bw_inv) : w * bw_inv;
 }
 
-template <typename RealType>
-template <typename URBG>
-typename beta_distribution<RealType>::result_type beta_distribution<RealType>::operator()(URBG& g,  // NOLINT(runtime/references)
-    const param_type& p) {
+template <typename RealType> template <typename URBG> typename beta_distribution<RealType>::result_type 
+	beta_distribution<RealType>::operator()(URBG& g/*NOLINT(runtime/references)*/, const param_type& p)
+{
 	switch(p.method_) {
 		case param_type::JOEHNK:
 		    return AlgorithmJoehnk(g, p);
 		case param_type::CHENG_BA:
-		    ABSL_FALLTHROUGH_INTENDED;
+		    CXX_FALLTHROUGH;
 		case param_type::CHENG_BB:
 		    return AlgorithmCheng(g, p);
 		default:

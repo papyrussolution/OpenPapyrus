@@ -2912,7 +2912,7 @@ static const char * ngx_http_core_set_aio(ngx_conf_t * cf, const ngx_command_t *
 			if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
 				return NGX_CONF_ERROR;
 			}
-			if(cv.lengths != NULL) {
+			if(cv.lengths) {
 				clcf->thread_pool_value = ngx_palloc(cf->pool, sizeof(ngx_http_complex_value_t));
 				if(clcf->thread_pool_value == NULL) {
 					return NGX_CONF_ERROR;

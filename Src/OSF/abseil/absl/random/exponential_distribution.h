@@ -9,11 +9,11 @@
 #ifndef ABSL_RANDOM_EXPONENTIAL_DISTRIBUTION_H_
 #define ABSL_RANDOM_EXPONENTIAL_DISTRIBUTION_H_
 
-#include <cassert>
-#include <cmath>
-#include <istream>
-#include <limits>
-#include <type_traits>
+//#include <cassert>
+//#include <cmath>
+//#include <istream>
+//#include <limits>
+//#include <type_traits>
 #include "absl/meta/type_traits.h"
 #include "absl/random/internal/fast_uniform_bits.h"
 #include "absl/random/internal/generate_real.h"

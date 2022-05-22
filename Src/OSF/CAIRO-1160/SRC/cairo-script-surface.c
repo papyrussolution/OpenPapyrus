@@ -176,7 +176,7 @@ static void _bitmap_release_id(struct _cairo_script_context::_bitmap * b, ulong 
 		}
 		prev = &b->next;
 		b = b->next;
-	} while(b != NULL);
+	} while(b);
 }
 
 static cairo_status_t _bitmap_next_id(struct _cairo_script_context::_bitmap * b, ulong * id)
@@ -204,7 +204,7 @@ static cairo_status_t _bitmap_next_id(struct _cairo_script_context::_bitmap * b,
 		min += sizeof(b->map) * CHAR_BIT;
 		prev = &b->next;
 		b = b->next;
-	} while(b != NULL);
+	} while(b);
 	assert(prev != NULL);
 	bb = (struct _cairo_script_context::_bitmap *)_cairo_malloc(sizeof(struct _cairo_script_context::_bitmap));
 	if(UNLIKELY(bb == NULL))
@@ -221,7 +221,7 @@ static cairo_status_t _bitmap_next_id(struct _cairo_script_context::_bitmap * b,
 
 static void _bitmap_fini(struct _cairo_script_context::_bitmap * b)
 {
-	while(b != NULL) {
+	while(b) {
 		struct _cairo_script_context::_bitmap * next = b->next;
 		SAlloc::F(b);
 		b = next;
@@ -780,7 +780,7 @@ static void attach_snapshot(cairo_script_context_t * ctx, cairo_surface_t * sour
 	if(!ctx->attach_snapshots)
 		return;
 	surface = (struct script_snapshot *)_cairo_malloc(sizeof(*surface));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return;
 	_cairo_surface_init(&surface->base, &script_snapshot_backend, &ctx->base, source->content, source->is_vector);
 	_cairo_output_stream_printf(ctx->stream, "dup /s%d exch def ", surface->base.unique_id);
@@ -2739,7 +2739,7 @@ static cairo_script_surface_t * _cairo_script_surface_create_internal(cairo_scri
 	if(UNLIKELY(ctx == NULL))
 		return (cairo_script_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NULL_POINTER));
 	surface = (cairo_script_surface_t *)_cairo_malloc(sizeof(cairo_script_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return (cairo_script_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_script_surface_backend, &ctx->base, content, TRUE); /* is_vector */
 	_cairo_surface_wrapper_init(&surface->wrapper, passthrough);

@@ -869,7 +869,7 @@ int ssh_get_pubkey_hash(ssh_session session, uchar ** hash)
 		return SSH_ERROR;
 	}
 	h = (uchar *)SAlloc::C(MD5_DIGEST_LEN, sizeof(uchar));
-	if(h == NULL) {
+	if(!h) {
 		return SSH_ERROR;
 	}
 
@@ -1000,7 +1000,7 @@ int ssh_get_publickey_hash(const ssh_key key,
 	    {
 		    SHACTX ctx;
 		    h = (uchar *)SAlloc::C(1, SHA_DIGEST_LEN);
-		    if(h == NULL) {
+		    if(!h) {
 			    rc = -1;
 			    goto out;
 		    }
@@ -1021,7 +1021,7 @@ int ssh_get_publickey_hash(const ssh_key key,
 	    {
 		    SHA256CTX ctx;
 		    h = (uchar *)SAlloc::C(1, SHA256_DIGEST_LEN);
-		    if(h == NULL) {
+		    if(!h) {
 			    rc = -1;
 			    goto out;
 		    }
@@ -1050,7 +1050,7 @@ int ssh_get_publickey_hash(const ssh_key key,
 			    goto out;
 		    }
 		    h = (uchar *)SAlloc::C(1, MD5_DIGEST_LEN);
-		    if(h == NULL) {
+		    if(!h) {
 			    rc = -1;
 			    goto out;
 		    }

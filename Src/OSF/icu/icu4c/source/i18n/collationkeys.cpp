@@ -370,8 +370,7 @@ void CollationKeys::writeSortKeyUpToQuaternary(CollationIterator &iter,
 		uint32_t lower32 = (uint32_t)ce;
 		if(lower32 == 0) {
 			continue;
-		}                       // completely ignorable, no secondary/case/tertiary/quaternary
-
+		} // completely ignorable, no secondary/case/tertiary/quaternary
 		if((levels & Collation::SECONDARY_LEVEL_FLAG) != 0) {
 			uint32_t s = lower32 >> 16;
 			if(s == 0) {
@@ -663,16 +662,13 @@ void CollationKeys::writeSortKeyUpToQuaternary(CollationIterator &iter,
 				quaternaries.appendByte(q);
 			}
 		}
-
 		if((lower32 >> 24) == Collation::LEVEL_SEPARATOR_BYTE) {
 			break;
-		}                                                          // ce == NO_CE
+		} // ce == NO_CE
 	}
-
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-
 	// Append the beyond-primary levels.
 	bool ok = TRUE;
 	if((levels & Collation::SECONDARY_LEVEL_FLAG) != 0) {

@@ -88,7 +88,7 @@ void ngx_stream_init_connection(ngx_connection_t * c)
 		}
 	}
 	s = (ngx_stream_session_t*)ngx_pcalloc(c->pool, sizeof(ngx_stream_session_t));
-	if(s == NULL) {
+	if(!s) {
 		ngx_stream_close_connection(c);
 		return;
 	}

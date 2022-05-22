@@ -563,7 +563,7 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 	wp = ws = (wchar_t *)SAlloc::M(length * sizeof(wchar_t));
 	if(wp == NULL) {
 		if(errno == ENOMEM)
-			__archive_errx(1, "No memory");
+			__archive_errx(1, SlTxtOutOfMem);
 		return NULL;
 	}
 	count = 0;
@@ -629,7 +629,7 @@ static void append_id_w(wchar_t ** wp, int id)
 static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type, int tag, int flags, const wchar_t * wname, int perm, int id)
 {
 	int i;
-	if(prefix != NULL) {
+	if(prefix) {
 		wcscpy(*wp, prefix);
 		*wp += wcslen(*wp);
 	}
@@ -756,7 +756,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 	p = s = (char *)SAlloc::M(length * sizeof(char));
 	if(!p) {
 		if(errno == ENOMEM)
-			__archive_errx(1, "No memory");
+			__archive_errx(1, SlTxtOutOfMem);
 		return NULL;
 	}
 	count = 0;
@@ -818,7 +818,7 @@ static void append_id(char ** p, int id)
 static void append_entry(char ** p, const char * prefix, int type, int tag, int flags, const char * name, int perm, int id)
 {
 	int i;
-	if(prefix != NULL) {
+	if(prefix) {
 		strcpy(*p, prefix);
 		*p += strlen(*p);
 	}
@@ -941,7 +941,7 @@ int archive_acl_from_text_w(struct archive_acl * acl, const wchar_t * text,
 	switch(want_type) {
 		case ARCHIVE_ENTRY_ACL_TYPE_POSIX1E:
 		    want_type = ARCHIVE_ENTRY_ACL_TYPE_ACCESS;
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case ARCHIVE_ENTRY_ACL_TYPE_ACCESS:
 		case ARCHIVE_ENTRY_ACL_TYPE_DEFAULT:
 		    numfields = 5;
@@ -1321,7 +1321,7 @@ int archive_acl_from_text_l(struct archive_acl * acl, const char * text, int wan
 	switch(want_type) {
 		case ARCHIVE_ENTRY_ACL_TYPE_POSIX1E:
 		    want_type = ARCHIVE_ENTRY_ACL_TYPE_ACCESS;
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case ARCHIVE_ENTRY_ACL_TYPE_ACCESS:
 		case ARCHIVE_ENTRY_ACL_TYPE_DEFAULT:
 		    numfields = 5;

@@ -664,7 +664,7 @@ static int __txn_close_cursors(DB_TXN * txn)
 	int tret = 0;
 	int ret = 0;
 	DBC * dbc = NULL;
-	if(txn == NULL)
+	if(!txn)
 		return 0;
 	while((dbc = TAILQ_FIRST(&txn->my_cursors)) != NULL) {
 		DB_ASSERT(dbc->env, txn == dbc->txn);

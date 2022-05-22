@@ -9,13 +9,13 @@
 #ifndef ABSL_RANDOM_LOG_UNIFORM_INT_DISTRIBUTION_H_
 #define ABSL_RANDOM_LOG_UNIFORM_INT_DISTRIBUTION_H_
 
-#include <algorithm>
-#include <cassert>
-#include <cmath>
-#include <istream>
-#include <limits>
-#include <ostream>
-#include <type_traits>
+//#include <algorithm>
+//#include <cassert>
+//#include <cmath>
+//#include <istream>
+//#include <limits>
+//#include <ostream>
+//#include <type_traits>
 #include "absl/numeric/bits.h"
 #include "absl/random/internal/fastmath.h"
 #include "absl/random/internal/generate_real.h"

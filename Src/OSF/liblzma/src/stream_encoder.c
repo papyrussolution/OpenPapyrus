@@ -190,9 +190,9 @@ static lzma_ret stream_encoder_init(lzma_next_coder * next, const lzma_allocator
 	if(filters == NULL)
 		return LZMA_PROG_ERROR;
 	lzma_stream_encoder_coder * coder = (lzma_stream_encoder_coder *)next->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		coder = (lzma_stream_encoder_coder *)lzma_alloc(sizeof(lzma_stream_encoder_coder), allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		next->coder = coder;
 		next->code = &stream_encode;

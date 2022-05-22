@@ -24,7 +24,7 @@
 #endif
 
 #ifdef __WIN32__
-#include <type_traits>
+//#include <type_traits>
 #include "xapian/error.h"
 #if defined SOCK_CLOEXEC
 static_assert(!SOCK_CLOEXEC, "__WIN32__ doesn't support SOCK_CLOEXEC");
@@ -64,7 +64,7 @@ inline int socket_(int domain, int type, int protocol) {
 // On Linux at least, sometimes SOCK_CLOEXEC is defined but the kernel doesn't
 // handle it in socket() or socketpair():
 
-#include <cerrno>
+//#include <cerrno>
 
 inline int socket_(int domain, int type, int protocol) {
 	// Usually type is passed a constant, so we'll collapse to one branch or

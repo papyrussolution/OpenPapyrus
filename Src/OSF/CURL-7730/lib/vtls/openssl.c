@@ -784,7 +784,7 @@ int cert_stuff(struct connectdata * conn,
 			    STACK_OF(X509) *ca = NULL;
 			    if(!cert_bio) {
 				    fp = BIO_new(BIO_s_file());
-				    if(fp == NULL) {
+				    if(!fp) {
 					    failf(data,
 						"BIO_new return NULL, " OSSL_PACKAGE
 						" error %s",
@@ -2964,21 +2964,16 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 	if(ssl_crlfile) {
 		/* tell SSL where to find CRL file that is used to check certificate
 		 * revocation */
-		lookup = X509_STORE_add_lookup(SSL_CTX_get_cert_store(backend->ctx),
-			X509_LOOKUP_file());
-		if(!lookup ||
-		    (!X509_load_crl_file(lookup, ssl_crlfile, X509_FILETYPE_PEM))) {
+		lookup = X509_STORE_add_lookup(SSL_CTX_get_cert_store(backend->ctx), X509_LOOKUP_file());
+		if(!lookup || (!X509_load_crl_file(lookup, ssl_crlfile, X509_FILETYPE_PEM))) {
 			failf(data, "error loading CRL file: %s", ssl_crlfile);
 			return CURLE_SSL_CRL_BADFILE;
 		}
 		/* Everything is fine. */
 		infof(data, "successfully load CRL file:\n");
-		X509_STORE_set_flags(SSL_CTX_get_cert_store(backend->ctx),
-		    X509_V_FLAG_CRL_CHECK|X509_V_FLAG_CRL_CHECK_ALL);
-
+		X509_STORE_set_flags(SSL_CTX_get_cert_store(backend->ctx), X509_V_FLAG_CRL_CHECK|X509_V_FLAG_CRL_CHECK_ALL);
 		infof(data, "  CRLfile: %s\n", ssl_crlfile);
 	}
-
 	if(verifypeer) {
 		/* Try building a chain using issuers in the trusted store first to avoid
 		   problems with server-sent legacy intermediates.  Newer versions of
@@ -2987,8 +2982,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 		   https://rt.openssl.org/Ticket/Display.html?id=3621&user=guest&pass=guest
 		 */
 #if defined(X509_V_FLAG_TRUSTED_FIRST)
-		X509_STORE_set_flags(SSL_CTX_get_cert_store(backend->ctx),
-		    X509_V_FLAG_TRUSTED_FIRST);
+		X509_STORE_set_flags(SSL_CTX_get_cert_store(backend->ctx), X509_V_FLAG_TRUSTED_FIRST);
 #endif
 #ifdef X509_V_FLAG_PARTIAL_CHAIN
 		if(!SSL_SET_OPTION(no_partialchain) && !ssl_crlfile) {
@@ -3000,8 +2994,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 			   Due to OpenSSL bug https://github.com/openssl/openssl/issues/5081 we
 			   cannot do partial chains with CRL check.
 			 */
-			X509_STORE_set_flags(SSL_CTX_get_cert_store(backend->ctx),
-			    X509_V_FLAG_PARTIAL_CHAIN);
+			X509_STORE_set_flags(SSL_CTX_get_cert_store(backend->ctx), X509_V_FLAG_PARTIAL_CHAIN);
 		}
 #endif
 	}
@@ -3010,9 +3003,7 @@ static CURLcode ossl_connect_step1(struct connectdata * conn, int sockindex)
 	 * fail to connect if the verification fails, or if it should continue
 	 * anyway. In the latter case the result of the verification is checked with
 	 * SSL_get_verify_result() below. */
-	SSL_CTX_set_verify(backend->ctx,
-	    verifypeer ? SSL_VERIFY_PEER : SSL_VERIFY_NONE, NULL);
-
+	SSL_CTX_set_verify(backend->ctx, verifypeer ? SSL_VERIFY_PEER : SSL_VERIFY_NONE, NULL);
 	/* Enable logging of secrets to the file specified in env SSLKEYLOGFILE. */
 #ifdef HAVE_KEYLOG_CALLBACK
 	if(Curl_tls_keylog_enabled()) {
@@ -3744,7 +3735,7 @@ static CURLcode servercert(struct connectdata * conn,
 					(int)SSL_SET_OPTION(issuercert_blob)->len);
 			else {
 				fp = BIO_new(BIO_s_file());
-				if(fp == NULL) {
+				if(!fp) {
 					failf(data,
 					    "BIO_new return NULL, " OSSL_PACKAGE
 					    " error %s",

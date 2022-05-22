@@ -17,8 +17,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace proto_util_converter {
 namespace testing {
-constexpr TimestampDurationTestCases::TimestampDurationTestCases(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TimestampDurationTestCases::TimestampDurationTestCases(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : epoch_(nullptr)
   , epoch2_(nullptr)
   , mintime_(nullptr)
@@ -47,8 +46,7 @@ struct TimestampDurationTestCasesDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TimestampDurationTestCasesDefaultTypeInternal _TimestampDurationTestCases_default_instance_;
-constexpr TimeStampType::TimeStampType(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TimeStampType::TimeStampType(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : timestamp_(nullptr){}
 struct TimeStampTypeDefaultTypeInternal {
 	constexpr TimeStampTypeDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -58,8 +56,7 @@ struct TimeStampTypeDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TimeStampTypeDefaultTypeInternal _TimeStampType_default_instance_;
-constexpr DurationType::DurationType(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr DurationType::DurationType(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : duration_(nullptr){}
 struct DurationTypeDefaultTypeInternal {
 	constexpr DurationTypeDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -69,8 +66,7 @@ struct DurationTypeDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DurationTypeDefaultTypeInternal _DurationType_default_instance_;
-constexpr TimestampDuration::TimestampDuration(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TimestampDuration::TimestampDuration(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : rep_ts_()
   , ts_(nullptr)
   , dur_(nullptr){}
@@ -246,86 +242,26 @@ class TimestampDurationTestCases::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Duration& duration5(const TimestampDurationTestCases* msg);
 };
 
-const ::proto_util_converter::testing::TimeStampType&
-TimestampDurationTestCases::_Internal::epoch(const TimestampDurationTestCases* msg) {
-  return *msg->epoch_;
-}
-const ::proto_util_converter::testing::TimeStampType&
-TimestampDurationTestCases::_Internal::epoch2(const TimestampDurationTestCases* msg) {
-  return *msg->epoch2_;
-}
-const ::proto_util_converter::testing::TimeStampType&
-TimestampDurationTestCases::_Internal::mintime(const TimestampDurationTestCases* msg) {
-  return *msg->mintime_;
-}
-const ::proto_util_converter::testing::TimeStampType&
-TimestampDurationTestCases::_Internal::maxtime(const TimestampDurationTestCases* msg) {
-  return *msg->maxtime_;
-}
-const ::proto_util_converter::testing::TimeStampType&
-TimestampDurationTestCases::_Internal::timeval1(const TimestampDurationTestCases* msg) {
-  return *msg->timeval1_;
-}
-const ::proto_util_converter::testing::TimeStampType&
-TimestampDurationTestCases::_Internal::timeval2(const TimestampDurationTestCases* msg) {
-  return *msg->timeval2_;
-}
-const ::proto_util_converter::testing::TimeStampType&
-TimestampDurationTestCases::_Internal::timeval3(const TimestampDurationTestCases* msg) {
-  return *msg->timeval3_;
-}
-const ::proto_util_converter::testing::TimeStampType&
-TimestampDurationTestCases::_Internal::timeval4(const TimestampDurationTestCases* msg) {
-  return *msg->timeval4_;
-}
-const ::proto_util_converter::testing::TimeStampType&
-TimestampDurationTestCases::_Internal::timeval5(const TimestampDurationTestCases* msg) {
-  return *msg->timeval5_;
-}
-const ::proto_util_converter::testing::TimeStampType&
-TimestampDurationTestCases::_Internal::timeval6(const TimestampDurationTestCases* msg) {
-  return *msg->timeval6_;
-}
-const ::proto_util_converter::testing::TimeStampType&
-TimestampDurationTestCases::_Internal::timeval7(const TimestampDurationTestCases* msg) {
-  return *msg->timeval7_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Timestamp&
-TimestampDurationTestCases::_Internal::timeval8(const TimestampDurationTestCases* msg) {
-  return *msg->timeval8_;
-}
-const ::proto_util_converter::testing::DurationType&
-TimestampDurationTestCases::_Internal::zero_duration(const TimestampDurationTestCases* msg) {
-  return *msg->zero_duration_;
-}
-const ::proto_util_converter::testing::DurationType&
-TimestampDurationTestCases::_Internal::min_duration(const TimestampDurationTestCases* msg) {
-  return *msg->min_duration_;
-}
-const ::proto_util_converter::testing::DurationType&
-TimestampDurationTestCases::_Internal::max_duration(const TimestampDurationTestCases* msg) {
-  return *msg->max_duration_;
-}
-const ::proto_util_converter::testing::DurationType&
-TimestampDurationTestCases::_Internal::duration1(const TimestampDurationTestCases* msg) {
-  return *msg->duration1_;
-}
-const ::proto_util_converter::testing::DurationType&
-TimestampDurationTestCases::_Internal::duration2(const TimestampDurationTestCases* msg) {
-  return *msg->duration2_;
-}
-const ::proto_util_converter::testing::DurationType&
-TimestampDurationTestCases::_Internal::duration3(const TimestampDurationTestCases* msg) {
-  return *msg->duration3_;
-}
-const ::proto_util_converter::testing::DurationType&
-TimestampDurationTestCases::_Internal::duration4(const TimestampDurationTestCases* msg) {
-  return *msg->duration4_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Duration&
-TimestampDurationTestCases::_Internal::duration5(const TimestampDurationTestCases* msg) {
-  return *msg->duration5_;
-}
+const ::proto_util_converter::testing::TimeStampType & TimestampDurationTestCases::_Internal::epoch(const TimestampDurationTestCases* msg) { return *msg->epoch_; }
+const ::proto_util_converter::testing::TimeStampType & TimestampDurationTestCases::_Internal::epoch2(const TimestampDurationTestCases* msg) { return *msg->epoch2_; }
+const ::proto_util_converter::testing::TimeStampType & TimestampDurationTestCases::_Internal::mintime(const TimestampDurationTestCases* msg) { return *msg->mintime_; }
+const ::proto_util_converter::testing::TimeStampType & TimestampDurationTestCases::_Internal::maxtime(const TimestampDurationTestCases* msg) { return *msg->maxtime_; }
+const ::proto_util_converter::testing::TimeStampType & TimestampDurationTestCases::_Internal::timeval1(const TimestampDurationTestCases* msg) { return *msg->timeval1_; }
+const ::proto_util_converter::testing::TimeStampType & TimestampDurationTestCases::_Internal::timeval2(const TimestampDurationTestCases* msg) { return *msg->timeval2_; }
+const ::proto_util_converter::testing::TimeStampType & TimestampDurationTestCases::_Internal::timeval3(const TimestampDurationTestCases* msg) { return *msg->timeval3_; }
+const ::proto_util_converter::testing::TimeStampType & TimestampDurationTestCases::_Internal::timeval4(const TimestampDurationTestCases* msg) { return *msg->timeval4_; }
+const ::proto_util_converter::testing::TimeStampType & TimestampDurationTestCases::_Internal::timeval5(const TimestampDurationTestCases* msg) { return *msg->timeval5_; }
+const ::proto_util_converter::testing::TimeStampType & TimestampDurationTestCases::_Internal::timeval6(const TimestampDurationTestCases* msg) { return *msg->timeval6_; }
+const ::proto_util_converter::testing::TimeStampType & TimestampDurationTestCases::_Internal::timeval7(const TimestampDurationTestCases* msg) { return *msg->timeval7_; }
+const ::PROTOBUF_NAMESPACE_ID::Timestamp & TimestampDurationTestCases::_Internal::timeval8(const TimestampDurationTestCases* msg) { return *msg->timeval8_; }
+const ::proto_util_converter::testing::DurationType & TimestampDurationTestCases::_Internal::zero_duration(const TimestampDurationTestCases* msg) { return *msg->zero_duration_; }
+const ::proto_util_converter::testing::DurationType & TimestampDurationTestCases::_Internal::min_duration(const TimestampDurationTestCases* msg) { return *msg->min_duration_; }
+const ::proto_util_converter::testing::DurationType & TimestampDurationTestCases::_Internal::max_duration(const TimestampDurationTestCases* msg) { return *msg->max_duration_; }
+const ::proto_util_converter::testing::DurationType & TimestampDurationTestCases::_Internal::duration1(const TimestampDurationTestCases* msg) { return *msg->duration1_; }
+const ::proto_util_converter::testing::DurationType & TimestampDurationTestCases::_Internal::duration2(const TimestampDurationTestCases* msg) { return *msg->duration2_; }
+const ::proto_util_converter::testing::DurationType & TimestampDurationTestCases::_Internal::duration3(const TimestampDurationTestCases* msg) { return *msg->duration3_; }
+const ::proto_util_converter::testing::DurationType & TimestampDurationTestCases::_Internal::duration4(const TimestampDurationTestCases* msg) { return *msg->duration4_; }
+const ::PROTOBUF_NAMESPACE_ID::Duration & TimestampDurationTestCases::_Internal::duration5(const TimestampDurationTestCases* msg) { return *msg->duration5_; }
 void TimestampDurationTestCases::clear_timeval8() {
   if(GetArenaForAllocation() == nullptr && timeval8_ != nullptr) {
     delete timeval8_;
@@ -350,114 +286,31 @@ TimestampDurationTestCases::TimestampDurationTestCases(::PROTOBUF_NAMESPACE_ID::
 TimestampDurationTestCases::TimestampDurationTestCases(const TimestampDurationTestCases& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_epoch()) {
-    epoch_ = new ::proto_util_converter::testing::TimeStampType(*from.epoch_);
-  } else {
-    epoch_ = nullptr;
-  }
-  if(from._internal_has_epoch2()) {
-    epoch2_ = new ::proto_util_converter::testing::TimeStampType(*from.epoch2_);
-  } else {
-    epoch2_ = nullptr;
-  }
-  if(from._internal_has_mintime()) {
-    mintime_ = new ::proto_util_converter::testing::TimeStampType(*from.mintime_);
-  } else {
-    mintime_ = nullptr;
-  }
-  if(from._internal_has_maxtime()) {
-    maxtime_ = new ::proto_util_converter::testing::TimeStampType(*from.maxtime_);
-  } else {
-    maxtime_ = nullptr;
-  }
-  if(from._internal_has_timeval1()) {
-    timeval1_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval1_);
-  } else {
-    timeval1_ = nullptr;
-  }
-  if(from._internal_has_timeval2()) {
-    timeval2_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval2_);
-  } else {
-    timeval2_ = nullptr;
-  }
-  if(from._internal_has_timeval3()) {
-    timeval3_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval3_);
-  } else {
-    timeval3_ = nullptr;
-  }
-  if(from._internal_has_timeval4()) {
-    timeval4_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval4_);
-  } else {
-    timeval4_ = nullptr;
-  }
-  if(from._internal_has_timeval5()) {
-    timeval5_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval5_);
-  } else {
-    timeval5_ = nullptr;
-  }
-  if(from._internal_has_timeval6()) {
-    timeval6_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval6_);
-  } else {
-    timeval6_ = nullptr;
-  }
-  if(from._internal_has_timeval7()) {
-    timeval7_ = new ::proto_util_converter::testing::TimeStampType(*from.timeval7_);
-  } else {
-    timeval7_ = nullptr;
-  }
-  if(from._internal_has_timeval8()) {
-    timeval8_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.timeval8_);
-  } else {
-    timeval8_ = nullptr;
-  }
-  if(from._internal_has_zero_duration()) {
-    zero_duration_ = new ::proto_util_converter::testing::DurationType(*from.zero_duration_);
-  } else {
-    zero_duration_ = nullptr;
-  }
-  if(from._internal_has_min_duration()) {
-    min_duration_ = new ::proto_util_converter::testing::DurationType(*from.min_duration_);
-  } else {
-    min_duration_ = nullptr;
-  }
-  if(from._internal_has_max_duration()) {
-    max_duration_ = new ::proto_util_converter::testing::DurationType(*from.max_duration_);
-  } else {
-    max_duration_ = nullptr;
-  }
-  if(from._internal_has_duration1()) {
-    duration1_ = new ::proto_util_converter::testing::DurationType(*from.duration1_);
-  } else {
-    duration1_ = nullptr;
-  }
-  if(from._internal_has_duration2()) {
-    duration2_ = new ::proto_util_converter::testing::DurationType(*from.duration2_);
-  } else {
-    duration2_ = nullptr;
-  }
-  if(from._internal_has_duration3()) {
-    duration3_ = new ::proto_util_converter::testing::DurationType(*from.duration3_);
-  } else {
-    duration3_ = nullptr;
-  }
-  if(from._internal_has_duration4()) {
-    duration4_ = new ::proto_util_converter::testing::DurationType(*from.duration4_);
-  } else {
-    duration4_ = nullptr;
-  }
-  if(from._internal_has_duration5()) {
-    duration5_ = new ::PROTOBUF_NAMESPACE_ID::Duration(*from.duration5_);
-  } else {
-    duration5_ = nullptr;
-  }
+  epoch_ = from._internal_has_epoch() ? new ::proto_util_converter::testing::TimeStampType(*from.epoch_) : nullptr;
+  epoch2_ = from._internal_has_epoch2() ? new ::proto_util_converter::testing::TimeStampType(*from.epoch2_) : nullptr;
+  mintime_ = from._internal_has_mintime() ? new ::proto_util_converter::testing::TimeStampType(*from.mintime_) : nullptr;
+  maxtime_ = from._internal_has_maxtime() ? new ::proto_util_converter::testing::TimeStampType(*from.maxtime_) : nullptr;
+  timeval1_ = from._internal_has_timeval1() ? new ::proto_util_converter::testing::TimeStampType(*from.timeval1_) : nullptr;
+  timeval2_ = from._internal_has_timeval2() ? new ::proto_util_converter::testing::TimeStampType(*from.timeval2_) : nullptr;
+  timeval3_ = from._internal_has_timeval3() ? new ::proto_util_converter::testing::TimeStampType(*from.timeval3_) : nullptr;
+  timeval4_ = from._internal_has_timeval4() ? new ::proto_util_converter::testing::TimeStampType(*from.timeval4_) : nullptr;
+  timeval5_ = from._internal_has_timeval5() ? new ::proto_util_converter::testing::TimeStampType(*from.timeval5_) : nullptr;
+  timeval6_ = from._internal_has_timeval6() ? new ::proto_util_converter::testing::TimeStampType(*from.timeval6_) : nullptr;
+  timeval7_ = from._internal_has_timeval7() ? new ::proto_util_converter::testing::TimeStampType(*from.timeval7_) : nullptr;
+  timeval8_ = from._internal_has_timeval8() ? new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.timeval8_) : nullptr;
+  zero_duration_ = from._internal_has_zero_duration() ? new ::proto_util_converter::testing::DurationType(*from.zero_duration_) : nullptr;
+  min_duration_ = from._internal_has_min_duration() ? new ::proto_util_converter::testing::DurationType(*from.min_duration_) : nullptr;
+  max_duration_ = from._internal_has_max_duration() ? new ::proto_util_converter::testing::DurationType(*from.max_duration_) : nullptr;
+  duration1_ = from._internal_has_duration1() ? new ::proto_util_converter::testing::DurationType(*from.duration1_) : nullptr;
+  duration2_ = from._internal_has_duration2() ? new ::proto_util_converter::testing::DurationType(*from.duration2_) : nullptr;
+  duration3_ = from._internal_has_duration3() ? new ::proto_util_converter::testing::DurationType(*from.duration3_) : nullptr;
+  duration4_ = from._internal_has_duration4() ? new ::proto_util_converter::testing::DurationType(*from.duration4_) : nullptr;
+  duration5_ = from._internal_has_duration5() ? new ::PROTOBUF_NAMESPACE_ID::Duration(*from.duration5_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.TimestampDurationTestCases)
 }
 
 inline void TimestampDurationTestCases::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&epoch_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&duration5_) -
-    reinterpret_cast<char*>(&epoch_)) + sizeof(duration5_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&epoch_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&duration5_) - reinterpret_cast<char*>(&epoch_)) + sizeof(duration5_));
 }
 
 TimestampDurationTestCases::~TimestampDurationTestCases() {
@@ -495,8 +348,7 @@ void TimestampDurationTestCases::ArenaDtor(void* object) {
   TimestampDurationTestCases* _this = reinterpret_cast< TimestampDurationTestCases* >(object);
   (void)_this;
 }
-void TimestampDurationTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TimestampDurationTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TimestampDurationTestCases::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -764,10 +616,7 @@ const char* TimestampDurationTestCases::_InternalParse(const char* ptr, ::PROTOB
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1029,10 +878,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TimestampDurationTestCases::_c
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TimestampDurationTestCases::GetClassData() const { return &_class_data_; }
 
-void TimestampDurationTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TimestampDurationTestCases *>(to)->MergeFrom(
-      static_cast<const TimestampDurationTestCases &>(from));
+void TimestampDurationTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TimestampDurationTestCases *>(to)->MergeFrom(static_cast<const TimestampDurationTestCases &>(from));
 }
 
 
@@ -1138,10 +985,7 @@ class TimeStampType::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Timestamp& timestamp(const TimeStampType* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Timestamp&
-TimeStampType::_Internal::timestamp(const TimeStampType* msg) {
-  return *msg->timestamp_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Timestamp & TimeStampType::_Internal::timestamp(const TimeStampType* msg) { return *msg->timestamp_; }
 void TimeStampType::clear_timestamp() {
   if(GetArenaForAllocation() == nullptr && timestamp_ != nullptr) {
     delete timestamp_;
@@ -1160,11 +1004,7 @@ TimeStampType::TimeStampType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 TimeStampType::TimeStampType(const TimeStampType& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_timestamp()) {
-    timestamp_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.timestamp_);
-  } else {
-    timestamp_ = nullptr;
-  }
+  timestamp_ = from._internal_has_timestamp() ? new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.timestamp_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.TimeStampType)
 }
 
@@ -1188,8 +1028,7 @@ void TimeStampType::ArenaDtor(void* object) {
   TimeStampType* _this = reinterpret_cast< TimeStampType* >(object);
   (void)_this;
 }
-void TimeStampType::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TimeStampType::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TimeStampType::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1229,10 +1068,7 @@ const char* TimeStampType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1285,10 +1121,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TimeStampType::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TimeStampType::GetClassData() const { return &_class_data_; }
 
-void TimeStampType::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TimeStampType *>(to)->MergeFrom(
-      static_cast<const TimeStampType &>(from));
+void TimeStampType::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TimeStampType *>(to)->MergeFrom(static_cast<const TimeStampType &>(from));
 }
 
 
@@ -1332,10 +1166,7 @@ class DurationType::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Duration& duration(const DurationType* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Duration&
-DurationType::_Internal::duration(const DurationType* msg) {
-  return *msg->duration_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Duration & DurationType::_Internal::duration(const DurationType* msg) { return *msg->duration_; }
 void DurationType::clear_duration() {
   if(GetArenaForAllocation() == nullptr && duration_ != nullptr) {
     delete duration_;
@@ -1354,11 +1185,7 @@ DurationType::DurationType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 DurationType::DurationType(const DurationType& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_duration()) {
-    duration_ = new ::PROTOBUF_NAMESPACE_ID::Duration(*from.duration_);
-  } else {
-    duration_ = nullptr;
-  }
+  duration_ = from._internal_has_duration() ? new ::PROTOBUF_NAMESPACE_ID::Duration(*from.duration_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.DurationType)
 }
 
@@ -1382,8 +1209,7 @@ void DurationType::ArenaDtor(void* object) {
   DurationType* _this = reinterpret_cast< DurationType* >(object);
   (void)_this;
 }
-void DurationType::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void DurationType::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void DurationType::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1423,10 +1249,7 @@ const char* DurationType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1479,10 +1302,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData DurationType::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*DurationType::GetClassData() const { return &_class_data_; }
 
-void DurationType::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<DurationType *>(to)->MergeFrom(
-      static_cast<const DurationType &>(from));
+void DurationType::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<DurationType *>(to)->MergeFrom(static_cast<const DurationType &>(from));
 }
 
 
@@ -1527,14 +1348,8 @@ class TimestampDuration::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Duration& dur(const TimestampDuration* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Timestamp&
-TimestampDuration::_Internal::ts(const TimestampDuration* msg) {
-  return *msg->ts_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Duration&
-TimestampDuration::_Internal::dur(const TimestampDuration* msg) {
-  return *msg->dur_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Timestamp & TimestampDuration::_Internal::ts(const TimestampDuration* msg) { return *msg->ts_; }
+const ::PROTOBUF_NAMESPACE_ID::Duration & TimestampDuration::_Internal::dur(const TimestampDuration* msg) { return *msg->dur_; }
 void TimestampDuration::clear_ts() {
   if(GetArenaForAllocation() == nullptr && ts_ != nullptr) {
     delete ts_;
@@ -1564,24 +1379,13 @@ TimestampDuration::TimestampDuration(const TimestampDuration& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       rep_ts_(from.rep_ts_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_ts()) {
-    ts_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.ts_);
-  } else {
-    ts_ = nullptr;
-  }
-  if(from._internal_has_dur()) {
-    dur_ = new ::PROTOBUF_NAMESPACE_ID::Duration(*from.dur_);
-  } else {
-    dur_ = nullptr;
-  }
+  ts_ = from._internal_has_ts() ? new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.ts_) : nullptr;
+  dur_ = from._internal_has_dur() ? new ::PROTOBUF_NAMESPACE_ID::Duration(*from.dur_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.TimestampDuration)
 }
 
 inline void TimestampDuration::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&ts_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&dur_) -
-    reinterpret_cast<char*>(&ts_)) + sizeof(dur_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&ts_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&dur_) - reinterpret_cast<char*>(&ts_)) + sizeof(dur_));
 }
 
 TimestampDuration::~TimestampDuration() {
@@ -1601,8 +1405,7 @@ void TimestampDuration::ArenaDtor(void* object) {
   TimestampDuration* _this = reinterpret_cast< TimestampDuration* >(object);
   (void)_this;
 }
-void TimestampDuration::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TimestampDuration::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TimestampDuration::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1668,10 +1471,7 @@ const char* TimestampDuration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1747,10 +1547,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TimestampDuration::_class_data
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TimestampDuration::GetClassData() const { return &_class_data_; }
 
-void TimestampDuration::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TimestampDuration *>(to)->MergeFrom(
-      static_cast<const TimestampDuration &>(from));
+void TimestampDuration::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TimestampDuration *>(to)->MergeFrom(static_cast<const TimestampDuration &>(from));
 }
 
 

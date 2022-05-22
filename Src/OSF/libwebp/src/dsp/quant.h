@@ -10,10 +10,6 @@
 #ifndef WEBP_DSP_QUANT_H_
 #define WEBP_DSP_QUANT_H_
 
-//#include <string.h>
-//#include "src/dsp/dsp.h"
-//#include "src/webp/types.h"
-
 #if defined(WEBP_USE_NEON) && !defined(WEBP_ANDROID_NEON) && !defined(WEBP_HAVE_NEON_RTCD)
 #include <arm_neon.h>
 

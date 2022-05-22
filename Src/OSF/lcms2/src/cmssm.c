@@ -241,9 +241,9 @@ static cmsGDBPoint * GetPoint(cmsGDB * gbd, const cmsCIELab* Lab, cmsSpherical* 
 	cmsVEC3 v;
 	int alpha, theta;
 	// Housekeeping
-	_cmsAssert(gbd != NULL);
-	_cmsAssert(Lab != NULL);
-	_cmsAssert(sp != NULL);
+	assert(gbd != NULL);
+	assert(Lab != NULL);
+	assert(sp != NULL);
 	// Center L* by subtracting half of its domain, that's 50
 	_cmsVEC3init(&v, Lab->L - 50.0, Lab->a, Lab->b);
 	// Convert to spherical coordinates
@@ -270,7 +270,7 @@ boolint CMSEXPORT cmsGDBAddPoint(cmsHANDLE hGBD, const cmsCIELab* Lab)
 	cmsSpherical sp;
 	// Get pointer to the sector
 	cmsGDBPoint * ptr = GetPoint(gbd, Lab, &sp);
-	if(ptr == NULL) return FALSE;
+	if(!ptr) return FALSE;
 	// If no samples at this sector, add it
 	if(ptr->Type == GP_EMPTY) {
 		ptr->Type = GP_SPECIFIED;
@@ -293,7 +293,7 @@ boolint CMSEXPORT cmsGDBCheckPoint(cmsHANDLE hGBD, const cmsCIELab* Lab)
 	cmsSpherical sp;
 	// Get pointer to the sector
 	cmsGDBPoint * ptr = GetPoint(gbd, Lab, &sp);
-	if(ptr == NULL) return FALSE;
+	if(!ptr) return FALSE;
 	// If no samples at this sector, return no data
 	if(ptr->Type == GP_EMPTY) return FALSE;
 	// In gamut only if radius is greater
@@ -418,7 +418,7 @@ boolint CMSEXPORT cmsGDBCompute(cmsHANDLE hGBD, uint32 dwFlags)
 {
 	int alpha, theta;
 	cmsGDB * gbd = (cmsGDB *)hGBD;
-	_cmsAssert(hGBD != NULL);
+	assert(hGBD != NULL);
 	// Interpolate black
 	for(alpha = 0; alpha < SECTORS; alpha++) {
 		if(!InterpolateMissingSector(gbd, alpha, 0)) return FALSE;
@@ -449,7 +449,7 @@ boolint cmsGBDdumpVRML(cmsHANDLE hGBD, const char * fname)
 	cmsGDB * gbd = (cmsGDB *)hGBD;
 	cmsGDBPoint * pt;
 	FILE * fp = fopen(fname, "wt");
-	if(fp == NULL)
+	if(!fp)
 		return FALSE;
 	fprintf(fp, "#VRML V2.0 utf8\n");
 	// set the viewing orientation and distance

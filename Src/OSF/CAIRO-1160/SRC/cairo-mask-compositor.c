@@ -142,7 +142,7 @@ static cairo_surface_t * create_composite_mask(const cairo_mask_compositor_t * c
 			do_unaligned_box(blt_in, &info, b, extents->bounded.x, extents->bounded.y);
 		}
 	}
-	if(extents->clip->path != NULL) {
+	if(extents->clip->path) {
 		status = _cairo_clip_combine_with_surface(extents->clip, surface, extents->bounded.x, extents->bounded.y);
 		if(UNLIKELY(status))
 			goto error;

@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 PROTOBUF_NAMESPACE_OPEN
-constexpr Any::Any(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Any::Any(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : type_url_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , _any_metadata_(&type_url_, &value_){}
@@ -142,8 +141,7 @@ void Any::ArenaDtor(void* object) {
   Any* _this = reinterpret_cast< Any* >(object);
   (void)_this;
 }
-void Any::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Any::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Any::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -192,10 +190,7 @@ const char* Any::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::intern
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -261,10 +256,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Any::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Any::GetClassData() const { return &_class_data_; }
 
-void Any::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Any *>(to)->MergeFrom(
-      static_cast<const Any &>(from));
+void Any::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Any *>(to)->MergeFrom(static_cast<const Any &>(from));
 }
 
 
@@ -299,16 +292,8 @@ void Any::InternalSwap(Any* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &type_url_, lhs_arena,
-      &other->type_url_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &value_, lhs_arena,
-      &other->value_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &type_url_, lhs_arena, &other->type_url_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &value_, lhs_arena, &other->value_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Any::GetMetadata() const {

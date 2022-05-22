@@ -253,7 +253,7 @@ int XmlDbFile::IsUtf8() const
 		else {
 			result = xmlXPathEvalExpression(reinterpret_cast<const xmlChar *>(pXPathExpr), context);
 			xmlXPathFreeContext(context);
-			if(result == NULL) {
+			if(!result) {
 				//printf("Error in xmlXPathEvalExpression\n");
 			}
 			if(xmlXPathNodeSetIsEmpty(result->nodesetval)) {

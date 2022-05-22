@@ -9,7 +9,7 @@
 #ifndef ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_READER_H_
 #define ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_READER_H_
 
-#include <cassert>
+//#include <cassert>
 #include "absl/base/config.h"
 #include "absl/strings/internal/cord_internal.h"
 #include "absl/strings/internal/cord_rep_btree.h"

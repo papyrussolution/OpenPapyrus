@@ -755,8 +755,8 @@ static FORCEINLINE void DC4_SSE2(uint8* dst, const uint8* top) {
 	Fill_SSE2(dst, dc >> 3, 4);
 }
 
-static FORCEINLINE void LD4_SSE2(uint8* dst,
-    const uint8* top) {                               // Down-Left
+static FORCEINLINE void LD4_SSE2(uint8* dst, const uint8* top) // Down-Left
+{
 	const __m128i one = _mm_set1_epi8(1);
 	const __m128i ABCDEFGH = _mm_loadl_epi64((const __m128i*)top);
 	const __m128i BCDEFGH0 = _mm_srli_si128(ABCDEFGH, 1);
@@ -772,8 +772,8 @@ static FORCEINLINE void LD4_SSE2(uint8* dst,
 	WebPUint32ToMem(dst + 3 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 3)));
 }
 
-static FORCEINLINE void VR4_SSE2(uint8* dst,
-    const uint8* top) {                               // Vertical-Right
+static FORCEINLINE void VR4_SSE2(uint8* dst, const uint8* top) // Vertical-Right
+{
 	const __m128i one = _mm_set1_epi8(1);
 	const int I = top[-2];
 	const int J = top[-3];
@@ -798,8 +798,8 @@ static FORCEINLINE void VR4_SSE2(uint8* dst,
 	DST(0, 3) = AVG3(K, J, I);
 }
 
-static FORCEINLINE void VL4_SSE2(uint8* dst,
-    const uint8* top) {                               // Vertical-Left
+static FORCEINLINE void VL4_SSE2(uint8* dst, const uint8* top) // Vertical-Left
+{
 	const __m128i one = _mm_set1_epi8(1);
 	const __m128i ABCDEFGH = _mm_loadl_epi64((const __m128i*)top);
 	const __m128i BCDEFGH_ = _mm_srli_si128(ABCDEFGH, 1);
@@ -818,14 +818,13 @@ static FORCEINLINE void VL4_SSE2(uint8* dst,
 	WebPUint32ToMem(dst + 1 * BPS, _mm_cvtsi128_si32(avg4));
 	WebPUint32ToMem(dst + 2 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(avg1, 1)));
 	WebPUint32ToMem(dst + 3 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(avg4, 1)));
-
 	// these two are hard to get and irregular
 	DST(3, 2) = (extra_out >> 0) & 0xff;
 	DST(3, 3) = (extra_out >> 8) & 0xff;
 }
 
-static FORCEINLINE void RD4_SSE2(uint8* dst,
-    const uint8* top) {                               // Down-right
+static FORCEINLINE void RD4_SSE2(uint8* dst, const uint8* top) // Down-right
+{
 	const __m128i one = _mm_set1_epi8(1);
 	const __m128i LKJIXABC = _mm_loadl_epi64((const __m128i*)(top - 5));
 	const __m128i LKJIXABCD = _mm_insert_epi16(LKJIXABC, top[3], 4);
@@ -841,7 +840,8 @@ static FORCEINLINE void RD4_SSE2(uint8* dst,
 	WebPUint32ToMem(dst + 0 * BPS, _mm_cvtsi128_si32(_mm_srli_si128(abcdefg, 3)));
 }
 
-static FORCEINLINE void HU4_SSE2(uint8* dst, const uint8* top) {
+static FORCEINLINE void HU4_SSE2(uint8* dst, const uint8* top) 
+{
 	const int I = top[-2];
 	const int J = top[-3];
 	const int K = top[-4];
@@ -856,7 +856,8 @@ static FORCEINLINE void HU4_SSE2(uint8* dst, const uint8* top) {
 		DST(0, 3) = DST(1, 3) = DST(2, 3) = DST(3, 3) = L;
 }
 
-static FORCEINLINE void HD4_SSE2(uint8* dst, const uint8* top) {
+static FORCEINLINE void HD4_SSE2(uint8* dst, const uint8* top) 
+{
 	const int X = top[-1];
 	const int I = top[-2];
 	const int J = top[-3];
@@ -879,7 +880,8 @@ static FORCEINLINE void HD4_SSE2(uint8* dst, const uint8* top) {
 	DST(1, 3)             = AVG3(L, K, J);
 }
 
-static FORCEINLINE void TM4_SSE2(uint8* dst, const uint8* top) {
+static FORCEINLINE void TM4_SSE2(uint8* dst, const uint8* top) 
+{
 	const __m128i zero = _mm_setzero_si128();
 	const __m128i top_values = _mm_cvtsi32_si128(WebPMemToUint32(top));
 	const __m128i top_base = _mm_unpacklo_epi8(top_values, zero);

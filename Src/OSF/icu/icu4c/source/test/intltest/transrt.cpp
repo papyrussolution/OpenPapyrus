@@ -433,7 +433,7 @@ bool RTTest::isCamel(const UnicodeString & a) {
 			case U_TITLECASE_LETTER:
 			    if(haveLower) return TRUE;
 			    // fall through, since second letter is lower.
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case U_LOWERCASE_LETTER:
 			    haveLower = TRUE;
 			    break;

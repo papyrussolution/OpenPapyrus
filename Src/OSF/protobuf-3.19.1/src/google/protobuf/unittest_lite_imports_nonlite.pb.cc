@@ -13,8 +13,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
-constexpr TestLiteImportsNonlite::TestLiteImportsNonlite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestLiteImportsNonlite::TestLiteImportsNonlite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : message_(nullptr)
   , message_with_required_(nullptr){}
 struct TestLiteImportsNonliteDefaultTypeInternal {
@@ -39,14 +38,8 @@ class TestLiteImportsNonlite::_Internal {
   static void set_has_message_with_required(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
 };
 
-const ::protobuf_unittest::TestAllTypes&
-TestLiteImportsNonlite::_Internal::message(const TestLiteImportsNonlite* msg) {
-  return *msg->message_;
-}
-const ::protobuf_unittest::TestRequired&
-TestLiteImportsNonlite::_Internal::message_with_required(const TestLiteImportsNonlite* msg) {
-  return *msg->message_with_required_;
-}
+const ::protobuf_unittest::TestAllTypes & TestLiteImportsNonlite::_Internal::message(const TestLiteImportsNonlite* msg) { return *msg->message_; }
+const ::protobuf_unittest::TestRequired & TestLiteImportsNonlite::_Internal::message_with_required(const TestLiteImportsNonlite* msg) { return *msg->message_with_required_; }
 void TestLiteImportsNonlite::clear_message() {
   if(message_ != nullptr) message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
@@ -68,24 +61,13 @@ TestLiteImportsNonlite::TestLiteImportsNonlite(const TestLiteImportsNonlite& fro
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  if(from._internal_has_message()) {
-    message_ = new ::protobuf_unittest::TestAllTypes(*from.message_);
-  } else {
-    message_ = nullptr;
-  }
-  if(from._internal_has_message_with_required()) {
-    message_with_required_ = new ::protobuf_unittest::TestRequired(*from.message_with_required_);
-  } else {
-    message_with_required_ = nullptr;
-  }
+  message_ = from._internal_has_message() ? new ::protobuf_unittest::TestAllTypes(*from.message_) : nullptr;
+  message_with_required_ = from._internal_has_message_with_required() ? new ::protobuf_unittest::TestRequired(*from.message_with_required_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestLiteImportsNonlite)
 }
 
 inline void TestLiteImportsNonlite::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&message_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&message_with_required_) -
-    reinterpret_cast<char*>(&message_)) + sizeof(message_with_required_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&message_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&message_with_required_) - reinterpret_cast<char*>(&message_)) + sizeof(message_with_required_));
 }
 
 TestLiteImportsNonlite::~TestLiteImportsNonlite() {
@@ -105,8 +87,7 @@ void TestLiteImportsNonlite::ArenaDtor(void* object) {
   TestLiteImportsNonlite* _this = reinterpret_cast< TestLiteImportsNonlite* >(object);
   (void)_this;
 }
-void TestLiteImportsNonlite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestLiteImportsNonlite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestLiteImportsNonlite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -163,10 +144,7 @@ const char* TestLiteImportsNonlite::_InternalParse(const char* ptr, ::PROTOBUF_N
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -234,10 +212,9 @@ size_t TestLiteImportsNonlite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestLiteImportsNonlite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestLiteImportsNonlite*>(
-      &from));
+void TestLiteImportsNonlite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestLiteImportsNonlite*>(&from));
 }
 
 void TestLiteImportsNonlite::MergeFrom(const TestLiteImportsNonlite& from) {

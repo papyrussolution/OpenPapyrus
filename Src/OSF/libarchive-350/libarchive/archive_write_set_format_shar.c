@@ -81,7 +81,7 @@ int archive_write_set_format_shar(struct archive * _a)
 	struct shar * shar;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If someone else was already registered, unregister them. */
-	if(a->format_free != NULL)
+	if(a->format_free)
 		(a->format_free)(a);
 	shar = (struct shar *)SAlloc::C(1, sizeof(*shar));
 	if(shar == NULL) {
@@ -318,7 +318,7 @@ static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void 
 	 * bytes can be written.
 	 */
 	if(archive_string_ensure(&shar->work, ensured + 3) == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	if(shar->work.length > ensured) {
@@ -371,7 +371,7 @@ static int _uuencode_line(struct archive_write * a, struct shar * shar, const ch
 	/* len <= 45 -> expanded to 60 + len byte + new line */
 	size_t alloc_len = shar->work.length + 62;
 	if(archive_string_ensure(&shar->work, alloc_len) == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	buf = shar->work.s + shar->work.length;

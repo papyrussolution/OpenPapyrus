@@ -46,7 +46,7 @@
 	//#endif
 //#endif
 
-static char * ESTRING[] = {
+static const char * ESTRING[] = {
 	NULL,
 	"failed to match",                   /* REG_NOMATCH    */
 	"Invalid regular expression",        /* REG_BADPAT     */
@@ -59,7 +59,7 @@ static char * ESTRING[] = {
 	"imbalanced { and }",                /* REG_EBRACE     */
 	"invalid repeat range {n,m}",        /* REG_BADBR      */
 	"invalid range",                     /* REG_ERANGE     */
-	"Out of memory",                     /* REG_ESPACE     */
+	SlTxtOutOfMem,                     /* REG_ESPACE     */
 	"? * + not preceded by valid regular expression", /* REG_BADRPT   */
 
 	/* Extended errors */
@@ -70,7 +70,7 @@ static char * ESTRING[] = {
 
 extern size_t onig_posix_regerror(int posix_ecode, const onig_posix_regex_t* reg ARG_UNUSED, char * buf, size_t size)
 {
-	char * s;
+	const char * s;
 	char tbuf[35];
 	size_t len;
 	if(posix_ecode > 0 && posix_ecode < (int)(sizeof(ESTRING) / sizeof(ESTRING[0]))) {

@@ -96,22 +96,16 @@
 #define FROM_16_TO_8(rgb) (uint8)((((uint32)(rgb) * 65281U + 8388608U) >> 24) & 0xFFU)
 
 // Code analysis is broken on asserts
-#ifdef _MSC_VER
-#if(_MSC_VER >= 1500)
-#define _cmsAssert(a) { assert((a)); __analysis_assume((a)); }
-#else
-#define _cmsAssert(a)   assert((a))
-#endif
-#else
-#define _cmsAssert(a)   assert((a))
-#endif
-
-//---------------------------------------------------------------------------------
-
-// Determinant lower than that are assumed zero (used on matrix invert)
-#define MATRIX_DET_TOLERANCE    0.0001
-
-//---------------------------------------------------------------------------------
+//#ifdef _MSC_VER
+//#if(_MSC_VER >= 1500)
+//#define _cmsAssert_Removed(a) { assert((a)); __analysis_assume((a)); }
+//#else
+//#define _cmsAssert_Removed(a)   assert((a))
+//#endif
+//#else
+//#define _cmsAssert_Removed(a)   assert((a))
+//#endif
+#define MATRIX_DET_TOLERANCE    0.0001 // Determinant lower than that are assumed zero (used on matrix invert)
 
 // Fixed point
 #define FIXED_TO_INT(x)         ((x)>>16)
@@ -132,15 +126,12 @@ cmsINLINE int _cmsQuickFloor(double val)
 #ifdef CMS_DONT_USE_FAST_FLOOR
 	return (int)floor(val);
 #else
-	const double _lcms_double2fixmagic = 68719476736.0 * 1.5; // 2^36 * 1.5, (52-16=36) uses limited
-	                                                                    // precision to floor
+	const double _lcms_double2fixmagic = 68719476736.0 * 1.5; // 2^36 * 1.5, (52-16=36) uses limited precision to floor
 	union {
 		double val;
 		int halves[2];
 	} temp;
-
 	temp.val = val + _lcms_double2fixmagic;
-
 #ifdef CMS_USE_BIG_ENDIAN
 	return temp.halves[1] >> 16;
 #else
@@ -160,13 +151,8 @@ cmsINLINE uint16 _cmsQuickSaturateWord(double d)
 	if(d >= 65535.0) return 0xffff;
 	return _cmsQuickFloorWord(d);
 }
-
-// Test bed entry points---------------------------------------------------------------
-#define CMSCHECKPOINT CMSAPI
-
-// Pthread support --------------------------------------------------------------------
-#ifndef CMS_NO_PTHREADS
-
+#define CMSCHECKPOINT CMSAPI  // Test bed entry points
+#ifndef CMS_NO_PTHREADS // Pthread support
 // This is the threading support. Unfortunately, it has to be platform-dependent because
 // windows does not support pthreads.
 #ifdef CMS_IS_WINDOWS_
@@ -224,27 +210,25 @@ cmsINLINE uint16 _cmsQuickSaturateWord(double d)
 typedef CRITICAL_SECTION _cmsMutex;
 
 #ifdef _MSC_VER
-#if(_MSC_VER >= 1800)
-#          pragma warning(disable : 26135)
+	#if(_MSC_VER >= 1800)
+		#pragma warning(disable : 26135)
+	#endif
 #endif
-#endif
-
 #ifndef CMS_RELY_ON_WINDOWS_STATIC_MUTEX_INIT
-// If we are building with a version of MSVC smaller
-// than 1400 (i.e. before VS2005) then we don't have
-// the InterlockedCompareExchangePointer API, so use
-// the old version.
-#ifdef _MSC_VER
-#if _MSC_VER < 1400
-#define CMS_RELY_ON_WINDOWS_STATIC_MUTEX_INIT
+	// If we are building with a version of MSVC smaller
+	// than 1400 (i.e. before VS2005) then we don't have
+	// the InterlockedCompareExchangePointer API, so use
+	// the old version.
+	#ifdef _MSC_VER
+		#if _MSC_VER < 1400
+			#define CMS_RELY_ON_WINDOWS_STATIC_MUTEX_INIT
+		#endif
+	#endif
 #endif
-#endif
-#endif
-
 #ifdef CMS_RELY_ON_WINDOWS_STATIC_MUTEX_INIT
-#define CMS_MUTEX_INITIALIZER {(PRTL_CRITICAL_SECTION_DEBUG)-1, -1, 0, 0, 0, 0}
+	#define CMS_MUTEX_INITIALIZER {(PRTL_CRITICAL_SECTION_DEBUG)-1, -1, 0, 0, 0, 0}
 #else
-#define CMS_MUTEX_INITIALIZER {(PRTL_CRITICAL_SECTION_DEBUG)NULL, -1, 0, 0, 0, 0}
+	#define CMS_MUTEX_INITIALIZER {(PRTL_CRITICAL_SECTION_DEBUG)NULL, -1, 0, 0, 0, 0}
 #endif
 
 cmsINLINE int _cmsLockPrimitive(_cmsMutex * m)
@@ -795,7 +779,7 @@ CMSCHECKPOINT uint16 CMSEXPORT _cmsQuantizeVal(double i, uint32 MaxSamples);
 uint32  _cmsReasonableGridpointsByColorspace(cmsColorSpaceSignature Colorspace, uint32 dwFlags);
 
 boolint _cmsEndPointsBySpace(cmsColorSpaceSignature Space, uint16 ** White, uint16 ** Black, uint32 * nOutputs);
-boolint _cmsOptimizePipeline(cmsContext ContextID, cmsPipeline **    Lut, uint32 Intent, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags);
+boolint _cmsOptimizePipeline(cmsContext ContextID, cmsPipeline **    Lut, uint32 Intent, uint32 * InputFormat, uint32 * OutputFormat, uint32 * dwFlags);
 
 // Hi level LUT building ----------------------------------------------------------------------------------------------
 

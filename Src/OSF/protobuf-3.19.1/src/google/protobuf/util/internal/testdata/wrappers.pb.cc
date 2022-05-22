@@ -17,8 +17,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace proto_util_converter {
 namespace testing {
-constexpr WrappersTestCases::WrappersTestCases(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr WrappersTestCases::WrappersTestCases(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : double_wrapper_(nullptr)
   , float_wrapper_(nullptr)
   , int64_wrapper_(nullptr)
@@ -45,8 +44,7 @@ struct WrappersTestCasesDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT WrappersTestCasesDefaultTypeInternal _WrappersTestCases_default_instance_;
-constexpr DoubleWrapper::DoubleWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr DoubleWrapper::DoubleWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : double__(nullptr){}
 struct DoubleWrapperDefaultTypeInternal {
 	constexpr DoubleWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -56,8 +54,7 @@ struct DoubleWrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DoubleWrapperDefaultTypeInternal _DoubleWrapper_default_instance_;
-constexpr FloatWrapper::FloatWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr FloatWrapper::FloatWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : float__(nullptr){}
 struct FloatWrapperDefaultTypeInternal {
 	constexpr FloatWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -67,8 +64,7 @@ struct FloatWrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT FloatWrapperDefaultTypeInternal _FloatWrapper_default_instance_;
-constexpr Int64Wrapper::Int64Wrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Int64Wrapper::Int64Wrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : int64_(nullptr){}
 struct Int64WrapperDefaultTypeInternal {
 	constexpr Int64WrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -78,8 +74,7 @@ struct Int64WrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Int64WrapperDefaultTypeInternal _Int64Wrapper_default_instance_;
-constexpr UInt64Wrapper::UInt64Wrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr UInt64Wrapper::UInt64Wrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : uint64_(nullptr){}
 struct UInt64WrapperDefaultTypeInternal {
 	constexpr UInt64WrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -89,8 +84,7 @@ struct UInt64WrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT UInt64WrapperDefaultTypeInternal _UInt64Wrapper_default_instance_;
-constexpr Int32Wrapper::Int32Wrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Int32Wrapper::Int32Wrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : int32_(nullptr){}
 struct Int32WrapperDefaultTypeInternal {
 	constexpr Int32WrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -100,8 +94,7 @@ struct Int32WrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Int32WrapperDefaultTypeInternal _Int32Wrapper_default_instance_;
-constexpr UInt32Wrapper::UInt32Wrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr UInt32Wrapper::UInt32Wrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : uint32_(nullptr){}
 struct UInt32WrapperDefaultTypeInternal {
 	constexpr UInt32WrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -111,8 +104,7 @@ struct UInt32WrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT UInt32WrapperDefaultTypeInternal _UInt32Wrapper_default_instance_;
-constexpr BoolWrapper::BoolWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr BoolWrapper::BoolWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : bool__(nullptr){}
 struct BoolWrapperDefaultTypeInternal {
 	constexpr BoolWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -122,8 +114,7 @@ struct BoolWrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BoolWrapperDefaultTypeInternal _BoolWrapper_default_instance_;
-constexpr StringWrapper::StringWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr StringWrapper::StringWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : string_(nullptr){}
 struct StringWrapperDefaultTypeInternal {
 	constexpr StringWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -133,8 +124,7 @@ struct StringWrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StringWrapperDefaultTypeInternal _StringWrapper_default_instance_;
-constexpr BytesWrapper::BytesWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr BytesWrapper::BytesWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : bytes_(nullptr){}
 struct BytesWrapperDefaultTypeInternal {
 	constexpr BytesWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -361,78 +351,24 @@ class WrappersTestCases::_Internal {
   static const ::proto_util_converter::testing::BytesWrapper& bytes_wrapper_default(const WrappersTestCases* msg);
 };
 
-const ::proto_util_converter::testing::DoubleWrapper&
-WrappersTestCases::_Internal::double_wrapper(const WrappersTestCases* msg) {
-  return *msg->double_wrapper_;
-}
-const ::proto_util_converter::testing::FloatWrapper&
-WrappersTestCases::_Internal::float_wrapper(const WrappersTestCases* msg) {
-  return *msg->float_wrapper_;
-}
-const ::proto_util_converter::testing::Int64Wrapper&
-WrappersTestCases::_Internal::int64_wrapper(const WrappersTestCases* msg) {
-  return *msg->int64_wrapper_;
-}
-const ::proto_util_converter::testing::UInt64Wrapper&
-WrappersTestCases::_Internal::uint64_wrapper(const WrappersTestCases* msg) {
-  return *msg->uint64_wrapper_;
-}
-const ::proto_util_converter::testing::Int32Wrapper&
-WrappersTestCases::_Internal::int32_wrapper(const WrappersTestCases* msg) {
-  return *msg->int32_wrapper_;
-}
-const ::proto_util_converter::testing::UInt32Wrapper&
-WrappersTestCases::_Internal::uint32_wrapper(const WrappersTestCases* msg) {
-  return *msg->uint32_wrapper_;
-}
-const ::proto_util_converter::testing::BoolWrapper&
-WrappersTestCases::_Internal::bool_wrapper(const WrappersTestCases* msg) {
-  return *msg->bool_wrapper_;
-}
-const ::proto_util_converter::testing::StringWrapper&
-WrappersTestCases::_Internal::string_wrapper(const WrappersTestCases* msg) {
-  return *msg->string_wrapper_;
-}
-const ::proto_util_converter::testing::BytesWrapper&
-WrappersTestCases::_Internal::bytes_wrapper(const WrappersTestCases* msg) {
-  return *msg->bytes_wrapper_;
-}
-const ::proto_util_converter::testing::DoubleWrapper&
-WrappersTestCases::_Internal::double_wrapper_default(const WrappersTestCases* msg) {
-  return *msg->double_wrapper_default_;
-}
-const ::proto_util_converter::testing::FloatWrapper&
-WrappersTestCases::_Internal::float_wrapper_default(const WrappersTestCases* msg) {
-  return *msg->float_wrapper_default_;
-}
-const ::proto_util_converter::testing::Int64Wrapper&
-WrappersTestCases::_Internal::int64_wrapper_default(const WrappersTestCases* msg) {
-  return *msg->int64_wrapper_default_;
-}
-const ::proto_util_converter::testing::UInt64Wrapper&
-WrappersTestCases::_Internal::uint64_wrapper_default(const WrappersTestCases* msg) {
-  return *msg->uint64_wrapper_default_;
-}
-const ::proto_util_converter::testing::Int32Wrapper&
-WrappersTestCases::_Internal::int32_wrapper_default(const WrappersTestCases* msg) {
-  return *msg->int32_wrapper_default_;
-}
-const ::proto_util_converter::testing::UInt32Wrapper&
-WrappersTestCases::_Internal::uint32_wrapper_default(const WrappersTestCases* msg) {
-  return *msg->uint32_wrapper_default_;
-}
-const ::proto_util_converter::testing::BoolWrapper&
-WrappersTestCases::_Internal::bool_wrapper_default(const WrappersTestCases* msg) {
-  return *msg->bool_wrapper_default_;
-}
-const ::proto_util_converter::testing::StringWrapper&
-WrappersTestCases::_Internal::string_wrapper_default(const WrappersTestCases* msg) {
-  return *msg->string_wrapper_default_;
-}
-const ::proto_util_converter::testing::BytesWrapper&
-WrappersTestCases::_Internal::bytes_wrapper_default(const WrappersTestCases* msg) {
-  return *msg->bytes_wrapper_default_;
-}
+const ::proto_util_converter::testing::DoubleWrapper & WrappersTestCases::_Internal::double_wrapper(const WrappersTestCases* msg) { return *msg->double_wrapper_; }
+const ::proto_util_converter::testing::FloatWrapper & WrappersTestCases::_Internal::float_wrapper(const WrappersTestCases* msg) { return *msg->float_wrapper_; }
+const ::proto_util_converter::testing::Int64Wrapper & WrappersTestCases::_Internal::int64_wrapper(const WrappersTestCases* msg) { return *msg->int64_wrapper_; }
+const ::proto_util_converter::testing::UInt64Wrapper & WrappersTestCases::_Internal::uint64_wrapper(const WrappersTestCases* msg) { return *msg->uint64_wrapper_; }
+const ::proto_util_converter::testing::Int32Wrapper & WrappersTestCases::_Internal::int32_wrapper(const WrappersTestCases* msg) { return *msg->int32_wrapper_; }
+const ::proto_util_converter::testing::UInt32Wrapper & WrappersTestCases::_Internal::uint32_wrapper(const WrappersTestCases* msg) { return *msg->uint32_wrapper_; }
+const ::proto_util_converter::testing::BoolWrapper & WrappersTestCases::_Internal::bool_wrapper(const WrappersTestCases* msg) { return *msg->bool_wrapper_; }
+const ::proto_util_converter::testing::StringWrapper & WrappersTestCases::_Internal::string_wrapper(const WrappersTestCases* msg) { return *msg->string_wrapper_; }
+const ::proto_util_converter::testing::BytesWrapper & WrappersTestCases::_Internal::bytes_wrapper(const WrappersTestCases* msg) { return *msg->bytes_wrapper_; }
+const ::proto_util_converter::testing::DoubleWrapper & WrappersTestCases::_Internal::double_wrapper_default(const WrappersTestCases* msg) { return *msg->double_wrapper_default_; }
+const ::proto_util_converter::testing::FloatWrapper & WrappersTestCases::_Internal::float_wrapper_default(const WrappersTestCases* msg) { return *msg->float_wrapper_default_; }
+const ::proto_util_converter::testing::Int64Wrapper & WrappersTestCases::_Internal::int64_wrapper_default(const WrappersTestCases* msg) { return *msg->int64_wrapper_default_; }
+const ::proto_util_converter::testing::UInt64Wrapper & WrappersTestCases::_Internal::uint64_wrapper_default(const WrappersTestCases* msg) { return *msg->uint64_wrapper_default_; }
+const ::proto_util_converter::testing::Int32Wrapper & WrappersTestCases::_Internal::int32_wrapper_default(const WrappersTestCases* msg) { return *msg->int32_wrapper_default_; }
+const ::proto_util_converter::testing::UInt32Wrapper & WrappersTestCases::_Internal::uint32_wrapper_default(const WrappersTestCases* msg) { return *msg->uint32_wrapper_default_; }
+const ::proto_util_converter::testing::BoolWrapper & WrappersTestCases::_Internal::bool_wrapper_default(const WrappersTestCases* msg) { return *msg->bool_wrapper_default_; }
+const ::proto_util_converter::testing::StringWrapper & WrappersTestCases::_Internal::string_wrapper_default(const WrappersTestCases* msg) { return *msg->string_wrapper_default_; }
+const ::proto_util_converter::testing::BytesWrapper & WrappersTestCases::_Internal::bytes_wrapper_default(const WrappersTestCases* msg) { return *msg->bytes_wrapper_default_; }
 WrappersTestCases::WrappersTestCases(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -445,104 +381,29 @@ WrappersTestCases::WrappersTestCases(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 WrappersTestCases::WrappersTestCases(const WrappersTestCases& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_double_wrapper()) {
-    double_wrapper_ = new ::proto_util_converter::testing::DoubleWrapper(*from.double_wrapper_);
-  } else {
-    double_wrapper_ = nullptr;
-  }
-  if(from._internal_has_float_wrapper()) {
-    float_wrapper_ = new ::proto_util_converter::testing::FloatWrapper(*from.float_wrapper_);
-  } else {
-    float_wrapper_ = nullptr;
-  }
-  if(from._internal_has_int64_wrapper()) {
-    int64_wrapper_ = new ::proto_util_converter::testing::Int64Wrapper(*from.int64_wrapper_);
-  } else {
-    int64_wrapper_ = nullptr;
-  }
-  if(from._internal_has_uint64_wrapper()) {
-    uint64_wrapper_ = new ::proto_util_converter::testing::UInt64Wrapper(*from.uint64_wrapper_);
-  } else {
-    uint64_wrapper_ = nullptr;
-  }
-  if(from._internal_has_int32_wrapper()) {
-    int32_wrapper_ = new ::proto_util_converter::testing::Int32Wrapper(*from.int32_wrapper_);
-  } else {
-    int32_wrapper_ = nullptr;
-  }
-  if(from._internal_has_uint32_wrapper()) {
-    uint32_wrapper_ = new ::proto_util_converter::testing::UInt32Wrapper(*from.uint32_wrapper_);
-  } else {
-    uint32_wrapper_ = nullptr;
-  }
-  if(from._internal_has_bool_wrapper()) {
-    bool_wrapper_ = new ::proto_util_converter::testing::BoolWrapper(*from.bool_wrapper_);
-  } else {
-    bool_wrapper_ = nullptr;
-  }
-  if(from._internal_has_string_wrapper()) {
-    string_wrapper_ = new ::proto_util_converter::testing::StringWrapper(*from.string_wrapper_);
-  } else {
-    string_wrapper_ = nullptr;
-  }
-  if(from._internal_has_bytes_wrapper()) {
-    bytes_wrapper_ = new ::proto_util_converter::testing::BytesWrapper(*from.bytes_wrapper_);
-  } else {
-    bytes_wrapper_ = nullptr;
-  }
-  if(from._internal_has_double_wrapper_default()) {
-    double_wrapper_default_ = new ::proto_util_converter::testing::DoubleWrapper(*from.double_wrapper_default_);
-  } else {
-    double_wrapper_default_ = nullptr;
-  }
-  if(from._internal_has_float_wrapper_default()) {
-    float_wrapper_default_ = new ::proto_util_converter::testing::FloatWrapper(*from.float_wrapper_default_);
-  } else {
-    float_wrapper_default_ = nullptr;
-  }
-  if(from._internal_has_int64_wrapper_default()) {
-    int64_wrapper_default_ = new ::proto_util_converter::testing::Int64Wrapper(*from.int64_wrapper_default_);
-  } else {
-    int64_wrapper_default_ = nullptr;
-  }
-  if(from._internal_has_uint64_wrapper_default()) {
-    uint64_wrapper_default_ = new ::proto_util_converter::testing::UInt64Wrapper(*from.uint64_wrapper_default_);
-  } else {
-    uint64_wrapper_default_ = nullptr;
-  }
-  if(from._internal_has_int32_wrapper_default()) {
-    int32_wrapper_default_ = new ::proto_util_converter::testing::Int32Wrapper(*from.int32_wrapper_default_);
-  } else {
-    int32_wrapper_default_ = nullptr;
-  }
-  if(from._internal_has_uint32_wrapper_default()) {
-    uint32_wrapper_default_ = new ::proto_util_converter::testing::UInt32Wrapper(*from.uint32_wrapper_default_);
-  } else {
-    uint32_wrapper_default_ = nullptr;
-  }
-  if(from._internal_has_bool_wrapper_default()) {
-    bool_wrapper_default_ = new ::proto_util_converter::testing::BoolWrapper(*from.bool_wrapper_default_);
-  } else {
-    bool_wrapper_default_ = nullptr;
-  }
-  if(from._internal_has_string_wrapper_default()) {
-    string_wrapper_default_ = new ::proto_util_converter::testing::StringWrapper(*from.string_wrapper_default_);
-  } else {
-    string_wrapper_default_ = nullptr;
-  }
-  if(from._internal_has_bytes_wrapper_default()) {
-    bytes_wrapper_default_ = new ::proto_util_converter::testing::BytesWrapper(*from.bytes_wrapper_default_);
-  } else {
-    bytes_wrapper_default_ = nullptr;
-  }
+  double_wrapper_ = from._internal_has_double_wrapper() ? new ::proto_util_converter::testing::DoubleWrapper(*from.double_wrapper_) : nullptr;
+  float_wrapper_ = from._internal_has_float_wrapper() ? new ::proto_util_converter::testing::FloatWrapper(*from.float_wrapper_) : nullptr;
+  int64_wrapper_ = from._internal_has_int64_wrapper() ? new ::proto_util_converter::testing::Int64Wrapper(*from.int64_wrapper_) : nullptr;
+  uint64_wrapper_ = from._internal_has_uint64_wrapper() ? new ::proto_util_converter::testing::UInt64Wrapper(*from.uint64_wrapper_) : nullptr;
+  int32_wrapper_ = from._internal_has_int32_wrapper() ? new ::proto_util_converter::testing::Int32Wrapper(*from.int32_wrapper_) : nullptr;
+  uint32_wrapper_ = from._internal_has_uint32_wrapper() ? new ::proto_util_converter::testing::UInt32Wrapper(*from.uint32_wrapper_) : nullptr;
+  bool_wrapper_ = from._internal_has_bool_wrapper() ? new ::proto_util_converter::testing::BoolWrapper(*from.bool_wrapper_) : nullptr;
+  string_wrapper_ = from._internal_has_string_wrapper() ? new ::proto_util_converter::testing::StringWrapper(*from.string_wrapper_) : nullptr;
+  bytes_wrapper_ = from._internal_has_bytes_wrapper() ? new ::proto_util_converter::testing::BytesWrapper(*from.bytes_wrapper_) : nullptr;
+  double_wrapper_default_ = from._internal_has_double_wrapper_default() ? new ::proto_util_converter::testing::DoubleWrapper(*from.double_wrapper_default_) : nullptr;
+  float_wrapper_default_ = from._internal_has_float_wrapper_default() ? new ::proto_util_converter::testing::FloatWrapper(*from.float_wrapper_default_) : nullptr;
+  int64_wrapper_default_ = from._internal_has_int64_wrapper_default() ? new ::proto_util_converter::testing::Int64Wrapper(*from.int64_wrapper_default_) : nullptr;
+  uint64_wrapper_default_ = from._internal_has_uint64_wrapper_default() ? new ::proto_util_converter::testing::UInt64Wrapper(*from.uint64_wrapper_default_) : nullptr;
+  int32_wrapper_default_ = from._internal_has_int32_wrapper_default() ? new ::proto_util_converter::testing::Int32Wrapper(*from.int32_wrapper_default_) : nullptr;
+  uint32_wrapper_default_ = from._internal_has_uint32_wrapper_default() ? new ::proto_util_converter::testing::UInt32Wrapper(*from.uint32_wrapper_default_) : nullptr;
+  bool_wrapper_default_ = from._internal_has_bool_wrapper_default() ? new ::proto_util_converter::testing::BoolWrapper(*from.bool_wrapper_default_) : nullptr;
+  string_wrapper_default_ = from._internal_has_string_wrapper_default() ? new ::proto_util_converter::testing::StringWrapper(*from.string_wrapper_default_) : nullptr;
+  bytes_wrapper_default_ = from._internal_has_bytes_wrapper_default() ? new ::proto_util_converter::testing::BytesWrapper(*from.bytes_wrapper_default_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.WrappersTestCases)
 }
 
 inline void WrappersTestCases::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&double_wrapper_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&bytes_wrapper_default_) -
-    reinterpret_cast<char*>(&double_wrapper_)) + sizeof(bytes_wrapper_default_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&double_wrapper_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&bytes_wrapper_default_) - reinterpret_cast<char*>(&double_wrapper_)) + sizeof(bytes_wrapper_default_));
 }
 
 WrappersTestCases::~WrappersTestCases() {
@@ -578,8 +439,7 @@ void WrappersTestCases::ArenaDtor(void* object) {
   WrappersTestCases* _this = reinterpret_cast< WrappersTestCases* >(object);
   (void)_this;
 }
-void WrappersTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void WrappersTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void WrappersTestCases::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -823,10 +683,7 @@ const char* WrappersTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1066,10 +923,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData WrappersTestCases::_class_data
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*WrappersTestCases::GetClassData() const { return &_class_data_; }
 
-void WrappersTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<WrappersTestCases *>(to)->MergeFrom(
-      static_cast<const WrappersTestCases &>(from));
+void WrappersTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<WrappersTestCases *>(to)->MergeFrom(static_cast<const WrappersTestCases &>(from));
 }
 
 
@@ -1169,10 +1024,7 @@ class DoubleWrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::DoubleValue& double_(const DoubleWrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::DoubleValue&
-DoubleWrapper::_Internal::double_(const DoubleWrapper* msg) {
-  return *msg->double__;
-}
+const ::PROTOBUF_NAMESPACE_ID::DoubleValue & DoubleWrapper::_Internal::double_(const DoubleWrapper* msg) { return *msg->double__; }
 void DoubleWrapper::clear_double_() {
   if(GetArenaForAllocation() == nullptr && double__ != nullptr) {
     delete double__;
@@ -1191,11 +1043,7 @@ DoubleWrapper::DoubleWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 DoubleWrapper::DoubleWrapper(const DoubleWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_double_()) {
-    double__ = new ::PROTOBUF_NAMESPACE_ID::DoubleValue(*from.double__);
-  } else {
-    double__ = nullptr;
-  }
+  double__ = from._internal_has_double_() ? new ::PROTOBUF_NAMESPACE_ID::DoubleValue(*from.double__) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.DoubleWrapper)
 }
 
@@ -1219,8 +1067,7 @@ void DoubleWrapper::ArenaDtor(void* object) {
   DoubleWrapper* _this = reinterpret_cast< DoubleWrapper* >(object);
   (void)_this;
 }
-void DoubleWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void DoubleWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void DoubleWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1260,10 +1107,7 @@ const char* DoubleWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1316,10 +1160,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData DoubleWrapper::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*DoubleWrapper::GetClassData() const { return &_class_data_; }
 
-void DoubleWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<DoubleWrapper *>(to)->MergeFrom(
-      static_cast<const DoubleWrapper &>(from));
+void DoubleWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<DoubleWrapper *>(to)->MergeFrom(static_cast<const DoubleWrapper &>(from));
 }
 
 
@@ -1363,10 +1205,7 @@ class FloatWrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::FloatValue& float_(const FloatWrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::FloatValue&
-FloatWrapper::_Internal::float_(const FloatWrapper* msg) {
-  return *msg->float__;
-}
+const ::PROTOBUF_NAMESPACE_ID::FloatValue & FloatWrapper::_Internal::float_(const FloatWrapper* msg) { return *msg->float__; }
 void FloatWrapper::clear_float_() {
   if(GetArenaForAllocation() == nullptr && float__ != nullptr) {
     delete float__;
@@ -1385,11 +1224,7 @@ FloatWrapper::FloatWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 FloatWrapper::FloatWrapper(const FloatWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_float_()) {
-    float__ = new ::PROTOBUF_NAMESPACE_ID::FloatValue(*from.float__);
-  } else {
-    float__ = nullptr;
-  }
+  float__ = from._internal_has_float_() ? new ::PROTOBUF_NAMESPACE_ID::FloatValue(*from.float__) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.FloatWrapper)
 }
 
@@ -1413,8 +1248,7 @@ void FloatWrapper::ArenaDtor(void* object) {
   FloatWrapper* _this = reinterpret_cast< FloatWrapper* >(object);
   (void)_this;
 }
-void FloatWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void FloatWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void FloatWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1454,10 +1288,7 @@ const char* FloatWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1510,10 +1341,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData FloatWrapper::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*FloatWrapper::GetClassData() const { return &_class_data_; }
 
-void FloatWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<FloatWrapper *>(to)->MergeFrom(
-      static_cast<const FloatWrapper &>(from));
+void FloatWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<FloatWrapper *>(to)->MergeFrom(static_cast<const FloatWrapper &>(from));
 }
 
 
@@ -1557,10 +1386,7 @@ class Int64Wrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Int64Value& int64(const Int64Wrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Int64Value&
-Int64Wrapper::_Internal::int64(const Int64Wrapper* msg) {
-  return *msg->int64_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Int64Value & Int64Wrapper::_Internal::int64(const Int64Wrapper* msg) { return *msg->int64_; }
 void Int64Wrapper::clear_int64() {
   if(GetArenaForAllocation() == nullptr && int64_ != nullptr) {
     delete int64_;
@@ -1579,11 +1405,7 @@ Int64Wrapper::Int64Wrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 Int64Wrapper::Int64Wrapper(const Int64Wrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_int64()) {
-    int64_ = new ::PROTOBUF_NAMESPACE_ID::Int64Value(*from.int64_);
-  } else {
-    int64_ = nullptr;
-  }
+  int64_ = from._internal_has_int64() ? new ::PROTOBUF_NAMESPACE_ID::Int64Value(*from.int64_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.Int64Wrapper)
 }
 
@@ -1607,8 +1429,7 @@ void Int64Wrapper::ArenaDtor(void* object) {
   Int64Wrapper* _this = reinterpret_cast< Int64Wrapper* >(object);
   (void)_this;
 }
-void Int64Wrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Int64Wrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Int64Wrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1648,10 +1469,7 @@ const char* Int64Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1704,10 +1522,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Int64Wrapper::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Int64Wrapper::GetClassData() const { return &_class_data_; }
 
-void Int64Wrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Int64Wrapper *>(to)->MergeFrom(
-      static_cast<const Int64Wrapper &>(from));
+void Int64Wrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Int64Wrapper *>(to)->MergeFrom(static_cast<const Int64Wrapper &>(from));
 }
 
 
@@ -1751,10 +1567,7 @@ class UInt64Wrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::UInt64Value& uint64(const UInt64Wrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::UInt64Value&
-UInt64Wrapper::_Internal::uint64(const UInt64Wrapper* msg) {
-  return *msg->uint64_;
-}
+const ::PROTOBUF_NAMESPACE_ID::UInt64Value & UInt64Wrapper::_Internal::uint64(const UInt64Wrapper* msg) { return *msg->uint64_; }
 void UInt64Wrapper::clear_uint64() {
   if(GetArenaForAllocation() == nullptr && uint64_ != nullptr) {
     delete uint64_;
@@ -1773,11 +1586,7 @@ UInt64Wrapper::UInt64Wrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 UInt64Wrapper::UInt64Wrapper(const UInt64Wrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_uint64()) {
-    uint64_ = new ::PROTOBUF_NAMESPACE_ID::UInt64Value(*from.uint64_);
-  } else {
-    uint64_ = nullptr;
-  }
+  uint64_ = from._internal_has_uint64() ? new ::PROTOBUF_NAMESPACE_ID::UInt64Value(*from.uint64_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.UInt64Wrapper)
 }
 
@@ -1801,8 +1610,7 @@ void UInt64Wrapper::ArenaDtor(void* object) {
   UInt64Wrapper* _this = reinterpret_cast< UInt64Wrapper* >(object);
   (void)_this;
 }
-void UInt64Wrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void UInt64Wrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void UInt64Wrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1842,10 +1650,7 @@ const char* UInt64Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1898,10 +1703,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData UInt64Wrapper::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*UInt64Wrapper::GetClassData() const { return &_class_data_; }
 
-void UInt64Wrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<UInt64Wrapper *>(to)->MergeFrom(
-      static_cast<const UInt64Wrapper &>(from));
+void UInt64Wrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<UInt64Wrapper *>(to)->MergeFrom(static_cast<const UInt64Wrapper &>(from));
 }
 
 
@@ -1945,10 +1748,7 @@ class Int32Wrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Int32Value& int32(const Int32Wrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Int32Value&
-Int32Wrapper::_Internal::int32(const Int32Wrapper* msg) {
-  return *msg->int32_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Int32Value & Int32Wrapper::_Internal::int32(const Int32Wrapper* msg) { return *msg->int32_; }
 void Int32Wrapper::clear_int32() {
   if(GetArenaForAllocation() == nullptr && int32_ != nullptr) {
     delete int32_;
@@ -1967,11 +1767,7 @@ Int32Wrapper::Int32Wrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 Int32Wrapper::Int32Wrapper(const Int32Wrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_int32()) {
-    int32_ = new ::PROTOBUF_NAMESPACE_ID::Int32Value(*from.int32_);
-  } else {
-    int32_ = nullptr;
-  }
+  int32_ = from._internal_has_int32() ? new ::PROTOBUF_NAMESPACE_ID::Int32Value(*from.int32_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.Int32Wrapper)
 }
 
@@ -1995,8 +1791,7 @@ void Int32Wrapper::ArenaDtor(void* object) {
   Int32Wrapper* _this = reinterpret_cast< Int32Wrapper* >(object);
   (void)_this;
 }
-void Int32Wrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Int32Wrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Int32Wrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2036,10 +1831,7 @@ const char* Int32Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2092,10 +1884,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Int32Wrapper::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Int32Wrapper::GetClassData() const { return &_class_data_; }
 
-void Int32Wrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Int32Wrapper *>(to)->MergeFrom(
-      static_cast<const Int32Wrapper &>(from));
+void Int32Wrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Int32Wrapper *>(to)->MergeFrom(static_cast<const Int32Wrapper &>(from));
 }
 
 
@@ -2139,10 +1929,7 @@ class UInt32Wrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::UInt32Value& uint32(const UInt32Wrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::UInt32Value&
-UInt32Wrapper::_Internal::uint32(const UInt32Wrapper* msg) {
-  return *msg->uint32_;
-}
+const ::PROTOBUF_NAMESPACE_ID::UInt32Value & UInt32Wrapper::_Internal::uint32(const UInt32Wrapper* msg) { return *msg->uint32_; }
 void UInt32Wrapper::clear_uint32() {
   if(GetArenaForAllocation() == nullptr && uint32_ != nullptr) {
     delete uint32_;
@@ -2161,11 +1948,7 @@ UInt32Wrapper::UInt32Wrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 UInt32Wrapper::UInt32Wrapper(const UInt32Wrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_uint32()) {
-    uint32_ = new ::PROTOBUF_NAMESPACE_ID::UInt32Value(*from.uint32_);
-  } else {
-    uint32_ = nullptr;
-  }
+  uint32_ = from._internal_has_uint32() ? new ::PROTOBUF_NAMESPACE_ID::UInt32Value(*from.uint32_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.UInt32Wrapper)
 }
 
@@ -2189,8 +1972,7 @@ void UInt32Wrapper::ArenaDtor(void* object) {
   UInt32Wrapper* _this = reinterpret_cast< UInt32Wrapper* >(object);
   (void)_this;
 }
-void UInt32Wrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void UInt32Wrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void UInt32Wrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2230,10 +2012,7 @@ const char* UInt32Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2286,10 +2065,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData UInt32Wrapper::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*UInt32Wrapper::GetClassData() const { return &_class_data_; }
 
-void UInt32Wrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<UInt32Wrapper *>(to)->MergeFrom(
-      static_cast<const UInt32Wrapper &>(from));
+void UInt32Wrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<UInt32Wrapper *>(to)->MergeFrom(static_cast<const UInt32Wrapper &>(from));
 }
 
 
@@ -2333,10 +2110,7 @@ class BoolWrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::BoolValue& bool_(const BoolWrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::BoolValue&
-BoolWrapper::_Internal::bool_(const BoolWrapper* msg) {
-  return *msg->bool__;
-}
+const ::PROTOBUF_NAMESPACE_ID::BoolValue & BoolWrapper::_Internal::bool_(const BoolWrapper* msg) { return *msg->bool__; }
 void BoolWrapper::clear_bool_() {
   if(GetArenaForAllocation() == nullptr && bool__ != nullptr) {
     delete bool__;
@@ -2355,11 +2129,7 @@ BoolWrapper::BoolWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 BoolWrapper::BoolWrapper(const BoolWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_bool_()) {
-    bool__ = new ::PROTOBUF_NAMESPACE_ID::BoolValue(*from.bool__);
-  } else {
-    bool__ = nullptr;
-  }
+  bool__ = from._internal_has_bool_() ? new ::PROTOBUF_NAMESPACE_ID::BoolValue(*from.bool__) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.BoolWrapper)
 }
 
@@ -2383,8 +2153,7 @@ void BoolWrapper::ArenaDtor(void* object) {
   BoolWrapper* _this = reinterpret_cast< BoolWrapper* >(object);
   (void)_this;
 }
-void BoolWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void BoolWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void BoolWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2424,10 +2193,7 @@ const char* BoolWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2480,10 +2246,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BoolWrapper::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BoolWrapper::GetClassData() const { return &_class_data_; }
 
-void BoolWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<BoolWrapper *>(to)->MergeFrom(
-      static_cast<const BoolWrapper &>(from));
+void BoolWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<BoolWrapper *>(to)->MergeFrom(static_cast<const BoolWrapper &>(from));
 }
 
 
@@ -2527,10 +2291,7 @@ class StringWrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::StringValue& string(const StringWrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::StringValue&
-StringWrapper::_Internal::string(const StringWrapper* msg) {
-  return *msg->string_;
-}
+const ::PROTOBUF_NAMESPACE_ID::StringValue & StringWrapper::_Internal::string(const StringWrapper* msg) { return *msg->string_; }
 void StringWrapper::clear_string() {
   if(GetArenaForAllocation() == nullptr && string_ != nullptr) {
     delete string_;
@@ -2549,11 +2310,7 @@ StringWrapper::StringWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 StringWrapper::StringWrapper(const StringWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_string()) {
-    string_ = new ::PROTOBUF_NAMESPACE_ID::StringValue(*from.string_);
-  } else {
-    string_ = nullptr;
-  }
+  string_ = from._internal_has_string() ? new ::PROTOBUF_NAMESPACE_ID::StringValue(*from.string_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.StringWrapper)
 }
 
@@ -2577,8 +2334,7 @@ void StringWrapper::ArenaDtor(void* object) {
   StringWrapper* _this = reinterpret_cast< StringWrapper* >(object);
   (void)_this;
 }
-void StringWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void StringWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void StringWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2618,10 +2374,7 @@ const char* StringWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2674,10 +2427,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData StringWrapper::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*StringWrapper::GetClassData() const { return &_class_data_; }
 
-void StringWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<StringWrapper *>(to)->MergeFrom(
-      static_cast<const StringWrapper &>(from));
+void StringWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<StringWrapper *>(to)->MergeFrom(static_cast<const StringWrapper &>(from));
 }
 
 
@@ -2721,10 +2472,7 @@ class BytesWrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::BytesValue& bytes(const BytesWrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::BytesValue&
-BytesWrapper::_Internal::bytes(const BytesWrapper* msg) {
-  return *msg->bytes_;
-}
+const ::PROTOBUF_NAMESPACE_ID::BytesValue & BytesWrapper::_Internal::bytes(const BytesWrapper* msg) { return *msg->bytes_; }
 void BytesWrapper::clear_bytes() {
   if(GetArenaForAllocation() == nullptr && bytes_ != nullptr) {
     delete bytes_;
@@ -2743,11 +2491,7 @@ BytesWrapper::BytesWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 BytesWrapper::BytesWrapper(const BytesWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_bytes()) {
-    bytes_ = new ::PROTOBUF_NAMESPACE_ID::BytesValue(*from.bytes_);
-  } else {
-    bytes_ = nullptr;
-  }
+  bytes_ = from._internal_has_bytes() ? new ::PROTOBUF_NAMESPACE_ID::BytesValue(*from.bytes_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.BytesWrapper)
 }
 
@@ -2771,8 +2515,7 @@ void BytesWrapper::ArenaDtor(void* object) {
   BytesWrapper* _this = reinterpret_cast< BytesWrapper* >(object);
   (void)_this;
 }
-void BytesWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void BytesWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void BytesWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2812,10 +2555,7 @@ const char* BytesWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2868,10 +2608,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BytesWrapper::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BytesWrapper::GetClassData() const { return &_class_data_; }
 
-void BytesWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<BytesWrapper *>(to)->MergeFrom(
-      static_cast<const BytesWrapper &>(from));
+void BytesWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<BytesWrapper *>(to)->MergeFrom(static_cast<const BytesWrapper &>(from));
 }
 
 

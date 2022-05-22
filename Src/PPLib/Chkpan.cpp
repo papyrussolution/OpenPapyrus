@@ -778,7 +778,7 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 				n_item.PutInner("GuestCount", temp_buf.Z().Cat(r_item.GuestCount));
 				n_item.PutInner("Amount", temp_buf.Z().Cat(MONEYTOLDBL(r_item.Amount), MKSFMTD(0, 2, 0)));
 				n_item.PutInner("Discount", temp_buf.Z().Cat(MONEYTOLDBL(r_item.Discount), MKSFMTD(0, 2, 0)));
-				n_item.PutInner("CreationTime", temp_buf.Z().Cat(r_item.CreationDtm, DATF_ISO8601|DATF_CENTURY, 0));
+				n_item.PutInner("CreationTime", temp_buf.Z().Cat(r_item.CreationDtm, DATF_ISO8601CENT, 0));
 				n_item.PutInner("CreationUserID", temp_buf.Z().Cat(r_item.CreationUserID)); // @v10.6.8
 			}
 		}
@@ -6244,7 +6244,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					// @v10.9.8 const int gdtr = p_ifc->GetDeviceTime(&device_dtm);
 					const int gdtr = P_CM->SyncGetDeviceTime(&device_dtm); // @v10.9.8
 					// @v10.8.9 @debug {
-					(msg_buf = "GetDeviceTime").CatDiv(':', 2).Cat(gdtr).Space().Cat(device_dtm, DATF_ISO8601|DATF_CENTURY, 0);
+					(msg_buf = "GetDeviceTime").CatDiv(':', 2).Cat(gdtr).Space().Cat(device_dtm, DATF_ISO8601CENT, 0);
 					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					// } @v10.8.9 @debug 
 					if(gdtr > 0) {
@@ -9685,8 +9685,8 @@ int SCardInfoDialog::setupList()
 			view.InitIteration();
 			for(uint i = 1; view.NextIteration(&item) > 0; i++) {
 				ss.clear();
-				ss.add(temp_buf.Z().Cat(item.Dt));                 // Дата
-				ss.add(temp_buf.Z().Cat(item.Tm));                 // Время //
+				ss.add(temp_buf.Z().Cat(item.Dt)); // Дата
+				ss.add(temp_buf.Z().Cat(item.Tm)); // Время //
 				if(item.Flags & SCARDOPF_FREEZING) {
 					DateRange frz_prd;
 					frz_prd.Set(item.FreezingStart, item.FreezingEnd);

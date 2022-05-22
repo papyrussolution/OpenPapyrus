@@ -52,23 +52,8 @@
 
 #include "cairo-xlib-private.h"
 #include "cairo-xlib-surface-private.h"
-
-//#include "cairo-compositor-private.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-damage-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-pattern-private.h"
 #include "cairo-pixman-private.h"
-//#include "cairo-region-private.h"
-//#include "cairo-scaled-font-private.h"
-//#include "cairo-surface-snapshot-private.h"
-//#include "cairo-surface-subsurface-private.h"
-
 #include <X11/Xutil.h> /* for XDestroyImage */
-
 #include <X11/extensions/XShm.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -1674,7 +1659,7 @@ found:
 	}
 
 	surface = _cairo_malloc(sizeof(cairo_xlib_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	status = _cairo_xlib_display_acquire(screen->device, &display);

@@ -545,7 +545,7 @@ static bool _uloc_addLikelySubtags(const char * localeID, icu::ByteSink& sink, U
 	if(U_FAILURE(*err)) {
 		goto error;
 	}
-	if(localeID == NULL) {
+	if(!localeID) {
 		goto error;
 	}
 	trailingIndex = parseTagString(localeID, lang, &langLength, script, &scriptLength, region, &regionLength, err);
@@ -603,7 +603,7 @@ static void _uloc_minimizeSubtags(const char * localeID, icu::ByteSink& sink, UE
 	if(U_FAILURE(*err)) {
 		goto error;
 	}
-	else if(localeID == NULL) {
+	else if(!localeID) {
 		goto error;
 	}
 	trailingIndex = parseTagString(localeID, lang, &langLength, script, &scriptLength, region, &regionLength, err);

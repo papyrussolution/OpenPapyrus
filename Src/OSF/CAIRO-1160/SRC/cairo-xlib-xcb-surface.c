@@ -45,10 +45,6 @@
 #include "cairo-xcb.h"
 #include "cairo-xcb-private.h"
 #include "cairo-xlib-xrender-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-surface-backend-private.h"
 #include <X11/Xlib-xcb.h>
 #include <X11/Xlibint.h>        /* For XESetCloseDisplay */
 
@@ -413,7 +409,7 @@ static cairo_surface_t * _cairo_xlib_xcb_surface_create(void * dpy,
 		return xcb;
 
 	surface = _cairo_malloc(sizeof(*surface));
-	if(UNLIKELY(surface == NULL)) {
+	if(UNLIKELY(!surface)) {
 		cairo_surface_destroy(xcb);
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	}

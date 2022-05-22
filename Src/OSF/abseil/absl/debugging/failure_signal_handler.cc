@@ -155,8 +155,8 @@ static int MaybeSetupAlternateStack() {
 #endif
 }
 
-static void InstallOneFailureHandler(FailureSignalData* data,
-    void (*handler)(int, siginfo_t*, void*)) {
+static void InstallOneFailureHandler(FailureSignalData* data, void (*handler)(int, siginfo_t*, void*)) 
+{
 	struct sigaction act;
 	memset(&act, 0, sizeof(act));
 	sigemptyset(&act.sa_mask);
@@ -168,21 +168,19 @@ static void InstallOneFailureHandler(FailureSignalData* data,
 		act.sa_flags |= MaybeSetupAlternateStack();
 	}
 	act.sa_sigaction = handler;
-	ABSL_RAW_CHECK(sigaction(data->signo, &act, &data->previous_action) == 0,
-	    "sigaction() failed");
+	ABSL_RAW_CHECK(sigaction(data->signo, &act, &data->previous_action) == 0, "sigaction() failed");
 }
 
 #else
-
-static void InstallOneFailureHandler(FailureSignalData* data,
-    void (*handler)(int)) {
+static void InstallOneFailureHandler(FailureSignalData* data, void (*handler)(int)) 
+{
 	data->previous_handler = signal(data->signo, handler);
 	ABSL_RAW_CHECK(data->previous_handler != SIG_ERR, "signal() failed");
 }
-
 #endif
 
-static void WriteToStderr(const char* data) {
+static void WriteToStderr(const char* data) 
+{
 	absl::base_internal::ErrnoSaver errno_saver;
 	absl::raw_logging_internal::SafeWriteToStderr(data, strlen(data));
 }

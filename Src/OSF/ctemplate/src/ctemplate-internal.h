@@ -8,15 +8,6 @@
 
 #include <config.h>
 #include "windows/config.h"
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <stddef.h>
-//#include <string.h>
-//#include <ctype.h>
-//#include <errno.h>
-//#include <sys/stat.h>
-//#include <time.h>
-//#include <assert.h>
 #ifdef HAVE_INTTYPES_H
 	#include <inttypes.h>
 #endif // another place uintptr_t might be
@@ -25,17 +16,6 @@
 #endif
 #include HASH_MAP_H
 #include HASH_SET_H
-//#include <algorithm>        // for binary_search()
-//#include <functional>       // for binary_function()
-//#include <iterator>
-//#include <list>
-//#include <map>
-//#include <string>
-//#include <utility>
-//#include <vector>
-//#include <iostream>
-//#include <sstream>
-//#include <string>
 #include "base/mutex.h" // This has to come first to get _XOPEN_SOURCE
 #include "base/arena.h"
 #include "base/arena-inl.h"

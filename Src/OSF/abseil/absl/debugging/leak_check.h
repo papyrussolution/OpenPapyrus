@@ -21,7 +21,7 @@
 #ifndef ABSL_DEBUGGING_LEAK_CHECK_H_
 #define ABSL_DEBUGGING_LEAK_CHECK_H_
 
-#include <cstddef>
+//#include <cstddef>
 #include "absl/base/config.h"
 
 namespace absl {
@@ -63,8 +63,8 @@ void DoIgnoreLeak(const void* ptr);
 //
 template <typename T>
 T* IgnoreLeak(T* ptr) {
-  DoIgnoreLeak(ptr);
-  return ptr;
+	DoIgnoreLeak(ptr);
+	return ptr;
 }
 
 // FindAndReportLeaks()
@@ -96,11 +96,11 @@ bool FindAndReportLeaks();
 //
 // REQUIRES: Destructor runs in same thread as constructor
 class LeakCheckDisabler {
- public:
-  LeakCheckDisabler();
-  LeakCheckDisabler(const LeakCheckDisabler&) = delete;
-  LeakCheckDisabler& operator = (const LeakCheckDisabler&) = delete;
-  ~LeakCheckDisabler();
+public:
+	LeakCheckDisabler();
+	LeakCheckDisabler(const LeakCheckDisabler&) = delete;
+	LeakCheckDisabler& operator =(const LeakCheckDisabler&) = delete;
+	~LeakCheckDisabler();
 };
 
 // RegisterLivePointers()

@@ -763,7 +763,7 @@ static void * xmlFileOpen_real(const char * filename)
 {
 	const char * path = filename;
 	FILE * fd;
-	if(filename == NULL)
+	if(!filename)
 		return 0;
 	if(sstreq(filename, "-")) {
 		fd = stdin;
@@ -2283,7 +2283,7 @@ xmlParserInputBuffer * __xmlParserInputBufferCreateFilename(const char * URI, xm
 	void * context = NULL;
 	if(xmlInputCallbackInitialized == 0)
 		xmlRegisterDefaultInputCallbacks();
-	if(URI == NULL)
+	if(!URI)
 		return 0;
 	/*
 	 * Try to find one of the input accept method accepting that scheme
@@ -2373,7 +2373,7 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
 #endif
 	if(xmlOutputCallbackInitialized == 0)
 		xmlRegisterDefaultOutputCallbacks();
-	if(URI == NULL)
+	if(!URI)
 		return 0;
 	puri = xmlParseURI(URI);
 	if(puri) {
@@ -2992,7 +2992,7 @@ int xmlParserInputBufferRead(xmlParserInputBuffer * in, int len)
  * Returns the number of chars immediately written, or -1
  *    in case of error.
  */
-int FASTCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * buf)
+int STDCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * buf)
 {
 	int nbchars = 0; /* number of chars to output to I/O */
 	int ret; /* return from function call */
@@ -3344,7 +3344,7 @@ char * xmlParserGetDirectory(const char * filename)
 #endif
 	if(xmlInputCallbackInitialized == 0)
 		xmlRegisterDefaultInputCallbacks();
-	if(filename == NULL)
+	if(!filename)
 		return 0;
 #if defined(WIN32) && !defined(__CYGWIN__)
 #define IS_XMLPGD_SEP(ch) ((ch=='/')||(ch=='\\'))

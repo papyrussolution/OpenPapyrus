@@ -98,7 +98,7 @@ public:
 	explicit ACS_CRCSHSRV(PPID n) : PPAsyncCashSession(n), Options(0), CurOperDate(ZERODATE), P_SCardPaymTbl(0), StatID(0)
 	{
 		int    ipar = 0;
-		PPIniFile  ini_file;
+		PPIniFile ini_file;
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ACSCLOSE_USEALTIMPORT, &ipar); // &UseAltImport);
 		if(ipar > 0)
 			Options |= oUseAltImport;
@@ -235,7 +235,7 @@ public:
 	PPAsyncCashSession * AsyncInterface() { return new ACS_CRCSHSRV(NodeID); }
 };
 
-REGISTER_CMT(CRCSHSRV,0,1);
+REGISTER_CMT(CRCSHSRV, false, true);
 
 int ACS_CRCSHSRV::IsFileExists(uint fileId, const char * pSubDir)
 {
@@ -475,7 +475,7 @@ void XmlWriter::PutPlugin(const char * pKey, LDATE val)
 {
 	if(val != ZERODATE) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
-		PutPlugin(pKey, r_temp_buf.Cat(val, DATF_ISO8601|DATF_CENTURY));
+		PutPlugin(pKey, r_temp_buf.Cat(val, DATF_ISO8601CENT));
 	}
 }
 
@@ -516,13 +516,13 @@ int XmlWriter::AddAttrib(const char * pAttribName, const char * pAttribValue)
 	return ok;
 }
 
-int XmlWriter::AddAttrib(const char * pName, LDATETIME val) { return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
-int XmlWriter::AddAttrib(const char * pName, LDATE val) { return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
+int XmlWriter::AddAttrib(const char * pName, LDATETIME val) { return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601CENT, 0)); }
+int XmlWriter::AddAttrib(const char * pName, LDATE val) { return AddAttrib(pName, TempBuf.Z().Cat(val, DATF_ISO8601CENT)); }
 int XmlWriter::PutElement(const char * pName, long val) { return PutElement(pName, TempBuf.Z().Cat(val)); }
 int XmlWriter::PutElement(const char * pName, double val) { return PutElement(pName, TempBuf.Z().Cat(val)); }
 int XmlWriter::PutElement(const char * pName, bool val) { return PutElement(pName, TempBuf.Z().Cat(STextConst::GetBool(val))); }
-int XmlWriter::PutElement(const char * pName, LDATETIME val) { return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY, 0)); }
-int XmlWriter::PutElement(const char * pName, LDATE val) { return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601|DATF_CENTURY)); }
+int XmlWriter::PutElement(const char * pName, LDATETIME val) { return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601CENT, 0)); }
+int XmlWriter::PutElement(const char * pName, LDATE val) { return PutElement(pName, TempBuf.Z().Cat(val, DATF_ISO8601CENT)); }
 int XmlWriter::PutElement(const char * pName, LTIME val) { return PutElement(pName, TempBuf.Z().Cat(val, TIMF_HMS|TIMF_MSEC)); }
 
 int XmlWriter::PutElement(const char * pName, const char * pValue)
@@ -1272,7 +1272,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 									bool is_thereis_email = false;
 									bool is_thereis_phone = false;
 									if(checkdate(info.PsnDOB)) {
-										temp_buf.Z().Cat(info.PsnDOB, DATF_ISO8601|DATF_CENTURY);
+										temp_buf.Z().Cat(info.PsnDOB, DATF_ISO8601CENT);
 										p_writer->AddAttrib("birth-date", temp_buf);
 									}
 									if(info.Email.NotEmpty()) {
@@ -1327,7 +1327,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 								p_writer->AddAttrib("lastName", info.PsnName);
 								// @v11.3.5 {
 								if(checkdate(info.PsnDOB)) {
-									temp_buf.Z().Cat(info.PsnDOB, DATF_ISO8601|DATF_CENTURY);
+									temp_buf.Z().Cat(info.PsnDOB, DATF_ISO8601CENT);
 									p_writer->AddAttrib("birth-date", temp_buf);
 								}
 								if(info.Email.NotEmpty()) {
@@ -1543,14 +1543,14 @@ public:
 
 static SString & GetDatetimeStrBeg(LDATE dt, int16 tm, SString & rBuf)
 {
-	rBuf.Z().Cat(!dt ? encodedate(1, 1, 2000) : dt, DATF_GERMAN|DATF_CENTURY);
+	rBuf.Z().Cat(!dt ? encodedate(1, 1, 2000) : dt, DATF_GERMANCENT);
 	rBuf.Space().Cat(encodetime(*(char *)&tm, *(((char *)&tm) + 1), 0, 0), TIMF_HM);
 	return rBuf;
 }
 
 static SString & GetDatetimeStrEnd(LDATE dt, int16 tm, SString & rBuf)
 {
-	rBuf.Z().Cat(!dt ? encodedate(1, 1, 2050) : dt, DATF_GERMAN|DATF_CENTURY);
+	rBuf.Z().Cat(!dt ? encodedate(1, 1, 2050) : dt, DATF_GERMANCENT);
 	rBuf.Space().Cat(encodetime(*(char *)&tm, *(((char *)&tm) + 1), 0, 0), TIMF_HM);
 	return rBuf;
 }
@@ -1605,9 +1605,8 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	// Список видов котирок, по которым предоставляются свободные скидки (не привязанные к картам)
 	//
 	PPIDArray rtl_quot_list;
-	//
-	PPQuotArray  grp_dscnt_ary;
-	PPIniFile    ini_file;
+	PPQuotArray grp_dscnt_ary;
+	PPIniFile ini_file;
 	PPWaitStart();
 	THROW(GetNodeData(&cn_data) > 0);
 	loc_id = cn_data.LocID;
@@ -1667,16 +1666,16 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 					PPWaitPercent(iter.GetCounter(), msg_buf);
 					const char * p_mode = (info.Flags & AsyncCashSCardInfo::fClosed) ? "-" : "+";
 					DbfRecord dbfrC(p_tbl);
-					dbfrC.put(1,  p_mode);                         // Тип действия //
-					dbfrC.put(2,  info.Rec.Code);                  // Код дисконтной карты
-					dbfrC.put(3,  info.PsnName);                   // Владелец карты
-					dbfrC.put(4,  ser_rec.Name);                   // Наименование карты
-					dbfrC.put(5,  (int)0);                         // Тип карты (0 - дисконтная)
-					dbfrC.put(6,  ser_rec.ID);                     // Категория карты (ID серии карт)
-					dbfrC.put(7,  fdiv100i(info.Rec.PDis));        // Процент скидки
-					dbfrC.put(8,  info.Rec.MaxCredit);             // Максимальный кредит по карте
-					dbfrC.put(9,  info.Rec.Dt);                    // Дата выпуска карты
-					dbfrC.put(10, info.Rec.Expiry);                // Срок действия карты
+					dbfrC.put(1,  p_mode);                  // Тип действия //
+					dbfrC.put(2,  info.Rec.Code);           // Код дисконтной карты
+					dbfrC.put(3,  info.PsnName);            // Владелец карты
+					dbfrC.put(4,  ser_rec.Name);            // Наименование карты
+					dbfrC.put(5,  (int)0);                  // Тип карты (0 - дисконтная)
+					dbfrC.put(6,  ser_rec.ID);              // Категория карты (ID серии карт)
+					dbfrC.put(7,  fdiv100i(info.Rec.PDis)); // Процент скидки
+					dbfrC.put(8,  info.Rec.MaxCredit);      // Максимальный кредит по карте
+					dbfrC.put(9,  info.Rec.Dt);             // Дата выпуска карты
+					dbfrC.put(10, info.Rec.Expiry);         // Срок действия карты
 					THROW_PP(p_tbl->appendRec(&dbfrC), PPERR_DBFWRFAULT);
 					iter.SetStat();
 				}
@@ -1854,7 +1853,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			}
 			dbfrG.put(10, gi.Price);	                                  // Цена товара
 			// @v6.7.8 dbfrG.put(11, fpow10i(-3));                        // Мерность товара
-			dbfrG.put(11, gi.Precision);                                  // @v6.7.8 Мерность товара
+			dbfrG.put(11, gi.Precision);                                  // Мерность товара
 			dbfrG.put(12, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // Номер секции
 			dbfrG.put(13,  gi.ID);                                        // ID ограничения на скидку
 			dbfrG.put(14, (double)((gi.NoDis > 0) ? 100 : 0));            // Min цена товара
@@ -2134,15 +2133,17 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		LAssocArray rtl_dscnt_code_ary;
 		//
 		PPQuotArray  grp_dscnt_ary;
-		PPIniFile    ini_file;
 		PPWaitStart();
 		THROW(GetNodeData(&cn_data) > 0);
 		check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 		if(cn_data.DrvVerMajor > 4 || (cn_data.DrvVerMajor == 4 && cn_data.DrvVerMinor >= 9))
 			use_dscnt_code = 1;
 		THROW(DistributeFile_(0, 0/*pEndFileName*/, dfactCheckDestPaths, 0, 0));
-		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES, &add_time_to_fname);
-		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG, &use_new_dscnt_code_alg);
+		{
+			PPIniFile ini_file;
+			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES, &add_time_to_fname);
+			ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG, &use_new_dscnt_code_alg);
+		}
 		THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CS_GOODS_DBF,      path_goods));
 		THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CS_DSCNT_DBF,      path_dscnt));
 		THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_CS_BAR_DBF,        path_barcode));
@@ -2210,16 +2211,16 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 					for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
 						const char * p_mode = (info.Flags & AsyncCashSCardInfo::fClosed) ? "-" : "+";
 						DbfRecord dbfrC(p_out_tbl_cards);
-						dbfrC.put(1,  p_mode);                         // Тип действия //
-						dbfrC.put(2,  info.Rec.Code);                  // Код дисконтной карты
-						dbfrC.put(3,  info.PsnName);                   // Владелец карты
-						dbfrC.put(4,  ser_rec.Name);                   // Наименование карты
-						dbfrC.put(5,  (int)0);                         // Тип карты (0 - дисконтная)
-						dbfrC.put(6,  ser_rec.ID);                     // Категория карты (ID серии карт)
-						dbfrC.put(7,  fdiv100i(info.Rec.PDis));        // Процент скидки
-						dbfrC.put(8,  info.Rec.MaxCredit);             // Максимальный кредит по карте
-						dbfrC.put(9,  info.Rec.Dt);                    // Дата выпуска карты
-						dbfrC.put(10, info.Rec.Expiry);                // Срок действия карты
+						dbfrC.put(1,  p_mode);                  // Тип действия //
+						dbfrC.put(2,  info.Rec.Code);           // Код дисконтной карты
+						dbfrC.put(3,  info.PsnName);            // Владелец карты
+						dbfrC.put(4,  ser_rec.Name);            // Наименование карты
+						dbfrC.put(5,  (int)0);                  // Тип карты (0 - дисконтная)
+						dbfrC.put(6,  ser_rec.ID);              // Категория карты (ID серии карт)
+						dbfrC.put(7,  fdiv100i(info.Rec.PDis)); // Процент скидки
+						dbfrC.put(8,  info.Rec.MaxCredit);      // Максимальный кредит по карте
+						dbfrC.put(9,  info.Rec.Dt);             // Дата выпуска карты
+						dbfrC.put(10, info.Rec.Expiry);         // Срок действия карты
 						THROW_PP(p_out_tbl_cards->appendRec(&dbfrC), PPERR_DBFWRFAULT);
 						iter.SetStat();
 					}
@@ -2304,17 +2305,17 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						dbfrGGQD.put(8, quot_by_qtty.MinQtty - 1);       // Кол-во, больше которого применяется скидка
 						dbfrGGQD.put(9, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
 						if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_rec) > 0) {
-							dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN|DATF_CENTURY);
+							dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMANCENT);
 							dttm_str.Space().Cat(encodetime(PTR8(&qk_rec.BeginTm)[0], PTR8(&qk_rec.BeginTm)[1], 0, 0), TIMF_HM);
 							dbfrGGQD.put(10, dttm_str);
-							dttm_str.Z().Cat((qk_rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_rec.Period.upp, DATF_GERMAN|DATF_CENTURY);
+							dttm_str.Z().Cat((qk_rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_rec.Period.upp, DATF_GERMANCENT);
 							dttm_str.Space().Cat(encodetime(PTR8(&qk_rec.EndTm)[0], PTR8(&qk_rec.EndTm)[1], 0, 0), TIMF_HM);
 							dbfrGGQD.put(11, dttm_str);
 						}
 						else {
-							dttm_str.Z().Cat(encodedate(1, 1, 2000), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+							dttm_str.Z().Cat(encodedate(1, 1, 2000), DATF_GERMANCENT).Space().Cat(ZEROTIME, TIMF_HM);
 							dbfrGGQD.put(10, dttm_str);
-							dttm_str.Z().Cat(encodedate(1, 1, 2050), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+							dttm_str.Z().Cat(encodedate(1, 1, 2050), DATF_GERMANCENT).Space().Cat(ZEROTIME, TIMF_HM);
 							dbfrGGQD.put(11, dttm_str);
 						}
 						THROW_PP(p_out_tbl_grpqtty_dscnt->appendRec(&dbfrGGQD), PPERR_DBFWRFAULT);
@@ -2416,9 +2417,9 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 							dbfrD.put(next_fld++, dttm_str);
 						}
 						else {
-							dttm_str.Z().Cat(encodedate(1, 1, 2000), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+							dttm_str.Z().Cat(encodedate(1, 1, 2000), DATF_GERMANCENT).Space().Cat(ZEROTIME, TIMF_HM);
 							dbfrD.put(next_fld++, encodedate(1, 1, 2000));
-							dttm_str.Z().Cat(encodedate(1, 1, 2050), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+							dttm_str.Z().Cat(encodedate(1, 1, 2050), DATF_GERMANCENT).Space().Cat(ZEROTIME, TIMF_HM);
 							dbfrD.put(next_fld, encodedate(1, 1, 2050));
 						}
 						THROW_PP(p_out_tbl_dscnt->appendRec(&dbfrD), PPERR_DBFWRFAULT);
@@ -2447,9 +2448,9 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 								dbfrGQD.put(7, dttm_str);
 							}
 							else {
-								dttm_str.Z().Cat(encodedate(1, 1, 2000), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+								dttm_str.Z().Cat(encodedate(1, 1, 2000), DATF_GERMANCENT).Space().Cat(ZEROTIME, TIMF_HM);
 								dbfrGQD.put(6, dttm_str);
-								dttm_str.Z().Cat(encodedate(1, 1, 2050), DATF_GERMAN|DATF_CENTURY).Space().Cat(ZEROTIME, TIMF_HM);
+								dttm_str.Z().Cat(encodedate(1, 1, 2050), DATF_GERMANCENT).Space().Cat(ZEROTIME, TIMF_HM);
 								dbfrGQD.put(7, dttm_str);
 							}
 							THROW_PP(p_out_tbl_gdsqtty_dscnt->appendRec(&dbfrGQD), PPERR_DBFWRFAULT);

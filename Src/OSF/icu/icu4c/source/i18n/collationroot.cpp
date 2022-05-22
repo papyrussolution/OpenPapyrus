@@ -57,7 +57,7 @@ void U_CALLCONV CollationRoot::load(UErrorCode & errorCode) {
 	}
 	ucln_i18n_registerCleanup(UCLN_I18N_COLLATION_ROOT, uprv_collation_root_cleanup);
 	CollationCacheEntry * entry = new CollationCacheEntry(Locale::getRoot(), t.getAlias());
-	if(entry != NULL) {
+	if(entry) {
 		t.orphan(); // The rootSingleton took ownership of the tailoring.
 		entry->addRef();
 		rootSingleton = entry;

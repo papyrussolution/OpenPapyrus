@@ -44,8 +44,8 @@
 
 /* On macOS check for some symbols based on the deployment target version.  */
 #if defined(__APPLE__)
-# undef HAVE_FUTIMENS
-# undef HAVE_UTIMENSAT
+#undef HAVE_FUTIMENS
+#undef HAVE_UTIMENSAT
 #include <AvailabilityMacros.h>
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 101300
 #define HAVE_FUTIMENS 1
@@ -177,11 +177,11 @@
 #ifndef ARCHIVE_ERRNO_MISC
 	#define	ARCHIVE_ERRNO_MISC (-1)
 #endif
-#if defined(__GNUC__) && (__GNUC__ >= 7)
-	#define	__LA_FALLTHROUGH	__attribute__((fallthrough))
+/* @sobolev (replaced with CXX_FALLTHROUGH) #if defined(__GNUC__) && (__GNUC__ >= 7)
+	#define	__LA_FALLTHROUGH_Removed __attribute__((fallthrough))
 #else
-	#define	__LA_FALLTHROUGH
-#endif
+	#define	__LA_FALLTHROUGH_Removed
+#endif*/
 #if HAVE_LIBXML_XMLWRITER_H
 	#include <..\osf\libxml\libxml.h>
 	#include <libxml/xmlwriter.h>

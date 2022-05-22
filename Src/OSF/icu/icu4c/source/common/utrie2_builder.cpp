@@ -354,14 +354,14 @@ static long countInitial(const UTrie2 * trie) {
 	int32_t length = trie->dataLength;
 	long count = 0;
 	if(trie->data16!=nullptr) {
-		for(int32_t i = 0; i<length; ++i) {
+		for(int32_t i = 0; i < length; ++i) {
 			if(trie->data16[i]==initialValue) {
 				++count;
 			}
 		}
 	}
 	else {
-		for(int32_t i = 0; i<length; ++i) {
+		for(int32_t i = 0; i < length; ++i) {
 			if(trie->data32[i]==initialValue) {
 				++count;
 			}
@@ -1056,7 +1056,7 @@ static void compactData(UNewTrie2 * trie) {
 			++countSame;
 #endif
 			/* found an identical block, set the other block's index value for the current block */
-			for(i = blockCount, mapIndex = start>>UTRIE2_SHIFT_2; i>0; --i) {
+			for(i = blockCount, mapIndex = start>>UTRIE2_SHIFT_2; i > 0; --i) {
 				trie->map[mapIndex++] = movedStart;
 				movedStart += UTRIE2_DATA_BLOCK_LENGTH;
 			}
@@ -1081,19 +1081,19 @@ static void compactData(UNewTrie2 * trie) {
 		if(overlap>0 || newStart<start) {
 			/* some overlap, or just move the whole block */
 			movedStart = newStart-overlap;
-			for(i = blockCount, mapIndex = start>>UTRIE2_SHIFT_2; i>0; --i) {
+			for(i = blockCount, mapIndex = start>>UTRIE2_SHIFT_2; i > 0; --i) {
 				trie->map[mapIndex++] = movedStart;
 				movedStart += UTRIE2_DATA_BLOCK_LENGTH;
 			}
 
 			/* move the non-overlapping indexes to their new positions */
 			start += overlap;
-			for(i = blockLength-overlap; i>0; --i) {
+			for(i = blockLength-overlap; i > 0; --i) {
 				trie->data[newStart++] = trie->data[start++];
 			}
 		}
 		else { /* no overlap && newStart==start */
-			for(i = blockCount, mapIndex = start>>UTRIE2_SHIFT_2; i>0; --i) {
+			for(i = blockCount, mapIndex = start>>UTRIE2_SHIFT_2; i > 0; --i) {
 				trie->map[mapIndex++] = start;
 				start += UTRIE2_DATA_BLOCK_LENGTH;
 			}
@@ -1171,7 +1171,7 @@ static void compactIndex2(UNewTrie2 * trie) {
 
 			/* move the non-overlapping indexes to their new positions */
 			start += overlap;
-			for(i = UTRIE2_INDEX_2_BLOCK_LENGTH-overlap; i>0; --i) {
+			for(i = UTRIE2_INDEX_2_BLOCK_LENGTH-overlap; i > 0; --i) {
 				trie->index2[newStart++] = trie->index2[start++];
 			}
 		}
@@ -1398,7 +1398,7 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 
 	/* write the index-2 array values shifted right by UTRIE2_INDEX_SHIFT, after adding dataMove */
 	p = (uint32_t*)newTrie->index2;
-	for(i = UTRIE2_INDEX_2_BMP_LENGTH; i>0; --i) {
+	for(i = UTRIE2_INDEX_2_BMP_LENGTH; i > 0; --i) {
 		*dest16++ = (uint16)((dataMove + *p++)>>UTRIE2_INDEX_SHIFT);
 	}
 
@@ -1416,7 +1416,7 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 
 		/* write 16-bit index-1 values for supplementary code points */
 		p = (uint32_t*)newTrie->index1+UTRIE2_OMITTED_BMP_INDEX_1_LENGTH;
-		for(i = index1Length; i>0; --i) {
+		for(i = index1Length; i > 0; --i) {
 			*dest16++ = (uint16)(UTRIE2_INDEX_2_OFFSET + *p++);
 		}
 
@@ -1425,7 +1425,7 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 		 * shifted right by UTRIE2_INDEX_SHIFT, after adding dataMove
 		 */
 		p = (uint32_t*)newTrie->index2+index2Offset;
-		for(i = newTrie->index2Length-index2Offset; i>0; --i) {
+		for(i = newTrie->index2Length-index2Offset; i > 0; --i) {
 			*dest16++ = (uint16)((dataMove + *p++)>>UTRIE2_INDEX_SHIFT);
 		}
 	}
@@ -1437,7 +1437,7 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 		    trie->data16 = dest16;
 		    trie->data32 = NULL;
 		    p = newTrie->data;
-		    for(i = newTrie->dataLength; i>0; --i) {
+		    for(i = newTrie->dataLength; i > 0; --i) {
 			    *dest16++ = (uint16)*p++;
 		    }
 		    break;

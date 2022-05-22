@@ -163,19 +163,15 @@ constexpr MixedMap2_E MixedMap2_E_E_MIN = MixedMap2_E_E0;
 constexpr MixedMap2_E MixedMap2_E_E_MAX = MixedMap2_E_E3;
 constexpr int MixedMap2_E_E_ARRAYSIZE = MixedMap2_E_E_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MixedMap2_E_descriptor();
-template<typename T>
-inline const std::string& MixedMap2_E_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, MixedMap2_E>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function MixedMap2_E_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    MixedMap2_E_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * MixedMap2_E_descriptor();
+template<typename T> inline const std::string& MixedMap2_E_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, MixedMap2_E>::value || ::std::is_integral<T>::value, "Incorrect type passed to function MixedMap2_E_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(MixedMap2_E_descriptor(), enum_t_value);
 }
-inline bool MixedMap2_E_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MixedMap2_E* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<MixedMap2_E>(
-    MixedMap2_E_descriptor(), name, value);
+inline bool MixedMap2_E_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MixedMap2_E * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<MixedMap2_E>(MixedMap2_E_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -1303,16 +1299,13 @@ class DoubleMessage final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
       _internal_repeated_double() const;
   void _internal_add_repeated_double(double value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-      _internal_mutable_repeated_double();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * _internal_mutable_repeated_double();
   public:
   double repeated_double(int index) const;
   void set_repeated_double(int index, double value);
   void add_repeated_double(double value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
-      repeated_double() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-      mutable_repeated_double();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > & repeated_double() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * mutable_repeated_double();
 
   // repeated .proto_util_converter.testing.DoubleMessage repeated_nested_message = 4;
   int repeated_nested_message_size() const;
@@ -2294,15 +2287,11 @@ class AnyData final :
   public:
   void clear_map_data();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-      _internal_map_data() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-      _internal_mutable_map_data();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > & _internal_map_data() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * _internal_mutable_map_data();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-      map_data() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-      mutable_map_data();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > & map_data() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * mutable_map_data();
 
   // repeated .proto_util_converter.testing.AnyData repeated_data = 9;
   int repeated_data_size() const;
@@ -2532,15 +2521,11 @@ class StringtoIntMap final :
   public:
   void clear_map();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
-      _internal_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >*
-      _internal_mutable_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > & _internal_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * _internal_mutable_map();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
-      map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >*
-      mutable_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > & map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * mutable_map();
 
   // @@protoc_insertion_point(class_scope:proto_util_converter.testing.StringtoIntMap)
  private:
@@ -2689,15 +2674,11 @@ class IntToStringMap final :
   public:
   void clear_map();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
-      _internal_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >*
-      _internal_mutable_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > & _internal_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * _internal_mutable_map();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
-      map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >*
-      mutable_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > & map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * mutable_map();
 
   // @@protoc_insertion_point(class_scope:proto_util_converter.testing.IntToStringMap)
  private:
@@ -2848,15 +2829,11 @@ class MixedMap final :
   public:
   void clear_map();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >&
-      _internal_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >*
-      _internal_mutable_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > & _internal_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * _internal_mutable_map();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >&
-      map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >*
-      mutable_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > & map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * mutable_map();
 
   // string msg = 1;
   void clear_msg();
@@ -3019,37 +2996,23 @@ class MixedMap2 final :
 
 
   typedef MixedMap2_E E;
-  static constexpr E E0 =
-    MixedMap2_E_E0;
-  static constexpr E E1 =
-    MixedMap2_E_E1;
-  static constexpr E E2 =
-    MixedMap2_E_E2;
-  static constexpr E E3 =
-    MixedMap2_E_E3;
-  static inline bool E_IsValid(int value) {
-    return MixedMap2_E_IsValid(value);
+  static constexpr E E0 = MixedMap2_E_E0;
+  static constexpr E E1 = MixedMap2_E_E1;
+  static constexpr E E2 = MixedMap2_E_E2;
+  static constexpr E E3 = MixedMap2_E_E3;
+  static inline bool E_IsValid(int value) { return MixedMap2_E_IsValid(value); }
+  static constexpr E E_MIN = MixedMap2_E_E_MIN;
+  static constexpr E E_MAX = MixedMap2_E_E_MAX;
+  static constexpr int E_ARRAYSIZE = MixedMap2_E_E_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * E_descriptor() { return MixedMap2_E_descriptor(); }
+  template<typename T> static inline const std::string& E_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, E>::value || ::std::is_integral<T>::value, "Incorrect type passed to function E_Name.");
+  	return MixedMap2_E_Name(enum_t_value);
   }
-  static constexpr E E_MIN =
-    MixedMap2_E_E_MIN;
-  static constexpr E E_MAX =
-    MixedMap2_E_E_MAX;
-  static constexpr int E_ARRAYSIZE =
-    MixedMap2_E_E_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  E_descriptor() {
-    return MixedMap2_E_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& E_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, E>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function E_Name.");
-    return MixedMap2_E_Name(enum_t_value);
-  }
-  static inline bool E_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      E* value) {
-    return MixedMap2_E_Parse(name, value);
+  static inline bool E_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, E* value)
+  {
+  	return MixedMap2_E_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -3066,15 +3029,11 @@ class MixedMap2 final :
   public:
   void clear_map();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >&
-      _internal_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >*
-      _internal_mutable_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > & _internal_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * _internal_mutable_map();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >&
-      map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >*
-      mutable_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > & map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * mutable_map();
 
   // string msg = 4;
   void clear_msg();
@@ -3392,15 +3351,11 @@ class MessageMap final :
   public:
   void clear_map();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M >&
-      _internal_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M >*
-      _internal_mutable_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M > & _internal_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M > * _internal_mutable_map();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M >&
-      map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M >*
-      mutable_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M > & map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M > * mutable_map();
 
   // @@protoc_insertion_point(class_scope:proto_util_converter.testing.MessageMap)
  private:
@@ -3565,9 +3520,7 @@ class DoubleValueMessage final :
 // DefaultValueTestCases
 
 // .proto_util_converter.testing.DoubleMessage empty_double = 1;
-inline bool DefaultValueTestCases::_internal_has_empty_double() const {
-  return this != internal_default_instance() && empty_double_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_empty_double() const { return this != internal_default_instance() && empty_double_ != nullptr; }
 inline bool DefaultValueTestCases::has_empty_double() const {
   return _internal_has_empty_double();
 }
@@ -3654,9 +3607,7 @@ inline void DefaultValueTestCases::set_allocated_empty_double(::proto_util_conve
 }
 
 // .proto_util_converter.testing.DoubleMessage double_with_default_value = 2;
-inline bool DefaultValueTestCases::_internal_has_double_with_default_value() const {
-  return this != internal_default_instance() && double_with_default_value_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_double_with_default_value() const { return this != internal_default_instance() && double_with_default_value_ != nullptr; }
 inline bool DefaultValueTestCases::has_double_with_default_value() const {
   return _internal_has_double_with_default_value();
 }
@@ -3743,9 +3694,7 @@ inline void DefaultValueTestCases::set_allocated_double_with_default_value(::pro
 }
 
 // .proto_util_converter.testing.DoubleMessage double_with_nondefault_value = 3;
-inline bool DefaultValueTestCases::_internal_has_double_with_nondefault_value() const {
-  return this != internal_default_instance() && double_with_nondefault_value_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_double_with_nondefault_value() const { return this != internal_default_instance() && double_with_nondefault_value_ != nullptr; }
 inline bool DefaultValueTestCases::has_double_with_nondefault_value() const {
   return _internal_has_double_with_nondefault_value();
 }
@@ -3832,9 +3781,7 @@ inline void DefaultValueTestCases::set_allocated_double_with_nondefault_value(::
 }
 
 // .proto_util_converter.testing.DoubleMessage repeated_double = 4;
-inline bool DefaultValueTestCases::_internal_has_repeated_double() const {
-  return this != internal_default_instance() && repeated_double_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_repeated_double() const { return this != internal_default_instance() && repeated_double_ != nullptr; }
 inline bool DefaultValueTestCases::has_repeated_double() const {
   return _internal_has_repeated_double();
 }
@@ -3921,9 +3868,7 @@ inline void DefaultValueTestCases::set_allocated_repeated_double(::proto_util_co
 }
 
 // .proto_util_converter.testing.DoubleMessage nested_message = 5;
-inline bool DefaultValueTestCases::_internal_has_nested_message() const {
-  return this != internal_default_instance() && nested_message_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_nested_message() const { return this != internal_default_instance() && nested_message_ != nullptr; }
 inline bool DefaultValueTestCases::has_nested_message() const {
   return _internal_has_nested_message();
 }
@@ -4010,9 +3955,7 @@ inline void DefaultValueTestCases::set_allocated_nested_message(::proto_util_con
 }
 
 // .proto_util_converter.testing.DoubleMessage repeated_nested_message = 6;
-inline bool DefaultValueTestCases::_internal_has_repeated_nested_message() const {
-  return this != internal_default_instance() && repeated_nested_message_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_repeated_nested_message() const { return this != internal_default_instance() && repeated_nested_message_ != nullptr; }
 inline bool DefaultValueTestCases::has_repeated_nested_message() const {
   return _internal_has_repeated_nested_message();
 }
@@ -4099,9 +4042,7 @@ inline void DefaultValueTestCases::set_allocated_repeated_nested_message(::proto
 }
 
 // .proto_util_converter.testing.DoubleMessage double_message_with_oneof = 7;
-inline bool DefaultValueTestCases::_internal_has_double_message_with_oneof() const {
-  return this != internal_default_instance() && double_message_with_oneof_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_double_message_with_oneof() const { return this != internal_default_instance() && double_message_with_oneof_ != nullptr; }
 inline bool DefaultValueTestCases::has_double_message_with_oneof() const {
   return _internal_has_double_message_with_oneof();
 }
@@ -4188,9 +4129,7 @@ inline void DefaultValueTestCases::set_allocated_double_message_with_oneof(::pro
 }
 
 // .proto_util_converter.testing.StructMessage empty_struct = 201;
-inline bool DefaultValueTestCases::_internal_has_empty_struct() const {
-  return this != internal_default_instance() && empty_struct_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_empty_struct() const { return this != internal_default_instance() && empty_struct_ != nullptr; }
 inline bool DefaultValueTestCases::has_empty_struct() const {
   return _internal_has_empty_struct();
 }
@@ -4277,9 +4216,7 @@ inline void DefaultValueTestCases::set_allocated_empty_struct(::proto_util_conve
 }
 
 // .proto_util_converter.testing.StructMessage empty_struct2 = 202;
-inline bool DefaultValueTestCases::_internal_has_empty_struct2() const {
-  return this != internal_default_instance() && empty_struct2_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_empty_struct2() const { return this != internal_default_instance() && empty_struct2_ != nullptr; }
 inline bool DefaultValueTestCases::has_empty_struct2() const {
   return _internal_has_empty_struct2();
 }
@@ -4366,9 +4303,7 @@ inline void DefaultValueTestCases::set_allocated_empty_struct2(::proto_util_conv
 }
 
 // .proto_util_converter.testing.StructMessage struct_with_null_value = 203;
-inline bool DefaultValueTestCases::_internal_has_struct_with_null_value() const {
-  return this != internal_default_instance() && struct_with_null_value_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_struct_with_null_value() const { return this != internal_default_instance() && struct_with_null_value_ != nullptr; }
 inline bool DefaultValueTestCases::has_struct_with_null_value() const {
   return _internal_has_struct_with_null_value();
 }
@@ -4455,9 +4390,7 @@ inline void DefaultValueTestCases::set_allocated_struct_with_null_value(::proto_
 }
 
 // .proto_util_converter.testing.StructMessage struct_with_values = 204;
-inline bool DefaultValueTestCases::_internal_has_struct_with_values() const {
-  return this != internal_default_instance() && struct_with_values_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_struct_with_values() const { return this != internal_default_instance() && struct_with_values_ != nullptr; }
 inline bool DefaultValueTestCases::has_struct_with_values() const {
   return _internal_has_struct_with_values();
 }
@@ -4544,9 +4477,7 @@ inline void DefaultValueTestCases::set_allocated_struct_with_values(::proto_util
 }
 
 // .proto_util_converter.testing.StructMessage struct_with_nested_struct = 205;
-inline bool DefaultValueTestCases::_internal_has_struct_with_nested_struct() const {
-  return this != internal_default_instance() && struct_with_nested_struct_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_struct_with_nested_struct() const { return this != internal_default_instance() && struct_with_nested_struct_ != nullptr; }
 inline bool DefaultValueTestCases::has_struct_with_nested_struct() const {
   return _internal_has_struct_with_nested_struct();
 }
@@ -4633,9 +4564,7 @@ inline void DefaultValueTestCases::set_allocated_struct_with_nested_struct(::pro
 }
 
 // .proto_util_converter.testing.StructMessage struct_with_nested_list = 206;
-inline bool DefaultValueTestCases::_internal_has_struct_with_nested_list() const {
-  return this != internal_default_instance() && struct_with_nested_list_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_struct_with_nested_list() const { return this != internal_default_instance() && struct_with_nested_list_ != nullptr; }
 inline bool DefaultValueTestCases::has_struct_with_nested_list() const {
   return _internal_has_struct_with_nested_list();
 }
@@ -4722,9 +4651,7 @@ inline void DefaultValueTestCases::set_allocated_struct_with_nested_list(::proto
 }
 
 // .proto_util_converter.testing.StructMessage struct_with_list_of_nulls = 207;
-inline bool DefaultValueTestCases::_internal_has_struct_with_list_of_nulls() const {
-  return this != internal_default_instance() && struct_with_list_of_nulls_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_struct_with_list_of_nulls() const { return this != internal_default_instance() && struct_with_list_of_nulls_ != nullptr; }
 inline bool DefaultValueTestCases::has_struct_with_list_of_nulls() const {
   return _internal_has_struct_with_list_of_nulls();
 }
@@ -4811,9 +4738,7 @@ inline void DefaultValueTestCases::set_allocated_struct_with_list_of_nulls(::pro
 }
 
 // .proto_util_converter.testing.StructMessage struct_with_list_of_lists = 208;
-inline bool DefaultValueTestCases::_internal_has_struct_with_list_of_lists() const {
-  return this != internal_default_instance() && struct_with_list_of_lists_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_struct_with_list_of_lists() const { return this != internal_default_instance() && struct_with_list_of_lists_ != nullptr; }
 inline bool DefaultValueTestCases::has_struct_with_list_of_lists() const {
   return _internal_has_struct_with_list_of_lists();
 }
@@ -4900,9 +4825,7 @@ inline void DefaultValueTestCases::set_allocated_struct_with_list_of_lists(::pro
 }
 
 // .proto_util_converter.testing.StructMessage struct_with_list_of_structs = 209;
-inline bool DefaultValueTestCases::_internal_has_struct_with_list_of_structs() const {
-  return this != internal_default_instance() && struct_with_list_of_structs_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_struct_with_list_of_structs() const { return this != internal_default_instance() && struct_with_list_of_structs_ != nullptr; }
 inline bool DefaultValueTestCases::has_struct_with_list_of_structs() const {
   return _internal_has_struct_with_list_of_structs();
 }
@@ -4989,9 +4912,7 @@ inline void DefaultValueTestCases::set_allocated_struct_with_list_of_structs(::p
 }
 
 // .google.protobuf.Struct top_level_struct = 210;
-inline bool DefaultValueTestCases::_internal_has_top_level_struct() const {
-  return this != internal_default_instance() && top_level_struct_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_top_level_struct() const { return this != internal_default_instance() && top_level_struct_ != nullptr; }
 inline bool DefaultValueTestCases::has_top_level_struct() const {
   return _internal_has_top_level_struct();
 }
@@ -5073,9 +4994,7 @@ inline void DefaultValueTestCases::set_allocated_top_level_struct(::PROTOBUF_NAM
 }
 
 // .proto_util_converter.testing.ValueMessage value_wrapper_simple = 212;
-inline bool DefaultValueTestCases::_internal_has_value_wrapper_simple() const {
-  return this != internal_default_instance() && value_wrapper_simple_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_value_wrapper_simple() const { return this != internal_default_instance() && value_wrapper_simple_ != nullptr; }
 inline bool DefaultValueTestCases::has_value_wrapper_simple() const {
   return _internal_has_value_wrapper_simple();
 }
@@ -5162,9 +5081,7 @@ inline void DefaultValueTestCases::set_allocated_value_wrapper_simple(::proto_ut
 }
 
 // .proto_util_converter.testing.ValueMessage value_wrapper_with_struct = 213;
-inline bool DefaultValueTestCases::_internal_has_value_wrapper_with_struct() const {
-  return this != internal_default_instance() && value_wrapper_with_struct_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_value_wrapper_with_struct() const { return this != internal_default_instance() && value_wrapper_with_struct_ != nullptr; }
 inline bool DefaultValueTestCases::has_value_wrapper_with_struct() const {
   return _internal_has_value_wrapper_with_struct();
 }
@@ -5251,9 +5168,7 @@ inline void DefaultValueTestCases::set_allocated_value_wrapper_with_struct(::pro
 }
 
 // .proto_util_converter.testing.ValueMessage value_wrapper_with_list = 214;
-inline bool DefaultValueTestCases::_internal_has_value_wrapper_with_list() const {
-  return this != internal_default_instance() && value_wrapper_with_list_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_value_wrapper_with_list() const { return this != internal_default_instance() && value_wrapper_with_list_ != nullptr; }
 inline bool DefaultValueTestCases::has_value_wrapper_with_list() const {
   return _internal_has_value_wrapper_with_list();
 }
@@ -5340,9 +5255,7 @@ inline void DefaultValueTestCases::set_allocated_value_wrapper_with_list(::proto
 }
 
 // .proto_util_converter.testing.ListValueMessage list_value_wrapper = 215;
-inline bool DefaultValueTestCases::_internal_has_list_value_wrapper() const {
-  return this != internal_default_instance() && list_value_wrapper_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_list_value_wrapper() const { return this != internal_default_instance() && list_value_wrapper_ != nullptr; }
 inline bool DefaultValueTestCases::has_list_value_wrapper() const {
   return _internal_has_list_value_wrapper();
 }
@@ -5429,9 +5342,7 @@ inline void DefaultValueTestCases::set_allocated_list_value_wrapper(::proto_util
 }
 
 // .google.protobuf.Value top_level_value_simple = 216;
-inline bool DefaultValueTestCases::_internal_has_top_level_value_simple() const {
-  return this != internal_default_instance() && top_level_value_simple_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_top_level_value_simple() const { return this != internal_default_instance() && top_level_value_simple_ != nullptr; }
 inline bool DefaultValueTestCases::has_top_level_value_simple() const {
   return _internal_has_top_level_value_simple();
 }
@@ -5513,9 +5424,7 @@ inline void DefaultValueTestCases::set_allocated_top_level_value_simple(::PROTOB
 }
 
 // .google.protobuf.Value top_level_value_with_struct = 217;
-inline bool DefaultValueTestCases::_internal_has_top_level_value_with_struct() const {
-  return this != internal_default_instance() && top_level_value_with_struct_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_top_level_value_with_struct() const { return this != internal_default_instance() && top_level_value_with_struct_ != nullptr; }
 inline bool DefaultValueTestCases::has_top_level_value_with_struct() const {
   return _internal_has_top_level_value_with_struct();
 }
@@ -5597,9 +5506,7 @@ inline void DefaultValueTestCases::set_allocated_top_level_value_with_struct(::P
 }
 
 // .google.protobuf.Value top_level_value_with_list = 218;
-inline bool DefaultValueTestCases::_internal_has_top_level_value_with_list() const {
-  return this != internal_default_instance() && top_level_value_with_list_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_top_level_value_with_list() const { return this != internal_default_instance() && top_level_value_with_list_ != nullptr; }
 inline bool DefaultValueTestCases::has_top_level_value_with_list() const {
   return _internal_has_top_level_value_with_list();
 }
@@ -5681,9 +5588,7 @@ inline void DefaultValueTestCases::set_allocated_top_level_value_with_list(::PRO
 }
 
 // .google.protobuf.ListValue top_level_listvalue = 219;
-inline bool DefaultValueTestCases::_internal_has_top_level_listvalue() const {
-  return this != internal_default_instance() && top_level_listvalue_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_top_level_listvalue() const { return this != internal_default_instance() && top_level_listvalue_ != nullptr; }
 inline bool DefaultValueTestCases::has_top_level_listvalue() const {
   return _internal_has_top_level_listvalue();
 }
@@ -5765,9 +5670,7 @@ inline void DefaultValueTestCases::set_allocated_top_level_listvalue(::PROTOBUF_
 }
 
 // .proto_util_converter.testing.AnyMessage empty_any = 301;
-inline bool DefaultValueTestCases::_internal_has_empty_any() const {
-  return this != internal_default_instance() && empty_any_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_empty_any() const { return this != internal_default_instance() && empty_any_ != nullptr; }
 inline bool DefaultValueTestCases::has_empty_any() const {
   return _internal_has_empty_any();
 }
@@ -5854,9 +5757,7 @@ inline void DefaultValueTestCases::set_allocated_empty_any(::proto_util_converte
 }
 
 // .proto_util_converter.testing.AnyMessage type_only_any = 302;
-inline bool DefaultValueTestCases::_internal_has_type_only_any() const {
-  return this != internal_default_instance() && type_only_any_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_type_only_any() const { return this != internal_default_instance() && type_only_any_ != nullptr; }
 inline bool DefaultValueTestCases::has_type_only_any() const {
   return _internal_has_type_only_any();
 }
@@ -5943,9 +5844,7 @@ inline void DefaultValueTestCases::set_allocated_type_only_any(::proto_util_conv
 }
 
 // .proto_util_converter.testing.AnyMessage recursive_any = 303;
-inline bool DefaultValueTestCases::_internal_has_recursive_any() const {
-  return this != internal_default_instance() && recursive_any_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_recursive_any() const { return this != internal_default_instance() && recursive_any_ != nullptr; }
 inline bool DefaultValueTestCases::has_recursive_any() const {
   return _internal_has_recursive_any();
 }
@@ -6032,9 +5931,7 @@ inline void DefaultValueTestCases::set_allocated_recursive_any(::proto_util_conv
 }
 
 // .proto_util_converter.testing.AnyMessage any_with_message_value = 304;
-inline bool DefaultValueTestCases::_internal_has_any_with_message_value() const {
-  return this != internal_default_instance() && any_with_message_value_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_any_with_message_value() const { return this != internal_default_instance() && any_with_message_value_ != nullptr; }
 inline bool DefaultValueTestCases::has_any_with_message_value() const {
   return _internal_has_any_with_message_value();
 }
@@ -6121,9 +6018,7 @@ inline void DefaultValueTestCases::set_allocated_any_with_message_value(::proto_
 }
 
 // .proto_util_converter.testing.AnyMessage any_with_nested_message = 305;
-inline bool DefaultValueTestCases::_internal_has_any_with_nested_message() const {
-  return this != internal_default_instance() && any_with_nested_message_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_any_with_nested_message() const { return this != internal_default_instance() && any_with_nested_message_ != nullptr; }
 inline bool DefaultValueTestCases::has_any_with_nested_message() const {
   return _internal_has_any_with_nested_message();
 }
@@ -6210,9 +6105,7 @@ inline void DefaultValueTestCases::set_allocated_any_with_nested_message(::proto
 }
 
 // .proto_util_converter.testing.AnyMessage any_with_message_containing_map = 306;
-inline bool DefaultValueTestCases::_internal_has_any_with_message_containing_map() const {
-  return this != internal_default_instance() && any_with_message_containing_map_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_any_with_message_containing_map() const { return this != internal_default_instance() && any_with_message_containing_map_ != nullptr; }
 inline bool DefaultValueTestCases::has_any_with_message_containing_map() const {
   return _internal_has_any_with_message_containing_map();
 }
@@ -6299,9 +6192,7 @@ inline void DefaultValueTestCases::set_allocated_any_with_message_containing_map
 }
 
 // .proto_util_converter.testing.AnyMessage any_with_message_containing_struct = 307;
-inline bool DefaultValueTestCases::_internal_has_any_with_message_containing_struct() const {
-  return this != internal_default_instance() && any_with_message_containing_struct_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_any_with_message_containing_struct() const { return this != internal_default_instance() && any_with_message_containing_struct_ != nullptr; }
 inline bool DefaultValueTestCases::has_any_with_message_containing_struct() const {
   return _internal_has_any_with_message_containing_struct();
 }
@@ -6388,9 +6279,7 @@ inline void DefaultValueTestCases::set_allocated_any_with_message_containing_str
 }
 
 // .google.protobuf.Any top_level_any = 308;
-inline bool DefaultValueTestCases::_internal_has_top_level_any() const {
-  return this != internal_default_instance() && top_level_any_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_top_level_any() const { return this != internal_default_instance() && top_level_any_ != nullptr; }
 inline bool DefaultValueTestCases::has_top_level_any() const {
   return _internal_has_top_level_any();
 }
@@ -6472,9 +6361,7 @@ inline void DefaultValueTestCases::set_allocated_top_level_any(::PROTOBUF_NAMESP
 }
 
 // .proto_util_converter.testing.StringtoIntMap empty_map = 401;
-inline bool DefaultValueTestCases::_internal_has_empty_map() const {
-  return this != internal_default_instance() && empty_map_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_empty_map() const { return this != internal_default_instance() && empty_map_ != nullptr; }
 inline bool DefaultValueTestCases::has_empty_map() const {
   return _internal_has_empty_map();
 }
@@ -6561,9 +6448,7 @@ inline void DefaultValueTestCases::set_allocated_empty_map(::proto_util_converte
 }
 
 // .proto_util_converter.testing.StringtoIntMap string_to_int = 402;
-inline bool DefaultValueTestCases::_internal_has_string_to_int() const {
-  return this != internal_default_instance() && string_to_int_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_string_to_int() const { return this != internal_default_instance() && string_to_int_ != nullptr; }
 inline bool DefaultValueTestCases::has_string_to_int() const {
   return _internal_has_string_to_int();
 }
@@ -6650,9 +6535,7 @@ inline void DefaultValueTestCases::set_allocated_string_to_int(::proto_util_conv
 }
 
 // .proto_util_converter.testing.IntToStringMap int_to_string = 403;
-inline bool DefaultValueTestCases::_internal_has_int_to_string() const {
-  return this != internal_default_instance() && int_to_string_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_int_to_string() const { return this != internal_default_instance() && int_to_string_ != nullptr; }
 inline bool DefaultValueTestCases::has_int_to_string() const {
   return _internal_has_int_to_string();
 }
@@ -6739,9 +6622,7 @@ inline void DefaultValueTestCases::set_allocated_int_to_string(::proto_util_conv
 }
 
 // .proto_util_converter.testing.MixedMap mixed1 = 404;
-inline bool DefaultValueTestCases::_internal_has_mixed1() const {
-  return this != internal_default_instance() && mixed1_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_mixed1() const { return this != internal_default_instance() && mixed1_ != nullptr; }
 inline bool DefaultValueTestCases::has_mixed1() const {
   return _internal_has_mixed1();
 }
@@ -6828,9 +6709,7 @@ inline void DefaultValueTestCases::set_allocated_mixed1(::proto_util_converter::
 }
 
 // .proto_util_converter.testing.MixedMap2 mixed2 = 405;
-inline bool DefaultValueTestCases::_internal_has_mixed2() const {
-  return this != internal_default_instance() && mixed2_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_mixed2() const { return this != internal_default_instance() && mixed2_ != nullptr; }
 inline bool DefaultValueTestCases::has_mixed2() const {
   return _internal_has_mixed2();
 }
@@ -6917,9 +6796,7 @@ inline void DefaultValueTestCases::set_allocated_mixed2(::proto_util_converter::
 }
 
 // .proto_util_converter.testing.MixedMap2 empty_mixed2 = 406;
-inline bool DefaultValueTestCases::_internal_has_empty_mixed2() const {
-  return this != internal_default_instance() && empty_mixed2_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_empty_mixed2() const { return this != internal_default_instance() && empty_mixed2_ != nullptr; }
 inline bool DefaultValueTestCases::has_empty_mixed2() const {
   return _internal_has_empty_mixed2();
 }
@@ -7006,9 +6883,7 @@ inline void DefaultValueTestCases::set_allocated_empty_mixed2(::proto_util_conve
 }
 
 // .proto_util_converter.testing.MessageMap map_of_objects = 407;
-inline bool DefaultValueTestCases::_internal_has_map_of_objects() const {
-  return this != internal_default_instance() && map_of_objects_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_map_of_objects() const { return this != internal_default_instance() && map_of_objects_ != nullptr; }
 inline bool DefaultValueTestCases::has_map_of_objects() const {
   return _internal_has_map_of_objects();
 }
@@ -7095,9 +6970,7 @@ inline void DefaultValueTestCases::set_allocated_map_of_objects(::proto_util_con
 }
 
 // .proto_util_converter.testing.MixedMap mixed_empty = 408;
-inline bool DefaultValueTestCases::_internal_has_mixed_empty() const {
-  return this != internal_default_instance() && mixed_empty_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_mixed_empty() const { return this != internal_default_instance() && mixed_empty_ != nullptr; }
 inline bool DefaultValueTestCases::has_mixed_empty() const {
   return _internal_has_mixed_empty();
 }
@@ -7184,9 +7057,7 @@ inline void DefaultValueTestCases::set_allocated_mixed_empty(::proto_util_conver
 }
 
 // .proto_util_converter.testing.MessageMap message_map_empty = 409;
-inline bool DefaultValueTestCases::_internal_has_message_map_empty() const {
-  return this != internal_default_instance() && message_map_empty_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_message_map_empty() const { return this != internal_default_instance() && message_map_empty_ != nullptr; }
 inline bool DefaultValueTestCases::has_message_map_empty() const {
   return _internal_has_message_map_empty();
 }
@@ -7273,9 +7144,7 @@ inline void DefaultValueTestCases::set_allocated_message_map_empty(::proto_util_
 }
 
 // .proto_util_converter.testing.DoubleValueMessage double_value = 501;
-inline bool DefaultValueTestCases::_internal_has_double_value() const {
-  return this != internal_default_instance() && double_value_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_double_value() const { return this != internal_default_instance() && double_value_ != nullptr; }
 inline bool DefaultValueTestCases::has_double_value() const {
   return _internal_has_double_value();
 }
@@ -7362,9 +7231,7 @@ inline void DefaultValueTestCases::set_allocated_double_value(::proto_util_conve
 }
 
 // .proto_util_converter.testing.DoubleValueMessage double_value_default = 502;
-inline bool DefaultValueTestCases::_internal_has_double_value_default() const {
-  return this != internal_default_instance() && double_value_default_ != nullptr;
-}
+inline bool DefaultValueTestCases::_internal_has_double_value_default() const { return this != internal_default_instance() && double_value_default_ != nullptr; }
 inline bool DefaultValueTestCases::has_double_value_default() const {
   return _internal_has_double_value_default();
 }
@@ -7503,20 +7370,16 @@ DoubleMessage::repeated_double() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.DoubleMessage.repeated_double)
   return _internal_repeated_double();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-DoubleMessage::_internal_mutable_repeated_double() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * DoubleMessage::_internal_mutable_repeated_double() {
   return &repeated_double_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-DoubleMessage::mutable_repeated_double() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * DoubleMessage::mutable_repeated_double() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.DoubleMessage.repeated_double)
   return _internal_mutable_repeated_double();
 }
 
 // .proto_util_converter.testing.DoubleMessage nested_message = 3;
-inline bool DoubleMessage::_internal_has_nested_message() const {
-  return this != internal_default_instance() && nested_message_ != nullptr;
-}
+inline bool DoubleMessage::_internal_has_nested_message() const { return this != internal_default_instance() && nested_message_ != nullptr; }
 inline bool DoubleMessage::has_nested_message() const {
   return _internal_has_nested_message();
 }
@@ -7614,8 +7477,7 @@ inline ::proto_util_converter::testing::DoubleMessage* DoubleMessage::mutable_re
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.DoubleMessage.repeated_nested_message)
   return repeated_nested_message_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::DoubleMessage >*
-DoubleMessage::mutable_repeated_nested_message() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::DoubleMessage > * DoubleMessage::mutable_repeated_nested_message() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.DoubleMessage.repeated_nested_message)
   return &repeated_nested_message_;
 }
@@ -7640,9 +7502,7 @@ DoubleMessage::repeated_nested_message() const {
 }
 
 // .google.protobuf.DoubleValue double_wrapper = 100;
-inline bool DoubleMessage::_internal_has_double_wrapper() const {
-  return this != internal_default_instance() && double_wrapper_ != nullptr;
-}
+inline bool DoubleMessage::_internal_has_double_wrapper() const { return this != internal_default_instance() && double_wrapper_ != nullptr; }
 inline bool DoubleMessage::has_double_wrapper() const {
   return _internal_has_double_wrapper();
 }
@@ -7851,9 +7711,7 @@ inline DoubleMessage::ValueCase DoubleMessage::value_case() const { return Doubl
 // StructMessage
 
 // .google.protobuf.Struct struct = 1;
-inline bool StructMessage::_internal_has_struct_() const {
-  return this != internal_default_instance() && struct__ != nullptr;
-}
+inline bool StructMessage::_internal_has_struct_() const { return this != internal_default_instance() && struct__ != nullptr; }
 inline bool StructMessage::has_struct_() const {
   return _internal_has_struct_();
 }
@@ -7939,9 +7797,7 @@ inline void StructMessage::set_allocated_struct_(::PROTOBUF_NAMESPACE_ID::Struct
 // ValueMessage
 
 // .google.protobuf.Value value = 1;
-inline bool ValueMessage::_internal_has_value() const {
-  return this != internal_default_instance() && value_ != nullptr;
-}
+inline bool ValueMessage::_internal_has_value() const { return this != internal_default_instance() && value_ != nullptr; }
 inline bool ValueMessage::has_value() const {
   return _internal_has_value();
 }
@@ -8027,9 +7883,7 @@ inline void ValueMessage::set_allocated_value(::PROTOBUF_NAMESPACE_ID::Value* va
 // ListValueMessage
 
 // .google.protobuf.ListValue shopping_list = 1;
-inline bool ListValueMessage::_internal_has_shopping_list() const {
-  return this != internal_default_instance() && shopping_list_ != nullptr;
-}
+inline bool ListValueMessage::_internal_has_shopping_list() const { return this != internal_default_instance() && shopping_list_ != nullptr; }
 inline bool ListValueMessage::has_shopping_list() const {
   return _internal_has_shopping_list();
 }
@@ -8167,9 +8021,7 @@ inline void RequestMessage::set_allocated_content(std::string* content) {
 // AnyMessage
 
 // .google.protobuf.Any any = 1;
-inline bool AnyMessage::_internal_has_any() const {
-  return this != internal_default_instance() && any_ != nullptr;
-}
+inline bool AnyMessage::_internal_has_any() const { return this != internal_default_instance() && any_ != nullptr; }
 inline bool AnyMessage::has_any() const {
   return _internal_has_any();
 }
@@ -8251,9 +8103,7 @@ inline void AnyMessage::set_allocated_any(::PROTOBUF_NAMESPACE_ID::Any* any) {
 }
 
 // .proto_util_converter.testing.AnyData data = 2;
-inline bool AnyMessage::_internal_has_data() const {
-  return this != internal_default_instance() && data_ != nullptr;
-}
+inline bool AnyMessage::_internal_has_data() const { return this != internal_default_instance() && data_ != nullptr; }
 inline bool AnyMessage::has_data() const {
   return _internal_has_data();
 }
@@ -8474,16 +8324,13 @@ AnyData::msgs() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.AnyData.msgs)
   return msgs_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-AnyData::mutable_msgs() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * AnyData::mutable_msgs() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.AnyData.msgs)
   return &msgs_;
 }
 
 // .proto_util_converter.testing.AnyData nested_data = 4;
-inline bool AnyData::_internal_has_nested_data() const {
-  return this != internal_default_instance() && nested_data_ != nullptr;
-}
+inline bool AnyData::_internal_has_nested_data() const { return this != internal_default_instance() && nested_data_ != nullptr; }
 inline bool AnyData::has_nested_data() const {
   return _internal_has_nested_data();
 }
@@ -8578,28 +8425,22 @@ inline void AnyData::clear_map_data() {
   map_data_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-AnyData::_internal_map_data() const {
-  return map_data_.GetMap();
-}
+AnyData::_internal_map_data() const { return map_data_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 AnyData::map_data() const {
   // @@protoc_insertion_point(field_map:proto_util_converter.testing.AnyData.map_data)
   return _internal_map_data();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-AnyData::_internal_mutable_map_data() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * AnyData::_internal_mutable_map_data() {
   return map_data_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-AnyData::mutable_map_data() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * AnyData::mutable_map_data() {
   // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.AnyData.map_data)
   return _internal_mutable_map_data();
 }
 
 // .google.protobuf.Struct struct_data = 8;
-inline bool AnyData::_internal_has_struct_data() const {
-  return this != internal_default_instance() && struct_data_ != nullptr;
-}
+inline bool AnyData::_internal_has_struct_data() const { return this != internal_default_instance() && struct_data_ != nullptr; }
 inline bool AnyData::has_struct_data() const {
   return _internal_has_struct_data();
 }
@@ -8692,8 +8533,7 @@ inline ::proto_util_converter::testing::AnyData* AnyData::mutable_repeated_data(
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.AnyData.repeated_data)
   return repeated_data_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::AnyData >*
-AnyData::mutable_repeated_data() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::AnyData > * AnyData::mutable_repeated_data() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.AnyData.repeated_data)
   return &repeated_data_;
 }
@@ -8732,20 +8572,16 @@ inline void StringtoIntMap::clear_map() {
   map_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
-StringtoIntMap::_internal_map() const {
-  return map_.GetMap();
-}
+StringtoIntMap::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
 StringtoIntMap::map() const {
   // @@protoc_insertion_point(field_map:proto_util_converter.testing.StringtoIntMap.map)
   return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >*
-StringtoIntMap::_internal_mutable_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoIntMap::_internal_mutable_map() {
   return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >*
-StringtoIntMap::mutable_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * StringtoIntMap::mutable_map() {
   // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.StringtoIntMap.map)
   return _internal_mutable_map();
 }
@@ -8765,20 +8601,16 @@ inline void IntToStringMap::clear_map() {
   map_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
-IntToStringMap::_internal_map() const {
-  return map_.GetMap();
-}
+IntToStringMap::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >&
 IntToStringMap::map() const {
   // @@protoc_insertion_point(field_map:proto_util_converter.testing.IntToStringMap.map)
   return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >*
-IntToStringMap::_internal_mutable_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * IntToStringMap::_internal_mutable_map() {
   return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >*
-IntToStringMap::mutable_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string > * IntToStringMap::mutable_map() {
   // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.IntToStringMap.map)
   return _internal_mutable_map();
 }
@@ -8846,20 +8678,16 @@ inline void MixedMap::clear_map() {
   map_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >&
-MixedMap::_internal_map() const {
-  return map_.GetMap();
-}
+MixedMap::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >&
 MixedMap::map() const {
   // @@protoc_insertion_point(field_map:proto_util_converter.testing.MixedMap.map)
   return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >*
-MixedMap::_internal_mutable_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * MixedMap::_internal_mutable_map() {
   return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float >*
-MixedMap::mutable_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, float > * MixedMap::mutable_map() {
   // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MixedMap.map)
   return _internal_mutable_map();
 }
@@ -8897,20 +8725,16 @@ inline void MixedMap2::clear_map() {
   map_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >&
-MixedMap2::_internal_map() const {
-  return map_.GetMap();
-}
+MixedMap2::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >&
 MixedMap2::map() const {
   // @@protoc_insertion_point(field_map:proto_util_converter.testing.MixedMap2.map)
   return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >*
-MixedMap2::_internal_mutable_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * MixedMap2::_internal_mutable_map() {
   return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >*
-MixedMap2::mutable_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool > * MixedMap2::mutable_map() {
   // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MixedMap2.map)
   return _internal_mutable_map();
 }
@@ -9066,20 +8890,16 @@ inline void MessageMap::clear_map() {
   map_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M >&
-MessageMap::_internal_map() const {
-  return map_.GetMap();
-}
+MessageMap::_internal_map() const { return map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M >&
 MessageMap::map() const {
   // @@protoc_insertion_point(field_map:proto_util_converter.testing.MessageMap.map)
   return _internal_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M >*
-MessageMap::_internal_mutable_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M > * MessageMap::_internal_mutable_map() {
   return map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M >*
-MessageMap::mutable_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MessageMap_M > * MessageMap::mutable_map() {
   // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MessageMap.map)
   return _internal_mutable_map();
 }
@@ -9089,9 +8909,7 @@ MessageMap::mutable_map() {
 // DoubleValueMessage
 
 // .google.protobuf.DoubleValue double = 1;
-inline bool DoubleValueMessage::_internal_has_double_() const {
-  return this != internal_default_instance() && double__ != nullptr;
-}
+inline bool DoubleValueMessage::_internal_has_double_() const { return this != internal_default_instance() && double__ != nullptr; }
 inline bool DoubleValueMessage::has_double_() const {
   return _internal_has_double_();
 }
@@ -9224,10 +9042,7 @@ inline void DoubleValueMessage::set_allocated_double_(::PROTOBUF_NAMESPACE_ID::D
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::proto_util_converter::testing::MixedMap2_E> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::proto_util_converter::testing::MixedMap2_E>() {
-  return ::proto_util_converter::testing::MixedMap2_E_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::proto_util_converter::testing::MixedMap2_E>() { return ::proto_util_converter::testing::MixedMap2_E_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

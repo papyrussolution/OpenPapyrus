@@ -43,7 +43,7 @@ void VP8InitBitReader(VP8BitReader* const br, const uint8* const start, size_t s
 
 void VP8RemapBitReader(VP8BitReader* const br, ptrdiff_t offset) 
 {
-	if(br->buf_ != NULL) {
+	if(br->buf_) {
 		br->buf_ += offset;
 		br->buf_end_ += offset;
 		br->buf_max_ += offset;
@@ -226,10 +226,6 @@ uint32_t FASTCALL VP8LReadBits(VP8LBitReader* const br, int n_bits)
 // Bit-tracing tool
 
 #if (BITTRACE > 0)
-
-//#include <stdlib.h>   // for atexit()
-//#include <stdio.h>
-//#include <string.h>
 
 #define MAX_NUM_LABELS 32
 static struct {

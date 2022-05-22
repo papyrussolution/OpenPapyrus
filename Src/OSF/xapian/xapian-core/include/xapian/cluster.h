@@ -16,14 +16,6 @@
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 	#error Never use <xapian/cluster.h> directly; include <xapian.h> instead.
 #endif
-//#include <xapian/attributes.h>
-//#include <xapian/mset.h>
-//#include <xapian/queryparser.h>
-//#include <xapian/types.h>
-//#include <xapian/visibility.h>
-//#include <unordered_map>
-//#include <unordered_set>
-//#include <vector>
 
 namespace Xapian {
 /// Stopper subclass which checks for both stemmed and unstemmed stopwords

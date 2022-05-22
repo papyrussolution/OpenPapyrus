@@ -30,10 +30,6 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-// Not needed yet, but defining it should indicate clashes with build target environment that should be fixed.
-//#if !defined(WINCE)
-	//#include <signal.h>
-//#endif
 /*
  * ------------------------------------------------------
  * DOCPUBLIC

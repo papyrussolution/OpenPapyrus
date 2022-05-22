@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <ctype.h>
-//#include "internal/numbers.h"
-//#include <openssl/bio.h>
 /*
  * Copyright Patrick Powell 1995
  * This code is based on code written by Patrick Powell <papowell@astart.com>

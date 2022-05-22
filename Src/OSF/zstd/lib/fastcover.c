@@ -242,7 +242,7 @@ static void FASTCOVER_ctx_destroy(FASTCOVER_ctx_t* ctx)
 /**
  * Calculate for frequency of hash value of each dmer in ctx->samples
  */
-static void FASTCOVER_computeFrequency(uint32* freqs, const FASTCOVER_ctx_t* ctx)
+static void FASTCOVER_computeFrequency(uint32 * freqs, const FASTCOVER_ctx_t* ctx)
 {
 	const uint f = ctx->f;
 	const uint d = ctx->d;
@@ -330,7 +330,7 @@ static size_t FASTCOVER_ctx_init(FASTCOVER_ctx_t* ctx, const void * samplesBuffe
 	    }
 	}
 	/* Initialize frequency array of size 2^f */
-	ctx->freqs = (uint32*)SAlloc::C(((uint64)1 << f), sizeof(uint32));
+	ctx->freqs = (uint32 *)SAlloc::C(((uint64)1 << f), sizeof(uint32));
 	if(ctx->freqs == NULL) {
 		DISPLAYLEVEL(1, "Failed to allocate frequency table \n");
 		FASTCOVER_ctx_destroy(ctx);
@@ -343,7 +343,7 @@ static size_t FASTCOVER_ctx_init(FASTCOVER_ctx_t* ctx, const void * samplesBuffe
 /**
  * Given the prepared context build the dictionary.
  */
-static size_t FASTCOVER_buildDictionary(const FASTCOVER_ctx_t* ctx, uint32* freqs, void * dictBuffer, size_t dictBufferCapacity, ZDICT_cover_params_t parameters, uint16* segmentFreqs)
+static size_t FASTCOVER_buildDictionary(const FASTCOVER_ctx_t* ctx, uint32 * freqs, void * dictBuffer, size_t dictBufferCapacity, ZDICT_cover_params_t parameters, uint16* segmentFreqs)
 {
 	BYTE * const dict = (BYTE *)dictBuffer;
 	size_t tail = dictBufferCapacity;
@@ -417,7 +417,7 @@ static void FASTCOVER_tryParameters(void * opaque)
 	/* Allocate space for hash table, dict, and freqs */
 	BYTE * const dict = (BYTE *)SAlloc::M(dictBufferCapacity);
 	COVER_dictSelection_t selection = COVER_dictSelectionError(ERROR(GENERIC));
-	uint32* freqs = (uint32*)SAlloc::M(((uint64)1 << ctx->f) * sizeof(uint32));
+	uint32 * freqs = (uint32 *)SAlloc::M(((uint64)1 << ctx->f) * sizeof(uint32));
 	if(!segmentFreqs || !dict || !freqs) {
 		DISPLAYLEVEL(1, "Failed to allocate buffers: out of memory\n");
 		goto _cleanup;

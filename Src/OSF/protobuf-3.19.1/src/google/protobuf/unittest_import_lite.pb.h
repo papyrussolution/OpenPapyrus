@@ -70,15 +70,12 @@ constexpr ImportEnumLite ImportEnumLite_MAX = IMPORT_LITE_BAZ;
 constexpr int ImportEnumLite_ARRAYSIZE = ImportEnumLite_MAX + 1;
 
 const std::string& ImportEnumLite_Name(ImportEnumLite value);
-template<typename T>
-inline const std::string& ImportEnumLite_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, ImportEnumLite>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function ImportEnumLite_Name.");
-  return ImportEnumLite_Name(static_cast<ImportEnumLite>(enum_t_value));
+template<typename T> inline const std::string& ImportEnumLite_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, ImportEnumLite>::value || ::std::is_integral<T>::value, "Incorrect type passed to function ImportEnumLite_Name.");
+	return ImportEnumLite_Name(static_cast<ImportEnumLite>(enum_t_value));
 }
-bool ImportEnumLite_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ImportEnumLite* value);
+bool ImportEnumLite_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ImportEnumLite * value);
 // ===================================================================
 
 class ImportMessageLite final :

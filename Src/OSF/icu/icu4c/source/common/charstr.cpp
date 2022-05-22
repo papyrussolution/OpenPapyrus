@@ -62,7 +62,7 @@ CharString &CharString::copyFrom(const CharString &s, UErrorCode & errorCode) {
 }
 
 int32_t CharString::lastIndexOf(char c) const {
-	for(int32_t i = len; i>0;) {
+	for(int32_t i = len; i > 0;) {
 		if(buffer[--i]==c) {
 			return i;
 		}

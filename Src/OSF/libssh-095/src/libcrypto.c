@@ -115,7 +115,7 @@ void sha1_final(uchar * md, SHACTX c)
 void sha1(const uchar * digest, int len, uchar * hash)
 {
 	SHACTX c = sha1_init();
-	if(c != NULL) {
+	if(c) {
 		sha1_update(c, digest, len);
 		sha1_final(hash, c);
 	}
@@ -193,7 +193,7 @@ void sha256_final(uchar * md, SHA256CTX c)
 void sha256(const uchar * digest, int len, uchar * hash)
 {
 	SHA256CTX c = sha256_init();
-	if(c != NULL) {
+	if(c) {
 		sha256_update(c, digest, len);
 		sha256_final(hash, c);
 	}
@@ -228,7 +228,7 @@ void sha384_final(uchar * md, SHA384CTX c)
 void sha384(const uchar * digest, int len, uchar * hash)
 {
 	SHA384CTX c = sha384_init();
-	if(c != NULL) {
+	if(c) {
 		sha384_update(c, digest, len);
 		sha384_final(hash, c);
 	}
@@ -263,7 +263,7 @@ void sha512_final(uchar * md, SHA512CTX c)
 void sha512(const uchar * digest, int len, uchar * hash)
 {
 	SHA512CTX c = sha512_init();
-	if(c != NULL) {
+	if(c) {
 		sha512_update(c, digest, len);
 		sha512_final(hash, c);
 	}

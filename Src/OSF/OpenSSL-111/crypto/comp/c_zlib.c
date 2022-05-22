@@ -8,11 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/objects.h>
 #include "internal/comp.h"
-//#include <openssl/err.h>
-//#include <cryptlib_int.h>
-//#include "internal/bio.h"
 #include "comp_lcl.h"
 
 COMP_METHOD * COMP_zlib(void);
@@ -527,7 +523,7 @@ static long bio_zlib_ctrl(BIO * b, int cmd, long num, void * ptr)
 	int ret, * ip;
 	int ibs, obs;
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	ctx = static_cast<BIO_ZLIB_CTX *>(BIO_get_data(b));
 	switch(cmd) {
@@ -589,7 +585,7 @@ static long bio_zlib_ctrl(BIO * b, int cmd, long num, void * ptr)
 static long bio_zlib_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 {
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	return BIO_callback_ctrl(next, cmd, fp);
 }

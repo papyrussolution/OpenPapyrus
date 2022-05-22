@@ -5,11 +5,10 @@
     android:padding="4dp"
     android:orientation="horizontal"
     >
-    <TextView
+    <TextView style="@style/GenericListItemText"
         android:id="@+id/LVITEM_CMDNAME"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:textColor="@color/TextPrimary"
         />
     <View style="@style/FakeView"/>
     <TextView
@@ -17,6 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_marginRight="8dp"
+        android:layout_gravity="center_vertical"
         android:fontFamily="@font/liquidcrystal_normal"
         android:textColor="@color/Black"
         />

@@ -251,7 +251,7 @@ static cairo_status_t _win32_scaled_font_create(const LOGFONTW * logfont, HFONT 
 	if(hdc == NULL)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	f = (cairo_win32_scaled_font_t *)_cairo_malloc(sizeof(cairo_win32_scaled_font_t));
-	if(f == NULL)
+	if(!f)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	f->logfont = *logfont;
 	/* We don't have any control over the hinting style or subpixel

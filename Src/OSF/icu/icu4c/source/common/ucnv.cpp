@@ -827,10 +827,8 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 		pArgs->sourceLimit = replay-cnv->preFromULength;
 		pArgs->flush = FALSE;
 		sourceIndex = -1;
-
 		cnv->preFromULength = 0;
 	}
-
 	/*
 	 * loop for conversion and error handling
 	 *
@@ -847,7 +845,6 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 		if(U_SUCCESS(*err)) {
 			/* convert */
 			fromUnicode(pArgs, err);
-
 			/*
 			 * set a flag for whether the converter
 			 * successfully processed the end of the input
@@ -855,22 +852,13 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 			 * need not check cnv->preFromULength==0 because a replay (<0) will cause
 			 * s<sourceLimit before converterSawEndOfInput is checked
 			 */
-			converterSawEndOfInput =
-			    (bool)(U_SUCCESS(*err) &&
-			    pArgs->flush && pArgs->source==pArgs->sourceLimit &&
-			    cnv->fromUChar32==0);
+			converterSawEndOfInput = (bool)(U_SUCCESS(*err) && pArgs->flush && pArgs->source==pArgs->sourceLimit && cnv->fromUChar32==0);
 		}
 		else {
-			/* handle error from ucnv_convertEx() */
-			converterSawEndOfInput = FALSE;
+			converterSawEndOfInput = FALSE; /* handle error from ucnv_convertEx() */
 		}
-
-		/* no callback called yet for this iteration */
-		calledCallback = FALSE;
-
-		/* no sourceIndex adjustment for conversion, only for callback output */
-		errorInputLength = 0;
-
+		calledCallback = FALSE; /* no callback called yet for this iteration */
+		errorInputLength = 0; /* no sourceIndex adjustment for conversion, only for callback output */
 		/*
 		 * loop for offsets and error handling
 		 *
@@ -885,7 +873,6 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 				int32_t length = (int32_t)(pArgs->target-t);
 				if(length > 0) {
 					_updateOffsets(offsets, length, sourceIndex, errorInputLength);
-
 					/*
 					 * if a converter handles offsets and updates the offsets
 					 * pointer at the end, then pArgs->offset should not change
@@ -895,12 +882,10 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 					 */
 					pArgs->offsets = offsets += length;
 				}
-
 				if(sourceIndex>=0) {
 					sourceIndex += (int32_t)(pArgs->source-s);
 				}
 			}
-
 			if(cnv->preFromULength<0) {
 				/*
 				 * switch the source to new replay units (cannot occur while replaying)
@@ -911,7 +896,6 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 					realSourceLimit = pArgs->sourceLimit;
 					realFlush = pArgs->flush;
 					realSourceIndex = sourceIndex;
-
 					uprv_memcpy(replay, cnv->preFromU, -cnv->preFromULength*U_SIZEOF_UCHAR);
 					pArgs->source = replay;
 					pArgs->sourceLimit = replay-cnv->preFromULength;
@@ -919,7 +903,6 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 					if((sourceIndex += cnv->preFromULength) < 0) {
 						sourceIndex = -1;
 					}
-
 					cnv->preFromULength = 0;
 				}
 				else {
@@ -928,11 +911,9 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 					*err = U_INTERNAL_PROGRAM_ERROR;
 				}
 			}
-
 			/* update pointers */
 			s = pArgs->source;
 			t = pArgs->target;
-
 			if(U_SUCCESS(*err)) {
 				if(s<pArgs->sourceLimit) {
 					/*
@@ -947,7 +928,6 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 					pArgs->sourceLimit = realSourceLimit;
 					pArgs->flush = realFlush;
 					sourceIndex = realSourceIndex;
-
 					realSource = NULL;
 					break;
 				}
@@ -956,7 +936,6 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 					 * the entire input stream is consumed
 					 * and there is a partial, truncated input sequence left
 					 */
-
 					/* inject an error and continue with callback handling */
 					*err = U_TRUNCATED_CHAR_FOUND;
 					calledCallback = FALSE; /* new error condition */
@@ -1008,44 +987,31 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 					 */
 					if(realSource!=NULL) {
 						int32_t length;
-
 						U_ASSERT(cnv->preFromULength==0);
-
 						length = (int32_t)(pArgs->sourceLimit-pArgs->source);
 						if(length > 0) {
 							u_memcpy(cnv->preFromU, pArgs->source, length);
 							cnv->preFromULength = (int8)-length;
 						}
-
 						pArgs->source = realSource;
 						pArgs->sourceLimit = realSourceLimit;
 						pArgs->flush = realFlush;
 					}
-
 					return;
 				}
 			}
-
 			/* callback handling */
 			{
-				UChar32 codePoint;
-
 				/* get and write the code point */
-				codePoint = cnv->fromUChar32;
+				UChar32 codePoint = cnv->fromUChar32;
 				errorInputLength = 0;
 				U16_APPEND_UNSAFE(cnv->invalidUCharBuffer, errorInputLength, codePoint);
 				cnv->invalidUCharLength = (int8)errorInputLength;
-
-				/* set the converter state to deal with the next character */
-				cnv->fromUChar32 = 0;
-
+				cnv->fromUChar32 = 0; /* set the converter state to deal with the next character */
 				/* call the callback function */
-				cnv->fromUCharErrorBehaviour(cnv->fromUContext, pArgs,
-				    cnv->invalidUCharBuffer, errorInputLength, codePoint,
-				    *err==U_INVALID_CHAR_FOUND ? UCNV_UNASSIGNED : UCNV_ILLEGAL,
-				    err);
+				cnv->fromUCharErrorBehaviour(cnv->fromUContext, pArgs, cnv->invalidUCharBuffer, errorInputLength, codePoint,
+				    *err==U_INVALID_CHAR_FOUND ? UCNV_UNASSIGNED : UCNV_ILLEGAL, err);
 			}
-
 			/*
 			 * loop back to the offset handling
 			 *
@@ -1057,28 +1023,23 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 		}
 	}
 }
-
 /*
  * Output the fromUnicode overflow buffer.
  * Call this function if(cnv->charErrorBufferLength>0).
  * @return TRUE if overflow
  */
-static bool ucnv_outputOverflowFromUnicode(UConverter * cnv,
-    char ** target, const char * targetLimit,
-    int32_t ** pOffsets,
-    UErrorCode * err) {
+static bool ucnv_outputOverflowFromUnicode(UConverter * cnv, char ** target, const char * targetLimit, int32_t ** pOffsets, UErrorCode * err) 
+{
 	int32_t * offsets;
-	char * overflow, * t;
+	char * overflow;
 	int32_t i, length;
-
-	t = *target;
+	char * t = *target;
 	if(pOffsets!=NULL) {
 		offsets = *pOffsets;
 	}
 	else {
 		offsets = NULL;
 	}
-
 	overflow = (char *)cnv->charErrorBuffer;
 	length = cnv->charErrorBufferLength;
 	i = 0;
@@ -1086,11 +1047,9 @@ static bool ucnv_outputOverflowFromUnicode(UConverter * cnv,
 		if(t==targetLimit) {
 			/* the overflow buffer contains too much, keep the rest */
 			int32_t j = 0;
-
 			do {
 				overflow[j++] = overflow[i++];
 			} while(i<length);
-
 			cnv->charErrorBufferLength = (int8)j;
 			*target = t;
 			if(offsets) {
@@ -1099,14 +1058,12 @@ static bool ucnv_outputOverflowFromUnicode(UConverter * cnv,
 			*err = U_BUFFER_OVERFLOW_ERROR;
 			return TRUE;
 		}
-
 		/* copy the overflow contents to the target */
 		*t++ = overflow[i++];
 		if(offsets) {
 			*offsets++ = -1; /* no source index available for old output */
 		}
 	}
-
 	/* the overflow buffer is completely copied to the target */
 	cnv->charErrorBufferLength = 0;
 	*target = t;

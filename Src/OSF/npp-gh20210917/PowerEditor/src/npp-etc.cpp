@@ -126,13 +126,13 @@ namespace ReadDirectoryChangesPrivate
 		if(m_hDirectory)
 			return true;
 		m_hDirectory = ::CreateFileW( m_wstrDirectory.c_str()/*pointer to the file name*/,
-			FILE_LIST_DIRECTORY,                // access (read/write) mode
-			FILE_SHARE_READ                                         // share mode
+			FILE_LIST_DIRECTORY, // access (read/write) mode
+			FILE_SHARE_READ      // share mode
 			| FILE_SHARE_WRITE
 			| FILE_SHARE_DELETE,
-			NULL,                               // security descriptor
-			OPEN_EXISTING,                      // how to create
-			FILE_FLAG_BACKUP_SEMANTICS                      // file attributes
+			NULL,                // security descriptor
+			OPEN_EXISTING,       // how to create
+			FILE_FLAG_BACKUP_SEMANTICS // file attributes
 			| FILE_FLAG_OVERLAPPED,
 			NULL);                              // file with attributes to copy
 		if(m_hDirectory == INVALID_HANDLE_VALUE) {

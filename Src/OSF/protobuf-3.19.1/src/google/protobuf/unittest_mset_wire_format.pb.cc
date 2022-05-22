@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace proto2_wireformat_unittest {
-constexpr TestMessageSet::TestMessageSet(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMessageSet::TestMessageSet(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMessageSetDefaultTypeInternal {
 	constexpr TestMessageSetDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMessageSetDefaultTypeInternal() {}
@@ -26,8 +25,7 @@ struct TestMessageSetDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMessageSetDefaultTypeInternal _TestMessageSet_default_instance_;
-constexpr TestMessageSetWireFormatContainer::TestMessageSetWireFormatContainer(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestMessageSetWireFormatContainer::TestMessageSetWireFormatContainer(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : message_set_(nullptr){}
 struct TestMessageSetWireFormatContainerDefaultTypeInternal {
 	constexpr TestMessageSetWireFormatContainerDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -131,8 +129,7 @@ void TestMessageSet::ArenaDtor(void* object) {
   TestMessageSet* _this = reinterpret_cast< TestMessageSet* >(object);
   (void)_this;
 }
-void TestMessageSet::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestMessageSet::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestMessageSet::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -179,10 +176,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestMessageSet::_class_data_ =
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestMessageSet::GetClassData() const { return &_class_data_; }
 
-void TestMessageSet::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestMessageSet *>(to)->MergeFrom(
-      static_cast<const TestMessageSet &>(from));
+void TestMessageSet::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestMessageSet *>(to)->MergeFrom(static_cast<const TestMessageSet &>(from));
 }
 
 
@@ -230,10 +225,7 @@ class TestMessageSetWireFormatContainer::_Internal {
   static void set_has_message_set(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::proto2_wireformat_unittest::TestMessageSet&
-TestMessageSetWireFormatContainer::_Internal::message_set(const TestMessageSetWireFormatContainer* msg) {
-  return *msg->message_set_;
-}
+const ::proto2_wireformat_unittest::TestMessageSet & TestMessageSetWireFormatContainer::_Internal::message_set(const TestMessageSetWireFormatContainer* msg) { return *msg->message_set_; }
 TestMessageSetWireFormatContainer::TestMessageSetWireFormatContainer(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -247,11 +239,7 @@ TestMessageSetWireFormatContainer::TestMessageSetWireFormatContainer(const TestM
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_message_set()) {
-    message_set_ = new ::proto2_wireformat_unittest::TestMessageSet(*from.message_set_);
-  } else {
-    message_set_ = nullptr;
-  }
+  message_set_ = from._internal_has_message_set() ? new ::proto2_wireformat_unittest::TestMessageSet(*from.message_set_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto2_wireformat_unittest.TestMessageSetWireFormatContainer)
 }
 
@@ -275,8 +263,7 @@ void TestMessageSetWireFormatContainer::ArenaDtor(void* object) {
   TestMessageSetWireFormatContainer* _this = reinterpret_cast< TestMessageSetWireFormatContainer* >(object);
   (void)_this;
 }
-void TestMessageSetWireFormatContainer::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestMessageSetWireFormatContainer::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestMessageSetWireFormatContainer::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -319,10 +306,7 @@ const char* TestMessageSetWireFormatContainer::_InternalParse(const char* ptr, :
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -378,10 +362,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestMessageSetWireFormatContai
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestMessageSetWireFormatContainer::GetClassData() const { return &_class_data_; }
 
-void TestMessageSetWireFormatContainer::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestMessageSetWireFormatContainer *>(to)->MergeFrom(
-      static_cast<const TestMessageSetWireFormatContainer &>(from));
+void TestMessageSetWireFormatContainer::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestMessageSetWireFormatContainer *>(to)->MergeFrom(static_cast<const TestMessageSetWireFormatContainer &>(from));
 }
 
 

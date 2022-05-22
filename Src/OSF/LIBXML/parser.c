@@ -3995,7 +3995,7 @@ xmlChar * xmlParseExternalID(xmlParserCtxt * ctxt, xmlChar ** publicID, int stri
 		}
 		SKIP_BLANKS;
 		URI = xmlParseSystemLiteral(ctxt);
-		if(URI == NULL) {
+		if(!URI) {
 			xmlFatalErr(ctxt, XML_ERR_URI_REQUIRED, 0);
 		}
 	}
@@ -4030,7 +4030,7 @@ xmlChar * xmlParseExternalID(xmlParserCtxt * ctxt, xmlChar ** publicID, int stri
 		}
 		SKIP_BLANKS;
 		URI = xmlParseSystemLiteral(ctxt);
-		if(URI == NULL)
+		if(!URI)
 			xmlFatalErr(ctxt, XML_ERR_URI_REQUIRED, 0);
 	}
 	return (URI);
@@ -5296,7 +5296,7 @@ xmlElementContent * xmlParseElementMixedContentDecl(xmlParserCtxt * ctxt, int in
 		}
 		while((RAW == '|') && !ctxt->IsEof()) {
 			NEXT;
-			if(elem == NULL) {
+			if(!elem) {
 				ret = xmlNewDocElementContent(ctxt->myDoc, NULL, XML_ELEMENT_CONTENT_OR);
 				if(!ret)
 					return 0;
@@ -5404,7 +5404,7 @@ static xmlElementContent * FASTCALL xmlParseElementChildrenContentDeclPriv(xmlPa
 	}
 	else {
 		elem = xmlParseName(ctxt);
-		if(elem == NULL) {
+		if(!elem) {
 			xmlFatalErr(ctxt, XML_ERR_ELEMCONTENT_NOT_STARTED, 0);
 			return 0;
 		}
@@ -10688,7 +10688,7 @@ xmlParserCtxt * xmlCreatePushParserCtxt(xmlSAXHandler * sax, void * user_data, c
 		xmlFreeParserInputBuffer(buf);
 		return 0;
 	}
-	if(filename == NULL)
+	if(!filename)
 		inputStream->filename = NULL;
 	else {
 		inputStream->filename = (char *)xmlCanonicPath((const xmlChar *)filename);

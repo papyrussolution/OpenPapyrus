@@ -313,25 +313,26 @@ long DbLoginBlockArray::SetSelection(long id)
 	return SelId;
 }
 
-int DbLoginBlockArray::MakeList(StrAssocArray * pList, long options) const
+int DbLoginBlockArray::MakeList(StrAssocArray * pList, long options, const LongArray * pDbesIdxList) const
 {
 	int    ok = -1;
 	SString temp_buf;
 	for(uint i = 0; i < getCount(); i++) {
-		const DbLoginBlock * p_blk = at(i);
-		p_blk->GetAttr(DbLoginBlock::attrID, temp_buf);
-		const long id = (long)(i+1); // temp_buf.ToLong();
-		temp_buf.Z();
-		if(options & loUseFriendlyName)
-			p_blk->GetAttr(DbLoginBlock::attrDbFriendlyName, temp_buf);
-		if(!temp_buf.NotEmptyS() && options & loUseDbSymb)
-			p_blk->GetAttr(DbLoginBlock::attrDbSymb, temp_buf);
-		if(!temp_buf.NotEmptyS() && options & loUseDbPath)
-			p_blk->GetAttr(DbLoginBlock::attrDbPath, temp_buf);
-		if(temp_buf.NotEmptyS() && id != 0) {
-			if(pList)
-				pList->Add(id, temp_buf);
-			ok = 1;
+		if(!pDbesIdxList || pDbesIdxList->lsearch(i+1)) {
+			const DbLoginBlock * p_blk = at(i);
+			p_blk->GetAttr(DbLoginBlock::attrID, temp_buf);
+			const long id = static_cast<long>(i+1); // temp_buf.ToLong();
+			temp_buf.Z();
+			if(options & loUseFriendlyName)
+				p_blk->GetAttr(DbLoginBlock::attrDbFriendlyName, temp_buf);
+			if(!temp_buf.NotEmptyS() && options & loUseDbSymb)
+				p_blk->GetAttr(DbLoginBlock::attrDbSymb, temp_buf);
+			if(!temp_buf.NotEmptyS() && options & loUseDbPath)
+				p_blk->GetAttr(DbLoginBlock::attrDbPath, temp_buf);
+			if(temp_buf.NotEmptyS() && id != 0) {
+				CALLPTRMEMB(pList, Add(id, temp_buf));
+				ok = 1;
+			}
 		}
 	}
 	return ok;

@@ -98,7 +98,7 @@ int archive_read_append_filter(struct archive * _a, int code)
 		}
 		filter = (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
 		if(filter == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		filter->bidder = bidder;
@@ -141,7 +141,7 @@ int archive_read_append_filter_program_signature(struct archive * _a, const char
 	}
 	filter = (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
 	if(filter == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	filter->bidder = bidder;

@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-////#include "e_os.h"
-//#include <openssl/crypto.h>
 #include "internal/o_str.h"
 
 int OPENSSL_memcmp(const void * v1, const void * v2, size_t n)
@@ -24,29 +22,25 @@ int OPENSSL_memcmp(const void * v1, const void * v2, size_t n)
 
 char * STDCALL CRYPTO_strdup(const char * str, const char * file, int line)
 {
-	char * ret;
-	if(str == NULL)
-		return NULL;
-	ret = static_cast<char *>(CRYPTO_malloc(strlen(str) + 1, file, line));
-	if(ret != NULL)
-		strcpy(ret, str);
+	char * ret = 0;
+	if(str) {
+		ret = static_cast<char *>(CRYPTO_malloc(strlen(str) + 1, file, line));
+		if(ret)
+			strcpy(ret, str);
+	}
 	return ret;
 }
 
 char * CRYPTO_strndup(const char * str, size_t s, const char * file, int line)
 {
-	size_t maxlen;
-	char * ret;
-
-	if(str == NULL)
-		return NULL;
-
-	maxlen = OPENSSL_strnlen(str, s);
-
-	ret = static_cast<char *>(CRYPTO_malloc(maxlen + 1, file, line));
-	if(ret) {
-		memcpy(ret, str, maxlen);
-		ret[maxlen] = '\0';
+	char * ret = 0;
+	if(str) {
+		size_t maxlen = OPENSSL_strnlen(str, s);
+		ret = static_cast<char *>(CRYPTO_malloc(maxlen + 1, file, line));
+		if(ret) {
+			memcpy(ret, str, maxlen);
+			ret[maxlen] = '\0';
+		}
 	}
 	return ret;
 }
@@ -54,10 +48,8 @@ char * CRYPTO_strndup(const char * str, size_t s, const char * file, int line)
 void * CRYPTO_memdup(const void * data, size_t siz, const char * file, int line)
 {
 	void * ret;
-
 	if(data == NULL || siz >= INT_MAX)
 		return NULL;
-
 	ret = CRYPTO_malloc(siz, file, line);
 	if(ret == NULL) {
 		CRYPTOerr(CRYPTO_F_CRYPTO_MEMDUP, ERR_R_MALLOC_FAILURE);
@@ -69,9 +61,8 @@ void * CRYPTO_memdup(const void * data, size_t siz, const char * file, int line)
 size_t OPENSSL_strnlen(const char * str, size_t maxlen)
 {
 	const char * p;
-
-	for(p = str; maxlen-- != 0 && *p != '\0'; ++p);
-
+	for(p = str; maxlen-- != 0 && *p != '\0'; ++p)
+		;
 	return p - str;
 }
 
@@ -101,26 +92,16 @@ int OPENSSL_hexchar2int(uchar c)
 	c = os_toebcdic[c];
 #endif
 	switch(c) {
-		case '0':
-		    return 0;
-		case '1':
-		    return 1;
-		case '2':
-		    return 2;
-		case '3':
-		    return 3;
-		case '4':
-		    return 4;
-		case '5':
-		    return 5;
-		case '6':
-		    return 6;
-		case '7':
-		    return 7;
-		case '8':
-		    return 8;
-		case '9':
-		    return 9;
+		case '0': return 0;
+		case '1': return 1;
+		case '2': return 2;
+		case '3': return 3;
+		case '4': return 4;
+		case '5': return 5;
+		case '6': return 6;
+		case '7': return 7;
+		case '8': return 8;
+		case '9': return 9;
 		case 'a': case 'A':
 		    return 0x0A;
 		case 'b': case 'B':
@@ -146,9 +127,7 @@ uchar * OPENSSL_hexstr2buf(const char * str, long * len)
 	uchar ch, cl;
 	int chi, cli;
 	const uchar * p;
-	size_t s;
-
-	s = strlen(str);
+	size_t s = strlen(str);
 	if((hexbuf = static_cast<uchar *>(OPENSSL_malloc(s >> 1))) == NULL) {
 		CRYPTOerr(CRYPTO_F_OPENSSL_HEXSTR2BUF, ERR_R_MALLOC_FAILURE);
 		return NULL;
@@ -159,8 +138,7 @@ uchar * OPENSSL_hexstr2buf(const char * str, long * len)
 			continue;
 		cl = *p++;
 		if(!cl) {
-			CRYPTOerr(CRYPTO_F_OPENSSL_HEXSTR2BUF,
-			    CRYPTO_R_ODD_NUMBER_OF_DIGITS);
+			CRYPTOerr(CRYPTO_F_OPENSSL_HEXSTR2BUF, CRYPTO_R_ODD_NUMBER_OF_DIGITS);
 			OPENSSL_free(hexbuf);
 			return NULL;
 		}
@@ -173,12 +151,9 @@ uchar * OPENSSL_hexstr2buf(const char * str, long * len)
 		}
 		*q++ = (uchar)((chi << 4) | cli);
 	}
-
-	if(len)
-		*len = q - hexbuf;
+	ASSIGN_PTR(len, q - hexbuf);
 	return hexbuf;
 }
-
 /*
  * Given a buffer of length 'len' return a OPENSSL_malloc'ed string with its
  * hex representation @@@ (Contents of buffer are always kept in ASCII, also

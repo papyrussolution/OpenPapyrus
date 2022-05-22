@@ -107,12 +107,14 @@ const ElfW(Phdr) *ElfMemImage::GetPhdr(int index) const {
 		   index);
 }
 
-const char * ElfMemImage::GetDynstr(ElfW(Word)offset) const {
+const char * ElfMemImage::GetDynstr(ElfW(Word)offset) const 
+{
 	ABSL_RAW_CHECK(offset < strsize_, "offset out of range");
 	return dynstr_ + offset;
 }
 
-const void * ElfMemImage::GetSymAddr(const ElfW(Sym) * sym) const {
+const void * ElfMemImage::GetSymAddr(const ElfW(Sym) * sym) const 
+{
 	if(sym->st_shndx == SHN_UNDEF || sym->st_shndx >= SHN_LORESERVE) {
 		// Symbol corresponds to "special" (e.g. SHN_ABS) section.
 		return reinterpret_cast<const void *>(sym->st_value);
@@ -121,26 +123,24 @@ const void * ElfMemImage::GetSymAddr(const ElfW(Sym) * sym) const {
 	return GetTableElement<char>(ehdr_, 0, 1, sym->st_value - link_base_);
 }
 
-const ElfW(Verdef) *ElfMemImage::GetVerdef(int index) const {
-	ABSL_RAW_CHECK(0 <= index && static_cast<size_t>(index) <= verdefnum_,
-	    "index out of range");
+const ElfW(Verdef) *ElfMemImage::GetVerdef(int index) const 
+{
+	ABSL_RAW_CHECK(0 <= index && static_cast<size_t>(index) <= verdefnum_, "index out of range");
 	const ElfW(Verdef) *version_definition = verdef_;
 	while(version_definition->vd_ndx < index && version_definition->vd_next) {
-		const char * const version_definition_as_char =
-		    reinterpret_cast<const char *>(version_definition);
-		version_definition =
-		    reinterpret_cast<const ElfW(Verdef) *>(version_definition_as_char +
-		    version_definition->vd_next);
+		const char * const version_definition_as_char = reinterpret_cast<const char *>(version_definition);
+		version_definition = reinterpret_cast<const ElfW(Verdef) *>(version_definition_as_char + version_definition->vd_next);
 	}
 	return version_definition->vd_ndx == index ? version_definition : nullptr;
 }
 
-const ElfW(Verdaux) *ElfMemImage::GetVerdefAux(
-	const ElfW(Verdef) *verdef) const {
+const ElfW(Verdaux) *ElfMemImage::GetVerdefAux(const ElfW(Verdef) *verdef) const 
+{
 	return reinterpret_cast<const ElfW(Verdaux) *>(verdef+1);
 }
 
-const char * ElfMemImage::GetVerstr(ElfW(Word)offset) const {
+const char * ElfMemImage::GetVerstr(ElfW(Word)offset) const 
+{
 	ABSL_RAW_CHECK(offset < strsize_, "offset out of range");
 	return dynstr_ + offset;
 }
@@ -362,9 +362,7 @@ void ElfMemImage::SymbolIterator::Update(int increment) {
 	if(version_definition) {
 		// I am expecting 1 or 2 auxiliary entries: 1 for the version itself,
 		// optional 2nd if the version has a parent.
-		ABSL_RAW_CHECK(
-			version_definition->vd_cnt == 1 || version_definition->vd_cnt == 2,
-			"wrong number of entries");
+		ABSL_RAW_CHECK(version_definition->vd_cnt == 1 || version_definition->vd_cnt == 2, "wrong number of entries");
 		const ElfW(Verdaux) *version_aux = image->GetVerdefAux(version_definition);
 		version_name = image->GetVerstr(version_aux->vda_name);
 	}

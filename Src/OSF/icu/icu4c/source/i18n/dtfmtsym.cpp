@@ -222,7 +222,7 @@ DateFormatSymbols * U_EXPORT2 DateFormatSymbols::createForLocale(const Locale & 
 	}
 	DateFormatSymbols * result = new DateFormatSymbols(shared->get());
 	shared->removeRef();
-	if(result == NULL) {
+	if(!result) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
@@ -1818,7 +1818,7 @@ static void initField(UnicodeString ** field,
 		length = numStr;
 		*field = newUnicodeStringArray((size_t)numStr);
 		if(*field) {
-			for(int32_t i = 0; i<length; i++) {
+			for(int32_t i = 0; i < length; i++) {
 				// readonly aliases - all "data" strings are constant
 				// -1 as length for variable-length strings (gLastResortDayNames[0] is empty)
 				(*(field)+i)->setTo(TRUE, data+(i*((int32_t)strLen)), -1);

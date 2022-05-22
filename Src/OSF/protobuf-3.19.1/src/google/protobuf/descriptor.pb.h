@@ -190,19 +190,15 @@ constexpr FieldDescriptorProto_Type FieldDescriptorProto_Type_Type_MIN = FieldDe
 constexpr FieldDescriptorProto_Type FieldDescriptorProto_Type_Type_MAX = FieldDescriptorProto_Type_TYPE_SINT64;
 constexpr int FieldDescriptorProto_Type_Type_ARRAYSIZE = FieldDescriptorProto_Type_Type_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FieldDescriptorProto_Type_descriptor();
-template<typename T>
-inline const std::string& FieldDescriptorProto_Type_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, FieldDescriptorProto_Type>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function FieldDescriptorProto_Type_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    FieldDescriptorProto_Type_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * FieldDescriptorProto_Type_descriptor();
+template<typename T> inline const std::string& FieldDescriptorProto_Type_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, FieldDescriptorProto_Type>::value || ::std::is_integral<T>::value, "Incorrect type passed to function FieldDescriptorProto_Type_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(FieldDescriptorProto_Type_descriptor(), enum_t_value);
 }
-inline bool FieldDescriptorProto_Type_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FieldDescriptorProto_Type* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FieldDescriptorProto_Type>(
-    FieldDescriptorProto_Type_descriptor(), name, value);
+inline bool FieldDescriptorProto_Type_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FieldDescriptorProto_Type * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FieldDescriptorProto_Type>(FieldDescriptorProto_Type_descriptor(), name, value);
 }
 enum FieldDescriptorProto_Label : int {
   FieldDescriptorProto_Label_LABEL_OPTIONAL = 1,
@@ -214,19 +210,15 @@ constexpr FieldDescriptorProto_Label FieldDescriptorProto_Label_Label_MIN = Fiel
 constexpr FieldDescriptorProto_Label FieldDescriptorProto_Label_Label_MAX = FieldDescriptorProto_Label_LABEL_REPEATED;
 constexpr int FieldDescriptorProto_Label_Label_ARRAYSIZE = FieldDescriptorProto_Label_Label_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FieldDescriptorProto_Label_descriptor();
-template<typename T>
-inline const std::string& FieldDescriptorProto_Label_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, FieldDescriptorProto_Label>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function FieldDescriptorProto_Label_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    FieldDescriptorProto_Label_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * FieldDescriptorProto_Label_descriptor();
+template<typename T> inline const std::string& FieldDescriptorProto_Label_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, FieldDescriptorProto_Label>::value || ::std::is_integral<T>::value, "Incorrect type passed to function FieldDescriptorProto_Label_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(FieldDescriptorProto_Label_descriptor(), enum_t_value);
 }
-inline bool FieldDescriptorProto_Label_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FieldDescriptorProto_Label* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FieldDescriptorProto_Label>(
-    FieldDescriptorProto_Label_descriptor(), name, value);
+inline bool FieldDescriptorProto_Label_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FieldDescriptorProto_Label * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FieldDescriptorProto_Label>(FieldDescriptorProto_Label_descriptor(), name, value);
 }
 enum FileOptions_OptimizeMode : int {
   FileOptions_OptimizeMode_SPEED = 1,
@@ -238,19 +230,15 @@ constexpr FileOptions_OptimizeMode FileOptions_OptimizeMode_OptimizeMode_MIN = F
 constexpr FileOptions_OptimizeMode FileOptions_OptimizeMode_OptimizeMode_MAX = FileOptions_OptimizeMode_LITE_RUNTIME;
 constexpr int FileOptions_OptimizeMode_OptimizeMode_ARRAYSIZE = FileOptions_OptimizeMode_OptimizeMode_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FileOptions_OptimizeMode_descriptor();
-template<typename T>
-inline const std::string& FileOptions_OptimizeMode_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, FileOptions_OptimizeMode>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function FileOptions_OptimizeMode_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    FileOptions_OptimizeMode_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * FileOptions_OptimizeMode_descriptor();
+template<typename T> inline const std::string& FileOptions_OptimizeMode_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, FileOptions_OptimizeMode>::value || ::std::is_integral<T>::value, "Incorrect type passed to function FileOptions_OptimizeMode_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(FileOptions_OptimizeMode_descriptor(), enum_t_value);
 }
-inline bool FileOptions_OptimizeMode_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FileOptions_OptimizeMode* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FileOptions_OptimizeMode>(
-    FileOptions_OptimizeMode_descriptor(), name, value);
+inline bool FileOptions_OptimizeMode_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FileOptions_OptimizeMode * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FileOptions_OptimizeMode>(FileOptions_OptimizeMode_descriptor(), name, value);
 }
 enum FieldOptions_CType : int {
   FieldOptions_CType_STRING = 0,
@@ -262,19 +250,15 @@ constexpr FieldOptions_CType FieldOptions_CType_CType_MIN = FieldOptions_CType_S
 constexpr FieldOptions_CType FieldOptions_CType_CType_MAX = FieldOptions_CType_STRING_PIECE;
 constexpr int FieldOptions_CType_CType_ARRAYSIZE = FieldOptions_CType_CType_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FieldOptions_CType_descriptor();
-template<typename T>
-inline const std::string& FieldOptions_CType_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, FieldOptions_CType>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function FieldOptions_CType_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    FieldOptions_CType_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * FieldOptions_CType_descriptor();
+template<typename T> inline const std::string& FieldOptions_CType_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, FieldOptions_CType>::value || ::std::is_integral<T>::value, "Incorrect type passed to function FieldOptions_CType_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(FieldOptions_CType_descriptor(), enum_t_value);
 }
-inline bool FieldOptions_CType_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FieldOptions_CType* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FieldOptions_CType>(
-    FieldOptions_CType_descriptor(), name, value);
+inline bool FieldOptions_CType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FieldOptions_CType * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FieldOptions_CType>(FieldOptions_CType_descriptor(), name, value);
 }
 enum FieldOptions_JSType : int {
   FieldOptions_JSType_JS_NORMAL = 0,
@@ -286,19 +270,15 @@ constexpr FieldOptions_JSType FieldOptions_JSType_JSType_MIN = FieldOptions_JSTy
 constexpr FieldOptions_JSType FieldOptions_JSType_JSType_MAX = FieldOptions_JSType_JS_NUMBER;
 constexpr int FieldOptions_JSType_JSType_ARRAYSIZE = FieldOptions_JSType_JSType_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FieldOptions_JSType_descriptor();
-template<typename T>
-inline const std::string& FieldOptions_JSType_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, FieldOptions_JSType>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function FieldOptions_JSType_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    FieldOptions_JSType_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * FieldOptions_JSType_descriptor();
+template<typename T> inline const std::string& FieldOptions_JSType_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, FieldOptions_JSType>::value || ::std::is_integral<T>::value, "Incorrect type passed to function FieldOptions_JSType_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(FieldOptions_JSType_descriptor(), enum_t_value);
 }
-inline bool FieldOptions_JSType_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FieldOptions_JSType* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FieldOptions_JSType>(
-    FieldOptions_JSType_descriptor(), name, value);
+inline bool FieldOptions_JSType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FieldOptions_JSType * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FieldOptions_JSType>(FieldOptions_JSType_descriptor(), name, value);
 }
 enum MethodOptions_IdempotencyLevel : int {
   MethodOptions_IdempotencyLevel_IDEMPOTENCY_UNKNOWN = 0,
@@ -310,19 +290,15 @@ constexpr MethodOptions_IdempotencyLevel MethodOptions_IdempotencyLevel_Idempote
 constexpr MethodOptions_IdempotencyLevel MethodOptions_IdempotencyLevel_IdempotencyLevel_MAX = MethodOptions_IdempotencyLevel_IDEMPOTENT;
 constexpr int MethodOptions_IdempotencyLevel_IdempotencyLevel_ARRAYSIZE = MethodOptions_IdempotencyLevel_IdempotencyLevel_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MethodOptions_IdempotencyLevel_descriptor();
-template<typename T>
-inline const std::string& MethodOptions_IdempotencyLevel_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, MethodOptions_IdempotencyLevel>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function MethodOptions_IdempotencyLevel_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    MethodOptions_IdempotencyLevel_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * MethodOptions_IdempotencyLevel_descriptor();
+template<typename T> inline const std::string& MethodOptions_IdempotencyLevel_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, MethodOptions_IdempotencyLevel>::value || ::std::is_integral<T>::value, "Incorrect type passed to function MethodOptions_IdempotencyLevel_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(MethodOptions_IdempotencyLevel_descriptor(), enum_t_value);
 }
-inline bool MethodOptions_IdempotencyLevel_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MethodOptions_IdempotencyLevel* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<MethodOptions_IdempotencyLevel>(
-    MethodOptions_IdempotencyLevel_descriptor(), name, value);
+inline bool MethodOptions_IdempotencyLevel_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MethodOptions_IdempotencyLevel * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<MethodOptions_IdempotencyLevel>(MethodOptions_IdempotencyLevel_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -681,16 +657,13 @@ class FileDescriptorProto final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_public_dependency() const;
   void _internal_add_public_dependency(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_public_dependency();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_public_dependency();
   public:
   int32_t public_dependency(int index) const;
   void set_public_dependency(int index, int32_t value);
   void add_public_dependency(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      public_dependency() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_public_dependency();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & public_dependency() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_public_dependency();
 
   // repeated int32 weak_dependency = 11;
   int weak_dependency_size() const;
@@ -703,16 +676,13 @@ class FileDescriptorProto final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_weak_dependency() const;
   void _internal_add_weak_dependency(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_weak_dependency();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_weak_dependency();
   public:
   int32_t weak_dependency(int index) const;
   void set_weak_dependency(int index, int32_t value);
   void add_weak_dependency(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      weak_dependency() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_weak_dependency();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & weak_dependency() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_weak_dependency();
 
   // optional string name = 1;
   bool has_name() const;
@@ -1862,97 +1832,56 @@ class FieldDescriptorProto final :
   // nested types ----------------------------------------------------
 
   typedef FieldDescriptorProto_Type Type;
-  static constexpr Type TYPE_DOUBLE =
-    FieldDescriptorProto_Type_TYPE_DOUBLE;
-  static constexpr Type TYPE_FLOAT =
-    FieldDescriptorProto_Type_TYPE_FLOAT;
-  static constexpr Type TYPE_INT64 =
-    FieldDescriptorProto_Type_TYPE_INT64;
-  static constexpr Type TYPE_UINT64 =
-    FieldDescriptorProto_Type_TYPE_UINT64;
-  static constexpr Type TYPE_INT32 =
-    FieldDescriptorProto_Type_TYPE_INT32;
-  static constexpr Type TYPE_FIXED64 =
-    FieldDescriptorProto_Type_TYPE_FIXED64;
-  static constexpr Type TYPE_FIXED32 =
-    FieldDescriptorProto_Type_TYPE_FIXED32;
-  static constexpr Type TYPE_BOOL =
-    FieldDescriptorProto_Type_TYPE_BOOL;
-  static constexpr Type TYPE_STRING =
-    FieldDescriptorProto_Type_TYPE_STRING;
-  static constexpr Type TYPE_GROUP =
-    FieldDescriptorProto_Type_TYPE_GROUP;
-  static constexpr Type TYPE_MESSAGE =
-    FieldDescriptorProto_Type_TYPE_MESSAGE;
-  static constexpr Type TYPE_BYTES =
-    FieldDescriptorProto_Type_TYPE_BYTES;
-  static constexpr Type TYPE_UINT32 =
-    FieldDescriptorProto_Type_TYPE_UINT32;
-  static constexpr Type TYPE_ENUM =
-    FieldDescriptorProto_Type_TYPE_ENUM;
-  static constexpr Type TYPE_SFIXED32 =
-    FieldDescriptorProto_Type_TYPE_SFIXED32;
-  static constexpr Type TYPE_SFIXED64 =
-    FieldDescriptorProto_Type_TYPE_SFIXED64;
-  static constexpr Type TYPE_SINT32 =
-    FieldDescriptorProto_Type_TYPE_SINT32;
-  static constexpr Type TYPE_SINT64 =
-    FieldDescriptorProto_Type_TYPE_SINT64;
-  static inline bool Type_IsValid(int value) {
-    return FieldDescriptorProto_Type_IsValid(value);
+  static constexpr Type TYPE_DOUBLE = FieldDescriptorProto_Type_TYPE_DOUBLE;
+  static constexpr Type TYPE_FLOAT = FieldDescriptorProto_Type_TYPE_FLOAT;
+  static constexpr Type TYPE_INT64 = FieldDescriptorProto_Type_TYPE_INT64;
+  static constexpr Type TYPE_UINT64 = FieldDescriptorProto_Type_TYPE_UINT64;
+  static constexpr Type TYPE_INT32 = FieldDescriptorProto_Type_TYPE_INT32;
+  static constexpr Type TYPE_FIXED64 = FieldDescriptorProto_Type_TYPE_FIXED64;
+  static constexpr Type TYPE_FIXED32 = FieldDescriptorProto_Type_TYPE_FIXED32;
+  static constexpr Type TYPE_BOOL = FieldDescriptorProto_Type_TYPE_BOOL;
+  static constexpr Type TYPE_STRING = FieldDescriptorProto_Type_TYPE_STRING;
+  static constexpr Type TYPE_GROUP = FieldDescriptorProto_Type_TYPE_GROUP;
+  static constexpr Type TYPE_MESSAGE = FieldDescriptorProto_Type_TYPE_MESSAGE;
+  static constexpr Type TYPE_BYTES = FieldDescriptorProto_Type_TYPE_BYTES;
+  static constexpr Type TYPE_UINT32 = FieldDescriptorProto_Type_TYPE_UINT32;
+  static constexpr Type TYPE_ENUM = FieldDescriptorProto_Type_TYPE_ENUM;
+  static constexpr Type TYPE_SFIXED32 = FieldDescriptorProto_Type_TYPE_SFIXED32;
+  static constexpr Type TYPE_SFIXED64 = FieldDescriptorProto_Type_TYPE_SFIXED64;
+  static constexpr Type TYPE_SINT32 = FieldDescriptorProto_Type_TYPE_SINT32;
+  static constexpr Type TYPE_SINT64 = FieldDescriptorProto_Type_TYPE_SINT64;
+  static inline bool Type_IsValid(int value) { return FieldDescriptorProto_Type_IsValid(value); }
+  static constexpr Type Type_MIN = FieldDescriptorProto_Type_Type_MIN;
+  static constexpr Type Type_MAX = FieldDescriptorProto_Type_Type_MAX;
+  static constexpr int Type_ARRAYSIZE = FieldDescriptorProto_Type_Type_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Type_descriptor() { return FieldDescriptorProto_Type_descriptor(); }
+  template<typename T> static inline const std::string& Type_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, Type>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Type_Name.");
+  	return FieldDescriptorProto_Type_Name(enum_t_value);
   }
-  static constexpr Type Type_MIN =
-    FieldDescriptorProto_Type_Type_MIN;
-  static constexpr Type Type_MAX =
-    FieldDescriptorProto_Type_Type_MAX;
-  static constexpr int Type_ARRAYSIZE =
-    FieldDescriptorProto_Type_Type_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  Type_descriptor() {
-    return FieldDescriptorProto_Type_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& Type_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, Type>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function Type_Name.");
-    return FieldDescriptorProto_Type_Name(enum_t_value);
-  }
-  static inline bool Type_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      Type* value) {
-    return FieldDescriptorProto_Type_Parse(name, value);
+  static inline bool Type_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Type* value)
+  {
+  	return FieldDescriptorProto_Type_Parse(name, value);
   }
 
   typedef FieldDescriptorProto_Label Label;
-  static constexpr Label LABEL_OPTIONAL =
-    FieldDescriptorProto_Label_LABEL_OPTIONAL;
-  static constexpr Label LABEL_REQUIRED =
-    FieldDescriptorProto_Label_LABEL_REQUIRED;
-  static constexpr Label LABEL_REPEATED =
-    FieldDescriptorProto_Label_LABEL_REPEATED;
-  static inline bool Label_IsValid(int value) {
-    return FieldDescriptorProto_Label_IsValid(value);
+  static constexpr Label LABEL_OPTIONAL = FieldDescriptorProto_Label_LABEL_OPTIONAL;
+  static constexpr Label LABEL_REQUIRED = FieldDescriptorProto_Label_LABEL_REQUIRED;
+  static constexpr Label LABEL_REPEATED = FieldDescriptorProto_Label_LABEL_REPEATED;
+  static inline bool Label_IsValid(int value) { return FieldDescriptorProto_Label_IsValid(value); }
+  static constexpr Label Label_MIN = FieldDescriptorProto_Label_Label_MIN;
+  static constexpr Label Label_MAX = FieldDescriptorProto_Label_Label_MAX;
+  static constexpr int Label_ARRAYSIZE = FieldDescriptorProto_Label_Label_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Label_descriptor() { return FieldDescriptorProto_Label_descriptor(); }
+  template<typename T> static inline const std::string& Label_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, Label>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Label_Name.");
+  	return FieldDescriptorProto_Label_Name(enum_t_value);
   }
-  static constexpr Label Label_MIN =
-    FieldDescriptorProto_Label_Label_MIN;
-  static constexpr Label Label_MAX =
-    FieldDescriptorProto_Label_Label_MAX;
-  static constexpr int Label_ARRAYSIZE =
-    FieldDescriptorProto_Label_Label_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  Label_descriptor() {
-    return FieldDescriptorProto_Label_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& Label_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, Label>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function Label_Name.");
-    return FieldDescriptorProto_Label_Name(enum_t_value);
-  }
-  static inline bool Label_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      Label* value) {
-    return FieldDescriptorProto_Label_Parse(name, value);
+  static inline bool Label_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Label* value)
+  {
+  	return FieldDescriptorProto_Label_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -3388,35 +3317,22 @@ class FileOptions final :
   // nested types ----------------------------------------------------
 
   typedef FileOptions_OptimizeMode OptimizeMode;
-  static constexpr OptimizeMode SPEED =
-    FileOptions_OptimizeMode_SPEED;
-  static constexpr OptimizeMode CODE_SIZE =
-    FileOptions_OptimizeMode_CODE_SIZE;
-  static constexpr OptimizeMode LITE_RUNTIME =
-    FileOptions_OptimizeMode_LITE_RUNTIME;
-  static inline bool OptimizeMode_IsValid(int value) {
-    return FileOptions_OptimizeMode_IsValid(value);
+  static constexpr OptimizeMode SPEED = FileOptions_OptimizeMode_SPEED;
+  static constexpr OptimizeMode CODE_SIZE = FileOptions_OptimizeMode_CODE_SIZE;
+  static constexpr OptimizeMode LITE_RUNTIME = FileOptions_OptimizeMode_LITE_RUNTIME;
+  static inline bool OptimizeMode_IsValid(int value) { return FileOptions_OptimizeMode_IsValid(value); }
+  static constexpr OptimizeMode OptimizeMode_MIN = FileOptions_OptimizeMode_OptimizeMode_MIN;
+  static constexpr OptimizeMode OptimizeMode_MAX = FileOptions_OptimizeMode_OptimizeMode_MAX;
+  static constexpr int OptimizeMode_ARRAYSIZE = FileOptions_OptimizeMode_OptimizeMode_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * OptimizeMode_descriptor() { return FileOptions_OptimizeMode_descriptor(); }
+  template<typename T> static inline const std::string& OptimizeMode_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, OptimizeMode>::value || ::std::is_integral<T>::value, "Incorrect type passed to function OptimizeMode_Name.");
+  	return FileOptions_OptimizeMode_Name(enum_t_value);
   }
-  static constexpr OptimizeMode OptimizeMode_MIN =
-    FileOptions_OptimizeMode_OptimizeMode_MIN;
-  static constexpr OptimizeMode OptimizeMode_MAX =
-    FileOptions_OptimizeMode_OptimizeMode_MAX;
-  static constexpr int OptimizeMode_ARRAYSIZE =
-    FileOptions_OptimizeMode_OptimizeMode_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  OptimizeMode_descriptor() {
-    return FileOptions_OptimizeMode_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& OptimizeMode_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, OptimizeMode>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function OptimizeMode_Name.");
-    return FileOptions_OptimizeMode_Name(enum_t_value);
-  }
-  static inline bool OptimizeMode_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      OptimizeMode* value) {
-    return FileOptions_OptimizeMode_Parse(name, value);
+  static inline bool OptimizeMode_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, OptimizeMode* value)
+  {
+  	return FileOptions_OptimizeMode_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -4420,67 +4336,41 @@ class FieldOptions final :
   // nested types ----------------------------------------------------
 
   typedef FieldOptions_CType CType;
-  static constexpr CType STRING =
-    FieldOptions_CType_STRING;
-  static constexpr CType CORD =
-    FieldOptions_CType_CORD;
-  static constexpr CType STRING_PIECE =
-    FieldOptions_CType_STRING_PIECE;
-  static inline bool CType_IsValid(int value) {
-    return FieldOptions_CType_IsValid(value);
+  static constexpr CType STRING = FieldOptions_CType_STRING;
+  static constexpr CType CORD = FieldOptions_CType_CORD;
+  static constexpr CType STRING_PIECE = FieldOptions_CType_STRING_PIECE;
+  static inline bool CType_IsValid(int value) { return FieldOptions_CType_IsValid(value); }
+  static constexpr CType CType_MIN = FieldOptions_CType_CType_MIN;
+  static constexpr CType CType_MAX = FieldOptions_CType_CType_MAX;
+  static constexpr int CType_ARRAYSIZE = FieldOptions_CType_CType_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * CType_descriptor() { return FieldOptions_CType_descriptor(); }
+  template<typename T> static inline const std::string& CType_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, CType>::value || ::std::is_integral<T>::value, "Incorrect type passed to function CType_Name.");
+  	return FieldOptions_CType_Name(enum_t_value);
   }
-  static constexpr CType CType_MIN =
-    FieldOptions_CType_CType_MIN;
-  static constexpr CType CType_MAX =
-    FieldOptions_CType_CType_MAX;
-  static constexpr int CType_ARRAYSIZE =
-    FieldOptions_CType_CType_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  CType_descriptor() {
-    return FieldOptions_CType_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& CType_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, CType>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function CType_Name.");
-    return FieldOptions_CType_Name(enum_t_value);
-  }
-  static inline bool CType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      CType* value) {
-    return FieldOptions_CType_Parse(name, value);
+  static inline bool CType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, CType* value)
+  {
+  	return FieldOptions_CType_Parse(name, value);
   }
 
   typedef FieldOptions_JSType JSType;
-  static constexpr JSType JS_NORMAL =
-    FieldOptions_JSType_JS_NORMAL;
-  static constexpr JSType JS_STRING =
-    FieldOptions_JSType_JS_STRING;
-  static constexpr JSType JS_NUMBER =
-    FieldOptions_JSType_JS_NUMBER;
-  static inline bool JSType_IsValid(int value) {
-    return FieldOptions_JSType_IsValid(value);
+  static constexpr JSType JS_NORMAL = FieldOptions_JSType_JS_NORMAL;
+  static constexpr JSType JS_STRING = FieldOptions_JSType_JS_STRING;
+  static constexpr JSType JS_NUMBER = FieldOptions_JSType_JS_NUMBER;
+  static inline bool JSType_IsValid(int value) { return FieldOptions_JSType_IsValid(value); }
+  static constexpr JSType JSType_MIN = FieldOptions_JSType_JSType_MIN;
+  static constexpr JSType JSType_MAX = FieldOptions_JSType_JSType_MAX;
+  static constexpr int JSType_ARRAYSIZE = FieldOptions_JSType_JSType_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * JSType_descriptor() { return FieldOptions_JSType_descriptor(); }
+  template<typename T> static inline const std::string& JSType_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, JSType>::value || ::std::is_integral<T>::value, "Incorrect type passed to function JSType_Name.");
+  	return FieldOptions_JSType_Name(enum_t_value);
   }
-  static constexpr JSType JSType_MIN =
-    FieldOptions_JSType_JSType_MIN;
-  static constexpr JSType JSType_MAX =
-    FieldOptions_JSType_JSType_MAX;
-  static constexpr int JSType_ARRAYSIZE =
-    FieldOptions_JSType_JSType_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  JSType_descriptor() {
-    return FieldOptions_JSType_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& JSType_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, JSType>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function JSType_Name.");
-    return FieldOptions_JSType_Name(enum_t_value);
-  }
-  static inline bool JSType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      JSType* value) {
-    return FieldOptions_JSType_Parse(name, value);
+  static inline bool JSType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, JSType* value)
+  {
+  	return FieldOptions_JSType_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -6108,35 +5998,22 @@ class MethodOptions final :
   // nested types ----------------------------------------------------
 
   typedef MethodOptions_IdempotencyLevel IdempotencyLevel;
-  static constexpr IdempotencyLevel IDEMPOTENCY_UNKNOWN =
-    MethodOptions_IdempotencyLevel_IDEMPOTENCY_UNKNOWN;
-  static constexpr IdempotencyLevel NO_SIDE_EFFECTS =
-    MethodOptions_IdempotencyLevel_NO_SIDE_EFFECTS;
-  static constexpr IdempotencyLevel IDEMPOTENT =
-    MethodOptions_IdempotencyLevel_IDEMPOTENT;
-  static inline bool IdempotencyLevel_IsValid(int value) {
-    return MethodOptions_IdempotencyLevel_IsValid(value);
+  static constexpr IdempotencyLevel IDEMPOTENCY_UNKNOWN = MethodOptions_IdempotencyLevel_IDEMPOTENCY_UNKNOWN;
+  static constexpr IdempotencyLevel NO_SIDE_EFFECTS = MethodOptions_IdempotencyLevel_NO_SIDE_EFFECTS;
+  static constexpr IdempotencyLevel IDEMPOTENT = MethodOptions_IdempotencyLevel_IDEMPOTENT;
+  static inline bool IdempotencyLevel_IsValid(int value) { return MethodOptions_IdempotencyLevel_IsValid(value); }
+  static constexpr IdempotencyLevel IdempotencyLevel_MIN = MethodOptions_IdempotencyLevel_IdempotencyLevel_MIN;
+  static constexpr IdempotencyLevel IdempotencyLevel_MAX = MethodOptions_IdempotencyLevel_IdempotencyLevel_MAX;
+  static constexpr int IdempotencyLevel_ARRAYSIZE = MethodOptions_IdempotencyLevel_IdempotencyLevel_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * IdempotencyLevel_descriptor() { return MethodOptions_IdempotencyLevel_descriptor(); }
+  template<typename T> static inline const std::string& IdempotencyLevel_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, IdempotencyLevel>::value || ::std::is_integral<T>::value, "Incorrect type passed to function IdempotencyLevel_Name.");
+  	return MethodOptions_IdempotencyLevel_Name(enum_t_value);
   }
-  static constexpr IdempotencyLevel IdempotencyLevel_MIN =
-    MethodOptions_IdempotencyLevel_IdempotencyLevel_MIN;
-  static constexpr IdempotencyLevel IdempotencyLevel_MAX =
-    MethodOptions_IdempotencyLevel_IdempotencyLevel_MAX;
-  static constexpr int IdempotencyLevel_ARRAYSIZE =
-    MethodOptions_IdempotencyLevel_IdempotencyLevel_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  IdempotencyLevel_descriptor() {
-    return MethodOptions_IdempotencyLevel_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& IdempotencyLevel_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, IdempotencyLevel>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function IdempotencyLevel_Name.");
-    return MethodOptions_IdempotencyLevel_Name(enum_t_value);
-  }
-  static inline bool IdempotencyLevel_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      IdempotencyLevel* value) {
-    return MethodOptions_IdempotencyLevel_Parse(name, value);
+  static inline bool IdempotencyLevel_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, IdempotencyLevel* value)
+  {
+  	return MethodOptions_IdempotencyLevel_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -6886,16 +6763,13 @@ class SourceCodeInfo_Location final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_path() const;
   void _internal_add_path(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_path();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_path();
   public:
   int32_t path(int index) const;
   void set_path(int index, int32_t value);
   void add_path(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      path() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_path();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & path() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_path();
 
   // repeated int32 span = 2 [packed = true];
   int span_size() const;
@@ -6908,16 +6782,13 @@ class SourceCodeInfo_Location final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_span() const;
   void _internal_add_span(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_span();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_span();
   public:
   int32_t span(int index) const;
   void set_span(int index, int32_t value);
   void add_span(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      span() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_span();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & span() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_span();
 
   // repeated string leading_detached_comments = 6;
   int leading_detached_comments_size() const;
@@ -7260,16 +7131,13 @@ class GeneratedCodeInfo_Annotation final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_path() const;
   void _internal_add_path(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_path();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_path();
   public:
   int32_t path(int index) const;
   void set_path(int index, int32_t value);
   void add_path(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      path() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_path();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & path() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_path();
 
   // optional string source_file = 2;
   bool has_source_file() const;
@@ -7493,8 +7361,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FileDescriptorProto* FileDescriptorSet::mutable_
   // @@protoc_insertion_point(field_mutable:google.protobuf.FileDescriptorSet.file)
   return file_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FileDescriptorProto >*
-FileDescriptorSet::mutable_file() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FileDescriptorProto > * FileDescriptorSet::mutable_file() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.FileDescriptorSet.file)
   return &file_;
 }
@@ -7713,8 +7580,7 @@ FileDescriptorProto::dependency() const {
   // @@protoc_insertion_point(field_list:google.protobuf.FileDescriptorProto.dependency)
   return dependency_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-FileDescriptorProto::mutable_dependency() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * FileDescriptorProto::mutable_dependency() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.FileDescriptorProto.dependency)
   return &dependency_;
 }
@@ -7750,12 +7616,10 @@ FileDescriptorProto::public_dependency() const {
   // @@protoc_insertion_point(field_list:google.protobuf.FileDescriptorProto.public_dependency)
   return _internal_public_dependency();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-FileDescriptorProto::_internal_mutable_public_dependency() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * FileDescriptorProto::_internal_mutable_public_dependency() {
   return &public_dependency_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-FileDescriptorProto::mutable_public_dependency() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * FileDescriptorProto::mutable_public_dependency() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.FileDescriptorProto.public_dependency)
   return _internal_mutable_public_dependency();
 }
@@ -7791,12 +7655,10 @@ FileDescriptorProto::weak_dependency() const {
   // @@protoc_insertion_point(field_list:google.protobuf.FileDescriptorProto.weak_dependency)
   return _internal_weak_dependency();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-FileDescriptorProto::_internal_mutable_weak_dependency() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * FileDescriptorProto::_internal_mutable_weak_dependency() {
   return &weak_dependency_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-FileDescriptorProto::mutable_weak_dependency() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * FileDescriptorProto::mutable_weak_dependency() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.FileDescriptorProto.weak_dependency)
   return _internal_mutable_weak_dependency();
 }
@@ -7813,8 +7675,7 @@ inline ::PROTOBUF_NAMESPACE_ID::DescriptorProto* FileDescriptorProto::mutable_me
   // @@protoc_insertion_point(field_mutable:google.protobuf.FileDescriptorProto.message_type)
   return message_type_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DescriptorProto >*
-FileDescriptorProto::mutable_message_type() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DescriptorProto > * FileDescriptorProto::mutable_message_type() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.FileDescriptorProto.message_type)
   return &message_type_;
 }
@@ -7850,8 +7711,7 @@ inline ::PROTOBUF_NAMESPACE_ID::EnumDescriptorProto* FileDescriptorProto::mutabl
   // @@protoc_insertion_point(field_mutable:google.protobuf.FileDescriptorProto.enum_type)
   return enum_type_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumDescriptorProto >*
-FileDescriptorProto::mutable_enum_type() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumDescriptorProto > * FileDescriptorProto::mutable_enum_type() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.FileDescriptorProto.enum_type)
   return &enum_type_;
 }
@@ -7887,8 +7747,7 @@ inline ::PROTOBUF_NAMESPACE_ID::ServiceDescriptorProto* FileDescriptorProto::mut
   // @@protoc_insertion_point(field_mutable:google.protobuf.FileDescriptorProto.service)
   return service_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::ServiceDescriptorProto >*
-FileDescriptorProto::mutable_service() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::ServiceDescriptorProto > * FileDescriptorProto::mutable_service() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.FileDescriptorProto.service)
   return &service_;
 }
@@ -7924,8 +7783,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto* FileDescriptorProto::mutab
   // @@protoc_insertion_point(field_mutable:google.protobuf.FileDescriptorProto.extension)
   return extension_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto >*
-FileDescriptorProto::mutable_extension() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto > * FileDescriptorProto::mutable_extension() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.FileDescriptorProto.extension)
   return &extension_;
 }
@@ -8472,8 +8330,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto* DescriptorProto::mutable_f
   // @@protoc_insertion_point(field_mutable:google.protobuf.DescriptorProto.field)
   return field_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto >*
-DescriptorProto::mutable_field() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto > * DescriptorProto::mutable_field() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.DescriptorProto.field)
   return &field_;
 }
@@ -8509,8 +8366,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto* DescriptorProto::mutable_e
   // @@protoc_insertion_point(field_mutable:google.protobuf.DescriptorProto.extension)
   return extension_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto >*
-DescriptorProto::mutable_extension() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto > * DescriptorProto::mutable_extension() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.DescriptorProto.extension)
   return &extension_;
 }
@@ -8546,8 +8402,7 @@ inline ::PROTOBUF_NAMESPACE_ID::DescriptorProto* DescriptorProto::mutable_nested
   // @@protoc_insertion_point(field_mutable:google.protobuf.DescriptorProto.nested_type)
   return nested_type_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DescriptorProto >*
-DescriptorProto::mutable_nested_type() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DescriptorProto > * DescriptorProto::mutable_nested_type() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.DescriptorProto.nested_type)
   return &nested_type_;
 }
@@ -8583,8 +8438,7 @@ inline ::PROTOBUF_NAMESPACE_ID::EnumDescriptorProto* DescriptorProto::mutable_en
   // @@protoc_insertion_point(field_mutable:google.protobuf.DescriptorProto.enum_type)
   return enum_type_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumDescriptorProto >*
-DescriptorProto::mutable_enum_type() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumDescriptorProto > * DescriptorProto::mutable_enum_type() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.DescriptorProto.enum_type)
   return &enum_type_;
 }
@@ -8620,8 +8474,7 @@ inline ::PROTOBUF_NAMESPACE_ID::DescriptorProto_ExtensionRange* DescriptorProto:
   // @@protoc_insertion_point(field_mutable:google.protobuf.DescriptorProto.extension_range)
   return extension_range_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DescriptorProto_ExtensionRange >*
-DescriptorProto::mutable_extension_range() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DescriptorProto_ExtensionRange > * DescriptorProto::mutable_extension_range() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.DescriptorProto.extension_range)
   return &extension_range_;
 }
@@ -8657,8 +8510,7 @@ inline ::PROTOBUF_NAMESPACE_ID::OneofDescriptorProto* DescriptorProto::mutable_o
   // @@protoc_insertion_point(field_mutable:google.protobuf.DescriptorProto.oneof_decl)
   return oneof_decl_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::OneofDescriptorProto >*
-DescriptorProto::mutable_oneof_decl() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::OneofDescriptorProto > * DescriptorProto::mutable_oneof_decl() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.DescriptorProto.oneof_decl)
   return &oneof_decl_;
 }
@@ -8783,8 +8635,7 @@ inline ::PROTOBUF_NAMESPACE_ID::DescriptorProto_ReservedRange* DescriptorProto::
   // @@protoc_insertion_point(field_mutable:google.protobuf.DescriptorProto.reserved_range)
   return reserved_range_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DescriptorProto_ReservedRange >*
-DescriptorProto::mutable_reserved_range() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DescriptorProto_ReservedRange > * DescriptorProto::mutable_reserved_range() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.DescriptorProto.reserved_range)
   return &reserved_range_;
 }
@@ -8871,8 +8722,7 @@ DescriptorProto::reserved_name() const {
   // @@protoc_insertion_point(field_list:google.protobuf.DescriptorProto.reserved_name)
   return reserved_name_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-DescriptorProto::mutable_reserved_name() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * DescriptorProto::mutable_reserved_name() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.DescriptorProto.reserved_name)
   return &reserved_name_;
 }
@@ -8893,8 +8743,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UninterpretedOption* ExtensionRangeOptions::muta
   // @@protoc_insertion_point(field_mutable:google.protobuf.ExtensionRangeOptions.uninterpreted_option)
   return uninterpreted_option_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption >*
-ExtensionRangeOptions::mutable_uninterpreted_option() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption > * ExtensionRangeOptions::mutable_uninterpreted_option() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.ExtensionRangeOptions.uninterpreted_option)
   return &uninterpreted_option_;
 }
@@ -9756,8 +9605,7 @@ inline ::PROTOBUF_NAMESPACE_ID::EnumValueDescriptorProto* EnumDescriptorProto::m
   // @@protoc_insertion_point(field_mutable:google.protobuf.EnumDescriptorProto.value)
   return value_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumValueDescriptorProto >*
-EnumDescriptorProto::mutable_value() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumValueDescriptorProto > * EnumDescriptorProto::mutable_value() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.EnumDescriptorProto.value)
   return &value_;
 }
@@ -9882,8 +9730,7 @@ inline ::PROTOBUF_NAMESPACE_ID::EnumDescriptorProto_EnumReservedRange* EnumDescr
   // @@protoc_insertion_point(field_mutable:google.protobuf.EnumDescriptorProto.reserved_range)
   return reserved_range_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumDescriptorProto_EnumReservedRange >*
-EnumDescriptorProto::mutable_reserved_range() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumDescriptorProto_EnumReservedRange > * EnumDescriptorProto::mutable_reserved_range() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.EnumDescriptorProto.reserved_range)
   return &reserved_range_;
 }
@@ -9970,8 +9817,7 @@ EnumDescriptorProto::reserved_name() const {
   // @@protoc_insertion_point(field_list:google.protobuf.EnumDescriptorProto.reserved_name)
   return reserved_name_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-EnumDescriptorProto::mutable_reserved_name() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * EnumDescriptorProto::mutable_reserved_name() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.EnumDescriptorProto.reserved_name)
   return &reserved_name_;
 }
@@ -10239,8 +10085,7 @@ inline ::PROTOBUF_NAMESPACE_ID::MethodDescriptorProto* ServiceDescriptorProto::m
   // @@protoc_insertion_point(field_mutable:google.protobuf.ServiceDescriptorProto.method)
   return method_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::MethodDescriptorProto >*
-ServiceDescriptorProto::mutable_method() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::MethodDescriptorProto > * ServiceDescriptorProto::mutable_method() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.ServiceDescriptorProto.method)
   return &method_;
 }
@@ -11607,8 +11452,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UninterpretedOption* FileOptions::mutable_uninte
   // @@protoc_insertion_point(field_mutable:google.protobuf.FileOptions.uninterpreted_option)
   return uninterpreted_option_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption >*
-FileOptions::mutable_uninterpreted_option() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption > * FileOptions::mutable_uninterpreted_option() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.FileOptions.uninterpreted_option)
   return &uninterpreted_option_;
 }
@@ -11752,8 +11596,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UninterpretedOption* MessageOptions::mutable_uni
   // @@protoc_insertion_point(field_mutable:google.protobuf.MessageOptions.uninterpreted_option)
   return uninterpreted_option_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption >*
-MessageOptions::mutable_uninterpreted_option() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption > * MessageOptions::mutable_uninterpreted_option() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.MessageOptions.uninterpreted_option)
   return &uninterpreted_option_;
 }
@@ -11951,8 +11794,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UninterpretedOption* FieldOptions::mutable_unint
   // @@protoc_insertion_point(field_mutable:google.protobuf.FieldOptions.uninterpreted_option)
   return uninterpreted_option_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption >*
-FieldOptions::mutable_uninterpreted_option() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption > * FieldOptions::mutable_uninterpreted_option() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.FieldOptions.uninterpreted_option)
   return &uninterpreted_option_;
 }
@@ -11992,8 +11834,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UninterpretedOption* OneofOptions::mutable_unint
   // @@protoc_insertion_point(field_mutable:google.protobuf.OneofOptions.uninterpreted_option)
   return uninterpreted_option_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption >*
-OneofOptions::mutable_uninterpreted_option() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption > * OneofOptions::mutable_uninterpreted_option() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.OneofOptions.uninterpreted_option)
   return &uninterpreted_option_;
 }
@@ -12085,8 +11926,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UninterpretedOption* EnumOptions::mutable_uninte
   // @@protoc_insertion_point(field_mutable:google.protobuf.EnumOptions.uninterpreted_option)
   return uninterpreted_option_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption >*
-EnumOptions::mutable_uninterpreted_option() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption > * EnumOptions::mutable_uninterpreted_option() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.EnumOptions.uninterpreted_option)
   return &uninterpreted_option_;
 }
@@ -12152,8 +11992,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UninterpretedOption* EnumValueOptions::mutable_u
   // @@protoc_insertion_point(field_mutable:google.protobuf.EnumValueOptions.uninterpreted_option)
   return uninterpreted_option_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption >*
-EnumValueOptions::mutable_uninterpreted_option() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption > * EnumValueOptions::mutable_uninterpreted_option() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.EnumValueOptions.uninterpreted_option)
   return &uninterpreted_option_;
 }
@@ -12219,8 +12058,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UninterpretedOption* ServiceOptions::mutable_uni
   // @@protoc_insertion_point(field_mutable:google.protobuf.ServiceOptions.uninterpreted_option)
   return uninterpreted_option_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption >*
-ServiceOptions::mutable_uninterpreted_option() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption > * ServiceOptions::mutable_uninterpreted_option() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.ServiceOptions.uninterpreted_option)
   return &uninterpreted_option_;
 }
@@ -12313,8 +12151,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UninterpretedOption* MethodOptions::mutable_unin
   // @@protoc_insertion_point(field_mutable:google.protobuf.MethodOptions.uninterpreted_option)
   return uninterpreted_option_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption >*
-MethodOptions::mutable_uninterpreted_option() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption > * MethodOptions::mutable_uninterpreted_option() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.MethodOptions.uninterpreted_option)
   return &uninterpreted_option_;
 }
@@ -12448,8 +12285,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UninterpretedOption_NamePart* UninterpretedOptio
   // @@protoc_insertion_point(field_mutable:google.protobuf.UninterpretedOption.name)
   return name_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption_NamePart >*
-UninterpretedOption::mutable_name() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UninterpretedOption_NamePart > * UninterpretedOption::mutable_name() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.UninterpretedOption.name)
   return &name_;
 }
@@ -12778,12 +12614,10 @@ SourceCodeInfo_Location::path() const {
   // @@protoc_insertion_point(field_list:google.protobuf.SourceCodeInfo.Location.path)
   return _internal_path();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-SourceCodeInfo_Location::_internal_mutable_path() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * SourceCodeInfo_Location::_internal_mutable_path() {
   return &path_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-SourceCodeInfo_Location::mutable_path() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * SourceCodeInfo_Location::mutable_path() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.SourceCodeInfo.Location.path)
   return _internal_mutable_path();
 }
@@ -12819,12 +12653,10 @@ SourceCodeInfo_Location::span() const {
   // @@protoc_insertion_point(field_list:google.protobuf.SourceCodeInfo.Location.span)
   return _internal_span();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-SourceCodeInfo_Location::_internal_mutable_span() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * SourceCodeInfo_Location::_internal_mutable_span() {
   return &span_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-SourceCodeInfo_Location::mutable_span() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * SourceCodeInfo_Location::mutable_span() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.SourceCodeInfo.Location.span)
   return _internal_mutable_span();
 }
@@ -13020,8 +12852,7 @@ SourceCodeInfo_Location::leading_detached_comments() const {
   // @@protoc_insertion_point(field_list:google.protobuf.SourceCodeInfo.Location.leading_detached_comments)
   return leading_detached_comments_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-SourceCodeInfo_Location::mutable_leading_detached_comments() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * SourceCodeInfo_Location::mutable_leading_detached_comments() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.SourceCodeInfo.Location.leading_detached_comments)
   return &leading_detached_comments_;
 }
@@ -13042,8 +12873,7 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceCodeInfo_Location* SourceCodeInfo::mutable
   // @@protoc_insertion_point(field_mutable:google.protobuf.SourceCodeInfo.location)
   return location_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::SourceCodeInfo_Location >*
-SourceCodeInfo::mutable_location() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::SourceCodeInfo_Location > * SourceCodeInfo::mutable_location() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.SourceCodeInfo.location)
   return &location_;
 }
@@ -13102,12 +12932,10 @@ GeneratedCodeInfo_Annotation::path() const {
   // @@protoc_insertion_point(field_list:google.protobuf.GeneratedCodeInfo.Annotation.path)
   return _internal_path();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-GeneratedCodeInfo_Annotation::_internal_mutable_path() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * GeneratedCodeInfo_Annotation::_internal_mutable_path() {
   return &path_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-GeneratedCodeInfo_Annotation::mutable_path() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * GeneratedCodeInfo_Annotation::mutable_path() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.GeneratedCodeInfo.Annotation.path)
   return _internal_mutable_path();
 }
@@ -13244,8 +13072,7 @@ inline ::PROTOBUF_NAMESPACE_ID::GeneratedCodeInfo_Annotation* GeneratedCodeInfo:
   // @@protoc_insertion_point(field_mutable:google.protobuf.GeneratedCodeInfo.annotation)
   return annotation_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::GeneratedCodeInfo_Annotation >*
-GeneratedCodeInfo::mutable_annotation() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::GeneratedCodeInfo_Annotation > * GeneratedCodeInfo::mutable_annotation() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.GeneratedCodeInfo.annotation)
   return &annotation_;
 }
@@ -13332,35 +13159,17 @@ PROTOBUF_NAMESPACE_CLOSE
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto_Type> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto_Type>() {
-  return ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto_Type_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto_Type>() { return ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto_Type_descriptor(); }
 template <> struct is_proto_enum< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto_Label> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto_Label>() {
-  return ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto_Label_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto_Label>() { return ::PROTOBUF_NAMESPACE_ID::FieldDescriptorProto_Label_descriptor(); }
 template <> struct is_proto_enum< ::PROTOBUF_NAMESPACE_ID::FileOptions_OptimizeMode> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::FileOptions_OptimizeMode>() {
-  return ::PROTOBUF_NAMESPACE_ID::FileOptions_OptimizeMode_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::FileOptions_OptimizeMode>() { return ::PROTOBUF_NAMESPACE_ID::FileOptions_OptimizeMode_descriptor(); }
 template <> struct is_proto_enum< ::PROTOBUF_NAMESPACE_ID::FieldOptions_CType> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::FieldOptions_CType>() {
-  return ::PROTOBUF_NAMESPACE_ID::FieldOptions_CType_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::FieldOptions_CType>() { return ::PROTOBUF_NAMESPACE_ID::FieldOptions_CType_descriptor(); }
 template <> struct is_proto_enum< ::PROTOBUF_NAMESPACE_ID::FieldOptions_JSType> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::FieldOptions_JSType>() {
-  return ::PROTOBUF_NAMESPACE_ID::FieldOptions_JSType_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::FieldOptions_JSType>() { return ::PROTOBUF_NAMESPACE_ID::FieldOptions_JSType_descriptor(); }
 template <> struct is_proto_enum< ::PROTOBUF_NAMESPACE_ID::MethodOptions_IdempotencyLevel> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::MethodOptions_IdempotencyLevel>() {
-  return ::PROTOBUF_NAMESPACE_ID::MethodOptions_IdempotencyLevel_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::MethodOptions_IdempotencyLevel>() { return ::PROTOBUF_NAMESPACE_ID::MethodOptions_IdempotencyLevel_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

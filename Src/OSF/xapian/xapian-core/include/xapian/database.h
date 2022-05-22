@@ -15,10 +15,6 @@
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 	#error Never use <xapian/database.h> directly; include <xapian.h> instead.
 #endif
-//#include <iosfwd>
-//#include <string>
-//#include <utility>
-//#include <vector>
 #include <xapian/attributes.h>
 #include <xapian/constants.h>
 #include <xapian/intrusive_ptr.h>

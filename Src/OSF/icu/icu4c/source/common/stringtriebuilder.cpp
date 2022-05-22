@@ -478,7 +478,7 @@ bool StringTrieBuilder::ListBranchNode::operator == (const Node &other) const
 		return false;
 	}
 	const ListBranchNode &o = (const ListBranchNode &)other;
-	for(int32_t i = 0; i<length; ++i) {
+	for(int32_t i = 0; i < length; ++i) {
 		if(units[i]!=o.units[i] || values[i]!=o.values[i] || equal[i]!=o.equal[i]) {
 			return false;
 		}

@@ -138,13 +138,12 @@ static void * _cmsDupDefaultFn(cmsContext ContextID, const void * Org, uint32 si
 }
 
 // Pointers to memory manager functions in Context0
-_cmsMemPluginChunkType _cmsMemPluginChunk = { _cmsMallocDefaultFn, _cmsMallocZeroDefaultFn, _cmsFreeDefaultFn,
-					      _cmsReallocDefaultFn, _cmsCallocDefaultFn,    _cmsDupDefaultFn};
+_cmsMemPluginChunkType _cmsMemPluginChunk = { _cmsMallocDefaultFn, _cmsMallocZeroDefaultFn, _cmsFreeDefaultFn, _cmsReallocDefaultFn, _cmsCallocDefaultFn,    _cmsDupDefaultFn};
 
 // Reset and duplicate memory manager
 void _cmsAllocMemPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
-	_cmsAssert(ctx);
+	assert(ctx);
 	if(src) {
 		// Duplicate
 		ctx->chunks[MemPlugin] = _cmsSubAllocDup(ctx->MemPool, src->chunks[MemPlugin], sizeof(_cmsMemPluginChunkType));
@@ -198,7 +197,7 @@ boolint _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase * Data)
 		return FALSE;
 	// Set replacement functions
 	ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
-	if(ptr == NULL)
+	if(!ptr)
 		return FALSE;
 	_cmsInstallAllocFunctions(Plugin, ptr);
 	return TRUE;
@@ -247,9 +246,7 @@ void * CMSEXPORT _cmsDupMem(cmsContext ContextID, const void * Org, uint32 size)
 	_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	return ptr->DupPtr(ContextID, Org, size);
 }
-
-// ********************************************************************************************
-
+//
 // Sub allocation takes care of many pointers of small size. The memory allocated in
 // this way have be freed at once. Next function allocates a single chunk for linked list
 // I prefer this method over realloc due to the big inpact on xput realloc may have if
@@ -261,18 +258,18 @@ static _cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, uin
 	SETIFZQ(Initial, 20*1024);
 	// Create the container
 	chunk = (_cmsSubAllocator_chunk*)_cmsMallocZero(ContextID, sizeof(_cmsSubAllocator_chunk));
-	if(chunk == NULL) 
-		return NULL;
-	// Initialize values
-	chunk->Block     = (uint8 *)_cmsMalloc(ContextID, Initial);
-	if(chunk->Block == NULL) {
-		// Something went wrong
-		_cmsFree(ContextID, chunk);
-		return NULL;
+	if(chunk) {
+		// Initialize values
+		chunk->Block     = (uint8 *)_cmsMalloc(ContextID, Initial);
+		if(chunk->Block == NULL) {
+			// Something went wrong
+			_cmsFree(ContextID, chunk);
+			return NULL;
+		}
+		chunk->BlockSize = Initial;
+		chunk->Used      = 0;
+		chunk->next      = NULL;
 	}
-	chunk->BlockSize = Initial;
-	chunk->Used      = 0;
-	chunk->next      = NULL;
 	return chunk;
 }
 
@@ -282,12 +279,13 @@ _cmsSubAllocator* _cmsCreateSubAlloc(cmsContext ContextID, uint32 Initial)
 {
 	// Create the container
 	_cmsSubAllocator* sub = (_cmsSubAllocator*)_cmsMallocZero(ContextID, sizeof(_cmsSubAllocator));
-	if(sub == NULL) return NULL;
-	sub->ContextID = ContextID;
-	sub->h = _cmsCreateSubAllocChunk(ContextID, Initial);
-	if(sub->h == NULL) {
-		_cmsFree(ContextID, sub);
-		return NULL;
+	if(sub) {
+		sub->ContextID = ContextID;
+		sub->h = _cmsCreateSubAllocChunk(ContextID, Initial);
+		if(sub->h == NULL) {
+			_cmsFree(ContextID, sub);
+			return NULL;
+		}
 	}
 	return sub;
 }
@@ -295,15 +293,15 @@ _cmsSubAllocator* _cmsCreateSubAlloc(cmsContext ContextID, uint32 Initial)
 // Get rid of whole linked list
 void _cmsSubAllocDestroy(_cmsSubAllocator* sub)
 {
-	_cmsSubAllocator_chunk * chunk, * n;
-	for(chunk = sub->h; chunk != NULL; chunk = n) {
-		n = chunk->next;
-		if(chunk->Block != NULL) 
+	if(sub) {
+		_cmsSubAllocator_chunk * chunk, * n;
+		for(chunk = sub->h; chunk; chunk = n) {
+			n = chunk->next;
 			_cmsFree(sub->ContextID, chunk->Block);
-		_cmsFree(sub->ContextID, chunk);
+			_cmsFree(sub->ContextID, chunk);
+		}
+		_cmsFree(sub->ContextID, sub); // Free the header
 	}
-	// Free the header
-	_cmsFree(sub->ContextID, sub);
 }
 
 // Get a pointer to small memory block.
@@ -333,7 +331,7 @@ void * _cmsSubAllocDup(_cmsSubAllocator* s, const void * ptr, uint32 size)
 {
 	void * NewPtr;
 	// Dup of null pointer is also NULL
-	if(ptr == NULL)
+	if(!ptr)
 		return NULL;
 	NewPtr = _cmsSubAlloc(s, size);
 	if(ptr != NULL && NewPtr != NULL) {
@@ -422,8 +420,6 @@ void _cmsTagSignature2String(char String[5], cmsTagSignature sig)
 	String[4] = 0;
 }
 
-//--------------------------------------------------------------------------------------------------
-
 static void * defMtxCreate(cmsContext id)
 {
 	_cmsMutex* ptr_mutex = (_cmsMutex*)_cmsMalloc(id, sizeof(_cmsMutex));
@@ -474,8 +470,8 @@ boolint _cmsRegisterMutexPlugin(cmsContext ContextID, cmsPluginBase* Data)
 		return TRUE;
 	}
 	// Factory callback is required
-	if(Plugin->CreateMutexPtr == NULL || Plugin->DestroyMutexPtr == NULL ||
-	    Plugin->LockMutexPtr == NULL || Plugin->UnlockMutexPtr == NULL) return FALSE;
+	if(!Plugin->CreateMutexPtr || !Plugin->DestroyMutexPtr || !Plugin->LockMutexPtr || !Plugin->UnlockMutexPtr) 
+		return FALSE;
 	ctx->CreateMutexPtr  = Plugin->CreateMutexPtr;
 	ctx->DestroyMutexPtr = Plugin->DestroyMutexPtr;
 	ctx->LockMutexPtr   = Plugin->LockMutexPtr;
@@ -494,22 +490,19 @@ void * CMSEXPORT _cmsCreateMutex(cmsContext ContextID)
 void CMSEXPORT _cmsDestroyMutex(cmsContext ContextID, void * mtx)
 {
 	_cmsMutexPluginChunkType* ptr = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
-	if(ptr->DestroyMutexPtr != NULL) {
+	if(ptr->DestroyMutexPtr)
 		ptr->DestroyMutexPtr(ContextID, mtx);
-	}
 }
 
 boolint CMSEXPORT _cmsLockMutex(cmsContext ContextID, void * mtx)
 {
 	_cmsMutexPluginChunkType* ptr = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
-	if(ptr->LockMutexPtr == NULL) return TRUE;
-	return ptr->LockMutexPtr(ContextID, mtx);
+	return ptr->LockMutexPtr ? ptr->LockMutexPtr(ContextID, mtx) : TRUE;
 }
 
 void CMSEXPORT _cmsUnlockMutex(cmsContext ContextID, void * mtx)
 {
 	_cmsMutexPluginChunkType* ptr = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
-	if(ptr->UnlockMutexPtr != NULL) {
+	if(ptr->UnlockMutexPtr)
 		ptr->UnlockMutexPtr(ContextID, mtx);
-	}
 }

@@ -124,7 +124,7 @@ public:
 	void reset(T* p) 
 	{
 		// This is a self-reset, which is no longer allowed: http://crbug.com/162971
-		if(p != NULL && p == data_.ptr)
+		if(p && p == data_.ptr)
 			abort();
 		// Note that running data_.ptr = p can lead to undefined behavior if
 		// get_deleter()(get()) deletes this. In order to pevent this, reset()

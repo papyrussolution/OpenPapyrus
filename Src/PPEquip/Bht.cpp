@@ -4446,7 +4446,11 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 	const  PPID loc_id = r_cfg.Location;
 	long   count = 0;
 	PPObjBill * p_bobj = BillObj;
-	SString bill_code, buf, goods_name, add_info, temp_buf;
+	SString temp_buf;
+	SString bill_code;
+	SString msg_buf;
+	SString goods_name;
+	SString add_info;
 	S_GUID  uuid;
 	TSVector <Sdr_SBIIBillRow> bill_rows_list;
 	PPObjGoods goods_obj;
@@ -4512,6 +4516,14 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 					if(sdr_bill.SampleID) {
 						if(p_bobj->Search(sdr_bill.SampleID, &sample_bill_rec) > 0)
 							op_id = pPack->P_SBIICfg->GetOpID(sample_bill_rec.OpID);
+						else {
+							bill_code.Space().Z();
+							if(pLog) {
+								temp_buf.Z().Cat(sdr_bill.SampleID);
+								PPGetMessage(mfError, PPERR_BHTSAMPLEBILLNFOUND, temp_buf, 1, msg_buf);
+								pLog->Log(msg_buf);
+							}
+						}
 					}
 					else
 						op_id = pPack->P_SBIICfg->GetOpID(-sdr_bill.OpID);
@@ -4577,26 +4589,28 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 					}
 					else if(pLog) {
 						SString s_dt;
-						s_dt.Cat(sdr_bill.Date);
+						s_dt.Cat(sdr_bill.Date, DATF_DMY);
 						if(sdr_bill.OpID == StyloBhtIIConfig::oprkExpend)
 							PPLoadString("expend", temp_buf);
 						else if(sdr_bill.OpID == StyloBhtIIConfig::oprkReceipt)
 							PPLoadString("incoming", temp_buf);
 						else
 							PPLoadString("bailment", temp_buf);
-						PPGetMessage(mfError, PPERR_INVBHTTOHOSTOP, buf, DS.CheckExtFlag(ECF_SYSSERVICE), buf.Z());
-						add_info.Printf(buf, temp_buf.cptr(), sdr_bill.SampleID, s_dt.cptr(), bill_code.cptr());
-						buf.ShiftLeft();
-						pLog->Log(buf);
+						//PPGetMessage(mfError, PPERR_INVBHTTOHOSTOP, 0, 1, msg_buf);
+						PPLoadString(PPMSG_ERROR, PPERR_INVBHTTOHOSTOP, msg_buf);
+						msg_buf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ').ReplaceStr("  ", " ", 0);
+						add_info.Printf(msg_buf, temp_buf.cptr(), sdr_bill.SampleID, s_dt.cptr(), bill_code.cptr());
+						// @v11.3.12 @fix buf.ShiftLeft();
+						pLog->Log(/*buf*/add_info);
 						accept_doc = 0;
 					}
 				}
 				else if(pLog) {
 					PPLoadStringS("date", add_info).CatChar('[').Cat(bill_rec.Dt).CatChar(']').CatDiv(',', 2);
-					add_info.Cat(PPLoadStringS("billno", buf)).CatChar('[').Cat(bill_code).CatChar(']');
-					PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, add_info, DS.CheckExtFlag(ECF_SYSSERVICE), buf.Z());
-					buf.ShiftLeft();
-					pLog->Log(buf);
+					add_info.Cat(PPLoadStringS("billno", msg_buf)).CatChar('[').Cat(bill_code).CatChar(']');
+					PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, add_info, 1, msg_buf);
+					//msg_buf.ShiftLeft();
+					pLog->Log(msg_buf);
 				}
 			}
 			if(accept_doc) {
@@ -4615,15 +4629,12 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 						lot_list.clear();
 						if(p_bobj->SearchLotsBySerial(serial, &lot_list) > 0 && lot_list.getCount()) {
 							ReceiptTbl::Rec lot_rec;
-							// @v9.6.4 THROW(r_rcpt.Search(lot_list.at(0), &lot_rec) > 0); // @todo softerror
-							// @v9.6.4 {
 							for(uint lidx = 0; !is_serial && lidx < lot_list.getCount(); lidx++) {
 								if(r_rcpt.Search(lot_list.at(lidx), &lot_rec) > 0) {
 									SETIFZ(sdr_brow.GoodsID, lot_rec.GoodsID);
 									is_serial = 1;
 								}
 							}
-							// } @v9.6.4
 						}
 						if(sdr_brow.GoodsID) {
 							if(sdr_bill.OpID == StyloBhtIIConfig::oprkInventory) {
@@ -4638,10 +4649,8 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 									if(p_bobj->GetInventoryStockRest(inv_blk, &inv_item, &gr_param) > 0) {
 										inv_item.Price = inv_item.StockPrice;
 									}
-									// @v8.5.8 {
 									if(inv_item.Price <= 0.0 && sdr_brow.Cost > 0.0)
 										inv_item.Price = sdr_brow.Cost;
-									// } @v8.5.8
 								}
 								if(!p_bobj->AcceptInventoryItem(inv_blk, &inv_item, -1)) { // @v8.6.9 use_ta 0-->-1
 									if(pLog)
@@ -4710,18 +4719,18 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 							else if(pLog) {
 								goods_obj.FetchNameR(sdr_brow.GoodsID, goods_name);
 								PPLoadStringS("ware", add_info).CatBrackStr(goods_name).CatDiv(',', 2);
-								add_info.Cat(PPLoadStringS("date", buf)).CatChar('[').Cat(bill_rec.Dt).CatChar(']').CatDiv(',', 2);
-								add_info.Cat(PPLoadStringS("billno", buf)).CatBrackStr(bill_code);
-								PPGetMessage(mfError, PPERR_ZEROQTTY, add_info, DS.CheckExtFlag(ECF_SYSSERVICE), buf.Z());
-								buf.ShiftLeft();
-								pLog->Log(buf);
+								add_info.Cat(PPLoadStringS("date", msg_buf)).CatChar('[').Cat(bill_rec.Dt).CatChar(']').CatDiv(',', 2);
+								add_info.Cat(PPLoadStringS("billno", msg_buf)).CatBrackStr(bill_code);
+								PPGetMessage(mfError, PPERR_ZEROQTTY, add_info, 1, msg_buf);
+								//buf.ShiftLeft();
+								pLog->Log(msg_buf);
 							}
 							ok = 1;
 						}
 						else if(pLog) {
-							PPGetMessage(mfError, PPERR_BARCODENFOUND, serial, DS.CheckExtFlag(ECF_SYSSERVICE), buf);
-							buf.ShiftLeft();
-							pLog->Log(buf);
+							PPGetMessage(mfError, PPERR_BARCODENFOUND, serial, 1, msg_buf);
+							//buf.ShiftLeft();
+							pLog->Log(msg_buf);
 						}
 					}
 				}
@@ -4749,7 +4758,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 						p_bobj->AutoCalcPrices(&pack, 0, &is_modif);
 					if(!is_modif)
 						pack.InitAmounts();
-					pack.Rec.Flags2 |= BILLF2_BHT; // @v7.2.0
+					pack.Rec.Flags2 |= BILLF2_BHT;
 					if(!p_bobj->TurnPacket(&pack, 0)) {
 						CALLPTRMEMB(pLog, LogLastError());
 					}
@@ -5959,7 +5968,7 @@ void DisplayError(HRESULT hr)
 	else if(hr == E_NOINTERFACE)
 		STRNSCPY(buf, "Requested interface not found");
 	else if(hr == E_OUTOFMEMORY)
-		STRNSCPY(buf, "There is no memory");
+		STRNSCPY(buf, SlTxtOutOfMem);
 	else if(hr == CLASS_E_NOAGGREGATION)
 		STRNSCPY(buf, "Component does not support aggregation");
 	else if(hr == CPT720_ERR_INITCOMPORT)

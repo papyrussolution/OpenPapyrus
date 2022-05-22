@@ -90,7 +90,7 @@ void ngx_mail_init_connection(ngx_connection_t * c)
 		}
 	}
 	s = (ngx_mail_session_t *)ngx_pcalloc(c->pool, sizeof(ngx_mail_session_t));
-	if(s == NULL) {
+	if(!s) {
 		ngx_mail_close_connection(c);
 		return;
 	}
@@ -618,7 +618,7 @@ u_char * ngx_mail_log_error(ngx_log_t * log, u_char * buf, size_t len)
 	len -= p - buf;
 	buf = p;
 	s = ctx->session;
-	if(s == NULL) {
+	if(!s) {
 		return p;
 	}
 	p = ngx_snprintf(buf, len, "%s, server: %V", s->starttls ? " using starttls" : "", s->addr_text);

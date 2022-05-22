@@ -586,7 +586,7 @@ void MessageFormat::adoptFormat(const UnicodeString & formatName, Format* format
 			}
 			else {
 				f = formatToAdopt->clone();
-				if(f == NULL) {
+				if(!f) {
 					status = U_MEMORY_ALLOCATION_ERROR;
 					return;
 				}

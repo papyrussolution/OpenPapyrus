@@ -1249,7 +1249,7 @@ CF_INLINE bool is_file(const char * filename)
 {
 	struct_stat st;
 
-	if(filename == NULL)
+	if(!filename)
 		return false;
 
 	if(stat(filename, &st) == 0)

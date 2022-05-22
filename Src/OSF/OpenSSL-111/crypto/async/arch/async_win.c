@@ -24,7 +24,7 @@ int ASYNC_is_capable(void)
 void async_local_cleanup(void)
 {
 	async_ctx * ctx = async_get_ctx();
-	if(ctx != NULL) {
+	if(ctx) {
 		async_fibre * fibre = &ctx->dispatcher;
 		if(fibre != NULL && fibre->fibre != NULL && fibre->converted) {
 			ConvertFiberToThread();

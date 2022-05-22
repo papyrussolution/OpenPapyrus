@@ -156,7 +156,7 @@ static int ssl_set_option_list(const char * elem, int len, void * usr)
 	 * len == -1 indicates not being called in list context, just for single
 	 * command line switches, so don't allow +, -.
 	 */
-	if(elem == NULL)
+	if(!elem)
 		return 0;
 	if(len != -1) {
 		if(*elem == '+') {
@@ -533,7 +533,7 @@ static int cmd_DHParameters(SSL_CONF_CTX * cctx, const char * value)
 		if(BIO_read_filename(in, value) <= 0)
 			goto end;
 		dh = PEM_read_bio_DHparams(in, NULL, NULL, NULL);
-		if(dh == NULL)
+		if(!dh)
 			goto end;
 	}
 	else

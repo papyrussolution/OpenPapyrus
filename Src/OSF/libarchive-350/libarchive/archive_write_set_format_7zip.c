@@ -220,7 +220,7 @@ int archive_write_set_format_7zip(struct archive * _a)
 	struct _7zip * zip;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If another format was already registered, unregister it. */
-	if(a->format_free != NULL)
+	if(a->format_free)
 		(a->format_free)(a);
 	zip = static_cast<struct _7zip *>(SAlloc::C(1, sizeof(*zip)));
 	if(zip == NULL) {
@@ -1280,7 +1280,7 @@ static int file_new(struct archive_write * a, struct archive_entry * entry, stru
 	*newfile = NULL;
 	file = static_cast<struct file *>(SAlloc::C(1, sizeof(*file)));
 	if(file == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	if(0 > archive_entry_pathname_l(entry, &u16, &u16len, zip->sconv)) {
@@ -1665,7 +1665,7 @@ static int compression_init_encoder_lzma(struct archive * a, struct la_zstream *
 		if(lastrm->props == NULL) {
 			SAlloc::F(strm);
 			lastrm->real_stream = NULL;
-			archive_set_error(a, ENOMEM, "Cannot allocate memory");
+			archive_set_error(a, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		r = lzma_properties_encode(lzmafilters,  lastrm->props);

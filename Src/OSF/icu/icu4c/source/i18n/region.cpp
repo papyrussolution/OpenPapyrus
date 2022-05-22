@@ -250,11 +250,8 @@ void U_CALLCONV Region::loadRegionData(UErrorCode & status) {
 			else {
 				aliasFromRegion->fType = URGN_DEPRECATED;
 			}
-
 			{
-				LocalPointer<UVector> newPreferredValues(new UVector(uprv_deleteUObject, uhash_compareUnicodeString,
-				    status),
-				    status);
+				LocalPointer<UVector> newPreferredValues(new UVector(uprv_deleteUObject, uhash_compareUnicodeString, status), status);
 				aliasFromRegion->preferredValues = newPreferredValues.orphan();
 			}
 			if(U_FAILURE(status)) {
@@ -270,18 +267,13 @@ void U_CALLCONV Region::loadRegionData(UErrorCode & status) {
 					Region * target = (Region*)uhash_get(newRegionIDMap.getAlias(), (void *)&currentRegion);
 					if(target) {
 						LocalPointer<UnicodeString> preferredValue(new UnicodeString(target->idStr), status);
-						aliasFromRegion->preferredValues->addElementX((void *)preferredValue.orphan(), status); // may
-						                                                                                       // add
-						                                                                                       // null
-						                                                                                       // if
-						                                                                                       // err
+						aliasFromRegion->preferredValues->addElementX((void *)preferredValue.orphan(), status); // may add null if err
 					}
 					currentRegion.remove();
 				}
 			}
 		}
 	}
-
 	// Process the code mappings - This will allow us to assign numeric codes to most of the territories.
 	while(ures_hasNext(codeMappings.getAlias())) {
 		UResourceBundle * mapping = ures_getNextResource(codeMappings.getAlias(), NULL, &status);

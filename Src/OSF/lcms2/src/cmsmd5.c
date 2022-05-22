@@ -219,7 +219,7 @@ boolint CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile)
 	cmsHANDLE MD5 = NULL;
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
 	_cmsICCPROFILE Keep;
-	_cmsAssert(hProfile != NULL);
+	assert(hProfile != NULL);
 	ContextID = cmsGetProfileContextID(hProfile);
 	// Save a copy of the profile header
 	memmove(&Keep, Icc, sizeof(_cmsICCPROFILE));
@@ -273,7 +273,7 @@ boolint CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile)
 	SlHash::State slhst;
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
 	_cmsICCPROFILE Keep;
-	_cmsAssert(hProfile != NULL);
+	assert(hProfile != NULL);
 	ContextID = cmsGetProfileContextID(hProfile);
 	// Save a copy of the profile header
 	memmove(&Keep, Icc, sizeof(_cmsICCPROFILE));

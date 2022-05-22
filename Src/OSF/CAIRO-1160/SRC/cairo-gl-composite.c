@@ -36,19 +36,12 @@
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
 
 /* FIXME: Copy of same routine in cairo-gl-msaa-compositor.c */
-static cairo_int_status_t _draw_int_rect(cairo_gl_context_t * ctx,
-    cairo_gl_composite_t * setup,
-    cairo_rectangle_int_t * rect)
+static cairo_int_status_t _draw_int_rect(cairo_gl_context_t * ctx, cairo_gl_composite_t * setup, cairo_rectangle_int_t * rect)
 {
 	cairo_box_t box;
 	cairo_point_t quad[4];
-
 	_cairo_box_from_rectangle(&box, rect);
 	quad[0].x = box.p1.x;
 	quad[0].y = box.p1.y;

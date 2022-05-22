@@ -3300,7 +3300,7 @@ namespace NWindows {
 			return *this;
 		}
 
-		static const char * const kMemException = "out of memory";
+		static const char * const kMemException = SlTxtOutOfMem;
 
 		CPropVariant& CPropVariant::operator = (LPCOLESTR lpszSrc)
 		{

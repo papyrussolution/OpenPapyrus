@@ -85,10 +85,9 @@ U_NAMESPACE_BEGIN
  */
 class U_I18N_API IslamicCalendar : public Calendar {
 public:
-	//-------------------------------------------------------------------------
+	//
 	// Constants...
-	//-------------------------------------------------------------------------
-
+	//
 	/**
 	 * Calendar type - civil or religious or um alqura
 	 * @internal
@@ -177,11 +176,9 @@ public:
 
 		ISLAMIC_MONTH_MAX
 	};
-
-	//-------------------------------------------------------------------------
+	//
 	// Constructors...
-	//-------------------------------------------------------------------------
-
+	//
 	/**
 	 * Constructs an IslamicCalendar based on the current time in the default time zone
 	 * with the given locale.
@@ -269,21 +266,18 @@ private:
 	 *              in millis since 1/1/1970.
 	 */
 	static double moonAge(UDate time, UErrorCode & status);
-
-	//-------------------------------------------------------------------------
+	//
 	// Internal data....
 	//
-
 	/**
 	 * <code>CIVIL</code> if this object uses the fixed-cycle Islamic civil calendar,
 	 * and <code>ASTRONOMICAL</code> if it approximates the true religious calendar using
 	 * astronomical calculations for the time of the new moon.
 	 */
 	ECalculationType cType;
-
-	//----------------------------------------------------------------------
+	//
 	// Calendar framework
-	//----------------------------------------------------------------------
+	//
 protected:
 	/**
 	 * @internal
@@ -304,26 +298,21 @@ protected:
 	 * @internal
 	 */
 	virtual int32_t handleGetYearLength(int32_t extendedYear) const override;
-
-	//-------------------------------------------------------------------------
+	//
 	// Functions for converting from field values to milliseconds....
-	//-------------------------------------------------------------------------
-
+	//
 	// Return JD of start of given month/year
 	/**
 	 * @internal
 	 */
 	virtual int32_t handleComputeMonthStart(int32_t eyear, int32_t month, bool useMonth) const override;
-
-	//-------------------------------------------------------------------------
+	//
 	// Functions for converting from milliseconds to field values
-	//-------------------------------------------------------------------------
-
+	//
 	/**
 	 * @internal
 	 */
 	virtual int32_t handleGetExtendedYear() override;
-
 	/**
 	 * Override Calendar to compute several fields specific to the Islamic
 	 * calendar system.  These are:

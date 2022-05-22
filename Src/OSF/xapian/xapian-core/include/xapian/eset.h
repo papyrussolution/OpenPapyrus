@@ -14,8 +14,6 @@
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 	#error Never use <xapian/eset.h> directly; include <xapian.h> instead.
 #endif
-//#include <iterator>
-//#include <string>
 #include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/stem.h>

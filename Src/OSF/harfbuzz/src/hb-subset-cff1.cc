@@ -209,7 +209,7 @@ struct cff1_cs_opset_flatten_t : cff1_cs_opset_t<cff1_cs_opset_flatten_t, flatte
 				    env.clear_args();
 				    return;
 			    }
-			    HB_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 
 			default:
 			    SUPER::flush_args_and_op(op, env, param);

@@ -9,8 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #ifndef OPENSSL_NO_SM3
-//#include <openssl/evp.h>
-//#include <internal/crypto/evp_int.h>
 #include <internal/crypto/sm3.h>
 
 static int init(EVP_MD_CTX * ctx)

@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 PROTOBUF_NAMESPACE_OPEN
-constexpr FieldMask::FieldMask(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr FieldMask::FieldMask(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : paths_(){}
 struct FieldMaskDefaultTypeInternal {
 	constexpr FieldMaskDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -111,8 +110,7 @@ void FieldMask::ArenaDtor(void* object) {
   FieldMask* _this = reinterpret_cast< FieldMask* >(object);
   (void)_this;
 }
-void FieldMask::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void FieldMask::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void FieldMask::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -156,10 +154,7 @@ const char* FieldMask::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -217,10 +212,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData FieldMask::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*FieldMask::GetClassData() const { return &_class_data_; }
 
-void FieldMask::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<FieldMask *>(to)->MergeFrom(
-      static_cast<const FieldMask &>(from));
+void FieldMask::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<FieldMask *>(to)->MergeFrom(static_cast<const FieldMask &>(from));
 }
 
 

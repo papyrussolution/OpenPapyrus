@@ -178,11 +178,9 @@ void extractCorePattern(const UnicodeString & pattern,
 		coreUnit = pattern;
 	}
 }
-
-//////////////////////////
-/// BEGIN DATA LOADING ///
-//////////////////////////
-
+//
+// BEGIN DATA LOADING ///
+//
 // Gets the gender of a built-in unit: unit must be a built-in. Returns an empty
 // string both in case of unknown gender and in case of unknown unit.
 UnicodeString getGenderForBuiltin(const Locale &locale, const MeasureUnit &builtinUnit, UErrorCode & status) {
@@ -759,11 +757,9 @@ UnicodeString getDerivedGender(Locale locale,
 	}
 	return val;
 }
-
-////////////////////////
-/// END DATA LOADING ///
-////////////////////////
-
+//
+// END DATA LOADING ///
+//
 // TODO: promote this somewhere? It's based on patternprops.cpp' trimWhitespace
 const UChar * trimSpaceChars(const UChar * s, int32_t &length) {
 	if(length <= 0 || (!u_isJavaSpaceChar(s[0]) && !u_isJavaSpaceChar(s[length - 1]))) {
@@ -1563,7 +1559,7 @@ void LongNameHandler::multiSimpleFormatsToModifiers(const UnicodeString * leadFo
 
 void LongNameHandler::processQuantity(DecimalQuantity &quantity, MicroProps &micros,
     UErrorCode & status) const {
-	if(parent != NULL) {
+	if(parent) {
 		parent->processQuantity(quantity, micros, status);
 	}
 	StandardPlural::Form pluralForm = utils::getPluralSafe(micros.rounder, rules, quantity, status);

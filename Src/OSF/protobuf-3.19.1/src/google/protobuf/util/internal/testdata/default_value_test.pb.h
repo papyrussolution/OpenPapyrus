@@ -76,19 +76,15 @@ constexpr DefaultValueTest_EnumDefault DefaultValueTest_EnumDefault_EnumDefault_
 constexpr DefaultValueTest_EnumDefault DefaultValueTest_EnumDefault_EnumDefault_MAX = DefaultValueTest_EnumDefault_ENUM_THIRD;
 constexpr int DefaultValueTest_EnumDefault_EnumDefault_ARRAYSIZE = DefaultValueTest_EnumDefault_EnumDefault_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* DefaultValueTest_EnumDefault_descriptor();
-template<typename T>
-inline const std::string& DefaultValueTest_EnumDefault_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, DefaultValueTest_EnumDefault>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function DefaultValueTest_EnumDefault_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    DefaultValueTest_EnumDefault_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * DefaultValueTest_EnumDefault_descriptor();
+template<typename T> inline const std::string& DefaultValueTest_EnumDefault_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, DefaultValueTest_EnumDefault>::value || ::std::is_integral<T>::value, "Incorrect type passed to function DefaultValueTest_EnumDefault_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(DefaultValueTest_EnumDefault_descriptor(), enum_t_value);
 }
-inline bool DefaultValueTest_EnumDefault_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, DefaultValueTest_EnumDefault* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<DefaultValueTest_EnumDefault>(
-    DefaultValueTest_EnumDefault_descriptor(), name, value);
+inline bool DefaultValueTest_EnumDefault_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, DefaultValueTest_EnumDefault * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<DefaultValueTest_EnumDefault>(DefaultValueTest_EnumDefault_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -193,35 +189,22 @@ class DefaultValueTest final :
   // nested types ----------------------------------------------------
 
   typedef DefaultValueTest_EnumDefault EnumDefault;
-  static constexpr EnumDefault ENUM_FIRST =
-    DefaultValueTest_EnumDefault_ENUM_FIRST;
-  static constexpr EnumDefault ENUM_SECOND =
-    DefaultValueTest_EnumDefault_ENUM_SECOND;
-  static constexpr EnumDefault ENUM_THIRD =
-    DefaultValueTest_EnumDefault_ENUM_THIRD;
-  static inline bool EnumDefault_IsValid(int value) {
-    return DefaultValueTest_EnumDefault_IsValid(value);
+  static constexpr EnumDefault ENUM_FIRST = DefaultValueTest_EnumDefault_ENUM_FIRST;
+  static constexpr EnumDefault ENUM_SECOND = DefaultValueTest_EnumDefault_ENUM_SECOND;
+  static constexpr EnumDefault ENUM_THIRD = DefaultValueTest_EnumDefault_ENUM_THIRD;
+  static inline bool EnumDefault_IsValid(int value) { return DefaultValueTest_EnumDefault_IsValid(value); }
+  static constexpr EnumDefault EnumDefault_MIN = DefaultValueTest_EnumDefault_EnumDefault_MIN;
+  static constexpr EnumDefault EnumDefault_MAX = DefaultValueTest_EnumDefault_EnumDefault_MAX;
+  static constexpr int EnumDefault_ARRAYSIZE = DefaultValueTest_EnumDefault_EnumDefault_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * EnumDefault_descriptor() { return DefaultValueTest_EnumDefault_descriptor(); }
+  template<typename T> static inline const std::string& EnumDefault_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, EnumDefault>::value || ::std::is_integral<T>::value, "Incorrect type passed to function EnumDefault_Name.");
+  	return DefaultValueTest_EnumDefault_Name(enum_t_value);
   }
-  static constexpr EnumDefault EnumDefault_MIN =
-    DefaultValueTest_EnumDefault_EnumDefault_MIN;
-  static constexpr EnumDefault EnumDefault_MAX =
-    DefaultValueTest_EnumDefault_EnumDefault_MAX;
-  static constexpr int EnumDefault_ARRAYSIZE =
-    DefaultValueTest_EnumDefault_EnumDefault_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  EnumDefault_descriptor() {
-    return DefaultValueTest_EnumDefault_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& EnumDefault_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, EnumDefault>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function EnumDefault_Name.");
-    return DefaultValueTest_EnumDefault_Name(enum_t_value);
-  }
-  static inline bool EnumDefault_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      EnumDefault* value) {
-    return DefaultValueTest_EnumDefault_Parse(name, value);
+  static inline bool EnumDefault_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, EnumDefault* value)
+  {
+  	return DefaultValueTest_EnumDefault_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -250,16 +233,13 @@ class DefaultValueTest final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
       _internal_repeated_double() const;
   void _internal_add_repeated_double(double value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-      _internal_mutable_repeated_double();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * _internal_mutable_repeated_double();
   public:
   double repeated_double(int index) const;
   void set_repeated_double(int index, double value);
   void add_repeated_double(double value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
-      repeated_double() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-      mutable_repeated_double();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > & repeated_double() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * mutable_repeated_double();
 
   // string string_value = 15;
   void clear_string_value();
@@ -445,12 +425,10 @@ DefaultValueTest::repeated_double() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.DefaultValueTest.repeated_double)
   return _internal_repeated_double();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-DefaultValueTest::_internal_mutable_repeated_double() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * DefaultValueTest::_internal_mutable_repeated_double() {
   return &repeated_double_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-DefaultValueTest::mutable_repeated_double() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * DefaultValueTest::mutable_repeated_double() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.DefaultValueTest.repeated_double)
   return _internal_mutable_repeated_double();
 }
@@ -689,10 +667,7 @@ inline void DefaultValueTest::set_enum_value(::proto_util_converter::testing::De
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::proto_util_converter::testing::DefaultValueTest_EnumDefault> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::proto_util_converter::testing::DefaultValueTest_EnumDefault>() {
-  return ::proto_util_converter::testing::DefaultValueTest_EnumDefault_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::proto_util_converter::testing::DefaultValueTest_EnumDefault>() { return ::proto_util_converter::testing::DefaultValueTest_EnumDefault_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

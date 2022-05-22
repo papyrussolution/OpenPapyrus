@@ -276,8 +276,7 @@ FieldMask::paths() const {
   // @@protoc_insertion_point(field_list:google.protobuf.FieldMask.paths)
   return paths_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-FieldMask::mutable_paths() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * FieldMask::mutable_paths() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.FieldMask.paths)
   return &paths_;
 }

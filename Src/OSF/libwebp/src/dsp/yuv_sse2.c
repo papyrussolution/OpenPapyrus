@@ -18,22 +18,17 @@
 #if defined(WEBP_USE_SSE2)
 
 #include "src/dsp/common_sse2.h"
-//#include <stdlib.h>
 #include <emmintrin.h>
-
-//-----------------------------------------------------------------------------
+//
 // Convert spans of 32 pixels to various RGB formats for the fancy upsampler.
-
+//
 // These constants are 14b fixed-point version of ITU-R BT.601 constants.
 // R = (19077 * y             + 26149 * v - 14234) >> 6
 // G = (19077 * y -  6419 * u - 13320 * v +  8708) >> 6
 // B = (19077 * y + 33050 * u             - 17685) >> 6
-static void ConvertYUV444ToRGB_SSE2(const __m128i* const Y0,
-    const __m128i* const U0,
-    const __m128i* const V0,
-    __m128i* const R,
-    __m128i* const G,
-    __m128i* const B) {
+//
+static void ConvertYUV444ToRGB_SSE2(const __m128i* const Y0, const __m128i* const U0, const __m128i* const V0, __m128i* const R, __m128i* const G, __m128i* const B) 
+{
 	const __m128i k19077 = _mm_set1_epi16(19077);
 	const __m128i k26149 = _mm_set1_epi16(26149);
 	const __m128i k14234 = _mm_set1_epi16(14234);

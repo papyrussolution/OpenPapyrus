@@ -25,7 +25,7 @@
 //------------------------------------------------------------------------------
 // Helpful macro.
 
-# define SANITY_CHECK(in, out)                                                 \
+#define SANITY_CHECK(in, out)                                                 \
 	assert((in) != NULL);                                                        \
 	assert((out) != NULL);                                                       \
 	assert(width > 0);                                                           \

@@ -94,8 +94,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 			period.Z();
 		SETIFZ(period.low, encodedate(1, 12, 2016));
 		SETIFZ(period.upp, encodedate(31, 12, 2017));
-		param.DateFrom =  GetDynamicParamString(period.low, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
-		param.DateTo   =  GetDynamicParamString(period.upp, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
+		param.DateFrom =  GetDynamicParamString(period.low, DATF_ISO8601CENT, arg_str_pool);
+		param.DateTo   =  GetDynamicParamString(period.upp, DATF_ISO8601CENT, arg_str_pool);
 	}
 	param.RepeatFlag = GetDynamicParamString(repeat, arg_str_pool);
 	{
@@ -125,9 +125,9 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesOrder> * EfesGetSalesOrder
 				SapEfesOrder * p_new_item = p_result->CreateNewItem(0);
 				THROW(p_new_item);
 				//(temp_buf = p_doc->DocDate).Transf(CTRANSF_UTF8_TO_INNER);
-				//strtodatetime(temp_buf, &p_new_item->Date, DATF_ISO8601|DATF_CENTURY, TIMF_HMS);
+				//strtodatetime(temp_buf, &p_new_item->Date, DATF_ISO8601CENT, TIMF_HMS);
 				p_new_item->Date.SetTimeT(p_doc->DocDate);
-				p_new_item->DueDate = strtodate_(temp_buf = p_doc->RDelvDate, DATF_ISO8601|DATF_CENTURY);
+				p_new_item->DueDate = strtodate_(temp_buf = p_doc->RDelvDate, DATF_ISO8601CENT);
 				p_new_item->Amount = (temp_buf = p_doc->DocAmnt).Transf(CTRANSF_UTF8_TO_INNER).ToReal();
 				p_new_item->Code = (temp_buf = p_doc->EFRDocNum).Transf(CTRANSF_UTF8_TO_INNER);
 				p_new_item->DocType = (temp_buf = p_doc->DocType).Transf(CTRANSF_UTF8_TO_INNER);
@@ -371,8 +371,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesBillStatus> * EfesSetDeliv
 					THROW(p_new_item);
 					p_new_item->PRTDocNum = GetDynamicParamString((temp_buf = p_src_pack->NativeCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 					p_new_item->EFRDocNum = GetDynamicParamString((temp_buf = p_src_pack->OrderCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
-					p_new_item->DelvDate = GetDynamicParamString(p_src_pack->Date, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
-					p_new_item->RDelvDate = GetDynamicParamString(p_src_pack->DueDate, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
+					p_new_item->DelvDate = GetDynamicParamString(p_src_pack->Date, DATF_ISO8601CENT, arg_str_pool);
+					p_new_item->RDelvDate = GetDynamicParamString(p_src_pack->DueDate, DATF_ISO8601CENT, arg_str_pool);
 					p_new_item->EFRSoldTo = GetDynamicParamString((temp_buf = p_src_pack->BuyerCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 					p_new_item->EFRShipTo = GetDynamicParamString((temp_buf = p_src_pack->DlvrLocCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 					{
@@ -489,7 +489,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDailyStoc
 					_ns1__ProductReportRequestType_Row * p_new_item = arg_row_list.CreateNewItem(0);
 					THROW(p_new_item);
 					p_new_item->EFRProd = GetDynamicParamString((temp_buf = p_src_pack->GoodsCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
-					p_new_item->ReportDate = GetDynamicParamString(p_src_pack->Dt, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
+					p_new_item->ReportDate = GetDynamicParamString(p_src_pack->Dt, DATF_ISO8601CENT, arg_str_pool);
 					p_new_item->Qty = GetDynamicParamString_(p_src_pack->Qtty, MKSFMTD(0, 3, 0), arg_str_pool);
 					p_new_item->Unit = EncodeEfesUnitType(p_src_pack->UnitType, arg_str_pool);
 				}
@@ -572,7 +572,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDProduc
 					_ns1__ProductReportRequestType_Row * p_new_item = arg_entry_list.CreateNewItem(0);
 					THROW(p_new_item);
 					p_new_item->EFRProd = GetDynamicParamString((temp_buf = p_src_pack->GoodsCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
-					p_new_item->ReportDate = GetDynamicParamString(p_src_pack->Dt, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
+					p_new_item->ReportDate = GetDynamicParamString(p_src_pack->Dt, DATF_ISO8601CENT, arg_str_pool);
 					p_new_item->Qty = GetDynamicParamString_(p_src_pack->Qtty, MKSFMTD(0, 3, 0), arg_str_pool);
 					p_new_item->Unit = EncodeEfesUnitType(p_src_pack->UnitType, arg_str_pool);
 				}
@@ -637,7 +637,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDOutlet
 					_ns1__OutletReportRequestType_Row * p_new_item = arg_entry_list.CreateNewItem(0);
 					THROW(p_new_item);
 					p_new_item->EFRShipTo = GetDynamicParamString((temp_buf = p_src_pack->DlvrLocCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
-					p_new_item->ReportDate = GetDynamicParamString(p_src_pack->Dt, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
+					p_new_item->ReportDate = GetDynamicParamString(p_src_pack->Dt, DATF_ISO8601CENT, arg_str_pool);
 					p_new_item->Qty = GetDynamicParamString_(p_src_pack->Qtty, MKSFMTD(0, 3, 0), arg_str_pool);
 					p_new_item->Unit = EncodeEfesUnitType(p_src_pack->UnitType, arg_str_pool);
 				}
@@ -806,8 +806,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDebtDetai
 							r_row.DebtAmnt = GetDynamicParamString_(p_src_pack->Debt, MKSFMTD(0, 2, 0), arg_str_pool);
 							r_row.DocAmnt = GetDynamicParamString_(p_src_pack->Amount, MKSFMTD(0, 2, 0), arg_str_pool);
 							r_row.PRTDocNum = GetDynamicParamString((temp_buf = p_src_pack->NativeBillCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
-							r_row.DelvDate = GetDynamicParamString(p_src_pack->BillDate, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
-							r_row.PaymDate = GetDynamicParamString(p_src_pack->PaymDate, DATF_ISO8601|DATF_CENTURY, arg_str_pool);
+							r_row.DelvDate = GetDynamicParamString(p_src_pack->BillDate, DATF_ISO8601CENT, arg_str_pool);
+							r_row.PaymDate = GetDynamicParamString(p_src_pack->PaymDate, DATF_ISO8601CENT, arg_str_pool);
 							item_no++;
 						}
 						else if(p_src_pack->NativeArID > native_ar_id)

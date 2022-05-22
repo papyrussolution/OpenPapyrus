@@ -1043,7 +1043,7 @@ static CURLcode ftp_state_use_port(struct connectdata * conn, /*ftpport*/int fcm
 	} /* (h) */
 	else
 		res = NULL; /* failure! */
-	if(res == NULL) {
+	if(!res) {
 		failf(data, "failed to resolve the address provided to PORT: %s", host);
 		SAlloc::F(addr);
 		return CURLE_FTP_PORT_FAILED;

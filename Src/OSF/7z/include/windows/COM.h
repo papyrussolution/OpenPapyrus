@@ -54,11 +54,9 @@ namespace NWindows {
 				return &_object;
 			}
 		};
-
 		#endif
-
 		/*
-		   //////////////////////////////////
+		   //
 		   // GUID <--> String Conversions
 		   UString GUIDToStringW(REFGUID guid);
 		   AString GUIDToStringA(REFGUID guid);

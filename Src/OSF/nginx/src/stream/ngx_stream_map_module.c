@@ -346,7 +346,7 @@ static const char * ngx_stream_map(ngx_conf_t * cf, const ngx_command_t * dummy,
 	if(ngx_stream_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-	if(cv.lengths != NULL) {
+	if(cv.lengths) {
 		cvp = (ngx_stream_complex_value_t *)ngx_palloc(ctx->keys.pool, sizeof(ngx_stream_complex_value_t));
 		if(cvp == NULL) {
 			return NGX_CONF_ERROR;

@@ -1,5 +1,5 @@
 // V_PAYPLN.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 // Plan of Payments View
 //
@@ -224,7 +224,7 @@ int PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 		Psp.Init(Filt.Sgp);
 		IterCounter cntr;
 		long   count = 0;
-		TSVector <DateRange> period_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <DateRange> period_list;
 		THROW(P_BObj->P_Tbl->PayPlanEnumerator(&Filt.Period, IterProc_Count, &count));
 		cntr.Init(count);
 		THROW(P_TempTbl = CreateTempFile());
@@ -370,13 +370,14 @@ int FASTCALL PPViewPaymPlan::NextIteration(PaymPlanViewItem * pItem)
 		}
 		if(r > 0) {
 			PaymPlanViewItem item;
-			item.Dt     = P_TempTbl->data.Dt;
-			item.BillID = P_TempTbl->data.BillID;
-			item.ObjID  = P_TempTbl->data.ObjID;
-			STRNSCPY(item.Name, P_TempTbl->data.Name);
-			item.Amount = P_TempTbl->data.Amount;
-			item.Paym   = P_TempTbl->data.Paym;
-			item.Debt   = P_TempTbl->data.Debt;
+			const TempPaymPlanTbl::Rec & r_src_rec = P_TempTbl->data;
+			item.Dt     = r_src_rec.Dt;
+			item.BillID = r_src_rec.BillID;
+			item.ObjID  = r_src_rec.ObjID;
+			STRNSCPY(item.Name, r_src_rec.Name);
+			item.Amount = r_src_rec.Amount;
+			item.Paym   = r_src_rec.Paym;
+			item.Debt   = r_src_rec.Debt;
 			NextInnerIteration(&item);
 			ASSIGN_PTR(pItem, item);
 		}

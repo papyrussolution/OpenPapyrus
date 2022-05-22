@@ -388,7 +388,7 @@ int32_t getStringArray(const ResourceData * pResData, const icu::ResourceArray &
 		int32_t sLength;
 		// No tracing: handled by the caller
 		const UChar * s = res_getStringNoTrace(pResData, array.internalGetResource(pResData, i), &sLength);
-		if(s == NULL) {
+		if(!s) {
 			errorCode = U_RESOURCE_TYPE_MISMATCH;
 			return 0;
 		}
@@ -491,7 +491,7 @@ const UChar * ResourceDataValue::getString(int32_t &length, UErrorCode & errorCo
 		return NULL;
 	}
 	const UChar * s = res_getString(fTraceInfo, &getData(), res, &length);
-	if(s == NULL) {
+	if(!s) {
 		errorCode = U_RESOURCE_TYPE_MISMATCH;
 	}
 	return s;
@@ -502,7 +502,7 @@ const UChar * ResourceDataValue::getAliasString(int32_t &length, UErrorCode & er
 		return NULL;
 	}
 	const UChar * s = res_getAlias(&getData(), res, &length);
-	if(s == NULL) {
+	if(!s) {
 		errorCode = U_RESOURCE_TYPE_MISMATCH;
 	}
 	return s;
@@ -640,7 +640,7 @@ int32_t ResourceDataValue::getStringArrayOrStringAsArray(UnicodeString * dest, i
 	}
 	int32_t sLength;
 	const UChar * s = res_getString(fTraceInfo, &getData(), res, &sLength);
-	if(s != NULL) {
+	if(s) {
 		dest[0].setTo(TRUE, s, sLength);
 		return 1;
 	}
@@ -655,7 +655,7 @@ UnicodeString ResourceDataValue::getStringOrFirstOfArray(UErrorCode & errorCode)
 	}
 	int32_t sLength;
 	const UChar * s = res_getString(fTraceInfo, &getData(), res, &sLength);
-	if(s != NULL) {
+	if(s) {
 		us.setTo(TRUE, s, sLength);
 		return us;
 	}
@@ -666,7 +666,7 @@ UnicodeString ResourceDataValue::getStringOrFirstOfArray(UErrorCode & errorCode)
 	if(array.getSize() > 0) {
 		// Tracing is already performed above (unimportant for trace that this is an array)
 		s = res_getStringNoTrace(&getData(), array.internalGetResource(&getData(), 0), &sLength);
-		if(s != NULL) {
+		if(s) {
 			us.setTo(TRUE, s, sLength);
 			return us;
 		}
@@ -1077,7 +1077,7 @@ static void ures_swapResource(const UDataSwapper * ds,
 	switch(RES_GET_TYPE(res)) {
 		case URES_ALIAS:
 		    /* physically same value layout as string, fall through */
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case URES_STRING:
 		    count = udata_readInt32(ds, (int32_t)*p);
 		    /* swap length */

@@ -799,7 +799,7 @@ void /* PRIVATE */ png_zstream_error(png_structrp png_ptr, int ret)
 			    png_ptr->zstream.msg = PNGZ_MSG_CAST("damaged LZ stream");
 			    break;
 			case Z_MEM_ERROR:
-			    png_ptr->zstream.msg = PNGZ_MSG_CAST("insufficient memory");
+			    png_ptr->zstream.msg = PNGZ_MSG_CAST(SlTxtOutOfMem);
 			    break;
 			case Z_BUF_ERROR:
 			    // End of input or output; not a problem if the caller is doing incremental read or write.

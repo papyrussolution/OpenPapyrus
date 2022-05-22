@@ -1838,7 +1838,7 @@ static void * safe_find_block(void * ptr)
 	Memento_BlkHeader * block;
 	int valid;
 
-	if(ptr == NULL)
+	if(!ptr)
 		return NULL;
 
 	block = MEMBLK_FROMBLK(ptr);
@@ -1870,7 +1870,7 @@ void * Memento_label(void * ptr, const char * label)
 {
 	Memento_BlkHeader * block;
 
-	if(ptr == NULL)
+	if(!ptr)
 		return NULL;
 	MEMENTO_LOCK();
 	block = safe_find_block(ptr);

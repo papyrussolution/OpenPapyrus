@@ -1062,7 +1062,7 @@ static void U_CALLCONV _UTF32ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 	}
 
 	/* add BOM size to offsets - see comment at offsetDelta declaration */
-	if(offsets!=NULL && offsetDelta!=0) {
+	if(offsets && offsetDelta!=0) {
 		int32_t * offsetsLimit = pArgs->offsets;
 		while(offsets<offsetsLimit) {
 			*offsets++ += offsetDelta;

@@ -36,17 +36,7 @@
 #ifndef ABSL_STRINGS_STR_JOIN_H_
 #define ABSL_STRINGS_STR_JOIN_H_
 
-//#include <cstdio>
-//#include <cstring>
-//#include <initializer_list>
-//#include <iterator>
-//#include <string>
-//#include <tuple>
-//#include <type_traits>
-//#include <utility>
-//#include "absl/base/macros.h"
 #include "absl/strings/internal/str_join_internal.h"
-//#include "absl/strings/string_view.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

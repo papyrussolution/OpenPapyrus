@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/aes.h>
-//#include "aes_locl.h"
 
 void AES_ecb_encrypt(const uchar * in, uchar * out, const AES_KEY * key, const int enc)
 {

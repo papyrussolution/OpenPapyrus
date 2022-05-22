@@ -17,8 +17,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace proto_util_converter {
 namespace testing {
-constexpr DefaultValueTest::DefaultValueTest(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr DefaultValueTest::DefaultValueTest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_double_()
   , string_value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , bytes_value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -100,19 +99,21 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_google_2fprotobuf_2futil_2finternal_2ftestdata_2fdefault_5fvalue_5ftest_2eproto(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fdefault_5fvalue_5ftest_2eproto);
 namespace proto_util_converter {
 namespace testing {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* DefaultValueTest_EnumDefault_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fdefault_5fvalue_5ftest_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2futil_2finternal_2ftestdata_2fdefault_5fvalue_5ftest_2eproto[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* DefaultValueTest_EnumDefault_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fdefault_5fvalue_5ftest_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2futil_2finternal_2ftestdata_2fdefault_5fvalue_5ftest_2eproto[0];
 }
-bool DefaultValueTest_EnumDefault_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
+bool DefaultValueTest_EnumDefault_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+			return true;
+		default:
+			return false;
+	}
 }
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
@@ -158,9 +159,7 @@ DefaultValueTest::DefaultValueTest(const DefaultValueTest& from)
   if(!from._internal_bytes_value().empty()) {
     bytes_value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_bytes_value(), GetArenaForAllocation());
   }
-  ::memcpy(&double_value_, &from.double_value_,
-    static_cast<size_t>(reinterpret_cast<char*>(&enum_value_) -
-    reinterpret_cast<char*>(&double_value_)) + sizeof(enum_value_));
+  ::memcpy(&double_value_, &from.double_value_, static_cast<size_t>(reinterpret_cast<char*>(&enum_value_) - reinterpret_cast<char*>(&double_value_)) + sizeof(enum_value_));
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.DefaultValueTest)
 }
 
@@ -173,10 +172,7 @@ bytes_value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   bytes_value_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&double_value_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&enum_value_) -
-    reinterpret_cast<char*>(&double_value_)) + sizeof(enum_value_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&double_value_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&enum_value_) - reinterpret_cast<char*>(&double_value_)) + sizeof(enum_value_));
 }
 
 DefaultValueTest::~DefaultValueTest() {
@@ -196,8 +192,7 @@ void DefaultValueTest::ArenaDtor(void* object) {
   DefaultValueTest* _this = reinterpret_cast< DefaultValueTest* >(object);
   (void)_this;
 }
-void DefaultValueTest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void DefaultValueTest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void DefaultValueTest::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -211,9 +206,7 @@ void DefaultValueTest::Clear() {
   repeated_double_.Clear();
   string_value_.ClearToEmpty();
   bytes_value_.ClearToEmpty();
-  ::memset(&double_value_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&enum_value_) -
-      reinterpret_cast<char*>(&double_value_)) + sizeof(enum_value_));
+  ::memset(&double_value_, 0, static_cast<size_t>(reinterpret_cast<char*>(&enum_value_) - reinterpret_cast<char*>(&double_value_)) + sizeof(enum_value_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -326,10 +319,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -515,10 +505,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData DefaultValueTest::_class_data_
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*DefaultValueTest::GetClassData() const { return &_class_data_; }
 
-void DefaultValueTest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<DefaultValueTest *>(to)->MergeFrom(
-      static_cast<const DefaultValueTest &>(from));
+void DefaultValueTest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<DefaultValueTest *>(to)->MergeFrom(static_cast<const DefaultValueTest &>(from));
 }
 
 
@@ -587,16 +575,8 @@ void DefaultValueTest::InternalSwap(DefaultValueTest* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   repeated_double_.InternalSwap(&other->repeated_double_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &string_value_, lhs_arena,
-      &other->string_value_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &bytes_value_, lhs_arena,
-      &other->bytes_value_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &string_value_, lhs_arena, &other->string_value_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &bytes_value_, lhs_arena, &other->bytes_value_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(DefaultValueTest, enum_value_)
       + sizeof(DefaultValueTest::enum_value_)

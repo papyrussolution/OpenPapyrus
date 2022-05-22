@@ -123,7 +123,7 @@ UStringEnumeration * U_EXPORT2 UStringEnumeration::fromUEnumeration(UEnumeration
 		return NULL;
 	}
 	UStringEnumeration * result = new UStringEnumeration(uenumToAdopt);
-	if(result == NULL) {
+	if(!result) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		uenum_close(uenumToAdopt);
 		return NULL;
@@ -237,7 +237,7 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openFromStringEnumeration(icu::StringEnumer
 	UEnumeration* result = NULL;
 	if(U_SUCCESS(*ec) && adopted != NULL) {
 		result = (UEnumeration*)uprv_malloc(sizeof(UEnumeration));
-		if(result == NULL) {
+		if(!result) {
 			*ec = U_MEMORY_ALLOCATION_ERROR;
 		}
 		else {
@@ -245,7 +245,7 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openFromStringEnumeration(icu::StringEnumer
 			result->context = adopted;
 		}
 	}
-	if(result == NULL) {
+	if(!result) {
 		delete adopted;
 	}
 	return result;
@@ -329,7 +329,7 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openCharStringsEnumeration(const char * con
 	UCharStringEnumeration* result = NULL;
 	if(U_SUCCESS(*ec) && count >= 0 && (count == 0 || strings != 0)) {
 		result = (UCharStringEnumeration*)uprv_malloc(sizeof(UCharStringEnumeration));
-		if(result == NULL) {
+		if(!result) {
 			*ec = U_MEMORY_ALLOCATION_ERROR;
 		}
 		else {
@@ -348,7 +348,7 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openUCharStringsEnumeration(const UChar * c
 	UCharStringEnumeration* result = NULL;
 	if(U_SUCCESS(*ec) && count >= 0 && (count == 0 || strings != 0)) {
 		result = (UCharStringEnumeration*)uprv_malloc(sizeof(UCharStringEnumeration));
-		if(result == NULL) {
+		if(!result) {
 			*ec = U_MEMORY_ALLOCATION_ERROR;
 		}
 		else {

@@ -375,37 +375,19 @@ public class StyloQApp extends SLib.App {
 			OriginalCmdItem = null;
 			TextSubj = textSubj;
 			RetrActivity = null;
+			DocReqList = null;
 		}
-		/*InterchangeResult(SvcQueryResult tag, byte [] svcIdent, StyloQCommand.Item cmdItem, Object reply)
-		{
-			SvcIdent = svcIdent;
-			SvcReply = null;
-			ResultTag = tag;
-			InfoReply = reply;
-			OriginalCmdItem = cmdItem;
-			TextSubj = null;
-			RetrActivity = null;
-		}*/
 		InterchangeResult(SvcQueryResult tag, @NotNull StyloQInterchange.DoInterchangeParam param, Object reply)
 		{
 			ResultTag = tag;
 			SvcIdent = param.SvcIdent;
 			RetrActivity = param.RetrActivity_;
 			OriginalCmdItem = param.OriginalCmdItem;
+			DocReqList = param.DocReqList;
 			SvcReply = null;
 			InfoReply = reply;
 			TextSubj = null;
 		}
-		/*InterchangeResult(SvcQueryResult tag, byte [] svcIdent, SLib.SlActivity retrActivity, StyloQCommand.Item cmdItem, Object reply)
-		{
-			SvcIdent = svcIdent;
-			SvcReply = null;
-			ResultTag = tag;
-			InfoReply = reply;
-			OriginalCmdItem = cmdItem;
-			TextSubj = null;
-			RetrActivity = retrActivity;
-		}*/
 		String GetErrMsg()
 		{
 			return (InfoReply != null && InfoReply instanceof String) ? (String)InfoReply : null;
@@ -416,23 +398,10 @@ public class StyloQApp extends SLib.App {
 		Object InfoReply;
 		StyloQCommand.Item OriginalCmdItem;
 		SLib.SlActivity RetrActivity; // @v11.3.10 activity в которую необходимо вернуть результат исполнения команды
+		ArrayList <StyloQInterchange.DocumentRequestEntry> DocReqList; // @v11.3.12 Массив структур для синхронизации состояний документов с сервисом.
+			// Ссылка на список, переданный асинхронной процедуре обращения к сервису с, возможно, измененными в результате получения ответа от сервиса, атрибутами.
 		String TextSubj;
 	}
-	/*public static class SvcReplySubject {
-		public SvcReplySubject(byte [] svcIdent, String textSubj, StyloQCommand.Item cmdItem, SLib.SlActivity retrActivity, String errorMessage)
-		{
-			SvcIdent = svcIdent;
-			OriginalCmdItem = cmdItem;
-			RetrActivity = retrActivity;
-			TextSubj = textSubj;
-			ErrorMessage = errorMessage;
-		}
-		byte [] SvcIdent;
-		StyloQCommand.Item OriginalCmdItem;
-		SLib.SlActivity RetrActivity; // @v11.3.10 activity в которую необходимо вернуть результат исполнения команды
-		String TextSubj;
-		String ErrorMessage;
-	}*/
 	void SendSvcReplyToMainThread(@NotNull InterchangeResult subj, Object reply)
 	{
 		class SendSvcReplyToMainThreadEngine implements Runnable {
@@ -448,6 +417,15 @@ public class StyloQApp extends SLib.App {
 			new Handler(lpr).post(new SendSvcReplyToMainThreadEngine(this));
 		}
 	}
+	//
+	// Descr: Предварительный результат отправки документа сервису. Этот результат
+	//   не несет никакой информации о том, как сервис обработал документ и дошел ли документ
+	//   вообще до сервиса, поскольку процесс передачи асинхронный и будет известен только
+	//   после получения ответа от сервиса.
+	//   Эта структура содержит лишь информацию об идентификаторе документа (поскольку, если
+	//   функции RunSvcPostDocumentCommand был передан еще не сохраненный документ, то она
+	//   внесет его в базу данных) и о результате вызова (но не исполнения) асинхронной процедуры DoSvcRequest().
+	//
 	public static class PostDocumentResult {
 		PostDocumentResult()
 		{
@@ -501,9 +479,20 @@ public class StyloQApp extends SLib.App {
 							doc_pool.Put(SecretTagPool.tagDocDeclaration, js_text_docdecl.getBytes(StandardCharsets.UTF_8));
 							{
 								byte [] doc_ident = Db.MakeDocumentStorageIdent(svcIdent, doc_uuid);
-								result.DocID = Db.PutDocument(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, doc_ident, svc_id, doc_pool);
+								result.DocID = Db.PutDocument(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, doc.H.Flags, doc_ident, svc_id, doc_pool);
 								if(result.DocID > 0) {
-									if(DoSvcRequest(svc_pack, js_query.toString(), org_cmd_item, retrActivity)) {
+									StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svc_pack, js_query, org_cmd_item);
+									blk.RetrActivity = retrActivity;
+									{
+										StyloQInterchange.DocumentRequestEntry dre = new StyloQInterchange.DocumentRequestEntry();
+										dre.DocUUID = doc.H.Uuid;
+										dre.DocID = result.DocID;
+										dre.AfterTransmitStatusFlags = doc.GetAfterTransmitStatusFlags();
+										if(blk.DocReqList == null)
+											blk.DocReqList = new ArrayList<StyloQInterchange.DocumentRequestEntry>();
+										blk.DocReqList.add(dre);
+									}
+									if(DoSvcRequest(blk)) {
 										result.PostResult = true;
 									}
 								}
@@ -560,6 +549,8 @@ public class StyloQApp extends SLib.App {
 	// Descr: Реализует обращение к команде cmdItem сервиса svcIdent.
 	// ARG(svcIdent): Бинарный идентификатор сервиса
 	// ARG(cmdItem): Дескриптор команды
+	// ARG(jsReq): Если != null, то является запросом к сервису, в противном случае запрос
+	//   формирутся автоматически на основании исходного дескриптора команды cmdItem.
 	// ARG(forceSvcQuery): Если false, то функция будет анализировать возможность повторного
 	//   использования предыдущего вызова функции (период действия результата и пр.).
 	//   Если forceSvcQuery == true, то обращение к сервису осущетсвляется безусловно.
@@ -567,14 +558,14 @@ public class StyloQApp extends SLib.App {
 	//   true - функция завершилась успешно
 	//   false - ошибка
 	//
-	public boolean RunSvcCommand(byte [] svcIdent, StyloQCommand.Item cmdItem, boolean forceSvcQuery)
+	public boolean RunSvcCommand(byte [] svcIdent, StyloQCommand.Item cmdItem, JSONObject jsReq, boolean forceSvcQuery, SLib.SlActivity retrActivity)
 	{
 		boolean ok = false;
 		if(Db != null && cmdItem != null && cmdItem.Uuid != null && SLib.GetLen(svcIdent) > 0) {
 			try {
 				StyloQDatabase.SecStoragePacket svc_pack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svcIdent);
 				if(svc_pack != null) {
-					StyloQDatabase.SecStoragePacket __pack = LoadCommandSavedResult(svcIdent, cmdItem);
+					StyloQDatabase.SecStoragePacket __pack = forceSvcQuery ? null : LoadCommandSavedResult(svcIdent, cmdItem);
 					if(__pack != null) {
 						//
 						// Если мы извлекли ранее сохраненный результат с незавершенным
@@ -599,11 +590,19 @@ public class StyloQApp extends SLib.App {
 						ok = true; // Запрос отправлять будет не нужно!
 					}
 					else { // Мы не обнаружили ранее сохраненного результата команды (или срок годности такового истек) - отправляем запрос.
-						JSONObject js_query = new JSONObject();
-						String cmd_text = cmdItem.Uuid.toString();
-						js_query.put("cmd", cmd_text);
-						js_query.put("time", System.currentTimeMillis());
-						if(DoSvcRequest(svc_pack, js_query.toString(), cmdItem, null)) {
+						JSONObject js_query = null;
+						if(jsReq != null) {
+							js_query = jsReq;
+						}
+						else {
+							js_query = new JSONObject();
+							String cmd_text = cmdItem.Uuid.toString();
+							js_query.put("cmd", cmd_text);
+							js_query.put("time", System.currentTimeMillis());
+						}
+						StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svc_pack, js_query, cmdItem);
+						blk.RetrActivity = retrActivity;
+						if(DoSvcRequest(blk)) {
 							StyloQCommand.StartPendingCommand(svcIdent, cmdItem);
 							ok = true;
 						}
@@ -618,61 +617,64 @@ public class StyloQApp extends SLib.App {
 		}
 		return ok;
 	}
-	private boolean DoSvcRequest(StyloQDatabase.SecStoragePacket svcPack, String cmdJson, StyloQCommand.Item orgCmdItem, SLib.SlActivity retrActivity)
+	private boolean DoSvcRequest(StyloQInterchange.RequestBlock blk)
 	{
 		boolean ok = false;
-		String acspt_url = null;
-		String acspt_mqbauth = null;
-		String acspt_mqbsecr = null;
-		StyloQConfig cfg = null;
-		byte [] svc_ident = svcPack.Pool.Get(SecretTagPool.tagSvcIdent);
-		byte [] svc_cfg_bytes = svcPack.Pool.Get(SecretTagPool.tagConfig);
-		if(SLib.GetLen(svc_cfg_bytes) > 0) {
-			cfg = new StyloQConfig();
-			String js_cfg = new String(svc_cfg_bytes);
-			if(cfg.FromJson(js_cfg)) {
-				acspt_url = cfg.Get(StyloQConfig.tagUrl);
-				acspt_mqbauth = cfg.Get(StyloQConfig.tagMqbAuth);
-				acspt_mqbsecr = cfg.Get(StyloQConfig.tagMqbSecret);
+		if(blk != null && blk.SvcPack != null) {
+			String acspt_url = null;
+			String acspt_mqbauth = null;
+			String acspt_mqbsecr = null;
+			StyloQConfig cfg = null;
+			byte[] svc_ident = blk.SvcPack.Pool.Get(SecretTagPool.tagSvcIdent);
+			byte[] svc_cfg_bytes = blk.SvcPack.Pool.Get(SecretTagPool.tagConfig);
+			if(SLib.GetLen(svc_cfg_bytes) > 0) {
+				cfg = new StyloQConfig();
+				String js_cfg = new String(svc_cfg_bytes);
+				if(cfg.FromJson(js_cfg)) {
+					acspt_url = cfg.Get(StyloQConfig.tagUrl);
+					acspt_mqbauth = cfg.Get(StyloQConfig.tagMqbAuth);
+					acspt_mqbsecr = cfg.Get(StyloQConfig.tagMqbSecret);
+				}
 			}
-		}
-		if(SLib.GetLen(acspt_url) > 0) {
-			if(acspt_url.indexOf("://") < 0) {
-				if(SLib.GetLen(acspt_mqbauth) > 0)
-					acspt_url = "amqp://" + acspt_url;
-				else
-					acspt_url = "http://" + acspt_url;
-			}
-			try {
-				URI uri = new URI(acspt_url);
-				int uriprot = SLib.GetUriSchemeId(uri.getScheme());
-				if(uriprot == SLib.uripprotUnkn) {
-					if(SLib.GetLen(acspt_mqbauth) > 0) {
+			if(SLib.GetLen(acspt_url) > 0) {
+				if(acspt_url.indexOf("://") < 0) {
+					if(SLib.GetLen(acspt_mqbauth) > 0)
 						acspt_url = "amqp://" + acspt_url;
-						uri = new URI(acspt_url);
-						uriprot = SLib.GetUriSchemeId(uri.getScheme());
-					}
-					else {
+					else
 						acspt_url = "http://" + acspt_url;
-						uri = new URI(acspt_url);
-						uriprot = SLib.GetUriSchemeId(uri.getScheme());
+				}
+				try {
+					URI uri = new URI(acspt_url);
+					int uriprot = SLib.GetUriSchemeId(uri.getScheme());
+					if(uriprot == SLib.uripprotUnkn) {
+						if(SLib.GetLen(acspt_mqbauth) > 0) {
+							acspt_url = "amqp://" + acspt_url;
+							uri = new URI(acspt_url);
+							uriprot = SLib.GetUriSchemeId(uri.getScheme());
+						}
+						else {
+							acspt_url = "http://" + acspt_url;
+							uri = new URI(acspt_url);
+							uriprot = SLib.GetUriSchemeId(uri.getScheme());
+						}
 					}
+					if(uriprot == SLib.uripprotHttp || uriprot == SLib.uripprotHttps || uriprot == SLib.uripprotAMQP || uriprot == SLib.uripprotAMQPS) {
+						StyloQInterchange.DoInterchangeParam param = new StyloQInterchange.DoInterchangeParam(svc_ident);
+						param.AccsPoint = acspt_url;
+						param.MqbAuth = acspt_mqbauth;
+						param.MqbSecret = acspt_mqbsecr;
+						param.OriginalCmdItem = blk.OrgCmdItem;
+						if(blk.JsCmd != null)
+							param.CommandJson = blk.JsCmd.toString();
+						param.RetrActivity_ = blk.RetrActivity; // @v11.3.10
+						param.DocReqList = blk.DocReqList; // @v11.3.12
+						StyloQInterchange.RunClientInterchange(this, param);
+						ok = true;
+					}
+				} catch(URISyntaxException exn) {
+					ok = false;
+					new StyloQException(ppstr2.PPERR_JEXN_URISYNTAX, exn.getMessage());
 				}
-				if(uriprot == SLib.uripprotHttp || uriprot == SLib.uripprotHttps || uriprot == SLib.uripprotAMQP || uriprot == SLib.uripprotAMQPS) {
-					StyloQInterchange.DoInterchangeParam param = new StyloQInterchange.DoInterchangeParam(svc_ident);
-					param.AccsPoint = acspt_url;
-					param.MqbAuth = acspt_mqbauth;
-					param.MqbSecret = acspt_mqbsecr;
-					//param.AccsPoint = new String(accs_point_raw);
-					param.OriginalCmdItem = orgCmdItem;
-					param.CommandJson = cmdJson;
-					param.RetrActivity_ = retrActivity; // @v11.3.10
-					StyloQInterchange.RunClientInterchange(this, param);
-					ok = true;
-				}
-			} catch(URISyntaxException exn) {
-				ok = false;
-				new StyloQException(ppstr2.PPERR_JEXN_URISYNTAX, exn.getMessage());
 			}
 		}
 		return ok;
@@ -705,7 +707,8 @@ public class StyloQApp extends SLib.App {
 					try {
 						JSONObject js_query = new JSONObject();
 						js_query.put("cmd", "GetCommandList");
-						if(DoSvcRequest(svcPack, js_query.toString(), null, null))
+						StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svcPack, js_query, null);
+						if(DoSvcRequest(blk))
 							ok = true;
 					} catch(JSONException exn){
 						ok = false;

@@ -96,31 +96,6 @@
 #ifndef ABSL_CONTAINER_INTERNAL_RAW_HASH_SET_H_
 #define ABSL_CONTAINER_INTERNAL_RAW_HASH_SET_H_
 
-//#include <algorithm>
-//#include <cmath>
-//#include <cstdint>
-//#include <cstring>
-//#include <iterator>
-//#include <limits>
-//#include <memory>
-//#include <tuple>
-//#include <type_traits>
-//#include <utility>
-//#include "absl/base/internal/endian.h"
-//#include "absl/base/optimization.h"
-//#include "absl/base/port.h"
-//#include "absl/container/internal/common.h"
-//#include "absl/container/internal/compressed_tuple.h"
-//#include "absl/container/internal/container_memory.h"
-//#include "absl/container/internal/hash_policy_traits.h"
-//#include "absl/container/internal/hashtable_debug_hooks.h"
-//#include "absl/container/internal/hashtablez_sampler.h"
-//#include "absl/container/internal/have_sse.h"
-//#include "absl/memory/memory.h"
-//#include "absl/meta/type_traits.h"
-//#include "absl/numeric/bits.h"
-//#include "absl/utility/utility.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace container_internal {
@@ -131,9 +106,8 @@ void SwapAlloc(AllocType& lhs, AllocType& rhs,
 	swap(lhs, rhs);
 }
 
-template <typename AllocType>
-void SwapAlloc(AllocType& /*lhs*/, AllocType& /*rhs*/,
-    std::false_type /* propagate_on_container_swap */) {
+template <typename AllocType> void SwapAlloc(AllocType& /*lhs*/, AllocType& /*rhs*/, std::false_type /* propagate_on_container_swap */) 
+{
 }
 
 template <size_t Width>
@@ -144,26 +118,16 @@ public:
 		mask_ = mask;
 		offset_ = hash & mask_;
 	}
-
-	size_t offset() const {
-		return offset_;
-	}
-
-	size_t offset(size_t i) const {
-		return (offset_ + i) & mask_;
-	}
-
-	void next() {
+	size_t offset() const { return offset_; }
+	size_t offset(size_t i) const { return (offset_ + i) & mask_; }
+	void next() 
+	{
 		index_ += Width;
 		offset_ += index_;
 		offset_ &= mask_;
 	}
-
 	// 0-based probe index. The i-th probe in the probe sequence.
-	size_t index() const {
-		return index_;
-	}
-
+	size_t index() const { return index_; }
 private:
 	size_t mask_;
 	size_t offset_;
@@ -292,32 +256,16 @@ enum class ctrl_t : int8_t {
 	kSentinel = -1, // 0b11111111
 };
 
-static_assert(
-	(static_cast<int8_t>(ctrl_t::kEmpty) &
-	static_cast<int8_t>(ctrl_t::kDeleted) &
-	static_cast<int8_t>(ctrl_t::kSentinel) & 0x80) != 0,
+static_assert((static_cast<int8_t>(ctrl_t::kEmpty) & static_cast<int8_t>(ctrl_t::kDeleted) & static_cast<int8_t>(ctrl_t::kSentinel) & 0x80) != 0,
 	"Special markers need to have the MSB to make checking for them efficient");
-static_assert(
-	ctrl_t::kEmpty < ctrl_t::kSentinel && ctrl_t::kDeleted < ctrl_t::kSentinel,
-	"ctrl_t::kEmpty and ctrl_t::kDeleted must be smaller than "
-	"ctrl_t::kSentinel to make the SIMD test of IsEmptyOrDeleted() efficient");
-static_assert(
-	ctrl_t::kSentinel == static_cast<ctrl_t>(-1),
-	"ctrl_t::kSentinel must be -1 to elide loading it from memory into SIMD "
-	"registers (pcmpeqd xmm, xmm)");
-static_assert(ctrl_t::kEmpty == static_cast<ctrl_t>(-128),
-    "ctrl_t::kEmpty must be -128 to make the SIMD check for its "
-    "existence efficient (psignb xmm, xmm)");
-static_assert(
-	(~static_cast<int8_t>(ctrl_t::kEmpty) &
-	~static_cast<int8_t>(ctrl_t::kDeleted) &
-	static_cast<int8_t>(ctrl_t::kSentinel) & 0x7F) != 0,
-	"ctrl_t::kEmpty and ctrl_t::kDeleted must share an unset bit that is not "
-	"shared by ctrl_t::kSentinel to make the scalar test for "
-	"MatchEmptyOrDeleted() efficient");
-static_assert(ctrl_t::kDeleted == static_cast<ctrl_t>(-2),
-    "ctrl_t::kDeleted must be -2 to make the implementation of "
-    "ConvertSpecialToEmptyAndFullToDeleted efficient");
+static_assert(ctrl_t::kEmpty < ctrl_t::kSentinel && ctrl_t::kDeleted < ctrl_t::kSentinel, 
+	"ctrl_t::kEmpty and ctrl_t::kDeleted must be smaller than ctrl_t::kSentinel to make the SIMD test of IsEmptyOrDeleted() efficient");
+static_assert(ctrl_t::kSentinel == static_cast<ctrl_t>(-1),
+	"ctrl_t::kSentinel must be -1 to elide loading it from memory into SIMD registers (pcmpeqd xmm, xmm)");
+static_assert(ctrl_t::kEmpty == static_cast<ctrl_t>(-128), "ctrl_t::kEmpty must be -128 to make the SIMD check for its existence efficient (psignb xmm, xmm)");
+static_assert((~static_cast<int8_t>(ctrl_t::kEmpty) & ~static_cast<int8_t>(ctrl_t::kDeleted) & static_cast<int8_t>(ctrl_t::kSentinel) & 0x7F) != 0,
+	"ctrl_t::kEmpty and ctrl_t::kDeleted must share an unset bit that is not shared by ctrl_t::kSentinel to make the scalar test for MatchEmptyOrDeleted() efficient");
+static_assert(ctrl_t::kDeleted == static_cast<ctrl_t>(-2), "ctrl_t::kDeleted must be -2 to make the implementation of ConvertSpecialToEmptyAndFullToDeleted efficient");
 
 // A single block of empty control bytes for tables without any slots allocated.
 // This enables removing a branch in the hot path of find().
@@ -752,22 +700,12 @@ private:
 	// Give an early error when key_type is not hashable/eq.
 	auto KeyTypeCanBeHashed(const Hash& h, const key_type& k)->decltype(h(k));
 	auto KeyTypeCanBeEq(const Eq& eq, const key_type& k)->decltype(eq(k, k));
-
 	using AllocTraits = absl::allocator_traits<allocator_type>;
-	using SlotAlloc = typename absl::allocator_traits<
-		allocator_type>::template rebind_alloc<slot_type>;
-	using SlotAllocTraits = typename absl::allocator_traits<
-		allocator_type>::template rebind_traits<slot_type>;
-
-	static_assert(std::is_lvalue_reference<reference>::value,
-	    "Policy::element() must return a reference");
-
-	template <typename T>
-	struct SameAsElementReference
-		: std::is_same<typename std::remove_cv<
-			    typename std::remove_reference<reference>::type>::type,
-		    typename std::remove_cv<
-			    typename std::remove_reference<T>::type>::type> {};
+	using SlotAlloc = typename absl::allocator_traits<allocator_type>::template rebind_alloc<slot_type>;
+	using SlotAllocTraits = typename absl::allocator_traits<allocator_type>::template rebind_traits<slot_type>;
+	static_assert(std::is_lvalue_reference<reference>::value, "Policy::element() must return a reference");
+	template <typename T> struct SameAsElementReference : std::is_same<typename std::remove_cv<typename std::remove_reference<reference>::type>::type,
+		    typename std::remove_cv<typename std::remove_reference<T>::type>::type> {};
 
 	// An enabler for insert(T&&): T must be convertible to init_type or be the
 	// same as [cv] value_type [ref].
@@ -790,14 +728,10 @@ private:
 	using IsDecomposable = IsDecomposable<void, PolicyTraits, Hash, Eq, Ts ...>;
 
 public:
-	static_assert(std::is_same<pointer, value_type*>::value,
-	    "Allocators with custom pointer types are not supported");
-	static_assert(std::is_same<const_pointer, const value_type*>::value,
-	    "Allocators with custom pointer types are not supported");
-
+	static_assert(std::is_same<pointer, value_type*>::value, "Allocators with custom pointer types are not supported");
+	static_assert(std::is_same<const_pointer, const value_type*>::value, "Allocators with custom pointer types are not supported");
 	class iterator {
 		friend class raw_hash_set;
-
 public:
 		using iterator_category = std::forward_iterator_tag;
 		using value_type = typename raw_hash_set::value_type;

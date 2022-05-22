@@ -1286,7 +1286,7 @@ int PPViewAlcoDeclRu::Export()
 		//
 		{
 			SXml::WNode nf(g.P_X, g.GetToken_Ansi(PPHSC_RU_FILE));
-			nf.PutAttrib(g.GetToken_Ansi(PPHSC_RU_DOCDATE), temp_buf.Z().Cat(_now.d, DATF_GERMAN|DATF_CENTURY));
+			nf.PutAttrib(g.GetToken_Ansi(PPHSC_RU_DOCDATE), temp_buf.Z().Cat(_now.d, DATF_GERMANCENT));
 			nf.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERFORM), "4.4");
 			{
 				PPVersionInfo vi = DS.GetVersionInfo();
@@ -1453,8 +1453,8 @@ int PPViewAlcoDeclRu::Export()
 								n5.PutInner(g.GetToken_Ansi(PPHSC_RU_ORGACTIVITYKIND), "06");
 								temp_buf.Z().Cat(reg_rec.Serial).Space().Cat(reg_rec.Num).Strip().Transf(CTRANSF_INNER_TO_OUTER);
 								n5.PutInner(g.GetToken_Ansi(PPHSC_RU_LICSERIAL), temp_buf);
-								n5.PutInner(g.GetToken_Ansi(PPHSC_RU_LICINITDATE), temp_buf.Z().Cat(reg_rec.Dt, DATF_GERMAN|DATF_CENTURY));
-								n5.PutInner(g.GetToken_Ansi(PPHSC_RU_LICEXPIRY), temp_buf.Z().Cat(reg_rec.Expiry, DATF_GERMAN|DATF_CENTURY));
+								n5.PutInner(g.GetToken_Ansi(PPHSC_RU_LICINITDATE), temp_buf.Z().Cat(reg_rec.Dt, DATF_GERMANCENT));
+								n5.PutInner(g.GetToken_Ansi(PPHSC_RU_LICEXPIRY), temp_buf.Z().Cat(reg_rec.Expiry, DATF_GERMANCENT));
 							}
 						}
 						else {
@@ -1544,14 +1544,14 @@ int PPViewAlcoDeclRu::Export()
 													assert(suppl_bill_rec.Dt == r_entry.BillDt);
 													if(r_entry.ItemKind == 0) {
 														SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_SUPPLY));
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMANCENT));
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
 													}
 													else if(r_entry.ItemKind == 1) {
 														SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_RETURN));
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMAN|DATF_CENTURY));
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMANCENT));
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));

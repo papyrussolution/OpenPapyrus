@@ -448,7 +448,7 @@ int SZString::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSe
 	if(dir > 0) {
 		size_t sz = size();
 		size_t len = sstrlen(static_cast<const char *>(pData));
-		if(len == 0) {
+		if(!len) {
 			*pInd = 1;
 		}
 		else if(len <= 0x000000ffU) {

@@ -133,27 +133,18 @@ static void zero_mark_advances(hb_buffer_t * buffer,
 		}
 }
 
-static inline void position_mark(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
-    hb_font_t * font,
-    hb_buffer_t * buffer,
-    hb_glyph_extents_t &base_extents,
-    uint i,
-    uint combining_class)
+static inline void position_mark(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM, hb_font_t * font,
+    hb_buffer_t * buffer, hb_glyph_extents_t &base_extents, uint i, uint combining_class)
 {
 	hb_glyph_extents_t mark_extents;
 	if(!font->get_glyph_extents(buffer->info[i].codepoint, &mark_extents))
 		return;
-
 	hb_position_t y_gap = font->y_scale / 16;
-
 	hb_glyph_position_t &pos = buffer->pos[i];
 	pos.x_offset = pos.y_offset = 0;
-
 	/* We don't position LEFT and RIGHT marks. */
-
 	/* X positioning */
-	switch(combining_class)
-	{
+	switch(combining_class) {
 		case HB_UNICODE_COMBINING_CLASS_DOUBLE_BELOW:
 		case HB_UNICODE_COMBINING_CLASS_DOUBLE_ABOVE:
 		    if(buffer->props.direction == HB_DIRECTION_LTR) {
@@ -164,8 +155,7 @@ static inline void position_mark(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARA
 			    pos.x_offset += base_extents.x_bearing - mark_extents.width / 2 - mark_extents.x_bearing;
 			    break;
 		    }
-		    HB_FALLTHROUGH;
-
+		    CXX_FALLTHROUGH;
 		default:
 		case HB_UNICODE_COMBINING_CLASS_ATTACHED_BELOW:
 		case HB_UNICODE_COMBINING_CLASS_ATTACHED_ABOVE:
@@ -199,7 +189,7 @@ static inline void position_mark(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARA
 		case HB_UNICODE_COMBINING_CLASS_BELOW_RIGHT:
 		    /* Add gap, fall-through. */
 		    base_extents.height -= y_gap;
-		    HB_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 
 		case HB_UNICODE_COMBINING_CLASS_ATTACHED_BELOW_LEFT:
 		case HB_UNICODE_COMBINING_CLASS_ATTACHED_BELOW:
@@ -219,7 +209,7 @@ static inline void position_mark(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARA
 		    /* Add gap, fall-through. */
 		    base_extents.y_bearing += y_gap;
 		    base_extents.height -= y_gap;
-		    HB_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 
 		case HB_UNICODE_COMBINING_CLASS_ATTACHED_ABOVE:
 		case HB_UNICODE_COMBINING_CLASS_ATTACHED_ABOVE_RIGHT:

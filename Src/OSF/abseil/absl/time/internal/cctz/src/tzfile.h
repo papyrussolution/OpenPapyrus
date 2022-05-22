@@ -42,17 +42,16 @@
 #define TZ_MAGIC "TZif"
 
 struct tzhead {
-  char tzh_magic[4];      /* TZ_MAGIC */
-  char tzh_version[1];    /* '\0' or '2'-'4' as of 2021 */
-  char tzh_reserved[15];  /* reserved; must be zero */
-  char tzh_ttisutcnt[4];  /* coded number of trans. time flags */
-  char tzh_ttisstdcnt[4]; /* coded number of trans. time flags */
-  char tzh_leapcnt[4];    /* coded number of leap seconds */
-  char tzh_timecnt[4];    /* coded number of transition times */
-  char tzh_typecnt[4];    /* coded number of local time types */
-  char tzh_charcnt[4];    /* coded number of abbr. chars */
+	char tzh_magic[4]; /* TZ_MAGIC */
+	char tzh_version[1]; /* '\0' or '2'-'4' as of 2021 */
+	char tzh_reserved[15]; /* reserved; must be zero */
+	char tzh_ttisutcnt[4]; /* coded number of trans. time flags */
+	char tzh_ttisstdcnt[4]; /* coded number of trans. time flags */
+	char tzh_leapcnt[4]; /* coded number of leap seconds */
+	char tzh_timecnt[4]; /* coded number of transition times */
+	char tzh_typecnt[4]; /* coded number of local time types */
+	char tzh_charcnt[4]; /* coded number of abbr. chars */
 };
-
 /*
 ** . . .followed by. . .
 **
@@ -100,23 +99,18 @@ struct tzhead {
 ** In the current implementation, "tzset()" refuses to deal with files that
 ** exceed any of the limits below.
 */
-
 #ifndef TZ_MAX_TIMES
-#define TZ_MAX_TIMES 2000
+	#define TZ_MAX_TIMES 2000
 #endif /* !defined TZ_MAX_TIMES */
-
 #ifndef TZ_MAX_TYPES
-/* This must be at least 17 for Europe/Samara and Europe/Vilnius.  */
-#define TZ_MAX_TYPES 256 /* Limited by what (unsigned char)'s can hold */
+	/* This must be at least 17 for Europe/Samara and Europe/Vilnius.  */
+	#define TZ_MAX_TYPES 256 /* Limited by what (unsigned char)'s can hold */
 #endif                   /* !defined TZ_MAX_TYPES */
-
 #ifndef TZ_MAX_CHARS
 #define TZ_MAX_CHARS 50 /* Maximum number of abbreviation characters */
                         /* (limited by what unsigned chars can hold) */
 #endif                  /* !defined TZ_MAX_CHARS */
-
 #ifndef TZ_MAX_LEAPS
-#define TZ_MAX_LEAPS 50 /* Maximum number of leap second corrections */
+	#define TZ_MAX_LEAPS 50 /* Maximum number of leap second corrections */
 #endif                  /* !defined TZ_MAX_LEAPS */
-
 #endif /* !defined TZFILE_H */

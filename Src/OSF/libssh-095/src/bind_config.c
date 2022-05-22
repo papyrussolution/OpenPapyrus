@@ -98,7 +98,7 @@ static void local_parse_file(ssh_bind bind, const char * filename, uint32_t * pa
 	uint count = 0;
 	int rv;
 	FILE * f = fopen(filename, "r");
-	if(f == NULL) {
+	if(!f) {
 		SSH_LOG(SSH_LOG_RARE, "Cannot find file %s to load", filename);
 		return;
 	}
@@ -163,7 +163,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		return -1;
 	}
 	x = s = sstrdup(line);
-	if(s == NULL) {
+	if(!s) {
 		ssh_set_error_oom(bind);
 		return -1;
 	}

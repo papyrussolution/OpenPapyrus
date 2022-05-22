@@ -1430,6 +1430,52 @@ public class StyloQInterchange {
 			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
 		}
 	}
+	//
+	// Descr: Структура, используемая для синхронизации атрибутов документа при обмене с сервисом.
+	//    На текущий момент (@v11.3.12) очень приблизительная и потребует значительного пересмотра.
+	//
+	public static class DocumentRequestEntry {
+		enum AcceptionResult {
+			Unseen,     // не акцептировалось
+			Skipped,    // пропущено: функция AcceptDocumentRequestList видела этот элемент, но посчитала что ничего даже пытаться делать не надо
+			Successed,  // успешно акцептировано
+			Unchanged,  // состояние документа в базе данных уже соответствует тому, что запрошено этим элементом
+			Error       // ошибка при попытке акцепта
+		}
+		DocumentRequestEntry()
+		{
+			DocUUID = null;
+			DocID = 0;
+			RemoveDocID = 0;
+			AfterTransmitStatusFlags = 0;
+			RemoteStatus = 0;
+			DbAcceptStatus = AcceptionResult.Unseen;
+		}
+		UUID   DocUUID;
+		long   DocID;                    // Идентификатор документа в локальной базе данных
+		long   RemoveDocID;              // Идентификатор документа у контрагента
+		int    AfterTransmitStatusFlags; // Флаги статуса, которые должны быть установлены у документа после успешной передачи
+		int    RemoteStatus;             // Статус документа у контрагента
+		// ...
+		AcceptionResult DbAcceptStatus; // Статус акцепта локальной базой данных данных этой структуры
+	}
+	public static class RequestBlock {
+		RequestBlock(StyloQDatabase.SecStoragePacket svcPack, JSONObject jsQuery, StyloQCommand.Item orgCmdItem)
+		{
+			SvcPack = svcPack;
+			Doc = null;
+			JsCmd = jsQuery;
+			OrgCmdItem = orgCmdItem;
+			RetrActivity = null;
+			DocReqList = null;
+		}
+		StyloQDatabase.SecStoragePacket SvcPack;
+		Document Doc;
+		JSONObject JsCmd;
+		StyloQCommand.Item OrgCmdItem;
+		SLib.SlActivity RetrActivity;
+		ArrayList <DocumentRequestEntry> DocReqList; // Массив структур для синхронизации состояний документов с сервисом
+	}
 	static class DoInterchangeParam {
 		DoInterchangeParam(byte [] svcIdent)
 		{
@@ -1442,6 +1488,7 @@ public class StyloQInterchange {
 			MqbAuth = null;
 			MqbSecret = null;
 			CommandJson = null;
+			DocReqList = null;
 		}
 		byte [] SvcIdent;
 		byte [] LoclAddendum;
@@ -1455,6 +1502,7 @@ public class StyloQInterchange {
 		String MqbAuth;
 		String MqbSecret;
 		String CommandJson;
+		ArrayList <DocumentRequestEntry> DocReqList; // Массив структур для синхронизации состояний документов с сервисом
 	}
 	private static int QueryConfigAndSetFaceIfNeeded(StyloQApp appCtx, StyloQInterchange ic, StyloQInterchange.RoundTripBlock rtb) throws StyloQException
 	{
@@ -1713,12 +1761,12 @@ public class StyloQInterchange {
 					long svc_id = (svc_pack != null) ? svc_pack.Rec.ID : 0;
 					JSONObject jsobj = new JSONObject(param.CommandJson);
 					//Object ro = (jsobj != null) ? jsobj.get("cmd") : null;
-					String org_cmd_text = (jsobj != null) ? jsobj.optString("cmd", "") : null;
+					String org_cmd_text = (jsobj != null) ? jsobj.optString("cmd", "") : "";
 					if(org_cmd_text.equalsIgnoreCase("GetCommandList")) {
 						// Специальный случай: получение списка команд сервиса - мы сразу сохраняем
 						// этот список в реестре объектов StyloQ
 						byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, null);
-						long new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypCommandList, doc_ident, svc_id, rpool);
+						long new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypCommandList, 0, doc_ident, svc_id, rpool);
 						if(new_doc_id > 0)
 							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "UpdateCommandList", param.SvcIdent);
 						else
@@ -1740,15 +1788,41 @@ public class StyloQInterchange {
 							byte[] raw_doc_decl = rpool.Get(SecretTagPool.tagDocDeclaration);
 							long new_doc_id = 0;
 							if(SLib.GetLen(raw_doc_data) > 0) {
-								if(SLib.GetLen(raw_doc_decl) > 0) {
+								if(org_cmd_text.equalsIgnoreCase("PostDocument")) {
+									if(param.DocReqList != null && param.DocReqList.size() > 0) {
+										String text_doc_data = new String(raw_doc_data);
+										if(SLib.GetLen(text_doc_data) > 0) {
+											JSONObject js_doc_data = new JSONObject(text_doc_data);
+											if(js_doc_data != null) {
+												String rep_txt_uuid = js_doc_data.optString("document-uuid", null);
+												long rep_id = js_doc_data.optLong("document-id", 0);
+												if(SLib.GetLen(rep_txt_uuid) > 0 && rep_id > 0) {
+													UUID remote_doc_uuid = UUID.fromString(rep_txt_uuid);
+													if(remote_doc_uuid != null) {
+														for(int drlidx = 0; drlidx < param.DocReqList.size(); drlidx++) {
+															DocumentRequestEntry dre = param.DocReqList.get(drlidx);
+															if(dre != null && dre.DocUUID.compareTo(remote_doc_uuid) == 0) {
+																dre.RemoveDocID = rep_id;
+																if(dre.AfterTransmitStatusFlags != 0) {
+																	dbs.AcceptDocumentRequestList(param.DocReqList);
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+								else if(SLib.GetLen(raw_doc_decl) > 0) {
 									if(param.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcRsrvOrderPrereq) {
 										byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
-										new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypOrderPrereq, doc_ident, svc_id, rpool);
+										new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypOrderPrereq, 0, doc_ident, svc_id, rpool);
 									}
 									else if(param.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcReport) {
 										byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, param.OriginalCmdItem.Uuid);
 										if(doc_ident != null)
-											new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypReport, doc_ident, svc_id, rpool);
+											new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypReport, 0, doc_ident, svc_id, rpool);
 									}
 								}
 								else {

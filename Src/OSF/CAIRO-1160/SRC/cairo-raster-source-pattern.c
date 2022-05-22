@@ -123,7 +123,7 @@ cairo_pattern_t * cairo_pattern_create_raster_source(void * user_data, cairo_con
 	if(!CAIRO_CONTENT_VALID(content))
 		return _cairo_pattern_create_in_error(CAIRO_STATUS_INVALID_CONTENT);
 	pattern = (cairo_raster_source_pattern_t *)SAlloc::C(1, sizeof(*pattern));
-	if(UNLIKELY(pattern == NULL))
+	if(UNLIKELY(!pattern))
 		return _cairo_pattern_create_in_error(CAIRO_STATUS_NO_MEMORY);
 	_cairo_pattern_init(&pattern->base, CAIRO_PATTERN_TYPE_RASTER_SOURCE);
 	CAIRO_REFERENCE_COUNT_INIT(&pattern->base.ref_count, 1);

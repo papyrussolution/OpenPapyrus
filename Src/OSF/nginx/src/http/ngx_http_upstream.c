@@ -1529,7 +1529,7 @@ static ngx_int_t ngx_http_upstream_intercept_errors(ngx_http_request_t * r, ngx_
 		if(err_page[i].status == status) {
 			if(status == NGX_HTTP_UNAUTHORIZED && u->headers_in.www_authenticate) {
 				h = (ngx_table_elt_t *)ngx_list_push(&r->headers_out.headers);
-				if(h == NULL) {
+				if(!h) {
 					ngx_http_upstream_finalize_request(r, u, NGX_HTTP_INTERNAL_SERVER_ERROR);
 					return NGX_OK;
 				}
@@ -4007,7 +4007,7 @@ ngx_int_t ngx_http_upstream_hide_headers_hash(ngx_conf_t * cf, ngx_http_upstream
 	}
 	for(h = default_hide_headers; h->len; h++) {
 		hk = (ngx_hash_key_t *)ngx_array_push(&hide_headers);
-		if(hk == NULL) {
+		if(!hk) {
 			return NGX_ERROR;
 		}
 		hk->key = *h;
@@ -4024,7 +4024,7 @@ ngx_int_t ngx_http_upstream_hide_headers_hash(ngx_conf_t * cf, ngx_http_upstream
 				}
 			}
 			hk = (ngx_hash_key_t *)ngx_array_push(&hide_headers);
-			if(hk == NULL) {
+			if(!hk) {
 				return NGX_ERROR;
 			}
 			hk->key = h[i];
@@ -4096,7 +4096,7 @@ static char * ngx_http_upstream_init_main_conf(ngx_conf_t * cf, void * conf)
 	{
 		for(ngx_http_upstream_header_t * header = ngx_http_upstream_headers_in; header->name.len; header++) {
 			ngx_hash_key_t * hk = (ngx_hash_key_t *)ngx_array_push(&headers_in);
-			if(hk == NULL) {
+			if(!hk) {
 				return NGX_CONF_ERROR;
 			}
 			hk->key = header->name;

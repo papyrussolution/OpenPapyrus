@@ -69,7 +69,7 @@ int32_t UCharsDictionaryMatcher::matches(UText * text, int32_t maxLength, int32_
 			break;
 		}
 	}
-	if(prefix != NULL) {
+	if(prefix) {
 		*prefix = codePointsMatched;
 	}
 	return wordCount;
@@ -135,7 +135,7 @@ int32_t BytesDictionaryMatcher::matches(UText * text, int32_t maxLength, int32_t
 			break;
 		}
 	}
-	if(prefix != NULL) {
+	if(prefix) {
 		*prefix = codePointsMatched;
 	}
 	return wordCount;

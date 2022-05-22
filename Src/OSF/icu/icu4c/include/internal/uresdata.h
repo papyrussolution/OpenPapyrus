@@ -404,11 +404,9 @@ U_CFUNC void res_load(ResourceData * pResData, const char * path, const char * n
  */
 U_CFUNC void res_unload(ResourceData * pResData);
 U_CAPI UResType U_EXPORT2 res_getPublicType(Resource res);
-
-///////////////////////////////////////////////////////////////////////////
+//
 // To enable tracing, use the inline versions of the res_get* functions. //
-///////////////////////////////////////////////////////////////////////////
-
+//
 /*
  * Return a pointer to a zero-terminated, const UChar * string
  * and set its length in *pLength.

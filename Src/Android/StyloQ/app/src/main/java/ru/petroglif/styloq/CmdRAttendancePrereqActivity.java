@@ -257,6 +257,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	{
 		CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabBookingDocument);
 		if(te != null && te.TabView != null) {
+			CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.VISIBLE);
 			View v = te.TabView.getView();
 			if(v != null && v instanceof ViewGroup) {
 				View lv = ((ViewGroup)v).findViewById(R.id.attendancePrereqBookingListView);
@@ -511,22 +512,21 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			shaperc = R.drawable.shape_listitem_focused;
 		else {
 			boolean is_catched = false;
-			if(objID > 0 && CPM.CurrentOrder != null) {
-				if(CPM.CurrentOrder.H != null) {
-					if(objType == SLib.PPOBJ_PERSON && objID == CPM.CurrentOrder.H.ClientID) {
+			if(objID > 0 && !CPM.IsCurrentDocumentEmpty()) {
+				final Document _doc = CPM.GetCurrentDocument();
+				if(objType == SLib.PPOBJ_PERSON && objID == _doc.H.ClientID) {
+					is_catched = true;
+				}
+				else if(objType == SLib.PPOBJ_LOCATION && objID == _doc.H.DlvrLocID) {
+					is_catched = true;
+				}
+				else if(objType == SLib.PPOBJ_GOODS) {
+					if(CPM.HasGoodsInCurrentOrder(objID))
 						is_catched = true;
-					}
-					else if(objType == SLib.PPOBJ_LOCATION && objID == CPM.CurrentOrder.H.DlvrLocID) {
+				}
+				else if(objType == SLib.PPOBJ_PROCESSOR) {
+					if(CPM.HasPrcInCurrentOrder(objID))
 						is_catched = true;
-					}
-					else if(objType == SLib.PPOBJ_GOODS) {
-						if(CPM.HasGoodsInCurrentOrder(objID))
-							is_catched = true;
-					}
-					else if(objType == SLib.PPOBJ_PROCESSOR) {
-						if(CPM.HasPrcInCurrentOrder(objID))
-							is_catched = true;
-					}
 				}
 			}
 			if(is_catched)
@@ -597,21 +597,27 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					if(convertView != null) {
 						TextView v = convertView.findViewById(R.id.LVITEM_GENERICNAME);
 						if(v != null && item instanceof CommonPrereqModule.WareEntry) {
-							CommonPrereqModule.WareEntry ware_entry = (CommonPrereqModule.WareEntry) item;
+							CommonPrereqModule.WareEntry ware_entry = (CommonPrereqModule.WareEntry)item;
 							if(ware_entry.JsItem != null) {
 								int goods_id = ware_entry.JsItem.optInt("id", 0);
 								v.setText(ware_entry.JsItem.optString("nm", ""));
 								if(_ctx instanceof CmdRAttendancePrereqActivity) {
-									int duration = ((CmdRAttendancePrereqActivity) _ctx).CPM.GetServiceDurationForPrc(PrcID, goods_id);
-									if(duration > 0) {
-										Context app_ctx = _ctx.getApplicationContext();
-										if(app_ctx != null && app_ctx instanceof StyloQApp) {
-											String text = ((StyloQApp) app_ctx).GetString("duration");
+									Context app_ctx = _ctx.getApplicationContext();
+									if(app_ctx != null && app_ctx instanceof StyloQApp) {
+										CommonPrereqModule _cpm = ((CmdRAttendancePrereqActivity)_ctx).CPM;
+										int duration = _cpm.GetServiceDurationForPrc(PrcID, goods_id);
+										double price = (ware_entry.PrcPrice > 0.0) ? ware_entry.PrcPrice : _cpm.GetPriceForPrc(PrcID, goods_id);
+										if(duration > 0) {
+											String text = ((StyloQApp)app_ctx).GetString("duration");
 											if(SLib.GetLen(text) == 0)
 												text = SLib.durationfmt(duration);
 											else
 												text += ": " + SLib.durationfmt(duration);
 											SLib.SetCtrlString(convertView, R.id.CTL_GOODSBYPRC_DURATION, text);
+										}
+										if(price > 0.0) {
+											String text = _cpm.FormatCurrency(price);
+											SLib.SetCtrlString(convertView, R.id.CTL_GOODSBYPRC_PRICE, text);
 										}
 									}
 								}
@@ -621,6 +627,25 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				}
 			}
 			return convertView; // Return the completed view to render on screen
+		}
+	}
+	private void GetFragmentData(Object entry)
+	{
+		if(entry != null) {
+			ViewGroup vg = null;
+			if(entry instanceof SLib.SlFragmentStatic) {
+				View v = ((SLib.SlFragmentStatic)entry).getView();
+				if(v instanceof ViewGroup)
+					vg = (ViewGroup)v;
+			}
+			else if(entry instanceof ViewGroup)
+				vg = (ViewGroup)entry;
+			if(vg != null) {
+				int vg_id = vg.getId();
+				if(vg_id == R.id.LAYOUT_ATTENDANCEPREREQ_BOOKING) {
+					CPM.UpdateMemoInCurrentDocument(SLib.GetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO));
+				}
+			}
 		}
 	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
@@ -679,6 +704,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							}
 							SLib.SetupTabLayoutStyle(lo_tab);
 							SLib.SetupTabLayoutListener(lo_tab, view_pager);
+							if(CPM.IsCurrentDocumentEmpty()) {
+								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
+							}
 						}
 					}
 					SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
@@ -700,7 +728,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						case R.id.attendancePrereqAttendanceView:
 							result = new Integer(AttdcBlk.GetWorkhoursCount());
 							break;
-						case R.id.attendancePrereqBookingListView: result = new Integer((CPM.CurrentOrder != null && CPM.CurrentOrder.BkList != null) ? CPM.CurrentOrder.BkList.size() : 0); break;
+						case R.id.attendancePrereqBookingListView: result = new Integer(CPM.GetCurrentDocumentBookingListCount()); break;
 						case R.id.attendancePrereqOrderListView: result = new Integer((CPM.OrderHList != null) ? CPM.OrderHList.size() : 0); break;
 						case R.id.searchPaneListView:
 						{
@@ -761,30 +789,33 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						}
 					}
 					else if(vg_id == R.id.LAYOUT_ATTENDANCEPREREQ_BOOKING) {
-						if(CPM.CurrentOrder == null || CPM.CurrentOrder.H == null) {
+						if(CPM.IsCurrentDocumentEmpty()) {
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, "");
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, "");
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_PRC, "");
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_TIMECHUNK, "");
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_AMOUNT, "");
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO, "");
 						}
 						else {
-							if(SLib.GetLen(CPM.CurrentOrder.H.Code) > 0)
-								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, CPM.CurrentOrder.H.Code);
+							final Document _doc = CPM.GetCurrentDocument();
+							if(SLib.GetLen(_doc.H.Code) > 0)
+								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, _doc.H.Code);
 							SLib.LDATE d = null;
-							if(CPM.CurrentOrder.H.Time > 0)
-								d = SLib.BuildDateByEpoch(CPM.CurrentOrder.H.Time);
-							else if(CPM.CurrentOrder.H.CreationTime > 0)
-								d = SLib.BuildDateByEpoch(CPM.CurrentOrder.H.CreationTime);
+							if(_doc.H.Time > 0)
+								d = SLib.BuildDateByEpoch(_doc.H.Time);
+							else if(_doc.H.CreationTime > 0)
+								d = SLib.BuildDateByEpoch(_doc.H.CreationTime);
 							if(d != null) {
 								String ds = d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY);
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, ds);
 							}
-							if(CPM.CurrentOrder.BkList != null && CPM.CurrentOrder.BkList.size() > 0) {
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO, _doc.H.Memo);
+							if(_doc.BkList != null && _doc.BkList.size() > 0) {
 								String goods_name = "";
 								String prc_name = "";
 								String timechunk_text = "";
-								Document.BookingItem bk_item = CPM.CurrentOrder.BkList.get(0);
+								final Document.BookingItem bk_item = _doc.BkList.get(0);
 								if(bk_item != null) {
 									CommonPrereqModule.WareEntry goods_entry = CPM.FindGoodsItemByGoodsID(bk_item.GoodsID);
 									if(goods_entry != null)
@@ -872,7 +903,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 													ctl.setImageResource(R.drawable.ic_triangledown03);
 													if(prc_lv != null) {
 														prc_lv.setVisibility(View.VISIBLE);
-														PrcByGoodsListAdapter adapter = new PrcByGoodsListAdapter(iv.getContext(), R.layout.li_simple, cur_id, prc_list);
+														PrcByGoodsListAdapter adapter = new PrcByGoodsListAdapter(iv.getContext(), R.layout.li_simple_sublist, cur_id, prc_list);
 														prc_lv.setAdapter(adapter);
 														{
 															int total_items_height = SLib.CalcListViewHeight(prc_lv);
@@ -1099,9 +1130,11 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									}
 								}
 								else if(a.GetListRcId() == R.id.attendancePrereqBookingListView) {
-									if(CPM.CurrentOrder != null && CPM.CurrentOrder.BkList != null && ev_subj.ItemIdx < CPM.CurrentOrder.BkList.size()) {
+									final int bk_list_count = CPM.GetCurrentDocumentBookingListCount();
+									if(ev_subj.ItemIdx < bk_list_count) {
 										View iv = ev_subj.RvHolder.itemView;
-										Document.BookingItem cur_entry = CPM.CurrentOrder.BkList.get(ev_subj.ItemIdx);
+										final Document _doc = CPM.GetCurrentDocument();
+										final Document.BookingItem cur_entry = _doc.BkList.get(ev_subj.ItemIdx);
 										if(cur_entry != null) {
 											CommonPrereqModule.WareEntry goods = CPM.FindGoodsItemByGoodsID(cur_entry.GoodsID);
 											String goods_name = "";
@@ -1109,6 +1142,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												goods_name = goods.JsItem.optString("nm", "");
 											}
 											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, goods_name);
+											if(cur_entry.Set != null && cur_entry.Set.Price > 0.0) {
+												SLib.SetCtrlString(iv, R.id.ATTENDANCEPREREQ_BI_PRICE, CPM.FormatCurrency(cur_entry.Set.Price));
+											}
 										}
 									}
 								}
@@ -1146,24 +1182,13 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 																	text = tc.Format(SLib.DATF_DMY, SLib.TIMF_HM);
 															}
 														}
+														else if(i == 4) { // memo
+															text = cur_entry.H.Memo;
+														}
 														ctl.setText(text);
 													}
 												}
 											}
-											/*SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_CODE, (SLib.GetLen(dh.Code) > 0) ? dh.Code : "");
-											{
-												SLib.LDATE d = null;
-												if(dh.Time > 0)
-													d = SLib.BuildDateByEpoch(dh.Time);
-												else if(dh.CreationTime > 0)
-													d = SLib.BuildDateByEpoch(dh.CreationTime);
-												if(d != null)
-													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_DATE, d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY));
-											}
-											{
-												String amount_text = String.format(Locale.US, "%12.2f", dh.Amount);
-												SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_AMOUNT, amount_text);
-											}*/
 										}
 									}
 								}
@@ -1331,6 +1356,13 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 														col.Mrgn = fld_mrgn;
 														VdlDocs.AddItem(col);
 													}
+													{ // #4
+														ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+														col.Title = app_ctx.GetString("memo");
+														col.StyleRcId = R.style.OrderListItemText;
+														col.Mrgn = fld_mrgn;
+														VdlDocs.AddItem(col);
+													}
 													if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
 														final int _vdlc = VdlDocs.GetCount();
 														assert(_vdlc > 0);
@@ -1366,6 +1398,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 																					VdlDocs.DataPreprocessingIter(dpb, text);
 																				}
 																			}
+																		}
+																		else if(i == 4) { // memo
+																			VdlDocs.DataPreprocessingIter(dpb, null, cur_entry.H.Memo);
 																		}
 																	}
 																}
@@ -1558,7 +1593,6 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
 										do_update_goods_list_and_toggle_to_it = true;
 									}
-									//app_ctx.RunSvcCommand(SvcIdent, ListData.Items.get(ev_subj.ItemIdx));
 								}
 							}
 							if(do_update_goods_list_and_toggle_to_it) {
@@ -1567,6 +1601,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						}
 					}
 				}
+				break;
+			case SLib.EV_GETVIEWDATA:
+				if(srcObj != null && srcObj instanceof ViewGroup)
+					GetFragmentData(srcObj);
 				break;
 			case SLib.EV_COMMAND:
 				int view_id = (srcObj != null && srcObj instanceof View) ? ((View)srcObj).getId() : 0;
@@ -1597,6 +1635,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					}
 				}
 				else if(view_id == R.id.STDCTL_COMMITBUTTON) {
+					CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabBookingDocument);
+					if(te != null)
+						GetFragmentData(te.TabView);
 					CPM.CommitCurrentDocument(this);
 				}
 				else {
@@ -1634,28 +1675,22 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										case R.id.LVITEM_MIN55: minuts = 55; break;
 									}
 									SLib.LTIME start_tm = new SLib.LTIME(hour, minuts, 0, 0);
-									try {
-										if(CPM.CurrentOrder == null) {
-											CPM.CurrentOrder = new Document(SLib.sqbdtSvcReq, CPM.SvcIdent, (StyloQApp) getApplicationContext());
-											CPM.CurrentOrder.H.BaseCurrencySymb = CPM.GetBaseCurrencySymb();
-										}
-										if(CPM.CurrentOrder.BkList == null)
-											CPM.CurrentOrder.BkList = new ArrayList<Document.BookingItem>();
-										CPM.CurrentOrder.BkList.clear();
-										Document.BookingItem bk_item = new Document.BookingItem();
-										bk_item.GoodsID = goods_id;
-										bk_item.PrcID = prc_id;
-										bk_item.RowIdx = 1;
-										bk_item.ReqTime = new SLib.LDATETIME(dt, start_tm);
-										bk_item.EstimatedDurationSec = CPM.GetServiceDurationForPrc(prc_id, goods_id);
-										if(bk_item.EstimatedDurationSec <= 0)
-											bk_item.EstimatedDurationSec = 3600; // default value
-										CPM.CurrentOrder.BkList.add(bk_item);
-										AttdcBlk.CurrentBookingBusyList = CPM.GetCurrentDocumentBusyList(prc_id);
+									//
+									Document.BookingItem bk_item = new Document.BookingItem();
+									bk_item.GoodsID = goods_id;
+									bk_item.PrcID = prc_id;
+									bk_item.RowIdx = 1;
+									bk_item.ReqTime = new SLib.LDATETIME(dt, start_tm);
+									bk_item.EstimatedDurationSec = CPM.GetServiceDurationForPrc(prc_id, goods_id);
+									if(bk_item.EstimatedDurationSec <= 0)
+										bk_item.EstimatedDurationSec = 3600; // default value
+									bk_item.Set.Qtty = 1;
+									bk_item.Set.Price = CPM.GetPriceForPrc(bk_item.PrcID, bk_item.GoodsID);
+									ArrayList <SLib.STimeChunk> new_busy_list = CPM.PutBookingItemToCurrentDocument((StyloQApp)getApplication(), bk_item);
+									if(new_busy_list != null) {
+										AttdcBlk.CurrentBookingBusyList = new_busy_list;
 										UpdateAttendanceView();
 										UpdateBookingView();
-									} catch(StyloQException exn) {
-										;
 									}
 								}
 							}
@@ -1710,10 +1745,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						}
 						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 							CPM.MakeCurrentDocList((StyloQApp)getApplication());
-							CPM.CurrentOrder = null;
+							CPM.ResetCurrentDocument();
 							//NotifyCurrentOrderChanged();
 							GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.attendancePrereqOrderListView, -1, -1);
-							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBookingDocument, View.GONE);
 						}
 						else {
 

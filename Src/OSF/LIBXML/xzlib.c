@@ -78,7 +78,7 @@ static void xz_error(xz_statep state, int err, const char * msg)
 		state->msg = static_cast<char *>(SAlloc::M(sstrlen(state->path) + sstrlen(msg) + 3));
 		if(state->msg == NULL) {
 			state->err = LZMA_MEM_ERROR;
-			state->msg = (char *)"out of memory";
+			state->msg = const_cast<char *>(SlTxtOutOfMem); // @badcast
 		}
 		else {
 			strcpy(state->msg, state->path);
@@ -333,7 +333,7 @@ static int xz_head(xz_statep state)
 		if(state->in == NULL || state->out == NULL) {
 			SAlloc::F(state->out);
 			SAlloc::F(state->in);
-			xz_error(state, LZMA_MEM_ERROR, "out of memory");
+			xz_error(state, LZMA_MEM_ERROR, SlTxtOutOfMem);
 			return -1;
 		}
 		state->size = state->want;
@@ -345,7 +345,7 @@ static int xz_head(xz_statep state)
 			SAlloc::F(state->out);
 			SAlloc::F(state->in);
 			state->size = 0;
-			xz_error(state, LZMA_MEM_ERROR, "out of memory");
+			xz_error(state, LZMA_MEM_ERROR, SlTxtOutOfMem);
 			return -1;
 		}
 #ifdef HAVE_ZLIB_H
@@ -360,7 +360,7 @@ static int xz_head(xz_statep state)
 				SAlloc::F(state->out);
 				SAlloc::F(state->in);
 				state->size = 0;
-				xz_error(state, LZMA_MEM_ERROR, "out of memory");
+				xz_error(state, LZMA_MEM_ERROR, SlTxtOutOfMem);
 				return -1;
 			}
 			state->init = 1;
@@ -509,7 +509,7 @@ static int xz_decomp(xz_statep state)
 #endif
 		ret = lzma_code(strm, action);
 		if(ret == LZMA_MEM_ERROR) {
-			xz_error(state, LZMA_MEM_ERROR, "out of memory");
+			xz_error(state, LZMA_MEM_ERROR, SlTxtOutOfMem);
 			return -1;
 		}
 		if(ret == LZMA_DATA_ERROR) {

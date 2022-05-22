@@ -14,15 +14,9 @@
 #ifndef WEBP_MUX_MUXI_H_
 #define WEBP_MUX_MUXI_H_
 
-//#include <assert.h>
-//#include <stdlib.h>
 #include "src/dec/vp8i_dec.h"
 #include "src/dec/vp8li_dec.h"
 #include "src/webp/mux.h"
-
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
 //
 // Defines and constants.
 //
@@ -198,14 +192,10 @@ WebPMuxError MuxImagePush(const WebPMuxImage* wpi, WebPMuxImage** wpi_list);
 
 // Delete nth image in the image list.
 WebPMuxError MuxImageDeleteNth(WebPMuxImage** wpi_list, uint32_t nth);
-
 // Get nth image in the image list.
-WebPMuxError MuxImageGetNth(const WebPMuxImage** wpi_list, uint32_t nth,
-    WebPMuxImage** wpi);
-
+WebPMuxError MuxImageGetNth(const WebPMuxImage** wpi_list, uint32_t nth, WebPMuxImage** wpi);
 // Total size of the given image.
 size_t MuxImageDiskSize(const WebPMuxImage* const wpi);
-
 // Write out the given image into 'dst'.
 uint8* MuxImageEmit(const WebPMuxImage* const wpi, uint8* dst);
 
@@ -214,19 +204,11 @@ uint8* MuxImageEmit(const WebPMuxImage* const wpi, uint8* dst);
 
 // Checks if the given image list contains at least one image with alpha.
 int MuxHasAlpha(const WebPMuxImage* images);
-
 // Write out RIFF header into 'data', given total data size 'size'.
 uint8* MuxEmitRiffHeader(uint8* const data, size_t size);
-
 // Returns the list where chunk with given ID is to be inserted in mux.
 WebPChunk** MuxGetChunkListFromId(const WebPMux* mux, WebPChunkId id);
-
 // Validates the given mux object.
 WebPMuxError MuxValidate(const WebPMux* const mux);
 
-//------------------------------------------------------------------------------
-
-//#ifdef __cplusplus
-//}    // extern "C"
-//#endif
 #endif  // WEBP_MUX_MUXI_H_

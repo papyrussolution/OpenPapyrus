@@ -304,7 +304,7 @@ cairo_status_t cairo_surface_write_to_png(cairo_surface_t * surface, const char 
 	status = _cairo_fopen(filename, "wb", &fp);
 	if(status != CAIRO_STATUS_SUCCESS)
 		return _cairo_error(status);
-	if(fp == NULL) {
+	if(!fp) {
 		switch(errno) {
 			case ENOMEM: return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			default: return _cairo_error(CAIRO_STATUS_WRITE_ERROR);

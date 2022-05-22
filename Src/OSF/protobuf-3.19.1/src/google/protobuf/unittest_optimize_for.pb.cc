@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
-constexpr TestOptimizedForSize::TestOptimizedForSize(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestOptimizedForSize::TestOptimizedForSize(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : msg_(nullptr)
   , i_(0)
   , _oneof_case_{}{}
@@ -29,8 +28,7 @@ struct TestOptimizedForSizeDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestOptimizedForSizeDefaultTypeInternal _TestOptimizedForSize_default_instance_;
-constexpr TestRequiredOptimizedForSize::TestRequiredOptimizedForSize(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestRequiredOptimizedForSize::TestRequiredOptimizedForSize(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : x_(0){}
 struct TestRequiredOptimizedForSizeDefaultTypeInternal {
 	constexpr TestRequiredOptimizedForSizeDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -40,8 +38,7 @@ struct TestRequiredOptimizedForSizeDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestRequiredOptimizedForSizeDefaultTypeInternal _TestRequiredOptimizedForSize_default_instance_;
-constexpr TestOptionalOptimizedForSize::TestOptionalOptimizedForSize(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestOptionalOptimizedForSize::TestOptionalOptimizedForSize(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : o_(nullptr){}
 struct TestOptionalOptimizedForSizeDefaultTypeInternal {
 	constexpr TestOptionalOptimizedForSizeDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -144,10 +141,7 @@ class TestOptimizedForSize::_Internal {
   static void set_has_msg(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::protobuf_unittest::ForeignMessage&
-TestOptimizedForSize::_Internal::msg(const TestOptimizedForSize* msg) {
-  return *msg->msg_;
-}
+const ::protobuf_unittest::ForeignMessage & TestOptimizedForSize::_Internal::msg(const TestOptimizedForSize* msg) { return *msg->msg_; }
 void TestOptimizedForSize::clear_msg() {
   if(msg_ != nullptr) msg_->Clear();
   _has_bits_[0] &= ~0x00000001u;
@@ -167,11 +161,7 @@ TestOptimizedForSize::TestOptimizedForSize(const TestOptimizedForSize& from)
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   _extensions_.MergeFrom(internal_default_instance(), from._extensions_);
-  if(from._internal_has_msg()) {
-    msg_ = new ::protobuf_unittest::ForeignMessage(*from.msg_);
-  } else {
-    msg_ = nullptr;
-  }
+  msg_ = from._internal_has_msg() ? new ::protobuf_unittest::ForeignMessage(*from.msg_) : nullptr;
   i_ = from.i_;
   clear_has_foo();
   switch(from.foo_case()) {
@@ -191,10 +181,7 @@ TestOptimizedForSize::TestOptimizedForSize(const TestOptimizedForSize& from)
 }
 
 inline void TestOptimizedForSize::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&msg_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&i_) -
-    reinterpret_cast<char*>(&msg_)) + sizeof(i_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&msg_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&i_) - reinterpret_cast<char*>(&msg_)) + sizeof(i_));
 clear_has_foo();
 }
 
@@ -217,8 +204,7 @@ void TestOptimizedForSize::ArenaDtor(void* object) {
   TestOptimizedForSize* _this = reinterpret_cast< TestOptimizedForSize* >(object);
   (void)_this;
 }
-void TestOptimizedForSize::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestOptimizedForSize::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestOptimizedForSize::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -295,8 +281,7 @@ void TestRequiredOptimizedForSize::ArenaDtor(void* object) {
   TestRequiredOptimizedForSize* _this = reinterpret_cast< TestRequiredOptimizedForSize* >(object);
   (void)_this;
 }
-void TestRequiredOptimizedForSize::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestRequiredOptimizedForSize::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestRequiredOptimizedForSize::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -318,10 +303,7 @@ class TestOptionalOptimizedForSize::_Internal {
   static void set_has_o(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::protobuf_unittest::TestRequiredOptimizedForSize&
-TestOptionalOptimizedForSize::_Internal::o(const TestOptionalOptimizedForSize* msg) {
-  return *msg->o_;
-}
+const ::protobuf_unittest::TestRequiredOptimizedForSize & TestOptionalOptimizedForSize::_Internal::o(const TestOptionalOptimizedForSize* msg) { return *msg->o_; }
 TestOptionalOptimizedForSize::TestOptionalOptimizedForSize(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -335,11 +317,7 @@ TestOptionalOptimizedForSize::TestOptionalOptimizedForSize(const TestOptionalOpt
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_o()) {
-    o_ = new ::protobuf_unittest::TestRequiredOptimizedForSize(*from.o_);
-  } else {
-    o_ = nullptr;
-  }
+  o_ = from._internal_has_o() ? new ::protobuf_unittest::TestRequiredOptimizedForSize(*from.o_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestOptionalOptimizedForSize)
 }
 
@@ -363,8 +341,7 @@ void TestOptionalOptimizedForSize::ArenaDtor(void* object) {
   TestOptionalOptimizedForSize* _this = reinterpret_cast< TestOptionalOptimizedForSize* >(object);
   (void)_this;
 }
-void TestOptionalOptimizedForSize::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestOptionalOptimizedForSize::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestOptionalOptimizedForSize::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }

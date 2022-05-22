@@ -553,7 +553,7 @@ err:
 		__txn_abort(stxn);
 		if(tmp_created && txn == NULL)
 			__fop_remove(env, 0, 0, tmpname, NULL, aflags, dflags);
-		if(txn == NULL)
+		if(!txn)
 			__ENV_LPUT(env, dbp->handle_lock);
 		__ENV_LPUT(env, elock);
 		if(created_locker) {
@@ -718,7 +718,7 @@ retry:
 	if(0) {
 err:
 		DB_TEST_RECOVERY_LABEL
-		if(txn == NULL)
+		if(!txn)
 			__ENV_LPUT(env, dbp->handle_lock);
 	}
 	// 
@@ -1069,7 +1069,7 @@ static int __fop_inmem_read_meta(DB * dbp, DB_TXN * txn, const char * name, uint
 	DB_THREAD_INFO * ip;
 	db_pgno_t pgno;
 	int ret, t_ret;
-	if(txn == NULL)
+	if(!txn)
 		ENV_GET_THREAD_INFO(dbp->env, ip);
 	else
 		ip = txn->thread_info;
@@ -1111,7 +1111,7 @@ static int __fop_inmem_dummy(DB * dbp, DB_TXN * txn, const char * name, uint8 * 
 	int ret, t_ret;
 	if((ret = __fop_inmem_create(dbp, name, txn, DB_CREATE)) != 0)
 		return ret;
-	if(txn == NULL)
+	if(!txn)
 		ENV_GET_THREAD_INFO(dbp->env, ip);
 	else
 		ip = txn->thread_info;

@@ -1759,7 +1759,7 @@ static int FASTCALL _WriteRec(SXml::WDoc & rXmlDoc, const SdRecord & rRd, const 
 	{
 		SXml::WNode w_r(rXmlDoc, "r");
 		SFormatParam fp;
-		fp.FDate = DATF_ISO8601|DATF_CENTURY;
+		fp.FDate = DATF_ISO8601CENT;
 		fp.FTime = TIMF_HMS;
 		fp.FReal = MKSFMTD(0, 2, NMBF_NOTRAILZ|NMBF_NOZERO);
 		SdbField fld;
@@ -4202,7 +4202,7 @@ int iSalesPepsi::SendStocks()
 							const iSalesGoodsPacket * p_gp = SearchGoodsMappingEntry(p_item->OuterCode);
 							if(p_gp) {
 								(temp_buf = own_code).Transf(CTRANSF_INNER_TO_OUTER);
-								line_buf.Z().Cat(temp_buf).Tab().CatCurDateTime(DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab().
+								line_buf.Z().Cat(temp_buf).Tab().CatCurDateTime(DATF_GERMANCENT, TIMF_HMS).Tab().
 									Cat(p_loc_item->WhID).Tab().Cat(p_gp->NativeCode).Tab().Cat(p_item->OuterCode).Tab();
 								if(GObj.Fetch(p_gp->NativeCode.ToLong(), &goods_rec) > 0)
 									temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
@@ -4250,7 +4250,7 @@ void iSalesPepsi::Helper_Make_iSalesIdent(const BillTbl::Rec & rRec, int outerDo
 	// @v11.1.12 rIdent.Z();
 	// @v11.1.12 BillCore::GetCode(rIdent = rRec.Code);
 	rIdent = rRec.Code; // @v11.1.12 
-	rIdent.Space().Cat(rRec.Dt, DATF_GERMAN|DATF_CENTURY).Space().Cat(labs(outerDocType));
+	rIdent.Space().Cat(rRec.Dt, DATF_GERMANCENT).Space().Cat(labs(outerDocType));
 }
 
 void iSalesPepsi::Helper_Parse_iSalesIdent(const SString & rIdent, SString & rCode, LDATE * pDate) const
@@ -5009,10 +5009,10 @@ int iSalesPepsi::SendInvoices()
 						//const iSalesGoodsPacket * p_gp = SearchGoodsMappingEntry(p_item->OuterCode);
 						line_buf.Z();
 						line_buf.Cat((temp_buf = own_code).Transf(CTRANSF_INNER_TO_OUTER)).Tab();
-						line_buf.CatCurDateTime(DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab();
+						line_buf.CatCurDateTime(DATF_GERMANCENT, TIMF_HMS).Tab();
 						line_buf.Cat(p_bill_item->DocType).Tab();
 						line_buf.Cat((temp_buf = p_bill_item->Code).Transf(CTRANSF_UTF8_TO_OUTER)).Tab();
-						line_buf.Cat(p_bill_item->Dtm.d, DATF_GERMAN|DATF_CENTURY).Tab();
+						line_buf.Cat(p_bill_item->Dtm.d, DATF_GERMANCENT).Tab();
 						{
 							for(uint ri = 0; ri < p_bill_item->Refs.getCount(); ri++) {
 								const iSalesBillRef * p_ref = p_bill_item->Refs.at(ri);

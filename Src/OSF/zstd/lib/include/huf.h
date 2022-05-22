@@ -217,7 +217,7 @@ size_t HUF_buildCTable_wksp(HUF_CElt* tree, const uint * count, uint32 maxSymbol
  * `huffWeight` is destination buffer.
  * @return : size read from `src` , or an error Code .
  *  Note : Needed by HUF_readCTable() and HUF_readDTableXn() . */
-size_t HUF_readStats(BYTE * huffWeight, size_t hwSize, uint32* rankStats, uint32* nbSymbolsPtr, uint32* tableLogPtr, const void* src, size_t srcSize);
+size_t HUF_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats, uint32 * nbSymbolsPtr, uint32 * tableLogPtr, const void* src, size_t srcSize);
 
 /*! HUF_readStats_wksp() :
  * Same as HUF_readStats() but takes an external workspace which must be
@@ -226,7 +226,7 @@ size_t HUF_readStats(BYTE * huffWeight, size_t hwSize, uint32* rankStats, uint32
  */
 #define HUF_READ_STATS_WORKSPACE_SIZE_U32 FSE_DECOMPRESS_WKSP_SIZE_U32(6, HUF_TABLELOG_MAX-1)
 #define HUF_READ_STATS_WORKSPACE_SIZE (HUF_READ_STATS_WORKSPACE_SIZE_U32 * sizeof(uint))
-size_t HUF_readStats_wksp(BYTE * huffWeight, size_t hwSize, uint32* rankStats, uint32* nbSymbolsPtr, uint32* tableLogPtr,
+size_t HUF_readStats_wksp(BYTE * huffWeight, size_t hwSize, uint32 * rankStats, uint32 * nbSymbolsPtr, uint32 * tableLogPtr,
     const void* src, size_t srcSize, void* workspace, size_t wkspSize, int bmi2);
 /** HUF_readCTable() :
  *  Loading a CTable saved with HUF_writeCTable() */

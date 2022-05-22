@@ -137,19 +137,15 @@ constexpr Book_Type Book_Type_Type_MIN = Book_Type_FICTION;
 constexpr Book_Type Book_Type_Type_MAX = Book_Type_I18N_Tech;
 constexpr int Book_Type_Type_ARRAYSIZE = Book_Type_Type_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Book_Type_descriptor();
-template<typename T>
-inline const std::string& Book_Type_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, Book_Type>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function Book_Type_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    Book_Type_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Book_Type_descriptor();
+template<typename T> inline const std::string& Book_Type_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, Book_Type>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Book_Type_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(Book_Type_descriptor(), enum_t_value);
 }
-inline bool Book_Type_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Book_Type* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Book_Type>(
-    Book_Type_descriptor(), name, value);
+inline bool Book_Type_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Book_Type * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Book_Type>(Book_Type_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -575,39 +571,24 @@ class Book final :
   typedef Book_Label Label;
 
   typedef Book_Type Type;
-  static constexpr Type FICTION =
-    Book_Type_FICTION;
-  static constexpr Type KIDS =
-    Book_Type_KIDS;
-  static constexpr Type ACTION_AND_ADVENTURE =
-    Book_Type_ACTION_AND_ADVENTURE;
-  static constexpr Type arts_and_photography =
-    Book_Type_arts_and_photography;
-  static constexpr Type I18N_Tech =
-    Book_Type_I18N_Tech;
-  static inline bool Type_IsValid(int value) {
-    return Book_Type_IsValid(value);
+  static constexpr Type FICTION = Book_Type_FICTION;
+  static constexpr Type KIDS = Book_Type_KIDS;
+  static constexpr Type ACTION_AND_ADVENTURE = Book_Type_ACTION_AND_ADVENTURE;
+  static constexpr Type arts_and_photography = Book_Type_arts_and_photography;
+  static constexpr Type I18N_Tech = Book_Type_I18N_Tech;
+  static inline bool Type_IsValid(int value) { return Book_Type_IsValid(value); }
+  static constexpr Type Type_MIN = Book_Type_Type_MIN;
+  static constexpr Type Type_MAX = Book_Type_Type_MAX;
+  static constexpr int Type_ARRAYSIZE = Book_Type_Type_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Type_descriptor() { return Book_Type_descriptor(); }
+  template<typename T> static inline const std::string& Type_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, Type>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Type_Name.");
+  	return Book_Type_Name(enum_t_value);
   }
-  static constexpr Type Type_MIN =
-    Book_Type_Type_MIN;
-  static constexpr Type Type_MAX =
-    Book_Type_Type_MAX;
-  static constexpr int Type_ARRAYSIZE =
-    Book_Type_Type_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  Type_descriptor() {
-    return Book_Type_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& Type_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, Type>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function Type_Name.");
-    return Book_Type_Name(enum_t_value);
-  }
-  static inline bool Type_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      Type* value) {
-    return Book_Type_Parse(name, value);
+  static inline bool Type_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Type* value)
+  {
+  	return Book_Type_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -653,16 +634,13 @@ class Book final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_primitive_repeated() const;
   void _internal_add_primitive_repeated(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_primitive_repeated();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_primitive_repeated();
   public:
   int32_t primitive_repeated(int index) const;
   void set_primitive_repeated(int index, int32_t value);
   void add_primitive_repeated(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      primitive_repeated() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_primitive_repeated();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & primitive_repeated() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_primitive_repeated();
 
   // optional string title = 1;
   bool has_title() const;
@@ -1487,16 +1465,13 @@ class BadAuthor final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       _internal_name() const;
   void _internal_add_name(uint64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      _internal_mutable_name();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * _internal_mutable_name();
   public:
   uint64_t name(int index) const;
   void set_name(int index, uint64_t value);
   void add_name(uint64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-      name() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      mutable_name();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > & name() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * mutable_name();
 
   // repeated bool alive = 4 [packed = true];
   int alive_size() const;
@@ -1509,16 +1484,13 @@ class BadAuthor final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >&
       _internal_alive() const;
   void _internal_add_alive(bool value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-      _internal_mutable_alive();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * _internal_mutable_alive();
   public:
   bool alive(int index) const;
   void set_alive(int index, bool value);
   void add_alive(bool value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >&
-      alive() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-      mutable_alive();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > & alive() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * mutable_alive();
 
   // optional string id = 1;
   bool has_id() const;
@@ -1721,16 +1693,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >&
       _internal_rep_fix32() const;
   void _internal_add_rep_fix32(uint32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-      _internal_mutable_rep_fix32();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * _internal_mutable_rep_fix32();
   public:
   uint32_t rep_fix32(int index) const;
   void set_rep_fix32(int index, uint32_t value);
   void add_rep_fix32(uint32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >&
-      rep_fix32() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-      mutable_rep_fix32();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > & rep_fix32() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * mutable_rep_fix32();
 
   // repeated uint32 rep_u32 = 17;
   int rep_u32_size() const;
@@ -1743,16 +1712,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >&
       _internal_rep_u32() const;
   void _internal_add_rep_u32(uint32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-      _internal_mutable_rep_u32();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * _internal_mutable_rep_u32();
   public:
   uint32_t rep_u32(int index) const;
   void set_rep_u32(int index, uint32_t value);
   void add_rep_u32(uint32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >&
-      rep_u32() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-      mutable_rep_u32();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > & rep_u32() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * mutable_rep_u32();
 
   // repeated int32 rep_i32 = 18;
   int rep_i32_size() const;
@@ -1765,16 +1731,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_rep_i32() const;
   void _internal_add_rep_i32(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_rep_i32();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_rep_i32();
   public:
   int32_t rep_i32(int index) const;
   void set_rep_i32(int index, int32_t value);
   void add_rep_i32(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      rep_i32() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_rep_i32();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & rep_i32() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_rep_i32();
 
   // repeated sfixed32 rep_sf32 = 19;
   int rep_sf32_size() const;
@@ -1787,16 +1750,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_rep_sf32() const;
   void _internal_add_rep_sf32(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_rep_sf32();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_rep_sf32();
   public:
   int32_t rep_sf32(int index) const;
   void set_rep_sf32(int index, int32_t value);
   void add_rep_sf32(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      rep_sf32() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_rep_sf32();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & rep_sf32() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_rep_sf32();
 
   // repeated sint32 rep_s32 = 20;
   int rep_s32_size() const;
@@ -1809,16 +1769,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_rep_s32() const;
   void _internal_add_rep_s32(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_rep_s32();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_rep_s32();
   public:
   int32_t rep_s32(int index) const;
   void set_rep_s32(int index, int32_t value);
   void add_rep_s32(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      rep_s32() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_rep_s32();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & rep_s32() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_rep_s32();
 
   // repeated fixed64 rep_fix64 = 21;
   int rep_fix64_size() const;
@@ -1831,16 +1788,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       _internal_rep_fix64() const;
   void _internal_add_rep_fix64(uint64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      _internal_mutable_rep_fix64();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * _internal_mutable_rep_fix64();
   public:
   uint64_t rep_fix64(int index) const;
   void set_rep_fix64(int index, uint64_t value);
   void add_rep_fix64(uint64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-      rep_fix64() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      mutable_rep_fix64();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > & rep_fix64() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * mutable_rep_fix64();
 
   // repeated uint64 rep_u64 = 22;
   int rep_u64_size() const;
@@ -1853,16 +1807,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       _internal_rep_u64() const;
   void _internal_add_rep_u64(uint64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      _internal_mutable_rep_u64();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * _internal_mutable_rep_u64();
   public:
   uint64_t rep_u64(int index) const;
   void set_rep_u64(int index, uint64_t value);
   void add_rep_u64(uint64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-      rep_u64() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      mutable_rep_u64();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > & rep_u64() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * mutable_rep_u64();
 
   // repeated int64 rep_i64 = 23;
   int rep_i64_size() const;
@@ -1875,16 +1826,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
       _internal_rep_i64() const;
   void _internal_add_rep_i64(int64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      _internal_mutable_rep_i64();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * _internal_mutable_rep_i64();
   public:
   int64_t rep_i64(int index) const;
   void set_rep_i64(int index, int64_t value);
   void add_rep_i64(int64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
-      rep_i64() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      mutable_rep_i64();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > & rep_i64() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * mutable_rep_i64();
 
   // repeated sfixed64 rep_sf64 = 24;
   int rep_sf64_size() const;
@@ -1897,16 +1845,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
       _internal_rep_sf64() const;
   void _internal_add_rep_sf64(int64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      _internal_mutable_rep_sf64();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * _internal_mutable_rep_sf64();
   public:
   int64_t rep_sf64(int index) const;
   void set_rep_sf64(int index, int64_t value);
   void add_rep_sf64(int64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
-      rep_sf64() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      mutable_rep_sf64();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > & rep_sf64() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * mutable_rep_sf64();
 
   // repeated sint64 rep_s64 = 25;
   int rep_s64_size() const;
@@ -1919,16 +1864,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
       _internal_rep_s64() const;
   void _internal_add_rep_s64(int64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      _internal_mutable_rep_s64();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * _internal_mutable_rep_s64();
   public:
   int64_t rep_s64(int index) const;
   void set_rep_s64(int index, int64_t value);
   void add_rep_s64(int64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
-      rep_s64() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      mutable_rep_s64();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > & rep_s64() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * mutable_rep_s64();
 
   // repeated string rep_str = 26;
   int rep_str_size() const;
@@ -1989,16 +1931,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
       _internal_rep_float() const;
   void _internal_add_rep_float(float value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      _internal_mutable_rep_float();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * _internal_mutable_rep_float();
   public:
   float rep_float(int index) const;
   void set_rep_float(int index, float value);
   void add_rep_float(float value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      rep_float() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      mutable_rep_float();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > & rep_float() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * mutable_rep_float();
 
   // repeated double rep_double = 29;
   int rep_double_size() const;
@@ -2011,16 +1950,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
       _internal_rep_double() const;
   void _internal_add_rep_double(double value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-      _internal_mutable_rep_double();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * _internal_mutable_rep_double();
   public:
   double rep_double(int index) const;
   void set_rep_double(int index, double value);
   void add_rep_double(double value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
-      rep_double() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-      mutable_rep_double();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > & rep_double() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * mutable_rep_double();
 
   // repeated bool rep_bool = 30;
   int rep_bool_size() const;
@@ -2033,16 +1969,13 @@ class Primitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >&
       _internal_rep_bool() const;
   void _internal_add_rep_bool(bool value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-      _internal_mutable_rep_bool();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * _internal_mutable_rep_bool();
   public:
   bool rep_bool(int index) const;
   void set_rep_bool(int index, bool value);
   void add_rep_bool(bool value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >&
-      rep_bool() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-      mutable_rep_bool();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > & rep_bool() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * mutable_rep_bool();
 
   // optional string str = 11;
   bool has_str() const;
@@ -2423,16 +2356,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >&
       _internal_rep_fix32() const;
   void _internal_add_rep_fix32(uint32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-      _internal_mutable_rep_fix32();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * _internal_mutable_rep_fix32();
   public:
   uint32_t rep_fix32(int index) const;
   void set_rep_fix32(int index, uint32_t value);
   void add_rep_fix32(uint32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >&
-      rep_fix32() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-      mutable_rep_fix32();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > & rep_fix32() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * mutable_rep_fix32();
 
   // repeated uint32 rep_u32 = 17 [packed = true];
   int rep_u32_size() const;
@@ -2445,16 +2375,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >&
       _internal_rep_u32() const;
   void _internal_add_rep_u32(uint32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-      _internal_mutable_rep_u32();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * _internal_mutable_rep_u32();
   public:
   uint32_t rep_u32(int index) const;
   void set_rep_u32(int index, uint32_t value);
   void add_rep_u32(uint32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >&
-      rep_u32() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-      mutable_rep_u32();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > & rep_u32() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * mutable_rep_u32();
 
   // repeated int32 rep_i32 = 18 [packed = true];
   int rep_i32_size() const;
@@ -2467,16 +2394,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_rep_i32() const;
   void _internal_add_rep_i32(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_rep_i32();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_rep_i32();
   public:
   int32_t rep_i32(int index) const;
   void set_rep_i32(int index, int32_t value);
   void add_rep_i32(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      rep_i32() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_rep_i32();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & rep_i32() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_rep_i32();
 
   // repeated sfixed32 rep_sf32 = 19 [packed = true];
   int rep_sf32_size() const;
@@ -2489,16 +2413,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_rep_sf32() const;
   void _internal_add_rep_sf32(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_rep_sf32();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_rep_sf32();
   public:
   int32_t rep_sf32(int index) const;
   void set_rep_sf32(int index, int32_t value);
   void add_rep_sf32(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      rep_sf32() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_rep_sf32();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & rep_sf32() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_rep_sf32();
 
   // repeated sint32 rep_s32 = 20 [packed = true];
   int rep_s32_size() const;
@@ -2511,16 +2432,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_rep_s32() const;
   void _internal_add_rep_s32(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_rep_s32();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_rep_s32();
   public:
   int32_t rep_s32(int index) const;
   void set_rep_s32(int index, int32_t value);
   void add_rep_s32(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      rep_s32() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_rep_s32();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & rep_s32() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_rep_s32();
 
   // repeated fixed64 rep_fix64 = 21 [packed = true];
   int rep_fix64_size() const;
@@ -2533,16 +2451,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       _internal_rep_fix64() const;
   void _internal_add_rep_fix64(uint64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      _internal_mutable_rep_fix64();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * _internal_mutable_rep_fix64();
   public:
   uint64_t rep_fix64(int index) const;
   void set_rep_fix64(int index, uint64_t value);
   void add_rep_fix64(uint64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-      rep_fix64() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      mutable_rep_fix64();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > & rep_fix64() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * mutable_rep_fix64();
 
   // repeated uint64 rep_u64 = 22 [packed = true];
   int rep_u64_size() const;
@@ -2555,16 +2470,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
       _internal_rep_u64() const;
   void _internal_add_rep_u64(uint64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      _internal_mutable_rep_u64();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * _internal_mutable_rep_u64();
   public:
   uint64_t rep_u64(int index) const;
   void set_rep_u64(int index, uint64_t value);
   void add_rep_u64(uint64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-      rep_u64() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      mutable_rep_u64();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > & rep_u64() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * mutable_rep_u64();
 
   // repeated int64 rep_i64 = 23 [packed = true];
   int rep_i64_size() const;
@@ -2577,16 +2489,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
       _internal_rep_i64() const;
   void _internal_add_rep_i64(int64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      _internal_mutable_rep_i64();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * _internal_mutable_rep_i64();
   public:
   int64_t rep_i64(int index) const;
   void set_rep_i64(int index, int64_t value);
   void add_rep_i64(int64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
-      rep_i64() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      mutable_rep_i64();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > & rep_i64() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * mutable_rep_i64();
 
   // repeated sfixed64 rep_sf64 = 24 [packed = true];
   int rep_sf64_size() const;
@@ -2599,16 +2508,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
       _internal_rep_sf64() const;
   void _internal_add_rep_sf64(int64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      _internal_mutable_rep_sf64();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * _internal_mutable_rep_sf64();
   public:
   int64_t rep_sf64(int index) const;
   void set_rep_sf64(int index, int64_t value);
   void add_rep_sf64(int64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
-      rep_sf64() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      mutable_rep_sf64();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > & rep_sf64() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * mutable_rep_sf64();
 
   // repeated sint64 rep_s64 = 25 [packed = true];
   int rep_s64_size() const;
@@ -2621,16 +2527,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
       _internal_rep_s64() const;
   void _internal_add_rep_s64(int64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      _internal_mutable_rep_s64();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * _internal_mutable_rep_s64();
   public:
   int64_t rep_s64(int index) const;
   void set_rep_s64(int index, int64_t value);
   void add_rep_s64(int64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >&
-      rep_s64() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-      mutable_rep_s64();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > & rep_s64() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * mutable_rep_s64();
 
   // repeated float rep_float = 28 [packed = true];
   int rep_float_size() const;
@@ -2643,16 +2546,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
       _internal_rep_float() const;
   void _internal_add_rep_float(float value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      _internal_mutable_rep_float();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * _internal_mutable_rep_float();
   public:
   float rep_float(int index) const;
   void set_rep_float(int index, float value);
   void add_rep_float(float value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >&
-      rep_float() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-      mutable_rep_float();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > & rep_float() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * mutable_rep_float();
 
   // repeated double rep_double = 29 [packed = true];
   int rep_double_size() const;
@@ -2665,16 +2565,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
       _internal_rep_double() const;
   void _internal_add_rep_double(double value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-      _internal_mutable_rep_double();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * _internal_mutable_rep_double();
   public:
   double rep_double(int index) const;
   void set_rep_double(int index, double value);
   void add_rep_double(double value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >&
-      rep_double() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-      mutable_rep_double();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > & rep_double() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * mutable_rep_double();
 
   // repeated bool rep_bool = 30 [packed = true];
   int rep_bool_size() const;
@@ -2687,16 +2584,13 @@ class PackedPrimitive final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >&
       _internal_rep_bool() const;
   void _internal_add_rep_bool(bool value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-      _internal_mutable_rep_bool();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * _internal_mutable_rep_bool();
   public:
   bool rep_bool(int index) const;
   void set_rep_bool(int index, bool value);
   void add_rep_bool(bool value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >&
-      rep_bool() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-      mutable_rep_bool();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > & rep_bool() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * mutable_rep_bool();
 
   // @@protoc_insertion_point(class_scope:proto_util_converter.testing.PackedPrimitive)
  private:
@@ -2992,16 +2886,13 @@ class BadNestedBook final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >&
       _internal_book() const;
   void _internal_add_book(uint32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-      _internal_mutable_book();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * _internal_mutable_book();
   public:
   uint32_t book(int index) const;
   void set_book(int index, uint32_t value);
   void add_book(uint32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >&
-      book() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-      mutable_book();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > & book() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * mutable_book();
 
   // @@protoc_insertion_point(class_scope:proto_util_converter.testing.BadNestedBook)
  private:
@@ -4899,8 +4790,7 @@ inline ::proto_util_converter::testing::Book_Label* Book::mutable_labels(int ind
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.Book.labels)
   return labels_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Book_Label >*
-Book::mutable_labels() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Book_Label > * Book::mutable_labels() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Book.labels)
   return &labels_;
 }
@@ -5132,12 +5022,10 @@ Book::primitive_repeated() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Book.primitive_repeated)
   return _internal_primitive_repeated();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-Book::_internal_mutable_primitive_repeated() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Book::_internal_mutable_primitive_repeated() {
   return &primitive_repeated_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-Book::mutable_primitive_repeated() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Book::mutable_primitive_repeated() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Book.primitive_repeated)
   return _internal_mutable_primitive_repeated();
 }
@@ -5367,8 +5255,7 @@ Author::pseudonym() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Author.pseudonym)
   return pseudonym_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-Author::mutable_pseudonym() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * Author::mutable_pseudonym() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Author.pseudonym)
   return &pseudonym_;
 }
@@ -5411,8 +5298,7 @@ inline ::proto_util_converter::testing::Author* Author::mutable_friend_(int inde
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.Author.friend)
   return friend__.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author >*
-Author::mutable_friend_() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author > * Author::mutable_friend_() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Author.friend)
   return &friend__;
 }
@@ -5535,12 +5421,10 @@ BadAuthor::name() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.BadAuthor.name)
   return _internal_name();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-BadAuthor::_internal_mutable_name() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * BadAuthor::_internal_mutable_name() {
   return &name_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-BadAuthor::mutable_name() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * BadAuthor::mutable_name() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.BadAuthor.name)
   return _internal_mutable_name();
 }
@@ -5640,12 +5524,10 @@ BadAuthor::alive() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.BadAuthor.alive)
   return _internal_alive();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-BadAuthor::_internal_mutable_alive() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * BadAuthor::_internal_mutable_alive() {
   return &alive_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-BadAuthor::mutable_alive() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * BadAuthor::mutable_alive() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.BadAuthor.alive)
   return _internal_mutable_alive();
 }
@@ -6151,12 +6033,10 @@ Primitive::rep_fix32() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_fix32)
   return _internal_rep_fix32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-Primitive::_internal_mutable_rep_fix32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * Primitive::_internal_mutable_rep_fix32() {
   return &rep_fix32_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-Primitive::mutable_rep_fix32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * Primitive::mutable_rep_fix32() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_fix32)
   return _internal_mutable_rep_fix32();
 }
@@ -6192,12 +6072,10 @@ Primitive::rep_u32() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_u32)
   return _internal_rep_u32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-Primitive::_internal_mutable_rep_u32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * Primitive::_internal_mutable_rep_u32() {
   return &rep_u32_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-Primitive::mutable_rep_u32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * Primitive::mutable_rep_u32() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_u32)
   return _internal_mutable_rep_u32();
 }
@@ -6233,12 +6111,10 @@ Primitive::rep_i32() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_i32)
   return _internal_rep_i32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-Primitive::_internal_mutable_rep_i32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Primitive::_internal_mutable_rep_i32() {
   return &rep_i32_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-Primitive::mutable_rep_i32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Primitive::mutable_rep_i32() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_i32)
   return _internal_mutable_rep_i32();
 }
@@ -6274,12 +6150,10 @@ Primitive::rep_sf32() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_sf32)
   return _internal_rep_sf32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-Primitive::_internal_mutable_rep_sf32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Primitive::_internal_mutable_rep_sf32() {
   return &rep_sf32_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-Primitive::mutable_rep_sf32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Primitive::mutable_rep_sf32() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_sf32)
   return _internal_mutable_rep_sf32();
 }
@@ -6315,12 +6189,10 @@ Primitive::rep_s32() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_s32)
   return _internal_rep_s32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-Primitive::_internal_mutable_rep_s32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Primitive::_internal_mutable_rep_s32() {
   return &rep_s32_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-Primitive::mutable_rep_s32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * Primitive::mutable_rep_s32() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_s32)
   return _internal_mutable_rep_s32();
 }
@@ -6356,12 +6228,10 @@ Primitive::rep_fix64() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_fix64)
   return _internal_rep_fix64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-Primitive::_internal_mutable_rep_fix64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * Primitive::_internal_mutable_rep_fix64() {
   return &rep_fix64_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-Primitive::mutable_rep_fix64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * Primitive::mutable_rep_fix64() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_fix64)
   return _internal_mutable_rep_fix64();
 }
@@ -6397,12 +6267,10 @@ Primitive::rep_u64() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_u64)
   return _internal_rep_u64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-Primitive::_internal_mutable_rep_u64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * Primitive::_internal_mutable_rep_u64() {
   return &rep_u64_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-Primitive::mutable_rep_u64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * Primitive::mutable_rep_u64() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_u64)
   return _internal_mutable_rep_u64();
 }
@@ -6438,12 +6306,10 @@ Primitive::rep_i64() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_i64)
   return _internal_rep_i64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-Primitive::_internal_mutable_rep_i64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * Primitive::_internal_mutable_rep_i64() {
   return &rep_i64_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-Primitive::mutable_rep_i64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * Primitive::mutable_rep_i64() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_i64)
   return _internal_mutable_rep_i64();
 }
@@ -6479,12 +6345,10 @@ Primitive::rep_sf64() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_sf64)
   return _internal_rep_sf64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-Primitive::_internal_mutable_rep_sf64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * Primitive::_internal_mutable_rep_sf64() {
   return &rep_sf64_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-Primitive::mutable_rep_sf64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * Primitive::mutable_rep_sf64() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_sf64)
   return _internal_mutable_rep_sf64();
 }
@@ -6520,12 +6384,10 @@ Primitive::rep_s64() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_s64)
   return _internal_rep_s64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-Primitive::_internal_mutable_rep_s64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * Primitive::_internal_mutable_rep_s64() {
   return &rep_s64_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-Primitive::mutable_rep_s64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * Primitive::mutable_rep_s64() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_s64)
   return _internal_mutable_rep_s64();
 }
@@ -6593,8 +6455,7 @@ Primitive::rep_str() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_str)
   return rep_str_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-Primitive::mutable_rep_str() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * Primitive::mutable_rep_str() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_str)
   return &rep_str_;
 }
@@ -6662,8 +6523,7 @@ Primitive::rep_bytes() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_bytes)
   return rep_bytes_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-Primitive::mutable_rep_bytes() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * Primitive::mutable_rep_bytes() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_bytes)
   return &rep_bytes_;
 }
@@ -6699,12 +6559,10 @@ Primitive::rep_float() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_float)
   return _internal_rep_float();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-Primitive::_internal_mutable_rep_float() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * Primitive::_internal_mutable_rep_float() {
   return &rep_float_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-Primitive::mutable_rep_float() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * Primitive::mutable_rep_float() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_float)
   return _internal_mutable_rep_float();
 }
@@ -6740,12 +6598,10 @@ Primitive::rep_double() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_double)
   return _internal_rep_double();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-Primitive::_internal_mutable_rep_double() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * Primitive::_internal_mutable_rep_double() {
   return &rep_double_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-Primitive::mutable_rep_double() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * Primitive::mutable_rep_double() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_double)
   return _internal_mutable_rep_double();
 }
@@ -6781,12 +6637,10 @@ Primitive::rep_bool() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Primitive.rep_bool)
   return _internal_rep_bool();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-Primitive::_internal_mutable_rep_bool() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * Primitive::_internal_mutable_rep_bool() {
   return &rep_bool_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-Primitive::mutable_rep_bool() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * Primitive::mutable_rep_bool() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Primitive.rep_bool)
   return _internal_mutable_rep_bool();
 }
@@ -6826,12 +6680,10 @@ PackedPrimitive::rep_fix32() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_fix32)
   return _internal_rep_fix32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-PackedPrimitive::_internal_mutable_rep_fix32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * PackedPrimitive::_internal_mutable_rep_fix32() {
   return &rep_fix32_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-PackedPrimitive::mutable_rep_fix32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * PackedPrimitive::mutable_rep_fix32() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_fix32)
   return _internal_mutable_rep_fix32();
 }
@@ -6867,12 +6719,10 @@ PackedPrimitive::rep_u32() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_u32)
   return _internal_rep_u32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-PackedPrimitive::_internal_mutable_rep_u32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * PackedPrimitive::_internal_mutable_rep_u32() {
   return &rep_u32_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-PackedPrimitive::mutable_rep_u32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * PackedPrimitive::mutable_rep_u32() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_u32)
   return _internal_mutable_rep_u32();
 }
@@ -6908,12 +6758,10 @@ PackedPrimitive::rep_i32() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_i32)
   return _internal_rep_i32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-PackedPrimitive::_internal_mutable_rep_i32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PackedPrimitive::_internal_mutable_rep_i32() {
   return &rep_i32_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-PackedPrimitive::mutable_rep_i32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PackedPrimitive::mutable_rep_i32() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_i32)
   return _internal_mutable_rep_i32();
 }
@@ -6949,12 +6797,10 @@ PackedPrimitive::rep_sf32() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_sf32)
   return _internal_rep_sf32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-PackedPrimitive::_internal_mutable_rep_sf32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PackedPrimitive::_internal_mutable_rep_sf32() {
   return &rep_sf32_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-PackedPrimitive::mutable_rep_sf32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PackedPrimitive::mutable_rep_sf32() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_sf32)
   return _internal_mutable_rep_sf32();
 }
@@ -6990,12 +6836,10 @@ PackedPrimitive::rep_s32() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_s32)
   return _internal_rep_s32();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-PackedPrimitive::_internal_mutable_rep_s32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PackedPrimitive::_internal_mutable_rep_s32() {
   return &rep_s32_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-PackedPrimitive::mutable_rep_s32() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PackedPrimitive::mutable_rep_s32() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_s32)
   return _internal_mutable_rep_s32();
 }
@@ -7031,12 +6875,10 @@ PackedPrimitive::rep_fix64() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_fix64)
   return _internal_rep_fix64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-PackedPrimitive::_internal_mutable_rep_fix64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * PackedPrimitive::_internal_mutable_rep_fix64() {
   return &rep_fix64_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-PackedPrimitive::mutable_rep_fix64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * PackedPrimitive::mutable_rep_fix64() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_fix64)
   return _internal_mutable_rep_fix64();
 }
@@ -7072,12 +6914,10 @@ PackedPrimitive::rep_u64() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_u64)
   return _internal_rep_u64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-PackedPrimitive::_internal_mutable_rep_u64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * PackedPrimitive::_internal_mutable_rep_u64() {
   return &rep_u64_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-PackedPrimitive::mutable_rep_u64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > * PackedPrimitive::mutable_rep_u64() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_u64)
   return _internal_mutable_rep_u64();
 }
@@ -7113,12 +6953,10 @@ PackedPrimitive::rep_i64() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_i64)
   return _internal_rep_i64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-PackedPrimitive::_internal_mutable_rep_i64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * PackedPrimitive::_internal_mutable_rep_i64() {
   return &rep_i64_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-PackedPrimitive::mutable_rep_i64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * PackedPrimitive::mutable_rep_i64() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_i64)
   return _internal_mutable_rep_i64();
 }
@@ -7154,12 +6992,10 @@ PackedPrimitive::rep_sf64() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_sf64)
   return _internal_rep_sf64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-PackedPrimitive::_internal_mutable_rep_sf64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * PackedPrimitive::_internal_mutable_rep_sf64() {
   return &rep_sf64_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-PackedPrimitive::mutable_rep_sf64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * PackedPrimitive::mutable_rep_sf64() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_sf64)
   return _internal_mutable_rep_sf64();
 }
@@ -7195,12 +7031,10 @@ PackedPrimitive::rep_s64() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_s64)
   return _internal_rep_s64();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-PackedPrimitive::_internal_mutable_rep_s64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * PackedPrimitive::_internal_mutable_rep_s64() {
   return &rep_s64_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t >*
-PackedPrimitive::mutable_rep_s64() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int64_t > * PackedPrimitive::mutable_rep_s64() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_s64)
   return _internal_mutable_rep_s64();
 }
@@ -7236,12 +7070,10 @@ PackedPrimitive::rep_float() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_float)
   return _internal_rep_float();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-PackedPrimitive::_internal_mutable_rep_float() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * PackedPrimitive::_internal_mutable_rep_float() {
   return &rep_float_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float >*
-PackedPrimitive::mutable_rep_float() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< float > * PackedPrimitive::mutable_rep_float() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_float)
   return _internal_mutable_rep_float();
 }
@@ -7277,12 +7109,10 @@ PackedPrimitive::rep_double() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_double)
   return _internal_rep_double();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-PackedPrimitive::_internal_mutable_rep_double() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * PackedPrimitive::_internal_mutable_rep_double() {
   return &rep_double_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double >*
-PackedPrimitive::mutable_rep_double() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< double > * PackedPrimitive::mutable_rep_double() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_double)
   return _internal_mutable_rep_double();
 }
@@ -7318,12 +7148,10 @@ PackedPrimitive::rep_bool() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.PackedPrimitive.rep_bool)
   return _internal_rep_bool();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-PackedPrimitive::_internal_mutable_rep_bool() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * PackedPrimitive::_internal_mutable_rep_bool() {
   return &rep_bool_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool >*
-PackedPrimitive::mutable_rep_bool() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< bool > * PackedPrimitive::mutable_rep_bool() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.PackedPrimitive.rep_bool)
   return _internal_mutable_rep_bool();
 }
@@ -7456,12 +7284,10 @@ BadNestedBook::book() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.BadNestedBook.book)
   return _internal_book();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-BadNestedBook::_internal_mutable_book() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * BadNestedBook::_internal_mutable_book() {
   return &book_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t >*
-BadNestedBook::mutable_book() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint32_t > * BadNestedBook::mutable_book() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.BadNestedBook.book)
   return _internal_mutable_book();
 }
@@ -7661,8 +7487,7 @@ inline ::proto_util_converter::testing::Author* Cyclic::mutable_m_author(int ind
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.Cyclic.m_author)
   return m_author_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author >*
-Cyclic::mutable_m_author() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author > * Cyclic::mutable_m_author() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Cyclic.m_author)
   return &m_author_;
 }
@@ -8398,8 +8223,7 @@ TestRepeatedFieldsWithSameJsonName::rep_str1() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.TestRepeatedFieldsWithSameJsonName.rep_str1)
   return rep_str1_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-TestRepeatedFieldsWithSameJsonName::mutable_rep_str1() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestRepeatedFieldsWithSameJsonName::mutable_rep_str1() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.TestRepeatedFieldsWithSameJsonName.rep_str1)
   return &rep_str1_;
 }
@@ -8467,8 +8291,7 @@ TestRepeatedFieldsWithSameJsonName::rep_str_1() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.TestRepeatedFieldsWithSameJsonName.rep_str_1)
   return rep_str_1_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-TestRepeatedFieldsWithSameJsonName::mutable_rep_str_1() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestRepeatedFieldsWithSameJsonName::mutable_rep_str_1() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.TestRepeatedFieldsWithSameJsonName.rep_str_1)
   return &rep_str_1_;
 }
@@ -8697,10 +8520,7 @@ inline void TestMessageFieldsWithSameJsonName::set_allocated_prim_1(::proto_util
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::proto_util_converter::testing::Book_Type> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::proto_util_converter::testing::Book_Type>() {
-  return ::proto_util_converter::testing::Book_Type_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::proto_util_converter::testing::Book_Type>() { return ::proto_util_converter::testing::Book_Type_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

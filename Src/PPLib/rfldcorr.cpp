@@ -2341,7 +2341,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 					switch(sym) {
 						case iefrmEmpty: break;
 						case iefrmRecNo: rResult.Cat(W_RecNo); break;
-						case iefrmCurDate_German: rResult.Cat(getcurdate_(), DATF_GERMAN|DATF_CENTURY); break;
+						case iefrmCurDate_German: rResult.Cat(getcurdate_(), DATF_GERMANCENT); break;
 						case iefrmCurDate: rResult.Cat(getcurdate_(), DATF_DMY|DATF_CENTURY); break;
 						case iefrmCurYear: rResult.Cat(getcurdate_().year()); break;
 						case iefrmCurMonth: rResult.Cat(getcurdate_().month()); break;

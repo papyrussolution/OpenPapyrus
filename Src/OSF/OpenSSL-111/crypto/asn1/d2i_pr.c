@@ -23,7 +23,7 @@ EVP_PKEY * d2i_PrivateKey(int type, EVP_PKEY ** a, const uchar ** pp,
 	EVP_PKEY * ret;
 	const uchar * p = *pp;
 
-	if((a == NULL) || (*a == NULL)) {
+	if(!a || (*a == NULL)) {
 		if((ret = EVP_PKEY_new()) == NULL) {
 			ASN1err(ASN1_F_D2I_PRIVATEKEY, ERR_R_EVP_LIB);
 			return NULL;

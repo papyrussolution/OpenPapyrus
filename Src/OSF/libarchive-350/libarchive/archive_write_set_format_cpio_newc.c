@@ -81,7 +81,7 @@ int archive_write_set_format_cpio_newc(struct archive * _a)
 	struct cpio * cpio;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If someone else was already registered, unregister them. */
-	if(a->format_free != NULL)
+	if(a->format_free)
 		(a->format_free)(a);
 	cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
 	if(cpio == NULL) {
@@ -279,7 +279,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	cpio->entry_bytes_remaining = archive_entry_size(entry);
 	cpio->padding = (int)PAD4(cpio->entry_bytes_remaining);
 	/* Write the symlink now. */
-	if(p != NULL && *p != '\0') {
+	if(p && *p != '\0') {
 		ret = __archive_write_output(a, p, strlen(p));
 		if(ret != ARCHIVE_OK) {
 			ret_final = ARCHIVE_FATAL;

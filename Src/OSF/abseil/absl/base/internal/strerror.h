@@ -9,7 +9,7 @@
 #ifndef ABSL_BASE_INTERNAL_STRERROR_H_
 #define ABSL_BASE_INTERNAL_STRERROR_H_
 
-#include <string>
+//#include <string>
 #include "absl/base/config.h"
 
 namespace absl {

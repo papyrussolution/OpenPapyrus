@@ -19,8 +19,6 @@
 	#error Never use <xapian/postingiterator.h> directly; include <xapian.h> instead.
 #endif
 
-//#include <iterator>
-//#include <string>
 #include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/positioniterator.h>
@@ -44,7 +42,8 @@ public:
 	PostingIterator & operator = (PostingIterator && o)  /// Move assignment operator.
 	{
 		if(this != &o) {
-			if(internal) decref();
+			if(internal) 
+				decref();
 			internal = o.internal;
 			o.internal = nullptr;
 		}
@@ -60,7 +59,8 @@ public:
 	}
 	~PostingIterator() 
 	{
-		if(internal) decref();
+		if(internal) 
+			decref();
 	}
 	/// Return the document id at the current position.
 	Xapian::docid operator*() const;

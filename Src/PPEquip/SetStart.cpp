@@ -63,7 +63,7 @@ public:
 #define CM_ATOLWOATOLCARD  CM_ATOL
 #define ACS_ATOLWOATOLCARD ACS_SETSTART
 
-REGISTER_CMT(SETSTART, 0, 1);
+REGISTER_CMT(SETSTART, false, true);
 
 ACS_SETSTART::ACS_SETSTART(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(0), ImportDelay(0), CrdCardAsDsc(0)
 {
@@ -192,8 +192,8 @@ int ACS_SETSTART::ExportData(int updOnly)
 					f_str.Cat(info.Rec.ID).Semicol();   // Card ID
 					f_str.Cat(ser_rec.ID).Semicol();    // Series ID
 					f_str.Cat(info.Rec.Code).Semicol(); // Code
-					f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMAN|DATF_CENTURY).Semicol();
-					f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMAN|DATF_CENTURY).Semicol();
+					f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMANCENT).Semicol();
+					f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMANCENT).Semicol();
 					f_str.Cat(info.IsClosed ? 0 : 1).Semicol();  // Passive | Active
 					f_str.Cat(0L).Semicol();                     // Скидка уменьшающая цену в процентах (0)
 					f_str.Cat(fdiv100i(info.Rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ)).Semicol();
@@ -598,7 +598,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 							else {
 								f_str.Semicol().Semicol();
 							}
-							//f_str.Semicol();                                          // #12 reserve
+							//f_str.Semicol();                                    // #12 reserve
 							//
 							//                                                        #12 - #24 - не используем
 							//
@@ -607,29 +607,29 @@ int ACS_SETSTART::ExportData(int updOnly)
 							f_str.Cat(temp_buf);
 							f_str.Cat(temp_buf);
 							f_str.Cat(temp_buf);
-							f_str.Cat(p_prefix_range->Low).Semicol();              // #25, #26 Диапазон номеров карт
+							f_str.Cat(p_prefix_range->Low).Semicol();             // #25, #26 Диапазон номеров карт
 							f_str.Cat(p_prefix_range->Upp).Semicol();
 							f_str.CatChar('0').Semicol();                         // #27 - reserve
 							//
 							//
 							//
-							f_str.Semicol();                                      // #28
-							f_str.Semicol();                                      // #29
-							f_str.Semicol();                                      // #30
-							f_str.Semicol();                                      // #31
-							f_str.Semicol();                                      // #32
-							f_str.Semicol();                                      // #33
-							f_str.Semicol();                                      // #34 - ИД товара
-							f_str.Semicol();                                      // #35
-							f_str.Semicol();                                      // #36
-							f_str.Semicol();                                      // #37
-							f_str.Semicol();                                      // #38
-							f_str.Semicol();                                      // #39
-							f_str.Semicol();                                      // #40
-							f_str.Semicol();                                      // #41
-							f_str.Cat(p_prefix_range->Len).Semicol();             // #42
-							f_str.Semicol();                                      // #43
-							f_str.Semicol();                                      // #44
+							f_str.Semicol();                          // #28
+							f_str.Semicol();                          // #29
+							f_str.Semicol();                          // #30
+							f_str.Semicol();                          // #31
+							f_str.Semicol();                          // #32
+							f_str.Semicol();                          // #33
+							f_str.Semicol();                          // #34 - ИД товара
+							f_str.Semicol();                          // #35
+							f_str.Semicol();                          // #36
+							f_str.Semicol();                          // #37
+							f_str.Semicol();                          // #38
+							f_str.Semicol();                          // #39
+							f_str.Semicol();                          // #40
+							f_str.Semicol();                          // #41
+							f_str.Cat(p_prefix_range->Len).Semicol(); // #42
+							f_str.Semicol();                          // #43
+							f_str.Semicol();                          // #44
 							THROW_PP(fprintf(p_file, p_format, f_str.Transf(CTRANSF_INNER_TO_OUTER).cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 						}
 					}
@@ -685,8 +685,8 @@ int ACS_SETSTART::ExportData(int updOnly)
 					// #7-#8 Период действия цены
 					//
 					if(qk_rec.ID && !qk_rec.Period.IsZero()) {
-						f_str.Cat(qk_rec.Period.low, DATF_GERMAN|DATF_CENTURY).Semicol();
-						f_str.Cat(qk_rec.Period.upp, DATF_GERMAN|DATF_CENTURY).Semicol();
+						f_str.Cat(qk_rec.Period.low, DATF_GERMANCENT).Semicol();
+						f_str.Cat(qk_rec.Period.upp, DATF_GERMANCENT).Semicol();
 					}
 					else
 						f_str.CatCharN(';', 2);
@@ -726,23 +726,23 @@ int ACS_SETSTART::ExportData(int updOnly)
 					//
 					//
 					//
-					f_str.Semicol();                                      // #28
-					f_str.Semicol();                                      // #29
-					f_str.Semicol();                                      // #30
-					f_str.Semicol();                                      // #31
-					f_str.Semicol();                                      // #32
-					f_str.Semicol();                                      // #33
-					f_str.Cat(r_ent.GoodsID).Semicol();                   // #34 - ИД товара
-					f_str.Semicol();                                      // #35
-					f_str.Semicol();                                      // #36
-					f_str.Semicol();                                      // #37
-					f_str.Semicol();                                      // #38
-					f_str.Semicol();                                      // #39
-					f_str.Semicol();                                      // #40
-					f_str.Semicol();                                      // #41
-					f_str.Semicol();                                      // #42
-					f_str.Semicol();                                      // #43
-					f_str.Semicol();                                      // #44
+					f_str.Semicol();                    // #28
+					f_str.Semicol();                    // #29
+					f_str.Semicol();                    // #30
+					f_str.Semicol();                    // #31
+					f_str.Semicol();                    // #32
+					f_str.Semicol();                    // #33
+					f_str.Cat(r_ent.GoodsID).Semicol(); // #34 - ИД товара
+					f_str.Semicol();                    // #35
+					f_str.Semicol();                    // #36
+					f_str.Semicol();                    // #37
+					f_str.Semicol();                    // #38
+					f_str.Semicol();                    // #39
+					f_str.Semicol();                    // #40
+					f_str.Semicol();                    // #41
+					f_str.Semicol();                    // #42
+					f_str.Semicol();                    // #43
+					f_str.Semicol();                    // #44
 					THROW_PP(fprintf(p_file, p_format, f_str.Transf(CTRANSF_INNER_TO_OUTER).cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 				}
 			}
@@ -1063,15 +1063,15 @@ int ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 			cash_no = buf.ToLong();
 			if(LogNumList.lsearch(cash_no)) {
 				PPID   sess_id;
-				ss.get(&pos, buf);           // #06
-				ss.get(&pos, buf);           // #07
-				ss.get(&pos, buf);           // #08
-				ss.get(&pos, buf);           // #09
-				ss.get(&pos, buf);           // #10
-				ss.get(&pos, buf);           // #11
-				ss.get(&pos, buf);           // #12
-				ss.get(&pos, buf);           // #13
-				ss.get(&pos, buf);           // #14 Номер смены
+				ss.get(&pos, buf);     // #06
+				ss.get(&pos, buf);     // #07
+				ss.get(&pos, buf);     // #08
+				ss.get(&pos, buf);     // #09
+				ss.get(&pos, buf);     // #10
+				ss.get(&pos, buf);     // #11
+				ss.get(&pos, buf);     // #12
+				ss.get(&pos, buf);     // #13
+				ss.get(&pos, buf);     // #14 Номер смены
 				nsmena = buf.ToLong(); //
 				if(CS.SearchByNumber(&sess_id, NodeID, cash_no, nsmena, dtm) > 0) {
 					if(CS.data.Temporary)

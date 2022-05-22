@@ -90,7 +90,7 @@ int archive_write_set_format_warc(struct archive * _a)
 	struct warc_s * w;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If another format was already registered, unregister it. */
-	if(a->format_free != NULL) {
+	if(a->format_free) {
 		(a->format_free)(a);
 	}
 	w = static_cast<struct warc_s *>(SAlloc::M(sizeof(*w)));

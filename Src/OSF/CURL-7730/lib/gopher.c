@@ -24,11 +24,6 @@
 #pragma hdrstop
 #ifndef CURL_DISABLE_GOPHER
 #include "urldata.h"
-//#include <curl/curl.h>
-//#include "transfer.h"
-//#include "sendf.h"
-//#include "connect.h"
-//#include "progress.h"
 #include "gopher.h"
 #include "select.h"
 #include "strdup.h"
@@ -149,7 +144,6 @@ static CURLcode gopher_do(struct connectdata * conn, bool * done)
 		}
 		if(!timeout_ms)
 			timeout_ms = TIMEDIFF_T_MAX;
-
 		/* Don't busyloop. The entire loop thing is a work-around as it causes a
 		   BLOCKING behavior which is a NO-NO. This function should rather be
 		   split up in a do and a doing piece where the pieces that aren't
@@ -166,9 +160,7 @@ static CURLcode gopher_do(struct connectdata * conn, bool * done)
 			break;
 		}
 	}
-
 	SAlloc::F(sel_org);
-
 	if(!result)
 		result = Curl_write(conn, sockfd, "\r\n", 2, &amount);
 	if(result) {

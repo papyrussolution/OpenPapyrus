@@ -6764,7 +6764,7 @@ static SLJIT_INLINE pcre_uchar * compile_recurse_matchingpath(compiler_common * 
 		entry = entry->next;
 	}
 
-	if(entry == NULL) {
+	if(!entry) {
 		entry = sljit_alloc_memory(compiler, sizeof(recurse_entry));
 		if(SLJIT_UNLIKELY(sljit_get_compiler_error(compiler)))
 			return NULL;

@@ -113,7 +113,7 @@ int BZ2_bzCompressInit(bz_stream* strm, int blockSize100k, int verbosity, int wo
 	//if(strm->bzalloc == NULL) strm->bzalloc = default_bzalloc;
 	//if(strm->bzfree == NULL) strm->bzfree = default_bzfree;
 	s = (EState *)SAlloc::M(sizeof(EState));
-	if(s == NULL) 
+	if(!s) 
 		return BZ_MEM_ERROR;
 	s->strm = strm;
 	s->arr1 = NULL;
@@ -319,7 +319,7 @@ int BZ2_bzCompress(bz_stream *strm, int action)
 	if(strm == NULL) 
 		return BZ_PARAM_ERROR;
 	s = (EState *)strm->state;
-	if(s == NULL) 
+	if(!s) 
 		return BZ_PARAM_ERROR;
 	if(s->strm != strm) 
 		return BZ_PARAM_ERROR;
@@ -377,7 +377,7 @@ int BZ2_bzCompressEnd(bz_stream *strm)
 	if(strm == NULL) 
 		return BZ_PARAM_ERROR;
 	s = (EState *)strm->state;
-	if(s == NULL) 
+	if(!s) 
 		return BZ_PARAM_ERROR;
 	if(s->strm != strm) 
 		return BZ_PARAM_ERROR;
@@ -401,7 +401,7 @@ int BZ2_bzDecompressInit(bz_stream* strm, int verbosity, int small)
 	//if(strm->bzalloc == NULL) strm->bzalloc = default_bzalloc;
 	//if(strm->bzfree == NULL) strm->bzfree = default_bzfree;
 	s = (DState *)SAlloc::M(sizeof(DState));
-	if(s == NULL) 
+	if(!s) 
 		return BZ_MEM_ERROR;
 	s->strm          = strm;
 	strm->state      = s;
@@ -746,7 +746,7 @@ int BZ2_bzDecompress(bz_stream *strm)
 	if(strm == NULL) 
 		return BZ_PARAM_ERROR;
 	s = (DState *)strm->state;
-	if(s == NULL) 
+	if(!s) 
 		return BZ_PARAM_ERROR;
 	if(s->strm != strm) 
 		return BZ_PARAM_ERROR;
@@ -795,7 +795,7 @@ int BZ2_bzDecompressEnd(bz_stream *strm)
 	if(strm == NULL) 
 		return BZ_PARAM_ERROR;
 	s = (DState *)strm->state;
-	if(s == NULL) 
+	if(!s) 
 		return BZ_PARAM_ERROR;
 	if(s->strm != strm) 
 		return BZ_PARAM_ERROR;
@@ -1180,15 +1180,10 @@ errhandler:
 // 
 // return version like "0.9.5d, 4-Sept-1999".
 // 
-const char * BZ2_bzlibVersion(void)
-{
-	return BZ_VERSION;
-}
+const char * BZ2_bzlibVersion(void) { return BZ_VERSION; }
 
 #ifndef BZ_NO_STDIO
 #if defined(_WIN32) || defined(OS2) || defined(MSDOS)
-	//#include <fcntl.h>
-	//#include <io.h>
 	#define SET_BINARY_MODE(file) _setmode(_fileno(file), O_BINARY)
 #else
 	#define SET_BINARY_MODE(file)
@@ -1238,7 +1233,7 @@ static BZFILE * bzopen_or_bzdopen(const char * path/* no use when bzdopen */, in
 		fp = _fdopen(fd, mode2);
 #endif
 	}
-	if(fp == NULL) 
+	if(!fp) 
 		return NULL;
 	if(writing) {
 		/* Guard against total chaos and anarchy -- JRS */

@@ -318,7 +318,7 @@ static char * ssh_gssapi_name_to_char(gss_name_t name)
 	    maj_stat,
 	    min_stat);
 	ptr = SAlloc::M(buffer.length + 1);
-	if(ptr == NULL) {
+	if(!ptr) {
 		return NULL;
 	}
 	memcpy(ptr, buffer.value, buffer.length);

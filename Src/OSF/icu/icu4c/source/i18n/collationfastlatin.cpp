@@ -1011,13 +1011,10 @@ uint32_t CollationFastLatin::nextPair(const uint16 * table, UChar32 c, uint32_t 
 						if(i2 < sLength || sLength < 0) {
 							if(c2 == 0xe2 && s8[nextIndex] == 0x80 &&
 							    0x80 <= (t = s8[i2]) && t <= 0xbf) {
-								c2 = (LATIN_LIMIT - 0x80) + t; // 2000..203F ->
-								                               // 0180..01BF
+								c2 = (LATIN_LIMIT - 0x80) + t; // 2000..203F -> 0180..01BF
 							}
-							else if(c2 == 0xef && s8[nextIndex] == 0xbf &&
-							    ((t = s8[i2]) == 0xbe || t == 0xbf)) {
-								c2 = -1; // U+FFFE & U+FFFF cannot occur in
-								         // contractions.
+							else if(c2 == 0xef && s8[nextIndex] == 0xbf && ((t = s8[i2]) == 0xbe || t == 0xbf)) {
+								c2 = -1; // U+FFFE & U+FFFF cannot occur in contractions.
 							}
 							else {
 								return BAIL_OUT;

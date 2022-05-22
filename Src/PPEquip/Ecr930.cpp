@@ -29,7 +29,7 @@ public:
 	PPAsyncCashSession * AsyncInterface() { return new ACS_ECR930(NodeID); }
 };
 
-REGISTER_CMT(ECR930,0,1);
+REGISTER_CMT(ECR930, false, true);
 
 int ACS_ECR930::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {

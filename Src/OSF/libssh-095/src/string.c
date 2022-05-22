@@ -48,7 +48,7 @@ struct ssh_string_struct * ssh_string_new(size_t size)
 		return NULL;
 	}
 	str = (struct ssh_string_struct *)SAlloc::M(sizeof(struct ssh_string_struct) + size);
-	if(str == NULL) {
+	if(!str) {
 		return NULL;
 	}
 	str->size = htonl(size);
@@ -67,14 +67,12 @@ struct ssh_string_struct * ssh_string_new(size_t size)
  *
  * @return         0 on success, < 0 on error.
  */
-int ssh_string_fill(struct ssh_string_struct * s, const void * data, size_t len) {
-	if((s == NULL) || (data == NULL) ||
-	    (len == 0) || (len > ssh_string_len(s))) {
+int ssh_string_fill(struct ssh_string_struct * s, const void * data, size_t len) 
+{
+	if((s == NULL) || (data == NULL) || (len == 0) || (len > ssh_string_len(s))) {
 		return -1;
 	}
-
 	memcpy(s->data, data, len);
-
 	return 0;
 }
 
@@ -88,24 +86,20 @@ int ssh_string_fill(struct ssh_string_struct * s, const void * data, size_t len)
  *
  * @note The nul byte is not copied nor counted in the ouput string.
  */
-struct ssh_string_struct * ssh_string_from_char(const char * what) {
+struct ssh_string_struct * ssh_string_from_char(const char * what) 
+{
 	struct ssh_string_struct * ptr;
 	size_t len;
-
 	if(what == NULL) {
 		errno = EINVAL;
 		return NULL;
 	}
-
 	len = strlen(what);
-
 	ptr = ssh_string_new(len);
-	if(ptr == NULL) {
+	if(!ptr) {
 		return NULL;
 	}
-
 	memcpy(ptr->data, what, len);
-
 	return ptr;
 }
 
@@ -116,18 +110,16 @@ struct ssh_string_struct * ssh_string_from_char(const char * what) {
  *
  * @return The size of the content of the string, 0 on error.
  */
-size_t ssh_string_len(struct ssh_string_struct * s) {
+size_t ssh_string_len(struct ssh_string_struct * s) 
+{
 	size_t size;
-
-	if(s == NULL) {
+	if(!s) {
 		return 0;
 	}
-
 	size = ntohl(s->size);
 	if(size > 0 && size <= STRING_SIZE_MAX) {
 		return size;
 	}
-
 	return 0;
 }
 
@@ -142,14 +134,12 @@ size_t ssh_string_len(struct ssh_string_struct * s) {
  */
 const char * ssh_string_get_char(struct ssh_string_struct * s)
 {
-	if(s == NULL) {
+	if(!s) {
 		return NULL;
 	}
 	s->data[ssh_string_len(s)] = '\0';
-
 	return (const char *)s->data;
 }
-
 /**
  * @brief Convert a SSH string to a C nul-terminated string.
  *
@@ -165,7 +155,7 @@ char * ssh_string_to_char(struct ssh_string_struct * s)
 {
 	size_t len;
 	char * p_new;
-	if(s == NULL) {
+	if(!s) {
 		return NULL;
 	}
 
@@ -203,7 +193,7 @@ struct ssh_string_struct * ssh_string_copy(struct ssh_string_struct * s)
 {
 	struct ssh_string_struct * p_new;
 	size_t len;
-	if(s == NULL) {
+	if(!s) {
 		return NULL;
 	}
 	len = ssh_string_len(s);
@@ -239,7 +229,7 @@ void ssh_string_burn(struct ssh_string_struct * s)
  * @return              Return the data of the string or NULL on error.
  */
 void * ssh_string_data(struct ssh_string_struct * s) {
-	if(s == NULL) {
+	if(!s) {
 		return NULL;
 	}
 

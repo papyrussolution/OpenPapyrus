@@ -382,7 +382,7 @@ cleanup:
 		opts.match_found = 1;
 	}
 	print_cleanup_context();
-	if(buf != NULL) {
+	if(buf) {
 #ifdef _WIN32
 		UnmapViewOfFile(buf);
 #else

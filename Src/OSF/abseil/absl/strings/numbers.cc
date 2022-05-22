@@ -456,13 +456,10 @@ static ExpDigits SplitToSix(const double value) {
 // Helper function for fast formatting of floating-point.
 // The result is the same as "%g", a.k.a. "%.6g".
 size_t numbers_internal::SixDigitsToBuffer(double d, char* const buffer) {
-	static_assert(std::numeric_limits<float>::is_iec559,
-	    "IEEE-754/IEC-559 support only");
-
+	static_assert(std::numeric_limits<float>::is_iec559, "IEEE-754/IEC-559 support only");
 	char* out = buffer; // we write data to out, incrementing as we go, but
 	                    // FloatToBuffer always returns the address of the buffer
 	                    // passed in.
-
 	if(std::isnan(d)) {
 		strcpy(out, "nan"); // NOLINT(runtime/printf)
 		return 3;
@@ -539,15 +536,15 @@ size_t numbers_internal::SixDigitsToBuffer(double d, char* const buffer) {
 		case -4:
 		    out[2] = '0';
 		    ++out;
-		    ABSL_FALLTHROUGH_INTENDED;
+		    CXX_FALLTHROUGH;
 		case -3:
 		    out[2] = '0';
 		    ++out;
-		    ABSL_FALLTHROUGH_INTENDED;
+		    CXX_FALLTHROUGH;
 		case -2:
 		    out[2] = '0';
 		    ++out;
-		    ABSL_FALLTHROUGH_INTENDED;
+		    CXX_FALLTHROUGH;
 		case -1:
 		    out += 2;
 		    memcpy(out, &digits[0], 6);

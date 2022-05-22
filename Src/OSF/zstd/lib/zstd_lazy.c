@@ -20,9 +20,9 @@
 static void ZSTD_updateDUBT(ZSTD_matchState_t* ms, const BYTE * ip, const BYTE * iend, uint32 mls)
 {
 	const ZSTD_compressionParameters* const cParams = &ms->cParams;
-	uint32* const hashTable = ms->hashTable;
+	uint32 * const hashTable = ms->hashTable;
 	const uint32 hashLog = cParams->hashLog;
-	uint32* const bt = ms->chainTable;
+	uint32 * const bt = ms->chainTable;
 	const uint32 btLog  = cParams->chainLog - 1;
 	const uint32 btMask = (1 << btLog) - 1;
 	const BYTE * const base = ms->window.base;
@@ -38,8 +38,8 @@ static void ZSTD_updateDUBT(ZSTD_matchState_t* ms, const BYTE * ip, const BYTE *
 		const size_t h  = ZSTD_hashPtr(base + idx, hashLog, mls);/* assumption : ip + 8 <= iend */
 		const uint32 matchIndex = hashTable[h];
 
-		uint32*   const nextCandidatePtr = bt + 2*(idx&btMask);
-		uint32*   const sortMarkPtr  = nextCandidatePtr + 1;
+		uint32 *   const nextCandidatePtr = bt + 2*(idx&btMask);
+		uint32 *   const sortMarkPtr  = nextCandidatePtr + 1;
 
 		DEBUGLOG(8, "ZSTD_updateDUBT: insert %u", idx);
 		hashTable[h] = idx; /* Update Hash Table */
@@ -59,7 +59,7 @@ static void ZSTD_insertDUBT1(const ZSTD_matchState_t* ms,
     const ZSTD_dictMode_e dictMode)
 {
 	const ZSTD_compressionParameters* const cParams = &ms->cParams;
-	uint32* const bt = ms->chainTable;
+	uint32 * const bt = ms->chainTable;
 	const uint32 btLog  = cParams->chainLog - 1;
 	const uint32 btMask = (1 << btLog) - 1;
 	size_t commonLengthSmaller = 0, commonLengthLarger = 0;
@@ -71,8 +71,8 @@ static void ZSTD_insertDUBT1(const ZSTD_matchState_t* ms,
 	const BYTE * const dictEnd = dictBase + dictLimit;
 	const BYTE * const prefixStart = base + dictLimit;
 	const BYTE * match;
-	uint32* smallerPtr = bt + 2*(curr&btMask);
-	uint32* largerPtr  = smallerPtr + 1;
+	uint32 * smallerPtr = bt + 2*(curr&btMask);
+	uint32 * largerPtr  = smallerPtr + 1;
 	uint32 matchIndex = *smallerPtr; /* this candidate is unsorted : next sorted candidate is reached through
 	                                 *smallerPtr, while *largerPtr contains previous unsorted candidate (which is
 	                                 already saved and can be overwritten) */
@@ -87,7 +87,7 @@ static void ZSTD_insertDUBT1(const ZSTD_matchState_t* ms,
 	assert(ip < iend); /* condition for ZSTD_count */
 
 	for(; nbCompares && (matchIndex > windowLow); --nbCompares) {
-		uint32* const nextPtr = bt + 2*(matchIndex & btMask);
+		uint32 * const nextPtr = bt + 2*(matchIndex & btMask);
 		size_t matchLength = MIN(commonLengthSmaller, commonLengthLarger); /* guaranteed minimum nb of common
 		                                                                      bytes */
 		assert(matchIndex < curr);
@@ -177,7 +177,7 @@ static size_t ZSTD_DUBT_findBetterDictMatch(const ZSTD_matchState_t* ms,
 	const uint32 dictLowLimit = dms->window.lowLimit;
 	const uint32 dictIndexDelta = ms->window.lowLimit - dictHighLimit;
 
-	uint32*        const dictBt = dms->chainTable;
+	uint32 *        const dictBt = dms->chainTable;
 	const uint32 btLog  = dmsCParams->chainLog - 1;
 	const uint32 btMask = (1 << btLog) - 1;
 	const uint32 btLow = (btMask >= dictHighLimit - dictLowLimit) ? dictLowLimit : dictHighLimit - btMask;
@@ -188,7 +188,7 @@ static size_t ZSTD_DUBT_findBetterDictMatch(const ZSTD_matchState_t* ms,
 	assert(dictMode == ZSTD_dictMatchState);
 
 	for(; nbCompares && (dictMatchIndex > dictLowLimit); --nbCompares) {
-		uint32* const nextPtr = dictBt + 2*(dictMatchIndex & btMask);
+		uint32 * const nextPtr = dictBt + 2*(dictMatchIndex & btMask);
 		size_t matchLength = MIN(commonLengthSmaller, commonLengthLarger); /* guaranteed minimum nb of common
 		                                                                      bytes */
 		const BYTE * match = dictBase + dictMatchIndex;
@@ -246,20 +246,20 @@ static size_t ZSTD_DUBT_findBestMatch(ZSTD_matchState_t* ms, const BYTE * const 
     size_t* offBasePtr, const uint32 mls, const ZSTD_dictMode_e dictMode)
 {
 	const ZSTD_compressionParameters* const cParams = &ms->cParams;
-	uint32*   const hashTable = ms->hashTable;
+	uint32 *   const hashTable = ms->hashTable;
 	const uint32 hashLog = cParams->hashLog;
 	const size_t h  = ZSTD_hashPtr(ip, hashLog, mls);
 	uint32 matchIndex  = hashTable[h];
 	const BYTE * const base = ms->window.base;
 	const uint32 curr = (uint32)(ip-base);
 	const uint32 windowLow = ZSTD_getLowestMatchIndex(ms, curr, cParams->windowLog);
-	uint32*   const bt = ms->chainTable;
+	uint32 *   const bt = ms->chainTable;
 	const uint32 btLog  = cParams->chainLog - 1;
 	const uint32 btMask = (1 << btLog) - 1;
 	const uint32 btLow = (btMask >= curr) ? 0 : curr - btMask;
 	const uint32 unsortLimit = MAX(btLow, windowLow);
-	uint32*         nextCandidate = bt + 2*(matchIndex&btMask);
-	uint32*         unsortedMark = bt + 2*(matchIndex&btMask) + 1;
+	uint32 *         nextCandidate = bt + 2*(matchIndex&btMask);
+	uint32 *         unsortedMark = bt + 2*(matchIndex&btMask) + 1;
 	uint32 nbCompares = 1U << cParams->searchLog;
 	uint32 nbCandidates = nbCompares;
 	uint32 previousCandidate = 0;
@@ -285,7 +285,7 @@ static size_t ZSTD_DUBT_findBestMatch(ZSTD_matchState_t* ms, const BYTE * const 
 	/* batch sort stacked candidates */
 	matchIndex = previousCandidate;
 	while(matchIndex) { /* will end on matchIndex == 0 */
-		uint32* const nextCandidateIdxPtr = bt + 2*(matchIndex&btMask) + 1;
+		uint32 * const nextCandidateIdxPtr = bt + 2*(matchIndex&btMask) + 1;
 		const uint32 nextCandidateIdx = *nextCandidateIdxPtr;
 		ZSTD_insertDUBT1(ms, matchIndex, iend, nbCandidates, unsortLimit, dictMode);
 		matchIndex = nextCandidateIdx;
@@ -298,15 +298,15 @@ static size_t ZSTD_DUBT_findBestMatch(ZSTD_matchState_t* ms, const BYTE * const 
 	    const uint32 dictLimit = ms->window.dictLimit;
 	    const BYTE * const dictEnd = dictBase + dictLimit;
 	    const BYTE * const prefixStart = base + dictLimit;
-	    uint32* smallerPtr = bt + 2*(curr&btMask);
-	    uint32* largerPtr  = bt + 2*(curr&btMask) + 1;
+	    uint32 * smallerPtr = bt + 2*(curr&btMask);
+	    uint32 * largerPtr  = bt + 2*(curr&btMask) + 1;
 	    uint32 matchEndIdx = curr + 8 + 1;
 	    uint32 dummy32; /* to be nullified at the end */
 	    size_t bestLength = 0;
 	    matchIndex  = hashTable[h];
 	    hashTable[h] = curr; /* Update Hash Table */
 	    for(; nbCompares && (matchIndex > windowLow); --nbCompares) {
-		    uint32* const nextPtr = bt + 2*(matchIndex & btMask);
+		    uint32 * const nextPtr = bt + 2*(matchIndex & btMask);
 		    size_t matchLength = MIN(commonLengthSmaller, commonLengthLarger); /* guaranteed minimum nb of common bytes */
 		    const BYTE * match;
 		    if((dictMode != ZSTD_extDict) || (matchIndex+matchLength >= dictLimit)) {
@@ -387,8 +387,8 @@ void ZSTD_dedicatedDictSearch_lazy_loadDictionary(ZSTD_matchState_t* ms, const B
 {
 	const BYTE * const base = ms->window.base;
 	const uint32 target = (uint32)(ip - base);
-	uint32* const hashTable = ms->hashTable;
-	uint32* const chainTable = ms->chainTable;
+	uint32 * const hashTable = ms->hashTable;
+	uint32 * const chainTable = ms->chainTable;
 	const uint32 chainSize = 1 << ms->cParams.chainLog;
 	uint32 idx = ms->nextToUpdate;
 	const uint32 minChain = chainSize < target - idx ? target - chainSize : idx;
@@ -403,8 +403,8 @@ void ZSTD_dedicatedDictSearch_lazy_loadDictionary(ZSTD_matchState_t* ms, const B
 	 * chaintable.
 	 */
 	const uint32 hashLog = ms->cParams.hashLog - ZSTD_LAZY_DDSS_BUCKET_LOG;
-	uint32* const tmpHashTable = hashTable;
-	uint32* const tmpChainTable = hashTable + ((size_t)1 << hashLog);
+	uint32 * const tmpHashTable = hashTable;
+	uint32 * const tmpChainTable = hashTable + ((size_t)1 << hashLog);
 	const uint32 tmpChainSize = (uint32)((1 << ZSTD_LAZY_DDSS_BUCKET_LOG) - 1) << hashLog;
 	const uint32 tmpMinChain = tmpChainSize < target ? target - tmpChainSize : idx;
 	uint32 hashIdx;
@@ -599,9 +599,9 @@ FORCE_INLINE_TEMPLATE uint32 ZSTD_insertAndFindFirstIndex_internal(ZSTD_matchSta
     const ZSTD_compressionParameters* const cParams,
     const BYTE * ip, const uint32 mls)
 {
-	uint32* const hashTable  = ms->hashTable;
+	uint32 * const hashTable  = ms->hashTable;
 	const uint32 hashLog = cParams->hashLog;
-	uint32* const chainTable = ms->chainTable;
+	uint32 * const chainTable = ms->chainTable;
 	const uint32 chainMask = (1 << cParams->chainLog) - 1;
 	const BYTE * const base = ms->window.base;
 	const uint32 target = (uint32)(ip - base);
@@ -631,7 +631,7 @@ size_t ZSTD_HcFindBestMatch(ZSTD_matchState_t* ms,
     const uint32 mls, const ZSTD_dictMode_e dictMode)
 {
 	const ZSTD_compressionParameters* const cParams = &ms->cParams;
-	uint32* const chainTable = ms->chainTable;
+	uint32 * const chainTable = ms->chainTable;
 	const uint32 chainSize = (1 << cParams->chainLog);
 	const uint32 chainMask = chainSize-1;
 	const BYTE * const base = ms->window.base;
@@ -658,7 +658,7 @@ size_t ZSTD_HcFindBestMatch(ZSTD_matchState_t* ms,
 	uint32 matchIndex;
 
 	if(dictMode == ZSTD_dedicatedDictSearch) {
-		const uint32* entry = &dms->hashTable[ddsIdx];
+		const uint32 * entry = &dms->hashTable[ddsIdx];
 		PREFETCH_L1(entry);
 	}
 
@@ -698,7 +698,7 @@ size_t ZSTD_HcFindBestMatch(ZSTD_matchState_t* ms,
 			ip, iLimit, prefixStart, curr, dictLimit, ddsIdx);
 	}
 	else if(dictMode == ZSTD_dictMatchState) {
-		const uint32* const dmsChainTable = dms->chainTable;
+		const uint32 * const dmsChainTable = dms->chainTable;
 		const uint32 dmsChainSize         = (1 << dms->cParams.chainLog);
 		const uint32 dmsChainMask         = dmsChainSize - 1;
 		const uint32 dmsLowestIndex       = dms->window.dictLimit;
@@ -804,7 +804,7 @@ MEM_STATIC int ZSTD_isAligned(void const* ptr, size_t align) {
 /* ZSTD_row_prefetch():
  * Performs prefetching for the hashTable and tagTable at a given row.
  */
-FORCE_INLINE_TEMPLATE void ZSTD_row_prefetch(const uint32* hashTable, uint16 const* tagTable, const uint32 relRow, const uint32 rowLog) {
+FORCE_INLINE_TEMPLATE void ZSTD_row_prefetch(const uint32 * hashTable, uint16 const* tagTable, const uint32 relRow, const uint32 rowLog) {
 	PREFETCH_L1(hashTable + relRow);
 	if(rowLog >= 5) {
 		PREFETCH_L1(hashTable + relRow + 16);
@@ -828,7 +828,7 @@ FORCE_INLINE_TEMPLATE void ZSTD_row_fillHashCache(ZSTD_matchState_t* ms, const B
     const uint32 rowLog, const uint32 mls,
     uint32 idx, const BYTE * const iLimit)
 {
-	const uint32* const hashTable = ms->hashTable;
+	const uint32 * const hashTable = ms->hashTable;
 	uint16 const* const tagTable = ms->tagTable;
 	const uint32 hashLog = ms->rowHashLog;
 	const uint32 maxElemsToPrefetch = (base + idx) > iLimit ? 0 : (uint32)(iLimit - (base + idx) + 1);
@@ -850,7 +850,7 @@ FORCE_INLINE_TEMPLATE void ZSTD_row_fillHashCache(ZSTD_matchState_t* ms, const B
  * Returns the hash of base + idx, and replaces the hash in the hash cache with the byte at
  * base + idx + ZSTD_ROW_HASH_CACHE_SIZE. Also prefetches the appropriate rows from hashTable and tagTable.
  */
-FORCE_INLINE_TEMPLATE uint32 ZSTD_row_nextCachedHash(uint32* cache, const uint32* hashTable, uint16 const* tagTable, BYTE const* base,
+FORCE_INLINE_TEMPLATE uint32 ZSTD_row_nextCachedHash(uint32 * cache, const uint32 * hashTable, uint16 const* tagTable, BYTE const* base,
     uint32 idx, const uint32 hashLog, const uint32 rowLog, const uint32 mls)
 {
 	const uint32 newHash = (uint32)ZSTD_hashPtr(base+idx+ZSTD_ROW_HASH_CACHE_SIZE, hashLog + ZSTD_ROW_HASH_TAG_BITS, mls);
@@ -869,7 +869,7 @@ FORCE_INLINE_TEMPLATE uint32 ZSTD_row_nextCachedHash(uint32* cache, const uint32
 FORCE_INLINE_TEMPLATE void ZSTD_row_update_internalImpl(ZSTD_matchState_t* ms, uint32 updateStartIdx, const uint32 updateEndIdx,
     const uint32 mls, const uint32 rowLog, const uint32 rowMask, const uint32 useCache)
 {
-	uint32* const hashTable = ms->hashTable;
+	uint32 * const hashTable = ms->hashTable;
 	uint16* const tagTable = ms->tagTable;
 	const uint32 hashLog = ms->rowHashLog;
 	const BYTE * const base = ms->window.base;
@@ -878,7 +878,7 @@ FORCE_INLINE_TEMPLATE void ZSTD_row_update_internalImpl(ZSTD_matchState_t* ms, u
 		const uint32 hash = useCache ? ZSTD_row_nextCachedHash(ms->hashCache, hashTable, tagTable,
 			base, updateStartIdx, hashLog, rowLog, mls) : (uint32)ZSTD_hashPtr(base + updateStartIdx, hashLog + ZSTD_ROW_HASH_TAG_BITS, mls);
 		const uint32 relRow = (hash >> ZSTD_ROW_HASH_TAG_BITS) << rowLog;
-		uint32* const row = hashTable + relRow;
+		uint32 * const row = hashTable + relRow;
 		BYTE * tagRow = (BYTE *)(tagTable + relRow); // Though tagTable is laid out as a table of uint16, each tag is only 1 byte.
 			// Explicit cast allows us to get exact desired position within each row 
 		const uint32 pos = ZSTD_row_nextIndex(tagRow, rowMask);
@@ -1078,9 +1078,9 @@ FORCE_INLINE_TEMPLATE ZSTD_VecMask ZSTD_row_getMatchMask(const BYTE * const tagR
 FORCE_INLINE_TEMPLATE size_t ZSTD_RowFindBestMatch(ZSTD_matchState_t* ms, const BYTE * const ip, const BYTE * const iLimit,
     size_t* offsetPtr, const uint32 mls, const ZSTD_dictMode_e dictMode, const uint32 rowLog)
 {
-	uint32* const hashTable = ms->hashTable;
+	uint32 * const hashTable = ms->hashTable;
 	uint16* const tagTable = ms->tagTable;
-	uint32* const hashCache = ms->hashCache;
+	uint32 * const hashCache = ms->hashCache;
 	const uint32 hashLog = ms->rowHashLog;
 	const ZSTD_compressionParameters* const cParams = &ms->cParams;
 	const BYTE * const base = ms->window.base;
@@ -1105,7 +1105,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_RowFindBestMatch(ZSTD_matchState_t* ms, const 
 	size_t ddsIdx = 0;
 	uint32 ddsExtraAttempts = 0; /* cctx hash tables are limited in searches, but allow extra searches into DDS */
 	uint32 dmsTag = 0;
-	uint32* dmsRow = NULL;
+	uint32 * dmsRow = NULL;
 	BYTE * dmsTagRow = NULL;
 	if(dictMode == ZSTD_dedicatedDictSearch) {
 		const uint32 ddsHashLog = dms->cParams.hashLog - ZSTD_LAZY_DDSS_BUCKET_LOG;
@@ -1117,7 +1117,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_RowFindBestMatch(ZSTD_matchState_t* ms, const 
 	}
 	if(dictMode == ZSTD_dictMatchState) {
 		/* Prefetch DMS rows */
-		uint32* const dmsHashTable = dms->hashTable;
+		uint32 * const dmsHashTable = dms->hashTable;
 		uint16* const dmsTagTable = dms->tagTable;
 		const uint32 dmsHash = (uint32)ZSTD_hashPtr(ip, dms->rowHashLog + ZSTD_ROW_HASH_TAG_BITS, mls);
 		const uint32 dmsRelRow = (dmsHash >> ZSTD_ROW_HASH_TAG_BITS) << rowLog;
@@ -1132,7 +1132,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_RowFindBestMatch(ZSTD_matchState_t* ms, const 
 		const uint32 hash = ZSTD_row_nextCachedHash(hashCache, hashTable, tagTable, base, curr, hashLog, rowLog, mls);
 		const uint32 relRow = (hash >> ZSTD_ROW_HASH_TAG_BITS) << rowLog;
 		const uint32 tag = hash & ZSTD_ROW_HASH_TAG_MASK;
-		uint32* const row = hashTable + relRow;
+		uint32 * const row = hashTable + relRow;
 		BYTE * tagRow = (BYTE *)(tagTable + relRow);
 		const uint32 head = *tagRow & rowMask;
 		uint32 matchBuffer[ZSTD_ROW_HASH_MAX_ENTRIES];

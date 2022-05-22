@@ -1578,7 +1578,7 @@ int32_t UnicodeSet::serialize(uint16 * dest, int32_t destCapacity, UErrorCode & 
 		}
 
 		/* write the supplementary part of the array */
-		for(; i<length; i += 2) {
+		for(; i < length; i += 2) {
 #ifdef DEBUG_SERIALIZE
 			printf("write32: %x\n", (int)*p);
 #endif

@@ -17,7 +17,7 @@ int __db_util_logset(const char * progname, char * fname)
 	__time64_t now;
 	char time_buf[CTIME_BUFLEN];
 	FILE * fp = fopen(fname, "w");
-	if(fp == NULL)
+	if(!fp)
 		goto err;
 	_time64(&now);
 	__os_id(NULL, &pid, 0);

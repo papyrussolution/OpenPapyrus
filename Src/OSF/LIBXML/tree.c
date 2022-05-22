@@ -2071,7 +2071,7 @@ xmlNode * xmlNewText(const xmlChar * content)
 xmlNode * xmlNewTextChild(xmlNode * parent, xmlNs * ns, const xmlChar * name, const xmlChar * content)
 {
 	xmlNode * cur = 0;
-	if(parent == NULL) {
+	if(!parent) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlNewTextChild : parent == NULL\n");
 #endif
@@ -2389,7 +2389,7 @@ void FASTCALL xmlSetListDoc(xmlNode * list, xmlDoc * doc)
 xmlNode * xmlNewChild(xmlNode * parent, xmlNs * ns, const xmlChar * name, const xmlChar * content) 
 {
 	xmlNode * cur = 0;
-	if(parent == NULL) {
+	if(!parent) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlNewChild : parent == NULL\n");
 #endif
@@ -2903,7 +2903,7 @@ unsigned long xmlChildElementCount(xmlNode * parent)
 {
 	unsigned long ret = 0;
 	xmlNode * cur = NULL;
-	if(parent == NULL)
+	if(!parent)
 		return 0;
 	switch(parent->type) {
 		case XML_ELEMENT_NODE:
@@ -2938,7 +2938,7 @@ unsigned long xmlChildElementCount(xmlNode * parent)
 xmlNode * xmlFirstElementChild(xmlNode * parent) 
 {
 	xmlNode * cur = NULL;
-	if(parent == NULL)
+	if(!parent)
 		return 0;
 	switch(parent->type) {
 		case XML_ELEMENT_NODE:
@@ -2973,7 +2973,7 @@ xmlNode * xmlFirstElementChild(xmlNode * parent)
 xmlNode * xmlLastElementChild(xmlNode * parent) 
 {
 	xmlNode * cur = NULL;
-	if(parent == NULL)
+	if(!parent)
 		return 0;
 	switch(parent->type) {
 		case XML_ELEMENT_NODE:
@@ -3471,7 +3471,7 @@ xmlAttr * xmlCopyPropList(xmlNode * target, xmlAttr * cur)
 		return 0;
 	while(cur) {
 		q = xmlCopyProp(target, cur);
-		if(q == NULL)
+		if(!q)
 			return 0;
 		if(!p) {
 			ret = p = q;
@@ -3590,7 +3590,7 @@ static xmlNode * xmlStaticCopyNode(xmlNode * pNode, xmlDoc * doc, xmlNode * pare
 		ret->nsDef = xmlCopyNamespaceList(pNode->nsDef);
 	if(pNode->ns) {
 		xmlNs * ns = xmlSearchNs(doc, ret, pNode->ns->prefix);
-		if(ns == NULL) {
+		if(!ns) {
 			/*
 			 * Humm, we are copying an element whose namespace is defined
 			 * out of the new tree scope. Search it in the original tree
@@ -3656,7 +3656,7 @@ static xmlNode * xmlStaticCopyNodeList(xmlNode * pNode, xmlDoc * doc, xmlNode * 
 			}
 			if(doc->intSubset == NULL) {
 				q = (xmlNode *)xmlCopyDtd((xmlDtd *)pNode);
-				if(q == NULL)
+				if(!q)
 					return 0;
 				q->doc = doc;
 				q->P_ParentNode = parent;
@@ -3671,7 +3671,7 @@ static xmlNode * xmlStaticCopyNodeList(xmlNode * pNode, xmlDoc * doc, xmlNode * 
 		else
 #endif /* LIBXML_TREE_ENABLED */
 		q = xmlStaticCopyNode(pNode, doc, parent, 1);
-		if(q == NULL)
+		if(!q)
 			return 0;
 		if(!ret) {
 			q->prev = NULL;
@@ -3806,7 +3806,7 @@ xmlDtd * xmlCopyDtd(xmlDtd * dtd)
 		else if(cur->type == XML_COMMENT_NODE) {
 			q = xmlCopyNode(cur, 0);
 		}
-		if(q == NULL) {
+		if(!q) {
 			cur = cur->next;
 			continue;
 		}
@@ -4338,7 +4338,7 @@ void xmlNodeSetSpacePreserve(xmlNode * cur, int val)
 		    break;
 	}
 	ns = xmlSearchNsByHref(cur->doc, cur, XML_XML_NAMESPACE);
-	if(ns == NULL)
+	if(!ns)
 		return;
 	switch(val) {
 		case 0:
@@ -4491,7 +4491,7 @@ void xmlNodeSetBase(xmlNode * cur, const xmlChar* uri)
 			}
 		}
 		ns = xmlSearchNsByHref(cur->doc, cur, XML_XML_NAMESPACE);
-		if(ns == NULL)
+		if(!ns)
 			return;
 		fixed = xmlPathToURI(uri);
 		if(fixed) {
@@ -5157,7 +5157,7 @@ static xmlNs * FASTCALL xmlTreeEnsureXMLDecl(xmlDoc * doc)
 			ns = doc->oldNs;
 		else {
 			ns = static_cast<xmlNs *>(SAlloc::M(sizeof(xmlNs)));
-			if(ns == NULL) {
+			if(!ns) {
 				xmlTreeErrMemory("allocating the XML namespace");
 			}
 			else {
@@ -7159,7 +7159,7 @@ int xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * doc, xmlNode * pNode, 
 					    // Add to doc's oldNs.
 					    ns = xmlDOMWrapStoreNs(doc, pNode->ns->href,
 					    pNode->ns->prefix);
-					    if(ns == NULL)
+					    if(!ns)
 						    goto internal_error;
 				    }
 				    if(ns) {
@@ -7474,7 +7474,7 @@ static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDoc * doc, xmlNode * elem, xmlN
 	/*
 	 * No luck, the namespace is out of scope or shadowed.
 	 */
-	if(elem == NULL) {
+	if(!elem) {
 		/*
 		 * Store ns-decls in "oldNs" of the document-node.
 		 */

@@ -843,7 +843,7 @@ static const cairo_surface_backend_t _cairo_xml_surface_backend = {
 static cairo_surface_t * _cairo_xml_surface_create_internal(cairo_device_t * device, cairo_content_t content, double width, double height)
 {
 	cairo_xml_surface_t * surface = (cairo_xml_surface_t *)_cairo_malloc(sizeof(cairo_xml_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_xml_surface_backend, device, content, TRUE/* is_vector */);
 	surface->width = width;

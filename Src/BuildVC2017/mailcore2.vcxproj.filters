@@ -209,100 +209,19 @@
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCHTMLRendererCallback.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPAppendMessageOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPAsyncSession.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPCapabilityOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPCheckAccountOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPCopyMessagesOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPCustomCommandOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFetchContentOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFetchContentToFileOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFetchFoldersOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFetchMessagesOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFetchNamespaceOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFetchParsedContentOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFolder.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFolderInfo.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFolderInfoOperation.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFolderStatus.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFolderStatusOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPIdentity.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPIdentityOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPIdleOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPMessage.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPMessageRenderingOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPMoveMessagesOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPNamespace.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPOperationCallback.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPPart.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPProgressCallback.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPQuotaOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPSearchExpression.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPSearchOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPSession.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPSyncResult.h">

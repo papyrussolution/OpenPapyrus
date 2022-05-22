@@ -11,14 +11,7 @@
 
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "e_os.h"
-//#include <ssl-crypto-ctype.h>
-//#include <openssl/conf.h>
-//#include <openssl/crypto.h>
-//#include <openssl/x509v3.h>
 #include <x509_int.h>
-//#include <openssl/bn.h>
-//#include "ext_dat.h"
 
 static char * strip_spaces(char * name);
 static int sk_strcmp(const char * const * a, const char * const * b);

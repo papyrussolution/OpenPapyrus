@@ -740,13 +740,13 @@ static size_t LMBCSConversionWorker(UConverterDataLMBCS * extraInfo,    /* subco
 	/* then move over the converted data */
 	switch(bytesConverted) {
 		case 4: *pLMBCS++ = (ulmbcs_byte_t)(value >> 24);
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 3: *pLMBCS++ = (ulmbcs_byte_t)(value >> 16);
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 2: *pLMBCS++ = (ulmbcs_byte_t)(value >> 8);
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 1: *pLMBCS++ = (ulmbcs_byte_t)value;
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		default: break; /* will never occur */
 	}
 	return (pLMBCS - pStartLMBCS);

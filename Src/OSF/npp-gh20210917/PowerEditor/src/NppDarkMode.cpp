@@ -85,114 +85,114 @@ struct Pens {
 
 // black (default)
 static const Colors darkColors{
-	HEXRGB(0x202020),               // background
-	HEXRGB(0x404040),               // softerBackground
-	HEXRGB(0x404040),               // hotBackground
-	HEXRGB(0x202020),               // pureBackground
-	HEXRGB(0xB00000),               // errorBackground
-	HEXRGB(0xE0E0E0),               // textColor
-	HEXRGB(0xC0C0C0),               // darkerTextColor
-	HEXRGB(0x808080),               // disabledTextColor
-	HEXRGB(0xFFFF00),               // linkTextColor
-	HEXRGB(0x646464)                // edgeColor
+	HEXRGB(0x202020), // background
+	HEXRGB(0x404040), // softerBackground
+	HEXRGB(0x404040), // hotBackground
+	HEXRGB(0x202020), // pureBackground
+	HEXRGB(0xB00000), // errorBackground
+	HEXRGB(0xE0E0E0), // textColor
+	HEXRGB(0xC0C0C0), // darkerTextColor
+	HEXRGB(0x808080), // disabledTextColor
+	HEXRGB(0xFFFF00), // linkTextColor
+	HEXRGB(0x646464)  // edgeColor
 };
 
 // red tone
 static const Colors darkRedColors{
-	HEXRGB(0x302020),               // background
-	HEXRGB(0x504040),               // softerBackground
-	HEXRGB(0x504040),               // hotBackground
-	HEXRGB(0x302020),               // pureBackground
-	HEXRGB(0xC00000),               // errorBackground
-	HEXRGB(0xE0E0E0),               // textColor
-	HEXRGB(0xC0C0C0),               // darkerTextColor
-	HEXRGB(0x808080),               // disabledTextColor
-	HEXRGB(0xFFFF00),               // linkTextColor
-	HEXRGB(0x908080)                // edgeColor
+	HEXRGB(0x302020), // background
+	HEXRGB(0x504040), // softerBackground
+	HEXRGB(0x504040), // hotBackground
+	HEXRGB(0x302020), // pureBackground
+	HEXRGB(0xC00000), // errorBackground
+	HEXRGB(0xE0E0E0), // textColor
+	HEXRGB(0xC0C0C0), // darkerTextColor
+	HEXRGB(0x808080), // disabledTextColor
+	HEXRGB(0xFFFF00), // linkTextColor
+	HEXRGB(0x908080)  // edgeColor
 };
 
 // green tone
 static const Colors darkGreenColors{
-	HEXRGB(0x203020),               // background
-	HEXRGB(0x405040),               // softerBackground
-	HEXRGB(0x405040),               // hotBackground
-	HEXRGB(0x203020),               // pureBackground
-	HEXRGB(0xB01000),               // errorBackground
-	HEXRGB(0xE0E0E0),               // textColor
-	HEXRGB(0xC0C0C0),               // darkerTextColor
-	HEXRGB(0x808080),               // disabledTextColor
-	HEXRGB(0xFFFF00),               // linkTextColor
-	HEXRGB(0x809080)                // edgeColor
+	HEXRGB(0x203020), // background
+	HEXRGB(0x405040), // softerBackground
+	HEXRGB(0x405040), // hotBackground
+	HEXRGB(0x203020), // pureBackground
+	HEXRGB(0xB01000), // errorBackground
+	HEXRGB(0xE0E0E0), // textColor
+	HEXRGB(0xC0C0C0), // darkerTextColor
+	HEXRGB(0x808080), // disabledTextColor
+	HEXRGB(0xFFFF00), // linkTextColor
+	HEXRGB(0x809080)  // edgeColor
 };
 
 // blue tone
 static const Colors darkBlueColors{
-	HEXRGB(0x202040),               // background
-	HEXRGB(0x404060),               // softerBackground
-	HEXRGB(0x404060),               // hotBackground
-	HEXRGB(0x202040),               // pureBackground
-	HEXRGB(0xB00020),               // errorBackground
-	HEXRGB(0xE0E0E0),               // textColor
-	HEXRGB(0xC0C0C0),               // darkerTextColor
-	HEXRGB(0x808080),               // disabledTextColor
-	HEXRGB(0xFFFF00),               // linkTextColor
-	HEXRGB(0x8080A0)                // edgeColor
+	HEXRGB(0x202040), // background
+	HEXRGB(0x404060), // softerBackground
+	HEXRGB(0x404060), // hotBackground
+	HEXRGB(0x202040), // pureBackground
+	HEXRGB(0xB00020), // errorBackground
+	HEXRGB(0xE0E0E0), // textColor
+	HEXRGB(0xC0C0C0), // darkerTextColor
+	HEXRGB(0x808080), // disabledTextColor
+	HEXRGB(0xFFFF00), // linkTextColor
+	HEXRGB(0x8080A0)  // edgeColor
 };
 
 // purple tone
 static const Colors darkPurpleColors{
-	HEXRGB(0x302040),               // background
-	HEXRGB(0x504060),               // softerBackground
-	HEXRGB(0x504060),               // hotBackground
-	HEXRGB(0x302040),               // pureBackground
-	HEXRGB(0xC00020),               // errorBackground
-	HEXRGB(0xE0E0E0),               // textColor
-	HEXRGB(0xC0C0C0),               // darkerTextColor
-	HEXRGB(0x808080),               // disabledTextColor
-	HEXRGB(0xFFFF00),               // linkTextColor
-	HEXRGB(0x9080A0)                // edgeColor
+	HEXRGB(0x302040), // background
+	HEXRGB(0x504060), // softerBackground
+	HEXRGB(0x504060), // hotBackground
+	HEXRGB(0x302040), // pureBackground
+	HEXRGB(0xC00020), // errorBackground
+	HEXRGB(0xE0E0E0), // textColor
+	HEXRGB(0xC0C0C0), // darkerTextColor
+	HEXRGB(0x808080), // disabledTextColor
+	HEXRGB(0xFFFF00), // linkTextColor
+	HEXRGB(0x9080A0)  // edgeColor
 };
 
 // cyan tone
 static const Colors darkCyanColors{
-	HEXRGB(0x203040),               // background
-	HEXRGB(0x405060),               // softerBackground
-	HEXRGB(0x405060),               // hotBackground
-	HEXRGB(0x203040),               // pureBackground
-	HEXRGB(0xB01020),               // errorBackground
-	HEXRGB(0xE0E0E0),               // textColor
-	HEXRGB(0xC0C0C0),               // darkerTextColor
-	HEXRGB(0x808080),               // disabledTextColor
-	HEXRGB(0xFFFF00),               // linkTextColor
-	HEXRGB(0x8090A0)                // edgeColor
+	HEXRGB(0x203040), // background
+	HEXRGB(0x405060), // softerBackground
+	HEXRGB(0x405060), // hotBackground
+	HEXRGB(0x203040), // pureBackground
+	HEXRGB(0xB01020), // errorBackground
+	HEXRGB(0xE0E0E0), // textColor
+	HEXRGB(0xC0C0C0), // darkerTextColor
+	HEXRGB(0x808080), // disabledTextColor
+	HEXRGB(0xFFFF00), // linkTextColor
+	HEXRGB(0x8090A0)  // edgeColor
 };
 
 // olive tone
 static const Colors darkOliveColors{
-	HEXRGB(0x303020),               // background
-	HEXRGB(0x505040),               // softerBackground
-	HEXRGB(0x505040),               // hotBackground
-	HEXRGB(0x303020),               // pureBackground
-	HEXRGB(0xC01000),               // errorBackground
-	HEXRGB(0xE0E0E0),               // textColor
-	HEXRGB(0xC0C0C0),               // darkerTextColor
-	HEXRGB(0x808080),               // disabledTextColor
-	HEXRGB(0xFFFF00),               // linkTextColor
-	HEXRGB(0x909080)                // edgeColor
+	HEXRGB(0x303020), // background
+	HEXRGB(0x505040), // softerBackground
+	HEXRGB(0x505040), // hotBackground
+	HEXRGB(0x303020), // pureBackground
+	HEXRGB(0xC01000), // errorBackground
+	HEXRGB(0xE0E0E0), // textColor
+	HEXRGB(0xC0C0C0), // darkerTextColor
+	HEXRGB(0x808080), // disabledTextColor
+	HEXRGB(0xFFFF00), // linkTextColor
+	HEXRGB(0x909080)  // edgeColor
 };
 
 // customized
 Colors darkCustomizedColors{
-	HEXRGB(0x202020),               // background
-	HEXRGB(0x404040),               // softerBackground
-	HEXRGB(0x404040),               // hotBackground
-	HEXRGB(0x202020),               // pureBackground
-	HEXRGB(0xB00000),               // errorBackground
-	HEXRGB(0xE0E0E0),               // textColor
-	HEXRGB(0xC0C0C0),               // darkerTextColor
-	HEXRGB(0x808080),               // disabledTextColor
-	HEXRGB(0xFFFF00),               // linkTextColor
-	HEXRGB(0x646464)                // edgeColor
+	HEXRGB(0x202020), // background
+	HEXRGB(0x404040), // softerBackground
+	HEXRGB(0x404040), // hotBackground
+	HEXRGB(0x202020), // pureBackground
+	HEXRGB(0xB00000), // errorBackground
+	HEXRGB(0xE0E0E0), // textColor
+	HEXRGB(0xC0C0C0), // darkerTextColor
+	HEXRGB(0x808080), // disabledTextColor
+	HEXRGB(0xFFFF00), // linkTextColor
+	HEXRGB(0x646464)  // edgeColor
 };
 
 ColorTone g_colorToneChoice = blackTone;
@@ -206,14 +206,9 @@ struct Theme {
 	Colors _colors;
 	Brushes _brushes;
 	Pens _pens;
-
-	Theme(const Colors& colors)
-		: _colors(colors)
-		, _brushes(colors)
-		, _pens(colors)
+	Theme(const Colors& colors) : _colors(colors) , _brushes(colors), _pens(colors)
 	{
 	}
-
 	void change(const Colors& colors)
 	{
 		_colors = colors;
@@ -234,35 +229,19 @@ Theme tCustom(darkCustomizedColors);
 
 Theme& getTheme()
 {
-	switch(g_colorToneChoice)
-	{
-		case redTone:
-		    return tR;
-
-		case greenTone:
-		    return tG;
-
-		case blueTone:
-		    return tB;
-
-		case purpleTone:
-		    return tP;
-
-		case cyanTone:
-		    return tC;
-
-		case oliveTone:
-		    return tO;
-
-		case customizedTone:
-		    return tCustom;
-
-		default:
-		    return tDefault;
+	switch(g_colorToneChoice) {
+		case redTone: return tR;
+		case greenTone: return tG;
+		case blueTone: return tB;
+		case purpleTone: return tP;
+		case cyanTone: return tC;
+		case oliveTone: return tO;
+		case customizedTone: return tCustom;
+		default: return tDefault;
 	}
 }
 
-static Options _options;                                // actual runtime options
+static Options _options; // actual runtime options
 
 Options configuredOptions()
 {
@@ -270,17 +249,14 @@ Options configuredOptions()
 	Options opt;
 	opt.enable = nppGui._darkmode._isEnabled;
 	opt.enableMenubar = opt.enable;
-
 	g_colorToneChoice = nppGui._darkmode._colorTone;
 	tCustom.change(nppGui._darkmode._customColors);
-
 	return opt;
 }
 
 void initDarkMode()
 {
 	_options = configuredOptions();
-
 	initExperimentalDarkMode();
 	setDarkMode(_options.enable, true);
 }
@@ -289,52 +265,30 @@ void initDarkMode()
 void refreshDarkMode(HWND hwnd, bool forceRefresh)
 {
 	bool supportedChanged = false;
-
 	auto config = configuredOptions();
-
 	if(_options.enable != config.enable) {
 		supportedChanged = true;
 		_options.enable = config.enable;
 		setDarkMode(_options.enable, _options.enable);
 	}
-
 	if(_options.enableMenubar != config.enableMenubar) {
 		supportedChanged = true;
 		_options.enableMenubar = config.enableMenubar;
 	}
-
 	// other options not supported to change at runtime currently
-
 	if(!supportedChanged && !forceRefresh) {
 		// nothing to refresh, changes were not supported.
 		return;
 	}
-
 	HWND hwndRoot = GetAncestor(hwnd, GA_ROOTOWNER);
-
 	// wParam == true, will reset style and toolbar icon
 	::SendMessage(hwndRoot, NPPM_INTERNAL_REFRESHDARKMODE, static_cast<WPARAM>(!forceRefresh), 0);
 }
 
-bool isEnabled()
-{
-	return _options.enable;
-}
-
-bool isDarkMenuEnabled()
-{
-	return _options.enableMenubar;
-}
-
-bool isExperimentalActive()
-{
-	return g_darkModeEnabled;
-}
-
-bool isExperimentalSupported()
-{
-	return g_darkModeSupported;
-}
+bool isEnabled() { return _options.enable; }
+bool isDarkMenuEnabled() { return _options.enableMenubar; }
+bool isExperimentalActive() { return g_darkModeEnabled; }
+bool isExperimentalSupported() { return g_darkModeSupported; }
 
 COLORREF invertLightness(COLORREF c)
 {
@@ -342,11 +296,8 @@ COLORREF invertLightness(COLORREF c)
 	WORD s = 0;
 	WORD l = 0;
 	ColorRGBToHLS(c, &h, &l, &s);
-
 	l = 240 - l;
-
 	COLORREF invert_c = ColorHLSToRGB(h, l, s);
-
 	return invert_c;
 }
 
@@ -356,11 +307,8 @@ COLORREF invertLightnessSofter(COLORREF c)
 	WORD s = 0;
 	WORD l = 0;
 	ColorRGBToHLS(c, &h, &l, &s);
-
 	l = MIN(240 - l, 211);
-
 	COLORREF invert_c = ColorHLSToRGB(h, l, s);
-
 	return invert_c;
 }
 
@@ -382,80 +330,28 @@ double calculatePerceivedLighness(COLORREF c)
 	double r = linearValue(static_cast<double>(GetRValue(c)));
 	double g = linearValue(static_cast<double>(GetGValue(c)));
 	double b = linearValue(static_cast<double>(GetBValue(c)));
-
 	double luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-
 	double lighness = (luminance <= 216.0 / 24389.0) ? (luminance * 24389.0 / 27.0) : (std::pow(luminance, (1.0 / 3.0)) * 116.0 - 16.0);
 	return lighness;
 }
 
-COLORREF getBackgroundColor() {
-	return getTheme()._colors.background;
-}
-
-COLORREF getSofterBackgroundColor()   {
-	return getTheme()._colors.softerBackground;
-}
-
-COLORREF getHotBackgroundColor()      {
-	return getTheme()._colors.hotBackground;
-}
-
-COLORREF getDarkerBackgroundColor()   {
-	return getTheme()._colors.pureBackground;
-}
-
-COLORREF getErrorBackgroundColor()    {
-	return getTheme()._colors.errorBackground;
-}
-
-COLORREF getTextColor() {
-	return getTheme()._colors.text;
-}
-
-COLORREF getDarkerTextColor() {
-	return getTheme()._colors.darkerText;
-}
-
-COLORREF getDisabledTextColor() {
-	return getTheme()._colors.disabledText;
-}
-
-COLORREF getLinkTextColor() {
-	return getTheme()._colors.linkText;
-}
-
-COLORREF getEdgeColor() {
-	return getTheme()._colors.edge;
-}
-
-HBRUSH getBackgroundBrush() {
-	return getTheme()._brushes.background;
-}
-
-HBRUSH getSofterBackgroundBrush()     {
-	return getTheme()._brushes.softerBackground;
-}
-
-HBRUSH getHotBackgroundBrush() {
-	return getTheme()._brushes.hotBackground;
-}
-
-HBRUSH getDarkerBackgroundBrush()     {
-	return getTheme()._brushes.pureBackground;
-}
-
-HBRUSH getErrorBackgroundBrush()      {
-	return getTheme()._brushes.errorBackground;
-}
-
-HPEN getDarkerTextPen() {
-	return getTheme()._pens.darkerTextPen;
-}
-
-HPEN getEdgePen()                     {
-	return getTheme()._pens.edgePen;
-}
+COLORREF getBackgroundColor() { return getTheme()._colors.background; }
+COLORREF getSofterBackgroundColor()   { return getTheme()._colors.softerBackground; }
+COLORREF getHotBackgroundColor()      { return getTheme()._colors.hotBackground; }
+COLORREF getDarkerBackgroundColor()   { return getTheme()._colors.pureBackground; }
+COLORREF getErrorBackgroundColor()    { return getTheme()._colors.errorBackground; }
+COLORREF getTextColor() { return getTheme()._colors.text; }
+COLORREF getDarkerTextColor() { return getTheme()._colors.darkerText; }
+COLORREF getDisabledTextColor() { return getTheme()._colors.disabledText; }
+COLORREF getLinkTextColor() { return getTheme()._colors.linkText; }
+COLORREF getEdgeColor() { return getTheme()._colors.edge; }
+HBRUSH getBackgroundBrush() { return getTheme()._brushes.background; }
+HBRUSH getSofterBackgroundBrush()     { return getTheme()._brushes.softerBackground; }
+HBRUSH getHotBackgroundBrush() { return getTheme()._brushes.hotBackground; }
+HBRUSH getDarkerBackgroundBrush()     { return getTheme()._brushes.pureBackground; }
+HBRUSH getErrorBackgroundBrush()      { return getTheme()._brushes.errorBackground; }
+HPEN getDarkerTextPen() { return getTheme()._pens.darkerTextPen; }
+HPEN getEdgePen()                     { return getTheme()._pens.edgePen; }
 
 void setBackgroundColor(COLORREF c)
 {
@@ -542,11 +438,9 @@ void changeCustomTheme(const Colors& colors)
 void handleSettingChange(HWND hwnd, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(hwnd);
-
 	if(!isExperimentalSupported()) {
 		return;
 	}
-
 	if(IsColorSchemeChangeMessage(lParam)) {
 		g_darkModeEnabled = ShouldAppsUseDarkMode() && !IsHighContrast();
 	}
@@ -557,20 +451,16 @@ void handleSettingChange(HWND hwnd, LPARAM lParam)
 bool runUAHWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, LRESULT* lr)
 {
 	static HTHEME g_menuTheme = nullptr;
-
 	UNREFERENCED_PARAMETER(wParam);
-	switch(message)
-	{
+	switch(message) {
 		case WM_UAHDRAWMENU:
 	    {
 		    UAHMENU* pUDM = (UAHMENU*)lParam;
 		    RECT rc = { 0 };
-
 		    // get the menubar rect
 		    {
 			    MENUBARINFO mbi = { sizeof(mbi) };
 			    GetMenuBarInfo(hWnd, OBJID_MENU, 0, &mbi);
-
 			    RECT rcWindow;
 			    GetWindowRect(hWnd, &rcWindow);
 
@@ -1301,35 +1191,26 @@ LRESULT CALLBACK ComboBoxSubclass(HWND hWnd,
     DWORD_PTR             /*dwRefData*/
     )
 {
-	switch(uMsg)
-	{
+	switch(uMsg) {
 		case WM_PAINT:
 	    {
 		    if(!NppDarkMode::isEnabled()) {
 			    break;
 		    }
-
 		    RECT rc = { 0 };
 		    ::GetClientRect(hWnd, &rc);
-
 		    PAINTSTRUCT ps;
 		    auto hdc = ::BeginPaint(hWnd, &ps);
-
 		    auto holdPen = static_cast<HPEN>(::SelectObject(hdc, NppDarkMode::getEdgePen()));
 		    ::SelectObject(hdc, reinterpret_cast<HFONT>(::SendMessage(hWnd, WM_GETFONT, 0, 0)));
 		    ::SetBkColor(hdc, NppDarkMode::getBackgroundColor());
-
-		    ::SelectObject(hdc, ::GetStockObject(NULL_BRUSH));             // to avoid text flicker, use only
-				                                                   // border
+		    ::SelectObject(hdc, ::GetStockObject(NULL_BRUSH)); // to avoid text flicker, use only border
 		    ::Rectangle(hdc, 0, 0, rc.right, rc.bottom);
-
 		    auto holdBrush = ::SelectObject(hdc, NppDarkMode::getDarkerBackgroundBrush());
-
 		    RECT arrowRc = {
 			    rc.right - NppParameters::getInstance()._dpiManager.scaleX(17), rc.top + 1,
 			    rc.right - 1, rc.bottom - 1
 		    };
-
 		    // CBS_DROPDOWN text is handled by parent by WM_CTLCOLOREDIT
 		    auto style = ::GetWindowLongPtr(hWnd, GWL_STYLE);
 		    if((style & CBS_DROPDOWNLIST) == CBS_DROPDOWNLIST) {
@@ -1338,9 +1219,7 @@ LRESULT CALLBACK ComboBoxSubclass(HWND hWnd,
 			    bkRc.top += 1;
 			    bkRc.right = arrowRc.left - 1;
 			    bkRc.bottom -= 1;
-			    ::FillRect(hdc, &bkRc, NppDarkMode::getBackgroundBrush());             // erase background
-					                                                           // on item change
-
+			    ::FillRect(hdc, &bkRc, NppDarkMode::getBackgroundBrush()); // erase background on item change
 			    auto index = static_cast<int>(::SendMessage(hWnd, CB_GETCURSEL, 0, 0));
 			    if(index != CB_ERR) {
 				    ::SetTextColor(hdc, NppDarkMode::getTextColor());

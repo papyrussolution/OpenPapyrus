@@ -102,7 +102,7 @@ int32_t ICU_Utility::parsePattern(const UnicodeString & rule, int32_t pos, int32
 				    return -1;
 			    }
 			    // FALL THROUGH to skipWhitespace
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 126 /*'~'*/:
 			    pos = skipWhitespace(rule, pos);
 			    break;

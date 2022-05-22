@@ -1,8 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (c) 1996-2012, International Business Machines Corporation and others. All Rights Reserved.
- */
+// Copyright (c) 1996-2012, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -18,48 +17,39 @@
 #endif
 
 U_NAMESPACE_BEGIN UOBJECT_DEFINE_RTTI_IMPLEMENTATION(Normalizer)
-
-//-------------------------------------------------------------------------
+//
 // Constructors and other boilerplate
-//-------------------------------------------------------------------------
-
+//
 Normalizer::Normalizer(const UnicodeString & str, UNormalizationMode mode) :
 	UObject(), fFilteredNorm2(NULL), fNorm2(NULL), fUMode(mode), fOptions(0),
-	text(new StringCharacterIterator(str)),
-	currentIndex(0), nextIndex(0),
-	buffer(), bufferPos(0)
+	text(new StringCharacterIterator(str)), currentIndex(0), nextIndex(0), buffer(), bufferPos(0)
 {
 	init();
 }
 
 Normalizer::Normalizer(ConstChar16Ptr str, int32_t length, UNormalizationMode mode) :
 	UObject(), fFilteredNorm2(NULL), fNorm2(NULL), fUMode(mode), fOptions(0),
-	text(new UCharCharacterIterator(str, length)),
-	currentIndex(0), nextIndex(0),
-	buffer(), bufferPos(0)
+	text(new UCharCharacterIterator(str, length)), currentIndex(0), nextIndex(0), buffer(), bufferPos(0)
 {
 	init();
 }
 
 Normalizer::Normalizer(const CharacterIterator& iter, UNormalizationMode mode) :
 	UObject(), fFilteredNorm2(NULL), fNorm2(NULL), fUMode(mode), fOptions(0),
-	text(iter.clone()),
-	currentIndex(0), nextIndex(0),
-	buffer(), bufferPos(0)
+	text(iter.clone()), currentIndex(0), nextIndex(0), buffer(), bufferPos(0)
 {
 	init();
 }
 
 Normalizer::Normalizer(const Normalizer &copy) :
 	UObject(copy), fFilteredNorm2(NULL), fNorm2(NULL), fUMode(copy.fUMode), fOptions(copy.fOptions),
-	text(copy.text->clone()),
-	currentIndex(copy.currentIndex), nextIndex(copy.nextIndex),
-	buffer(copy.buffer), bufferPos(copy.bufferPos)
+	text(copy.text->clone()), currentIndex(copy.currentIndex), nextIndex(copy.nextIndex), buffer(copy.buffer), bufferPos(copy.bufferPos)
 {
 	init();
 }
 
-void Normalizer::init() {
+void Normalizer::init() 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	fNorm2 = Normalizer2Factory::getInstance(fUMode, errorCode);
 	if(fOptions&UNORM_UNICODE_3_2) {
@@ -83,7 +73,6 @@ Normalizer* Normalizer::clone() const
 {
 	return new Normalizer(*this);
 }
-
 /**
  * Generates a hash code for this iterator.
  */
@@ -94,20 +83,11 @@ int32_t Normalizer::hashCode() const
 
 bool Normalizer::operator == (const Normalizer& that) const
 {
-	return
-		this==&that ||
-		(fUMode==that.fUMode &&
-		fOptions==that.fOptions &&
-		*text==*that.text &&
-		buffer==that.buffer &&
-		bufferPos==that.bufferPos &&
-		nextIndex==that.nextIndex);
+	return this==&that || (fUMode==that.fUMode && fOptions==that.fOptions && *text==*that.text && buffer==that.buffer && bufferPos==that.bufferPos && nextIndex==that.nextIndex);
 }
-
-//-------------------------------------------------------------------------
+//
 // Static utility methods
-//-------------------------------------------------------------------------
-
+//
 void U_EXPORT2 Normalizer::normalize(const UnicodeString & source,
     UNormalizationMode mode, int32_t options,
     UnicodeString & result,
@@ -233,15 +213,14 @@ UnicodeString & U_EXPORT2 Normalizer::concatenate(const UnicodeString & left, co
 	}
 	return result;
 }
-
-//-------------------------------------------------------------------------
+//
 // Iteration API
-//-------------------------------------------------------------------------
-
+//
 /**
  * Return the current character in the normalized text.
  */
-UChar32 Normalizer::current() {
+UChar32 Normalizer::current() 
+{
 	if(bufferPos<buffer.length() || nextNormalize()) {
 		return buffer.char32At(bufferPos);
 	}
@@ -249,7 +228,6 @@ UChar32 Normalizer::current() {
 		return DONE;
 	}
 }
-
 /**
  * Return the next character in the normalized text and advance
  * the iteration position by one.  If the end
@@ -341,36 +319,26 @@ int32_t Normalizer::getIndex() const {
  * of the <tt>CharacterIterator</tt> or the start (i.e. 0) of the <tt>String</tt>
  * over which this <tt>Normalizer</tt> is iterating
  */
-int32_t Normalizer::startIndex() const {
-	return text->startIndex();
-}
-
+int32_t Normalizer::startIndex() const { return text->startIndex(); }
 /**
  * Retrieve the index of the end of the input text.  This is the end index
  * of the <tt>CharacterIterator</tt> or the length of the <tt>String</tt>
  * over which this <tt>Normalizer</tt> is iterating
  */
-int32_t Normalizer::endIndex() const {
-	return text->endIndex();
-}
-
-//-------------------------------------------------------------------------
+int32_t Normalizer::endIndex() const { return text->endIndex(); }
+//
 // Property access methods
-//-------------------------------------------------------------------------
-
+//
 void Normalizer::setMode(UNormalizationMode newMode)
 {
 	fUMode = newMode;
 	init();
 }
 
-UNormalizationMode Normalizer::getUMode() const
-{
-	return fUMode;
+UNormalizationMode Normalizer::getUMode() const { return fUMode;
 }
 
-void Normalizer::setOption(int32_t option,
-    bool value)
+void Normalizer::setOption(int32_t option, bool value)
 {
 	if(value) {
 		fOptions |= option;
@@ -426,9 +394,7 @@ void Normalizer::setText(const CharacterIterator& newText,
 	reset();
 }
 
-void Normalizer::setText(ConstChar16Ptr newText,
-    int32_t length,
-    UErrorCode & status)
+void Normalizer::setText(ConstChar16Ptr newText, int32_t length, UErrorCode & status)
 {
 	if(U_FAILURE(status)) {
 		return;
@@ -442,21 +408,16 @@ void Normalizer::setText(ConstChar16Ptr newText,
 	text = newIter;
 	reset();
 }
-
 /**
  * Copies the text under iteration into the UnicodeString referred to by "result".
  * @param result Receives a copy of the text under iteration.
  */
-void Normalizer::getText(UnicodeString & result)
-{
-	text->getText(result);
-}
-
-//-------------------------------------------------------------------------
+void Normalizer::getText(UnicodeString & result) { text->getText(result); }
+//
 // Private utility methods
-//-------------------------------------------------------------------------
-
-void Normalizer::clearBuffer() {
+//
+void Normalizer::clearBuffer() 
+{
 	buffer.remove();
 	bufferPos = 0;
 }
@@ -484,7 +445,8 @@ bool Normalizer::nextNormalize() {
 	return U_SUCCESS(errorCode) && !buffer.isEmpty();
 }
 
-bool Normalizer::previousNormalize() {
+bool Normalizer::previousNormalize() 
+{
 	clearBuffer();
 	nextIndex = currentIndex;
 	text->setIndex(currentIndex);

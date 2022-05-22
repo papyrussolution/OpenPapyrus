@@ -39,7 +39,7 @@ int ecdh_simple_compute_key(uchar ** pout, size_t * poutlen, const EC_POINT * pu
 	int ret = 0;
 	size_t buflen, len;
 	uchar * buf = NULL;
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		goto err;
 	BN_CTX_start(ctx);
 	x = BN_CTX_get(ctx);

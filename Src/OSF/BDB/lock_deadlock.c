@@ -31,13 +31,13 @@ typedef struct {
 } locker_info;
 
 static int __dd_abort __P((ENV*, locker_info*, int *));
-static int __dd_build __P((ENV*, uint32, uint32**, uint32*, uint32*, locker_info**, int *, int *));
-static int __dd_find __P((ENV*, uint32*, locker_info*, uint32, uint32, uint32** *));
+static int __dd_build __P((ENV*, uint32, uint32 **, uint32 *, uint32 *, locker_info**, int *, int *));
+static int __dd_find __P((ENV*, uint32 *, locker_info*, uint32, uint32, uint32 ** *));
 static int __dd_isolder __P((uint32, uint32, uint32, uint32));
-static int __dd_verify __P((locker_info*, uint32*, uint32*, uint32*, uint32, uint32, uint32));
+static int __dd_verify __P((locker_info*, uint32 *, uint32 *, uint32 *, uint32, uint32, uint32));
 
 #ifdef DIAGNOSTIC
-static void __dd_debug __P((ENV*, locker_info*, uint32*, uint32, uint32));
+static void __dd_debug __P((ENV*, locker_info*, uint32 *, uint32, uint32));
 #endif
 /*
  * __lock_detect_pp --
@@ -283,14 +283,10 @@ err:
 	__os_free(env, idmap);
 	return ret;
 }
-
-/*
- * ========================================================================
- * Utilities
- */
-
+// 
+// Utilities
+// 
 #define DD_INVALID_ID   (static_cast<uint32>(-1))
-
 /*
  * __dd_build --
  *	Build the lock dependency bit maps.

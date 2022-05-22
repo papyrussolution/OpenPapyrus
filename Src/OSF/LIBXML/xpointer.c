@@ -924,7 +924,7 @@ static void xmlXPtrEvalXPtrPart(xmlXPathParserContext * ctxt, xmlChar * name)
 		}
 		URI = xmlSaveUri(value);
 		xmlFreeURI(value);
-		if(URI == NULL) {
+		if(!URI) {
 			SAlloc::F(prefix);
 			SAlloc::F(buffer);
 			SAlloc::F(name);

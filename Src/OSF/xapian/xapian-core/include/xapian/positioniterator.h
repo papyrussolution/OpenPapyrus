@@ -15,8 +15,6 @@
 	#error Never use <xapian/positioniterator.h> directly; include <xapian.h> instead.
 #endif
 
-//#include <iterator>
-//#include <string>
 #include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/types.h>
@@ -43,7 +41,8 @@ public:
 	/// Move assignment operator.
 	PositionIterator & operator = (PositionIterator && o) {
 		if(this != &o) {
-			if(internal) decref();
+			if(internal) 
+				decref();
 			internal = o.internal;
 			o.internal = nullptr;
 		}
@@ -60,7 +59,8 @@ public:
 	}
 	~PositionIterator() 
 	{
-		if(internal) decref();
+		if(internal) 
+			decref();
 	}
 	/// Return the term position at the current iterator position.
 	Xapian::termpos operator*() const;

@@ -343,7 +343,7 @@ cleanup:
 cairo_surface_t * cairo_recording_surface_create(cairo_content_t content, const cairo_rectangle_t * extents)
 {
 	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)_cairo_malloc(sizeof(cairo_recording_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &cairo_recording_surface_backend, NULL/* device */, content, TRUE/* is_vector */);
 	surface->unbounded = TRUE;
@@ -1268,7 +1268,7 @@ static cairo_surface_t * _cairo_recording_surface_snapshot(void * abstract_other
 	cairo_recording_surface_t * other = (cairo_recording_surface_t *)abstract_other;
 	cairo_status_t status;
 	cairo_recording_surface_t * surface = (cairo_recording_surface_t *)_cairo_malloc(sizeof(cairo_recording_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &cairo_recording_surface_backend,
 	    NULL,              /* device */

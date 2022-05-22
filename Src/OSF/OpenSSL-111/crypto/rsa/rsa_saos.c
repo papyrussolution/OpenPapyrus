@@ -34,7 +34,7 @@ int RSA_sign_ASN1_OCTET_STRING(int type,
 		return 0;
 	}
 	s = static_cast<uchar *>(OPENSSL_malloc((uint)j + 1));
-	if(s == NULL) {
+	if(!s) {
 		RSAerr(RSA_F_RSA_SIGN_ASN1_OCTET_STRING, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
@@ -67,7 +67,7 @@ int RSA_verify_ASN1_OCTET_STRING(int dtype,
 	}
 
 	s = static_cast<uchar *>(OPENSSL_malloc((uint)siglen));
-	if(s == NULL) {
+	if(!s) {
 		RSAerr(RSA_F_RSA_VERIFY_ASN1_OCTET_STRING, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -78,7 +78,7 @@ int RSA_verify_ASN1_OCTET_STRING(int dtype,
 
 	p = s;
 	sig = d2i_ASN1_OCTET_STRING(NULL, &p, (long)i);
-	if(sig == NULL)
+	if(!sig)
 		goto err;
 
 	if(((uint)sig->length != m_len) ||

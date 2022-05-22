@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 PROTOBUF_NAMESPACE_OPEN
-constexpr Struct_FieldsEntry_DoNotUse::Struct_FieldsEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr Struct_FieldsEntry_DoNotUse::Struct_FieldsEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct Struct_FieldsEntry_DoNotUseDefaultTypeInternal {
 	constexpr Struct_FieldsEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~Struct_FieldsEntry_DoNotUseDefaultTypeInternal() {}
@@ -26,8 +25,7 @@ struct Struct_FieldsEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Struct_FieldsEntry_DoNotUseDefaultTypeInternal _Struct_FieldsEntry_DoNotUse_default_instance_;
-constexpr Struct::Struct(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Struct::Struct(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : fields_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}){}
 struct StructDefaultTypeInternal {
 	constexpr StructDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -37,8 +35,7 @@ struct StructDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructDefaultTypeInternal _Struct_default_instance_;
-constexpr Value::Value(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Value::Value(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : _oneof_case_{}{}
 struct ValueDefaultTypeInternal {
 	constexpr ValueDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -48,8 +45,7 @@ struct ValueDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ValueDefaultTypeInternal _Value_default_instance_;
-constexpr ListValue::ListValue(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr ListValue::ListValue(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : values_(){}
 struct ListValueDefaultTypeInternal {
 	constexpr ListValueDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -147,17 +143,19 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_google_2fprotobuf_2fstruct_2eproto(&descriptor_table_google_2fprotobuf_2fstruct_2eproto);
 PROTOBUF_NAMESPACE_OPEN
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* NullValue_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fstruct_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2fstruct_2eproto[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* NullValue_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2fstruct_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2fstruct_2eproto[0];
 }
-bool NullValue_IsValid(int value) {
-  switch (value) {
-    case 0:
-      return true;
-    default:
-      return false;
-  }
+bool NullValue_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+			return true;
+		default:
+			return false;
+	}
 }
 
 
@@ -212,10 +210,11 @@ void Struct::ArenaDtor(void* object) {
   (void)_this;
   _this->fields_. ~MapField();
 }
-inline void Struct::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &Struct::ArenaDtor);
-  }
+inline void Struct::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &Struct::ArenaDtor);
+	}
 }
 void Struct::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -258,10 +257,7 @@ const char* Struct::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -334,12 +330,9 @@ size_t Struct::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<string, .google.protobuf.Value> fields = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_fields_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >::const_iterator
-      it = this->_internal_fields().begin();
-      it != this->_internal_fields().end(); ++it) {
-    total_size += Struct_FieldsEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_fields_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >::const_iterator it = this->_internal_fields().begin(); it != this->_internal_fields().end(); ++it) {
+  	total_size += Struct_FieldsEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -351,10 +344,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Struct::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Struct::GetClassData() const { return &_class_data_; }
 
-void Struct::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Struct *>(to)->MergeFrom(
-      static_cast<const Struct &>(from));
+void Struct::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Struct *>(to)->MergeFrom(static_cast<const Struct &>(from));
 }
 
 
@@ -397,14 +388,8 @@ class Value::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::ListValue& list_value(const Value* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Struct&
-Value::_Internal::struct_value(const Value* msg) {
-  return *msg->kind_.struct_value_;
-}
-const ::PROTOBUF_NAMESPACE_ID::ListValue&
-Value::_Internal::list_value(const Value* msg) {
-  return *msg->kind_.list_value_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Struct & Value::_Internal::struct_value(const Value* msg) { return *msg->kind_.struct_value_; }
+const ::PROTOBUF_NAMESPACE_ID::ListValue & Value::_Internal::list_value(const Value* msg) { return *msg->kind_.list_value_; }
 void Value::set_allocated_struct_value(::PROTOBUF_NAMESPACE_ID::Struct* struct_value) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_kind();
@@ -498,8 +483,7 @@ void Value::ArenaDtor(void* object) {
   Value* _this = reinterpret_cast< Value* >(object);
   (void)_this;
 }
-void Value::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Value::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Value::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -618,10 +602,7 @@ const char* Value::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -736,10 +717,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Value::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Value::GetClassData() const { return &_class_data_; }
 
-void Value::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Value *>(to)->MergeFrom(
-      static_cast<const Value &>(from));
+void Value::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Value *>(to)->MergeFrom(static_cast<const Value &>(from));
 }
 
 
@@ -774,9 +753,7 @@ void Value::MergeFrom(const Value& from) {
       _internal_mutable_list_value()->::PROTOBUF_NAMESPACE_ID::ListValue::MergeFrom(from._internal_list_value());
       break;
     }
-    case KIND_NOT_SET: {
-      break;
-    }
+    case KIND_NOT_SET: break;
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -844,8 +821,7 @@ void ListValue::ArenaDtor(void* object) {
   ListValue* _this = reinterpret_cast< ListValue* >(object);
   (void)_this;
 }
-void ListValue::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void ListValue::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void ListValue::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -887,10 +863,7 @@ const char* ListValue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -944,10 +917,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ListValue::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ListValue::GetClassData() const { return &_class_data_; }
 
-void ListValue::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<ListValue *>(to)->MergeFrom(
-      static_cast<const ListValue &>(from));
+void ListValue::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<ListValue *>(to)->MergeFrom(static_cast<const ListValue &>(from));
 }
 
 

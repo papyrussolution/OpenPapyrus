@@ -8,24 +8,14 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <ctype.h>
-//#include <openssl/rand.h>
-//#include <openssl/x509.h>
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
-//#include "evp_int.h"
-//#include "internal/bio.h"
-//#include "asn1_locl.h"
 /*
  * Generalised MIME like utilities for streaming ASN1. Although many have a
  * PKCS7/CMS like flavour others are more general purpose.
  */
-
 /*
  * MIME format structures Note that all are translated to lower case apart
  * from parameter values. Quotes are stripped off
  */
-
 struct mime_param_st {
 	char * param_name; /* Param name e.g. "micalg" */
 	char * param_value; /* Param value e.g. "sha1" */

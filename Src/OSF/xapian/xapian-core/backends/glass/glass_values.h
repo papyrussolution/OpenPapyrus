@@ -14,11 +14,6 @@
 
 #include "pack.h"
 #include "backends/valuestats.h"
-//#include "xapian/error.h"
-//#include "xapian/types.h"
-//#include <map>
-//#include <memory>
-//#include <string>
 
 class GlassCursor;
 class GlassPostListTable;

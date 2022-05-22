@@ -650,10 +650,11 @@ const NFRule* NFRuleSet::findFractionRuleSetRule(double number) const
  */
 #ifdef RBNF_DEBUG
 
-static void dumpUS(FILE * f, const UnicodeString & us) {
+static void dumpUS(FILE * f, const UnicodeString & us) 
+{
 	int len = us.length();
 	char * buf = (char *)uprv_malloc((len+1)*sizeof(char)); //new char[len+1];
-	if(buf != NULL) {
+	if(buf) {
 		us.extract(0, len, buf);
 		buf[len] = 0;
 		fprintf(f, "%s", buf);
@@ -663,11 +664,7 @@ static void dumpUS(FILE * f, const UnicodeString & us) {
 
 #endif
 
-bool NFRuleSet::parse(const UnicodeString & text,
-    ParsePosition& pos,
-    double upperBound,
-    uint32_t nonNumericalExecutedRuleMask,
-    Formattable& result) const
+bool NFRuleSet::parse(const UnicodeString & text, ParsePosition& pos, double upperBound, uint32_t nonNumericalExecutedRuleMask, Formattable& result) const
 {
 	// try matching each rule in the rule set against the text being
 	// parsed.  Whichever one matches the most characters is the one

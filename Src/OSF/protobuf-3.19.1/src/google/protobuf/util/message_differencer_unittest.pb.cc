@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
-constexpr TestField::TestField(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestField::TestField(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : rc_()
   , m_(nullptr)
   , c_(0)
@@ -31,8 +30,7 @@ struct TestFieldDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestFieldDefaultTypeInternal _TestField_default_instance_;
-constexpr TestDiffMessage_Item_MpEntry_DoNotUse::TestDiffMessage_Item_MpEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestDiffMessage_Item_MpEntry_DoNotUse::TestDiffMessage_Item_MpEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestDiffMessage_Item_MpEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestDiffMessage_Item_MpEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestDiffMessage_Item_MpEntry_DoNotUseDefaultTypeInternal() {}
@@ -41,8 +39,7 @@ struct TestDiffMessage_Item_MpEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestDiffMessage_Item_MpEntry_DoNotUseDefaultTypeInternal _TestDiffMessage_Item_MpEntry_DoNotUse_default_instance_;
-constexpr TestDiffMessage_Item::TestDiffMessage_Item(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestDiffMessage_Item::TestDiffMessage_Item(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : ra_()
   , rb_()
   , rm_()
@@ -58,8 +55,7 @@ struct TestDiffMessage_ItemDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestDiffMessage_ItemDefaultTypeInternal _TestDiffMessage_Item_default_instance_;
-constexpr TestDiffMessage::TestDiffMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestDiffMessage::TestDiffMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : item_()
   , rw_()
   , rv_()
@@ -215,10 +211,7 @@ class TestField::_Internal {
   static void set_has_m(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::protobuf_unittest::TestField&
-TestField::_Internal::m(const TestField* msg) {
-  return *msg->m_;
-}
+const ::protobuf_unittest::TestField & TestField::_Internal::m(const TestField* msg) { return *msg->m_; }
 TestField::TestField(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
@@ -234,22 +227,13 @@ TestField::TestField(const TestField& from)
       _has_bits_(from._has_bits_),
       rc_(from.rc_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_m()) {
-    m_ = new ::protobuf_unittest::TestField(*from.m_);
-  } else {
-    m_ = nullptr;
-  }
-  ::memcpy(&c_, &from.c_,
-    static_cast<size_t>(reinterpret_cast<char*>(&b_) -
-    reinterpret_cast<char*>(&c_)) + sizeof(b_));
+  m_ = from._internal_has_m() ? new ::protobuf_unittest::TestField(*from.m_) : nullptr;
+  ::memcpy(&c_, &from.c_, static_cast<size_t>(reinterpret_cast<char*>(&b_) - reinterpret_cast<char*>(&c_)) + sizeof(b_));
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestField)
 }
 
 inline void TestField::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&m_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&b_) -
-    reinterpret_cast<char*>(&m_)) + sizeof(b_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&m_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&b_) - reinterpret_cast<char*>(&m_)) + sizeof(b_));
 }
 
 TestField::~TestField() {
@@ -268,8 +252,7 @@ void TestField::ArenaDtor(void* object) {
   TestField* _this = reinterpret_cast< TestField* >(object);
   (void)_this;
 }
-void TestField::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestField::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestField::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -287,9 +270,7 @@ void TestField::Clear() {
     m_->Clear();
   }
   if(cached_has_bits & 0x0000000eu) {
-    ::memset(&c_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&b_) -
-        reinterpret_cast<char*>(&c_)) + sizeof(b_));
+    ::memset(&c_, 0, static_cast<size_t>(reinterpret_cast<char*>(&b_) - reinterpret_cast<char*>(&c_)) + sizeof(b_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
@@ -361,10 +342,7 @@ const char* TestField::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -432,8 +410,7 @@ size_t TestField::ByteSizeLong() const {
   // repeated int32 rc = 2;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->rc_);
-    total_size += 1 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rc_size());
+    total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rc_size());
     total_size += data_size;
   }
 
@@ -469,10 +446,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestField::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestField::GetClassData() const { return &_class_data_; }
 
-void TestField::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestField *>(to)->MergeFrom(
-      static_cast<const TestField &>(from));
+void TestField::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestField *>(to)->MergeFrom(static_cast<const TestField &>(from));
 }
 
 
@@ -550,10 +525,7 @@ class TestDiffMessage_Item::_Internal {
   static void set_has_m(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
 };
 
-const ::protobuf_unittest::TestField&
-TestDiffMessage_Item::_Internal::m(const TestDiffMessage_Item* msg) {
-  return *msg->m_;
-}
+const ::protobuf_unittest::TestField & TestDiffMessage_Item::_Internal::m(const TestDiffMessage_Item* msg) { return *msg->m_; }
 TestDiffMessage_Item::TestDiffMessage_Item(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
@@ -582,11 +554,7 @@ TestDiffMessage_Item::TestDiffMessage_Item(const TestDiffMessage_Item& from)
   if(from._internal_has_b()) {
     b_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_b(), GetArenaForAllocation());
   }
-  if(from._internal_has_m()) {
-    m_ = new ::protobuf_unittest::TestField(*from.m_);
-  } else {
-    m_ = nullptr;
-  }
+  m_ = from._internal_has_m() ? new ::protobuf_unittest::TestField(*from.m_) : nullptr;
   a_ = from.a_;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestDiffMessage.Item)
 }
@@ -596,10 +564,7 @@ b_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyIni
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   b_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&m_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&a_) -
-    reinterpret_cast<char*>(&m_)) + sizeof(a_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&m_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&a_) - reinterpret_cast<char*>(&m_)) + sizeof(a_));
 }
 
 TestDiffMessage_Item::~TestDiffMessage_Item() {
@@ -620,10 +585,11 @@ void TestDiffMessage_Item::ArenaDtor(void* object) {
   (void)_this;
   _this->mp_. ~MapField();
 }
-inline void TestDiffMessage_Item::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &TestDiffMessage_Item::ArenaDtor);
-  }
+inline void TestDiffMessage_Item::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &TestDiffMessage_Item::ArenaDtor);
+	}
 }
 void TestDiffMessage_Item::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -757,10 +723,7 @@ const char* TestDiffMessage_Item::_InternalParse(const char* ptr, ::PROTOBUF_NAM
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -880,8 +843,7 @@ size_t TestDiffMessage_Item::ByteSizeLong() const {
   // repeated int32 ra = 3;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->ra_);
-    total_size += 1 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_ra_size());
+    total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_ra_size());
     total_size += data_size;
   }
 
@@ -898,12 +860,9 @@ size_t TestDiffMessage_Item::ByteSizeLong() const {
   }
 
   // map<string, int32> mp = 8;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_mp_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator
-      it = this->_internal_mp().begin();
-      it != this->_internal_mp().end(); ++it) {
-    total_size += TestDiffMessage_Item_MpEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_mp_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator it = this->_internal_mp().begin(); it != this->_internal_mp().end(); ++it) {
+  	total_size += TestDiffMessage_Item_MpEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   cached_has_bits = _has_bits_[0];
@@ -933,10 +892,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestDiffMessage_Item::_class_d
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestDiffMessage_Item::GetClassData() const { return &_class_data_; }
 
-void TestDiffMessage_Item::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestDiffMessage_Item *>(to)->MergeFrom(
-      static_cast<const TestDiffMessage_Item &>(from));
+void TestDiffMessage_Item::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestDiffMessage_Item *>(to)->MergeFrom(static_cast<const TestDiffMessage_Item &>(from));
 }
 
 
@@ -987,11 +944,7 @@ void TestDiffMessage_Item::InternalSwap(TestDiffMessage_Item* other) {
   rb_.InternalSwap(&other->rb_);
   rm_.InternalSwap(&other->rm_);
   mp_.InternalSwap(&other->mp_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &b_, lhs_arena,
-      &other->b_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &b_, lhs_arena, &other->b_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(TestDiffMessage_Item, a_)
       + sizeof(TestDiffMessage_Item::a_)
@@ -1015,10 +968,7 @@ class TestDiffMessage::_Internal {
   static void set_has_m(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
 };
 
-const ::protobuf_unittest::TestField&
-TestDiffMessage::_Internal::m(const TestDiffMessage* msg) {
-  return *msg->m_;
-}
+const ::protobuf_unittest::TestField & TestDiffMessage::_Internal::m(const TestDiffMessage* msg) { return *msg->m_; }
 void TestDiffMessage::clear_rany() {
   rany_.Clear();
 }
@@ -1054,11 +1004,7 @@ TestDiffMessage::TestDiffMessage(const TestDiffMessage& from)
   if(from._internal_has_w()) {
     w_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_w(), GetArenaForAllocation());
   }
-  if(from._internal_has_m()) {
-    m_ = new ::protobuf_unittest::TestField(*from.m_);
-  } else {
-    m_ = nullptr;
-  }
+  m_ = from._internal_has_m() ? new ::protobuf_unittest::TestField(*from.m_) : nullptr;
   v_ = from.v_;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestDiffMessage)
 }
@@ -1068,10 +1014,7 @@ w_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyIni
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   w_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&m_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&v_) -
-    reinterpret_cast<char*>(&m_)) + sizeof(v_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&m_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&v_) - reinterpret_cast<char*>(&m_)) + sizeof(v_));
 }
 
 TestDiffMessage::~TestDiffMessage() {
@@ -1091,8 +1034,7 @@ void TestDiffMessage::ArenaDtor(void* object) {
   TestDiffMessage* _this = reinterpret_cast< TestDiffMessage* >(object);
   (void)_this;
 }
-void TestDiffMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestDiffMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestDiffMessage::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1245,10 +1187,7 @@ const char* TestDiffMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
       CHK_(ptr != nullptr);
       continue;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1359,8 +1298,7 @@ size_t TestDiffMessage::ByteSizeLong() const {
   // repeated int32 rv = 11;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->rv_);
-    total_size += 1 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rv_size());
+    total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rv_size());
     total_size += data_size;
   }
 
@@ -1403,10 +1341,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestDiffMessage::_class_data_ 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestDiffMessage::GetClassData() const { return &_class_data_; }
 
-void TestDiffMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestDiffMessage *>(to)->MergeFrom(
-      static_cast<const TestDiffMessage &>(from));
+void TestDiffMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestDiffMessage *>(to)->MergeFrom(static_cast<const TestDiffMessage &>(from));
 }
 
 
@@ -1465,11 +1401,7 @@ void TestDiffMessage::InternalSwap(TestDiffMessage* other) {
   rv_.InternalSwap(&other->rv_);
   rm_.InternalSwap(&other->rm_);
   rany_.InternalSwap(&other->rany_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &w_, lhs_arena,
-      &other->w_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &w_, lhs_arena, &other->w_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(TestDiffMessage, v_)
       + sizeof(TestDiffMessage::v_)

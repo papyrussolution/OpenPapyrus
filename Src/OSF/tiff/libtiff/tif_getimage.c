@@ -26,10 +26,10 @@
 #include "tiffiop.h"
 #pragma hdrstop
 
-static int gtTileContig(TIFFRGBAImage*, uint32*, uint32, uint32);
-static int gtTileSeparate(TIFFRGBAImage*, uint32*, uint32, uint32);
-static int gtStripContig(TIFFRGBAImage*, uint32*, uint32, uint32);
-static int gtStripSeparate(TIFFRGBAImage*, uint32*, uint32, uint32);
+static int gtTileContig(TIFFRGBAImage*, uint32 *, uint32, uint32);
+static int gtTileSeparate(TIFFRGBAImage*, uint32 *, uint32, uint32);
+static int gtStripContig(TIFFRGBAImage*, uint32 *, uint32, uint32);
+static int gtStripSeparate(TIFFRGBAImage*, uint32 *, uint32, uint32);
 static int PickContigCase(TIFFRGBAImage*);
 static int PickSeparateCase(TIFFRGBAImage*);
 
@@ -404,7 +404,7 @@ fail_return:
 	return 0;
 }
 
-int TIFFRGBAImageGet(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
+int TIFFRGBAImageGet(TIFFRGBAImage* img, uint32 * raster, uint32 w, uint32 h)
 {
 	if(img->get == NULL) {
 		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "No \"get\" routine setup");
@@ -421,7 +421,7 @@ int TIFFRGBAImageGet(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
  * Read the specified image into an ABGR-format rastertaking in account
  * specified orientation.
  */
-int TIFFReadRGBAImageOriented(TIFF * tif, uint32 rwidth, uint32 rheight, uint32* raster, int orientation, int stop)
+int TIFFReadRGBAImageOriented(TIFF * tif, uint32 rwidth, uint32 rheight, uint32 * raster, int orientation, int stop)
 {
 	char emsg[1024] = "";
 	TIFFRGBAImage img;
@@ -442,7 +442,7 @@ int TIFFReadRGBAImageOriented(TIFF * tif, uint32 rwidth, uint32 rheight, uint32*
  * Read the specified image into an ABGR-format raster. Use bottom left
  * origin for raster by default.
  */
-int TIFFReadRGBAImage(TIFF * tif, uint32 rwidth, uint32 rheight, uint32* raster, int stop)
+int TIFFReadRGBAImage(TIFF * tif, uint32 rwidth, uint32 rheight, uint32 * raster, int stop)
 {
 	return TIFFReadRGBAImageOriented(tif, rwidth, rheight, raster, ORIENTATION_BOTLEFT, stop);
 }
@@ -500,7 +500,7 @@ static int FASTCALL setorientation(const TIFFRGBAImage * img)
  * or
  *	SamplesPerPixel == 1
  */
-static int gtTileContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
+static int gtTileContig(TIFFRGBAImage* img, uint32 * raster, uint32 w, uint32 h)
 {
 	TIFF * tif = img->tif;
 	tileContigRoutine put = img->put.contig;
@@ -596,7 +596,7 @@ static int gtTileContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
  *	 PlanarConfiguration separated
  * We assume that all such images are RGB.
  */
-static int gtTileSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
+static int gtTileSeparate(TIFFRGBAImage* img, uint32 * raster, uint32 w, uint32 h)
 {
 	TIFF * tif = img->tif;
 	tileSeparateRoutine put = img->put.separate;
@@ -737,7 +737,7 @@ static int gtTileSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h
  * or
  *	SamplesPerPixel == 1
  */
-static int gtStripContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
+static int gtStripContig(TIFFRGBAImage* img, uint32 * raster, uint32 w, uint32 h)
 {
 	TIFF * tif = img->tif;
 	tileContigRoutine put = img->put.contig;
@@ -809,7 +809,7 @@ static int gtStripContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
  *	 PlanarConfiguration separated
  * We assume that all such images are RGB.
  */
-static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
+static int gtStripSeparate(TIFFRGBAImage* img, uint32 * raster, uint32 w, uint32 h)
 {
 	TIFF * tif = img->tif;
 	tileSeparateRoutine put = img->put.separate;
@@ -952,13 +952,13 @@ static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 
 #define PACKW(r, g, b)     ((uint32)W2B(r)|((uint32)W2B(g)<<8)|((uint32)W2B(b)<<16)|A1)
 #define PACKW4(r, g, b, a) ((uint32)W2B(r)|((uint32)W2B(g)<<8)|((uint32)W2B(b)<<16)|((uint32)W2B(a)<<24))
 
-#define DECLAREContigPutFunc(name) static void name(const TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar * pp)
+#define DECLAREContigPutFunc(name) static void name(const TIFFRGBAImage* img, uint32 * cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar * pp)
 /*
  * 8-bit palette => colormap/RGB
  */
 DECLAREContigPutFunc(put8bitcmaptile)
 {
-	uint32** PALmap = img->PALmap;
+	uint32 ** PALmap = img->PALmap;
 	int samplesperpixel = img->samplesperpixel;
 	(void)y;
 	for(; h > 0; --h) {
@@ -975,11 +975,11 @@ DECLAREContigPutFunc(put8bitcmaptile)
  */
 DECLAREContigPutFunc(put4bitcmaptile)
 {
-	uint32** PALmap = img->PALmap;
+	uint32 ** PALmap = img->PALmap;
 	(void)x; (void)y;
 	fromskew /= 2;
 	for(; h > 0; --h) {
-		uint32* bw;
+		uint32 * bw;
 		UNROLL2(w, bw = PALmap[*pp++], *cp++ = *bw++);
 		cp += toskew;
 		pp += fromskew;
@@ -990,11 +990,11 @@ DECLAREContigPutFunc(put4bitcmaptile)
  */
 DECLAREContigPutFunc(put2bitcmaptile)
 {
-	uint32** PALmap = img->PALmap;
+	uint32 ** PALmap = img->PALmap;
 	(void)x; (void)y;
 	fromskew /= 4;
 	for(; h > 0; --h) {
-		uint32* bw;
+		uint32 * bw;
 		UNROLL4(w, bw = PALmap[*pp++], *cp++ = *bw++);
 		cp += toskew;
 		pp += fromskew;
@@ -1005,11 +1005,11 @@ DECLAREContigPutFunc(put2bitcmaptile)
  */
 DECLAREContigPutFunc(put1bitcmaptile)
 {
-	uint32** PALmap = img->PALmap;
+	uint32 ** PALmap = img->PALmap;
 	(void)x; (void)y;
 	fromskew /= 8;
 	for(; h > 0; --h) {
-		uint32* bw;
+		uint32 * bw;
 		UNROLL8(w, bw = PALmap[*pp++], *cp++ = *bw++);
 		cp += toskew;
 		pp += fromskew;
@@ -1021,7 +1021,7 @@ DECLAREContigPutFunc(put1bitcmaptile)
 DECLAREContigPutFunc(putgreytile)
 {
 	int samplesperpixel = img->samplesperpixel;
-	uint32** BWmap = img->BWmap;
+	uint32 ** BWmap = img->BWmap;
 	(void)y;
 	for(; h > 0; --h) {
 		for(x = w; x > 0; --x) {
@@ -1038,7 +1038,7 @@ DECLAREContigPutFunc(putgreytile)
 DECLAREContigPutFunc(putagreytile)
 {
 	int samplesperpixel = img->samplesperpixel;
-	uint32** BWmap = img->BWmap;
+	uint32 ** BWmap = img->BWmap;
 	(void)y;
 	for(; h > 0; --h) {
 		for(x = w; x > 0; --x) {
@@ -1055,7 +1055,7 @@ DECLAREContigPutFunc(putagreytile)
 DECLAREContigPutFunc(put16bitbwtile)
 {
 	int samplesperpixel = img->samplesperpixel;
-	uint32** BWmap = img->BWmap;
+	uint32 ** BWmap = img->BWmap;
 	(void)y;
 	for(; h > 0; --h) {
 		uint16 * wp = (uint16 *)pp;
@@ -1074,11 +1074,11 @@ DECLAREContigPutFunc(put16bitbwtile)
  */
 DECLAREContigPutFunc(put1bitbwtile)
 {
-	uint32** BWmap = img->BWmap;
+	uint32 ** BWmap = img->BWmap;
 	(void)x; (void)y;
 	fromskew /= 8;
 	for(; h > 0; --h) {
-		uint32* bw;
+		uint32 * bw;
 		UNROLL8(w, bw = BWmap[*pp++], *cp++ = *bw++);
 		cp += toskew;
 		pp += fromskew;
@@ -1089,11 +1089,11 @@ DECLAREContigPutFunc(put1bitbwtile)
  */
 DECLAREContigPutFunc(put2bitbwtile)
 {
-	uint32** BWmap = img->BWmap;
+	uint32 ** BWmap = img->BWmap;
 	(void)x; (void)y;
 	fromskew /= 4;
 	for(; h > 0; --h) {
-		uint32* bw;
+		uint32 * bw;
 		UNROLL4(w, bw = BWmap[*pp++], *cp++ = *bw++);
 		cp += toskew;
 		pp += fromskew;
@@ -1104,11 +1104,11 @@ DECLAREContigPutFunc(put2bitbwtile)
  */
 DECLAREContigPutFunc(put4bitbwtile)
 {
-	uint32** BWmap = img->BWmap;
+	uint32 ** BWmap = img->BWmap;
 	(void)x; (void)y;
 	fromskew /= 2;
 	for(; h > 0; --h) {
-		uint32* bw;
+		uint32 * bw;
 		UNROLL2(w, bw = BWmap[*pp++], *cp++ = *bw++);
 		cp += toskew;
 		pp += fromskew;
@@ -1275,7 +1275,7 @@ DECLAREContigPutFunc(putRGBcontig8bitCMYKMaptile)
 	}
 }
 
-#define DECLARESepPutFunc(name)	static void name(TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar * r, uchar * g, uchar * b, uchar * a)
+#define DECLARESepPutFunc(name)	static void name(TIFFRGBAImage* img, uint32 * cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar * r, uchar * g, uchar * b, uchar * a)
 /*
  * 8-bit unpacked samples => RGB
  */
@@ -1431,11 +1431,11 @@ DECLAREContigPutFunc(putcontig8bitCIELab)
  * for difficult blocks.
  */
 #ifdef notdef
-static void putcontig8bitYCbCrGenericTile(TIFFRGBAImage* img, uint32* cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar * pp, int h_group, int v_group)
+static void putcontig8bitYCbCrGenericTile(TIFFRGBAImage* img, uint32 * cp, uint32 x, uint32 y, uint32 w, uint32 h, int32 fromskew, int32 toskew, uchar * pp, int h_group, int v_group)
 {
-	uint32* cp1 = cp+w+toskew;
-	uint32* cp2 = cp1+w+toskew;
-	uint32* cp3 = cp2+w+toskew;
+	uint32 * cp1 = cp+w+toskew;
+	uint32 * cp2 = cp1+w+toskew;
+	uint32 * cp3 = cp2+w+toskew;
 	int32 incr = 3*w+4*toskew;
 	int32 Cb, Cr;
 	int group_size = v_group * h_group + 2;
@@ -1488,9 +1488,9 @@ static void putcontig8bitYCbCrGenericTile(TIFFRGBAImage* img, uint32* cp, uint32
  */
 DECLAREContigPutFunc(putcontig8bitYCbCr44tile)
 {
-	uint32* cp1 = cp+w+toskew;
-	uint32* cp2 = cp1+w+toskew;
-	uint32* cp3 = cp2+w+toskew;
+	uint32 * cp1 = cp+w+toskew;
+	uint32 * cp2 = cp1+w+toskew;
+	uint32 * cp3 = cp2+w+toskew;
 	int32 incr = 3*w+4*toskew;
 
 	(void)y;
@@ -1595,7 +1595,7 @@ DECLAREContigPutFunc(putcontig8bitYCbCr44tile)
  */
 DECLAREContigPutFunc(putcontig8bitYCbCr42tile)
 {
-	uint32* cp1 = cp+w+toskew;
+	uint32 * cp1 = cp+w+toskew;
 	int32 incr = 2*toskew+w;
 
 	(void)y;
@@ -1720,7 +1720,7 @@ DECLAREContigPutFunc(putcontig8bitYCbCr41tile)
  */
 DECLAREContigPutFunc(putcontig8bitYCbCr22tile)
 {
-	uint32* cp2;
+	uint32 * cp2;
 	int32 incr = 2*toskew+w;
 	(void)y;
 	fromskew = (fromskew / 2) * (2*2+2);
@@ -1814,7 +1814,7 @@ DECLAREContigPutFunc(putcontig8bitYCbCr21tile)
  */
 DECLAREContigPutFunc(putcontig8bitYCbCr12tile)
 {
-	uint32* cp2;
+	uint32 * cp2;
 	int32 incr = 2*toskew+w;
 	(void)y;
 	fromskew = (fromskew / 1) * (1 * 2 + 2);
@@ -1963,10 +1963,10 @@ static int makebwmap(TIFFRGBAImage* img)
 	int bitspersample = img->bitspersample;
 	int nsamples = 8 / bitspersample;
 	int i;
-	uint32* p;
+	uint32 * p;
 	if(nsamples == 0)
 		nsamples = 1;
-	img->BWmap = (uint32**)SAlloc::M(256*sizeof(uint32 *)+(256*nsamples*sizeof(uint32)));
+	img->BWmap = (uint32 **)SAlloc::M(256*sizeof(uint32 *)+(256*nsamples*sizeof(uint32)));
 	if(img->BWmap == NULL) {
 		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "No space for B&W mapping table");
 		return 0;
@@ -2089,7 +2089,7 @@ static int makecmap(TIFFRGBAImage* img)
 	uint16* b = img->bluecmap;
 	uint32 * p;
 	int i;
-	img->PALmap = (uint32**)SAlloc::M(256*sizeof(uint32 *)+(256*nsamples*sizeof(uint32)));
+	img->PALmap = (uint32 **)SAlloc::M(256*sizeof(uint32 *)+(256*nsamples*sizeof(uint32)));
 	if(img->PALmap == NULL) {
 		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "No space for Palette mapping table");
 		return 0;

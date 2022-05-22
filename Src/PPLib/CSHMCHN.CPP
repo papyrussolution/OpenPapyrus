@@ -1,5 +1,5 @@
 // CSHMCHN.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 // Механизм работы с кассовыми машинами
@@ -45,7 +45,7 @@ struct CMRegEntry { // @flat
 
 typedef TSVector <CMRegEntry> CMRegArray; // @v10.0.04 TSArray-->TSVector
 
-/*static*/int PPCashMachine::RegisterMachine(PPID cmt, RegCashMachineFunc func, int _sync, int _async)
+/*static*/int PPCashMachine::RegisterMachine(PPID cmt, RegCashMachineFunc func, bool _sync, bool _async)
 {
 	ENTER_CRITICAL_SECTION
 	SETIFZ(P_RegData, new CMRegArray);
@@ -54,10 +54,8 @@ typedef TSVector <CMRegEntry> CMRegArray; // @v10.0.04 TSArray-->TSVector
 	entry.cmt = cmt;
 	entry.func = func;
 	entry.flags = 0;
-	if(_sync)
-		entry.flags |= entry.sync;
-	if(_async)
-		entry.flags |= entry.async;
+	SETFLAG(entry.flags, entry.sync, _sync);
+	SETFLAG(entry.flags, entry.async, _async);
 	p_ary->insert(&entry);
 	LEAVE_CRITICAL_SECTION
 	return 1;
@@ -261,7 +259,9 @@ int PPCashMachine::NewDayDialog(LDATE * pDt)
 
 int PPCashMachine::SyncOpenSession(LDATE * pDate)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
+	PPID   new_sess_id = 0;
 	LDATETIME dtm;
 	dtm.Set(DEREFPTROR(pDate, ZERODATE), ZEROTIME);
 	CSessionCore csess_core;
@@ -285,11 +285,16 @@ int PPCashMachine::SyncOpenSession(LDATE * pDate)
 			last_sess_number++;
 			dtm.t = getcurtime_();
 			THROW(csess_core.CreateSess(&NodeRec.CurSessID, NodeRec.ID, NodeRec.ID, last_sess_number, dtm, 0));
+			new_sess_id = NodeRec.CurSessID;
 		}
 		NodeRec.CurDate = dtm.d;
 		THROW(UpdateNode(0));
 		THROW(tra.Commit());
 	}
+	// @v11.3.12 {
+	assert(P_SyncIntrf);
+	CALLPTRMEMB(P_SyncIntrf, OpenSession(new_sess_id));
+	// } @v11.3.12
 	DS.SetOperDate(dtm);
 	CATCHZOK
 	ASSIGN_PTR(pDate, dtm.d);
@@ -299,8 +304,8 @@ int PPCashMachine::SyncOpenSession(LDATE * pDate)
 int PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 {
 	int    ok = 1;
-	PPID   op = ret ? GetCashRetOp() : GetCashOp();
-	if(op > 0) {
+	const  PPID op_id = ret ? GetCashRetOp() : GetCashOp();
+	if(op_id > 0) {
 		PPObjBill * p_bobj = BillObj;
 		PPID   id;
 		int    count = 0;
@@ -313,14 +318,14 @@ int PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 		THROW(GetNode() > 0);
 		if(NodeRec.DownBill) {
 			THROW(p_bobj->ExtractPacket(NodeRec.DownBill, &pack));
-			if(pack.Rec.OpID != op)
+			if(pack.Rec.OpID != op_id)
 				return -1;
 		}
 		else {
-			THROW(pack.CreateBlank(op, 0, 0, 0));
+			THROW(pack.CreateBlank(op_id, 0, 0, 0));
 			pack.Rec.Dt = NodeRec.CurDate;
 		}
-		k.OpID   = op;
+		k.OpID   = op_id;
 		k.Dt     = NodeRec.CurDate;
 		k.BillNo = MAXLONG;
 		while(r_tbl.search(2, &k, spLt) && k.Dt == NodeRec.CurDate) {

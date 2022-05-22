@@ -35,7 +35,7 @@ static const char * const mod_str[] = { "processor", "video", "window", "image s
 
 static const char * const err_str[] = {
 	"no error",             /* OK */
-	"out of memory",        /* NOMEM */
+	SlTxtOutOfMem,        /* NOMEM */
 	"internal library error", /* INTERNAL */
 	"unsupported request",  /* UNSUPPORTED */
 	"invalid request",      /* INVALID */

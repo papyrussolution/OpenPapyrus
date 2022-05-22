@@ -2495,7 +2495,7 @@ int xmlNop(void);
 	int    FASTCALL xmlBufGrow(xmlBuf * buf, int len);
 	int    FASTCALL xmlBufInflate(xmlBuf * buf, size_t len);
 	int    FASTCALL xmlBufResize(xmlBuf * buf, size_t len);
-	int    FASTCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len);
+	int    STDCALL  xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len);
 	int    xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len);
 	int    FASTCALL xmlBufCat(xmlBuf * buf, const xmlChar * str);
 	int    FASTCALL xmlBufCCat(xmlBuf * buf, const char * str);

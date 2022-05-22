@@ -373,17 +373,17 @@ static int OJPEGReadWord(OJPEGState* sp, uint16* word);
 static int OJPEGReadBlock(OJPEGState* sp, uint16 len, void * mem);
 static void OJPEGReadSkip(OJPEGState* sp, uint16 len);
 
-static int OJPEGWriteStream(TIFF * tif, void ** mem, uint32* len);
-static void OJPEGWriteStreamSoi(TIFF * tif, void ** mem, uint32* len);
-static void OJPEGWriteStreamQTable(TIFF * tif, uint8 table_index, void ** mem, uint32* len);
-static void OJPEGWriteStreamDcTable(TIFF * tif, uint8 table_index, void ** mem, uint32* len);
-static void OJPEGWriteStreamAcTable(TIFF * tif, uint8 table_index, void ** mem, uint32* len);
-static void OJPEGWriteStreamDri(TIFF * tif, void ** mem, uint32* len);
-static void OJPEGWriteStreamSof(TIFF * tif, void ** mem, uint32* len);
-static void OJPEGWriteStreamSos(TIFF * tif, void ** mem, uint32* len);
-static int OJPEGWriteStreamCompressed(TIFF * tif, void ** mem, uint32* len);
-static void OJPEGWriteStreamRst(TIFF * tif, void ** mem, uint32* len);
-static void OJPEGWriteStreamEoi(TIFF * tif, void ** mem, uint32* len);
+static int OJPEGWriteStream(TIFF * tif, void ** mem, uint32 * len);
+static void OJPEGWriteStreamSoi(TIFF * tif, void ** mem, uint32 * len);
+static void OJPEGWriteStreamQTable(TIFF * tif, uint8 table_index, void ** mem, uint32 * len);
+static void OJPEGWriteStreamDcTable(TIFF * tif, uint8 table_index, void ** mem, uint32 * len);
+static void OJPEGWriteStreamAcTable(TIFF * tif, uint8 table_index, void ** mem, uint32 * len);
+static void OJPEGWriteStreamDri(TIFF * tif, void ** mem, uint32 * len);
+static void OJPEGWriteStreamSof(TIFF * tif, void ** mem, uint32 * len);
+static void OJPEGWriteStreamSos(TIFF * tif, void ** mem, uint32 * len);
+static int OJPEGWriteStreamCompressed(TIFF * tif, void ** mem, uint32 * len);
+static void OJPEGWriteStreamRst(TIFF * tif, void ** mem, uint32 * len);
+static void OJPEGWriteStreamEoi(TIFF * tif, void ** mem, uint32 * len);
 
 #ifdef LIBJPEG_ENCAP_EXTERNAL
 extern int jpeg_create_decompress_encap(OJPEGState* sp, jpeg_decompress_struct* cinfo);
@@ -483,15 +483,15 @@ static int OJPEGVGetField(TIFF * tif, uint32 tag, va_list ap)
 		    *va_arg(ap, uint16*) = (uint16)sp->subsampling_ver;
 		    break;
 		case TIFFTAG_JPEGQTABLES:
-		    *va_arg(ap, uint32*) = (uint32)sp->qtable_offset_count;
+		    *va_arg(ap, uint32 *) = (uint32)sp->qtable_offset_count;
 		    *va_arg(ap, void **) = (void *)sp->qtable_offset;
 		    break;
 		case TIFFTAG_JPEGDCTABLES:
-		    *va_arg(ap, uint32*) = (uint32)sp->dctable_offset_count;
+		    *va_arg(ap, uint32 *) = (uint32)sp->dctable_offset_count;
 		    *va_arg(ap, void **) = (void *)sp->dctable_offset;
 		    break;
 		case TIFFTAG_JPEGACTABLES:
-		    *va_arg(ap, uint32*) = (uint32)sp->actable_offset_count;
+		    *va_arg(ap, uint32 *) = (uint32)sp->actable_offset_count;
 		    *va_arg(ap, void **) = (void *)sp->actable_offset;
 		    break;
 		case TIFFTAG_JPEGPROC:
@@ -1976,7 +1976,7 @@ static void OJPEGReadSkip(OJPEGState* sp, uint16 len)
 	}
 }
 
-static int OJPEGWriteStream(TIFF * tif, void ** mem, uint32* len)
+static int OJPEGWriteStream(TIFF * tif, void ** mem, uint32 * len)
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	*len = 0;
@@ -2046,7 +2046,7 @@ static int OJPEGWriteStream(TIFF * tif, void ** mem, uint32* len)
 	return 1;
 }
 
-static void OJPEGWriteStreamSoi(TIFF * tif, void ** mem, uint32* len)
+static void OJPEGWriteStreamSoi(TIFF * tif, void ** mem, uint32 * len)
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	assert(OJPEG_BUFFER>=2);
@@ -2057,7 +2057,7 @@ static void OJPEGWriteStreamSoi(TIFF * tif, void ** mem, uint32* len)
 	CENUMINCR(OJPEGStateOutState, sp->out_state);
 }
 
-static void OJPEGWriteStreamQTable(TIFF * tif, uint8 table_index, void ** mem, uint32* len)
+static void OJPEGWriteStreamQTable(TIFF * tif, uint8 table_index, void ** mem, uint32 * len)
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	if(sp->qtable[table_index]!=0) {
@@ -2067,7 +2067,7 @@ static void OJPEGWriteStreamQTable(TIFF * tif, uint8 table_index, void ** mem, u
 	CENUMINCR(OJPEGStateOutState, sp->out_state);
 }
 
-static void OJPEGWriteStreamDcTable(TIFF * tif, uint8 table_index, void ** mem, uint32* len)
+static void OJPEGWriteStreamDcTable(TIFF * tif, uint8 table_index, void ** mem, uint32 * len)
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	if(sp->dctable[table_index]!=0) {
@@ -2077,7 +2077,7 @@ static void OJPEGWriteStreamDcTable(TIFF * tif, uint8 table_index, void ** mem, 
 	CENUMINCR(OJPEGStateOutState, sp->out_state);
 }
 
-static void OJPEGWriteStreamAcTable(TIFF * tif, uint8 table_index, void ** mem, uint32* len)
+static void OJPEGWriteStreamAcTable(TIFF * tif, uint8 table_index, void ** mem, uint32 * len)
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	if(sp->actable[table_index]!=0) {
@@ -2087,7 +2087,7 @@ static void OJPEGWriteStreamAcTable(TIFF * tif, uint8 table_index, void ** mem, 
 	CENUMINCR(OJPEGStateOutState, sp->out_state);
 }
 
-static void OJPEGWriteStreamDri(TIFF * tif, void ** mem, uint32* len)
+static void OJPEGWriteStreamDri(TIFF * tif, void ** mem, uint32 * len)
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	assert(OJPEG_BUFFER>=6);
@@ -2104,7 +2104,7 @@ static void OJPEGWriteStreamDri(TIFF * tif, void ** mem, uint32* len)
 	CENUMINCR(OJPEGStateOutState, sp->out_state);
 }
 
-static void OJPEGWriteStreamSof(TIFF * tif, void ** mem, uint32* len)
+static void OJPEGWriteStreamSof(TIFF * tif, void ** mem, uint32 * len)
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8 m;
@@ -2138,7 +2138,7 @@ static void OJPEGWriteStreamSof(TIFF * tif, void ** mem, uint32* len)
 	CENUMINCR(OJPEGStateOutState, sp->out_state);
 }
 
-static void OJPEGWriteStreamSos(TIFF * tif, void ** mem, uint32* len)
+static void OJPEGWriteStreamSos(TIFF * tif, void ** mem, uint32 * len)
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8 m;
@@ -2168,7 +2168,7 @@ static void OJPEGWriteStreamSos(TIFF * tif, void ** mem, uint32* len)
 	CENUMINCR(OJPEGStateOutState, sp->out_state);
 }
 
-static int OJPEGWriteStreamCompressed(TIFF * tif, void ** mem, uint32* len)
+static int OJPEGWriteStreamCompressed(TIFF * tif, void ** mem, uint32 * len)
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	if(sp->in_buffer_togo==0) {
@@ -2197,7 +2197,7 @@ static int OJPEGWriteStreamCompressed(TIFF * tif, void ** mem, uint32* len)
 	return 1;
 }
 
-static void OJPEGWriteStreamRst(TIFF * tif, void ** mem, uint32* len)
+static void OJPEGWriteStreamRst(TIFF * tif, void ** mem, uint32 * len)
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	assert(OJPEG_BUFFER>=2);
@@ -2211,7 +2211,7 @@ static void OJPEGWriteStreamRst(TIFF * tif, void ** mem, uint32* len)
 	sp->out_state = ososCompressed;
 }
 
-static void OJPEGWriteStreamEoi(TIFF * tif, void ** mem, uint32* len)
+static void OJPEGWriteStreamEoi(TIFF * tif, void ** mem, uint32 * len)
 {
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	assert(OJPEG_BUFFER>=2);

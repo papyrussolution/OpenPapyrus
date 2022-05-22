@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/opensslv.h>
-//#include <openssl/aes.h>
-//#include "aes_locl.h"
 
 const char * AES_options(void)
 {

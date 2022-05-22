@@ -1346,7 +1346,7 @@ static void U_CALLCONV dataDirectoryInitFn()
 		path = U_ICU_DATA_DEFAULT_DIR;
 #endif
 #if defined(ICU_DATA_DIR_PREFIX_ENV_VAR)
-		if(prefix != NULL) {
+		if(prefix) {
 			snprintf(datadir_path_buffer, PATH_MAX, "%s%s", prefix, path);
 			path = datadir_path_buffer;
 		}
@@ -1433,7 +1433,7 @@ static void U_CALLCONV TimeZoneDataDirInitFn(UErrorCode & status) {
 	}
 
 #if defined(ICU_TIMEZONE_FILES_DIR_PREFIX_ENV_VAR)
-	if(prefix != NULL) {
+	if(prefix) {
 		snprintf(timezonefilesdir_path_buffer, PATH_MAX, "%s%s", prefix, dir);
 		dir = timezonefilesdir_path_buffer;
 	}
@@ -1721,13 +1721,12 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 	static char correctedLocale[64];
 	const char * localeID = getenv("LC_ALL");
 	char * p;
-
-	if(localeID == NULL)
+	if(!localeID)
 		localeID = getenv("LANG");
-	if(localeID == NULL)
+	if(!localeID)
 		localeID = setlocale(LC_ALL, NULL);
 	/* Make sure we have something... */
-	if(localeID == NULL)
+	if(!localeID)
 		return "en_US_POSIX";
 
 	/* Extract the locale name from the path. */

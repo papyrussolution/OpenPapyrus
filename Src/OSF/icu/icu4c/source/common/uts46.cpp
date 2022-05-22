@@ -1041,7 +1041,7 @@ void UTS46::checkLabelBiDi(const UChar * label, int32_t labelLength, IDNAInfo &i
 // s[length-1] must be the trailing dot.
 static bool isASCIIOkBiDi(const UChar * s, int32_t length) {
 	int32_t labelStart = 0;
-	for(int32_t i = 0; i<length; ++i) {
+	for(int32_t i = 0; i < length; ++i) {
 		UChar c = s[i];
 		if(c==0x2e) { // dot
 			if(i>labelStart) {
@@ -1074,7 +1074,7 @@ static bool isASCIIOkBiDi(const UChar * s, int32_t length) {
 // s[length-1] must be the trailing dot.
 static bool isASCIIOkBiDi(const char * s, int32_t length) {
 	int32_t labelStart = 0;
-	for(int32_t i = 0; i<length; ++i) {
+	for(int32_t i = 0; i < length; ++i) {
 		char c = s[i];
 		if(c==0x2e) { // dot
 			if(i>labelStart) {

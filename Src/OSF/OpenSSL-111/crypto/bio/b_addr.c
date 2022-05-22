@@ -8,11 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "bio_lcl.h"
-//#include <openssl/crypto.h>
 #ifndef OPENSSL_NO_SOCK
-//#include <openssl/err.h>
-//#include <openssl/buffer.h>
 #include "internal/thread_once.h"
 
 CRYPTO_RWLOCK * bio_lookup_lock;
@@ -232,7 +228,7 @@ static int addr_strings(const BIO_ADDR * ap, int numeric,
 		}
 	}
 	if((hostname != NULL && *hostname == NULL) || (service != NULL && *service == NULL)) {
-		if(hostname != NULL) {
+		if(hostname) {
 			OPENSSL_free(*hostname);
 			*hostname = NULL;
 		}
@@ -323,36 +319,28 @@ socklen_t BIO_ADDR_sockaddr_size(const BIO_ADDR * ap)
 
 const BIO_ADDRINFO * BIO_ADDRINFO_next(const BIO_ADDRINFO * bai)
 {
-	if(bai != NULL)
-		return bai->bai_next;
-	return NULL;
+	return bai ? bai->bai_next : NULL;
 }
 
 int BIO_ADDRINFO_family(const BIO_ADDRINFO * bai)
 {
-	if(bai != NULL)
-		return bai->bai_family;
-	return 0;
+	return bai ? bai->bai_family : 0;
 }
 
 int BIO_ADDRINFO_socktype(const BIO_ADDRINFO * bai)
 {
-	if(bai != NULL)
-		return bai->bai_socktype;
-	return 0;
+	return bai ? bai->bai_socktype : 0;
 }
 
 int BIO_ADDRINFO_protocol(const BIO_ADDRINFO * bai)
 {
-	if(bai != NULL) {
+	if(bai) {
 		if(bai->bai_protocol != 0)
 			return bai->bai_protocol;
-
 #ifdef AF_UNIX
 		if(bai->bai_family == AF_UNIX)
 			return 0;
 #endif
-
 		switch(bai->bai_socktype) {
 			case SOCK_STREAM:
 			    return IPPROTO_TCP;
@@ -371,33 +359,26 @@ int BIO_ADDRINFO_protocol(const BIO_ADDRINFO * bai)
  */
 socklen_t BIO_ADDRINFO_sockaddr_size(const BIO_ADDRINFO * bai)
 {
-	if(bai != NULL)
-		return bai->bai_addrlen;
-	return 0;
+	return bai ? bai->bai_addrlen : 0;
 }
-
 /*
  * BIO_ADDRINFO_sockaddr - non-public function that returns bai_addr
  * as the struct sockaddr it is.
  */
-const struct sockaddr * BIO_ADDRINFO_sockaddr(const BIO_ADDRINFO * bai){
-	if(bai != NULL)
-		return bai->bai_addr;
-	return NULL;
+const struct sockaddr * BIO_ADDRINFO_sockaddr(const BIO_ADDRINFO * bai)
+{
+	return bai ? bai->bai_addr : NULL;
 }
 
 const BIO_ADDR * BIO_ADDRINFO_address(const BIO_ADDRINFO * bai)
 {
-	if(bai != NULL)
-		return (BIO_ADDR*)bai->bai_addr;
-	return NULL;
+	return bai ? (BIO_ADDR*)bai->bai_addr : NULL;
 }
 
 void BIO_ADDRINFO_free(BIO_ADDRINFO * bai)
 {
 	if(bai == NULL)
 		return;
-
 #ifdef AI_PASSIVE
 #ifdef AF_UNIX
 #define _cond bai->bai_family != AF_UNIX
@@ -409,7 +390,6 @@ void BIO_ADDRINFO_free(BIO_ADDRINFO * bai)
 		return;
 	}
 #endif
-
 	/* Free manually when we know that addrinfo_wrap() was used.
 	 * See further comment above addrinfo_wrap()
 	 */
@@ -420,13 +400,11 @@ void BIO_ADDRINFO_free(BIO_ADDRINFO * bai)
 		bai = next;
 	}
 }
-
 /**********************************************************************
  *
  * Service functions
  *
  */
-
 /*-
  * The specs in hostserv can take these forms:
  *
@@ -500,7 +478,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service,
 		}
 	}
 
-	if(p != NULL && strchr(p, ':'))
+	if(p && strchr(p, ':'))
 		goto spec_err;
 
 	if(h != NULL && host != NULL) {
@@ -514,7 +492,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service,
 				goto memerr;
 		}
 	}
-	if(p != NULL && service != NULL) {
+	if(p && service != NULL) {
 		if(pl == 0
 		   || (pl == 1 && p[0] == '*')) {
 			*service = NULL;

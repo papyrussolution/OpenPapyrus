@@ -600,7 +600,7 @@ enum error_category_enum_ {
 
 static const char * base_error_strings[] = {
 	"operation completed successfully", /* AMQP_STATUS_OK 0x0 */
-	"could not allocate memory", /* AMQP_STATUS_NO_MEMORY                  -0x0001 */
+	SlTxtOutOfMem, /* AMQP_STATUS_NO_MEMORY                  -0x0001 */
 	"invalid AMQP data", /* AMQP_STATUS_BAD_AQMP_DATA              -0x0002 */
 	"unknown AMQP class id", /* AMQP_STATUS_UNKNOWN_CLASS              -0x0003 */
 	"unknown AMQP method id", /* AMQP_STATUS_UNKNOWN_METHOD             -0x0004 */
@@ -4509,8 +4509,8 @@ static char find_delim(char ** pp, int colon_and_at_sign_are_delims)
 //
 int amqp_parse_url(char * url, struct amqp_connection_info * parsed) 
 {
-	int res = AMQP_STATUS_BAD_URL;
-	char delim;
+	int    res = AMQP_STATUS_BAD_URL;
+	char   delim;
 	char * start;
 	char * host;
 	char * port = NULL;
@@ -7140,7 +7140,7 @@ int FASTCALL SlTranlateAmqpStatus(int amqpStatus)
 	return slerr;
 }
 
-int FASTCALL SlCheckAmqpError(int amqpStatus)
+int FASTCALL SlCheckAmqpError(int amqpStatus, const char * pAddedMsg)
 {
-	return (amqpStatus == 0) ? 1 : SLS.SetError(SlTranlateAmqpStatus(amqpStatus));
+	return (amqpStatus == 0) ? 1 : SLS.SetError(SlTranlateAmqpStatus(amqpStatus), pAddedMsg);
 }

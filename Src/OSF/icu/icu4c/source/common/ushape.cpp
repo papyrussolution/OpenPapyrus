@@ -332,7 +332,7 @@ static void _shapeToArabicDigitsWithContext(UChar * s, int32_t length,
 
 	/* the iteration direction depends on the type of input */
 	if(isLogical) {
-		for(i = 0; i<length; ++i) {
+		for(i = 0; i < length; ++i) {
 			c = s[i];
 			switch(ubidi_getClass(c)) {
 				case U_LEFT_TO_RIGHT: /* L */
@@ -354,7 +354,7 @@ static void _shapeToArabicDigitsWithContext(UChar * s, int32_t length,
 		}
 	}
 	else {
-		for(i = length; i>0; /* pre-decrement in the body */) {
+		for(i = length; i > 0; /* pre-decrement in the body */) {
 			c = s[--i];
 			switch(ubidi_getClass(c)) {
 				case U_LEFT_TO_RIGHT: /* L */

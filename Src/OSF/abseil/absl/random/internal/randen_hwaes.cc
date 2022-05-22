@@ -261,12 +261,8 @@ namespace {
 // Block shuffles applies a shuffle to the entire state between AES rounds.
 // Improved odd-even shuffle from "New criterion for diffusion property".
 inline ABSL_TARGET_CRYPTO void BlockShuffle(absl::uint128* state) {
-	static_assert(RandenTraits::kFeistelBlocks == 16,
-	    "Expecting 16 FeistelBlocks.");
-
-	constexpr size_t shuffle[RandenTraits::kFeistelBlocks] = {
-		7, 2, 13, 4, 11, 8, 3, 6, 15, 0, 9, 10, 1, 14, 5, 12
-	};
+	static_assert(RandenTraits::kFeistelBlocks == 16, "Expecting 16 FeistelBlocks.");
+	constexpr size_t shuffle[RandenTraits::kFeistelBlocks] = { 7, 2, 13, 4, 11, 8, 3, 6, 15, 0, 9, 10, 1, 14, 5, 12 };
 
 	const Vector128 v0 = Vector128Load(state + shuffle[0]);
 	const Vector128 v1 = Vector128Load(state + shuffle[1]);
@@ -310,8 +306,7 @@ inline ABSL_TARGET_CRYPTO void BlockShuffle(absl::uint128* state) {
 // XORs are 'free' (included in the second AES instruction).
 inline ABSL_TARGET_CRYPTO const absl::uint128* FeistelRound(absl::uint128* state,
     const absl::uint128* ABSL_RANDOM_INTERNAL_RESTRICT keys) {
-	static_assert(RandenTraits::kFeistelBlocks == 16,
-	    "Expecting 16 FeistelBlocks.");
+	static_assert(RandenTraits::kFeistelBlocks == 16, "Expecting 16 FeistelBlocks.");
 
 	// MSVC does a horrible job at unrolling loops.
 	// So we unroll the loop by hand to improve the performance.
@@ -402,16 +397,10 @@ const void* ABSL_TARGET_CRYPTO RandenHwAes::GetKeys() {
 // NOLINTNEXTLINE
 void ABSL_TARGET_CRYPTO RandenHwAes::Absorb(const void* seed_void,
     void* state_void) {
-	static_assert(RandenTraits::kCapacityBytes / sizeof(Vector128) == 1,
-	    "Unexpected Randen kCapacityBlocks");
-	static_assert(RandenTraits::kStateBytes / sizeof(Vector128) == 16,
-	    "Unexpected Randen kStateBlocks");
-
-	auto* state = reinterpret_cast<absl::uint128 * ABSL_RANDOM_INTERNAL_RESTRICT>(
-		state_void);
-	const auto* seed =
-	    reinterpret_cast<const absl::uint128 * ABSL_RANDOM_INTERNAL_RESTRICT>(
-		seed_void);
+	static_assert(RandenTraits::kCapacityBytes / sizeof(Vector128) == 1, "Unexpected Randen kCapacityBlocks");
+	static_assert(RandenTraits::kStateBytes / sizeof(Vector128) == 16, "Unexpected Randen kStateBlocks");
+	auto* state = reinterpret_cast<absl::uint128 * ABSL_RANDOM_INTERNAL_RESTRICT>(state_void);
+	const auto* seed = reinterpret_cast<const absl::uint128 * ABSL_RANDOM_INTERNAL_RESTRICT>(seed_void);
 
 	Vector128 b1 = Vector128Load(state + 1);
 	b1 ^= Vector128Load(seed + 0);
@@ -477,20 +466,13 @@ void ABSL_TARGET_CRYPTO RandenHwAes::Absorb(const void* seed_void,
 // NOLINTNEXTLINE
 void ABSL_TARGET_CRYPTO RandenHwAes::Generate(const void* keys_void,
     void* state_void) {
-	static_assert(RandenTraits::kCapacityBytes == sizeof(Vector128),
-	    "Capacity mismatch");
-
+	static_assert(RandenTraits::kCapacityBytes == sizeof(Vector128), "Capacity mismatch");
 	auto* state = reinterpret_cast<absl::uint128*>(state_void);
 	const auto* keys = reinterpret_cast<const absl::uint128*>(keys_void);
-
 	const Vector128 prev_inner = Vector128Load(state);
-
 	SwapEndian(state);
-
 	Permute(state, keys);
-
 	SwapEndian(state);
-
 	// Ensure backtracking resistance.
 	Vector128 inner = Vector128Load(state);
 	inner ^= prev_inner;

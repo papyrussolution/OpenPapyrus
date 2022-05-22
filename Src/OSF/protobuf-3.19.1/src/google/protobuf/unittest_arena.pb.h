@@ -389,8 +389,7 @@ inline ::proto2_arena_unittest::NestedMessage* ArenaMessage::mutable_repeated_ne
   // @@protoc_insertion_point(field_mutable:proto2_arena_unittest.ArenaMessage.repeated_nested_message)
   return repeated_nested_message_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_arena_unittest::NestedMessage >*
-ArenaMessage::mutable_repeated_nested_message() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_arena_unittest::NestedMessage > * ArenaMessage::mutable_repeated_nested_message() {
   // @@protoc_insertion_point(field_mutable_list:proto2_arena_unittest.ArenaMessage.repeated_nested_message)
   return &repeated_nested_message_;
 }

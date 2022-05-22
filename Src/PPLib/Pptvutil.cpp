@@ -600,13 +600,13 @@ int ViewStatus()
 	return ok;
 }
 
-int STDCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes)
+int STDCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, const PPDbEntrySet2 * pDbes, const LongArray * pDbesIdxList)
 {
 	int    ok = 1;
 	ComboBox * cb = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(cb && pDbes && pDbes->GetCount()) {
 		StrAssocArray * p_list = new StrAssocArray;
-		pDbes->MakeList(p_list, DbLoginBlockArray::loUseFriendlyName);
+		pDbes->MakeList(p_list, DbLoginBlockArray::loUseFriendlyName, pDbesIdxList);
 		ListWindow * p_lw = CreateListWindow(p_list, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
 		cb->setListWindow(p_lw, pDbes->GetSelection());
 	}

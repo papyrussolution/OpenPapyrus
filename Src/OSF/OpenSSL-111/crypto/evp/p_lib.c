@@ -340,7 +340,7 @@ int EVP_PKEY_set_alias_type(EVP_PKEY * pkey, int type)
 #ifndef OPENSSL_NO_ENGINE
 int EVP_PKEY_set1_engine(EVP_PKEY * pkey, ENGINE * e)
 {
-	if(e != NULL) {
+	if(e) {
 		if(!ENGINE_init(e)) {
 			EVPerr(EVP_F_EVP_PKEY_SET1_ENGINE, ERR_R_ENGINE_LIB);
 			return 0;
@@ -438,7 +438,7 @@ RSA * EVP_PKEY_get0_RSA(EVP_PKEY * pkey)
 RSA * EVP_PKEY_get1_RSA(EVP_PKEY * pkey)
 {
 	RSA * ret = EVP_PKEY_get0_RSA(pkey);
-	if(ret != NULL)
+	if(ret)
 		RSA_up_ref(ret);
 	return ret;
 }
@@ -466,7 +466,7 @@ DSA * EVP_PKEY_get0_DSA(EVP_PKEY * pkey)
 DSA * EVP_PKEY_get1_DSA(EVP_PKEY * pkey)
 {
 	DSA * ret = EVP_PKEY_get0_DSA(pkey);
-	if(ret != NULL)
+	if(ret)
 		DSA_up_ref(ret);
 	return ret;
 }
@@ -495,7 +495,7 @@ EC_KEY * EVP_PKEY_get0_EC_KEY(EVP_PKEY * pkey)
 EC_KEY * EVP_PKEY_get1_EC_KEY(EVP_PKEY * pkey)
 {
 	EC_KEY * ret = EVP_PKEY_get0_EC_KEY(pkey);
-	if(ret != NULL)
+	if(ret)
 		EC_KEY_up_ref(ret);
 	return ret;
 }
@@ -524,7 +524,7 @@ DH * EVP_PKEY_get0_DH(EVP_PKEY * pkey)
 DH * EVP_PKEY_get1_DH(EVP_PKEY * pkey)
 {
 	DH * ret = EVP_PKEY_get0_DH(pkey);
-	if(ret != NULL)
+	if(ret)
 		DH_up_ref(ret);
 	return ret;
 }

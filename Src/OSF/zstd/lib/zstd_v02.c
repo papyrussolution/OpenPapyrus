@@ -121,7 +121,7 @@ MEM_STATIC uint MEM_isLittleEndian()
 /* violates C standard on structure alignment.
    Only use if no other choice to achieve best performance on target platform */
 MEM_STATIC uint16 MEM_read16(const void* memPtr) { return *(const uint16*)memPtr; }
-MEM_STATIC uint32 MEM_read32(const void* memPtr) { return *(const uint32*)memPtr; }
+MEM_STATIC uint32 MEM_read32(const void* memPtr) { return *(const uint32 *)memPtr; }
 MEM_STATIC uint64 MEM_read64(const void* memPtr) { return *(const uint64*)memPtr; }
 MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { *(uint16*)memPtr = value; }
 
@@ -1302,7 +1302,7 @@ typedef struct { BYTE symbol; BYTE weight; } sortedSymbol_t;
     @huffWeight : destination buffer
     @return : size read from `src`
  */
-static size_t HUF_readStats(BYTE * huffWeight, size_t hwSize, uint32* rankStats, uint32* nbSymbolsPtr, uint32* tableLogPtr, const void* src, size_t srcSize)
+static size_t HUF_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats, uint32 * nbSymbolsPtr, uint32 * tableLogPtr, const void* src, size_t srcSize)
 {
 	uint32 weightTotal;
 	uint32 tableLog;
@@ -1577,7 +1577,7 @@ static size_t HUF_decompress4X2(void* dst, size_t dstSize, const void* cSrc, siz
 /***************************/
 
 static void HUF_fillDTableX4Level2(HUF_DEltX4* DTable, uint32 sizeLog, const uint32 consumed,
-    const uint32* rankValOrigin, const int minWeight,
+    const uint32 * rankValOrigin, const int minWeight,
     const sortedSymbol_t* sortedSymbols, const uint32 sortedListSize,
     uint32 nbBitsBaseline, uint16 baseSeq)
 {
@@ -1623,7 +1623,7 @@ typedef uint32 rankVal_t[HUF_ABSOLUTEMAX_TABLELOG][HUF_ABSOLUTEMAX_TABLELOG + 1]
 
 static void HUF_fillDTableX4(HUF_DEltX4* DTable, const uint32 targetLog,
     const sortedSymbol_t* sortedList, const uint32 sortedListSize,
-    const uint32* rankStart, rankVal_t rankValOrigin, const uint32 maxWeight,
+    const uint32 * rankStart, rankVal_t rankValOrigin, const uint32 maxWeight,
     const uint32 nbBitsBaseline)
 {
 	uint32 rankVal[HUF_ABSOLUTEMAX_TABLELOG + 1];
@@ -1672,7 +1672,7 @@ static size_t HUF_readDTableX4(uint32 * DTable, const void* src, size_t srcSize)
 	sortedSymbol_t sortedSymbol[HUF_MAX_SYMBOL_VALUE + 1];
 	uint32 rankStats[HUF_ABSOLUTEMAX_TABLELOG + 1] = { 0 };
 	uint32 rankStart0[HUF_ABSOLUTEMAX_TABLELOG + 2] = { 0 };
-	uint32* const rankStart = rankStart0+1;
+	uint32 * const rankStart = rankStart0+1;
 	rankVal_t rankVal;
 	uint32 tableLog, maxW, sizeOfSort, nbSymbols;
 	const uint32 memLog = DTable[0];
@@ -1723,14 +1723,14 @@ static size_t HUF_readDTableX4(uint32 * DTable, const void* src, size_t srcSize)
 		uint32 nextRankVal = 0;
 		uint32 w, consumed;
 		const int rescale = (memLog-tableLog) - 1; /* tableLog <= memLog */
-		uint32* rankVal0 = rankVal[0];
+		uint32 * rankVal0 = rankVal[0];
 		for(w = 1; w<=maxW; w++) {
 			uint32 current = nextRankVal;
 			nextRankVal += rankStats[w] << (w+rescale);
 			rankVal0[w] = current;
 		}
 		for(consumed = minBits; consumed <= memLog - minBits; consumed++) {
-			uint32* rankValPtr = rankVal[consumed];
+			uint32 * rankValPtr = rankVal[consumed];
 			for(w = 1; w <= maxW; w++) {
 				rankValPtr[w] = rankVal0[w] >> consumed;
 			}
@@ -1810,7 +1810,7 @@ static inline size_t HUF_decodeStreamX4(BYTE * p, BIT_DStream_t* bitDPtr, BYTE *
 
 static size_t HUF_decompress4X4_usingDTable(void* dst,  size_t dstSize,
     const void* cSrc, size_t cSrcSize,
-    const uint32* DTable)
+    const uint32 * DTable)
 {
 	if(cSrcSize < 10) return ERROR(corruption_detected); /* strict minimum : jump table + 1 byte per stream */
 
@@ -1926,7 +1926,7 @@ typedef union { BYTE byte[4]; uint32 sequence; } HUF_DSeqX6;
 /* recursive, up to level 3; may benefit from <template>-like strategy to nest each level inline */
 static void HUF_fillDTableX6LevelN(HUF_DDescX6* DDescription, HUF_DSeqX6* DSequence, int sizeLog,
     const rankVal_t rankValOrigin, const uint32 consumed, const int minWeight, const uint32 maxWeight,
-    const sortedSymbol_t* sortedSymbols, const uint32 sortedListSize, const uint32* rankStart,
+    const sortedSymbol_t* sortedSymbols, const uint32 sortedListSize, const uint32 * rankStart,
     const uint32 nbBitsBaseline, HUF_DSeqX6 baseSeq, HUF_DDescX6 DDesc)
 {
 	const int scaleLog = nbBitsBaseline - sizeLog; /* note : targetLog >= (nbBitsBaseline-1), hence scaleLog <= 1 */
@@ -1982,13 +1982,13 @@ static void HUF_fillDTableX6LevelN(HUF_DDescX6* DDescription, HUF_DSeqX6* DSeque
 }
 
 /* note : same preparation as X4 */
-static size_t HUF_readDTableX6(uint32* DTable, const void* src, size_t srcSize)
+static size_t HUF_readDTableX6(uint32 * DTable, const void* src, size_t srcSize)
 {
 	BYTE weightList[HUF_MAX_SYMBOL_VALUE + 1];
 	sortedSymbol_t sortedSymbol[HUF_MAX_SYMBOL_VALUE + 1];
 	uint32 rankStats[HUF_ABSOLUTEMAX_TABLELOG + 1] = { 0 };
 	uint32 rankStart0[HUF_ABSOLUTEMAX_TABLELOG + 2] = { 0 };
-	uint32* const rankStart = rankStart0+1;
+	uint32 * const rankStart = rankStart0+1;
 	uint32 tableLog, maxW, sizeOfSort, nbSymbols;
 	rankVal_t rankVal;
 	const uint32 memLog = DTable[0];
@@ -2036,14 +2036,14 @@ static size_t HUF_readDTableX6(uint32* DTable, const void* src, size_t srcSize)
 		uint32 nextRankVal = 0;
 		uint32 w, consumed;
 		const int rescale = (memLog-tableLog) - 1; /* tableLog <= memLog */
-		uint32* rankVal0 = rankVal[0];
+		uint32 * rankVal0 = rankVal[0];
 		for(w = 1; w<=maxW; w++) {
 			uint32 current = nextRankVal;
 			nextRankVal += rankStats[w] << (w+rescale);
 			rankVal0[w] = current;
 		}
 		for(consumed = minBits; consumed <= memLog - minBits; consumed++) {
-			uint32* rankValPtr = rankVal[consumed];
+			uint32 * rankValPtr = rankVal[consumed];
 			for(w = 1; w <= maxW; w++) {
 				rankValPtr[w] = rankVal0[w] >> consumed;
 			}
@@ -2111,7 +2111,7 @@ static uint32 HUF_decodeLastSymbolsX6(void* op, const uint32 maxL, BIT_DStream_t
 	if(MEM_64bits()) \
 		HUF_DECODE_SYMBOLX6_0(ptr, DStreamPtr)
 
-static inline size_t HUF_decodeStreamX6(BYTE * p, BIT_DStream_t* bitDPtr, BYTE * const pEnd, const uint32* DTable, const uint32 dtLog)
+static inline size_t HUF_decodeStreamX6(BYTE * p, BIT_DStream_t* bitDPtr, BYTE * const pEnd, const uint32 * DTable, const uint32 dtLog)
 {
 	const void* ddPtr = DTable+1;
 	const HUF_DDescX6* dd = (const HUF_DDescX6*)(ddPtr);
@@ -2142,7 +2142,7 @@ static inline size_t HUF_decodeStreamX6(BYTE * p, BIT_DStream_t* bitDPtr, BYTE *
 
 static size_t HUF_decompress4X6_usingDTable(void* dst,  size_t dstSize,
     const void* cSrc, size_t cSrcSize,
-    const uint32* DTable)
+    const uint32 * DTable)
 {
 	if(cSrcSize < 10) return ERROR(corruption_detected); /* strict minimum : jump table + 1 byte per stream */
 
@@ -2445,8 +2445,8 @@ typedef struct {
 
 typedef struct {
 	void* buffer;
-	uint32*  offsetStart;
-	uint32*  offset;
+	uint32 *  offsetStart;
+	uint32 *  offset;
 	BYTE * offCodeStart;
 	BYTE * offCode;
 	BYTE * litStart;
@@ -2852,9 +2852,9 @@ static size_t ZSTD_decompressSequences(void* ctx, void* dst, size_t maxDstSize, 
 	const BYTE * const litEnd = litPtr + dctx->litSize;
 	int nbSeq;
 	const BYTE * dumps;
-	uint32* DTableLL = dctx->LLTable;
-	uint32* DTableML = dctx->MLTable;
-	uint32* DTableOffb = dctx->OffTable;
+	uint32 * DTableLL = dctx->LLTable;
+	uint32 * DTableML = dctx->MLTable;
+	uint32 * DTableOffb = dctx->OffTable;
 	BYTE * const base = (BYTE *)(dctx->base);
 	/* Build Decoding Tables */
 	errorCode = ZSTD_decodeSeqHeaders(&nbSeq, &dumps, &dumpsLength, DTableLL, DTableML, DTableOffb, ip, iend-ip);

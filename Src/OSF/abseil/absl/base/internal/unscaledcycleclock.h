@@ -30,7 +30,7 @@
 #ifndef ABSL_BASE_INTERNAL_UNSCALEDCYCLECLOCK_H_
 #define ABSL_BASE_INTERNAL_UNSCALEDCYCLECLOCK_H_
 
-#include <cstdint>
+//#include <cstdint>
 #if defined(__APPLE__)
 	#include <TargetConditionals.h>
 #endif
@@ -38,8 +38,8 @@
 
 // The following platforms have an implementation of a hardware counter.
 #if defined(__i386__) || defined(__x86_64__) || defined(__aarch64__) || \
-    defined(__powerpc__) || defined(__ppc__) || defined(__riscv) ||     \
-    defined(_M_IX86) || defined(_M_X64)
+	defined(__powerpc__) || defined(__ppc__) || defined(__riscv) ||     \
+	defined(_M_IX86) || defined(_M_X64)
 #define ABSL_HAVE_UNSCALED_CYCLECLOCK_IMPLEMENTATION 1
 #else
 #define ABSL_HAVE_UNSCALED_CYCLECLOCK_IMPLEMENTATION 0
@@ -52,8 +52,8 @@
 // ARM64 devices where this is not the case, so we disable it by
 // default on Android ARM64.
 #if defined(__native_client__) ||                      \
-    (defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) || \
-    (defined(__ANDROID__) && defined(__aarch64__))
+	(defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) || \
+	(defined(__ANDROID__) && defined(__aarch64__))
 #define ABSL_USE_UNSCALED_CYCLECLOCK_DEFAULT 0
 #else
 #define ABSL_USE_UNSCALED_CYCLECLOCK_DEFAULT 1
@@ -64,8 +64,8 @@
 // Can be overridden at compile-time via -DABSL_USE_UNSCALED_CYCLECLOCK=0|1
 #if !defined(ABSL_USE_UNSCALED_CYCLECLOCK)
 #define ABSL_USE_UNSCALED_CYCLECLOCK               \
-  (ABSL_HAVE_UNSCALED_CYCLECLOCK_IMPLEMENTATION && \
-   ABSL_USE_UNSCALED_CYCLECLOCK_DEFAULT)
+	(ABSL_HAVE_UNSCALED_CYCLECLOCK_IMPLEMENTATION && \
+	ABSL_USE_UNSCALED_CYCLECLOCK_DEFAULT)
 #endif
 
 #if ABSL_USE_UNSCALED_CYCLECLOCK
@@ -73,7 +73,7 @@
 // This macro can be used to test if UnscaledCycleClock::Frequency()
 // is NominalCPUFrequency() on a particular platform.
 #if (defined(__i386__) || defined(__x86_64__) || defined(__riscv) || \
-     defined(_M_IX86) || defined(_M_X64))
+	defined(_M_IX86) || defined(_M_X64))
 #define ABSL_INTERNAL_UNSCALED_CYCLECLOCK_FREQUENCY_IS_CPU_FREQUENCY
 #endif
 
@@ -88,25 +88,21 @@ class CycleClock;
 class UnscaledCycleClockWrapperForInitializeFrequency;
 
 class UnscaledCycleClock {
- private:
-  UnscaledCycleClock() = delete;
-
-  // Return the value of a cycle counter that counts at a rate that is
-  // approximately constant.
-  static int64_t Now();
-
-  // Return the how much UnscaledCycleClock::Now() increases per second.
-  // This is not necessarily the core CPU clock frequency.
-  // It may be the nominal value report by the kernel, rather than a measured
-  // value.
-  static double Frequency();
-
-  // Allowed users
-  friend class base_internal::CycleClock;
-  friend class time_internal::UnscaledCycleClockWrapperForGetCurrentTime;
-  friend class base_internal::UnscaledCycleClockWrapperForInitializeFrequency;
+private:
+	UnscaledCycleClock() = delete;
+	// Return the value of a cycle counter that counts at a rate that is
+	// approximately constant.
+	static int64_t Now();
+	// Return the how much UnscaledCycleClock::Now() increases per second.
+	// This is not necessarily the core CPU clock frequency.
+	// It may be the nominal value report by the kernel, rather than a measured
+	// value.
+	static double Frequency();
+	// Allowed users
+	friend class base_internal::CycleClock;
+	friend class time_internal::UnscaledCycleClockWrapperForGetCurrentTime;
+	friend class base_internal::UnscaledCycleClockWrapperForInitializeFrequency;
 };
-
 }  // namespace base_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

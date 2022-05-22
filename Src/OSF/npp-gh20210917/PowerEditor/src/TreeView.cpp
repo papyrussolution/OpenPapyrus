@@ -173,7 +173,7 @@ void TreeView::removeAllItems()
 
 void TreeView::dupTree(HTREEITEM hTree2Dup, HTREEITEM hParentItem)
 {
-	for(HTREEITEM hItem = getChildFrom(hTree2Dup); hItem != NULL; hItem = getNextSibling(hItem)) {
+	for(HTREEITEM hItem = getChildFrom(hTree2Dup); hItem; hItem = getNextSibling(hItem)) {
 		TCHAR textBuffer[MAX_PATH];
 		TVITEM tvItem;
 		tvItem.hItem = hItem;
@@ -193,7 +193,7 @@ void TreeView::dupTree(HTREEITEM hTree2Dup, HTREEITEM hParentItem)
 HTREEITEM TreeView::searchSubItemByName(const TCHAR * itemName, HTREEITEM hParentItem)
 {
 	HTREEITEM hItem = hParentItem ? getChildFrom(hParentItem) : getRoot();
-	for(; hItem != NULL; hItem = getNextSibling(hItem)) {
+	for(; hItem; hItem = getNextSibling(hItem)) {
 		TCHAR textBuffer[MAX_PATH] = { '\0' };
 		TVITEM tvItem;
 		tvItem.hItem = hItem;
@@ -210,7 +210,7 @@ HTREEITEM TreeView::searchSubItemByName(const TCHAR * itemName, HTREEITEM hParen
 
 void TreeView::cleanSubEntries(HTREEITEM hTreeItem)
 {
-	for(HTREEITEM hItem = getChildFrom(hTreeItem); hItem != NULL; hItem = getNextSibling(hItem)) {
+	for(HTREEITEM hItem = getChildFrom(hTreeItem); hItem; hItem = getNextSibling(hItem)) {
 		TVITEM tvItem;
 		tvItem.hItem = hItem;
 		tvItem.mask = TVIF_PARAM;
@@ -223,7 +223,7 @@ void TreeView::foldExpandRecursively(HTREEITEM hParentItem, bool isFold) const
 {
 	if(hParentItem) {
 		HTREEITEM hItem = getChildFrom(hParentItem);
-		for(; hItem != NULL; hItem = getNextSibling(hItem)) {
+		for(; hItem; hItem = getNextSibling(hItem)) {
 			foldExpandRecursively(hItem, isFold);
 			if(isFold) {
 				fold(hItem);
@@ -511,7 +511,7 @@ bool TreeView::searchLeafRecusivelyAndBuildTree(HTREEITEM tree2Build, const gene
 	}
 	size_t i = 0;
 	bool isOk = true;
-	for(HTREEITEM hItem = getChildFrom(tree2Search); hItem != NULL; hItem = getNextSibling(hItem)) {
+	for(HTREEITEM hItem = getChildFrom(tree2Search); hItem; hItem = getNextSibling(hItem)) {
 		isOk = searchLeafRecusivelyAndBuildTree(tree2Build, text2Search, index2Search, hItem);
 		if(!isOk)
 			break;
@@ -538,7 +538,7 @@ bool TreeView::retrieveFoldingStateTo(TreeStateNode & treeState2Construct, HTREE
 		treeState2Construct._extraData = *((generic_string*)tvItem.lParam);
 	}
 	int i = 0;
-	for(HTREEITEM hItem = getChildFrom(treeviewNode); hItem != NULL; hItem = getNextSibling(hItem)) {
+	for(HTREEITEM hItem = getChildFrom(treeviewNode); hItem; hItem = getNextSibling(hItem)) {
 		treeState2Construct._children.push_back(TreeStateNode());
 		retrieveFoldingStateTo(treeState2Construct._children.at(i), hItem);
 		++i;
@@ -558,7 +558,7 @@ bool TreeView::restoreFoldingStateFrom(const TreeStateNode & treeState2Compare, 
 		selectItem(treeviewNode);
 	size_t i = 0;
 	bool isOk = true;
-	for(HTREEITEM hItem = getChildFrom(treeviewNode); hItem != NULL; hItem = getNextSibling(hItem)) {
+	for(HTREEITEM hItem = getChildFrom(treeviewNode); hItem; hItem = getNextSibling(hItem)) {
 		if(i >= treeState2Compare._children.size())
 			return false;
 		isOk = restoreFoldingStateFrom(treeState2Compare._children.at(i), hItem);
@@ -573,7 +573,7 @@ void TreeView::sort(HTREEITEM hTreeItem, bool isRecusive)
 {
 	::SendMessage(_hSelf, TVM_SORTCHILDREN, TRUE, reinterpret_cast<LPARAM>(hTreeItem));
 	if(isRecusive) {
-		for(HTREEITEM hItem = getChildFrom(hTreeItem); hItem != NULL; hItem = getNextSibling(hItem))
+		for(HTREEITEM hItem = getChildFrom(hTreeItem); hItem; hItem = getNextSibling(hItem))
 			sort(hItem, isRecusive);
 	}
 }
@@ -587,6 +587,6 @@ void TreeView::customSorting(HTREEITEM hTreeItem, PFNTVCOMPARE sortingCallbackFu
 	::SendMessage(_hSelf, TVM_SORTCHILDRENCB, 0, reinterpret_cast<LPARAM>(&treeViewSortCB));
 	if(!isRecusive)
 		return;
-	for(HTREEITEM hItem = getChildFrom(hTreeItem); hItem != NULL; hItem = getNextSibling(hItem))
+	for(HTREEITEM hItem = getChildFrom(hTreeItem); hItem; hItem = getNextSibling(hItem))
 		customSorting(hItem, sortingCallbackFunc, lParam, isRecusive);
 }

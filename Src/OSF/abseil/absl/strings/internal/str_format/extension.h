@@ -10,16 +10,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_EXTENSION_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_EXTENSION_H_
 
-//#include <limits.h>
-//#include <cstddef>
-//#include <cstring>
-//#include <ostream>
-//#include "absl/base/config.h"
-//#include "absl/base/port.h"
-//#include "absl/meta/type_traits.h"
-//#include "absl/strings/internal/str_format/output.h"
-//#include "absl/strings/string_view.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 

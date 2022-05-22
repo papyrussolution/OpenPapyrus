@@ -2020,12 +2020,10 @@ protected:
 	 * @internal
 	 */
 	virtual int32_t getDefaultDayInMonth(int32_t eyear, int32_t month);
-
-	//-------------------------------------------------------------------------
+	//
 	// Protected utility methods for use by subclasses.  These are very handy
 	// for implementing add, roll, and computeFields.
-	//-------------------------------------------------------------------------
-
+	//
 	/**
 	 * Adjust the specified field so that it is within
 	 * the allowable range for the date to which this calendar is set.

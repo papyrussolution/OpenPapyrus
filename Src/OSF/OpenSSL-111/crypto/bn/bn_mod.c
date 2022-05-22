@@ -121,30 +121,24 @@ int BN_mod_sub(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, const BIGNUM * m,
  *
  * Thus it takes up to two conditional additions to make |r| positive.
  */
-int bn_mod_sub_fixed_top(BIGNUM * r, const BIGNUM * a, const BIGNUM * b,
-    const BIGNUM * m)
+int bn_mod_sub_fixed_top(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, const BIGNUM * m)
 {
 	size_t i, ai, bi, mtop = m->top;
 	BN_ULONG borrow, carry, ta, tb, mask, * rp;
 	const BN_ULONG * ap, * bp;
-
 	if(bn_wexpand(r, mtop) == NULL)
 		return 0;
-
 	rp = r->d;
-	ap = a->d != NULL ? a->d : rp;
-	bp = b->d != NULL ? b->d : rp;
-
+	ap = a->d ? a->d : rp;
+	bp = b->d ? b->d : rp;
 	for(i = 0, ai = 0, bi = 0, borrow = 0; i < mtop;) {
 		mask = (BN_ULONG)0 - ((i - a->top) >> (8 * sizeof(i) - 1));
 		ta = ap[ai] & mask;
-
 		mask = (BN_ULONG)0 - ((i - b->top) >> (8 * sizeof(i) - 1));
 		tb = bp[bi] & mask;
 		rp[i] = ta - tb - borrow;
 		if(ta != tb)
 			borrow = (ta < tb);
-
 		i++;
 		ai += (i - a->dmax) >> (8 * sizeof(i) - 1);
 		bi += (i - b->dmax) >> (8 * sizeof(i) - 1);

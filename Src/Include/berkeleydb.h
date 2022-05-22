@@ -535,7 +535,7 @@ struct __db_log_cursor {
 	*/
 	int (*close)(DB_LOGC*, uint32);
 	int (*get)(DB_LOGC*, DB_LSN*, DBT*, uint32);
-	int (*version)(DB_LOGC*, uint32*, uint32);
+	int (*version)(DB_LOGC*, uint32 *, uint32);
 	/* DB_LOGC PUBLIC HANDLE LIST END */
 
  #define DB_LOG_DISK             0x01   /* Log record came from disk. */
@@ -681,7 +681,7 @@ struct __db_mpoolfile {
 	int (*get_ftype)(const DB_MPOOLFILE*, int *);
 	int (*get_last_pgno)(DB_MPOOLFILE*, db_pgno_t *);
 	int (*get_lsn_offset)(const DB_MPOOLFILE*, int32 *);
-	int (*get_maxsize)(DB_MPOOLFILE*, uint32*, uint32 *);
+	int (*get_maxsize)(DB_MPOOLFILE*, uint32 *, uint32 *);
 	int (*get_pgcookie)(const DB_MPOOLFILE*, DBT *);
 	int (*get_priority)(const DB_MPOOLFILE*, DB_CACHE_PRIORITY *);
 	int (*open)(DB_MPOOLFILE*, const char *, uint32, int, size_t);
@@ -1574,7 +1574,7 @@ struct __db {
 	int  (*get_bt_minkey)(DB*, uint32 *);
 	int  (*get_bt_prefix)(DB*, size_t (* *)(DB*, const DBT*, const DBT *));
 	int  (*get_byteswapped)(DB*, int *);
-	int  (*get_cachesize)(DB*, uint32*, uint32*, int *);
+	int  (*get_cachesize)(DB*, uint32 *, uint32 *, int *);
 	int  (*get_create_dir)(DB*, const char **);
 	int  (*get_dbname)(DB*, const char **, const char **);
 	int  (*get_dup_compare)(DB*, int (* *)(DB*, const DBT*, const DBT *));
@@ -1589,7 +1589,7 @@ struct __db {
 	int  (*get_h_ffactor)(DB*, uint32 *);
 	int  (*get_h_hash)(DB*, uint32 (* *)(DB*, const void *, uint32));
 	int  (*get_h_nelem)(DB*, uint32 *);
-	int  (*get_heapsize)(DB*, uint32*, uint32 *);
+	int  (*get_heapsize)(DB*, uint32 *, uint32 *);
 	int  (*get_lorder)(DB*, int *);
 	DB_MPOOLFILE *(*get_mpf)(DB *);
 	void (*get_msgcall)(DB*, void (* *)(const DB_ENV*, const char *));
@@ -1597,9 +1597,9 @@ struct __db {
 	int  (*get_multiple)(DB *);
 	int  (*get_open_flags)(DB*, uint32 *);
 	int  (*get_pagesize)(DB*, uint32 *);
-	int  (*get_partition_callback)(DB*, uint32*, uint32 (* *)(DB*, DBT*key));
+	int  (*get_partition_callback)(DB*, uint32 *, uint32 (* *)(DB*, DBT*key));
 	int  (*get_partition_dirs)(DB*, const char ***);
-	int  (*get_partition_keys)(DB*, uint32*, DBT**);
+	int  (*get_partition_keys)(DB*, uint32 *, DBT**);
 	int  (*get_priority)(DB*, DB_CACHE_PRIORITY *);
 	int  (*get_q_extentsize)(DB*, uint32 *);
 	int  (*get_re_delim)(DB*, int *);
@@ -1652,7 +1652,7 @@ struct __db {
 	int  (*stat)(DB*, DB_TXN*, void *, uint32);
 	int  (*stat_print)(DB*, uint32);
 	int  (*sync)(DB*, uint32);
-	int  (*truncate)(DB*, DB_TXN*, uint32*, uint32);
+	int  (*truncate)(DB*, DB_TXN*, uint32 *, uint32);
 	int  (*upgrade)(DB*, const char *, uint32);
 	int  (*verify)(DB*, const char *, const char *, FILE*, uint32);
 	/* DB PUBLIC HANDLE LIST END */
@@ -2282,8 +2282,8 @@ struct __db_env {
 	int  (*fileid_reset)(DB_ENV*, const char *, uint32);
 	int  (*get_alloc)(DB_ENV*, void *(* *)(size_t), void *(* *)(void *, size_t), void (* *)(void *));
 	int  (*get_app_dispatch)(DB_ENV*, int (* *)(DB_ENV*, DBT*, DB_LSN*, db_recops));
-	int  (*get_cache_max)(DB_ENV*, uint32*, uint32 *);
-	int  (*get_cachesize)(DB_ENV*, uint32*, uint32*, int *);
+	int  (*get_cache_max)(DB_ENV*, uint32 *, uint32 *);
+	int  (*get_cachesize)(DB_ENV*, uint32 *, uint32 *, int *);
 	int  (*get_create_dir)(DB_ENV*, const char **);
 	int  (*get_data_dirs)(DB_ENV*, const char ***);
 	int  (*get_data_len)(DB_ENV*, uint32 *);
@@ -2310,7 +2310,7 @@ struct __db_env {
 	int  (*get_lk_priority)(DB_ENV*, uint32, uint32 *);
 	int  (*get_lk_tablesize)(DB_ENV*, uint32 *);
 	int  (*get_memory_init)(DB_ENV*, DB_MEM_CONFIG, uint32 *);
-	int  (*get_memory_max)(DB_ENV*, uint32*, uint32 *);
+	int  (*get_memory_max)(DB_ENV*, uint32 *, uint32 *);
 	int  (*get_mp_max_openfd)(DB_ENV*, int *);
 	int  (*get_mp_max_write)(DB_ENV*, int *, db_timeout_t *);
 	int  (*get_mp_mmapsize)(DB_ENV*, size_t *);
@@ -2378,12 +2378,12 @@ struct __db_env {
 	int  (*remove)(DB_ENV*, const char *, uint32);
 	int  (*rep_elect)(DB_ENV*, uint32, uint32, uint32);
 	int  (*rep_flush)(DB_ENV *);
-	int  (*rep_get_clockskew)(DB_ENV*, uint32*, uint32 *);
+	int  (*rep_get_clockskew)(DB_ENV*, uint32 *, uint32 *);
 	int  (*rep_get_config)(DB_ENV*, uint32, int *);
-	int  (*rep_get_limit)(DB_ENV*, uint32*, uint32 *);
+	int  (*rep_get_limit)(DB_ENV*, uint32 *, uint32 *);
 	int  (*rep_get_nsites)(DB_ENV*, uint32 *);
 	int  (*rep_get_priority)(DB_ENV*, uint32 *);
-	int  (*rep_get_request)(DB_ENV*, uint32*, uint32 *);
+	int  (*rep_get_request)(DB_ENV*, uint32 *, uint32 *);
 	int  (*rep_get_timeout)(DB_ENV*, int, uint32 *);
 	int  (*rep_process_message)(DB_ENV*, DBT*, DBT*, int, DB_LSN *);
 	int  (*rep_set_clockskew)(DB_ENV*, uint32, uint32);

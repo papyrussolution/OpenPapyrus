@@ -13,8 +13,6 @@
 #define HEADER_FIELD_H
 
 #include <internal/constant_time_locl.h>
-//#include <string.h>
-//#include <assert.h>
 #include <word.h>
 
 #define NLIMBS (64/sizeof(word_t))

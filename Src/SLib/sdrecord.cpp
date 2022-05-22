@@ -51,7 +51,7 @@ void SdbField::GetFieldDataFromBuf(SString & rTextData, const void * pRecBuf, co
 	if(OuterFormat) {
 		fmt = OuterFormat;
 		if(base_type == BTS_DATE && SFMTFLAG(fmt) == 0) {
-			SETSFMTFLAG(fmt, DATF_GERMAN|DATF_CENTURY);
+			SETSFMTFLAG(fmt, DATF_GERMANCENT);
 		}
 		if(rFmt.Flags & SFormatParam::fFloatSize) {
 			SETSFMTLEN(fmt, 0);

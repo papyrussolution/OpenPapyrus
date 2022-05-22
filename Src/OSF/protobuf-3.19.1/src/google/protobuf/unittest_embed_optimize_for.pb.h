@@ -325,8 +325,7 @@ inline ::protobuf_unittest::TestOptimizedForSize* TestEmbedOptimizedForSize::mut
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestEmbedOptimizedForSize.repeated_message)
   return repeated_message_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestOptimizedForSize >*
-TestEmbedOptimizedForSize::mutable_repeated_message() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestOptimizedForSize > * TestEmbedOptimizedForSize::mutable_repeated_message() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestEmbedOptimizedForSize.repeated_message)
   return &repeated_message_;
 }

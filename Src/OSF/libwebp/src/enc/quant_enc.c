@@ -5,12 +5,11 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 //   Quantization
 //
 // Author: Skal (pascal.massimino@gmail.com)
-
+//
 #include <libwebp-internal.h>
 #pragma hdrstop
 //#include <assert.h>
@@ -40,16 +39,13 @@
 #define FLATNESS_PENALTY   140     // roughly ~1bit per block
 
 #define MULT_8B(a, b) (((a) * (b) + 128) >> 8)
-
 #define RD_DISTO_MULT      256  // distortion multiplier (equivalent of lambda)
-
 // #define DEBUG_BLOCK
-//------------------------------------------------------------------------------
 
 #if defined(DEBUG_BLOCK)
 
-static void PrintBlockInfo(const VP8EncIterator* const it,
-    const VP8ModeScore* const rd) {
+static void PrintBlockInfo(const VP8EncIterator* const it, const VP8ModeScore* const rd) 
+{
 	int i, j;
 	const int is_i16 = (it->mb_->type_ == 1);
 	const uint8* const y_in = it->yuv_in_ + Y_OFF_ENC;
@@ -195,12 +191,12 @@ static const uint8 kFreqSharpening[16] = {
 	60, 90, 90, 90,
 	90, 90, 90, 90
 };
-
-//------------------------------------------------------------------------------
+//
 // Initialize quantization parameters in VP8Matrix
-
+//
 // Returns the average quantizer
-static int ExpandMatrix(VP8Matrix* const m, int type) {
+static int ExpandMatrix(VP8Matrix* const m, int type) 
+{
 	int i, sum;
 	for(i = 0; i < 2; ++i) {
 		const int is_ac_coeff = (i > 0);
@@ -282,10 +278,9 @@ static void SetupMatrices(VP8Encoder* enc) {
 		m->i4_penalty_ = 1000 * q_i4 * q_i4;
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Initialize filtering parameters
-
+//
 // Very small filter-strength values have close to no visual effect. So we can
 // save a little decoding-CPU by turning filtering off for these.
 #define FSTRENGTH_CUTOFF 2
@@ -310,9 +305,7 @@ static void SetupFilterStrength(VP8Encoder* const enc)
 	enc->filter_hdr_.simple_ = (enc->config_->filter_type == 0);
 	enc->filter_hdr_.sharpness_ = enc->config_->filter_sharpness;
 }
-
-//------------------------------------------------------------------------------
-
+//
 // Note: if you change the values below, remember that the max range
 // allowed by the syntax for DQ_UV is [-16,16].
 #define MAX_DQ_UV (6)
@@ -450,38 +443,36 @@ void VP8SetSegmentParams(VP8Encoder* const enc, float quality) {
 
 	SetupMatrices(enc);   // finalize quantization matrices
 }
-
-//------------------------------------------------------------------------------
+//
 // Form the predictions in cache
-
+//
 // Must be ordered using {DC_PRED, TM_PRED, V_PRED, H_PRED} as index
 const uint16_t VP8I16ModeOffsets[4] = { I16DC16, I16TM16, I16VE16, I16HE16 };
 const uint16_t VP8UVModeOffsets[4] = { C8DC8, C8TM8, C8VE8, C8HE8 };
-
 // Must be indexed using {B_DC_PRED -> B_HU_PRED} as index
-const uint16_t VP8I4ModeOffsets[NUM_BMODES] = {
-	I4DC4, I4TM4, I4VE4, I4HE4, I4RD4, I4VR4, I4LD4, I4VL4, I4HD4, I4HU4
-};
+const uint16_t VP8I4ModeOffsets[NUM_BMODES] = { I4DC4, I4TM4, I4VE4, I4HE4, I4RD4, I4VR4, I4LD4, I4VL4, I4HD4, I4HU4 };
 
-void VP8MakeLuma16Preds(const VP8EncIterator* const it) {
+void VP8MakeLuma16Preds(const VP8EncIterator* const it) 
+{
 	const uint8* const left = it->x_ ? it->y_left_ : NULL;
 	const uint8* const top = it->y_ ? it->y_top_ : NULL;
 	VP8EncPredLuma16(it->yuv_p_, left, top);
 }
 
-void VP8MakeChroma8Preds(const VP8EncIterator* const it) {
+void VP8MakeChroma8Preds(const VP8EncIterator* const it) 
+{
 	const uint8* const left = it->x_ ? it->u_left_ : NULL;
 	const uint8* const top = it->y_ ? it->uv_top_ : NULL;
 	VP8EncPredChroma8(it->yuv_p_, left, top);
 }
 
-void VP8MakeIntra4Preds(const VP8EncIterator* const it) {
+void VP8MakeIntra4Preds(const VP8EncIterator* const it) 
+{
 	VP8EncPredLuma4(it->yuv_p_, it->i4_top_);
 }
-
-//------------------------------------------------------------------------------
+//
 // Quantize
-
+//
 // Layout:
 // +----+----+
 // |YYYY|UUVV| 0
@@ -501,14 +492,10 @@ static const uint16_t VP8ScanUV[4 + 4] = {
 	0 + 0 * BPS,   4 + 0 * BPS, 0 + 4 * BPS,  4 + 4 * BPS,// U
 	8 + 0 * BPS,  12 + 0 * BPS, 8 + 4 * BPS, 12 + 4 * BPS// V
 };
-
-//------------------------------------------------------------------------------
+//
 // Distortion measurement
-
-static const uint16_t kWeightY[16] = {
-	38, 32, 20, 9, 32, 28, 17, 7, 20, 17, 10, 4, 9, 7, 4, 2
-};
-
+//
+static const uint16_t kWeightY[16] = { 38, 32, 20, 9, 32, 28, 17, 7, 20, 17, 10, 4, 9, 7, 4, 2 };
 static const uint16_t kWeightTrellis[16] = {
 #if USE_TDISTO == 0
 	16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16
@@ -547,10 +534,9 @@ static void AddScore(VP8ModeScore* const dst, const VP8ModeScore* const src) {
 	dst->nz |= src->nz; // here, new nz bits are accumulated.
 	dst->score += src->score;
 }
-
-//------------------------------------------------------------------------------
+//
 // Performs trellis-optimized quantization.
-
+//
 // Trellis node
 typedef struct {
 	int8_t prev;      // best previous node
@@ -757,16 +743,13 @@ static int TrellisQuantizeBlock(const VP8Encoder* const enc,
 }
 
 #undef NODE
-
-//------------------------------------------------------------------------------
+//
 // Performs: difference, transform, quantize, back-transform, add
 // all at once. Output is the reconstructed block in *yuv_out, and the
 // quantized levels in *levels.
-
-static int ReconstructIntra16(VP8EncIterator* const it,
-    VP8ModeScore* const rd,
-    uint8* const yuv_out,
-    int mode) {
+//
+static int ReconstructIntra16(VP8EncIterator* const it, VP8ModeScore* const rd, uint8* const yuv_out, int mode) 
+{
 	const VP8Encoder* const enc = it->enc_;
 	const uint8* const ref = it->yuv_p_ + VP8I16ModeOffsets[mode];
 	const uint8* const src = it->yuv_in_ + Y_OFF_ENC;
@@ -836,10 +819,9 @@ static int ReconstructIntra4(VP8EncIterator* const it, int16_t levels[16], const
 	VP8ITransform(ref, tmp, yuv_out, 0);
 	return nz;
 }
-
-//------------------------------------------------------------------------------
+//
 // DC-error diffusion
-
+//
 // Diffusion weights. We under-correct a bit (15/16th of the error is actually
 // diffused) to avoid 'rainbow' chessboard pattern of blocks at q~=0.
 #define C1 7    // fraction of error sent to the 4x4 block below
@@ -914,10 +896,8 @@ static void StoreDiffusionErrors(VP8EncIterator* const it,
 #undef DSHIFT
 #undef DSCALE
 
-//------------------------------------------------------------------------------
-
-static int ReconstructUV(VP8EncIterator* const it, VP8ModeScore* const rd,
-    uint8* const yuv_out, int mode) {
+static int ReconstructUV(VP8EncIterator* const it, VP8ModeScore* const rd, uint8* const yuv_out, int mode) 
+{
 	const VP8Encoder* const enc = it->enc_;
 	const uint8* const ref = it->yuv_p_ + VP8UVModeOffsets[mode];
 	const uint8* const src = it->yuv_in_ + U_OFF_ENC;
@@ -957,12 +937,12 @@ static int ReconstructUV(VP8EncIterator* const it, VP8ModeScore* const rd,
 	}
 	return (nz << 16);
 }
-
-//------------------------------------------------------------------------------
+//
 // RD-opt decision. Reconstruct each modes, evalue distortion and bit-cost.
 // Pick the mode is lower RD-cost = Rate + lambda * Distortion.
-
-static void StoreMaxDelta(VP8SegmentInfo* const dqm, const int16_t DCs[16]) {
+//
+static void StoreMaxDelta(VP8SegmentInfo* const dqm, const int16_t DCs[16]) 
+{
 	// We look at the first three AC coefficients to determine what is the average
 	// delta between each sub-4x4 block.
 	const int v0 = abs(DCs[1]);
@@ -1045,12 +1025,11 @@ static void PickBestIntra16(VP8EncIterator* const it, VP8ModeScore* rd) {
 		StoreMaxDelta(dqm, rd->y_dc_levels);
 	}
 }
-
-//------------------------------------------------------------------------------
-
+//
 // return the cost array corresponding to the surrounding prediction modes.
-static const uint16_t* GetCostModeI4(VP8EncIterator* const it,
-    const uint8 modes[16]) {
+//
+static const uint16_t* GetCostModeI4(VP8EncIterator* const it, const uint8 modes[16]) 
+{
 	const int preds_w = it->enc_->preds_w_;
 	const int x = (it->i4_ & 3), y = it->i4_ >> 2;
 	const int left = (x == 0) ? it->preds_[y * preds_w - 1] : modes[it->i4_ - 1];
@@ -1153,9 +1132,8 @@ static int PickBestIntra4(VP8EncIterator* const it, VP8ModeScore* const rd) {
 	return 1; // select intra4x4 over intra16x16
 }
 
-//------------------------------------------------------------------------------
-
-static void PickBestUV(VP8EncIterator* const it, VP8ModeScore* const rd) {
+static void PickBestUV(VP8EncIterator* const it, VP8ModeScore* const rd) 
+{
 	const int kNumBlocks = 8;
 	const VP8SegmentInfo* const dqm = &it->enc_->dqm_[it->mb_->segment_];
 	const int lambda = dqm->lambda_uv_;
@@ -1203,15 +1181,14 @@ static void PickBestUV(VP8EncIterator* const it, VP8ModeScore* const rd) {
 		StoreDiffusionErrors(it, rd);
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Final reconstruction and quantization.
-
-static void SimpleQuantize(VP8EncIterator* const it, VP8ModeScore* const rd) {
+//
+static void SimpleQuantize(VP8EncIterator* const it, VP8ModeScore* const rd) 
+{
 	const VP8Encoder* const enc = it->enc_;
 	const int is_i16 = (it->mb_->type_ == 1);
 	int nz = 0;
-
 	if(is_i16) {
 		nz = ReconstructIntra16(it, rd, it->yuv_out_ + Y_OFF_ENC, it->preds_[0]);
 	}
@@ -1347,22 +1324,18 @@ static void RefineUsingDistortion(VP8EncIterator* const it,
 	rd->nz = nz;
 	rd->score = best_score;
 }
-
-//------------------------------------------------------------------------------
+//
 // Entry point
-
-int VP8Decimate(VP8EncIterator* const it, VP8ModeScore* const rd,
-    VP8RDLevel rd_opt) {
+//
+int VP8Decimate(VP8EncIterator* const it, VP8ModeScore* const rd, VP8RDLevel rd_opt) 
+{
 	int is_skipped;
 	const int method = it->enc_->method_;
-
 	InitScore(rd);
-
 	// We can perform predictions for Luma16x16 and Chroma8x8 already.
 	// Luma4x4 predictions needs to be done as-we-go.
 	VP8MakeLuma16Preds(it);
 	VP8MakeChroma8Preds(it);
-
 	if(rd_opt > RD_OPT_NONE) {
 		it->do_trellis_ = (rd_opt >= RD_OPT_TRELLIS_ALL);
 		PickBestIntra16(it, rd);

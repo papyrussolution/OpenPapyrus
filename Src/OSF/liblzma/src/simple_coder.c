@@ -175,13 +175,13 @@ extern lzma_ret lzma_simple_coder_init(lzma_next_coder * next, const lzma_alloca
 {
 	// Allocate memory for the lzma_simple_coder structure if needed.
 	lzma_simple_coder * coder = (lzma_simple_coder *)next->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		// Here we allocate space also for the temporary buffer. We
 		// need twice the size of unfiltered_max, because then it
 		// is always possible to filter at least unfiltered_max bytes
 		// more data in coder->buffer[] if it can be filled completely.
 		coder = (lzma_simple_coder *)lzma_alloc(sizeof(lzma_simple_coder) + 2 * unfiltered_max, allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		next->coder = coder;
 		next->code = &simple_code;

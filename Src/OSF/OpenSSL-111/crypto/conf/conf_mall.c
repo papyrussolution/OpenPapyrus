@@ -8,11 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
-//#include <openssl/conf.h>
-//#include <openssl/x509.h>
-//#include <openssl/asn1.h>
-//#include <openssl/engine.h>
 #include "conf_lcl.h"
 
 /* Load all OpenSSL builtin modules */

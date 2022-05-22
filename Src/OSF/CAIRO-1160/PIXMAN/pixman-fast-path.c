@@ -1895,7 +1895,7 @@ static uint32 * fast_fetch_r5g6b5(pixman_iter_t * iter, const uint32 * mask)
 	/* Process two pixels per iteration */
 	while((w -= 2) >= 0) {
 		uint32 sr, sb, sg, t0, t1;
-		uint32 s = *(const uint32*)src;
+		uint32 s = *(const uint32 *)src;
 		src += 2;
 		sr = (s >> 8) & 0x00F800F8;
 		sb = (s << 3) & 0x00F800F8;

@@ -8,8 +8,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <ImageView
         android:id="@+id/ORDERPREREQ_GOODS_IMG"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:padding="2dp"
         android:layout_margin="2dp">
     </ImageView>
@@ -18,15 +18,10 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         >
-        <TextView
+        <TextView style="@style/GenericListItemText"
             android:id="@+id/LVITEM_GENERICNAME"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:layout_marginLeft="2dp"
-            android:layout_gravity="top"
-            android:textColor="@color/TextPrimary"
-            android:textSize="12sp"
-            android:textFontWeight="700"
             />
         <LinearLayout
             android:layout_width="match_parent"
@@ -37,20 +32,20 @@
             <TextView
                 android:id="@+id/ORDERPREREQ_GOODS_PRICE"
                 android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:minWidth="40dp"
+                android:layout_width="128dp"
                 android:layout_marginRight="8dp"
                 android:textAlignment="viewEnd"
+                android:textSize="13sp"
                 android:textColor="@color/Accent"
                 />
             <TextView
                 android:id="@+id/ORDERPREREQ_GOODS_REST"
                 android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:minWidth="40dp"
+                android:layout_width="64dp"
                 android:layout_marginRight="8dp"
                 android:textAlignment="viewEnd"
-                android:textColor="@color/TextPrimary"
+                android:textSize="13sp"
+                android:textColor="@color/TextPrimaryLight"
                 />
             <LinearLayout
                 android:layout_width="wrap_content"

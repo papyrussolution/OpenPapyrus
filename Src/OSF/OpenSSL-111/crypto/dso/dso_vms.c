@@ -106,7 +106,7 @@ static int vms_load(DSO * dso)
 	const char * sp1, * sp2; /* Search result */
 	const char * ext = NULL; /* possible extension to add */
 
-	if(filename == NULL) {
+	if(!filename) {
 		DSOerr(DSO_F_VMS_LOAD, DSO_R_NO_FILENAME);
 		goto err;
 	}
@@ -308,7 +308,7 @@ void vms_bind_sym(DSO * dso, const char * symname, void ** sym)
 	}
 	ptr = (DSO_VMS_INTERNAL*)sk_void_value(dso->meth_data,
 		sk_void_num(dso->meth_data) - 1);
-	if(ptr == NULL) {
+	if(!ptr) {
 		DSOerr(DSO_F_VMS_BIND_SYM, DSO_R_NULL_HANDLE);
 		return;
 	}

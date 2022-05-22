@@ -57,7 +57,7 @@ static int open_filename(struct archive * a, int mbs_fn, const void * filename)
 	int r;
 	struct write_file_data * mine = (struct write_file_data *)SAlloc::C(1, sizeof(*mine));
 	if(mine == NULL) {
-		archive_set_error(a, ENOMEM, "Out of memory");
+		archive_set_error(a, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	if(mbs_fn)
@@ -66,7 +66,7 @@ static int open_filename(struct archive * a, int mbs_fn, const void * filename)
 		r = archive_mstring_copy_wcs(&mine->filename, static_cast<const wchar_t *>(filename));
 	if(r < 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(a, ENOMEM, "Out of memory");
+			archive_set_error(a, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		if(mbs_fn)
@@ -100,7 +100,7 @@ static int file_open(struct archive * a, void * client_data)
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	if(archive_mstring_get_wcs(a, &mine->filename, &wcs) != 0) {
 		if(errno == ENOMEM)
-			archive_set_error(a, errno, "No memory");
+			archive_set_error(a, errno, SlTxtOutOfMem);
 		else {
 			archive_mstring_get_mbs(a, &mine->filename, &mbs);
 			archive_set_error(a, errno, "Can't convert '%s' to WCS", mbs);
@@ -117,7 +117,7 @@ static int file_open(struct archive * a, void * client_data)
 #else
 	if(archive_mstring_get_mbs(a, &mine->filename, &mbs) != 0) {
 		if(errno == ENOMEM)
-			archive_set_error(a, errno, "No memory");
+			archive_set_error(a, errno, SlTxtOutOfMem);
 		else {
 			archive_mstring_get_wcs(a, &mine->filename, &wcs);
 			archive_set_error(a, errno, "Can't convert '%S' to MBS", wcs);

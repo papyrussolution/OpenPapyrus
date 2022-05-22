@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest_import {
-constexpr ImportMessage::ImportMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr ImportMessage::ImportMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : d_(0){}
 struct ImportMessageDefaultTypeInternal {
 	constexpr ImportMessageDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -75,34 +74,38 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_google_2fprotobuf_2funittest_5fimport_2eproto(&descriptor_table_google_2fprotobuf_2funittest_5fimport_2eproto);
 namespace protobuf_unittest_import {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ImportEnum_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fimport_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fimport_2eproto[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ImportEnum_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fimport_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fimport_2eproto[0];
 }
-bool ImportEnum_IsValid(int value) {
-  switch (value) {
-    case 7:
-    case 8:
-    case 9:
-      return true;
-    default:
-      return false;
-  }
+bool ImportEnum_IsValid(int value)
+{
+	switch(value) {
+		case 7:
+		case 8:
+		case 9:
+			return true;
+		default:
+			return false;
+	}
 }
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ImportEnumForMap_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fimport_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fimport_2eproto[1];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ImportEnumForMap_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fimport_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fimport_2eproto[1];
 }
-bool ImportEnumForMap_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
+bool ImportEnumForMap_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+			return true;
+		default:
+			return false;
+	}
 }
 
 
@@ -150,8 +153,7 @@ void ImportMessage::ArenaDtor(void* object) {
   ImportMessage* _this = reinterpret_cast< ImportMessage* >(object);
   (void)_this;
 }
-void ImportMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void ImportMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void ImportMessage::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -191,10 +193,7 @@ const char* ImportMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -250,10 +249,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ImportMessage::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ImportMessage::GetClassData() const { return &_class_data_; }
 
-void ImportMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<ImportMessage *>(to)->MergeFrom(
-      static_cast<const ImportMessage &>(from));
+void ImportMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<ImportMessage *>(to)->MergeFrom(static_cast<const ImportMessage &>(from));
 }
 
 

@@ -15,7 +15,6 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace strings_internal {
-
 // StringConstant<T> represents a compile time string constant.
 // It can be accessed via its `absl::string_view value` static member.
 // It is guaranteed that the `string_view` returned has constant `.data()`,
@@ -27,15 +26,12 @@ namespace strings_internal {
 //
 // Instances should be made using the `MakeStringConstant()` factory function
 // below.
-template <typename T>
-struct StringConstant {
-  static constexpr absl::string_view value = T{}();
-  constexpr absl::string_view operator()() const { return value; }
-
-  // Check to be sure `view` points to constant data.
-  // Otherwise, it can't be constant evaluated.
-  static_assert(value.empty() || 2 * value[0] != 1,
-                "The input string_view must point to constant data.");
+template <typename T> struct StringConstant {
+	static constexpr absl::string_view value = T{} ();
+	constexpr absl::string_view operator()() const { return value; }
+	// Check to be sure `view` points to constant data.
+	// Otherwise, it can't be constant evaluated.
+	static_assert(value.empty() || 2 * value[0] != 1, "The input string_view must point to constant data.");
 };
 
 template <typename T>
@@ -48,9 +44,8 @@ constexpr absl::string_view StringConstant<T>::value;  // NOLINT
 // data. This is validated at compile time.
 template <typename T>
 constexpr StringConstant<T> MakeStringConstant(T) {
-  return {};
+	return {};
 }
-
 }  // namespace strings_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

@@ -31,7 +31,7 @@ int archive_write_set_format_raw(struct archive * _a)
 	struct raw * raw;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If someone else was already registered, unregister them. */
-	if(a->format_free != NULL)
+	if(a->format_free)
 		(a->format_free)(a);
 	raw = (struct raw *)SAlloc::C(1, sizeof(*raw));
 	if(raw == NULL) {

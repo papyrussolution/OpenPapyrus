@@ -5,12 +5,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     >
-    <TextView
+    <TextView style="@style/GenericListItemText"
         android:id="@+id/LVITEM_GENERICNAME"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:minHeight="32dp"
-        android:layout_marginLeft="2dp"
-        android:textColor="@color/TextPrimary"
         />
 </LinearLayout>

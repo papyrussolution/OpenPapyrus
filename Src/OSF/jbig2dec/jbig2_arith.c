@@ -169,7 +169,7 @@ Jbig2ArithState * jbig2_arith_new(Jbig2Ctx * ctx, Jbig2WordStream * ws)
 {
 	int ret;
 	Jbig2ArithState * result = jbig2_new(ctx, Jbig2ArithState, 1);
-	if(result == NULL) {
+	if(!result) {
 		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate arithmetic coding state");
 		return NULL;
 	}

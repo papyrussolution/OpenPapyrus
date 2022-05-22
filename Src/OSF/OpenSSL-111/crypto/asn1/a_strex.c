@@ -8,25 +8,15 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <asn1_int.h>
-//#include <openssl/crypto.h>
-//#include <openssl/x509.h>
-//#include <openssl/asn1.h>
 #include "charmap.h"
 /*
  * ASN1_STRING_print_ex() and X509_NAME_print_ex(). Enhanced string and name
  * printing routines handling multibyte characters, RFC2253 and a host of
  * other options.
  */
-
 #define CHARTYPE_BS_ESC         (ASN1_STRFLGS_ESC_2253 | CHARTYPE_FIRST_ESC_2253 | CHARTYPE_LAST_ESC_2253)
 
-#define ESC_FLAGS (ASN1_STRFLGS_ESC_2253 | \
-	ASN1_STRFLGS_ESC_2254 | \
-	ASN1_STRFLGS_ESC_QUOTE | \
-	ASN1_STRFLGS_ESC_CTRL | \
-	ASN1_STRFLGS_ESC_MSB)
-
+#define ESC_FLAGS (ASN1_STRFLGS_ESC_2253 | ASN1_STRFLGS_ESC_2254 | ASN1_STRFLGS_ESC_QUOTE | ASN1_STRFLGS_ESC_CTRL | ASN1_STRFLGS_ESC_MSB)
 /*
  * Three IO functions for sending data to memory, a BIO and and a FILE
  * pointer.

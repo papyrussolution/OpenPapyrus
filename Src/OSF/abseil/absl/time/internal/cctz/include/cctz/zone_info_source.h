@@ -6,41 +6,32 @@
 //
 //   https://www.apache.org/licenses/LICENSE-2.0
 //
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
-
 #ifndef ABSL_TIME_INTERNAL_CCTZ_ZONE_INFO_SOURCE_H_
 #define ABSL_TIME_INTERNAL_CCTZ_ZONE_INFO_SOURCE_H_
 
-#include <cstddef>
-#include <functional>
-#include <memory>
-#include <string>
-
+//#include <cstddef>
+//#include <functional>
+//#include <memory>
+//#include <string>
 #include "absl/base/config.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace time_internal {
 namespace cctz {
-
 // A stdio-like interface for providing zoneinfo data for a particular zone.
 class ZoneInfoSource {
- public:
-  virtual ~ZoneInfoSource();
+public:
+	virtual ~ZoneInfoSource();
 
-  virtual std::size_t Read(void* ptr, std::size_t size) = 0;  // like fread()
-  virtual int Skip(std::size_t offset) = 0;                   // like fseek()
+	virtual std::size_t Read(void* ptr, std::size_t size) = 0; // like fread()
+	virtual int Skip(std::size_t offset) = 0;             // like fseek()
 
-  // Until the zoneinfo data supports versioning information, we provide
-  // a way for a ZoneInfoSource to indicate it out-of-band.  The default
-  // implementation returns an empty string.
-  virtual std::string Version() const;
+	// Until the zoneinfo data supports versioning information, we provide
+	// a way for a ZoneInfoSource to indicate it out-of-band.  The default
+	// implementation returns an empty string.
+	virtual std::string Version() const;
 };
-
 }  // namespace cctz
 }  // namespace time_internal
 ABSL_NAMESPACE_END
@@ -50,15 +41,14 @@ namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace time_internal {
 namespace cctz_extension {
-
 // A function-pointer type for a factory that returns a ZoneInfoSource
 // given the name of a time zone and a fallback factory.  Returns null
 // when the data for the named zone cannot be found.
 using ZoneInfoSourceFactory =
     std::unique_ptr<absl::time_internal::cctz::ZoneInfoSource> (*)(
-        const std::string &,
-        const std::function<std::unique_ptr<
-            absl::time_internal::cctz::ZoneInfoSource>(const std::string &)>&);
+	const std::string &,
+	const std::function<std::unique_ptr<
+		absl::time_internal::cctz::ZoneInfoSource>(const std::string &)>&);
 
 // The user can control the mapping of zone names to zoneinfo data by
 // providing a definition for cctz_extension::zone_info_source_factory.
@@ -93,7 +83,6 @@ using ZoneInfoSourceFactory =
 // and it is used automatically when no zone_info_source_factory definition
 // is linked into the program.
 extern ZoneInfoSourceFactory zone_info_source_factory;
-
 }  // namespace cctz_extension
 }  // namespace time_internal
 ABSL_NAMESPACE_END

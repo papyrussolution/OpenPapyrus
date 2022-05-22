@@ -186,8 +186,7 @@ struct BufferEquivalent {
 		return false;
 	}
 };
-
-//////////////////
+//
 // Window map tells CWinMgr how to position dialog controls
 //
 BEGIN_WINDOW_MAP(WindowsDlgMap)

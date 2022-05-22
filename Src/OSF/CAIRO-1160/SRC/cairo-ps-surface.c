@@ -505,7 +505,7 @@ static cairo_status_t _cairo_ps_surface_emit_truetype_font_subset(cairo_ps_surfa
 	if(font_subset->is_latin) {
 		for(i = 1; i < 256; i++) {
 			if(font_subset->latin_to_subset_glyph_index[i] > 0) {
-				if(font_subset->glyph_names != NULL) {
+				if(font_subset->glyph_names) {
 					_cairo_output_stream_printf(surface->final_stream, "Encoding %d /%s put\n", i, font_subset->glyph_names[font_subset->latin_to_subset_glyph_index[i]]);
 				}
 				else {
@@ -516,7 +516,7 @@ static cairo_status_t _cairo_ps_surface_emit_truetype_font_subset(cairo_ps_surfa
 	}
 	else {
 		for(i = 1; i < font_subset->num_glyphs; i++) {
-			if(font_subset->glyph_names != NULL) {
+			if(font_subset->glyph_names) {
 				_cairo_output_stream_printf(surface->final_stream, "Encoding %d /%s put\n", i, font_subset->glyph_names[i]);
 			}
 			else {
@@ -526,7 +526,7 @@ static cairo_status_t _cairo_ps_surface_emit_truetype_font_subset(cairo_ps_surfa
 	}
 	_cairo_output_stream_printf(surface->final_stream, "/CharStrings %d dict dup begin\n/.notdef 0 def\n", font_subset->num_glyphs);
 	for(i = 1; i < font_subset->num_glyphs; i++) {
-		if(font_subset->glyph_names != NULL) {
+		if(font_subset->glyph_names) {
 			_cairo_output_stream_printf(surface->final_stream, "/%s %d def\n", font_subset->glyph_names[i], i);
 		}
 		else {
@@ -638,7 +638,7 @@ static cairo_status_t _cairo_ps_surface_emit_type3_font_subset(cairo_ps_surface_
 		return status;
 
 	for(i = 0; i < font_subset->num_glyphs; i++) {
-		if(font_subset->glyph_names != NULL) {
+		if(font_subset->glyph_names) {
 			_cairo_output_stream_printf(surface->final_stream, "Encoding %d /%s put\n", i, font_subset->glyph_names[i]);
 		}
 		else {
@@ -908,7 +908,7 @@ static cairo_surface_t * _cairo_ps_surface_create_for_stream_internal(cairo_outp
 {
 	cairo_status_t status, status_ignored;
 	cairo_ps_surface_t * surface = (cairo_ps_surface_t *)_cairo_malloc(sizeof(cairo_ps_surface_t));
-	if(UNLIKELY(surface == NULL)) {
+	if(UNLIKELY(!surface)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto CLEANUP;
 	}

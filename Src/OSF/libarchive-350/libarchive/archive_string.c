@@ -56,22 +56,13 @@ struct archive_string_conv {
 	/* Set 1 if from_charset and to_charset are the same. */
 	int same;
 	int flag;
-#define SCONV_TO_CHARSET        1       /* MBS is being converted to specified
-	                                 * charset. */
-#define SCONV_FROM_CHARSET      (1<<1)  /* MBS is being converted from
-	                                 * specified charset. */
+#define SCONV_TO_CHARSET        1       /* MBS is being converted to specified charset. */
+#define SCONV_FROM_CHARSET      (1<<1)  /* MBS is being converted from specified charset. */
 #define SCONV_BEST_EFFORT       (1<<2)  /* Copy at least ASCII code. */
-#define SCONV_WIN_CP            (1<<3)  /* Use Windows API for converting
-	                                 * MBS. */
-#define SCONV_UTF8_LIBARCHIVE_2 (1<<4)  /* Incorrect UTF-8 made by libarchive
-	                                 * 2.x in the wrong assumption. */
-#define SCONV_NORMALIZATION_C   (1<<6)  /* Need normalization to be Form C.
-	                                 * Before UTF-8 characters are actually
-	                                 * processed. */
-#define SCONV_NORMALIZATION_D   (1<<7)  /* Need normalization to be Form D.
-	                                 * Before UTF-8 characters are actually
-	                                 * processed.
-	                                 * Currently this only for MAC OS X. */
+#define SCONV_WIN_CP            (1<<3)  /* Use Windows API for converting MBS. */
+#define SCONV_UTF8_LIBARCHIVE_2 (1<<4)  /* Incorrect UTF-8 made by libarchive 2.x in the wrong assumption. */
+#define SCONV_NORMALIZATION_C   (1<<6)  /* Need normalization to be Form C. Before UTF-8 characters are actually processed. */
+#define SCONV_NORMALIZATION_D   (1<<7)  /* Need normalization to be Form D. Before UTF-8 characters are actually processed. Currently this only for MAC OS X. */
 #define SCONV_TO_UTF8           (1<<8)  /* "to charset" side is UTF-8. */
 #define SCONV_FROM_UTF8         (1<<9)  /* "from charset" side is UTF-8. */
 #define SCONV_TO_UTF16BE        (1<<10) /* "to charset" side is UTF-16BE. */
@@ -83,8 +74,7 @@ struct archive_string_conv {
 
 #if HAVE_ICONV
 	iconv_t cd;
-	iconv_t cd_w;                         /* Use at archive_mstring on
-	                                       * Windows. */
+	iconv_t cd_w; /* Use at archive_mstring on Windows. */
 #endif
 	/* A temporary buffer for normalization. */
 	struct archive_string utftmp;
@@ -174,13 +164,13 @@ struct archive_string * archive_array_append(struct archive_string * as, const c
 void FASTCALL archive_string_concat(struct archive_string * dest, struct archive_string * src)
 {
 	if(archive_string_append(dest, src->s, src->length) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx(1, SlTxtOutOfMem);
 }
 
 void FASTCALL archive_wstring_concat(struct archive_wstring * dest, struct archive_wstring * src)
 {
 	if(archive_wstring_append(dest, src->s, src->length) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx(1, SlTxtOutOfMem);
 }
 
 void FASTCALL archive_string_free(struct archive_string * as)
@@ -272,7 +262,7 @@ struct archive_string * STDCALL archive_strncat(struct archive_string * as, cons
 		s++;
 	}
 	if((as = archive_string_append(as, p, s)) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return (as);
 }
 
@@ -286,7 +276,7 @@ struct archive_wstring * STDCALL archive_wstrncat(struct archive_wstring * as, c
 		s++;
 	}
 	if((as = archive_wstring_append(as, p, s)) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return (as);
 }
 
@@ -310,14 +300,14 @@ struct archive_wstring * FASTCALL archive_wstrcat(struct archive_wstring * as, c
 struct archive_string * archive_strappend_char(struct archive_string * as, char c) 
 {
 	if((as = archive_string_append(as, &c, 1)) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return (as);
 }
 
 struct archive_wstring * archive_wstrappend_wchar(struct archive_wstring * as, wchar_t c) 
 {
 	if((as = archive_wstring_append(as, &c, 1)) == NULL)
-		__archive_errx(1, "Out of memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return (as);
 }
 /*
@@ -1978,7 +1968,6 @@ static int best_effort_strncat_in_locale(struct archive_string * as, const void 
 	 * byte sequence 0xEF 0xBD 0xBD, which are code point U+FFFD,
 	 * a Replacement Character in Unicode.
 	 */
-
 	remaining = length;
 	itp = (const uint8 *)_p;
 	while(*itp && remaining > 0) {
@@ -1986,7 +1975,7 @@ static int best_effort_strncat_in_locale(struct archive_string * as, const void 
 			// Non-ASCII: Substitute with suitable replacement
 			if(sc->flag & SCONV_TO_UTF8) {
 				if(archive_string_append(as, utf8_replacement_char, sizeof(utf8_replacement_char)) == NULL) {
-					__archive_errx(1, "Out of memory");
+					__archive_errx(1, SlTxtOutOfMem);
 				}
 			}
 			else {
@@ -2042,7 +2031,6 @@ static int _utf8_to_unicode(uint32 * pwc, const char * s, size_t n)
 	int ch, i;
 	int cnt;
 	uint32 wc;
-
 	/* Sanity check. */
 	if(n == 0)
 		return 0;
@@ -2053,8 +2041,7 @@ static int _utf8_to_unicode(uint32 * pwc, const char * s, size_t n)
 	if(ch == 0)
 		return 0; /* Standard:  return 0 for end-of-string. */
 	cnt = utf8_count[ch];
-
-	/* Invalid sequence or there are not plenty bytes. */
+	// Invalid sequence or there are not plenty bytes
 	if((int)n < cnt) {
 		cnt = (int)n;
 		for(i = 1; i < cnt; i++) {
@@ -2065,8 +2052,7 @@ static int _utf8_to_unicode(uint32 * pwc, const char * s, size_t n)
 		}
 		goto invalid_sequence;
 	}
-
-	/* Make a Unicode code point from a single UTF-8 sequence. */
+	// Make a Unicode code point from a single UTF-8 sequence
 	switch(cnt) {
 		case 1: /* 1 byte sequence. */
 		    *pwc = ch & 0x7f;
@@ -2087,9 +2073,7 @@ static int _utf8_to_unicode(uint32 * pwc, const char * s, size_t n)
 			    cnt = 2;
 			    goto invalid_sequence;
 		    }
-		    wc = ((ch & 0x0f) << 12)
-			| ((s[1] & 0x3f) << 6)
-			| (s[2] & 0x3f);
+		    wc = ((ch & 0x0f) << 12) | ((s[1] & 0x3f) << 6) | (s[2] & 0x3f);
 		    if(wc < 0x800)
 			    goto invalid_sequence; /* Overlong sequence. */
 		    break;
@@ -2106,10 +2090,7 @@ static int _utf8_to_unicode(uint32 * pwc, const char * s, size_t n)
 			    cnt = 3;
 			    goto invalid_sequence;
 		    }
-		    wc = ((ch & 0x07) << 18)
-			| ((s[1] & 0x3f) << 12)
-			| ((s[2] & 0x3f) << 6)
-			| (s[3] & 0x3f);
+		    wc = ((ch & 0x07) << 18) | ((s[1] & 0x3f) << 12) | ((s[2] & 0x3f) << 6) | (s[3] & 0x3f);
 		    if(wc < 0x10000)
 			    goto invalid_sequence; /* Overlong sequence. */
 		    break;
@@ -2149,9 +2130,7 @@ invalid_sequence:
 
 static int utf8_to_unicode(uint32 * pwc, const char * s, size_t n)
 {
-	int cnt;
-
-	cnt = _utf8_to_unicode(pwc, s, n);
+	int cnt = _utf8_to_unicode(pwc, s, n);
 	/* Any of Surrogate pair is not legal Unicode values. */
 	if(cnt == 3 && IS_SURROGATE_PAIR_LA(*pwc))
 		return (-3);
@@ -2179,9 +2158,7 @@ static inline uint32 combine_surrogate_pair(uint32 uc, uint32 uc2)
 static int cesu8_to_unicode(uint32 * pwc, const char * s, size_t n)
 {
 	uint32 wc = 0;
-	int cnt;
-
-	cnt = _utf8_to_unicode(&wc, s, n);
+	int cnt = _utf8_to_unicode(&wc, s, n);
 	if(cnt == 3 && IS_HIGH_SURROGATE_LA(wc)) {
 		uint32 wc2 = 0;
 		if(n - 3 < 3) {
@@ -2208,7 +2185,6 @@ invalid_sequence:
 		cnt *= -1;
 	return (cnt);
 }
-
 /*
  * Convert a Unicode code point to a single UTF-8 sequence.
  *
@@ -2218,7 +2194,6 @@ invalid_sequence:
 static size_t unicode_to_utf8(char * p, size_t remaining, uint32 uc)
 {
 	char * _p = p;
-
 	/* Invalid Unicode char maps to Replacement character */
 	if(uc > UNICODE_MAX)
 		uc = UNICODE_R_CHAR;
@@ -2266,7 +2241,6 @@ static int utf16_to_unicode(uint32 * pwc, const char * s, size_t n, int be)
 {
 	const char * utf16 = s;
 	unsigned uc;
-
 	if(n == 0)
 		return 0;
 	if(n == 1) {
@@ -2274,17 +2248,14 @@ static int utf16_to_unicode(uint32 * pwc, const char * s, size_t n, int be)
 		*pwc = UNICODE_R_CHAR;
 		return -1;
 	}
-
 	if(be)
 		uc = archive_be16dec(utf16);
 	else
 		uc = archive_le16dec(utf16);
 	utf16 += 2;
-
 	/* If this is a surrogate pair, assemble the full code point.*/
 	if(IS_HIGH_SURROGATE_LA(uc)) {
 		unsigned uc2;
-
 		if(n >= 4) {
 			if(be)
 				uc2 = archive_be16dec(utf16);
@@ -2304,7 +2275,6 @@ static int utf16_to_unicode(uint32 * pwc, const char * s, size_t n, int be)
 			return (-2);
 		}
 	}
-
 	/*
 	 * Surrogate pair values(0xd800 through 0xdfff) are only
 	 * used by UTF-16, so, after above calculation, the code
@@ -2325,7 +2295,6 @@ static int utf16_to_unicode(uint32 * pwc, const char * s, size_t n, int be)
 static size_t unicode_to_utf16be(char * p, size_t remaining, uint32 uc)
 {
 	char * utf16 = p;
-
 	if(uc > 0xffff) {
 		/* We have a code point that won't fit into a
 		* wchar_t; convert it to a surrogate pair. */
@@ -2374,12 +2343,9 @@ static int strncat_from_utf8_to_utf8(struct archive_string * as, const void * _p
 	const char * s;
 	char * p, * endp;
 	int n, ret = 0;
-
 	CXX_UNUSED(sc);
-
 	if(archive_string_ensure(as, as->length + len + 1) == NULL)
 		return -1;
-
 	s = (const char *)_p;
 	p = as->s + as->length;
 	endp = as->s + as->buffer_length -1;
@@ -2387,7 +2353,6 @@ static int strncat_from_utf8_to_utf8(struct archive_string * as, const void * _p
 		uint32 uc;
 		const char * ss = s;
 		size_t w;
-
 		/*
 		 * Forward byte sequence until a conversion of that is needed.
 		 */
@@ -2545,10 +2510,8 @@ static int archive_string_append_unicode(struct archive_string * as, const void 
 
 static uint32 get_nfc(uint32 uc, uint32 uc2)
 {
-	int t, b;
-
-	t = 0;
-	b = sizeof(u_composition_table)/sizeof(u_composition_table[0]) -1;
+	int t = 0;
+	int b = sizeof(u_composition_table)/sizeof(u_composition_table[0]) -1;
 	while(b >= t) {
 		int m = (t + b) / 2;
 		if(u_composition_table[m].cp1 < uc)
@@ -2565,17 +2528,11 @@ static uint32 get_nfc(uint32 uc, uint32 uc2)
 	return 0;
 }
 
-#define FDC_MAX 10      /* The maximum number of Following Decomposable
-	                 * Characters. */
-
+#define FDC_MAX 10 // The maximum number of Following Decomposable Characters
 /*
  * Update first code point.
  */
-#define UPDATE_UC(new_uc)       do {            \
-		uc = new_uc;                            \
-		ucptr = NULL;                           \
-} while(0)
-
+#define UPDATE_UC(new_uc) do { uc = new_uc; ucptr = NULL; } while(0)
 /*
  * Replace first code point with second code point.
  */
@@ -2712,15 +2669,12 @@ static int archive_string_normalize_C(struct archive_string * as, const void * _
 		tm = ts;
 		spair = 6; /* surrogate pair size in UTF-8. */
 	}
-
 	if(archive_string_ensure(as, as->length + len * tm + ts) == NULL)
 		return -1;
-
 	p = as->s + as->length;
 	endp = as->s + as->buffer_length - ts;
 	while((n = parse(&uc, s, len)) != 0) {
 		const char * ucptr, * uc2ptr;
-
 		if(n < 0) {
 			/* Use a replaced unicode character. */
 			UNPARSE(p, endp, uc);

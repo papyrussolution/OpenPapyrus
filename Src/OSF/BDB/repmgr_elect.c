@@ -416,7 +416,7 @@ static int send_membership(ENV*env)
 	ret = __repmgr_bcast_own_msg(env, REPMGR_SHARING, buf, len);
 out:
 	UNLOCK_MUTEX(db_rep->mutex);
-	if(buf != NULL)
+	if(buf)
 		__os_free(env, buf);
 	return ret;
 }

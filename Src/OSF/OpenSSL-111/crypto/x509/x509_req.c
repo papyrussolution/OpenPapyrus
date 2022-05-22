@@ -48,7 +48,7 @@ X509_REQ * X509_to_X509_REQ(X509 * x, EVP_PKEY * pkey, const EVP_MD * md)
 	if(!i)
 		goto err;
 
-	if(pkey != NULL) {
+	if(pkey) {
 		if(!X509_REQ_sign(ret, pkey, md))
 			goto err;
 	}

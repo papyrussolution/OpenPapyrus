@@ -136,14 +136,13 @@ int archive_read_support_filter_program_signature(struct archive * _a,
 	return set_bidder_signature(bidder, state, signature, signature_len);
 memerr:
 	free_state(state);
-	archive_set_error(_a, ENOMEM, "Out of memory");
+	archive_set_error(_a, ENOMEM, SlTxtOutOfMem);
 	return ARCHIVE_FATAL;
 }
 
 static int program_bidder_free(struct archive_read_filter_bidder * self)
 {
 	struct program_bidder * state = (struct program_bidder *)self->data;
-
 	free_state(state);
 	return ARCHIVE_OK;
 }

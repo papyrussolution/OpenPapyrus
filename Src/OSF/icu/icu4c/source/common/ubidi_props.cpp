@@ -57,7 +57,7 @@ U_CFUNC void ubidi_addPropertyStarts(const USetAdder * sa, UErrorCode * pErrorCo
 
 	/* add the code points from the bidi mirroring table */
 	length = ubidi_props_singleton.indexes[UBIDI_IX_MIRROR_LENGTH];
-	for(i = 0; i<length; ++i) {
+	for(i = 0; i < length; ++i) {
 		c = UBIDI_GET_MIRROR_CODE_POINT(ubidi_props_singleton.mirrors[i]);
 		sa->addRange(sa->set, c, c+1);
 	}
@@ -140,7 +140,7 @@ static UChar32 getMirror(UChar32 c, uint16 props) {
 		length = ubidi_props_singleton.indexes[UBIDI_IX_MIRROR_LENGTH];
 
 		/* linear search */
-		for(i = 0; i<length; ++i) {
+		for(i = 0; i < length; ++i) {
 			m = mirrors[i];
 			c2 = UBIDI_GET_MIRROR_CODE_POINT(m);
 			if(c==c2) {

@@ -350,6 +350,9 @@
     <ProjectReference Include="tidy5917.vcxproj">
       <Project>{a98bf14b-99ef-3b8d-9a7e-e6db5c834ec9}</Project>
     </ProjectReference>
+    <ProjectReference Include="zstd-sl-lib.vcxproj">
+      <Project>{901495e1-9cc5-40c4-aa96-edff1b260ce8}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\Mailspring-Sync\MailSync\constants.h" />

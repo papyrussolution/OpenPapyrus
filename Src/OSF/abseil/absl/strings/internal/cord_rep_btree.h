@@ -9,9 +9,9 @@
 #ifndef ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_H_
 #define ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_H_
 
-#include <cassert>
-#include <cstdint>
-#include <iosfwd>
+//#include <cassert>
+//#include <cstdint>
+//#include <iosfwd>
 #include "absl/base/config.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/base/optimization.h"
@@ -869,12 +869,14 @@ inline CordRepBtree::Position CordRepBtree::IndexBeyond(const size_t offset) con
 	return {index, off - offset};
 }
 
-inline CordRepBtree* CordRepBtree::Create(CordRep* rep) {
+inline CordRepBtree* CordRepBtree::Create(CordRep* rep) 
+{
 	if(IsDataEdge(rep)) return New(rep);
 	return CreateSlow(rep);
 }
 
-inline Span<char> CordRepBtree::GetAppendBuffer(size_t size) {
+inline Span<char> CordRepBtree::GetAppendBuffer(size_t size) 
+{
 	assert(refcount.IsOne());
 	CordRepBtree* tree = this;
 	const int height = this->height();
@@ -884,22 +886,27 @@ inline Span<char> CordRepBtree::GetAppendBuffer(size_t size) {
 	switch(height) {
 		case 3:
 		    tree = tree->Edge(kBack)->btree();
-		    if(!tree->refcount.IsOne()) return {};
+		    if(!tree->refcount.IsOne()) 
+				return {};
 		    n2 = tree;
-		    ABSL_FALLTHROUGH_INTENDED;
+		    CXX_FALLTHROUGH;
 		case 2:
 		    tree = tree->Edge(kBack)->btree();
-		    if(!tree->refcount.IsOne()) return {};
+		    if(!tree->refcount.IsOne()) 
+				return {};
 		    n1 = tree;
-		    ABSL_FALLTHROUGH_INTENDED;
+		    CXX_FALLTHROUGH;
 		case 1:
 		    tree = tree->Edge(kBack)->btree();
-		    if(!tree->refcount.IsOne()) return {};
-		    ABSL_FALLTHROUGH_INTENDED;
+		    if(!tree->refcount.IsOne()) 
+				return {};
+		    CXX_FALLTHROUGH;
 		case 0:
 		    CordRep* edge = tree->Edge(kBack);
-		    if(!edge->refcount.IsOne()) return {};
-		    if(edge->tag < FLAT) return {};
+		    if(!edge->refcount.IsOne()) 
+				return {};
+		    if(edge->tag < FLAT) 
+				return {};
 		    size_t avail = edge->flat()->Capacity() - edge->length;
 		    if(avail == 0) return {};
 		    size_t delta = (std::min)(size, avail);
@@ -907,17 +914,17 @@ inline Span<char> CordRepBtree::GetAppendBuffer(size_t size) {
 		    edge->length += delta;
 		    switch(height) {
 			    case 3:
-				n3->length += delta;
-				ABSL_FALLTHROUGH_INTENDED;
+					n3->length += delta;
+					CXX_FALLTHROUGH;
 			    case 2:
-				n2->length += delta;
-				ABSL_FALLTHROUGH_INTENDED;
+					n2->length += delta;
+					CXX_FALLTHROUGH;
 			    case 1:
-				n1->length += delta;
-				ABSL_FALLTHROUGH_INTENDED;
+					n1->length += delta;
+					CXX_FALLTHROUGH;
 			    case 0:
-				tree->length += delta;
-				return span;
+					tree->length += delta;
+					return span;
 		    }
 		    break;
 	}
@@ -925,10 +932,10 @@ inline Span<char> CordRepBtree::GetAppendBuffer(size_t size) {
 }
 
 extern template CordRepBtree* CordRepBtree::AddCordRep<CordRepBtree::kBack>(CordRepBtree* tree, CordRep* rep);
-
 extern template CordRepBtree* CordRepBtree::AddCordRep<CordRepBtree::kFront>(CordRepBtree* tree, CordRep* rep);
 
-inline CordRepBtree* CordRepBtree::Append(CordRepBtree* tree, CordRep* rep) {
+inline CordRepBtree* CordRepBtree::Append(CordRepBtree* tree, CordRep* rep) 
+{
 	if(ABSL_PREDICT_TRUE(IsDataEdge(rep))) {
 		return CordRepBtree::AddCordRep<kBack>(tree, rep);
 	}

@@ -9,9 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "dsa_locl.h"
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
-//#include <openssl/rand.h>
 
 ASN1_SEQUENCE(DSA_SIG) = {
 	ASN1_SIMPLE(DSA_SIG, r, CBIGNUM),
@@ -23,14 +20,14 @@ IMPLEMENT_ASN1_ENCODE_FUNCTIONS_const_fname(DSA_SIG, DSA_SIG, DSA_SIG)
 DSA_SIG *DSA_SIG_new(void)
 {
 	DSA_SIG * sig = static_cast<DSA_SIG *>(OPENSSL_zalloc(sizeof(*sig)));
-	if(sig == NULL)
+	if(!sig)
 		DSAerr(DSA_F_DSA_SIG_NEW, ERR_R_MALLOC_FAILURE);
 	return sig;
 }
 
 void DSA_SIG_free(DSA_SIG * sig)
 {
-	if(sig == NULL)
+	if(!sig)
 		return;
 	BN_clear_free(sig->r);
 	BN_clear_free(sig->s);
@@ -110,7 +107,7 @@ DSA *DSAparams_dup(DSA *dsa)
 int DSA_sign(int type, const uchar * dgst, int dlen, uchar * sig, uint * siglen, DSA * dsa)
 {
 	DSA_SIG * s = DSA_do_sign(dgst, dlen, dsa);
-	if(s == NULL) {
+	if(!s) {
 		*siglen = 0;
 		return 0;
 	}
@@ -136,7 +133,7 @@ int DSA_verify(int type, const uchar * dgst, int dgst_len,
 	int ret = -1;
 
 	s = DSA_SIG_new();
-	if(s == NULL)
+	if(!s)
 		return ret;
 	if(d2i_DSA_SIG(&s, &p, siglen) == NULL)
 		goto err;

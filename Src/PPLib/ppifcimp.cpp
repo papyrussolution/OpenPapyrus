@@ -1833,7 +1833,7 @@ IStrAssocList* DL6ICLS_PPSession::GetDatabaseList(int32 nameKind)
 			lo = DbLoginBlockArray::loUseDbSymb;
 		THROW(ini_file.IsValid());
 		THROW(set.ReadFromProfile(&ini_file, 0, 0));
-		THROW(set.MakeList(p_list_env, lo));
+		THROW(set.MakeList(p_list_env, lo, 0));
 	}
 	CATCH
 		ReleaseUnknObj(&p);

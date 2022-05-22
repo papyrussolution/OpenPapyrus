@@ -589,7 +589,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION * session, const char * u
 			LIBSSH2_FREE(session, session->userauth_host_method);
 			session->userauth_host_method = NULL;
 			LIBSSH2_FREE(session, pubkeydata);
-			return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Out of memory");
+			return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, SlTxtOutOfMem);
 		}
 		*(session->userauth_host_s++) = SSH_MSG_USERAUTH_REQUEST;
 		_libssh2_store_str(&session->userauth_host_s, username, username_len);
@@ -771,7 +771,7 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session, const char * username
 		if(!session->userauth_pblc_packet) {
 			LIBSSH2_FREE(session, session->userauth_pblc_method);
 			session->userauth_pblc_method = NULL;
-			return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Out of memory");
+			return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, SlTxtOutOfMem);
 		}
 		*s++ = SSH_MSG_USERAUTH_REQUEST;
 		_libssh2_store_str(&s, username, username_len);

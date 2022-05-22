@@ -15,14 +15,8 @@
 #ifndef WEBP_DSP_LOSSLESS_H_
 #define WEBP_DSP_LOSSLESS_H_
 
-//#include "src/webp/types.h"
 #include "src/webp/decode.h"
 #include "src/enc/histogram_enc.h"
-//#include "src/utils/utils.h"
-
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
 //
 // Decoding
 //
@@ -218,7 +212,4 @@ void VP8LBundleColorMap_C(const uint8* const row, int width, int xbits, uint32_t
 // Must be called before calling any of the above methods.
 void VP8LEncDspInit(void);
 
-//#ifdef __cplusplus
-//}    // extern "C"
-//#endif
 #endif  // WEBP_DSP_LOSSLESS_H_

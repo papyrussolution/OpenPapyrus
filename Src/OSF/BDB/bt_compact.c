@@ -2154,7 +2154,7 @@ again:
 	}
 err:
 	sflag = (txn && ret != 0) ? STK_PGONLY : 0;
-	if(txn == NULL) {
+	if(!txn) {
 		if((t_ret = __LPUT(dbc, meta_lock)) != 0 && ret == 0)
 			ret = t_ret;
 		if((t_ret = __LPUT(dbc, root_lock)) != 0 && ret == 0)

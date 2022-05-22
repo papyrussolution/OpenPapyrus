@@ -1,13 +1,7 @@
+// rbbitblb.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (c) 2002-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- */
-//
-//  rbbitblb.cpp
+// Copyright (c) 2002-2016, International Business Machines Corporation and others.  All Rights Reserved.
 //
 #include <icu-internal.h>
 #pragma hdrstop
@@ -24,12 +18,9 @@ U_NAMESPACE_BEGIN
 
 const int32_t kMaxStateFor8BitsTable = 255;
 
-RBBITableBuilder::RBBITableBuilder(RBBIRuleBuilder * rb, RBBINode ** rootNode, UErrorCode & status) :
-	fRB(rb),
-	fTree(*rootNode),
-	fStatus(&status),
-	fDStates(nullptr),
-	fSafeTable(nullptr) {
+RBBITableBuilder::RBBITableBuilder(RBBIRuleBuilder * rb, RBBINode ** rootNode, UErrorCode & status) : 
+	fRB(rb), fTree(*rootNode), fStatus(&status), fDStates(nullptr), fSafeTable(nullptr) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -40,7 +31,8 @@ RBBITableBuilder::RBBITableBuilder(RBBIRuleBuilder * rb, RBBINode ** rootNode, U
 	}
 }
 
-RBBITableBuilder::~RBBITableBuilder() {
+RBBITableBuilder::~RBBITableBuilder() 
+{
 	int i;
 	for(i = 0; i<fDStates->size(); i++) {
 		delete (RBBIStateDescriptor*)fDStates->elementAt(i);
@@ -74,7 +66,6 @@ void RBBITableBuilder::buildForwardTable()
 		RBBINode::printTree(fTree, TRUE);
 	}
 #endif
-
 	//
 	// If the rules contained any references to {bof}
 	//   add a {bof} <cat> <former root of tree> to the
@@ -292,29 +283,21 @@ void RBBITableBuilder::calcLastPos(RBBINode * n)
 		setAdd(n->fLastPosSet, n->fLeftChild->fLastPosSet);
 	}
 }
-
-//-----------------------------------------------------------------------------
 //
 //   calcFollowPos.    Impossible to explain succinctly.  See Aho, section 3.9
 //
-//-----------------------------------------------------------------------------
-void RBBITableBuilder::calcFollowPos(RBBINode * n) {
-	if(n == NULL ||
-	    n->fType == RBBINode::leafChar ||
-	    n->fType == RBBINode::endMark) {
+void RBBITableBuilder::calcFollowPos(RBBINode * n) 
+{
+	if(n == NULL || n->fType == RBBINode::leafChar || n->fType == RBBINode::endMark) {
 		return;
 	}
-
 	calcFollowPos(n->fLeftChild);
 	calcFollowPos(n->fRightChild);
-
 	// Aho rule #1
 	if(n->fType == RBBINode::opCat) {
 		RBBINode * i; // is 'i' in Aho's description
 		uint32_t ix;
-
 		UVector * LastPosOfLeftChild = n->fLeftChild->fLastPosSet;
-
 		for(ix = 0; ix<(uint32_t)LastPosOfLeftChild->size(); ix++) {
 			i = (RBBINode*)LastPosOfLeftChild->elementAt(ix);
 			setAdd(i->fFollowPos, n->fRightChild->fFirstPosSet);
@@ -333,14 +316,12 @@ void RBBITableBuilder::calcFollowPos(RBBINode * n) {
 		}
 	}
 }
-
-//-----------------------------------------------------------------------------
 //
 //    addRuleRootNodes    Recursively walk a parse tree, adding all nodes flagged
 //                        as roots of a rule to a destination vector.
 //
-//-----------------------------------------------------------------------------
-void RBBITableBuilder::addRuleRootNodes(UVector * dest, RBBINode * node) {
+void RBBITableBuilder::addRuleRootNodes(UVector * dest, RBBINode * node) 
+{
 	if(node == NULL || U_FAILURE(*fStatus)) {
 		return;
 	}
@@ -354,29 +335,24 @@ void RBBITableBuilder::addRuleRootNodes(UVector * dest, RBBINode * node) {
 	addRuleRootNodes(dest, node->fLeftChild);
 	addRuleRootNodes(dest, node->fRightChild);
 }
-
-//-----------------------------------------------------------------------------
 //
 //   calcChainedFollowPos.    Modify the previously calculated followPos sets
 //                            to implement rule chaining.  NOT described by Aho
 //
-//-----------------------------------------------------------------------------
-void RBBITableBuilder::calcChainedFollowPos(RBBINode * tree, RBBINode * endMarkNode) {
+void RBBITableBuilder::calcChainedFollowPos(RBBINode * tree, RBBINode * endMarkNode) 
+{
 	UVector leafNodes(*fStatus);
 	if(U_FAILURE(*fStatus)) {
 		return;
 	}
-
 	// get a list all leaf nodes
 	tree->findNodes(&leafNodes, RBBINode::leafChar, *fStatus);
 	if(U_FAILURE(*fStatus)) {
 		return;
 	}
-
 	// Collect all leaf nodes that can start matches for rules
 	// with inbound chaining enabled, which is the union of the
 	// firstPosition sets from each of the rule root nodes.
-
 	UVector ruleRootNodes(*fStatus);
 	addRuleRootNodes(&ruleRootNodes, tree);
 
@@ -448,8 +424,6 @@ void RBBITableBuilder::calcChainedFollowPos(RBBINode * tree, RBBINode * endMarkN
 		}
 	}
 }
-
-//-----------------------------------------------------------------------------
 //
 //   bofFixup.    Fixup for state tables that include {bof} beginning of input testing.
 //                Do an swizzle similar to chaining, modifying the followPos set of
@@ -458,12 +432,11 @@ void RBBITableBuilder::calcChainedFollowPos(RBBINode * tree, RBBINode * endMarkN
 //
 //                This function has much in common with calcChainedFollowPos().
 //
-//-----------------------------------------------------------------------------
-void RBBITableBuilder::bofFixup() {
+void RBBITableBuilder::bofFixup() 
+{
 	if(U_FAILURE(*fStatus)) {
 		return;
 	}
-
 	//   The parse tree looks like this ...
 	//         fTree root  --->       <cat>
 	//                               /     \       .
@@ -484,7 +457,6 @@ void RBBITableBuilder::bofFixup() {
 	//     part labeled "rest of tree"
 	//
 	UVector * matchStartNodes = fTree->fLeftChild->fRightChild->fFirstPosSet;
-
 	RBBINode * startNode;
 	int startNodeIx;
 	for(startNodeIx = 0; startNodeIx<matchStartNodes->size(); startNodeIx++) {
@@ -492,7 +464,6 @@ void RBBITableBuilder::bofFixup() {
 		if(startNode->fType != RBBINode::leafChar) {
 			continue;
 		}
-
 		if(startNode->fVal == bofNode->fVal) {
 			//  We found a leaf node corresponding to a {bof} that was
 			//    explicitly written into a rule.
@@ -503,8 +474,6 @@ void RBBITableBuilder::bofFixup() {
 		}
 	}
 }
-
-//-----------------------------------------------------------------------------
 //
 //   buildStateTable()    Determine the set of runtime DFA states and the
 //                        transition tables for these states, by the algorithm
@@ -512,8 +481,8 @@ void RBBITableBuilder::bofFixup() {
 //
 //                        Most of the comments are quotes of Aho's psuedo-code.
 //
-//-----------------------------------------------------------------------------
-void RBBITableBuilder::buildStateTable() {
+void RBBITableBuilder::buildStateTable() 
+{
 	if(U_FAILURE(*fStatus)) {
 		return;
 	}
@@ -721,8 +690,6 @@ void RBBITableBuilder::mapLookAheadRules() {
 		}
 	}
 }
-
-//-----------------------------------------------------------------------------
 //
 //   flagAcceptingStates    Identify accepting states.
 //                          First get a list of all of the end marker nodes.
@@ -730,8 +697,8 @@ void RBBITableBuilder::mapLookAheadRules() {
 //                              if s contains one of the end marker nodes in its list of tree positions then
 //                                  s is an accepting state.
 //
-//-----------------------------------------------------------------------------
-void RBBITableBuilder::flagAcceptingStates() {
+void RBBITableBuilder::flagAcceptingStates() 
+{
 	if(U_FAILURE(*fStatus)) {
 		return;
 	}
@@ -739,7 +706,6 @@ void RBBITableBuilder::flagAcceptingStates() {
 	RBBINode    * endMarker;
 	int32_t i;
 	int32_t n;
-
 	if(U_FAILURE(*fStatus)) {
 		return;
 	}
@@ -777,13 +743,11 @@ void RBBITableBuilder::flagAcceptingStates() {
 		}
 	}
 }
-
-//-----------------------------------------------------------------------------
 //
 //    flagLookAheadStates   Very similar to flagAcceptingStates, above.
 //
-//-----------------------------------------------------------------------------
-void RBBITableBuilder::flagLookAheadStates() {
+void RBBITableBuilder::flagLookAheadStates() 
+{
 	if(U_FAILURE(*fStatus)) {
 		return;
 	}
@@ -791,7 +755,6 @@ void RBBITableBuilder::flagLookAheadStates() {
 	RBBINode    * lookAheadNode;
 	int32_t i;
 	int32_t n;
-
 	fTree->findNodes(&lookAheadNodes, RBBINode::lookAhead, *fStatus);
 	if(U_FAILURE(*fStatus)) {
 		return;
@@ -847,8 +810,6 @@ void RBBITableBuilder::flagTaggedStates()
 		}
 	}
 }
-
-//-----------------------------------------------------------------------------
 //
 //  mergeRuleStatusVals
 //
@@ -856,8 +817,8 @@ void RBBITableBuilder::flagTaggedStates()
 //      The rule builder has a global vector of status values that are common
 //      for all tables.  Merge the ones from this table into the global set.
 //
-//-----------------------------------------------------------------------------
-void RBBITableBuilder::mergeRuleStatusVals() {
+void RBBITableBuilder::mergeRuleStatusVals() 
+{
 	//
 	//  The basic outline of what happens here is this...
 	//
@@ -934,18 +895,15 @@ void RBBITableBuilder::mergeRuleStatusVals() {
 		}
 	}
 }
-
-//-----------------------------------------------------------------------------
 //
 //  sortedAdd  Add a value to a vector of sorted values (ints).
 //             Do not replicate entries; if the value is already there, do not
 //                add a second one.
 //             Lazily create the vector if it does not already exist.
 //
-//-----------------------------------------------------------------------------
-void RBBITableBuilder::sortedAdd(UVector ** vector, int32_t val) {
+void RBBITableBuilder::sortedAdd(UVector ** vector, int32_t val) 
+{
 	int32_t i;
-
 	if(*vector == NULL) {
 		*vector = new UVector(*fStatus);
 	}
@@ -966,15 +924,13 @@ void RBBITableBuilder::sortedAdd(UVector ** vector, int32_t val) {
 	}
 	vec->insertElementAt(val, i, *fStatus);
 }
-
-//-----------------------------------------------------------------------------
 //
 //  setAdd     Set operation on UVector
 //             dest = dest union source
 //             Elements may only appear once and must be sorted.
 //
-//-----------------------------------------------------------------------------
-void RBBITableBuilder::setAdd(UVector * dest, UVector * source) {
+void RBBITableBuilder::setAdd(UVector * dest, UVector * source) 
+{
 	U_ASSERT(!dest->hasDeleter());
 	U_ASSERT(!source->hasDeleter());
 	int32_t destOriginalSize = dest->size();
@@ -1034,26 +990,19 @@ void RBBITableBuilder::setAdd(UVector * dest, UVector * source) {
 
 	dest->setSize(di, *fStatus);
 }
-
-//-----------------------------------------------------------------------------
 //
 //  setEqual    Set operation on UVector.
 //              Compare for equality.
 //              Elements must be sorted.
 //
-//-----------------------------------------------------------------------------
-bool RBBITableBuilder::setEquals(UVector * a, UVector * b) {
-	return a->equals(*b);
-}
-
-//-----------------------------------------------------------------------------
+bool RBBITableBuilder::setEquals(UVector * a, UVector * b) { return a->equals(*b); }
 //
 //  printPosSets   Debug function.  Dump Nullable, firstpos, lastpos and followpos
 //                 for each node in the tree.
 //
-//-----------------------------------------------------------------------------
 #ifdef RBBI_DEBUG
-void RBBITableBuilder::printPosSets(RBBINode * n) {
+void RBBITableBuilder::printPosSets(RBBINode * n) 
+{
 	if(n==NULL) {
 		return;
 	}
@@ -1061,29 +1010,23 @@ void RBBITableBuilder::printPosSets(RBBINode * n) {
 	RBBINode::printNodeHeader();
 	RBBINode::printNode(n);
 	RBBIDebugPrintf("         Nullable:  %s\n", n->fNullable ? "TRUE" : "FALSE");
-
 	RBBIDebugPrintf("         firstpos:  ");
 	printSet(n->fFirstPosSet);
-
 	RBBIDebugPrintf("         lastpos:   ");
 	printSet(n->fLastPosSet);
-
 	RBBIDebugPrintf("         followpos: ");
 	printSet(n->fFollowPos);
-
 	printPosSets(n->fLeftChild);
 	printPosSets(n->fRightChild);
 }
-
 #endif
-
 //
 //    findDuplCharClassFrom()
 //
-bool RBBITableBuilder::findDuplCharClassFrom(IntPair * categories) {
+bool RBBITableBuilder::findDuplCharClassFrom(IntPair * categories) 
+{
 	int32_t numStates = fDStates->size();
 	int32_t numCols = fRB->fSetBuilder->getNumCharCategories();
-
 	for(; categories->first < numCols-1; categories->first++) {
 		// Note: dictionary & non-dictionary columns cannot be merged.
 		//       The limitSecond value prevents considering mixed pairs.
@@ -1254,28 +1197,22 @@ int32_t RBBITableBuilder::removeDuplicateStates() {
 	}
 	return numStatesRemoved;
 }
-
-//-----------------------------------------------------------------------------
 //
 //   getTableSize()    Calculate the size of the runtime form of this
 //                     state transition table.
 //
-//-----------------------------------------------------------------------------
-int32_t RBBITableBuilder::getTableSize() const {
+int32_t RBBITableBuilder::getTableSize() const 
+{
 	int32_t size = 0;
 	int32_t numRows;
 	int32_t numCols;
 	int32_t rowSize;
-
 	if(fTree == NULL) {
 		return 0;
 	}
-
 	size    = offsetof(RBBIStateTable, fTableData);// The header, with no rows to the table.
-
 	numRows = fDStates->size();
 	numCols = fRB->fSetBuilder->getNumCharCategories();
-
 	if(use8BitsForTable()) {
 		rowSize = offsetof(RBBIStateTableRow8, fNextState) + sizeof(int8)*numCols;
 	}
@@ -1300,7 +1237,6 @@ void RBBITableBuilder::exportTable(void * where)
 	if(U_FAILURE(*fStatus) || fTree == NULL) {
 		return;
 	}
-
 	int32_t catCount = fRB->fSetBuilder->getNumCharCategories();
 	if(catCount > 0x7fff ||
 	    fDStates->size() > 0x7fff) {

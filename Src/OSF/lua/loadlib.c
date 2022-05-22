@@ -114,7 +114,7 @@ static void * lsys_load(lua_State * L, const char * path, int seeglb) {
 
 static lua_CFunction lsys_sym(lua_State * L, void * lib, const char * sym) {
 	lua_CFunction f = cast_func(dlsym(lib, sym));
-	if(f == NULL) lua_pushstring(L, dlerror());
+	if(!f) lua_pushstring(L, dlerror());
 	return f;
 }
 
@@ -179,7 +179,7 @@ static void * lsys_load(lua_State * L, const char * path, int seeglb)
 
 static lua_CFunction lsys_sym(lua_State * L, void * lib, const char * sym) {
 	lua_CFunction f = (lua_CFunction)GetProcAddress((HMODULE)lib, sym);
-	if(f == NULL) pusherror(L);
+	if(!f) pusherror(L);
 	return f;
 }
 
@@ -340,7 +340,7 @@ static int lookforfunc(lua_State * L, const char * path, const char * sym) {
 	}
 	else {
 		lua_CFunction f = lsys_sym(L, reg, sym);
-		if(f == NULL)
+		if(!f)
 			return ERRFUNC; /* unable to find function */
 		lua_pushcfunction(L, f); /* else create new function */
 		return 0; /* no errors */
@@ -369,7 +369,7 @@ static int ll_loadlib(lua_State * L) {
 
 static int readable(const char * filename) {
 	FILE * f = fopen(filename, "r"); /* try to open file */
-	if(f == NULL) return 0; /* open failed */
+	if(!f) return 0; /* open failed */
 	fclose(f);
 	return 1;
 }
@@ -444,7 +444,7 @@ static int searcher_Lua(lua_State * L) {
 	const char * filename;
 	const char * name = luaL_checkstring(L, 1);
 	filename = findfile(L, name, "path", LUA_LSUBSEP);
-	if(filename == NULL) return 1; /* module not found in this path */
+	if(!filename) return 1; /* module not found in this path */
 	return checkload(L, (luaL_loadfile(L, filename) == LUA_OK), filename);
 }
 
@@ -476,7 +476,7 @@ static int loadfunc(lua_State * L, const char * filename, const char * modname) 
 static int searcher_C(lua_State * L) {
 	const char * name = luaL_checkstring(L, 1);
 	const char * filename = findfile(L, name, "cpath", LUA_CSUBSEP);
-	if(filename == NULL) return 1; /* module not found in this path */
+	if(!filename) return 1; /* module not found in this path */
 	return checkload(L, (loadfunc(L, filename, name) == 0), filename);
 }
 
@@ -488,7 +488,7 @@ static int searcher_Croot(lua_State * L) {
 	if(!p) return 0; /* is root */
 	lua_pushlstring(L, name, p - name);
 	filename = findfile(L, lua_tostring(L, -1), "cpath", LUA_CSUBSEP);
-	if(filename == NULL) return 1; /* root not found */
+	if(!filename) return 1; /* root not found */
 	if((stat = loadfunc(L, filename, name)) != 0) {
 		if(stat != ERRFUNC)
 			return checkload(L, 0, filename); /* real error */

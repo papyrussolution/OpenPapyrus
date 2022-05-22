@@ -835,7 +835,7 @@ public:
 			int32_t kind = lkey.kind();
 
 			UObject* result = _delegate->createFormat(loc, (UNumberFormatStyle)kind);
-			if(result == NULL) {
+			if(!result) {
 				result = service->getKey((ICUServiceKey&)key /* cast away const */, NULL, this, status);
 			}
 			return result;
@@ -992,7 +992,7 @@ NumberFormat* U_EXPORT2 NumberFormat::createInstance(const Locale & loc, UNumber
 	}
 	NumberFormat * result = (*shared)->clone();
 	shared->removeRef();
-	if(result == NULL) {
+	if(!result) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 	}
 	return result;
@@ -1169,7 +1169,7 @@ const SharedNumberFormat * LocaleCacheKey<SharedNumberFormat>::createObject(cons
 		return NULL;
 	}
 	SharedNumberFormat * result = new SharedNumberFormat(nf);
-	if(result == NULL) {
+	if(!result) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		delete nf;
 		return NULL;
@@ -1236,7 +1236,7 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 				case UNUM_DECIMAL:
 				    curr = FALSE;
 				    // fall-through
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 
 				case UNUM_CURRENCY:
 				case UNUM_CURRENCY_ISO: // do not support plural formatting here
@@ -1270,7 +1270,7 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 		static UMutex nscacheMutex;
 		Mutex lock(&nscacheMutex);
 		ns = (NumberingSystem*)uhash_iget(NumberingSystem_cache, hashKey);
-		if(ns == NULL) {
+		if(!ns) {
 			ns = NumberingSystem::createInstance(desiredLocale, status);
 			uhash_iput(NumberingSystem_cache, hashKey, (void *)ns, &status);
 		}
@@ -1353,7 +1353,7 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 		}
 
 		RuleBasedNumberFormat * r = new RuleBasedNumberFormat(desiredRulesType, nsLoc, status);
-		if(r == NULL) {
+		if(!r) {
 			status = U_MEMORY_ALLOCATION_ERROR;
 			return NULL;
 		}

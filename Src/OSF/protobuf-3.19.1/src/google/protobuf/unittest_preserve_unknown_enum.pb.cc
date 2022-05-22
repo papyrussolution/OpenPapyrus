@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace proto3_preserve_unknown_enum_unittest {
-constexpr MyMessage::MyMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MyMessage::MyMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_e_()
   , _repeated_e_cached_byte_size_(0)
   , repeated_packed_e_()
@@ -35,8 +34,7 @@ struct MyMessageDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MyMessageDefaultTypeInternal _MyMessage_default_instance_;
-constexpr MyMessagePlusExtra::MyMessagePlusExtra(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MyMessagePlusExtra::MyMessagePlusExtra(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_e_()
   , _repeated_e_cached_byte_size_(0)
   , repeated_packed_e_()
@@ -142,35 +140,39 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum_2eproto(&descriptor_table_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum_2eproto);
 namespace proto3_preserve_unknown_enum_unittest {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MyEnum_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum_2eproto[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MyEnum_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum_2eproto[0];
 }
-bool MyEnum_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
+bool MyEnum_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+			return true;
+		default:
+			return false;
+	}
 }
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MyEnumPlusExtra_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum_2eproto[1];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MyEnumPlusExtra_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fpreserve_5funknown_5fenum_2eproto[1];
 }
-bool MyEnumPlusExtra_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return true;
-    default:
-      return false;
-  }
+bool MyEnumPlusExtra_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+			return true;
+		default:
+			return false;
+	}
 }
 
 
@@ -239,8 +241,7 @@ void MyMessage::ArenaDtor(void* object) {
   MyMessage* _this = reinterpret_cast< MyMessage* >(object);
   (void)_this;
 }
-void MyMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void MyMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void MyMessage::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -355,10 +356,7 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -505,10 +503,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MyMessage::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MyMessage::GetClassData() const { return &_class_data_; }
 
-void MyMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MyMessage *>(to)->MergeFrom(
-      static_cast<const MyMessage &>(from));
+void MyMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MyMessage *>(to)->MergeFrom(static_cast<const MyMessage &>(from));
 }
 
 
@@ -533,9 +529,7 @@ void MyMessage::MergeFrom(const MyMessage& from) {
       _internal_set_oneof_e_2(from._internal_oneof_e_2());
       break;
     }
-    case O_NOT_SET: {
-      break;
-    }
+    case O_NOT_SET: break;
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -631,8 +625,7 @@ void MyMessagePlusExtra::ArenaDtor(void* object) {
   MyMessagePlusExtra* _this = reinterpret_cast< MyMessagePlusExtra* >(object);
   (void)_this;
 }
-void MyMessagePlusExtra::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void MyMessagePlusExtra::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void MyMessagePlusExtra::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -747,10 +740,7 @@ const char* MyMessagePlusExtra::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -897,10 +887,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MyMessagePlusExtra::_class_dat
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MyMessagePlusExtra::GetClassData() const { return &_class_data_; }
 
-void MyMessagePlusExtra::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MyMessagePlusExtra *>(to)->MergeFrom(
-      static_cast<const MyMessagePlusExtra &>(from));
+void MyMessagePlusExtra::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MyMessagePlusExtra *>(to)->MergeFrom(static_cast<const MyMessagePlusExtra &>(from));
 }
 
 
@@ -925,9 +913,7 @@ void MyMessagePlusExtra::MergeFrom(const MyMessagePlusExtra& from) {
       _internal_set_oneof_e_2(from._internal_oneof_e_2());
       break;
     }
-    case O_NOT_SET: {
-      break;
-    }
+    case O_NOT_SET: break;
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }

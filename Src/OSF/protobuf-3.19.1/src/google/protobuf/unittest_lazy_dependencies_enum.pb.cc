@@ -45,18 +45,20 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_google_2fprotobuf_2funittest_5flazy_5fdependencies_5fenum_2eproto(&descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_5fenum_2eproto);
 namespace protobuf_unittest {
 namespace lazy_imports {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* LazyEnum_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_5fenum_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2funittest_5flazy_5fdependencies_5fenum_2eproto[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* LazyEnum_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5flazy_5fdependencies_5fenum_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2funittest_5flazy_5fdependencies_5fenum_2eproto[0];
 }
-bool LazyEnum_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-      return true;
-    default:
-      return false;
-  }
+bool LazyEnum_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+			return true;
+		default:
+			return false;
+	}
 }
 
 

@@ -593,16 +593,13 @@ static lzma_ret lzma_decode(void * coder_ptr, lzma_dict * dictptr, const uint8_t
 					// Decode the length of the repeated match.
 					len_decode(len, coder->rep_len_decoder, pos_state, lzma_lzma1_decoder::SEQ_REP_LEN);
 			    }
-
-			    /////////////////////////////////
+			    //
 			    // Repeat from history buffer. //
-			    /////////////////////////////////
-
+			    //
 			    // The length is always between these limits. There is no way
 			    // to trigger the algorithm to set len outside this range.
 			    assert(len >= MATCH_LEN_MIN);
 			    assert(len <= MATCH_LEN_MAX);
-
 			case lzma_lzma1_decoder::SEQ_COPY:
 			    // Repeat len bytes from distance of rep0.
 			    if(UNLIKELY(dict_repeat(&dict, rep0, &len))) {

@@ -5972,7 +5972,7 @@ static xmlExpNodePtr xmlExpHashGetEntry(xmlExpCtxtPtr ctxt, xmlExpNodeType type,
 		}
 	}
 	entry = xmlExpNewNode(ctxt, type);
-	if(entry == NULL)
+	if(!entry)
 		return 0;
 	entry->key = kbase;
 	if(type == XML_EXP_ATOM) {

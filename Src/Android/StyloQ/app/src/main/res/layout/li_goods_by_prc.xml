@@ -5,13 +5,11 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     >
-    <TextView
+    <TextView style="@style/GenericListItemText"
         android:id="@+id/LVITEM_GENERICNAME"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:minHeight="32dp"
-        android:layout_marginLeft="2dp"
-        android:textColor="@color/TextPrimary"
+        android:textColor="@color/TextPrimaryLight"
         />
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,14 +19,14 @@
             android:id="@+id/CTL_GOODSBYPRC_DURATION"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:layout_marginLeft="2dp"
+            android:layout_marginLeft="4dp"
             />
-        <TextView
+        <View style="@style/FakeView"/>
+        <TextView style="@style/TSessPriceText"
             android:id="@+id/CTL_GOODSBYPRC_PRICE"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:textColor="@color/TextPrimary"
+            android:layout_marginRight="4dp"
             />
     </LinearLayout>
 </LinearLayout>

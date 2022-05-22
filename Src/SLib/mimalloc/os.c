@@ -563,7 +563,7 @@ static void * mi_os_mem_alloc(size_t size, size_t try_alignment, bool commit, bo
 	/*
 	   if(commit && allow_large) {
 	   p = _mi_os_try_alloc_from_huge_reserved(size, try_alignment);
-	   if(p != NULL) {
+	   if(p) {
 	 * is_large = true;
 	    return p;
 	   }

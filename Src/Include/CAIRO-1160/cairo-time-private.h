@@ -29,11 +29,7 @@
 #ifndef CAIRO_TIME_PRIVATE_H
 #define CAIRO_TIME_PRIVATE_H
 
-//#include "cairo-compiler-private.h"
-//#include "cairo-wideint-private.h"
-
-/* Make the base type signed for easier arithmetic */
-typedef cairo_int64_t cairo_time_t;
+typedef cairo_int64_t cairo_time_t; // Make the base type signed for easier arithmetic 
 
 #define _cairo_time_add _cairo_int64_add
 #define _cairo_time_sub _cairo_int64_sub

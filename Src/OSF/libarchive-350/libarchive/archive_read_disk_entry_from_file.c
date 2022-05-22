@@ -190,7 +190,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 	if((a->flags & ARCHIVE_READDISK_NO_FFLAGS) == 0 &&
 	    (S_ISREG(st->st_mode) || S_ISDIR(st->st_mode))) {
 		if(fd < 0) {
-			if(a->tree != NULL)
+			if(a->tree)
 				fd = a->open_on_current_dir(a->tree, path,
 					O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 			else
@@ -224,7 +224,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 			archive_set_error(&a->archive, ENOMEM, "Couldn't read link data");
 			return ARCHIVE_FAILED;
 		}
-		if(a->tree != NULL) {
+		if(a->tree) {
 #ifdef HAVE_READLINKAT
 			lnklen = readlinkat(a->tree_current_dir_fd(a->tree), path, linkbuffer, linkbuffer_len);
 #else
@@ -433,7 +433,7 @@ static int setup_xattr(struct archive_read_disk * a,
 		return ARCHIVE_WARN;
 	}
 	if(size > 0 && (value = SAlloc::M(size)) == NULL) {
-		archive_set_error(&a->archive, errno, "Out of memory");
+		archive_set_error(&a->archive, errno, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	if(fd >= 0) {
@@ -518,7 +518,7 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
 	if(list_size == 0)
 		return ARCHIVE_OK;
 	if((list = SAlloc::M(list_size)) == NULL) {
-		archive_set_error(&a->archive, errno, "Out of memory");
+		archive_set_error(&a->archive, errno, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	if(*fd >= 0) {
@@ -598,7 +598,7 @@ static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entr
 		return ARCHIVE_WARN;
 	}
 	if(size > 0 && (value = SAlloc::M(size)) == NULL) {
-		archive_set_error(&a->archive, errno, "Out of memory");
+		archive_set_error(&a->archive, errno, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	if(fd >= 0)
@@ -645,7 +645,7 @@ static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_e
 	if(list_size == 0)
 		return ARCHIVE_OK;
 	if((list = SAlloc::M(list_size)) == NULL) {
-		archive_set_error(&a->archive, errno, "Out of memory");
+		archive_set_error(&a->archive, errno, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	if(*fd >= 0)
@@ -742,13 +742,13 @@ static int setup_sparse_fiemap(struct archive_read_disk * a, struct archive_entr
 	int count, do_fiemap, iters;
 	int exit_sts = ARCHIVE_OK;
 	const char * path;
-	if(archive_entry_filetype(entry) != AE_IFREG || archive_entry_size(entry) <= 0 || archive_entry_hardlink(entry) != NULL)
+	if(archive_entry_filetype(entry) != AE_IFREG || archive_entry_size(entry) <= 0 || archive_entry_hardlink(entry))
 		return ARCHIVE_OK;
 	if(*fd < 0) {
 		path = archive_read_disk_entry_setup_path(a, entry, NULL);
 		if(!path)
 			return ARCHIVE_FAILED;
-		if(a->tree != NULL)
+		if(a->tree)
 			*fd = a->open_on_current_dir(a->tree, path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		else
 			*fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
@@ -839,7 +839,7 @@ static int setup_sparse(struct archive_read_disk * a, struct archive_entry * ent
 	int exit_sts = ARCHIVE_OK;
 	int check_fully_sparse = 0;
 	const char * path;
-	if(archive_entry_filetype(entry) != AE_IFREG || archive_entry_size(entry) <= 0 || archive_entry_hardlink(entry) != NULL)
+	if(archive_entry_filetype(entry) != AE_IFREG || archive_entry_size(entry) <= 0 || archive_entry_hardlink(entry))
 		return ARCHIVE_OK;
 	/* Does filesystem support the reporting of hole ? */
 	if(*fd < 0)

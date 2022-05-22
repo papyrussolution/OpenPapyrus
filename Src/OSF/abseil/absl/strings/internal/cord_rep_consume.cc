@@ -15,7 +15,8 @@ namespace cord_internal {
 namespace {
 // Unrefs the provided `substring`, and returns `substring->child`
 // Adds or assumes a reference on `substring->child`
-CordRep* ClipSubstring(CordRepSubstring* substring) {
+CordRep* ClipSubstring(CordRepSubstring* substring) 
+{
 	CordRep* child = substring->child;
 	if(substring->refcount.IsOne()) {
 		delete substring;
@@ -30,7 +31,8 @@ CordRep* ClipSubstring(CordRepSubstring* substring) {
 // Unrefs the provided `concat`, and returns `{concat->left, concat->right}`
 // Adds or assumes a reference on `concat->left` and `concat->right`.
 // Returns an array of 2 elements containing the left and right nodes.
-std::array<CordRep*, 2> ClipConcat(CordRepConcat* concat) {
+std::array<CordRep*, 2> ClipConcat(CordRepConcat* concat) 
+{
 	std::array<CordRep*, 2> result{concat->left, concat->right};
 	if(concat->refcount.IsOne()) {
 		delete concat;
@@ -43,7 +45,8 @@ std::array<CordRep*, 2> ClipConcat(CordRepConcat* concat) {
 	return result;
 }
 
-void Consume(bool forward, CordRep* rep, ConsumeFn consume_fn) {
+void Consume(bool forward, CordRep* rep, ConsumeFn consume_fn) 
+{
 	size_t offset = 0;
 	size_t length = rep->length;
 	struct Entry {
@@ -51,15 +54,12 @@ void Consume(bool forward, CordRep* rep, ConsumeFn consume_fn) {
 		size_t offset;
 		size_t length;
 	};
-
 	absl::InlinedVector<Entry, 40> stack;
-
 	for(;;) {
 		if(rep->tag == CONCAT) {
 			std::array<CordRep*, 2> res = ClipConcat(rep->concat());
 			CordRep* left = res[0];
 			CordRep* right = res[1];
-
 			if(left->length <= offset) {
 				// Don't need left node
 				offset -= left->length;
@@ -67,7 +67,6 @@ void Consume(bool forward, CordRep* rep, ConsumeFn consume_fn) {
 				rep = right;
 				continue;
 			}
-
 			size_t length_left = left->length - offset;
 			if(length_left >= length) {
 				// Don't need right node
@@ -75,7 +74,6 @@ void Consume(bool forward, CordRep* rep, ConsumeFn consume_fn) {
 				rep = left;
 				continue;
 			}
-
 			// Need both nodes
 			size_t length_right = length - length_left;
 			if(forward) {
@@ -96,8 +94,8 @@ void Consume(bool forward, CordRep* rep, ConsumeFn consume_fn) {
 		}
 		else {
 			consume_fn(rep, offset, length);
-			if(stack.empty()) return;
-
+			if(stack.empty()) 
+				return;
 			rep = stack.back().rep;
 			offset = stack.back().offset;
 			length = stack.back().length;
@@ -107,13 +105,8 @@ void Consume(bool forward, CordRep* rep, ConsumeFn consume_fn) {
 }
 }  // namespace
 
-void Consume(CordRep* rep, ConsumeFn consume_fn) {
-	return Consume(true, rep, std::move(consume_fn));
-}
-
-void ReverseConsume(CordRep* rep, ConsumeFn consume_fn) {
-	return Consume(false, rep, std::move(consume_fn));
-}
+void Consume(CordRep* rep, ConsumeFn consume_fn) { return Consume(true, rep, std::move(consume_fn)); }
+void ReverseConsume(CordRep* rep, ConsumeFn consume_fn) { return Consume(false, rep, std::move(consume_fn)); }
 }  // namespace cord_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

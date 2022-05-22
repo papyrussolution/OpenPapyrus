@@ -857,7 +857,7 @@ never_opened:
 	 */
 	if(!reuse && dbp->locker) {
 		/* We may have pending trade operations on this dbp. */
-		if(txn == NULL)
+		if(!txn)
 			txn = dbp->cur_txn;
 		if(IS_REAL_TXN(txn))
 			__txn_remlock(env, txn, &dbp->handle_lock, dbp->locker);
@@ -1031,7 +1031,7 @@ int __db_log_page(DB * dbp, DB_TXN * txn, DB_LSN * lsn, db_pgno_t pgno, PAGE * p
  * PUBLIC:      uint32 *, db_pgno_t, uint32, void *)),
  * PUBLIC:      uint32 *, db_pgno_t, uint32, void *));
  */
-int __db_walk_cursors(DB * dbp, DBC * my_dbc, int (*func)__P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *)), uint32 * countp, db_pgno_t pgno, uint32 indx, void * args)
+int __db_walk_cursors(DB * dbp, DBC * my_dbc, int (*func)__P((DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *)), uint32 * countp, db_pgno_t pgno, uint32 indx, void * args)
 {
 	DB * ldbp;
 	DBC * dbc;

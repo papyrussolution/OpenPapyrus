@@ -25,19 +25,6 @@
 #ifndef ABSL_STRINGS_STR_SPLIT_H_
 #define ABSL_STRINGS_STR_SPLIT_H_
 
-//#include <algorithm>
-//#include <cstddef>
-//#include <map>
-//#include <set>
-//#include <string>
-//#include <utility>
-//#include <vector>
-//#include "absl/base/internal/raw_logging.h"
-//#include "absl/base/macros.h"
-//#include "absl/strings/internal/str_split_internal.h"
-//#include "absl/strings/string_view.h"
-//#include "absl/strings/strip.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 
@@ -144,11 +131,10 @@ private:
 //
 class ByChar {
 public:
-	explicit ByChar(char c) : c_(c) {
+	explicit ByChar(char c) : c_(c) 
+	{
 	}
-
 	absl::string_view Find(absl::string_view text, size_t pos) const;
-
 private:
 	char c_;
 };

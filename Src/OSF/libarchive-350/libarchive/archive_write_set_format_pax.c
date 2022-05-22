@@ -89,7 +89,7 @@ int archive_write_set_format_pax(struct archive * _a)
 	struct archive_write * a = (struct archive_write *)_a;
 	struct pax * pax;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
-	if(a->format_free != NULL)
+	if(a->format_free)
 		(a->format_free)(a);
 	pax = (struct pax *)SAlloc::C(1, sizeof(*pax));
 	if(pax == NULL) {
@@ -535,7 +535,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			     */
 #if defined(_WIN32) && !defined(__CYGWIN__)
 			    const wchar_t * wp = archive_entry_pathname_w(entry_original);
-			    if(wp != NULL && wp[wcslen(wp) -1] != L'/') {
+			    if(wp && wp[wcslen(wp) -1] != L'/') {
 				    struct archive_wstring ws;
 				    archive_string_init(&ws);
 				    path_length = wcslen(wp);
@@ -563,7 +563,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			     * case getting WCS failed. On POSIX, this is a
 			     * normal operation.
 			     */
-			    if(p != NULL && p[0] != '\0' && p[strlen(p) - 1] != '/') {
+			    if(p && p[0] != '\0' && p[strlen(p) - 1] != '/') {
 				    struct archive_string as;
 				    archive_string_init(&as);
 				    path_length = strlen(p);
@@ -1039,7 +1039,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 
 		/* I use a star-compatible file flag attribute. */
 		p = archive_entry_fflags_text(entry_main);
-		if(p != NULL && *p != '\0')
+		if(p && *p != '\0')
 			add_pax_attr(&(pax->pax_header), "SCHILY.fflags", p);
 
 		/* I use star-compatible ACL attributes. */
@@ -1111,7 +1111,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 				archive_string_sprintf(&(pax->sparse_map), "%jd\n%jd\n", (intmax_t)soffset, (intmax_t)slength);
 				sparse_total += slength;
 				if(sparse_list_add(pax, soffset, slength) != ARCHIVE_OK) {
-					archive_set_error(&a->archive, ENOMEM, "Out of memory");
+					archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 					archive_entry_free(entry_main);
 					archive_string_free(&entry_name);
 					return ARCHIVE_FATAL;

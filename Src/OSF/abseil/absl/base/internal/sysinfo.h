@@ -21,7 +21,7 @@
 #ifndef _WIN32
 	#include <sys/types.h>
 #endif
-#include <cstdint>
+//#include <cstdint>
 #include "absl/base/config.h"
 #include "absl/base/port.h"
 

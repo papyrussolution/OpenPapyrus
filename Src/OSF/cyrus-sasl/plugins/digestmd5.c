@@ -706,7 +706,7 @@ static char * quote(char * str)
 	}
 
 	result = (char *)malloc(strlen(str) + num_to_escape + 1);
-	if(result == NULL) {
+	if(!result) {
 		return NULL;
 	}
 	for(p = str, outp = result; *p; p++) {
@@ -2980,7 +2980,7 @@ FreeAllMem:
 
 	if(full_username != NULL)
 		sparams->utils->free(full_username);
-	if(username != NULL)
+	if(username)
 		sparams->utils->free(username);
 	if(authorization_id != NULL)
 		sparams->utils->free(authorization_id);

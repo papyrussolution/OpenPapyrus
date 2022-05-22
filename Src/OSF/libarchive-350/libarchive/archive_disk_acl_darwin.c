@@ -465,7 +465,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct arch
 		acl = acl_get_link_np(accpath, ACL_TYPE_EXTENDED);
 	else
 		acl = acl_get_file(accpath, ACL_TYPE_EXTENDED);
-	if(acl != NULL) {
+	if(acl) {
 		r = translate_acl(a, entry, acl);
 		acl_free(acl);
 		acl = NULL;

@@ -8,13 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/ec.h>
-//#include <openssl/bn.h>
-//#include <openssl/cms.h>
-//#include <openssl/asn1t.h>
-//#include <asn1_int.h>
-//#include <evp_int.h>
 #include "ec_lcl.h"
 
 #ifndef OPENSSL_NO_CMS
@@ -30,15 +23,13 @@ static int eckey_param2type(int * pptype, void ** ppval, EC_KEY * ec_key)
 		ECerr(EC_F_ECKEY_PARAM2TYPE, EC_R_MISSING_PARAMETERS);
 		return 0;
 	}
-	if(EC_GROUP_get_asn1_flag(group)
-	 && (nid = EC_GROUP_get_curve_name(group))) {
+	if(EC_GROUP_get_asn1_flag(group) && (nid = EC_GROUP_get_curve_name(group))) {
 		/* we have a 'named curve' => just set the OID */
 		*ppval = OBJ_nid2obj(nid);
 		*pptype = V_ASN1_OBJECT;
 	}
-	else {                  /* explicit parameters */
-		ASN1_STRING * pstr = NULL;
-		pstr = ASN1_STRING_new();
+	else { /* explicit parameters */
+		ASN1_STRING * pstr = ASN1_STRING_new();
 		if(pstr == NULL)
 			return 0;
 		pstr->length = i2d_ECParameters(ec_key, &pstr->data);
@@ -60,7 +51,6 @@ static int eckey_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 	int ptype;
 	uchar * penc = NULL, * p;
 	int penclen;
-
 	if(!eckey_param2type(&ptype, &pval, ec_key)) {
 		ECerr(EC_F_ECKEY_PUB_ENCODE, ERR_R_EC_LIB);
 		return 0;

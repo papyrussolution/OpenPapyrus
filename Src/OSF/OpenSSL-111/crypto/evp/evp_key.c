@@ -120,7 +120,7 @@ int EVP_BytesToKey(const EVP_CIPHER * type, const EVP_MD * md,
 					break;
 				if(i == mds)
 					break;
-				if(key != NULL)
+				if(key)
 					*(key++) = md_buf[i];
 				nkey--;
 				i++;

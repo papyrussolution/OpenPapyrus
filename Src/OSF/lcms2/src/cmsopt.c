@@ -15,14 +15,10 @@
 #include "lcms2_internal.h"
 #pragma hdrstop
 
-//----------------------------------------------------------------------------------
-
 // Optimization for 8 bits, Shaper-CLUT (3 inputs only)
 typedef struct {
 	cmsContext ContextID;
-
 	const cmsInterpParams* p; // Tetrahedrical interpolation parameters. This is a not-owned pointer.
-
 	uint16 rx[256], ry[256], rz[256];
 	uint32 X0[256], Y0[256], Z0[256]; // Precomputed nodes and offsets for 8-bit input data
 } Prelin8Data;
@@ -30,21 +26,15 @@ typedef struct {
 // Generic optimization for 16 bits Shaper-CLUT-Shaper (any inputs)
 typedef struct {
 	cmsContext ContextID;
-
 	// Number of channels
 	uint32 nInputs;
 	uint32 nOutputs;
-
-	_cmsInterpFn16 EvalCurveIn16[MAX_INPUT_DIMENSIONS];   // The maximum number of input channels is known in
-	                                                      // advance
+	_cmsInterpFn16 EvalCurveIn16[MAX_INPUT_DIMENSIONS]; // The maximum number of input channels is known in advance
 	cmsInterpParams*  ParamsCurveIn16[MAX_INPUT_DIMENSIONS];
-
 	_cmsInterpFn16 EvalCLUT;        // The evaluator for 3D grid
 	const cmsInterpParams* CLUTparams; // (not-owned pointer)
-
 	_cmsInterpFn16* EvalCurveOut16;   // Points to an array of curve evaluators in 16 bits (not-owned pointer)
-	cmsInterpParams**  ParamsCurveOut16;// Points to an array of references to interpolation params (not-owned
-	                                    // pointer)
+	cmsInterpParams**  ParamsCurveOut16;// Points to an array of references to interpolation params (not-owned pointer)
 } Prelin16Data;
 
 // Optimization for matrix-shaper in 8 bits. Numbers are operated in n.14 signed, tables are stored in 1.14 fixed
@@ -298,8 +288,8 @@ static boolint XFormSampler16(const uint16 In[], uint16 Out[], void * Cargo)
 	cmsPipeline * Lut = (cmsPipeline *)Cargo;
 	float InFloat[cmsMAXCHANNELS], OutFloat[cmsMAXCHANNELS];
 	uint32 i;
-	_cmsAssert(Lut->InputChannels < cmsMAXCHANNELS);
-	_cmsAssert(Lut->OutputChannels < cmsMAXCHANNELS);
+	assert(Lut->InputChannels < cmsMAXCHANNELS);
+	assert(Lut->OutputChannels < cmsMAXCHANNELS);
 	// From 16 bit to floating point
 	for(i = 0; i < Lut->InputChannels; i++)
 		InFloat[i] = (float)(In[i] / 65535.0);
@@ -493,7 +483,7 @@ static boolint FixWhiteMisalignment(cmsPipeline * Lut, cmsColorSpaceSignature En
 // This function should be used on 16-bits LUTS only, as floating point losses precision when simplified
 // -----------------------------------------------------------------------------------------------------------------------------------------------
 
-static boolint OptimizeByResampling(cmsPipeline ** Lut, uint32 Intent, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags)
+static boolint OptimizeByResampling(cmsPipeline ** Lut, uint32 Intent, uint32 * InputFormat, uint32 * OutputFormat, uint32 * dwFlags)
 {
 	cmsPipeline * Src = NULL;
 	cmsPipeline * Dest = NULL;
@@ -595,12 +585,12 @@ Error:
 		// Ops, something went wrong, Restore stages
 		if(KeepPreLin != NULL) {
 			if(!cmsPipelineInsertStage(Src, cmsAT_BEGIN, KeepPreLin)) {
-				_cmsAssert(0); // This never happens
+				assert(0); // This never happens
 			}
 		}
 		if(KeepPostLin != NULL) {
 			if(!cmsPipelineInsertStage(Src, cmsAT_END,   KeepPostLin)) {
-				_cmsAssert(0); // This never happens
+				assert(0); // This never happens
 			}
 		}
 		cmsPipelineFree(Dest);
@@ -827,7 +817,7 @@ static boolint IsDegenerated(const cmsToneCurve * g)
 // --------------------------------------------------------------------------------------------------------------
 // We need xput over here
 
-static boolint OptimizeByComputingLinearization(cmsPipeline ** Lut, uint32 Intent, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags)
+static boolint OptimizeByComputingLinearization(cmsPipeline ** Lut, uint32 Intent, uint32 * InputFormat, uint32 * OutputFormat, uint32 * dwFlags)
 {
 	cmsPipeline * OriginalLut;
 	uint32 nGridPoints;
@@ -1095,8 +1085,8 @@ static void FastIdentity16(const uint16 In[], uint16 Out[], const void * D)
 
 // If the target LUT holds only curves, the optimization procedure is to join all those
 // curves together. That only works on curves and does not work on matrices.
-static boolint OptimizeByJoiningCurves(cmsPipeline ** Lut, uint32 Intent, uint32* InputFormat,
-    uint32* OutputFormat, uint32* dwFlags)
+static boolint OptimizeByJoiningCurves(cmsPipeline ** Lut, uint32 Intent, uint32 * InputFormat,
+    uint32 * OutputFormat, uint32 * dwFlags)
 {
 	cmsToneCurve ** GammaTables = NULL;
 	float InFloat[cmsMAXCHANNELS], OutFloat[cmsMAXCHANNELS];
@@ -1301,7 +1291,7 @@ static void FillSecondShaper(uint16* Table, cmsToneCurve * Curve, boolint Is8Bit
 }
 
 // Compute the matrix-shaper structure
-static boolint SetMatShaper(cmsPipeline * Dest, cmsToneCurve * Curve1[3], cmsMAT3* Mat, cmsVEC3* Off, cmsToneCurve * Curve2[3], uint32* OutputFormat)
+static boolint SetMatShaper(cmsPipeline * Dest, cmsToneCurve * Curve1[3], cmsMAT3* Mat, cmsVEC3* Off, cmsToneCurve * Curve2[3], uint32 * OutputFormat)
 {
 	MatShaper8Data* p;
 	int i, j;
@@ -1345,7 +1335,7 @@ static boolint SetMatShaper(cmsPipeline * Dest, cmsToneCurve * Curve1[3], cmsMAT
 }
 
 //  8 bits on input allows matrix-shaper boot up to 25 Mpixels per second on RGB. That's fast!
-static boolint OptimizeMatrixShaper(cmsPipeline ** Lut, uint32 Intent, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags)
+static boolint OptimizeMatrixShaper(cmsPipeline ** Lut, uint32 Intent, uint32 * InputFormat, uint32 * OutputFormat, uint32 * dwFlags)
 {
 	cmsStage * Curve1, * Curve2;
 	cmsStage * Matrix1, * Matrix2;
@@ -1486,8 +1476,8 @@ static void DupPluginOptimizationList(struct _cmsContext_struct* ctx, const stru
 	_cmsOptimizationCollection*  entry;
 	_cmsOptimizationCollection*  Anterior = NULL;
 	_cmsOptimizationPluginChunkType* head = (_cmsOptimizationPluginChunkType*)src->chunks[OptimizationPlugin];
-	_cmsAssert(ctx);
-	_cmsAssert(head != NULL);
+	assert(ctx);
+	assert(head != NULL);
 	// Walk the list copying all nodes
 	for(entry = head->OptimizationCollection; entry != NULL; entry = entry->Next) {
 		_cmsOptimizationCollection * newEntry = (_cmsOptimizationCollection*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(_cmsOptimizationCollection));
@@ -1543,8 +1533,8 @@ boolint _cmsRegisterOptimizationPlugin(cmsContext ContextID, cmsPluginBase* Data
 }
 
 // The entry point for LUT optimization
-boolint _cmsOptimizePipeline(cmsContext ContextID, cmsPipeline **    PtrLut, uint32 Intent, uint32* InputFormat,
-    uint32* OutputFormat, uint32* dwFlags)
+boolint _cmsOptimizePipeline(cmsContext ContextID, cmsPipeline **    PtrLut, uint32 Intent, uint32 * InputFormat,
+    uint32 * OutputFormat, uint32 * dwFlags)
 {
 	_cmsOptimizationPluginChunkType* ctx = (_cmsOptimizationPluginChunkType*)_cmsContextGetClientChunk(ContextID, OptimizationPlugin);
 	_cmsOptimizationCollection* Opts;

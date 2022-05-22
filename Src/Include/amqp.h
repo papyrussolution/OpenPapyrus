@@ -514,8 +514,8 @@ typedef enum amqp_status_enum_ {
 	AMQP_STATUS_BAD_AMQP_DATA          = -0x0002, // Incorrect or corrupt data was received from the broker. This is a protocol error. 
 	AMQP_STATUS_UNKNOWN_CLASS          = -0x0003, // An unknown AMQP class was received. This is a protocol error. 
 	AMQP_STATUS_UNKNOWN_METHOD         = -0x0004, // An unknown AMQP method was received. This is a protocol error. 
-	AMQP_STATUS_HOSTNAME_RESOLUTION_FAILED     = -0x0005, // Unable to resolve the hostname 
-	AMQP_STATUS_INCOMPATIBLE_AMQP_VERSION      = -0x0006, // The broker advertised an incompaible AMQP version 
+	AMQP_STATUS_HOSTNAME_RESOLUTION_FAILED = -0x0005, // Unable to resolve the hostname 
+	AMQP_STATUS_INCOMPATIBLE_AMQP_VERSION  = -0x0006, // The broker advertised an incompaible AMQP version 
 	AMQP_STATUS_CONNECTION_CLOSED      = -0x0007, // The connection to the broker has been closed
 	AMQP_STATUS_BAD_URL                = -0x0008, // malformed AMQP URL 
 	AMQP_STATUS_SOCKET_ERROR           = -0x0009, // A socket error occurred 
@@ -3144,6 +3144,6 @@ int FASTCALL SlTranlateAmqpStatus(int amqpStatus);
 //   в противном случае !0.
 //   В случае ошибки устанавливается код ошибки SLIB.
 //
-int FASTCALL SlCheckAmqpError(int amqpStatus);
+int FASTCALL SlCheckAmqpError(int amqpStatus, const char * pAddedMsg);
 
 #endif /* AMQP_H */

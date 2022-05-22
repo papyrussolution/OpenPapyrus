@@ -10,8 +10,8 @@
 #ifndef ABSL_FLAGS_INTERNAL_USAGE_H_
 #define ABSL_FLAGS_INTERNAL_USAGE_H_
 
-#include <iosfwd>
-#include <string>
+//#include <iosfwd>
+//#include <string>
 #include "absl/base/config.h"
 #include "absl/flags/commandlineflag.h"
 #include "absl/flags/declare.h"
@@ -23,16 +23,15 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace flags_internal {
-
 // The format to report the help messages in.
 enum class HelpFormat {
-  kHumanReadable,
+	kHumanReadable,
 };
 
 // Streams the help message describing `flag` to `out`.
 // The default value for `flag` is included in the output.
 void FlagHelp(std::ostream & out, const CommandLineFlag& flag,
-              HelpFormat format = HelpFormat::kHumanReadable);
+    HelpFormat format = HelpFormat::kHumanReadable);
 
 // Produces the help messages for all flags matching the filter. A flag matches
 // the filter if it is defined in a file with a filename which includes
@@ -44,7 +43,7 @@ void FlagHelp(std::ostream & out, const CommandLineFlag& flag,
 // for any extension 'ext'. If the filter is empty this function produces help
 // messages for all flags.
 void FlagsHelp(std::ostream & out, absl::string_view filter,
-               HelpFormat format, absl::string_view program_usage_message);
+    HelpFormat format, absl::string_view program_usage_message);
 
 // --------------------------------------------------------------------
 
@@ -57,20 +56,20 @@ void FlagsHelp(std::ostream & out, absl::string_view filter,
 // Non negative return values are expected to be used as an exit code for a
 // binary.
 int HandleUsageFlags(std::ostream & out,
-                     absl::string_view program_usage_message);
+    absl::string_view program_usage_message);
 
 // --------------------------------------------------------------------
 // Globals representing usage reporting flags
 
 enum class HelpMode {
-  kNone,
-  kImportant,
-  kShort,
-  kFull,
-  kPackage,
-  kMatch,
-  kVersion,
-  kOnlyCheckArgs
+	kNone,
+	kImportant,
+	kShort,
+	kFull,
+	kPackage,
+	kMatch,
+	kVersion,
+	kOnlyCheckArgs
 };
 
 // Returns substring to filter help output (--help=substr argument)
@@ -89,7 +88,6 @@ void SetFlagsHelpFormat(HelpFormat);
 // --name. argument is already split into name and value before we call this
 // function.
 bool DeduceUsageFlags(absl::string_view name, absl::string_view value);
-
 }  // namespace flags_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

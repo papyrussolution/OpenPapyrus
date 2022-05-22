@@ -31,9 +31,6 @@
 extern "C" {
 #endif
 // 
-// Dependency 
-//#include <stddef.h>   /* size_t */
-// 
 // Introduction
 // 
 // lz4frame.h implements LZ4 frame specification (doc/lz4_Frame_format.md).

@@ -538,7 +538,7 @@ int __la_stat(const char * path, struct stat * st)
 		const char * p;
 		copy_stat(st, &u);
 		p = strrchr(path, '.');
-		if(p != NULL && strlen(p) == 4) {
+		if(p && strlen(p) == 4) {
 			char exttype[4];
 			++p;
 			exttype[0] = toupper(*p++);
@@ -663,23 +663,22 @@ static int fix_pathseparator(struct archive_entry * entry)
 	return(ret);
 }
 
-struct archive_entry * __la_win_entry_in_posix_pathseparator(struct archive_entry * entry)                        {
+struct archive_entry * __la_win_entry_in_posix_pathseparator(struct archive_entry * entry)                        
+{
 	struct archive_entry * entry_main;
-	const wchar_t * wp;
 	int has_backslash = 0;
 	int ret;
-
-	wp = archive_entry_pathname_w(entry);
-	if(wp != NULL && wcschr(wp, L'\\') != NULL)
+	const wchar_t * wp = archive_entry_pathname_w(entry);
+	if(wp && wcschr(wp, L'\\') != NULL)
 		has_backslash = 1;
 	if(!has_backslash) {
 		wp = archive_entry_hardlink_w(entry);
-		if(wp != NULL && wcschr(wp, L'\\') != NULL)
+		if(wp && wcschr(wp, L'\\') != NULL)
 			has_backslash = 1;
 	}
 	if(!has_backslash) {
 		wp = archive_entry_symlink_w(entry);
-		if(wp != NULL && wcschr(wp, L'\\') != NULL)
+		if(wp && wcschr(wp, L'\\') != NULL)
 			has_backslash = 1;
 	}
 	/*
@@ -687,7 +686,6 @@ struct archive_entry * __la_win_entry_in_posix_pathseparator(struct archive_entr
 	 */
 	if(!has_backslash)
 		return (entry);
-
 	/* Copy entry so we can modify it as needed. */
 	entry_main = archive_entry_clone(entry);
 	if(entry_main == NULL)
@@ -700,7 +698,6 @@ struct archive_entry * __la_win_entry_in_posix_pathseparator(struct archive_entr
 	}
 	return (entry_main);
 }
-
 /*
  * The following function was modified from PostgreSQL sources and is
  * subject to the copyright below.
@@ -746,54 +743,53 @@ struct archive_entry * __la_win_entry_in_posix_pathseparator(struct archive_entr
 static const struct {
 	DWORD winerr;
 	int doserr;
-} doserrors[] =
-{
-	{       ERROR_INVALID_FUNCTION, EINVAL  },
-	{       ERROR_FILE_NOT_FOUND, ENOENT    },
-	{       ERROR_PATH_NOT_FOUND, ENOENT    },
-	{       ERROR_TOO_MANY_OPEN_FILES, EMFILE       },
-	{       ERROR_ACCESS_DENIED, EACCES     },
-	{       ERROR_INVALID_HANDLE, EBADF     },
-	{       ERROR_ARENA_TRASHED, ENOMEM     },
-	{       ERROR_NOT_ENOUGH_MEMORY, ENOMEM },
-	{       ERROR_INVALID_BLOCK, ENOMEM     },
-	{       ERROR_BAD_ENVIRONMENT, E2BIG    },
-	{       ERROR_BAD_FORMAT, ENOEXEC       },
-	{       ERROR_INVALID_ACCESS, EINVAL    },
-	{       ERROR_INVALID_DATA, EINVAL      },
-	{       ERROR_INVALID_DRIVE, ENOENT     },
-	{       ERROR_CURRENT_DIRECTORY, EACCES },
-	{       ERROR_NOT_SAME_DEVICE, EXDEV    },
-	{       ERROR_NO_MORE_FILES, ENOENT     },
-	{       ERROR_LOCK_VIOLATION, EACCES    },
-	{       ERROR_SHARING_VIOLATION, EACCES },
-	{       ERROR_BAD_NETPATH, ENOENT       },
-	{       ERROR_NETWORK_ACCESS_DENIED, EACCES     },
-	{       ERROR_BAD_NET_NAME, ENOENT      },
-	{       ERROR_FILE_EXISTS, EEXIST       },
-	{       ERROR_CANNOT_MAKE, EACCES       },
-	{       ERROR_FAIL_I24, EACCES  },
-	{       ERROR_INVALID_PARAMETER, EINVAL },
-	{       ERROR_NO_PROC_SLOTS, EAGAIN     },
-	{       ERROR_DRIVE_LOCKED, EACCES      },
-	{       ERROR_BROKEN_PIPE, EPIPE        },
-	{       ERROR_DISK_FULL, ENOSPC },
-	{       ERROR_INVALID_TARGET_HANDLE, EBADF      },
-	{       ERROR_INVALID_HANDLE, EINVAL    },
-	{       ERROR_WAIT_NO_CHILDREN, ECHILD  },
-	{       ERROR_CHILD_NOT_COMPLETE, ECHILD        },
-	{       ERROR_DIRECT_ACCESS_HANDLE, EBADF       },
-	{       ERROR_NEGATIVE_SEEK, EINVAL     },
-	{       ERROR_SEEK_ON_DEVICE, EACCES    },
-	{       ERROR_DIR_NOT_EMPTY, ENOTEMPTY  },
-	{       ERROR_NOT_LOCKED, EACCES        },
-	{       ERROR_BAD_PATHNAME, ENOENT      },
-	{       ERROR_MAX_THRDS_REACHED, EAGAIN },
-	{       ERROR_LOCK_FAILED, EACCES       },
-	{       ERROR_ALREADY_EXISTS, EEXIST    },
-	{       ERROR_FILENAME_EXCED_RANGE, ENOENT      },
-	{       ERROR_NESTING_NOT_ALLOWED, EAGAIN       },
-	{       ERROR_NOT_ENOUGH_QUOTA, ENOMEM  }
+} doserrors[] = {
+	{ ERROR_INVALID_FUNCTION, EINVAL  },
+	{ ERROR_FILE_NOT_FOUND, ENOENT    },
+	{ ERROR_PATH_NOT_FOUND, ENOENT    },
+	{ ERROR_TOO_MANY_OPEN_FILES, EMFILE       },
+	{ ERROR_ACCESS_DENIED, EACCES     },
+	{ ERROR_INVALID_HANDLE, EBADF     },
+	{ ERROR_ARENA_TRASHED, ENOMEM     },
+	{ ERROR_NOT_ENOUGH_MEMORY, ENOMEM },
+	{ ERROR_INVALID_BLOCK, ENOMEM     },
+	{ ERROR_BAD_ENVIRONMENT, E2BIG    },
+	{ ERROR_BAD_FORMAT, ENOEXEC       },
+	{ ERROR_INVALID_ACCESS, EINVAL    },
+	{ ERROR_INVALID_DATA, EINVAL      },
+	{ ERROR_INVALID_DRIVE, ENOENT     },
+	{ ERROR_CURRENT_DIRECTORY, EACCES },
+	{ ERROR_NOT_SAME_DEVICE, EXDEV    },
+	{ ERROR_NO_MORE_FILES, ENOENT     },
+	{ ERROR_LOCK_VIOLATION, EACCES    },
+	{ ERROR_SHARING_VIOLATION, EACCES },
+	{ ERROR_BAD_NETPATH, ENOENT       },
+	{ ERROR_NETWORK_ACCESS_DENIED, EACCES     },
+	{ ERROR_BAD_NET_NAME, ENOENT      },
+	{ ERROR_FILE_EXISTS, EEXIST       },
+	{ ERROR_CANNOT_MAKE, EACCES       },
+	{ ERROR_FAIL_I24, EACCES  },
+	{ ERROR_INVALID_PARAMETER, EINVAL },
+	{ ERROR_NO_PROC_SLOTS, EAGAIN     },
+	{ ERROR_DRIVE_LOCKED, EACCES      },
+	{ ERROR_BROKEN_PIPE, EPIPE        },
+	{ ERROR_DISK_FULL, ENOSPC },
+	{ ERROR_INVALID_TARGET_HANDLE, EBADF      },
+	{ ERROR_INVALID_HANDLE, EINVAL    },
+	{ ERROR_WAIT_NO_CHILDREN, ECHILD  },
+	{ ERROR_CHILD_NOT_COMPLETE, ECHILD        },
+	{ ERROR_DIRECT_ACCESS_HANDLE, EBADF       },
+	{ ERROR_NEGATIVE_SEEK, EINVAL     },
+	{ ERROR_SEEK_ON_DEVICE, EACCES    },
+	{ ERROR_DIR_NOT_EMPTY, ENOTEMPTY  },
+	{ ERROR_NOT_LOCKED, EACCES        },
+	{ ERROR_BAD_PATHNAME, ENOENT      },
+	{ ERROR_MAX_THRDS_REACHED, EAGAIN },
+	{ ERROR_LOCK_FAILED, EACCES       },
+	{ ERROR_ALREADY_EXISTS, EEXIST    },
+	{ ERROR_FILENAME_EXCED_RANGE, ENOENT      },
+	{ ERROR_NESTING_NOT_ALLOWED, EAGAIN       },
+	{ ERROR_NOT_ENOUGH_QUOTA, ENOMEM  }
 };
 
 void __la_dosmaperr(ulong e)

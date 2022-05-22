@@ -14,14 +14,10 @@
 #else
 #include <openssl/evp.h>
 #include <openssl/err.h>
-//#include <string.h>
-//#include <assert.h>
 #include <openssl/camellia.h>
-//#include <evp_int.h>
 #include "modes_lcl.h"
 
-static int camellia_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
-    const uchar * iv, int enc);
+static int camellia_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
 
 /* Camellia subkey Structure */
 typedef struct {

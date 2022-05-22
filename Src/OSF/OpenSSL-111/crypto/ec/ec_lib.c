@@ -278,7 +278,7 @@ static int ec_guess_cofactor(EC_GROUP * group) {
 		return 1;
 	}
 
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		return 0;
 
 	BN_CTX_start(ctx);

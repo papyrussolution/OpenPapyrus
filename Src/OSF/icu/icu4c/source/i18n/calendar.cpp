@@ -490,7 +490,7 @@ public:
 
 	virtual UObject* cloneInstance(UObject* instance) const override {
 		UnicodeString * s = dynamic_cast<UnicodeString *>(instance);
-		if(s != NULL) {
+		if(s) {
 			return s->clone();
 		}
 		else {
@@ -859,9 +859,7 @@ Calendar * U_EXPORT2 Calendar::makeInstance(const Locale & aLocale, UErrorCode &
 		slfprintf_stderr("%p: setting week count data to locale %s, actual locale %s\n", c, (const char *)aLocale.getName(),
 		    (const char *)actualLoc.getName());
 #endif
-		c->setWeekData(aLocale, c->getType(), success); // set the correct locale (this was an indirect
-		                                                // calendar)
-
+		c->setWeekData(aLocale, c->getType(), success); // set the correct locale (this was an indirect calendar)
 		char keyword[ULOC_FULLNAME_CAPACITY] = "";
 		UErrorCode tmpStatus = U_ZERO_ERROR;
 		l.getKeywordValue("calendar", keyword, ULOC_FULLNAME_CAPACITY, tmpStatus);
@@ -2000,7 +1998,7 @@ void Calendar::add(UCalendarDateFields field, int32_t amount, UErrorCode & statu
 				}
 			}
 		    // Fall through into normal handling
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case UCAL_EXTENDED_YEAR:
 		case UCAL_MONTH:
 			{
@@ -2426,12 +2424,10 @@ bool Calendar::isWeekend(void) const
 			    int32_t millisInDay = internalGet(UCAL_MILLISECONDS_IN_DAY);
 			    int32_t transitionMillis = getWeekendTransition(dayOfWeek, status);
 			    if(U_SUCCESS(status)) {
-				    return (dayType == UCAL_WEEKEND_ONSET) ?
-					   (millisInDay >= transitionMillis) :
-					   (millisInDay <  transitionMillis);
+				    return (dayType == UCAL_WEEKEND_ONSET) ? (millisInDay >= transitionMillis) : (millisInDay <  transitionMillis);
 			    }
 			    // else fall through, return FALSE
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 		    }
 			default:
 			    break;
@@ -2677,10 +2673,8 @@ const UFieldResolutionTable Calendar::kDatePrecedence[] =
 		{ UCAL_WEEK_OF_MONTH, UCAL_DOW_LOCAL, kResolveSTOP },
 		{ UCAL_DAY_OF_WEEK_IN_MONTH, UCAL_DOW_LOCAL, kResolveSTOP },
 		{ UCAL_DAY_OF_YEAR, kResolveSTOP },
-		{ kResolveRemap | UCAL_DAY_OF_MONTH, UCAL_YEAR, kResolveSTOP }, // if YEAR is set over YEAR_WOY use
-		                                                                // DAY_OF_MONTH
-		{ kResolveRemap | UCAL_WEEK_OF_YEAR, UCAL_YEAR_WOY, kResolveSTOP }, // if YEAR_WOY is set,  calc based
-		                                                                    // on WEEK_OF_YEAR
+		{ kResolveRemap | UCAL_DAY_OF_MONTH, UCAL_YEAR, kResolveSTOP }, // if YEAR is set over YEAR_WOY use DAY_OF_MONTH
+		{ kResolveRemap | UCAL_WEEK_OF_YEAR, UCAL_YEAR_WOY, kResolveSTOP }, // if YEAR_WOY is set,  calc based on WEEK_OF_YEAR
 		{ kResolveSTOP }
 	},
 	{
@@ -3111,8 +3105,7 @@ int32_t Calendar::handleComputeJulianDay(UCalendarDateFields bestField)
 
 					// nextFirst is now the localized DOW of Jan 1  of y-woy+1
 					if((nextFirst > 0) && // Jan 1 starts on FDOW
-					    (7-nextFirst) >= getMinimalDaysInFirstWeek()) { // or enough days in the
-					                                                    // week
+					    (7-nextFirst) >= getMinimalDaysInFirstWeek()) { // or enough days in the week
 						// Jan 1 of (yearWoy+1) is in yearWoy+1 - recalculate JD to next year
 #if defined (U_DEBUG_CAL)
 						slfprintf_stderr("%s:%d - was going to move JD from %d to %d [d%d]\n", __FILE__, __LINE__,
@@ -3135,26 +3128,16 @@ int32_t Calendar::handleComputeJulianDay(UCalendarDateFields bestField)
 					if((7 - first) < getMinimalDaysInFirstWeek()) {
 						testDate += 7;
 					}
-
 					// Now adjust for the week number.
 					testDate += 7 * (woy - 1);
-
 #if defined (U_DEBUG_CAL)
 					slfprintf_stderr("%s:%d - y=%d, y-1=%d doy%d, njd%d (C.F. %d)\n",
 					    __FILE__, __LINE__, year, year-1, testDate, julianDay+testDate, nextJulianDay);
 #endif
-					if(julianDay+testDate > nextJulianDay) { // is it past Dec 31?  (nextJulianDay
-						                                 // is day BEFORE year+1's  Jan 1)
+					if(julianDay+testDate > nextJulianDay) { // is it past Dec 31?  (nextJulianDay is day BEFORE year+1's  Jan 1)
 						// Fire up the calculating engines.. retry YWOY = (year-1)
-						julianDay = handleComputeMonthStart(year-1, 0, FALSE); // jd before Jan
-						                                                       // 1 of previous
-						                                                       // year
-						first = julianDayToDayOfWeek(julianDay + 1) - firstDayOfWeek; // 0 based
-						                                                              // local
-						                                                              // dow
-						                                                              //   of
-						                                                              // first
-						                                                              // week
+						julianDay = handleComputeMonthStart(year-1, 0, FALSE); // jd before Jan 1 of previous year
+						first = julianDayToDayOfWeek(julianDay + 1) - firstDayOfWeek; // 0 based local dow of first week
 
 						if(first < 0) { // 0..6
 							first += 7;
@@ -3436,7 +3419,7 @@ void Calendar::prepareGetActual(UCalendarDateFields field, bool isMinimum, UErro
 		    break;
 		case UCAL_YEAR_WOY:
 		    set(UCAL_WEEK_OF_YEAR, getGreatestMinimum(UCAL_WEEK_OF_YEAR));
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case UCAL_MONTH:
 		    set(UCAL_DATE, getGreatestMinimum(UCAL_DATE));
 		    break;

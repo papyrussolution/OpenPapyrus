@@ -220,7 +220,7 @@ U_NAMESPACE_END
 U_CAPI int32_t U_EXPORT2 uhash_hashCaselessUnicodeString(const UElement key) {
 	U_NAMESPACE_USE
 	const UnicodeString * str = (const UnicodeString *)key.pointer;
-	if(str == NULL) {
+	if(!str) {
 		return 0;
 	}
 	// Inefficient; a better way would be to have a hash function in

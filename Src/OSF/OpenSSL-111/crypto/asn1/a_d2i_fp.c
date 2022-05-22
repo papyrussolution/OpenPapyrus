@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/numbers.h"
-//#include <openssl/buffer.h>
-//#include <openssl/asn1.h>
-//#include "asn1_int.h"
 
 #ifndef NO_OLD_ASN1
 #ifndef OPENSSL_NO_STDIO

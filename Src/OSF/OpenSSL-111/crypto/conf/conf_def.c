@@ -97,7 +97,7 @@ CONF_METHOD * NCONF_WIN32(void)
 static CONF * def_create(CONF_METHOD * meth)
 {
 	CONF * ret = static_cast<CONF *>(OPENSSL_malloc(sizeof(*ret)));
-	if(ret != NULL)
+	if(ret)
 		if(meth->init(ret) == 0) {
 			OPENSSL_free(ret);
 			ret = NULL;
@@ -368,7 +368,7 @@ again:
 				next = BIO_new_file(include, "r");
 				OPENSSL_free(include);
 #endif
-				if(next != NULL) {
+				if(next) {
 					/* push the currently processing BIO onto stack */
 					if(biosk == NULL) {
 						if((biosk = sk_BIO_new_null()) == NULL) {

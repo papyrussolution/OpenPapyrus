@@ -41,9 +41,7 @@ static int init(void)
 	args[1] = ONIG_TYPE_STRING;
 	args[2] = ONIG_TYPE_TAG | ONIG_TYPE_LONG;
 	BC_P(name, cmp, 3, args);
-
 #endif /* USE_CALLOUT */
-
 	return ONIG_NORMAL;
 }
 

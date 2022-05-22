@@ -151,7 +151,7 @@ public:
 									p_new_doc->InvcCode = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 								}
 								if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_INVOICEDATE), temp_buf)) {
-									p_new_doc->InvcDate = strtodate_(temp_buf, DATF_GERMAN|DATF_CENTURY);
+									p_new_doc->InvcDate = strtodate_(temp_buf, DATF_GERMANCENT);
 								}
 								if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_CODEOKV), temp_buf)) {
 								}
@@ -200,7 +200,7 @@ public:
 														p_new_doc->Code = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
 													}
 													else if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_WAYBILLDATE))) { // @v11.1.12 CmpNC-->IsEqiUtf8
-														p_new_doc->Dt = strtodate_(extra_val, DATF_GERMAN|DATF_CENTURY);
+														p_new_doc->Dt = strtodate_(extra_val, DATF_GERMANCENT);
 													}
 												}
 											}
@@ -3807,7 +3807,7 @@ int PPBillImporter::DoFullEdiProcess()
 											ObjTagItem tag_item;
 											temp_buf.Z();
 											temp_buf.Cat(all_equal ? "ACCEPTED" : "CHANGED");
-											temp_buf.Space().Cat(p_bp->Rec.Code).Space().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY);
+											temp_buf.Space().Cat(p_bp->Rec.Code).Space().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT);
 											if(!tag_item.SetStr(PPTAG_BILL_EDIORDRSPRCV, temp_buf) || !p_ref->Ot.PutTag(PPOBJ_BILL, order_bill_id, &tag_item, 1)) {
 												Logger.LogLastError();
 											}
@@ -3860,7 +3860,7 @@ int PPBillImporter::DoFullEdiProcess()
 											ObjTagItem tag_item;
 											temp_buf.Z();
 											temp_buf.Cat(p_recadv_pack->AllRowsAccepted ? "ACCEPTED" : "CHANGED");
-											temp_buf.Space().Cat(p_recadv_pack->RBp.Rec.Code).Space().Cat(p_recadv_pack->RBp.Rec.Dt, DATF_ISO8601|DATF_CENTURY);
+											temp_buf.Space().Cat(p_recadv_pack->RBp.Rec.Code).Space().Cat(p_recadv_pack->RBp.Rec.Dt, DATF_ISO8601CENT);
 											if(!tag_item.SetStr(PPTAG_BILL_EDIRECADVRCV, temp_buf) || !p_ref->Ot.PutTag(PPOBJ_BILL, desadv_bill_id, &tag_item, 1)) {
 												Logger.LogLastError();
 											}
@@ -4057,15 +4057,15 @@ public:
 	}
 	LDATE  DeliveryDate;
 	LDATE  OrderDate;
-	double QtyCase;             // Количество упаковок
-	double QtyBottle;           // Количество единиц
-	double FreeCase;            // Количество бесплатных упаковок (промо)
-	double Discount;            // Скидка на упаковку без НДС
-	double PriceCase;           // Цена за упаковку без НДС 
-	double PriceEA;             // Цена за единицу без НДС
-	double CasesDiscounted;     //  
-	double PcsDiscounted;       //
-	double GrossValue;          // Сумма с НДС
+	double QtyCase;         // Количество упаковок
+	double QtyBottle;       // Количество единиц
+	double FreeCase;        // Количество бесплатных упаковок (промо)
+	double Discount;        // Скидка на упаковку без НДС
+	double PriceCase;       // Цена за упаковку без НДС 
+	double PriceEA;         // Цена за единицу без НДС
+	double CasesDiscounted; //  
+	double PcsDiscounted;   //
+	double GrossValue;      // Сумма с НДС
 	SString InputChannel;
 	SString DiscountPromoIdent;
 	SString ACTGRINUM;
@@ -5739,7 +5739,7 @@ DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const Docume
 	//Функция="СЧФДОП"
 	/*
 	if(!!rDtm) {
-		temp_buf.Z().Cat(rDtm.d, DATF_GERMAN|DATF_CENTURY);
+		temp_buf.Z().Cat(rDtm.d, DATF_GERMANCENT);
 		N.PutAttrib("ДатаИнфЗак", temp_buf);
 		temp_buf.Z().Cat(rDtm.t, TIMF_HMS|TIMF_DOTDIV);
 		N.PutAttrib("ВремИнфЗак", temp_buf);
@@ -5747,7 +5747,7 @@ DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const Docume
 	*/
 	if(oneof2(rInfo.KND, "1115131", "1115101")) {
 		LDATETIME dtm_now = getcurdatetime_();
-		temp_buf.Z().Cat(dtm_now.d, DATF_GERMAN|DATF_CENTURY);
+		temp_buf.Z().Cat(dtm_now.d, DATF_GERMANCENT);
 		N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_SELLERINFODATE), temp_buf);
 		temp_buf.Z().Cat(dtm_now.t, TIMF_HMS|TIMF_DOTDIV);
 		N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_SELLERINFOTIME), temp_buf);
@@ -5772,7 +5772,7 @@ DocNalogRu_Generator::Invoice::Invoice(DocNalogRu_Generator & rG, const PPBillPa
 	// @v11.1.12 BillCore::GetCode(temp_buf = rBp.Rec.Code);
 	temp_buf = rBp.Rec.Code; // @v11.1.12 
 	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_INVOICENUMBER), rG.EncText(temp_buf));
-	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_INVOICEDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_INVOICEDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMANCENT));
 	N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_CODEOKV), "643");
 }
 
@@ -6374,7 +6374,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 			docinfo.Subj = temp_buf;
 			DocNalogRu_Generator::Document d(g, docinfo);
 			// Дата формирования документа о передаче результатов работ (документа об оказании услуг), информация исполнителя
-			d.N.PutAttrib(g.GetToken_Ansi(PPHSC_RU_EXECUTORINFODATE), temp_buf.Z().Cat(_hi.CurDtm.d, DATF_GERMAN|DATF_CENTURY));
+			d.N.PutAttrib(g.GetToken_Ansi(PPHSC_RU_EXECUTORINFODATE), temp_buf.Z().Cat(_hi.CurDtm.d, DATF_GERMANCENT));
 			// Время формирования документа о передаче результатов работ (документа об оказании услуг), информация исполнителя
 			d.N.PutAttrib(g.GetToken_Ansi(PPHSC_RU_EXECUTORINFOTIME), temp_buf.Z().Cat(_hi.CurDtm.t, TIMF_HMS|TIMF_DOTDIV));
 			{
@@ -6389,7 +6389,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 					// @v11.1.12 BillCore::GetCode(temp_buf = rBp.Rec.Code);
 					temp_buf = rBp.Rec.Code; // @v11.1.12 
 					n_3.PutAttrib("НомДокПРУ", g.EncText(temp_buf));
-					n_3.PutAttrib("ДатаДокПРУ", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+					n_3.PutAttrib("ДатаДокПРУ", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMANCENT));
 					// SXml::WNode n_3(g.P_X, "ИспрДокПРУ");
 					// SXml::WNode n_3(g.P_X, "ДенИзм");
 					{
@@ -6499,13 +6499,13 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 										SXml::WNode n_482(g.P_X, g.GetToken_Ansi(PPHSC_RU_TEXTINF)); // [0..20]
 										temp_buf = g.GetToken_Ansi(PPHSC_RU_CONTRACTDATE);
 										n_482.PutAttrib(g.GetToken_Ansi(PPHSC_RU_IDENTIF), temp_buf);
-										n_482.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));
+										n_482.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMANCENT));
 									}
 									if(checkdate(agt_expiry)) {
 										SXml::WNode n_483(g.P_X, g.GetToken_Ansi(PPHSC_RU_TEXTINF)); // [0..20]
 										temp_buf = g.GetToken_Ansi(PPHSC_RU_PERIOD);
 										n_483.PutAttrib(g.GetToken_Ansi(PPHSC_RU_IDENTIF), temp_buf);
-										n_483.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMAN|DATF_CENTURY));
+										n_483.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMANCENT));
 									}
 								}
 								else {
@@ -6523,7 +6523,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, const SString & rFi
 				n_.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONTOFOP), g.EncText(temp_buf));
 				// Дата передачи результатов работ (предъявления оказанных услуг)
 				// Обязателен, если ДатаПер не совпадает с ДатаДокПРУ
-				temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY);
+				temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMANCENT);
 				n_.PutAttribSkipEmpty(g.GetToken_Ansi(PPHSC_RU_WARETRANSFDATE), temp_buf);
 				/*{
 					SXml::WNode n_2(g.P_X, "СвПерВещи"); // Сведения о передаче вещи, изготовленной  по договору подряда
@@ -6652,7 +6652,7 @@ int WriteBill_NalogRu2_Invoice2(const PPBillPacket & rBp, const char * pHeaderSy
 					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAME), temp_buf);
 					temp_buf = rBp.Rec.Code;
 					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNO), g.EncText(temp_buf));
-					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMANCENT));
 				}
 				// } @v11.3.1
 			}
@@ -6663,7 +6663,7 @@ int WriteBill_NalogRu2_Invoice2(const PPBillPacket & rBp, const char * pHeaderSy
 					SXml::WNode n_1(g.P_X, g.GetToken_Ansi(PPHSC_RU_WARETRANSFINFO2));
 					PPLoadText(PPTXT_NALOGRU_UPDOPCONTENT, temp_buf);
 					n_1.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONTOFOP), g.EncText(temp_buf));
-					temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY);
+					temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMANCENT);
 					n_1.PutAttribSkipEmpty(g.GetToken_Ansi(PPHSC_RU_WARETRANSFDATE), temp_buf);
 					{
 						SXml::WNode n_11(g.P_X, g.GetToken_Ansi(PPHSC_RU_BASISFORWARETRANSFER));
@@ -6671,7 +6671,7 @@ int WriteBill_NalogRu2_Invoice2(const PPBillPacket & rBp, const char * pHeaderSy
 							temp_buf = g.GetToken_Ansi(PPHSC_RU_CONTRACT);
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), temp_buf);
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NUMBOFBASISFORWARETRANSFER), g.EncText(agt_code));
-							temp_buf.Z().Cat(checkdate(agt_date) ? agt_date : encodedate(1, 1, 2017), DATF_GERMAN|DATF_CENTURY);
+							temp_buf.Z().Cat(checkdate(agt_date) ? agt_date : encodedate(1, 1, 2017), DATF_GERMANCENT);
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_DATEOFBASISFORWARETRANSFER), g.EncText(temp_buf));
 						}
 						else {
@@ -6806,7 +6806,7 @@ int WriteBill_NalogRu2_Invoice(const PPBillPacket & rBp, const SString & rFileNa
 					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAME), temp_buf);
 					temp_buf = rBp.Rec.Code;
 					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNO), g.EncText(temp_buf));
-					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMANCENT));
 				}
 				// } @v11.3.0
 			}
@@ -6873,7 +6873,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 			// При Функция=ДОП самостоятельно установленное наименование документа или «Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (Документ об оказании услуг)» (по умолчанию)
 			temp_buf = op_rec.Name;
 			d.N.PutAttribSkipEmpty(g.GetToken_Ansi(PPHSC_RU_NAMEOFDOC), g.EncText(temp_buf));
-			//d.N.PutAttrib(g.GetToken_Ansi(PPHSC_RU_SELLERINFODATE), temp_buf.Z().Cat(_hi.CurDtm.d, DATF_GERMAN|DATF_CENTURY));
+			//d.N.PutAttrib(g.GetToken_Ansi(PPHSC_RU_SELLERINFODATE), temp_buf.Z().Cat(_hi.CurDtm.d, DATF_GERMANCENT));
 			//d.N.PutAttrib(g.GetToken_Ansi(PPHSC_RU_SELLERINFOTIME), temp_buf.Z().Cat(_hi.CurDtm.t, TIMF_HMS|TIMF_DOTDIV));
 			{
 				DocNalogRu_Generator::Invoice inv(g, rBp);
@@ -6952,7 +6952,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 					// @v11.1.12 BillCore::GetCode(temp_buf = rBp.Rec.Code);
 					temp_buf = rBp.Rec.Code; // @v11.1.12 
 					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNO), g.EncText(temp_buf));
-					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+					n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCDATE), temp_buf.Z().Cat(rBp.Rec.Dt, DATF_GERMANCENT));
 				}
 				// } @v11.1.7 
 				{
@@ -6968,13 +6968,13 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 							SXml::WNode n_2(g.P_X, g.GetToken_Ansi(PPHSC_RU_TEXTINF)); // [0..20]
 							temp_buf = g.GetToken_Ansi(PPHSC_RU_CONTRACTDATE);
 							n_2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_IDENTIF), temp_buf);
-							n_2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMAN|DATF_CENTURY));
+							n_2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_date, DATF_GERMANCENT));
 						}
 						if(checkdate(agt_expiry)) {
 							SXml::WNode n_3(g.P_X, g.GetToken_Ansi(PPHSC_RU_TEXTINF)); // [0..20]
 							temp_buf = g.GetToken_Ansi(PPHSC_RU_PERIOD);
 							n_3.PutAttrib(g.GetToken_Ansi(PPHSC_RU_IDENTIF), temp_buf);
-							n_3.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMAN|DATF_CENTURY));
+							n_3.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VAL), temp_buf.Z().Cat(agt_expiry, DATF_GERMANCENT));
 						}
 					}
 					else {
@@ -6997,7 +6997,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, const SString & rFileName, 
 							temp_buf = g.GetToken_Ansi(PPHSC_RU_CONTRACT);
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), temp_buf);
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_NUMBOFBASISFORWARETRANSFER), g.EncText(agt_code));
-							temp_buf.Z().Cat(checkdate(agt_date) ? agt_date : encodedate(1, 1, 2017), DATF_GERMAN|DATF_CENTURY);
+							temp_buf.Z().Cat(checkdate(agt_date) ? agt_date : encodedate(1, 1, 2017), DATF_GERMANCENT);
 							n_11.PutAttrib(g.GetToken_Ansi(PPHSC_RU_DATEOFBASISFORWARETRANSFER), g.EncText(temp_buf));
 						}
 						else {

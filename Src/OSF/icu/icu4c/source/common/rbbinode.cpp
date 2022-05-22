@@ -1,14 +1,7 @@
+// rbbinode.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ***************************************************************************
- *   Copyright (C) 2002-2016 International Business Machines Corporation   *
- *   and others. All rights reserved.                                      *
- ***************************************************************************
- */
-
-//
-//  File:  rbbinode.cpp
+// Copyright (C) 2002-2016 International Business Machines Corporation and others. All rights reserved.
 //
 //         Implementation of class RBBINode, which represents a node in the
 //         tree generated when parsing the Rules Based Break Iterator rules.
@@ -30,13 +23,11 @@ U_NAMESPACE_BEGIN
 #ifdef RBBI_DEBUG
 static int gLastSerial = 0;
 #endif
-
-//-------------------------------------------------------------------------
 //
 //    Constructor.   Just set the fields to reasonable default values.
 //
-//-------------------------------------------------------------------------
-RBBINode::RBBINode(NodeType t) : UMemory() {
+RBBINode::RBBINode(NodeType t) : UMemory() 
+{
 #ifdef RBBI_DEBUG
 	fSerialNum    = ++gLastSerial;
 #endif
@@ -94,8 +85,6 @@ RBBINode::RBBINode(const RBBINode &other) : UMemory(other) {
 	fLastPosSet  = new UVector(status);
 	fFollowPos   = new UVector(status);
 }
-
-//-------------------------------------------------------------------------
 //
 //    Destructor.   Deletes both this node AND any child nodes,
 //                  except in the case of variable reference nodes.  For
@@ -103,8 +92,8 @@ RBBINode::RBBINode(const RBBINode &other) : UMemory(other) {
 //                  is common for all references to the variable, meaning
 //                  it can't be deleted here.
 //
-//-------------------------------------------------------------------------
-RBBINode::~RBBINode() {
+RBBINode::~RBBINode() 
+{
 	// printf("deleting node %8x   serial %4d\n", this, this->fSerialNum);
 	delete fInputSet;
 	fInputSet = NULL;
@@ -127,8 +116,6 @@ RBBINode::~RBBINode() {
 	delete fLastPosSet;
 	delete fFollowPos;
 }
-
-//-------------------------------------------------------------------------
 //
 //    cloneTree     Make a copy of the subtree rooted at this node.
 //                  Discard any variable references encountered along the way,
@@ -136,10 +123,9 @@ RBBINode::~RBBINode() {
 //                  Used to replicate the expression underneath variable
 //                  references in preparation for generating the DFA tables.
 //
-//-------------------------------------------------------------------------
-RBBINode * RBBINode::cloneTree() {
+RBBINode * RBBINode::cloneTree() 
+{
 	RBBINode    * n;
-
 	if(fType == RBBINode::varRef) {
 		// If the current node is a variable reference, skip over it
 		//   and clone the definition of the variable instead.
@@ -164,8 +150,6 @@ RBBINode * RBBINode::cloneTree() {
 	}
 	return n;
 }
-
-//-------------------------------------------------------------------------
 //
 //   flattenVariables   Walk a parse tree, replacing any variable
 //                      references with a copy of the variable's definition.
@@ -182,8 +166,8 @@ RBBINode * RBBINode::cloneTree() {
 //                      found, then calling cloneTree() at that point.  Any
 //                      nested references are handled by cloneTree(), not here.
 //
-//-------------------------------------------------------------------------
-RBBINode * RBBINode::flattenVariables() {
+RBBINode * RBBINode::flattenVariables() 
+{
 	if(fType == varRef) {
 		RBBINode * retNode  = fLeftChild->cloneTree();
 		if(retNode != NULL) {
@@ -204,18 +188,15 @@ RBBINode * RBBINode::flattenVariables() {
 	}
 	return this;
 }
-
-//-------------------------------------------------------------------------
 //
 //  flattenSets    Walk the parse tree, replacing any nodes of type setRef
 //                 with a copy of the expression tree for the set.  A set's
 //                 equivalent expression tree is precomputed and saved as
 //                 the left child of the uset node.
 //
-//-------------------------------------------------------------------------
-void RBBINode::flattenSets() {
+void RBBINode::flattenSets() 
+{
 	U_ASSERT(fType != setRef);
-
 	if(fLeftChild != NULL) {
 		if(fLeftChild->fType==setRef) {
 			RBBINode * setRefNode = fLeftChild;
@@ -244,14 +225,12 @@ void RBBINode::flattenSets() {
 		}
 	}
 }
-
-//-------------------------------------------------------------------------
 //
 //   findNodes()     Locate all the nodes of the specified type, starting
 //                   at the specified root.
 //
-//-------------------------------------------------------------------------
-void RBBINode::findNodes(UVector * dest, RBBINode::NodeType kind, UErrorCode & status) {
+void RBBINode::findNodes(UVector * dest, RBBINode::NodeType kind, UErrorCode & status) 
+{
 	/* test for buffer overflows */
 	if(U_FAILURE(status)) {
 		return;
@@ -267,17 +246,12 @@ void RBBINode::findNodes(UVector * dest, RBBINode::NodeType kind, UErrorCode & s
 		fRightChild->findNodes(dest, kind, status);
 	}
 }
-
-//-------------------------------------------------------------------------
 //
 //    print.         Print out a single node, for debugging.
 //
-//-------------------------------------------------------------------------
 #ifdef RBBI_DEBUG
 
-static int32_t serial(const RBBINode * node) {
-	return (node == NULL ? -1 : node->fSerialNum);
-}
+static int32_t serial(const RBBINode * node) { return (node == NULL ? -1 : node->fSerialNum); }
 
 void RBBINode::printNode(const RBBINode * node) {
 	static const char * const nodeTypeNames[] = {
@@ -323,18 +297,17 @@ U_CFUNC void RBBI_DEBUG_printUnicodeString(const UnicodeString & s, int minWidth
 }
 
 #endif
-
-//-------------------------------------------------------------------------
 //
 //    print.         Print out the tree of nodes rooted at "this"
 //
-//-------------------------------------------------------------------------
 #ifdef RBBI_DEBUG
-void RBBINode::printNodeHeader() {
+void RBBINode::printNodeHeader() 
+{
 	RBBIDebugPrintf(" Address   serial        type     LeftChild  RightChild   Parent   position value\n");
 }
 
-void RBBINode::printTree(const RBBINode * node, bool printHeading) {
+void RBBINode::printTree(const RBBINode * node, bool printHeading) 
+{
 	if(printHeading) {
 		printNodeHeader();
 	}

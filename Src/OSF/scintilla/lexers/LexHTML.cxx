@@ -821,7 +821,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    continue;
 			}
 		}
-		/////////////////////////////////////
+		//
 		// handle the start of PHP pre-processor = Non-HTML
 		else if((state != SCE_H_ASPAT) && !isStringState(state) && (state != SCE_HPHP_COMMENT) &&
 		    (state != SCE_HPHP_COMMENTLINE) && (ch == '<') && (chNext == '?') && !IsScriptCommentState(state)) {
@@ -973,8 +973,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			ch = static_cast<uchar>(styler.SafeGetCharAt(i));
 			continue;
 		}
-
-		/////////////////////////////////////
+		//
 		// handle the start of SGML language (DTD)
 		else if(((scriptLanguage == eScriptNone) || (scriptLanguage == eScriptXML)) &&
 		    (chPrev == '<') && (ch == '!') && (state_to_print != SCE_H_CDATA) && (!IsCommentState(state_to_print)) && (!IsScriptCommentState(state_to_print))) {
@@ -1104,7 +1103,6 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			scriptLanguage = beforeLanguage;
 			continue;
 		}
-		/////////////////////////////////////
 		switch(state) {
 			case SCE_H_DEFAULT:
 			    if(ch == '<') {

@@ -60,12 +60,10 @@
 #define U_OFF    (Y_OFF + BPS * 16 + BPS)
 #define V_OFF    (U_OFF + 16)
 
-// minimal width under which lossy multi-threading is always disabled
-#define MIN_WIDTH_FOR_THREADS 512
-
-//------------------------------------------------------------------------------
+#define MIN_WIDTH_FOR_THREADS 512 // minimal width under which lossy multi-threading is always disabled
+//
 // Headers
-
+//
 typedef struct {
 	uint8 key_frame_;
 	uint8 profile_;
@@ -115,10 +113,9 @@ typedef struct {
 	int ref_lf_delta_[NUM_REF_LF_DELTAS];
 	int mode_lf_delta_[NUM_MODE_LF_DELTAS];
 } VP8FilterHeader;
-
-//------------------------------------------------------------------------------
+//
 // Informations about the macroblocks.
-
+//
 typedef struct {  // filter specs
 	uint8 f_limit_; // filter limit in [3..189], or 0 if no filtering
 	uint8 f_ilevel_; // inner limit in [1..63]
@@ -174,24 +171,20 @@ typedef struct {
 typedef struct {
 	uint8 y[16], u[8], v[8];
 } VP8TopSamples;
-
-//------------------------------------------------------------------------------
+//
 // VP8Decoder: the main opaque structure handed over to user
-
+//
 struct VP8Decoder {
 	VP8StatusCode status_;
 	int ready_; // true if ready to decode a picture with VP8Decode()
 	const char* error_msg_; // set when status_ is not OK.
-
 	// Main data source
 	VP8BitReader br_;
-
 	// headers
 	VP8FrameHeader frm_hdr_;
 	VP8PictureHeader pic_hdr_;
 	VP8FilterHeader filter_hdr_;
 	VP8SegmentHeader segment_hdr_;
-
 	// Worker
 	WebPWorker worker_;
 	int mt_method_; // multi-thread method: 0=off, 1=[parse+recon][filter]
@@ -262,10 +255,9 @@ struct VP8Decoder {
 	const uint8* alpha_prev_line_; // last decoded alpha row (or NULL)
 	int alpha_dithering_; // derived from decoding options (0=off, 100=full)
 };
-
-//------------------------------------------------------------------------------
+//
 // internal functions. Not public.
-
+//
 // in vp8.c
 int VP8SetError(VP8Decoder* const dec, VP8StatusCode error, const char* const msg);
 // in tree.c

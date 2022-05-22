@@ -1041,10 +1041,28 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			else
 				memcpy(pOutputData, str, str.BufSize());
 		}
+		else if(cmd.IsEqiAscii("OPENSESSION")) { // @v11.3.12
+			int    flag = 0;
+			SetLastItems(cmd, pInputData);
+			THROW(StartWork());
+			THROW(GetCurFlags(2, flag));
+			if(!(flag & 0x4)) { // Если смена уже открыта, то ничего делать не надо
+				/*
+					(Имя оператора) Имя оператора
+					(Строка) Адрес пользователя (тег 1009). Это поле используется, если указанные реквизиты отличны от реквизитов, переданных при формировании отчета о регистрации ККТ.
+					(Строка) Место расчетов (тег 1187). Это поле используется, если указанные реквизиты отличны от реквизитов, переданных при формировании отчета о регистрации ККТ
+				*/
+				CreateStr(CshrName, str.Z());
+				THROW(ExecCmd("23", str, out_data, r_error));
+				THROW(GetCurFlags(2, flag));
+				if(!(flag & 0x4))  // Проверяем флаг "смена открыта"
+					ok = 0;
+			}
+		}
 		else if(cmd.IsEqiAscii("ZREPORT")) {
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
-			CreateStr(CshrName, str);
+			CreateStr(CshrName, str.Z()); // @v11.3.12 str-->str.Z()
 			int    flag = 0;
 			THROW(GetCurFlags(2, flag));
 			THROWERR(!(flag & 0x40), PIRIT_NOTENOUGHTMEMFORSESSCLOSE); // Нет памяти для закрытия смены в ФП
@@ -1142,7 +1160,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.CheckNum = param_val.ToLong();
 			if(pb.Get("CHECKTIMESTAMP", param_val) > 0) { // @v11.2.3
 				LDATETIME dtm;
-				if(dtm.Set(param_val, DATF_ISO8601|DATF_CENTURY, 0))
+				if(dtm.Set(param_val, DATF_ISO8601CENT, 0))
 					Check.Timestamp = dtm;
 			}
 			if(pb.Get("TAXSYSTEM", param_val) > 0) {
@@ -1242,7 +1260,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				STRNSCPY(blk.DocNo, param_val);
 			}
 			if(pb.Get("DATE", param_val) > 0) {
-				blk.Dt = strtodate_(param_val, DATF_ISO8601|DATF_CENTURY);
+				blk.Dt = strtodate_(param_val, DATF_ISO8601CENT);
 			}
 			if(pb.Get("TEXT", param_val) > 0) {
 				STRNSCPY(blk.DocMemo, param_val);
@@ -1600,7 +1618,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			LDATETIME dtm = ZERODATETIME;
 			strtodate(date_buf, DATF_DMY|DATF_NODIV, &dtm.d);
 			strtotime(time_buf, TIMF_HMS|TIMF_NODIV, &dtm.t);
-			str.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
+			str.Z().Cat(dtm, DATF_ISO8601CENT, 0);
 			memcpy(pOutputData, str, outSize);
 			//CashDateTime.Z().Cat("Текущая дата на ККМ").CatDiv(':', 2).Cat(date).Space().Cat("Текущее время на ККМ").CatDiv(':', 2).Cat(time);
 		}

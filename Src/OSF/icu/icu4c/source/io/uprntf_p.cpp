@@ -134,7 +134,7 @@ static int32_t u_printf_string_handler(const u_printf_stream_handler * handler, 
 		argSize = (int32_t)strlen(arg) + 1;
 		if(argSize >= MAX_UCHAR_BUFFER_SIZE(buffer)) {
 			s = ufmt_defaultCPToUnicode(arg, argSize, (UChar *)uprv_malloc(MAX_UCHAR_BUFFER_NEEDED(argSize)), MAX_UCHAR_BUFFER_NEEDED(argSize));
-			if(s == NULL) {
+			if(!s) {
 				return 0;
 			}
 		}
@@ -1269,7 +1269,7 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 					    /* set the spec's width to the # of chars written */
 					    info->fWidth = *written;
 					    /* fall through to set the pointer */
-					    U_FALLTHROUGH;
+					    CXX_FALLTHROUGH;
 					case ufmt_string:
 					case ufmt_ustring:
 					case ufmt_pointer:
@@ -1298,7 +1298,7 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 					    /* set the spec's width to the # of chars written */
 					    info->fWidth = *written;
 					    /* fall through to set the pointer */
-					    U_FALLTHROUGH;
+					    CXX_FALLTHROUGH;
 					case ufmt_string:
 					case ufmt_ustring:
 					case ufmt_pointer:

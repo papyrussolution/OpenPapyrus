@@ -432,7 +432,7 @@ U_CAPI bool U_EXPORT2 ucol_equal(const UCollator * coll, const UChar * source, i
 U_CAPI void U_EXPORT2 ucol_getUCAVersion(const UCollator* coll, UVersionInfo info) 
 {
 	const Collator * c = Collator::fromUCollator(coll);
-	if(c != NULL) {
+	if(c) {
 		UVersionInfo v;
 		c->getVersion(v);
 		// Note: This is tied to how the current implementation encodes the UCA version

@@ -23,9 +23,7 @@ using CopyResult = CordRepBtree::CopyResult;
 constexpr auto kFront = CordRepBtree::kFront;
 constexpr auto kBack = CordRepBtree::kBack;
 
-inline bool exhaustive_validation() {
-	return cord_btree_exhaustive_validation.load(std::memory_order_relaxed);
-}
+inline bool exhaustive_validation() { return cord_btree_exhaustive_validation.load(std::memory_order_relaxed); }
 
 // Implementation of the various 'Dump' functions.
 // Prints the entire tree structure or 'rep'. External callers should
@@ -56,8 +54,7 @@ void DumpAll(const CordRep* rep, bool include_contents, std::ostream & stream, i
 
 	if(rep->IsBtree()) {
 		const CordRepBtree* node = rep->btree();
-		std::string label =
-		    node->height() ? absl::StrCat("Node(", node->height(), ")") : "Leaf";
+		std::string label = node->height() ? absl::StrCat("Node(", node->height(), ")") : "Leaf";
 		stream << label << ", len = " << node->length << ", begin = " << node->begin() << ", end = " << node->end() << "\n";
 		for(CordRep* edge : node->Edges()) {
 			DumpAll(edge, include_contents, stream, depth + 1);
@@ -104,16 +101,18 @@ CordRepSubstring* CreateSubstring(CordRep* rep, size_t offset, size_t n)
 // TODO(b/192061034): consider making this a cord rep library function.
 inline CordRep* MakeSubstring(CordRep* rep, size_t offset, size_t n) 
 {
-	if(n == rep->length) return rep;
-	if(n == 0) return CordRep::Unref(rep), nullptr;
-	return CreateSubstring(rep, offset, n);
+	if(n == rep->length) 
+		return rep;
+	else if(n == 0) 
+		return CordRep::Unref(rep), nullptr;
+	else
+		return CreateSubstring(rep, offset, n);
 }
 
 // TODO(b/192061034): consider making this a cord rep library function.
 inline CordRep* MakeSubstring(CordRep* rep, size_t offset) 
 {
-	if(offset == 0) return rep;
-	return CreateSubstring(rep, offset, rep->length - offset);
+	return offset ? CreateSubstring(rep, offset, rep->length - offset) : rep;
 }
 
 // Resizes `edge` to the provided `length`. Adopts a reference on `edge`.
@@ -127,23 +126,18 @@ CordRep* ResizeEdge(CordRep* edge, size_t length, bool is_mutable)
 	assert(length > 0);
 	assert(length <= edge->length);
 	assert(CordRepBtree::IsDataEdge(edge));
-	if(length >= edge->length) return edge;
-
+	if(length >= edge->length) 
+		return edge;
 	if(is_mutable && (edge->tag >= FLAT || edge->tag == SUBSTRING)) {
 		edge->length = length;
 		return edge;
 	}
-
 	return CreateSubstring(edge, 0, length);
 }
 
-template <EdgeType edge_type>
-inline absl::string_view Consume(absl::string_view s, size_t n) {
-	return edge_type == kBack ? s.substr(n) : s.substr(0, s.size() - n);
-}
-
-template <EdgeType edge_type>
-inline absl::string_view Consume(char* dst, absl::string_view s, size_t n) {
+template <EdgeType edge_type> inline absl::string_view Consume(absl::string_view s, size_t n) { return edge_type == kBack ? s.substr(n) : s.substr(0, s.size() - n); }
+template <EdgeType edge_type> inline absl::string_view Consume(char* dst, absl::string_view s, size_t n) 
+{
 	if(edge_type == kBack) {
 		memcpy(dst, s.data(), n);
 		return s.substr(n);
@@ -159,8 +153,8 @@ inline absl::string_view Consume(char* dst, absl::string_view s, size_t n) {
 // decrement introduces traffic between cpus (even if the result of that
 // traffic does nothing), making this faster than a single call to
 // refcount.Decrement() checking the zero refcount condition.
-template <typename R, typename Fn>
-inline void FastUnref(R* r, Fn&& fn) {
+template <typename R, typename Fn> inline void FastUnref(R* r, Fn&& fn) 
+{
 	if(r->refcount.IsOne()) {
 		fn(r);
 	}
@@ -169,7 +163,8 @@ inline void FastUnref(R* r, Fn&& fn) {
 	}
 }
 
-void DeleteSubstring(CordRepSubstring* substring) {
+void DeleteSubstring(CordRepSubstring* substring) 
+{
 	CordRep* rep = substring->child;
 	if(!rep->refcount.Decrement()) {
 		if(rep->tag >= FLAT) {
@@ -184,7 +179,8 @@ void DeleteSubstring(CordRepSubstring* substring) {
 }
 
 // Deletes a leaf node data edge. Requires `IsDataEdge(rep)`.
-void DeleteLeafEdge(CordRep* rep) {
+void DeleteLeafEdge(CordRep* rep) 
+{
 	assert(CordRepBtree::IsDataEdge(rep));
 	if(rep->tag >= FLAT) {
 		CordRepFlat::Delete(rep->flat());
@@ -200,22 +196,16 @@ void DeleteLeafEdge(CordRep* rep) {
 // StackOperations contains the logic to build a left-most or right-most stack
 // (leg) down to the leaf level of a btree, and 'unwind' / 'Finalize' methods to
 // propagate node changes up the stack.
-template <EdgeType edge_type>
-struct StackOperations {
+template <EdgeType edge_type> struct StackOperations {
 	// Returns true if the node at 'depth' is not shared, i.e. has a refcount
 	// of one and all of its parent nodes have a refcount of one.
-	inline bool owned(int depth) const {
-		return depth < share_depth;
-	}
-
+	inline bool owned(int depth) const { return depth < share_depth; }
 	// Returns the node at 'depth'.
-	inline CordRepBtree* node(int depth) const {
-		return stack[depth];
-	}
-
+	inline CordRepBtree* node(int depth) const { return stack[depth]; }
 	// Builds a `depth` levels deep stack starting at `tree` recording which nodes
 	// are private in the form of the 'share depth' where nodes are shared.
-	inline CordRepBtree* BuildStack(CordRepBtree* tree, int depth) {
+	inline CordRepBtree* BuildStack(CordRepBtree* tree, int depth) 
+	{
 		assert(depth <= tree->height());
 		int current_depth = 0;
 		while(current_depth < depth && tree->refcount.IsOne()) {
@@ -233,7 +223,8 @@ struct StackOperations {
 	// Builds a stack with the invariant that all nodes are private owned / not
 	// shared. This is used in iterative updates where a previous propagation
 	// guaranteed all nodes are owned / private.
-	inline void BuildOwnedStack(CordRepBtree* tree, int height) {
+	inline void BuildOwnedStack(CordRepBtree* tree, int height) 
+	{
 		assert(height <= CordRepBtree::kMaxHeight);
 		int depth = 0;
 		while(depth < height) {
@@ -250,17 +241,15 @@ struct StackOperations {
 	static inline CordRepBtree* Finalize(CordRepBtree* tree, OpResult result) {
 		switch(result.action) {
 			case CordRepBtree::kPopped:
-			    tree = edge_type == kBack ? CordRepBtree::New(tree, result.tree)
-				: CordRepBtree::New(result.tree, tree);
+			    tree = edge_type == kBack ? CordRepBtree::New(tree, result.tree) : CordRepBtree::New(result.tree, tree);
 			    if(ABSL_PREDICT_FALSE(tree->height() > CordRepBtree::kMaxHeight)) {
 				    tree = CordRepBtree::Rebuild(tree);
-				    ABSL_RAW_CHECK(tree->height() <= CordRepBtree::kMaxHeight,
-					"Max height exceeded");
+				    ABSL_RAW_CHECK(tree->height() <= CordRepBtree::kMaxHeight, "Max height exceeded");
 			    }
 			    return tree;
 			case CordRepBtree::kCopied:
 			    CordRep::Unref(tree);
-			    ABSL_FALLTHROUGH_INTENDED;
+			    CXX_FALLTHROUGH;
 			case CordRepBtree::kSelf:
 			    return result.tree;
 		}
@@ -274,9 +263,8 @@ struct StackOperations {
 	// See the 'Action' enum for the various action implications.
 	// If 'propagate' is true, then any copied node values are updated into the
 	// stack, which is used for iterative processing on the same stack.
-	template <bool propagate = false>
-	inline CordRepBtree* Unwind(CordRepBtree* tree, int depth, size_t length,
-	    OpResult result) {
+	template <bool propagate = false> inline CordRepBtree* Unwind(CordRepBtree* tree, int depth, size_t length, OpResult result) 
+	{
 		// TODO(mvels): revisit the below code to check if 3 loops with 3
 		// (incremental) conditions is faster than 1 loop with a switch.
 		// Benchmarking and perf recordings indicate the loop with switch is
@@ -338,8 +326,8 @@ struct StackOperations {
 };
 }  // namespace
 
-void CordRepBtree::Dump(const CordRep* rep, absl::string_view label,
-    bool include_contents, std::ostream & stream) {
+void CordRepBtree::Dump(const CordRep* rep, absl::string_view label, bool include_contents, std::ostream & stream) 
+{
 	stream << "===================================\n";
 	if(!label.empty()) {
 		stream << label << '\n';
@@ -353,17 +341,11 @@ void CordRepBtree::Dump(const CordRep* rep, absl::string_view label,
 	}
 }
 
-void CordRepBtree::Dump(const CordRep* rep, absl::string_view label,
-    std::ostream & stream) {
-	Dump(rep, label, false, stream);
-}
+void CordRepBtree::Dump(const CordRep* rep, absl::string_view label, std::ostream & stream) { Dump(rep, label, false, stream); }
+void CordRepBtree::Dump(const CordRep* rep, std::ostream & stream) { Dump(rep, absl::string_view(), false, stream); }
 
-void CordRepBtree::Dump(const CordRep* rep, std::ostream & stream) {
-	Dump(rep, absl::string_view(), false, stream);
-}
-
-template <size_t size>
-static void DestroyTree(CordRepBtree* tree) {
+template <size_t size> static void DestroyTree(CordRepBtree* tree) 
+{
 	for(CordRep* node : tree->Edges()) {
 		if(node->refcount.Decrement()) continue;
 		for(CordRep* edge : node->btree()->Edges()) {
@@ -380,7 +362,8 @@ static void DestroyTree(CordRepBtree* tree) {
 	CordRepBtree::Delete(tree);
 }
 
-void CordRepBtree::Destroy(CordRepBtree* tree) {
+void CordRepBtree::Destroy(CordRepBtree* tree) 
+{
 	switch(tree->height()) {
 		case 0:
 		    for(CordRep* edge : tree->Edges()) {
@@ -470,8 +453,8 @@ inline OpResult CordRepBtree::AddEdge(bool owned, CordRep* edge, size_t delta) {
 	return result;
 }
 
-template <EdgeType edge_type>
-OpResult CordRepBtree::SetEdge(bool owned, CordRep* edge, size_t delta) {
+template <EdgeType edge_type> OpResult CordRepBtree::SetEdge(bool owned, CordRep* edge, size_t delta) 
+{
 	OpResult result;
 	const size_t idx = index(edge_type);
 	if(owned) {
@@ -627,18 +610,15 @@ CordRepBtree* CordRepBtree::AddData(CordRepBtree* tree, absl::string_view data,
 	}
 }
 
-template <EdgeType edge_type>
-CordRepBtree* CordRepBtree::Merge(CordRepBtree* dst, CordRepBtree* src) {
+template <EdgeType edge_type> CordRepBtree* CordRepBtree::Merge(CordRepBtree* dst, CordRepBtree* src) 
+{
 	assert(dst->height() >= src->height());
-
 	// Capture source length as we may consume / destroy `src`.
 	const size_t length = src->length;
-
 	// We attempt to merge `src` at its corresponding height in `dst`.
 	const int depth = dst->height() - src->height();
 	StackOperations<edge_type> ops;
 	CordRepBtree* merge_node = ops.BuildStack(dst, depth);
-
 	// If there is enough space in `merge_node` for all edges from `src`, add all
 	// edges to this node, making a fresh copy as needed if not privately owned.
 	// If `merge_node` does not have capacity for `src`, we rely on `Unwind` and
@@ -653,14 +633,14 @@ CordRepBtree* CordRepBtree::Merge(CordRepBtree* dst, CordRepBtree* src) {
 			Delete(src);
 		}
 		else {
-			for(CordRep* edge : src->Edges()) CordRep::Ref(edge);
+			for(CordRep* edge : src->Edges()) 
+				CordRep::Ref(edge);
 			CordRepBtree::Unref(src);
 		}
 	}
 	else {
 		result = {src, kPopped};
 	}
-
 	// Unless we merged at the top level (i.e.: src and dst are equal height),
 	// unwind the result towards the top level, and finalize the result.
 	if(depth) {
@@ -797,8 +777,8 @@ CordRep* CordRepBtree::ExtractFront(CordRepBtree* tree) {
 	return front;
 }
 
-CordRepBtree* CordRepBtree::ConsumeBeginTo(CordRepBtree* tree, size_t end,
-    size_t new_length) {
+CordRepBtree* CordRepBtree::ConsumeBeginTo(CordRepBtree* tree, size_t end, size_t new_length) 
+{
 	assert(end <= tree->end());
 	if(tree->refcount.IsOne()) {
 		Unref(tree->Edges(end, tree->end()));
@@ -813,7 +793,8 @@ CordRepBtree* CordRepBtree::ConsumeBeginTo(CordRepBtree* tree, size_t end,
 	return tree;
 }
 
-CordRep* CordRepBtree::RemoveSuffix(CordRepBtree* tree, size_t n) {
+CordRep* CordRepBtree::RemoveSuffix(CordRepBtree* tree, size_t n) 
+{
 	// Check input and deal with trivial cases 'Remove all/none'
 	assert(tree != nullptr);
 	assert(n <= tree->length);
@@ -873,15 +854,15 @@ CordRep* CordRepBtree::RemoveSuffix(CordRepBtree* tree, size_t n) {
 		edge = tree->Edge(pos.index);
 		length = pos.n;
 	}
-
 	return AssertValid(top);
 }
 
-CordRep* CordRepBtree::SubTree(size_t offset, size_t n) {
+CordRep* CordRepBtree::SubTree(size_t offset, size_t n) 
+{
 	assert(n <= this->length);
 	assert(offset <= this->length - n);
-	if(ABSL_PREDICT_FALSE(n == 0)) return nullptr;
-
+	if(ABSL_PREDICT_FALSE(n == 0)) 
+		return nullptr;
 	CordRepBtree* node = this;
 	int height = node->height();
 	Position front = node->IndexOf(offset);
@@ -926,7 +907,6 @@ CordRep* CordRepBtree::SubTree(size_t offset, size_t n) {
 		prefix = CopyResult{MakeSubstring(CordRep::Ref(left), front.n), -1};
 		suffix = CopyResult{MakeSubstring(CordRep::Ref(right), 0, back.n), -1};
 	}
-
 	// Compose resulting tree.
 	CordRepBtree* sub = CordRepBtree::New(height);
 	size_t end = 0;
@@ -948,8 +928,7 @@ CordRepBtree* CordRepBtree::MergeTrees(CordRepBtree* left, CordRepBtree* right)
 bool CordRepBtree::IsFlat(absl::string_view* fragment) const 
 {
 	if(height() == 0 && size() == 1) {
-		if(fragment) 
-			*fragment = Data(begin());
+		ASSIGN_PTR(fragment, Data(begin()));
 		return true;
 	}
 	return false;
@@ -959,13 +938,15 @@ bool CordRepBtree::IsFlat(size_t offset, const size_t n, absl::string_view* frag
 {
 	assert(n <= this->length);
 	assert(offset <= this->length - n);
-	if(ABSL_PREDICT_FALSE(n == 0)) return false;
+	if(ABSL_PREDICT_FALSE(n == 0)) 
+		return false;
 	int height = this->height();
 	const CordRepBtree* node = this;
 	for(;;) {
 		const Position front = node->IndexOf(offset);
 		const CordRep* edge = node->Edge(front.index);
-		if(edge->length < front.n + n) return false;
+		if(edge->length < front.n + n) 
+			return false;
 		if(--height < 0) {
 			if(fragment) *fragment = EdgeData(edge).substr(front.n, n);
 			return true;
@@ -1149,28 +1130,27 @@ CordRepBtree::ExtractResult CordRepBtree::ExtractAppendBuffer(CordRepBtree* tree
 	ExtractResult result;
 	result.tree = tree;
 	result.extracted = nullptr;
-
 	// Dive down the right side of the tree, making sure no edges are shared.
 	while(tree->height() > 0) {
-		if(!tree->refcount.IsOne()) return result;
+		if(!tree->refcount.IsOne()) 
+			return result;
 		stack[depth++] = tree;
 		tree = tree->Edge(kBack)->btree();
 	}
-	if(!tree->refcount.IsOne()) return result;
-
+	if(!tree->refcount.IsOne()) 
+		return result;
 	// Validate we ended on a non shared flat.
 	CordRep* rep = tree->Edge(kBack);
-	if(!(rep->IsFlat() && rep->refcount.IsOne())) return result;
-
+	if(!(rep->IsFlat() && rep->refcount.IsOne())) 
+		return result;
 	// Verify it has at least the requested extra capacity.
 	CordRepFlat* flat = rep->flat();
 	const size_t length = flat->length;
 	const size_t avail = flat->Capacity() - flat->length;
-	if(extra_capacity > avail) return result;
-
+	if(extra_capacity > avail) 
+		return result;
 	// Set the extracted flat in the result.
 	result.extracted = flat;
-
 	// Cascading delete all nodes that become empty.
 	while(tree->size() == 1) {
 		CordRepBtree::Delete(tree);
@@ -1207,7 +1187,6 @@ CordRepBtree::ExtractResult CordRepBtree::ExtractAppendBuffer(CordRepBtree* tree
 		}
 		tree = rep->btree();
 	}
-
 	// Done: return the (new) top level node and extracted flat.
 	result.tree = tree;
 	return result;

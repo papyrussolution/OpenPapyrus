@@ -27,10 +27,6 @@
 #ifndef CAIRO_DEFAULT_CONTEXT_PRIVATE_H
 #define CAIRO_DEFAULT_CONTEXT_PRIVATE_H
 
-//#include "cairo-private.h"
-//#include "cairo-gstate-private.h"
-//#include "cairo-path-fixed-private.h"
-
 CAIRO_BEGIN_DECLS
 	typedef struct _cairo_default_context cairo_default_context_t;
 

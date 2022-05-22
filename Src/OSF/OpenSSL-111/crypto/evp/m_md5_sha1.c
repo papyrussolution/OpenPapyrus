@@ -9,13 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #if !defined(OPENSSL_NO_MD5)
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <openssl/x509.h>
 #include <openssl/md5.h>
-//#include <openssl/sha.h>
-//#include <evp_int.h>
-//#include <openssl/rsa.h>
 
 struct md5_sha1_ctx {
 	MD5_CTX md5;

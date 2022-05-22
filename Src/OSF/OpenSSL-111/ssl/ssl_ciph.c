@@ -10,14 +10,8 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <openssl/objects.h>
-//#include <openssl/comp.h>
-//#include <openssl/engine.h>
-//#include <openssl/crypto.h>
-//#include <openssl/conf.h>
 #include "internal/nelem.h"
 #include "internal/thread_once.h"
-//#include "internal/cryptlib.h"
 
 #define SSL_ENC_DES_IDX         0
 #define SSL_ENC_3DES_IDX        1
@@ -1703,7 +1697,7 @@ const char * OPENSSL_cipher_name(const char * stdname)
 int SSL_CIPHER_get_bits(const SSL_CIPHER * c, int * alg_bits)
 {
 	int ret = 0;
-	if(c != NULL) {
+	if(c) {
 		if(alg_bits != NULL)
 			*alg_bits = (int)c->alg_bits;
 		ret = (int)c->strength_bits;

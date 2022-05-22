@@ -1375,7 +1375,6 @@ public:
 			HereDoc.State = 0;
 			sc.SetState(SCE_PL_FORMAT);
 		}
-
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_PL_DEFAULT) {
 			if(IsADigit(sc.ch) ||
@@ -1384,7 +1383,7 @@ public:
 				backFlag = BACK_NONE;
 				numState = PERLNUM_DECIMAL;
 				dotCount = 0;
-				if(sc.ch == '0') {              // hex,bin,octal
+				if(sc.ch == '0') { // hex,bin,octal
 					if(sc.chNext == 'x' || sc.chNext == 'X') {
 						numState = PERLNUM_HEX;
 					}
@@ -1398,7 +1397,7 @@ public:
 						sc.Forward();
 					}
 				}
-				else if(sc.ch == 'v') {                 // vector
+				else if(sc.ch == 'v') { // vector
 					numState = PERLNUM_V_VECTOR;
 				}
 			}

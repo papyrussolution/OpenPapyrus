@@ -3590,7 +3590,7 @@ int mdb_txn_commit(MDB_txn * txn)
 	int rc;
 	uint i, end_mode;
 	MDB_env * env;
-	if(txn == NULL)
+	if(!txn)
 		return EINVAL;
 	// mdb_txn_end() mode for a commit which writes nothing 
 	end_mode = MDB_END_EMPTY_COMMIT|MDB_END_UPDATE|MDB_END_SLOT|MDB_END_FREE;
@@ -7609,7 +7609,7 @@ static int mdb_node_add(MDB_cursor * mc, indx_t indx, MDB_val * key, MDB_val * d
 		return MDB_SUCCESS;
 	}
 	room = (ssize_t)SIZELEFT(mp) - (ssize_t)sizeof(indx_t);
-	if(key != NULL)
+	if(key)
 		node_size += key->mv_size;
 	if(IS_LEAF(mp)) {
 		mdb_cassert(mc, key && data);
@@ -8794,7 +8794,7 @@ static int mdb_page_split(MDB_cursor * mc, MDB_val * newkey, MDB_val * newdata, 
 		if((rc = mdb_page_new(mc, P_BRANCH, 1, &pp)))
 			goto done;
 		/* shift current top to make room for new parent */
-		for(i = mc->mc_snum; i>0; i--) {
+		for(i = mc->mc_snum; i > 0; i--) {
 			mc->mc_pg[i] = mc->mc_pg[i-1];
 			mc->mc_ki[i] = mc->mc_ki[i-1];
 		}

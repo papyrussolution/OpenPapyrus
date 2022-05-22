@@ -6582,11 +6582,11 @@ static void re_free(ReCompiled * pRe){
 ** compiled regular expression in *ppRe.  Return NULL on success or an
 ** error message if something goes wrong.
 */
-static const char * re_compile(ReCompiled ** ppRe, const char * zIn, int noCase){
+static const char * re_compile(ReCompiled ** ppRe, const char * zIn, int noCase)
+{
 	ReCompiled * pRe;
 	const char * zErr;
 	int i, j;
-
 	*ppRe = 0;
 	pRe = sqlite3_malloc(sizeof(*pRe) );
 	if(pRe==0) {

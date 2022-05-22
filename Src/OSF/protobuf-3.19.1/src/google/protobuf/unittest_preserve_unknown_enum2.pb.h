@@ -71,19 +71,15 @@ constexpr MyEnum MyEnum_MIN = FOO;
 constexpr MyEnum MyEnum_MAX = BAZ;
 constexpr int MyEnum_ARRAYSIZE = MyEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MyEnum_descriptor();
-template<typename T>
-inline const std::string& MyEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, MyEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function MyEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    MyEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * MyEnum_descriptor();
+template<typename T> inline const std::string& MyEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, MyEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function MyEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(MyEnum_descriptor(), enum_t_value);
 }
-inline bool MyEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MyEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<MyEnum>(
-    MyEnum_descriptor(), name, value);
+inline bool MyEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MyEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<MyEnum>(MyEnum_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -396,12 +392,10 @@ MyMessage::repeated_e() const {
   // @@protoc_insertion_point(field_list:proto2_preserve_unknown_enum_unittest.MyMessage.repeated_e)
   return repeated_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>*
-MyMessage::_internal_mutable_repeated_e() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::_internal_mutable_repeated_e() {
   return &repeated_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>*
-MyMessage::mutable_repeated_e() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::mutable_repeated_e() {
   // @@protoc_insertion_point(field_mutable_list:proto2_preserve_unknown_enum_unittest.MyMessage.repeated_e)
   return _internal_mutable_repeated_e();
 }
@@ -437,12 +431,10 @@ MyMessage::repeated_packed_e() const {
   // @@protoc_insertion_point(field_list:proto2_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
   return repeated_packed_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>*
-MyMessage::_internal_mutable_repeated_packed_e() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::_internal_mutable_repeated_packed_e() {
   return &repeated_packed_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>*
-MyMessage::mutable_repeated_packed_e() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::mutable_repeated_packed_e() {
   // @@protoc_insertion_point(field_mutable_list:proto2_preserve_unknown_enum_unittest.MyMessage.repeated_packed_e)
   return _internal_mutable_repeated_packed_e();
 }
@@ -478,12 +470,10 @@ MyMessage::repeated_packed_unexpected_e() const {
   // @@protoc_insertion_point(field_list:proto2_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
   return repeated_packed_unexpected_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>*
-MyMessage::_internal_mutable_repeated_packed_unexpected_e() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::_internal_mutable_repeated_packed_unexpected_e() {
   return &repeated_packed_unexpected_e_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>*
-MyMessage::mutable_repeated_packed_unexpected_e() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * MyMessage::mutable_repeated_packed_unexpected_e() {
   // @@protoc_insertion_point(field_mutable_list:proto2_preserve_unknown_enum_unittest.MyMessage.repeated_packed_unexpected_e)
   return _internal_mutable_repeated_packed_unexpected_e();
 }
@@ -584,10 +574,7 @@ inline MyMessage::OCase MyMessage::o_case() const { return MyMessage::OCase(_one
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::proto2_preserve_unknown_enum_unittest::MyEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::proto2_preserve_unknown_enum_unittest::MyEnum>() {
-  return ::proto2_preserve_unknown_enum_unittest::MyEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::proto2_preserve_unknown_enum_unittest::MyEnum>() { return ::proto2_preserve_unknown_enum_unittest::MyEnum_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

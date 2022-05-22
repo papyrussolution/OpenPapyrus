@@ -1652,7 +1652,7 @@ xmlChar * FASTCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	 *  as a reference to "." rather than as a synonym for the current
 	 *  URI.  Should we do that here?
 	 */
-	if(URI == NULL)
+	if(!URI)
 		ret = -1;
 	else {
 		if(*URI) {
@@ -1705,7 +1705,7 @@ xmlChar * FASTCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	 *  document.
 	 */
 	res = xmlCreateURI();
-	if(res == NULL)
+	if(!res)
 		goto done;
 	if(!ref->scheme && !ref->path && (!ref->authority && !ref->server)) {
 		res->scheme = sstrdup(bas->scheme);

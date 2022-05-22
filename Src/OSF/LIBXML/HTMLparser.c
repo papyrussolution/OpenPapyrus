@@ -1085,7 +1085,7 @@ static void htmlAutoClose(htmlParserCtxt * ctxt, const xmlChar * newtag)
 int htmlAutoCloseTag(htmlDocPtr doc, const xmlChar * name, htmlNodePtr elem)
 {
 	htmlNodePtr child;
-	if(elem == NULL) 
+	if(!elem) 
 		return 1;
 	if(sstreq(name, elem->name)) 
 		return 0;
@@ -1113,7 +1113,7 @@ int htmlAutoCloseTag(htmlDocPtr doc, const xmlChar * name, htmlNodePtr elem)
  */
 int htmlIsAutoClosed(htmlDocPtr doc, htmlNodePtr elem) 
 {
-	if(elem == NULL) 
+	if(!elem) 
 		return 1;
 	else {
 		for(htmlNodePtr child = elem->children; child; child = child->next)
@@ -2638,7 +2638,7 @@ static xmlChar * htmlParseExternalID(htmlParserCtxt * ctxt, xmlChar ** publicID)
 		}
 		SKIP_BLANKS;
 		URI = htmlParseSystemLiteral(ctxt);
-		if(URI == NULL) {
+		if(!URI) {
 			htmlParseErr(ctxt, XML_ERR_URI_REQUIRED, "htmlParseExternalID: SYSTEM, no URI\n", 0, 0);
 		}
 	}
@@ -5334,7 +5334,7 @@ htmlParserCtxt * htmlCreateFileParserCtxt(const char * filename, const char * en
 	char * canonicFilename;
 	/* htmlCharEncoding enc; */
 	xmlChar * content_line = (xmlChar *)"charset=";
-	if(filename == NULL)
+	if(!filename)
 		return NULL;
 	ctxt = htmlNewParserCtxt();
 	if(!ctxt) {

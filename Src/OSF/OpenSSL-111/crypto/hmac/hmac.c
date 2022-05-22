@@ -39,7 +39,7 @@ int HMAC_Init_ex(HMAC_CTX * ctx, const void * key, int len,
 	if((EVP_MD_meth_get_flags(md) & EVP_MD_FLAG_XOF) != 0)
 		return 0;
 
-	if(key != NULL) {
+	if(key) {
 		reset = 1;
 		j = EVP_MD_block_size(md);
 		if(!ossl_assert(j <= (int)sizeof(ctx->key)))
@@ -127,7 +127,7 @@ size_t HMAC_size(const HMAC_CTX * ctx)
 HMAC_CTX * HMAC_CTX_new(void)
 {
 	HMAC_CTX * ctx = static_cast<HMAC_CTX *>(OPENSSL_zalloc(sizeof(HMAC_CTX)));
-	if(ctx != NULL) {
+	if(ctx) {
 		if(!HMAC_CTX_reset(ctx)) {
 			HMAC_CTX_free(ctx);
 			return NULL;
@@ -148,7 +148,7 @@ static void hmac_ctx_cleanup(HMAC_CTX * ctx)
 
 void HMAC_CTX_free(HMAC_CTX * ctx)
 {
-	if(ctx != NULL) {
+	if(ctx) {
 		hmac_ctx_cleanup(ctx);
 		EVP_MD_CTX_free(ctx->i_ctx);
 		EVP_MD_CTX_free(ctx->o_ctx);

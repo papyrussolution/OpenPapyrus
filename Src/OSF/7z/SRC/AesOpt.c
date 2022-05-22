@@ -17,7 +17,7 @@ extern "C" void FASTCALL AesCbc_Encode_Intel(__m128i * p, __m128i * data, size_t
 {
 	__m128i m = *p;
 	for(; numBlocks != 0; numBlocks--, data++) {
-		uint32 numRounds2 = *(const uint32*)(p + 1) - 1;
+		uint32 numRounds2 = *(const uint32 *)(p + 1) - 1;
 		const __m128i * w = p + 3;
 		m = _mm_xor_si128(m, *data);
 		m = _mm_xor_si128(m, p[2]);
@@ -51,7 +51,7 @@ extern "C" void FASTCALL AesCbc_Decode_Intel(__m128i * p, __m128i * data, size_t
 {
 	__m128i iv = *p;
 	for(; numBlocks >= NUM_WAYS; numBlocks -= NUM_WAYS, data += NUM_WAYS) {
-		uint32 numRounds2 = *(const uint32*)(p + 1);
+		uint32 numRounds2 = *(const uint32 *)(p + 1);
 		const __m128i * w = p + numRounds2 * 2;
 		__m128i m0, m1, m2;
 		{
@@ -76,7 +76,7 @@ extern "C" void FASTCALL AesCbc_Decode_Intel(__m128i * p, __m128i * data, size_t
 		}
 	}
 	for(; numBlocks != 0; numBlocks--, data++) {
-		uint32 numRounds2 = *(const uint32*)(p + 1);
+		uint32 numRounds2 = *(const uint32 *)(p + 1);
 		const __m128i * w = p + numRounds2 * 2;
 		__m128i m = _mm_xor_si128(w[2], *data);
 		numRounds2--;
@@ -102,7 +102,7 @@ extern "C" void FASTCALL AesCtr_Code_Intel(__m128i * p, __m128i * data, size_t n
 	one.m128i_u64[0] = 1;
 	one.m128i_u64[1] = 0;
 	for(; numBlocks >= NUM_WAYS; numBlocks -= NUM_WAYS, data += NUM_WAYS) {
-		uint32 numRounds2 = *(const uint32*)(p + 1) - 1;
+		uint32 numRounds2 = *(const uint32 *)(p + 1) - 1;
 		const __m128i * w = p;
 		__m128i m0, m1, m2;
 		{
@@ -125,7 +125,7 @@ extern "C" void FASTCALL AesCtr_Code_Intel(__m128i * p, __m128i * data, size_t n
 		data[2] = _mm_xor_si128(data[2], m2);
 	}
 	for(; numBlocks != 0; numBlocks--, data++) {
-		uint32 numRounds2 = *(const uint32*)(p + 1) - 1;
+		uint32 numRounds2 = *(const uint32 *)(p + 1) - 1;
 		const __m128i * w = p;
 		__m128i m;
 		ctr = _mm_add_epi64(ctr, one);

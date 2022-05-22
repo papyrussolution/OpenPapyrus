@@ -145,7 +145,7 @@ struct BMK_timedFnState_s {
 BMK_timedFnState_t* BMK_createTimedFnState(uint total_ms, uint run_ms)
 {
 	BMK_timedFnState_t* const r = (BMK_timedFnState_t*)SAlloc::M(sizeof(*r));
-	if(r == NULL) 
+	if(!r) 
 		return NULL; /* SAlloc::M() error */
 	BMK_resetTimedFnState(r, total_ms, run_ms);
 	return r;

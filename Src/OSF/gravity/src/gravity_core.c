@@ -2288,7 +2288,7 @@ static bool string_index(gravity_vm * vm, GravityValue * args, uint16 nargs, uin
 	// search for the string
 	const char * ptr = string_strnstr(main_str->cptr(), str_to_index->cptr(), (size_t)main_str->len);
 	// if it doesn't exist, return null
-	if(ptr == NULL) {
+	if(!ptr) {
 		return vm->ReturnNull(rindex);
 	}
 	// otherwise, return the difference, which is the index that the string starts at

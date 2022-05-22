@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include "internal/conf.h"
 #include "internal/dso.h"
 #include <openssl/x509.h>
@@ -95,7 +94,7 @@ int CONF_modules_load_file(const char * filename, const char * appname, ulong fl
 	CONF * conf = NCONF_new(NULL);
 	if(conf == NULL)
 		goto err;
-	if(filename == NULL) {
+	if(!filename) {
 		file = CONF_get1_default_config_file();
 		if(!file)
 			goto err;
@@ -111,7 +110,7 @@ int CONF_modules_load_file(const char * filename, const char * appname, ulong fl
 	}
 	ret = CONF_modules_load(conf, appname, flags);
 err:
-	if(filename == NULL)
+	if(!filename)
 		OPENSSL_free(file);
 	NCONF_free(conf);
 	if(flags & CONF_MFLAGS_IGNORE_RETURN_CODES)

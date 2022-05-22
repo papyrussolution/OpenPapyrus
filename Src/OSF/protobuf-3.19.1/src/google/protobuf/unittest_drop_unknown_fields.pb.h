@@ -77,19 +77,15 @@ constexpr Foo_NestedEnum Foo_NestedEnum_NestedEnum_MIN = Foo_NestedEnum_FOO;
 constexpr Foo_NestedEnum Foo_NestedEnum_NestedEnum_MAX = Foo_NestedEnum_BAZ;
 constexpr int Foo_NestedEnum_NestedEnum_ARRAYSIZE = Foo_NestedEnum_NestedEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Foo_NestedEnum_descriptor();
-template<typename T>
-inline const std::string& Foo_NestedEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, Foo_NestedEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function Foo_NestedEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    Foo_NestedEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Foo_NestedEnum_descriptor();
+template<typename T> inline const std::string& Foo_NestedEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, Foo_NestedEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Foo_NestedEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(Foo_NestedEnum_descriptor(), enum_t_value);
 }
-inline bool Foo_NestedEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Foo_NestedEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Foo_NestedEnum>(
-    Foo_NestedEnum_descriptor(), name, value);
+inline bool Foo_NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Foo_NestedEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Foo_NestedEnum>(Foo_NestedEnum_descriptor(), name, value);
 }
 enum FooWithExtraFields_NestedEnum : int {
   FooWithExtraFields_NestedEnum_FOO = 0,
@@ -104,19 +100,15 @@ constexpr FooWithExtraFields_NestedEnum FooWithExtraFields_NestedEnum_NestedEnum
 constexpr FooWithExtraFields_NestedEnum FooWithExtraFields_NestedEnum_NestedEnum_MAX = FooWithExtraFields_NestedEnum_QUX;
 constexpr int FooWithExtraFields_NestedEnum_NestedEnum_ARRAYSIZE = FooWithExtraFields_NestedEnum_NestedEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FooWithExtraFields_NestedEnum_descriptor();
-template<typename T>
-inline const std::string& FooWithExtraFields_NestedEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, FooWithExtraFields_NestedEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function FooWithExtraFields_NestedEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    FooWithExtraFields_NestedEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * FooWithExtraFields_NestedEnum_descriptor();
+template<typename T> inline const std::string& FooWithExtraFields_NestedEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, FooWithExtraFields_NestedEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function FooWithExtraFields_NestedEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(FooWithExtraFields_NestedEnum_descriptor(), enum_t_value);
 }
-inline bool FooWithExtraFields_NestedEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FooWithExtraFields_NestedEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FooWithExtraFields_NestedEnum>(
-    FooWithExtraFields_NestedEnum_descriptor(), name, value);
+inline bool FooWithExtraFields_NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, FooWithExtraFields_NestedEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<FooWithExtraFields_NestedEnum>(FooWithExtraFields_NestedEnum_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -221,35 +213,22 @@ class Foo final :
   // nested types ----------------------------------------------------
 
   typedef Foo_NestedEnum NestedEnum;
-  static constexpr NestedEnum FOO =
-    Foo_NestedEnum_FOO;
-  static constexpr NestedEnum BAR =
-    Foo_NestedEnum_BAR;
-  static constexpr NestedEnum BAZ =
-    Foo_NestedEnum_BAZ;
-  static inline bool NestedEnum_IsValid(int value) {
-    return Foo_NestedEnum_IsValid(value);
+  static constexpr NestedEnum FOO = Foo_NestedEnum_FOO;
+  static constexpr NestedEnum BAR = Foo_NestedEnum_BAR;
+  static constexpr NestedEnum BAZ = Foo_NestedEnum_BAZ;
+  static inline bool NestedEnum_IsValid(int value) { return Foo_NestedEnum_IsValid(value); }
+  static constexpr NestedEnum NestedEnum_MIN = Foo_NestedEnum_NestedEnum_MIN;
+  static constexpr NestedEnum NestedEnum_MAX = Foo_NestedEnum_NestedEnum_MAX;
+  static constexpr int NestedEnum_ARRAYSIZE = Foo_NestedEnum_NestedEnum_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * NestedEnum_descriptor() { return Foo_NestedEnum_descriptor(); }
+  template<typename T> static inline const std::string& NestedEnum_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, NestedEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function NestedEnum_Name.");
+  	return Foo_NestedEnum_Name(enum_t_value);
   }
-  static constexpr NestedEnum NestedEnum_MIN =
-    Foo_NestedEnum_NestedEnum_MIN;
-  static constexpr NestedEnum NestedEnum_MAX =
-    Foo_NestedEnum_NestedEnum_MAX;
-  static constexpr int NestedEnum_ARRAYSIZE =
-    Foo_NestedEnum_NestedEnum_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  NestedEnum_descriptor() {
-    return Foo_NestedEnum_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& NestedEnum_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, NestedEnum>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function NestedEnum_Name.");
-    return Foo_NestedEnum_Name(enum_t_value);
-  }
-  static inline bool NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      NestedEnum* value) {
-    return Foo_NestedEnum_Parse(name, value);
+  static inline bool NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, NestedEnum* value)
+  {
+  	return Foo_NestedEnum_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -391,37 +370,23 @@ class FooWithExtraFields final :
   // nested types ----------------------------------------------------
 
   typedef FooWithExtraFields_NestedEnum NestedEnum;
-  static constexpr NestedEnum FOO =
-    FooWithExtraFields_NestedEnum_FOO;
-  static constexpr NestedEnum BAR =
-    FooWithExtraFields_NestedEnum_BAR;
-  static constexpr NestedEnum BAZ =
-    FooWithExtraFields_NestedEnum_BAZ;
-  static constexpr NestedEnum QUX =
-    FooWithExtraFields_NestedEnum_QUX;
-  static inline bool NestedEnum_IsValid(int value) {
-    return FooWithExtraFields_NestedEnum_IsValid(value);
+  static constexpr NestedEnum FOO = FooWithExtraFields_NestedEnum_FOO;
+  static constexpr NestedEnum BAR = FooWithExtraFields_NestedEnum_BAR;
+  static constexpr NestedEnum BAZ = FooWithExtraFields_NestedEnum_BAZ;
+  static constexpr NestedEnum QUX = FooWithExtraFields_NestedEnum_QUX;
+  static inline bool NestedEnum_IsValid(int value) { return FooWithExtraFields_NestedEnum_IsValid(value); }
+  static constexpr NestedEnum NestedEnum_MIN = FooWithExtraFields_NestedEnum_NestedEnum_MIN;
+  static constexpr NestedEnum NestedEnum_MAX = FooWithExtraFields_NestedEnum_NestedEnum_MAX;
+  static constexpr int NestedEnum_ARRAYSIZE = FooWithExtraFields_NestedEnum_NestedEnum_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * NestedEnum_descriptor() { return FooWithExtraFields_NestedEnum_descriptor(); }
+  template<typename T> static inline const std::string& NestedEnum_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, NestedEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function NestedEnum_Name.");
+  	return FooWithExtraFields_NestedEnum_Name(enum_t_value);
   }
-  static constexpr NestedEnum NestedEnum_MIN =
-    FooWithExtraFields_NestedEnum_NestedEnum_MIN;
-  static constexpr NestedEnum NestedEnum_MAX =
-    FooWithExtraFields_NestedEnum_NestedEnum_MAX;
-  static constexpr int NestedEnum_ARRAYSIZE =
-    FooWithExtraFields_NestedEnum_NestedEnum_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  NestedEnum_descriptor() {
-    return FooWithExtraFields_NestedEnum_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& NestedEnum_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, NestedEnum>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function NestedEnum_Name.");
-    return FooWithExtraFields_NestedEnum_Name(enum_t_value);
-  }
-  static inline bool NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      NestedEnum* value) {
-    return FooWithExtraFields_NestedEnum_Parse(name, value);
+  static inline bool NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, NestedEnum* value)
+  {
+  	return FooWithExtraFields_NestedEnum_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -589,15 +554,9 @@ inline void FooWithExtraFields::set_extra_int32_value(int32_t value) {
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::unittest_drop_unknown_fields::Foo_NestedEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::unittest_drop_unknown_fields::Foo_NestedEnum>() {
-  return ::unittest_drop_unknown_fields::Foo_NestedEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::unittest_drop_unknown_fields::Foo_NestedEnum>() { return ::unittest_drop_unknown_fields::Foo_NestedEnum_descriptor(); }
 template <> struct is_proto_enum< ::unittest_drop_unknown_fields::FooWithExtraFields_NestedEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::unittest_drop_unknown_fields::FooWithExtraFields_NestedEnum>() {
-  return ::unittest_drop_unknown_fields::FooWithExtraFields_NestedEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::unittest_drop_unknown_fields::FooWithExtraFields_NestedEnum>() { return ::unittest_drop_unknown_fields::FooWithExtraFields_NestedEnum_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

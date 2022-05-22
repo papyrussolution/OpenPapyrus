@@ -881,7 +881,7 @@ struct zbar_format_def_t {
 	} p;
 };
 
-extern int _zbar_best_format(uint32, uint32*, const uint32*);
+extern int _zbar_best_format(uint32, uint32 *, const uint32 *);
 extern const zbar_format_def_t * _zbar_format_lookup(uint32);
 extern void _zbar_image_free(zbar_image_t*);
 

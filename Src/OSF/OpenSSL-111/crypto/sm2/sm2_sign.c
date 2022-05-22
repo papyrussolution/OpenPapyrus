@@ -171,7 +171,7 @@ static BIGNUM * sm2_compute_msg_hash(const EVP_MD * digest,
 	}
 
 	e = BN_bin2bn(z, md_size, NULL);
-	if(e == NULL)
+	if(!e)
 		SM2err(SM2_F_SM2_COMPUTE_MSG_HASH, ERR_R_INTERNAL_ERROR);
 
 done:
@@ -260,7 +260,7 @@ static ECDSA_SIG * sm2_sig_gen(const EC_KEY * key, const BIGNUM * e)
 		}
 
 		sig = ECDSA_SIG_new();
-		if(sig == NULL) {
+		if(!sig) {
 			SM2err(SM2_F_SM2_SIG_GEN, ERR_R_MALLOC_FAILURE);
 			goto done;
 		}
@@ -271,7 +271,7 @@ static ECDSA_SIG * sm2_sig_gen(const EC_KEY * key, const BIGNUM * e)
 	}
 
 done:
-	if(sig == NULL) {
+	if(!sig) {
 		BN_free(r);
 		BN_free(s);
 	}
@@ -369,7 +369,7 @@ ECDSA_SIG * sm2_do_sign(const EC_KEY * key,
 	ECDSA_SIG * sig = NULL;
 
 	e = sm2_compute_msg_hash(digest, key, id, id_len, msg, msg_len);
-	if(e == NULL) {
+	if(!e) {
 		/* SM2err already called */
 		goto done;
 	}
@@ -392,7 +392,7 @@ int sm2_do_verify(const EC_KEY * key,
 	int ret = 0;
 
 	e = sm2_compute_msg_hash(digest, key, id, id_len, msg, msg_len);
-	if(e == NULL) {
+	if(!e) {
 		/* SM2err already called */
 		goto done;
 	}
@@ -413,7 +413,7 @@ int sm2_sign(const uchar * dgst, int dgstlen,
 	int ret = -1;
 
 	e = BN_bin2bn(dgst, dgstlen, NULL);
-	if(e == NULL) {
+	if(!e) {
 		SM2err(SM2_F_SM2_SIGN, ERR_R_BN_LIB);
 		goto done;
 	}
@@ -446,7 +446,7 @@ int sm2_verify(const uchar * dgst, int dgstlen,
 	int ret = -1;
 
 	s = ECDSA_SIG_new();
-	if(s == NULL) {
+	if(!s) {
 		SM2err(SM2_F_SM2_VERIFY, ERR_R_MALLOC_FAILURE);
 		goto done;
 	}
@@ -462,7 +462,7 @@ int sm2_verify(const uchar * dgst, int dgstlen,
 	}
 
 	e = BN_bin2bn(dgst, dgstlen, NULL);
-	if(e == NULL) {
+	if(!e) {
 		SM2err(SM2_F_SM2_VERIFY, ERR_R_BN_LIB);
 		goto done;
 	}

@@ -98,7 +98,7 @@ void ps_fetch_from_1_to_8_bytes(MYSQL_BIND * r_param, const MYSQL_FIELD * const 
 		case 4:
 	    {
 		    longstore(r_param->buffer, ((uint32)sint4korr(*row)));
-		    *r_param->error = is_unsigned != r_param->is_unsigned && *(uint32*)r_param->buffer > INT_MAX32;
+		    *r_param->error = is_unsigned != r_param->is_unsigned && *(uint32 *)r_param->buffer > INT_MAX32;
 	    }
 	    break;
 		case 8:

@@ -247,7 +247,7 @@ static int archive_write_gnutar_header(struct archive_write * a, struct archive_
 	else
 		sconv = gnutar->opt_sconv;
 	/* Only regular files (not hardlinks) have data. */
-	if(archive_entry_hardlink(entry) != NULL || archive_entry_symlink(entry) != NULL || !(archive_entry_filetype(entry) == AE_IFREG))
+	if(archive_entry_hardlink(entry) || archive_entry_symlink(entry) != NULL || !(archive_entry_filetype(entry) == AE_IFREG))
 		archive_entry_set_size(entry, 0);
 
 	if(AE_IFDIR == archive_entry_filetype(entry)) {
@@ -259,7 +259,7 @@ static int archive_write_gnutar_header(struct archive_write * a, struct archive_
 		 */
 #if defined(_WIN32) && !defined(__CYGWIN__)
 		const wchar_t * wp = archive_entry_pathname_w(entry);
-		if(wp != NULL && wp[wcslen(wp) -1] != L'/') {
+		if(wp && wp[wcslen(wp) -1] != L'/') {
 			struct archive_wstring ws;
 			archive_string_init(&ws);
 			path_length = wcslen(wp);
@@ -285,7 +285,7 @@ static int archive_write_gnutar_header(struct archive_write * a, struct archive_
 		 * case getting WCS failed. On POSIX, this is a
 		 * normal operation.
 		 */
-		if(p != NULL && p[0] != '\0' && p[strlen(p) - 1] != '/') {
+		if(p && p[0] != '\0' && p[strlen(p) - 1] != '/') {
 			struct archive_string as;
 			archive_string_init(&as);
 			path_length = strlen(p);
@@ -433,8 +433,7 @@ static int archive_write_gnutar_header(struct archive_write * a, struct archive_
 		if(ret < ARCHIVE_WARN)
 			goto exit_write_header;
 	}
-
-	if(archive_entry_hardlink(entry) != NULL) {
+	if(archive_entry_hardlink(entry)) {
 		tartype = '1';
 	}
 	else

@@ -28,11 +28,6 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-#if !defined(_UWIN)
-	//#include <process.h>
-#endif
-//#include "pthread.h"
-//#include "implement.h"
 
 int pthread_mutex_init(pthread_mutex_t * mutex, const pthread_mutexattr_t * attr)
 {

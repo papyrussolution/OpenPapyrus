@@ -1291,7 +1291,7 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 
 													else {
 														png_ptr->colorspace.flags |= PNG_COLORSPACE_INVALID;
-														errmsg = "out of memory";
+														errmsg = SlTxtOutOfMem;
 													}
 												}
 												/* else the profile remains in the read
@@ -1312,16 +1312,13 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 												errmsg = png_ptr->zstream.msg;
 #endif
 										}
-
 										/* else png_icc_check_tag_table output an error */
 									}
-
 									else /* profile truncated */
 										errmsg = png_ptr->zstream.msg;
 								}
-
 								else
-									errmsg = "out of memory";
+									errmsg = SlTxtOutOfMem;
 							}
 
 							/* else png_icc_check_header output an error */
@@ -1409,26 +1406,20 @@ void /* PRIVATE */ png_handle_sPLT(png_structrp png_ptr, png_inforp info_ptr, ui
 	buffer = png_read_buffer(png_ptr, length+1, 2 /*silent*/);
 	if(!buffer) {
 		png_crc_finish(png_ptr, length);
-		png_chunk_benign_error(png_ptr, "out of memory");
+		png_chunk_benign_error(png_ptr, SlTxtOutOfMem);
 		return;
 	}
-
 	/* WARNING: this may break if size_t is less than 32 bits; it is assumed
 	 * that the PNG_MAX_MALLOC_64K test is enabled in this case, but this is a
 	 * potential breakage point if the types in pngconf.h aren't exactly right.
 	 */
 	png_crc_read(png_ptr, buffer, length);
-
 	if(png_crc_finish(png_ptr, skip) != 0)
 		return;
-
 	buffer[length] = 0;
-
 	for(entry_start = buffer; *entry_start; entry_start++)
 		/* Empty loop to find end of name */;
-
 	++entry_start;
-
 	/* A sample depth should follow the separator, and we should be on it  */
 	if(length < 2U || entry_start > buffer + (length - 2U)) {
 		png_warning(png_ptr, "malformed sPLT chunk");
@@ -1817,7 +1808,7 @@ void /* PRIVATE */ png_handle_pCAL(png_structrp png_ptr, png_inforp info_ptr, ui
 	buffer = png_read_buffer(png_ptr, length+1, 2 /*silent*/);
 	if(!buffer) {
 		png_crc_finish(png_ptr, length);
-		png_chunk_benign_error(png_ptr, "out of memory");
+		png_chunk_benign_error(png_ptr, SlTxtOutOfMem);
 		return;
 	}
 	png_crc_read(png_ptr, buffer, length);
@@ -1861,7 +1852,7 @@ void /* PRIVATE */ png_handle_pCAL(png_structrp png_ptr, png_inforp info_ptr, ui
 	png_debug(3, "Allocating pCAL parameters array");
 	params = png_voidcast(png_charpp, png_malloc_warn(png_ptr, nparams * (sizeof(char *))));
 	if(params == NULL) {
-		png_chunk_benign_error(png_ptr, "out of memory");
+		png_chunk_benign_error(png_ptr, SlTxtOutOfMem);
 		return;
 	}
 	/* Get pointers to the start of each parameter string. */
@@ -1912,7 +1903,7 @@ void /* PRIVATE */ png_handle_sCAL(png_structrp png_ptr, png_inforp info_ptr, ui
 	png_debug1(2, "Allocating and reading sCAL chunk data (%u bytes)", length + 1);
 	buffer = png_read_buffer(png_ptr, length+1, 2 /*silent*/);
 	if(!buffer) {
-		png_chunk_benign_error(png_ptr, "out of memory");
+		png_chunk_benign_error(png_ptr, SlTxtOutOfMem);
 		png_crc_finish(png_ptr, length);
 		return;
 	}
@@ -2024,7 +2015,7 @@ void /* PRIVATE */ png_handle_tEXt(png_structrp png_ptr, png_inforp info_ptr, ui
 #endif
 	buffer = png_read_buffer(png_ptr, length+1, 1 /*warn*/);
 	if(!buffer) {
-		png_chunk_benign_error(png_ptr, "out of memory");
+		png_chunk_benign_error(png_ptr, SlTxtOutOfMem);
 		return;
 	}
 	png_crc_read(png_ptr, buffer, length);
@@ -2079,7 +2070,7 @@ void /* PRIVATE */ png_handle_zTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 	buffer = png_read_buffer(png_ptr, length, 2 /*silent*/);
 	if(!buffer) {
 		png_crc_finish(png_ptr, length);
-		png_chunk_benign_error(png_ptr, "out of memory");
+		png_chunk_benign_error(png_ptr, SlTxtOutOfMem);
 		return;
 	}
 	png_crc_read(png_ptr, buffer, length);
@@ -2126,7 +2117,7 @@ void /* PRIVATE */ png_handle_zTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 			text.lang = NULL;
 			text.lang_key = NULL;
 			if(png_set_text_2(png_ptr, info_ptr, &text, 1) != 0)
-				errmsg = "insufficient memory";
+				errmsg = SlTxtOutOfMem;
 		}
 		else
 			errmsg = png_ptr->zstream.msg;
@@ -2159,26 +2150,19 @@ void /* PRIVATE */ png_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 		}
 	}
 #endif
-
 	if((png_ptr->mode & PNG_HAVE_IHDR) == 0)
 		png_chunk_error(png_ptr, "missing IHDR");
-
 	if((png_ptr->mode & PNG_HAVE_IDAT) != 0)
 		png_ptr->mode |= PNG_AFTER_IDAT;
-
 	buffer = png_read_buffer(png_ptr, length+1, 1 /*warn*/);
-
 	if(!buffer) {
 		png_crc_finish(png_ptr, length);
-		png_chunk_benign_error(png_ptr, "out of memory");
+		png_chunk_benign_error(png_ptr, SlTxtOutOfMem);
 		return;
 	}
-
 	png_crc_read(png_ptr, buffer, length);
-
 	if(png_crc_finish(png_ptr, 0) != 0)
 		return;
-
 	/* First the keyword. */
 	for(prefix_length = 0;
 	    prefix_length < length && buffer[prefix_length] != 0;
@@ -2196,13 +2180,10 @@ void /* PRIVATE */ png_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 	else if(prefix_length + 5 > length)
 		errmsg = "truncated";
 
-	else if(buffer[prefix_length+1] == 0 ||
-	    (buffer[prefix_length+1] == 1 &&
-		    buffer[prefix_length+2] == PNG_COMPRESSION_TYPE_BASE)) {
+	else if(buffer[prefix_length+1] == 0 || (buffer[prefix_length+1] == 1 && buffer[prefix_length+2] == PNG_COMPRESSION_TYPE_BASE)) {
 		int compressed = buffer[prefix_length+1] != 0;
 		uint32 language_offset, translated_keyword_offset;
 		png_alloc_size_t uncompressed_length = 0;
-
 		/* Now the language tag */
 		prefix_length += 3;
 		language_offset = prefix_length;
@@ -2210,10 +2191,8 @@ void /* PRIVATE */ png_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 		for(; prefix_length < length && buffer[prefix_length] != 0;
 		    ++prefix_length)
 			/* Empty loop */;
-
 		/* WARNING: the length may be invalid here, this is checked below. */
 		translated_keyword_offset = ++prefix_length;
-
 		for(; prefix_length < length && buffer[prefix_length] != 0;
 		    ++prefix_length)
 			/* Empty loop */;
@@ -2224,39 +2203,29 @@ void /* PRIVATE */ png_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 		 * systems the available allocation may overflow.
 		 */
 		++prefix_length;
-
 		if(compressed == 0 && prefix_length <= length)
 			uncompressed_length = length - prefix_length;
-
 		else if(compressed != 0 && prefix_length < length) {
 			uncompressed_length = PNG_SIZE_MAX;
-
 			/* @todo at present png_decompress_chunk imposes a single application
 			 * level memory limit, this should be split to different values for
 			 * iCCP and text chunks.
 			 */
-			if(png_decompress_chunk(png_ptr, length, prefix_length,
-				    &uncompressed_length, 1 /*terminate*/) == Z_STREAM_END)
+			if(png_decompress_chunk(png_ptr, length, prefix_length, &uncompressed_length, 1 /*terminate*/) == Z_STREAM_END)
 				buffer = png_ptr->read_buffer;
-
 			else
 				errmsg = png_ptr->zstream.msg;
 		}
-
 		else
 			errmsg = "truncated";
-
 		if(errmsg == NULL) {
 			png_text text;
-
 			buffer[uncompressed_length+prefix_length] = 0;
-
 			if(compressed == 0)
 				text.compression = PNG_ITXT_COMPRESSION_NONE;
 
 			else
 				text.compression = PNG_ITXT_COMPRESSION_zTXt;
-
 			text.key = (char *)buffer;
 			text.lang = (char *)buffer + language_offset;
 			text.lang_key = (char *)buffer + translated_keyword_offset;
@@ -2264,7 +2233,7 @@ void /* PRIVATE */ png_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, ui
 			text.text_length = 0;
 			text.itxt_length = uncompressed_length;
 			if(png_set_text_2(png_ptr, info_ptr, &text, 1) != 0)
-				errmsg = "insufficient memory";
+				errmsg = SlTxtOutOfMem;
 		}
 	}
 	else

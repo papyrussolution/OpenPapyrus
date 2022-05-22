@@ -31,7 +31,7 @@
 #ifndef ABSL_BASE_INTERNAL_CYCLECLOCK_H_
 #define ABSL_BASE_INTERNAL_CYCLECLOCK_H_
 
-#include <cstdint>
+//#include <cstdint>
 #include "absl/base/config.h"
 
 namespace absl {

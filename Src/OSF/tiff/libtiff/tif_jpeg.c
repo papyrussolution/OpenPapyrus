@@ -1718,7 +1718,7 @@ static int JPEGEncode(TIFF * tif, uint8 * buf, tmsize_t cc, uint16 s)
 		line16_count = (int)((sp->bytesperline * 2) / 3);
 		line16 = (short*)SAlloc::M(sizeof(short) * line16_count);
 		if(!line16) {
-			TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "Failed to allocate memory");
+			TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, SlTxtOutOfMem);
 			return 0;
 		}
 	}
@@ -1988,7 +1988,7 @@ static int JPEGVGetField(TIFF * tif, uint32 tag, va_list ap)
 	assert(sp);
 	switch(tag) {
 		case TIFFTAG_JPEGTABLES:
-		    *va_arg(ap, uint32*) = sp->jpegtables_length;
+		    *va_arg(ap, uint32 *) = sp->jpegtables_length;
 		    *va_arg(ap, void **) = sp->jpegtables;
 		    break;
 		case TIFFTAG_JPEGQUALITY:
@@ -2011,7 +2011,7 @@ static void JPEGPrintDir(TIFF * tif, FILE* fd, long flags)
 	JPEGState* sp = JState(tif);
 	assert(sp);
 	(void)flags;
-	if(sp != NULL) {
+	if(sp) {
 		if(TIFFFieldSet(tif, FIELD_JPEGTABLES))
 			fprintf(fd, "  JPEG Tables: (%lu bytes)\n", (ulong)sp->jpegtables_length);
 		if(sp->printdir)
@@ -2029,7 +2029,7 @@ static uint32 JPEGDefaultStripSize(TIFF * tif, uint32 s)
 	return (s);
 }
 
-static void JPEGDefaultTileSize(TIFF * tif, uint32* tw, uint32* th)
+static void JPEGDefaultTileSize(TIFF * tif, uint32 * tw, uint32 * th)
 {
 	JPEGState* sp = JState(tif);
 	TIFFDirectory * td = &tif->tif_dir;

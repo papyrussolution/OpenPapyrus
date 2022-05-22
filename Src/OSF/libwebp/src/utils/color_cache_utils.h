@@ -15,13 +15,6 @@
 #ifndef WEBP_UTILS_COLOR_CACHE_UTILS_H_
 #define WEBP_UTILS_COLOR_CACHE_UTILS_H_
 
-//#include <assert.h>
-//#include "src/dsp/dsp.h"
-//#include "src/webp/types.h"
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
-
 // Main color cache struct.
 typedef struct {
 	uint32_t* colors_; // color entries
@@ -41,26 +34,22 @@ static FORCEINLINE uint32_t VP8LColorCacheLookup(const VP8LColorCache* const cc,
 	return cc->colors_[key];
 }
 
-static FORCEINLINE void VP8LColorCacheSet(const VP8LColorCache* const cc,
-    uint32_t key, uint32_t argb) {
+static FORCEINLINE void VP8LColorCacheSet(const VP8LColorCache* const cc, uint32_t key, uint32_t argb) {
 	assert((key >> cc->hash_bits_) == 0u);
 	cc->colors_[key] = argb;
 }
 
-static FORCEINLINE void VP8LColorCacheInsert(const VP8LColorCache* const cc,
-    uint32_t argb) {
+static FORCEINLINE void VP8LColorCacheInsert(const VP8LColorCache* const cc, uint32_t argb) {
 	const int key = VP8LHashPix(argb, cc->hash_shift_);
 	cc->colors_[key] = argb;
 }
 
-static FORCEINLINE int VP8LColorCacheGetIndex(const VP8LColorCache* const cc,
-    uint32_t argb) {
+static FORCEINLINE int VP8LColorCacheGetIndex(const VP8LColorCache* const cc, uint32_t argb) {
 	return VP8LHashPix(argb, cc->hash_shift_);
 }
 
 // Return the key if cc contains argb, and -1 otherwise.
-static FORCEINLINE int VP8LColorCacheContains(const VP8LColorCache* const cc,
-    uint32_t argb) {
+static FORCEINLINE int VP8LColorCacheContains(const VP8LColorCache* const cc, uint32_t argb) {
 	const int key = VP8LHashPix(argb, cc->hash_shift_);
 	return (cc->colors_[key] == argb) ? key : -1;
 }
@@ -74,7 +63,4 @@ void VP8LColorCacheCopy(const VP8LColorCache* const src, VP8LColorCache* const d
 // Delete the memory associated to color cache.
 void VP8LColorCacheClear(VP8LColorCache* const color_cache);
 
-//#ifdef __cplusplus
-//}
-//#endif
 #endif  // WEBP_UTILS_COLOR_CACHE_UTILS_H_

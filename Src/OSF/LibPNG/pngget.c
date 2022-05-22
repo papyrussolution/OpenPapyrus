@@ -600,9 +600,9 @@ uint32 PNGAPI png_get_IHDR(png_const_structrp png_ptr, png_const_inforp info_ptr
 	png_debug1(1, "in %s retrieval function", "IHDR");
 	if(png_ptr == NULL || info_ptr == NULL)
 		return 0;
-	if(width != NULL)
+	if(width)
 		*width = info_ptr->width;
-	if(height != NULL)
+	if(height)
 		*height = info_ptr->height;
 	if(bit_depth != NULL)
 		*bit_depth = info_ptr->bit_depth;

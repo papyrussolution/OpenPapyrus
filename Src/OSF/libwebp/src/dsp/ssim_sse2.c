@@ -13,18 +13,15 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
-
 #if defined(WEBP_USE_SSE2)
-//#include <assert.h>
 #include <emmintrin.h>
 #include "src/dsp/common_sse2.h"
 
 #if !defined(WEBP_DISABLE_STATS)
 
 // Helper function
-static FORCEINLINE void SubtractAndSquare_SSE2(const __m128i a, const __m128i b,
-    __m128i* const sum) {
+static FORCEINLINE void SubtractAndSquare_SSE2(const __m128i a, const __m128i b, __m128i* const sum) 
+{
 	// take abs(a-b) in 8b
 	const __m128i a_b = _mm_subs_epu8(a, b);
 	const __m128i b_a = _mm_subs_epu8(b, a);

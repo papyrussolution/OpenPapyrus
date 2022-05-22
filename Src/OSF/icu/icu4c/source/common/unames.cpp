@@ -769,7 +769,7 @@ static uint16 writeFactorSuffix(const uint16 * factors, uint16 count, const char
 	 * note that for fewer operations, count is decremented here
 	 */
 	--count;
-	for(i = count; i>0; --i) {
+	for(i = count; i > 0; --i) {
 		factor = factors[i];
 		indexes[i] = (uint16)(code%factor);
 		code /= factor;
@@ -849,7 +849,7 @@ static uint16 getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoic
 		    if(count<bufferLength) {
 			    buffer[count] = 0;
 		    }
-		    for(i = count; i>0;) {
+		    for(i = count; i > 0;) {
 			    if(--i<bufferLength) {
 				    c = (char)(code&0xf);
 				    if(c<10) {
@@ -1683,7 +1683,7 @@ static void charSetToUSet(uint32_t cset[8], const USetAdder * sa) {
 	u_charsToUChars(cs, us, length);
 
 	/* add each UChar to the USet */
-	for(i = 0; i<length; ++i) {
+	for(i = 0; i < length; ++i) {
 		if(us[i]!=0 || cs[i]==0) { /* non-invariant chars become (UChar)0 */
 			sa->add(sa->set, us[i]);
 		}

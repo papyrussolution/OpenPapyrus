@@ -317,7 +317,7 @@ static int horAcc16(TIFF * tif, uint8 * cp0, tmsize_t cc)
 
 static int swabHorAcc32(TIFF * tif, uint8 * cp0, tmsize_t cc)
 {
-	uint32* wp = (uint32 *)cp0;
+	uint32 * wp = (uint32 *)cp0;
 	tmsize_t wc = cc / 4;
 	TIFFSwabArrayOfLong(wp, wc);
 	return horAcc32(tif, cp0, cc);
@@ -327,7 +327,7 @@ TIFF_NOSANITIZE_UNSIGNED_INT_OVERFLOW
 static int horAcc32(TIFF * tif, uint8 * cp0, tmsize_t cc)
 {
 	tmsize_t stride = PredictorState(tif)->stride;
-	uint32* wp = (uint32 *)cp0;
+	uint32 * wp = (uint32 *)cp0;
 	tmsize_t wc = cc / 4;
 	if((cc%(4*stride))!=0) {
 		TIFFErrorExt(tif->tif_clientdata, "horAcc32", "%s", "cc%(4*stride))!=0");
@@ -534,7 +534,7 @@ static int horDiff32(TIFF * tif, uint8 * cp0, tmsize_t cc)
 
 static int swabHorDiff32(TIFF * tif, uint8 * cp0, tmsize_t cc)
 {
-	uint32* wp = (uint32 *)cp0;
+	uint32 * wp = (uint32 *)cp0;
 	tmsize_t wc = cc / 4;
 	if(!horDiff32(tif, cp0, cc) )
 		return 0;

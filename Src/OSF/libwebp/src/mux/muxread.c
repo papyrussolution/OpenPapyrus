@@ -354,8 +354,8 @@ static WebPMuxError MuxGetCanvasInfo(const WebPMux* const mux,
 	}
 	if(w * (uint64_t)h >= MAX_IMAGE_AREA) return WEBP_MUX_BAD_DATA;
 
-	if(width != NULL) *width = w;
-	if(height != NULL) *height = h;
+	if(width) *width = w;
+	if(height) *height = h;
 	if(flags != NULL) *flags = f;
 	return WEBP_MUX_OK;
 }

@@ -440,10 +440,8 @@ static void Emit1Gamma(cmsIOHANDLER* m, cmsToneCurve * Table, const char * name)
 	// ===============                            ========================
 	// v
 	_cmsIOPrintf(m, "/%s {\n  ", name);
-
 	// Bounds check
 	EmitRangeCheck(m);
-
 	_cmsIOPrintf(m, "\n  //lcms2gammatable "); // v tab
 	_cmsIOPrintf(m, "dup ");                  // v tab tab
 	_cmsIOPrintf(m, "length 1 sub ");         // v tab dom
@@ -797,7 +795,7 @@ static int WriteInputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, uint32 Intent, u
 	xform = cmsCreateMultiprofileTransform(Profiles, 2,  InputFormat, TYPE_Lab_DBL, Intent, 0);
 	cmsCloseProfile(hLab);
 
-	if(xform == NULL) {
+	if(!xform) {
 		cmsSignalError(m->ContextID, cmsERROR_COLORSPACE_CHECK, "Cannot create transform Profile -> Lab");
 		return 0;
 	}
@@ -896,7 +894,7 @@ static int WriteNamedColorCSA(cmsIOHANDLER* m, cmsHPROFILE hNamedColor, uint32 I
 	cmsNAMEDCOLORLIST* NamedColorList;
 	hLab  = cmsCreateLab4ProfileTHR(m->ContextID, NULL);
 	xform = cmsCreateTransform(hNamedColor, TYPE_NAMED_COLOR_INDEX, hLab, TYPE_Lab_DBL, Intent, 0);
-	if(xform == NULL) return 0;
+	if(!xform) return 0;
 	NamedColorList = cmsGetNamedColorList(xform);
 	if(NamedColorList == NULL) return 0;
 	_cmsIOPrintf(m, "<<\n");
@@ -1159,7 +1157,7 @@ static int WriteOutputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, uint32 Intent, 
 		OutputFormat, RelativeEncodingIntent, 0);
 	cmsCloseProfile(hLab);
 
-	if(xform == NULL) {
+	if(!xform) {
 		cmsSignalError(m->ContextID, cmsERROR_COLORSPACE_CHECK, "Cannot create transform Lab -> Profile in CRD creation");
 		return 0;
 	}
@@ -1246,7 +1244,7 @@ static int WriteNamedColorCRD(cmsIOHANDLER* m, cmsHPROFILE hNamedColor, uint32 I
 	uint32 OutputFormat = cmsFormatterForColorspaceOfProfile(hNamedColor, 2, FALSE);
 	uint32 nColorant    = T_CHANNELS(OutputFormat);
 	cmsHTRANSFORM xform = cmsCreateTransform(hNamedColor, TYPE_NAMED_COLOR_INDEX, NULL, OutputFormat, Intent, dwFlags);
-	if(xform == NULL) 
+	if(!xform) 
 		return 0;
 	NamedColorList = cmsGetNamedColorList(xform);
 	if(NamedColorList == NULL) 

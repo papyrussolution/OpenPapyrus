@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "e_os.h"
-//#include <sys/types.h>
-//#ifndef OPENSSL_NO_POSIX_IO
-	//#include <sys/stat.h>
-//#endif
-//#include <openssl/x509.h>
 #include <x509_int.h>
 #include "x509_lcl.h"
 

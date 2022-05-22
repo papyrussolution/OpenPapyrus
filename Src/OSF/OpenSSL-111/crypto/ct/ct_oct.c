@@ -11,10 +11,6 @@
 #ifdef OPENSSL_NO_CT
 	#error "CT is disabled"
 #endif
-//#include <openssl/asn1.h>
-//#include <openssl/buffer.h>
-//#include <openssl/ct.h>
-//#include <openssl/err.h>
 #include "ct_locl.h"
 
 int o2i_SCT_signature(SCT * sct, const uchar ** in, size_t len)

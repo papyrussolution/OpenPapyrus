@@ -14,13 +14,11 @@
 #include <openssl/asn1.h>
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
-//#include <openssl/ec.h>
-//#include <evp_int.h>
 
 EVP_PKEY * d2i_PublicKey(int type, EVP_PKEY ** a, const uchar ** pp, long length)
 {
 	EVP_PKEY * ret;
-	if((a == NULL) || (*a == NULL)) {
+	if(!a || (*a == NULL)) {
 		if((ret = EVP_PKEY_new()) == NULL) {
 			ASN1err(ASN1_F_D2I_PUBLICKEY, ERR_R_EVP_LIB);
 			return NULL;

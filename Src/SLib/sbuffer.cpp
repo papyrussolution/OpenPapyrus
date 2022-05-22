@@ -795,7 +795,7 @@ int SBinaryChunk::Set(uint8 byte, size_t len)
 {
 	int    ok = 1;
 	CheckInvariants();
-	if(len == 0)
+	if(!len)
 		L = 0;
 	else if(len <= Size || Alloc(len)) {
 		memset(P_Buf, byte, len);

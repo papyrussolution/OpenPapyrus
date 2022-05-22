@@ -76,7 +76,7 @@ int db_env_set_func_ftruncate(int (*func_ftruncate)__P((int, off_t)))
  * EXTERN: int db_env_set_func_ioinfo __P((int (*)(const char *,
  * EXTERN:     int, uint32 *, uint32 *, uint32 *)));
  */
-int db_env_set_func_ioinfo(int (*func_ioinfo)__P((const char *, int, uint32*, uint32*, uint32 *)))
+int db_env_set_func_ioinfo(int (*func_ioinfo)__P((const char *, int, uint32 *, uint32 *, uint32 *)))
 {
 	DB_GLOBAL(j_ioinfo) = func_ioinfo;
 	return 0;

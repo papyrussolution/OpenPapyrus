@@ -1334,7 +1334,7 @@ StringEnumeration * U_EXPORT2 Transliterator::getAvailableIDs(UErrorCode & ec) {
 		result = registry->getAvailableIDs();
 	}
 	umtx_unlock(&registryMutex);
-	if(result == NULL) {
+	if(!result) {
 		ec = U_INTERNAL_TRANSLITERATOR_ERROR;
 	}
 	return result;

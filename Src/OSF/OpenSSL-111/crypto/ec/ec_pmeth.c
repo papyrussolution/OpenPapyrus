@@ -8,12 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1t.h>
-//#include <openssl/x509.h>
-//#include <openssl/ec.h>
 #include "ec_lcl.h"
-//#include <openssl/evp.h>
-//#include <evp_int.h>
 
 /* EC pkey context structure */
 
@@ -107,7 +102,7 @@ static int pkey_ec_sign(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen,
 	if(!ossl_assert(sig_sz > 0))
 		return 0;
 
-	if(sig == NULL) {
+	if(!sig) {
 		*siglen = (size_t)sig_sz;
 		return 1;
 	}

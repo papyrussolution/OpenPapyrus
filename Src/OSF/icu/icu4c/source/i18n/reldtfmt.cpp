@@ -243,16 +243,13 @@ void RelativeDateFormat::parse(const UnicodeString & text,
 		// first check whether text matches a relativeDayString
 		bool matchedRelative = FALSE;
 		for(int n = 0; n < fDatesLen && !matchedRelative; n++) {
-			if(fDates[n].string != NULL &&
-			    text.compare(startIndex, fDates[n].len, fDates[n].string) == 0) {
+			if(fDates[n].string != NULL && text.compare(startIndex, fDates[n].len, fDates[n].string) == 0) {
 				// it matched, handle the relative day string
 				UErrorCode status = U_ZERO_ERROR;
 				matchedRelative = TRUE;
-
 				// Set the calendar to now+offset
 				cal.setTime(Calendar::getNow(), status);
 				cal.add(UCAL_DATE, fDates[n].offset, status);
-
 				if(U_FAILURE(status)) {
 					// failure in setting calendar field, set offset to beginning of rel day string
 					pos.setErrorIndex(startIndex);
@@ -277,12 +274,10 @@ void RelativeDateFormat::parse(const UnicodeString & text,
 		UErrorCode status = U_ZERO_ERROR;
 		for(int n = 0; n < fDatesLen; n++) {
 			int32_t relativeStringOffset;
-			if(fDates[n].string != NULL &&
-			    (relativeStringOffset = modifiedText.indexOf(fDates[n].string, fDates[n].len, startIndex)) >= startIndex) {
+			if(fDates[n].string != NULL && (relativeStringOffset = modifiedText.indexOf(fDates[n].string, fDates[n].len, startIndex)) >= startIndex) {
 				// it matched, replace the relative date with a real one for parsing
 				UnicodeString dateString;
 				Calendar * tempCal = cal.clone();
-
 				// Set the calendar to now+offset
 				tempCal->setTime(Calendar::getNow(), status);
 				tempCal->add(UCAL_DATE, fDates[n].offset, status);

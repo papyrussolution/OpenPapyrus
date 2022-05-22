@@ -65,7 +65,7 @@ PPSyncCashSession * CM_SYNCSYM::SyncInterface()
 	return cs;
 }
 
-REGISTER_CMT(SYNCSYM,1,0);
+REGISTER_CMT(SYNCSYM, true, false);
 
 SCS_SYNCSYM::SCS_SYNCSYM(PPID n, char * pName, char * pPort) : PPSyncCashSession(n, pName, pPort),
 	PrinterDC(0), OldPrinterFont(0), PrinterPort(SCn.PrinterPort), TextOutput(0)

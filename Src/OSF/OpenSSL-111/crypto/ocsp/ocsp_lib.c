@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/objects.h>
-//#include <openssl/x509.h>
-//#include <openssl/pem.h>
-//#include <openssl/x509v3.h>
-//#include <openssl/ocsp.h>
-//#include <openssl/asn1t.h>
 #include "ocsp_lcl.h"
 
 /* Convert a certificate and its issuer to an OCSP_CERTID */

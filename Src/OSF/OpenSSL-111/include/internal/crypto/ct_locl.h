@@ -5,12 +5,6 @@
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution or at  https://www.openssl.org/source/license.html
  */
-//#include <stddef.h>
-//#include <openssl/ct.h>
-//#include <openssl/evp.h>
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
-//#include <openssl/safestack.h>
 /*
  * From RFC6962: opaque SerializedSCT<1..2^16-1>; struct { SerializedSCT
  * sct_list <1..2^16-1>; } SignedCertificateTimestampList;

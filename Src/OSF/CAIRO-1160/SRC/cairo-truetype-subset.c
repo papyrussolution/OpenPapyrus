@@ -1207,14 +1207,14 @@ static cairo_status_t find_name(tt_name_t * name, int name_id, int platform, int
 			if(len > MAX_FONT_NAME_LENGTH)
 				break;
 			str = static_cast<char *>(_cairo_malloc(len+1));
-			if(str == NULL)
+			if(!str)
 				return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			memcpy(str, ((char *)name) + be16_to_cpu(name->strings_offset) + be16_to_cpu(record->offset), len);
 			str[be16_to_cpu(record->length)] = 0;
 			break;
 		}
 	}
-	if(str == NULL) {
+	if(!str) {
 		*str_out = NULL;
 		return CAIRO_STATUS_SUCCESS;
 	}

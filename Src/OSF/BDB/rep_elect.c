@@ -24,7 +24,7 @@ static int __rep_fire_elected __P((ENV*, REP*, uint32));
 static void __rep_elect_master __P((ENV*, REP *));
 static int __rep_grow_sites __P((ENV*, uint32));
 static void __rep_send_vote __P((ENV*, DB_LSN*, uint32, uint32, uint32, uint32, uint32, uint32, int, uint32, uint32));
-static int __rep_tally __P((ENV*, REP*, int, uint32*, uint32, int));
+static int __rep_tally __P((ENV*, REP*, int, uint32 *, uint32, int));
 static int __rep_wait __P((ENV*, db_timeout_t*, int, uint32, uint32));
 
 /*

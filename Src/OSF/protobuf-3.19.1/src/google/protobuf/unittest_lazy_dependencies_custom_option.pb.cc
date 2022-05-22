@@ -17,8 +17,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
 namespace lazy_imports {
-constexpr LazyMessage::LazyMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr LazyMessage::LazyMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : a_(0){}
 struct LazyMessageDefaultTypeInternal {
 	constexpr LazyMessageDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -126,8 +125,7 @@ void LazyMessage::ArenaDtor(void* object) {
   LazyMessage* _this = reinterpret_cast< LazyMessage* >(object);
   (void)_this;
 }
-void LazyMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void LazyMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void LazyMessage::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -167,10 +165,7 @@ const char* LazyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -226,10 +221,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData LazyMessage::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*LazyMessage::GetClassData() const { return &_class_data_; }
 
-void LazyMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<LazyMessage *>(to)->MergeFrom(
-      static_cast<const LazyMessage &>(from));
+void LazyMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<LazyMessage *>(to)->MergeFrom(static_cast<const LazyMessage &>(from));
 }
 
 

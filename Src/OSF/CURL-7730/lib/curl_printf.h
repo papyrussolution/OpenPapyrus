@@ -29,14 +29,14 @@
 
 #include <curl/mprintf.h>
 
-# undef printf
-# undef fprintf
-# undef msnprintf
-# undef vprintf
-# undef vfprintf
-# undef vsnprintf
-# undef aprintf
-# undef vaprintf
+#undef printf
+#undef fprintf
+#undef msnprintf
+#undef vprintf
+#undef vfprintf
+#undef vsnprintf
+#undef aprintf
+#undef vaprintf
 #define printf curl_mprintf
 #define fprintf curl_mfprintf
 #define msnprintf curl_msnprintf

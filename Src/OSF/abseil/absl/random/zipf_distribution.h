@@ -9,12 +9,12 @@
 #ifndef ABSL_RANDOM_ZIPF_DISTRIBUTION_H_
 #define ABSL_RANDOM_ZIPF_DISTRIBUTION_H_
 
-#include <cassert>
-#include <cmath>
-#include <istream>
-#include <limits>
-#include <ostream>
-#include <type_traits>
+//#include <cassert>
+//#include <cmath>
+//#include <istream>
+//#include <limits>
+//#include <ostream>
+//#include <type_traits>
 #include "absl/random/internal/iostream_state_saver.h"
 #include "absl/random/internal/traits.h"
 #include "absl/random/uniform_real_distribution.h"

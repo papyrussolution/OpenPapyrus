@@ -478,7 +478,7 @@ UObject* ICUService::getKey(ICUServiceKey& key, UnicodeString * actualReturn, co
 				}
 				if(service.isValid()) {
 					result = new CacheEntry(currentDescriptor, service.getAlias());
-					if(result == NULL) {
+					if(!result) {
 						status = U_MEMORY_ALLOCATION_ERROR;
 						return NULL;
 					}
@@ -595,7 +595,7 @@ UVector&ICUService::getVisibleIDs(UVector& result, const UnicodeString * matchID
 
 			for(int32_t pos = UHASH_FIRST; U_SUCCESS(status);) {
 				const UHashElement* e = map->nextElement(pos);
-				if(e == NULL) {
+				if(!e) {
 					break;
 				}
 
@@ -779,7 +779,7 @@ URegistryKey ICUService::registerInstance(UObject* objToAdopt, const UnicodeStri
 URegistryKey ICUService::registerInstance(UObject* objToAdopt, const UnicodeString & id, bool visible, UErrorCode & status)
 {
 	ICUServiceKey* key = createKey(&id, status);
-	if(key != NULL) {
+	if(key) {
 		UnicodeString canonicalID;
 		key->canonicalID(canonicalID);
 		delete key;

@@ -107,19 +107,15 @@ constexpr Field_Kind Field_Kind_Kind_MIN = Field_Kind_TYPE_UNKNOWN;
 constexpr Field_Kind Field_Kind_Kind_MAX = Field_Kind_TYPE_SINT64;
 constexpr int Field_Kind_Kind_ARRAYSIZE = Field_Kind_Kind_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Field_Kind_descriptor();
-template<typename T>
-inline const std::string& Field_Kind_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, Field_Kind>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function Field_Kind_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    Field_Kind_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Field_Kind_descriptor();
+template<typename T> inline const std::string& Field_Kind_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, Field_Kind>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Field_Kind_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(Field_Kind_descriptor(), enum_t_value);
 }
-inline bool Field_Kind_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Field_Kind* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Field_Kind>(
-    Field_Kind_descriptor(), name, value);
+inline bool Field_Kind_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Field_Kind * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Field_Kind>(Field_Kind_descriptor(), name, value);
 }
 enum Field_Cardinality : int {
   Field_Cardinality_CARDINALITY_UNKNOWN = 0,
@@ -134,19 +130,15 @@ constexpr Field_Cardinality Field_Cardinality_Cardinality_MIN = Field_Cardinalit
 constexpr Field_Cardinality Field_Cardinality_Cardinality_MAX = Field_Cardinality_CARDINALITY_REPEATED;
 constexpr int Field_Cardinality_Cardinality_ARRAYSIZE = Field_Cardinality_Cardinality_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Field_Cardinality_descriptor();
-template<typename T>
-inline const std::string& Field_Cardinality_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, Field_Cardinality>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function Field_Cardinality_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    Field_Cardinality_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Field_Cardinality_descriptor();
+template<typename T> inline const std::string& Field_Cardinality_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, Field_Cardinality>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Field_Cardinality_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(Field_Cardinality_descriptor(), enum_t_value);
 }
-inline bool Field_Cardinality_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Field_Cardinality* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Field_Cardinality>(
-    Field_Cardinality_descriptor(), name, value);
+inline bool Field_Cardinality_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Field_Cardinality * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Field_Cardinality>(Field_Cardinality_descriptor(), name, value);
 }
 enum Syntax : int {
   SYNTAX_PROTO2 = 0,
@@ -159,19 +151,15 @@ constexpr Syntax Syntax_MIN = SYNTAX_PROTO2;
 constexpr Syntax Syntax_MAX = SYNTAX_PROTO3;
 constexpr int Syntax_ARRAYSIZE = Syntax_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Syntax_descriptor();
-template<typename T>
-inline const std::string& Syntax_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, Syntax>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function Syntax_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    Syntax_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Syntax_descriptor();
+template<typename T> inline const std::string& Syntax_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, Syntax>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Syntax_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(Syntax_descriptor(), enum_t_value);
 }
-inline bool Syntax_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Syntax* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Syntax>(
-    Syntax_descriptor(), name, value);
+inline bool Syntax_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Syntax * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Syntax>(Syntax_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -501,101 +489,58 @@ class Field final :
   // nested types ----------------------------------------------------
 
   typedef Field_Kind Kind;
-  static constexpr Kind TYPE_UNKNOWN =
-    Field_Kind_TYPE_UNKNOWN;
-  static constexpr Kind TYPE_DOUBLE =
-    Field_Kind_TYPE_DOUBLE;
-  static constexpr Kind TYPE_FLOAT =
-    Field_Kind_TYPE_FLOAT;
-  static constexpr Kind TYPE_INT64 =
-    Field_Kind_TYPE_INT64;
-  static constexpr Kind TYPE_UINT64 =
-    Field_Kind_TYPE_UINT64;
-  static constexpr Kind TYPE_INT32 =
-    Field_Kind_TYPE_INT32;
-  static constexpr Kind TYPE_FIXED64 =
-    Field_Kind_TYPE_FIXED64;
-  static constexpr Kind TYPE_FIXED32 =
-    Field_Kind_TYPE_FIXED32;
-  static constexpr Kind TYPE_BOOL =
-    Field_Kind_TYPE_BOOL;
-  static constexpr Kind TYPE_STRING =
-    Field_Kind_TYPE_STRING;
-  static constexpr Kind TYPE_GROUP =
-    Field_Kind_TYPE_GROUP;
-  static constexpr Kind TYPE_MESSAGE =
-    Field_Kind_TYPE_MESSAGE;
-  static constexpr Kind TYPE_BYTES =
-    Field_Kind_TYPE_BYTES;
-  static constexpr Kind TYPE_UINT32 =
-    Field_Kind_TYPE_UINT32;
-  static constexpr Kind TYPE_ENUM =
-    Field_Kind_TYPE_ENUM;
-  static constexpr Kind TYPE_SFIXED32 =
-    Field_Kind_TYPE_SFIXED32;
-  static constexpr Kind TYPE_SFIXED64 =
-    Field_Kind_TYPE_SFIXED64;
-  static constexpr Kind TYPE_SINT32 =
-    Field_Kind_TYPE_SINT32;
-  static constexpr Kind TYPE_SINT64 =
-    Field_Kind_TYPE_SINT64;
-  static inline bool Kind_IsValid(int value) {
-    return Field_Kind_IsValid(value);
+  static constexpr Kind TYPE_UNKNOWN = Field_Kind_TYPE_UNKNOWN;
+  static constexpr Kind TYPE_DOUBLE = Field_Kind_TYPE_DOUBLE;
+  static constexpr Kind TYPE_FLOAT = Field_Kind_TYPE_FLOAT;
+  static constexpr Kind TYPE_INT64 = Field_Kind_TYPE_INT64;
+  static constexpr Kind TYPE_UINT64 = Field_Kind_TYPE_UINT64;
+  static constexpr Kind TYPE_INT32 = Field_Kind_TYPE_INT32;
+  static constexpr Kind TYPE_FIXED64 = Field_Kind_TYPE_FIXED64;
+  static constexpr Kind TYPE_FIXED32 = Field_Kind_TYPE_FIXED32;
+  static constexpr Kind TYPE_BOOL = Field_Kind_TYPE_BOOL;
+  static constexpr Kind TYPE_STRING = Field_Kind_TYPE_STRING;
+  static constexpr Kind TYPE_GROUP = Field_Kind_TYPE_GROUP;
+  static constexpr Kind TYPE_MESSAGE = Field_Kind_TYPE_MESSAGE;
+  static constexpr Kind TYPE_BYTES = Field_Kind_TYPE_BYTES;
+  static constexpr Kind TYPE_UINT32 = Field_Kind_TYPE_UINT32;
+  static constexpr Kind TYPE_ENUM = Field_Kind_TYPE_ENUM;
+  static constexpr Kind TYPE_SFIXED32 = Field_Kind_TYPE_SFIXED32;
+  static constexpr Kind TYPE_SFIXED64 = Field_Kind_TYPE_SFIXED64;
+  static constexpr Kind TYPE_SINT32 = Field_Kind_TYPE_SINT32;
+  static constexpr Kind TYPE_SINT64 = Field_Kind_TYPE_SINT64;
+  static inline bool Kind_IsValid(int value) { return Field_Kind_IsValid(value); }
+  static constexpr Kind Kind_MIN = Field_Kind_Kind_MIN;
+  static constexpr Kind Kind_MAX = Field_Kind_Kind_MAX;
+  static constexpr int Kind_ARRAYSIZE = Field_Kind_Kind_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Kind_descriptor() { return Field_Kind_descriptor(); }
+  template<typename T> static inline const std::string& Kind_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, Kind>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Kind_Name.");
+  	return Field_Kind_Name(enum_t_value);
   }
-  static constexpr Kind Kind_MIN =
-    Field_Kind_Kind_MIN;
-  static constexpr Kind Kind_MAX =
-    Field_Kind_Kind_MAX;
-  static constexpr int Kind_ARRAYSIZE =
-    Field_Kind_Kind_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  Kind_descriptor() {
-    return Field_Kind_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& Kind_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, Kind>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function Kind_Name.");
-    return Field_Kind_Name(enum_t_value);
-  }
-  static inline bool Kind_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      Kind* value) {
-    return Field_Kind_Parse(name, value);
+  static inline bool Kind_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Kind* value)
+  {
+  	return Field_Kind_Parse(name, value);
   }
 
   typedef Field_Cardinality Cardinality;
-  static constexpr Cardinality CARDINALITY_UNKNOWN =
-    Field_Cardinality_CARDINALITY_UNKNOWN;
-  static constexpr Cardinality CARDINALITY_OPTIONAL =
-    Field_Cardinality_CARDINALITY_OPTIONAL;
-  static constexpr Cardinality CARDINALITY_REQUIRED =
-    Field_Cardinality_CARDINALITY_REQUIRED;
-  static constexpr Cardinality CARDINALITY_REPEATED =
-    Field_Cardinality_CARDINALITY_REPEATED;
-  static inline bool Cardinality_IsValid(int value) {
-    return Field_Cardinality_IsValid(value);
+  static constexpr Cardinality CARDINALITY_UNKNOWN = Field_Cardinality_CARDINALITY_UNKNOWN;
+  static constexpr Cardinality CARDINALITY_OPTIONAL = Field_Cardinality_CARDINALITY_OPTIONAL;
+  static constexpr Cardinality CARDINALITY_REQUIRED = Field_Cardinality_CARDINALITY_REQUIRED;
+  static constexpr Cardinality CARDINALITY_REPEATED = Field_Cardinality_CARDINALITY_REPEATED;
+  static inline bool Cardinality_IsValid(int value) { return Field_Cardinality_IsValid(value); }
+  static constexpr Cardinality Cardinality_MIN = Field_Cardinality_Cardinality_MIN;
+  static constexpr Cardinality Cardinality_MAX = Field_Cardinality_Cardinality_MAX;
+  static constexpr int Cardinality_ARRAYSIZE = Field_Cardinality_Cardinality_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Cardinality_descriptor() { return Field_Cardinality_descriptor(); }
+  template<typename T> static inline const std::string& Cardinality_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, Cardinality>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Cardinality_Name.");
+  	return Field_Cardinality_Name(enum_t_value);
   }
-  static constexpr Cardinality Cardinality_MIN =
-    Field_Cardinality_Cardinality_MIN;
-  static constexpr Cardinality Cardinality_MAX =
-    Field_Cardinality_Cardinality_MAX;
-  static constexpr int Cardinality_ARRAYSIZE =
-    Field_Cardinality_Cardinality_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  Cardinality_descriptor() {
-    return Field_Cardinality_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& Cardinality_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, Cardinality>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function Cardinality_Name.");
-    return Field_Cardinality_Name(enum_t_value);
-  }
-  static inline bool Cardinality_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      Cardinality* value) {
-    return Field_Cardinality_Parse(name, value);
+  static inline bool Cardinality_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Cardinality* value)
+  {
+  	return Field_Cardinality_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -1332,8 +1277,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Field* Type::mutable_fields(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.Type.fields)
   return fields_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Field >*
-Type::mutable_fields() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Field > * Type::mutable_fields() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Type.fields)
   return &fields_;
 }
@@ -1420,8 +1364,7 @@ Type::oneofs() const {
   // @@protoc_insertion_point(field_list:google.protobuf.Type.oneofs)
   return oneofs_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-Type::mutable_oneofs() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * Type::mutable_oneofs() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Type.oneofs)
   return &oneofs_;
 }
@@ -1438,8 +1381,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Option* Type::mutable_options(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.Type.options)
   return options_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >*
-Type::mutable_options() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > * Type::mutable_options() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Type.options)
   return &options_;
 }
@@ -1464,9 +1406,7 @@ Type::options() const {
 }
 
 // .google.protobuf.SourceContext source_context = 5;
-inline bool Type::_internal_has_source_context() const {
-  return this != internal_default_instance() && source_context_ != nullptr;
-}
+inline bool Type::_internal_has_source_context() const { return this != internal_default_instance() && source_context_ != nullptr; }
 inline bool Type::has_source_context() const {
   return _internal_has_source_context();
 }
@@ -1767,8 +1707,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Option* Field::mutable_options(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.Field.options)
   return options_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >*
-Field::mutable_options() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > * Field::mutable_options() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Field.options)
   return &options_;
 }
@@ -1952,8 +1891,7 @@ inline ::PROTOBUF_NAMESPACE_ID::EnumValue* Enum::mutable_enumvalue(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.Enum.enumvalue)
   return enumvalue_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumValue >*
-Enum::mutable_enumvalue() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumValue > * Enum::mutable_enumvalue() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Enum.enumvalue)
   return &enumvalue_;
 }
@@ -1989,8 +1927,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Option* Enum::mutable_options(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.Enum.options)
   return options_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >*
-Enum::mutable_options() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > * Enum::mutable_options() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Enum.options)
   return &options_;
 }
@@ -2015,9 +1952,7 @@ Enum::options() const {
 }
 
 // .google.protobuf.SourceContext source_context = 4;
-inline bool Enum::_internal_has_source_context() const {
-  return this != internal_default_instance() && source_context_ != nullptr;
-}
+inline bool Enum::_internal_has_source_context() const { return this != internal_default_instance() && source_context_ != nullptr; }
 inline bool Enum::has_source_context() const {
   return _internal_has_source_context();
 }
@@ -2198,8 +2133,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Option* EnumValue::mutable_options(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.EnumValue.options)
   return options_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >*
-EnumValue::mutable_options() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > * EnumValue::mutable_options() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.EnumValue.options)
   return &options_;
 }
@@ -2276,9 +2210,7 @@ inline void Option::set_allocated_name(std::string* name) {
 }
 
 // .google.protobuf.Any value = 2;
-inline bool Option::_internal_has_value() const {
-  return this != internal_default_instance() && value_ != nullptr;
-}
+inline bool Option::_internal_has_value() const { return this != internal_default_instance() && value_ != nullptr; }
 inline bool Option::has_value() const {
   return _internal_has_value();
 }
@@ -2378,20 +2310,11 @@ PROTOBUF_NAMESPACE_CLOSE
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::PROTOBUF_NAMESPACE_ID::Field_Kind> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::Field_Kind>() {
-  return ::PROTOBUF_NAMESPACE_ID::Field_Kind_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::Field_Kind>() { return ::PROTOBUF_NAMESPACE_ID::Field_Kind_descriptor(); }
 template <> struct is_proto_enum< ::PROTOBUF_NAMESPACE_ID::Field_Cardinality> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::Field_Cardinality>() {
-  return ::PROTOBUF_NAMESPACE_ID::Field_Cardinality_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::Field_Cardinality>() { return ::PROTOBUF_NAMESPACE_ID::Field_Cardinality_descriptor(); }
 template <> struct is_proto_enum< ::PROTOBUF_NAMESPACE_ID::Syntax> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::Syntax>() {
-  return ::PROTOBUF_NAMESPACE_ID::Syntax_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::Syntax>() { return ::PROTOBUF_NAMESPACE_ID::Syntax_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

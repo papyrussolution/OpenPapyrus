@@ -2120,7 +2120,7 @@ xmlChar * xmlTextReaderLookupNamespace(xmlTextReader * reader, const xmlChar * p
 	if(!reader || !reader->P_Node)
 		return 0;
 	ns = xmlSearchNs(reader->P_Node->doc, reader->P_Node, prefix);
-	if(ns == NULL)
+	if(!ns)
 		return 0;
 	return sstrdup(ns->href);
 }

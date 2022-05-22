@@ -5231,10 +5231,10 @@ int PPALDD_UhttTSession::InitData(PPFilt & rFilt, long rsrv)
 			H.Flags  = r_blk.Pack.Rec.Flags;
 
 			dtm.Set(r_blk.Pack.Rec.StDt, r_blk.Pack.Rec.StTm);
-			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
+			temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0);
 			STRNSCPY(H.StTime, temp_buf);
 			dtm.Set(r_blk.Pack.Rec.FinDt, r_blk.Pack.Rec.FinTm);
-			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
+			temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0);
 			STRNSCPY(H.StTime, temp_buf);
 			// @v11.0.4 STRNSCPY(H.Memo, r_blk.Pack.Rec.Memo);
 			// @v11.0.4 {
@@ -5291,9 +5291,9 @@ int PPALDD_UhttTSession::NextIteration(long iterId)
 			#undef CPY_FLD
 
 			dtm.Set(r_item.Dt, r_item.Tm);
-			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0).CopyTo(I_Lines.Tm, sizeof(I_Lines.Tm));
+			temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0).CopyTo(I_Lines.Tm, sizeof(I_Lines.Tm));
 			dtm.Set(r_item.Expiry, ZEROTIME);
-			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0).CopyTo(I_Lines.Expiry, sizeof(I_Lines.Expiry));
+			temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0).CopyTo(I_Lines.Expiry, sizeof(I_Lines.Expiry));
 
 			STRNSCPY(I_Lines.Serial, r_item.Serial);
 			ok = DlRtm::NextIteration(iterId);
@@ -5318,8 +5318,8 @@ int PPALDD_UhttTSession::NextIteration(long iterId)
 
 			I_Cips.PersonID = r_item.GetPerson();
 
-			temp_buf.Z().Cat(r_item.RegDtm, DATF_ISO8601|DATF_CENTURY, 0).CopyTo(I_Cips.RegTm, sizeof(I_Cips.RegTm));
-			temp_buf.Z().Cat(r_item.CiDtm, DATF_ISO8601|DATF_CENTURY, 0).CopyTo(I_Cips.CiTm, sizeof(I_Cips.CiTm));
+			temp_buf.Z().Cat(r_item.RegDtm, DATF_ISO8601CENT, 0).CopyTo(I_Cips.RegTm, sizeof(I_Cips.RegTm));
+			temp_buf.Z().Cat(r_item.CiDtm, DATF_ISO8601CENT, 0).CopyTo(I_Cips.CiTm, sizeof(I_Cips.CiTm));
 
 			r_blk.Pack.CiList.GetMemo(r_blk.CipPos, temp_buf.Z());
 			STRNSCPY(I_Cips.Memo, temp_buf);

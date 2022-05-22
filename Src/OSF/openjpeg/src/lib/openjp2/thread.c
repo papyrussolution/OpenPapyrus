@@ -778,7 +778,7 @@ static opj_worker_thread_job_t* opj_thread_pool_get_next_job(opj_thread_pool_t* 
 			assert(tp->waiting_worker_thread_count <= tp->worker_threads_count);
 
 			item = (opj_worker_thread_list_t*)opj_malloc(sizeof(opj_worker_thread_list_t));
-			if(item == NULL) {
+			if(!item) {
 				tp->state = OPJWTS_ERROR;
 				opj_cond_signal(tp->cond);
 
@@ -825,7 +825,7 @@ boolint opj_thread_pool_submit_job(opj_thread_pool_t* tp,
 	job->user_data = user_data;
 
 	item = (opj_job_list_t*)opj_malloc(sizeof(opj_job_list_t));
-	if(item == NULL) {
+	if(!item) {
 		SAlloc::F(job);
 		return FALSE;
 	}

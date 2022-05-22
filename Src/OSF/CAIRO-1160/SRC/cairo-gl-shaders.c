@@ -33,8 +33,6 @@
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-output-stream-private.h"
 
 static cairo_status_t _cairo_gl_shader_compile_and_link(cairo_gl_context_t * ctx,
     cairo_gl_shader_t * shader,

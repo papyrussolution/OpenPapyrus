@@ -30,7 +30,7 @@ int archive_write_open_fd(struct archive * a, int fd)
 {
 	struct write_fd_data * mine = (struct write_fd_data *)SAlloc::M(sizeof(*mine));
 	if(mine == NULL) {
-		archive_set_error(a, ENOMEM, "Out of memory");
+		archive_set_error(a, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	mine->fd = fd;

@@ -989,7 +989,7 @@ int archive_write_set_format_iso9660(struct archive * _a)
 	struct iso9660 * iso9660;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If another format was already registered, unregister it. */
-	if(a->format_free != NULL)
+	if(a->format_free)
 		(a->format_free)(a);
 	iso9660 = static_cast<struct iso9660 *>(SAlloc::C(1, sizeof(*iso9660)));
 	if(iso9660 == NULL) {
@@ -1088,7 +1088,7 @@ int archive_write_set_format_iso9660(struct archive * _a)
 	    isoent_create_virtual_dir(a, iso9660, "");
 	if(iso9660->primary.rootent == NULL) {
 		SAlloc::F(iso9660);
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	iso9660->primary.rootent->parent = iso9660->primary.rootent;
@@ -1990,7 +1990,7 @@ static void set_str(uchar * p, const char * s, size_t l, char f, const char * ma
 {
 	uchar c;
 
-	if(s == NULL)
+	if(!s)
 		s = "";
 	while((c = *s++) != 0 && l > 0) {
 		if(c >= 0x80 || map[c] == 0) {
@@ -2034,7 +2034,7 @@ static int set_str_utf16be(struct archive_write * a, uchar * p, const char * s,
 	size_t size, i;
 	int onepad;
 
-	if(s == NULL)
+	if(!s)
 		s = "";
 	if(l & 0x01) {
 		onepad = 1;
@@ -3776,15 +3776,14 @@ static int write_information_block(struct archive_write * a)
 	}
 	archive_string_init(&info);
 	if(archive_string_ensure(&info, info_size) == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	memzero(info.s, info_size);
 	opt = 0;
 #if defined(HAVE__CTIME64_S)
 	{
-		__time64_t iso9660_birth_time_tmp = (__time64_t)iso9660->birth_time;  //time_t may be shorter than 64
-		                                                                      // bits
+		__time64_t iso9660_birth_time_tmp = (__time64_t)iso9660->birth_time;  //time_t may be shorter than 64 bits
 		_ctime64_s(buf, sizeof(buf), &(iso9660_birth_time_tmp));
 	}
 #elif defined(HAVE_CTIME_R)
@@ -4003,17 +4002,15 @@ static int _write_path_table(struct archive_write * a, int type_m, int depth, st
 
 static int write_path_table(struct archive_write * a, int type_m, struct iso9660::vdd * vdd)
 {
-	int depth, r;
-	size_t path_table_size;
-	r = ARCHIVE_OK;
-	path_table_size = 0;
+	int depth;
+	int r = ARCHIVE_OK;
+	size_t path_table_size = 0;
 	for(depth = 0; depth < vdd->max_depth; depth++) {
 		r = _write_path_table(a, type_m, depth, vdd);
 		if(r < 0)
 			return r;
 		path_table_size += r;
 	}
-
 	/* Write padding data. */
 	path_table_size = path_table_size % PATH_TABLE_BLOCK_SIZE;
 	if(path_table_size > 0)
@@ -4024,13 +4021,12 @@ static int write_path_table(struct archive_write * a, int type_m, struct iso9660
 static int calculate_directory_descriptors(struct iso9660 * iso9660, struct iso9660::vdd * vdd, struct isoent * isoent, int depth)
 {
 	struct isoent ** enttbl;
-	int bs, block, i;
-	block = 1;
-	bs = get_dir_rec_size(iso9660, isoent, DIR_REC_SELF, vdd->vdd_type);
+	int i;
+	int block = 1;
+	int bs = get_dir_rec_size(iso9660, isoent, DIR_REC_SELF, vdd->vdd_type);
 	bs += get_dir_rec_size(iso9660, isoent, DIR_REC_PARENT, vdd->vdd_type);
 	if(isoent->children.cnt <= 0 || (vdd->vdd_type != iso9660::vdd::VDD_JOLIET && !iso9660->opt.rr && depth + 1 >= vdd->max_depth))
 		return (block);
-
 	enttbl = isoent->children_sorted;
 	for(i = 0; i < isoent->children.cnt; i++) {
 		struct isoent * np = enttbl[i];
@@ -4039,10 +4035,7 @@ static int calculate_directory_descriptors(struct iso9660 * iso9660, struct iso9
 			file = file->hardlink_target;
 		file->cur_content = &(file->content);
 		do {
-			int dr_l;
-
-			dr_l = get_dir_rec_size(iso9660, np, DIR_REC_NORMAL,
-				vdd->vdd_type);
+			int dr_l = get_dir_rec_size(iso9660, np, DIR_REC_NORMAL, vdd->vdd_type);
 			if((bs + dr_l) > LOGICAL_BLOCK_SIZE) {
 				block++;
 				bs = dr_l;
@@ -4050,7 +4043,7 @@ static int calculate_directory_descriptors(struct iso9660 * iso9660, struct iso9
 			else
 				bs += dr_l;
 			file->cur_content = file->cur_content->next;
-		} while(file->cur_content != NULL);
+		} while(file->cur_content);
 	}
 	return (block);
 }
@@ -4094,7 +4087,7 @@ static int _write_directory_descriptors(struct archive_write * a, struct iso9660
 			}
 			p += dr_l;
 			file->cur_content = file->cur_content->next;
-		} while(file->cur_content != NULL);
+		} while(file->cur_content);
 	}
 	memzero(p, WD_REMAINING);
 	return (wb_consume(a, LOGICAL_BLOCK_SIZE));
@@ -4116,9 +4109,7 @@ static int write_directory_descriptors(struct archive_write * a, struct iso9660:
 			 * This extract record is used by SUSP,RRIP.
 			 * Not for joliet.
 			 */
-			for(extr = np->extr_rec_list.first;
-			    extr != NULL;
-			    extr = extr->next) {
+			for(extr = np->extr_rec_list.first; extr != NULL; extr = extr->next) {
 				uchar * wb = wb_buffptr(a);
 				memcpy(wb, extr->buf, extr->offset);
 				memzero(wb + extr->offset, LOGICAL_BLOCK_SIZE - extr->offset);
@@ -4225,7 +4216,7 @@ static int write_file_descriptors(struct archive_write * a)
 			blocks += file->cur_content->blocks;
 			/* Next fragment */
 			file->cur_content = file->cur_content->next;
-		} while(file->cur_content != NULL);
+		} while(file->cur_content);
 	}
 
 	/* Flush out remaining blocks. */
@@ -4282,7 +4273,7 @@ static struct isofile * isofile_new(struct archive_write * a, struct archive_ent
 	struct isofile * file = (struct isofile *)SAlloc::C(1, sizeof(*file));
 	if(file == NULL)
 		return NULL;
-	if(entry != NULL)
+	if(entry)
 		file->entry = archive_entry_clone(entry);
 	else
 		file->entry = archive_entry_new2(&a->archive);
@@ -4456,7 +4447,7 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 	if(cleanup_backslash_1(file->parentdir.s) != 0) {
 		const wchar_t * wp = archive_entry_pathname_w(file->entry);
 		struct archive_wstring ws;
-		if(wp != NULL) {
+		if(wp) {
 			int r;
 			archive_string_init(&ws);
 			archive_wstrcpy(&ws, wp);
@@ -4465,7 +4456,7 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 			r = archive_string_append_from_wcs(&(file->parentdir), ws.s, ws.length);
 			archive_wstring_free(&ws);
 			if(r < 0 && errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM, "Out of memory");
+				archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -4571,7 +4562,7 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 		if(archive_strlen(&(file->symlink)) > 0 && cleanup_backslash_1(file->symlink.s) != 0) {
 			const wchar_t * wp = archive_entry_symlink_w(file->entry);
 			struct archive_wstring ws;
-			if(wp != NULL) {
+			if(wp) {
 				int r;
 				archive_string_init(&ws);
 				archive_wstrcpy(&ws, wp);
@@ -4580,7 +4571,7 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 				r = archive_string_append_from_wcs(&(file->symlink), ws.s, ws.length);
 				archive_wstring_free(&ws);
 				if(r < 0 && errno == ENOMEM) {
-					archive_set_error(&a->archive, ENOMEM, "Out of memory");
+					archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 					return ARCHIVE_FATAL;
 				}
 			}
@@ -4631,7 +4622,7 @@ static int isofile_register_hardlink(struct archive_write * a, struct isofile * 
 		/* This `file` is a hardlink target. */
 		hl = static_cast<struct hardlink *>(SAlloc::M(sizeof(*hl)));
 		if(hl == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		hl->nlink = 1;
@@ -4903,7 +4894,7 @@ static int isoent_clone_tree(struct archive_write * a, struct isoent ** nroot, s
 	do {
 		newent = isoent_clone(np);
 		if(newent == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		if(xroot == NULL) {
@@ -5047,13 +5038,7 @@ static void isoent_setup_file_location(struct iso9660 * iso9660, int location)
 	}
 	do {
 		_isoent_file_location(iso9660, np, &symlocation);
-
-		if(np->subdirs.first != NULL &&
-		    (joliet ||
-		    ((iso9660->opt.rr == OPT_RR_DISABLED &&
-		    depth + 2 < iso9660->primary.max_depth) ||
-		    (iso9660->opt.rr &&
-		    depth + 1 < iso9660->primary.max_depth)))) {
+		if(np->subdirs.first != NULL && (joliet || ((iso9660->opt.rr == OPT_RR_DISABLED && depth + 2 < iso9660->primary.max_depth) || (iso9660->opt.rr && depth + 1 < iso9660->primary.max_depth)))) {
 			/* Enter to sub directories. */
 			np = np->subdirs.first;
 			depth++;
@@ -5071,13 +5056,10 @@ static void isoent_setup_file_location(struct iso9660 * iso9660, int location)
 			}
 		}
 	} while(np != np->parent);
-
 	total_block = 0;
-	for(file = iso9660->data_file_list.first;
-	    file != NULL; file = file->datanext) {
+	for(file = iso9660->data_file_list.first; file != NULL; file = file->datanext) {
 		if(!file->write_content)
 			continue;
-
 		file->cur_content = &(file->content);
 		do {
 			file->cur_content->location = location;
@@ -5085,7 +5067,7 @@ static void isoent_setup_file_location(struct iso9660 * iso9660, int location)
 			total_block += file->cur_content->blocks;
 			/* Next fragment */
 			file->cur_content = file->cur_content->next;
-		} while(file->cur_content != NULL);
+		} while(file->cur_content);
 	}
 	iso9660->total_file_block += total_block;
 }
@@ -5172,7 +5154,7 @@ static int isoent_tree(struct archive_write * a, struct isoent ** isoentpp)
 			fn++;
 		dent = np;
 	}
-	if(np == NULL) {
+	if(!np) {
 		/*
 		 * Create virtual parent directories.
 		 */
@@ -5189,7 +5171,7 @@ static int isoent_tree(struct archive_write * a, struct isoent ** isoentpp)
 			vp = isoent_create_virtual_dir(a, iso9660, as.s);
 			if(vp == NULL) {
 				archive_string_free(&as);
-				archive_set_error(&a->archive, ENOMEM, "Out of memory");
+				archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 				_isoent_free(isoent);
 				*isoentpp = NULL;
 				return ARCHIVE_FATAL;
@@ -5297,7 +5279,7 @@ static struct isoent * isoent_find_entry(struct isoent * rootent, const char * f
 			fn++;
 
 		np = isoent_find_child(isoent, name);
-		if(np == NULL)
+		if(!np)
 			break;
 		if(fn[0] == '\0')
 			break; /* We found out the entry */
@@ -5361,7 +5343,7 @@ static int idr_ensure_poolsize(struct archive_write * a, struct idr * idr, int c
 		int psize = (cnt + bk) & ~bk;
 		void * p = SAlloc::R(idr->idrent_pool, sizeof(struct idr::idrent) * psize);
 		if(!p) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		idr->idrent_pool = (struct idr::idrent *)p;
@@ -5535,13 +5517,13 @@ static int isoent_gen_iso9660_identifier(struct archive_write * a, struct isoent
 	if(r < 0)
 		return r;
 
-	for(np = isoent->children.first; np != NULL; np = np->chnext) {
+	for(np = isoent->children.first; np; np = np->chnext) {
 		char * dot, * xdot;
 		int ext_off, noff, weight;
 		l = (int)np->file->basename.length;
 		p = static_cast<char *>(SAlloc::M(l+31+2+1));
 		if(!p) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		memcpy(p, np->file->basename.s, l);
@@ -5700,12 +5682,10 @@ static int isoent_gen_iso9660_identifier(struct archive_write * a, struct isoent
 		/* Register entry to the identifier resolver. */
 		idr_register(idr, np, weight, noff);
 	}
-
 	/* Resolve duplicate identifier. */
 	idr_resolve(idr, idr_set_num);
-
 	/* Add a period and a version number to identifiers. */
-	for(np = isoent->children.first; np != NULL; np = np->chnext) {
+	for(np = isoent->children.first; np; np = np->chnext) {
 		if(!np->dir && np->rr_child == NULL) {
 			p = np->identifier + np->ext_off + np->ext_len;
 			if(np->ext_len == 0 && allow_period) {
@@ -5756,7 +5736,7 @@ static int isoent_gen_joliet_identifier(struct archive_write * a, struct isoent 
 	parent_len = 1;
 	for(np = isoent; np->parent != np; np = np->parent)
 		parent_len += np->mb_len + 1;
-	for(np = isoent->children.first; np != NULL; np = np->chnext) {
+	for(np = isoent->children.first; np; np = np->chnext) {
 		uchar * dot;
 		int ext_off, noff, weight;
 		size_t lt;
@@ -5764,7 +5744,7 @@ static int isoent_gen_joliet_identifier(struct archive_write * a, struct isoent 
 			l = ffmax;
 		p = static_cast<uchar *>(SAlloc::M((l+1)*2));
 		if(!p) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		memcpy(p, np->file->basename_utf16.s, l);
@@ -5793,7 +5773,7 @@ static int isoent_gen_joliet_identifier(struct archive_write * a, struct isoent 
 		 */
 		if(np->file->basename_utf16.length > ffmax) {
 			if(archive_strncpy_l(&iso9660->mbs, (const char *)np->identifier, l, iso9660->sconv_from_utf16be) != 0 && errno == ENOMEM) {
-				archive_set_error(&a->archive, errno, "No memory");
+				archive_set_error(&a->archive, errno, SlTxtOutOfMem);
 				return ARCHIVE_FATAL;
 			}
 			np->mb_len = (int)iso9660->mbs.length;
@@ -6003,7 +5983,7 @@ static int isoent_make_sorted_files(struct archive_write * a, struct isoent * is
 	struct archive_rb_node * rn;
 	struct isoent ** children = (struct isoent **)SAlloc::M(isoent->children.cnt * sizeof(struct isoent *));
 	if(children == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	isoent->children_sorted = children;
@@ -6056,9 +6036,7 @@ static int isoent_traverse_tree(struct archive_write * a, struct iso9660::vdd* v
 				r = isoent_make_sorted_files(a, np, &idr);
 				if(r < 0)
 					goto exit_traverse_tree;
-
-				if(np->subdirs.first != NULL &&
-				    depth + 1 < vdd->max_depth) {
+				if(np->subdirs.first != NULL && depth + 1 < vdd->max_depth) {
 					/* Enter to sub directories. */
 					np = np->subdirs.first;
 					depth++;
@@ -6136,7 +6114,7 @@ static int isoent_rr_move_dir(struct archive_write * a, struct isoent ** rr_move
 		 */
 		rrmoved = isoent_create_virtual_dir(a, iso9660, "rr_moved");
 		if(rrmoved == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		/* Add "rr_moved" entry to the root entry. */
@@ -6154,7 +6132,7 @@ static int isoent_rr_move_dir(struct archive_write * a, struct isoent ** rr_move
 	 */
 	mvent = isoent_clone(curent);
 	if(mvent == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	/* linking..  and use for creating "CL", "PL" and "RE" */
@@ -6378,7 +6356,7 @@ static int isoent_make_path_table_2(struct archive_write * a, struct iso9660::vd
 	}
 	enttbl = static_cast<struct isoent **>(SAlloc::M(pt->cnt * sizeof(struct isoent *)));
 	if(enttbl == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	pt->sorted = enttbl;
@@ -6419,7 +6397,7 @@ static int isoent_alloc_path_table(struct archive_write * a, struct iso9660::vdd
 	vdd->max_depth = max_depth;
 	vdd->pathtbl = static_cast<struct iso9660::vdd::path_table *>(SAlloc::M(sizeof(*vdd->pathtbl) * vdd->max_depth));
 	if(vdd->pathtbl == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	for(i = 0; i < vdd->max_depth; i++) {
@@ -6555,7 +6533,7 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 	 */
 	struct isofile * file = isofile_new(a, NULL);
 	if(file == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	archive_entry_set_pathname(file->entry, iso9660->el_torito.catalog_filename.s);
@@ -6576,7 +6554,7 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 	isofile_add_entry(iso9660, file);
 	isoent = isoent_new(file);
 	if(isoent == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	isoent->IsVirtual = 1;
@@ -7347,7 +7325,7 @@ static int zisofs_rewind_boot_file(struct archive_write * a)
 		rbuff_size = remaining;
 	rbuff = static_cast<uchar *>(SAlloc::M(rbuff_size));
 	if(rbuff == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	while(remaining) {

@@ -1851,15 +1851,11 @@ class MapOfStruct final :
   public:
   void clear_struct_map();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >&
-      _internal_struct_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >*
-      _internal_mutable_struct_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct > & _internal_struct_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct > * _internal_mutable_struct_map();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >&
-      struct_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >*
-      mutable_struct_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct > & struct_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct > * mutable_struct_map();
 
   // map<string, .google.protobuf.Value> value_map = 2;
   int value_map_size() const;
@@ -1868,15 +1864,11 @@ class MapOfStruct final :
   public:
   void clear_value_map();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >&
-      _internal_value_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >*
-      _internal_mutable_value_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > & _internal_value_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > * _internal_mutable_value_map();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >&
-      value_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >*
-      mutable_value_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > & value_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > * mutable_value_map();
 
   // map<string, .google.protobuf.ListValue> listvalue_map = 3;
   int listvalue_map_size() const;
@@ -1885,15 +1877,11 @@ class MapOfStruct final :
   public:
   void clear_listvalue_map();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >&
-      _internal_listvalue_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >*
-      _internal_mutable_listvalue_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue > & _internal_listvalue_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue > * _internal_mutable_listvalue_map();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >&
-      listvalue_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >*
-      mutable_listvalue_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue > & listvalue_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue > * mutable_listvalue_map();
 
   // @@protoc_insertion_point(class_scope:proto_util_converter.testing.MapOfStruct)
  private:
@@ -2200,9 +2188,7 @@ class StructType final :
 // StructTestCases
 
 // .proto_util_converter.testing.StructWrapper empty_value = 1;
-inline bool StructTestCases::_internal_has_empty_value() const {
-  return this != internal_default_instance() && empty_value_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_empty_value() const { return this != internal_default_instance() && empty_value_ != nullptr; }
 inline bool StructTestCases::has_empty_value() const {
   return _internal_has_empty_value();
 }
@@ -2289,9 +2275,7 @@ inline void StructTestCases::set_allocated_empty_value(::proto_util_converter::t
 }
 
 // .proto_util_converter.testing.StructWrapper empty_value2 = 2;
-inline bool StructTestCases::_internal_has_empty_value2() const {
-  return this != internal_default_instance() && empty_value2_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_empty_value2() const { return this != internal_default_instance() && empty_value2_ != nullptr; }
 inline bool StructTestCases::has_empty_value2() const {
   return _internal_has_empty_value2();
 }
@@ -2378,9 +2362,7 @@ inline void StructTestCases::set_allocated_empty_value2(::proto_util_converter::
 }
 
 // .proto_util_converter.testing.StructWrapper null_value = 3;
-inline bool StructTestCases::_internal_has_null_value() const {
-  return this != internal_default_instance() && null_value_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_null_value() const { return this != internal_default_instance() && null_value_ != nullptr; }
 inline bool StructTestCases::has_null_value() const {
   return _internal_has_null_value();
 }
@@ -2467,9 +2449,7 @@ inline void StructTestCases::set_allocated_null_value(::proto_util_converter::te
 }
 
 // .proto_util_converter.testing.StructWrapper simple_struct = 4;
-inline bool StructTestCases::_internal_has_simple_struct() const {
-  return this != internal_default_instance() && simple_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_simple_struct() const { return this != internal_default_instance() && simple_struct_ != nullptr; }
 inline bool StructTestCases::has_simple_struct() const {
   return _internal_has_simple_struct();
 }
@@ -2556,9 +2536,7 @@ inline void StructTestCases::set_allocated_simple_struct(::proto_util_converter:
 }
 
 // .proto_util_converter.testing.StructWrapper longer_struct = 5;
-inline bool StructTestCases::_internal_has_longer_struct() const {
-  return this != internal_default_instance() && longer_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_longer_struct() const { return this != internal_default_instance() && longer_struct_ != nullptr; }
 inline bool StructTestCases::has_longer_struct() const {
   return _internal_has_longer_struct();
 }
@@ -2645,9 +2623,7 @@ inline void StructTestCases::set_allocated_longer_struct(::proto_util_converter:
 }
 
 // .proto_util_converter.testing.StructWrapper struct_with_nested_struct = 6;
-inline bool StructTestCases::_internal_has_struct_with_nested_struct() const {
-  return this != internal_default_instance() && struct_with_nested_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_struct_with_nested_struct() const { return this != internal_default_instance() && struct_with_nested_struct_ != nullptr; }
 inline bool StructTestCases::has_struct_with_nested_struct() const {
   return _internal_has_struct_with_nested_struct();
 }
@@ -2734,9 +2710,7 @@ inline void StructTestCases::set_allocated_struct_with_nested_struct(::proto_uti
 }
 
 // .proto_util_converter.testing.StructWrapper struct_with_nested_list = 7;
-inline bool StructTestCases::_internal_has_struct_with_nested_list() const {
-  return this != internal_default_instance() && struct_with_nested_list_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_struct_with_nested_list() const { return this != internal_default_instance() && struct_with_nested_list_ != nullptr; }
 inline bool StructTestCases::has_struct_with_nested_list() const {
   return _internal_has_struct_with_nested_list();
 }
@@ -2823,9 +2797,7 @@ inline void StructTestCases::set_allocated_struct_with_nested_list(::proto_util_
 }
 
 // .proto_util_converter.testing.StructWrapper struct_with_list_of_nulls = 8;
-inline bool StructTestCases::_internal_has_struct_with_list_of_nulls() const {
-  return this != internal_default_instance() && struct_with_list_of_nulls_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_struct_with_list_of_nulls() const { return this != internal_default_instance() && struct_with_list_of_nulls_ != nullptr; }
 inline bool StructTestCases::has_struct_with_list_of_nulls() const {
   return _internal_has_struct_with_list_of_nulls();
 }
@@ -2912,9 +2884,7 @@ inline void StructTestCases::set_allocated_struct_with_list_of_nulls(::proto_uti
 }
 
 // .proto_util_converter.testing.StructWrapper struct_with_list_of_lists = 9;
-inline bool StructTestCases::_internal_has_struct_with_list_of_lists() const {
-  return this != internal_default_instance() && struct_with_list_of_lists_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_struct_with_list_of_lists() const { return this != internal_default_instance() && struct_with_list_of_lists_ != nullptr; }
 inline bool StructTestCases::has_struct_with_list_of_lists() const {
   return _internal_has_struct_with_list_of_lists();
 }
@@ -3001,9 +2971,7 @@ inline void StructTestCases::set_allocated_struct_with_list_of_lists(::proto_uti
 }
 
 // .proto_util_converter.testing.StructWrapper struct_with_list_of_structs = 10;
-inline bool StructTestCases::_internal_has_struct_with_list_of_structs() const {
-  return this != internal_default_instance() && struct_with_list_of_structs_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_struct_with_list_of_structs() const { return this != internal_default_instance() && struct_with_list_of_structs_ != nullptr; }
 inline bool StructTestCases::has_struct_with_list_of_structs() const {
   return _internal_has_struct_with_list_of_structs();
 }
@@ -3090,9 +3058,7 @@ inline void StructTestCases::set_allocated_struct_with_list_of_structs(::proto_u
 }
 
 // .proto_util_converter.testing.StructWrapper struct_with_empty_list = 11;
-inline bool StructTestCases::_internal_has_struct_with_empty_list() const {
-  return this != internal_default_instance() && struct_with_empty_list_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_struct_with_empty_list() const { return this != internal_default_instance() && struct_with_empty_list_ != nullptr; }
 inline bool StructTestCases::has_struct_with_empty_list() const {
   return _internal_has_struct_with_empty_list();
 }
@@ -3179,9 +3145,7 @@ inline void StructTestCases::set_allocated_struct_with_empty_list(::proto_util_c
 }
 
 // .proto_util_converter.testing.StructWrapper struct_with_list_with_empty_struct = 12;
-inline bool StructTestCases::_internal_has_struct_with_list_with_empty_struct() const {
-  return this != internal_default_instance() && struct_with_list_with_empty_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_struct_with_list_with_empty_struct() const { return this != internal_default_instance() && struct_with_list_with_empty_struct_ != nullptr; }
 inline bool StructTestCases::has_struct_with_list_with_empty_struct() const {
   return _internal_has_struct_with_list_with_empty_struct();
 }
@@ -3268,9 +3232,7 @@ inline void StructTestCases::set_allocated_struct_with_list_with_empty_struct(::
 }
 
 // .google.protobuf.Struct top_level_struct = 13;
-inline bool StructTestCases::_internal_has_top_level_struct() const {
-  return this != internal_default_instance() && top_level_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_top_level_struct() const { return this != internal_default_instance() && top_level_struct_ != nullptr; }
 inline bool StructTestCases::has_top_level_struct() const {
   return _internal_has_top_level_struct();
 }
@@ -3352,9 +3314,7 @@ inline void StructTestCases::set_allocated_top_level_struct(::PROTOBUF_NAMESPACE
 }
 
 // .google.protobuf.Struct top_level_struct_with_empty_list = 14;
-inline bool StructTestCases::_internal_has_top_level_struct_with_empty_list() const {
-  return this != internal_default_instance() && top_level_struct_with_empty_list_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_top_level_struct_with_empty_list() const { return this != internal_default_instance() && top_level_struct_with_empty_list_ != nullptr; }
 inline bool StructTestCases::has_top_level_struct_with_empty_list() const {
   return _internal_has_top_level_struct_with_empty_list();
 }
@@ -3436,9 +3396,7 @@ inline void StructTestCases::set_allocated_top_level_struct_with_empty_list(::PR
 }
 
 // .google.protobuf.Struct top_level_struct_with_list_with_empty_struct = 15;
-inline bool StructTestCases::_internal_has_top_level_struct_with_list_with_empty_struct() const {
-  return this != internal_default_instance() && top_level_struct_with_list_with_empty_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_top_level_struct_with_list_with_empty_struct() const { return this != internal_default_instance() && top_level_struct_with_list_with_empty_struct_ != nullptr; }
 inline bool StructTestCases::has_top_level_struct_with_list_with_empty_struct() const {
   return _internal_has_top_level_struct_with_list_with_empty_struct();
 }
@@ -3520,9 +3478,7 @@ inline void StructTestCases::set_allocated_top_level_struct_with_list_with_empty
 }
 
 // .proto_util_converter.testing.ValueWrapper value_wrapper_simple = 16;
-inline bool StructTestCases::_internal_has_value_wrapper_simple() const {
-  return this != internal_default_instance() && value_wrapper_simple_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_value_wrapper_simple() const { return this != internal_default_instance() && value_wrapper_simple_ != nullptr; }
 inline bool StructTestCases::has_value_wrapper_simple() const {
   return _internal_has_value_wrapper_simple();
 }
@@ -3609,9 +3565,7 @@ inline void StructTestCases::set_allocated_value_wrapper_simple(::proto_util_con
 }
 
 // .proto_util_converter.testing.ValueWrapper value_wrapper_with_struct = 17;
-inline bool StructTestCases::_internal_has_value_wrapper_with_struct() const {
-  return this != internal_default_instance() && value_wrapper_with_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_value_wrapper_with_struct() const { return this != internal_default_instance() && value_wrapper_with_struct_ != nullptr; }
 inline bool StructTestCases::has_value_wrapper_with_struct() const {
   return _internal_has_value_wrapper_with_struct();
 }
@@ -3698,9 +3652,7 @@ inline void StructTestCases::set_allocated_value_wrapper_with_struct(::proto_uti
 }
 
 // .proto_util_converter.testing.ValueWrapper value_wrapper_with_list = 18;
-inline bool StructTestCases::_internal_has_value_wrapper_with_list() const {
-  return this != internal_default_instance() && value_wrapper_with_list_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_value_wrapper_with_list() const { return this != internal_default_instance() && value_wrapper_with_list_ != nullptr; }
 inline bool StructTestCases::has_value_wrapper_with_list() const {
   return _internal_has_value_wrapper_with_list();
 }
@@ -3787,9 +3739,7 @@ inline void StructTestCases::set_allocated_value_wrapper_with_list(::proto_util_
 }
 
 // .proto_util_converter.testing.ValueWrapper value_wrapper_with_empty_list = 19;
-inline bool StructTestCases::_internal_has_value_wrapper_with_empty_list() const {
-  return this != internal_default_instance() && value_wrapper_with_empty_list_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_value_wrapper_with_empty_list() const { return this != internal_default_instance() && value_wrapper_with_empty_list_ != nullptr; }
 inline bool StructTestCases::has_value_wrapper_with_empty_list() const {
   return _internal_has_value_wrapper_with_empty_list();
 }
@@ -3876,9 +3826,7 @@ inline void StructTestCases::set_allocated_value_wrapper_with_empty_list(::proto
 }
 
 // .proto_util_converter.testing.ValueWrapper value_wrapper_with_list_with_empty_struct = 20;
-inline bool StructTestCases::_internal_has_value_wrapper_with_list_with_empty_struct() const {
-  return this != internal_default_instance() && value_wrapper_with_list_with_empty_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_value_wrapper_with_list_with_empty_struct() const { return this != internal_default_instance() && value_wrapper_with_list_with_empty_struct_ != nullptr; }
 inline bool StructTestCases::has_value_wrapper_with_list_with_empty_struct() const {
   return _internal_has_value_wrapper_with_list_with_empty_struct();
 }
@@ -3965,9 +3913,7 @@ inline void StructTestCases::set_allocated_value_wrapper_with_list_with_empty_st
 }
 
 // .proto_util_converter.testing.ListValueWrapper list_value_wrapper = 21;
-inline bool StructTestCases::_internal_has_list_value_wrapper() const {
-  return this != internal_default_instance() && list_value_wrapper_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_list_value_wrapper() const { return this != internal_default_instance() && list_value_wrapper_ != nullptr; }
 inline bool StructTestCases::has_list_value_wrapper() const {
   return _internal_has_list_value_wrapper();
 }
@@ -4054,9 +4000,7 @@ inline void StructTestCases::set_allocated_list_value_wrapper(::proto_util_conve
 }
 
 // .proto_util_converter.testing.ListValueWrapper list_value_wrapper_with_empty_list = 22;
-inline bool StructTestCases::_internal_has_list_value_wrapper_with_empty_list() const {
-  return this != internal_default_instance() && list_value_wrapper_with_empty_list_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_list_value_wrapper_with_empty_list() const { return this != internal_default_instance() && list_value_wrapper_with_empty_list_ != nullptr; }
 inline bool StructTestCases::has_list_value_wrapper_with_empty_list() const {
   return _internal_has_list_value_wrapper_with_empty_list();
 }
@@ -4143,9 +4087,7 @@ inline void StructTestCases::set_allocated_list_value_wrapper_with_empty_list(::
 }
 
 // .proto_util_converter.testing.ListValueWrapper list_value_wrapper_with_list_with_empty_struct = 23;
-inline bool StructTestCases::_internal_has_list_value_wrapper_with_list_with_empty_struct() const {
-  return this != internal_default_instance() && list_value_wrapper_with_list_with_empty_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_list_value_wrapper_with_list_with_empty_struct() const { return this != internal_default_instance() && list_value_wrapper_with_list_with_empty_struct_ != nullptr; }
 inline bool StructTestCases::has_list_value_wrapper_with_list_with_empty_struct() const {
   return _internal_has_list_value_wrapper_with_list_with_empty_struct();
 }
@@ -4232,9 +4174,7 @@ inline void StructTestCases::set_allocated_list_value_wrapper_with_list_with_emp
 }
 
 // .google.protobuf.Value top_level_value_simple = 24;
-inline bool StructTestCases::_internal_has_top_level_value_simple() const {
-  return this != internal_default_instance() && top_level_value_simple_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_top_level_value_simple() const { return this != internal_default_instance() && top_level_value_simple_ != nullptr; }
 inline bool StructTestCases::has_top_level_value_simple() const {
   return _internal_has_top_level_value_simple();
 }
@@ -4316,9 +4256,7 @@ inline void StructTestCases::set_allocated_top_level_value_simple(::PROTOBUF_NAM
 }
 
 // .google.protobuf.Value top_level_value_with_struct = 25;
-inline bool StructTestCases::_internal_has_top_level_value_with_struct() const {
-  return this != internal_default_instance() && top_level_value_with_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_top_level_value_with_struct() const { return this != internal_default_instance() && top_level_value_with_struct_ != nullptr; }
 inline bool StructTestCases::has_top_level_value_with_struct() const {
   return _internal_has_top_level_value_with_struct();
 }
@@ -4400,9 +4338,7 @@ inline void StructTestCases::set_allocated_top_level_value_with_struct(::PROTOBU
 }
 
 // .google.protobuf.Value top_level_value_with_list = 26;
-inline bool StructTestCases::_internal_has_top_level_value_with_list() const {
-  return this != internal_default_instance() && top_level_value_with_list_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_top_level_value_with_list() const { return this != internal_default_instance() && top_level_value_with_list_ != nullptr; }
 inline bool StructTestCases::has_top_level_value_with_list() const {
   return _internal_has_top_level_value_with_list();
 }
@@ -4484,9 +4420,7 @@ inline void StructTestCases::set_allocated_top_level_value_with_list(::PROTOBUF_
 }
 
 // .google.protobuf.Value top_level_value_with_empty_list = 27;
-inline bool StructTestCases::_internal_has_top_level_value_with_empty_list() const {
-  return this != internal_default_instance() && top_level_value_with_empty_list_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_top_level_value_with_empty_list() const { return this != internal_default_instance() && top_level_value_with_empty_list_ != nullptr; }
 inline bool StructTestCases::has_top_level_value_with_empty_list() const {
   return _internal_has_top_level_value_with_empty_list();
 }
@@ -4568,9 +4502,7 @@ inline void StructTestCases::set_allocated_top_level_value_with_empty_list(::PRO
 }
 
 // .google.protobuf.Value top_level_value_with_list_with_empty_struct = 28;
-inline bool StructTestCases::_internal_has_top_level_value_with_list_with_empty_struct() const {
-  return this != internal_default_instance() && top_level_value_with_list_with_empty_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_top_level_value_with_list_with_empty_struct() const { return this != internal_default_instance() && top_level_value_with_list_with_empty_struct_ != nullptr; }
 inline bool StructTestCases::has_top_level_value_with_list_with_empty_struct() const {
   return _internal_has_top_level_value_with_list_with_empty_struct();
 }
@@ -4652,9 +4584,7 @@ inline void StructTestCases::set_allocated_top_level_value_with_list_with_empty_
 }
 
 // .google.protobuf.ListValue top_level_listvalue = 29;
-inline bool StructTestCases::_internal_has_top_level_listvalue() const {
-  return this != internal_default_instance() && top_level_listvalue_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_top_level_listvalue() const { return this != internal_default_instance() && top_level_listvalue_ != nullptr; }
 inline bool StructTestCases::has_top_level_listvalue() const {
   return _internal_has_top_level_listvalue();
 }
@@ -4736,9 +4666,7 @@ inline void StructTestCases::set_allocated_top_level_listvalue(::PROTOBUF_NAMESP
 }
 
 // .google.protobuf.ListValue top_level_empty_listvalue = 30;
-inline bool StructTestCases::_internal_has_top_level_empty_listvalue() const {
-  return this != internal_default_instance() && top_level_empty_listvalue_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_top_level_empty_listvalue() const { return this != internal_default_instance() && top_level_empty_listvalue_ != nullptr; }
 inline bool StructTestCases::has_top_level_empty_listvalue() const {
   return _internal_has_top_level_empty_listvalue();
 }
@@ -4820,9 +4748,7 @@ inline void StructTestCases::set_allocated_top_level_empty_listvalue(::PROTOBUF_
 }
 
 // .google.protobuf.ListValue top_level_listvalue_with_empty_struct = 31;
-inline bool StructTestCases::_internal_has_top_level_listvalue_with_empty_struct() const {
-  return this != internal_default_instance() && top_level_listvalue_with_empty_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_top_level_listvalue_with_empty_struct() const { return this != internal_default_instance() && top_level_listvalue_with_empty_struct_ != nullptr; }
 inline bool StructTestCases::has_top_level_listvalue_with_empty_struct() const {
   return _internal_has_top_level_listvalue_with_empty_struct();
 }
@@ -4904,9 +4830,7 @@ inline void StructTestCases::set_allocated_top_level_listvalue_with_empty_struct
 }
 
 // .proto_util_converter.testing.RepeatedValueWrapper repeated_value = 32;
-inline bool StructTestCases::_internal_has_repeated_value() const {
-  return this != internal_default_instance() && repeated_value_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_repeated_value() const { return this != internal_default_instance() && repeated_value_ != nullptr; }
 inline bool StructTestCases::has_repeated_value() const {
   return _internal_has_repeated_value();
 }
@@ -4993,9 +4917,7 @@ inline void StructTestCases::set_allocated_repeated_value(::proto_util_converter
 }
 
 // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list = 33;
-inline bool StructTestCases::_internal_has_repeated_value_nested_list() const {
-  return this != internal_default_instance() && repeated_value_nested_list_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_repeated_value_nested_list() const { return this != internal_default_instance() && repeated_value_nested_list_ != nullptr; }
 inline bool StructTestCases::has_repeated_value_nested_list() const {
   return _internal_has_repeated_value_nested_list();
 }
@@ -5082,9 +5004,7 @@ inline void StructTestCases::set_allocated_repeated_value_nested_list(::proto_ut
 }
 
 // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list2 = 34;
-inline bool StructTestCases::_internal_has_repeated_value_nested_list2() const {
-  return this != internal_default_instance() && repeated_value_nested_list2_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_repeated_value_nested_list2() const { return this != internal_default_instance() && repeated_value_nested_list2_ != nullptr; }
 inline bool StructTestCases::has_repeated_value_nested_list2() const {
   return _internal_has_repeated_value_nested_list2();
 }
@@ -5171,9 +5091,7 @@ inline void StructTestCases::set_allocated_repeated_value_nested_list2(::proto_u
 }
 
 // .proto_util_converter.testing.RepeatedValueWrapper repeated_value_nested_list3 = 35;
-inline bool StructTestCases::_internal_has_repeated_value_nested_list3() const {
-  return this != internal_default_instance() && repeated_value_nested_list3_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_repeated_value_nested_list3() const { return this != internal_default_instance() && repeated_value_nested_list3_ != nullptr; }
 inline bool StructTestCases::has_repeated_value_nested_list3() const {
   return _internal_has_repeated_value_nested_list3();
 }
@@ -5260,9 +5178,7 @@ inline void StructTestCases::set_allocated_repeated_value_nested_list3(::proto_u
 }
 
 // .proto_util_converter.testing.RepeatedListValueWrapper repeated_listvalue = 36;
-inline bool StructTestCases::_internal_has_repeated_listvalue() const {
-  return this != internal_default_instance() && repeated_listvalue_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_repeated_listvalue() const { return this != internal_default_instance() && repeated_listvalue_ != nullptr; }
 inline bool StructTestCases::has_repeated_listvalue() const {
   return _internal_has_repeated_listvalue();
 }
@@ -5349,9 +5265,7 @@ inline void StructTestCases::set_allocated_repeated_listvalue(::proto_util_conve
 }
 
 // .proto_util_converter.testing.MapOfStruct map_of_struct = 37;
-inline bool StructTestCases::_internal_has_map_of_struct() const {
-  return this != internal_default_instance() && map_of_struct_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_map_of_struct() const { return this != internal_default_instance() && map_of_struct_ != nullptr; }
 inline bool StructTestCases::has_map_of_struct() const {
   return _internal_has_map_of_struct();
 }
@@ -5438,9 +5352,7 @@ inline void StructTestCases::set_allocated_map_of_struct(::proto_util_converter:
 }
 
 // .proto_util_converter.testing.MapOfStruct map_of_struct_value = 38;
-inline bool StructTestCases::_internal_has_map_of_struct_value() const {
-  return this != internal_default_instance() && map_of_struct_value_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_map_of_struct_value() const { return this != internal_default_instance() && map_of_struct_value_ != nullptr; }
 inline bool StructTestCases::has_map_of_struct_value() const {
   return _internal_has_map_of_struct_value();
 }
@@ -5527,9 +5439,7 @@ inline void StructTestCases::set_allocated_map_of_struct_value(::proto_util_conv
 }
 
 // .proto_util_converter.testing.MapOfStruct map_of_listvalue = 39;
-inline bool StructTestCases::_internal_has_map_of_listvalue() const {
-  return this != internal_default_instance() && map_of_listvalue_ != nullptr;
-}
+inline bool StructTestCases::_internal_has_map_of_listvalue() const { return this != internal_default_instance() && map_of_listvalue_ != nullptr; }
 inline bool StructTestCases::has_map_of_listvalue() const {
   return _internal_has_map_of_listvalue();
 }
@@ -5620,9 +5530,7 @@ inline void StructTestCases::set_allocated_map_of_listvalue(::proto_util_convert
 // StructWrapper
 
 // .google.protobuf.Struct struct = 1;
-inline bool StructWrapper::_internal_has_struct_() const {
-  return this != internal_default_instance() && struct__ != nullptr;
-}
+inline bool StructWrapper::_internal_has_struct_() const { return this != internal_default_instance() && struct__ != nullptr; }
 inline bool StructWrapper::has_struct_() const {
   return _internal_has_struct_();
 }
@@ -5708,9 +5616,7 @@ inline void StructWrapper::set_allocated_struct_(::PROTOBUF_NAMESPACE_ID::Struct
 // ValueWrapper
 
 // .google.protobuf.Value value = 1;
-inline bool ValueWrapper::_internal_has_value() const {
-  return this != internal_default_instance() && value_ != nullptr;
-}
+inline bool ValueWrapper::_internal_has_value() const { return this != internal_default_instance() && value_ != nullptr; }
 inline bool ValueWrapper::has_value() const {
   return _internal_has_value();
 }
@@ -5804,8 +5710,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Value* RepeatedValueWrapper::mutable_values(int 
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.RepeatedValueWrapper.values)
   return values_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Value >*
-RepeatedValueWrapper::mutable_values() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Value > * RepeatedValueWrapper::mutable_values() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.RepeatedValueWrapper.values)
   return &values_;
 }
@@ -5834,9 +5739,7 @@ RepeatedValueWrapper::values() const {
 // ListValueWrapper
 
 // .google.protobuf.ListValue shopping_list = 1;
-inline bool ListValueWrapper::_internal_has_shopping_list() const {
-  return this != internal_default_instance() && shopping_list_ != nullptr;
-}
+inline bool ListValueWrapper::_internal_has_shopping_list() const { return this != internal_default_instance() && shopping_list_ != nullptr; }
 inline bool ListValueWrapper::has_shopping_list() const {
   return _internal_has_shopping_list();
 }
@@ -5930,8 +5833,7 @@ inline ::PROTOBUF_NAMESPACE_ID::ListValue* RepeatedListValueWrapper::mutable_dim
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.RepeatedListValueWrapper.dimensions)
   return dimensions_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::ListValue >*
-RepeatedListValueWrapper::mutable_dimensions() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::ListValue > * RepeatedListValueWrapper::mutable_dimensions() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.RepeatedListValueWrapper.dimensions)
   return &dimensions_;
 }
@@ -5971,20 +5873,16 @@ inline int MapOfStruct::struct_map_size() const {
   return _internal_struct_map_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >&
-MapOfStruct::_internal_struct_map() const {
-  return struct_map_.GetMap();
-}
+MapOfStruct::_internal_struct_map() const { return struct_map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >&
 MapOfStruct::struct_map() const {
   // @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOfStruct.struct_map)
   return _internal_struct_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >*
-MapOfStruct::_internal_mutable_struct_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct > * MapOfStruct::_internal_mutable_struct_map() {
   return struct_map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >*
-MapOfStruct::mutable_struct_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct > * MapOfStruct::mutable_struct_map() {
   // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOfStruct.struct_map)
   return _internal_mutable_struct_map();
 }
@@ -5995,20 +5893,16 @@ inline int MapOfStruct::value_map_size() const {
   return _internal_value_map_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >&
-MapOfStruct::_internal_value_map() const {
-  return value_map_.GetMap();
-}
+MapOfStruct::_internal_value_map() const { return value_map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >&
 MapOfStruct::value_map() const {
   // @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOfStruct.value_map)
   return _internal_value_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >*
-MapOfStruct::_internal_mutable_value_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > * MapOfStruct::_internal_mutable_value_map() {
   return value_map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >*
-MapOfStruct::mutable_value_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > * MapOfStruct::mutable_value_map() {
   // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOfStruct.value_map)
   return _internal_mutable_value_map();
 }
@@ -6019,20 +5913,16 @@ inline int MapOfStruct::listvalue_map_size() const {
   return _internal_listvalue_map_size();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >&
-MapOfStruct::_internal_listvalue_map() const {
-  return listvalue_map_.GetMap();
-}
+MapOfStruct::_internal_listvalue_map() const { return listvalue_map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >&
 MapOfStruct::listvalue_map() const {
   // @@protoc_insertion_point(field_map:proto_util_converter.testing.MapOfStruct.listvalue_map)
   return _internal_listvalue_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >*
-MapOfStruct::_internal_mutable_listvalue_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue > * MapOfStruct::_internal_mutable_listvalue_map() {
   return listvalue_map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >*
-MapOfStruct::mutable_listvalue_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue > * MapOfStruct::mutable_listvalue_map() {
   // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.MapOfStruct.listvalue_map)
   return _internal_mutable_listvalue_map();
 }
@@ -6094,9 +5984,7 @@ inline void Dummy::set_allocated_text(std::string* text) {
 // StructType
 
 // .google.protobuf.Struct object = 1;
-inline bool StructType::_internal_has_object() const {
-  return this != internal_default_instance() && object_ != nullptr;
-}
+inline bool StructType::_internal_has_object() const { return this != internal_default_instance() && object_ != nullptr; }
 inline bool StructType::has_object() const {
   return _internal_has_object();
 }

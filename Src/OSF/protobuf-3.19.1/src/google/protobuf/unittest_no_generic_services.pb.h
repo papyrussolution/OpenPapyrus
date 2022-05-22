@@ -72,19 +72,15 @@ constexpr TestEnum TestEnum_MIN = FOO;
 constexpr TestEnum TestEnum_MAX = FOO;
 constexpr int TestEnum_ARRAYSIZE = TestEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestEnum_descriptor();
-template<typename T>
-inline const std::string& TestEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, TestEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function TestEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    TestEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * TestEnum_descriptor();
+template<typename T> inline const std::string& TestEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, TestEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function TestEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(TestEnum_descriptor(), enum_t_value);
 }
-inline bool TestEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestEnum>(
-    TestEnum_descriptor(), name, value);
+inline bool TestEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestEnum>(TestEnum_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -431,10 +427,7 @@ inline void TestMessage::set_a(int32_t value) {
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::protobuf_unittest::no_generic_services_test::TestEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::no_generic_services_test::TestEnum>() {
-  return ::protobuf_unittest::no_generic_services_test::TestEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::no_generic_services_test::TestEnum>() { return ::protobuf_unittest::no_generic_services_test::TestEnum_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

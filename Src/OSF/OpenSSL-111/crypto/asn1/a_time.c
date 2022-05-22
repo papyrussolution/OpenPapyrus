@@ -6,7 +6,6 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 /*-
  * This is an implementation of the ASN1 Time structure which is:
  *    Time ::= CHOICE {
@@ -15,17 +14,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <ctype.h>
-//#include <openssl/asn1t.h>
-//#include "asn1_locl.h"
 
 IMPLEMENT_ASN1_MSTRING(ASN1_TIME, B_ASN1_TIME)
 IMPLEMENT_ASN1_FUNCTIONS(ASN1_TIME)
 
-static int is_utc(const int year)
-{
-	return BIN(checkirange(year, 50, 149));
-}
+static int is_utc(const int year) { return BIN(checkirange(year, 50, 149)); }
 
 /* @v10.9.5 (replaced with IsLeapYear) static int leap_year(const int year)
 {
@@ -276,7 +269,7 @@ ASN1_TIME * asn1_time_from_tm(ASN1_TIME * s, struct tm * ts, int type)
 		goto err;
 	}
 
-	if(s == NULL)
+	if(!s)
 		tmps = ASN1_STRING_new();
 	else
 		tmps = s;
@@ -427,7 +420,7 @@ out:
 
 int ASN1_TIME_to_tm(const ASN1_TIME * s, struct tm * tm)
 {
-	if(s == NULL) {
+	if(!s) {
 		time_t now_t;
 		time(&now_t);
 		memzero(tm, sizeof(*tm));

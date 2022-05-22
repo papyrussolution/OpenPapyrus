@@ -11,11 +11,6 @@
 
 #ifndef OPENSSL_NO_MDC2
 
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <openssl/x509.h>
-//#include <evp_int.h>
-//#include <openssl/rsa.h>
 #include <openssl/mdc2.h>
 
 static int init(EVP_MD_CTX * ctx)

@@ -384,7 +384,7 @@ SSL_SESSION * d2i_SSL_SESSION(SSL_SESSION ** a, const uchar ** pp,
 
 err:
 	M_ASN1_free_of(as, SSL_SESSION_ASN1);
-	if((a == NULL) || (*a != ret))
+	if(!a || (*a != ret))
 		SSL_SESSION_free(ret);
 	return NULL;
 }

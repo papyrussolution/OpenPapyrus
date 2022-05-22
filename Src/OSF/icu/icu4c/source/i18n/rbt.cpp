@@ -1,14 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 1999-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
- *   11/17/99    aliu        Creation.
- **********************************************************************
- */
+// Copyright (C) 1999-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 11/17/99    aliu        Creation.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -260,7 +255,7 @@ void RuleBasedTransliterator::handleTransliterate(Replaceable& text, UTransPosit
 	}
 
 	// Check to make sure we don't dereference a null pointer.
-	if(fData != NULL) {
+	if(fData) {
 		while(index.start < index.limit &&
 		    loopCount <= loopLimit &&
 		    fData->ruleSet.transliterate(text, index, isIncremental)) {

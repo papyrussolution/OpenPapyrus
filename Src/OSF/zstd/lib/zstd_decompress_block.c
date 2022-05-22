@@ -124,7 +124,7 @@ size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* dctx,
 		    case set_repeat:
 			DEBUGLOG(5, "set_repeat flag : re-using stats from previous compressed literals block");
 			RETURN_ERROR_IF(dctx->litEntropy==0, dictionary_corrupted, "");
-			ZSTD_FALLTHROUGH;
+			CXX_FALLTHROUGH;
 
 		    case set_compressed:
 			RETURN_ERROR_IF(srcSize < 5, corruption_detected,
@@ -435,7 +435,7 @@ static void ZSTD_buildSeqTable_rle(ZSTD_seqSymbol* dt, uint32 baseValue, uint8 n
  * cannot fail if input is valid =>
  * all inputs are presumed validated at this stage */
 FORCE_INLINE_TEMPLATE void ZSTD_buildFSETable_body(ZSTD_seqSymbol* dt, const short* normalizedCounter, uint maxSymbolValue,
-    const uint32* baseValue, const uint8 * nbAdditionalBits, uint tableLog, void * wksp, size_t wkspSize)
+    const uint32 * baseValue, const uint8 * nbAdditionalBits, uint tableLog, void * wksp, size_t wkspSize)
 {
 	ZSTD_seqSymbol* const tableDecode = dt+1;
 	const uint32 maxSV1 = maxSymbolValue + 1;
@@ -559,7 +559,7 @@ FORCE_INLINE_TEMPLATE void ZSTD_buildFSETable_body(ZSTD_seqSymbol* dt, const sho
 
 /* Avoids the FORCE_INLINE of the _body() function. */
 static void ZSTD_buildFSETable_body_default(ZSTD_seqSymbol* dt, const short* normalizedCounter, uint maxSymbolValue,
-    const uint32* baseValue, const uint8 * nbAdditionalBits, uint tableLog, void * wksp, size_t wkspSize)
+    const uint32 * baseValue, const uint8 * nbAdditionalBits, uint tableLog, void * wksp, size_t wkspSize)
 {
 	ZSTD_buildFSETable_body(dt, normalizedCounter, maxSymbolValue, baseValue, nbAdditionalBits, tableLog, wksp, wkspSize);
 }
@@ -574,7 +574,7 @@ BMI2_TARGET_ATTRIBUTE static void ZSTD_buildFSETable_body_bmi2(ZSTD_seqSymbol* d
 #endif
 
 void ZSTD_buildFSETable(ZSTD_seqSymbol* dt, const short* normalizedCounter, uint maxSymbolValue,
-    const uint32* baseValue, const uint8 * nbAdditionalBits, uint tableLog, void * wksp, size_t wkspSize, int bmi2)
+    const uint32 * baseValue, const uint8 * nbAdditionalBits, uint tableLog, void * wksp, size_t wkspSize, int bmi2)
 {
 #if DYNAMIC_BMI2
 	if(bmi2) {
@@ -590,8 +590,8 @@ void ZSTD_buildFSETable(ZSTD_seqSymbol* dt, const short* normalizedCounter, uint
  * @return : nb bytes read from src,
  *           or an error code if it fails */
 static size_t ZSTD_buildSeqTable(ZSTD_seqSymbol* DTableSpace, const ZSTD_seqSymbol** DTablePtr, symbolEncodingType_e type, uint max, uint32 maxLog,
-    const void * src, size_t srcSize, const uint32* baseValue, const uint8 * nbAdditionalBits, const ZSTD_seqSymbol* defaultTable, uint32 flagRepeatTable,
-    int ddictIsCold, int nbSeq, uint32* wksp, size_t wkspSize, int bmi2)
+    const void * src, size_t srcSize, const uint32 * baseValue, const uint8 * nbAdditionalBits, const ZSTD_seqSymbol* defaultTable, uint32 flagRepeatTable,
+    int ddictIsCold, int nbSeq, uint32 * wksp, size_t wkspSize, int bmi2)
 {
 	switch(type) {
 		case set_rle:

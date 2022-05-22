@@ -52,12 +52,12 @@ int dtls1_dispatch_alert(SSL * s)
 			s->msg_callback(1, s->version, SSL3_RT_ALERT, s->s3->send_alert,
 			    2, s, s->msg_callback_arg);
 
-		if(s->info_callback != NULL)
+		if(s->info_callback)
 			cb = s->info_callback;
-		else if(s->ctx->info_callback != NULL)
+		else if(s->ctx->info_callback)
 			cb = s->ctx->info_callback;
 
-		if(cb != NULL) {
+		if(cb) {
 			j = (s->s3->send_alert[0] << 8) | s->s3->send_alert[1];
 			cb(s, SSL_CB_WRITE_ALERT, j);
 		}

@@ -576,7 +576,7 @@ U_CFUNC bool ubidi_getRuns(UBiDi * pBiDi, UErrorCode*) {
 		limit = pBiDi->trailingWSStart;
 		/* count the runs, there is at least one non-WS run, and limit>0 */
 		runCount = 0;
-		for(i = 0; i<limit; ++i) {
+		for(i = 0; i < limit; ++i) {
 			/* increment runCount at the start of each run */
 			if(levels[i]!=level) {
 				++runCount;

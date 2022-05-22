@@ -272,23 +272,18 @@ struct ShortStringOptions {
 
 static const ShortStringOptions options[UCOL_SIT_ITEMS_COUNT] =
 {
-/* 10 ALTERNATE_HANDLING */   {alternateHArg,     _processCollatorOption, UCOL_ALTERNATE_HANDLING }, // alternate  N, S,
-	                                                                                             // D
+/* 10 ALTERNATE_HANDLING */   {alternateHArg,     _processCollatorOption, UCOL_ALTERNATE_HANDLING }, // alternate  N, S, D
 /* 15 VARIABLE_TOP_VALUE */   {variableTopValArg, _processVariableTop,    1 },
 /* 08 CASE_FIRST */           {caseFirstArg,      _processCollatorOption, UCOL_CASE_FIRST }, // case first L, U, X, D
-/* 09 NUMERIC_COLLATION */    {numericCollArg,    _processCollatorOption, UCOL_NUMERIC_COLLATION }, // codan      O, X,
-	                                                                                            // D
+/* 09 NUMERIC_COLLATION */    {numericCollArg,    _processCollatorOption, UCOL_NUMERIC_COLLATION }, // codan      O, X, D
 /* 07 CASE_LEVEL */           {caseLevelArg,      _processCollatorOption, UCOL_CASE_LEVEL }, // case level O, X, D
 /* 12 FRENCH_COLLATION */     {frenchCollArg,     _processCollatorOption, UCOL_FRENCH_COLLATION }, // french     O, X, D
-/* 13 HIRAGANA_QUATERNARY] */ {hiraganaQArg,      _processCollatorOption, UCOL_HIRAGANA_QUATERNARY_MODE }, // hiragana
-	                                                                                                   //   O, X, D
+/* 13 HIRAGANA_QUATERNARY] */ {hiraganaQArg,      _processCollatorOption, UCOL_HIRAGANA_QUATERNARY_MODE }, // hiragana O, X, D
 /* 04 KEYWORD */              {keywordArg,        _processLocaleElement,  UCOL_SIT_KEYWORD }, // keyword
 /* 00 LANGUAGE */             {languageArg,       _processLocaleElement,  UCOL_SIT_LANGUAGE }, // language
-/* 11 NORMALIZATION_MODE */   {normArg,           _processCollatorOption, UCOL_NORMALIZATION_MODE }, // norm       O, X,
-	                                                                                             // D
+/* 11 NORMALIZATION_MODE */   {normArg,           _processCollatorOption, UCOL_NORMALIZATION_MODE }, // norm       O, X, D
 /* 02 REGION */               {regionArg,         _processLocaleElement,  UCOL_SIT_REGION }, // region
-/* 06 STRENGTH */             {strengthArg,       _processCollatorOption, UCOL_STRENGTH }, // strength   1, 2, 3, 4, I,
-	                                                                                   // D
+/* 06 STRENGTH */             {strengthArg,       _processCollatorOption, UCOL_STRENGTH }, // strength   1, 2, 3, 4, I, D
 /* 14 VARIABLE_TOP */         {variableTopArg,    _processVariableTop,    0 },
 /* 03 VARIANT */              {variantArg,        _processLocaleElement,  UCOL_SIT_VARIANT }, // variant
 /* 05 RFC3066BIS */           {RFC3066Arg,        _processRFC3066Locale,  0 }, // rfc3066bis locale name

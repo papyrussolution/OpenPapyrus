@@ -36,7 +36,7 @@ Jbig2ArithIaidCtx * jbig2_arith_iaid_ctx_new(Jbig2Ctx * ctx, uint8_t SBSYMCODELE
 	}
 	ctx_size = (size_t)1U << SBSYMCODELEN;
 	result = jbig2_new(ctx, Jbig2ArithIaidCtx, 1);
-	if(result == NULL) {
+	if(!result) {
 		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate IAID arithmetic coding state");
 		return NULL;
 	}

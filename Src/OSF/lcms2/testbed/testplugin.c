@@ -565,9 +565,9 @@ int32 CheckFormattersPlugin(FILE * fOut)
 #define SigIntType      ((cmsTagTypeSignature)0x74747448)     //   'tttH'
 #define SigInt          ((cmsTagSignature)0x74747448)         //   'tttH'
 
-static void * Type_int_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 /*SizeOfTag*/)
+static void * Type_int_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 /*SizeOfTag*/)
 {
-	uint32* Ptr = (uint32 *)_cmsMalloc(self->ContextID, sizeof(uint32));
+	uint32 * Ptr = (uint32 *)_cmsMalloc(self->ContextID, sizeof(uint32));
 	if(Ptr == NULL) return NULL;
 	if(!_cmsReadUInt32Number(io, Ptr)) return NULL;
 	*nItems = 1;
@@ -617,7 +617,7 @@ int32 CheckTagTypePlugin(FILE * fOut)
 	cmsDeleteContext(ctx);
 	cmsDeleteContext(cpy);
 	h = cmsCreateProfilePlaceholder(cpy2);
-	if(h == NULL) {
+	if(!h) {
 		Fail("Create placeholder failed");
 		goto Error;
 	}
@@ -643,7 +643,7 @@ int32 CheckTagTypePlugin(FILE * fOut)
 	cmsCloseProfile(h);
 	cmsSetLogErrorHandler(NULL);
 	h = cmsOpenProfileFromMem(data, clen);
-	if(h == NULL) {
+	if(!h) {
 		Fail("Open profile failed");
 		goto Error;
 	}
@@ -655,7 +655,7 @@ int32 CheckTagTypePlugin(FILE * fOut)
 	cmsCloseProfile(h);
 	ResetFatalError();
 	h = cmsOpenProfileFromMemTHR(cpy2, data, clen);
-	if(h == NULL) {
+	if(!h) {
 		Fail("Open profile from mem failed");
 		goto Error;
 	}
@@ -663,7 +663,7 @@ int32 CheckTagTypePlugin(FILE * fOut)
 	SAlloc::F(data);
 	data = NULL;
 	ptr = (uint32 *)cmsReadTag(h, SigInt);
-	if(ptr == NULL) {
+	if(!ptr) {
 		Fail("Read tag/conext switching failed (2)");
 		return 0;
 	}
@@ -696,7 +696,7 @@ static cmsStage * StageAllocNegate(cmsContext ContextID)
 	return _cmsStageAllocPlaceholder(ContextID, SigNegateType, 3, 3, EvaluateNegate, NULL, NULL, NULL);
 }
 
-static void * Type_negate_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 /*SizeOfTag*/)
+static void * Type_negate_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 /*SizeOfTag*/)
 {
 	uint16 Chans;
 	if(!_cmsReadUInt16Number(io, &Chans)) 
@@ -736,7 +736,7 @@ int32 CheckMPEPlugin(FILE * fOut)
 	cmsDeleteContext(ctx);
 	cmsDeleteContext(cpy);
 	h = cmsCreateProfilePlaceholder(cpy2);
-	if(h == NULL) {
+	if(!h) {
 		Fail("Create placeholder failed");
 		goto Error;
 	}
@@ -773,7 +773,7 @@ int32 CheckMPEPlugin(FILE * fOut)
 	cmsCloseProfile(h);
 	cmsSetLogErrorHandler(NULL);
 	h = cmsOpenProfileFromMem(data, clen);
-	if(h == NULL) {
+	if(!h) {
 		Fail("Open profile failed");
 		goto Error;
 	}
@@ -786,7 +786,7 @@ int32 CheckMPEPlugin(FILE * fOut)
 	cmsCloseProfile(h);
 	ResetFatalError();
 	h = cmsOpenProfileFromMemTHR(cpy2, data, clen);
-	if(h == NULL) {
+	if(!h) {
 		Fail("Open profile from mem failed");
 		goto Error;
 	}
@@ -820,7 +820,7 @@ static void FastEvaluateCurves(const uint16 In[], uint16 Out[], const void * /*p
 	Out[0] = In[0];
 }
 
-static boolint MyOptimize(cmsPipeline ** Lut, uint32 /*Intent*/, uint32 * /*InputFormat*/, uint32 * /*OutputFormat*/, uint32* dwFlags)
+static boolint MyOptimize(cmsPipeline ** Lut, uint32 /*Intent*/, uint32 * /*InputFormat*/, uint32 * /*OutputFormat*/, uint32 * dwFlags)
 {
 	cmsStage * mpe;
 	_cmsStageToneCurvesData* Data;
@@ -961,7 +961,7 @@ static void TrancendentalTransform(struct _cmstransform_struct * /*CMM*/, const 
 }
 
 boolint TransformFactory(_cmsTransformFn* xformPtr, void ** /*ppUserData*/, _cmsFreeUserDataFn * /*pFreePrivateDataFn*/,
-    cmsPipeline ** /*ppLut*/, uint32 * /*pInputFormat*/, uint32* OutputFormat, uint32 * /*dwFlags*/)
+    cmsPipeline ** /*ppLut*/, uint32 * /*pInputFormat*/, uint32 * OutputFormat, uint32 * /*dwFlags*/)
 
 {
 	if(*OutputFormat == TYPE_GRAY_8) {

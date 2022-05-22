@@ -3398,7 +3398,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 	    {
 		    DH * dh = (DH*)parg;
 		    EVP_PKEY * pkdh = NULL;
-		    if(dh == NULL) {
+		    if(!dh) {
 			    SSLerr(SSL_F_SSL3_CTRL, ERR_R_PASSED_NULL_PARAMETER);
 			    return ret;
 		    }
@@ -3725,7 +3725,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 	    {
 		    DH * dh = (DH*)parg;
 		    EVP_PKEY * pkdh = NULL;
-		    if(dh == NULL) {
+		    if(!dh) {
 			    SSLerr(SSL_F_SSL3_CTX_CTRL, ERR_R_PASSED_NULL_PARAMETER);
 			    return 0;
 		    }
@@ -4395,7 +4395,7 @@ int ssl3_peek(SSL * s, void * buf, size_t len, size_t * readbytes)
 
 int ssl3_renegotiate(SSL * s)
 {
-	if(s->handshake_func == NULL)
+	if(!s->handshake_func)
 		return 1;
 
 	s->s3->renegotiate = 1;
@@ -4733,7 +4733,7 @@ err:
 EVP_PKEY * ssl_dh_to_pkey(DH * dh)
 {
 	EVP_PKEY * ret;
-	if(dh == NULL)
+	if(!dh)
 		return NULL;
 	ret = EVP_PKEY_new();
 	if(EVP_PKEY_set1_DH(ret, dh) <= 0) {

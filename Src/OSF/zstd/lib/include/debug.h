@@ -43,7 +43,7 @@ extern "C" {
  * typically through compiler command line.
  * Value must be a number. */
 #ifndef DEBUGLEVEL
-#  define DEBUGLEVEL 0
+#define DEBUGLEVEL 0
 #endif
 
 /* recommended values for DEBUGLEVEL :
@@ -62,7 +62,7 @@ extern "C" {
  */
 
 #if (DEBUGLEVEL>=1)
-#  define ZSTD_DEPS_NEED_ASSERT
+#define ZSTD_DEPS_NEED_ASSERT
 #include "zstd_deps.h"
 #else
 #ifndef assert   /* assert may be already defined, due to prior #include <assert.h> */
@@ -71,7 +71,7 @@ extern "C" {
 #endif
 
 #if (DEBUGLEVEL>=2)
-#  define ZSTD_DEPS_NEED_IO
+#define ZSTD_DEPS_NEED_IO
 #include "zstd_deps.h"
 extern int g_debuglevel; /* the variable is only declared,
                             it actually lives in debug.c,
@@ -80,18 +80,18 @@ extern int g_debuglevel; /* the variable is only declared,
                             It's useful when enabling very verbose levels
                             on selective conditions (such as position in src) */
 
-#  define RAWLOG(l, ...) {                                       \
+#define RAWLOG(l, ...) {                                       \
 		if(l<=g_debuglevel) {                           \
 			ZSTD_DEBUG_PRINT(__VA_ARGS__);               \
 		}   }
-#  define DEBUGLOG(l, ...) {                                     \
+#define DEBUGLOG(l, ...) {                                     \
 		if(l<=g_debuglevel) {                           \
 			ZSTD_DEBUG_PRINT(__FILE__ ": " __VA_ARGS__); \
 			ZSTD_DEBUG_PRINT(" \n");                     \
 		}   }
 #else
-#  define RAWLOG(l, ...)      {}    /* disabled */
-#  define DEBUGLOG(l, ...)    {}    /* disabled */
+#define RAWLOG(l, ...)      {}    /* disabled */
+#define DEBUGLOG(l, ...)    {}    /* disabled */
 #endif
 
 #if defined (__cplusplus)

@@ -1537,7 +1537,7 @@ xmlAttribute * xmlAddAttributeDecl(xmlValidCtxtPtr ctxt, xmlDtd * dtd, const xml
 		xmlFreeEnumeration(tree);
 		return 0;
 	}
-	if(elem == NULL) {
+	if(!elem) {
 		xmlFreeEnumeration(tree);
 		return 0;
 	}
@@ -2133,7 +2133,7 @@ int xmlIsID(xmlDoc * doc, xmlNode * elem, xmlAttr * attr)
 			return 1;
 		return 0;
 	}
-	else if(elem == NULL) {
+	else if(!elem) {
 		return 0;
 	}
 	else {
@@ -2410,7 +2410,7 @@ int xmlIsRef(xmlDoc * doc, xmlNode * elem, xmlAttr * attr)
 		}
 		else {
 			xmlAttribute * attrDecl;
-			if(elem == NULL) 
+			if(!elem) 
 				return 0;
 			attrDecl = xmlGetDtdAttrDesc(doc->intSubset, elem->name, attr->name);
 			if(!attrDecl && doc->extSubset)
@@ -3197,7 +3197,7 @@ xmlChar * xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr ctxt, xmlDoc * doc
 	int extsubset = 0;
 	if(!doc) 
 		return 0;
-	if(elem == NULL) 
+	if(!elem) 
 		return 0;
 	if(!name) 
 		return 0;
@@ -3280,7 +3280,7 @@ xmlChar * xmlValidNormalizeAttributeValue(xmlDoc * doc, xmlNode * elem, const xm
 	xmlAttribute * attrDecl = NULL;
 	if(!doc) 
 		return 0;
-	if(elem == NULL) 
+	if(!elem) 
 		return 0;
 	if(!name) 
 		return 0;
@@ -3435,7 +3435,7 @@ int xmlValidateElementDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlElement * elem
 	int ret = 1;
 	xmlElement * tst;
 	CHECK_DTD;
-	if(elem == NULL) 
+	if(!elem) 
 		return 1;
 #if 0
 #ifdef LIBXML_REGEXP_ENABLED
@@ -3865,21 +3865,18 @@ static xmlNode * xmlValidateSkipIgnorable(xmlNode * child)
  *      reference is found and -3 if the validation succeeded but
  *      the content model is not determinist.
  */
-
-static int xmlValidateElementType(xmlValidCtxtPtr ctxt) {
+static int xmlValidateElementType(xmlValidCtxtPtr ctxt) 
+{
 	int ret = -1;
 	int determinist = 1;
-
 	NODE = xmlValidateSkipIgnorable(NODE);
 	if((NODE == NULL) && (CONT == NULL))
 		return 1;
-	if((NODE == NULL) &&
-	    ((CONT->ocur == XML_ELEMENT_CONTENT_MULT) ||
-		    (CONT->ocur == XML_ELEMENT_CONTENT_OPT))) {
+	if((NODE == NULL) && ((CONT->ocur == XML_ELEMENT_CONTENT_MULT) || (CONT->ocur == XML_ELEMENT_CONTENT_OPT))) {
 		return 1;
 	}
 	if(CONT == NULL) return -1;
-	if((NODE != NULL) && (NODE->type == XML_ENTITY_REF_NODE))
+	if(NODE && NODE->type == XML_ENTITY_REF_NODE)
 		return -2;
 
 	/*
@@ -3933,7 +3930,7 @@ cont:
 			    do {
 				    NODE = NODE->next;
 				    NODE = xmlValidateSkipIgnorable(NODE);
-				    if((NODE != NULL) && (NODE->type == XML_ENTITY_REF_NODE))
+				    if(NODE && NODE->type == XML_ENTITY_REF_NODE)
 					    return -2;
 			    } while((NODE != NULL) && ((NODE->type != XML_ELEMENT_NODE) && (NODE->type != XML_TEXT_NODE) && (NODE->type != XML_CDATA_SECTION_NODE)));
 			    ret = 1;
@@ -3973,13 +3970,9 @@ cont:
 			    do {
 				    NODE = NODE->next;
 				    NODE = xmlValidateSkipIgnorable(NODE);
-				    if((NODE != NULL) &&
-				    (NODE->type == XML_ENTITY_REF_NODE))
+				    if(NODE && NODE->type == XML_ENTITY_REF_NODE)
 					    return -2;
-			    } while((NODE != NULL) &&
-			    ((NODE->type != XML_ELEMENT_NODE) &&
-				    (NODE->type != XML_TEXT_NODE) &&
-				    (NODE->type != XML_CDATA_SECTION_NODE)));
+			    } while((NODE != NULL) && ((NODE->type != XML_ELEMENT_NODE) && (NODE->type != XML_TEXT_NODE) && (NODE->type != XML_CDATA_SECTION_NODE)));
 		    }
 		    else {
 			    DEBUG_VALID_MSG("element failed");
@@ -4735,7 +4728,7 @@ static xmlElement * xmlValidGetElemDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlN
 	 */
 	if((elem->ns != NULL) && (elem->ns->prefix != NULL))
 		prefix = elem->ns->prefix;
-	if(prefix != NULL) {
+	if(prefix) {
 		elemDecl = xmlGetDtdQElementDesc(doc->intSubset, elem->name, prefix);
 		if((elemDecl == NULL) && (doc->extSubset != NULL)) {
 			elemDecl = xmlGetDtdQElementDesc(doc->extSubset, elem->name, prefix);
@@ -4981,7 +4974,7 @@ int xmlValidateOneElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem)
 	const xmlChar * name;
 	int extsubset = 0;
 	CHECK_DTD;
-	if(elem == NULL) 
+	if(!elem) 
 		return 0;
 	switch(elem->type) {
 		case XML_ATTRIBUTE_NODE:
@@ -5338,7 +5331,7 @@ int xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem)
 	xmlNs * ns;
 	const xmlChar * value;
 	int ret = 1;
-	if(elem == NULL) 
+	if(!elem) 
 		return 0;
 	/*
 	 * XInclude elements were added after parsing in the infoset,

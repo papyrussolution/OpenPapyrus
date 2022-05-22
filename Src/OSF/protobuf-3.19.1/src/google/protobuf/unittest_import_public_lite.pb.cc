@@ -13,8 +13,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest_import {
-constexpr PublicImportMessageLite::PublicImportMessageLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr PublicImportMessageLite::PublicImportMessageLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : e_(0){}
 struct PublicImportMessageLiteDefaultTypeInternal {
 	constexpr PublicImportMessageLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -71,8 +70,7 @@ void PublicImportMessageLite::ArenaDtor(void* object) {
   PublicImportMessageLite* _this = reinterpret_cast< PublicImportMessageLite* >(object);
   (void)_this;
 }
-void PublicImportMessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void PublicImportMessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void PublicImportMessageLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -112,10 +110,7 @@ const char* PublicImportMessageLite::_InternalParse(const char* ptr, ::PROTOBUF_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -170,10 +165,9 @@ size_t PublicImportMessageLite::ByteSizeLong() const {
   return total_size;
 }
 
-void PublicImportMessageLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PublicImportMessageLite*>(
-      &from));
+void PublicImportMessageLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PublicImportMessageLite*>(&from));
 }
 
 void PublicImportMessageLite::MergeFrom(const PublicImportMessageLite& from) {

@@ -298,8 +298,9 @@ struct WebPPicture {
 	// Unused for now
 	uint8* pad4, * pad5;
 	uint32_t pad6[8]; // padding for later use
+	//
 	// PRIVATE FIELDS
-	////////////////////
+	//
 	void* memory_;    // row chunk of memory for yuva planes
 	void* memory_argb_; // and for argb too.
 	void* pad7[2];    // padding for later use

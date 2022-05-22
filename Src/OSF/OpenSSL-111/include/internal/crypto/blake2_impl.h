@@ -6,16 +6,12 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 /*
  * Derived from the BLAKE2 reference implementation written by Samuel Neves.
  * Copyright 2012, Samuel Neves <sneves@dei.uc.pt>
  * More information about the BLAKE2 hash function and its implementations
  * can be found at https://blake2.net.
  */
-
-//#include <string.h>
-
 static ossl_inline uint32_t load32(const uint8_t * src)
 {
 	const union {

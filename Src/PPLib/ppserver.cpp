@@ -4366,28 +4366,63 @@ int run_server()
 	DS.SetExtFlag(ECF_SYSSERVICE, 1);
 	DS.SetExtFlag(ECF_FULLGOODSCACHE, 1);
 	if(CheckVersion()) {
-		PPIniFile ini_file;
+		bool do_run_nginx = false;
+		//
+		PPServerSession::InitBlock sib;
+		InetAddr addr;
+		int    port = 0;
+		int    client_timeout = -1;
+		sib.ClosedSockTimeout = 60000;
+		sib.SuspTimeout = 3600000;
+		sib.SleepTimeout = INFINITE;
+		sib.TxtCmdTerminalCode = -1;
+		{
+			int    ival = 0;
+			PPIniFile ini_file;
+			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_NGINX, &(ival = 0)) > 0 && ival == 1) {
+				do_run_nginx = true;
+			}
+			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &port) <= 0 || port == 0)
+				port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer); //DEFAULT_SERVER_PORT;
+			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_SOCKETTIMEOUT, &client_timeout) <= 0 || client_timeout <= 0)
+				client_timeout = -1;
+			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_CLOSEDSOCKTIMEOUT, &(ival = 0)) > 0) {
+				if(ival >= 0)
+					sib.ClosedSockTimeout = (uint)ival;
+			}
+			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_SUSPSOCKTIMEOUT, &(ival = 0)) > 0) {
+				if(ival >= 0)
+					sib.SuspTimeout = (uint)ival;
+			}
+			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_SLEEPSOCKTIMEOUT, &(ival = 0)) > 0) {
+				if(ival >= 0)
+					sib.SleepTimeout = (uint)ival;
+				else
+					sib.SleepTimeout = INFINITE;
+			}
+			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_TXTCMDTERM, &(ival = 0)) > 0)
+				sib.TxtCmdTerminalCode = ival;
+			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_DEBUG, &(ival = 0)) > 0)
+				sib.Flags |= sib.fDebugMode;
+		}
 		{
 			PPJobServer * p_job_srv = new PPJobServer;
 			p_job_srv->Start();
 		}
 // @v10.1.8 #if defined(_PPSERVER) // {
-		{
-			int    ival = 0;
-			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_NGINX, &ival) > 0 && ival == 1) {
-				class NginxServer : public PPThread {
-				public:
-					NginxServer() : PPThread(PPThread::kNginxServer, "nginx", 0)
-					{
-					}
-					virtual void Run()
-					{
-						RunNginxServer();
-					}
-				};
-				NginxServer * p_ngx_srv = new NginxServer;
-				p_ngx_srv->Start();
-			}
+		if(do_run_nginx) {
+			class NginxServer : public PPThread {
+			public:
+				NginxServer() : PPThread(PPThread::kNginxServer, "nginx", 0)
+				{
+				}
+				virtual void Run()
+				{
+					RunNginxServer();
+				}
+			};
+			NginxServer * p_ngx_srv = new NginxServer;
+			p_ngx_srv->Start();
 		}
 // @v10.1.8 #endif // } _PPSERVER
 		RunStyloQMqbServer(); // @v11.2.12 Запуск (если нужно) сервера обработки mqb-запросов StyloQ
@@ -4412,39 +4447,6 @@ int run_server()
 				const int ClientTimeout;
 				const PPServerSession::InitBlock Sib;
 			};
-			PPServerSession::InitBlock sib;
-			InetAddr addr;
-			int    port = 0;
-			int    client_timeout = -1;
-			sib.ClosedSockTimeout = 60000;
-			sib.SuspTimeout = 3600000;
-			sib.SleepTimeout = INFINITE;
-			sib.TxtCmdTerminalCode = -1;
-			{
-				int    ival = 0;
-				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &port) <= 0 || port == 0)
-					port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer); //DEFAULT_SERVER_PORT;
-				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_SOCKETTIMEOUT, &client_timeout) <= 0 || client_timeout <= 0)
-					client_timeout = -1;
-				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_CLOSEDSOCKTIMEOUT, &(ival = 0)) > 0) {
-					if(ival >= 0)
-						sib.ClosedSockTimeout = (uint)ival;
-				}
-				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_SUSPSOCKTIMEOUT, &(ival = 0)) > 0) {
-					if(ival >= 0)
-						sib.SuspTimeout = (uint)ival;
-				}
-				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_SLEEPSOCKTIMEOUT, &(ival = 0)) > 0) {
-					if(ival >= 0)
-						sib.SleepTimeout = (uint)ival;
-					else
-						sib.SleepTimeout = INFINITE;
-				}
-				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_TXTCMDTERM, &(ival = 0)) > 0)
-					sib.TxtCmdTerminalCode = ival;
-				if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_DEBUG, &(ival = 0)) > 0)
-					sib.Flags |= sib.fDebugMode;
-			}
 			addr.Set((ulong)0, port);
 			PPServer server(addr, client_timeout, sib);
 			if(server.Run())

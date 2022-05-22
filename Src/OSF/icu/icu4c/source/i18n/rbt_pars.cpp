@@ -562,7 +562,7 @@ int32_t RuleHalf::parseSection(const UnicodeString & rule, int32_t pos, int32_t 
 			    buf.extractBetween(bufSegStart, buf.length(), output);
 			    FunctionReplacer * r =
 				new FunctionReplacer(t, new StringReplacer(output, parser.curData));
-			    if(r == NULL) {
+			    if(!r) {
 				    return syntaxError(U_MEMORY_ALLOCATION_ERROR, rule, start, status);
 			    }
 
@@ -1635,7 +1635,7 @@ void TransliteratorParser::appendVariableDef(const UnicodeString & name,
     UnicodeString & buf,
     UErrorCode & status) {
 	const UnicodeString * s = (const UnicodeString *)variableNames.get(name);
-	if(s == NULL) {
+	if(!s) {
 		// We allow one undefined variable so that variable definition
 		// statements work.  For the first undefined variable we return
 		// the special placeholder variableLimit-1, and save the variable

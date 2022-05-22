@@ -64,7 +64,7 @@
 #ifndef ABSL_HASH_HASH_H_
 #define ABSL_HASH_HASH_H_
 
-#include <tuple>
+//#include <tuple>
 #include "absl/hash/internal/hash.h"
 
 namespace absl {

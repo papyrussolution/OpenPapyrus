@@ -9,10 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #ifndef OPENSSL_NO_ARIA
-//#include <openssl/evp.h>
-//#include <openssl/modes.h>
-//#include <openssl/rand.h>
-//#include <openssl/rand_drbg.h>
 #include <aria.h>
 #include "modes_lcl.h"
 #include "evp_locl.h"

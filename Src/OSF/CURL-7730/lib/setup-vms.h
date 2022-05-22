@@ -119,10 +119,9 @@ static char *vms_getenv(const char *envvar)
 
   /* first use the DECC getenv() function */
   result = decc$getenv(envvar);
-  if(result == NULL) {
+  if(!result) {
     return result;
   }
-
   vms_path = result;
   result = vms_translate_path(vms_path);
 

@@ -187,11 +187,8 @@ static bool mi_bitmap_try_find_claim_field_across(mi_bitmap_t bitmap,
 	const size_t initial = mi_clz(map); // count of initial zeros starting at idx
 	mi_assert_internal(initial <= MI_BITMAP_FIELD_BITS);
 	if(initial == 0) return false;
-	if(initial >= count) return _mi_bitmap_try_find_claim_field(bitmap, idx, count, bitmap_idx); // no need to cross
-	                                                                                             // fields
-	if(_mi_divide_up(count - initial, MI_BITMAP_FIELD_BITS) >= (bitmap_fields - idx)) return false; // not enough
-	                                                                                                // entries
-
+	if(initial >= count) return _mi_bitmap_try_find_claim_field(bitmap, idx, count, bitmap_idx); // no need to cross fields
+	if(_mi_divide_up(count - initial, MI_BITMAP_FIELD_BITS) >= (bitmap_fields - idx)) return false; // not enough entries
 	// scan ahead
 	size_t found = initial;
 	uintptr_t mask = 0; // mask bits for the final field

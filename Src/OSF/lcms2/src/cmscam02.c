@@ -267,7 +267,7 @@ static CAM02COLOR CAT02toXYZ(CAM02COLOR clr)
 cmsHANDLE CMSEXPORT cmsCIECAM02Init(cmsContext ContextID, const cmsViewingConditions* pVC)
 {
 	cmsCIECAM02* lpMod;
-	_cmsAssert(pVC != NULL);
+	assert(pVC != NULL);
 	if((lpMod = (cmsCIECAM02*)_cmsMallocZero(ContextID, sizeof(cmsCIECAM02))) == NULL) {
 		return NULL;
 	}
@@ -330,9 +330,9 @@ void CMSEXPORT cmsCIECAM02Forward(cmsHANDLE hModel, const cmsCIEXYZ* pIn, cmsJCh
 {
 	CAM02COLOR clr;
 	cmsCIECAM02* lpMod = (cmsCIECAM02*)hModel;
-	_cmsAssert(lpMod != NULL);
-	_cmsAssert(pIn != NULL);
-	_cmsAssert(pOut != NULL);
+	assert(lpMod != NULL);
+	assert(pIn != NULL);
+	assert(pOut != NULL);
 	memzero(&clr, sizeof(clr));
 	clr.XYZ[0] = pIn->X;
 	clr.XYZ[1] = pIn->Y;
@@ -352,9 +352,9 @@ void CMSEXPORT cmsCIECAM02Reverse(cmsHANDLE hModel, const cmsJCh* pIn, cmsCIEXYZ
 {
 	CAM02COLOR clr;
 	cmsCIECAM02* lpMod = (cmsCIECAM02*)hModel;
-	_cmsAssert(lpMod != NULL);
-	_cmsAssert(pIn != NULL);
-	_cmsAssert(pOut != NULL);
+	assert(lpMod != NULL);
+	assert(pIn != NULL);
+	assert(pOut != NULL);
 	memzero(&clr, sizeof(clr));
 	clr.J = pIn->J;
 	clr.C = pIn->C;

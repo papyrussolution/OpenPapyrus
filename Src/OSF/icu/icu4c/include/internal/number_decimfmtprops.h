@@ -8,7 +8,7 @@
 #define __NUMBER_DECIMFMTPROPS_H__
 
 #include "unicode/unistr.h"
-#include <cstdint>
+//#include <cstdint>
 #include "unicode/plurrule.h"
 #include "unicode/currpinf.h"
 #include "unicode/unum.h"

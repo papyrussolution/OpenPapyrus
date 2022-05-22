@@ -865,7 +865,7 @@ HRESULT ListArchives(CCodecs * codecs, const CObjectVector<COpenType> &types, co
 					lastError = result;
 					*g_ErrStream << "opening : ";
 					if(result == E_OUTOFMEMORY)
-						*g_ErrStream << "Can't allocate required memory";
+						*g_ErrStream << SlTxtOutOfMem;
 					else
 						*g_ErrStream << NError::MyFormatMessage(result);
 				}

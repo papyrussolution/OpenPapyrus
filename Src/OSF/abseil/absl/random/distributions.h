@@ -37,11 +37,11 @@
 #ifndef ABSL_RANDOM_DISTRIBUTIONS_H_
 #define ABSL_RANDOM_DISTRIBUTIONS_H_
 
-#include <algorithm>
-#include <cmath>
-#include <limits>
-#include <random>
-#include <type_traits>
+//#include <algorithm>
+//#include <cmath>
+//#include <limits>
+//#include <random>
+//#include <type_traits>
 #include "absl/base/internal/inline_variable.h"
 #include "absl/random/bernoulli_distribution.h"
 #include "absl/random/beta_distribution.h"
@@ -252,19 +252,12 @@ bool Bernoulli(URBG&& urbg,  // NOLINT(runtime/references)
 //   ...
 //   double sample = absl::Beta(bitgen, 3.0, 2.0);
 //
-template <typename RealType, typename URBG>
-RealType Beta(URBG&& urbg,  // NOLINT(runtime/references)
+template <typename RealType, typename URBG> RealType Beta(URBG&& urbg,  // NOLINT(runtime/references)
     RealType alpha, RealType beta) {
-	static_assert(
-		std::is_floating_point<RealType>::value,
-		"Template-argument 'RealType' must be a floating-point type, in "
-		"absl::Beta<RealType, URBG>(...)");
-
+	static_assert(std::is_floating_point<RealType>::value, "Template-argument 'RealType' must be a floating-point type, in absl::Beta<RealType, URBG>(...)");
 	using gen_t = absl::decay_t<URBG>;
 	using distribution_t = typename absl::beta_distribution<RealType>;
-
-	return random_internal::DistributionCaller<gen_t>::template Call<
-		distribution_t>(&urbg, alpha, beta);
+	return random_internal::DistributionCaller<gen_t>::template Call<distribution_t>(&urbg, alpha, beta);
 }
 
 // -----------------------------------------------------------------------------
@@ -284,19 +277,12 @@ RealType Beta(URBG&& urbg,  // NOLINT(runtime/references)
 //   ...
 //   double call_length = absl::Exponential(bitgen, 7.0);
 //
-template <typename RealType, typename URBG>
-RealType Exponential(URBG&& urbg,  // NOLINT(runtime/references)
+template <typename RealType, typename URBG> RealType Exponential(URBG&& urbg,  // NOLINT(runtime/references)
     RealType lambda = 1) {
-	static_assert(
-		std::is_floating_point<RealType>::value,
-		"Template-argument 'RealType' must be a floating-point type, in "
-		"absl::Exponential<RealType, URBG>(...)");
-
+	static_assert(std::is_floating_point<RealType>::value, "Template-argument 'RealType' must be a floating-point type, in absl::Exponential<RealType, URBG>(...)");
 	using gen_t = absl::decay_t<URBG>;
 	using distribution_t = typename absl::exponential_distribution<RealType>;
-
-	return random_internal::DistributionCaller<gen_t>::template Call<
-		distribution_t>(&urbg, lambda);
+	return random_internal::DistributionCaller<gen_t>::template Call<distribution_t>(&urbg, lambda);
 }
 
 // -----------------------------------------------------------------------------
@@ -315,19 +301,12 @@ RealType Exponential(URBG&& urbg,  // NOLINT(runtime/references)
 //   ...
 //   double giraffe_height = absl::Gaussian(bitgen, 16.3, 3.3);
 //
-template <typename RealType, typename URBG>
-RealType Gaussian(URBG&& urbg,  // NOLINT(runtime/references)
+template <typename RealType, typename URBG> RealType Gaussian(URBG&& urbg,  // NOLINT(runtime/references)
     RealType mean = 0, RealType stddev = 1) {
-	static_assert(
-		std::is_floating_point<RealType>::value,
-		"Template-argument 'RealType' must be a floating-point type, in "
-		"absl::Gaussian<RealType, URBG>(...)");
-
+	static_assert(std::is_floating_point<RealType>::value, "Template-argument 'RealType' must be a floating-point type, in absl::Gaussian<RealType, URBG>(...)");
 	using gen_t = absl::decay_t<URBG>;
 	using distribution_t = typename absl::gaussian_distribution<RealType>;
-
-	return random_internal::DistributionCaller<gen_t>::template Call<
-		distribution_t>(&urbg, mean, stddev);
+	return random_internal::DistributionCaller<gen_t>::template Call<distribution_t>(&urbg, mean, stddev);
 }
 
 // -----------------------------------------------------------------------------
@@ -358,18 +337,12 @@ RealType Gaussian(URBG&& urbg,  // NOLINT(runtime/references)
 //   ...
 //   int v = absl::LogUniform(bitgen, 0, 1000);
 //
-template <typename IntType, typename URBG>
-IntType LogUniform(URBG&& urbg,  // NOLINT(runtime/references)
+template <typename IntType, typename URBG> IntType LogUniform(URBG&& urbg,  // NOLINT(runtime/references)
     IntType lo, IntType hi, IntType base = 2) {
-	static_assert(random_internal::IsIntegral<IntType>::value,
-	    "Template-argument 'IntType' must be an integral type, in "
-	    "absl::LogUniform<IntType, URBG>(...)");
-
+	static_assert(random_internal::IsIntegral<IntType>::value, "Template-argument 'IntType' must be an integral type, in absl::LogUniform<IntType, URBG>(...)");
 	using gen_t = absl::decay_t<URBG>;
 	using distribution_t = typename absl::log_uniform_int_distribution<IntType>;
-
-	return random_internal::DistributionCaller<gen_t>::template Call<
-		distribution_t>(&urbg, lo, hi, base);
+	return random_internal::DistributionCaller<gen_t>::template Call<distribution_t>(&urbg, lo, hi, base);
 }
 
 // -----------------------------------------------------------------------------
@@ -391,15 +364,10 @@ IntType LogUniform(URBG&& urbg,  // NOLINT(runtime/references)
 template <typename IntType, typename URBG>
 IntType Poisson(URBG&& urbg,  // NOLINT(runtime/references)
     double mean = 1.0) {
-	static_assert(random_internal::IsIntegral<IntType>::value,
-	    "Template-argument 'IntType' must be an integral type, in "
-	    "absl::Poisson<IntType, URBG>(...)");
-
+	static_assert(random_internal::IsIntegral<IntType>::value, "Template-argument 'IntType' must be an integral type, in absl::Poisson<IntType, URBG>(...)");
 	using gen_t = absl::decay_t<URBG>;
 	using distribution_t = typename absl::poisson_distribution<IntType>;
-
-	return random_internal::DistributionCaller<gen_t>::template Call<
-		distribution_t>(&urbg, mean);
+	return random_internal::DistributionCaller<gen_t>::template Call<distribution_t>(&urbg, mean);
 }
 
 // -----------------------------------------------------------------------------
@@ -419,19 +387,13 @@ IntType Poisson(URBG&& urbg,  // NOLINT(runtime/references)
 //   ...
 //   int term_rank = absl::Zipf<int>(bitgen);
 //
-template <typename IntType, typename URBG>
-IntType Zipf(URBG&& urbg,  // NOLINT(runtime/references)
+template <typename IntType, typename URBG> IntType Zipf(URBG&& urbg,  // NOLINT(runtime/references)
     IntType hi = (std::numeric_limits<IntType>::max)(), double q = 2.0,
     double v = 1.0) {
-	static_assert(random_internal::IsIntegral<IntType>::value,
-	    "Template-argument 'IntType' must be an integral type, in "
-	    "absl::Zipf<IntType, URBG>(...)");
-
+	static_assert(random_internal::IsIntegral<IntType>::value, "Template-argument 'IntType' must be an integral type, in absl::Zipf<IntType, URBG>(...)");
 	using gen_t = absl::decay_t<URBG>;
 	using distribution_t = typename absl::zipf_distribution<IntType>;
-
-	return random_internal::DistributionCaller<gen_t>::template Call<
-		distribution_t>(&urbg, hi, q, v);
+	return random_internal::DistributionCaller<gen_t>::template Call<distribution_t>(&urbg, hi, q, v);
 }
 
 ABSL_NAMESPACE_END

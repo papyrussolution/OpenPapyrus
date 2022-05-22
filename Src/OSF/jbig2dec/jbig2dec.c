@@ -86,7 +86,7 @@ static void * jbig2dec_alloc(Jbig2Allocator * allocator_, size_t size)
 	if(size > allocator->memory_limit - ALIGNMENT - allocator->memory_used)
 		return NULL;
 	ptr = SAlloc::M(size + ALIGNMENT);
-	if(ptr == NULL)
+	if(!ptr)
 		return NULL;
 	memcpy(ptr, &size, sizeof(size));
 	allocator->memory_used += size + ALIGNMENT;
@@ -424,7 +424,7 @@ static char * make_output_filename(const char * input_filename, const char * ext
 		c = strrchr(input_filename, '/'); /* *nix */
 		if(c == NULL)
 			c = strrchr(input_filename, '\\'); /* win32/dos */
-		if(c != NULL)
+		if(c)
 			c++; /* skip the path separator */
 		else
 			c = input_filename; /* no leading path */
@@ -435,7 +435,7 @@ static char * make_output_filename(const char * input_filename, const char * ext
 	/* strip the extension */
 	len = strlen(c);
 	e = strrchr(c, '.');
-	if(e != NULL)
+	if(e)
 		len -= strlen(e);
 	extlen = strlen(extension);
 	// allocate enough space for the base + ext 
@@ -525,7 +525,7 @@ int main(int argc, char ** argv)
 			    /* only one argument--open as a jbig2 file */
 			    char * fn = argv[filearg];
 			    f = fopen(fn, "rb");
-			    if(f == NULL) {
+			    if(!f) {
 				    slfprintf_stderr("error opening %s\n", fn);
 				    goto cleanup;
 			    }
@@ -535,7 +535,7 @@ int main(int argc, char ** argv)
 			    char * fn = argv[filearg];
 			    char * fn_page = argv[filearg + 1];
 			    f = fopen(fn, "rb");
-			    if(f == NULL) {
+			    if(!f) {
 				    slfprintf_stderr("error opening %s\n", fn);
 				    goto cleanup;
 			    }
@@ -597,7 +597,7 @@ int main(int argc, char ** argv)
 		    if(f_page != NULL) {
 			    Jbig2GlobalCtx * global_ctx = jbig2_make_global_ctx(ctx);
 			    ctx = jbig2_ctx_new((Jbig2Allocator*)allocator, JBIG2_OPTIONS_EMBEDDED, global_ctx, error_callback, &error_callback_state);
-			    if(ctx != NULL) {
+			    if(ctx) {
 				    if(allocator != NULL)
 					    allocator->ctx = ctx;
 				    for(;;) {

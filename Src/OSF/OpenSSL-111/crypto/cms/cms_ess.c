@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1t.h>
-//#include <openssl/pem.h>
-//#include <openssl/rand.h>
-//#include <openssl/x509v3.h>
-//#include <openssl/err.h>
-//#include <openssl/cms.h>
 #include "cms_lcl.h"
 
 IMPLEMENT_ASN1_FUNCTIONS(CMS_ReceiptRequest)
@@ -24,8 +18,7 @@ int CMS_get1_ReceiptRequest(CMS_SignerInfo * si, CMS_ReceiptRequest ** prr)
 {
 	ASN1_STRING * str;
 	CMS_ReceiptRequest * rr = NULL;
-	if(prr)
-		*prr = NULL;
+	ASSIGN_PTR(prr, NULL);
 	str = static_cast<ASN1_STRING *>(CMS_signed_get0_data_by_OBJ(si, OBJ_nid2obj(NID_id_smime_aa_receiptRequest), -3, V_ASN1_SEQUENCE));
 	if(!str)
 		return 0;
@@ -39,15 +32,9 @@ int CMS_get1_ReceiptRequest(CMS_SignerInfo * si, CMS_ReceiptRequest ** prr)
 	return 1;
 }
 
-CMS_ReceiptRequest * CMS_ReceiptRequest_create0(uchar * id, int idlen,
-    int allorfirst,
-    STACK_OF(GENERAL_NAMES)
-    * receiptList, STACK_OF(GENERAL_NAMES)
-    * receiptsTo)
+CMS_ReceiptRequest * CMS_ReceiptRequest_create0(uchar * id, int idlen, int allorfirst, STACK_OF(GENERAL_NAMES) * receiptList, STACK_OF(GENERAL_NAMES) * receiptsTo)
 {
-	CMS_ReceiptRequest * rr = NULL;
-
-	rr = CMS_ReceiptRequest_new();
+	CMS_ReceiptRequest * rr = CMS_ReceiptRequest_new();
 	if(rr == NULL)
 		goto merr;
 	if(id)
@@ -58,10 +45,8 @@ CMS_ReceiptRequest * CMS_ReceiptRequest_create0(uchar * id, int idlen,
 		if(RAND_bytes(rr->signedContentIdentifier->data, 32) <= 0)
 			goto err;
 	}
-
 	sk_GENERAL_NAMES_pop_free(rr->receiptsTo, GENERAL_NAMES_free);
 	rr->receiptsTo = receiptsTo;
-
 	if(receiptList) {
 		rr->receiptsFrom->type = 1;
 		rr->receiptsFrom->d.receiptList = receiptList;
@@ -70,12 +55,9 @@ CMS_ReceiptRequest * CMS_ReceiptRequest_create0(uchar * id, int idlen,
 		rr->receiptsFrom->type = 0;
 		rr->receiptsFrom->d.allOrFirstTier = allorfirst;
 	}
-
 	return rr;
-
 merr:
 	CMSerr(CMS_F_CMS_RECEIPTREQUEST_CREATE0, ERR_R_MALLOC_FAILURE);
-
 err:
 	CMS_ReceiptRequest_free(rr);
 	return NULL;
@@ -84,62 +66,42 @@ err:
 int CMS_add1_ReceiptRequest(CMS_SignerInfo * si, CMS_ReceiptRequest * rr)
 {
 	uchar * rrder = NULL;
-	int rrderlen, r = 0;
-
-	rrderlen = i2d_CMS_ReceiptRequest(rr, &rrder);
+	int r = 0;
+	int rrderlen = i2d_CMS_ReceiptRequest(rr, &rrder);
 	if(rrderlen < 0)
 		goto merr;
-
-	if(!CMS_signed_add1_attr_by_NID(si, NID_id_smime_aa_receiptRequest,
-	    V_ASN1_SEQUENCE, rrder, rrderlen))
+	if(!CMS_signed_add1_attr_by_NID(si, NID_id_smime_aa_receiptRequest, V_ASN1_SEQUENCE, rrder, rrderlen))
 		goto merr;
-
 	r = 1;
-
 merr:
 	if(!r)
 		CMSerr(CMS_F_CMS_ADD1_RECEIPTREQUEST, ERR_R_MALLOC_FAILURE);
-
 	OPENSSL_free(rrder);
-
 	return r;
 }
 
-void CMS_ReceiptRequest_get0_values(CMS_ReceiptRequest * rr,
-    ASN1_STRING ** pcid,
-    int * pallorfirst,
-    STACK_OF(GENERAL_NAMES) ** plist,
-    STACK_OF(GENERAL_NAMES) ** prto)
+void CMS_ReceiptRequest_get0_values(CMS_ReceiptRequest * rr, ASN1_STRING ** pcid, int * pallorfirst, STACK_OF(GENERAL_NAMES) ** plist, STACK_OF(GENERAL_NAMES) ** prto)
 {
-	if(pcid)
-		*pcid = rr->signedContentIdentifier;
+	ASSIGN_PTR(pcid, rr->signedContentIdentifier);
 	if(rr->receiptsFrom->type == 0) {
-		if(pallorfirst)
-			*pallorfirst = (int)rr->receiptsFrom->d.allOrFirstTier;
-		if(plist)
-			*plist = NULL;
+		ASSIGN_PTR(pallorfirst, (int)rr->receiptsFrom->d.allOrFirstTier);
+		ASSIGN_PTR(plist, NULL);
 	}
 	else {
-		if(pallorfirst)
-			*pallorfirst = -1;
-		if(plist)
-			*plist = rr->receiptsFrom->d.receiptList;
+		ASSIGN_PTR(pallorfirst, -1);
+		ASSIGN_PTR(plist, rr->receiptsFrom->d.receiptList);
 	}
-	if(prto)
-		*prto = rr->receiptsTo;
+	ASSIGN_PTR(prto, rr->receiptsTo);
 }
 
 /* Digest a SignerInfo structure for msgSigDigest attribute processing */
 
-static int cms_msgSigDigest(CMS_SignerInfo * si,
-    uchar * dig, uint * diglen)
+static int cms_msgSigDigest(CMS_SignerInfo * si, uchar * dig, uint * diglen)
 {
-	const EVP_MD * md;
-	md = EVP_get_digestbyobj(si->digestAlgorithm->algorithm);
+	const EVP_MD * md = EVP_get_digestbyobj(si->digestAlgorithm->algorithm);
 	if(md == NULL)
 		return 0;
-	if(!ASN1_item_digest(ASN1_ITEM_rptr(CMS_Attributes_Verify), md,
-	    si->signedAttrs, dig, diglen))
+	if(!ASN1_item_digest(ASN1_ITEM_rptr(CMS_Attributes_Verify), md, si->signedAttrs, dig, diglen))
 		return 0;
 	return 1;
 }

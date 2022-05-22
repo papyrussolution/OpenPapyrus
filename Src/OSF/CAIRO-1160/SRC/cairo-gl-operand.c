@@ -33,13 +33,6 @@
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-compositor-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-surface-backend-private.h"
-//#include "cairo-surface-offset-private.h"
 #include "cairo-surface-subsurface-inline.h"
 
 static cairo_int_status_t _cairo_gl_create_gradient_texture(cairo_gl_surface_t * dst, const cairo_gradient_pattern_t * pattern, cairo_gl_gradient_t ** gradient)

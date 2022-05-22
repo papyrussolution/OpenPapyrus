@@ -1025,7 +1025,7 @@ static int write_mtree_entry_tree(struct archive_write * a)
 			ARCHIVE_RB_TREE_FOREACH(n, &(np->dir_info->rbtree)) {
 				struct mtree_entry * e = (struct mtree_entry *)n;
 				if(attr_counter_set_collect(mtree, e) < 0) {
-					archive_set_error(&a->archive, ENOMEM, "Out of memory");
+					archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 					return ARCHIVE_FATAL;
 				}
 			}
@@ -1287,7 +1287,7 @@ static int archive_write_set_format_mtree_default(struct archive * _a, const cha
 	struct archive_write * a = (struct archive_write *)_a;
 	struct mtree_writer * mtree;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, fn);
-	if(a->format_free != NULL)
+	if(a->format_free)
 		(a->format_free)(a);
 	if((mtree = static_cast<struct mtree_writer *>(SAlloc::C(1, sizeof(*mtree)))) == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate mtree data");
@@ -1603,7 +1603,7 @@ static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_en
 	if(cleanup_backslash_1(file->pathname.s) != 0) {
 		const wchar_t * wp = archive_entry_pathname_w(entry);
 		struct archive_wstring ws;
-		if(wp != NULL) {
+		if(wp) {
 			int r;
 			archive_string_init(&ws);
 			archive_wstrcpy(&ws, wp);
@@ -1612,7 +1612,7 @@ static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_en
 			r = archive_string_append_from_wcs(&(file->pathname), ws.s, ws.length);
 			archive_wstring_free(&ws);
 			if(r < 0 && errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM, "Out of memory");
+				archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -1759,7 +1759,7 @@ static int mtree_entry_create_virtual_dir(struct archive_write * a, const char *
 	struct archive_entry * entry = archive_entry_new();
 	if(entry == NULL) {
 		*m_entry = NULL;
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	archive_entry_copy_pathname(entry, pathname);
@@ -1769,7 +1769,7 @@ static int mtree_entry_create_virtual_dir(struct archive_write * a, const char *
 	archive_entry_free(entry);
 	if(r < ARCHIVE_WARN) {
 		*m_entry = NULL;
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	file->dir_info->Virtual = 1;
@@ -1915,7 +1915,7 @@ static int mtree_entry_tree_add(struct archive_write * a, struct mtree_entry ** 
 			fn++;
 		dent = np;
 	}
-	if(np == NULL) {
+	if(!np) {
 		/*
 		 * Create virtual parent directories.
 		 */

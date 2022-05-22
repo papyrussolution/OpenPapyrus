@@ -847,13 +847,13 @@ static bool MBCSAddFromUnicode(MBCSData * mbcsData,
 	switch(length) {
 		case 4:
 		    b = *pb++;
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 3:
 		    b = (b<<8)|*pb++;
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 2:
 		    b = (b<<8)|*pb++;
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 1:
 		default:
 		    b = (b<<8)|*pb++;
@@ -1031,7 +1031,7 @@ static bool MBCSAddTable(NewConverter * cnvData, UCMTable * table, UConverterSta
 			case -1:
 			    /* there was no precision/fallback indicator */
 			    /* fall through to set the mappings */
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 0:
 			    /* set roundtrip mappings */
 			    isOK &= MBCSAddToUnicode(mbcsData, m->b.bytes, m->bLen, c, f);

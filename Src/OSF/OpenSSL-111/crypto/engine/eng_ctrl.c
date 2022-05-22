@@ -75,7 +75,7 @@ static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p,
 	if((cmd == ENGINE_CTRL_GET_CMD_FROM_NAME) ||
 	    (cmd == ENGINE_CTRL_GET_NAME_FROM_CMD) ||
 	    (cmd == ENGINE_CTRL_GET_DESC_FROM_CMD)) {
-		if(s == NULL) {
+		if(!s) {
 			ENGINEerr(ENGINE_F_INT_CTRL_HELPER, ERR_R_PASSED_NULL_PARAMETER);
 			return -1;
 		}
@@ -123,7 +123,7 @@ static int int_ctrl_helper(ENGINE * e, int cmd, long i, void * p,
 int ENGINE_ctrl(ENGINE * e, int cmd, long i, void * p, void (*f)(void))
 {
 	int ctrl_exists, ref_exists;
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_CTRL, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}

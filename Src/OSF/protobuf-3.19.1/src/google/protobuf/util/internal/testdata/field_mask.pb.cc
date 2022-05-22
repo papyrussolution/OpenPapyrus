@@ -17,8 +17,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace proto_util_converter {
 namespace testing {
-constexpr NestedFieldMask::NestedFieldMask(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr NestedFieldMask::NestedFieldMask(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_mask_()
   , data_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , single_mask_(nullptr){}
@@ -30,8 +29,7 @@ struct NestedFieldMaskDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT NestedFieldMaskDefaultTypeInternal _NestedFieldMask_default_instance_;
-constexpr FieldMaskTest::FieldMaskTest(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr FieldMaskTest::FieldMaskTest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_mask_()
   , nested_mask_()
   , id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -44,8 +42,7 @@ struct FieldMaskTestDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT FieldMaskTestDefaultTypeInternal _FieldMaskTest_default_instance_;
-constexpr FieldMaskTestCases::FieldMaskTestCases(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr FieldMaskTestCases::FieldMaskTestCases(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : single_mask_(nullptr)
   , multiple_mask_(nullptr)
   , snake_camel_(nullptr)
@@ -66,8 +63,7 @@ struct FieldMaskTestCasesDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT FieldMaskTestCasesDefaultTypeInternal _FieldMaskTestCases_default_instance_;
-constexpr FieldMaskWrapper::FieldMaskWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr FieldMaskWrapper::FieldMaskWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : mask_(nullptr){}
 struct FieldMaskWrapperDefaultTypeInternal {
 	constexpr FieldMaskWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -207,10 +203,7 @@ class NestedFieldMask::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::FieldMask& single_mask(const NestedFieldMask* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::FieldMask&
-NestedFieldMask::_Internal::single_mask(const NestedFieldMask* msg) {
-  return *msg->single_mask_;
-}
+const ::PROTOBUF_NAMESPACE_ID::FieldMask & NestedFieldMask::_Internal::single_mask(const NestedFieldMask* msg) { return *msg->single_mask_; }
 void NestedFieldMask::clear_single_mask() {
   if(GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
     delete single_mask_;
@@ -241,11 +234,7 @@ NestedFieldMask::NestedFieldMask(const NestedFieldMask& from)
   if(!from._internal_data().empty()) {
     data_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_data(), GetArenaForAllocation());
   }
-  if(from._internal_has_single_mask()) {
-    single_mask_ = new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.single_mask_);
-  } else {
-    single_mask_ = nullptr;
-  }
+  single_mask_ = from._internal_has_single_mask() ? new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.single_mask_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.NestedFieldMask)
 }
 
@@ -274,8 +263,7 @@ void NestedFieldMask::ArenaDtor(void* object) {
   NestedFieldMask* _this = reinterpret_cast< NestedFieldMask* >(object);
   (void)_this;
 }
-void NestedFieldMask::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void NestedFieldMask::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void NestedFieldMask::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -340,10 +328,7 @@ const char* NestedFieldMask::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -422,10 +407,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData NestedFieldMask::_class_data_ 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*NestedFieldMask::GetClassData() const { return &_class_data_; }
 
-void NestedFieldMask::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<NestedFieldMask *>(to)->MergeFrom(
-      static_cast<const NestedFieldMask &>(from));
+void NestedFieldMask::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<NestedFieldMask *>(to)->MergeFrom(static_cast<const NestedFieldMask &>(from));
 }
 
 
@@ -462,11 +445,7 @@ void NestedFieldMask::InternalSwap(NestedFieldMask* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   repeated_mask_.InternalSwap(&other->repeated_mask_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &data_, lhs_arena,
-      &other->data_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &data_, lhs_arena, &other->data_, rhs_arena);
   swap(single_mask_, other->single_mask_);
 }
 
@@ -481,10 +460,7 @@ class FieldMaskTest::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::FieldMask& single_mask(const FieldMaskTest* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::FieldMask&
-FieldMaskTest::_Internal::single_mask(const FieldMaskTest* msg) {
-  return *msg->single_mask_;
-}
+const ::PROTOBUF_NAMESPACE_ID::FieldMask & FieldMaskTest::_Internal::single_mask(const FieldMaskTest* msg) { return *msg->single_mask_; }
 void FieldMaskTest::clear_single_mask() {
   if(GetArenaForAllocation() == nullptr && single_mask_ != nullptr) {
     delete single_mask_;
@@ -517,11 +493,7 @@ FieldMaskTest::FieldMaskTest(const FieldMaskTest& from)
   if(!from._internal_id().empty()) {
     id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), GetArenaForAllocation());
   }
-  if(from._internal_has_single_mask()) {
-    single_mask_ = new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.single_mask_);
-  } else {
-    single_mask_ = nullptr;
-  }
+  single_mask_ = from._internal_has_single_mask() ? new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.single_mask_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.FieldMaskTest)
 }
 
@@ -550,8 +522,7 @@ void FieldMaskTest::ArenaDtor(void* object) {
   FieldMaskTest* _this = reinterpret_cast< FieldMaskTest* >(object);
   (void)_this;
 }
-void FieldMaskTest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void FieldMaskTest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void FieldMaskTest::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -630,10 +601,7 @@ const char* FieldMaskTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -724,10 +692,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData FieldMaskTest::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*FieldMaskTest::GetClassData() const { return &_class_data_; }
 
-void FieldMaskTest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<FieldMaskTest *>(to)->MergeFrom(
-      static_cast<const FieldMaskTest &>(from));
+void FieldMaskTest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<FieldMaskTest *>(to)->MergeFrom(static_cast<const FieldMaskTest &>(from));
 }
 
 
@@ -766,11 +732,7 @@ void FieldMaskTest::InternalSwap(FieldMaskTest* other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   repeated_mask_.InternalSwap(&other->repeated_mask_);
   nested_mask_.InternalSwap(&other->nested_mask_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &id_, lhs_arena,
-      &other->id_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &id_, lhs_arena, &other->id_, rhs_arena);
   swap(single_mask_, other->single_mask_);
 }
 
@@ -796,54 +758,18 @@ class FieldMaskTestCases::_Internal {
   static const ::proto_util_converter::testing::FieldMaskWrapper& map_key5(const FieldMaskTestCases* msg);
 };
 
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::single_mask(const FieldMaskTestCases* msg) {
-  return *msg->single_mask_;
-}
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::multiple_mask(const FieldMaskTestCases* msg) {
-  return *msg->multiple_mask_;
-}
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::snake_camel(const FieldMaskTestCases* msg) {
-  return *msg->snake_camel_;
-}
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::empty_field(const FieldMaskTestCases* msg) {
-  return *msg->empty_field_;
-}
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::apiary_format1(const FieldMaskTestCases* msg) {
-  return *msg->apiary_format1_;
-}
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::apiary_format2(const FieldMaskTestCases* msg) {
-  return *msg->apiary_format2_;
-}
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::apiary_format3(const FieldMaskTestCases* msg) {
-  return *msg->apiary_format3_;
-}
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::map_key1(const FieldMaskTestCases* msg) {
-  return *msg->map_key1_;
-}
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::map_key2(const FieldMaskTestCases* msg) {
-  return *msg->map_key2_;
-}
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::map_key3(const FieldMaskTestCases* msg) {
-  return *msg->map_key3_;
-}
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::map_key4(const FieldMaskTestCases* msg) {
-  return *msg->map_key4_;
-}
-const ::proto_util_converter::testing::FieldMaskWrapper&
-FieldMaskTestCases::_Internal::map_key5(const FieldMaskTestCases* msg) {
-  return *msg->map_key5_;
-}
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::single_mask(const FieldMaskTestCases* msg) { return *msg->single_mask_; }
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::multiple_mask(const FieldMaskTestCases* msg) { return *msg->multiple_mask_; }
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::snake_camel(const FieldMaskTestCases* msg) { return *msg->snake_camel_; }
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::empty_field(const FieldMaskTestCases* msg) { return *msg->empty_field_; }
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::apiary_format1(const FieldMaskTestCases* msg) { return *msg->apiary_format1_; }
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::apiary_format2(const FieldMaskTestCases* msg) { return *msg->apiary_format2_; }
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::apiary_format3(const FieldMaskTestCases* msg) { return *msg->apiary_format3_; }
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::map_key1(const FieldMaskTestCases* msg) { return *msg->map_key1_; }
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::map_key2(const FieldMaskTestCases* msg) { return *msg->map_key2_; }
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::map_key3(const FieldMaskTestCases* msg) { return *msg->map_key3_; }
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::map_key4(const FieldMaskTestCases* msg) { return *msg->map_key4_; }
+const ::proto_util_converter::testing::FieldMaskWrapper & FieldMaskTestCases::_Internal::map_key5(const FieldMaskTestCases* msg) { return *msg->map_key5_; }
 FieldMaskTestCases::FieldMaskTestCases(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -856,74 +782,23 @@ FieldMaskTestCases::FieldMaskTestCases(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 FieldMaskTestCases::FieldMaskTestCases(const FieldMaskTestCases& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_single_mask()) {
-    single_mask_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.single_mask_);
-  } else {
-    single_mask_ = nullptr;
-  }
-  if(from._internal_has_multiple_mask()) {
-    multiple_mask_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.multiple_mask_);
-  } else {
-    multiple_mask_ = nullptr;
-  }
-  if(from._internal_has_snake_camel()) {
-    snake_camel_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.snake_camel_);
-  } else {
-    snake_camel_ = nullptr;
-  }
-  if(from._internal_has_empty_field()) {
-    empty_field_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.empty_field_);
-  } else {
-    empty_field_ = nullptr;
-  }
-  if(from._internal_has_apiary_format1()) {
-    apiary_format1_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.apiary_format1_);
-  } else {
-    apiary_format1_ = nullptr;
-  }
-  if(from._internal_has_apiary_format2()) {
-    apiary_format2_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.apiary_format2_);
-  } else {
-    apiary_format2_ = nullptr;
-  }
-  if(from._internal_has_apiary_format3()) {
-    apiary_format3_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.apiary_format3_);
-  } else {
-    apiary_format3_ = nullptr;
-  }
-  if(from._internal_has_map_key1()) {
-    map_key1_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key1_);
-  } else {
-    map_key1_ = nullptr;
-  }
-  if(from._internal_has_map_key2()) {
-    map_key2_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key2_);
-  } else {
-    map_key2_ = nullptr;
-  }
-  if(from._internal_has_map_key3()) {
-    map_key3_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key3_);
-  } else {
-    map_key3_ = nullptr;
-  }
-  if(from._internal_has_map_key4()) {
-    map_key4_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key4_);
-  } else {
-    map_key4_ = nullptr;
-  }
-  if(from._internal_has_map_key5()) {
-    map_key5_ = new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key5_);
-  } else {
-    map_key5_ = nullptr;
-  }
+  single_mask_ = from._internal_has_single_mask() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.single_mask_) : nullptr;
+  multiple_mask_ = from._internal_has_multiple_mask() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.multiple_mask_) : nullptr;
+  snake_camel_ = from._internal_has_snake_camel() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.snake_camel_) : nullptr;
+  empty_field_ = from._internal_has_empty_field() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.empty_field_) : nullptr;
+  apiary_format1_ = from._internal_has_apiary_format1() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.apiary_format1_) : nullptr;
+  apiary_format2_ = from._internal_has_apiary_format2() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.apiary_format2_) : nullptr;
+  apiary_format3_ = from._internal_has_apiary_format3() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.apiary_format3_) : nullptr;
+  map_key1_ = from._internal_has_map_key1() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key1_) : nullptr;
+  map_key2_ = from._internal_has_map_key2() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key2_) : nullptr;
+  map_key3_ = from._internal_has_map_key3() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key3_) : nullptr;
+  map_key4_ = from._internal_has_map_key4() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key4_) : nullptr;
+  map_key5_ = from._internal_has_map_key5() ? new ::proto_util_converter::testing::FieldMaskWrapper(*from.map_key5_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.FieldMaskTestCases)
 }
 
 inline void FieldMaskTestCases::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&single_mask_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&map_key5_) -
-    reinterpret_cast<char*>(&single_mask_)) + sizeof(map_key5_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&single_mask_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&map_key5_) - reinterpret_cast<char*>(&single_mask_)) + sizeof(map_key5_));
 }
 
 FieldMaskTestCases::~FieldMaskTestCases() {
@@ -953,8 +828,7 @@ void FieldMaskTestCases::ArenaDtor(void* object) {
   FieldMaskTestCases* _this = reinterpret_cast< FieldMaskTestCases* >(object);
   (void)_this;
 }
-void FieldMaskTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void FieldMaskTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void FieldMaskTestCases::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1126,10 +1000,7 @@ const char* FieldMaskTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1303,10 +1174,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData FieldMaskTestCases::_class_dat
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*FieldMaskTestCases::GetClassData() const { return &_class_data_; }
 
-void FieldMaskTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<FieldMaskTestCases *>(to)->MergeFrom(
-      static_cast<const FieldMaskTestCases &>(from));
+void FieldMaskTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<FieldMaskTestCases *>(to)->MergeFrom(static_cast<const FieldMaskTestCases &>(from));
 }
 
 
@@ -1388,10 +1257,7 @@ class FieldMaskWrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::FieldMask& mask(const FieldMaskWrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::FieldMask&
-FieldMaskWrapper::_Internal::mask(const FieldMaskWrapper* msg) {
-  return *msg->mask_;
-}
+const ::PROTOBUF_NAMESPACE_ID::FieldMask & FieldMaskWrapper::_Internal::mask(const FieldMaskWrapper* msg) { return *msg->mask_; }
 void FieldMaskWrapper::clear_mask() {
   if(GetArenaForAllocation() == nullptr && mask_ != nullptr) {
     delete mask_;
@@ -1410,11 +1276,7 @@ FieldMaskWrapper::FieldMaskWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 FieldMaskWrapper::FieldMaskWrapper(const FieldMaskWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_mask()) {
-    mask_ = new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.mask_);
-  } else {
-    mask_ = nullptr;
-  }
+  mask_ = from._internal_has_mask() ? new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.mask_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.FieldMaskWrapper)
 }
 
@@ -1438,8 +1300,7 @@ void FieldMaskWrapper::ArenaDtor(void* object) {
   FieldMaskWrapper* _this = reinterpret_cast< FieldMaskWrapper* >(object);
   (void)_this;
 }
-void FieldMaskWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void FieldMaskWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void FieldMaskWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1479,10 +1340,7 @@ const char* FieldMaskWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1535,10 +1393,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData FieldMaskWrapper::_class_data_
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*FieldMaskWrapper::GetClassData() const { return &_class_data_; }
 
-void FieldMaskWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<FieldMaskWrapper *>(to)->MergeFrom(
-      static_cast<const FieldMaskWrapper &>(from));
+void FieldMaskWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<FieldMaskWrapper *>(to)->MergeFrom(static_cast<const FieldMaskWrapper &>(from));
 }
 
 

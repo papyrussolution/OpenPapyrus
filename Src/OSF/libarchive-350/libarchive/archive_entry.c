@@ -306,7 +306,7 @@ const char * archive_entry_fflags_text(struct archive_entry * entry)
 			return (f);
 	}
 	else if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	if(entry->ae_fflags_set == 0 && entry->ae_fflags_clear == 0)
 		return NULL;
 	p = ae_fflagstostr(entry->ae_fflags_set, entry->ae_fflags_clear);
@@ -317,7 +317,7 @@ const char * archive_entry_fflags_text(struct archive_entry * entry)
 	if(archive_mstring_get_mbs(entry->archive, &entry->ae_fflags_text, &f) == 0)
 		return (f);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -332,7 +332,7 @@ const char * archive_entry_gname(struct archive_entry * entry)
 	if(archive_mstring_get_mbs(entry->archive, &entry->ae_gname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -342,7 +342,7 @@ const char * archive_entry_gname_utf8(struct archive_entry * entry)
 	if(archive_mstring_get_utf8(entry->archive, &entry->ae_gname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -352,7 +352,7 @@ const wchar_t * archive_entry_gname_w(struct archive_entry * entry)
 	if(archive_mstring_get_wcs(entry->archive, &entry->ae_gname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -369,7 +369,7 @@ const char * archive_entry_hardlink(struct archive_entry * entry)
 	if(archive_mstring_get_mbs(entry->archive, &entry->ae_hardlink, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -382,7 +382,7 @@ const char * archive_entry_hardlink_utf8(struct archive_entry * entry)
 		    entry->archive, &entry->ae_hardlink, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -395,7 +395,7 @@ const wchar_t * archive_entry_hardlink_w(struct archive_entry * entry)
 		    entry->archive, &entry->ae_hardlink, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -456,7 +456,7 @@ const char * archive_entry_pathname(struct archive_entry * entry)
 	if(archive_mstring_get_mbs(entry->archive, &entry->ae_pathname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -466,7 +466,7 @@ const char * archive_entry_pathname_utf8(struct archive_entry * entry)
 	if(archive_mstring_get_utf8(entry->archive, &entry->ae_pathname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -476,7 +476,7 @@ const wchar_t * archive_entry_pathname_w(struct archive_entry * entry)
 	if(archive_mstring_get_wcs(entry->archive, &entry->ae_pathname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -531,7 +531,7 @@ const char * archive_entry_sourcepath(struct archive_entry * entry)
 	if(archive_mstring_get_mbs(entry->archive, &entry->ae_sourcepath, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -552,7 +552,7 @@ const char * archive_entry_symlink(struct archive_entry * entry)
 		    entry->archive, &entry->ae_symlink, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -569,7 +569,7 @@ const char * archive_entry_symlink_utf8(struct archive_entry * entry)
 	if(archive_mstring_get_utf8(entry->archive, &entry->ae_symlink, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -581,7 +581,7 @@ const wchar_t * archive_entry_symlink_w(struct archive_entry * entry)
 	if(archive_mstring_get_wcs(entry->archive, &entry->ae_symlink, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -606,7 +606,7 @@ const char * archive_entry_uname(struct archive_entry * entry)
 	if(archive_mstring_get_mbs(entry->archive, &entry->ae_uname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -616,7 +616,7 @@ const char * archive_entry_uname_utf8(struct archive_entry * entry)
 	if(archive_mstring_get_utf8(entry->archive, &entry->ae_uname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -626,7 +626,7 @@ const wchar_t * archive_entry_uname_w(struct archive_entry * entry)
 	if(archive_mstring_get_wcs(entry->archive, &entry->ae_uname, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return NULL;
 }
 
@@ -712,7 +712,7 @@ int archive_entry_update_gname_utf8(struct archive_entry * entry, const char * n
 	    &entry->ae_gname, name) == 0)
 		return 1;
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return 0;
 }
 
@@ -781,7 +781,7 @@ int archive_entry_update_hardlink_utf8(struct archive_entry * entry, const char 
 	if(archive_mstring_update_utf8(entry->archive, &entry->ae_hardlink, target) == 0)
 		return 1;
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return 0;
 }
 
@@ -909,7 +909,7 @@ int archive_entry_update_link_utf8(struct archive_entry * entry, const char * ta
 	if(!r)
 		return 1;
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return 0;
 }
 
@@ -976,7 +976,7 @@ int archive_entry_update_pathname_utf8(struct archive_entry * entry, const char 
 	    &entry->ae_pathname, name) == 0)
 		return 1;
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return 0;
 }
 
@@ -1089,7 +1089,7 @@ int archive_entry_update_symlink_utf8(struct archive_entry * entry, const char *
 	    &entry->ae_symlink, linkname) == 0)
 		return 1;
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return 0;
 }
 
@@ -1135,7 +1135,7 @@ int archive_entry_update_uname_utf8(struct archive_entry * entry, const char * n
 	    &entry->ae_uname, name) == 0)
 		return 1;
 	if(errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return 0;
 }
 
@@ -1277,10 +1277,9 @@ int archive_entry_acl_next(struct archive_entry * entry, int want_type, int * ty
 {
 	int r = archive_acl_next(entry->archive, &entry->acl, want_type, type, permset, tag, id, name);
 	if(r == ARCHIVE_FATAL && errno == ENOMEM)
-		__archive_errx(1, "No memory");
+		__archive_errx(1, SlTxtOutOfMem);
 	return r;
 }
-
 /*
  * Generate a text version of the ACL. The flags parameter controls
  * the style of the generated ACL.

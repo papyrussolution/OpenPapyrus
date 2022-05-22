@@ -125,7 +125,7 @@ static void _cairo_test_init(cairo_test_context_t * ctx, const cairo_test_contex
 	ctx->ref_name = NULL;
 	ctx->ref_image = NULL;
 	ctx->ref_image_flattened = NULL;
-	if(parent != NULL) {
+	if(parent) {
 		ctx->targets_to_test = parent->targets_to_test;
 		ctx->num_targets = parent->num_targets;
 		ctx->limited_targets = parent->limited_targets;

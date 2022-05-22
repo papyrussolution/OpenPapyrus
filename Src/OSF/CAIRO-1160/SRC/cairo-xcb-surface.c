@@ -42,12 +42,6 @@
 #if CAIRO_HAS_XCB_SURFACE // {
 #include "cairo-xcb.h"
 #include "cairo-xcb-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-image-surface-inline.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-surface-backend-private.h"
-//#include "cairo-compositor-private.h"
 
 #if CAIRO_HAS_XLIB_XCB_FUNCTIONS
 slim_hidden_proto(cairo_xcb_surface_create);
@@ -987,7 +981,7 @@ cairo_surface_t * _cairo_xcb_surface_create_internal(cairo_xcb_screen_t * screen
     pixman_format_code_t pixman_format, xcb_render_pictformat_t xrender_format, int width, int height)
 {
 	cairo_xcb_surface_t * surface = _cairo_malloc(sizeof(cairo_xcb_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_xcb_surface_backend, &screen->connection->device, _cairo_content_from_pixman_format(pixman_format), FALSE/* is_vector */);
 	surface->connection = _cairo_xcb_connection_reference(screen->connection);

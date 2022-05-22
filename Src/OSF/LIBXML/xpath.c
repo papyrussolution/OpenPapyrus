@@ -1259,7 +1259,7 @@ static void xmlXPathDebugDumpStepOp(FILE * output, xmlXPathCompExprPtr comp, xml
 	shift[2 * i] = shift[2 * i + 1] = 0;
 
 	fprintf(output, "%s", shift);
-	if(op == NULL) {
+	if(!op) {
 		fprintf(output, "Step is NULL\n");
 		return;
 	}
@@ -10884,7 +10884,7 @@ static int xmlXPathNodeCollectAndTest(xmlXPathParserContext * ctxt, xmlXPathStep
 	 */
 	if(prefix) {
 		URI = xmlXPathNsLookup(xpctxt, prefix);
-		if(URI == NULL) {
+		if(!URI) {
 			xmlXPathReleaseObject(xpctxt, obj);
 			XP_ERROR0(XPATH_UNDEF_PREFIX_ERROR);
 		}
@@ -12125,7 +12125,7 @@ static int FASTCALL xmlXPathCompOpEval(xmlXPathParserContext * ctxt, xmlXPathSte
 			}
 			else {
 				const xmlChar * URI = xmlXPathNsLookup(ctxt->context, (const xmlChar *)op->value5);
-				if(URI == NULL) {
+				if(!URI) {
 					xmlGenericError(0, "xmlXPathCompOpEval: variable %s bound to undefined prefix %s\n", (char *)op->value4, (char *)op->value5);
 					ctxt->error = XPATH_UNDEF_PREFIX_ERROR;
 					return total;
@@ -12173,7 +12173,7 @@ static int FASTCALL xmlXPathCompOpEval(xmlXPathParserContext * ctxt, xmlXPathSte
 					func = xmlXPathFunctionLookup(ctxt->context, (const xmlChar *)op->value4);
 				else {
 					URI = xmlXPathNsLookup(ctxt->context, (const xmlChar *)op->value5);
-					if(URI == NULL) {
+					if(!URI) {
 						xmlGenericError(0, "xmlXPathCompOpEval: function %s bound to undefined prefix %s\n", (char *)op->value4, (char *)op->value5);
 						xmlXPathPopFrame(ctxt, frame);
 						ctxt->error = XPATH_UNDEF_PREFIX_ERROR;

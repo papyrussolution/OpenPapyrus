@@ -124,7 +124,7 @@ int PPTssModelPacket::Output(SString & rBuf) const
 	int    ok = 1;
 	SString temp_buf;
 	rBuf.Z();
-	//rBuf.CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0);
+	//rBuf.CatCurDateTime(DATF_ISO8601CENT, 0);
 	(temp_buf = Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 	rBuf.CR().CatChar('#').Cat(Rec.ID).Space().Cat(temp_buf);
 	if(Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart)
@@ -2578,7 +2578,7 @@ int PPObjTimeSeries::Export(PPID id)
 						ut.Get(t);
 						ts.GetValue(j, vec_idx, &v);
 						long td = j ? diffdatetimesec(t, t_prev) : 0;
-						line_buf.Z().Cat(t, DATF_ISO8601|DATF_CENTURY, 0).Tab().Cat(v, MKSFMTD(10, 5, 0)).Tab().Cat(td);
+						line_buf.Z().Cat(t, DATF_ISO8601CENT, 0).Tab().Cat(v, MKSFMTD(10, 5, 0)).Tab().Cat(td);
 						f_out.WriteLine(line_buf.CR());
 						t_prev = t;
 					}
@@ -7741,7 +7741,7 @@ int PrcssrTsStrategyAnalyze::Run()
 		SFile f_out_total(out_total_file_name, SFile::mAppend);
 		f_out.WriteLine(msg_buf.Z().CatCharN('-', 20).CR());
 		{
-			msg_buf.Z().CatCharN('=', 8).Space().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0).Space().CatCharN('=', 8);
+			msg_buf.Z().CatCharN('=', 8).Space().CatCurDateTime(DATF_ISO8601CENT, 0).Space().CatCharN('=', 8);
 			if(checkdate(P.UseDataForStrategiesTill))
 				msg_buf.CR().CatEq("p.use_data_for_strategies_till", P.UseDataForStrategiesTill, DATF_DMY|DATF_CENTURY);
 			if(checkdate(P.UseDataForStrategiesTill2)) // @v10.8.9
@@ -7760,8 +7760,8 @@ int PrcssrTsStrategyAnalyze::Run()
 						lastval_dtm = sc.GetLastValTm();
 						sver = sc.GetVersion();
 					}
-					msg_buf.Z().Cat(ts_pack.Rec.Symb).Space().Cat(sver).Space().Cat(strg_dtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
-						Cat(lastval_dtm, DATF_ISO8601|DATF_CENTURY);
+					msg_buf.Z().Cat(ts_pack.Rec.Symb).Space().Cat(sver).Space().Cat(strg_dtm, DATF_ISO8601CENT, 0).Space().
+						Cat(lastval_dtm, DATF_ISO8601CENT);
 					if(checkdate(ts_pack.E.UseDataForStrategiesSince))
 						msg_buf.Space().CatEq("UseDataForStrategiesSince", ts_pack.E.UseDataForStrategiesSince, DATF_DMY|DATF_CENTURY);
 					f_out.WriteLine(msg_buf.CR());
@@ -8444,7 +8444,7 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 								PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 								SFile f_out(out_file_name, SFile::mAppend);
 
-								msg_buf.Z().CatCharN('=', 8).Space().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0).Space().CatCharN('=', 8);
+								msg_buf.Z().CatCharN('=', 8).Space().CatCurDateTime(DATF_ISO8601CENT, 0).Space().CatCharN('=', 8);
 								f_out.WriteLine(msg_buf.CR());
 
 								tss_model.Output(msg_buf);
@@ -8452,7 +8452,7 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 
 								msg_buf.Z().Cat("Selected-Subset").CatDiv(':', 2).Cat("BC-LS").CatChar('-').Cat(p_result_entry->Sc.getCount());
 								if(checkdate(till_date))
-									msg_buf.Space().CatEq("UseDataForStrategiesTill", till_date, DATF_ISO8601|DATF_CENTURY);
+									msg_buf.Space().CatEq("UseDataForStrategiesTill", till_date, DATF_ISO8601CENT);
 								else 
 									till_date = ZERODATE;
 								f_out.WriteLine(msg_buf.CR());
@@ -8473,8 +8473,8 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 											const PPObjTimeSeries::Strategy & r_s = p_result_entry->Sc.at(r_dli.StrategyIdx);
 											PPObjTimeSeries::StrategyToString(r_s, &p_result_entry->Sc, &r_dli.OptFactor, &r_dli.OptFactor2, temp_buf);
 											msg_buf.Z().
-												Cat(r_dli.TmR.Start, DATF_ISO8601|DATF_CENTURY, 0).
-												Tab().Cat(r_dli.TmR.Finish, DATF_ISO8601|DATF_CENTURY, 0).
+												Cat(r_dli.TmR.Start, DATF_ISO8601CENT, 0).
+												Tab().Cat(r_dli.TmR.Finish, DATF_ISO8601CENT, 0).
 												Tab().Cat(r_dli.Result, MKSFMTD(0, 5, NMBF_FORCEPOS)).
 												Tab().Cat(r_dli.TrendErrRel, MKSFMTD(0, 4, 0));
 											if(r_s.MainFrameSize) // @v10.8.5
@@ -8528,7 +8528,7 @@ int PrcssrTsStrategyAnalyze::OutputTryStrategyContainerResult(TryStrategyContain
 		SString out_file_name;
 		SString symb;
 		PPTimeSeries ts_rec;
-		(temp_buf = "tsscsim").CatChar('-').Cat("collection").CatChar('-').CatCurDateTime(DATF_ISO8601|DATF_CENTURY, TIMF_HMS|TIMF_NODIV);
+		(temp_buf = "tsscsim").CatChar('-').Cat("collection").CatChar('-').CatCurDateTime(DATF_ISO8601CENT, TIMF_HMS|TIMF_NODIV);
 		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 		SFile f_out(out_file_name, SFile::mWrite);
 		rRc.GetTsList(result_ts_list);
@@ -8555,7 +8555,7 @@ int PrcssrTsStrategyAnalyze::OutputTryStrategyContainerResult(TryStrategyContain
 				{
 					if(prev_date && prev_date != r_dli.TmR.Start.d) {
 						msg_buf.Z().Cat("--------").
-						Tab().Cat(prev_date, DATF_ISO8601|DATF_CENTURY).
+						Tab().Cat(prev_date, DATF_ISO8601CENT).
 						Tab().Cat(stake_per_day).
 						Tab().Cat(win_per_day).
 						Tab().Cat(lose_per_day);
@@ -8579,8 +8579,8 @@ int PrcssrTsStrategyAnalyze::OutputTryStrategyContainerResult(TryStrategyContain
 					ideqvalstr(p_ri->TsID, symb);
 				msg_buf.Z().
 					Cat(symb).
-					Tab().Cat(r_dli.TmR.Start, DATF_ISO8601|DATF_CENTURY, TIMF_HM).
-					Tab().Cat(r_dli.TmR.Finish, DATF_ISO8601|DATF_CENTURY, TIMF_HM).
+					Tab().Cat(r_dli.TmR.Start, DATF_ISO8601CENT, TIMF_HM).
+					Tab().Cat(r_dli.TmR.Finish, DATF_ISO8601CENT, TIMF_HM).
 					Tab().Cat(r_dli.Result, MKSFMTD(0, 5, NMBF_FORCEPOS)).
 					Tab().Cat(r_dli.TrendErrRel, MKSFMTD(0, 4, 0));
 					if(r_dli.MainTrendErrRel > 0.0)
@@ -8593,7 +8593,7 @@ int PrcssrTsStrategyAnalyze::OutputTryStrategyContainerResult(TryStrategyContain
 		}
 		if(prev_date) {
 			msg_buf.Z().Cat("--------").
-			Tab().Cat(prev_date, DATF_ISO8601|DATF_CENTURY).
+			Tab().Cat(prev_date, DATF_ISO8601CENT).
 			Tab().Cat(stake_per_day).
 			Tab().Cat(win_per_day).
 			Tab().Cat(lose_per_day);
@@ -8903,7 +8903,7 @@ int PPViewTimSerDetail::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				Ts.GetTime(idx, &ut);
 				ut.Get(dtm);
 				SString & r_temp_buf = SLS.AcquireRvlStr();
-				r_temp_buf.Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
+				r_temp_buf.Cat(dtm, DATF_ISO8601CENT, 0);
 				pBlk->Set(r_temp_buf);
 			}
 			else if(pBlk->ColumnN == 2) {

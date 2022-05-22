@@ -25,7 +25,7 @@
 #define OPTYPE_STORNO         12   // Сторно строки
 #define OPTYPE_RETURN         13   // Возврат
 #define OPTYPE_CHKDISCOUNT    37   // Скидка на чек
-#define OPTYPE_CHKEXTRACHARGE 38 // Надбавка на чек
+#define OPTYPE_CHKEXTRACHARGE 38   // Надбавка на чек
 #define OPTYPE_PAYM1          40   // Оплата с вводом суммы клиента
 #define OPTYPE_PAYM2          41   // Оплата без ввода суммы клиента
 #define OPTYPE_CHKCLOSED      55   // Закрытие чека
@@ -50,15 +50,15 @@ protected:
 	int    UseInnerAutoDscnt;
 private:
 	int    ConvertWareList(const char * pImpPath, int numSmena);
-	DateRange    ChkRepPeriod;
-	PPIDArray    LogNumList;
-	SString      PathRpt;
-	SString      PathFlag;
-	int          ImpExpTimeout;
-	StringSet    ImpPaths;
-	StringSet    ExpPaths;
-	SString      ImportedFiles;
-	LAssocArray  ZRepList;
+	DateRange ChkRepPeriod;
+	PPIDArray LogNumList;
+	SString PathRpt;
+	SString PathFlag;
+	int    ImpExpTimeout;
+	StringSet ImpPaths;
+	StringSet ExpPaths;
+	SString ImportedFiles;
+	LAssocArray ZRepList;
 };
 
 class CM_SHTRIHMFRK : public PPCashMachine {
@@ -67,7 +67,7 @@ public:
 	PPAsyncCashSession * AsyncInterface() { return new ACS_SHTRIHMFRK(NodeID); }
 };
 
-REGISTER_CMT(SHTRIHMFRK, 0, 1);
+REGISTER_CMT(SHTRIHMFRK, false, true);
 
 ACS_SHTRIHMFRK::ACS_SHTRIHMFRK(PPID id) : PPAsyncCashSession(id), UseInnerAutoDscnt(0)
 {
@@ -111,37 +111,37 @@ int ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 					psn_name = 0;
 				scheme_id = card_rec.ID;
 				//
-				// Эскпорт схем автоматических скидок/надбавок
+				// Экспорт схем автоматических скидок/надбавок
 				//
 				{
 					temp_buf.Z().CatChar('!');
 					temp_buf.Cat(scheme_id).Semicol();                     // #1 Код схемы
 					temp_buf.Cat(card_rec.Code).Cat(psn_name).Semicol();   // #2 Название схемы
-					temp_buf.Cat(1L);                                         // #3 Применяется по карте
+					temp_buf.Cat(1L);                                      // #3 Применяется по карте
 					THROW_PP(fprintf(pFile, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 				}
 				//
-				// Эскпорт автоматических скидок/надбавок
+				// Экспорт автоматических скидок/надбавок
 				//
 				{
 					temp_buf.Z().CatChar('@');
-					temp_buf.Cat(scheme_id).Semicol();                                  // #1  Код схемы
-					temp_buf.Cat(card_rec.ID).Semicol();                                // #2  Код
-					temp_buf.Cat(psn_name).Semicol();                                   // #3  Наименование
-					temp_buf.Cat(1L).Cat(psn_name).Semicol();                           // #4  Тип скидки
-					temp_buf.Cat(1L).Semicol();                                         // #5  Вид скидки
-					temp_buf.Cat(fdiv100i(card_rec.PDis)).Semicol();					// #6  Размер скидки
-					temp_buf.Cat(psn_name).Semicol();                                   // #7  Текст для чека
-					temp_buf.Cat(card_rec.Dt, DATF_GERMAN|DATF_CENTURY).Semicol();      // #8  Начальная дата
-					temp_buf.Cat(card_rec.Expiry, DATF_GERMAN|DATF_CENTURY).Semicol();  // #9  Конечная дата
-					temp_buf.Cat("00:00:00").Semicol();                                 // #10 Начальное время //
-					temp_buf.Cat("24:00:00").Cat(psn_name).Semicol();                   // #11 Конечное время //
-					temp_buf.Cat(0L).Semicol();                                         // #12 Номер начального дня недели
-					temp_buf.Cat(7L).Semicol();                                         // #13 Номер конечного дня недели
-					temp_buf.Cat(0L).Semicol();                                         // #14 Начальное количество
-					temp_buf.Cat(0L).Semicol();                                         // #15 Конечное количество
-					temp_buf.Cat(0L).Cat(psn_name).Semicol();                           // #16 Начальная сумма
-					temp_buf.Cat(0L);                                                   // #17 Конечная сумма
+					temp_buf.Cat(scheme_id).Semicol();                         // #1  Код схемы
+					temp_buf.Cat(card_rec.ID).Semicol();                       // #2  Код
+					temp_buf.Cat(psn_name).Semicol();                          // #3  Наименование
+					temp_buf.Cat(1L).Cat(psn_name).Semicol();                  // #4  Тип скидки
+					temp_buf.Cat(1L).Semicol();                                // #5  Вид скидки
+					temp_buf.Cat(fdiv100i(card_rec.PDis)).Semicol();           // #6  Размер скидки
+					temp_buf.Cat(psn_name).Semicol();                          // #7  Текст для чека
+					temp_buf.Cat(card_rec.Dt, DATF_GERMANCENT).Semicol();      // #8  Начальная дата
+					temp_buf.Cat(card_rec.Expiry, DATF_GERMANCENT).Semicol();  // #9  Конечная дата
+					temp_buf.Cat("00:00:00").Semicol();                        // #10 Начальное время //
+					temp_buf.Cat("24:00:00").Cat(psn_name).Semicol();          // #11 Конечное время //
+					temp_buf.Cat(0L).Semicol();                                // #12 Номер начального дня недели
+					temp_buf.Cat(7L).Semicol();                                // #13 Номер конечного дня недели
+					temp_buf.Cat(0L).Semicol();                                // #14 Начальное количество
+					temp_buf.Cat(0L).Semicol();                                // #15 Конечное количество
+					temp_buf.Cat(0L).Cat(psn_name).Semicol();                  // #16 Начальная сумма
+					temp_buf.Cat(0L);                                          // #17 Конечная сумма
 					THROW_PP(fprintf(pFile, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 				}
 				//
@@ -159,9 +159,9 @@ int ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 					temp_buf.Cat(1L).Semicol();                       // #7 Не вести накоплений по карте
 					temp_buf.Semicol();                               // #8 Не используется //
 					temp_buf.Cat(0L).Semicol();                       // #9 Использовать как платежную
-					temp_buf.CatCharN(';', 3);                           // #10-#12 Не используется //
+					temp_buf.CatCharN(';', 3);                        // #10-#12 Не используется //
 					temp_buf.Cat(0L).Semicol();                       // #13 Код схемы накопительных скидок
-					temp_buf.CatCharN(';', 4);                           // #14-#18 Не используется //
+					temp_buf.CatCharN(';', 4);                        // #14-#18 Не используется //
 					THROW_PP(fprintf(pFile, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 				}
 			}
@@ -345,7 +345,7 @@ int ACS_SHTRIHMFRK::ExportData(int updOnly)
 					(psn_name = info.PsnName).Transf(CTRANSF_INNER_TO_OUTER).ReplaceChar(';', 0xA4);
 					scheme_id = info.Rec.ID;
 					//
-					// Эскпорт схем автоматических скидок/надбавок
+					// Экспорт схем автоматических скидок/надбавок
 					//
 					{
 						temp_buf.Z().CatChar('!');
@@ -355,28 +355,28 @@ int ACS_SHTRIHMFRK::ExportData(int updOnly)
 						THROW_PP(fprintf(p_file, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 					}
 					//
-					// Эскпорт автоматических скидок/надбавок
+					// Экспорт автоматических скидок/надбавок
 					//
 					{
 						temp_buf.Z().CatChar('@');
-						temp_buf.Cat(scheme_id).Semicol();                                  // #1  Код схемы
-						temp_buf.Cat(info.Rec.ID).Semicol();                                // #2  Код
-						temp_buf.Cat(psn_name).Semicol();                                   // #3  Наименование
-						temp_buf.Cat(1L).Cat(psn_name).Semicol();                           // #4  Тип скидки
-						temp_buf.Cat(1L).Semicol();                                         // #5  Вид скидки
-						temp_buf.Cat(fdiv100i(info.Rec.PDis)).Semicol();                    // #6  Размер скидки
-						temp_buf.Cat(psn_name).Semicol();                                   // #7  Текст для чека
-						temp_buf.Cat(info.Rec.Dt, DATF_GERMAN|DATF_CENTURY).Semicol();      // #8  Начальная дата
-						temp_buf.Cat(info.Rec.Expiry, DATF_GERMAN|DATF_CENTURY).Semicol();  // #9  Конечная дата
-						temp_buf.Cat("00:00:00").Semicol();                                 // #10 Начальное время //
-						temp_buf.Cat("24:00:00").Cat(psn_name).Semicol();                   // #11 Конечное время //
-						temp_buf.Cat(0L).Semicol();                                         // #12 Номер начального дня недели
-						temp_buf.Cat(7L).Semicol();                                         // #13 Номер конечного дня недели
-						temp_buf.Cat(0L).Semicol();                                         // #14 Начальное количество
-						temp_buf.Cat(0L).Semicol();                                         // #15 Конечное количество
-						temp_buf.Cat(0L).Cat(psn_name).Semicol();                           // #16 Начальная сумма
-						temp_buf.Cat(0L);                                                   // #17 Конечная сумма
-						temp_buf.Cat(ser_rec.QuotKindID_s);                                 // #18 Код дополнительной цены
+						temp_buf.Cat(scheme_id).Semicol();                         // #1  Код схемы
+						temp_buf.Cat(info.Rec.ID).Semicol();                       // #2  Код
+						temp_buf.Cat(psn_name).Semicol();                          // #3  Наименование
+						temp_buf.Cat(1L).Cat(psn_name).Semicol();                  // #4  Тип скидки
+						temp_buf.Cat(1L).Semicol();                                // #5  Вид скидки
+						temp_buf.Cat(fdiv100i(info.Rec.PDis)).Semicol();           // #6  Размер скидки
+						temp_buf.Cat(psn_name).Semicol();                          // #7  Текст для чека
+						temp_buf.Cat(info.Rec.Dt, DATF_GERMANCENT).Semicol();      // #8  Начальная дата
+						temp_buf.Cat(info.Rec.Expiry, DATF_GERMANCENT).Semicol();  // #9  Конечная дата
+						temp_buf.Cat("00:00:00").Semicol();                        // #10 Начальное время //
+						temp_buf.Cat("24:00:00").Cat(psn_name).Semicol();          // #11 Конечное время //
+						temp_buf.Cat(0L).Semicol();                                // #12 Номер начального дня недели
+						temp_buf.Cat(7L).Semicol();                                // #13 Номер конечного дня недели
+						temp_buf.Cat(0L).Semicol();                                // #14 Начальное количество
+						temp_buf.Cat(0L).Semicol();                                // #15 Конечное количество
+						temp_buf.Cat(0L).Cat(psn_name).Semicol();                  // #16 Начальная сумма
+						temp_buf.Cat(0L);                                          // #17 Конечная сумма
+						temp_buf.Cat(ser_rec.QuotKindID_s);                        // #18 Код дополнительной цены
 						THROW_PP(fprintf(p_file, p_format, temp_buf.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 					}
 					//

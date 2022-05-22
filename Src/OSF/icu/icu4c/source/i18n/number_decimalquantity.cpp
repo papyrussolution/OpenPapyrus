@@ -1046,13 +1046,12 @@ UnicodeString DecimalQuantity::toScientificString() const {
 	}
 	return result;
 }
-
-////////////////////////////////////////////////////
-/// End of DecimalQuantity_AbstractBCD.java      ///
-/// Start of DecimalQuantity_DualStorageBCD.java ///
-////////////////////////////////////////////////////
-
-int8 DecimalQuantity::getDigitPos(int32_t position) const {
+//
+// End of DecimalQuantity_AbstractBCD.java
+// Start of DecimalQuantity_DualStorageBCD.java
+//
+int8 DecimalQuantity::getDigitPos(int32_t position) const 
+{
 	if(usingBytes) {
 		if(position < 0 || position >= precision) {
 			return 0;

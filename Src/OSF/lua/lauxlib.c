@@ -650,7 +650,7 @@ LUALIB_API int luaL_loadfilex(lua_State * L, const char * filename,
 	int status, readstatus;
 	int c;
 	int fnameindex = lua_gettop(L) + 1; /* index of filename on the stack */
-	if(filename == NULL) {
+	if(!filename) {
 		lua_pushliteral(L, "=stdin");
 		lf.f = stdin;
 	}
@@ -792,7 +792,7 @@ static const char * luaL_findtable(lua_State * L, int idx, const char * fname, i
 	if(idx) lua_pushvalue(L, idx);
 	do {
 		e = sstrchr(fname, '.');
-		if(e == NULL) e = fname + strlen(fname);
+		if(!e) e = fname + strlen(fname);
 		lua_pushlstring(L, fname, e - fname);
 		if(lua_rawget(L, -2) == LUA_TNIL) { /* no such field? */
 			lua_pop(L, 1); /* remove this nil */

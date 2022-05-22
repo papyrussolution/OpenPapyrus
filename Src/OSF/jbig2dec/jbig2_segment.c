@@ -34,7 +34,7 @@ Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8_t * buf, size_t 
 	if(buf_size < 11)
 		return NULL;
 	result = jbig2_new(ctx, Jbig2Segment, 1);
-	if(result == NULL) {
+	if(!result) {
 		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate segment");
 		return NULL;
 	}

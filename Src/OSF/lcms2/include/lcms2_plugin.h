@@ -127,7 +127,7 @@ CMSAPI void /*CMSEXPORT*/FASTCALL _cmsAdjustEndianess64(uint64* Result, uint64* 
 // Helper IO functions
 CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsReadUInt8Number(cmsIOHANDLER* io,  uint8 * n);
 CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsReadUInt16Number(cmsIOHANDLER* io, uint16* n);
-CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsReadUInt32Number(cmsIOHANDLER* io, uint32* n);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsReadUInt32Number(cmsIOHANDLER* io, uint32 * n);
 CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsReadFloat32Number(cmsIOHANDLER* io, float* n);
 CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsReadUInt64Number(cmsIOHANDLER* io, uint64* n);
 CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsRead15Fixed16Number(cmsIOHANDLER* io, double * n);
@@ -165,13 +165,9 @@ CMSAPI cmsS15Fixed16Number CMSEXPORT _cmsDoubleTo15Fixed16(double v);
 CMSAPI void CMSEXPORT _cmsEncodeDateTimeNumber(cmsDateTimeNumber * Dest, const struct tm * Source);
 CMSAPI void CMSEXPORT _cmsDecodeDateTimeNumber(const cmsDateTimeNumber * Source, struct tm * Dest);
 
-//----------------------------------------------------------------------------------------------------------
-
 // Shared callbacks for user data
 typedef void (* _cmsFreeUserDataFn)(cmsContext ContextID, void * Data);
 typedef void *    (* _cmsDupUserDataFn)(cmsContext ContextID, const void * Data);
-
-//----------------------------------------------------------------------------------------------------------
 
 // Plug-in foundation
 #define cmsPluginMagicNumber                 0x61637070     // 'acpp'
@@ -195,10 +191,7 @@ typedef struct _cmsPluginBaseStruct {
 	struct _cmsPluginBaseStruct*   Next;                // For multiple plugin definition. NULL for end of list.
 } cmsPluginBase;
 
-// Maximum number of types in a plugin array
-#define MAX_TYPES_IN_LCMS_PLUGIN    20
-
-//----------------------------------------------------------------------------------------------------------
+#define MAX_TYPES_IN_LCMS_PLUGIN    20 // Maximum number of types in a plugin array
 
 // Memory handler. Each new plug-in type replaces current behaviour
 
@@ -329,7 +322,7 @@ typedef struct _cms_typehandler_struct {
 	// Allocates and reads items
 	void *   (*ReadPtr)(struct _cms_typehandler_struct* self,
 	cmsIOHANDLER*      io,
-	uint32*   nItems,
+	uint32 *   nItems,
 	uint32 SizeOfTag);
 	// Writes n Items
 	boolint (* WritePtr)(struct _cms_typehandler_struct* self, cmsIOHANDLER*     io, void *  Ptr, uint32 nItems);
@@ -442,8 +435,8 @@ typedef struct {
 // to the rest of optimizers.
 //
 typedef void (* _cmsOPTeval16Fn)(const uint16 In[], uint16 Out[], const void * Data);
-typedef boolint (* _cmsOPToptimizeFn)(cmsPipeline ** Lut, uint32 Intent, uint32* InputFormat,
-    uint32* OutputFormat, uint32* dwFlags);
+typedef boolint (* _cmsOPToptimizeFn)(cmsPipeline ** Lut, uint32 Intent, uint32 * InputFormat,
+    uint32 * OutputFormat, uint32 * dwFlags);
 
 // This function may be used to set the optional evaluator and a block of private data. If private data is being used,
 // an optional
@@ -473,9 +466,9 @@ typedef void (* _cmsTransformFn)(struct _cmstransform_struct * CMMcargo, // Lega
 typedef void (* _cmsTransform2Fn)(struct _cmstransform_struct * CMMcargo, const void * InputBuffer, void * OutputBuffer,
     uint32 PixelsPerLine, uint32 LineCount, const cmsStride* Stride);
 typedef boolint (* _cmsTransformFactory)(_cmsTransformFn* xform, void ** UserData, _cmsFreeUserDataFn* FreePrivateDataFn,
-    cmsPipeline ** Lut, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags);
+    cmsPipeline ** Lut, uint32 * InputFormat, uint32 * OutputFormat, uint32 * dwFlags);
 typedef boolint (* _cmsTransform2Factory)(_cmsTransform2Fn* xform, void ** UserData, _cmsFreeUserDataFn* FreePrivateDataFn,
-    cmsPipeline ** Lut, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags);
+    cmsPipeline ** Lut, uint32 * InputFormat, uint32 * OutputFormat, uint32 * dwFlags);
 
 // Retrieve user data as specified by the factory
 CMSAPI void CMSEXPORT _cmsSetTransformUserData(struct _cmstransform_struct * CMMcargo, void * ptr, _cmsFreeUserDataFn FreePrivateDataFn);

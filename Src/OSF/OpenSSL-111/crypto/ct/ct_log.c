@@ -8,11 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/conf.h>
-//#include <openssl/ct.h>
-//#include <openssl/err.h>
-//#include <openssl/evp.h>
-//#include <openssl/safestack.h>
 /*
  * Information about a CT log server.
  */

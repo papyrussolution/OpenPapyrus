@@ -33,9 +33,6 @@
 
 #if defined(NEED_ERRNO)
 
-//#include "pthread.h"
-//#include "implement.h"
-
 static int reallyBad = ENOMEM;
 /*
  * Re-entrant errno.

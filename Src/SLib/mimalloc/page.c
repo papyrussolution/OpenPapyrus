@@ -66,7 +66,7 @@ static bool mi_page_list_is_valid(mi_page_t* page, mi_block_t* p)
 	uint8_t* page_area = _mi_page_start(_mi_page_segment(page), page, &psize);
 	mi_block_t* start = (mi_block_t*)page_area;
 	mi_block_t* end   = (mi_block_t*)(page_area + psize);
-	while(p != NULL) {
+	while(p) {
 		if(p < start || p >= end) return false;
 		p = mi_block_next(page, p);
 	}

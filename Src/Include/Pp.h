@@ -2246,6 +2246,7 @@ public:
 
 	explicit PPIniFile(const char * pFileName, int fcreate = 0, int winCoding = 0, int useIniBuf = 0);
 	PPIniFile();
+	~PPIniFile();
 	int    GetEntryList(uint sectId, StringSet * pEntries, int storeAllString = 0);
 	int    Get(uint sectId, uint paramId, SString & rBuf);
 	int    Get(uint sectId, const char * pParamName, SString & rBuf);
@@ -6323,13 +6324,21 @@ public:
 	//
 	int    Ack(uint64 deliveryTag, long flags /*mqofMultiple*/);
 	int    Reject(uint64 deliveryTag, long flags /*mqofRequeue*/);
+	// 
+	// Descr: Специальные флаги статусов
+	//
+	enum {
+		extsfTryToReconnect = 0x0001 // Соединение "мертвое" - необходимо попытаться восстановить
+	};
+	void   SetExtStatusFlag(uint f);
+	bool   GetExtStatusFlag(uint f) const;
 private:
 	static int  FASTCALL ProcessAmqpRpcReply(const amqp_rpc_reply_t & rR);
 	int    VerifyRpcReply();
 	void * P_Conn;
 	void * P_Sock;
 	uint16 ChannelN; // amqp_channel_t
-	uint16 Reserve; // @alignment
+	uint16 ExtStatusFlags; // @v11.3.12 extsfXXX Специальные флаги статусов, устанавливаемые из-вне.
 	SString Host;
 	int    Port;
 	SStrCollection ConsumeTagList; // @v11.2.2
@@ -8466,6 +8475,7 @@ private:
 #define DBMSG_WAREHOUSEADDED     9
 #define DBMSG_DUMMY             10 // Пустое сообщение, необходимое для того, чтобы все объекты данных создали необходимые таблицы в БД.
 #define DBMSG_GLOBALACCADDED    11 // Посылается при создании новой глобальной учетной записи
+#define DBMSG_PROCESSORADDED    12 // @v11.3.12 Посылается при создании нового процессора
 //
 // Object message reply codes
 //
@@ -20301,7 +20311,7 @@ public:
 
 struct PPAccSheet2 {       // @persistent @store(Reference2Tbl+)
 	PPAccSheet2();
-	void   Init();
+	PPAccSheet2 & Z();
 
 	long   Tag;            // Const=PPOBJ_ACCSHEET
 	long   ID;             // @id
@@ -20983,7 +20993,7 @@ public:
 	friend class CmLocking;
 
 	static PPCashMachine * CreateInstance(PPID cashID);
-	static int RegisterMachine(PPID, RegCashMachineFunc, int _sync, int _async);
+	static int RegisterMachine(PPID, RegCashMachineFunc, bool _sync, bool _async);
 	static int IsSyncCMT(PPID cmtID);
 	static int IsAsyncCMT(PPID cmtID);
 	virtual ~PPCashMachine();
@@ -21836,10 +21846,7 @@ public:
 	//  >0 - функция выполнена (не обязательно успешно - это определяется результатом rResult)
 	//   0 - ошибка при выполнении запроса
 	//
-	virtual int    PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult)
-	{
-		return -1;
-	}
+	virtual int    PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) { return -1; }
 	//
 	// Функции кассового аппарата уровня приложения //
 	//
@@ -21858,6 +21865,7 @@ public:
 	virtual int GetDeviceTime(LDATETIME * pDtm) { ASSIGN_PTR(pDtm, ZERODATETIME); return -1; }
 	virtual int GetSummator(double * val) { return -1; }
 	virtual int EnableCashKeyb(int) { return -1; }
+	virtual int OpenSession(PPID sessID) { return -1; } // @v11.3.12
 	virtual int CloseSession(PPID sessID) { return -1; }
 	virtual int GetPrintErrCode() { return 0; }
 	virtual int OpenBox() { return -1; }
@@ -28266,6 +28274,7 @@ public:
 	int    GetByPerson(PPID accSheetID, PPID psnID, PPID * pArID);
 	int    GetRelPersonList(PPID arID, PPID relTypeID, int reverse, PPIDArray * pList);
 	int    GetRelPersonSingle(PPID arID, PPID relTypeID, int reverse, PPID * pRelID);
+	int    GetByProcessor(PPID accSheetID, PPID prcID, PPIDArray * pArList);
 	//
 	static int ConvertClientAgreements_11200(Reference * pRef, int use_ta);
 private:
@@ -46576,9 +46585,10 @@ public:
 	enum {
 		styloqfMediator         = 0x0001, // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
 			// записи после получения соответствующей информации от сервиса-медиатора
-		styloqfDocFinished      = 0x0002, // @v11.3.12 Для документа: цикл обработки для документа завершен
-		styloqfDocWaitForOrdrsp = 0x0004, // @v11.3.12 Для документа заказа: ожидает подтверждения заказа
-		styloqfDocWaitForDesadv = 0x0008  // @v11.3.12 Для документа заказа: ожидает документа отгрузки
+		styloqfDocFinished      = 0x0002, // @v11.3.12 Для документа: цикл обработки для документа завершен. Не может содержать флаги (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft)
+		styloqfDocWaitForOrdrsp = 0x0004, // @v11.3.12 Для документа заказа: ожидает подтверждения заказа. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
+		styloqfDocWaitForDesadv = 0x0008, // @v11.3.12 Для документа заказа: ожидает документа отгрузки. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
+		styloqfDocDraft         = 0x0010  // @v11.3.12 Для документа: драфт-версия. Не может содержать флаги (styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
 	};
 	//
 	// Descr: Типы документов, хранящихся в реестре Stylo-Q
@@ -46600,6 +46610,10 @@ public:
 	};
 	struct StoragePacket {
 		bool   FASTCALL IsEq(const StoragePacket & rS) const;
+		bool   IsValid() const;
+		bool   SetDocStatus_Draft();
+		bool   SetDocStatus_Finished();
+		bool   SetDocStatus_Intermediate(int flags);
 		int    GetFace(int tag, StyloQFace & rF) const;
 		StyloQSecTbl::Rec Rec;
 		SSecretTagPool Pool;
@@ -46670,7 +46684,9 @@ public:
 	StyloQAttendancePrereqParam(const StyloQAttendancePrereqParam & rS);
 	StyloQAttendancePrereqParam & FASTCALL operator = (const StyloQAttendancePrereqParam & rS);
 
-	uint8  ReserveStart[60]; // @reserve
+	uint8  ReserveStart[52]; // @reserve
+	int32  LocID;            // @v11.3.12 Склад (для идентификации процессоров и котировок)
+	int32  QuotKindID;       // @v11.3.12 Вид котировки для определения цены услуги     
 	int32  MaxScheduleDays;  // @v11.3.10 Максимальное количество дней от текущего, доступные для заказа услуги
 	ObjIdListFilt PrcList;   // @anchor 
 	SString PrcTitle;        // Строка, используемая для именования процессоров (мастера, врачи и т.д.)
@@ -47142,7 +47158,7 @@ private:
 	};
 	int    AddImgBlobToReqBlobInfoList(const SBinaryChunk & rOwnIdent, PPObjID oid, Stq_ReqBlobInfoList & rList);
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
-	int    ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos);
+	int    ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos);
 	int    ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
 		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration);
 	int    ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
@@ -47159,7 +47175,7 @@ private:
 	//    //0 - ошибка
 	//
 	SJson * ProcessCommand_PostDocument(const SBinaryChunk & rOwnIdent, const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument, PPID * pResultID);
-	SJson * MakeRsrvAttendancePrereqResponse_Prc(const SBinaryChunk & rOwnIdent, PPID prcID, PPObjTSession & rTSesObj, long maxScheduleDays, 
+	SJson * MakeRsrvAttendancePrereqResponse_Prc(const SBinaryChunk & rOwnIdent, PPID prcID, PPID mainQuotKindID, PPObjTSession & rTSesObj, long maxScheduleDays, 
 		LAssocArray * pGoodsToPrcList, Stq_CmdStat_MakeRsrv_Response * pStat);
 	//
 	// Returns:
@@ -47427,9 +47443,9 @@ private:
 	SString DescrParam;
 	SString ModifDtParam;
 
-	ReportFilt      Filt;
-	PPIniFile  * P_StdRptFile;
-	PPIniFile  * P_RptFile;
+	ReportFilt Filt;
+	PPIniFile * P_StdRptFile;
+	PPIniFile * P_RptFile;
 	TempReportTbl * P_TempTbl;
 };
 //
@@ -56485,7 +56501,15 @@ void   FASTCALL PPWaitDate(LDATE);
 int    PPCheckUserBreak();
 int    SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFilt & rList);
 int    STDCALL BarcodeInputDialog(int initChar, SString & rBuf);
-int    STDCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes);
+//
+// Descr: Устанавливает список баз данных в комбо-бокс ctl диалога dlg.
+// ARG(dlg IN): указатель на диалог, в котором находится комбо-бок
+// ARG(ctl IN): идентификатор комбо-бокса
+// ARG(pDbes IN): контейнер, содержащий список дескрипторов баз данных
+// ARG(pDbeIdxList IN): опциональный массив индексов (позиций) дескрипторов баз данных из контейнера pDbes подлежащих выбору.
+//   Значения индексов в этом массиве начинаются с единицы. То есть, индекс 1 соответствует 0-му элементу pDbes.
+//
+int    STDCALL SetupDBEntryComboBox(TDialog * dlg, uint ctl, const PPDbEntrySet2 * pDbes, const LongArray * pDbesIdxList);
 int    STDCALL SetupDBTableComboBox(TDialog * dlg, uint ctl, PPDbEntrySet2 * pDbes, long dbID, BTBLID tblID);
 int    EditAccTurnTemplate(PPObjAccTurn*, PPAccTurnTempl *);
 //
@@ -56501,7 +56525,7 @@ int    EditAccTurnTemplate(PPObjAccTurn*, PPAccTurnTempl *);
 int    EditGoodsBill(PPBillPacket * pPack, long egbFlags);
 int    GetScaleData(PPID scaleID, TIDlgInitData * pData = 0);
 int    GetDefScaleData(TIDlgInitData * pData = 0);
-int    EditTransferItem(PPBillPacket *, int itemNo, TIDlgInitData *, const PPTransferItem * pOrder = 0, int sign = 0);
+int    EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData *, const PPTransferItem * pOrder = 0, int sign = 0);
 //
 // Descr: Вызывает диалог редактирования списка штатных сумм
 // ARG(pData IN/OUT): @#{vptr} Список сумм, который необходимо редактировать

@@ -42,7 +42,7 @@ public:
 	PPAsyncCashSession * AsyncInterface() { return new ACS_EL92AQ(NodeID); }
 };
 
-REGISTER_CMT(EL92AQ,0,1);
+REGISTER_CMT(EL92AQ, false, true);
 
 int ACS_EL92AQ::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {

@@ -123,9 +123,7 @@ ABSL_CACHELINE_ALIGNED static RandenPoolEntry* shared_pools[kPoolSize];
 // different. However, as other thread IDs are not assigned sequentially,
 // this is not expected to matter.
 int GetPoolID() {
-	static_assert(kPoolSize >= 1,
-	    "At least one urbg instance is required for PoolURBG");
-
+	static_assert(kPoolSize >= 1, "At least one urbg instance is required for PoolURBG");
 	ABSL_CONST_INIT static std::atomic<int64_t> sequence{0};
 
 #ifdef ABSL_HAVE_THREAD_LOCAL

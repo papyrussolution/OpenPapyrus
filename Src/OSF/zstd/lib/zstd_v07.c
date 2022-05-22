@@ -272,7 +272,7 @@ MEM_STATIC uint MEM_isLittleEndian()
 /* violates C standard, by lying on structure alignment.
    Only use if no other choice to achieve best performance on target platform */
 MEM_STATIC uint16 MEM_read16(const void* memPtr) { return *(const uint16*)memPtr; }
-MEM_STATIC uint32 MEM_read32(const void* memPtr) { return *(const uint32*)memPtr; }
+MEM_STATIC uint32 MEM_read32(const void* memPtr) { return *(const uint32 *)memPtr; }
 MEM_STATIC uint64 MEM_read64(const void* memPtr) { return *(const uint64*)memPtr; }
 MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { *(uint16*)memPtr = value; }
 
@@ -986,7 +986,7 @@ size_t HUFv07_decompress1X4_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize,
     `huffWeight` is destination buffer.
     @return : size read from `src` , or an error Code .
     Note : Needed by HUFv07_readCTable() and HUFv07_readDTableXn() . */
-size_t HUFv07_readStats(BYTE * huffWeight, size_t hwSize, uint32* rankStats, uint32* nbSymbolsPtr, uint32* tableLogPtr, const void* src, size_t srcSize);
+size_t HUFv07_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats, uint32 * nbSymbolsPtr, uint32 * tableLogPtr, const void* src, size_t srcSize);
 
 /*
    HUFv07_decompress() does the following:
@@ -1157,8 +1157,8 @@ size_t FSEv07_readNCount(short * normalizedCounter, uint * maxSVPtr, uint * tabl
     @return : size read from `src` , or an error Code .
     Note : Needed by HUFv07_readCTable() and HUFv07_readDTableXn() .
  */
-size_t HUFv07_readStats(BYTE * huffWeight, size_t hwSize, uint32* rankStats,
-    uint32* nbSymbolsPtr, uint32* tableLogPtr,
+size_t HUFv07_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats,
+    uint32 * nbSymbolsPtr, uint32 * tableLogPtr,
     const void* src, size_t srcSize)
 {
 	uint32 weightTotal;
@@ -1308,7 +1308,7 @@ typedef uint DTable_max_t[FSEv07_DTABLE_SIZE_U32(FSEv07_MAX_TABLELOG)]; // @sobo
 FSEv07_DTable* FSEv07_createDTable(uint tableLog)
 {
 	SETMIN(tableLog, FSEv07_TABLELOG_ABSOLUTE_MAX);
-	return (FSEv07_DTable *)SAlloc::M(FSEv07_DTABLE_SIZE_U32(tableLog) * sizeof(/*uint32*/FSEv07_DTable));
+	return (FSEv07_DTable *)SAlloc::M(FSEv07_DTABLE_SIZE_U32(tableLog) * sizeof(/*uint32 */FSEv07_DTable));
 }
 
 void FSEv07_freeDTable(FSEv07_DTable* dt) { SAlloc::F(dt); }
@@ -1866,7 +1866,7 @@ typedef struct { uint16 sequence; BYTE nbBits; BYTE length; } HUFv07_DEltX4;  /*
 typedef struct { BYTE symbol; BYTE weight; } sortedSymbol_t;
 
 static void HUFv07_fillDTableX4Level2(HUFv07_DEltX4* DTable, uint32 sizeLog, const uint32 consumed,
-    const uint32* rankValOrigin, const int minWeight,
+    const uint32 * rankValOrigin, const int minWeight,
     const sortedSymbol_t* sortedSymbols, const uint32 sortedListSize,
     uint32 nbBitsBaseline, uint16 baseSeq)
 {
@@ -1912,7 +1912,7 @@ typedef uint32 rankVal_t[HUFv07_TABLELOG_ABSOLUTEMAX][HUFv07_TABLELOG_ABSOLUTEMA
 
 static void HUFv07_fillDTableX4(HUFv07_DEltX4* DTable, const uint32 targetLog,
     const sortedSymbol_t* sortedList, const uint32 sortedListSize,
-    const uint32* rankStart, rankVal_t rankValOrigin, const uint32 maxWeight,
+    const uint32 * rankStart, rankVal_t rankValOrigin, const uint32 maxWeight,
     const uint32 nbBitsBaseline)
 {
 	uint32 rankVal[HUFv07_TABLELOG_ABSOLUTEMAX + 1];
@@ -1959,7 +1959,7 @@ size_t HUFv07_readDTableX4(HUFv07_DTable* DTable, const void* src, size_t srcSiz
 	sortedSymbol_t sortedSymbol[HUFv07_SYMBOLVALUE_MAX + 1];
 	uint32 rankStats[HUFv07_TABLELOG_ABSOLUTEMAX + 1] = { 0 };
 	uint32 rankStart0[HUFv07_TABLELOG_ABSOLUTEMAX + 2] = { 0 };
-	uint32* const rankStart = rankStart0+1;
+	uint32 * const rankStart = rankStart0+1;
 	rankVal_t rankVal;
 	uint32 tableLog, maxW, sizeOfSort, nbSymbols;
 	DTableDesc dtd = HUFv07_getDTableDesc(DTable);
@@ -2006,7 +2006,7 @@ size_t HUFv07_readDTableX4(HUFv07_DTable* DTable, const void* src, size_t srcSiz
 	}
 	/* Build rankVal */
 	{   
-		uint32* const rankVal0 = rankVal[0];
+		uint32 * const rankVal0 = rankVal[0];
 	    {   
 			int const rescale = (maxTableLog-tableLog) - 1;/* tableLog <= maxTableLog */
 			uint32 nextRankVal = 0;
@@ -2019,7 +2019,7 @@ size_t HUFv07_readDTableX4(HUFv07_DTable* DTable, const void* src, size_t srcSiz
 	    {
 			const uint32 minBits = tableLog+1 - maxW;
 			for(uint32 consumed = minBits; consumed < maxTableLog - minBits + 1; consumed++) {
-				uint32* const rankValPtr = rankVal[consumed];
+				uint32 * const rankValPtr = rankVal[consumed];
 				for(uint32 w = 1; w < maxW+1; w++) {
 					rankValPtr[w] = rankVal0[w] >> consumed;
 				}
@@ -2622,8 +2622,8 @@ struct ZSTDv07_stats_s { uint32 unused; };
 
 typedef struct {
 	void* buffer;
-	uint32*  offsetStart;
-	uint32*  offset;
+	uint32 *  offsetStart;
+	uint32 *  offset;
 	BYTE * offCodeStart;
 	BYTE * litStart;
 	BYTE * lit;
@@ -2638,10 +2638,10 @@ typedef struct {
 	/* opt */
 	ZSTDv07_optimal_t* priceTable;
 	ZSTDv07_match_t* matchTable;
-	uint32* matchLengthFreq;
-	uint32* litLengthFreq;
-	uint32* litFreq;
-	uint32* offCodeFreq;
+	uint32 * matchLengthFreq;
+	uint32 * litLengthFreq;
+	uint32 * litFreq;
+	uint32 * offCodeFreq;
 	uint32 matchLengthSum;
 	uint32 matchSum;
 	uint32 litLengthSum;

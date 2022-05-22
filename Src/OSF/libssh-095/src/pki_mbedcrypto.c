@@ -561,7 +561,7 @@ ssh_string make_ecpoint_string(const mbedtls_ecp_group * g, const
 	int rc;
 
 	s = ssh_string_new(len);
-	if(s == NULL) {
+	if(!s) {
 		return NULL;
 	}
 
@@ -571,7 +571,7 @@ ssh_string make_ecpoint_string(const mbedtls_ecp_group * g, const
 		SSH_STRING_FREE(s);
 
 		s = ssh_string_new(len);
-		if(s == NULL) {
+		if(!s) {
 			return NULL;
 		}
 
@@ -656,7 +656,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 		    rsa = mbedtls_pk_rsa(*key->rsa);
 
 		    e = ssh_make_bignum_string(&rsa->E);
-		    if(e == NULL) {
+		    if(!e) {
 			    goto fail;
 		    }
 
@@ -701,7 +701,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 
 		    e = make_ecpoint_string(&key->ecdsa->grp, &key->ecdsa->Q);
 
-		    if(e == NULL) {
+		    if(!e) {
 			    SSH_BUFFER_FREE(buffer);
 			    return NULL;
 		    }
@@ -727,7 +727,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 	}
 makestring:
 	str = ssh_string_new(ssh_buffer_get_len(buffer));
-	if(str == NULL) {
+	if(!str) {
 		goto fail;
 	}
 
@@ -773,7 +773,7 @@ ssh_string pki_signature_to_blob(const ssh_signature sig)
 		    }
 
 		    r = ssh_make_bignum_string(sig->ecdsa_sig.r);
-		    if(r == NULL) {
+		    if(!r) {
 			    SSH_BUFFER_FREE(b);
 			    return NULL;
 		    }
@@ -786,7 +786,7 @@ ssh_string pki_signature_to_blob(const ssh_signature sig)
 		    }
 
 		    s = ssh_make_bignum_string(sig->ecdsa_sig.s);
-		    if(s == NULL) {
+		    if(!s) {
 			    SSH_BUFFER_FREE(b);
 			    return NULL;
 		    }
@@ -896,7 +896,7 @@ ssh_signature pki_signature_from_blob(const ssh_key pubkey,
 	}
 
 	sig = ssh_signature_new();
-	if(sig == NULL) {
+	if(!sig) {
 		return NULL;
 	}
 
@@ -907,7 +907,7 @@ ssh_signature pki_signature_from_blob(const ssh_key pubkey,
 	switch(type) {
 		case SSH_KEYTYPE_RSA:
 		    sig = pki_signature_from_rsa_blob(pubkey, sig_blob, sig);
-		    if(sig == NULL) {
+		    if(!sig) {
 			    return NULL;
 		    }
 		    break;
@@ -935,7 +935,7 @@ ssh_signature pki_signature_from_blob(const ssh_key pubkey,
 		    }
 
 		    r = ssh_buffer_get_ssh_string(b);
-		    if(r == NULL) {
+		    if(!r) {
 			    SSH_BUFFER_FREE(b);
 			    ssh_signature_free(sig);
 			    return NULL;
@@ -955,7 +955,7 @@ ssh_signature pki_signature_from_blob(const ssh_key pubkey,
 		    s = ssh_buffer_get_ssh_string(b);
 		    rlen = ssh_buffer_get_len(b);
 		    SSH_BUFFER_FREE(b);
-		    if(s == NULL) {
+		    if(!s) {
 			    ssh_signature_free(sig);
 			    return NULL;
 		    }
@@ -1024,7 +1024,7 @@ static ssh_string rsa_do_sign_hash(const uchar * digest,
 	}
 
 	sig = SAlloc::M(mbedtls_pk_get_bitlen(privkey) / 8);
-	if(sig == NULL) {
+	if(!sig) {
 		return NULL;
 	}
 
@@ -1064,7 +1064,7 @@ ssh_signature pki_do_sign_hash(const ssh_key privkey,
 	int rc;
 
 	sig = ssh_signature_new();
-	if(sig == NULL) {
+	if(!sig) {
 		return NULL;
 	}
 

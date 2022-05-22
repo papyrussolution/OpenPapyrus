@@ -9,10 +9,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_CHECKER_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_CHECKER_H_
 
-//#include "absl/base/attributes.h"
-//#include "absl/strings/internal/str_format/arg.h"
-//#include "absl/strings/internal/str_format/extension.h"
-
 // Compile time check support for entry points.
 
 #ifndef ABSL_INTERNAL_ENABLE_FORMAT_CHECKER

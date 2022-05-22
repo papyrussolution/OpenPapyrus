@@ -331,7 +331,7 @@ lzma_index * lzma_index_init(const lzma_allocator *allocator)
 	lzma_index * i = index_init_plain(allocator);
 	if(i) {
 		index_stream * s = index_stream_init(0, 0, 1, 0, allocator);
-		if(s == NULL) {
+		if(!s) {
 			lzma_free(i, allocator);
 			return NULL;
 		}
@@ -1487,9 +1487,9 @@ extern lzma_ret lzma_index_decoder_init(lzma_next_coder * next, const lzma_alloc
 	if(i == NULL)
 		return LZMA_PROG_ERROR;
 	lzma_index_decoder_coder * coder = (lzma_index_decoder_coder *)next->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		coder = (lzma_index_decoder_coder *)lzma_alloc(sizeof(lzma_index_decoder_coder), allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		next->coder = coder;
 		next->code = &index_decode;

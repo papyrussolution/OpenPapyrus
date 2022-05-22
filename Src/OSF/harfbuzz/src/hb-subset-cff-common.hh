@@ -782,7 +782,7 @@ protected:
 						    str.values[pos].set_drop();
 						    break;
 					    }
-					    HB_FALLTHROUGH;
+					    CXX_FALLTHROUGH;
 					case OpCode_hstemhm:
 					case OpCode_vstemhm:
 					case OpCode_hstem:

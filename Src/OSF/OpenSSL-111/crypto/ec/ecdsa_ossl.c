@@ -21,7 +21,7 @@ int ossl_ecdsa_sign(int type, const uchar * dgst, int dlen,
 	ECDSA_SIG * s;
 
 	s = ECDSA_do_sign_ex(dgst, dlen, kinv, r, eckey);
-	if(s == NULL) {
+	if(!s) {
 		*siglen = 0;
 		return 0;
 	}
@@ -58,7 +58,7 @@ static int ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in,
 	}
 
 	if((ctx = ctx_in) == NULL) {
-		if((ctx = BN_CTX_new()) == NULL) {
+		if(!(ctx = BN_CTX_new())) {
 			ECerr(EC_F_ECDSA_SIGN_SETUP, ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
@@ -79,31 +79,24 @@ static int ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in,
 
 	/* Preallocate space */
 	order_bits = BN_num_bits(order);
-	if(!BN_set_bit(k, order_bits)
-	   || !BN_set_bit(r, order_bits)
-	   || !BN_set_bit(X, order_bits))
+	if(!BN_set_bit(k, order_bits) || !BN_set_bit(r, order_bits) || !BN_set_bit(X, order_bits))
 		goto err;
-
 	do {
 		/* get random k */
 		do {
-			if(dgst != NULL) {
-				if(!BN_generate_dsa_nonce(k, order, priv_key,
-				    dgst, dlen, ctx)) {
-					ECerr(EC_F_ECDSA_SIGN_SETUP,
-					    EC_R_RANDOM_NUMBER_GENERATION_FAILED);
+			if(dgst) {
+				if(!BN_generate_dsa_nonce(k, order, priv_key, dgst, dlen, ctx)) {
+					ECerr(EC_F_ECDSA_SIGN_SETUP, EC_R_RANDOM_NUMBER_GENERATION_FAILED);
 					goto err;
 				}
 			}
 			else {
 				if(!BN_priv_rand_range(k, order)) {
-					ECerr(EC_F_ECDSA_SIGN_SETUP,
-					    EC_R_RANDOM_NUMBER_GENERATION_FAILED);
+					ECerr(EC_F_ECDSA_SIGN_SETUP, EC_R_RANDOM_NUMBER_GENERATION_FAILED);
 					goto err;
 				}
 			}
 		} while(BN_is_zero(k));
-
 		/* compute r the x-coordinate of generator * k */
 		if(!EC_POINT_mul(group, tmp_point, k, NULL, NULL, ctx)) {
 			ECerr(EC_F_ECDSA_SIGN_SETUP, ERR_R_EC_LIB);
@@ -146,27 +139,21 @@ err:
 	return ret;
 }
 
-int ossl_ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in, BIGNUM ** kinvp,
-    BIGNUM ** rp)
+int ossl_ecdsa_sign_setup(EC_KEY * eckey, BN_CTX * ctx_in, BIGNUM ** kinvp, BIGNUM ** rp)
 {
 	return ecdsa_sign_setup(eckey, ctx_in, kinvp, rp, NULL, 0);
 }
 
 ECDSA_SIG * ossl_ecdsa_sign_sig(const uchar * dgst, int dgst_len,
-    const BIGNUM * in_kinv, const BIGNUM * in_r,
-    EC_KEY * eckey)
+    const BIGNUM * in_kinv, const BIGNUM * in_r, EC_KEY * eckey)
 {
 	int ok = 0, i;
 	BIGNUM * kinv = NULL, * s, * m = NULL;
 	const BIGNUM * order, * ckinv;
 	BN_CTX * ctx = NULL;
-	const EC_GROUP * group;
 	ECDSA_SIG * ret;
-	const BIGNUM * priv_key;
-
-	group = EC_KEY_get0_group(eckey);
-	priv_key = EC_KEY_get0_private_key(eckey);
-
+	const EC_GROUP * group = EC_KEY_get0_group(eckey);
+	const BIGNUM * priv_key = EC_KEY_get0_private_key(eckey);
 	if(group == NULL) {
 		ECerr(EC_F_OSSL_ECDSA_SIGN_SIG, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;
@@ -302,7 +289,7 @@ int ossl_ecdsa_verify(int type, const uchar * dgst, int dgst_len,
 	int ret = -1;
 
 	s = ECDSA_SIG_new();
-	if(s == NULL)
+	if(!s)
 		return ret;
 	if(d2i_ECDSA_SIG(&s, &p, sig_len) == NULL)
 		goto err;

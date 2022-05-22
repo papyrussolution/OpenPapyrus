@@ -2120,7 +2120,7 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 				// } @v11.2.4 
 			}
 		}
-		if(!skip && EditTransferItem(P_Pack, -1, pInitData, 0, sign) == cmOK) {
+		if(!skip && EditTransferItem(*P_Pack, -1, pInitData, 0, sign) == cmOK) {
 			const  uint pos = P_Pack->GetTCount() - 1;
 			PPTransferItem & r_ti = P_Pack->TI(pos);
 			if(P_Pckg) {
@@ -2263,7 +2263,7 @@ void BillItemBrowser::editItem()
 		else if(!AsSelector) {
 			TIDlgInitData tidi;
 			GetMinMaxQtty((uint)c, tidi.QttyBounds);
-			while(!valid_data && EditTransferItem(P_Pack, static_cast<int>(c), &tidi, 0) == cmOK) {
+			while(!valid_data && EditTransferItem(*P_Pack, static_cast<int>(c), &tidi, 0) == cmOK) {
 				valid_data = 1;
 				//
 				// Проверка на то, чтобы возврат не превышал взятое количество

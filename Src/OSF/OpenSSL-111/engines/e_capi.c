@@ -12,18 +12,11 @@
 #ifndef _WIN32_WINNT
 	#define _WIN32_WINNT 0x0400
 #endif
-//#include <windows.h>
 #include <wincrypt.h>
-//#include <malloc.h>
 #ifndef alloca
 	#define alloca _alloca
 #endif
-//#include <openssl/crypto.h>
 #ifndef OPENSSL_NO_CAPIENG
-//#include <openssl/buffer.h>
-//#include <openssl/bn.h>
-//#include <openssl/rsa.h>
-//#include <openssl/dsa.h>
 /*
  * This module uses several "new" interfaces, among which is
  * CertGetCertificateContextProperty. CERT_KEY_PROV_INFO_PROP_ID is
@@ -1071,7 +1064,7 @@ static char * wide_to_asc(LPCWSTR wstr)
 		return NULL;
 	}
 	str = static_cast<char *>(OPENSSL_malloc(sz));
-	if(str == NULL) {
+	if(!str) {
 		CAPIerr(CAPI_F_WIDE_TO_ASC, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

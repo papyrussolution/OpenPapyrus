@@ -815,7 +815,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 	 * cofactor different from the one in the built-in table is just
 	 * mathematically wrong anyway and should not be used.
 	 */
-	if((ctx = BN_CTX_new()) == NULL) {
+	if(!(ctx = BN_CTX_new())) {
 		ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_BN_LIB);
 		goto err;
 	}
@@ -1231,14 +1231,14 @@ IMPLEMENT_ASN1_ENCODE_FUNCTIONS_const_fname(ECDSA_SIG, ECDSA_SIG, ECDSA_SIG)
 ECDSA_SIG *ECDSA_SIG_new(void)
 {
 	ECDSA_SIG * sig = static_cast<ECDSA_SIG *>(OPENSSL_zalloc(sizeof(*sig)));
-	if(sig == NULL)
+	if(!sig)
 		ECerr(EC_F_ECDSA_SIG_NEW, ERR_R_MALLOC_FAILURE);
 	return sig;
 }
 
 void ECDSA_SIG_free(ECDSA_SIG * sig)
 {
-	if(sig == NULL)
+	if(!sig)
 		return;
 	BN_clear_free(sig->r);
 	BN_clear_free(sig->s);
@@ -1281,7 +1281,7 @@ int ECDSA_size(const EC_KEY * r)
 	uchar buf[4];
 	const EC_GROUP * group;
 
-	if(r == NULL)
+	if(!r)
 		return 0;
 	group = EC_KEY_get0_group(r);
 	if(group == NULL)

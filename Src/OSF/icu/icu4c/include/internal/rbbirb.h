@@ -9,7 +9,6 @@
 //  This file contains declarations for several classes from the
 //    Rule Based Break Iterator rule builder.
 //
-
 #ifndef RBBIRB_H
 #define RBBIRB_H
 
@@ -52,7 +51,6 @@ private:
 	const UnicodeString      &fRules;
 	UHashtable               * fHashTable;
 	RBBIRuleScanner          * fRuleScanner;
-
 	// These next two fields are part of the mechanism for passing references to
 	//   already-constructed UnicodeSets back to the UnicodeSet constructor
 	//   when the pattern includes $variable references.
@@ -155,15 +153,12 @@ struct RBBISetTableEl {
  *   A pair of ints, used to bundle pairs of states or pairs of character classes.
  */
 typedef std::pair<int32_t, int32_t> IntPair;
-
-//----------------------------------------------------------------------------
 //
 //   RBBIDebugPrintf    Printf equivalent, for debugging output.
 //                      Conditional compilation of the implementation lets us
 //                      get rid of the stdio dependency in environments where it
 //                      is unavailable.
 //
-//----------------------------------------------------------------------------
 #ifdef RBBI_DEBUG
 #define RBBIDebugPrintf printf
 #define RBBIDebugPuts puts

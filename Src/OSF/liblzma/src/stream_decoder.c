@@ -309,9 +309,9 @@ extern lzma_ret lzma_stream_decoder_init(lzma_next_coder * next, const lzma_allo
 	if(flags & ~LZMA_SUPPORTED_FLAGS)
 		return LZMA_OPTIONS_ERROR;
 	lzma_stream_decoder_coder * coder = (lzma_stream_decoder_coder *)next->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		coder = (lzma_stream_decoder_coder *)lzma_alloc(sizeof(lzma_stream_decoder_coder), allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		next->coder = coder;
 		next->code = &stream_decode;

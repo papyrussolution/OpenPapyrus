@@ -287,7 +287,7 @@ int archive_read_set_callback_data2(struct archive * _a, void * client_data, uin
 	if(a->client.nodes == 0) {
 		a->client.dataset = (struct archive_read_data_node *)SAlloc::C(1, sizeof(*a->client.dataset));
 		if(a->client.dataset == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		a->client.nodes = 1;
@@ -314,7 +314,7 @@ int archive_read_add_callback_data(struct archive * _a, void * client_data, uint
 	}
 	p = SAlloc::R(a->client.dataset, sizeof(*a->client.dataset) * (++(a->client.nodes)));
 	if(!p) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	a->client.dataset = (struct archive_read_data_node *)p;
@@ -885,7 +885,7 @@ static int _archive_read_free(struct archive * _a)
 	}
 	/* Release passphrase list. */
 	p = a->passphrases.first;
-	while(p != NULL) {
+	while(p) {
 		struct archive_read_passphrase * np = p->next;
 		/* A passphrase should be cleaned. */
 		memzero(p->passphrase, strlen(p->passphrase));
@@ -1304,7 +1304,7 @@ int64 __archive_read_filter_seek(struct archive_read_filter * filter, int64 offs
 		case SEEK_CUR:
 		    /* Adjust the offset and use SEEK_SET instead */
 		    offset += filter->position;
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case SEEK_SET:
 		    cursor = 0;
 		    while(1) {

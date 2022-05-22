@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-//#include <openssl/objects.h>
-//#include <openssl/x509.h>
-//#include <openssl/pem.h>
-//#include <openssl/x509v3.h>
-//#include <openssl/ocsp.h>
 #include "ocsp_lcl.h"
 /*
  * Utility functions related to sending OCSP requests and extracting relevant
@@ -70,7 +64,7 @@ int OCSP_request_add1_cert(OCSP_REQUEST * req, X509 * cert)
 	if(req->optionalSignature == NULL)
 		req->optionalSignature = OCSP_SIGNATURE_new();
 	sig = req->optionalSignature;
-	if(sig == NULL)
+	if(!sig)
 		return 0;
 	if(cert == NULL)
 		return 1;

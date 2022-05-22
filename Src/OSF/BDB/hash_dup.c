@@ -38,7 +38,7 @@ static int __hamc_chgpg(DBC*, db_pgno_t, uint32, db_pgno_t, uint32);
 static int __ham_check_move(DBC*, uint32);
 static int __ham_dcursor(DBC*, db_pgno_t, uint32);
 static int __ham_move_offpage(DBC*, PAGE*, uint32, db_pgno_t);
-static int __hamc_chgpg_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __hamc_chgpg_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
 
 /*
  * Called from hash_access to add a duplicate key. nval is the new

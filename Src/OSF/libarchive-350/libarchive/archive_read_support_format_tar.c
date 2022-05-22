@@ -286,7 +286,7 @@ static int archive_read_format_tar_bid(struct archive_read * a, int best_bid)
 	bid = 0;
 	/* Now let's look at the actual header and see if it matches. */
 	h = static_cast<const char *>(__archive_read_ahead(a, 512, NULL));
-	if(h == NULL)
+	if(!h)
 		return -1;
 	/* If it's an end-of-archive mark, we can handle it. */
 	if(h[0] == 0 && archive_block_is_null(h)) {
@@ -962,7 +962,7 @@ static int read_body_to_string(struct archive_read * a, struct tar * tar, struct
 	}
 	/* Fail if we can't make our buffer big enough. */
 	if(archive_string_ensure(as, (size_t)size+1) == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	tar_flush_unconsumed(a, unconsumed);
@@ -1207,7 +1207,7 @@ static int read_mac_metadata_blob(struct archive_read * a, struct tar * tar,
 	(void)h; /* UNUSED */
 
 	wname = wp = archive_entry_pathname_w(entry);
-	if(wp != NULL) {
+	if(wp) {
 		/* Find the last path element. */
 		for(; *wp != L'\0'; ++wp) {
 			if(wp[0] == '/' && wp[1] != L'\0')
@@ -2019,14 +2019,11 @@ static int header_gnutar(struct archive_read * a, struct tar * tar,
 	return (err);
 }
 
-static int gnu_add_sparse_entry(struct archive_read * a, struct tar * tar,
-    int64 offset, int64 remaining)
+static int gnu_add_sparse_entry(struct archive_read * a, struct tar * tar, int64 offset, int64 remaining)
 {
-	struct sparse_block * p;
-
-	p = (struct sparse_block *)SAlloc::C(1, sizeof(*p));
+	struct sparse_block * p = (struct sparse_block *)SAlloc::C(1, sizeof(*p));
 	if(!p) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	if(tar->sparse_last != NULL)
@@ -2046,7 +2043,6 @@ static int gnu_add_sparse_entry(struct archive_read * a, struct tar * tar,
 static void gnu_clear_sparse_list(struct tar * tar)
 {
 	struct sparse_block * p;
-
 	while(tar->sparse_list != NULL) {
 		p = tar->sparse_list;
 		tar->sparse_list = p->next;

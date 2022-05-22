@@ -251,8 +251,8 @@
 #endif
 /*
  * Borrowed from https://bugzilla.mozilla.org/show_bug.cgi?id=1215411
- * HB_FALLTHROUGH is an annotation to suppress compiler warnings about switch
- * cases that fall through without a break or return statement. HB_FALLTHROUGH
+ * CXX_FALLTHROUGH is an annotation to suppress compiler warnings about switch
+ * cases that fall through without a break or return statement. CXX_FALLTHROUGH
  * is only needed on cases that have code:
  *
  * switch (foo) {
@@ -260,24 +260,24 @@
  *   case 2:
  *   case 3:
  *     foo = 4; // This case has code, so a fallthrough annotation is needed:
- *     HB_FALLTHROUGH;
+ *     CXX_FALLTHROUGH;
  *   default:
  *     return foo;
  * }
  */
+/* @sobolev (replaced with CXX_FALLTHROUGH
 #if defined(__clang__) && __cplusplus >= 201103L
-	#define HB_FALLTHROUGH [[clang::fallthrough]] /* clang's fallthrough annotations are only available starting in C++11. */
+	#define HB_FALLTHROUGH_Removed [[clang::fallthrough]] // clang's fallthrough annotations are only available starting in C++11
 #elif defined(__GNUC__) && (__GNUC__ >= 7)
-	#define HB_FALLTHROUGH __attribute__((fallthrough)) /* GNU fallthrough attribute is available from GCC7 */
+	#define HB_FALLTHROUGH_Removed __attribute__((fallthrough)) // GNU fallthrough attribute is available from GCC7 
 #elif defined(_MSC_VER)
-	// MSVC's __fallthrough annotations are checked by /analyze (Code Analysis):
-	// https://msdn.microsoft.com/en-us/library/ms235402%28VS.80%29.aspx
+	// MSVC's __fallthrough annotations are checked by /analyze (Code Analysis): https://msdn.microsoft.com/en-us/library/ms235402%28VS.80%29.aspx
 	#include <sal.h>
-	#define HB_FALLTHROUGH __fallthrough
+	#define HB_FALLTHROUGH_Removed __fallthrough
 #else
-	#define HB_FALLTHROUGH /* FALLTHROUGH */
-#endif
-/* A tag to enforce use of return value for a function */
+	#define HB_FALLTHROUGH_Removed // FALLTHROUGH
+#endif */
+// A tag to enforce use of return value for a function
 #if __cplusplus >= 201703L
 	#define HB_NODISCARD [[nodiscard]]
 #elif defined(__GNUC__) || defined(__clang__)

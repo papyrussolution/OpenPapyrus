@@ -425,9 +425,9 @@ extern lzma_ret lzma_lz_encoder_init(lzma_next_coder * next, const lzma_allocato
 #endif
 	// Allocate and initialize the base data structure.
 	lzma_encoder_coder * coder = (lzma_encoder_coder *)next->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		coder = (lzma_encoder_coder *)lzma_alloc(sizeof(lzma_encoder_coder), allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		next->coder = coder;
 		next->code = &lz_encode;
@@ -1139,9 +1139,9 @@ extern lzma_ret lzma_lz_decoder_init(lzma_next_coder * next, const lzma_allocato
 {
 	// Allocate the base structure if it isn't already allocated.
 	lzma_decoder_coder * coder = (lzma_decoder_coder *)next->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		coder = (lzma_decoder_coder *)lzma_alloc(sizeof(lzma_decoder_coder), allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		next->coder = coder;
 		next->code = &lz_decode;

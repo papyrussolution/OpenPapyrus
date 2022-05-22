@@ -10,14 +10,6 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#ifdef HAVE_CONFIG_H
-//#include "src/webp/config.h"
-//#endif
-//#include <assert.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include "src/utils/utils.h"
-//#include "src/webp/decode.h"     // WebPGetFeatures
 #include "src/webp/demux.h"
 #include "src/webp/format_constants.h"
 

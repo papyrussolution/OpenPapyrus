@@ -4,16 +4,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_BIND_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_BIND_H_
 
-//#include <array>
-//#include <cstdio>
-//#include <sstream>
-//#include <string>
-//#include "absl/base/port.h"
-//#include "absl/strings/internal/str_format/arg.h"
-//#include "absl/strings/internal/str_format/checker.h"
-//#include "absl/strings/internal/str_format/parser.h"
-//#include "absl/types/span.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 
@@ -101,18 +91,14 @@ public:
 
 	template <typename T = void>
 	FormatSpecTemplate(string_view s) // NOLINT
-	__attribute__((enable_if(str_format_internal::EnsureConstexpr(s),
-	    "constexpr trap"))) {
-		static_assert(sizeof(T*) == 0,
-		    "Format specified does not match the arguments passed.");
+	__attribute__((enable_if(str_format_internal::EnsureConstexpr(s), "constexpr trap"))) {
+		static_assert(sizeof(T*) == 0, "Format specified does not match the arguments passed.");
 	}
-
 	// Good format overload.
 	FormatSpecTemplate(const char* s) // NOLINT
-	__attribute__((enable_if(ValidFormatImpl<Args ...>(s), "bad format trap")))
-		: Base(s) {
+	__attribute__((enable_if(ValidFormatImpl<Args ...>(s), "bad format trap"))) : Base(s) 
+	{
 	}
-
 	FormatSpecTemplate(string_view s) // NOLINT
 	__attribute__((enable_if(ValidFormatImpl<Args ...>(s), "bad format trap")))
 		: Base(s) {

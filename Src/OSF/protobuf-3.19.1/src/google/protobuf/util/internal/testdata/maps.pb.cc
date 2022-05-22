@@ -17,8 +17,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace proto_util_converter {
 namespace testing {
-constexpr MapsTestCases::MapsTestCases(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapsTestCases::MapsTestCases(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : empty_map_(nullptr)
   , string_to_int_(nullptr)
   , int_to_string_(nullptr)
@@ -40,8 +39,7 @@ struct MapsTestCasesDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapsTestCasesDefaultTypeInternal _MapsTestCases_default_instance_;
-constexpr EmptyMap_MapEntry_DoNotUse::EmptyMap_MapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr EmptyMap_MapEntry_DoNotUse::EmptyMap_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct EmptyMap_MapEntry_DoNotUseDefaultTypeInternal {
 	constexpr EmptyMap_MapEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~EmptyMap_MapEntry_DoNotUseDefaultTypeInternal() {}
@@ -50,8 +48,7 @@ struct EmptyMap_MapEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT EmptyMap_MapEntry_DoNotUseDefaultTypeInternal _EmptyMap_MapEntry_DoNotUse_default_instance_;
-constexpr EmptyMap::EmptyMap(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr EmptyMap::EmptyMap(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}){}
 struct EmptyMapDefaultTypeInternal {
 	constexpr EmptyMapDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -61,8 +58,7 @@ struct EmptyMapDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT EmptyMapDefaultTypeInternal _EmptyMap_default_instance_;
-constexpr StringtoInt_MapEntry_DoNotUse::StringtoInt_MapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr StringtoInt_MapEntry_DoNotUse::StringtoInt_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct StringtoInt_MapEntry_DoNotUseDefaultTypeInternal {
 	constexpr StringtoInt_MapEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~StringtoInt_MapEntry_DoNotUseDefaultTypeInternal() {}
@@ -71,8 +67,7 @@ struct StringtoInt_MapEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StringtoInt_MapEntry_DoNotUseDefaultTypeInternal _StringtoInt_MapEntry_DoNotUse_default_instance_;
-constexpr StringtoInt::StringtoInt(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr StringtoInt::StringtoInt(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}){}
 struct StringtoIntDefaultTypeInternal {
 	constexpr StringtoIntDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -82,8 +77,7 @@ struct StringtoIntDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StringtoIntDefaultTypeInternal _StringtoInt_default_instance_;
-constexpr IntToString_MapEntry_DoNotUse::IntToString_MapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr IntToString_MapEntry_DoNotUse::IntToString_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct IntToString_MapEntry_DoNotUseDefaultTypeInternal {
 	constexpr IntToString_MapEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~IntToString_MapEntry_DoNotUseDefaultTypeInternal() {}
@@ -92,8 +86,7 @@ struct IntToString_MapEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT IntToString_MapEntry_DoNotUseDefaultTypeInternal _IntToString_MapEntry_DoNotUse_default_instance_;
-constexpr IntToString::IntToString(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr IntToString::IntToString(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}){}
 struct IntToStringDefaultTypeInternal {
 	constexpr IntToStringDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -103,8 +96,7 @@ struct IntToStringDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT IntToStringDefaultTypeInternal _IntToString_default_instance_;
-constexpr BoolToString_MapEntry_DoNotUse::BoolToString_MapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr BoolToString_MapEntry_DoNotUse::BoolToString_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct BoolToString_MapEntry_DoNotUseDefaultTypeInternal {
 	constexpr BoolToString_MapEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~BoolToString_MapEntry_DoNotUseDefaultTypeInternal() {}
@@ -113,8 +105,7 @@ struct BoolToString_MapEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BoolToString_MapEntry_DoNotUseDefaultTypeInternal _BoolToString_MapEntry_DoNotUse_default_instance_;
-constexpr BoolToString::BoolToString(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr BoolToString::BoolToString(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}){}
 struct BoolToStringDefaultTypeInternal {
 	constexpr BoolToStringDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -124,8 +115,7 @@ struct BoolToStringDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BoolToStringDefaultTypeInternal _BoolToString_default_instance_;
-constexpr Mixed1_MapEntry_DoNotUse::Mixed1_MapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr Mixed1_MapEntry_DoNotUse::Mixed1_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct Mixed1_MapEntry_DoNotUseDefaultTypeInternal {
 	constexpr Mixed1_MapEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~Mixed1_MapEntry_DoNotUseDefaultTypeInternal() {}
@@ -134,8 +124,7 @@ struct Mixed1_MapEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Mixed1_MapEntry_DoNotUseDefaultTypeInternal _Mixed1_MapEntry_DoNotUse_default_instance_;
-constexpr Mixed1::Mixed1(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Mixed1::Mixed1(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
   , msg_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct Mixed1DefaultTypeInternal {
@@ -146,8 +135,7 @@ struct Mixed1DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Mixed1DefaultTypeInternal _Mixed1_default_instance_;
-constexpr Mixed2_MapEntry_DoNotUse::Mixed2_MapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr Mixed2_MapEntry_DoNotUse::Mixed2_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct Mixed2_MapEntry_DoNotUseDefaultTypeInternal {
 	constexpr Mixed2_MapEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~Mixed2_MapEntry_DoNotUseDefaultTypeInternal() {}
@@ -156,8 +144,7 @@ struct Mixed2_MapEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Mixed2_MapEntry_DoNotUseDefaultTypeInternal _Mixed2_MapEntry_DoNotUse_default_instance_;
-constexpr Mixed2::Mixed2(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Mixed2::Mixed2(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
   , ee_(0)
 {}
@@ -169,8 +156,7 @@ struct Mixed2DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Mixed2DefaultTypeInternal _Mixed2_default_instance_;
-constexpr MapOfObjects_M::MapOfObjects_M(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapOfObjects_M::MapOfObjects_M(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : inner_text_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct MapOfObjects_MDefaultTypeInternal {
 	constexpr MapOfObjects_MDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -180,8 +166,7 @@ struct MapOfObjects_MDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOfObjects_MDefaultTypeInternal _MapOfObjects_M_default_instance_;
-constexpr MapOfObjects_MapEntry_DoNotUse::MapOfObjects_MapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapOfObjects_MapEntry_DoNotUse::MapOfObjects_MapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapOfObjects_MapEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapOfObjects_MapEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapOfObjects_MapEntry_DoNotUseDefaultTypeInternal() {}
@@ -190,8 +175,7 @@ struct MapOfObjects_MapEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOfObjects_MapEntry_DoNotUseDefaultTypeInternal _MapOfObjects_MapEntry_DoNotUse_default_instance_;
-constexpr MapOfObjects::MapOfObjects(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapOfObjects::MapOfObjects(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}){}
 struct MapOfObjectsDefaultTypeInternal {
 	constexpr MapOfObjectsDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -201,8 +185,7 @@ struct MapOfObjectsDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOfObjectsDefaultTypeInternal _MapOfObjects_default_instance_;
-constexpr DummyRequest::DummyRequest(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr DummyRequest::DummyRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct DummyRequestDefaultTypeInternal {
 	constexpr DummyRequestDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~DummyRequestDefaultTypeInternal() {}
@@ -211,8 +194,7 @@ struct DummyRequestDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DummyRequestDefaultTypeInternal _DummyRequest_default_instance_;
-constexpr MapIn_MapInputEntry_DoNotUse::MapIn_MapInputEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapIn_MapInputEntry_DoNotUse::MapIn_MapInputEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapIn_MapInputEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapIn_MapInputEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapIn_MapInputEntry_DoNotUseDefaultTypeInternal() {}
@@ -221,8 +203,7 @@ struct MapIn_MapInputEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapIn_MapInputEntry_DoNotUseDefaultTypeInternal _MapIn_MapInputEntry_DoNotUse_default_instance_;
-constexpr MapIn_MapAnyEntry_DoNotUse::MapIn_MapAnyEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapIn_MapAnyEntry_DoNotUse::MapIn_MapAnyEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapIn_MapAnyEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapIn_MapAnyEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapIn_MapAnyEntry_DoNotUseDefaultTypeInternal() {}
@@ -231,8 +212,7 @@ struct MapIn_MapAnyEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapIn_MapAnyEntry_DoNotUseDefaultTypeInternal _MapIn_MapAnyEntry_DoNotUse_default_instance_;
-constexpr MapIn::MapIn(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapIn::MapIn(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : things_()
   , map_input_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
   , map_any_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
@@ -245,8 +225,7 @@ struct MapInDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapInDefaultTypeInternal _MapIn_default_instance_;
-constexpr MapOut_Map1Entry_DoNotUse::MapOut_Map1Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapOut_Map1Entry_DoNotUse::MapOut_Map1Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapOut_Map1Entry_DoNotUseDefaultTypeInternal {
 	constexpr MapOut_Map1Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapOut_Map1Entry_DoNotUseDefaultTypeInternal() {}
@@ -255,8 +234,7 @@ struct MapOut_Map1Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOut_Map1Entry_DoNotUseDefaultTypeInternal _MapOut_Map1Entry_DoNotUse_default_instance_;
-constexpr MapOut_Map2Entry_DoNotUse::MapOut_Map2Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapOut_Map2Entry_DoNotUse::MapOut_Map2Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapOut_Map2Entry_DoNotUseDefaultTypeInternal {
 	constexpr MapOut_Map2Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapOut_Map2Entry_DoNotUseDefaultTypeInternal() {}
@@ -265,8 +243,7 @@ struct MapOut_Map2Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOut_Map2Entry_DoNotUseDefaultTypeInternal _MapOut_Map2Entry_DoNotUse_default_instance_;
-constexpr MapOut_Map3Entry_DoNotUse::MapOut_Map3Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapOut_Map3Entry_DoNotUse::MapOut_Map3Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapOut_Map3Entry_DoNotUseDefaultTypeInternal {
 	constexpr MapOut_Map3Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapOut_Map3Entry_DoNotUseDefaultTypeInternal() {}
@@ -275,8 +252,7 @@ struct MapOut_Map3Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOut_Map3Entry_DoNotUseDefaultTypeInternal _MapOut_Map3Entry_DoNotUse_default_instance_;
-constexpr MapOut_Map4Entry_DoNotUse::MapOut_Map4Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapOut_Map4Entry_DoNotUse::MapOut_Map4Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapOut_Map4Entry_DoNotUseDefaultTypeInternal {
 	constexpr MapOut_Map4Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapOut_Map4Entry_DoNotUseDefaultTypeInternal() {}
@@ -285,8 +261,7 @@ struct MapOut_Map4Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOut_Map4Entry_DoNotUseDefaultTypeInternal _MapOut_Map4Entry_DoNotUse_default_instance_;
-constexpr MapOut::MapOut(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapOut::MapOut(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map1_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
   , map2_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
   , map3_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
@@ -300,8 +275,7 @@ struct MapOutDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOutDefaultTypeInternal _MapOut_default_instance_;
-constexpr MapOutWireFormat_Map1Entry::MapOutWireFormat_Map1Entry(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapOutWireFormat_Map1Entry::MapOutWireFormat_Map1Entry(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : key_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , value_(nullptr){}
 struct MapOutWireFormat_Map1EntryDefaultTypeInternal {
@@ -312,8 +286,7 @@ struct MapOutWireFormat_Map1EntryDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOutWireFormat_Map1EntryDefaultTypeInternal _MapOutWireFormat_Map1Entry_default_instance_;
-constexpr MapOutWireFormat_Map2Entry::MapOutWireFormat_Map2Entry(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapOutWireFormat_Map2Entry::MapOutWireFormat_Map2Entry(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : key_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , value_(nullptr){}
 struct MapOutWireFormat_Map2EntryDefaultTypeInternal {
@@ -324,8 +297,7 @@ struct MapOutWireFormat_Map2EntryDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOutWireFormat_Map2EntryDefaultTypeInternal _MapOutWireFormat_Map2Entry_default_instance_;
-constexpr MapOutWireFormat_Map3Entry::MapOutWireFormat_Map3Entry(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapOutWireFormat_Map3Entry::MapOutWireFormat_Map3Entry(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , key_(0){}
 struct MapOutWireFormat_Map3EntryDefaultTypeInternal {
@@ -336,8 +308,7 @@ struct MapOutWireFormat_Map3EntryDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOutWireFormat_Map3EntryDefaultTypeInternal _MapOutWireFormat_Map3Entry_default_instance_;
-constexpr MapOutWireFormat_Map4Entry::MapOutWireFormat_Map4Entry(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapOutWireFormat_Map4Entry::MapOutWireFormat_Map4Entry(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , key_(false){}
 struct MapOutWireFormat_Map4EntryDefaultTypeInternal {
@@ -348,8 +319,7 @@ struct MapOutWireFormat_Map4EntryDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOutWireFormat_Map4EntryDefaultTypeInternal _MapOutWireFormat_Map4Entry_default_instance_;
-constexpr MapOutWireFormat::MapOutWireFormat(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapOutWireFormat::MapOutWireFormat(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map1_()
   , map2_()
   , map3_()
@@ -363,8 +333,7 @@ struct MapOutWireFormatDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOutWireFormatDefaultTypeInternal _MapOutWireFormat_default_instance_;
-constexpr MapM::MapM(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapM::MapM(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : foo_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct MapMDefaultTypeInternal {
 	constexpr MapMDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -842,20 +811,22 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto);
 namespace proto_util_converter {
 namespace testing {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Mixed2_E_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Mixed2_E_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2futil_2finternal_2ftestdata_2fmaps_2eproto[0];
 }
-bool Mixed2_E_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return true;
-    default:
-      return false;
-  }
+bool Mixed2_E_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+			return true;
+		default:
+			return false;
+	}
 }
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
@@ -887,58 +858,19 @@ class MapsTestCases::_Internal {
   static const ::proto_util_converter::testing::MapOfObjects& empty_key_map_objects(const MapsTestCases* msg);
 };
 
-const ::proto_util_converter::testing::EmptyMap&
-MapsTestCases::_Internal::empty_map(const MapsTestCases* msg) {
-  return *msg->empty_map_;
-}
-const ::proto_util_converter::testing::StringtoInt&
-MapsTestCases::_Internal::string_to_int(const MapsTestCases* msg) {
-  return *msg->string_to_int_;
-}
-const ::proto_util_converter::testing::IntToString&
-MapsTestCases::_Internal::int_to_string(const MapsTestCases* msg) {
-  return *msg->int_to_string_;
-}
-const ::proto_util_converter::testing::Mixed1&
-MapsTestCases::_Internal::mixed1(const MapsTestCases* msg) {
-  return *msg->mixed1_;
-}
-const ::proto_util_converter::testing::Mixed2&
-MapsTestCases::_Internal::mixed2(const MapsTestCases* msg) {
-  return *msg->mixed2_;
-}
-const ::proto_util_converter::testing::MapOfObjects&
-MapsTestCases::_Internal::map_of_objects(const MapsTestCases* msg) {
-  return *msg->map_of_objects_;
-}
-const ::proto_util_converter::testing::StringtoInt&
-MapsTestCases::_Internal::empty_key_string_to_int1(const MapsTestCases* msg) {
-  return *msg->empty_key_string_to_int1_;
-}
-const ::proto_util_converter::testing::StringtoInt&
-MapsTestCases::_Internal::empty_key_string_to_int2(const MapsTestCases* msg) {
-  return *msg->empty_key_string_to_int2_;
-}
-const ::proto_util_converter::testing::StringtoInt&
-MapsTestCases::_Internal::empty_key_string_to_int3(const MapsTestCases* msg) {
-  return *msg->empty_key_string_to_int3_;
-}
-const ::proto_util_converter::testing::BoolToString&
-MapsTestCases::_Internal::empty_key_bool_to_string(const MapsTestCases* msg) {
-  return *msg->empty_key_bool_to_string_;
-}
-const ::proto_util_converter::testing::IntToString&
-MapsTestCases::_Internal::empty_key_int_to_string(const MapsTestCases* msg) {
-  return *msg->empty_key_int_to_string_;
-}
-const ::proto_util_converter::testing::Mixed1&
-MapsTestCases::_Internal::empty_key_mixed(const MapsTestCases* msg) {
-  return *msg->empty_key_mixed_;
-}
-const ::proto_util_converter::testing::MapOfObjects&
-MapsTestCases::_Internal::empty_key_map_objects(const MapsTestCases* msg) {
-  return *msg->empty_key_map_objects_;
-}
+const ::proto_util_converter::testing::EmptyMap & MapsTestCases::_Internal::empty_map(const MapsTestCases* msg) { return *msg->empty_map_; }
+const ::proto_util_converter::testing::StringtoInt & MapsTestCases::_Internal::string_to_int(const MapsTestCases* msg) { return *msg->string_to_int_; }
+const ::proto_util_converter::testing::IntToString & MapsTestCases::_Internal::int_to_string(const MapsTestCases* msg) { return *msg->int_to_string_; }
+const ::proto_util_converter::testing::Mixed1 & MapsTestCases::_Internal::mixed1(const MapsTestCases* msg) { return *msg->mixed1_; }
+const ::proto_util_converter::testing::Mixed2 & MapsTestCases::_Internal::mixed2(const MapsTestCases* msg) { return *msg->mixed2_; }
+const ::proto_util_converter::testing::MapOfObjects & MapsTestCases::_Internal::map_of_objects(const MapsTestCases* msg) { return *msg->map_of_objects_; }
+const ::proto_util_converter::testing::StringtoInt & MapsTestCases::_Internal::empty_key_string_to_int1(const MapsTestCases* msg) { return *msg->empty_key_string_to_int1_; }
+const ::proto_util_converter::testing::StringtoInt & MapsTestCases::_Internal::empty_key_string_to_int2(const MapsTestCases* msg) { return *msg->empty_key_string_to_int2_; }
+const ::proto_util_converter::testing::StringtoInt & MapsTestCases::_Internal::empty_key_string_to_int3(const MapsTestCases* msg) { return *msg->empty_key_string_to_int3_; }
+const ::proto_util_converter::testing::BoolToString & MapsTestCases::_Internal::empty_key_bool_to_string(const MapsTestCases* msg) { return *msg->empty_key_bool_to_string_; }
+const ::proto_util_converter::testing::IntToString & MapsTestCases::_Internal::empty_key_int_to_string(const MapsTestCases* msg) { return *msg->empty_key_int_to_string_; }
+const ::proto_util_converter::testing::Mixed1 & MapsTestCases::_Internal::empty_key_mixed(const MapsTestCases* msg) { return *msg->empty_key_mixed_; }
+const ::proto_util_converter::testing::MapOfObjects & MapsTestCases::_Internal::empty_key_map_objects(const MapsTestCases* msg) { return *msg->empty_key_map_objects_; }
 MapsTestCases::MapsTestCases(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -951,79 +883,24 @@ MapsTestCases::MapsTestCases(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 MapsTestCases::MapsTestCases(const MapsTestCases& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_empty_map()) {
-    empty_map_ = new ::proto_util_converter::testing::EmptyMap(*from.empty_map_);
-  } else {
-    empty_map_ = nullptr;
-  }
-  if(from._internal_has_string_to_int()) {
-    string_to_int_ = new ::proto_util_converter::testing::StringtoInt(*from.string_to_int_);
-  } else {
-    string_to_int_ = nullptr;
-  }
-  if(from._internal_has_int_to_string()) {
-    int_to_string_ = new ::proto_util_converter::testing::IntToString(*from.int_to_string_);
-  } else {
-    int_to_string_ = nullptr;
-  }
-  if(from._internal_has_mixed1()) {
-    mixed1_ = new ::proto_util_converter::testing::Mixed1(*from.mixed1_);
-  } else {
-    mixed1_ = nullptr;
-  }
-  if(from._internal_has_mixed2()) {
-    mixed2_ = new ::proto_util_converter::testing::Mixed2(*from.mixed2_);
-  } else {
-    mixed2_ = nullptr;
-  }
-  if(from._internal_has_map_of_objects()) {
-    map_of_objects_ = new ::proto_util_converter::testing::MapOfObjects(*from.map_of_objects_);
-  } else {
-    map_of_objects_ = nullptr;
-  }
-  if(from._internal_has_empty_key_string_to_int1()) {
-    empty_key_string_to_int1_ = new ::proto_util_converter::testing::StringtoInt(*from.empty_key_string_to_int1_);
-  } else {
-    empty_key_string_to_int1_ = nullptr;
-  }
-  if(from._internal_has_empty_key_string_to_int2()) {
-    empty_key_string_to_int2_ = new ::proto_util_converter::testing::StringtoInt(*from.empty_key_string_to_int2_);
-  } else {
-    empty_key_string_to_int2_ = nullptr;
-  }
-  if(from._internal_has_empty_key_string_to_int3()) {
-    empty_key_string_to_int3_ = new ::proto_util_converter::testing::StringtoInt(*from.empty_key_string_to_int3_);
-  } else {
-    empty_key_string_to_int3_ = nullptr;
-  }
-  if(from._internal_has_empty_key_bool_to_string()) {
-    empty_key_bool_to_string_ = new ::proto_util_converter::testing::BoolToString(*from.empty_key_bool_to_string_);
-  } else {
-    empty_key_bool_to_string_ = nullptr;
-  }
-  if(from._internal_has_empty_key_int_to_string()) {
-    empty_key_int_to_string_ = new ::proto_util_converter::testing::IntToString(*from.empty_key_int_to_string_);
-  } else {
-    empty_key_int_to_string_ = nullptr;
-  }
-  if(from._internal_has_empty_key_mixed()) {
-    empty_key_mixed_ = new ::proto_util_converter::testing::Mixed1(*from.empty_key_mixed_);
-  } else {
-    empty_key_mixed_ = nullptr;
-  }
-  if(from._internal_has_empty_key_map_objects()) {
-    empty_key_map_objects_ = new ::proto_util_converter::testing::MapOfObjects(*from.empty_key_map_objects_);
-  } else {
-    empty_key_map_objects_ = nullptr;
-  }
+  empty_map_ = from._internal_has_empty_map() ? new ::proto_util_converter::testing::EmptyMap(*from.empty_map_) : nullptr;
+  string_to_int_ = from._internal_has_string_to_int() ? new ::proto_util_converter::testing::StringtoInt(*from.string_to_int_) : nullptr;
+  int_to_string_ = from._internal_has_int_to_string() ? new ::proto_util_converter::testing::IntToString(*from.int_to_string_) : nullptr;
+  mixed1_ = from._internal_has_mixed1() ? new ::proto_util_converter::testing::Mixed1(*from.mixed1_) : nullptr;
+  mixed2_ = from._internal_has_mixed2() ? new ::proto_util_converter::testing::Mixed2(*from.mixed2_) : nullptr;
+  map_of_objects_ = from._internal_has_map_of_objects() ? new ::proto_util_converter::testing::MapOfObjects(*from.map_of_objects_) : nullptr;
+  empty_key_string_to_int1_ = from._internal_has_empty_key_string_to_int1() ? new ::proto_util_converter::testing::StringtoInt(*from.empty_key_string_to_int1_) : nullptr;
+  empty_key_string_to_int2_ = from._internal_has_empty_key_string_to_int2() ? new ::proto_util_converter::testing::StringtoInt(*from.empty_key_string_to_int2_) : nullptr;
+  empty_key_string_to_int3_ = from._internal_has_empty_key_string_to_int3() ? new ::proto_util_converter::testing::StringtoInt(*from.empty_key_string_to_int3_) : nullptr;
+  empty_key_bool_to_string_ = from._internal_has_empty_key_bool_to_string() ? new ::proto_util_converter::testing::BoolToString(*from.empty_key_bool_to_string_) : nullptr;
+  empty_key_int_to_string_ = from._internal_has_empty_key_int_to_string() ? new ::proto_util_converter::testing::IntToString(*from.empty_key_int_to_string_) : nullptr;
+  empty_key_mixed_ = from._internal_has_empty_key_mixed() ? new ::proto_util_converter::testing::Mixed1(*from.empty_key_mixed_) : nullptr;
+  empty_key_map_objects_ = from._internal_has_empty_key_map_objects() ? new ::proto_util_converter::testing::MapOfObjects(*from.empty_key_map_objects_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.MapsTestCases)
 }
 
 inline void MapsTestCases::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&empty_map_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&empty_key_map_objects_) -
-    reinterpret_cast<char*>(&empty_map_)) + sizeof(empty_key_map_objects_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&empty_map_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&empty_key_map_objects_) - reinterpret_cast<char*>(&empty_map_)) + sizeof(empty_key_map_objects_));
 }
 
 MapsTestCases::~MapsTestCases() {
@@ -1054,8 +931,7 @@ void MapsTestCases::ArenaDtor(void* object) {
   MapsTestCases* _this = reinterpret_cast< MapsTestCases* >(object);
   (void)_this;
 }
-void MapsTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void MapsTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void MapsTestCases::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1239,10 +1115,7 @@ const char* MapsTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1427,10 +1300,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapsTestCases::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapsTestCases::GetClassData() const { return &_class_data_; }
 
-void MapsTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapsTestCases *>(to)->MergeFrom(
-      static_cast<const MapsTestCases &>(from));
+void MapsTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapsTestCases *>(to)->MergeFrom(static_cast<const MapsTestCases &>(from));
 }
 
 
@@ -1559,10 +1430,11 @@ void EmptyMap::ArenaDtor(void* object) {
   (void)_this;
   _this->map_. ~MapField();
 }
-inline void EmptyMap::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &EmptyMap::ArenaDtor);
-  }
+inline void EmptyMap::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &EmptyMap::ArenaDtor);
+	}
 }
 void EmptyMap::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -1605,10 +1477,7 @@ const char* EmptyMap::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1670,12 +1539,9 @@ size_t EmptyMap::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<int32, int32> map = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-      it = this->_internal_map().begin();
-      it != this->_internal_map().end(); ++it) {
-    total_size += EmptyMap_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it) {
+  	total_size += EmptyMap_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1687,10 +1553,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData EmptyMap::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*EmptyMap::GetClassData() const { return &_class_data_; }
 
-void EmptyMap::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<EmptyMap *>(to)->MergeFrom(
-      static_cast<const EmptyMap &>(from));
+void EmptyMap::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<EmptyMap *>(to)->MergeFrom(static_cast<const EmptyMap &>(from));
 }
 
 
@@ -1776,10 +1640,11 @@ void StringtoInt::ArenaDtor(void* object) {
   (void)_this;
   _this->map_. ~MapField();
 }
-inline void StringtoInt::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &StringtoInt::ArenaDtor);
-  }
+inline void StringtoInt::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &StringtoInt::ArenaDtor);
+	}
 }
 void StringtoInt::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -1822,10 +1687,7 @@ const char* StringtoInt::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1898,12 +1760,9 @@ size_t StringtoInt::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<string, int32> map = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator
-      it = this->_internal_map().begin();
-      it != this->_internal_map().end(); ++it) {
-    total_size += StringtoInt_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it) {
+  	total_size += StringtoInt_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1915,10 +1774,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData StringtoInt::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*StringtoInt::GetClassData() const { return &_class_data_; }
 
-void StringtoInt::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<StringtoInt *>(to)->MergeFrom(
-      static_cast<const StringtoInt &>(from));
+void StringtoInt::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<StringtoInt *>(to)->MergeFrom(static_cast<const StringtoInt &>(from));
 }
 
 
@@ -2004,10 +1861,11 @@ void IntToString::ArenaDtor(void* object) {
   (void)_this;
   _this->map_. ~MapField();
 }
-inline void IntToString::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &IntToString::ArenaDtor);
-  }
+inline void IntToString::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &IntToString::ArenaDtor);
+	}
 }
 void IntToString::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -2050,10 +1908,7 @@ const char* IntToString::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2126,12 +1981,9 @@ size_t IntToString::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<int32, string> map = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
-      it = this->_internal_map().begin();
-      it != this->_internal_map().end(); ++it) {
-    total_size += IntToString_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it) {
+  	total_size += IntToString_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -2143,10 +1995,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData IntToString::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*IntToString::GetClassData() const { return &_class_data_; }
 
-void IntToString::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<IntToString *>(to)->MergeFrom(
-      static_cast<const IntToString &>(from));
+void IntToString::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<IntToString *>(to)->MergeFrom(static_cast<const IntToString &>(from));
 }
 
 
@@ -2232,10 +2082,11 @@ void BoolToString::ArenaDtor(void* object) {
   (void)_this;
   _this->map_. ~MapField();
 }
-inline void BoolToString::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &BoolToString::ArenaDtor);
-  }
+inline void BoolToString::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &BoolToString::ArenaDtor);
+	}
 }
 void BoolToString::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -2278,10 +2129,7 @@ const char* BoolToString::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2354,12 +2202,9 @@ size_t BoolToString::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<bool, string> map = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator
-      it = this->_internal_map().begin();
-      it != this->_internal_map().end(); ++it) {
-    total_size += BoolToString_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it) {
+  	total_size += BoolToString_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -2371,10 +2216,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BoolToString::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BoolToString::GetClassData() const { return &_class_data_; }
 
-void BoolToString::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<BoolToString *>(to)->MergeFrom(
-      static_cast<const BoolToString &>(from));
+void BoolToString::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<BoolToString *>(to)->MergeFrom(static_cast<const BoolToString &>(from));
 }
 
 
@@ -2472,10 +2315,11 @@ void Mixed1::ArenaDtor(void* object) {
   (void)_this;
   _this->map_. ~MapField();
 }
-inline void Mixed1::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &Mixed1::ArenaDtor);
-  }
+inline void Mixed1::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &Mixed1::ArenaDtor);
+	}
 }
 void Mixed1::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -2529,10 +2373,7 @@ const char* Mixed1::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2614,12 +2455,9 @@ size_t Mixed1::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<string, float> map = 2;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, float >::const_iterator
-      it = this->_internal_map().begin();
-      it != this->_internal_map().end(); ++it) {
-    total_size += Mixed1_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, float >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it) {
+  	total_size += Mixed1_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // string msg = 1;
@@ -2636,10 +2474,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Mixed1::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Mixed1::GetClassData() const { return &_class_data_; }
 
-void Mixed1::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Mixed1 *>(to)->MergeFrom(
-      static_cast<const Mixed1 &>(from));
+void Mixed1::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Mixed1 *>(to)->MergeFrom(static_cast<const Mixed1 &>(from));
 }
 
 
@@ -2673,11 +2509,7 @@ void Mixed1::InternalSwap(Mixed1* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   map_.InternalSwap(&other->map_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &msg_, lhs_arena,
-      &other->msg_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &msg_, lhs_arena, &other->msg_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Mixed1::GetMetadata() const {
@@ -2737,10 +2569,11 @@ void Mixed2::ArenaDtor(void* object) {
   (void)_this;
   _this->map_. ~MapField();
 }
-inline void Mixed2::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &Mixed2::ArenaDtor);
-  }
+inline void Mixed2::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &Mixed2::ArenaDtor);
+	}
 }
 void Mixed2::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -2793,10 +2626,7 @@ const char* Mixed2::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2864,12 +2694,9 @@ size_t Mixed2::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<int32, bool> map = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >::const_iterator
-      it = this->_internal_map().begin();
-      it != this->_internal_map().end(); ++it) {
-    total_size += Mixed2_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, bool >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it) {
+  	total_size += Mixed2_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // .proto_util_converter.testing.Mixed2.E ee = 2;
@@ -2887,10 +2714,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Mixed2::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Mixed2::GetClassData() const { return &_class_data_; }
 
-void Mixed2::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Mixed2 *>(to)->MergeFrom(
-      static_cast<const Mixed2 &>(from));
+void Mixed2::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Mixed2 *>(to)->MergeFrom(static_cast<const Mixed2 &>(from));
 }
 
 
@@ -2980,8 +2805,7 @@ void MapOfObjects_M::ArenaDtor(void* object) {
   MapOfObjects_M* _this = reinterpret_cast< MapOfObjects_M* >(object);
   (void)_this;
 }
-void MapOfObjects_M::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void MapOfObjects_M::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void MapOfObjects_M::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -3020,10 +2844,7 @@ const char* MapOfObjects_M::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3079,10 +2900,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapOfObjects_M::_class_data_ =
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapOfObjects_M::GetClassData() const { return &_class_data_; }
 
-void MapOfObjects_M::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapOfObjects_M *>(to)->MergeFrom(
-      static_cast<const MapOfObjects_M &>(from));
+void MapOfObjects_M::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapOfObjects_M *>(to)->MergeFrom(static_cast<const MapOfObjects_M &>(from));
 }
 
 
@@ -3114,11 +2933,7 @@ void MapOfObjects_M::InternalSwap(MapOfObjects_M* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &inner_text_, lhs_arena,
-      &other->inner_text_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &inner_text_, lhs_arena, &other->inner_text_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MapOfObjects_M::GetMetadata() const {
@@ -3176,10 +2991,11 @@ void MapOfObjects::ArenaDtor(void* object) {
   (void)_this;
   _this->map_. ~MapField();
 }
-inline void MapOfObjects::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &MapOfObjects::ArenaDtor);
-  }
+inline void MapOfObjects::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &MapOfObjects::ArenaDtor);
+	}
 }
 void MapOfObjects::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -3222,10 +3038,7 @@ const char* MapOfObjects::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3298,12 +3111,9 @@ size_t MapOfObjects::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<string, .proto_util_converter.testing.MapOfObjects.M> map = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M >::const_iterator
-      it = this->_internal_map().begin();
-      it != this->_internal_map().end(); ++it) {
-    total_size += MapOfObjects_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOfObjects_M >::const_iterator it = this->_internal_map().begin(); it != this->_internal_map().end(); ++it) {
+  	total_size += MapOfObjects_MapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -3315,10 +3125,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapOfObjects::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapOfObjects::GetClassData() const { return &_class_data_; }
 
-void MapOfObjects::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapOfObjects *>(to)->MergeFrom(
-      static_cast<const MapOfObjects &>(from));
+void MapOfObjects::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapOfObjects *>(to)->MergeFrom(static_cast<const MapOfObjects &>(from));
 }
 
 
@@ -3470,10 +3278,11 @@ void MapIn::ArenaDtor(void* object) {
   _this->map_input_. ~MapField();
   _this->map_any_. ~MapField();
 }
-inline void MapIn::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &MapIn::ArenaDtor);
-  }
+inline void MapIn::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &MapIn::ArenaDtor);
+	}
 }
 void MapIn::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -3557,10 +3366,7 @@ const char* MapIn::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3701,21 +3507,15 @@ size_t MapIn::ByteSizeLong() const {
   }
 
   // map<string, string> map_input = 3;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_input_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
-      it = this->_internal_map_input().begin();
-      it != this->_internal_map_input().end(); ++it) {
-    total_size += MapIn_MapInputEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_input_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator it = this->_internal_map_input().begin(); it != this->_internal_map_input().end(); ++it) {
+  	total_size += MapIn_MapInputEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<string, .google.protobuf.Any> map_any = 4;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_any_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any >::const_iterator
-      it = this->_internal_map_any().begin();
-      it != this->_internal_map_any().end(); ++it) {
-    total_size += MapIn_MapAnyEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_any_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Any >::const_iterator it = this->_internal_map_any().begin(); it != this->_internal_map_any().end(); ++it) {
+  	total_size += MapIn_MapAnyEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // string other = 1;
@@ -3732,10 +3532,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapIn::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapIn::GetClassData() const { return &_class_data_; }
 
-void MapIn::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapIn *>(to)->MergeFrom(
-      static_cast<const MapIn &>(from));
+void MapIn::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapIn *>(to)->MergeFrom(static_cast<const MapIn &>(from));
 }
 
 
@@ -3773,11 +3571,7 @@ void MapIn::InternalSwap(MapIn* other) {
   things_.InternalSwap(&other->things_);
   map_input_.InternalSwap(&other->map_input_);
   map_any_.InternalSwap(&other->map_any_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &other_, lhs_arena,
-      &other->other_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &other_, lhs_arena, &other->other_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MapIn::GetMetadata() const {
@@ -3883,10 +3677,11 @@ void MapOut::ArenaDtor(void* object) {
   _this->map3_. ~MapField();
   _this->map4_. ~MapField();
 }
-inline void MapOut::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &MapOut::ArenaDtor);
-  }
+inline void MapOut::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &MapOut::ArenaDtor);
+	}
 }
 void MapOut::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -3982,10 +3777,7 @@ const char* MapOut::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4184,39 +3976,27 @@ size_t MapOut::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<string, .proto_util_converter.testing.MapM> map1 = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map1_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM >::const_iterator
-      it = this->_internal_map1().begin();
-      it != this->_internal_map1().end(); ++it) {
-    total_size += MapOut_Map1Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map1_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapM >::const_iterator it = this->_internal_map1().begin(); it != this->_internal_map1().end(); ++it) {
+  	total_size += MapOut_Map1Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<string, .proto_util_converter.testing.MapOut> map2 = 2;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map2_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut >::const_iterator
-      it = this->_internal_map2().begin();
-      it != this->_internal_map2().end(); ++it) {
-    total_size += MapOut_Map2Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map2_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::proto_util_converter::testing::MapOut >::const_iterator it = this->_internal_map2().begin(); it != this->_internal_map2().end(); ++it) {
+  	total_size += MapOut_Map2Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, string> map3 = 3;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map3_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
-      it = this->_internal_map3().begin();
-      it != this->_internal_map3().end(); ++it) {
-    total_size += MapOut_Map3Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map3_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator it = this->_internal_map3().begin(); it != this->_internal_map3().end(); ++it) {
+  	total_size += MapOut_Map3Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<bool, string> map4 = 5;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map4_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator
-      it = this->_internal_map4().begin();
-      it != this->_internal_map4().end(); ++it) {
-    total_size += MapOut_Map4Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map4_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< bool, std::string >::const_iterator it = this->_internal_map4().begin(); it != this->_internal_map4().end(); ++it) {
+  	total_size += MapOut_Map4Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // string bar = 4;
@@ -4233,10 +4013,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapOut::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapOut::GetClassData() const { return &_class_data_; }
 
-void MapOut::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapOut *>(to)->MergeFrom(
-      static_cast<const MapOut &>(from));
+void MapOut::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapOut *>(to)->MergeFrom(static_cast<const MapOut &>(from));
 }
 
 
@@ -4276,11 +4054,7 @@ void MapOut::InternalSwap(MapOut* other) {
   map2_.InternalSwap(&other->map2_);
   map3_.InternalSwap(&other->map3_);
   map4_.InternalSwap(&other->map4_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &bar_, lhs_arena,
-      &other->bar_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &bar_, lhs_arena, &other->bar_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MapOut::GetMetadata() const {
@@ -4294,10 +4068,7 @@ class MapOutWireFormat_Map1Entry::_Internal {
   static const ::proto_util_converter::testing::MapM& value(const MapOutWireFormat_Map1Entry* msg);
 };
 
-const ::proto_util_converter::testing::MapM&
-MapOutWireFormat_Map1Entry::_Internal::value(const MapOutWireFormat_Map1Entry* msg) {
-  return *msg->value_;
-}
+const ::proto_util_converter::testing::MapM & MapOutWireFormat_Map1Entry::_Internal::value(const MapOutWireFormat_Map1Entry* msg) { return *msg->value_; }
 MapOutWireFormat_Map1Entry::MapOutWireFormat_Map1Entry(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -4317,11 +4088,7 @@ MapOutWireFormat_Map1Entry::MapOutWireFormat_Map1Entry(const MapOutWireFormat_Ma
   if(!from._internal_key().empty()) {
     key_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_key(), GetArenaForAllocation());
   }
-  if(from._internal_has_value()) {
-    value_ = new ::proto_util_converter::testing::MapM(*from.value_);
-  } else {
-    value_ = nullptr;
-  }
+  value_ = from._internal_has_value() ? new ::proto_util_converter::testing::MapM(*from.value_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.MapOutWireFormat.Map1Entry)
 }
 
@@ -4350,8 +4117,7 @@ void MapOutWireFormat_Map1Entry::ArenaDtor(void* object) {
   MapOutWireFormat_Map1Entry* _this = reinterpret_cast< MapOutWireFormat_Map1Entry* >(object);
   (void)_this;
 }
-void MapOutWireFormat_Map1Entry::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void MapOutWireFormat_Map1Entry::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void MapOutWireFormat_Map1Entry::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -4402,10 +4168,7 @@ const char* MapOutWireFormat_Map1Entry::_InternalParse(const char* ptr, ::PROTOB
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4472,10 +4235,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapOutWireFormat_Map1Entry::_c
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapOutWireFormat_Map1Entry::GetClassData() const { return &_class_data_; }
 
-void MapOutWireFormat_Map1Entry::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapOutWireFormat_Map1Entry *>(to)->MergeFrom(
-      static_cast<const MapOutWireFormat_Map1Entry &>(from));
+void MapOutWireFormat_Map1Entry::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapOutWireFormat_Map1Entry *>(to)->MergeFrom(static_cast<const MapOutWireFormat_Map1Entry &>(from));
 }
 
 
@@ -4510,11 +4271,7 @@ void MapOutWireFormat_Map1Entry::InternalSwap(MapOutWireFormat_Map1Entry* other)
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &key_, lhs_arena,
-      &other->key_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &key_, lhs_arena, &other->key_, rhs_arena);
   swap(value_, other->value_);
 }
 
@@ -4529,10 +4286,7 @@ class MapOutWireFormat_Map2Entry::_Internal {
   static const ::proto_util_converter::testing::MapOut& value(const MapOutWireFormat_Map2Entry* msg);
 };
 
-const ::proto_util_converter::testing::MapOut&
-MapOutWireFormat_Map2Entry::_Internal::value(const MapOutWireFormat_Map2Entry* msg) {
-  return *msg->value_;
-}
+const ::proto_util_converter::testing::MapOut & MapOutWireFormat_Map2Entry::_Internal::value(const MapOutWireFormat_Map2Entry* msg) { return *msg->value_; }
 MapOutWireFormat_Map2Entry::MapOutWireFormat_Map2Entry(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -4552,11 +4306,7 @@ MapOutWireFormat_Map2Entry::MapOutWireFormat_Map2Entry(const MapOutWireFormat_Ma
   if(!from._internal_key().empty()) {
     key_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_key(), GetArenaForAllocation());
   }
-  if(from._internal_has_value()) {
-    value_ = new ::proto_util_converter::testing::MapOut(*from.value_);
-  } else {
-    value_ = nullptr;
-  }
+  value_ = from._internal_has_value() ? new ::proto_util_converter::testing::MapOut(*from.value_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.MapOutWireFormat.Map2Entry)
 }
 
@@ -4585,8 +4335,7 @@ void MapOutWireFormat_Map2Entry::ArenaDtor(void* object) {
   MapOutWireFormat_Map2Entry* _this = reinterpret_cast< MapOutWireFormat_Map2Entry* >(object);
   (void)_this;
 }
-void MapOutWireFormat_Map2Entry::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void MapOutWireFormat_Map2Entry::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void MapOutWireFormat_Map2Entry::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -4637,10 +4386,7 @@ const char* MapOutWireFormat_Map2Entry::_InternalParse(const char* ptr, ::PROTOB
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4707,10 +4453,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapOutWireFormat_Map2Entry::_c
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapOutWireFormat_Map2Entry::GetClassData() const { return &_class_data_; }
 
-void MapOutWireFormat_Map2Entry::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapOutWireFormat_Map2Entry *>(to)->MergeFrom(
-      static_cast<const MapOutWireFormat_Map2Entry &>(from));
+void MapOutWireFormat_Map2Entry::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapOutWireFormat_Map2Entry *>(to)->MergeFrom(static_cast<const MapOutWireFormat_Map2Entry &>(from));
 }
 
 
@@ -4745,11 +4489,7 @@ void MapOutWireFormat_Map2Entry::InternalSwap(MapOutWireFormat_Map2Entry* other)
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &key_, lhs_arena,
-      &other->key_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &key_, lhs_arena, &other->key_, rhs_arena);
   swap(value_, other->value_);
 }
 
@@ -4810,8 +4550,7 @@ void MapOutWireFormat_Map3Entry::ArenaDtor(void* object) {
   MapOutWireFormat_Map3Entry* _this = reinterpret_cast< MapOutWireFormat_Map3Entry* >(object);
   (void)_this;
 }
-void MapOutWireFormat_Map3Entry::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void MapOutWireFormat_Map3Entry::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void MapOutWireFormat_Map3Entry::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -4859,10 +4598,7 @@ const char* MapOutWireFormat_Map3Entry::_InternalParse(const char* ptr, ::PROTOB
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4929,10 +4665,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapOutWireFormat_Map3Entry::_c
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapOutWireFormat_Map3Entry::GetClassData() const { return &_class_data_; }
 
-void MapOutWireFormat_Map3Entry::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapOutWireFormat_Map3Entry *>(to)->MergeFrom(
-      static_cast<const MapOutWireFormat_Map3Entry &>(from));
+void MapOutWireFormat_Map3Entry::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapOutWireFormat_Map3Entry *>(to)->MergeFrom(static_cast<const MapOutWireFormat_Map3Entry &>(from));
 }
 
 
@@ -4967,11 +4701,7 @@ void MapOutWireFormat_Map3Entry::InternalSwap(MapOutWireFormat_Map3Entry* other)
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &value_, lhs_arena,
-      &other->value_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &value_, lhs_arena, &other->value_, rhs_arena);
   swap(key_, other->key_);
 }
 
@@ -5032,8 +4762,7 @@ void MapOutWireFormat_Map4Entry::ArenaDtor(void* object) {
   MapOutWireFormat_Map4Entry* _this = reinterpret_cast< MapOutWireFormat_Map4Entry* >(object);
   (void)_this;
 }
-void MapOutWireFormat_Map4Entry::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void MapOutWireFormat_Map4Entry::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void MapOutWireFormat_Map4Entry::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5081,10 +4810,7 @@ const char* MapOutWireFormat_Map4Entry::_InternalParse(const char* ptr, ::PROTOB
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5151,10 +4877,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapOutWireFormat_Map4Entry::_c
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapOutWireFormat_Map4Entry::GetClassData() const { return &_class_data_; }
 
-void MapOutWireFormat_Map4Entry::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapOutWireFormat_Map4Entry *>(to)->MergeFrom(
-      static_cast<const MapOutWireFormat_Map4Entry &>(from));
+void MapOutWireFormat_Map4Entry::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapOutWireFormat_Map4Entry *>(to)->MergeFrom(static_cast<const MapOutWireFormat_Map4Entry &>(from));
 }
 
 
@@ -5189,11 +4913,7 @@ void MapOutWireFormat_Map4Entry::InternalSwap(MapOutWireFormat_Map4Entry* other)
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &value_, lhs_arena,
-      &other->value_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &value_, lhs_arena, &other->value_, rhs_arena);
   swap(key_, other->key_);
 }
 
@@ -5260,8 +4980,7 @@ void MapOutWireFormat::ArenaDtor(void* object) {
   MapOutWireFormat* _this = reinterpret_cast< MapOutWireFormat* >(object);
   (void)_this;
 }
-void MapOutWireFormat::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void MapOutWireFormat::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void MapOutWireFormat::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5356,10 +5075,7 @@ const char* MapOutWireFormat::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5463,10 +5179,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapOutWireFormat::_class_data_
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapOutWireFormat::GetClassData() const { return &_class_data_; }
 
-void MapOutWireFormat::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapOutWireFormat *>(to)->MergeFrom(
-      static_cast<const MapOutWireFormat &>(from));
+void MapOutWireFormat::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapOutWireFormat *>(to)->MergeFrom(static_cast<const MapOutWireFormat &>(from));
 }
 
 
@@ -5506,11 +5220,7 @@ void MapOutWireFormat::InternalSwap(MapOutWireFormat* other) {
   map2_.InternalSwap(&other->map2_);
   map3_.InternalSwap(&other->map3_);
   map4_.InternalSwap(&other->map4_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &bar_, lhs_arena,
-      &other->bar_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &bar_, lhs_arena, &other->bar_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MapOutWireFormat::GetMetadata() const {
@@ -5568,8 +5278,7 @@ void MapM::ArenaDtor(void* object) {
   MapM* _this = reinterpret_cast< MapM* >(object);
   (void)_this;
 }
-void MapM::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void MapM::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void MapM::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5608,10 +5317,7 @@ const char* MapM::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5667,10 +5373,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapM::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapM::GetClassData() const { return &_class_data_; }
 
-void MapM::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapM *>(to)->MergeFrom(
-      static_cast<const MapM &>(from));
+void MapM::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapM *>(to)->MergeFrom(static_cast<const MapM &>(from));
 }
 
 
@@ -5702,11 +5406,7 @@ void MapM::InternalSwap(MapM* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &foo_, lhs_arena,
-      &other->foo_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &foo_, lhs_arena, &other->foo_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MapM::GetMetadata() const {

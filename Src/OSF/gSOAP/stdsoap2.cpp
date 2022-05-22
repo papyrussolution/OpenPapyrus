@@ -221,9 +221,6 @@ GCRY_THREAD_OPTION_PTH_IMPL;
 	#elif defined(__VMS)
 		#define SOAP_SOCKBLOCK(fd) { int blocking = 0; ioctl(fd, FIONBIO, &blocking); }
 		#define SOAP_SOCKNONBLOCK(fd)	{ int nonblocking = 1; ioctl(fd, FIONBIO, &nonblocking); }
-	#elif defined(PALM)
-		#define SOAP_SOCKBLOCK(fd) fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0)&~O_NONBLOCK);
-		#define SOAP_SOCKNONBLOCK(fd) fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0)|O_NONBLOCK);
 	#elif defined(SYMBIAN)
 		#define SOAP_SOCKBLOCK(fd) { long blocking = 0; ioctl(fd, 0 /*FIONBIO*/, &blocking); }
 		#define SOAP_SOCKNONBLOCK(fd)	{ long nonblocking = 1;	ioctl(fd, 0 /*FIONBIO*/, &nonblocking); }
@@ -231,9 +228,6 @@ GCRY_THREAD_OPTION_PTH_IMPL;
 		#define SOAP_SOCKBLOCK(fd) fcntl(fd, F_SETFL, fcntl(fd, F_GETFL)&~O_NONBLOCK);
 		#define SOAP_SOCKNONBLOCK(fd) fcntl(fd, F_SETFL, fcntl(fd, F_GETFL)|O_NONBLOCK);
 	#endif
-#endif
-#if defined(PALM) && !defined(PALM_2)
-	ushort errno;
 #endif
 #ifndef PALM_1
 	static const char soap_env1[42] = "http://schemas.xmlsoap.org/soap/envelope/";
@@ -826,9 +820,6 @@ static size_t frecv(struct soap * soap, char * s, size_t n)
 				else
   #endif
 				r = recv(soap->socket, s, (int)n, soap->socket_flags);
-  #ifdef PALM
-				/* CycleSyncDisplay(curStatusMsg); */
-  #endif
 				if(r >= 0)
 					return (size_t)r;
 				r = soap_socket_errno(soap->socket);
@@ -857,13 +848,6 @@ static size_t frecv(struct soap * soap, char * s, size_t n)
 			}
 			if(retries-- <= 0)
 				return 0;
-  #ifdef PALM
-			r = soap_socket_errno(soap->socket);
-			if(r != SOAP_EINTR && retries-- <= 0) {
-				soap->errnum = r;
-				return 0;
-			}
-  #endif
 		}
 	}
   #ifdef WITH_FASTCGI
@@ -5057,12 +5041,7 @@ static int http_post(struct soap * soap, const char * endpoint, const char * hos
 		default: s = "POST";
 	}
 	DBGLOG(TEST, SOAP_MESSAGE(fdebug, "HTTP %s to %s\n", s, endpoint ? endpoint : "(null)"));
-  #ifdef PALM
-	if(!endpoint || (soap_tag_cmp(endpoint, "http:*") && soap_tag_cmp(endpoint, "https:*") && strncmp(endpoint, "httpg:", 6)) &&
-		    strncmp(endpoint, "_beam:", 6) && strncmp(endpoint, "_local:", 7) && strncmp(endpoint, "_btobex:", 8))
-  #else
 	if(!endpoint || (soap_tag_cmp(endpoint, "http:*") && soap_tag_cmp(endpoint, "https:*") && strncmp(endpoint, "httpg:", 6)))
-  #endif
 		return SOAP_OK;
 	if(sstrlen(endpoint)+sstrlen(soap->http_version) > sizeof(soap->tmpbuf)-80)
 		return soap->error = SOAP_EOM;
@@ -7855,9 +7834,6 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_versioning(soap_init) (struct soap * soap, soap_
  #ifdef WMW_RPM_IO
 	soap->rpmreqid = NULL;
  #endif
- #ifdef PALM
-	palmNetLibOpen();
- #endif
  #ifndef WITH_NOIDREF
 	soap_init_iht(soap);
 	soap_init_pht(soap);
@@ -7983,9 +7959,6 @@ SOAP_FMAC1 void /*SOAP_FMAC2*/FASTCALL soap_end(struct soap * soap)
 	soap_closesock(soap);
  #ifdef SOAP_DEBUG
 	soap_close_logfiles(soap);
- #endif
- #ifdef PALM
-	palmNetLibClose();
  #endif
 }
 #endif
@@ -13627,7 +13600,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_set_fault(struct soap * soap)
 		case SOAP_GET_METHOD: *s = "HTTP GET method not implemented"; break;
 		case SOAP_PUT_METHOD: *s = "HTTP PUT method not implemented"; break;
 		case SOAP_HTTP_METHOD: *s = "HTTP method not implemented"; break;
-		case SOAP_EOM: *s = "Out of memory"; break;
+		case SOAP_EOM: *s = SlTxtOutOfMem; break;
 		case SOAP_MOE: *s = "Memory overflow or memory corruption error"; break;
 		case SOAP_HDR: *s = "Header line too long"; break;
 		case SOAP_IOB: *s = "Array index out of bounds"; break;

@@ -6,10 +6,6 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-//#include "e_os.h"
-//#include "internal/sockets.h"
-//#include "internal/refcount.h"
-
 /* BEGIN BIO_ADDRINFO/BIO_ADDR stuff. */
 
 #ifndef OPENSSL_NO_SOCK

@@ -32,21 +32,6 @@
 #pragma hdrstop
 #if CAIRO_HAS_XCB_SURFACE // {
 #include "cairo-xcb-private.h"
-//#include "cairo-boxes-private.h"
-//#include "cairo-clip-inline.h"
-//#include "cairo-clip-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-image-surface-inline.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-list-inline.h"
-//#include "cairo-region-private.h"
-//#include "cairo-surface-offset-private.h"
-//#include "cairo-surface-snapshot-inline.h"
-//#include "cairo-surface-subsurface-private.h"
-//#include "cairo-traps-private.h"
-//#include "cairo-recording-surface-inline.h"
-//#include "cairo-paginated-private.h"
-//#include "cairo-pattern-inline.h"
 
 #define PIXMAN_MAX_INT ((pixman_fixed_1 >> 1) - pixman_fixed_e) /* need to ensure deltas also fit */
 
@@ -104,7 +89,7 @@ static cairo_xcb_picture_t * _cairo_xcb_picture_create(cairo_xcb_screen_t * scre
     xcb_render_pictformat_t xrender_format, int width, int height)
 {
 	cairo_xcb_picture_t * surface = _cairo_malloc(sizeof(cairo_xcb_picture_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return (cairo_xcb_picture_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_xcb_picture_backend, &screen->connection->device, 
 		_cairo_content_from_pixman_format(pixman_format), FALSE/* is_vector */);
@@ -2321,7 +2306,7 @@ static boolint need_unbounded_clip(cairo_composite_rectangles_t * extents)
 		if(!_cairo_clip_is_region(extents->clip))
 			flags |= NEED_CLIP_SURFACE;
 	}
-	if(extents->clip->path != NULL)
+	if(extents->clip->path)
 		flags |= NEED_CLIP_SURFACE;
 	return flags;
 }
@@ -2793,26 +2778,18 @@ static void _boxes_for_traps(cairo_boxes_t * boxes,
 	boxes->chunks.count = j;
 }
 
-static cairo_status_t _composite_polygon(cairo_xcb_surface_t * dst,
-    cairo_operator_t op,
-    const cairo_pattern_t * source,
-    cairo_polygon_t * polygon,
-    cairo_antialias_t antialias,
-    cairo_fill_rule_t fill_rule,
-    cairo_composite_rectangles_t * extents)
+static cairo_status_t _composite_polygon(cairo_xcb_surface_t * dst, cairo_operator_t op,
+    const cairo_pattern_t * source, cairo_polygon_t * polygon, cairo_antialias_t antialias, cairo_fill_rule_t fill_rule, cairo_composite_rectangles_t * extents)
 {
 	composite_traps_info_t traps;
 	boolint clip_surface = !_cairo_clip_is_region(extents->clip);
 	cairo_region_t * clip_region = _cairo_clip_get_region(extents->clip);
 	cairo_status_t status;
-
 	if(polygon->num_edges == 0) {
 		status = CAIRO_STATUS_SUCCESS;
-
 		if(!extents->is_bounded) {
 			if(cairo_region_contains_rectangle(clip_region, &extents->unbounded) == CAIRO_REGION_OVERLAP_IN)
 				clip_region = NULL;
-
 			if(clip_surface == FALSE) {
 				if(clip_region) {
 					status = _cairo_xcb_surface_set_clip_region(dst, clip_region);
@@ -2835,19 +2812,14 @@ static cairo_status_t _composite_polygon(cairo_xcb_surface_t * dst,
 		return status;
 	}
 
-	if(extents->clip->path != NULL && extents->is_bounded) {
+	if(extents->clip->path && extents->is_bounded) {
 		cairo_polygon_t clipper;
 		cairo_fill_rule_t clipper_fill_rule;
 		cairo_antialias_t clipper_antialias;
-
-		status = _cairo_clip_get_polygon(extents->clip,
-			&clipper,
-			&clipper_fill_rule,
-			&clipper_antialias);
+		status = _cairo_clip_get_polygon(extents->clip, &clipper, &clipper_fill_rule, &clipper_antialias);
 		if(LIKELY(status == CAIRO_STATUS_SUCCESS)) {
 			if(clipper_antialias == antialias) {
-				status = _cairo_polygon_intersect(polygon, fill_rule,
-					&clipper, clipper_fill_rule);
+				status = _cairo_polygon_intersect(polygon, fill_rule, &clipper, clipper_fill_rule);
 				if(LIKELY(status == CAIRO_STATUS_SUCCESS)) {
 					cairo_clip_t * clip = _cairo_clip_copy_region(extents->clip);
 					_cairo_clip_destroy(extents->clip);
@@ -3166,16 +3138,13 @@ static cairo_int_status_t _composite_mask_clip_boxes(void * closure,
 		if(UNLIKELY(status))
 			return status;
 	}
-
 	info.op = XCB_RENDER_PICT_OP_SRC;
 	info.dst = dst;
 	info.src = _cairo_xcb_picture_for_pattern(dst, closure, extents);
 	if(UNLIKELY(info.src->base.status))
 		return info.src->base.status;
-
 	info.src->x += dst_x;
 	info.src->y += dst_y;
-
 	for(i = 0; i < clip->num_boxes; i++)
 		do_unaligned_box(composite_box, &info, &clip->boxes[i], dst_x, dst_y);
 	cairo_surface_destroy(&info.src->base);

@@ -202,7 +202,7 @@ GMTOffsetField* GMTOffsetField::createText(const UnicodeString & text, UErrorCod
 		return NULL;
 	}
 	GMTOffsetField* result = new GMTOffsetField();
-	if(result == NULL) {
+	if(!result) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
@@ -227,7 +227,7 @@ GMTOffsetField* GMTOffsetField::createTimeField(FieldType type, uint8 width, UEr
 		return NULL;
 	}
 	GMTOffsetField* result = new GMTOffsetField();
-	if(result == NULL) {
+	if(!result) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
@@ -2406,7 +2406,7 @@ UVector* TimeZoneFormat::parseOffsetPattern(const UnicodeString & pattern, Offse
 		return NULL;
 	}
 	UVector* result = new UVector(deleteGMTOffsetField, NULL, status);
-	if(result == NULL) {
+	if(!result) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}

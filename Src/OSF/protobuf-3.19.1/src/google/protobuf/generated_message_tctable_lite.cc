@@ -52,13 +52,10 @@ inline PROTOBUF_ALWAYS_INLINE void InvertPacked(TcFieldData& data) {
 	data.data ^= Wt ^ WireFormatLite::WIRETYPE_LENGTH_DELIMITED;
 }
 }  // namespace
-
-//////////////////////////////////////////////////////////////////////////////
+//
 // Fixed fields
-//////////////////////////////////////////////////////////////////////////////
-
-template <typename LayoutType, typename TagType>
-const char* TcParser::SingularFixed(PROTOBUF_TC_PARAM_DECL) {
+//
+template <typename LayoutType, typename TagType> const char* TcParser::SingularFixed(PROTOBUF_TC_PARAM_DECL) {
 	if(PROTOBUF_PREDICT_FALSE(data.coded_tag<TagType>() != 0)) {
 		return table->fallback(PROTOBUF_TC_PARAM_PASS);
 	}
@@ -126,11 +123,9 @@ const char* TcParser::PackedFixed(PROTOBUF_TC_PARAM_DECL) {
 	return ctx->ReadPackedFixed(ptr, size,
 		   static_cast<RepeatedField<LayoutType>*>(&field));
 }
-
-//////////////////////////////////////////////////////////////////////////////
+//
 // Varint fields
-//////////////////////////////////////////////////////////////////////////////
-
+//
 namespace {
 inline PROTOBUF_ALWAYS_INLINE std::pair<const char*, uint64_t>Parse64FallbackPair(const char* p, int64_t res1) {
 	auto ptr = reinterpret_cast<const int8_t*>(p);
@@ -354,14 +349,11 @@ PROTOBUF_NOINLINE const char* TcParser::PackedVarint(PROTOBUF_TC_PARAM_DECL) {
 					field->Add(val);
 				});
 }
-
-//////////////////////////////////////////////////////////////////////////////
+//
 // String/bytes fields
-//////////////////////////////////////////////////////////////////////////////
-
+//
 // Defined in wire_format_lite.cc
-void PrintUTF8ErrorLog(const char* field_name, const char* operation_str,
-    bool emit_stacktrace);
+void PrintUTF8ErrorLog(const char* field_name, const char* operation_str, bool emit_stacktrace);
 
 namespace {
 PROTOBUF_NOINLINE

@@ -688,7 +688,7 @@ struct ssh_string_struct * ssh_buffer_get_ssh_string(struct ssh_buffer_struct * 
 		return NULL; /* it is indeed */
 	}
 	str = ssh_string_new(hostlen);
-	if(str == NULL) {
+	if(!str) {
 		return NULL;
 	}
 	stringlen = ssh_buffer_get_data(buffer, ssh_string_data(str), hostlen);

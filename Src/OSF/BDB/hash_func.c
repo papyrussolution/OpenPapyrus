@@ -44,7 +44,7 @@ uint32 __ham_func2(DB * dbp, const void * key, uint32 len)
 	const uint8 * e, * k;
 	uint32 h;
 	uint8 c;
-	if(dbp != NULL)
+	if(dbp)
 		COMPQUIET(dbp, 0);
 	k = static_cast<const uint8 *>(key);
 	e = k+len;
@@ -71,7 +71,7 @@ uint32 __ham_func3(DB * dbp, const void * key, uint32 len)
 {
 	const uint8 * k;
 	uint32 n, loop;
-	if(dbp != NULL)
+	if(dbp)
 		COMPQUIET(dbp, 0);
 	if(len == 0)
 		return 0;
@@ -102,7 +102,7 @@ uint32 __ham_func4(DB * dbp, const void * key, uint32 len)
 {
 	const uint8 * k;
 	uint32 h, loop;
-	if(dbp != NULL)
+	if(dbp)
 		COMPQUIET(dbp, 0);
 	if(len == 0)
 		return 0;
@@ -145,7 +145,7 @@ uint32 __ham_func5(DB * dbp, const void * key, uint32 len)
 {
 	const uint8 * k, * e;
 	uint32 h;
-	if(dbp != NULL)
+	if(dbp)
 		COMPQUIET(dbp, 0);
 	k = static_cast<const uint8 *>(key);
 	e = k+len;

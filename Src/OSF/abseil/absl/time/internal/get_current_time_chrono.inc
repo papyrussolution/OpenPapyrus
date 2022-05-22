@@ -6,20 +6,15 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-#include <chrono>
-#include <cstdint>
+//#include <chrono>
+//#include <cstdint>
 
 namespace absl {
-ABSL_NAMESPACE_BEGIN
-namespace time_internal {
-
-static int64_t GetCurrentTimeNanosFromSystem() {
-  return std::chrono::duration_cast<std::chrono::nanoseconds>(
-             std::chrono::system_clock::now() -
-             std::chrono::system_clock::from_time_t(0))
-      .count();
-}
-
-}  // namespace time_internal
-ABSL_NAMESPACE_END
+	ABSL_NAMESPACE_BEGIN
+	namespace time_internal {
+		static int64_t GetCurrentTimeNanosFromSystem() {
+			return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now() - std::chrono::system_clock::from_time_t(0)).count();
+		}
+	} // namespace time_internal
+	ABSL_NAMESPACE_END
 }  // namespace absl

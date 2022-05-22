@@ -5567,9 +5567,9 @@ SLTEST_R(HashFunction)
 		uint8 * p;
 		SetInfo((out_buf = "Endianness.  These lines should all be the same (for values filled in):").CR());
 		SetInfo(out_buf.Printf("%.8x                            %.8x                            %.8x\n",
-		    BobJencHash_Word((const uint32*)q, (sizeof(q)-1)/4, 13),
-		    BobJencHash_Word((const uint32*)q, (sizeof(q)-5)/4, 13),
-		    BobJencHash_Word((const uint32*)q, (sizeof(q)-9)/4, 13)));
+		    BobJencHash_Word((const uint32 *)q, (sizeof(q)-1)/4, 13),
+		    BobJencHash_Word((const uint32 *)q, (sizeof(q)-5)/4, 13),
+		    BobJencHash_Word((const uint32 *)q, (sizeof(q)-9)/4, 13)));
 		p = q;
 		SetInfo(out_buf.Printf("%.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x\n",
 		    BobJencHash_Little(p, sizeof(q)-1, 13), BobJencHash_Little(p, sizeof(q)-2, 13),

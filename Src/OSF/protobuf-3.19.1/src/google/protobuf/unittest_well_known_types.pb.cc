@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
-constexpr TestWellKnownTypes::TestWellKnownTypes(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestWellKnownTypes::TestWellKnownTypes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : any_field_(nullptr)
   , api_field_(nullptr)
   , duration_field_(nullptr)
@@ -45,8 +44,7 @@ struct TestWellKnownTypesDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestWellKnownTypesDefaultTypeInternal _TestWellKnownTypes_default_instance_;
-constexpr RepeatedWellKnownTypes::RepeatedWellKnownTypes(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr RepeatedWellKnownTypes::RepeatedWellKnownTypes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : any_field_()
   , api_field_()
   , duration_field_()
@@ -73,8 +71,7 @@ struct RepeatedWellKnownTypesDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RepeatedWellKnownTypesDefaultTypeInternal _RepeatedWellKnownTypes_default_instance_;
-constexpr OneofWellKnownTypes::OneofWellKnownTypes(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr OneofWellKnownTypes::OneofWellKnownTypes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : _oneof_case_{}{}
 struct OneofWellKnownTypesDefaultTypeInternal {
 	constexpr OneofWellKnownTypesDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -84,8 +81,7 @@ struct OneofWellKnownTypesDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT OneofWellKnownTypesDefaultTypeInternal _OneofWellKnownTypes_default_instance_;
-constexpr MapWellKnownTypes_AnyFieldEntry_DoNotUse::MapWellKnownTypes_AnyFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_AnyFieldEntry_DoNotUse::MapWellKnownTypes_AnyFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_AnyFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_AnyFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_AnyFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -94,8 +90,7 @@ struct MapWellKnownTypes_AnyFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_AnyFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_AnyFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_ApiFieldEntry_DoNotUse::MapWellKnownTypes_ApiFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_ApiFieldEntry_DoNotUse::MapWellKnownTypes_ApiFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_ApiFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_ApiFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_ApiFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -104,8 +99,7 @@ struct MapWellKnownTypes_ApiFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_ApiFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_ApiFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_DurationFieldEntry_DoNotUse::MapWellKnownTypes_DurationFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_DurationFieldEntry_DoNotUse::MapWellKnownTypes_DurationFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_DurationFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_DurationFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_DurationFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -114,8 +108,7 @@ struct MapWellKnownTypes_DurationFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_DurationFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_DurationFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_EmptyFieldEntry_DoNotUse::MapWellKnownTypes_EmptyFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_EmptyFieldEntry_DoNotUse::MapWellKnownTypes_EmptyFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_EmptyFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_EmptyFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_EmptyFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -124,8 +117,7 @@ struct MapWellKnownTypes_EmptyFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_EmptyFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_EmptyFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse::MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse::MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_FieldMaskFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_FieldMaskFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_FieldMaskFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -134,8 +126,7 @@ struct MapWellKnownTypes_FieldMaskFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_FieldMaskFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_SourceContextFieldEntry_DoNotUse::MapWellKnownTypes_SourceContextFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_SourceContextFieldEntry_DoNotUse::MapWellKnownTypes_SourceContextFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_SourceContextFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_SourceContextFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_SourceContextFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -144,8 +135,7 @@ struct MapWellKnownTypes_SourceContextFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_SourceContextFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_SourceContextFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_StructFieldEntry_DoNotUse::MapWellKnownTypes_StructFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_StructFieldEntry_DoNotUse::MapWellKnownTypes_StructFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_StructFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_StructFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_StructFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -154,8 +144,7 @@ struct MapWellKnownTypes_StructFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_StructFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_StructFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_TimestampFieldEntry_DoNotUse::MapWellKnownTypes_TimestampFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_TimestampFieldEntry_DoNotUse::MapWellKnownTypes_TimestampFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_TimestampFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_TimestampFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_TimestampFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -164,8 +153,7 @@ struct MapWellKnownTypes_TimestampFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_TimestampFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_TimestampFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_TypeFieldEntry_DoNotUse::MapWellKnownTypes_TypeFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_TypeFieldEntry_DoNotUse::MapWellKnownTypes_TypeFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_TypeFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_TypeFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_TypeFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -174,8 +162,7 @@ struct MapWellKnownTypes_TypeFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_TypeFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_TypeFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_DoubleFieldEntry_DoNotUse::MapWellKnownTypes_DoubleFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_DoubleFieldEntry_DoNotUse::MapWellKnownTypes_DoubleFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_DoubleFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_DoubleFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_DoubleFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -184,8 +171,7 @@ struct MapWellKnownTypes_DoubleFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_DoubleFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_DoubleFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_FloatFieldEntry_DoNotUse::MapWellKnownTypes_FloatFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_FloatFieldEntry_DoNotUse::MapWellKnownTypes_FloatFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_FloatFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_FloatFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_FloatFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -194,8 +180,7 @@ struct MapWellKnownTypes_FloatFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_FloatFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_FloatFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_Int64FieldEntry_DoNotUse::MapWellKnownTypes_Int64FieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_Int64FieldEntry_DoNotUse::MapWellKnownTypes_Int64FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_Int64FieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_Int64FieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_Int64FieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -204,8 +189,7 @@ struct MapWellKnownTypes_Int64FieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_Int64FieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_Int64FieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_Uint64FieldEntry_DoNotUse::MapWellKnownTypes_Uint64FieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_Uint64FieldEntry_DoNotUse::MapWellKnownTypes_Uint64FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_Uint64FieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_Uint64FieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_Uint64FieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -214,8 +198,7 @@ struct MapWellKnownTypes_Uint64FieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_Uint64FieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_Uint64FieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_Int32FieldEntry_DoNotUse::MapWellKnownTypes_Int32FieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_Int32FieldEntry_DoNotUse::MapWellKnownTypes_Int32FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_Int32FieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_Int32FieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_Int32FieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -224,8 +207,7 @@ struct MapWellKnownTypes_Int32FieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_Int32FieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_Int32FieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_Uint32FieldEntry_DoNotUse::MapWellKnownTypes_Uint32FieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_Uint32FieldEntry_DoNotUse::MapWellKnownTypes_Uint32FieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_Uint32FieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_Uint32FieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_Uint32FieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -234,8 +216,7 @@ struct MapWellKnownTypes_Uint32FieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_Uint32FieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_Uint32FieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_BoolFieldEntry_DoNotUse::MapWellKnownTypes_BoolFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_BoolFieldEntry_DoNotUse::MapWellKnownTypes_BoolFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_BoolFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_BoolFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_BoolFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -244,8 +225,7 @@ struct MapWellKnownTypes_BoolFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_BoolFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_BoolFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_StringFieldEntry_DoNotUse::MapWellKnownTypes_StringFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_StringFieldEntry_DoNotUse::MapWellKnownTypes_StringFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_StringFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_StringFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_StringFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -254,8 +234,7 @@ struct MapWellKnownTypes_StringFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_StringFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_StringFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes_BytesFieldEntry_DoNotUse::MapWellKnownTypes_BytesFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapWellKnownTypes_BytesFieldEntry_DoNotUse::MapWellKnownTypes_BytesFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapWellKnownTypes_BytesFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapWellKnownTypes_BytesFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapWellKnownTypes_BytesFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -264,8 +243,7 @@ struct MapWellKnownTypes_BytesFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapWellKnownTypes_BytesFieldEntry_DoNotUseDefaultTypeInternal _MapWellKnownTypes_BytesFieldEntry_DoNotUse_default_instance_;
-constexpr MapWellKnownTypes::MapWellKnownTypes(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapWellKnownTypes::MapWellKnownTypes(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : any_field_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
   , api_field_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
   , duration_field_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
@@ -833,82 +811,25 @@ class TestWellKnownTypes::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Value& value_field(const TestWellKnownTypes* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Any&
-TestWellKnownTypes::_Internal::any_field(const TestWellKnownTypes* msg) {
-  return *msg->any_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Api&
-TestWellKnownTypes::_Internal::api_field(const TestWellKnownTypes* msg) {
-  return *msg->api_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Duration&
-TestWellKnownTypes::_Internal::duration_field(const TestWellKnownTypes* msg) {
-  return *msg->duration_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Empty&
-TestWellKnownTypes::_Internal::empty_field(const TestWellKnownTypes* msg) {
-  return *msg->empty_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::FieldMask&
-TestWellKnownTypes::_Internal::field_mask_field(const TestWellKnownTypes* msg) {
-  return *msg->field_mask_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::SourceContext&
-TestWellKnownTypes::_Internal::source_context_field(const TestWellKnownTypes* msg) {
-  return *msg->source_context_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Struct&
-TestWellKnownTypes::_Internal::struct_field(const TestWellKnownTypes* msg) {
-  return *msg->struct_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Timestamp&
-TestWellKnownTypes::_Internal::timestamp_field(const TestWellKnownTypes* msg) {
-  return *msg->timestamp_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Type&
-TestWellKnownTypes::_Internal::type_field(const TestWellKnownTypes* msg) {
-  return *msg->type_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::DoubleValue&
-TestWellKnownTypes::_Internal::double_field(const TestWellKnownTypes* msg) {
-  return *msg->double_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::FloatValue&
-TestWellKnownTypes::_Internal::float_field(const TestWellKnownTypes* msg) {
-  return *msg->float_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Int64Value&
-TestWellKnownTypes::_Internal::int64_field(const TestWellKnownTypes* msg) {
-  return *msg->int64_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::UInt64Value&
-TestWellKnownTypes::_Internal::uint64_field(const TestWellKnownTypes* msg) {
-  return *msg->uint64_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Int32Value&
-TestWellKnownTypes::_Internal::int32_field(const TestWellKnownTypes* msg) {
-  return *msg->int32_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::UInt32Value&
-TestWellKnownTypes::_Internal::uint32_field(const TestWellKnownTypes* msg) {
-  return *msg->uint32_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::BoolValue&
-TestWellKnownTypes::_Internal::bool_field(const TestWellKnownTypes* msg) {
-  return *msg->bool_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::StringValue&
-TestWellKnownTypes::_Internal::string_field(const TestWellKnownTypes* msg) {
-  return *msg->string_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::BytesValue&
-TestWellKnownTypes::_Internal::bytes_field(const TestWellKnownTypes* msg) {
-  return *msg->bytes_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Value&
-TestWellKnownTypes::_Internal::value_field(const TestWellKnownTypes* msg) {
-  return *msg->value_field_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Any & TestWellKnownTypes::_Internal::any_field(const TestWellKnownTypes* msg) { return *msg->any_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Api & TestWellKnownTypes::_Internal::api_field(const TestWellKnownTypes* msg) { return *msg->api_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Duration & TestWellKnownTypes::_Internal::duration_field(const TestWellKnownTypes* msg) { return *msg->duration_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Empty & TestWellKnownTypes::_Internal::empty_field(const TestWellKnownTypes* msg) { return *msg->empty_field_; }
+const ::PROTOBUF_NAMESPACE_ID::FieldMask & TestWellKnownTypes::_Internal::field_mask_field(const TestWellKnownTypes* msg) { return *msg->field_mask_field_; }
+const ::PROTOBUF_NAMESPACE_ID::SourceContext & TestWellKnownTypes::_Internal::source_context_field(const TestWellKnownTypes* msg) { return *msg->source_context_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Struct & TestWellKnownTypes::_Internal::struct_field(const TestWellKnownTypes* msg) { return *msg->struct_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Timestamp & TestWellKnownTypes::_Internal::timestamp_field(const TestWellKnownTypes* msg) { return *msg->timestamp_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Type & TestWellKnownTypes::_Internal::type_field(const TestWellKnownTypes* msg) { return *msg->type_field_; }
+const ::PROTOBUF_NAMESPACE_ID::DoubleValue & TestWellKnownTypes::_Internal::double_field(const TestWellKnownTypes* msg) { return *msg->double_field_; }
+const ::PROTOBUF_NAMESPACE_ID::FloatValue & TestWellKnownTypes::_Internal::float_field(const TestWellKnownTypes* msg) { return *msg->float_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Int64Value & TestWellKnownTypes::_Internal::int64_field(const TestWellKnownTypes* msg) { return *msg->int64_field_; }
+const ::PROTOBUF_NAMESPACE_ID::UInt64Value & TestWellKnownTypes::_Internal::uint64_field(const TestWellKnownTypes* msg) { return *msg->uint64_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Int32Value & TestWellKnownTypes::_Internal::int32_field(const TestWellKnownTypes* msg) { return *msg->int32_field_; }
+const ::PROTOBUF_NAMESPACE_ID::UInt32Value & TestWellKnownTypes::_Internal::uint32_field(const TestWellKnownTypes* msg) { return *msg->uint32_field_; }
+const ::PROTOBUF_NAMESPACE_ID::BoolValue & TestWellKnownTypes::_Internal::bool_field(const TestWellKnownTypes* msg) { return *msg->bool_field_; }
+const ::PROTOBUF_NAMESPACE_ID::StringValue & TestWellKnownTypes::_Internal::string_field(const TestWellKnownTypes* msg) { return *msg->string_field_; }
+const ::PROTOBUF_NAMESPACE_ID::BytesValue & TestWellKnownTypes::_Internal::bytes_field(const TestWellKnownTypes* msg) { return *msg->bytes_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Value & TestWellKnownTypes::_Internal::value_field(const TestWellKnownTypes* msg) { return *msg->value_field_; }
 void TestWellKnownTypes::clear_any_field() {
   if(GetArenaForAllocation() == nullptr && any_field_ != nullptr) {
     delete any_field_;
@@ -1035,109 +956,30 @@ TestWellKnownTypes::TestWellKnownTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 TestWellKnownTypes::TestWellKnownTypes(const TestWellKnownTypes& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_any_field()) {
-    any_field_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_field_);
-  } else {
-    any_field_ = nullptr;
-  }
-  if(from._internal_has_api_field()) {
-    api_field_ = new ::PROTOBUF_NAMESPACE_ID::Api(*from.api_field_);
-  } else {
-    api_field_ = nullptr;
-  }
-  if(from._internal_has_duration_field()) {
-    duration_field_ = new ::PROTOBUF_NAMESPACE_ID::Duration(*from.duration_field_);
-  } else {
-    duration_field_ = nullptr;
-  }
-  if(from._internal_has_empty_field()) {
-    empty_field_ = new ::PROTOBUF_NAMESPACE_ID::Empty(*from.empty_field_);
-  } else {
-    empty_field_ = nullptr;
-  }
-  if(from._internal_has_field_mask_field()) {
-    field_mask_field_ = new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.field_mask_field_);
-  } else {
-    field_mask_field_ = nullptr;
-  }
-  if(from._internal_has_source_context_field()) {
-    source_context_field_ = new ::PROTOBUF_NAMESPACE_ID::SourceContext(*from.source_context_field_);
-  } else {
-    source_context_field_ = nullptr;
-  }
-  if(from._internal_has_struct_field()) {
-    struct_field_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.struct_field_);
-  } else {
-    struct_field_ = nullptr;
-  }
-  if(from._internal_has_timestamp_field()) {
-    timestamp_field_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.timestamp_field_);
-  } else {
-    timestamp_field_ = nullptr;
-  }
-  if(from._internal_has_type_field()) {
-    type_field_ = new ::PROTOBUF_NAMESPACE_ID::Type(*from.type_field_);
-  } else {
-    type_field_ = nullptr;
-  }
-  if(from._internal_has_double_field()) {
-    double_field_ = new ::PROTOBUF_NAMESPACE_ID::DoubleValue(*from.double_field_);
-  } else {
-    double_field_ = nullptr;
-  }
-  if(from._internal_has_float_field()) {
-    float_field_ = new ::PROTOBUF_NAMESPACE_ID::FloatValue(*from.float_field_);
-  } else {
-    float_field_ = nullptr;
-  }
-  if(from._internal_has_int64_field()) {
-    int64_field_ = new ::PROTOBUF_NAMESPACE_ID::Int64Value(*from.int64_field_);
-  } else {
-    int64_field_ = nullptr;
-  }
-  if(from._internal_has_uint64_field()) {
-    uint64_field_ = new ::PROTOBUF_NAMESPACE_ID::UInt64Value(*from.uint64_field_);
-  } else {
-    uint64_field_ = nullptr;
-  }
-  if(from._internal_has_int32_field()) {
-    int32_field_ = new ::PROTOBUF_NAMESPACE_ID::Int32Value(*from.int32_field_);
-  } else {
-    int32_field_ = nullptr;
-  }
-  if(from._internal_has_uint32_field()) {
-    uint32_field_ = new ::PROTOBUF_NAMESPACE_ID::UInt32Value(*from.uint32_field_);
-  } else {
-    uint32_field_ = nullptr;
-  }
-  if(from._internal_has_bool_field()) {
-    bool_field_ = new ::PROTOBUF_NAMESPACE_ID::BoolValue(*from.bool_field_);
-  } else {
-    bool_field_ = nullptr;
-  }
-  if(from._internal_has_string_field()) {
-    string_field_ = new ::PROTOBUF_NAMESPACE_ID::StringValue(*from.string_field_);
-  } else {
-    string_field_ = nullptr;
-  }
-  if(from._internal_has_bytes_field()) {
-    bytes_field_ = new ::PROTOBUF_NAMESPACE_ID::BytesValue(*from.bytes_field_);
-  } else {
-    bytes_field_ = nullptr;
-  }
-  if(from._internal_has_value_field()) {
-    value_field_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.value_field_);
-  } else {
-    value_field_ = nullptr;
-  }
+  any_field_ = from._internal_has_any_field() ? new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_field_) : nullptr;
+  api_field_ = from._internal_has_api_field() ? new ::PROTOBUF_NAMESPACE_ID::Api(*from.api_field_) : nullptr;
+  duration_field_ = from._internal_has_duration_field() ? new ::PROTOBUF_NAMESPACE_ID::Duration(*from.duration_field_) : nullptr;
+  empty_field_ = from._internal_has_empty_field() ? new ::PROTOBUF_NAMESPACE_ID::Empty(*from.empty_field_) : nullptr;
+  field_mask_field_ = from._internal_has_field_mask_field() ? new ::PROTOBUF_NAMESPACE_ID::FieldMask(*from.field_mask_field_) : nullptr;
+  source_context_field_ = from._internal_has_source_context_field() ? new ::PROTOBUF_NAMESPACE_ID::SourceContext(*from.source_context_field_) : nullptr;
+  struct_field_ = from._internal_has_struct_field() ? new ::PROTOBUF_NAMESPACE_ID::Struct(*from.struct_field_) : nullptr;
+  timestamp_field_ = from._internal_has_timestamp_field() ? new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.timestamp_field_) : nullptr;
+  type_field_ = from._internal_has_type_field() ? new ::PROTOBUF_NAMESPACE_ID::Type(*from.type_field_) : nullptr;
+  double_field_ = from._internal_has_double_field() ? new ::PROTOBUF_NAMESPACE_ID::DoubleValue(*from.double_field_) : nullptr;
+  float_field_ = from._internal_has_float_field() ? new ::PROTOBUF_NAMESPACE_ID::FloatValue(*from.float_field_) : nullptr;
+  int64_field_ = from._internal_has_int64_field() ? new ::PROTOBUF_NAMESPACE_ID::Int64Value(*from.int64_field_) : nullptr;
+  uint64_field_ = from._internal_has_uint64_field() ? new ::PROTOBUF_NAMESPACE_ID::UInt64Value(*from.uint64_field_) : nullptr;
+  int32_field_ = from._internal_has_int32_field() ? new ::PROTOBUF_NAMESPACE_ID::Int32Value(*from.int32_field_) : nullptr;
+  uint32_field_ = from._internal_has_uint32_field() ? new ::PROTOBUF_NAMESPACE_ID::UInt32Value(*from.uint32_field_) : nullptr;
+  bool_field_ = from._internal_has_bool_field() ? new ::PROTOBUF_NAMESPACE_ID::BoolValue(*from.bool_field_) : nullptr;
+  string_field_ = from._internal_has_string_field() ? new ::PROTOBUF_NAMESPACE_ID::StringValue(*from.string_field_) : nullptr;
+  bytes_field_ = from._internal_has_bytes_field() ? new ::PROTOBUF_NAMESPACE_ID::BytesValue(*from.bytes_field_) : nullptr;
+  value_field_ = from._internal_has_value_field() ? new ::PROTOBUF_NAMESPACE_ID::Value(*from.value_field_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestWellKnownTypes)
 }
 
 inline void TestWellKnownTypes::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&any_field_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&value_field_) -
-    reinterpret_cast<char*>(&any_field_)) + sizeof(value_field_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&any_field_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&value_field_) - reinterpret_cast<char*>(&any_field_)) + sizeof(value_field_));
 }
 
 TestWellKnownTypes::~TestWellKnownTypes() {
@@ -1174,8 +1016,7 @@ void TestWellKnownTypes::ArenaDtor(void* object) {
   TestWellKnownTypes* _this = reinterpret_cast< TestWellKnownTypes* >(object);
   (void)_this;
 }
-void TestWellKnownTypes::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestWellKnownTypes::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestWellKnownTypes::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1431,10 +1272,7 @@ const char* TestWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1685,10 +1523,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestWellKnownTypes::_class_dat
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestWellKnownTypes::GetClassData() const { return &_class_data_; }
 
-void TestWellKnownTypes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestWellKnownTypes *>(to)->MergeFrom(
-      static_cast<const TestWellKnownTypes &>(from));
+void TestWellKnownTypes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestWellKnownTypes *>(to)->MergeFrom(static_cast<const TestWellKnownTypes &>(from));
 }
 
 
@@ -1913,8 +1749,7 @@ void RepeatedWellKnownTypes::ArenaDtor(void* object) {
   RepeatedWellKnownTypes* _this = reinterpret_cast< RepeatedWellKnownTypes* >(object);
   (void)_this;
 }
-void RepeatedWellKnownTypes::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void RepeatedWellKnownTypes::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void RepeatedWellKnownTypes::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2194,10 +2029,7 @@ const char* RepeatedWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_N
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2455,10 +2287,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData RepeatedWellKnownTypes::_class
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RepeatedWellKnownTypes::GetClassData() const { return &_class_data_; }
 
-void RepeatedWellKnownTypes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<RepeatedWellKnownTypes *>(to)->MergeFrom(
-      static_cast<const RepeatedWellKnownTypes &>(from));
+void RepeatedWellKnownTypes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<RepeatedWellKnownTypes *>(to)->MergeFrom(static_cast<const RepeatedWellKnownTypes &>(from));
 }
 
 
@@ -2551,78 +2381,24 @@ class OneofWellKnownTypes::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::BytesValue& bytes_field(const OneofWellKnownTypes* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Any&
-OneofWellKnownTypes::_Internal::any_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.any_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Api&
-OneofWellKnownTypes::_Internal::api_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.api_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Duration&
-OneofWellKnownTypes::_Internal::duration_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.duration_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Empty&
-OneofWellKnownTypes::_Internal::empty_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.empty_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::FieldMask&
-OneofWellKnownTypes::_Internal::field_mask_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.field_mask_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::SourceContext&
-OneofWellKnownTypes::_Internal::source_context_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.source_context_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Struct&
-OneofWellKnownTypes::_Internal::struct_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.struct_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Timestamp&
-OneofWellKnownTypes::_Internal::timestamp_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.timestamp_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Type&
-OneofWellKnownTypes::_Internal::type_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.type_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::DoubleValue&
-OneofWellKnownTypes::_Internal::double_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.double_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::FloatValue&
-OneofWellKnownTypes::_Internal::float_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.float_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Int64Value&
-OneofWellKnownTypes::_Internal::int64_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.int64_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::UInt64Value&
-OneofWellKnownTypes::_Internal::uint64_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.uint64_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Int32Value&
-OneofWellKnownTypes::_Internal::int32_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.int32_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::UInt32Value&
-OneofWellKnownTypes::_Internal::uint32_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.uint32_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::BoolValue&
-OneofWellKnownTypes::_Internal::bool_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.bool_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::StringValue&
-OneofWellKnownTypes::_Internal::string_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.string_field_;
-}
-const ::PROTOBUF_NAMESPACE_ID::BytesValue&
-OneofWellKnownTypes::_Internal::bytes_field(const OneofWellKnownTypes* msg) {
-  return *msg->oneof_field_.bytes_field_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Any & OneofWellKnownTypes::_Internal::any_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.any_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Api & OneofWellKnownTypes::_Internal::api_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.api_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Duration & OneofWellKnownTypes::_Internal::duration_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.duration_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Empty & OneofWellKnownTypes::_Internal::empty_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.empty_field_; }
+const ::PROTOBUF_NAMESPACE_ID::FieldMask & OneofWellKnownTypes::_Internal::field_mask_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.field_mask_field_; }
+const ::PROTOBUF_NAMESPACE_ID::SourceContext & OneofWellKnownTypes::_Internal::source_context_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.source_context_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Struct & OneofWellKnownTypes::_Internal::struct_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.struct_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Timestamp & OneofWellKnownTypes::_Internal::timestamp_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.timestamp_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Type & OneofWellKnownTypes::_Internal::type_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.type_field_; }
+const ::PROTOBUF_NAMESPACE_ID::DoubleValue & OneofWellKnownTypes::_Internal::double_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.double_field_; }
+const ::PROTOBUF_NAMESPACE_ID::FloatValue & OneofWellKnownTypes::_Internal::float_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.float_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Int64Value & OneofWellKnownTypes::_Internal::int64_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.int64_field_; }
+const ::PROTOBUF_NAMESPACE_ID::UInt64Value & OneofWellKnownTypes::_Internal::uint64_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.uint64_field_; }
+const ::PROTOBUF_NAMESPACE_ID::Int32Value & OneofWellKnownTypes::_Internal::int32_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.int32_field_; }
+const ::PROTOBUF_NAMESPACE_ID::UInt32Value & OneofWellKnownTypes::_Internal::uint32_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.uint32_field_; }
+const ::PROTOBUF_NAMESPACE_ID::BoolValue & OneofWellKnownTypes::_Internal::bool_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.bool_field_; }
+const ::PROTOBUF_NAMESPACE_ID::StringValue & OneofWellKnownTypes::_Internal::string_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.string_field_; }
+const ::PROTOBUF_NAMESPACE_ID::BytesValue & OneofWellKnownTypes::_Internal::bytes_field(const OneofWellKnownTypes* msg) { return *msg->oneof_field_.bytes_field_; }
 void OneofWellKnownTypes::set_allocated_any_field(::PROTOBUF_NAMESPACE_ID::Any* any_field) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_oneof_field();
@@ -3152,8 +2928,7 @@ void OneofWellKnownTypes::ArenaDtor(void* object) {
   OneofWellKnownTypes* _this = reinterpret_cast< OneofWellKnownTypes* >(object);
   (void)_this;
 }
-void OneofWellKnownTypes::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void OneofWellKnownTypes::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void OneofWellKnownTypes::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -3445,10 +3220,7 @@ const char* OneofWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAME
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3691,10 +3463,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData OneofWellKnownTypes::_class_da
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*OneofWellKnownTypes::GetClassData() const { return &_class_data_; }
 
-void OneofWellKnownTypes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<OneofWellKnownTypes *>(to)->MergeFrom(
-      static_cast<const OneofWellKnownTypes &>(from));
+void OneofWellKnownTypes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<OneofWellKnownTypes *>(to)->MergeFrom(static_cast<const OneofWellKnownTypes &>(from));
 }
 
 
@@ -3777,9 +3547,7 @@ void OneofWellKnownTypes::MergeFrom(const OneofWellKnownTypes& from) {
       _internal_mutable_bytes_field()->::PROTOBUF_NAMESPACE_ID::BytesValue::MergeFrom(from._internal_bytes_field());
       break;
     }
-    case ONEOF_FIELD_NOT_SET: {
-      break;
-    }
+    case ONEOF_FIELD_NOT_SET: break;
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -4115,10 +3883,11 @@ void MapWellKnownTypes::ArenaDtor(void* object) {
   _this->string_field_. ~MapField();
   _this->bytes_field_. ~MapField();
 }
-inline void MapWellKnownTypes::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &MapWellKnownTypes::ArenaDtor);
-  }
+inline void MapWellKnownTypes::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &MapWellKnownTypes::ArenaDtor);
+	}
 }
 void MapWellKnownTypes::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -4399,10 +4168,7 @@ const char* MapWellKnownTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4940,165 +4706,111 @@ size_t MapWellKnownTypes::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<int32, .google.protobuf.Any> any_field = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_any_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any >::const_iterator
-      it = this->_internal_any_field().begin();
-      it != this->_internal_any_field().end(); ++it) {
-    total_size += MapWellKnownTypes_AnyFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_any_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Any >::const_iterator it = this->_internal_any_field().begin(); it != this->_internal_any_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_AnyFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.Api> api_field = 2;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_api_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api >::const_iterator
-      it = this->_internal_api_field().begin();
-      it != this->_internal_api_field().end(); ++it) {
-    total_size += MapWellKnownTypes_ApiFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_api_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Api >::const_iterator it = this->_internal_api_field().begin(); it != this->_internal_api_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_ApiFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.Duration> duration_field = 3;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_duration_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration >::const_iterator
-      it = this->_internal_duration_field().begin();
-      it != this->_internal_duration_field().end(); ++it) {
-    total_size += MapWellKnownTypes_DurationFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_duration_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Duration >::const_iterator it = this->_internal_duration_field().begin(); it != this->_internal_duration_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_DurationFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.Empty> empty_field = 4;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_empty_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty >::const_iterator
-      it = this->_internal_empty_field().begin();
-      it != this->_internal_empty_field().end(); ++it) {
-    total_size += MapWellKnownTypes_EmptyFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_empty_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Empty >::const_iterator it = this->_internal_empty_field().begin(); it != this->_internal_empty_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_EmptyFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.FieldMask> field_mask_field = 5;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_field_mask_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask >::const_iterator
-      it = this->_internal_field_mask_field().begin();
-      it != this->_internal_field_mask_field().end(); ++it) {
-    total_size += MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_field_mask_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FieldMask >::const_iterator it = this->_internal_field_mask_field().begin(); it != this->_internal_field_mask_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_FieldMaskFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.SourceContext> source_context_field = 6;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_source_context_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext >::const_iterator
-      it = this->_internal_source_context_field().begin();
-      it != this->_internal_source_context_field().end(); ++it) {
-    total_size += MapWellKnownTypes_SourceContextFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_source_context_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::SourceContext >::const_iterator it = this->_internal_source_context_field().begin(); it != this->_internal_source_context_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_SourceContextFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.Struct> struct_field = 7;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_struct_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator
-      it = this->_internal_struct_field().begin();
-      it != this->_internal_struct_field().end(); ++it) {
-    total_size += MapWellKnownTypes_StructFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_struct_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator it = this->_internal_struct_field().begin(); it != this->_internal_struct_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_StructFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.Timestamp> timestamp_field = 8;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_timestamp_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp >::const_iterator
-      it = this->_internal_timestamp_field().begin();
-      it != this->_internal_timestamp_field().end(); ++it) {
-    total_size += MapWellKnownTypes_TimestampFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_timestamp_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Timestamp >::const_iterator it = this->_internal_timestamp_field().begin(); it != this->_internal_timestamp_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_TimestampFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.Type> type_field = 9;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_type_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type >::const_iterator
-      it = this->_internal_type_field().begin();
-      it != this->_internal_type_field().end(); ++it) {
-    total_size += MapWellKnownTypes_TypeFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_type_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Type >::const_iterator it = this->_internal_type_field().begin(); it != this->_internal_type_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_TypeFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.DoubleValue> double_field = 10;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_double_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue >::const_iterator
-      it = this->_internal_double_field().begin();
-      it != this->_internal_double_field().end(); ++it) {
-    total_size += MapWellKnownTypes_DoubleFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_double_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::DoubleValue >::const_iterator it = this->_internal_double_field().begin(); it != this->_internal_double_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_DoubleFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.FloatValue> float_field = 11;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_float_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue >::const_iterator
-      it = this->_internal_float_field().begin();
-      it != this->_internal_float_field().end(); ++it) {
-    total_size += MapWellKnownTypes_FloatFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_float_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::FloatValue >::const_iterator it = this->_internal_float_field().begin(); it != this->_internal_float_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_FloatFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.Int64Value> int64_field = 12;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_int64_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value >::const_iterator
-      it = this->_internal_int64_field().begin();
-      it != this->_internal_int64_field().end(); ++it) {
-    total_size += MapWellKnownTypes_Int64FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_int64_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int64Value >::const_iterator it = this->_internal_int64_field().begin(); it != this->_internal_int64_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_Int64FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.UInt64Value> uint64_field = 13;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_uint64_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value >::const_iterator
-      it = this->_internal_uint64_field().begin();
-      it != this->_internal_uint64_field().end(); ++it) {
-    total_size += MapWellKnownTypes_Uint64FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_uint64_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt64Value >::const_iterator it = this->_internal_uint64_field().begin(); it != this->_internal_uint64_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_Uint64FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.Int32Value> int32_field = 14;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_int32_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value >::const_iterator
-      it = this->_internal_int32_field().begin();
-      it != this->_internal_int32_field().end(); ++it) {
-    total_size += MapWellKnownTypes_Int32FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_int32_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::Int32Value >::const_iterator it = this->_internal_int32_field().begin(); it != this->_internal_int32_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_Int32FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.UInt32Value> uint32_field = 15;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_uint32_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value >::const_iterator
-      it = this->_internal_uint32_field().begin();
-      it != this->_internal_uint32_field().end(); ++it) {
-    total_size += MapWellKnownTypes_Uint32FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_uint32_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::UInt32Value >::const_iterator it = this->_internal_uint32_field().begin(); it != this->_internal_uint32_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_Uint32FieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.BoolValue> bool_field = 16;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_bool_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue >::const_iterator
-      it = this->_internal_bool_field().begin();
-      it != this->_internal_bool_field().end(); ++it) {
-    total_size += MapWellKnownTypes_BoolFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_bool_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BoolValue >::const_iterator it = this->_internal_bool_field().begin(); it != this->_internal_bool_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_BoolFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.StringValue> string_field = 17;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_string_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue >::const_iterator
-      it = this->_internal_string_field().begin();
-      it != this->_internal_string_field().end(); ++it) {
-    total_size += MapWellKnownTypes_StringFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_string_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::StringValue >::const_iterator it = this->_internal_string_field().begin(); it != this->_internal_string_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_StringFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .google.protobuf.BytesValue> bytes_field = 18;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_bytes_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue >::const_iterator
-      it = this->_internal_bytes_field().begin();
-      it != this->_internal_bytes_field().end(); ++it) {
-    total_size += MapWellKnownTypes_BytesFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_bytes_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::PROTOBUF_NAMESPACE_ID::BytesValue >::const_iterator it = this->_internal_bytes_field().begin(); it != this->_internal_bytes_field().end(); ++it) {
+  	total_size += MapWellKnownTypes_BytesFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -5110,10 +4822,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapWellKnownTypes::_class_data
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapWellKnownTypes::GetClassData() const { return &_class_data_; }
 
-void MapWellKnownTypes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapWellKnownTypes *>(to)->MergeFrom(
-      static_cast<const MapWellKnownTypes &>(from));
+void MapWellKnownTypes::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapWellKnownTypes *>(to)->MergeFrom(static_cast<const MapWellKnownTypes &>(from));
 }
 
 

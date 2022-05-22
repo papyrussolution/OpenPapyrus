@@ -101,10 +101,8 @@ WEBP_EXTERN uint8* WebPDecodeBGRAInto(const uint8* data, size_t data_size,
 
 // RGB and BGR variants. Here too the transparency information, if present,
 // will be dropped and ignored.
-WEBP_EXTERN uint8* WebPDecodeRGBInto(const uint8* data, size_t data_size,
-    uint8* output_buffer, size_t output_buffer_size, int output_stride);
-WEBP_EXTERN uint8* WebPDecodeBGRInto(const uint8* data, size_t data_size,
-    uint8* output_buffer, size_t output_buffer_size, int output_stride);
+WEBP_EXTERN uint8* WebPDecodeRGBInto(const uint8* data, size_t data_size, uint8* output_buffer, size_t output_buffer_size, int output_stride);
+WEBP_EXTERN uint8* WebPDecodeBGRInto(const uint8* data, size_t data_size, uint8* output_buffer, size_t output_buffer_size, int output_stride);
 
 // WebPDecodeYUVInto() is a variant of WebPDecodeYUV() that operates directly
 // into pre-allocated luma/chroma plane buffers. This function requires the
@@ -113,14 +111,11 @@ WEBP_EXTERN uint8* WebPDecodeBGRInto(const uint8* data, size_t data_size,
 // 'u_size' and 'v_size' respectively.
 // Pointer to the luma plane ('*luma') is returned or NULL if an error occurred
 // during decoding (or because some buffers were found to be too small).
-WEBP_EXTERN uint8* WebPDecodeYUVInto(const uint8* data, size_t data_size,
-    uint8* luma, size_t luma_size, int luma_stride,
-    uint8* u, size_t u_size, int u_stride,
-    uint8* v, size_t v_size, int v_stride);
-
-//------------------------------------------------------------------------------
+WEBP_EXTERN uint8* WebPDecodeYUVInto(const uint8* data, size_t data_size, uint8* luma, size_t luma_size, int luma_stride,
+    uint8* u, size_t u_size, int u_stride, uint8* v, size_t v_size, int v_stride);
+//
 // Output colorspaces and buffer
-
+//
 // Colorspaces
 // Note: the naming describes the byte-ordering of packed samples in memory.
 // For instance, MODE_BGRA relates to samples ordered as B,G,R,A,B,G,R,A,...
@@ -149,21 +144,12 @@ typedef enum WEBP_CSP_MODE {
 } WEBP_CSP_MODE;
 
 // Some useful macros:
-static FORCEINLINE int WebPIsPremultipliedMode(WEBP_CSP_MODE mode) 
-{
-	return (mode == MODE_rgbA || mode == MODE_bgrA || mode == MODE_Argb || mode == MODE_rgbA_4444);
-}
-
-static FORCEINLINE int WebPIsAlphaMode(WEBP_CSP_MODE mode) 
-{
-	return (mode == MODE_RGBA || mode == MODE_BGRA || mode == MODE_ARGB || mode == MODE_RGBA_4444 || mode == MODE_YUVA || WebPIsPremultipliedMode(mode));
-}
-
+static FORCEINLINE int WebPIsPremultipliedMode(WEBP_CSP_MODE mode) { return oneof4(mode, MODE_rgbA, MODE_bgrA, MODE_Argb, MODE_rgbA_4444); }
+static FORCEINLINE int WebPIsAlphaMode(WEBP_CSP_MODE mode) { return (oneof5(mode, MODE_RGBA, MODE_BGRA, MODE_ARGB, MODE_RGBA_4444, MODE_YUVA) || WebPIsPremultipliedMode(mode)); }
 static FORCEINLINE int WebPIsRGBMode(WEBP_CSP_MODE mode) { return (mode < MODE_YUV); }
-
-//------------------------------------------------------------------------------
+//
 // WebPDecBuffer: Generic structure for describing the output sample buffer.
-
+//
 struct WebPRGBABuffer {    // view as RGBA
 	uint8* rgba; // pointer to RGBA samples
 	int stride; // stride in bytes from one scanline to the next.
@@ -209,10 +195,9 @@ static FORCEINLINE int WebPInitDecBuffer(WebPDecBuffer* buffer) { return WebPIni
 // Free any memory associated with the buffer. Must always be called last.
 // Note: doesn't free the 'buffer' structure itself.
 WEBP_EXTERN void WebPFreeDecBuffer(WebPDecBuffer* buffer);
-
-//------------------------------------------------------------------------------
+//
 // Enumeration of the status codes
-
+//
 typedef enum VP8StatusCode {
 	VP8_STATUS_OK = 0,
 	VP8_STATUS_OUT_OF_MEMORY,
@@ -223,8 +208,7 @@ typedef enum VP8StatusCode {
 	VP8_STATUS_USER_ABORT,
 	VP8_STATUS_NOT_ENOUGH_DATA
 } VP8StatusCode;
-
-//------------------------------------------------------------------------------
+//
 // Incremental decoding
 //
 // This API allows streamlined decoding of partial data.
@@ -334,10 +318,9 @@ WEBP_EXTERN uint8* WebPIDecGetYUVA(const WebPIDecoder* idec, int* last_y,
 
 // Deprecated alpha-less version of WebPIDecGetYUVA(): it will ignore the
 // alpha information (if present). Kept for backward compatibility.
-static FORCEINLINE uint8* WebPIDecGetYUV(const WebPIDecoder* idec, int* last_y, uint8** u, uint8** v,
-    int* width, int* height, int* stride, int* uv_stride) {
-	return WebPIDecGetYUVA(idec, last_y, u, v, NULL, width, height,
-		   stride, uv_stride, NULL);
+static FORCEINLINE uint8* WebPIDecGetYUV(const WebPIDecoder* idec, int* last_y, uint8** u, uint8** v, int* width, int* height, int* stride, int* uv_stride) 
+{
+	return WebPIDecGetYUVA(idec, last_y, u, v, NULL, width, height, stride, uv_stride, NULL);
 }
 
 // Generic call to retrieve information about the displayable area.
@@ -347,8 +330,7 @@ static FORCEINLINE uint8* WebPIDecGetYUV(const WebPIDecoder* idec, int* last_y, 
 // Otherwise returns the pointer to the internal representation. This structure
 // is read-only, tied to WebPIDecoder's lifespan and should not be modified.
 WEBP_EXTERN const WebPDecBuffer* WebPIDecodedArea(const WebPIDecoder* idec, int* left, int* top, int* width, int* height);
-
-//------------------------------------------------------------------------------
+//
 // Advanced decoding parametrization
 //
 //  Code sample for using the advanced decoding API

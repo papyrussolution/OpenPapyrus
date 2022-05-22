@@ -12,9 +12,6 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "./metadata.h"
-//#include <stdlib.h>
-//#include <string.h>
-//#include "webp/types.h"
 
 void MetadataInit(Metadata* const metadata) 
 {
@@ -49,5 +46,3 @@ int MetadataCopy(const char* metadata, size_t metadata_len, MetadataPayload* con
 	memcpy(payload->bytes, metadata, metadata_len);
 	return 1;
 }
-
-// -----------------------------------------------------------------------------

@@ -7,7 +7,7 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static int __db_quicksort __P((DB*, DBT*, DBT*, uint32*, uint32*, uint32*, uint32*, uint32));
+static int __db_quicksort __P((DB*, DBT*, DBT*, uint32 *, uint32 *, uint32 *, uint32 *, uint32));
 /*
  * __db_compare_both --
  *	Use the comparison functions from db to compare akey and bkey, and if

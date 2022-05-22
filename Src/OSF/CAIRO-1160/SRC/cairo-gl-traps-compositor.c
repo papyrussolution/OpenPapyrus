@@ -33,24 +33,10 @@
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-compositor-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-private.h"
 #include "cairo-spans-compositor-private.h"
-//#include "cairo-surface-backend-private.h"
-//#include "cairo-surface-offset-private.h"
 
-static cairo_int_status_t acquire(void * abstract_dst)
-{
-	return CAIRO_STATUS_SUCCESS;
-}
-
-static cairo_int_status_t release(void * abstract_dst)
-{
-	return CAIRO_STATUS_SUCCESS;
-}
+static cairo_int_status_t acquire(void * abstract_dst) { return CAIRO_STATUS_SUCCESS; }
+static cairo_int_status_t release(void * abstract_dst) { return CAIRO_STATUS_SUCCESS; }
 
 static cairo_int_status_t set_clip_region(void * _surface, cairo_region_t * region)
 {

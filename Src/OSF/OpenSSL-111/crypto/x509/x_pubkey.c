@@ -158,7 +158,7 @@ EVP_PKEY * X509_PUBKEY_get0(X509_PUBKEY * key)
 	 */
 	x509_pubkey_decode(&ret, key);
 	/* If decode doesn't fail something bad happened */
-	if(ret != NULL) {
+	if(ret) {
 		X509err(X509_F_X509_PUBKEY_GET0, ERR_R_INTERNAL_ERROR);
 		EVP_PKEY_free(ret);
 	}
@@ -169,7 +169,7 @@ EVP_PKEY * X509_PUBKEY_get0(X509_PUBKEY * key)
 EVP_PKEY * X509_PUBKEY_get(X509_PUBKEY * key)
 {
 	EVP_PKEY * ret = X509_PUBKEY_get0(key);
-	if(ret != NULL)
+	if(ret)
 		EVP_PKEY_up_ref(ret);
 	return ret;
 }

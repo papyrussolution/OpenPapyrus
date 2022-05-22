@@ -18,9 +18,8 @@ int ASN1_PRINTABLE_type(const uchar * s, int len)
 	int t61 = 0;
 	if(len <= 0)
 		len = -1;
-	if(s == NULL)
+	if(!s)
 		return V_ASN1_PRINTABLESTRING;
-
 	while((*s) && (len-- != 0)) {
 		c = *(s++);
 		if(!ossl_isasn1print(c))
@@ -39,7 +38,6 @@ int ASN1_UNIVERSALSTRING_to_string(ASN1_UNIVERSALSTRING * s)
 {
 	int i;
 	uchar * p;
-
 	if(s->type != V_ASN1_UNIVERSALSTRING)
 		return 0;
 	if((s->length % 4) != 0)

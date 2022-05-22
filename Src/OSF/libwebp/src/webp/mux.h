@@ -22,8 +22,7 @@ extern "C" {
 #endif
 
 #define WEBP_MUX_ABI_VERSION 0x0108        // MAJOR(8b) + MINOR(8b)
-
-//------------------------------------------------------------------------------
+//
 // Mux API
 //
 // This API allows manipulation of WebP container images containing features
@@ -93,16 +92,13 @@ typedef enum WebPChunkId {
 	WEBP_CHUNK_UNKNOWN, // Other chunks.
 	WEBP_CHUNK_NIL
 } WebPChunkId;
-
-//------------------------------------------------------------------------------
-
+//
 // Returns the version number of the mux library, packed in hexadecimal using
 // 8bits for each of major/minor/revision. E.g: v2.5.7 is 0x020507.
 WEBP_EXTERN int WebPGetMuxVersion(void);
-
-//------------------------------------------------------------------------------
+//
 // Life of a Mux object
-
+//
 // Internal, version-checked, entry point
 WEBP_EXTERN WebPMux* WebPNewInternal(int);
 
@@ -116,10 +112,9 @@ static FORCEINLINE WebPMux* WebPMuxNew(void) { return WebPNewInternal(WEBP_MUX_A
 // Parameters:
 //   mux - (in/out) object to be deleted
 WEBP_EXTERN void WebPMuxDelete(WebPMux* mux);
-
-//------------------------------------------------------------------------------
+//
 // Mux creation.
-
+//
 // Internal, version-checked, entry point
 WEBP_EXTERN WebPMux* WebPMuxCreateInternal(const WebPData*, int, int);
 
@@ -135,10 +130,9 @@ static FORCEINLINE WebPMux* WebPMuxCreate(const WebPData* bitstream, int copy_da
 {
 	return WebPMuxCreateInternal(bitstream, copy_data, WEBP_MUX_ABI_VERSION);
 }
-
-//------------------------------------------------------------------------------
+//
 // Non-image chunks.
-
+//
 // Note: Only non-image related chunks should be managed through chunk APIs.
 // (Image related chunks are: "ANMF", "VP8 ", "VP8L" and "ALPH").
 // To add, get and delete images, use WebPMuxSetImage(), WebPMuxPushFrame(),
@@ -186,20 +180,16 @@ WEBP_EXTERN WebPMuxError WebPMuxGetChunk(const WebPMux* mux, const char fourcc[4
 //   WEBP_MUX_NOT_FOUND - If mux does not contain a chunk with the given fourcc.
 //   WEBP_MUX_OK - on success.
 WEBP_EXTERN WebPMuxError WebPMuxDeleteChunk(WebPMux* mux, const char fourcc[4]);
-
-//------------------------------------------------------------------------------
+//
 // Images.
-
+//
 // Encapsulates data about a single frame.
 struct WebPMuxFrameInfo {
-	WebPData bitstream; // image data: can be a raw VP8/VP8L bitstream
-	                    // or a single-image WebP file.
+	WebPData bitstream; // image data: can be a raw VP8/VP8L bitstream or a single-image WebP file.
 	int x_offset;     // x-offset of the frame.
 	int y_offset;     // y-offset of the frame.
 	int duration;     // duration of the frame (in milliseconds).
-
-	WebPChunkId id;   // frame type: should be one of WEBP_CHUNK_ANMF
-	                  // or WEBP_CHUNK_IMAGE
+	WebPChunkId id;   // frame type: should be one of WEBP_CHUNK_ANMF or WEBP_CHUNK_IMAGE
 	WebPMuxAnimDispose dispose_method; // Disposal method for the frame.
 	WebPMuxAnimBlend blend_method; // Blend operation for the frame.
 	uint32_t pad[1];  // padding for later use
@@ -265,10 +255,9 @@ WEBP_EXTERN WebPMuxError WebPMuxGetFrame(const WebPMux* mux, uint32_t nth, WebPM
 //                        before deletion.
 //   WEBP_MUX_OK - on success.
 WEBP_EXTERN WebPMuxError WebPMuxDeleteFrame(WebPMux* mux, uint32_t nth);
-
-//------------------------------------------------------------------------------
+//
 // Animation.
-
+//
 // Animation parameters.
 struct WebPMuxAnimParams {
 	uint32_t bgcolor; // Background color of the canvas stored (in MSB order) as:
@@ -299,10 +288,9 @@ WEBP_EXTERN WebPMuxError WebPMuxSetAnimationParams(WebPMux* mux, const WebPMuxAn
 //   WEBP_MUX_NOT_FOUND - if ANIM chunk is not present in mux object.
 //   WEBP_MUX_OK - on success.
 WEBP_EXTERN WebPMuxError WebPMuxGetAnimationParams(const WebPMux* mux, WebPMuxAnimParams* params);
-
-//------------------------------------------------------------------------------
+//
 // Misc Utilities.
-
+//
 // Sets the canvas size for the mux object. The width and height can be
 // specified explicitly or left as zero (0, 0).
 // * When width and height are specified explicitly, then this frame bound is
@@ -379,8 +367,7 @@ WEBP_EXTERN WebPMuxError WebPMuxNumChunks(const WebPMux* mux,
 //   WEBP_MUX_MEMORY_ERROR - on memory allocation error.
 //   WEBP_MUX_OK - on success.
 WEBP_EXTERN WebPMuxError WebPMuxAssemble(WebPMux* mux, WebPData* assembled_data);
-
-//------------------------------------------------------------------------------
+//
 // WebPAnimEncoder API
 //
 // This API allows encoding (possibly) animated WebP images.
@@ -500,8 +487,6 @@ WEBP_EXTERN const char * WebPAnimEncoderGetError(WebPAnimEncoder* enc);
 // Parameters:
 //   enc - (in/out) object to be deleted
 WEBP_EXTERN void WebPAnimEncoderDelete(WebPAnimEncoder* enc);
-
-//------------------------------------------------------------------------------
 
 #ifdef __cplusplus
 }    // extern "C"

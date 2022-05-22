@@ -4,8 +4,7 @@
 #include "regint.h"
 #pragma hdrstop
 
-/* U+0000 - U+10FFFF */
-#define USE_RFC3629_RANGE
+#define USE_RFC3629_RANGE /* U+0000 - U+10FFFF */
 
 /* #define USE_INVALID_CODE_SCHEME */
 
@@ -19,32 +18,37 @@
 #define utf8_islead(c)     ((uchar)((c) & 0xc0) != 0x80)
 #define utf8_istail(c)     ((uchar)((c) & 0xc0) == 0x80)
 
-static const int EncLen_UTF8[] = {
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-#ifdef USE_RFC3629_RANGE
-	4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-#else
-	4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 1, 1
-#endif
-};
+// (replaced with SUtfConst::Utf8EncLen_RFC3629/SUtfConst::Utf8EncLen_) static const int EncLen_UTF8[] = {
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+//	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+//	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+//	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+//#ifdef USE_RFC3629_RANGE
+//	4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+//#else
+//	4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 1, 1
+//#endif
+//};
 
 static int mbc_enc_len(const uchar * p)
 {
-	return EncLen_UTF8[*p];
+	//return EncLen_UTF8[*p];
+#ifdef USE_RFC3629_RANGE
+	return SUtfConst::Utf8EncLen_RFC3629[*p];
+#else
+	return SUtfConst::Utf8EncLen_[*p];
+#endif
 }
 
 static int is_valid_mbc_string(const uchar * p, const uchar * end)
@@ -58,7 +62,6 @@ static int is_valid_mbc_string(const uchar * p, const uchar * end)
 			for(i = 1; i < len; i++) {
 				if(p == end)
 					return FALSE;
-
 				if(!utf8_istail(*p++))
 					return FALSE;
 			}
@@ -123,7 +126,6 @@ static int code_to_mbc(OnigCodePoint code, uchar * buf)
 	}
 	else {
 		uchar * p = buf;
-
 		if((code & 0xfffff800) == 0) {
 			*p++ = (uchar)(((code>>6)& 0x1f) | 0xc0);
 		}
@@ -184,14 +186,12 @@ static int mbc_case_fold(OnigCaseFoldType flag, const uchar ** pp, const uchar *
 			}
 		}
 #endif
-
 		*fold = ONIGENC_ASCII_CODE_TO_LOWER_CASE(*p);
 		(*pp)++;
 		return 1; /* return byte length of converted char to lower */
 	}
 	else {
-		return onigenc_unicode_mbc_case_fold(ONIG_ENCODING_UTF8, flag,
-			   pp, end, fold);
+		return onigenc_unicode_mbc_case_fold(ONIG_ENCODING_UTF8, flag, pp, end, fold);
 	}
 }
 
@@ -205,10 +205,9 @@ static int get_ctype_code_range(OnigCtype ctype, OnigCodePoint * sb_out,
 static uchar * left_adjust_char_head(const uchar * start, const uchar * s)
 {
 	const uchar * p;
-
-	if(s <= start) return (uchar *)s;
+	if(s <= start) 
+		return (uchar *)s;
 	p = s;
-
 	while(!utf8_islead(*p) && p > start) p--;
 	return (uchar *)p;
 }

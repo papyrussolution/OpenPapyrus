@@ -558,7 +558,7 @@ static cairo_surface_t * _cairo_svg_surface_create_for_document(cairo_svg_docume
 	cairo_surface_t * paginated;
 	cairo_status_t status, status_ignored;
 	cairo_svg_surface_t * surface = (cairo_svg_surface_t *)_cairo_malloc(sizeof(cairo_svg_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &cairo_svg_surface_backend,
 	    NULL,              /* device */

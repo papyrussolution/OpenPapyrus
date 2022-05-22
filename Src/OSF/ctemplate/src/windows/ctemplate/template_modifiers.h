@@ -50,8 +50,6 @@
 #ifndef TEMPLATE_TEMPLATE_MODIFIERS_H_
 #define TEMPLATE_TEMPLATE_MODIFIERS_H_
 
-#include <sys/types.h>   // for size_t
-#include <string>
 #include <ctemplate/template_emitter.h>   // so we can inline operator()
 #include <ctemplate/per_expand_data.h>    // could probably just forward-declare
 

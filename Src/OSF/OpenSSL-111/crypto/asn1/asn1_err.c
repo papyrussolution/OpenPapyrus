@@ -9,8 +9,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/err.h>
-//#include <openssl/asn1err.h>
 
 #ifndef OPENSSL_NO_ERR
 

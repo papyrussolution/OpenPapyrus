@@ -1080,7 +1080,7 @@ static u_char * ngx_http_v2_state_process_header(ngx_http_v2_connection_t * h2c,
 	}
 	else {
 		h = (ngx_table_elt_t *)ngx_list_push(&r->headers_in.headers);
-		if(h == NULL) {
+		if(!h) {
 			return ngx_http_v2_connection_error(h2c, NGX_HTTP_V2_INTERNAL_ERROR);
 		}
 		h->key.len = header->name.len;
@@ -2135,7 +2135,7 @@ static ngx_int_t ngx_http_v2_parse_authority(ngx_http_request_t * r, ngx_http_v2
 	ngx_http_core_main_conf_t  * cmcf;
 	static ngx_str_t host = ngx_string("host");
 	h = (ngx_table_elt_t *)ngx_list_push(&r->headers_in.headers);
-	if(h == NULL) {
+	if(!h) {
 		return NGX_ERROR;
 	}
 	h->hash = ngx_hash_key(host.data, host.len);
@@ -2240,7 +2240,7 @@ static ngx_int_t ngx_http_v2_construct_cookie_header(ngx_http_request_t * r)
 		*p++ = ';'; *p++ = ' ';
 	}
 	h = (ngx_table_elt_t *)ngx_list_push(&r->headers_in.headers);
-	if(h == NULL) {
+	if(!h) {
 		ngx_http_v2_close_stream(r->stream, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		return NGX_ERROR;
 	}

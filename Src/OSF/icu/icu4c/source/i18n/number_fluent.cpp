@@ -664,12 +664,8 @@ bool LocalizedNumberFormatter::computeCompiled(UErrorCode & status) const {
 	// std::atomic<int32_t>.  Since the type of atomic int is platform-dependent, we cast the
 	// bytes in fUnsafeCallCount to u_atomic_int32_t, a typedef for the platform-dependent
 	// atomic int type defined in umutex.h.
-	static_assert(
-		sizeof(u_atomic_int32_t) <= sizeof(fUnsafeCallCount),
-		"Atomic integer size on this platform exceeds the size allocated by fUnsafeCallCount");
-	auto* callCount = reinterpret_cast<u_atomic_int32_t*>(
-		const_cast<LocalizedNumberFormatter*>(this)->fUnsafeCallCount);
-
+	static_assert(sizeof(u_atomic_int32_t) <= sizeof(fUnsafeCallCount), "Atomic integer size on this platform exceeds the size allocated by fUnsafeCallCount");
+	auto* callCount = reinterpret_cast<u_atomic_int32_t*>(const_cast<LocalizedNumberFormatter*>(this)->fUnsafeCallCount);
 	// A positive value in the atomic int indicates that the data structure is not yet ready;
 	// a negative value indicates that it is ready. If, after the increment, the atomic int
 	// is exactly threshold, then it is the current thread's job to build the data structure.

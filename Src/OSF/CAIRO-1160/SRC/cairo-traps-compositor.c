@@ -323,7 +323,7 @@ static cairo_surface_t * create_composite_mask(const cairo_traps_compositor_t * 
 	if(UNLIKELY(status))
 		goto error;
 	surface->is_clear = FALSE;
-	if(extents->clip->path != NULL) {
+	if(extents->clip->path) {
 		status = combine_clip_as_traps(compositor, surface, extents->clip, &extents->bounded);
 		if(status == CAIRO_INT_STATUS_UNSUPPORTED) {
 			status = _cairo_clip_combine_with_surface(extents->clip, surface, extents->bounded.x, extents->bounded.y);
@@ -1135,7 +1135,7 @@ static cairo_status_t clip_and_composite_polygon(const cairo_traps_compositor_t 
 		}
 		return status;
 	}
-	if(extents->clip->path != NULL && extents->is_bounded) {
+	if(extents->clip->path && extents->is_bounded) {
 		cairo_polygon_t clipper;
 		cairo_fill_rule_t clipper_fill_rule;
 		cairo_antialias_t clipper_antialias;
@@ -1319,7 +1319,7 @@ static cairo_status_t clip_and_composite_boxes(const cairo_traps_compositor_t * 
 	}
 
 	/* Can we reduce drawing through a clip-mask to simply drawing the clip? */
-	if(extents->clip->path != NULL && extents->is_bounded) {
+	if(extents->clip->path && extents->is_bounded) {
 		cairo_polygon_t polygon;
 		cairo_fill_rule_t fill_rule;
 		cairo_antialias_t antialias;

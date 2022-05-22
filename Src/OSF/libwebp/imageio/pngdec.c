@@ -270,13 +270,10 @@ Error:
 	if(info == NULL) goto Error;
 	end_info = png_create_info_struct(png);
 	if(end_info == NULL) goto Error;
-
 	png_set_read_fn(png, &context, ReadFunc);
 	png_read_info(png, info);
-	if(!png_get_IHDR(png, info,
-	    &width, &height, &bit_depth, &color_type, &interlaced,
-	    NULL, NULL)) goto Error;
-
+	if(!png_get_IHDR(png, info, &width, &height, &bit_depth, &color_type, &interlaced, NULL, NULL)) 
+		goto Error;
 	png_set_strip_16(png);
 	png_set_packing(png);
 	if(color_type == PNG_COLOR_TYPE_PALETTE) {
@@ -326,9 +323,7 @@ Error:
 		}
 	}
 	png_read_end(png, end_info);
-
-	if(metadata != NULL &&
-	    !ExtractMetadataFromPNG(png, info, end_info, metadata)) {
+	if(metadata != NULL && !ExtractMetadataFromPNG(png, info, end_info, metadata)) {
 		fprintf(stderr, "Error extracting PNG metadata!\n");
 		goto Error;
 	}
@@ -355,8 +350,7 @@ int ReadPNG(const uint8* const data, size_t data_size,
 	(void)pic;
 	(void)keep_alpha;
 	(void)metadata;
-	fprintf(stderr, "PNG support not compiled. Please install the libpng "
-	    "development package before building.\n");
+	fprintf(stderr, "PNG support not compiled. Please install the libpng development package before building.\n");
 	return 0;
 }
 

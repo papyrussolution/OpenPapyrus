@@ -64,7 +64,7 @@ int archive_write_add_filter_gzip(struct archive * _a)
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = (private_data *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	f->data = data;
@@ -81,7 +81,7 @@ int archive_write_add_filter_gzip(struct archive * _a)
 	data->pdata = __archive_write_program_allocate("gzip");
 	if(data->pdata == NULL) {
 		SAlloc::F(data);
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 0;

@@ -1812,9 +1812,7 @@ class BytesWrapper final :
 // WrappersTestCases
 
 // .proto_util_converter.testing.DoubleWrapper double_wrapper = 1;
-inline bool WrappersTestCases::_internal_has_double_wrapper() const {
-  return this != internal_default_instance() && double_wrapper_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_double_wrapper() const { return this != internal_default_instance() && double_wrapper_ != nullptr; }
 inline bool WrappersTestCases::has_double_wrapper() const {
   return _internal_has_double_wrapper();
 }
@@ -1901,9 +1899,7 @@ inline void WrappersTestCases::set_allocated_double_wrapper(::proto_util_convert
 }
 
 // .proto_util_converter.testing.FloatWrapper float_wrapper = 2;
-inline bool WrappersTestCases::_internal_has_float_wrapper() const {
-  return this != internal_default_instance() && float_wrapper_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_float_wrapper() const { return this != internal_default_instance() && float_wrapper_ != nullptr; }
 inline bool WrappersTestCases::has_float_wrapper() const {
   return _internal_has_float_wrapper();
 }
@@ -1990,9 +1986,7 @@ inline void WrappersTestCases::set_allocated_float_wrapper(::proto_util_converte
 }
 
 // .proto_util_converter.testing.Int64Wrapper int64_wrapper = 3;
-inline bool WrappersTestCases::_internal_has_int64_wrapper() const {
-  return this != internal_default_instance() && int64_wrapper_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_int64_wrapper() const { return this != internal_default_instance() && int64_wrapper_ != nullptr; }
 inline bool WrappersTestCases::has_int64_wrapper() const {
   return _internal_has_int64_wrapper();
 }
@@ -2079,9 +2073,7 @@ inline void WrappersTestCases::set_allocated_int64_wrapper(::proto_util_converte
 }
 
 // .proto_util_converter.testing.UInt64Wrapper uint64_wrapper = 4;
-inline bool WrappersTestCases::_internal_has_uint64_wrapper() const {
-  return this != internal_default_instance() && uint64_wrapper_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_uint64_wrapper() const { return this != internal_default_instance() && uint64_wrapper_ != nullptr; }
 inline bool WrappersTestCases::has_uint64_wrapper() const {
   return _internal_has_uint64_wrapper();
 }
@@ -2168,9 +2160,7 @@ inline void WrappersTestCases::set_allocated_uint64_wrapper(::proto_util_convert
 }
 
 // .proto_util_converter.testing.Int32Wrapper int32_wrapper = 5;
-inline bool WrappersTestCases::_internal_has_int32_wrapper() const {
-  return this != internal_default_instance() && int32_wrapper_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_int32_wrapper() const { return this != internal_default_instance() && int32_wrapper_ != nullptr; }
 inline bool WrappersTestCases::has_int32_wrapper() const {
   return _internal_has_int32_wrapper();
 }
@@ -2257,9 +2247,7 @@ inline void WrappersTestCases::set_allocated_int32_wrapper(::proto_util_converte
 }
 
 // .proto_util_converter.testing.UInt32Wrapper uint32_wrapper = 6;
-inline bool WrappersTestCases::_internal_has_uint32_wrapper() const {
-  return this != internal_default_instance() && uint32_wrapper_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_uint32_wrapper() const { return this != internal_default_instance() && uint32_wrapper_ != nullptr; }
 inline bool WrappersTestCases::has_uint32_wrapper() const {
   return _internal_has_uint32_wrapper();
 }
@@ -2346,9 +2334,7 @@ inline void WrappersTestCases::set_allocated_uint32_wrapper(::proto_util_convert
 }
 
 // .proto_util_converter.testing.BoolWrapper bool_wrapper = 7;
-inline bool WrappersTestCases::_internal_has_bool_wrapper() const {
-  return this != internal_default_instance() && bool_wrapper_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_bool_wrapper() const { return this != internal_default_instance() && bool_wrapper_ != nullptr; }
 inline bool WrappersTestCases::has_bool_wrapper() const {
   return _internal_has_bool_wrapper();
 }
@@ -2435,9 +2421,7 @@ inline void WrappersTestCases::set_allocated_bool_wrapper(::proto_util_converter
 }
 
 // .proto_util_converter.testing.StringWrapper string_wrapper = 8;
-inline bool WrappersTestCases::_internal_has_string_wrapper() const {
-  return this != internal_default_instance() && string_wrapper_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_string_wrapper() const { return this != internal_default_instance() && string_wrapper_ != nullptr; }
 inline bool WrappersTestCases::has_string_wrapper() const {
   return _internal_has_string_wrapper();
 }
@@ -2524,9 +2508,7 @@ inline void WrappersTestCases::set_allocated_string_wrapper(::proto_util_convert
 }
 
 // .proto_util_converter.testing.BytesWrapper bytes_wrapper = 9;
-inline bool WrappersTestCases::_internal_has_bytes_wrapper() const {
-  return this != internal_default_instance() && bytes_wrapper_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_bytes_wrapper() const { return this != internal_default_instance() && bytes_wrapper_ != nullptr; }
 inline bool WrappersTestCases::has_bytes_wrapper() const {
   return _internal_has_bytes_wrapper();
 }
@@ -2613,9 +2595,7 @@ inline void WrappersTestCases::set_allocated_bytes_wrapper(::proto_util_converte
 }
 
 // .proto_util_converter.testing.DoubleWrapper double_wrapper_default = 10;
-inline bool WrappersTestCases::_internal_has_double_wrapper_default() const {
-  return this != internal_default_instance() && double_wrapper_default_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_double_wrapper_default() const { return this != internal_default_instance() && double_wrapper_default_ != nullptr; }
 inline bool WrappersTestCases::has_double_wrapper_default() const {
   return _internal_has_double_wrapper_default();
 }
@@ -2702,9 +2682,7 @@ inline void WrappersTestCases::set_allocated_double_wrapper_default(::proto_util
 }
 
 // .proto_util_converter.testing.FloatWrapper float_wrapper_default = 11;
-inline bool WrappersTestCases::_internal_has_float_wrapper_default() const {
-  return this != internal_default_instance() && float_wrapper_default_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_float_wrapper_default() const { return this != internal_default_instance() && float_wrapper_default_ != nullptr; }
 inline bool WrappersTestCases::has_float_wrapper_default() const {
   return _internal_has_float_wrapper_default();
 }
@@ -2791,9 +2769,7 @@ inline void WrappersTestCases::set_allocated_float_wrapper_default(::proto_util_
 }
 
 // .proto_util_converter.testing.Int64Wrapper int64_wrapper_default = 12;
-inline bool WrappersTestCases::_internal_has_int64_wrapper_default() const {
-  return this != internal_default_instance() && int64_wrapper_default_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_int64_wrapper_default() const { return this != internal_default_instance() && int64_wrapper_default_ != nullptr; }
 inline bool WrappersTestCases::has_int64_wrapper_default() const {
   return _internal_has_int64_wrapper_default();
 }
@@ -2880,9 +2856,7 @@ inline void WrappersTestCases::set_allocated_int64_wrapper_default(::proto_util_
 }
 
 // .proto_util_converter.testing.UInt64Wrapper uint64_wrapper_default = 13;
-inline bool WrappersTestCases::_internal_has_uint64_wrapper_default() const {
-  return this != internal_default_instance() && uint64_wrapper_default_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_uint64_wrapper_default() const { return this != internal_default_instance() && uint64_wrapper_default_ != nullptr; }
 inline bool WrappersTestCases::has_uint64_wrapper_default() const {
   return _internal_has_uint64_wrapper_default();
 }
@@ -2969,9 +2943,7 @@ inline void WrappersTestCases::set_allocated_uint64_wrapper_default(::proto_util
 }
 
 // .proto_util_converter.testing.Int32Wrapper int32_wrapper_default = 14;
-inline bool WrappersTestCases::_internal_has_int32_wrapper_default() const {
-  return this != internal_default_instance() && int32_wrapper_default_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_int32_wrapper_default() const { return this != internal_default_instance() && int32_wrapper_default_ != nullptr; }
 inline bool WrappersTestCases::has_int32_wrapper_default() const {
   return _internal_has_int32_wrapper_default();
 }
@@ -3058,9 +3030,7 @@ inline void WrappersTestCases::set_allocated_int32_wrapper_default(::proto_util_
 }
 
 // .proto_util_converter.testing.UInt32Wrapper uint32_wrapper_default = 15;
-inline bool WrappersTestCases::_internal_has_uint32_wrapper_default() const {
-  return this != internal_default_instance() && uint32_wrapper_default_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_uint32_wrapper_default() const { return this != internal_default_instance() && uint32_wrapper_default_ != nullptr; }
 inline bool WrappersTestCases::has_uint32_wrapper_default() const {
   return _internal_has_uint32_wrapper_default();
 }
@@ -3147,9 +3117,7 @@ inline void WrappersTestCases::set_allocated_uint32_wrapper_default(::proto_util
 }
 
 // .proto_util_converter.testing.BoolWrapper bool_wrapper_default = 16;
-inline bool WrappersTestCases::_internal_has_bool_wrapper_default() const {
-  return this != internal_default_instance() && bool_wrapper_default_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_bool_wrapper_default() const { return this != internal_default_instance() && bool_wrapper_default_ != nullptr; }
 inline bool WrappersTestCases::has_bool_wrapper_default() const {
   return _internal_has_bool_wrapper_default();
 }
@@ -3236,9 +3204,7 @@ inline void WrappersTestCases::set_allocated_bool_wrapper_default(::proto_util_c
 }
 
 // .proto_util_converter.testing.StringWrapper string_wrapper_default = 17;
-inline bool WrappersTestCases::_internal_has_string_wrapper_default() const {
-  return this != internal_default_instance() && string_wrapper_default_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_string_wrapper_default() const { return this != internal_default_instance() && string_wrapper_default_ != nullptr; }
 inline bool WrappersTestCases::has_string_wrapper_default() const {
   return _internal_has_string_wrapper_default();
 }
@@ -3325,9 +3291,7 @@ inline void WrappersTestCases::set_allocated_string_wrapper_default(::proto_util
 }
 
 // .proto_util_converter.testing.BytesWrapper bytes_wrapper_default = 18;
-inline bool WrappersTestCases::_internal_has_bytes_wrapper_default() const {
-  return this != internal_default_instance() && bytes_wrapper_default_ != nullptr;
-}
+inline bool WrappersTestCases::_internal_has_bytes_wrapper_default() const { return this != internal_default_instance() && bytes_wrapper_default_ != nullptr; }
 inline bool WrappersTestCases::has_bytes_wrapper_default() const {
   return _internal_has_bytes_wrapper_default();
 }
@@ -3418,9 +3382,7 @@ inline void WrappersTestCases::set_allocated_bytes_wrapper_default(::proto_util_
 // DoubleWrapper
 
 // .google.protobuf.DoubleValue double = 1;
-inline bool DoubleWrapper::_internal_has_double_() const {
-  return this != internal_default_instance() && double__ != nullptr;
-}
+inline bool DoubleWrapper::_internal_has_double_() const { return this != internal_default_instance() && double__ != nullptr; }
 inline bool DoubleWrapper::has_double_() const {
   return _internal_has_double_();
 }
@@ -3506,9 +3468,7 @@ inline void DoubleWrapper::set_allocated_double_(::PROTOBUF_NAMESPACE_ID::Double
 // FloatWrapper
 
 // .google.protobuf.FloatValue float = 1;
-inline bool FloatWrapper::_internal_has_float_() const {
-  return this != internal_default_instance() && float__ != nullptr;
-}
+inline bool FloatWrapper::_internal_has_float_() const { return this != internal_default_instance() && float__ != nullptr; }
 inline bool FloatWrapper::has_float_() const {
   return _internal_has_float_();
 }
@@ -3594,9 +3554,7 @@ inline void FloatWrapper::set_allocated_float_(::PROTOBUF_NAMESPACE_ID::FloatVal
 // Int64Wrapper
 
 // .google.protobuf.Int64Value int64 = 1;
-inline bool Int64Wrapper::_internal_has_int64() const {
-  return this != internal_default_instance() && int64_ != nullptr;
-}
+inline bool Int64Wrapper::_internal_has_int64() const { return this != internal_default_instance() && int64_ != nullptr; }
 inline bool Int64Wrapper::has_int64() const {
   return _internal_has_int64();
 }
@@ -3682,9 +3640,7 @@ inline void Int64Wrapper::set_allocated_int64(::PROTOBUF_NAMESPACE_ID::Int64Valu
 // UInt64Wrapper
 
 // .google.protobuf.UInt64Value uint64 = 1;
-inline bool UInt64Wrapper::_internal_has_uint64() const {
-  return this != internal_default_instance() && uint64_ != nullptr;
-}
+inline bool UInt64Wrapper::_internal_has_uint64() const { return this != internal_default_instance() && uint64_ != nullptr; }
 inline bool UInt64Wrapper::has_uint64() const {
   return _internal_has_uint64();
 }
@@ -3770,9 +3726,7 @@ inline void UInt64Wrapper::set_allocated_uint64(::PROTOBUF_NAMESPACE_ID::UInt64V
 // Int32Wrapper
 
 // .google.protobuf.Int32Value int32 = 1;
-inline bool Int32Wrapper::_internal_has_int32() const {
-  return this != internal_default_instance() && int32_ != nullptr;
-}
+inline bool Int32Wrapper::_internal_has_int32() const { return this != internal_default_instance() && int32_ != nullptr; }
 inline bool Int32Wrapper::has_int32() const {
   return _internal_has_int32();
 }
@@ -3858,9 +3812,7 @@ inline void Int32Wrapper::set_allocated_int32(::PROTOBUF_NAMESPACE_ID::Int32Valu
 // UInt32Wrapper
 
 // .google.protobuf.UInt32Value uint32 = 1;
-inline bool UInt32Wrapper::_internal_has_uint32() const {
-  return this != internal_default_instance() && uint32_ != nullptr;
-}
+inline bool UInt32Wrapper::_internal_has_uint32() const { return this != internal_default_instance() && uint32_ != nullptr; }
 inline bool UInt32Wrapper::has_uint32() const {
   return _internal_has_uint32();
 }
@@ -3946,9 +3898,7 @@ inline void UInt32Wrapper::set_allocated_uint32(::PROTOBUF_NAMESPACE_ID::UInt32V
 // BoolWrapper
 
 // .google.protobuf.BoolValue bool = 1;
-inline bool BoolWrapper::_internal_has_bool_() const {
-  return this != internal_default_instance() && bool__ != nullptr;
-}
+inline bool BoolWrapper::_internal_has_bool_() const { return this != internal_default_instance() && bool__ != nullptr; }
 inline bool BoolWrapper::has_bool_() const {
   return _internal_has_bool_();
 }
@@ -4034,9 +3984,7 @@ inline void BoolWrapper::set_allocated_bool_(::PROTOBUF_NAMESPACE_ID::BoolValue*
 // StringWrapper
 
 // .google.protobuf.StringValue string = 1;
-inline bool StringWrapper::_internal_has_string() const {
-  return this != internal_default_instance() && string_ != nullptr;
-}
+inline bool StringWrapper::_internal_has_string() const { return this != internal_default_instance() && string_ != nullptr; }
 inline bool StringWrapper::has_string() const {
   return _internal_has_string();
 }
@@ -4122,9 +4070,7 @@ inline void StringWrapper::set_allocated_string(::PROTOBUF_NAMESPACE_ID::StringV
 // BytesWrapper
 
 // .google.protobuf.BytesValue bytes = 1;
-inline bool BytesWrapper::_internal_has_bytes() const {
-  return this != internal_default_instance() && bytes_ != nullptr;
-}
+inline bool BytesWrapper::_internal_has_bytes() const { return this != internal_default_instance() && bytes_ != nullptr; }
 inline bool BytesWrapper::has_bytes() const {
   return _internal_has_bytes();
 }

@@ -35,73 +35,73 @@ public:
 	int	   GetSessReport(SString & rCheck);
 private:
 	enum {
-		InitResources = 1,          // Метод класса DualConnectorInterface
-		Exchange,                   // Метод класса DualConnectorInterface
-		FreeResources,              // Метод класса DualConnectorInterface
-		SetChannelTerminalParam,	// Метод класса DualConnectorInterface
-		Release,                    // Метод класса ISAPacket
-		ErrorCode,                  // Св-во объекта класса DualConnectorInterface
-		ErrorDescription,           // Св-во объекта класса DualConnectorInterface
-		Amount,                     // Св-во объекта класса ISAPacket
-		AdditionalAmount,           // Св-во объекта класса ISAPacket
-		CurrencyCode,               // Св-во объекта класса ISAPacket
-		DateTimeHost,               // Св-во объекта класса ISAPacket
-		CardEntryMode,              // Св-во объекта класса ISAPacket
-		PINCodingMode,              // Св-во объекта класса ISAPacket
-		PAN,                        // Св-во объекта класса ISAPacket
-		CardExpiryDate,             // Св-во объекта класса ISAPacket
-		TRACK2,                     // Св-во объекта класса ISAPacket
-		AuthorizationCode,          // Св-во объекта класса ISAPacket
-		ReferenceNumber,            // Св-во объекта класса ISAPacket
-		ResponseCodeHost,           // Св-во объекта класса ISAPacket
-		PinBlock,                   // Св-во объекта класса ISAPacket
-		PinKey,                     // Св-во объекта класса ISAPacket
-		WorkKey,                    // Св-во объекта класса ISAPacket
-		TextResponse,               // Св-во объекта класса ISAPacket
-		TerminalDateTime,           // Св-во объекта класса ISAPacket
-		TrxID,                      // Св-во объекта класса ISAPacket
-		OperationCode,              // Св-во объекта класса ISAPacket
-		TerminalTrxID,              // Св-во объекта класса ISAPacket
-		TerminalID,                 // Св-во объекта класса ISAPacket
-		MerchantID,                 // Св-во объекта класса ISAPacket
-		DebitAmount,                // Св-во объекта класса ISAPacket
-		DebitCount,                 // Св-во объекта класса ISAPacket
-		CreditAmount,               // Св-во объекта класса ISAPacket
-		CreditCount,                // Св-во объекта класса ISAPacket
-		OrigOperation,              // Св-во объекта класса ISAPacket
-		MAC,                        // Св-во объекта класса ISAPacket
-		Status,                     // Св-во объекта класса ISAPacket
-		AdminTrack2,                // Св-во объекта класса ISAPacket
-		AdminPinBlock,              // Св-во объекта класса ISAPacket
-		AdminPAN,                   // Св-во объекта класса ISAPacket
-		AdminCardExpiryDate,        // Св-во объекта класса ISAPacket
-		AdminCardEntryMode,         // Св-во объекта класса ISAPacket
-		VoidDebitAmount,            // Св-во объекта класса ISAPacket
-		VoidDebitCount,             // Св-во объекта класса ISAPacket
-		VoidCreditAmount,           // Св-во объекта класса ISAPacket
-		VoidCreditCount,            // Св-во объекта класса ISAPacket
-		ProcessingFlag,             // Св-во объекта класса ISAPacket
-		HostTrxID,                  // Св-во объекта класса ISAPacket
-		RecipientAddress,           // Св-во объекта класса ISAPacket
-		CardWaitTimeout,            // Св-во объекта класса ISAPacket
-		DeviceSerNumber,            // Св-во объекта класса ISAPacket
-		CommandMode,                // Св-во объекта класса ISAPacket
-		CommandMode2,               // Св-во объекта класса ISAPacket
-		CommandResult,              // Св-во объекта класса ISAPacket
-		FileData,                   // Св-во объекта класса ISAPacket
-		MessageED,                  // Св-во объекта класса ISAPacket
-		CashierRequest,             // Св-во объекта класса ISAPacket
-		CashierResponse,            // Св-во объекта класса ISAPacket
-		AccountType,                // Св-во объекта класса ISAPacket
-		CommodityCode,              // Св-во объекта класса ISAPacket
-		PaymentDetails,             // Св-во объекта класса ISAPacket
-		ProviderCode,               // Св-во объекта класса ISAPacket
-		Acquirer,                   // Св-во объекта класса ISAPacket
-		AdditionalData,             // Св-во объекта класса ISAPacket
-		ModelNo,                    // Св-во объекта класса ISAPacket
-		ReceiptData,                // Св-во объекта класса ISAPacket
-		TermResponseCode,           // Св-во объекта класса ISAPacket
-		SlipNumber,                 // Св-во объекта класса ISAPacket
+		InitResources = 1, // Метод класса DualConnectorInterface
+		Exchange,          // Метод класса DualConnectorInterface
+		FreeResources,     // Метод класса DualConnectorInterface
+		SetChannelTerminalParam, // Метод класса DualConnectorInterface
+		Release,           // Метод класса ISAPacket
+		ErrorCode,         // Св-во объекта класса DualConnectorInterface
+		ErrorDescription,  // Св-во объекта класса DualConnectorInterface
+		Amount,            // Св-во объекта класса ISAPacket
+		AdditionalAmount,  // Св-во объекта класса ISAPacket
+		CurrencyCode,      // Св-во объекта класса ISAPacket
+		DateTimeHost,      // Св-во объекта класса ISAPacket
+		CardEntryMode,     // Св-во объекта класса ISAPacket
+		PINCodingMode,     // Св-во объекта класса ISAPacket
+		PAN,               // Св-во объекта класса ISAPacket
+		CardExpiryDate,    // Св-во объекта класса ISAPacket
+		TRACK2,            // Св-во объекта класса ISAPacket
+		AuthorizationCode, // Св-во объекта класса ISAPacket
+		ReferenceNumber,   // Св-во объекта класса ISAPacket
+		ResponseCodeHost,  // Св-во объекта класса ISAPacket
+		PinBlock,          // Св-во объекта класса ISAPacket
+		PinKey,            // Св-во объекта класса ISAPacket
+		WorkKey,           // Св-во объекта класса ISAPacket
+		TextResponse,      // Св-во объекта класса ISAPacket
+		TerminalDateTime,  // Св-во объекта класса ISAPacket
+		TrxID,             // Св-во объекта класса ISAPacket
+		OperationCode,     // Св-во объекта класса ISAPacket
+		TerminalTrxID,     // Св-во объекта класса ISAPacket
+		TerminalID,        // Св-во объекта класса ISAPacket
+		MerchantID,        // Св-во объекта класса ISAPacket
+		DebitAmount,       // Св-во объекта класса ISAPacket
+		DebitCount,        // Св-во объекта класса ISAPacket
+		CreditAmount,      // Св-во объекта класса ISAPacket
+		CreditCount,       // Св-во объекта класса ISAPacket
+		OrigOperation,     // Св-во объекта класса ISAPacket
+		MAC,               // Св-во объекта класса ISAPacket
+		Status,            // Св-во объекта класса ISAPacket
+		AdminTrack2,       // Св-во объекта класса ISAPacket
+		AdminPinBlock,     // Св-во объекта класса ISAPacket
+		AdminPAN,          // Св-во объекта класса ISAPacket
+		AdminCardExpiryDate, // Св-во объекта класса ISAPacket
+		AdminCardEntryMode,  // Св-во объекта класса ISAPacket
+		VoidDebitAmount,     // Св-во объекта класса ISAPacket
+		VoidDebitCount,      // Св-во объекта класса ISAPacket
+		VoidCreditAmount,    // Св-во объекта класса ISAPacket
+		VoidCreditCount,     // Св-во объекта класса ISAPacket
+		ProcessingFlag,      // Св-во объекта класса ISAPacket
+		HostTrxID,           // Св-во объекта класса ISAPacket
+		RecipientAddress,    // Св-во объекта класса ISAPacket
+		CardWaitTimeout,     // Св-во объекта класса ISAPacket
+		DeviceSerNumber,     // Св-во объекта класса ISAPacket
+		CommandMode,         // Св-во объекта класса ISAPacket
+		CommandMode2,        // Св-во объекта класса ISAPacket
+		CommandResult,       // Св-во объекта класса ISAPacket
+		FileData,            // Св-во объекта класса ISAPacket
+		MessageED,           // Св-во объекта класса ISAPacket
+		CashierRequest,      // Св-во объекта класса ISAPacket
+		CashierResponse,     // Св-во объекта класса ISAPacket
+		AccountType,         // Св-во объекта класса ISAPacket
+		CommodityCode,       // Св-во объекта класса ISAPacket
+		PaymentDetails,      // Св-во объекта класса ISAPacket
+		ProviderCode,        // Св-во объекта класса ISAPacket
+		Acquirer,            // Св-во объекта класса ISAPacket
+		AdditionalData,      // Св-во объекта класса ISAPacket
+		ModelNo,             // Св-во объекта класса ISAPacket
+		ReceiptData,         // Св-во объекта класса ISAPacket
+		TermResponseCode,    // Св-во объекта класса ISAPacket
+		SlipNumber,          // Св-во объекта класса ISAPacket
 	};
 	void AsseptDC(ComDispInterface * pNameDCObj) 
 	{

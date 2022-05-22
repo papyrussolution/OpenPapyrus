@@ -119,7 +119,7 @@ static INLINE void * opj_aligned_realloc_n(void * ptr, size_t alignment, size_t 
 #elif defined(OPJ_HAVE__ALIGNED_MALLOC)
 	r_ptr = _aligned_realloc(ptr, new_size, alignment);
 #else
-	if(ptr == NULL) {
+	if(!ptr) {
 		return opj_aligned_alloc_n(alignment, new_size);
 	}
 	alignment--;

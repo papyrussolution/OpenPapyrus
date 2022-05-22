@@ -55,7 +55,7 @@ static INLINE int __ptw32_cancelable_wait(HANDLE waitHandle, DWORD timeout)
 	handles[0] = waitHandle;
 	self = pthread_self();
 	sp = (__ptw32_thread_t *)self.p;
-	if(sp != NULL) {
+	if(sp) {
 		/*
 		 * Get cancelEvent handle
 		 */

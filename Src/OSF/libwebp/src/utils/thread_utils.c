@@ -14,40 +14,31 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "src/utils/thread_utils.h"
-//#include "src/utils/utils.h"
 
 #ifdef WEBP_USE_THREAD
-
 #if defined(_WIN32)
+	typedef HANDLE pthread_t;
+	typedef CRITICAL_SECTION pthread_mutex_t;
 
-//#include <windows.h>
-typedef HANDLE pthread_t;
-typedef CRITICAL_SECTION pthread_mutex_t;
-
-#if _WIN32_WINNT >= 0x0600  // Windows Vista / Server 2008 or greater
-#define USE_WINDOWS_CONDITION_VARIABLE
-typedef CONDITION_VARIABLE pthread_cond_t;
-#else
-typedef struct {
-	HANDLE waiting_sem_;
-	HANDLE received_sem_;
-	HANDLE signal_event_;
-} pthread_cond_t;
-#endif  // _WIN32_WINNT >= 0x600
-
-#ifndef WINAPI_FAMILY_PARTITION
-#define WINAPI_PARTITION_DESKTOP 1
-#define WINAPI_FAMILY_PARTITION(x) x
-#endif
-
-#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#define USE_CREATE_THREAD
-#endif
-
+	#if _WIN32_WINNT >= 0x0600  // Windows Vista / Server 2008 or greater
+		#define USE_WINDOWS_CONDITION_VARIABLE
+		typedef CONDITION_VARIABLE pthread_cond_t;
+	#else
+		typedef struct {
+			HANDLE waiting_sem_;
+			HANDLE received_sem_;
+			HANDLE signal_event_;
+		} pthread_cond_t;
+	#endif  // _WIN32_WINNT >= 0x600
+	#ifndef WINAPI_FAMILY_PARTITION
+		#define WINAPI_PARTITION_DESKTOP 1
+		#define WINAPI_FAMILY_PARTITION(x) x
+	#endif
+	#if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+		#define USE_CREATE_THREAD
+	#endif
 #else  // !_WIN32
-
-#include <pthread.h>
-
+	#include <pthread.h>
 #endif  // _WIN32
 
 typedef struct {
@@ -57,31 +48,23 @@ typedef struct {
 } WebPWorkerImpl;
 
 #if defined(_WIN32)
-
-//------------------------------------------------------------------------------
+//
 // simplistic pthread emulation layer
-
+//
 #include <process.h>
 
 // _beginthreadex requires __stdcall
 #define THREADFN unsigned int __stdcall
 #define THREAD_RETURN(val) (unsigned int)((DWORD_PTR)val)
-
 #if _WIN32_WINNT >= 0x0501  // Windows XP or greater
-#define WaitForSingleObject(obj, timeout) \
-	WaitForSingleObjectEx(obj, timeout, FALSE /*bAlertable*/)
+	#define WaitForSingleObject(obj, timeout) WaitForSingleObjectEx(obj, timeout, FALSE /*bAlertable*/)
 #endif
 
-static int pthread_create(pthread_t* const thread, const void* attr,
-    unsigned int (__stdcall* start)(void*), void* arg) {
+static int pthread_create(pthread_t* const thread, const void* attr, unsigned int (__stdcall* start)(void*), void* arg) 
+{
 	(void)attr;
 #ifdef USE_CREATE_THREAD
-	*thread = CreateThread(NULL, /* lpThreadAttributes */
-		0,               /* dwStackSize */
-		start,
-		arg,
-		0,               /* dwStackSize */
-		NULL);           /* lpThreadId */
+	*thread = CreateThread(NULL/* lpThreadAttributes */, 0/* dwStackSize */, start, arg, 0/* dwStackSize */, NULL/* lpThreadId */);
 #else
 	*thread = (pthread_t)_beginthreadex(NULL, /* void *security */
 		0,                            /* unsigned stack_size */
@@ -90,19 +73,21 @@ static int pthread_create(pthread_t* const thread, const void* attr,
 		0,                            /* unsigned initflag */
 		NULL);                        /* unsigned *thrdaddr */
 #endif
-	if(*thread == NULL) return 1;
+	if(*thread == NULL) 
+		return 1;
 	SetThreadPriority(*thread, THREAD_PRIORITY_ABOVE_NORMAL);
 	return 0;
 }
 
-static int pthread_join(pthread_t thread, void** value_ptr) {
+static int pthread_join(pthread_t thread, void** value_ptr) 
+{
 	(void)value_ptr;
-	return (WaitForSingleObject(thread, INFINITE) != WAIT_OBJECT_0 ||
-	       CloseHandle(thread) == 0);
+	return (WaitForSingleObject(thread, INFINITE) != WAIT_OBJECT_0 || CloseHandle(thread) == 0);
 }
 
 // Mutex
-static int pthread_mutex_init(pthread_mutex_t* const mutex, void* mutexattr) {
+static int pthread_mutex_init(pthread_mutex_t* const mutex, void* mutexattr) 
+{
 	(void)mutexattr;
 #if _WIN32_WINNT >= 0x0600  // Windows Vista / Server 2008 or greater
 	InitializeCriticalSectionEx(mutex, 0 /*dwSpinCount*/, 0 /*Flags*/);
@@ -112,23 +97,27 @@ static int pthread_mutex_init(pthread_mutex_t* const mutex, void* mutexattr) {
 	return 0;
 }
 
-static int pthread_mutex_lock(pthread_mutex_t* const mutex) {
+static int pthread_mutex_lock(pthread_mutex_t* const mutex) 
+{
 	EnterCriticalSection(mutex);
 	return 0;
 }
 
-static int pthread_mutex_unlock(pthread_mutex_t* const mutex) {
+static int pthread_mutex_unlock(pthread_mutex_t* const mutex) 
+{
 	LeaveCriticalSection(mutex);
 	return 0;
 }
 
-static int pthread_mutex_destroy(pthread_mutex_t* const mutex) {
+static int pthread_mutex_destroy(pthread_mutex_t* const mutex) 
+{
 	DeleteCriticalSection(mutex);
 	return 0;
 }
 
 // Condition
-static int pthread_cond_destroy(pthread_cond_t* const condition) {
+static int pthread_cond_destroy(pthread_cond_t* const condition) 
+{
 	int ok = 1;
 #ifdef USE_WINDOWS_CONDITION_VARIABLE
 	(void)condition;
@@ -140,7 +129,8 @@ static int pthread_cond_destroy(pthread_cond_t* const condition) {
 	return !ok;
 }
 
-static int pthread_cond_init(pthread_cond_t* const condition, void* cond_attr) {
+static int pthread_cond_init(pthread_cond_t* const condition, void* cond_attr) 
+{
 	(void)cond_attr;
 #ifdef USE_WINDOWS_CONDITION_VARIABLE
 	InitializeConditionVariable(condition);
@@ -175,8 +165,8 @@ static int pthread_cond_signal(pthread_cond_t* const condition) {
 	return !ok;
 }
 
-static int pthread_cond_wait(pthread_cond_t* const condition,
-    pthread_mutex_t* const mutex) {
+static int pthread_cond_wait(pthread_cond_t* const condition, pthread_mutex_t* const mutex) 
+{
 	int ok;
 #ifdef USE_WINDOWS_CONDITION_VARIABLE
 	ok = SleepConditionVariableCS(condition, mutex, INFINITE);
@@ -193,15 +183,13 @@ static int pthread_cond_wait(pthread_cond_t* const condition,
 #endif
 	return !ok;
 }
-
 #else  // !_WIN32
-# define THREADFN void*
-# define THREAD_RETURN(val) val
+	#define THREADFN void*
+	#define THREAD_RETURN(val) val
 #endif  // _WIN32
 
-//------------------------------------------------------------------------------
-
-static THREADFN ThreadLoop(void* ptr) {
+static THREADFN ThreadLoop(void* ptr) 
+{
 	WebPWorker* const worker = (WebPWorker*)ptr;
 	WebPWorkerImpl* const impl = (WebPWorkerImpl*)worker->impl_;
 	int done = 0;
@@ -258,8 +246,6 @@ static void ChangeState(WebPWorker* const worker, WebPWorkerStatus new_status) {
 }
 
 #endif  // WEBP_USE_THREAD
-
-//------------------------------------------------------------------------------
 
 static void Init(WebPWorker* const worker) 
 {
@@ -318,13 +304,14 @@ Error:
 	return ok;
 }
 
-static void Execute(WebPWorker* const worker) {
-	if(worker->hook != NULL) {
+static void Execute(WebPWorker* const worker) 
+{
+	if(worker->hook)
 		worker->had_error |= !worker->hook(worker->data1, worker->data2);
-	}
 }
 
-static void Launch(WebPWorker* const worker) {
+static void Launch(WebPWorker* const worker) 
+{
 #ifdef WEBP_USE_THREAD
 	ChangeState(worker, WORK);
 #else
@@ -350,23 +337,15 @@ static void End(WebPWorker* const worker) {
 	assert(worker->status_ == NOT_OK);
 }
 
-//------------------------------------------------------------------------------
+static WebPWorkerInterface g_worker_interface = { Init, Reset, Sync, Launch, Execute, End };
 
-static WebPWorkerInterface g_worker_interface = {
-	Init, Reset, Sync, Launch, Execute, End
-};
-
-int WebPSetWorkerInterface(const WebPWorkerInterface* const winterface) {
-	if(winterface == NULL ||
-	    winterface->Init == NULL || winterface->Reset == NULL ||
-	    winterface->Sync == NULL || winterface->Launch == NULL ||
-	    winterface->Execute == NULL || winterface->End == NULL) {
+int WebPSetWorkerInterface(const WebPWorkerInterface* const winterface) 
+{
+	if(!winterface || !winterface->Init || !winterface->Reset || !winterface->Sync || !winterface->Launch || !winterface->Execute || !winterface->End) {
 		return 0;
 	}
 	g_worker_interface = *winterface;
 	return 1;
 }
 
-const WebPWorkerInterface* WebPGetWorkerInterface(void) {
-	return &g_worker_interface;
-}
+const WebPWorkerInterface* WebPGetWorkerInterface(void) { return &g_worker_interface; }

@@ -377,7 +377,7 @@ static int lha_skip_sfx(struct archive_read * a)
 	window = 4096;
 	for(;;) {
 		h = __archive_read_ahead(a, window, &bytes);
-		if(h == NULL) {
+		if(!h) {
 			/* Remaining bytes are less than window. */
 			window >>= 1;
 			if(window < (H_SIZE + 3))

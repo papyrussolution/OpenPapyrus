@@ -44,10 +44,10 @@ CEList::CEList(UCollator * coll, const UnicodeString & string, UErrorCode & stat
 	{
 		default:
 		    strengthMask |= UCOL_TERTIARYORDERMASK;
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case UCOL_SECONDARY:
 		    strengthMask |= UCOL_SECONDARYORDERMASK;
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case UCOL_PRIMARY:
 		    strengthMask |= UCOL_PRIMARYORDERMASK;
 	}

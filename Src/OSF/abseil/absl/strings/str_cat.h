@@ -43,11 +43,11 @@
 #ifndef ABSL_STRINGS_STR_CAT_H_
 #define ABSL_STRINGS_STR_CAT_H_
 
-#include <array>
-#include <cstdint>
-#include <string>
-#include <type_traits>
-#include <vector>
+//#include <array>
+//#include <cstdint>
+//#include <string>
+//#include <type_traits>
+//#include <vector>
 #include "absl/base/port.h"
 #include "absl/strings/numbers.h"
 #include "absl/strings/string_view.h"

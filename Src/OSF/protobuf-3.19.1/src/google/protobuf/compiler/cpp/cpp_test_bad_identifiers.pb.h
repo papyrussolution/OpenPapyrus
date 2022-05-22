@@ -139,19 +139,15 @@ constexpr TestConflictingSymbolNames_TestEnum TestConflictingSymbolNames_TestEnu
 constexpr TestConflictingSymbolNames_TestEnum TestConflictingSymbolNames_TestEnum_TestEnum_MAX = TestConflictingSymbolNames_TestEnum_FOO;
 constexpr int TestConflictingSymbolNames_TestEnum_TestEnum_ARRAYSIZE = TestConflictingSymbolNames_TestEnum_TestEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestConflictingSymbolNames_TestEnum_descriptor();
-template<typename T>
-inline const std::string& TestConflictingSymbolNames_TestEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, TestConflictingSymbolNames_TestEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function TestConflictingSymbolNames_TestEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    TestConflictingSymbolNames_TestEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * TestConflictingSymbolNames_TestEnum_descriptor();
+template<typename T> inline const std::string& TestConflictingSymbolNames_TestEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, TestConflictingSymbolNames_TestEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function TestConflictingSymbolNames_TestEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(TestConflictingSymbolNames_TestEnum_descriptor(), enum_t_value);
 }
-inline bool TestConflictingSymbolNames_TestEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestConflictingSymbolNames_TestEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestConflictingSymbolNames_TestEnum>(
-    TestConflictingSymbolNames_TestEnum_descriptor(), name, value);
+inline bool TestConflictingSymbolNames_TestEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestConflictingSymbolNames_TestEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestConflictingSymbolNames_TestEnum>(TestConflictingSymbolNames_TestEnum_descriptor(), name, value);
 }
 enum TestConflictingEnumNames_while : int {
   TestConflictingEnumNames_while_default_ = 0,
@@ -166,19 +162,15 @@ constexpr TestConflictingEnumNames_while TestConflictingEnumNames_while_while_MI
 constexpr TestConflictingEnumNames_while TestConflictingEnumNames_while_while_MAX = TestConflictingEnumNames_while_XOR;
 constexpr int TestConflictingEnumNames_while_while_ARRAYSIZE = TestConflictingEnumNames_while_while_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestConflictingEnumNames_while_descriptor();
-template<typename T>
-inline const std::string& TestConflictingEnumNames_while_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, TestConflictingEnumNames_while>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function TestConflictingEnumNames_while_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    TestConflictingEnumNames_while_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * TestConflictingEnumNames_while_descriptor();
+template<typename T> inline const std::string& TestConflictingEnumNames_while_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, TestConflictingEnumNames_while>::value || ::std::is_integral<T>::value, "Incorrect type passed to function TestConflictingEnumNames_while_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(TestConflictingEnumNames_while_descriptor(), enum_t_value);
 }
-inline bool TestConflictingEnumNames_while_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestConflictingEnumNames_while* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestConflictingEnumNames_while>(
-    TestConflictingEnumNames_while_descriptor(), name, value);
+inline bool TestConflictingEnumNames_while_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestConflictingEnumNames_while * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestConflictingEnumNames_while>(TestConflictingEnumNames_while_descriptor(), name, value);
 }
 enum bool_ : int {
   default_ = 0,
@@ -191,19 +183,15 @@ constexpr bool_ bool_MIN = default_;
 constexpr bool_ bool_MAX = return_;
 constexpr int bool_ARRAYSIZE = bool_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* bool__descriptor();
-template<typename T>
-inline const std::string& bool__Name(T enum_t_value) {
-  static_assert(::std::is_same<T, bool_>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function bool__Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    bool__descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * bool__descriptor();
+template<typename T> inline const std::string& bool__Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, bool_>::value || ::std::is_integral<T>::value, "Incorrect type passed to function bool__Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(bool__descriptor(), enum_t_value);
 }
-inline bool bool__Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, bool_* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<bool_>(
-    bool__descriptor(), name, value);
+inline bool bool__Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, bool_ * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<bool_>(bool__descriptor(), name, value);
 }
 // ===================================================================
 
@@ -524,16 +512,13 @@ class TestConflictingSymbolNames_Data1 final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_data() const;
   void _internal_add_data(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_data();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_data();
   public:
   int32_t data(int index) const;
   void set_data(int index, int32_t value);
   void add_data(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      data() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_data();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & data() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_data();
 
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestConflictingSymbolNames.Data1)
  private:
@@ -1677,31 +1662,20 @@ class TestConflictingSymbolNames final :
   typedef TestConflictingSymbolNames_DO DO;
 
   typedef TestConflictingSymbolNames_TestEnum TestEnum;
-  static constexpr TestEnum FOO =
-    TestConflictingSymbolNames_TestEnum_FOO;
-  static inline bool TestEnum_IsValid(int value) {
-    return TestConflictingSymbolNames_TestEnum_IsValid(value);
+  static constexpr TestEnum FOO = TestConflictingSymbolNames_TestEnum_FOO;
+  static inline bool TestEnum_IsValid(int value) { return TestConflictingSymbolNames_TestEnum_IsValid(value); }
+  static constexpr TestEnum TestEnum_MIN = TestConflictingSymbolNames_TestEnum_TestEnum_MIN;
+  static constexpr TestEnum TestEnum_MAX = TestConflictingSymbolNames_TestEnum_TestEnum_MAX;
+  static constexpr int TestEnum_ARRAYSIZE = TestConflictingSymbolNames_TestEnum_TestEnum_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * TestEnum_descriptor() { return TestConflictingSymbolNames_TestEnum_descriptor(); }
+  template<typename T> static inline const std::string& TestEnum_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, TestEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function TestEnum_Name.");
+  	return TestConflictingSymbolNames_TestEnum_Name(enum_t_value);
   }
-  static constexpr TestEnum TestEnum_MIN =
-    TestConflictingSymbolNames_TestEnum_TestEnum_MIN;
-  static constexpr TestEnum TestEnum_MAX =
-    TestConflictingSymbolNames_TestEnum_TestEnum_MAX;
-  static constexpr int TestEnum_ARRAYSIZE =
-    TestConflictingSymbolNames_TestEnum_TestEnum_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  TestEnum_descriptor() {
-    return TestConflictingSymbolNames_TestEnum_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& TestEnum_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, TestEnum>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function TestEnum_Name.");
-    return TestConflictingSymbolNames_TestEnum_Name(enum_t_value);
-  }
-  static inline bool TestEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      TestEnum* value) {
-    return TestConflictingSymbolNames_TestEnum_Parse(name, value);
+  static inline bool TestEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestEnum* value)
+  {
+  	return TestConflictingSymbolNames_TestEnum_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -1759,16 +1733,13 @@ class TestConflictingSymbolNames final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_i() const;
   void _internal_add_i(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_i();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_i();
   public:
   int32_t i(int index) const;
   void set_i(int index, int32_t value);
   void add_i(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      i() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_i();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & i() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_i();
 
   // repeated string new_element = 5 [ctype = STRING_PIECE];
   int new_element_size() const;
@@ -1808,16 +1779,13 @@ class TestConflictingSymbolNames final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_index() const;
   void _internal_add_index(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_index();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_index();
   public:
   int32_t index(int index) const;
   void set_index(int index, int32_t value);
   void add_index(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      index() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_index();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & index() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_index();
 
   // optional string length = 3;
   bool has_length() const;
@@ -2763,41 +2731,25 @@ class TestConflictingEnumNames final :
   // nested types ----------------------------------------------------
 
   typedef TestConflictingEnumNames_while while_;
-  static constexpr while_ default_ =
-    TestConflictingEnumNames_while_default_;
-  static constexpr while_ and_ =
-    TestConflictingEnumNames_while_and_;
-  static constexpr while_ class_ =
-    TestConflictingEnumNames_while_class_;
-  static constexpr while_ int_ =
-    TestConflictingEnumNames_while_int_;
-  static constexpr while_ typedef_ =
-    TestConflictingEnumNames_while_typedef_;
-  static constexpr while_ XOR =
-    TestConflictingEnumNames_while_XOR;
-  static inline bool while_IsValid(int value) {
-    return TestConflictingEnumNames_while_IsValid(value);
+  static constexpr while_ default_ = TestConflictingEnumNames_while_default_;
+  static constexpr while_ and_ = TestConflictingEnumNames_while_and_;
+  static constexpr while_ class_ = TestConflictingEnumNames_while_class_;
+  static constexpr while_ int_ = TestConflictingEnumNames_while_int_;
+  static constexpr while_ typedef_ = TestConflictingEnumNames_while_typedef_;
+  static constexpr while_ XOR = TestConflictingEnumNames_while_XOR;
+  static inline bool while_IsValid(int value) { return TestConflictingEnumNames_while_IsValid(value); }
+  static constexpr while_ while_MIN = TestConflictingEnumNames_while_while_MIN;
+  static constexpr while_ while_MAX = TestConflictingEnumNames_while_while_MAX;
+  static constexpr int while_ARRAYSIZE = TestConflictingEnumNames_while_while_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * while_descriptor() { return TestConflictingEnumNames_while_descriptor(); }
+  template<typename T> static inline const std::string& while_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, while_>::value || ::std::is_integral<T>::value, "Incorrect type passed to function while_Name.");
+  	return TestConflictingEnumNames_while_Name(enum_t_value);
   }
-  static constexpr while_ while_MIN =
-    TestConflictingEnumNames_while_while_MIN;
-  static constexpr while_ while_MAX =
-    TestConflictingEnumNames_while_while_MAX;
-  static constexpr int while_ARRAYSIZE =
-    TestConflictingEnumNames_while_while_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  while_descriptor() {
-    return TestConflictingEnumNames_while_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& while_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, while_>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function while_Name.");
-    return TestConflictingEnumNames_while_Name(enum_t_value);
-  }
-  static inline bool while_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      while_* value) {
-    return TestConflictingEnumNames_while_Parse(name, value);
+  static inline bool while_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, while_* value)
+  {
+  	return TestConflictingEnumNames_while_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -3369,12 +3321,10 @@ TestConflictingSymbolNames_Data1::data() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestConflictingSymbolNames.Data1.data)
   return _internal_data();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestConflictingSymbolNames_Data1::_internal_mutable_data() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestConflictingSymbolNames_Data1::_internal_mutable_data() {
   return &data_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestConflictingSymbolNames_Data1::mutable_data() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestConflictingSymbolNames_Data1::mutable_data() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.Data1.data)
   return _internal_mutable_data();
 }
@@ -3414,12 +3364,10 @@ TestConflictingSymbolNames_Data2::data() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
   return data_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>*
-TestConflictingSymbolNames_Data2::_internal_mutable_data() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestConflictingSymbolNames_Data2::_internal_mutable_data() {
   return &data_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int>*
-TestConflictingSymbolNames_Data2::mutable_data() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField<int> * TestConflictingSymbolNames_Data2::mutable_data() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.Data2.data)
   return _internal_mutable_data();
 }
@@ -3491,8 +3439,7 @@ TestConflictingSymbolNames_Data3::data() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestConflictingSymbolNames.Data3.data)
   return data_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-TestConflictingSymbolNames_Data3::mutable_data() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestConflictingSymbolNames_Data3::mutable_data() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.Data3.data)
   return &data_;
 }
@@ -3513,8 +3460,7 @@ inline ::protobuf_unittest::TestConflictingSymbolNames_Data4* TestConflictingSym
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestConflictingSymbolNames.Data4.data)
   return data_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestConflictingSymbolNames_Data4 >*
-TestConflictingSymbolNames_Data4::mutable_data() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestConflictingSymbolNames_Data4 > * TestConflictingSymbolNames_Data4::mutable_data() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.Data4.data)
   return &data_;
 }
@@ -3605,8 +3551,7 @@ TestConflictingSymbolNames_Data5::data() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestConflictingSymbolNames.Data5.data)
   return data_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-TestConflictingSymbolNames_Data5::mutable_data() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestConflictingSymbolNames_Data5::mutable_data() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.Data5.data)
   return &data_;
 }
@@ -3678,8 +3623,7 @@ TestConflictingSymbolNames_Data6::data() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestConflictingSymbolNames.Data6.data)
   return data_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-TestConflictingSymbolNames_Data6::mutable_data() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestConflictingSymbolNames_Data6::mutable_data() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.Data6.data)
   return &data_;
 }
@@ -3847,12 +3791,10 @@ TestConflictingSymbolNames::i() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestConflictingSymbolNames.i)
   return _internal_i();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestConflictingSymbolNames::_internal_mutable_i() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestConflictingSymbolNames::_internal_mutable_i() {
   return &i_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestConflictingSymbolNames::mutable_i() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestConflictingSymbolNames::mutable_i() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.i)
   return _internal_mutable_i();
 }
@@ -3920,8 +3862,7 @@ TestConflictingSymbolNames::new_element() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestConflictingSymbolNames.new_element)
   return new_element_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-TestConflictingSymbolNames::mutable_new_element() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestConflictingSymbolNames::mutable_new_element() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.new_element)
   return &new_element_;
 }
@@ -4139,12 +4080,10 @@ TestConflictingSymbolNames::index() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestConflictingSymbolNames.index)
   return _internal_index();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestConflictingSymbolNames::_internal_mutable_index() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestConflictingSymbolNames::_internal_mutable_index() {
   return &index_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestConflictingSymbolNames::mutable_index() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestConflictingSymbolNames::mutable_index() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.index)
   return _internal_mutable_index();
 }
@@ -5289,20 +5228,11 @@ inline void NULL_::set_int_(int32_t value) {
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::protobuf_unittest::TestConflictingSymbolNames_TestEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestConflictingSymbolNames_TestEnum>() {
-  return ::protobuf_unittest::TestConflictingSymbolNames_TestEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestConflictingSymbolNames_TestEnum>() { return ::protobuf_unittest::TestConflictingSymbolNames_TestEnum_descriptor(); }
 template <> struct is_proto_enum< ::protobuf_unittest::TestConflictingEnumNames_while> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestConflictingEnumNames_while>() {
-  return ::protobuf_unittest::TestConflictingEnumNames_while_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestConflictingEnumNames_while>() { return ::protobuf_unittest::TestConflictingEnumNames_while_descriptor(); }
 template <> struct is_proto_enum< ::protobuf_unittest::bool_> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::bool_>() {
-  return ::protobuf_unittest::bool__descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::bool_>() { return ::protobuf_unittest::bool__descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

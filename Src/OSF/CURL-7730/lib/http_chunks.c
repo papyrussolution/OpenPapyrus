@@ -324,21 +324,15 @@ CHUNKcode Curl_httpchunk_read(struct connectdata * conn,
 const char * Curl_chunked_strerror(CHUNKcode code)
 {
 	switch(code) {
-		default:
-		    return "OK";
-		case CHUNKE_TOO_LONG_HEX:
-		    return "Too long hexadecimal number";
-		case CHUNKE_ILLEGAL_HEX:
-		    return "Illegal or missing hexadecimal sequence";
-		case CHUNKE_BAD_CHUNK:
-		    return "Malformed encoding found";
+		default: return "OK";
+		case CHUNKE_TOO_LONG_HEX: return "Too long hexadecimal number";
+		case CHUNKE_ILLEGAL_HEX: return "Illegal or missing hexadecimal sequence";
+		case CHUNKE_BAD_CHUNK: return "Malformed encoding found";
 		case CHUNKE_PASSTHRU_ERROR:
 		    DEBUGASSERT(0); /* never used */
 		    return "";
-		case CHUNKE_BAD_ENCODING:
-		    return "Bad content-encoding found";
-		case CHUNKE_OUT_OF_MEMORY:
-		    return "Out of memory";
+		case CHUNKE_BAD_ENCODING: return "Bad content-encoding found";
+		case CHUNKE_OUT_OF_MEMORY: return SlTxtOutOfMem;
 	}
 }
 

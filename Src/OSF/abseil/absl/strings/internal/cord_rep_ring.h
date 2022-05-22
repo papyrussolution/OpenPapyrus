@@ -9,12 +9,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_CORD_REP_RING_H_
 #define ABSL_STRINGS_INTERNAL_CORD_REP_RING_H_
 
-//#include <cassert>
-//#include <cstddef>
-//#include <cstdint>
-//#include <iosfwd>
-//#include <limits>
-//#include <memory>
 #include "absl/container/internal/layout.h"
 #include "absl/strings/internal/cord_internal.h"
 #include "absl/strings/internal/cord_rep_flat.h"

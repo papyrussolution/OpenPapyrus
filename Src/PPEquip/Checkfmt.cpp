@@ -518,16 +518,16 @@ enum {
 	symbUhttScHash,        // UHTTSCHASH           Код для просмотра информации о бонусной карте Universe-HTT
 	symbPhQtty,            // PHQTTY               Количество в физических единицах
 	symbPhUnit,            // PHUNIT               Наименование физической единицы
-	symbPaymType,          // PAYMTYPE             @v8.4.1 Тип оплаты (для итератора по оплатам)
-	symbPaymAmt,           // PAYMAMT              @v8.4.1 Сумма оплаты (для итератора по оплатам)
-	symbTableN,            // TABLN                @v8.4.1 Номер стола. В отличии от symbTable, значение которого может
+	symbPaymType,          // PAYMTYPE             Тип оплаты (для итератора по оплатам)
+	symbPaymAmt,           // PAYMAMT              Сумма оплаты (для итератора по оплатам)
+	symbTableN,            // TABLN                Номер стола. В отличии от symbTable, значение которого может
 		// быть как номером, так и именем стола, symbTableN - всегда номер
 	symbIsEgais,           // ISEGAIS
 	symbEgaisUrl,          // EGAISURL
 	symbEgaisSign,         // EGAISSIGN
 	symbManufSerial,       // MANUFSERIAL
-	symbDirector,          // DIRECTOR   @v9.7.6 Директор
-	symbAccountant,        // ACCOUNTANT @v9.7.6 Главный бухгалтер
+	symbDirector,          // DIRECTOR   Директор
+	symbAccountant,        // ACCOUNTANT Главный бухгалтер
 	symbClientExtName,     // CLIENTEXTNAME @erik v10.4.11
 	symbAmountBonus,       // @v10.6.5 AMOUNTBONUS
 	symbAmountWoBonus,     // @v10.6.5 AMOUNTWOBONUS 

@@ -122,7 +122,7 @@ static /*inline*/ uint32 murmur3_32(const char * key, uint32 len, uint32 seed)
 	static const uint32 n = 0xe6546b64;
 	uint32 hash = seed;
 	const int nblocks = len / 4;
-	const uint32 * blocks = (const uint32*)key;
+	const uint32 * blocks = (const uint32 *)key;
 	for(int i = 0; i < nblocks; i++) {
 		uint32 k = blocks[i];
 		k *= c1;

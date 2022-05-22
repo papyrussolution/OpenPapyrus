@@ -1,17 +1,14 @@
+// regexcmp.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 //
-//  regexcmp.h
-//
-//  Copyright (C) 2002-2016, International Business Machines Corporation and others.
-//  All Rights Reserved.
+//  Copyright (C) 2002-2016, International Business Machines Corporation and others. All Rights Reserved.
 //
 //  This file contains declarations for the class RegexCompile
 //
 //  This class is internal to the regular expression implementation.
 //  For the public Regular Expression API, see the file "unicode/regex.h"
 //
-
 #ifndef RBBISCAN_H
 #define RBBISCAN_H
 
@@ -27,19 +24,14 @@
 #include "uvectr32.h"
 
 U_NAMESPACE_BEGIN
-
-//--------------------------------------------------------------------------------
 //
 //  class RegexCompile    Contains the regular expression compiler.
 //
-//--------------------------------------------------------------------------------
 struct  RegexTableEl;
-
 class RegexPattern;
 
 class U_I18N_API RegexCompile : public UMemory {
 public:
-
 	enum {
 		kStackSize = 100    // The size of the state stack for
 	}; //   pattern parsing.  Corresponds roughly
@@ -51,16 +43,11 @@ public:
 		UChar32 fChar;
 		bool fQuoted;
 	};
-
 	RegexCompile(RegexPattern * rp, UErrorCode &e);
-
 	void   compile(const UnicodeString & pat, UParseError &pp, UErrorCode &e);
 	void   compile(UText * pat, UParseError &pp, UErrorCode &e);
-
 	virtual ~RegexCompile();
-
 	void   nextChar(RegexPatternChar &c);  // Get the next char from the input stream.
-
 	static void cleanup();                   // Memory cleanup
 
 	// Categories of parentheses in pattern.
@@ -76,12 +63,9 @@ public:
 		lookBehind   = -7,
 		lookBehindN  = -8
 	};
-
 private:
-
 	bool       doParseActions(int32_t a);
 	void   error(UErrorCode e);               // error reporting convenience function.
-
 	UChar32 nextCharLL();
 	UChar32 peekCharLL();
 	UnicodeSet  * scanProp();
@@ -113,20 +97,16 @@ private:
 	    int32_t end);
 	void   matchStartType();
 	void   stripNOPs();
-
 	void   setEval(int32_t op);
 	void   setPushOp(int32_t op);
 	UChar32 scanNamedChar();
 	UnicodeSet * createSetForProperty(const UnicodeString & propName, bool negated);
-
 public:   // Public for testing only.
 	static void U_EXPORT2 findCaseInsensitiveStarters(UChar32 c, UnicodeSet * starterChars);
 private:
-
-	UErrorCode                    * fStatus;
-	RegexPattern                  * fRXPat;
-	UParseError                   * fParseErr;
-
+	UErrorCode   * fStatus;
+	RegexPattern * fRXPat;
+	UParseError  * fParseErr;
 	//
 	//  Data associated with low level character scanning
 	//
@@ -134,23 +114,17 @@ private:
 	                                             //   in the rule input string.
 	bool fQuoteMode;                            // Scan is in a \Q...\E quoted region
 	bool fInBackslashQuote;                     // Scan is between a '\' and the following char.
-	bool fEOLComments; // When scan is just after '(?',  inhibit #... to
-	                                             //   end of line comments, in favor of (?#...) comments.
+	bool fEOLComments; // When scan is just after '(?',  inhibit #... to end of line comments, in favor of (?#...) comments.
 	int64_t fLineNum;                            // Line number in input file.
 	int64_t fCharNum;                            // Char position within the line.
 	UChar32 fLastChar;     // Previous char, needed to count CR-LF
 	//   as a single line, not two.
 	UChar32 fPeekChar;     // Saved char, if we've scanned ahead.
-
-	RegexPatternChar fC;                         // Current char for parse state machine
-	                                             //   processing.
-
+	RegexPatternChar fC;                         // Current char for parse state machine processing.
 	//
 	//   Data for the state machine that parses the regular expression.
 	//
-	RegexTableEl            ** fStateTable;// State Transition Table for regex Rule
-	                                             //   parsing.  index by p[state][char-class]
-
+	RegexTableEl            ** fStateTable;// State Transition Table for regex Rule parsing.  index by p[state][char-class]
 	uint16 fStack[kStackSize];                   // State stack, holds state pushes
 	int32_t fStackPtr;       //  and pops as specified in the state
 	//  transition rules.

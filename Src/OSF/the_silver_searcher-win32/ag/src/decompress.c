@@ -50,7 +50,7 @@ static void * decompress_zlib(const void * buf, const int buf_len, const char * 
 			/* Double the buffer size and realloc */
 			result_size *= 2;
 			result = (uchar *)SAlloc::R(result, result_size * sizeof(uchar));
-			if(result == NULL) {
+			if(!result) {
 				SAlloc::F(tmp_result);
 				log_err("Unable to allocate %d bytes to decompress file %s", result_size * sizeof(uchar), dir_full_path);
 				inflateEnd(&stream);
@@ -130,7 +130,7 @@ static void * decompress_lzma(const void * buf, const int buf_len, const char * 
 			// Double the buffer size and realloc 
 			result_size *= 2;
 			result = (uchar *)SAlloc::R(result, result_size * sizeof(uchar));
-			if(result == NULL) {
+			if(!result) {
 				SAlloc::F(tmp_result);
 				log_err("Unable to allocate %d bytes to decompress file %s", result_size * sizeof(uchar), dir_full_path);
 				goto error_out;

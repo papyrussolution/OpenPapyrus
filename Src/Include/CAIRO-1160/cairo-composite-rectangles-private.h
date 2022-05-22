@@ -27,10 +27,6 @@
 #ifndef CAIRO_COMPOSITE_RECTANGLES_PRIVATE_H
 #define CAIRO_COMPOSITE_RECTANGLES_PRIVATE_H
 
-//#include "cairo-types-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-pattern-private.h"
-
 CAIRO_BEGIN_DECLS
 
 /* Rectangles that take part in a composite operation.

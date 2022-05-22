@@ -13,13 +13,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <limits.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include "src/dsp/dsp.h"
-//#include "src/utils/rescaler_utils.h"
-//#include "src/utils/utils.h"
 
 int WebPRescalerInit(WebPRescaler* const rescaler, int src_width, int src_height, uint8* const dst, int dst_width, int dst_height, int dst_stride, int num_channels, rescaler_t* const work) 
 {

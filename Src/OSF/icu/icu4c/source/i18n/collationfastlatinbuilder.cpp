@@ -391,7 +391,7 @@ bool CollationFastLatinBuilder::getCEsFromContractionCE32(const CollationData & 
 		int32_t x = CollationFastLatin::getCharIndex(suffix.charAt(0));
 		if(x < 0) {
 			continue;
-		}                // ignore anything but fast Latin text
+		} // ignore anything but fast Latin text
 		if(x == prevX) {
 			if(addContraction) {
 				// Bail out for all contractions starting with this character.
@@ -625,7 +625,7 @@ bool CollationFastLatinBuilder::encodeCharCEs(UErrorCode & errorCode) {
 		int64_t ce = charCEs[i][0];
 		if(isContractionCharCE(ce)) {
 			continue;
-		}                                  // defer contraction
+		} // defer contraction
 		uint32_t miniCE = encodeTwoCEs(ce, charCEs[i][1]);
 		if(miniCE > 0xffff) {
 			// Note: There is a chance that this new expansion is the same as a previous one,

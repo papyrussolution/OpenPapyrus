@@ -1,25 +1,18 @@
+// regexc.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *   Copyright (C) 2003-2006, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- *   file name:   regexc.cpp
- *   description: The purpose of this function is to separate the codepage
- *       conversion from the rest of the uregex_ API. This can removes any
- *       dependency on codepage conversion, which reduces the overhead of
- */
+// Copyright (C) 2003-2006, International Business Machines Corporation and others.  All Rights Reserved.
+// description: The purpose of this function is to separate the codepage
+//   conversion from the rest of the uregex_ API. This can removes any
+//   dependency on codepage conversion, which reduces the overhead of
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
 U_NAMESPACE_USE
-
-//----------------------------------------------------------------------------------------
 //
 //    uregex_openC
 //
-//----------------------------------------------------------------------------------------
 #if !UCONFIG_NO_CONVERSION && !UCONFIG_NO_REGULAR_EXPRESSIONS
 	U_CAPI URegularExpression * U_EXPORT2 uregex_openC(const char * pattern, uint32_t flags, UParseError * pe, UErrorCode * status) 
 	{

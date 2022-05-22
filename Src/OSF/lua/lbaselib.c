@@ -24,7 +24,7 @@ static int luaB_print(lua_State * L)
 		lua_pushvalue(L, i); /* value to print */
 		lua_call(L, 1, 1);
 		s = lua_tolstring(L, -1, &l); /* get result */
-		if(s == NULL)
+		if(!s)
 			return luaL_error(L, "'tostring' must return a string to 'print'");
 		if(i>1) lua_writestring("\t", 1);
 		lua_writestring(s, l);
@@ -315,7 +315,7 @@ static int luaB_load(lua_State * L) {
 	const char * s = lua_tolstring(L, 1, &l);
 	const char * mode = luaL_optstring(L, 3, "bt");
 	int env = (!lua_isnone(L, 4) ? 4 : 0); /* 'env' index or 0 if no 'env' */
-	if(s != NULL) { /* loading a string? */
+	if(s) { /* loading a string? */
 		const char * chunkname = luaL_optstring(L, 2, s);
 		status = luaL_loadbufferx(L, s, l, chunkname, mode);
 	}

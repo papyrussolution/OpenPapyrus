@@ -41,16 +41,6 @@
 #if CAIRO_HAS_QT_SURFACE && CAIRO_HAS_FT_FONT // {
 #define __STDC_LIMIT_MACROS
 
-//#include "cairo-clip-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-region-private.h"
-//#include "cairo-surface-clipper-private.h"
-//#include "cairo-types-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-surface-backend-private.h"
-//#include "cairo-surface-fallback-private.h"
 #include "cairo-ft.h"
 #include "cairo-qt.h"
 #include <memory>
@@ -570,7 +560,7 @@ static cairo_surface_t * map_qimage_to_image(QImage * qimg, const cairo_rectangl
 	}
 
 	surface = (struct _qimage_surface *)_cairo_malloc(sizeof(*surface));
-	if(UNLIKELY(surface == NULL)) {
+	if(UNLIKELY(!surface)) {
 		pixman_image_unref(pixman_image);
 		delete qimg;
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);

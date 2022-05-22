@@ -17,8 +17,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace proto_util_converter {
 namespace testing {
-constexpr StructTestCases::StructTestCases(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr StructTestCases::StructTestCases(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : empty_value_(nullptr)
   , empty_value2_(nullptr)
   , null_value_(nullptr)
@@ -66,8 +65,7 @@ struct StructTestCasesDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructTestCasesDefaultTypeInternal _StructTestCases_default_instance_;
-constexpr StructWrapper::StructWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr StructWrapper::StructWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : struct__(nullptr){}
 struct StructWrapperDefaultTypeInternal {
 	constexpr StructWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -77,8 +75,7 @@ struct StructWrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT StructWrapperDefaultTypeInternal _StructWrapper_default_instance_;
-constexpr ValueWrapper::ValueWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr ValueWrapper::ValueWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : value_(nullptr){}
 struct ValueWrapperDefaultTypeInternal {
 	constexpr ValueWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -88,8 +85,7 @@ struct ValueWrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ValueWrapperDefaultTypeInternal _ValueWrapper_default_instance_;
-constexpr RepeatedValueWrapper::RepeatedValueWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr RepeatedValueWrapper::RepeatedValueWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : values_(){}
 struct RepeatedValueWrapperDefaultTypeInternal {
 	constexpr RepeatedValueWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -99,8 +95,7 @@ struct RepeatedValueWrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RepeatedValueWrapperDefaultTypeInternal _RepeatedValueWrapper_default_instance_;
-constexpr ListValueWrapper::ListValueWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr ListValueWrapper::ListValueWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : shopping_list_(nullptr){}
 struct ListValueWrapperDefaultTypeInternal {
 	constexpr ListValueWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -110,8 +105,7 @@ struct ListValueWrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ListValueWrapperDefaultTypeInternal _ListValueWrapper_default_instance_;
-constexpr RepeatedListValueWrapper::RepeatedListValueWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr RepeatedListValueWrapper::RepeatedListValueWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : dimensions_(){}
 struct RepeatedListValueWrapperDefaultTypeInternal {
 	constexpr RepeatedListValueWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -121,8 +115,7 @@ struct RepeatedListValueWrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RepeatedListValueWrapperDefaultTypeInternal _RepeatedListValueWrapper_default_instance_;
-constexpr MapOfStruct_StructMapEntry_DoNotUse::MapOfStruct_StructMapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapOfStruct_StructMapEntry_DoNotUse::MapOfStruct_StructMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapOfStruct_StructMapEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapOfStruct_StructMapEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapOfStruct_StructMapEntry_DoNotUseDefaultTypeInternal() {}
@@ -131,8 +124,7 @@ struct MapOfStruct_StructMapEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOfStruct_StructMapEntry_DoNotUseDefaultTypeInternal _MapOfStruct_StructMapEntry_DoNotUse_default_instance_;
-constexpr MapOfStruct_ValueMapEntry_DoNotUse::MapOfStruct_ValueMapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapOfStruct_ValueMapEntry_DoNotUse::MapOfStruct_ValueMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapOfStruct_ValueMapEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapOfStruct_ValueMapEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapOfStruct_ValueMapEntry_DoNotUseDefaultTypeInternal() {}
@@ -141,8 +133,7 @@ struct MapOfStruct_ValueMapEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOfStruct_ValueMapEntry_DoNotUseDefaultTypeInternal _MapOfStruct_ValueMapEntry_DoNotUse_default_instance_;
-constexpr MapOfStruct_ListvalueMapEntry_DoNotUse::MapOfStruct_ListvalueMapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MapOfStruct_ListvalueMapEntry_DoNotUse::MapOfStruct_ListvalueMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MapOfStruct_ListvalueMapEntry_DoNotUseDefaultTypeInternal {
 	constexpr MapOfStruct_ListvalueMapEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MapOfStruct_ListvalueMapEntry_DoNotUseDefaultTypeInternal() {}
@@ -151,8 +142,7 @@ struct MapOfStruct_ListvalueMapEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOfStruct_ListvalueMapEntry_DoNotUseDefaultTypeInternal _MapOfStruct_ListvalueMapEntry_DoNotUse_default_instance_;
-constexpr MapOfStruct::MapOfStruct(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MapOfStruct::MapOfStruct(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : struct_map_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
   , value_map_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
   , listvalue_map_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}){}
@@ -164,8 +154,7 @@ struct MapOfStructDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MapOfStructDefaultTypeInternal _MapOfStruct_default_instance_;
-constexpr Dummy::Dummy(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Dummy::Dummy(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : text_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct DummyDefaultTypeInternal {
 	constexpr DummyDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -175,8 +164,7 @@ struct DummyDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DummyDefaultTypeInternal _Dummy_default_instance_;
-constexpr StructType::StructType(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr StructType::StructType(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : object_(nullptr){}
 struct StructTypeDefaultTypeInternal {
 	constexpr StructTypeDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -523,162 +511,45 @@ class StructTestCases::_Internal {
   static const ::proto_util_converter::testing::MapOfStruct& map_of_listvalue(const StructTestCases* msg);
 };
 
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::empty_value(const StructTestCases* msg) {
-  return *msg->empty_value_;
-}
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::empty_value2(const StructTestCases* msg) {
-  return *msg->empty_value2_;
-}
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::null_value(const StructTestCases* msg) {
-  return *msg->null_value_;
-}
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::simple_struct(const StructTestCases* msg) {
-  return *msg->simple_struct_;
-}
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::longer_struct(const StructTestCases* msg) {
-  return *msg->longer_struct_;
-}
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::struct_with_nested_struct(const StructTestCases* msg) {
-  return *msg->struct_with_nested_struct_;
-}
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::struct_with_nested_list(const StructTestCases* msg) {
-  return *msg->struct_with_nested_list_;
-}
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::struct_with_list_of_nulls(const StructTestCases* msg) {
-  return *msg->struct_with_list_of_nulls_;
-}
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::struct_with_list_of_lists(const StructTestCases* msg) {
-  return *msg->struct_with_list_of_lists_;
-}
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::struct_with_list_of_structs(const StructTestCases* msg) {
-  return *msg->struct_with_list_of_structs_;
-}
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::struct_with_empty_list(const StructTestCases* msg) {
-  return *msg->struct_with_empty_list_;
-}
-const ::proto_util_converter::testing::StructWrapper&
-StructTestCases::_Internal::struct_with_list_with_empty_struct(const StructTestCases* msg) {
-  return *msg->struct_with_list_with_empty_struct_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Struct&
-StructTestCases::_Internal::top_level_struct(const StructTestCases* msg) {
-  return *msg->top_level_struct_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Struct&
-StructTestCases::_Internal::top_level_struct_with_empty_list(const StructTestCases* msg) {
-  return *msg->top_level_struct_with_empty_list_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Struct&
-StructTestCases::_Internal::top_level_struct_with_list_with_empty_struct(const StructTestCases* msg) {
-  return *msg->top_level_struct_with_list_with_empty_struct_;
-}
-const ::proto_util_converter::testing::ValueWrapper&
-StructTestCases::_Internal::value_wrapper_simple(const StructTestCases* msg) {
-  return *msg->value_wrapper_simple_;
-}
-const ::proto_util_converter::testing::ValueWrapper&
-StructTestCases::_Internal::value_wrapper_with_struct(const StructTestCases* msg) {
-  return *msg->value_wrapper_with_struct_;
-}
-const ::proto_util_converter::testing::ValueWrapper&
-StructTestCases::_Internal::value_wrapper_with_list(const StructTestCases* msg) {
-  return *msg->value_wrapper_with_list_;
-}
-const ::proto_util_converter::testing::ValueWrapper&
-StructTestCases::_Internal::value_wrapper_with_empty_list(const StructTestCases* msg) {
-  return *msg->value_wrapper_with_empty_list_;
-}
-const ::proto_util_converter::testing::ValueWrapper&
-StructTestCases::_Internal::value_wrapper_with_list_with_empty_struct(const StructTestCases* msg) {
-  return *msg->value_wrapper_with_list_with_empty_struct_;
-}
-const ::proto_util_converter::testing::ListValueWrapper&
-StructTestCases::_Internal::list_value_wrapper(const StructTestCases* msg) {
-  return *msg->list_value_wrapper_;
-}
-const ::proto_util_converter::testing::ListValueWrapper&
-StructTestCases::_Internal::list_value_wrapper_with_empty_list(const StructTestCases* msg) {
-  return *msg->list_value_wrapper_with_empty_list_;
-}
-const ::proto_util_converter::testing::ListValueWrapper&
-StructTestCases::_Internal::list_value_wrapper_with_list_with_empty_struct(const StructTestCases* msg) {
-  return *msg->list_value_wrapper_with_list_with_empty_struct_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Value&
-StructTestCases::_Internal::top_level_value_simple(const StructTestCases* msg) {
-  return *msg->top_level_value_simple_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Value&
-StructTestCases::_Internal::top_level_value_with_struct(const StructTestCases* msg) {
-  return *msg->top_level_value_with_struct_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Value&
-StructTestCases::_Internal::top_level_value_with_list(const StructTestCases* msg) {
-  return *msg->top_level_value_with_list_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Value&
-StructTestCases::_Internal::top_level_value_with_empty_list(const StructTestCases* msg) {
-  return *msg->top_level_value_with_empty_list_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Value&
-StructTestCases::_Internal::top_level_value_with_list_with_empty_struct(const StructTestCases* msg) {
-  return *msg->top_level_value_with_list_with_empty_struct_;
-}
-const ::PROTOBUF_NAMESPACE_ID::ListValue&
-StructTestCases::_Internal::top_level_listvalue(const StructTestCases* msg) {
-  return *msg->top_level_listvalue_;
-}
-const ::PROTOBUF_NAMESPACE_ID::ListValue&
-StructTestCases::_Internal::top_level_empty_listvalue(const StructTestCases* msg) {
-  return *msg->top_level_empty_listvalue_;
-}
-const ::PROTOBUF_NAMESPACE_ID::ListValue&
-StructTestCases::_Internal::top_level_listvalue_with_empty_struct(const StructTestCases* msg) {
-  return *msg->top_level_listvalue_with_empty_struct_;
-}
-const ::proto_util_converter::testing::RepeatedValueWrapper&
-StructTestCases::_Internal::repeated_value(const StructTestCases* msg) {
-  return *msg->repeated_value_;
-}
-const ::proto_util_converter::testing::RepeatedValueWrapper&
-StructTestCases::_Internal::repeated_value_nested_list(const StructTestCases* msg) {
-  return *msg->repeated_value_nested_list_;
-}
-const ::proto_util_converter::testing::RepeatedValueWrapper&
-StructTestCases::_Internal::repeated_value_nested_list2(const StructTestCases* msg) {
-  return *msg->repeated_value_nested_list2_;
-}
-const ::proto_util_converter::testing::RepeatedValueWrapper&
-StructTestCases::_Internal::repeated_value_nested_list3(const StructTestCases* msg) {
-  return *msg->repeated_value_nested_list3_;
-}
-const ::proto_util_converter::testing::RepeatedListValueWrapper&
-StructTestCases::_Internal::repeated_listvalue(const StructTestCases* msg) {
-  return *msg->repeated_listvalue_;
-}
-const ::proto_util_converter::testing::MapOfStruct&
-StructTestCases::_Internal::map_of_struct(const StructTestCases* msg) {
-  return *msg->map_of_struct_;
-}
-const ::proto_util_converter::testing::MapOfStruct&
-StructTestCases::_Internal::map_of_struct_value(const StructTestCases* msg) {
-  return *msg->map_of_struct_value_;
-}
-const ::proto_util_converter::testing::MapOfStruct&
-StructTestCases::_Internal::map_of_listvalue(const StructTestCases* msg) {
-  return *msg->map_of_listvalue_;
-}
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::empty_value(const StructTestCases* msg) { return *msg->empty_value_; }
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::empty_value2(const StructTestCases* msg) { return *msg->empty_value2_; }
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::null_value(const StructTestCases* msg) { return *msg->null_value_; }
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::simple_struct(const StructTestCases* msg) { return *msg->simple_struct_; }
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::longer_struct(const StructTestCases* msg) { return *msg->longer_struct_; }
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::struct_with_nested_struct(const StructTestCases* msg) { return *msg->struct_with_nested_struct_; }
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::struct_with_nested_list(const StructTestCases* msg) { return *msg->struct_with_nested_list_; }
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::struct_with_list_of_nulls(const StructTestCases* msg) { return *msg->struct_with_list_of_nulls_; }
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::struct_with_list_of_lists(const StructTestCases* msg) { return *msg->struct_with_list_of_lists_; }
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::struct_with_list_of_structs(const StructTestCases* msg) { return *msg->struct_with_list_of_structs_; }
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::struct_with_empty_list(const StructTestCases* msg) { return *msg->struct_with_empty_list_; }
+const ::proto_util_converter::testing::StructWrapper & StructTestCases::_Internal::struct_with_list_with_empty_struct(const StructTestCases* msg) { return *msg->struct_with_list_with_empty_struct_; }
+const ::PROTOBUF_NAMESPACE_ID::Struct & StructTestCases::_Internal::top_level_struct(const StructTestCases* msg) { return *msg->top_level_struct_; }
+const ::PROTOBUF_NAMESPACE_ID::Struct & StructTestCases::_Internal::top_level_struct_with_empty_list(const StructTestCases* msg) { return *msg->top_level_struct_with_empty_list_; }
+const ::PROTOBUF_NAMESPACE_ID::Struct & StructTestCases::_Internal::top_level_struct_with_list_with_empty_struct(const StructTestCases* msg) { return *msg->top_level_struct_with_list_with_empty_struct_; }
+const ::proto_util_converter::testing::ValueWrapper & StructTestCases::_Internal::value_wrapper_simple(const StructTestCases* msg) { return *msg->value_wrapper_simple_; }
+const ::proto_util_converter::testing::ValueWrapper & StructTestCases::_Internal::value_wrapper_with_struct(const StructTestCases* msg) { return *msg->value_wrapper_with_struct_; }
+const ::proto_util_converter::testing::ValueWrapper & StructTestCases::_Internal::value_wrapper_with_list(const StructTestCases* msg) { return *msg->value_wrapper_with_list_; }
+const ::proto_util_converter::testing::ValueWrapper & StructTestCases::_Internal::value_wrapper_with_empty_list(const StructTestCases* msg) { return *msg->value_wrapper_with_empty_list_; }
+const ::proto_util_converter::testing::ValueWrapper & StructTestCases::_Internal::value_wrapper_with_list_with_empty_struct(const StructTestCases* msg) { return *msg->value_wrapper_with_list_with_empty_struct_; }
+const ::proto_util_converter::testing::ListValueWrapper & StructTestCases::_Internal::list_value_wrapper(const StructTestCases* msg) { return *msg->list_value_wrapper_; }
+const ::proto_util_converter::testing::ListValueWrapper & StructTestCases::_Internal::list_value_wrapper_with_empty_list(const StructTestCases* msg) { return *msg->list_value_wrapper_with_empty_list_; }
+const ::proto_util_converter::testing::ListValueWrapper & StructTestCases::_Internal::list_value_wrapper_with_list_with_empty_struct(const StructTestCases* msg) { return *msg->list_value_wrapper_with_list_with_empty_struct_; }
+const ::PROTOBUF_NAMESPACE_ID::Value & StructTestCases::_Internal::top_level_value_simple(const StructTestCases* msg) { return *msg->top_level_value_simple_; }
+const ::PROTOBUF_NAMESPACE_ID::Value & StructTestCases::_Internal::top_level_value_with_struct(const StructTestCases* msg) { return *msg->top_level_value_with_struct_; }
+const ::PROTOBUF_NAMESPACE_ID::Value & StructTestCases::_Internal::top_level_value_with_list(const StructTestCases* msg) { return *msg->top_level_value_with_list_; }
+const ::PROTOBUF_NAMESPACE_ID::Value & StructTestCases::_Internal::top_level_value_with_empty_list(const StructTestCases* msg) { return *msg->top_level_value_with_empty_list_; }
+const ::PROTOBUF_NAMESPACE_ID::Value & StructTestCases::_Internal::top_level_value_with_list_with_empty_struct(const StructTestCases* msg) { return *msg->top_level_value_with_list_with_empty_struct_; }
+const ::PROTOBUF_NAMESPACE_ID::ListValue & StructTestCases::_Internal::top_level_listvalue(const StructTestCases* msg) { return *msg->top_level_listvalue_; }
+const ::PROTOBUF_NAMESPACE_ID::ListValue & StructTestCases::_Internal::top_level_empty_listvalue(const StructTestCases* msg) { return *msg->top_level_empty_listvalue_; }
+const ::PROTOBUF_NAMESPACE_ID::ListValue & StructTestCases::_Internal::top_level_listvalue_with_empty_struct(const StructTestCases* msg) { return *msg->top_level_listvalue_with_empty_struct_; }
+const ::proto_util_converter::testing::RepeatedValueWrapper & StructTestCases::_Internal::repeated_value(const StructTestCases* msg) { return *msg->repeated_value_; }
+const ::proto_util_converter::testing::RepeatedValueWrapper & StructTestCases::_Internal::repeated_value_nested_list(const StructTestCases* msg) { return *msg->repeated_value_nested_list_; }
+const ::proto_util_converter::testing::RepeatedValueWrapper & StructTestCases::_Internal::repeated_value_nested_list2(const StructTestCases* msg) { return *msg->repeated_value_nested_list2_; }
+const ::proto_util_converter::testing::RepeatedValueWrapper & StructTestCases::_Internal::repeated_value_nested_list3(const StructTestCases* msg) { return *msg->repeated_value_nested_list3_; }
+const ::proto_util_converter::testing::RepeatedListValueWrapper & StructTestCases::_Internal::repeated_listvalue(const StructTestCases* msg) { return *msg->repeated_listvalue_; }
+const ::proto_util_converter::testing::MapOfStruct & StructTestCases::_Internal::map_of_struct(const StructTestCases* msg) { return *msg->map_of_struct_; }
+const ::proto_util_converter::testing::MapOfStruct & StructTestCases::_Internal::map_of_struct_value(const StructTestCases* msg) { return *msg->map_of_struct_value_; }
+const ::proto_util_converter::testing::MapOfStruct & StructTestCases::_Internal::map_of_listvalue(const StructTestCases* msg) { return *msg->map_of_listvalue_; }
 void StructTestCases::clear_top_level_struct() {
   if(GetArenaForAllocation() == nullptr && top_level_struct_ != nullptr) {
     delete top_level_struct_;
@@ -757,209 +628,50 @@ StructTestCases::StructTestCases(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 StructTestCases::StructTestCases(const StructTestCases& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_empty_value()) {
-    empty_value_ = new ::proto_util_converter::testing::StructWrapper(*from.empty_value_);
-  } else {
-    empty_value_ = nullptr;
-  }
-  if(from._internal_has_empty_value2()) {
-    empty_value2_ = new ::proto_util_converter::testing::StructWrapper(*from.empty_value2_);
-  } else {
-    empty_value2_ = nullptr;
-  }
-  if(from._internal_has_null_value()) {
-    null_value_ = new ::proto_util_converter::testing::StructWrapper(*from.null_value_);
-  } else {
-    null_value_ = nullptr;
-  }
-  if(from._internal_has_simple_struct()) {
-    simple_struct_ = new ::proto_util_converter::testing::StructWrapper(*from.simple_struct_);
-  } else {
-    simple_struct_ = nullptr;
-  }
-  if(from._internal_has_longer_struct()) {
-    longer_struct_ = new ::proto_util_converter::testing::StructWrapper(*from.longer_struct_);
-  } else {
-    longer_struct_ = nullptr;
-  }
-  if(from._internal_has_struct_with_nested_struct()) {
-    struct_with_nested_struct_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_nested_struct_);
-  } else {
-    struct_with_nested_struct_ = nullptr;
-  }
-  if(from._internal_has_struct_with_nested_list()) {
-    struct_with_nested_list_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_nested_list_);
-  } else {
-    struct_with_nested_list_ = nullptr;
-  }
-  if(from._internal_has_struct_with_list_of_nulls()) {
-    struct_with_list_of_nulls_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_of_nulls_);
-  } else {
-    struct_with_list_of_nulls_ = nullptr;
-  }
-  if(from._internal_has_struct_with_list_of_lists()) {
-    struct_with_list_of_lists_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_of_lists_);
-  } else {
-    struct_with_list_of_lists_ = nullptr;
-  }
-  if(from._internal_has_struct_with_list_of_structs()) {
-    struct_with_list_of_structs_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_of_structs_);
-  } else {
-    struct_with_list_of_structs_ = nullptr;
-  }
-  if(from._internal_has_struct_with_empty_list()) {
-    struct_with_empty_list_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_empty_list_);
-  } else {
-    struct_with_empty_list_ = nullptr;
-  }
-  if(from._internal_has_struct_with_list_with_empty_struct()) {
-    struct_with_list_with_empty_struct_ = new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_with_empty_struct_);
-  } else {
-    struct_with_list_with_empty_struct_ = nullptr;
-  }
-  if(from._internal_has_top_level_struct()) {
-    top_level_struct_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.top_level_struct_);
-  } else {
-    top_level_struct_ = nullptr;
-  }
-  if(from._internal_has_top_level_struct_with_empty_list()) {
-    top_level_struct_with_empty_list_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.top_level_struct_with_empty_list_);
-  } else {
-    top_level_struct_with_empty_list_ = nullptr;
-  }
-  if(from._internal_has_top_level_struct_with_list_with_empty_struct()) {
-    top_level_struct_with_list_with_empty_struct_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.top_level_struct_with_list_with_empty_struct_);
-  } else {
-    top_level_struct_with_list_with_empty_struct_ = nullptr;
-  }
-  if(from._internal_has_value_wrapper_simple()) {
-    value_wrapper_simple_ = new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_simple_);
-  } else {
-    value_wrapper_simple_ = nullptr;
-  }
-  if(from._internal_has_value_wrapper_with_struct()) {
-    value_wrapper_with_struct_ = new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_struct_);
-  } else {
-    value_wrapper_with_struct_ = nullptr;
-  }
-  if(from._internal_has_value_wrapper_with_list()) {
-    value_wrapper_with_list_ = new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_list_);
-  } else {
-    value_wrapper_with_list_ = nullptr;
-  }
-  if(from._internal_has_value_wrapper_with_empty_list()) {
-    value_wrapper_with_empty_list_ = new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_empty_list_);
-  } else {
-    value_wrapper_with_empty_list_ = nullptr;
-  }
-  if(from._internal_has_value_wrapper_with_list_with_empty_struct()) {
-    value_wrapper_with_list_with_empty_struct_ = new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_list_with_empty_struct_);
-  } else {
-    value_wrapper_with_list_with_empty_struct_ = nullptr;
-  }
-  if(from._internal_has_list_value_wrapper()) {
-    list_value_wrapper_ = new ::proto_util_converter::testing::ListValueWrapper(*from.list_value_wrapper_);
-  } else {
-    list_value_wrapper_ = nullptr;
-  }
-  if(from._internal_has_list_value_wrapper_with_empty_list()) {
-    list_value_wrapper_with_empty_list_ = new ::proto_util_converter::testing::ListValueWrapper(*from.list_value_wrapper_with_empty_list_);
-  } else {
-    list_value_wrapper_with_empty_list_ = nullptr;
-  }
-  if(from._internal_has_list_value_wrapper_with_list_with_empty_struct()) {
-    list_value_wrapper_with_list_with_empty_struct_ = new ::proto_util_converter::testing::ListValueWrapper(*from.list_value_wrapper_with_list_with_empty_struct_);
-  } else {
-    list_value_wrapper_with_list_with_empty_struct_ = nullptr;
-  }
-  if(from._internal_has_top_level_value_simple()) {
-    top_level_value_simple_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_simple_);
-  } else {
-    top_level_value_simple_ = nullptr;
-  }
-  if(from._internal_has_top_level_value_with_struct()) {
-    top_level_value_with_struct_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_struct_);
-  } else {
-    top_level_value_with_struct_ = nullptr;
-  }
-  if(from._internal_has_top_level_value_with_list()) {
-    top_level_value_with_list_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_list_);
-  } else {
-    top_level_value_with_list_ = nullptr;
-  }
-  if(from._internal_has_top_level_value_with_empty_list()) {
-    top_level_value_with_empty_list_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_empty_list_);
-  } else {
-    top_level_value_with_empty_list_ = nullptr;
-  }
-  if(from._internal_has_top_level_value_with_list_with_empty_struct()) {
-    top_level_value_with_list_with_empty_struct_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_list_with_empty_struct_);
-  } else {
-    top_level_value_with_list_with_empty_struct_ = nullptr;
-  }
-  if(from._internal_has_top_level_listvalue()) {
-    top_level_listvalue_ = new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.top_level_listvalue_);
-  } else {
-    top_level_listvalue_ = nullptr;
-  }
-  if(from._internal_has_top_level_empty_listvalue()) {
-    top_level_empty_listvalue_ = new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.top_level_empty_listvalue_);
-  } else {
-    top_level_empty_listvalue_ = nullptr;
-  }
-  if(from._internal_has_top_level_listvalue_with_empty_struct()) {
-    top_level_listvalue_with_empty_struct_ = new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.top_level_listvalue_with_empty_struct_);
-  } else {
-    top_level_listvalue_with_empty_struct_ = nullptr;
-  }
-  if(from._internal_has_repeated_value()) {
-    repeated_value_ = new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_);
-  } else {
-    repeated_value_ = nullptr;
-  }
-  if(from._internal_has_repeated_value_nested_list()) {
-    repeated_value_nested_list_ = new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_nested_list_);
-  } else {
-    repeated_value_nested_list_ = nullptr;
-  }
-  if(from._internal_has_repeated_value_nested_list2()) {
-    repeated_value_nested_list2_ = new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_nested_list2_);
-  } else {
-    repeated_value_nested_list2_ = nullptr;
-  }
-  if(from._internal_has_repeated_value_nested_list3()) {
-    repeated_value_nested_list3_ = new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_nested_list3_);
-  } else {
-    repeated_value_nested_list3_ = nullptr;
-  }
-  if(from._internal_has_repeated_listvalue()) {
-    repeated_listvalue_ = new ::proto_util_converter::testing::RepeatedListValueWrapper(*from.repeated_listvalue_);
-  } else {
-    repeated_listvalue_ = nullptr;
-  }
-  if(from._internal_has_map_of_struct()) {
-    map_of_struct_ = new ::proto_util_converter::testing::MapOfStruct(*from.map_of_struct_);
-  } else {
-    map_of_struct_ = nullptr;
-  }
-  if(from._internal_has_map_of_struct_value()) {
-    map_of_struct_value_ = new ::proto_util_converter::testing::MapOfStruct(*from.map_of_struct_value_);
-  } else {
-    map_of_struct_value_ = nullptr;
-  }
-  if(from._internal_has_map_of_listvalue()) {
-    map_of_listvalue_ = new ::proto_util_converter::testing::MapOfStruct(*from.map_of_listvalue_);
-  } else {
-    map_of_listvalue_ = nullptr;
-  }
+  empty_value_ = from._internal_has_empty_value() ? new ::proto_util_converter::testing::StructWrapper(*from.empty_value_) : nullptr;
+  empty_value2_ = from._internal_has_empty_value2() ? new ::proto_util_converter::testing::StructWrapper(*from.empty_value2_) : nullptr;
+  null_value_ = from._internal_has_null_value() ? new ::proto_util_converter::testing::StructWrapper(*from.null_value_) : nullptr;
+  simple_struct_ = from._internal_has_simple_struct() ? new ::proto_util_converter::testing::StructWrapper(*from.simple_struct_) : nullptr;
+  longer_struct_ = from._internal_has_longer_struct() ? new ::proto_util_converter::testing::StructWrapper(*from.longer_struct_) : nullptr;
+  struct_with_nested_struct_ = from._internal_has_struct_with_nested_struct() ? new ::proto_util_converter::testing::StructWrapper(*from.struct_with_nested_struct_) : nullptr;
+  struct_with_nested_list_ = from._internal_has_struct_with_nested_list() ? new ::proto_util_converter::testing::StructWrapper(*from.struct_with_nested_list_) : nullptr;
+  struct_with_list_of_nulls_ = from._internal_has_struct_with_list_of_nulls() ? new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_of_nulls_) : nullptr;
+  struct_with_list_of_lists_ = from._internal_has_struct_with_list_of_lists() ? new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_of_lists_) : nullptr;
+  struct_with_list_of_structs_ = from._internal_has_struct_with_list_of_structs() ? new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_of_structs_) : nullptr;
+  struct_with_empty_list_ = from._internal_has_struct_with_empty_list() ? new ::proto_util_converter::testing::StructWrapper(*from.struct_with_empty_list_) : nullptr;
+  struct_with_list_with_empty_struct_ = from._internal_has_struct_with_list_with_empty_struct() ? new ::proto_util_converter::testing::StructWrapper(*from.struct_with_list_with_empty_struct_) : nullptr;
+  top_level_struct_ = from._internal_has_top_level_struct() ? new ::PROTOBUF_NAMESPACE_ID::Struct(*from.top_level_struct_) : nullptr;
+  top_level_struct_with_empty_list_ = from._internal_has_top_level_struct_with_empty_list() ? new ::PROTOBUF_NAMESPACE_ID::Struct(*from.top_level_struct_with_empty_list_) : nullptr;
+  top_level_struct_with_list_with_empty_struct_ = from._internal_has_top_level_struct_with_list_with_empty_struct() ? new ::PROTOBUF_NAMESPACE_ID::Struct(*from.top_level_struct_with_list_with_empty_struct_) : nullptr;
+  value_wrapper_simple_ = from._internal_has_value_wrapper_simple() ? new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_simple_) : nullptr;
+  value_wrapper_with_struct_ = from._internal_has_value_wrapper_with_struct() ? new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_struct_) : nullptr;
+  value_wrapper_with_list_ = from._internal_has_value_wrapper_with_list() ? new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_list_) : nullptr;
+  value_wrapper_with_empty_list_ = from._internal_has_value_wrapper_with_empty_list() ? new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_empty_list_) : nullptr;
+  value_wrapper_with_list_with_empty_struct_ = from._internal_has_value_wrapper_with_list_with_empty_struct() ? new ::proto_util_converter::testing::ValueWrapper(*from.value_wrapper_with_list_with_empty_struct_) : nullptr;
+  list_value_wrapper_ = from._internal_has_list_value_wrapper() ? new ::proto_util_converter::testing::ListValueWrapper(*from.list_value_wrapper_) : nullptr;
+  list_value_wrapper_with_empty_list_ = from._internal_has_list_value_wrapper_with_empty_list() ? new ::proto_util_converter::testing::ListValueWrapper(*from.list_value_wrapper_with_empty_list_) : nullptr;
+  list_value_wrapper_with_list_with_empty_struct_ = from._internal_has_list_value_wrapper_with_list_with_empty_struct() ? new ::proto_util_converter::testing::ListValueWrapper(*from.list_value_wrapper_with_list_with_empty_struct_) : nullptr;
+  top_level_value_simple_ = from._internal_has_top_level_value_simple() ? new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_simple_) : nullptr;
+  top_level_value_with_struct_ = from._internal_has_top_level_value_with_struct() ? new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_struct_) : nullptr;
+  top_level_value_with_list_ = from._internal_has_top_level_value_with_list() ? new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_list_) : nullptr;
+  top_level_value_with_empty_list_ = from._internal_has_top_level_value_with_empty_list() ? new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_empty_list_) : nullptr;
+  top_level_value_with_list_with_empty_struct_ = from._internal_has_top_level_value_with_list_with_empty_struct() ? new ::PROTOBUF_NAMESPACE_ID::Value(*from.top_level_value_with_list_with_empty_struct_) : nullptr;
+  top_level_listvalue_ = from._internal_has_top_level_listvalue() ? new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.top_level_listvalue_) : nullptr;
+  top_level_empty_listvalue_ = from._internal_has_top_level_empty_listvalue() ? new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.top_level_empty_listvalue_) : nullptr;
+  top_level_listvalue_with_empty_struct_ = from._internal_has_top_level_listvalue_with_empty_struct() ? new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.top_level_listvalue_with_empty_struct_) : nullptr;
+  repeated_value_ = from._internal_has_repeated_value() ? new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_) : nullptr;
+  repeated_value_nested_list_ = from._internal_has_repeated_value_nested_list() ? new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_nested_list_) : nullptr;
+  repeated_value_nested_list2_ = from._internal_has_repeated_value_nested_list2() ? new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_nested_list2_) : nullptr;
+  repeated_value_nested_list3_ = from._internal_has_repeated_value_nested_list3() ? new ::proto_util_converter::testing::RepeatedValueWrapper(*from.repeated_value_nested_list3_) : nullptr;
+  repeated_listvalue_ = from._internal_has_repeated_listvalue() ? new ::proto_util_converter::testing::RepeatedListValueWrapper(*from.repeated_listvalue_) : nullptr;
+  map_of_struct_ = from._internal_has_map_of_struct() ? new ::proto_util_converter::testing::MapOfStruct(*from.map_of_struct_) : nullptr;
+  map_of_struct_value_ = from._internal_has_map_of_struct_value() ? new ::proto_util_converter::testing::MapOfStruct(*from.map_of_struct_value_) : nullptr;
+  map_of_listvalue_ = from._internal_has_map_of_listvalue() ? new ::proto_util_converter::testing::MapOfStruct(*from.map_of_listvalue_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.StructTestCases)
 }
 
 inline void StructTestCases::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&empty_value_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&map_of_listvalue_) -
-    reinterpret_cast<char*>(&empty_value_)) + sizeof(map_of_listvalue_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&empty_value_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&map_of_listvalue_) - reinterpret_cast<char*>(&empty_value_)) + sizeof(map_of_listvalue_));
 }
 
 StructTestCases::~StructTestCases() {
@@ -1016,8 +728,7 @@ void StructTestCases::ArenaDtor(void* object) {
   StructTestCases* _this = reinterpret_cast< StructTestCases* >(object);
   (void)_this;
 }
-void StructTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void StructTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void StructTestCases::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1513,10 +1224,7 @@ const char* StructTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1987,10 +1695,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData StructTestCases::_class_data_ 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*StructTestCases::GetClassData() const { return &_class_data_; }
 
-void StructTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<StructTestCases *>(to)->MergeFrom(
-      static_cast<const StructTestCases &>(from));
+void StructTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<StructTestCases *>(to)->MergeFrom(static_cast<const StructTestCases &>(from));
 }
 
 
@@ -2153,10 +1859,7 @@ class StructWrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Struct& struct_(const StructWrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Struct&
-StructWrapper::_Internal::struct_(const StructWrapper* msg) {
-  return *msg->struct__;
-}
+const ::PROTOBUF_NAMESPACE_ID::Struct & StructWrapper::_Internal::struct_(const StructWrapper* msg) { return *msg->struct__; }
 void StructWrapper::clear_struct_() {
   if(GetArenaForAllocation() == nullptr && struct__ != nullptr) {
     delete struct__;
@@ -2175,11 +1878,7 @@ StructWrapper::StructWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 StructWrapper::StructWrapper(const StructWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_struct_()) {
-    struct__ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.struct__);
-  } else {
-    struct__ = nullptr;
-  }
+  struct__ = from._internal_has_struct_() ? new ::PROTOBUF_NAMESPACE_ID::Struct(*from.struct__) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.StructWrapper)
 }
 
@@ -2203,8 +1902,7 @@ void StructWrapper::ArenaDtor(void* object) {
   StructWrapper* _this = reinterpret_cast< StructWrapper* >(object);
   (void)_this;
 }
-void StructWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void StructWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void StructWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2244,10 +1942,7 @@ const char* StructWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2300,10 +1995,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData StructWrapper::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*StructWrapper::GetClassData() const { return &_class_data_; }
 
-void StructWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<StructWrapper *>(to)->MergeFrom(
-      static_cast<const StructWrapper &>(from));
+void StructWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<StructWrapper *>(to)->MergeFrom(static_cast<const StructWrapper &>(from));
 }
 
 
@@ -2347,10 +2040,7 @@ class ValueWrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Value& value(const ValueWrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Value&
-ValueWrapper::_Internal::value(const ValueWrapper* msg) {
-  return *msg->value_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Value & ValueWrapper::_Internal::value(const ValueWrapper* msg) { return *msg->value_; }
 void ValueWrapper::clear_value() {
   if(GetArenaForAllocation() == nullptr && value_ != nullptr) {
     delete value_;
@@ -2369,11 +2059,7 @@ ValueWrapper::ValueWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 ValueWrapper::ValueWrapper(const ValueWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_value()) {
-    value_ = new ::PROTOBUF_NAMESPACE_ID::Value(*from.value_);
-  } else {
-    value_ = nullptr;
-  }
+  value_ = from._internal_has_value() ? new ::PROTOBUF_NAMESPACE_ID::Value(*from.value_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.ValueWrapper)
 }
 
@@ -2397,8 +2083,7 @@ void ValueWrapper::ArenaDtor(void* object) {
   ValueWrapper* _this = reinterpret_cast< ValueWrapper* >(object);
   (void)_this;
 }
-void ValueWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void ValueWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void ValueWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2438,10 +2123,7 @@ const char* ValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2494,10 +2176,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ValueWrapper::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ValueWrapper::GetClassData() const { return &_class_data_; }
 
-void ValueWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<ValueWrapper *>(to)->MergeFrom(
-      static_cast<const ValueWrapper &>(from));
+void ValueWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<ValueWrapper *>(to)->MergeFrom(static_cast<const ValueWrapper &>(from));
 }
 
 
@@ -2578,8 +2258,7 @@ void RepeatedValueWrapper::ArenaDtor(void* object) {
   RepeatedValueWrapper* _this = reinterpret_cast< RepeatedValueWrapper* >(object);
   (void)_this;
 }
-void RepeatedValueWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void RepeatedValueWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void RepeatedValueWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2621,10 +2300,7 @@ const char* RepeatedValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAM
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2678,10 +2354,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData RepeatedValueWrapper::_class_d
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RepeatedValueWrapper::GetClassData() const { return &_class_data_; }
 
-void RepeatedValueWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<RepeatedValueWrapper *>(to)->MergeFrom(
-      static_cast<const RepeatedValueWrapper &>(from));
+void RepeatedValueWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<RepeatedValueWrapper *>(to)->MergeFrom(static_cast<const RepeatedValueWrapper &>(from));
 }
 
 
@@ -2723,10 +2397,7 @@ class ListValueWrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::ListValue& shopping_list(const ListValueWrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::ListValue&
-ListValueWrapper::_Internal::shopping_list(const ListValueWrapper* msg) {
-  return *msg->shopping_list_;
-}
+const ::PROTOBUF_NAMESPACE_ID::ListValue & ListValueWrapper::_Internal::shopping_list(const ListValueWrapper* msg) { return *msg->shopping_list_; }
 void ListValueWrapper::clear_shopping_list() {
   if(GetArenaForAllocation() == nullptr && shopping_list_ != nullptr) {
     delete shopping_list_;
@@ -2745,11 +2416,7 @@ ListValueWrapper::ListValueWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 ListValueWrapper::ListValueWrapper(const ListValueWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_shopping_list()) {
-    shopping_list_ = new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.shopping_list_);
-  } else {
-    shopping_list_ = nullptr;
-  }
+  shopping_list_ = from._internal_has_shopping_list() ? new ::PROTOBUF_NAMESPACE_ID::ListValue(*from.shopping_list_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.ListValueWrapper)
 }
 
@@ -2773,8 +2440,7 @@ void ListValueWrapper::ArenaDtor(void* object) {
   ListValueWrapper* _this = reinterpret_cast< ListValueWrapper* >(object);
   (void)_this;
 }
-void ListValueWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void ListValueWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void ListValueWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2814,10 +2480,7 @@ const char* ListValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2870,10 +2533,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ListValueWrapper::_class_data_
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ListValueWrapper::GetClassData() const { return &_class_data_; }
 
-void ListValueWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<ListValueWrapper *>(to)->MergeFrom(
-      static_cast<const ListValueWrapper &>(from));
+void ListValueWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<ListValueWrapper *>(to)->MergeFrom(static_cast<const ListValueWrapper &>(from));
 }
 
 
@@ -2954,8 +2615,7 @@ void RepeatedListValueWrapper::ArenaDtor(void* object) {
   RepeatedListValueWrapper* _this = reinterpret_cast< RepeatedListValueWrapper* >(object);
   (void)_this;
 }
-void RepeatedListValueWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void RepeatedListValueWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void RepeatedListValueWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2997,10 +2657,7 @@ const char* RepeatedListValueWrapper::_InternalParse(const char* ptr, ::PROTOBUF
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3054,10 +2711,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData RepeatedListValueWrapper::_cla
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RepeatedListValueWrapper::GetClassData() const { return &_class_data_; }
 
-void RepeatedListValueWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<RepeatedListValueWrapper *>(to)->MergeFrom(
-      static_cast<const RepeatedListValueWrapper &>(from));
+void RepeatedListValueWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<RepeatedListValueWrapper *>(to)->MergeFrom(static_cast<const RepeatedListValueWrapper &>(from));
 }
 
 
@@ -3176,10 +2831,11 @@ void MapOfStruct::ArenaDtor(void* object) {
   _this->value_map_. ~MapField();
   _this->listvalue_map_. ~MapField();
 }
-inline void MapOfStruct::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &MapOfStruct::ArenaDtor);
-  }
+inline void MapOfStruct::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &MapOfStruct::ArenaDtor);
+	}
 }
 void MapOfStruct::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -3250,10 +2906,7 @@ const char* MapOfStruct::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3404,30 +3057,21 @@ size_t MapOfStruct::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<string, .google.protobuf.Struct> struct_map = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_struct_map_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator
-      it = this->_internal_struct_map().begin();
-      it != this->_internal_struct_map().end(); ++it) {
-    total_size += MapOfStruct_StructMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_struct_map_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Struct >::const_iterator it = this->_internal_struct_map().begin(); it != this->_internal_struct_map().end(); ++it) {
+  	total_size += MapOfStruct_StructMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<string, .google.protobuf.Value> value_map = 2;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_value_map_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >::const_iterator
-      it = this->_internal_value_map().begin();
-      it != this->_internal_value_map().end(); ++it) {
-    total_size += MapOfStruct_ValueMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_value_map_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >::const_iterator it = this->_internal_value_map().begin(); it != this->_internal_value_map().end(); ++it) {
+  	total_size += MapOfStruct_ValueMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<string, .google.protobuf.ListValue> listvalue_map = 3;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_listvalue_map_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >::const_iterator
-      it = this->_internal_listvalue_map().begin();
-      it != this->_internal_listvalue_map().end(); ++it) {
-    total_size += MapOfStruct_ListvalueMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_listvalue_map_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::ListValue >::const_iterator it = this->_internal_listvalue_map().begin(); it != this->_internal_listvalue_map().end(); ++it) {
+  	total_size += MapOfStruct_ListvalueMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -3439,10 +3083,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MapOfStruct::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MapOfStruct::GetClassData() const { return &_class_data_; }
 
-void MapOfStruct::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MapOfStruct *>(to)->MergeFrom(
-      static_cast<const MapOfStruct &>(from));
+void MapOfStruct::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MapOfStruct *>(to)->MergeFrom(static_cast<const MapOfStruct &>(from));
 }
 
 
@@ -3532,8 +3174,7 @@ void Dummy::ArenaDtor(void* object) {
   Dummy* _this = reinterpret_cast< Dummy* >(object);
   (void)_this;
 }
-void Dummy::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Dummy::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Dummy::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -3572,10 +3213,7 @@ const char* Dummy::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3631,10 +3269,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Dummy::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Dummy::GetClassData() const { return &_class_data_; }
 
-void Dummy::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Dummy *>(to)->MergeFrom(
-      static_cast<const Dummy &>(from));
+void Dummy::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Dummy *>(to)->MergeFrom(static_cast<const Dummy &>(from));
 }
 
 
@@ -3666,11 +3302,7 @@ void Dummy::InternalSwap(Dummy* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &text_, lhs_arena,
-      &other->text_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &text_, lhs_arena, &other->text_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Dummy::GetMetadata() const {
@@ -3684,10 +3316,7 @@ class StructType::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Struct& object(const StructType* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Struct&
-StructType::_Internal::object(const StructType* msg) {
-  return *msg->object_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Struct & StructType::_Internal::object(const StructType* msg) { return *msg->object_; }
 void StructType::clear_object() {
   if(GetArenaForAllocation() == nullptr && object_ != nullptr) {
     delete object_;
@@ -3706,11 +3335,7 @@ StructType::StructType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 StructType::StructType(const StructType& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_object()) {
-    object_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.object_);
-  } else {
-    object_ = nullptr;
-  }
+  object_ = from._internal_has_object() ? new ::PROTOBUF_NAMESPACE_ID::Struct(*from.object_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.StructType)
 }
 
@@ -3734,8 +3359,7 @@ void StructType::ArenaDtor(void* object) {
   StructType* _this = reinterpret_cast< StructType* >(object);
   (void)_this;
 }
-void StructType::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void StructType::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void StructType::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -3775,10 +3399,7 @@ const char* StructType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3831,10 +3452,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData StructType::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*StructType::GetClassData() const { return &_class_data_; }
 
-void StructType::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<StructType *>(to)->MergeFrom(
-      static_cast<const StructType &>(from));
+void StructType::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<StructType *>(to)->MergeFrom(static_cast<const StructType &>(from));
 }
 
 

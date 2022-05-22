@@ -1,5 +1,5 @@
 // SARTRE.H
-// Copyright (c) A.Sobolev 2011, 2012, 2016, 2017, 2018, 2020
+// Copyright (c) A.Sobolev 2011, 2012, 2016, 2017, 2018, 2020, 2022
 // @codepage UTF-8
 //
 /*
@@ -1144,4 +1144,27 @@ public:
 	TSCollection <Rule> RL;
 	TSCollection <SrWordForm> WfList; // Список морфологических дескрипторов словоформ, используемых
 		// в правилах. На элементы этого списка ссылаются ExprItem::RSymb по номеру позиции [1..]
+};
+//
+//
+//
+class SrUedContainer : public SStrGroup {
+public:
+	SrUedContainer();
+	~SrUedContainer();
+	int    ReadSource(const char * pFileName);
+	int    WriteSource(const char * pFileName);
+	int    Verify();
+
+	struct BaseEntry {
+		uint64 Id;
+		uint32 SymbP;
+	};
+	struct TextEntry {
+		uint64 Id;
+		uint32 Locale;
+		uint32 TextP;
+	};
+	TSVector <BaseEntry> BL;
+	TSVector <TextEntry> TL;
 };

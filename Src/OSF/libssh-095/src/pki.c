@@ -89,7 +89,7 @@ const char * ssh_pki_key_ecdsa_name(const ssh_key key)
 ssh_key ssh_key_new()
 {
 	ssh_key ptr = (ssh_key)SAlloc::M(sizeof(struct ssh_key_struct));
-	if(ptr == NULL) {
+	if(!ptr) {
 		return NULL;
 	}
 	ZERO_STRUCTP(ptr);
@@ -570,7 +570,7 @@ int ssh_key_cmp(const ssh_key k1,
 ssh_signature ssh_signature_new()
 {
 	struct ssh_signature_struct * sig = (struct ssh_signature_struct *)SAlloc::M(sizeof(struct ssh_signature_struct));
-	if(sig == NULL) {
+	if(!sig) {
 		return NULL;
 	}
 	ZERO_STRUCTP(sig);
@@ -579,7 +579,7 @@ ssh_signature ssh_signature_new()
 
 void ssh_signature_free(ssh_signature sig)
 {
-	if(sig == NULL) {
+	if(!sig) {
 		return;
 	}
 	switch(sig->type) {
@@ -841,7 +841,7 @@ int ssh_pki_export_privkey_file(const ssh_key privkey,
 	}
 
 	fp = fopen(filename, "wb");
-	if(fp == NULL) {
+	if(!fp) {
 		SSH_LOG(SSH_LOG_FUNCTIONS, "Error opening %s: %s",
 		    filename, strerror(errno));
 		return SSH_EOF;
@@ -1836,7 +1836,7 @@ int ssh_pki_export_pubkey_file(const ssh_key key, const char * filename)
 	}
 
 	fp = fopen(filename, "wb+");
-	if(fp == NULL) {
+	if(!fp) {
 		return SSH_ERROR;
 	}
 	rc = fwrite(key_buf, strlen(key_buf), 1, fp);
@@ -1902,7 +1902,7 @@ int ssh_pki_export_signature_blob(const ssh_signature sig, ssh_string * sig_blob
 	}
 
 	str = ssh_string_from_char(sig->type_c);
-	if(str == NULL) {
+	if(!str) {
 		SSH_BUFFER_FREE(buf);
 		return SSH_ERROR;
 	}
@@ -1915,7 +1915,7 @@ int ssh_pki_export_signature_blob(const ssh_signature sig, ssh_string * sig_blob
 	}
 
 	str = pki_signature_to_blob(sig);
-	if(str == NULL) {
+	if(!str) {
 		SSH_BUFFER_FREE(buf);
 		return SSH_ERROR;
 	}
@@ -1928,7 +1928,7 @@ int ssh_pki_export_signature_blob(const ssh_signature sig, ssh_string * sig_blob
 	}
 
 	str = ssh_string_new(ssh_buffer_get_len(buf));
-	if(str == NULL) {
+	if(!str) {
 		SSH_BUFFER_FREE(buf);
 		return SSH_ERROR;
 	}
@@ -1989,7 +1989,7 @@ int ssh_pki_import_signature_blob(const ssh_string sig_blob,
 
 	sig = pki_signature_from_blob(pubkey, blob, type, hash_type);
 	SSH_STRING_FREE(blob);
-	if(sig == NULL) {
+	if(!sig) {
 		return SSH_ERROR;
 	}
 
@@ -2152,7 +2152,7 @@ ssh_string ssh_pki_do_sign(ssh_session session, ssh_buffer sigbuf, const ssh_key
 	}
 	/* Generate the signature */
 	sig = pki_do_sign(privkey, (const uchar *)ssh_buffer_get(sign_input), ssh_buffer_get_len(sign_input), hash_type);
-	if(sig == NULL) {
+	if(!sig) {
 		goto end;
 	}
 	/* Convert the signature to blob */
@@ -2244,7 +2244,7 @@ ssh_string ssh_srv_pki_do_sign_sessionid(ssh_session session, const ssh_key priv
 	}
 	/* Generate the signature */
 	sig = pki_do_sign(privkey, (const uchar *)ssh_buffer_get(sign_input), ssh_buffer_get_len(sign_input), digest);
-	if(sig == NULL) {
+	if(!sig) {
 		goto end;
 	}
 	/* Convert the signature to blob */

@@ -49,7 +49,7 @@ public:
 			if(db_id)
 				dbes.SetSelection(db_id);
 		}
-		SetupDBEntryComboBox(this, CTLSEL_JOBITEM_DBSYMB, &dbes);
+		SetupDBEntryComboBox(this, CTLSEL_JOBITEM_DBSYMB, &dbes, 0);
 		if(db_id == 0 && Data.DbSymb.NotEmpty())
 			setCtrlString(CTL_JOBITEM_DBSYMB, Data.DbSymb);
 		disableCtrl(CTLSEL_JOBITEM_DBSYMB, 1);

@@ -65,7 +65,7 @@ static boolint arm_simd_fill(pixman_implementation_t * imp, uint32 * bits, int s
 		    pixman_composite_src_n_0565_asm_armv6(width, height, (uint16 *)(((char *)bits) + y * byte_stride + x * 2), byte_stride / 2, _xor & 0xffff);
 		    return TRUE;
 		case 32:
-		    pixman_composite_src_n_8888_asm_armv6(width, height, (uint32*)(((char *)bits) + y * byte_stride + x * 4), byte_stride / 4, _xor);
+		    pixman_composite_src_n_8888_asm_armv6(width, height, (uint32 *)(((char *)bits) + y * byte_stride + x * 4), byte_stride / 4, _xor);
 		    return TRUE;
 		default:
 		    return FALSE;
@@ -98,9 +98,9 @@ static boolint arm_simd_blt(pixman_implementation_t * imp, uint32 * src_bits, ui
 		case 32:
 		    pixman_composite_src_8888_8888_asm_armv6(
 			    width, height,
-			    (uint32*)(((char *)dst_bits) +
+			    (uint32 *)(((char *)dst_bits) +
 			    dest_y * dst_stride * 4 + dest_x * 4), dst_stride,
-			    (uint32*)(((char *)src_bits) +
+			    (uint32 *)(((char *)src_bits) +
 			    src_y * src_stride * 4 + src_x * 4), src_stride);
 		    return TRUE;
 		default:

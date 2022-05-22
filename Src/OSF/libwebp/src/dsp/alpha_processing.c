@@ -18,16 +18,14 @@
 
 // Tables can be faster on some platform but incur some extra binary size (~2k).
 #if !defined(USE_TABLES_FOR_ALPHA_MULT)
-#define USE_TABLES_FOR_ALPHA_MULT 0   // ALTERNATE_CODE
+	#define USE_TABLES_FOR_ALPHA_MULT 0   // ALTERNATE_CODE
 #endif
-
-// -----------------------------------------------------------------------------
-
 #define MFIX 24    // 24bit fixed-point arithmetic
 #define HALF ((1u << MFIX) >> 1)
 #define KINV_255 ((1u << MFIX) / 255u)
 
-static uint32_t Mult(uint8 x, uint32_t mult) {
+static uint32_t Mult(uint8 x, uint32_t mult) 
+{
 	const uint32_t v = (x * mult + HALF) >> MFIX;
 	assert(v <= 255); // <- 24bit precision is enough to ensure that.
 	return v;
@@ -185,15 +183,12 @@ void WebPMultRow_C(uint8* WEBP_RESTRICT const ptr,
 #undef MFIX
 
 void (* WebPMultARGBRow)(uint32_t* const ptr, int width, int inverse);
-void (* WebPMultRow)(uint8* WEBP_RESTRICT const ptr,
-    const uint8* WEBP_RESTRICT const alpha,
-    int width, int inverse);
-
-//------------------------------------------------------------------------------
+void (* WebPMultRow)(uint8* WEBP_RESTRICT const ptr, const uint8* WEBP_RESTRICT const alpha, int width, int inverse);
+//
 // Generic per-plane calls
-
-void WebPMultARGBRows(uint8* ptr, int stride, int width, int num_rows,
-    int inverse) {
+//
+void WebPMultARGBRows(uint8* ptr, int stride, int width, int num_rows, int inverse) 
+{
 	int n;
 	for(n = 0; n < num_rows; ++n) {
 		WebPMultARGBRow((uint32_t*)ptr, width, inverse);
@@ -201,9 +196,8 @@ void WebPMultARGBRows(uint8* ptr, int stride, int width, int num_rows,
 	}
 }
 
-void WebPMultRows(uint8* WEBP_RESTRICT ptr, int stride,
-    const uint8* WEBP_RESTRICT alpha, int alpha_stride,
-    int width, int num_rows, int inverse) {
+void WebPMultRows(uint8* WEBP_RESTRICT ptr, int stride, const uint8* WEBP_RESTRICT alpha, int alpha_stride, int width, int num_rows, int inverse) 
+{
 	int n;
 	for(n = 0; n < num_rows; ++n) {
 		WebPMultRow(ptr, alpha, width, inverse);
@@ -211,10 +205,9 @@ void WebPMultRows(uint8* WEBP_RESTRICT ptr, int stride,
 		alpha += alpha_stride;
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Premultiplied modes
-
+//
 // non dithered-modes
 
 // (x * a * 32897) >> 23 is bit-wise equivalent to (int)(x * a / 255.)
@@ -339,8 +332,6 @@ static void ExtractGreen_C(const uint32_t* WEBP_RESTRICT argb, uint8* WEBP_RESTR
 
 #endif  // !WEBP_NEON_OMIT_C_CODE
 
-//------------------------------------------------------------------------------
-
 static int HasAlpha8b_C(const uint8* src, int length) 
 {
 	while(length-- > 0) 
@@ -363,10 +354,9 @@ static void AlphaReplace_C(uint32_t* src, int length, uint32_t color)
 		if((src[x] >> 24) == 0) 
 			src[x] = color;
 }
-
-//------------------------------------------------------------------------------
+//
 // Simple channel manipulations.
-
+//
 static FORCEINLINE uint32_t MakeARGB32(int a, int r, int g, int b) 
 {
 	return (((uint32_t)a << 24) | (r << 16) | (g << 8) | b);
@@ -403,15 +393,13 @@ void (* WebPExtractGreen)(const uint32_t* WEBP_RESTRICT argb, uint8* WEBP_RESTRI
 #ifdef WORDS_BIGENDIAN
 void (* WebPPackARGB)(const uint8* a, const uint8* r, const uint8* g, const uint8* b, int, uint32_t*);
 #endif
-void (* WebPPackRGB)(const uint8* WEBP_RESTRICT r, const uint8* WEBP_RESTRICT g,
-    const uint8* WEBP_RESTRICT b, int len, int step, uint32_t* WEBP_RESTRICT out);
+void (* WebPPackRGB)(const uint8* WEBP_RESTRICT r, const uint8* WEBP_RESTRICT g, const uint8* WEBP_RESTRICT b, int len, int step, uint32_t* WEBP_RESTRICT out);
 int (* WebPHasAlpha8b)(const uint8* src, int length);
 int (* WebPHasAlpha32b)(const uint8* src, int length);
 void (* WebPAlphaReplace)(uint32_t* src, int length, uint32_t color);
-
-//------------------------------------------------------------------------------
+//
 // Init function
-
+//
 extern void WebPInitAlphaProcessingMIPSdspR2(void);
 extern void WebPInitAlphaProcessingSSE2(void);
 extern void WebPInitAlphaProcessingSSE41(void);
@@ -422,7 +410,6 @@ WEBP_DSP_INIT_FUNC(WebPInitAlphaProcessing)
 	WebPMultARGBRow = WebPMultARGBRow_C;
 	WebPMultRow = WebPMultRow_C;
 	WebPApplyAlphaMultiply4444 = ApplyAlphaMultiply_16b_C;
-
 #ifdef WORDS_BIGENDIAN
 	WebPPackARGB = PackARGB_C;
 #endif
@@ -434,13 +421,11 @@ WEBP_DSP_INIT_FUNC(WebPInitAlphaProcessing)
 	WebPExtractAlpha = ExtractAlpha_C;
 	WebPExtractGreen = ExtractGreen_C;
 #endif
-
 	WebPHasAlpha8b = HasAlpha8b_C;
 	WebPHasAlpha32b = HasAlpha32b_C;
 	WebPAlphaReplace = AlphaReplace_C;
-
 	// If defined, use CPUInfo() to overwrite some pointers with faster versions.
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			WebPInitAlphaProcessingSSE2();
@@ -457,14 +442,11 @@ WEBP_DSP_INIT_FUNC(WebPInitAlphaProcessing)
 		}
 #endif
 	}
-
 #if defined(WEBP_HAVE_NEON)
-	if(WEBP_NEON_OMIT_C_CODE ||
-	    (VP8GetCPUInfo != NULL && VP8GetCPUInfo(kNEON))) {
+	if(WEBP_NEON_OMIT_C_CODE || (VP8GetCPUInfo && VP8GetCPUInfo(kNEON))) {
 		WebPInitAlphaProcessingNEON();
 	}
 #endif
-
 	assert(WebPMultARGBRow != NULL);
 	assert(WebPMultRow != NULL);
 	assert(WebPApplyAlphaMultiply != NULL);

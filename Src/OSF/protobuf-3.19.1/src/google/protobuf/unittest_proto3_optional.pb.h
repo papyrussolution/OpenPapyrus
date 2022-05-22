@@ -93,19 +93,15 @@ constexpr TestProto3Optional_NestedEnum TestProto3Optional_NestedEnum_NestedEnum
 constexpr TestProto3Optional_NestedEnum TestProto3Optional_NestedEnum_NestedEnum_MAX = TestProto3Optional_NestedEnum_BAZ;
 constexpr int TestProto3Optional_NestedEnum_NestedEnum_ARRAYSIZE = TestProto3Optional_NestedEnum_NestedEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestProto3Optional_NestedEnum_descriptor();
-template<typename T>
-inline const std::string& TestProto3Optional_NestedEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, TestProto3Optional_NestedEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function TestProto3Optional_NestedEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    TestProto3Optional_NestedEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * TestProto3Optional_NestedEnum_descriptor();
+template<typename T> inline const std::string& TestProto3Optional_NestedEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, TestProto3Optional_NestedEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function TestProto3Optional_NestedEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(TestProto3Optional_NestedEnum_descriptor(), enum_t_value);
 }
-inline bool TestProto3Optional_NestedEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestProto3Optional_NestedEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestProto3Optional_NestedEnum>(
-    TestProto3Optional_NestedEnum_descriptor(), name, value);
+inline bool TestProto3Optional_NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestProto3Optional_NestedEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestProto3Optional_NestedEnum>(TestProto3Optional_NestedEnum_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -344,39 +340,24 @@ class TestProto3Optional final :
   typedef TestProto3Optional_NestedMessage NestedMessage;
 
   typedef TestProto3Optional_NestedEnum NestedEnum;
-  static constexpr NestedEnum UNSPECIFIED =
-    TestProto3Optional_NestedEnum_UNSPECIFIED;
-  static constexpr NestedEnum FOO =
-    TestProto3Optional_NestedEnum_FOO;
-  static constexpr NestedEnum BAR =
-    TestProto3Optional_NestedEnum_BAR;
-  static constexpr NestedEnum BAZ =
-    TestProto3Optional_NestedEnum_BAZ;
-  static constexpr NestedEnum NEG =
-    TestProto3Optional_NestedEnum_NEG;
-  static inline bool NestedEnum_IsValid(int value) {
-    return TestProto3Optional_NestedEnum_IsValid(value);
+  static constexpr NestedEnum UNSPECIFIED = TestProto3Optional_NestedEnum_UNSPECIFIED;
+  static constexpr NestedEnum FOO = TestProto3Optional_NestedEnum_FOO;
+  static constexpr NestedEnum BAR = TestProto3Optional_NestedEnum_BAR;
+  static constexpr NestedEnum BAZ = TestProto3Optional_NestedEnum_BAZ;
+  static constexpr NestedEnum NEG = TestProto3Optional_NestedEnum_NEG;
+  static inline bool NestedEnum_IsValid(int value) { return TestProto3Optional_NestedEnum_IsValid(value); }
+  static constexpr NestedEnum NestedEnum_MIN = TestProto3Optional_NestedEnum_NestedEnum_MIN;
+  static constexpr NestedEnum NestedEnum_MAX = TestProto3Optional_NestedEnum_NestedEnum_MAX;
+  static constexpr int NestedEnum_ARRAYSIZE = TestProto3Optional_NestedEnum_NestedEnum_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * NestedEnum_descriptor() { return TestProto3Optional_NestedEnum_descriptor(); }
+  template<typename T> static inline const std::string& NestedEnum_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, NestedEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function NestedEnum_Name.");
+  	return TestProto3Optional_NestedEnum_Name(enum_t_value);
   }
-  static constexpr NestedEnum NestedEnum_MIN =
-    TestProto3Optional_NestedEnum_NestedEnum_MIN;
-  static constexpr NestedEnum NestedEnum_MAX =
-    TestProto3Optional_NestedEnum_NestedEnum_MAX;
-  static constexpr int NestedEnum_ARRAYSIZE =
-    TestProto3Optional_NestedEnum_NestedEnum_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  NestedEnum_descriptor() {
-    return TestProto3Optional_NestedEnum_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& NestedEnum_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, NestedEnum>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function NestedEnum_Name.");
-    return TestProto3Optional_NestedEnum_Name(enum_t_value);
-  }
-  static inline bool NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      NestedEnum* value) {
-    return TestProto3Optional_NestedEnum_Parse(name, value);
+  static inline bool NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, NestedEnum* value)
+  {
+  	return TestProto3Optional_NestedEnum_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -1992,9 +1973,7 @@ inline void TestProto3OptionalMessage_NestedMessage::set_allocated_s(std::string
 // TestProto3OptionalMessage
 
 // .protobuf_unittest.TestProto3OptionalMessage.NestedMessage nested_message = 1;
-inline bool TestProto3OptionalMessage::_internal_has_nested_message() const {
-  return this != internal_default_instance() && nested_message_ != nullptr;
-}
+inline bool TestProto3OptionalMessage::_internal_has_nested_message() const { return this != internal_default_instance() && nested_message_ != nullptr; }
 inline bool TestProto3OptionalMessage::has_nested_message() const {
   return _internal_has_nested_message();
 }
@@ -2192,10 +2171,7 @@ inline void TestProto3OptionalMessage::set_allocated_optional_nested_message(::p
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::protobuf_unittest::TestProto3Optional_NestedEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestProto3Optional_NestedEnum>() {
-  return ::protobuf_unittest::TestProto3Optional_NestedEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestProto3Optional_NestedEnum>() { return ::protobuf_unittest::TestProto3Optional_NestedEnum_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

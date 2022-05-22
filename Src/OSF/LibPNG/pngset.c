@@ -746,7 +746,7 @@ void PNGAPI png_set_sPLT(png_const_structrp png_ptr,
 	 * overflows.  Notice that the parameters are (int) and (size_t)
 	 */
 	np = png_voidcast(png_sPLT_tp, png_realloc_array(png_ptr, info_ptr->splt_palettes, info_ptr->splt_palettes_num, nentries, sizeof *np));
-	if(np == NULL) {
+	if(!np) {
 		/* Out of memory or too many chunks */
 		png_chunk_report(png_ptr, "too many sPLT chunks", PNG_CHUNK_WRITE_ERROR);
 		return;
@@ -878,16 +878,11 @@ void PNGAPI png_set_unknown_chunks(png_const_structrp png_ptr,
 	 * appropriate to read or write.
 	 */
 	np = png_voidcast(png_unknown_chunkp, png_realloc_array(png_ptr,
-		    info_ptr->unknown_chunks, info_ptr->unknown_chunks_num, num_unknowns,
-		    sizeof *np));
-
-	if(np == NULL) {
-		png_chunk_report(png_ptr, "too many unknown chunks",
-		    PNG_CHUNK_WRITE_ERROR);
-
+		    info_ptr->unknown_chunks, info_ptr->unknown_chunks_num, num_unknowns, sizeof *np));
+	if(!np) {
+		png_chunk_report(png_ptr, "too many unknown chunks", PNG_CHUNK_WRITE_ERROR);
 		return;
 	}
-
 	png_free(png_ptr, info_ptr->unknown_chunks);
 	info_ptr->unknown_chunks = np; /* safe because it is initialized */
 	info_ptr->free_me |= PNG_FREE_UNKN;

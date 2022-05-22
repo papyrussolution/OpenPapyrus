@@ -14,12 +14,9 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "src/dsp/yuv.h"
-//#include <assert.h>
-//#include <stdlib.h>
-
-//-----------------------------------------------------------------------------
+//
 // Plain-C version
-
+//
 #define ROW_FUNC(FUNC_NAME, FUNC, XSTEP)                                       \
 	static void FUNC_NAME(const uint8* y,                                        \
 	    const uint8* u, const uint8* v,                      \
@@ -90,7 +87,7 @@ WEBP_DSP_INIT_FUNC(WebPInitSamplers) {
 	WebPSamplers[MODE_rgbA_4444] = YuvToRgba4444Row;
 
 	// If defined, use CPUInfo() to overwrite some pointers with faster versions.
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			WebPInitSamplersSSE2();
@@ -279,7 +276,7 @@ WEBP_DSP_INIT_FUNC(WebPInitConvertARGBToYUV) {
 	WebPSharpYUVFilterRow = SharpYUVFilterRow_C;
 #endif
 
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			WebPInitConvertARGBToYUVSSE2();
@@ -294,13 +291,11 @@ WEBP_DSP_INIT_FUNC(WebPInitConvertARGBToYUV) {
 	}
 
 #if defined(WEBP_HAVE_NEON)
-	if(WEBP_NEON_OMIT_C_CODE ||
-	    (VP8GetCPUInfo != NULL && VP8GetCPUInfo(kNEON))) {
+	if(WEBP_NEON_OMIT_C_CODE || (VP8GetCPUInfo && VP8GetCPUInfo(kNEON))) {
 		WebPInitConvertARGBToYUVNEON();
 		WebPInitSharpYUVNEON();
 	}
 #endif  // WEBP_HAVE_NEON
-
 	assert(WebPConvertARGBToY != NULL);
 	assert(WebPConvertARGBToUV != NULL);
 	assert(WebPConvertRGB24ToY != NULL);

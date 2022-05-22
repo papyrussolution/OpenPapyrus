@@ -49,6 +49,31 @@ public:
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int PrintXReport(const CSessInfo *) { return PrintReport(0); }
+	virtual int OpenSession(PPID sessID) 
+	{ 
+		int    ok = -1;
+		StateBlock stb;
+		if(P_Fptr10 && P_Fptr10->OpenShiftProc) {
+			SStringU temp_buf_u;
+			SString operator_name;
+			THROW(Connect(&stb));
+			{
+				void * fph = P_Fptr10->Handler;
+				PPSyncCashSession::GetCurrentUserName(operator_name);
+				operator_name.Transf(CTRANSF_INNER_TO_OUTER);
+				temp_buf_u.Z().CopyFromMb_OUTER(operator_name, operator_name.Len());
+				P_Fptr10->SetParamStrProc(fph, 1021, temp_buf_u);
+				//temp_buf_u.Z().CopyFromMb_OUTER(CashierPassword, CashierPassword.Len());
+				temp_buf_u.Z().CopyFromMb_OUTER(P_Fptr10->UserPassword, P_Fptr10->UserPassword.Len());
+				P_Fptr10->SetParamStrProc(fph, 1203, temp_buf_u);
+				THROW(P_Fptr10->OperatorLoginProc(fph) == 0);
+				P_Fptr10->OpenShiftProc(fph);
+				ok = 1;
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
 	virtual int CloseSession(PPID sessID) { return PrintReport(1); }
 	virtual int PrintZReportCopy(const CSessInfo *);
 	virtual int PrintIncasso(double sum, int isIncome);
@@ -215,7 +240,7 @@ private:
 			GetParamByteArrayProc(0), GetSingleSettingProc(0), SetSingleSettingProc(0), ApplySingleSettingsProc(0), OpenDrawerProc(0),
 			OperatorLoginProc(0), OpenReceiptProc(0), CancelReceiptProc(0), RegistrationProc(0), CloseReceiptProc(0), PrintBarcodeProc(0),
 			ReportProc(0), CheckDocumentClosedProc(0), CashIncomeProc(0), CashOutcomeProc(0), UtilFormNomenclature(0), UtilFormTlvProc(0),
-			ProcessJsonProc(0)
+			ProcessJsonProc(0), OpenShiftProc(0)
 		{
 			SString dll_path;
 			PPGetFilePath(PPPATH_BIN, "fptr10.dll", dll_path);
@@ -263,7 +288,7 @@ private:
 			THROW_SL(GetParamDateTimeProc  = reinterpret_cast<void (* cdecl)(void *, int, int*, int*, int*, int*, int*, int*)>(Lib.GetProcAddr("libfptr_get_param_datetime")));
 			THROW_SL(GetParamByteArrayProc = reinterpret_cast<int (* cdecl)(void *, int, uchar *, int)>(Lib.GetProcAddr("libfptr_get_param_bytearray")));
 			THROW_SL(ProcessJsonProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_process_json"))); // @v11.2.8
-
+			THROW_SL(OpenShiftProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_open_shift"))); // @v11.3.12
 			UtilFormNomenclature = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_util_form_nomenclature")); // @v10.7.12
 			UtilFormTlvProc      = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_util_form_tlv")); // @v11.0.0
 			THROW(CreateHandleProc(&Handler) == 0 && Handler);
@@ -333,6 +358,7 @@ private:
 		int    (* cdecl CashIncomeProc)(void *);
 		int    (* cdecl CashOutcomeProc)(void *);
 		int    (* cdecl ProcessJsonProc)(void *); // @v11.2.8 libfptr_process_json(libfptr_handle handle);
+		int    (* cdecl OpenShiftProc)(void *); // @v11.3.12 int libfptr_open_shift(libfptr_handle handle);
 
 		SString AccessPassword;
 		SString UserPassword;
@@ -721,7 +747,7 @@ private:
 		sfOpenCheck     = 0x0002,     // чек открыт
 		sfCancelled     = 0x0004,     // операция печати чека прервана пользователем
 		sfPrintSlip     = 0x0008,     // печать подкладного документа
-		sfDontUseCutter  = 0x0010,     // не использовать отрезчик чеков
+		sfDontUseCutter = 0x0010,     // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0020      // использовать весовой датчик
 	};
 
@@ -753,7 +779,7 @@ public:
 	}
 };
 
-REGISTER_CMT(ATOLDRV,1,0);
+REGISTER_CMT(ATOLDRV, true, false);
 
 SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) : 
 	PPSyncCashSession(n, name, port), Flags(0), ResCode(RESCODE_NO_ERROR), ErrCode(0), CheckStrLen(0)
@@ -1712,8 +1738,8 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 								}
 							}
 							else {
-								uint8 fptr10_mark_buf[512];
-								int   mark_buf_data_len = 0;
+								//uint8 fptr10_mark_buf[512];
+								//int   mark_buf_data_len = 0;
 								p_js_item->InsertString("nomenclatureCode", sl_param.ChZnCode); // chzn mark
 							}
 						}
@@ -1863,7 +1889,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 #ifdef  NDEBUG
 	bool   use_json_cmd = false; // @v11.3.5 @debug
 #else
-	bool   use_json_cmd = false/*true*/; // @v11.3.5 @debug
+	bool   use_json_cmd = true; // @v11.3.5 @debug
 #endif // ! NDEBUG
 	bool   is_format = false;
 	bool   enabled = true;

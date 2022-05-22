@@ -195,17 +195,15 @@ ExtensionSet::~ExtensionSet()
 	}
 }
 
-void ExtensionSet::DeleteFlatMap(const ExtensionSet::KeyValue* flat,
-    uint16_t flat_capacity) {
+void ExtensionSet::DeleteFlatMap(const ExtensionSet::KeyValue* flat, uint16_t flat_capacity) 
+{
 #ifdef __cpp_sized_deallocation
 	// Arena::CreateArray already requires a trivially destructible type, but
 	// ensure this constraint is not violated in the future.
-	static_assert(std::is_trivially_destructible<KeyValue>::value,
-	    "CreateArray requires a trivially destructible type");
+	static_assert(std::is_trivially_destructible<KeyValue>::value, "CreateArray requires a trivially destructible type");
 	// A const-cast is needed, but this is safe as we are about to deallocate the
 	// array.
-	::operator delete[](const_cast<ExtensionSet::KeyValue*>(flat),
-	    sizeof(*flat) * flat_capacity);
+	::operator delete[](const_cast<ExtensionSet::KeyValue*>(flat), sizeof(*flat) * flat_capacity);
 #else   // !__cpp_sized_deallocation
 	delete[] flat;
 #endif  // !__cpp_sized_deallocation
@@ -215,34 +213,32 @@ void ExtensionSet::DeleteFlatMap(const ExtensionSet::KeyValue* flat,
 // void ExtensionSet::AppendToList(const Descriptor* extendee,
 //                                 const DescriptorPool* pool,
 //                                 vector <const FieldDescriptor*>* output) const
-
-bool ExtensionSet::Has(int number) const {
+bool ExtensionSet::Has(int number) const 
+{
 	const Extension* ext = FindOrNull(number);
-	if(ext == nullptr) return false;
+	if(ext == nullptr) 
+		return false;
 	GOOGLE_DCHECK(!ext->is_repeated);
 	return !ext->is_cleared;
 }
 
-bool ExtensionSet::HasLazy(int number) const {
-	return Has(number) && FindOrNull(number)->is_lazy;
-}
+bool ExtensionSet::HasLazy(int number) const { return Has(number) && FindOrNull(number)->is_lazy; }
 
-int ExtensionSet::NumExtensions() const {
+int ExtensionSet::NumExtensions() const 
+{
 	int result = 0;
-	ForEach([&result](int /* number */, const Extension& ext) {
-					if(!ext.is_cleared) {
-						++result;
-					}
-				});
+	ForEach([&result](int /* number */, const Extension& ext) { if(!ext.is_cleared) { ++result; } });
 	return result;
 }
 
-int ExtensionSet::ExtensionSize(int number) const {
+int ExtensionSet::ExtensionSize(int number) const 
+{
 	const Extension* ext = FindOrNull(number);
 	return ext == nullptr ? 0 : ext->GetSize();
 }
 
-FieldType ExtensionSet::ExtensionType(int number) const {
+FieldType ExtensionSet::ExtensionType(int number) const 
+{
 	const Extension* ext = FindOrNull(number);
 	if(ext == nullptr) {
 		GOOGLE_LOG(DFATAL) << "Don't lookup extension types if they aren't present (1). ";
@@ -254,10 +250,11 @@ FieldType ExtensionSet::ExtensionType(int number) const {
 	return ext->type;
 }
 
-void ExtensionSet::ClearExtension(int number) {
+void ExtensionSet::ClearExtension(int number) 
+{
 	Extension* ext = FindOrNull(number);
-	if(ext == nullptr) return;
-	ext->Clear();
+	if(ext)
+		ext->Clear();
 }
 
 // ===================================================================

@@ -706,13 +706,13 @@ static inline void ucnv_extWriteFromU(UConverter * cnv, const int32_t * cx,
 		switch(length) {
 			case 3:
 			    *p++ = (uint8)(value>>16);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 2:
 			    *p++ = (uint8)(value>>8);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 1:
 			    *p++ = (uint8)value;
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			default:
 			    break; /* will never occur */
 		}

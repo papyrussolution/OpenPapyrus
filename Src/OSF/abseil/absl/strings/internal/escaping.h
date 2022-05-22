@@ -9,7 +9,7 @@
 #ifndef ABSL_STRINGS_INTERNAL_ESCAPING_H_
 #define ABSL_STRINGS_INTERNAL_ESCAPING_H_
 
-#include <cassert>
+//#include <cassert>
 #include "absl/strings/internal/resize_uninitialized.h"
 
 namespace absl {

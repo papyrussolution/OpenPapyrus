@@ -556,7 +556,7 @@ static cairo_warn FT_Face _cairo_ft_unscaled_font_lock_face(cairo_ft_unscaled_fo
 		assert(font_map != NULL);
 		while(font_map->num_open_faces >= MAX_OPEN_FACES) {
 			cairo_ft_unscaled_font_t * entry = (cairo_ft_unscaled_font_t * )(_cairo_hash_table_random_entry(font_map->hash_table, _has_unlocked_face));
-			if(entry == NULL)
+			if(!entry)
 				break;
 			_font_map_release_face_lock_held(font_map, entry);
 		}

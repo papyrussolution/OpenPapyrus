@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
-constexpr TestConflictingSymbolNames_BuildDescriptors::TestConflictingSymbolNames_BuildDescriptors(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestConflictingSymbolNames_BuildDescriptors::TestConflictingSymbolNames_BuildDescriptors(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestConflictingSymbolNames_BuildDescriptorsDefaultTypeInternal {
 	constexpr TestConflictingSymbolNames_BuildDescriptorsDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestConflictingSymbolNames_BuildDescriptorsDefaultTypeInternal() {}
@@ -26,8 +25,7 @@ struct TestConflictingSymbolNames_BuildDescriptorsDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNames_BuildDescriptorsDefaultTypeInternal _TestConflictingSymbolNames_BuildDescriptors_default_instance_;
-constexpr TestConflictingSymbolNames_TypeTraits::TestConflictingSymbolNames_TypeTraits(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestConflictingSymbolNames_TypeTraits::TestConflictingSymbolNames_TypeTraits(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestConflictingSymbolNames_TypeTraitsDefaultTypeInternal {
 	constexpr TestConflictingSymbolNames_TypeTraitsDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestConflictingSymbolNames_TypeTraitsDefaultTypeInternal() {}
@@ -36,8 +34,7 @@ struct TestConflictingSymbolNames_TypeTraitsDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNames_TypeTraitsDefaultTypeInternal _TestConflictingSymbolNames_TypeTraits_default_instance_;
-constexpr TestConflictingSymbolNames_Data1::TestConflictingSymbolNames_Data1(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestConflictingSymbolNames_Data1::TestConflictingSymbolNames_Data1(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : data_(){}
 struct TestConflictingSymbolNames_Data1DefaultTypeInternal {
 	constexpr TestConflictingSymbolNames_Data1DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -47,8 +44,7 @@ struct TestConflictingSymbolNames_Data1DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNames_Data1DefaultTypeInternal _TestConflictingSymbolNames_Data1_default_instance_;
-constexpr TestConflictingSymbolNames_Data2::TestConflictingSymbolNames_Data2(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestConflictingSymbolNames_Data2::TestConflictingSymbolNames_Data2(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : data_(){}
 struct TestConflictingSymbolNames_Data2DefaultTypeInternal {
 	constexpr TestConflictingSymbolNames_Data2DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -58,8 +54,7 @@ struct TestConflictingSymbolNames_Data2DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNames_Data2DefaultTypeInternal _TestConflictingSymbolNames_Data2_default_instance_;
-constexpr TestConflictingSymbolNames_Data3::TestConflictingSymbolNames_Data3(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestConflictingSymbolNames_Data3::TestConflictingSymbolNames_Data3(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : data_(){}
 struct TestConflictingSymbolNames_Data3DefaultTypeInternal {
 	constexpr TestConflictingSymbolNames_Data3DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -69,8 +64,7 @@ struct TestConflictingSymbolNames_Data3DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNames_Data3DefaultTypeInternal _TestConflictingSymbolNames_Data3_default_instance_;
-constexpr TestConflictingSymbolNames_Data4::TestConflictingSymbolNames_Data4(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestConflictingSymbolNames_Data4::TestConflictingSymbolNames_Data4(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : data_(){}
 struct TestConflictingSymbolNames_Data4DefaultTypeInternal {
 	constexpr TestConflictingSymbolNames_Data4DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -80,8 +74,7 @@ struct TestConflictingSymbolNames_Data4DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNames_Data4DefaultTypeInternal _TestConflictingSymbolNames_Data4_default_instance_;
-constexpr TestConflictingSymbolNames_Data5::TestConflictingSymbolNames_Data5(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestConflictingSymbolNames_Data5::TestConflictingSymbolNames_Data5(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : data_(){}
 struct TestConflictingSymbolNames_Data5DefaultTypeInternal {
 	constexpr TestConflictingSymbolNames_Data5DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -91,8 +84,7 @@ struct TestConflictingSymbolNames_Data5DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNames_Data5DefaultTypeInternal _TestConflictingSymbolNames_Data5_default_instance_;
-constexpr TestConflictingSymbolNames_Data6::TestConflictingSymbolNames_Data6(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestConflictingSymbolNames_Data6::TestConflictingSymbolNames_Data6(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : data_(){}
 struct TestConflictingSymbolNames_Data6DefaultTypeInternal {
 	constexpr TestConflictingSymbolNames_Data6DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -102,8 +94,7 @@ struct TestConflictingSymbolNames_Data6DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNames_Data6DefaultTypeInternal _TestConflictingSymbolNames_Data6_default_instance_;
-constexpr TestConflictingSymbolNames_Cord::TestConflictingSymbolNames_Cord(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestConflictingSymbolNames_Cord::TestConflictingSymbolNames_Cord(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestConflictingSymbolNames_CordDefaultTypeInternal {
 	constexpr TestConflictingSymbolNames_CordDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestConflictingSymbolNames_CordDefaultTypeInternal() {}
@@ -112,8 +103,7 @@ struct TestConflictingSymbolNames_CordDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNames_CordDefaultTypeInternal _TestConflictingSymbolNames_Cord_default_instance_;
-constexpr TestConflictingSymbolNames_StringPiece::TestConflictingSymbolNames_StringPiece(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestConflictingSymbolNames_StringPiece::TestConflictingSymbolNames_StringPiece(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestConflictingSymbolNames_StringPieceDefaultTypeInternal {
 	constexpr TestConflictingSymbolNames_StringPieceDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestConflictingSymbolNames_StringPieceDefaultTypeInternal() {}
@@ -122,8 +112,7 @@ struct TestConflictingSymbolNames_StringPieceDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNames_StringPieceDefaultTypeInternal _TestConflictingSymbolNames_StringPiece_default_instance_;
-constexpr TestConflictingSymbolNames_DO::TestConflictingSymbolNames_DO(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestConflictingSymbolNames_DO::TestConflictingSymbolNames_DO(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestConflictingSymbolNames_DODefaultTypeInternal {
 	constexpr TestConflictingSymbolNames_DODefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestConflictingSymbolNames_DODefaultTypeInternal() {}
@@ -132,8 +121,7 @@ struct TestConflictingSymbolNames_DODefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNames_DODefaultTypeInternal _TestConflictingSymbolNames_DO_default_instance_;
-constexpr TestConflictingSymbolNames::TestConflictingSymbolNames(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestConflictingSymbolNames::TestConflictingSymbolNames(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : i_()
   , new_element_()
   , index_()
@@ -182,8 +170,7 @@ struct TestConflictingSymbolNamesDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNamesDefaultTypeInternal _TestConflictingSymbolNames_default_instance_;
-constexpr TestConflictingSymbolNamesExtension::TestConflictingSymbolNamesExtension(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestConflictingSymbolNamesExtension::TestConflictingSymbolNamesExtension(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestConflictingSymbolNamesExtensionDefaultTypeInternal {
 	constexpr TestConflictingSymbolNamesExtensionDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestConflictingSymbolNamesExtensionDefaultTypeInternal() {}
@@ -192,8 +179,7 @@ struct TestConflictingSymbolNamesExtensionDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingSymbolNamesExtensionDefaultTypeInternal _TestConflictingSymbolNamesExtension_default_instance_;
-constexpr TestConflictingEnumNames::TestConflictingEnumNames(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestConflictingEnumNames::TestConflictingEnumNames(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : conflicting_enum_(0)
 {}
 struct TestConflictingEnumNamesDefaultTypeInternal {
@@ -204,8 +190,7 @@ struct TestConflictingEnumNamesDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestConflictingEnumNamesDefaultTypeInternal _TestConflictingEnumNames_default_instance_;
-constexpr DummyMessage::DummyMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr DummyMessage::DummyMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct DummyMessageDefaultTypeInternal {
 	constexpr DummyMessageDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~DummyMessageDefaultTypeInternal() {}
@@ -214,8 +199,7 @@ struct DummyMessageDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DummyMessageDefaultTypeInternal _DummyMessage_default_instance_;
-constexpr NULL_::NULL_(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr NULL_::NULL_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : int__(0){}
 struct NULL_DefaultTypeInternal {
 	constexpr NULL_DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -225,8 +209,7 @@ struct NULL_DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT NULL_DefaultTypeInternal _NULL__default_instance_;
-constexpr Shutdown::Shutdown(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr Shutdown::Shutdown(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct ShutdownDefaultTypeInternal {
 	constexpr ShutdownDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~ShutdownDefaultTypeInternal() {}
@@ -235,8 +218,7 @@ struct ShutdownDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ShutdownDefaultTypeInternal _Shutdown_default_instance_;
-constexpr TableStruct::TableStruct(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TableStruct::TableStruct(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TableStructDefaultTypeInternal {
 	constexpr TableStructDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TableStructDefaultTypeInternal() {}
@@ -552,17 +534,19 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_cpp_5ftest_5fbad_5fidentifiers_2eproto(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto);
 namespace protobuf_unittest {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestConflictingSymbolNames_TestEnum_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto);
-  return file_level_enum_descriptors_cpp_5ftest_5fbad_5fidentifiers_2eproto[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestConflictingSymbolNames_TestEnum_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto);
+	return file_level_enum_descriptors_cpp_5ftest_5fbad_5fidentifiers_2eproto[0];
 }
-bool TestConflictingSymbolNames_TestEnum_IsValid(int value) {
-  switch (value) {
-    case 0:
-      return true;
-    default:
-      return false;
-  }
+bool TestConflictingSymbolNames_TestEnum_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+			return true;
+		default:
+			return false;
+	}
 }
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
@@ -571,22 +555,24 @@ constexpr TestConflictingSymbolNames_TestEnum TestConflictingSymbolNames::TestEn
 constexpr TestConflictingSymbolNames_TestEnum TestConflictingSymbolNames::TestEnum_MAX;
 constexpr int TestConflictingSymbolNames::TestEnum_ARRAYSIZE;
 #endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestConflictingEnumNames_while_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto);
-  return file_level_enum_descriptors_cpp_5ftest_5fbad_5fidentifiers_2eproto[1];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestConflictingEnumNames_while_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto);
+	return file_level_enum_descriptors_cpp_5ftest_5fbad_5fidentifiers_2eproto[1];
 }
-bool TestConflictingEnumNames_while_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-      return true;
-    default:
-      return false;
-  }
+bool TestConflictingEnumNames_while_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+			return true;
+		default:
+			return false;
+	}
 }
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
@@ -600,20 +586,22 @@ constexpr TestConflictingEnumNames_while TestConflictingEnumNames::while_MIN;
 constexpr TestConflictingEnumNames_while TestConflictingEnumNames::while_MAX;
 constexpr int TestConflictingEnumNames::while_ARRAYSIZE;
 #endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* bool__descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto);
-  return file_level_enum_descriptors_cpp_5ftest_5fbad_5fidentifiers_2eproto[2];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* bool__descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5fbad_5fidentifiers_2eproto);
+	return file_level_enum_descriptors_cpp_5ftest_5fbad_5fidentifiers_2eproto[2];
 }
-bool bool__IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return true;
-    default:
-      return false;
-  }
+bool bool__IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+			return true;
+		default:
+			return false;
+	}
 }
 
 
@@ -732,8 +720,7 @@ void TestConflictingSymbolNames_Data1::ArenaDtor(void* object) {
   TestConflictingSymbolNames_Data1* _this = reinterpret_cast< TestConflictingSymbolNames_Data1* >(object);
   (void)_this;
 }
-void TestConflictingSymbolNames_Data1::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestConflictingSymbolNames_Data1::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestConflictingSymbolNames_Data1::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -778,10 +765,7 @@ const char* TestConflictingSymbolNames_Data1::_InternalParse(const char* ptr, ::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -823,8 +807,7 @@ size_t TestConflictingSymbolNames_Data1::ByteSizeLong() const {
   // repeated int32 data = 1;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->data_);
-    total_size += 1 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_data_size());
+    total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_data_size());
     total_size += data_size;
   }
 
@@ -837,10 +820,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestConflictingSymbolNames_Dat
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_Data1::GetClassData() const { return &_class_data_; }
 
-void TestConflictingSymbolNames_Data1::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestConflictingSymbolNames_Data1 *>(to)->MergeFrom(
-      static_cast<const TestConflictingSymbolNames_Data1 &>(from));
+void TestConflictingSymbolNames_Data1::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestConflictingSymbolNames_Data1 *>(to)->MergeFrom(static_cast<const TestConflictingSymbolNames_Data1 &>(from));
 }
 
 
@@ -916,8 +897,7 @@ void TestConflictingSymbolNames_Data2::ArenaDtor(void* object) {
   TestConflictingSymbolNames_Data2* _this = reinterpret_cast< TestConflictingSymbolNames_Data2* >(object);
   (void)_this;
 }
-void TestConflictingSymbolNames_Data2::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestConflictingSymbolNames_Data2::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestConflictingSymbolNames_Data2::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -967,10 +947,7 @@ const char* TestConflictingSymbolNames_Data2::_InternalParse(const char* ptr, ::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1027,10 +1004,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestConflictingSymbolNames_Dat
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_Data2::GetClassData() const { return &_class_data_; }
 
-void TestConflictingSymbolNames_Data2::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestConflictingSymbolNames_Data2 *>(to)->MergeFrom(
-      static_cast<const TestConflictingSymbolNames_Data2 &>(from));
+void TestConflictingSymbolNames_Data2::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestConflictingSymbolNames_Data2 *>(to)->MergeFrom(static_cast<const TestConflictingSymbolNames_Data2 &>(from));
 }
 
 
@@ -1106,8 +1081,7 @@ void TestConflictingSymbolNames_Data3::ArenaDtor(void* object) {
   TestConflictingSymbolNames_Data3* _this = reinterpret_cast< TestConflictingSymbolNames_Data3* >(object);
   (void)_this;
 }
-void TestConflictingSymbolNames_Data3::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestConflictingSymbolNames_Data3::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestConflictingSymbolNames_Data3::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1153,10 +1127,7 @@ const char* TestConflictingSymbolNames_Data3::_InternalParse(const char* ptr, ::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1214,10 +1185,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestConflictingSymbolNames_Dat
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_Data3::GetClassData() const { return &_class_data_; }
 
-void TestConflictingSymbolNames_Data3::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestConflictingSymbolNames_Data3 *>(to)->MergeFrom(
-      static_cast<const TestConflictingSymbolNames_Data3 &>(from));
+void TestConflictingSymbolNames_Data3::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestConflictingSymbolNames_Data3 *>(to)->MergeFrom(static_cast<const TestConflictingSymbolNames_Data3 &>(from));
 }
 
 
@@ -1293,8 +1262,7 @@ void TestConflictingSymbolNames_Data4::ArenaDtor(void* object) {
   TestConflictingSymbolNames_Data4* _this = reinterpret_cast< TestConflictingSymbolNames_Data4* >(object);
   (void)_this;
 }
-void TestConflictingSymbolNames_Data4::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestConflictingSymbolNames_Data4::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestConflictingSymbolNames_Data4::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1336,10 +1304,7 @@ const char* TestConflictingSymbolNames_Data4::_InternalParse(const char* ptr, ::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1393,10 +1358,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestConflictingSymbolNames_Dat
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_Data4::GetClassData() const { return &_class_data_; }
 
-void TestConflictingSymbolNames_Data4::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestConflictingSymbolNames_Data4 *>(to)->MergeFrom(
-      static_cast<const TestConflictingSymbolNames_Data4 &>(from));
+void TestConflictingSymbolNames_Data4::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestConflictingSymbolNames_Data4 *>(to)->MergeFrom(static_cast<const TestConflictingSymbolNames_Data4 &>(from));
 }
 
 
@@ -1472,8 +1435,7 @@ void TestConflictingSymbolNames_Data5::ArenaDtor(void* object) {
   TestConflictingSymbolNames_Data5* _this = reinterpret_cast< TestConflictingSymbolNames_Data5* >(object);
   (void)_this;
 }
-void TestConflictingSymbolNames_Data5::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestConflictingSymbolNames_Data5::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestConflictingSymbolNames_Data5::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1519,10 +1481,7 @@ const char* TestConflictingSymbolNames_Data5::_InternalParse(const char* ptr, ::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1580,10 +1539,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestConflictingSymbolNames_Dat
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_Data5::GetClassData() const { return &_class_data_; }
 
-void TestConflictingSymbolNames_Data5::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestConflictingSymbolNames_Data5 *>(to)->MergeFrom(
-      static_cast<const TestConflictingSymbolNames_Data5 &>(from));
+void TestConflictingSymbolNames_Data5::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestConflictingSymbolNames_Data5 *>(to)->MergeFrom(static_cast<const TestConflictingSymbolNames_Data5 &>(from));
 }
 
 
@@ -1659,8 +1616,7 @@ void TestConflictingSymbolNames_Data6::ArenaDtor(void* object) {
   TestConflictingSymbolNames_Data6* _this = reinterpret_cast< TestConflictingSymbolNames_Data6* >(object);
   (void)_this;
 }
-void TestConflictingSymbolNames_Data6::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestConflictingSymbolNames_Data6::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestConflictingSymbolNames_Data6::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1706,10 +1662,7 @@ const char* TestConflictingSymbolNames_Data6::_InternalParse(const char* ptr, ::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1767,10 +1720,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestConflictingSymbolNames_Dat
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames_Data6::GetClassData() const { return &_class_data_; }
 
-void TestConflictingSymbolNames_Data6::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestConflictingSymbolNames_Data6 *>(to)->MergeFrom(
-      static_cast<const TestConflictingSymbolNames_Data6 &>(from));
+void TestConflictingSymbolNames_Data6::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestConflictingSymbolNames_Data6 *>(to)->MergeFrom(static_cast<const TestConflictingSymbolNames_Data6 &>(from));
 }
 
 
@@ -1962,14 +1913,8 @@ class TestConflictingSymbolNames::_Internal {
   static void set_has_target(HasBits* has_bits) { (*has_bits)[0] |= 32u; }
 };
 
-const ::protobuf_unittest::TestConflictingSymbolNames_DO&
-TestConflictingSymbolNames::_Internal::do_(const TestConflictingSymbolNames* msg) {
-  return *msg->do__;
-}
-const ::protobuf_unittest::TestConflictingSymbolNames_DO&
-TestConflictingSymbolNames::_Internal::release_do(const TestConflictingSymbolNames* msg) {
-  return *msg->release_do_;
-}
+const ::protobuf_unittest::TestConflictingSymbolNames_DO & TestConflictingSymbolNames::_Internal::do_(const TestConflictingSymbolNames* msg) { return *msg->do__; }
+const ::protobuf_unittest::TestConflictingSymbolNames_DO & TestConflictingSymbolNames::_Internal::release_do(const TestConflictingSymbolNames* msg) { return *msg->release_do_; }
 TestConflictingSymbolNames::TestConflictingSymbolNames(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
@@ -2033,19 +1978,9 @@ TestConflictingSymbolNames::TestConflictingSymbolNames(const TestConflictingSymb
   if(from._internal_has_target()) {
     target_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_target(), GetArenaForAllocation());
   }
-  if(from._internal_has_do_()) {
-    do__ = new ::protobuf_unittest::TestConflictingSymbolNames_DO(*from.do__);
-  } else {
-    do__ = nullptr;
-  }
-  if(from._internal_has_release_do()) {
-    release_do_ = new ::protobuf_unittest::TestConflictingSymbolNames_DO(*from.release_do_);
-  } else {
-    release_do_ = nullptr;
-  }
-  ::memcpy(&input_, &from.input_,
-    static_cast<size_t>(reinterpret_cast<char*>(&auto__) -
-    reinterpret_cast<char*>(&input_)) + sizeof(auto__));
+  do__ = from._internal_has_do_() ? new ::protobuf_unittest::TestConflictingSymbolNames_DO(*from.do__) : nullptr;
+  release_do_ = from._internal_has_release_do() ? new ::protobuf_unittest::TestConflictingSymbolNames_DO(*from.release_do_) : nullptr;
+  ::memcpy(&input_, &from.input_, static_cast<size_t>(reinterpret_cast<char*>(&auto__) - reinterpret_cast<char*>(&input_)) + sizeof(auto__));
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestConflictingSymbolNames)
 }
 
@@ -2074,10 +2009,7 @@ target_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlrea
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   target_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&do__) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&auto__) -
-    reinterpret_cast<char*>(&do__)) + sizeof(auto__));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&do__) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&auto__) - reinterpret_cast<char*>(&do__)) + sizeof(auto__));
 }
 
 TestConflictingSymbolNames::~TestConflictingSymbolNames() {
@@ -2103,8 +2035,7 @@ void TestConflictingSymbolNames::ArenaDtor(void* object) {
   TestConflictingSymbolNames* _this = reinterpret_cast< TestConflictingSymbolNames* >(object);
   (void)_this;
 }
-void TestConflictingSymbolNames::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestConflictingSymbolNames::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestConflictingSymbolNames::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2149,25 +2080,17 @@ void TestConflictingSymbolNames::Clear() {
     }
   }
   if(cached_has_bits & 0x0000ff00u) {
-    ::memset(&input_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&from_) -
-        reinterpret_cast<char*>(&input_)) + sizeof(from_));
+    ::memset(&input_, 0, static_cast<size_t>(reinterpret_cast<char*>(&from_) - reinterpret_cast<char*>(&input_)) + sizeof(from_));
   }
   if(cached_has_bits & 0x00ff0000u) {
-    ::memset(&handle_uninterpreted_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&int64_) -
-        reinterpret_cast<char*>(&handle_uninterpreted_)) + sizeof(int64_));
+    ::memset(&handle_uninterpreted_, 0, static_cast<size_t>(reinterpret_cast<char*>(&int64_) - reinterpret_cast<char*>(&handle_uninterpreted_)) + sizeof(int64_));
   }
   if(cached_has_bits & 0xff000000u) {
-    ::memset(&cached_size_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&friend__) -
-        reinterpret_cast<char*>(&cached_size_)) + sizeof(friend__));
+    ::memset(&cached_size_, 0, static_cast<size_t>(reinterpret_cast<char*>(&friend__) - reinterpret_cast<char*>(&cached_size_)) + sizeof(friend__));
   }
   cached_has_bits = _has_bits_[1];
   if(cached_has_bits & 0x0000001fu) {
-    ::memset(&field_type_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&auto__) -
-        reinterpret_cast<char*>(&field_type_)) + sizeof(auto__));
+    ::memset(&field_type_, 0, static_cast<size_t>(reinterpret_cast<char*>(&auto__) - reinterpret_cast<char*>(&field_type_)) + sizeof(auto__));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
@@ -2590,10 +2513,7 @@ const char* TestConflictingSymbolNames::_InternalParse(const char* ptr, ::PROTOB
       CHK_(ptr != nullptr);
       continue;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2903,8 +2823,7 @@ size_t TestConflictingSymbolNames::ByteSizeLong() const {
   // repeated int32 i = 4;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->i_);
-    total_size += 1 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_i_size());
+    total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_i_size());
     total_size += data_size;
   }
 
@@ -2917,8 +2836,7 @@ size_t TestConflictingSymbolNames::ByteSizeLong() const {
   // repeated int32 index = 13;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->index_);
-    total_size += 1 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_index_size());
+    total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_index_size());
     total_size += data_size;
   }
 
@@ -3128,10 +3046,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestConflictingSymbolNames::_c
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingSymbolNames::GetClassData() const { return &_class_data_; }
 
-void TestConflictingSymbolNames::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestConflictingSymbolNames *>(to)->MergeFrom(
-      static_cast<const TestConflictingSymbolNames &>(from));
+void TestConflictingSymbolNames::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestConflictingSymbolNames *>(to)->MergeFrom(static_cast<const TestConflictingSymbolNames &>(from));
 }
 
 
@@ -3301,36 +3217,12 @@ void TestConflictingSymbolNames::InternalSwap(TestConflictingSymbolNames* other)
   i_.InternalSwap(&other->i_);
   new_element_.InternalSwap(&other->new_element_);
   index_.InternalSwap(&other->index_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &length_, lhs_arena,
-      &other->length_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &string_, lhs_arena,
-      &other->string_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &some_cord_, lhs_arena,
-      &other->some_cord_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &some_string_piece_, lhs_arena,
-      &other->some_string_piece_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &release_length_, lhs_arena,
-      &other->release_length_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &target_, lhs_arena,
-      &other->target_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &length_, lhs_arena, &other->length_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &string_, lhs_arena, &other->string_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &some_cord_, lhs_arena, &other->some_cord_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &some_string_piece_, lhs_arena, &other->some_string_piece_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &release_length_, lhs_arena, &other->release_length_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &target_, lhs_arena, &other->target_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(TestConflictingSymbolNames, auto__)
       + sizeof(TestConflictingSymbolNames::auto__)
@@ -3424,8 +3316,7 @@ void TestConflictingEnumNames::ArenaDtor(void* object) {
   TestConflictingEnumNames* _this = reinterpret_cast< TestConflictingEnumNames* >(object);
   (void)_this;
 }
-void TestConflictingEnumNames::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestConflictingEnumNames::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestConflictingEnumNames::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -3469,10 +3360,7 @@ const char* TestConflictingEnumNames::_InternalParse(const char* ptr, ::PROTOBUF
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3529,10 +3417,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestConflictingEnumNames::_cla
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestConflictingEnumNames::GetClassData() const { return &_class_data_; }
 
-void TestConflictingEnumNames::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestConflictingEnumNames *>(to)->MergeFrom(
-      static_cast<const TestConflictingEnumNames &>(from));
+void TestConflictingEnumNames::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestConflictingEnumNames *>(to)->MergeFrom(static_cast<const TestConflictingEnumNames &>(from));
 }
 
 
@@ -3651,8 +3537,7 @@ void NULL_::ArenaDtor(void* object) {
   NULL_* _this = reinterpret_cast< NULL_* >(object);
   (void)_this;
 }
-void NULL_::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void NULL_::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void NULL_::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -3692,10 +3577,7 @@ const char* NULL_::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3751,10 +3633,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData NULL_::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*NULL_::GetClassData() const { return &_class_data_; }
 
-void NULL_::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<NULL_ *>(to)->MergeFrom(
-      static_cast<const NULL_ &>(from));
+void NULL_::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<NULL_ *>(to)->MergeFrom(static_cast<const NULL_ &>(from));
 }
 
 

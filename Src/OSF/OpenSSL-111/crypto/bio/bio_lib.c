@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
-//#include "bio_lcl.h"
 /*
  * Helper macro for the callback to determine whether an operator expects a
  * len parameter or not

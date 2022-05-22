@@ -671,9 +671,9 @@ extern lzma_ret lzma_block_encoder_init(lzma_next_coder * next, const lzma_alloc
 		return LZMA_UNSUPPORTED_CHECK;
 	// Allocate and initialize *next->coder if needed.
 	lzma_block_encoder_coder * coder = (lzma_block_encoder_coder *)next->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		coder = (lzma_block_encoder_coder *)lzma_alloc(sizeof(lzma_block_encoder_coder), allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		next->coder = coder;
 		next->code = &block_encode;
@@ -802,9 +802,9 @@ extern lzma_ret lzma_block_decoder_init(lzma_next_coder * next, const lzma_alloc
 		return LZMA_PROG_ERROR;
 	// Allocate *next->coder if needed.
 	lzma_block_decoder_coder * coder = (lzma_block_decoder_coder *)next->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		coder = (lzma_block_decoder_coder *)lzma_alloc(sizeof(lzma_block_decoder_coder), allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		next->coder = coder;
 		next->code = &block_decode;

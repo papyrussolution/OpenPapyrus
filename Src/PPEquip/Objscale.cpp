@@ -1959,26 +1959,26 @@ int COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 
 		if(P_DbfTbl) {
 			DbfRecord dbf_rec(P_DbfTbl);
-			dbf_rec.put(1, pScalePLU->GoodsID);              // PRD_ID
+			dbf_rec.put(1, pScalePLU->GoodsID);    // PRD_ID
 			dbf_rec.put(2, goods_name.Transf(CTRANSF_INNER_TO_OUTER).cptr()); // PRD_NAME
-			dbf_rec.put(3, "0");                             // FLG_CNTR
-			dbf_rec.put(4, pScalePLU->Barcode);              // PRD_CODE
-			dbf_rec.put(5, pScalePLU->GoodsNo);              // PRD_PLU
-			dbf_rec.put(6, wght_prefix);                     // PRD_PREF
-			dbf_rec.put(7, "");                              // PRD_BAR
-			dbf_rec.put(8, "");                              // GRP_ID
-			dbf_rec.put(9, "");                              // GRP_NAME
-			dbf_rec.put(10, "");                             // MSR_ID
-			dbf_rec.put(11, "");                             // MSR_NAME
-			dbf_rec.put(12, R2(pScalePLU->Price));           // PRD_PRCE
-			dbf_rec.put(13, "");                             // PRD_CERT
+			dbf_rec.put(3, "0");                   // FLG_CNTR
+			dbf_rec.put(4, pScalePLU->Barcode);    // PRD_CODE
+			dbf_rec.put(5, pScalePLU->GoodsNo);    // PRD_PLU
+			dbf_rec.put(6, wght_prefix);           // PRD_PREF
+			dbf_rec.put(7, "");                    // PRD_BAR
+			dbf_rec.put(8, "");                    // GRP_ID
+			dbf_rec.put(9, "");                    // GRP_NAME
+			dbf_rec.put(10, "");                   // MSR_ID
+			dbf_rec.put(11, "");                   // MSR_NAME
+			dbf_rec.put(12, R2(pScalePLU->Price)); // PRD_PRCE
+			dbf_rec.put(13, "");                   // PRD_CERT
 
 			for(uint p = 0, j = 0; ss.get(&p, temp_buf) && j < 2; j++)
 				dbf_rec.put(14 + j, temp_buf.Transf(CTRANSF_INNER_TO_OUTER).cptr());  // PRD_CMP1, PRD_CMP2
-			dbf_rec.put(16, "0");                            // PRD_TARE
-			dbf_rec.put(17, expiry_minutes);                 // PRD_LIFE
-			dbf_rec.put(18, "");                             // PRD_DATE
-			dbf_rec.put(19, "");                             // PRD_INFO
+			dbf_rec.put(16, "0");                  // PRD_TARE
+			dbf_rec.put(17, expiry_minutes);       // PRD_LIFE
+			dbf_rec.put(18, "");                   // PRD_DATE
+			dbf_rec.put(19, "");                   // PRD_INFO
 			P_DbfTbl->appendRec(&dbf_rec);
 			ok = 1;
 		}
@@ -1998,7 +1998,7 @@ int COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 			line_buf.CatChar(pScalePLU->GoodsID).Semicol(); // code
 			temp_buf.Z();
 			if(expiry_minutes)
-				temp_buf.Cat(expiry, DATF_GERMAN|DATF_CENTURY).Space().Cat(encodetime(23, 0, 0, 0), TIMF_HMS);
+				temp_buf.Cat(expiry, DATF_GERMANCENT).Space().Cat(encodetime(23, 0, 0, 0), TIMF_HMS);
 			line_buf.Cat(temp_buf).Semicol(); // best_before
 			line_buf.CatChar('0').Semicol(); // shelf_life
 			line_buf.Semicol(); // certificate
@@ -4056,16 +4056,16 @@ $$$RPL
         line_buf.Cat(temp_buf).Semicol();                  // #3
         line_buf.CatChar(pScalePLU->fCountable ? '1' : '0').Semicol(); // #4
 		line_buf.Cat(pScalePLU->Price, MKSFMTD(0, 2, 0)).Semicol();    // #5
-		line_buf.CatCharN(';', 6);                                        // #6-#11
+		line_buf.CatCharN(';', 6);                                     // #6-#11
 		const long   numdays = diffdate(pScalePLU->Expiry, getcurdate_());
 		if(checkirange(numdays, 1L, 366L))
 			line_buf.Cat(numdays);
 		line_buf.Semicol();                                            // #12
 		line_buf.Semicol();                                            // #13 Дата реализации
-		line_buf.CatCharN(';', 8);                                        // #14-#21
+		line_buf.CatCharN(';', 8);                                     // #14-#21
 		line_buf.Semicol();                                            // #22 Сертификат
 		line_buf.Semicol();                                            // #23 Масса тары
-		line_buf.CatCharN(';', 6);                                        // #24-#29
+		line_buf.CatCharN(';', 6);                                     // #24-#29
 		if(GetAddedMsgLines(pScalePLU, 255, 1, 0, ext_lines) > 0) {
             ext_lines.get(0U, temp_buf);
 			if(temp_buf.NotEmptyS()) {

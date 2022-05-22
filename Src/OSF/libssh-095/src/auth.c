@@ -557,7 +557,7 @@ int ssh_userauth_publickey(ssh_session session, const char * username, const ssh
 	hash_type = ssh_key_type_to_hash(session, privkey->type);
 	/* sign the buffer with the private key */
 	str = ssh_pki_do_sign(session, session->out_buffer, privkey, hash_type);
-	if(str == NULL) {
+	if(!str) {
 		goto fail;
 	}
 	rc = ssh_buffer_add_ssh_string(session->out_buffer, str);
@@ -1307,9 +1307,9 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_request)
 	int rc;
 	(void)user;
 	(void)type;
-	if(session->kbdint == NULL) {
+	if(!session->kbdint) {
 		session->kbdint = ssh_kbdint_new();
-		if(session->kbdint == NULL) {
+		if(!session->kbdint) {
 			ssh_set_error_oom(session);
 			return SSH_PACKET_USED;
 		}
@@ -1455,7 +1455,7 @@ int ssh_userauth_kbdint_getnprompts(ssh_session session) {
 	if(!session) {
 		return SSH_ERROR;
 	}
-	if(session->kbdint == NULL) {
+	if(!session->kbdint) {
 		ssh_set_error_invalid(session);
 		return SSH_ERROR;
 	}
@@ -1477,7 +1477,7 @@ const char * ssh_userauth_kbdint_getname(ssh_session session) {
 	if(!session) {
 		return NULL;
 	}
-	if(session->kbdint == NULL) {
+	if(!session->kbdint) {
 		ssh_set_error_invalid(session);
 		return NULL;
 	}
@@ -1496,10 +1496,11 @@ const char * ssh_userauth_kbdint_getname(ssh_session session) {
  * @returns             The instruction of the message block.
  */
 
-const char * ssh_userauth_kbdint_getinstruction(ssh_session session) {
+const char * ssh_userauth_kbdint_getinstruction(ssh_session session) 
+{
 	if(!session)
 		return NULL;
-	if(session->kbdint == NULL) {
+	if(!session->kbdint) {
 		ssh_set_error_invalid(session);
 		return NULL;
 	}
@@ -1535,7 +1536,7 @@ const char * ssh_userauth_kbdint_getprompt(ssh_session session, uint i,
     char * echo) {
 	if(!session)
 		return NULL;
-	if(session->kbdint == NULL) {
+	if(!session->kbdint) {
 		ssh_set_error_invalid(session);
 		return NULL;
 	}

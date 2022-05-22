@@ -87,11 +87,11 @@ static ulong xmlHashComputeQKey(xmlHashTable * table, const xmlChar * prefix, co
 #ifdef HASH_RANDOMIZATION
 	value = table->random_seed;
 #endif
-	if(prefix != NULL)
+	if(prefix)
 		value += 30 * (*prefix);
 	else
 		value += 30 * (*name);
-	if(prefix != NULL) {
+	if(prefix) {
 		while((ch = *prefix++) != 0) {
 			value = value ^ ((value << 5) + (value >> 3) + static_cast<ulong>(ch));
 		}
@@ -484,7 +484,7 @@ int FASTCALL xmlHashAddEntry3(xmlHashTable * table, const xmlChar * name, const 
 	}
 	else {
 		entry = static_cast<xmlHashEntry *>(SAlloc::M(sizeof(xmlHashEntry)));
-		if(entry == NULL)
+		if(!entry)
 			return -1;
 	}
 	if(table->dict) {
@@ -596,7 +596,7 @@ int xmlHashUpdateEntry3(xmlHashTable * table, const xmlChar * name, const xmlCha
 	}
 	else {
 		entry = static_cast<xmlHashEntry *>(SAlloc::M(sizeof(xmlHashEntry)));
-		if(entry == NULL)
+		if(!entry)
 			return -1;
 	}
 	if(table->dict != NULL) {

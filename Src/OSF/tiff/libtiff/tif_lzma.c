@@ -65,7 +65,7 @@ static const char * LZMAStrerror(lzma_ret ret)
 		case LZMA_NO_CHECK: return "input stream has no integrity check";
 		case LZMA_UNSUPPORTED_CHECK: return "cannot calculate the integrity check";
 		case LZMA_GET_CHECK: return "integrity check type is now available";
-		case LZMA_MEM_ERROR: return "cannot allocate memory";
+		case LZMA_MEM_ERROR: return SlTxtOutOfMem;
 		case LZMA_MEMLIMIT_ERROR: return "memory usage limit was reached";
 		case LZMA_FORMAT_ERROR: return "file format not recognized";
 		case LZMA_OPTIONS_ERROR: return "invalid or unsupported options";

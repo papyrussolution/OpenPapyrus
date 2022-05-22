@@ -33,12 +33,8 @@
 #include "cairoint.h"
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
-//#include "cairo-clip-inline.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-compositor-private.h"
 #include "cairo-gl-private.h"
 #include "cairo-path-private.h"
-//#include "cairo-traps-private.h"
 
 static boolint can_use_msaa_compositor(cairo_gl_surface_t * surface, cairo_antialias_t antialias);
 static void query_surface_capabilities(cairo_gl_surface_t * surface);
@@ -382,7 +378,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_mask(const cairo_compositor_
 	}
 	if(_should_use_unbounded_surface(composite)) {
 		cairo_surface_t* surface = _prepare_unbounded_surface(dst);
-		if(UNLIKELY(surface == NULL))
+		if(UNLIKELY(!surface))
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 		/* This may be a paint operation. */
 		if(composite->original_mask_pattern == NULL) {
@@ -597,7 +593,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_stroke(const cairo_composito
 	if(composite->is_bounded == FALSE) {
 		cairo_surface_t* surface = _prepare_unbounded_surface(dst);
 
-		if(UNLIKELY(surface == NULL))
+		if(UNLIKELY(!surface))
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 
 		status = _cairo_compositor_stroke(compositor, surface,
@@ -706,7 +702,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_fill(const cairo_compositor_
 	if(composite->is_bounded == FALSE) {
 		cairo_surface_t* surface = _prepare_unbounded_surface(dst);
 
-		if(UNLIKELY(surface == NULL))
+		if(UNLIKELY(!surface))
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 
 		status = _cairo_compositor_fill(compositor, surface,
@@ -799,7 +795,7 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_glyphs(const cairo_composito
 	if(composite->is_bounded == FALSE) {
 		cairo_surface_t* surface = _prepare_unbounded_surface(dst);
 
-		if(UNLIKELY(surface == NULL))
+		if(UNLIKELY(!surface))
 			return CAIRO_INT_STATUS_UNSUPPORTED;
 
 		status = _cairo_compositor_glyphs(compositor, surface,

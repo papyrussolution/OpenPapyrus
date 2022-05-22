@@ -258,125 +258,125 @@ private:
 	int  GetBarcodePrintMethodAndStd(int innerBarcodeStd, int * pOemMethod, int * pOemStd);
 
 	enum {
-		ResultCode,                             // #00
-		ResultCodeDescription,                  // #01
-		Password,                               // #02
-		Beep,                                   // #03
-		ComNumber,                              // #04
-		BaudRate,                               // #05
-		Timeout,                                // #06
-		GetExchangeParam,                       // #07
-		SetExchangeParam,                       // #08
-		Connect,                                // #09
-		Disconnect,                             // #10
-		Quantity,                               // #11
-		Price,                                  // #12
-		Summ1,                                  // #13
-		Summ2,                                  // #14
-		Summ3,                                  // #15
+		ResultCode,                       // #00
+		ResultCodeDescription,            // #01
+		Password,                         // #02
+		Beep,                             // #03
+		ComNumber,                        // #04
+		BaudRate,                         // #05
+		Timeout,                          // #06
+		GetExchangeParam,                 // #07
+		SetExchangeParam,                 // #08
+		Connect,                          // #09
+		Disconnect,                       // #10
+		Quantity,                         // #11
+		Price,                            // #12
+		Summ1,                            // #13
+		Summ2,                            // #14
+		Summ3,                            // #15
 		// Tax1..Tax4 должны идти последовательно
-		Tax1,                                   // #16
-		Tax2,                                   // #17
-		Tax3,                                   // #18
-		Tax4,                                   // #19
-		StringForPrinting,                      // #20
-		UseReceiptRibbon,                       // #21
-		UseJournalRibbon,                       // #22
-		PrintString,                            // #23
-		PrintWideString,                        // #24
-		StringQuantity,                         // #25
-		FeedDocument,                           // #26
-		DocumentName,                           // #27
-		DocumentNumber,                         // #28
-		PrintDocumentTitle,                     // #29
-		CheckType,                              // #30
-		OpenCheck,                              // #31
-		Sale,                                   // #32
-		ReturnSale,                             // #33
-		CloseCheck,                             // #34
-		CutCheck,                               // #35
-		DrawerNumber,                           // #36
-		OpenDrawer,                             // #37
-		TableNumber,                            // #38
-		RowNumber,                              // #39
-		FieldNumber,                            // #40
-		GetFieldStruct,                         // #41
-		ReadTable,                              // #42
-		WriteTable,                             // #43
-		ValueOfFieldInteger,                    // #44
-		ValueOfFieldString,                     // #45
-		RegisterNumber,                         // #46
-		GetOperationReg,                        // #47
-		ContentsOfOperationRegister,            // #48
-		GetCashReg,                             // #49
-		ContentsOfCashRegister,                 // #50
-		GetECRStatus,                           // #51
-		ECRMode,                                // #52
-		ECRModeDescription,                     // #53
-		ECRAdvancedMode,                        // #54
-		ReceiptRibbonOpticalSensor,             // #55
-		JournalRibbonOpticalSensor,             // #56
-		ContinuePrint,                          // #57
-		CancelCheck,                            // #58
-		PrintReportWithCleaning,                // #59
-		PrintReportWithoutCleaning,             // #60
-		UModel,                                 // #61
-		UMinorProtocolVersion,                  // #62
-		UMajorProtocolVersion,                  // #63
-		GetDeviceMetrics,                       // #64
-		CashIncome,                             // #65
-		CashOutcome,                            // #66
-		ClearSlipDocumentBuffer,                // #67
-		FillSlipDocumentWithUnfiscalInfo,       // #68
-		StringNumber,                           // #69
-		PrintSlipDocument,                      // #70
-		IsClearUnfiscalInfo,                    // #71
-		InfoType,                               // #72
-		EKLZIsPresent,                          // #73
-		IsEKLZOverflow,                         // #74
-		FMOverflow,                             // #75
-		FreeRecordInFM,                         // #76
-		IsFM24HoursOver,                        // #77
-		IsDrawerOpen,                           // #78
-		Department,                             // #79
-		ECRModeStatus,                          // #80
-		JournalRibbonIsPresent,                 // #81
-		ReceiptRibbonIsPresent,                 // #82
-		OutputReceipt,                          // #83 @v6.8.2
-		ReceiptOutputType,                      // #84 @v6.8.2
-		PrintBarcodeGraph,                      // @v9.1.4
-		BarcodeType,                            // @v9.1.4
-		BarCode,                                // @v9.1.4
-		FirstLineNumber,                        // @v9.1.5
-		LineNumber,                             // @v9.1.5
-		Summ4,                                  // @v10.6.1
-		Summ5,                                  // @v10.6.1
-		Summ6,                                  // @v10.6.1
-		Summ7,                                  // @v10.6.1
-		Summ8,                                  // @v10.6.1
-		Summ9,                                  // @v10.6.1
-		Summ10,                                 // @v10.6.1
-		Summ11,                                 // @v10.6.1
-		Summ12,                                 // @v10.6.1
-		Summ13,                                 // @v10.6.1
-		Summ14,                                 // @v10.6.1
-		Summ15,                                 // @v10.6.1
-		Summ16,                                 // @v10.6.1
-		CloseCheckEx,                           // @v10.6.3
-		FNOperation,                            // @v10.7.2
-		PaymentTypeSign,                        // @v10.7.2 Признак способа расчета
-		PaymentItemSign,                        // @v10.7.2 Признак предмета расчета 
-		FNSendItemCodeData,                     // @v10.7.2
-		MarkingType,                            // @v10.7.2
-		GTIN,                                   // @v10.7.2
-		SerialNumber,                           // @v10.7.2
-		FNBeginSTLVTag,                         // @v10.9.0
-		TagID,                                  // @v10.9.0
-		TagNumber,                              // @v10.9.0
-		TagType,                                // @v10.9.0
-		TagValueStr,                            // @v10.9.0
-		FNAddTag,                               // @v10.9.0
-		FNSendSTLVTag,                          // @v10.9.0
+		Tax1,                             // #16
+		Tax2,                             // #17
+		Tax3,                             // #18
+		Tax4,                             // #19
+		StringForPrinting,                // #20
+		UseReceiptRibbon,                 // #21
+		UseJournalRibbon,                 // #22
+		PrintString,                      // #23
+		PrintWideString,                  // #24
+		StringQuantity,                   // #25
+		FeedDocument,                     // #26
+		DocumentName,                     // #27
+		DocumentNumber,                   // #28
+		PrintDocumentTitle,               // #29
+		CheckType,                        // #30
+		OpenCheck,                        // #31
+		Sale,                             // #32
+		ReturnSale,                       // #33
+		CloseCheck,                       // #34
+		CutCheck,                         // #35
+		DrawerNumber,                     // #36
+		OpenDrawer,                       // #37
+		TableNumber,                      // #38
+		RowNumber,                        // #39
+		FieldNumber,                      // #40
+		GetFieldStruct,                   // #41
+		ReadTable,                        // #42
+		WriteTable,                       // #43
+		ValueOfFieldInteger,              // #44
+		ValueOfFieldString,               // #45
+		RegisterNumber,                   // #46
+		GetOperationReg,                  // #47
+		ContentsOfOperationRegister,      // #48
+		GetCashReg,                       // #49
+		ContentsOfCashRegister,           // #50
+		GetECRStatus,                     // #51
+		ECRMode,                          // #52
+		ECRModeDescription,               // #53
+		ECRAdvancedMode,                  // #54
+		ReceiptRibbonOpticalSensor,       // #55
+		JournalRibbonOpticalSensor,       // #56
+		ContinuePrint,                    // #57
+		CancelCheck,                      // #58
+		PrintReportWithCleaning,          // #59
+		PrintReportWithoutCleaning,       // #60
+		UModel,                           // #61
+		UMinorProtocolVersion,            // #62
+		UMajorProtocolVersion,            // #63
+		GetDeviceMetrics,                 // #64
+		CashIncome,                       // #65
+		CashOutcome,                      // #66
+		ClearSlipDocumentBuffer,          // #67
+		FillSlipDocumentWithUnfiscalInfo, // #68
+		StringNumber,                     // #69
+		PrintSlipDocument,                // #70
+		IsClearUnfiscalInfo,              // #71
+		InfoType,                         // #72
+		EKLZIsPresent,                    // #73
+		IsEKLZOverflow,                   // #74
+		FMOverflow,                       // #75
+		FreeRecordInFM,                   // #76
+		IsFM24HoursOver,                  // #77
+		IsDrawerOpen,                     // #78
+		Department,                       // #79
+		ECRModeStatus,                    // #80
+		JournalRibbonIsPresent,           // #81
+		ReceiptRibbonIsPresent,           // #82
+		OutputReceipt,                    // #83
+		ReceiptOutputType,                // #84
+		PrintBarcodeGraph,                // @v9.1.4
+		BarcodeType,                      // @v9.1.4
+		BarCode,                          // @v9.1.4
+		FirstLineNumber,                  // @v9.1.5
+		LineNumber,                       // @v9.1.5
+		Summ4,                            // @v10.6.1
+		Summ5,                            // @v10.6.1
+		Summ6,                            // @v10.6.1
+		Summ7,                            // @v10.6.1
+		Summ8,                            // @v10.6.1
+		Summ9,                            // @v10.6.1
+		Summ10,                           // @v10.6.1
+		Summ11,                           // @v10.6.1
+		Summ12,                           // @v10.6.1
+		Summ13,                           // @v10.6.1
+		Summ14,                           // @v10.6.1
+		Summ15,                           // @v10.6.1
+		Summ16,                           // @v10.6.1
+		CloseCheckEx,                     // @v10.6.3
+		FNOperation,                      // @v10.7.2
+		PaymentTypeSign,                  // @v10.7.2 Признак способа расчета
+		PaymentItemSign,                  // @v10.7.2 Признак предмета расчета 
+		FNSendItemCodeData,               // @v10.7.2
+		MarkingType,                      // @v10.7.2
+		GTIN,                             // @v10.7.2
+		SerialNumber,                     // @v10.7.2
+		FNBeginSTLVTag,                   // @v10.9.0
+		TagID,                            // @v10.9.0
+		TagNumber,                        // @v10.9.0
+		TagType,                          // @v10.9.0
+		TagValueStr,                      // @v10.9.0
+		FNAddTag,                         // @v10.9.0
+		FNSendSTLVTag,                    // @v10.9.0
 		// Код системы налогообложения. Битовое поле:
 		// Бит 5|Бит 4|Бит 3|Бит 2|Бит 1|Бит 0|Описание
 		// 0     0     0     0     0     1     Основная
@@ -456,7 +456,7 @@ PPSyncCashSession * CM_SHTRIHFRF::SyncInterface()
 	return cs;
 }
 
-REGISTER_CMT(SHTRIHFRF,1,0);
+REGISTER_CMT(SHTRIHFRF, true, false);
 
 SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port),
 	CashierPassword(0), AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR),
@@ -1925,13 +1925,13 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 	THROW(ASSIGN_ID_BY_NAME(p_drv, FirstLineNumber) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, LineNumber) > 0);
 
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FNOperation) > 0);                            // @v10.7.2
-	THROW(ASSIGN_ID_BY_NAME(p_drv, PaymentTypeSign) > 0);                        // @v10.7.2 Признак способа расчета
-	THROW(ASSIGN_ID_BY_NAME(p_drv, PaymentItemSign) > 0);                        // @v10.7.2 Признак предмета расчета 
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FNSendItemCodeData) > 0);                     // @v10.7.2
-	THROW(ASSIGN_ID_BY_NAME(p_drv, MarkingType) > 0);                            // @v10.7.2
-	THROW(ASSIGN_ID_BY_NAME(p_drv, GTIN) > 0);                                   // @v10.7.2
-	THROW(ASSIGN_ID_BY_NAME(p_drv, SerialNumber) > 0);                           // @v10.7.2
+	THROW(ASSIGN_ID_BY_NAME(p_drv, FNOperation) > 0);        // @v10.7.2
+	THROW(ASSIGN_ID_BY_NAME(p_drv, PaymentTypeSign) > 0);    // @v10.7.2 Признак способа расчета
+	THROW(ASSIGN_ID_BY_NAME(p_drv, PaymentItemSign) > 0);    // @v10.7.2 Признак предмета расчета 
+	THROW(ASSIGN_ID_BY_NAME(p_drv, FNSendItemCodeData) > 0); // @v10.7.2
+	THROW(ASSIGN_ID_BY_NAME(p_drv, MarkingType) > 0);        // @v10.7.2
+	THROW(ASSIGN_ID_BY_NAME(p_drv, GTIN) > 0);               // @v10.7.2
+	THROW(ASSIGN_ID_BY_NAME(p_drv, SerialNumber) > 0);       // @v10.7.2
 	THROW(ASSIGN_ID_BY_NAME(p_drv, FNBeginSTLVTag) > 0); // @v10.9.0
 	THROW(ASSIGN_ID_BY_NAME(p_drv, TagID) > 0);          // @v10.9.0
 	THROW(ASSIGN_ID_BY_NAME(p_drv, TagNumber) > 0);      // @v10.9.0
@@ -1947,7 +1947,10 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 
 int SCS_SHTRIHFRF::AnnulateCheck()
 {
-	int    ok = -1, mode = 0, adv_mode = 0, cut = 0;
+	int    ok = -1;
+	int    mode = 0;
+	int    adv_mode = 0;
+	int    cut = 0;
 	int    dont_use_cont_prn = 0;
 	PPIniFile ini_file;
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOUSECONTPRN, &dont_use_cont_prn);

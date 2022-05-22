@@ -52,29 +52,25 @@
 // including necessary headers to support hardware AES.
 //
 // ABSL_ARCH_{X86/PPC/ARM} macros determine the platform.
-#if defined(__x86_64__) || defined(__x86_64) || defined(_M_AMD64) || \
-    defined(_M_X64)
-#define ABSL_ARCH_X86_64
+#if defined(__x86_64__) || defined(__x86_64) || defined(_M_AMD64) || defined(_M_X64)
+	#define ABSL_ARCH_X86_64
 #elif defined(__i386) || defined(_M_IX86)
-#define ABSL_ARCH_X86_32
+	#define ABSL_ARCH_X86_32
 #elif defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64)
-#define ABSL_ARCH_AARCH64
+	#define ABSL_ARCH_AARCH64
 #elif defined(__arm__) || defined(__ARMEL__) || defined(_M_ARM)
-#define ABSL_ARCH_ARM
-#elif defined(__powerpc64__) || defined(__PPC64__) || defined(__powerpc__) || \
-    defined(__ppc__) || defined(__PPC__)
-#define ABSL_ARCH_PPC
+	#define ABSL_ARCH_ARM
+#elif defined(__powerpc64__) || defined(__PPC64__) || defined(__powerpc__) || defined(__ppc__) || defined(__PPC__)
+	#define ABSL_ARCH_PPC
 #else
-// Unsupported architecture.
-//  * https://sourceforge.net/p/predef/wiki/Architectures/
-//  * https://msdn.microsoft.com/en-us/library/b0084kay.aspx
-//  * for gcc, clang: "echo | gcc -E -dM -"
+	// Unsupported architecture.
+	//  * https://sourceforge.net/p/predef/wiki/Architectures/
+	//  * https://msdn.microsoft.com/en-us/library/b0084kay.aspx
+	//  * for gcc, clang: "echo | gcc -E -dM -"
 #endif
-
-// -----------------------------------------------------------------------------
+//
 // Attribute Checks
-// -----------------------------------------------------------------------------
-
+//
 // ABSL_RANDOM_INTERNAL_RESTRICT annotates whether pointers may be considered
 // to be unaliased.
 #if defined(__clang__) || defined(__GNUC__)

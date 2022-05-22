@@ -3309,7 +3309,7 @@ int SImageBuffer::LoadTiff(SFile & rF, int fileFmt)
 	if(tif) {
 		uint32 w, h;
 		size_t npixels;
-		uint32* raster;
+		uint32 * raster;
 		TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
 		TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
 		npixels = w * h;

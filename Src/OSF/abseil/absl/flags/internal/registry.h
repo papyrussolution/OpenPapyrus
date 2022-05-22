@@ -10,7 +10,7 @@
 #ifndef ABSL_FLAGS_INTERNAL_REGISTRY_H_
 #define ABSL_FLAGS_INTERNAL_REGISTRY_H_
 
-#include <functional>
+//#include <functional>
 #include "absl/base/config.h"
 #include "absl/flags/commandlineflag.h"
 #include "absl/flags/internal/commandlineflag.h"

@@ -1,14 +1,8 @@
+// repattrn.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
+// Copyright (C) 2002-2016 International Business Machines Corporation and others. All rights reserved.
 //
-//  file:  repattrn.cpp
-//
-/*
- ***************************************************************************
- *   Copyright (C) 2002-2016 International Business Machines Corporation
- *   and others. All rights reserved.
- ***************************************************************************
- */
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -19,34 +13,27 @@
 #include "regexst.h"
 
 U_NAMESPACE_BEGIN
-
-//--------------------------------------------------------------------------
 //
 //    RegexPattern    Default Constructor
 //
-//--------------------------------------------------------------------------
 RegexPattern::RegexPattern() {
 	// Init all of this instances data.
 	init();
 }
-
-//--------------------------------------------------------------------------
 //
 //   Copy Constructor        Note:  This is a rather inefficient implementation,
 //                                  but it probably doesn't matter.
 //
-//--------------------------------------------------------------------------
-RegexPattern::RegexPattern(const RegexPattern &other) :  UObject(other) {
+RegexPattern::RegexPattern(const RegexPattern &other) :  UObject(other) 
+{
 	init();
 	*this = other;
 }
-
-//--------------------------------------------------------------------------
 //
 //    Assignment Operator
 //
-//--------------------------------------------------------------------------
-RegexPattern &RegexPattern::operator = (const RegexPattern &other) {
+RegexPattern &RegexPattern::operator = (const RegexPattern &other) 
+{
 	if(this == &other) {
 		// Source and destination are the same.  Don't do anything.
 		return *this;
@@ -145,14 +132,12 @@ RegexPattern &RegexPattern::operator = (const RegexPattern &other) {
 	}
 	return *this;
 }
-
-//--------------------------------------------------------------------------
 //
 //    init        Shared initialization for use by constructors.
 //                Bring an uninitialized RegexPattern up to a default state.
 //
-//--------------------------------------------------------------------------
-void RegexPattern::init() {
+void RegexPattern::init() 
+{
 	fFlags    = 0;
 	fCompiledPat      = 0;
 	fLiteralText.remove();
@@ -197,9 +182,9 @@ bool RegexPattern::initNamedCaptureMap() {
 		return true;
 	}
 	fNamedCaptureMap  = uhash_openSize(uhash_hashUnicodeString, // Key hash function
-		uhash_compareUnicodeString,                         // Key comparator function
-		uhash_compareLong,                                  // Value comparator function
-		7,                                                  // Initial table capacity
+		uhash_compareUnicodeString, // Key comparator function
+		uhash_compareLong, // Value comparator function
+		7, // Initial table capacity
 		&fDeferredStatus);
 	if(U_FAILURE(fDeferredStatus)) {
 		return false;
@@ -209,20 +194,18 @@ bool RegexPattern::initNamedCaptureMap() {
 	uhash_setKeyDeleter(fNamedCaptureMap, uprv_deleteUObject);
 	return true;
 }
-
-//--------------------------------------------------------------------------
 //
 //   zap            Delete everything owned by this RegexPattern.
 //
-//--------------------------------------------------------------------------
-void RegexPattern::zap() {
+void RegexPattern::zap() 
+{
 	delete fCompiledPat;
 	fCompiledPat = NULL;
 	int i;
 	for(i = 1; i<fSets->size(); i++) {
 		UnicodeSet * s;
 		s = (UnicodeSet*)fSets->elementAt(i);
-		if(s != NULL) {
+		if(s) {
 			delete s;
 		}
 	}
@@ -250,34 +233,26 @@ void RegexPattern::zap() {
 	}
 }
 
-//--------------------------------------------------------------------------
-//
-//   Destructor
-//
-//--------------------------------------------------------------------------
-RegexPattern::~RegexPattern() {
+RegexPattern::~RegexPattern() 
+{
 	zap();
 }
-
-//--------------------------------------------------------------------------
 //
 //   Clone
 //
-//--------------------------------------------------------------------------
-RegexPattern  * RegexPattern::clone() const {
+RegexPattern  * RegexPattern::clone() const 
+{
 	RegexPattern  * copy = new RegexPattern(*this);
 	return copy;
 }
-
-//--------------------------------------------------------------------------
 //
 //   operator ==   (comparison)    Consider to patterns to be == if the
 //                                 pattern strings and the flags are the same.
 //                                 Note that pattern strings with the same
 //                                 characters can still be considered different.
 //
-//--------------------------------------------------------------------------
-bool RegexPattern::operator ==(const RegexPattern &other) const {
+bool RegexPattern::operator ==(const RegexPattern &other) const 
+{
 	if(this->fFlags == other.fFlags && this->fDeferredStatus == other.fDeferredStatus) {
 		if(this->fPatternString != NULL && other.fPatternString != NULL) {
 			return *(this->fPatternString) == *(other.fPatternString);
@@ -295,21 +270,14 @@ bool RegexPattern::operator ==(const RegexPattern &other) const {
 	}
 	return false;
 }
-
-//---------------------------------------------------------------------
 //
 //   compile
 //
-//---------------------------------------------------------------------
-RegexPattern * U_EXPORT2 RegexPattern::compile(const UnicodeString & regex,
-    uint32_t flags,
-    UParseError          &pe,
-    UErrorCode           &status)
+RegexPattern * U_EXPORT2 RegexPattern::compile(const UnicodeString & regex, uint32_t flags, UParseError          &pe, UErrorCode           &status)
 {
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
-
 	const uint32_t allFlags = UREGEX_CANON_EQ | UREGEX_CASE_INSENSITIVE | UREGEX_COMMENTS |
 	    UREGEX_DOTALL   | UREGEX_MULTILINE        | UREGEX_UWORD |
 	    UREGEX_ERROR_ON_UNKNOWN_ESCAPES           | UREGEX_UNIX_LINES | UREGEX_LITERAL;
@@ -431,23 +399,15 @@ RegexPattern * U_EXPORT2 RegexPattern::compile(UText                * regex,
 	UParseError pe;
 	return compile(regex, flags, pe, err);
 }
-
-//---------------------------------------------------------------------
 //
 //   flags
 //
-//---------------------------------------------------------------------
-uint32_t RegexPattern::flags() const {
-	return fFlags;
-}
-
-//---------------------------------------------------------------------
+uint32_t RegexPattern::flags() const { return fFlags; }
 //
 //   matcher(UnicodeString, err)
 //
-//---------------------------------------------------------------------
-RegexMatcher * RegexPattern::matcher(const UnicodeString & input,
-    UErrorCode          &status) const {
+RegexMatcher * RegexPattern::matcher(const UnicodeString & input, UErrorCode          &status) const 
+{
 	RegexMatcher    * retMatcher = matcher(status);
 	if(retMatcher != NULL) {
 		retMatcher->fDeferredStatus = status;
@@ -455,12 +415,9 @@ RegexMatcher * RegexPattern::matcher(const UnicodeString & input,
 	}
 	return retMatcher;
 }
-
-//---------------------------------------------------------------------
 //
 //   matcher(status)
 //
-//---------------------------------------------------------------------
 RegexMatcher * RegexPattern::matcher(UErrorCode & status) const 
 {
 	RegexMatcher * retMatcher = NULL;
@@ -478,13 +435,10 @@ RegexMatcher * RegexPattern::matcher(UErrorCode & status) const
 	}
 	return retMatcher;
 }
-
-//---------------------------------------------------------------------
 //
 //   matches        Convenience function to test for a match, starting
 //                  with a pattern string and a data string.
 //
-//---------------------------------------------------------------------
 bool U_EXPORT2 RegexPattern::matches(const UnicodeString & regex, const UnicodeString & input, UParseError & pe, UErrorCode & status) 
 {
 	if(U_FAILURE(status)) {
@@ -516,13 +470,11 @@ bool U_EXPORT2 RegexPattern::matches(UText * regex, UText * input, UParseError &
 	delete pat;
 	return retVal;
 }
-
-//---------------------------------------------------------------------
 //
 //   pattern
 //
-//---------------------------------------------------------------------
-UnicodeString RegexPattern::pattern() const {
+UnicodeString RegexPattern::pattern() const 
+{
 	if(fPatternString != NULL) {
 		return *fPatternString;
 	}
@@ -543,12 +495,9 @@ UnicodeString RegexPattern::pattern() const {
 		return result;
 	}
 }
-
-//---------------------------------------------------------------------
 //
 //   patternText
 //
-//---------------------------------------------------------------------
 UText * RegexPattern::patternText(UErrorCode      &status) const 
 {
 	if(U_FAILURE(status)) {
@@ -563,20 +512,16 @@ UText * RegexPattern::patternText(UErrorCode      &status) const
 		return RegexStaticSets::gStaticSets->fEmptyText;
 	}
 }
-
-//--------------------------------------------------------------------------------
 //
 //  groupNumberFromName()
 //
-//--------------------------------------------------------------------------------
-int32_t RegexPattern::groupNumberFromName(const UnicodeString & groupName, UErrorCode & status) const {
+int32_t RegexPattern::groupNumberFromName(const UnicodeString & groupName, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-
 	// No need to explicitly check for syntactically valid names.
 	// Invalid ones will never be in the map, and the lookup will fail.
-
 	int32_t number = fNamedCaptureMap ? uhash_geti(fNamedCaptureMap, &groupName) : 0;
 	if(number == 0) {
 		status = U_REGEX_INVALID_CAPTURE_GROUP_NAME;
@@ -591,21 +536,14 @@ int32_t RegexPattern::groupNumberFromName(const char * groupName, int32_t nameLe
 	UnicodeString name(groupName, nameLength, US_INV);
 	return groupNumberFromName(name, status);
 }
-
-//---------------------------------------------------------------------
 //
 //   split
 //
-//---------------------------------------------------------------------
-int32_t RegexPattern::split(const UnicodeString & input,
-    UnicodeString dest[],
-    int32_t destCapacity,
-    UErrorCode      &status) const
+int32_t RegexPattern::split(const UnicodeString & input, UnicodeString dest[], int32_t destCapacity, UErrorCode      &status) const
 {
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-
 	RegexMatcher m(this);
 	int32_t r = 0;
 	// Check m's status to make sure all is ok.
@@ -635,14 +573,12 @@ int32_t RegexPattern::split(UText * input,
 	}
 	return r;
 }
-
-//---------------------------------------------------------------------
 //
 //   dump    Output the compiled form of the pattern.
 //           Debugging function only.
 //
-//---------------------------------------------------------------------
-void RegexPattern::dumpOp(int32_t index) const {
+void RegexPattern::dumpOp(int32_t index) const 
+{
 	(void)index; // Suppress warnings in non-debug build.
 #if defined(REGEX_DEBUG)
 	static const char * const opNames[] = {URX_OPCODE_NAMES};
@@ -762,10 +698,10 @@ void RegexPattern::dumpOp(int32_t index) const {
 #endif
 }
 
-void RegexPattern::dumpPattern() const {
+void RegexPattern::dumpPattern() const 
+{
 #if defined(REGEX_DEBUG)
 	int index;
-
 	UnicodeString patStr;
 	for(UChar32 c = utext_next32From(fPattern, 0); c != U_SENTINEL; c = utext_next32(fPattern)) {
 		patStr.append(c);
@@ -791,7 +727,6 @@ void RegexPattern::dumpPattern() const {
 			printf("%#x\n", fInitialChar);
 		}
 	}
-
 	printf("Named Capture Groups:\n");
 	if(!fNamedCaptureMap || uhash_count(fNamedCaptureMap) == 0) {
 		printf("   None\n");
@@ -805,7 +740,6 @@ void RegexPattern::dumpPattern() const {
 			printf("   %d\t%s\n", number, CStr (* name)());
 		}
 	}
-
 	printf("\nIndex   Binary     Type             Operand\n" \
 	    "-------------------------------------------\n");
 	for(index = 0; index<fCompiledPat->size(); index++) {

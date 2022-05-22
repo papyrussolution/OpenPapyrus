@@ -145,7 +145,7 @@ void CRYPTO_secure_free(void * ptr, const char * file, int line)
 #ifdef OPENSSL_SECURE_MEMORY
 	size_t actual_size;
 
-	if(ptr == NULL)
+	if(!ptr)
 		return;
 	if(!CRYPTO_secure_allocated(ptr)) {
 		CRYPTO_free(ptr, file, line);
@@ -168,7 +168,7 @@ void CRYPTO_secure_clear_free(void * ptr, size_t num,
 #ifdef OPENSSL_SECURE_MEMORY
 	size_t actual_size;
 
-	if(ptr == NULL)
+	if(!ptr)
 		return;
 	if(!CRYPTO_secure_allocated(ptr)) {
 		OPENSSL_cleanse(ptr, num);
@@ -182,7 +182,7 @@ void CRYPTO_secure_clear_free(void * ptr, size_t num,
 	sh_free(ptr);
 	CRYPTO_THREAD_unlock(sec_malloc_lock);
 #else
-	if(ptr == NULL)
+	if(!ptr)
 		return;
 	OPENSSL_cleanse(ptr, num);
 	CRYPTO_free(ptr, file, line);
@@ -587,7 +587,7 @@ static void sh_free(void * ptr)
 	size_t list;
 	void * buddy;
 
-	if(ptr == NULL)
+	if(!ptr)
 		return;
 	OPENSSL_assert(WITHIN_ARENA(ptr));
 	if(!WITHIN_ARENA(ptr))

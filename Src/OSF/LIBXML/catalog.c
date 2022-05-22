@@ -535,7 +535,7 @@ static int xmlDumpXMLCatalog(FILE * out, xmlCatalogEntryPtr catal)
 	    reinterpret_cast<const xmlChar *>("http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd"));
 	xmlAddChild((xmlNode *)doc, (xmlNode *)dtd);
 	ns = xmlNewNs(NULL, XML_CATALOGS_NAMESPACE, 0);
-	if(ns == NULL) {
+	if(!ns) {
 		xmlFreeDoc(doc);
 		return -1;
 	}
@@ -773,7 +773,7 @@ static xmlChar * xmlLoadFileContent(const char * filename)
 	struct stat info;
 #endif
 	xmlChar * content;
-	if(filename == NULL)
+	if(!filename)
 		return 0;
 #ifdef HAVE_STAT
 	if(stat(filename, &info) < 0)
@@ -1097,7 +1097,7 @@ static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const 
 	xmlNode * cur;
 	xmlChar * prop;
 	xmlCatalogEntryPtr parent = NULL;
-	if(filename == NULL)
+	if(!filename)
 		return 0;
 	doc = xmlParseCatalogFile((const char *)filename);
 	if(!doc) {
@@ -1111,7 +1111,7 @@ static xmlCatalogEntryPtr xmlParseXMLCatalogFile(xmlCatalogPrefer prefer, const 
 	cur = xmlDocGetRootElement(doc);
 	if(cur && (sstreq(cur->name, reinterpret_cast<const xmlChar *>("catalog"))) && cur->ns && cur->ns->href && (sstreq(cur->ns->href, XML_CATALOGS_NAMESPACE))) {
 		parent = xmlNewCatalogEntry(XML_CATA_CATALOG, NULL, (const xmlChar *)filename, NULL, prefer, 0);
-		if(parent == NULL) {
+		if(!parent) {
 			xmlFreeDoc(doc);
 			return 0;
 		}
@@ -1534,7 +1534,7 @@ static xmlChar * xmlCatalogXMLResolveURI(xmlCatalogEntryPtr catal, const xmlChar
 	int lenrewrite = 0, len;
 	if(!catal)
 		return 0;
-	if(URI == NULL)
+	if(!URI)
 		return 0;
 	if(catal->depth > MAX_CATAL_DEPTH) {
 		xmlCatalogErr(catal, NULL, XML_CATALOG_RECURSION, "Detected recursion in catalog %s\n", catal->name, 0, 0);
@@ -2128,7 +2128,7 @@ static const xmlChar * xmlCatalogGetSGMLPublic(xmlHashTable * catal, const xmlCh
 	if(normid)
 		pubID = (*normid != 0 ? normid : NULL);
 	entry = (xmlCatalogEntry *)xmlHashLookup(catal, pubID);
-	if(entry == NULL) {
+	if(!entry) {
 		SAlloc::F(normid);
 		return 0;
 	}
@@ -3072,7 +3072,7 @@ xmlChar * xmlCatalogLocalResolveURI(void * catalogs, const xmlChar * URI)
 	xmlChar * ret = 0;
 	if(!xmlCatalogInitialized)
 		xmlInitializeCatalog();
-	if(URI == NULL)
+	if(!URI)
 		return 0;
 	if(xmlDebugCatalogs)
 		xmlGenericError(0, "Resolve URI %s\n", URI);

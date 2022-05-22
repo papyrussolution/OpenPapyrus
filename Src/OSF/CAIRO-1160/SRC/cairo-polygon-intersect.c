@@ -832,19 +832,19 @@ static void _cairo_bo_sweep_line_init(cairo_bo_sweep_line_t * sweep_line)
 
 static cairo_status_t sweep_line_insert(cairo_bo_sweep_line_t * sweep_line, cairo_bo_edge_t * edge)
 {
-	if(sweep_line->current_edge != NULL) {
+	if(sweep_line->current_edge) {
 		cairo_bo_edge_t * prev, * next;
 		int cmp = _cairo_bo_sweep_line_compare_edges(sweep_line, sweep_line->current_edge, edge);
 		if(cmp < 0) {
 			prev = sweep_line->current_edge;
 			next = prev->next;
-			while(next != NULL && _cairo_bo_sweep_line_compare_edges(sweep_line, next, edge) < 0) {
+			while(next && _cairo_bo_sweep_line_compare_edges(sweep_line, next, edge) < 0) {
 				prev = next, next = prev->next;
 			}
 			prev->next = edge;
 			edge->prev = prev;
 			edge->next = next;
-			if(next != NULL)
+			if(next)
 				next->prev = edge;
 		}
 		else if(cmp > 0) {
@@ -969,7 +969,7 @@ static inline void active_edges(cairo_bo_edge_t * left, int32 top, cairo_polygon
 	cairo_bo_edge_t * right;
 	int winding[2] = {0, 0};
 	/* Yes, this is naive. Consider this a placeholder. */
-	while(left != NULL) {
+	while(left) {
 		assert(is_zero(winding));
 		do {
 			winding[left->a_or_b] += left->edge.dir;

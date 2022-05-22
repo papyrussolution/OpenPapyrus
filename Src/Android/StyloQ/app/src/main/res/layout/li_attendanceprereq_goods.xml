@@ -14,6 +14,7 @@
             android:id="@+id/ATTENDANCEPREREQ_GOODS_EXPANDSTATUS"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginTop="12dp"
             android:src="@drawable/ic_triangleleft03">
         </ImageView>
         <ImageView
@@ -23,11 +24,10 @@
             android:padding="2dp"
             android:layout_margin="2dp">
         </ImageView>
-        <TextView
+        <TextView style="@style/GenericListItemText"
             android:id="@+id/LVITEM_GENERICNAME"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:textColor="@color/TextPrimary"
             />
     </LinearLayout>
     <LinearLayout
@@ -41,14 +41,13 @@
             android:layout_width="wrap_content"
             />
         <View style="@style/FakeView"/>
-        <TextView
+        <TextView style="@style/TSessPriceText"
             android:id="@+id/ATTENDANCEPREREQ_GOODS_PRICE"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:minWidth="40dp"
             android:layout_marginRight="8dp"
             android:textAlignment="viewEnd"
-            android:textColor="@color/Accent"
             />
     </LinearLayout>
     <ListView

@@ -20,11 +20,6 @@
 #error config.h must be included first in each C++ source file
 #endif
 
-//#include <algorithm>
-//#include <cstddef> // For std::size_t
-//#include <cstring> // For std::memcpy
-//#include <type_traits>
-
 namespace Xapian {
 /** Suitable for "simple" type T.
  *

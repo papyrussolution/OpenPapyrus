@@ -47,7 +47,7 @@ static sftp_ext sftp_ext_new()
 {
 	sftp_ext ext;
 	ext = (sftp_ext)SAlloc::C(1, sizeof(struct sftp_ext_struct));
-	if(ext == NULL) {
+	if(!ext) {
 		return NULL;
 	}
 	return ext;
@@ -56,7 +56,7 @@ static sftp_ext sftp_ext_new()
 static void sftp_ext_free(sftp_ext ext)
 {
 	size_t i;
-	if(ext == NULL) {
+	if(!ext) {
 		return;
 	}
 	if(ext->count > 0) {
@@ -959,7 +959,7 @@ sftp_dir sftp_opendir(sftp_session sftp, const char * path)
 		return NULL;
 	}
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			/* something nasty has happened */
 			return NULL;
@@ -1465,18 +1465,14 @@ sftp_attributes sftp_readdir(sftp_session sftp, sftp_dir dir)
 		if(rc < 0) {
 			return NULL;
 		}
-
-		SSH_LOG(SSH_LOG_PACKET,
-		    "Sent a ssh_fxp_readdir with id %d", id);
-
-		while(msg == NULL) {
+		SSH_LOG(SSH_LOG_PACKET, "Sent a ssh_fxp_readdir with id %d", id);
+		while(!msg) {
 			if(sftp_read_and_dispatch(sftp) < 0) {
 				/* something nasty has happened */
 				return NULL;
 			}
 			msg = sftp_dequeue(sftp, id);
 		}
-
 		switch(msg->packet_type) {
 			case SSH_FXP_STATUS:
 			    status = parse_status_msg(msg);
@@ -1598,8 +1594,7 @@ static int sftp_handle_close(sftp_session sftp, ssh_string handle)
 	if(rc < 0) {
 		return -1;
 	}
-
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			/* something nasty has happened */
 			return -1;
@@ -1741,7 +1736,7 @@ sftp_file sftp_open(sftp_session sftp,
 		return NULL;
 	}
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			/* something nasty has happened */
 			return NULL;
@@ -1845,7 +1840,7 @@ ssize_t sftp_read(sftp_file handle, void * buf, size_t count) {
 	}
 	SSH_BUFFER_FREE(buffer);
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(handle->nonblocking) {
 			if(ssh_channel_poll(handle->sftp->channel, 0) == 0) {
 				/* we cannot block */
@@ -1970,7 +1965,7 @@ int sftp_async_read(sftp_file file, void * data, uint32_t size, uint32_t id){
 	}
 
 	/* handle an existing request */
-	while(msg == NULL) {
+	while(!msg) {
 		if(file->nonblocking) {
 			if(ssh_channel_poll(sftp->channel, 0) == 0) {
 				/* we cannot block */
@@ -2079,7 +2074,7 @@ ssize_t sftp_write(sftp_file file, const void * buf, size_t count) {
 		    "Could not write as much data as expected");
 	}
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(file->sftp) < 0) {
 			/* something nasty has happened */
 			return -1;
@@ -2193,7 +2188,7 @@ int sftp_unlink(sftp_session sftp, const char * file)
 	}
 	SSH_BUFFER_FREE(buffer);
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp)) {
 			return -1;
 		}
@@ -2268,7 +2263,7 @@ int sftp_rmdir(sftp_session sftp, const char * directory) {
 	}
 	SSH_BUFFER_FREE(buffer);
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			return -1;
 		}
@@ -2355,7 +2350,7 @@ int sftp_mkdir(sftp_session sftp, const char * directory, mode_t mode)
 		return -1;
 	}
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			return -1;
 		}
@@ -2450,7 +2445,7 @@ int sftp_rename(sftp_session sftp, const char * original, const char * newname) 
 	}
 	SSH_BUFFER_FREE(buffer);
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			return -1;
 		}
@@ -2536,7 +2531,7 @@ int sftp_setstat(sftp_session sftp, const char * file, sftp_attributes attr)
 		return -1;
 	}
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			return -1;
 		}
@@ -2670,7 +2665,7 @@ int sftp_symlink(sftp_session sftp, const char * target, const char * dest) {
 	}
 	SSH_BUFFER_FREE(buffer);
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			return -1;
 		}
@@ -2750,7 +2745,7 @@ char * sftp_readlink(sftp_session sftp, const char * path)
 	if(rc < 0) {
 		return NULL;
 	}
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			return NULL;
 		}
@@ -2850,7 +2845,7 @@ sftp_statvfs_t sftp_statvfs(sftp_session sftp, const char * path)
 	if(rc < 0) {
 		return NULL;
 	}
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			return NULL;
 		}
@@ -2929,7 +2924,7 @@ int sftp_fsync(sftp_file file)
 			goto done;
 		}
 		msg = sftp_dequeue(sftp, id);
-	} while(msg == NULL);
+	} while(!msg);
 
 	/* By specification, this command only returns SSH_FXP_STATUS */
 	if(msg->packet_type == SSH_FXP_STATUS) {
@@ -3023,7 +3018,7 @@ sftp_statvfs_t sftp_fstatvfs(sftp_file file)
 		return NULL;
 	}
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			return NULL;
 		}
@@ -3111,7 +3106,7 @@ char * sftp_canonicalize_path(sftp_session sftp, const char * path)
 		return NULL;
 	}
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			return NULL;
 		}
@@ -3204,7 +3199,7 @@ static sftp_attributes sftp_xstat(sftp_session sftp,
 		return NULL;
 	}
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(sftp) < 0) {
 			return NULL;
 		}
@@ -3283,7 +3278,7 @@ sftp_attributes sftp_fstat(sftp_file file)
 		return NULL;
 	}
 
-	while(msg == NULL) {
+	while(!msg) {
 		if(sftp_read_and_dispatch(file->sftp) < 0) {
 			return NULL;
 		}

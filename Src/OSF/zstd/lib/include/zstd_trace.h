@@ -30,19 +30,19 @@ extern "C" {
 	(defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86) || defined(__aarch64__)) && \
 	!defined(__APPLE__) && !defined(_WIN32) && !defined(__MINGW32__) && \
 	!defined(__CYGWIN__) && !defined(_AIX)
-#  define ZSTD_HAVE_WEAK_SYMBOLS 1
+#define ZSTD_HAVE_WEAK_SYMBOLS 1
 #else
-#  define ZSTD_HAVE_WEAK_SYMBOLS 0
+#define ZSTD_HAVE_WEAK_SYMBOLS 0
 #endif
 #if ZSTD_HAVE_WEAK_SYMBOLS
-#  define ZSTD_WEAK_ATTR __attribute__((__weak__))
+#define ZSTD_WEAK_ATTR __attribute__((__weak__))
 #else
-#  define ZSTD_WEAK_ATTR
+#define ZSTD_WEAK_ATTR
 #endif
 
 /* Only enable tracing when weak symbols are available. */
 #ifndef ZSTD_TRACE
-#  define ZSTD_TRACE ZSTD_HAVE_WEAK_SYMBOLS
+#define ZSTD_TRACE ZSTD_HAVE_WEAK_SYMBOLS
 #endif
 
 #if ZSTD_TRACE

@@ -510,7 +510,7 @@ HRESULT CExtractCallbackConsole::OpenResult(const CCodecs * codecs, const CArchi
 			}
 			else {
 				if(result == E_OUTOFMEMORY)
-					*_se << "Can't allocate required memory";
+					*_se << SlTxtOutOfMem;
 				else
 					*_se << NError::MyFormatMessage(result);
 				*_se << endl;

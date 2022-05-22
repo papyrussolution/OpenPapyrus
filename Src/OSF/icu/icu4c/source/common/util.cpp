@@ -129,7 +129,7 @@ UnicodeString & ICU_Utility::escape(UnicodeString & result, UChar32 c) {
    int32_t ICU_Utility::quotedIndexOf(const UnicodeString & text,
                                int32_t start, int32_t limit,
                                UChar charToFind) {
-    for (int32_t i=start; i<limit; ++i) {
+    for (int32_t i=start; i < limit; ++i) {
         UChar c = text.charAt(i);
         if(c == BACKSLASH) {
  ++i;

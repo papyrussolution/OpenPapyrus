@@ -1,5 +1,5 @@
 // OBJACSHT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -9,13 +9,15 @@
 //
 PPAccSheet2::PPAccSheet2()
 {
-	Init();
+	THISZERO();
+	Tag = PPOBJ_ACCSHEET;
 }
 
-void PPAccSheet2::Init()
+PPAccSheet2 & PPAccSheet2::Z()
 {
 	THISZERO();
 	Tag = PPOBJ_ACCSHEET;
+	return *this;
 }
 
 class AccSheetDialog : public TDialog {
@@ -43,7 +45,8 @@ public:
 			ok = PPErrorByDialog(this, CTL_ACCSHEET_NAME, PPERR_NAMENEEDED);
 		else {
 			getCtrlData(CTL_ACCSHEET_SYMB, Data.Symb);
-			GetClusterData(CTL_ACCSHEET_ASSOC, &Data.Assoc);
+			// @v11.3.12 GetClusterData(CTL_ACCSHEET_ASSOC, &Data.Assoc);
+			Data.Assoc = getCtrlLong(CTLSEL_ACCSHEET_ASSCOBJ); // @v11.3.12
 			if(Data.Assoc == 0) {
 				GetClusterData(CTL_ACCSHEET_FLAGS, &Data.Flags);
 				Data.Flags &= ~ACSHF_AUTOCREATART;
@@ -79,7 +82,7 @@ private:
 IMPL_HANDLE_EVENT(AccSheetDialog)
 {
 	TDialog::handleEvent(event);
-	if(event.isClusterClk(CTL_ACCSHEET_ASSOC)) {
+	/* @v11.3.12 if(event.isClusterClk(CTL_ACCSHEET_ASSOC)) {
 		const PPID old_assoc = Data.Assoc;
 		GetClusterData(CTL_ACCSHEET_ASSOC, &Data.Assoc);
 		if(Data.Assoc != old_assoc) {
@@ -88,7 +91,19 @@ IMPL_HANDLE_EVENT(AccSheetDialog)
 			setupAssoc();
 		}
 		clearEvent(event);
+	}*/
+	// @v11.3.12 {
+	if(event.isCbSelected(CTLSEL_ACCSHEET_ASSCOBJ)) {
+		const PPID preserve_assoc = Data.Assoc;
+		Data.Assoc = getCtrlLong(CTLSEL_ACCSHEET_ASSCOBJ);
+		if(Data.Assoc != preserve_assoc) {
+			SETFLAG(Data.Flags, ACSHF_AUTOCREATART, oneof2(Data.Assoc, PPOBJ_PERSON, PPOBJ_LOCATION));
+			Data.ObjGroup = 0;
+			setupAssoc();
+		}
+		clearEvent(event);
 	}
+	// } @v11.3.12 
 }
 
 void AccSheetDialog::checkLink()
@@ -111,14 +126,17 @@ void AccSheetDialog::checkLink()
 
 int AccSheetDialog::setupAssoc()
 {
+	PPIDArray assc_objtype_list;
 	if(Data.Assoc == PPOBJ_ACCOUNT_PRE9004)
 		Data.Assoc = PPOBJ_ACCOUNT2;
-	AddClusterAssocDef(CTL_ACCSHEET_ASSOC,  0, 0);
-	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  1, PPOBJ_PERSON);
-	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  2, PPOBJ_LOCATION);
-	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  3, PPOBJ_ACCOUNT2);
-	AddClusterAssoc(CTL_ACCSHEET_ASSOC,  4, PPOBJ_GLOBALUSERACC);
-	SetClusterData(CTL_ACCSHEET_ASSOC, Data.Assoc);
+	assc_objtype_list.addzlist(PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_ACCOUNT2, PPOBJ_GLOBALUSERACC, PPOBJ_PROCESSOR, 0L);
+	SetupObjListCombo(this, CTLSEL_ACCSHEET_ASSCOBJ, Data.Assoc, &assc_objtype_list);
+	//AddClusterAssocDef(CTL_ACCSHEET_ASSOC,  0, 0);
+	//AddClusterAssoc(CTL_ACCSHEET_ASSOC,  1, PPOBJ_PERSON);
+	//AddClusterAssoc(CTL_ACCSHEET_ASSOC,  2, PPOBJ_LOCATION);
+	//AddClusterAssoc(CTL_ACCSHEET_ASSOC,  3, PPOBJ_ACCOUNT2);
+	//AddClusterAssoc(CTL_ACCSHEET_ASSOC,  4, PPOBJ_GLOBALUSERACC);
+	//SetClusterData(CTL_ACCSHEET_ASSOC, Data.Assoc);
 	disableCtrl(CTLSEL_ACCSHEET_GROUP, !(Data.Assoc == PPOBJ_PERSON));
 	if(Data.Assoc == PPOBJ_PERSON)
 		SetupPPObjCombo(this, CTLSEL_ACCSHEET_GROUP, groupObjType(), Data.ObjGroup, OLW_CANINSERT, 0);
@@ -154,7 +172,7 @@ PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, e
 			SString temp_buf;
 			const PPID zero_id = 0;
 			{
-				acs_rec.Init();
+				acs_rec.Z();
 				PPLoadString("warehouse_pl", temp_buf);
 				STRNSCPY(acs_rec.Name, temp_buf);
 				STRNSCPY(acs_rec.Symb, "ACS-WH");
@@ -167,7 +185,7 @@ PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, e
 				PPPersonKind pk_rec;
 				for(SEnum en = P_Ref->Enum(PPOBJ_PERSONKIND, 0); en.Next(&pk_rec) > 0;) {
 					if(oneof6(pk_rec.ID, PPPRK_MAIN, PPPRK_EMPL, PPPRK_CLIENT, PPPRK_SUPPL, PPPRK_BANK, PPPRK_AGENT)) {
-						acs_rec.Init();
+						acs_rec.Z();
 						STRNSCPY(acs_rec.Name, pk_rec.Name);
 						if(pk_rec.Symb[0]) {
 							(temp_buf = "ACS").CatChar('-').Cat(pk_rec.Symb);
@@ -213,7 +231,8 @@ int PPObjAccSheet::IsLinkedToMainOrg(PPID acsID)
 int PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	PPAccSheet rec;
 	AccSheetDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
@@ -426,7 +445,7 @@ void AccSheetCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 {
 	PPAccSheet * p_data_rec = static_cast<PPAccSheet *>(pDataRec);
 	const AccSheetData * p_cache_rec = static_cast<const AccSheetData *>(pEntry);
-	p_data_rec->Init();
+	p_data_rec->Z();
 	p_data_rec->Tag   = PPOBJ_ACCSHEET;
 	p_data_rec->ID    = p_cache_rec->ID;
 	p_data_rec->BinArID = p_cache_rec->BinArID;

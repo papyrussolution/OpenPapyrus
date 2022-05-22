@@ -222,14 +222,14 @@ size_t FSE_readNCount(short* normalizedCounter, uint * maxSVPtr, uint * tableLog
     @return : size read from `src` , or an error Code .
     Note : Needed by HUF_readCTable() and HUF_readDTableX?() .
  */
-size_t HUF_readStats(BYTE * huffWeight, size_t hwSize, uint32* rankStats, uint32* nbSymbolsPtr, uint32* tableLogPtr, const void * src, size_t srcSize)
+size_t HUF_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats, uint32 * nbSymbolsPtr, uint32 * tableLogPtr, const void * src, size_t srcSize)
 {
 	uint32 wksp[HUF_READ_STATS_WORKSPACE_SIZE_U32];
 	return HUF_readStats_wksp(huffWeight, hwSize, rankStats, nbSymbolsPtr, tableLogPtr, src, srcSize, wksp, sizeof(wksp), /* bmi2 */0);
 }
 
-FORCE_INLINE_TEMPLATE size_t HUF_readStats_body(BYTE * huffWeight, size_t hwSize, uint32* rankStats,
-    uint32* nbSymbolsPtr, uint32* tableLogPtr, const void * src, size_t srcSize, void * workSpace, size_t wkspSize, int bmi2)
+FORCE_INLINE_TEMPLATE size_t HUF_readStats_body(BYTE * huffWeight, size_t hwSize, uint32 * rankStats,
+    uint32 * nbSymbolsPtr, uint32 * tableLogPtr, const void * src, size_t srcSize, void * workSpace, size_t wkspSize, int bmi2)
 {
 	uint32 weightTotal;
 	const BYTE * ip = (const BYTE *)src;
@@ -301,19 +301,19 @@ FORCE_INLINE_TEMPLATE size_t HUF_readStats_body(BYTE * huffWeight, size_t hwSize
 }
 
 /* Avoids the FORCE_INLINE of the _body() function. */
-static size_t HUF_readStats_body_default(BYTE * huffWeight, size_t hwSize, uint32* rankStats, uint32* nbSymbolsPtr, uint32* tableLogPtr, const void * src, size_t srcSize, void * workSpace, size_t wkspSize)
+static size_t HUF_readStats_body_default(BYTE * huffWeight, size_t hwSize, uint32 * rankStats, uint32 * nbSymbolsPtr, uint32 * tableLogPtr, const void * src, size_t srcSize, void * workSpace, size_t wkspSize)
 {
 	return HUF_readStats_body(huffWeight, hwSize, rankStats, nbSymbolsPtr, tableLogPtr, src, srcSize, workSpace, wkspSize, 0);
 }
 
 #if DYNAMIC_BMI2
-static BMI2_TARGET_ATTRIBUTE size_t HUF_readStats_body_bmi2(BYTE * huffWeight, size_t hwSize, uint32* rankStats, uint32* nbSymbolsPtr, uint32* tableLogPtr, const void * src, size_t srcSize, void * workSpace, size_t wkspSize)
+static BMI2_TARGET_ATTRIBUTE size_t HUF_readStats_body_bmi2(BYTE * huffWeight, size_t hwSize, uint32 * rankStats, uint32 * nbSymbolsPtr, uint32 * tableLogPtr, const void * src, size_t srcSize, void * workSpace, size_t wkspSize)
 {
 	return HUF_readStats_body(huffWeight, hwSize, rankStats, nbSymbolsPtr, tableLogPtr, src, srcSize, workSpace, wkspSize, 1);
 }
 #endif
 
-size_t HUF_readStats_wksp(BYTE * huffWeight, size_t hwSize, uint32* rankStats, uint32* nbSymbolsPtr, uint32* tableLogPtr, const void * src, size_t srcSize,
+size_t HUF_readStats_wksp(BYTE * huffWeight, size_t hwSize, uint32 * rankStats, uint32 * nbSymbolsPtr, uint32 * tableLogPtr, const void * src, size_t srcSize,
     void * workSpace, size_t wkspSize, int bmi2)
 {
 #if DYNAMIC_BMI2

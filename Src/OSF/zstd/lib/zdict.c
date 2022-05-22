@@ -96,7 +96,7 @@ size_t ZDICT_getDictHeaderSize(const void * dictBuffer, size_t dictSize)
 		return ERROR(dictionary_corrupted);
 	{   
 		ZSTD_compressedBlockState_t* bs = (ZSTD_compressedBlockState_t*)SAlloc::M(sizeof(ZSTD_compressedBlockState_t));
-	    uint32* wksp = (uint32*)SAlloc::M(HUF_WORKSPACE_SIZE);
+	    uint32 * wksp = (uint32 *)SAlloc::M(HUF_WORKSPACE_SIZE);
 	    if(!bs || !wksp) {
 		    headerSize = ERROR(memory_allocation);
 	    }
@@ -440,9 +440,9 @@ static size_t ZDICT_trainBuffer_legacy(dictItem* dictList, uint32 dictListSize,
 {
 	int* const suffix0 = (int*)SAlloc::M((bufferSize+2)*sizeof(*suffix0));
 	int* const suffix = suffix0+1;
-	uint32* reverseSuffix = (uint32*)SAlloc::M((bufferSize)*sizeof(*reverseSuffix));
+	uint32 * reverseSuffix = (uint32 *)SAlloc::M((bufferSize)*sizeof(*reverseSuffix));
 	BYTE * doneMarks = (BYTE *)SAlloc::M((bufferSize+16)*sizeof(*doneMarks)); /* +16 for overflow security */
-	uint32* filePos = (uint32*)SAlloc::M(nbFiles * sizeof(*filePos));
+	uint32 * filePos = (uint32 *)SAlloc::M(nbFiles * sizeof(*filePos));
 	size_t result = 0;
 	clock_t displayClock = 0;
 	clock_t const refreshRate = CLOCKS_PER_SEC * 3 / 10;
@@ -533,7 +533,7 @@ typedef struct {
 #define MAXREPOFFSET 1024
 
 static void ZDICT_countEStats(EStats_ress_t esr, const ZSTD_parameters* params,
-    uint * countLit, uint * offsetcodeCount, uint * matchlengthCount, uint * litlengthCount, uint32* repOffsets,
+    uint * countLit, uint * offsetcodeCount, uint * matchlengthCount, uint * litlengthCount, uint32 * repOffsets,
     const void * src, size_t srcSize, uint32 notificationLevel)
 {
 	const size_t blockSizeMax = MIN(ZSTD_BLOCKSIZE_MAX, 1 << params->cParams.windowLog);

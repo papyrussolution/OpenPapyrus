@@ -37,8 +37,8 @@ uint64_t MurmurHash64(const char* ptr, size_t len) {
 	const int kShiftVal = 24;
 	const uint32_t kHashSeed1 = 0xc86b14f7;
 	const uint32_t kHashSeed2 = 0x650f5c4d;
-
-	uint32_t h1 = kHashSeed1 ^ len, h2 = kHashSeed2;
+	uint32_t h1 = kHashSeed1 ^ static_cast<uint32_t>(len);
+	uint32_t h2 = kHashSeed2;
 	while(len >= 8) {
 		uint32_t k1 = UNALIGNED_LOAD32(ptr);
 		k1 *= kMultiplyVal;

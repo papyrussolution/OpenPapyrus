@@ -867,7 +867,7 @@ static void ZSTDMT_freeJobsTable(ZSTDMT_jobDescription* jobTable, uint32 nbJobs,
 /* ZSTDMT_allocJobsTable()
  * allocate and init a job table.
  * update *nbJobsPtr to next power of 2 value, as size of table */
-static ZSTDMT_jobDescription* ZSTDMT_createJobsTable(uint32* nbJobsPtr, ZSTD_customMem cMem)
+static ZSTDMT_jobDescription* ZSTDMT_createJobsTable(uint32 * nbJobsPtr, ZSTD_customMem cMem)
 {
 	const uint32 nbJobsLog2 = ZSTD_highbit32(*nbJobsPtr) + 1;
 	const uint32 nbJobs = 1 << nbJobsLog2;

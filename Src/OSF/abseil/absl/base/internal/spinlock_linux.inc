@@ -24,8 +24,7 @@
 // by SYS_futex have rational semantics with regard to the
 // std::atomic<> API. C++ provides no guarantees of these assumptions,
 // but they are believed to hold in practice.
-static_assert(sizeof(std::atomic<uint32_t>) == sizeof(int),
-              "SpinLock lockword has the wrong size for a futex");
+static_assert(sizeof(std::atomic<uint32_t>) == sizeof(int), "SpinLock lockword has the wrong size for a futex");
 
 // Some Android headers are missing these definitions even though they
 // support these futex operations.

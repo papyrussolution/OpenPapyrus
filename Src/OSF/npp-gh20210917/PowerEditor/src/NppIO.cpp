@@ -485,8 +485,7 @@ bool Notepad_plus::doSave(BufferID id, const TCHAR * filename, bool isCopy)
 	else if(res == SavingStatus::SaveOpenFailed) {
 		if(_isAdministrator) {
 			// Already in admin mode? File is probably locked.
-			_nativeLangSpeaker.messageBox("FileLockedWarning",
-			    _pPublicInterface->getHSelf(),
+			_nativeLangSpeaker.messageBox("FileLockedWarning", _pPublicInterface->getHSelf(),
 			    TEXT("Please check whether if this file is opened in another program"),
 			    TEXT("Save failed"),
 			    MB_OK | MB_ICONWARNING);
@@ -495,8 +494,7 @@ bool Notepad_plus::doSave(BufferID id, const TCHAR * filename, bool isCopy)
 			// try to open Notepad++ in admin mode
 			bool isSnapshotMode = NppParameters::getInstance().getNppGUI().isSnapshotMode();
 			if(isSnapshotMode) { // if both rememberSession && backup mode are enabled
-				             // Open the 2nd Notepad++ instance in Admin mode, then close the 1st
-				             // instance.
+				             // Open the 2nd Notepad++ instance in Admin mode, then close the 1st instance.
 				int openInAdminModeRes = _nativeLangSpeaker.messageBox("OpenInAdminMode",
 					_pPublicInterface->getHSelf(),
 					TEXT(
@@ -865,22 +863,14 @@ bool Notepad_plus::fileCloseAll(bool doDeleteBackup, bool isSnapshotMode)
 		}
 		else if(buf->isDirty()) {
 			if(isSnapshotMode) {
-				if(buf->getBackupFileName() == TEXT("") || !::PathFileExists(buf->getBackupFileName().c_str())) { //backup
-				                                                                                                  // file
-				                                                                                                  // has
-				                                                                                                  // been
-				                                                                                                  // deleted
-				                                                                                                  // from
-				                                                                                                  // outside
+				if(buf->getBackupFileName() == TEXT("") || !::PathFileExists(buf->getBackupFileName().c_str())) { //backup file has been deleted from outside
 					// warning user and save it if user want it.
 					activateBuffer(id, MAIN_VIEW);
 					if(!activateBuffer(id, SUB_VIEW))
 						switchEditViewTo(MAIN_VIEW);
-
 					int res = _nativeLangSpeaker.messageBox("NoBackupDoSaveFile",
 						_pPublicInterface->getHSelf(),
-						TEXT(
-							"Your backup file cannot be found (deleted from outside).\rSave it otherwise your data will be lost\rDo you want to save file \"$STR_REPLACE$\" ?"),
+						TEXT("Your backup file cannot be found (deleted from outside).\rSave it otherwise your data will be lost\rDo you want to save file \"$STR_REPLACE$\" ?"),
 						TEXT("Save"),
 						MB_YESNOCANCEL | MB_ICONQUESTION | MB_APPLMODAL,
 						0,
@@ -929,35 +919,25 @@ bool Notepad_plus::fileCloseAll(bool doDeleteBackup, bool isSnapshotMode)
 			}
 		}
 	}
-
 	for(size_t i = 0; i < _subDocTab.nbItem() && !noSaveToAll; ++i) {
 		BufferID id = _subDocTab.getBufferByIndex(i);
 		Buffer * buf = MainFileManager.getBufferByID(id);
-
 		// Is this buffer already included?
 		if(uniqueBuffers.find(id) != uniqueBuffers.end())
 			continue;
-
 		if(buf->isUntitled() && buf->docLength() == 0) {
 			// Do nothing
 		}
 		else if(buf->isDirty()) {
 			if(isSnapshotMode) {
-				if(buf->getBackupFileName() == TEXT("") || !::PathFileExists(buf->getBackupFileName().c_str())) { //backup
-				                                                                                                  // file
-				                                                                                                  // has
-				                                                                                                  // been
-				                                                                                                  // deleted
-				                                                                                                  // from
-				                                                                                                  // outside
+				if(buf->getBackupFileName() == TEXT("") || !::PathFileExists(buf->getBackupFileName().c_str())) { //backup file has been deleted from outside
 					// warning user and save it if user want it.
 					activateBuffer(id, SUB_VIEW);
 					switchEditViewTo(SUB_VIEW);
 
 					int res = _nativeLangSpeaker.messageBox("NoBackupDoSaveFile",
 						_pPublicInterface->getHSelf(),
-						TEXT(
-							"Your backup file cannot be found (deleted from outside).\rSave it otherwise your data will be lost\rDo you want to save file \"$STR_REPLACE$\" ?"),
+						TEXT("Your backup file cannot be found (deleted from outside).\rSave it otherwise your data will be lost\rDo you want to save file \"$STR_REPLACE$\" ?"),
 						TEXT("Save"),
 						MB_YESNOCANCEL | MB_ICONQUESTION | MB_APPLMODAL,
 						0,
@@ -1000,24 +980,20 @@ bool Notepad_plus::fileCloseAll(bool doDeleteBackup, bool isSnapshotMode)
 				else if(res == IDRETRY) {
 					if(!fileSave(id))
 						return false;   // Abort entire procedure.
-
 					saveToAll = true;
 				}
 			}
 		}
 	}
-
 	//Then start closing, inactive view first so the active is left open
 	if(bothActive()) {
 		//first close all docs in non-current view, which gets closed automatically
 		//Set active tab to the last one closed.
 		activateBuffer(_pNonDocTab->getBufferByIndex(0), otherView());
-		for(int32_t i = static_cast<int32_t>(_pNonDocTab->nbItem()) - 1; i >= 0; i--) { //close all from right
-		                                                                                // to left
+		for(int32_t i = static_cast<int32_t>(_pNonDocTab->nbItem()) - 1; i >= 0; i--) { //close all from right to left
 			doClose(_pNonDocTab->getBufferByIndex(i), otherView(), doDeleteBackup);
 		}
 	}
-
 	activateBuffer(_pDocTab->getBufferByIndex(0), currentView());
 	for(int32_t i = static_cast<int32_t>(_pDocTab->nbItem()) - 1; i >= 0; i--) { //close all from right to left
 		doClose(_pDocTab->getBufferByIndex(i), currentView(), doDeleteBackup);
@@ -1028,11 +1004,9 @@ bool Notepad_plus::fileCloseAll(bool doDeleteBackup, bool isSnapshotMode)
 bool Notepad_plus::fileCloseAllGiven(const std::vector <int>& krvecBufferIndexes)
 {
 	// First check if we need to save any file.
-
 	bool noSaveToAll = false;
 	bool saveToAll = false;
 	std::vector <int> bufferIndexesToClose;
-
 	// Count the number of dirty file
 	size_t nbDirtyFiles = 0;
 	for(const auto& index : krvecBufferIndexes) {
@@ -1201,20 +1175,12 @@ bool Notepad_plus::fileCloseAllButCurrent()
 			else if(res == IDRETRY) {
 				if(!fileSave(id))
 					return false;   // Abort entire procedure.
-
 				saveToAll = true;
 			}
-
 			if(res == IDCANCEL) {
-				for(int32_t j = static_cast<int32_t>(mainSaveOpIndex.size()) - 1; j >= 0; j--) {        //close
-				                                                                                        // all
-				                                                                                        // from
-				                                                                                        // right
-				                                                                                        // to
-				                                                                                        // left
+				for(int32_t j = static_cast<int32_t>(mainSaveOpIndex.size()) - 1; j >= 0; j--) { //close all from right to left
 					doClose(_mainDocTab.getBufferByIndex(mainSaveOpIndex[j]), MAIN_VIEW, isSnapshotMode);
 				}
-
 				return false;
 			}
 		}
@@ -1225,7 +1191,6 @@ bool Notepad_plus::fileCloseAllButCurrent()
 		Buffer * buf = MainFileManager.getBufferByID(id);
 		if(id == current)
 			continue;
-
 		if(buf->isUntitled() && buf->docLength() == 0) {
 			// Do nothing
 		}
@@ -1264,26 +1229,15 @@ bool Notepad_plus::fileCloseAllButCurrent()
 			else if(res == IDRETRY) {
 				if(!fileSave(id))
 					return false;   // Abort entire procedure.
-
 				saveToAll = true;
 			}
 
 			if(res == IDCANCEL) {
-				for(int32_t j = static_cast<int32_t>(mainSaveOpIndex.size()) - 1; j >= 0; j--) {        //close
-				                                                                                        // all
-				                                                                                        // from
-				                                                                                        // right
-				                                                                                        // to
-				                                                                                        // left
+				for(int32_t j = static_cast<int32_t>(mainSaveOpIndex.size()) - 1; j >= 0; j--) { //close all from right to left
 					doClose(_mainDocTab.getBufferByIndex(mainSaveOpIndex[j]), MAIN_VIEW, isSnapshotMode);
 				}
 
-				for(int32_t j = static_cast<int32_t>(subSaveOpIndex.size()) - 1; j >= 0; j--) { //close
-				                                                                                // all
-				                                                                                // from
-				                                                                                // right
-				                                                                                // to
-				                                                                                // left
+				for(int32_t j = static_cast<int32_t>(subSaveOpIndex.size()) - 1; j >= 0; j--) { //close all from right to left
 					doClose(_subDocTab.getBufferByIndex(subSaveOpIndex[j]), SUB_VIEW, isSnapshotMode);
 				}
 				return false;
@@ -1300,9 +1254,7 @@ bool Notepad_plus::fileCloseAllButCurrent()
 		//Set active tab to the last one closed.
 		const int viewNo = otherView();
 		activateBuffer(_pNonDocTab->getBufferByIndex(0), viewNo);
-
-		for(int32_t i = static_cast<int32_t>(_pNonDocTab->nbItem()) - 1; i >= 0; i--) { //close all from right
-		                                                                                // to left
+		for(int32_t i = static_cast<int32_t>(_pNonDocTab->nbItem()) - 1; i >= 0; i--) { //close all from right to left
 			doClose(_pNonDocTab->getBufferByIndex(i), viewNo, isSnapshotMode);
 		}
 	}
@@ -1796,19 +1748,14 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 	//size_t i = 0;
 	showView(MAIN_VIEW);
 	switchEditViewTo(MAIN_VIEW);    //open files in main
-
 	int mainIndex2Update = -1;
-
 	for(size_t i = 0; i < session.nbMainFiles();) {
 		const TCHAR * pFn = session._mainViewFiles[i]._fileName.c_str();
-
 		if(isFileSession(pFn) || isFileWorkspace(pFn)) {
 			vector <sessionFileInfo>::iterator posIt = session._mainViewFiles.begin() + i;
 			session._mainViewFiles.erase(posIt);
-			continue;       //skip session files, not supporting recursive sessions or embedded workspace
-			                // files
+			continue; //skip session files, not supporting recursive sessions or embedded workspace files
 		}
-
 		bool isWow64Off = false;
 		if(!PathFileExists(pFn)) {
 			nppParam.safeWow64EnableWow64FsRedirection(FALSE);
@@ -1816,22 +1763,14 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 		}
 		if(PathFileExists(pFn)) {
 			if(isSnapshotMode && session._mainViewFiles[i]._backupFilePath != TEXT(""))
-				lastOpened = doOpen(pFn,
-					false,
-					false,
-					session._mainViewFiles[i]._encoding,
-					session._mainViewFiles[i]._backupFilePath.c_str(),
-					session._mainViewFiles[i]._originalFileLastModifTimestamp);
+				lastOpened = doOpen(pFn, false, false, session._mainViewFiles[i]._encoding,
+					session._mainViewFiles[i]._backupFilePath.c_str(), session._mainViewFiles[i]._originalFileLastModifTimestamp);
 			else
 				lastOpened = doOpen(pFn, false, false, session._mainViewFiles[i]._encoding);
 		}
 		else if(isSnapshotMode && PathFileExists(session._mainViewFiles[i]._backupFilePath.c_str())) {
-			lastOpened = doOpen(pFn,
-				false,
-				false,
-				session._mainViewFiles[i]._encoding,
-				session._mainViewFiles[i]._backupFilePath.c_str(),
-				session._mainViewFiles[i]._originalFileLastModifTimestamp);
+			lastOpened = doOpen(pFn, false, false, session._mainViewFiles[i]._encoding,
+				session._mainViewFiles[i]._backupFilePath.c_str(), session._mainViewFiles[i]._originalFileLastModifTimestamp);
 		}
 		else {
 			lastOpened = BUFFER_INVALID;
@@ -1850,9 +1789,7 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 				typeToSet = menuID2LangType(id);
 			if(typeToSet == L_EXTERNAL)
 				typeToSet = (LangType)(id - IDM_LANG_EXTERNAL + L_EXTERNAL);
-
 			Buffer * buf = MainFileManager.getBufferByID(lastOpened);
-
 			if(session._mainViewFiles[i]._foldStates.size() > 0) {
 				if(buf == _mainEditView.getCurrentBuffer())  // current document
 					// Set floding state in the current doccument
@@ -1895,21 +1832,16 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 		_mainEditView.syncFoldStateWith(session._mainViewFiles[mainIndex2Update]._foldStates);
 		_isFolding = false;
 	}
-
 	showView(SUB_VIEW);
 	switchEditViewTo(SUB_VIEW);     //open files in sub
 	int subIndex2Update = -1;
-
 	for(size_t k = 0; k < session.nbSubFiles();) {
 		const TCHAR * pFn = session._subViewFiles[k]._fileName.c_str();
-
 		if(isFileSession(pFn) || isFileWorkspace(pFn)) {
 			vector <sessionFileInfo>::iterator posIt = session._subViewFiles.begin() + k;
 			session._subViewFiles.erase(posIt);
-			continue;       //skip session files, not supporting recursive sessions or embedded workspace
-			                // files
+			continue; //skip session files, not supporting recursive sessions or embedded workspace files
 		}
-
 		bool isWow64Off = false;
 		if(!PathFileExists(pFn)) {
 			nppParam.safeWow64EnableWow64FsRedirection(FALSE);
@@ -1917,27 +1849,18 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 		}
 		if(PathFileExists(pFn)) {
 			if(isSnapshotMode && session._subViewFiles[k]._backupFilePath != TEXT(""))
-				lastOpened = doOpen(pFn,
-					false,
-					false,
-					session._subViewFiles[k]._encoding,
-					session._subViewFiles[k]._backupFilePath.c_str(),
-					session._subViewFiles[k]._originalFileLastModifTimestamp);
+				lastOpened = doOpen(pFn, false, false, session._subViewFiles[k]._encoding,
+					session._subViewFiles[k]._backupFilePath.c_str(), session._subViewFiles[k]._originalFileLastModifTimestamp);
 			else
 				lastOpened = doOpen(pFn, false, false, session._subViewFiles[k]._encoding);
-
 			//check if already open in main. If so, clone
 			if(_mainDocTab.getIndexByBuffer(lastOpened) != -1) {
 				loadBufferIntoView(lastOpened, SUB_VIEW);
 			}
 		}
 		else if(isSnapshotMode && PathFileExists(session._subViewFiles[k]._backupFilePath.c_str())) {
-			lastOpened = doOpen(pFn,
-				false,
-				false,
-				session._subViewFiles[k]._encoding,
-				session._subViewFiles[k]._backupFilePath.c_str(),
-				session._subViewFiles[k]._originalFileLastModifTimestamp);
+			lastOpened = doOpen(pFn, false, false, session._subViewFiles[k]._encoding,
+				session._subViewFiles[k]._backupFilePath.c_str(), session._subViewFiles[k]._originalFileLastModifTimestamp);
 		}
 		else {
 			lastOpened = BUFFER_INVALID;
@@ -1946,7 +1869,6 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 			nppParam.safeWow64EnableWow64FsRedirection(TRUE);
 			isWow64Off = false;
 		}
-
 		if(lastOpened != BUFFER_INVALID) {
 			showView(SUB_VIEW);
 			if(canHideView(MAIN_VIEW))
@@ -1954,14 +1876,11 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 			const TCHAR * pLn = session._subViewFiles[k]._langName.c_str();
 			int id = getLangFromMenuName(pLn);
 			LangType typeToSet = L_TEXT;
-
 			if(id != 0)
 				typeToSet = menuID2LangType(id);
 			if(typeToSet == L_EXTERNAL)
 				typeToSet = (LangType)(id - IDM_LANG_EXTERNAL + L_EXTERNAL);
-
 			Buffer * buf = MainFileManager.getBufferByID(lastOpened);
-
 			// Set fold states
 			if(session._subViewFiles[k]._foldStates.size() > 0) {
 				if(buf == _subEditView.getCurrentBuffer())  // current document

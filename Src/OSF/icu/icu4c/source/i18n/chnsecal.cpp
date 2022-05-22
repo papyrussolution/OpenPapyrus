@@ -255,8 +255,7 @@ int32_t ChineseCalendar::handleGetMonthLength(int32_t extendedYear, int32_t mont
  */
 void ChineseCalendar::handleComputeFields(int32_t julianDay, UErrorCode & /*status*/) {
 	computeChineseFields(julianDay - kEpochStartAsJulianDay, // local days
-	    getGregorianYear(), getGregorianMonth(),
-	    TRUE);              // set all fields
+	    getGregorianYear(), getGregorianMonth(), TRUE); // set all fields
 }
 
 /**

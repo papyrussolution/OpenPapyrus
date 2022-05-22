@@ -533,18 +533,18 @@ getTrail:
 						case 4:
 						    *target++ = (uint8)(diff>>24);
 						    *offsets++ = sourceIndex;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 3:
 						    *target++ = (uint8)(diff>>16);
 						    *offsets++ = sourceIndex;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 2:
 						    *target++ = (uint8)(diff>>8);
 						    *offsets++ = sourceIndex;
 						    /* case 1: handled above */
 						    *target++ = (uint8)diff;
 						    *offsets++ = sourceIndex;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						default:
 						    /* will never occur */
 						    break;
@@ -568,13 +568,13 @@ getTrail:
 						/* each branch falls through to the next one */
 						case 3:
 						    *charErrorBuffer++ = (uint8)(diff>>16);
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 2:
 						    *charErrorBuffer++ = (uint8)(diff>>8);
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 1:
 						    *charErrorBuffer = (uint8)diff;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						default:
 						    /* will never occur */
 						    break;
@@ -588,15 +588,15 @@ getTrail:
 						case 3:
 						    *target++ = (uint8)(diff>>16);
 						    *offsets++ = sourceIndex;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 2:
 						    *target++ = (uint8)(diff>>8);
 						    *offsets++ = sourceIndex;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 1:
 						    *target++ = (uint8)diff;
 						    *offsets++ = sourceIndex;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						default:
 						    /* will never occur */
 						    break;
@@ -773,14 +773,14 @@ getTrail:
 						/* each branch falls through to the next one */
 						case 4:
 						    *target++ = (uint8)(diff>>24);
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 3:
 						    *target++ = (uint8)(diff>>16);
 						    /* case 2: handled above */
 						    *target++ = (uint8)(diff>>8);
 						    /* case 1: handled above */
 						    *target++ = (uint8)diff;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						default:
 						    /* will never occur */
 						    break;
@@ -803,13 +803,13 @@ getTrail:
 						/* each branch falls through to the next one */
 						case 3:
 						    *charErrorBuffer++ = (uint8)(diff>>16);
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 2:
 						    *charErrorBuffer++ = (uint8)(diff>>8);
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 1:
 						    *charErrorBuffer = (uint8)diff;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						default:
 						    /* will never occur */
 						    break;
@@ -822,13 +822,13 @@ getTrail:
 						/* each branch falls through to the next one */
 						case 3:
 						    *target++ = (uint8)(diff>>16);
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 2:
 						    *target++ = (uint8)(diff>>8);
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 1:
 						    *target++ = (uint8)diff;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						default:
 						    /* will never occur */
 						    break;

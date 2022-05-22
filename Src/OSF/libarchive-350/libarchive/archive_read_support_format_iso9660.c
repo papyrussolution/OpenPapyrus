@@ -1088,14 +1088,14 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a,
 		if(iso9660->utf16be_path == NULL) {
 			iso9660->utf16be_path = static_cast<uchar *>(SAlloc::M(UTF16_NAME_MAX));
 			if(iso9660->utf16be_path == NULL) {
-				archive_set_error(&a->archive, ENOMEM, "Out of memory");
+				archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 				return ARCHIVE_FATAL;
 			}
 		}
 		if(iso9660->utf16be_previous_path == NULL) {
 			iso9660->utf16be_previous_path = static_cast<uchar *>(SAlloc::M(UTF16_NAME_MAX));
 			if(iso9660->utf16be_previous_path == NULL) {
-				archive_set_error(&a->archive, ENOMEM, "Out of memory");
+				archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -2081,12 +2081,12 @@ static int register_CE(struct archive_read * a, int32_t location, struct file_in
 			new_size = heap->allocated * 2;
 		/* Overflow might keep us from growing the list. */
 		if(new_size <= heap->allocated) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		p = static_cast<struct iso9660::read_ce_queue::read_ce_req *>(SAlloc::C(new_size, sizeof(p[0])));
 		if(!p) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		if(heap->reqs != NULL) {
@@ -2741,12 +2741,12 @@ static int heap_add_entry(struct archive_read * a, struct heap_queue * heap, str
 			new_size = 1024;
 		/* Overflow might keep us from growing the list. */
 		if(new_size <= heap->allocated) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		new_pending_files = (struct file_info **)SAlloc::M(new_size * sizeof(new_pending_files[0]));
 		if(new_pending_files == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		if(heap->allocated)

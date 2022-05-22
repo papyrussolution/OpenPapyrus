@@ -84,11 +84,9 @@ ToolBarButtonUnit toolBarIcons[] = {
 	{IDM_FILE_PRINT, IDI_PRINT_ICON, IDI_PRINT_ICON, IDI_PRINT_ICON2, IDI_PRINT_ICON2, IDI_PRINT_ICON_DM, IDI_PRINT_ICON_DM, IDI_PRINT_ICON_DM2,
 	 IDI_PRINT_ICON_DM2, IDR_PRINT},
 
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	{0, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON},
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 	{IDM_EDIT_CUT, IDI_CUT_ICON, IDI_CUT_DISABLE_ICON, IDI_CUT_ICON2,
 	 IDI_CUT_DISABLE_ICON2, IDI_CUT_ICON_DM, IDI_CUT_DISABLE_ICON_DM, IDI_CUT_ICON_DM2,
@@ -100,21 +98,18 @@ ToolBarButtonUnit toolBarIcons[] = {
 	 IDI_PASTE_DISABLE_ICON2, IDI_PASTE_ICON_DM, IDI_PASTE_DISABLE_ICON_DM, IDI_PASTE_ICON_DM2,
 	 IDI_PASTE_DISABLE_ICON_DM2, IDR_PASTE},
 
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	{0, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON},
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 	{IDM_EDIT_UNDO, IDI_UNDO_ICON, IDI_UNDO_DISABLE_ICON, IDI_UNDO_ICON2,
 	 IDI_UNDO_DISABLE_ICON2, IDI_UNDO_ICON_DM, IDI_UNDO_DISABLE_ICON_DM, IDI_UNDO_ICON_DM2,
 	 IDI_UNDO_DISABLE_ICON_DM2, IDR_UNDO},
 	{IDM_EDIT_REDO, IDI_REDO_ICON, IDI_REDO_DISABLE_ICON, IDI_REDO_ICON2, IDI_REDO_DISABLE_ICON2, IDI_REDO_ICON_DM, IDI_REDO_DISABLE_ICON_DM, IDI_REDO_ICON_DM2,
 	 IDI_REDO_DISABLE_ICON_DM2, IDR_REDO},
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
 	{0, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON},
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 	{IDM_SEARCH_FIND, IDI_FIND_ICON, IDI_FIND_ICON, IDI_FIND_ICON2,
 	 IDI_FIND_ICON2, IDI_FIND_ICON_DM, IDI_FIND_ICON_DM, IDI_FIND_ICON_DM2,
@@ -123,11 +118,10 @@ ToolBarButtonUnit toolBarIcons[] = {
 	 IDI_REPLACE_ICON2, IDI_REPLACE_ICON_DM, IDI_REPLACE_ICON_DM, IDI_REPLACE_ICON_DM2,
 	 IDI_REPLACE_ICON_DM2, IDR_REPLACE},
 
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	{0, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON},
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
 	{IDM_VIEW_ZOOMIN, IDI_ZOOMIN_ICON, IDI_ZOOMIN_ICON, IDI_ZOOMIN_ICON2,
 	 IDI_ZOOMIN_ICON2, IDI_ZOOMIN_ICON_DM, IDI_ZOOMIN_ICON_DM, IDI_ZOOMIN_ICON_DM2,
 	 IDI_ZOOMIN_ICON_DM2, IDR_ZOOMIN},
@@ -135,21 +129,19 @@ ToolBarButtonUnit toolBarIcons[] = {
 	 IDI_ZOOMOUT_ICON2, IDI_ZOOMOUT_ICON_DM, IDI_ZOOMOUT_ICON_DM, IDI_ZOOMOUT_ICON_DM2,
 	 IDI_ZOOMOUT_ICON_DM2, IDR_ZOOMOUT},
 
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	{0, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON},
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
 	{IDM_VIEW_SYNSCROLLV, IDI_SYNCV_ICON, IDI_SYNCV_DISABLE_ICON, IDI_SYNCV_ICON2,
 	 IDI_SYNCV_DISABLE_ICON2, IDI_SYNCV_ICON_DM, IDI_SYNCV_DISABLE_ICON_DM, IDI_SYNCV_ICON_DM2,
 	 IDI_SYNCV_DISABLE_ICON_DM2, IDR_SYNCV},
 	{IDM_VIEW_SYNSCROLLH, IDI_SYNCH_ICON, IDI_SYNCH_DISABLE_ICON, IDI_SYNCH_ICON2, IDI_SYNCH_DISABLE_ICON2, IDI_SYNCH_ICON_DM, IDI_SYNCH_DISABLE_ICON_DM, IDI_SYNCH_ICON_DM2,
 	 IDI_SYNCH_DISABLE_ICON_DM2, IDR_SYNCH},
 
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	{0, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON},
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
 	{IDM_VIEW_WRAP, IDI_VIEW_WRAP_ICON, IDI_VIEW_WRAP_ICON, IDI_VIEW_WRAP_ICON2, IDI_VIEW_WRAP_ICON2, IDI_VIEW_WRAP_ICON_DM, IDI_VIEW_WRAP_ICON_DM, IDI_VIEW_WRAP_ICON_DM2, IDI_VIEW_WRAP_ICON_DM2, IDR_WRAP},
 	{IDM_VIEW_ALL_CHARACTERS, IDI_VIEW_ALL_CHAR_ICON, IDI_VIEW_ALL_CHAR_ICON, IDI_VIEW_ALL_CHAR_ICON2, IDI_VIEW_ALL_CHAR_ICON2, IDI_VIEW_ALL_CHAR_ICON_DM, IDI_VIEW_ALL_CHAR_ICON_DM,
 	 IDI_VIEW_ALL_CHAR_ICON_DM2, IDI_VIEW_ALL_CHAR_ICON_DM2, IDR_INVISIBLECHAR},
@@ -168,11 +160,9 @@ ToolBarButtonUnit toolBarIcons[] = {
 	{IDM_VIEW_MONITORING, IDI_VIEW_MONITORING_ICON, IDI_VIEW_MONITORING_ICON, IDI_VIEW_MONITORING_ICON2, IDI_VIEW_MONITORING_ICON2, IDI_VIEW_MONITORING_ICON_DM, IDI_VIEW_MONITORING_ICON_DM,
 	 IDI_VIEW_MONITORING_ICON_DM2, IDI_VIEW_MONITORING_ICON_DM2, IDR_FILEMONITORING},
 
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 	{0, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON,
 	 IDI_SEPARATOR_ICON, IDI_SEPARATOR_ICON},
-	//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 	{IDM_MACRO_STARTRECORDINGMACRO, IDI_STARTRECORD_ICON, IDI_STARTRECORD_DISABLE_ICON, IDI_STARTRECORD_ICON2,
 	 IDI_STARTRECORD_DISABLE_ICON2, IDI_STARTRECORD_ICON_DM, IDI_STARTRECORD_DISABLE_ICON_DM,
@@ -1461,48 +1451,37 @@ bool Notepad_plus::replaceInFiles()
 bool Notepad_plus::replaceInProjects()
 {
 	std::lock_guard<std::mutex> lock(replaceInFiles_mutex);
-
 	std::vector <generic_string> fileNames;
 	if(!createFilelistForProjects(fileNames))
 		return false;
-
 	return replaceInFilelist(fileNames);
 }
 
 bool Notepad_plus::replaceInFilelist(std::vector <generic_string> & fileNames)
 {
 	int nbTotal = 0;
-
 	ScintillaEditView * pOldView = _pEditView;
 	_pEditView = &_invisibleEditView;
 	Document oldDoc = _invisibleEditView.execute(SCI_GETDOCPOINTER);
-	Buffer * oldBuf = _invisibleEditView.getCurrentBuffer();        //for manually setting the buffer, so
-	                                                                // notifications can be handled properly
-
+	Buffer * oldBuf = _invisibleEditView.getCurrentBuffer(); //for manually setting the buffer, so notifications can be handled properly
 	Progress progress(_pPublicInterface->getHinst());
 	size_t filesCount = fileNames.size();
 	size_t filesPerPercent = 1;
-
 	if(filesCount > 1) {
 		if(filesCount >= 200)
 			filesPerPercent = filesCount / 100;
-
-		generic_string msg = _nativeLangSpeaker.getLocalizedStrFromID(
-			"replace-in-files-progress-title", TEXT("Replace In Files progress..."));
+		generic_string msg = _nativeLangSpeaker.getLocalizedStrFromID("replace-in-files-progress-title", TEXT("Replace In Files progress..."));
 		progress.open(_findReplaceDlg.getHSelf(), msg.c_str());
 	}
-
 	for(size_t i = 0, updateOnCount = filesPerPercent; i < filesCount; ++i) {
-		if(progress.isCancelled()) break;
-
+		if(progress.isCancelled()) 
+			break;
 		bool closeBuf = false;
-
 		BufferID id = MainFileManager.getBufferFromName(fileNames.at(i).c_str());
 		if(id == BUFFER_INVALID) {
 			id = MainFileManager.loadFile(fileNames.at(i).c_str());
 			closeBuf = true;
 		}
-
 		if(id != BUFFER_INVALID) {
 			Buffer * pBuf = MainFileManager.getBufferByID(id);
 			_invisibleEditView.execute(SCI_SETDOCPOINTER, 0, pBuf->getDocument());
@@ -3169,9 +3148,9 @@ static inline size_t countUtf8Characters(uchar * buf, size_t pos, size_t endpos)
 	size_t result = 0;
 	while(pos < endpos) {
 		uchar c = buf[pos++];
-		if((c&0xc0) == 0x80  // do not count unexpected continuation bytes (this handles the case where an UTF-8
-		                     // character is split in the middle)
-		   || c == '\n' || c == '\r') continue;     // do not count end of lines
+		if((c&0xc0) == 0x80 // do not count unexpected continuation bytes (this handles the case where an UTF-8 character is split in the middle)
+		   || c == '\n' || c == '\r') 
+			continue; // do not count end of lines
 		if(c >= 0xc0)
 			pos += utflen[(c & 0x30) >>  4];
 		++result;
@@ -3393,8 +3372,7 @@ void Notepad_plus::dropFiles(HDROP hdrop)
 				switchToFile(lastOpened);
 			}
 		}
-		else if(!isOldMode && (folderPaths.size() != 0 && filePaths.size() != 0)) { // new mode && both folders
-		                                                                            // & files
+		else if(!isOldMode && (folderPaths.size() != 0 && filePaths.size() != 0)) { // new mode && both folders & files
 			// display error & do nothing
 			_nativeLangSpeaker.messageBox("DroppingFolderAsProjectModeWarning",
 			    _pPublicInterface->getHSelf(),

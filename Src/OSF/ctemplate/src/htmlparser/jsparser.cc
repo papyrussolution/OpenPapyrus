@@ -131,14 +131,10 @@ static inline int js_is_whitespace(char c)
  * For more detail on the limitations of having this relaxed set of characters
  * please see the comments in_state_js_text().
  */
-static inline int js_is_identifier(char c) {
-	return (c >= 'a' && c <= 'z') ||
-	       (c >= 'A' && c <= 'Z') ||
-	       (c >= '0' && c <= '9') ||
-	       c == '_' ||
-	       c == '$';
+static inline int js_is_identifier(char c) 
+{
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '$';
 }
-
 /* Appends a character to the ring buffer. Sequences of whitespace and newlines
  * are folded into one.
  *
@@ -157,8 +153,7 @@ static inline int js_is_identifier(char c) {
 void jsparser_buffer_append_chr(jsparser_ctx * js, char chr)
 {
 	/* Fold whitespace so we have enough space in the buffer. */
-	if(js_is_whitespace(chr) &&
-	    js_is_whitespace(jsparser_buffer_get(js, -1))) {
+	if(js_is_whitespace(chr) && js_is_whitespace(jsparser_buffer_get(js, -1))) {
 		return;
 	}
 
@@ -177,7 +172,6 @@ void jsparser_buffer_append_str(jsparser_ctx * js, const char * str)
 {
 	assert(js != NULL);
 	assert(str != NULL);
-
 	while(*str != '\0') {
 		jsparser_buffer_append_chr(js, *str++);
 	}
@@ -191,25 +185,20 @@ static inline int jsparser_buffer_absolute_pos(jsparser_ctx * js, int pos)
 	int absolute_pos;
 	int buffer_len;
 	assert(pos < 0);
-
 	if(pos <= -JSPARSER_RING_BUFFER_SIZE) {
 		return -1;
 	}
-
 	buffer_len = js->buffer_end - js->buffer_start;
 	if(buffer_len < 0) {
 		buffer_len += JSPARSER_RING_BUFFER_SIZE;
 	}
-
 	if(pos < -buffer_len) {
 		return -1;
 	}
-
 	absolute_pos = (pos + js->buffer_end) % JSPARSER_RING_BUFFER_SIZE;
 	if(absolute_pos < 0) {
 		absolute_pos += JSPARSER_RING_BUFFER_SIZE;
 	}
-
 	return absolute_pos;
 }
 
@@ -221,12 +210,10 @@ char jsparser_buffer_pop(jsparser_ctx * js)
 	if(js->buffer_start == js->buffer_end) {
 		return '\0';
 	}
-
 	js->buffer_end--;
 	if(js->buffer_end < 0) {
 		js->buffer_end += JSPARSER_RING_BUFFER_SIZE;
 	}
-
 	return js->buffer[js->buffer_end];
 }
 
@@ -241,12 +228,10 @@ char jsparser_buffer_get(jsparser_ctx * js, int pos)
 {
 	int absolute_pos;
 	assert(pos < 0);
-
 	absolute_pos = jsparser_buffer_absolute_pos(js, pos);
 	if(absolute_pos < 0) {
 		return '\0';
 	}
-
 	return js->buffer[absolute_pos];
 }
 
@@ -260,14 +245,11 @@ char jsparser_buffer_get(jsparser_ctx * js, int pos)
  */
 int jsparser_buffer_set(jsparser_ctx * js, int pos, char value)
 {
-	int absolute_pos;
 	assert(pos < 0);
-
-	absolute_pos = jsparser_buffer_absolute_pos(js, pos);
+	int absolute_pos = jsparser_buffer_absolute_pos(js, pos);
 	if(absolute_pos < 0) {
 		return 0;
 	}
-
 	js->buffer[absolute_pos] = value;
 	return 1;
 }
@@ -279,15 +261,11 @@ int jsparser_buffer_set(jsparser_ctx * js, int pos, char value)
  */
 void jsparser_buffer_slice(jsparser_ctx * js, char * output, int start, int end)
 {
-	int pos;
-
 	assert(start <= end);
 	assert(start < 0);
 	assert(end < 0);
-
-	for(pos = start; pos <= end; ++pos) {
-		char c;
-		c = jsparser_buffer_get(js, pos);
+	for(int pos = start; pos <= end; ++pos) {
+		char c = jsparser_buffer_get(js, pos);
 		if(c != '\0') {
 			*output++ = jsparser_buffer_get(js, pos);
 		}
@@ -307,17 +285,13 @@ void jsparser_buffer_slice(jsparser_ctx * js, char * output, int start, int end)
  */
 int jsparser_buffer_last_identifier(jsparser_ctx * js, char * identifier)
 {
-	int end;
+	int end = -1;
 	int pos;
-
 	assert(identifier != NULL);
-
-	end = -1;
 	/* Ignore the optional whitespace delimiter */
 	if(js_is_whitespace(jsparser_buffer_get(js, -1))) {
 		--end;
 	}
-
 	/* Find the beginning of the identifier. This loop ends either when we find a
 	 * character that doesn't belong to an identifier, or when we find a '\0'
 	 * character, which means we reached the end of the buffer. */
@@ -327,7 +301,6 @@ int jsparser_buffer_last_identifier(jsparser_ctx * js, char * identifier)
 		identifier[0] = '\0';
 		return 0;
 	}
-
 	jsparser_buffer_slice(js, identifier, pos + 1, end);
 	return 1;
 }
@@ -350,7 +323,6 @@ static int bsearch_strcmp(const void * a, const void * b)
 static inline int is_regexp_token_prefix(char * token)
 {
 	assert(token != NULL);
-
 	return bsearch(token,
 		   regexp_token_prefix,
 		   sizeof(regexp_token_prefix) / sizeof(char *),
@@ -422,13 +394,11 @@ static void in_state_js_text(statemachine_ctx * ctx, int start, char chr,
  * We will interpret that slash as the start of a regular expression, when in
  * reality it is a division operator.
  */
-static void enter_state_js_slash(statemachine_ctx * ctx, int start, char chr,
-    int end)
+static void enter_state_js_slash(statemachine_ctx * ctx, int start, char chr, int end)
 {
 	jsparser_ctx * js;
 	char buffer[JSPARSER_RING_BUFFER_SIZE];
 	int pos;
-
 	assert(ctx);
 	assert(ctx->user != NULL);
 
@@ -554,8 +524,7 @@ static statemachine_definition * create_statemachine_definition()
 
 jsparser_ctx * jsparser_new()
 {
-	jsparser_ctx * js;
-	js = CAST(jsparser_ctx *, SAlloc::C(1, sizeof(jsparser_ctx)));
+	jsparser_ctx * js = CAST(jsparser_ctx *, SAlloc::C(1, sizeof(jsparser_ctx)));
 	if(js == NULL)
 		return NULL;
 	js->statemachine_def = create_statemachine_definition();
@@ -572,15 +541,11 @@ jsparser_ctx * jsparser_new()
  */
 jsparser_ctx * jsparser_duplicate(jsparser_ctx * src)
 {
-	jsparser_ctx * dst;
 	assert(src != NULL);
-
-	dst = jsparser_new();
+	jsparser_ctx * dst = jsparser_new();
 	if(dst == NULL)
 		return NULL;
-
 	jsparser_copy(dst, src);
-
 	return dst;
 }
 

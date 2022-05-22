@@ -27,12 +27,9 @@ using ::absl::cord_internal::kMinFlatLength;
 using ::absl::cord_internal::kInlinedVectorSize;
 using ::absl::cord_internal::kMaxBytesToCopy;
 
-constexpr uint64_t Fibonacci(unsigned char n, uint64_t a = 0, uint64_t b = 1) {
-	return n == 0 ? a : Fibonacci(n - 1, b, a + b);
-}
+constexpr uint64_t Fibonacci(unsigned char n, uint64_t a = 0, uint64_t b = 1) { return n == 0 ? a : Fibonacci(n - 1, b, a + b); }
 
-static_assert(Fibonacci(63) == 6557470319842,
-    "Fibonacci values computed incorrectly");
+static_assert(Fibonacci(63) == 6557470319842, "Fibonacci values computed incorrectly");
 
 // Minimum length required for a given depth tree -- a tree is considered
 // balanced if
@@ -57,10 +54,7 @@ static constexpr uint64_t min_length[] = {
 
 static const int kMinLengthSize = ABSL_ARRAYSIZE(min_length);
 
-static inline bool btree_enabled() {
-	return cord_internal::cord_btree_enabled.load(
-		std::memory_order_relaxed);
-}
+static inline bool btree_enabled() { return cord_internal::cord_btree_enabled.load(std::memory_order_relaxed); }
 
 static inline bool IsRootBalanced(CordRep* node) {
 	if(!node->IsConcat()) {
@@ -80,10 +74,8 @@ static inline bool IsRootBalanced(CordRep* node) {
 }
 
 static CordRep* Rebalance(CordRep* node);
-static void DumpNode(CordRep* rep, bool include_data, std::ostream* os,
-    int indent = 0);
-static bool VerifyNode(CordRep* root, CordRep* start_node,
-    bool full_validation);
+static void DumpNode(CordRep* rep, bool include_data, std::ostream* os, int indent = 0);
+static bool VerifyNode(CordRep* root, CordRep* start_node, bool full_validation);
 
 static inline CordRep* VerifyTree(CordRep* node) {
 	// Verification is expensive, so only do it in debug mode.

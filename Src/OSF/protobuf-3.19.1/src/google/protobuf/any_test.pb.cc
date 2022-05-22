@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
-constexpr TestAny::TestAny(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestAny::TestAny(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_any_value_()
   , text_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , any_value_(nullptr)
@@ -86,10 +85,7 @@ class TestAny::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Any& any_value(const TestAny* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Any&
-TestAny::_Internal::any_value(const TestAny* msg) {
-  return *msg->any_value_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Any & TestAny::_Internal::any_value(const TestAny* msg) { return *msg->any_value_; }
 void TestAny::clear_any_value() {
   if(GetArenaForAllocation() == nullptr && any_value_ != nullptr) {
     delete any_value_;
@@ -120,11 +116,7 @@ TestAny::TestAny(const TestAny& from)
   if(!from._internal_text().empty()) {
     text_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_text(), GetArenaForAllocation());
   }
-  if(from._internal_has_any_value()) {
-    any_value_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_value_);
-  } else {
-    any_value_ = nullptr;
-  }
+  any_value_ = from._internal_has_any_value() ? new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_value_) : nullptr;
   int32_value_ = from.int32_value_;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestAny)
 }
@@ -134,10 +126,7 @@ text_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlready
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   text_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&any_value_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&int32_value_) -
-    reinterpret_cast<char*>(&any_value_)) + sizeof(int32_value_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&any_value_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&int32_value_) - reinterpret_cast<char*>(&any_value_)) + sizeof(int32_value_));
 }
 
 TestAny::~TestAny() {
@@ -157,8 +146,7 @@ void TestAny::ArenaDtor(void* object) {
   TestAny* _this = reinterpret_cast< TestAny* >(object);
   (void)_this;
 }
-void TestAny::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestAny::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestAny::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -232,10 +220,7 @@ const char* TestAny::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -325,10 +310,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestAny::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestAny::GetClassData() const { return &_class_data_; }
 
-void TestAny::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestAny *>(to)->MergeFrom(
-      static_cast<const TestAny &>(from));
+void TestAny::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestAny *>(to)->MergeFrom(static_cast<const TestAny &>(from));
 }
 
 
@@ -368,11 +351,7 @@ void TestAny::InternalSwap(TestAny* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   repeated_any_value_.InternalSwap(&other->repeated_any_value_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &text_, lhs_arena,
-      &other->text_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &text_, lhs_arena, &other->text_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(TestAny, int32_value_)
       + sizeof(TestAny::int32_value_)

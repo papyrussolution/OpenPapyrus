@@ -60,7 +60,6 @@ void _ssh_set_error_oom(void * error, const char * function)
 	snprintf(err->error_buffer, sizeof(err->error_buffer), "%s: Out of memory", function);
 	err->error_code = SSH_FATAL;
 }
-
 /**
  * @internal
  *

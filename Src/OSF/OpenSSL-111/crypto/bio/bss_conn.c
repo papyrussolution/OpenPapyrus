@@ -206,7 +206,7 @@ static int conn_state(BIO * b, BIO_CONNECT * c)
 			    goto exit_loop;
 		}
 
-		if(cb != NULL) {
+		if(cb) {
 			if((ret = cb((BIO*)b, c->state, ret)) == 0)
 				goto end;
 		}
@@ -214,7 +214,7 @@ static int conn_state(BIO * b, BIO_CONNECT * c)
 
 	/* Loop does not exit */
 exit_loop:
-	if(cb != NULL)
+	if(cb)
 		ret = cb((BIO*)b, c->state, ret);
 end:
 	return ret;
@@ -448,7 +448,7 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 		case BIO_C_GET_FD:
 		    if(b->init) {
 			    ip = (int*)ptr;
-			    if(ip != NULL)
+			    if(ip)
 				    *ip = b->num;
 			    ret = b->num;
 		    }

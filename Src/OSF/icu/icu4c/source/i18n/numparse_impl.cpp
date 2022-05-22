@@ -116,37 +116,28 @@ NumberParserImpl* NumberParserImpl::createParserFromProperties(const number::imp
 	if(!parseCurrency) {
 		parseFlags |= PARSE_FLAG_NO_FOREIGN_CURRENCY;
 	}
-
 	LocalPointer<NumberParserImpl> parser(new NumberParserImpl(parseFlags));
-
 	parser->fLocalMatchers.ignorables = {parseFlags};
 	IgnorablesMatcher& ignorables = parser->fLocalMatchers.ignorables;
-
-	//////////////////////
-	/// AFFIX MATCHERS ///
-	//////////////////////
-
+	//
+	// AFFIX MATCHERS
+	//
 	// The following statements set up the affix matchers.
 	AffixTokenMatcherSetupData affixSetupData = {
 		currencySymbols, symbols, ignorables, locale, parseFlags
 	};
 	parser->fLocalMatchers.affixTokenMatcherWarehouse = {&affixSetupData};
 	parser->fLocalMatchers.affixMatcherWarehouse = {&parser->fLocalMatchers.affixTokenMatcherWarehouse};
-	parser->fLocalMatchers.affixMatcherWarehouse.createAffixMatchers(
-		affixProvider.get(), *parser, ignorables, parseFlags, status);
-
-	////////////////////////
-	/// CURRENCY MATCHER ///
-	////////////////////////
-
+	parser->fLocalMatchers.affixMatcherWarehouse.createAffixMatchers(affixProvider.get(), *parser, ignorables, parseFlags, status);
+	//
+	// CURRENCY MATCHER
+	//
 	if(parseCurrency || affixProvider.get().hasCurrencySign()) {
 		parser->addMatcher(parser->fLocalMatchers.currency = {currencySymbols, symbols, parseFlags, status});
 	}
-
-	///////////////
-	/// PERCENT ///
-	///////////////
-
+	//
+	// PERCENT
+	//
 	// ICU-TC meeting, April 11, 2018: accept percent/permille only if it is in the pattern,
 	// and to maintain regressive behavior, divide by 100 even if no percent sign is present.
 	if(!isStrict && affixProvider.get().containsSymbolType(AffixPatternType::TYPE_PERCENT, status)) {
@@ -155,11 +146,9 @@ NumberParserImpl* NumberParserImpl::createParserFromProperties(const number::imp
 	if(!isStrict && affixProvider.get().containsSymbolType(AffixPatternType::TYPE_PERMILLE, status)) {
 		parser->addMatcher(parser->fLocalMatchers.permille = {symbols});
 	}
-
-	///////////////////////////////
-	/// OTHER STANDARD MATCHERS ///
-	///////////////////////////////
-
+	//
+	// OTHER STANDARD MATCHERS
+	//
 	if(!isStrict) {
 		parser->addMatcher(parser->fLocalMatchers.plusSign = {symbols, false});
 		parser->addMatcher(parser->fLocalMatchers.minusSign = {symbols, false});
@@ -176,11 +165,9 @@ NumberParserImpl* NumberParserImpl::createParserFromProperties(const number::imp
 	if(!properties.parseNoExponent || properties.minimumExponentDigits > 0) {
 		parser->addMatcher(parser->fLocalMatchers.scientific = {symbols, grouper});
 	}
-
-	//////////////////
-	/// VALIDATORS ///
-	//////////////////
-
+	//
+	// VALIDATORS
+	//
 	parser->addMatcher(parser->fLocalValidators.number = {});
 	if(isStrict) {
 		parser->addMatcher(parser->fLocalValidators.affix = {});

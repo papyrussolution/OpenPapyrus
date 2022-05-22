@@ -326,12 +326,12 @@ int ec_GF2m_simple_point_get_affine_coordinates(const EC_GROUP * group,
 		    ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
 	}
-	if(x != NULL) {
+	if(x) {
 		if(!BN_copy(x, point->X))
 			goto err;
 		BN_set_negative(x, 0);
 	}
-	if(y != NULL) {
+	if(y) {
 		if(!BN_copy(y, point->Y))
 			goto err;
 		BN_set_negative(y, 0);

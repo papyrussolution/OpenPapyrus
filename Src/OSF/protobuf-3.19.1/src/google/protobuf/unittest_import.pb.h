@@ -72,19 +72,15 @@ constexpr ImportEnum ImportEnum_MIN = IMPORT_FOO;
 constexpr ImportEnum ImportEnum_MAX = IMPORT_BAZ;
 constexpr int ImportEnum_ARRAYSIZE = ImportEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ImportEnum_descriptor();
-template<typename T>
-inline const std::string& ImportEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, ImportEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function ImportEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    ImportEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * ImportEnum_descriptor();
+template<typename T> inline const std::string& ImportEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, ImportEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function ImportEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(ImportEnum_descriptor(), enum_t_value);
 }
-inline bool ImportEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ImportEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ImportEnum>(
-    ImportEnum_descriptor(), name, value);
+inline bool ImportEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ImportEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ImportEnum>(ImportEnum_descriptor(), name, value);
 }
 enum ImportEnumForMap : int {
   UNKNOWN = 0,
@@ -96,19 +92,15 @@ constexpr ImportEnumForMap ImportEnumForMap_MIN = UNKNOWN;
 constexpr ImportEnumForMap ImportEnumForMap_MAX = BAR;
 constexpr int ImportEnumForMap_ARRAYSIZE = ImportEnumForMap_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* ImportEnumForMap_descriptor();
-template<typename T>
-inline const std::string& ImportEnumForMap_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, ImportEnumForMap>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function ImportEnumForMap_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    ImportEnumForMap_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * ImportEnumForMap_descriptor();
+template<typename T> inline const std::string& ImportEnumForMap_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, ImportEnumForMap>::value || ::std::is_integral<T>::value, "Incorrect type passed to function ImportEnumForMap_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(ImportEnumForMap_descriptor(), enum_t_value);
 }
-inline bool ImportEnumForMap_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ImportEnumForMap* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ImportEnumForMap>(
-    ImportEnumForMap_descriptor(), name, value);
+inline bool ImportEnumForMap_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ImportEnumForMap * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<ImportEnumForMap>(ImportEnumForMap_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -293,15 +285,9 @@ inline void ImportMessage::set_d(int32_t value) {
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::protobuf_unittest_import::ImportEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest_import::ImportEnum>() {
-  return ::protobuf_unittest_import::ImportEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest_import::ImportEnum>() { return ::protobuf_unittest_import::ImportEnum_descriptor(); }
 template <> struct is_proto_enum< ::protobuf_unittest_import::ImportEnumForMap> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest_import::ImportEnumForMap>() {
-  return ::protobuf_unittest_import::ImportEnumForMap_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest_import::ImportEnumForMap>() { return ::protobuf_unittest_import::ImportEnumForMap_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

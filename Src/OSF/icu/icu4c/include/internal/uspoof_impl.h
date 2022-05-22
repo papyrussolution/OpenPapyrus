@@ -1,17 +1,10 @@
+// uspoof_impl.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ***************************************************************************
- * Copyright (C) 2008-2013, International Business Machines Corporation
- * and others. All Rights Reserved.
- ***************************************************************************
- *
- *  uspoof_impl.h
- *
- *    Implementation header for spoof detection
- *
- */
-
+// Copyright (C) 2008-2013, International Business Machines Corporation and others. All Rights Reserved.
+//
+// Implementation header for spoof detection
+//
 #ifndef USPOOFIM_H
 #define USPOOFIM_H
 
@@ -173,22 +166,15 @@ public:
 #define USPOOF_CONFUSABLE_DATA_FORMAT_VERSION 2  // version for ICU 58
 class ConfusableDataUtils {
 public:
-	inline static UChar32 keyToCodePoint(int32_t key) {
-		return key & 0x00ffffff;
-	}
-
-	inline static int32_t keyToLength(int32_t key) {
-		return ((key & 0xff000000) >> 24) + 1;
-	}
-
-	inline static int32_t codePointAndLengthToKey(UChar32 codePoint, int32_t length) {
+	inline static UChar32 keyToCodePoint(int32_t key) { return key & 0x00ffffff; }
+	inline static int32_t keyToLength(int32_t key) { return ((key & 0xff000000) >> 24) + 1; }
+	inline static int32_t codePointAndLengthToKey(UChar32 codePoint, int32_t length) 
+	{
 		U_ASSERT((codePoint & 0x00ffffff) == codePoint);
 		U_ASSERT(length <= 256);
 		return codePoint | ((length - 1) << 24);
 	}
 };
-
-//-------------------------------------------------------------------------------------
 //
 //  SpoofData
 //
@@ -201,28 +187,21 @@ public:
 //    Nothing in this struct includes state that is specific to any particular
 //    USpoofDetector object.
 //
-//---------------------------------------------------------------------------------------
 class SpoofData : public UMemory {
 public:
 	static SpoofData* getDefault(UErrorCode & status); // Get standard ICU spoof data.
 	static void releaseDefault(); // Cleanup reference to default spoof data.
-
-	SpoofData(UErrorCode & status); // Create new spoof data wrapper.
-	                                // Only used when building new data from rules.
-
+	SpoofData(UErrorCode & status); // Create new spoof data wrapper. Only used when building new data from rules.
 	// Constructor for use when creating from prebuilt default data.
 	//   A UDataMemory is what the ICU internal data loading functions provide.
 	//   The udm is adopted by the SpoofData.
 	SpoofData(UDataMemory * udm, UErrorCode & status);
-
 	// Constructor for use when creating from serialized data.
 	//
 	SpoofData(const void * serializedData, int32_t length, UErrorCode & status);
-
 	//  Check raw Spoof Data Version compatibility.
 	//  Return true it looks good.
 	bool validateDataVersion(UErrorCode & status) const;
-
 	~SpoofData();                // Destructor not normally used.
 	                             // Use removeReference() instead.
 	// Reference Counting functions.
@@ -288,17 +267,13 @@ private:
 
 	friend class ConfusabledataBuilder;
 };
-
-//---------------------------------------------------------------------------------------
 //
 //  Raw Binary Data Formats, as loaded from the ICU data file,
 //    or as built by the builder.
 //
-//---------------------------------------------------------------------------------------
 struct SpoofDataHeader {
 	int32_t fMagic;            // (0x3845fdef)
-	uint8 fFormatVersion[4];       // Data Format. Same as the value in struct UDataInfo
-	                                 //   if there is one associated with this data.
+	uint8 fFormatVersion[4];       // Data Format. Same as the value in struct UDataInfo. if there is one associated with this data.
 	int32_t fLength;           // Total length in bytes of this spoof data,
 	//   including all sections, not just the header.
 

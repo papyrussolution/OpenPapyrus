@@ -1011,7 +1011,8 @@ int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 	::GetLocalTime(&st);
 	if(pDt) {
 		// @v10.0.02 _encodedate((char)st.wDay, (char)st.wMonth, (int)st.wYear, pDt, DF_BTRIEVE);
-		pDt->encode(st.wDay, st.wMonth, st.wYear); // @v10.0.02
+		// @v11.3.12 pDt->encode(st.wDay, st.wMonth, st.wYear); // @v10.0.02
+		pDt->EncodeRegular(st.wDay, st.wMonth, st.wYear); // @v11.3.12
 	}
 	if(pTm) {
 		char * _tm = reinterpret_cast<char *>(pTm);
@@ -1710,16 +1711,16 @@ int CALDATE::GetKind() const
 		return kDate;
 }
 
-int CALDATE::IsDate(LDATE dt) const
+bool CALDATE::IsDate(LDATE dt) const
 {
 	int    d, m, y;
 	decodedate(&d, &m, &y, this);
 	if(d >= 1 && d <= 7 && !m && !y) // day of week
-		return BIN(d == dayofweek(this, 1));
+		return (d == dayofweek(this, 1));
 	else if(d && m && !y) // calendar date
-		return BIN(d == dt.day() && m == dt.month());
+		return (d == dt.day() && m == dt.month());
 	else // simple date
-		return BIN(dt == *this);
+		return (dt == *this);
 }
 
 SString & CALDATE::Format(int options, SString & rBuf) const

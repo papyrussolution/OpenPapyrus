@@ -477,8 +477,8 @@ void SwapFieldHelper::SwapInlinedStrings(const Reflection* r, Message* lhs,
 	auto* lhs_string = r->MutableRaw<InlinedStringField>(lhs, field);
 	auto* rhs_string = r->MutableRaw<InlinedStringField>(rhs, field);
 	const uint32 index = r->schema_.InlinedStringIndex(field);
-	uint32* lhs_state = &r->MutableInlinedStringDonatedArray(lhs)[index / 32];
-	uint32* rhs_state = &r->MutableInlinedStringDonatedArray(rhs)[index / 32];
+	uint32 * lhs_state = &r->MutableInlinedStringDonatedArray(lhs)[index / 32];
+	uint32 * rhs_state = &r->MutableInlinedStringDonatedArray(rhs)[index / 32];
 	const uint32 mask = ~(static_cast<uint32>(1) << (index % 32));
 	if(unsafe_shallow_swap || lhs_arena == rhs_arena) {
 		lhs_string->Swap(rhs_string, /*default_value=*/ nullptr, lhs_arena,
@@ -1087,8 +1087,8 @@ void Reflection::UnsafeArenaSwap(Message* lhs, Message* rhs) const {
 	// Swapping bits need to happen after swapping fields, because the latter may
 	// depend on the has bit information.
 	if(schema_.HasHasbits()) {
-		uint32* lhs_has_bits = MutableHasBits(lhs);
-		uint32* rhs_has_bits = MutableHasBits(rhs);
+		uint32 * lhs_has_bits = MutableHasBits(lhs);
+		uint32 * rhs_has_bits = MutableHasBits(rhs);
 
 		int fields_with_has_bits = 0;
 		for(int i = 0; i < descriptor_->field_count(); i++) {

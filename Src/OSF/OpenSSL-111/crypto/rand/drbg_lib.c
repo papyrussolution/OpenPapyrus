@@ -184,7 +184,7 @@ static RAND_DRBG * rand_drbg_new(int secure, int type, uint flags,
 	drbg->secure = secure && CRYPTO_secure_allocated(drbg);
 	drbg->fork_id = openssl_get_fork_id();
 	drbg->parent = parent;
-	if(parent == NULL) {
+	if(!parent) {
 		drbg->get_entropy = rand_drbg_get_entropy;
 		drbg->cleanup_entropy = rand_drbg_cleanup_entropy;
 #ifndef RAND_DRBG_GET_RANDOM_NONCE
@@ -210,7 +210,7 @@ static RAND_DRBG * rand_drbg_new(int secure, int type, uint flags,
 	if(RAND_DRBG_set(drbg, type, flags) == 0)
 		goto err;
 
-	if(parent != NULL) {
+	if(parent) {
 		rand_drbg_lock(parent);
 		if(drbg->strength > parent->strength) {
 			/*

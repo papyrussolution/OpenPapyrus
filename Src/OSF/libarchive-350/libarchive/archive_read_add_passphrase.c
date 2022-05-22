@@ -32,8 +32,7 @@ static struct archive_read_passphrase * remove_passphrases_from_head(struct arch
 	return (p);
 }
 
-static void insert_passphrase_to_head(struct archive_read * a,
-    struct archive_read_passphrase * p)
+static void insert_passphrase_to_head(struct archive_read * a, struct archive_read_passphrase * p)
 {
 	p->next = a->passphrases.first;
 	a->passphrases.first = p;
@@ -47,13 +46,13 @@ static struct archive_read_passphrase * new_read_passphrase(struct archive_read 
 {
 	struct archive_read_passphrase * p = static_cast<struct archive_read_passphrase *>(SAlloc::M(sizeof(*p)));
 	if(!p) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return NULL;
 	}
 	p->passphrase = sstrdup(passphrase);
 	if(p->passphrase == NULL) {
 		SAlloc::F(p);
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return NULL;
 	}
 	return (p);

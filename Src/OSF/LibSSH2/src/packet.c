@@ -24,11 +24,6 @@
  */
 #include "libssh2_priv.h"
 #pragma hdrstop
-//#include <errno.h>
-//#include <fcntl.h>
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
 #ifdef HAVE_SYS_TIME_H
 	#include <sys/time.h>
 #endif
@@ -39,10 +34,6 @@
 #ifdef HAVE_SYS_UIO_H
 	#include <sys/uio.h>
 #endif
-//#include <sys/types.h>
-//#include "transport.h"
-//#include "channel.h"
-//#include "packet.h"
 /*
  * libssh2_packet_queue_listener
  *

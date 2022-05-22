@@ -444,7 +444,7 @@ int BN_is_prime_fasttest_ex(const BIGNUM * a, int checks, BN_CTX * ctx_passed, i
 
 	if(ctx_passed != NULL)
 		ctx = ctx_passed;
-	else if((ctx = BN_CTX_new()) == NULL)
+	else if(!(ctx = BN_CTX_new()))
 		goto err;
 	BN_CTX_start(ctx);
 
@@ -493,7 +493,7 @@ int BN_is_prime_fasttest_ex(const BIGNUM * a, int checks, BN_CTX * ctx_passed, i
 	}
 	ret = 1;
 err:
-	if(ctx != NULL) {
+	if(ctx) {
 		BN_CTX_end(ctx);
 		if(ctx_passed == NULL)
 			BN_CTX_free(ctx);

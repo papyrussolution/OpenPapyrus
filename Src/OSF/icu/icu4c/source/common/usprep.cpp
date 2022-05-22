@@ -315,24 +315,18 @@ static UStringPrepProfile* usprep_getProfile(const char * path, const char * nam
 		if(!loadData(newProfile.getAlias(), path, name, _SPREP_DATA_TYPE, status) || U_FAILURE(*status)) {
 			return NULL;
 		}
-
 		/* get the options */
 		newProfile->doNFKC = (bool)((newProfile->indexes[_SPREP_OPTIONS] & _SPREP_NORMALIZATION_ON) > 0);
 		newProfile->checkBiDi = (bool)((newProfile->indexes[_SPREP_OPTIONS] & _SPREP_CHECK_BIDI_ON) > 0);
-
 		LocalMemory<UStringPrepKey> key;
 		LocalMemory<char> keyName;
 		LocalMemory<char> keyPath;
-		if(key.allocateInsteadAndReset() == NULL ||
-		    keyName.allocateInsteadAndCopy(static_cast<int32_t>(uprv_strlen(name)+1)) == NULL ||
-		    (path != NULL &&
-		    keyPath.allocateInsteadAndCopy(static_cast<int32_t>(uprv_strlen(path)+1)) == NULL)
-		    ) {
+		if(key.allocateInsteadAndReset() == NULL || keyName.allocateInsteadAndCopy(static_cast<int32_t>(uprv_strlen(name)+1)) == NULL ||
+		    (path != NULL && keyPath.allocateInsteadAndCopy(static_cast<int32_t>(uprv_strlen(path)+1)) == NULL)) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			usprep_unload(newProfile.getAlias());
 			return NULL;
 		}
-
 		umtx_lock(&usprepMutex);
 		// If another thread already inserted the same key/value, refcount and cleanup our thread data
 		profile = (UStringPrepProfile*)(uhash_get(SHARED_DATA_HASHTABLE, &stackKey));

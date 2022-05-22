@@ -402,7 +402,7 @@ UMatchDegree TransliterationRule::matchAndReplace(Replaceable& text,
 
 	oText = pos.start;
 
-	if(key != NULL) {
+	if(key) {
 		match = key->matches(text, oText, pos.limit, incremental);
 		if(match != U_MATCH) {
 			return match;
@@ -453,65 +453,50 @@ UMatchDegree TransliterationRule::matchAndReplace(Replaceable& text,
 	pos.start = smax(minOText, smin(smin(oText, pos.limit), newStart));
 	return U_MATCH;
 }
-
 /**
  * Create a source string that represents this rule.  Append it to the
  * given string.
  */
-UnicodeString & TransliterationRule::toRule(UnicodeString & rule,
-    bool escapeUnprintable) const {
+UnicodeString & TransliterationRule::toRule(UnicodeString & rule, bool escapeUnprintable) const 
+{
 	// Accumulate special characters (and non-specials following them)
 	// into quoteBuf.  Append quoteBuf, within single quotes, when
 	// a non-quoted element must be inserted.
 	UnicodeString str, quoteBuf;
-
 	// Do not emit the braces '{' '}' around the pattern if there
 	// is neither anteContext nor postContext.
-	bool emitBraces =
-	    (anteContext != NULL) || (postContext != NULL);
-
+	bool emitBraces = (anteContext != NULL) || (postContext != NULL);
 	// Emit start anchor
 	if((flags & ANCHOR_START) != 0) {
 		rule.append((UChar)94 /*^*/);
 	}
-
 	// Emit the input pattern
 	ICU_Utility::appendToRule(rule, anteContext, escapeUnprintable, quoteBuf);
-
 	if(emitBraces) {
 		ICU_Utility::appendToRule(rule, (UChar)0x007B /*{*/, TRUE, escapeUnprintable, quoteBuf);
 	}
-
 	ICU_Utility::appendToRule(rule, key, escapeUnprintable, quoteBuf);
-
 	if(emitBraces) {
 		ICU_Utility::appendToRule(rule, (UChar)0x007D /*}*/, TRUE, escapeUnprintable, quoteBuf);
 	}
-
 	ICU_Utility::appendToRule(rule, postContext, escapeUnprintable, quoteBuf);
-
 	// Emit end anchor
 	if((flags & ANCHOR_END) != 0) {
 		rule.append((UChar)36 /*$*/);
 	}
-
 	ICU_Utility::appendToRule(rule, UnicodeString(TRUE, FORWARD_OP, 3), TRUE, escapeUnprintable, quoteBuf);
-
 	// Emit the output pattern
-
-	ICU_Utility::appendToRule(rule, output->toReplacer()->toReplacerPattern(str, escapeUnprintable),
-	    TRUE, escapeUnprintable, quoteBuf);
-
+	ICU_Utility::appendToRule(rule, output->toReplacer()->toReplacerPattern(str, escapeUnprintable), TRUE, escapeUnprintable, quoteBuf);
 	ICU_Utility::appendToRule(rule, (UChar)0x003B /*;*/, TRUE, escapeUnprintable, quoteBuf);
-
 	return rule;
 }
 
-void TransliterationRule::setData(const TransliterationRuleData* d) {
+void TransliterationRule::setData(const TransliterationRuleData* d) 
+{
 	data = d;
-	if(anteContext != NULL) anteContext->setData(d);
-	if(postContext != NULL) postContext->setData(d);
-	if(key != NULL) key->setData(d);
+	CALLPTRMEMB(anteContext, setData(d));
+	CALLPTRMEMB(postContext, setData(d));
+	CALLPTRMEMB(key, setData(d));
 	// assert(output != NULL);
 	output->setData(d);
 	// Don't have to do segments since they are in the context or key
@@ -523,7 +508,7 @@ void TransliterationRule::setData(const TransliterationRuleData* d) {
  */
 void TransliterationRule::addSourceSetTo(UnicodeSet & toUnionTo) const {
 	int32_t limit = anteContextLength + keyLength;
-	for(int32_t i = anteContextLength; i<limit;) {
+	for(int32_t i = anteContextLength; i < limit;) {
 		UChar32 ch = pattern.char32At(i);
 		i += U16_LENGTH(ch);
 		const UnicodeMatcher* matcher = data->lookupMatcher(ch);

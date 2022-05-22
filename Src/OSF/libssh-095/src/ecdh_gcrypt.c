@@ -155,7 +155,7 @@ int ecdh_build_k(ssh_session session)
 	gcry_mpi_point_snatch_get(session->next_crypto->shared_secret, NULL, NULL, point);
 #else
 	s = ssh_sexp_extract_mpi(result, "s", GCRYMPI_FMT_USG, GCRYMPI_FMT_USG);
-	if(s == NULL) {
+	if(!s) {
 		goto out;
 	}
 	if(kex_type == SSH_KEX_ECDH_SHA2_NISTP256) {

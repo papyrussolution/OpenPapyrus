@@ -1720,7 +1720,7 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 		int32_t length;
 		UErrorCode err;
 
-		if(localeID == NULL) {
+		if(!localeID) {
 			// not an error, just set the default locale
 			return *this = getDefault();
 		}

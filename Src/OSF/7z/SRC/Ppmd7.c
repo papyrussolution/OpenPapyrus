@@ -234,7 +234,7 @@ static void * AllocUnits(CPpmd7 * p, unsigned indx)
 }
 
 #define MyMem12Cpy(dest, src, num) \
-	{ uint32 * d = (uint32 *)dest; const uint32 * s = (const uint32*)src; uint32 n = num; \
+	{ uint32 * d = (uint32 *)dest; const uint32 * s = (const uint32 *)src; uint32 n = num; \
 	  do { d[0] = s[0]; d[1] = s[1]; d[2] = s[2]; s += 3; d += 3; } while(--n); }
 
 static void * ShrinkUnits(CPpmd7 * p, void * oldPtr, unsigned oldNU, unsigned newNU)

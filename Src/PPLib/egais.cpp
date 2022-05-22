@@ -701,7 +701,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 							n_chk.PutInner(SXml::nst("ck", "Identity"), temp_buf.Z().Cat(rPack.Rec.ID));
 							{
 								SXml::WNode n_httn(_doc, SXml::nst("ck", "Header"));
-								temp_buf.Z().Cat(_dtm, DATF_ISO8601|DATF_CENTURY, 0);
+								temp_buf.Z().Cat(_dtm, DATF_ISO8601CENT, 0);
 								n_chk.PutInner(SXml::nst("ck", "Date"), temp_buf);
 								{
 									cn_pack.GetPropString(SCN_MANUFSERIAL, temp_buf);
@@ -717,7 +717,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 							{
 								/*{
 									SXml::WNode n_httn(_doc, SXml::nst("ck", "HeaderTTN"));
-									n_httn.PutInner(SXml::nst("ck", "Date"), temp_buf.Z().Cat(rPack.Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+									n_httn.PutInner(SXml::nst("ck", "Date"), temp_buf.Z().Cat(rPack.Rec.Dt, DATF_ISO8601CENT));
 									temp_buf.Z().Cat(rPack.Rec.Code);
 									n_httn.PutInner(SXml::nst("ck", "BillNumber"), temp_buf);
 									n_httn.PutInner(SXml::nst("ck", "TTNNumber"), temp_buf);
@@ -2359,7 +2359,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 								// @v11.0.12 BillCore::GetCode(temp_buf = p_bp->Rec.Code);
 								Egais_GetBillCode(*p_bp, temp_buf); // @v11.0.12
 								n_h.PutInner(SXml::nst("wb", "NUMBER"), EncText(temp_buf));
-								n_h.PutInner(SXml::nst("wb", "Date"), temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
+								n_h.PutInner(SXml::nst("wb", "Date"), temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT));
 								{
 									// @v11.1.1 Если дата отгрузки определена и больше даты документа, то она и будет таковой, в противном случае
 									// датой отгрузки считаем дату документа.
@@ -2368,7 +2368,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										shipping_date = p_bp->P_Freight->IssueDate;
 									else
 										shipping_date = p_bp->Rec.Dt;
-									n_h.PutInner(SXml::nst("wb", "ShippingDate"), temp_buf.Z().Cat(shipping_date, DATF_ISO8601|DATF_CENTURY));
+									n_h.PutInner(SXml::nst("wb", "ShippingDate"), temp_buf.Z().Cat(shipping_date, DATF_ISO8601CENT));
 								}
 								{
 									long woi_flags = woifStrict|woifDontSendWithoutFSRARID;
@@ -2631,7 +2631,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
                         if(p_qbl->getCount()) {
 							const LDATETIME cdtm = getcurdatetime_();
 							n_dt.PutInner(SXml::nst("bk", "QueryNumber"), temp_buf.Z().Cat((cdtm.d.v % 1000) * 1000 + (cdtm.t.v % 1000)));
-							n_dt.PutInner(SXml::nst("bk", "Date"), temp_buf.Z().Cat(cdtm, DATF_ISO8601|DATF_CENTURY, 0));
+							n_dt.PutInner(SXml::nst("bk", "Date"), temp_buf.Z().Cat(cdtm, DATF_ISO8601CENT, 0));
 							{
 								long   global_row_id = 0;
 								LongArray row_id_list;
@@ -2665,7 +2665,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						SXml::WNode n_h(_doc, SXml::nst("wt", "Header"));
 						n_h.PutInner(SXml::nst("wt", "IsConfirm"), p_ticket->Conclusion ? "Accepted" : "Rejected");
 						n_h.PutInner(SXml::nst("wt", "TicketNumber"), EncText(temp_buf = p_ticket->Code));
-						n_h.PutInner(SXml::nst("wt", "TicketDate"), temp_buf.Z().Cat(p_ticket->Date, DATF_ISO8601|DATF_CENTURY));
+						n_h.PutInner(SXml::nst("wt", "TicketDate"), temp_buf.Z().Cat(p_ticket->Date, DATF_ISO8601CENT));
 						n_h.PutInner(SXml::nst("wt", "WBRegId"), EncText(temp_buf = p_ticket->RegIdent));
 						n_h.PutInnerSkipEmpty(SXml::nst("wt", "Note"), EncText(temp_buf = p_ticket->Comment));
 					}
@@ -2799,7 +2799,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										}
 										(temp_buf = bill_code).CatChar('-').Cat("ACT");
 										n_h.PutInner(SXml::nst("wa", "ACTNUMBER"), EncText(temp_buf));
-										n_h.PutInner(SXml::nst("wa", "ActDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
+										n_h.PutInner(SXml::nst("wa", "ActDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601CENT));
 										// @v11.0.12 (useless) BillCore::GetCode(temp_buf = p_bp->Rec.Code);
 										n_h.PutInner(SXml::nst("wa", "WBRegId"), EncText(temp_buf = edi_ident));
 										n_h.PutInner(SXml::nst("wa", "Note"), EncText(/*p_bp->Rec.Memo*/"")); // Не хотят передавать свои примечания в ЕГАИС
@@ -2921,7 +2921,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 								n_h.PutInner(SXml::nst("wa", "IsAccept"), EncText(temp_buf = "Rejected"));
 								(temp_buf = bill_code).CatChar('-').Cat("REJECT");
 								n_h.PutInner(SXml::nst("wa", "ACTNUMBER"), EncText(temp_buf));
-								n_h.PutInner(SXml::nst("wa", "ActDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
+								n_h.PutInner(SXml::nst("wa", "ActDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601CENT));
 								n_h.PutInner(SXml::nst("wa", "WBRegId"), EncText(temp_buf = edi_ident));
 								// @v8.9.10 (Не хотят передавать свои примечания в ЕГАИС) n_h.PutInnerSkipEmpty("wa:Note", EncText(p_bp->Rec.Memo));
 							}
@@ -2937,7 +2937,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						{
 							SXml::WNode n_h(_doc, SXml::nst("ainp", "Header"));
 							n_h.PutInner(SXml::nst("ainp", "Number"), EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner(SXml::nst("ainp", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							n_h.PutInner(SXml::nst("ainp", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT)));
 							temp_buf.Z(); // @v9.7.5
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
 								// @v9.6.7 (temp_buf = "Продукция, полученная до 01.01.2016").Transf(CTRANSF_OUTER_TO_INNER);
@@ -2975,7 +2975,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						{
 							SXml::WNode n_h(_doc, SXml::nst("awr", "Header"));
 							n_h.PutInner(SXml::nst("awr", "ActNumber"), EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner(SXml::nst("awr", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							n_h.PutInner(SXml::nst("awr", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT)));
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
 								PPLoadText(/*PPTXT_EGAIS_LACK*/PPTXT_EGAIS_SALE, temp_buf); // @v11.3.5 PPTXT_EGAIS_LACK-->PPTXT_EGAIS_SALE
 							}
@@ -3020,7 +3020,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						{
 							SXml::WNode n_h(_doc, SXml::nst("ainp", "Header"));
 							n_h.PutInner(SXml::nst("ainp", "Number"), EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner(SXml::nst("ainp", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							n_h.PutInner(SXml::nst("ainp", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT)));
 							temp_buf.Z();
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
 								PPLoadText(PPTXT_EGAIS_REGRADING, temp_buf);
@@ -3079,11 +3079,11 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 													{
 														SXml::WNode n_infa(_doc, SXml::nst("ainp", "InformF1"));
 														n_infa.PutInner(SXml::nst("iab", "Quantity"), EncText(temp_buf.Z().Cat(iar.Qtty)));
-														n_infa.PutInnerValidDate(SXml::nst("iab", "BottlingDate"), iar.ManufDate, DATF_ISO8601|DATF_CENTURY);
+														n_infa.PutInnerValidDate(SXml::nst("iab", "BottlingDate"), iar.ManufDate, DATF_ISO8601CENT);
 														n_infa.PutInnerSkipEmpty(SXml::nst("iab", "TTNNumber"), EncText(temp_buf = iar.TTNCode));
-														n_infa.PutInnerValidDate(SXml::nst("iab", "TTNDate"), iar.TTNDate, DATF_ISO8601|DATF_CENTURY);
+														n_infa.PutInnerValidDate(SXml::nst("iab", "TTNDate"), iar.TTNDate, DATF_ISO8601CENT);
 														n_infa.PutInnerSkipEmpty(SXml::nst("iab", "EGAISFixNumber"), EncText(temp_buf = iar.EGAISCode));
-														n_infa.PutInnerValidDate(SXml::nst("iab", "EGAISFixDate"), iar.EGAISDate, DATF_ISO8601|DATF_CENTURY);
+														n_infa.PutInnerValidDate(SXml::nst("iab", "EGAISFixDate"), iar.EGAISDate, DATF_ISO8601CENT);
 													}
 												}
 												else
@@ -3105,7 +3105,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						{
 							SXml::WNode n_h(_doc, SXml::nst("ain", "Header"));
 							n_h.PutInner(SXml::nst("ain", "Number"), EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner(SXml::nst("ain", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							n_h.PutInner(SXml::nst("ain", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT)));
 							// @v8.9.10 (Не хотят передавать свои примечания в ЕГАИС) n_h.PutInnerSkipEmpty("wb:Note", EncText(temp_buf = p_bp->Rec.Memo)); // Примечание
 						}
 						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
@@ -3161,11 +3161,11 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 													{
 														SXml::WNode n_infa(_doc, SXml::nst("ain", "InformA"));
 														n_infa.PutInner(SXml::nst("iab", "Quantity"), EncText(temp_buf.Z().Cat(iar.Qtty)));
-														n_infa.PutInnerValidDate(SXml::nst("iab", "BottlingDate"), iar.ManufDate, DATF_ISO8601|DATF_CENTURY);
+														n_infa.PutInnerValidDate(SXml::nst("iab", "BottlingDate"), iar.ManufDate, DATF_ISO8601CENT);
 														n_infa.PutInnerSkipEmpty(SXml::nst("iab", "TTNNumber"), EncText(temp_buf = iar.TTNCode));
-														n_infa.PutInnerValidDate(SXml::nst("iab", "TTNDate"), iar.TTNDate, DATF_ISO8601|DATF_CENTURY);
+														n_infa.PutInnerValidDate(SXml::nst("iab", "TTNDate"), iar.TTNDate, DATF_ISO8601CENT);
 														n_infa.PutInnerSkipEmpty(SXml::nst("iab", "EGAISFixNumber"), EncText(temp_buf = iar.EGAISCode));
-														n_infa.PutInnerValidDate(SXml::nst("iab", "EGAISFixDate"), iar.EGAISDate, DATF_ISO8601|DATF_CENTURY);
+														n_infa.PutInnerValidDate(SXml::nst("iab", "EGAISFixDate"), iar.EGAISDate, DATF_ISO8601CENT);
 													}
 												}
 												else
@@ -3188,7 +3188,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						{
 							SXml::WNode n_h(_doc, SXml::nst("awr", "Header"));
 							n_h.PutInner(SXml::nst("awr", "ActNumber"), EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner(SXml::nst("awr", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							n_h.PutInner(SXml::nst("awr", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT)));
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0)
 								PPLoadString("losses", temp_buf); // Потери
 							n_h.PutInner(SXml::nst("awr", "TypeWriteOff"), EncText(temp_buf));
@@ -3269,7 +3269,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						{
 							SXml::WNode n_h(_doc, SXml::nst("tts", "Header"));
 							n_h.PutInner(SXml::nst("tts", "TransferNumber"), EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner(SXml::nst("tts", "TransferDate"),   EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							n_h.PutInner(SXml::nst("tts", "TransferDate"),   EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT)));
 						}
 						{
 							SXml::WNode n_c(_doc, SXml::nst("tts", "Content"));
@@ -3315,7 +3315,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						{
 							SXml::WNode n_h(_doc, SXml::nst("tfs", "Header"));
 							n_h.PutInner(SXml::nst("tfs", "TransferNumber"), EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner(SXml::nst("tfs", "TransferDate"),   EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							n_h.PutInner(SXml::nst("tfs", "TransferDate"),   EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT)));
 						}
 						{
 							SXml::WNode n_c(_doc, SXml::nst("tfs", "Content"));
@@ -3358,7 +3358,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						{
 							SXml::WNode n_h(_doc, SXml::nst("awr", "Header"));
 							n_h.PutInner(SXml::nst("awr", "Number"), EncText(temp_buf = p_bp->Rec.Code));
-							n_h.PutInner(SXml::nst("awr", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
+							n_h.PutInner(SXml::nst("awr", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT)));
 							n_h.PutInner(SXml::nst("awr", "Note"), EncText(temp_buf.Z()));
 						}
 						{
@@ -3401,7 +3401,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						*/
 						n_dt.PutInner(SXml::nst("qp", "ClientId"), EncText(fsrar_ident));
 						n_dt.PutInner(SXml::nst("qp", "RequestNumber"), EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
-						n_dt.PutInner(SXml::nst("qp", "RequestDate"), temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0));
+						n_dt.PutInner(SXml::nst("qp", "RequestDate"), temp_buf.Z().CatCurDateTime(DATF_ISO8601CENT, 0));
 						n_dt.PutInner(SXml::nst("qp", "WBRegId"), EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_REQUESTREPEALAWO) { // @v10.0.07
@@ -3414,7 +3414,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						*/
 						n_dt.PutInner(SXml::nst("qp", "ClientId"), EncText(fsrar_ident));
 						n_dt.PutInner(SXml::nst("qp", "RequestNumber"), EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
-						n_dt.PutInner(SXml::nst("qp", "RequestDate"), temp_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0));
+						n_dt.PutInner(SXml::nst("qp", "RequestDate"), temp_buf.Z().CatCurDateTime(DATF_ISO8601CENT, 0));
 						n_dt.PutInner(SXml::nst("qp", "AWORegId"), EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
 					}
 					else if(doc_type == PPEDIOP_EGAIS_CONFIRMREPEALWB) {
@@ -3431,7 +3431,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 						SXml::WNode n_c(_doc, SXml::nst("wt", "Header"));
 						n_c.PutInner(SXml::nst("wt", "IsConfirm"), p_rwb->Confirm ? "Accepted" : "Rejected");
 						n_c.PutInner(SXml::nst("wt", "ConfirmNumber"), EncText(temp_buf.Z().Cat(p_rwb->ReqNumber)));
-						n_c.PutInner(SXml::nst("wt", "ConfirmDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601|DATF_CENTURY));
+						n_c.PutInner(SXml::nst("wt", "ConfirmDate"), temp_buf.Z().Cat(getcurdate_(), DATF_ISO8601CENT));
 						n_c.PutInner(SXml::nst("wt", "WBRegId"), EncText(temp_buf.Z().Cat(p_rwb->TTNCode)));
 						n_c.PutInnerSkipEmpty(SXml::nst("wt", "Note"), EncText(p_rwb->Memo));
 					}
@@ -6613,7 +6613,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 							ReplyRestBCode * p_rrbc = static_cast<ReplyRestBCode *>(p_new_pack->P_Data);
 							for(const xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
 								if(SXml::GetContentByName(p_n, "RestsDate", temp_buf)) {
-									strtodatetime(temp_buf, &p_rrbc->RestTime, DATF_ISO8601|DATF_CENTURY, TIMF_HMS);
+									strtodatetime(temp_buf, &p_rrbc->RestTime, DATF_ISO8601CENT, TIMF_HMS);
 								}
 								else if(SXml::GetContentByName(p_n, "Inform2RegId", temp_buf)) {
 									p_rrbc->Inform2RegId = temp_buf;
@@ -7431,7 +7431,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 						PPGetFilePath(PPPATH_OUT, "egais-replyrestbcode.txt", out_file_name);
 						SFile f_out(out_file_name, SFile::mAppend);
 						if(f_out.IsValid()) {
-							temp_buf.Z().Cat(p_rrbc->RestTime, DATF_ISO8601|DATF_CENTURY, 0).Space().Cat(p_rrbc->Inform2RegId).CR();
+							temp_buf.Z().Cat(p_rrbc->RestTime, DATF_ISO8601CENT, 0).Space().Cat(p_rrbc->Inform2RegId).CR();
 							f_out.WriteLine(temp_buf);
 							for(uint ssp = 0; p_rrbc->MarkSet.get(&ssp, temp_buf);) {
 								temp_buf.Strip().CR();

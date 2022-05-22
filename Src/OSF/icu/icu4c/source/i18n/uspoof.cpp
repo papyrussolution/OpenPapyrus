@@ -216,7 +216,7 @@ U_CAPI USpoofChecker * U_EXPORT2 uspoof_clone(const USpoofChecker * sc, UErrorCo
 		return NULL;
 	}
 	SpoofImpl * result = new SpoofImpl(*src, *status); // copy constructor
-	if(result == NULL) {
+	if(!result) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
@@ -535,7 +535,7 @@ int32_t checkImpl(const SpoofImpl* This, const UnicodeString & id, CheckResult* 
 		int32_t i;
 		UChar32 c;
 		int32_t length = id.length();
-		for(i = 0; i<length;) {
+		for(i = 0; i < length;) {
 			c = id.char32At(i);
 			i += U16_LENGTH(c);
 			if(!This->fAllowedCharsSet->contains(c)) {

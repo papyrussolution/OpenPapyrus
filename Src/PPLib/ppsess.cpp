@@ -5981,7 +5981,7 @@ int SysMaintenanceEventResponder::IsConsistent() const
 			}
 			else {
 				PPLoadText(PPTXT_LOG_SYSMNTNC_MQSCONFIG_SKIPTE, logmsg_buf);
-				logmsg_buf.CatDiv(':', 2).Cat(last_ev_dtm, DATF_ISO8601|DATF_CENTURY, 0);
+				logmsg_buf.CatDiv(':', 2).Cat(last_ev_dtm, DATF_ISO8601CENT, 0);
 				PPLogMessage(PPFILNAM_INFO_LOG, logmsg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_DBINFO);
 			}
 		}

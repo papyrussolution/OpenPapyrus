@@ -63,19 +63,15 @@ constexpr LazyEnum LazyEnum_MIN = LAZY_ENUM_0;
 constexpr LazyEnum LazyEnum_MAX = LAZY_ENUM_1;
 constexpr int LazyEnum_ARRAYSIZE = LazyEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* LazyEnum_descriptor();
-template<typename T>
-inline const std::string& LazyEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, LazyEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function LazyEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    LazyEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * LazyEnum_descriptor();
+template<typename T> inline const std::string& LazyEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, LazyEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function LazyEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(LazyEnum_descriptor(), enum_t_value);
 }
-inline bool LazyEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, LazyEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<LazyEnum>(
-    LazyEnum_descriptor(), name, value);
+inline bool LazyEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, LazyEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<LazyEnum>(LazyEnum_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -101,10 +97,7 @@ inline bool LazyEnum_Parse(
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::protobuf_unittest::lazy_imports::LazyEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::lazy_imports::LazyEnum>() {
-  return ::protobuf_unittest::lazy_imports::LazyEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::lazy_imports::LazyEnum>() { return ::protobuf_unittest::lazy_imports::LazyEnum_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

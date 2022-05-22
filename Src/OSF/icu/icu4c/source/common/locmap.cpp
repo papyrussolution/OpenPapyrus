@@ -42,15 +42,11 @@
  * Windows LCIDs are defined at https://msdn.microsoft.com/en-us/library/cc233965.aspx
  * [MS-LCID] Windows Language Code Identifier (LCID) Reference
  */
-
 /*
-   ////////////////////////////////////////////////
    //
    // Internal Classes for LCID <--> POSIX Mapping
    //
-   /////////////////////////////////////////////////
  */
-
 typedef struct ILcidPosixElement {
 	const uint32_t hostID;
 	const char * const posixID;
@@ -62,13 +58,10 @@ typedef struct ILcidPosixMap {
 } ILcidPosixMap;
 
 /*
-   /////////////////////////////////////////////////
    //
    // Easy macros to make the LCID <--> POSIX Mapping
    //
-   /////////////////////////////////////////////////
  */
-
 /**
  * The standard one language/one country mapping for LCID.
  * The first element must be the language, and the following
@@ -100,7 +93,6 @@ typedef struct ILcidPosixMap {
 	{UPRV_LENGTHOF(locmap_ ## _posixID), locmap_ ## _posixID}
 
 /*
-   ////////////////////////////////////////////
    //
    // Create the table of LCID to POSIX Mapping
    // None of it should be dynamically created.
@@ -119,7 +111,6 @@ typedef struct ILcidPosixMap {
    //       @collation=XXX, but no other keywords are allowed (at least for now). When uprv_convertToLCID() is
    //       called from uloc_getLCID(), keywords other than collation are already removed. If we really need
    //       to support other keywords in this mapping data, we must update the implementation.
-   ////////////////////////////////////////////
  */
 
 // TODO: For Windows ideally this table would be a list of exceptions rather than a complete list as
@@ -1006,13 +997,10 @@ static const char * getPosixID(const ILcidPosixMap * this_0, uint32_t hostID)
 	   so return the language id with the wild card region. */
 	return this_0->regionMaps[0].posixID;
 }
-
 /*
-   //////////////////////////////////////
    //
    // LCID --> POSIX
    //
-   /////////////////////////////////////
  */
 #if U_PLATFORM_HAS_WIN32_API && UCONFIG_USE_WINDOWS_LCID_MAPPING_API
 /*
@@ -1134,13 +1122,11 @@ U_CAPI int32_t uprv_convertToPosix(uint32_t hostid, char * posixID, int32_t posi
 }
 
 /*
-   //////////////////////////////////////
    //
    // POSIX --> LCID
    // This should only be called from uloc_getLCID.
    // The locale ID must be in canonical form.
    //
-   /////////////////////////////////////
  */
 U_CAPI uint32_t uprv_convertToLCIDPlatform(const char * localeID, UErrorCode * status)
 {

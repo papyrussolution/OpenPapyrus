@@ -8,8 +8,8 @@
 #ifndef __NUMBER_STRINGBUILDER_H__
 #define __NUMBER_STRINGBUILDER_H__
 
-#include <cstdint>
-#include <type_traits>
+//#include <cstdint>
+//#include <type_traits>
 #include "uassert.h"
 #include "fphdlimp.h"
 

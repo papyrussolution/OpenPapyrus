@@ -946,7 +946,7 @@ static ngx_int_t ngx_http_uwsgi_process_header(ngx_http_request_t * r)
 			/* a header line has been parsed successfully */
 
 			h = (ngx_table_elt_t *)ngx_list_push(&r->upstream->headers_in.headers);
-			if(h == NULL) {
+			if(!h) {
 				return NGX_ERROR;
 			}
 
@@ -1373,7 +1373,7 @@ static ngx_int_t ngx_http_uwsgi_init_params(ngx_conf_t * cf, ngx_http_uwsgi_loc_
 
 		for(i = 0; i < nsrc; i++) {
 			s = (ngx_http_upstream_param_t *)ngx_array_push(&params_merged);
-			if(s == NULL) {
+			if(!s) {
 				return NGX_ERROR;
 			}
 
@@ -1391,7 +1391,7 @@ static ngx_int_t ngx_http_uwsgi_init_params(ngx_conf_t * cf, ngx_http_uwsgi_loc_
 				}
 			}
 			s = (ngx_http_upstream_param_t *)ngx_array_push(&params_merged);
-			if(s == NULL) {
+			if(!s) {
 				return NGX_ERROR;
 			}
 			s->key = h->key;
@@ -1406,7 +1406,7 @@ next:
 	for(i = 0; i < nsrc; i++) {
 		if(src[i].key.len > sizeof("HTTP_") - 1 && ngx_strncmp(src[i].key.data, "HTTP_", sizeof("HTTP_") - 1) == 0) {
 			hk = (ngx_hash_key_t *)ngx_array_push(&headers_names);
-			if(hk == NULL) {
+			if(!hk) {
 				return NGX_ERROR;
 			}
 			hk->key.len = src[i].key.len - 5;

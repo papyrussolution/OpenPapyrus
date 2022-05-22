@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/hmac.h>
-//#include <openssl/kdf.h>
-//#include <openssl/evp.h>
-//#include <evp_int.h>
 
 #define HKDF_MAXBUF 1024
 

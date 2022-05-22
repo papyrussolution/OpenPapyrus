@@ -1114,13 +1114,6 @@ typedef uint Sci_PositionU; // Unsigned variant used for ILexer::Lex and ILexer:
 typedef long Sci_PositionCR; // For Sci_CharacterRange  which is defined as long to be compatible with Win32 CHARRANGE
 #include "ILexer.h" // @sobolev
 #include "SciLexer.h" // @sobolev
-//#include "LexerModule.h"
-//#include "LexAccessor.h" // @sobolev
-//#include "Accessor.h" // @sobolev
-//#include "StyleContext.h" // @sobolev
-//#include "CharacterSet.h" // @sobolev
-//#include "PropSetSimple.h"
-//#include "Position.h"
 // 
 // A Position is a position within a document between two characters or at the beginning or end.
 // Sometimes used as a character index where it identifies the character after the position.

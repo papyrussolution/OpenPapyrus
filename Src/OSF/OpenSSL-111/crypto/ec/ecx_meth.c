@@ -700,7 +700,7 @@ static int pkey_ecd_digestsign25519(EVP_MD_CTX * ctx, uchar * sig,
 {
 	const ECX_KEY * edkey = EVP_MD_CTX_pkey_ctx(ctx)->pkey->pkey.ecx;
 
-	if(sig == NULL) {
+	if(!sig) {
 		*siglen = ED25519_SIGSIZE;
 		return 1;
 	}
@@ -721,7 +721,7 @@ static int pkey_ecd_digestsign448(EVP_MD_CTX * ctx, uchar * sig,
 {
 	const ECX_KEY * edkey = EVP_MD_CTX_pkey_ctx(ctx)->pkey->pkey.ecx;
 
-	if(sig == NULL) {
+	if(!sig) {
 		*siglen = ED448_SIGSIZE;
 		return 1;
 	}

@@ -243,7 +243,7 @@ static const SharedNumberFormat * createSharedNumberFormat(NumberFormat * nfToAd
 {
 	fixNumberFormatForDates(*nfToAdopt);
 	const SharedNumberFormat * result = new SharedNumberFormat(nfToAdopt);
-	if(result == NULL) {
+	if(!result) {
 		delete nfToAdopt;
 	}
 	return result;
@@ -256,7 +256,7 @@ static const SharedNumberFormat * createSharedNumberFormat(const Locale &loc, UE
 		return NULL;
 	}
 	const SharedNumberFormat * result = createSharedNumberFormat(nf);
-	if(result == NULL) {
+	if(!result) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 	}
 	return result;
@@ -265,7 +265,7 @@ static const SharedNumberFormat * createSharedNumberFormat(const Locale &loc, UE
 static const SharedNumberFormat ** allocSharedNumberFormatters() 
 {
 	const SharedNumberFormat ** result = (const SharedNumberFormat**)uprv_malloc(UDAT_FIELD_COUNT * sizeof(const SharedNumberFormat*));
-	if(result == NULL) {
+	if(!result) {
 		return NULL;
 	}
 	for(int32_t i = 0; i < UDAT_FIELD_COUNT; ++i) {
@@ -1353,7 +1353,7 @@ void SimpleDateFormat::processOverrideString(const Locale &locale, const Unicode
 				    if(type==kOvrStrDate) {
 					    break;
 				    }
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 			    }
 				case kOvrStrTime: {
 				    for(int8 i = 0; i<kTimeFieldsCount; i++) {
@@ -1465,7 +1465,7 @@ void SimpleDateFormat::subFormat(UnicodeString & appendTo,
 			    break;
 		    }
 		    // else fall through to numeric year handling, do not break here
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 
 		// OLD: for "yyyy", write out the whole year; for "yy", write out the last 2 digits
 		// NEW: UTS#35:
@@ -1592,7 +1592,7 @@ void SimpleDateFormat::subFormat(UnicodeString & appendTo,
 			    return;
 		    }
 		    // fall through, do not break here
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case UDAT_DAY_OF_WEEK_FIELD:
 		    if(count == 5) {
 			    _appendSymbol(appendTo, value, fSymbols->fNarrowWeekdays, fSymbols->fNarrowWeekdaysCount);
@@ -2992,7 +2992,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, U
 			    return -start;
 		    }
 		    // fall through to gotNumber check
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case UDAT_YEAR_FIELD:
 		case UDAT_YEAR_WOY_FIELD:
 		case UDAT_FRACTIONAL_SECOND_FIELD:
@@ -3181,7 +3181,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, U
 		    if(value == cal.getMaximum(UCAL_HOUR_OF_DAY) + 1)
 			    value = 0;
 		    // fall through to set field
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case UDAT_HOUR_OF_DAY0_FIELD:
 		    cal.set(UCAL_HOUR_OF_DAY, value);
 		    return pos.getIndex();
@@ -3214,7 +3214,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, U
 		    }
 		    // else for eee-eeeee fall through to handling of EEE-EEEEE
 		    // fall through, do not break here
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case UDAT_DAY_OF_WEEK_FIELD:
 	    {
 		    // Want to be able to parse both short and long forms.
@@ -3298,7 +3298,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, U
 			    value = 0;
 
 		    // fall through to set field
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case UDAT_HOUR0_FIELD:
 		    cal.set(UCAL_HOUR, value);
 		    return pos.getIndex();

@@ -35,7 +35,7 @@ extern "C" {
  * Otherwise, it's also possible to define ZBUFF_DISABLE_DEPRECATE_WARNINGS
  */
 #ifdef ZBUFF_DISABLE_DEPRECATE_WARNINGS
-#  define ZBUFF_DEPRECATED(message) ZSTDLIB_API  /* disable deprecation warnings */
+#define ZBUFF_DEPRECATED(message) ZSTDLIB_API  /* disable deprecation warnings */
 #else
 #if defined (__cplusplus) && (__cplusplus >= 201402) /* C++14 or greater */
 #define ZBUFF_DEPRECATED(message) [[deprecated(message)]] ZSTDLIB_API

@@ -825,7 +825,7 @@ static void ngx_http_process_request_headers(ngx_event_t * rev)
 				}
 				// a header line has been parsed successfully 
 				h = (ngx_table_elt_t *)ngx_list_push(&r->headers_in.headers);
-				if(h == NULL) {
+				if(!h) {
 					ngx_http_close_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
 					return;
 				}

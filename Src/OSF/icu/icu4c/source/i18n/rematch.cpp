@@ -1,14 +1,7 @@
+// rematch.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **************************************************************************
- *   Copyright (C) 2002-2016 International Business Machines Corporation
- *   and others. All rights reserved.
- **************************************************************************
- */
-//
-//  file:  rematch.cpp
-//
+// Copyright (C) 2002-2016 International Business Machines Corporation and others. All rights reserved.
 //         Contains the implementation of class RegexMatcher,
 //         which is one of the main API classes for the ICU regular expression package.
 //
@@ -47,13 +40,11 @@ static inline bool isLineTerminator(UChar32 c) {
 	}
 	return (c<=0x0d && c>=0x0a) || c==0x85 || c==0x2028 || c==0x2029;
 }
-
-//-----------------------------------------------------------------------------
 //
 //   Constructor and Destructor
 //
-//-----------------------------------------------------------------------------
-RegexMatcher::RegexMatcher(const RegexPattern * pat) {
+RegexMatcher::RegexMatcher(const RegexPattern * pat) 
+{
 	fDeferredStatus = U_ZERO_ERROR;
 	init(fDeferredStatus);
 	if(U_FAILURE(fDeferredStatus)) {
@@ -243,38 +234,29 @@ static const UChar BACKSLASH  = 0x5c;
 static const UChar DOLLARSIGN = 0x24;
 static const UChar LEFTBRACKET = 0x7b;
 static const UChar RIGHTBRACKET = 0x7d;
-
-//--------------------------------------------------------------------------------
 //
 //    appendReplacement
 //
-//--------------------------------------------------------------------------------
-RegexMatcher &RegexMatcher::appendReplacement(UnicodeString & dest,
-    const UnicodeString & replacement,
-    UErrorCode & status) {
+RegexMatcher &RegexMatcher::appendReplacement(UnicodeString & dest, const UnicodeString & replacement, UErrorCode & status) 
+{
 	UText replacementText = UTEXT_INITIALIZER;
-
 	utext_openConstUnicodeString(&replacementText, &replacement, &status);
 	if(U_SUCCESS(status)) {
 		UText resultText = UTEXT_INITIALIZER;
 		utext_openUnicodeString(&resultText, &dest, &status);
-
 		if(U_SUCCESS(status)) {
 			appendReplacement(&resultText, &replacementText, status);
 			utext_close(&resultText);
 		}
 		utext_close(&replacementText);
 	}
-
 	return *this;
 }
-
 //
 //    appendReplacement, UText mode
 //
-RegexMatcher &RegexMatcher::appendReplacement(UText * dest,
-    UText * replacement,
-    UErrorCode & status) {
+RegexMatcher &RegexMatcher::appendReplacement(UText * dest, UText * replacement, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return *this;
 	}
@@ -286,7 +268,6 @@ RegexMatcher &RegexMatcher::appendReplacement(UText * dest,
 		status = U_REGEX_INVALID_STATE;
 		return *this;
 	}
-
 	// Copy input string from the end of previous match to start of current match
 	int64_t destLen = utext_nativeLength(dest);
 	if(fMatchStart > fAppendPosition) {
@@ -464,8 +445,6 @@ RegexMatcher &RegexMatcher::appendReplacement(UText * dest,
 
 	return *this;
 }
-
-//--------------------------------------------------------------------------------
 //
 //    appendTail     Intended to be used in conjunction with appendReplacement()
 //                   To the destination string, append everything following
@@ -473,24 +452,22 @@ RegexMatcher &RegexMatcher::appendReplacement(UText * dest,
 //
 //                   Note:  Match ranges do not affect appendTail or appendReplacement
 //
-//--------------------------------------------------------------------------------
-UnicodeString & RegexMatcher::appendTail(UnicodeString & dest) {
+UnicodeString & RegexMatcher::appendTail(UnicodeString & dest) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	UText resultText = UTEXT_INITIALIZER;
 	utext_openUnicodeString(&resultText, &dest, &status);
-
 	if(U_SUCCESS(status)) {
 		appendTail(&resultText, status);
 		utext_close(&resultText);
 	}
-
 	return dest;
 }
-
 //
 //   appendTail, UText mode
 //
-UText * RegexMatcher::appendTail(UText * dest, UErrorCode & status) {
+UText * RegexMatcher::appendTail(UText * dest, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return dest;
 	}
@@ -498,12 +475,10 @@ UText * RegexMatcher::appendTail(UText * dest, UErrorCode & status) {
 		status = fDeferredStatus;
 		return dest;
 	}
-
 	if(fInputLength > fAppendPosition) {
 		if(UTEXT_FULL_TEXT_IN_CHUNK(fInputText, fInputLength)) {
 			int64_t destLen = utext_nativeLength(dest);
-			utext_replace(dest, destLen, destLen, fInputText->chunkContents+fAppendPosition,
-			    (int32_t)(fInputLength-fAppendPosition), &status);
+			utext_replace(dest, destLen, destLen, fInputText->chunkContents+fAppendPosition, (int32_t)(fInputLength-fAppendPosition), &status);
 		}
 		else {
 			int32_t len16;
@@ -514,7 +489,6 @@ UText * RegexMatcher::appendTail(UText * dest, UErrorCode & status) {
 				len16 = utext_extract(fInputText, fAppendPosition, fInputLength, NULL, 0, &status);
 				status = U_ZERO_ERROR; // buffer overflow
 			}
-
 			UChar * inputChars = (UChar *)uprv_malloc(sizeof(UChar)*(len16));
 			if(inputChars == NULL) {
 				fDeferredStatus = U_MEMORY_ALLOCATION_ERROR;
@@ -888,29 +862,23 @@ bool RegexMatcher::find(int64_t start, UErrorCode & status) {
 	fMatchEnd = nativeStart;
 	return find(status);
 }
-
-//--------------------------------------------------------------------------------
 //
 //   findUsingChunk() -- like find(), but with the advance knowledge that the
 //                       entire string is available in the UText's chunk buffer.
 //
-//--------------------------------------------------------------------------------
-bool RegexMatcher::findUsingChunk(UErrorCode & status) {
+bool RegexMatcher::findUsingChunk(UErrorCode & status) 
+{
 	// Start at the position of the last match end.  (Will be zero if the
 	//   matcher has been reset.
 	//
-
 	int32_t startPos = (int32_t)fMatchEnd;
 	if(startPos==0) {
 		startPos = (int32_t)fActiveStart;
 	}
-
 	const UChar * inputBuf = fInputText->chunkContents;
-
 	if(fMatch) {
 		// Save the position of any previous successful match.
 		fLastMatchEnd = fMatchEnd;
-
 		if(fMatchStart == fMatchEnd) {
 			// Previous match had zero length.  Move start position up one position
 			//  to avoid sending find() into a loop on zero-length matches.
@@ -1122,23 +1090,16 @@ bool RegexMatcher::findUsingChunk(UErrorCode & status) {
 
 	UPRV_UNREACHABLE_EXIT;
 }
-
-//--------------------------------------------------------------------------------
 //
 //  group()
 //
-//--------------------------------------------------------------------------------
-UnicodeString RegexMatcher::group(UErrorCode & status) const {
-	return group(0, status);
-}
+UnicodeString RegexMatcher::group(UErrorCode & status) const { return group(0, status); }
+//  Return immutable shallow clone
+UText * RegexMatcher::group(UText * dest, int64_t &group_len, UErrorCode & status) const { return group(0, dest, group_len, status); }
 
 //  Return immutable shallow clone
-UText * RegexMatcher::group(UText * dest, int64_t &group_len, UErrorCode & status) const {
-	return group(0, dest, group_len, status);
-}
-
-//  Return immutable shallow clone
-UText * RegexMatcher::group(int32_t groupNum, UText * dest, int64_t &group_len, UErrorCode & status) const {
+UText * RegexMatcher::group(int32_t groupNum, UText * dest, int64_t &group_len, UErrorCode & status) const 
+{
 	group_len = 0;
 	if(U_FAILURE(status)) {
 		return dest;
@@ -1210,15 +1171,12 @@ UnicodeString RegexMatcher::group(int32_t groupNum, UErrorCode & status) const {
 	}
 	return result;
 }
-
-//--------------------------------------------------------------------------------
 //
 //  appendGroup() -- currently internal only, appends a group to a UText rather
 //                   than replacing its contents
 //
-//--------------------------------------------------------------------------------
-
-int64_t RegexMatcher::appendGroup(int32_t groupNum, UText * dest, UErrorCode & status) const {
+int64_t RegexMatcher::appendGroup(int32_t groupNum, UText * dest, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return 0;
 	}
@@ -1282,49 +1240,27 @@ int64_t RegexMatcher::appendGroup(int32_t groupNum, UText * dest, UErrorCode & s
 	}
 	return deltaLen;
 }
-
-//--------------------------------------------------------------------------------
 //
 //  groupCount()
 //
-//--------------------------------------------------------------------------------
-int32_t RegexMatcher::groupCount() const {
-	return fPattern->fGroupMap->size();
-}
-
-//--------------------------------------------------------------------------------
+int32_t RegexMatcher::groupCount() const { return fPattern->fGroupMap->size(); }
 //
 //  hasAnchoringBounds()
 //
-//--------------------------------------------------------------------------------
-bool RegexMatcher::hasAnchoringBounds() const {
-	return fAnchoringBounds;
-}
-
-//--------------------------------------------------------------------------------
+bool RegexMatcher::hasAnchoringBounds() const { return fAnchoringBounds; }
 //
 //  hasTransparentBounds()
 //
-//--------------------------------------------------------------------------------
-bool RegexMatcher::hasTransparentBounds() const {
-	return fTransparentBounds;
-}
-
-//--------------------------------------------------------------------------------
+bool RegexMatcher::hasTransparentBounds() const { return fTransparentBounds; }
 //
 //  hitEnd()
 //
-//--------------------------------------------------------------------------------
-bool RegexMatcher::hitEnd() const {
-	return fHitEnd;
-}
-
-//--------------------------------------------------------------------------------
+bool RegexMatcher::hitEnd() const { return fHitEnd; }
 //
 //  input()
 //
-//--------------------------------------------------------------------------------
-const UnicodeString & RegexMatcher::input() const {
+const UnicodeString & RegexMatcher::input() const 
+{
 	if(!fInput) {
 		UErrorCode status = U_ZERO_ERROR;
 		int32_t len16;
@@ -1343,25 +1279,17 @@ const UnicodeString & RegexMatcher::input() const {
 
 		(*(const UnicodeString **)&fInput) = result; // pointer assignment, rather than operator=
 	}
-
 	return *fInput;
 }
-
-//--------------------------------------------------------------------------------
 //
 //  inputText()
 //
-//--------------------------------------------------------------------------------
-UText * RegexMatcher::inputText() const {
-	return fInputText;
-}
-
-//--------------------------------------------------------------------------------
+UText * RegexMatcher::inputText() const { return fInputText; }
 //
 //  getInput() -- like inputText(), but makes a clone or copies into another UText
 //
-//--------------------------------------------------------------------------------
-UText * RegexMatcher::getInput(UText * dest, UErrorCode & status) const {
+UText * RegexMatcher::getInput(UText * dest, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return dest;
 	}
@@ -1369,7 +1297,6 @@ UText * RegexMatcher::getInput(UText * dest, UErrorCode & status) const {
 		status = fDeferredStatus;
 		return dest;
 	}
-
 	if(dest) {
 		if(UTEXT_FULL_TEXT_IN_CHUNK(fInputText, fInputLength)) {
 			utext_replace(dest, 0, utext_nativeLength(dest), fInputText->chunkContents, (int32_t)fInputLength, &status);
@@ -1381,21 +1308,16 @@ UText * RegexMatcher::getInput(UText * dest, UErrorCode & status) const {
 			}
 			else {
 				UErrorCode lengthStatus = U_ZERO_ERROR;
-				input16Len = utext_extract(fInputText, 0, fInputLength, NULL, 0, &lengthStatus); // buffer
-				                                                                                 // overflow
-				                                                                                 // error
+				input16Len = utext_extract(fInputText, 0, fInputLength, NULL, 0, &lengthStatus); // buffer overflow error
 			}
 			UChar * inputChars = (UChar *)uprv_malloc(sizeof(UChar)*(input16Len));
 			if(inputChars == NULL) {
 				return dest;
 			}
-
 			status = U_ZERO_ERROR;
-			utext_extract(fInputText, 0, fInputLength, inputChars, input16Len, &status); // not terminated
-			                                                                             // warning
+			utext_extract(fInputText, 0, fInputLength, inputChars, input16Len, &status); // not terminated warning
 			status = U_ZERO_ERROR;
 			utext_replace(dest, 0, utext_nativeLength(dest), inputChars, input16Len, &status);
-
 			uprv_free(inputChars);
 		}
 		return dest;
@@ -1405,10 +1327,9 @@ UText * RegexMatcher::getInput(UText * dest, UErrorCode & status) const {
 	}
 }
 
-static bool compat_SyncMutableUTextContents(UText * ut);
-static bool compat_SyncMutableUTextContents(UText * ut) {
+static bool compat_SyncMutableUTextContents(UText * ut) 
+{
 	bool retVal = FALSE;
-
 	//  In the following test, we're really only interested in whether the UText should switch
 	//  between heap and stack allocation.  If length hasn't changed, we won't, so the chunkContents
 	//  will still point to the correct data.
@@ -1427,16 +1348,13 @@ static bool compat_SyncMutableUTextContents(UText * ut) {
 		ut->nativeIndexingLimit = newLength;
 		retVal = TRUE;
 	}
-
 	return retVal;
 }
-
-//--------------------------------------------------------------------------------
 //
 //  lookingAt()
 //
-//--------------------------------------------------------------------------------
-bool RegexMatcher::lookingAt(UErrorCode & status) {
+bool RegexMatcher::lookingAt(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return FALSE;
 	}
@@ -1444,7 +1362,6 @@ bool RegexMatcher::lookingAt(UErrorCode & status) {
 		status = fDeferredStatus;
 		return FALSE;
 	}
-
 	if(fInputUniStrMaybeMutable) {
 		if(compat_SyncMutableUTextContents(fInputText)) {
 			fInputLength = utext_nativeLength(fInputText);
@@ -1500,13 +1417,11 @@ bool RegexMatcher::lookingAt(int64_t start, UErrorCode & status) {
 	}
 	return fMatch;
 }
-
-//--------------------------------------------------------------------------------
 //
 //  matches()
 //
-//--------------------------------------------------------------------------------
-bool RegexMatcher::matches(UErrorCode & status) {
+bool RegexMatcher::matches(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return FALSE;
 	}
@@ -1514,7 +1429,6 @@ bool RegexMatcher::matches(UErrorCode & status) {
 		status = fDeferredStatus;
 		return FALSE;
 	}
-
 	if(fInputUniStrMaybeMutable) {
 		if(compat_SyncMutableUTextContents(fInputText)) {
 			fInputLength = utext_nativeLength(fInputText);
@@ -1524,7 +1438,6 @@ bool RegexMatcher::matches(UErrorCode & status) {
 	else {
 		resetPreserveRegion();
 	}
-
 	if(UTEXT_FULL_TEXT_IN_CHUNK(fInputText, fInputLength)) {
 		MatchChunkAt((int32_t)fActiveStart, TRUE, status);
 	}
@@ -1571,30 +1484,21 @@ bool RegexMatcher::matches(int64_t start, UErrorCode & status) {
 	}
 	return fMatch;
 }
-
-//--------------------------------------------------------------------------------
 //
 //    pattern
 //
-//--------------------------------------------------------------------------------
-const RegexPattern &RegexMatcher::pattern() const {
-	return *fPattern;
-}
-
-//--------------------------------------------------------------------------------
+const RegexPattern &RegexMatcher::pattern() const { return *fPattern; }
 //
 //    region
 //
-//--------------------------------------------------------------------------------
-RegexMatcher &RegexMatcher::region(int64_t regionStart, int64_t regionLimit, int64_t startIndex, UErrorCode & status) {
+RegexMatcher &RegexMatcher::region(int64_t regionStart, int64_t regionLimit, int64_t startIndex, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return *this;
 	}
-
 	if(regionStart>regionLimit || regionStart<0 || regionLimit<0) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 	}
-
 	int64_t nativeStart = regionStart;
 	int64_t nativeLimit = regionLimit;
 	if(nativeStart > fInputLength || nativeLimit > fInputLength) {
@@ -1632,54 +1536,32 @@ RegexMatcher &RegexMatcher::region(int64_t regionStart, int64_t regionLimit, int
 RegexMatcher &RegexMatcher::region(int64_t start, int64_t limit, UErrorCode & status) {
 	return region(start, limit, -1, status);
 }
-
-//--------------------------------------------------------------------------------
 //
 //    regionEnd
 //
-//--------------------------------------------------------------------------------
-int32_t RegexMatcher::regionEnd() const {
-	return (int32_t)fRegionLimit;
-}
-
-int64_t RegexMatcher::regionEnd64() const {
-	return fRegionLimit;
-}
-
-//--------------------------------------------------------------------------------
+int32_t RegexMatcher::regionEnd() const { return (int32_t)fRegionLimit; }
+int64_t RegexMatcher::regionEnd64() const { return fRegionLimit; }
 //
 //    regionStart
 //
-//--------------------------------------------------------------------------------
-int32_t RegexMatcher::regionStart() const {
-	return (int32_t)fRegionStart;
-}
-
-int64_t RegexMatcher::regionStart64() const {
-	return fRegionStart;
-}
-
-//--------------------------------------------------------------------------------
+int32_t RegexMatcher::regionStart() const { return (int32_t)fRegionStart; }
+int64_t RegexMatcher::regionStart64() const { return fRegionStart; }
 //
 //    replaceAll
 //
-//--------------------------------------------------------------------------------
-UnicodeString RegexMatcher::replaceAll(const UnicodeString & replacement, UErrorCode & status) {
+UnicodeString RegexMatcher::replaceAll(const UnicodeString & replacement, UErrorCode & status) 
+{
 	UText replacementText = UTEXT_INITIALIZER;
 	UText resultText = UTEXT_INITIALIZER;
 	UnicodeString resultString;
 	if(U_FAILURE(status)) {
 		return resultString;
 	}
-
 	utext_openConstUnicodeString(&replacementText, &replacement, &status);
 	utext_openUnicodeString(&resultText, &resultString, &status);
-
 	replaceAll(&replacementText, &resultText, status);
-
 	utext_close(&resultText);
 	utext_close(&replacementText);
-
 	return resultString;
 }
 
@@ -1717,28 +1599,21 @@ UText * RegexMatcher::replaceAll(UText * replacement, UText * dest, UErrorCode &
 
 	return dest;
 }
-
-//--------------------------------------------------------------------------------
 //
 //    replaceFirst
 //
-//--------------------------------------------------------------------------------
-UnicodeString RegexMatcher::replaceFirst(const UnicodeString & replacement, UErrorCode & status) {
+UnicodeString RegexMatcher::replaceFirst(const UnicodeString & replacement, UErrorCode & status) 
+{
 	UText replacementText = UTEXT_INITIALIZER;
 	UText resultText = UTEXT_INITIALIZER;
 	UnicodeString resultString;
-
 	utext_openConstUnicodeString(&replacementText, &replacement, &status);
 	utext_openUnicodeString(&resultText, &resultString, &status);
-
 	replaceFirst(&replacementText, &resultText, status);
-
 	utext_close(&resultText);
 	utext_close(&replacementText);
-
 	return resultString;
 }
-
 //
 //    replaceFirst, UText mode
 //
@@ -1770,22 +1645,15 @@ UText * RegexMatcher::replaceFirst(UText * replacement, UText * dest, UErrorCode
 
 	return dest;
 }
-
-//--------------------------------------------------------------------------------
 //
 //     requireEnd
 //
-//--------------------------------------------------------------------------------
-bool RegexMatcher::requireEnd() const {
-	return fRequireEnd;
-}
-
-//--------------------------------------------------------------------------------
+bool RegexMatcher::requireEnd() const { return fRequireEnd; }
 //
 //     reset
 //
-//--------------------------------------------------------------------------------
-RegexMatcher &RegexMatcher::reset() {
+RegexMatcher &RegexMatcher::reset() 
+{
 	fRegionStart    = 0;
 	fRegionLimit    = fInputLength;
 	fActiveStart    = 0;
@@ -1886,13 +1754,11 @@ RegexMatcher &RegexMatcher::reset(int64_t position, UErrorCode & status) {
 	fMatchEnd = position;
 	return *this;
 }
-
-//--------------------------------------------------------------------------------
 //
 //    refresh
 //
-//--------------------------------------------------------------------------------
-RegexMatcher &RegexMatcher::refreshInputText(UText * input, UErrorCode & status) {
+RegexMatcher &RegexMatcher::refreshInputText(UText * input, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return *this;
 	}
@@ -1922,16 +1788,10 @@ RegexMatcher &RegexMatcher::refreshInputText(UText * input, UErrorCode & status)
 	}
 	return *this;
 }
-
-//--------------------------------------------------------------------------------
 //
 //    setTrace
 //
-//--------------------------------------------------------------------------------
-void RegexMatcher::setTrace(bool state) {
-	fTraceDebug = state;
-}
-
+void RegexMatcher::setTrace(bool state) { fTraceDebug = state; }
 /**
  *  UText, replace entire contents of the destination UText with a substring of the source UText.
  *
@@ -1992,23 +1852,16 @@ static UText * utext_extract_replace(UText * src, UText * dest, int64_t start, i
 	result->providerProperties |= (1 << UTEXT_PROVIDER_OWNS_TEXT);
 	return result;
 }
-
-//---------------------------------------------------------------------
 //
 //   split
 //
-//---------------------------------------------------------------------
-int32_t RegexMatcher::split(const UnicodeString & input,
-    UnicodeString dest[],
-    int32_t destCapacity,
-    UErrorCode      &status)
+int32_t RegexMatcher::split(const UnicodeString & input, UnicodeString dest[], int32_t destCapacity, UErrorCode      &status)
 {
 	UText inputText = UTEXT_INITIALIZER;
 	utext_openConstUnicodeString(&inputText, &input, &status);
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-
 	UText ** destText = (UText**)uprv_malloc(sizeof(UText*)*destCapacity);
 	if(destText == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
@@ -2018,7 +1871,6 @@ int32_t RegexMatcher::split(const UnicodeString & input,
 	for(i = 0; i < destCapacity; i++) {
 		destText[i] = utext_openUnicodeString(NULL, &dest[i], &status);
 	}
-
 	int32_t fieldCount = split(&inputText, destText, destCapacity, status);
 
 	for(i = 0; i < destCapacity; i++) {
@@ -2245,27 +2097,16 @@ int32_t RegexMatcher::split(UText * input,
 	} // end of for loop
 	return i+1;
 }
-
-//--------------------------------------------------------------------------------
 //
 //     start
 //
-//--------------------------------------------------------------------------------
-int32_t RegexMatcher::start(UErrorCode & status) const {
-	return start(0, status);
-}
-
-int64_t RegexMatcher::start64(UErrorCode & status) const {
-	return start64(0, status);
-}
-
-//--------------------------------------------------------------------------------
+int32_t RegexMatcher::start(UErrorCode & status) const { return start(0, status); }
+int64_t RegexMatcher::start64(UErrorCode & status) const { return start64(0, status); }
 //
 //     start(int32_t group, UErrorCode & status)
 //
-//--------------------------------------------------------------------------------
-
-int64_t RegexMatcher::start64(int32_t group, UErrorCode & status) const {
+int64_t RegexMatcher::start64(int32_t group, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return -1;
 	}
@@ -2295,40 +2136,32 @@ int64_t RegexMatcher::start64(int32_t group, UErrorCode & status) const {
 	return s;
 }
 
-int32_t RegexMatcher::start(int32_t group, UErrorCode & status) const {
-	return (int32_t)start64(group, status);
-}
-
-//--------------------------------------------------------------------------------
+int32_t RegexMatcher::start(int32_t group, UErrorCode & status) const { return (int32_t)start64(group, status); }
 //
 //     useAnchoringBounds
 //
-//--------------------------------------------------------------------------------
-RegexMatcher &RegexMatcher::useAnchoringBounds(bool b) {
+RegexMatcher &RegexMatcher::useAnchoringBounds(bool b) 
+{
 	fAnchoringBounds = b;
 	fAnchorStart = (fAnchoringBounds ? fRegionStart : 0);
 	fAnchorLimit = (fAnchoringBounds ? fRegionLimit : fInputLength);
 	return *this;
 }
-
-//--------------------------------------------------------------------------------
 //
 //     useTransparentBounds
 //
-//--------------------------------------------------------------------------------
-RegexMatcher &RegexMatcher::useTransparentBounds(bool b) {
+RegexMatcher &RegexMatcher::useTransparentBounds(bool b) 
+{
 	fTransparentBounds = b;
 	fLookStart = (fTransparentBounds ? 0 : fRegionStart);
 	fLookLimit = (fTransparentBounds ? fInputLength : fRegionLimit);
 	return *this;
 }
-
-//--------------------------------------------------------------------------------
 //
 //     setTimeLimit
 //
-//--------------------------------------------------------------------------------
-void RegexMatcher::setTimeLimit(int32_t limit, UErrorCode & status) {
+void RegexMatcher::setTimeLimit(int32_t limit, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -2342,22 +2175,15 @@ void RegexMatcher::setTimeLimit(int32_t limit, UErrorCode & status) {
 	}
 	fTimeLimit = limit;
 }
-
-//--------------------------------------------------------------------------------
 //
 //     getTimeLimit
 //
-//--------------------------------------------------------------------------------
-int32_t RegexMatcher::getTimeLimit() const {
-	return fTimeLimit;
-}
-
-//--------------------------------------------------------------------------------
+int32_t RegexMatcher::getTimeLimit() const { return fTimeLimit; }
 //
 //     setStackLimit
 //
-//--------------------------------------------------------------------------------
-void RegexMatcher::setStackLimit(int32_t limit, UErrorCode & status) {
+void RegexMatcher::setStackLimit(int32_t limit, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -2391,91 +2217,65 @@ void RegexMatcher::setStackLimit(int32_t limit, UErrorCode & status) {
 	}
 	fStackLimit = limit;
 }
-
-//--------------------------------------------------------------------------------
 //
 //     getStackLimit
 //
-//--------------------------------------------------------------------------------
-int32_t RegexMatcher::getStackLimit() const {
-	return fStackLimit;
-}
-
-//--------------------------------------------------------------------------------
+int32_t RegexMatcher::getStackLimit() const { return fStackLimit; }
 //
 //     setMatchCallback
 //
-//--------------------------------------------------------------------------------
-void RegexMatcher::setMatchCallback(URegexMatchCallback     * callback,
-    const void   * context,
-    UErrorCode              &status) {
+void RegexMatcher::setMatchCallback(URegexMatchCallback     * callback, const void   * context, UErrorCode              &status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
 	fCallbackFn = callback;
 	fCallbackContext = context;
 }
-
-//--------------------------------------------------------------------------------
 //
 //     getMatchCallback
 //
-//--------------------------------------------------------------------------------
-void RegexMatcher::getMatchCallback(URegexMatchCallback   *&callback,
-    const void   *&context,
-    UErrorCode              &status) {
+void RegexMatcher::getMatchCallback(URegexMatchCallback   *&callback, const void   *&context, UErrorCode              &status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
 	callback = fCallbackFn;
 	context  = fCallbackContext;
 }
-
-//--------------------------------------------------------------------------------
 //
 //     setMatchCallback
 //
-//--------------------------------------------------------------------------------
-void RegexMatcher::setFindProgressCallback(URegexFindProgressCallback      * callback,
-    const void   * context,
-    UErrorCode & status) {
+void RegexMatcher::setFindProgressCallback(URegexFindProgressCallback      * callback, const void   * context, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
 	fFindProgressCallbackFn = callback;
 	fFindProgressCallbackContext = context;
 }
-
-//--------------------------------------------------------------------------------
 //
 //     getMatchCallback
 //
-//--------------------------------------------------------------------------------
-void RegexMatcher::getFindProgressCallback(URegexFindProgressCallback    *&callback,
-    const void   *&context,
-    UErrorCode                    &status) {
+void RegexMatcher::getFindProgressCallback(URegexFindProgressCallback    *&callback, const void   *&context, UErrorCode                    &status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
 	callback = fFindProgressCallbackFn;
 	context  = fFindProgressCallbackContext;
 }
-
-//================================================================================
 //
 //    Code following this point in this file is the internal
 //    Match Engine Implementation.
 //
-//================================================================================
-
-//--------------------------------------------------------------------------------
 //
 //   resetStack
 //           Discard any previous contents of the state save stack, and initialize a
 //           new stack frame to all -1.  The -1s are needed for capture group limits,
 //           where they indicate that a group has not yet matched anything.
-//--------------------------------------------------------------------------------
-REStackFrame * RegexMatcher::resetStack() {
+REStackFrame * RegexMatcher::resetStack() 
+{
 	// Discard any previous contents of the state save stack, and initialize a
 	//  new stack frame with all -1 data.  The -1s are needed for capture group limits,
 	//  where they indicate that a group has not yet matched anything.
@@ -2492,8 +2292,6 @@ REStackFrame * RegexMatcher::resetStack() {
 	}
 	return iFrame;
 }
-
-//--------------------------------------------------------------------------------
 //
 //   isWordBoundary
 //                     in perl, "xab..cd..", \b is true at positions 0,3,5,7
@@ -2508,11 +2306,10 @@ REStackFrame * RegexMatcher::resetStack() {
 //
 //              TODO:  double-check edge cases at region boundaries.
 //
-//--------------------------------------------------------------------------------
-bool RegexMatcher::isWordBoundary(int64_t pos) {
+bool RegexMatcher::isWordBoundary(int64_t pos) 
+{
 	bool isBoundary = FALSE;
 	bool cIsWord    = FALSE;
-
 	if(pos >= fLookLimit) {
 		fHitEnd = TRUE;
 	}
@@ -2585,8 +2382,6 @@ bool RegexMatcher::isChunkWordBoundary(int32_t pos) {
 	isBoundary = cIsWord ^ prevCIsWord;
 	return isBoundary;
 }
-
-//--------------------------------------------------------------------------------
 //
 //   isUWordBoundary
 //
@@ -2594,10 +2389,9 @@ bool RegexMatcher::isChunkWordBoundary(int32_t pos) {
 //
 //          parameters:   pos   - the current position in the input buffer
 //
-//--------------------------------------------------------------------------------
-bool RegexMatcher::isUWordBoundary(int64_t pos, UErrorCode & status) {
+bool RegexMatcher::isUWordBoundary(int64_t pos, UErrorCode & status) 
+{
 	bool returnVal = FALSE;
-
 #if UCONFIG_NO_BREAK_ITERATION==0
 	// Note: this point will never be reached if break iteration is configured out.
 	//       Regex patterns that would require this function will fail to compile.
@@ -2648,8 +2442,6 @@ int64_t RegexMatcher::followingGCBoundary(int64_t pos, UErrorCode & status)
 #endif
 	return result;
 }
-
-//--------------------------------------------------------------------------------
 //
 //   IncrementTime     This function is called once each TIMER_INITIAL_VALUE state
 //                     saves. Increment the "time" counter, and call the
@@ -2659,8 +2451,8 @@ int64_t RegexMatcher::followingGCBoundary(int64_t pos, UErrorCode & status)
 //                     or because the user callback asked for it, just set an error status.
 //                     The engine will pick that up and stop in its outer loop.
 //
-//--------------------------------------------------------------------------------
-void RegexMatcher::IncrementTime(UErrorCode & status) {
+void RegexMatcher::IncrementTime(UErrorCode & status) 
+{
 	fTickCounter = TIMER_INITIAL_VALUE;
 	fTime++;
 	if(fCallbackFn != NULL) {
@@ -2673,8 +2465,6 @@ void RegexMatcher::IncrementTime(UErrorCode & status) {
 		status = U_REGEX_TIME_OUT;
 	}
 }
-
-//--------------------------------------------------------------------------------
 //
 //   StateSave
 //       Make a new stack frame, initialized as a copy of the current stack frame.
@@ -2694,7 +2484,6 @@ void RegexMatcher::IncrementTime(UErrorCode & status) {
 //    Return
 //                    The new frame pointer.
 //
-//--------------------------------------------------------------------------------
 inline REStackFrame * RegexMatcher::StateSave(REStackFrame * fp, int64_t savePatIdx, UErrorCode & status)
 {
 	if(U_FAILURE(status)) {
@@ -2744,24 +2533,19 @@ UnicodeString StringFromUText(UText * ut) {
 }
 }
 #endif // REGEX_DEBUG
-
-//--------------------------------------------------------------------------------
 //
 //   MatchAt      This is the actual matching engine.
 //
 //                  startIdx:    begin matching a this index.
 //                  toEnd:       if true, match must extend to end of the input region
 //
-//--------------------------------------------------------------------------------
-void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status) {
+void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status) 
+{
 	bool isMatch  = FALSE;        // True if the we have a match.
-
 	int64_t backSearchIndex = U_INT64_MAX; // used after greedy single-character matches for searching backwards
-
 	int32_t op;                    // Operation from the compiled pattern, split into
 	int32_t opType;                //    the opcode
 	int32_t opValue;               //    and the operand value.
-
 #ifdef REGEX_RUN_DEBUG
 	if(fTraceDebug) {
 		printf("MatchAt(startIdx=%ld)\n", startIdx);
@@ -4238,8 +4022,6 @@ breakFromLoop:
 	                        //    access later.
 	return;
 }
-
-//--------------------------------------------------------------------------------
 //
 //   MatchChunkAt   This is the actual matching engine. Like MatchAt, but with the
 //                  assumption that the entire string is available in the UText's
@@ -4250,16 +4032,13 @@ breakFromLoop:
 //                  startIdx:    begin matching a this index.
 //                  toEnd:       if true, match must extend to end of the input region
 //
-//--------------------------------------------------------------------------------
-void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & status) {
+void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & status) 
+{
 	bool isMatch  = FALSE;        // True if the we have a match.
-
 	int32_t backSearchIndex = INT32_MAX; // used after greedy single-character matches for searching backwards
-
 	int32_t op;                    // Operation from the compiled pattern, split into
 	int32_t opType;                //    the opcode
 	int32_t opValue;               //    and the operand value.
-
 #ifdef REGEX_RUN_DEBUG
 	if(fTraceDebug) {
 		printf("MatchAt(startIdx=%d)\n", startIdx);
@@ -5650,7 +5429,6 @@ breakFromLoop:
 		fMatchStart   = startIdx;
 		fMatchEnd     = fp->fInputIdx;
 	}
-
 #ifdef REGEX_RUN_DEBUG
 	if(fTraceDebug) {
 		if(isMatch) {
@@ -5661,11 +5439,7 @@ breakFromLoop:
 		}
 	}
 #endif
-
-	fFrame = fp;            // The active stack frame when the engine stopped.
-	                        //   Contains the capture group results that we need to
-	                        //    access later.
-
+	fFrame = fp; // The active stack frame when the engine stopped. Contains the capture group results that we need to access later.
 	return;
 }
 

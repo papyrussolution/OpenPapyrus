@@ -656,7 +656,7 @@ int PPJob::Write2(xmlTextWriter * pXmlWriter) const //@erik v10.7.4
 		pp_job_node.PutInner("Flags", temp_buf.Z().Cat(flags));
 		pp_job_node.PutInner("EstimatedTime", temp_buf.Z().Cat(EstimatedTime));
 		if(!!LastRunningTime) // @v11.3.9
-			pp_job_node.PutInner("LastRunningTime", temp_buf.Z().Cat(LastRunningTime, DATF_ISO8601|DATF_CENTURY, 0));
+			pp_job_node.PutInner("LastRunningTime", temp_buf.Z().Cat(LastRunningTime, DATF_ISO8601CENT, 0));
 		pp_job_node.PutInner("Ver", temp_buf.Z().Cat(Ver));
 		pp_job_node.PutInner("NextJobID", temp_buf.Z().Cat(NextJobID));
 		pp_job_node.PutInner("EmailAccID", temp_buf.Z().Cat(EmailAccID));

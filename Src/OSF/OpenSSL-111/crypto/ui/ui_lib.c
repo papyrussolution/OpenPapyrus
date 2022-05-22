@@ -122,7 +122,7 @@ static int general_allocate_string(UI * ui, const char * prompt,
 	UI_STRING * s = general_allocate_prompt(ui, prompt, prompt_freeable,
 		type, input_flags, result_buf);
 
-	if(s != NULL) {
+	if(s) {
 		if(allocate_string_stack(ui) >= 0) {
 			s->_.string_data.result_minsize = minsize;
 			s->_.string_data.result_maxsize = maxsize;
@@ -170,7 +170,7 @@ static int general_allocate_boolean(UI * ui,
 		s = general_allocate_prompt(ui, prompt, prompt_freeable,
 			type, input_flags, result_buf);
 
-		if(s != NULL) {
+		if(s) {
 			if(allocate_string_stack(ui) >= 0) {
 				s->_.boolean_data.action_desc = action_desc;
 				s->_.boolean_data.ok_chars = ok_chars;

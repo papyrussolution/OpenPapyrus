@@ -10,10 +10,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #ifndef OPENSSL_NO_SM4
-//#include <openssl/evp.h>
-//#include <openssl/modes.h>
 #include <sm4.h>
-//#include <evp_int.h>
 
 typedef struct {
 	SM4_KEY ks;

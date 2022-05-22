@@ -47,14 +47,9 @@ using namespace Scintilla;
         (actually seems to work!)
  */
 #include "WindowAccessor.h"
-//#include "ExternalLexer.h"
 
 #undef EXT_LEXER_DECL
 #define EXT_LEXER_DECL __declspec(dllexport) __stdcall
-
-//#if PLAT_WIN
-	//#include <windows.h>
-//#endif
 
 static void ColouriseCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor & styler);
 static void FoldCamlDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *keywordlists[], Accessor & styler);

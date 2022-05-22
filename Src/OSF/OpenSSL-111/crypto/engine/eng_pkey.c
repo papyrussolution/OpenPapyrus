@@ -53,7 +53,7 @@ ENGINE_SSL_CLIENT_CERT_PTR ENGINE_get_ssl_client_cert_function(const ENGINE * e)
 EVP_PKEY * ENGINE_load_private_key(ENGINE * e, const char * key_id, UI_METHOD * ui_method, void * callback_data)
 {
 	EVP_PKEY * pkey;
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_LOAD_PRIVATE_KEY, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -79,7 +79,7 @@ EVP_PKEY * ENGINE_load_private_key(ENGINE * e, const char * key_id, UI_METHOD * 
 EVP_PKEY * ENGINE_load_public_key(ENGINE * e, const char * key_id, UI_METHOD * ui_method, void * callback_data)
 {
 	EVP_PKEY * pkey;
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_LOAD_PUBLIC_KEY, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -105,7 +105,7 @@ EVP_PKEY * ENGINE_load_public_key(ENGINE * e, const char * key_id, UI_METHOD * u
 int ENGINE_load_ssl_client_cert(ENGINE * e, SSL * s, STACK_OF(X509_NAME) * ca_dn, X509 ** pcert, EVP_PKEY ** ppkey, 
 	STACK_OF(X509) ** pother, UI_METHOD * ui_method, void * callback_data)
 {
-	if(e == NULL) {
+	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_LOAD_SSL_CLIENT_CERT, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}

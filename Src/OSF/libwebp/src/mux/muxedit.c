@@ -129,12 +129,10 @@ static WebPMuxError CreateFrameData(int width, int height, const WebPMuxFrameInf
 // Outputs image data given a bitstream. The bitstream can either be a
 // single-image WebP file or raw VP8/VP8L data.
 // Also outputs 'is_lossless' to be true if the given bitstream is lossless.
-static WebPMuxError GetImageData(const WebPData* const bitstream,
-    WebPData* const image, WebPData* const alpha,
-    int* const is_lossless) {
+static WebPMuxError GetImageData(const WebPData* const bitstream, WebPData* const image, WebPData* const alpha, int* const is_lossless) 
+{
 	WebPDataInit(alpha); // Default: no alpha.
-	if(bitstream->size < TAG_SIZE ||
-	    memcmp(bitstream->bytes, "RIFF", TAG_SIZE)) {
+	if(bitstream->size < TAG_SIZE || memcmp(bitstream->bytes, "RIFF", TAG_SIZE)) {
 		// It is NOT webp file data. Return input data as is.
 		*image = *bitstream;
 	}
@@ -347,8 +345,8 @@ WebPMuxError WebPMuxSetAnimationParams(WebPMux* mux,
 	return MuxSet(mux, kChunks[IDX_ANIM].tag, &anim, 1);
 }
 
-WebPMuxError WebPMuxSetCanvasSize(WebPMux* mux,
-    int width, int height) {
+WebPMuxError WebPMuxSetCanvasSize(WebPMux* mux, int width, int height) 
+{
 	WebPMuxError err;
 	if(mux == NULL) {
 		return WEBP_MUX_INVALID_ARGUMENT;
@@ -411,28 +409,24 @@ static WebPMuxError GetImageInfo(const WebPMuxImage* const wpi,
 	WebPMuxError err;
 	assert(wpi != NULL);
 	assert(frame_chunk != NULL);
-
 	// Get offsets and duration from ANMF chunk.
 	err = GetFrameInfo(frame_chunk, x_offset, y_offset, duration);
 	if(err != WEBP_MUX_OK) return err;
-
 	// Get width and height from VP8/VP8L chunk.
-	if(width != NULL) *width = wpi->width_;
-	if(height != NULL) *height = wpi->height_;
+	if(width) *width = wpi->width_;
+	if(height) *height = wpi->height_;
 	return WEBP_MUX_OK;
 }
 
 // Returns the tightest dimension for the canvas considering the image list.
-static WebPMuxError GetAdjustedCanvasSize(const WebPMux* const mux,
-    int* const width, int* const height) {
+static WebPMuxError GetAdjustedCanvasSize(const WebPMux* const mux, int* const width, int* const height) 
+{
 	WebPMuxImage* wpi = NULL;
 	assert(mux != NULL);
 	assert(width != NULL && height != NULL);
-
 	wpi = mux->images_;
 	assert(wpi != NULL);
 	assert(wpi->img_ != NULL);
-
 	if(wpi->next_ != NULL) {
 		int max_x = 0, max_y = 0;
 		// if we have a chain of wpi's, header_ is necessarily set
@@ -440,8 +434,7 @@ static WebPMuxError GetAdjustedCanvasSize(const WebPMux* const mux,
 		// Aggregate the bounding box for animation frames.
 		for(; wpi != NULL; wpi = wpi->next_) {
 			int x_offset = 0, y_offset = 0, duration = 0, w = 0, h = 0;
-			const WebPMuxError err = GetImageInfo(wpi, &x_offset, &y_offset,
-				&duration, &w, &h);
+			const WebPMuxError err = GetImageInfo(wpi, &x_offset, &y_offset, &duration, &w, &h);
 			const int max_x_pos = x_offset + w;
 			const int max_y_pos = y_offset + h;
 			if(err != WEBP_MUX_OK) return err;
@@ -560,10 +553,7 @@ static WebPMuxError MuxCleanup(WebPMux* const mux) {
 		err = MuxImageGetNth((const WebPMuxImage**)&mux->images_, 1, &frame);
 		assert(err == WEBP_MUX_OK); // We know that one frame does exist.
 		assert(frame != NULL);
-		if(frame->header_ != NULL &&
-		    ((mux->canvas_width_ == 0 && mux->canvas_height_ == 0) ||
-		    (frame->width_ == mux->canvas_width_ &&
-		    frame->height_ == mux->canvas_height_))) {
+		if(frame->header_ && ((mux->canvas_width_ == 0 && mux->canvas_height_ == 0) || (frame->width_ == mux->canvas_width_ && frame->height_ == mux->canvas_height_))) {
 			assert(frame->header_->tag_ == kChunks[IDX_ANMF].tag);
 			ChunkDelete(frame->header_); // Removes ANMF chunk.
 			frame->header_ = NULL;
@@ -581,7 +571,8 @@ static WebPMuxError MuxCleanup(WebPMux* const mux) {
 }
 
 // Total size of a list of images.
-static size_t ImageListDiskSize(const WebPMuxImage* wpi_list) {
+static size_t ImageListDiskSize(const WebPMuxImage* wpi_list) 
+{
 	size_t size = 0;
 	while(wpi_list != NULL) {
 		size += MuxImageDiskSize(wpi_list);
@@ -591,7 +582,8 @@ static size_t ImageListDiskSize(const WebPMuxImage* wpi_list) {
 }
 
 // Write out the given list of images into 'dst'.
-static uint8* ImageListEmit(const WebPMuxImage* wpi_list, uint8* dst) {
+static uint8* ImageListEmit(const WebPMuxImage* wpi_list, uint8* dst) 
+{
 	while(wpi_list != NULL) {
 		dst = MuxImageEmit(wpi_list, dst);
 		wpi_list = wpi_list->next_;
@@ -653,5 +645,3 @@ WebPMuxError WebPMuxAssemble(WebPMux* mux, WebPData* assembled_data)
 
 	return err;
 }
-
-//------------------------------------------------------------------------------

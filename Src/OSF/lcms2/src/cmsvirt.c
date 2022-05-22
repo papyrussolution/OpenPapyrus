@@ -825,7 +825,7 @@ cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, double V
 	cmsTagSignature DestinationTag;
 	cmsProfileClassSignature deviceClass;
 
-	_cmsAssert(hTransform != NULL);
+	assert(hTransform != NULL);
 
 	// Get the first mpe to check for named color
 	mpe = cmsPipelineGetPtrToFirstStage(xform->Lut);

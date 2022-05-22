@@ -663,7 +663,7 @@ U_CAPI const UChar * U_EXPORT2 ucurr_getName(const UChar * currency,
 			choice = UCURR_SYMBOL_NAME;
 		}
 	}
-	if(s == NULL) {
+	if(!s) {
 		ures_getByKey(rb.getAlias(), CURRENCIES, rb.getAlias(), &ec2);
 		ures_getByKeyWithFallback(rb.getAlias(), buf, rb.getAlias(), &ec2);
 		s = ures_getStringByIndex(rb.getAlias(), choice, len, &ec2);
@@ -2012,7 +2012,7 @@ static void U_CALLCONV ucurr_createCurrencyList(UHashtable * isoCodes, UErrorCod
 					// get the currency resource
 					UResourceBundle * currencyRes = ures_getByIndex(currencyArray, j, NULL, &localStatus);
 					IsoCodeEntry * entry = (IsoCodeEntry*)uprv_malloc(sizeof(IsoCodeEntry));
-					if(entry == NULL) {
+					if(!entry) {
 						*status = U_MEMORY_ALLOCATION_ERROR;
 						return;
 					}
@@ -2159,7 +2159,7 @@ U_CAPI bool U_EXPORT2 ucurr_isAvailable(const UChar * isoCode, UDate from, UDate
 	}
 
 	IsoCodeEntry* result = (IsoCodeEntry*)uhash_get(gIsoCodes, isoCode);
-	if(result == NULL) {
+	if(!result) {
 		return FALSE;
 	}
 	else if(from > to) {

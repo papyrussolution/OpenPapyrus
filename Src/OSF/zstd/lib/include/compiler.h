@@ -17,9 +17,9 @@
 /* force inlining */
 #if !defined(ZSTD_NO_INLINE)
 #if (defined(__GNUC__) && !defined(__STRICT_ANSI__)) || defined(__cplusplus) || defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L   /* C99 */
-#  define INLINE_KEYWORD inline
+#define INLINE_KEYWORD inline
 #else
-#  define INLINE_KEYWORD
+#define INLINE_KEYWORD
 #endif
 //#if defined(__GNUC__) || defined(__ICCARM__)
 	//#define FORCE_INLINE_ATTR__Removed __attribute__((always_inline))
@@ -38,9 +38,9 @@
   if a CC other than __cdecl has been made the default.
 */
 #if  defined(_MSC_VER)
-#  define WIN_CDECL __cdecl
+#define WIN_CDECL __cdecl
 #else
-#  define WIN_CDECL
+#define WIN_CDECL
 #endif
 /**
  * FORCE_INLINE_TEMPLATE is used to define C "templates", which take constant
@@ -70,7 +70,7 @@
 #endif
 /* force no inlining */
 #ifdef _MSC_VER
-#  define FORCE_NOINLINE static __declspec(noinline)
+#define FORCE_NOINLINE static __declspec(noinline)
 #else
 #if defined(__GNUC__) || defined(__ICCARM__)
 #define FORCE_NOINLINE static __attribute__((__noinline__))
@@ -80,9 +80,9 @@
 #endif
 /* target attribute */
 #if defined(__GNUC__) || defined(__ICCARM__)
-#  define TARGET_ATTRIBUTE(target) __attribute__((__target__(target)))
+#define TARGET_ATTRIBUTE(target) __attribute__((__target__(target)))
 #else
-#  define TARGET_ATTRIBUTE(target)
+#define TARGET_ATTRIBUTE(target)
 #endif
 /* Target attribute for BMI2 dynamic dispatch.
  * Enable lzcnt, bmi, and bmi2.
@@ -93,8 +93,8 @@
 /* prefetch
  * can be disabled, by declaring NO_PREFETCH build macro */
 #if defined(NO_PREFETCH)
-#  define PREFETCH_L1(ptr)  (void)(ptr)  /* disabled */
-#  define PREFETCH_L2(ptr)  (void)(ptr)  /* disabled */
+#define PREFETCH_L1(ptr)  (void)(ptr)  /* disabled */
+#define PREFETCH_L2(ptr)  (void)(ptr)  /* disabled */
 #else
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_I86))  /* _mm_prefetch() is not defined outside of x86/x64 */
 #include <mmintrin.h>   /* https://msdn.microsoft.com/fr-fr/library/84szxsww(v=vs.90).aspx */
@@ -133,7 +133,7 @@
 #define DONT_VECTORIZE _Pragma("GCC optimize(\"no-tree-vectorize\")")
 #  endif
 #else
-#  define DONT_VECTORIZE
+#define DONT_VECTORIZE
 #endif
 
 /* Tell the compiler that a branch is likely or unlikely.
@@ -195,35 +195,32 @@
 #else
 #define ZSTD_HAS_C_ATTRIBUTE(x) 0
 #endif
-
 /* Only use C++ attributes in C++. Some compilers report support for C++
  * attributes when compiling with C.
  */
 #if defined(__cplusplus) && defined(__has_cpp_attribute)
-#define ZSTD_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
+	#define ZSTD_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
 #else
-#define ZSTD_HAS_CPP_ATTRIBUTE(x) 0
+	#define ZSTD_HAS_CPP_ATTRIBUTE(x) 0
 #endif
-
-/* Define ZSTD_FALLTHROUGH macro for annotating switch case with the 'fallthrough' attribute.
- * - C23: https://en.cppreference.com/w/c/language/attributes/fallthrough
- * - CPP17: https://en.cppreference.com/w/cpp/language/attributes/fallthrough
- * - Else: __attribute__((__fallthrough__))
- */
-#ifndef ZSTD_FALLTHROUGH
-#if ZSTD_HAS_C_ATTRIBUTE(fallthrough)
-#  define ZSTD_FALLTHROUGH [[fallthrough]]
-#elif ZSTD_HAS_CPP_ATTRIBUTE(fallthrough)
-#  define ZSTD_FALLTHROUGH [[fallthrough]]
-#elif __has_attribute(__fallthrough__)
-/* Leading semicolon is to satisfy gcc-11 with -pedantic. Without the semicolon
- * gcc complains about: a label can only be part of a statement and a declaration is not a statement.
- */
-#  define ZSTD_FALLTHROUGH ; __attribute__((__fallthrough__))
-#else
-#  define ZSTD_FALLTHROUGH
-#endif
-#endif
+/* @sobolev (replaced with CXX_FALLTHROUGH)
+// Define ZSTD_FALLTHROUGH_Removed macro for annotating switch case with the 'fallthrough' attribute.
+// - C23: https://en.cppreference.com/w/c/language/attributes/fallthrough
+// - CPP17: https://en.cppreference.com/w/cpp/language/attributes/fallthrough
+// - Else: __attribute__((__fallthrough__))
+#ifndef ZSTD_FALLTHROUGH_Removed
+	#if ZSTD_HAS_C_ATTRIBUTE(fallthrough)
+		#define ZSTD_FALLTHROUGH_Removed [[fallthrough]]
+	#elif ZSTD_HAS_CPP_ATTRIBUTE(fallthrough)
+		#define ZSTD_FALLTHROUGH_Removed [[fallthrough]]
+	#elif __has_attribute(__fallthrough__)
+		// Leading semicolon is to satisfy gcc-11 with -pedantic. Without the semicolon
+		// gcc complains about: a label can only be part of a statement and a declaration is not a statement.
+		#define ZSTD_FALLTHROUGH_Removed ; __attribute__((__fallthrough__))
+	#else
+		#define ZSTD_FALLTHROUGH_Removed
+	#endif
+#endif*/
 // 
 // Alignment check
 // 
@@ -237,16 +234,16 @@
 /* covers gcc, clang & MSVC */
 /* note : this section must come first, before C11,
  * due to a limitation in the kernel source generator */
-#  define ZSTD_ALIGNOF(T) __alignof(T)
+#define ZSTD_ALIGNOF(T) __alignof(T)
 
 #elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
 /* C11 support */
 #include <stdalign.h>
-#  define ZSTD_ALIGNOF(T) alignof(T)
+#define ZSTD_ALIGNOF(T) alignof(T)
 
 #else
 /* No known support for alignof() - imperfect backup */
-#  define ZSTD_ALIGNOF(T) (sizeof(void*) < sizeof(T) ? sizeof(void*) : sizeof(T))
+#define ZSTD_ALIGNOF(T) (sizeof(void*) < sizeof(T) ? sizeof(void*) : sizeof(T))
 
 #endif
 #endif /* ZSTD_ALIGNOF */

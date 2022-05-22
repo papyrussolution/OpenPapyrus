@@ -17,14 +17,14 @@
 #ifndef ABSL_STRINGS_STRING_VIEW_H_
 #define ABSL_STRINGS_STRING_VIEW_H_
 
-#include <algorithm>
-#include <cassert>
-#include <cstddef>
-#include <cstring>
-#include <iosfwd>
-#include <iterator>
-#include <limits>
-#include <string>
+//#include <algorithm>
+//#include <cassert>
+//#include <cstddef>
+//#include <cstring>
+//#include <iosfwd>
+//#include <iterator>
+//#include <limits>
+//#include <string>
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/base/internal/throw_delegate.h"

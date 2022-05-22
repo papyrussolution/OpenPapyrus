@@ -86,7 +86,7 @@ void TIFFSwabArrayOfTriples(uint8 * tp, tmsize_t n)
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfLong)
-void FASTCALL TIFFSwabArrayOfLong(uint32* lp, tmsize_t n)
+void FASTCALL TIFFSwabArrayOfLong(uint32 * lp, tmsize_t n)
 {
 	uchar * cp;
 	uchar t;

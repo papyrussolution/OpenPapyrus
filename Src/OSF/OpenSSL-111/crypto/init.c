@@ -8,13 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "e_os.h"
-//#include <cryptlib_int.h>
-//#include <openssl/err.h>
 #include <rand_int.h>
-//#include "internal/bio.h"
-//#include <openssl/evp.h>
-//#include <evp_int.h>
 #include "internal/conf.h"
 #include <async.h>
 #include <engine.h>

@@ -2584,7 +2584,6 @@ static void sftp_quote(struct connectdata * conn)
 		sshc->actualcode = CURLE_QUOTE_ERROR;
 		return;
 	}
-
 	/*
 	 * also, every command takes at least one argument so we get that
 	 * first argument right now
@@ -2592,7 +2591,7 @@ static void sftp_quote(struct connectdata * conn)
 	result = Curl_get_pathname(&cp, &sshc->quote_path1, sshc->homedir);
 	if(result) {
 		if(result == CURLE_OUT_OF_MEMORY)
-			failf(data, "Out of memory");
+			failf(data, SlTxtOutOfMem);
 		else
 			failf(data, "Syntax error: Bad first parameter");
 		state(conn, SSH_SFTP_CLOSE);
@@ -2600,18 +2599,14 @@ static void sftp_quote(struct connectdata * conn)
 		sshc->actualcode = result;
 		return;
 	}
-
 	/*
 	 * SFTP is a binary protocol, so we don't send text commands
 	 * to the server. Instead, we scan for commands used by
 	 * OpenSSH's sftp program and call the appropriate libssh
 	 * functions.
 	 */
-	if(strncasecompare(cmd, "chgrp ", 6) ||
-	    strncasecompare(cmd, "chmod ", 6) ||
-	    strncasecompare(cmd, "chown ", 6) ||
-	    strncasecompare(cmd, "atime ", 6) ||
-	    strncasecompare(cmd, "mtime ", 6)) {
+	if(strncasecompare(cmd, "chgrp ", 6) || strncasecompare(cmd, "chmod ", 6) || strncasecompare(cmd, "chown ", 6) ||
+	    strncasecompare(cmd, "atime ", 6) || strncasecompare(cmd, "mtime ", 6)) {
 		/* attribute change */
 
 		/* sshc->quote_path1 contains the mode to set */
@@ -2619,10 +2614,9 @@ static void sftp_quote(struct connectdata * conn)
 		result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
 		if(result) {
 			if(result == CURLE_OUT_OF_MEMORY)
-				failf(data, "Out of memory");
+				failf(data, SlTxtOutOfMem);
 			else
-				failf(data, "Syntax error in chgrp/chmod/chown/atime/mtime: "
-				    "Bad second parameter");
+				failf(data, "Syntax error in chgrp/chmod/chown/atime/mtime: Bad second parameter");
 			Curl_safefree(sshc->quote_path1);
 			state(conn, SSH_SFTP_CLOSE);
 			sshc->nextstate = SSH_NO_STATE;
@@ -2641,7 +2635,7 @@ static void sftp_quote(struct connectdata * conn)
 		result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
 		if(result) {
 			if(result == CURLE_OUT_OF_MEMORY)
-				failf(data, "Out of memory");
+				failf(data, SlTxtOutOfMem);
 			else
 				failf(data, "Syntax error in ln/symlink: Bad second parameter");
 			Curl_safefree(sshc->quote_path1);
@@ -2665,7 +2659,7 @@ static void sftp_quote(struct connectdata * conn)
 		result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
 		if(result) {
 			if(result == CURLE_OUT_OF_MEMORY)
-				failf(data, "Out of memory");
+				failf(data, SlTxtOutOfMem);
 			else
 				failf(data, "Syntax error in rename: Bad second parameter");
 			Curl_safefree(sshc->quote_path1);

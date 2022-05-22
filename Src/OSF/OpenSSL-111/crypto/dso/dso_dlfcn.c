@@ -101,7 +101,7 @@ static int dlfcn_load(DSO * dso)
 	int flags = DLOPEN_FLAG;
 	int saveerrno = get_last_sys_error();
 
-	if(filename == NULL) {
+	if(!filename) {
 		DSOerr(DSO_F_DLFCN_LOAD, DSO_R_NO_FILENAME);
 		goto err;
 	}
@@ -114,7 +114,7 @@ static int dlfcn_load(DSO * dso)
 		flags |= RTLD_MEMBER;
 #endif
 	ptr = dlopen(filename, flags);
-	if(ptr == NULL) {
+	if(!ptr) {
 		DSOerr(DSO_F_DLFCN_LOAD, DSO_R_LOAD_FAILED);
 		ERR_add_error_data(4, "filename(", filename, "): ", dlerror());
 		goto err;
@@ -149,7 +149,7 @@ static int dlfcn_unload(DSO * dso)
 	if(sk_void_num(dso->meth_data) < 1)
 		return 1;
 	ptr = sk_void_pop(dso->meth_data);
-	if(ptr == NULL) {
+	if(!ptr) {
 		DSOerr(DSO_F_DLFCN_UNLOAD, DSO_R_NULL_HANDLE);
 		/*
 		 * Should push the value back onto the stack in case of a retry.
@@ -179,7 +179,7 @@ static DSO_FUNC_TYPE dlfcn_bind_func(DSO * dso, const char * symname)
 		return NULL;
 	}
 	ptr = sk_void_value(dso->meth_data, sk_void_num(dso->meth_data) - 1);
-	if(ptr == NULL) {
+	if(!ptr) {
 		DSOerr(DSO_F_DLFCN_BIND_FUNC, DSO_R_NULL_HANDLE);
 		return NULL;
 	}

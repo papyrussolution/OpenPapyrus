@@ -13,9 +13,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include "src/dsp/dsp.h"
-//#include "src/utils/rescaler_utils.h"
 
 //------------------------------------------------------------------------------
 // Implementations of critical functions ImportRow / ExportRow
@@ -219,7 +216,7 @@ WEBP_DSP_INIT_FUNC(WebPRescalerDspInit) {
 	WebPRescalerImportRowExpand = WebPRescalerImportRowExpand_C;
 	WebPRescalerImportRowShrink = WebPRescalerImportRowShrink_C;
 
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			WebPRescalerDspInitSSE2();
@@ -243,12 +240,10 @@ WEBP_DSP_INIT_FUNC(WebPRescalerDspInit) {
 	}
 
 #if defined(WEBP_HAVE_NEON)
-	if(WEBP_NEON_OMIT_C_CODE ||
-	    (VP8GetCPUInfo != NULL && VP8GetCPUInfo(kNEON))) {
+	if(WEBP_NEON_OMIT_C_CODE || (VP8GetCPUInfo && VP8GetCPUInfo(kNEON))) {
 		WebPRescalerDspInitNEON();
 	}
 #endif
-
 	assert(WebPRescalerExportRowExpand != NULL);
 	assert(WebPRescalerExportRowShrink != NULL);
 	assert(WebPRescalerImportRowExpand != NULL);

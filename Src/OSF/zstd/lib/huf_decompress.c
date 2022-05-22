@@ -269,7 +269,7 @@ static uint64 HUF_DEltX1_set4(BYTE symbol, BYTE nbBits) {
  * If tableLog > targetTableLog this is a no-op.
  * @returns New tableLog
  */
-static uint32 HUF_rescaleStats(BYTE * huffWeight, uint32* rankVal, uint32 nbSymbols, uint32 tableLog, uint32 targetTableLog)
+static uint32 HUF_rescaleStats(BYTE * huffWeight, uint32 * rankVal, uint32 nbSymbols, uint32 tableLog, uint32 targetTableLog)
 {
 	if(tableLog > targetTableLog)
 		return tableLog;
@@ -876,8 +876,8 @@ static void HUF_fillDTableX2ForWeight(HUF_DEltX2* DTableRank,
 /* HUF_fillDTableX2Level2() :
  * `rankValOrigin` must be a table of at least (HUF_TABLELOG_MAX + 1) uint32 */
 static void HUF_fillDTableX2Level2(HUF_DEltX2* DTable, uint32 targetLog, const uint32 consumedBits,
-    const uint32* rankVal, const int minWeight, const int maxWeight1,
-    const sortedSymbol_t* sortedSymbols, const uint32* rankStart,
+    const uint32 * rankVal, const int minWeight, const int maxWeight1,
+    const sortedSymbol_t* sortedSymbols, const uint32 * rankStart,
     uint32 nbBitsBaseline, uint16 baseSeq)
 {
 	/* Fill skipped values (all positions up to rankVal[minWeight]).
@@ -927,7 +927,7 @@ static void HUF_fillDTableX2Level2(HUF_DEltX2* DTable, uint32 targetLog, const u
 
 static void HUF_fillDTableX2(HUF_DEltX2* DTable, const uint32 targetLog,
     const sortedSymbol_t* sortedList,
-    const uint32* rankStart, rankVal_t rankValOrigin, const uint32 maxWeight,
+    const uint32 * rankStart, rankVal_t rankValOrigin, const uint32 maxWeight,
     const uint32 nbBitsBaseline)
 {
 	const uint32 * rankVal = rankValOrigin[0];
@@ -1026,7 +1026,7 @@ size_t HUF_readDTableX2_wksp_bmi2(HUF_DTable* DTable, const void * src, size_t s
 	}
 	/* Build rankVal */
 	{   
-		uint32* const rankVal0 = wksp->rankVal[0];
+		uint32 * const rankVal0 = wksp->rankVal[0];
 	    {   
 			int const rescale = (maxTableLog-tableLog) - 1;/* tableLog <= maxTableLog */
 			uint32 nextRankVal = 0;

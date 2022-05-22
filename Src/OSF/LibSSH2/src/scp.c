@@ -795,7 +795,7 @@ static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, 
 			size_t err_len = _libssh2_channel_packet_data_len(session->scpSend_channel, 0);
 			char * err_msg = (char *)LIBSSH2_ALLOC(session, err_len + 1);
 			if(!err_msg) {
-				_libssh2_error(session, LIBSSH2_ERROR_ALLOC, "failed to get memory");
+				_libssh2_error(session, LIBSSH2_ERROR_ALLOC, SlTxtOutOfMem);
 				goto scp_send_error;
 			}
 			/* Read the remote error message */

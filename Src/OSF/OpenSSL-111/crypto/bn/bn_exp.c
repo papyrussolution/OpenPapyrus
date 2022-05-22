@@ -649,12 +649,10 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p,
 	 * RSAZ exponentiation. For further information see
 	 * crypto/bn/rsaz_exp.c and accompanying assembly modules.
 	 */
-	if((16 == a->top) && (16 == p->top) && (BN_num_bits(m) == 1024)
-	 && rsaz_avx2_eligible()) {
-		if(NULL == bn_wexpand(rr, 16))
+	if((16 == a->top) && (16 == p->top) && (BN_num_bits(m) == 1024) && rsaz_avx2_eligible()) {
+		if(!bn_wexpand(rr, 16))
 			goto err;
-		RSAZ_1024_mod_exp_avx2(rr->d, a->d, p->d, m->d, mont->RR.d,
-		    mont->n0[0]);
+		RSAZ_1024_mod_exp_avx2(rr->d, a->d, p->d, m->d, mont->RR.d, mont->n0[0]);
 		rr->top = 16;
 		rr->neg = 0;
 		bn_correct_top(rr);
@@ -662,7 +660,7 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p,
 		goto err;
 	}
 	else if((8 == a->top) && (8 == p->top) && (BN_num_bits(m) == 512)) {
-		if(NULL == bn_wexpand(rr, 8))
+		if(!bn_wexpand(rr, 8))
 			goto err;
 		RSAZ_512_mod_exp(rr->d, a->d, p->d, m->d, mont->n0[0], mont->RR.d);
 		rr->top = 8;

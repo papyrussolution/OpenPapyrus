@@ -110,7 +110,7 @@ static void generateMTFValues(EState* s)
 	   except for the last one, which is arranged in
 	   compressBlock().
 	 */
-	uint32* ptr   = s->ptr;
+	uint32 * ptr   = s->ptr;
 	uchar* block  = s->block;
 	uint16* mtfv  = s->mtfv;
 	makeMaps_e(s);

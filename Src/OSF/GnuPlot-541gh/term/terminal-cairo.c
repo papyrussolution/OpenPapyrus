@@ -956,7 +956,7 @@ void cairopng_write_cropped_image(cairo_surface_t * surface)
 	uint32 BG = (cairo_params->transparent) ? 0x0 : ~0x0;
 	// Row-wise, top-down iteration 
 	for(i = 0; i < height; i++) {
-		row = (uint32*)(data + i * stride);
+		row = (uint32 *)(data + i * stride);
 		for(j = 0; j < width; j++) {
 			if(row[j] != BG) {
 				y1 = i;
@@ -967,7 +967,7 @@ void cairopng_write_cropped_image(cairo_surface_t * surface)
 found_y1:
 	// Row-wise, bottom-up iteration 
 	for(i = height - 1; i >= y1; i--) {
-		row = (uint32*)(data + i * stride);
+		row = (uint32 *)(data + i * stride);
 		for(j = 0; j < width; j++) {
 			if(row[j] != BG) {
 				y2 = i;

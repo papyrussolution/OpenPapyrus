@@ -262,7 +262,7 @@ int PEM_X509_INFO_write_bio(BIO * bp, X509_INFO * xi, EVP_CIPHER * enc,
 	char buf[PEM_BUFSIZE];
 	uchar * iv = NULL;
 
-	if(enc != NULL) {
+	if(enc) {
 		objstr = OBJ_nid2sn(EVP_CIPHER_nid(enc));
 		if(objstr == NULL
 		    /*

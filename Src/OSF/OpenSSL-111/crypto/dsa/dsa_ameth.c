@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/asn1.h>
-//#include <openssl/bn.h>
-//#include <openssl/cms.h>
-//#include <asn1_int.h>
-//#include <evp_int.h>
 #include "dsa_locl.h"
 
 static int dsa_pub_decode(EVP_PKEY * pkey, X509_PUBKEY * pubkey)
@@ -81,7 +75,7 @@ static int dsa_pub_encode(X509_PUBKEY * pk, const EVP_PKEY * pkey)
 	DSA * dsa = pkey->pkey.dsa;
 	if(pkey->save_parameters && dsa->p && dsa->q && dsa->g) {
 		str = ASN1_STRING_new();
-		if(str == NULL) {
+		if(!str) {
 			DSAerr(DSA_F_DSA_PUB_ENCODE, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
@@ -155,7 +149,7 @@ static int dsa_priv_decode(EVP_PKEY * pkey, const PKCS8_PRIV_KEY_INFO * p8)
 		DSAerr(DSA_F_DSA_PRIV_DECODE, ERR_R_MALLOC_FAILURE);
 		goto dsaerr;
 	}
-	if((ctx = BN_CTX_new()) == NULL) {
+	if(!(ctx = BN_CTX_new())) {
 		DSAerr(DSA_F_DSA_PRIV_DECODE, ERR_R_MALLOC_FAILURE);
 		goto dsaerr;
 	}

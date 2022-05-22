@@ -770,8 +770,6 @@ static uint8 * UnrollDouble1Chan(_cmsTRANSFORM * info, uint16 wIn[], uint8 * acc
 	CXX_UNUSED(Stride);
 }
 
-//-------------------------------------------------------------------------------------------------------------------
-
 // For anything going from float
 static uint8 * UnrollFloatsToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, uint32 Stride)
 {
@@ -2414,7 +2412,7 @@ static void DupFormatterFactoryList(struct _cmsContext_struct* ctx, const struct
 	cmsFormattersFactoryList*  entry;
 	cmsFormattersFactoryList*  Anterior = NULL;
 	_cmsFormattersPluginChunkType* head = (_cmsFormattersPluginChunkType*)src->chunks[FormattersPlugin];
-	_cmsAssert(head != NULL);
+	assert(head != NULL);
 	// Walk the list copying all nodes
 	for(entry = head->FactoryList; entry != NULL; entry = entry->Next) {
 		cmsFormattersFactoryList * newEntry = (cmsFormattersFactoryList*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(cmsFormattersFactoryList));
@@ -2433,7 +2431,7 @@ static void DupFormatterFactoryList(struct _cmsContext_struct* ctx, const struct
 // The interpolation plug-in memory chunk allocator/dup
 void _cmsAllocFormattersPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
-	_cmsAssert(ctx);
+	assert(ctx);
 	if(src) {
 		// Duplicate the LIST
 		DupFormatterFactoryList(ctx, src);

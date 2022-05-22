@@ -232,6 +232,8 @@
 	#include <queue>
 	#include <cerrno>
 	#include <system_error>
+	#include <forward_list>
+	#include <numeric>
 #endif
 
 //#if _MSC_VER >= 1910
@@ -501,7 +503,603 @@
 #endif
 #define CALLPTRMEMB(ptr, memb)          if(ptr) ptr->memb;
 #define CALLTYPEPTRMEMB(typ, ptr, memb) if(ptr) ((typ *)ptr)->memb;
+//
+//
+//
+#define ASSIGN_PTR(ptr,val)   if(ptr) *(ptr) = (val);
+#define RVALUEPTR(val,ptr)    ((ptr)?((val = *(ptr)), 1) : 0)
+#define DEREFPTROR(ptr,alt)   ((ptr)?(*(ptr)):(alt))
+#define DEREFPTRORZ(ptr)      DEREFPTROR(ptr,0)
+#define CENUMINCR(et, v)      (v) = static_cast<et>(static_cast<int>(v)+1) // @v11.3.8 Макрос для обхода ошибки c++ при инкременте enum-value, унаследованного из c-кода
+#define PTR8(p)               (reinterpret_cast<uint8 *>(p))
+#define PTR16(p)              (reinterpret_cast<uint16*>(p))
+#define PTR32(p)              (reinterpret_cast<uint32 *>(p))
+#define PTR64(p)              (reinterpret_cast<uint64*>(p))
+#define PTRDBL(p)             (static_cast<double*>(p))
+#define PTR8C(p)              (reinterpret_cast<const uint8 *>(p))
+#define PTR16C(p)             (reinterpret_cast<const uint16*>(p))
+#define PTR32C(p)             (reinterpret_cast<const uint32 *>(p))
+#define PTR64C(p)             (reinterpret_cast<const uint64*>(p))
+#define PTRDBLC(p)            (reinterpret_cast<const double*>(p))
+#define PTRCHR(p)             (static_cast<char *>(p)) // @v10.7.8
+#define PTRCHRC(p)            (static_cast<const char *>(p)) // @v10.7.8
+#define PTRCHR_(p)            (reinterpret_cast<char *>(p)) // @v10.7.8
+#define PTRCHRC_(p)           (reinterpret_cast<const char *>(p)) // @v10.7.8
+#define PTR2U(p)              (static_cast<uint32>(p))
+#define U2PTR(typ,u)          (static_cast<typ *>(u))
+#define U2PTRV(u)             (static_cast<void *>(u))
+#define ALIGNSIZE(s,bits)     ((((s) + ((1 << (bits))-1)) >> (bits)) << (bits))
+#ifndef MIN
+	#define MIN(a,b)          ((a)<(b)?(a):(b))
+#endif
+#ifndef MAX
+	#define MAX(a,b)          ((a)>(b)?(a):(b))
+#endif
+#define LoByte(w)             (static_cast<uint8>(w))
+#define HiByte(w)             (static_cast<uint8>(static_cast<uint16>(w) >> 8))
+#define LoWord(l)             (static_cast<uint16>(l))
+#define HiWord(l)             (static_cast<uint16>(static_cast<uint32>(l) >> 16))
+#define MakeLong(low,high)    (static_cast<long>((static_cast<uint16>(low)) | ((static_cast<ulong>(static_cast<uint16>(high))) << 16)))
 
+#define oneof2(f,c1,c2)                   ((f)==(c1)||(f)==(c2))
+#define oneof3(f,c1,c2,c3)                ((f)==(c1)||(f)==(c2)||(f)==(c3))
+#define oneof4(f,c1,c2,c3,c4)             ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4))
+#define oneof5(f,c1,c2,c3,c4,c5)          ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5))
+#define oneof6(f,c1,c2,c3,c4,c5,c6)       ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6))
+#define oneof7(f,c1,c2,c3,c4,c5,c6,c7)    ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7))
+#define oneof8(f,c1,c2,c3,c4,c5,c6,c7,c8) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8))
+#define oneof9(f,c1,c2,c3,c4,c5,c6,c7,c8,c9) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9))
+#define oneof10(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10))
+#define oneof11(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11))
+#define oneof12(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12))
+#define oneof13(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12)||(f)==(c13))
+#define oneof14(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12)||(f)==(c13)||(f)==(c14))
+#define NZOR(v,a)                   ((v)?(v):(a))
+#define NZSTR(v)                    ((v)?(v):"") // @v11.3.12
+//#define NZOR_F(v,a)                 ((!!(v))?(v):(a))
+// Использование SETIFZ может инициировать нежелательное замечание компилятора "assignment within conditional expression" (MSVC C4706).
+// Если этот побочный эффект неприемлем, то используйте SETIFZQ (в этом случае применить его в условном выражении не удасться.
+#define SETIFZ(v,a)  (!!(v) || !!((v)=(a)))
+#define SETIFZQ(v,a) {if(!(v)) (v)=(a);} // @v11.1.12
+#define SETMAX(v,b) {if((v)<(b)) (v)=(b);}
+#define SETMIN(v,b) {if((v)>(b)) (v)=(b);}
+#define SETMINMAX(v,i,x) {if((v)>(x)) (v)=(x); else if((v)<(i)) (v)=(i);}
+#define MINMAX(v,i,x)               (((v)<(i)) ? (i) : (((v)>(x)) ? (x) : (v)))
+#define ICEIL(v,quant)              (((v)+((quant)-1))/(quant)*(quant))
+#define IFLOOR(v,quant)             ((v)/(quant)*(quant))
+
+#define SETFLAG(v,f,b) {if(b) {(v)|=(f);} else {(v)&=~(f);}}
+#define SETFLAGBYSAMPLE(v,f,b)      {if((b)&(f)) {(v)|=(f);} else {(v)&=~(f);}}
+#define TESTFLAG(v1,v2,f)           (((v1)&(f))==((v2)&(f)))
+#define TESTMULTFLAG(v,f)           (((v)&(f))==(f))
+#define INVERSEFLAG(v,f) {if((v)&(f)) {(v)&=~(f);} else {(v)|=(f);}}
+// Descr: Если в поле v установлены оба флага f1 и f2 либо не установлен ни один из них, то возвращает 0, в противном случае - значение одного из установленных флагов.
+#define CHKXORFLAGS(v,f1,f2)        ((((v)&(f1)) ^ ((v)&(f2))) ? (((v)&(f1))?(f1):(f2)) : 0)
+#define SETUPFLAGS(value, andFlags, notFlags) { (value) |= (andFlags); (value) &= ~(notFlags); }
+#define BIN(x)                      ((x)?1:0)
+#define LOGIC(x)                    ((x)?true:false)
+#define BOOLXOR(p1,p2)              (((p1)&&(p2))||(!(p1)&&!(p2)))
+#define DELETEANDASSIGN(p, n)       ((delete (p)), (p) = (n))
+#define ZDELETE(p)                  DELETEANDASSIGN(p, 0)
+#define ZDELETEFAST(p) {if(p) ((delete (p)), (p) = 0);}
+#define ZDELETEARRAY(p)             ((delete [] (p)), (p) = 0)
+#define FREEANDASSIGN(p, n)         (SAlloc::F(p), (p) = (n))
+#define ZFREE(p)                    FREEANDASSIGN((p), 0)
+//
+// Exception handling
+//
+#define EXCEPTVAR(intvar)      int*__sexcept=&(intvar)
+#define EXCEPT                 *__sexcept
+#define CALLEXCEPT()           goto __scatch;
+#define CALLEXCEPT_S(val)      {SLS.SetError(val);goto __scatch;}
+#define CALLEXCEPT_S_S(val,s) {SLS.SetError(val, s);goto __scatch;}
+#define CALLEXCEPTV(val) {*__sexcept=val;goto __scatch;}
+#define THROW(expr) {if(!(expr)){goto __scatch;}}
+#define THROWEC(expr) {if(!!(expr)){goto __scatch;}}
+#define THROW_V(expr,val)      {if(!(expr)){*__sexcept=val;goto __scatch;}}
+#define THROW_S(expr,val)      {if(!(expr)){SLS.SetError(val);goto __scatch;}}
+#define THROW_S_S(expr,val,s) {if(!(expr)){SLS.SetError(val, s);goto __scatch;}}
+#define CATCH                  goto __sendcatch;__scatch:
+#define ENDCATCH               __sendcatch:;
+#define CATCHZOK               \
+	goto __sendcatch;__scatch:\
+	ok = 0;\
+	__sendcatch:;
+//
+// SLIB Error Codes
+//
+#define SLERR_SUCCESS                    0
+#define SLERR_NOMEM                      1
+#define SLERR_INVRANGE                   2
+#define SLERR_BOUNDS                     3
+#define SLERR_BUFTOOSMALL                4
+#define SLERR_NOFOUND                    5
+#define SLERR_INVSYMBOL                  6
+#define SLERR_INVDATA                    7
+#define SLERR_EOLEXPECTED                8
+#define SLERR_DATAEXPECTED               9
+#define SLERR_TERMEXPECTED              10
+#define SLERR_INVDAY                    11
+#define SLERR_INVMONTH                  12
+#define SLERR_INVYEAR                   13
+#define SLERR_ARYDELTA                  15
+#define SLERR_ARYZERODELTA              16
+#define SLERR_ARYNOTORD                 17
+#define SLERR_ARYITEMNFOUND             SLERR_NOFOUND
+#define SLERR_ARYDUPITEM                18
+#define SLERR_ARYZEROCOUNT              19
+#define SLERR_FILENOTFOUND              20
+#define SLERR_READFAULT                 21
+#define SLERR_WRITEFAULT                22
+#define SLERR_INVFORMAT                 23
+//
+// Printer errors
+//
+#define SLERR_PRTNOTREADY               24
+#define SLERR_PRTBUSY                   25
+#define SLERR_PRTOUTOFPAPER             26
+#define SLERR_REZNFOUND                 27
+#define SLERR_PGLENTOOSMALL             28 // Page lenght too small for report
+#define SLERR_NODEFPRINTER              29 // Не удалось идентифицировать принтер по умолчанию
+
+#define SLERR_OPENFAULT                 30 // Error opening file
+#define SLERR_MKDIRFAULT                31 // Error creating directory
+#define SLERR_INVALIDCRC                32 // Error recovering file (invalid CRC)
+#define SLERR_CANTCOMPRESS              33 // Ошибка сжатия //
+#define SLERR_CANTDECOMPRESS            34 // Ошибка распаковки
+#define SLERR_DISKFULL                  35 // Диск переполнен
+#define SLERR_WINDOWS                   36 // Ошибка Win32
+#define SLERR_INVGUIDSTR                37 // Недопустимая строка GUID (%s)
+#define SLERR_INVSERIALIZEVER           38 // Считан недопустимый номер версии сериализации (%s)
+#define SLERR_DLLLOADFAULT              39 // Ошибка загрузки DLL %s
+//
+// Communication errors
+//
+#define SLERR_COMMINIT                  40 // Error initializing comm port %s
+#define SLERR_COMMSEND                  41 // Error sending data to comm port
+#define SLERR_COMMRCV                   42 // Error receiving data from comm port
+#define SLERR_HTTPCODE                  43 // HTTP Error code=%s
+#define	SLERR_USB						44 // Ошибка usb: %s
+//
+// Socket errors
+//
+#define SLERR_SOCK_UNABLEOPEN           50 // Ошибка открытия сокета
+#define SLERR_SOCK_CONNECT              51 // Ошибка установки соединения с хостом '%s'
+#define SLERR_SOCK_HOSTRESLVFAULT       52 // Ошибка разрешения имени хоста
+#define SLERR_SOCK_TIMEOUT              53 // Превышен таймаут ожидания сокета
+#define SLERR_SOCK_OPTERR               54 // Ошибка состояния сокета
+#define SLERR_SOCK_NONBLOCKINGCONN      55 // Ошибка неблокового соединени с хостом
+#define SLERR_SOCK_NONBLOCKINGWR        56 // Ошибка неблоковой записи в сокет
+#define SLERR_SOCK_NONBLOCKINGRD        57 // Ошибка неблокового чтения из сокета
+#define SLERR_SOCK_SEND                 58 // Ошибка записи в сокет
+#define SLERR_SOCK_RECV                 59 // Ошибка чтения из сокета
+#define SLERR_SOCK_CONNCLOSEDBYHOST     60 // Соединение закрыто хостом
+#define SLERR_SOCK_LINETOOLONG          61 // Считанная строка слишком велика
+#define SLERR_SOCK_FILETRANSMFAULT      62 // Ошибка передачи файла
+#define SLERR_INVPATH				    63 // Неправильный формат пути
+#define SLERR_SOCK_ACCEPT			    64 // Ошибка при создании соединения //
+#define SLERR_SOCK_LISTEN			    65 // Ошибка при создании соединения //
+#define SLERR_SOCK_WINSOCK              66 // Ошибка WinSock (call WSAGetLastError)
+//
+// Matrix error
+//
+#define SLERR_MTX_INCOMPATDIM_VADD      70 // Incompatible dim in vect+vect op
+#define SLERR_MTX_INCOMPATDIM_VIMX      71 // Incompatible dim in vect to matrix op
+#define SLERR_MTX_INCOMPATDIM_MVMUL     72 // Incompatible dim in matrix*vector op
+#define SLERR_MTX_INCOMPATDIM_MMMUL     73 // Incompatible dim in matrix*matrix op
+#define SLERR_MTX_INCOMPATDIM_MMADD     74 // Incompatible dim in matrix+matrix op
+#define SLERR_MTX_INVERSE               75 // Ошибка обращения матрицы.
+
+#define SLERR_FILETOOBIG                95 // @v11.3.4 Файл '%s' слишком большой
+#define SLERR_INVPARAM                  96 // Недопустимый параметр функции (%s)
+#define SLERR_FILESHARINGVIOLATION      97 // Ошибка совместного доступа к файлу
+#define SLERR_FLOCKFAULT                98 // Ошибка блокировки файла //
+#define SLERR_USERBREAK                 99 // Операция прервана пользователем
+#define SLERR_FILENOTOPENED            100 // Файл не открыт
+
+#define SLERR_TXTDB_ZEROLENFIXEDFLD    101 // Для текстового файла с фиксированными полями должны быть определены длины всех полей
+#define SLERR_TXTDB_EMPTYFLDDIV        102 // Для текстового файла не определен разделитель полей
+#define SLERR_TXTDB_EMPTYVERTTERM      103 // Для текстового файла с вертикальной раскладкой не определ терминатор записей
+#define SLERR_TXTDB_MISSPLHEADER       104 // Повторная попытка добавить заголовок к файлу, либо уже добавлены записи (%s)
+#define SLERR_XMLDB_INVRECORROOTTAG    110 // Для xml файла не определен корневой тег или тег записи
+#define SLERR_XMLDB_ROOTTAGEMPTY       111 //
+#define SLERR_XMLDB_RECTAGEMPTY        112 //
+#define SLERR_XMLDB_ROOTTAGINVCHR      113 //
+#define SLERR_XMLDB_RECTAGINVCHR       114 //
+#define SLERR_EXCL_SAVEFAULT           115 // @v10.9.6 Ошибка сохранения файла Excel '%s'
+
+#define SLERR_SDREC_DUPFLDID           121 // Поле с заданным идентификатором в записи уже присутствует ('%s')
+#define SLERR_SDREC_DUPFLDNAME         122 // Поле с заданным именем '%s' в записи уже присутствует
+#define SLERR_SDREC_SYNTAX             123 // Ошибка синтаксиса при разборе определения типа поля (%s) //
+#define SLERR_SDREC_FLDIDNFOUND        124 // Поле с ид=%s в записи отсутствует
+#define SLERR_DUPIDXSEG                125 // Дублирование поля в индексе
+#define SLERR_DBF_INVHEADER            126 // Нарушена целостность заголовка DBF-файла '%s'
+#define SLERR_DBF_NOTOPENED            127 // Таблица DBF '%s' не открыта
+#define SLERR_DBF_INVRECNO             128 // Недопустимый номер записи при доступе к DBF-таблице '%s'
+#define SLERR_SPII_CMDHDRREADFAULT     129 // Ошибка чтения заголовка команды StyloPalm: %s
+#define SLERR_SPII_CMDREADFAULT        130 // Ошибка чтения тела команды StyloPalm: %s
+//
+// CRegExp error
+//
+#define SLERR_RE_UNINIT                150 // Регулярное выражение не инициализировано
+#define SLERR_RE_NOEXPR                151 // CoolRegexp::compile(): No expression supplied.\n");
+#define SLERR_RE_EXPRTOOBIG            152 // CoolRegexp::compile(): Expression too big.\n");
+#define SLERR_RE_NOMEM                 153 // CoolRegexp::compile(): Out of memory.\n");
+#define SLERR_RE_INVBRANGE             154 // CoolRegexp::compile(): Invalid range in [].\n");
+#define SLERR_RE_UNMATCHEDBR           155 // CoolRegexp::compile(): Unmatched [].\n");
+#define SLERR_RE_INTERNAL              156 // CoolRegexp::compile(): Internal error.\n"); /* Never here */
+#define SLERR_RE_WCNOTHFOLLOWS         157 // CoolRegexp::compile(): ?+* follows nothing.\n");
+#define SLERR_RE_TRAILINGBSL           158 // CoolRegexp::compile(): Trailing backslash.\n");
+#define SLERR_RE_WCCOULDBEEMPT         159 // CoolRegexp::compile() : *+ operand could be empty.\n");
+#define SLERR_RE_NESTEDWC              160 // CoolRegexp::compile(): Nested *?+.\n");
+#define SLERR_RE_TOOMANYPAR            161 // CoolRegexp::compile(): Too many parentheses.\n");
+#define SLERR_RE_UNMATCHPAR            162 // CoolRegexp::compile(): Unmatched parentheses.\n");
+#define SLERR_RE_BUFCORRUPT            163 // CoolRegexp::find(): Compiled regular expression corrupted.\n");
+#define SLERR_RE_MEMCORRUPT            164 // CoolRegexp::find(): Internal error -- memory corrupted.\n");
+#define SLERR_RE_PTRCORRUPT            165 // CoolRegexp::find(): Internal error -- corrupted pointers.\n");
+
+#define SLERR_HT_NOASSOC               180 // Экземпляр хэш-таблицы не поддерживает ассоциации
+#define SLERR_FILE_DELETE              181 // Ошибка удаления файла '%s'
+#define SLERR_FILE_RENAME              182 // Ошибка переименования файла '%s'
+#define SLERR_INIOPENFAULT             183 // Ошибка открытия INI-файла '%s'
+#define SLERR_PAINTTOOLIDBUSY          184 // Идентификатор PaintToolBox занят
+#define SLERR_INVHOUR                  185 // Недопустимый час во времени
+#define SLERR_INVMIN                   186 // Недопустимые минуты во времени
+#define SLERR_INVSEC                   187 // Недопустимые секунды во времени
+#define SLERR_INVTSEC                  188 // Недопустимые сотые секунд во времени
+#define SLERR_UNMATCHSTREAMARRAY       189 // Несоответствующий размер записи считываемого массива данных (%s)
+#define SLERR_INVGEOLATITUDE           190 // Недопустимое значение географической широты
+#define SLERR_INVGEOLONGITUDE          191 // Недопустимое значение географической долготы
+#define SLERR_SRLZ_UNDEFSUPPDATE       192 // Для восстановления даты из потока нет необходимой опорной даты
+#define SLERR_SRLZ_INVDATAIND          193 // Недопустимое значение индикатора данных при восстановлении из потока
+#define SLERR_SRLZ_UNEQFLDLIST         194 // Ассоциированная с данными структура не равна заданной в контексте
+#define SLERR_SRLZ_COMMRDFAULT         195 // Общий сбой при чтении данных (данные не соответствуют ожидаемым значениям)
+#define SLERR_SBUFRDSIZE               196 // Ошибка чтения из буфера: размер считанных данных не равен запрошенному (%s)
+#define SLERR_BINSET_SRCIDNFOUND       197 // Ошибка SBinarySet: в исходном пуле отсутствует отрезок с идентификатором %s
+#define SLERR_BINSET_UNSRLZ_SIGNATURE  198 // Ошибка чтения SBinarySet: неверный заголовок или сигнатура
+#define SLERR_BINSET_UNSRLZ_ITEMHDR    199 // Ошибка чтения SBinarySet: инвалидный заголовок элемента
+
+#define SLERR_WINSVC_COMMON            200 // Ошибка Windows Service
+#define SLERR_WINSVC_SVCNEXISTS        201 // Windows Service '%s' не существует
+#define SLERR_WINSEC_ACQCREDHDL        202 // "AcquireCredentialsHandle failed with %s"
+#define SLERR_WINSEC_INITSECCTX        203 // "InitializeSecurityContext failed with %s"
+#define SLERR_WINSEC_COMPLAUTHTOK      204 // "CompleteAuthToken failed with %s"
+#define SLERR_WINSEC_COMPLAUTHTOKNSUPP 205 // "CompleteAuthToken not supported"
+#define SLERR_WINSEC_ACCPTSECCTX       206 // "AcceptSecurityContext failed with %s"
+
+#define SLERR_WMI_CREATELOCATOR        210 // Ошибка создания WMI-локатора
+#define SLERR_WMI_CONNECTSRV           211 // Ошибка соединения с WMI-сервером '%s'
+#define SLERR_WMI_SETPROXIBLANKET      212 // Ошибка вызова метода CoSetProxyBlanket
+#define SLERR_WMI_GETOBJECT            213 // Ошибка вызова метода WMI GetObject (%s)
+#define SLERR_WMI_GETMETHOD            214 // Ошибка вызова метода WMI GetMethod (%s)
+#define SLERR_WMI_SPAWNINSTANCE        215 // Ошибка вызова метода WMI SpawnInstance
+#define SLERR_WMI_EXECMETHOD           216 // Ошибка вызова метода WMI ExecMethod '%s'
+#define SLERR_WMI_EXECMETHODRETVAL     217 // Код возврата созданного процесса '%s' не равен 0
+#define SLERR_GLOBOBJIDXNFOUNT         218 // Не найден глобальный объект SLib по индексу %s
+#define SLERR_LANGSYMBNFOUND           219 // Не найден символ языка '%s'
+#define SLERR_DISPIFCCLI               220 // Ошибка вызова dispatch-интерфейса %s
+//
+//
+//
+#define SLERR_MATH_DOMAIN                      300 // Ошибка области определения функции (sqrt(-1))
+#define SLERR_MATH_ROUND                       301 // Ошибка округления //
+#define SLERR_MATH_OVERFLOW                    302 // Ошибка переполнения ieee-числа
+#define SLERR_MATH_UNDERFLOW                   303 // Ошибка переполнения нижней границы точности ieee-числа
+#define SLERR_MATH_MAXITER                     304 // Ошибка превышения максимального числа итераций
+#define SLERR_MATH_TSVECBYSYMBNFOUND           305 // Вектор временной серии с символом '%s' не найден
+#define SLERR_BASE64DECODEFAULT                306 // Ошибка декодирования base64
+//
+//
+//
+#define SLERR_INVDBSYMB                        400 // Неверный символ базы данных '%s'
+#define SLERR_UTFCVT_SRCEXHAUSTED              401 // Не полный входной буфер UTF8
+#define SLERR_UTFCVT_ILLUTF8                   402 // Недопустимый входной символ UTF8
+#define SLERR_UTFCVT_ILLUTF16                  403 // Недопустимый входной символ UTF16
+#define SLERR_TAB_NFOUND                       404 // Таблица STab '%s' не найдена
+#define SLERR_INVIMAGEPIXFORMAT                405 // Недопустимый формат пикселя.
+#define SLERR_IMAGEFILENOTJPEG                 406 // Файл '%s' не является JPEG-файлом.
+#define SLERR_JPEGLOADFAULT                    407 // Ошибка загрузки JPEG-Файла '%s'
+#define SLERR_IMAGEFILENOTPNG                  408 // Файл '%s' не является PNG-файлом.
+#define SLERR_PNGLOADFAULT                     409 // Ошибка загрузки PNG-изображения: '%s'
+#define SLERR_UNSUPPIMGFILEFORMAT              410 // Не поддерживаемый или недопустимый формат файла изображения: '%s'
+#define SLERR_SFILRDSIZE                       411 // Ошибка чтения из файла: размер считанных данных не равен запрошенному (%s)
+#define SLERR_IMAGEFILENOTICO                  412 // Файл '%s' не является ICO-файлом.
+#define SLERR_PNGSTOREFAULT                    413 // Ошибка сохранения PNG-изображения: '%s'
+#define SLERR_INVSDRAWFIGKIND                  414 // Internal: Недопустимый вид графической фигуры (%s)
+#define SLERR_DUPDRAWGROUPSYMB                 415 // Дублирование символа '%s' элемента, добавляемого в SDrawGroup
+#define SLERR_WTMTA_UNDEFFIG                   416 // Для элемента TWhatmanToolArray '%s' не заданы ни фигура, ни иконка.
+#define SLERR_WTMTA_BADCRC                     417 // Нарушена целостность WTA-файла '%s'
+#define SLERR_IMAGEFILENOTBMP                  418 // Файл '%s' не является BMP-файлом.
+#define SLERR_INVBMPHEADER                     419 // Недопустимый BMP-заголок (%s)
+#define SLERR_BMPCOMPRNSUPPORTED               420 // Сжатые BMP-изображения не поддерживаются.
+#define SLERR_SOAPR_UNDEFREF                   421 // Неопределенная ссылка '%s' в SOAP-результате
+#define SLERR_SOAPR_UNDEFTYPE                  422 // Неопределенный тип данных '%s' в SOAP-результате
+#define SLERR_SOAPR_ITEMREFNFOUND              423 // Не найден элемент SOAP-результата по ссылке '%s'
+#define SLERR_SOAPR_ITEMREFTYPECONFL           424 // Конфликт между атрибутами ref и type (%s) в элементе SOAP-ответа
+#define SLERR_SOPAR_UNRESITEMHASNTREF          425 // Неразрешенный элемент структуры (%s) SAOP-результата не имеет ссылки
+#define SLERR_SOAPR_UNRESOLVEDITEM             426 // Не удалось резрешить элемент структуры (%s) SOAP-результата
+#define SLERR_SOAPR_ITEMNAMENFOUND             427 // Элемент SOAP-пакета '%s' не найден
+#define SLERR_SOAPR_INVITEMPOS                 428 // Недопустимый индекс (%s) элемента SOAP-пакета
+#define SLERR_WTMTA_INVSIGNATURE               429 // Неверная сигнатура WT-файла '%s'
+#define SLERR_USB_HIDUSBCLASSFAILED	           430 // Устройство не относится к классу USB или HID
+#define SLERR_SFILRDNULLOUTP                   431 // Попытка чтения из NullOutput-файла
+#define SLERR_MAIL_NOTCONNECTED                432 // Внутренняя ошибка - не установлено соединение почтового клиента
+#define SLERR_MAIL_INVPROTOCOL                 433 // Внутренняя ошибка - недопустимый протокол '%s' почтового клиента
+#define SLERR_MAIL_SMTP_NOREPLY                434 // Почтовый сервер SMTP не ответил на запрос.
+#define SLERR_MAIL_SMTP_REPLYERR               435 // Почтовый сервер SMTP вернул ошибку %s.
+#define SLERR_MAIL_POP3_NOREPLY                436 // Почтовый сервер POP3 не ответил на запрос.
+#define SLERR_MAIL_POP3_REPLYERR               437 // Почтовый сервер POP3 вернул ошибку '%s'
+#define SLERR_MAIL_POP3_UNDEFREPLY             438 // Почтовый сервер POP3 вернул не известный ответ '%s'
+#define SLERR_FTP_NOTCONNECTED                 451 // FTP-соединение не установлено
+
+#define SLERR_PUNYCODE_BADINPUT                452 // PUNYCODE Input is invalid
+#define SLERR_PUNYCODE_BIGOUTPUT               453 // PUNYCODE Output would exceed the space provided
+#define SLERR_PUNYCODE_OVERFLOW                454 // PUNYCODE Wider integers needed to process input
+#define SLERR_CURL                             455 // Ошибка библиотеки libcurl
+#define SLERR_LIBXML                           456 // Ошибка библиотеки libxml
+#define SLERR_DUPSYMBWITHUNEQID                457 // Дублирование символа '%s' элемента с отличным идентификатором
+#define SLERR_INVIMAGESIZE                     458 // Недопустимый размер изображения ([1..30000], [1..30000])
+#define SLERR_WTM_DUPLAYOUTSYMB                459 // @v10.4.9 Дублирование символа layout
+#define SLERR_STRINGISNTUTF8                   460 // @v11.3.3 Строка - не в кодировке utf-8
+#define SLERR_LMDB                             461 // @v11.3.6 Ошибка базы данных LMDB
+#define SLERR_FILSTRG_INVHANDLE                462 // @v11.3.7 Внутренняя ошибка: недопустимый манипулятор чтения/записи объекта SFileStorage
+#define SLERR_FILSTRG_INVNAME                  463 // @v11.3.7 Имя сохраняемого файла объекта SFileStorage должно быть не длиннее 255 символов и содержать только [0-9a-z_+-,.=@]
+#define SLERR_FILSTRG_FILENFOUND               464 // @v11.3.7 Файл с именем '%s' в хранилище SFileStorage отсутствует
+#define SLERR_INVORUNSUPPHASHFUNC              465 // @v11.3.7 Недопустимая либо неподдерживаемая хэш-функция // 
+
+#define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
+#define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
+#define SLERR_FANN_WRONG_CONFIG_VERSION        502 // Wrong version of configuration file
+#define SLERR_FANN_CANT_READ_CONFIG            503 // Error reading info from configuration file
+#define SLERR_FANN_CANT_READ_NEURON            504 // Error reading neuron info from configuration file
+#define SLERR_FANN_CANT_READ_CONNECTIONS       505 // Error reading connections from configuration file
+#define SLERR_FANN_WRONG_NUM_CONNECTIONS       506 // Number of connections not equal to the number expected
+#define SLERR_FANN_CANT_OPEN_TD_W              507 // Unable to open train data file for writing
+#define SLERR_FANN_CANT_OPEN_TD_R              508 // Unable to open train data file for reading
+#define SLERR_FANN_CANT_READ_TD                509 // Error reading training data from file
+#define SLERR_FANN_CANT_ALLOCATE_MEM           510 // Unable to allocate memory
+#define SLERR_FANN_CANT_TRAIN_ACTIVATION       511 // Unable to train with the selected activation function
+#define SLERR_FANN_CANT_USE_ACTIVATION         512 // Unable to use the selected activation function
+#define SLERR_FANN_TRAIN_DATA_MISMATCH         513 // Irreconcilable differences between two <Fann::TrainData> structures
+#define SLERR_FANN_CANT_USE_TRAIN_ALG          514 // Unable to use the selected training algorithm
+#define SLERR_FANN_TRAIN_DATA_SUBSET           515 // Trying to take subset which is not within the training set
+#define SLERR_FANN_INDEX_OUT_OF_BOUND          516 // Index is out of bound
+#define SLERR_FANN_SCALE_NOT_PRESENT           517 // Scaling parameters not present
+#define SLERR_FANN_INPUT_NO_MATCH              518 // The number of input neurons in the ann and data don't match
+#define SLERR_FANN_OUTPUT_NO_MATCH             519 // The number of output neurons in the ann and data don't match
+#define SLERR_FANN_WRONG_PARAMETERS_FOR_CREATE 520 // The parameters for create_standard are wrong, either too few parameters provided or a negative/very high value provided
+#define SLERR_FANN_INVLAYERCOUNT               521 // Недопустимое количество слоев нейронной сети
+#define SLERR_FANN_INVLAYERSIZE                522 // Недопустимый размер слоя нейронной сети
+#define SLERR_FANN_INVTRAINALG                 523 // Недопустимый алгоритм обучения нейронной сети
+//#define SLERR_JSON_OK = 1,                  // everything went smoothly
+//#define SLERR_JSON_MEMORY,                   // an error occurred when allocating memory
+#define SLERR_JSON_INCOMPLETE_DOCUMENT         550 // the parsed document didn't ended
+#define SLERR_JSON_WAITING_FOR_EOF             551 // A complete JSON document tree was already finished but needs to get to EOF. Other characters beyond whitespaces produce errors
+#define SLERR_JSON_MALFORMED_DOCUMENT          552 // the JSON document which was fed to this parser is malformed
+#define SLERR_JSON_INCOMPATIBLE_TYPE           553 // the currently parsed type does not belong here
+#define SLERR_JSON_ILLEGAL_CHARACTER           554 // the currently parsed character does not belong here
+#define SLERR_JSON_BAD_TREE_STRUCTURE          555 // the document tree structure is malformed
+#define SLERR_JSON_MAXIMUM_LENGTH              556 // the parsed string reached the maximum allowed size
+#define SLERR_JSON_UNKNOWN_PROBLEM             557 // some random, unaccounted problem occurred
+
+#define SLERR_URI_SYNTAX                       570 // Parsed text violates expected format
+#define SLERR_URI_NULL                         571 // One of the params passed was NULL although it mustn't be
+//#define SLERR_URI_MALLOC                     572 // Requested memory could not be allocated
+#define SLERR_URI_OUTPUT_TOO_LARGE             573 // Some output is to large for the receiving buffer
+#define SLERR_URI_NOT_IMPLEMENTED              574 // The called function is not implemented yet
+#define SLERR_URI_RANGE_INVALID                575 // The parameters passed contained invalid ranges
+// Errors specific to ToStr
+#define SLERR_URI_TOSTRING_TOO_LONG        SLERR_URI_OUTPUT_TOO_LARGE // Deprecated, test for URI_ERROR_OUTPUT_TOO_LARGE instead
+// Errors specific to AddBaseUri
+#define SLERR_URI_ADDBASE_REL_BASE             576 // Given base is not absolute
+// Errors specific to RemoveBaseUri
+#define SLERR_URI_REMOVEBASE_REL_BASE          577 // Given base is not absolute
+#define SLERR_URI_REMOVEBASE_REL_SOURCE        578 // Given base is not absolute
+
+//#define SLERR_ZIP_OK             0  // N No error
+#define SLERR_ZIP_FIRSTERROR                   591  // @anchor
+#define SLERR_ZIP_MULTIDISK                    591  // N Multi-disk zip archives not supported
+#define SLERR_ZIP_RENAME                       592  // S Renaming temporary file failed
+#define SLERR_ZIP_CLOSE                        593  // S Closing zip archive failed
+#define SLERR_ZIP_SEEK                         594  // S Seek error
+#define SLERR_ZIP_READ                         595  // S Read error
+#define SLERR_ZIP_WRITE                        596  // S Write error
+#define SLERR_ZIP_CRC                          597  // N CRC error
+#define SLERR_ZIP_ZIPCLOSED                    598  // N Containing zip archive was closed
+#define SLERR_ZIP_NOENT                        599  // N No such file
+#define SLERR_ZIP_EXISTS                       600  // N File already exists
+#define SLERR_ZIP_OPEN                         601  // S Can't open file
+#define SLERR_ZIP_TMPOPEN                      602  // S Failure to create temporary file
+#define SLERR_ZIP_ZLIB                         603  // Z Zlib error
+#define SLERR_ZIP_MEMORY                       604  // N Malloc failure
+#define SLERR_ZIP_CHANGED                      605  // N Entry has been changed
+#define SLERR_ZIP_COMPNOTSUPP                  606  // N Compression method not supported
+#define SLERR_ZIP_EOF                          607  // N Premature end of file
+#define SLERR_ZIP_INVAL                        608  // N Invalid argument
+#define SLERR_ZIP_NOZIP                        609  // N Not a zip archive
+#define SLERR_ZIP_INTERNAL                     610  // N Internal error
+#define SLERR_ZIP_INCONS                       611  // N Zip archive inconsistent
+#define SLERR_ZIP_REMOVE                       612  // S Can't remove file
+#define SLERR_ZIP_DELETED                      613  // N Entry has been deleted
+#define SLERR_ZIP_ENCRNOTSUPP                  614  // N Encryption method not supported
+#define SLERR_ZIP_RDONLY                       615  // N Read-only archive
+#define SLERR_ZIP_NOPASSWD                     616  // N No password provided
+#define SLERR_ZIP_WRONGPASSWD                  617  // N Wrong password provided
+#define SLERR_ZIP_OPNOTSUPP                    618  // N Operation not supported
+#define SLERR_ZIP_INUSE                        619  // N Resource still in use
+#define SLERR_ZIP_TELL                         620  // S Tell error
+#define SLERR_ZIP_COMPRESSED_DATA              621  // @v10.8.4 N Compressed data invalid
+#define SLERR_ZIP_CANCELLED                    622  // @v10.8.4 N Operation cancelled
+#define SLERR_ZIP_LASTERROR                    622  // @anchor @v10.8.4 620-->622
+#define SLERR_ZLIB_BUFINFLATEFAULT             623  // @v11.2.9 Ошибка распаковки буфера данных
+
+#define SLERR_CRYPTO_INVPARAM                  651  // @v11.0.11 Ошибка SLCRYPTO - недопустимый параметр функции
+#define SLERR_CRYPTO_KEYBUFOVRFLW              652  // @v11.0.11 Ошибка SLCRYPTO - переполнение внутреннего буфера ключа
+#define SLERR_CRYPTO_INVKEYSIZE                653  // @v11.0.11 Ошибка SLCRYPTO - недопустимая длина ключа шифрования
+#define SLERR_CRYPTO_INVIVSIZE                 654  // @v11.0.11 Ошибка SLCRYPTO - недопустимая длина IV
+#define SLERR_CRYPTO_OPENSSL                   655  // @v11.0.11 Ошибка OpenSSL
+// Коды с префиксом SLERR_AMQP_ являются трансляцией кодов состояний библиотеки rabbitmq-c
+#define SLERR_AMQP_UNKN                        700 // Неизвестный AMQP-статус
+#define SLERR_AMQP_BAD_AMQP_DATA               701
+#define SLERR_AMQP_UNKNOWN_CLASS               702
+#define SLERR_AMQP_UNKNOWN_METHOD              703
+#define SLERR_AMQP_HOSTNAME_RESOLUTION_FAILED  704
+#define SLERR_AMQP_INCOMPATIBLE_AMQP_VERSION   705
+#define SLERR_AMQP_CONNECTION_CLOSED           706
+#define SLERR_AMQP_BAD_URL                     707
+#define SLERR_AMQP_SOCKET                      708
+#define SLERR_AMQP_INVALID_PARAMETER           709
+#define SLERR_AMQP_TABLE_TOO_BIG               710
+#define SLERR_AMQP_WRONG_METHOD                711
+#define SLERR_AMQP_TIMEOUT                     712
+#define SLERR_AMQP_TIMER_FAILURE               713
+#define SLERR_AMQP_HEARTBEAT_TIMEOUT           714
+#define SLERR_AMQP_UNEXPECTED_STATE            715
+#define SLERR_AMQP_SOCKET_CLOSED               716
+#define SLERR_AMQP_SOCKET_INUSE                717
+#define SLERR_AMQP_BROKER_UNSUPP_SASL_METHOD   718
+#define SLERR_AMQP_UNSUPPORTED                 719
+#define SLERR_AMQP_TCP                         720
+#define SLERR_AMQP_TCP_SOCKETLIB_INIT          721
+#define SLERR_AMQP_SSL                         722
+#define SLERR_AMQP_SSL_HOSTNAME_VERIFY_FAILED  723
+#define SLERR_AMQP_SSL_PEER_VERIFY_FAILED      724
+#define SLERR_AMQP_SSL_CONNECTION_FAILED       725
+// Коды ошибок разбора телефонного номера библиотекой libphonenumber
+#define SLERR_PHONENMB_INV_COUNTRY_CODE        760 // INVALID_COUNTRY_CODE in the java version.
+#define SLERR_PHONENMB_NOT_A_NUMBER            761
+#define SLERR_PHONENMB_TOO_SHORT_AFTER_IDD     762
+#define SLERR_PHONENMB_TOO_SHORT_NSN           763
+#define SLERR_PHONENMB_TOO_LONG_NSN            764 // TOO_LONG in the java version.
+
+#define SLERR_ERRNO_OFFSET                    2000 // Смещение с которого начинаются коды ошибок, соответствующие posix-мнемоникам (errno)
+#define SLERR_ERRNO_LAST                      2999 // Максимальное значение для posix errno (если я правильно понял, то errno не имеет официального максимуму потому использую свой собственный).
+
+// LastError
+//
+// @ModuleDecl(SType) {
+// Система динамических типов. Дескриптор типа является 4-байтовым
+// значение, хранящим идентификатор типа и размер.
+// Таким образом, максимальный размер одного поля данных составляет 0xffff байт.
+// Для очень больших данных может быть использован S_BLOB или S_CLOB (управление этими типами достаточно сложное).
+//
+#define INVALID_DATA_SIZE 0
+//
+// @v11.0.4
+// Type cast results
+//
+#define STCASTF_NORMAL             0 // Нормальное преобразование
+#define STCASTF_UNDEF             -1 // Результат неопределен (невозможное преобразование)
+#define STCASTF_POT_OVERFLOW  0x0001 // Потенциальное переполнение
+#define STCASTF_OVERFLOW      0x0002 // Фактическое переполнение
+#define STCASTF_POT_UNDERFLOW 0x0004 // Потенциальное нижнее переполнение
+#define STCASTF_UNDERFLOW     0x0008 // Фактическое нижнее переполнение
+#define STCASTF_POT_LOSS      0x0010 // Потенциальная потеря точности
+#define STCASTF_LOSS          0x0020 // Фактическая потеря точности
+//
+// Base types. Базовые типы, используемые для приведения и преобразования разных типов.
+//
+#define BTS_VOID             0
+#define BTS_STRING           1    // ASCIIZ
+#define BTS_INT              2    // 4 byte
+#define BTS_REAL             3    // 8 byte IEEE float
+#define BTS_DATE             4    // 4 byte LDATE
+#define BTS_TIME             5    // 4 byte LTIME
+#define BTS_DATETIME         6    // 8 byte LDATETIME
+#define BTS_POINT2           7    // 16 byte SPoint2R
+#define BTS_BOOL             8    // 4 byte Специализированный вариант. Фактически не применяется как базовый тип, но используется в локальных ситуациях.
+#define BTS_PTR              9    // Указатель. Важно, что размер его зависим от архитектуры (4 или 8 байт)
+#define BTS_INT64_          10    // 8 byte integer. Не является базовым типом. Определен для использования в DBConst
+//
+// Data types
+//
+#define S_VOID               0
+#define S_CHAR               1
+#define S_INT                2
+#define S_FLOAT              3
+#define S_DATE               4
+#define S_TIME               5
+#define S_DEC                6
+#define S_MONEY              7
+#define S_LOGICAL            8
+#define S_BOOL               S_LOGICAL
+#define S_NUMERIC            9
+#define S_BFLOAT            10
+#define S_LSTRING           11
+#define S_ZSTRING           12
+#define S_NOTE              13      // Для BTRIEVE - символьное поле переменной длины (последнее в таблице), для SQL - VARCHAR. Максимальная бинарная (с завершающим нулем) длина специфицируется //
+#define S_LVAR              14
+#define S_UBINARY           15
+#define S_UINT              S_UBINARY
+#define S_AUTOINC           16
+#define S_BIT               17
+#define S_STS               18
+
+#define S_INTRANGE          19		// int2 range only
+#define S_REALRANGE         20		// double range only
+#define S_DATERANGE         21      //
+#define S_DATETIME	        22      //
+#define S_ARRAY		        23		// not real STYPE, only ID. Массив, состоящий из данных одного типа
+#define S_STRUCT	        24		//--//--
+#define S_VARIANT           25      //
+#define S_WCHAR             26      // wide char-строка (оканчивается 0). Размер данных указывается в байтах.
+#define S_BLOB              27      // BLOB (для SQL-таблиц)
+#define S_CLOB              28      // CLOB (для SQL-таблиц)
+#define S_RAW               29      // RAW-data бинарное поле с произвольным содержимым
+#define S_ROWID             30      // ROWID (для SQL-таблиц)
+#define S_IPOINT2           31      // Целочисленная двумерная точка (x, y)
+#define S_FPOINT2           32      // Вещественная двумерная точка (x, y)
+#define S_WZSTRING          33      // Unicode-zstring
+#define S_UUID_             34      // (Суффиксное подчеркивание необходимо для отличия от class S_GUID)
+#define S_INT64             35      // @v10.6.3
+#define S_UINT64            36      // @v10.6.3
+#define S_COLOR_RGBA        37      // @v10.9.10 4-компонентное представление цвета ARGB class SColorBase
+//
+#define S_FIRSTUSERTYPE     50
+//
+// Максимальное количество типов в таблице
+//
+#define TYPE_TAB_SIZ 64
+
+#define S_ARRAY_INT  0x82
+#define S_ARRAY_DBL  0x83
+
+#define MKSTYPE(typ,siz)      (((static_cast<uint>(siz))<<16)|(typ))
+#define MKSTYPED(typ,siz,prc) (((prc)<<24)|((static_cast<uint>(siz))<<16)|(typ))
+#define GETSTYPE(typ)         ( (typ)&0x0000ffff)
+#define GETSSIZE(typ)         (((typ)&0xffff0000)>>16)
+#define GETSSIZED(typ)        (((typ)&0x00ff0000)>>16)
+#define GETSPRECD(typ)        (((typ)&0xff000000)>>24)
+
+#define T_CHAR             MKSTYPE(S_CHAR,1)
+#define T_INT              MKSTYPE(S_INT,2)
+#define T_UINT             MKSTYPE(S_UBINARY,2)
+#define T_UINT16           MKSTYPE(S_UBINARY,2)
+#define T_UINT32           MKSTYPE(S_UBINARY,4)
+#define T_UINT64           MKSTYPE(S_UBINARY,8)
+#define T_INT16            MKSTYPE(S_INT,2)
+#define T_INT32            MKSTYPE(S_INT,4)
+#define T_INT64            MKSTYPE(S_INT64 ,8) // @v10.6.3 MKSTYPE(S_INT ,8)-->MKSTYPE(S_INT64 ,8)
+#define T_LONG             MKSTYPE(S_INT,4)
+#define T_ULONG            MKSTYPE(S_UBINARY,4)
+#define T_FLOAT            MKSTYPE(S_FLOAT,4)
+#define T_DOUBLE           MKSTYPE(S_FLOAT,8)
+#define T_MONEY            MKSTYPED(S_DEC,8,2)
+#define T_DATE             MKSTYPE(S_DATE,4)
+#define T_TIME             MKSTYPE(S_TIME,4)
+#define T_DATETIME         MKSTYPE(S_DATETIME,8)
+#define T_ARRAY            MKSTYPE(S_ARRAY,0)
+#define T_STRUCT           MKSTYPE(S_STRUCT,0)
+#define T_VARIANT          MKSTYPE(S_VARIANT, sizeof(VARIANT))
+#define T_ROWID            MKSTYPE(S_ROWID, sizeof(DBRowId))
+#define T_IPOINT2          MKSTYPE(S_IPOINT2, 4)
+#define T_FPOINT2          MKSTYPE(S_FPOINT2, 8)
+#define T_BOOL             MKSTYPE(S_BOOL, 4)
+#define T_GUID             MKSTYPE(S_UUID_, 16)
+#define T_COLOR_RGBA       MKSTYPE(S_COLOR_RGBA, 4) // @v10.9.10
+//
+//
+//
 typedef signed char    int8;
 typedef signed short   int16;
 typedef signed long    int32;
@@ -524,6 +1122,7 @@ typedef unsigned short      RECORDSIZE;
 typedef unsigned long       RECORDNUMBER;
 typedef unsigned char       xmlChar; // Определение из libxml и для libxml (libxml now includes slib.h)
 typedef int                 boolint; // @v10.5.2 Введен с целью унифицировать "рукотворные" целочисленные булевы типы в разных включенных библиотеках
+typedef int32               TYPEID;
 
 class  SBuffer;
 class  SString;
@@ -1656,6 +2255,8 @@ enum SUnicodeMode {
 class SUtfConst {
 public:
 	static const char   TrailingBytesForUTF8[256];
+	static const uint8  Utf8EncLen_RFC3629[256];
+	static const uint8  Utf8EncLen_[256];
 	static const uint32 OffsetsFromUTF8[6];
 	static const uint8  FirstByteMark[7];
 	static const uint32 HalfBase;
@@ -1717,7 +2318,7 @@ public:
 		P = ptr;
 		return *this;
 	}
-	bool operator !() const { return (P == 0); }
+	bool   operator !() const { return (P == 0); }
 	operator void * () const { return P; }
 private:
 	void * P;
@@ -1736,7 +2337,7 @@ public:
 		P = ptr;
 		return *this;
 	}
-	int operator !() const { return (P == 0); }
+	bool   operator !() const { return (P == 0); }
 	operator T * () const { return P; }
 private:
 	T * P;
@@ -1756,8 +2357,8 @@ public:
 		fmtLower = 0x8000 // Флаг, предписывающий использовать буквы [a-f] в строчном регистре
 	};
 	bool   operator !() const { return IsZero(); }
-	int    FASTCALL operator == (const S_GUID_Base &) const;
-	int    FASTCALL operator != (const S_GUID_Base &) const;
+	bool   FASTCALL operator == (const S_GUID_Base &) const;
+	bool   FASTCALL operator != (const S_GUID_Base &) const;
 	bool   IsZero() const;
 	S_GUID_Base & Z();
 	SString & ToStr(long fmt, SString &) const;
@@ -1881,6 +2482,16 @@ struct LDATE { // @noctr
 	//   Параметры d, m, y могут содержать относительные значения.
 	//
 	int    encode(int d, int m, int y);
+	//
+	// Descr: Специализированная (и опасная) реализация кодировки даты,
+	//   предполагающая, что все входные значения (d, m, y) заданы правильными
+	//   величинами, соответственно, дня, месяца и года.
+	//   Для использования только в критичных к скорости исполнения блоках!
+	//
+	void   FORCEINLINE EncodeRegular(int d, int m, int y)
+	{
+		v = static_cast<ulong>(MakeLong((m << 8) | d, y));
+	}
 	int    decode(int * pD, int * pM, int * pY) const;
 	//
 	// Descr: Возвращает эффективное значение даты. Если дата представлена
@@ -1914,7 +2525,7 @@ struct CALDATE : public LDATE {
 	};
 	CALDATE operator = (long);
 	int    GetKind() const;
-	int    IsDate(LDATE) const;
+	bool   IsDate(LDATE) const;
 	SString & Format(int options, SString & rBuf) const;
 	int    SetDate(LDATE);
 	int    SetCalDate(int day, int mon);
@@ -2408,601 +3019,6 @@ private:
 	//
     uint8  D[8];
 };
-//
-//
-//
-#define ASSIGN_PTR(ptr,val)   if(ptr) *(ptr) = (val);
-#define RVALUEPTR(val,ptr)    ((ptr)?((val = *(ptr)), 1) : 0)
-#define DEREFPTROR(ptr,alt)   ((ptr)?(*(ptr)):(alt))
-#define DEREFPTRORZ(ptr)      DEREFPTROR(ptr,0)
-#define CENUMINCR(et, v)      (v) = static_cast<et>(static_cast<int>(v)+1) // @v11.3.8 Макрос для обхода ошибки c++ при инкременте enum-value, унаследованного из c-кода
-#define PTR8(p)               (reinterpret_cast<uint8 *>(p))
-#define PTR16(p)              (reinterpret_cast<uint16*>(p))
-#define PTR32(p)              (reinterpret_cast<uint32*>(p))
-#define PTR64(p)              (reinterpret_cast<uint64*>(p))
-#define PTRDBL(p)             (static_cast<double*>(p))
-#define PTR8C(p)              (reinterpret_cast<const uint8 *>(p))
-#define PTR16C(p)             (reinterpret_cast<const uint16*>(p))
-#define PTR32C(p)             (reinterpret_cast<const uint32*>(p))
-#define PTR64C(p)             (reinterpret_cast<const uint64*>(p))
-#define PTRDBLC(p)            (reinterpret_cast<const double*>(p))
-#define PTRCHR(p)             (static_cast<char *>(p)) // @v10.7.8
-#define PTRCHRC(p)            (static_cast<const char *>(p)) // @v10.7.8
-#define PTRCHR_(p)            (reinterpret_cast<char *>(p)) // @v10.7.8
-#define PTRCHRC_(p)           (reinterpret_cast<const char *>(p)) // @v10.7.8
-#define PTR2U(p)              (static_cast<uint32>(p))
-#define U2PTR(typ,u)          (static_cast<typ *>(u))
-#define U2PTRV(u)             (static_cast<void *>(u))
-#define ALIGNSIZE(s,bits)     ((((s) + ((1 << (bits))-1)) >> (bits)) << (bits))
-#ifndef MIN
-	#define MIN(a,b)          ((a)<(b)?(a):(b))
-#endif
-#ifndef MAX
-	#define MAX(a,b)          ((a)>(b)?(a):(b))
-#endif
-#define LoByte(w)             (static_cast<uint8>(w))
-#define HiByte(w)             (static_cast<uint8>(static_cast<uint16>(w) >> 8))
-#define LoWord(l)             (static_cast<uint16>(l))
-#define HiWord(l)             (static_cast<uint16>(static_cast<uint32>(l) >> 16))
-#define MakeLong(low,high)    (static_cast<long>((static_cast<uint16>(low)) | ((static_cast<ulong>(static_cast<uint16>(high))) << 16)))
-
-#define oneof2(f,c1,c2)                   ((f)==(c1)||(f)==(c2))
-#define oneof3(f,c1,c2,c3)                ((f)==(c1)||(f)==(c2)||(f)==(c3))
-#define oneof4(f,c1,c2,c3,c4)             ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4))
-#define oneof5(f,c1,c2,c3,c4,c5)          ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5))
-#define oneof6(f,c1,c2,c3,c4,c5,c6)       ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6))
-#define oneof7(f,c1,c2,c3,c4,c5,c6,c7)    ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7))
-#define oneof8(f,c1,c2,c3,c4,c5,c6,c7,c8) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8))
-#define oneof9(f,c1,c2,c3,c4,c5,c6,c7,c8,c9) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9))
-#define oneof10(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10))
-#define oneof11(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11))
-#define oneof12(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12))
-#define oneof13(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12)||(f)==(c13))
-#define oneof14(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12)||(f)==(c13)||(f)==(c14))
-#define NZOR(v,a)                   ((v)?(v):(a))
-#define NZSTR(v)                    ((v)?(v):"") // @v11.3.12
-//#define NZOR_F(v,a)                 ((!!(v))?(v):(a))
-// Использование SETIFZ может инициировать нежелательное замечание компилятора "assignment within conditional expression" (MSVC C4706).
-// Если этот побочный эффект неприемлем, то используйте SETIFZQ (в этом случае применить его в условном выражении не удасться.
-#define SETIFZ(v,a)  (!!(v) || !!((v)=(a)))
-#define SETIFZQ(v,a) {if(!(v)) (v)=(a);} // @v11.1.12
-#define SETMAX(v,b) {if((v)<(b)) (v)=(b);}
-#define SETMIN(v,b) {if((v)>(b)) (v)=(b);}
-#define SETMINMAX(v,i,x) {if((v)>(x)) (v)=(x); else if((v)<(i)) (v)=(i);}
-#define MINMAX(v,i,x)               (((v)<(i)) ? (i) : (((v)>(x)) ? (x) : (v)))
-#define ICEIL(v,quant)              (((v)+((quant)-1))/(quant)*(quant))
-#define IFLOOR(v,quant)             ((v)/(quant)*(quant))
-
-#define SETFLAG(v,f,b) {if(b) {(v)|=(f);} else {(v)&=~(f);}}
-#define SETFLAGBYSAMPLE(v,f,b)      {if((b)&(f)) {(v)|=(f);} else {(v)&=~(f);}}
-#define TESTFLAG(v1,v2,f)           (((v1)&(f))==((v2)&(f)))
-#define TESTMULTFLAG(v,f)           (((v)&(f))==(f))
-#define INVERSEFLAG(v,f) {if((v)&(f)) {(v)&=~(f);} else {(v)|=(f);}}
-// Descr: Если в поле v установлены оба флага f1 и f2 либо не установлен ни один из них, то возвращает 0, в противном случае - значение одного из установленных флагов.
-#define CHKXORFLAGS(v,f1,f2)        ((((v)&(f1)) ^ ((v)&(f2))) ? (((v)&(f1))?(f1):(f2)) : 0)
-#define SETUPFLAGS(value, andFlags, notFlags) { (value) |= (andFlags); (value) &= ~(notFlags); }
-#define BIN(x)                      ((x)?1:0)
-#define LOGIC(x)                    ((x)?true:false)
-#define BOOLXOR(p1,p2)              (((p1)&&(p2))||(!(p1)&&!(p2)))
-#define DELETEANDASSIGN(p, n)       ((delete (p)), (p) = (n))
-#define ZDELETE(p)                  DELETEANDASSIGN(p, 0)
-#define ZDELETEFAST(p) {if(p) ((delete (p)), (p) = 0);}
-#define ZDELETEARRAY(p)             ((delete [] (p)), (p) = 0)
-#define FREEANDASSIGN(p, n)         (SAlloc::F(p), (p) = (n))
-#define ZFREE(p)                    FREEANDASSIGN((p), 0)
-//
-// Exception handling
-//
-#define EXCEPTVAR(intvar)      int*__sexcept=&(intvar)
-#define EXCEPT                 *__sexcept
-#define CALLEXCEPT()           goto __scatch;
-#define CALLEXCEPT_S(val)      {SLS.SetError(val);goto __scatch;}
-#define CALLEXCEPT_S_S(val,s) {SLS.SetError(val, s);goto __scatch;}
-#define CALLEXCEPTV(val) {*__sexcept=val;goto __scatch;}
-#define THROW(expr) {if(!(expr)){goto __scatch;}}
-#define THROWEC(expr) {if(!!(expr)){goto __scatch;}}
-#define THROW_V(expr,val)      {if(!(expr)){*__sexcept=val;goto __scatch;}}
-#define THROW_S(expr,val)      {if(!(expr)){SLS.SetError(val);goto __scatch;}}
-#define THROW_S_S(expr,val,s) {if(!(expr)){SLS.SetError(val, s);goto __scatch;}}
-#define CATCH                  goto __sendcatch;__scatch:
-#define ENDCATCH               __sendcatch:;
-#define CATCHZOK               \
-	goto __sendcatch;__scatch:\
-	ok = 0;\
-	__sendcatch:;
-//
-// SLIB Error Codes
-//
-#define SLERR_SUCCESS                    0
-#define SLERR_NOMEM                      1
-#define SLERR_INVRANGE                   2
-#define SLERR_BOUNDS                     3
-#define SLERR_BUFTOOSMALL                4
-#define SLERR_NOFOUND                    5
-#define SLERR_INVSYMBOL                  6
-#define SLERR_INVDATA                    7
-#define SLERR_EOLEXPECTED                8
-#define SLERR_DATAEXPECTED               9
-#define SLERR_TERMEXPECTED              10
-#define SLERR_INVDAY                    11
-#define SLERR_INVMONTH                  12
-#define SLERR_INVYEAR                   13
-#define SLERR_ARYDELTA                  15
-#define SLERR_ARYZERODELTA              16
-#define SLERR_ARYNOTORD                 17
-#define SLERR_ARYITEMNFOUND             SLERR_NOFOUND
-#define SLERR_ARYDUPITEM                18
-#define SLERR_ARYZEROCOUNT              19
-#define SLERR_FILENOTFOUND              20
-#define SLERR_READFAULT                 21
-#define SLERR_WRITEFAULT                22
-#define SLERR_INVFORMAT                 23
-//
-// Printer errors
-//
-#define SLERR_PRTNOTREADY               24
-#define SLERR_PRTBUSY                   25
-#define SLERR_PRTOUTOFPAPER             26
-#define SLERR_REZNFOUND                 27
-#define SLERR_PGLENTOOSMALL             28 // Page lenght too small for report
-#define SLERR_NODEFPRINTER              29 // Не удалось идентифицировать принтер по умолчанию
-
-#define SLERR_OPENFAULT                 30 // Error opening file
-#define SLERR_MKDIRFAULT                31 // Error creating directory
-#define SLERR_INVALIDCRC                32 // Error recovering file (invalid CRC)
-#define SLERR_CANTCOMPRESS              33 // Ошибка сжатия //
-#define SLERR_CANTDECOMPRESS            34 // Ошибка распаковки
-#define SLERR_DISKFULL                  35 // Диск переполнен
-#define SLERR_WINDOWS                   36 // Ошибка Win32
-#define SLERR_INVGUIDSTR                37 // Недопустимая строка GUID (%s)
-#define SLERR_INVSERIALIZEVER           38 // Считан недопустимый номер версии сериализации (%s)
-#define SLERR_DLLLOADFAULT              39 // Ошибка загрузки DLL %s
-//
-// Communication errors
-//
-#define SLERR_COMMINIT                  40 // Error initializing comm port %s
-#define SLERR_COMMSEND                  41 // Error sending data to comm port
-#define SLERR_COMMRCV                   42 // Error receiving data from comm port
-#define SLERR_HTTPCODE                  43 // HTTP Error code=%s
-#define	SLERR_USB						44 // Ошибка usb: %s
-//
-// Socket errors
-//
-#define SLERR_SOCK_UNABLEOPEN           50 // Ошибка открытия сокета
-#define SLERR_SOCK_CONNECT              51 // Ошибка установки соединения с хостом '%s'
-#define SLERR_SOCK_HOSTRESLVFAULT       52 // Ошибка разрешения имени хоста
-#define SLERR_SOCK_TIMEOUT              53 // Превышен таймаут ожидания сокета
-#define SLERR_SOCK_OPTERR               54 // Ошибка состояния сокета
-#define SLERR_SOCK_NONBLOCKINGCONN      55 // Ошибка неблокового соединени с хостом
-#define SLERR_SOCK_NONBLOCKINGWR        56 // Ошибка неблоковой записи в сокет
-#define SLERR_SOCK_NONBLOCKINGRD        57 // Ошибка неблокового чтения из сокета
-#define SLERR_SOCK_SEND                 58 // Ошибка записи в сокет
-#define SLERR_SOCK_RECV                 59 // Ошибка чтения из сокета
-#define SLERR_SOCK_CONNCLOSEDBYHOST     60 // Соединение закрыто хостом
-#define SLERR_SOCK_LINETOOLONG          61 // Считанная строка слишком велика
-#define SLERR_SOCK_FILETRANSMFAULT      62 // Ошибка передачи файла
-#define SLERR_INVPATH				    63 // Неправильный формат пути
-#define SLERR_SOCK_ACCEPT			    64 // Ошибка при создании соединения //
-#define SLERR_SOCK_LISTEN			    65 // Ошибка при создании соединения //
-#define SLERR_SOCK_WINSOCK              66 // Ошибка WinSock (call WSAGetLastError)
-//
-// Matrix error
-//
-#define SLERR_MTX_INCOMPATDIM_VADD      70 // Incompatible dim in vect+vect op
-#define SLERR_MTX_INCOMPATDIM_VIMX      71 // Incompatible dim in vect to matrix op
-#define SLERR_MTX_INCOMPATDIM_MVMUL     72 // Incompatible dim in matrix*vector op
-#define SLERR_MTX_INCOMPATDIM_MMMUL     73 // Incompatible dim in matrix*matrix op
-#define SLERR_MTX_INCOMPATDIM_MMADD     74 // Incompatible dim in matrix+matrix op
-#define SLERR_MTX_INVERSE               75 // Ошибка обращения матрицы.
-
-#define SLERR_FILETOOBIG                95 // @v11.3.4 Файл '%s' слишком большой
-#define SLERR_INVPARAM                  96 // Недопустимый параметр функции (%s)
-#define SLERR_FILESHARINGVIOLATION      97 // Ошибка совместного доступа к файлу
-#define SLERR_FLOCKFAULT                98 // Ошибка блокировки файла //
-#define SLERR_USERBREAK                 99 // Операция прервана пользователем
-#define SLERR_FILENOTOPENED            100 // Файл не открыт
-
-#define SLERR_TXTDB_ZEROLENFIXEDFLD    101 // Для текстового файла с фиксированными полями должны быть определены длины всех полей
-#define SLERR_TXTDB_EMPTYFLDDIV        102 // Для текстового файла не определен разделитель полей
-#define SLERR_TXTDB_EMPTYVERTTERM      103 // Для текстового файла с вертикальной раскладкой не определ терминатор записей
-#define SLERR_TXTDB_MISSPLHEADER       104 // Повторная попытка добавить заголовок к файлу, либо уже добавлены записи (%s)
-#define SLERR_XMLDB_INVRECORROOTTAG    110 // Для xml файла не определен корневой тег или тег записи
-#define SLERR_XMLDB_ROOTTAGEMPTY       111 //
-#define SLERR_XMLDB_RECTAGEMPTY        112 //
-#define SLERR_XMLDB_ROOTTAGINVCHR      113 //
-#define SLERR_XMLDB_RECTAGINVCHR       114 //
-#define SLERR_EXCL_SAVEFAULT           115 // @v10.9.6 Ошибка сохранения файла Excel '%s'
-
-#define SLERR_SDREC_DUPFLDID           121 // Поле с заданным идентификатором в записи уже присутствует ('%s')
-#define SLERR_SDREC_DUPFLDNAME         122 // Поле с заданным именем '%s' в записи уже присутствует
-#define SLERR_SDREC_SYNTAX             123 // Ошибка синтаксиса при разборе определения типа поля (%s) //
-#define SLERR_SDREC_FLDIDNFOUND        124 // Поле с ид=%s в записи отсутствует
-#define SLERR_DUPIDXSEG                125 // Дублирование поля в индексе
-#define SLERR_DBF_INVHEADER            126 // Нарушена целостность заголовка DBF-файла '%s'
-#define SLERR_DBF_NOTOPENED            127 // Таблица DBF '%s' не открыта
-#define SLERR_DBF_INVRECNO             128 // Недопустимый номер записи при доступе к DBF-таблице '%s'
-#define SLERR_SPII_CMDHDRREADFAULT     129 // Ошибка чтения заголовка команды StyloPalm: %s
-#define SLERR_SPII_CMDREADFAULT        130 // Ошибка чтения тела команды StyloPalm: %s
-//
-// CRegExp error
-//
-#define SLERR_RE_UNINIT                150 // Регулярное выражение не инициализировано
-#define SLERR_RE_NOEXPR                151 // CoolRegexp::compile(): No expression supplied.\n");
-#define SLERR_RE_EXPRTOOBIG            152 // CoolRegexp::compile(): Expression too big.\n");
-#define SLERR_RE_NOMEM                 153 // CoolRegexp::compile(): Out of memory.\n");
-#define SLERR_RE_INVBRANGE             154 // CoolRegexp::compile(): Invalid range in [].\n");
-#define SLERR_RE_UNMATCHEDBR           155 // CoolRegexp::compile(): Unmatched [].\n");
-#define SLERR_RE_INTERNAL              156 // CoolRegexp::compile(): Internal error.\n"); /* Never here */
-#define SLERR_RE_WCNOTHFOLLOWS         157 // CoolRegexp::compile(): ?+* follows nothing.\n");
-#define SLERR_RE_TRAILINGBSL           158 // CoolRegexp::compile(): Trailing backslash.\n");
-#define SLERR_RE_WCCOULDBEEMPT         159 // CoolRegexp::compile() : *+ operand could be empty.\n");
-#define SLERR_RE_NESTEDWC              160 // CoolRegexp::compile(): Nested *?+.\n");
-#define SLERR_RE_TOOMANYPAR            161 // CoolRegexp::compile(): Too many parentheses.\n");
-#define SLERR_RE_UNMATCHPAR            162 // CoolRegexp::compile(): Unmatched parentheses.\n");
-#define SLERR_RE_BUFCORRUPT            163 // CoolRegexp::find(): Compiled regular expression corrupted.\n");
-#define SLERR_RE_MEMCORRUPT            164 // CoolRegexp::find(): Internal error -- memory corrupted.\n");
-#define SLERR_RE_PTRCORRUPT            165 // CoolRegexp::find(): Internal error -- corrupted pointers.\n");
-
-#define SLERR_HT_NOASSOC               180 // Экземпляр хэш-таблицы не поддерживает ассоциации
-#define SLERR_FILE_DELETE              181 // Ошибка удаления файла '%s'
-#define SLERR_FILE_RENAME              182 // Ошибка переименования файла '%s'
-#define SLERR_INIOPENFAULT             183 // Ошибка открытия INI-файла '%s'
-#define SLERR_PAINTTOOLIDBUSY          184 // Идентификатор PaintToolBox занят
-#define SLERR_INVHOUR                  185 // Недопустимый час во времени
-#define SLERR_INVMIN                   186 // Недопустимые минуты во времени
-#define SLERR_INVSEC                   187 // Недопустимые секунды во времени
-#define SLERR_INVTSEC                  188 // Недопустимые сотые секунд во времени
-#define SLERR_UNMATCHSTREAMARRAY       189 // Несоответствующий размер записи считываемого массива данных (%s)
-#define SLERR_INVGEOLATITUDE           190 // Недопустимое значение географической широты
-#define SLERR_INVGEOLONGITUDE          191 // Недопустимое значение географической долготы
-#define SLERR_SRLZ_UNDEFSUPPDATE       192 // Для восстановления даты из потока нет необходимой опорной даты
-#define SLERR_SRLZ_INVDATAIND          193 // Недопустимое значение индикатора данных при восстановлении из потока
-#define SLERR_SRLZ_UNEQFLDLIST         194 // Ассоциированная с данными структура не равна заданной в контексте
-#define SLERR_SRLZ_COMMRDFAULT         195 // Общий сбой при чтении данных (данные не соответствуют ожидаемым значениям)
-#define SLERR_SBUFRDSIZE               196 // Ошибка чтения из буфера: размер считанных данных не равен запрошенному (%s)
-#define SLERR_BINSET_SRCIDNFOUND       197 // Ошибка SBinarySet: в исходном пуле отсутствует отрезок с идентификатором %s
-#define SLERR_BINSET_UNSRLZ_SIGNATURE  198 // Ошибка чтения SBinarySet: неверный заголовок или сигнатура
-#define SLERR_BINSET_UNSRLZ_ITEMHDR    199 // Ошибка чтения SBinarySet: инвалидный заголовок элемента
-
-#define SLERR_WINSVC_COMMON            200 // Ошибка Windows Service
-#define SLERR_WINSVC_SVCNEXISTS        201 // Windows Service '%s' не существует
-#define SLERR_WINSEC_ACQCREDHDL        202 // "AcquireCredentialsHandle failed with %s"
-#define SLERR_WINSEC_INITSECCTX        203 // "InitializeSecurityContext failed with %s"
-#define SLERR_WINSEC_COMPLAUTHTOK      204 // "CompleteAuthToken failed with %s"
-#define SLERR_WINSEC_COMPLAUTHTOKNSUPP 205 // "CompleteAuthToken not supported"
-#define SLERR_WINSEC_ACCPTSECCTX       206 // "AcceptSecurityContext failed with %s"
-
-#define SLERR_WMI_CREATELOCATOR        210 // Ошибка создания WMI-локатора
-#define SLERR_WMI_CONNECTSRV           211 // Ошибка соединения с WMI-сервером '%s'
-#define SLERR_WMI_SETPROXIBLANKET      212 // Ошибка вызова метода CoSetProxyBlanket
-#define SLERR_WMI_GETOBJECT            213 // Ошибка вызова метода WMI GetObject (%s)
-#define SLERR_WMI_GETMETHOD            214 // Ошибка вызова метода WMI GetMethod (%s)
-#define SLERR_WMI_SPAWNINSTANCE        215 // Ошибка вызова метода WMI SpawnInstance
-#define SLERR_WMI_EXECMETHOD           216 // Ошибка вызова метода WMI ExecMethod '%s'
-#define SLERR_WMI_EXECMETHODRETVAL     217 // Код возврата созданного процесса '%s' не равен 0
-#define SLERR_GLOBOBJIDXNFOUNT         218 // Не найден глобальный объект SLib по индексу %s
-#define SLERR_LANGSYMBNFOUND           219 // Не найден символ языка '%s'
-#define SLERR_DISPIFCCLI               220 // Ошибка вызова dispatch-интерфейса %s
-//
-//
-//
-#define SLERR_MATH_DOMAIN                      300 // Ошибка области определения функции (sqrt(-1))
-#define SLERR_MATH_ROUND                       301 // Ошибка округления //
-#define SLERR_MATH_OVERFLOW                    302 // Ошибка переполнения ieee-числа
-#define SLERR_MATH_UNDERFLOW                   303 // Ошибка переполнения нижней границы точности ieee-числа
-#define SLERR_MATH_MAXITER                     304 // Ошибка превышения максимального числа итераций
-#define SLERR_MATH_TSVECBYSYMBNFOUND           305 // Вектор временной серии с символом '%s' не найден
-#define SLERR_BASE64DECODEFAULT                306 // Ошибка декодирования base64
-//
-//
-//
-#define SLERR_INVDBSYMB                        400 // Неверный символ базы данных '%s'
-#define SLERR_UTFCVT_SRCEXHAUSTED              401 // Не полный входной буфер UTF8
-#define SLERR_UTFCVT_ILLUTF8                   402 // Недопустимый входной символ UTF8
-#define SLERR_UTFCVT_ILLUTF16                  403 // Недопустимый входной символ UTF16
-#define SLERR_TAB_NFOUND                       404 // Таблица STab '%s' не найдена
-#define SLERR_INVIMAGEPIXFORMAT                405 // Недопустимый формат пикселя.
-#define SLERR_IMAGEFILENOTJPEG                 406 // Файл '%s' не является JPEG-файлом.
-#define SLERR_JPEGLOADFAULT                    407 // Ошибка загрузки JPEG-Файла '%s'
-#define SLERR_IMAGEFILENOTPNG                  408 // Файл '%s' не является PNG-файлом.
-#define SLERR_PNGLOADFAULT                     409 // Ошибка загрузки PNG-изображения: '%s'
-#define SLERR_UNSUPPIMGFILEFORMAT              410 // Не поддерживаемый или недопустимый формат файла изображения: '%s'
-#define SLERR_SFILRDSIZE                       411 // Ошибка чтения из файла: размер считанных данных не равен запрошенному (%s)
-#define SLERR_IMAGEFILENOTICO                  412 // Файл '%s' не является ICO-файлом.
-#define SLERR_PNGSTOREFAULT                    413 // Ошибка сохранения PNG-изображения: '%s'
-#define SLERR_INVSDRAWFIGKIND                  414 // Internal: Недопустимый вид графической фигуры (%s)
-#define SLERR_DUPDRAWGROUPSYMB                 415 // Дублирование символа '%s' элемента, добавляемого в SDrawGroup
-#define SLERR_WTMTA_UNDEFFIG                   416 // Для элемента TWhatmanToolArray '%s' не заданы ни фигура, ни иконка.
-#define SLERR_WTMTA_BADCRC                     417 // Нарушена целостность WTA-файла '%s'
-#define SLERR_IMAGEFILENOTBMP                  418 // Файл '%s' не является BMP-файлом.
-#define SLERR_INVBMPHEADER                     419 // Недопустимый BMP-заголок (%s)
-#define SLERR_BMPCOMPRNSUPPORTED               420 // Сжатые BMP-изображения не поддерживаются.
-#define SLERR_SOAPR_UNDEFREF                   421 // Неопределенная ссылка '%s' в SOAP-результате
-#define SLERR_SOAPR_UNDEFTYPE                  422 // Неопределенный тип данных '%s' в SOAP-результате
-#define SLERR_SOAPR_ITEMREFNFOUND              423 // Не найден элемент SOAP-результата по ссылке '%s'
-#define SLERR_SOAPR_ITEMREFTYPECONFL           424 // Конфликт между атрибутами ref и type (%s) в элементе SOAP-ответа
-#define SLERR_SOPAR_UNRESITEMHASNTREF          425 // Неразрешенный элемент структуры (%s) SAOP-результата не имеет ссылки
-#define SLERR_SOAPR_UNRESOLVEDITEM             426 // Не удалось резрешить элемент структуры (%s) SOAP-результата
-#define SLERR_SOAPR_ITEMNAMENFOUND             427 // Элемент SOAP-пакета '%s' не найден
-#define SLERR_SOAPR_INVITEMPOS                 428 // Недопустимый индекс (%s) элемента SOAP-пакета
-#define SLERR_WTMTA_INVSIGNATURE               429 // Неверная сигнатура WT-файла '%s'
-#define SLERR_USB_HIDUSBCLASSFAILED	           430 // Устройство не относится к классу USB или HID
-#define SLERR_SFILRDNULLOUTP                   431 // Попытка чтения из NullOutput-файла
-#define SLERR_MAIL_NOTCONNECTED                432 // Внутренняя ошибка - не установлено соединение почтового клиента
-#define SLERR_MAIL_INVPROTOCOL                 433 // Внутренняя ошибка - недопустимый протокол '%s' почтового клиента
-#define SLERR_MAIL_SMTP_NOREPLY                434 // Почтовый сервер SMTP не ответил на запрос.
-#define SLERR_MAIL_SMTP_REPLYERR               435 // Почтовый сервер SMTP вернул ошибку %s.
-#define SLERR_MAIL_POP3_NOREPLY                436 // Почтовый сервер POP3 не ответил на запрос.
-#define SLERR_MAIL_POP3_REPLYERR               437 // Почтовый сервер POP3 вернул ошибку '%s'
-#define SLERR_MAIL_POP3_UNDEFREPLY             438 // Почтовый сервер POP3 вернул не известный ответ '%s'
-#define SLERR_FTP_NOTCONNECTED                 451 // FTP-соединение не установлено
-
-#define SLERR_PUNYCODE_BADINPUT                452 // PUNYCODE Input is invalid
-#define SLERR_PUNYCODE_BIGOUTPUT               453 // PUNYCODE Output would exceed the space provided
-#define SLERR_PUNYCODE_OVERFLOW                454 // PUNYCODE Wider integers needed to process input
-#define SLERR_CURL                             455 // Ошибка библиотеки libcurl
-#define SLERR_LIBXML                           456 // Ошибка библиотеки libxml
-#define SLERR_DUPSYMBWITHUNEQID                457 // Дублирование символа '%s' элемента с отличным идентификатором
-#define SLERR_INVIMAGESIZE                     458 // Недопустимый размер изображения ([1..30000], [1..30000])
-#define SLERR_WTM_DUPLAYOUTSYMB                459 // @v10.4.9 Дублирование символа layout
-#define SLERR_STRINGISNTUTF8                   460 // @v11.3.3 Строка - не в кодировке utf-8
-#define SLERR_LMDB                             461 // @v11.3.6 Ошибка базы данных LMDB
-#define SLERR_FILSTRG_INVHANDLE                462 // @v11.3.7 Внутренняя ошибка: недопустимый манипулятор чтения/записи объекта SFileStorage
-#define SLERR_FILSTRG_INVNAME                  463 // @v11.3.7 Имя сохраняемого файла объекта SFileStorage должно быть не длиннее 255 символов и содержать только [0-9a-z_+-,.=@]
-#define SLERR_FILSTRG_FILENFOUND               464 // @v11.3.7 Файл с именем '%s' в хранилище SFileStorage отсутствует
-#define SLERR_INVORUNSUPPHASHFUNC              465 // @v11.3.7 Недопустимая либо неподдерживаемая хэш-функция // 
-
-#define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
-#define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
-#define SLERR_FANN_WRONG_CONFIG_VERSION        502 // Wrong version of configuration file
-#define SLERR_FANN_CANT_READ_CONFIG            503 // Error reading info from configuration file
-#define SLERR_FANN_CANT_READ_NEURON            504 // Error reading neuron info from configuration file
-#define SLERR_FANN_CANT_READ_CONNECTIONS       505 // Error reading connections from configuration file
-#define SLERR_FANN_WRONG_NUM_CONNECTIONS       506 // Number of connections not equal to the number expected
-#define SLERR_FANN_CANT_OPEN_TD_W              507 // Unable to open train data file for writing
-#define SLERR_FANN_CANT_OPEN_TD_R              508 // Unable to open train data file for reading
-#define SLERR_FANN_CANT_READ_TD                509 // Error reading training data from file
-#define SLERR_FANN_CANT_ALLOCATE_MEM           510 // Unable to allocate memory
-#define SLERR_FANN_CANT_TRAIN_ACTIVATION       511 // Unable to train with the selected activation function
-#define SLERR_FANN_CANT_USE_ACTIVATION         512 // Unable to use the selected activation function
-#define SLERR_FANN_TRAIN_DATA_MISMATCH         513 // Irreconcilable differences between two <Fann::TrainData> structures
-#define SLERR_FANN_CANT_USE_TRAIN_ALG          514 // Unable to use the selected training algorithm
-#define SLERR_FANN_TRAIN_DATA_SUBSET           515 // Trying to take subset which is not within the training set
-#define SLERR_FANN_INDEX_OUT_OF_BOUND          516 // Index is out of bound
-#define SLERR_FANN_SCALE_NOT_PRESENT           517 // Scaling parameters not present
-#define SLERR_FANN_INPUT_NO_MATCH              518 // The number of input neurons in the ann and data don't match
-#define SLERR_FANN_OUTPUT_NO_MATCH             519 // The number of output neurons in the ann and data don't match
-#define SLERR_FANN_WRONG_PARAMETERS_FOR_CREATE 520 // The parameters for create_standard are wrong, either too few parameters provided or a negative/very high value provided
-#define SLERR_FANN_INVLAYERCOUNT               521 // Недопустимое количество слоев нейронной сети
-#define SLERR_FANN_INVLAYERSIZE                522 // Недопустимый размер слоя нейронной сети
-#define SLERR_FANN_INVTRAINALG                 523 // Недопустимый алгоритм обучения нейронной сети
-//#define SLERR_JSON_OK = 1,                  // everything went smoothly
-//#define SLERR_JSON_MEMORY,                   // an error occurred when allocating memory
-#define SLERR_JSON_INCOMPLETE_DOCUMENT         550 // the parsed document didn't ended
-#define SLERR_JSON_WAITING_FOR_EOF             551 // A complete JSON document tree was already finished but needs to get to EOF. Other characters beyond whitespaces produce errors
-#define SLERR_JSON_MALFORMED_DOCUMENT          552 // the JSON document which was fed to this parser is malformed
-#define SLERR_JSON_INCOMPATIBLE_TYPE           553 // the currently parsed type does not belong here
-#define SLERR_JSON_ILLEGAL_CHARACTER           554 // the currently parsed character does not belong here
-#define SLERR_JSON_BAD_TREE_STRUCTURE          555 // the document tree structure is malformed
-#define SLERR_JSON_MAXIMUM_LENGTH              556 // the parsed string reached the maximum allowed size
-#define SLERR_JSON_UNKNOWN_PROBLEM             557 // some random, unaccounted problem occurred
-
-#define SLERR_URI_SYNTAX                       570 // Parsed text violates expected format
-#define SLERR_URI_NULL                         571 // One of the params passed was NULL although it mustn't be
-//#define SLERR_URI_MALLOC                     572 // Requested memory could not be allocated
-#define SLERR_URI_OUTPUT_TOO_LARGE             573 // Some output is to large for the receiving buffer
-#define SLERR_URI_NOT_IMPLEMENTED              574 // The called function is not implemented yet
-#define SLERR_URI_RANGE_INVALID                575 // The parameters passed contained invalid ranges
-// Errors specific to ToStr
-#define SLERR_URI_TOSTRING_TOO_LONG        SLERR_URI_OUTPUT_TOO_LARGE // Deprecated, test for URI_ERROR_OUTPUT_TOO_LARGE instead
-// Errors specific to AddBaseUri
-#define SLERR_URI_ADDBASE_REL_BASE             576 // Given base is not absolute
-// Errors specific to RemoveBaseUri
-#define SLERR_URI_REMOVEBASE_REL_BASE          577 // Given base is not absolute
-#define SLERR_URI_REMOVEBASE_REL_SOURCE        578 // Given base is not absolute
-
-//#define SLERR_ZIP_OK             0  // N No error
-#define SLERR_ZIP_FIRSTERROR                   591  // @anchor
-#define SLERR_ZIP_MULTIDISK                    591  // N Multi-disk zip archives not supported
-#define SLERR_ZIP_RENAME                       592  // S Renaming temporary file failed
-#define SLERR_ZIP_CLOSE                        593  // S Closing zip archive failed
-#define SLERR_ZIP_SEEK                         594  // S Seek error
-#define SLERR_ZIP_READ                         595  // S Read error
-#define SLERR_ZIP_WRITE                        596  // S Write error
-#define SLERR_ZIP_CRC                          597  // N CRC error
-#define SLERR_ZIP_ZIPCLOSED                    598  // N Containing zip archive was closed
-#define SLERR_ZIP_NOENT                        599  // N No such file
-#define SLERR_ZIP_EXISTS                       600  // N File already exists
-#define SLERR_ZIP_OPEN                         601  // S Can't open file
-#define SLERR_ZIP_TMPOPEN                      602  // S Failure to create temporary file
-#define SLERR_ZIP_ZLIB                         603  // Z Zlib error
-#define SLERR_ZIP_MEMORY                       604  // N Malloc failure
-#define SLERR_ZIP_CHANGED                      605  // N Entry has been changed
-#define SLERR_ZIP_COMPNOTSUPP                  606  // N Compression method not supported
-#define SLERR_ZIP_EOF                          607  // N Premature end of file
-#define SLERR_ZIP_INVAL                        608  // N Invalid argument
-#define SLERR_ZIP_NOZIP                        609  // N Not a zip archive
-#define SLERR_ZIP_INTERNAL                     610  // N Internal error
-#define SLERR_ZIP_INCONS                       611  // N Zip archive inconsistent
-#define SLERR_ZIP_REMOVE                       612  // S Can't remove file
-#define SLERR_ZIP_DELETED                      613  // N Entry has been deleted
-#define SLERR_ZIP_ENCRNOTSUPP                  614  // N Encryption method not supported
-#define SLERR_ZIP_RDONLY                       615  // N Read-only archive
-#define SLERR_ZIP_NOPASSWD                     616  // N No password provided
-#define SLERR_ZIP_WRONGPASSWD                  617  // N Wrong password provided
-#define SLERR_ZIP_OPNOTSUPP                    618  // N Operation not supported
-#define SLERR_ZIP_INUSE                        619  // N Resource still in use
-#define SLERR_ZIP_TELL                         620  // S Tell error
-#define SLERR_ZIP_COMPRESSED_DATA              621  // @v10.8.4 N Compressed data invalid
-#define SLERR_ZIP_CANCELLED                    622  // @v10.8.4 N Operation cancelled
-#define SLERR_ZIP_LASTERROR                    622  // @anchor @v10.8.4 620-->622
-#define SLERR_ZLIB_BUFINFLATEFAULT             623  // @v11.2.9 Ошибка распаковки буфера данных
-
-#define SLERR_CRYPTO_INVPARAM                  651  // @v11.0.11 Ошибка SLCRYPTO - недопустимый параметр функции
-#define SLERR_CRYPTO_KEYBUFOVRFLW              652  // @v11.0.11 Ошибка SLCRYPTO - переполнение внутреннего буфера ключа
-#define SLERR_CRYPTO_INVKEYSIZE                653  // @v11.0.11 Ошибка SLCRYPTO - недопустимая длина ключа шифрования
-#define SLERR_CRYPTO_INVIVSIZE                 654  // @v11.0.11 Ошибка SLCRYPTO - недопустимая длина IV
-#define SLERR_CRYPTO_OPENSSL                   655  // @v11.0.11 Ошибка OpenSSL
-// Коды с префиксом SLERR_AMQP_ являются трансляцией кодов состояний библиотеки rabbitmq-c
-#define SLERR_AMQP_UNKN                        700 // Неизвестный AMQP-статус
-#define SLERR_AMQP_BAD_AMQP_DATA               701
-#define SLERR_AMQP_UNKNOWN_CLASS               702
-#define SLERR_AMQP_UNKNOWN_METHOD              703
-#define SLERR_AMQP_HOSTNAME_RESOLUTION_FAILED  704
-#define SLERR_AMQP_INCOMPATIBLE_AMQP_VERSION   705
-#define SLERR_AMQP_CONNECTION_CLOSED           706
-#define SLERR_AMQP_BAD_URL                     707
-#define SLERR_AMQP_SOCKET                      708
-#define SLERR_AMQP_INVALID_PARAMETER           709
-#define SLERR_AMQP_TABLE_TOO_BIG               710
-#define SLERR_AMQP_WRONG_METHOD                711
-#define SLERR_AMQP_TIMEOUT                     712
-#define SLERR_AMQP_TIMER_FAILURE               713
-#define SLERR_AMQP_HEARTBEAT_TIMEOUT           714
-#define SLERR_AMQP_UNEXPECTED_STATE            715
-#define SLERR_AMQP_SOCKET_CLOSED               716
-#define SLERR_AMQP_SOCKET_INUSE                717
-#define SLERR_AMQP_BROKER_UNSUPP_SASL_METHOD   718
-#define SLERR_AMQP_UNSUPPORTED                 719
-#define SLERR_AMQP_TCP                         720
-#define SLERR_AMQP_TCP_SOCKETLIB_INIT          721
-#define SLERR_AMQP_SSL                         722
-#define SLERR_AMQP_SSL_HOSTNAME_VERIFY_FAILED  723
-#define SLERR_AMQP_SSL_PEER_VERIFY_FAILED      724
-#define SLERR_AMQP_SSL_CONNECTION_FAILED       725
-// Коды ошибок разбора телефонного номера библиотекой libphonenumber
-#define SLERR_PHONENMB_INV_COUNTRY_CODE        760 // INVALID_COUNTRY_CODE in the java version.
-#define SLERR_PHONENMB_NOT_A_NUMBER            761
-#define SLERR_PHONENMB_TOO_SHORT_AFTER_IDD     762
-#define SLERR_PHONENMB_TOO_SHORT_NSN           763
-#define SLERR_PHONENMB_TOO_LONG_NSN            764 // TOO_LONG in the java version.
-
-#define SLERR_ERRNO_OFFSET                    2000 // Смещение с которого начинаются коды ошибок, соответствующие posix-мнемоникам (errno)
-#define SLERR_ERRNO_LAST                      2999 // Максимальное значение для posix errno (если я правильно понял, то errno не имеет официального максимуму потому использую свой собственный).
-
-// LastError
-//
-// @ModuleDecl(SType) {
-// Система динамических типов. Дескриптор типа является 4-байтовым
-// значение, хранящим идентификатор типа и размер.
-// Таким образом, максимальный размер одного поля данных составляет 0xffff байт.
-// Для очень больших данных может быть использован S_BLOB или S_CLOB (управление этими типами достаточно сложное).
-//
-#define INVALID_DATA_SIZE 0
-typedef int32 TYPEID;
-//
-// @v11.0.4
-// Type cast results
-//
-#define STCASTF_NORMAL             0 // Нормальное преобразование
-#define STCASTF_UNDEF             -1 // Результат неопределен (невозможное преобразование)
-#define STCASTF_POT_OVERFLOW  0x0001 // Потенциальное переполнение
-#define STCASTF_OVERFLOW      0x0002 // Фактическое переполнение
-#define STCASTF_POT_UNDERFLOW 0x0004 // Потенциальное нижнее переполнение
-#define STCASTF_UNDERFLOW     0x0008 // Фактическое нижнее переполнение
-#define STCASTF_POT_LOSS      0x0010 // Потенциальная потеря точности
-#define STCASTF_LOSS          0x0020 // Фактическая потеря точности
-//
-// Base types. Базовые типы, используемые для приведения и преобразования разных типов.
-//
-#define BTS_VOID             0
-#define BTS_STRING           1    // ASCIIZ
-#define BTS_INT              2    // 4 byte
-#define BTS_REAL             3    // 8 byte IEEE float
-#define BTS_DATE             4    // 4 byte LDATE
-#define BTS_TIME             5    // 4 byte LTIME
-#define BTS_DATETIME         6    // 8 byte LDATETIME
-#define BTS_POINT2           7    // 16 byte SPoint2R
-#define BTS_BOOL             8    // 4 byte Специализированный вариант. Фактически не применяется как базовый тип, но используется в локальных ситуациях.
-#define BTS_PTR              9    // Указатель. Важно, что размер его зависим от архитектуры (4 или 8 байт)
-#define BTS_INT64_          10    // 8 byte integer. Не является базовым типом. Определен для использования в DBConst
-//
-// Data types
-//
-#define S_VOID               0
-#define S_CHAR               1
-#define S_INT                2
-#define S_FLOAT              3
-#define S_DATE               4
-#define S_TIME               5
-#define S_DEC                6
-#define S_MONEY              7
-#define S_LOGICAL            8
-#define S_BOOL               S_LOGICAL
-#define S_NUMERIC            9
-#define S_BFLOAT            10
-#define S_LSTRING           11
-#define S_ZSTRING           12
-#define S_NOTE              13      // Для BTRIEVE - символьное поле переменной длины (последнее в таблице), для SQL - VARCHAR. Максимальная бинарная (с завершающим нулем) длина специфицируется //
-#define S_LVAR              14
-#define S_UBINARY           15
-#define S_UINT              S_UBINARY
-#define S_AUTOINC           16
-#define S_BIT               17
-#define S_STS               18
-
-#define S_INTRANGE          19		// int2 range only
-#define S_REALRANGE         20		// double range only
-#define S_DATERANGE         21      //
-#define S_DATETIME	        22      //
-#define S_ARRAY		        23		// not real STYPE, only ID. Массив, состоящий из данных одного типа
-#define S_STRUCT	        24		//--//--
-#define S_VARIANT           25      //
-#define S_WCHAR             26      // wide char-строка (оканчивается 0). Размер данных указывается в байтах.
-#define S_BLOB              27      // BLOB (для SQL-таблиц)
-#define S_CLOB              28      // CLOB (для SQL-таблиц)
-#define S_RAW               29      // RAW-data бинарное поле с произвольным содержимым
-#define S_ROWID             30      // ROWID (для SQL-таблиц)
-#define S_IPOINT2           31      // Целочисленная двумерная точка (x, y)
-#define S_FPOINT2           32      // Вещественная двумерная точка (x, y)
-#define S_WZSTRING          33      // Unicode-zstring
-#define S_UUID_             34      // (Суффиксное подчеркивание необходимо для отличия от class S_GUID)
-#define S_INT64             35      // @v10.6.3
-#define S_UINT64            36      // @v10.6.3
-#define S_COLOR_RGBA        37      // @v10.9.10 4-компонентное представление цвета ARGB class SColorBase
-//
-#define S_FIRSTUSERTYPE     50
-//
-// Максимальное количество типов в таблице
-//
-#define TYPE_TAB_SIZ 64
-
-#define S_ARRAY_INT  0x82
-#define S_ARRAY_DBL  0x83
-
-#define MKSTYPE(typ,siz)      (((static_cast<uint>(siz))<<16)|(typ))
-#define MKSTYPED(typ,siz,prc) (((prc)<<24)|((static_cast<uint>(siz))<<16)|(typ))
-#define GETSTYPE(typ)         ( (typ)&0x0000ffff)
-#define GETSSIZE(typ)         (((typ)&0xffff0000)>>16)
-#define GETSSIZED(typ)        (((typ)&0x00ff0000)>>16)
-#define GETSPRECD(typ)        (((typ)&0xff000000)>>24)
-
-#define T_CHAR             MKSTYPE(S_CHAR,1)
-#define T_INT              MKSTYPE(S_INT,2)
-#define T_UINT             MKSTYPE(S_UBINARY,2)
-#define T_UINT16           MKSTYPE(S_UBINARY,2)
-#define T_UINT32           MKSTYPE(S_UBINARY,4)
-#define T_UINT64           MKSTYPE(S_UBINARY,8)
-#define T_INT16            MKSTYPE(S_INT,2)
-#define T_INT32            MKSTYPE(S_INT,4)
-#define T_INT64            MKSTYPE(S_INT64 ,8) // @v10.6.3 MKSTYPE(S_INT ,8)-->MKSTYPE(S_INT64 ,8)
-#define T_LONG             MKSTYPE(S_INT,4)
-#define T_ULONG            MKSTYPE(S_UBINARY,4)
-#define T_FLOAT            MKSTYPE(S_FLOAT,4)
-#define T_DOUBLE           MKSTYPE(S_FLOAT,8)
-#define T_MONEY            MKSTYPED(S_DEC,8,2)
-#define T_DATE             MKSTYPE(S_DATE,4)
-#define T_TIME             MKSTYPE(S_TIME,4)
-#define T_DATETIME         MKSTYPE(S_DATETIME,8)
-#define T_ARRAY            MKSTYPE(S_ARRAY,0)
-#define T_STRUCT           MKSTYPE(S_STRUCT,0)
-#define T_VARIANT          MKSTYPE(S_VARIANT, sizeof(VARIANT))
-#define T_ROWID            MKSTYPE(S_ROWID, sizeof(DBRowId))
-#define T_IPOINT2          MKSTYPE(S_IPOINT2, 4)
-#define T_FPOINT2          MKSTYPE(S_FPOINT2, 8)
-#define T_BOOL             MKSTYPE(S_BOOL, 4)
-#define T_GUID             MKSTYPE(S_UUID_, 16)
-#define T_COLOR_RGBA       MKSTYPE(S_COLOR_RGBA, 4) // @v10.9.10
 
 #if !defined(RC_INVOKED) /* { */
 
@@ -3205,6 +3221,8 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define DATF_CENTURY   0x0010  // Century flag
 #define DATF_NOZERO    0x0020  // Не отображать нулевое значение
 #define DATF_NODIV     0x0040  // день, месяц и год следуют друг за другом без разделителей.
+#define DATF_GERMANCENT    (DATF_GERMAN|DATF_CENTURY) // @v11.3.12
+#define DATF_ISO8601CENT   (DATF_ISO8601|DATF_CENTURY) // @v11.3.12
 	// Порядок следования определяется младшими битами (DATF_AMERICAN..DATF_YMD). Если установлен
 	// флаг DATF_CENTURY, то год должен быть полным (2011), в противном случае - только последние две
 	// цифры года (11).
@@ -3530,8 +3548,8 @@ struct DateRange { // @persistent @size=8
 	LDATE  upp;
 };
 
-inline int FASTCALL operator > (const DateRange & r1, const DateRange & r2) { return BIN(r1.Cmp(r2) > 0); }
-inline int FASTCALL operator < (const DateRange & r1, const DateRange & r2) { return BIN(r1.Cmp(r2) < 0); }
+inline bool FASTCALL operator > (const DateRange & r1, const DateRange & r2) { return (r1.Cmp(r2) > 0); }
+inline bool FASTCALL operator < (const DateRange & r1, const DateRange & r2) { return (r1.Cmp(r2) < 0); }
 
 struct TimeRange { // @persistent
 	void   Set(LTIME lowTm, LTIME uppTm);
@@ -3724,8 +3742,8 @@ public:
 extern const SPoint2F ZEROFPOINT; // @global
 
 // @v10.9.10 (replaced with SPoint2F::operator ==) int    FASTCALL operator == (SPoint2F p1, SPoint2F p2);
-int    FASTCALL operator <  (SPoint2F p1, SPoint2F p2);
-int    FASTCALL operator >  (SPoint2F p1, SPoint2F p2);
+bool   FASTCALL operator <  (SPoint2F p1, SPoint2F p2);
+bool   FASTCALL operator >  (SPoint2F p1, SPoint2F p2);
 SPoint2F FASTCALL operator +  (SPoint2F p, float);
 SPoint2F FASTCALL operator +  (SPoint2F p1, SPoint2F p2);
 SPoint2F FASTCALL operator -  (SPoint2F p1, SPoint2F p2);
@@ -3769,6 +3787,10 @@ SPoint2F FASTCALL trans01(SPoint2F p, SPoint2F radius, float angle);
 void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb);
 int  XMLWriteSpecSymbEntities(FILE * pStream);
 int  XMLWriteSpecSymbEntities(void * pWriter);
+//
+//
+//
+extern const char * SlTxtOutOfMem; // @v11.3.12 Специальная константа для замены однотипных строк "out of memory", "no memory", etc в сторонних библиотеках.
 //
 //
 //
@@ -4950,6 +4972,18 @@ uint32 FASTCALL _texttohex32(const wchar_t * pT, uint len);
 int    FASTCALL satoi(const char * pT);
 int    FASTCALL satoi(const wchar_t * pT);
 int64  FASTCALL satoi64(const char * pT);
+// 
+// Descr: Преобразует строку в беззнаковое 8-байтовое целое число.
+// Note: Пробелы, табуляция и знаки +- в начале строки пропускаются.
+//   Префикс 0x в начале строки трактуется как факт того, что число представлено в шестнадцатиричном виде.
+//
+uint64 FASTCALL satou64(const char * pT);
+//
+// Descr: Преобразует строку pT в беззнаковое 8-байтовое целое число,
+//   предполагая что число представлено в шестнадцатиричном виде.
+// Note: Пробелы, табуляция и знаки +-, а так же префикс "0x" в начале строки пропускаются.
+//
+uint64 FASTCALL sxtou64(const char * pT);
 int64  FASTCALL satoi64(const wchar_t * pT);
 int    FASTCALL satof(const char * pBuf, double * pVal);
 double FASTCALL satof(const char * pBuf);
@@ -11277,19 +11311,19 @@ private:
 
 	const  char * startp[NSUBEXP];
 	const  char * endp[NSUBEXP];
-	int    ErrCode;                  // Last error code (SLERR_XXX)
-	char   RegStart;                 // Internal use only
-	char   RegAnch;                  // Internal use only
-	char   RegDummy;                 //
-	char   Reserve;                  // @alignment
-	const  char * P_RegMust;         // @*compile Internal use only
-	const  char * P_RegParse;        // @*compile Input-scan pointer.
-	char * P_RegCode;                // @*compile Code-emit  * pointer;  * &RegDummy = don't.
-	int    RegNPar;                  // () count.
-	size_t RegMLen;                  // Internal use only
-	size_t RegSize;                  // Code size.
+	int    ErrCode;           // Last error code (SLERR_XXX)
+	char   RegStart;          // Internal use only
+	char   RegAnch;           // Internal use only
+	char   RegDummy;          //
+	char   Reserve;           // @alignment
+	const  char * P_RegMust;  // @*compile Internal use only
+	const  char * P_RegParse; // @*compile Input-scan pointer.
+	char * P_RegCode;         // @*compile Code-emit  * pointer;  * &RegDummy = don't.
+	int    RegNPar;           // () count.
+	size_t RegMLen;           // Internal use only
+	size_t RegSize;           // Code size.
 	char * P_Program;
-	size_t ProgSize;                 // Размер распределенного пространства под буфер P_Program
+	size_t ProgSize;          // Размер распределенного пространства под буфер P_Program
 	const char * P_Text;
 	//
 	// Searching members

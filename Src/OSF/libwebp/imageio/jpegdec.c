@@ -23,10 +23,10 @@
 // Metadata processing
 
 #ifndef JPEG_APP1
-# define JPEG_APP1 (JPEG_APP0 + 1)
+#define JPEG_APP1 (JPEG_APP0 + 1)
 #endif
 #ifndef JPEG_APP2
-# define JPEG_APP2 (JPEG_APP0 + 2)
+#define JPEG_APP2 (JPEG_APP0 + 2)
 #endif
 
 typedef struct {

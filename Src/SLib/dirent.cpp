@@ -421,7 +421,7 @@ int scandir(const char * dirname, struct dirent *** namelist, int (*filter)(cons
 		if(readdir_r(dir, tmp, &entry) != /*OK*/ 0)
 			goto exit_failure;
 		/* Stop if we already read the last directory entry */
-		if(entry == NULL)
+		if(!entry)
 			goto exit_success;
 		/* Determine whether to include the entry in results */
 		if(filter && !filter(tmp))

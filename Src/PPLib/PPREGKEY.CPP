@@ -409,7 +409,7 @@ int main(int argc, char ** argv)
 			else if(PPErrCode == PPERR_REGFILEWRITEFAULT)
 				msg_buf = "Lic file writing fault";
 			else if(PPErrCode == PPERR_NOMEM)
-				msg_buf = "Not enough memory";
+				msg_buf = SlTxtOutOfMem;
 			else
 				msg_buf = "Unknown";
 			printf("Error: %s\n", (const char *)msg_buf);

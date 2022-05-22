@@ -25,7 +25,7 @@ static int join_group_at_site __P((ENV*, repmgr_netaddr_t *));
 static int kick_blockers __P((ENV*, REPMGR_CONNECTION*, void *));
 static int make_request_conn __P((ENV*, repmgr_netaddr_t*, REPMGR_CONNECTION**));
 static int set_local_site __P((DB_SITE*, uint32));
-static int read_own_msg __P((ENV*, REPMGR_CONNECTION*, uint32*, uint8 **, size_t *));
+static int read_own_msg __P((ENV*, REPMGR_CONNECTION*, uint32 *, uint8 **, size_t *));
 static int refresh_site __P((DB_SITE *));
 static int __repmgr_await_threads(ENV *);
 static int __repmgr_build_data_out __P((ENV*, DBT*, uint32, __repmgr_msg_metadata_args*, REPMGR_IOVECS**iovecsp));

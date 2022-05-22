@@ -355,7 +355,7 @@ int PPViewQuoteReqAnalyze::CreateLinkedRequest(PPID leadBillID, int leadRbb)
 				THROW(seq_bpack.CreateBlank(seq_op_id, lead_bpack.Rec.ID, lead_bpack.Rec.LocID, 1));
 				seq_bpack.Rec.Dt = lead_bpack.Rec.Dt;
 				seq_bpack.Rec.DueDate = lead_bpack.Rec.DueDate;
-				if(EditTransferItem(&seq_bpack, -1, &tidid, 0, 0) == cmOK) {
+				if(EditTransferItem(seq_bpack, -1, &tidid, 0, 0) == cmOK) {
 					const  uint tipos = seq_bpack.GetTCount() - 1;
 					PPTransferItem * p_ti = &seq_bpack.TI(tipos);
 					p_ti->Cost = 0.0;
@@ -386,7 +386,7 @@ int PPViewQuoteReqAnalyze::EditSeqItem(PPID seqBillID, int seqRbb)
 		uint seq_tipos = 0;
 		if(P_BObj->ExtractPacket(seqBillID, &seq_bpack) > 0 && seq_bpack.SearchTI(seqRbb, &seq_tipos)) {
 			PPTransferItem & r_seq_ti = seq_bpack.TI(seq_tipos);
-			if(EditTransferItem(&seq_bpack, static_cast<int>(seq_tipos), 0, 0, 0) == cmOK) {
+			if(EditTransferItem(seq_bpack, static_cast<int>(seq_tipos), 0, 0, 0) == cmOK) {
 				THROW(P_BObj->UpdatePacket(&seq_bpack, 1));
 				CreateList(0, 0); // @todo Список надо перестроить только по одному документу
 				ok = 1;

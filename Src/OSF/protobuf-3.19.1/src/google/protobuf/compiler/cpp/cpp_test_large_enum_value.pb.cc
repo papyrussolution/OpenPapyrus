@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
-constexpr TestLargeEnumValue::TestLargeEnumValue(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestLargeEnumValue::TestLargeEnumValue(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestLargeEnumValueDefaultTypeInternal {
 	constexpr TestLargeEnumValueDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestLargeEnumValueDefaultTypeInternal() {}
@@ -65,18 +64,20 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto(&descriptor_table_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto);
 namespace protobuf_unittest {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestLargeEnumValue_EnumWithLargeValue_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto);
-  return file_level_enum_descriptors_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestLargeEnumValue_EnumWithLargeValue_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto);
+	return file_level_enum_descriptors_cpp_5ftest_5flarge_5fenum_5fvalue_2eproto[0];
 }
-bool TestLargeEnumValue_EnumWithLargeValue_IsValid(int value) {
-  switch (value) {
-    case 1:
-    case 2147483647:
-      return true;
-    default:
-      return false;
-  }
+bool TestLargeEnumValue_EnumWithLargeValue_IsValid(int value)
+{
+	switch(value) {
+		case 1:
+		case 2147483647:
+			return true;
+		default:
+			return false;
+	}
 }
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))

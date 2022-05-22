@@ -217,8 +217,6 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 							} catch(JSONException e) {
 								;
 							}
-							//boolean force_query = (ev == SLib.EV_LISTVIEWITEMLONGCLK) ? true : false;
-							//app_ctx.RunSvcCommand(SvcIdent, ListData.Items.get(ev_subj.ItemIdx), force_query);
 						}
 					}
 				}

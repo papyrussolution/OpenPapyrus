@@ -40,9 +40,9 @@ static int __hamc_put(DBC*, DBT*, DBT*, uint32, db_pgno_t *);
 static int __hamc_writelock(DBC *);
 static int __ham_dup_return(DBC*, DBT*, uint32);
 static int __ham_expand_table(DBC *);
-static int __hamc_update_getorder(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
-static int __hamc_update_setorder(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
-static int __ham_get_clist_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __hamc_update_getorder(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
+static int __hamc_update_setorder(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
+static int __ham_get_clist_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
 /*
  * __ham_quick_delete --
  *	This function is called by __db_del when the appropriate conditions

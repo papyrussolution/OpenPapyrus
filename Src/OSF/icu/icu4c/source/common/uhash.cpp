@@ -268,7 +268,7 @@ static UHashtable * _uhash_create(UHashFunction * keyHash,
 	if(U_FAILURE(*status))
 		return NULL;
 	result = (UHashtable*)uprv_malloc(sizeof(UHashtable));
-	if(result == NULL) {
+	if(!result) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}

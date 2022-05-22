@@ -20,10 +20,6 @@
 #ifndef TEMPLATE_TEMPLATE_CACHE_H_
 #define TEMPLATE_TEMPLATE_CACHE_H_
 
-#include <unordered_map>
-#include <string>        // for string
-#include <utility>       // for pair
-#include <vector>        // for vector<>
 #include <ctemplate/template_emitter.h>  // for ExpandEmitter, etc
 #include <ctemplate/template_enums.h>  // for Strip
 #include <ctemplate/template_string.h>

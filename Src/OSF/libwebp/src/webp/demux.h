@@ -66,16 +66,13 @@ typedef struct WebPIterator WebPIterator;
 typedef struct WebPChunkIterator WebPChunkIterator;
 typedef struct WebPAnimInfo WebPAnimInfo;
 typedef struct WebPAnimDecoderOptions WebPAnimDecoderOptions;
-
-//------------------------------------------------------------------------------
-
+//
 // Returns the version number of the demux library, packed in hexadecimal using
 // 8bits for each of major/minor/revision. E.g: v2.5.7 is 0x020507.
 WEBP_EXTERN int WebPGetDemuxVersion(void);
-
-//------------------------------------------------------------------------------
+//
 // Life of a Demux object
-
+//
 typedef enum WebPDemuxState {
 	WEBP_DEMUX_PARSE_ERROR    = -1,// An error occurred while parsing.
 	WEBP_DEMUX_PARSING_HEADER =  0,// Not enough data to parse full header.
@@ -90,9 +87,7 @@ WEBP_EXTERN WebPDemuxer* WebPDemuxInternal(const WebPData*, int, WebPDemuxState*
 // Parses the full WebP file given by 'data'. For single images the WebP file
 // header alone or the file header and the chunk header may be absent.
 // Returns a WebPDemuxer object on successful parse, NULL otherwise.
-static FORCEINLINE WebPDemuxer* WebPDemux(const WebPData* data) {
-	return WebPDemuxInternal(data, 0, NULL, WEBP_DEMUX_ABI_VERSION);
-}
+static FORCEINLINE WebPDemuxer* WebPDemux(const WebPData* data) { return WebPDemuxInternal(data, 0, NULL, WEBP_DEMUX_ABI_VERSION); }
 
 // Parses the possibly incomplete WebP file given by 'data'.
 // If 'state' is non-NULL it will be set to indicate the status of the demuxer.
@@ -102,16 +97,13 @@ static FORCEINLINE WebPDemuxer* WebPDemux(const WebPData* data) {
 // If this data is volatile, the demuxer object should be deleted (by calling
 // WebPDemuxDelete()) and WebPDemuxPartial() called again on the new data.
 // This is usually an inexpensive operation.
-static FORCEINLINE WebPDemuxer* WebPDemuxPartial(const WebPData* data, WebPDemuxState* state) {
-	return WebPDemuxInternal(data, 1, state, WEBP_DEMUX_ABI_VERSION);
-}
+static FORCEINLINE WebPDemuxer* WebPDemuxPartial(const WebPData* data, WebPDemuxState* state) { return WebPDemuxInternal(data, 1, state, WEBP_DEMUX_ABI_VERSION); }
 
 // Frees memory associated with 'dmux'.
 WEBP_EXTERN void WebPDemuxDelete(WebPDemuxer* dmux);
-
-//------------------------------------------------------------------------------
+//
 // Data/information extraction.
-
+//
 typedef enum WebPFormatFeature {
 	WEBP_FF_FORMAT_FLAGS, // bit-wise combination of WebPFeatureFlags
 	                      // corresponding to the 'VP8X' chunk (if present).
@@ -133,10 +125,9 @@ typedef enum WebPFormatFeature {
 // If 'feature' is WEBP_FF_LOOP_COUNT, WEBP_FF_BACKGROUND_COLOR, the returned
 // value is only meaningful if the bitstream is animated.
 WEBP_EXTERN uint32_t WebPDemuxGetI(const WebPDemuxer* dmux, WebPFormatFeature feature);
-
-//------------------------------------------------------------------------------
+//
 // Frame iteration.
-
+//
 struct WebPIterator {
 	int frame_num;
 	int num_frames;    // equivalent to WEBP_FF_FRAME_COUNT.
@@ -174,10 +165,9 @@ WEBP_EXTERN int WebPDemuxPrevFrame(WebPIterator* iter);
 // iter. Also, must be called before destroying the associated WebPDemuxer with
 // WebPDemuxDelete().
 WEBP_EXTERN void WebPDemuxReleaseIterator(WebPIterator* iter);
-
-//------------------------------------------------------------------------------
+//
 // Chunk iteration.
-
+//
 struct WebPChunkIterator {
 	// The current and total number of chunks with the fourcc given to
 	// WebPDemuxGetChunk().
@@ -212,8 +202,7 @@ WEBP_EXTERN int WebPDemuxPrevChunk(WebPChunkIterator* iter);
 // Must be called before destroying the associated WebPDemuxer with
 // WebPDemuxDelete().
 WEBP_EXTERN void WebPDemuxReleaseChunkIterator(WebPChunkIterator* iter);
-
-//------------------------------------------------------------------------------
+//
 // WebPAnimDecoder API
 //
 // This API allows decoding (possibly) animated WebP images.

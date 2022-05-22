@@ -59,6 +59,7 @@
     <ClInclude Include="..\osf\abseil\absl\base\internal\low_level_alloc.h" />
     <ClInclude Include="..\osf\abseil\absl\base\internal\low_level_scheduling.h" />
     <ClInclude Include="..\osf\abseil\absl\base\internal\per_thread_tls.h" />
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\prefetch.h" />
     <ClInclude Include="..\osf\abseil\absl\base\internal\raw_logging.h" />
     <ClInclude Include="..\osf\abseil\absl\base\internal\scoped_set_env.h" />
     <ClInclude Include="..\osf\abseil\absl\base\internal\spinlock.h" />
@@ -71,6 +72,7 @@
     <ClInclude Include="..\osf\abseil\absl\base\internal\unscaledcycleclock.h" />
     <ClInclude Include="..\osf\abseil\absl\base\log_severity.h" />
     <ClInclude Include="..\osf\abseil\absl\container\internal\hashtablez_sampler.h" />
+    <ClInclude Include="..\OSF\abseil\absl\container\internal\layout.h" />
     <ClInclude Include="..\osf\abseil\absl\container\internal\raw_hash_set.h" />
     <ClInclude Include="..\osf\abseil\absl\debugging\failure_signal_handler.h" />
     <ClInclude Include="..\osf\abseil\absl\debugging\internal\address_is_readable.h" />

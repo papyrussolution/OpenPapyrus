@@ -9,15 +9,12 @@
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
-//////////////////////////
+//
 // [variant.bad.access] //
-//////////////////////////
-
+//
 bad_variant_access::~bad_variant_access() = default;
 
-const char* bad_variant_access::what() const noexcept {
-	return "Bad variant access";
-}
+const char* bad_variant_access::what() const noexcept { return "Bad variant access"; }
 
 namespace variant_internal {
 void ThrowBadVariantAccess() {

@@ -42,9 +42,6 @@
 // in the future, we will arrange to have an indirect pointer to the
 // DB_FOO struct (as some of the classes already have).
 //
-
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
 //
 // Forward declarations
 //
@@ -89,13 +86,9 @@ class DbLockNotGrantedException;                 // forward
 class DbMemoryException;                         // forward
 class DbRepHandleDeadException;                  // forward
 class DbRunRecoveryException;                    // forward
-
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
 //
 // Turn off inappropriate compiler warnings
 //
-
 #ifdef _MSC_VER
 
 // These are level 4 warnings that are explicitly disabled.
@@ -113,13 +106,9 @@ class DbRunRecoveryException;                    // forward
  #pragma warning(disable: 4201 4514)
 
 #endif
-
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
 //
 // Mechanisms for declaring classes
 //
-
 //
 // Every class defined in this file has an _exported next to the class name.
 // This is needed for WinTel machines so that the class methods can
@@ -224,7 +213,7 @@ public:
 	virtual int get_multiple();
 	virtual int get_open_flags(uint32 *);
 	virtual int get_pagesize(uint32 *);
-	virtual int get_partition_callback(uint32*, uint32 (* *)(Db*, Dbt*key));
+	virtual int get_partition_callback(uint32 *, uint32 (* *)(Db*, Dbt*key));
 	virtual int get_partition_dirs(const char ***);
 	virtual int get_partition_keys(uint32 *, Dbt **);
 	virtual int get_priority(DB_CACHE_PRIORITY *);
@@ -286,7 +275,7 @@ public:
 	virtual int stat(DbTxn *, void * sp, uint32 flags);
 	virtual int stat_print(uint32 flags);
 	virtual int sync(uint32 flags);
-	virtual int truncate(DbTxn*, uint32*, uint32);
+	virtual int truncate(DbTxn*, uint32 *, uint32);
 	virtual int upgrade(const char * name, uint32 flags);
 	virtual int verify(const char *, const char *, __DB_STD(ostream)*, uint32);
 
@@ -1268,13 +1257,9 @@ private:
 	// cast to Dbt), so such callbacks might receive objects
 	// not of your subclassed type.
 };
-
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
 //
 // multiple key/data/recno iterator classes
 //
-
 // DbMultipleIterator is a shared private base class for the three types
 // of bulk-return Iterator;  it should never be instantiated directly,
 // but it handles the functionality shared by its subclasses.
@@ -1309,13 +1294,9 @@ public:
 	}
 	bool next(Dbt & data);
 };
-
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
 //
 // multiple key/data/recno builder classes
 //
-
 // DbMultipleBuilder is a shared private base class for the three types
 // of bulk buffer builders;  it should never be instantiated directly,
 // but it handles the functionality shared by its subclasses.
@@ -1354,13 +1335,9 @@ protected:
 	Dbt & dbt_;
 	void * p_;
 };
-
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
 //
 // Exception classes
 //
-
 // Almost any error in the DB library throws a DbException.
 // Every exception should be considered an abnormality
 // (e.g. bug, misuse of DB, file system error).
@@ -1473,16 +1450,11 @@ class _exported DbRunRecoveryException : public DbException {
 public:
 	virtual ~DbRunRecoveryException() throw();
 	DbRunRecoveryException(const char * description);
-
 	DbRunRecoveryException(const DbRunRecoveryException &);
 	DbRunRecoveryException & operator =(const DbRunRecoveryException &);
 };
-
 //
 // A specific sort of exception that occurs when
-
-////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////
 //
 // Restore default compiler warnings
 //

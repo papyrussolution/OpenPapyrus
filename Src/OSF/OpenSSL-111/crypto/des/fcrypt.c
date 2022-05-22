@@ -80,7 +80,7 @@ char * DES_crypt(const char * buf, const char * salt)
 
 	/* Encrypt it (from/to ASCII); if it worked, convert back. */
 	ret = DES_fcrypt(e_buf, e_salt, buff);
-	if(ret != NULL)
+	if(ret)
 		ascii2ebcdic(ret, ret, strlen(ret));
 
 	return ret;

@@ -547,21 +547,21 @@ long countNull(const UCPTrie * trie) {
 	long count = 0;
 	switch(trie->valueWidth) {
 		case UCPTRIE_VALUE_BITS_16:
-		    for(int32_t i = 0; i<length; ++i) {
+		    for(int32_t i = 0; i < length; ++i) {
 			    if(trie->data.ptr16[i]==nullValue) {
 				    ++count;
 			    }
 		    }
 		    break;
 		case UCPTRIE_VALUE_BITS_32:
-		    for(int32_t i = 0; i<length; ++i) {
+		    for(int32_t i = 0; i < length; ++i) {
 			    if(trie->data.ptr32[i]==nullValue) {
 				    ++count;
 			    }
 		    }
 		    break;
 		case UCPTRIE_VALUE_BITS_8:
-		    for(int32_t i = 0; i<length; ++i) {
+		    for(int32_t i = 0; i < length; ++i) {
 			    if(trie->data.ptr8[i]==nullValue) {
 				    ++count;
 			    }

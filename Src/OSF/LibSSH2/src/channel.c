@@ -23,10 +23,6 @@
  */
 #include "libssh2_priv.h"
 #pragma hdrstop
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#include <fcntl.h>
 #ifdef HAVE_INTTYPES_H
 	#include <inttypes.h>
 #endif

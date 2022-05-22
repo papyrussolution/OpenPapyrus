@@ -373,7 +373,7 @@ int32_t Formattable::getLong(UErrorCode & status) const
 			    return ((const Measure*)fValue.fObject)->
 				   getNumber().getLong(status);
 		    }
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		default:
 		    status = U_INVALID_FORMAT_ERROR;
 		    return 0;
@@ -426,7 +426,7 @@ int64_t Formattable::getInt64(UErrorCode & status) const
 		    if(instanceOfMeasure(fValue.fObject)) {
 			    return ((const Measure*)fValue.fObject)->getNumber().getInt64(status);
 		    }
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		default:
 		    status = U_INVALID_FORMAT_ERROR;
 		    return 0;
@@ -454,7 +454,7 @@ double Formattable::getDouble(UErrorCode & status) const
 			    return ((const Measure*)fValue.fObject)->
 				   getNumber().getDouble(status);
 		    }
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		default:
 		    status = U_INVALID_FORMAT_ERROR;
 		    return 0;

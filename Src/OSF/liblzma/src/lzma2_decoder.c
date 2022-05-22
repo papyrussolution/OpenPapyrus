@@ -168,9 +168,9 @@ static void lzma2_decoder_end(void * coder_ptr, const lzma_allocator * allocator
 static lzma_ret lzma2_decoder_init(lzma_lz_decoder * lz, const lzma_allocator * allocator, const void * opt, lzma_lz_decoder_options * lz_options)
 {
 	lzma_lzma2_decoder_coder * coder = (lzma_lzma2_decoder_coder *)lz->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		coder = (lzma_lzma2_decoder_coder *)lzma_alloc(sizeof(lzma_lzma2_decoder_coder), allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		lz->coder = coder;
 		lz->code = &lzma2_decode;

@@ -24,8 +24,7 @@ static void * s2i_poison(const X509V3_EXT_METHOD * method, X509V3_CTX * ctx, con
 	return ASN1_NULL_new();
 }
 
-static int i2r_SCT_LIST(X509V3_EXT_METHOD * method, STACK_OF(SCT) * sct_list,
-    BIO * out, int indent)
+static int i2r_SCT_LIST(X509V3_EXT_METHOD * method, STACK_OF(SCT) * sct_list, BIO * out, int indent)
 {
 	SCT_LIST_print(sct_list, out, indent, "\n", NULL);
 	return 1;
@@ -33,12 +32,10 @@ static int i2r_SCT_LIST(X509V3_EXT_METHOD * method, STACK_OF(SCT) * sct_list,
 
 static int set_sct_list_source(STACK_OF(SCT) * s, sct_source_t source)
 {
-	if(s != NULL) {
+	if(s) {
 		int i;
-
 		for(i = 0; i < sk_SCT_num(s); i++) {
 			int res = SCT_set_source(sk_SCT_value(s, i), source);
-
 			if(res != 1) {
 				return 0;
 			}
@@ -47,12 +44,9 @@ static int set_sct_list_source(STACK_OF(SCT) * s, sct_source_t source)
 	return 1;
 }
 
-static STACK_OF(SCT) *x509_ext_d2i_SCT_LIST(STACK_OF(SCT) **a,
-    const uchar ** pp,
-    long len)
+static STACK_OF(SCT) *x509_ext_d2i_SCT_LIST(STACK_OF(SCT) **a, const uchar ** pp, long len)
 {
 	STACK_OF(SCT) *s = d2i_SCT_LIST(a, pp, len);
-
 	if(set_sct_list_source(s, SCT_SOURCE_X509V3_EXTENSION) != 1) {
 		SCT_LIST_free(s);
 		*a = NULL;

@@ -1949,7 +1949,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 							    break;
 						    length = ucs4toutf8(codepoint, utf8char);
 						    p += (codepoint > 0xFFFF) ? 7 : 6;
-						    for(i = 0; i<length; i++)
+						    for(i = 0; i < length; i++)
 							    (pTerm->enhanced_writec)(pTerm, utf8char[i]);
 						    break;
 					    }

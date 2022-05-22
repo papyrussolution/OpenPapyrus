@@ -49,28 +49,22 @@ void archive_entry_xattr_clear(struct archive_entry * entry)
 	entry->xattr_head = NULL;
 }
 
-void archive_entry_xattr_add_entry(struct archive_entry * entry,
-    const char * name, const void * value, size_t size)
+void archive_entry_xattr_add_entry(struct archive_entry * entry, const char * name, const void * value, size_t size)
 {
 	struct ae_xattr * xp;
-
 	if((xp = (struct ae_xattr *)SAlloc::M(sizeof(struct ae_xattr))) == NULL)
-		__archive_errx(1, "Out of memory");
-
+		__archive_errx(1, SlTxtOutOfMem);
 	if((xp->name = sstrdup(name)) == NULL)
-		__archive_errx(1, "Out of memory");
-
+		__archive_errx(1, SlTxtOutOfMem);
 	if((xp->value = SAlloc::M(size)) != NULL) {
 		memcpy(xp->value, value, size);
 		xp->size = size;
 	}
 	else
 		xp->size = 0;
-
 	xp->next = entry->xattr_head;
 	entry->xattr_head = xp;
 }
-
 /*
  * returns number of the extended attribute entries
  */
@@ -78,7 +72,6 @@ int archive_entry_xattr_count(struct archive_entry * entry)
 {
 	struct ae_xattr * xp;
 	int count = 0;
-
 	for(xp = entry->xattr_head; xp != NULL; xp = xp->next)
 		count++;
 

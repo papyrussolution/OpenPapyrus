@@ -578,7 +578,7 @@ int ssh_publickey_to_file(ssh_session session, const char * file, ssh_string pub
 	SSH_LOG(SSH_LOG_RARE, "Trying to write public key file: %s", file);
 	SSH_LOG(SSH_LOG_PACKET, "public key file content: %s", buffer);
 	fp = fopen(file, "w+");
-	if(fp == NULL) {
+	if(!fp) {
 		ssh_set_error(session, SSH_REQUEST_DENIED, "Error opening %s: %s", file, strerror(errno));
 		return SSH_ERROR;
 	}

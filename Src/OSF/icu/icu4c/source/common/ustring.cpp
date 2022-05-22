@@ -1050,7 +1050,7 @@ U_CAPI bool U_EXPORT2 u_strHasMoreChar32Than(const UChar * s, int32_t length, in
 	if(s==NULL || length<-1) {
 		return FALSE;
 	}
-	if(length==-1) {
+	if(length == -1) {
 		/* s is NUL-terminated */
 		UChar c;
 		/* count code points until they exceed */

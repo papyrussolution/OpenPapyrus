@@ -100,29 +100,17 @@ const char * DangiCalendar::getType() const {
  * 1898-1911: GMT+8
  * 1912-    : GMT+9
  */
-static void U_CALLCONV initDangiCalZoneAstroCalc(UErrorCode & status) {
+static void U_CALLCONV initDangiCalZoneAstroCalc(UErrorCode & status) 
+{
 	U_ASSERT(gDangiCalendarZoneAstroCalc == nullptr);
-	const UDate millis1897[] = { (UDate)((1897 - 1970) * 365 * kOneDay) }; // some days of error is not a problem
-	                                                                       // here
-	const UDate millis1898[] = { (UDate)((1898 - 1970) * 365 * kOneDay) }; // some days of error is not a problem
-	                                                                       // here
-	const UDate millis1912[] = { (UDate)((1912 - 1970) * 365 * kOneDay) }; // this doesn't create an issue for
-	                                                                       // 1911/12/20
-	LocalPointer<InitialTimeZoneRule> initialTimeZone(new InitialTimeZoneRule(
-		    UnicodeString(u"GMT+8"), 8*kOneHour, 0), status);
-
-	LocalPointer<TimeZoneRule> rule1897(new TimeArrayTimeZoneRule(
-		    UnicodeString(u"Korean 1897"), 7*kOneHour, 0, millis1897, 1, DateTimeRule::STANDARD_TIME), status);
-
-	LocalPointer<TimeZoneRule> rule1898to1911(new TimeArrayTimeZoneRule(
-		    UnicodeString(u"Korean 1898-1911"), 8*kOneHour, 0, millis1898, 1, DateTimeRule::STANDARD_TIME), status);
-
-	LocalPointer<TimeZoneRule> ruleFrom1912(new TimeArrayTimeZoneRule(
-		    UnicodeString(u"Korean 1912-"), 9*kOneHour, 0, millis1912, 1, DateTimeRule::STANDARD_TIME), status);
-
-	LocalPointer<RuleBasedTimeZone> dangiCalZoneAstroCalc(new RuleBasedTimeZone(
-		    UnicodeString(u"KOREA_ZONE"), initialTimeZone.orphan()), status); // adopts initialTimeZone
-
+	const UDate millis1897[] = { (UDate)((1897 - 1970) * 365 * kOneDay) }; // some days of error is not a problem here
+	const UDate millis1898[] = { (UDate)((1898 - 1970) * 365 * kOneDay) }; // some days of error is not a problem here
+	const UDate millis1912[] = { (UDate)((1912 - 1970) * 365 * kOneDay) }; // this doesn't create an issue for 1911/12/20
+	LocalPointer<InitialTimeZoneRule> initialTimeZone(new InitialTimeZoneRule(UnicodeString(u"GMT+8"), 8*kOneHour, 0), status);
+	LocalPointer<TimeZoneRule> rule1897(new TimeArrayTimeZoneRule(UnicodeString(u"Korean 1897"), 7*kOneHour, 0, millis1897, 1, DateTimeRule::STANDARD_TIME), status);
+	LocalPointer<TimeZoneRule> rule1898to1911(new TimeArrayTimeZoneRule(UnicodeString(u"Korean 1898-1911"), 8*kOneHour, 0, millis1898, 1, DateTimeRule::STANDARD_TIME), status);
+	LocalPointer<TimeZoneRule> ruleFrom1912(new TimeArrayTimeZoneRule(UnicodeString(u"Korean 1912-"), 9*kOneHour, 0, millis1912, 1, DateTimeRule::STANDARD_TIME), status);
+	LocalPointer<RuleBasedTimeZone> dangiCalZoneAstroCalc(new RuleBasedTimeZone(UnicodeString(u"KOREA_ZONE"), initialTimeZone.orphan()), status); // adopts initialTimeZone
 	if(U_FAILURE(status)) {
 		return;
 	}

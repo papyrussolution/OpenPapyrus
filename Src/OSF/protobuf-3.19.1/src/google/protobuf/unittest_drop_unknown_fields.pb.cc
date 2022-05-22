@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace unittest_drop_unknown_fields {
-constexpr Foo::Foo(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Foo::Foo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : int32_value_(0)
   , enum_value_(0)
 {}
@@ -29,8 +28,7 @@ struct FooDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT FooDefaultTypeInternal _Foo_default_instance_;
-constexpr FooWithExtraFields::FooWithExtraFields(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr FooWithExtraFields::FooWithExtraFields(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : int32_value_(0)
   , enum_value_(0)
 
@@ -103,19 +101,21 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_google_2fprotobuf_2funittest_5fdrop_5funknown_5ffields_2eproto(&descriptor_table_google_2fprotobuf_2funittest_5fdrop_5funknown_5ffields_2eproto);
 namespace unittest_drop_unknown_fields {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Foo_NestedEnum_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fdrop_5funknown_5ffields_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fdrop_5funknown_5ffields_2eproto[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Foo_NestedEnum_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fdrop_5funknown_5ffields_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fdrop_5funknown_5ffields_2eproto[0];
 }
-bool Foo_NestedEnum_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
+bool Foo_NestedEnum_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+			return true;
+		default:
+			return false;
+	}
 }
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
@@ -126,20 +126,22 @@ constexpr Foo_NestedEnum Foo::NestedEnum_MIN;
 constexpr Foo_NestedEnum Foo::NestedEnum_MAX;
 constexpr int Foo::NestedEnum_ARRAYSIZE;
 #endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FooWithExtraFields_NestedEnum_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fdrop_5funknown_5ffields_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fdrop_5funknown_5ffields_2eproto[1];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FooWithExtraFields_NestedEnum_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2funittest_5fdrop_5funknown_5ffields_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2funittest_5fdrop_5funknown_5ffields_2eproto[1];
 }
-bool FooWithExtraFields_NestedEnum_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return true;
-    default:
-      return false;
-  }
+bool FooWithExtraFields_NestedEnum_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+			return true;
+		default:
+			return false;
+	}
 }
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
@@ -170,17 +172,12 @@ Foo::Foo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 Foo::Foo(const Foo& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&int32_value_, &from.int32_value_,
-    static_cast<size_t>(reinterpret_cast<char*>(&enum_value_) -
-    reinterpret_cast<char*>(&int32_value_)) + sizeof(enum_value_));
+  ::memcpy(&int32_value_, &from.int32_value_, static_cast<size_t>(reinterpret_cast<char*>(&enum_value_) - reinterpret_cast<char*>(&int32_value_)) + sizeof(enum_value_));
   // @@protoc_insertion_point(copy_constructor:unittest_drop_unknown_fields.Foo)
 }
 
 inline void Foo::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&int32_value_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&enum_value_) -
-    reinterpret_cast<char*>(&int32_value_)) + sizeof(enum_value_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&int32_value_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&enum_value_) - reinterpret_cast<char*>(&int32_value_)) + sizeof(enum_value_));
 }
 
 Foo::~Foo() {
@@ -198,8 +195,7 @@ void Foo::ArenaDtor(void* object) {
   Foo* _this = reinterpret_cast< Foo* >(object);
   (void)_this;
 }
-void Foo::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Foo::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Foo::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -210,9 +206,7 @@ void Foo::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&int32_value_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&enum_value_) -
-      reinterpret_cast<char*>(&int32_value_)) + sizeof(enum_value_));
+  ::memset(&int32_value_, 0, static_cast<size_t>(reinterpret_cast<char*>(&enum_value_) - reinterpret_cast<char*>(&int32_value_)) + sizeof(enum_value_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -247,10 +241,7 @@ const char* Foo::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::intern
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -315,10 +306,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Foo::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Foo::GetClassData() const { return &_class_data_; }
 
-void Foo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Foo *>(to)->MergeFrom(
-      static_cast<const Foo &>(from));
+void Foo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Foo *>(to)->MergeFrom(static_cast<const Foo &>(from));
 }
 
 
@@ -381,17 +370,12 @@ FooWithExtraFields::FooWithExtraFields(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 FooWithExtraFields::FooWithExtraFields(const FooWithExtraFields& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&int32_value_, &from.int32_value_,
-    static_cast<size_t>(reinterpret_cast<char*>(&extra_int32_value_) -
-    reinterpret_cast<char*>(&int32_value_)) + sizeof(extra_int32_value_));
+  ::memcpy(&int32_value_, &from.int32_value_, static_cast<size_t>(reinterpret_cast<char*>(&extra_int32_value_) - reinterpret_cast<char*>(&int32_value_)) + sizeof(extra_int32_value_));
   // @@protoc_insertion_point(copy_constructor:unittest_drop_unknown_fields.FooWithExtraFields)
 }
 
 inline void FooWithExtraFields::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&int32_value_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&extra_int32_value_) -
-    reinterpret_cast<char*>(&int32_value_)) + sizeof(extra_int32_value_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&int32_value_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&extra_int32_value_) - reinterpret_cast<char*>(&int32_value_)) + sizeof(extra_int32_value_));
 }
 
 FooWithExtraFields::~FooWithExtraFields() {
@@ -409,8 +393,7 @@ void FooWithExtraFields::ArenaDtor(void* object) {
   FooWithExtraFields* _this = reinterpret_cast< FooWithExtraFields* >(object);
   (void)_this;
 }
-void FooWithExtraFields::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void FooWithExtraFields::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void FooWithExtraFields::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -421,9 +404,7 @@ void FooWithExtraFields::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&int32_value_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&extra_int32_value_) -
-      reinterpret_cast<char*>(&int32_value_)) + sizeof(extra_int32_value_));
+  ::memset(&int32_value_, 0, static_cast<size_t>(reinterpret_cast<char*>(&extra_int32_value_) - reinterpret_cast<char*>(&int32_value_)) + sizeof(extra_int32_value_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -466,10 +447,7 @@ const char* FooWithExtraFields::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -545,10 +523,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData FooWithExtraFields::_class_dat
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*FooWithExtraFields::GetClassData() const { return &_class_data_; }
 
-void FooWithExtraFields::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<FooWithExtraFields *>(to)->MergeFrom(
-      static_cast<const FooWithExtraFields &>(from));
+void FooWithExtraFields::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<FooWithExtraFields *>(to)->MergeFrom(static_cast<const FooWithExtraFields &>(from));
 }
 
 

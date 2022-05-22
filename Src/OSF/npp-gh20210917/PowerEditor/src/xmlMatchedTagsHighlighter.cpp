@@ -139,17 +139,13 @@ bool XmlMatchedTagsHighlighter::getXmlMatchedTagsPos(XmlMatchedTagsPos &xmlTags)
 			closeFound = findText(">", searchStartPoint, caret, 0);
 			styleAt = _pEditView->execute(SCI_GETSTYLEAT, closeFound.start);
 			searchStartPoint = closeFound.end;
-		} while(closeFound.success &&
-		    (styleAt == SCE_H_DOUBLESTRING || styleAt == SCE_H_SINGLESTRING || styleAt == SCE_H_COMMENT) &&
-		    searchStartPoint <= caret);
-
+		} while(closeFound.success && oneof3(styleAt, SCE_H_DOUBLESTRING, SCE_H_SINGLESTRING, SCE_H_COMMENT) && searchStartPoint <= caret);
 		if(!closeFound.success) {
 			// We're in a tag (either a start tag or an end tag)
 			int nextChar = static_cast<int32_t>(_pEditView->execute(SCI_GETCHARAT, openFound.start + 1));
-
-			/////////////////////////////////////////////////////////////////////////
+			//
 			// CURSOR IN CLOSE TAG
-			/////////////////////////////////////////////////////////////////////////
+			//
 			if('/' == nextChar) {
 				xmlTags.tagCloseStart = openFound.start;
 				int docLength = static_cast<int32_t>(_pEditView->execute(SCI_GETLENGTH));
@@ -256,14 +252,12 @@ bool XmlMatchedTagsHighlighter::getXmlMatchedTagsPos(XmlMatchedTagsPos &xmlTags)
 				}
 			}
 			else {
-				/////////////////////////////////////////////////////////////////////////
+				//
 				// CURSOR IN OPEN TAG
-				/////////////////////////////////////////////////////////////////////////
+				//
 				int position = openFound.start + 1;
 				int docLength = static_cast<int32_t>(_pEditView->execute(SCI_GETLENGTH));
-
 				xmlTags.tagOpenStart = openFound.start;
-
 				std::string tagName;
 				nextChar = static_cast<int32_t>(_pEditView->execute(SCI_GETCHARAT, position));
 				// Checking for " or ' is actually wrong here, but it means it works better with invalid

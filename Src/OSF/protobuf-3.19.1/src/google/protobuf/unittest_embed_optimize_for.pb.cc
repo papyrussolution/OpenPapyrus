@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
-constexpr TestEmbedOptimizedForSize::TestEmbedOptimizedForSize(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestEmbedOptimizedForSize::TestEmbedOptimizedForSize(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_message_()
   , optional_message_(nullptr){}
 struct TestEmbedOptimizedForSizeDefaultTypeInternal {
@@ -88,10 +87,7 @@ class TestEmbedOptimizedForSize::_Internal {
   static void set_has_optional_message(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::protobuf_unittest::TestOptimizedForSize&
-TestEmbedOptimizedForSize::_Internal::optional_message(const TestEmbedOptimizedForSize* msg) {
-  return *msg->optional_message_;
-}
+const ::protobuf_unittest::TestOptimizedForSize & TestEmbedOptimizedForSize::_Internal::optional_message(const TestEmbedOptimizedForSize* msg) { return *msg->optional_message_; }
 void TestEmbedOptimizedForSize::clear_optional_message() {
   if(optional_message_ != nullptr) optional_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
@@ -114,11 +110,7 @@ TestEmbedOptimizedForSize::TestEmbedOptimizedForSize(const TestEmbedOptimizedFor
       _has_bits_(from._has_bits_),
       repeated_message_(from.repeated_message_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_optional_message()) {
-    optional_message_ = new ::protobuf_unittest::TestOptimizedForSize(*from.optional_message_);
-  } else {
-    optional_message_ = nullptr;
-  }
+  optional_message_ = from._internal_has_optional_message() ? new ::protobuf_unittest::TestOptimizedForSize(*from.optional_message_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestEmbedOptimizedForSize)
 }
 
@@ -142,8 +134,7 @@ void TestEmbedOptimizedForSize::ArenaDtor(void* object) {
   TestEmbedOptimizedForSize* _this = reinterpret_cast< TestEmbedOptimizedForSize* >(object);
   (void)_this;
 }
-void TestEmbedOptimizedForSize::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestEmbedOptimizedForSize::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestEmbedOptimizedForSize::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -200,10 +191,7 @@ const char* TestEmbedOptimizedForSize::_InternalParse(const char* ptr, ::PROTOBU
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -271,10 +259,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestEmbedOptimizedForSize::_cl
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestEmbedOptimizedForSize::GetClassData() const { return &_class_data_; }
 
-void TestEmbedOptimizedForSize::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestEmbedOptimizedForSize *>(to)->MergeFrom(
-      static_cast<const TestEmbedOptimizedForSize &>(from));
+void TestEmbedOptimizedForSize::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestEmbedOptimizedForSize *>(to)->MergeFrom(static_cast<const TestEmbedOptimizedForSize &>(from));
 }
 
 

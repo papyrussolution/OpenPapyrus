@@ -18,8 +18,6 @@
 #if defined(WEBP_USE_SSE2)
 #include <emmintrin.h>
 
-//------------------------------------------------------------------------------
-
 static int DispatchAlpha_SSE2(const uint8* WEBP_RESTRICT alpha, int alpha_stride, int width, int height, uint8* WEBP_RESTRICT dst, int dst_stride) 
 {
 	// alpha_and stores an 'and' operation of all the alpha[] values. The final
@@ -144,10 +142,9 @@ static int ExtractAlpha_SSE2(const uint8* WEBP_RESTRICT argb, int argb_stride,
 	alpha_and &= _mm_movemask_epi8(_mm_cmpeq_epi8(all_alphas, all_0xff));
 	return (alpha_and == 0xff);
 }
-
-//------------------------------------------------------------------------------
+//
 // Non-dither premultiplied modes
-
+//
 #define MULTIPLIER(a)   ((a) * 0x8081)
 #define PREMULTIPLY(x, m) (((x) * (m)) >> 23)
 
@@ -213,11 +210,11 @@ static void ApplyAlphaMultiply_SSE2(uint8* rgba, int alpha_first,
 
 #undef MULTIPLIER
 #undef PREMULTIPLY
-
-//------------------------------------------------------------------------------
+//
 // Alpha detection
-
-static int HasAlpha8b_SSE2(const uint8* src, int length) {
+//
+static int HasAlpha8b_SSE2(const uint8* src, int length) 
+{
 	const __m128i all_0xff = _mm_set1_epi8((char)0xff);
 	int i = 0;
 	for(; i + 16 <= length; i += 16) {
@@ -344,10 +341,9 @@ static void MultRow_SSE2(uint8* WEBP_RESTRICT const ptr,
 	width -= x;
 	if(width > 0) WebPMultRow_C(ptr + x, alpha + x, width, inverse);
 }
-
-//------------------------------------------------------------------------------
+//
 // Entry point
-
+//
 extern void WebPInitAlphaProcessingSSE2(void);
 
 WEBP_TSAN_IGNORE_FUNCTION void WebPInitAlphaProcessingSSE2(void) {

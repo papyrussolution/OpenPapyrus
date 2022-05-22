@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest_import {
-constexpr PublicImportMessage::PublicImportMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr PublicImportMessage::PublicImportMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : e_(0){}
 struct PublicImportMessageDefaultTypeInternal {
 	constexpr PublicImportMessageDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -113,8 +112,7 @@ void PublicImportMessage::ArenaDtor(void* object) {
   PublicImportMessage* _this = reinterpret_cast< PublicImportMessage* >(object);
   (void)_this;
 }
-void PublicImportMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void PublicImportMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void PublicImportMessage::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -154,10 +152,7 @@ const char* PublicImportMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAME
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -213,10 +208,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData PublicImportMessage::_class_da
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*PublicImportMessage::GetClassData() const { return &_class_data_; }
 
-void PublicImportMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<PublicImportMessage *>(to)->MergeFrom(
-      static_cast<const PublicImportMessage &>(from));
+void PublicImportMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<PublicImportMessage *>(to)->MergeFrom(static_cast<const PublicImportMessage &>(from));
 }
 
 

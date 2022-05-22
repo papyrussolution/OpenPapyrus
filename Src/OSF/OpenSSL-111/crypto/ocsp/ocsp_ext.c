@@ -8,11 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/objects.h>
-//#include <openssl/x509.h>
-//#include <openssl/ocsp.h>
-//#include <openssl/rand.h>
-//#include <openssl/x509v3.h>
 #include "ocsp_lcl.h"
 
 /* Standard wrapper functions for extensions */
@@ -26,21 +21,18 @@ int OCSP_REQUEST_get_ext_count(OCSP_REQUEST * x)
 
 int OCSP_REQUEST_get_ext_by_NID(OCSP_REQUEST * x, int nid, int lastpos)
 {
-	return (X509v3_get_ext_by_NID
-		       (x->tbsRequest.requestExtensions, nid, lastpos));
+	return (X509v3_get_ext_by_NID(x->tbsRequest.requestExtensions, nid, lastpos));
 }
 
 int OCSP_REQUEST_get_ext_by_OBJ(OCSP_REQUEST * x, const ASN1_OBJECT * obj,
     int lastpos)
 {
-	return (X509v3_get_ext_by_OBJ
-		       (x->tbsRequest.requestExtensions, obj, lastpos));
+	return (X509v3_get_ext_by_OBJ(x->tbsRequest.requestExtensions, obj, lastpos));
 }
 
 int OCSP_REQUEST_get_ext_by_critical(OCSP_REQUEST * x, int crit, int lastpos)
 {
-	return (X509v3_get_ext_by_critical
-		       (x->tbsRequest.requestExtensions, crit, lastpos));
+	return (X509v3_get_ext_by_critical(x->tbsRequest.requestExtensions, crit, lastpos));
 }
 
 X509_EXTENSION * OCSP_REQUEST_get_ext(OCSP_REQUEST * x, int loc)

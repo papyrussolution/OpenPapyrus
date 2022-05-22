@@ -42,7 +42,7 @@ int __rep_bulk_unmarshal(ENV * env, __rep_bulk_args * argp, uint8 * bp, size_t m
 	if(max < needed)
 		goto too_few;
 	bp += argp->bulkdata.size;
-	if(nextp != NULL)
+	if(nextp)
 		*nextp = bp;
 	return 0;
 too_few:
@@ -89,7 +89,7 @@ int __rep_control_unmarshal(ENV * env, __rep_control_args * argp, uint8 * bp, si
 	DB_NTOHL_COPYIN(env, argp->msg_sec, bp);
 	DB_NTOHL_COPYIN(env, argp->msg_nsec, bp);
 	DB_NTOHL_COPYIN(env, argp->flags, bp);
-	if(nextp != NULL)
+	if(nextp)
 		*nextp = bp;
 	return 0;
 too_few:
@@ -119,7 +119,7 @@ int __rep_egen_unmarshal(ENV * env, __rep_egen_args * argp, uint8 * bp, size_t m
 	if(max < __REP_EGEN_SIZE)
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->egen, bp);
-	if(nextp != NULL)
+	if(nextp)
 		*nextp = bp;
 	return 0;
 too_few:
@@ -286,7 +286,7 @@ int __rep_fileinfo_unmarshal(ENV * env, uint32 version, __rep_fileinfo_args ** a
 	if(max < needed)
 		goto too_few;
 	bp += argp->info.size;
-	if(nextp != NULL)
+	if(nextp)
 		*nextp = bp;
 	*argpp = argp;
 	return 0;
@@ -319,7 +319,7 @@ int __rep_grant_info_unmarshal(ENV * env, __rep_grant_info_args * argp, uint8 * 
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->msg_sec, bp);
 	DB_NTOHL_COPYIN(env, argp->msg_nsec, bp);
-	if(nextp != NULL)
+	if(nextp)
 		*nextp = bp;
 	return 0;
 too_few:
@@ -351,7 +351,7 @@ int __rep_logreq_unmarshal(ENV * env, __rep_logreq_args * argp, uint8 * bp, size
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->endlsn.file, bp);
 	DB_NTOHL_COPYIN(env, argp->endlsn.Offset_, bp);
-	if(nextp != NULL)
+	if(nextp)
 		*nextp = bp;
 	return 0;
 too_few:
@@ -506,7 +506,7 @@ int __rep_vote_info_unmarshal(ENV * env, __rep_vote_info_args * argp, uint8 * bp
 	DB_NTOHL_COPYIN(env, argp->spare_pri, bp);
 	DB_NTOHL_COPYIN(env, argp->tiebreaker, bp);
 	DB_NTOHL_COPYIN(env, argp->data_gen, bp);
-	if(nextp != NULL)
+	if(nextp)
 		*nextp = bp;
 	return 0;
 too_few:
@@ -544,7 +544,7 @@ int __rep_vote_info_v5_unmarshal(ENV * env, __rep_vote_info_v5_args * argp, uint
 	DB_NTOHL_COPYIN(env, argp->nvotes, bp);
 	DB_NTOHL_COPYIN(env, argp->priority, bp);
 	DB_NTOHL_COPYIN(env, argp->tiebreaker, bp);
-	if(nextp != NULL)
+	if(nextp)
 		*nextp = bp;
 	return 0;
 too_few:
@@ -570,7 +570,7 @@ int __rep_lsn_hist_key_unmarshal(ENV * env, __rep_lsn_hist_key_args * argp, uint
 		goto too_few;
 	DB_NTOHL_COPYIN(env, argp->version, bp);
 	DB_NTOHL_COPYIN(env, argp->gen, bp);
-	if(nextp != NULL)
+	if(nextp)
 		*nextp = bp;
 	return 0;
 too_few:

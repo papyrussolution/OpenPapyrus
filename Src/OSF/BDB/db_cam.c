@@ -15,11 +15,11 @@ static int __dbc_del_foreign(DBC *);
 static int __dbc_del_oldskey(DB*, DBC*, DBT*, DBT*, DBT *);
 static int __dbc_del_secondary(DBC *);
 static int __dbc_pget_recno(DBC*, DBT*, DBT*, uint32);
-static inline int __dbc_put_append(DBC*, DBT*, DBT*, uint32*, uint32);
+static inline int __dbc_put_append(DBC*, DBT*, DBT*, uint32 *, uint32);
 static inline int __dbc_put_fixed_len(DBC*, DBT*, DBT *);
-static inline int __dbc_put_partial(DBC*, DBT*, DBT*, DBT*, DBT*, uint32*, uint32);
+static inline int __dbc_put_partial(DBC*, DBT*, DBT*, DBT*, DBT*, uint32 *, uint32);
 static int __dbc_put_primary(DBC*, DBT*, DBT*, uint32);
-static inline int __dbc_put_resolve_key(DBC*, DBT*, DBT*, uint32*, uint32);
+static inline int __dbc_put_resolve_key(DBC*, DBT*, DBT*, uint32 *, uint32);
 static inline int __dbc_put_secondaries(DBC*, DBT*, DBT*, DBT*, int, DBT*, uint32 *);
 
 #define CDB_LOCKING_INIT(env, dbc)                                      \

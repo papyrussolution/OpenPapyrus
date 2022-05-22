@@ -191,7 +191,7 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
     const dictCtx_directive dict, const HCfavor_e favorDecSpeed)
 {
 	uint16* const chainTable = hc4->chainTable;
-	uint32* const HashTable = hc4->hashTable;
+	uint32 * const HashTable = hc4->hashTable;
 	const LZ4HC_CCtx_internal * const dictCtx = hc4->dictCtx;
 	const uint8 * const base = hc4->base;
 	const uint32 dictLimit = hc4->dictLimit;

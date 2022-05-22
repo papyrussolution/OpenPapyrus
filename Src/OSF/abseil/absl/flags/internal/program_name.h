@@ -9,14 +9,9 @@
 //
 #ifndef ABSL_FLAGS_INTERNAL_PROGRAM_NAME_H_
 #define ABSL_FLAGS_INTERNAL_PROGRAM_NAME_H_
-
-//#include <string>
-//#include "absl/base/config.h"
-//#include "absl/strings/string_view.h"
-
-// --------------------------------------------------------------------
+//
 // Program name
-
+//
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace flags_internal {

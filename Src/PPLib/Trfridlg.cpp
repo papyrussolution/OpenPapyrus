@@ -10,7 +10,7 @@
 //
 class TrfrItemDialog : public TDialog {
 private:
-	friend int EditTransferItem(PPBillPacket *, int itemNo, TIDlgInitData *, const PPTransferItem * pOrder, int sign);
+	friend int EditTransferItem(PPBillPacket &, int itemNo, TIDlgInitData *, const PPTransferItem * pOrder, int sign);
 
 	TrfrItemDialog(uint dlgID, PPID opID);
 	int    setDTS(const PPTransferItem * pData);
@@ -200,26 +200,29 @@ int TrfrItemDialog::ProcessRevalOnAllLots(const PPTransferItem * pItem)
 //
 // Если itemNo == -1, то добавляется новая строка
 //
-int EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData, const PPTransferItem * pOrder, int sign)
+int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData, const PPTransferItem * pOrder, int sign)
 {
 	const PPConfig & r_cfg = LConfig;
 	PPObjBill * p_bobj = BillObj;
+	const PPID   op_id = rPack.Rec.OpID;
 	const long   ccfgflags = CConfig.Flags;
-	const int    allow_suppl_sel = BIN(CanUpdateSuppl(pPack, itemNo) && p_bobj->CheckRights(BILLOPRT_ACCSSUPPL, 1));
-	const int    goods_fixed     = BIN(itemNo >= 0 || (pInitData && pInitData->GoodsID));
-	const PPID   op_id = pPack->Rec.OpID;
+	const bool   allow_suppl_sel = (CanUpdateSuppl(&rPack, itemNo) && p_bobj->CheckRights(BILLOPRT_ACCSSUPPL, 1));
+	const bool   goods_fixed = (itemNo >= 0 || (pInitData && pInitData->GoodsID));
+	bool   skip_dlg = (pInitData && (pInitData->Flags & TIDIF_AUTOQTTY));
 	int    r = cmCancel;
-	int    skip_dlg = (pInitData && (pInitData->Flags & TIDIF_AUTOQTTY));
 	int    goods_by_price  = 0;
 	int    valid_data = 0;
 	int    modified = 0;
-	uint   i, dlg_id = 0;
+	uint   i;
+	uint   dlg_id = 0;
 	int    rt_to_modif = 1;
 	SpecSeriesCore * p_spc_core = 0;
 	PPOprKind op_rec;
-	PPTransferItem pattern, * p_item = 0, * p_ti = 0;
+	PPTransferItem pattern;
+	PPTransferItem * p_item = 0;
+	PPTransferItem * p_ti = 0;
 	TrfrItemDialog * dlg = 0;
-	switch(pPack->OpTypeID) {
+	switch(rPack.OpTypeID) {
 		case PPOPT_GOODSRETURN:
 			GetOpData(op_id, &op_rec);
 			switch(GetOpType(op_rec.LinkOpID)) {
@@ -241,7 +244,7 @@ int EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData
 			if(pInitData && pInitData->Flags & TIDIF_SEQQREQ) {
 				dlg_id = DLG_QUOTEREQSEQ;
 			}
-			else if(itemNo >= 0 && pPack->ConstTI(itemNo).Lbr.ID > 0) {
+			else if(itemNo >= 0 && rPack.ConstTI(itemNo).Lbr.ID > 0) {
 				dlg_id = DLG_QUOTEREQSEQ;
 			}
 			else
@@ -265,9 +268,9 @@ int EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData
 		case PPOPT_CORRECTION: dlg_id = DLG_REVALITEM; break;
 		case PPOPT_GOODSMODIF:
 			if(itemNo >= 0)
-				sign = pPack->ConstTI(itemNo).GetSign(pPack->Rec.OpID);
+				sign = rPack.ConstTI(itemNo).GetSign(rPack.Rec.OpID);
 			if(sign == TISIGN_PLUS) {
-				if(pPack->Rec.Flags & BILLF_RECOMPLETE)
+				if(rPack.Rec.Flags & BILLF_RECOMPLETE)
 					dlg_id = DLG_SELLITEM;
 				else if(GetOpSubType(op_id) == OPSUBT_ASSETMODIF)
 					dlg_id = DLG_ASSETMODIFLOTITEM;
@@ -291,7 +294,7 @@ int EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData
 		dlg->MaxQtty = pInitData->QttyBounds.upp;
 	}
 	if(itemNo < 0) {
-		THROW_MEM(p_item = new PPTransferItem(&pPack->Rec, sign));
+		THROW_MEM(p_item = new PPTransferItem(&rPack.Rec, sign));
 		dlg->EditMode = 0;
 		if(pInitData) {
 			if(pInitData->GoodsID) {
@@ -313,24 +316,24 @@ int EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData
 			p_item->OrdLotID = pOrder->LotID; // @ordlotid
 			p_item->Flags   |= PPTFR_ONORDER;
 		}
-		if(pPack->OpTypeID == PPOPT_GOODSRECEIPT || (pPack->OpTypeID == PPOPT_GOODSMODIF && sign > 0))
+		if(rPack.OpTypeID == PPOPT_GOODSRECEIPT || (rPack.OpTypeID == PPOPT_GOODSMODIF && sign > 0))
 			if(ccfgflags & CCFLG_COSTWOVATBYDEF)
 				p_item->Flags |= PPTFR_COSTWOVAT;
 	}
 	else {
-		p_item = &pPack->TI(itemNo);
+		p_item = &rPack.TI(itemNo);
 		dlg->EditMode = 1;
 		if(p_item->Flags & PPTFR_ONORDER)
-			if(pPack->SearchShLot(p_item->OrdLotID, &(i = 0))) // @ordlotid
-				pOrder = &pPack->P_ShLots->at(i);
+			if(rPack.SearchShLot(p_item->OrdLotID, &(i = 0))) // @ordlotid
+				pOrder = &rPack.P_ShLots->at(i);
 			else {
 				pOrder = 0;
 				p_item->Flags &= ~PPTFR_ONORDER;
 			}
 	}
 	SETFLAG(dlg->St, TrfrItemDialog::stGoodsByPrice, goods_by_price);
-	dlg->ItemNo       = itemNo;
-	dlg->P_Pack       = pPack;
+	dlg->ItemNo = itemNo;
+	dlg->P_Pack = &rPack;
 	pattern   = *p_item;
 	p_item->GoodsID   = labs(p_item->GoodsID);
 	dlg->P_OrderItem  = pOrder;
@@ -356,12 +359,12 @@ int EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData
 			}
 		}
 	}
-	if(pPack->GetSyncStatus() > 0) {
+	if(rPack.GetSyncStatus() > 0) {
 		//
 		// Если у пользователя нет прав на изменение синхронизированного документа,
 		// то менять скидку на весь документ он не может - это приведет к изменению сумм по строкам.
 		//
-		if(oneof6(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
+		if(oneof6(rPack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
 			PPOPT_GOODSRETURN, PPOPT_GOODSORDER)) {
 			if(!p_bobj->CheckRights(BILLOPRT_MODTRANSM, 1))
 				rt_to_modif = 0;
@@ -373,24 +376,19 @@ int EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData
 		double extra_qtty = 0.0;
 		valid_data = dlg->getDTS(p_item, &extra_qtty);
 		if(valid_data && r_cfg.Flags & CFGFLG_UNIQUELOT)
-			for(i = 0; valid_data && pPack->EnumTItems(&i, &p_ti);)
+			for(i = 0; valid_data && rPack.EnumTItems(&i, &p_ti);)
 				if((i-1) != (uint)itemNo && p_ti->LotID && p_ti->LotID == p_item->LotID)
 					valid_data = (PPError(PPERR_DUPLOTSINPACKET, 0), 0);
-		if(ccfgflags & CCFLG_CHECKSPOILAGE && valid_data && oneof2(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
+		if(ccfgflags & CCFLG_CHECKSPOILAGE && valid_data && oneof2(rPack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
 			SString serial;
 			SETIFZ(p_spc_core, new SpecSeriesCore);
 			if(p_spc_core) {
 				SpecSeries2Tbl::Rec spc_rec;
-				// @v9.8.11 if(pPack->SnL.GetNumber(itemNo, &serial) > 0) {
-				if(pPack->LTagL.GetNumber(PPTAG_LOT_SN, itemNo, serial) > 0) { // @v9.8.11
+				if(rPack.LTagL.GetNumber(PPTAG_LOT_SN, itemNo, serial) > 0) {
 					serial.Transf(CTRANSF_INNER_TO_OUTER);
 					if(p_spc_core->SearchBySerial(SPCSERIK_SPOILAGE, serial, &spc_rec) > 0) {
 						if(ViewSpoilList(p_spc_core, serial, 1) < 0)
 							valid_data = 0;
-						/*
-						if(PPMessage(mfConf|mfYesNo, PPCFM_ISGOODSSPOILAGE, spc_rec.GoodsName) == cmNo)
-							valid_data = 0;
-						*/
 					}
 				}
 			}
@@ -404,13 +402,13 @@ int EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData
 				if(!modified && memcmp(p_item, &pattern, sizeof(pattern)) == 0)
 					r = cmCancel;
 			}
-			THROW(pPack->SetupRow(itemNo, p_item, pOrder, extra_qtty));
+			THROW(rPack.SetupRow(itemNo, p_item, pOrder, extra_qtty));
 			if(p_item->Flags & PPTFR_REVAL && !p_item->IsRecomplete())
 				THROW(dlg->ProcessRevalOnAllLots(p_item));
 			r = cmOK;
 		}
 		else
-			skip_dlg = 0;
+			skip_dlg = false;
 	}
 	CATCH
 		r = PPErrorZ();

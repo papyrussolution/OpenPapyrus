@@ -617,7 +617,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	else
 		acl = acl_get_file(accpath, ACL_TYPE_ACCESS);
 
-	if(acl != NULL) {
+	if(acl) {
 		r = translate_acl(a, entry, acl, ARCHIVE_ENTRY_ACL_TYPE_ACCESS);
 		acl_free(acl);
 		acl = NULL;
@@ -629,7 +629,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	/* Only directories can have default ACLs. */
 	if(S_ISDIR(archive_entry_mode(entry))) {
 		acl = acl_get_file(accpath, ACL_TYPE_DEFAULT);
-		if(acl != NULL) {
+		if(acl) {
 			r = translate_acl(a, entry, acl, ARCHIVE_ENTRY_ACL_TYPE_DEFAULT);
 			acl_free(acl);
 			if(r != ARCHIVE_OK) {

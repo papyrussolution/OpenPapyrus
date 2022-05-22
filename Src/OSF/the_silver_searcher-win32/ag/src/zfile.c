@@ -145,7 +145,7 @@ FILE * decompress_open(int fd, const char * mode, ag_compression_type ctype)
 	}
 	res = fopencookie(cookie, mode, zfile_io);
 out:
-	if(res == NULL) {
+	if(!res) {
 		if(in != NULL)
 			fclose(in);
 		if(cookie != NULL)

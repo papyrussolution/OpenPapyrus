@@ -135,7 +135,7 @@ PNG_ALLOCATED void * PNGAPI png_malloc(png_const_structrp png_ptr, png_alloc_siz
 	if(png_ptr) {
 		ret = png_malloc_base(png_ptr, size);
 		if(!ret)
-			png_error(png_ptr, "Out of memory"); /* 'm' means png_malloc */
+			png_error(png_ptr, SlTxtOutOfMem); /* 'm' means png_malloc */
 	}
 	return ret;
 }
@@ -148,7 +148,7 @@ PNG_ALLOCATED PNG_DEPRECATED void * PNGAPI png_malloc_default(png_const_structrp
 		// Passing 'NULL' here bypasses the application provided memory handler. 
 		ret = png_malloc_base(NULL /*use SAlloc::M*/, size);
 		if(!ret)
-			png_error(png_ptr, "Out of Memory"); // 'M' means png_malloc_default 
+			png_error(png_ptr, SlTxtOutOfMem); // 'M' means png_malloc_default 
 	}
 	return ret;
 }
@@ -164,7 +164,7 @@ PNG_ALLOCATED void * PNGAPI png_malloc_warn(png_const_structrp png_ptr, png_allo
 		void * ret = png_malloc_base(png_ptr, size);
 		if(ret)
 			return ret;
-		png_warning(png_ptr, "Out of memory");
+		png_warning(png_ptr, SlTxtOutOfMem);
 	}
 	return NULL;
 }

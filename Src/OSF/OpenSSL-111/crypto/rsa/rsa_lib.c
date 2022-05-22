@@ -103,7 +103,7 @@ void RSA_free(RSA * r)
 {
 	int i;
 
-	if(r == NULL)
+	if(!r)
 		return;
 
 	CRYPTO_DOWN_REF(&r->references, &i, r->lock);
@@ -112,7 +112,7 @@ void RSA_free(RSA * r)
 		return;
 	REF_ASSERT_ISNT(i < 0);
 
-	if(r->meth != NULL && r->meth->finish != NULL)
+	if(r->meth && r->meth->finish)
 		r->meth->finish(r);
 #ifndef OPENSSL_NO_ENGINE
 	ENGINE_finish(r->engine);
@@ -188,7 +188,7 @@ int RSA_set0_key(RSA * r, BIGNUM * n, BIGNUM * e, BIGNUM * d)
 		BN_free(r->n);
 		r->n = n;
 	}
-	if(e != NULL) {
+	if(e) {
 		BN_free(r->e);
 		r->e = e;
 	}
@@ -327,7 +327,7 @@ void RSA_get0_key(const RSA * r,
 {
 	if(n)
 		*n = r->n;
-	if(e != NULL)
+	if(e)
 		*e = r->e;
 	if(d)
 		*d = r->d;
@@ -371,9 +371,7 @@ int RSA_get0_multi_prime_factors(const RSA * r, const BIGNUM * primes[])
 	return 1;
 }
 
-void RSA_get0_crt_params(const RSA * r,
-    const BIGNUM ** dmp1, const BIGNUM ** dmq1,
-    const BIGNUM ** iqmp)
+void RSA_get0_crt_params(const RSA * r, const BIGNUM ** dmp1, const BIGNUM ** dmq1, const BIGNUM ** iqmp)
 {
 	if(dmp1)
 		*dmp1 = r->dmp1;
@@ -383,19 +381,15 @@ void RSA_get0_crt_params(const RSA * r,
 		*iqmp = r->iqmp;
 }
 
-int RSA_get0_multi_prime_crt_params(const RSA * r, const BIGNUM * exps[],
-    const BIGNUM * coeffs[])
+int RSA_get0_multi_prime_crt_params(const RSA * r, const BIGNUM * exps[], const BIGNUM * coeffs[])
 {
 	int pnum;
-
 	if((pnum = RSA_get_multi_prime_extra_count(r)) == 0)
 		return 0;
-
 	/* return other primes */
 	if(exps != NULL || coeffs != NULL) {
 		RSA_PRIME_INFO * pinfo;
 		int i;
-
 		/* it's the user's job to guarantee the buffer length */
 		for(i = 0; i < pnum; i++) {
 			pinfo = sk_RSA_PRIME_INFO_value(r->prime_infos, i);
@@ -409,60 +403,17 @@ int RSA_get0_multi_prime_crt_params(const RSA * r, const BIGNUM * exps[],
 	return 1;
 }
 
-const BIGNUM * RSA_get0_n(const RSA * r)
-{
-	return r->n;
-}
-
-const BIGNUM * RSA_get0_e(const RSA * r)
-{
-	return r->e;
-}
-
-const BIGNUM * RSA_get0_d(const RSA * r)
-{
-	return r->d;
-}
-
-const BIGNUM * RSA_get0_p(const RSA * r)
-{
-	return r->p;
-}
-
-const BIGNUM * RSA_get0_q(const RSA * r)
-{
-	return r->q;
-}
-
-const BIGNUM * RSA_get0_dmp1(const RSA * r)
-{
-	return r->dmp1;
-}
-
-const BIGNUM * RSA_get0_dmq1(const RSA * r)
-{
-	return r->dmq1;
-}
-
-const BIGNUM * RSA_get0_iqmp(const RSA * r)
-{
-	return r->iqmp;
-}
-
-void RSA_clear_flags(RSA * r, int flags)
-{
-	r->flags &= ~flags;
-}
-
-int RSA_test_flags(const RSA * r, int flags)
-{
-	return r->flags & flags;
-}
-
-void RSA_set_flags(RSA * r, int flags)
-{
-	r->flags |= flags;
-}
+const BIGNUM * RSA_get0_n(const RSA * r) { return r->n; }
+const BIGNUM * RSA_get0_e(const RSA * r) { return r->e; }
+const BIGNUM * RSA_get0_d(const RSA * r) { return r->d; }
+const BIGNUM * RSA_get0_p(const RSA * r) { return r->p; }
+const BIGNUM * RSA_get0_q(const RSA * r) { return r->q; }
+const BIGNUM * RSA_get0_dmp1(const RSA * r) { return r->dmp1; }
+const BIGNUM * RSA_get0_dmq1(const RSA * r) { return r->dmq1; }
+const BIGNUM * RSA_get0_iqmp(const RSA * r) { return r->iqmp; }
+void RSA_clear_flags(RSA * r, int flags) { r->flags &= ~flags; }
+int RSA_test_flags(const RSA * r, int flags) { return r->flags & flags; }
+void RSA_set_flags(RSA * r, int flags) { r->flags |= flags; }
 
 int RSA_get_version(RSA * r)
 {
@@ -478,9 +429,7 @@ ENGINE * RSA_get0_engine(const RSA * r)
 int RSA_pkey_ctx_ctrl(EVP_PKEY_CTX * ctx, int optype, int cmd, int p1, void * p2)
 {
 	/* If key type not RSA or RSA-PSS return error */
-	if(ctx != NULL && ctx->pmeth != NULL
-	 && ctx->pmeth->pkey_id != EVP_PKEY_RSA
-	 && ctx->pmeth->pkey_id != EVP_PKEY_RSA_PSS)
+	if(ctx && ctx->pmeth && ctx->pmeth->pkey_id != EVP_PKEY_RSA && ctx->pmeth->pkey_id != EVP_PKEY_RSA_PSS)
 		return -1;
 	return EVP_PKEY_CTX_ctrl(ctx, -1, optype, cmd, p1, p2);
 }

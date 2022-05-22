@@ -346,7 +346,7 @@ SSH_PACKET_CALLBACK(ssh_packet_kexinit)
 
 	for(i = 0; i < SSH_KEX_METHODS; i++) {
 		str = ssh_buffer_get_ssh_string(packet);
-		if(str == NULL) {
+		if(!str) {
 			goto error;
 		}
 
@@ -799,7 +799,7 @@ int ssh_send_kex(ssh_session session, int server_kex)
 	ssh_list_kex(kex);
 	for(i = 0; i < SSH_KEX_METHODS; i++) {
 		str = ssh_string_from_char(kex->methods[i]);
-		if(str == NULL) {
+		if(!str) {
 			goto error;
 		}
 		if(ssh_buffer_add_ssh_string(session->out_hashbuf, str) < 0) {

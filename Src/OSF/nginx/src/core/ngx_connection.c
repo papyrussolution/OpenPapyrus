@@ -815,7 +815,7 @@ ngx_int_t ngx_connection_local_sockaddr(ngx_connection_t * c, ngx_str_t * s, ngx
 		memcpy(c->local_sockaddr, &sa, len);
 		c->local_socklen = len;
 	}
-	if(s == NULL) {
+	if(!s) {
 		return NGX_OK;
 	}
 	s->len = ngx_sock_ntop(c->local_sockaddr, c->local_socklen, s->data, s->len, port);

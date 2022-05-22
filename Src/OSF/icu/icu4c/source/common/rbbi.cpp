@@ -220,7 +220,7 @@ RuleBasedBreakIterator& RuleBasedBreakIterator::operator = (const RuleBasedBreak
 	if(fCharIter == NULL) {
 		fCharIter = &fSCharIter;
 	}
-	if(fData != NULL) {
+	if(fData) {
 		fData->removeReference();
 		fData = NULL;
 	}
@@ -343,7 +343,7 @@ RuleBasedBreakIterator::operator == (const BreakIterator &that) const {
  */
 int32_t RuleBasedBreakIterator::hashCode() const {
 	int32_t hash = 0;
-	if(fData != NULL) {
+	if(fData) {
 		hash = fData->hashCode();
 	}
 	return hash;
@@ -1010,7 +1010,7 @@ const uint8 * RuleBasedBreakIterator::getBinaryRules(uint32_t &length)
 {
 	const uint8 * retPtr = NULL;
 	length = 0;
-	if(fData != NULL) {
+	if(fData) {
 		retPtr = (const uint8 *)fData->fHeader;
 		length = fData->fHeader->fLength;
 	}
@@ -1169,7 +1169,7 @@ void RuleBasedBreakIterator::dumpTables() { fData->printData(); }
 
 const UnicodeString &RuleBasedBreakIterator::getRules() const 
 {
-	if(fData != NULL) {
+	if(fData) {
 		return fData->getRuleSourceString();
 	}
 	else {

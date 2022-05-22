@@ -116,9 +116,9 @@ static lzma_ret auto_decoder_init(lzma_next_coder * next, const lzma_allocator *
 	if(flags & ~LZMA_SUPPORTED_FLAGS)
 		return LZMA_OPTIONS_ERROR;
 	lzma_auto_coder * coder = (lzma_auto_coder *)next->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		coder = (lzma_auto_coder *)lzma_alloc(sizeof(lzma_auto_coder), allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		next->coder = coder;
 		next->code = &auto_decode;

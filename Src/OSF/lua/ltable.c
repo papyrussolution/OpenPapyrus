@@ -438,7 +438,7 @@ TValue * luaH_newkey(lua_State * L, Table * t, const TValue * key)
 	if(!ttisnil(gval(mp)) || isdummy(t)) { /* main position is taken? */
 		Node * othern;
 		Node * f = getfreepos(t); /* get a free place */
-		if(f == NULL) { /* cannot find a free place? */
+		if(!f) { /* cannot find a free place? */
 			rehash(L, t, key); /* grow table */
 			/* whatever called 'newkey' takes care of TM cache */
 			return luaH_set(L, t, key); /* insert key into grown table */

@@ -986,9 +986,7 @@ inline void NestedFieldMask::set_allocated_data(std::string* data) {
 }
 
 // .google.protobuf.FieldMask single_mask = 2;
-inline bool NestedFieldMask::_internal_has_single_mask() const {
-  return this != internal_default_instance() && single_mask_ != nullptr;
-}
+inline bool NestedFieldMask::_internal_has_single_mask() const { return this != internal_default_instance() && single_mask_ != nullptr; }
 inline bool NestedFieldMask::has_single_mask() const {
   return _internal_has_single_mask();
 }
@@ -1078,8 +1076,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* NestedFieldMask::mutable_repeated_mas
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.NestedFieldMask.repeated_mask)
   return repeated_mask_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask >*
-NestedFieldMask::mutable_repeated_mask() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask > * NestedFieldMask::mutable_repeated_mask() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.NestedFieldMask.repeated_mask)
   return &repeated_mask_;
 }
@@ -1156,9 +1153,7 @@ inline void FieldMaskTest::set_allocated_id(std::string* id) {
 }
 
 // .google.protobuf.FieldMask single_mask = 2;
-inline bool FieldMaskTest::_internal_has_single_mask() const {
-  return this != internal_default_instance() && single_mask_ != nullptr;
-}
+inline bool FieldMaskTest::_internal_has_single_mask() const { return this != internal_default_instance() && single_mask_ != nullptr; }
 inline bool FieldMaskTest::has_single_mask() const {
   return _internal_has_single_mask();
 }
@@ -1248,8 +1243,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskTest::mutable_repeated_mask(
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.FieldMaskTest.repeated_mask)
   return repeated_mask_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask >*
-FieldMaskTest::mutable_repeated_mask() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask > * FieldMaskTest::mutable_repeated_mask() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.FieldMaskTest.repeated_mask)
   return &repeated_mask_;
 }
@@ -1285,8 +1279,7 @@ inline ::proto_util_converter::testing::NestedFieldMask* FieldMaskTest::mutable_
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.FieldMaskTest.nested_mask)
   return nested_mask_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::NestedFieldMask >*
-FieldMaskTest::mutable_nested_mask() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::NestedFieldMask > * FieldMaskTest::mutable_nested_mask() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.FieldMaskTest.nested_mask)
   return &nested_mask_;
 }
@@ -1315,9 +1308,7 @@ FieldMaskTest::nested_mask() const {
 // FieldMaskTestCases
 
 // .proto_util_converter.testing.FieldMaskWrapper single_mask = 1;
-inline bool FieldMaskTestCases::_internal_has_single_mask() const {
-  return this != internal_default_instance() && single_mask_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_single_mask() const { return this != internal_default_instance() && single_mask_ != nullptr; }
 inline bool FieldMaskTestCases::has_single_mask() const {
   return _internal_has_single_mask();
 }
@@ -1404,9 +1395,7 @@ inline void FieldMaskTestCases::set_allocated_single_mask(::proto_util_converter
 }
 
 // .proto_util_converter.testing.FieldMaskWrapper multiple_mask = 2;
-inline bool FieldMaskTestCases::_internal_has_multiple_mask() const {
-  return this != internal_default_instance() && multiple_mask_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_multiple_mask() const { return this != internal_default_instance() && multiple_mask_ != nullptr; }
 inline bool FieldMaskTestCases::has_multiple_mask() const {
   return _internal_has_multiple_mask();
 }
@@ -1493,9 +1482,7 @@ inline void FieldMaskTestCases::set_allocated_multiple_mask(::proto_util_convert
 }
 
 // .proto_util_converter.testing.FieldMaskWrapper snake_camel = 3;
-inline bool FieldMaskTestCases::_internal_has_snake_camel() const {
-  return this != internal_default_instance() && snake_camel_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_snake_camel() const { return this != internal_default_instance() && snake_camel_ != nullptr; }
 inline bool FieldMaskTestCases::has_snake_camel() const {
   return _internal_has_snake_camel();
 }
@@ -1582,9 +1569,7 @@ inline void FieldMaskTestCases::set_allocated_snake_camel(::proto_util_converter
 }
 
 // .proto_util_converter.testing.FieldMaskWrapper empty_field = 4;
-inline bool FieldMaskTestCases::_internal_has_empty_field() const {
-  return this != internal_default_instance() && empty_field_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_empty_field() const { return this != internal_default_instance() && empty_field_ != nullptr; }
 inline bool FieldMaskTestCases::has_empty_field() const {
   return _internal_has_empty_field();
 }
@@ -1671,9 +1656,7 @@ inline void FieldMaskTestCases::set_allocated_empty_field(::proto_util_converter
 }
 
 // .proto_util_converter.testing.FieldMaskWrapper apiary_format1 = 5;
-inline bool FieldMaskTestCases::_internal_has_apiary_format1() const {
-  return this != internal_default_instance() && apiary_format1_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_apiary_format1() const { return this != internal_default_instance() && apiary_format1_ != nullptr; }
 inline bool FieldMaskTestCases::has_apiary_format1() const {
   return _internal_has_apiary_format1();
 }
@@ -1760,9 +1743,7 @@ inline void FieldMaskTestCases::set_allocated_apiary_format1(::proto_util_conver
 }
 
 // .proto_util_converter.testing.FieldMaskWrapper apiary_format2 = 6;
-inline bool FieldMaskTestCases::_internal_has_apiary_format2() const {
-  return this != internal_default_instance() && apiary_format2_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_apiary_format2() const { return this != internal_default_instance() && apiary_format2_ != nullptr; }
 inline bool FieldMaskTestCases::has_apiary_format2() const {
   return _internal_has_apiary_format2();
 }
@@ -1849,9 +1830,7 @@ inline void FieldMaskTestCases::set_allocated_apiary_format2(::proto_util_conver
 }
 
 // .proto_util_converter.testing.FieldMaskWrapper apiary_format3 = 7;
-inline bool FieldMaskTestCases::_internal_has_apiary_format3() const {
-  return this != internal_default_instance() && apiary_format3_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_apiary_format3() const { return this != internal_default_instance() && apiary_format3_ != nullptr; }
 inline bool FieldMaskTestCases::has_apiary_format3() const {
   return _internal_has_apiary_format3();
 }
@@ -1938,9 +1917,7 @@ inline void FieldMaskTestCases::set_allocated_apiary_format3(::proto_util_conver
 }
 
 // .proto_util_converter.testing.FieldMaskWrapper map_key1 = 8;
-inline bool FieldMaskTestCases::_internal_has_map_key1() const {
-  return this != internal_default_instance() && map_key1_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_map_key1() const { return this != internal_default_instance() && map_key1_ != nullptr; }
 inline bool FieldMaskTestCases::has_map_key1() const {
   return _internal_has_map_key1();
 }
@@ -2027,9 +2004,7 @@ inline void FieldMaskTestCases::set_allocated_map_key1(::proto_util_converter::t
 }
 
 // .proto_util_converter.testing.FieldMaskWrapper map_key2 = 9;
-inline bool FieldMaskTestCases::_internal_has_map_key2() const {
-  return this != internal_default_instance() && map_key2_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_map_key2() const { return this != internal_default_instance() && map_key2_ != nullptr; }
 inline bool FieldMaskTestCases::has_map_key2() const {
   return _internal_has_map_key2();
 }
@@ -2116,9 +2091,7 @@ inline void FieldMaskTestCases::set_allocated_map_key2(::proto_util_converter::t
 }
 
 // .proto_util_converter.testing.FieldMaskWrapper map_key3 = 10;
-inline bool FieldMaskTestCases::_internal_has_map_key3() const {
-  return this != internal_default_instance() && map_key3_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_map_key3() const { return this != internal_default_instance() && map_key3_ != nullptr; }
 inline bool FieldMaskTestCases::has_map_key3() const {
   return _internal_has_map_key3();
 }
@@ -2205,9 +2178,7 @@ inline void FieldMaskTestCases::set_allocated_map_key3(::proto_util_converter::t
 }
 
 // .proto_util_converter.testing.FieldMaskWrapper map_key4 = 11;
-inline bool FieldMaskTestCases::_internal_has_map_key4() const {
-  return this != internal_default_instance() && map_key4_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_map_key4() const { return this != internal_default_instance() && map_key4_ != nullptr; }
 inline bool FieldMaskTestCases::has_map_key4() const {
   return _internal_has_map_key4();
 }
@@ -2294,9 +2265,7 @@ inline void FieldMaskTestCases::set_allocated_map_key4(::proto_util_converter::t
 }
 
 // .proto_util_converter.testing.FieldMaskWrapper map_key5 = 12;
-inline bool FieldMaskTestCases::_internal_has_map_key5() const {
-  return this != internal_default_instance() && map_key5_ != nullptr;
-}
+inline bool FieldMaskTestCases::_internal_has_map_key5() const { return this != internal_default_instance() && map_key5_ != nullptr; }
 inline bool FieldMaskTestCases::has_map_key5() const {
   return _internal_has_map_key5();
 }
@@ -2387,9 +2356,7 @@ inline void FieldMaskTestCases::set_allocated_map_key5(::proto_util_converter::t
 // FieldMaskWrapper
 
 // .google.protobuf.FieldMask mask = 1;
-inline bool FieldMaskWrapper::_internal_has_mask() const {
-  return this != internal_default_instance() && mask_ != nullptr;
-}
+inline bool FieldMaskWrapper::_internal_has_mask() const { return this != internal_default_instance() && mask_ != nullptr; }
 inline bool FieldMaskWrapper::has_mask() const {
   return _internal_has_mask();
 }

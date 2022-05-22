@@ -209,7 +209,7 @@ int _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx ** rsa,
 	libssh2_rsa_ctx * ctx;
 
 	ctx = (libssh2_rsa_ctx*)mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
-	if(ctx != NULL) {
+	if(ctx) {
 		mbedtls_rsa_init(ctx, MBEDTLS_RSA_PKCS_V15, 0);
 	}
 	else

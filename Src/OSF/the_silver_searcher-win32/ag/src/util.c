@@ -10,7 +10,7 @@
 	#define getc_unlocked(x) getc(x)
 #endif
 
-#define CHECK_AND_RETURN(ptr) if(ptr == NULL) { die("Memory allocation failed."); } return ptr;
+#define CHECK_AND_RETURN(ptr) if(!ptr) { die("Memory allocation failed."); } return ptr;
 
 FILE * out_fd = NULL; // @global
 ag_stats stats; // @global

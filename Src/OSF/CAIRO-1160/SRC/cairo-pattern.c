@@ -404,7 +404,7 @@ cairo_status_t _cairo_pattern_create_copy(cairo_pattern_t ** pattern_out, const 
 		    ASSERT_NOT_REACHED;
 		    return _cairo_error(CAIRO_STATUS_PATTERN_TYPE_MISMATCH);
 	}
-	if(UNLIKELY(pattern == NULL))
+	if(UNLIKELY(!pattern))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = _cairo_pattern_init_copy(pattern, other);
 	if(UNLIKELY(status)) {
@@ -466,10 +466,10 @@ static void _cairo_pattern_init_radial(cairo_radial_pattern_t * pattern,
 cairo_pattern_t * _cairo_pattern_create_solid(const cairo_color_t * color)
 {
 	cairo_solid_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_SOLID]);
-	if(UNLIKELY(pattern == NULL)) {
+	if(UNLIKELY(!pattern)) {
 		/* None cached, need to create a new pattern. */
 		pattern = static_cast<cairo_solid_pattern_t *>(_cairo_malloc(sizeof(cairo_solid_pattern_t)));
-		if(UNLIKELY(pattern == NULL)) {
+		if(UNLIKELY(!pattern)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil;
 		}
@@ -584,9 +584,9 @@ cairo_pattern_t * cairo_pattern_create_for_surface(cairo_surface_t * surface)
 	if(surface->status)
 		return _cairo_pattern_create_in_error(surface->status);
 	pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_SURFACE]);
-	if(UNLIKELY(pattern == NULL)) {
+	if(UNLIKELY(!pattern)) {
 		pattern = static_cast<cairo_surface_pattern_t *>(_cairo_malloc(sizeof(cairo_surface_pattern_t)));
-		if(UNLIKELY(pattern == NULL)) {
+		if(UNLIKELY(!pattern)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
 		}
@@ -630,9 +630,9 @@ slim_hidden_def(cairo_pattern_create_for_surface);
 cairo_pattern_t * cairo_pattern_create_linear(double x0, double y0, double x1, double y1)
 {
 	cairo_linear_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_LINEAR]);
-	if(UNLIKELY(pattern == NULL)) {
+	if(UNLIKELY(!pattern)) {
 		pattern = static_cast<cairo_linear_pattern_t *>(_cairo_malloc(sizeof(cairo_linear_pattern_t)));
-		if(UNLIKELY(pattern == NULL)) {
+		if(UNLIKELY(!pattern)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
 		}
@@ -676,9 +676,9 @@ cairo_pattern_t * cairo_pattern_create_linear(double x0, double y0, double x1, d
 cairo_pattern_t * cairo_pattern_create_radial(double cx0, double cy0, double radius0, double cx1, double cy1, double radius1)
 {
 	cairo_radial_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_RADIAL]);
-	if(UNLIKELY(pattern == NULL)) {
+	if(UNLIKELY(!pattern)) {
 		pattern = static_cast<cairo_radial_pattern_t *>(_cairo_malloc(sizeof(cairo_radial_pattern_t)));
-		if(UNLIKELY(pattern == NULL)) {
+		if(UNLIKELY(!pattern)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
 		}
@@ -847,9 +847,9 @@ static const int mesh_control_point_j[4] = { 1, 2, 2, 1 };
 cairo_pattern_t * cairo_pattern_create_mesh(void)
 {
 	cairo_mesh_pattern_t * pattern = _freed_pool_get(&freed_pattern_pool[CAIRO_PATTERN_TYPE_MESH]);
-	if(UNLIKELY(pattern == NULL)) {
+	if(UNLIKELY(!pattern)) {
 		pattern = static_cast<cairo_mesh_pattern_t *>(_cairo_malloc(sizeof(cairo_mesh_pattern_t)));
-		if(UNLIKELY(pattern == NULL)) {
+		if(UNLIKELY(!pattern)) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return (cairo_pattern_t*)&_cairo_pattern_nil.base;
 		}

@@ -226,12 +226,12 @@ tmsize_t TIFFTileSize(TIFF * tif)
  * request is <1 then we choose a size according
  * to certain heuristics.
  */
-void TIFFDefaultTileSize(TIFF * tif, uint32* tw, uint32* th)
+void TIFFDefaultTileSize(TIFF * tif, uint32 * tw, uint32 * th)
 {
 	(*tif->tif_deftilesize)(tif, tw, th);
 }
 
-void _TIFFDefaultTileSize(TIFF * tif, uint32* tw, uint32* th)
+void _TIFFDefaultTileSize(TIFF * tif, uint32 * tw, uint32 * th)
 {
 	(void)tif;
 	if(*(int32 *)tw < 1)

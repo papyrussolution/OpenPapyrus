@@ -10,13 +10,6 @@
 #ifndef ABSL_FLAGS_INTERNAL_SEQUENCE_LOCK_H_
 #define ABSL_FLAGS_INTERNAL_SEQUENCE_LOCK_H_
 
-//#include <stddef.h>
-//#include <stdint.h>
-//#include <atomic>
-//#include <cassert>
-//#include <cstring>
-//#include "absl/base/optimization.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace flags_internal {

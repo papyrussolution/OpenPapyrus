@@ -72,25 +72,19 @@ void archive_string_vsprintf(struct archive_string * as, const char * fmt,
 	uintmax_t u; /* Unsigned integer temp. */
 	const char * p, * p2;
 	const wchar_t * pw;
-
 	if(archive_string_ensure(as, 64) == NULL)
-		__archive_errx(1, "Out of memory");
-
+		__archive_errx(1, SlTxtOutOfMem);
 	if(fmt == NULL) {
 		as->s[0] = 0;
 		return;
 	}
-
 	for(p = fmt; *p != '\0'; p++) {
 		const char * saved_p = p;
-
 		if(*p != '%') {
 			archive_strappend_char(as, *p);
 			continue;
 		}
-
 		p++;
-
 		long_flag = '\0';
 		switch(*p) {
 			case 'j':
@@ -124,9 +118,8 @@ void archive_string_vsprintf(struct archive_string * as, const char * fmt,
 					pw = va_arg(ap, wchar_t *);
 					if(pw == NULL)
 						pw = L"(null)";
-					if(archive_string_append_from_wcs(as, pw,
-					    wcslen(pw)) != 0 && errno == ENOMEM)
-						__archive_errx(1, "Out of memory");
+					if(archive_string_append_from_wcs(as, pw, wcslen(pw)) != 0 && errno == ENOMEM)
+						__archive_errx(1, SlTxtOutOfMem);
 					break;
 				    default:
 					p2 = va_arg(ap, char *);
@@ -140,9 +133,8 @@ void archive_string_vsprintf(struct archive_string * as, const char * fmt,
 			    pw = va_arg(ap, wchar_t *);
 			    if(pw == NULL)
 				    pw = L"(null)";
-			    if(archive_string_append_from_wcs(as, pw,
-				wcslen(pw)) != 0 && errno == ENOMEM)
-				    __archive_errx(1, "Out of memory");
+			    if(archive_string_append_from_wcs(as, pw, wcslen(pw)) != 0 && errno == ENOMEM)
+				    __archive_errx(1, SlTxtOutOfMem);
 			    break;
 			case 'o': case 'u': case 'x': case 'X':
 			    /* Common handling for unsigned integer formats. */

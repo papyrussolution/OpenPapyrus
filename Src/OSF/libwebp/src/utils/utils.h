@@ -14,17 +14,6 @@
 //
 #ifndef WEBP_UTILS_UTILS_H_
 #define WEBP_UTILS_UTILS_H_
-
-//#ifdef HAVE_CONFIG_H
-//#include "src/webp/config.h"
-//#endif
-//#include <assert.h>
-//#include <limits.h>
-//#include "src/dsp/dsp.h"
-//#include "src/webp/types.h"
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
 //
 // Memory allocation
 //
@@ -181,7 +170,4 @@ WEBP_EXTERN void WebPCopyPixels(const struct WebPPicture* const src, struct WebP
 // MAX_PALETTE_SIZE elements.
 WEBP_EXTERN int WebPGetColorPalette(const struct WebPPicture* const pic, uint32_t* const palette);
 
-//#ifdef __cplusplus
-//}    // extern "C"
-//#endif
 #endif  // WEBP_UTILS_UTILS_H_

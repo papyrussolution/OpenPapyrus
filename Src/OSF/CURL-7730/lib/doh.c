@@ -49,7 +49,7 @@ static const char * const errors[] = {
 	"Out of range",
 	"Label loop",
 	"Too small",
-	"Out of memory",
+	SlTxtOutOfMem,
 	"RDATA length",
 	"Malformat",
 	"Bad RCODE",

@@ -1608,9 +1608,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* OneOfsRequest::mutable_ts_data() {
 }
 
 // .google.protobuf.Any any_data = 19;
-inline bool OneOfsRequest::_internal_has_any_data() const {
-  return this != internal_default_instance() && any_data_ != nullptr;
-}
+inline bool OneOfsRequest::_internal_has_any_data() const { return this != internal_default_instance() && any_data_ != nullptr; }
 inline bool OneOfsRequest::has_any_data() const {
   return _internal_has_any_data();
 }

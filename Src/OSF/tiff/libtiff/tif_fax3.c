@@ -67,9 +67,9 @@ typedef struct {
 	int bit; /* current i/o bit in byte */
 	int EOLcnt; /* count of EOL codes recognized */
 	TIFFFaxFillFunc fill; /* fill routine */
-	uint32* runs;                   /* b&w runs for current/previous row */
-	uint32* refruns; /* runs for reference line */
-	uint32* curruns; /* runs for current line */
+	uint32 * runs;                   /* b&w runs for current/previous row */
+	uint32 * refruns; /* runs for reference line */
+	uint32 * curruns; /* runs for current line */
 	/* Encoder state info */
 	Ttag tag; /* encoding state */
 	uchar * refline; /* reference line for 2d decoding */
@@ -99,15 +99,15 @@ typedef struct {
 	int RunLength; /* length of current run */	\
 	uchar * cp; /* next byte of input data */	\
 	uchar * ep; /* end of input data */		\
-	uint32* pa; /* place to stuff next run */	\
-	uint32* thisrun; /* current row's run array */	\
+	uint32 * pa; /* place to stuff next run */	\
+	uint32 * thisrun; /* current row's run array */	\
 	int EOLcnt; /* # EOL codes recognized */	\
 	const uchar * bitmap = sp->bitmap; /* input data bit reverser */	  \
 	const TIFFFaxTabEnt* TabEnt
 #define DECLARE_STATE_2D(tif, sp, mod)					\
 	DECLARE_STATE(tif, sp, mod);					    \
 	int b1;                         /* next change on prev line */	\
-	uint32* pb                      /* next run in reference line */ \
+	uint32 * pb                      /* next run in reference line */ \
 /*
  * Load any state that may be changed during decoding.
  */
@@ -271,7 +271,7 @@ static int Fax3Decode2D(TIFF * tif, uint8 * buf, tmsize_t occ, uint16 s)
 			EXPAND2D(EOF2Da);
 		(*sp->fill)(buf, thisrun, pa, lastx);
 		SETVALUE(0); /* imaginary change for reference */
-		SWAP(uint32*, sp->curruns, sp->refruns);
+		SWAP(uint32 *, sp->curruns, sp->refruns);
 		buf += sp->b.rowbytes;
 		occ -= sp->b.rowbytes;
 		sp->line++;
@@ -362,7 +362,7 @@ EOF2Da:                                 /* premature EOF */
  * Bit-fill a row according to the white/black
  * runs generated during G3/G4 decoding.
  */
-void _TIFFFax3fillruns(uchar * buf, uint32* runs, uint32* erun, uint32 lastx)
+void _TIFFFax3fillruns(uchar * buf, uint32 * runs, uint32 * erun, uint32 lastx)
 {
 	static const uchar _fillmasks[] = { 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff };
 	uchar * cp;
@@ -1153,10 +1153,10 @@ static int Fax3VGetField(TIFF * tif, uint32 tag, va_list ap)
 		case TIFFTAG_FAXMODE: *va_arg(ap, int*) = sp->mode; break;
 		case TIFFTAG_FAXFILLFUNC: *va_arg(ap, TIFFFaxFillFunc*) = DecoderState(tif)->fill; break;
 		case TIFFTAG_GROUP3OPTIONS:
-		case TIFFTAG_GROUP4OPTIONS: *va_arg(ap, uint32*) = sp->groupoptions; break;
-		case TIFFTAG_BADFAXLINES: *va_arg(ap, uint32*) = sp->badfaxlines; break;
+		case TIFFTAG_GROUP4OPTIONS: *va_arg(ap, uint32 *) = sp->groupoptions; break;
+		case TIFFTAG_BADFAXLINES: *va_arg(ap, uint32 *) = sp->badfaxlines; break;
 		case TIFFTAG_CLEANFAXDATA: *va_arg(ap, uint16*) = sp->cleanfaxdata; break;
-		case TIFFTAG_CONSECUTIVEBADFAXLINES: *va_arg(ap, uint32*) = sp->badfaxrun; break;
+		case TIFFTAG_CONSECUTIVEBADFAXLINES: *va_arg(ap, uint32 *) = sp->badfaxrun; break;
 		default: return (*sp->vgetparent)(tif, tag, ap);
 	}
 	return 1;
@@ -1315,7 +1315,7 @@ static int Fax4Decode(TIFF * tif, uint8 * buf, tmsize_t occ, uint16 s)
 			goto EOFG4;
 		(*sp->fill)(buf, thisrun, pa, lastx);
 		SETVALUE(0); /* imaginary change for reference */
-		SWAP(uint32*, sp->curruns, sp->refruns);
+		SWAP(uint32 *, sp->curruns, sp->refruns);
 		buf += sp->b.rowbytes;
 		occ -= sp->b.rowbytes;
 		sp->line++;

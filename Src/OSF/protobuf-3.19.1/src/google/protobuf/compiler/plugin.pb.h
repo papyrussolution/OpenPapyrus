@@ -92,19 +92,15 @@ constexpr CodeGeneratorResponse_Feature CodeGeneratorResponse_Feature_Feature_MI
 constexpr CodeGeneratorResponse_Feature CodeGeneratorResponse_Feature_Feature_MAX = CodeGeneratorResponse_Feature_FEATURE_PROTO3_OPTIONAL;
 constexpr int CodeGeneratorResponse_Feature_Feature_ARRAYSIZE = CodeGeneratorResponse_Feature_Feature_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CodeGeneratorResponse_Feature_descriptor();
-template<typename T>
-inline const std::string& CodeGeneratorResponse_Feature_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, CodeGeneratorResponse_Feature>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function CodeGeneratorResponse_Feature_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    CodeGeneratorResponse_Feature_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * CodeGeneratorResponse_Feature_descriptor();
+template<typename T> inline const std::string& CodeGeneratorResponse_Feature_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, CodeGeneratorResponse_Feature>::value || ::std::is_integral<T>::value, "Incorrect type passed to function CodeGeneratorResponse_Feature_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(CodeGeneratorResponse_Feature_descriptor(), enum_t_value);
 }
-inline bool CodeGeneratorResponse_Feature_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, CodeGeneratorResponse_Feature* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<CodeGeneratorResponse_Feature>(
-    CodeGeneratorResponse_Feature_descriptor(), name, value);
+inline bool CodeGeneratorResponse_Feature_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, CodeGeneratorResponse_Feature * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<CodeGeneratorResponse_Feature>(CodeGeneratorResponse_Feature_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -803,33 +799,21 @@ class CodeGeneratorResponse final :
   typedef CodeGeneratorResponse_File File;
 
   typedef CodeGeneratorResponse_Feature Feature;
-  static constexpr Feature FEATURE_NONE =
-    CodeGeneratorResponse_Feature_FEATURE_NONE;
-  static constexpr Feature FEATURE_PROTO3_OPTIONAL =
-    CodeGeneratorResponse_Feature_FEATURE_PROTO3_OPTIONAL;
-  static inline bool Feature_IsValid(int value) {
-    return CodeGeneratorResponse_Feature_IsValid(value);
+  static constexpr Feature FEATURE_NONE = CodeGeneratorResponse_Feature_FEATURE_NONE;
+  static constexpr Feature FEATURE_PROTO3_OPTIONAL = CodeGeneratorResponse_Feature_FEATURE_PROTO3_OPTIONAL;
+  static inline bool Feature_IsValid(int value) { return CodeGeneratorResponse_Feature_IsValid(value); }
+  static constexpr Feature Feature_MIN = CodeGeneratorResponse_Feature_Feature_MIN;
+  static constexpr Feature Feature_MAX = CodeGeneratorResponse_Feature_Feature_MAX;
+  static constexpr int Feature_ARRAYSIZE = CodeGeneratorResponse_Feature_Feature_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Feature_descriptor() { return CodeGeneratorResponse_Feature_descriptor(); }
+  template<typename T> static inline const std::string& Feature_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, Feature>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Feature_Name.");
+  	return CodeGeneratorResponse_Feature_Name(enum_t_value);
   }
-  static constexpr Feature Feature_MIN =
-    CodeGeneratorResponse_Feature_Feature_MIN;
-  static constexpr Feature Feature_MAX =
-    CodeGeneratorResponse_Feature_Feature_MAX;
-  static constexpr int Feature_ARRAYSIZE =
-    CodeGeneratorResponse_Feature_Feature_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  Feature_descriptor() {
-    return CodeGeneratorResponse_Feature_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& Feature_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, Feature>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function Feature_Name.");
-    return CodeGeneratorResponse_Feature_Name(enum_t_value);
-  }
-  static inline bool Feature_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      Feature* value) {
-    return CodeGeneratorResponse_Feature_Parse(name, value);
+  static inline bool Feature_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Feature* value)
+  {
+  	return CodeGeneratorResponse_Feature_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -1120,8 +1104,7 @@ CodeGeneratorRequest::file_to_generate() const {
   // @@protoc_insertion_point(field_list:google.protobuf.compiler.CodeGeneratorRequest.file_to_generate)
   return file_to_generate_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-CodeGeneratorRequest::mutable_file_to_generate() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * CodeGeneratorRequest::mutable_file_to_generate() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.compiler.CodeGeneratorRequest.file_to_generate)
   return &file_to_generate_;
 }
@@ -1199,8 +1182,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FileDescriptorProto* CodeGeneratorRequest::mutab
   // @@protoc_insertion_point(field_mutable:google.protobuf.compiler.CodeGeneratorRequest.proto_file)
   return proto_file_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FileDescriptorProto >*
-CodeGeneratorRequest::mutable_proto_file() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FileDescriptorProto > * CodeGeneratorRequest::mutable_proto_file() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.compiler.CodeGeneratorRequest.proto_file)
   return &proto_file_;
 }
@@ -1701,8 +1683,7 @@ inline ::PROTOBUF_NAMESPACE_ID::compiler::CodeGeneratorResponse_File* CodeGenera
   // @@protoc_insertion_point(field_mutable:google.protobuf.compiler.CodeGeneratorResponse.file)
   return file_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::compiler::CodeGeneratorResponse_File >*
-CodeGeneratorResponse::mutable_file() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::compiler::CodeGeneratorResponse_File > * CodeGeneratorResponse::mutable_file() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.compiler.CodeGeneratorResponse.file)
   return &file_;
 }
@@ -1744,10 +1725,7 @@ PROTOBUF_NAMESPACE_CLOSE
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::PROTOBUF_NAMESPACE_ID::compiler::CodeGeneratorResponse_Feature> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::compiler::CodeGeneratorResponse_Feature>() {
-  return ::PROTOBUF_NAMESPACE_ID::compiler::CodeGeneratorResponse_Feature_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::compiler::CodeGeneratorResponse_Feature>() { return ::PROTOBUF_NAMESPACE_ID::compiler::CodeGeneratorResponse_Feature_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

@@ -2205,7 +2205,7 @@
 	#define CTL_GEO_LIST                 (1 + WINDOWS_ID_BIAS)
 #define DLG_ACCSHEET               54 // Таблица аналитических статей
 	#define CTL_ACCSHEET_NAME            (1 + WINDOWS_ID_BIAS)
-	#define CTL_ACCSHEET_ASSOC           (2 + WINDOWS_ID_BIAS)
+	// @v11.3.12 #define CTL_ACCSHEET_ASSOC_Removed   (2 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_GROUP           (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ACCSHEET_GROUP        (4 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_ARTICLES        (5 + WINDOWS_ID_BIAS) // Кнопка "Статьи..."
@@ -2217,6 +2217,8 @@
 	#define CTLSEL_ACCSHEET_REGTYPE      (11 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_SYMB            (12 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_ID              (13 + WINDOWS_ID_BIAS)
+	#define CTL_ACCSHEET_ASSCOBJ         (14 + WINDOWS_ID_BIAS) // @v11.3.12
+	#define CTLSEL_ACCSHEET_ASSCOBJ      (15 + WINDOWS_ID_BIAS) // @v11.3.12
 #define DLG_ARTICLE                55 // Аналитическая статья //
 #define DLG_ARTICLEAUTO            57
 #define DLG_ARTICLEGROUP          808 // Группирующая статья аналитического учета
@@ -11301,6 +11303,10 @@
 	#define CTL_STQATTCPARAM_PRCLIST         (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQATTCPARAM_PRCTTL          (2  + WINDOWS_ID_BIAS)
 	#define CTL_STQATTCPARAM_MAXSCHD         (3  + WINDOWS_ID_BIAS)
+	#define CTL_STQATTCPARAM_QK              (4  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQATTCPARAM_QK           (5  + WINDOWS_ID_BIAS)
+	#define CTL_STQATTCPARAM_LOC             (6  + WINDOWS_ID_BIAS)
+	#define CTLSEL_STQATTCPARAM_LOC          (7  + WINDOWS_ID_BIAS)
 #define DLG_STQCLITEST            1412 // @v11.3.3
 	#define CTL_STQCLITEST_SVC               (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQCLITEST_FUNC              (2  + WINDOWS_ID_BIAS)

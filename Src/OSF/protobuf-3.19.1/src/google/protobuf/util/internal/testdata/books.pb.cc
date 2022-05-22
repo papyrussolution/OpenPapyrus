@@ -17,8 +17,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace proto_util_converter {
 namespace testing {
-constexpr Book_Data::Book_Data(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Book_Data::Book_Data(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : copyright_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , year_(0u){}
 struct Book_DataDefaultTypeInternal {
@@ -29,8 +28,7 @@ struct Book_DataDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Book_DataDefaultTypeInternal _Book_Data_default_instance_;
-constexpr Book_Label::Book_Label(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Book_Label::Book_Label(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : key_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct Book_LabelDefaultTypeInternal {
@@ -41,8 +39,7 @@ struct Book_LabelDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Book_LabelDefaultTypeInternal _Book_Label_default_instance_;
-constexpr Book::Book(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Book::Book(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : labels_()
   , primitive_repeated_()
   , title_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -64,8 +61,7 @@ struct BookDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BookDefaultTypeInternal _Book_default_instance_;
-constexpr Publisher::Publisher(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Publisher::Publisher(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : name_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct PublisherDefaultTypeInternal {
 	constexpr PublisherDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -75,8 +71,7 @@ struct PublisherDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PublisherDefaultTypeInternal _Publisher_default_instance_;
-constexpr Author::Author(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Author::Author(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : pseudonym_()
   , friend__()
   , name_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -90,8 +85,7 @@ struct AuthorDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AuthorDefaultTypeInternal _Author_default_instance_;
-constexpr BadAuthor::BadAuthor(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr BadAuthor::BadAuthor(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : name_()
   , alive_()
   , id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -104,8 +98,7 @@ struct BadAuthorDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BadAuthorDefaultTypeInternal _BadAuthor_default_instance_;
-constexpr Primitive::Primitive(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Primitive::Primitive(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : rep_fix32_()
   , rep_u32_()
   , rep_i32_()
@@ -144,8 +137,7 @@ struct PrimitiveDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PrimitiveDefaultTypeInternal _Primitive_default_instance_;
-constexpr PackedPrimitive::PackedPrimitive(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr PackedPrimitive::PackedPrimitive(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : rep_fix32_()
   , rep_u32_()
   , _rep_u32_cached_byte_size_(0)
@@ -173,8 +165,7 @@ struct PackedPrimitiveDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PackedPrimitiveDefaultTypeInternal _PackedPrimitive_default_instance_;
-constexpr NestedBook::NestedBook(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr NestedBook::NestedBook(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : book_(nullptr){}
 struct NestedBookDefaultTypeInternal {
 	constexpr NestedBookDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -184,8 +175,7 @@ struct NestedBookDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT NestedBookDefaultTypeInternal _NestedBook_default_instance_;
-constexpr BadNestedBook::BadNestedBook(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr BadNestedBook::BadNestedBook(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : book_()
   , _book_cached_byte_size_(0){}
 struct BadNestedBookDefaultTypeInternal {
@@ -196,8 +186,7 @@ struct BadNestedBookDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BadNestedBookDefaultTypeInternal _BadNestedBook_default_instance_;
-constexpr Cyclic::Cyclic(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Cyclic::Cyclic(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : m_author_()
   , m_str_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , m_book_(nullptr)
@@ -211,8 +200,7 @@ struct CyclicDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT CyclicDefaultTypeInternal _Cyclic_default_instance_;
-constexpr TestJsonName1::TestJsonName1(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestJsonName1::TestJsonName1(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : one_value_(0){}
 struct TestJsonName1DefaultTypeInternal {
 	constexpr TestJsonName1DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -222,8 +210,7 @@ struct TestJsonName1DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestJsonName1DefaultTypeInternal _TestJsonName1_default_instance_;
-constexpr TestJsonName2::TestJsonName2(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestJsonName2::TestJsonName2(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : another_value_(0){}
 struct TestJsonName2DefaultTypeInternal {
 	constexpr TestJsonName2DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -233,8 +220,7 @@ struct TestJsonName2DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestJsonName2DefaultTypeInternal _TestJsonName2_default_instance_;
-constexpr TestPrimitiveFieldsWithSameJsonName::TestPrimitiveFieldsWithSameJsonName(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestPrimitiveFieldsWithSameJsonName::TestPrimitiveFieldsWithSameJsonName(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : val_str1_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , val_str_1_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , val_int321_(0)
@@ -259,8 +245,7 @@ struct TestPrimitiveFieldsWithSameJsonNameDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestPrimitiveFieldsWithSameJsonNameDefaultTypeInternal _TestPrimitiveFieldsWithSameJsonName_default_instance_;
-constexpr TestRepeatedFieldsWithSameJsonName::TestRepeatedFieldsWithSameJsonName(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestRepeatedFieldsWithSameJsonName::TestRepeatedFieldsWithSameJsonName(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : rep_str1_()
   , rep_str_1_(){}
 struct TestRepeatedFieldsWithSameJsonNameDefaultTypeInternal {
@@ -271,8 +256,7 @@ struct TestRepeatedFieldsWithSameJsonNameDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestRepeatedFieldsWithSameJsonNameDefaultTypeInternal _TestRepeatedFieldsWithSameJsonName_default_instance_;
-constexpr TestMessageFieldsWithSameJsonName::TestMessageFieldsWithSameJsonName(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestMessageFieldsWithSameJsonName::TestMessageFieldsWithSameJsonName(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : prim1_(nullptr)
   , prim_1_(nullptr){}
 struct TestMessageFieldsWithSameJsonNameDefaultTypeInternal {
@@ -699,21 +683,23 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto);
 namespace proto_util_converter {
 namespace testing {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Book_Type_descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto);
-  return file_level_enum_descriptors_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[0];
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Book_Type_descriptor()
+{
+	::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto);
+	return file_level_enum_descriptors_google_2fprotobuf_2futil_2finternal_2ftestdata_2fbooks_2eproto[0];
 }
-bool Book_Type_IsValid(int value) {
-  switch (value) {
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-      return true;
-    default:
-      return false;
-  }
+bool Book_Type_IsValid(int value)
+{
+	switch(value) {
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+			return true;
+		default:
+			return false;
+	}
 }
 
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
@@ -784,8 +770,7 @@ void Book_Data::ArenaDtor(void* object) {
   Book_Data* _this = reinterpret_cast< Book_Data* >(object);
   (void)_this;
 }
-void Book_Data::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Book_Data::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Book_Data::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -841,10 +826,7 @@ const char* Book_Data::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -916,10 +898,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Book_Data::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Book_Data::GetClassData() const { return &_class_data_; }
 
-void Book_Data::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Book_Data *>(to)->MergeFrom(
-      static_cast<const Book_Data &>(from));
+void Book_Data::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Book_Data *>(to)->MergeFrom(static_cast<const Book_Data &>(from));
 }
 
 
@@ -959,11 +939,7 @@ void Book_Data::InternalSwap(Book_Data* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_has_bits_[0], other->_has_bits_[0]);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &copyright_, lhs_arena,
-      &other->copyright_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &copyright_, lhs_arena, &other->copyright_, rhs_arena);
   swap(year_, other->year_);
 }
 
@@ -1038,8 +1014,7 @@ void Book_Label::ArenaDtor(void* object) {
   Book_Label* _this = reinterpret_cast< Book_Label* >(object);
   (void)_this;
 }
-void Book_Label::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Book_Label::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Book_Label::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1102,10 +1077,7 @@ const char* Book_Label::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1180,10 +1152,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Book_Label::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Book_Label::GetClassData() const { return &_class_data_; }
 
-void Book_Label::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Book_Label *>(to)->MergeFrom(
-      static_cast<const Book_Label &>(from));
+void Book_Label::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Book_Label *>(to)->MergeFrom(static_cast<const Book_Label &>(from));
 }
 
 
@@ -1222,16 +1192,8 @@ void Book_Label::InternalSwap(Book_Label* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_has_bits_[0], other->_has_bits_[0]);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &key_, lhs_arena,
-      &other->key_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &value_, lhs_arena,
-      &other->value_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &key_, lhs_arena, &other->key_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &value_, lhs_arena, &other->value_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Book_Label::GetMetadata() const {
@@ -1259,22 +1221,10 @@ class Book::_Internal {
   static void set_has_type_not_found(HasBits* has_bits) { (*has_bits)[0] |= 64u; }
 };
 
-const ::proto_util_converter::testing::Author&
-Book::_Internal::author(const Book* msg) {
-  return *msg->author_;
-}
-const ::proto_util_converter::testing::Book_Data&
-Book::_Internal::data(const Book* msg) {
-  return *msg->data_;
-}
-const ::proto_util_converter::testing::Publisher&
-Book::_Internal::publisher(const Book* msg) {
-  return *msg->publisher_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-Book::_Internal::type_not_found(const Book* msg) {
-  return *msg->type_not_found_;
-}
+const ::proto_util_converter::testing::Author & Book::_Internal::author(const Book* msg) { return *msg->author_; }
+const ::proto_util_converter::testing::Book_Data & Book::_Internal::data(const Book* msg) { return *msg->data_; }
+const ::proto_util_converter::testing::Publisher & Book::_Internal::publisher(const Book* msg) { return *msg->publisher_; }
+const ::proto_util_converter::testing::AnyWrapper & Book::_Internal::type_not_found(const Book* msg) { return *msg->type_not_found_; }
 void Book::clear_type_not_found() {
   if(type_not_found_ != nullptr) type_not_found_->Clear();
   _has_bits_[0] &= ~0x00000040u;
@@ -1319,29 +1269,11 @@ Book::Book(const Book& from)
   if(from._internal_has_snake_field()) {
     snake_field_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_snake_field(), GetArenaForAllocation());
   }
-  if(from._internal_has_author()) {
-    author_ = new ::proto_util_converter::testing::Author(*from.author_);
-  } else {
-    author_ = nullptr;
-  }
-  if(from._internal_has_data()) {
-    data_ = new ::proto_util_converter::testing::Book_Data(*from.data_);
-  } else {
-    data_ = nullptr;
-  }
-  if(from._internal_has_publisher()) {
-    publisher_ = new ::proto_util_converter::testing::Publisher(*from.publisher_);
-  } else {
-    publisher_ = nullptr;
-  }
-  if(from._internal_has_type_not_found()) {
-    type_not_found_ = new ::proto_util_converter::testing::AnyWrapper(*from.type_not_found_);
-  } else {
-    type_not_found_ = nullptr;
-  }
-  ::memcpy(&published_, &from.published_,
-    static_cast<size_t>(reinterpret_cast<char*>(&type_) -
-    reinterpret_cast<char*>(&published_)) + sizeof(type_));
+  author_ = from._internal_has_author() ? new ::proto_util_converter::testing::Author(*from.author_) : nullptr;
+  data_ = from._internal_has_data() ? new ::proto_util_converter::testing::Book_Data(*from.data_) : nullptr;
+  publisher_ = from._internal_has_publisher() ? new ::proto_util_converter::testing::Publisher(*from.publisher_) : nullptr;
+  type_not_found_ = from._internal_has_type_not_found() ? new ::proto_util_converter::testing::AnyWrapper(*from.type_not_found_) : nullptr;
+  ::memcpy(&published_, &from.published_, static_cast<size_t>(reinterpret_cast<char*>(&type_) - reinterpret_cast<char*>(&published_)) + sizeof(type_));
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.Book)
 }
 
@@ -1358,10 +1290,7 @@ snake_field_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   snake_field_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&author_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&length_) -
-    reinterpret_cast<char*>(&author_)) + sizeof(length_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&author_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&length_) - reinterpret_cast<char*>(&author_)) + sizeof(length_));
 type_ = 1;
 }
 
@@ -1387,8 +1316,7 @@ void Book::ArenaDtor(void* object) {
   Book* _this = reinterpret_cast< Book* >(object);
   (void)_this;
 }
-void Book::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Book::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Book::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1584,10 +1512,7 @@ const char* Book::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
       CHK_(ptr != nullptr);
       continue;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1714,8 +1639,7 @@ size_t Book::ByteSizeLong() const {
   // repeated int32 primitive_repeated = 14;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->primitive_repeated_);
-    total_size += 1 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_primitive_repeated_size());
+    total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_primitive_repeated_size());
     total_size += data_size;
   }
 
@@ -1784,10 +1708,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Book::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Book::GetClassData() const { return &_class_data_; }
 
-void Book::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Book *>(to)->MergeFrom(
-      static_cast<const Book &>(from));
+void Book::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Book *>(to)->MergeFrom(static_cast<const Book &>(from));
 }
 
 
@@ -1867,21 +1789,9 @@ void Book::InternalSwap(Book* other) {
   swap(_has_bits_[0], other->_has_bits_[0]);
   labels_.InternalSwap(&other->labels_);
   primitive_repeated_.InternalSwap(&other->primitive_repeated_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &title_, lhs_arena,
-      &other->title_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &content_, lhs_arena,
-      &other->content_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &snake_field_, lhs_arena,
-      &other->snake_field_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &title_, lhs_arena, &other->title_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &content_, lhs_arena, &other->content_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &snake_field_, lhs_arena, &other->snake_field_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Book, length_)
       + sizeof(Book::length_)
@@ -1950,8 +1860,7 @@ void Publisher::ArenaDtor(void* object) {
   Publisher* _this = reinterpret_cast< Publisher* >(object);
   (void)_this;
 }
-void Publisher::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Publisher::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Publisher::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1997,10 +1906,7 @@ const char* Publisher::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2057,10 +1963,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Publisher::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Publisher::GetClassData() const { return &_class_data_; }
 
-void Publisher::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Publisher *>(to)->MergeFrom(
-      static_cast<const Publisher &>(from));
+void Publisher::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Publisher *>(to)->MergeFrom(static_cast<const Publisher &>(from));
 }
 
 
@@ -2094,11 +1998,7 @@ void Publisher::InternalSwap(Publisher* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_has_bits_[0], other->_has_bits_[0]);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &name_, lhs_arena,
-      &other->name_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &name_, lhs_arena, &other->name_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Publisher::GetMetadata() const {
@@ -2139,9 +2039,7 @@ Author::Author(const Author& from)
   if(from._internal_has_name()) {
     name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), GetArenaForAllocation());
   }
-  ::memcpy(&id_, &from.id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&alive_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(alive_));
+  ::memcpy(&id_, &from.id_, static_cast<size_t>(reinterpret_cast<char*>(&alive_) - reinterpret_cast<char*>(&id_)) + sizeof(alive_));
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.Author)
 }
 
@@ -2150,10 +2048,7 @@ name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlready
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&id_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&alive_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(alive_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&id_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&alive_) - reinterpret_cast<char*>(&id_)) + sizeof(alive_));
 }
 
 Author::~Author() {
@@ -2172,8 +2067,7 @@ void Author::ArenaDtor(void* object) {
   Author* _this = reinterpret_cast< Author* >(object);
   (void)_this;
 }
-void Author::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Author::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Author::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2191,9 +2085,7 @@ void Author::Clear() {
     name_.ClearNonDefaultToEmpty();
   }
   if(cached_has_bits & 0x00000006u) {
-    ::memset(&id_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&alive_) -
-        reinterpret_cast<char*>(&id_)) + sizeof(alive_));
+    ::memset(&id_, 0, static_cast<size_t>(reinterpret_cast<char*>(&alive_) - reinterpret_cast<char*>(&id_)) + sizeof(alive_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
@@ -2274,10 +2166,7 @@ const char* Author::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2388,10 +2277,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Author::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Author::GetClassData() const { return &_class_data_; }
 
-void Author::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Author *>(to)->MergeFrom(
-      static_cast<const Author &>(from));
+void Author::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Author *>(to)->MergeFrom(static_cast<const Author &>(from));
 }
 
 
@@ -2438,11 +2325,7 @@ void Author::InternalSwap(Author* other) {
   swap(_has_bits_[0], other->_has_bits_[0]);
   pseudonym_.InternalSwap(&other->pseudonym_);
   friend__.InternalSwap(&other->friend__);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &name_, lhs_arena,
-      &other->name_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &name_, lhs_arena, &other->name_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Author, alive_)
       + sizeof(Author::alive_)
@@ -2526,8 +2409,7 @@ void BadAuthor::ArenaDtor(void* object) {
   BadAuthor* _this = reinterpret_cast< BadAuthor* >(object);
   (void)_this;
 }
-void BadAuthor::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void BadAuthor::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void BadAuthor::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2619,10 +2501,7 @@ const char* BadAuthor::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2689,8 +2568,7 @@ size_t BadAuthor::ByteSizeLong() const {
   // repeated uint64 name = 2;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(this->name_);
-    total_size += 1 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_name_size());
+    total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_name_size());
     total_size += data_size;
   }
 
@@ -2726,10 +2604,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BadAuthor::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BadAuthor::GetClassData() const { return &_class_data_; }
 
-void BadAuthor::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<BadAuthor *>(to)->MergeFrom(
-      static_cast<const BadAuthor &>(from));
+void BadAuthor::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<BadAuthor *>(to)->MergeFrom(static_cast<const BadAuthor &>(from));
 }
 
 
@@ -2772,16 +2648,8 @@ void BadAuthor::InternalSwap(BadAuthor* other) {
   swap(_has_bits_[0], other->_has_bits_[0]);
   name_.InternalSwap(&other->name_);
   alive_.InternalSwap(&other->alive_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &id_, lhs_arena,
-      &other->id_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &pseudonym_, lhs_arena,
-      &other->pseudonym_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &id_, lhs_arena, &other->id_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &pseudonym_, lhs_arena, &other->pseudonym_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BadAuthor::GetMetadata() const {
@@ -2867,9 +2735,7 @@ Primitive::Primitive(const Primitive& from)
   if(from._internal_has_bytes()) {
     bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_bytes(), GetArenaForAllocation());
   }
-  ::memcpy(&fix32_, &from.fix32_,
-    static_cast<size_t>(reinterpret_cast<char*>(&bool__) -
-    reinterpret_cast<char*>(&fix32_)) + sizeof(bool__));
+  ::memcpy(&fix32_, &from.fix32_, static_cast<size_t>(reinterpret_cast<char*>(&bool__) - reinterpret_cast<char*>(&fix32_)) + sizeof(bool__));
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.Primitive)
 }
 
@@ -2882,10 +2748,7 @@ bytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlread
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   bytes_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&fix32_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&bool__) -
-    reinterpret_cast<char*>(&fix32_)) + sizeof(bool__));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&fix32_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&bool__) - reinterpret_cast<char*>(&fix32_)) + sizeof(bool__));
 }
 
 Primitive::~Primitive() {
@@ -2905,8 +2768,7 @@ void Primitive::ArenaDtor(void* object) {
   Primitive* _this = reinterpret_cast< Primitive* >(object);
   (void)_this;
 }
-void Primitive::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Primitive::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Primitive::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2942,14 +2804,10 @@ void Primitive::Clear() {
     }
   }
   if(cached_has_bits & 0x000000fcu) {
-    ::memset(&fix32_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&u64_) -
-        reinterpret_cast<char*>(&fix32_)) + sizeof(u64_));
+    ::memset(&fix32_, 0, static_cast<size_t>(reinterpret_cast<char*>(&u64_) - reinterpret_cast<char*>(&fix32_)) + sizeof(u64_));
   }
   if(cached_has_bits & 0x00007f00u) {
-    ::memset(&i64_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&bool__) -
-        reinterpret_cast<char*>(&i64_)) + sizeof(bool__));
+    ::memset(&i64_, 0, static_cast<size_t>(reinterpret_cast<char*>(&bool__) - reinterpret_cast<char*>(&i64_)) + sizeof(bool__));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
@@ -3347,10 +3205,7 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3575,24 +3430,21 @@ size_t Primitive::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_fix32_size());
     size_t data_size = 4UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_fix32_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_fix32_size());
     total_size += data_size;
   }
 
   // repeated uint32 rep_u32 = 17;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->rep_u32_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_u32_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_u32_size());
     total_size += data_size;
   }
 
   // repeated int32 rep_i32 = 18;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->rep_i32_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_i32_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_i32_size());
     total_size += data_size;
   }
 
@@ -3600,16 +3452,14 @@ size_t Primitive::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_sf32_size());
     size_t data_size = 4UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_sf32_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_sf32_size());
     total_size += data_size;
   }
 
   // repeated sint32 rep_s32 = 20;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SInt32Size(this->rep_s32_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_s32_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_s32_size());
     total_size += data_size;
   }
 
@@ -3617,24 +3467,21 @@ size_t Primitive::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_fix64_size());
     size_t data_size = 8UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_fix64_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_fix64_size());
     total_size += data_size;
   }
 
   // repeated uint64 rep_u64 = 22;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(this->rep_u64_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_u64_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_u64_size());
     total_size += data_size;
   }
 
   // repeated int64 rep_i64 = 23;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(this->rep_i64_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_i64_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_i64_size());
     total_size += data_size;
   }
 
@@ -3642,16 +3489,14 @@ size_t Primitive::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_sf64_size());
     size_t data_size = 8UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_sf64_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_sf64_size());
     total_size += data_size;
   }
 
   // repeated sint64 rep_s64 = 25;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SInt64Size(this->rep_s64_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_s64_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_s64_size());
     total_size += data_size;
   }
 
@@ -3671,8 +3516,7 @@ size_t Primitive::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_float_size());
     size_t data_size = 4UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_float_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_float_size());
     total_size += data_size;
   }
 
@@ -3680,8 +3524,7 @@ size_t Primitive::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_double_size());
     size_t data_size = 8UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_double_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_double_size());
     total_size += data_size;
   }
 
@@ -3689,8 +3532,7 @@ size_t Primitive::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_rep_bool_size());
     size_t data_size = 1UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_bool_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_rep_bool_size());
     total_size += data_size;
   }
 
@@ -3783,10 +3625,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Primitive::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Primitive::GetClassData() const { return &_class_data_; }
 
-void Primitive::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Primitive *>(to)->MergeFrom(
-      static_cast<const Primitive &>(from));
+void Primitive::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Primitive *>(to)->MergeFrom(static_cast<const Primitive &>(from));
 }
 
 
@@ -3898,16 +3738,8 @@ void Primitive::InternalSwap(Primitive* other) {
   rep_float_.InternalSwap(&other->rep_float_);
   rep_double_.InternalSwap(&other->rep_double_);
   rep_bool_.InternalSwap(&other->rep_bool_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &str_, lhs_arena,
-      &other->str_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &bytes_, lhs_arena,
-      &other->bytes_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &str_, lhs_arena, &other->str_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &bytes_, lhs_arena, &other->bytes_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Primitive, bool__)
       + sizeof(Primitive::bool__)
@@ -3985,8 +3817,7 @@ void PackedPrimitive::ArenaDtor(void* object) {
   PackedPrimitive* _this = reinterpret_cast< PackedPrimitive* >(object);
   (void)_this;
 }
-void PackedPrimitive::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void PackedPrimitive::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void PackedPrimitive::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -4170,10 +4001,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4434,10 +4262,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData PackedPrimitive::_class_data_ 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*PackedPrimitive::GetClassData() const { return &_class_data_; }
 
-void PackedPrimitive::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<PackedPrimitive *>(to)->MergeFrom(
-      static_cast<const PackedPrimitive &>(from));
+void PackedPrimitive::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<PackedPrimitive *>(to)->MergeFrom(static_cast<const PackedPrimitive &>(from));
 }
 
 
@@ -4505,10 +4331,7 @@ class NestedBook::_Internal {
   static void set_has_book(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::proto_util_converter::testing::Book&
-NestedBook::_Internal::book(const NestedBook* msg) {
-  return *msg->book_;
-}
+const ::proto_util_converter::testing::Book & NestedBook::_Internal::book(const NestedBook* msg) { return *msg->book_; }
 NestedBook::NestedBook(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -4522,11 +4345,7 @@ NestedBook::NestedBook(const NestedBook& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_book()) {
-    book_ = new ::proto_util_converter::testing::Book(*from.book_);
-  } else {
-    book_ = nullptr;
-  }
+  book_ = from._internal_has_book() ? new ::proto_util_converter::testing::Book(*from.book_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.NestedBook)
 }
 
@@ -4550,8 +4369,7 @@ void NestedBook::ArenaDtor(void* object) {
   NestedBook* _this = reinterpret_cast< NestedBook* >(object);
   (void)_this;
 }
-void NestedBook::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void NestedBook::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void NestedBook::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -4594,10 +4412,7 @@ const char* NestedBook::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4653,10 +4468,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData NestedBook::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*NestedBook::GetClassData() const { return &_class_data_; }
 
-void NestedBook::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<NestedBook *>(to)->MergeFrom(
-      static_cast<const NestedBook &>(from));
+void NestedBook::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<NestedBook *>(to)->MergeFrom(static_cast<const NestedBook &>(from));
 }
 
 
@@ -4738,8 +4551,7 @@ void BadNestedBook::ArenaDtor(void* object) {
   BadNestedBook* _this = reinterpret_cast< BadNestedBook* >(object);
   (void)_this;
 }
-void BadNestedBook::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void BadNestedBook::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void BadNestedBook::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -4779,10 +4591,7 @@ const char* BadNestedBook::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4843,10 +4652,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BadNestedBook::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BadNestedBook::GetClassData() const { return &_class_data_; }
 
-void BadNestedBook::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<BadNestedBook *>(to)->MergeFrom(
-      static_cast<const BadNestedBook &>(from));
+void BadNestedBook::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<BadNestedBook *>(to)->MergeFrom(static_cast<const BadNestedBook &>(from));
 }
 
 
@@ -4894,14 +4701,8 @@ class Cyclic::_Internal {
   static void set_has_m_cyclic(HasBits* has_bits) { (*has_bits)[0] |= 4u; }
 };
 
-const ::proto_util_converter::testing::Book&
-Cyclic::_Internal::m_book(const Cyclic* msg) {
-  return *msg->m_book_;
-}
-const ::proto_util_converter::testing::Cyclic&
-Cyclic::_Internal::m_cyclic(const Cyclic* msg) {
-  return *msg->m_cyclic_;
-}
+const ::proto_util_converter::testing::Book & Cyclic::_Internal::m_book(const Cyclic* msg) { return *msg->m_book_; }
+const ::proto_util_converter::testing::Cyclic & Cyclic::_Internal::m_cyclic(const Cyclic* msg) { return *msg->m_cyclic_; }
 Cyclic::Cyclic(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
@@ -4924,16 +4725,8 @@ Cyclic::Cyclic(const Cyclic& from)
   if(from._internal_has_m_str()) {
     m_str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_m_str(), GetArenaForAllocation());
   }
-  if(from._internal_has_m_book()) {
-    m_book_ = new ::proto_util_converter::testing::Book(*from.m_book_);
-  } else {
-    m_book_ = nullptr;
-  }
-  if(from._internal_has_m_cyclic()) {
-    m_cyclic_ = new ::proto_util_converter::testing::Cyclic(*from.m_cyclic_);
-  } else {
-    m_cyclic_ = nullptr;
-  }
+  m_book_ = from._internal_has_m_book() ? new ::proto_util_converter::testing::Book(*from.m_book_) : nullptr;
+  m_cyclic_ = from._internal_has_m_cyclic() ? new ::proto_util_converter::testing::Cyclic(*from.m_cyclic_) : nullptr;
   m_int_ = from.m_int_;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.Cyclic)
 }
@@ -4943,10 +4736,7 @@ m_str_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlread
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   m_str_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&m_book_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&m_int_) -
-    reinterpret_cast<char*>(&m_book_)) + sizeof(m_int_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&m_book_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&m_int_) - reinterpret_cast<char*>(&m_book_)) + sizeof(m_int_));
 }
 
 Cyclic::~Cyclic() {
@@ -4967,8 +4757,7 @@ void Cyclic::ArenaDtor(void* object) {
   Cyclic* _this = reinterpret_cast< Cyclic* >(object);
   (void)_this;
 }
-void Cyclic::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Cyclic::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Cyclic::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5064,10 +4853,7 @@ const char* Cyclic::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5173,10 +4959,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Cyclic::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Cyclic::GetClassData() const { return &_class_data_; }
 
-void Cyclic::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Cyclic *>(to)->MergeFrom(
-      static_cast<const Cyclic &>(from));
+void Cyclic::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Cyclic *>(to)->MergeFrom(static_cast<const Cyclic &>(from));
 }
 
 
@@ -5230,11 +5014,7 @@ void Cyclic::InternalSwap(Cyclic* other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_has_bits_[0], other->_has_bits_[0]);
   m_author_.InternalSwap(&other->m_author_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &m_str_, lhs_arena,
-      &other->m_str_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &m_str_, lhs_arena, &other->m_str_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Cyclic, m_int_)
       + sizeof(Cyclic::m_int_)
@@ -5291,8 +5071,7 @@ void TestJsonName1::ArenaDtor(void* object) {
   TestJsonName1* _this = reinterpret_cast< TestJsonName1* >(object);
   (void)_this;
 }
-void TestJsonName1::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestJsonName1::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestJsonName1::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5332,10 +5111,7 @@ const char* TestJsonName1::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5391,10 +5167,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestJsonName1::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestJsonName1::GetClassData() const { return &_class_data_; }
 
-void TestJsonName1::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestJsonName1 *>(to)->MergeFrom(
-      static_cast<const TestJsonName1 &>(from));
+void TestJsonName1::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestJsonName1 *>(to)->MergeFrom(static_cast<const TestJsonName1 &>(from));
 }
 
 
@@ -5476,8 +5250,7 @@ void TestJsonName2::ArenaDtor(void* object) {
   TestJsonName2* _this = reinterpret_cast< TestJsonName2* >(object);
   (void)_this;
 }
-void TestJsonName2::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestJsonName2::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestJsonName2::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5517,10 +5290,7 @@ const char* TestJsonName2::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5576,10 +5346,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestJsonName2::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestJsonName2::GetClassData() const { return &_class_data_; }
 
-void TestJsonName2::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestJsonName2 *>(to)->MergeFrom(
-      static_cast<const TestJsonName2 &>(from));
+void TestJsonName2::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestJsonName2 *>(to)->MergeFrom(static_cast<const TestJsonName2 &>(from));
 }
 
 
@@ -5667,9 +5435,7 @@ TestPrimitiveFieldsWithSameJsonName::TestPrimitiveFieldsWithSameJsonName(const T
   if(from._internal_has_val_str_1()) {
     val_str_1_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_val_str_1(), GetArenaForAllocation());
   }
-  ::memcpy(&val_int321_, &from.val_int321_,
-    static_cast<size_t>(reinterpret_cast<char*>(&val_float_1_) -
-    reinterpret_cast<char*>(&val_int321_)) + sizeof(val_float_1_));
+  ::memcpy(&val_int321_, &from.val_int321_, static_cast<size_t>(reinterpret_cast<char*>(&val_float_1_) - reinterpret_cast<char*>(&val_int321_)) + sizeof(val_float_1_));
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.TestPrimitiveFieldsWithSameJsonName)
 }
 
@@ -5682,10 +5448,7 @@ val_str_1_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAl
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   val_str_1_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&val_int321_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&val_float_1_) -
-    reinterpret_cast<char*>(&val_int321_)) + sizeof(val_float_1_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&val_int321_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&val_float_1_) - reinterpret_cast<char*>(&val_int321_)) + sizeof(val_float_1_));
 }
 
 TestPrimitiveFieldsWithSameJsonName::~TestPrimitiveFieldsWithSameJsonName() {
@@ -5705,8 +5468,7 @@ void TestPrimitiveFieldsWithSameJsonName::ArenaDtor(void* object) {
   TestPrimitiveFieldsWithSameJsonName* _this = reinterpret_cast< TestPrimitiveFieldsWithSameJsonName* >(object);
   (void)_this;
 }
-void TestPrimitiveFieldsWithSameJsonName::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestPrimitiveFieldsWithSameJsonName::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestPrimitiveFieldsWithSameJsonName::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5727,14 +5489,10 @@ void TestPrimitiveFieldsWithSameJsonName::Clear() {
     }
   }
   if(cached_has_bits & 0x000000fcu) {
-    ::memset(&val_int321_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&val_int64_1_) -
-        reinterpret_cast<char*>(&val_int321_)) + sizeof(val_int64_1_));
+    ::memset(&val_int321_, 0, static_cast<size_t>(reinterpret_cast<char*>(&val_int64_1_) - reinterpret_cast<char*>(&val_int321_)) + sizeof(val_int64_1_));
   }
   if(cached_has_bits & 0x0000ff00u) {
-    ::memset(&val_uint641_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&val_float_1_) -
-        reinterpret_cast<char*>(&val_uint641_)) + sizeof(val_float_1_));
+    ::memset(&val_uint641_, 0, static_cast<size_t>(reinterpret_cast<char*>(&val_float_1_) - reinterpret_cast<char*>(&val_uint641_)) + sizeof(val_float_1_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
@@ -5905,10 +5663,7 @@ const char* TestPrimitiveFieldsWithSameJsonName::_InternalParse(const char* ptr,
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -6139,10 +5894,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestPrimitiveFieldsWithSameJso
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestPrimitiveFieldsWithSameJsonName::GetClassData() const { return &_class_data_; }
 
-void TestPrimitiveFieldsWithSameJsonName::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestPrimitiveFieldsWithSameJsonName *>(to)->MergeFrom(
-      static_cast<const TestPrimitiveFieldsWithSameJsonName &>(from));
+void TestPrimitiveFieldsWithSameJsonName::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestPrimitiveFieldsWithSameJsonName *>(to)->MergeFrom(static_cast<const TestPrimitiveFieldsWithSameJsonName &>(from));
 }
 
 
@@ -6227,16 +5980,8 @@ void TestPrimitiveFieldsWithSameJsonName::InternalSwap(TestPrimitiveFieldsWithSa
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_has_bits_[0], other->_has_bits_[0]);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &val_str1_, lhs_arena,
-      &other->val_str1_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &val_str_1_, lhs_arena,
-      &other->val_str_1_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &val_str1_, lhs_arena, &other->val_str1_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &val_str_1_, lhs_arena, &other->val_str_1_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(TestPrimitiveFieldsWithSameJsonName, val_float_1_)
       + sizeof(TestPrimitiveFieldsWithSameJsonName::val_float_1_)
@@ -6292,8 +6037,7 @@ void TestRepeatedFieldsWithSameJsonName::ArenaDtor(void* object) {
   TestRepeatedFieldsWithSameJsonName* _this = reinterpret_cast< TestRepeatedFieldsWithSameJsonName* >(object);
   (void)_this;
 }
-void TestRepeatedFieldsWithSameJsonName::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestRepeatedFieldsWithSameJsonName::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestRepeatedFieldsWithSameJsonName::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -6357,10 +6101,7 @@ const char* TestRepeatedFieldsWithSameJsonName::_InternalParse(const char* ptr, 
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -6434,10 +6175,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestRepeatedFieldsWithSameJson
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestRepeatedFieldsWithSameJsonName::GetClassData() const { return &_class_data_; }
 
-void TestRepeatedFieldsWithSameJsonName::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestRepeatedFieldsWithSameJsonName *>(to)->MergeFrom(
-      static_cast<const TestRepeatedFieldsWithSameJsonName &>(from));
+void TestRepeatedFieldsWithSameJsonName::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestRepeatedFieldsWithSameJsonName *>(to)->MergeFrom(static_cast<const TestRepeatedFieldsWithSameJsonName &>(from));
 }
 
 
@@ -6485,14 +6224,8 @@ class TestMessageFieldsWithSameJsonName::_Internal {
   static void set_has_prim_1(HasBits* has_bits) { (*has_bits)[0] |= 2u; }
 };
 
-const ::proto_util_converter::testing::Primitive&
-TestMessageFieldsWithSameJsonName::_Internal::prim1(const TestMessageFieldsWithSameJsonName* msg) {
-  return *msg->prim1_;
-}
-const ::proto_util_converter::testing::Primitive&
-TestMessageFieldsWithSameJsonName::_Internal::prim_1(const TestMessageFieldsWithSameJsonName* msg) {
-  return *msg->prim_1_;
-}
+const ::proto_util_converter::testing::Primitive & TestMessageFieldsWithSameJsonName::_Internal::prim1(const TestMessageFieldsWithSameJsonName* msg) { return *msg->prim1_; }
+const ::proto_util_converter::testing::Primitive & TestMessageFieldsWithSameJsonName::_Internal::prim_1(const TestMessageFieldsWithSameJsonName* msg) { return *msg->prim_1_; }
 TestMessageFieldsWithSameJsonName::TestMessageFieldsWithSameJsonName(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -6506,24 +6239,13 @@ TestMessageFieldsWithSameJsonName::TestMessageFieldsWithSameJsonName(const TestM
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_prim1()) {
-    prim1_ = new ::proto_util_converter::testing::Primitive(*from.prim1_);
-  } else {
-    prim1_ = nullptr;
-  }
-  if(from._internal_has_prim_1()) {
-    prim_1_ = new ::proto_util_converter::testing::Primitive(*from.prim_1_);
-  } else {
-    prim_1_ = nullptr;
-  }
+  prim1_ = from._internal_has_prim1() ? new ::proto_util_converter::testing::Primitive(*from.prim1_) : nullptr;
+  prim_1_ = from._internal_has_prim_1() ? new ::proto_util_converter::testing::Primitive(*from.prim_1_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.TestMessageFieldsWithSameJsonName)
 }
 
 inline void TestMessageFieldsWithSameJsonName::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&prim1_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&prim_1_) -
-    reinterpret_cast<char*>(&prim1_)) + sizeof(prim_1_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&prim1_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&prim_1_) - reinterpret_cast<char*>(&prim1_)) + sizeof(prim_1_));
 }
 
 TestMessageFieldsWithSameJsonName::~TestMessageFieldsWithSameJsonName() {
@@ -6543,8 +6265,7 @@ void TestMessageFieldsWithSameJsonName::ArenaDtor(void* object) {
   TestMessageFieldsWithSameJsonName* _this = reinterpret_cast< TestMessageFieldsWithSameJsonName* >(object);
   (void)_this;
 }
-void TestMessageFieldsWithSameJsonName::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestMessageFieldsWithSameJsonName::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestMessageFieldsWithSameJsonName::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -6601,10 +6322,7 @@ const char* TestMessageFieldsWithSameJsonName::_InternalParse(const char* ptr, :
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -6673,10 +6391,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData TestMessageFieldsWithSameJsonN
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestMessageFieldsWithSameJsonName::GetClassData() const { return &_class_data_; }
 
-void TestMessageFieldsWithSameJsonName::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<TestMessageFieldsWithSameJsonName *>(to)->MergeFrom(
-      static_cast<const TestMessageFieldsWithSameJsonName &>(from));
+void TestMessageFieldsWithSameJsonName::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<TestMessageFieldsWithSameJsonName *>(to)->MergeFrom(static_cast<const TestMessageFieldsWithSameJsonName &>(from));
 }
 
 

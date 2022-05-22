@@ -15,7 +15,7 @@ typedef struct {
 static int __memp_pgwrite(ENV*, DB_MPOOLFILE*, DB_MPOOL_HASH*, BH *);
 static int __memp_get_clear_len(const DB_MPOOLFILE*, uint32 *);
 static int __memp_get_lsn_offset(const DB_MPOOLFILE*, int32 *);
-static int __memp_get_maxsize(DB_MPOOLFILE*, uint32*, uint32 *);
+static int __memp_get_maxsize(DB_MPOOLFILE*, uint32 *, uint32 *);
 static int __memp_set_maxsize(DB_MPOOLFILE*, uint32, uint32);
 static int __memp_set_priority(DB_MPOOLFILE*, DB_CACHE_PRIORITY);
 static int __memp_get_last_pgno_pp(DB_MPOOLFILE*, db_pgno_t *);
@@ -29,7 +29,7 @@ static int __memp_merge_buckets(DB_MPOOL*, uint32, uint32, uint32);
 static int __bhcmp(const void *, const void *);
 static int __memp_close_flush_files(ENV*, int);
 static int __memp_sync_files(ENV *);
-static int __memp_sync_file(ENV*, MPOOLFILE*, void *, uint32*, uint32);
+static int __memp_sync_file(ENV*, MPOOLFILE*, void *, uint32 *, uint32);
 static int __memp_trickle(ENV *, int, int *);
 
 #ifdef HAVE_STATISTICS // {
@@ -39,10 +39,10 @@ static int __memp_print_stats(ENV*, uint32);
 static int __memp_print_hash(ENV*, DB_MPOOL*, REGINFO*, roff_t*, uint32);
 static int __memp_stat(ENV*, DB_MPOOL_STAT**, DB_MPOOL_FSTAT***, uint32);
 static void __memp_stat_wait(ENV*, REGINFO*, MPOOL*, DB_MPOOL_STAT*, uint32);
-static int __memp_file_stats(ENV*, MPOOLFILE*, void *, uint32*, uint32);
-static int __memp_count_files(ENV*, MPOOLFILE*, void *, uint32*, uint32);
-static int __memp_get_files(ENV*, MPOOLFILE*, void *, uint32*, uint32);
-static int __memp_print_files(ENV*, MPOOLFILE*, void *, uint32*, uint32);
+static int __memp_file_stats(ENV*, MPOOLFILE*, void *, uint32 *, uint32);
+static int __memp_count_files(ENV*, MPOOLFILE*, void *, uint32 *, uint32);
+static int __memp_get_files(ENV*, MPOOLFILE*, void *, uint32 *, uint32);
+static int __memp_print_files(ENV*, MPOOLFILE*, void *, uint32 *, uint32);
 #endif // } HAVE_STATISTICS
 
 #define MPOOL_DEFAULT_PAGESIZE  SKILOBYTE(4)
@@ -1881,7 +1881,7 @@ alloc:
 		alloc_bhp->region = bhp->region;
 		alloc_bhp->mf_offset = bhp->mf_offset;
 		alloc_bhp->td_off = INVALID_ROFF;
-		if(txn == NULL) {
+		if(!txn) {
 			DB_ASSERT(env, F_ISSET(bhp, BH_FROZEN) && F_ISSET(bhp, BH_FREED));
 			if(bhp->td_off != INVALID_ROFF && (ret = __memp_bh_settxn(dbmp, mfp, alloc_bhp, BH_OWNER(env, bhp))) != 0)
 				goto err;
@@ -5656,7 +5656,7 @@ void __memp_stat_hash(REGINFO * reginfo, MPOOL * mp, uint32 * dirtyp)
 /*
  * __memp_walk_files --
  */
-int __memp_walk_files(ENV * env, MPOOL * mp, int (*func)(ENV*, MPOOLFILE*, void *, uint32*, uint32), void * arg, uint32 * countp, uint32 flags)
+int __memp_walk_files(ENV * env, MPOOL * mp, int (*func)(ENV*, MPOOLFILE*, void *, uint32 *, uint32), void * arg, uint32 * countp, uint32 flags)
 {
 	MPOOLFILE * mfp;
 	int i, t_ret;

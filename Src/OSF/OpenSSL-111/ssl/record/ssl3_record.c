@@ -451,24 +451,15 @@ int ssl3_get_record(SSL * s)
 		/* we have pulled in a full packet so zero things */
 		RECORD_LAYER_reset_packet_length(&s->rlayer);
 		RECORD_LAYER_clear_first_record(&s->rlayer);
-	} while(num_recs < max_recs
-	 && thisrr->type == SSL3_RT_APPLICATION_DATA
-	 && SSL_USE_EXPLICIT_IV(s)
-	 && s->enc_read_ctx != NULL
-	 && (EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_read_ctx))
-	    & EVP_CIPH_FLAG_PIPELINE)
+	} while(num_recs < max_recs && thisrr->type == SSL3_RT_APPLICATION_DATA && SSL_USE_EXPLICIT_IV(s)
+	 && s->enc_read_ctx != NULL && (EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_read_ctx)) & EVP_CIPH_FLAG_PIPELINE)
 	 && ssl3_record_app_data_waiting(s));
-
-	if(num_recs == 1
-	 && thisrr->type == SSL3_RT_CHANGE_CIPHER_SPEC
-	 && (SSL_IS_TLS13(s) || s->hello_retry_request != ssl_st::SSL_HRR_NONE)
-	 && SSL_IS_FIRST_HANDSHAKE(s)) {
+	if(num_recs == 1 && thisrr->type == SSL3_RT_CHANGE_CIPHER_SPEC && (SSL_IS_TLS13(s) || s->hello_retry_request != ssl_st::SSL_HRR_NONE) && SSL_IS_FIRST_HANDSHAKE(s)) {
 		/*
 		 * CCS messages must be exactly 1 byte long, containing the value 0x01
 		 */
 		if(thisrr->length != 1 || thisrr->data[0] != 0x01) {
-			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_SSL3_GET_RECORD,
-			    SSL_R_INVALID_CCS_MESSAGE);
+			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_SSL3_GET_RECORD, SSL_R_INVALID_CCS_MESSAGE);
 			return -1;
 		}
 		/*
@@ -477,18 +468,14 @@ int ssl3_get_record(SSL * s)
 		 */
 		thisrr->type = SSL3_RT_HANDSHAKE;
 		RECORD_LAYER_inc_empty_record_count(&s->rlayer);
-		if(RECORD_LAYER_get_empty_record_count(&s->rlayer)
-		    > MAX_EMPTY_RECORDS) {
-			SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD,
-			    SSL_R_UNEXPECTED_CCS_MESSAGE);
+		if(RECORD_LAYER_get_empty_record_count(&s->rlayer) > MAX_EMPTY_RECORDS) {
+			SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD, SSL_R_UNEXPECTED_CCS_MESSAGE);
 			return -1;
 		}
 		thisrr->read = 1;
 		RECORD_LAYER_set_numrpipes(&s->rlayer, 1);
-
 		return 1;
 	}
-
 	/*
 	 * If in encrypt-then-mac mode calculate mac from encrypted record. All
 	 * the details below are public so no timing details can leak.
@@ -498,34 +485,27 @@ int ssl3_get_record(SSL * s)
 		/* TODO(size_t): convert this to do size_t properly */
 		imac_size = EVP_MD_CTX_size(s->read_hash);
 		if(!ossl_assert(imac_size >= 0 && imac_size <= EVP_MAX_MD_SIZE)) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_GET_RECORD,
-			    ERR_LIB_EVP);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_GET_RECORD, ERR_LIB_EVP);
 			return -1;
 		}
 		mac_size = (size_t)imac_size;
 		for(j = 0; j < num_recs; j++) {
 			thisrr = &rr[j];
-
 			if(thisrr->length < mac_size) {
-				SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL3_GET_RECORD,
-				    SSL_R_LENGTH_TOO_SHORT);
+				SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL3_GET_RECORD, SSL_R_LENGTH_TOO_SHORT);
 				return -1;
 			}
 			thisrr->length -= mac_size;
 			mac = thisrr->data + thisrr->length;
 			i = s->method->ssl3_enc->mac(s, thisrr, md, 0 /* not send */);
 			if(i == 0 || CRYPTO_memcmp(md, mac, mac_size) != 0) {
-				SSLfatal(s, SSL_AD_BAD_RECORD_MAC, SSL_F_SSL3_GET_RECORD,
-				    SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
+				SSLfatal(s, SSL_AD_BAD_RECORD_MAC, SSL_F_SSL3_GET_RECORD, SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
 				return -1;
 			}
 		}
 	}
-
 	first_rec_len = rr[0].length;
-
 	enc_err = s->method->ssl3_enc->enc(s, rr, num_recs, 0);
-
 	/*-
 	 * enc_err is:
 	 *    0: (in non-constant time) if the record is publicly invalid.
@@ -542,15 +522,12 @@ int ssl3_get_record(SSL * s)
 			 * Valid early_data that we cannot decrypt might fail here as
 			 * publicly invalid. We treat it like an empty record.
 			 */
-
 			thisrr = &rr[0];
-
 			if(!early_data_count_ok(s, thisrr->length,
 			    EARLY_DATA_CIPHERTEXT_OVERHEAD, 0)) {
 				/* SSLfatal() already called */
 				return -1;
 			}
-
 			thisrr->length = 0;
 			thisrr->read = 1;
 			RECORD_LAYER_set_numrpipes(&s->rlayer, 1);
@@ -564,28 +541,21 @@ int ssl3_get_record(SSL * s)
 #ifdef SSL_DEBUG
 	printf("dec %lu\n", (ulong)rr[0].length);
 	{
-		size_t z;
-		for(z = 0; z < rr[0].length; z++)
+		for(size_t z = 0; z < rr[0].length; z++)
 			printf("%02X%c", rr[0].data[z], ((z + 1) % 16) ? ' ' : '\n');
 	}
 	printf("\n");
 #endif
-
 	/* r->length is now the compressed data plus mac */
-	if((sess != NULL) &&
-	    (s->enc_read_ctx != NULL) &&
-	    (!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash) != NULL)) {
+	if((sess != NULL) && (s->enc_read_ctx != NULL) && (!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash) != NULL)) {
 		/* s->read_hash != NULL => mac_size != -1 */
 		uchar * mac = NULL;
 		uchar mac_tmp[EVP_MAX_MD_SIZE];
-
 		mac_size = EVP_MD_CTX_size(s->read_hash);
 		if(!ossl_assert(mac_size <= EVP_MAX_MD_SIZE)) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_GET_RECORD,
-			    ERR_R_INTERNAL_ERROR);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_GET_RECORD, ERR_R_INTERNAL_ERROR);
 			return -1;
 		}
-
 		for(j = 0; j < num_recs; j++) {
 			thisrr = &rr[j];
 			/*
@@ -596,13 +566,10 @@ int ssl3_get_record(SSL * s)
 			 */
 			if(thisrr->orig_len < mac_size ||
 			    /* CBC records must have a padding length byte too. */
-			    (EVP_CIPHER_CTX_mode(s->enc_read_ctx) == EVP_CIPH_CBC_MODE &&
-			    thisrr->orig_len < mac_size + 1)) {
-				SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL3_GET_RECORD,
-				    SSL_R_LENGTH_TOO_SHORT);
+			    (EVP_CIPHER_CTX_mode(s->enc_read_ctx) == EVP_CIPH_CBC_MODE && thisrr->orig_len < mac_size + 1)) {
+				SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL3_GET_RECORD, SSL_R_LENGTH_TOO_SHORT);
 				return -1;
 			}
-
 			if(EVP_CIPHER_CTX_mode(s->enc_read_ctx) == EVP_CIPH_CBC_MODE) {
 				/*
 				 * We update the length so that the TLS header bytes can be
@@ -612,8 +579,7 @@ int ssl3_get_record(SSL * s)
 				 */
 				mac = mac_tmp;
 				if(!ssl3_cbc_copy_mac(mac_tmp, thisrr, mac_size)) {
-					SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_GET_RECORD,
-					    ERR_R_INTERNAL_ERROR);
+					SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_GET_RECORD, ERR_R_INTERNAL_ERROR);
 					return -1;
 				}
 				thisrr->length -= mac_size;
@@ -627,7 +593,6 @@ int ssl3_get_record(SSL * s)
 				thisrr->length -= mac_size;
 				mac = &thisrr->data[thisrr->length];
 			}
-
 			i = s->method->ssl3_enc->mac(s, thisrr, md, 0 /* not send */);
 			if(i == 0 || mac == NULL || CRYPTO_memcmp(md, mac, (size_t)mac_size) != 0)
 				enc_err = -1;
@@ -635,7 +600,6 @@ int ssl3_get_record(SSL * s)
 				enc_err = -1;
 		}
 	}
-
 	if(enc_err < 0) {
 		if(ossl_statem_in_error(s)) {
 			/* We already called SSLfatal() */
@@ -656,7 +620,6 @@ int ssl3_get_record(SSL * s)
 				/* SSLfatal() already called */
 				return -1;
 			}
-
 			thisrr = &rr[0];
 			thisrr->length = 0;
 			thisrr->read = 1;
@@ -682,72 +645,46 @@ int ssl3_get_record(SSL * s)
 		/* thisrr->length is now just compressed */
 		if(s->expand != NULL) {
 			if(thisrr->length > SSL3_RT_MAX_COMPRESSED_LENGTH) {
-				SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD,
-				    SSL_R_COMPRESSED_LENGTH_TOO_LONG);
+				SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD, SSL_R_COMPRESSED_LENGTH_TOO_LONG);
 				return -1;
 			}
 			if(!ssl3_do_uncompress(s, thisrr)) {
-				SSLfatal(s, SSL_AD_DECOMPRESSION_FAILURE, SSL_F_SSL3_GET_RECORD,
-				    SSL_R_BAD_DECOMPRESSION);
+				SSLfatal(s, SSL_AD_DECOMPRESSION_FAILURE, SSL_F_SSL3_GET_RECORD, SSL_R_BAD_DECOMPRESSION);
 				return -1;
 			}
 		}
-
-		if(SSL_IS_TLS13(s)
-		 && s->enc_read_ctx != NULL
-		 && thisrr->type != SSL3_RT_ALERT) {
+		if(SSL_IS_TLS13(s) && s->enc_read_ctx != NULL && thisrr->type != SSL3_RT_ALERT) {
 			size_t end;
-
-			if(thisrr->length == 0
-			   || thisrr->type != SSL3_RT_APPLICATION_DATA) {
-				SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD,
-				    SSL_R_BAD_RECORD_TYPE);
+			if(thisrr->length == 0 || thisrr->type != SSL3_RT_APPLICATION_DATA) {
+				SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD, SSL_R_BAD_RECORD_TYPE);
 				return -1;
 			}
-
 			/* Strip trailing padding */
-			for(end = thisrr->length - 1; end > 0 && thisrr->data[end] == 0;
-			    end--)
+			for(end = thisrr->length - 1; end > 0 && thisrr->data[end] == 0; end--)
 				continue;
-
 			thisrr->length = end;
 			thisrr->type = thisrr->data[end];
-			if(thisrr->type != SSL3_RT_APPLICATION_DATA
-			 && thisrr->type != SSL3_RT_ALERT
-			 && thisrr->type != SSL3_RT_HANDSHAKE) {
-				SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD,
-				    SSL_R_BAD_RECORD_TYPE);
+			if(thisrr->type != SSL3_RT_APPLICATION_DATA && thisrr->type != SSL3_RT_ALERT && thisrr->type != SSL3_RT_HANDSHAKE) {
+				SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD, SSL_R_BAD_RECORD_TYPE);
 				return -1;
 			}
 			if(s->msg_callback)
-				s->msg_callback(0, s->version, SSL3_RT_INNER_CONTENT_TYPE,
-				    &thisrr->data[end], 1, s, s->msg_callback_arg);
+				s->msg_callback(0, s->version, SSL3_RT_INNER_CONTENT_TYPE, &thisrr->data[end], 1, s, s->msg_callback_arg);
 		}
-
 		/*
-		 * TLSv1.3 alert and handshake records are required to be non-zero in
-		 * length.
+		 * TLSv1.3 alert and handshake records are required to be non-zero in length.
 		 */
-		if(SSL_IS_TLS13(s)
-		 && (thisrr->type == SSL3_RT_HANDSHAKE
-		   || thisrr->type == SSL3_RT_ALERT)
-		 && thisrr->length == 0) {
-			SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD,
-			    SSL_R_BAD_LENGTH);
+		if(SSL_IS_TLS13(s) && (thisrr->type == SSL3_RT_HANDSHAKE || thisrr->type == SSL3_RT_ALERT) && thisrr->length == 0) {
+			SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD, SSL_R_BAD_LENGTH);
 			return -1;
 		}
-
 		if(thisrr->length > SSL3_RT_MAX_PLAIN_LENGTH) {
-			SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD,
-			    SSL_R_DATA_LENGTH_TOO_LONG);
+			SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD, SSL_R_DATA_LENGTH_TOO_LONG);
 			return -1;
 		}
-
 		/* If received packet overflows current Max Fragment Length setting */
-		if(s->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(s->session)
-		 && thisrr->length > GET_MAX_FRAGMENT_LENGTH(s->session)) {
-			SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD,
-			    SSL_R_DATA_LENGTH_TOO_LONG);
+		if(s->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(s->session) && thisrr->length > GET_MAX_FRAGMENT_LENGTH(s->session)) {
+			SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD, SSL_R_DATA_LENGTH_TOO_LONG);
 			return -1;
 		}
 
@@ -779,7 +716,7 @@ int ssl3_get_record(SSL * s)
 		thisrr = &rr[0];
 		if(thisrr->type == SSL3_RT_APPLICATION_DATA
 		 && !early_data_count_ok(s, thisrr->length, 0, 0)) {
-			/* SSLfatal already called */
+			/* SSLfatal() already called */
 			return -1;
 		}
 	}
@@ -945,10 +882,8 @@ int tls1_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 	uchar padval;
 	int imac_size;
 	const EVP_CIPHER * enc;
-
 	if(n_recs == 0) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_ENC,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_ENC, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
 

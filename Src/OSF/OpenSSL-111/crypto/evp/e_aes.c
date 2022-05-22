@@ -8,15 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/opensslconf.h>
-//#include <openssl/crypto.h>
-//#include <openssl/evp.h>
-//#include <openssl/err.h>
-//#include <string.h>
-//#include <assert.h>
-//#include <openssl/aes.h>
-//#include <evp_int.h>
-//#include <openssl/rand.h>
 #include <modes_lcl.h>
 #include "evp_locl.h"
 
@@ -1760,7 +1751,7 @@ static int s390x_aes_gcm_init_key(EVP_CIPHER_CTX * ctx,
 	if(iv == NULL && key == NULL)
 		return 1;
 
-	if(key != NULL) {
+	if(key) {
 		keylen = EVP_CIPHER_CTX_key_length(ctx);
 		memcpy(&gctx->kma.param.k, key, keylen);
 
@@ -2171,7 +2162,7 @@ static int s390x_aes_ccm_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const
 	int keylen;
 	if(iv == NULL && key == NULL)
 		return 1;
-	if(key != NULL) {
+	if(key) {
 		keylen = EVP_CIPHER_CTX_key_length(ctx);
 		cctx->aes.ccm.fc = S390X_AES_FC(keylen);
 		memcpy(cctx->aes.ccm.kmac_param.k, key, keylen);

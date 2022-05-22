@@ -229,7 +229,7 @@ CompoundTransliterator& CompoundTransliterator::operator = (const CompoundTransl
 {
 	if(this == &t) {
 		return *this;
-	}                              // self-assignment: no-op
+	} // self-assignment: no-op
 	Transliterator::operator = (t);
 	int32_t i = 0;
 	bool failed = FALSE;

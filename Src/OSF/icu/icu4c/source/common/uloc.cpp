@@ -1576,7 +1576,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getParent(const char * localeID,
 	if(U_FAILURE(*err))
 		return 0;
 
-	if(localeID == NULL)
+	if(!localeID)
 		localeID = uloc_getDefault();
 
 	lastUnderscore = uprv_strrchr(localeID, '_');
@@ -1868,8 +1868,7 @@ U_CAPI const char * U_EXPORT2 uloc_getISO3Language(const char * localeID)
 	int16 offset;
 	char lang[ULOC_LANG_CAPACITY];
 	UErrorCode err = U_ZERO_ERROR;
-
-	if(localeID == NULL) {
+	if(!localeID) {
 		localeID = uloc_getDefault();
 	}
 	uloc_getLanguage(localeID, lang, ULOC_LANG_CAPACITY, &err);
@@ -1887,7 +1886,7 @@ U_CAPI const char * U_EXPORT2 uloc_getISO3Country(const char * localeID)
 	char cntry[ULOC_LANG_CAPACITY];
 	UErrorCode err = U_ZERO_ERROR;
 
-	if(localeID == NULL) {
+	if(!localeID) {
 		localeID = uloc_getDefault();
 	}
 	uloc_getCountry(localeID, cntry, ULOC_LANG_CAPACITY, &err);

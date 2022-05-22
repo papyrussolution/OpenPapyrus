@@ -1444,8 +1444,9 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 		//consume u bits in the VLC code
 		vlc_val = rev_advance(&vlc, consumed_bits);
 		//decode magsgn and update line_state
-		/////////////////////////////////////
-		//We obtain a mask for the samples locations that needs evaluation
+		//
+		// We obtain a mask for the samples locations that needs evaluation
+		//
 		locs = 0xFF;
 		if(x + 4 > width) {
 			locs >>= (x + 4 - width) << 1; // limits width
@@ -1623,9 +1624,9 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 
 		++sp;
 	}
-
-	//non-initial lines
-	//////////////////////////
+	//
+	// non-initial lines
+	//
 	for(y = 2; y < height; /*done at the end of loop*/) {
 		uint32_t * sip;
 		uint8 ls0;
@@ -1741,10 +1742,9 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 			}
 			ls0 = lsp[2]; //for next double quad
 			lsp[1] = lsp[2] = 0;
-
-			//decode magsgn and update line_state
-			/////////////////////////////////////
-
+			//
+			// decode magsgn and update line_state
+			//
 			//locations where samples need update
 			locs = 0xFF;
 			if(x + 4 > width) {
@@ -1940,12 +1940,9 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 						for(j = 0; j < 8; ++j, dp++) { //one column at a time
 							if(sig & col_mask) { // lowest nibble
 								uint32_t sample_mask = 0x11111111u & col_mask; //LSB
-
 								if(sig & sample_mask) { //if LSB is set
 									uint32_t sym;
-
-									assert(dp[0] != 0); // decoded value cannot be
-									                    // zero
+									assert(dp[0] != 0); // decoded value cannot be zero
 									sym = cwd & 1; // get it value
 									// remove center of bin if sym is 0
 									dp[0] ^= (1 - sym) << (p - 1);
@@ -2068,50 +2065,35 @@ boolint opj_t1_ht_decode_cblk(opj_t1_t * t1, opj_tcd_cblk_dec_t* cblk, uint32_t 
 							uint32_t inv_sig;
 							int32_t end;
 							int32_t j;
-
 							uint32_t cwd = frwd_fetch(&sigprop); //get 32 bits
 							uint32_t cnt = 0;
-
 							uint32_t * dp = decoded_data + (y - 8) * stride;
 							dp += i + n; //address for decoded samples
-
 							col_mask = 0xFu << (4 * n); //a mask to select a column
-
 							inv_sig = ~cur_sig[0]; // insignificant samples
-
 							//find the last sample we operate on
 							end = n + 4 + i < width ? n + 4 : width - i;
-
 							for(j = n; j < end; ++j, ++dp, col_mask <<= 4) {
 								uint32_t sample_mask;
 
 								if((col_mask & mbr) == 0) { //no samples need checking
 									continue;
 								}
-
 								//scan mbr to find a new significant sample
 								sample_mask = 0x11111111u & col_mask; // LSB
 								if(mbr & sample_mask) {
-									assert(dp[0] == 0); // the sample must have been
-									                    // 0
-									if(cwd & 1) { //if this sample has become
-										      // significant
+									assert(dp[0] == 0); // the sample must have been 0
+									if(cwd & 1) { //if this sample has become significant
 										// must propagate it to nearby samples
 										uint32_t t;
-										new_sig |= sample_mask; // new
-										                        // significant
-										                        // samples
-										t = 0x32u << (j * 4);// propagation to
-										                     // neighbors
-										mbr |= t & inv_sig; //remove already
-										                    // significant
-										                    // samples
+										new_sig |= sample_mask; // new significant samples
+										t = 0x32u << (j * 4);// propagation to neighbors
+										mbr |= t & inv_sig; //remove already significant samples
 									}
 									cwd >>= 1;
 									++cnt; //consume bit and increment number of
 									//consumed bits
 								}
-
 								sample_mask += sample_mask; // next row
 								if(mbr & sample_mask) {
 									assert(dp[stride] == 0);

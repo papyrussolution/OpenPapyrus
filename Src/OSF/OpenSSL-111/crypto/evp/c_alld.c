@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/evp.h>
-//#include <evp_int.h>
-//#include <openssl/pkcs12.h>
-//#include <openssl/objects.h>
 
 void openssl_add_all_digests_int(void)
 {

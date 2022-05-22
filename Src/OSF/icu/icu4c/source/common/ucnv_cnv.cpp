@@ -1,21 +1,12 @@
+// uconv_cnv.c:
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 1999-2004, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- *   uconv_cnv.c:
- *   Implements all the low level conversion functions
- *   T_UnicodeConverter_{to,from}Unicode_$ConversionType
- *
- *   Change history:
- *
- *   06/29/2000  helena      Major rewrite of the callback APIs.
- */
+// Copyright (C) 1999-2004, International Business Machines Corporation and others.  All Rights Reserved.
+// Implements all the low level conversion functions
+// T_UnicodeConverter_{to,from}Unicode_$ConversionType
+// Change history:
+// 06/29/2000  helena      Major rewrite of the callback APIs.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -25,20 +16,16 @@
 #include "ucnv_cnv.h"
 #include "ucnv_bld.h"
 
-U_CFUNC void ucnv_getCompleteUnicodeSet(const UConverter * cnv,
-    const USetAdder * sa,
-    UConverterUnicodeSet which,
-    UErrorCode * pErrorCode) {
+U_CFUNC void ucnv_getCompleteUnicodeSet(const UConverter * cnv, const USetAdder * sa, UConverterUnicodeSet which, UErrorCode * pErrorCode) 
+{
 	(void)cnv;
 	(void)which;
 	(void)pErrorCode;
 	sa->addRange(sa->set, 0, 0x10ffff);
 }
 
-U_CFUNC void ucnv_getNonSurrogateUnicodeSet(const UConverter * cnv,
-    const USetAdder * sa,
-    UConverterUnicodeSet which,
-    UErrorCode * pErrorCode) {
+U_CFUNC void ucnv_getNonSurrogateUnicodeSet(const UConverter * cnv, const USetAdder * sa, UConverterUnicodeSet which, UErrorCode * pErrorCode) 
+{
 	(void)cnv;
 	(void)which;
 	(void)pErrorCode;
@@ -72,10 +59,9 @@ U_CFUNC void ucnv_fromUWriteBytes(UConverter * cnv,
 		*offsets = o;
 	}
 	*target = t;
-
 	/* write overflow */
 	if(length > 0) {
-		if(cnv!=NULL) {
+		if(cnv) {
 			t = (char *)cnv->charErrorBuffer;
 			cnv->charErrorBufferLength = (int8)length;
 			do {
@@ -86,15 +72,11 @@ U_CFUNC void ucnv_fromUWriteBytes(UConverter * cnv,
 	}
 }
 
-U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv,
-    const UChar * uchars, int32_t length,
-    UChar ** target, const UChar * targetLimit,
-    int32_t ** offsets,
-    int32_t sourceIndex,
-    UErrorCode * pErrorCode) {
+U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv, const UChar * uchars, int32_t length, UChar ** target, const UChar * targetLimit,
+    int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode) 
+{
 	UChar * t = *target;
 	int32_t * o;
-
 	/* write UChars */
 	if(offsets==NULL || (o = *offsets)==NULL) {
 		while(length>0 && t<targetLimit) {
@@ -112,10 +94,9 @@ U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv,
 		*offsets = o;
 	}
 	*target = t;
-
 	/* write overflow */
 	if(length > 0) {
-		if(cnv!=NULL) {
+		if(cnv) {
 			t = cnv->UCharErrorBuffer;
 			cnv->UCharErrorBufferLength = (int8)length;
 			do {
@@ -126,17 +107,11 @@ U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv,
 	}
 }
 
-U_CFUNC void ucnv_toUWriteCodePoint(UConverter * cnv,
-    UChar32 c,
-    UChar ** target, const UChar * targetLimit,
-    int32_t ** offsets,
-    int32_t sourceIndex,
-    UErrorCode * pErrorCode) {
-	UChar * t;
+U_CFUNC void ucnv_toUWriteCodePoint(UConverter * cnv, UChar32 c, UChar ** target, const UChar * targetLimit,
+    int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode) 
+{
 	int32_t * o;
-
-	t = *target;
-
+	UChar * t = *target;
 	if(t<targetLimit) {
 		if(c<=0xffff) {
 			*t++ = (UChar)c;
@@ -150,9 +125,8 @@ U_CFUNC void ucnv_toUWriteCodePoint(UConverter * cnv,
 				c = U_SENTINEL;
 			}
 		}
-
 		/* write offsets */
-		if(offsets!=NULL && (o = *offsets)!=NULL) {
+		if(offsets && (o = *offsets)!=NULL) {
 			*o++ = sourceIndex;
 			if((*target+1)<t) {
 				*o++ = sourceIndex;
@@ -160,12 +134,10 @@ U_CFUNC void ucnv_toUWriteCodePoint(UConverter * cnv,
 			*offsets = o;
 		}
 	}
-
 	*target = t;
-
 	/* write overflow from c */
 	if(c>=0) {
-		if(cnv!=NULL) {
+		if(cnv) {
 			int8 i = 0;
 			U16_APPEND_UNSAFE(cnv->UCharErrorBuffer, i, c);
 			cnv->UCharErrorBufferLength = i;

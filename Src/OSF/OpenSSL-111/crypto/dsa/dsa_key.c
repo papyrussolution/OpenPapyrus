@@ -26,7 +26,7 @@ static int dsa_builtin_keygen(DSA * dsa)
 	BN_CTX * ctx = NULL;
 	BIGNUM * pub_key = NULL, * priv_key = NULL;
 
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		goto err;
 
 	if(dsa->priv_key == NULL) {

@@ -443,7 +443,7 @@ static int archive_read_format_cab_bid(struct archive_read * a, int best_bid)
 		window = 4096;
 		while(offset < (1024 * 128)) {
 			const char * h = static_cast<const char *>(__archive_read_ahead(a, offset + window, &bytes_avail));
-			if(h == NULL) {
+			if(!h) {
 				/* Remaining bytes are less than window. */
 				window >>= 1;
 				if(window < 128)
@@ -493,7 +493,7 @@ static int cab_skip_sfx(struct archive_read * a)
 	ssize_t window = 4096;
 	for(;;) {
 		const char * h = static_cast<const char *>(__archive_read_ahead(a, window, &bytes));
-		if(h == NULL) {
+		if(!h) {
 			/* Remaining size are less than window. */
 			window >>= 1;
 			if(window < 128) {

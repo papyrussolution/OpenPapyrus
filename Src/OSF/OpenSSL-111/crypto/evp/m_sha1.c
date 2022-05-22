@@ -8,11 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <openssl/sha.h>
-//#include <openssl/rsa.h>
-//#include <evp_int.h>
 #include <sha.h>
 
 static int init(EVP_MD_CTX * ctx)

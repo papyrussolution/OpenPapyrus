@@ -902,12 +902,10 @@ void hb_buffer_get_segment_properties(hb_buffer_t * buffer,
  *
  * Since: 0.9.7
  **/
-void hb_buffer_set_flags(hb_buffer_t * buffer,
-    hb_buffer_flags_t flags)
+void hb_buffer_set_flags(hb_buffer_t * buffer, hb_buffer_flags_t flags)
 {
 	if(UNLIKELY(hb_object_is_immutable(buffer)))
 		return;
-
 	buffer->flags = flags;
 }
 

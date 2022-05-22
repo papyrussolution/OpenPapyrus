@@ -13,8 +13,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
-constexpr TestMapLite_MapInt32Int32Entry_DoNotUse::TestMapLite_MapInt32Int32Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapInt32Int32Entry_DoNotUse::TestMapLite_MapInt32Int32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapInt32Int32Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapInt32Int32Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapInt32Int32Entry_DoNotUseDefaultTypeInternal() {}
@@ -23,8 +22,7 @@ struct TestMapLite_MapInt32Int32Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapInt32Int32Entry_DoNotUseDefaultTypeInternal _TestMapLite_MapInt32Int32Entry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapInt64Int64Entry_DoNotUse::TestMapLite_MapInt64Int64Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapInt64Int64Entry_DoNotUse::TestMapLite_MapInt64Int64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapInt64Int64Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapInt64Int64Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapInt64Int64Entry_DoNotUseDefaultTypeInternal() {}
@@ -33,8 +31,7 @@ struct TestMapLite_MapInt64Int64Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapInt64Int64Entry_DoNotUseDefaultTypeInternal _TestMapLite_MapInt64Int64Entry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapUint32Uint32Entry_DoNotUse::TestMapLite_MapUint32Uint32Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapUint32Uint32Entry_DoNotUse::TestMapLite_MapUint32Uint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapUint32Uint32Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapUint32Uint32Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapUint32Uint32Entry_DoNotUseDefaultTypeInternal() {}
@@ -43,8 +40,7 @@ struct TestMapLite_MapUint32Uint32Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapUint32Uint32Entry_DoNotUseDefaultTypeInternal _TestMapLite_MapUint32Uint32Entry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapUint64Uint64Entry_DoNotUse::TestMapLite_MapUint64Uint64Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapUint64Uint64Entry_DoNotUse::TestMapLite_MapUint64Uint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapUint64Uint64Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapUint64Uint64Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapUint64Uint64Entry_DoNotUseDefaultTypeInternal() {}
@@ -53,8 +49,7 @@ struct TestMapLite_MapUint64Uint64Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapUint64Uint64Entry_DoNotUseDefaultTypeInternal _TestMapLite_MapUint64Uint64Entry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapSint32Sint32Entry_DoNotUse::TestMapLite_MapSint32Sint32Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapSint32Sint32Entry_DoNotUse::TestMapLite_MapSint32Sint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapSint32Sint32Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapSint32Sint32Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapSint32Sint32Entry_DoNotUseDefaultTypeInternal() {}
@@ -63,8 +58,7 @@ struct TestMapLite_MapSint32Sint32Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapSint32Sint32Entry_DoNotUseDefaultTypeInternal _TestMapLite_MapSint32Sint32Entry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapSint64Sint64Entry_DoNotUse::TestMapLite_MapSint64Sint64Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapSint64Sint64Entry_DoNotUse::TestMapLite_MapSint64Sint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapSint64Sint64Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapSint64Sint64Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapSint64Sint64Entry_DoNotUseDefaultTypeInternal() {}
@@ -73,8 +67,7 @@ struct TestMapLite_MapSint64Sint64Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapSint64Sint64Entry_DoNotUseDefaultTypeInternal _TestMapLite_MapSint64Sint64Entry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapFixed32Fixed32Entry_DoNotUse::TestMapLite_MapFixed32Fixed32Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapFixed32Fixed32Entry_DoNotUse::TestMapLite_MapFixed32Fixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapFixed32Fixed32Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapFixed32Fixed32Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapFixed32Fixed32Entry_DoNotUseDefaultTypeInternal() {}
@@ -83,8 +76,7 @@ struct TestMapLite_MapFixed32Fixed32Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapFixed32Fixed32Entry_DoNotUseDefaultTypeInternal _TestMapLite_MapFixed32Fixed32Entry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapFixed64Fixed64Entry_DoNotUse::TestMapLite_MapFixed64Fixed64Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapFixed64Fixed64Entry_DoNotUse::TestMapLite_MapFixed64Fixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapFixed64Fixed64Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapFixed64Fixed64Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapFixed64Fixed64Entry_DoNotUseDefaultTypeInternal() {}
@@ -93,8 +85,7 @@ struct TestMapLite_MapFixed64Fixed64Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapFixed64Fixed64Entry_DoNotUseDefaultTypeInternal _TestMapLite_MapFixed64Fixed64Entry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse::TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse::TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapSfixed32Sfixed32Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapSfixed32Sfixed32Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapSfixed32Sfixed32Entry_DoNotUseDefaultTypeInternal() {}
@@ -103,8 +94,7 @@ struct TestMapLite_MapSfixed32Sfixed32Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapSfixed32Sfixed32Entry_DoNotUseDefaultTypeInternal _TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse::TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse::TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapSfixed64Sfixed64Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapSfixed64Sfixed64Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapSfixed64Sfixed64Entry_DoNotUseDefaultTypeInternal() {}
@@ -113,8 +103,7 @@ struct TestMapLite_MapSfixed64Sfixed64Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapSfixed64Sfixed64Entry_DoNotUseDefaultTypeInternal _TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapInt32FloatEntry_DoNotUse::TestMapLite_MapInt32FloatEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapInt32FloatEntry_DoNotUse::TestMapLite_MapInt32FloatEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapInt32FloatEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapInt32FloatEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapInt32FloatEntry_DoNotUseDefaultTypeInternal() {}
@@ -123,8 +112,7 @@ struct TestMapLite_MapInt32FloatEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapInt32FloatEntry_DoNotUseDefaultTypeInternal _TestMapLite_MapInt32FloatEntry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapInt32DoubleEntry_DoNotUse::TestMapLite_MapInt32DoubleEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapInt32DoubleEntry_DoNotUse::TestMapLite_MapInt32DoubleEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapInt32DoubleEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapInt32DoubleEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapInt32DoubleEntry_DoNotUseDefaultTypeInternal() {}
@@ -133,8 +121,7 @@ struct TestMapLite_MapInt32DoubleEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapInt32DoubleEntry_DoNotUseDefaultTypeInternal _TestMapLite_MapInt32DoubleEntry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapBoolBoolEntry_DoNotUse::TestMapLite_MapBoolBoolEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapBoolBoolEntry_DoNotUse::TestMapLite_MapBoolBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapBoolBoolEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapBoolBoolEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapBoolBoolEntry_DoNotUseDefaultTypeInternal() {}
@@ -143,8 +130,7 @@ struct TestMapLite_MapBoolBoolEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapBoolBoolEntry_DoNotUseDefaultTypeInternal _TestMapLite_MapBoolBoolEntry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapStringStringEntry_DoNotUse::TestMapLite_MapStringStringEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapStringStringEntry_DoNotUse::TestMapLite_MapStringStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapStringStringEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapStringStringEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapStringStringEntry_DoNotUseDefaultTypeInternal() {}
@@ -153,8 +139,7 @@ struct TestMapLite_MapStringStringEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapStringStringEntry_DoNotUseDefaultTypeInternal _TestMapLite_MapStringStringEntry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapInt32BytesEntry_DoNotUse::TestMapLite_MapInt32BytesEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapInt32BytesEntry_DoNotUse::TestMapLite_MapInt32BytesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapInt32BytesEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapInt32BytesEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapInt32BytesEntry_DoNotUseDefaultTypeInternal() {}
@@ -163,8 +148,7 @@ struct TestMapLite_MapInt32BytesEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapInt32BytesEntry_DoNotUseDefaultTypeInternal _TestMapLite_MapInt32BytesEntry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapInt32EnumEntry_DoNotUse::TestMapLite_MapInt32EnumEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapInt32EnumEntry_DoNotUse::TestMapLite_MapInt32EnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapInt32EnumEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapInt32EnumEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapInt32EnumEntry_DoNotUseDefaultTypeInternal() {}
@@ -173,8 +157,7 @@ struct TestMapLite_MapInt32EnumEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapInt32EnumEntry_DoNotUseDefaultTypeInternal _TestMapLite_MapInt32EnumEntry_DoNotUse_default_instance_;
-constexpr TestMapLite_MapInt32ForeignMessageEntry_DoNotUse::TestMapLite_MapInt32ForeignMessageEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_MapInt32ForeignMessageEntry_DoNotUse::TestMapLite_MapInt32ForeignMessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_MapInt32ForeignMessageEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_MapInt32ForeignMessageEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_MapInt32ForeignMessageEntry_DoNotUseDefaultTypeInternal() {}
@@ -183,8 +166,7 @@ struct TestMapLite_MapInt32ForeignMessageEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_MapInt32ForeignMessageEntry_DoNotUseDefaultTypeInternal _TestMapLite_MapInt32ForeignMessageEntry_DoNotUse_default_instance_;
-constexpr TestMapLite_TeboringEntry_DoNotUse::TestMapLite_TeboringEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMapLite_TeboringEntry_DoNotUse::TestMapLite_TeboringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMapLite_TeboringEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestMapLite_TeboringEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMapLite_TeboringEntry_DoNotUseDefaultTypeInternal() {}
@@ -193,8 +175,7 @@ struct TestMapLite_TeboringEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLite_TeboringEntry_DoNotUseDefaultTypeInternal _TestMapLite_TeboringEntry_DoNotUse_default_instance_;
-constexpr TestMapLite::TestMapLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestMapLite::TestMapLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map_int32_int32_()
   , map_int64_int64_()
   , map_uint32_uint32_()
@@ -221,8 +202,7 @@ struct TestMapLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMapLiteDefaultTypeInternal _TestMapLite_default_instance_;
-constexpr TestArenaMapLite_MapInt32Int32Entry_DoNotUse::TestArenaMapLite_MapInt32Int32Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapInt32Int32Entry_DoNotUse::TestArenaMapLite_MapInt32Int32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapInt32Int32Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapInt32Int32Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapInt32Int32Entry_DoNotUseDefaultTypeInternal() {}
@@ -231,8 +211,7 @@ struct TestArenaMapLite_MapInt32Int32Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapInt32Int32Entry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapInt32Int32Entry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapInt64Int64Entry_DoNotUse::TestArenaMapLite_MapInt64Int64Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapInt64Int64Entry_DoNotUse::TestArenaMapLite_MapInt64Int64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapInt64Int64Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapInt64Int64Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapInt64Int64Entry_DoNotUseDefaultTypeInternal() {}
@@ -241,8 +220,7 @@ struct TestArenaMapLite_MapInt64Int64Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapInt64Int64Entry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapInt64Int64Entry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapUint32Uint32Entry_DoNotUse::TestArenaMapLite_MapUint32Uint32Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapUint32Uint32Entry_DoNotUse::TestArenaMapLite_MapUint32Uint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapUint32Uint32Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapUint32Uint32Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapUint32Uint32Entry_DoNotUseDefaultTypeInternal() {}
@@ -251,8 +229,7 @@ struct TestArenaMapLite_MapUint32Uint32Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapUint32Uint32Entry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapUint32Uint32Entry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapUint64Uint64Entry_DoNotUse::TestArenaMapLite_MapUint64Uint64Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapUint64Uint64Entry_DoNotUse::TestArenaMapLite_MapUint64Uint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapUint64Uint64Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapUint64Uint64Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapUint64Uint64Entry_DoNotUseDefaultTypeInternal() {}
@@ -261,8 +238,7 @@ struct TestArenaMapLite_MapUint64Uint64Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapUint64Uint64Entry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapUint64Uint64Entry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapSint32Sint32Entry_DoNotUse::TestArenaMapLite_MapSint32Sint32Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapSint32Sint32Entry_DoNotUse::TestArenaMapLite_MapSint32Sint32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapSint32Sint32Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapSint32Sint32Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapSint32Sint32Entry_DoNotUseDefaultTypeInternal() {}
@@ -271,8 +247,7 @@ struct TestArenaMapLite_MapSint32Sint32Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapSint32Sint32Entry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapSint32Sint32Entry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapSint64Sint64Entry_DoNotUse::TestArenaMapLite_MapSint64Sint64Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapSint64Sint64Entry_DoNotUse::TestArenaMapLite_MapSint64Sint64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapSint64Sint64Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapSint64Sint64Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapSint64Sint64Entry_DoNotUseDefaultTypeInternal() {}
@@ -281,8 +256,7 @@ struct TestArenaMapLite_MapSint64Sint64Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapSint64Sint64Entry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapSint64Sint64Entry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse::TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse::TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUseDefaultTypeInternal() {}
@@ -291,8 +265,7 @@ struct TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse::TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse::TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUseDefaultTypeInternal() {}
@@ -301,8 +274,7 @@ struct TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse::TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse::TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUseDefaultTypeInternal() {}
@@ -311,8 +283,7 @@ struct TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse::TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse::TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUseDefaultTypeInternal() {}
@@ -321,8 +292,7 @@ struct TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapInt32FloatEntry_DoNotUse::TestArenaMapLite_MapInt32FloatEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapInt32FloatEntry_DoNotUse::TestArenaMapLite_MapInt32FloatEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapInt32FloatEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapInt32FloatEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapInt32FloatEntry_DoNotUseDefaultTypeInternal() {}
@@ -331,8 +301,7 @@ struct TestArenaMapLite_MapInt32FloatEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapInt32FloatEntry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapInt32FloatEntry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapInt32DoubleEntry_DoNotUse::TestArenaMapLite_MapInt32DoubleEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapInt32DoubleEntry_DoNotUse::TestArenaMapLite_MapInt32DoubleEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapInt32DoubleEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapInt32DoubleEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapInt32DoubleEntry_DoNotUseDefaultTypeInternal() {}
@@ -341,8 +310,7 @@ struct TestArenaMapLite_MapInt32DoubleEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapInt32DoubleEntry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapInt32DoubleEntry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapBoolBoolEntry_DoNotUse::TestArenaMapLite_MapBoolBoolEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapBoolBoolEntry_DoNotUse::TestArenaMapLite_MapBoolBoolEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapBoolBoolEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapBoolBoolEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapBoolBoolEntry_DoNotUseDefaultTypeInternal() {}
@@ -351,8 +319,7 @@ struct TestArenaMapLite_MapBoolBoolEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapBoolBoolEntry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapBoolBoolEntry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapStringStringEntry_DoNotUse::TestArenaMapLite_MapStringStringEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapStringStringEntry_DoNotUse::TestArenaMapLite_MapStringStringEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapStringStringEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapStringStringEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapStringStringEntry_DoNotUseDefaultTypeInternal() {}
@@ -361,8 +328,7 @@ struct TestArenaMapLite_MapStringStringEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapStringStringEntry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapStringStringEntry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapInt32BytesEntry_DoNotUse::TestArenaMapLite_MapInt32BytesEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapInt32BytesEntry_DoNotUse::TestArenaMapLite_MapInt32BytesEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapInt32BytesEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapInt32BytesEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapInt32BytesEntry_DoNotUseDefaultTypeInternal() {}
@@ -371,8 +337,7 @@ struct TestArenaMapLite_MapInt32BytesEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapInt32BytesEntry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapInt32BytesEntry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapInt32EnumEntry_DoNotUse::TestArenaMapLite_MapInt32EnumEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapInt32EnumEntry_DoNotUse::TestArenaMapLite_MapInt32EnumEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapInt32EnumEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapInt32EnumEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapInt32EnumEntry_DoNotUseDefaultTypeInternal() {}
@@ -381,8 +346,7 @@ struct TestArenaMapLite_MapInt32EnumEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapInt32EnumEntry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapInt32EnumEntry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse::TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse::TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUseDefaultTypeInternal() {}
@@ -391,8 +355,7 @@ struct TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUseDefaultTypeInternal 
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUseDefaultTypeInternal _TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse_default_instance_;
-constexpr TestArenaMapLite::TestArenaMapLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestArenaMapLite::TestArenaMapLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map_int32_int32_()
   , map_int64_int64_()
   , map_uint32_uint32_()
@@ -418,8 +381,7 @@ struct TestArenaMapLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestArenaMapLiteDefaultTypeInternal _TestArenaMapLite_default_instance_;
-constexpr TestRequiredMessageMapLite_MapFieldEntry_DoNotUse::TestRequiredMessageMapLite_MapFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestRequiredMessageMapLite_MapFieldEntry_DoNotUse::TestRequiredMessageMapLite_MapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestRequiredMessageMapLite_MapFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestRequiredMessageMapLite_MapFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestRequiredMessageMapLite_MapFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -428,8 +390,7 @@ struct TestRequiredMessageMapLite_MapFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestRequiredMessageMapLite_MapFieldEntry_DoNotUseDefaultTypeInternal _TestRequiredMessageMapLite_MapFieldEntry_DoNotUse_default_instance_;
-constexpr TestRequiredMessageMapLite::TestRequiredMessageMapLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestRequiredMessageMapLite::TestRequiredMessageMapLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map_field_(){}
 struct TestRequiredMessageMapLiteDefaultTypeInternal {
 	constexpr TestRequiredMessageMapLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -439,8 +400,7 @@ struct TestRequiredMessageMapLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestRequiredMessageMapLiteDefaultTypeInternal _TestRequiredMessageMapLite_default_instance_;
-constexpr TestEnumMapLite_KnownMapFieldEntry_DoNotUse::TestEnumMapLite_KnownMapFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestEnumMapLite_KnownMapFieldEntry_DoNotUse::TestEnumMapLite_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestEnumMapLite_KnownMapFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestEnumMapLite_KnownMapFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestEnumMapLite_KnownMapFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -449,8 +409,7 @@ struct TestEnumMapLite_KnownMapFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestEnumMapLite_KnownMapFieldEntry_DoNotUseDefaultTypeInternal _TestEnumMapLite_KnownMapFieldEntry_DoNotUse_default_instance_;
-constexpr TestEnumMapLite_UnknownMapFieldEntry_DoNotUse::TestEnumMapLite_UnknownMapFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestEnumMapLite_UnknownMapFieldEntry_DoNotUse::TestEnumMapLite_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestEnumMapLite_UnknownMapFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestEnumMapLite_UnknownMapFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestEnumMapLite_UnknownMapFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -459,8 +418,7 @@ struct TestEnumMapLite_UnknownMapFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestEnumMapLite_UnknownMapFieldEntry_DoNotUseDefaultTypeInternal _TestEnumMapLite_UnknownMapFieldEntry_DoNotUse_default_instance_;
-constexpr TestEnumMapLite::TestEnumMapLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestEnumMapLite::TestEnumMapLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : known_map_field_()
   , unknown_map_field_(){}
 struct TestEnumMapLiteDefaultTypeInternal {
@@ -471,8 +429,7 @@ struct TestEnumMapLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestEnumMapLiteDefaultTypeInternal _TestEnumMapLite_default_instance_;
-constexpr TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse::TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse::TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -481,8 +438,7 @@ struct TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUseDefaultTypeInternal _TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse_default_instance_;
-constexpr TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse::TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse::TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUseDefaultTypeInternal() {}
@@ -491,8 +447,7 @@ struct TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUseDefaultTypeInternal
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUseDefaultTypeInternal _TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse_default_instance_;
-constexpr TestEnumMapPlusExtraLite::TestEnumMapPlusExtraLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestEnumMapPlusExtraLite::TestEnumMapPlusExtraLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : known_map_field_()
   , unknown_map_field_(){}
 struct TestEnumMapPlusExtraLiteDefaultTypeInternal {
@@ -503,8 +458,7 @@ struct TestEnumMapPlusExtraLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestEnumMapPlusExtraLiteDefaultTypeInternal _TestEnumMapPlusExtraLite_default_instance_;
-constexpr TestMessageMapLite_MapInt32MessageEntry_DoNotUse::TestMessageMapLite_MapInt32MessageEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestMessageMapLite_MapInt32MessageEntry_DoNotUse::TestMessageMapLite_MapInt32MessageEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestMessageMapLite_MapInt32MessageEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestMessageMapLite_MapInt32MessageEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestMessageMapLite_MapInt32MessageEntry_DoNotUseDefaultTypeInternal() {}
@@ -513,8 +467,7 @@ struct TestMessageMapLite_MapInt32MessageEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMessageMapLite_MapInt32MessageEntry_DoNotUseDefaultTypeInternal _TestMessageMapLite_MapInt32MessageEntry_DoNotUse_default_instance_;
-constexpr TestMessageMapLite::TestMessageMapLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestMessageMapLite::TestMessageMapLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : map_int32_message_(){}
 struct TestMessageMapLiteDefaultTypeInternal {
 	constexpr TestMessageMapLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -524,8 +477,7 @@ struct TestMessageMapLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestMessageMapLiteDefaultTypeInternal _TestMessageMapLite_default_instance_;
-constexpr TestRequiredLite::TestRequiredLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestRequiredLite::TestRequiredLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : a_(0)
   , b_(0)
   , c_(0){}
@@ -537,8 +489,7 @@ struct TestRequiredLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestRequiredLiteDefaultTypeInternal _TestRequiredLite_default_instance_;
-constexpr ForeignMessageArenaLite::ForeignMessageArenaLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr ForeignMessageArenaLite::ForeignMessageArenaLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : c_(0){}
 struct ForeignMessageArenaLiteDefaultTypeInternal {
 	constexpr ForeignMessageArenaLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -550,15 +501,16 @@ struct ForeignMessageArenaLiteDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ForeignMessageArenaLiteDefaultTypeInternal _ForeignMessageArenaLite_default_instance_;
 }  // namespace protobuf_unittest
 namespace protobuf_unittest {
-bool Proto2MapEnumLite_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
+bool Proto2MapEnumLite_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+			return true;
+		default:
+			return false;
+	}
 }
 
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> Proto2MapEnumLite_strings[3] = {};
@@ -580,41 +532,34 @@ static const int Proto2MapEnumLite_entries_by_number[] = {
   1, // 2 -> PROTO2_MAP_ENUM_BAZ_LITE
 };
 
-const std::string& Proto2MapEnumLite_Name(
-    Proto2MapEnumLite value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          Proto2MapEnumLite_entries,
-          Proto2MapEnumLite_entries_by_number,
-          3, Proto2MapEnumLite_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      Proto2MapEnumLite_entries,
-      Proto2MapEnumLite_entries_by_number,
-      3, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     Proto2MapEnumLite_strings[idx].get();
+const std::string& Proto2MapEnumLite_Name(Proto2MapEnumLite value)
+{
+	static const bool dummy = ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+		Proto2MapEnumLite_entries, Proto2MapEnumLite_entries_by_number, 3, Proto2MapEnumLite_strings);
+	(void)dummy;
+	int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(Proto2MapEnumLite_entries, Proto2MapEnumLite_entries_by_number, 3, value);
+	return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() : Proto2MapEnumLite_strings[idx].get();
 }
-bool Proto2MapEnumLite_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Proto2MapEnumLite* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      Proto2MapEnumLite_entries, 3, name, &int_value);
-  if (success) {
-    *value = static_cast<Proto2MapEnumLite>(int_value);
-  }
-  return success;
+bool Proto2MapEnumLite_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Proto2MapEnumLite * value)
+{
+	int int_value;
+	bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(Proto2MapEnumLite_entries, 3, name, &int_value);
+	if(success) {
+		*value = static_cast<Proto2MapEnumLite>(int_value);
+	}
+	return success;
 }
-bool Proto2MapEnumPlusExtraLite_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      return true;
-    default:
-      return false;
-  }
+bool Proto2MapEnumPlusExtraLite_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+			return true;
+		default:
+			return false;
+	}
 }
 
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> Proto2MapEnumPlusExtraLite_strings[4] = {};
@@ -639,40 +584,33 @@ static const int Proto2MapEnumPlusExtraLite_entries_by_number[] = {
   2, // 3 -> E_PROTO2_MAP_ENUM_EXTRA_LITE
 };
 
-const std::string& Proto2MapEnumPlusExtraLite_Name(
-    Proto2MapEnumPlusExtraLite value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          Proto2MapEnumPlusExtraLite_entries,
-          Proto2MapEnumPlusExtraLite_entries_by_number,
-          4, Proto2MapEnumPlusExtraLite_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      Proto2MapEnumPlusExtraLite_entries,
-      Proto2MapEnumPlusExtraLite_entries_by_number,
-      4, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     Proto2MapEnumPlusExtraLite_strings[idx].get();
+const std::string& Proto2MapEnumPlusExtraLite_Name(Proto2MapEnumPlusExtraLite value)
+{
+	static const bool dummy = ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+		Proto2MapEnumPlusExtraLite_entries, Proto2MapEnumPlusExtraLite_entries_by_number, 4, Proto2MapEnumPlusExtraLite_strings);
+	(void)dummy;
+	int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(Proto2MapEnumPlusExtraLite_entries, Proto2MapEnumPlusExtraLite_entries_by_number, 4, value);
+	return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() : Proto2MapEnumPlusExtraLite_strings[idx].get();
 }
-bool Proto2MapEnumPlusExtraLite_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Proto2MapEnumPlusExtraLite* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      Proto2MapEnumPlusExtraLite_entries, 4, name, &int_value);
-  if (success) {
-    *value = static_cast<Proto2MapEnumPlusExtraLite>(int_value);
-  }
-  return success;
+bool Proto2MapEnumPlusExtraLite_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Proto2MapEnumPlusExtraLite * value)
+{
+	int int_value;
+	bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(Proto2MapEnumPlusExtraLite_entries, 4, name, &int_value);
+	if(success) {
+		*value = static_cast<Proto2MapEnumPlusExtraLite>(int_value);
+	}
+	return success;
 }
-bool MapEnumLite_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
+bool MapEnumLite_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 2:
+			return true;
+		default:
+			return false;
+	}
 }
 
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> MapEnumLite_strings[3] = {};
@@ -694,30 +632,22 @@ static const int MapEnumLite_entries_by_number[] = {
   1, // 2 -> MAP_ENUM_BAZ_LITE
 };
 
-const std::string& MapEnumLite_Name(
-    MapEnumLite value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          MapEnumLite_entries,
-          MapEnumLite_entries_by_number,
-          3, MapEnumLite_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      MapEnumLite_entries,
-      MapEnumLite_entries_by_number,
-      3, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     MapEnumLite_strings[idx].get();
+const std::string& MapEnumLite_Name(MapEnumLite value)
+{
+	static const bool dummy = ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+		MapEnumLite_entries, MapEnumLite_entries_by_number, 3, MapEnumLite_strings);
+	(void)dummy;
+	int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(MapEnumLite_entries, MapEnumLite_entries_by_number, 3, value);
+	return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() : MapEnumLite_strings[idx].get();
 }
-bool MapEnumLite_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MapEnumLite* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      MapEnumLite_entries, 3, name, &int_value);
-  if (success) {
-    *value = static_cast<MapEnumLite>(int_value);
-  }
-  return success;
+bool MapEnumLite_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MapEnumLite * value)
+{
+	int int_value;
+	bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(MapEnumLite_entries, 3, name, &int_value);
+	if(success) {
+		*value = static_cast<MapEnumLite>(int_value);
+	}
+	return success;
 }
 
 // ===================================================================
@@ -906,8 +836,7 @@ void TestMapLite::ArenaDtor(void* object) {
   TestMapLite* _this = reinterpret_cast< TestMapLite* >(object);
   (void)_this;
 }
-void TestMapLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestMapLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestMapLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1188,10 +1117,7 @@ const char* TestMapLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1736,165 +1662,111 @@ size_t TestMapLite::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<int32, int32> map_int32_int32 = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_int32_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-      it = this->_internal_map_int32_int32().begin();
-      it != this->_internal_map_int32_int32().end(); ++it) {
-    total_size += TestMapLite_MapInt32Int32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_int32_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator it = this->_internal_map_int32_int32().begin(); it != this->_internal_map_int32_int32().end(); ++it) {
+  	total_size += TestMapLite_MapInt32Int32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int64, int64> map_int64_int64 = 2;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int64_int64_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
-      it = this->_internal_map_int64_int64().begin();
-      it != this->_internal_map_int64_int64().end(); ++it) {
-    total_size += TestMapLite_MapInt64Int64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int64_int64_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator it = this->_internal_map_int64_int64().begin(); it != this->_internal_map_int64_int64().end(); ++it) {
+  	total_size += TestMapLite_MapInt64Int64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<uint32, uint32> map_uint32_uint32 = 3;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint32_uint32_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
-      it = this->_internal_map_uint32_uint32().begin();
-      it != this->_internal_map_uint32_uint32().end(); ++it) {
-    total_size += TestMapLite_MapUint32Uint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint32_uint32_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator it = this->_internal_map_uint32_uint32().begin(); it != this->_internal_map_uint32_uint32().end(); ++it) {
+  	total_size += TestMapLite_MapUint32Uint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<uint64, uint64> map_uint64_uint64 = 4;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint64_uint64_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
-      it = this->_internal_map_uint64_uint64().begin();
-      it != this->_internal_map_uint64_uint64().end(); ++it) {
-    total_size += TestMapLite_MapUint64Uint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint64_uint64_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator it = this->_internal_map_uint64_uint64().begin(); it != this->_internal_map_uint64_uint64().end(); ++it) {
+  	total_size += TestMapLite_MapUint64Uint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<sint32, sint32> map_sint32_sint32 = 5;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint32_sint32_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-      it = this->_internal_map_sint32_sint32().begin();
-      it != this->_internal_map_sint32_sint32().end(); ++it) {
-    total_size += TestMapLite_MapSint32Sint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint32_sint32_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator it = this->_internal_map_sint32_sint32().begin(); it != this->_internal_map_sint32_sint32().end(); ++it) {
+  	total_size += TestMapLite_MapSint32Sint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<sint64, sint64> map_sint64_sint64 = 6;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint64_sint64_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
-      it = this->_internal_map_sint64_sint64().begin();
-      it != this->_internal_map_sint64_sint64().end(); ++it) {
-    total_size += TestMapLite_MapSint64Sint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint64_sint64_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator it = this->_internal_map_sint64_sint64().begin(); it != this->_internal_map_sint64_sint64().end(); ++it) {
+  	total_size += TestMapLite_MapSint64Sint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed32_fixed32_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
-      it = this->_internal_map_fixed32_fixed32().begin();
-      it != this->_internal_map_fixed32_fixed32().end(); ++it) {
-    total_size += TestMapLite_MapFixed32Fixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed32_fixed32_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator it = this->_internal_map_fixed32_fixed32().begin(); it != this->_internal_map_fixed32_fixed32().end(); ++it) {
+  	total_size += TestMapLite_MapFixed32Fixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed64_fixed64_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
-      it = this->_internal_map_fixed64_fixed64().begin();
-      it != this->_internal_map_fixed64_fixed64().end(); ++it) {
-    total_size += TestMapLite_MapFixed64Fixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed64_fixed64_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator it = this->_internal_map_fixed64_fixed64().begin(); it != this->_internal_map_fixed64_fixed64().end(); ++it) {
+  	total_size += TestMapLite_MapFixed64Fixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed32_sfixed32_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-      it = this->_internal_map_sfixed32_sfixed32().begin();
-      it != this->_internal_map_sfixed32_sfixed32().end(); ++it) {
-    total_size += TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed32_sfixed32_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator it = this->_internal_map_sfixed32_sfixed32().begin(); it != this->_internal_map_sfixed32_sfixed32().end(); ++it) {
+  	total_size += TestMapLite_MapSfixed32Sfixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed64_sfixed64_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
-      it = this->_internal_map_sfixed64_sfixed64().begin();
-      it != this->_internal_map_sfixed64_sfixed64().end(); ++it) {
-    total_size += TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed64_sfixed64_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator it = this->_internal_map_sfixed64_sfixed64().begin(); it != this->_internal_map_sfixed64_sfixed64().end(); ++it) {
+  	total_size += TestMapLite_MapSfixed64Sfixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, float> map_int32_float = 11;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_float_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
-      it = this->_internal_map_int32_float().begin();
-      it != this->_internal_map_int32_float().end(); ++it) {
-    total_size += TestMapLite_MapInt32FloatEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_float_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator it = this->_internal_map_int32_float().begin(); it != this->_internal_map_int32_float().end(); ++it) {
+  	total_size += TestMapLite_MapInt32FloatEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, double> map_int32_double = 12;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_double_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
-      it = this->_internal_map_int32_double().begin();
-      it != this->_internal_map_int32_double().end(); ++it) {
-    total_size += TestMapLite_MapInt32DoubleEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_double_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator it = this->_internal_map_int32_double().begin(); it != this->_internal_map_int32_double().end(); ++it) {
+  	total_size += TestMapLite_MapInt32DoubleEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<bool, bool> map_bool_bool = 13;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_bool_bool_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
-      it = this->_internal_map_bool_bool().begin();
-      it != this->_internal_map_bool_bool().end(); ++it) {
-    total_size += TestMapLite_MapBoolBoolEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_bool_bool_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator it = this->_internal_map_bool_bool().begin(); it != this->_internal_map_bool_bool().end(); ++it) {
+  	total_size += TestMapLite_MapBoolBoolEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<string, string> map_string_string = 14;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_string_string_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
-      it = this->_internal_map_string_string().begin();
-      it != this->_internal_map_string_string().end(); ++it) {
-    total_size += TestMapLite_MapStringStringEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_string_string_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator it = this->_internal_map_string_string().begin(); it != this->_internal_map_string_string().end(); ++it) {
+  	total_size += TestMapLite_MapStringStringEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, bytes> map_int32_bytes = 15;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_bytes_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
-      it = this->_internal_map_int32_bytes().begin();
-      it != this->_internal_map_int32_bytes().end(); ++it) {
-    total_size += TestMapLite_MapInt32BytesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_bytes_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator it = this->_internal_map_int32_bytes().begin(); it != this->_internal_map_int32_bytes().end(); ++it) {
+  	total_size += TestMapLite_MapInt32BytesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .protobuf_unittest.MapEnumLite> map_int32_enum = 16;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_enum_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >::const_iterator
-      it = this->_internal_map_int32_enum().begin();
-      it != this->_internal_map_int32_enum().end(); ++it) {
-    total_size += TestMapLite_MapInt32EnumEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_enum_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >::const_iterator it = this->_internal_map_int32_enum().begin(); it != this->_internal_map_int32_enum().end(); ++it) {
+  	total_size += TestMapLite_MapInt32EnumEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .protobuf_unittest.ForeignMessageLite> map_int32_foreign_message = 17;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_foreign_message_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageLite >::const_iterator
-      it = this->_internal_map_int32_foreign_message().begin();
-      it != this->_internal_map_int32_foreign_message().end(); ++it) {
-    total_size += TestMapLite_MapInt32ForeignMessageEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_foreign_message_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageLite >::const_iterator it = this->_internal_map_int32_foreign_message().begin(); it != this->_internal_map_int32_foreign_message().end(); ++it) {
+  	total_size += TestMapLite_MapInt32ForeignMessageEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, int32> teboring = 18;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_teboring_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-      it = this->_internal_teboring().begin();
-      it != this->_internal_teboring().end(); ++it) {
-    total_size += TestMapLite_TeboringEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_teboring_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator it = this->_internal_teboring().begin(); it != this->_internal_teboring().end(); ++it) {
+  	total_size += TestMapLite_TeboringEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1905,10 +1777,9 @@ size_t TestMapLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestMapLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestMapLite*>(
-      &from));
+void TestMapLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestMapLite*>(&from));
 }
 
 void TestMapLite::MergeFrom(const TestMapLite& from) {
@@ -2150,8 +2021,7 @@ void TestArenaMapLite::ArenaDtor(void* object) {
   TestArenaMapLite* _this = reinterpret_cast< TestArenaMapLite* >(object);
   (void)_this;
 }
-void TestArenaMapLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestArenaMapLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestArenaMapLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2418,10 +2288,7 @@ const char* TestArenaMapLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2938,156 +2805,105 @@ size_t TestArenaMapLite::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<int32, int32> map_int32_int32 = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_int32_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-      it = this->_internal_map_int32_int32().begin();
-      it != this->_internal_map_int32_int32().end(); ++it) {
-    total_size += TestArenaMapLite_MapInt32Int32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_int32_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator it = this->_internal_map_int32_int32().begin(); it != this->_internal_map_int32_int32().end(); ++it) {
+  	total_size += TestArenaMapLite_MapInt32Int32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int64, int64> map_int64_int64 = 2;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int64_int64_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
-      it = this->_internal_map_int64_int64().begin();
-      it != this->_internal_map_int64_int64().end(); ++it) {
-    total_size += TestArenaMapLite_MapInt64Int64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int64_int64_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator it = this->_internal_map_int64_int64().begin(); it != this->_internal_map_int64_int64().end(); ++it) {
+  	total_size += TestArenaMapLite_MapInt64Int64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<uint32, uint32> map_uint32_uint32 = 3;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint32_uint32_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
-      it = this->_internal_map_uint32_uint32().begin();
-      it != this->_internal_map_uint32_uint32().end(); ++it) {
-    total_size += TestArenaMapLite_MapUint32Uint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint32_uint32_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator it = this->_internal_map_uint32_uint32().begin(); it != this->_internal_map_uint32_uint32().end(); ++it) {
+  	total_size += TestArenaMapLite_MapUint32Uint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<uint64, uint64> map_uint64_uint64 = 4;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint64_uint64_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
-      it = this->_internal_map_uint64_uint64().begin();
-      it != this->_internal_map_uint64_uint64().end(); ++it) {
-    total_size += TestArenaMapLite_MapUint64Uint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_uint64_uint64_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator it = this->_internal_map_uint64_uint64().begin(); it != this->_internal_map_uint64_uint64().end(); ++it) {
+  	total_size += TestArenaMapLite_MapUint64Uint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<sint32, sint32> map_sint32_sint32 = 5;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint32_sint32_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-      it = this->_internal_map_sint32_sint32().begin();
-      it != this->_internal_map_sint32_sint32().end(); ++it) {
-    total_size += TestArenaMapLite_MapSint32Sint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint32_sint32_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator it = this->_internal_map_sint32_sint32().begin(); it != this->_internal_map_sint32_sint32().end(); ++it) {
+  	total_size += TestArenaMapLite_MapSint32Sint32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<sint64, sint64> map_sint64_sint64 = 6;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint64_sint64_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
-      it = this->_internal_map_sint64_sint64().begin();
-      it != this->_internal_map_sint64_sint64().end(); ++it) {
-    total_size += TestArenaMapLite_MapSint64Sint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sint64_sint64_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator it = this->_internal_map_sint64_sint64().begin(); it != this->_internal_map_sint64_sint64().end(); ++it) {
+  	total_size += TestArenaMapLite_MapSint64Sint64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<fixed32, fixed32> map_fixed32_fixed32 = 7;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed32_fixed32_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator
-      it = this->_internal_map_fixed32_fixed32().begin();
-      it != this->_internal_map_fixed32_fixed32().end(); ++it) {
-    total_size += TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed32_fixed32_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint32_t, uint32_t >::const_iterator it = this->_internal_map_fixed32_fixed32().begin(); it != this->_internal_map_fixed32_fixed32().end(); ++it) {
+  	total_size += TestArenaMapLite_MapFixed32Fixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<fixed64, fixed64> map_fixed64_fixed64 = 8;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed64_fixed64_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator
-      it = this->_internal_map_fixed64_fixed64().begin();
-      it != this->_internal_map_fixed64_fixed64().end(); ++it) {
-    total_size += TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_fixed64_fixed64_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< uint64_t, uint64_t >::const_iterator it = this->_internal_map_fixed64_fixed64().begin(); it != this->_internal_map_fixed64_fixed64().end(); ++it) {
+  	total_size += TestArenaMapLite_MapFixed64Fixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<sfixed32, sfixed32> map_sfixed32_sfixed32 = 9;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed32_sfixed32_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator
-      it = this->_internal_map_sfixed32_sfixed32().begin();
-      it != this->_internal_map_sfixed32_sfixed32().end(); ++it) {
-    total_size += TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed32_sfixed32_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, int32_t >::const_iterator it = this->_internal_map_sfixed32_sfixed32().begin(); it != this->_internal_map_sfixed32_sfixed32().end(); ++it) {
+  	total_size += TestArenaMapLite_MapSfixed32Sfixed32Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<sfixed64, sfixed64> map_sfixed64_sfixed64 = 10;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed64_sfixed64_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator
-      it = this->_internal_map_sfixed64_sfixed64().begin();
-      it != this->_internal_map_sfixed64_sfixed64().end(); ++it) {
-    total_size += TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_sfixed64_sfixed64_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int64_t, int64_t >::const_iterator it = this->_internal_map_sfixed64_sfixed64().begin(); it != this->_internal_map_sfixed64_sfixed64().end(); ++it) {
+  	total_size += TestArenaMapLite_MapSfixed64Sfixed64Entry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, float> map_int32_float = 11;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_float_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator
-      it = this->_internal_map_int32_float().begin();
-      it != this->_internal_map_int32_float().end(); ++it) {
-    total_size += TestArenaMapLite_MapInt32FloatEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_float_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, float >::const_iterator it = this->_internal_map_int32_float().begin(); it != this->_internal_map_int32_float().end(); ++it) {
+  	total_size += TestArenaMapLite_MapInt32FloatEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, double> map_int32_double = 12;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_double_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator
-      it = this->_internal_map_int32_double().begin();
-      it != this->_internal_map_int32_double().end(); ++it) {
-    total_size += TestArenaMapLite_MapInt32DoubleEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_double_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, double >::const_iterator it = this->_internal_map_int32_double().begin(); it != this->_internal_map_int32_double().end(); ++it) {
+  	total_size += TestArenaMapLite_MapInt32DoubleEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<bool, bool> map_bool_bool = 13;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_bool_bool_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator
-      it = this->_internal_map_bool_bool().begin();
-      it != this->_internal_map_bool_bool().end(); ++it) {
-    total_size += TestArenaMapLite_MapBoolBoolEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_bool_bool_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< bool, bool >::const_iterator it = this->_internal_map_bool_bool().begin(); it != this->_internal_map_bool_bool().end(); ++it) {
+  	total_size += TestArenaMapLite_MapBoolBoolEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<string, string> map_string_string = 14;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_string_string_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
-      it = this->_internal_map_string_string().begin();
-      it != this->_internal_map_string_string().end(); ++it) {
-    total_size += TestArenaMapLite_MapStringStringEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_string_string_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator it = this->_internal_map_string_string().begin(); it != this->_internal_map_string_string().end(); ++it) {
+  	total_size += TestArenaMapLite_MapStringStringEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, bytes> map_int32_bytes = 15;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_bytes_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator
-      it = this->_internal_map_int32_bytes().begin();
-      it != this->_internal_map_int32_bytes().end(); ++it) {
-    total_size += TestArenaMapLite_MapInt32BytesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_bytes_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, std::string >::const_iterator it = this->_internal_map_int32_bytes().begin(); it != this->_internal_map_int32_bytes().end(); ++it) {
+  	total_size += TestArenaMapLite_MapInt32BytesEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .protobuf_unittest.MapEnumLite> map_int32_enum = 16;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_enum_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >::const_iterator
-      it = this->_internal_map_int32_enum().begin();
-      it != this->_internal_map_int32_enum().end(); ++it) {
-    total_size += TestArenaMapLite_MapInt32EnumEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_enum_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::MapEnumLite >::const_iterator it = this->_internal_map_int32_enum().begin(); it != this->_internal_map_int32_enum().end(); ++it) {
+  	total_size += TestArenaMapLite_MapInt32EnumEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .protobuf_unittest.ForeignMessageArenaLite> map_int32_foreign_message = 17;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_foreign_message_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageArenaLite >::const_iterator
-      it = this->_internal_map_int32_foreign_message().begin();
-      it != this->_internal_map_int32_foreign_message().end(); ++it) {
-    total_size += TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_foreign_message_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::ForeignMessageArenaLite >::const_iterator it = this->_internal_map_int32_foreign_message().begin(); it != this->_internal_map_int32_foreign_message().end(); ++it) {
+  	total_size += TestArenaMapLite_MapInt32ForeignMessageEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3098,10 +2914,9 @@ size_t TestArenaMapLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestArenaMapLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestArenaMapLite*>(
-      &from));
+void TestArenaMapLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestArenaMapLite*>(&from));
 }
 
 void TestArenaMapLite::MergeFrom(const TestArenaMapLite& from) {
@@ -3213,8 +3028,7 @@ void TestRequiredMessageMapLite::ArenaDtor(void* object) {
   TestRequiredMessageMapLite* _this = reinterpret_cast< TestRequiredMessageMapLite* >(object);
   (void)_this;
 }
-void TestRequiredMessageMapLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestRequiredMessageMapLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestRequiredMessageMapLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -3256,10 +3070,7 @@ const char* TestRequiredMessageMapLite::_InternalParse(const char* ptr, ::PROTOB
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3321,12 +3132,9 @@ size_t TestRequiredMessageMapLite::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<int32, .protobuf_unittest.TestRequiredLite> map_field = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequiredLite >::const_iterator
-      it = this->_internal_map_field().begin();
-      it != this->_internal_map_field().end(); ++it) {
-    total_size += TestRequiredMessageMapLite_MapFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestRequiredLite >::const_iterator it = this->_internal_map_field().begin(); it != this->_internal_map_field().end(); ++it) {
+  	total_size += TestRequiredMessageMapLite_MapFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3337,10 +3145,9 @@ size_t TestRequiredMessageMapLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestRequiredMessageMapLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestRequiredMessageMapLite*>(
-      &from));
+void TestRequiredMessageMapLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestRequiredMessageMapLite*>(&from));
 }
 
 void TestRequiredMessageMapLite::MergeFrom(const TestRequiredMessageMapLite& from) {
@@ -3429,8 +3236,7 @@ void TestEnumMapLite::ArenaDtor(void* object) {
   TestEnumMapLite* _this = reinterpret_cast< TestEnumMapLite* >(object);
   (void)_this;
 }
-void TestEnumMapLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestEnumMapLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestEnumMapLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -3488,10 +3294,7 @@ const char* TestEnumMapLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3581,21 +3384,15 @@ size_t TestEnumMapLite::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<int32, .protobuf_unittest.Proto2MapEnumLite> known_map_field = 101;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_known_map_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >::const_iterator
-      it = this->_internal_known_map_field().begin();
-      it != this->_internal_known_map_field().end(); ++it) {
-    total_size += TestEnumMapLite_KnownMapFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_known_map_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >::const_iterator it = this->_internal_known_map_field().begin(); it != this->_internal_known_map_field().end(); ++it) {
+  	total_size += TestEnumMapLite_KnownMapFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .protobuf_unittest.Proto2MapEnumLite> unknown_map_field = 102;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_unknown_map_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >::const_iterator
-      it = this->_internal_unknown_map_field().begin();
-      it != this->_internal_unknown_map_field().end(); ++it) {
-    total_size += TestEnumMapLite_UnknownMapFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_unknown_map_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumLite >::const_iterator it = this->_internal_unknown_map_field().begin(); it != this->_internal_unknown_map_field().end(); ++it) {
+  	total_size += TestEnumMapLite_UnknownMapFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3606,10 +3403,9 @@ size_t TestEnumMapLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestEnumMapLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestEnumMapLite*>(
-      &from));
+void TestEnumMapLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestEnumMapLite*>(&from));
 }
 
 void TestEnumMapLite::MergeFrom(const TestEnumMapLite& from) {
@@ -3699,8 +3495,7 @@ void TestEnumMapPlusExtraLite::ArenaDtor(void* object) {
   TestEnumMapPlusExtraLite* _this = reinterpret_cast< TestEnumMapPlusExtraLite* >(object);
   (void)_this;
 }
-void TestEnumMapPlusExtraLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestEnumMapPlusExtraLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestEnumMapPlusExtraLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -3758,10 +3553,7 @@ const char* TestEnumMapPlusExtraLite::_InternalParse(const char* ptr, ::PROTOBUF
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3851,21 +3643,15 @@ size_t TestEnumMapPlusExtraLite::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<int32, .protobuf_unittest.Proto2MapEnumPlusExtraLite> known_map_field = 101;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_known_map_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >::const_iterator
-      it = this->_internal_known_map_field().begin();
-      it != this->_internal_known_map_field().end(); ++it) {
-    total_size += TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_known_map_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >::const_iterator it = this->_internal_known_map_field().begin(); it != this->_internal_known_map_field().end(); ++it) {
+  	total_size += TestEnumMapPlusExtraLite_KnownMapFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // map<int32, .protobuf_unittest.Proto2MapEnumPlusExtraLite> unknown_map_field = 102;
-  total_size += 2 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_unknown_map_field_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >::const_iterator
-      it = this->_internal_unknown_map_field().begin();
-      it != this->_internal_unknown_map_field().end(); ++it) {
-    total_size += TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_unknown_map_field_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::Proto2MapEnumPlusExtraLite >::const_iterator it = this->_internal_unknown_map_field().begin(); it != this->_internal_unknown_map_field().end(); ++it) {
+  	total_size += TestEnumMapPlusExtraLite_UnknownMapFieldEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3876,10 +3662,9 @@ size_t TestEnumMapPlusExtraLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestEnumMapPlusExtraLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestEnumMapPlusExtraLite*>(
-      &from));
+void TestEnumMapPlusExtraLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestEnumMapPlusExtraLite*>(&from));
 }
 
 void TestEnumMapPlusExtraLite::MergeFrom(const TestEnumMapPlusExtraLite& from) {
@@ -3964,8 +3749,7 @@ void TestMessageMapLite::ArenaDtor(void* object) {
   TestMessageMapLite* _this = reinterpret_cast< TestMessageMapLite* >(object);
   (void)_this;
 }
-void TestMessageMapLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestMessageMapLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestMessageMapLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -4007,10 +3791,7 @@ const char* TestMessageMapLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4072,12 +3853,9 @@ size_t TestMessageMapLite::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // map<int32, .protobuf_unittest.TestAllTypesLite> map_int32_message = 1;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_message_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypesLite >::const_iterator
-      it = this->_internal_map_int32_message().begin();
-      it != this->_internal_map_int32_message().end(); ++it) {
-    total_size += TestMessageMapLite_MapInt32MessageEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_int32_message_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< int32_t, ::protobuf_unittest::TestAllTypesLite >::const_iterator it = this->_internal_map_int32_message().begin(); it != this->_internal_map_int32_message().end(); ++it) {
+  	total_size += TestMessageMapLite_MapInt32MessageEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -4088,10 +3866,9 @@ size_t TestMessageMapLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestMessageMapLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestMessageMapLite*>(
-      &from));
+void TestMessageMapLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestMessageMapLite*>(&from));
 }
 
 void TestMessageMapLite::MergeFrom(const TestMessageMapLite& from) {
@@ -4148,17 +3925,12 @@ TestRequiredLite::TestRequiredLite(const TestRequiredLite& from)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  ::memcpy(&a_, &from.a_,
-    static_cast<size_t>(reinterpret_cast<char*>(&c_) -
-    reinterpret_cast<char*>(&a_)) + sizeof(c_));
+  ::memcpy(&a_, &from.a_, static_cast<size_t>(reinterpret_cast<char*>(&c_) - reinterpret_cast<char*>(&a_)) + sizeof(c_));
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestRequiredLite)
 }
 
 inline void TestRequiredLite::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&a_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&c_) -
-    reinterpret_cast<char*>(&a_)) + sizeof(c_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&a_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&c_) - reinterpret_cast<char*>(&a_)) + sizeof(c_));
 }
 
 TestRequiredLite::~TestRequiredLite() {
@@ -4176,8 +3948,7 @@ void TestRequiredLite::ArenaDtor(void* object) {
   TestRequiredLite* _this = reinterpret_cast< TestRequiredLite* >(object);
   (void)_this;
 }
-void TestRequiredLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestRequiredLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestRequiredLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -4190,9 +3961,7 @@ void TestRequiredLite::Clear() {
 
   cached_has_bits = _has_bits_[0];
   if(cached_has_bits & 0x00000007u) {
-    ::memset(&a_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&c_) -
-        reinterpret_cast<char*>(&a_)) + sizeof(c_));
+    ::memset(&a_, 0, static_cast<size_t>(reinterpret_cast<char*>(&c_) - reinterpret_cast<char*>(&a_)) + sizeof(c_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear<std::string>();
@@ -4240,10 +4009,7 @@ const char* TestRequiredLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4338,10 +4104,9 @@ size_t TestRequiredLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestRequiredLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestRequiredLite*>(
-      &from));
+void TestRequiredLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestRequiredLite*>(&from));
 }
 
 void TestRequiredLite::MergeFrom(const TestRequiredLite& from) {
@@ -4437,8 +4202,7 @@ void ForeignMessageArenaLite::ArenaDtor(void* object) {
   ForeignMessageArenaLite* _this = reinterpret_cast< ForeignMessageArenaLite* >(object);
   (void)_this;
 }
-void ForeignMessageArenaLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void ForeignMessageArenaLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void ForeignMessageArenaLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -4478,10 +4242,7 @@ const char* ForeignMessageArenaLite::_InternalParse(const char* ptr, ::PROTOBUF_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4536,10 +4297,9 @@ size_t ForeignMessageArenaLite::ByteSizeLong() const {
   return total_size;
 }
 
-void ForeignMessageArenaLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ForeignMessageArenaLite*>(
-      &from));
+void ForeignMessageArenaLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ForeignMessageArenaLite*>(&from));
 }
 
 void ForeignMessageArenaLite::MergeFrom(const ForeignMessageArenaLite& from) {

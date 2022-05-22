@@ -15,13 +15,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_OUTPUT_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_OUTPUT_H_
 
-//#include <cstdio>
-//#include <ios>
-//#include <ostream>
-//#include <string>
-//#include "absl/base/port.h"
-//#include "absl/strings/string_view.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace str_format_internal {
@@ -30,15 +23,11 @@ namespace str_format_internal {
 // that would have been written.
 class BufferRawSink {
 public:
-	BufferRawSink(char* buffer, size_t size) : buffer_(buffer), size_(size) {
+	BufferRawSink(char* buffer, size_t size) : buffer_(buffer), size_(size) 
+	{
 	}
-
-	size_t total_written() const {
-		return total_written_;
-	}
-
+	size_t total_written() const { return total_written_; }
 	void Write(string_view v);
-
 private:
 	char* buffer_;
 	size_t size_;

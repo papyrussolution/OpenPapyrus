@@ -437,16 +437,12 @@ CssUrlEscape css_url_escape;
 
 // These URLs replace unsafe URLs for :U and :I url-escaping modes.
 const char* const ValidateUrl::kUnsafeUrlReplacement = "#";
-const char* const ValidateUrl::kUnsafeImgSrcUrlReplacement =
-    "/images/cleardot.gif";
+const char* const ValidateUrl::kUnsafeImgSrcUrlReplacement = "/images/cleardot.gif";
 
-void ValidateUrl::Modify(const char* in, size_t inlen,
-    const PerExpandData* per_expand_data,
-    ExpandEmitter* out, const string& arg) const {
+void ValidateUrl::Modify(const char* in, size_t inlen, const PerExpandData* per_expand_data, ExpandEmitter* out, const string& arg) const 
+{
 	const char* slashpos = (char *)memchr(in, '/', inlen);
-	if(slashpos == NULL) {
-		slashpos = in + inlen;
-	}
+	SETIFZQ(slashpos, in + inlen);
 	const void * colonpos = memchr(in, ':', slashpos - in);
 	// colon before first slash, could be a protocol
 	if(colonpos != NULL && URL::HasInsecureProtocol(in, inlen)) {
@@ -462,24 +458,12 @@ void ValidateUrl::Modify(const char* in, size_t inlen,
 	chained_modifier_.Modify(in, inlen, per_expand_data, out, "");
 }
 
-ValidateUrl validate_url_and_html_escape(
-	html_escape,
-	ValidateUrl::kUnsafeUrlReplacement);
-ValidateUrl validate_url_and_javascript_escape(
-	javascript_escape,
-	ValidateUrl::kUnsafeUrlReplacement);
-ValidateUrl validate_url_and_css_escape(
-	css_url_escape,
-	ValidateUrl::kUnsafeUrlReplacement);
-ValidateUrl validate_img_src_url_and_html_escape(
-	html_escape,
-	ValidateUrl::kUnsafeImgSrcUrlReplacement);
-ValidateUrl validate_img_src_url_and_javascript_escape(
-	javascript_escape,
-	ValidateUrl::kUnsafeImgSrcUrlReplacement);
-ValidateUrl validate_img_src_url_and_css_escape(
-	css_url_escape,
-	ValidateUrl::kUnsafeImgSrcUrlReplacement);
+ValidateUrl validate_url_and_html_escape(html_escape, ValidateUrl::kUnsafeUrlReplacement);
+ValidateUrl validate_url_and_javascript_escape(javascript_escape, ValidateUrl::kUnsafeUrlReplacement);
+ValidateUrl validate_url_and_css_escape(css_url_escape, ValidateUrl::kUnsafeUrlReplacement);
+ValidateUrl validate_img_src_url_and_html_escape(html_escape, ValidateUrl::kUnsafeImgSrcUrlReplacement);
+ValidateUrl validate_img_src_url_and_javascript_escape(javascript_escape, ValidateUrl::kUnsafeImgSrcUrlReplacement);
+ValidateUrl validate_img_src_url_and_css_escape(css_url_escape, ValidateUrl::kUnsafeImgSrcUrlReplacement);
 
 void XmlEscape::Modify(const char* in, size_t inlen,
     const PerExpandData*,

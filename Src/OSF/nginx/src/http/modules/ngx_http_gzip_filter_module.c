@@ -193,7 +193,7 @@ static ngx_int_t ngx_http_gzip_header_filter(ngx_http_request_t * r)
 	ngx_http_gzip_filter_memory(r, ctx);
 
 	h = (ngx_table_elt_t *)ngx_list_push(&r->headers_out.headers);
-	if(h == NULL) {
+	if(!h) {
 		return NGX_ERROR;
 	}
 

@@ -4,21 +4,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_ARG_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_ARG_H_
 
-//#include <string.h>
-//#include <wchar.h>
-//#include <cstdio>
-//#include <iomanip>
-//#include <limits>
-//#include <memory>
-//#include <sstream>
-//#include <string>
-//#include <type_traits>
-//#include "absl/base/port.h"
-//#include "absl/meta/type_traits.h"
-//#include "absl/numeric/int128.h"
-//#include "absl/strings/internal/str_format/extension.h"
-//#include "absl/strings/string_view.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 

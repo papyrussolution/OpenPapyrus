@@ -22,7 +22,7 @@ static int __db_get_alloc(DB*, void *(**)(size_t), void *(**)(void *, size_t), v
 static int __db_set_alloc(DB*, void *(*)(size_t), void *(*)(void *, size_t), void (*)(void *));
 static int __db_get_append_recno(DB*, int (**)(DB*, DBT*, db_recno_t));
 static int __db_set_append_recno(DB*, int (*)(DB *, DBT *, db_recno_t));
-static int __db_get_cachesize(DB*, uint32*, uint32*, int *);
+static int __db_get_cachesize(DB*, uint32 *, uint32 *, int *);
 static int __db_set_cachesize(DB*, uint32, uint32, int);
 static int __db_get_create_dir(DB*, const char **);
 static int __db_set_create_dir(DB*, const char *);
@@ -32,7 +32,7 @@ static int __db_get_encrypt_flags(DB*, uint32 *);
 static int __db_set_encrypt(DB*, const char *, uint32);
 static int __db_get_feedback(DB*, void (**)(DB*, int, int));
 static int __db_set_feedback(DB*, void (*)(DB *, int, int));
-static void __db_map_flags(DB*, uint32*, uint32 *);
+static void __db_map_flags(DB*, uint32 *, uint32 *);
 static int __db_get_pagesize(DB*, uint32 *);
 static int __db_set_paniccall(DB*, void (*)(DB_ENV *, int));
 static int __db_set_priority(DB*, DB_CACHE_PRIORITY);

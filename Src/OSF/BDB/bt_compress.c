@@ -107,7 +107,7 @@ static int __bam_cs_multiple_next(BTREE_COMPRESS_STREAM*, DBT*, DBT *);
 static void __bam_cs_create_multiple(BTREE_COMPRESS_STREAM*, DBT*, DBT *);
 static int __bam_cs_multiple_keyonly_next(BTREE_COMPRESS_STREAM*, DBT*, DBT *);
 static void __bam_cs_create_multiple_keyonly (BTREE_COMPRESS_STREAM*, DBT *);
-static int __bamc_compress_merge_insert (DBC*, BTREE_COMPRESS_STREAM*, uint32*, uint32);
+static int __bamc_compress_merge_insert (DBC*, BTREE_COMPRESS_STREAM*, uint32 *, uint32);
 static int __bamc_compress_merge_delete (DBC*, BTREE_COMPRESS_STREAM*, uint32 *);
 static int __bamc_compress_merge_delete_dups (DBC*, BTREE_COMPRESS_STREAM*, uint32 *);
 

@@ -279,23 +279,27 @@ static void mi_recurse_exit(void) {
 	recurse = false;
 }
 
-void _mi_fputs(mi_output_fun* out, void * arg, const char * prefix, const char * message) {
+void _mi_fputs(mi_output_fun* out, void * arg, const char * prefix, const char * message) 
+{
 	if(out==NULL || (FILE*)out==stdout || (FILE*)out==stderr) { // TODO: use mi_out_stderr for stderr?
 		if(!mi_recurse_enter()) return;
 		out = mi_out_get_default(&arg);
-		if(prefix != NULL) out(prefix, arg);
+		if(prefix) 
+			out(prefix, arg);
 		out(message, arg);
 		mi_recurse_exit();
 	}
 	else {
-		if(prefix != NULL) out(prefix, arg);
+		if(prefix) 
+			out(prefix, arg);
 		out(message, arg);
 	}
 }
 
 // Define our own limited `fprintf` that avoids memory allocation.
 // We do this using `snprintf` with a limited buffer.
-static void mi_vfprintf(mi_output_fun* out, void * arg, const char * prefix, const char * fmt, va_list args) {
+static void mi_vfprintf(mi_output_fun* out, void * arg, const char * prefix, const char * fmt, va_list args) 
+{
 	char buf[512];
 	if(fmt==NULL) return;
 	if(!mi_recurse_enter()) return;
@@ -458,7 +462,7 @@ static char ** mi_get_environ(void)
 static bool mi_getenv(const char * name, char * result, size_t result_size) {
 	if(name==NULL) return false;
 	const size_t len = strlen(name);
-	if(len == 0) return false;
+	if(!len) return false;
 	char ** env = mi_get_environ();
 	if(env == NULL) return false;
 	// compare up to 256 entries
@@ -479,7 +483,7 @@ static bool mi_getenv(const char * name, char * result, size_t result_size) {
 	// cannot call getenv() when still initializing the C runtime.
 	if(_mi_preloading()) return false;
 	const char * s = getenv(name);
-	if(s == NULL) {
+	if(!s) {
 		// we check the upper case name too.
 		char buf[64+1];
 		size_t len = strlen(name);

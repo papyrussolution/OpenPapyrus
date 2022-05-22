@@ -89,7 +89,7 @@ static int rsa_ossl_public_encrypt(int flen, const uchar * from,
 		}
 	}
 
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		goto err;
 	BN_CTX_start(ctx);
 	f = BN_CTX_get(ctx);
@@ -246,7 +246,7 @@ static int rsa_ossl_private_encrypt(int flen, const uchar * from,
 	BIGNUM * unblind = NULL;
 	BN_BLINDING * blinding = NULL;
 
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		goto err;
 	BN_CTX_start(ctx);
 	f = BN_CTX_get(ctx);
@@ -298,7 +298,6 @@ static int rsa_ossl_private_encrypt(int flen, const uchar * from,
 			goto err;
 		}
 	}
-
 	if(blinding != NULL) {
 		if(!local_blinding && ((unblind = BN_CTX_get(ctx)) == NULL)) {
 			RSAerr(RSA_F_RSA_OSSL_PRIVATE_ENCRYPT, ERR_R_MALLOC_FAILURE);
@@ -308,11 +307,7 @@ static int rsa_ossl_private_encrypt(int flen, const uchar * from,
 			goto err;
 	}
 
-	if((rsa->flags & RSA_FLAG_EXT_PKEY) ||
-	    (rsa->version == RSA_ASN1_VERSION_MULTI) ||
-	    ((rsa->p != NULL) &&
-	    (rsa->q != NULL) &&
-	    (rsa->dmp1 != NULL) && (rsa->dmq1 != NULL) && (rsa->iqmp != NULL))) {
+	if((rsa->flags & RSA_FLAG_EXT_PKEY) || (rsa->version == RSA_ASN1_VERSION_MULTI) || ((rsa->p != NULL) && (rsa->q != NULL) && (rsa->dmp1 != NULL) && (rsa->dmq1 != NULL) && (rsa->iqmp != NULL))) {
 		if(!rsa->meth->rsa_mod_exp(ret, f, rsa, ctx))
 			goto err;
 	}
@@ -382,7 +377,7 @@ static int rsa_ossl_private_decrypt(int flen, const uchar * from,
 	BIGNUM * unblind = NULL;
 	BN_BLINDING * blinding = NULL;
 
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		goto err;
 	BN_CTX_start(ctx);
 	f = BN_CTX_get(ctx);
@@ -430,13 +425,8 @@ static int rsa_ossl_private_decrypt(int flen, const uchar * from,
 		if(!rsa_blinding_convert(blinding, f, unblind, ctx))
 			goto err;
 	}
-
 	/* do the decrypt */
-	if((rsa->flags & RSA_FLAG_EXT_PKEY) ||
-	    (rsa->version == RSA_ASN1_VERSION_MULTI) ||
-	    ((rsa->p != NULL) &&
-	    (rsa->q != NULL) &&
-	    (rsa->dmp1 != NULL) && (rsa->dmq1 != NULL) && (rsa->iqmp != NULL))) {
+	if((rsa->flags & RSA_FLAG_EXT_PKEY) || (rsa->version == RSA_ASN1_VERSION_MULTI) || ((rsa->p != NULL) && (rsa->q != NULL) && (rsa->dmp1 != NULL) && (rsa->dmq1 != NULL) && (rsa->iqmp != NULL))) {
 		if(!rsa->meth->rsa_mod_exp(ret, f, rsa, ctx))
 			goto err;
 	}
@@ -528,7 +518,7 @@ static int rsa_ossl_public_decrypt(int flen, const uchar * from,
 		}
 	}
 
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		goto err;
 	BN_CTX_start(ctx);
 	f = BN_CTX_get(ctx);

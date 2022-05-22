@@ -12,10 +12,7 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include "src/dsp/dsp.h"
 #include "src/dec/vp8i_dec.h"
-//#include "src/utils/utils.h"
 
 static FORCEINLINE uint8 clip_8b(int v) { return (!(v & ~0xff)) ? v : (v < 0) ? 0 : 255; }
 //
@@ -823,7 +820,7 @@ WEBP_DSP_INIT_FUNC(VP8DspInit) {
 	VP8DitherCombine8x8 = DitherCombine8x8_C;
 
 	// If defined, use CPUInfo() to overwrite some pointers with faster versions.
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			VP8DspInitSSE2();
@@ -852,12 +849,10 @@ WEBP_DSP_INIT_FUNC(VP8DspInit) {
 	}
 
 #if defined(WEBP_HAVE_NEON)
-	if(WEBP_NEON_OMIT_C_CODE ||
-	    (VP8GetCPUInfo != NULL && VP8GetCPUInfo(kNEON))) {
+	if(WEBP_NEON_OMIT_C_CODE || (VP8GetCPUInfo && VP8GetCPUInfo(kNEON))) {
 		VP8DspInitNEON();
 	}
 #endif
-
 	assert(VP8TransformWHT != NULL);
 	assert(VP8Transform != NULL);
 	assert(VP8TransformDC != NULL);

@@ -68,7 +68,7 @@ static cmsToneCurve * ComputeKToLstar(cmsContext ContextID, uint32 nPoints, uint
 	float cmyk[4];
 	float* SampledPoints;
 	xform = _cmsChain2Lab(ContextID, nProfiles, TYPE_CMYK_FLT, TYPE_Lab_DBL, Intents, hProfiles, BPC, AdaptationStates, dwFlags);
-	if(xform == NULL) return NULL;
+	if(!xform) return NULL;
 	SampledPoints = (float *)_cmsCalloc(ContextID, nPoints, sizeof(float));
 	if(SampledPoints  == NULL) goto Error;
 	for(i = 0; i < nPoints; i++) {

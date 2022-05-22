@@ -438,7 +438,7 @@ Collator* Collator::makeInstance(const Locale & desiredLocale, UErrorCode & stat
 		}
 		status = U_MEMORY_ALLOCATION_ERROR;
 	}
-	if(entry != NULL) {
+	if(entry) {
 		// Undo the addRef() from the cache.get().
 		entry->removeRef();
 	}

@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 PROTOBUF_NAMESPACE_OPEN
-constexpr Empty::Empty(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr Empty::Empty(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct EmptyDefaultTypeInternal {
 	constexpr EmptyDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~EmptyDefaultTypeInternal() {}

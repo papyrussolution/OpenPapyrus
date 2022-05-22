@@ -558,7 +558,7 @@ static int _archive_write_free(struct archive * _a)
 	if(a->archive.state != ARCHIVE_STATE_FATAL)
 		r = archive_write_close(&a->archive);
 	/* Release format resources. */
-	if(a->format_free != NULL) {
+	if(a->format_free) {
 		r1 = (a->format_free)(a);
 		if(r1 < r)
 			r = r1;

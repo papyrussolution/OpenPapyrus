@@ -2746,7 +2746,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 				    case 2:
 				{
 #ifdef PNG_READ_GAMMA_SUPPORTED
-					if(gamma_table != NULL) {
+					if(gamma_table) {
 						sp = row;
 						shift = 6;
 						for(i = 0; i < row_width; i++) {
@@ -2795,7 +2795,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 				    case 4:
 				{
 #ifdef PNG_READ_GAMMA_SUPPORTED
-					if(gamma_table != NULL) {
+					if(gamma_table) {
 						sp = row;
 						shift = 4;
 						for(i = 0; i < row_width; i++) {
@@ -2848,7 +2848,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 				    case 8:
 				{
 #ifdef PNG_READ_GAMMA_SUPPORTED
-					if(gamma_table != NULL) {
+					if(gamma_table) {
 						sp = row;
 						for(i = 0; i < row_width; i++, sp++) {
 							if(*sp == png_ptr->trans_color.gray)
@@ -2914,7 +2914,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 		    {
 			    if(row_info->bit_depth == 8) {
 #ifdef PNG_READ_GAMMA_SUPPORTED
-				    if(gamma_table != NULL) {
+				    if(gamma_table) {
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 3) {
 						    if(*sp == png_ptr->trans_color.red &&

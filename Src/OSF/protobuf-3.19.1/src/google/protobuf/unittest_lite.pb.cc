@@ -13,8 +13,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
-constexpr TestAllTypesLite_NestedMessage::TestAllTypesLite_NestedMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestAllTypesLite_NestedMessage::TestAllTypesLite_NestedMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : cc_(int64_t{0})
   , bb_(0){}
 struct TestAllTypesLite_NestedMessageDefaultTypeInternal {
@@ -25,8 +24,7 @@ struct TestAllTypesLite_NestedMessageDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestAllTypesLite_NestedMessageDefaultTypeInternal _TestAllTypesLite_NestedMessage_default_instance_;
-constexpr TestAllTypesLite_NestedMessage2::TestAllTypesLite_NestedMessage2(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestAllTypesLite_NestedMessage2::TestAllTypesLite_NestedMessage2(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : dd_(0){}
 struct TestAllTypesLite_NestedMessage2DefaultTypeInternal {
 	constexpr TestAllTypesLite_NestedMessage2DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -36,8 +34,7 @@ struct TestAllTypesLite_NestedMessage2DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestAllTypesLite_NestedMessage2DefaultTypeInternal _TestAllTypesLite_NestedMessage2_default_instance_;
-constexpr TestAllTypesLite_OptionalGroup::TestAllTypesLite_OptionalGroup(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestAllTypesLite_OptionalGroup::TestAllTypesLite_OptionalGroup(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : a_(0){}
 struct TestAllTypesLite_OptionalGroupDefaultTypeInternal {
 	constexpr TestAllTypesLite_OptionalGroupDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -47,8 +44,7 @@ struct TestAllTypesLite_OptionalGroupDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestAllTypesLite_OptionalGroupDefaultTypeInternal _TestAllTypesLite_OptionalGroup_default_instance_;
-constexpr TestAllTypesLite_RepeatedGroup::TestAllTypesLite_RepeatedGroup(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestAllTypesLite_RepeatedGroup::TestAllTypesLite_RepeatedGroup(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : a_(0){}
 struct TestAllTypesLite_RepeatedGroupDefaultTypeInternal {
 	constexpr TestAllTypesLite_RepeatedGroupDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -58,8 +54,7 @@ struct TestAllTypesLite_RepeatedGroupDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestAllTypesLite_RepeatedGroupDefaultTypeInternal _TestAllTypesLite_RepeatedGroup_default_instance_;
-constexpr TestAllTypesLite::TestAllTypesLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestAllTypesLite::TestAllTypesLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_int32_()
   , repeated_int64_()
   , repeated_uint32_()
@@ -147,8 +142,7 @@ struct TestAllTypesLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestAllTypesLiteDefaultTypeInternal _TestAllTypesLite_default_instance_;
-constexpr ForeignMessageLite::ForeignMessageLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr ForeignMessageLite::ForeignMessageLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : c_(0){}
 struct ForeignMessageLiteDefaultTypeInternal {
 	constexpr ForeignMessageLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -158,8 +152,7 @@ struct ForeignMessageLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ForeignMessageLiteDefaultTypeInternal _ForeignMessageLite_default_instance_;
-constexpr TestPackedTypesLite::TestPackedTypesLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestPackedTypesLite::TestPackedTypesLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : packed_int32_()
   , _packed_int32_cached_byte_size_(0)
   , packed_int64_()
@@ -189,8 +182,7 @@ struct TestPackedTypesLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestPackedTypesLiteDefaultTypeInternal _TestPackedTypesLite_default_instance_;
-constexpr TestAllExtensionsLite::TestAllExtensionsLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestAllExtensionsLite::TestAllExtensionsLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestAllExtensionsLiteDefaultTypeInternal {
 	constexpr TestAllExtensionsLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestAllExtensionsLiteDefaultTypeInternal() {}
@@ -199,8 +191,7 @@ struct TestAllExtensionsLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestAllExtensionsLiteDefaultTypeInternal _TestAllExtensionsLite_default_instance_;
-constexpr OptionalGroup_extension_lite::OptionalGroup_extension_lite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr OptionalGroup_extension_lite::OptionalGroup_extension_lite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : a_(0){}
 struct OptionalGroup_extension_liteDefaultTypeInternal {
 	constexpr OptionalGroup_extension_liteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -210,8 +201,7 @@ struct OptionalGroup_extension_liteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT OptionalGroup_extension_liteDefaultTypeInternal _OptionalGroup_extension_lite_default_instance_;
-constexpr RepeatedGroup_extension_lite::RepeatedGroup_extension_lite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr RepeatedGroup_extension_lite::RepeatedGroup_extension_lite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : a_(0){}
 struct RepeatedGroup_extension_liteDefaultTypeInternal {
 	constexpr RepeatedGroup_extension_liteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -221,8 +211,7 @@ struct RepeatedGroup_extension_liteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RepeatedGroup_extension_liteDefaultTypeInternal _RepeatedGroup_extension_lite_default_instance_;
-constexpr TestPackedExtensionsLite::TestPackedExtensionsLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestPackedExtensionsLite::TestPackedExtensionsLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestPackedExtensionsLiteDefaultTypeInternal {
 	constexpr TestPackedExtensionsLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestPackedExtensionsLiteDefaultTypeInternal() {}
@@ -231,8 +220,7 @@ struct TestPackedExtensionsLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestPackedExtensionsLiteDefaultTypeInternal _TestPackedExtensionsLite_default_instance_;
-constexpr TestNestedExtensionLite::TestNestedExtensionLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestNestedExtensionLite::TestNestedExtensionLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestNestedExtensionLiteDefaultTypeInternal {
 	constexpr TestNestedExtensionLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestNestedExtensionLiteDefaultTypeInternal() {}
@@ -241,8 +229,7 @@ struct TestNestedExtensionLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestNestedExtensionLiteDefaultTypeInternal _TestNestedExtensionLite_default_instance_;
-constexpr TestDeprecatedLite::TestDeprecatedLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestDeprecatedLite::TestDeprecatedLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : deprecated_field3_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , deprecated_field4_(nullptr)
   , deprecated_field_(0)
@@ -255,8 +242,7 @@ struct TestDeprecatedLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestDeprecatedLiteDefaultTypeInternal _TestDeprecatedLite_default_instance_;
-constexpr TestParsingMergeLite_RepeatedFieldsGenerator_Group1::TestParsingMergeLite_RepeatedFieldsGenerator_Group1(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestParsingMergeLite_RepeatedFieldsGenerator_Group1::TestParsingMergeLite_RepeatedFieldsGenerator_Group1(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : field1_(nullptr){}
 struct TestParsingMergeLite_RepeatedFieldsGenerator_Group1DefaultTypeInternal {
 	constexpr TestParsingMergeLite_RepeatedFieldsGenerator_Group1DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -266,8 +252,7 @@ struct TestParsingMergeLite_RepeatedFieldsGenerator_Group1DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestParsingMergeLite_RepeatedFieldsGenerator_Group1DefaultTypeInternal _TestParsingMergeLite_RepeatedFieldsGenerator_Group1_default_instance_;
-constexpr TestParsingMergeLite_RepeatedFieldsGenerator_Group2::TestParsingMergeLite_RepeatedFieldsGenerator_Group2(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestParsingMergeLite_RepeatedFieldsGenerator_Group2::TestParsingMergeLite_RepeatedFieldsGenerator_Group2(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : field1_(nullptr){}
 struct TestParsingMergeLite_RepeatedFieldsGenerator_Group2DefaultTypeInternal {
 	constexpr TestParsingMergeLite_RepeatedFieldsGenerator_Group2DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -277,8 +262,7 @@ struct TestParsingMergeLite_RepeatedFieldsGenerator_Group2DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestParsingMergeLite_RepeatedFieldsGenerator_Group2DefaultTypeInternal _TestParsingMergeLite_RepeatedFieldsGenerator_Group2_default_instance_;
-constexpr TestParsingMergeLite_RepeatedFieldsGenerator::TestParsingMergeLite_RepeatedFieldsGenerator(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestParsingMergeLite_RepeatedFieldsGenerator::TestParsingMergeLite_RepeatedFieldsGenerator(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : field1_()
   , field2_()
   , field3_()
@@ -294,8 +278,7 @@ struct TestParsingMergeLite_RepeatedFieldsGeneratorDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestParsingMergeLite_RepeatedFieldsGeneratorDefaultTypeInternal _TestParsingMergeLite_RepeatedFieldsGenerator_default_instance_;
-constexpr TestParsingMergeLite_OptionalGroup::TestParsingMergeLite_OptionalGroup(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestParsingMergeLite_OptionalGroup::TestParsingMergeLite_OptionalGroup(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : optional_group_all_types_(nullptr){}
 struct TestParsingMergeLite_OptionalGroupDefaultTypeInternal {
 	constexpr TestParsingMergeLite_OptionalGroupDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -305,8 +288,7 @@ struct TestParsingMergeLite_OptionalGroupDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestParsingMergeLite_OptionalGroupDefaultTypeInternal _TestParsingMergeLite_OptionalGroup_default_instance_;
-constexpr TestParsingMergeLite_RepeatedGroup::TestParsingMergeLite_RepeatedGroup(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestParsingMergeLite_RepeatedGroup::TestParsingMergeLite_RepeatedGroup(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_group_all_types_(nullptr){}
 struct TestParsingMergeLite_RepeatedGroupDefaultTypeInternal {
 	constexpr TestParsingMergeLite_RepeatedGroupDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -316,8 +298,7 @@ struct TestParsingMergeLite_RepeatedGroupDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestParsingMergeLite_RepeatedGroupDefaultTypeInternal _TestParsingMergeLite_RepeatedGroup_default_instance_;
-constexpr TestParsingMergeLite::TestParsingMergeLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestParsingMergeLite::TestParsingMergeLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_all_types_()
   , repeatedgroup_()
   , required_all_types_(nullptr)
@@ -331,8 +312,7 @@ struct TestParsingMergeLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestParsingMergeLiteDefaultTypeInternal _TestParsingMergeLite_default_instance_;
-constexpr TestEmptyMessageLite::TestEmptyMessageLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestEmptyMessageLite::TestEmptyMessageLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestEmptyMessageLiteDefaultTypeInternal {
 	constexpr TestEmptyMessageLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestEmptyMessageLiteDefaultTypeInternal() {}
@@ -341,8 +321,7 @@ struct TestEmptyMessageLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestEmptyMessageLiteDefaultTypeInternal _TestEmptyMessageLite_default_instance_;
-constexpr TestEmptyMessageWithExtensionsLite::TestEmptyMessageWithExtensionsLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestEmptyMessageWithExtensionsLite::TestEmptyMessageWithExtensionsLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestEmptyMessageWithExtensionsLiteDefaultTypeInternal {
 	constexpr TestEmptyMessageWithExtensionsLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestEmptyMessageWithExtensionsLiteDefaultTypeInternal() {}
@@ -351,8 +330,7 @@ struct TestEmptyMessageWithExtensionsLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestEmptyMessageWithExtensionsLiteDefaultTypeInternal _TestEmptyMessageWithExtensionsLite_default_instance_;
-constexpr V1MessageLite::V1MessageLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr V1MessageLite::V1MessageLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : int_field_(0)
   , enum_field_(1)
 {}
@@ -364,8 +342,7 @@ struct V1MessageLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT V1MessageLiteDefaultTypeInternal _V1MessageLite_default_instance_;
-constexpr V2MessageLite::V2MessageLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr V2MessageLite::V2MessageLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : int_field_(0)
   , enum_field_(1)
 {}
@@ -377,8 +354,7 @@ struct V2MessageLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT V2MessageLiteDefaultTypeInternal _V2MessageLite_default_instance_;
-constexpr TestHugeFieldNumbersLite_OptionalGroup::TestHugeFieldNumbersLite_OptionalGroup(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestHugeFieldNumbersLite_OptionalGroup::TestHugeFieldNumbersLite_OptionalGroup(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : group_a_(0){}
 struct TestHugeFieldNumbersLite_OptionalGroupDefaultTypeInternal {
 	constexpr TestHugeFieldNumbersLite_OptionalGroupDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -388,8 +364,7 @@ struct TestHugeFieldNumbersLite_OptionalGroupDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestHugeFieldNumbersLite_OptionalGroupDefaultTypeInternal _TestHugeFieldNumbersLite_OptionalGroup_default_instance_;
-constexpr TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUse::TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUse::TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUseDefaultTypeInternal {
 	constexpr TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUseDefaultTypeInternal() {}
@@ -398,8 +373,7 @@ struct TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUseDefaultTypeInternal
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUseDefaultTypeInternal _TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUse_default_instance_;
-constexpr TestHugeFieldNumbersLite::TestHugeFieldNumbersLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestHugeFieldNumbersLite::TestHugeFieldNumbersLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_int32_()
   , packed_int32_()
   , _packed_int32_cached_byte_size_(0)
@@ -421,8 +395,7 @@ struct TestHugeFieldNumbersLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestHugeFieldNumbersLiteDefaultTypeInternal _TestHugeFieldNumbersLite_default_instance_;
-constexpr TestOneofParsingLite::TestOneofParsingLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr TestOneofParsingLite::TestOneofParsingLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : _oneof_case_{}{}
 struct TestOneofParsingLiteDefaultTypeInternal {
 	constexpr TestOneofParsingLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -432,8 +405,7 @@ struct TestOneofParsingLiteDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT TestOneofParsingLiteDefaultTypeInternal _TestOneofParsingLite_default_instance_;
-constexpr PackedInt32::PackedInt32(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr PackedInt32::PackedInt32(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_int32_()
   , _repeated_int32_cached_byte_size_(0){}
 struct PackedInt32DefaultTypeInternal {
@@ -444,8 +416,7 @@ struct PackedInt32DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PackedInt32DefaultTypeInternal _PackedInt32_default_instance_;
-constexpr NonPackedInt32::NonPackedInt32(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr NonPackedInt32::NonPackedInt32(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_int32_(){}
 struct NonPackedInt32DefaultTypeInternal {
 	constexpr NonPackedInt32DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -455,8 +426,7 @@ struct NonPackedInt32DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT NonPackedInt32DefaultTypeInternal _NonPackedInt32_default_instance_;
-constexpr PackedFixed32::PackedFixed32(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr PackedFixed32::PackedFixed32(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_fixed32_(){}
 struct PackedFixed32DefaultTypeInternal {
 	constexpr PackedFixed32DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -466,8 +436,7 @@ struct PackedFixed32DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PackedFixed32DefaultTypeInternal _PackedFixed32_default_instance_;
-constexpr NonPackedFixed32::NonPackedFixed32(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr NonPackedFixed32::NonPackedFixed32(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_fixed32_(){}
 struct NonPackedFixed32DefaultTypeInternal {
 	constexpr NonPackedFixed32DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -477,8 +446,7 @@ struct NonPackedFixed32DefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT NonPackedFixed32DefaultTypeInternal _NonPackedFixed32_default_instance_;
-constexpr DupEnum::DupEnum(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr DupEnum::DupEnum(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct DupEnumDefaultTypeInternal {
 	constexpr DupEnumDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~DupEnumDefaultTypeInternal() {}
@@ -487,8 +455,7 @@ struct DupEnumDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DupEnumDefaultTypeInternal _DupEnum_default_instance_;
-constexpr RecursiveMessage::RecursiveMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr RecursiveMessage::RecursiveMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : payload_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , recurse_(nullptr){}
 struct RecursiveMessageDefaultTypeInternal {
@@ -501,15 +468,16 @@ struct RecursiveMessageDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RecursiveMessageDefaultTypeInternal _RecursiveMessage_default_instance_;
 }  // namespace protobuf_unittest
 namespace protobuf_unittest {
-bool TestAllTypesLite_NestedEnum_IsValid(int value) {
-  switch (value) {
-    case 1:
-    case 2:
-    case 3:
-      return true;
-    default:
-      return false;
-  }
+bool TestAllTypesLite_NestedEnum_IsValid(int value)
+{
+	switch(value) {
+		case 1:
+		case 2:
+		case 3:
+			return true;
+		default:
+			return false;
+	}
 }
 
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> TestAllTypesLite_NestedEnum_strings[3] = {};
@@ -531,30 +499,22 @@ static const int TestAllTypesLite_NestedEnum_entries_by_number[] = {
   1, // 3 -> BAZ
 };
 
-const std::string& TestAllTypesLite_NestedEnum_Name(
-    TestAllTypesLite_NestedEnum value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          TestAllTypesLite_NestedEnum_entries,
-          TestAllTypesLite_NestedEnum_entries_by_number,
-          3, TestAllTypesLite_NestedEnum_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      TestAllTypesLite_NestedEnum_entries,
-      TestAllTypesLite_NestedEnum_entries_by_number,
-      3, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     TestAllTypesLite_NestedEnum_strings[idx].get();
+const std::string& TestAllTypesLite_NestedEnum_Name(TestAllTypesLite_NestedEnum value)
+{
+	static const bool dummy = ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+		TestAllTypesLite_NestedEnum_entries, TestAllTypesLite_NestedEnum_entries_by_number, 3, TestAllTypesLite_NestedEnum_strings);
+	(void)dummy;
+	int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(TestAllTypesLite_NestedEnum_entries, TestAllTypesLite_NestedEnum_entries_by_number, 3, value);
+	return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() : TestAllTypesLite_NestedEnum_strings[idx].get();
 }
-bool TestAllTypesLite_NestedEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestAllTypesLite_NestedEnum* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      TestAllTypesLite_NestedEnum_entries, 3, name, &int_value);
-  if (success) {
-    *value = static_cast<TestAllTypesLite_NestedEnum>(int_value);
-  }
-  return success;
+bool TestAllTypesLite_NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestAllTypesLite_NestedEnum * value)
+{
+	int int_value;
+	bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(TestAllTypesLite_NestedEnum_entries, 3, name, &int_value);
+	if(success) {
+		*value = static_cast<TestAllTypesLite_NestedEnum>(int_value);
+	}
+	return success;
 }
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 constexpr TestAllTypesLite_NestedEnum TestAllTypesLite::FOO;
@@ -564,15 +524,16 @@ constexpr TestAllTypesLite_NestedEnum TestAllTypesLite::NestedEnum_MIN;
 constexpr TestAllTypesLite_NestedEnum TestAllTypesLite::NestedEnum_MAX;
 constexpr int TestAllTypesLite::NestedEnum_ARRAYSIZE;
 #endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
-bool DupEnum_TestEnumWithDupValueLite_IsValid(int value) {
-  switch (value) {
-    case 1:
-    case 2:
-    case 3:
-      return true;
-    default:
-      return false;
-  }
+bool DupEnum_TestEnumWithDupValueLite_IsValid(int value)
+{
+	switch(value) {
+		case 1:
+		case 2:
+		case 3:
+			return true;
+		default:
+			return false;
+	}
 }
 
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> DupEnum_TestEnumWithDupValueLite_strings[3] = {};
@@ -598,30 +559,22 @@ static const int DupEnum_TestEnumWithDupValueLite_entries_by_number[] = {
   2, // 3 -> BAZ
 };
 
-const std::string& DupEnum_TestEnumWithDupValueLite_Name(
-    DupEnum_TestEnumWithDupValueLite value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          DupEnum_TestEnumWithDupValueLite_entries,
-          DupEnum_TestEnumWithDupValueLite_entries_by_number,
-          3, DupEnum_TestEnumWithDupValueLite_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      DupEnum_TestEnumWithDupValueLite_entries,
-      DupEnum_TestEnumWithDupValueLite_entries_by_number,
-      3, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     DupEnum_TestEnumWithDupValueLite_strings[idx].get();
+const std::string& DupEnum_TestEnumWithDupValueLite_Name(DupEnum_TestEnumWithDupValueLite value)
+{
+	static const bool dummy = ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+		DupEnum_TestEnumWithDupValueLite_entries, DupEnum_TestEnumWithDupValueLite_entries_by_number, 3, DupEnum_TestEnumWithDupValueLite_strings);
+	(void)dummy;
+	int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(DupEnum_TestEnumWithDupValueLite_entries, DupEnum_TestEnumWithDupValueLite_entries_by_number, 3, value);
+	return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() : DupEnum_TestEnumWithDupValueLite_strings[idx].get();
 }
-bool DupEnum_TestEnumWithDupValueLite_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, DupEnum_TestEnumWithDupValueLite* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      DupEnum_TestEnumWithDupValueLite_entries, 5, name, &int_value);
-  if (success) {
-    *value = static_cast<DupEnum_TestEnumWithDupValueLite>(int_value);
-  }
-  return success;
+bool DupEnum_TestEnumWithDupValueLite_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, DupEnum_TestEnumWithDupValueLite * value)
+{
+	int int_value;
+	bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(DupEnum_TestEnumWithDupValueLite_entries, 5, name, &int_value);
+	if(success) {
+		*value = static_cast<DupEnum_TestEnumWithDupValueLite>(int_value);
+	}
+	return success;
 }
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 constexpr DupEnum_TestEnumWithDupValueLite DupEnum::FOO1;
@@ -633,15 +586,16 @@ constexpr DupEnum_TestEnumWithDupValueLite DupEnum::TestEnumWithDupValueLite_MIN
 constexpr DupEnum_TestEnumWithDupValueLite DupEnum::TestEnumWithDupValueLite_MAX;
 constexpr int DupEnum::TestEnumWithDupValueLite_ARRAYSIZE;
 #endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
-bool ForeignEnumLite_IsValid(int value) {
-  switch (value) {
-    case 4:
-    case 5:
-    case 6:
-      return true;
-    default:
-      return false;
-  }
+bool ForeignEnumLite_IsValid(int value)
+{
+	switch(value) {
+		case 4:
+		case 5:
+		case 6:
+			return true;
+		default:
+			return false;
+	}
 }
 
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> ForeignEnumLite_strings[3] = {};
@@ -663,38 +617,31 @@ static const int ForeignEnumLite_entries_by_number[] = {
   1, // 6 -> FOREIGN_LITE_BAZ
 };
 
-const std::string& ForeignEnumLite_Name(
-    ForeignEnumLite value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          ForeignEnumLite_entries,
-          ForeignEnumLite_entries_by_number,
-          3, ForeignEnumLite_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      ForeignEnumLite_entries,
-      ForeignEnumLite_entries_by_number,
-      3, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     ForeignEnumLite_strings[idx].get();
+const std::string& ForeignEnumLite_Name(ForeignEnumLite value)
+{
+	static const bool dummy = ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+		ForeignEnumLite_entries, ForeignEnumLite_entries_by_number, 3, ForeignEnumLite_strings);
+	(void)dummy;
+	int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(ForeignEnumLite_entries, ForeignEnumLite_entries_by_number, 3, value);
+	return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() : ForeignEnumLite_strings[idx].get();
 }
-bool ForeignEnumLite_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ForeignEnumLite* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      ForeignEnumLite_entries, 3, name, &int_value);
-  if (success) {
-    *value = static_cast<ForeignEnumLite>(int_value);
-  }
-  return success;
+bool ForeignEnumLite_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ForeignEnumLite * value)
+{
+	int int_value;
+	bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(ForeignEnumLite_entries, 3, name, &int_value);
+	if(success) {
+		*value = static_cast<ForeignEnumLite>(int_value);
+	}
+	return success;
 }
-bool V1EnumLite_IsValid(int value) {
-  switch (value) {
-    case 1:
-      return true;
-    default:
-      return false;
-  }
+bool V1EnumLite_IsValid(int value)
+{
+	switch(value) {
+		case 1:
+			return true;
+		default:
+			return false;
+	}
 }
 
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> V1EnumLite_strings[1] = {};
@@ -710,39 +657,32 @@ static const int V1EnumLite_entries_by_number[] = {
   0, // 1 -> V1_FIRST
 };
 
-const std::string& V1EnumLite_Name(
-    V1EnumLite value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          V1EnumLite_entries,
-          V1EnumLite_entries_by_number,
-          1, V1EnumLite_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      V1EnumLite_entries,
-      V1EnumLite_entries_by_number,
-      1, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     V1EnumLite_strings[idx].get();
+const std::string& V1EnumLite_Name(V1EnumLite value)
+{
+	static const bool dummy = ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+		V1EnumLite_entries, V1EnumLite_entries_by_number, 1, V1EnumLite_strings);
+	(void)dummy;
+	int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(V1EnumLite_entries, V1EnumLite_entries_by_number, 1, value);
+	return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() : V1EnumLite_strings[idx].get();
 }
-bool V1EnumLite_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, V1EnumLite* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      V1EnumLite_entries, 1, name, &int_value);
-  if (success) {
-    *value = static_cast<V1EnumLite>(int_value);
-  }
-  return success;
+bool V1EnumLite_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, V1EnumLite * value)
+{
+	int int_value;
+	bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(V1EnumLite_entries, 1, name, &int_value);
+	if(success) {
+		*value = static_cast<V1EnumLite>(int_value);
+	}
+	return success;
 }
-bool V2EnumLite_IsValid(int value) {
-  switch (value) {
-    case 1:
-    case 2:
-      return true;
-    default:
-      return false;
-  }
+bool V2EnumLite_IsValid(int value)
+{
+	switch(value) {
+		case 1:
+		case 2:
+			return true;
+		default:
+			return false;
+	}
 }
 
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> V2EnumLite_strings[2] = {};
@@ -761,30 +701,22 @@ static const int V2EnumLite_entries_by_number[] = {
   1, // 2 -> V2_SECOND
 };
 
-const std::string& V2EnumLite_Name(
-    V2EnumLite value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          V2EnumLite_entries,
-          V2EnumLite_entries_by_number,
-          2, V2EnumLite_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      V2EnumLite_entries,
-      V2EnumLite_entries_by_number,
-      2, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     V2EnumLite_strings[idx].get();
+const std::string& V2EnumLite_Name(V2EnumLite value)
+{
+	static const bool dummy = ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+		V2EnumLite_entries, V2EnumLite_entries_by_number, 2, V2EnumLite_strings);
+	(void)dummy;
+	int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(V2EnumLite_entries, V2EnumLite_entries_by_number, 2, value);
+	return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() : V2EnumLite_strings[idx].get();
 }
-bool V2EnumLite_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, V2EnumLite* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      V2EnumLite_entries, 2, name, &int_value);
-  if (success) {
-    *value = static_cast<V2EnumLite>(int_value);
-  }
-  return success;
+bool V2EnumLite_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, V2EnumLite * value)
+{
+	int int_value;
+	bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(V2EnumLite_entries, 2, name, &int_value);
+	if(success) {
+		*value = static_cast<V2EnumLite>(int_value);
+	}
+	return success;
 }
 
 // ===================================================================
@@ -809,17 +741,12 @@ TestAllTypesLite_NestedMessage::TestAllTypesLite_NestedMessage(const TestAllType
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  ::memcpy(&cc_, &from.cc_,
-    static_cast<size_t>(reinterpret_cast<char*>(&bb_) -
-    reinterpret_cast<char*>(&cc_)) + sizeof(bb_));
+  ::memcpy(&cc_, &from.cc_, static_cast<size_t>(reinterpret_cast<char*>(&bb_) - reinterpret_cast<char*>(&cc_)) + sizeof(bb_));
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestAllTypesLite.NestedMessage)
 }
 
 inline void TestAllTypesLite_NestedMessage::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&cc_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&bb_) -
-    reinterpret_cast<char*>(&cc_)) + sizeof(bb_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&cc_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&bb_) - reinterpret_cast<char*>(&cc_)) + sizeof(bb_));
 }
 
 TestAllTypesLite_NestedMessage::~TestAllTypesLite_NestedMessage() {
@@ -837,8 +764,7 @@ void TestAllTypesLite_NestedMessage::ArenaDtor(void* object) {
   TestAllTypesLite_NestedMessage* _this = reinterpret_cast< TestAllTypesLite_NestedMessage* >(object);
   (void)_this;
 }
-void TestAllTypesLite_NestedMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestAllTypesLite_NestedMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestAllTypesLite_NestedMessage::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -851,9 +777,7 @@ void TestAllTypesLite_NestedMessage::Clear() {
 
   cached_has_bits = _has_bits_[0];
   if(cached_has_bits & 0x00000003u) {
-    ::memset(&cc_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&bb_) -
-        reinterpret_cast<char*>(&cc_)) + sizeof(bb_));
+    ::memset(&cc_, 0, static_cast<size_t>(reinterpret_cast<char*>(&bb_) - reinterpret_cast<char*>(&cc_)) + sizeof(bb_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear<std::string>();
@@ -892,10 +816,7 @@ const char* TestAllTypesLite_NestedMessage::_InternalParse(const char* ptr, ::PR
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -963,10 +884,9 @@ size_t TestAllTypesLite_NestedMessage::ByteSizeLong() const {
   return total_size;
 }
 
-void TestAllTypesLite_NestedMessage::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllTypesLite_NestedMessage*>(
-      &from));
+void TestAllTypesLite_NestedMessage::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllTypesLite_NestedMessage*>(&from));
 }
 
 void TestAllTypesLite_NestedMessage::MergeFrom(const TestAllTypesLite_NestedMessage& from) {
@@ -1058,8 +978,7 @@ void TestAllTypesLite_NestedMessage2::ArenaDtor(void* object) {
   TestAllTypesLite_NestedMessage2* _this = reinterpret_cast< TestAllTypesLite_NestedMessage2* >(object);
   (void)_this;
 }
-void TestAllTypesLite_NestedMessage2::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestAllTypesLite_NestedMessage2::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestAllTypesLite_NestedMessage2::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1099,10 +1018,7 @@ const char* TestAllTypesLite_NestedMessage2::_InternalParse(const char* ptr, ::P
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1157,10 +1073,9 @@ size_t TestAllTypesLite_NestedMessage2::ByteSizeLong() const {
   return total_size;
 }
 
-void TestAllTypesLite_NestedMessage2::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllTypesLite_NestedMessage2*>(
-      &from));
+void TestAllTypesLite_NestedMessage2::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllTypesLite_NestedMessage2*>(&from));
 }
 
 void TestAllTypesLite_NestedMessage2::MergeFrom(const TestAllTypesLite_NestedMessage2& from) {
@@ -1240,8 +1155,7 @@ void TestAllTypesLite_OptionalGroup::ArenaDtor(void* object) {
   TestAllTypesLite_OptionalGroup* _this = reinterpret_cast< TestAllTypesLite_OptionalGroup* >(object);
   (void)_this;
 }
-void TestAllTypesLite_OptionalGroup::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestAllTypesLite_OptionalGroup::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestAllTypesLite_OptionalGroup::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1281,10 +1195,7 @@ const char* TestAllTypesLite_OptionalGroup::_InternalParse(const char* ptr, ::PR
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1339,10 +1250,9 @@ size_t TestAllTypesLite_OptionalGroup::ByteSizeLong() const {
   return total_size;
 }
 
-void TestAllTypesLite_OptionalGroup::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllTypesLite_OptionalGroup*>(
-      &from));
+void TestAllTypesLite_OptionalGroup::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllTypesLite_OptionalGroup*>(&from));
 }
 
 void TestAllTypesLite_OptionalGroup::MergeFrom(const TestAllTypesLite_OptionalGroup& from) {
@@ -1422,8 +1332,7 @@ void TestAllTypesLite_RepeatedGroup::ArenaDtor(void* object) {
   TestAllTypesLite_RepeatedGroup* _this = reinterpret_cast< TestAllTypesLite_RepeatedGroup* >(object);
   (void)_this;
 }
-void TestAllTypesLite_RepeatedGroup::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestAllTypesLite_RepeatedGroup::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestAllTypesLite_RepeatedGroup::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1463,10 +1372,7 @@ const char* TestAllTypesLite_RepeatedGroup::_InternalParse(const char* ptr, ::PR
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1521,10 +1427,9 @@ size_t TestAllTypesLite_RepeatedGroup::ByteSizeLong() const {
   return total_size;
 }
 
-void TestAllTypesLite_RepeatedGroup::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllTypesLite_RepeatedGroup*>(
-      &from));
+void TestAllTypesLite_RepeatedGroup::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllTypesLite_RepeatedGroup*>(&from));
 }
 
 void TestAllTypesLite_RepeatedGroup::MergeFrom(const TestAllTypesLite_RepeatedGroup& from) {
@@ -1623,42 +1528,15 @@ class TestAllTypesLite::_Internal {
   static void set_has_deceptively_named_list(HasBits* has_bits) { (*has_bits)[0] |= 134217728u; }
 };
 
-const ::protobuf_unittest::TestAllTypesLite_OptionalGroup&
-TestAllTypesLite::_Internal::optionalgroup(const TestAllTypesLite* msg) {
-  return *msg->optionalgroup_;
-}
-const ::protobuf_unittest::TestAllTypesLite_NestedMessage&
-TestAllTypesLite::_Internal::optional_nested_message(const TestAllTypesLite* msg) {
-  return *msg->optional_nested_message_;
-}
-const ::protobuf_unittest::ForeignMessageLite&
-TestAllTypesLite::_Internal::optional_foreign_message(const TestAllTypesLite* msg) {
-  return *msg->optional_foreign_message_;
-}
-const ::protobuf_unittest_import::ImportMessageLite&
-TestAllTypesLite::_Internal::optional_import_message(const TestAllTypesLite* msg) {
-  return *msg->optional_import_message_;
-}
-const ::protobuf_unittest_import::PublicImportMessageLite&
-TestAllTypesLite::_Internal::optional_public_import_message(const TestAllTypesLite* msg) {
-  return *msg->optional_public_import_message_;
-}
-const ::protobuf_unittest::TestAllTypesLite_NestedMessage&
-TestAllTypesLite::_Internal::optional_lazy_message(const TestAllTypesLite* msg) {
-  return *msg->optional_lazy_message_;
-}
-const ::protobuf_unittest::TestAllTypesLite_NestedMessage&
-TestAllTypesLite::_Internal::oneof_nested_message(const TestAllTypesLite* msg) {
-  return *msg->oneof_field_.oneof_nested_message_;
-}
-const ::protobuf_unittest::TestAllTypesLite_NestedMessage&
-TestAllTypesLite::_Internal::oneof_lazy_nested_message(const TestAllTypesLite* msg) {
-  return *msg->oneof_field_.oneof_lazy_nested_message_;
-}
-const ::protobuf_unittest::TestAllTypesLite_NestedMessage2&
-TestAllTypesLite::_Internal::oneof_nested_message2(const TestAllTypesLite* msg) {
-  return *msg->oneof_field_.oneof_nested_message2_;
-}
+const ::protobuf_unittest::TestAllTypesLite_OptionalGroup & TestAllTypesLite::_Internal::optionalgroup(const TestAllTypesLite* msg) { return *msg->optionalgroup_; }
+const ::protobuf_unittest::TestAllTypesLite_NestedMessage & TestAllTypesLite::_Internal::optional_nested_message(const TestAllTypesLite* msg) { return *msg->optional_nested_message_; }
+const ::protobuf_unittest::ForeignMessageLite & TestAllTypesLite::_Internal::optional_foreign_message(const TestAllTypesLite* msg) { return *msg->optional_foreign_message_; }
+const ::protobuf_unittest_import::ImportMessageLite & TestAllTypesLite::_Internal::optional_import_message(const TestAllTypesLite* msg) { return *msg->optional_import_message_; }
+const ::protobuf_unittest_import::PublicImportMessageLite & TestAllTypesLite::_Internal::optional_public_import_message(const TestAllTypesLite* msg) { return *msg->optional_public_import_message_; }
+const ::protobuf_unittest::TestAllTypesLite_NestedMessage & TestAllTypesLite::_Internal::optional_lazy_message(const TestAllTypesLite* msg) { return *msg->optional_lazy_message_; }
+const ::protobuf_unittest::TestAllTypesLite_NestedMessage & TestAllTypesLite::_Internal::oneof_nested_message(const TestAllTypesLite* msg) { return *msg->oneof_field_.oneof_nested_message_; }
+const ::protobuf_unittest::TestAllTypesLite_NestedMessage & TestAllTypesLite::_Internal::oneof_lazy_nested_message(const TestAllTypesLite* msg) { return *msg->oneof_field_.oneof_lazy_nested_message_; }
+const ::protobuf_unittest::TestAllTypesLite_NestedMessage2 & TestAllTypesLite::_Internal::oneof_nested_message2(const TestAllTypesLite* msg) { return *msg->oneof_field_.oneof_nested_message2_; }
 void TestAllTypesLite::clear_optional_import_message() {
   if(optional_import_message_ != nullptr) optional_import_message_->Clear();
   _has_bits_[0] &= ~0x00000800u;
@@ -1820,39 +1698,13 @@ TestAllTypesLite::TestAllTypesLite(const TestAllTypesLite& from)
   if(from._internal_has_default_cord()) {
     default_cord_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::NonEmptyDefault{}, from._internal_default_cord(), GetArenaForAllocation());
   }
-  if(from._internal_has_optionalgroup()) {
-    optionalgroup_ = new ::protobuf_unittest::TestAllTypesLite_OptionalGroup(*from.optionalgroup_);
-  } else {
-    optionalgroup_ = nullptr;
-  }
-  if(from._internal_has_optional_nested_message()) {
-    optional_nested_message_ = new ::protobuf_unittest::TestAllTypesLite_NestedMessage(*from.optional_nested_message_);
-  } else {
-    optional_nested_message_ = nullptr;
-  }
-  if(from._internal_has_optional_foreign_message()) {
-    optional_foreign_message_ = new ::protobuf_unittest::ForeignMessageLite(*from.optional_foreign_message_);
-  } else {
-    optional_foreign_message_ = nullptr;
-  }
-  if(from._internal_has_optional_import_message()) {
-    optional_import_message_ = new ::protobuf_unittest_import::ImportMessageLite(*from.optional_import_message_);
-  } else {
-    optional_import_message_ = nullptr;
-  }
-  if(from._internal_has_optional_public_import_message()) {
-    optional_public_import_message_ = new ::protobuf_unittest_import::PublicImportMessageLite(*from.optional_public_import_message_);
-  } else {
-    optional_public_import_message_ = nullptr;
-  }
-  if(from._internal_has_optional_lazy_message()) {
-    optional_lazy_message_ = new ::protobuf_unittest::TestAllTypesLite_NestedMessage(*from.optional_lazy_message_);
-  } else {
-    optional_lazy_message_ = nullptr;
-  }
-  ::memcpy(&optional_int64_, &from.optional_int64_,
-    static_cast<size_t>(reinterpret_cast<char*>(&default_foreign_enum_) -
-    reinterpret_cast<char*>(&optional_int64_)) + sizeof(default_foreign_enum_));
+  optionalgroup_ = from._internal_has_optionalgroup() ? new ::protobuf_unittest::TestAllTypesLite_OptionalGroup(*from.optionalgroup_) : nullptr;
+  optional_nested_message_ = from._internal_has_optional_nested_message() ? new ::protobuf_unittest::TestAllTypesLite_NestedMessage(*from.optional_nested_message_) : nullptr;
+  optional_foreign_message_ = from._internal_has_optional_foreign_message() ? new ::protobuf_unittest::ForeignMessageLite(*from.optional_foreign_message_) : nullptr;
+  optional_import_message_ = from._internal_has_optional_import_message() ? new ::protobuf_unittest_import::ImportMessageLite(*from.optional_import_message_) : nullptr;
+  optional_public_import_message_ = from._internal_has_optional_public_import_message() ? new ::protobuf_unittest_import::PublicImportMessageLite(*from.optional_public_import_message_) : nullptr;
+  optional_lazy_message_ = from._internal_has_optional_lazy_message() ? new ::protobuf_unittest::TestAllTypesLite_NestedMessage(*from.optional_lazy_message_) : nullptr;
+  ::memcpy(&optional_int64_, &from.optional_int64_, static_cast<size_t>(reinterpret_cast<char*>(&default_foreign_enum_) - reinterpret_cast<char*>(&optional_int64_)) + sizeof(default_foreign_enum_));
   clear_has_oneof_field();
   switch(from.oneof_field_case()) {
     case kOneofUint32: {
@@ -1907,10 +1759,7 @@ default_string_.UnsafeSetDefault(nullptr);
 default_bytes_.UnsafeSetDefault(nullptr);
 default_string_piece_.UnsafeSetDefault(nullptr);
 default_cord_.UnsafeSetDefault(nullptr);
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&optionalgroup_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&deceptively_named_list_) -
-    reinterpret_cast<char*>(&optionalgroup_)) + sizeof(deceptively_named_list_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&optionalgroup_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&deceptively_named_list_) - reinterpret_cast<char*>(&optionalgroup_)) + sizeof(deceptively_named_list_));
 default_import_enum_ = 8;
 optional_nested_enum_ = 1;
 optional_foreign_enum_ = 4;
@@ -1965,8 +1814,7 @@ void TestAllTypesLite::ArenaDtor(void* object) {
   TestAllTypesLite* _this = reinterpret_cast< TestAllTypesLite* >(object);
   (void)_this;
 }
-void TestAllTypesLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestAllTypesLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestAllTypesLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2097,19 +1945,13 @@ void TestAllTypesLite::Clear() {
     }
   }
   if(cached_has_bits & 0x0000c000u) {
-    ::memset(&optional_int64_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&optional_int32_) -
-        reinterpret_cast<char*>(&optional_int64_)) + sizeof(optional_int32_));
+    ::memset(&optional_int64_, 0, static_cast<size_t>(reinterpret_cast<char*>(&optional_int32_) - reinterpret_cast<char*>(&optional_int64_)) + sizeof(optional_int32_));
   }
   if(cached_has_bits & 0x00ff0000u) {
-    ::memset(&optional_uint32_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&optional_sfixed32_) -
-        reinterpret_cast<char*>(&optional_uint32_)) + sizeof(optional_sfixed32_));
+    ::memset(&optional_uint32_, 0, static_cast<size_t>(reinterpret_cast<char*>(&optional_sfixed32_) - reinterpret_cast<char*>(&optional_uint32_)) + sizeof(optional_sfixed32_));
   }
   if(cached_has_bits & 0xff000000u) {
-    ::memset(&optional_float_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&deceptively_named_list_) -
-        reinterpret_cast<char*>(&optional_float_)) + sizeof(deceptively_named_list_));
+    ::memset(&optional_float_, 0, static_cast<size_t>(reinterpret_cast<char*>(&deceptively_named_list_) - reinterpret_cast<char*>(&optional_float_)) + sizeof(deceptively_named_list_));
     default_import_enum_ = 8;
     optional_nested_enum_ = 1;
     optional_foreign_enum_ = 4;
@@ -3037,10 +2879,7 @@ const char* TestAllTypesLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3537,48 +3376,42 @@ size_t TestAllTypesLite::ByteSizeLong() const {
   // repeated int32 repeated_int32 = 31;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->repeated_int32_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_int32_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_int32_size());
     total_size += data_size;
   }
 
   // repeated int64 repeated_int64 = 32;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(this->repeated_int64_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_int64_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_int64_size());
     total_size += data_size;
   }
 
   // repeated uint32 repeated_uint32 = 33;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(this->repeated_uint32_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_uint32_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_uint32_size());
     total_size += data_size;
   }
 
   // repeated uint64 repeated_uint64 = 34;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(this->repeated_uint64_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_uint64_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_uint64_size());
     total_size += data_size;
   }
 
   // repeated sint32 repeated_sint32 = 35;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SInt32Size(this->repeated_sint32_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_sint32_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_sint32_size());
     total_size += data_size;
   }
 
   // repeated sint64 repeated_sint64 = 36;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SInt64Size(this->repeated_sint64_);
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_sint64_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_sint64_size());
     total_size += data_size;
   }
 
@@ -3586,8 +3419,7 @@ size_t TestAllTypesLite::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_fixed32_size());
     size_t data_size = 4UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_fixed32_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_fixed32_size());
     total_size += data_size;
   }
 
@@ -3595,8 +3427,7 @@ size_t TestAllTypesLite::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_fixed64_size());
     size_t data_size = 8UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_fixed64_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_fixed64_size());
     total_size += data_size;
   }
 
@@ -3604,8 +3435,7 @@ size_t TestAllTypesLite::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_sfixed32_size());
     size_t data_size = 4UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_sfixed32_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_sfixed32_size());
     total_size += data_size;
   }
 
@@ -3613,8 +3443,7 @@ size_t TestAllTypesLite::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_sfixed64_size());
     size_t data_size = 8UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_sfixed64_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_sfixed64_size());
     total_size += data_size;
   }
 
@@ -3622,8 +3451,7 @@ size_t TestAllTypesLite::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_float_size());
     size_t data_size = 4UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_float_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_float_size());
     total_size += data_size;
   }
 
@@ -3631,8 +3459,7 @@ size_t TestAllTypesLite::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_double_size());
     size_t data_size = 8UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_double_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_double_size());
     total_size += data_size;
   }
 
@@ -3640,8 +3467,7 @@ size_t TestAllTypesLite::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_bool_size());
     size_t data_size = 1UL * count;
-    total_size += 2 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_bool_size());
+    total_size += 2 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_bool_size());
     total_size += data_size;
   }
 
@@ -4022,10 +3848,9 @@ size_t TestAllTypesLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestAllTypesLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllTypesLite*>(
-      &from));
+void TestAllTypesLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllTypesLite*>(&from));
 }
 
 void TestAllTypesLite::MergeFrom(const TestAllTypesLite& from) {
@@ -4244,9 +4069,7 @@ void TestAllTypesLite::MergeFrom(const TestAllTypesLite& from) {
       _internal_mutable_oneof_nested_message2()->::protobuf_unittest::TestAllTypesLite_NestedMessage2::MergeFrom(from._internal_oneof_nested_message2());
       break;
     }
-    case ONEOF_FIELD_NOT_SET: {
-      break;
-    }
+    case ONEOF_FIELD_NOT_SET: break;
   }
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
@@ -4294,46 +4117,14 @@ void TestAllTypesLite::InternalSwap(TestAllTypesLite* other) {
   repeated_string_piece_.InternalSwap(&other->repeated_string_piece_);
   repeated_cord_.InternalSwap(&other->repeated_cord_);
   repeated_lazy_message_.InternalSwap(&other->repeated_lazy_message_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &optional_string_, lhs_arena,
-      &other->optional_string_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &optional_bytes_, lhs_arena,
-      &other->optional_bytes_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &optional_string_piece_, lhs_arena,
-      &other->optional_string_piece_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &optional_cord_, lhs_arena,
-      &other->optional_cord_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      nullptr,
-      &default_string_, lhs_arena,
-      &other->default_string_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      nullptr,
-      &default_bytes_, lhs_arena,
-      &other->default_bytes_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      nullptr,
-      &default_string_piece_, lhs_arena,
-      &other->default_string_piece_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      nullptr,
-      &default_cord_, lhs_arena,
-      &other->default_cord_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &optional_string_, lhs_arena, &other->optional_string_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &optional_bytes_, lhs_arena, &other->optional_bytes_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &optional_string_piece_, lhs_arena, &other->optional_string_piece_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &optional_cord_, lhs_arena, &other->optional_cord_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(nullptr, &default_string_, lhs_arena, &other->default_string_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(nullptr, &default_bytes_, lhs_arena, &other->default_bytes_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(nullptr, &default_string_piece_, lhs_arena, &other->default_string_piece_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(nullptr, &default_cord_, lhs_arena, &other->default_cord_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(TestAllTypesLite, deceptively_named_list_)
       + sizeof(TestAllTypesLite::deceptively_named_list_)
@@ -4410,8 +4201,7 @@ void ForeignMessageLite::ArenaDtor(void* object) {
   ForeignMessageLite* _this = reinterpret_cast< ForeignMessageLite* >(object);
   (void)_this;
 }
-void ForeignMessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void ForeignMessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void ForeignMessageLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -4451,10 +4241,7 @@ const char* ForeignMessageLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -4509,10 +4296,9 @@ size_t ForeignMessageLite::ByteSizeLong() const {
   return total_size;
 }
 
-void ForeignMessageLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ForeignMessageLite*>(
-      &from));
+void ForeignMessageLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ForeignMessageLite*>(&from));
 }
 
 void ForeignMessageLite::MergeFrom(const ForeignMessageLite& from) {
@@ -4615,8 +4401,7 @@ void TestPackedTypesLite::ArenaDtor(void* object) {
   TestPackedTypesLite* _this = reinterpret_cast< TestPackedTypesLite* >(object);
   (void)_this;
 }
-void TestPackedTypesLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestPackedTypesLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestPackedTypesLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -4817,10 +4602,7 @@ const char* TestPackedTypesLite::_InternalParse(const char* ptr, ::PROTOBUF_NAME
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5102,10 +4884,9 @@ size_t TestPackedTypesLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestPackedTypesLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestPackedTypesLite*>(
-      &from));
+void TestPackedTypesLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestPackedTypesLite*>(&from));
 }
 
 void TestPackedTypesLite::MergeFrom(const TestPackedTypesLite& from) {
@@ -5205,8 +4986,7 @@ void TestAllExtensionsLite::ArenaDtor(void* object) {
   TestAllExtensionsLite* _this = reinterpret_cast< TestAllExtensionsLite* >(object);
   (void)_this;
 }
-void TestAllExtensionsLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestAllExtensionsLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestAllExtensionsLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5236,10 +5016,7 @@ const char* TestAllExtensionsLite::_InternalParse(const char* ptr, ::PROTOBUF_NA
       CHK_(ptr != nullptr);
       continue;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5286,10 +5063,9 @@ size_t TestAllExtensionsLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestAllExtensionsLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllExtensionsLite*>(
-      &from));
+void TestAllExtensionsLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestAllExtensionsLite*>(&from));
 }
 
 void TestAllExtensionsLite::MergeFrom(const TestAllExtensionsLite& from) {
@@ -5370,8 +5146,7 @@ void OptionalGroup_extension_lite::ArenaDtor(void* object) {
   OptionalGroup_extension_lite* _this = reinterpret_cast< OptionalGroup_extension_lite* >(object);
   (void)_this;
 }
-void OptionalGroup_extension_lite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void OptionalGroup_extension_lite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void OptionalGroup_extension_lite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5411,10 +5186,7 @@ const char* OptionalGroup_extension_lite::_InternalParse(const char* ptr, ::PROT
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5469,10 +5241,9 @@ size_t OptionalGroup_extension_lite::ByteSizeLong() const {
   return total_size;
 }
 
-void OptionalGroup_extension_lite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const OptionalGroup_extension_lite*>(
-      &from));
+void OptionalGroup_extension_lite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const OptionalGroup_extension_lite*>(&from));
 }
 
 void OptionalGroup_extension_lite::MergeFrom(const OptionalGroup_extension_lite& from) {
@@ -5552,8 +5323,7 @@ void RepeatedGroup_extension_lite::ArenaDtor(void* object) {
   RepeatedGroup_extension_lite* _this = reinterpret_cast< RepeatedGroup_extension_lite* >(object);
   (void)_this;
 }
-void RepeatedGroup_extension_lite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void RepeatedGroup_extension_lite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void RepeatedGroup_extension_lite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5593,10 +5363,7 @@ const char* RepeatedGroup_extension_lite::_InternalParse(const char* ptr, ::PROT
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5651,10 +5418,9 @@ size_t RepeatedGroup_extension_lite::ByteSizeLong() const {
   return total_size;
 }
 
-void RepeatedGroup_extension_lite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const RepeatedGroup_extension_lite*>(
-      &from));
+void RepeatedGroup_extension_lite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const RepeatedGroup_extension_lite*>(&from));
 }
 
 void RepeatedGroup_extension_lite::MergeFrom(const RepeatedGroup_extension_lite& from) {
@@ -5731,8 +5497,7 @@ void TestPackedExtensionsLite::ArenaDtor(void* object) {
   TestPackedExtensionsLite* _this = reinterpret_cast< TestPackedExtensionsLite* >(object);
   (void)_this;
 }
-void TestPackedExtensionsLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestPackedExtensionsLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestPackedExtensionsLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5762,10 +5527,7 @@ const char* TestPackedExtensionsLite::_InternalParse(const char* ptr, ::PROTOBUF
       CHK_(ptr != nullptr);
       continue;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5812,10 +5574,9 @@ size_t TestPackedExtensionsLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestPackedExtensionsLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestPackedExtensionsLite*>(
-      &from));
+void TestPackedExtensionsLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestPackedExtensionsLite*>(&from));
 }
 
 void TestPackedExtensionsLite::MergeFrom(const TestPackedExtensionsLite& from) {
@@ -5891,8 +5652,7 @@ void TestNestedExtensionLite::ArenaDtor(void* object) {
   TestNestedExtensionLite* _this = reinterpret_cast< TestNestedExtensionLite* >(object);
   (void)_this;
 }
-void TestNestedExtensionLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestNestedExtensionLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestNestedExtensionLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -5916,10 +5676,7 @@ const char* TestNestedExtensionLite::_InternalParse(const char* ptr, ::PROTOBUF_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -5960,10 +5717,9 @@ size_t TestNestedExtensionLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestNestedExtensionLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestNestedExtensionLite*>(
-      &from));
+void TestNestedExtensionLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestNestedExtensionLite*>(&from));
 }
 
 void TestNestedExtensionLite::MergeFrom(const TestNestedExtensionLite& from) {
@@ -6007,10 +5763,7 @@ class TestDeprecatedLite::_Internal {
   static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000008) ^ 0x00000008) != 0; }
 };
 
-const ::protobuf_unittest::TestDeprecatedLite&
-TestDeprecatedLite::_Internal::deprecated_field4(const TestDeprecatedLite* msg) {
-  return *msg->deprecated_field4_;
-}
+const ::protobuf_unittest::TestDeprecatedLite & TestDeprecatedLite::_Internal::deprecated_field4(const TestDeprecatedLite* msg) { return *msg->deprecated_field4_; }
 TestDeprecatedLite::TestDeprecatedLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
@@ -6031,14 +5784,8 @@ TestDeprecatedLite::TestDeprecatedLite(const TestDeprecatedLite& from)
   if(from._internal_has_deprecated_field3()) {
     deprecated_field3_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_deprecated_field3(), GetArenaForAllocation());
   }
-  if(from._internal_has_deprecated_field4()) {
-    deprecated_field4_ = new ::protobuf_unittest::TestDeprecatedLite(*from.deprecated_field4_);
-  } else {
-    deprecated_field4_ = nullptr;
-  }
-  ::memcpy(&deprecated_field_, &from.deprecated_field_,
-    static_cast<size_t>(reinterpret_cast<char*>(&deprecated_field2_) -
-    reinterpret_cast<char*>(&deprecated_field_)) + sizeof(deprecated_field2_));
+  deprecated_field4_ = from._internal_has_deprecated_field4() ? new ::protobuf_unittest::TestDeprecatedLite(*from.deprecated_field4_) : nullptr;
+  ::memcpy(&deprecated_field_, &from.deprecated_field_, static_cast<size_t>(reinterpret_cast<char*>(&deprecated_field2_) - reinterpret_cast<char*>(&deprecated_field_)) + sizeof(deprecated_field2_));
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestDeprecatedLite)
 }
 
@@ -6047,10 +5794,7 @@ deprecated_field3_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmpty
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   deprecated_field3_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&deprecated_field4_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&deprecated_field2_) -
-    reinterpret_cast<char*>(&deprecated_field4_)) + sizeof(deprecated_field2_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&deprecated_field4_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&deprecated_field2_) - reinterpret_cast<char*>(&deprecated_field4_)) + sizeof(deprecated_field2_));
 }
 
 TestDeprecatedLite::~TestDeprecatedLite() {
@@ -6070,8 +5814,7 @@ void TestDeprecatedLite::ArenaDtor(void* object) {
   TestDeprecatedLite* _this = reinterpret_cast< TestDeprecatedLite* >(object);
   (void)_this;
 }
-void TestDeprecatedLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestDeprecatedLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestDeprecatedLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -6093,9 +5836,7 @@ void TestDeprecatedLite::Clear() {
     }
   }
   if(cached_has_bits & 0x0000000cu) {
-    ::memset(&deprecated_field_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&deprecated_field2_) -
-        reinterpret_cast<char*>(&deprecated_field_)) + sizeof(deprecated_field2_));
+    ::memset(&deprecated_field_, 0, static_cast<size_t>(reinterpret_cast<char*>(&deprecated_field2_) - reinterpret_cast<char*>(&deprecated_field_)) + sizeof(deprecated_field2_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear<std::string>();
@@ -6151,10 +5892,7 @@ const char* TestDeprecatedLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -6242,10 +5980,9 @@ size_t TestDeprecatedLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestDeprecatedLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestDeprecatedLite*>(
-      &from));
+void TestDeprecatedLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestDeprecatedLite*>(&from));
 }
 
 void TestDeprecatedLite::MergeFrom(const TestDeprecatedLite& from) {
@@ -6294,11 +6031,7 @@ void TestDeprecatedLite::InternalSwap(TestDeprecatedLite* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_has_bits_[0], other->_has_bits_[0]);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &deprecated_field3_, lhs_arena,
-      &other->deprecated_field3_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &deprecated_field3_, lhs_arena, &other->deprecated_field3_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(TestDeprecatedLite, deprecated_field2_)
       + sizeof(TestDeprecatedLite::deprecated_field2_)
@@ -6319,10 +6052,7 @@ class TestParsingMergeLite_RepeatedFieldsGenerator_Group1::_Internal {
   static void set_has_field1(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::protobuf_unittest::TestAllTypesLite&
-TestParsingMergeLite_RepeatedFieldsGenerator_Group1::_Internal::field1(const TestParsingMergeLite_RepeatedFieldsGenerator_Group1* msg) {
-  return *msg->field1_;
-}
+const ::protobuf_unittest::TestAllTypesLite & TestParsingMergeLite_RepeatedFieldsGenerator_Group1::_Internal::field1(const TestParsingMergeLite_RepeatedFieldsGenerator_Group1* msg) { return *msg->field1_; }
 TestParsingMergeLite_RepeatedFieldsGenerator_Group1::TestParsingMergeLite_RepeatedFieldsGenerator_Group1(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
@@ -6336,11 +6066,7 @@ TestParsingMergeLite_RepeatedFieldsGenerator_Group1::TestParsingMergeLite_Repeat
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  if(from._internal_has_field1()) {
-    field1_ = new ::protobuf_unittest::TestAllTypesLite(*from.field1_);
-  } else {
-    field1_ = nullptr;
-  }
+  field1_ = from._internal_has_field1() ? new ::protobuf_unittest::TestAllTypesLite(*from.field1_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.Group1)
 }
 
@@ -6364,8 +6090,7 @@ void TestParsingMergeLite_RepeatedFieldsGenerator_Group1::ArenaDtor(void* object
   TestParsingMergeLite_RepeatedFieldsGenerator_Group1* _this = reinterpret_cast< TestParsingMergeLite_RepeatedFieldsGenerator_Group1* >(object);
   (void)_this;
 }
-void TestParsingMergeLite_RepeatedFieldsGenerator_Group1::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestParsingMergeLite_RepeatedFieldsGenerator_Group1::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestParsingMergeLite_RepeatedFieldsGenerator_Group1::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -6408,10 +6133,7 @@ const char* TestParsingMergeLite_RepeatedFieldsGenerator_Group1::_InternalParse(
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -6466,10 +6188,9 @@ size_t TestParsingMergeLite_RepeatedFieldsGenerator_Group1::ByteSizeLong() const
   return total_size;
 }
 
-void TestParsingMergeLite_RepeatedFieldsGenerator_Group1::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite_RepeatedFieldsGenerator_Group1*>(
-      &from));
+void TestParsingMergeLite_RepeatedFieldsGenerator_Group1::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite_RepeatedFieldsGenerator_Group1*>(&from));
 }
 
 void TestParsingMergeLite_RepeatedFieldsGenerator_Group1::MergeFrom(const TestParsingMergeLite_RepeatedFieldsGenerator_Group1& from) {
@@ -6514,10 +6235,7 @@ class TestParsingMergeLite_RepeatedFieldsGenerator_Group2::_Internal {
   static void set_has_field1(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::protobuf_unittest::TestAllTypesLite&
-TestParsingMergeLite_RepeatedFieldsGenerator_Group2::_Internal::field1(const TestParsingMergeLite_RepeatedFieldsGenerator_Group2* msg) {
-  return *msg->field1_;
-}
+const ::protobuf_unittest::TestAllTypesLite & TestParsingMergeLite_RepeatedFieldsGenerator_Group2::_Internal::field1(const TestParsingMergeLite_RepeatedFieldsGenerator_Group2* msg) { return *msg->field1_; }
 TestParsingMergeLite_RepeatedFieldsGenerator_Group2::TestParsingMergeLite_RepeatedFieldsGenerator_Group2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
@@ -6531,11 +6249,7 @@ TestParsingMergeLite_RepeatedFieldsGenerator_Group2::TestParsingMergeLite_Repeat
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  if(from._internal_has_field1()) {
-    field1_ = new ::protobuf_unittest::TestAllTypesLite(*from.field1_);
-  } else {
-    field1_ = nullptr;
-  }
+  field1_ = from._internal_has_field1() ? new ::protobuf_unittest::TestAllTypesLite(*from.field1_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.Group2)
 }
 
@@ -6559,8 +6273,7 @@ void TestParsingMergeLite_RepeatedFieldsGenerator_Group2::ArenaDtor(void* object
   TestParsingMergeLite_RepeatedFieldsGenerator_Group2* _this = reinterpret_cast< TestParsingMergeLite_RepeatedFieldsGenerator_Group2* >(object);
   (void)_this;
 }
-void TestParsingMergeLite_RepeatedFieldsGenerator_Group2::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestParsingMergeLite_RepeatedFieldsGenerator_Group2::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestParsingMergeLite_RepeatedFieldsGenerator_Group2::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -6603,10 +6316,7 @@ const char* TestParsingMergeLite_RepeatedFieldsGenerator_Group2::_InternalParse(
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -6661,10 +6371,9 @@ size_t TestParsingMergeLite_RepeatedFieldsGenerator_Group2::ByteSizeLong() const
   return total_size;
 }
 
-void TestParsingMergeLite_RepeatedFieldsGenerator_Group2::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite_RepeatedFieldsGenerator_Group2*>(
-      &from));
+void TestParsingMergeLite_RepeatedFieldsGenerator_Group2::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite_RepeatedFieldsGenerator_Group2*>(&from));
 }
 
 void TestParsingMergeLite_RepeatedFieldsGenerator_Group2::MergeFrom(const TestParsingMergeLite_RepeatedFieldsGenerator_Group2& from) {
@@ -6753,8 +6462,7 @@ void TestParsingMergeLite_RepeatedFieldsGenerator::ArenaDtor(void* object) {
   TestParsingMergeLite_RepeatedFieldsGenerator* _this = reinterpret_cast< TestParsingMergeLite_RepeatedFieldsGenerator* >(object);
   (void)_this;
 }
-void TestParsingMergeLite_RepeatedFieldsGenerator::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestParsingMergeLite_RepeatedFieldsGenerator::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestParsingMergeLite_RepeatedFieldsGenerator::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -6880,10 +6588,7 @@ const char* TestParsingMergeLite_RepeatedFieldsGenerator::_InternalParse(const c
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -7008,10 +6713,9 @@ size_t TestParsingMergeLite_RepeatedFieldsGenerator::ByteSizeLong() const {
   return total_size;
 }
 
-void TestParsingMergeLite_RepeatedFieldsGenerator::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite_RepeatedFieldsGenerator*>(
-      &from));
+void TestParsingMergeLite_RepeatedFieldsGenerator::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite_RepeatedFieldsGenerator*>(&from));
 }
 
 void TestParsingMergeLite_RepeatedFieldsGenerator::MergeFrom(const TestParsingMergeLite_RepeatedFieldsGenerator& from) {
@@ -7065,10 +6769,7 @@ class TestParsingMergeLite_OptionalGroup::_Internal {
   static void set_has_optional_group_all_types(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::protobuf_unittest::TestAllTypesLite&
-TestParsingMergeLite_OptionalGroup::_Internal::optional_group_all_types(const TestParsingMergeLite_OptionalGroup* msg) {
-  return *msg->optional_group_all_types_;
-}
+const ::protobuf_unittest::TestAllTypesLite & TestParsingMergeLite_OptionalGroup::_Internal::optional_group_all_types(const TestParsingMergeLite_OptionalGroup* msg) { return *msg->optional_group_all_types_; }
 TestParsingMergeLite_OptionalGroup::TestParsingMergeLite_OptionalGroup(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
@@ -7082,11 +6783,7 @@ TestParsingMergeLite_OptionalGroup::TestParsingMergeLite_OptionalGroup(const Tes
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  if(from._internal_has_optional_group_all_types()) {
-    optional_group_all_types_ = new ::protobuf_unittest::TestAllTypesLite(*from.optional_group_all_types_);
-  } else {
-    optional_group_all_types_ = nullptr;
-  }
+  optional_group_all_types_ = from._internal_has_optional_group_all_types() ? new ::protobuf_unittest::TestAllTypesLite(*from.optional_group_all_types_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestParsingMergeLite.OptionalGroup)
 }
 
@@ -7110,8 +6807,7 @@ void TestParsingMergeLite_OptionalGroup::ArenaDtor(void* object) {
   TestParsingMergeLite_OptionalGroup* _this = reinterpret_cast< TestParsingMergeLite_OptionalGroup* >(object);
   (void)_this;
 }
-void TestParsingMergeLite_OptionalGroup::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestParsingMergeLite_OptionalGroup::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestParsingMergeLite_OptionalGroup::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -7154,10 +6850,7 @@ const char* TestParsingMergeLite_OptionalGroup::_InternalParse(const char* ptr, 
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -7212,10 +6905,9 @@ size_t TestParsingMergeLite_OptionalGroup::ByteSizeLong() const {
   return total_size;
 }
 
-void TestParsingMergeLite_OptionalGroup::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite_OptionalGroup*>(
-      &from));
+void TestParsingMergeLite_OptionalGroup::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite_OptionalGroup*>(&from));
 }
 
 void TestParsingMergeLite_OptionalGroup::MergeFrom(const TestParsingMergeLite_OptionalGroup& from) {
@@ -7260,10 +6952,7 @@ class TestParsingMergeLite_RepeatedGroup::_Internal {
   static void set_has_repeated_group_all_types(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::protobuf_unittest::TestAllTypesLite&
-TestParsingMergeLite_RepeatedGroup::_Internal::repeated_group_all_types(const TestParsingMergeLite_RepeatedGroup* msg) {
-  return *msg->repeated_group_all_types_;
-}
+const ::protobuf_unittest::TestAllTypesLite & TestParsingMergeLite_RepeatedGroup::_Internal::repeated_group_all_types(const TestParsingMergeLite_RepeatedGroup* msg) { return *msg->repeated_group_all_types_; }
 TestParsingMergeLite_RepeatedGroup::TestParsingMergeLite_RepeatedGroup(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
@@ -7277,11 +6966,7 @@ TestParsingMergeLite_RepeatedGroup::TestParsingMergeLite_RepeatedGroup(const Tes
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  if(from._internal_has_repeated_group_all_types()) {
-    repeated_group_all_types_ = new ::protobuf_unittest::TestAllTypesLite(*from.repeated_group_all_types_);
-  } else {
-    repeated_group_all_types_ = nullptr;
-  }
+  repeated_group_all_types_ = from._internal_has_repeated_group_all_types() ? new ::protobuf_unittest::TestAllTypesLite(*from.repeated_group_all_types_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestParsingMergeLite.RepeatedGroup)
 }
 
@@ -7305,8 +6990,7 @@ void TestParsingMergeLite_RepeatedGroup::ArenaDtor(void* object) {
   TestParsingMergeLite_RepeatedGroup* _this = reinterpret_cast< TestParsingMergeLite_RepeatedGroup* >(object);
   (void)_this;
 }
-void TestParsingMergeLite_RepeatedGroup::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestParsingMergeLite_RepeatedGroup::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestParsingMergeLite_RepeatedGroup::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -7349,10 +7033,7 @@ const char* TestParsingMergeLite_RepeatedGroup::_InternalParse(const char* ptr, 
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -7407,10 +7088,9 @@ size_t TestParsingMergeLite_RepeatedGroup::ByteSizeLong() const {
   return total_size;
 }
 
-void TestParsingMergeLite_RepeatedGroup::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite_RepeatedGroup*>(
-      &from));
+void TestParsingMergeLite_RepeatedGroup::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite_RepeatedGroup*>(&from));
 }
 
 void TestParsingMergeLite_RepeatedGroup::MergeFrom(const TestParsingMergeLite_RepeatedGroup& from) {
@@ -7460,18 +7140,9 @@ class TestParsingMergeLite::_Internal {
   static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0; }
 };
 
-const ::protobuf_unittest::TestAllTypesLite&
-TestParsingMergeLite::_Internal::required_all_types(const TestParsingMergeLite* msg) {
-  return *msg->required_all_types_;
-}
-const ::protobuf_unittest::TestAllTypesLite&
-TestParsingMergeLite::_Internal::optional_all_types(const TestParsingMergeLite* msg) {
-  return *msg->optional_all_types_;
-}
-const ::protobuf_unittest::TestParsingMergeLite_OptionalGroup&
-TestParsingMergeLite::_Internal::optionalgroup(const TestParsingMergeLite* msg) {
-  return *msg->optionalgroup_;
-}
+const ::protobuf_unittest::TestAllTypesLite & TestParsingMergeLite::_Internal::required_all_types(const TestParsingMergeLite* msg) { return *msg->required_all_types_; }
+const ::protobuf_unittest::TestAllTypesLite & TestParsingMergeLite::_Internal::optional_all_types(const TestParsingMergeLite* msg) { return *msg->optional_all_types_; }
+const ::protobuf_unittest::TestParsingMergeLite_OptionalGroup & TestParsingMergeLite::_Internal::optionalgroup(const TestParsingMergeLite* msg) { return *msg->optionalgroup_; }
 TestParsingMergeLite::TestParsingMergeLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned),
@@ -7491,29 +7162,14 @@ TestParsingMergeLite::TestParsingMergeLite(const TestParsingMergeLite& from)
       repeatedgroup_(from.repeatedgroup_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
   _extensions_.MergeFrom(internal_default_instance(), from._extensions_);
-  if(from._internal_has_required_all_types()) {
-    required_all_types_ = new ::protobuf_unittest::TestAllTypesLite(*from.required_all_types_);
-  } else {
-    required_all_types_ = nullptr;
-  }
-  if(from._internal_has_optional_all_types()) {
-    optional_all_types_ = new ::protobuf_unittest::TestAllTypesLite(*from.optional_all_types_);
-  } else {
-    optional_all_types_ = nullptr;
-  }
-  if(from._internal_has_optionalgroup()) {
-    optionalgroup_ = new ::protobuf_unittest::TestParsingMergeLite_OptionalGroup(*from.optionalgroup_);
-  } else {
-    optionalgroup_ = nullptr;
-  }
+  required_all_types_ = from._internal_has_required_all_types() ? new ::protobuf_unittest::TestAllTypesLite(*from.required_all_types_) : nullptr;
+  optional_all_types_ = from._internal_has_optional_all_types() ? new ::protobuf_unittest::TestAllTypesLite(*from.optional_all_types_) : nullptr;
+  optionalgroup_ = from._internal_has_optionalgroup() ? new ::protobuf_unittest::TestParsingMergeLite_OptionalGroup(*from.optionalgroup_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.TestParsingMergeLite)
 }
 
 inline void TestParsingMergeLite::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&required_all_types_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&optionalgroup_) -
-    reinterpret_cast<char*>(&required_all_types_)) + sizeof(optionalgroup_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&required_all_types_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&optionalgroup_) - reinterpret_cast<char*>(&required_all_types_)) + sizeof(optionalgroup_));
 }
 
 TestParsingMergeLite::~TestParsingMergeLite() {
@@ -7534,8 +7190,7 @@ void TestParsingMergeLite::ArenaDtor(void* object) {
   TestParsingMergeLite* _this = reinterpret_cast< TestParsingMergeLite* >(object);
   (void)_this;
 }
-void TestParsingMergeLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestParsingMergeLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestParsingMergeLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -7638,10 +7293,7 @@ const char* TestParsingMergeLite::_InternalParse(const char* ptr, ::PROTOBUF_NAM
       CHK_(ptr != nullptr);
       continue;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -7749,10 +7401,9 @@ size_t TestParsingMergeLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestParsingMergeLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite*>(
-      &from));
+void TestParsingMergeLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestParsingMergeLite*>(&from));
 }
 
 void TestParsingMergeLite::MergeFrom(const TestParsingMergeLite& from) {
@@ -7852,8 +7503,7 @@ void TestEmptyMessageLite::ArenaDtor(void* object) {
   TestEmptyMessageLite* _this = reinterpret_cast< TestEmptyMessageLite* >(object);
   (void)_this;
 }
-void TestEmptyMessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestEmptyMessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestEmptyMessageLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -7877,10 +7527,7 @@ const char* TestEmptyMessageLite::_InternalParse(const char* ptr, ::PROTOBUF_NAM
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -7921,10 +7568,9 @@ size_t TestEmptyMessageLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestEmptyMessageLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestEmptyMessageLite*>(
-      &from));
+void TestEmptyMessageLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestEmptyMessageLite*>(&from));
 }
 
 void TestEmptyMessageLite::MergeFrom(const TestEmptyMessageLite& from) {
@@ -7996,8 +7642,7 @@ void TestEmptyMessageWithExtensionsLite::ArenaDtor(void* object) {
   TestEmptyMessageWithExtensionsLite* _this = reinterpret_cast< TestEmptyMessageWithExtensionsLite* >(object);
   (void)_this;
 }
-void TestEmptyMessageWithExtensionsLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestEmptyMessageWithExtensionsLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestEmptyMessageWithExtensionsLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -8027,10 +7672,7 @@ const char* TestEmptyMessageWithExtensionsLite::_InternalParse(const char* ptr, 
       CHK_(ptr != nullptr);
       continue;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -8077,10 +7719,9 @@ size_t TestEmptyMessageWithExtensionsLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestEmptyMessageWithExtensionsLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestEmptyMessageWithExtensionsLite*>(
-      &from));
+void TestEmptyMessageWithExtensionsLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestEmptyMessageWithExtensionsLite*>(&from));
 }
 
 void TestEmptyMessageWithExtensionsLite::MergeFrom(const TestEmptyMessageWithExtensionsLite& from) {
@@ -8140,9 +7781,7 @@ V1MessageLite::V1MessageLite(const V1MessageLite& from)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  ::memcpy(&int_field_, &from.int_field_,
-    static_cast<size_t>(reinterpret_cast<char*>(&enum_field_) -
-    reinterpret_cast<char*>(&int_field_)) + sizeof(enum_field_));
+  ::memcpy(&int_field_, &from.int_field_, static_cast<size_t>(reinterpret_cast<char*>(&enum_field_) - reinterpret_cast<char*>(&int_field_)) + sizeof(enum_field_));
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.V1MessageLite)
 }
 
@@ -8166,8 +7805,7 @@ void V1MessageLite::ArenaDtor(void* object) {
   V1MessageLite* _this = reinterpret_cast< V1MessageLite* >(object);
   (void)_this;
 }
-void V1MessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void V1MessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void V1MessageLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -8224,10 +7862,7 @@ const char* V1MessageLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -8293,10 +7928,9 @@ size_t V1MessageLite::ByteSizeLong() const {
   return total_size;
 }
 
-void V1MessageLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const V1MessageLite*>(
-      &from));
+void V1MessageLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const V1MessageLite*>(&from));
 }
 
 void V1MessageLite::MergeFrom(const V1MessageLite& from) {
@@ -8364,9 +7998,7 @@ V2MessageLite::V2MessageLite(const V2MessageLite& from)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
-  ::memcpy(&int_field_, &from.int_field_,
-    static_cast<size_t>(reinterpret_cast<char*>(&enum_field_) -
-    reinterpret_cast<char*>(&int_field_)) + sizeof(enum_field_));
+  ::memcpy(&int_field_, &from.int_field_, static_cast<size_t>(reinterpret_cast<char*>(&enum_field_) - reinterpret_cast<char*>(&int_field_)) + sizeof(enum_field_));
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.V2MessageLite)
 }
 
@@ -8390,8 +8022,7 @@ void V2MessageLite::ArenaDtor(void* object) {
   V2MessageLite* _this = reinterpret_cast< V2MessageLite* >(object);
   (void)_this;
 }
-void V2MessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void V2MessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void V2MessageLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -8448,10 +8079,7 @@ const char* V2MessageLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -8517,10 +8145,9 @@ size_t V2MessageLite::ByteSizeLong() const {
   return total_size;
 }
 
-void V2MessageLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const V2MessageLite*>(
-      &from));
+void V2MessageLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const V2MessageLite*>(&from));
 }
 
 void V2MessageLite::MergeFrom(const V2MessageLite& from) {
@@ -8609,8 +8236,7 @@ void TestHugeFieldNumbersLite_OptionalGroup::ArenaDtor(void* object) {
   TestHugeFieldNumbersLite_OptionalGroup* _this = reinterpret_cast< TestHugeFieldNumbersLite_OptionalGroup* >(object);
   (void)_this;
 }
-void TestHugeFieldNumbersLite_OptionalGroup::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestHugeFieldNumbersLite_OptionalGroup::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestHugeFieldNumbersLite_OptionalGroup::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -8650,10 +8276,7 @@ const char* TestHugeFieldNumbersLite_OptionalGroup::_InternalParse(const char* p
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -8708,10 +8331,9 @@ size_t TestHugeFieldNumbersLite_OptionalGroup::ByteSizeLong() const {
   return total_size;
 }
 
-void TestHugeFieldNumbersLite_OptionalGroup::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestHugeFieldNumbersLite_OptionalGroup*>(
-      &from));
+void TestHugeFieldNumbersLite_OptionalGroup::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestHugeFieldNumbersLite_OptionalGroup*>(&from));
 }
 
 void TestHugeFieldNumbersLite_OptionalGroup::MergeFrom(const TestHugeFieldNumbersLite_OptionalGroup& from) {
@@ -8770,18 +8392,9 @@ class TestHugeFieldNumbersLite::_Internal {
   static const ::protobuf_unittest::TestAllTypesLite& oneof_test_all_types(const TestHugeFieldNumbersLite* msg);
 };
 
-const ::protobuf_unittest::ForeignMessageLite&
-TestHugeFieldNumbersLite::_Internal::optional_message(const TestHugeFieldNumbersLite* msg) {
-  return *msg->optional_message_;
-}
-const ::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup&
-TestHugeFieldNumbersLite::_Internal::optionalgroup(const TestHugeFieldNumbersLite* msg) {
-  return *msg->optionalgroup_;
-}
-const ::protobuf_unittest::TestAllTypesLite&
-TestHugeFieldNumbersLite::_Internal::oneof_test_all_types(const TestHugeFieldNumbersLite* msg) {
-  return *msg->oneof_field_.oneof_test_all_types_;
-}
+const ::protobuf_unittest::ForeignMessageLite & TestHugeFieldNumbersLite::_Internal::optional_message(const TestHugeFieldNumbersLite* msg) { return *msg->optional_message_; }
+const ::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup & TestHugeFieldNumbersLite::_Internal::optionalgroup(const TestHugeFieldNumbersLite* msg) { return *msg->optionalgroup_; }
+const ::protobuf_unittest::TestAllTypesLite & TestHugeFieldNumbersLite::_Internal::oneof_test_all_types(const TestHugeFieldNumbersLite* msg) { return *msg->oneof_field_.oneof_test_all_types_; }
 void TestHugeFieldNumbersLite::set_allocated_oneof_test_all_types(::protobuf_unittest::TestAllTypesLite* oneof_test_all_types) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_oneof_field();
@@ -8830,19 +8443,9 @@ TestHugeFieldNumbersLite::TestHugeFieldNumbersLite(const TestHugeFieldNumbersLit
   if(from._internal_has_optional_bytes()) {
     optional_bytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_optional_bytes(), GetArenaForAllocation());
   }
-  if(from._internal_has_optional_message()) {
-    optional_message_ = new ::protobuf_unittest::ForeignMessageLite(*from.optional_message_);
-  } else {
-    optional_message_ = nullptr;
-  }
-  if(from._internal_has_optionalgroup()) {
-    optionalgroup_ = new ::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup(*from.optionalgroup_);
-  } else {
-    optionalgroup_ = nullptr;
-  }
-  ::memcpy(&optional_int32_, &from.optional_int32_,
-    static_cast<size_t>(reinterpret_cast<char*>(&optional_enum_) -
-    reinterpret_cast<char*>(&optional_int32_)) + sizeof(optional_enum_));
+  optional_message_ = from._internal_has_optional_message() ? new ::protobuf_unittest::ForeignMessageLite(*from.optional_message_) : nullptr;
+  optionalgroup_ = from._internal_has_optionalgroup() ? new ::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup(*from.optionalgroup_) : nullptr;
+  ::memcpy(&optional_int32_, &from.optional_int32_, static_cast<size_t>(reinterpret_cast<char*>(&optional_enum_) - reinterpret_cast<char*>(&optional_int32_)) + sizeof(optional_enum_));
   clear_has_oneof_field();
   switch(from.oneof_field_case()) {
     case kOneofUint32: {
@@ -8877,10 +8480,7 @@ optional_bytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStr
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   optional_bytes_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&optional_message_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&fixed_32_) -
-    reinterpret_cast<char*>(&optional_message_)) + sizeof(fixed_32_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&optional_message_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&fixed_32_) - reinterpret_cast<char*>(&optional_message_)) + sizeof(fixed_32_));
 optional_enum_ = 4;
 clear_has_oneof_field();
 }
@@ -8907,8 +8507,7 @@ void TestHugeFieldNumbersLite::ArenaDtor(void* object) {
   TestHugeFieldNumbersLite* _this = reinterpret_cast< TestHugeFieldNumbersLite* >(object);
   (void)_this;
 }
-void TestHugeFieldNumbersLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestHugeFieldNumbersLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestHugeFieldNumbersLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -8970,9 +8569,7 @@ void TestHugeFieldNumbersLite::Clear() {
     }
   }
   if(cached_has_bits & 0x00000070u) {
-    ::memset(&optional_int32_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&fixed_32_) -
-        reinterpret_cast<char*>(&optional_int32_)) + sizeof(fixed_32_));
+    ::memset(&optional_int32_, 0, static_cast<size_t>(reinterpret_cast<char*>(&fixed_32_) - reinterpret_cast<char*>(&optional_int32_)) + sizeof(fixed_32_));
     optional_enum_ = 4;
   }
   clear_oneof_field();
@@ -9129,10 +8726,7 @@ const char* TestHugeFieldNumbersLite::_InternalParse(const char* ptr, ::PROTOBUF
       CHK_(ptr != nullptr);
       continue;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -9286,8 +8880,7 @@ size_t TestHugeFieldNumbersLite::ByteSizeLong() const {
   // repeated int32 repeated_int32 = 536870002 [packed = false];
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->repeated_int32_);
-    total_size += 5 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_int32_size());
+    total_size += 5 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_int32_size());
     total_size += data_size;
   }
 
@@ -9303,12 +8896,9 @@ size_t TestHugeFieldNumbersLite::ByteSizeLong() const {
   }
 
   // map<string, string> string_string_map = 536870010;
-  total_size += 5 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_string_string_map_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
-      it = this->_internal_string_string_map().begin();
-      it != this->_internal_string_string_map().end(); ++it) {
-    total_size += TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 5 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_string_string_map_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator it = this->_internal_string_string_map().begin(); it != this->_internal_string_string_map().end(); ++it) {
+  	total_size += TestHugeFieldNumbersLite_StringStringMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   cached_has_bits = _has_bits_[0];
@@ -9381,10 +8971,9 @@ size_t TestHugeFieldNumbersLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestHugeFieldNumbersLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestHugeFieldNumbersLite*>(
-      &from));
+void TestHugeFieldNumbersLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestHugeFieldNumbersLite*>(&from));
 }
 
 void TestHugeFieldNumbersLite::MergeFrom(const TestHugeFieldNumbersLite& from) {
@@ -9438,9 +9027,7 @@ void TestHugeFieldNumbersLite::MergeFrom(const TestHugeFieldNumbersLite& from) {
       _internal_set_oneof_bytes(from._internal_oneof_bytes());
       break;
     }
-    case ONEOF_FIELD_NOT_SET: {
-      break;
-    }
+    case ONEOF_FIELD_NOT_SET: break;
   }
   _extensions_.MergeFrom(internal_default_instance(), from._extensions_);
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
@@ -9471,16 +9058,8 @@ void TestHugeFieldNumbersLite::InternalSwap(TestHugeFieldNumbersLite* other) {
   repeated_int32_.InternalSwap(&other->repeated_int32_);
   packed_int32_.InternalSwap(&other->packed_int32_);
   string_string_map_.InternalSwap(&other->string_string_map_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &optional_string_, lhs_arena,
-      &other->optional_string_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &optional_bytes_, lhs_arena,
-      &other->optional_bytes_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &optional_string_, lhs_arena, &other->optional_string_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &optional_bytes_, lhs_arena, &other->optional_bytes_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(TestHugeFieldNumbersLite, fixed_32_)
       + sizeof(TestHugeFieldNumbersLite::fixed_32_)
@@ -9502,10 +9081,7 @@ class TestOneofParsingLite::_Internal {
   static const ::protobuf_unittest::TestAllTypesLite& oneof_submessage(const TestOneofParsingLite* msg);
 };
 
-const ::protobuf_unittest::TestAllTypesLite&
-TestOneofParsingLite::_Internal::oneof_submessage(const TestOneofParsingLite* msg) {
-  return *msg->oneof_field_.oneof_submessage_;
-}
+const ::protobuf_unittest::TestAllTypesLite & TestOneofParsingLite::_Internal::oneof_submessage(const TestOneofParsingLite* msg) { return *msg->oneof_field_.oneof_submessage_; }
 void TestOneofParsingLite::set_allocated_oneof_submessage(::protobuf_unittest::TestAllTypesLite* oneof_submessage) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_oneof_field();
@@ -9601,8 +9177,7 @@ void TestOneofParsingLite::ArenaDtor(void* object) {
   TestOneofParsingLite* _this = reinterpret_cast< TestOneofParsingLite* >(object);
   (void)_this;
 }
-void TestOneofParsingLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void TestOneofParsingLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void TestOneofParsingLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -9763,10 +9338,7 @@ const char* TestOneofParsingLite::_InternalParse(const char* ptr, ::PROTOBUF_NAM
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -9898,10 +9470,9 @@ size_t TestOneofParsingLite::ByteSizeLong() const {
   return total_size;
 }
 
-void TestOneofParsingLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestOneofParsingLite*>(
-      &from));
+void TestOneofParsingLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const TestOneofParsingLite*>(&from));
 }
 
 void TestOneofParsingLite::MergeFrom(const TestOneofParsingLite& from) {
@@ -9947,9 +9518,7 @@ void TestOneofParsingLite::MergeFrom(const TestOneofParsingLite& from) {
       _internal_set_oneof_enum(from._internal_oneof_enum());
       break;
     }
-    case ONEOF_FIELD_NOT_SET: {
-      break;
-    }
+    case ONEOF_FIELD_NOT_SET: break;
   }
   _internal_metadata_.MergeFrom<std::string>(from._internal_metadata_);
 }
@@ -10016,8 +9585,7 @@ void PackedInt32::ArenaDtor(void* object) {
   PackedInt32* _this = reinterpret_cast< PackedInt32* >(object);
   (void)_this;
 }
-void PackedInt32::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void PackedInt32::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void PackedInt32::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -10057,10 +9625,7 @@ const char* PackedInt32::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -10120,10 +9685,9 @@ size_t PackedInt32::ByteSizeLong() const {
   return total_size;
 }
 
-void PackedInt32::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PackedInt32*>(
-      &from));
+void PackedInt32::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PackedInt32*>(&from));
 }
 
 void PackedInt32::MergeFrom(const PackedInt32& from) {
@@ -10197,8 +9761,7 @@ void NonPackedInt32::ArenaDtor(void* object) {
   NonPackedInt32* _this = reinterpret_cast< NonPackedInt32* >(object);
   (void)_this;
 }
-void NonPackedInt32::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void NonPackedInt32::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void NonPackedInt32::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -10238,10 +9801,7 @@ const char* NonPackedInt32::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -10283,8 +9843,7 @@ size_t NonPackedInt32::ByteSizeLong() const {
   // repeated int32 repeated_int32 = 2048;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->repeated_int32_);
-    total_size += 3 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_int32_size());
+    total_size += 3 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_int32_size());
     total_size += data_size;
   }
 
@@ -10296,10 +9855,9 @@ size_t NonPackedInt32::ByteSizeLong() const {
   return total_size;
 }
 
-void NonPackedInt32::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const NonPackedInt32*>(
-      &from));
+void NonPackedInt32::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const NonPackedInt32*>(&from));
 }
 
 void NonPackedInt32::MergeFrom(const NonPackedInt32& from) {
@@ -10373,8 +9931,7 @@ void PackedFixed32::ArenaDtor(void* object) {
   PackedFixed32* _this = reinterpret_cast< PackedFixed32* >(object);
   (void)_this;
 }
-void PackedFixed32::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void PackedFixed32::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void PackedFixed32::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -10414,10 +9971,7 @@ const char* PackedFixed32::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -10473,10 +10027,9 @@ size_t PackedFixed32::ByteSizeLong() const {
   return total_size;
 }
 
-void PackedFixed32::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PackedFixed32*>(
-      &from));
+void PackedFixed32::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PackedFixed32*>(&from));
 }
 
 void PackedFixed32::MergeFrom(const PackedFixed32& from) {
@@ -10550,8 +10103,7 @@ void NonPackedFixed32::ArenaDtor(void* object) {
   NonPackedFixed32* _this = reinterpret_cast< NonPackedFixed32* >(object);
   (void)_this;
 }
-void NonPackedFixed32::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void NonPackedFixed32::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void NonPackedFixed32::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -10591,10 +10143,7 @@ const char* NonPackedFixed32::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -10637,8 +10186,7 @@ size_t NonPackedFixed32::ByteSizeLong() const {
   {
     unsigned int count = static_cast<unsigned int>(this->_internal_repeated_fixed32_size());
     size_t data_size = 4UL * count;
-    total_size += 3 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_fixed32_size());
+    total_size += 3 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_repeated_fixed32_size());
     total_size += data_size;
   }
 
@@ -10650,10 +10198,9 @@ size_t NonPackedFixed32::ByteSizeLong() const {
   return total_size;
 }
 
-void NonPackedFixed32::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const NonPackedFixed32*>(
-      &from));
+void NonPackedFixed32::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const NonPackedFixed32*>(&from));
 }
 
 void NonPackedFixed32::MergeFrom(const NonPackedFixed32& from) {
@@ -10725,8 +10272,7 @@ void DupEnum::ArenaDtor(void* object) {
   DupEnum* _this = reinterpret_cast< DupEnum* >(object);
   (void)_this;
 }
-void DupEnum::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void DupEnum::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void DupEnum::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -10750,10 +10296,7 @@ const char* DupEnum::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -10794,10 +10337,9 @@ size_t DupEnum::ByteSizeLong() const {
   return total_size;
 }
 
-void DupEnum::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const DupEnum*>(
-      &from));
+void DupEnum::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const DupEnum*>(&from));
 }
 
 void DupEnum::MergeFrom(const DupEnum& from) {
@@ -10838,10 +10380,7 @@ class RecursiveMessage::_Internal {
   static void set_has_payload(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::protobuf_unittest::RecursiveMessage&
-RecursiveMessage::_Internal::recurse(const RecursiveMessage* msg) {
-  return *msg->recurse_;
-}
+const ::protobuf_unittest::RecursiveMessage & RecursiveMessage::_Internal::recurse(const RecursiveMessage* msg) { return *msg->recurse_; }
 RecursiveMessage::RecursiveMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
@@ -10862,11 +10401,7 @@ RecursiveMessage::RecursiveMessage(const RecursiveMessage& from)
   if(from._internal_has_payload()) {
     payload_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_payload(), GetArenaForAllocation());
   }
-  if(from._internal_has_recurse()) {
-    recurse_ = new ::protobuf_unittest::RecursiveMessage(*from.recurse_);
-  } else {
-    recurse_ = nullptr;
-  }
+  recurse_ = from._internal_has_recurse() ? new ::protobuf_unittest::RecursiveMessage(*from.recurse_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.RecursiveMessage)
 }
 
@@ -10895,8 +10430,7 @@ void RecursiveMessage::ArenaDtor(void* object) {
   RecursiveMessage* _this = reinterpret_cast< RecursiveMessage* >(object);
   (void)_this;
 }
-void RecursiveMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void RecursiveMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void RecursiveMessage::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -10953,10 +10487,7 @@ const char* RecursiveMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -11023,10 +10554,9 @@ size_t RecursiveMessage::ByteSizeLong() const {
   return total_size;
 }
 
-void RecursiveMessage::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const RecursiveMessage*>(
-      &from));
+void RecursiveMessage::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const RecursiveMessage*>(&from));
 }
 
 void RecursiveMessage::MergeFrom(const RecursiveMessage& from) {
@@ -11064,11 +10594,7 @@ void RecursiveMessage::InternalSwap(RecursiveMessage* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_has_bits_[0], other->_has_bits_[0]);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &payload_, lhs_arena,
-      &other->payload_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &payload_, lhs_arena, &other->payload_, rhs_arena);
   swap(recurse_, other->recurse_);
 }
 

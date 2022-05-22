@@ -81,7 +81,7 @@ const char * cairo_status_to_string(cairo_status_t status)
 {
 	switch(status) {
 		case CAIRO_STATUS_SUCCESS: return "no error has occurred";
-		case CAIRO_STATUS_NO_MEMORY: return "out of memory";
+		case CAIRO_STATUS_NO_MEMORY: return SlTxtOutOfMem;
 		case CAIRO_STATUS_INVALID_RESTORE: return "cairo_restore() without matching cairo_save()";
 		case CAIRO_STATUS_INVALID_POP_GROUP: return "no saved group to pop, i.e. cairo_pop_group() without matching cairo_push_group()";
 		case CAIRO_STATUS_NO_CURRENT_POINT: return "no current point defined";

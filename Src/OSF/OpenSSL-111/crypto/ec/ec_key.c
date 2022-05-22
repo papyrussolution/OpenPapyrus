@@ -39,14 +39,14 @@ EC_KEY * EC_KEY_new_by_curve_name(int nid)
 void EC_KEY_free(EC_KEY * r)
 {
 	int i;
-	if(r == NULL)
+	if(!r)
 		return;
 	CRYPTO_DOWN_REF(&r->references, &i, r->lock);
 	REF_PRINT_COUNT("EC_KEY", r);
 	if(i > 0)
 		return;
 	REF_ASSERT_ISNT(i < 0);
-	if(r->meth != NULL && r->meth->finish != NULL)
+	if(r->meth && r->meth->finish)
 		r->meth->finish(r);
 #ifndef OPENSSL_NO_ENGINE
 	ENGINE_finish(r->engine);
@@ -183,7 +183,7 @@ int ec_key_simple_generate_key(EC_KEY * eckey)
 	BIGNUM * priv_key = NULL;
 	const BIGNUM * order = NULL;
 	EC_POINT * pub_key = NULL;
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		goto err;
 	if(eckey->priv_key == NULL) {
 		priv_key = BN_new();
@@ -253,7 +253,7 @@ int ec_key_simple_check_key(const EC_KEY * eckey)
 		goto err;
 	}
 
-	if((ctx = BN_CTX_new()) == NULL)
+	if(!(ctx = BN_CTX_new()))
 		goto err;
 	if((point = EC_POINT_new(eckey->group)) == NULL)
 		goto err;
@@ -394,20 +394,9 @@ int EC_KEY_set_public_key(EC_KEY * key, const EC_POINT * pub_key)
 	return (key->pub_key == NULL) ? 0 : 1;
 }
 
-uint EC_KEY_get_enc_flags(const EC_KEY * key)
-{
-	return key->enc_flag;
-}
-
-void EC_KEY_set_enc_flags(EC_KEY * key, uint flags)
-{
-	key->enc_flag = flags;
-}
-
-point_conversion_form_t EC_KEY_get_conv_form(const EC_KEY * key)
-{
-	return key->conv_form;
-}
+uint EC_KEY_get_enc_flags(const EC_KEY * key) { return key->enc_flag; }
+void EC_KEY_set_enc_flags(EC_KEY * key, uint flags) { key->enc_flag = flags; }
+point_conversion_form_t EC_KEY_get_conv_form(const EC_KEY * key) { return key->conv_form; }
 
 void EC_KEY_set_conv_form(EC_KEY * key, point_conversion_form_t cform)
 {
@@ -424,25 +413,12 @@ void EC_KEY_set_asn1_flag(EC_KEY * key, int flag)
 
 int EC_KEY_precompute_mult(EC_KEY * key, BN_CTX * ctx)
 {
-	if(key->group == NULL)
-		return 0;
-	return EC_GROUP_precompute_mult(key->group, ctx);
+	return key->group ? EC_GROUP_precompute_mult(key->group, ctx) : 0;
 }
 
-int EC_KEY_get_flags(const EC_KEY * key)
-{
-	return key->flags;
-}
-
-void EC_KEY_set_flags(EC_KEY * key, int flags)
-{
-	key->flags |= flags;
-}
-
-void EC_KEY_clear_flags(EC_KEY * key, int flags)
-{
-	key->flags &= ~flags;
-}
+int EC_KEY_get_flags(const EC_KEY * key) { return key->flags; }
+void EC_KEY_set_flags(EC_KEY * key, int flags) { key->flags |= flags; }
+void EC_KEY_clear_flags(EC_KEY * key, int flags) { key->flags &= ~flags; }
 
 size_t EC_KEY_key2buf(const EC_KEY * key, point_conversion_form_t form, uchar ** pbuf, BN_CTX * ctx)
 {

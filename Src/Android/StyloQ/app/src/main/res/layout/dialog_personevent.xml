@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/DLG_PERSONEVENT"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="8dp"
+    android:padding="8dp"
+    android:orientation="vertical">
+    <LinearLayout style="@style/PageHeaderRegular"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView style="@style/PageHeaderTitleText"
+            android:id="@+id/CTL_PERSONEVENT_TITLE"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textColor="@color/TextPrimary"
+            android:text="@{personevent}"
+            />
+    </LinearLayout>
+    <LinearLayout style="@style/PageBodyRegular"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="4dp">
+        <TextView style="@style/PageHeaderTopicText"
+            android:id="@+id/CTL_PERSONEVENT_OPNAME"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textColor="@color/TextPrimary"
+            />
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/InputLine"
+            android:id="@+id/CTL_PERSONEVENT_MEMO"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@{memo}" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:gravity="right">
+        <Button style="@style/PushButton" android:id="@+id/STDCTL_OKBUTTON"
+            android:text="@{but_ok}" />
+        <Button style="@style/PushButton" android:id="@+id/STDCTL_CANCELBUTTON"
+            android:text="@{but_cancel}" />
+    </LinearLayout>
+</LinearLayout>

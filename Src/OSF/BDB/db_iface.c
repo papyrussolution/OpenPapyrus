@@ -25,7 +25,7 @@ static int __db_open_arg(DB*, DB_TXN*, const char *, const char *, DBTYPE, uint3
 static int __db_pget_arg(DB*, DBT*, uint32);
 static int __db_put_arg(DB*, DBT*, DBT*, uint32);
 static int __dbt_ferr(const DB*, const char *, const DBT*, int);
-static int __db_compact_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __db_compact_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
 static int __db_associate_foreign_arg(DB*, DB*, int (*)(DB *, const DBT *, DBT *, const DBT *, int *), uint32);
 /*
  * These functions implement the Berkeley DB API.  They are organized in a

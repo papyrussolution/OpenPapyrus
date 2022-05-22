@@ -65,11 +65,9 @@ void ConstrainedFieldPosition::setState(int32_t category,
 }
 
 FormattedValue::~FormattedValue() = default;
-
-///////////////////////
-/// C API FUNCTIONS ///
-///////////////////////
-
+//
+// C API FUNCTIONS
+//
 struct UConstrainedFieldPositionImpl : public UMemory,
 	// Magic number as ASCII == "UCF"
 	public IcuCApiHelper<UConstrainedFieldPosition, UConstrainedFieldPositionImpl, 0x55434600> {

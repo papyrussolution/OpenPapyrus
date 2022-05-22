@@ -295,7 +295,7 @@ ASN1_INTEGER * c2i_ASN1_INTEGER(ASN1_INTEGER ** a, const uchar ** pp,
 	if(!r)
 		return NULL;
 
-	if((a == NULL) || ((*a) == NULL)) {
+	if(!a || ((*a) == NULL)) {
 		ret = ASN1_INTEGER_new();
 		if(ret == NULL)
 			return NULL;
@@ -318,7 +318,7 @@ ASN1_INTEGER * c2i_ASN1_INTEGER(ASN1_INTEGER ** a, const uchar ** pp,
 	return ret;
 err:
 	ASN1err(ASN1_F_C2I_ASN1_INTEGER, ERR_R_MALLOC_FAILURE);
-	if((a == NULL) || (*a != ret))
+	if(!a || (*a != ret))
 		ASN1_INTEGER_free(ret);
 	return NULL;
 }
@@ -402,7 +402,7 @@ ASN1_INTEGER * d2i_ASN1_UINTEGER(ASN1_INTEGER ** a, const uchar ** pp,
 	int inf, tag, xclass;
 	int i;
 
-	if((a == NULL) || ((*a) == NULL)) {
+	if(!a || ((*a) == NULL)) {
 		if((ret = ASN1_INTEGER_new()) == NULL)
 			return NULL;
 		ret->type = V_ASN1_INTEGER;
@@ -427,7 +427,7 @@ ASN1_INTEGER * d2i_ASN1_UINTEGER(ASN1_INTEGER ** a, const uchar ** pp,
 	 * a missing NULL parameter.
 	 */
 	s = static_cast<uchar *>(OPENSSL_malloc((int)len + 1));
-	if(s == NULL) {
+	if(!s) {
 		i = ERR_R_MALLOC_FAILURE;
 		goto err;
 	}
@@ -450,7 +450,7 @@ ASN1_INTEGER * d2i_ASN1_UINTEGER(ASN1_INTEGER ** a, const uchar ** pp,
 	return ret;
 err:
 	ASN1err(ASN1_F_D2I_ASN1_UINTEGER, i);
-	if((a == NULL) || (*a != ret))
+	if(!a || (*a != ret))
 		ASN1_INTEGER_free(ret);
 	return NULL;
 }

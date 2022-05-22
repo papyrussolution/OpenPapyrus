@@ -82,7 +82,7 @@ void ssh_connector_free(ssh_connector connector)
 	if(connector->in_channel != NULL) {
 		ssh_remove_channel_callbacks(connector->in_channel, &connector->in_channel_cb);
 	}
-	if(connector->out_channel != NULL) {
+	if(connector->out_channel) {
 		ssh_remove_channel_callbacks(connector->out_channel, &connector->out_channel_cb);
 	}
 	if(connector->event != NULL) {
@@ -196,7 +196,7 @@ static void ssh_connector_fd_in_cb(ssh_connector connector)
 	SSH_LOG(SSH_LOG_TRACE, "connector POLLIN event for fd %d", connector->in_fd);
 
 	if(connector->out_wontblock) {
-		if(connector->out_channel != NULL) {
+		if(connector->out_channel) {
 			size_t size = ssh_channel_window_size(connector->out_channel);
 
 			/* Don't attempt reading more than the window */
@@ -208,8 +208,7 @@ static void ssh_connector_fd_in_cb(ssh_connector connector)
 			ssh_connector_except(connector, connector->in_fd);
 			return;
 		}
-
-		if(connector->out_channel != NULL) {
+		if(connector->out_channel) {
 			if(!r) {
 				SSH_LOG(SSH_LOG_TRACE, "input fd %d is EOF", connector->in_fd);
 				if(connector->out_channel->local_eof == 0) {
@@ -393,7 +392,7 @@ static int ssh_connector_channel_data_cb(ssh_session session, ssh_channel channe
 	}
 
 	if(connector->out_wontblock) {
-		if(connector->out_channel != NULL) {
+		if(connector->out_channel) {
 			int window_len;
 
 			window = ssh_channel_window_size(connector->out_channel);
@@ -562,7 +561,7 @@ int ssh_connector_set_event(ssh_connector connector, ssh_event event)
 			connector->in_available = 1;
 		}
 	}
-	if(connector->out_channel != NULL) {
+	if(connector->out_channel) {
 		ssh_session session = ssh_channel_get_session(connector->out_channel);
 
 		rc =  ssh_event_add_session(event, session);
@@ -599,7 +598,7 @@ int ssh_connector_remove_event(ssh_connector connector) {
 		ssh_event_remove_session(connector->event, session);
 	}
 
-	if(connector->out_channel != NULL) {
+	if(connector->out_channel) {
 		session = ssh_channel_get_session(connector->out_channel);
 
 		ssh_event_remove_session(connector->event, session);

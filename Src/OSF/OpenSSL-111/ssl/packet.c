@@ -7,8 +7,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include "internal/cryptlib.h"
-//#include <openssl/sslerr.h>
 #include "packet_locl.h"
 
 #define DEFAULT_BUF_SIZE    256

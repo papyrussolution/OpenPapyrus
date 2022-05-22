@@ -8,22 +8,20 @@
 //
 // This file is an Akaros-specific part of spinlock_wait.cc
 //
-#include <atomic>
-
+//#include <atomic>
 #include "absl/base/internal/scheduling_mode.h"
 
 extern "C" {
-
 ABSL_ATTRIBUTE_WEAK void ABSL_INTERNAL_C_SYMBOL(AbslInternalSpinLockDelay)(
-    std::atomic<uint32_t>* /* lock_word */, uint32_t /* value */,
-    int /* loop */, absl::base_internal::SchedulingMode /* mode */) {
-  // In Akaros, one must take care not to call anything that could cause a
-  // malloc(), a blocking system call, or a uthread_yield() while holding a
-  // spinlock. Our callers assume will not call into libraries or other
-  // arbitrary code.
+	std::atomic<uint32_t>*/* lock_word */, uint32_t /* value */,
+	int /* loop */, absl::base_internal::SchedulingMode /* mode */) {
+	// In Akaros, one must take care not to call anything that could cause a
+	// malloc(), a blocking system call, or a uthread_yield() while holding a
+	// spinlock. Our callers assume will not call into libraries or other
+	// arbitrary code.
 }
 
 ABSL_ATTRIBUTE_WEAK void ABSL_INTERNAL_C_SYMBOL(AbslInternalSpinLockWake)(
-    std::atomic<uint32_t>* /* lock_word */, bool /* all */) {}
-
+	std::atomic<uint32_t>*/* lock_word */, bool /* all */) {
+}
 }  // extern "C"

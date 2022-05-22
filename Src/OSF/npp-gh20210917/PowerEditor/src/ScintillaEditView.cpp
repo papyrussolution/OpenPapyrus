@@ -1343,7 +1343,7 @@ void ScintillaEditView::restoreCurrentPosPreStep()
 	execute(SCI_SETSELECTIONMODE, pos._selMode);    //enable
 	execute(SCI_SETANCHOR, pos._startPos);
 	execute(SCI_SETCURRENTPOS, pos._endPos);
-	execute(SCI_CANCEL);                                                    //disable
+	execute(SCI_CANCEL); //disable
 	if(!isWrap()) { //only offset if not wrapping, otherwise the offset isnt needed at all
 		execute(SCI_SETSCROLLWIDTH, pos._scrollWidth);
 		execute(SCI_SETXOFFSET, pos._xOffset);

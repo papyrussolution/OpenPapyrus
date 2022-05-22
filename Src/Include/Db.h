@@ -2095,7 +2095,7 @@ public:
 		loUseDbPath       = 0x0008
 	};
 
-	int    MakeList(StrAssocArray * pList, long options) const;
+	int    MakeList(StrAssocArray * pList, long options, const LongArray * pDbesIdxList) const;
 protected:
 	long   SelId;
 private:

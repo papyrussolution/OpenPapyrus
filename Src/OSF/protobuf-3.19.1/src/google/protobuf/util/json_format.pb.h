@@ -146,19 +146,15 @@ constexpr TestNumbers_MyType TestNumbers_MyType_MyType_MIN = TestNumbers_MyType_
 constexpr TestNumbers_MyType TestNumbers_MyType_MyType_MAX = TestNumbers_MyType_ERROR;
 constexpr int TestNumbers_MyType_MyType_ARRAYSIZE = TestNumbers_MyType_MyType_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestNumbers_MyType_descriptor();
-template<typename T>
-inline const std::string& TestNumbers_MyType_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, TestNumbers_MyType>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function TestNumbers_MyType_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    TestNumbers_MyType_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * TestNumbers_MyType_descriptor();
+template<typename T> inline const std::string& TestNumbers_MyType_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, TestNumbers_MyType>::value || ::std::is_integral<T>::value, "Incorrect type passed to function TestNumbers_MyType_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(TestNumbers_MyType_descriptor(), enum_t_value);
 }
-inline bool TestNumbers_MyType_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestNumbers_MyType* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestNumbers_MyType>(
-    TestNumbers_MyType_descriptor(), name, value);
+inline bool TestNumbers_MyType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestNumbers_MyType * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestNumbers_MyType>(TestNumbers_MyType_descriptor(), name, value);
 }
 enum EnumValue : int {
   PROTOCOL = 0,
@@ -170,19 +166,15 @@ constexpr EnumValue EnumValue_MIN = PROTOCOL;
 constexpr EnumValue EnumValue_MAX = DEFAULT;
 constexpr int EnumValue_ARRAYSIZE = EnumValue_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* EnumValue_descriptor();
-template<typename T>
-inline const std::string& EnumValue_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, EnumValue>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function EnumValue_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    EnumValue_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * EnumValue_descriptor();
+template<typename T> inline const std::string& EnumValue_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, EnumValue>::value || ::std::is_integral<T>::value, "Incorrect type passed to function EnumValue_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(EnumValue_descriptor(), enum_t_value);
 }
-inline bool EnumValue_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, EnumValue* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<EnumValue>(
-    EnumValue_descriptor(), name, value);
+inline bool EnumValue_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, EnumValue * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<EnumValue>(EnumValue_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -1475,35 +1467,22 @@ class TestNumbers final :
   // nested types ----------------------------------------------------
 
   typedef TestNumbers_MyType MyType;
-  static constexpr MyType OK =
-    TestNumbers_MyType_OK;
-  static constexpr MyType WARNING =
-    TestNumbers_MyType_WARNING;
-  static constexpr MyType ERROR =
-    TestNumbers_MyType_ERROR;
-  static inline bool MyType_IsValid(int value) {
-    return TestNumbers_MyType_IsValid(value);
+  static constexpr MyType OK = TestNumbers_MyType_OK;
+  static constexpr MyType WARNING = TestNumbers_MyType_WARNING;
+  static constexpr MyType ERROR = TestNumbers_MyType_ERROR;
+  static inline bool MyType_IsValid(int value) { return TestNumbers_MyType_IsValid(value); }
+  static constexpr MyType MyType_MIN = TestNumbers_MyType_MyType_MIN;
+  static constexpr MyType MyType_MAX = TestNumbers_MyType_MyType_MAX;
+  static constexpr int MyType_ARRAYSIZE = TestNumbers_MyType_MyType_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * MyType_descriptor() { return TestNumbers_MyType_descriptor(); }
+  template<typename T> static inline const std::string& MyType_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, MyType>::value || ::std::is_integral<T>::value, "Incorrect type passed to function MyType_Name.");
+  	return TestNumbers_MyType_Name(enum_t_value);
   }
-  static constexpr MyType MyType_MIN =
-    TestNumbers_MyType_MyType_MIN;
-  static constexpr MyType MyType_MAX =
-    TestNumbers_MyType_MyType_MAX;
-  static constexpr int MyType_ARRAYSIZE =
-    TestNumbers_MyType_MyType_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  MyType_descriptor() {
-    return TestNumbers_MyType_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& MyType_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, MyType>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function MyType_Name.");
-    return TestNumbers_MyType_Name(enum_t_value);
-  }
-  static inline bool MyType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      MyType* value) {
-    return TestNumbers_MyType_Parse(name, value);
+  static inline bool MyType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MyType* value)
+  {
+  	return TestNumbers_MyType_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -1916,15 +1895,11 @@ class TestBoolMap final :
   public:
   void clear_bool_map();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >&
-      _internal_bool_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >*
-      _internal_mutable_bool_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t > & _internal_bool_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t > * _internal_mutable_bool_map();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >&
-      bool_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >*
-      mutable_bool_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t > & bool_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t > * mutable_bool_map();
 
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestBoolMap)
  private:
@@ -2245,15 +2220,11 @@ class TestStringMap final :
   public:
   void clear_string_map();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-      _internal_string_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-      _internal_mutable_string_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > & _internal_string_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * _internal_mutable_string_map();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-      string_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-      mutable_string_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > & string_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * mutable_string_map();
 
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestStringMap)
  private:
@@ -2445,15 +2416,11 @@ class TestStringSerializer final :
   public:
   void clear_string_map();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-      _internal_string_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-      _internal_mutable_string_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > & _internal_string_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * _internal_mutable_string_map();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-      string_map() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-      mutable_string_map();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > & string_map() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * mutable_string_map();
 
   // optional string scalar_string = 1;
   bool has_scalar_string() const;
@@ -3161,8 +3128,7 @@ inline ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup* TestFlagsAndStrin
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestFlagsAndStrings.repeatedgroup)
   return repeatedgroup_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup >*
-TestFlagsAndStrings::mutable_repeatedgroup() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup > * TestFlagsAndStrings::mutable_repeatedgroup() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestFlagsAndStrings.repeatedgroup)
   return &repeatedgroup_;
 }
@@ -3718,8 +3684,7 @@ inline ::protobuf_unittest::TestJavaScriptOrderJSON1* TestJavaScriptOrderJSON2::
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestJavaScriptOrderJSON2.z)
   return z_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestJavaScriptOrderJSON1 >*
-TestJavaScriptOrderJSON2::mutable_z() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestJavaScriptOrderJSON1 > * TestJavaScriptOrderJSON2::mutable_z() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestJavaScriptOrderJSON2.z)
   return &z_;
 }
@@ -4095,20 +4060,16 @@ inline void TestBoolMap::clear_bool_map() {
   bool_map_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >&
-TestBoolMap::_internal_bool_map() const {
-  return bool_map_.GetMap();
-}
+TestBoolMap::_internal_bool_map() const { return bool_map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >&
 TestBoolMap::bool_map() const {
   // @@protoc_insertion_point(field_map:protobuf_unittest.TestBoolMap.bool_map)
   return _internal_bool_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >*
-TestBoolMap::_internal_mutable_bool_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t > * TestBoolMap::_internal_mutable_bool_map() {
   return bool_map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t >*
-TestBoolMap::mutable_bool_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< bool, int32_t > * TestBoolMap::mutable_bool_map() {
   // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestBoolMap.bool_map)
   return _internal_mutable_bool_map();
 }
@@ -4247,20 +4208,16 @@ inline void TestStringMap::clear_string_map() {
   string_map_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestStringMap::_internal_string_map() const {
-  return string_map_.GetMap();
-}
+TestStringMap::_internal_string_map() const { return string_map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestStringMap::string_map() const {
   // @@protoc_insertion_point(field_map:protobuf_unittest.TestStringMap.string_map)
   return _internal_string_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-TestStringMap::_internal_mutable_string_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringMap::_internal_mutable_string_map() {
   return string_map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-TestStringMap::mutable_string_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringMap::mutable_string_map() {
   // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestStringMap.string_map)
   return _internal_mutable_string_map();
 }
@@ -4398,8 +4355,7 @@ TestStringSerializer::repeated_string() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestStringSerializer.repeated_string)
   return repeated_string_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-TestStringSerializer::mutable_repeated_string() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestStringSerializer::mutable_repeated_string() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestStringSerializer.repeated_string)
   return &repeated_string_;
 }
@@ -4413,20 +4369,16 @@ inline void TestStringSerializer::clear_string_map() {
   string_map_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestStringSerializer::_internal_string_map() const {
-  return string_map_.GetMap();
-}
+TestStringSerializer::_internal_string_map() const { return string_map_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestStringSerializer::string_map() const {
   // @@protoc_insertion_point(field_map:protobuf_unittest.TestStringSerializer.string_map)
   return _internal_string_map();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-TestStringSerializer::_internal_mutable_string_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringSerializer::_internal_mutable_string_map() {
   return string_map_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-TestStringSerializer::mutable_string_map() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestStringSerializer::mutable_string_map() {
   // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestStringSerializer.string_map)
   return _internal_mutable_string_map();
 }
@@ -4581,15 +4533,9 @@ inline void TestDefaultEnumValue::set_enum_value(::protobuf_unittest::EnumValue 
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::protobuf_unittest::TestNumbers_MyType> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestNumbers_MyType>() {
-  return ::protobuf_unittest::TestNumbers_MyType_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestNumbers_MyType>() { return ::protobuf_unittest::TestNumbers_MyType_descriptor(); }
 template <> struct is_proto_enum< ::protobuf_unittest::EnumValue> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::EnumValue>() {
-  return ::protobuf_unittest::EnumValue_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::EnumValue>() { return ::protobuf_unittest::EnumValue_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

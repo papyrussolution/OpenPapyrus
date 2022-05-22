@@ -230,7 +230,7 @@ EXT_RETURN tls_construct_ctos_status_request(SSL * s, WPACKET * pkt, uint contex
 {
 	int i;
 	/* This extension isn't defined for client Certificates */
-	if(x != NULL)
+	if(x)
 		return EXT_RETURN_NOT_SENT;
 	if(s->ext.status_type != TLSEXT_STATUSTYPE_ocsp)
 		return EXT_RETURN_NOT_SENT;
@@ -366,7 +366,7 @@ EXT_RETURN tls_construct_ctos_sct(SSL * s, WPACKET * pkt, uint context, X509 * x
 	if(s->ct_validation_callback == NULL)
 		return EXT_RETURN_NOT_SENT;
 	/* Not defined for client Certificates */
-	if(x != NULL)
+	if(x)
 		return EXT_RETURN_NOT_SENT;
 	if(!WPACKET_put_bytes_u16(pkt, TLSEXT_TYPE_signed_certificate_timestamp) || !WPACKET_put_bytes_u16(pkt, 0)) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_CTOS_SCT, ERR_R_INTERNAL_ERROR);
@@ -476,20 +476,17 @@ static int add_key_share(SSL * s, WPACKET * pkt, uint curve_id)
 	}
 	else {
 		key_share_key = ssl_generate_pkey_group(s, curve_id);
-		if(key_share_key == NULL) {
+		if(!key_share_key) {
 			/* SSLfatal() already called */
 			return 0;
 		}
 	}
-
 	/* Encode the public key. */
-	encodedlen = EVP_PKEY_get1_tls_encodedpoint(key_share_key,
-		&encoded_point);
+	encodedlen = EVP_PKEY_get1_tls_encodedpoint(key_share_key, &encoded_point);
 	if(encodedlen == 0) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_ADD_KEY_SHARE, ERR_R_EC_LIB);
 		goto err;
 	}
-
 	/* Create KeyShareEntry */
 	if(!WPACKET_put_bytes_u16(pkt, curve_id) || !WPACKET_sub_memcpy_u16(pkt, encoded_point, encodedlen)) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_ADD_KEY_SHARE, ERR_R_INTERNAL_ERROR);
@@ -1134,18 +1131,14 @@ int tls_parse_stoc_session_ticket(SSL * s, PACKET * pkt, uint context,
 	}
 
 	if(!tls_use_ticket(s)) {
-		SSLfatal(s, SSL_AD_UNSUPPORTED_EXTENSION,
-		    SSL_F_TLS_PARSE_STOC_SESSION_TICKET, SSL_R_BAD_EXTENSION);
+		SSLfatal(s, SSL_AD_UNSUPPORTED_EXTENSION, SSL_F_TLS_PARSE_STOC_SESSION_TICKET, SSL_R_BAD_EXTENSION);
 		return 0;
 	}
 	if(PACKET_remaining(pkt) > 0) {
-		SSLfatal(s, SSL_AD_DECODE_ERROR,
-		    SSL_F_TLS_PARSE_STOC_SESSION_TICKET, SSL_R_BAD_EXTENSION);
+		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_SESSION_TICKET, SSL_R_BAD_EXTENSION);
 		return 0;
 	}
-
 	s->ext.ticket_expected = 1;
-
 	return 1;
 }
 
@@ -1164,16 +1157,13 @@ int tls_parse_stoc_status_request(SSL * s, PACKET * pkt, uint context,
 	 * request message. In TLS <= 1.2 it must also be empty.
 	 */
 	if(s->ext.status_type != TLSEXT_STATUSTYPE_ocsp) {
-		SSLfatal(s, SSL_AD_UNSUPPORTED_EXTENSION,
-		    SSL_F_TLS_PARSE_STOC_STATUS_REQUEST, SSL_R_BAD_EXTENSION);
+		SSLfatal(s, SSL_AD_UNSUPPORTED_EXTENSION, SSL_F_TLS_PARSE_STOC_STATUS_REQUEST, SSL_R_BAD_EXTENSION);
 		return 0;
 	}
 	if(!SSL_IS_TLS13(s) && PACKET_remaining(pkt) > 0) {
-		SSLfatal(s, SSL_AD_DECODE_ERROR,
-		    SSL_F_TLS_PARSE_STOC_STATUS_REQUEST, SSL_R_BAD_EXTENSION);
+		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_STATUS_REQUEST, SSL_R_BAD_EXTENSION);
 		return 0;
 	}
-
 	if(SSL_IS_TLS13(s)) {
 		/* We only know how to handle this if it's for the first Certificate in
 		 * the chain. We ignore any other responses.
@@ -1240,7 +1230,7 @@ int tls_parse_stoc_sct(SSL * s, PACKET * pkt, uint context, X509 * x,
 		    TLSEXT_TYPE_signed_certificate_timestamp,
 		    PACKET_data(pkt), PACKET_remaining(pkt),
 		    x, chainidx)) {
-			/* SSLfatal already called */
+			/* SSLfatal() already called */
 			return 0;
 		}
 	}
@@ -1456,15 +1446,10 @@ int tls_parse_stoc_supported_versions(SSL * s, PACKET * pkt, uint context,
     X509 * x, size_t chainidx)
 {
 	uint version;
-
-	if(!PACKET_get_net_2(pkt, &version)
-	   || PACKET_remaining(pkt) != 0) {
-		SSLfatal(s, SSL_AD_DECODE_ERROR,
-		    SSL_F_TLS_PARSE_STOC_SUPPORTED_VERSIONS,
-		    SSL_R_LENGTH_MISMATCH);
+	if(!PACKET_get_net_2(pkt, &version) || PACKET_remaining(pkt) != 0) {
+		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_SUPPORTED_VERSIONS, SSL_R_LENGTH_MISMATCH);
 		return 0;
 	}
-
 	/*
 	 * The only protocol version we support which is valid in this extension in
 	 * a ServerHello is TLSv1.3 therefore we shouldn't be getting anything else.
@@ -1510,7 +1495,6 @@ int tls_parse_stoc_key_share(SSL * s, PACKET * pkt, uint context, X509 * x,
 	if((context & SSL_EXT_TLS1_3_HELLO_RETRY_REQUEST) != 0) {
 		const uint16_t * pgroups = NULL;
 		size_t i, num_groups;
-
 		if(PACKET_remaining(pkt) != 0) {
 			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_KEY_SHARE,
 			    SSL_R_LENGTH_MISMATCH);

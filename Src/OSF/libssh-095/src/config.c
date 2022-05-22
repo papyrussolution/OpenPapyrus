@@ -181,7 +181,7 @@ static void local_parse_file(ssh_session session, const char * filename, int * p
 	uint count = 0;
 	int rv;
 	f = fopen(filename, "r");
-	if(f == NULL) {
+	if(!f) {
 		SSH_LOG(SSH_LOG_RARE, "Cannot find file %s to load",
 		    filename);
 		return;
@@ -294,7 +294,7 @@ static int ssh_config_parse_proxy_jump(ssh_session session, const char * s, bool
 			// The rest of the list needs to be passed on 
 			if(endp != NULL) {
 				next = sstrdup(endp + 1);
-				if(next == NULL) {
+				if(!next) {
 					ssh_set_error_oom(session);
 					rv = SSH_ERROR;
 				}
@@ -359,7 +359,7 @@ static int ssh_config_parse_line(ssh_session session, const char * line, uint co
 		return 0;
 	}
 	x = s = sstrdup(line);
-	if(s == NULL) {
+	if(!s) {
 		ssh_set_error_oom(session);
 		return -1;
 	}
@@ -970,7 +970,7 @@ int ssh_config_parse_file(ssh_session session, const char * filename)
 	int parsing, rv;
 
 	f = fopen(filename, "r");
-	if(f == NULL) {
+	if(!f) {
 		return 0;
 	}
 

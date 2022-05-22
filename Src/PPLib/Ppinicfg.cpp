@@ -14,13 +14,18 @@
 PPIniFile::PPIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf) :
 	SIniFile(pFileName, fcreate, winCoding, useIniBuf)
 {
-	if(!pFileName)
+	if(!pFileName) {
 		Init(getExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), fcreate, winCoding, useIniBuf);
+	}
 }
 
 PPIniFile::PPIniFile() : SIniFile(0, 0, 0, 0)
 {
 	Init(getExecPath(TempBuf).SetLastSlash().Cat("PP.INI"), 0, 0, 0);
+}
+
+PPIniFile::~PPIniFile()
+{
 }
 
 /*static*/void STDCALL PPIniFile::ParamIdToStrings(uint sectId, uint paramId, SString * pSectName, SString * pParam)

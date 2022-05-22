@@ -7,11 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,6 +30,96 @@ public class CommandListActivity extends SLib.SlActivity {
 	}
 	private Timer RTmr;
 	//private RefreshTimerTask RTmrTask;
+
+	static class PersonEvent {
+		PersonEvent()
+		{
+			OpID = 0;
+			Dtm = null;
+			SrcCmdItem = null;
+			Memo = null;
+		}
+		int   OpID;
+		SLib.LDATETIME Dtm;
+		StyloQCommand.Item SrcCmdItem; // Исходная команда сервиса, на основании которой формируется событие
+		String Memo;
+	}
+	static class PersonEventDialog extends SLib.SlDialog {
+		PersonEventDialog(Context ctx, Object data)
+		{
+			super(ctx, R.id.DLG_PERSONEVENT, data);
+			if(data != null && data instanceof PersonEvent) {
+				Data = data;
+			}
+		}
+		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
+		{
+			Object result = null;
+			switch(ev) {
+				case SLib.EV_CREATE:
+					{
+						requestWindowFeature(Window.FEATURE_NO_TITLE);
+						setContentView(R.layout.dialog_personevent);
+						Context ctx = getContext();
+						StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
+						if(app_ctx != null)
+							setTitle(SLib.ExpandString(app_ctx, "@{personevent}"));
+						SetDTS(Data);
+					}
+					break;
+				case SLib.EV_COMMAND:
+					if(srcObj != null && srcObj instanceof View) {
+						final int view_id = ((View)srcObj).getId();
+						if(view_id == R.id.STDCTL_OKBUTTON) {
+							Object data = GetDTS();
+							if(data != null) {
+								Context ctx = getContext();
+								StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
+								if(app_ctx != null)
+									app_ctx.HandleEvent(SLib.EV_IADATAEDITCOMMIT, this, data);
+							}
+							this.dismiss();
+						}
+						else if(view_id == R.id.STDCTL_CANCELBUTTON) {
+							this.dismiss();
+						}
+					}
+					break;
+			}
+			return null;
+		}
+		boolean SetDTS(Object objData)
+		{
+			boolean ok = true;
+			String cmd_name = null;
+			String memo = null;
+			if(objData != null && objData instanceof PersonEvent) {
+				cmd_name = ((PersonEvent)Data).SrcCmdItem.Name;
+				memo = ((PersonEvent)Data).Memo;
+			}
+			SLib.SetCtrlString(this, R.id.CTL_PERSONEVENT_OPNAME, cmd_name);
+			SLib.SetCtrlString(this, R.id.CTL_PERSONEVENT_MEMO, memo);
+			return ok;
+		}
+		Object GetDTS()
+		{
+			Object result = null;
+			Context ctx = getContext();
+			StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+			if(app_ctx != null) {
+				PersonEvent _data = null;
+				if(Data != null && Data instanceof PersonEvent)
+					_data = (PersonEvent)Data;
+				else {
+					_data = new PersonEvent();
+					Data = _data;
+				}
+				_data.Memo = SLib.GetCtrlString(this, R.id.CTL_PERSONEVENT_MEMO);
+				result = Data;
+			}
+			return result;
+		}
+	}
 
 	public CommandListActivity()
 	{
@@ -168,7 +262,19 @@ public class CommandListActivity extends SLib.SlActivity {
 						StyloQApp app_ctx = (StyloQApp)getApplication();
 						if(app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.Items.size()) {
 							boolean force_query = (ev == SLib.EV_LISTVIEWITEMLONGCLK) ? true : false;
-							app_ctx.RunSvcCommand(SvcIdent, ListData.Items.get(ev_subj.ItemIdx), force_query);
+							StyloQCommand.Item cmd_item = ListData.Items.get(ev_subj.ItemIdx);
+							if(cmd_item != null) {
+								if(cmd_item.BaseCmdId == StyloQCommand.sqbcPersonEvent) {
+									// @construction
+									PersonEvent pe = new PersonEvent();
+									pe.SrcCmdItem = cmd_item;
+									PersonEventDialog dialog = new PersonEventDialog(this, pe);
+									dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+									dialog.show();
+								}
+								else
+									app_ctx.RunSvcCommand(SvcIdent, cmd_item, null, force_query, null);
+							}
 						}
 					}
 				}
@@ -212,6 +318,68 @@ public class CommandListActivity extends SLib.SlActivity {
 						}
 						else {
 							// Если имеем дело с обычным ListView
+						}
+					}
+				}
+				break;
+			case SLib.EV_IADATAEDITCOMMIT:
+				if(srcObj != null && srcObj instanceof PersonEventDialog && subj != null && subj instanceof PersonEvent) {
+					StyloQApp app_ctx = (StyloQApp)getApplication();
+					if(app_ctx != null) {
+						PersonEvent _data = (PersonEvent)subj;
+						if(_data.SrcCmdItem != null) {
+							JSONObject js_query = new JSONObject();
+							String cmd_text = _data.SrcCmdItem.Uuid.toString();
+							try {
+								js_query.put("cmd", cmd_text);
+								js_query.put("time", System.currentTimeMillis());
+								if(SLib.GetLen(_data.Memo) > 0)
+									js_query.put("memo", _data.Memo);
+								app_ctx.RunSvcCommand(SvcIdent, _data.SrcCmdItem, js_query,true, this);
+							} catch(JSONException exn) {
+								; // @todo
+							}
+						}
+					}
+				}
+				break;
+			case SLib.EV_SVCQUERYRESULT:
+				if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
+					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
+					if(ir.OriginalCmdItem != null) {
+						String reply_msg = null;
+						String reply_errmsg = null;
+						StyloQApp app_ctx = (StyloQApp)getApplication();
+						if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+							byte [] reply_raw_data = ((SecretTagPool)ir.InfoReply).Get(SecretTagPool.tagRawData);
+							if(SLib.GetLen(reply_raw_data) > 0) {
+								String json_text = new String(reply_raw_data);
+								if(SLib.GetLen(json_text) > 0) {
+									try {
+										JSONObject js_reply = new JSONObject(json_text);
+										if(js_reply != null) {
+											reply_msg = js_reply.optString("msg", null);
+											reply_errmsg = js_reply.optString("errmsg", null);
+										}
+									} catch(JSONException exn) {
+										;
+									}
+								}
+							}
+						}
+						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+							if(app_ctx != null) {
+								if(SLib.GetLen(reply_msg) <= 0)
+									reply_msg = "OK";
+								app_ctx.DisplayMessage(this, reply_msg, 20000);
+							}
+						}
+						else {
+							if(app_ctx != null) {
+								if(SLib.GetLen(reply_errmsg) <= 0)
+									reply_msg = "ERROR";
+								app_ctx.DisplayMessage(this, reply_msg, 20000);
+							}
 						}
 					}
 				}

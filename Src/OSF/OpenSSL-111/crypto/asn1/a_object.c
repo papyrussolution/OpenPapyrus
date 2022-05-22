@@ -8,19 +8,12 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <ctype.h>
-//#include <openssl/buffer.h>
-//#include <openssl/asn1.h>
-//#include <openssl/objects.h>
-//#include <openssl/bn.h>
-//#include <asn1_int.h>
-//#include <asn1_locl.h>
 
 int i2d_ASN1_OBJECT(const ASN1_OBJECT * a, uchar ** pp)
 {
 	uchar * p, * allocated = NULL;
 	int objsize;
-	if((a == NULL) || (a->data == NULL))
+	if(!a || (a->data == NULL))
 		return 0;
 	objsize = ASN1_object_size(0, a->length, V_ASN1_OBJECT);
 	if(pp == NULL || objsize == -1)
@@ -184,7 +177,7 @@ int FASTCALL i2a_ASN1_OBJECT(BIO * bp, const ASN1_OBJECT * a)
 {
 	char buf[80], * p = buf;
 	int i;
-	if((a == NULL) || (a->data == NULL))
+	if(!a || (a->data == NULL))
 		return BIO_write(bp, "NULL", 4);
 	i = i2t_ASN1_OBJECT(buf, sizeof(buf), a);
 	if(i > (int)(sizeof(buf) - 1)) {
@@ -287,7 +280,7 @@ ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
 	 * only the ASN1_OBJECTs from the 'table' will have values for ->sn or
 	 * ->ln
 	 */
-	if((a == NULL) || ((*a) == NULL) ||
+	if(!a || ((*a) == NULL) ||
 	    !((*a)->flags & ASN1_OBJECT_FLAG_DYNAMIC)) {
 		if((ret = ASN1_OBJECT_new()) == NULL)
 			return NULL;
@@ -325,7 +318,7 @@ ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
 	return ret;
 err:
 	ASN1err(ASN1_F_C2I_ASN1_OBJECT, i);
-	if((a == NULL) || (*a != ret))
+	if(!a || (*a != ret))
 		ASN1_OBJECT_free(ret);
 	return NULL;
 }

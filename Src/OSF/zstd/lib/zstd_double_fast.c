@@ -15,10 +15,10 @@
 void ZSTD_fillDoubleHashTable(ZSTD_matchState_t* ms, void const* end, ZSTD_dictTableLoadMethod_e dtlm)
 {
 	const ZSTD_compressionParameters* const cParams = &ms->cParams;
-	uint32* const hashLarge = ms->hashTable;
+	uint32 * const hashLarge = ms->hashTable;
 	const uint32 hBitsL = cParams->hashLog;
 	const uint32 mls = cParams->minMatch;
-	uint32* const hashSmall = ms->chainTable;
+	uint32 * const hashSmall = ms->chainTable;
 	const uint32 hBitsS = cParams->chainLog;
 	const BYTE * const base = ms->window.base;
 	const BYTE * ip = base + ms->nextToUpdate;
@@ -51,9 +51,9 @@ size_t ZSTD_compressBlock_doubleFast_noDict_generic(ZSTD_matchState_t* ms, seqSt
     void const* src, size_t srcSize, const uint32 mls /* template */)
 {
 	ZSTD_compressionParameters const* cParams = &ms->cParams;
-	uint32* const hashLong = ms->hashTable;
+	uint32 * const hashLong = ms->hashTable;
 	const uint32 hBitsL = cParams->hashLog;
-	uint32* const hashSmall = ms->chainTable;
+	uint32 * const hashSmall = ms->chainTable;
 	const uint32 hBitsS = cParams->chainLog;
 	const BYTE * const base = ms->window.base;
 	const BYTE * const istart = (const BYTE *)src;
@@ -252,8 +252,8 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_doubleFast_dictMatchState_generi
 
 	const ZSTD_matchState_t* const dms = ms->dictMatchState;
 	const ZSTD_compressionParameters* const dictCParams = &dms->cParams;
-	const uint32* const dictHashLong  = dms->hashTable;
-	const uint32* const dictHashSmall = dms->chainTable;
+	const uint32 * const dictHashLong  = dms->hashTable;
+	const uint32 * const dictHashSmall = dms->chainTable;
 	const uint32 dictStartIndex       = dms->window.dictLimit;
 	const BYTE * const dictBase     = dms->window.base;
 	const BYTE * const dictStart    = dictBase + dictStartIndex;
@@ -487,9 +487,9 @@ static size_t ZSTD_compressBlock_doubleFast_extDict_generic(ZSTD_matchState_t* m
     void const* src, size_t srcSize, const uint32 mls /* template */)
 {
 	ZSTD_compressionParameters const* cParams = &ms->cParams;
-	uint32* const hashLong = ms->hashTable;
+	uint32 * const hashLong = ms->hashTable;
 	const uint32 hBitsL = cParams->hashLog;
-	uint32* const hashSmall = ms->chainTable;
+	uint32 * const hashSmall = ms->chainTable;
 	const uint32 hBitsS = cParams->chainLog;
 	const BYTE * const istart = (const BYTE *)src;
 	const BYTE * ip = istart;

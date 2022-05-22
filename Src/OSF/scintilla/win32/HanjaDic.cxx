@@ -10,8 +10,6 @@
 #include <Scintilla.h>
 #include <scintilla-internal.h>
 #pragma hdrstop
-//#include <windows.h>
-//#include "HanjaDic.h"
 
 #ifdef SCI_NAMESPACE
 namespace Scintilla {

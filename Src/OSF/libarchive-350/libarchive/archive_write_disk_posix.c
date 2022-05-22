@@ -1101,7 +1101,7 @@ static int hfs_decompress(struct archive_write_disk * a)
 	ssize_t bytes_written, bytes_to_write;
 	uchar * b;
 
-	block_info = (uint32*)(a->resource_fork + RSRC_H_SIZE);
+	block_info = (uint32 *)(a->resource_fork + RSRC_H_SIZE);
 	block_count = archive_le32dec(block_info++);
 	while(block_count--) {
 		data_pos = RSRC_H_SIZE + archive_le32dec(block_info++);
@@ -1367,7 +1367,7 @@ static ssize_t hfs_write_decmpfs_block(struct archive_write_disk * a, const char
 		/* Get the position where we are going to set a bunch
 		 * of block info. */
 		a->decmpfs_block_info =
-		    (uint32*)(a->resource_fork + RSRC_H_SIZE);
+		    (uint32 *)(a->resource_fork + RSRC_H_SIZE);
 		/* Set the block count to the resource fork. */
 		archive_le32enc(a->decmpfs_block_info++, block_count);
 		/* Get the position where we are going to set compressed
@@ -2280,7 +2280,7 @@ static int _archive_write_disk_close(struct archive * _a)
 	ret = _archive_write_disk_finish_entry(&a->archive);
 	/* Sort dir list so directories are fixed up in depth-first order. */
 	p = sort_dir_list(a->fixup_list);
-	while(p != NULL) {
+	while(p) {
 		fd = -1;
 		a->pst = NULL; /* Mark stat cache as out-of-date. */
 		if(p->fixup & (TODO_TIMES | TODO_MODE_BASE | TODO_ACLS | TODO_FFLAGS)) {

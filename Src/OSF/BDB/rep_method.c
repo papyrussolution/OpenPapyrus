@@ -13,7 +13,7 @@ static int __rep_abort_prepared(ENV *);
 static int __rep_await_condition __P((ENV*, struct rep_waitgoal *, db_timeout_t));
 static int __rep_bt_cmp(DB*, const DBT*, const DBT *);
 static int __rep_check_applied __P((ENV*, DB_THREAD_INFO*, DB_COMMIT_INFO*, struct rep_waitgoal *));
-static void __rep_config_map __P((ENV*, uint32*, uint32 *));
+static void __rep_config_map __P((ENV*, uint32 *, uint32 *));
 static uint32 __rep_conv_vers __P((ENV*, uint32));
 static int __rep_read_lsn_history __P((ENV*, DB_THREAD_INFO*, DB_TXN**, DBC**, uint32, __rep_lsn_hist_data_args*, struct rep_waitgoal *, uint32));
 static int __rep_restore_prepared(ENV *);

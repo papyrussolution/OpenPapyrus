@@ -8,14 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <ssl-crypto-ctype.h>
-//#include <openssl/crypto.h>
-//#include <openssl/buffer.h>
-//#include <openssl/evp.h>
-//#include <openssl/asn1.h>
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
-//#include <openssl/objects.h>
 #include "internal/dane.h"
 #include <x509_int.h>
 #include "x509_lcl.h"
@@ -1873,18 +1865,15 @@ int X509_get_pubkey_parameters(EVP_PKEY * pkey, STACK_OF(X509) * chain)
 			break;
 	}
 	if(ktmp == NULL) {
-		X509err(X509_F_X509_GET_PUBKEY_PARAMETERS,
-		    X509_R_UNABLE_TO_FIND_PARAMETERS_IN_CHAIN);
+		X509err(X509_F_X509_GET_PUBKEY_PARAMETERS, X509_R_UNABLE_TO_FIND_PARAMETERS_IN_CHAIN);
 		return 0;
 	}
-
 	/* first, populate the other certs */
 	for(j = i - 1; j >= 0; j--) {
 		ktmp2 = X509_get0_pubkey(sk_X509_value(chain, j));
 		EVP_PKEY_copy_parameters(ktmp2, ktmp);
 	}
-
-	if(pkey != NULL)
+	if(pkey)
 		EVP_PKEY_copy_parameters(pkey, ktmp);
 	return 1;
 }

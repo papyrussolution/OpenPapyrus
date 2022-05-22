@@ -9,43 +9,6 @@
 #define U_I18N_IMPLEMENTATION
 #define U_IO_IMPLEMENTATION
 
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <stdarg.h>
-//#include <string.h>
-//#include <ctype.h>
-//#include <float.h>
-//#include <limits.h>
-//#include <locale.h>
-//#include <assert.h>
-//#include <time.h>
-/*
-#include <typeinfo>
-#include <array>
-#include <utility>
-#include <cmath>
-#include <cstdlib>
-#include <climits>
-#include <cstdarg>
-#include <algorithm>
-#include <limits>
-#include <functional>
-#include <string>
-#include <cstddef>
-#include <memory>
-#include <set>
-#include <fstream>
-#include <type_traits>
-#include <iterator>
-#include <iostream>
-#include <ostream>
-#include <sstream>
-#include <vector>
-#include <list>
-#include <map>
-#include <cinttypes>
-*/
-
 #include "utypeinfo.h"
 
 #include "unicode/utypes.h"

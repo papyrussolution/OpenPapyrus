@@ -1582,60 +1582,46 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    scnN.nmhdr.hwndFrom = hwnd;
 			    scnN.nmhdr.idFrom = 0;
 			    _pluginsManager.notify(&scnN);
-
-			    if(_pTrayIco)
-				    _pTrayIco->doTrayIcon(REMOVE);
-
+			    CALLPTRMEMB(_pTrayIco, doTrayIcon(REMOVE));
 			    const NppGUI & nppgui = nppParam.getNppGUI();
-
 			    bool isSnapshotMode = nppgui.isSnapshotMode();
-
 			    if(isSnapshotMode) {
 				    ::LockWindowUpdate(hwnd);
 				    MainFileManager.backupCurrentBuffer();
 			    }
-
 			    Session currentSession;
 			    if(nppgui._rememberLastSession) {
 				    getCurrentOpenedFiles(currentSession, true);
 				    //Lock the recent file list so it isnt populated with opened files
 				    //Causing them to show on restart even though they are loaded by session
-				    _lastRecentFileList.setLock(true);          //only lock when the session is
-					                                        // remembered
+				    _lastRecentFileList.setLock(true); //only lock when the session is remembered
 			    }
 			    _isAttemptingCloseOnQuit = true;
-			    bool allClosed = fileCloseAll(false, isSnapshotMode);       //try closing files before doing
-				                                                        // anything else
+			    bool allClosed = fileCloseAll(false, isSnapshotMode); //try closing files before doing anything else
 			    _isAttemptingCloseOnQuit = false;
 
 			    if(nppgui._rememberLastSession)
-				    _lastRecentFileList.setLock(false);         //only lock when the session is
-				                                                // remembered
+				    _lastRecentFileList.setLock(false); //only lock when the session is remembered
 
-			    if(!saveProjectPanelsParams()) allClosed = false;      //writeProjectPanelsSettings
+			    if(!saveProjectPanelsParams()) allClosed = false; //writeProjectPanelsSettings
 			    saveFileBrowserParam();
 
 			    if(!allClosed) {
 				    //User cancelled the shutdown
 				    scnN.nmhdr.code = NPPN_CANCELSHUTDOWN;
 				    _pluginsManager.notify(&scnN);
-
 				    if(isSnapshotMode)
 					    ::LockWindowUpdate(NULL);
 				    return FALSE;
 			    }
-
-			    if(_beforeSpecialView._isFullScreen)        //closing, return to windowed mode
+			    if(_beforeSpecialView._isFullScreen) //closing, return to windowed mode
 				    fullScreenToggle();
-			    if(_beforeSpecialView._isPostIt)                    //closing, return to windowed mode
+			    if(_beforeSpecialView._isPostIt) //closing, return to windowed mode
 				    postItToggle();
-
 			    if(_configStyleDlg.isCreated() && ::IsWindowVisible(_configStyleDlg.getHSelf()))
 				    _configStyleDlg.restoreGlobalOverrideValues();
-
 			    scnN.nmhdr.code = NPPN_SHUTDOWN;
 			    _pluginsManager.notify(&scnN);
-
 			    saveScintillasZoom();
 			    saveGUIParams();     //writeGUIParams writeScintillaParams
 			    saveFindHistory();     //writeFindHistory
@@ -1751,20 +1737,16 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				::SendMessage(hwnd, WM_SIZE, 0, 0);
 				return TRUE;
 			}
-
 			    case WM_MBUTTONUP:
-			{
-				command(IDM_SYSTRAYPOPUP_NEW_AND_PASTE);
-				return TRUE;
-			}
-
+					command(IDM_SYSTRAYPOPUP_NEW_AND_PASTE);
+					return TRUE;
 			    case WM_RBUTTONUP:
 			{
 				POINT p;
 				GetCursorPos(&p);
 
-				HMENU hmenu;                    // menu template
-				HMENU hTrayIconMenu;          // shortcut menu
+				HMENU hmenu;         // menu template
+				HMENU hTrayIconMenu; // shortcut menu
 				hmenu = ::LoadMenu(_pPublicInterface->getHinst(), MAKEINTRESOURCE(IDR_SYSTRAYPOPUP_MENU));
 				hTrayIconMenu = ::GetSubMenu(hmenu, 0);
 				SetForegroundWindow(hwnd);
@@ -1776,7 +1758,6 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 		    }
 		    return TRUE;
 	    }
-
 		case NPPM_DMMSHOW:
 	    {
 		    _dockingManager.showDockableDlg(reinterpret_cast<HWND>(lParam), SW_SHOW);
@@ -2222,12 +2203,9 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 					for(uint i = 0; i < nmdlg->nItems; ++i) {
 						bool closed = fileClose(_pDocTab->getBufferByIndex(nmdlg->Items[i]), currentView());
 						UINT pos = nmdlg->Items[i];
-						// The window list only needs to be rearranged when the file was
-						// actually closed
+						// The window list only needs to be rearranged when the file was actually closed
 						if(closed) {
-							nmdlg->Items[i] = 0xFFFFFFFF;         // indicate file was
-								                              // closed
-
+							nmdlg->Items[i] = 0xFFFFFFFF; // indicate file was closed
 							// Shift the remaining items downward to fill the gap
 							for(uint j = i + 1; j < nmdlg->nItems; ++j) {
 								if(nmdlg->Items[j] > pos)

@@ -25,7 +25,7 @@ static int __logc_io(DB_LOGC*, uint32, uint32, void *, size_t*, int *);
 static int __logc_ondisk(DB_LOGC*, DB_LSN*, DB_LSN*, uint32, HDR*, uint8 **, int *);
 static int __logc_set_maxrec(DB_LOGC*, char *);
 static int __logc_shortread(DB_LOGC*, DB_LSN*, int);
-static int __logc_version_pp(DB_LOGC*, uint32*, uint32);
+static int __logc_version_pp(DB_LOGC*, uint32 *, uint32);
 /*
  * __log_cursor_pp --
  *	ENV->log_cursor

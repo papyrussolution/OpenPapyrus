@@ -574,7 +574,7 @@ lua_Integer luaV_shiftl(lua_Integer x, lua_Integer y) {
 */
 static LClosure * getcached(Proto * p, UpVal ** encup, StkId base) {
 	LClosure * c = p->cache;
-	if(c != NULL) { /* is there a cached closure? */
+	if(c) { /* is there a cached closure? */
 		int nup = p->sizeupvalues;
 		Upvaldesc * uv = p->upvalues;
 		int i;

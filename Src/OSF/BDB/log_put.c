@@ -610,7 +610,7 @@ static int __log_putr(DB_LOG * dblp, DB_LSN * lsn, const DBT * dbt, uint32 prev,
 	 * If we weren't given a header, use a local one.
 	 */
 	DB_CIPHER * db_cipher = env->crypto_handle;
-	if(h == NULL) {
+	if(!h) {
 		hdr = &tmp;
 		memzero(hdr, sizeof(HDR));
 		hdr->size = CRYPTO_ON(env) ? HDR_CRYPTO_SZ : HDR_NORMAL_SZ;
@@ -1368,7 +1368,7 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 		DB_SET_TXN_LSNP(txnp, &rlsnp, &lsnp);
 		txn_num = txnp->txnid;
 	}
-	if(dbp != NULL) {
+	if(dbp) {
 		DB_ASSERT(env, dbp->log_filename != NULL);
 		if(dbp->log_filename->id == DB_LOGFILEID_INVALID && (ret = __dbreg_lazy_id(dbp)) != 0)
 			return ret;

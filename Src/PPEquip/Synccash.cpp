@@ -103,6 +103,7 @@ public:
 	virtual int PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int GetSummator(double * val);
 	virtual int GetDeviceTime(LDATETIME * pDtm);
+	virtual int OpenSession(PPID sessID); // @v11.2.12
 	virtual int CloseSession(PPID sessID);
 	virtual int PrintXReport(const CSessInfo *);
 	virtual int PrintZReportCopy(const CSessInfo *);
@@ -181,13 +182,12 @@ PPSyncCashSession * CM_SYNCCASH::SyncInterface()
 	return p_cs;
 }
 
-REGISTER_CMT(SYNCCASH,1,0);
+REGISTER_CMT(SYNCCASH, true, false);
 
 static void WriteLogFile_PageWidthOver(const char * pFormatName)
 {
 	SString msg_fmt, msg;
-	msg.Printf(PPLoadTextS(PPTXT_SLIPFMT_WIDTHOVER, msg_fmt), pFormatName);
-	PPLogMessage(PPFILNAM_SHTRIH_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
+	PPLogMessage(PPFILNAM_SHTRIH_LOG, msg.Printf(PPLoadTextS(PPTXT_SLIPFMT_WIDTHOVER, msg_fmt), pFormatName), LOGMSGF_TIME|LOGMSGF_USER);
 }
 
 int SCS_SYNCCASH::GetPort(const char * pPortName, int * pPortNo)
@@ -598,7 +598,7 @@ int SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * 
 	THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, pFc->AmtCash));
 	THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, pFc->AmtBank));
 	THROW(ArrAdd(Arr_In, DVCPARAM_CODE, pFc->Code));
-	THROW(ArrAdd(Arr_In, DVCPARAM_DATE, temp_buf.Z().Cat(pFc->Dt, DATF_ISO8601|DATF_CENTURY)));
+	THROW(ArrAdd(Arr_In, DVCPARAM_DATE, temp_buf.Z().Cat(pFc->Dt, DATF_ISO8601CENT)));
 	THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (temp_buf = pFc->Reason).Transf(CTRANSF_INNER_TO_OUTER))); // @v10.4.10 Transf(CTRANSF_INNER_TO_OUTER)
 	if(pFc->Flags & pFc->fVatFree) {
 		THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, 1));
@@ -722,7 +722,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					// @v11.2.3 {
 					{
 						LDATETIME ccts;
-						temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601|DATF_CENTURY, 0);
+						temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601CENT, 0);
 						THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTIMESTAMP, temp_buf));
 					}
 					// } @v11.2.3 
@@ -745,7 +745,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					// @v11.2.3 {
 					{
 						LDATETIME ccts;
-						temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601|DATF_CENTURY, 0);
+						temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601CENT, 0);
 						THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTIMESTAMP, temp_buf));
 					}
 					// } @v11.2.3 
@@ -1169,6 +1169,18 @@ void SCS_SYNCCASH::CutLongTail(SString & rBuf)
 }
 
 int SCS_SYNCCASH::CloseSession(PPID sessID) { return PrintReport(1); }
+
+int SCS_SYNCCASH::OpenSession(PPID sessID) // @v11.2.12
+{
+	int    ok = 1;
+	ResCode = RESCODE_NO_ERROR;
+	THROW(Connect());
+	Arr_In.Z();
+	THROW(ExecPrintOper(DVCCMD_OPENSESSION, Arr_In, Arr_Out));
+	CATCHZOK
+	return ok;
+}
+
 int SCS_SYNCCASH::PrintXReport(const CSessInfo *) { return PrintReport(0); }
 
 int SCS_SYNCCASH::PrintReport(int withCleaning)
@@ -1264,7 +1276,7 @@ int SCS_SYNCCASH::PrintCheckCopy(const CCheckPacket * pPack, const char * pForma
 	// @v11.2.3 {
 	{
 		LDATETIME ccts;
-		temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601|DATF_CENTURY, 0);
+		temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601CENT, 0);
 		THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTIMESTAMP, temp_buf));
 	}
 	// } @v11.2.3 

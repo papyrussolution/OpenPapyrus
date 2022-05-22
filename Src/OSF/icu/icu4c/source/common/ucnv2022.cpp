@@ -467,7 +467,7 @@ static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs
 {
 	char myLocale[7] = {' ', ' ', ' ', ' ', ' ', ' ', '\0'};
 	cnv->extraInfo = uprv_malloc(sizeof(UConverterDataISO2022));
-	if(cnv->extraInfo != NULL) {
+	if(cnv->extraInfo) {
 		UConverterNamePieces stackPieces;
 		UConverterLoadArgs stackArgs = UCNV_LOAD_ARGS_INITIALIZER;
 		UConverterDataISO2022 * myConverterData = (UConverterDataISO2022*)cnv->extraInfo;
@@ -982,9 +982,9 @@ DONE:
 						*err = U_UNSUPPORTED_ESCAPE_SEQUENCE;
 						break;
 					}
-					U_FALLTHROUGH;
+					CXX_FALLTHROUGH;
 				    case GB2312_1:
-					U_FALLTHROUGH;
+					CXX_FALLTHROUGH;
 				    case CNS_11643_1:
 					myData2022->toU2022State.cs[1] = (int8)tempState;
 					break;
@@ -2210,7 +2210,7 @@ escape:
 				    }
 				    pToU2022State->cs[2] = 0;
 				    pToU2022State->g = 0;
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 				default:
 				    /* convert one or two bytes */
 				    myData->isEmptySegment = FALSE;
@@ -3435,7 +3435,7 @@ escape:
 				case CR:
 				case LF:
 				    memzero(pToU2022State, sizeof(ISO2022State));
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 				default:
 				    /* convert one or two bytes */
 				    myData->isEmptySegment = FALSE;

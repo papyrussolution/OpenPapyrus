@@ -472,7 +472,7 @@ static int skip_sfx(struct archive_read * a, ssize_t bytes_avail)
 	window = 1;
 	while(offset + window <= SFX_MAX_ADDR - SFX_MIN_ADDR) {
 		h = __archive_read_ahead(a, window, &bytes);
-		if(h == NULL) {
+		if(!h) {
 			/* Remaining bytes are less than window. */
 			window >>= 1;
 			if(window < 0x40)
@@ -1022,16 +1022,9 @@ static int init_decompression(struct archive_read * a, struct _7zip * zip, const
 			    int err = ARCHIVE_ERRNO_MISC;
 			    const char * detail = NULL;
 			    switch(r) {
-				    case BZ_PARAM_ERROR:
-					detail = "invalid setup parameter";
-					break;
-				    case BZ_MEM_ERROR:
-					err = ENOMEM;
-					detail = "out of memory";
-					break;
-				    case BZ_CONFIG_ERROR:
-					detail = "mis-compiled library";
-					break;
+				    case BZ_PARAM_ERROR: detail = "invalid setup parameter"; break;
+				    case BZ_MEM_ERROR: err = ENOMEM; detail = SlTxtOutOfMem; break;
+				    case BZ_CONFIG_ERROR: detail = "mis-compiled library"; break;
 			    }
 			    archive_set_error(&a->archive, err, "Internal error initializing decompressor: %s", detail != NULL ? detail : "??");
 			    zip->bzstream_valid = 0;
@@ -2297,7 +2290,7 @@ static int read_Header(struct archive_read * a, struct _7z_header_info * h,
 			case kDummy:
 			    if(ll == 0)
 				    break;
-			    __LA_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			default:
 			    if(header_bytes(a, ll) == NULL)
 				    return -1;
@@ -2474,7 +2467,7 @@ static int decode_encoded_header_info(struct archive_read * a, struct _7z_stream
 	errno = 0;
 	if(read_StreamsInfo(a, si) < 0) {
 		if(errno == ENOMEM)
-			archive_set_error(&a->archive, -1, "Couldn't allocate memory");
+			archive_set_error(&a->archive, -1, SlTxtOutOfMem);
 		else
 			archive_set_error(&a->archive, -1, "Malformed 7-Zip archive");
 		return ARCHIVE_FATAL;
@@ -2624,7 +2617,7 @@ static int slurp_central_directory(struct archive_read * a, struct _7zip * zip, 
 		    r = read_Header(a, header, zip->header_is_encoded);
 		    if(r < 0) {
 			    if(errno == ENOMEM)
-				    archive_set_error(&a->archive, -1, "Couldn't allocate memory");
+				    archive_set_error(&a->archive, -1, SlTxtOutOfMem);
 			    else
 				    archive_set_error(&a->archive, -1, "Damaged 7-Zip archive");
 			    return ARCHIVE_FATAL;

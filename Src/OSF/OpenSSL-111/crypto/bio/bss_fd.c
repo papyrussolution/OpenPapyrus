@@ -165,7 +165,7 @@ static long fd_ctrl(BIO * b, int cmd, long num, void * ptr)
 		case BIO_C_GET_FD:
 		    if(b->init) {
 			    ip = (int*)ptr;
-			    if(ip != NULL)
+			    if(ip)
 				    *ip = b->num;
 			    ret = b->num;
 		    }

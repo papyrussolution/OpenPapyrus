@@ -349,8 +349,6 @@ Xapian::doccount GlassSpellingTable::get_word_frequency(const string & word) con
 	return 0;
 }
 
-///////////////////////////////////////////////////////////////////////////
-
 Xapian::termcount GlassSpellingTermList::get_approx_size() const
 {
 	// This is only used to decide how to build a OR-tree of TermList objects

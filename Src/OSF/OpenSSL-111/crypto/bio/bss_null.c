@@ -79,7 +79,7 @@ static int null_gets(BIO * bp, char * buf, int size)
 
 static int null_puts(BIO * bp, const char * str)
 {
-	if(str == NULL)
+	if(!str)
 		return 0;
 	return strlen(str);
 }

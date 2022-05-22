@@ -3558,7 +3558,7 @@ int SPaintObj::AddGradientStop(float offs, SColor c)
 	return ok;
 }
 
-int FASTCALL _SetPaintObjInnerHandle(SPaintObj::Base * pBase, SDrawSystem sys, /*uint32*/void * h)
+int FASTCALL _SetPaintObjInnerHandle(SPaintObj::Base * pBase, SDrawSystem sys, /*uint32 */void * h)
 {
 	if(pBase) {
 		pBase->Handle = h;

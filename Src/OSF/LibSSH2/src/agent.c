@@ -301,8 +301,7 @@ static struct {
 	{NULL, NULL}
 };
 
-static int agent_sign(LIBSSH2_SESSION * session, uchar ** sig, size_t * sig_len,
-    const uchar * data, size_t data_len, void ** abstract)
+static int agent_sign(LIBSSH2_SESSION * session, uchar ** sig, size_t * sig_len, const uchar * data, size_t data_len, void ** abstract)
 {
 	LIBSSH2_AGENT * agent = (LIBSSH2_AGENT*)(*abstract);
 	agent_transaction_ctx_t transctx = &agent->transctx;
@@ -315,7 +314,7 @@ static int agent_sign(LIBSSH2_SESSION * session, uchar ** sig, size_t * sig_len,
 	if(transctx->state == agent_NB_state_init) {
 		s = transctx->request = (uchar *)LIBSSH2_ALLOC(session, len);
 		if(!transctx->request)
-			return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "out of memory");
+			return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, SlTxtOutOfMem);
 		*s++ = SSH2_AGENTC_SIGN_REQUEST;
 		/* key blob */
 		_libssh2_store_str(&s, (const char *)identity->external.blob, identity->external.blob_len);

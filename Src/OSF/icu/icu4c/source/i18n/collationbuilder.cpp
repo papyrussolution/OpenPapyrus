@@ -309,8 +309,7 @@ void CollationBuilder::addReset(int32_t strength, const UnicodeString & str,
 	}
 	if(strength == UCOL_IDENTICAL) {
 		return;
-	}                                       // simple reset-at-position
-
+	} // simple reset-at-position
 	// &[before strength]position
 	U_ASSERT(UCOL_PRIMARY <= strength && strength <= UCOL_TERTIARY);
 	int32_t index = findOrInsertNodeForCEs(strength, parserErrorReason, errorCode);
@@ -1222,19 +1221,18 @@ uint32_t CollationBuilder::addOnlyClosure(const UnicodeString & nfdPrefix, const
 	return ce32;
 }
 
-void CollationBuilder::addTailComposites(const UnicodeString & nfdPrefix, const UnicodeString & nfdString,
-    UErrorCode & errorCode) {
+void CollationBuilder::addTailComposites(const UnicodeString & nfdPrefix, const UnicodeString & nfdString, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-
 	// Look for the last starter in the NFD string.
 	UChar32 lastStarter;
 	int32_t indexAfterLastStarter = nfdString.length();
 	for(;;) {
 		if(indexAfterLastStarter == 0) {
 			return;
-		}                                   // no starter at all
+		} // no starter at all
 		lastStarter = nfdString.char32At(indexAfterLastStarter - 1);
 		if(nfd.getCombiningClass(lastStarter) == 0) {
 			break;
@@ -1640,9 +1638,7 @@ void CollationBuilder::makeTailoredCEs(UErrorCode & errorCode) {
 							    rootElements.getPrimaryAfter(p, pIndex, isCompressible);
 							primaries.initForPrimary(isCompressible);
 							if(!primaries.allocWeights(p, pLimit, pCount)) {
-								errorCode = U_BUFFER_OVERFLOW_ERROR; // TODO: introduce
-								                                     // a more specific
-								                                     // UErrorCode?
+								errorCode = U_BUFFER_OVERFLOW_ERROR; // TODO: introduce a more specific UErrorCode?
 								errorReason = "primary tailoring gap too small";
 								return;
 							}

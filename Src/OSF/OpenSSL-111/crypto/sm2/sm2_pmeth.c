@@ -92,7 +92,7 @@ static int pkey_sm2_sign(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen,
 		return 0;
 	}
 
-	if(sig == NULL) {
+	if(!sig) {
 		*siglen = (size_t)sig_sz;
 		return 1;
 	}

@@ -17,14 +17,14 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  */
+// Discrete wavelet transform
 #include "opj_includes.h"
 #pragma hdrstop
 #define OPJ_SKIP_POISON
@@ -53,15 +53,11 @@
 #define OPJ_WD(i) v->mem[(1+(i)*2)]
 
 #ifdef __AVX2__
-/** Number of int32 values in a AVX2 register */
-#define VREG_INT_COUNT       8
+#define VREG_INT_COUNT       8 /** Number of int32 values in a AVX2 register */
 #else
-/** Number of int32 values in a SSE2 register */
-#define VREG_INT_COUNT       4
+#define VREG_INT_COUNT       4 /** Number of int32 values in a SSE2 register */
 #endif
-
-/** Number of columns that we can process in parallel in the vertical pass */
-#define PARALLEL_COLS_53     (2*VREG_INT_COUNT)
+#define PARALLEL_COLS_53     (2*VREG_INT_COUNT) /** Number of columns that we can process in parallel in the vertical pass */
 
 /** @name Local data structures */
 /*@{*/
@@ -107,29 +103,20 @@ static const float opj_invK   = (float)(1.0 / 1.230174105);
 /**
    Forward lazy transform (horizontal)
  */
-static void opj_dwt_deinterleave_h(const int32_t * OPJ_RESTRICT a,
-    int32_t * OPJ_RESTRICT b,
-    int32_t dn,
-    int32_t sn, int32_t cas);
-
+static void opj_dwt_deinterleave_h(const int32_t * OPJ_RESTRICT a, int32_t * OPJ_RESTRICT b, int32_t dn, int32_t sn, int32_t cas);
 /**
    Forward 9-7 wavelet transform in 1-D
  */
-static void opj_dwt_encode_1_real(void * a, int32_t dn, int32_t sn,
-    int32_t cas);
+static void opj_dwt_encode_1_real(void * a, int32_t dn, int32_t sn, int32_t cas);
 /**
    Explicit calculation of the Quantization Stepsizes
  */
-static void opj_dwt_encode_stepsize(int32_t stepsize, int32_t numbps,
-    opj_stepsize_t * bandno_stepsize);
+static void opj_dwt_encode_stepsize(int32_t stepsize, int32_t numbps, opj_stepsize_t * bandno_stepsize);
 /**
    Inverse wavelet transform in 2-D.
  */
-static boolint opj_dwt_decode_tile(opj_thread_pool_t* tp,
-    opj_tcd_tilecomp_t* tilec, uint32_t i);
-
-static boolint opj_dwt_decode_partial_tile(opj_tcd_tilecomp_t* tilec,
-    uint32_t numres);
+static boolint opj_dwt_decode_tile(opj_thread_pool_t* tp, opj_tcd_tilecomp_t* tilec, uint32_t i);
+static boolint opj_dwt_decode_partial_tile(opj_tcd_tilecomp_t* tilec, uint32_t numres);
 
 /* Forward transform, for the vertical pass, processing cols columns */
 /* where cols <= NB_ELTS_V8 */
@@ -142,19 +129,14 @@ typedef void (* opj_encode_and_deinterleave_v_fnptr_type)(void * array,
     uint32_t cols);
 
 /* Where void* is a int32_t* for 5x3 and float* for 9x7 */
-typedef void (* opj_encode_and_deinterleave_h_one_row_fnptr_type)(void * row,
-    void * tmp,
-    uint32_t width,
-    boolint even);
-
+typedef void (* opj_encode_and_deinterleave_h_one_row_fnptr_type)(void * row, void * tmp, uint32_t width, boolint even);
 static boolint opj_dwt_encode_procedure(opj_thread_pool_t* tp,
     opj_tcd_tilecomp_t * tilec,
     opj_encode_and_deinterleave_v_fnptr_type p_encode_and_deinterleave_v,
     opj_encode_and_deinterleave_h_one_row_fnptr_type
     p_encode_and_deinterleave_h_one_row);
 
-static uint32_t opj_dwt_max_resolution(opj_tcd_resolution_t* OPJ_RESTRICT r,
-    uint32_t i);
+static uint32_t opj_dwt_max_resolution(opj_tcd_resolution_t* OPJ_RESTRICT r, uint32_t i);
 
 /* <summary>                             */
 /* Inverse 9-7 wavelet transform in 1-D. */
@@ -205,23 +187,17 @@ static const double opj_dwt_norms_real[4][10] = {
 /* <summary>                             */
 /* Forward lazy transform (horizontal).  */
 /* </summary>                            */
-static void opj_dwt_deinterleave_h(const int32_t * OPJ_RESTRICT a,
-    int32_t * OPJ_RESTRICT b,
-    int32_t dn,
-    int32_t sn, int32_t cas)
+static void opj_dwt_deinterleave_h(const int32_t * OPJ_RESTRICT a, int32_t * OPJ_RESTRICT b, int32_t dn, int32_t sn, int32_t cas)
 {
 	int32_t i;
 	int32_t * OPJ_RESTRICT l_dest = b;
 	const int32_t * OPJ_RESTRICT l_src = a + cas;
-
 	for(i = 0; i < sn; ++i) {
 		*l_dest++ = *l_src;
 		l_src += 2;
 	}
-
 	l_dest = b + sn;
 	l_src = a + 1 - cas;
-
 	for(i = 0; i < dn; ++i) {
 		*l_dest++ = *l_src;
 		l_src += 2;
@@ -3753,9 +3729,7 @@ boolint opj_dwt_decode_partial_97(opj_tcd_tilecomp_t* OPJ_RESTRICT tilec,
 	return TRUE;
 }
 
-boolint opj_dwt_decode_real(opj_tcd_t * p_tcd,
-    opj_tcd_tilecomp_t* OPJ_RESTRICT tilec,
-    uint32_t numres)
+boolint opj_dwt_decode_real(opj_tcd_t * p_tcd, opj_tcd_tilecomp_t* OPJ_RESTRICT tilec, uint32_t numres)
 {
 	if(p_tcd->whole_tile_decoding) {
 		return opj_dwt_decode_tile_97(p_tcd->thread_pool, tilec, numres);

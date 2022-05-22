@@ -1499,7 +1499,7 @@ void DateIntervalFormat::fallbackFormatRange(Calendar& fromCalendar,
 // The following is only called from formatImpl, i.e. within the gFormatterMutex lock
 UnicodeString &DateIntervalFormat::fallbackFormat(Calendar& fromCalendar,
     Calendar& toCalendar,
-    bool fromToOnSameDay,                                // new
+    bool fromToOnSameDay, // new
     UnicodeString & appendTo,
     int8& firstIndex,
     FieldPositionHandler& fphandler,

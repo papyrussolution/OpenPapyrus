@@ -57,7 +57,7 @@ cairo_surface_t * _cairo_type3_glyph_surface_create(cairo_scaled_font_t * scaled
 	if(UNLIKELY(stream != NULL && stream->status))
 		return _cairo_surface_create_in_error(stream->status);
 	surface = (cairo_type3_glyph_surface_t *)_cairo_malloc(sizeof(cairo_type3_glyph_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &cairo_type3_glyph_surface_backend, NULL/* device */, CAIRO_CONTENT_COLOR_ALPHA, TRUE/* is_vector */);
 	surface->scaled_font = scaled_font;

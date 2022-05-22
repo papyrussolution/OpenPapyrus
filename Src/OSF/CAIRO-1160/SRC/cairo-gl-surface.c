@@ -32,15 +32,8 @@
 #pragma hdrstop
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-compositor-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-inline.h"
-//#include "cairo-surface-backend-private.h"
 
 static const cairo_surface_backend_t _cairo_gl_surface_backend;
-
 static cairo_status_t _cairo_gl_surface_flush(void * abstract_surface, unsigned flags);
 
 static boolint _cairo_surface_is_gl(cairo_surface_t * surface)
@@ -48,15 +41,10 @@ static boolint _cairo_surface_is_gl(cairo_surface_t * surface)
 	return surface->backend == &_cairo_gl_surface_backend;
 }
 
-static boolint _cairo_gl_get_image_format_and_type_gles2(pixman_format_code_t pixman_format,
-    GLenum * internal_format, GLenum * format,
-    GLenum * type, boolint * has_alpha,
-    boolint * needs_swap)
+static boolint _cairo_gl_get_image_format_and_type_gles2(pixman_format_code_t pixman_format, GLenum * internal_format, GLenum * format, GLenum * type, boolint * has_alpha, boolint * needs_swap)
 {
 	boolint is_little_endian = _cairo_is_little_endian();
-
 	*has_alpha = TRUE;
-
 	switch((int)pixman_format) {
 		case PIXMAN_a8r8g8b8:
 		    *internal_format = GL_BGRA;
@@ -385,7 +373,7 @@ static boolint _cairo_gl_surface_size_valid(cairo_gl_surface_t * surface, int wi
 static cairo_surface_t * _cairo_gl_surface_create_scratch_for_texture(cairo_gl_context_t * ctx, cairo_content_t content, GLuint tex, int width, int height)
 {
 	cairo_gl_surface_t * surface = (cairo_gl_surface_t *)SAlloc::C(1, sizeof(cairo_gl_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	surface->tex = tex;
 	_cairo_gl_surface_init(&ctx->base, surface, content, width, height);

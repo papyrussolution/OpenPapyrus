@@ -13,10 +13,9 @@
 #pragma hdrstop
 //#include "src/dsp/dsp.h"
 #include "src/enc/cost_enc.h"
-
-//------------------------------------------------------------------------------
+//
 // Boolean-cost cost table
-
+//
 const uint16_t VP8EntropyCost[256] = {
 	1792, 1792, 1792, 1536, 1536, 1408, 1366, 1280, 1280, 1216,
 	1178, 1152, 1110, 1076, 1061, 1024, 1024,  992,  968,  951,
@@ -45,10 +44,9 @@ const uint16_t VP8EntropyCost[256] = {
 	25,   24,   22,   21,   19,   18,   16,   15,   13,   12,
 	10,    9,    7,    6,    4,    3
 };
-
-//------------------------------------------------------------------------------
+//
 // Level cost tables
-
+//
 // fixed costs for coding levels, deduce from the coding tree.
 // This is only the part that doesn't depend on the probability state.
 const uint16_t VP8LevelFixedCosts[MAX_LEVEL + 1] = {
@@ -309,18 +307,16 @@ const uint16_t VP8LevelFixedCosts[MAX_LEVEL + 1] = {
 	7616, 7625, 7631, 7656, 7662, 7671, 7677, 7688,
 	7694, 7703, 7709, 7729, 7735, 7744, 7750, 7761
 };
-
-//------------------------------------------------------------------------------
+//
 // Tables for level coding
-
+//
 const uint8 VP8EncBands[16 + 1] = {
 	0, 1, 2, 3, 6, 4, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7,
 	0 // sentinel
 };
-
-//------------------------------------------------------------------------------
+//
 // Mode costs
-
+//
 static int GetResidualCost_C(int ctx0, const VP8Residual* const res) {
 	int n = res->first;
 	// should be prob[VP8EncBands[n]], but it's equivalent for n=0 or 1
@@ -369,10 +365,9 @@ static void SetResidualCoeffs_C(const int16_t* const coeffs,
 	}
 	res->coeffs = coeffs;
 }
-
-//------------------------------------------------------------------------------
+//
 // init function
-
+//
 VP8GetResidualCostFunc VP8GetResidualCost;
 VP8SetResidualCoeffsFunc VP8SetResidualCoeffs;
 
@@ -386,7 +381,7 @@ WEBP_DSP_INIT_FUNC(VP8EncDspCostInit) {
 	VP8SetResidualCoeffs = SetResidualCoeffs_C;
 
 	// If defined, use CPUInfo() to overwrite some pointers with faster versions.
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_USE_MIPS32)
 		if(VP8GetCPUInfo(kMIPS32)) {
 			VP8EncDspCostInitMIPS32();
@@ -409,5 +404,3 @@ WEBP_DSP_INIT_FUNC(VP8EncDspCostInit) {
 #endif
 	}
 }
-
-//------------------------------------------------------------------------------

@@ -526,33 +526,30 @@ namespace std {
 #ifdef U_NOEXCEPT
     /* Use the predefined value. */
 #else
-#define U_NOEXCEPT noexcept
+	#define U_NOEXCEPT noexcept
 #endif
-
 /**
- * \def U_FALLTHROUGH
+ * \def U_FALLTHROUGH_Removed
  * Annotate intentional fall-through between switch labels.
  * http://clang.llvm.org/docs/AttributeReference.html#fallthrough-clang-fallthrough
  * @internal
  */
+/* @sobolev (replaced with CXX_FALLTHROUGH) 
 #ifndef __cplusplus
     // Not for C.
-#elif defined(U_FALLTHROUGH)
+#elif defined(U_FALLTHROUGH_Removed)
     // Use the predefined value.
 #elif defined(__clang__)
-    // Test for compiler vs. feature separately.
-    // Other compilers might choke on the feature test.
+    // Test for compiler vs. feature separately. Other compilers might choke on the feature test.
 #if UPRV_HAS_CPP_ATTRIBUTE(clang::fallthrough) || (UPRV_HAS_FEATURE(cxx_attributes) && UPRV_HAS_WARNING("-Wimplicit-fallthrough"))
-#define U_FALLTHROUGH [[clang::fallthrough]]
+	#define U_FALLTHROUGH_Removed [[clang::fallthrough]]
 #endif
 #elif defined(__GNUC__) && (__GNUC__ >= 7)
-#define U_FALLTHROUGH __attribute__((fallthrough))
+	#define U_FALLTHROUGH_Removed __attribute__((fallthrough))
 #endif
-
-#ifndef U_FALLTHROUGH
-#define U_FALLTHROUGH
+#ifndef U_FALLTHROUGH_Removed
+	#define U_FALLTHROUGH_Removed
 #endif
-
 /** @} */
 
 /*===========================================================================*/

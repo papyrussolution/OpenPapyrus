@@ -83,7 +83,7 @@ public:
 	bool ensureCapacityForOneMore(int32_t oldLength, UErrorCode & errorCode);
 	bool equals(const MessagePatternList<T, stackCapacity> &other, int32_t length) const 
 	{
-		for(int32_t i = 0; i<length; ++i) {
+		for(int32_t i = 0; i < length; ++i) {
 			if(a[i]!=other.a[i]) {
 				return FALSE;
 			}
@@ -320,7 +320,7 @@ UnicodeString MessagePattern::autoQuoteApostropheDeep() const {
 	UnicodeString modified(msg);
 	// Iterate backward so that the insertion indexes do not change.
 	int32_t count = countParts();
-	for(int32_t i = count; i>0;) {
+	for(int32_t i = count; i > 0;) {
 		const Part &part = getPart(--i);
 		if(part.getType()==UMSGPAT_PART_TYPE_INSERT_CHAR) {
 			modified.insert(part.index, (UChar)part.value);

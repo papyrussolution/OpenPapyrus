@@ -381,7 +381,7 @@ static void DEBUG_delEntry(TransliteratorEntry* e) {
 
 // Track object usage
 static void DEBUG_useEntry(TransliteratorEntry* e) {
-	if(e == NULL) return;
+	if(!e) return;
 	DEBUG_setup();
 	int i = DEBUG_findEntry(e);
 	if(i < 0) {
@@ -621,7 +621,7 @@ void TransliteratorRegistry::put(Transliterator* adoptedProto,
     UErrorCode & ec)
 {
 	TransliteratorEntry * entry = new TransliteratorEntry();
-	if(entry == NULL) {
+	if(!entry) {
 		ec = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
@@ -635,7 +635,7 @@ void TransliteratorRegistry::put(const UnicodeString & ID,
     bool visible,
     UErrorCode & ec) {
 	TransliteratorEntry * entry = new TransliteratorEntry();
-	if(entry == NULL) {
+	if(!entry) {
 		ec = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
@@ -650,7 +650,7 @@ void TransliteratorRegistry::put(const UnicodeString & ID,
     bool visible,
     UErrorCode & ec) {
 	TransliteratorEntry * entry = new TransliteratorEntry();
-	if(entry == NULL) {
+	if(!entry) {
 		ec = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
@@ -672,7 +672,7 @@ void TransliteratorRegistry::put(const UnicodeString & ID,
     UErrorCode & /*ec*/) {
 	TransliteratorEntry * entry = new TransliteratorEntry();
 	// Null pointer check
-	if(entry != NULL) {
+	if(entry) {
 		entry->entryType = TransliteratorEntry::ALIAS;
 		if(readonlyAliasAlias) {
 			entry->stringArg.setTo(TRUE, alias.getBuffer(), -1);

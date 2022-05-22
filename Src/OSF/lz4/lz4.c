@@ -169,7 +169,7 @@ static uint LZ4_isLittleEndian(void)
 #if defined(LZ4_FORCE_MEMORY_ACCESS) && (LZ4_FORCE_MEMORY_ACCESS==2)
 	// lie to the compiler about data alignment; use with caution 
 	static uint16 FASTCALL LZ4_read16(const void * memPtr) { return *(const uint16*)memPtr; }
-	static uint32 FASTCALL LZ4_read32(const void * memPtr) { return *(const uint32*)memPtr; }
+	static uint32 FASTCALL LZ4_read32(const void * memPtr) { return *(const uint32 *)memPtr; }
 	static reg_t FASTCALL LZ4_read_ARCH(const void * memPtr) { return *(const reg_t*)memPtr; }
 	static void  FASTCALL LZ4_write16(void * memPtr, uint16 value) { *(uint16 *)memPtr = value; }
 	static void  FASTCALL LZ4_write32(void * memPtr, uint32 value) { *(uint32 *)memPtr = value; }
@@ -491,7 +491,7 @@ static void LZ4_putIndexOnHash(uint32 idx, uint32 h, void * tableBase, tableType
 		default: // @fallthrough
 		case clearedTable: // @fallthrough
 		case byPtr: { /* illegal! */ assert(0); return; }
-		case byU32: { uint32* hashTable = (uint32 *)tableBase; hashTable[h] = idx; return; }
+		case byU32: { uint32 * hashTable = (uint32 *)tableBase; hashTable[h] = idx; return; }
 		case byU16: { uint16* hashTable = (uint16 *)tableBase; assert(idx < 65536); hashTable[h] = (uint16)idx; return; }
 	}
 }
@@ -501,7 +501,7 @@ static void LZ4_putPositionOnHash(const uint8 * p, uint32 h, void * tableBase, t
 	switch(tableType) {
 		case clearedTable: { /* illegal! */ assert(0); return; }
 		case byPtr: { const uint8 ** hashTable = (const uint8 **)tableBase; hashTable[h] = p; return; }
-		case byU32: { uint32* hashTable = (uint32 *)tableBase; hashTable[h] = (uint32)(p-srcBase); return; }
+		case byU32: { uint32 * hashTable = (uint32 *)tableBase; hashTable[h] = (uint32)(p-srcBase); return; }
 		case byU16: { uint16* hashTable = (uint16 *)tableBase; hashTable[h] = static_cast<uint16>(p-srcBase); return; }
 	}
 }
@@ -522,7 +522,7 @@ static uint32 LZ4_getIndexOnHash(uint32 h, const void * tableBase, tableType_t t
 {
 	LZ4_STATIC_ASSERT(LZ4_MEMORY_USAGE > 2);
 	if(tableType == byU32) {
-		const uint32* const hashTable = (const uint32*)tableBase;
+		const uint32 * const hashTable = (const uint32 *)tableBase;
 		assert(h < (1U << (LZ4_MEMORY_USAGE-2)));
 		return hashTable[h];
 	}
@@ -541,7 +541,7 @@ static const uint8 * LZ4_getPositionOnHash(uint32 h, const void * tableBase, tab
 		return hashTable[h];
 	}
 	if(tableType == byU32) {
-		const uint32* const hashTable = (const uint32*)tableBase; 
+		const uint32 * const hashTable = (const uint32 *)tableBase; 
 		return hashTable[h] + srcBase;
 	}
 	{ 

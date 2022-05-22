@@ -360,14 +360,11 @@ static bool any_cipher_enabled(void)
 static int is_file(const char * filename)
 {
 	struct_stat st;
-
-	if(filename == NULL)
+	if(!filename)
 		return 0;
-
 	if(stat(filename, &st) == 0)
 		if(S_ISREG(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISCHR(st.st_mode))
 			return 1;
-
 	return 0;
 }
 
@@ -380,11 +377,9 @@ static int is_file(const char * filename)
 static char * dup_nickname(struct Curl_easy * data, const char * str)
 {
 	const char * n;
-
 	if(!is_file(str))
 		/* no such file exists, use the string as nickname */
 		return sstrdup(str);
-
 	/* search the first slash; we require at least one slash in a file name */
 	n = strchr(str, '/');
 	if(!n) {
@@ -392,7 +387,6 @@ static char * dup_nickname(struct Curl_easy * data, const char * str)
 		    "please use \"./%s\" to force file name\n", str, str);
 		return sstrdup(str);
 	}
-
 	/* we'll use the PEM reader to read the certificate from file */
 	return NULL;
 }
@@ -416,7 +410,6 @@ static CURLcode insert_wrapped_ptr(struct Curl_llist * list, void * ptr)
 	struct ptr_list_wrap * wrap = SAlloc::M(sizeof(*wrap));
 	if(!wrap)
 		return CURLE_OUT_OF_MEMORY;
-
 	wrap->ptr = ptr;
 	Curl_llist_insert_next(list, list->tail, wrap, &wrap->node);
 	return CURLE_OK;

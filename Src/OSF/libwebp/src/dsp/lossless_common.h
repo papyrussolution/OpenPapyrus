@@ -15,12 +15,6 @@
 
 #ifndef WEBP_DSP_LOSSLESS_COMMON_H_
 #define WEBP_DSP_LOSSLESS_COMMON_H_
-
-//#include "src/webp/types.h"
-//#include "src/utils/utils.h"
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
 //
 // Decoding
 //
@@ -172,7 +166,4 @@ static WEBP_UBSAN_IGNORE_UNSIGNED_OVERFLOW FORCEINLINE uint32_t VP8LSubPixels(ui
 		}                                                                  \
 	}
 
-//#ifdef __cplusplus
-//}    // extern "C"
-//#endif
 #endif  // WEBP_DSP_LOSSLESS_COMMON_H_

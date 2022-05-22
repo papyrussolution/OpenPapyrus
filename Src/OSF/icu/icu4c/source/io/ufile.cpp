@@ -45,11 +45,11 @@ static UFILE* finit_owner(FILE     * f, const char * locale, const char * codepa
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UFILE * result;
-	if(f == NULL) {
+	if(!f) {
 		return 0;
 	}
 	result = (UFILE*)uprv_malloc(sizeof(UFILE));
-	if(result == NULL) {
+	if(!result) {
 		return 0;
 	}
 	memzero(result, sizeof(UFILE));
@@ -197,7 +197,7 @@ U_CAPI UFILE* U_EXPORT2 u_fstropen(UChar * stringBuf, int32_t capacity, const ch
 	}
 	result = (UFILE*)uprv_malloc(sizeof(UFILE));
 	/* Null pointer test */
-	if(result == NULL) {
+	if(!result) {
 		return NULL; /* Just get out. */
 	}
 	memzero(result, sizeof(UFILE));
@@ -220,7 +220,7 @@ U_CAPI UFILE* U_EXPORT2 u_fstropen(UChar * stringBuf, int32_t capacity, const ch
 U_CAPI bool U_EXPORT2 u_feof(UFILE  * f)
 {
 	bool endOfBuffer;
-	if(f == NULL) {
+	if(!f) {
 		return TRUE;
 	}
 	endOfBuffer = (bool)(f->str.fPos >= f->str.fLimit);

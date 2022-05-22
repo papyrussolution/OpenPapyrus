@@ -15,12 +15,6 @@
 #ifndef WEBP_UTILS_BIT_READER_UTILS_H_
 #define WEBP_UTILS_BIT_READER_UTILS_H_
 
-//#include <assert.h>
-//#ifdef _MSC_VER
-//#include <stdlib.h>  // _byteswap_ulong
-//#endif
-//#include "src/webp/types.h"
-
 // Warning! This macro triggers quite some MACRO wizardry around func signature!
 #if !defined(BITTRACE)
 #define BITTRACE 0    // 0 = off, 1 = print bits, 2 = print bytes

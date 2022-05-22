@@ -164,7 +164,7 @@ int32_t StringReplacer::replace(Replaceable& text,
 			}
 			UChar32 c = output.char32At(oOutput);
 			UnicodeReplacer* r = data->lookupReplacer(c);
-			if(r == NULL) {
+			if(!r) {
 				// Accumulate straight (non-segment) text.
 				buf.append(c);
 			}
@@ -266,7 +266,7 @@ UnicodeString & StringReplacer::toReplacerPattern(UnicodeString & rule,
 		UChar c = output.charAt(i); // Ok to use 16-bits here
 
 		UnicodeReplacer* r = data->lookupReplacer(c);
-		if(r == NULL) {
+		if(!r) {
 			ICU_Utility::appendToRule(rule, c, FALSE, escapeUnprintable, quoteBuf);
 		}
 		else {
@@ -304,7 +304,7 @@ void StringReplacer::addReplacementSetTo(UnicodeSet & toUnionTo) const {
 	for(int32_t i = 0; i<output.length(); i += U16_LENGTH(ch)) {
 		ch = output.char32At(i);
 		UnicodeReplacer* r = data->lookupReplacer(ch);
-		if(r == NULL) {
+		if(!r) {
 			toUnionTo.add(ch);
 		}
 		else {

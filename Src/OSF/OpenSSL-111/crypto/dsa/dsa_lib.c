@@ -95,24 +95,20 @@ err:
 void DSA_free(DSA * r)
 {
 	int i;
-	if(r == NULL)
+	if(!r)
 		return;
 	CRYPTO_DOWN_REF(&r->references, &i, r->lock);
 	REF_PRINT_COUNT("DSA", r);
 	if(i > 0)
 		return;
 	REF_ASSERT_ISNT(i < 0);
-
-	if(r->meth != NULL && r->meth->finish != NULL)
+	if(r->meth && r->meth->finish)
 		r->meth->finish(r);
 #ifndef OPENSSL_NO_ENGINE
 	ENGINE_finish(r->engine);
 #endif
-
 	CRYPTO_free_ex_data(CRYPTO_EX_INDEX_DSA, r, &r->ex_data);
-
 	CRYPTO_THREAD_lock_free(r->lock);
-
 	BN_clear_free(r->p);
 	BN_clear_free(r->q);
 	BN_clear_free(r->g);
@@ -179,11 +175,9 @@ DH * DSA_dup_DH(const DSA * r)
 	 * DSA has p, q, g, optional pub_key, optional priv_key. DH has p,
 	 * optional length, g, optional pub_key, optional priv_key, optional q.
 	 */
-
 	DH * ret = NULL;
 	BIGNUM * p = NULL, * q = NULL, * g = NULL, * pub_key = NULL, * priv_key = NULL;
-
-	if(r == NULL)
+	if(!r)
 		goto err;
 	ret = DH_new();
 	if(ret == NULL)
@@ -329,22 +323,7 @@ void DSA_clear_flags(DSA * d, int flags)
 	d->flags &= ~flags;
 }
 
-int DSA_test_flags(const DSA * d, int flags)
-{
-	return d->flags & flags;
-}
-
-void DSA_set_flags(DSA * d, int flags)
-{
-	d->flags |= flags;
-}
-
-ENGINE * DSA_get0_engine(DSA * d)
-{
-	return d->engine;
-}
-
-int DSA_bits(const DSA * dsa)
-{
-	return BN_num_bits(dsa->p);
-}
+int DSA_test_flags(const DSA * d, int flags) { return d->flags & flags; }
+void DSA_set_flags(DSA * d, int flags) { d->flags |= flags; }
+ENGINE * DSA_get0_engine(DSA * d) { return d->engine; }
+int DSA_bits(const DSA * dsa) { return BN_num_bits(dsa->p); }

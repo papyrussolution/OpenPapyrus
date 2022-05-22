@@ -11,16 +11,6 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-//#include <ctype.h>		/* to declare isupper(), tolower() */
-//#ifdef NEED_SIGNAL_CATCHER
-	//#include <signal.h>             /* to declare signal() */
-//#endif
-#ifdef USE_SETMODE
-	//#include <fcntl.h>              /* to declare setmode()'s parameter macros */
-/* If you have setmode() but not <io.h>, just delete this line: */
-//#include <io.h>			/* to declare setmode() */
-#endif
-
 /*
  * Signal catcher to ensure that temporary files are removed before aborting.
  * NB: for Amiga Manx C this is actually a global routine named _abort();

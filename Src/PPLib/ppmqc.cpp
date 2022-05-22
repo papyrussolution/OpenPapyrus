@@ -384,13 +384,25 @@ int FASTCALL PPMqbClient::Envelope::IsReservedRoute(int * pRtRsrv) const
 	return rt;
 }
 
-PPMqbClient::PPMqbClient() : P_Conn(0), P_Sock(0), Port(0), ChannelN(0)
+PPMqbClient::PPMqbClient() : P_Conn(0), P_Sock(0), Port(0), ChannelN(0), ExtStatusFlags(0)
 {
 }
 
 PPMqbClient::~PPMqbClient()
 {
 	Disconnect();
+}
+
+void PPMqbClient::SetExtStatusFlag(uint f)
+{
+	if(f == extsfTryToReconnect) {
+		ExtStatusFlags |= f;
+	}
+}
+
+bool PPMqbClient::GetExtStatusFlag(uint f) const
+{
+	return LOGIC(ExtStatusFlags & f);
 }
 
 bool PPMqbClient::IsHostEqual(const char * pHost, int port) const
@@ -406,7 +418,7 @@ int PPMqbClient::Connect(const char * pHost, int port)
 	THROW(P_Conn = amqp_new_connection());
 	THROW(P_Sock = amqp_tcp_socket_new(GetNativeConnHandle(P_Conn)));
 	amqp_status = amqp_socket_open(static_cast<amqp_socket_t *>(P_Sock), pHost, port);
-	THROW_SL(SlCheckAmqpError(amqp_status));
+	THROW_SL(SlCheckAmqpError(amqp_status, pHost));
 	CATCH
 		Disconnect();
 		ok = 0;
@@ -506,7 +518,7 @@ int PPMqbClient::Login(const LoginParam & rP)
 		amqp_rpc_reply_t amqp_reply = amqp_login(GetNativeConnHandle(P_Conn), 
 			rP.GetVHost(), 0, 131072, default_hartbeat, AMQP_SASL_METHOD_PLAIN, rP.Auth.cptr(), rP.Secret.cptr());   
 		assert(amqp_reply.reply_type == AMQP_RESPONSE_LIBRARY_EXCEPTION || amqp_reply.library_error == 0);
-		THROW_SL(SlCheckAmqpError(amqp_reply.library_error));
+		THROW_SL(SlCheckAmqpError(amqp_reply.library_error, Host));
 		THROW(ProcessAmqpRpcReply(amqp_reply));
 		ChannelN = 1;
 		amqp_channel_open(GetNativeConnHandle(P_Conn), ChannelN);
@@ -621,7 +633,7 @@ int PPMqbClient::Publish(const char * pExchangeName, const char * pRoutingKey, c
 				log_buf.Space().Cat(pProps->CorrelationId);
 			PPLogMessage(PPFILNAM_DEBUG_LOG, log_buf, LOGMSGF_TIME);
 		}
-		THROW_SL(SlCheckAmqpError(pr));
+		THROW_SL(SlCheckAmqpError(pr, Host));
 	}
 	CATCHZOK
 	delete [] p_amqp_tbl_entries;
@@ -768,7 +780,7 @@ int PPMqbClient::ConsumeMessage(Envelope & rEnv, long timeoutMs)
 				ok = -1;
 			}
 			else {
-				THROW_SL(SlCheckAmqpError(r.library_error));
+				THROW_SL(SlCheckAmqpError(r.library_error, Host));
 			}
 		}
 		amqp_destroy_envelope(&envelope);

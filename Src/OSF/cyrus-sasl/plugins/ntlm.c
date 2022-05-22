@@ -978,15 +978,12 @@ static int smb_negotiate_protocol(const sasl_utils_t * utils, server_context_t *
 		utils->log(NULL, SASL_LOG_ERR, "NTLM: error reading NEGPROT response length");
 		return SASL_FAIL;
 	}
-
 	/* read the data */
 	len = ntohl(nl);
-	if(_plug_buf_alloc(utils, &text->out_buf, &text->out_buf_len,
-	    len) != SASL_OK) {
+	if(_plug_buf_alloc(utils, &text->out_buf, &text->out_buf_len, len) != SASL_OK) {
 		SETERROR(utils, "cannot allocate NTLM NEGPROT response buffer");
 		return SASL_NOMEM;
 	}
-
 	rc = retry_read(text->sock, text->out_buf, len);
 	if(rc < (int)len) {
 		utils->log(NULL, SASL_LOG_ERR, "NTLM: error reading NEGPROT response");
@@ -1186,13 +1183,10 @@ static int smb_session_setup(const sasl_utils_t * utils, server_context_t * text
 
 	/* read the data */
 	len = ntohl(nl);
-	if(_plug_buf_alloc(utils, &text->out_buf, &text->out_buf_len,
-	    len) != SASL_OK) {
-		SETERROR(utils,
-		    "cannot allocate NTLM SESSIONSETUP response buffer");
+	if(_plug_buf_alloc(utils, &text->out_buf, &text->out_buf_len, len) != SASL_OK) {
+		SETERROR(utils, "cannot allocate NTLM SESSIONSETUP response buffer");
 		return SASL_NOMEM;
 	}
-
 	rc = retry_read(text->sock, text->out_buf, len);
 	if(rc < (int)len) {
 		utils->log(NULL, SASL_LOG_ERR, "NTLM: error reading SESSIONSETUP response");

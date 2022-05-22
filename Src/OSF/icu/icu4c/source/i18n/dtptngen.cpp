@@ -163,8 +163,7 @@ static const dtTypeElem dtTypes[] = {
 	{LOW_C, UDATPG_WEEKDAY_FIELD, DT_LONG - 2*DT_DELTA, 4, 0},
 	{LOW_C, UDATPG_WEEKDAY_FIELD, DT_NARROW - 2*DT_DELTA, 5, 0},
 	{LOW_C, UDATPG_WEEKDAY_FIELD, DT_SHORTER - 2*DT_DELTA, 6, 0},
-	{LOW_E, UDATPG_WEEKDAY_FIELD, DT_NUMERIC + DT_DELTA, 1, 2}, // LOW_E is currently not used in CLDR data, should
-	                                                            // not be canonical
+	{LOW_E, UDATPG_WEEKDAY_FIELD, DT_NUMERIC + DT_DELTA, 1, 2}, // LOW_E is currently not used in CLDR data, should not be canonical
 	{LOW_E, UDATPG_WEEKDAY_FIELD, DT_SHORT - DT_DELTA, 3, 0},
 	{LOW_E, UDATPG_WEEKDAY_FIELD, DT_LONG - DT_DELTA, 4, 0},
 	{LOW_E, UDATPG_WEEKDAY_FIELD, DT_NARROW - DT_DELTA, 5, 0},
@@ -241,8 +240,7 @@ static const char * const CLDR_FIELD_APPEND[] = {
 
 static const char * const CLDR_FIELD_NAME[UDATPG_FIELD_COUNT] = {
 	"era", "year", "quarter", "month", "week", "weekOfMonth", "weekday",
-	"dayOfYear", "weekdayOfMonth", "day", "dayperiod", // The UDATPG_x_FIELD constants and these fields have a
-	                                                   // different order than in ICU4J
+	"dayOfYear", "weekdayOfMonth", "day", "dayperiod", // The UDATPG_x_FIELD constants and these fields have a different order than in ICU4J
 	"hour", "minute", "second", "*", "zone"
 };
 
@@ -936,9 +934,7 @@ struct DateTimePatternGenerator::AppendItemFormatsSink : public ResourceSink {
 
 	AppendItemFormatsSink(DateTimePatternGenerator& _dtpg) : dtpg(_dtpg) {
 	}
-
 	virtual ~AppendItemFormatsSink();
-
 	virtual void put(const char * key, ResourceValue &value, bool /*noFallback*/,
 	    UErrorCode & errorCode) override {
 		UDateTimePatternField field = dtpg.getAppendFormatNumber(key);
@@ -950,10 +946,8 @@ struct DateTimePatternGenerator::AppendItemFormatsSink : public ResourceSink {
 			dtpg.setAppendItemFormat(field, valueStr);
 		}
 	}
-
 	void fillInMissing() {
-		UnicodeString defaultItemFormat(TRUE, UDATPG_ItemFormat, UPRV_LENGTHOF(UDATPG_ItemFormat)-1); // Read-only
-		                                                                                              // alias.
+		UnicodeString defaultItemFormat(TRUE, UDATPG_ItemFormat, UPRV_LENGTHOF(UDATPG_ItemFormat)-1); // Read-only alias.
 		for(int32_t i = 0; i < UDATPG_FIELD_COUNT; i++) {
 			UDateTimePatternField field = (UDateTimePatternField)i;
 			if(dtpg.getAppendItemFormat(field).isEmpty()) {
@@ -1545,7 +1539,7 @@ UDateTimePatternField DateTimePatternGenerator::getFieldAndWidthIndices(const ch
 	*widthP = UDATPG_WIDE;
 	char * hyphenPtr = uprv_strchr(cldrFieldKey, '-');
 	if(hyphenPtr) {
-		for(int32_t i = UDATPG_WIDTH_COUNT-1; i>0; --i) {
+		for(int32_t i = UDATPG_WIDTH_COUNT-1; i > 0; --i) {
 			if(uprv_strcmp(CLDR_FIELD_WIDTH[i], hyphenPtr)==0) {
 				*widthP = (UDateTimePGDisplayWidth)i;
 				break;
@@ -2146,26 +2140,19 @@ const UnicodeString * PatternMap::getPatternFromBasePattern(const UnicodeString 
 // and not skeleton.baseOriginal (which is not unique); otherwise we may pick a different skeleton than the one with the
 // optimum distance value in getBestRaw. When this is called from public getRedundants (specifiedSkeletonPtr is NULL),
 // for now it will continue to compare based on baseOriginal so as not to change the behavior unnecessarily.
-const UnicodeString * PatternMap::getPatternFromSkeleton(const PtnSkeleton& skeleton, const PtnSkeleton** specifiedSkeletonPtr) const { // key
-	                                                                                                                                // to
-	                                                                                                                                // search
-	                                                                                                                                // for
+const UnicodeString * PatternMap::getPatternFromSkeleton(const PtnSkeleton& skeleton, const PtnSkeleton** specifiedSkeletonPtr) const { // key to search for
 	PtnElem * curElem;
-
 	if(specifiedSkeletonPtr) {
 		*specifiedSkeletonPtr = nullptr;
 	}
-
 	// find boot entry
 	UChar baseChar = skeleton.getFirstChar();
 	if((curElem = getHeader(baseChar))==nullptr) {
 		return nullptr; // no match
 	}
-
 	do {
 		bool equal;
-		if(specifiedSkeletonPtr != nullptr) { // called from DateTimePatternGenerator::getBestRaw or addPattern,
-			                              // use original
+		if(specifiedSkeletonPtr != nullptr) { // called from DateTimePatternGenerator::getBestRaw or addPattern, use original
 			equal = curElem->skeleton->original == skeleton.original;
 		}
 		else { // called from DateTimePatternGenerator::getRedundants, use baseOriginal
@@ -2721,7 +2708,7 @@ UnicodeString & SkeletonFields::appendFieldTo(int32_t field, UnicodeString & str
 	UChar ch(chars[field]);
 	int32_t length = (int32_t)lengths[field];
 
-	for(int32_t i = 0; i<length; i++) {
+	for(int32_t i = 0; i < length; i++) {
 		string += ch;
 	}
 	return string;

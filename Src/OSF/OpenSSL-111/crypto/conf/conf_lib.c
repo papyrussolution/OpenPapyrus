@@ -297,14 +297,14 @@ int NCONF_get_number_e(const CONF * conf, const char * group, const char * name,
 	int (* is_number)(const CONF *, char) = &default_is_number;
 	int (* to_int)(const CONF *, char) = &default_to_int;
 
-	if(result == NULL) {
+	if(!result) {
 		CONFerr(CONF_F_NCONF_GET_NUMBER_E, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
 
 	str = NCONF_get_string(conf, group, name);
 
-	if(str == NULL)
+	if(!str)
 		return 0;
 
 	if(conf != NULL) {

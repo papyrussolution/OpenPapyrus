@@ -34,7 +34,7 @@
 
 static int __ham_alloc_pages(DBC*, __ham_groupalloc_args*, DB_LSN *);
 static int __ham_alloc_pages_42(DBC*, __ham_groupalloc_42_args*, DB_LSN *);
-static int __ham_chgpg_recover_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __ham_chgpg_recover_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
 
 /*
  * __ham_insdel_recover --

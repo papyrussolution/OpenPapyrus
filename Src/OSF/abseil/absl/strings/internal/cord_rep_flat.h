@@ -9,10 +9,10 @@
 #ifndef ABSL_STRINGS_INTERNAL_CORD_REP_FLAT_H_
 #define ABSL_STRINGS_INTERNAL_CORD_REP_FLAT_H_
 
-#include <cassert>
-#include <cstddef>
-#include <cstdint>
-#include <memory>
+//#include <cassert>
+//#include <cstddef>
+//#include <cstdint>
+//#include <memory>
 #include "absl/base/config.h"
 #include "absl/base/macros.h"
 #include "absl/strings/internal/cord_internal.h"
@@ -84,20 +84,18 @@ inline size_t RoundUpForTag(size_t size) {
 // does not exactly match a 'tag expressible' size value. The result is
 // undefined if the size exceeds the maximum size that can be encoded in
 // a tag, i.e., if size is larger than TagToAllocatedSize(<max tag>).
-inline uint8_t AllocatedSizeToTag(size_t size) {
+inline uint8_t AllocatedSizeToTag(size_t size) 
+{
 	const uint8_t tag = AllocatedSizeToTagUnchecked(size);
 	assert(tag <= MAX_FLAT_TAG);
 	return tag;
 }
 
 // Converts the provided tag to the corresponding available data length
-constexpr size_t TagToLength(uint8_t tag) {
-	return TagToAllocatedSize(tag) - kFlatOverhead;
-}
+constexpr size_t TagToLength(uint8_t tag) { return TagToAllocatedSize(tag) - kFlatOverhead; }
 
 // Enforce that kMaxFlatSize maps to a well-known exact tag value.
-static_assert(TagToAllocatedSize(MAX_FLAT_TAG) == kMaxLargeFlatSize,
-    "Bad tag logic");
+static_assert(TagToAllocatedSize(MAX_FLAT_TAG) == kMaxLargeFlatSize, "Bad tag logic");
 
 struct CordRepFlat : public CordRep {
 	// Tag for explicit 'large flat' allocation

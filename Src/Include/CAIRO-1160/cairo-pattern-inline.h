@@ -28,9 +28,6 @@
 #ifndef CAIRO_PATTERN_INLINE_H
 #define CAIRO_PATTERN_INLINE_H
 
-//#include "cairo-pattern-private.h"
-//#include "cairo-list-inline.h"
-
 CAIRO_BEGIN_DECLS
 	static inline void _cairo_pattern_add_observer(cairo_pattern_t * pattern, cairo_pattern_observer_t * observer, void (*func)(cairo_pattern_observer_t *, cairo_pattern_t *, uint))
 	{

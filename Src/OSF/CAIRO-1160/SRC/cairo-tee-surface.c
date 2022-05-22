@@ -42,13 +42,6 @@
 
 #if CAIRO_HAS_TEE_SURFACE // {
 #include "cairo-tee.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-tee-surface-private.h"
-//#include "cairo-recording-surface-inline.h"
-//#include "cairo-surface-wrapper-private.h"
-//#include "cairo-array-private.h"
-//#include "cairo-image-surface-inline.h"
 
 typedef struct _cairo_tee_surface {
 	cairo_surface_t base;
@@ -409,7 +402,7 @@ cairo_surface_t * cairo_tee_surface_create(cairo_surface_t * master)
 	if(UNLIKELY(master->status))
 		return _cairo_surface_create_in_error(master->status);
 	surface = _cairo_malloc(sizeof(cairo_tee_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &cairo_tee_surface_backend, master->device, master->content, TRUE/* is_vector */);
 	_cairo_surface_wrapper_init(&surface->master, master);

@@ -365,8 +365,7 @@ static struct archive_vtable * archive_read_disk_vtable(void)
 const char * archive_read_disk_gname(struct archive * _a, la_int64_t gid)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_gname"))
+	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_gname"))
 		return NULL;
 	if(a->lookup_gname == NULL)
 		return NULL;
@@ -401,7 +400,7 @@ int archive_read_disk_set_uname_lookup(struct archive * _a, void * private_data,
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
-	if(a->cleanup_uname != NULL && a->lookup_uname_data != NULL)
+	if(a->cleanup_uname && a->lookup_uname_data)
 		(a->cleanup_uname)(a->lookup_uname_data);
 	a->lookup_uname = lookup_uname;
 	a->cleanup_uname = cleanup_uname;
@@ -443,7 +442,7 @@ static int _archive_read_free(struct archive * _a)
 	tree_free(a->tree);
 	if(a->cleanup_gname && a->lookup_gname_data)
 		(a->cleanup_gname)(a->lookup_gname_data);
-	if(a->cleanup_uname != NULL && a->lookup_uname_data != NULL)
+	if(a->cleanup_uname && a->lookup_uname_data)
 		(a->cleanup_uname)(a->lookup_uname_data);
 	archive_string_free(&a->archive.error_string);
 	archive_entry_free(a->entry);
@@ -463,12 +462,11 @@ static int _archive_read_close(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static void setup_symlink_mode(struct archive_read_disk * a, char symlink_mode,
-    int follow_symlinks)
+static void setup_symlink_mode(struct archive_read_disk * a, char symlink_mode, int follow_symlinks)
 {
 	a->symlink_mode = symlink_mode;
 	a->follow_symlinks = follow_symlinks;
-	if(a->tree != NULL) {
+	if(a->tree) {
 		a->tree->initial_symlink_mode = a->symlink_mode;
 		a->tree->symlink_mode = a->symlink_mode;
 	}
@@ -504,7 +502,7 @@ int archive_read_disk_set_atime_restored(struct archive * _a)
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 #ifdef HAVE_UTIMES
 	a->flags |= ARCHIVE_READDISK_RESTORE_ATIME;
-	if(a->tree != NULL)
+	if(a->tree)
 		a->tree->flags |= needsRestoreTimes;
 	return ARCHIVE_OK;
 #else
@@ -524,7 +522,7 @@ int archive_read_disk_set_behavior(struct archive * _a, int flags)
 	if(flags & ARCHIVE_READDISK_RESTORE_ATIME)
 		r = archive_read_disk_set_atime_restored(_a);
 	else {
-		if(a->tree != NULL)
+		if(a->tree)
 			a->tree->flags &= ~needsRestoreTimes;
 	}
 	return r;
@@ -584,7 +582,7 @@ static int setup_suitable_read_buffer(struct archive_read_disk * a)
 		}
 		cf->allocation_ptr = SAlloc::M(asize);
 		if(cf->allocation_ptr == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			a->archive.state = ARCHIVE_STATE_FATAL;
 			return ARCHIVE_FATAL;
 		}
@@ -1207,7 +1205,7 @@ int archive_read_disk_open_w(struct archive * _a, const wchar_t * pathname)
 	if(archive_string_append_from_wcs(&path, pathname,
 	    wcslen(pathname)) != 0) {
 		if(errno == ENOMEM)
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		else
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't convert a path to a char string");
 		a->archive.state = ARCHIVE_STATE_FATAL;
@@ -1224,7 +1222,7 @@ static int _archive_read_disk_open(struct archive * _a, const char * pathname)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 
-	if(a->tree != NULL)
+	if(a->tree)
 		a->tree = tree_reopen(a->tree, pathname,
 			a->flags & ARCHIVE_READDISK_RESTORE_ATIME);
 	else

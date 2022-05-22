@@ -1719,7 +1719,7 @@ int PPViewGeoTracking::Export()
 							n_trkpt.PutAttrib("lat", out_buf.Z().Cat(item.Latitude, MKSFMTD(0, 12, NMBF_NOTRAILZ)));
 							n_trkpt.PutAttrib("lon", out_buf.Z().Cat(item.Longitude, MKSFMTD(0, 12, NMBF_NOTRAILZ)));
 							n_trkpt.PutInner("ele", out_buf.Z().Cat((double)item.Altitude, MKSFMTD(0, 12, NMBF_NOTRAILZ)));
-							out_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
+							out_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0);
 							n_trkpt.PutInner("time", out_buf);
                     }
 					last_oid = oid;

@@ -11,10 +11,6 @@
 #ifndef XAPIAN_INCLUDED_DOCUMENTVALUELIST_H
 #define XAPIAN_INCLUDED_DOCUMENTVALUELIST_H
 
-//#include "backends/valuelist.h"
-//#include "backends/documentinternal.h"
-//#include <map>
-
 /// Iteration over values in a document.
 class DocumentValueList final : public ValueList {
 	void operator = (const DocumentValueList &) = delete; /// Don't allow assignment.

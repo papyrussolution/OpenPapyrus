@@ -717,7 +717,7 @@ void * mi_recalloc(void * p, size_t count, size_t size) NOEXCEPT
 // `strdup` using mi_malloc
 mi_decl_restrict char * mi_heap_strdup(mi_heap_t* heap, const char * s) NOEXCEPT 
 {
-	if(s == NULL) 
+	if(!s) 
 		return NULL;
 	size_t n = strlen(s);
 	char * t = (char *)mi_heap_malloc(heap, n+1);
@@ -734,7 +734,7 @@ mi_decl_restrict char * mi_strdup(const char * s) NOEXCEPT
 // `strndup` using mi_malloc
 mi_decl_restrict char * mi_heap_strndup(mi_heap_t* heap, const char * s, size_t n) NOEXCEPT 
 {
-	if(s == NULL) 
+	if(!s) 
 		return NULL;
 	const char * end = (const char *)memchr(s, 0, n); // find end of string in the first `n` characters (returns NULL if not found)
 	const size_t m = (end != NULL ? (size_t)(end - s) : n); // `m` is the minimum of `n` or the end-of-string
@@ -835,7 +835,7 @@ mi_decl_restrict char * mi_realpath(const char * fname, char * resolved_name) NO
 		std::new_handler h = std::set_new_handler();
 		std::set_new_handler(h);
 	#endif
-		if(h == NULL) {
+		if(!h) {
 			if(!nothrow) 
 				throw std::bad_alloc();
 			return false;

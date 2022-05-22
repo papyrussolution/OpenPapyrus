@@ -11,10 +11,8 @@
 #ifndef HEADER_ENGINE_INT_H
 #define HEADER_ENGINE_INT_H
 
-//#include "internal/cryptlib.h"
 #include <engine.h>
 #include "internal/thread_once.h"
-//#include "internal/refcount.h"
 
 extern CRYPTO_RWLOCK * global_engine_lock;
 

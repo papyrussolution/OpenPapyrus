@@ -2938,7 +2938,7 @@ static EC_GROUP * ec_group_new_from_data(const ec_list_element curve)
 	if(curve.data == NULL)
 		return EC_GROUP_new(curve.meth != NULL ? curve.meth() : NULL);
 
-	if((ctx = BN_CTX_new()) == NULL) {
+	if(!(ctx = BN_CTX_new())) {
 		ECerr(EC_F_EC_GROUP_NEW_FROM_DATA, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

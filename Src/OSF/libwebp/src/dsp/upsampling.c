@@ -49,7 +49,7 @@ WebPUpsampleLinePairFunc WebPUpsamplers[MODE_LAST];
 			const uint32_t uv0 = (3 * tl_uv + l_uv + 0x00020002u) >> 2;                \
 			FUNC(top_y[0], uv0 & 0xff, (uv0 >> 16), top_dst);                          \
 		}                                                                            \
-		if(bottom_y != NULL) {                                                      \
+		if(bottom_y) {                                                      \
 			const uint32_t uv0 = (3 * l_uv + tl_uv + 0x00020002u) >> 2;                \
 			FUNC(bottom_y[0], uv0 & 0xff, (uv0 >> 16), bottom_dst);                    \
 		}                                                                            \
@@ -68,7 +68,7 @@ WebPUpsampleLinePairFunc WebPUpsamplers[MODE_LAST];
 				FUNC(top_y[2 * x - 0], uv1 & 0xff, (uv1 >> 16),                          \
 				    top_dst + (2 * x - 0) * (XSTEP));                                   \
 			}                                                                          \
-			if(bottom_y != NULL) {                                                    \
+			if(bottom_y) {                                                    \
 				const uint32_t uv0 = (diag_03 + l_uv) >> 1;                              \
 				const uint32_t uv1 = (diag_12 + uv) >> 1;                                \
 				FUNC(bottom_y[2 * x - 1], uv0 & 0xff, (uv0 >> 16),                       \
@@ -85,7 +85,7 @@ WebPUpsampleLinePairFunc WebPUpsamplers[MODE_LAST];
 				FUNC(top_y[len - 1], uv0 & 0xff, (uv0 >> 16),                            \
 				    top_dst + (len - 1) * (XSTEP));                                     \
 			}                                                                          \
-			if(bottom_y != NULL) {                                                    \
+			if(bottom_y) {                                                    \
 				const uint32_t uv0 = (3 * l_uv + tl_uv + 0x00020002u) >> 2;              \
 				FUNC(bottom_y[len - 1], uv0 & 0xff, (uv0 >> 16),                         \
 				    bottom_dst + (len - 1) * (XSTEP));                                  \
@@ -235,7 +235,7 @@ WEBP_DSP_INIT_FUNC(WebPInitYUV444Converters) {
 	WebPYUV444Converters[MODE_Argb]      = WebPYuv444ToArgb_C;
 	WebPYUV444Converters[MODE_rgbA_4444] = WebPYuv444ToRgba4444_C;
 
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			WebPInitYUV444ConvertersSSE2();
@@ -280,7 +280,7 @@ WEBP_DSP_INIT_FUNC(WebPInitUpsamplers) {
 #endif
 
 	// If defined, use CPUInfo() to overwrite some pointers with faster versions.
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			WebPInitUpsamplersSSE2();
@@ -302,14 +302,11 @@ WEBP_DSP_INIT_FUNC(WebPInitUpsamplers) {
 		}
 #endif
 	}
-
 #if defined(WEBP_HAVE_NEON)
-	if(WEBP_NEON_OMIT_C_CODE ||
-	    (VP8GetCPUInfo != NULL && VP8GetCPUInfo(kNEON))) {
+	if(WEBP_NEON_OMIT_C_CODE || (VP8GetCPUInfo && VP8GetCPUInfo(kNEON))) {
 		WebPInitUpsamplersNEON();
 	}
 #endif
-
 	assert(WebPUpsamplers[MODE_RGBA] != NULL);
 	assert(WebPUpsamplers[MODE_BGRA] != NULL);
 	assert(WebPUpsamplers[MODE_rgbA] != NULL);

@@ -326,16 +326,6 @@
 		#define HAVE_STRERROR_R
 		#define HAVE_WCTOMB
 		#define HAVE_MBTOWC
-	#elif defined(PALM)
-		#define WITH_LEAN
-		#define HAVE_STRTOD  /* strtod() is defined in palmFunctions.h */
-		#include <stdlib.h>  /* Needs to be included before unix headers */
-		#include <sys_types.h>
-		#define IGNORE_STDIO_STUBS
-		#include <StdIOPalm.h>
-		#define O_NONBLOCK FNONBIO
-		#include <sys_socket.h>
-		#include "palmFunctions.h"
 	#elif defined(SYMBIAN)
 		#define WITH_LEAN
 		#define WITH_NONAMESPACES
@@ -524,15 +514,6 @@
   #define INET_ERROR 4294967295
   #pragma list
  #endif
- #ifndef WITH_NOSTDLIB
-  #include <stdlib.h>
-  #ifndef PALM
-   #include <stdio.h>
-   #include <string.h>
-  #endif
-  //#include <ctype.h>
-  //#include <limits.h>
-#endif
 #ifdef WITH_NTLM
 	#include <ntlm.h>
 #endif
@@ -555,7 +536,6 @@
 // #define FD_SETSIZE (2048)
 // 
  #ifndef UNDER_CE
-  #ifndef PALM
    #ifndef WITH_NOIO
     //#include <errno.h>
     #include <sys/types.h>
@@ -566,7 +546,6 @@
     #endif
     //#include <time.h>
    #endif
-  #endif
  #endif
 #ifdef OPENSERVER
 	#include <sys/socket.h>
@@ -576,38 +555,36 @@
 #endif
 #ifndef WITH_NOIO
 	#ifndef WIN32
-		#ifndef PALM
-			#include <sys/socket.h>
-			#ifdef VXWORKS
-				#include <sockLib.h>
-				#include <selectLib.h>
-				#ifndef _WRS_KERNEL
-					#include <strings.h>
-				#endif
-			#else
-				#ifndef SYMBIAN
-					#include <strings.h>
-				#endif
+		#include <sys/socket.h>
+		#ifdef VXWORKS
+			#include <sockLib.h>
+			#include <selectLib.h>
+			#ifndef _WRS_KERNEL
+				#include <strings.h>
 			#endif
-			#ifdef SUN_OS
-				#include <sys/stream.h>            /* SUN */
-				#include <sys/socketvar.h>         /* SUN < 2.8 (?) */
+		#else
+			#ifndef SYMBIAN
+				#include <strings.h>
 			#endif
-			#ifdef VXWORKS
-				#ifdef _WRS_KERNEL
-					#include <sys/times.h>
-				#endif
-			#else
-				#include <sys/time.h>
-			#endif
-			#include <netinet/in.h>
-			#ifdef OS390
-				#include <netinet/tcp_var.h>
-			#else
-				#include <netinet/tcp.h>         /* TCP_NODELAY */
-			#endif
-			#include <arpa/inet.h>
 		#endif
+		#ifdef SUN_OS
+			#include <sys/stream.h>            /* SUN */
+			#include <sys/socketvar.h>         /* SUN < 2.8 (?) */
+		#endif
+		#ifdef VXWORKS
+			#ifdef _WRS_KERNEL
+				#include <sys/times.h>
+			#endif
+		#else
+			#include <sys/time.h>
+		#endif
+		#include <netinet/in.h>
+		#ifdef OS390
+			#include <netinet/tcp_var.h>
+		#else
+			#include <netinet/tcp.h>         /* TCP_NODELAY */
+		#endif
+		#include <arpa/inet.h>
 	#endif
 #endif
 #ifdef WIN32
@@ -646,7 +623,6 @@
    #include <ioLib.h>
   #endif
   #ifndef WITH_NOIO
-   #ifndef PALM
     #include <netdb.h>
     #include <netinet/in.h>
     #include <unistd.h>
@@ -654,7 +630,6 @@
     #ifdef _AIX41
      #include <sys/select.h>
     #endif
-   #endif
   #endif
  #endif
  #ifdef WITH_FASTCGI
@@ -706,9 +681,7 @@
 	#include <zlib.h>
 #endif
 #ifndef WITH_NOSTDLIB
-	#ifndef PALM
-		#include <math.h>    /* for isnan() */
-	#endif
+	//#include <math.h>    /* for isnan() */
 #endif
 /* #define DEBUG */ /* Uncomment to debug sending (in file SENT.log) receiving (in file RECV.log) and messages (in file
   TEST.log) */
@@ -808,8 +781,6 @@ extern "C" {
   #define soap_int32 __int32
  #elif defined(SYMBIAN)
   #define soap_int32 long
- #elif defined(PALM)
-  #define soap_int32 Int32
  #elif defined(_AIX)
   #if defined(_AIX43)
    #define soap_int32 int32_t

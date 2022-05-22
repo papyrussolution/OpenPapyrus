@@ -225,7 +225,7 @@ BIGNUM * BN_new(void)
 BIGNUM * BN_secure_new(void)
 {
 	BIGNUM * ret = BN_new();
-	if(ret != NULL)
+	if(ret)
 		ret->flags |= BN_FLG_SECURE;
 	return ret;
 }
@@ -263,18 +263,17 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
  * various BIGNUM routines. If there is an error, NULL is returned. If not,
  * 'b' is returned.
  */
-BIGNUM * bn_expand2(BIGNUM * b, int words)
+BIGNUM * FASTCALL bn_expand2(BIGNUM * b, int words)
 {
 	if(words > b->dmax) {
 		BN_ULONG * a = bn_expand_internal(b, words);
 		if(!a)
 			return NULL;
-		if(b->d != NULL)
+		if(b->d)
 			bn_free_d(b, 1);
 		b->d = a;
 		b->dmax = words;
 	}
-
 	return b;
 }
 
@@ -322,10 +321,8 @@ void BN_swap(BIGNUM * a, BIGNUM * b)
 	int flags_old_a, flags_old_b;
 	BN_ULONG * tmp_d;
 	int tmp_top, tmp_dmax, tmp_neg;
-
 	bn_check_top(a);
 	bn_check_top(b);
-
 	flags_old_a = a->flags;
 	flags_old_b = b->flags;
 
@@ -569,8 +566,7 @@ int BN_cmp(const BIGNUM * a, const BIGNUM * b)
 	int i;
 	int gt, lt;
 	BN_ULONG t1, t2;
-
-	if((a == NULL) || (b == NULL)) {
+	if(!a || (b == NULL)) {
 		if(a)
 			return -1;
 		else if(b)
@@ -656,7 +652,6 @@ int BN_clear_bit(BIGNUM * a, int n)
 int BN_is_bit_set(const BIGNUM * a, int n)
 {
 	int i, j;
-
 	bn_check_top(a);
 	if(n < 0)
 		return 0;
@@ -798,7 +793,6 @@ void BN_consttime_swap(BN_ULONG condition, BIGNUM * a, BIGNUM * b, int nwords)
 	t = ((a->flags ^ b->flags) & BN_CONSTTIME_SWAP_FLAGS) & condition;
 	a->flags ^= t;
 	b->flags ^= t;
-
 	/* conditionally swap the data */
 	for(i = 0; i < nwords; i++) {
 		t = (a->d[i] ^ b->d[i]) & condition;
@@ -902,15 +896,8 @@ void FASTCALL BN_GENCB_free(BN_GENCB * cb)
 	}
 }
 
-void FASTCALL BN_set_flags(BIGNUM * b, int n)
-{
-	b->flags |= n;
-}
-
-int FASTCALL BN_get_flags(const BIGNUM * b, int n)
-{
-	return b->flags & n;
-}
+void FASTCALL BN_set_flags(BIGNUM * b, int n) { b->flags |= n; }
+int FASTCALL BN_get_flags(const BIGNUM * b, int n) { return b->flags & n; }
 
 /* Populate a BN_GENCB structure with an "old"-style callback */
 void BN_GENCB_set_old(BN_GENCB * gencb, void (*callback)(int, int, void *), void * cb_arg)
@@ -930,15 +917,8 @@ void BN_GENCB_set(BN_GENCB * gencb, int (*callback)(int, int, BN_GENCB *), void 
 	tmp_gencb->cb.cb_2 = callback;
 }
 
-void * BN_GENCB_get_arg(BN_GENCB * cb)
-{
-	return cb->arg;
-}
-
-BIGNUM * bn_wexpand(BIGNUM * a, int words)
-{
-	return (words <= a->dmax) ? a : bn_expand2(a, words);
-}
+void * BN_GENCB_get_arg(BN_GENCB * cb) { return cb->arg; }
+BIGNUM * bn_wexpand(BIGNUM * a, int words) { return (words <= a->dmax) ? a : bn_expand2(a, words); }
 
 void bn_correct_top(BIGNUM * a)
 {

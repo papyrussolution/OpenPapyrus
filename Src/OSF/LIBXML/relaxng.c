@@ -3760,7 +3760,7 @@ static xmlRelaxNGDefine * xmlRelaxNGProcessExternalRef(xmlRelaxNGParserCtxt * ct
 				}
 				// ns transmission rules
 				ns = xmlGetProp(root, reinterpret_cast<const xmlChar *>("ns"));
-				if(ns == NULL) {
+				if(!ns) {
 					tmp = P_Node;
 					while(tmp && (tmp->type == XML_ELEMENT_NODE)) {
 						ns = xmlGetProp(tmp, reinterpret_cast<const xmlChar *>("ns"));
@@ -5780,7 +5780,7 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxt * ctxt, xmlNode * root)
 							}
 							P_Node = P_Node->P_ParentNode;
 						}
-						if(ns == NULL) {
+						if(!ns) {
 							xmlSetProp(cur, reinterpret_cast<const xmlChar *>("ns"), reinterpret_cast<const xmlChar *>(""));
 						}
 						else {
@@ -5798,7 +5798,7 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxt * ctxt, xmlNode * root)
 							local = xmlSplitQName2(name, &prefix);
 							if(local) {
 								xmlNs * ns = xmlSearchNs(cur->doc, cur, prefix);
-								if(ns == NULL) {
+								if(!ns) {
 									xmlRngPErr(ctxt, cur, XML_RNGP_PREFIX_UNDEFINED, "xmlRelaxNGParse: no namespace for prefix %s\n", prefix, 0);
 								}
 								else {
@@ -8331,7 +8331,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    int base, j;
 		    errNr = ctxt->errNr;
 		    res = xmlRelaxNGNewStates(ctxt, 1);
-		    if(res == NULL) {
+		    if(!res) {
 			    ret = -1;
 			    break;
 		    }
@@ -8760,7 +8760,7 @@ static int xmlRelaxNGValidateDefinition(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGD
 				}
 			}
 			else {
-				if(res == NULL) {
+				if(!res) {
 					/* make it the new container and copy other results */
 					res = ctxt->states;
 					ctxt->states = NULL;

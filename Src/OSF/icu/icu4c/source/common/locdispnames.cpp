@@ -620,7 +620,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayName(const char * locale,
 						    break;
 						case 3:
 						    kenum.adoptInstead(uloc_openKeywords(locale, pErrorCode));
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						default: {
 						    const char * kw = uenum_next(kenum.getAlias(), &len, pErrorCode);
 						    if(kw == NULL) {

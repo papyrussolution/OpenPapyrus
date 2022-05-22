@@ -215,7 +215,7 @@ static int cleanup(struct archive_read * a)
 	struct mtree_entry * q;
 	struct mtree * mtree = (struct mtree *)(a->format->data);
 	struct mtree_entry * p = mtree->entries;
-	while(p != NULL) {
+	while(p) {
 		q = p->next;
 		SAlloc::F(p->name);
 		free_options(p->options);
@@ -685,12 +685,12 @@ static int add_option(struct archive_read * a, struct mtree_option ** global, co
 {
 	struct mtree_option * opt;
 	if((opt = static_cast<struct mtree_option *>(SAlloc::M(sizeof(*opt)))) == NULL) {
-		archive_set_error(&a->archive, errno, "Can't allocate memory");
+		archive_set_error(&a->archive, errno, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	if((opt->value = static_cast<char *>(SAlloc::M(len + 1))) == NULL) {
 		SAlloc::F(opt);
-		archive_set_error(&a->archive, errno, "Can't allocate memory");
+		archive_set_error(&a->archive, errno, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	memcpy(opt->value, value, len);
@@ -788,7 +788,7 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 	size_t name_len, len;
 	int r, i;
 	if((entry = static_cast<struct mtree_entry *>(SAlloc::M(sizeof(*entry)))) == NULL) {
-		archive_set_error(&a->archive, errno, "Can't allocate memory");
+		archive_set_error(&a->archive, errno, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	entry->next = NULL;
@@ -796,23 +796,18 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 	entry->name = NULL;
 	entry->used = 0;
 	entry->full = 0;
-
 	/* Add this entry to list. */
 	if(*last_entry == NULL)
 		mtree->entries = entry;
 	else
 		(*last_entry)->next = entry;
 	*last_entry = entry;
-
 	if(is_form_d) {
 		/* Filename is last item on line. */
 		/* Adjust line_len to trim trailing whitespace */
 		while(line_len > 0) {
 			char last_character = line[line_len - 1];
-			if(last_character == '\r'
-			   || last_character == '\n'
-			   || last_character == '\t'
-			   || last_character == ' ') {
+			if(last_character == '\r' || last_character == '\n' || last_character == '\t' || last_character == ' ') {
 				line_len--;
 			}
 			else {
@@ -822,10 +817,7 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 		/* Name starts after the last whitespace separator */
 		name = line;
 		for(i = 0; i < line_len; i++) {
-			if(line[i] == '\r'
-			   || line[i] == '\n'
-			   || line[i] == '\t'
-			   || line[i] == ' ') {
+			if(line[i] == '\r' || line[i] == '\n' || line[i] == '\t' || line[i] == ' ') {
 				name = line + i + 1;
 			}
 		}
@@ -842,29 +834,24 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 	/* name/name_len is the name within the line. */
 	/* line..end brackets the entire line except the name */
 	if((entry->name = static_cast<char *>(SAlloc::M(name_len + 1))) == NULL) {
-		archive_set_error(&a->archive, errno, "Can't allocate memory");
+		archive_set_error(&a->archive, errno, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
-
 	memcpy(entry->name, name, name_len);
 	entry->name[name_len] = '\0';
 	parse_escapes(entry->name, entry);
-
 	entry->next_dup = NULL;
 	if(entry->full) {
 		if(!__archive_rb_tree_insert_node(&mtree->rbtree, &entry->rbnode)) {
 			struct mtree_entry * alt;
-			alt = (struct mtree_entry *)__archive_rb_tree_find_node(
-				&mtree->rbtree, entry->name);
+			alt = (struct mtree_entry *)__archive_rb_tree_find_node(&mtree->rbtree, entry->name);
 			while(alt->next_dup)
 				alt = alt->next_dup;
 			alt->next_dup = entry;
 		}
 	}
-
 	for(iter = *global; iter != NULL; iter = iter->next) {
-		r = add_option(a, &entry->options, iter->value,
-			strlen(iter->value));
+		r = add_option(a, &entry->options, iter->value, strlen(iter->value));
 		if(r != ARCHIVE_OK)
 			return r;
 	}
@@ -1408,7 +1395,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 		    }
 		    if(sstreq(key, "cksum"))
 			    break;
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 'd':
 		    if(sstreq(key, "device")) {
 			    /* stat(2) st_rdev field, e.g. the major/minor IDs
@@ -1421,14 +1408,14 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 				    archive_entry_set_rdev(entry, dev);
 			    return r;
 		    }
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 'f':
 		    if(sstreq(key, "flags")) {
 			    *parsed_kws |= MTREE_HAS_FFLAGS;
 			    archive_entry_copy_fflags_text(entry, val);
 			    break;
 		    }
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 'g':
 		    if(sstreq(key, "gid")) {
 			    *parsed_kws |= MTREE_HAS_GID;
@@ -1440,19 +1427,19 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 			    archive_entry_copy_gname(entry, val);
 			    break;
 		    }
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 'i':
 		    if(sstreq(key, "inode")) {
 			    archive_entry_set_ino(entry, mtree_atol(&val, 10));
 			    break;
 		    }
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 'l':
 		    if(sstreq(key, "link")) {
 			    archive_entry_copy_symlink(entry, val);
 			    break;
 		    }
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 'm':
 		    if(sstreq(key, "md5") || sstreq(key, "md5digest")) {
 			    return parse_digest(a, entry, val, ARCHIVE_ENTRY_DIGEST_MD5);
@@ -1469,7 +1456,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 			    }
 			    break;
 		    }
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 'n':
 		    if(sstreq(key, "nlink")) {
 			    *parsed_kws |= MTREE_HAS_NLINK;
@@ -1477,7 +1464,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 				(uint)mtree_atol(&val, 10));
 			    break;
 		    }
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 'r':
 		    if(sstreq(key, "resdevice")) {
 			    /* stat(2) st_dev field, e.g. the device ID where the
@@ -1493,7 +1480,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 		    if(sstreq(key, "rmd160") || sstreq(key, "rmd160digest")) {
 			    return parse_digest(a, entry, val, ARCHIVE_ENTRY_DIGEST_RMD160);
 		    }
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 's':
 		    if(sstreq(key, "sha1") || sstreq(key, "sha1digest")) {
 			    return parse_digest(a, entry, val, ARCHIVE_ENTRY_DIGEST_SHA1);
@@ -1511,7 +1498,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 			    archive_entry_set_size(entry, mtree_atol(&val, 10));
 			    break;
 		    }
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 't':
 		    if(sstreq(key, "tags")) {
 			    /*
@@ -1553,19 +1540,19 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 						archive_entry_set_filetype(entry, AE_IFBLK);
 						break;
 					}
-					__LA_FALLTHROUGH;
+					CXX_FALLTHROUGH;
 				    case 'c':
 					if(sstreq(val, "char")) {
 						archive_entry_set_filetype(entry, AE_IFCHR);
 						break;
 					}
-					__LA_FALLTHROUGH;
+					CXX_FALLTHROUGH;
 				    case 'd':
 					if(sstreq(val, "dir")) {
 						archive_entry_set_filetype(entry, AE_IFDIR);
 						break;
 					}
-					__LA_FALLTHROUGH;
+					CXX_FALLTHROUGH;
 				    case 'f':
 					if(sstreq(val, "fifo")) {
 						archive_entry_set_filetype(entry, AE_IFIFO);
@@ -1575,13 +1562,13 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 						archive_entry_set_filetype(entry, AE_IFREG);
 						break;
 					}
-					__LA_FALLTHROUGH;
+					CXX_FALLTHROUGH;
 				    case 'l':
 					if(sstreq(val, "link")) {
 						archive_entry_set_filetype(entry, AE_IFLNK);
 						break;
 					}
-					__LA_FALLTHROUGH;
+					CXX_FALLTHROUGH;
 				    default:
 					archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unrecognized file type \"%s\"; assuming \"file\"", val);
 					archive_entry_set_filetype(entry, AE_IFREG);
@@ -1590,7 +1577,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 			    *parsed_kws |= MTREE_HAS_TYPE;
 			    break;
 		    }
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 'u':
 		    if(sstreq(key, "uid")) {
 			    *parsed_kws |= MTREE_HAS_UID;
@@ -1602,7 +1589,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 			    archive_entry_copy_uname(entry, val);
 			    break;
 		    }
-		    __LA_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		default:
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unrecognized key %s=%s", key, val);
 		    return ARCHIVE_WARN;
@@ -1625,7 +1612,7 @@ static int read_data(struct archive_read * a, const void ** buff, size_t * size,
 		mtree->buffsize = 64 * 1024;
 		mtree->buff = static_cast<char *>(SAlloc::M(mtree->buffsize));
 		if(mtree->buff == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 	}

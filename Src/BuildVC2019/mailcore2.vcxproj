@@ -181,6 +181,7 @@ build_headers.bat
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\ConvertUTF.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MailCore.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\mailcore2-internal.h" />
+    <ClInclude Include="..\OSF\Mailspring-Sync\mailcore2\src\include\mailcore2.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAbstract.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAbstractMessage.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAbstractMessagePart.h" />
@@ -199,7 +200,6 @@ build_headers.bat
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAsyncSMTP.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAttachment.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAutoreleasePool.h" />
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCBase64.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCBaseTypes.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCCertificateUtils.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCConnectionLogger.h" />
@@ -211,7 +211,6 @@ build_headers.bat
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCDateFormatter.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCDefines.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCErrorMessage.h" />
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCHash.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCHashMap.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCHTMLBodyRendererTemplateCallback.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCHTMLCleaner.h" />
@@ -227,11 +226,7 @@ build_headers.bat
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPCheckAccountOperation.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPConnectOperation.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPCopyMessagesOperation.h" />
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPCreateFolderOperation.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPCustomCommandOperation.h" />
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPDeleteFolderOperation.h" />
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPDisconnectOperation.h" />
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPExpungeOperation.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFetchContentOperation.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFetchContentToFileOperation.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFetchFoldersOperation.h" />
@@ -280,7 +275,6 @@ build_headers.bat
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMailProvidersManager.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMainThread.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMainThreadAndroid.h" />
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMD5.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMessageBuilder.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMessageConstants.h" />
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMessageHeader.h" />

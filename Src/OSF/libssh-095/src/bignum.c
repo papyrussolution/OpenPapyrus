@@ -32,7 +32,7 @@ ssh_string ssh_make_bignum_string(bignum num)
 	SSH_LOG(SSH_LOG_TRACE, "%zu bits, %zu bytes, %zu padding\n", bits, len, pad);
 #endif /* DEBUG_CRYPTO */
 	ptr = ssh_string_new(len + pad);
-	if(ptr == NULL) {
+	if(!ptr) {
 		return NULL;
 	}
 	/* We have a negative number so we need a leading zero */

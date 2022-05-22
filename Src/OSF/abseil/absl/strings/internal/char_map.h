@@ -14,9 +14,9 @@
 #ifndef ABSL_STRINGS_INTERNAL_CHAR_MAP_H_
 #define ABSL_STRINGS_INTERNAL_CHAR_MAP_H_
 
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
+//#include <cstddef>
+//#include <cstdint>
+//#include <cstring>
 #include "absl/base/macros.h"
 #include "absl/base/port.h"
 

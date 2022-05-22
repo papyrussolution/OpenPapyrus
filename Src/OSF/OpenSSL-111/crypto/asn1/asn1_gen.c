@@ -249,7 +249,7 @@ static int asn1_cb(const char * elem, int len, void * bitstr)
 
 	int tmp_tag, tmp_class;
 
-	if(elem == NULL)
+	if(!elem)
 		return -1;
 
 	for(i = 0, p = elem; i < len; p++, i++) {
@@ -764,7 +764,7 @@ static int mask_cb(const char * elem, int len, void * arg)
 	ulong * pmask = static_cast<ulong *>(arg);
 	ulong tmpmask;
 	int tag;
-	if(elem == NULL)
+	if(!elem)
 		return 0;
 	if((len == 3) && (strncmp(elem, "DIR", 3) == 0)) {
 		*pmask |= B_ASN1_DIRECTORYSTRING;

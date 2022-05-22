@@ -1255,7 +1255,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    result = Curl_get_pathname(&cp, &sshc->quote_path1, sshc->homedir);
 				    if(result) {
 					    if(result == CURLE_OUT_OF_MEMORY)
-						    failf(data, "Out of memory");
+						    failf(data, SlTxtOutOfMem);
 					    else
 						    failf(data, "Syntax error: Bad first parameter to '%s'", cmd);
 					    state(conn, SSH_SFTP_CLOSE);
@@ -1279,7 +1279,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
 					    if(result) {
 						    if(result == CURLE_OUT_OF_MEMORY)
-							    failf(data, "Out of memory");
+							    failf(data, SlTxtOutOfMem);
 						    else
 							    failf(data, "Syntax error in %s: Bad second parameter", cmd);
 						    Curl_safefree(sshc->quote_path1);
@@ -1299,7 +1299,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
 					    if(result) {
 						    if(result == CURLE_OUT_OF_MEMORY)
-							    failf(data, "Out of memory");
+							    failf(data, SlTxtOutOfMem);
 						    else
 							    failf(data, "Syntax error in ln/symlink: Bad second parameter");
 						    Curl_safefree(sshc->quote_path1);
@@ -1323,7 +1323,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 					    result = Curl_get_pathname(&cp, &sshc->quote_path2, sshc->homedir);
 					    if(result) {
 						    if(result == CURLE_OUT_OF_MEMORY)
-							    failf(data, "Out of memory");
+							    failf(data, SlTxtOutOfMem);
 						    else
 							    failf(data, "Syntax error in rename: Bad second parameter");
 						    Curl_safefree(sshc->quote_path1);

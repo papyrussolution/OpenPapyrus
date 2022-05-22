@@ -76,7 +76,7 @@ void ma_format_win32_error(char * buf, size_t buflen, DWORD code, _Printf_format
 		ENTRY(SEC_E_UNTRUSTED_ROOT, "Untrusted root certificate"),
 		ENTRY(SEC_E_BUFFER_TOO_SMALL, "Buffer too small"),
 		ENTRY(SEC_E_CRYPTO_SYSTEM_INVALID, "Cipher is not supported"),
-		ENTRY(SEC_E_INSUFFICIENT_MEMORY, "Out of memory"),
+		ENTRY(SEC_E_INSUFFICIENT_MEMORY, SlTxtOutOfMem),
 		ENTRY(SEC_E_OUT_OF_SEQUENCE, "Invalid message sequence"),
 		ENTRY(SEC_E_DECRYPT_FAILURE, "The specified data could not be decrypted"),
 		ENTRY(SEC_I_INCOMPLETE_CREDENTIALS, "Incomplete credentials"),

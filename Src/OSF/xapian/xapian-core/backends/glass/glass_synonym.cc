@@ -124,8 +124,8 @@ TermList * GlassSynonymTable::open_termlist(const string & term)
 	}
 	else {
 		string tag;
-		if(!get_exact_entry(term, tag)) return NULL;
-
+		if(!get_exact_entry(term, tag)) 
+			return NULL;
 		const char * p = tag.data();
 		const char * end = p + tag.size();
 		while(p != end) {
@@ -141,8 +141,6 @@ TermList * GlassSynonymTable::open_termlist(const string & term)
 
 	return new VectorTermList(synonyms.begin(), synonyms.end());
 }
-
-///////////////////////////////////////////////////////////////////////////
 
 GlassSynonymTermList::~GlassSynonymTermList()
 {

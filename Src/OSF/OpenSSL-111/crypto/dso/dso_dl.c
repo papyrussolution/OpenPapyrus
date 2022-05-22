@@ -61,14 +61,14 @@ static int dl_load(DSO * dso)
 	 */
 	char * filename = DSO_convert_filename(dso, NULL);
 
-	if(filename == NULL) {
+	if(!filename) {
 		DSOerr(DSO_F_DL_LOAD, DSO_R_NO_FILENAME);
 		goto err;
 	}
 	ptr = shl_load(filename, BIND_IMMEDIATE |
 		(dso->flags & DSO_FLAG_NO_NAME_TRANSLATION ? 0 :
 		DYNAMIC_PATH), 0L);
-	if(ptr == NULL) {
+	if(!ptr) {
 		char errbuf[160];
 		DSOerr(DSO_F_DL_LOAD, DSO_R_LOAD_FAILED);
 		if(openssl_strerror_r(errno, errbuf, sizeof(errbuf)))
@@ -104,7 +104,7 @@ static int dl_unload(DSO * dso)
 		return 1;
 	/* Is this statement legal? */
 	ptr = (shl_t)sk_pop(dso->meth_data);
-	if(ptr == NULL) {
+	if(!ptr) {
 		DSOerr(DSO_F_DL_UNLOAD, DSO_R_NULL_HANDLE);
 		/*
 		 * Should push the value back onto the stack in case of a retry.
@@ -130,7 +130,7 @@ static DSO_FUNC_TYPE dl_bind_func(DSO * dso, const char * symname)
 		return NULL;
 	}
 	ptr = (shl_t)sk_value(dso->meth_data, sk_num(dso->meth_data) - 1);
-	if(ptr == NULL) {
+	if(!ptr) {
 		DSOerr(DSO_F_DL_BIND_FUNC, DSO_R_NULL_HANDLE);
 		return NULL;
 	}

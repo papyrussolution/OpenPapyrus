@@ -1090,8 +1090,8 @@ SPoint2F FASTCALL operator / (SPoint2F p,  float divider) { return SPoint2F(p.x 
 SPoint2F FASTCALL operator / (SPoint2F p1, SPoint2F p2)      { return SPoint2F(p1.x / p2.x, p1.y / p2.y); }
 
 // @v10.9.10 (replaced with SPoint2F::operator ==) int FASTCALL operator == (SPoint2F p1, SPoint2F p2) { return (p1.X == p2.X && p1.Y == p2.Y); }
-int FASTCALL operator < (SPoint2F p1, SPoint2F p2) { return (p1.x < p2.x && p1.y < p2.y) ? 1 : 0; }
-int FASTCALL operator > (SPoint2F p1, SPoint2F p2) { return (p1.x > p2.x && p1.y > p2.y) ? 1 : 0; }
+bool   FASTCALL operator < (SPoint2F p1, SPoint2F p2) { return (p1.x < p2.x && p1.y < p2.y); }
+bool   FASTCALL operator > (SPoint2F p1, SPoint2F p2) { return (p1.x > p2.x && p1.y > p2.y); }
 SPoint2F FASTCALL fmin(SPoint2F p1, SPoint2F p2)      { return SPoint2F(MIN(p1.x, p2.x), MIN(p1.y, p2.y)); }
 SPoint2F FASTCALL fmax(SPoint2F p1, SPoint2F p2)      { return SPoint2F(MAX(p1.x, p2.x), MAX(p1.y, p2.y)); }
 float  FASTCALL atan2(SPoint2F p1, SPoint2F p2)     { return atan2f(p1.y-p2.y, p1.x-p2.x); }

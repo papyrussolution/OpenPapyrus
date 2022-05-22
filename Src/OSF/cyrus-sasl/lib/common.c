@@ -246,32 +246,27 @@ int sasl_set_path(int path_type, char * path)
  */
 void sasl_version(const char ** implementation, int * version)
 {
-	if(implementation) *implementation = implementation_string;
-	/* NB: the format is not the same as in SASL_VERSION_FULL */
-	if(version) *version = (SASL_VERSION_MAJOR << 24) |
-		    (SASL_VERSION_MINOR << 16) |
-		    (SASL_VERSION_STEP);
+	ASSIGN_PTR(implementation, implementation_string);
+	// NB: the format is not the same as in SASL_VERSION_FULL
+	if(version) *version = (SASL_VERSION_MAJOR << 24) | (SASL_VERSION_MINOR << 16) | (SASL_VERSION_STEP);
 }
 
 /* Extended version of sasl_version above */
 void sasl_version_info(const char ** implementation, const char ** version_string,
-    int * version_major, int * version_minor, int * version_step,
-    int * version_patch)
+    int * version_major, int * version_minor, int * version_step, int * version_patch)
 {
-	if(implementation) *implementation = implementation_string;
-	if(version_string) *version_string = SASL_VERSION_STRING;
-	if(version_major) *version_major = SASL_VERSION_MAJOR;
-	if(version_minor) *version_minor = SASL_VERSION_MINOR;
-	if(version_step) *version_step = SASL_VERSION_STEP;
-	/* Version patch is always 0 for CMU SASL */
-	if(version_patch) *version_patch = 0;
+	ASSIGN_PTR(implementation, implementation_string);
+	ASSIGN_PTR(version_string, SASL_VERSION_STRING);
+	ASSIGN_PTR(version_major, SASL_VERSION_MAJOR);
+	ASSIGN_PTR(version_minor, SASL_VERSION_MINOR);
+	ASSIGN_PTR(version_step, SASL_VERSION_STEP);
+	// Version patch is always 0 for CMU SASL
+	ASSIGN_PTR(version_patch, 0);
 }
 
 /* security-encode a regular string.  Mostly a wrapper for sasl_encodev */
 /* output is only valid until next call to sasl_encode or sasl_encodev */
-int sasl_encode(sasl_conn_t * conn, const char * input,
-    unsigned inputlen,
-    const char ** output, unsigned * outputlen)
+int sasl_encode(sasl_conn_t * conn, const char * input, unsigned inputlen, const char ** output, unsigned * outputlen)
 {
 	int result;
 	struct iovec tmp;
@@ -329,30 +324,21 @@ static int _sasl_encodev(sasl_conn_t * conn,
 	result = conn->oparams.encode(conn->context, invec, numiov, output, outputlen);
 	if(*p_num_packets > 0 && result == SASL_OK) {
 		/* Is the allocated buffer big enough? If not, grow it. */
-		if((conn->multipacket_encoded_data.curlen + *outputlen) >
-		    conn->multipacket_encoded_data.reallen) {
-			conn->multipacket_encoded_data.reallen =
-			    conn->multipacket_encoded_data.curlen + *outputlen;
+		if((conn->multipacket_encoded_data.curlen + *outputlen) > conn->multipacket_encoded_data.reallen) {
+			conn->multipacket_encoded_data.reallen = conn->multipacket_encoded_data.curlen + *outputlen;
 			new_buf = (char *)sasl_REALLOC(conn->multipacket_encoded_data.data, conn->multipacket_encoded_data.reallen + 1);
 			if(new_buf == NULL) {
 				MEMERROR(conn);
 			}
 			conn->multipacket_encoded_data.data = new_buf;
 		}
-
 		/* Append new data to the end of the buffer */
-		memcpy(conn->multipacket_encoded_data.data +
-		    conn->multipacket_encoded_data.curlen,
-		    *output,
-		    *outputlen);
+		memcpy(conn->multipacket_encoded_data.data + conn->multipacket_encoded_data.curlen, *output, *outputlen);
 		conn->multipacket_encoded_data.curlen += *outputlen;
-
 		*output = conn->multipacket_encoded_data.data;
 		*outputlen = (unsigned)conn->multipacket_encoded_data.curlen;
 	}
-
 	(*p_num_packets)++;
-
 	RETURN(conn, result);
 }
 
@@ -2213,9 +2199,7 @@ int _sasl_ipfromstring(const char * addr,
 		}
 		memcpy(out, ai->ai_addr, ai->ai_addrlen);
 	}
-
 	freeaddrinfo(ai);
-
 	return SASL_OK;
 }
 
@@ -2224,10 +2208,8 @@ int _sasl_build_mechlist(void)
 	int count = 0;
 	sasl_string_list_t * clist = NULL, * slist = NULL, * olist = NULL;
 	sasl_string_list_t * p, * q, ** last, * p_next;
-
 	clist = _sasl_client_mechs();
 	slist = _sasl_server_mechs();
-
 	if(!clist) {
 		olist = slist;
 	}
@@ -2312,15 +2294,10 @@ int sasl_listmech(sasl_conn_t * conn,
 	PARAMERROR(conn);
 }
 
-int _sasl_is_equal_mech(const char * req_mech,
-    const char * plug_mech,
-    size_t req_mech_len,
-    int * plus)
+int _sasl_is_equal_mech(const char * req_mech, const char * plug_mech, size_t req_mech_len, int * plus)
 {
 	size_t n;
-
-	if(req_mech_len > 5 &&
-	    strcasecmp(&req_mech[req_mech_len - 5], "-PLUS") == 0) {
+	if(req_mech_len > 5 && strcasecmp(&req_mech[req_mech_len - 5], "-PLUS") == 0) {
 		n = req_mech_len - 5;
 		*plus = 1;
 	}
@@ -2328,7 +2305,6 @@ int _sasl_is_equal_mech(const char * req_mech,
 		n = req_mech_len;
 		*plus = 0;
 	}
-
 	if(n < strlen(plug_mech)) {
 		/* Don't allow arbitrary prefix match */
 		return 0;
@@ -2338,12 +2314,9 @@ int _sasl_is_equal_mech(const char * req_mech,
 }
 
 #ifndef WIN32
-static char * _sasl_get_default_unix_path(void * context __attribute__((unused)),
-    char * env_var_name,
-    char * default_value)
+static char * _sasl_get_default_unix_path(void * context __attribute__((unused)), char * env_var_name, char * default_value)
 {
 	char * path = NULL;
-
 	/* Honor external variable only in a safe environment */
 	if(getuid() == geteuid() && getgid() == getegid()) {
 		path = getenv(env_var_name);
@@ -2351,15 +2324,12 @@ static char * _sasl_get_default_unix_path(void * context __attribute__((unused))
 	if(!path) {
 		path = default_value;
 	}
-
 	return path;
 }
 
 #else /*WIN32*/
 /* Return NULL on failure */
-static char * _sasl_get_default_win_path(void * context __attribute__((unused)),
-    TCHAR * reg_attr_name,
-    char * default_value)
+static char * _sasl_get_default_win_path(void * context __attribute__((unused)), TCHAR * reg_attr_name, char * default_value)
 {
 	/* Open registry entry, and find all registered SASL libraries.
 	 *
@@ -2425,7 +2395,6 @@ static char * _sasl_get_default_win_path(void * context __attribute__((unused)),
 	cbData /= sizeof(TCHAR); /* covert to number of symbols */
 	ValueData[cbData] = '\0'; /* MS docs say we have to to that */
 	ValueData[cbData + 1] = '\0'; /* for MULTI */
-
 	switch(ValueType) {
 		case REG_EXPAND_SZ:
 		    /* : A random starting guess */
@@ -2435,13 +2404,7 @@ static char * _sasl_get_default_win_path(void * context __attribute__((unused)),
 			    return_value = NULL;
 			    goto CLEANUP;
 		    }
-		    ;
-
-		    cbExpandedData = ExpandEnvironmentStrings(
-			    ValueData,
-			    ExpandedValueData,
-			    cbExpandedData);
-
+		    cbExpandedData = ExpandEnvironmentStrings(ValueData, ExpandedValueData, cbExpandedData);
 		    if(cbExpandedData == 0) {
 			    /* : GetLastError() contains the reason for failure */
 			    return_value = NULL;
@@ -2518,7 +2481,6 @@ CLEANUP:
 	if(sizeof(TCHAR) == sizeof(char)) {
 		return (char *)return_value;
 	}
-
 	/* convert to utf-8 for compatibility with other OS' */
 	{
 		char * tmp = _sasl_wchar_to_utf8(return_value);
@@ -2532,8 +2494,7 @@ char * _sasl_wchar_to_utf8(WCHAR * str)
 	size_t bufLen = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
 	char * buf = (char *)sasl_ALLOC(bufLen);
 	if(buf) {
-		if(WideCharToMultiByte(CP_UTF8, 0, str, -1, buf, bufLen, NULL, NULL) == 0) { /* -1 ensures
-			                                                                        null-terminated utf8 */
+		if(WideCharToMultiByte(CP_UTF8, 0, str, -1, buf, bufLen, NULL, NULL) == 0) { // -1 ensures null-terminated utf8 
 			sasl_FREE(buf);
 			buf = NULL;
 		}

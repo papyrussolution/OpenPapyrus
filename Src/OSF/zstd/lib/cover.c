@@ -242,8 +242,8 @@ size_t FASTCALL COVER_sum(const size_t * samplesSizes, uint nbSamples)
  */
 static int COVER_cmp(COVER_ctx_t * ctx, const void * lp, const void * rp) 
 {
-	const uint32 lhs = *(const uint32*)lp;
-	const uint32 rhs = *(const uint32*)rp;
+	const uint32 lhs = *(const uint32 *)lp;
+	const uint32 rhs = *(const uint32 *)rp;
 	return memcmp(ctx->samples + lhs, ctx->samples + rhs, ctx->d);
 }
 /**
@@ -252,8 +252,8 @@ static int COVER_cmp(COVER_ctx_t * ctx, const void * lp, const void * rp)
 static int COVER_cmp8(COVER_ctx_t * ctx, const void * lp, const void * rp) 
 {
 	uint64 const mask = (ctx->d == 8) ? (uint64)-1 : (((uint64)1 << (8 * ctx->d)) - 1);
-	uint64 const lhs = MEM_readLE64(ctx->samples + *(const uint32*)lp) & mask;
-	uint64 const rhs = MEM_readLE64(ctx->samples + *(const uint32*)rp) & mask;
+	uint64 const lhs = MEM_readLE64(ctx->samples + *(const uint32 *)lp) & mask;
+	uint64 const rhs = MEM_readLE64(ctx->samples + *(const uint32 *)rp) & mask;
 	if(lhs < rhs) {
 		return -1;
 	}
@@ -341,8 +341,8 @@ static void COVER_groupBy(const void * data, size_t count, size_t size, COVER_ct
 static void COVER_group(COVER_ctx_t * ctx, const void * group,
     const void * groupEnd) {
 	/* The group consists of all the positions with the same first d bytes. */
-	const uint32 * grpPtr = (const uint32*)group;
-	const uint32 * grpEnd = (const uint32*)groupEnd;
+	const uint32 * grpPtr = (const uint32 *)group;
+	const uint32 * grpEnd = (const uint32 *)groupEnd;
 	/* The dmerId is how we will reference this dmer.
 	 * This allows us to map the whole dmer space to a much smaller space, the
 	 * size of the suffix array.
@@ -558,9 +558,9 @@ static size_t COVER_ctx_init(COVER_ctx_t * ctx, const void * samplesBuffer, cons
 	ctx->nbTestSamples = nbTestSamples;
 	/* Partial suffix array */
 	ctx->suffixSize = trainingSamplesSize - MAX(d, sizeof(uint64)) + 1;
-	ctx->suffix = (uint32*)SAlloc::M(ctx->suffixSize * sizeof(uint32));
+	ctx->suffix = (uint32 *)SAlloc::M(ctx->suffixSize * sizeof(uint32));
 	/* Maps index to the dmerID */
-	ctx->dmerAt = (uint32*)SAlloc::M(ctx->suffixSize * sizeof(uint32));
+	ctx->dmerAt = (uint32 *)SAlloc::M(ctx->suffixSize * sizeof(uint32));
 	/* The offsets of each file */
 	ctx->offsets = (size_t*)SAlloc::M((nbSamples + 1) * sizeof(size_t));
 	if(!ctx->suffix || !ctx->dmerAt || !ctx->offsets) {
@@ -1026,7 +1026,7 @@ static void COVER_tryParameters(void * opaque)
 	COVER_map_t activeDmers;
 	BYTE * const dict = (BYTE *)SAlloc::M(dictBufferCapacity);
 	COVER_dictSelection_t selection = COVER_dictSelectionError(ERROR(GENERIC));
-	uint32* const freqs = (uint32*)SAlloc::M(ctx->suffixSize * sizeof(uint32));
+	uint32 * const freqs = (uint32 *)SAlloc::M(ctx->suffixSize * sizeof(uint32));
 	if(!COVER_map_init(&activeDmers, parameters.k - parameters.d + 1)) {
 		DISPLAYLEVEL(1, "Failed to allocate dmer map: out of memory\n");
 		goto _cleanup;

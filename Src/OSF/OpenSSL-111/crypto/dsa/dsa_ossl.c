@@ -209,7 +209,7 @@ static int dsa_sign_setup(DSA * dsa, BN_CTX * ctx_in,
 		goto err;
 
 	if(ctx_in == NULL) {
-		if((ctx = BN_CTX_new()) == NULL)
+		if(!(ctx = BN_CTX_new()))
 			goto err;
 	}
 	else
@@ -218,13 +218,11 @@ static int dsa_sign_setup(DSA * dsa, BN_CTX * ctx_in,
 	/* Preallocate space */
 	q_bits = BN_num_bits(dsa->q);
 	q_words = bn_get_top(dsa->q);
-	if(!bn_wexpand(k, q_words + 2)
-	   || !bn_wexpand(l, q_words + 2))
+	if(!bn_wexpand(k, q_words + 2) || !bn_wexpand(l, q_words + 2))
 		goto err;
-
 	/* Get random k */
 	do {
-		if(dgst != NULL) {
+		if(dgst) {
 			/*
 			 * We calculate k from SHA512(private_key + H(message) + random).
 			 * This protects the private key from a weak PRNG.

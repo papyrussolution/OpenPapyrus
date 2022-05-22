@@ -412,7 +412,7 @@ init:   /* using goto's to optimize tail recursion */
 			    switch(*(p + 1)) {
 				    case 'b': { /* balanced string? */
 					s = matchbalance(ms, s, p + 2);
-					if(s != NULL) {
+					if(s) {
 						p += 4; goto init; /* return match(ms, s, p + 4); */
 					} /* else fail (s == NULL) */
 					break;
@@ -435,7 +435,7 @@ init:   /* using goto's to optimize tail recursion */
 				    case '4': case '5': case '6': case '7':
 				    case '8': case '9': { /* capture results (%0-%9)? */
 					s = match_capture(ms, s, uchar(*(p + 1)));
-					if(s != NULL) {
+					if(s) {
 						p += 2; goto init; /* return match(ms, s, p + 2) */
 					}
 					break;

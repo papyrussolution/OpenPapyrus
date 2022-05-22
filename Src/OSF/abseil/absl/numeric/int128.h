@@ -16,13 +16,13 @@
 #ifndef ABSL_NUMERIC_INT128_H_
 #define ABSL_NUMERIC_INT128_H_
 
-#include <cassert>
-#include <cmath>
-#include <cstdint>
-#include <cstring>
-#include <iosfwd>
-#include <limits>
-#include <utility>
+//#include <cassert>
+//#include <cmath>
+//#include <cstdint>
+//#include <cstring>
+//#include <iosfwd>
+//#include <limits>
+//#include <utility>
 #include "absl/base/config.h"
 #include "absl/base/macros.h"
 #include "absl/base/port.h"

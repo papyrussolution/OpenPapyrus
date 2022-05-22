@@ -135,12 +135,12 @@ typedef struct {
 	int32 state;
 	uint32 avail_in_expect; /* remembers avail_in when flush/finish requested */
 	/* for doing the block sorting */
-	uint32*  arr1;
-	uint32*  arr2;
-	uint32*  ftab;
+	uint32 *  arr1;
+	uint32 *  arr2;
+	uint32 *  ftab;
 	int32 origPtr;
 	/* aliases for arr1 and arr2 */
-	uint32*  ptr;
+	uint32 *  ptr;
 	uchar*   block;
 	uint16*  mtfv;
 	uchar*   zbits;

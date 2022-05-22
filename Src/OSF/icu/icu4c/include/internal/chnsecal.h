@@ -1,7 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 /*
-	Copyright (C) 2007-2013, International Business Machines Corporation and others. All Rights Reserved.
+        Copyright (C) 2007-2013, International Business Machines Corporation and others. All Rights Reserved.
  *
  * File CHNSECAL.H
  *
@@ -68,10 +68,10 @@ U_NAMESPACE_BEGIN
  * obtain a formatter for this calendar.
  *
  * <p>References:<ul>
- * 
+ *
  * <li>Dershowitz and Reingold, <i>Calendrical Calculations</i>,
  * Cambridge University Press, 1997</li>
- * 
+ *
  * <li>Helmer Aslaksen's
  * <a href="http://www.math.nus.edu.sg/aslaksen/calendar/chinese.shtml">
  * Chinese Calendar page</a></li>
@@ -84,7 +84,7 @@ U_NAMESPACE_BEGIN
  * <p>
  * This class should only be subclassed to implement variants of the Chinese lunar calendar.</p>
  * <p>
- * ChineseCalendar usually should be instantiated using 
+ * ChineseCalendar usually should be instantiated using
  * {@link com.ibm.icu.util.Calendar#getInstance(ULocale)} passing in a <code>ULocale</code>
  * with the tag <code>"@calendar=chinese"</code>.</p>
  *
@@ -94,184 +94,162 @@ U_NAMESPACE_BEGIN
  * @internal
  */
 class U_I18N_API ChineseCalendar : public Calendar {
- public:
-  //-------------------------------------------------------------------------
-  // Constructors...
-  //-------------------------------------------------------------------------
+public:
+	//
+	// Constructors...
+	//
+	/**
+	 * Constructs a ChineseCalendar based on the current time in the default time zone
+	 * with the given locale.
+	 *
+	 * @param aLocale  The given locale.
+	 * @param success  Indicates the status of ChineseCalendar object construction.
+	 *                 Returns U_ZERO_ERROR if constructed successfully.
+	 * @internal
+	 */
+	ChineseCalendar(const Locale & aLocale, UErrorCode &success);
+protected:
+	/**
+	 * Constructs a ChineseCalendar based on the current time in the default time zone
+	 * with the given locale, using the specified epoch year and time zone for
+	 * astronomical calculations.
+	 *
+	 * @param aLocale         The given locale.
+	 * @param epochYear       The epoch year to use for calculation.
+	 * @param zoneAstroCalc   The TimeZone to use for astronomical calculations. If null,
+	 *     will be set appropriately for Chinese calendar (UTC + 8:00).
+	 * @param success         Indicates the status of ChineseCalendar object construction;
+	 *     if successful, will not be changed to an error value.
+	 * @internal
+	 */
+	ChineseCalendar(const Locale & aLocale, int32_t epochYear, const TimeZone* zoneAstroCalc, UErrorCode &success);
+public:
+	/**
+	 * Copy Constructor
+	 * @internal
+	 */
+	ChineseCalendar(const ChineseCalendar& other);
+	/**
+	 * Destructor.
+	 * @internal
+	 */
+	virtual ~ChineseCalendar();
+	// clone
+	virtual ChineseCalendar* clone() const override;
+private:
+	//
+	// Internal data....
+	//
+	bool isLeapYear;
+	int32_t fEpochYear; // Start year of this Chinese calendar instance.
+	const TimeZone* fZoneAstroCalc; // Zone used for the astronomical calculation of this Chinese calendar instance.
+	//
+	// Calendar framework
+	//
+protected:
+	virtual int32_t handleGetLimit(UCalendarDateFields field, ELimitType limitType) const override;
+	virtual int32_t handleGetMonthLength(int32_t extendedYear, int32_t month) const override;
+	virtual int32_t handleComputeMonthStart(int32_t eyear, int32_t month, bool useMonth) const override;
+	virtual int32_t handleGetExtendedYear() override;
+	virtual void handleComputeFields(int32_t julianDay, UErrorCode & status) override;
+	virtual const UFieldResolutionTable* getFieldResolutionTable() const override;
+public:
+	virtual void add(UCalendarDateFields field, int32_t amount, UErrorCode & status) override;
+	virtual void add(EDateFields field, int32_t amount, UErrorCode & status) override;
+	virtual void roll(UCalendarDateFields field, int32_t amount, UErrorCode & status) override;
+	virtual void roll(EDateFields field, int32_t amount, UErrorCode & status) override;
+	//
+	// Internal methods & astronomical calculations
+	//
+private:
+	static const UFieldResolutionTable CHINESE_DATE_PRECEDENCE[];
+	double daysToMillis(double days) const;
+	double millisToDays(double millis) const;
+	virtual int32_t winterSolstice(int32_t gyear) const;
+	virtual int32_t newMoonNear(double days, bool after) const;
+	virtual int32_t synodicMonthsBetween(int32_t day1, int32_t day2) const;
+	virtual int32_t majorSolarTerm(int32_t days) const;
+	virtual bool hasNoMajorSolarTerm(int32_t newMoon) const;
+	virtual bool isLeapMonthBetween(int32_t newMoon1, int32_t newMoon2) const;
+	virtual void computeChineseFields(int32_t days, int32_t gyear, int32_t gmonth, bool setAllFields);
+	virtual int32_t newYear(int32_t gyear) const;
+	virtual void offsetMonth(int32_t newMoon, int32_t dom, int32_t delta);
+	const TimeZone* getChineseCalZoneAstroCalc() const;
+	// UObject stuff
+public:
+	/**
+	 * @return   The class ID for this object. All objects of a given class have the
+	 *           same class ID. Objects of other classes have different class IDs.
+	 * @internal
+	 */
+	virtual UClassID getDynamicClassID() const override;
+	/**
+	 * Return the class ID for this class. This is useful only for comparing to a return
+	 * value from getDynamicClassID(). For example:
+	 *
+	 *      Base* polymorphic_pointer = createPolymorphicObject();
+	 *      if(polymorphic_pointer->getDynamicClassID() ==
+	 *          Derived::getStaticClassID()) ...
+	 *
+	 * @return   The class ID for all objects of this class.
+	 * @internal
+	 */
+	static UClassID U_EXPORT2 getStaticClassID();
 
-  /**
-   * Constructs a ChineseCalendar based on the current time in the default time zone
-   * with the given locale.
-   *
-   * @param aLocale  The given locale.
-   * @param success  Indicates the status of ChineseCalendar object construction.
-   *                 Returns U_ZERO_ERROR if constructed successfully.
-   * @internal
-   */
-  ChineseCalendar(const Locale & aLocale, UErrorCode &success);
+	/**
+	 * return the calendar type, "chinese".
+	 *
+	 * @return calendar type
+	 * @internal
+	 */
+	virtual const char * getType() const override;
 
- protected:
- 
-   /**
-   * Constructs a ChineseCalendar based on the current time in the default time zone
-   * with the given locale, using the specified epoch year and time zone for
-   * astronomical calculations.
-   *
-   * @param aLocale         The given locale.
-   * @param epochYear       The epoch year to use for calculation.
-   * @param zoneAstroCalc   The TimeZone to use for astronomical calculations. If null,
-   *     will be set appropriately for Chinese calendar (UTC + 8:00).
-   * @param success         Indicates the status of ChineseCalendar object construction;
-   *     if successful, will not be changed to an error value.
-   * @internal
-   */
-  ChineseCalendar(const Locale & aLocale, int32_t epochYear, const TimeZone* zoneAstroCalc, UErrorCode &success);
+protected:
+	/**
+	 * (Overrides Calendar) Return true if the current date for this Calendar is in
+	 * Daylight Savings Time. Recognizes DST_OFFSET, if it is set.
+	 *
+	 * @param status Fill-in parameter which receives the status of this operation.
+	 * @return   True if the current date for this Calendar is in Daylight Savings Time,
+	 *           false, otherwise.
+	 * @internal
+	 */
+	virtual bool inDaylightTime(UErrorCode & status) const override;
 
- public:
-  /**
-   * Copy Constructor
-   * @internal
-   */
-  ChineseCalendar(const ChineseCalendar& other);
+	/**
+	 * Returns true because the Islamic Calendar does have a default century
+	 * @internal
+	 */
+	virtual bool haveDefaultCentury() const override;
 
-  /**
-   * Destructor.
-   * @internal
-   */
-  virtual ~ChineseCalendar();
+	/**
+	 * Returns the date of the start of the default century
+	 * @return start of century - in milliseconds since epoch, 1970
+	 * @internal
+	 */
+	virtual UDate defaultCenturyStart() const override;
 
-  // clone
-  virtual ChineseCalendar* clone() const override;
+	/**
+	 * Returns the year in which the default century begins
+	 * @internal
+	 */
+	virtual int32_t defaultCenturyStartYear() const override;
 
- private:
+private:  // default century stuff.
 
-  //-------------------------------------------------------------------------
-  // Internal data....
-  //-------------------------------------------------------------------------
-    
-  bool isLeapYear;
-  int32_t fEpochYear;   // Start year of this Chinese calendar instance.
-  const TimeZone* fZoneAstroCalc;   // Zone used for the astronomical calculation
-                                    // of this Chinese calendar instance.
+	/**
+	 * Returns the beginning date of the 100-year window that dates
+	 * with 2-digit years are considered to fall within.
+	 */
+	UDate         internalGetDefaultCenturyStart() const;
 
-  //----------------------------------------------------------------------
-  // Calendar framework
-  //----------------------------------------------------------------------
+	/**
+	 * Returns the first year of the 100-year window that dates with
+	 * 2-digit years are considered to fall within.
+	 */
+	int32_t internalGetDefaultCenturyStartYear() const;
 
- protected:
-  virtual int32_t handleGetLimit(UCalendarDateFields field, ELimitType limitType) const override;
-  virtual int32_t handleGetMonthLength(int32_t extendedYear, int32_t month) const override;
-  virtual int32_t handleComputeMonthStart(int32_t eyear, int32_t month, bool useMonth) const override;
-  virtual int32_t handleGetExtendedYear() override;
-  virtual void handleComputeFields(int32_t julianDay, UErrorCode & status) override;
-  virtual const UFieldResolutionTable* getFieldResolutionTable() const override;
-
- public:
-  virtual void add(UCalendarDateFields field, int32_t amount, UErrorCode & status) override;
-  virtual void add(EDateFields field, int32_t amount, UErrorCode & status) override;
-  virtual void roll(UCalendarDateFields field, int32_t amount, UErrorCode & status) override;
-  virtual void roll(EDateFields field, int32_t amount, UErrorCode & status) override;
-
-  //----------------------------------------------------------------------
-  // Internal methods & astronomical calculations
-  //----------------------------------------------------------------------
-
- private:
-
-  static const UFieldResolutionTable CHINESE_DATE_PRECEDENCE[];
-
-  double daysToMillis(double days) const;
-  double millisToDays(double millis) const;
-  virtual int32_t winterSolstice(int32_t gyear) const;
-  virtual int32_t newMoonNear(double days, bool after) const;
-  virtual int32_t synodicMonthsBetween(int32_t day1, int32_t day2) const;
-  virtual int32_t majorSolarTerm(int32_t days) const;
-  virtual bool hasNoMajorSolarTerm(int32_t newMoon) const;
-  virtual bool isLeapMonthBetween(int32_t newMoon1, int32_t newMoon2) const;
-  virtual void computeChineseFields(int32_t days, int32_t gyear,
-                 int32_t gmonth, bool setAllFields);
-  virtual int32_t newYear(int32_t gyear) const;
-  virtual void offsetMonth(int32_t newMoon, int32_t dom, int32_t delta);
-  const TimeZone* getChineseCalZoneAstroCalc() const;
-
-  // UObject stuff
- public: 
-  /**
-   * @return   The class ID for this object. All objects of a given class have the
-   *           same class ID. Objects of other classes have different class IDs.
-   * @internal
-   */
-  virtual UClassID getDynamicClassID() const override;
-
-  /**
-   * Return the class ID for this class. This is useful only for comparing to a return
-   * value from getDynamicClassID(). For example:
-   *
-   *      Base* polymorphic_pointer = createPolymorphicObject();
-   *      if(polymorphic_pointer->getDynamicClassID() ==
-   *          Derived::getStaticClassID()) ...
-   *
-   * @return   The class ID for all objects of this class.
-   * @internal
-   */
-  static UClassID U_EXPORT2 getStaticClassID();
-
-  /**
-   * return the calendar type, "chinese".
-   *
-   * @return calendar type
-   * @internal
-   */
-  virtual const char * getType() const override;
-
-
- protected:
-  /**
-   * (Overrides Calendar) Return true if the current date for this Calendar is in
-   * Daylight Savings Time. Recognizes DST_OFFSET, if it is set.
-   *
-   * @param status Fill-in parameter which receives the status of this operation.
-   * @return   True if the current date for this Calendar is in Daylight Savings Time,
-   *           false, otherwise.
-   * @internal
-   */
-  virtual bool inDaylightTime(UErrorCode & status) const override;
-
-
-  /**
-   * Returns true because the Islamic Calendar does have a default century
-   * @internal
-   */
-  virtual bool haveDefaultCentury() const override;
-
-  /**
-   * Returns the date of the start of the default century
-   * @return start of century - in milliseconds since epoch, 1970
-   * @internal
-   */
-  virtual UDate defaultCenturyStart() const override;
-
-  /**
-   * Returns the year in which the default century begins
-   * @internal
-   */
-  virtual int32_t defaultCenturyStartYear() const override;
-
- private: // default century stuff.
-
-  /**
-   * Returns the beginning date of the 100-year window that dates 
-   * with 2-digit years are considered to fall within.
-   */
-  UDate         internalGetDefaultCenturyStart() const;
-
-  /**
-   * Returns the first year of the 100-year window that dates with 
-   * 2-digit years are considered to fall within.
-   */
-  int32_t internalGetDefaultCenturyStartYear() const;
-
-  ChineseCalendar(); // default constructor not implemented
+	ChineseCalendar(); // default constructor not implemented
 };
 
 U_NAMESPACE_END

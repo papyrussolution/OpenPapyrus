@@ -11,15 +11,6 @@
 #ifndef XAPIAN_INCLUDED_GLASS_INVERTER_H
 #define XAPIAN_INCLUDED_GLASS_INVERTER_H
 
-//#include "xapian/types.h"
-//#include "smallvector.h"
-//#include <map>
-//#include <string>
-//#include <vector>
-//#include "omassert.h"
-//#include "str.h"
-//#include "xapian/error.h"
-
 class GlassPostListTable;
 class GlassPositionListTable;
 

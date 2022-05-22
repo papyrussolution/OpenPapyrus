@@ -359,7 +359,7 @@ void LogMessage(const char * pMsg)
 	SFile file(LogName, SFile::mAppend);
 	if(file.IsValid()) {
 		SString str;
-        file.WriteLine(str.Z().CatCurDateTime(DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab().Cat(pMsg).CR());
+        file.WriteLine(str.Z().CatCurDateTime(DATF_GERMANCENT, TIMF_HMS).Tab().Cat(pMsg).CR());
 	}
 }
 
@@ -368,7 +368,7 @@ void SysLogMessage(const char * pMsg)
 	SFile  file(SysLogName, SFile::mAppend);
 	if(file.IsValid()) {
 		SString str;
-        file.WriteLine(str.Z().CatCurDateTime(DATF_GERMAN|DATF_CENTURY, TIMF_HMS).Tab().Cat(pMsg).CR());
+        file.WriteLine(str.Z().CatCurDateTime(DATF_GERMANCENT, TIMF_HMS).Tab().Cat(pMsg).CR());
 	}
 }
 

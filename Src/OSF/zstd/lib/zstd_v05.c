@@ -117,10 +117,10 @@ MEM_STATIC uint MEM_isLittleEndian()
 /* violates C standard, by lying on structure alignment.
    Only use if no other choice to achieve best performance on target platform */
 MEM_STATIC uint16 MEM_read16(const void* memPtr) { return *(const uint16*)memPtr; }
-MEM_STATIC uint32 MEM_read32(const void* memPtr) { return *(const uint32*)memPtr; }
+MEM_STATIC uint32 MEM_read32(const void* memPtr) { return *(const uint32 *)memPtr; }
 MEM_STATIC uint64 MEM_read64(const void* memPtr) { return *(const uint64*)memPtr; }
 MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { *(uint16*)memPtr = value; }
-MEM_STATIC void MEM_write32(void* memPtr, uint32 value) { *(uint32*)memPtr = value; }
+MEM_STATIC void MEM_write32(void* memPtr, uint32 value) { *(uint32 *)memPtr = value; }
 MEM_STATIC void MEM_write64(void* memPtr, uint64 value) { *(uint64*)memPtr = value; }
 
 #elif defined(MEM_FORCE_MEMORY_ACCESS) && (MEM_FORCE_MEMORY_ACCESS==1)
@@ -471,8 +471,8 @@ MEM_STATIC void ZSTDv05_wildcopy(void* dst, const void* src, ptrdiff_t length)
 *********************************************/
 typedef struct {
 	void* buffer;
-	uint32*  offsetStart;
-	uint32*  offset;
+	uint32 *  offsetStart;
+	uint32 *  offset;
 	BYTE * offCodeStart;
 	BYTE * offCode;
 	BYTE * litStart;
@@ -484,10 +484,10 @@ typedef struct {
 	BYTE * dumpsStart;
 	BYTE * dumps;
 	/* opt */
-	uint32* matchLengthFreq;
-	uint32* litLengthFreq;
-	uint32* litFreq;
-	uint32* offCodeFreq;
+	uint32 * matchLengthFreq;
+	uint32 * litLengthFreq;
+	uint32 * litFreq;
+	uint32 * offCodeFreq;
 	uint32 matchLengthSum;
 	uint32 litLengthSum;
 	uint32 litSum;
@@ -1575,8 +1575,8 @@ typedef struct {
     @huffWeight : destination buffer
     @return : size read from `src`
  */
-static size_t HUFv05_readStats(BYTE * huffWeight, size_t hwSize, uint32* rankStats,
-    uint32* nbSymbolsPtr, uint32* tableLogPtr,
+static size_t HUFv05_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats,
+    uint32 * nbSymbolsPtr, uint32 * tableLogPtr,
     const void* src, size_t srcSize)
 {
 	uint32 weightTotal;
@@ -1894,7 +1894,7 @@ size_t HUFv05_decompress4X2(void* dst, size_t dstSize, const void* cSrc, size_t 
 /* *************************/
 
 static void HUFv05_fillDTableX4Level2(HUFv05_DEltX4* DTable, uint32 sizeLog, const uint32 consumed,
-    const uint32* rankValOrigin, const int minWeight,
+    const uint32 * rankValOrigin, const int minWeight,
     const sortedSymbol_t* sortedSymbols, const uint32 sortedListSize,
     uint32 nbBitsBaseline, uint16 baseSeq)
 {
@@ -1940,7 +1940,7 @@ typedef uint32 rankVal_t[HUFv05_ABSOLUTEMAX_TABLELOG][HUFv05_ABSOLUTEMAX_TABLELO
 
 static void HUFv05_fillDTableX4(HUFv05_DEltX4* DTable, const uint32 targetLog,
     const sortedSymbol_t* sortedList, const uint32 sortedListSize,
-    const uint32* rankStart, rankVal_t rankValOrigin, const uint32 maxWeight,
+    const uint32 * rankStart, rankVal_t rankValOrigin, const uint32 maxWeight,
     const uint32 nbBitsBaseline)
 {
 	uint32 rankVal[HUFv05_ABSOLUTEMAX_TABLELOG + 1];
@@ -1989,7 +1989,7 @@ size_t HUFv05_readDTableX4(uint * DTable, const void* src, size_t srcSize)
 	sortedSymbol_t sortedSymbol[HUFv05_MAX_SYMBOL_VALUE + 1];
 	uint32 rankStats[HUFv05_ABSOLUTEMAX_TABLELOG + 1] = { 0 };
 	uint32 rankStart0[HUFv05_ABSOLUTEMAX_TABLELOG + 2] = { 0 };
-	uint32* const rankStart = rankStart0+1;
+	uint32 * const rankStart = rankStart0+1;
 	rankVal_t rankVal;
 	uint32 tableLog, maxW, sizeOfSort, nbSymbols;
 	const uint32 memLog = DTable[0];
@@ -2038,14 +2038,14 @@ size_t HUFv05_readDTableX4(uint * DTable, const void* src, size_t srcSize)
 		uint32 nextRankVal = 0;
 		uint32 w, consumed;
 		const int rescale = (memLog-tableLog) - 1; /* tableLog <= memLog */
-		uint32* rankVal0 = rankVal[0];
+		uint32 * rankVal0 = rankVal[0];
 		for(w = 1; w<=maxW; w++) {
 			uint32 current = nextRankVal;
 			nextRankVal += rankStats[w] << (w+rescale);
 			rankVal0[w] = current;
 		}
 		for(consumed = minBits; consumed <= memLog - minBits; consumed++) {
-			uint32* rankValPtr = rankVal[consumed];
+			uint32 * rankValPtr = rankVal[consumed];
 			for(w = 1; w <= maxW; w++) {
 				rankValPtr[w] = rankVal0[w] >> consumed;
 			}

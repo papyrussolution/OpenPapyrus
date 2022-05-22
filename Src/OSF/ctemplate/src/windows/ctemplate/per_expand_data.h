@@ -29,10 +29,6 @@
 #ifndef TEMPLATE_PER_EXPAND_DATA_H_
 #define TEMPLATE_PER_EXPAND_DATA_H_
 
-#include <stdlib.h>   // for NULL
-#include <string.h>   // for strcmp
-#include <sys/types.h>
-#include <unordered_map>
 #include <ctemplate/template_string.h>   // for StringHash
 
 // NOTE: if you are statically linking the template library into your binary

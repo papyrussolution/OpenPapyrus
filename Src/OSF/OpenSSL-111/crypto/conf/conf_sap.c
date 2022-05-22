@@ -8,16 +8,13 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include "internal/conf.h"
 #include <openssl/x509.h>
 #include <openssl/asn1.h>
 #include <openssl/engine.h>
-
 #ifdef _WIN32
-#define strdup _strdup
+	#define strdup _strdup
 #endif
-
 /*
  * This is the automatic configuration loader: it is called automatically by
  * OpenSSL when any of a number of standard initialisation functions are

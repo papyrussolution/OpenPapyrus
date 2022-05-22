@@ -18,8 +18,7 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace proto_util_converter {
 namespace testing {
 namespace oneofs {
-constexpr OneOfsRequest::OneOfsRequest(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr OneOfsRequest::OneOfsRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , any_data_(nullptr)
   , _oneof_case_{}{}
@@ -31,8 +30,7 @@ struct OneOfsRequestDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT OneOfsRequestDefaultTypeInternal _OneOfsRequest_default_instance_;
-constexpr RequestWithSimpleOneof::RequestWithSimpleOneof(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr RequestWithSimpleOneof::RequestWithSimpleOneof(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , _oneof_case_{}{}
 struct RequestWithSimpleOneofDefaultTypeInternal {
@@ -43,8 +41,7 @@ struct RequestWithSimpleOneofDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RequestWithSimpleOneofDefaultTypeInternal _RequestWithSimpleOneof_default_instance_;
-constexpr Data::Data(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Data::Data(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : data_value_(0){}
 struct DataDefaultTypeInternal {
 	constexpr DataDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -54,8 +51,7 @@ struct DataDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DataDefaultTypeInternal _Data_default_instance_;
-constexpr MoreData::MoreData(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr MoreData::MoreData(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : str_value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct MoreDataDefaultTypeInternal {
 	constexpr MoreDataDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -65,8 +61,7 @@ struct MoreDataDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MoreDataDefaultTypeInternal _MoreData_default_instance_;
-constexpr Response::Response(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Response::Response(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : value_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct ResponseDefaultTypeInternal {
 	constexpr ResponseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -210,34 +205,13 @@ class OneOfsRequest::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Any& any_data(const OneOfsRequest* msg);
 };
 
-const ::proto_util_converter::testing::oneofs::Data&
-OneOfsRequest::_Internal::message_data(const OneOfsRequest* msg) {
-  return *msg->data_.message_data_;
-}
-const ::proto_util_converter::testing::oneofs::MoreData&
-OneOfsRequest::_Internal::more_data(const OneOfsRequest* msg) {
-  return *msg->data_.more_data_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Struct&
-OneOfsRequest::_Internal::struct_data(const OneOfsRequest* msg) {
-  return *msg->data_.struct_data_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Value&
-OneOfsRequest::_Internal::value_data(const OneOfsRequest* msg) {
-  return *msg->data_.value_data_;
-}
-const ::PROTOBUF_NAMESPACE_ID::ListValue&
-OneOfsRequest::_Internal::list_value_data(const OneOfsRequest* msg) {
-  return *msg->data_.list_value_data_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Timestamp&
-OneOfsRequest::_Internal::ts_data(const OneOfsRequest* msg) {
-  return *msg->data_.ts_data_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Any&
-OneOfsRequest::_Internal::any_data(const OneOfsRequest* msg) {
-  return *msg->any_data_;
-}
+const ::proto_util_converter::testing::oneofs::Data & OneOfsRequest::_Internal::message_data(const OneOfsRequest* msg) { return *msg->data_.message_data_; }
+const ::proto_util_converter::testing::oneofs::MoreData & OneOfsRequest::_Internal::more_data(const OneOfsRequest* msg) { return *msg->data_.more_data_; }
+const ::PROTOBUF_NAMESPACE_ID::Struct & OneOfsRequest::_Internal::struct_data(const OneOfsRequest* msg) { return *msg->data_.struct_data_; }
+const ::PROTOBUF_NAMESPACE_ID::Value & OneOfsRequest::_Internal::value_data(const OneOfsRequest* msg) { return *msg->data_.value_data_; }
+const ::PROTOBUF_NAMESPACE_ID::ListValue & OneOfsRequest::_Internal::list_value_data(const OneOfsRequest* msg) { return *msg->data_.list_value_data_; }
+const ::PROTOBUF_NAMESPACE_ID::Timestamp & OneOfsRequest::_Internal::ts_data(const OneOfsRequest* msg) { return *msg->data_.ts_data_; }
+const ::PROTOBUF_NAMESPACE_ID::Any & OneOfsRequest::_Internal::any_data(const OneOfsRequest* msg) { return *msg->any_data_; }
 void OneOfsRequest::set_allocated_message_data(::proto_util_converter::testing::oneofs::Data* message_data) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_data();
@@ -381,11 +355,7 @@ OneOfsRequest::OneOfsRequest(const OneOfsRequest& from)
   if(!from._internal_value().empty()) {
     value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_value(), GetArenaForAllocation());
   }
-  if(from._internal_has_any_data()) {
-    any_data_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_data_);
-  } else {
-    any_data_ = nullptr;
-  }
+  any_data_ = from._internal_has_any_data() ? new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_data_) : nullptr;
   clear_has_data();
   switch(from.data_case()) {
     case kStrData: {
@@ -456,8 +426,7 @@ void OneOfsRequest::ArenaDtor(void* object) {
   OneOfsRequest* _this = reinterpret_cast< OneOfsRequest* >(object);
   (void)_this;
 }
-void OneOfsRequest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void OneOfsRequest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void OneOfsRequest::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -630,10 +599,7 @@ const char* OneOfsRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -794,10 +760,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData OneOfsRequest::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*OneOfsRequest::GetClassData() const { return &_class_data_; }
 
-void OneOfsRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<OneOfsRequest *>(to)->MergeFrom(
-      static_cast<const OneOfsRequest &>(from));
+void OneOfsRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<OneOfsRequest *>(to)->MergeFrom(static_cast<const OneOfsRequest &>(from));
 }
 
 
@@ -846,9 +810,7 @@ void OneOfsRequest::MergeFrom(const OneOfsRequest& from) {
       _internal_mutable_ts_data()->::PROTOBUF_NAMESPACE_ID::Timestamp::MergeFrom(from._internal_ts_data());
       break;
     }
-    case DATA_NOT_SET: {
-      break;
-    }
+    case DATA_NOT_SET: break;
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -869,11 +831,7 @@ void OneOfsRequest::InternalSwap(OneOfsRequest* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &value_, lhs_arena,
-      &other->value_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &value_, lhs_arena, &other->value_, rhs_arena);
   swap(any_data_, other->any_data_);
   swap(data_, other->data_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
@@ -891,14 +849,8 @@ class RequestWithSimpleOneof::_Internal {
   static const ::proto_util_converter::testing::oneofs::MoreData& more_data(const RequestWithSimpleOneof* msg);
 };
 
-const ::proto_util_converter::testing::oneofs::Data&
-RequestWithSimpleOneof::_Internal::message_data(const RequestWithSimpleOneof* msg) {
-  return *msg->data_.message_data_;
-}
-const ::proto_util_converter::testing::oneofs::MoreData&
-RequestWithSimpleOneof::_Internal::more_data(const RequestWithSimpleOneof* msg) {
-  return *msg->data_.more_data_;
-}
+const ::proto_util_converter::testing::oneofs::Data & RequestWithSimpleOneof::_Internal::message_data(const RequestWithSimpleOneof* msg) { return *msg->data_.message_data_; }
+const ::proto_util_converter::testing::oneofs::MoreData & RequestWithSimpleOneof::_Internal::more_data(const RequestWithSimpleOneof* msg) { return *msg->data_.more_data_; }
 void RequestWithSimpleOneof::set_allocated_message_data(::proto_util_converter::testing::oneofs::Data* message_data) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_data();
@@ -996,8 +948,7 @@ void RequestWithSimpleOneof::ArenaDtor(void* object) {
   RequestWithSimpleOneof* _this = reinterpret_cast< RequestWithSimpleOneof* >(object);
   (void)_this;
 }
-void RequestWithSimpleOneof::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void RequestWithSimpleOneof::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void RequestWithSimpleOneof::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1102,10 +1053,7 @@ const char* RequestWithSimpleOneof::_InternalParse(const char* ptr, ::PROTOBUF_N
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1211,10 +1159,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData RequestWithSimpleOneof::_class
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RequestWithSimpleOneof::GetClassData() const { return &_class_data_; }
 
-void RequestWithSimpleOneof::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<RequestWithSimpleOneof *>(to)->MergeFrom(
-      static_cast<const RequestWithSimpleOneof &>(from));
+void RequestWithSimpleOneof::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<RequestWithSimpleOneof *>(to)->MergeFrom(static_cast<const RequestWithSimpleOneof &>(from));
 }
 
 
@@ -1244,9 +1190,7 @@ void RequestWithSimpleOneof::MergeFrom(const RequestWithSimpleOneof& from) {
       _internal_mutable_more_data()->::proto_util_converter::testing::oneofs::MoreData::MergeFrom(from._internal_more_data());
       break;
     }
-    case DATA_NOT_SET: {
-      break;
-    }
+    case DATA_NOT_SET: break;
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1267,11 +1211,7 @@ void RequestWithSimpleOneof::InternalSwap(RequestWithSimpleOneof* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &value_, lhs_arena,
-      &other->value_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &value_, lhs_arena, &other->value_, rhs_arena);
   swap(data_, other->data_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
 }
@@ -1321,8 +1261,7 @@ void Data::ArenaDtor(void* object) {
   Data* _this = reinterpret_cast< Data* >(object);
   (void)_this;
 }
-void Data::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Data::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Data::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1359,10 +1298,7 @@ const char* Data::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1415,10 +1351,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Data::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Data::GetClassData() const { return &_class_data_; }
 
-void Data::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Data *>(to)->MergeFrom(
-      static_cast<const Data &>(from));
+void Data::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Data *>(to)->MergeFrom(static_cast<const Data &>(from));
 }
 
 
@@ -1506,8 +1440,7 @@ void MoreData::ArenaDtor(void* object) {
   MoreData* _this = reinterpret_cast< MoreData* >(object);
   (void)_this;
 }
-void MoreData::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void MoreData::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void MoreData::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1546,10 +1479,7 @@ const char* MoreData::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1605,10 +1535,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MoreData::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MoreData::GetClassData() const { return &_class_data_; }
 
-void MoreData::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<MoreData *>(to)->MergeFrom(
-      static_cast<const MoreData &>(from));
+void MoreData::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<MoreData *>(to)->MergeFrom(static_cast<const MoreData &>(from));
 }
 
 
@@ -1640,11 +1568,7 @@ void MoreData::InternalSwap(MoreData* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &str_value_, lhs_arena,
-      &other->str_value_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &str_value_, lhs_arena, &other->str_value_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MoreData::GetMetadata() const {
@@ -1702,8 +1626,7 @@ void Response::ArenaDtor(void* object) {
   Response* _this = reinterpret_cast< Response* >(object);
   (void)_this;
 }
-void Response::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Response::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Response::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1742,10 +1665,7 @@ const char* Response::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1801,10 +1721,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Response::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Response::GetClassData() const { return &_class_data_; }
 
-void Response::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Response *>(to)->MergeFrom(
-      static_cast<const Response &>(from));
+void Response::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Response *>(to)->MergeFrom(static_cast<const Response &>(from));
 }
 
 
@@ -1836,11 +1754,7 @@ void Response::InternalSwap(Response* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &value_, lhs_arena,
-      &other->value_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &value_, lhs_arena, &other->value_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Response::GetMetadata() const {

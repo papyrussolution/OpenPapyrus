@@ -736,7 +736,7 @@ static cairo_int_status_t FASTCALL clip_and_composite_boxes(const cairo_spans_co
 		return fixup_unbounded_boxes(compositor, extents, boxes);
 	}
 	/* Can we reduce drawing through a clip-mask to simply drawing the clip? */
-	if(extents->clip->path != NULL && extents->is_bounded) {
+	if(extents->clip->path && extents->is_bounded) {
 		cairo_polygon_t polygon;
 		cairo_fill_rule_t fill_rule;
 		cairo_antialias_t antialias;

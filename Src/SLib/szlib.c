@@ -501,7 +501,7 @@ static void make_crc_table()
 	/* write out CRC tables to crc32.h */
 	{
 		FILE * out = fopen("crc32.h", "w");
-		if(out == NULL) return;
+		if(!out) return;
 		fprintf(out, "/* crc32.h -- tables for rapid CRC calculation\n");
 		fprintf(out, " * Generated automatically by crc32.c\n */\n\n");
 		fprintf(out, "local const z_crc_t FAR ");
@@ -1172,7 +1172,7 @@ const char * const z_errmsg[10] = {
 	"file error",       /* Z_ERRNO         (-1) */
 	"stream error",     /* Z_STREAM_ERROR  (-2) */
 	"data error",       /* Z_DATA_ERROR    (-3) */
-	"insufficient memory", /* Z_MEM_ERROR     (-4) */
+	SlTxtOutOfMem, /* Z_MEM_ERROR     (-4) */
 	"buffer error",     /* Z_BUF_ERROR     (-5) */
 	"incompatible version", /* Z_VERSION_ERROR (-6) */
 	""
@@ -1828,7 +1828,7 @@ static int gz_init(gz_state * state)
 	// allocate input buffer (double size for gzprintf) 
 	state->in = (uchar *)SAlloc::M(state->want << 1);
 	if(state->in == NULL) {
-		gz_error(state, Z_MEM_ERROR, "out of memory");
+		gz_error(state, Z_MEM_ERROR, SlTxtOutOfMem);
 		return -1;
 	}
 	else {
@@ -1838,7 +1838,7 @@ static int gz_init(gz_state * state)
 			state->out = (uchar *)SAlloc::M(state->want);
 			if(state->out == NULL) {
 				SAlloc::F(state->in);
-				gz_error(state, Z_MEM_ERROR, "out of memory");
+				gz_error(state, Z_MEM_ERROR, SlTxtOutOfMem);
 				return -1;
 			}
 			// allocate deflate memory, set up for gzip compression 
@@ -1849,7 +1849,7 @@ static int gz_init(gz_state * state)
 			if(ret != Z_OK) {
 				SAlloc::F(state->out);
 				SAlloc::F(state->in);
-				gz_error(state, Z_MEM_ERROR, "out of memory");
+				gz_error(state, Z_MEM_ERROR, SlTxtOutOfMem);
 				return -1;
 			}
 			p_strm->next_in = NULL;
@@ -1968,7 +1968,7 @@ static size_t FASTCALL gz_write(gz_state * state, voidpc buf, size_t len)
 {
 	size_t put = len;
 	// if len is zero, avoid unnecessary operations 
-	if(len == 0)
+	if(!len)
 		return 0;
 	// allocate memory if this is the first time through 
 	if(state->size == 0 && gz_init(state) == -1)
@@ -2444,7 +2444,7 @@ static int FASTCALL gz_look(gz_state * state)
 		if(state->in == NULL || state->out == NULL) {
 			SAlloc::F(state->out);
 			SAlloc::F(state->in);
-			gz_error(state, Z_MEM_ERROR, "out of memory");
+			gz_error(state, Z_MEM_ERROR, SlTxtOutOfMem);
 			return -1;
 		}
 		state->size = state->want;
@@ -2458,7 +2458,7 @@ static int FASTCALL gz_look(gz_state * state)
 			SAlloc::F(state->out);
 			SAlloc::F(state->in);
 			state->size = 0;
-			gz_error(state, Z_MEM_ERROR, "out of memory");
+			gz_error(state, Z_MEM_ERROR, SlTxtOutOfMem);
 			return -1;
 		}
 	}
@@ -2530,7 +2530,7 @@ static int gz_decomp(gz_state * state)
 			return -1;
 		}
 		if(ret == Z_MEM_ERROR) {
-			gz_error(state, Z_MEM_ERROR, "out of memory");
+			gz_error(state, Z_MEM_ERROR, SlTxtOutOfMem);
 			return -1;
 		}
 		if(ret == Z_DATA_ERROR) { // deflate stream invalid 
@@ -3316,7 +3316,7 @@ const char * ZEXPORT gzerror(gzFile file, int * errnum)
 		return NULL;
 	// return error information 
 	ASSIGN_PTR(errnum, state->err);
-	return (state->err == Z_MEM_ERROR) ? "out of memory" : (state->msg == NULL ? "" : state->msg);
+	return (state->err == Z_MEM_ERROR) ? SlTxtOutOfMem : (state->msg == NULL ? "" : state->msg);
 }
 
 void ZEXPORT gzclearerr(gzFile file)
@@ -4921,10 +4921,10 @@ int ZEXPORT deflate(z_streamp strm, int flush)
 			}
 		}
 	}
-
-	if(flush != Z_FINISH) return Z_OK;
-	if(s->wrap <= 0) return Z_STREAM_END;
-
+	if(flush != Z_FINISH) 
+		return Z_OK;
+	if(s->wrap <= 0) 
+		return Z_STREAM_END;
 	/* Write the trailer */
 #ifdef GZIP
 	if(s->wrap == 2) {
@@ -6423,7 +6423,7 @@ static void gen_codes(ct_data * tree, int max_code, ushort * bl_count)
 	Tracev((stderr, "\ngen_codes: max_code %d ", max_code));
 	for(n = 0; n <= max_code; n++) {
 		int len = tree[n].Len;
-		if(len == 0) 
+		if(!len) 
 			continue;
 		/* Now reverse the bits */
 		tree[n].Code = (ushort)bi_reverse(next_code[len]++, len);

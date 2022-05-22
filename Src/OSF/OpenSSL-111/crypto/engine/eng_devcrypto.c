@@ -10,10 +10,6 @@
 #if 0 // @sobolev {
 #include <sys/ioctl.h>
 #include <unistd.h>
-//#include <openssl/evp.h>
-//#include <openssl/err.h>
-//#include <openssl/engine.h>
-//#include <openssl/objects.h>
 #include <cryptodev.h>
 
 /* #define ENGINE_DEVCRYPTO_DEBUG */

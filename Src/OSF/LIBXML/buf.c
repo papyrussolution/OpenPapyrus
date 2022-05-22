@@ -1,17 +1,14 @@
-/*
- * buf.c: memory buffers for libxml2
- *
- * new buffer structures and entry points to simplify the maintainance
- * of libxml2 and ensure we keep good control over memory allocations
- * and stay 64 bits clean.
- * The new entry point use the xmlBufPtr opaque structure and
- * xmlBuf...() counterparts to the old xmlBuf...() functions
- *
- * See Copyright for the status of this software.
- *
- * daniel@veillard.com
- */
-
+// buf.c: memory buffers for libxml2
+// 
+// new buffer structures and entry points to simplify the maintainance
+// of libxml2 and ensure we keep good control over memory allocations
+// and stay 64 bits clean.
+// The new entry point use the xmlBufPtr opaque structure and
+// xmlBuf...() counterparts to the old xmlBuf...() functions
+// 
+// See Copyright for the status of this software.
+// daniel@veillard.com
+// 
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -395,7 +392,6 @@ static size_t FASTCALL xmlBufGrowInternal(xmlBuf * pBuf, size_t len)
         return 0;
 	if(pBuf->use + len < pBuf->size)
 		return (pBuf->size - pBuf->use);
-
 	/*
 	 * Windows has a BIG problem on realloc timing, so we try to double
 	 * the buffer size (if that's enough) (bug 146697)
@@ -772,7 +768,7 @@ int FASTCALL xmlBufResize(xmlBuf * buf, size_t size)
  * Returns 0 successful, a positive error code number otherwise
  *    and -1 in case of internal or API error.
  */
-int FASTCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
+int STDCALL xmlBufAdd(xmlBuf * buf, const xmlChar * str, int len)
 {
 	if(!str || !buf || buf->error)
 		return -1;

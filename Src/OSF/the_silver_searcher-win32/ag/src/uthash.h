@@ -7,20 +7,7 @@ modification, are permitted provided that the following conditions are met:
 
     * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
-OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
 #ifndef UTHASH_H
 #define UTHASH_H
 
@@ -119,7 +106,7 @@ typedef uchar uint8_t;
         (tbl)->bloom_nbits = HASH_BLOOM;                                \
         (tbl)->bloom_bv = (uint8_t *)uthash_malloc(HASH_BLOOM_BYTELEN); \
         if(!((tbl)->bloom_bv)) {                                       \
-            uthash_fatal("out of memory");                              \
+            uthash_fatal(SlTxtOutOfMem);                              \
         }                                                               \
         memzero((tbl)->bloom_bv, HASH_BLOOM_BYTELEN);                 \
         (tbl)->bloom_sig = HASH_BLOOM_SIGNATURE;                        \
@@ -147,7 +134,7 @@ typedef uchar uint8_t;
     do {                                                                                                                     \
         (head)->hh.tbl = (UT_hash_table *)uthash_malloc(sizeof(UT_hash_table));                                              \
         if(!((head)->hh.tbl)) {                                                                                             \
-            uthash_fatal("out of memory");                                                                                   \
+            uthash_fatal(SlTxtOutOfMem);                                                                                   \
         }                                                                                                                    \
         memzero((head)->hh.tbl, sizeof(UT_hash_table));                                                                    \
         (head)->hh.tbl->tail = &((head)->hh);                                                                                \
@@ -156,7 +143,7 @@ typedef uchar uint8_t;
         (head)->hh.tbl->hho = (char *)(&(head)->hh) - (char *)(head);                                                        \
         (head)->hh.tbl->buckets = (UT_hash_bucket *)uthash_malloc(HASH_INITIAL_NUM_BUCKETS * sizeof(struct UT_hash_bucket)); \
         if(!(head)->hh.tbl->buckets) {                                                                                      \
-            uthash_fatal("out of memory");                                                                                   \
+            uthash_fatal(SlTxtOutOfMem);                                                                                   \
         }                                                                                                                    \
         memzero((head)->hh.tbl->buckets, HASH_INITIAL_NUM_BUCKETS * sizeof(struct UT_hash_bucket));                        \
         HASH_BLOOM_MAKE((head)->hh.tbl);                                                                                     \
@@ -321,14 +308,13 @@ typedef uchar uint8_t;
         write(HASH_EMIT_KEYS, keyptr, fieldlen);      \
     } while(0)
 #else
-#define HASH_EMIT_KEY(hh, head, keyptr, fieldlen)
+	#define HASH_EMIT_KEY(hh, head, keyptr, fieldlen)
 #endif
-
 /* default to Jenkin's hash unless overridden e.g. DHASH_FUNCTION=HASH_SAX */
 #ifdef HASH_FUNCTION
-#define HASH_FCN HASH_FUNCTION
+	#define HASH_FCN HASH_FUNCTION
 #else
-#define HASH_FCN HASH_JEN
+	#define HASH_FCN HASH_JEN
 #endif
 
 /* The Bernstein hash function, used in Perl prior to v5.6. Note (x<<5+x)=x*33. */
@@ -692,7 +678,7 @@ typedef uchar uint8_t;
         UT_hash_bucket *_he_new_buckets, *_he_newbkt;                                                                                          \
         _he_new_buckets = (UT_hash_bucket *)uthash_malloc(2 * tbl->num_buckets * sizeof(struct UT_hash_bucket));                               \
         if(!_he_new_buckets) {                                                                                                                \
-            uthash_fatal("out of memory");                                                                                                     \
+            uthash_fatal(SlTxtOutOfMem);                                                                                                     \
         }                                                                                                                                      \
         memzero(_he_new_buckets, 2 * tbl->num_buckets * sizeof(struct UT_hash_bucket));                                                      \
         tbl->ideal_chain_maxlen = (tbl->num_items >> (tbl->log2_num_buckets + 1)) + ((tbl->num_items & ((tbl->num_buckets * 2) - 1)) ? 1 : 0); \

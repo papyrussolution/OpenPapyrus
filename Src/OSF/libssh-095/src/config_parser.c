@@ -107,13 +107,13 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 	const char * endp = NULL;
 	long port_n;
 	/* Sanitize inputs */
-	if(username != NULL) {
+	if(username) {
 		*username = NULL;
 	}
-	if(hostname != NULL) {
+	if(hostname) {
 		*hostname = NULL;
 	}
-	if(port != NULL) {
+	if(port) {
 		*port = NULL;
 	}
 
@@ -124,7 +124,7 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 		if(tok == endp) {
 			goto error;
 		}
-		if(username != NULL) {
+		if(username) {
 			*username = strndup(tok, endp - tok);
 			if(*username == NULL) {
 				goto error;
@@ -158,7 +158,7 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 		/* Zero-length hostnames are not valid */
 		goto error;
 	}
-	if(hostname != NULL) {
+	if(hostname) {
 		*hostname = strndup(tok, endp - tok);
 		if(*hostname == NULL) {
 			goto error;
@@ -186,13 +186,13 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 	}
 	return SSH_OK;
 error:
-	if(username != NULL) {
+	if(username) {
 		ZFREE(*username);
 	}
-	if(hostname != NULL) {
+	if(hostname) {
 		ZFREE(*hostname);
 	}
-	if(port != NULL) {
+	if(port) {
 		ZFREE(*port);
 	}
 	return SSH_ERROR;

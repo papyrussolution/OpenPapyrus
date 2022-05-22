@@ -795,12 +795,13 @@ int FASTCALL PPViewQuot::NextIteration(QuotViewItem * pItem)
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		if(pItem) {
 			SString temp_buf;
-			pItem->GoodsID   = P_TempTbl->data.GoodsID;
-			pItem->LocID     = P_TempTbl->data.LocID;
-			pItem->ArticleID = P_TempTbl->data.ArticleID;
+			const TempQuotTbl::Rec & r_src_rec = P_TempTbl->data;
+			pItem->GoodsID   = r_src_rec.GoodsID;
+			pItem->LocID     = r_src_rec.LocID;
+			pItem->ArticleID = r_src_rec.ArticleID;
 			for(uint i = 0; i < MAX_QUOTS_PER_TERM_REC; i++) {
-				//STRNSCPY(pItem->Quots[i], GetQuotTblBuf(&P_TempTbl->data, i));
-				STRNSCPY(pItem->Quots[i], GetQuotTblBuf(&P_TempTbl->data, i, temp_buf));
+				//STRNSCPY(pItem->Quots[i], GetQuotTblBuf(&r_src_rec, i));
+				STRNSCPY(pItem->Quots[i], GetQuotTblBuf(&r_src_rec, i, temp_buf));
 			}
 		}
 		Counter.Increment();
@@ -808,89 +809,6 @@ int FASTCALL PPViewQuot::NextIteration(QuotViewItem * pItem)
 	}
 	return ok;
 }
-
-#if 0 // @v9.8.6 @unused {
-struct VQuotEntry {
-	PPID   GoodsID;
-	PPID   LocID;
-	PPID   ArID;
-	uint   Qp[MAX_QUOTS_PER_TERM_REC];
-};
-
-IMPL_CMPFUNC(VQuotEntry, i1, i2) { RET_CMPCASCADE3((const VQuotEntry *)i1, (const VQuotEntry *)i2, GoodsID, LocID, ArID); }
-
-class VQuotCache : public TSVector <VQuotEntry> { // @v9.8.4 TSArray-->TSVector
-public:
-	VQuotCache() : TSVector <VQuotEntry>()
-	{
-		MaxQuotPos = 0;
-		ValPool.add("$"); // zero index - is empty string
-	}
-	int    Add(const TempQuotTbl::Rec *, uint quotPos);
-	// @v8.1.1 @unused int    PrepareForWriting();
-	int    GetRec(uint i, TempQuotTbl::Rec * pRec) const;
-	void   Clear();
-private:
-	uint   MaxQuotPos;
-	PPObjGoods   GObj;
-	StrAssocArray GoodsNameList;
-	StringSet ValPool;
-};
-
-int VQuotCache::Add(const TempQuotTbl::Rec * pRec, uint quotPos)
-{
-	int    ok = 1;
-	uint   p = 0;
-	VQuotEntry entry;
-	SETMAX(MaxQuotPos, quotPos);
-	MEMSZERO(entry);
-	entry.GoodsID = pRec->GoodsID;
-	entry.LocID = pRec->LocID;
-	entry.ArID = pRec->ArticleID;
-	const  size_t offs = offsetof(VQuotEntry, Qp);
-	if(lsearch(&entry, &p, PTR_CMPFUNC(VQuotEntry))) {
-		VQuotEntry & r_entry = at(p);
-		ValPool.add(GetQuotTblBuf(pRec, quotPos), ((uint *)(PTR8(&r_entry)+offs))+quotPos);
-		ok = 2;
-	}
-	else {
-		ValPool.add(GetQuotTblBuf(pRec, quotPos), ((uint *)(PTR8(&entry)+offs))+quotPos);
-		ok = insert(&entry) ? 1 : PPSetErrorSLib();
-	}
-	return ok;
-}
-
-void VQuotCache::Clear()
-{
-	GoodsNameList.Clear();
-	ValPool.clear();
-	clear();
-}
-
-int VQuotCache::GetRec(uint i, TempQuotTbl::Rec * pRec) const
-{
-	int    ok = 1;
-	MEMSZERO(*pRec);
-	if(i < getCount()) {
-		const VQuotEntry & r_entry = at(i);
-		SString temp_buf;
-		pRec->GoodsID = r_entry.GoodsID;
-		pRec->LocID = r_entry.LocID;
-		pRec->ArticleID = r_entry.ArID;
-		for(uint j = 0; j < MAX_QUOTS_PER_TERM_REC; j++) {
-			ValPool.getnz(r_entry.Qp[j], temp_buf);
-			temp_buf.CopyTo(GetQuotTblBuf(pRec, j), QUOT_BUF_SIZE);
-		}
-		if(!GoodsNameList.Get(labs(pRec->GoodsID), temp_buf))
-			if(pRec->GoodsID)
-				ideqvalstr(labs(pRec->GoodsID), temp_buf);
-		temp_buf.CopyTo(pRec->GoodsName, sizeof(pRec->GoodsName));
-	}
-	else
-		ok = 0;
-	return ok;
-}
-#endif // } 0 @v9.8.6 @unused
 //
 //
 //

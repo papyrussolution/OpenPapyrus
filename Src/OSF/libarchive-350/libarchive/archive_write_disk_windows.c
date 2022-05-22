@@ -270,7 +270,7 @@ static int file_information(struct archive_write_disk * a, wchar_t * path, BY_HA
 		const wchar_t * p;
 		*mode |= S_IFREG;
 		p = wcsrchr(path, L'.');
-		if(p != NULL && wcslen(p) == 4) {
+		if(p && wcslen(p) == 4) {
 			switch(p[1]) {
 				case L'B': case L'b':
 				    if((p[2] == L'A' || p[2] == L'a' ) && (p[3] == L'T' || p[3] == L't' ))
@@ -1717,7 +1717,7 @@ static int _archive_write_disk_close(struct archive * _a)
 	ret = _archive_write_disk_finish_entry(&a->archive);
 	/* Sort dir list so directories are fixed up in depth-first order. */
 	p = sort_dir_list(a->fixup_list);
-	while(p != NULL) {
+	while(p) {
 		a->pst = NULL; /* Mark stat cache as out-of-date. */
 		if(p->fixup & TODO_TIMES) {
 			set_times(a, INVALID_HANDLE_VALUE, p->mode, p->name, p->atime, p->atime_nanos,

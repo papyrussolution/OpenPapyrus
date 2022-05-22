@@ -260,7 +260,7 @@ void png_formatted_warning(png_const_structrp png_ptr, png_warning_parameters p,
 		/* '@' at end of string is now just printed (previously it was skipped);
 		 * it is an error in the calling code to terminate the string with @.
 		 */
-		if(p != NULL && *message == '@' && message[1] != '\0') {
+		if(p && *message == '@' && message[1] != '\0') {
 			int parameter_char = *++message; /* Consume the '@' */
 			static const char valid_parameters[] = "123456789";
 			int parameter = 0;

@@ -90,7 +90,7 @@ static int callback_receive_banner(const void * data, size_t len, void * user)
 			cmp = strncmp(buffer, "SSH-", 4);
 			if(cmp == 0) {
 				str = sstrdup(buffer);
-				if(str == NULL) {
+				if(!str) {
 					return SSH_ERROR;
 				}
 				/* number of bytes read */

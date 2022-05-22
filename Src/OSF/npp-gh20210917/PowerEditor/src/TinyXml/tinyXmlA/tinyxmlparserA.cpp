@@ -925,9 +925,9 @@ const char * TiXmlAttributeA::Parse(const char * p, TiXmlParsingDataA* data)
 		// But this is such a common error that the parser will try
 		// its best, even without them.
 		value = "";
-		while(p && *p                                                                                   // existence
-		 && !isspace(*p) && *p != '\n' && *p != '\r'                 // whitespace
-		 && *p != '/' && *p != '>') {                                                        // tag end
+		while(p && *p // existence
+		 && !isspace(*p) && *p != '\n' && *p != '\r' // whitespace
+		 && *p != '/' && *p != '>') { // tag end
 			value += *p;
 			++p;
 		}

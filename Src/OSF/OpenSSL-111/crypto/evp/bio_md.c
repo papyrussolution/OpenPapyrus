@@ -116,7 +116,7 @@ static int md_write(BIO * b, const char * in, int inl)
 			}
 		}
 	}
-	if(next != NULL) {
+	if(next) {
 		BIO_clear_retry_flags(b);
 		BIO_copy_next_retry(b);
 	}
@@ -190,7 +190,7 @@ static long md_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 {
 	long ret = 1;
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	switch(cmd) {
 		default:

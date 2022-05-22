@@ -104,7 +104,7 @@ static int common_setup(struct archive_write_filter * f)
 	struct archive_write * a = (struct archive_write *)f->archive;
 	struct private_data * data = static_cast<struct private_data *>(SAlloc::C(1, sizeof(*data)));
 	if(data == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	f->data = data;

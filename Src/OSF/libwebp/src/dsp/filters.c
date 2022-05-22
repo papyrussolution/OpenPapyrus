@@ -13,26 +13,21 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
-//#include <assert.h>
-//#include <stdlib.h>
-//#include <string.h>
-
-//------------------------------------------------------------------------------
+//
 // Helpful macro.
-
-# define SANITY_CHECK(in, out)                                                 \
-	assert((in) != NULL);                                                        \
-	assert((out) != NULL);                                                       \
-	assert(width > 0);                                                           \
-	assert(height > 0);                                                          \
-	assert(stride >= width);                                                     \
-	assert(row >= 0 && num_rows > 0 && row + num_rows <= height);                \
+//
+#define SANITY_CHECK(in, out)                                    \
+	assert((in) != NULL);                                         \
+	assert((out) != NULL);                                        \
+	assert(width > 0);                                            \
+	assert(height > 0);                                           \
+	assert(stride >= width);                                      \
+	assert(row >= 0 && num_rows > 0 && row + num_rows <= height); \
 	(void)height; // Silence unused warning.
 
 #if !WEBP_NEON_OMIT_C_CODE
-static FORCEINLINE void PredictLine_C(const uint8* src, const uint8* pred,
-    uint8* dst, int length, int inverse) {
+static FORCEINLINE void PredictLine_C(const uint8* src, const uint8* pred, uint8* dst, int length, int inverse) 
+{
 	int i;
 	if(inverse) {
 		for(i = 0; i < length; ++i) dst[i] = (uint8)(src[i] + pred[i]);
@@ -41,14 +36,11 @@ static FORCEINLINE void PredictLine_C(const uint8* src, const uint8* pred,
 		for(i = 0; i < length; ++i) dst[i] = (uint8)(src[i] - pred[i]);
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Horizontal filter.
-
-static FORCEINLINE void DoHorizontalFilter_C(const uint8* in,
-    int width, int height, int stride,
-    int row, int num_rows,
-    int inverse, uint8* out) {
+//
+static FORCEINLINE void DoHorizontalFilter_C(const uint8* in, int width, int height, int stride, int row, int num_rows, int inverse, uint8* out) 
+{
 	const uint8* preds;
 	const size_t start_offset = row * stride;
 	const int last_row = row + num_rows;
@@ -78,14 +70,11 @@ static FORCEINLINE void DoHorizontalFilter_C(const uint8* in,
 		out += stride;
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Vertical filter.
-
-static FORCEINLINE void DoVerticalFilter_C(const uint8* in,
-    int width, int height, int stride,
-    int row, int num_rows,
-    int inverse, uint8* out) {
+//
+static FORCEINLINE void DoVerticalFilter_C(const uint8* in, int width, int height, int stride, int row, int num_rows, int inverse, uint8* out) 
+{
 	const uint8* preds;
 	const size_t start_offset = row * stride;
 	const int last_row = row + num_rows;
@@ -119,11 +108,11 @@ static FORCEINLINE void DoVerticalFilter_C(const uint8* in,
 }
 
 #endif  // !WEBP_NEON_OMIT_C_CODE
-
-//------------------------------------------------------------------------------
+//
 // Gradient filter.
-
-static FORCEINLINE int GradientPredictor_C(uint8 a, uint8 b, uint8 c) {
+//
+static FORCEINLINE int GradientPredictor_C(uint8 a, uint8 b, uint8 c) 
+{
 	const int g = a + b - c;
 	return ((g & ~0xff) == 0) ? g : (g < 0) ? 0 : 255; // clip to 8bit
 }
@@ -173,31 +162,26 @@ static FORCEINLINE void DoGradientFilter_C(const uint8* in,
 
 #undef SANITY_CHECK
 
-//------------------------------------------------------------------------------
-
 #if !WEBP_NEON_OMIT_C_CODE
-static void HorizontalFilter_C(const uint8* data, int width, int height,
-    int stride, uint8* filtered_data) {
-	DoHorizontalFilter_C(data, width, height, stride, 0, height, 0,
-	    filtered_data);
+static void HorizontalFilter_C(const uint8* data, int width, int height, int stride, uint8* filtered_data) 
+{
+	DoHorizontalFilter_C(data, width, height, stride, 0, height, 0, filtered_data);
 }
 
-static void VerticalFilter_C(const uint8* data, int width, int height,
-    int stride, uint8* filtered_data) {
+static void VerticalFilter_C(const uint8* data, int width, int height, int stride, uint8* filtered_data) 
+{
 	DoVerticalFilter_C(data, width, height, stride, 0, height, 0, filtered_data);
 }
 
-static void GradientFilter_C(const uint8* data, int width, int height,
-    int stride, uint8* filtered_data) {
+static void GradientFilter_C(const uint8* data, int width, int height, int stride, uint8* filtered_data) 
+{
 	DoGradientFilter_C(data, width, height, stride, 0, height, 0, filtered_data);
 }
 
 #endif  // !WEBP_NEON_OMIT_C_CODE
 
-//------------------------------------------------------------------------------
-
-static void HorizontalUnfilter_C(const uint8* prev, const uint8* in,
-    uint8* out, int width) {
+static void HorizontalUnfilter_C(const uint8* prev, const uint8* in, uint8* out, int width) 
+{
 	uint8 pred = (prev == NULL) ? 0 : prev[0];
 	int i;
 	for(i = 0; i < width; ++i) {
@@ -207,21 +191,22 @@ static void HorizontalUnfilter_C(const uint8* prev, const uint8* in,
 }
 
 #if !WEBP_NEON_OMIT_C_CODE
-static void VerticalUnfilter_C(const uint8* prev, const uint8* in,
-    uint8* out, int width) {
+static void VerticalUnfilter_C(const uint8* prev, const uint8* in, uint8* out, int width) 
+{
 	if(prev == NULL) {
 		HorizontalUnfilter_C(NULL, in, out, width);
 	}
 	else {
 		int i;
-		for(i = 0; i < width; ++i) out[i] = (uint8)(prev[i] + in[i]);
+		for(i = 0; i < width; ++i) 
+			out[i] = (uint8)(prev[i] + in[i]);
 	}
 }
 
 #endif  // !WEBP_NEON_OMIT_C_CODE
 
-static void GradientUnfilter_C(const uint8* prev, const uint8* in,
-    uint8* out, int width) {
+static void GradientUnfilter_C(const uint8* prev, const uint8* in, uint8* out, int width) 
+{
 	if(prev == NULL) {
 		HorizontalUnfilter_C(NULL, in, out, width);
 	}
@@ -236,10 +221,9 @@ static void GradientUnfilter_C(const uint8* prev, const uint8* in,
 		}
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Init function
-
+//
 WebPFilterFunc WebPFilters[WEBP_FILTER_LAST];
 WebPUnfilterFunc WebPUnfilters[WEBP_FILTER_LAST];
 
@@ -262,8 +246,7 @@ WEBP_DSP_INIT_FUNC(VP8FiltersInit) {
 	WebPFilters[WEBP_FILTER_VERTICAL] = VerticalFilter_C;
 	WebPFilters[WEBP_FILTER_GRADIENT] = GradientFilter_C;
 #endif
-
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			VP8FiltersInitSSE2();
@@ -280,14 +263,11 @@ WEBP_DSP_INIT_FUNC(VP8FiltersInit) {
 		}
 #endif
 	}
-
 #if defined(WEBP_HAVE_NEON)
-	if(WEBP_NEON_OMIT_C_CODE ||
-	    (VP8GetCPUInfo != NULL && VP8GetCPUInfo(kNEON))) {
+	if(WEBP_NEON_OMIT_C_CODE || (VP8GetCPUInfo && VP8GetCPUInfo(kNEON))) {
 		VP8FiltersInitNEON();
 	}
 #endif
-
 	assert(WebPUnfilters[WEBP_FILTER_HORIZONTAL] != NULL);
 	assert(WebPUnfilters[WEBP_FILTER_VERTICAL] != NULL);
 	assert(WebPUnfilters[WEBP_FILTER_GRADIENT] != NULL);

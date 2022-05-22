@@ -136,57 +136,48 @@ public:
 	 * @internal
 	 */
 	virtual ~CopticCalendar();
-
 	/**
 	 * Create and return a polymorphic copy of this calendar.
 	 * @return    return a polymorphic copy of this calendar.
 	 * @internal
 	 */
 	virtual CopticCalendar* clone() const override;
-
 	/**
 	 * return the calendar type, "coptic"
 	 * @return calendar type
 	 * @internal
 	 */
 	const char * getType() const override;
-
 protected:
-	//-------------------------------------------------------------------------
+	//
 	// Calendar framework
-	//-------------------------------------------------------------------------
-
+	//
 	/**
 	 * Return the extended year defined by the current fields.
 	 * @internal
 	 */
 	virtual int32_t handleGetExtendedYear() override;
-
 	/**
 	 * Compute fields from the JD
 	 * @internal
 	 */
 	virtual void handleComputeFields(int32_t julianDay, UErrorCode & status) override;
-
 	/**
 	 * Returns the date of the start of the default century
 	 * @return start of century - in milliseconds since epoch, 1970
 	 * @internal
 	 */
 	virtual UDate defaultCenturyStart() const override;
-
 	/**
 	 * Returns the year in which the default century begins
 	 * @internal
 	 */
 	virtual int32_t defaultCenturyStartYear() const override;
-
 	/**
 	 * Return the date offset from Julian
 	 * @internal
 	 */
 	virtual int32_t getJDEpochOffset() const override;
-
 public:
 	/**
 	 * Override Calendar Returns a unique class ID POLYMORPHICALLY. Pure virtual
@@ -199,7 +190,6 @@ public:
 	 * @internal
 	 */
 	virtual UClassID getDynamicClassID() const override;
-
 	/**
 	 * Return the class ID for this class. This is useful only for comparing to a return
 	 * value from getDynamicClassID(). For example:
@@ -212,14 +202,13 @@ public:
 	 * @internal
 	 */
 	U_I18N_API static UClassID U_EXPORT2 getStaticClassID();
-
 #if 0
 	// We do not want to introduce this API in ICU4C.
 	// It was accidentally introduced in ICU4J as a public API.
 public:
-	//-------------------------------------------------------------------------
+	//
 	// Calendar system Conversion methods...
-	//-------------------------------------------------------------------------
+	//
 	/**
 	 * Convert an Coptic year, month, and day to a Julian day.
 	 *

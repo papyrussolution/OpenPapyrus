@@ -21,9 +21,6 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-//#ifdef USE_WINDOWS_MESSAGEBOX
-	//#include <windows.h>
-//#endif
 #include "jversion.h"
 #ifndef EXIT_FAILURE /* define exit() codes if not provided */
 	#define EXIT_FAILURE  1
@@ -152,7 +149,7 @@ METHODDEF(void) format_message(j_common_ptr cinfo, char * buffer)
 		msgtext = err->addon_message_table[msg_code - err->first_addon_message];
 	}
 	/* Defend against bogus message number */
-	if(msgtext == NULL) {
+	if(!msgtext) {
 		err->msg_parm.i[0] = msg_code;
 		msgtext = err->jpeg_message_table[0];
 	}

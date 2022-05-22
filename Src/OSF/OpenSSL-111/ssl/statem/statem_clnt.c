@@ -259,10 +259,7 @@ int ossl_statem_client_read_transition(SSL * s, int mt)
 				    st->hand_state = DTLS_ST_CR_HELLO_VERIFY_REQUEST;
 				    return 1;
 			    }
-			    else if(s->version >= TLS1_VERSION
-				&& s->ext.session_secret_cb != NULL
-				&& s->session->ext.tick != NULL
-				&& mt == SSL3_MT_CHANGE_CIPHER_SPEC) {
+			    else if(s->version >= TLS1_VERSION && s->ext.session_secret_cb != NULL && s->session->ext.tick != NULL && mt == SSL3_MT_CHANGE_CIPHER_SPEC) {
 				    /*
 				     * Normally, we can tell if the server is resuming the session
 				     * from the session ID. EAP-FAST (RFC 4851), however, relies on
@@ -273,8 +270,7 @@ int ossl_statem_client_read_transition(SSL * s, int mt)
 				    st->hand_state = TLS_ST_CR_CHANGE;
 				    return 1;
 			    }
-			    else if(!(s->s3->tmp.new_cipher->algorithm_auth
-				& (SSL_aNULL | SSL_aSRP | SSL_aPSK))) {
+			    else if(!(s->s3->tmp.new_cipher->algorithm_auth & (SSL_aNULL | SSL_aSRP | SSL_aPSK))) {
 				    if(mt == SSL3_MT_CERTIFICATE) {
 					    st->hand_state = TLS_ST_CR_CERT;
 					    return 1;
@@ -283,16 +279,13 @@ int ossl_statem_client_read_transition(SSL * s, int mt)
 			    else {
 				    ske_expected = key_exchange_expected(s);
 				    /* SKE is optional for some PSK ciphersuites */
-				    if(ske_expected
-					|| ((s->s3->tmp.new_cipher->algorithm_mkey & SSL_PSK)
-					&& mt == SSL3_MT_SERVER_KEY_EXCHANGE)) {
+				    if(ske_expected || ((s->s3->tmp.new_cipher->algorithm_mkey & SSL_PSK) && mt == SSL3_MT_SERVER_KEY_EXCHANGE)) {
 					    if(mt == SSL3_MT_SERVER_KEY_EXCHANGE) {
 						    st->hand_state = TLS_ST_CR_KEY_EXCH;
 						    return 1;
 					    }
 				    }
-				    else if(mt == SSL3_MT_CERTIFICATE_REQUEST
-					&& cert_req_allowed(s)) {
+				    else if(mt == SSL3_MT_CERTIFICATE_REQUEST && cert_req_allowed(s)) {
 					    st->hand_state = TLS_ST_CR_CERT_REQ;
 					    return 1;
 				    }
@@ -303,7 +296,6 @@ int ossl_statem_client_read_transition(SSL * s, int mt)
 			    }
 		    }
 		    break;
-
 		case TLS_ST_CR_CERT:
 		    /*
 		     * The CertificateStatus message is optional even if
@@ -1888,14 +1880,11 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 				    SSL_R_BAD_LENGTH);
 				goto err;
 			}
-			if(!tls_collect_extensions(s, &extensions,
-			    SSL_EXT_TLS1_3_CERTIFICATE, &rawexts,
-			    NULL, chainidx == 0)
-			   || !tls_parse_all_extensions(s, SSL_EXT_TLS1_3_CERTIFICATE,
-			    rawexts, x, chainidx,
-			    PACKET_remaining(pkt) == 0)) {
+			if(!tls_collect_extensions(s, &extensions, SSL_EXT_TLS1_3_CERTIFICATE, &rawexts,
+			    NULL, chainidx == 0) || !tls_parse_all_extensions(s, SSL_EXT_TLS1_3_CERTIFICATE,
+			    rawexts, x, chainidx, PACKET_remaining(pkt) == 0)) {
 				OPENSSL_free(rawexts);
-				/* SSLfatal already called */
+				/* SSLfatal() already called */
 				goto err;
 			}
 			OPENSSL_free(rawexts);
@@ -2300,7 +2289,7 @@ MSG_PROCESS_RETURN tls_process_key_exchange(SSL * s, PACKET * pkt)
 	}
 
 	/* if it was signed, check the signature */
-	if(pkey != NULL) {
+	if(pkey) {
 		PACKET params;
 		int maxsig;
 		const EVP_MD * md = NULL;
@@ -2821,14 +2810,11 @@ int tls_process_initial_server_flight(SSL * s)
 	 * |ext.ocsp.resp_len| values will be set if we actually received a status
 	 * message, or NULL and -1 otherwise
 	 */
-	if(s->ext.status_type != TLSEXT_STATUSTYPE_nothing
-	 && s->ctx->ext.status_cb != NULL) {
+	if(s->ext.status_type != TLSEXT_STATUSTYPE_nothing && s->ctx->ext.status_cb != NULL) {
 		int ret = s->ctx->ext.status_cb(s, s->ctx->ext.status_arg);
-
 		if(ret == 0) {
 			SSLfatal(s, SSL_AD_BAD_CERTIFICATE_STATUS_RESPONSE,
-			    SSL_F_TLS_PROCESS_INITIAL_SERVER_FLIGHT,
-			    SSL_R_INVALID_STATUS_RESPONSE);
+			    SSL_F_TLS_PROCESS_INITIAL_SERVER_FLIGHT, SSL_R_INVALID_STATUS_RESPONSE);
 			return 0;
 		}
 		if(ret < 0) {

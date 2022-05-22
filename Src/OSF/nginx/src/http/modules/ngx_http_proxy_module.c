@@ -1198,7 +1198,7 @@ static ngx_int_t ngx_http_proxy_process_header(ngx_http_request_t * r)
 			/* a header line has been parsed successfully */
 
 			h = (ngx_table_elt_t *)ngx_list_push(&r->upstream->headers_in.headers);
-			if(h == NULL) {
+			if(!h) {
 				return NGX_ERROR;
 			}
 
@@ -1255,7 +1255,7 @@ static ngx_int_t ngx_http_proxy_process_header(ngx_http_request_t * r)
 
 			if(r->upstream->headers_in.server == NULL) {
 				h = (ngx_table_elt_t *)ngx_list_push(&r->upstream->headers_in.headers);
-				if(h == NULL) {
+				if(!h) {
 					return NGX_ERROR;
 				}
 
@@ -1269,7 +1269,7 @@ static ngx_int_t ngx_http_proxy_process_header(ngx_http_request_t * r)
 
 			if(r->upstream->headers_in.date == NULL) {
 				h = (ngx_table_elt_t *)ngx_list_push(&r->upstream->headers_in.headers);
-				if(h == NULL) {
+				if(!h) {
 					return NGX_ERROR;
 				}
 
@@ -2309,7 +2309,7 @@ static ngx_int_t ngx_http_proxy_init_headers(ngx_conf_t * cf, ngx_http_proxy_loc
 		src = (ngx_keyval_t *)conf->headers_source->elts;
 		for(i = 0; i < conf->headers_source->nelts; i++) {
 			s = (ngx_keyval_t *)ngx_array_push(&headers_merged);
-			if(s == NULL) {
+			if(!s) {
 				return NGX_ERROR;
 			}
 
@@ -2325,7 +2325,7 @@ static ngx_int_t ngx_http_proxy_init_headers(ngx_conf_t * cf, ngx_http_proxy_loc
 			}
 		}
 		s = (ngx_keyval_t *)ngx_array_push(&headers_merged);
-		if(s == NULL) {
+		if(!s) {
 			return NGX_ERROR;
 		}
 		*s = *h;
@@ -2335,7 +2335,7 @@ next:
 	src = (ngx_keyval_t *)headers_merged.elts;
 	for(i = 0; i < headers_merged.nelts; i++) {
 		hk = (ngx_hash_key_t *)ngx_array_push(&headers_names);
-		if(hk == NULL) {
+		if(!hk) {
 			return NGX_ERROR;
 		}
 		hk->key = src[i].key;
@@ -2801,7 +2801,7 @@ static const char * ngx_http_proxy_cache(ngx_conf_t * cf, const ngx_command_t * 
 	if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-	if(cv.lengths != NULL) {
+	if(cv.lengths) {
 		plcf->upstream.cache_value = (ngx_http_complex_value_t *)ngx_palloc(cf->pool, sizeof(ngx_http_complex_value_t));
 		if(plcf->upstream.cache_value == NULL) {
 			return NGX_CONF_ERROR;

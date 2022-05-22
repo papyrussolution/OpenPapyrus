@@ -581,8 +581,7 @@ int bn_mul_fixed_top(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_CTX * ct
 					goto err;
 				if(bn_wexpand(rr, k * 4) == NULL)
 					goto err;
-				bn_mul_part_recursive(rr->d, a->d, b->d,
-				    j, al - j, bl - j, t->d);
+				bn_mul_part_recursive(rr->d, a->d, b->d, j, al - j, bl - j, t->d);
 			}
 			else {  /* al <= j || bl <= j */
 				if(bn_wexpand(t, k * 2) == NULL)

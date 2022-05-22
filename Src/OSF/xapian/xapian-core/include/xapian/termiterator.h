@@ -44,7 +44,8 @@ public:
 	TermIterator & operator = (TermIterator && o)  /// Move assignment operator.
 	{
 		if(this != &o) {
-			if(internal) decref();
+			if(internal) 
+				decref();
 			internal = o.internal;
 			o.internal = nullptr;
 		}

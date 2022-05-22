@@ -849,12 +849,14 @@ int PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta)
 	int    ok = 1, ta = 0;
 	PPID   log_action_id = 0;
 	const  int has_ext = pPack ? BIN(!pPack->Ext.IsEmpty()) : 0;
-	ProcessorTbl::Rec rec;
+	//ProcessorTbl::Rec rec;
+	PPProcessorPacket org_pack;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
-			THROW(Search(*pID, &rec) > 0);
+			//THROW(Search(*pID, &rec) > 0);
+			THROW(GetPacket(*pID, &org_pack) > 0);
 			if(pPack == 0) {
 				//
 				// Удаление пакета
@@ -866,12 +868,18 @@ int PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta)
 				//
 				// Изменение пакета
 				//
+				// @todo Сравнить новый пакет с оригинальным. Если эквивалентны, то ничего не делать!
 				SETFLAG(pPack->Rec.Flags, PRCF_HASEXT, has_ext);
-				if(rec.Kind == PPPRCK_GROUP) {
-					if(rec.LinkObjType)
-						if(pPack->Rec.LinkObjType != rec.LinkObjType || pPack->Rec.LinkObjID != rec.LinkObjID)
+				if(org_pack.Rec.Kind == PPPRCK_GROUP) {
+					if(org_pack.Rec.LinkObjType)
+						if(pPack->Rec.LinkObjType != org_pack.Rec.LinkObjType || pPack->Rec.LinkObjID != org_pack.Rec.LinkObjID)
 							THROW_PP(GetChildIDList(*pID, 1, 0) < 0, PPERR_UPDLINKNONEMPTYPRCGRP); // @v11.3.1 @fix (>0)-->(<0)
 				}
+				// @v11.3.12 {
+				if(!sstreq(org_pack.Rec.Name, pPack->Rec.Name)) {
+					THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, *pID, pPack->Rec.Name, 0) == DBRPL_OK);
+				}
+				// } @v11.3.12 
 				THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
 				THROW(PutExtention(*pID, &pPack->Ext, 0));
 				log_action_id = PPACN_OBJUPD;
@@ -886,6 +894,7 @@ int PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta)
 			THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
 			pPack->Rec.ID = *pID;
 			THROW(PutExtention(*pID, &pPack->Ext, 0));
+			THROW(SendObjMessage(DBMSG_PROCESSORADDED, PPOBJ_ARTICLE, Obj, *pID) == DBRPL_OK); // @v11.3.12
 			log_action_id = PPACN_OBJADD;
 		}
 		DS.LogAction(log_action_id, Obj, *pID, 0, 0);

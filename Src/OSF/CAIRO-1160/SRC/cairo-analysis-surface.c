@@ -577,7 +577,7 @@ cairo_surface_t * _cairo_analysis_surface_create(cairo_surface_t * target)
 	if(UNLIKELY(status))
 		return _cairo_surface_create_in_error(status);
 	surface = static_cast<cairo_analysis_surface_t *>(_cairo_malloc(sizeof(cairo_analysis_surface_t)));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 
 	/* I believe the content type here is truly arbitrary. I'm quite
@@ -691,7 +691,7 @@ static const cairo_surface_backend_t cairo_null_surface_backend = {
 cairo_surface_t * _cairo_null_surface_create(cairo_content_t content)
 {
 	cairo_surface_t * surface = static_cast<cairo_surface_t *>(_cairo_malloc(sizeof(cairo_surface_t)));
-	if(UNLIKELY(surface == NULL)) {
+	if(UNLIKELY(!surface)) {
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	}
 	_cairo_surface_init(surface, &cairo_null_surface_backend, NULL/* device */, content, TRUE/* is_vector */);

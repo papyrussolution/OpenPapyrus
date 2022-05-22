@@ -833,10 +833,10 @@ int ChZnInterface::ParseDocument(const SJson * pJsonObj, Document & rItem)
 					rItem.Uuid.FromStr(p_fld->P_Child->Text);
 				}
 				else if(sstreqi_ascii(p_fld->Text, "docDate")) {
-					strtodatetime(p_fld->P_Child->Text, &rItem.Dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
+					strtodatetime(p_fld->P_Child->Text, &rItem.Dtm, DATF_ISO8601CENT, TIMF_HMS|TIMF_MSEC);
 				}
 				else if(sstreqi_ascii(p_fld->Text, "receivedAt")) {
-					strtodatetime(p_fld->P_Child->Text, &rItem.ReceivedDtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS|TIMF_MSEC);
+					strtodatetime(p_fld->P_Child->Text, &rItem.ReceivedDtm, DATF_ISO8601CENT, TIMF_HMS|TIMF_MSEC);
 				}
 				else if(sstreqi_ascii(p_fld->Text, "type")) {
 					ChZnDocTypeFromStr(p_fld->P_Child->Text, &rItem.Type, &rItem.Format);
@@ -949,7 +949,7 @@ int ChZnInterface::Document::GetTransactionPartyCode(PPID psnID, PPID locID, SSt
 
 static void _PutOperationDate(SXml::WNode & rN, SString & rTempBuf)
 {
-	rTempBuf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0);
+	rTempBuf.Z().CatCurDateTime(DATF_ISO8601CENT, 0);
 	TimeZoneFmt(0, tzfmtConcat|tzfmtColon|tzfmtCurrent, rTempBuf);
 	rN.PutInner("operation_date", rTempBuf);
 }
@@ -960,7 +960,7 @@ static void _PutDocDateAndNum(const BillTbl::Rec & rBillRec, SXml::WNode & rN, S
 	// @v11.1.12 BillCore::GetCode(rTempBuf);
 	rTempBuf.Transf(CTRANSF_INNER_TO_UTF8);
 	rN.PutInner("doc_num", rTempBuf);
-	rN.PutInner("doc_date", rTempBuf.Z().Cat(rBillRec.Dt, DATF_GERMAN|DATF_CENTURY));
+	rN.PutInner("doc_date", rTempBuf.Z().Cat(rBillRec.Dt, DATF_GERMANCENT));
 }
 
 int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack)
@@ -1009,7 +1009,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			SString receiver_inn;
 			SString doc_date_text;
 			PPID   subj_psn_id = main_org_id;
-			doc_date_text.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY);
+			doc_date_text.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT);
 			psn_obj.GetRegNumber(subj_psn_id, PPREGT_TPID, sender_inn);
 			if(rcvr_psn_id)
 				psn_obj.GetRegNumber(rcvr_psn_id, PPREGT_TPID, receiver_inn);
@@ -1018,7 +1018,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			nh.PutAttrib("version", "4");
 			nh.PutInner("trade_participant_inn", sender_inn);
 			nh.PutInner("withdrawal_type", "RETAIL");
-			nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+			nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
 			nh.PutInner("primary_document_type", "OTHER");
 			// @v11.1.12 BillCore::GetCode(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
 			(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8); // @v11.1.12 
@@ -1115,15 +1115,15 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			nh.PutAttrib("version", "5");
 			nh.PutInner("trade_participant_inn_sender", sender_inn);
 			nh.PutInner("trade_participant_inn_receiver", receiver_inn);
-			nh.PutInner("transfer_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+			nh.PutInner("transfer_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
 			// @v11.1.12 BillCore::GetCode(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
 			(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8); // @v11.1.12 
 			nh.PutInner("move_document_number", temp_buf);
-			nh.PutInner("move_document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+			nh.PutInner("move_document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
 			nh.PutInner("turnover_type", "SELLING");
 			nh.PutInner("to_not_participant", "true"); // @v10.9.11 optional признак того, что отгружаем не участнику оборота чезн
 			nh.PutInner("withdrawal_type", "NO_RETAIL_USE"); // optional
-			nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMAN|DATF_CENTURY)); // optional
+			nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT)); // optional
 			// nh.PutInner("st_contract_id", ""); // optional
 			{
 				SXml::WNode npl(rX, "products_list");
@@ -1274,7 +1274,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 													sdn.PutInner("doc_type", "1");
 													sdn.PutInner("doc_name", "cheque");
 													sdn.PutInner("doc_number", temp_buf.Z().Cat(p_ccp->Rec.Code));
-													sdn.PutInner("doc_date", temp_buf.Z().Cat(p_ccp->Rec.Dt, DATF_GERMAN|DATF_CENTURY));
+													sdn.PutInner("doc_date", temp_buf.Z().Cat(p_ccp->Rec.Dt, DATF_GERMANCENT));
 												}
 											}
 										}

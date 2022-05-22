@@ -142,7 +142,7 @@ static EVP_PKEY_CTX * int_ctx_new(EVP_PKEY * pkey, ENGINE * e, int id)
 	ret->pmeth = pmeth;
 	ret->operation = EVP_PKEY_OP_UNDEFINED;
 	ret->pkey = pkey;
-	if(pkey != NULL)
+	if(pkey)
 		EVP_PKEY_up_ref(pkey);
 	if(pmeth->init) {
 		if(pmeth->init(ret) <= 0) {

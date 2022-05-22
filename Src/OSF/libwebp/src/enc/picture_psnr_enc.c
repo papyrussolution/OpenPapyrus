@@ -15,11 +15,7 @@
 #pragma hdrstop
 #include "src/webp/encode.h"
 #if !(defined(WEBP_DISABLE_STATS) || defined(WEBP_REDUCE_SIZE))
-//#include <math.h>
-//#include <stdlib.h>
-//#include "src/dsp/dsp.h"
 #include "src/enc/vp8i_enc.h"
-//#include "src/utils/utils.h"
 
 typedef double (* AccumulateFunc)(const uint8* src, int src_stride, const uint8* ref, int ref_stride, int w, int h);
 

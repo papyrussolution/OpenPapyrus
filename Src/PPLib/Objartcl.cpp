@@ -1,5 +1,5 @@
 // OBJARTCL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -295,7 +295,8 @@ public:
 int ArticleAutoAddDialog::makeQuery()
 {
 	int    ok = 1;
-	LocationTbl   * loc_tbl  = 0;
+	LocationTbl  * loc_tbl  = 0;
+	ProcessorTbl * prc_tbl = 0;
 	PersonKindTbl * k  = 0;
 	if(Assoc == PPOBJ_PERSON) {
 		THROW(CheckTblPtr(k = new PersonKindTbl));
@@ -306,6 +307,11 @@ int ArticleAutoAddDialog::makeQuery()
 		THROW(CheckTblPtr(loc_tbl = new LocationTbl));
 		P_Query = &::select(loc_tbl->ID, loc_tbl->Name, 0L).from(loc_tbl, 0L).
 			where(loc_tbl->Type == LOCTYP_WAREHOUSE).orderBy(loc_tbl->ParentID, loc_tbl->Name, 0L);
+	}
+	else if(Assoc == PPOBJ_PROCESSOR) { // @v11.3.12
+		THROW(CheckTblPtr(prc_tbl = new ProcessorTbl));
+		P_Query = &::select(prc_tbl->ID, prc_tbl->Name, 0L).from(prc_tbl, 0L).
+			where(prc_tbl->Kind == static_cast<long>(PPPRCK_PROCESSOR)).orderBy(prc_tbl->Name, 0L);
 	}
 	else
 		CALLEXCEPT_PP(PPERR_INVACCSHEETASSOC);
@@ -319,6 +325,7 @@ int ArticleAutoAddDialog::makeQuery()
 		else {
 			delete k;
 			delete loc_tbl;
+			delete prc_tbl;
 		}
 	ENDCATCH
 	return ok;
@@ -347,8 +354,10 @@ int ArticleAutoAddDialog::extractFromQuery()
 int ArticleAutoAddDialog::fetch(int sp)
 {
 	int    r = -1;
-	if(P_Query->fetch(1, P_Buf, sp))
-		while((r = extractFromQuery()) < 0 && P_Query->fetch(1, P_Buf, spNext));
+	if(P_Query->fetch(1, P_Buf, sp)) {
+		while((r = extractFromQuery()) < 0 && P_Query->fetch(1, P_Buf, spNext))
+			;
+	}
 	if(P_Query->error)
 		r = PPSetError(PPERR_DBQUERY);
 	if(r <= 0 && sp == spNext)
@@ -924,8 +933,8 @@ int PPObjArticle::Edit(PPID * pID, void * extraPtr /*sheetID*/)
 		}
 		else {
 			if(pack.Assoc) {
-				THROW_PP(oneof5(pack.Assoc, PPOBJ_PERSON, PPOBJ_LOCATION,
-					PPOBJ_ACCOUNT_PRE9004, PPOBJ_ACCOUNT2, PPOBJ_GLOBALUSERACC), PPERR_INVACCSHEETASSOC);
+				THROW_PP(oneof6(pack.Assoc, PPOBJ_PERSON, PPOBJ_LOCATION,
+					PPOBJ_ACCOUNT_PRE9004, PPOBJ_ACCOUNT2, PPOBJ_GLOBALUSERACC, PPOBJ_PROCESSOR), PPERR_INVACCSHEETASSOC); // @v11.3.12 PPOBJ_PROCESSOR
 				if(!oneof2(pack.Assoc, PPOBJ_ACCOUNT_PRE9004, PPOBJ_ACCOUNT2)) {
 					GetObjectName(pack.Assoc, pack.Rec.ObjID, pack.Rec.Name, sizeof(pack.Rec.Name));
 					pack.Options |= ArticleDlgData::fDisableName;
@@ -992,6 +1001,7 @@ int PPObjArticle::NewArticle(PPID * pID, long sheetID)
 				LocationTbl::Rec loc_rec;
 				PPAccount  acc_rec;
 				PPGlobalUserAcc gua_rec;
+				ProcessorTbl::Rec prc_rec; // @v11.3.12
 				//THROW(ppobj->Search(obj_id, &assoc_obj_rec) > 0);
 				switch(acs_rec.Assoc) {
 					case PPOBJ_PERSON:
@@ -1009,6 +1019,10 @@ int PPObjArticle::NewArticle(PPID * pID, long sheetID)
 					case PPOBJ_ACCOUNT2: // @v10.6.4
 						THROW(ppobj->Search(obj_id, &acc_rec) > 0);
 						STRNSCPY(pack.Rec.Name, acc_rec.Name);
+						break;
+					case PPOBJ_PROCESSOR: // @v11.3.12
+						THROW(ppobj->Search(obj_id, &prc_rec) > 0);
+						STRNSCPY(pack.Rec.Name, prc_rec.Name);
 						break;
 				}
 				pack.Rec.ObjID = obj_id;
@@ -1187,6 +1201,50 @@ int PPObjArticle::GetByPerson(PPID accSheetID, PPID psnID, PPID * pArID)
 		}
 	}
 	ASSIGN_PTR(pArID, ar_id);
+	return ok;
+}
+
+int PPObjArticle::GetByProcessor(PPID accSheetID, PPID prcID, PPIDArray * pArList)
+{
+	int    ok = -1;
+	const  PPID link_obj_type = PPOBJ_PROCESSOR;
+	CALLPTRMEMB(pArList, Z());
+	if(prcID) {
+		PPObjAccSheet acs_obj;
+		PPAccSheet acs_rec;
+		if(accSheetID) {
+			if(acs_obj.Fetch(accSheetID, &acs_rec) > 0 && acs_rec.Assoc == link_obj_type) {
+				ArticleTbl::Rec ar_rec;
+				if(P_Tbl->SearchObjRef(accSheetID, prcID, &ar_rec) > 0) {
+					CALLPTRMEMB(pArList, add(ar_rec.ID));
+					ok = 1;
+				}
+			}
+		}
+		else {
+			PPIDArray temp_list;
+			for(SEnum en = acs_obj.P_Ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, link_obj_type); en.Next(&acs_rec) > 0;) {
+				if(acs_rec.Assoc == link_obj_type) {
+					temp_list.Z();
+					if(GetByProcessor(acs_rec.ID, prcID, &temp_list) > 0) { // 
+						assert(temp_list.getCount());
+						CALLPTRMEMB(pArList, add(&temp_list));
+						ok = 1;
+					}
+					
+				}
+			}
+		}
+	}
+	if(pArList) {
+		if(ok > 0) {
+			assert(pArList->getCount());
+			pArList->sortAndUndup();
+		}
+		else {
+			assert(pArList->getCount() == 0);
+		}
+	}
 	return ok;
 }
 
@@ -1453,6 +1511,8 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					break;
 				case PPOBJ_PERSON:
 				case PPOBJ_LOCATION:
+				case PPOBJ_GLOBALUSERACC: // @v11.3.12 @fix
+				case PPOBJ_PROCESSOR: // @v11.3.12
 					{
 						PPID   ar_id = 0;
 						int    r = SearchAssocObjRef(_obj, _id, 0, 0, &ar_id);
@@ -1538,7 +1598,7 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			}
 			break;
 		case DBMSG_OBJNAMEUPDATE:
-			if(oneof2(_obj, PPOBJ_PERSON, PPOBJ_LOCATION)) {
+			if(oneof3(_obj, PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_PROCESSOR)) { // @v11.3.12 PPOBJ_PROCESSOR
 				int    r;
 				PPID   acs_id = 0;
 				while((r = SearchAssocObjRef(_obj, _id, &acs_id, 0, 0)) > 0 && (r = _UpdateName(static_cast<const char *>(extraPtr))) != 0)
@@ -1559,6 +1619,11 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			break;
 		case DBMSG_GLOBALACCADDED:
 			if(_obj == PPOBJ_GLOBALUSERACC) {
+				ok = ReplyObjectCreated(_obj, _id);
+			}
+			break;
+		case DBMSG_PROCESSORADDED: // @v11.3.12
+			if(_obj == PPOBJ_PROCESSOR) {
 				ok = ReplyObjectCreated(_obj, _id);
 			}
 			break;
@@ -2008,6 +2073,12 @@ int PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsgBuf)
 		PPGlobalUserAcc gua_rec;
 		THROW_PP(gua_obj.Search(pRec->ObjID, &gua_rec) > 0, PPERR_AR_HANGLINK_GUA);
 		THROW_PP(sstreq(gua_rec.Name, pRec->Name), PPERR_AR_UNEQNAME_GUA);
+	}
+	else if(acs_rec.Assoc == PPOBJ_PROCESSOR) { // @v11.3.12
+		PPObjProcessor prc_obj;
+		ProcessorTbl::Rec prc_rec;
+		THROW_PP(prc_obj.Search(pRec->ObjID, &prc_rec) > 0, PPERR_AR_HANGLINK_PRC);
+		THROW_PP(sstreq(prc_rec.Name, pRec->Name), PPERR_AR_UNEQNAME_PRC);
 	}
 	else {
 		THROW_PP(acs_rec.Assoc == 0, PPERR_ACS_INVLINKOBJ);

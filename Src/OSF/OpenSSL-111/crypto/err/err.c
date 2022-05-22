@@ -8,18 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <cryptlib_int.h>
 #include "internal/err.h"
-//#include <err_int.h>
-//#include <openssl/err.h>
-//#include <openssl/crypto.h>
-//#include <openssl/buffer.h>
-//#include <openssl/bio.h>
-//#include <openssl/opensslconf.h>
 #include "internal/thread_once.h"
-//#include <ctype.h>
 #include "internal/constant_time_locl.h"
-//#include "e_os.h"
 
 static int err_load_strings(const ERR_STRING_DATA * str);
 

@@ -53,7 +53,7 @@ int pthread_spin_init(pthread_spinlock_t * lock, int pshared)
 		}
 	}
 	s = static_cast<pthread_spinlock_t>(SAlloc::C(1, sizeof(*s)));
-	if(s == NULL) {
+	if(!s) {
 		return ENOMEM;
 	}
 	if(cpus > 1) {

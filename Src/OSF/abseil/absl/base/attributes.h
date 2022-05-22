@@ -590,28 +590,27 @@
 // Tells the compiler to align the function start at least to certain
 // alignment boundary
 #if ABSL_HAVE_ATTRIBUTE(aligned) || (defined(__GNUC__) && !defined(__clang__))
-#define ABSL_ATTRIBUTE_FUNC_ALIGN(bytes) __attribute__((aligned(bytes)))
+	#define ABSL_ATTRIBUTE_FUNC_ALIGN(bytes) __attribute__((aligned(bytes)))
 #else
-#define ABSL_ATTRIBUTE_FUNC_ALIGN(bytes)
+	#define ABSL_ATTRIBUTE_FUNC_ALIGN(bytes)
 #endif
-
-// ABSL_FALLTHROUGH_INTENDED
+//
+// CXX_FALLTHROUGH
 //
 // Annotates implicit fall-through between switch labels, allowing a case to
 // indicate intentional fallthrough and turn off warnings about any lack of a
-// `break` statement. The ABSL_FALLTHROUGH_INTENDED macro should be followed by
+// `break` statement. The CXX_FALLTHROUGH macro should be followed by
 // a semicolon and can be used in most places where `break` can, provided that
 // no statements exist between it and the next switch label.
 //
 // Example:
 //
-//  switch (x) {
+//  switch(x) {
 //    case 40:
 //    case 41:
-//      if (truth_is_out_there) {
+//      if(truth_is_out_there) {
 //        ++x;
-//        ABSL_FALLTHROUGH_INTENDED;  // Use instead of/along with annotations
-//                                    // in comments
+//        CXX_FALLTHROUGH;  // Use instead of/along with annotations in comments
 //      } else {
 //        return x;
 //      }
@@ -623,24 +622,21 @@
 // clang documentation on language extensions for details:
 // https://clang.llvm.org/docs/AttributeReference.html#fallthrough-clang-fallthrough
 //
-// When used with unsupported compilers, the ABSL_FALLTHROUGH_INTENDED macro has
+// When used with unsupported compilers, the CXX_FALLTHROUGH macro has
 // no effect on diagnostics. In any case this macro has no effect on runtime
 // behavior and performance of code.
-
-#ifdef ABSL_FALLTHROUGH_INTENDED
-#error "ABSL_FALLTHROUGH_INTENDED should not be defined."
+/* @sobolev (replaced with CXX_FALLTHROUGH)
+#ifdef ABSL_FALLTHROUGH_INTENDED_Removed
+	#error "ABSL_FALLTHROUGH_INTENDED_Removed should not be defined."
 #elif ABSL_HAVE_CPP_ATTRIBUTE(fallthrough)
-#define ABSL_FALLTHROUGH_INTENDED [[fallthrough]]
+	#define ABSL_FALLTHROUGH_INTENDED_Removed [[fallthrough]]
 #elif ABSL_HAVE_CPP_ATTRIBUTE(clang::fallthrough)
-#define ABSL_FALLTHROUGH_INTENDED [[clang::fallthrough]]
+	#define ABSL_FALLTHROUGH_INTENDED_Removed [[clang::fallthrough]]
 #elif ABSL_HAVE_CPP_ATTRIBUTE(gnu::fallthrough)
-#define ABSL_FALLTHROUGH_INTENDED [[gnu::fallthrough]]
+	#define ABSL_FALLTHROUGH_INTENDED_Removed [[gnu::fallthrough]]
 #else
-#define ABSL_FALLTHROUGH_INTENDED \
-  do {                            \
-  } while (0)
-#endif
-
+	#define ABSL_FALLTHROUGH_INTENDED_Removed do {} while (0)
+#endif*/
 // ABSL_DEPRECATED()
 //
 // Marks a deprecated class, struct, enum, function, method and variable
@@ -663,11 +659,9 @@
 #if defined(__clang__) && defined(__cplusplus) && __cplusplus >= 201103L
 #define ABSL_DEPRECATED(message) __attribute__((deprecated(message)))
 #endif
-
 #ifndef ABSL_DEPRECATED
-#define ABSL_DEPRECATED(message)
+	#define ABSL_DEPRECATED(message)
 #endif
-
 // ABSL_CONST_INIT
 //
 // A variable declaration annotated with the `ABSL_CONST_INIT` attribute will
@@ -689,11 +683,10 @@
 //
 // Note that this attribute is redundant if the variable is declared constexpr.
 #if ABSL_HAVE_CPP_ATTRIBUTE(clang::require_constant_initialization)
-#define ABSL_CONST_INIT [[clang::require_constant_initialization]]
+	#define ABSL_CONST_INIT [[clang::require_constant_initialization]]
 #else
-#define ABSL_CONST_INIT
+	#define ABSL_CONST_INIT
 #endif  // ABSL_HAVE_CPP_ATTRIBUTE(clang::require_constant_initialization)
-
 // ABSL_ATTRIBUTE_PURE_FUNCTION
 //
 // ABSL_ATTRIBUTE_PURE_FUNCTION is used to annotate declarations of "pure"

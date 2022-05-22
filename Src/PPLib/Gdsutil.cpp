@@ -1580,77 +1580,81 @@ private:
 		SString temp_buf;
 		memzero(Kinds, sizeof(Kinds));
 		QuotKindsOrder.clear();
-		if(Cls == PPQuot::clsSupplDeal) {
-			Kinds[0] = Spc.SupplDealID;
-			Kinds[1] = Spc.SupplDevUpID;
-			Kinds[2] = Spc.SupplDevDnID;
-			for(i = 0; i < 3; i++)
-				disableCtrl(quotCtl(i), !RightsForUpdate || Kinds[i] == 0);
-		}
-		else if(Cls == PPQuot::clsMtx) {
-			Kinds[0] = Spc.MtxID;
-			disableCtrl(CTL_GQUOT_LOCLIST, /*!RightsForUpdate ||*/ !Spc.MtxID);
-		}
-		else if(Cls == PPQuot::clsMtxRestr) {
-			Kinds[0] = Spc.MtxRestrID;
-			disableCtrl(CTL_GQUOT_LOCLIST, /*!RightsForUpdate ||*/ !Spc.MtxRestrID);
-		}
-		else if(Cls == PPQuot::clsPredictCoeff) {
-			Kinds[0] = Spc.PredictCoeffID;
-			{
-				SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_PRDLIST));
-				SetupStrListBox(p_box);
-			}
-		}
-		else { // PPQuot::clsGeneral
-			Cls = PPQuot::clsGeneral;
-			SArray qlist(sizeof(RankNNameEntry));
-			PPQuotKind qkr;
-			for(PPID qk = 0; QkObj.EnumItems(&qk, &qkr) > 0;) {
-				if(qk != PPQUOTK_BASE && !Spc.IsSupplDealKind(qk) && !oneof3(qk, Spc.MtxID, Spc.MtxRestrID, Spc.PredictCoeffID) && oneof2(qkr.AccSheetID, 0, AccSheetID)) {
-					RankNNameEntry e;
-					e.Rank = qkr.Rank;
-					STRNSCPY(e.Name, qkr.Name);
-					e.ID = qkr.ID;
-					qlist.ordInsert(&e, 0, PTR_CMPFUNC(RankNName));
+		switch(Cls) {
+			case PPQuot::clsSupplDeal:
+				Kinds[0] = Spc.SupplDealID;
+				Kinds[1] = Spc.SupplDevUpID;
+				Kinds[2] = Spc.SupplDevDnID;
+				for(i = 0; i < 3; i++)
+					disableCtrl(quotCtl(i), !RightsForUpdate || Kinds[i] == 0);
+				break;
+			case PPQuot::clsMtx:
+				Kinds[0] = Spc.MtxID;
+				disableCtrl(CTL_GQUOT_LOCLIST, /*!RightsForUpdate ||*/ !Spc.MtxID);
+				break;
+			case PPQuot::clsMtxRestr:
+				Kinds[0] = Spc.MtxRestrID;
+				disableCtrl(CTL_GQUOT_LOCLIST, /*!RightsForUpdate ||*/ !Spc.MtxRestrID);
+				break;
+			case PPQuot::clsPredictCoeff:
+				Kinds[0] = Spc.PredictCoeffID;
+				{
+					SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_GQUOT_PRDLIST));
+					SetupStrListBox(p_box);
 				}
-			}
-			QuotKindsOrder.add(PPQUOTK_BASE);
-			for(i = 0; i < qlist.getCount(); i++)
-				QuotKindsOrder.add(static_cast<const RankNNameEntry *>(qlist.at(i))->ID);
-			disableCtrl(CTL_GQUOT_BASE, !RightsForUpdate);
-			for(i = 0; i < NUM_QUOTS_IN_DLG; i++) {
-				int    disable_input = !RightsForUpdate;
-				int    used_entry = 0;
-				if(i < qlist.getCount()) {
-					const RankNNameEntry * p_e = static_cast<const RankNNameEntry *>(qlist.at(i));
-					if(p_e->ID != PPQUOTK_BASE) {
-						Kinds[i] = p_e->ID;
-						temp_buf = p_e->Name;
-						size_t pad_size = (128-temp_buf.Len()-8) / 2 * 2;
-						for(size_t j = 0; j < pad_size; j += 2)
-							temp_buf.Space().Dot();
-						used_entry = 1;
+				break;
+			default: // PPQuot::clsGeneral
+				{
+					Cls = PPQuot::clsGeneral;
+					SArray qlist(sizeof(RankNNameEntry));
+					PPQuotKind qkr;
+					for(PPID qk = 0; QkObj.EnumItems(&qk, &qkr) > 0;) {
+						if(qk != PPQUOTK_BASE && !Spc.IsSupplDealKind(qk) && !oneof3(qk, Spc.MtxID, Spc.MtxRestrID, Spc.PredictCoeffID) && oneof2(qkr.AccSheetID, 0, AccSheetID)) {
+							RankNNameEntry e;
+							e.Rank = qkr.Rank;
+							STRNSCPY(e.Name, qkr.Name);
+							e.ID = qkr.ID;
+							qlist.ordInsert(&e, 0, PTR_CMPFUNC(RankNName));
+						}
 					}
+					QuotKindsOrder.add(PPQUOTK_BASE);
+					for(i = 0; i < qlist.getCount(); i++)
+						QuotKindsOrder.add(static_cast<const RankNNameEntry *>(qlist.at(i))->ID);
+					disableCtrl(CTL_GQUOT_BASE, !RightsForUpdate);
+					for(i = 0; i < NUM_QUOTS_IN_DLG; i++) {
+						int    disable_input = !RightsForUpdate;
+						int    used_entry = 0;
+						if(i < qlist.getCount()) {
+							const RankNNameEntry * p_e = static_cast<const RankNNameEntry *>(qlist.at(i));
+							if(p_e->ID != PPQUOTK_BASE) {
+								Kinds[i] = p_e->ID;
+								temp_buf = p_e->Name;
+								size_t pad_size = (128-temp_buf.Len()-8) / 2 * 2;
+								for(size_t j = 0; j < pad_size; j += 2)
+									temp_buf.Space().Dot();
+								used_entry = 1;
+							}
+						}
+						if(!used_entry) {
+							temp_buf.Z().Space();
+							disable_input = 1;
+						}
+						setLabelText(quotCtl(i), temp_buf);
+						disableCtrl(quotCtl(i), disable_input);
+					}
+					if(HasPeriodVal()) {
+						ViewQuotsAsListBox = 1;
+						disableCtrl(CTL_GQUOT_VIEW, 1);
+					}
+					else if(onInit) {
+						WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, /*readonly*/1);
+						uint32 val = 0;
+						if(reg_key.GetDWord(_PPConst.WrParam_ViewQuotsAsListBox, &val) && val)
+							ViewQuotsAsListBox = 1;
+					}
+					setCtrlData(CTL_GQUOT_VIEW, &ViewQuotsAsListBox);
 				}
-				if(!used_entry) {
-					temp_buf.Z().Space();
-					disable_input = 1;
-				}
-				setLabelText(quotCtl(i), temp_buf);
-				disableCtrl(quotCtl(i), disable_input);
-			}
-			if(HasPeriodVal()) {
-				ViewQuotsAsListBox = 1;
-				disableCtrl(CTL_GQUOT_VIEW, 1);
-			}
-			else if(onInit) {
-				WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, /*readonly*/1);
-				uint32 val = 0;
-				if(reg_key.GetDWord(_PPConst.WrParam_ViewQuotsAsListBox, &val) && val)
-					ViewQuotsAsListBox = 1;
-			}
-			setCtrlData(CTL_GQUOT_VIEW, &ViewQuotsAsListBox);
+				break;
 		}
 	}
 public:
@@ -1677,19 +1681,24 @@ public:
 		{
 			Goods2Tbl::Rec goods_rec;
 			SString temp_buf;
-			if(Cls == PPQuot::clsSupplDeal) {
-				RightsForUpdate = QkObj.CheckRights(QUOTRT_UPDSUPPLCOST);
-				SETIFZ(AccSheetID, GetSupplAccSheet());
-			}
-			else if(Cls == PPQuot::clsMtx)
-				RightsForUpdate = QkObj.CheckRights(QUOTRT_UPDMTX);
-			else if(Cls == PPQuot::clsMtxRestr)
-				RightsForUpdate = QkObj.CheckRights(QUOTRT_UPDMTXRESTR);
-			else if(Cls == PPQuot::clsPredictCoeff)
-				RightsForUpdate = QkObj.CheckRights(QUOTRT_UPDQUOTS);
-			else {
-				RightsForUpdate = QkObj.CheckRights(QUOTRT_UPDQUOTS);
-				SETIFZ(AccSheetID, GetSellAccSheet());
+			switch(Cls) {
+				case PPQuot::clsSupplDeal:
+					RightsForUpdate = QkObj.CheckRights(QUOTRT_UPDSUPPLCOST);
+					SETIFZ(AccSheetID, GetSupplAccSheet());
+					break;
+				case PPQuot::clsMtx:
+					RightsForUpdate = QkObj.CheckRights(QUOTRT_UPDMTX);
+					break;
+				case PPQuot::clsMtxRestr:
+					RightsForUpdate = QkObj.CheckRights(QUOTRT_UPDMTXRESTR);
+					break;
+				case PPQuot::clsPredictCoeff:
+					RightsForUpdate = QkObj.CheckRights(QUOTRT_UPDQUOTS);
+					break;
+				default:
+					RightsForUpdate = QkObj.CheckRights(QUOTRT_UPDQUOTS);
+					SETIFZ(AccSheetID, GetSellAccSheet());
+					break;
 			}
 			enableCommand(cmOK, RightsForUpdate);
 			if(!RightsForUpdate) {
@@ -1746,14 +1755,13 @@ private:
 	}
 	uint   quotCtl(int i) const
 	{
-		if(Cls == PPQuot::clsSupplDeal)
-			return (CTL_GQUOT_COST + i);
-		else if(Cls == PPQuot::clsPredictCoeff)
-			return CTL_GQUOT_COEFF;
-		else if(oneof2(Cls, PPQuot::clsMtx, PPQuot::clsMtxRestr))
-			return 0;
-		else
-			return (CTL_GQUOT_VAL1 + i * 3);
+		switch(Cls) {
+			case PPQuot::clsSupplDeal: return (CTL_GQUOT_COST + i);
+			case PPQuot::clsPredictCoeff: return CTL_GQUOT_COEFF;
+			case PPQuot::clsMtx:
+			case PPQuot::clsMtxRestr: return 0;
+			default: return (CTL_GQUOT_VAL1 + i * 3);
+		}
 	}
 
 	const  PPObjQuotKind::Special Spc;

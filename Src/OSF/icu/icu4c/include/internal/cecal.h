@@ -20,10 +20,9 @@ U_NAMESPACE_BEGIN
  */
 class U_I18N_API CECalendar : public Calendar {
 protected:
-	//-------------------------------------------------------------------------
+	//
 	// Constructors...
-	//-------------------------------------------------------------------------
-
+	//
 	/**
 	 * Constructs a CECalendar based on the current time in the default time zone
 	 * with the given locale with the Julian epoch offiset
@@ -34,43 +33,36 @@ protected:
 	 * @internal
 	 */
 	CECalendar(const Locale & aLocale, UErrorCode & success);
-
 	/**
 	 * Copy Constructor
 	 * @internal
 	 */
 	CECalendar (const CECalendar& other);
-
 	/**
 	 * Destructor.
 	 * @internal
 	 */
 	virtual ~CECalendar();
-
 	/**
 	 * Default assignment operator
 	 * @param right    Calendar object to be copied
 	 * @internal
 	 */
 	CECalendar& operator = (const CECalendar& right);
-
 protected:
-	//-------------------------------------------------------------------------
+	//
 	// Calendar framework
-	//-------------------------------------------------------------------------
-
+	//
 	/**
 	 * Return JD of start of given month/extended year
 	 * @internal
 	 */
 	virtual int32_t handleComputeMonthStart(int32_t eyear, int32_t month, bool useMonth) const override;
-
 	/**
 	 * Calculate the limit for a specified type of limit and field
 	 * @internal
 	 */
 	virtual int32_t handleGetLimit(UCalendarDateFields field, ELimitType limitType) const override;
-
 	/**
 	 * (Overrides Calendar) Return true if the current date for this Calendar is in
 	 * Daylight Savings Time. Recognizes DST_OFFSET, if it is set.

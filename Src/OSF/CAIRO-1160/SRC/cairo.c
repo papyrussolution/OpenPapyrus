@@ -881,7 +881,7 @@ void cairo_set_source_surface(cairo_t * cr, cairo_surface_t * surface, double x,
 {
 	if(UNLIKELY(cr->status))
 		return;
-	if(UNLIKELY(surface == NULL)) {
+	if(UNLIKELY(!surface)) {
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}
@@ -1996,7 +1996,7 @@ void cairo_mask(cairo_t * cr, cairo_pattern_t * pattern)
 {
 	if(UNLIKELY(cr->status))
 		return;
-	if(UNLIKELY(pattern == NULL)) {
+	if(UNLIKELY(!pattern)) {
 		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
 		return;
 	}

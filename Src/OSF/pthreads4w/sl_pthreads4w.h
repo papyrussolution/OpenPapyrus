@@ -1,5 +1,7 @@
 // SL_PTHREADS4W.H
 //
+#ifndef __SL_PTHREADS4W_H
+#define __SL_PTHREADS4W_H
 #include <slib.h>
 #ifdef HAVE_PTW32CONFIG_H
 	#include <ptw32_config.h>
@@ -9,7 +11,4 @@
 #include "implement.h"
 #include "sched.h"
 #include "context.h"
-//#include <limits.h>
-//#if !defined(WINCE)
-	//#include <signal.h> // Not needed yet, but defining it should indicate clashes with build target environment that should be fixed.
-//#endif
+#endif // __SL_PTHREADS4W_H

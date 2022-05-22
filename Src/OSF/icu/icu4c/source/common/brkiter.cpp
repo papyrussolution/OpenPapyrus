@@ -93,7 +93,7 @@ BreakIterator* BreakIterator::buildInstance(const Locale & loc, const char * typ
 		delete result;
 		return NULL;
 	}
-	if(result == NULL) {
+	if(!result) {
 		udata_close(file);
 		if(U_SUCCESS(status)) {
 			status = U_MEMORY_ALLOCATION_ERROR;

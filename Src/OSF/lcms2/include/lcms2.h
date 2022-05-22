@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------------
 //
 //  Little Color Management System
 //  Copyright (c) 1998-2020 Marti Maria Saguer
@@ -20,8 +19,6 @@
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
 //
 // Version 2.11
 //
@@ -1441,7 +1438,7 @@ CMSAPI boolint CMSEXPORT cmsCloseProfile(cmsHPROFILE hProfile);
 
 CMSAPI boolint CMSEXPORT cmsSaveProfileToFile(cmsHPROFILE hProfile, const char * FileName);
 CMSAPI boolint CMSEXPORT cmsSaveProfileToStream(cmsHPROFILE hProfile, FILE* Stream);
-CMSAPI boolint CMSEXPORT cmsSaveProfileToMem(cmsHPROFILE hProfile, void * MemPtr, uint32* BytesNeeded);
+CMSAPI boolint CMSEXPORT cmsSaveProfileToMem(cmsHPROFILE hProfile, void * MemPtr, uint32 * BytesNeeded);
 CMSAPI uint32 CMSEXPORT cmsSaveProfileToIOhandler(cmsHPROFILE hProfile, cmsIOHANDLER* io);
 //
 // Predefined virtual profiles
@@ -1488,8 +1485,8 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, d
 #define INTENT_PRESERVE_K_PLANE_SATURATION            15
 
 // Call with NULL as parameters to get the intent count
-CMSAPI uint32 CMSEXPORT cmsGetSupportedIntents(uint32 nMax, uint32* Codes, char ** Descriptions);
-CMSAPI uint32 CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID, uint32 nMax, uint32* Codes, char ** Descriptions);
+CMSAPI uint32 CMSEXPORT cmsGetSupportedIntents(uint32 nMax, uint32 * Codes, char ** Descriptions);
+CMSAPI uint32 CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID, uint32 nMax, uint32 * Codes, char ** Descriptions);
 
 // Flags
 
@@ -1656,7 +1653,7 @@ CMSAPI cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * 
 // CMSAPI cmsHANDLE        CMSEXPORT cmsIT8LoadFromIOhandler(cmsContext ContextID, cmsIOHANDLER* io);
 
 CMSAPI boolint CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName);
-CMSAPI boolint CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, uint32* BytesNeeded);
+CMSAPI boolint CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, uint32 * BytesNeeded);
 // Properties
 CMSAPI const char * CMSEXPORT cmsIT8GetSheetType(cmsHANDLE hIT8);
 CMSAPI boolint CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char * Type);

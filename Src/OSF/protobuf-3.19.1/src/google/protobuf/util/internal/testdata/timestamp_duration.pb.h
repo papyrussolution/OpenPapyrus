@@ -1051,9 +1051,7 @@ class TimestampDuration final :
 // TimestampDurationTestCases
 
 // .proto_util_converter.testing.TimeStampType epoch = 1;
-inline bool TimestampDurationTestCases::_internal_has_epoch() const {
-  return this != internal_default_instance() && epoch_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_epoch() const { return this != internal_default_instance() && epoch_ != nullptr; }
 inline bool TimestampDurationTestCases::has_epoch() const {
   return _internal_has_epoch();
 }
@@ -1140,9 +1138,7 @@ inline void TimestampDurationTestCases::set_allocated_epoch(::proto_util_convert
 }
 
 // .proto_util_converter.testing.TimeStampType epoch2 = 2;
-inline bool TimestampDurationTestCases::_internal_has_epoch2() const {
-  return this != internal_default_instance() && epoch2_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_epoch2() const { return this != internal_default_instance() && epoch2_ != nullptr; }
 inline bool TimestampDurationTestCases::has_epoch2() const {
   return _internal_has_epoch2();
 }
@@ -1229,9 +1225,7 @@ inline void TimestampDurationTestCases::set_allocated_epoch2(::proto_util_conver
 }
 
 // .proto_util_converter.testing.TimeStampType mintime = 3;
-inline bool TimestampDurationTestCases::_internal_has_mintime() const {
-  return this != internal_default_instance() && mintime_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_mintime() const { return this != internal_default_instance() && mintime_ != nullptr; }
 inline bool TimestampDurationTestCases::has_mintime() const {
   return _internal_has_mintime();
 }
@@ -1318,9 +1312,7 @@ inline void TimestampDurationTestCases::set_allocated_mintime(::proto_util_conve
 }
 
 // .proto_util_converter.testing.TimeStampType maxtime = 4;
-inline bool TimestampDurationTestCases::_internal_has_maxtime() const {
-  return this != internal_default_instance() && maxtime_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_maxtime() const { return this != internal_default_instance() && maxtime_ != nullptr; }
 inline bool TimestampDurationTestCases::has_maxtime() const {
   return _internal_has_maxtime();
 }
@@ -1407,9 +1399,7 @@ inline void TimestampDurationTestCases::set_allocated_maxtime(::proto_util_conve
 }
 
 // .proto_util_converter.testing.TimeStampType timeval1 = 5;
-inline bool TimestampDurationTestCases::_internal_has_timeval1() const {
-  return this != internal_default_instance() && timeval1_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_timeval1() const { return this != internal_default_instance() && timeval1_ != nullptr; }
 inline bool TimestampDurationTestCases::has_timeval1() const {
   return _internal_has_timeval1();
 }
@@ -1496,9 +1486,7 @@ inline void TimestampDurationTestCases::set_allocated_timeval1(::proto_util_conv
 }
 
 // .proto_util_converter.testing.TimeStampType timeval2 = 6;
-inline bool TimestampDurationTestCases::_internal_has_timeval2() const {
-  return this != internal_default_instance() && timeval2_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_timeval2() const { return this != internal_default_instance() && timeval2_ != nullptr; }
 inline bool TimestampDurationTestCases::has_timeval2() const {
   return _internal_has_timeval2();
 }
@@ -1585,9 +1573,7 @@ inline void TimestampDurationTestCases::set_allocated_timeval2(::proto_util_conv
 }
 
 // .proto_util_converter.testing.TimeStampType timeval3 = 7;
-inline bool TimestampDurationTestCases::_internal_has_timeval3() const {
-  return this != internal_default_instance() && timeval3_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_timeval3() const { return this != internal_default_instance() && timeval3_ != nullptr; }
 inline bool TimestampDurationTestCases::has_timeval3() const {
   return _internal_has_timeval3();
 }
@@ -1674,9 +1660,7 @@ inline void TimestampDurationTestCases::set_allocated_timeval3(::proto_util_conv
 }
 
 // .proto_util_converter.testing.TimeStampType timeval4 = 8;
-inline bool TimestampDurationTestCases::_internal_has_timeval4() const {
-  return this != internal_default_instance() && timeval4_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_timeval4() const { return this != internal_default_instance() && timeval4_ != nullptr; }
 inline bool TimestampDurationTestCases::has_timeval4() const {
   return _internal_has_timeval4();
 }
@@ -1763,9 +1747,7 @@ inline void TimestampDurationTestCases::set_allocated_timeval4(::proto_util_conv
 }
 
 // .proto_util_converter.testing.TimeStampType timeval5 = 9;
-inline bool TimestampDurationTestCases::_internal_has_timeval5() const {
-  return this != internal_default_instance() && timeval5_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_timeval5() const { return this != internal_default_instance() && timeval5_ != nullptr; }
 inline bool TimestampDurationTestCases::has_timeval5() const {
   return _internal_has_timeval5();
 }
@@ -1852,9 +1834,7 @@ inline void TimestampDurationTestCases::set_allocated_timeval5(::proto_util_conv
 }
 
 // .proto_util_converter.testing.TimeStampType timeval6 = 10;
-inline bool TimestampDurationTestCases::_internal_has_timeval6() const {
-  return this != internal_default_instance() && timeval6_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_timeval6() const { return this != internal_default_instance() && timeval6_ != nullptr; }
 inline bool TimestampDurationTestCases::has_timeval6() const {
   return _internal_has_timeval6();
 }
@@ -1941,9 +1921,7 @@ inline void TimestampDurationTestCases::set_allocated_timeval6(::proto_util_conv
 }
 
 // .proto_util_converter.testing.TimeStampType timeval7 = 11;
-inline bool TimestampDurationTestCases::_internal_has_timeval7() const {
-  return this != internal_default_instance() && timeval7_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_timeval7() const { return this != internal_default_instance() && timeval7_ != nullptr; }
 inline bool TimestampDurationTestCases::has_timeval7() const {
   return _internal_has_timeval7();
 }
@@ -2030,9 +2008,7 @@ inline void TimestampDurationTestCases::set_allocated_timeval7(::proto_util_conv
 }
 
 // .google.protobuf.Timestamp timeval8 = 12;
-inline bool TimestampDurationTestCases::_internal_has_timeval8() const {
-  return this != internal_default_instance() && timeval8_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_timeval8() const { return this != internal_default_instance() && timeval8_ != nullptr; }
 inline bool TimestampDurationTestCases::has_timeval8() const {
   return _internal_has_timeval8();
 }
@@ -2114,9 +2090,7 @@ inline void TimestampDurationTestCases::set_allocated_timeval8(::PROTOBUF_NAMESP
 }
 
 // .proto_util_converter.testing.DurationType zero_duration = 101;
-inline bool TimestampDurationTestCases::_internal_has_zero_duration() const {
-  return this != internal_default_instance() && zero_duration_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_zero_duration() const { return this != internal_default_instance() && zero_duration_ != nullptr; }
 inline bool TimestampDurationTestCases::has_zero_duration() const {
   return _internal_has_zero_duration();
 }
@@ -2203,9 +2177,7 @@ inline void TimestampDurationTestCases::set_allocated_zero_duration(::proto_util
 }
 
 // .proto_util_converter.testing.DurationType min_duration = 102;
-inline bool TimestampDurationTestCases::_internal_has_min_duration() const {
-  return this != internal_default_instance() && min_duration_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_min_duration() const { return this != internal_default_instance() && min_duration_ != nullptr; }
 inline bool TimestampDurationTestCases::has_min_duration() const {
   return _internal_has_min_duration();
 }
@@ -2292,9 +2264,7 @@ inline void TimestampDurationTestCases::set_allocated_min_duration(::proto_util_
 }
 
 // .proto_util_converter.testing.DurationType max_duration = 103;
-inline bool TimestampDurationTestCases::_internal_has_max_duration() const {
-  return this != internal_default_instance() && max_duration_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_max_duration() const { return this != internal_default_instance() && max_duration_ != nullptr; }
 inline bool TimestampDurationTestCases::has_max_duration() const {
   return _internal_has_max_duration();
 }
@@ -2381,9 +2351,7 @@ inline void TimestampDurationTestCases::set_allocated_max_duration(::proto_util_
 }
 
 // .proto_util_converter.testing.DurationType duration1 = 104;
-inline bool TimestampDurationTestCases::_internal_has_duration1() const {
-  return this != internal_default_instance() && duration1_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_duration1() const { return this != internal_default_instance() && duration1_ != nullptr; }
 inline bool TimestampDurationTestCases::has_duration1() const {
   return _internal_has_duration1();
 }
@@ -2470,9 +2438,7 @@ inline void TimestampDurationTestCases::set_allocated_duration1(::proto_util_con
 }
 
 // .proto_util_converter.testing.DurationType duration2 = 105;
-inline bool TimestampDurationTestCases::_internal_has_duration2() const {
-  return this != internal_default_instance() && duration2_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_duration2() const { return this != internal_default_instance() && duration2_ != nullptr; }
 inline bool TimestampDurationTestCases::has_duration2() const {
   return _internal_has_duration2();
 }
@@ -2559,9 +2525,7 @@ inline void TimestampDurationTestCases::set_allocated_duration2(::proto_util_con
 }
 
 // .proto_util_converter.testing.DurationType duration3 = 106;
-inline bool TimestampDurationTestCases::_internal_has_duration3() const {
-  return this != internal_default_instance() && duration3_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_duration3() const { return this != internal_default_instance() && duration3_ != nullptr; }
 inline bool TimestampDurationTestCases::has_duration3() const {
   return _internal_has_duration3();
 }
@@ -2648,9 +2612,7 @@ inline void TimestampDurationTestCases::set_allocated_duration3(::proto_util_con
 }
 
 // .proto_util_converter.testing.DurationType duration4 = 107;
-inline bool TimestampDurationTestCases::_internal_has_duration4() const {
-  return this != internal_default_instance() && duration4_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_duration4() const { return this != internal_default_instance() && duration4_ != nullptr; }
 inline bool TimestampDurationTestCases::has_duration4() const {
   return _internal_has_duration4();
 }
@@ -2737,9 +2699,7 @@ inline void TimestampDurationTestCases::set_allocated_duration4(::proto_util_con
 }
 
 // .google.protobuf.Duration duration5 = 108;
-inline bool TimestampDurationTestCases::_internal_has_duration5() const {
-  return this != internal_default_instance() && duration5_ != nullptr;
-}
+inline bool TimestampDurationTestCases::_internal_has_duration5() const { return this != internal_default_instance() && duration5_ != nullptr; }
 inline bool TimestampDurationTestCases::has_duration5() const {
   return _internal_has_duration5();
 }
@@ -2825,9 +2785,7 @@ inline void TimestampDurationTestCases::set_allocated_duration5(::PROTOBUF_NAMES
 // TimeStampType
 
 // .google.protobuf.Timestamp timestamp = 1;
-inline bool TimeStampType::_internal_has_timestamp() const {
-  return this != internal_default_instance() && timestamp_ != nullptr;
-}
+inline bool TimeStampType::_internal_has_timestamp() const { return this != internal_default_instance() && timestamp_ != nullptr; }
 inline bool TimeStampType::has_timestamp() const {
   return _internal_has_timestamp();
 }
@@ -2913,9 +2871,7 @@ inline void TimeStampType::set_allocated_timestamp(::PROTOBUF_NAMESPACE_ID::Time
 // DurationType
 
 // .google.protobuf.Duration duration = 1;
-inline bool DurationType::_internal_has_duration() const {
-  return this != internal_default_instance() && duration_ != nullptr;
-}
+inline bool DurationType::_internal_has_duration() const { return this != internal_default_instance() && duration_ != nullptr; }
 inline bool DurationType::has_duration() const {
   return _internal_has_duration();
 }
@@ -3001,9 +2957,7 @@ inline void DurationType::set_allocated_duration(::PROTOBUF_NAMESPACE_ID::Durati
 // TimestampDuration
 
 // .google.protobuf.Timestamp ts = 1;
-inline bool TimestampDuration::_internal_has_ts() const {
-  return this != internal_default_instance() && ts_ != nullptr;
-}
+inline bool TimestampDuration::_internal_has_ts() const { return this != internal_default_instance() && ts_ != nullptr; }
 inline bool TimestampDuration::has_ts() const {
   return _internal_has_ts();
 }
@@ -3085,9 +3039,7 @@ inline void TimestampDuration::set_allocated_ts(::PROTOBUF_NAMESPACE_ID::Timesta
 }
 
 // .google.protobuf.Duration dur = 2;
-inline bool TimestampDuration::_internal_has_dur() const {
-  return this != internal_default_instance() && dur_ != nullptr;
-}
+inline bool TimestampDuration::_internal_has_dur() const { return this != internal_default_instance() && dur_ != nullptr; }
 inline bool TimestampDuration::has_dur() const {
   return _internal_has_dur();
 }
@@ -3177,8 +3129,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDuration::mutable_rep_ts(int
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.TimestampDuration.rep_ts)
   return rep_ts_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Timestamp >*
-TimestampDuration::mutable_rep_ts() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Timestamp > * TimestampDuration::mutable_rep_ts() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.TimestampDuration.rep_ts)
   return &rep_ts_;
 }

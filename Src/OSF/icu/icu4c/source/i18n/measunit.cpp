@@ -2252,7 +2252,7 @@ StringEnumeration * MeasureUnit::getAvailableTypes(UErrorCode & errorCode) {
 		return NULL;
 	}
 	StringEnumeration * result = new UStringEnumeration(uenum);
-	if(result == NULL) {
+	if(!result) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		uenum_close(uenum);
 		return NULL;
@@ -2284,7 +2284,7 @@ MeasureUnit * MeasureUnit::create(int typeId, int subTypeId, UErrorCode & status
 		return NULL;
 	}
 	MeasureUnit * result = new MeasureUnit(typeId, subTypeId);
-	if(result == NULL) {
+	if(!result) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 	}
 	return result;

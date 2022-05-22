@@ -220,7 +220,7 @@ uint8 * CollationKey::toByteArray(int32_t& count) const
 {
 	uint8 * result = (uint8 *)uprv_malloc(sizeof(uint8) * fCount);
 
-	if(result == NULL) {
+	if(!result) {
 		count = 0;
 	}
 	else {

@@ -61,7 +61,7 @@ static void DupPluginCurvesList(struct _cmsContext_struct* ctx, const struct _cm
 	_cmsParametricCurvesCollection*  entry;
 	_cmsParametricCurvesCollection*  Anterior = NULL;
 	_cmsCurvesPluginChunkType* head = (_cmsCurvesPluginChunkType*)src->chunks[CurvesPlugin];
-	_cmsAssert(head != NULL);
+	assert(head != NULL);
 	// Walk the list copying all nodes
 	for(entry = head->ParametricCurves; entry != NULL; entry = entry->Next) {
 		_cmsParametricCurvesCollection * newEntry = (_cmsParametricCurvesCollection*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(_cmsParametricCurvesCollection));
@@ -80,7 +80,7 @@ static void DupPluginCurvesList(struct _cmsContext_struct* ctx, const struct _cm
 // The allocator have to follow the chain
 void _cmsAllocCurvesPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
-	_cmsAssert(ctx);
+	assert(ctx);
 	if(src) {
 		DupPluginCurvesList(ctx, src); // Copy all linked list
 	}
@@ -225,7 +225,7 @@ static cmsToneCurve * AllocateToneCurveStruct(cmsContext ContextID, uint32 nEntr
 			else
 				p->Segments[i].SampledPoints = NULL;
 			c = GetParametricCurveByType(ContextID, Segments[i].Type, NULL);
-			if(c != NULL)
+			if(c)
 				p->Evals[i] = c->Evaluator;
 		}
 	}
@@ -594,13 +594,13 @@ static double EvalSegmentedFn(const cmsToneCurve * g, double R)
 // Access to estimated low-res table
 uint32 CMSEXPORT cmsGetToneCurveEstimatedTableEntries(const cmsToneCurve * t)
 {
-	_cmsAssert(t);
+	assert(t);
 	return t->nEntries;
 }
 
 const uint16* CMSEXPORT cmsGetToneCurveEstimatedTable(const cmsToneCurve * t)
 {
-	_cmsAssert(t);
+	assert(t);
 	return t->Table16;
 }
 
@@ -626,7 +626,7 @@ cmsToneCurve * CMSEXPORT cmsBuildSegmentedToneCurve(cmsContext ContextID,
 	cmsToneCurve * g;
 	uint32 nGridPoints = 4096;
 
-	_cmsAssert(Segments != NULL);
+	assert(Segments != NULL);
 
 	// Optimizatin for identity curves.
 	if(nSegments == 1 && Segments[0].Type == 1) {
@@ -700,7 +700,7 @@ cmsToneCurve * CMSEXPORT cmsBuildParametricToneCurve(cmsContext ContextID, int32
 	int Pos = 0;
 	uint32 size;
 	_cmsParametricCurvesCollection* c = GetParametricCurveByType(ContextID, Type, &Pos);
-	_cmsAssert(Params != NULL);
+	assert(Params != NULL);
 	if(c == NULL) {
 		cmsSignalError(ContextID, cmsERROR_UNKNOWN_EXTENSION, "Invalid parametric curve type %d", Type);
 		return NULL;
@@ -746,7 +746,7 @@ void CMSEXPORT cmsFreeToneCurve(cmsToneCurve * Curve)
 // Utility function, free 3 gamma tables
 void CMSEXPORT cmsFreeToneCurveTriple(cmsToneCurve * Curve[3])
 {
-	_cmsAssert(Curve != NULL);
+	assert(Curve != NULL);
 	cmsFreeToneCurve(Curve[0]);
 	cmsFreeToneCurve(Curve[1]);
 	cmsFreeToneCurve(Curve[2]);
@@ -772,8 +772,8 @@ cmsToneCurve * CMSEXPORT cmsJoinToneCurve(cmsContext ContextID, const cmsToneCur
 	float t, x;
 	float* Res = NULL;
 	uint32 i;
-	_cmsAssert(X != NULL);
-	_cmsAssert(Y != NULL);
+	assert(X != NULL);
+	assert(Y != NULL);
 	Yreversed = cmsReverseToneCurveEx(nResultingPoints, Y);
 	if(Yreversed == NULL) goto Error;
 
@@ -841,7 +841,7 @@ cmsToneCurve * CMSEXPORT cmsReverseToneCurveEx(uint32 nResultSamples, const cmsT
 	int i, j;
 	int Ascending;
 
-	_cmsAssert(InCurve != NULL);
+	assert(InCurve != NULL);
 
 	// Try to reverse it analytically whatever possible
 
@@ -896,7 +896,7 @@ cmsToneCurve * CMSEXPORT cmsReverseToneCurveEx(uint32 nResultSamples, const cmsT
 // Reverse a gamma table
 cmsToneCurve * CMSEXPORT cmsReverseToneCurve(const cmsToneCurve * InGamma)
 {
-	_cmsAssert(InGamma != NULL);
+	assert(InGamma != NULL);
 
 	return cmsReverseToneCurveEx(4096, InGamma);
 }
@@ -1042,7 +1042,7 @@ boolint CMSEXPORT cmsIsToneCurveLinear(const cmsToneCurve * Curve)
 	int i;
 	int diff;
 
-	_cmsAssert(Curve != NULL);
+	assert(Curve != NULL);
 
 	for(i = 0; i < (int)Curve->nEntries; i++) {
 		diff = abs((int)Curve->Table16[i] - (int)_cmsQuantizeVal(i, Curve->nEntries));
@@ -1060,7 +1060,7 @@ boolint CMSEXPORT cmsIsToneCurveMonotonic(const cmsToneCurve * t)
 	int i, last;
 	boolint lDescending;
 
-	_cmsAssert(t);
+	assert(t);
 
 	// Degenerated curves are monotonic? Ok, let's pass them
 	n = t->nEntries;
@@ -1096,7 +1096,7 @@ boolint CMSEXPORT cmsIsToneCurveMonotonic(const cmsToneCurve * t)
 // Same, but for descending tables
 boolint CMSEXPORT cmsIsToneCurveDescending(const cmsToneCurve * t)
 {
-	_cmsAssert(t);
+	assert(t);
 
 	return t->Table16[0] > t->Table16[t->nEntries-1];
 }
@@ -1104,14 +1104,14 @@ boolint CMSEXPORT cmsIsToneCurveDescending(const cmsToneCurve * t)
 // Another info fn: is out gamma table multisegment?
 boolint CMSEXPORT cmsIsToneCurveMultisegment(const cmsToneCurve * t)
 {
-	_cmsAssert(t);
+	assert(t);
 
 	return t->nSegments > 1;
 }
 
 int32 CMSEXPORT cmsGetToneCurveParametricType(const cmsToneCurve * t)
 {
-	_cmsAssert(t);
+	assert(t);
 
 	if(t->nSegments != 1) return 0;
 	return t->Segments[0].Type;
@@ -1120,7 +1120,7 @@ int32 CMSEXPORT cmsGetToneCurveParametricType(const cmsToneCurve * t)
 // We need accuracy this time
 float CMSEXPORT cmsEvalToneCurveFloat(const cmsToneCurve * Curve, float v)
 {
-	_cmsAssert(Curve != NULL);
+	assert(Curve != NULL);
 	// Check for 16 bits table. If so, this is a limited-precision tone curve
 	if(Curve->nSegments == 0) {
 		uint16 In = (uint16)_cmsQuickSaturateWord(v * 65535.0);
@@ -1134,7 +1134,7 @@ float CMSEXPORT cmsEvalToneCurveFloat(const cmsToneCurve * Curve, float v)
 uint16 CMSEXPORT cmsEvalToneCurve16(const cmsToneCurve * Curve, uint16 v)
 {
 	uint16 out;
-	_cmsAssert(Curve != NULL);
+	assert(Curve != NULL);
 	Curve->InterpParams->Interpolation.Lerp16(&v, &out, Curve->InterpParams);
 	return out;
 }
@@ -1161,7 +1161,7 @@ double CMSEXPORT cmsEstimateGamma(const cmsToneCurve * t, double Precision)
 	double gamma, sum, sum2;
 	double n, x, y, Std;
 	uint32 i;
-	_cmsAssert(t);
+	assert(t);
 	sum = sum2 = n = 0;
 	// Excluding endpoints
 	for(i = 1; i < (MAX_NODES_IN_CURVE-1); i++) {
@@ -1192,7 +1192,7 @@ double CMSEXPORT cmsEstimateGamma(const cmsToneCurve * t, double Precision)
 
 double * CMSEXPORT cmsGetToneCurveParams(const cmsToneCurve * t)
 {
-	_cmsAssert(t);
+	assert(t);
 
 	if(t->nSegments != 1) return NULL;
 	return t->Segments[0].Params;

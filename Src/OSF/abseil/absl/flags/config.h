@@ -29,14 +29,10 @@
 #endif  // !defined(ABSL_FLAGS_STRIP_NAMES)
 
 #if !defined(ABSL_FLAGS_STRIP_NAMES)
-// If ABSL_FLAGS_STRIP_NAMES wasn't set on the command line or above,
-// the default is not to strip.
-#define ABSL_FLAGS_STRIP_NAMES 0
+	#define ABSL_FLAGS_STRIP_NAMES 0 // If ABSL_FLAGS_STRIP_NAMES wasn't set on the command line or above, the default is not to strip.
 #endif
-
 #if !defined(ABSL_FLAGS_STRIP_HELP)
-// By default, if we strip names, we also strip help.
-#define ABSL_FLAGS_STRIP_HELP ABSL_FLAGS_STRIP_NAMES
+	#define ABSL_FLAGS_STRIP_HELP ABSL_FLAGS_STRIP_NAMES // By default, if we strip names, we also strip help.
 #endif
 
 // These macros represent the "source of truth" for the list of supported

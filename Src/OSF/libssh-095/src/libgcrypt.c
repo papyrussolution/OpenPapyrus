@@ -688,7 +688,7 @@ ssh_string ssh_sexp_extract_mpi(const gcry_sexp_t sexp,
 	}
 
 	result = ssh_string_new(size);
-	if(result == NULL) {
+	if(!result) {
 		goto fail;
 	}
 

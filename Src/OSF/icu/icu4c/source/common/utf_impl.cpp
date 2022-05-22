@@ -1,30 +1,19 @@
+// utf_impl.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 1999-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  utf_impl.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 1999sep13
- *   created by: Markus W. Scherer
- *
- *   This file provides implementation functions for macros in the utfXX.h
- *   that would otherwise be too long as macros.
- */
+// Copyright (C) 1999-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 1999sep13
+// created by: Markus W. Scherer
+// This file provides implementation functions for macros in the utfXX.h
+// that would otherwise be too long as macros.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 /* set import/export definitions */
 #ifndef U_UTF8_IMPL
 	#define U_UTF8_IMPL
 #endif
-
 /*
  * Table of the number of utf8 trail bytes, indexed by the lead byte.
  * Used by the deprecated macro UTF8_COUNT_TRAIL_BYTES, defined in utf_old.h
@@ -51,8 +40,7 @@
  * -finish:
  * (BSR: Bit Scan Reverse, scans for a 1-bit, starting from the MSB)
  */
-extern "C" U_EXPORT const uint8
-utf8_countTrailBytes[256] = {
+extern "C" U_EXPORT const uint8 utf8_countTrailBytes[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -88,7 +76,8 @@ static const UChar32
 	0x10ffff
 };
 
-static UChar32 errorValue(int32_t count, int8 strict) {
+static UChar32 errorValue(int32_t count, int8 strict) 
+{
 	if(strict>=0) {
 		return utf8_errorValue[count];
 	}

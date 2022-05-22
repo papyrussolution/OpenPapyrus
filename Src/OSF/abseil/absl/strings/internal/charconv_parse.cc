@@ -398,16 +398,13 @@ strings_internal::ParsedFloat ParseFloat(const char* begin, const char* end,
 	}
 
 	if(!found_exponent && RequireExponent(format_flags)) {
-		// Provided flags required an exponent, but none was found.  This results
-		// in a failure to scan.
+		// Provided flags required an exponent, but none was found.  This results in a failure to scan.
 		return result;
 	}
-
 	// Success!
 	result.type = strings_internal::FloatType::kNumber;
 	if(result.mantissa > 0) {
-		result.exponent = result.literal_exponent +
-		    (DigitMagnitude<base>() * exponent_adjustment);
+		result.exponent = result.literal_exponent + (DigitMagnitude<base>() * exponent_adjustment);
 	}
 	else {
 		result.exponent = 0;

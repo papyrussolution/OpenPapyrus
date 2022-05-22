@@ -338,7 +338,7 @@ static FORCEINLINE void ConnectIntervals(CostManager* const manager,
 		manager->head_ = next;
 	}
 
-	if(next != NULL) next->previous_ = prev;
+	if(next) next->previous_ = prev;
 }
 
 // Pop an interval in the manager.

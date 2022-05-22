@@ -274,7 +274,7 @@ void AlphabeticIndex::initLabels(UVector &indexCharacters, UErrorCode & errorCod
 			// even if the label string sorts the same when all contractions are suppressed.
 			ownedItem.adoptInstead(new UnicodeString(*item, 0, itemLength - 1));
 			item = ownedItem.getAlias();
-			if(item == NULL) {
+			if(!item) {
 				errorCode = U_MEMORY_ALLOCATION_ERROR;
 				return;
 			}
@@ -963,7 +963,7 @@ UVector * AlphabeticIndex::firstStringsInScript(UErrorCode & status) {
 			continue;
 		}
 		UnicodeString * s = new UnicodeString(boundary);
-		if(s == NULL) {
+		if(!s) {
 			status = U_MEMORY_ALLOCATION_ERROR;
 			return NULL;
 		}
@@ -1027,7 +1027,7 @@ AlphabeticIndex & AlphabeticIndex::addRecord(const UnicodeString & name, const v
 		inputList_->setDeleter(alphaIndex_deleteRecord);
 	}
 	Record * r = new Record(name, data);
-	if(r == NULL) {
+	if(!r) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return *this;
 	}

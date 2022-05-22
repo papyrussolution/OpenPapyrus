@@ -16,8 +16,8 @@
 #ifndef ABSL_RANDOM_SEED_SEQUENCES_H_
 #define ABSL_RANDOM_SEED_SEQUENCES_H_
 
-#include <iterator>
-#include <random>
+//#include <iterator>
+//#include <random>
 #include "absl/random/internal/salted_seed_seq.h"
 #include "absl/random/internal/seed_material.h"
 #include "absl/random/seed_gen_exception.h"
@@ -65,16 +65,13 @@ using SeedSeq = random_internal::SaltedSeedSeq<std::seed_seq>;
 //   absl::BitGen new_engine(seed_seq); // derived from my_bitgen, but not
 //                                      // correlated.
 //
-template <typename URBG>
-SeedSeq CreateSeedSeqFrom(URBG* urbg) {
-  SeedSeq::result_type
-      seed_material[random_internal::kEntropyBlocksNeeded];
-
-  if (!random_internal::ReadSeedMaterialFromURBG(
-          urbg, absl::MakeSpan(seed_material))) {
-    random_internal::ThrowSeedGenException();
-  }
-  return SeedSeq(std::begin(seed_material), std::end(seed_material));
+template <typename URBG> SeedSeq CreateSeedSeqFrom(URBG* urbg) 
+{
+	SeedSeq::result_type seed_material[random_internal::kEntropyBlocksNeeded];
+	if(!random_internal::ReadSeedMaterialFromURBG(urbg, absl::MakeSpan(seed_material))) {
+		random_internal::ThrowSeedGenException();
+	}
+	return SeedSeq(std::begin(seed_material), std::end(seed_material));
 }
 
 // -----------------------------------------------------------------------------

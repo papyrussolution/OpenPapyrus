@@ -3260,7 +3260,7 @@ static void FASTCALL xmlSchemaComponentListFree(xmlSchemaItemList * list)
 		int i;
 		for(i = 0; i < list->nbItems; i++) {
 			item = items[i];
-			if(item == NULL)
+			if(!item)
 				continue;
 			switch(item->type) {
 				case XML_SCHEMA_TYPE_SIMPLE:
@@ -4728,7 +4728,7 @@ static int xmlSchemaPValAttrNodeQNameValue(xmlSchemaParserCtxtPtr ctxt, xmlSchem
 	*local = xmlDictLookupSL(ctxt->dict, *local);
 	pref = xmlDictLookup(ctxt->dict, value, len);
 	ns = xmlSearchNs(attr->doc, attr->parent, pref);
-	if(ns == NULL) {
+	if(!ns) {
 		xmlSchemaPSimpleTypeErr(ctxt, XML_SCHEMAP_S4S_ATTR_INVALID_VALUE, ownerItem, (xmlNode *)attr,
 		    xmlSchemaGetBuiltInType(XML_SCHEMAS_QNAME), NULL, value,
 		    "The value '%s' of simple type 'xs:QName' has no corresponding namespace declaration in scope", value, 0);
@@ -4827,7 +4827,7 @@ static int xmlSchemaPValAttrNodeID(xmlSchemaParserCtxtPtr ctxt, xmlAttr * attr)
 				value = strip;
 			}
 			res = xmlAddID(NULL, attr->doc, value, attr);
-			if(res == NULL) {
+			if(!res) {
 				ret = XML_SCHEMAP_S4S_ATTR_INVALID_VALUE;
 				xmlSchemaPSimpleTypeErr(ctxt, XML_SCHEMAP_S4S_ATTR_INVALID_VALUE, NULL, (xmlNode *)attr,
 				    xmlSchemaGetBuiltInType(XML_SCHEMAS_ID), NULL, NULL, "Duplicate value '%s' of simple type 'xs:ID'", value, 0);
@@ -6658,7 +6658,7 @@ static xmlSchemaIDCSelectPtr xmlSchemaParseIDCSelectorAndField(xmlSchemaParserCt
 	 * Create the item.
 	 */
 	item = (xmlSchemaIDCSelectPtr)SAlloc::M(sizeof(xmlSchemaIDCSelect));
-	if(item == NULL) {
+	if(!item) {
 		xmlSchemaPErrMemory(ctxt, "allocating a 'selector' of an identity-constraint definition", 0);
 		return 0;
 	}
@@ -6740,7 +6740,7 @@ static xmlSchemaIDC * xmlSchemaParseIDC(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPt
 	}
 	/* Create the component. */
 	item = xmlSchemaAddIDC(ctxt, schema, name, targetNamespace, idcCategory, P_Node);
-	if(item == NULL)
+	if(!item)
 		return 0;
 	xmlSchemaPValAttrID(ctxt, P_Node, reinterpret_cast<const xmlChar *>("id"));
 	if(idcCategory == XML_SCHEMA_TYPE_IDC_KEYREF) {
@@ -7618,7 +7618,7 @@ static xmlSchemaTreeItem * xmlSchemaParseModelGroupDefRef(xmlSchemaParserCtxtPtr
 	}
 	xmlSchemaPValAttrID(ctxt, P_Node, reinterpret_cast<const xmlChar *>("id"));
 	item = xmlSchemaAddParticle(ctxt, P_Node, min, max);
-	if(item == NULL)
+	if(!item)
 		return 0;
 	/*
 	 * Create a qname-reference and set as the term; it will be substituted
@@ -7683,7 +7683,7 @@ static xmlSchemaModelGroupDefPtr xmlSchemaParseModelGroupDefinition(xmlSchemaPar
 		return 0;
 	}
 	item = xmlSchemaAddModelGroupDefinition(ctxt, schema, name, ctxt->targetNamespace, P_Node);
-	if(item == NULL)
+	if(!item)
 		return 0;
 	/*
 	 * Check for illegal attributes.
@@ -9086,7 +9086,7 @@ static xmlSchemaTreeItem * xmlSchemaParseModelGroup(xmlSchemaParserCtxtPtr ctxt,
 	 * Create a model group with the given compositor.
 	 */
 	item = xmlSchemaAddModelGroup(ctxt, schema, type, P_Node);
-	if(item == NULL)
+	if(!item)
 		return 0;
 	if(withParticle) {
 		if(type == XML_SCHEMA_TYPE_ALL) {
@@ -21255,7 +21255,7 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxt * vctxt)
 				}
 				else {
 					xmlNs * ns = xmlSearchNsByHref(defAttrOwnerElem->doc, defAttrOwnerElem, iattr->nsName);
-					if(ns == NULL) {
+					if(!ns) {
 						xmlChar prefix[12];
 						int counter = 0;
 						/*

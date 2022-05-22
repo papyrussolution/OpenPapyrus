@@ -14,17 +14,10 @@
 #ifndef WEBP_ENC_VP8I_ENC_H_
 #define WEBP_ENC_VP8I_ENC_H_
 
-//#include <string.h>     // for memcpy()
 #include "src/dec/common_dec.h"
-//#include "src/dsp/dsp.h"
 #include "src/utils/bit_writer_utils.h"
 #include "src/utils/thread_utils.h"
-//#include "src/utils/utils.h"
 #include "src/webp/encode.h"
-
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
 //
 // Various defines and enums
 //
@@ -121,10 +114,9 @@ static FORCEINLINE int QUANTDIV(uint32_t n, uint32_t iQ, uint32_t B) {
 
 // quality below which error-diffusion is enabled
 #define ERROR_DIFFUSION_QUALITY 98
-
-//------------------------------------------------------------------------------
+//
 // Headers
-
+//
 typedef uint32_t proba_t;   // 16b + 16b
 typedef uint8 ProbaArray[NUM_CTX][NUM_PROBAS];
 typedef proba_t StatsArray[NUM_CTX][NUM_PROBAS];
@@ -164,10 +156,9 @@ typedef struct {
 	int sharpness_;    // [0..7]
 	int i4x4_lf_delta_; // delta filter level for i4x4 relative to i16x16
 } VP8EncFilterHeader;
-
-//------------------------------------------------------------------------------
+//
 // Informations about the macroblocks.
-
+//
 typedef struct {
 	// block type
 	unsigned int type_ : 2; // 0=i4x4, 1=i16x16
@@ -302,10 +293,9 @@ void VP8SetIntra4Mode(const VP8EncIterator* const it, const uint8* modes);
 void VP8SetIntraUVMode(const VP8EncIterator* const it, int mode);
 void VP8SetSkip(const VP8EncIterator* const it, int skip);
 void VP8SetSegment(const VP8EncIterator* const it, int segment);
-
-//------------------------------------------------------------------------------
+//
 // Paginated token buffer
-
+//
 typedef struct VP8Tokens VP8Tokens;  // struct details in token.c
 
 typedef struct {
@@ -338,27 +328,21 @@ int VP8RecordCoeffTokens(int ctx, const struct VP8Residual* const res,
 size_t VP8EstimateTokenSize(VP8TBuffer* const b, const uint8* const probas);
 
 #endif  // !DISABLE_TOKEN_BUFFER
-
-//------------------------------------------------------------------------------
+//
 // VP8Encoder
-
+//
 struct VP8Encoder {
 	const WebPConfig* config_; // user configuration and parameters
 	WebPPicture* pic_;      // input / output picture
-
 	// headers
 	VP8EncFilterHeader filter_hdr_; // filtering information
 	VP8EncSegmentHeader segment_hdr_; // segment information
-
 	int profile_;                // VP8's profile, deduced from Config.
-
 	// dimension, in macroblock units.
 	int mb_w_, mb_h_;
 	int preds_w_; // stride of the *preds_ prediction plane (=4*mb_w + 1)
-
 	// number of partitions (1, 2, 4 or 8 = MAX_NUM_PARTITIONS)
 	int num_parts_;
-
 	// per-partition boolean decoders.
 	VP8BitWriter bw_;                   // part0
 	VP8BitWriter parts_[MAX_NUM_PARTITIONS]; // token partitions
@@ -399,7 +383,6 @@ struct VP8Encoder {
 	int thread_level_;   // derived from config->thread_level
 	int do_search_;      // derived from config->target_XXX
 	int use_tokens_;     // if true, use token buffer
-
 	// Memory
 	VP8MBInfo* mb_info_; // contextual macroblock infos (mb_w_ + 1)
 	uint8*   preds_;// predictions modes: (4*mb_w+1) * (4*mb_h+1)
@@ -410,10 +393,9 @@ struct VP8Encoder {
 	LFStats*   lf_stats_;// autofilter stats (if NULL, autofilter is off)
 	DError*    top_derr_;// diffusion error (NULL if disabled)
 };
-
-//------------------------------------------------------------------------------
+//
 // internal functions. Not public.
-
+//
 // in tree.c
 extern const uint8 VP8CoeffsProba0[NUM_TYPES][NUM_BANDS][NUM_CTX][NUM_PROBAS];
 extern const uint8
@@ -506,7 +488,4 @@ int WebPPictureAllocYUVA(WebPPicture* const picture, int width, int height);
 // (no guarantee, though). Assumes pic->use_argb is true.
 void WebPReplaceTransparentPixels(WebPPicture* const pic, uint32_t color);
 
-//#ifdef __cplusplus
-//}    // extern "C"
-//#endif
 #endif  // WEBP_ENC_VP8I_ENC_H_

@@ -299,7 +299,7 @@ static cairo_surface_t * _cairo_surface_create_observer_internal(cairo_device_t 
 {
 	cairo_status_t status;
 	cairo_surface_observer_t * surface = (cairo_surface_observer_t *)_cairo_malloc(sizeof(cairo_surface_observer_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_surface_observer_backend, device, target->content, target->is_vector);
 	status = log_init(&surface->log, ((cairo_device_observer_t*)device)->log.record != NULL);

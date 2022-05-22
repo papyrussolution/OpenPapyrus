@@ -942,7 +942,7 @@ ARCHIVE_INTERFACE(IArchiveOpenSetSubArchiveName, 0x50) { STDMETHOD(SetSubArchive
 	STDMETHOD(Close) () MY_NO_THROW_DECL_ONLY x; \
 	STDMETHOD(GetNumberOfItems) (uint32 *numItems) MY_NO_THROW_DECL_ONLY x;	\
 	STDMETHOD(GetProperty) (uint32 index, PROPID propID, PROPVARIANT *value) MY_NO_THROW_DECL_ONLY x; \
-	STDMETHOD(Extract) (const uint32* indices, uint32 numItems, int32 testMode, IArchiveExtractCallback * \
+	STDMETHOD(Extract) (const uint32 * indices, uint32 numItems, int32 testMode, IArchiveExtractCallback * \
 	    extractCallback) MY_NO_THROW_DECL_ONLY x; \
 	STDMETHOD(GetArchiveProperty) (PROPID propID, PROPVARIANT *value) MY_NO_THROW_DECL_ONLY x; \
 	STDMETHOD(GetNumberOfProperties) (uint32 *numProps) MY_NO_THROW_DECL_ONLY x; \
@@ -6626,7 +6626,7 @@ namespace NArchive {
 		STDMETHOD(Close) () MY_NO_THROW_DECL_ONLY x; \
 		STDMETHOD(GetNumberOfItems) (uint32 *numItems) MY_NO_THROW_DECL_ONLY x;	\
 		STDMETHOD(GetProperty) (uint32 index, PROPID propID, PROPVARIANT *value) MY_NO_THROW_DECL_ONLY x; \
-			/* STDMETHOD(Extract)(const uint32* indices, uint32 numItems, int32 testMode, IArchiveExtractCallback
+			/* STDMETHOD(Extract)(const uint32 * indices, uint32 numItems, int32 testMode, IArchiveExtractCallback
 			  *extractCallback) MY_NO_THROW_DECL_ONLY x; */	\
 		STDMETHOD(GetArchiveProperty) (PROPID propID, PROPVARIANT *value) MY_NO_THROW_DECL_ONLY x; \
 		STDMETHOD(GetNumberOfProperties) (uint32 *numProps) MY_NO_THROW_DECL_ONLY x; \
@@ -6641,7 +6641,7 @@ namespace NArchive {
 	public:
 		MY_UNKNOWN_IMP2(IInArchive, IInArchiveGetStream)
 		INTERFACE_IInArchive_Cont(PURE)
-		STDMETHOD(Extract) (const uint32* indices, uint32 numItems, int32 testMode, IArchiveExtractCallback * extractCallback) MY_NO_THROW_DECL_ONLY;
+		STDMETHOD(Extract) (const uint32 * indices, uint32 numItems, int32 testMode, IArchiveExtractCallback * extractCallback) MY_NO_THROW_DECL_ONLY;
 		STDMETHOD(GetStream) (uint32 index, ISequentialInStream **stream);
 		// destructor must be virtual for this class
 		virtual ~CHandlerCont() 
@@ -6655,7 +6655,7 @@ namespace NArchive {
 		STDMETHOD(Close) () MY_NO_THROW_DECL_ONLY x; \
 			/* STDMETHOD(GetNumberOfItems)(uint32 *numItems) MY_NO_THROW_DECL_ONLY x; */ \
 		STDMETHOD(GetProperty) (uint32 index, PROPID propID, PROPVARIANT *value) MY_NO_THROW_DECL_ONLY x; \
-			/* STDMETHOD(Extract)(const uint32* indices, uint32 numItems, int32 testMode, IArchiveExtractCallback
+			/* STDMETHOD(Extract)(const uint32 * indices, uint32 numItems, int32 testMode, IArchiveExtractCallback
 			  *extractCallback) MY_NO_THROW_DECL_ONLY x; */	\
 		STDMETHOD(GetArchiveProperty) (PROPID propID, PROPVARIANT *value) MY_NO_THROW_DECL_ONLY x; \
 		STDMETHOD(GetNumberOfProperties) (uint32 *numProps) MY_NO_THROW_DECL_ONLY x; \
@@ -6683,7 +6683,7 @@ namespace NArchive {
 		INTERFACE_IInArchive_Img(PURE)
 		STDMETHOD(Open) (IInStream *stream, const uint64 *maxCheckStartPosition, IArchiveOpenCallback *openCallback);
 		STDMETHOD(GetNumberOfItems) (uint32 *numItems);
-		STDMETHOD(Extract) (const uint32* indices, uint32 numItems, int32 testMode, IArchiveExtractCallback *extractCallback);
+		STDMETHOD(Extract) (const uint32 * indices, uint32 numItems, int32 testMode, IArchiveExtractCallback *extractCallback);
 		STDMETHOD(GetStream) (uint32 index, ISequentialInStream **stream) = 0;
 		STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize) = 0;
 		STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);

@@ -79,7 +79,7 @@ cairo_surface_t * _cairo_paginated_surface_create(cairo_surface_t * target, cair
 {
 	cairo_status_t status;
 	cairo_paginated_surface_t * surface = (cairo_paginated_surface_t *)_cairo_malloc(sizeof(cairo_paginated_surface_t));
-	if(UNLIKELY(surface == NULL)) {
+	if(UNLIKELY(!surface)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto FAIL;
 	}

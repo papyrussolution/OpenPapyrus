@@ -439,27 +439,23 @@ U_CAPI const UNumberFormat * U_EXPORT2 udat_getNumberFormat(const UDateFormat* f
 }
 
 U_CAPI void U_EXPORT2 udat_adoptNumberFormatForFields(UDateFormat*    fmt,
-    const UChar * fields,
-    UNumberFormat * numberFormatToSet,
-    UErrorCode *  status)
+    const UChar * fields, UNumberFormat * numberFormatToSet, UErrorCode *  status)
 {
 	verifyIsSimpleDateFormat(fmt, status);
-	if(U_FAILURE(*status)) return;
-
+	if(U_FAILURE(*status)) 
+		return;
 	if(fields!=NULL) {
 		UnicodeString overrideFields(fields);
 		((SimpleDateFormat*)fmt)->adoptNumberFormat(overrideFields, (NumberFormat*)numberFormatToSet, *status);
 	}
 }
 
-U_CAPI void U_EXPORT2 udat_setNumberFormat(UDateFormat*    fmt,
-    const UNumberFormat * numberFormatToSet)
+U_CAPI void U_EXPORT2 udat_setNumberFormat(UDateFormat*    fmt, const UNumberFormat * numberFormatToSet)
 {
 	((DateFormat*)fmt)->setNumberFormat(*((NumberFormat*)numberFormatToSet));
 }
 
-U_CAPI void U_EXPORT2 udat_adoptNumberFormat(UDateFormat*    fmt,
-    UNumberFormat * numberFormatToAdopt)
+U_CAPI void U_EXPORT2 udat_adoptNumberFormat(UDateFormat*    fmt, UNumberFormat * numberFormatToAdopt)
 {
 	((DateFormat*)fmt)->adoptNumberFormat((NumberFormat*)numberFormatToAdopt);
 }
@@ -474,28 +470,22 @@ U_CAPI int32_t U_EXPORT2 udat_countAvailable()
 	return uloc_countAvailable();
 }
 
-U_CAPI UDate U_EXPORT2 udat_get2DigitYearStart(const UDateFormat     * fmt,
-    UErrorCode * status)
+U_CAPI UDate U_EXPORT2 udat_get2DigitYearStart(const UDateFormat     * fmt, UErrorCode * status)
 {
 	verifyIsSimpleDateFormat(fmt, status);
 	if(U_FAILURE(*status)) return (UDate)0;
 	return ((SimpleDateFormat*)fmt)->get2DigitYearStart(*status);
 }
 
-U_CAPI void U_EXPORT2 udat_set2DigitYearStart(UDateFormat     * fmt,
-    UDate d,
-    UErrorCode * status)
+U_CAPI void U_EXPORT2 udat_set2DigitYearStart(UDateFormat     * fmt, UDate d, UErrorCode * status)
 {
 	verifyIsSimpleDateFormat(fmt, status);
 	if(U_FAILURE(*status)) return;
 	((SimpleDateFormat*)fmt)->set2DigitYearStart(d, *status);
 }
 
-U_CAPI int32_t U_EXPORT2 udat_toPattern(const UDateFormat     * fmt,
-    bool localized,
-    UChar * result,
-    int32_t resultLength,
-    UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 udat_toPattern(const UDateFormat     * fmt, bool localized,
+    UChar * result, int32_t resultLength, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return -1;
@@ -504,7 +494,6 @@ U_CAPI int32_t U_EXPORT2 udat_toPattern(const UDateFormat     * fmt,
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return -1;
 	}
-
 	UnicodeString res;
 	if(result) {
 		// NULL destination for pure preflighting: empty dummy string
@@ -534,19 +523,14 @@ U_CAPI int32_t U_EXPORT2 udat_toPattern(const UDateFormat     * fmt,
 
 // TODO: should this take an UErrorCode?
 // A: Yes. Of course.
-U_CAPI void U_EXPORT2 udat_applyPattern(UDateFormat     * format,
-    bool localized,
-    const UChar * pattern,
-    int32_t patternLength)
+U_CAPI void U_EXPORT2 udat_applyPattern(UDateFormat     * format, bool localized, const UChar * pattern, int32_t patternLength)
 {
 	const UnicodeString pat((bool)(patternLength == -1), pattern, patternLength);
 	UErrorCode status = U_ZERO_ERROR;
-
 	verifyIsSimpleDateFormat(format, &status);
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	if(localized)
 		((SimpleDateFormat*)format)->applyLocalizedPattern(pat, status);
 	else
@@ -617,8 +601,7 @@ U_CAPI int32_t U_EXPORT2 udat_getSymbols(const UDateFormat     * fmt, UDateForma
 }
 
 // TODO: also needs an errorCode.
-U_CAPI int32_t U_EXPORT2 udat_countSymbols(const UDateFormat                * fmt,
-    UDateFormatSymbolType type)
+U_CAPI int32_t U_EXPORT2 udat_countSymbols(const UDateFormat * fmt, UDateFormatSymbolType type)
 {
 	const DateFormatSymbols * syms;
 	const SimpleDateFormat* sdtfmt;
@@ -790,7 +773,7 @@ public:
 	static void setSymbol(UnicodeString * array, int32_t count, int32_t index,
 	    const UChar * value, int32_t valueLength, UErrorCode & errorCode)
 	{
-		if(array!=NULL) {
+		if(array) {
 			if(index>=count) {
 				errorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 			}

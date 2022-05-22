@@ -8,15 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/err.h>
-//#include <openssl/lhash.h>
-//#include <openssl/objects.h>
-//#include <openssl/safestack.h>
-//#include <openssl/e_os2.h>
 #include "internal/thread_once.h"
 #include <lhash.h>
 #include "obj_lcl.h"
-//#include "e_os.h"
 /*
  * We define this wrapper for two reasons. Firstly, later versions of
  * DEC C add linkage information to certain functions, which makes it
@@ -26,15 +20,10 @@
  * transparently assign function pointers to it.
  */
 #if defined(OPENSSL_SYS_VMS_DECC) || defined(OPENSSL_SYS_UEFI)
-static int obj_strcasecmp(const char * a, const char * b)
-{
-	return strcasecmp(a, b);
-}
-
+	static int obj_strcasecmp(const char * a, const char * b) { return strcasecmp(a, b); }
 #else
-#define obj_strcasecmp strcasecmp
+	#define obj_strcasecmp strcasecmp
 #endif
-
 /*
  * I use the ex_data stuff to manage the identifiers for the obj_name_types
  * that applications may define.  I only really use the free function field.
@@ -212,7 +201,7 @@ int OBJ_NAME_add(const char * name, int type, const char * data)
 	CRYPTO_THREAD_write_lock(obj_lock);
 
 	ret = lh_OBJ_NAME_insert(names_lh, onp);
-	if(ret != NULL) {
+	if(ret) {
 		/* free things */
 		if((name_funcs_stack != NULL)
 		 && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {
@@ -255,7 +244,7 @@ int OBJ_NAME_remove(const char * name, int type)
 	on.name = name;
 	on.type = type;
 	ret = lh_OBJ_NAME_delete(names_lh, &on);
-	if(ret != NULL) {
+	if(ret) {
 		/* free things */
 		if((name_funcs_stack != NULL)
 		 && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {

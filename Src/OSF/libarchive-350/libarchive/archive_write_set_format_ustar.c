@@ -125,7 +125,7 @@ int archive_write_set_format_ustar(struct archive * _a)
 	struct ustar * ustar;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If someone else was already registered, unregister them. */
-	if(a->format_free != NULL)
+	if(a->format_free)
 		(a->format_free)(a);
 	/* Basic internal sanity test. */
 	if(sizeof(template_header) != 512) {
@@ -195,7 +195,7 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 		return ARCHIVE_FAILED;
 	}
 	/* Only regular files (not hardlinks) have data. */
-	if(archive_entry_hardlink(entry) != NULL || archive_entry_symlink(entry) != NULL || !(archive_entry_filetype(entry) == AE_IFREG))
+	if(archive_entry_hardlink(entry) || archive_entry_symlink(entry) != NULL || !(archive_entry_filetype(entry) == AE_IFREG))
 		archive_entry_set_size(entry, 0);
 	if(AE_IFDIR == archive_entry_filetype(entry)) {
 		const char * p;
@@ -206,7 +206,7 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 		 */
 #if defined(_WIN32) && !defined(__CYGWIN__)
 		const wchar_t * wp = archive_entry_pathname_w(entry);
-		if(wp != NULL && wp[wcslen(wp) -1] != L'/') {
+		if(wp && wp[wcslen(wp) -1] != L'/') {
 			struct archive_wstring ws;
 			archive_string_init(&ws);
 			path_length = wcslen(wp);

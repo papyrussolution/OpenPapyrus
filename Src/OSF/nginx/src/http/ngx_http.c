@@ -254,7 +254,7 @@ static ngx_int_t ngx_http_init_headers_in_hash(ngx_conf_t * cf, ngx_http_core_ma
 	}
 	for(header = ngx_http_headers_in; header->name.len; header++) {
 		hk = (ngx_hash_key_t*)ngx_array_push(&headers_in);
-		if(hk == NULL) {
+		if(!hk) {
 			return NGX_ERROR;
 		}
 		hk->key = header->name;

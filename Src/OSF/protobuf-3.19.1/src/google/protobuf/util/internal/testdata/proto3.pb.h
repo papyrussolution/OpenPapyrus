@@ -76,19 +76,15 @@ constexpr Proto3Message_NestedEnum Proto3Message_NestedEnum_NestedEnum_MIN = Pro
 constexpr Proto3Message_NestedEnum Proto3Message_NestedEnum_NestedEnum_MAX = Proto3Message_NestedEnum_BAZ;
 constexpr int Proto3Message_NestedEnum_NestedEnum_ARRAYSIZE = Proto3Message_NestedEnum_NestedEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* Proto3Message_NestedEnum_descriptor();
-template<typename T>
-inline const std::string& Proto3Message_NestedEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, Proto3Message_NestedEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function Proto3Message_NestedEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    Proto3Message_NestedEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * Proto3Message_NestedEnum_descriptor();
+template<typename T> inline const std::string& Proto3Message_NestedEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, Proto3Message_NestedEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function Proto3Message_NestedEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(Proto3Message_NestedEnum_descriptor(), enum_t_value);
 }
-inline bool Proto3Message_NestedEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Proto3Message_NestedEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Proto3Message_NestedEnum>(
-    Proto3Message_NestedEnum_descriptor(), name, value);
+inline bool Proto3Message_NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, Proto3Message_NestedEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<Proto3Message_NestedEnum>(Proto3Message_NestedEnum_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -193,35 +189,22 @@ class Proto3Message final :
   // nested types ----------------------------------------------------
 
   typedef Proto3Message_NestedEnum NestedEnum;
-  static constexpr NestedEnum FOO =
-    Proto3Message_NestedEnum_FOO;
-  static constexpr NestedEnum BAR =
-    Proto3Message_NestedEnum_BAR;
-  static constexpr NestedEnum BAZ =
-    Proto3Message_NestedEnum_BAZ;
-  static inline bool NestedEnum_IsValid(int value) {
-    return Proto3Message_NestedEnum_IsValid(value);
+  static constexpr NestedEnum FOO = Proto3Message_NestedEnum_FOO;
+  static constexpr NestedEnum BAR = Proto3Message_NestedEnum_BAR;
+  static constexpr NestedEnum BAZ = Proto3Message_NestedEnum_BAZ;
+  static inline bool NestedEnum_IsValid(int value) { return Proto3Message_NestedEnum_IsValid(value); }
+  static constexpr NestedEnum NestedEnum_MIN = Proto3Message_NestedEnum_NestedEnum_MIN;
+  static constexpr NestedEnum NestedEnum_MAX = Proto3Message_NestedEnum_NestedEnum_MAX;
+  static constexpr int NestedEnum_ARRAYSIZE = Proto3Message_NestedEnum_NestedEnum_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * NestedEnum_descriptor() { return Proto3Message_NestedEnum_descriptor(); }
+  template<typename T> static inline const std::string& NestedEnum_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, NestedEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function NestedEnum_Name.");
+  	return Proto3Message_NestedEnum_Name(enum_t_value);
   }
-  static constexpr NestedEnum NestedEnum_MIN =
-    Proto3Message_NestedEnum_NestedEnum_MIN;
-  static constexpr NestedEnum NestedEnum_MAX =
-    Proto3Message_NestedEnum_NestedEnum_MAX;
-  static constexpr int NestedEnum_ARRAYSIZE =
-    Proto3Message_NestedEnum_NestedEnum_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  NestedEnum_descriptor() {
-    return Proto3Message_NestedEnum_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& NestedEnum_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, NestedEnum>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function NestedEnum_Name.");
-    return Proto3Message_NestedEnum_Name(enum_t_value);
-  }
-  static inline bool NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      NestedEnum* value) {
-    return Proto3Message_NestedEnum_Parse(name, value);
+  static inline bool NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, NestedEnum* value)
+  {
+  	return Proto3Message_NestedEnum_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -290,10 +273,7 @@ inline void Proto3Message::set_enum_value(::proto_util_converter::testing::Proto
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::proto_util_converter::testing::Proto3Message_NestedEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::proto_util_converter::testing::Proto3Message_NestedEnum>() {
-  return ::proto_util_converter::testing::Proto3Message_NestedEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::proto_util_converter::testing::Proto3Message_NestedEnum>() { return ::proto_util_converter::testing::Proto3Message_NestedEnum_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

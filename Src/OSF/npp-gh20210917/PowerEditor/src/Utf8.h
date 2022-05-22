@@ -35,7 +35,7 @@ namespace Utf8 { // could be a static class, instead of a namespace, if it needs
 		if(!isFirstOfMultibyte(buf[0])) return false; // not single byte, nor valid multi-byte first byte
 		int charContinuationBytes = continuationBytes(buf[0]);
 		if(buflen < charContinuationBytes+1) return false; // character does not fit in buffer
-		for(int i = charContinuationBytes; i>0; --i)
+		for(int i = charContinuationBytes; i > 0; --i)
 			if(!isContinuation(*(++buf))) return false; // not enough continuation bytes
 		return true;  // the character is valid (if there are too many continuation bytes, it is the next character that will be invalid)
 	}

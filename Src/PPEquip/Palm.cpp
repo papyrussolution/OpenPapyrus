@@ -4575,7 +4575,7 @@ int PPALDD_UhttStyloDevice::InitData(PPFilt & rFilt, long rsrv)
 		H.DeviceVer = r_blk.Pack.Rec.DeviceVer;
 		STRNSCPY(H.Name, r_blk.Pack.Rec.Name);
 		STRNSCPY(H.Symb, r_blk.Pack.Rec.Symb);
-        temp_buf.Z().Cat(r_blk.Pack.Rec.RegisterTime, DATF_ISO8601|DATF_CENTURY, 0);
+        temp_buf.Z().Cat(r_blk.Pack.Rec.RegisterTime, DATF_ISO8601CENT, 0);
         STRNSCPY(H.RegisterTime, temp_buf);
 		ok = DlRtm::InitData(rFilt, rsrv);
 	}

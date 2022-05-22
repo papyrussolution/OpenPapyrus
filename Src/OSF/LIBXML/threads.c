@@ -781,7 +781,7 @@ void xmlCleanupThreads()
 
 		EnterCriticalSection(&cleanup_helpers_cs);
 		p = cleanup_helpers_head;
-		while(p != NULL) {
+		while(p) {
 			xmlGlobalStateCleanupHelperParams * temp = p;
 			p = p->next;
 			xmlFreeGlobalState(temp->memory);

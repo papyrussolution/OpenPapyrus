@@ -178,21 +178,13 @@ bool FunctionCallTip::getCursorFunction()
 			if(curToken.token[0] == _start) {
 				++scopeLevel;
 				newValue = curValue;
-				valueVec.push_back(newValue);   //store the current settings, so when this new function
-				                                // doesnt happen to be the 'real' one, we can restore
-				                                // everything
-
+				valueVec.push_back(newValue); //store the current settings, so when this new function doesnt happen to be the 'real' one, we can restore everything
 				curValue.scopeLevel = scopeLevel;
-				if(i > 0 && curValue.lastIdentifier == static_cast<int32_t>(i) - 1) { //identifier must
-					                                                              // be right before
-					                                                              // (, else we have
-					                                                              // some expression
-					                                                              // like "( x + y()
-					                                                              // )"
+				if(i > 0 && curValue.lastIdentifier == static_cast<int32_t>(i) - 1) { //identifier must be right before (, else we have some expression like "( x + y())"
 					curValue.lastFunctionIdentifier = curValue.lastIdentifier;
 					curValue.param = 0;
 				}
-				else {   //some expression
+				else { //some expression
 					curValue.lastFunctionIdentifier = -1;
 				}
 			}
@@ -218,11 +210,8 @@ bool FunctionCallTip::getCursorFunction()
 			}
 		}
 	}
-
 	bool res = false;
-
-	if(curValue.lastFunctionIdentifier == -1) { //not in direct function. Start popping the stack untill we empty
-		                                    // it, or a func IS found
+	if(curValue.lastFunctionIdentifier == -1) { //not in direct function. Start popping the stack untill we empty it, or a func IS found
 		while(curValue.lastFunctionIdentifier == -1 && valueVec.size() > 0) {
 			curValue = valueVec.back();
 			valueVec.pop_back();
@@ -232,7 +221,6 @@ bool FunctionCallTip::getCursorFunction()
 		Token funcToken = tokenVector.at(curValue.lastFunctionIdentifier);
 		funcToken.token[funcToken.length] = 0;
 		_currentParam = curValue.param;
-
 		bool same = false;
 		if(_funcName) {
 			if(_ignoreCase)
@@ -242,7 +230,6 @@ bool FunctionCallTip::getCursorFunction()
 		}
 		if(!same) { //check if we need to reload data
 			delete [] _funcName;
-
 			_funcName = new TCHAR[funcToken.length+1];
 			wcscpy_s(_funcName, funcToken.length+1, funcToken.token);
 			res = loadFunction();
@@ -253,7 +240,6 @@ bool FunctionCallTip::getCursorFunction()
 	}
 	return res;
 }
-
 /*
    Find function in XML structure and parse it
  */
@@ -268,7 +254,7 @@ bool FunctionCallTip::loadFunction()
 	for(; funcNode; funcNode = funcNode->NextSiblingElement(TEXT("KeyWord"))) {
 		const TCHAR * name = NULL;
 		name = funcNode->Attribute(TEXT("name"));
-		if(!name)               //malformed node
+		if(!name) // malformed node
 			continue;
 		int compVal = 0;
 		if(_ignoreCase)

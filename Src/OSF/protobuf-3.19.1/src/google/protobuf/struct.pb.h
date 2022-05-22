@@ -86,19 +86,15 @@ constexpr NullValue NullValue_MIN = NULL_VALUE;
 constexpr NullValue NullValue_MAX = NULL_VALUE;
 constexpr int NullValue_ARRAYSIZE = NullValue_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* NullValue_descriptor();
-template<typename T>
-inline const std::string& NullValue_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, NullValue>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function NullValue_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    NullValue_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * NullValue_descriptor();
+template<typename T> inline const std::string& NullValue_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, NullValue>::value || ::std::is_integral<T>::value, "Incorrect type passed to function NullValue_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(NullValue_descriptor(), enum_t_value);
 }
-inline bool NullValue_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, NullValue* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<NullValue>(
-    NullValue_descriptor(), name, value);
+inline bool NullValue_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, NullValue * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<NullValue>(NullValue_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -232,15 +228,11 @@ class Struct final :
   public:
   void clear_fields();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >&
-      _internal_fields() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >*
-      _internal_mutable_fields();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > & _internal_fields() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > * _internal_mutable_fields();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >&
-      fields() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >*
-      mutable_fields();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > & fields() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > * mutable_fields();
 
   // @@protoc_insertion_point(class_scope:google.protobuf.Struct)
  private:
@@ -661,20 +653,16 @@ inline void Struct::clear_fields() {
   fields_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >&
-Struct::_internal_fields() const {
-  return fields_.GetMap();
-}
+Struct::_internal_fields() const { return fields_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >&
 Struct::fields() const {
   // @@protoc_insertion_point(field_map:google.protobuf.Struct.fields)
   return _internal_fields();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >*
-Struct::_internal_mutable_fields() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > * Struct::_internal_mutable_fields() {
   return fields_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value >*
-Struct::mutable_fields() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::PROTOBUF_NAMESPACE_ID::Value > * Struct::mutable_fields() {
   // @@protoc_insertion_point(field_mutable_map:google.protobuf.Struct.fields)
   return _internal_mutable_fields();
 }
@@ -1035,8 +1023,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Value* ListValue::mutable_values(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.ListValue.values)
   return values_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Value >*
-ListValue::mutable_values() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Value > * ListValue::mutable_values() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.ListValue.values)
   return &values_;
 }
@@ -1077,10 +1064,7 @@ PROTOBUF_NAMESPACE_CLOSE
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::PROTOBUF_NAMESPACE_ID::NullValue> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::NullValue>() {
-  return ::PROTOBUF_NAMESPACE_ID::NullValue_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::PROTOBUF_NAMESPACE_ID::NullValue>() { return ::PROTOBUF_NAMESPACE_ID::NullValue_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

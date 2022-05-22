@@ -47,58 +47,42 @@
 /*
  * If SIZEOF_SIZE_T has not been defined, default to the size of long.
  */
-
 #ifdef HAVE_LONGLONG
-#define LONG_LONG_TYPE long long
-#define HAVE_LONG_LONG_TYPE
+	#define LONG_LONG_TYPE long long
+	#define HAVE_LONG_LONG_TYPE
 #else
-#if defined(_MSC_VER) && (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
-#define LONG_LONG_TYPE __int64
-#define HAVE_LONG_LONG_TYPE
-#else
-#undef LONG_LONG_TYPE
-#undef HAVE_LONG_LONG_TYPE
+	#if defined(_MSC_VER) && (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
+		#define LONG_LONG_TYPE __int64
+		#define HAVE_LONG_LONG_TYPE
+	#else
+		#undef LONG_LONG_TYPE
+		#undef HAVE_LONG_LONG_TYPE
+	#endif
 #endif
-#endif
-
 /*
  * Non-ANSI integer extensions
  */
-
-#if(defined(__BORLANDC__) && (__BORLANDC__ >= 0x520)) || \
-	(defined(__WATCOMC__) && defined(__386__)) || \
-	(defined(__POCC__) && defined(_MSC_VER)) || \
-	(defined(_WIN32_WCE)) || \
-	(defined(__MINGW32__)) || \
-	(defined(_MSC_VER) && (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64))
-#define MP_HAVE_INT_EXTENSIONS
+#if(defined(__BORLANDC__) && (__BORLANDC__ >= 0x520)) || (defined(__WATCOMC__) && defined(__386__)) || \
+	(defined(__POCC__) && defined(_MSC_VER)) || (defined(_WIN32_WCE)) || (defined(__MINGW32__)) || (defined(_MSC_VER) && (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64))
+	#define MP_HAVE_INT_EXTENSIONS
 #endif
-
 /*
  * Max integer data types that mprintf.c is capable
  */
-
 #ifdef HAVE_LONG_LONG_TYPE
-#define mp_intmax_t LONG_LONG_TYPE
-#define mp_uintmax_t unsigned LONG_LONG_TYPE
+	#define mp_intmax_t LONG_LONG_TYPE
+	#define mp_uintmax_t unsigned LONG_LONG_TYPE
 #else
-#define mp_intmax_t long
-#define mp_uintmax_t ulong
+	#define mp_intmax_t long
+	#define mp_uintmax_t ulong
 #endif
-
-#define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should
-	                fit negative DBL_MAX (317 letters) */
+#define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should fit negative DBL_MAX (317 letters) */
 #define MAX_PARAMETERS 128 /* lame static limit */
-
 #ifdef __AMIGA__
-# undef FORMAT_INT
+	#undef FORMAT_INT
 #endif
-
-/* Lower-case digits.  */
-static const char lower_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-
-/* Upper-case digits.  */
-static const char upper_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const char lower_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz"; /* Lower-case digits.  */
+static const char upper_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; /* Upper-case digits.  */
 
 #define OUTCHAR(x)                                     \
 	do {                                                 \
@@ -172,8 +156,7 @@ struct nsprintf {
 
 struct asprintf {
 	struct dynbuf * b;
-	bool fail; /* if an alloc has failed and thus the output is not the complete
-	              data */
+	bool fail; /* if an alloc has failed and thus the output is not the complete data */
 };
 
 static long dprintf_DollarString(char * input, char ** end)
@@ -200,7 +183,6 @@ static bool dprintf_IsQualifierNoDollar(const char * fmt)
 		return TRUE;
 	}
 #endif
-
 	switch(*fmt) {
 		case '-': case '+': case ' ': case '#': case '.':
 		case '0': case '1': case '2': case '3': case '4':
@@ -227,8 +209,7 @@ static bool dprintf_IsQualifierNoDollar(const char * fmt)
 *
 ******************************************************************/
 
-static int dprintf_Pass1(const char * format, struct va_stack * vto,
-    char ** endpos, va_list arglist)
+static int dprintf_Pass1(const char * format, struct va_stack * vto, char ** endpos, va_list arglist)
 {
 	char * fmt = (char *)format;
 	int param_num = 0;
@@ -238,39 +219,28 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 	int flags;
 	long max_param = 0;
 	long i;
-
 	while(*fmt) {
 		if(*fmt++ == '%') {
 			if(*fmt == '%') {
 				fmt++;
 				continue; /* while */
 			}
-
 			flags = FLAGS_NEW;
-
 			/* Handle the positional case (N$) */
-
 			param_num++;
-
 			this_param = dprintf_DollarString(fmt, &fmt);
 			if(0 == this_param)
-				/* we got no positional, get the next counter */
-				this_param = param_num;
-
+				this_param = param_num; /* we got no positional, get the next counter */
 			if(this_param > max_param)
 				max_param = this_param;
-
 			/*
 			 * The parameter with number 'i' should be used. Next, we need
 			 * to get SIZE and TYPE of the parameter. Add the information
 			 * to our array.
 			 */
-
 			width = 0;
 			precision = 0;
-
 			/* Handle the flags */
-
 			while(dprintf_IsQualifierNoDollar(fmt)) {
 #if defined(MP_HAVE_INT_EXTENSIONS)
 				if(!strncmp(fmt, "I32", 3)) {
@@ -283,7 +253,6 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto,
 				}
 				else
 #endif
-
 				switch(*fmt++) {
 					case ' ':
 					    flags |= FLAGS_SPACE;
@@ -815,7 +784,7 @@ number:
 			    size_t len;
 
 			    str = (char *)p->data.str;
-			    if(str == NULL) {
+			    if(!str) {
 				    /* Write null[] if there's space.  */
 				    if(prec == -1 || prec >= (long)sizeof(null) - 1) {
 					    str = null;
@@ -992,7 +961,6 @@ static int addbyter(int output, FILE * data)
 {
 	struct nsprintf * infop = (struct nsprintf *)data;
 	uchar outc = (uchar)output;
-
 	if(infop->length < infop->max) {
 		/* only do this if we haven't reached max length yet */
 		infop->buffer[0] = outc; /* store */
@@ -1003,16 +971,13 @@ static int addbyter(int output, FILE * data)
 	return -1;
 }
 
-int curl_mvsnprintf(char * buffer, size_t maxlength, const char * format,
-    va_list ap_save)
+int curl_mvsnprintf(char * buffer, size_t maxlength, const char * format, va_list ap_save)
 {
 	int retcode;
 	struct nsprintf info;
-
 	info.buffer = buffer;
 	info.length = 0;
 	info.max = maxlength;
-
 	retcode = dprintf_formatf(&info, addbyter, format, ap_save);
 	if((retcode != -1) && info.max) {
 		/* we terminate this with a zero byte */
@@ -1040,7 +1005,6 @@ static int alloc_addbyter(int output, FILE * data)
 {
 	struct asprintf * infop = (struct asprintf *)data;
 	uchar outc = (uchar)output;
-
 	if(Curl_dyn_addn(infop->b, &outc, 1)) {
 		infop->fail = 1;
 		return -1; /* fail */
@@ -1058,7 +1022,6 @@ int Curl_dyn_vprintf(struct dynbuf * dyn, const char * format, va_list ap_save)
 	struct asprintf info;
 	info.b = dyn;
 	info.fail = 0;
-
 	retcode = dprintf_formatf(&info, alloc_addbyter, format, ap_save);
 	if((-1 == retcode) || info.fail) {
 		Curl_dyn_free(info.b);
@@ -1075,7 +1038,6 @@ char * curl_mvaprintf(const char * format, va_list ap_save)
 	info.b = &dyn;
 	Curl_dyn_init(info.b, DYN_APRINTF);
 	info.fail = 0;
-
 	retcode = dprintf_formatf(&info, alloc_addbyter, format, ap_save);
 	if((-1 == retcode) || info.fail) {
 		Curl_dyn_free(info.b);
@@ -1121,7 +1083,6 @@ int curl_mprintf(const char * format, ...)
 	int retcode;
 	va_list ap_save; /* argument pointer */
 	va_start(ap_save, format);
-
 	retcode = dprintf_formatf(stdout, fputc, format, ap_save);
 	va_end(ap_save);
 	return retcode;

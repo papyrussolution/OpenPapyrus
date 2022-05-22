@@ -616,7 +616,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				break;
 			case SLib.EV_IADATAEDITCOMMIT:
 				if(srcObj != null && subj != null) {
-					StyloQApp app_ctx = (StyloQApp) getApplication();
+					StyloQApp app_ctx = (StyloQApp)getApplication();
 					try {
 						StyloQDatabase db = app_ctx.GetDB();
 						if(srcObj instanceof MainActivity.SvcInfoDialog && subj instanceof StyloQDatabase.SecStoragePacket) {

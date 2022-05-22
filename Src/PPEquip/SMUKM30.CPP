@@ -27,7 +27,7 @@ public:
 	PPAsyncCashSession * AsyncInterface() { return new ACS_SMUKM30(NodeID); }
 };
 
-REGISTER_CMT(SMUKM30,0,1);
+REGISTER_CMT(SMUKM30, false, true);
 
 int ACS_SMUKM30::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd /*=0*/)
 {

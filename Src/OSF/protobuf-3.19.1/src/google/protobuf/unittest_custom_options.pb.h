@@ -189,19 +189,15 @@ constexpr TestMessageWithCustomOptions_AnEnum TestMessageWithCustomOptions_AnEnu
 constexpr TestMessageWithCustomOptions_AnEnum TestMessageWithCustomOptions_AnEnum_AnEnum_MAX = TestMessageWithCustomOptions_AnEnum_ANENUM_VAL2;
 constexpr int TestMessageWithCustomOptions_AnEnum_AnEnum_ARRAYSIZE = TestMessageWithCustomOptions_AnEnum_AnEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestMessageWithCustomOptions_AnEnum_descriptor();
-template<typename T>
-inline const std::string& TestMessageWithCustomOptions_AnEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, TestMessageWithCustomOptions_AnEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function TestMessageWithCustomOptions_AnEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    TestMessageWithCustomOptions_AnEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * TestMessageWithCustomOptions_AnEnum_descriptor();
+template<typename T> inline const std::string& TestMessageWithCustomOptions_AnEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, TestMessageWithCustomOptions_AnEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function TestMessageWithCustomOptions_AnEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(TestMessageWithCustomOptions_AnEnum_descriptor(), enum_t_value);
 }
-inline bool TestMessageWithCustomOptions_AnEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestMessageWithCustomOptions_AnEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestMessageWithCustomOptions_AnEnum>(
-    TestMessageWithCustomOptions_AnEnum_descriptor(), name, value);
+inline bool TestMessageWithCustomOptions_AnEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestMessageWithCustomOptions_AnEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestMessageWithCustomOptions_AnEnum>(TestMessageWithCustomOptions_AnEnum_descriptor(), name, value);
 }
 enum DummyMessageContainingEnum_TestEnumType : int {
   DummyMessageContainingEnum_TestEnumType_TEST_OPTION_ENUM_TYPE1 = 22,
@@ -212,19 +208,15 @@ constexpr DummyMessageContainingEnum_TestEnumType DummyMessageContainingEnum_Tes
 constexpr DummyMessageContainingEnum_TestEnumType DummyMessageContainingEnum_TestEnumType_TestEnumType_MAX = DummyMessageContainingEnum_TestEnumType_TEST_OPTION_ENUM_TYPE1;
 constexpr int DummyMessageContainingEnum_TestEnumType_TestEnumType_ARRAYSIZE = DummyMessageContainingEnum_TestEnumType_TestEnumType_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* DummyMessageContainingEnum_TestEnumType_descriptor();
-template<typename T>
-inline const std::string& DummyMessageContainingEnum_TestEnumType_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, DummyMessageContainingEnum_TestEnumType>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function DummyMessageContainingEnum_TestEnumType_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    DummyMessageContainingEnum_TestEnumType_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * DummyMessageContainingEnum_TestEnumType_descriptor();
+template<typename T> inline const std::string& DummyMessageContainingEnum_TestEnumType_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, DummyMessageContainingEnum_TestEnumType>::value || ::std::is_integral<T>::value, "Incorrect type passed to function DummyMessageContainingEnum_TestEnumType_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(DummyMessageContainingEnum_TestEnumType_descriptor(), enum_t_value);
 }
-inline bool DummyMessageContainingEnum_TestEnumType_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, DummyMessageContainingEnum_TestEnumType* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<DummyMessageContainingEnum_TestEnumType>(
-    DummyMessageContainingEnum_TestEnumType_descriptor(), name, value);
+inline bool DummyMessageContainingEnum_TestEnumType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, DummyMessageContainingEnum_TestEnumType * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<DummyMessageContainingEnum_TestEnumType>(DummyMessageContainingEnum_TestEnumType_descriptor(), name, value);
 }
 enum NestedOptionType_NestedEnum : int {
   NestedOptionType_NestedEnum_NESTED_ENUM_VALUE = 1
@@ -234,19 +226,15 @@ constexpr NestedOptionType_NestedEnum NestedOptionType_NestedEnum_NestedEnum_MIN
 constexpr NestedOptionType_NestedEnum NestedOptionType_NestedEnum_NestedEnum_MAX = NestedOptionType_NestedEnum_NESTED_ENUM_VALUE;
 constexpr int NestedOptionType_NestedEnum_NestedEnum_ARRAYSIZE = NestedOptionType_NestedEnum_NestedEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* NestedOptionType_NestedEnum_descriptor();
-template<typename T>
-inline const std::string& NestedOptionType_NestedEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, NestedOptionType_NestedEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function NestedOptionType_NestedEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    NestedOptionType_NestedEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * NestedOptionType_NestedEnum_descriptor();
+template<typename T> inline const std::string& NestedOptionType_NestedEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, NestedOptionType_NestedEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function NestedOptionType_NestedEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(NestedOptionType_NestedEnum_descriptor(), enum_t_value);
 }
-inline bool NestedOptionType_NestedEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, NestedOptionType_NestedEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<NestedOptionType_NestedEnum>(
-    NestedOptionType_NestedEnum_descriptor(), name, value);
+inline bool NestedOptionType_NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, NestedOptionType_NestedEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<NestedOptionType_NestedEnum>(NestedOptionType_NestedEnum_descriptor(), name, value);
 }
 enum OldOptionType_TestEnum : int {
   OldOptionType_TestEnum_OLD_VALUE = 0
@@ -256,19 +244,15 @@ constexpr OldOptionType_TestEnum OldOptionType_TestEnum_TestEnum_MIN = OldOption
 constexpr OldOptionType_TestEnum OldOptionType_TestEnum_TestEnum_MAX = OldOptionType_TestEnum_OLD_VALUE;
 constexpr int OldOptionType_TestEnum_TestEnum_ARRAYSIZE = OldOptionType_TestEnum_TestEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* OldOptionType_TestEnum_descriptor();
-template<typename T>
-inline const std::string& OldOptionType_TestEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, OldOptionType_TestEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function OldOptionType_TestEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    OldOptionType_TestEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * OldOptionType_TestEnum_descriptor();
+template<typename T> inline const std::string& OldOptionType_TestEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, OldOptionType_TestEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function OldOptionType_TestEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(OldOptionType_TestEnum_descriptor(), enum_t_value);
 }
-inline bool OldOptionType_TestEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, OldOptionType_TestEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<OldOptionType_TestEnum>(
-    OldOptionType_TestEnum_descriptor(), name, value);
+inline bool OldOptionType_TestEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, OldOptionType_TestEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<OldOptionType_TestEnum>(OldOptionType_TestEnum_descriptor(), name, value);
 }
 enum NewOptionType_TestEnum : int {
   NewOptionType_TestEnum_OLD_VALUE = 0,
@@ -279,19 +263,15 @@ constexpr NewOptionType_TestEnum NewOptionType_TestEnum_TestEnum_MIN = NewOption
 constexpr NewOptionType_TestEnum NewOptionType_TestEnum_TestEnum_MAX = NewOptionType_TestEnum_NEW_VALUE;
 constexpr int NewOptionType_TestEnum_TestEnum_ARRAYSIZE = NewOptionType_TestEnum_TestEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* NewOptionType_TestEnum_descriptor();
-template<typename T>
-inline const std::string& NewOptionType_TestEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, NewOptionType_TestEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function NewOptionType_TestEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    NewOptionType_TestEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * NewOptionType_TestEnum_descriptor();
+template<typename T> inline const std::string& NewOptionType_TestEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, NewOptionType_TestEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function NewOptionType_TestEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(NewOptionType_TestEnum_descriptor(), enum_t_value);
 }
-inline bool NewOptionType_TestEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, NewOptionType_TestEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<NewOptionType_TestEnum>(
-    NewOptionType_TestEnum_descriptor(), name, value);
+inline bool NewOptionType_TestEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, NewOptionType_TestEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<NewOptionType_TestEnum>(NewOptionType_TestEnum_descriptor(), name, value);
 }
 enum MethodOpt1 : int {
   METHODOPT1_VAL1 = 1,
@@ -302,19 +282,15 @@ constexpr MethodOpt1 MethodOpt1_MIN = METHODOPT1_VAL1;
 constexpr MethodOpt1 MethodOpt1_MAX = METHODOPT1_VAL2;
 constexpr int MethodOpt1_ARRAYSIZE = MethodOpt1_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MethodOpt1_descriptor();
-template<typename T>
-inline const std::string& MethodOpt1_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, MethodOpt1>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function MethodOpt1_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    MethodOpt1_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * MethodOpt1_descriptor();
+template<typename T> inline const std::string& MethodOpt1_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, MethodOpt1>::value || ::std::is_integral<T>::value, "Incorrect type passed to function MethodOpt1_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(MethodOpt1_descriptor(), enum_t_value);
 }
-inline bool MethodOpt1_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MethodOpt1* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<MethodOpt1>(
-    MethodOpt1_descriptor(), name, value);
+inline bool MethodOpt1_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, MethodOpt1 * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<MethodOpt1>(MethodOpt1_descriptor(), name, value);
 }
 enum AggregateEnum : int {
   VALUE = 1
@@ -324,19 +300,15 @@ constexpr AggregateEnum AggregateEnum_MIN = VALUE;
 constexpr AggregateEnum AggregateEnum_MAX = VALUE;
 constexpr int AggregateEnum_ARRAYSIZE = AggregateEnum_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* AggregateEnum_descriptor();
-template<typename T>
-inline const std::string& AggregateEnum_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, AggregateEnum>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function AggregateEnum_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    AggregateEnum_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * AggregateEnum_descriptor();
+template<typename T> inline const std::string& AggregateEnum_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, AggregateEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function AggregateEnum_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(AggregateEnum_descriptor(), enum_t_value);
 }
-inline bool AggregateEnum_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, AggregateEnum* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<AggregateEnum>(
-    AggregateEnum_descriptor(), name, value);
+inline bool AggregateEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, AggregateEnum * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<AggregateEnum>(AggregateEnum_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -481,33 +453,21 @@ class TestMessageWithCustomOptions final :
 
 
   typedef TestMessageWithCustomOptions_AnEnum AnEnum;
-  static constexpr AnEnum ANENUM_VAL1 =
-    TestMessageWithCustomOptions_AnEnum_ANENUM_VAL1;
-  static constexpr AnEnum ANENUM_VAL2 =
-    TestMessageWithCustomOptions_AnEnum_ANENUM_VAL2;
-  static inline bool AnEnum_IsValid(int value) {
-    return TestMessageWithCustomOptions_AnEnum_IsValid(value);
+  static constexpr AnEnum ANENUM_VAL1 = TestMessageWithCustomOptions_AnEnum_ANENUM_VAL1;
+  static constexpr AnEnum ANENUM_VAL2 = TestMessageWithCustomOptions_AnEnum_ANENUM_VAL2;
+  static inline bool AnEnum_IsValid(int value) { return TestMessageWithCustomOptions_AnEnum_IsValid(value); }
+  static constexpr AnEnum AnEnum_MIN = TestMessageWithCustomOptions_AnEnum_AnEnum_MIN;
+  static constexpr AnEnum AnEnum_MAX = TestMessageWithCustomOptions_AnEnum_AnEnum_MAX;
+  static constexpr int AnEnum_ARRAYSIZE = TestMessageWithCustomOptions_AnEnum_AnEnum_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * AnEnum_descriptor() { return TestMessageWithCustomOptions_AnEnum_descriptor(); }
+  template<typename T> static inline const std::string& AnEnum_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, AnEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function AnEnum_Name.");
+  	return TestMessageWithCustomOptions_AnEnum_Name(enum_t_value);
   }
-  static constexpr AnEnum AnEnum_MIN =
-    TestMessageWithCustomOptions_AnEnum_AnEnum_MIN;
-  static constexpr AnEnum AnEnum_MAX =
-    TestMessageWithCustomOptions_AnEnum_AnEnum_MAX;
-  static constexpr int AnEnum_ARRAYSIZE =
-    TestMessageWithCustomOptions_AnEnum_AnEnum_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  AnEnum_descriptor() {
-    return TestMessageWithCustomOptions_AnEnum_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& AnEnum_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, AnEnum>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function AnEnum_Name.");
-    return TestMessageWithCustomOptions_AnEnum_Name(enum_t_value);
-  }
-  static inline bool AnEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      AnEnum* value) {
-    return TestMessageWithCustomOptions_AnEnum_Parse(name, value);
+  static inline bool AnEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, AnEnum* value)
+  {
+  	return TestMessageWithCustomOptions_AnEnum_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -524,15 +484,11 @@ class TestMessageWithCustomOptions final :
   public:
   void clear_map_field();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-      _internal_map_field() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-      _internal_mutable_map_field();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > & _internal_map_field() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * _internal_mutable_map_field();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-      map_field() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-      mutable_map_field();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > & map_field() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * mutable_map_field();
 
   // optional string field1 = 1 [ctype = CORD, (.protobuf_unittest.field_opt1) = 8765432109];
   bool has_field1() const;
@@ -1082,33 +1038,21 @@ class DummyMessageContainingEnum final :
   // nested types ----------------------------------------------------
 
   typedef DummyMessageContainingEnum_TestEnumType TestEnumType;
-  static constexpr TestEnumType TEST_OPTION_ENUM_TYPE1 =
-    DummyMessageContainingEnum_TestEnumType_TEST_OPTION_ENUM_TYPE1;
-  static constexpr TestEnumType TEST_OPTION_ENUM_TYPE2 =
-    DummyMessageContainingEnum_TestEnumType_TEST_OPTION_ENUM_TYPE2;
-  static inline bool TestEnumType_IsValid(int value) {
-    return DummyMessageContainingEnum_TestEnumType_IsValid(value);
+  static constexpr TestEnumType TEST_OPTION_ENUM_TYPE1 = DummyMessageContainingEnum_TestEnumType_TEST_OPTION_ENUM_TYPE1;
+  static constexpr TestEnumType TEST_OPTION_ENUM_TYPE2 = DummyMessageContainingEnum_TestEnumType_TEST_OPTION_ENUM_TYPE2;
+  static inline bool TestEnumType_IsValid(int value) { return DummyMessageContainingEnum_TestEnumType_IsValid(value); }
+  static constexpr TestEnumType TestEnumType_MIN = DummyMessageContainingEnum_TestEnumType_TestEnumType_MIN;
+  static constexpr TestEnumType TestEnumType_MAX = DummyMessageContainingEnum_TestEnumType_TestEnumType_MAX;
+  static constexpr int TestEnumType_ARRAYSIZE = DummyMessageContainingEnum_TestEnumType_TestEnumType_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * TestEnumType_descriptor() { return DummyMessageContainingEnum_TestEnumType_descriptor(); }
+  template<typename T> static inline const std::string& TestEnumType_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, TestEnumType>::value || ::std::is_integral<T>::value, "Incorrect type passed to function TestEnumType_Name.");
+  	return DummyMessageContainingEnum_TestEnumType_Name(enum_t_value);
   }
-  static constexpr TestEnumType TestEnumType_MIN =
-    DummyMessageContainingEnum_TestEnumType_TestEnumType_MIN;
-  static constexpr TestEnumType TestEnumType_MAX =
-    DummyMessageContainingEnum_TestEnumType_TestEnumType_MAX;
-  static constexpr int TestEnumType_ARRAYSIZE =
-    DummyMessageContainingEnum_TestEnumType_TestEnumType_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  TestEnumType_descriptor() {
-    return DummyMessageContainingEnum_TestEnumType_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& TestEnumType_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, TestEnumType>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function TestEnumType_Name.");
-    return DummyMessageContainingEnum_TestEnumType_Name(enum_t_value);
-  }
-  static inline bool TestEnumType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      TestEnumType* value) {
-    return DummyMessageContainingEnum_TestEnumType_Parse(name, value);
+  static inline bool TestEnumType_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestEnumType* value)
+  {
+  	return DummyMessageContainingEnum_TestEnumType_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -1841,16 +1785,13 @@ class ComplexOptionType1 final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_foo4() const;
   void _internal_add_foo4(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_foo4();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_foo4();
   public:
   int32_t foo4(int index) const;
   void set_foo4(int index, int32_t value);
   void add_foo4(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      foo4() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_foo4();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & foo4() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_foo4();
 
   // optional int32 foo = 1;
   bool has_foo() const;
@@ -4097,31 +4038,20 @@ class NestedOptionType final :
   typedef NestedOptionType_NestedMessage NestedMessage;
 
   typedef NestedOptionType_NestedEnum NestedEnum;
-  static constexpr NestedEnum NESTED_ENUM_VALUE =
-    NestedOptionType_NestedEnum_NESTED_ENUM_VALUE;
-  static inline bool NestedEnum_IsValid(int value) {
-    return NestedOptionType_NestedEnum_IsValid(value);
+  static constexpr NestedEnum NESTED_ENUM_VALUE = NestedOptionType_NestedEnum_NESTED_ENUM_VALUE;
+  static inline bool NestedEnum_IsValid(int value) { return NestedOptionType_NestedEnum_IsValid(value); }
+  static constexpr NestedEnum NestedEnum_MIN = NestedOptionType_NestedEnum_NestedEnum_MIN;
+  static constexpr NestedEnum NestedEnum_MAX = NestedOptionType_NestedEnum_NestedEnum_MAX;
+  static constexpr int NestedEnum_ARRAYSIZE = NestedOptionType_NestedEnum_NestedEnum_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * NestedEnum_descriptor() { return NestedOptionType_NestedEnum_descriptor(); }
+  template<typename T> static inline const std::string& NestedEnum_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, NestedEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function NestedEnum_Name.");
+  	return NestedOptionType_NestedEnum_Name(enum_t_value);
   }
-  static constexpr NestedEnum NestedEnum_MIN =
-    NestedOptionType_NestedEnum_NestedEnum_MIN;
-  static constexpr NestedEnum NestedEnum_MAX =
-    NestedOptionType_NestedEnum_NestedEnum_MAX;
-  static constexpr int NestedEnum_ARRAYSIZE =
-    NestedOptionType_NestedEnum_NestedEnum_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  NestedEnum_descriptor() {
-    return NestedOptionType_NestedEnum_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& NestedEnum_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, NestedEnum>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function NestedEnum_Name.");
-    return NestedOptionType_NestedEnum_Name(enum_t_value);
-  }
-  static inline bool NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      NestedEnum* value) {
-    return NestedOptionType_NestedEnum_Parse(name, value);
+  static inline bool NestedEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, NestedEnum* value)
+  {
+  	return NestedOptionType_NestedEnum_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -4246,31 +4176,20 @@ class OldOptionType final :
   // nested types ----------------------------------------------------
 
   typedef OldOptionType_TestEnum TestEnum;
-  static constexpr TestEnum OLD_VALUE =
-    OldOptionType_TestEnum_OLD_VALUE;
-  static inline bool TestEnum_IsValid(int value) {
-    return OldOptionType_TestEnum_IsValid(value);
+  static constexpr TestEnum OLD_VALUE = OldOptionType_TestEnum_OLD_VALUE;
+  static inline bool TestEnum_IsValid(int value) { return OldOptionType_TestEnum_IsValid(value); }
+  static constexpr TestEnum TestEnum_MIN = OldOptionType_TestEnum_TestEnum_MIN;
+  static constexpr TestEnum TestEnum_MAX = OldOptionType_TestEnum_TestEnum_MAX;
+  static constexpr int TestEnum_ARRAYSIZE = OldOptionType_TestEnum_TestEnum_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * TestEnum_descriptor() { return OldOptionType_TestEnum_descriptor(); }
+  template<typename T> static inline const std::string& TestEnum_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, TestEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function TestEnum_Name.");
+  	return OldOptionType_TestEnum_Name(enum_t_value);
   }
-  static constexpr TestEnum TestEnum_MIN =
-    OldOptionType_TestEnum_TestEnum_MIN;
-  static constexpr TestEnum TestEnum_MAX =
-    OldOptionType_TestEnum_TestEnum_MAX;
-  static constexpr int TestEnum_ARRAYSIZE =
-    OldOptionType_TestEnum_TestEnum_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  TestEnum_descriptor() {
-    return OldOptionType_TestEnum_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& TestEnum_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, TestEnum>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function TestEnum_Name.");
-    return OldOptionType_TestEnum_Name(enum_t_value);
-  }
-  static inline bool TestEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      TestEnum* value) {
-    return OldOptionType_TestEnum_Parse(name, value);
+  static inline bool TestEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestEnum* value)
+  {
+  	return OldOptionType_TestEnum_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -4409,33 +4328,21 @@ class NewOptionType final :
   // nested types ----------------------------------------------------
 
   typedef NewOptionType_TestEnum TestEnum;
-  static constexpr TestEnum OLD_VALUE =
-    NewOptionType_TestEnum_OLD_VALUE;
-  static constexpr TestEnum NEW_VALUE =
-    NewOptionType_TestEnum_NEW_VALUE;
-  static inline bool TestEnum_IsValid(int value) {
-    return NewOptionType_TestEnum_IsValid(value);
+  static constexpr TestEnum OLD_VALUE = NewOptionType_TestEnum_OLD_VALUE;
+  static constexpr TestEnum NEW_VALUE = NewOptionType_TestEnum_NEW_VALUE;
+  static inline bool TestEnum_IsValid(int value) { return NewOptionType_TestEnum_IsValid(value); }
+  static constexpr TestEnum TestEnum_MIN = NewOptionType_TestEnum_TestEnum_MIN;
+  static constexpr TestEnum TestEnum_MAX = NewOptionType_TestEnum_TestEnum_MAX;
+  static constexpr int TestEnum_ARRAYSIZE = NewOptionType_TestEnum_TestEnum_ARRAYSIZE;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * TestEnum_descriptor() { return NewOptionType_TestEnum_descriptor(); }
+  template<typename T> static inline const std::string& TestEnum_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, TestEnum>::value || ::std::is_integral<T>::value, "Incorrect type passed to function TestEnum_Name.");
+  	return NewOptionType_TestEnum_Name(enum_t_value);
   }
-  static constexpr TestEnum TestEnum_MIN =
-    NewOptionType_TestEnum_TestEnum_MIN;
-  static constexpr TestEnum TestEnum_MAX =
-    NewOptionType_TestEnum_TestEnum_MAX;
-  static constexpr int TestEnum_ARRAYSIZE =
-    NewOptionType_TestEnum_TestEnum_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  TestEnum_descriptor() {
-    return NewOptionType_TestEnum_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& TestEnum_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, TestEnum>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function TestEnum_Name.");
-    return NewOptionType_TestEnum_Name(enum_t_value);
-  }
-  static inline bool TestEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      TestEnum* value) {
-    return NewOptionType_TestEnum_Parse(name, value);
+  static inline bool TestEnum_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestEnum* value)
+  {
+  	return NewOptionType_TestEnum_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -4962,20 +4869,16 @@ inline void TestMessageWithCustomOptions::clear_map_field() {
   map_field_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-TestMessageWithCustomOptions::_internal_map_field() const {
-  return map_field_.GetMap();
-}
+TestMessageWithCustomOptions::_internal_map_field() const { return map_field_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 TestMessageWithCustomOptions::map_field() const {
   // @@protoc_insertion_point(field_map:protobuf_unittest.TestMessageWithCustomOptions.map_field)
   return _internal_map_field();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-TestMessageWithCustomOptions::_internal_mutable_map_field() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMessageWithCustomOptions::_internal_mutable_map_field() {
   return map_field_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-TestMessageWithCustomOptions::mutable_map_field() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * TestMessageWithCustomOptions::mutable_map_field() {
   // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestMessageWithCustomOptions.map_field)
   return _internal_mutable_map_field();
 }
@@ -5144,12 +5047,10 @@ ComplexOptionType1::foo4() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.ComplexOptionType1.foo4)
   return _internal_foo4();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-ComplexOptionType1::_internal_mutable_foo4() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * ComplexOptionType1::_internal_mutable_foo4() {
   return &foo4_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-ComplexOptionType1::mutable_foo4() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * ComplexOptionType1::mutable_foo4() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.ComplexOptionType1.foo4)
   return _internal_mutable_foo4();
 }
@@ -5404,8 +5305,7 @@ inline ::protobuf_unittest::ComplexOptionType2_ComplexOptionType4* ComplexOption
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.ComplexOptionType2.barney)
   return barney_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::ComplexOptionType2_ComplexOptionType4 >*
-ComplexOptionType2::mutable_barney() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::ComplexOptionType2_ComplexOptionType4 > * ComplexOptionType2::mutable_barney() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.ComplexOptionType2.barney)
   return &barney_;
 }
@@ -6325,40 +6225,19 @@ inline void NewOptionType::set_value(::protobuf_unittest::NewOptionType_TestEnum
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::protobuf_unittest::TestMessageWithCustomOptions_AnEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestMessageWithCustomOptions_AnEnum>() {
-  return ::protobuf_unittest::TestMessageWithCustomOptions_AnEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestMessageWithCustomOptions_AnEnum>() { return ::protobuf_unittest::TestMessageWithCustomOptions_AnEnum_descriptor(); }
 template <> struct is_proto_enum< ::protobuf_unittest::DummyMessageContainingEnum_TestEnumType> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::DummyMessageContainingEnum_TestEnumType>() {
-  return ::protobuf_unittest::DummyMessageContainingEnum_TestEnumType_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::DummyMessageContainingEnum_TestEnumType>() { return ::protobuf_unittest::DummyMessageContainingEnum_TestEnumType_descriptor(); }
 template <> struct is_proto_enum< ::protobuf_unittest::NestedOptionType_NestedEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::NestedOptionType_NestedEnum>() {
-  return ::protobuf_unittest::NestedOptionType_NestedEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::NestedOptionType_NestedEnum>() { return ::protobuf_unittest::NestedOptionType_NestedEnum_descriptor(); }
 template <> struct is_proto_enum< ::protobuf_unittest::OldOptionType_TestEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::OldOptionType_TestEnum>() {
-  return ::protobuf_unittest::OldOptionType_TestEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::OldOptionType_TestEnum>() { return ::protobuf_unittest::OldOptionType_TestEnum_descriptor(); }
 template <> struct is_proto_enum< ::protobuf_unittest::NewOptionType_TestEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::NewOptionType_TestEnum>() {
-  return ::protobuf_unittest::NewOptionType_TestEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::NewOptionType_TestEnum>() { return ::protobuf_unittest::NewOptionType_TestEnum_descriptor(); }
 template <> struct is_proto_enum< ::protobuf_unittest::MethodOpt1> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::MethodOpt1>() {
-  return ::protobuf_unittest::MethodOpt1_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::MethodOpt1>() { return ::protobuf_unittest::MethodOpt1_descriptor(); }
 template <> struct is_proto_enum< ::protobuf_unittest::AggregateEnum> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::AggregateEnum>() {
-  return ::protobuf_unittest::AggregateEnum_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::AggregateEnum>() { return ::protobuf_unittest::AggregateEnum_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

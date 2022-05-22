@@ -268,7 +268,7 @@ void UdsGameInterface::PrepareHtmlFields(StrStrAssocArray & rHdrFlds)
 	}
 	{
 		LDATETIME now_dtm = getcurdatetime_();
-		temp_buf.Z().Cat(now_dtm.d, DATF_ISO8601|DATF_CENTURY).CatChar('T').Cat(now_dtm.t, TIMF_HMS|TIMF_MSEC|TIMF_TIMEZONE);
+		temp_buf.Z().Cat(now_dtm.d, DATF_ISO8601CENT).CatChar('T').Cat(now_dtm.t, TIMF_HMS|TIMF_MSEC|TIMF_TIMEZONE);
 		SHttpProtocol::SetHeaderField(rHdrFlds, SHttpProtocol::hdrXTimestamp, temp_buf);
 	}
 }

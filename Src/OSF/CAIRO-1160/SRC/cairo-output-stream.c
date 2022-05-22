@@ -536,7 +536,7 @@ cairo_output_stream_t * _cairo_output_stream_create_for_filename(const char * fi
 	stdio_stream_t * stream;
 	FILE * file;
 	cairo_status_t status;
-	if(filename == NULL)
+	if(!filename)
 		return _cairo_null_stream_create();
 	status = _cairo_fopen(filename, "wb", &file);
 	if(status != CAIRO_STATUS_SUCCESS)

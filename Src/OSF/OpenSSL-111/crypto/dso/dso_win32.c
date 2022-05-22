@@ -101,12 +101,12 @@ static int win32_load(DSO * dso)
 	/* See applicable comments from dso_dl.c */
 	char * filename = DSO_convert_filename(dso, NULL);
 
-	if(filename == NULL) {
+	if(!filename) {
 		DSOerr(DSO_F_WIN32_LOAD, DSO_R_NO_FILENAME);
 		goto err;
 	}
 	h = LoadLibraryA(filename);
-	if(h == NULL) {
+	if(!h) {
 		DSOerr(DSO_F_WIN32_LOAD, DSO_R_LOAD_FAILED);
 		ERR_add_error_data(3, "filename(", filename, ")");
 		goto err;
@@ -177,7 +177,7 @@ static DSO_FUNC_TYPE win32_bind_func(DSO * dso, const char * symname)
 		return NULL;
 	}
 	ptr = static_cast<HINSTANCE *>(sk_void_value(dso->meth_data, sk_void_num(dso->meth_data) - 1));
-	if(ptr == NULL) {
+	if(!ptr) {
 		DSOerr(DSO_F_WIN32_BIND_FUNC, DSO_R_NULL_HANDLE);
 		return NULL;
 	}
@@ -216,7 +216,7 @@ static struct file_st * win32_splitter(DSO * dso, const char * filename,
 		return NULL;
 	}
 	result = static_cast<file_st *>(OPENSSL_zalloc(sizeof(*result)));
-	if(result == NULL) {
+	if(!result) {
 		DSOerr(DSO_F_WIN32_SPLITTER, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -340,7 +340,7 @@ static char * win32_joiner(DSO * dso, const struct file_st * file_split)
 	}
 
 	result = static_cast<char *>(OPENSSL_malloc(len + 1));
-	if(result == NULL) {
+	if(!result) {
 		DSOerr(DSO_F_WIN32_JOINER, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

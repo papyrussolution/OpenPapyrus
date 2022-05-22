@@ -401,7 +401,7 @@ int archive_write_set_format_zip(struct archive * _a)
 	struct zip * zip;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If another format was already registered, unregister it. */
-	if(a->format_free != NULL)
+	if(a->format_free)
 		(a->format_free)(a);
 	zip = (struct zip *)SAlloc::C(1, sizeof(*zip));
 	if(zip == NULL) {

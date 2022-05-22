@@ -1231,9 +1231,7 @@ static int ssl_check_srp_ext_ClientHello(SSL * s)
 				return 0;
 			if(ret == SSL3_AL_FATAL) {
 				SSLfatal(s, al, SSL_F_SSL_CHECK_SRP_EXT_CLIENTHELLO,
-				    al == SSL_AD_UNKNOWN_PSK_IDENTITY
-				    ? SSL_R_PSK_IDENTITY_NOT_FOUND
-				    : SSL_R_CLIENTHELLO_TLSEXT);
+				    al == SSL_AD_UNKNOWN_PSK_IDENTITY ? SSL_R_PSK_IDENTITY_NOT_FOUND : SSL_R_CLIENTHELLO_TLSEXT);
 				return -1;
 			}
 		}
@@ -1557,9 +1555,7 @@ static int tls_early_post_process_client_hello(SSL * s)
 			    return -1;
 			case SSL_CLIENT_HELLO_ERROR:
 			default:
-			    SSLfatal(s, al,
-				SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO,
-				SSL_R_CALLBACK_FAILED);
+			    SSLfatal(s, al, SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO, SSL_R_CALLBACK_FAILED);
 			    goto err;
 		}
 	}
@@ -2014,10 +2010,8 @@ static int tls_handle_status_request(SSL * s)
 	 * and must be called after the cipher has been chosen because this may
 	 * influence which certificate is sent
 	 */
-	if(s->ext.status_type != TLSEXT_STATUSTYPE_nothing && s->ctx != NULL
-	 && s->ctx->ext.status_cb != NULL) {
+	if(s->ext.status_type != TLSEXT_STATUSTYPE_nothing && s->ctx != NULL && s->ctx->ext.status_cb != NULL) {
 		int ret;
-
 		/* If no certificate can't return certificate status */
 		if(s->s3->tmp.cert != NULL) {
 			/*
@@ -2163,7 +2157,7 @@ WORK_STATE tls_post_process_client_hello(SSL * s, WORK_STATE wst)
 			}
 			if(!s->hit) {
 				if(!tls_choose_sigalg(s, 1)) {
-					/* SSLfatal already called */
+					/* SSLfatal() already called */
 					goto err;
 				}
 				/* check whether we should disable session resumption */
@@ -2451,7 +2445,7 @@ int tls_construct_server_key_exchange(SSL * s, WPACKET * pkt)
 		}
 
 		dh = EVP_PKEY_get0_DH(s->s3->tmp.pkey);
-		if(dh == NULL) {
+		if(!dh) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR,
 			    SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE,
 			    ERR_R_INTERNAL_ERROR);
@@ -3490,26 +3484,17 @@ MSG_PROCESS_RETURN tls_process_client_certificate(SSL * s, PACKET * pkt)
 	 * TLSv1.3
 	 */
 	s->statem.enc_read_state = ENC_READ_STATE_VALID;
-
 	if((sk = sk_X509_new_null()) == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE,
-		    ERR_R_MALLOC_FAILURE);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
-	if(SSL_IS_TLS13(s) && (!PACKET_get_length_prefixed_1(pkt, &context)
-	   || (s->pha_context == NULL && PACKET_remaining(&context) != 0)
-	   || (s->pha_context != NULL &&
-	    !PACKET_equal(&context, s->pha_context, s->pha_context_len)))) {
-		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE,
-		    SSL_R_INVALID_CONTEXT);
+	if(SSL_IS_TLS13(s) && (!PACKET_get_length_prefixed_1(pkt, &context) || (s->pha_context == NULL && PACKET_remaining(&context) != 0)
+	   || (s->pha_context != NULL && !PACKET_equal(&context, s->pha_context, s->pha_context_len)))) {
+		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, SSL_R_INVALID_CONTEXT);
 		goto err;
 	}
-
-	if(!PACKET_get_length_prefixed_3(pkt, &spkt)
-	   || PACKET_remaining(pkt) != 0) {
-		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE,
-		    SSL_R_LENGTH_MISMATCH);
+	if(!PACKET_get_length_prefixed_3(pkt, &spkt) || PACKET_remaining(pkt) != 0) {
+		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, SSL_R_LENGTH_MISMATCH);
 		goto err;
 	}
 	for(chainidx = 0; PACKET_remaining(&spkt) > 0; chainidx++) {
@@ -3937,7 +3922,7 @@ int tls_construct_new_session_ticket(SSL * s, WPACKET * pkt)
 			SSL_SESSION * new_sess = ssl_session_dup(s->session, 0);
 
 			if(new_sess == NULL) {
-				/* SSLfatal already called */
+				/* SSLfatal() already called */
 				goto err;
 			}
 

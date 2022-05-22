@@ -11,8 +11,8 @@
 #ifndef ABSL_STRINGS_INTERNAL_UTF8_H_
 #define ABSL_STRINGS_INTERNAL_UTF8_H_
 
-#include <cstddef>
-#include <cstdint>
+//#include <cstddef>
+//#include <cstdint>
 #include "absl/base/config.h"
 
 namespace absl {

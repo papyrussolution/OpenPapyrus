@@ -15,7 +15,7 @@
 static DH * dh_param_init(const BIGNUM * p, int32_t nbits)
 {
 	DH * dh = DH_new();
-	if(dh == NULL)
+	if(!dh)
 		return NULL;
 	dh->p = (BIGNUM*)p;
 	dh->g = (BIGNUM*)&_bignum_const_2;
@@ -45,7 +45,6 @@ DH * DH_new_by_nid(int nid)
 int DH_get_nid(const DH * dh)
 {
 	int nid;
-
 	if(BN_get_word(dh->g) != 2)
 		return NID_undef;
 	if(!BN_cmp(dh->p, &_bignum_ffdhe2048_p))

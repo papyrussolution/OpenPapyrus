@@ -177,8 +177,8 @@ typedef struct _TIFFRGBAImage TIFFRGBAImage;
  * different format or, for example, unpack the data
  * and draw the unpacked raster on the display.
  */
-typedef void (*tileContigRoutine)(const TIFFRGBAImage*, uint32*, uint32, uint32, uint32, uint32, int32, int32, uchar *);
-typedef void (*tileSeparateRoutine)(TIFFRGBAImage*, uint32*, uint32, uint32, uint32, uint32, int32, int32, uchar *, uchar *, uchar *, uchar *);
+typedef void (*tileContigRoutine)(const TIFFRGBAImage*, uint32 *, uint32, uint32, uint32, uint32, int32, int32, uchar *);
+typedef void (*tileSeparateRoutine)(TIFFRGBAImage*, uint32 *, uint32, uint32, uint32, uint32, int32, int32, uchar *, uchar *, uchar *, uchar *);
 /*
  * RGBA-reader state.
  */
@@ -198,7 +198,7 @@ struct _TIFFRGBAImage {
 	uint16* greencmap;
 	uint16* bluecmap;
 	/* get image data routine */
-	int (*get)(TIFFRGBAImage*, uint32*, uint32, uint32);
+	int (*get)(TIFFRGBAImage*, uint32 *, uint32, uint32);
 	/* put decoded strip/tile */
 	union {
 	    void (*any)(TIFFRGBAImage*);
@@ -345,7 +345,7 @@ extern tmsize_t TIFFTileSize(TIFF * tif);
 extern uint64 TIFFVTileSize64(TIFF * tif, uint32 nrows);
 extern tmsize_t TIFFVTileSize(TIFF * tif, uint32 nrows);
 extern uint32 TIFFDefaultStripSize(TIFF * tif, uint32 request);
-extern void TIFFDefaultTileSize(TIFF *, uint32*, uint32*);
+extern void TIFFDefaultTileSize(TIFF *, uint32 *, uint32 *);
 extern int TIFFFileno(TIFF *);
 extern int TIFFSetFileno(TIFF *, int);
 extern thandle_t TIFFClientdata(TIFF *);
@@ -394,14 +394,14 @@ extern int TIFFRewriteDirectory(TIFF *);
 extern void TIFFPrintDirectory(TIFF *, FILE*, long = 0);
 extern int TIFFReadScanline(TIFF * tif, void * buf, uint32 row, uint16 sample = 0);
 extern int TIFFWriteScanline(TIFF * tif, void * buf, uint32 row, uint16 sample = 0);
-extern int TIFFReadRGBAImage(TIFF *, uint32, uint32, uint32*, int = 0);
-extern int TIFFReadRGBAImageOriented(TIFF *, uint32, uint32, uint32*, int = ORIENTATION_BOTLEFT, int = 0);
+extern int TIFFReadRGBAImage(TIFF *, uint32, uint32, uint32 *, int = 0);
+extern int TIFFReadRGBAImageOriented(TIFF *, uint32, uint32, uint32 *, int = ORIENTATION_BOTLEFT, int = 0);
 #else
 extern void TIFFPrintDirectory(TIFF *, FILE*, long);
 extern int TIFFReadScanline(TIFF * tif, void * buf, uint32 row, uint16 sample);
 extern int TIFFWriteScanline(TIFF * tif, void * buf, uint32 row, uint16 sample);
-extern int TIFFReadRGBAImage(TIFF *, uint32, uint32, uint32*, int);
-extern int TIFFReadRGBAImageOriented(TIFF *, uint32, uint32, uint32*, int, int);
+extern int TIFFReadRGBAImage(TIFF *, uint32, uint32, uint32 *, int);
+extern int TIFFReadRGBAImageOriented(TIFF *, uint32, uint32, uint32 *, int, int);
 #endif
 
 extern int TIFFReadRGBAStrip(TIFF *, uint32, uint32 *);
@@ -410,7 +410,7 @@ extern int TIFFReadRGBAStripExt(TIFF *, uint32, uint32 *, int stop_on_error );
 extern int TIFFReadRGBATileExt(TIFF *, uint32, uint32, uint32 *, int stop_on_error );
 extern int TIFFRGBAImageOK(TIFF *, char [1024]);
 extern int TIFFRGBAImageBegin(TIFFRGBAImage*, TIFF *, int, char [1024]);
-extern int TIFFRGBAImageGet(TIFFRGBAImage*, uint32*, uint32, uint32);
+extern int TIFFRGBAImageGet(TIFFRGBAImage*, uint32 *, uint32, uint32);
 extern void TIFFRGBAImageEnd(TIFFRGBAImage*);
 extern TIFF * TIFFOpen(const char *, const char *);
 #ifdef __WIN32__
@@ -454,7 +454,7 @@ extern void TIFFSwabFloat(float *);
 extern void TIFFSwabDouble(double *);
 extern void FASTCALL TIFFSwabArrayOfShort(uint16* wp, tmsize_t n);
 extern void TIFFSwabArrayOfTriples(uint8 * tp, tmsize_t n);
-extern void FASTCALL TIFFSwabArrayOfLong(uint32* lp, tmsize_t n);
+extern void FASTCALL TIFFSwabArrayOfLong(uint32 * lp, tmsize_t n);
 extern void FASTCALL TIFFSwabArrayOfLong8(uint64* lp, tmsize_t n);
 extern void TIFFSwabArrayOfFloat(float* fp, tmsize_t n);
 extern void TIFFSwabArrayOfDouble(double* dp, tmsize_t n);

@@ -18,13 +18,13 @@
 #include <x86intrin.h>
 #endif
 
-#include <cstddef>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-#include <limits>
-#include <string>
-#include <type_traits>
+//#include <cstddef>
+//#include <cstdlib>
+//#include <cstring>
+//#include <ctime>
+//#include <limits>
+//#include <string>
+//#include <type_traits>
 #include "absl/base/config.h"
 #ifdef __SSE4_2__
 // TODO(jorg): Remove this when we figure out the right way
@@ -96,14 +96,10 @@ ABSL_MUST_USE_RESULT bool SimpleAtob(absl::string_view str, bool* out);
 // optionally include a leading "0x" (or "0X") number prefix, which is ignored
 // by this function. If any errors are encountered, this function returns
 // `false`, leaving `out` in an unspecified state.
-template <typename int_type>
-ABSL_MUST_USE_RESULT bool SimpleHexAtoi(absl::string_view str, int_type* out);
-
+template <typename int_type> ABSL_MUST_USE_RESULT bool SimpleHexAtoi(absl::string_view str, int_type* out);
 // Overloads of SimpleHexAtoi() for 128 bit integers.
-ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str,
-    absl::int128* out);
-ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str,
-    absl::uint128* out);
+ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str, absl::int128* out);
+ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str, absl::uint128* out);
 
 ABSL_NAMESPACE_END
 }  // namespace absl
@@ -135,12 +131,10 @@ inline void PutTwoDigits(size_t i, char* buf) {
 
 bool safe_strto32_base(absl::string_view text, int32_t* value, int base);
 bool safe_strto64_base(absl::string_view text, int64_t* value, int base);
-bool safe_strto128_base(absl::string_view text, absl::int128* value,
-    int base);
+bool safe_strto128_base(absl::string_view text, absl::int128* value, int base);
 bool safe_strtou32_base(absl::string_view text, uint32_t* value, int base);
 bool safe_strtou64_base(absl::string_view text, uint64_t* value, int base);
-bool safe_strtou128_base(absl::string_view text, absl::uint128* value,
-    int base);
+bool safe_strtou128_base(absl::string_view text, absl::uint128* value, int base);
 
 static const int kFastToBufferSize = 32;
 static const int kSixDigitsToBufferSize = 16;
@@ -163,10 +157,9 @@ char* FastIntToBuffer(uint64_t, char*);
 
 // For enums and integer types that are not an exact match for the types above,
 // use templates to call the appropriate one of the four overloads above.
-template <typename int_type>
-char* FastIntToBuffer(int_type i, char* buffer) {
-	static_assert(sizeof(i) <= 64 / 8,
-	    "FastIntToBuffer works only with 64-bit-or-less integers.");
+template <typename int_type> char* FastIntToBuffer(int_type i, char* buffer) 
+{
+	static_assert(sizeof(i) <= 64 / 8, "FastIntToBuffer works only with 64-bit-or-less integers.");
 	// TODO(jorg): This signed-ness check is used because it works correctly
 	// with enums, and it also serves to check that int_type is not a pointer.
 	// If one day something like std::is_signed<enum E> works, switch to it.
@@ -196,10 +189,8 @@ char* FastIntToBuffer(int_type i, char* buffer) {
 template <typename int_type>
 ABSL_MUST_USE_RESULT bool safe_strtoi_base(absl::string_view s, int_type* out,
     int base) {
-	static_assert(sizeof(*out) == 4 || sizeof(*out) == 8,
-	    "SimpleAtoi works only with 32-bit or 64-bit integers.");
-	static_assert(!std::is_floating_point<int_type>::value,
-	    "Use SimpleAtof or SimpleAtod instead.");
+	static_assert(sizeof(*out) == 4 || sizeof(*out) == 8, "SimpleAtoi works only with 32-bit or 64-bit integers.");
+	static_assert(!std::is_floating_point<int_type>::value, "Use SimpleAtof or SimpleAtod instead.");
 	bool parsed;
 	// TODO(jorg): This signed-ness check is used because it works correctly
 	// with enums, and it also serves to check that int_type is not a pointer.

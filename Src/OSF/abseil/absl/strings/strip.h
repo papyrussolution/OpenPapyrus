@@ -12,8 +12,8 @@
 #ifndef ABSL_STRINGS_STRIP_H_
 #define ABSL_STRINGS_STRIP_H_
 
-#include <cstddef>
-#include <string>
+//#include <cstddef>
+//#include <string>
 #include "absl/base/macros.h"
 #include "absl/strings/ascii.h"
 #include "absl/strings/match.h"

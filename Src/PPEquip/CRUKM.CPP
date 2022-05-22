@@ -113,7 +113,7 @@ private:
 	PPIDArray ShopList;
 };
 
-REGISTER_CMT(CRUKM,0,1);
+REGISTER_CMT(CRUKM, false, true);
 
 int ACS_CRUKM::ExportOpByCrdCard(SCardCore * pSc, PPID cardID, const char * pCardCode, Cr_CredoPayTbl * pScCrdTbl)
 {

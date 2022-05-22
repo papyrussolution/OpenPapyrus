@@ -1294,8 +1294,7 @@ inline ::protobuf_unittest::RawMessageSet_Item* RawMessageSet::mutable_item(int 
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.RawMessageSet.item)
   return item_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::RawMessageSet_Item >*
-RawMessageSet::mutable_item() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::RawMessageSet_Item > * RawMessageSet::mutable_item() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.RawMessageSet.item)
   return &item_;
 }

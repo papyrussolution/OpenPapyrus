@@ -28,7 +28,7 @@ signed char * bn_compute_wNAF(const BIGNUM * scalar, int w, size_t * ret_len)
 
 	if(BN_is_zero(scalar)) {
 		r = static_cast<signed char *>(OPENSSL_malloc(1));
-		if(r == NULL) {
+		if(!r) {
 			BNerr(BN_F_BN_COMPUTE_WNAF, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
@@ -61,7 +61,7 @@ signed char * bn_compute_wNAF(const BIGNUM * scalar, int w, size_t * ret_len)
 	                              * (*ret_len will be set to the actual length, i.e. at most
 	                              * BN_num_bits(scalar) + 1)
 	                              */
-	if(r == NULL) {
+	if(!r) {
 		BNerr(BN_F_BN_COMPUTE_WNAF, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

@@ -50,15 +50,11 @@ char16_t ParsedPatternInfo::charAt(int32_t flags, int32_t index) const {
 	return pattern.charAt(endpoints.start + index);
 }
 
-int32_t ParsedPatternInfo::length(int32_t flags) const {
-	return getLengthFromEndpoints(getEndpoints(flags));
-}
+int32_t ParsedPatternInfo::length(int32_t flags) const { return getLengthFromEndpoints(getEndpoints(flags)); }
+int32_t ParsedPatternInfo::getLengthFromEndpoints(const Endpoints& endpoints) { return endpoints.end - endpoints.start; }
 
-int32_t ParsedPatternInfo::getLengthFromEndpoints(const Endpoints& endpoints) {
-	return endpoints.end - endpoints.start;
-}
-
-UnicodeString ParsedPatternInfo::getString(int32_t flags) const {
+UnicodeString ParsedPatternInfo::getString(int32_t flags) const 
+{
 	const Endpoints& endpoints = getEndpoints(flags);
 	if(endpoints.start == endpoints.end) {
 		return UnicodeString();
@@ -91,39 +87,18 @@ const Endpoints& ParsedPatternInfo::getEndpoints(int32_t flags) const {
 	}
 }
 
-bool ParsedPatternInfo::positiveHasPlusSign() const {
-	return positive.hasPlusSign;
-}
-
-bool ParsedPatternInfo::hasNegativeSubpattern() const {
-	return fHasNegativeSubpattern;
-}
-
-bool ParsedPatternInfo::negativeHasMinusSign() const {
-	return negative.hasMinusSign;
-}
-
-bool ParsedPatternInfo::hasCurrencySign() const {
-	return positive.hasCurrencySign || (fHasNegativeSubpattern && negative.hasCurrencySign);
-}
-
-bool ParsedPatternInfo::containsSymbolType(AffixPatternType type, UErrorCode & status) const {
-	return AffixUtils::containsType(pattern, type, status);
-}
-
-bool ParsedPatternInfo::hasBody() const {
-	return positive.integerTotal > 0;
-}
-
-bool ParsedPatternInfo::currencyAsDecimal() const {
-	return positive.hasCurrencyDecimal;
-}
-
-/////////////////////////////////////////////////////
-/// BEGIN RECURSIVE DESCENT PARSER IMPLEMENTATION ///
-/////////////////////////////////////////////////////
-
-UChar32 ParsedPatternInfo::ParserState::peek() {
+bool ParsedPatternInfo::positiveHasPlusSign() const { return positive.hasPlusSign; }
+bool ParsedPatternInfo::hasNegativeSubpattern() const { return fHasNegativeSubpattern; }
+bool ParsedPatternInfo::negativeHasMinusSign() const { return negative.hasMinusSign; }
+bool ParsedPatternInfo::hasCurrencySign() const { return positive.hasCurrencySign || (fHasNegativeSubpattern && negative.hasCurrencySign); }
+bool ParsedPatternInfo::containsSymbolType(AffixPatternType type, UErrorCode & status) const { return AffixUtils::containsType(pattern, type, status); }
+bool ParsedPatternInfo::hasBody() const { return positive.integerTotal > 0; }
+bool ParsedPatternInfo::currencyAsDecimal() const { return positive.hasCurrencyDecimal; }
+//
+// BEGIN RECURSIVE DESCENT PARSER IMPLEMENTATION
+//
+UChar32 ParsedPatternInfo::ParserState::peek() 
+{
 	if(offset == pattern.length()) {
 		return -1;
 	}
@@ -132,7 +107,8 @@ UChar32 ParsedPatternInfo::ParserState::peek() {
 	}
 }
 
-UChar32 ParsedPatternInfo::ParserState::peek2() {
+UChar32 ParsedPatternInfo::ParserState::peek2() 
+{
 	if(offset == pattern.length()) {
 		return -1;
 	}
@@ -144,13 +120,15 @@ UChar32 ParsedPatternInfo::ParserState::peek2() {
 	return pattern.char32At(offset2);
 }
 
-UChar32 ParsedPatternInfo::ParserState::next() {
+UChar32 ParsedPatternInfo::ParserState::next() 
+{
 	int32_t codePoint = peek();
 	offset += U16_LENGTH(codePoint);
 	return codePoint;
 }
 
-void ParsedPatternInfo::consumePattern(const UnicodeString & patternString, UErrorCode & status) {
+void ParsedPatternInfo::consumePattern(const UnicodeString & patternString, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -184,7 +162,8 @@ void ParsedPatternInfo::consumePattern(const UnicodeString & patternString, UErr
 	}
 }
 
-void ParsedPatternInfo::consumeSubpattern(UErrorCode & status) {
+void ParsedPatternInfo::consumeSubpattern(UErrorCode & status) 
+{
 	// subpattern := literals? number exponent? literals?
 	consumePadding(PadPosition::UNUM_PAD_BEFORE_PREFIX, status);
 	if(U_FAILURE(status)) {
@@ -535,11 +514,9 @@ void ParsedPatternInfo::consumeExponent(UErrorCode & status) {
 		result.widthExceptAffixes++;
 	}
 }
-
-///////////////////////////////////////////////////
-/// END RECURSIVE DESCENT PARSER IMPLEMENTATION ///
-///////////////////////////////////////////////////
-
+//
+// END RECURSIVE DESCENT PARSER IMPLEMENTATION ///
+//
 void PatternParser::parseToExistingPropertiesImpl(const UnicodeString & pattern,
     DecimalFormatProperties& properties,
     IgnoreRounding ignoreRounding, UErrorCode & status) {
@@ -745,11 +722,9 @@ void PatternParser::patternInfoToProperties(DecimalFormatProperties& properties,
 		properties.magnitudeMultiplier = 0;
 	}
 }
-
-///////////////////////////////////////////////////////////////////
-/// End PatternStringParser.java; begin PatternStringUtils.java ///
-///////////////////////////////////////////////////////////////////
-
+//
+// End PatternStringParser.java; begin PatternStringUtils.java ///
+//
 // Determine whether a given roundingIncrement should be ignored for formatting
 // based on the current maxFrac value (maximum fraction digits). For example a
 // roundingIncrement of 0.01 should be ignored if maxFrac is 1, but not if maxFrac

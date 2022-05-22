@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "bio_lcl.h"
 
 static int buffer_write(BIO * h, const char * buf, int num);
 static int buffer_read(BIO * h, char * buf, int size);

@@ -602,14 +602,14 @@ static void utrie_compact(UNewTrie * trie, bool overlap, UErrorCode * pErrorCode
 
 			/* move the non-overlapping indexes to their new positions */
 			start += i;
-			for(i = UTRIE_DATA_BLOCK_LENGTH-i; i>0; --i) {
+			for(i = UTRIE_DATA_BLOCK_LENGTH-i; i > 0; --i) {
 				trie->data[newStart++] = trie->data[start++];
 			}
 		}
 		else if(newStart<start) {
 			/* no overlap, just move the indexes to their new positions */
 			trie->map[start>>UTRIE_SHIFT] = newStart;
-			for(i = UTRIE_DATA_BLOCK_LENGTH; i>0; --i) {
+			for(i = UTRIE_DATA_BLOCK_LENGTH; i > 0; --i) {
 				trie->data[newStart++] = trie->data[start++];
 			}
 		}
@@ -764,13 +764,13 @@ U_CAPI int32_t U_EXPORT2 utrie_serialize(UNewTrie * trie, void * dt, int32_t cap
 		/* write 16-bit index values shifted right by UTRIE_INDEX_SHIFT, after adding indexLength */
 		p = (uint32_t*)trie->index;
 		dest16 = (uint16*)data;
-		for(i = trie->indexLength; i>0; --i) {
+		for(i = trie->indexLength; i > 0; --i) {
 			*dest16++ = (uint16)((*p++ + trie->indexLength)>>UTRIE_INDEX_SHIFT);
 		}
 
 		/* write 16-bit data values */
 		p = trie->data;
-		for(i = trie->dataLength; i>0; --i) {
+		for(i = trie->dataLength; i > 0; --i) {
 			*dest16++ = (uint16)*p++;
 		}
 	}
@@ -778,7 +778,7 @@ U_CAPI int32_t U_EXPORT2 utrie_serialize(UNewTrie * trie, void * dt, int32_t cap
 		/* write 16-bit index values shifted right by UTRIE_INDEX_SHIFT */
 		p = (uint32_t*)trie->index;
 		dest16 = (uint16*)data;
-		for(i = trie->indexLength; i>0; --i) {
+		for(i = trie->indexLength; i > 0; --i) {
 			*dest16++ = (uint16)(*p++ >> UTRIE_INDEX_SHIFT);
 		}
 
@@ -903,7 +903,7 @@ U_CAPI int32_t U_EXPORT2 utrie_unserializeDummy(UTrie * trie, void * data, int32
 		/* indexes to block 0 */
 		block = (uint16)(trie->indexLength>>UTRIE_INDEX_SHIFT);
 		limit = trie->indexLength;
-		for(i = 0; i<limit; ++i) {
+		for(i = 0; i < limit; ++i) {
 			p16[i] = block;
 		}
 
@@ -912,7 +912,7 @@ U_CAPI int32_t U_EXPORT2 utrie_unserializeDummy(UTrie * trie, void * data, int32
 			block += (uint16)(latin1Length>>UTRIE_INDEX_SHIFT);
 			i = 0xd800>>UTRIE_SHIFT;
 			limit = 0xdc00>>UTRIE_SHIFT;
-			for(; i<limit; ++i) {
+			for(; i < limit; ++i) {
 				p16[i] = block;
 			}
 		}
@@ -928,7 +928,7 @@ U_CAPI int32_t U_EXPORT2 utrie_unserializeDummy(UTrie * trie, void * data, int32
 		/* data for lead surrogate code units */
 		if(leadUnitValue!=initialValue) {
 			limit = latin1Length+UTRIE_DATA_BLOCK_LENGTH;
-			for(/* i=latin1Length */; i<limit; ++i) {
+			for(/* i=latin1Length */; i < limit; ++i) {
 				p16[i] = (uint16)leadUnitValue;
 			}
 		}
@@ -942,7 +942,7 @@ U_CAPI int32_t U_EXPORT2 utrie_unserializeDummy(UTrie * trie, void * data, int32
 			block = (uint16)(latin1Length>>UTRIE_INDEX_SHIFT);
 			i = 0xd800>>UTRIE_SHIFT;
 			limit = 0xdc00>>UTRIE_SHIFT;
-			for(; i<limit; ++i) {
+			for(; i < limit; ++i) {
 				p16[i] = block;
 			}
 		}
@@ -957,7 +957,7 @@ U_CAPI int32_t U_EXPORT2 utrie_unserializeDummy(UTrie * trie, void * data, int32
 		/* data for lead surrogate code units */
 		if(leadUnitValue!=initialValue) {
 			limit = latin1Length+UTRIE_DATA_BLOCK_LENGTH;
-			for(/* i=latin1Length */; i<limit; ++i) {
+			for(/* i=latin1Length */; i < limit; ++i) {
 				p32[i] = leadUnitValue;
 			}
 		}

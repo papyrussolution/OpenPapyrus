@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/bio.h>
-//#include <openssl/err.h>
-//#include <openssl/ocsp.h>
-//#include <openssl/pem.h>
 #include "ocsp_lcl.h"
 
 static int ocsp_certid_print(BIO * bp, OCSP_CERTID * a, int indent)
@@ -221,9 +217,7 @@ int OCSP_RESPONSE_print(BIO * bp, OCSP_RESPONSE * o, ulong flags)
 		}
 		if(BIO_write(bp, "\n", 1) <= 0)
 			goto err;
-		if(!X509V3_extensions_print(bp,
-		    "Response Single Extensions",
-		    single->singleExtensions, flags, 8))
+		if(!X509V3_extensions_print(bp, "Response Single Extensions", single->singleExtensions, flags, 8))
 			goto err;
 		if(BIO_write(bp, "\n", 1) <= 0)
 			goto err;

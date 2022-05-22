@@ -608,7 +608,7 @@ static int use_certificate_chain_file(SSL_CTX * ctx, SSL * ssl, const char * fil
 	ERR_clear_error(); /* clear error stack for
 	                         * SSL_CTX_use_certificate() */
 
-	if(ctx != NULL) {
+	if(ctx) {
 		passwd_callback = ctx->default_passwd_callback;
 		passwd_callback_userdata = ctx->default_passwd_callback_userdata;
 	}

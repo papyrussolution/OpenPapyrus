@@ -1435,16 +1435,16 @@ outputBytes:
 				/* each branch falls through to the next one */
 				case 4:
 				    *target++ = (uint8)(c>>24);
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 				case 3:
 				    *target++ = (uint8)(c>>16);
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 				case 2:
 				    *target++ = (uint8)(c>>8);
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 				case 1:
 				    *target++ = (uint8)c;
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 				default:
 				    /* will never occur */
 				    break;
@@ -1456,19 +1456,19 @@ outputBytes:
 				case 4:
 				    *target++ = (uint8)(c>>24);
 				    *offsets++ = sourceIndex;
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 				case 3:
 				    *target++ = (uint8)(c>>16);
 				    *offsets++ = sourceIndex;
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 				case 2:
 				    *target++ = (uint8)(c>>8);
 				    *offsets++ = sourceIndex;
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 				case 1:
 				    *target++ = (uint8)c;
 				    *offsets++ = sourceIndex;
-				    U_FALLTHROUGH;
+				    CXX_FALLTHROUGH;
 				default:
 				    /* will never occur */
 				    break;
@@ -1498,16 +1498,16 @@ outputBytes:
 			/* each branch falls through to the next one */
 			case 4:
 			    *p++ = (uint8)(c>>24);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 3:
 			    *p++ = (uint8)(c>>16);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 2:
 			    *p++ = (uint8)(c>>8);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 1:
 			    *p = (uint8)c;
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			default:
 			    /* will never occur */
 			    break;
@@ -1523,19 +1523,19 @@ outputBytes:
 			    if(offsets) {
 				    *offsets++ = sourceIndex;
 			    }
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 2:
 			    *target++ = (uint8)(c>>8);
 			    if(offsets) {
 				    *offsets++ = sourceIndex;
 			    }
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 1:
 			    *target++ = (uint8)c;
 			    if(offsets) {
 				    *offsets++ = sourceIndex;
 			    }
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			default:
 			    break;
 		}
@@ -1931,16 +1931,16 @@ outputBytes:
 			/* each branch falls through to the next one */
 			case 4:
 			    *target++ = (uint8)(c>>24);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 3:
 			    *target++ = (uint8)(c>>16);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 2:
 			    *target++ = (uint8)(c>>8);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 1:
 			    *target++ = (uint8)c;
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			default:
 			    /* will never occur */
 			    break;
@@ -1968,16 +1968,16 @@ outputBytes:
 			/* each branch falls through to the next one */
 			case 4:
 			    *p++ = (uint8)(c>>24);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 3:
 			    *p++ = (uint8)(c>>16);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 2:
 			    *p++ = (uint8)(c>>8);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 1:
 			    *p = (uint8)c;
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			default:
 			    /* will never occur */
 			    break;
@@ -1990,13 +1990,13 @@ outputBytes:
 			/* each branch falls through to the next one */
 			case 3:
 			    *target++ = (uint8)(c>>16);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 2:
 			    *target++ = (uint8)(c>>8);
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case 1:
 			    *target++ = (uint8)c;
-			    U_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			default:
 			    break;
 		}

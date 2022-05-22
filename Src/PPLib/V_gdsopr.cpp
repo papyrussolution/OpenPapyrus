@@ -212,7 +212,7 @@ IMPLEMENT_PPFILT_FACTORY(GoodsOpAnalyze); GoodsOpAnalyzeFilt::GoodsOpAnalyzeFilt
 	SetBranchObjIdListFilt(offsetof(GoodsOpAnalyzeFilt, GoodsIdList));
 	SetBranchObjIdListFilt(offsetof(GoodsOpAnalyzeFilt, BillList));
 	SetBranchObjIdListFilt(offsetof(GoodsOpAnalyzeFilt, LocList));
-	SetBranchSVector(offsetof(GoodsOpAnalyzeFilt, CompareItems)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+	SetBranchSVector(offsetof(GoodsOpAnalyzeFilt, CompareItems));
 	Init(1, 0);
 }
 
@@ -1224,7 +1224,7 @@ int PPViewGoodsOpAnalyze::Init_(const PPBaseFilt * pFilt)
 		}
 	}
 	if(P_Cache == 0) {
-		THROW_MEM(P_Cache = new SArray(sizeof(GoaCacheItem), /*1024,*/O_ARRAY)); // @v8.1.12 delta 16-->1024
+		THROW_MEM(P_Cache = new SArray(sizeof(GoaCacheItem), O_ARRAY));
 	}
 	else
 		P_Cache->freeAll();
@@ -1381,7 +1381,6 @@ int FASTCALL PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
 				pItem->RestPriceSum   = rec.RestPriceSum;
 				pItem->LocID  = rec.LocID;
 				STRNSCPY(pItem->GoodsName, rec.Text);
-				// @v10.0.0 {
 				if(!!Filt.Sgb) {
 					if(oneof3(Filt.Sgb.S, SubstGrpBill::sgbObject, SubstGrpBill::sgbObject2, SubstGrpBill::sgbAgent)) {
 						pItem->SubstArID  = rec.GoodsID;
@@ -1391,7 +1390,7 @@ int FASTCALL PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
 						pItem->SubstLocID = rec.GoodsID;
 					}
 				}
-				else /*} @v10.0.0 */ if(oneof2(Filt.Sgg, sggSuppl, sggSupplAgent)) {
+				else if(oneof2(Filt.Sgg, sggSuppl, sggSupplAgent)) {
 					pItem->SubstArID  = (rec.GoodsID & ~GOODSSUBSTMASK);
 					pItem->SubstPsnID = ObjectToPerson(pItem->SubstArID, 0);
 				}
@@ -1576,7 +1575,6 @@ private:
 		vMinABCGrp      = 8
 	};
 	*/
-
 	double GetMaxFraction(short * pABCGrp);
 	double GetMinFraction(short * pABCGrp);
 	void   AccumulateVals(TempGoodsOprTbl::Rec *, const GoodsOpAnalyzeViewItem *);
@@ -1704,7 +1702,6 @@ int ABCGroupingRecsStorage::EnumItems(short * pABCGrp, TempGoodsOprTbl::Rec * pR
 	int    ok = -1;
 	if(pABCGrp && *pABCGrp <= (short)ABC_GRPSCOUNT && *pABCGrp > 0) {
 		TempGoodsOprTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
 		uint   pos = 0;
 		if(Filt.GrpFract[*pABCGrp-1] > 0)
 			if(ABCGrpRecs->lsearch(pABCGrp, &pos, PTR_CMPFUNC(int16), sizeof(long) * 2))
@@ -1839,7 +1836,6 @@ int ABCGrpStorageList::InitGoodsGrpList(GoodsOpAnalyzeFilt * pFilt)
 	if(p_ggrp_list && p_ggrp_list->getCount()) {
 		for(uint i = 0; i < p_ggrp_list->getCount(); i++) {
 		 	ABCGrpStorageList::TotalItem item;
-			// @v10.7.4 @ctr MEMSZERO(item);
 			item.GoodsGrpID = p_ggrp_list->Get(i).Id;
 			P_TotalItems->insert(&item);
 			GoodsGroupList.add(item.GoodsGrpID);
@@ -1848,7 +1844,6 @@ int ABCGrpStorageList::InitGoodsGrpList(GoodsOpAnalyzeFilt * pFilt)
 	}
 	else {
 		ABCGrpStorageList::TotalItem item;
-		// @v10.7.4 @ctr MEMSZERO(item);
 		P_TotalItems->insert(&item);
 		GoodsGroupList.add(0L);
 	}
@@ -1957,7 +1952,6 @@ int PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double part, 
 {
 	int    ok = 1;
 	PPBillPacket * p_link_pack = 0;
-	// @v10.2.2 {
 	if(Filt.IsLeadedInOutAnalyze()) {
 		ok = -1;
 		if(pPack->HasOneOfGoods(Filt.GoodsIdList)) {
@@ -1972,7 +1966,6 @@ int PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double part, 
 			}
 		}
 	}
-	// } @v10.2.2
 	if(ok > 0) {
 		long   subst_bill_val = 0;
 		PPIDArray goods_list;
@@ -1982,7 +1975,6 @@ int PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double part, 
 		if(Filt.Flags & GoodsOpAnalyzeFilt::fCompareWithReceipt) {
 			DateIter di;
 			BillTbl::Rec link_rec;
-			// @v10.6.4 MEMSZERO(link_rec);
 			//
 			// Объединяем строки из всех документов списания в один пакет p_link_pack
 			//
@@ -2227,8 +2219,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			}
 		}
 		{
-			TSVector <__GoaBillEntry> bill_entry_list; // @v9.8.4
-			// @v10.2.2 {
+			TSVector <__GoaBillEntry> bill_entry_list;
 			if(Filt.IsLeadedInOutAnalyze()) {
 				GCTFilt gct_filt;
 				gct_filt.GoodsList = Filt.GoodsIdList;
@@ -2270,7 +2261,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					}
 				}
 			}
-			else { // } @v10.2.2
+			else {
 				for(i = 0; op_list.enumItems(&i, (void **)&p_op_id);) {
 					BillTbl::Rec bill_rec;
 					int    is_paym = 0;
@@ -2296,7 +2287,6 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 							continue;
 						if(is_paym || CheckBillRec(&bill_rec)) {
 							int    sign = 0, r;
-							// @v9.8.4 PPWaitMsg(PPObjBill::MakeCodeString(&bill_rec, 1, wait_msg));
 							if(is_paym) {
 								id = bill_rec.LinkBillID;
 								payment = BR2(bill_rec.Amount);
@@ -2316,7 +2306,6 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 							}
 							else
 								id = bill_rec.ID;
-							// @v9.8.4 {
 							{
 								__GoaBillEntry entry;
 								entry.BillID = id;
@@ -2325,21 +2314,10 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 								entry.Part = part;
 								THROW_SL(bill_entry_list.insert(&entry));
 							}
-							// } @v9.8.4
-							/* @v9.8.4
-							THROW(P_BObj->ExtractPacket(id, &pack) > 0);
-							if(is_paym)
-								part = fdivnz(payment, pack.GetAmount());
-							if(oneof2(Filt.OpGrpID, GoodsOpAnalyzeFilt::ogInOutAnalyze, GoodsOpAnalyzeFilt::ogSelected))
-								sign = neg_op_list.lsearch(pack.Rec.OpID) ? -1 : 1;
-							THROW(PutBillToTempTable(&pack, part, sign, p_suppl_bill_list));
-							pUfpFactors[0] += (1.0 + (double)pack.GetTCount()); // @v8.1.12
-							*/
 						}
 					}
 				}
 			}
-			// @v9.8.4 {
 			{
 				bill_entry_list.sort(CMPF_LONG);
 				for(uint i = 0; i < bill_entry_list.getCount(); i++) {
@@ -2357,7 +2335,6 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					PPWaitPercent(i+1, bill_entry_list.getCount(), PPObjBill::MakeCodeString(&pack.Rec, 1, wait_msg));
 				}
 			}
-			// } @v9.8.4
 		}
 	}
 	THROW(FlashCacheItems(0));
@@ -2401,7 +2378,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 						blk.OldPrice = gr_item.SStatSales;
 					THROW(AddItem(&blk));
 				}
-				pUfpFactors[0] += 1.5; // @v8.1.12
+				pUfpFactors[0] += 1.5;
 				PPWaitPercent(gr_view.GetCounter(), wait_msg);
 			}
 			THROW(FlashCacheItems(0));
@@ -2500,7 +2477,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 						if(Filt.Flags & GoodsOpAnalyzeFilt::fShowSStatSales)
 							blk.OldPrice = gr_item.SStatSales;
 						THROW(AddItem(&blk));
-						pUfpFactors[0] += 0.11; // @v8.1.12
+						pUfpFactors[0] += 0.11;
 					}
 					PPWaitPercent(gr_view.GetCounter(), wait_msg);
 				}
@@ -2603,8 +2580,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			long   flags = Filt.CompareItems.at(i).Flags;
 			c_title = 0;
 			if(id == GoodsOpAnalyzeFilt::fldidQtty) {
-				// @v9.1.4 PPGetWord(PPWORD_QTTY, 0, c_title);
-				PPLoadString("qtty", c_title); // @v9.1.4
+				PPLoadString("qtty", c_title);
 				P_Ct->AddAggrField(P_TempTbl->Quantity, Crosstab::afSum, c_title);
 				total_row_list.Add(P_TempTbl->Quantity);
 				aggr_fld_add = 1;
@@ -2760,7 +2736,6 @@ int PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCacheItem *
 	else {
 		SString temp_buf;
 		TempGoodsOprTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
 		rec.InOutTag = pItem->Sign;
 		rec.GoodsID  = pItem->GoodsID;
 		rec.Object   = pItem->ArID;
@@ -3011,7 +2986,7 @@ int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArr
 	if(GObj.Fetch(pTi->GoodsID, &pBlk->GoodsRec) <= 0)
 		return -1;
 	if(Filt.GoodsIdList.IsExists()) {
-		if(Filt.IsLeadedInOutAnalyze()) // @v10.2.2
+		if(Filt.IsLeadedInOutAnalyze())
 			;
 		else if(!Filt.GoodsIdList.CheckID(labs(pTi->GoodsID)))
 			return -1;
@@ -3141,14 +3116,13 @@ int PPViewGoodsOpAnalyze::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 			SString temp_buf;
 			BExtInsert bei(p_o);
 			q.select(p_t->ID__, p_t->GoodsID, p_t->Quantity, p_t->SumCost, p_t->SumPrice, p_t->Income, p_t->InOutTag, p_t->Rest, 0L);
-			TempGoodsOprTbl::Key0 k; // @v8.1.1 @fix TempGoodsOprTbl::Key1-->TempGoodsOprTbl::Key0
+			TempGoodsOprTbl::Key0 k;
 			MEMSZERO(k);
 			for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 				const double abc_idx = (double)((p_t->data.InOutTag < 0) ? -p_t->data.InOutTag : 0);
 				const double large_val = 1e12;
 				const char * p_fmt = "%04.0lf%030.8lf";
 				TempOrderTbl::Rec ord_rec;
-				// @v10.6.4 MEMSZERO(ord_rec);
 				ord_rec.ID = p_t->data.ID__;
 				if(ord == OrdByQtty)
 					temp_buf.Printf(p_fmt, abc_idx, large_val-p_t->data.Quantity);
@@ -3343,7 +3317,7 @@ int PPViewGoodsOpAnalyze::ViewGraph()
 	int    ok = -1;
 	if(Filt.ABCAnlzGroup > 0) {
 		GoodsOpAnalyzeTotal  goa_total;
-		TSVector <TempGoodsOprTbl::Rec>  abc_ary; // @v9.8.4 TSArray-->TSVector
+		TSVector <TempGoodsOprTbl::Rec>  abc_ary;
 		TempGoodsOprTbl::Key0 k;
 		TempGoodsOprTbl * p_t = P_TempTbl;
 		BExtQuery q(P_TempTbl, 0, 16);
@@ -3365,10 +3339,8 @@ int PPViewGoodsOpAnalyze::ViewGraph()
 			Generator_GnuPlot plot(0);
 			Generator_GnuPlot::PlotParam param;
 			Generator_GnuPlot::StyleTics xtics;
-
 			plot.StartData(1);
-			// @v10.7.10 plot.PutData(PPGetWord(PPWORD_GROUP, 1, temp_buf), 1);
-			plot.PutData(PPLoadStringS("group", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1); // @v10.7.10
+			plot.PutData(PPLoadStringS("group", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1);
 			for(c = 0; c < abc_ary.getCount(); c++) {
 				(temp_buf = abc_ary.at(c).Text).ReplaceChar(' ', '_').Transf(CTRANSF_INNER_TO_OUTER);
 				plot.PutData(temp_buf, 1);
@@ -3383,16 +3355,14 @@ int PPViewGoodsOpAnalyze::ViewGraph()
 				plot.PutEOR();
 			}
 			if(goa_total.Cost) {
-				// @v10.5.12 PPGetWord(PPWORD_SUM, 1, temp_buf).Cat("Cost"); // @v10.2.2 "_ЦП"-->"Cost"
-				PPLoadStringS("amount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER).CatChar('_').Cat("Cost"); // @v10.5.12
+				PPLoadStringS("amount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER).CatChar('_').Cat("Cost");
 				plot.PutData(temp_buf, 1);
 				for(c = 0; c < abc_ary.getCount(); c++)
 					plot.PutData(abc_ary.at(c).SumCost / goa_total.Cost);
 				plot.PutEOR();
 			}
 			if(goa_total.Price) {
-				// @v10.5.12 PPGetWord(PPWORD_SUM, 1, temp_buf).Cat("Price"); // @v10.2.2 "_ЦР"-->"Price"
-				PPLoadStringS("amount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER).CatChar('_').Cat("Price"); // @v10.5.12
+				PPLoadStringS("amount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER).CatChar('_').Cat("Price");
 				plot.PutData(temp_buf, 1);
 				for(c = 0; c < abc_ary.getCount(); c++)
 					plot.PutData(abc_ary.at(c).SumPrice / goa_total.Price);
@@ -3444,8 +3414,7 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 				pBrw->InsColumn(-1, "@booking", 13, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
 			}
 			if(Filt.Flags & GoodsOpAnalyzeFilt::fShowSStatSales) {
-				// @v10.9.10 pBrw->InsColumnWord(-1, PPWORD_AVGDAYLYSALES, 10, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
-				pBrw->InsColumn(-1, "@avgdaylysales", 10, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT); // @v10.9.10 
+				pBrw->InsColumn(-1, "@avgdaylysales", 10, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
 			}
 		}
 		else if(brw_id == BROWSER_ABCANLZ) {
@@ -3467,8 +3436,7 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 		//
 		else if(brw_id == BROWSER_GOODSOPER_COMPARE) {
 			SString main_title, add_title, diff_title;
-			// @v10.9.4 PPGetWord(PPWORD_MAIN, 0, main_title);
-			PPLoadString("main", main_title); // @v10.9.4
+			PPLoadString("main", main_title);
 			PPGetWord(PPWORD_ADDITIONAL, 0, add_title);
 			PPLoadString("daterange", temp_buf);
 			PPLoadString("difference", diff_title);
@@ -3533,7 +3501,7 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 						c  = 7;
 						c2 = 28;
 						c3 = 39;
-						break; // @v10.3.2 @fix (отсутствовал break)
+						break;
 					case GoodsOpAnalyzeFilt::fldidPctProfitable:
 						PPLoadString("income", c_title);
 						c_title.Space().CatChar('%');
@@ -3892,7 +3860,6 @@ int PPViewGoodsOpAnalyze::ConvertLinesToBasket()
 					double qtty = 0.0;
 					ILTI   i_i;
 					ReceiptTbl::Rec lot_rec;
-					// @v10.6.4 MEMSZERO(lot_rec);
 					THROW(::GetCurGoodsPrice(goods_id, item.LocID, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 					i_i.GoodsID     = goods_id;
 					i_i.UnitPerPack = item.UnitPerPack;
@@ -4366,7 +4333,6 @@ int PPALDD_GoodsOpAnlzCmp::NextIteration(PPIterID iterId)
 	I.CmpRestPriceSum = item.RestPriceSum.Cm;
 	const GoodsOpAnalyzeFilt * p_filt = static_cast<const GoodsOpAnalyzeFilt *>(p_v->GetBaseFilt());
 	I.LocID = (p_filt->Flags & GoodsOpAnalyzeFilt::fEachLocation) ? item.LocID : 0;
-	// @v10.7.4 long   f = (LConfig.Flags & CFGFLG_USEPACKAGE && !p_filt->Sgg && !(p_filt->Flags & GoodsOpAnalyzeFilt::fDisplayWoPacks)) ? MKSFMTD(0, 6, QTTYF_COMPLPACK | NMBF_NOTRAILZ) : MKSFMTD(0, 6, NMBF_NOTRAILZ);
 	FINISH_PPVIEW_ALDD_ITER();
 }
 

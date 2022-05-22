@@ -411,8 +411,7 @@ typedef struct  FT_ServiceCacheRec_ {
 		svc = NULL;                                              \
 	else if(svc == NULL) {                                      \
 		FT_FACE_FIND_SERVICE(face, svc, id);                   \
-		FT_FACE(face)->internal->services.service_ ## id =    \
-		    (FT_Pointer)( svc != NULL ? svc : FT_SERVICE_UNAVAILABLE );  \
+		FT_FACE(face)->internal->services.service_ ## id = (FT_Pointer)( svc != NULL ? svc : FT_SERVICE_UNAVAILABLE );  \
 	}                                                          \
 	*Pptr = svc;                                               \
 	FT_END_STMNT
@@ -426,8 +425,7 @@ typedef struct  FT_ServiceCacheRec_ {
 		svc = NULL;                                              \
 	else if(svc == NULL) {                                       \
 		FT_FACE_FIND_SERVICE(face, svc, id);                   \
-		FT_FACE(face)->internal->services.service_ ## id =    \
-		    (FT_Pointer)( svc != NULL ? svc : FT_SERVICE_UNAVAILABLE ); \
+		FT_FACE(face)->internal->services.service_ ## id = (FT_Pointer)( svc != NULL ? svc : FT_SERVICE_UNAVAILABLE ); \
 	}                                                          \
 	ptr = svc;                                                 \
 	FT_END_STMNT

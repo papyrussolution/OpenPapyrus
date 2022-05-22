@@ -1032,7 +1032,7 @@ static int libiconv_iconv_open(rec_iconv_t * cd, const char * tocode, const char
 		e = strchr(p, ',');
 		if(p == e)
 			continue;
-		else if(e == NULL)
+		else if(!e)
 			e = p + strlen(p);
 		dllname = xstrndup(p, e - p);
 		if(dllname == NULL)

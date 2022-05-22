@@ -5,7 +5,6 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // Image transform methods for lossless encoder.
 //
@@ -15,10 +14,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
-//#include <assert.h>
-//#include <math.h>
-//#include <stdlib.h>
 #include "src/dec/vp8li_dec.h"
 #include "src/utils/endian_inl_utils.h"
 #include "src/dsp/lossless.h"
@@ -398,12 +393,12 @@ static float FastLog2Slow_C(uint32_t v) {
 		return (float)(LOG_2_RECIPROCAL * log((double)v));
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Methods to calculate Entropy (Shannon).
-
+//
 // Compute the combined Shanon's entropy for distribution {X} and {X+Y}
-static float CombinedShannonEntropy_C(const int X[256], const int Y[256]) {
+static float CombinedShannonEntropy_C(const int X[256], const int Y[256]) 
+{
 	int i;
 	double retval = 0.;
 	int sumX = 0, sumXY = 0;
@@ -511,8 +506,6 @@ static void GetCombinedEntropyUnrefined_C(const uint32_t X[], const uint32_t Y[]
 	bit_entropy->entropy += VP8LFastSLog2(bit_entropy->sum);
 }
 
-//------------------------------------------------------------------------------
-
 void VP8LSubtractGreenFromBlueAndRed_C(uint32_t* argb_data, int num_pixels) 
 {
 	for(int i = 0; i < num_pixels; ++i) {
@@ -524,13 +517,8 @@ void VP8LSubtractGreenFromBlueAndRed_C(uint32_t* argb_data, int num_pixels)
 	}
 }
 
-static FORCEINLINE int ColorTransformDelta(int8_t color_pred, int8_t color) {
-	return ((int)color_pred * color) >> 5;
-}
-
-static FORCEINLINE int8_t U32ToS8(uint32_t v) {
-	return (int8_t)(v & 0xff);
-}
+static FORCEINLINE int ColorTransformDelta(int8_t color_pred, int8_t color) { return ((int)color_pred * color) >> 5; }
+static FORCEINLINE int8_t U32ToS8(uint32_t v) { return (int8_t)(v & 0xff); }
 
 void VP8LTransformColor_C(const VP8LMultipliers* const m, uint32_t* data, int num_pixels) 
 {
@@ -567,9 +555,8 @@ static FORCEINLINE uint8 TransformColorBlue(uint8 green_to_blue, uint8 red_to_bl
 	return (new_blue & 0xff);
 }
 
-void VP8LCollectColorRedTransforms_C(const uint32_t* argb, int stride,
-    int tile_width, int tile_height,
-    int green_to_red, int histo[]) {
+void VP8LCollectColorRedTransforms_C(const uint32_t* argb, int stride, int tile_width, int tile_height, int green_to_red, int histo[]) 
+{
 	while(tile_height-- > 0) {
 		int x;
 		for(x = 0; x < tile_width; ++x) {
@@ -579,10 +566,8 @@ void VP8LCollectColorRedTransforms_C(const uint32_t* argb, int stride,
 	}
 }
 
-void VP8LCollectColorBlueTransforms_C(const uint32_t* argb, int stride,
-    int tile_width, int tile_height,
-    int green_to_blue, int red_to_blue,
-    int histo[]) {
+void VP8LCollectColorBlueTransforms_C(const uint32_t* argb, int stride, int tile_width, int tile_height, int green_to_blue, int red_to_blue, int histo[]) 
+{
 	while(tile_height-- > 0) {
 		int x;
 		for(x = 0; x < tile_width; ++x) {
@@ -593,12 +578,9 @@ void VP8LCollectColorBlueTransforms_C(const uint32_t* argb, int stride,
 	}
 }
 
-//------------------------------------------------------------------------------
-
-static int VectorMismatch_C(const uint32_t* const array1,
-    const uint32_t* const array2, int length) {
+static int VectorMismatch_C(const uint32_t* const array1, const uint32_t* const array2, int length) 
+{
 	int match_len = 0;
-
 	while(match_len < length && array1[match_len] == array2[match_len]) {
 		++match_len;
 	}
@@ -627,17 +609,16 @@ void VP8LBundleColorMap_C(const uint8* const row, int width, int xbits,
 	}
 }
 
-//------------------------------------------------------------------------------
-
-static double ExtraCost_C(const uint32_t* population, int length) {
+static double ExtraCost_C(const uint32_t* population, int length) 
+{
 	int i;
 	double cost = 0.;
 	for(i = 2; i < length - 2; ++i) cost += (i >> 1) * population[i + 2];
 	return cost;
 }
 
-static double ExtraCostCombined_C(const uint32_t* X, const uint32_t* Y,
-    int length) {
+static double ExtraCostCombined_C(const uint32_t* X, const uint32_t* Y, int length) 
+{
 	int i;
 	double cost = 0.;
 	for(i = 2; i < length - 2; ++i) {
@@ -647,17 +628,18 @@ static double ExtraCostCombined_C(const uint32_t* X, const uint32_t* Y,
 	return cost;
 }
 
-//------------------------------------------------------------------------------
-
-static void AddVector_C(const uint32_t* a, const uint32_t* b, uint32_t* out,
-    int size) {
+static void AddVector_C(const uint32_t* a, const uint32_t* b, uint32_t* out, int size) 
+{
 	int i;
-	for(i = 0; i < size; ++i) out[i] = a[i] + b[i];
+	for(i = 0; i < size; ++i) 
+		out[i] = a[i] + b[i];
 }
 
-static void AddVectorEq_C(const uint32_t* a, uint32_t* out, int size) {
+static void AddVectorEq_C(const uint32_t* a, uint32_t* out, int size) 
+{
 	int i;
-	for(i = 0; i < size; ++i) out[i] += a[i];
+	for(i = 0; i < size; ++i) 
+		out[i] += a[i];
 }
 
 #define ADD(X, ARG, LEN) do {                                                  \
@@ -712,21 +694,21 @@ void VP8LHistogramAdd(const VP8LHistogram* const a,
 
 #undef ADD
 #undef ADD_EQ
-
-//------------------------------------------------------------------------------
+//
 // Image transforms.
-
-static void PredictorSub0_C(const uint32_t* in, const uint32_t* upper,
-    int num_pixels, uint32_t* out) {
+//
+static void PredictorSub0_C(const uint32_t* in, const uint32_t* upper, int num_pixels, uint32_t* out) 
+{
 	int i;
 	for(i = 0; i < num_pixels; ++i) out[i] = VP8LSubPixels(in[i], ARGB_BLACK);
 	(void)upper;
 }
 
-static void PredictorSub1_C(const uint32_t* in, const uint32_t* upper,
-    int num_pixels, uint32_t* out) {
+static void PredictorSub1_C(const uint32_t* in, const uint32_t* upper, int num_pixels, uint32_t* out) 
+{
 	int i;
-	for(i = 0; i < num_pixels; ++i) out[i] = VP8LSubPixels(in[i], in[i - 1]);
+	for(i = 0; i < num_pixels; ++i) 
+		out[i] = VP8LSubPixels(in[i], in[i - 1]);
 	(void)upper;
 }
 
@@ -758,31 +740,21 @@ GENERATE_PREDICTOR_SUB(11)
 GENERATE_PREDICTOR_SUB(12)
 GENERATE_PREDICTOR_SUB(13)
 
-//------------------------------------------------------------------------------
-
 VP8LProcessEncBlueAndRedFunc VP8LSubtractGreenFromBlueAndRed;
-
 VP8LTransformColorFunc VP8LTransformColor;
-
 VP8LCollectColorBlueTransformsFunc VP8LCollectColorBlueTransforms;
 VP8LCollectColorRedTransformsFunc VP8LCollectColorRedTransforms;
-
 VP8LFastLog2SlowFunc VP8LFastLog2Slow;
 VP8LFastLog2SlowFunc VP8LFastSLog2Slow;
-
 VP8LCostFunc VP8LExtraCost;
 VP8LCostCombinedFunc VP8LExtraCostCombined;
 VP8LCombinedShannonEntropyFunc VP8LCombinedShannonEntropy;
-
 VP8LGetEntropyUnrefinedFunc VP8LGetEntropyUnrefined;
 VP8LGetCombinedEntropyUnrefinedFunc VP8LGetCombinedEntropyUnrefined;
-
 VP8LAddVectorFunc VP8LAddVector;
 VP8LAddVectorEqFunc VP8LAddVectorEq;
-
 VP8LVectorMismatchFunc VP8LVectorMismatch;
 VP8LBundleColorMapFunc VP8LBundleColorMap;
-
 VP8LPredictorAddSubFunc VP8LPredictorsSub[16];
 VP8LPredictorAddSubFunc VP8LPredictorsSub_C[16];
 
@@ -856,7 +828,7 @@ WEBP_DSP_INIT_FUNC(VP8LEncDspInit) {
 	VP8LPredictorsSub_C[15] = PredictorSub0_C;
 
 	// If defined, use CPUInfo() to overwrite some pointers with faster versions.
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			VP8LEncDspInitSSE2();
@@ -885,12 +857,10 @@ WEBP_DSP_INIT_FUNC(VP8LEncDspInit) {
 	}
 
 #if defined(WEBP_HAVE_NEON)
-	if(WEBP_NEON_OMIT_C_CODE ||
-	    (VP8GetCPUInfo != NULL && VP8GetCPUInfo(kNEON))) {
+	if(WEBP_NEON_OMIT_C_CODE || (VP8GetCPUInfo && VP8GetCPUInfo(kNEON))) {
 		VP8LEncDspInitNEON();
 	}
 #endif
-
 	assert(VP8LSubtractGreenFromBlueAndRed != NULL);
 	assert(VP8LTransformColor != NULL);
 	assert(VP8LCollectColorBlueTransforms != NULL);

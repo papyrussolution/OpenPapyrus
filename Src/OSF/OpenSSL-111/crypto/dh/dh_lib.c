@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/refcount.h"
-//#include <openssl/bn.h>
-//#include <openssl/engine.h>
 #include "dh_locl.h"
 
 int DH_set_method(DH * dh, const DH_METHOD * meth)
@@ -93,7 +90,7 @@ void FASTCALL DH_free(DH * r)
 		if(i > 0)
 			return;
 		REF_ASSERT_ISNT(i < 0);
-		if(r->meth != NULL && r->meth->finish != NULL)
+		if(r->meth && r->meth->finish)
 			r->meth->finish(r);
 #ifndef OPENSSL_NO_ENGINE
 		ENGINE_finish(r->engine);

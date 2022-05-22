@@ -275,7 +275,7 @@ static ngx_int_t ngx_ssl_stapling_responder(ngx_conf_t * cf, ngx_ssl_t * ssl, ng
 #else
 		s = sk_value(aia, 0);
 #endif
-		if(s == NULL) {
+		if(!s) {
 			ngx_log_error(NGX_LOG_WARN, ssl->log, 0, "\"ssl_stapling\" ignored, no OCSP responder URL in the certificate \"%s\"", staple->name);
 			X509_email_free(aia);
 			return NGX_DECLINED;

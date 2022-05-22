@@ -8,12 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-////#include "e_os.h"               /* for strncasecmp */
 #include <openssl/asn1t.h>
 #include <openssl/x509.h>
-//#include <openssl/engine.h>
-//#include "asn1_int.h"
-//#include "evp_int.h"
 #include "standard_methods.h"
 
 typedef int sk_cmp_fn_type (const char * const * a, const char * const * b);

@@ -1,13 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 1999-2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************/
-
+// Copyright (C) 1999-2011, International Business Machines Corporation and others.  All Rights Reserved.
+//
 /*----------------------------------------------------------------------------------
  *
  *  UDataMemory     A class-like struct that serves as a handle to a piece of memory
@@ -96,7 +90,7 @@ U_CAPI void U_EXPORT2 udata_close(UDataMemory * pData) {
 }
 
 U_CAPI const void * U_EXPORT2 udata_getMemory(UDataMemory * pData) {
-	if(pData!=NULL && pData->pHeader!=NULL) {
+	if(pData && pData->pHeader!=NULL) {
 		return (char *)(pData->pHeader)+udata_getHeaderSize(pData->pHeader);
 	}
 	else {
@@ -125,7 +119,7 @@ U_CAPI const void * U_EXPORT2 udata_getMemory(UDataMemory * pData) {
  * @internal Currently used only in cintltst/udatatst.c
  */
 U_CAPI int32_t U_EXPORT2 udata_getLength(const UDataMemory * pData) {
-	if(pData!=NULL && pData->pHeader!=NULL && pData->length>=0) {
+	if(pData && pData->pHeader!=NULL && pData->length>=0) {
 		/*
 		 * subtract the header size,
 		 * return only the size of the actual data starting at udata_getMemory()
@@ -143,7 +137,7 @@ U_CAPI int32_t U_EXPORT2 udata_getLength(const UDataMemory * pData) {
  * @internal
  */
 U_CAPI const void * U_EXPORT2 udata_getRawMemory(const UDataMemory * pData) {
-	if(pData!=NULL && pData->pHeader!=NULL) {
+	if(pData && pData->pHeader!=NULL) {
 		return pData->pHeader;
 	}
 	else {

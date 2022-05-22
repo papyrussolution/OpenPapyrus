@@ -312,7 +312,7 @@ static int archive_read_format_cpio_read_header(struct archive_read * a, struct 
 		return r;
 	/* Read name from buffer. */
 	h = __archive_read_ahead(a, namelength + name_pad, NULL);
-	if(h == NULL)
+	if(!h)
 		return ARCHIVE_FATAL;
 	if(archive_entry_copy_pathname_l(entry, (const char *)h, namelength, sconv) != 0) {
 		if(errno == ENOMEM) {
@@ -430,7 +430,7 @@ static int find_newc_header(struct archive_read * a)
 	ssize_t bytes;
 	for(;;) {
 		h = __archive_read_ahead(a, newc_header_size, &bytes);
-		if(h == NULL)
+		if(!h)
 			return ARCHIVE_FATAL;
 		p = static_cast<const char *>(h);
 		q = p + bytes;
@@ -480,7 +480,7 @@ static int header_newc(struct archive_read * a, struct cpio * cpio, struct archi
 		return r;
 	/* Read fixed-size portion of header. */
 	h = __archive_read_ahead(a, newc_header_size, NULL);
-	if(h == NULL)
+	if(!h)
 		return ARCHIVE_FATAL;
 	/* Parse out hex fields. */
 	header = (const char *)h;
@@ -571,7 +571,7 @@ static int find_odc_header(struct archive_read * a)
 	ssize_t bytes;
 	for(;;) {
 		h = __archive_read_ahead(a, odc_header_size, &bytes);
-		if(h == NULL)
+		if(!h)
 			return ARCHIVE_FATAL;
 		p = static_cast<const char *>(h);
 		q = p + bytes;
@@ -642,7 +642,7 @@ static int header_odc(struct archive_read * a, struct cpio * cpio,
 
 	/* Read fixed-size portion of header. */
 	h = __archive_read_ahead(a, odc_header_size, NULL);
-	if(h == NULL)
+	if(!h)
 		return ARCHIVE_FATAL;
 
 	/* Parse out octal fields. */
@@ -694,7 +694,7 @@ static int header_afiol(struct archive_read * a, struct cpio * cpio,
 
 	/* Read fixed-size portion of header. */
 	h = __archive_read_ahead(a, afiol_header_size, NULL);
-	if(h == NULL)
+	if(!h)
 		return ARCHIVE_FATAL;
 
 	/* Parse out octal fields. */
@@ -731,7 +731,7 @@ static int header_bin_le(struct archive_read * a, struct cpio * cpio, struct arc
 	a->archive.archive_format_name = "cpio (little-endian binary)";
 	/* Read fixed-size portion of header. */
 	h = __archive_read_ahead(a, bin_header_size, NULL);
-	if(h == NULL) {
+	if(!h) {
 		archive_set_error(&a->archive, 0, "End of file trying to read next cpio header");
 		return ARCHIVE_FATAL;
 	}
@@ -764,7 +764,7 @@ static int header_bin_be(struct archive_read * a, struct cpio * cpio,
 	a->archive.archive_format_name = "cpio (big-endian binary)";
 	/* Read fixed-size portion of header. */
 	h = __archive_read_ahead(a, bin_header_size, NULL);
-	if(h == NULL) {
+	if(!h) {
 		archive_set_error(&a->archive, 0, "End of file trying to read next cpio header");
 		return ARCHIVE_FATAL;
 	}

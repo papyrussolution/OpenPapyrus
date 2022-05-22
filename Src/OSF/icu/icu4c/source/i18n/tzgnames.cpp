@@ -24,16 +24,11 @@ U_NAMESPACE_BEGIN
 #define ZID_KEY_MAX  128
 
 static const char gZoneStrings[]        = "zoneStrings";
-
 static const char gRegionFormatTag[]    = "regionFormat";
 static const char gFallbackFormatTag[]  = "fallbackFormat";
-
 static const UChar gEmpty[]             = {0x00};
-
 static const UChar gDefRegionPattern[]  = {0x7B, 0x30, 0x7D, 0x00}; // "{0}"
-static const UChar gDefFallbackPattern[]        = {0x7B, 0x31, 0x7D, 0x20, 0x28, 0x7B, 0x30, 0x7D, 0x29, 0x00}; // "{1}
-                                                                                                                // ({0})"
-
+static const UChar gDefFallbackPattern[]        = {0x7B, 0x31, 0x7D, 0x20, 0x28, 0x7B, 0x30, 0x7D, 0x29, 0x00}; // "{1} ({0})"
 static const double kDstCheckRange      = (double)184*U_MILLIS_PER_DAY;
 
 U_CDECL_BEGIN
@@ -117,22 +112,16 @@ private:
 	UVector* fMatches; // vector of MatchEntry
 };
 
-TimeZoneGenericNameMatchInfo::TimeZoneGenericNameMatchInfo(UVector* matches)
-	: fMatches(matches) {
+TimeZoneGenericNameMatchInfo::TimeZoneGenericNameMatchInfo(UVector* matches) : fMatches(matches) 
+{
 }
 
-TimeZoneGenericNameMatchInfo::~TimeZoneGenericNameMatchInfo() {
-	if(fMatches != NULL) {
-		delete fMatches;
-	}
+TimeZoneGenericNameMatchInfo::~TimeZoneGenericNameMatchInfo() 
+{ 
+	delete fMatches; 
 }
 
-int32_t TimeZoneGenericNameMatchInfo::size() const {
-	if(fMatches == NULL) {
-		return 0;
-	}
-	return fMatches->size();
-}
+int32_t TimeZoneGenericNameMatchInfo::size() const { return fMatches ? fMatches->size() : 0; }
 
 UTimeZoneGenericNameType TimeZoneGenericNameMatchInfo::getGenericNameType(int32_t index) const {
 	GMatchInfo * minfo = (GMatchInfo*)fMatches->elementAt(index);
@@ -142,15 +131,14 @@ UTimeZoneGenericNameType TimeZoneGenericNameMatchInfo::getGenericNameType(int32_
 	return UTZGNM_UNKNOWN;
 }
 
-int32_t TimeZoneGenericNameMatchInfo::getMatchLength(int32_t index) const {
+int32_t TimeZoneGenericNameMatchInfo::getMatchLength(int32_t index) const 
+{
 	ZMatchInfo * minfo = (ZMatchInfo*)fMatches->elementAt(index);
-	if(minfo != NULL) {
-		return minfo->matchLength;
-	}
-	return -1;
+	return minfo ? minfo->matchLength : -1;
 }
 
-UnicodeString &TimeZoneGenericNameMatchInfo::getTimeZoneID(int32_t index, UnicodeString & tzID) const {
+UnicodeString &TimeZoneGenericNameMatchInfo::getTimeZoneID(int32_t index, UnicodeString & tzID) const 
+{
 	GMatchInfo * minfo = (GMatchInfo*)fMatches->elementAt(index);
 	if(minfo != NULL && minfo->gnameInfo->tzID != NULL) {
 		tzID.setTo(TRUE, minfo->gnameInfo->tzID, -1);
@@ -167,27 +155,25 @@ class GNameSearchHandler : public TextTrieMapSearchResultHandler {
 public:
 	GNameSearchHandler(uint32_t types);
 	virtual ~GNameSearchHandler();
-
 	bool handleMatch(int32_t matchLength, const CharacterNode * node, UErrorCode & status) override;
 	UVector* getMatches(int32_t& maxMatchLen);
-
 private:
 	uint32_t fTypes;
 	UVector* fResults;
 	int32_t fMaxMatchLen;
 };
 
-GNameSearchHandler::GNameSearchHandler(uint32_t types)
-	: fTypes(types), fResults(NULL), fMaxMatchLen(0) {
+GNameSearchHandler::GNameSearchHandler(uint32_t types) : fTypes(types), fResults(NULL), fMaxMatchLen(0) 
+{
 }
 
-GNameSearchHandler::~GNameSearchHandler() {
-	if(fResults != NULL) {
-		delete fResults;
-	}
+GNameSearchHandler::~GNameSearchHandler() 
+{
+	delete fResults;
 }
 
-bool GNameSearchHandler::handleMatch(int32_t matchLength, const CharacterNode * node, UErrorCode & status) {
+bool GNameSearchHandler::handleMatch(int32_t matchLength, const CharacterNode * node, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return FALSE;
 	}
@@ -234,11 +220,11 @@ bool GNameSearchHandler::handleMatch(int32_t matchLength, const CharacterNode * 
 	return TRUE;
 }
 
-UVector* GNameSearchHandler::getMatches(int32_t& maxMatchLen) {
+UVector* GNameSearchHandler::getMatches(int32_t& maxMatchLen) 
+{
 	// give the ownership to the caller
 	UVector * results = fResults;
 	maxMatchLen = fMaxMatchLen;
-
 	// reset
 	fResults = NULL;
 	fMaxMatchLen = 0;
@@ -879,14 +865,12 @@ int32_t TZGNCore::findBestMatch(const UnicodeString & text, int32_t start, uint3
 				switch(nameType) {
 					case UTZNM_LONG_STANDARD:
 					// isLongStandard = TRUE;
-					case UTZNM_SHORT_STANDARD: // this one is never used for generic, but just in
-					                           // case
+					case UTZNM_SHORT_STANDARD: // this one is never used for generic, but just in case
 					    isStandard = TRUE; // TODO: Remove this later, see the comments above.
 					    bestMatchTimeType = UTZFMT_TIME_TYPE_STANDARD;
 					    break;
 					case UTZNM_LONG_DAYLIGHT:
-					case UTZNM_SHORT_DAYLIGHT: // this one is never used for generic, but just in
-					                           // case
+					case UTZNM_SHORT_DAYLIGHT: // this one is never used for generic, but just in case
 					    bestMatchTimeType = UTZFMT_TIME_TYPE_DAYLIGHT;
 					    break;
 					default:

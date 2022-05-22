@@ -414,7 +414,7 @@ int DTLSv1_listen(SSL * s, BIO_ADDR * client)
 	BIO_ADDR * tmpclient = NULL;
 	PACKET pkt, msgpkt, msgpayload, session, cookiepkt;
 
-	if(s->handshake_func == NULL) {
+	if(!s->handshake_func) {
 		/* Not properly initialized yet */
 		SSL_set_accept_state(s);
 	}

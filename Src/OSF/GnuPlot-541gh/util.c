@@ -1258,7 +1258,7 @@ char * GnuPlot::ValueToStr(const GpValue * pVal, bool needQuotes)
 					    }
 					    else {
 						    c[j] = 0;
-						    IntError(NO_CARET, "out of memory");
+						    IntError(NO_CARET, SlTxtOutOfMem);
 					    }
 				    }
 				    sprintf(s[j], "\"%s\"", cstr);

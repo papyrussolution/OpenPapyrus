@@ -378,7 +378,7 @@ static int pkey_dh_paramgen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 	}
 #endif
 	dh = DH_new();
-	if(dh == NULL) {
+	if(!dh) {
 		BN_GENCB_free(pcb);
 		return 0;
 	}
@@ -405,7 +405,7 @@ static int pkey_dh_keygen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 		dh = DH_new_by_nid(dctx->param_nid);
 	else
 		dh = DH_new();
-	if(dh == NULL)
+	if(!dh)
 		return 0;
 	EVP_PKEY_assign(pkey, ctx->pmeth->pkey_id, dh);
 	/* Note: if error return, pkey is freed by parent routine */

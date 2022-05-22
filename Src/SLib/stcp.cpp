@@ -1374,7 +1374,7 @@ int SMailMessage::DebugOutput(SString & rBuf) const
 		rBuf.CatEq("acceptlang", temp_buf).CR();
 	if(GetS(HFP.XOrgIpP, temp_buf))
 		rBuf.CatEq("xorgip", temp_buf).CR();
-	temp_buf.Z().Cat(HFP.Dtm, DATF_ISO8601|DATF_CENTURY, 0);
+	temp_buf.Z().Cat(HFP.Dtm, DATF_ISO8601CENT, 0);
 	rBuf.CatEq("date", temp_buf).CR();
 	HFP.MimeVer.ToStr(temp_buf.Z());
 	rBuf.CatEq("mimever", temp_buf).CR();
@@ -1412,15 +1412,15 @@ int SMailMessage::DebugOutput_Boundary(const Boundary & rB, uint tab, SString & 
 	if(rB.Cd.Size != 0)
 		rBuf.Tab(tab+1).CatEq("cd:size", rB.Cd.Size).CR();
 	if(!!rB.Cd.CrDtm) {
-		temp_buf.Z().Cat(rB.Cd.CrDtm, DATF_ISO8601|DATF_CENTURY, 0);
+		temp_buf.Z().Cat(rB.Cd.CrDtm, DATF_ISO8601CENT, 0);
 		rBuf.Tab(tab+1).CatEq("cd:crdtm", rB.Cd.Size).CR();
 	}
 	if(!!rB.Cd.ModifDtm) {
-		temp_buf.Z().Cat(rB.Cd.ModifDtm, DATF_ISO8601|DATF_CENTURY, 0);
+		temp_buf.Z().Cat(rB.Cd.ModifDtm, DATF_ISO8601CENT, 0);
 		rBuf.Tab(tab+1).CatEq("cd:modifdtm", rB.Cd.Size).CR();
 	}
 	if(!!rB.Cd.RdDtm) {
-		temp_buf.Z().Cat(rB.Cd.RdDtm, DATF_ISO8601|DATF_CENTURY, 0);
+		temp_buf.Z().Cat(rB.Cd.RdDtm, DATF_ISO8601CENT, 0);
 		rBuf.Tab(tab+1).CatEq("cd:readdtm", rB.Cd.Size).CR();
 	}
 	rBuf.Tab(tab+1).CatEq("contenttypeenc", (long)rB.ContentTransfEnc).CR();
@@ -2391,7 +2391,7 @@ read_header:                   /* for errorcode: 100 (continue) */
 	}
 	/* Create response */
 	res = _hresponse_parse_header(buffer);
-	if(res == NULL) {
+	if(!res) {
 		log_error1("Header parse error");
 		return herror_new("hresponse_new_from_socket", GENERAL_HEADER_PARSE_ERROR, "Can not parse response header");
 	}

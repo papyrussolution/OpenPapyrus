@@ -155,7 +155,7 @@ BOOL pthread_win32_thread_detach_np()
 		 * unnecessarily.
 		 */
 		__ptw32_thread_t * sp = (__ptw32_thread_t *)pthread_getspecific(__ptw32_selfThreadKey);
-		if(sp != NULL) { // otherwise Win32 thread with no implicit POSIX handle.
+		if(sp) { // otherwise Win32 thread with no implicit POSIX handle.
 			__ptw32_mcs_local_node_t stateLock;
 			__ptw32_callUserDestroyRoutines(sp->ptHandle);
 			__ptw32_mcs_lock_acquire(&sp->stateLock, &stateLock);

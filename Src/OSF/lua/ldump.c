@@ -53,7 +53,7 @@ static void DumpInteger(lua_Integer x, DumpState * D) { DumpVar(x, D); }
 
 static void DumpString(const TString * s, DumpState * D) 
 {
-	if(s == NULL)
+	if(!s)
 		DumpByte(0, D);
 	else {
 		size_t size = tsslen(s) + 1; /* include trailing '\0' */

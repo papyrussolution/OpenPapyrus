@@ -649,15 +649,15 @@ static bool _isTransformedExtensionSubtag(int32_t& state, const char * s, int32_
 			    state = kGotScript;
 			    return TRUE;
 		    }
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case kGotScript:
 		    if(ultag_isRegionSubtag(s, len)) {
 			    state = kGotRegion;
 			    return TRUE;
 		    }
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case kGotRegion:
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case kGotVariant:
 		    if(_isVariantSubtag(s, len)) {
 			    state = kGotVariant;
@@ -1398,7 +1398,7 @@ static void _appendKeywordsToLanguageTag(const char * localeID, icu::ByteSink& s
 
 			/* create ExtensionListEntry */
 			ext = extPool.create();
-			if(ext == NULL) {
+			if(!ext) {
 				*status = U_MEMORY_ALLOCATION_ERROR;
 				break;
 			}
@@ -1417,7 +1417,7 @@ static void _appendKeywordsToLanguageTag(const char * localeID, icu::ByteSink& s
 		if(hadPosix) {
 			/* create ExtensionListEntry for POSIX */
 			ext = extPool.create();
-			if(ext == NULL) {
+			if(!ext) {
 				*status = U_MEMORY_ALLOCATION_ERROR;
 				return;
 			}

@@ -139,7 +139,7 @@ const struct Curl_handler Curl_handler_ldaps = {
 
 static const char * url_errs[] = {
 	"success",
-	"out of memory",
+	SlTxtOutOfMem,
 	"bad parameter",
 	"unrecognized scheme",
 	"unbalanced delimiter",

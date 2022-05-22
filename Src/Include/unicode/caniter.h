@@ -179,17 +179,11 @@ private:
 
 	const Normalizer2 &nfd;
 	const Normalizer2Impl &nfcImpl;
-
 	// we have a segment, in NFD. Find all the strings that are canonically equivalent to it.
-	UnicodeString * getEquivalents(const UnicodeString & segment, int32_t &result_len, UErrorCode & status); //private
-	                                                                                                         // String[]
-	                                                                                                         // getEquivalents(String
-	                                                                                                         // segment)
-
+	UnicodeString * getEquivalents(const UnicodeString & segment, int32_t &result_len, UErrorCode & status); //private String[] getEquivalents(String segment)
 	//Set getEquivalents2(String segment);
 	Hashtable * getEquivalents2(Hashtable * fillinResult, const char16_t * segment, int32_t segLen, UErrorCode & status);
 	//Hashtable *getEquivalents2(const UnicodeString & segment, int32_t segLen, UErrorCode & status);
-
 	/**
 	 * See if the decomposition of cp2 is at segment starting at segmentPos
 	 * (with canonical rearrangement!)

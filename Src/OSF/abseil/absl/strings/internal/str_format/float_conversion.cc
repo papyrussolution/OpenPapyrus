@@ -107,33 +107,20 @@ public:
 	    absl::FunctionRef<void(BinaryToDecimal)> f) {
 		assert(exp > 0);
 		assert(exp <= std::numeric_limits<MaxFloatType>::max_exponent);
-		static_assert(
-			static_cast<int>(StackArray::kMaxCapacity) >=
-			ChunksNeeded(std::numeric_limits<MaxFloatType>::max_exponent),
-			"");
-
-		StackArray::RunWithCapacity(
-			ChunksNeeded(exp),
-			[ = ](absl::Span<uint32_t> input) {
-						f(BinaryToDecimal(input, v, exp));
-					});
+		static_assert(static_cast<int>(StackArray::kMaxCapacity) >= ChunksNeeded(std::numeric_limits<MaxFloatType>::max_exponent), "");
+		StackArray::RunWithCapacity(ChunksNeeded(exp), [ = ](absl::Span<uint32_t> input) { f(BinaryToDecimal(input, v, exp)); });
 	}
-
-	int TotalDigits() const {
-		return static_cast<int>((decimal_end_ - decimal_start_) * kDigitsPerChunk +
-		       CurrentDigits().size());
+	int TotalDigits() const 
+	{
+		return static_cast<int>((decimal_end_ - decimal_start_) * kDigitsPerChunk + CurrentDigits().size());
 	}
-
 	// See the current block of digits.
-	absl::string_view CurrentDigits() const {
-		return absl::string_view(digits_ + kDigitsPerChunk - size_, size_);
-	}
-
+	absl::string_view CurrentDigits() const { return absl::string_view(digits_ + kDigitsPerChunk - size_, size_); }
 	// Advance the current view of digits.
 	// Returns `false` when no more digits are available.
-	bool AdvanceDigits() {
+	bool AdvanceDigits() 
+	{
 		if(decimal_start_ >= decimal_end_) return false;
-
 		uint32_t w = data_[decimal_start_++];
 		for(size_ = 0; size_ < kDigitsPerChunk; w /= 10) {
 			digits_[kDigitsPerChunk - ++size_] = w % 10 + '0';
@@ -217,29 +204,15 @@ public:
 		using Limits = std::numeric_limits<MaxFloatType>;
 		assert(-exp < 0);
 		assert(-exp >= Limits::min_exponent - 128);
-		static_assert(StackArray::kMaxCapacity >=
-		    (Limits::digits + 128 - Limits::min_exponent + 31) / 32,
-		    "");
-		StackArray::RunWithCapacity((Limits::digits + exp + 31) / 32,
-		    [ = ](absl::Span<uint32_t> input) {
-						f(FractionalDigitGenerator(input, v, exp));
-					});
+		static_assert(StackArray::kMaxCapacity >= (Limits::digits + 128 - Limits::min_exponent + 31) / 32, "");
+		StackArray::RunWithCapacity((Limits::digits + exp + 31) / 32, [ = ](absl::Span<uint32_t> input) { f(FractionalDigitGenerator(input, v, exp)); });
 	}
-
 	// Returns true if there are any more non-zero digits left.
-	bool HasMoreDigits() const {
-		return next_digit_ != 0 || chunk_index_ >= 0;
-	}
-
+	bool HasMoreDigits() const { return next_digit_ != 0 || chunk_index_ >= 0; }
 	// Returns true if the remainder digits are greater than 5000...
-	bool IsGreaterThanHalf() const {
-		return next_digit_ > 5 || (next_digit_ == 5 && chunk_index_ >= 0);
-	}
-
+	bool IsGreaterThanHalf() const { return next_digit_ > 5 || (next_digit_ == 5 && chunk_index_ >= 0); }
 	// Returns true if the remainder digits are exactly 5000...
-	bool IsExactlyHalf() const {
-		return next_digit_ == 5 && chunk_index_ < 0;
-	}
+	bool IsExactlyHalf() const { return next_digit_ == 5 && chunk_index_ < 0; }
 
 	struct Digits {
 		int digit_before_nine;

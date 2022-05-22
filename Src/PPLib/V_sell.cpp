@@ -1,5 +1,5 @@
 // V_SELL.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -144,15 +144,16 @@ int FASTCALL PPViewPredictSales::NextIteration(PredictSalesViewItem *pItem)
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		PredictSalesViewItem item;
 		MEMSZERO(item);
-		item.Dt = P_TempTbl->data.Dt;
-		item.Qtty = P_TempTbl->data.Qtty;
-		item.Amt = P_TempTbl->data.Amt;
-		item.QttyPredict = P_TempTbl->data.QttyPredict;
-		item.QttyAbsErr = P_TempTbl->data.QttyAbsErr;
-		item.QttyPctErr = P_TempTbl->data.QttyPctErr;
-		item.AmtPredict = P_TempTbl->data.AmtPredict;
-		item.AmtAbsErr = P_TempTbl->data.AmtAbsErr;
-		item.AmtPctErr = P_TempTbl->data.AmtPctErr;
+		const TempPredictSalesTbl::Rec & r_src_rec = P_TempTbl->data;
+		item.Dt = r_src_rec.Dt;
+		item.Qtty = r_src_rec.Qtty;
+		item.Amt = r_src_rec.Amt;
+		item.QttyPredict = r_src_rec.QttyPredict;
+		item.QttyAbsErr = r_src_rec.QttyAbsErr;
+		item.QttyPctErr = r_src_rec.QttyPctErr;
+		item.AmtPredict = r_src_rec.AmtPredict;
+		item.AmtAbsErr = r_src_rec.AmtAbsErr;
+		item.AmtPctErr = r_src_rec.AmtPctErr;
 		Counter.Increment();
 		ASSIGN_PTR(pItem, item);
 		return 1;

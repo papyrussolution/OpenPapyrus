@@ -137,7 +137,7 @@ static size_t mi_segment_page_size(const mi_segment_t* segment) {
 #if(MI_DEBUG>=2)
 static bool mi_pages_reset_contains(const mi_page_t* page, mi_segments_tld_t* tld) {
 	mi_page_t* p = tld->pages_reset.first;
-	while(p != NULL) {
+	while(p) {
 		if(p == page) return true;
 		p = p->next;
 	}

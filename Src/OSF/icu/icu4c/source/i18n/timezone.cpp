@@ -403,11 +403,11 @@ TimeZone* U_EXPORT2 TimeZone::createTimeZone(const UnicodeString & ID)
 	 */
 	TimeZone* result = createSystemTimeZone(ID);
 
-	if(result == NULL) {
+	if(!result) {
 		U_DEBUG_TZ_MSG(("failed to load system time zone with id - falling to custom"));
 		result = createCustomTimeZone(ID);
 	}
-	if(result == NULL) {
+	if(!result) {
 		U_DEBUG_TZ_MSG(("failed to load time zone with id - falling to Etc/Unknown(GMT)"));
 		const TimeZone& unknown = getUnknown();
 		// Unknown zone uses statically allocated memory, so creation of it can never fail due to OOM.
@@ -862,7 +862,7 @@ public:
 				result = new TZEnumeration(filteredMap, numEntries, TRUE);
 				filteredMap = NULL;
 			}
-			if(result == NULL) {
+			if(!result) {
 				ec = U_MEMORY_ALLOCATION_ERROR;
 			}
 		}

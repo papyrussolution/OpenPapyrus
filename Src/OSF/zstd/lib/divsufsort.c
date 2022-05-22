@@ -31,13 +31,13 @@
 
 /*- Constants -*/
 #if defined(INLINE)
-# undef INLINE
+#undef INLINE
 #endif
 #if !defined(INLINE)
 	#define INLINE __inline
 #endif
 #if defined(ALPHABET_SIZE) && (ALPHABET_SIZE < 1)
-# undef ALPHABET_SIZE
+#undef ALPHABET_SIZE
 #endif
 #if !defined(ALPHABET_SIZE)
 	#define ALPHABET_SIZE (256)

@@ -98,7 +98,7 @@ ScientificNumberFormatter * ScientificNumberFormatter::createInstance(DecimalFor
 		fmt.getAlias(),
 		style.getAlias(),
 		status);
-	if(result == NULL) {
+	if(!result) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}

@@ -42,13 +42,11 @@ struct cff2_top_dict_op_serializer_t : cff_top_dict_op_serializer_t<> {
 struct cff2_cs_opset_flatten_t : cff2_cs_opset_t<cff2_cs_opset_flatten_t, flatten_param_t> {
 	static void flush_args_and_op(op_code_t op, cff2_cs_interp_env_t &env, flatten_param_t& param)
 	{
-		switch(op)
-		{
+		switch(op) {
 			case OpCode_return:
 			case OpCode_endchar:
 			    /* dummy opcodes in CFF2. ignore */
 			    break;
-
 			case OpCode_hstem:
 			case OpCode_hstemhm:
 			case OpCode_vstem:
@@ -59,14 +57,12 @@ struct cff2_cs_opset_flatten_t : cff2_cs_opset_t<cff2_cs_opset_flatten_t, flatte
 				    env.clear_args();
 				    return;
 			    }
-			    HB_FALLTHROUGH;
-
+			    CXX_FALLTHROUGH;
 			default:
 			    SUPER::flush_args_and_op(op, env, param);
 			    break;
 		}
 	}
-
 	static void flush_args(cff2_cs_interp_env_t &env, flatten_param_t& param)
 	{
 		for(uint i = 0; i < env.argStack.get_count();) {

@@ -339,7 +339,7 @@ const UChar * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tzid,
 			if(idInCache == NULL) {
 				const UChar * key = ZoneMeta::findTimeZoneID(tzid);
 				U_ASSERT(key != NULL);
-				if(key != NULL) {
+				if(key) {
 					idInCache = (const UChar *)uhash_put(gCanonicalIDCache, (void *)key, (void *)canonicalID, &status);
 					U_ASSERT(idInCache == NULL);
 				}
@@ -585,7 +585,7 @@ const UVector* U_EXPORT2 ZoneMeta::getMetazoneMappings(const UnicodeString & tzi
 	{
 		// make sure it's already created
 		result = (UVector*)uhash_get(gOlsonToMeta, tzidUChars);
-		if(result == NULL) {
+		if(!result) {
 			// add the one just created
 			int32_t tzidLen = tzid.length() + 1;
 			UChar * key = (UChar *)uprv_malloc(tzidLen * sizeof(UChar));
@@ -671,7 +671,7 @@ UVector* ZoneMeta::createMetazoneMappings(const UnicodeString & tzid) {
 				}
 
 				OlsonToMetaMappingEntry * entry = (OlsonToMetaMappingEntry*)uprv_malloc(sizeof(OlsonToMetaMappingEntry));
-				if(entry == NULL) {
+				if(!entry) {
 					status = U_MEMORY_ALLOCATION_ERROR;
 					break;
 				}

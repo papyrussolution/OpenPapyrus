@@ -72,13 +72,13 @@ inline int32_t uprv_upperOrdinal(int32_t c) {
 	// https://en.wikipedia.org/wiki/EBCDIC_037#Codepage_layout
 	if(c <= 'I') {
 		return c - 'A';
-	}                              // A-I --> 0-8
+	} // A-I --> 0-8
 	if(c < 'J') {
 		return -1;
 	}
 	if(c <= 'R') {
 		return c - 'J' + 9;
-	}                                  // J-R --> 9..17
+	} // J-R --> 9..17
 	if(c < 'S') {
 		return -1;
 	}
@@ -98,13 +98,13 @@ inline int32_t uprv_lowerOrdinal(int32_t c) {
 	// https://en.wikipedia.org/wiki/EBCDIC_037#Codepage_layout
 	if(c <= 'i') {
 		return c - 'a';
-	}                              // a-i --> 0-8
+	} // a-i --> 0-8
 	if(c < 'j') {
 		return -1;
 	}
 	if(c <= 'r') {
 		return c - 'j' + 9;
-	}                                  // j-r --> 9..17
+	} // j-r --> 9..17
 	if(c < 's') {
 		return -1;
 	}

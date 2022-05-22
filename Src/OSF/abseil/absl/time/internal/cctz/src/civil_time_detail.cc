@@ -6,12 +6,6 @@
 //
 //   https://www.apache.org/licenses/LICENSE-2.0
 //
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
-
 #include "absl/absl-internal.h"
 #pragma hdrstop
 
@@ -58,31 +52,24 @@ std::ostream & operator<<(std::ostream & os, const civil_minute& m) {
 	return os << ss.str();
 }
 
-std::ostream & operator<<(std::ostream & os, const civil_second& s) {
+std::ostream & operator<<(std::ostream & os, const civil_second& s) 
+{
 	std::stringstream ss;
 	ss << civil_minute(s) << ':';
 	ss << std::setfill('0') << std::setw(2) << s.second();
 	return os << ss.str();
 }
 
-////////////////////////////////////////////////////////////////////////
-
-std::ostream & operator<<(std::ostream & os, weekday wd) {
+std::ostream & operator<<(std::ostream & os, weekday wd) 
+{
 	switch(wd) {
-		case weekday::monday:
-		    return os << "Monday";
-		case weekday::tuesday:
-		    return os << "Tuesday";
-		case weekday::wednesday:
-		    return os << "Wednesday";
-		case weekday::thursday:
-		    return os << "Thursday";
-		case weekday::friday:
-		    return os << "Friday";
-		case weekday::saturday:
-		    return os << "Saturday";
-		case weekday::sunday:
-		    return os << "Sunday";
+		case weekday::monday: return os << "Monday";
+		case weekday::tuesday: return os << "Tuesday";
+		case weekday::wednesday: return os << "Wednesday";
+		case weekday::thursday: return os << "Thursday";
+		case weekday::friday: return os << "Friday";
+		case weekday::saturday: return os << "Saturday";
+		case weekday::sunday: return os << "Sunday";
 	}
 	return os; // Should never get here, but -Wreturn-type may warn without this.
 }

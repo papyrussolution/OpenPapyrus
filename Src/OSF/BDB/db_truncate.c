@@ -9,7 +9,7 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static int __db_cursor_check_func __P((DBC*, DBC*, uint32*, db_pgno_t, uint32, void *));
+static int __db_cursor_check_func __P((DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *));
 static int __db_cursor_check __P((DB *));
 /*
  * __db_truncate_pp

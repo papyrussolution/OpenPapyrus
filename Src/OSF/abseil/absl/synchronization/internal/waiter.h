@@ -21,8 +21,8 @@
 #ifdef ABSL_HAVE_SEMAPHORE_H
 	#include <semaphore.h>
 #endif
-#include <atomic>
-#include <cstdint>
+//#include <atomic>
+//#include <cstdint>
 #include "absl/base/internal/thread_identity.h"
 #include "absl/synchronization/internal/futex.h"
 #include "absl/synchronization/internal/kernel_timeout.h"
@@ -48,94 +48,84 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace synchronization_internal {
-
 // Waiter is an OS-specific semaphore.
 class Waiter {
- public:
-  // Prepare any data to track waits.
-  Waiter();
-
-  // Not copyable or movable
-  Waiter(const Waiter&) = delete;
-  Waiter& operator = (const Waiter&) = delete;
-
-  // Destroy any data to track waits.
-  ~Waiter();
-
-  // Blocks the calling thread until a matching call to `Post()` or
-  // `t` has passed. Returns `true` if woken (`Post()` called),
-  // `false` on timeout.
-  bool Wait(KernelTimeout t);
-
-  // Restart the caller of `Wait()` as with a normal semaphore.
-  void Post();
-
-  // If anyone is waiting, wake them up temporarily and cause them to
-  // call `MaybeBecomeIdle()`. They will then return to waiting for a
-  // `Post()` or timeout.
-  void Poke();
-
-  // Returns the Waiter associated with the identity.
-  static Waiter* GetWaiter(base_internal::ThreadIdentity* identity) {
-    static_assert(
-        sizeof(Waiter) <= sizeof(base_internal::ThreadIdentity::WaiterState),
-        "Insufficient space for Waiter");
-    return reinterpret_cast<Waiter*>(identity->waiter_state.data);
-  }
-
-  // How many periods to remain idle before releasing resources
+public:
+	// Prepare any data to track waits.
+	Waiter();
+	// Not copyable or movable
+	Waiter(const Waiter&) = delete;
+	Waiter& operator =(const Waiter&) = delete;
+	// Destroy any data to track waits.
+	~Waiter();
+	// Blocks the calling thread until a matching call to `Post()` or
+	// `t` has passed. Returns `true` if woken (`Post()` called),
+	// `false` on timeout.
+	bool Wait(KernelTimeout t);
+	// Restart the caller of `Wait()` as with a normal semaphore.
+	void Post();
+	// If anyone is waiting, wake them up temporarily and cause them to
+	// call `MaybeBecomeIdle()`. They will then return to waiting for a
+	// `Post()` or timeout.
+	void Poke();
+	// Returns the Waiter associated with the identity.
+	static Waiter* GetWaiter(base_internal::ThreadIdentity* identity) 
+	{
+		static_assert(sizeof(Waiter) <= sizeof(base_internal::ThreadIdentity::WaiterState), "Insufficient space for Waiter");
+		return reinterpret_cast<Waiter*>(identity->waiter_state.data);
+	}
+	// How many periods to remain idle before releasing resources
 #ifndef ABSL_HAVE_THREAD_SANITIZER
-  static constexpr int kIdlePeriods = 60;
+	static constexpr int kIdlePeriods = 60;
 #else
-  // Memory consumption under ThreadSanitizer is a serious concern,
-  // so we release resources sooner. The value of 1 leads to 1 to 2 second
-  // delay before marking a thread as idle.
-  static const int kIdlePeriods = 1;
+	// Memory consumption under ThreadSanitizer is a serious concern,
+	// so we release resources sooner. The value of 1 leads to 1 to 2 second
+	// delay before marking a thread as idle.
+	static const int kIdlePeriods = 1;
 #endif
 
- private:
+private:
 #if ABSL_WAITER_MODE == ABSL_WAITER_MODE_FUTEX
-  // Futexes are defined by specification to be 32-bits.
-  // Thus std::atomic<int32_t> must be just an int32_t with lockfree methods.
-  std::atomic<int32_t> futex_;
-  static_assert(sizeof(int32_t) == sizeof(futex_), "Wrong size for futex");
+	// Futexes are defined by specification to be 32-bits.
+	// Thus std::atomic<int32_t> must be just an int32_t with lockfree methods.
+	std::atomic<int32_t> futex_;
+	static_assert(sizeof(int32_t) == sizeof(futex_), "Wrong size for futex");
 
 #elif ABSL_WAITER_MODE == ABSL_WAITER_MODE_CONDVAR
-  // REQUIRES: mu_ must be held.
-  void InternalCondVarPoke();
+	// REQUIRES: mu_ must be held.
+	void InternalCondVarPoke();
 
-  pthread_mutex_t mu_;
-  pthread_cond_t cv_;
-  int waiter_count_;
-  int wakeup_count_;  // Unclaimed wakeups.
+	pthread_mutex_t mu_;
+	pthread_cond_t cv_;
+	int waiter_count_;
+	int wakeup_count_; // Unclaimed wakeups.
 
 #elif ABSL_WAITER_MODE == ABSL_WAITER_MODE_SEM
-  sem_t sem_;
-  // This seems superfluous, but for Poke() we need to cause spurious
-  // wakeups on the semaphore. Hence we can't actually use the
-  // semaphore's count.
-  std::atomic<int> wakeups_;
+	sem_t sem_;
+	// This seems superfluous, but for Poke() we need to cause spurious
+	// wakeups on the semaphore. Hence we can't actually use the
+	// semaphore's count.
+	std::atomic<int> wakeups_;
 
 #elif ABSL_WAITER_MODE == ABSL_WAITER_MODE_WIN32
-  // WinHelper - Used to define utilities for accessing the lock and
-  // condition variable storage once the types are complete.
-  class WinHelper;
+	// WinHelper - Used to define utilities for accessing the lock and
+	// condition variable storage once the types are complete.
+	class WinHelper;
 
-  // REQUIRES: WinHelper::GetLock(this) must be held.
-  void InternalCondVarPoke();
+	// REQUIRES: WinHelper::GetLock(this) must be held.
+	void InternalCondVarPoke();
 
-  // We can't include Windows.h in our headers, so we use aligned charachter
-  // buffers to define the storage of SRWLOCK and CONDITION_VARIABLE.
-  alignas(void*) unsigned char mu_storage_[sizeof(void*)];
-  alignas(void*) unsigned char cv_storage_[sizeof(void*)];
-  int waiter_count_;
-  int wakeup_count_;
+	// We can't include Windows.h in our headers, so we use aligned charachter
+	// buffers to define the storage of SRWLOCK and CONDITION_VARIABLE.
+	alignas(void*) unsigned char mu_storage_[sizeof(void*)];
+	alignas(void*) unsigned char cv_storage_[sizeof(void*)];
+	int waiter_count_;
+	int wakeup_count_;
 
 #else
   #error Unknown ABSL_WAITER_MODE
 #endif
 };
-
 }  // namespace synchronization_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

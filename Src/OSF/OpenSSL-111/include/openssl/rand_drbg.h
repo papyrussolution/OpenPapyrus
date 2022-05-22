@@ -5,14 +5,11 @@
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution or at  https://www.openssl.org/source/license.html
  */
-
 #ifndef HEADER_DRBG_RAND_H
 #define HEADER_DRBG_RAND_H
 
-//#include <time.h>
 #include <openssl/ossl_typ.h>
 #include <openssl/obj_mac.h>
-
 /*
  * RAND_DRBG  flags
  *

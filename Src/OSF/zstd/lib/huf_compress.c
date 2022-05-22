@@ -49,7 +49,7 @@ typedef struct nodeElt_s {
 // 
 #if DEBUGLEVEL >= 2
 
-static size_t showU32(const uint32* arr, size_t size)
+static size_t showU32(const uint32 * arr, size_t size)
 {
 	size_t u;
 	for(u = 0; u<size; u++) {
@@ -1026,12 +1026,12 @@ FORCE_INLINE_TEMPLATE size_t HUF_compress1X_usingCTable_internal_body(void * dst
 				case 11:
 				    HUF_compress1X_usingCTable_internal_body_loop(&bitC, ip, srcSize, ct, /* kUnroll */ 2, /* kFastFlush */ 1, /* kLastFast */ 0);
 				    break;
-				case 10: ZSTD_FALLTHROUGH;
-				case 9: ZSTD_FALLTHROUGH;
+				case 10: CXX_FALLTHROUGH;
+				case 9: CXX_FALLTHROUGH;
 				case 8:
 				    HUF_compress1X_usingCTable_internal_body_loop(&bitC, ip, srcSize, ct, /* kUnroll */ 2, /* kFastFlush */ 1, /* kLastFast */ 1);
 				    break;
-				case 7: ZSTD_FALLTHROUGH;
+				case 7: CXX_FALLTHROUGH;
 				default:
 				    HUF_compress1X_usingCTable_internal_body_loop(&bitC, ip, srcSize, ct, /* kUnroll */ 3, /* kFastFlush */ 1, /* kLastFast */ 1);
 				    break;
@@ -1054,7 +1054,7 @@ FORCE_INLINE_TEMPLATE size_t HUF_compress1X_usingCTable_internal_body(void * dst
 				case 7:
 				    HUF_compress1X_usingCTable_internal_body_loop(&bitC, ip, srcSize, ct, /* kUnroll */ 8, /* kFastFlush */ 1, /* kLastFast */ 0);
 				    break;
-				case 6: ZSTD_FALLTHROUGH;
+				case 6: CXX_FALLTHROUGH;
 				default:
 				    HUF_compress1X_usingCTable_internal_body_loop(&bitC, ip, srcSize, ct, /* kUnroll */ 9, /* kFastFlush */ 1, /* kLastFast */ 1);
 				    break;

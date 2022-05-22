@@ -643,7 +643,7 @@ void xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementCo
 		return;
 	}
 #ifdef LIBXML_VALID_ENABLED
-	if(elem == NULL)
+	if(!elem)
 		ctxt->valid = 0;
 	if(ctxt->validate && ctxt->wellFormed && ctxt->myDoc && ctxt->myDoc->intSubset)
 		ctxt->valid &= xmlValidateElementDecl(&ctxt->vctxt, ctxt->myDoc, elem);
@@ -1297,7 +1297,7 @@ void xmlSAX2StartElement(void * ctx, const xmlChar * fullname, const xmlChar ** 
 #endif
 		xmlAddChild((xmlNode *)ctxt->myDoc, ret);
 	}
-	else if(parent == NULL) {
+	else if(!parent) {
 		parent = ctxt->myDoc->children;
 	}
 	ctxt->nodemem = -1;
@@ -1852,7 +1852,7 @@ void xmlSAX2StartElementNs(void * ctx, const xmlChar * localname, const xmlChar 
 			ret->line = (ctxt->input->line < 65535) ? static_cast<short>(ctxt->input->line) : 65535;
 		}
 	}
-	if(parent == NULL) {
+	if(!parent) {
 		xmlAddChild((xmlNode *)ctxt->myDoc, (xmlNode *)ret);
 	}
 	/*
@@ -1919,7 +1919,7 @@ void xmlSAX2StartElementNs(void * ctx, const xmlChar * localname, const xmlChar 
 		}
 		if(!ret->ns) {
 			ns = xmlNewNs(ret, NULL, prefix);
-			if(ns == NULL) {
+			if(!ns) {
 				xmlSAX2ErrMemory(ctxt, "xmlSAX2StartElementNs");
 				return;
 			}
@@ -2207,7 +2207,7 @@ void xmlSAX2ProcessingInstruction(void * ctx, const xmlChar * target, const xmlC
 		xmlAddChild((xmlNode *)ctxt->myDoc->extSubset, ret);
 		return;
 	}
-	if(parent == NULL) {
+	if(!parent) {
 #ifdef DEBUG_SAX_TREE
 		xmlGenericError(0, "Setting PI %s as root\n", target);
 #endif
@@ -2262,7 +2262,7 @@ void xmlSAX2Comment(void * ctx, const xmlChar * value)
 		xmlAddChild((xmlNode *)ctxt->myDoc->extSubset, ret);
 		return;
 	}
-	if(parent == NULL) {
+	if(!parent) {
 #ifdef DEBUG_SAX_TREE
 		xmlGenericError(0, "Setting xmlSAX2Comment as root\n");
 #endif

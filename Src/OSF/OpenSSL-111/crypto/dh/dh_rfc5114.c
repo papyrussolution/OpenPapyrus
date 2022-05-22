@@ -22,7 +22,7 @@
 	{ \
 		DH * dh = DH_new(); \
 \
-		if(dh == NULL) \
+		if(!dh) \
 			return NULL; \
 		dh->p = BN_dup(&_bignum_dh ## x ## _p); \
 		dh->g = BN_dup(&_bignum_dh ## x ## _g); \

@@ -611,8 +611,7 @@ INT_PTR CALLBACK EditingSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 {
 	NppParameters& nppParam = NppParameters::getInstance();
 	NppGUI & nppGUI = nppParam.getNppGUI();
-	switch(message)
-	{
+	switch(message) {
 		case WM_INITDIALOG:
 	    {
 		    ::SendDlgItemMessage(_hSelf, IDC_WIDTH_COMBO, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(TEXT("0")));
@@ -629,37 +628,25 @@ INT_PTR CALLBACK EditingSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 		    ::SendMessage(::GetDlgItem(_hSelf, IDC_CARETBLINKRATE_SLIDER), TBM_SETPAGESIZE, 0, BLINKRATE_INTERVAL);
 		    int blinkRate = (nppGUI._caretBlinkRate==0) ? BLINKRATE_SLOWEST : nppGUI._caretBlinkRate;
 		    ::SendMessage(::GetDlgItem(_hSelf, IDC_CARETBLINKRATE_SLIDER), TBM_SETPOS, TRUE, blinkRate);
-
 		    initScintParam();
-
 		    return TRUE;
 	    }
-
 		case WM_CTLCOLORLISTBOX:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return NppDarkMode::onCtlColor(reinterpret_cast<HDC>(wParam));
 		    }
 		    break;
-	    }
-
 		case WM_CTLCOLORDLG:
 		case WM_CTLCOLORSTATIC:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
 		    }
 		    break;
-	    }
-
 		case WM_PRINTCLIENT:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return TRUE;
 		    }
 		    break;
-	    }
-
 		case WM_HSCROLL:
 	    {
 		    HWND hCaretBlikRateSlider = ::GetDlgItem(_hSelf, IDC_CARETBLINKRATE_SLIDER);
@@ -671,7 +658,7 @@ INT_PTR CALLBACK EditingSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 
 			    ::SendMessage(::GetParent(_hParent), NPPM_INTERNAL_SETCARETBLINKRATE, 0, 0);
 		    }
-		    return 0;           //return zero when handled
+		    return 0; // return zero when handled
 	    }
 
 		case WM_COMMAND:

@@ -62,16 +62,16 @@ typedef enum { trustInput, checkMaxSymbolValue } HIST_checkInput_e;
  * @return : largest histogram frequency,
  *           or an error code (notably when histogram's alphabet is larger than *maxSymbolValuePtr) */
 static size_t HIST_count_parallel_wksp(uint * count, uint * maxSymbolValuePtr,
-    const void * source, size_t sourceSize, HIST_checkInput_e check, uint32* const workSpace)
+    const void * source, size_t sourceSize, HIST_checkInput_e check, uint32 * const workSpace)
 {
 	const BYTE * ip = (const BYTE *)source;
 	const BYTE * const iend = ip+sourceSize;
 	const size_t countSize = (*maxSymbolValuePtr + 1) * sizeof(*count);
 	uint max = 0;
-	uint32* const Counting1 = workSpace;
-	uint32* const Counting2 = Counting1 + 256;
-	uint32* const Counting3 = Counting2 + 256;
-	uint32* const Counting4 = Counting3 + 256;
+	uint32 * const Counting1 = workSpace;
+	uint32 * const Counting2 = Counting1 + 256;
+	uint32 * const Counting3 = Counting2 + 256;
+	uint32 * const Counting4 = Counting3 + 256;
 
 	/* safety checks */
 	assert(*maxSymbolValuePtr <= 255);
@@ -139,7 +139,7 @@ size_t HIST_countFast_wksp(uint * count, uint * maxSymbolValuePtr, const void * 
 		return HIST_count_simple(count, maxSymbolValuePtr, source, sourceSize);
 	if((size_t)workSpace & 3) return ERROR(GENERIC); /* must be aligned on 4-bytes boundaries */
 	if(workSpaceSize < HIST_WKSP_SIZE) return ERROR(workSpace_tooSmall);
-	return HIST_count_parallel_wksp(count, maxSymbolValuePtr, source, sourceSize, trustInput, (uint32*)workSpace);
+	return HIST_count_parallel_wksp(count, maxSymbolValuePtr, source, sourceSize, trustInput, (uint32 *)workSpace);
 }
 
 /* HIST_count_wksp() :
@@ -150,7 +150,7 @@ size_t HIST_count_wksp(uint * count, uint * maxSymbolValuePtr, const void * sour
 	if((size_t)workSpace & 3) return ERROR(GENERIC); /* must be aligned on 4-bytes boundaries */
 	if(workSpaceSize < HIST_WKSP_SIZE) return ERROR(workSpace_tooSmall);
 	if(*maxSymbolValuePtr < 255)
-		return HIST_count_parallel_wksp(count, maxSymbolValuePtr, source, sourceSize, checkMaxSymbolValue, (uint32*)workSpace);
+		return HIST_count_parallel_wksp(count, maxSymbolValuePtr, source, sourceSize, checkMaxSymbolValue, (uint32 *)workSpace);
 	*maxSymbolValuePtr = 255;
 	return HIST_countFast_wksp(count, maxSymbolValuePtr, source, sourceSize, workSpace, workSpaceSize);
 }

@@ -11,7 +11,7 @@
 
 #include "absl/base/config.h"
 #ifdef _WIN32
-	#include <windows.h>
+	//#include <windows.h>
 #else
 	#include <sys/time.h>
 	#include <unistd.h>
@@ -20,11 +20,11 @@
 	#include <linux/futex.h>
 	#include <sys/syscall.h>
 #endif
-#include <errno.h>
-#include <stdio.h>
-#include <time.h>
-#include <atomic>
-#include <cstdint>
+//#include <errno.h>
+//#include <stdio.h>
+//#include <time.h>
+//#include <atomic>
+//#include <cstdint>
 #include "absl/base/optimization.h"
 #include "absl/synchronization/internal/kernel_timeout.h"
 

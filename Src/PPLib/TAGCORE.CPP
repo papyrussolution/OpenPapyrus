@@ -430,7 +430,7 @@ int ObjTagItem::SetTimestamp(PPID tagID, LDATETIME dtm)
 		case OTTYP_STRING:
 			{
 				SString temp_buf;
-				temp_buf.Cat(dtm, DATF_ISO8601|DATF_CENTURY, TIMF_HMS);
+				temp_buf.Cat(dtm, DATF_ISO8601CENT, TIMF_HMS);
 				Val.PStr = newStr(temp_buf.cptr());
 			}
 			break;

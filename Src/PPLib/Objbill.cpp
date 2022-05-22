@@ -1032,11 +1032,15 @@ static int _EditCcByBillParam(_CcByBillParam & rParam)
 						ushort v = getCtrlUInt16(CTL_CCBYBILL_PAPERLESS);
 						SETFLAG(Data.Flags_, _CcByBillParam::fPaperless, v);
 					}
-					else
+					else {
+						Data.SetBuyersEAddr(0, 0); // @v11.3.12 @fix
 						Data.Flags_ &= ~_CcByBillParam::fPaperless;
+					}
 				}
-				else
+				else {
+					Data.SetBuyersEAddr(0, 0); // @v11.3.12 @fix
 					Data.Flags_ &= ~_CcByBillParam::fPaperless;
+				}
 				// } @v11.3.7
 				ok = 1;
 			}

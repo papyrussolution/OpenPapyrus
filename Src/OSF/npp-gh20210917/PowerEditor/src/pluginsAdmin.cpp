@@ -455,30 +455,23 @@ bool PluginsAdminDlg::exitToInstallRemovePlugins(Operation op, const vector <Plu
 				if(lastindex != generic_string::npos)
 					folderName = i->_displayName.substr(0, lastindex);
 				else
-					folderName = i->_displayName;   // This case will never occur, but in case if it
-				                                        // occurs too
+					folderName = i->_displayName; // This case will never occur, but in case if it occurs too
 				// just putting the plugin name, so that whole plugin system is not screewed.
 			}
 			updaterParams += folderName;
 			updaterParams += TEXT("\"");
 		}
 	}
-
 	// Ask user's confirmation
 	NativeLangSpeaker * pNativeSpeaker = nppParameters.getNativeLangSpeaker();
-	auto res = pNativeSpeaker->messageBox("ExitToUpdatePlugins",
-		_hSelf,
-		TEXT(
-			"If you click YES, you will quit Notepad++ to continue the operations.\nNotepad++ will be restarted after all the operations are terminated.\nContinue?"),
-		TEXT("Notepad++ is about to exit"),
-		MB_YESNO | MB_APPLMODAL);
+	auto res = pNativeSpeaker->messageBox("ExitToUpdatePlugins", _hSelf,
+		TEXT("If you click YES, you will quit Notepad++ to continue the operations.\nNotepad++ will be restarted after all the operations are terminated.\nContinue?"),
+		TEXT("Notepad++ is about to exit"), MB_YESNO | MB_APPLMODAL);
 
 	if(res == IDYES) {
 		NppParameters& nppParam = NppParameters::getInstance();
-
 		// gup path: makes trigger ready
 		nppParam.setWingupFullPath(updaterFullPath);
-
 		// op: -clean or "-clean -unzip"
 		// application path: Notepad++ path to be relaunched
 		// plugin global path

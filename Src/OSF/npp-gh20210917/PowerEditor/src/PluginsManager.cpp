@@ -428,14 +428,10 @@ void PluginsManager::addInMenuFromPMIndex(int i)
 		else {   //no ShortcutKey is provided, add an disabled shortcut (so it can still be mapped, Paramaters
 			// class can still index any changes and the toolbar wont funk out
 			Shortcut sc(itemName.c_str(), false, false, false, 0x00);
-			PluginCmdShortcut pcs(sc, cmdID, _pluginInfos[i]->_moduleName.c_str(), j); //VK_NULL and
-			                                                                           // everything
-			                                                                           // disabled, the menu
-			                                                                           // name is left alone
+			PluginCmdShortcut pcs(sc, cmdID, _pluginInfos[i]->_moduleName.c_str(), j); //VK_NULL and everything disabled, the menu name is left alone
 			pluginCmdSCList.push_back(pcs);
 		}
 		::InsertMenu(_pluginInfos[i]->_pluginMenu, j, MF_BYPOSITION, cmdID, itemName.c_str());
-
 		if(_pluginInfos[i]->_funcItems[j]._init2Check)
 			::CheckMenuItem(_hPluginsMenu, cmdID, MF_BYCOMMAND | MF_CHECKED);
 	}
@@ -445,13 +441,10 @@ HMENU PluginsManager::setMenu(HMENU hMenu, const TCHAR * menuName, bool enablePl
 {
 	const TCHAR * nom_menu = (menuName && menuName[0]) ? menuName : TEXT("&Plugins");
 	size_t nbPlugin = _pluginInfos.size();
-
 	if(!_hPluginsMenu) {
 		_hPluginsMenu = ::CreateMenu();
 		::InsertMenu(hMenu,  MENUINDEX_PLUGINS, MF_BYPOSITION | MF_POPUP, (UINT_PTR)_hPluginsMenu, nom_menu);
-
 		int i = 1;
-
 		if(nbPlugin > 0)
 			::InsertMenu(_hPluginsMenu, 0, MF_BYPOSITION | MF_SEPARATOR, 0, TEXT(""));
 

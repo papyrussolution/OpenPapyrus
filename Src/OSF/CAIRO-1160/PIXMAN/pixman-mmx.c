@@ -2994,8 +2994,8 @@ static void mmx_composite_add_8888_8888(pixman_implementation_t * imp,
 		w = width;
 
 		while(w && (uintptr_t)dst & 7) {
-			store(dst, _mm_adds_pu8(load((const uint32*)src),
-			    load((const uint32*)dst)));
+			store(dst, _mm_adds_pu8(load((const uint32 *)src),
+			    load((const uint32 *)dst)));
 			dst++;
 			src++;
 			w--;
@@ -3009,8 +3009,8 @@ static void mmx_composite_add_8888_8888(pixman_implementation_t * imp,
 		}
 
 		if(w) {
-			store(dst, _mm_adds_pu8(load((const uint32*)src),
-			    load((const uint32*)dst)));
+			store(dst, _mm_adds_pu8(load((const uint32 *)src),
+			    load((const uint32 *)dst)));
 		}
 	}
 
@@ -3287,8 +3287,8 @@ static void mmx_composite_over_reverse_n_8888(pixman_implementation_t * imp,
 	_mm_empty();
 }
 
-static force_inline void scaled_nearest_scanline_mmx_8888_8888_OVER(uint32*       pd,
-    const uint32* ps,
+static force_inline void scaled_nearest_scanline_mmx_8888_8888_OVER(uint32 *       pd,
+    const uint32 * ps,
     int32 w,
     pixman_fixed_t vx,
     pixman_fixed_t unit_x,

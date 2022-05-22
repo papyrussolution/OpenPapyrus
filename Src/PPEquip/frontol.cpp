@@ -65,7 +65,7 @@ public:
 #define CM_ATOLWOATOLCARD  CM_ATOL
 #define ACS_ATOLWOATOLCARD ACS_FRONTOL
 
-REGISTER_CMT(FRONTOL,0,1);
+REGISTER_CMT(FRONTOL, false, true);
 
 ACS_FRONTOL::ACS_FRONTOL(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(0), ImportDelay(0), CrdCardAsDsc(0), SkipExportingDiscountSchemes(0)
 {
@@ -163,8 +163,8 @@ int ACS_FRONTOL::ExportMarketingActions_XPos(int updOnly, StringSet & rSsResult)
 		rSsResult.add("$$$ADDMARKETINGACTIONS");
 		f_str.Z().
 			Cat("PPYRSCS-A").Semicol().
-			Cat(encodedate(1, 1, 2018), DATF_GERMAN|DATF_CENTURY).Semicol().
-			Cat(encodedate(31, 12, 2030), DATF_GERMAN|DATF_CENTURY).Semicol().
+			Cat(encodedate(1, 1, 2018), DATF_GERMANCENT).Semicol().
+			Cat(encodedate(31, 12, 2030), DATF_GERMANCENT).Semicol().
 			Cat(encodetime(0, 0, 0, 0), TIMF_HMS).Semicol().
 			Cat(encodetime(24, 0, 0, 0), TIMF_HMS).Semicol().
 			Cat("Card Discount").Semicol().
@@ -310,8 +310,8 @@ int ACS_FRONTOL::ExportData(int updOnly)
 					f_str.Cat(info.Rec.ID).Semicol();   // Card ID
 					f_str.Cat(scs_rec.ID).Semicol();    // Series ID
 					f_str.Cat(info.Rec.Code).Semicol(); // Code
-					f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMAN|DATF_CENTURY).Semicol();
-					f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMAN|DATF_CENTURY).Semicol();
+					f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMANCENT).Semicol();
+					f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMANCENT).Semicol();
 					f_str.Cat((info.Flags & AsyncCashSCardInfo::fClosed) ? 0 : 1).Semicol();  // Passive | Active
 					f_str.Cat(0L).Semicol();                     // Скидка уменьшающая цену в процентах (0)
 					f_str.Cat(fdiv100i(info.Rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ)).Semicol();
@@ -761,8 +761,8 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						// #7-#8 Период действия цены
 						//
 						if(qk_rec.ID && !qk_rec.Period.IsZero()) {
-							f_str.Cat(qk_rec.Period.low, DATF_GERMAN|DATF_CENTURY).Semicol();
-							f_str.Cat(qk_rec.Period.upp, DATF_GERMAN|DATF_CENTURY).Semicol();
+							f_str.Cat(qk_rec.Period.low, DATF_GERMANCENT).Semicol();
+							f_str.Cat(qk_rec.Period.upp, DATF_GERMANCENT).Semicol();
 						}
 						else
 							f_str.CatCharN(';', 2);
@@ -1603,10 +1603,10 @@ int ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 				query_file.WriteLine(buf.CR());
 				// @v10.8.2 decodedate(&d, &m, &y, &first_date);
 				// @v10.8.2 buf.Z().Printf(date_mask, d, m, y).Semicol();
-				buf.Z().Cat(first_date, DATF_GERMAN|DATF_CENTURY).Semicol(); // @v10.8.2
+				buf.Z().Cat(first_date, DATF_GERMANCENT).Semicol(); // @v10.8.2
 				// @v10.8.2 decodedate(&d, &m, &y, &last_date);
 				// @v10.8.2 buf.Cat(tmp_buf.Printf(date_mask, d, m, y)).CR(); 
-				buf.Cat(last_date, DATF_GERMAN|DATF_CENTURY).CR(); // @v10.8.2
+				buf.Cat(last_date, DATF_GERMANCENT).CR(); // @v10.8.2
 				query_file.WriteLine(buf);
 				query_file.Close();
 				//

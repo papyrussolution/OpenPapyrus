@@ -563,7 +563,7 @@ static void * v2i_ASIdentifiers(const struct v3_ext_method * method,
 		}
 		else {
 			char * s = OPENSSL_strdup(val->value);
-			if(s == NULL) {
+			if(!s) {
 				X509V3err(X509V3_F_V2I_ASIDENTIFIERS, ERR_R_MALLOC_FAILURE);
 				goto err;
 			}
@@ -638,7 +638,7 @@ static int asid_contains(ASIdOrRanges * parent, ASIdOrRanges * child)
 
 	if(child == NULL || parent == child)
 		return 1;
-	if(parent == NULL)
+	if(!parent)
 		return 0;
 
 	p = 0;
@@ -667,15 +667,8 @@ static int asid_contains(ASIdOrRanges * parent, ASIdOrRanges * child)
  */
 int X509v3_asid_subset(ASIdentifiers * a, ASIdentifiers * b)
 {
-	return (a == NULL ||
-	       a == b ||
-	       (b != NULL &&
-	       !X509v3_asid_inherits(a) &&
-	       !X509v3_asid_inherits(b) &&
-	       asid_contains(b->asnum->u.asIdsOrRanges,
-	       a->asnum->u.asIdsOrRanges) &&
-	       asid_contains(b->rdi->u.asIdsOrRanges,
-	       a->rdi->u.asIdsOrRanges)));
+	return (a == NULL || a == b || (b != NULL && !X509v3_asid_inherits(a) && !X509v3_asid_inherits(b) &&
+		asid_contains(b->asnum->u.asIdsOrRanges, a->asnum->u.asIdsOrRanges) && asid_contains(b->rdi->u.asIdsOrRanges, a->rdi->u.asIdsOrRanges)));
 }
 
 /*
@@ -683,7 +676,7 @@ int X509v3_asid_subset(ASIdentifiers * a, ASIdentifiers * b)
  */
 #define validation_err(_err_)           \
 	do {                                  \
-		if(ctx != NULL) {                  \
+		if(ctx) {                  \
 			ctx->error = _err_;               \
 			ctx->error_depth = i;             \
 			ctx->current_cert = x;            \
@@ -709,7 +702,7 @@ static int asid_validate_path_internal(X509_STORE_CTX * ctx,
 	if(!ossl_assert(chain != NULL && sk_X509_num(chain) > 0)
 	   || !ossl_assert(ctx != NULL || ext != NULL)
 	   || !ossl_assert(ctx == NULL || ctx->verify_cb != NULL)) {
-		if(ctx != NULL)
+		if(ctx)
 			ctx->error = X509_V_ERR_UNSPECIFIED;
 		return 0;
 	}
@@ -759,7 +752,7 @@ static int asid_validate_path_internal(X509_STORE_CTX * ctx,
 	for(i++; i < sk_X509_num(chain); i++) {
 		x = sk_X509_value(chain, i);
 		if(!ossl_assert(x != NULL)) {
-			if(ctx != NULL)
+			if(ctx)
 				ctx->error = X509_V_ERR_UNSPECIFIED;
 			return 0;
 		}
@@ -811,7 +804,7 @@ static int asid_validate_path_internal(X509_STORE_CTX * ctx,
 	 * Trust anchor can't inherit.
 	 */
 	if(!ossl_assert(x != NULL)) {
-		if(ctx != NULL)
+		if(ctx)
 			ctx->error = X509_V_ERR_UNSPECIFIED;
 		return 0;
 	}
@@ -851,7 +844,7 @@ int X509v3_asid_validate_path(X509_STORE_CTX * ctx)
 int X509v3_asid_validate_resource_set(STACK_OF(X509) * chain,
     ASIdentifiers * ext, int allow_inheritance)
 {
-	if(ext == NULL)
+	if(!ext)
 		return 1;
 	if(chain == NULL || sk_X509_num(chain) == 0)
 		return 0;

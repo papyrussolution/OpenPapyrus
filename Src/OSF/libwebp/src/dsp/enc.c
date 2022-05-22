@@ -746,7 +746,7 @@ WEBP_DSP_INIT_FUNC(VP8EncDspInit)
 	VP8Copy16x8 = Copy16x8_C;
 
 	// If defined, use CPUInfo() to overwrite some pointers with faster versions.
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			VP8EncDspInitSSE2();
@@ -773,14 +773,11 @@ WEBP_DSP_INIT_FUNC(VP8EncDspInit)
 		}
 #endif
 	}
-
 #if defined(WEBP_HAVE_NEON)
-	if(WEBP_NEON_OMIT_C_CODE ||
-	    (VP8GetCPUInfo != NULL && VP8GetCPUInfo(kNEON))) {
+	if(WEBP_NEON_OMIT_C_CODE || (VP8GetCPUInfo && VP8GetCPUInfo(kNEON))) {
 		VP8EncDspInitNEON();
 	}
 #endif
-
 	assert(VP8ITransform != NULL);
 	assert(VP8FTransform != NULL);
 	assert(VP8FTransformWHT != NULL);

@@ -1,5 +1,5 @@
 // V_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1610,7 +1610,6 @@ int PPViewPrjTask::NextOuterIteration()
 {
 	int    ok = -1;
 	PrjTaskTbl::Rec rec;
-	// @v10.7.9 @ctr MEMSZERO(rec);
 	if(P_TempOrd) {
 		if(P_IterQuery->nextIteration() > 0) {
 			Counter.Increment();
@@ -1623,11 +1622,12 @@ int PPViewPrjTask::NextOuterIteration()
 			if(Filt.TabType == PrjTaskFilt::crstNone)
 				ok = TodoObj.Search(TodoObj.P_Tbl->data.ID, &rec);
 			else {
-				rec.ID = P_TempTbl->data.TabID;
-				rec.Dt.v       = (ulong)P_TempTbl->data.TabParam;
-				rec.EmployerID = P_TempTbl->data.EmployerID;
-				rec.ClientID   = P_TempTbl->data.ClientID;
-				rec.StartDt    = P_TempTbl->data.StartDt;
+				const TempPrjTaskTbl::Rec & r_src_rec = P_TempTbl->data;
+				rec.ID = r_src_rec.TabID;
+				rec.Dt.v       = (ulong)r_src_rec.TabParam;
+				rec.EmployerID = r_src_rec.EmployerID;
+				rec.ClientID   = r_src_rec.ClientID;
+				rec.StartDt    = r_src_rec.StartDt;
 			}
 		}
 	}
@@ -2572,18 +2572,15 @@ int PPALDD_PrjTaskViewCt::InitData(PPFilt & rFilt, long rsrv)
 		PPGetWord(PPWORD_HOUR, 1, tab_fld);
 	}
 	else if(oneof2(p_filt->TabType, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstEmployerDate)) {
-		// @v9.2.6 PPGetWord((p_filt->TabType == PrjTaskFilt::crstEmployerDate) ? PPWORD_EXECUTOR : PPWORD_CLIENT, 1, idx_fld);
-		PPLoadString(((p_filt->TabType == PrjTaskFilt::crstEmployerDate) ? "executor" : "client"), idx_fld); // @v9.2.6
-		idx_fld.Transf(CTRANSF_INNER_TO_OUTER); // @v9.2.6
+		PPLoadString(((p_filt->TabType == PrjTaskFilt::crstEmployerDate) ? "executor" : "client"), idx_fld);
+		idx_fld.Transf(CTRANSF_INNER_TO_OUTER);
 		PPLoadString("date", tab_fld);
 		tab_fld.Transf(CTRANSF_INNER_TO_OUTER);
 	}
 	else if(p_filt->TabType == PrjTaskFilt::crstClientEmployer) {
-		// @v9.2.6 PPGetWord(PPWORD_CLIENT,   1, idx_fld);
-		PPLoadString("client", idx_fld); // @v9.2.6
-		idx_fld.Transf(CTRANSF_INNER_TO_OUTER); // @v9.2.6
-		// @v9.2.6 PPGetWord(PPWORD_EXECUTOR, 1, tab_fld);
-		PPLoadString("executor", tab_fld); // @v9.2.6
+		PPLoadString("client", idx_fld);
+		idx_fld.Transf(CTRANSF_INNER_TO_OUTER);
+		PPLoadString("executor", tab_fld);
 		tab_fld.Transf(CTRANSF_INNER_TO_OUTER);
 	}
 	idx_fld.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(H.IdxFld, sizeof(H.IdxFld));

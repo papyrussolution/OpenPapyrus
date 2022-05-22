@@ -347,7 +347,7 @@ public:
 	}
 };
 
-REGISTER_CMT(PAPYRUS,0,1);
+REGISTER_CMT(PAPYRUS, false, true);
 
 /*virtual*/int ACS_PAPYRUS_APN::ExportData(int updOnly)
 {
@@ -464,10 +464,10 @@ int PPPosProtocol::SendQuery(PPID posNodeID, const PPPosProtocol::QueryBlock & r
 						THROW(checkdate(rQ.Period.low, 1) && checkdate(rQ.Period.upp, 1));
 						temp_buf.Z();
 						if(rQ.Period.low)
-							temp_buf.Cat(rQ.Period.low, DATF_ISO8601|DATF_CENTURY);
+							temp_buf.Cat(rQ.Period.low, DATF_ISO8601CENT);
 						temp_buf.Dot().Dot();
 						if(rQ.Period.upp)
-							temp_buf.Cat(rQ.Period.upp, DATF_ISO8601|DATF_CENTURY);
+							temp_buf.Cat(rQ.Period.upp, DATF_ISO8601CENT);
 						w_s.PutInner("period", temp_buf);
 					}
 					else if(rQ.CSess) {
@@ -1524,7 +1524,7 @@ int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, con
 		}
 		{
 			dtm.Set(rInfo.Dt, rInfo.Tm);
-			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0);
+			temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0);
 			w_s.PutInner("time", EncText(temp_buf));
 		}
 		{
@@ -1544,7 +1544,7 @@ int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, con
 						SXml::WNode w_cc(rB.P_Xw, "cc");
                         w_cc.PutInner("id",   temp_buf.Z().Cat(cc_pack.Rec.ID));
                         w_cc.PutInner("code", temp_buf.Z().Cat(cc_pack.Rec.Code));
-						w_cc.PutInner("time", EncText(temp_buf.Z().Cat(dtm.Set(cc_pack.Rec.Dt, cc_pack.Rec.Tm), DATF_ISO8601|DATF_CENTURY, 0)));
+						w_cc.PutInner("time", EncText(temp_buf.Z().Cat(dtm.Set(cc_pack.Rec.Dt, cc_pack.Rec.Tm), DATF_ISO8601CENT, 0)));
 						if(cc_pack.Rec.Flags) {
 							w_cc.PutInner("flags", EncText(temp_buf.Z().CatHex(cc_pack.Rec.Flags)));
 						}
@@ -1896,8 +1896,8 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
                 for(uint i = 0; i < lot_list.getCount(); i++) {
 					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
 					SXml::WNode w_l(rB.P_Xw, "lot");
-					w_l.PutInnerValidDate("date", r_lot_rec.Dt, DATF_ISO8601|DATF_CENTURY);
-					w_l.PutInnerValidDate("expiry", r_lot_rec.Expiry, DATF_ISO8601|DATF_CENTURY);
+					w_l.PutInnerValidDate("date", r_lot_rec.Dt, DATF_ISO8601CENT);
+					w_l.PutInnerValidDate("expiry", r_lot_rec.Expiry, DATF_ISO8601CENT);
 					if(r_lot_rec.Cost > 0.0)
 						w_l.PutInner("cost", temp_buf.Z().Cat(r_lot_rec.Cost, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
 					if(r_lot_rec.Price > 0.0)
@@ -2042,7 +2042,7 @@ int PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 				THROW(WritePersonInfo(rB, "owner", reg_typ_id, psn_pack));
 			}
 		}
-		w_s.PutInnerValidDate("expiry", rInfo.Rec.Expiry, DATF_ISO8601|DATF_CENTURY);
+		w_s.PutInnerValidDate("expiry", rInfo.Rec.Expiry, DATF_ISO8601CENT);
 		if(rInfo.Rec.PDis > 0)
 			w_s.PutInner("discount", temp_buf.Z().Cat(fdiv100i(rInfo.Rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ)));
 		// @v10.5.7 {
@@ -2078,7 +2078,7 @@ int PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::WriteBloc
 		rB.FileUUID.ToStr(S_GUID::fmtIDL, temp_buf);
 		w_s.PutInner("uuid", EncText(temp_buf));
 		rB.FileDtm = getcurdatetime_();
-		temp_buf.Z().Cat(rB.FileDtm, DATF_ISO8601|DATF_CENTURY, 0);
+		temp_buf.Z().Cat(rB.FileDtm, DATF_ISO8601CENT, 0);
 		w_s.PutInner("timestamp", temp_buf);
 	}
 	// } @v9.9.12
@@ -5049,7 +5049,7 @@ static int FASTCALL AppendPosProtocolFileProcessedListEntry(const char * pPath, 
 		SFile f_out(temp_buf, SFile::mAppend);
 		THROW_SL(f_out.IsValid());
 		temp_buf.Z().Cat(rEntry.FileUUID, S_GUID::fmtIDL).Tab().
-			Cat(rEntry.FileDtm, DATF_ISO8601|DATF_CENTURY, 0).Tab().Cat(rEntry.DestRouteUUID, S_GUID::fmtIDL).CR();
+			Cat(rEntry.FileDtm, DATF_ISO8601CENT, 0).Tab().Cat(rEntry.DestRouteUUID, S_GUID::fmtIDL).CR();
 		THROW_SL(f_out.WriteLine(temp_buf));
 		ok = 1;
 	}

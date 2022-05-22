@@ -318,7 +318,7 @@ cairo_surface_t * _cairo_xcb_screen_lookup_linear_picture(cairo_xcb_screen_t * s
 	_cairo_pattern_init_static_copy(&tmpl.pattern.base, &linear->base.base);
 
 	entry = _cairo_cache_lookup(&screen->linear_pattern_cache, &tmpl.key);
-	if(entry != NULL)
+	if(entry)
 		picture = cairo_surface_reference(entry->picture);
 
 	return picture;
@@ -368,7 +368,7 @@ cairo_surface_t * _cairo_xcb_screen_lookup_radial_picture(cairo_xcb_screen_t * s
 	tmpl.key.hash = _cairo_radial_pattern_hash(_CAIRO_HASH_INIT_VALUE, radial);
 	_cairo_pattern_init_static_copy(&tmpl.pattern.base, &radial->base.base);
 	entry = _cairo_cache_lookup(&screen->radial_pattern_cache, &tmpl.key);
-	if(entry != NULL)
+	if(entry)
 		picture = cairo_surface_reference(entry->picture);
 	return picture;
 }

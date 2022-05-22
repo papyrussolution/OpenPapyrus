@@ -164,11 +164,11 @@ MEM_STATIC uint MEM_isLittleEndian()
 /* violates C standard, by lying on structure alignment.
    Only use if no other choice to achieve best performance on target platform */
 MEM_STATIC uint16 MEM_read16(const void* memPtr) { return *(const uint16*)memPtr; }
-MEM_STATIC uint32 MEM_read32(const void* memPtr) { return *(const uint32*)memPtr; }
+MEM_STATIC uint32 MEM_read32(const void* memPtr) { return *(const uint32 *)memPtr; }
 MEM_STATIC uint64 MEM_read64(const void* memPtr) { return *(const uint64*)memPtr; }
 MEM_STATIC size_t MEM_readST(const void* memPtr) { return *(const size_t*)memPtr; }
 MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { *(uint16*)memPtr = value; }
-MEM_STATIC void MEM_write32(void* memPtr, uint32 value) { *(uint32*)memPtr = value; }
+MEM_STATIC void MEM_write32(void* memPtr, uint32 value) { *(uint32 *)memPtr = value; }
 MEM_STATIC void MEM_write64(void* memPtr, uint64 value) { *(uint64*)memPtr = value; }
 
 #elif defined(MEM_FORCE_MEMORY_ACCESS) && (MEM_FORCE_MEMORY_ACCESS==1)

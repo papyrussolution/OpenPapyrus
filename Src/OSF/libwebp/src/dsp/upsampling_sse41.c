@@ -135,7 +135,7 @@ static void Upsample32Pixels_SSE41(const uint8 r1[], const uint8 r2[],
 			const int u0_t = (top_u[0] + u_diag) >> 1;                                 \
 			const int v0_t = (top_v[0] + v_diag) >> 1;                                 \
 			FUNC(top_y[0], u0_t, v0_t, top_dst);                                       \
-			if(bottom_y != NULL) {                                                    \
+			if(bottom_y) {                                                    \
 				const int u0_b = (cur_u[0] + u_diag) >> 1;                               \
 				const int v0_b = (cur_v[0] + v_diag) >> 1;                               \
 				FUNC(bottom_y[0], u0_b, v0_b, bottom_dst);                               \
@@ -157,11 +157,11 @@ static void Upsample32Pixels_SSE41(const uint8 r1[], const uint8 r2[],
 			UPSAMPLE_LAST_BLOCK(top_u + uv_pos, cur_u + uv_pos, left_over, r_u);       \
 			UPSAMPLE_LAST_BLOCK(top_v + uv_pos, cur_v + uv_pos, left_over, r_v);       \
 			memcpy(tmp_top, top_y + pos, len - pos);                                   \
-			if(bottom_y != NULL) memcpy(tmp_bottom, bottom_y + pos, len - pos);       \
+			if(bottom_y) memcpy(tmp_bottom, bottom_y + pos, len - pos);       \
 			CONVERT2RGB_32(FUNC, XSTEP, tmp_top, tmp_bottom, tmp_top_dst,              \
 			    tmp_bottom_dst, 0);                                                   \
 			memcpy(top_dst + pos * (XSTEP), tmp_top_dst, (len - pos) * (XSTEP));       \
-			if(bottom_y != NULL) {                                                    \
+			if(bottom_y) {                                                    \
 				memcpy(bottom_dst + pos * (XSTEP), tmp_bottom_dst,                       \
 				    (len - pos) * (XSTEP));                                           \
 			}                                                                          \

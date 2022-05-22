@@ -16,10 +16,8 @@
 #error config.h must be included first in each C++ source file
 #endif
 
-//#include <sys/types.h>
 #include "safefcntl.h"
 #include "safeunistd.h"
-//#include <string>
 
 /** Open a block-based file for reading.
  *

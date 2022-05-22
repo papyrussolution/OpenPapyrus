@@ -5,9 +5,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #pragma hdrstop
-//#include <ngx_event.h>
-//#include <ngx_mail.h>
-//#include <ngx_mail_pop3_module.h>
 
 static ngx_int_t ngx_mail_pop3_user(ngx_mail_session_t * s, ngx_connection_t * c);
 static ngx_int_t ngx_mail_pop3_pass(ngx_mail_session_t * s, ngx_connection_t * c);

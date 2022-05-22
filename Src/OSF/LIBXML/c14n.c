@@ -834,7 +834,7 @@ static xmlAttr * xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttr * xml_base_attr
 	}
 	/* start from current value */
 	res = xmlNodeListGetString(ctx->doc, xml_base_attr->children, 1);
-	if(res == NULL) {
+	if(!res) {
 		xmlC14NErrInternal("processing xml:base attribute - can't get attr value");
 		return 0;
 	}
@@ -1735,7 +1735,7 @@ int xmlC14NDocSave(xmlDoc * doc, xmlNodeSet * nodes, int mode, xmlChar ** inclus
 {
 	xmlOutputBuffer * buf;
 	int ret;
-	if(filename == NULL) {
+	if(!filename) {
 		xmlC14NErrParam("saving doc");
 		return -1;
 	}

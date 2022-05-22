@@ -69,19 +69,15 @@ enum TestLargeEnumValue_EnumWithLargeValue : int {
 bool TestLargeEnumValue_EnumWithLargeValue_IsValid(int value);
 constexpr TestLargeEnumValue_EnumWithLargeValue TestLargeEnumValue_EnumWithLargeValue_EnumWithLargeValue_MIN = TestLargeEnumValue_EnumWithLargeValue_VALUE_1;
 constexpr TestLargeEnumValue_EnumWithLargeValue TestLargeEnumValue_EnumWithLargeValue_EnumWithLargeValue_MAX = TestLargeEnumValue_EnumWithLargeValue_VALUE_MAX;
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* TestLargeEnumValue_EnumWithLargeValue_descriptor();
-template<typename T>
-inline const std::string& TestLargeEnumValue_EnumWithLargeValue_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, TestLargeEnumValue_EnumWithLargeValue>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function TestLargeEnumValue_EnumWithLargeValue_Name.");
-  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    TestLargeEnumValue_EnumWithLargeValue_descriptor(), enum_t_value);
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * TestLargeEnumValue_EnumWithLargeValue_descriptor();
+template<typename T> inline const std::string& TestLargeEnumValue_EnumWithLargeValue_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, TestLargeEnumValue_EnumWithLargeValue>::value || ::std::is_integral<T>::value, "Incorrect type passed to function TestLargeEnumValue_EnumWithLargeValue_Name.");
+	return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(TestLargeEnumValue_EnumWithLargeValue_descriptor(), enum_t_value);
 }
-inline bool TestLargeEnumValue_EnumWithLargeValue_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestLargeEnumValue_EnumWithLargeValue* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestLargeEnumValue_EnumWithLargeValue>(
-    TestLargeEnumValue_EnumWithLargeValue_descriptor(), name, value);
+inline bool TestLargeEnumValue_EnumWithLargeValue_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, TestLargeEnumValue_EnumWithLargeValue * value)
+{
+	return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<TestLargeEnumValue_EnumWithLargeValue>(TestLargeEnumValue_EnumWithLargeValue_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -171,31 +167,20 @@ class TestLargeEnumValue final :
   // nested types ----------------------------------------------------
 
   typedef TestLargeEnumValue_EnumWithLargeValue EnumWithLargeValue;
-  static constexpr EnumWithLargeValue VALUE_1 =
-    TestLargeEnumValue_EnumWithLargeValue_VALUE_1;
-  static constexpr EnumWithLargeValue VALUE_MAX =
-    TestLargeEnumValue_EnumWithLargeValue_VALUE_MAX;
-  static inline bool EnumWithLargeValue_IsValid(int value) {
-    return TestLargeEnumValue_EnumWithLargeValue_IsValid(value);
+  static constexpr EnumWithLargeValue VALUE_1 = TestLargeEnumValue_EnumWithLargeValue_VALUE_1;
+  static constexpr EnumWithLargeValue VALUE_MAX = TestLargeEnumValue_EnumWithLargeValue_VALUE_MAX;
+  static inline bool EnumWithLargeValue_IsValid(int value) { return TestLargeEnumValue_EnumWithLargeValue_IsValid(value); }
+  static constexpr EnumWithLargeValue EnumWithLargeValue_MIN = TestLargeEnumValue_EnumWithLargeValue_EnumWithLargeValue_MIN;
+  static constexpr EnumWithLargeValue EnumWithLargeValue_MAX = TestLargeEnumValue_EnumWithLargeValue_EnumWithLargeValue_MAX;
+  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor * EnumWithLargeValue_descriptor() { return TestLargeEnumValue_EnumWithLargeValue_descriptor(); }
+  template<typename T> static inline const std::string& EnumWithLargeValue_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, EnumWithLargeValue>::value || ::std::is_integral<T>::value, "Incorrect type passed to function EnumWithLargeValue_Name.");
+  	return TestLargeEnumValue_EnumWithLargeValue_Name(enum_t_value);
   }
-  static constexpr EnumWithLargeValue EnumWithLargeValue_MIN =
-    TestLargeEnumValue_EnumWithLargeValue_EnumWithLargeValue_MIN;
-  static constexpr EnumWithLargeValue EnumWithLargeValue_MAX =
-    TestLargeEnumValue_EnumWithLargeValue_EnumWithLargeValue_MAX;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  EnumWithLargeValue_descriptor() {
-    return TestLargeEnumValue_EnumWithLargeValue_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& EnumWithLargeValue_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, EnumWithLargeValue>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function EnumWithLargeValue_Name.");
-    return TestLargeEnumValue_EnumWithLargeValue_Name(enum_t_value);
-  }
-  static inline bool EnumWithLargeValue_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      EnumWithLargeValue* value) {
-    return TestLargeEnumValue_EnumWithLargeValue_Parse(name, value);
+  static inline bool EnumWithLargeValue_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, EnumWithLargeValue* value)
+  {
+  	return TestLargeEnumValue_EnumWithLargeValue_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
@@ -232,10 +217,7 @@ class TestLargeEnumValue final :
 PROTOBUF_NAMESPACE_OPEN
 
 template <> struct is_proto_enum< ::protobuf_unittest::TestLargeEnumValue_EnumWithLargeValue> : ::std::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestLargeEnumValue_EnumWithLargeValue>() {
-  return ::protobuf_unittest::TestLargeEnumValue_EnumWithLargeValue_descriptor();
-}
+template <> inline const EnumDescriptor* GetEnumDescriptor< ::protobuf_unittest::TestLargeEnumValue_EnumWithLargeValue>() { return ::protobuf_unittest::TestLargeEnumValue_EnumWithLargeValue_descriptor(); }
 
 PROTOBUF_NAMESPACE_CLOSE
 

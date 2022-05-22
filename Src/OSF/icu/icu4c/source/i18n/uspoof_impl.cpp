@@ -1,8 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2008-2016, International Business Machines Corporation and others.  All Rights Reserved.
- */
+// Copyright (C) 2008-2016, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/uspoof.h"
@@ -15,39 +14,39 @@
 
 U_NAMESPACE_BEGIN UOBJECT_DEFINE_RTTI_IMPLEMENTATION(SpoofImpl)
 
-SpoofImpl::SpoofImpl(SpoofData * data, UErrorCode & status) {
+SpoofImpl::SpoofImpl(SpoofData * data, UErrorCode & status) 
+{
 	construct(status);
 	fSpoofData = data;
 }
 
-SpoofImpl::SpoofImpl(UErrorCode & status) {
+SpoofImpl::SpoofImpl(UErrorCode & status) 
+{
 	construct(status);
-
 	// TODO: Call this method where it is actually needed, instead of in the
 	// constructor, to allow for lazy data loading.  See #12696.
 	fSpoofData = SpoofData::getDefault(status);
 }
 
-SpoofImpl::SpoofImpl() {
+SpoofImpl::SpoofImpl() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	construct(status);
-
 	// TODO: Call this method where it is actually needed, instead of in the
 	// constructor, to allow for lazy data loading.  See #12696.
 	fSpoofData = SpoofData::getDefault(status);
 }
 
-void SpoofImpl::construct(UErrorCode & status) {
+void SpoofImpl::construct(UErrorCode & status) 
+{
 	fChecks = USPOOF_ALL_CHECKS;
 	fSpoofData = NULL;
 	fAllowedCharsSet = NULL;
 	fAllowedLocales = NULL;
 	fRestrictionLevel = USPOOF_HIGHLY_RESTRICTIVE;
-
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	UnicodeSet * allowedCharsSet = new UnicodeSet(0, 0x10ffff);
 	fAllowedCharsSet = allowedCharsSet;
 	fAllowedLocales  = uprv_strdup("");
@@ -60,8 +59,8 @@ void SpoofImpl::construct(UErrorCode & status) {
 
 // Copy Constructor, used by the user level clone() function.
 SpoofImpl::SpoofImpl(const SpoofImpl &src, UErrorCode & status)  :
-	fChecks(USPOOF_ALL_CHECKS), fSpoofData(NULL), fAllowedCharsSet(NULL),
-	fAllowedLocales(NULL) {
+	fChecks(USPOOF_ALL_CHECKS), fSpoofData(NULL), fAllowedCharsSet(NULL), fAllowedLocales(NULL) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -94,7 +93,8 @@ USpoofChecker * SpoofImpl::asUSpoofChecker() {
 //  Incoming parameter check on Status and the SpoofChecker object
 //    received from the C API.
 //
-const SpoofImpl * SpoofImpl::validateThis(const USpoofChecker * sc, UErrorCode & status) {
+const SpoofImpl * SpoofImpl::validateThis(const USpoofChecker * sc, UErrorCode & status) 
+{
 	auto* This = validate(sc, status);
 	if(U_FAILURE(status)) {
 		return NULL;
@@ -105,19 +105,19 @@ const SpoofImpl * SpoofImpl::validateThis(const USpoofChecker * sc, UErrorCode &
 	return This;
 }
 
-SpoofImpl * SpoofImpl::validateThis(USpoofChecker * sc, UErrorCode & status) {
-	return const_cast<SpoofImpl *>
-	       (SpoofImpl::validateThis(const_cast<const USpoofChecker *>(sc), status));
+SpoofImpl * SpoofImpl::validateThis(USpoofChecker * sc, UErrorCode & status) 
+{
+	return const_cast<SpoofImpl *> (SpoofImpl::validateThis(const_cast<const USpoofChecker *>(sc), status));
 }
 
-void SpoofImpl::setAllowedLocales(const char * localesList, UErrorCode & status) {
+void SpoofImpl::setAllowedLocales(const char * localesList, UErrorCode & status) 
+{
 	UnicodeSet allowedChars;
 	UnicodeSet * tmpSet = NULL;
 	const char * locStart = localesList;
 	const char * locEnd = NULL;
 	const char * localesListEnd = localesList + uprv_strlen(localesList);
 	int32_t localeListCount = 0; // Number of locales provided by caller.
-
 	// Loop runs once per locale from the localesList, a comma separated list of locales.
 	do {
 		locEnd = uprv_strchr(locStart, ',');
@@ -192,16 +192,14 @@ void SpoofImpl::setAllowedLocales(const char * localesList, UErrorCode & status)
 	fChecks |= USPOOF_CHAR_LIMIT;
 }
 
-const char * SpoofImpl::getAllowedLocales(UErrorCode & /*status*/) {
-	return fAllowedLocales;
-}
+const char * SpoofImpl::getAllowedLocales(UErrorCode & /*status*/) { return fAllowedLocales; }
 
 // Given a locale (a language), add all the characters from all of the scripts used with that language
 // to the allowedChars UnicodeSet
 
-void SpoofImpl::addScriptChars(const char * locale, UnicodeSet * allowedChars, UErrorCode & status) {
+void SpoofImpl::addScriptChars(const char * locale, UnicodeSet * allowedChars, UErrorCode & status) 
+{
 	UScriptCode scripts[30];
-
 	int32_t numScripts = uscript_getCode(locale, scripts, UPRV_LENGTHOF(scripts), &status);
 	if(U_FAILURE(status)) {
 		return;
@@ -219,13 +217,13 @@ void SpoofImpl::addScriptChars(const char * locale, UnicodeSet * allowedChars, U
 }
 
 // Computes the augmented script set for a code point, according to UTS 39 section 5.1.
-void SpoofImpl::getAugmentedScriptSet(UChar32 codePoint, ScriptSet& result, UErrorCode & status) {
+void SpoofImpl::getAugmentedScriptSet(UChar32 codePoint, ScriptSet& result, UErrorCode & status) 
+{
 	result.resetAll();
 	result.setScriptExtensions(codePoint, status);
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	// Section 5.1 step 1
 	if(result.test(USCRIPT_HAN, status)) {
 		result.set(USCRIPT_HAN_WITH_BOPOMOFO, status);
@@ -244,7 +242,6 @@ void SpoofImpl::getAugmentedScriptSet(UChar32 codePoint, ScriptSet& result, UErr
 	if(result.test(USCRIPT_BOPOMOFO, status)) {
 		result.set(USCRIPT_HAN_WITH_BOPOMOFO, status);
 	}
-
 	// Section 5.1 step 2
 	if(result.test(USCRIPT_COMMON, status) || result.test(USCRIPT_INHERITED, status)) {
 		result.setAll();
@@ -252,26 +249,25 @@ void SpoofImpl::getAugmentedScriptSet(UChar32 codePoint, ScriptSet& result, UErr
 }
 
 // Computes the resolved script set for a string, according to UTS 39 section 5.1.
-void SpoofImpl::getResolvedScriptSet(const UnicodeString & input, ScriptSet& result, UErrorCode & status) const {
+void SpoofImpl::getResolvedScriptSet(const UnicodeString & input, ScriptSet& result, UErrorCode & status) const 
+{
 	getResolvedScriptSetWithout(input, USCRIPT_CODE_LIMIT, result, status);
 }
 
 // Computes the resolved script set for a string, omitting characters having the specified script.
 // If USCRIPT_CODE_LIMIT is passed as the second argument, all characters are included.
-void SpoofImpl::getResolvedScriptSetWithout(const UnicodeString & input, UScriptCode script, ScriptSet& result, UErrorCode & status) const {
+void SpoofImpl::getResolvedScriptSetWithout(const UnicodeString & input, UScriptCode script, ScriptSet& result, UErrorCode & status) const 
+{
 	result.setAll();
-
 	ScriptSet temp;
 	UChar32 codePoint;
 	for(int32_t i = 0; i < input.length(); i += U16_LENGTH(codePoint)) {
 		codePoint = input.char32At(i);
-
 		// Compute the augmented script set for the character
 		getAugmentedScriptSet(codePoint, temp, status);
 		if(U_FAILURE(status)) {
 			return;
 		}
-
 		// Intersect the augmented script set with the resolved script set, but only if the character doesn't
 		// have the script specified in the function call
 		if(script == USCRIPT_CODE_LIMIT || !temp.test(script, status)) {
@@ -281,13 +277,12 @@ void SpoofImpl::getResolvedScriptSetWithout(const UnicodeString & input, UScript
 }
 
 // Computes the set of numerics for a string, according to UTS 39 section 5.3.
-void SpoofImpl::getNumerics(const UnicodeString & input, UnicodeSet & result, UErrorCode & /*status*/) const {
+void SpoofImpl::getNumerics(const UnicodeString & input, UnicodeSet & result, UErrorCode & /*status*/) const 
+{
 	result.clear();
-
 	UChar32 codePoint;
 	for(int32_t i = 0; i < input.length(); i += U16_LENGTH(codePoint)) {
 		codePoint = input.char32At(i);
-
 		// Store a representative character for each kind of decimal digit
 		if(u_charType(codePoint) == U_DECIMAL_DIGIT_NUMBER) {
 			// Store the zero character as a representative for comparison.
@@ -298,17 +293,17 @@ void SpoofImpl::getNumerics(const UnicodeString & input, UnicodeSet & result, UE
 }
 
 // Computes the restriction level of a string, according to UTS 39 section 5.2.
-URestrictionLevel SpoofImpl::getRestrictionLevel(const UnicodeString & input, UErrorCode & status) const {
+URestrictionLevel SpoofImpl::getRestrictionLevel(const UnicodeString & input, UErrorCode & status) const 
+{
 	// Section 5.2 step 1:
 	if(!fAllowedCharsSet->containsAll(input)) {
 		return USPOOF_UNRESTRICTIVE;
 	}
-
 	// Section 5.2 step 2
 	// Java use a static UnicodeSet for this test.  In C++, avoid the static variable
 	// and just do a simple for loop.
 	bool allASCII = TRUE;
-	for(int32_t i = 0, length = input.length(); i<length; i++) {
+	for(int32_t i = 0, length = input.length(); i < length; i++) {
 		if(input.charAt(i) > 0x7f) {
 			allASCII = FALSE;
 			break;
@@ -317,46 +312,36 @@ URestrictionLevel SpoofImpl::getRestrictionLevel(const UnicodeString & input, UE
 	if(allASCII) {
 		return USPOOF_ASCII;
 	}
-
 	// Section 5.2 steps 3:
 	ScriptSet resolvedScriptSet;
 	getResolvedScriptSet(input, resolvedScriptSet, status);
 	if(U_FAILURE(status)) {
 		return USPOOF_UNRESTRICTIVE;
 	}
-
 	// Section 5.2 step 4:
 	if(!resolvedScriptSet.isEmpty()) {
 		return USPOOF_SINGLE_SCRIPT_RESTRICTIVE;
 	}
-
 	// Section 5.2 step 5:
 	ScriptSet resolvedNoLatn;
 	getResolvedScriptSetWithout(input, USCRIPT_LATIN, resolvedNoLatn, status);
 	if(U_FAILURE(status)) {
 		return USPOOF_UNRESTRICTIVE;
 	}
-
 	// Section 5.2 step 6:
-	if(resolvedNoLatn.test(USCRIPT_HAN_WITH_BOPOMOFO, status)
-	 || resolvedNoLatn.test(USCRIPT_JAPANESE, status)
-	 || resolvedNoLatn.test(USCRIPT_KOREAN, status)) {
+	if(resolvedNoLatn.test(USCRIPT_HAN_WITH_BOPOMOFO, status) || resolvedNoLatn.test(USCRIPT_JAPANESE, status) || resolvedNoLatn.test(USCRIPT_KOREAN, status)) {
 		return USPOOF_HIGHLY_RESTRICTIVE;
 	}
-
 	// Section 5.2 step 7:
-	if(!resolvedNoLatn.isEmpty()
-	 && !resolvedNoLatn.test(USCRIPT_CYRILLIC, status)
-	 && !resolvedNoLatn.test(USCRIPT_GREEK, status)
-	 && !resolvedNoLatn.test(USCRIPT_CHEROKEE, status)) {
+	if(!resolvedNoLatn.isEmpty() && !resolvedNoLatn.test(USCRIPT_CYRILLIC, status) && !resolvedNoLatn.test(USCRIPT_GREEK, status) && !resolvedNoLatn.test(USCRIPT_CHEROKEE, status)) {
 		return USPOOF_MODERATELY_RESTRICTIVE;
 	}
-
 	// Section 5.2 step 8:
 	return USPOOF_MINIMALLY_RESTRICTIVE;
 }
 
-int32_t SpoofImpl::findHiddenOverlay(const UnicodeString & input, UErrorCode&) const {
+int32_t SpoofImpl::findHiddenOverlay(const UnicodeString & input, UErrorCode&) const 
+{
 	bool sawLeadCharacter = false;
 	for(int32_t i = 0; i<input.length();) {
 		UChar32 cp = input.char32At(i);
@@ -375,12 +360,13 @@ int32_t SpoofImpl::findHiddenOverlay(const UnicodeString & input, UErrorCode&) c
 	return -1;
 }
 
-static inline bool isIllegalCombiningDotLeadCharacterNoLookup(UChar32 cp) {
-	return cp == u'i' || cp == u'j' || cp == u'ı' || cp == u'ȷ' || cp == u'l' ||
-	       u_hasBinaryProperty(cp, UCHAR_SOFT_DOTTED);
+static inline bool isIllegalCombiningDotLeadCharacterNoLookup(UChar32 cp) 
+{
+	return (oneof5(cp, u'i', u'j', u'ı', u'ȷ', u'l') || u_hasBinaryProperty(cp, UCHAR_SOFT_DOTTED));
 }
 
-bool SpoofImpl::isIllegalCombiningDotLeadCharacter(UChar32 cp) const {
+bool SpoofImpl::isIllegalCombiningDotLeadCharacter(UChar32 cp) const 
+{
 	if(isIllegalCombiningDotLeadCharacterNoLookup(cp)) {
 		return true;
 	}
@@ -398,14 +384,14 @@ bool SpoofImpl::isIllegalCombiningDotLeadCharacter(UChar32 cp) const {
 // Input has been pre-checked, and will have no non-hex chars.
 // The number must fall in the code point range of 0..0x10ffff
 // Static Function.
-UChar32 SpoofImpl::ScanHex(const UChar * s, int32_t start, int32_t limit, UErrorCode & status) {
+UChar32 SpoofImpl::ScanHex(const UChar * s, int32_t start, int32_t limit, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return 0;
 	}
 	U_ASSERT(limit-start > 0);
 	uint32_t val = 0;
-	int i;
-	for(i = start; i<limit; i++) {
+	for(int i = start; i < limit; i++) {
 		int digitVal = s[i] - 0x30;
 		if(digitVal>9) {
 			digitVal = 0xa + (s[i] - 0x41); // Upper Case 'A'
@@ -450,13 +436,15 @@ CheckResult* CheckResult::validateThis(USpoofCheckResult * ptr, UErrorCode & sta
 	return validate(ptr, status);
 }
 
-void CheckResult::clear() {
+void CheckResult::clear() 
+{
 	fChecks = 0;
 	fNumerics.clear();
 	fRestrictionLevel = USPOOF_UNDEFINED_RESTRICTIVE;
 }
 
-int32_t CheckResult::toCombinedBitmask(int32_t enabledChecks) {
+int32_t CheckResult::toCombinedBitmask(int32_t enabledChecks) 
+{
 	if((enabledChecks & USPOOF_AUX_INFO) != 0 && fRestrictionLevel != USPOOF_UNDEFINED_RESTRICTIVE) {
 		return fChecks | fRestrictionLevel;
 	}
@@ -465,34 +453,26 @@ int32_t CheckResult::toCombinedBitmask(int32_t enabledChecks) {
 	}
 }
 
-CheckResult::~CheckResult() {
+CheckResult::~CheckResult() 
+{
 }
-
-//----------------------------------------------------------------------------------------------
 //
 //   class SpoofData Implementation
 //
-//----------------------------------------------------------------------------------------------
-
-bool SpoofData::validateDataVersion(UErrorCode & status) const {
-	if(U_FAILURE(status) ||
-	    fRawData == NULL ||
-	    fRawData->fMagic != USPOOF_MAGIC ||
+bool SpoofData::validateDataVersion(UErrorCode & status) const 
+{
+	if(U_FAILURE(status) || fRawData == NULL || fRawData->fMagic != USPOOF_MAGIC ||
 	    fRawData->fFormatVersion[0] != USPOOF_CONFUSABLE_DATA_FORMAT_VERSION ||
-	    fRawData->fFormatVersion[1] != 0 ||
-	    fRawData->fFormatVersion[2] != 0 ||
-	    fRawData->fFormatVersion[3] != 0) {
+	    fRawData->fFormatVersion[1] != 0 || fRawData->fFormatVersion[2] != 0 || fRawData->fFormatVersion[3] != 0) {
 		status = U_INVALID_FORMAT_ERROR;
 		return FALSE;
 	}
 	return TRUE;
 }
 
-static bool U_CALLCONV spoofDataIsAcceptable(void * context,
-    const char * /* type */, const char * /*name*/,
-    const UDataInfo * pInfo) {
-	if(
-		pInfo->size >= 20 &&
+static bool U_CALLCONV spoofDataIsAcceptable(void * context, const char * /* type */, const char * /*name*/, const UDataInfo * pInfo) 
+{
+	if(pInfo->size >= 20 &&
 		pInfo->isBigEndian == U_IS_BIG_ENDIAN &&
 		pInfo->charsetFamily == U_CHARSET_FAMILY &&
 		pInfo->dataFormat[0] == 0x43 && // dataFormat="Cfu "

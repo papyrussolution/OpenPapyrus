@@ -81,7 +81,7 @@ static boolint BlackPointAsDarkerColorant(cmsHPROFILE hInput, uint32 Intent, cms
 	// Create the transform
 	xform = cmsCreateTransformTHR(ContextID, hInput, dwFormat, hLab, TYPE_Lab_DBL, Intent, cmsFLAGS_NOOPTIMIZE|cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hLab);
-	if(xform == NULL) {
+	if(!xform) {
 		// Something went wrong. Get rid of open resources and return zero as black
 		BlackPoint->X = BlackPoint->Y = BlackPoint->Z = 0.0;
 		return FALSE;

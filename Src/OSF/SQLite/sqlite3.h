@@ -86,10 +86,10 @@ extern "C" {
 ** Ensure these symbols were not defined by some previous header file.
 */
 #ifdef SQLITE_VERSION
-# undef SQLITE_VERSION
+#undef SQLITE_VERSION
 #endif
 #ifdef SQLITE_VERSION_NUMBER
-# undef SQLITE_VERSION_NUMBER
+#undef SQLITE_VERSION_NUMBER
 #endif
 
 /*
@@ -4773,7 +4773,7 @@ SQLITE_API int sqlite3_data_count(sqlite3_stmt * pStmt);
 #define SQLITE_BLOB     4
 #define SQLITE_NULL     5
 #ifdef SQLITE_TEXT
-# undef SQLITE_TEXT
+#undef SQLITE_TEXT
 #else
 #define SQLITE_TEXT     3
 #endif
@@ -9876,7 +9876,7 @@ SQLITE_API int sqlite3_deserialize(sqlite3 * db,            /* The database conn
 ** builds on processors without floating point support.
 */
 #ifdef SQLITE_OMIT_FLOATING_POINT
-# undef double
+#undef double
 #endif
 
 #ifdef __cplusplus

@@ -99,7 +99,7 @@ error:
  */
 void ssh_knownhosts_entry_free(struct ssh_knownhosts_entry * entry)
 {
-	if(entry == NULL) {
+	if(!entry) {
 		return;
 	}
 
@@ -178,7 +178,7 @@ static int ssh_known_hosts_read_entries(const char * match,
 	int rc;
 
 	fp = fopen(filename, "r");
-	if(fp == NULL) {
+	if(!fp) {
 		SSH_LOG(SSH_LOG_WARN, "Failed to open the known_hosts file '%s': %s",
 		    filename, strerror(errno));
 		/* The missing file is not an error here */
@@ -235,7 +235,7 @@ static int ssh_known_hosts_read_entries(const char * match,
 				break;
 			}
 		}
-		if(entry != NULL) {
+		if(entry) {
 			ssh_list_append(*entries, entry);
 		}
 	}
@@ -533,11 +533,11 @@ int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct 
 		return SSH_ERROR;
 	}
 	e = (struct ssh_knownhosts_entry *)SAlloc::C(1, sizeof(struct ssh_knownhosts_entry));
-	if(e == NULL) {
+	if(!e) {
 		SAlloc::F(known_host);
 		return SSH_ERROR;
 	}
-	if(hostname != NULL) {
+	if(hostname) {
 		char * host_port = NULL;
 		char * q = NULL;
 		/* Hashed */
@@ -839,7 +839,7 @@ int ssh_session_update_known_hosts(ssh_session session)
 	}
 	errno = 0;
 	fp = fopen(session->opts.knownhosts, "a");
-	if(fp == NULL) {
+	if(!fp) {
 		if(errno == ENOENT) {
 			dir = ssh_dirname(session->opts.knownhosts);
 			if(dir == NULL) {
@@ -855,7 +855,7 @@ int ssh_session_update_known_hosts(ssh_session session)
 			ZFREE(dir);
 			errno = 0;
 			fp = fopen(session->opts.knownhosts, "a");
-			if(fp == NULL) {
+			if(!fp) {
 				ssh_set_error(session, SSH_FATAL, "Couldn't open known_hosts file %s for appending: %s", session->opts.knownhosts, strerror(errno));
 				return SSH_ERROR;
 			}

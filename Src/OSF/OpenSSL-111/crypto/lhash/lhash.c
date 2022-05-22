@@ -8,10 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
 #include <openssl/lhash.h>
-//#include <openssl/err.h>
-//#include <ctype.h>
 #include <lhash.h>
 #include "lhash_lcl.h"
 /*

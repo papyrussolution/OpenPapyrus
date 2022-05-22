@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace proto2_arena_unittest {
-constexpr NestedMessage::NestedMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr NestedMessage::NestedMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : d_(0){}
 struct NestedMessageDefaultTypeInternal {
 	constexpr NestedMessageDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -27,8 +26,7 @@ struct NestedMessageDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT NestedMessageDefaultTypeInternal _NestedMessage_default_instance_;
-constexpr ArenaMessage::ArenaMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr ArenaMessage::ArenaMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : repeated_nested_message_(){}
 struct ArenaMessageDefaultTypeInternal {
 	constexpr ArenaMessageDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -134,8 +132,7 @@ void NestedMessage::ArenaDtor(void* object) {
   NestedMessage* _this = reinterpret_cast< NestedMessage* >(object);
   (void)_this;
 }
-void NestedMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void NestedMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void NestedMessage::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -175,10 +172,7 @@ const char* NestedMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -234,10 +228,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData NestedMessage::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*NestedMessage::GetClassData() const { return &_class_data_; }
 
-void NestedMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<NestedMessage *>(to)->MergeFrom(
-      static_cast<const NestedMessage &>(from));
+void NestedMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<NestedMessage *>(to)->MergeFrom(static_cast<const NestedMessage &>(from));
 }
 
 
@@ -316,8 +308,7 @@ void ArenaMessage::ArenaDtor(void* object) {
   ArenaMessage* _this = reinterpret_cast< ArenaMessage* >(object);
   (void)_this;
 }
-void ArenaMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void ArenaMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void ArenaMessage::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -359,10 +350,7 @@ const char* ArenaMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -416,10 +404,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ArenaMessage::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ArenaMessage::GetClassData() const { return &_class_data_; }
 
-void ArenaMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<ArenaMessage *>(to)->MergeFrom(
-      static_cast<const ArenaMessage &>(from));
+void ArenaMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<ArenaMessage *>(to)->MergeFrom(static_cast<const ArenaMessage &>(from));
 }
 
 

@@ -38,7 +38,7 @@ const char * archive_entry_strmode(struct archive_entry * entry)
 		case AE_IFSOCK: bp[0] = 's'; break;
 		case AE_IFIFO:  bp[0] = 'p'; break;
 		default:
-		    if(archive_entry_hardlink(entry) != NULL) {
+		    if(archive_entry_hardlink(entry)) {
 			    bp[0] = 'h';
 			    break;
 		    }

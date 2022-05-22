@@ -282,7 +282,7 @@ int archive_write_set_format_xar(struct archive * _a)
 	struct xar * xar;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If another format was already registered, unregister it. */
-	if(a->format_free != NULL)
+	if(a->format_free)
 		(a->format_free)(a);
 	xar = static_cast<struct xar *>(SAlloc::C(1, sizeof(*xar)));
 	if(xar == NULL) {
@@ -954,7 +954,7 @@ static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer, 
 			p = cp + 1;
 		else
 			p = NULL;
-	} while(p != NULL);
+	} while(p);
 	if(n > 0) {
 		r = xmlTextWriterStartElement(writer, BAD_CAST_CONST(element));
 		if(r < 0) {
@@ -993,7 +993,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 	l = ll = archive_strlen(&(file->basename));
 	tmp = static_cast<uchar *>(SAlloc::M(l));
 	if(tmp == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	r = UTF8Toisolat1(tmp, &l, BAD_CAST(file->basename.s), &ll);
@@ -1617,7 +1617,7 @@ static struct file * file_new(struct archive_write * a, struct archive_entry * e
 	file = static_cast<struct file *>(SAlloc::C(1, sizeof(*file)));
 	if(file == NULL)
 		return NULL;
-	if(entry != NULL)
+	if(entry)
 		file->entry = archive_entry_clone(entry);
 	else
 		file->entry = archive_entry_new2(&a->archive);
@@ -1953,7 +1953,7 @@ static int file_tree(struct archive_write * a, struct file ** filepp)
 			fn++;
 		dent = np;
 	}
-	if(np == NULL) {
+	if(!np) {
 		/*
 		 * Create virtual parent directories.
 		 */
@@ -1969,7 +1969,7 @@ static int file_tree(struct archive_write * a, struct file ** filepp)
 			vp = file_create_virtual_dir(a, xar, as.s);
 			if(vp == NULL) {
 				archive_string_free(&as);
-				archive_set_error(&a->archive, ENOMEM, "Out of memory");
+				archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 				file_free(file);
 				*filepp = NULL;
 				return ARCHIVE_FATAL;
@@ -2072,7 +2072,7 @@ static int file_register_hardlink(struct archive_write * a, struct file * file)
 		/* This `file` is a hardlink target. */
 		hl = static_cast<struct hardlink *>(SAlloc::M(sizeof(*hl)));
 		if(hl == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		hl->nlink = 1;
@@ -2080,12 +2080,10 @@ static int file_register_hardlink(struct archive_write * a, struct file * file)
 		file->hlnext = NULL;
 		hl->file_list.first = file;
 		hl->file_list.last = &(file->hlnext);
-		__archive_rb_tree_insert_node(&(xar->hardlink_rbtree),
-		    (struct archive_rb_node *)hl);
+		__archive_rb_tree_insert_node(&(xar->hardlink_rbtree), (struct archive_rb_node *)hl);
 	}
 	else {
-		hl = (struct hardlink *)__archive_rb_tree_find_node(
-			&(xar->hardlink_rbtree), pathname);
+		hl = (struct hardlink *)__archive_rb_tree_find_node(&(xar->hardlink_rbtree), pathname);
 		if(hl != NULL) {
 			/* Insert `file` entry into the tail. */
 			file->hlnext = NULL;

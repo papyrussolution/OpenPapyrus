@@ -192,7 +192,7 @@ U_CAPI UScriptRun * U_EXPORT2 uscript_openRun(const UChar * src, int32_t length,
 
 	result = (UScriptRun*)uprv_malloc(sizeof(UScriptRun));
 
-	if(result == NULL) {
+	if(!result) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}

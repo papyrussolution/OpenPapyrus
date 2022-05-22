@@ -32,19 +32,14 @@
 #include "cairoint.h"
 #pragma hdrstop
 #if CAIRO_HAS_XCB_SURFACE // {
-//#include "cairo-boxes-private.h"
 #include "cairo-xcb-private.h"
-//#include "cairo-image-surface-private.h"
-//#include "cairo-surface-backend-private.h"
 
 /* XXX dithering */
 
 typedef struct _cairo_xcb_pixmap {
 	cairo_surface_t base;
-
 	cairo_xcb_connection_t * connection;
 	cairo_xcb_screen_t * screen;
-
 	cairo_surface_t * owner;
 	xcb_pixmap_t pixmap;
 	int width;
@@ -83,7 +78,7 @@ static const cairo_surface_backend_t _cairo_xcb_pixmap_backend = {
 static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_create(cairo_xcb_surface_t * target, int width, int height)
 {
 	cairo_xcb_pixmap_t * surface = _cairo_malloc(sizeof(cairo_xcb_pixmap_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return (cairo_xcb_pixmap_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_xcb_pixmap_backend, NULL, target->base.content, FALSE/* is_vector */);
 	surface->connection = target->connection;
@@ -101,7 +96,7 @@ static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_create(cairo_xcb_surface_t * targe
 static cairo_xcb_pixmap_t * _cairo_xcb_pixmap_copy(cairo_xcb_surface_t * target)
 {
 	cairo_xcb_pixmap_t * surface = _cairo_malloc(sizeof(cairo_xcb_pixmap_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return (cairo_xcb_pixmap_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_surface_init(&surface->base, &_cairo_xcb_pixmap_backend, NULL, target->base.content, FALSE/* is_vector */);
 	surface->connection = target->connection;

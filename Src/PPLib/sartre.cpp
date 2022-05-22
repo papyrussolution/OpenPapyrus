@@ -1,5 +1,5 @@
 // SARTR.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1327,3 +1327,86 @@ SrImportParam::SrImportParam() : InputKind(0), LangID(0), CpID(0), Flags(0)
 
 void SrImportParam::SetField(int fld, const char * pVal) { StrItems.Add(fld, pVal); }
 int SrImportParam::GetField(int fld, SString & rVal) const { return StrItems.GetText(fld, rVal); }
+//
+//
+//
+SrUedContainer::SrUedContainer()
+{
+}
+	
+SrUedContainer::~SrUedContainer()
+{
+}
+	
+int    SrUedContainer::ReadSource(const char * pFileName)
+{
+	int    ok = 1;
+	SString line_buf;
+	SString temp_buf;
+	SString lang_buf;
+	SString text_buf;
+	StringSet ss;
+	SFile f_in(pFileName, SFile::mRead);
+	THROW(f_in.IsValid());
+	while(f_in.ReadLine(line_buf)) {
+		line_buf.Chomp().Strip();
+		if(line_buf.HasPrefix("//")) {
+			; // comment
+		}
+		else if(line_buf.IsEmpty()) {
+			; // empty line
+		}
+		else {
+			uint comment_pos = 0;
+			if(line_buf.Search("//", 0, 0, &comment_pos)) {
+				line_buf.Trim(comment_pos).Strip();
+			}
+			if(line_buf.NotEmpty()) {
+				line_buf.Tokenize(" \t", ss.Z());
+				uint ssc = ss.getCount();
+				if(oneof2(ssc, 2, 3)) {
+					uint64 id = 0;
+					text_buf.Z();
+					lang_buf.Z();
+					uint   token_n = 0;
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+						token_n++;
+						if(token_n == 1) {
+							id = sxtou64(temp_buf);
+						}
+						else if(token_n == 2) {
+							if(ssc == 2) {
+								text_buf = temp_buf;
+							}
+							else {
+								assert(ssc == 3);
+								lang_buf = temp_buf;
+							}
+						}
+						else if(token_n == 3) {
+							assert(ssc == 3);
+							text_buf = temp_buf;
+						}
+					}
+				}
+				else {
+					// invalid line
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+	
+int    SrUedContainer::WriteSource(const char * pFileName)
+{
+	int    ok = 1;
+	return ok;
+}
+	
+int    SrUedContainer::Verify()
+{
+	int    ok = 1;
+	return ok;
+}

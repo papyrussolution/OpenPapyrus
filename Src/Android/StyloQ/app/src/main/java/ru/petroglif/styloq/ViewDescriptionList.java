@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextPaint;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -14,16 +15,20 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class ViewDescriptionList {
-
 	public static class Item {
+		static final int fAllNumeric = 0x0001;
+		static final int fImage      = 0x0002;
 		Item()
 		{
 			TotalFunc = 0;
 			RTotalResult = 0.0;
 			ITotalResult = 0;
+			FixedWidth = 0;
+			FixedHeight = 0;
 			LayoutWeight = 0.0f;
 			LayoutWidth = 0.0f;
-			AllNumeric = false;
+			//AllNumeric = false;
+			Flags = 0;
 			ForceAlignment = 0;
 			Mrgn = null;
 			StyleRcId = 0;
@@ -36,7 +41,10 @@ public class ViewDescriptionList {
 		int   TotalFunc;
 		double RTotalResult; // @v11.3.1
 		int    ITotalResult; // @v11.3.1
-		boolean AllNumeric;
+		int    Flags;
+		//boolean AllNumeric;
+		int    FixedWidth;  // dp (<=0 - undefined)
+		int    FixedHeight; // dp (<=0 - undefined)
 		float LayoutWeight;
 		float LayoutWidth; // @v11.2.11
 		SLib.Margin Mrgn;  // @v11.3.12
@@ -52,7 +60,7 @@ public class ViewDescriptionList {
 			Sum = 0.0;
 			Max = -Double.MAX_VALUE;
 			Min = Double.MAX_VALUE;
-			Tv = null;
+			V = null;
 			Tp = null;
 		}
 		Item   ColumnDescription;
@@ -63,7 +71,7 @@ public class ViewDescriptionList {
 		double Sum;
 		double Max;
 		double Min;
-		TextView Tv;// = Vdl.CreateBaseEntryTextView(this, 0, 0, i);
+		View   V;// = Vdl.CreateBaseEntryTextView(this, 0, 0, i);
 		TextPaint Tp;// = tv.getPaint();
 	}
 	private ArrayList<Item> L;
@@ -147,42 +155,58 @@ public class ViewDescriptionList {
 	// ARG(phase IN): 0 - preprocess, 1 - running
 	// ARG(level IN): 0 - detail, 1 - header, 2 - footer
 	//
-	public TextView CreateBaseEntryTextView(Context ctx, int phase, int level, int columnIdx/*0..*/)
+	public View CreateBaseEntryView(Context ctx, int phase, int level, int columnIdx/*0..*/)
 	{
-		TextView result = null;
+		View result = null;
 		if(L != null && columnIdx >= 0 && columnIdx < L.size()) {
 			Item di = L.get(columnIdx);
-			if(di.StyleRcId != 0)
-				result = new TextView(new ContextThemeWrapper(ctx, di.StyleRcId));
-			else
-				result = new TextView(ctx);
-			result.setSingleLine();
-			int alignment = View.TEXT_ALIGNMENT_TEXT_START;
-			if(phase == 1 && level == 0) {
-				if(di.ForceAlignment > 0)
-					alignment = View.TEXT_ALIGNMENT_TEXT_START;
-				else if(di.ForceAlignment < 0)
-					alignment = View.TEXT_ALIGNMENT_TEXT_END;
-				else if(di.AllNumeric)
-					alignment = View.TEXT_ALIGNMENT_TEXT_END;
+			TextView tv = null;
+			ImageView iv = null;
+			if(level == 0 && (di.Flags & Item.fImage) != 0) {
+				if(di.StyleRcId != 0)
+					iv = new ImageView(new ContextThemeWrapper(ctx, di.StyleRcId));
+				else
+					iv = new ImageView(ctx);
+				result = iv;
 			}
-			result.setTextAlignment(alignment);
+			else {
+				if(di.StyleRcId != 0)
+					tv = new TextView(new ContextThemeWrapper(ctx, di.StyleRcId));
+				else
+					tv = new TextView(ctx);
+				tv.setSingleLine();
+				int alignment = View.TEXT_ALIGNMENT_TEXT_START;
+				if(phase == 1 && level == 0) {
+					if(di.ForceAlignment > 0)
+						alignment = View.TEXT_ALIGNMENT_TEXT_START;
+					else if(di.ForceAlignment < 0)
+						alignment = View.TEXT_ALIGNMENT_TEXT_END;
+					else if((di.Flags & Item.fAllNumeric) != 0)
+						alignment = View.TEXT_ALIGNMENT_TEXT_END;
+				}
+				tv.setTextAlignment(alignment);
+				result = tv;
+			}
 			/*
 			if(phase == 1)
 				result.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM);
 			 */
-			if(level == 0)
+			if(level == 0) {
 				result.setId(columnIdx + 1);
-			else if(level == 1)
-				result.setText(di.Title);
-			else if(level == 2) {
-				if(di.TotalFunc > 0)
-					if(di.TotalFunc == SLib.AGGRFUNC_COUNT)
-						result.setText(Integer.toString(di.ITotalResult));
+			}
+			else if(tv != null) {
+				if(level == 1) {
+					tv.setText(di.Title);
+				}
+				else if(level == 2) {
+					if(di.TotalFunc > 0)
+						if(di.TotalFunc == SLib.AGGRFUNC_COUNT)
+							tv.setText(Integer.toString(di.ITotalResult));
+						else
+							tv.setText(Double.toString(di.RTotalResult));
 					else
-						result.setText(Double.toString(di.RTotalResult));
-				else
-					result.setText("");
+						tv.setText("");
+				}
 			}
 			int lo_width = 0;
 			float lo_weight = 0.0f/*di.LayoutWeight*/;
@@ -218,15 +242,17 @@ public class ViewDescriptionList {
 		}
 		if(result == null)
 			result = new LinearLayout(ctx);
-		result.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-			LinearLayout.LayoutParams.WRAP_CONTENT));
+		result.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 		result.setOrientation(LinearLayout.HORIZONTAL);
 		if(self != null) {
 			final int cc = self.GetCount();
 			for(int i = 0; i < cc; i++) {
-				TextView tv2 = self.CreateBaseEntryTextView(ctx,1, level, i);
-				if(tv2 != null)
-					result.addView(tv2);
+				Item di = self.L.get(i);
+				if(di != null) {
+					View view = self.CreateBaseEntryView(ctx, 1, level, i);
+					if(view != null)
+						result.addView(view);
+				}
 			}
 		}
 		return result;
@@ -237,8 +263,10 @@ public class ViewDescriptionList {
 		if(L != null && columnIdx >= 0 && columnIdx < L.size()) {
 			Item _item = L.get(columnIdx);
 			result = new DataPreprocessBlock(_item);
-			result.Tv = CreateBaseEntryTextView(ctx, 0, 0, columnIdx);
-			result.Tp = result.Tv.getPaint();
+			result.V = CreateBaseEntryView(ctx, 0, 0, columnIdx);
+			if(result.V != null && result.V instanceof TextView) {
+				result.Tp = ((TextView)result.V).getPaint();
+			}
 		}
 		return result;
 	}
@@ -259,7 +287,7 @@ public class ViewDescriptionList {
 							dpb.Min = rv;
 					}
 					else {
-						dpb.ColumnDescription.AllNumeric = false;
+						dpb.ColumnDescription.Flags &= ~Item.fAllNumeric;
 					}
 					dpb.NzTextCount++;
 					dpb.TextLenSum += tw;
@@ -295,7 +323,7 @@ public class ViewDescriptionList {
 						is_number = true;
 					}
 					else {
-						dpb.ColumnDescription.AllNumeric = false;
+						dpb.ColumnDescription.Flags &= ~Item.fAllNumeric;
 					}
 					if(is_number) {
 						dpb.Sum += rv;
@@ -336,8 +364,14 @@ public class ViewDescriptionList {
 				else
 					avgl = 1.0;
 				if(dpb.ColumnDescription != null) {
-					dpb.ColumnDescription.LayoutWeight = (float)avgl;
-					dpb.ColumnDescription.LayoutWidth = dpb.TextLenMax;
+					if(dpb.ColumnDescription.FixedWidth > 0) {
+						dpb.ColumnDescription.LayoutWeight = 0.0f;
+						dpb.ColumnDescription.LayoutWidth = dpb.ColumnDescription.FixedWidth;
+					}
+					else {
+						dpb.ColumnDescription.LayoutWeight = (float)avgl;
+						dpb.ColumnDescription.LayoutWidth = dpb.TextLenMax;
+					}
 				}
 			}
 		}

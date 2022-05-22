@@ -98,15 +98,15 @@ bool ContainsFullWord(const string& text, const string& word)
 	// List of delimiter characters to be considered. Please update the comment in
 	// the header file if you change this list.
 	static const char* delim = ".,_-#*?:";
-	const int inputlength = text.length();
-	const int wordlength = word.length();
+	const int inputlength = static_cast<int>(text.length());
+	const int wordlength = static_cast<int>(word.length());
 	// corner cases
 	if(inputlength == 0 || wordlength == 0 || wordlength > inputlength) {
 		return false;
 	}
 	int nextmatchpos = 0; // position from where search in the input string
 	while(nextmatchpos < inputlength) {
-		const int pos = text.find(word, nextmatchpos);
+		const int pos = static_cast<int>(text.find(word, nextmatchpos));
 		if(pos == string::npos) {
 			return false; // no match at all
 		}

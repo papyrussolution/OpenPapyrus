@@ -95,7 +95,7 @@ public:
 	PPAsyncCashSession * AsyncInterface() { return new ACS_DREAMKAS(NodeID); }
 };
 
-REGISTER_CMT(DREAMKAS, 0, 1);
+REGISTER_CMT(DREAMKAS, false, true);
 
 int ACS_DREAMKAS::ParseGoods(const SJson * pJsonObj, S_GUID & rUuid, SString & rName)
 {
@@ -572,13 +572,13 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 		{
 			LDATETIME dtm;
 			dtm.Set(((pPrd && pPrd->low) ? pPrd->low : encodedate(1, 4, 2018)), ZEROTIME);
-			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0).Cat(".000Z");
+			temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0).Cat(".000Z");
 			qbuf.CatEq("from", enc_buf.EncodeUrl(temp_buf, 1));
 		}
 		{
 			LDATETIME dtm;
 			dtm.Set(((pPrd && pPrd->upp) ? pPrd->upp : getcurdate_()), MAXDAYTIME);
-			temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0).Cat(".000Z");
+			temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0).Cat(".000Z");
 			qbuf.CatChar('&').CatEq("to", enc_buf.EncodeUrl(temp_buf, 1));
 		}
 		/*
@@ -889,13 +889,13 @@ int ACS_DREAMKAS::AcceptCheck(const SJson * pJsonObj)
 				dtm = Scb.PeriodToCheckQuery.Start;
 			else
 				dtm.Set(encodedate(1, 4, 2018), ZEROTIME);
-			qbuf.CatEq("from", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), 1));
+			qbuf.CatEq("from", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0), 1));
 			/*if(!!Scb.PeriodToCheckQuery.Finish)
 				dtm = Scb.PeriodToCheckQuery.Finish;
 			else
 				dtm.Set(getcurdate_(), MAXDAYTIME);*/
 			dtm.Set(getcurdate_(), MAXDAYTIME);
-			qbuf.CatChar('&').CatEq("to", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601|DATF_CENTURY, 0), 1));
+			qbuf.CatChar('&').CatEq("to", enc_buf.EncodeUrl(temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0), 1));
 			/*if(LogNumList.getCount()) {
 				temp_buf.Z();
 				for(uint i = 0; i < LogNumList.getCount(); i++) {

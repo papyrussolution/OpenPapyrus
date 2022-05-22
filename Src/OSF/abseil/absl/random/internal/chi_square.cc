@@ -89,17 +89,14 @@ double normal_survival(double z) {
 
 // Calculates the critical chi-square value given degrees-of-freedom and a
 // p-value, usually using bisection. Also known by the name CRITCHI.
-double ChiSquareValue(int dof, double p) {
-	static constexpr double kChiEpsilon =
-	    0.000001; // Accuracy of the approximation.
-	static constexpr double kChiMax =
-	    99999.0; // Maximum chi-squared value.
-
+double ChiSquareValue(int dof, double p) 
+{
+	static constexpr double kChiEpsilon = 0.000001; // Accuracy of the approximation.
+	static constexpr double kChiMax = 99999.0; // Maximum chi-squared value.
 	const double p_value = 1.0 - p;
 	if(dof < 1 || p_value > 1.0) {
 		return 0.0;
 	}
-
 	if(dof > kLargeDOF) {
 		// For large degrees of freedom, use the normal approximation by
 		//     Wilson, E. B. and Hilferty, M. M. (1931)
@@ -114,9 +111,8 @@ double ChiSquareValue(int dof, double p) {
 			return std::pow(z * std::sqrt(variance) + mean, 3.0) * dof;
 		}
 	}
-
-	if(p_value <= 0.0) return kChiMax;
-
+	if(p_value <= 0.0) 
+		return kChiMax;
 	// Otherwise search for the p value by bisection
 	double min_chisq = 0.0;
 	double max_chisq = kChiMax;
@@ -140,12 +136,10 @@ double ChiSquareValue(int dof, double p) {
 //     Hill, I. D. and Pike, M. C.  Algorithm 299
 //     Collected Algorithms of the CACM 1963 p. 243
 //
-double ChiSquarePValue(double chi_square, int dof) {
-	static constexpr double kLogSqrtPi =
-	    0.5723649429247000870717135; // Log[Sqrt[Pi]]
-	static constexpr double kInverseSqrtPi =
-	    0.5641895835477562869480795; // 1/(Sqrt[Pi])
-
+double ChiSquarePValue(double chi_square, int dof) 
+{
+	static constexpr double kLogSqrtPi = 0.5723649429247000870717135; // Log[Sqrt[Pi]]
+	static constexpr double kInverseSqrtPi = 0.5641895835477562869480795; // 1/(Sqrt[Pi])
 	// For large degrees of freedom, use the normal approximation by
 	//     Wilson, E. B. and Hilferty, M. M. (1931)
 	// Via Wikipedia:
@@ -174,13 +168,13 @@ double ChiSquarePValue(double chi_square, int dof) {
 
 	// The chi square function is >= 0 for any degrees of freedom.
 	// In other words, probability that the chi square function >= 0 is 1.
-	if(chi_square <= 0.0) return 1.0;
-
+	if(chi_square <= 0.0) 
+		return 1.0;
 	// If the degrees of freedom is zero, the chi square function is always 0 by
 	// definition. In other words, the probability that the chi square function
 	// is > 0 is zero (chi square values <= 0 have been filtered above).
-	if(dof < 1) return 0;
-
+	if(dof < 1) 
+		return 0;
 	auto capped_exp = [](double x) { return x < -20 ? 0.0 : std::exp(x); };
 	static constexpr double kBigX = 20;
 	double a = 0.5 * chi_square;
@@ -202,7 +196,6 @@ double ChiSquarePValue(double chi_square, int dof) {
 		}
 		return s;
 	}
-
 	double e = (even ? 1.0 : (kInverseSqrtPi / std::sqrt(a)));
 	double c = 0.0;
 	while(z <= chi_square) {

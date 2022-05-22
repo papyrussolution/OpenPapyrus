@@ -272,7 +272,7 @@ static int asn1_bio_setup_ex(BIO * b, BIO_ASN1_BUF_CTX * ctx,
 static int asn1_bio_read(BIO * b, char * in, int inl)
 {
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	return BIO_read(next, in, inl);
 }
@@ -285,7 +285,7 @@ static int asn1_bio_puts(BIO * b, const char * str)
 static int asn1_bio_gets(BIO * b, char * str, int size)
 {
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	return BIO_gets(next, str, size);
 }
@@ -293,7 +293,7 @@ static int asn1_bio_gets(BIO * b, char * str, int size)
 static long asn1_bio_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 {
 	BIO * next = BIO_next(b);
-	if(next == NULL)
+	if(!next)
 		return 0;
 	return BIO_callback_ctrl(next, cmd, fp);
 }
@@ -341,7 +341,7 @@ static long asn1_bio_ctrl(BIO * b, int cmd, long arg1, void * arg2)
 		    break;
 
 		case BIO_CTRL_FLUSH:
-		    if(next == NULL)
+		    if(!next)
 			    return 0;
 
 		    /* Call post function if possible */
@@ -366,7 +366,7 @@ static long asn1_bio_ctrl(BIO * b, int cmd, long arg1, void * arg2)
 		    }
 
 		default:
-		    if(next == NULL)
+		    if(!next)
 			    return 0;
 		    return BIO_ctrl(next, cmd, arg1, arg2);
 	}

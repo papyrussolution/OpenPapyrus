@@ -231,21 +231,13 @@ void CompactData::CompactDataSink::put(const char * key, ResourceValue &value, b
 		}
 	}
 }
-
-///////////////////////////////////////////////////////////
-/// END OF CompactData.java; BEGIN CompactNotation.java ///
-///////////////////////////////////////////////////////////
-
-CompactHandler::CompactHandler(CompactStyle compactStyle,
-    const Locale &locale,
-    const char * nsName,
-    CompactType compactType,
-    const PluralRules * rules,
-    MutablePatternModifier * buildReference,
-    bool safe,
-    const MicroPropsGenerator * parent,
-    UErrorCode & status)
-	: rules(rules), parent(parent), safe(safe) {
+//
+// END OF CompactData.java; BEGIN CompactNotation.java
+//
+CompactHandler::CompactHandler(CompactStyle compactStyle, const Locale &locale, const char * nsName, CompactType compactType,
+    const PluralRules * rules, MutablePatternModifier * buildReference, bool safe, const MicroPropsGenerator * parent,
+    UErrorCode & status) : rules(rules), parent(parent), safe(safe) 
+{
 	data.populate(locale, nsName, compactStyle, compactType, status);
 	if(safe) {
 		// Safe code path

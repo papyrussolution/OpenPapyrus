@@ -17,9 +17,9 @@ extern lzma_ret lzma_delta_coder_init(lzma_next_coder * next, const lzma_allocat
 {
 	// Allocate memory for the decoder if needed.
 	lzma_delta_coder * coder = (lzma_delta_coder *)next->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		coder = (lzma_delta_coder *)lzma_alloc(sizeof(lzma_delta_coder), allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		next->coder = coder;
 		// End function is the same for encoder and decoder.

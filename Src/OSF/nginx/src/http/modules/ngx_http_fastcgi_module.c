@@ -391,7 +391,7 @@ static ngx_int_t ngx_http_fastcgi_handler(ngx_http_request_t * r)
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	f = (ngx_http_fastcgi_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_fastcgi_ctx_t));
-	if(f == NULL) {
+	if(!f) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	ngx_http_set_ctx(r, f, ngx_http_fastcgi_module);
@@ -1203,7 +1203,7 @@ static ngx_int_t ngx_http_fastcgi_process_header(ngx_http_request_t * r)
 			if(rc == NGX_OK) {
 				/* a header line has been parsed successfully */
 				h = (ngx_table_elt_t *)ngx_list_push(&u->headers_in.headers);
-				if(h == NULL) {
+				if(!h) {
 					return NGX_ERROR;
 				}
 				if(f->split_parts && f->split_parts->nelts) {
@@ -2072,7 +2072,7 @@ static ngx_int_t ngx_http_fastcgi_init_params(ngx_conf_t * cf, ngx_http_fastcgi_
 		}
 		for(i = 0; i < nsrc; i++) {
 			s = (ngx_http_upstream_param_t *)ngx_array_push(&params_merged);
-			if(s == NULL) {
+			if(!s) {
 				return NGX_ERROR;
 			}
 			*s = src[i];
@@ -2087,7 +2087,7 @@ static ngx_int_t ngx_http_fastcgi_init_params(ngx_conf_t * cf, ngx_http_fastcgi_
 				}
 			}
 			s = (ngx_http_upstream_param_t *)ngx_array_push(&params_merged);
-			if(s == NULL) {
+			if(!s) {
 				return NGX_ERROR;
 			}
 			s->key = h->key;
@@ -2102,7 +2102,7 @@ next:
 	for(i = 0; i < nsrc; i++) {
 		if(src[i].key.len > sizeof("HTTP_") - 1 && ngx_strncmp(src[i].key.data, "HTTP_", sizeof("HTTP_") - 1) == 0) {
 			hk = (ngx_hash_key_t *)ngx_array_push(&headers_names);
-			if(hk == NULL) {
+			if(!hk) {
 				return NGX_ERROR;
 			}
 			hk->key.len = src[i].key.len - 5;
@@ -2175,7 +2175,7 @@ static ngx_int_t ngx_http_fastcgi_script_name_variable(ngx_http_request_t * r, n
 	u_char * p;
 	ngx_http_fastcgi_loc_conf_t  * flcf = (ngx_http_fastcgi_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_fastcgi_module);
 	ngx_http_fastcgi_ctx_t * f = ngx_http_fastcgi_split(r, flcf);
-	if(f == NULL) {
+	if(!f) {
 		return NGX_ERROR;
 	}
 	if(f->script_name.len == 0
@@ -2201,7 +2201,7 @@ static ngx_int_t ngx_http_fastcgi_path_info_variable(ngx_http_request_t * r, ngx
 {
 	ngx_http_fastcgi_loc_conf_t  * flcf = (ngx_http_fastcgi_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_fastcgi_module);
 	ngx_http_fastcgi_ctx_t * f = ngx_http_fastcgi_split(r, flcf);
-	if(f == NULL) {
+	if(!f) {
 		return NGX_ERROR;
 	}
 	v->len = f->path_info.len;
@@ -2218,9 +2218,9 @@ static ngx_http_fastcgi_ctx_t * ngx_http_fastcgi_split(ngx_http_request_t * r, n
 	ngx_int_t n;
 	int captures[(1 + 2) * 3];
 	ngx_http_fastcgi_ctx_t * f = (ngx_http_fastcgi_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_fastcgi_module);
-	if(f == NULL) {
+	if(!f) {
 		f = (ngx_http_fastcgi_ctx_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_fastcgi_ctx_t));
-		if(f == NULL) {
+		if(!f) {
 			return NULL;
 		}
 		ngx_http_set_ctx(r, f, ngx_http_fastcgi_module);
@@ -2248,9 +2248,9 @@ static ngx_http_fastcgi_ctx_t * ngx_http_fastcgi_split(ngx_http_request_t * r, n
 	return NULL;
 #else
 	ngx_http_fastcgi_ctx_t * f = ngx_http_get_module_ctx(r, ngx_http_fastcgi_module);
-	if(f == NULL) {
+	if(!f) {
 		f = ngx_pcalloc(r->pool, sizeof(ngx_http_fastcgi_ctx_t));
-		if(f == NULL) {
+		if(!f) {
 			return NULL;
 		}
 		ngx_http_set_ctx(r, f, ngx_http_fastcgi_module);
@@ -2397,7 +2397,7 @@ static const char * ngx_http_fastcgi_cache(ngx_conf_t * cf, const ngx_command_t 
 	if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-	if(cv.lengths != NULL) {
+	if(cv.lengths) {
 		flcf->upstream.cache_value = (ngx_http_complex_value_t *)ngx_palloc(cf->pool, sizeof(ngx_http_complex_value_t));
 		if(flcf->upstream.cache_value == NULL) {
 			return NGX_CONF_ERROR;

@@ -151,7 +151,7 @@ DSO * DSO_load(DSO * dso, const char * filename, DSO_METHOD * meth, int flags)
 			goto err;
 		}
 	filename = ret->filename;
-	if(filename == NULL) {
+	if(!filename) {
 		DSOerr(DSO_F_DSO_LOAD, DSO_R_NO_FILENAME);
 		goto err;
 	}
@@ -286,9 +286,9 @@ char * DSO_convert_filename(DSO * dso, const char * filename)
 		DSOerr(DSO_F_DSO_CONVERT_FILENAME, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;
 	}
-	if(filename == NULL)
+	if(!filename)
 		filename = dso->filename;
-	if(filename == NULL) {
+	if(!filename) {
 		DSOerr(DSO_F_DSO_CONVERT_FILENAME, DSO_R_NO_FILENAME);
 		return NULL;
 	}
@@ -298,9 +298,9 @@ char * DSO_convert_filename(DSO * dso, const char * filename)
 		else if(dso->meth->dso_name_converter != NULL)
 			result = dso->meth->dso_name_converter(dso, filename);
 	}
-	if(result == NULL) {
+	if(!result) {
 		result = OPENSSL_strdup(filename);
-		if(result == NULL) {
+		if(!result) {
 			DSOerr(DSO_F_DSO_CONVERT_FILENAME, ERR_R_MALLOC_FAILURE);
 			return NULL;
 		}

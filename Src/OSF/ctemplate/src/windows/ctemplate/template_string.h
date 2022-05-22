@@ -20,13 +20,6 @@
 #ifndef TEMPLATE_TEMPLATE_STRING_H_
 #define TEMPLATE_TEMPLATE_STRING_H_
 
-#include <string.h>      // for memcmp() and size_t
-#include <unordered_map>
-#include <string>
-#include <vector>
-#include <assert.h>
-#include <cstdint>
-
 class TemplateStringTest;          // needed for friendship declaration
 class StaticTemplateStringTest;
 

@@ -1415,45 +1415,34 @@ boolint opj_tcd_decode_tile(opj_tcd_t * p_tcd,
 
 		p_tcd->used_component = used_component;
 	}
-
 	for(compno = 0; compno < p_tcd->image->numcomps; compno++) {
-		if(p_tcd->used_component != NULL && !p_tcd->used_component[compno]) {
+		if(p_tcd->used_component && !p_tcd->used_component[compno]) {
 			continue;
 		}
-
 		if(!opj_tcd_is_whole_tilecomp_decoding(p_tcd, compno)) {
 			p_tcd->whole_tile_decoding = FALSE;
 			break;
 		}
 	}
-
 	if(p_tcd->whole_tile_decoding) {
 		for(compno = 0; compno < p_tcd->image->numcomps; compno++) {
 			opj_tcd_tilecomp_t* tilec = &(p_tcd->tcd_image->tiles->comps[compno]);
-			opj_tcd_resolution_t * l_res = &
-			    (tilec->resolutions[tilec->minimum_num_resolutions - 1]);
+			opj_tcd_resolution_t * l_res = &(tilec->resolutions[tilec->minimum_num_resolutions - 1]);
 			size_t l_data_size;
-
 			/* compute l_data_size with overflow check */
 			size_t res_w = (size_t)(l_res->x1 - l_res->x0);
 			size_t res_h = (size_t)(l_res->y1 - l_res->y0);
-
-			if(p_tcd->used_component != NULL && !p_tcd->used_component[compno]) {
+			if(p_tcd->used_component && !p_tcd->used_component[compno]) {
 				continue;
 			}
-
-			/* issue 733, l_data_size == 0U, probably something wrong should be checked before getting here
-			   */
+			/* issue 733, l_data_size == 0U, probably something wrong should be checked before getting here */
 			if(res_h > 0 && res_w > SIZE_MAX / res_h) {
-				opj_event_msg(p_manager, EVT_ERROR,
-				    "Size of tile data exceeds system limits\n");
+				opj_event_msg(p_manager, EVT_ERROR, "Size of tile data exceeds system limits\n");
 				return FALSE;
 			}
 			l_data_size = res_w * res_h;
-
 			if(SIZE_MAX / sizeof(uint32_t) < l_data_size) {
-				opj_event_msg(p_manager, EVT_ERROR,
-				    "Size of tile data exceeds system limits\n");
+				opj_event_msg(p_manager, EVT_ERROR, "Size of tile data exceeds system limits\n");
 				return FALSE;
 			}
 			l_data_size *= sizeof(uint32_t);
@@ -1476,7 +1465,7 @@ boolint opj_tcd_decode_tile(opj_tcd_t * p_tcd,
 			opj_tcd_tilecomp_t* tilec = &(p_tcd->tcd_image->tiles->comps[compno]);
 			opj_image_comp_t* image_comp = &(p_tcd->image->comps[compno]);
 
-			if(p_tcd->used_component != NULL && !p_tcd->used_component[compno]) {
+			if(p_tcd->used_component && !p_tcd->used_component[compno]) {
 				continue;
 			}
 
@@ -1573,7 +1562,7 @@ boolint opj_tcd_decode_tile(opj_tcd_t * p_tcd,
 			opj_image_data_free(tilec->data_win);
 			tilec->data_win = NULL;
 
-			if(p_tcd->used_component != NULL && !p_tcd->used_component[compno]) {
+			if(p_tcd->used_component && !p_tcd->used_component[compno]) {
 				continue;
 			}
 
@@ -1892,7 +1881,7 @@ static boolint opj_tcd_t1_decode(opj_tcd_t * p_tcd, opj_event_mgr_t * p_manager)
 
 	for(compno = 0; compno < l_tile->numcomps;
 	    ++compno, ++l_tile_comp, ++l_tccp) {
-		if(p_tcd->used_component != NULL && !p_tcd->used_component[compno]) {
+		if(p_tcd->used_component && !p_tcd->used_component[compno]) {
 			continue;
 		}
 
@@ -1920,7 +1909,7 @@ static boolint opj_tcd_dwt_decode(opj_tcd_t * p_tcd)
 
 	for(compno = 0; compno < l_tile->numcomps;
 	    compno++, ++l_tile_comp, ++l_img_comp, ++l_tccp) {
-		if(p_tcd->used_component != NULL && !p_tcd->used_component[compno]) {
+		if(p_tcd->used_component && !p_tcd->used_component[compno]) {
 			continue;
 		}
 
@@ -2118,7 +2107,7 @@ static boolint opj_tcd_dc_level_shift_decode(opj_tcd_t * p_tcd)
 
 	for(compno = 0; compno < l_tile->numcomps;
 	    compno++, ++l_img_comp, ++l_tccp, ++l_tile_comp) {
-		if(p_tcd->used_component != NULL && !p_tcd->used_component[compno]) {
+		if(p_tcd->used_component && !p_tcd->used_component[compno]) {
 			continue;
 		}
 

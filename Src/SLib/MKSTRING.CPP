@@ -39,7 +39,7 @@ void get(char * inFile, char * outFile)
 	int    ident;
 	char   buffer[buf_size];
 	FILE * f = fopen(inFile, "rt");
-	if(f == NULL)
+	if(!f)
 		error("Unable open input file");
 	StringStore store(outFile, 1);
 	if(store.error)

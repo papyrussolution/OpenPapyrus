@@ -47,7 +47,7 @@ pthread_t pthread_self()
 		return nil;
 #endif
 	sp = (__ptw32_thread_t *)pthread_getspecific(__ptw32_selfThreadKey);
-	if(sp != NULL) {
+	if(sp) {
 		self = sp->ptHandle;
 	}
 	else {
@@ -55,7 +55,7 @@ pthread_t pthread_self()
 		// Need to create an implicit 'self' for the currently executing thread.
 		self = __ptw32_new();
 		sp = (__ptw32_thread_t *)self.p;
-		if(sp != NULL) {
+		if(sp) {
 			/*
 			 * This is a non-POSIX thread which has chosen to call
 			 * a POSIX threads function for some reason. We assume that

@@ -14,10 +14,6 @@
 #ifndef PACKAGE
 	#error config.h must be included first in each C++ source file
 #endif
-
-//#include <cerrno>
-//#include <cmath>
-//#include <ctime>
 #ifndef __WIN32__
 	#ifdef HAVE_FTIME
 		#include <sys/timeb.h>

@@ -26,8 +26,6 @@
  */
 #ifndef CAIRO_PRIVATE_H
 #define CAIRO_PRIVATE_H
-	//#include "cairo-types-private.h"
-	//#include "cairo-reference-count-private.h"
 	CAIRO_BEGIN_DECLS
 		struct _cairo {
 			cairo_reference_count_t ref_count;

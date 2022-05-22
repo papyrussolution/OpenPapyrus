@@ -191,7 +191,7 @@ UhttTimestamp & FASTCALL UhttTimestamp::operator = (LDATE dt)
 {
 	LDATETIME temp;
 	temp.Set(dt, ZEROTIME);
-	T.Z().Cat(temp, DATF_ISO8601|DATF_CENTURY, 0);
+	T.Z().Cat(temp, DATF_ISO8601CENT, 0);
 	return *this;
 }
 
@@ -199,13 +199,13 @@ UhttTimestamp & FASTCALL UhttTimestamp::operator = (LTIME tm)
 {
 	LDATETIME temp;
 	temp.Set(encodedate(1, 1, 1970), tm);
-	T.Z().Cat(temp, DATF_ISO8601|DATF_CENTURY, 0);
+	T.Z().Cat(temp, DATF_ISO8601CENT, 0);
 	return *this;
 }
 
 UhttTimestamp & FASTCALL UhttTimestamp::operator = (const LDATETIME & rDtm)
 {
-	T.Z().Cat(rDtm, DATF_ISO8601|DATF_CENTURY, 0);
+	T.Z().Cat(rDtm, DATF_ISO8601CENT, 0);
 	return *this;
 }
 

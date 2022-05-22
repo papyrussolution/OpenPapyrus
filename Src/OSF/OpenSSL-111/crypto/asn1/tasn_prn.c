@@ -392,7 +392,7 @@ static int asn1_print_integer(BIO * out, const ASN1_INTEGER * str)
 	char * s;
 	int ret = 1;
 	s = i2s_ASN1_INTEGER(NULL, str);
-	if(s == NULL)
+	if(!s)
 		return 0;
 	if(BIO_puts(out, s) <= 0)
 		ret = 0;

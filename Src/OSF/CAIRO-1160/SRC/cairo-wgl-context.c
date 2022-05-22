@@ -41,9 +41,6 @@
 
 #if CAIRO_HAS_GL_SURFACE // {
 #include "cairo-gl-private.h"
-//#include "cairo-error-private.h"
-//#define WIN32_LEAN_AND_MEAN
-//#include <windows.h>
 
 typedef struct _cairo_wgl_context {
 	cairo_gl_context_t base;
@@ -196,7 +193,7 @@ cairo_surface_t * cairo_gl_surface_create_for_dc(cairo_device_t * device, HDC dc
 	if(width <= 0 || height <= 0)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 	surface = SAlloc::C(1, sizeof(cairo_wgl_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_gl_surface_init(device, &surface->base, CAIRO_CONTENT_COLOR_ALPHA, width, height);
 	surface->dc = dc;

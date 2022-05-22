@@ -5,6 +5,8 @@ package ru.petroglif.styloq;
 
 import static ru.petroglif.styloq.SLib.PPOBJ_STYLOQBINDERY;
 import static ru.petroglif.styloq.SLib.THROW;
+import static ru.petroglif.styloq.SLib.THROW_SL;
+
 import android.content.Context;
 import android.database.SQLException;
 import android.os.Build;
@@ -46,9 +48,10 @@ public class StyloQDatabase extends Database {
 		//
 		public static final int styloqfMediator         = 0x0001; // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
 			// записи после получения соответствующей информации от сервиса-медиатора
-		public static final int styloqfDocFinished      = 0x0002; // @v11.3.12 Для документа: цикл обработки для документа завершен
-		public static final int styloqfDocWaitForOrdrsp = 0x0004; // @v11.3.12 Для документа заказа: ожидает подтверждения заказа
-		public static final int styloqfDocWaitForDesadv = 0x0008; // @v11.3.12 Для документа заказа: ожидает документа отгрузки
+		public static final int styloqfDocFinished      = 0x0002; // @v11.3.12 Для документа: цикл обработки для документа завершен. Не может содержать флаги (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft)
+		public static final int styloqfDocWaitForOrdrsp = 0x0004; // @v11.3.12 Для документа заказа: ожидает подтверждения заказа. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
+		public static final int styloqfDocWaitForDesadv = 0x0008; // @v11.3.12 Для документа заказа: ожидает документа отгрузки. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
+		public static final int styloqfDocDraft         = 0x0010; // @v11.3.12 Для документа: драфт-версия. Не может содержать флаги (styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
 		//
 		public static final int doctypUndef       = 0;
 		public static final int doctypCommandList = 1;
@@ -71,6 +74,64 @@ public class StyloQDatabase extends Database {
 			Rec = rec;
 			Pool = new SecretTagPool();
 			Pool.Unserialize(Rec.VT);
+		}
+		boolean IsValid()
+		{
+			boolean ok = true;
+			try {
+				THROW_SL(Rec.Kind == kNativeService || Rec.Kind == kForeignService || Rec.Kind == kDocIncoming ||
+						Rec.Kind == kDocOutcominig || Rec.Kind == kClient || Rec.Kind == kSession || Rec.Kind == kFace || Rec.Kind == kCounter, 0);
+				THROW_SL((Rec.Kind == kNativeService || Rec.Kind == kForeignService) || (Rec.Flags & styloqfMediator) == 0, 0);
+				THROW_SL((Rec.Kind == kDocIncoming || Rec.Kind == kDocOutcominig) || (styloqfDocFinished | styloqfDocWaitForOrdrsp | styloqfDocWaitForDesadv | styloqfDocDraft) == 0, 0);
+				if(Rec.Kind == kDocIncoming || Rec.Kind == kDocOutcominig) {
+					THROW_SL((Rec.Flags & styloqfDocFinished) == 0 || (Rec.Flags & (styloqfDocWaitForOrdrsp | styloqfDocWaitForDesadv | styloqfDocDraft)) == 0, 0);
+					THROW_SL((Rec.Flags & styloqfDocWaitForOrdrsp) == 0 || (Rec.Flags & (styloqfDocFinished | styloqfDocDraft)) == 0, 0);
+					THROW_SL((Rec.Flags & styloqfDocWaitForDesadv) == 0 || (Rec.Flags & (styloqfDocFinished | styloqfDocDraft)) == 0, 0);
+					THROW_SL((Rec.Flags & styloqfDocDraft) == 0 || (Rec.Flags & (styloqfDocFinished | styloqfDocWaitForOrdrsp | styloqfDocWaitForDesadv)) == 0, 0);
+				}
+			} catch(StyloQException exn) {
+				ok = false;
+			}
+			return ok;
+		}
+		boolean SetDocStatus_Draft()
+		{
+			boolean ok = true;
+			try {
+				THROW(Rec.Kind == kDocIncoming || Rec.Kind == kDocOutcominig, 0);
+				THROW((Rec.Flags & (styloqfDocFinished | styloqfDocWaitForOrdrsp | styloqfDocWaitForDesadv)) == 0, 0);
+				Rec.Flags |= styloqfDocDraft;
+			} catch(StyloQException exn) {
+				ok = false;
+			}
+			return ok;
+		}
+		boolean SetDocStatus_Finished()
+		{
+			boolean ok = true;
+			try {
+				THROW(Rec.Kind == kDocIncoming || Rec.Kind == kDocOutcominig, 0);
+				Rec.Flags &= ~(styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft);
+				Rec.Flags |= styloqfDocFinished;
+			} catch(StyloQException exn) {
+				ok = false;
+			}
+			return ok;
+		}
+		boolean SetDocStatus_Intermediate(int flags)
+		{
+			boolean ok = true;
+			try {
+				THROW((flags & (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)) != 0, 0);
+				THROW((flags & ~(styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)) == 0, 0);
+				THROW(Rec.Kind == kDocIncoming || Rec.Kind == kDocOutcominig, 0);
+				THROW((Rec.Flags & styloqfDocFinished) == 0, 0);
+				Rec.Flags |= (flags & (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv));
+				Rec.Flags &= ~(styloqfDocDraft);
+			} catch(StyloQException exn) {
+				ok = false;
+			}
+			return ok;
 		}
 		private boolean PreprocessBeforeStoring(final SecStoragePacket exPack) throws StyloQException
 		{
@@ -656,7 +717,66 @@ public class StyloQDatabase extends Database {
 		result.Pool = pool;
 		return result;
 	}
-	public long PutDocument(int direction, int docType, byte [] ident, long correspondId, SecretTagPool pool) throws StyloQException
+	//
+	// Descr: Высокоуровневая процедура, реализующая обновление статусов (и, возможно, иных атрибутов) документов
+	//   после получения информации от сервиса.
+	//
+	public int AcceptDocumentRequestList(ArrayList <StyloQInterchange.DocumentRequestEntry> docReqList)
+	{
+		int    result = 0;
+		int    upd_count = 0; // Количество измененных документов
+		int    err_count = 0;
+		if(docReqList != null && docReqList.size() > 0) {
+			Transaction tra = new Transaction(this, true);
+			for(int i = 0; i < docReqList.size(); i++) {
+				StyloQInterchange.DocumentRequestEntry dre = docReqList.get(i);
+				if(dre != null && dre.DocID > 0) {
+					if(dre.AfterTransmitStatusFlags != 0) {
+						try {
+							SecStoragePacket pack = GetPeerEntry(dre.DocID);
+							boolean local_set_result = false;
+							final int preserve_flags = pack.Rec.Flags;
+							if(dre.AfterTransmitStatusFlags == SecStoragePacket.styloqfDocFinished) {
+								local_set_result = pack.SetDocStatus_Finished();
+							}
+							else if((dre.AfterTransmitStatusFlags & (SecStoragePacket.styloqfDocWaitForOrdrsp|SecStoragePacket.styloqfDocWaitForDesadv)) != 0) {
+								local_set_result = pack.SetDocStatus_Intermediate(dre.AfterTransmitStatusFlags);
+							}
+							if(local_set_result && preserve_flags != pack.Rec.Flags) {
+								long local_result_id = PutPeerEntry(dre.DocID, pack, false);
+								if(local_result_id == dre.DocID) {
+									dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Successed;
+									upd_count++;
+								}
+								else if(local_result_id == 0) {
+									dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Error;
+									err_count++;
+								}
+								else {
+									dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Error;
+									err_count++;
+									assert(local_result_id != dre.DocID); // В этом случае все плохо - у нас где-то тяжелая ошибка
+								}
+							}
+							else
+								dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Skipped;
+						} catch(StyloQException exn) {
+							;
+						}
+					}
+					else
+						dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Skipped;
+				}
+			}
+			tra.Commit();
+		}
+		if(upd_count > 0)
+			result = (err_count > 0) ? 2 : 1;
+		else
+			result = (err_count > 0) ? 0 : -1;
+		return result;
+	}
+	public long PutDocument(int direction, int docType, int docFlags, byte [] ident, long correspondId, SecretTagPool pool) throws StyloQException
 	{
 		long   result_id = 0;
 		try {

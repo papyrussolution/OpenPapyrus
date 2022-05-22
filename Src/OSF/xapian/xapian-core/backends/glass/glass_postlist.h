@@ -19,10 +19,6 @@
 #include "glass_defs.h"
 #include "glass_inverter.h"
 #include "glass_positionlist.h"
-//#include "omassert.h"
-//#include <memory>
-//#include <map>
-//#include <string>
 
 class GlassCursor;
 class GlassDatabase;

@@ -164,7 +164,7 @@ void add_ignore_pattern(ignores * ig, const char * pattern)
 void load_ignore_patterns(ignores * ig, const char * path) 
 {
 	FILE * fp = fopen(path, "r");
-	if(fp == NULL) {
+	if(!fp) {
 		log_debug("Skipping ignore file %s: not readable", path);
 	}
 	else {

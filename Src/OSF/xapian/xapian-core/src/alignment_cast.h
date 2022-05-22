@@ -16,7 +16,7 @@
 #ifndef XAPIAN_INCLUDED_ALIGNMENT_CAST_H
 #define XAPIAN_INCLUDED_ALIGNMENT_CAST_H
 
-#include <type_traits>
+//#include <type_traits>
 
 /** Cast a pointer we know is suitably aligned.
  *

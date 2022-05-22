@@ -78,7 +78,7 @@ static void U_CALLCONV _HZOpen(UConverter * cnv, UConverterLoadArgs * pArgs, UEr
 	cnv->mode = 0;
 	cnv->fromUChar32 = 0x0000;
 	cnv->extraInfo = uprv_calloc(1, sizeof(UConverterDataHZ));
-	if(cnv->extraInfo != NULL) {
+	if(cnv->extraInfo) {
 		((UConverterDataHZ*)cnv->extraInfo)->gbConverter = gbConverter;
 	}
 	else {
@@ -89,7 +89,7 @@ static void U_CALLCONV _HZOpen(UConverter * cnv, UConverterLoadArgs * pArgs, UEr
 }
 
 static void U_CALLCONV _HZClose(UConverter * cnv) {
-	if(cnv->extraInfo != NULL) {
+	if(cnv->extraInfo) {
 		ucnv_close(((UConverterDataHZ*)(cnv->extraInfo))->gbConverter);
 		if(!cnv->isExtraLocal) {
 			uprv_free(cnv->extraInfo);
@@ -102,7 +102,7 @@ static void U_CALLCONV _HZReset(UConverter * cnv, UConverterResetChoice choice) 
 	if(choice<=UCNV_RESET_TO_UNICODE) {
 		cnv->toUnicodeStatus = 0;
 		cnv->mode = 0;
-		if(cnv->extraInfo != NULL) {
+		if(cnv->extraInfo) {
 			((UConverterDataHZ*)cnv->extraInfo)->isStateDBCS = FALSE;
 			((UConverterDataHZ*)cnv->extraInfo)->isEmptySegment = FALSE;
 		}
@@ -110,7 +110,7 @@ static void U_CALLCONV _HZReset(UConverter * cnv, UConverterResetChoice choice) 
 	if(choice!=UCNV_RESET_TO_UNICODE) {
 		cnv->fromUnicodeStatus = 0;
 		cnv->fromUChar32 = 0x0000;
-		if(cnv->extraInfo != NULL) {
+		if(cnv->extraInfo) {
 			((UConverterDataHZ*)cnv->extraInfo)->isEscapeAppended = FALSE;
 			((UConverterDataHZ*)cnv->extraInfo)->targetIndex = 0;
 			((UConverterDataHZ*)cnv->extraInfo)->sourceIndex = 0;

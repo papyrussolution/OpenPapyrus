@@ -193,7 +193,7 @@ static void U_CALLCONV _ISCIIOpen(UConverter * cnv, UConverterLoadArgs * pArgs, 
 
 	cnv->extraInfo = uprv_malloc(sizeof(UConverterDataISCII));
 
-	if(cnv->extraInfo != NULL) {
+	if(cnv->extraInfo) {
 		int32_t len = 0;
 		UConverterDataISCII * converterData =
 		    (UConverterDataISCII*)cnv->extraInfo;
@@ -1520,7 +1520,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 						    /* else fall through to default */
 					    }
 					    /* else fall through to default */
-					    U_FALLTHROUGH;
+					    CXX_FALLTHROUGH;
 				    }
 				default: GET_MAPPING(sourceChar, targetUniChar, data)
 				    ;

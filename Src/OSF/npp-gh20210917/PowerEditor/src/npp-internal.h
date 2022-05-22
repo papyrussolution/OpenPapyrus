@@ -36,37 +36,6 @@ SCE_SEARCHRESULT_SEARCH_HEADER
 #define SLIB_INCLUDE_CPPSTDLIBS
 #include <slib.h>
 #include <iso646.h>
-/*
-#include <list>
-#include <deque>
-#include <vector>
-#include <map>
-#include <unordered_map>
-#include <algorithm>
-#include <locale>
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <iomanip>
-#include <stdexcept>
-#include <cassert>
-#include <codecvt>
-#include <memory>
-#include <regex>
-#include <unordered_set>
-#include <array>
-#include <stack>
-#include <string>
-#include <cctype>
-#include <cinttypes>
-#include <functional>
-#include <mutex>
-#include <cstdint>
-#include <exception>
-#include <utility>
-#include <random>
-#include <cwctype>
-*/
 #include <windowsx.h>
 #include <shobjidl.h>
 #include <shlwapi.h>
@@ -5204,8 +5173,7 @@ inline RECT &OffsetRect(RECT& rc, POINT pt)
 // handy functions to take the min or max of a SIZE
 inline SIZE minsize(SIZE a, SIZE b) { return GetSize(MIN(a.cx, b.cx), MIN(a.cy, b.cy)); }
 inline SIZE maxsize(SIZE a, SIZE b) { return GetSize(MAX(a.cx, b.cx), MAX(a.cy, b.cy)); }
-
-//////////////////
+//
 // Size info about a rectangle/row/column
 //
 struct SIZEINFO {
@@ -5228,8 +5196,7 @@ struct SIZEINFO {
 #define	WRCF_COLGROUP	0x0020		// beginning of column group
 #define	WRCF_ENDGROUP	0x00F0		// end of group
 #define	WRCF_GROUPMASK	0x00F0
-
-//////////////////
+//
 // This structure is used to hold a rectangle and describe its layout. Each
 // WINRECT corresponds to a child rectangle/window. Each window that uses
 // WinMgr provides a table (C array) of these to describe its layout.

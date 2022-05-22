@@ -397,7 +397,7 @@ SSH_PACKET_CALLBACK(channel_rcv_data)
 		ssh_buffer_get_u32(packet, &ignore);
 	}
 	str = ssh_buffer_get_ssh_string(packet);
-	if(str == NULL) {
+	if(!str) {
 		SSH_LOG(SSH_LOG_PACKET, "Invalid data packet!");
 		return SSH_PACKET_USED;
 	}
@@ -2250,7 +2250,7 @@ int ssh_channel_request_send_signal(ssh_channel channel, const char * sig) {
 	if(!channel) {
 		return SSH_ERROR;
 	}
-	if(sig == NULL) {
+	if(!sig) {
 		ssh_set_error_invalid(channel->session);
 		return rc;
 	}

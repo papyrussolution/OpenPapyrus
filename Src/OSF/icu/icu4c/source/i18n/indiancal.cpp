@@ -1,13 +1,8 @@
+// INDIANCAL.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 2003-2014, International Business Machines Corporation
- * and others. All Rights Reserved.
- ******************************************************************************
- *
- * File INDIANCAL.CPP
- *****************************************************************************
- */
+// Copyright (C) 2003-2014, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "indiancal.h"
@@ -19,17 +14,12 @@
 U_NAMESPACE_BEGIN
 
 // Implementation of the IndianCalendar class
-
-//-------------------------------------------------------------------------
+//
 // Constructors...
-//-------------------------------------------------------------------------
+//
+IndianCalendar* IndianCalendar::clone() const { return new IndianCalendar(*this); }
 
-IndianCalendar* IndianCalendar::clone() const {
-	return new IndianCalendar(*this);
-}
-
-IndianCalendar::IndianCalendar(const Locale & aLocale, UErrorCode & success)
-	:   Calendar(TimeZone::forLocaleOrDefault(aLocale), aLocale, success)
+IndianCalendar::IndianCalendar(const Locale & aLocale, UErrorCode & success) : Calendar(TimeZone::forLocaleOrDefault(aLocale), aLocale, success)
 {
 	setTimeInMillis(getNow(), success); // Call this again now that the vtable is set up properly.
 }
@@ -145,16 +135,14 @@ static int32_t* jdToGregorian(double jd, int32_t gregorianDate[3]) {
 	    gregorianDate[0], gregorianDate[1], gregorianDate[2], gdow);
 	return gregorianDate;
 }
-
-//-------------------------------------------------------------------------
+//
 // Functions for converting from field values to milliseconds....
-//-------------------------------------------------------------------------
-static double IndianToJD(int32_t year, int32_t month, int32_t date) {
-	int32_t leapMonth, gyear, m;
+//
+static double IndianToJD(int32_t year, int32_t month, int32_t date) 
+{
+	int32_t leapMonth, m;
 	double start, jd;
-
-	gyear = year + INDIAN_ERA_START;
-
+	int32_t gyear = year + INDIAN_ERA_START;
 	if(isGregorianLeap(gyear)) {
 		leapMonth = 31;
 		start = gregorianToJD(gyear, 2 /* The third month in 0 based month */, 21);
@@ -163,7 +151,6 @@ static double IndianToJD(int32_t year, int32_t month, int32_t date) {
 		leapMonth = 30;
 		start = gregorianToJD(gyear, 2 /* The third month in 0 based month */, 22);
 	}
-
 	if(month == 1) {
 		jd = start + (date - 1);
 	}
@@ -193,44 +180,37 @@ static double IndianToJD(int32_t year, int32_t month, int32_t date) {
  * @param eyear The year in Indian Calendar measured from Saka Era (78 AD).
  * @param month The month in Indian calendar
  */
-int32_t IndianCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, bool /* useMonth */) const {
+int32_t IndianCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, bool /* useMonth */) const 
+{
 	//month is 0 based; converting it to 1-based
 	int32_t imonth;
-
 	// If the month is out of range, adjust it into range, and adjust the extended year accordingly
 	if(month < 0 || month > 11) {
 		eyear += (int32_t)ClockMath::floorDivide(month, 12, month);
 	}
-
 	if(month == 12) {
 		imonth = 1;
 	}
 	else {
 		imonth = month + 1;
 	}
-
 	double jd = IndianToJD(eyear, imonth, 1);
-
 	return (int32_t)jd;
 }
-
-//-------------------------------------------------------------------------
+//
 // Functions for converting from milliseconds to field values
-//-------------------------------------------------------------------------
-
-int32_t IndianCalendar::handleGetExtendedYear() {
+//
+int32_t IndianCalendar::handleGetExtendedYear() 
+{
 	int32_t year;
-
 	if(newerField(UCAL_EXTENDED_YEAR, UCAL_YEAR) == UCAL_EXTENDED_YEAR) {
 		year = internalGet(UCAL_EXTENDED_YEAR, 1); // Default to year 1
 	}
 	else {
 		year = internalGet(UCAL_YEAR, 1); // Default to year 1
 	}
-
 	return year;
 }
-
 /*
  * Override Calendar to compute several fields specific to the Indian
  * calendar system.  These are:
@@ -245,17 +225,16 @@ int32_t IndianCalendar::handleGetExtendedYear() {
  * method is called. The getGregorianXxx() methods return Gregorian
  * calendar equivalents for the given Julian day.
  */
-void IndianCalendar::handleComputeFields(int32_t julianDay, UErrorCode & /* status */) {
+void IndianCalendar::handleComputeFields(int32_t julianDay, UErrorCode & /* status */) 
+{
 	double jdAtStartOfGregYear;
 	int32_t leapMonth, IndianYear, yday, IndianMonth, IndianDayOfMonth, mday;
 	int32_t gregorianYear;  // Stores gregorian date corresponding to Julian day;
 	int32_t gd[3];
-
 	gregorianYear = jdToGregorian(julianDay, gd)[0];      // Gregorian date for Julian day
 	IndianYear = gregorianYear - INDIAN_ERA_START;        // Year in Saka era
 	jdAtStartOfGregYear = gregorianToJD(gregorianYear, 0, 1); // JD at start of Gregorian year
 	yday = (int32_t)(julianDay - jdAtStartOfGregYear);    // Day number in Gregorian year (starting from 0)
-
 	if(yday < INDIAN_YEAR_START) {
 		// Day is at the end of the preceding Saka year
 		IndianYear -= 1;
@@ -267,7 +246,6 @@ void IndianCalendar::handleComputeFields(int32_t julianDay, UErrorCode & /* stat
 		leapMonth = isGregorianLeap(gregorianYear) ? 31 : 30; // Days in leapMonth this year
 		yday -= INDIAN_YEAR_START;
 	}
-
 	if(yday < leapMonth) {
 		IndianMonth = 0;
 		IndianDayOfMonth = yday + 1;
@@ -326,15 +304,12 @@ static void U_CALLCONV initializeSystemDefaultCentury()
 	// on the current time.  They'll be set to 80 years before
 	// the current time.
 	UErrorCode status = U_ZERO_ERROR;
-
 	IndianCalendar calendar(Locale("@calendar=Indian"), status);
 	if(U_SUCCESS(status)) {
 		calendar.setTime(Calendar::getNow(), status);
 		calendar.add(UCAL_YEAR, -80, status);
-
 		UDate newStart = calendar.getTime(status);
 		int32_t newYear  = calendar.get(UCAL_YEAR, status);
-
 		gSystemDefaultCenturyStart = newStart;
 		gSystemDefaultCenturyStartYear = newYear;
 	}

@@ -449,7 +449,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    }
 		    else {
 			    q = sstrdup(static_cast<const char *>(value));
-			    if(q == NULL) {
+			    if(!q) {
 				    ssh_set_error_oom(session);
 				    return -1;
 			    }
@@ -500,7 +500,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    }
 		    else {
 			    q = sstrdup(v);
-			    if(q == NULL) {
+			    if(!q) {
 				    ssh_set_error_oom(session);
 				    return -1;
 			    }
@@ -540,7 +540,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 			    return -1;
 		    }
 		    q = sstrdup(v);
-		    if(q == NULL) {
+		    if(!q) {
 			    return -1;
 		    }
 		    ZFREE(session->opts.bindaddr);
@@ -551,7 +551,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    ZFREE(session->opts.username);
 		    if(v == NULL) {
 			    q = ssh_get_local_username();
-			    if(q == NULL) {
+			    if(!q) {
 				    ssh_set_error_oom(session);
 				    return -1;
 			    }
@@ -600,7 +600,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 				}
 				else {
 					q = sstrdup(v);
-					if(q == NULL) {
+					if(!q) {
 						return -1;
 					}
 					else {
@@ -711,7 +711,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 		    }
 		    else {
 			    q = sstrdup(v);
-			    if(q == NULL) {
+			    if(!q) {
 				    ssh_set_error_oom(session);
 				    return -1;
 			    }
@@ -907,7 +907,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 			    // Setting the command to 'none' disables this option
 			    if(!sstreqi_ascii(v, "none")) {
 				    q = sstrdup(v);
-				    if(q == NULL) {
+				    if(!q) {
 					    return -1;
 				    }
 				    session->opts.ProxyCommand = q;
@@ -1341,7 +1341,7 @@ int ssh_options_getopt(ssh_session session, int * argcptr, char ** argv)
 		}
 	}
 
-	if(port != NULL) {
+	if(port) {
 		ssh_options_set(session, SSH_OPTIONS_PORT_STR, port);
 	}
 
@@ -1390,7 +1390,7 @@ int ssh_options_parse_config(ssh_session session, const char * filename) {
 	}
 
 	/* set default filename */
-	if(filename == NULL) {
+	if(!filename) {
 		expanded_filename = ssh_path_expand_escape(session, "%d/config");
 	}
 	else {
@@ -1404,7 +1404,7 @@ int ssh_options_parse_config(ssh_session session, const char * filename) {
 	if(r < 0) {
 		goto out;
 	}
-	if(filename == NULL) {
+	if(!filename) {
 		r = ssh_config_parse_file(session, GLOBAL_CLIENT_CONFIG);
 	}
 
@@ -1804,7 +1804,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 		    }
 		    else {
 			    q = sstrdup(static_cast<const char *>(value));
-			    if(q == NULL) {
+			    if(!q) {
 				    ssh_set_error_oom(sshbind);
 				    return -1;
 			    }
@@ -1833,7 +1833,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 		    }
 		    else {
 			    q = sstrdup(static_cast<const char *>(value));
-			    if(q == NULL) {
+			    if(!q) {
 				    ssh_set_error_oom(sshbind);
 				    return -1;
 			    }
@@ -2014,7 +2014,7 @@ static char * ssh_bind_options_expand_escape(ssh_bind sshbind, const char * s)
 	size_t i, l;
 
 	r = ssh_path_expand_tilde(s);
-	if(r == NULL) {
+	if(!r) {
 		ssh_set_error_oom(sshbind);
 		return NULL;
 	}

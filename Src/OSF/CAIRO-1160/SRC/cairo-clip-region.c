@@ -42,7 +42,7 @@ static void FASTCALL _cairo_clip_extract_region(cairo_clip_t * clip)
 		return;
 	if(clip->num_boxes > ARRAY_LENGTH(stack_rects)) {
 		r = static_cast<cairo_rectangle_int_t *>(_cairo_malloc_ab(clip->num_boxes, sizeof(cairo_rectangle_int_t)));
-		if(r == NULL) {
+		if(!r) {
 			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
 			return;
 		}

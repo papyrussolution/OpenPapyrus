@@ -347,10 +347,9 @@ LowLevelAlloc::Arena * LowLevelAlloc::NewArena(int32_t flags)
 }
 
 // L < arena->mu, L < arena->arena->mu
-bool LowLevelAlloc::DeleteArena(Arena * arena) {
-	ABSL_RAW_CHECK(
-		arena != nullptr && arena != DefaultArena() && arena != UnhookedArena(),
-		"may not delete default arena");
+bool LowLevelAlloc::DeleteArena(Arena * arena) 
+{
+	ABSL_RAW_CHECK(arena != nullptr && arena != DefaultArena() && arena != UnhookedArena(), "may not delete default arena");
 	ArenaLock section(arena);
 	if(arena->allocation_count != 0) {
 		section.Leave();
@@ -360,20 +359,14 @@ bool LowLevelAlloc::DeleteArena(Arena * arena) {
 		AllocList * region = arena->freelist.next[0];
 		size_t size = region->header.size;
 		arena->freelist.next[0] = region->next[0];
-		ABSL_RAW_CHECK(
-			region->header.magic == Magic(kMagicUnallocated, &region->header),
-			"bad magic number in DeleteArena()");
-		ABSL_RAW_CHECK(region->header.arena == arena,
-		    "bad arena pointer in DeleteArena()");
-		ABSL_RAW_CHECK(size % arena->pagesize == 0,
-		    "empty arena has non-page-aligned block size");
-		ABSL_RAW_CHECK(reinterpret_cast<uintptr_t>(region) % arena->pagesize == 0,
-		    "empty arena has non-page-aligned block");
+		ABSL_RAW_CHECK(region->header.magic == Magic(kMagicUnallocated, &region->header), "bad magic number in DeleteArena()");
+		ABSL_RAW_CHECK(region->header.arena == arena, "bad arena pointer in DeleteArena()");
+		ABSL_RAW_CHECK(size % arena->pagesize == 0, "empty arena has non-page-aligned block size");
+		ABSL_RAW_CHECK(reinterpret_cast<uintptr_t>(region) % arena->pagesize == 0, "empty arena has non-page-aligned block");
 		int munmap_result;
 #ifdef _WIN32
 		munmap_result = VirtualFree(region, 0, MEM_RELEASE);
-		ABSL_RAW_CHECK(munmap_result != 0,
-		    "LowLevelAlloc::DeleteArena: VitualFree failed");
+		ABSL_RAW_CHECK(munmap_result != 0, "LowLevelAlloc::DeleteArena: VitualFree failed");
 #else
 #ifndef ABSL_LOW_LEVEL_ALLOC_ASYNC_SIGNAL_SAFE_MISSING
 		if((arena->flags & LowLevelAlloc::kAsyncSignalSafe) == 0) {
@@ -452,15 +445,12 @@ static void Coalesce(AllocList * a)
 
 // Adds block at location "v" to the free list
 // L >= arena->mu
-static void AddToFreelist(void * v, LowLevelAlloc::Arena * arena) {
-	AllocList * f = reinterpret_cast<AllocList *>(
-		reinterpret_cast<char *>(v) - sizeof(f->header));
-	ABSL_RAW_CHECK(f->header.magic == Magic(kMagicAllocated, &f->header),
-	    "bad magic number in AddToFreelist()");
-	ABSL_RAW_CHECK(f->header.arena == arena,
-	    "bad arena pointer in AddToFreelist()");
-	f->levels = LLA_SkiplistLevels(f->header.size, arena->min_size,
-		&arena->random);
+static void AddToFreelist(void * v, LowLevelAlloc::Arena * arena) 
+{
+	AllocList * f = reinterpret_cast<AllocList *>(reinterpret_cast<char *>(v) - sizeof(f->header));
+	ABSL_RAW_CHECK(f->header.magic == Magic(kMagicAllocated, &f->header), "bad magic number in AddToFreelist()");
+	ABSL_RAW_CHECK(f->header.arena == arena, "bad arena pointer in AddToFreelist()");
+	f->levels = LLA_SkiplistLevels(f->header.size, arena->min_size, &arena->random);
 	AllocList * prev[kMaxLevel];
 	LLA_SkiplistInsert(&arena->freelist, f, prev);
 	f->header.magic = Magic(kMagicUnallocated, &f->header);
@@ -470,7 +460,8 @@ static void AddToFreelist(void * v, LowLevelAlloc::Arena * arena) {
 
 // Frees storage allocated by LowLevelAlloc::Alloc().
 // L < arena->mu
-void LowLevelAlloc::Free(void * v) {
+void LowLevelAlloc::Free(void * v) 
+{
 	if(v != nullptr) {
 		AllocList * f = reinterpret_cast<AllocList *>(reinterpret_cast<char *>(v) - sizeof(f->header));
 		LowLevelAlloc::Arena * arena = f->header.arena;

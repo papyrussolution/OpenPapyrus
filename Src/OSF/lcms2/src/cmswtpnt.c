@@ -35,7 +35,7 @@ boolint CMSEXPORT cmsWhitePointFromTemp(cmsCIExyY* WhitePoint, double TempK)
 	double x, y;
 	double T, T2, T3;
 	// double M1, M2;
-	_cmsAssert(WhitePoint != NULL);
+	assert(WhitePoint != NULL);
 	T = TempK;
 	T2 = T*T;        // Square
 	T3 = T2*T;       // Cube
@@ -114,8 +114,8 @@ boolint CMSEXPORT cmsTempFromWhitePoint(double * TempK, const cmsCIExyY* WhitePo
 	double us, vs;
 	double uj, vj, tj, di, dj, mi, mj;
 	double xs, ys;
-	_cmsAssert(WhitePoint != NULL);
-	_cmsAssert(TempK != NULL);
+	assert(WhitePoint != NULL);
+	assert(TempK != NULL);
 	di = mi = 0;
 	xs = WhitePoint->x;
 	ys = WhitePoint->y;
@@ -238,10 +238,10 @@ boolint CMSEXPORT cmsAdaptToIlluminant(cmsCIEXYZ* Result, const cmsCIEXYZ* Sourc
 {
 	cmsMAT3 Bradford;
 	cmsVEC3 In, Out;
-	_cmsAssert(Result != NULL);
-	_cmsAssert(SourceWhitePt != NULL);
-	_cmsAssert(Illuminant != NULL);
-	_cmsAssert(Value != NULL);
+	assert(Result != NULL);
+	assert(SourceWhitePt != NULL);
+	assert(Illuminant != NULL);
+	assert(Value != NULL);
 	if(!_cmsAdaptationMatrix(&Bradford, NULL, SourceWhitePt, Illuminant)) return FALSE;
 	_cmsVEC3init(&In, Value->X, Value->Y, Value->Z);
 	_cmsMAT3eval(&Out, &Bradford, &In);

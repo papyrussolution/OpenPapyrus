@@ -18,10 +18,7 @@
 
 #ifndef OPENSSL_NO_BLAKE2
 
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
 #include "blake2_locl.h"
-//#include <evp_int.h>
 
 static int init(EVP_MD_CTX * ctx)
 {

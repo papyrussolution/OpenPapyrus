@@ -1141,7 +1141,7 @@ XXH_FORCE_INLINE XXH128_hash_t XXH3_len_1to3_128b(const void * data, size_t len,
 	assert(checkirange(len, 1, 3));
 	assert(keyPtr);
 	{   
-		const uint32* const key32 = (const uint32*)keyPtr;
+		const uint32 * const key32 = (const uint32 *)keyPtr;
 	    BYTE const c1 = ((const BYTE *)data)[0];
 	    BYTE const c2 = ((const BYTE *)data)[len >> 1];
 	    BYTE const c3 = ((const BYTE *)data)[len - 1];

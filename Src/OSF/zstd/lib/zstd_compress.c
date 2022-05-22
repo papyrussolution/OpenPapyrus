@@ -137,7 +137,7 @@ ZSTD_CCtx* ZSTD_initStaticCCtx(void * workspace, size_t workspaceSize)
 		return NULL;
 	cctx->blockState.prevCBlock = (ZSTD_compressedBlockState_t*)ZSTD_cwksp_reserve_object(&cctx->workspace, sizeof(ZSTD_compressedBlockState_t));
 	cctx->blockState.nextCBlock = (ZSTD_compressedBlockState_t*)ZSTD_cwksp_reserve_object(&cctx->workspace, sizeof(ZSTD_compressedBlockState_t));
-	cctx->entropyWorkspace = (uint32*)ZSTD_cwksp_reserve_object(&cctx->workspace, ENTROPY_WORKSPACE_SIZE);
+	cctx->entropyWorkspace = (uint32 *)ZSTD_cwksp_reserve_object(&cctx->workspace, ENTROPY_WORKSPACE_SIZE);
 	cctx->bmi2 = ZSTD_cpuid_bmi2(ZSTD_cpuid());
 	return cctx;
 }
@@ -1571,9 +1571,9 @@ static size_t ZSTD_reset_matchState(ZSTD_matchState_t* ms, ZSTD_cwksp* ws, const
 	ZSTD_cwksp_clear_tables(ws);
 	DEBUGLOG(5, "reserving table space");
 	/* table Space */
-	ms->hashTable = (uint32*)ZSTD_cwksp_reserve_table(ws, hSize * sizeof(uint32));
-	ms->chainTable = (uint32*)ZSTD_cwksp_reserve_table(ws, chainSize * sizeof(uint32));
-	ms->hashTable3 = (uint32*)ZSTD_cwksp_reserve_table(ws, h3Size * sizeof(uint32));
+	ms->hashTable = (uint32 *)ZSTD_cwksp_reserve_table(ws, hSize * sizeof(uint32));
+	ms->chainTable = (uint32 *)ZSTD_cwksp_reserve_table(ws, chainSize * sizeof(uint32));
+	ms->hashTable3 = (uint32 *)ZSTD_cwksp_reserve_table(ws, h3Size * sizeof(uint32));
 	RETURN_ERROR_IF(ZSTD_cwksp_reserve_failed(ws), memory_allocation, "failed a workspace allocation in ZSTD_reset_matchState");
 	DEBUGLOG(4, "reset table : %u", crp!=ZSTDcrp_leaveDirty);
 	if(crp!=ZSTDcrp_leaveDirty) {
@@ -1725,7 +1725,7 @@ static size_t ZSTD_resetCCtx_internal(ZSTD_CCtx* zc,
 			    zc->blockState.nextCBlock =
 				(ZSTD_compressedBlockState_t*)ZSTD_cwksp_reserve_object(ws, sizeof(ZSTD_compressedBlockState_t));
 			    RETURN_ERROR_IF(zc->blockState.nextCBlock == NULL, memory_allocation, "couldn't allocate nextCBlock");
-			    zc->entropyWorkspace = (uint32*)ZSTD_cwksp_reserve_object(ws, ENTROPY_WORKSPACE_SIZE);
+			    zc->entropyWorkspace = (uint32 *)ZSTD_cwksp_reserve_object(ws, ENTROPY_WORKSPACE_SIZE);
 			    RETURN_ERROR_IF(zc->entropyWorkspace == NULL, memory_allocation, "couldn't allocate entropyWorkspace");
 		    }
 	    }
@@ -2080,7 +2080,7 @@ size_t ZSTD_copyCCtx(ZSTD_CCtx* dstCCtx, const ZSTD_CCtx* srcCCtx, uint64 pledge
  *  It must be set to a clear 0/1 value, to remove branch during inlining.
  *  Presume table size is a multiple of ZSTD_ROWSIZE
  *  to help auto-vectorization */
-FORCE_INLINE_TEMPLATE void ZSTD_reduceTable_internal(uint32* const table, const uint32 size, const uint32 reducerValue, int const preserveMark)
+FORCE_INLINE_TEMPLATE void ZSTD_reduceTable_internal(uint32 * const table, const uint32 size, const uint32 reducerValue, int const preserveMark)
 {
 	int const nbRows = (int)size / ZSTD_ROWSIZE;
 	int cellNb = 0;
@@ -2124,12 +2124,12 @@ FORCE_INLINE_TEMPLATE void ZSTD_reduceTable_internal(uint32* const table, const 
 	}
 }
 
-static void ZSTD_reduceTable(uint32* const table, const uint32 size, const uint32 reducerValue)
+static void ZSTD_reduceTable(uint32 * const table, const uint32 size, const uint32 reducerValue)
 {
 	ZSTD_reduceTable_internal(table, size, reducerValue, 0);
 }
 
-static void ZSTD_reduceTable_btlazy2(uint32* const table, const uint32 size, const uint32 reducerValue)
+static void ZSTD_reduceTable_btlazy2(uint32 * const table, const uint32 size, const uint32 reducerValue)
 {
 	ZSTD_reduceTable_internal(table, size, reducerValue, 1);
 }
@@ -3275,7 +3275,7 @@ static size_t ZSTD_compressSeqStore_singleBlock(ZSTD_CCtx* zc, seqStore_t* const
 
 /* Struct to keep track of where we are in our recursive calls. */
 typedef struct {
-	uint32* splitLocations; /* Array of split indices */
+	uint32 * splitLocations; /* Array of split indices */
 	size_t idx;         /* The current index within splitLocations being worked on */
 } seqStoreSplits;
 
@@ -3364,7 +3364,7 @@ static size_t ZSTD_compressBlock_splitBlock_internal(ZSTD_CCtx* zc, void * dst, 
 	BYTE * op = (BYTE *)dst;
 	size_t i = 0;
 	size_t srcBytesTotal = 0;
-	uint32* partitions = zc->blockSplitCtx.partitions; /* size == ZSTD_MAX_NB_BLOCK_SPLITS */
+	uint32 * partitions = zc->blockSplitCtx.partitions; /* size == ZSTD_MAX_NB_BLOCK_SPLITS */
 	seqStore_t* nextSeqStore = &zc->blockSplitCtx.nextSeqStore;
 	seqStore_t* currSeqStore = &zc->blockSplitCtx.currSeqStore;
 	size_t numSplits = ZSTD_deriveBlockSplits(zc, partitions, nbSeq);
@@ -3751,7 +3751,7 @@ static size_t ZSTD_writeFrameHeader(void * dst, size_t dstCapacity,
 	switch(dictIDSizeCode) {
 		default:
 		    assert(0); /* impossible */
-		    ZSTD_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 0: break;
 		case 1: op[pos] = (BYTE)(dictID); pos++; break;
 		case 2: MEM_writeLE16(op+pos, (uint16)dictID); pos += 2; break;
@@ -3761,7 +3761,7 @@ static size_t ZSTD_writeFrameHeader(void * dst, size_t dstCapacity,
 	{
 		default:
 		    assert(0); /* impossible */
-		    ZSTD_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case 0: if(singleSegment) op[pos++] = (BYTE)(pledgedSrcSize); break;
 		case 1: MEM_writeLE16(op+pos, (uint16)(pledgedSrcSize-256)); pos += 2; break;
 		case 2: MEM_writeLE32(op+pos, (uint32)(pledgedSrcSize)); pos += 4; break;
@@ -4422,7 +4422,7 @@ static size_t ZSTD_initCDict_internal(ZSTD_CDict* cdict, const void * dictBuffer
 	}
 	cdict->dictContentSize = dictSize;
 	cdict->dictContentType = dictContentType;
-	cdict->entropyWorkspace = (uint32*)ZSTD_cwksp_reserve_object(&cdict->workspace, HUF_WORKSPACE_SIZE);
+	cdict->entropyWorkspace = (uint32 *)ZSTD_cwksp_reserve_object(&cdict->workspace, HUF_WORKSPACE_SIZE);
 	/* Reset the state to no dictionary */
 	ZSTD_reset_compressedBlockState(&cdict->cBlockState);
 	FORWARD_IF_ERROR(ZSTD_reset_matchState(&cdict->matchState, &cdict->workspace, &params.cParams, params.useRowMatchFinder,
@@ -5014,7 +5014,7 @@ static size_t ZSTD_compressStream_generic(ZSTD_CStream* zcs,
 				zcs->outBuffFlushedSize = 0;
 				zcs->streamStage = zcss_flush; /* pass-through to flush stage */
 			    }
-			    ZSTD_FALLTHROUGH;
+			    CXX_FALLTHROUGH;
 			case zcss_flush:
 			    DEBUGLOG(5, "flush stage");
 			    assert(zcs->appliedParams.outBufferMode == ZSTD_bm_buffered);

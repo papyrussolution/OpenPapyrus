@@ -446,7 +446,7 @@ static int lzip_init(struct archive_read_filter * self)
 	int log2dic, ret;
 	struct private_data * state = (struct private_data *)self->data;
 	const uchar * h = (const uchar *)__archive_read_filter_ahead(self->upstream, 6, &avail_in);
-	if(h == NULL)
+	if(!h)
 		return ARCHIVE_FATAL;
 	/* Get a version number. */
 	state->lzip_ver = h[4];

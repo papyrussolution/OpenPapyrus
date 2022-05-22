@@ -13,8 +13,8 @@ static int __ram_add(DBC*, db_recno_t*, DBT*, uint32, uint32);
 static int __ram_source(DB *);
 static int __ram_sread(DBC*, db_recno_t);
 static int __ram_update(DBC*, db_recno_t, int);
-static int __ram_ca_getorder(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
-static int __ram_ca_setorder(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __ram_ca_getorder(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
+static int __ram_ca_setorder(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
 /*
  * In recno, there are two meanings to the on-page "deleted" flag.  If we're
  * re-numbering records, it means the record was implicitly created.  We skip

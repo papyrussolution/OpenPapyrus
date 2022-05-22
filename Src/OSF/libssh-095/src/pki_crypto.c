@@ -143,7 +143,7 @@ static ssh_string make_ecpoint_string(const EC_GROUP * g,
 		return NULL;
 	}
 	s = ssh_string_new(len);
-	if(s == NULL) {
+	if(!s) {
 		return NULL;
 	}
 	len = EC_POINT_point2oct(g, p, POINT_CONVERSION_UNCOMPRESSED, (uchar *)ssh_string_data(s), ssh_string_len(s), NULL);
@@ -368,7 +368,7 @@ ssh_key pki_key_dup(const ssh_key key, int demote)
 			     * RSA operations are much faster when these values are available.
 			     */
 			    RSA_get0_factors(key->rsa, &p, &q);
-			    if(p != NULL && q != NULL) { /* need to set both of them */
+			    if(p && q != NULL) { /* need to set both of them */
 				    np = BN_dup(p);
 				    nq = BN_dup(q);
 				    if(np == NULL || nq == NULL) {
@@ -891,16 +891,12 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 		    }
 		    ed25519 = (uint8 *)SAlloc::M(key_len);
 		    if(ed25519 == NULL) {
-			    SSH_LOG(SSH_LOG_WARN, "Out of memory");
+			    SSH_LOG(SSH_LOG_WARN, SlTxtOutOfMem);
 			    goto fail;
 		    }
-
-		    evp_rc = EVP_PKEY_get_raw_private_key(pkey, (uint8 *)ed25519,
-			    &key_len);
+		    evp_rc = EVP_PKEY_get_raw_private_key(pkey, (uint8 *)ed25519, &key_len);
 		    if(evp_rc != 1) {
-			    SSH_LOG(SSH_LOG_TRACE,
-				"Failed to get ed25519 raw private key:  %s",
-				ERR_error_string(ERR_get_error(), NULL));
+			    SSH_LOG(SSH_LOG_TRACE, "Failed to get ed25519 raw private key:  %s", ERR_error_string(ERR_get_error(), NULL));
 			    goto fail;
 		    }
 		    type = SSH_KEYTYPE_ED25519;
@@ -1159,7 +1155,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 		    }
 
 		    q = ssh_make_bignum_string((BIGNUM*)bq);
-		    if(q == NULL) {
+		    if(!q) {
 			    goto fail;
 		    }
 
@@ -1207,7 +1203,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 		    const BIGNUM * be, * bn;
 		    RSA_get0_key(key->rsa, &bn, &be, NULL);
 		    e = ssh_make_bignum_string((BIGNUM*)be);
-		    if(e == NULL) {
+		    if(!e) {
 			    goto fail;
 		    }
 
@@ -1257,7 +1253,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 
 		    e = make_ecpoint_string(EC_KEY_get0_group(key->ecdsa),
 			    EC_KEY_get0_public_key(key->ecdsa));
-		    if(e == NULL) {
+		    if(!e) {
 			    SSH_BUFFER_FREE(buffer);
 			    return NULL;
 		    }
@@ -1280,7 +1276,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 
 makestring:
 	str = ssh_string_new(ssh_buffer_get_len(buffer));
-	if(str == NULL) {
+	if(!str) {
 		goto fail;
 	}
 
@@ -1346,12 +1342,12 @@ static ssh_string pki_dsa_signature_to_blob(const ssh_signature sig)
 	}
 
 	r = ssh_make_bignum_string((BIGNUM*)pr);
-	if(r == NULL) {
+	if(!r) {
 		goto error;
 	}
 
 	s = ssh_make_bignum_string((BIGNUM*)ps);
-	if(s == NULL) {
+	if(!s) {
 		goto error;
 	}
 
@@ -1421,12 +1417,12 @@ static ssh_string pki_ecdsa_signature_to_blob(const ssh_signature sig)
 	}
 
 	r = ssh_make_bignum_string((BIGNUM*)pr);
-	if(r == NULL) {
+	if(!r) {
 		goto error;
 	}
 
 	s = ssh_make_bignum_string((BIGNUM*)ps);
-	if(s == NULL) {
+	if(!s) {
 		goto error;
 	}
 
@@ -1577,7 +1573,7 @@ static int pki_signature_from_dsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 	ssh_log_hexdump("s", (uchar *)ssh_string_data(sig_blob) + 20, 20);
 #endif
 	r = ssh_string_new(20);
-	if(r == NULL) {
+	if(!r) {
 		goto error;
 	}
 	ssh_string_fill(r, ssh_string_data(sig_blob), 20);
@@ -1589,7 +1585,7 @@ static int pki_signature_from_dsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 	}
 
 	s = ssh_string_new(20);
-	if(s == NULL) {
+	if(!s) {
 		goto error;
 	}
 	ssh_string_fill(s, (char *)ssh_string_data(sig_blob) + 20, 20);
@@ -1694,7 +1690,7 @@ static int pki_signature_from_ecdsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 	}
 
 	r = ssh_buffer_get_ssh_string(buf);
-	if(r == NULL) {
+	if(!r) {
 		goto error;
 	}
 
@@ -1712,7 +1708,7 @@ static int pki_signature_from_ecdsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 	s = ssh_buffer_get_ssh_string(buf);
 	rlen = ssh_buffer_get_len(buf);
 	SSH_BUFFER_FREE(buf);
-	if(s == NULL) {
+	if(!s) {
 		goto error;
 	}
 
@@ -1812,7 +1808,7 @@ ssh_signature pki_signature_from_blob(const ssh_key pubkey,
 	}
 
 	sig = ssh_signature_new();
-	if(sig == NULL) {
+	if(!sig) {
 		return NULL;
 	}
 
@@ -1898,7 +1894,6 @@ static const EVP_MD * pki_digest_to_md(enum ssh_digest_e hash_type)
 static EVP_PKEY * pki_key_to_pkey(ssh_key key)
 {
 	EVP_PKEY * pkey = NULL;
-
 	switch(key->type) {
 		case SSH_KEYTYPE_DSS:
 		case SSH_KEYTYPE_DSS_CERT01:
@@ -1908,10 +1903,9 @@ static EVP_PKEY * pki_key_to_pkey(ssh_key key)
 		    }
 		    pkey = EVP_PKEY_new();
 		    if(pkey == NULL) {
-			    SSH_LOG(SSH_LOG_TRACE, "Out of memory");
+			    SSH_LOG(SSH_LOG_TRACE, SlTxtOutOfMem);
 			    return NULL;
 		    }
-
 		    EVP_PKEY_set1_DSA(pkey, key->dsa);
 		    break;
 		case SSH_KEYTYPE_RSA:
@@ -1923,10 +1917,9 @@ static EVP_PKEY * pki_key_to_pkey(ssh_key key)
 		    }
 		    pkey = EVP_PKEY_new();
 		    if(pkey == NULL) {
-			    SSH_LOG(SSH_LOG_TRACE, "Out of memory");
+			    SSH_LOG(SSH_LOG_TRACE, SlTxtOutOfMem);
 			    return NULL;
 		    }
-
 		    EVP_PKEY_set1_RSA(pkey, key->rsa);
 		    break;
 		case SSH_KEYTYPE_ECDSA_P256:
@@ -1942,10 +1935,9 @@ static EVP_PKEY * pki_key_to_pkey(ssh_key key)
 		    }
 		    pkey = EVP_PKEY_new();
 		    if(pkey == NULL) {
-			    SSH_LOG(SSH_LOG_TRACE, "Out of memory");
+			    SSH_LOG(SSH_LOG_TRACE, SlTxtOutOfMem);
 			    return NULL;
 		    }
-
 		    EVP_PKEY_set1_EC_KEY(pkey, key->ecdsa);
 		    break;
 #endif
@@ -2061,23 +2053,19 @@ ssh_signature pki_sign_data(const ssh_key privkey,
 	raw_sig_len = (size_t)EVP_PKEY_size(pkey);
 	raw_sig_data = (uchar *)SAlloc::M(raw_sig_len);
 	if(raw_sig_data == NULL) {
-		SSH_LOG(SSH_LOG_TRACE, "Out of memory");
+		SSH_LOG(SSH_LOG_TRACE, SlTxtOutOfMem);
 		goto out;
 	}
-
 	/* Create the context */
 	ctx = EVP_MD_CTX_create();
 	if(!ctx) {
-		SSH_LOG(SSH_LOG_TRACE, "Out of memory");
+		SSH_LOG(SSH_LOG_TRACE, SlTxtOutOfMem);
 		goto out;
 	}
-
 	/* Sign the data */
 	rc = EVP_DigestSignInit(ctx, NULL, md, NULL, pkey);
 	if(rc != 1) {
-		SSH_LOG(SSH_LOG_TRACE,
-		    "EVP_DigestSignInit() failed: %s",
-		    ERR_error_string(ERR_get_error(), NULL));
+		SSH_LOG(SSH_LOG_TRACE, "EVP_DigestSignInit() failed: %s", ERR_error_string(ERR_get_error(), NULL));
 		goto out;
 	}
 
@@ -2113,7 +2101,7 @@ ssh_signature pki_sign_data(const ssh_key privkey,
 
 	/* Allocate and fill output signature */
 	sig = ssh_signature_new();
-	if(sig == NULL) {
+	if(!sig) {
 		goto out;
 	}
 
@@ -2136,14 +2124,14 @@ ssh_signature pki_sign_data(const ssh_key privkey,
 	sig->type_c = ssh_key_signature_to_char(privkey->type, hash_type);
 
 out:
-	if(ctx != NULL) {
+	if(ctx) {
 		EVP_MD_CTX_free(ctx);
 	}
 	if(raw_sig_data != NULL) {
 		memzero(raw_sig_data, raw_sig_len);
 	}
 	ZFREE(raw_sig_data);
-	if(pkey != NULL) {
+	if(pkey) {
 		EVP_PKEY_free(pkey);
 	}
 	return sig;
@@ -2265,10 +2253,10 @@ int pki_verify_data_signature(ssh_signature signature,
 	}
 
 out:
-	if(ctx != NULL) {
+	if(ctx) {
 		EVP_MD_CTX_free(ctx);
 	}
-	if(pkey != NULL) {
+	if(pkey) {
 		EVP_PKEY_free(pkey);
 	}
 	return rc;
@@ -2329,7 +2317,7 @@ error:
 	if(pctx != NULL) {
 		EVP_PKEY_CTX_free(pctx);
 	}
-	if(pkey != NULL) {
+	if(pkey) {
 		EVP_PKEY_free(pkey);
 	}
 	ZFREE(key->ed25519_privkey);
@@ -2348,7 +2336,7 @@ ssh_signature pki_do_sign_hash(const ssh_key privkey,
 	int rc;
 
 	sig = ssh_signature_new();
-	if(sig == NULL) {
+	if(!sig) {
 		return NULL;
 	}
 

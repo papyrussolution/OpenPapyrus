@@ -20,7 +20,7 @@
 		}                                                               \
 } while(0)
 
-static int __rep_lockout_int(ENV*, REP*, uint32*, uint32, const char *, uint32);
+static int __rep_lockout_int(ENV*, REP*, uint32 *, uint32, const char *, uint32);
 static int __rep_newmaster_empty(ENV*, int);
 static int __rep_print_int(ENV*, uint32, const char *, va_list);
 #ifdef REP_DIAGNOSTIC

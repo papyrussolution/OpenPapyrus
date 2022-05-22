@@ -599,7 +599,7 @@ int ssl_get_prev_session(SSL * s, CLIENTHELLO_MSG * hello)
 	s->verify_result = s->session->verify_result;
 	return 1;
 err:
-	if(ret != NULL) {
+	if(ret) {
 		SSL_SESSION_free(ret);
 		/* In TLSv1.3 s->session was already set to ret, so we NULL it out */
 		if(SSL_IS_TLS13(s))
@@ -663,10 +663,10 @@ int SSL_CTX_add_session(SSL_CTX * ctx, SSL_SESSION * c)
 	}
 
 	/* Put at the head of the queue unless it is already in the cache */
-	if(s == NULL)
+	if(!s)
 		SSL_SESSION_list_add(ctx, c);
 
-	if(s != NULL) {
+	if(s) {
 		/*
 		 * existing cache entry -- decrement previously incremented reference
 		 * count because it already takes into account the cache
@@ -795,7 +795,7 @@ int SSL_SESSION_set1_id(SSL_SESSION * s, const uchar * sid, uint sid_len)
 
 long SSL_SESSION_set_timeout(SSL_SESSION * s, long t)
 {
-	if(s == NULL)
+	if(!s)
 		return 0;
 	s->timeout = t;
 	return 1;
@@ -803,21 +803,21 @@ long SSL_SESSION_set_timeout(SSL_SESSION * s, long t)
 
 long SSL_SESSION_get_timeout(const SSL_SESSION * s)
 {
-	if(s == NULL)
+	if(!s)
 		return 0;
 	return s->timeout;
 }
 
 long SSL_SESSION_get_time(const SSL_SESSION * s)
 {
-	if(s == NULL)
+	if(!s)
 		return 0;
 	return s->time;
 }
 
 long SSL_SESSION_set_time(SSL_SESSION * s, long t)
 {
-	if(s == NULL)
+	if(!s)
 		return 0;
 	s->time = t;
 	return t;
@@ -949,7 +949,7 @@ int SSL_SESSION_is_resumable(const SSL_SESSION * s)
 long SSL_CTX_set_timeout(SSL_CTX * s, long t)
 {
 	long l;
-	if(s == NULL)
+	if(!s)
 		return 0;
 	l = s->session_timeout;
 	s->session_timeout = t;
@@ -958,7 +958,7 @@ long SSL_CTX_set_timeout(SSL_CTX * s, long t)
 
 long SSL_CTX_get_timeout(const SSL_CTX * s)
 {
-	if(s == NULL)
+	if(!s)
 		return 0;
 	return s->session_timeout;
 }
@@ -967,7 +967,7 @@ int SSL_set_session_secret_cb(SSL * s,
     tls_session_secret_cb_fn tls_session_secret_cb,
     void * arg)
 {
-	if(s == NULL)
+	if(!s)
 		return 0;
 	s->ext.session_secret_cb = tls_session_secret_cb;
 	s->ext.session_secret_cb_arg = arg;
@@ -977,7 +977,7 @@ int SSL_set_session_secret_cb(SSL * s,
 int SSL_set_session_ticket_ext_cb(SSL * s, tls_session_ticket_ext_cb_fn cb,
     void * arg)
 {
-	if(s == NULL)
+	if(!s)
 		return 0;
 	s->ext.session_ticket_cb = cb;
 	s->ext.session_ticket_cb_arg = arg;

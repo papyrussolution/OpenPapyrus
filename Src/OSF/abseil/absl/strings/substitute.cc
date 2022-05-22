@@ -84,9 +84,9 @@ void SubstituteAndAppendArray(std::string* output, absl::string_view format,
 	assert(target == output->data() + output->size());
 }
 
-Arg::Arg(const void* value) {
-	static_assert(sizeof(scratch_) >= sizeof(value) * 2 + 2,
-	    "fix sizeof(scratch_)");
+Arg::Arg(const void* value) 
+{
+	static_assert(sizeof(scratch_) >= sizeof(value) * 2 + 2, "fix sizeof(scratch_)");
 	if(value == nullptr) {
 		piece_ = "NULL";
 	}

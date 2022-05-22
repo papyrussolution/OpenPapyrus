@@ -6,14 +6,9 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 /* extension creation utilities */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <ssl-crypto-ctype.h>
-//#include <openssl/conf.h>
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
 #include <x509_int.h>
 
 static int v3_check_critical(const char ** value);

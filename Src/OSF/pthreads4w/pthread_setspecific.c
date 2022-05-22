@@ -80,7 +80,7 @@ int pthread_setspecific(pthread_key_t key, const void * value)
 			self = sp->ptHandle;
 	}
 	result = 0;
-	if(key != NULL) {
+	if(key) {
 		if(self.p != NULL && key->destructor != NULL && value != NULL) {
 			__ptw32_mcs_local_node_t keyLock;
 			__ptw32_mcs_local_node_t threadLock;

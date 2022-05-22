@@ -535,7 +535,7 @@ ngx_int_t ngx_hash_add_key(ngx_hash_keys_arrays_t * ha, ngx_str_t * key, void * 
 	}
 	*name = *key;
 	hk = (ngx_hash_key_t *)ngx_array_push(&ha->keys);
-	if(hk == NULL) {
+	if(!hk) {
 		return NGX_ERROR;
 	}
 	hk->key = *key;
@@ -646,7 +646,7 @@ wildcard:
 	memcpy(name->data, key->data + skip, name->len);
 	/* add to wildcard hash */
 	hk = (ngx_hash_key_t *)ngx_array_push(hwc);
-	if(hk == NULL) {
+	if(!hk) {
 		return NGX_ERROR;
 	}
 	hk->key.len = last - 1;

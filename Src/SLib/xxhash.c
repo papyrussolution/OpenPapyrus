@@ -70,9 +70,6 @@
 // Includes & Memory related functions
 //
 // Modify the local functions below should you wish to use some other memory routines for malloc(), free() 
-//#include <stdlib.h>
-//#include <limits.h>   /* ULLONG_MAX */
-//#include <string.h>
 //static void * XXH_malloc(size_t s) { return malloc(s); }
 //static void  XXH_free(void * p) { free(p); }
 //static void * XXH_memcpy(void * dest, const void * src, size_t size) { return memcpy(dest, src, size); }
@@ -136,7 +133,7 @@
 
 #if(defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==2))
 	// Force direct memory access. Only works on CPU which support unaligned memory access in hardware 
-	static uint32 XXH_read32(const void * memPtr) { return *(const uint32*)memPtr; }
+	static uint32 XXH_read32(const void * memPtr) { return *(const uint32 *)memPtr; }
 #elif (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS==1))
 	// __pack instructions are safer, but compiler specific, hence potentially problematic for some compilers 
 	// currently only defined for gcc and icc 
@@ -210,7 +207,7 @@ XXH_FORCE_INLINE uint32 XXH_readLE32_align(const void * ptr, XXH_alignment align
 	if(align==XXH_unaligned)
 		return XXH_readLE32(ptr);
 	else
-		return XXH_CPU_LITTLE_ENDIAN ? *(const uint32*)ptr : XXH_swap32(*(const uint32*)ptr);
+		return XXH_CPU_LITTLE_ENDIAN ? *(const uint32 *)ptr : XXH_swap32(*(const uint32 *)ptr);
 }
 // 
 // Misc

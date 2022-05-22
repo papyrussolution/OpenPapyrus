@@ -633,8 +633,8 @@ int inverse(LMatrix & a)
 	ai.init(n, n);
 	col.init(n);
 	LMIDX * p_indx = new LMIDX[n];
-	if(ludcmp(a, p_indx, d)){
-		for(j = 0; j < n; j++){
+	if(ludcmp(a, p_indx, d)) {
+		for(j = 0; j < n; j++) {
 			for(i = 0; i < n; i++)
 				col.set(i, 0);
 			col.set(j, 1);
@@ -661,7 +661,7 @@ void lubksb(LMatrix & a, const LMIDX indx[/*b.size()*/], LVect & b)
 	double sum;
 	LMIDX n = a.rows();
 	LMIDX i;
-	for(i = 0; i < n; i++){
+	for(i = 0; i < n; i++) {
 		sum = b.get(indx[i]);
 		b.set(indx[i], b.get(i));
 		if(ii > -1)
@@ -671,7 +671,7 @@ void lubksb(LMatrix & a, const LMIDX indx[/*b.size()*/], LVect & b)
 			ii = i;
 		b.set(i, sum);
 	}
-	for(i = n - 1; i >= 0; i--){
+	for(i = n - 1; i >= 0; i--) {
 		sum = b.get(i);
 		for(j = i + 1; j < n; j++)
 			sum -= a.get(i, j) * b.get(j);
@@ -689,15 +689,12 @@ int ludcmp(LMatrix & a, LMIDX indx[/*a.rows()*/], int & d)
 	LMIDX  i, imax, j, k;
 	double big, dum, sum, temp;
 	LMIDX  n = a.rows();
-
 	LVect vv;
 	vv.init(n);
-
 	double zero = 0L;
 	double one = 1;
-
 	d = 1;
-	for(i = 0; i < n; i++){
+	for(i = 0; i < n; i++) {
 		big = zero;
 		for(j = 0; j < n; j++)
 			if((temp = fabs(a.get(i, j))) > big)
@@ -708,26 +705,26 @@ int ludcmp(LMatrix & a, LMIDX indx[/*a.rows()*/], int & d)
 		}
 		vv.set(i, one / big);
 	}
-	for(j = 0; j < n; j++){
-		for(i = 0; i < j; i++){
+	for(j = 0; j < n; j++) {
+		for(i = 0; i < j; i++) {
 			sum = a.get(i, j);
 			for(k = 0; k < i; k++)
 				sum -= a.get(i, k) * a.get(k, j);
 			a.set(i, j, sum);
 		}
 		big = zero;
-		for(i = j; i < n; i++){
+		for(i = j; i < n; i++) {
 			sum = a.get(i, j);
 			for(k = 0; k < j; k++)
 				sum -= a.get(i, k) * a.get(k, j);
 			a.set(i, j, sum);
-			if((dum = vv.get(i) * fabs(sum)) >= big){
+			if((dum = vv.get(i) * fabs(sum)) >= big) {
 				big = dum;
 				imax = i;
 			}
 		}
-		if(j != imax){
-			for(k = 0; k < n; k++){
+		if(j != imax) {
+			for(k = 0; k < n; k++) {
 				dum = a.get(imax, k);
 				a.set(imax, k, a.get(j, k));
 				a.set(j, k, dum);

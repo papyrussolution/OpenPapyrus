@@ -28,12 +28,12 @@
 
 /* compat. with non-clang compilers */
 #ifndef __has_builtin
-#  define __has_builtin(x) 0
+#define __has_builtin(x) 0
 #endif
 
 /* compat. with non-clang compilers */
 #ifndef __has_feature
-#  define __has_feature(x) 0
+#define __has_feature(x) 0
 #endif
 
 /* detects whether we are being compiled under msan */
@@ -59,9 +59,9 @@
 /* detects whether we are being compiled under dfsan */
 #ifndef ZSTD_DATAFLOW_SANITIZER
 #if __has_feature(dataflow_sanitizer)
-#  define ZSTD_DATAFLOW_SANITIZER 1
+#define ZSTD_DATAFLOW_SANITIZER 1
 #else
-#  define ZSTD_DATAFLOW_SANITIZER 0
+#define ZSTD_DATAFLOW_SANITIZER 0
 #endif
 #endif
 
@@ -81,9 +81,9 @@
           && (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)))) \
       && (defined(__x86_64__) || defined(_M_X64)) \
       && !defined(__BMI2__)
-  #  define DYNAMIC_BMI2 1
+  #define DYNAMIC_BMI2 1
   #else
-  #  define DYNAMIC_BMI2 0
+  #define DYNAMIC_BMI2 0
   #endif
 #endif
 
@@ -111,7 +111,7 @@
 #define ZSTD_ASM_SUPPORTED 0
 #  endif
 #else
-#  define ZSTD_ASM_SUPPORTED 0
+#define ZSTD_ASM_SUPPORTED 0
 #endif
 
 /**

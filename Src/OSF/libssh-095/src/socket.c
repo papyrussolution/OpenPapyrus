@@ -128,7 +128,7 @@ void ssh_socket_cleanup()
 ssh_socket ssh_socket_new(ssh_session session)
 {
 	ssh_socket s = (ssh_socket)SAlloc::C(1, sizeof(struct ssh_socket_struct));
-	if(s == NULL) {
+	if(!s) {
 		ssh_set_error_oom(session);
 		return NULL;
 	}
@@ -376,7 +376,7 @@ ssh_poll_handle ssh_socket_get_poll_handle(ssh_socket s)
  */
 void ssh_socket_free(ssh_socket s)
 {
-	if(s == NULL) {
+	if(!s) {
 		return;
 	}
 	ssh_socket_close(s);

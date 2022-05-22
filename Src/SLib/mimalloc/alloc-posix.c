@@ -87,7 +87,7 @@ void * mi_reallocarray(void * p, size_t count, size_t size) NOEXCEPT {    // BSD
 
 void * mi__expand(void * p, size_t newsize) NOEXCEPT {  // Microsoft
 	void * res = mi_expand(p, newsize);
-	if(res == NULL) errno = ENOMEM;
+	if(!res) errno = ENOMEM;
 	return res;
 }
 

@@ -243,7 +243,7 @@ flags__:
 				}
 				if(flags & mlcf->gzip_flag) {
 					h = (ngx_table_elt_t*)ngx_list_push(&r->headers_out.headers);
-					if(h == NULL) {
+					if(!h) {
 						return NGX_ERROR;
 					}
 					h->hash = 1;

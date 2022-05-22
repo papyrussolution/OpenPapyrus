@@ -1062,7 +1062,7 @@ U_CFUNC int32_t u_scanf_parse(UFILE * f, const UChar * patternSpecification, va_
 					case ufmt_count:
 					    /* set the spec's width to the # of items converted */
 					    spec.fInfo.fWidth = cpConsumed;
-					    U_FALLTHROUGH;
+					    CXX_FALLTHROUGH;
 					case ufmt_char:
 					case ufmt_uchar:
 					case ufmt_int:

@@ -27,8 +27,6 @@
  */
 #ifndef CAIRO_ARRAY_PRIVATE_H
 #define CAIRO_ARRAY_PRIVATE_H
-//#include "cairo-compiler-private.h"
-//#include "cairo-types-private.h"
 CAIRO_BEGIN_DECLS
 	// cairo-array.c structures and functions 
 	cairo_private void FASTCALL _cairo_array_init(cairo_array_t * array, uint element_size);

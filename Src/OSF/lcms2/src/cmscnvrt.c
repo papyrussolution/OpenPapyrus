@@ -20,21 +20,15 @@
 static cmsPipeline * DefaultICCintents(cmsContext ContextID, uint32 nProfiles, uint32 Intents[],
     cmsHPROFILE hProfiles[], boolint BPC[], double AdaptationStates[], uint32 dwFlags);
 
-//---------------------------------------------------------------------------------
-
 // This is the entry for black-preserving K-only intents, which are non-ICC. Last profile have to be a output profile
 // to do the trick (no devicelinks allowed at that position)
 static cmsPipeline *  BlackPreservingKOnlyIntents(cmsContext ContextID, uint32 nProfiles, uint32 Intents[],
     cmsHPROFILE hProfiles[], boolint BPC[], double AdaptationStates[], uint32 dwFlags);
 
-//---------------------------------------------------------------------------------
-
 // This is the entry for black-plane preserving, which are non-ICC. Again, Last profile have to be a output profile
 // to do the trick (no devicelinks allowed at that position)
 static cmsPipeline *  BlackPreservingKPlaneIntents(cmsContext ContextID, uint32 nProfiles, uint32 Intents[],
     cmsHPROFILE hProfiles[], boolint BPC[], double AdaptationStates[], uint32 dwFlags);
-
-//---------------------------------------------------------------------------------
 
 // This is a structure holding implementations for all supported intents.
 typedef struct _cms_intents_list {
@@ -99,9 +93,9 @@ static cmsIntentsList* SearchIntent(cmsContext ContextID, uint32 Intent)
 {
 	_cmsIntentsPluginChunkType* ctx = (_cmsIntentsPluginChunkType*)_cmsContextGetClientChunk(ContextID, IntentPlugin);
 	cmsIntentsList* pt;
-	for(pt = ctx->Intents; pt != NULL; pt = pt->Next)
+	for(pt = ctx->Intents; pt; pt = pt->Next)
 		if(pt->Intent == Intent) return pt;
-	for(pt = DefaultIntents; pt != NULL; pt = pt->Next)
+	for(pt = DefaultIntents; pt; pt = pt->Next)
 		if(pt->Intent == Intent) return pt;
 	return NULL;
 }
@@ -463,7 +457,7 @@ static cmsPipeline * DefaultICCintents(cmsContext ContextID, uint32 nProfiles, u
 		if(lIsDeviceLink || ((ClassSig == cmsSigNamedColorClass) && (nProfiles == 1))) {
 			// Get the involved LUT from the profile
 			Lut = _cmsReadDevicelinkLUT(hProfile, Intent);
-			if(Lut == NULL) goto Error;
+			if(!Lut) goto Error;
 
 			// What about abstract profiles?
 			if(ClassSig == cmsSigAbstractClass && i > 0) {
@@ -480,12 +474,12 @@ static cmsPipeline * DefaultICCintents(cmsContext ContextID, uint32 nProfiles, u
 			if(lIsInput) {
 				// Input direction means non-pcs connection, so proceed like devicelinks
 				Lut = _cmsReadInputLUT(hProfile, Intent);
-				if(Lut == NULL) goto Error;
+				if(!Lut) goto Error;
 			}
 			else {
 				// Output direction means PCS connection. Intent may apply here
 				Lut = _cmsReadOutputLUT(hProfile, Intent);
-				if(Lut == NULL) goto Error;
+				if(!Lut) goto Error;
 				if(!ComputeConversion(i, hProfiles, Intent, BPC[i], AdaptationStates[i], &m, &off)) goto Error;
 				if(!AddConversion(Result, CurrentColorSpace, ColorSpaceIn, &m, &off)) goto Error;
 			}
@@ -862,7 +856,7 @@ cmsPipeline * _cmsLinkProfiles(cmsContext ContextID, uint32 nProfiles, uint32 Th
 // and "Descriptions" the function returns the total number of intents, which may be greater
 // than nMax, although the matrices are not populated beyond this level.
 //
-uint32 CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID, uint32 nMax, uint32* Codes, char ** Descriptions)
+uint32 CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID, uint32 nMax, uint32 * Codes, char ** Descriptions)
 {
 	_cmsIntentsPluginChunkType* ctx = (_cmsIntentsPluginChunkType*)_cmsContextGetClientChunk(ContextID, IntentPlugin);
 	cmsIntentsList* pt;
@@ -888,7 +882,7 @@ uint32 CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID, uint32 nMax, ui
 	return nIntents;
 }
 
-uint32 CMSEXPORT cmsGetSupportedIntents(uint32 nMax, uint32* Codes, char ** Descriptions)
+uint32 CMSEXPORT cmsGetSupportedIntents(uint32 nMax, uint32 * Codes, char ** Descriptions)
 {
 	return cmsGetSupportedIntentsTHR(NULL, nMax, Codes, Descriptions);
 }

@@ -13,7 +13,7 @@
 #ifndef ABSL_FLAGS_PARSE_H_
 #define ABSL_FLAGS_PARSE_H_
 
-#include <vector>
+//#include <vector>
 #include "absl/base/config.h"
 #include "absl/flags/internal/parse.h"
 

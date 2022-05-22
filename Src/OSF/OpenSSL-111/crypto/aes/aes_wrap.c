@@ -8,15 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/aes.h>
-//#include <openssl/modes.h>
 
 int AES_wrap_key(AES_KEY * key, const uchar * iv, uchar * out, const uchar * in, uint inlen)
-{
-	return CRYPTO_128_wrap(key, iv, out, in, inlen, (block128_f)AES_encrypt);
-}
-
+	{ return CRYPTO_128_wrap(key, iv, out, in, inlen, (block128_f)AES_encrypt); }
 int AES_unwrap_key(AES_KEY * key, const uchar * iv, uchar * out, const uchar * in, uint inlen)
-{
-	return CRYPTO_128_unwrap(key, iv, out, in, inlen, (block128_f)AES_decrypt);
-}
+	{ return CRYPTO_128_unwrap(key, iv, out, in, inlen, (block128_f)AES_decrypt); }

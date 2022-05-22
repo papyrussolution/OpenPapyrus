@@ -376,11 +376,11 @@ private:
 				log_buf.CatDiv(':', 2).CatEq("Ver", pBlk->Strategies.GetVersion());
 				log_buf.Space().CatEq("Count", pBlk->Strategies.getCount());
 				if(!!pBlk->Strategies.GetStorageTm())
-					log_buf.Space().CatEq("storage-time", pBlk->Strategies.GetStorageTm(), DATF_ISO8601|DATF_CENTURY, 0);
+					log_buf.Space().CatEq("storage-time", pBlk->Strategies.GetStorageTm(), DATF_ISO8601CENT, 0);
 				if(!!pBlk->Strategies.GetLastValTm())
-					log_buf.Space().CatEq("last-val-time", pBlk->Strategies.GetLastValTm(), DATF_ISO8601|DATF_CENTURY, 0);
+					log_buf.Space().CatEq("last-val-time", pBlk->Strategies.GetLastValTm(), DATF_ISO8601CENT, 0);
 				if(!!pBlk->Strategies.GetUseDataForStrategiesTill())
-					log_buf.Space().CatEq("use-data-for-strategies-till", pBlk->Strategies.GetUseDataForStrategiesTill(), DATF_ISO8601|DATF_CENTURY);
+					log_buf.Space().CatEq("use-data-for-strategies-till", pBlk->Strategies.GetUseDataForStrategiesTill(), DATF_ISO8601CENT);
 				PPLogMessage(PPFILNAM_TSSTAKE_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
 			}
 		}
@@ -439,7 +439,7 @@ void TimeSeriesCache::LogStateEnvironment(const TsStakeEnvironment & rEnv)
 	PPGetFilePath(PPPATH_LOG, "TsStakeEnvironment.log", file_name);
 	SFile f_out(file_name, SFile::mAppend);
 	const double evaluated_used_margin = EvaluateUsedMargin();
-	line_buf.Z().CatCurDateTime(DATF_ISO8601|DATF_CENTURY, 0).Space().Cat("Account").CatDiv(':', 2)/*.Cat(rEnv.Acc.ActualDtm, DATF_ISO8601|DATF_CENTURY, 0)*/.Space().
+	line_buf.Z().CatCurDateTime(DATF_ISO8601CENT, 0).Space().Cat("Account").CatDiv(':', 2)/*.Cat(rEnv.Acc.ActualDtm, DATF_ISO8601CENT, 0)*/.Space().
 		Cat(rEnv.Acc.ID).Space().
 		CatEq("Balance", rEnv.Acc.Balance, MKSFMTD(0, 2, 0)).Space().
 		CatEq("MarginFree", rEnv.Acc.MarginFree, MKSFMTD(0, 2, 0)).Space().
@@ -458,7 +458,7 @@ void TimeSeriesCache::LogStateEnvironment(const TsStakeEnvironment & rEnv)
 				Cat(temp_buf.Align(10, ADJ_LEFT)).Space().
 				Cat(r_stk.Type).Space().
 				Cat(r_stk.Ticket).Space().
-				Cat(r_stk.SetupDtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
+				Cat(r_stk.SetupDtm, DATF_ISO8601CENT, 0).Space().
 				Cat(r_stk.VolumeInit,   MKSFMTD(10, 3, 0)).Space().
 				Cat(r_stk.PriceOpen,    MKSFMTD(10, 5, 0)).Space().
 				Cat(r_stk.SL, MKSFMTD(10, 5, 0)).Space().
@@ -478,7 +478,7 @@ void TimeSeriesCache::LogStateEnvironment(const TsStakeEnvironment & rEnv)
 			line_buf.Z().Cat("Tick").CatDiv(':', 2).
 				Cat(temp_buf.Align(10, ADJ_LEFT)).Space().
 				Cat(r_tk.TsID).Space().
-				Cat(r_tk.Dtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
+				Cat(r_tk.Dtm, DATF_ISO8601CENT, 0).Space().
 				Cat(r_tk.Bid,  MKSFMTD(10, 5, 0)).Space().
 				Cat(r_tk.Ask,  MKSFMTD(10, 5, 0)).Space().
 				Cat(r_tk.Last, MKSFMTD(10, 5, 0)).Space().
@@ -792,7 +792,7 @@ int TimeSeriesCache::SetTransactionNotification(const TsStakeEnvironment::Transa
 		for(uint i = 0; i < pTan->L.getCount(); i++) {
 			const TsStakeEnvironment::TransactionNotification::Ta & r_ta = pTan->L.at(i);
 			log_msg.Z().Cat("TaNotification").CatDiv(':', 2);
-			log_msg.CatEq("Time", temp_buf.Z().Cat(r_ta.NotifyTime, DATF_ISO8601|DATF_CENTURY, 0)).Space();
+			log_msg.CatEq("Time", temp_buf.Z().Cat(r_ta.NotifyTime, DATF_ISO8601CENT, 0)).Space();
 			switch(r_ta.TaType) {
 				case TsStakeEnvironment::ttratOrderAdd:      temp_buf = "ORDER-ADD"; break;
 				case TsStakeEnvironment::ttratOrderUpdate:   temp_buf = "ORDER-UPD"; break;
@@ -821,7 +821,7 @@ int TimeSeriesCache::SetTransactionNotification(const TsStakeEnvironment::Transa
 			log_msg.CatEq("DealType", r_ta.DealType).Space();
 			log_msg.CatEq("OrdTypeTime", r_ta.OrdTypeTime).Space();
 			if(r_ta.Expiration.d.year() < 1980)
-				log_msg.CatEq("Expiration", temp_buf.Z().Cat(r_ta.Expiration, DATF_ISO8601|DATF_CENTURY, 0)).Space();
+				log_msg.CatEq("Expiration", temp_buf.Z().Cat(r_ta.Expiration, DATF_ISO8601CENT, 0)).Space();
 			if(r_ta.Price > 0.0)
 				log_msg.CatEq("Price", r_ta.Price, MKSFMTD(0, 5, 0)).Space();
 			if(r_ta.PriceTrigger > 0.0)
@@ -1513,7 +1513,7 @@ int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rRes
 				const double test_cost = EvaluateCost(*p_blk, 0, p_blk->VolumeMin, ecfTrickChf); // @v10.6.10
 				double last_regular = 0.0; // @v10.6.10
 				p_blk->GetLastValue(&last_regular); // @v10.6.10
-				log_msg.Z().Cat(tk_symb).Space().CatEq("org-tick-time", r_tk.Dtm, DATF_ISO8601|DATF_CENTURY, 0).Space().
+				log_msg.Z().Cat(tk_symb).Space().CatEq("org-tick-time", r_tk.Dtm, DATF_ISO8601CENT, 0).Space().
 					CatEq("current-diff-sec", cur_diff_sec).Space().
 					CatEq("last", r_tk.Last, MKSFMTD(0, 5, 0)).Space().
 					CatEq("bid", r_tk.Bid, MKSFMTD(0, 5, 0)).Space().
@@ -1559,7 +1559,7 @@ int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rRes
 				if(!p_blk->LastStakeTime || diffdatetimesec(now, p_blk->LastStakeTime) >= 20) { // @v10.7.6
 					// @v10.4.10 {
 					/* @v10.6.8 if(0) {
-						log_msg.Z().Cat(tktime, DATF_ISO8601|DATF_CENTURY, 0).Space().Cat(r_tk.Last, MKSFMTD(0, 5, 0));
+						log_msg.Z().Cat(tktime, DATF_ISO8601CENT, 0).Space().Cat(r_tk.Last, MKSFMTD(0, 5, 0));
 						for(uint tridx = 0; tridx < p_blk->TrendList.getCount(); tridx++) {
 							const PPObjTimeSeries::TrendEntry * p_tre = p_blk->TrendList.at(tridx);
 							if(p_tre) {
@@ -1921,7 +1921,7 @@ TimeSeriesCache::TimeSeriesBlock * TimeSeriesCache::InitBlock(PPObjTimeSeries & 
 						ut.Get(t);
 						p_fblk->T_.GetValue(j, vec_idx, &v);
 						long td = j ? diffdatetimesec(t, t_prev) : 0;
-						line_buf.Z().Cat(t, DATF_ISO8601|DATF_CENTURY, 0).Tab().Cat(v, MKSFMTD(10, 5, 0)).Tab().Cat(td);
+						line_buf.Z().Cat(t, DATF_ISO8601CENT, 0).Tab().Cat(v, MKSFMTD(10, 5, 0)).Tab().Cat(td);
 						f_out.WriteLine(line_buf.CR());
 						t_prev = t;
 					}

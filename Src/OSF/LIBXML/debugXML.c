@@ -1998,7 +1998,7 @@ int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode, xmlNod
 		default: 
 			{
 				FILE * f = fopen(filename, "w");
-				if(f == NULL) {
+				if(!f) {
 					xmlGenericError(0, "Failed to write to %s\n", filename);
 					return -1;
 				}
@@ -2026,7 +2026,7 @@ int xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * pNode ATTRIBUT
 		return -1;
 	if(isempty(filename))
 		filename = ctxt->filename;
-	if(filename == NULL)
+	if(!filename)
 		return -1;
 #ifdef W_OK
 	if(access((char *)filename, W_OK)) {
@@ -2227,7 +2227,7 @@ void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * 
 	xmlXPathObject * list;
 	if(!doc)
 		return;
-	if(filename == NULL)
+	if(!filename)
 		return;
 	if(!input)
 		return;

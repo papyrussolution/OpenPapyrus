@@ -7,7 +7,7 @@
 #ifndef ABSL_TYPES_BAD_OPTIONAL_ACCESS_H_
 #define ABSL_TYPES_BAD_OPTIONAL_ACCESS_H_
 
-#include <stdexcept>
+//#include <stdexcept>
 #include "absl/base/config.h"
 
 #ifdef ABSL_USES_STD_OPTIONAL

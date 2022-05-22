@@ -420,7 +420,7 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNode * cur)
 	 */
 	base = xmlNodeGetBase(ctxt->doc, cur);
 	URI = (base == NULL) ? xmlBuildURI(href, ctxt->doc->URL) : xmlBuildURI(href, base);
-	if(URI == NULL) {
+	if(!URI) {
 		/*
 		 * Some escaping may be needed
 		 */
@@ -433,7 +433,7 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNode * cur)
 	SAlloc::F(parse);
 	SAlloc::F(href);
 	SAlloc::F(base);
-	if(URI == NULL) {
+	if(!URI) {
 		xmlXIncludeErr(ctxt, cur, XML_XINCLUDE_HREF_URI, "failed build URL\n", 0);
 		return -1;
 	}
@@ -679,7 +679,7 @@ static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDoc * targe
 	while(cur) {
 		res = xmlXIncludeCopyNode(ctxt, target, source, cur);
 		if(res != NULL) {
-			if(result == NULL) {
+			if(!result) {
 				result = last = res;
 			}
 			else {
@@ -1778,7 +1778,7 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 	 */
 	base = xmlNodeGetBase(ctxt->doc, cur);
 	URI = xmlBuildURI(href, base ? base : ctxt->doc->URL);
-	if(URI == NULL) {
+	if(!URI) {
 		/*
 		 * Some escaping may be needed
 		 */
@@ -1788,7 +1788,7 @@ static int xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, int nr)
 		SAlloc::F(escbase);
 		SAlloc::F(eschref);
 	}
-	if(URI == NULL) {
+	if(!URI) {
 		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "failed build URL\n", 0);
 		SAlloc::F(parse);
 		SAlloc::F(href);

@@ -299,7 +299,7 @@ void RemoteConnection::send_message(char type, const string &message,
 			}
 			throw Xapian::NetworkError(POLLSELECT " failed during write",
 				  context, errno);
-# undef POLLSELECT
+#undef POLLSELECT
 		}
 
 		if(result == 0)
@@ -450,7 +450,7 @@ void RemoteConnection::send_file(char type, int fd, double end_time)
 			}
 			throw Xapian::NetworkError(POLLSELECT " failed during write",
 				  context, errno);
-# undef POLLSELECT
+#undef POLLSELECT
 		}
 
 		if(result == 0)

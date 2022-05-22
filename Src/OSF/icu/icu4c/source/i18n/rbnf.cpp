@@ -932,7 +932,7 @@ bool RuleBasedNumberFormat::operator == (const Format& other) const
 			if(p == NULL) {
 				return q == NULL;
 			}
-			else if(q == NULL) {
+			else if(!q) {
 				return false;
 			}
 			while(*p && *q && (**p == **q)) {

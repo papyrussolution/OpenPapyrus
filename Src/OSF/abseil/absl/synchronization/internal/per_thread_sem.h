@@ -18,7 +18,7 @@
 #ifndef ABSL_SYNCHRONIZATION_INTERNAL_PER_THREAD_SEM_H_
 #define ABSL_SYNCHRONIZATION_INTERNAL_PER_THREAD_SEM_H_
 
-#include <atomic>
+//#include <atomic>
 #include "absl/base/internal/thread_identity.h"
 #include "absl/synchronization/internal/create_thread_identity.h"
 #include "absl/synchronization/internal/kernel_timeout.h"

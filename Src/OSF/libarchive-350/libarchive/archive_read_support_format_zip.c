@@ -955,7 +955,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 	if((zip_entry->mode & AE_IFMT) != AE_IFDIR) {
 		int has_slash;
 		wp = archive_entry_pathname_w(entry);
-		if(wp != NULL) {
+		if(wp) {
 			len = wcslen(wp);
 			has_slash = len > 0 && wp[len - 1] == L'/';
 		}
@@ -977,7 +977,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 	/* Make sure directories end in '/' */
 	if((zip_entry->mode & AE_IFMT) == AE_IFDIR) {
 		wp = archive_entry_pathname_w(entry);
-		if(wp != NULL) {
+		if(wp) {
 			len = wcslen(wp);
 			if(len > 0 && wp[len - 1] != L'/') {
 				struct archive_wstring s;
@@ -2697,17 +2697,13 @@ static int archive_read_format_zip_streamable_bid(struct archive_read * a, int b
 	return 0;
 }
 
-static int archive_read_format_zip_streamable_read_header(struct archive_read * a,
-    struct archive_entry * entry)
+static int archive_read_format_zip_streamable_read_header(struct archive_read * a, struct archive_entry * entry)
 {
 	struct zip * zip;
-
 	a->archive.archive_format = ARCHIVE_FORMAT_ZIP;
 	if(a->archive.archive_format_name == NULL)
 		a->archive.archive_format_name = "ZIP";
-
 	zip = (struct zip *)(a->format->data);
-
 	/*
 	 * It should be sufficient to call archive_read_next_header() for
 	 * a reader to determine if an entry is encrypted or not. If the
@@ -2715,15 +2711,13 @@ static int archive_read_format_zip_streamable_read_header(struct archive_read * 
 	 * archive_read_data(), so be it. We'll do the same check there
 	 * as well.
 	 */
-	if(zip->has_encrypted_entries ==
-	    ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW)
+	if(zip->has_encrypted_entries == ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW)
 		zip->has_encrypted_entries = 0;
-
 	/* Make sure we have a zip_entry structure to use. */
 	if(zip->zip_entries == NULL) {
 		zip->zip_entries = static_cast<struct zip_entry *>(SAlloc::M(sizeof(struct zip_entry)));
 		if(zip->zip_entries == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -3108,7 +3102,7 @@ static const char * rsrc_basename(const char * name, size_t name_length)
 	r = s = name;
 	for(;;) {
 		s = static_cast<const char *>(memchr(s, '/', name_length - (s - name)));
-		if(s == NULL)
+		if(!s)
 			break;
 		r = ++s;
 	}
@@ -3124,7 +3118,7 @@ static void expose_parent_dirs(struct zip * zip, const char * name, size_t name_
 	archive_strncpy(&str, name, name_length);
 	for(;;) {
 		s = strrchr(str.s, '/');
-		if(s == NULL)
+		if(!s)
 			break;
 		*s = '\0';
 		/* Transfer the parent directory from zip->tree_rsrc RB

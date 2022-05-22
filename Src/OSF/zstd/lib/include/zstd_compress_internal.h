@@ -226,9 +226,9 @@ struct ZSTD_matchState_t {
 	uint32 rowHashLog; /* For row-based matchfinder: Hashlog based on nb of rows in the hashTable.*/
 	uint16* tagTable; /* For row-based matchFinder: A row-based table containing the hashes and head index. */
 	uint32 hashCache[ZSTD_ROW_HASH_CACHE_SIZE]; /* For row-based matchFinder: a cache of hashes to improve speed */
-	uint32* hashTable;
-	uint32* hashTable3;
-	uint32* chainTable;
+	uint32 * hashTable;
+	uint32 * hashTable3;
+	uint32 * chainTable;
 	uint32 forceNonContiguous; /* Non-zero if we should force non-contiguous load for the next window update. */
 	int dedicatedDictSearch; /* Indicates whether this matchState is using the  dedicated dictionary search structure. */
 	optState_t opt;     /* optimal parser state */
@@ -376,7 +376,7 @@ struct alignas(8) ZSTD_CCtx_s { // @sobolev alignas(8)
 	size_t maxNbLdmSequences;
 	rawSeqStore_t externSeqStore; /* Mutable reference to external sequences */
 	ZSTD_blockState_t blockState;
-	uint32* entropyWorkspace; /* entropy workspace of ENTROPY_WORKSPACE_SIZE bytes */
+	uint32 * entropyWorkspace; /* entropy workspace of ENTROPY_WORKSPACE_SIZE bytes */
 	ZSTD_buffered_policy_e bufferedPolicy; /* Whether we are streaming or not */
 	/* streaming */
 	char*  inBuff;
@@ -526,7 +526,7 @@ MEM_STATIC int ZSTD_literalsCompressionIsDisabled(const ZSTD_CCtx_params* cctxPa
 		    return 1;
 		default:
 		    assert(0 /* impossible: pre-validated */);
-		    ZSTD_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case ZSTD_ps_auto:
 		    return (cctxParams->cParams.strategy == ZSTD_fast) && (cctxParams->cParams.targetLength > 0);
 	}
@@ -992,7 +992,7 @@ static uint64 ZSTD_rollingHash_append(uint64 hash, const void * buf, size_t size
  * and the dictionary is below them.
  * forceWindow and dictMatchState are therefore incompatible.
  */
-/*MEM_STATIC*/inline void ZSTD_window_enforceMaxDist(ZSTD_window_t* window, const void* blockEnd, uint32 maxDist, uint32*  loadedDictEndPtr, const ZSTD_matchState_t** dictMatchStatePtr)
+/*MEM_STATIC*/inline void ZSTD_window_enforceMaxDist(ZSTD_window_t* window, const void* blockEnd, uint32 maxDist, uint32 *  loadedDictEndPtr, const ZSTD_matchState_t** dictMatchStatePtr)
 {
 	const uint32 blockEndIdx = (uint32)((BYTE const*)blockEnd - window->base);
 	const uint32 loadedDictEnd = (loadedDictEndPtr != NULL) ? *loadedDictEndPtr : 0;
@@ -1029,7 +1029,7 @@ static uint64 ZSTD_rollingHash_append(uint64 hash, const void * buf, size_t size
  * assumption : loadedDictEndPtr and dictMatchStatePtr are valid (non NULL)
  *              loadedDictEnd uses same referential as window->base
  *              maxDist is the window size */
-/*MEM_STATIC*/inline void ZSTD_checkDictValidity(const ZSTD_window_t* window, const void* blockEnd, uint32 maxDist, uint32*  loadedDictEndPtr, const ZSTD_matchState_t** dictMatchStatePtr)
+/*MEM_STATIC*/inline void ZSTD_checkDictValidity(const ZSTD_window_t* window, const void* blockEnd, uint32 maxDist, uint32 *  loadedDictEndPtr, const ZSTD_matchState_t** dictMatchStatePtr)
 {
 	assert(loadedDictEndPtr != NULL);
 	assert(dictMatchStatePtr != NULL);
@@ -1158,7 +1158,7 @@ MEM_STATIC double ZSTD_fWeight(uint32 rawStat)
 
 /* display a table content,
  * listing each element, its frequency, and its predicted bit cost */
-MEM_STATIC void ZSTD_debugTable(const uint32* table, uint32 max)
+MEM_STATIC void ZSTD_debugTable(const uint32 * table, uint32 max)
 {
 	uint u, sum;
 	for(u = 0, sum = 0; u<=max; u++) 

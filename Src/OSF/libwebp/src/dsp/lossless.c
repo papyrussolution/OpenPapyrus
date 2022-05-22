@@ -323,9 +323,7 @@ static void ColorSpaceInverseTransform_C(const VP8LTransform* const transform, i
 	const int remaining_width = width - safe_width;
 	const int tiles_per_row = VP8LSubSampleSize(width, transform->bits_);
 	int y = y_start;
-	const uint32_t* pred_row =
-	    transform->data_ + (y >> transform->bits_) * tiles_per_row;
-
+	const uint32_t* pred_row = transform->data_ + (y >> transform->bits_) * tiles_per_row;
 	while(y < y_end) {
 		const uint32_t* pred = pred_row;
 		VP8LMultipliers m = { 0, 0, 0 };
@@ -352,10 +350,8 @@ static void ColorSpaceInverseTransform_C(const VP8LTransform* const transform, i
 // We define two methods for ARGB data (uint32_t) and alpha-only data (uint8).
 #define COLOR_INDEX_INVERSE(FUNC_NAME, F_NAME, STATIC_DECL, TYPE, BIT_SUFFIX,  GET_INDEX, GET_VALUE) \
 	static void F_NAME(const TYPE* src, const uint32_t* const color_map, TYPE* dst, int y_start, int y_end, int width) { \
-		int y;                                                                       \
-		for(y = y_start; y < y_end; ++y) {                                          \
-			int x;                                                                     \
-			for(x = 0; x < width; ++x) {                                              \
+		for(int y = y_start; y < y_end; ++y) {                                         \
+			for(int x = 0; x < width; ++x) {                                             \
 				*dst++ = GET_VALUE(color_map[GET_INDEX(*src++)]);                        \
 			}                                                                          \
 		}                                                                            \
@@ -434,10 +430,9 @@ void VP8LInverseTransform(const VP8LTransform* const transform,
 		    break;
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Color space conversion.
-
+//
 static int is_big_endian() 
 {
 	static const union {
@@ -642,7 +637,7 @@ WEBP_DSP_INIT_FUNC(VP8LDspInit) {
 	VP8LMapColor8b = MapAlpha_C;
 
 	// If defined, use CPUInfo() to overwrite some pointers with faster versions.
-	if(VP8GetCPUInfo != NULL) {
+	if(VP8GetCPUInfo) {
 #if defined(WEBP_HAVE_SSE2)
 		if(VP8GetCPUInfo(kSSE2)) {
 			VP8LDspInitSSE2();
@@ -664,14 +659,11 @@ WEBP_DSP_INIT_FUNC(VP8LDspInit) {
 		}
 #endif
 	}
-
 #if defined(WEBP_HAVE_NEON)
-	if(WEBP_NEON_OMIT_C_CODE ||
-	    (VP8GetCPUInfo != NULL && VP8GetCPUInfo(kNEON))) {
+	if(WEBP_NEON_OMIT_C_CODE || (VP8GetCPUInfo && VP8GetCPUInfo(kNEON))) {
 		VP8LDspInitNEON();
 	}
 #endif
-
 	assert(VP8LAddGreenToBlueAndRed != NULL);
 	assert(VP8LTransformColorInverse != NULL);
 	assert(VP8LConvertBGRAToRGBA != NULL);

@@ -240,28 +240,22 @@ public:
 		 * @internal
 		 */
 		UnicodeString toString() const;
-
 		/**
 		 * The object's altitude above the horizon, in radians.
 		 * @internal
 		 */
 		double altitude;
-
 		/**
 		 * The object's direction, in radians clockwise from north.
 		 * @internal
 		 */
 		double azimuth;
 	};
-
 public:
-	//-------------------------------------------------------------------------
+	//
 	// Assorted private data used for conversions
-	//-------------------------------------------------------------------------
-
-	// My own copies of these so compilers are more likely to optimize them away
-	static const double PI;
-
+	//
+	static const double PI; // My own copies of these so compilers are more likely to optimize them away
 	/**
 	 * The average number of solar days from one new moon to the next.  This is the time
 	 * it takes for the moon to return the same ecliptic longitude as the sun.
@@ -274,11 +268,9 @@ public:
 	 * @deprecated ICU 2.4. This class may be removed or modified.
 	 */
 	static const double SYNODIC_MONTH;
-
-	//-------------------------------------------------------------------------
+	//
 	// Constructors
-	//-------------------------------------------------------------------------
-
+	//
 	/**
 	 * Construct a new <code>CalendarAstronomer</code> object that is initialized to
 	 * the current date and time.
@@ -314,11 +306,9 @@ public:
 	 * @internal
 	 */
 	~CalendarAstronomer();
-
-	//-------------------------------------------------------------------------
+	//
 	// Time and date getters and setters
-	//-------------------------------------------------------------------------
-
+	//
 	/**
 	 * Set the current date and time of this <code>CalendarAstronomer</code> object.  All
 	 * astronomical calculations are performed based on this time setting.
@@ -455,11 +445,9 @@ public:
 	 * @internal
 	 */
 	Horizon& eclipticToHorizon(Horizon& result, double eclipLong);
-
-	//-------------------------------------------------------------------------
+	//
 	// The Sun
-	//-------------------------------------------------------------------------
-
+	//
 	/**
 	 * The longitude of the sun at the time specified by this object.
 	 * The longitude is measured in radians along the ecliptic
@@ -539,11 +527,9 @@ public:
 	 * @internal
 	 */
 	UDate getSunRiseSet(bool rise);
-
-	//-------------------------------------------------------------------------
+	//
 	// The Moon
-	//-------------------------------------------------------------------------
-
+	//
 	/**
 	 * The position of the moon at the time set on this
 	 * object, in equatorial coordinates.
@@ -639,11 +625,9 @@ public:
 	 * @internal
 	 */
 	UDate getMoonRiseSet(bool rise);
-
-	//-------------------------------------------------------------------------
+	//
 	// Interpolation methods for finding the time at which a given event occurs
-	//-------------------------------------------------------------------------
-
+	//
 	// private
 	class AngleFunc : public UMemory {
 public:
@@ -653,8 +637,7 @@ public:
 
 	friend class AngleFunc;
 
-	UDate timeOfAngle(AngleFunc& func, double desired,
-	    double periodDays, double epsilon, bool next);
+	UDate timeOfAngle(AngleFunc& func, double desired, double periodDays, double epsilon, bool next);
 
 	class CoordFunc : public UMemory {
 public:
@@ -664,13 +647,10 @@ public:
 
 	friend class CoordFunc;
 
-	double riseOrSet(CoordFunc& func, bool rise,
-	    double diameter, double refraction,
-	    double epsilon);
-
-	//-------------------------------------------------------------------------
+	double riseOrSet(CoordFunc& func, bool rise, double diameter, double refraction, double epsilon);
+	//
 	// Other utility methods
-	//-------------------------------------------------------------------------
+	//
 private:
 
 	/**
@@ -682,10 +662,9 @@ private:
 	 *          measured in radians.
 	 */
 	double eclipticObliquity();
-
-	//-------------------------------------------------------------------------
+	//
 	// Private data
-	//-------------------------------------------------------------------------
+	//
 private:
 	/**
 	 * Current time in milliseconds since 1/1/1970 AD
@@ -699,7 +678,6 @@ private:
 	double fLongitude;
 	double fLatitude;
 	double fGmtOffset;
-
 	//
 	// The following fields are used to cache calculated results for improved
 	// performance.  These values all depend on the current time setting
@@ -716,12 +694,10 @@ private:
 	double eclipObliquity;
 	double siderealT0;
 	double siderealTime;
-
 	void clearCache();
 
 	Equatorial moonPosition;
 	bool moonPositionSet;
-
 	/**
 	 * @internal
 	 */

@@ -886,7 +886,7 @@ int ssh_mkdirs(const char * pathname, mode_t mode)
 		/* If a directory was missing, try to create the parent */
 		if(errno == ENOENT) {
 			parent = ssh_dirname(pathname);
-			if(parent == NULL) {
+			if(!parent) {
 				errno = ENOMEM;
 				return -1;
 			}
@@ -930,7 +930,7 @@ char * ssh_path_expand_tilde(const char * d)
 	d++;
 	/* handle ~user/path */
 	p = strchr(d, '/');
-	if(p != NULL && p > d) {
+	if(p && p > d) {
 #ifdef _WIN32
 		return sstrdup(d);
 #else
@@ -955,12 +955,12 @@ char * ssh_path_expand_tilde(const char * d)
 		p = (char *)d;
 		h = ssh_get_user_home_dir();
 	}
-	if(h == NULL) {
+	if(!h) {
 		return NULL;
 	}
 	lh = strlen(h);
 	r = (char *)SAlloc::M(ld + lh + 1);
-	if(r == NULL) {
+	if(!r) {
 		ZFREE(h);
 		return NULL;
 	}
@@ -991,7 +991,7 @@ char * ssh_path_expand_escape(ssh_session session, const char * s) {
 	size_t i, l;
 
 	r = ssh_path_expand_tilde(s);
-	if(r == NULL) {
+	if(!r) {
 		ssh_set_error_oom(session);
 		return NULL;
 	}

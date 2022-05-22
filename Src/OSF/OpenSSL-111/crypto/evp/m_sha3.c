@@ -7,8 +7,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
 #include "evp_locl.h"
 
 size_t SHA3_absorb(uint64_t A[5][5], const uchar * inp, size_t len, size_t r);

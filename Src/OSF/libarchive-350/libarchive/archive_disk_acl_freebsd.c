@@ -545,7 +545,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 		return ARCHIVE_OK;
 	}
 
-	if(acl != NULL) {
+	if(acl) {
 		r = translate_acl(a, entry, acl, ARCHIVE_ENTRY_ACL_TYPE_NFS4);
 		acl_free(acl);
 		acl = NULL;
@@ -571,7 +571,6 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 #endif
 	else
 		acl = acl_get_file(accpath, ACL_TYPE_ACCESS);
-
 #if HAVE_ACL_IS_TRIVIAL_NP
 	/* Ignore "trivial" ACLs that just mirror the file mode. */
 	if(acl != NULL && acl_is_trivial_np(acl, &r) == 0 && r == 1) {
@@ -579,8 +578,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 		acl = NULL;
 	}
 #endif
-
-	if(acl != NULL) {
+	if(acl) {
 		r = translate_acl(a, entry, acl, ARCHIVE_ENTRY_ACL_TYPE_ACCESS);
 		acl_free(acl);
 		acl = NULL;
@@ -589,14 +587,13 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 			return r;
 		}
 	}
-
 	/* Only directories can have default ACLs. */
 	if(S_ISDIR(archive_entry_mode(entry))) {
 		if(*fd >= 0)
 			acl = acl_get_fd_np(*fd, ACL_TYPE_DEFAULT);
 		else
 			acl = acl_get_file(accpath, ACL_TYPE_DEFAULT);
-		if(acl != NULL) {
+		if(acl) {
 			r = translate_acl(a, entry, acl,
 				ARCHIVE_ENTRY_ACL_TYPE_DEFAULT);
 			acl_free(acl);

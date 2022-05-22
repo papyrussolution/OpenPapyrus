@@ -419,14 +419,13 @@ __declspec(dllimport) void mi_allocator_done(void);
 }
 #endif
 #else
-static bool mi_allocator_init(const char ** message) {
-	if(message != NULL) *message = NULL;
+static bool mi_allocator_init(const char ** message) 
+{
+	ASSIGN_PTR(message, NULL);
 	return true;
 }
 
-static void mi_allocator_done(void) {
-	// nothing to do
-}
+static void mi_allocator_done(void) {} // nothing to do
 
 #endif
 
@@ -435,8 +434,7 @@ static void mi_process_load(void)
 {
 	mi_heap_main_init();
   #if defined(MI_TLS_RECURSE_GUARD)
-	volatile mi_heap_t* dummy = _mi_heap_default; // access TLS to allocate it before setting tls_initialized to
-	                                              // true;
+	volatile mi_heap_t* dummy = _mi_heap_default; // access TLS to allocate it before setting tls_initialized to true;
 	UNUSED(dummy);
   #endif
 	os_preloading = false;

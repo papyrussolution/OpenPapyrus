@@ -8,8 +8,6 @@
 //  This file has been put into the public domain.
 //  You can do whatever you want with this file.
 //
-//
-
 #ifndef MYTHREAD_H
 #define MYTHREAD_H
 
@@ -20,11 +18,9 @@
 	#define MYTHREAD_ENABLED 1
 #endif
 #ifdef MYTHREAD_ENABLED
-
-////////////////////////////////////////
+//
 // Shared between all threading types //
-////////////////////////////////////////
-
+//
 // Locks a mutex for a duration of a block.
 //
 // Perform mythread_mutex_lock(&mutex) in the beginning of a block
@@ -59,11 +55,9 @@
 #endif
 
 #if !defined(MYTHREAD_ENABLED)
-
-//////////////////
-// No threading //
-//////////////////
-
+//
+// No threading
+//
 // Calls the given function once. This isn't thread safe.
 #define mythread_once(func) \
 	do { \

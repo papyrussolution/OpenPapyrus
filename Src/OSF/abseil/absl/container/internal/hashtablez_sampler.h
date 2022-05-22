@@ -30,10 +30,6 @@
 #ifndef ABSL_CONTAINER_INTERNAL_HASHTABLEZ_SAMPLER_H_
 #define ABSL_CONTAINER_INTERNAL_HASHTABLEZ_SAMPLER_H_
 
-//#include <atomic>
-//#include <functional>
-//#include <memory>
-//#include <vector>
 #include "absl/base/internal/per_thread_tls.h"
 #include "absl/base/optimization.h"
 #include "absl/container/internal/have_sse.h"

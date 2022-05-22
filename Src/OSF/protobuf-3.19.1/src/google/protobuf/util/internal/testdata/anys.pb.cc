@@ -17,8 +17,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace proto_util_converter {
 namespace testing {
-constexpr AnyTestCases::AnyTestCases(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr AnyTestCases::AnyTestCases(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : empty_any_(nullptr)
   , type_only_any_(nullptr)
   , wrapper_any_(nullptr)
@@ -51,8 +50,7 @@ struct AnyTestCasesDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AnyTestCasesDefaultTypeInternal _AnyTestCases_default_instance_;
-constexpr AnyWrapper::AnyWrapper(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr AnyWrapper::AnyWrapper(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : any_(nullptr){}
 struct AnyWrapperDefaultTypeInternal {
 	constexpr AnyWrapperDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -62,8 +60,7 @@ struct AnyWrapperDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AnyWrapperDefaultTypeInternal _AnyWrapper_default_instance_;
-constexpr Imports::Imports(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Imports::Imports(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : dbl_(nullptr)
   , struct__(nullptr)
   , timestamp_(nullptr)
@@ -79,8 +76,7 @@ struct ImportsDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ImportsDefaultTypeInternal _Imports_default_instance_;
-constexpr Data_MapDataEntry_DoNotUse::Data_MapDataEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr Data_MapDataEntry_DoNotUse::Data_MapDataEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct Data_MapDataEntry_DoNotUseDefaultTypeInternal {
 	constexpr Data_MapDataEntry_DoNotUseDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~Data_MapDataEntry_DoNotUseDefaultTypeInternal() {}
@@ -89,8 +85,7 @@ struct Data_MapDataEntry_DoNotUseDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT Data_MapDataEntry_DoNotUseDefaultTypeInternal _Data_MapDataEntry_DoNotUse_default_instance_;
-constexpr Data::Data(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Data::Data(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : msgs_()
   , map_data_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
   , repeated_data_()
@@ -109,8 +104,7 @@ struct DataDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DataDefaultTypeInternal _Data_default_instance_;
-constexpr AnyIn::AnyIn(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr AnyIn::AnyIn(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : something_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , any_(nullptr){}
 struct AnyInDefaultTypeInternal {
@@ -121,8 +115,7 @@ struct AnyInDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AnyInDefaultTypeInternal _AnyIn_default_instance_;
-constexpr AnyOut::AnyOut(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr AnyOut::AnyOut(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : any_(nullptr){}
 struct AnyOutDefaultTypeInternal {
 	constexpr AnyOutDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -132,8 +125,7 @@ struct AnyOutDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AnyOutDefaultTypeInternal _AnyOut_default_instance_;
-constexpr AnyM::AnyM(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr AnyM::AnyM(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : foo_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct AnyMDefaultTypeInternal {
 	constexpr AnyMDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -405,102 +397,30 @@ class AnyTestCases::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Any& top_level_any_unordered(const AnyTestCases* msg);
 };
 
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::empty_any(const AnyTestCases* msg) {
-  return *msg->empty_any_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::type_only_any(const AnyTestCases* msg) {
-  return *msg->type_only_any_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::wrapper_any(const AnyTestCases* msg) {
-  return *msg->wrapper_any_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_timestamp_value(const AnyTestCases* msg) {
-  return *msg->any_with_timestamp_value_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_duration_value(const AnyTestCases* msg) {
-  return *msg->any_with_duration_value_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_struct_value(const AnyTestCases* msg) {
-  return *msg->any_with_struct_value_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::recursive_any(const AnyTestCases* msg) {
-  return *msg->recursive_any_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_message_value(const AnyTestCases* msg) {
-  return *msg->any_with_message_value_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_nested_message(const AnyTestCases* msg) {
-  return *msg->any_with_nested_message_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_message_with_wrapper_type(const AnyTestCases* msg) {
-  return *msg->any_with_message_with_wrapper_type_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_message_with_timestamp(const AnyTestCases* msg) {
-  return *msg->any_with_message_with_timestamp_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_message_containing_map(const AnyTestCases* msg) {
-  return *msg->any_with_message_containing_map_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_message_containing_struct(const AnyTestCases* msg) {
-  return *msg->any_with_message_containing_struct_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_message_containing_repeated_message(const AnyTestCases* msg) {
-  return *msg->any_with_message_containing_repeated_message_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::recursive_any_with_type_field_at_end(const AnyTestCases* msg) {
-  return *msg->recursive_any_with_type_field_at_end_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::repeated_any(const AnyTestCases* msg) {
-  return *msg->repeated_any_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::empty_any_with_null_type_url(const AnyTestCases* msg) {
-  return *msg->empty_any_with_null_type_url_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_empty(const AnyTestCases* msg) {
-  return *msg->any_with_empty_;
-}
-const ::proto_util_converter::testing::AnyWrapper&
-AnyTestCases::_Internal::any_with_default_timestamp(const AnyTestCases* msg) {
-  return *msg->any_with_default_timestamp_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Any&
-AnyTestCases::_Internal::top_level_any(const AnyTestCases* msg) {
-  return *msg->top_level_any_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Any&
-AnyTestCases::_Internal::top_level_any_with_type_field_at_end(const AnyTestCases* msg) {
-  return *msg->top_level_any_with_type_field_at_end_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Any&
-AnyTestCases::_Internal::top_level_any_with_pivot_one(const AnyTestCases* msg) {
-  return *msg->top_level_any_with_pivot_one_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Any&
-AnyTestCases::_Internal::top_level_any_with_pivot_two(const AnyTestCases* msg) {
-  return *msg->top_level_any_with_pivot_two_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Any&
-AnyTestCases::_Internal::top_level_any_unordered(const AnyTestCases* msg) {
-  return *msg->top_level_any_unordered_;
-}
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::empty_any(const AnyTestCases* msg) { return *msg->empty_any_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::type_only_any(const AnyTestCases* msg) { return *msg->type_only_any_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::wrapper_any(const AnyTestCases* msg) { return *msg->wrapper_any_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_timestamp_value(const AnyTestCases* msg) { return *msg->any_with_timestamp_value_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_duration_value(const AnyTestCases* msg) { return *msg->any_with_duration_value_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_struct_value(const AnyTestCases* msg) { return *msg->any_with_struct_value_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::recursive_any(const AnyTestCases* msg) { return *msg->recursive_any_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_message_value(const AnyTestCases* msg) { return *msg->any_with_message_value_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_nested_message(const AnyTestCases* msg) { return *msg->any_with_nested_message_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_message_with_wrapper_type(const AnyTestCases* msg) { return *msg->any_with_message_with_wrapper_type_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_message_with_timestamp(const AnyTestCases* msg) { return *msg->any_with_message_with_timestamp_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_message_containing_map(const AnyTestCases* msg) { return *msg->any_with_message_containing_map_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_message_containing_struct(const AnyTestCases* msg) { return *msg->any_with_message_containing_struct_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_message_containing_repeated_message(const AnyTestCases* msg) { return *msg->any_with_message_containing_repeated_message_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::recursive_any_with_type_field_at_end(const AnyTestCases* msg) { return *msg->recursive_any_with_type_field_at_end_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::repeated_any(const AnyTestCases* msg) { return *msg->repeated_any_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::empty_any_with_null_type_url(const AnyTestCases* msg) { return *msg->empty_any_with_null_type_url_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_empty(const AnyTestCases* msg) { return *msg->any_with_empty_; }
+const ::proto_util_converter::testing::AnyWrapper & AnyTestCases::_Internal::any_with_default_timestamp(const AnyTestCases* msg) { return *msg->any_with_default_timestamp_; }
+const ::PROTOBUF_NAMESPACE_ID::Any & AnyTestCases::_Internal::top_level_any(const AnyTestCases* msg) { return *msg->top_level_any_; }
+const ::PROTOBUF_NAMESPACE_ID::Any & AnyTestCases::_Internal::top_level_any_with_type_field_at_end(const AnyTestCases* msg) { return *msg->top_level_any_with_type_field_at_end_; }
+const ::PROTOBUF_NAMESPACE_ID::Any & AnyTestCases::_Internal::top_level_any_with_pivot_one(const AnyTestCases* msg) { return *msg->top_level_any_with_pivot_one_; }
+const ::PROTOBUF_NAMESPACE_ID::Any & AnyTestCases::_Internal::top_level_any_with_pivot_two(const AnyTestCases* msg) { return *msg->top_level_any_with_pivot_two_; }
+const ::PROTOBUF_NAMESPACE_ID::Any & AnyTestCases::_Internal::top_level_any_unordered(const AnyTestCases* msg) { return *msg->top_level_any_unordered_; }
 void AnyTestCases::clear_top_level_any() {
   if(GetArenaForAllocation() == nullptr && top_level_any_ != nullptr) {
     delete top_level_any_;
@@ -543,134 +463,35 @@ AnyTestCases::AnyTestCases(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 AnyTestCases::AnyTestCases(const AnyTestCases& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_empty_any()) {
-    empty_any_ = new ::proto_util_converter::testing::AnyWrapper(*from.empty_any_);
-  } else {
-    empty_any_ = nullptr;
-  }
-  if(from._internal_has_type_only_any()) {
-    type_only_any_ = new ::proto_util_converter::testing::AnyWrapper(*from.type_only_any_);
-  } else {
-    type_only_any_ = nullptr;
-  }
-  if(from._internal_has_wrapper_any()) {
-    wrapper_any_ = new ::proto_util_converter::testing::AnyWrapper(*from.wrapper_any_);
-  } else {
-    wrapper_any_ = nullptr;
-  }
-  if(from._internal_has_any_with_timestamp_value()) {
-    any_with_timestamp_value_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_timestamp_value_);
-  } else {
-    any_with_timestamp_value_ = nullptr;
-  }
-  if(from._internal_has_any_with_duration_value()) {
-    any_with_duration_value_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_duration_value_);
-  } else {
-    any_with_duration_value_ = nullptr;
-  }
-  if(from._internal_has_any_with_struct_value()) {
-    any_with_struct_value_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_struct_value_);
-  } else {
-    any_with_struct_value_ = nullptr;
-  }
-  if(from._internal_has_recursive_any()) {
-    recursive_any_ = new ::proto_util_converter::testing::AnyWrapper(*from.recursive_any_);
-  } else {
-    recursive_any_ = nullptr;
-  }
-  if(from._internal_has_any_with_message_value()) {
-    any_with_message_value_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_value_);
-  } else {
-    any_with_message_value_ = nullptr;
-  }
-  if(from._internal_has_any_with_nested_message()) {
-    any_with_nested_message_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_nested_message_);
-  } else {
-    any_with_nested_message_ = nullptr;
-  }
-  if(from._internal_has_any_with_message_with_wrapper_type()) {
-    any_with_message_with_wrapper_type_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_with_wrapper_type_);
-  } else {
-    any_with_message_with_wrapper_type_ = nullptr;
-  }
-  if(from._internal_has_any_with_message_with_timestamp()) {
-    any_with_message_with_timestamp_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_with_timestamp_);
-  } else {
-    any_with_message_with_timestamp_ = nullptr;
-  }
-  if(from._internal_has_any_with_message_containing_map()) {
-    any_with_message_containing_map_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_containing_map_);
-  } else {
-    any_with_message_containing_map_ = nullptr;
-  }
-  if(from._internal_has_any_with_message_containing_struct()) {
-    any_with_message_containing_struct_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_containing_struct_);
-  } else {
-    any_with_message_containing_struct_ = nullptr;
-  }
-  if(from._internal_has_any_with_message_containing_repeated_message()) {
-    any_with_message_containing_repeated_message_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_containing_repeated_message_);
-  } else {
-    any_with_message_containing_repeated_message_ = nullptr;
-  }
-  if(from._internal_has_recursive_any_with_type_field_at_end()) {
-    recursive_any_with_type_field_at_end_ = new ::proto_util_converter::testing::AnyWrapper(*from.recursive_any_with_type_field_at_end_);
-  } else {
-    recursive_any_with_type_field_at_end_ = nullptr;
-  }
-  if(from._internal_has_repeated_any()) {
-    repeated_any_ = new ::proto_util_converter::testing::AnyWrapper(*from.repeated_any_);
-  } else {
-    repeated_any_ = nullptr;
-  }
-  if(from._internal_has_empty_any_with_null_type_url()) {
-    empty_any_with_null_type_url_ = new ::proto_util_converter::testing::AnyWrapper(*from.empty_any_with_null_type_url_);
-  } else {
-    empty_any_with_null_type_url_ = nullptr;
-  }
-  if(from._internal_has_any_with_empty()) {
-    any_with_empty_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_empty_);
-  } else {
-    any_with_empty_ = nullptr;
-  }
-  if(from._internal_has_any_with_default_timestamp()) {
-    any_with_default_timestamp_ = new ::proto_util_converter::testing::AnyWrapper(*from.any_with_default_timestamp_);
-  } else {
-    any_with_default_timestamp_ = nullptr;
-  }
-  if(from._internal_has_top_level_any()) {
-    top_level_any_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.top_level_any_);
-  } else {
-    top_level_any_ = nullptr;
-  }
-  if(from._internal_has_top_level_any_with_type_field_at_end()) {
-    top_level_any_with_type_field_at_end_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.top_level_any_with_type_field_at_end_);
-  } else {
-    top_level_any_with_type_field_at_end_ = nullptr;
-  }
-  if(from._internal_has_top_level_any_with_pivot_one()) {
-    top_level_any_with_pivot_one_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.top_level_any_with_pivot_one_);
-  } else {
-    top_level_any_with_pivot_one_ = nullptr;
-  }
-  if(from._internal_has_top_level_any_with_pivot_two()) {
-    top_level_any_with_pivot_two_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.top_level_any_with_pivot_two_);
-  } else {
-    top_level_any_with_pivot_two_ = nullptr;
-  }
-  if(from._internal_has_top_level_any_unordered()) {
-    top_level_any_unordered_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.top_level_any_unordered_);
-  } else {
-    top_level_any_unordered_ = nullptr;
-  }
+  empty_any_ = from._internal_has_empty_any() ? new ::proto_util_converter::testing::AnyWrapper(*from.empty_any_) : nullptr;
+  type_only_any_ = from._internal_has_type_only_any() ? new ::proto_util_converter::testing::AnyWrapper(*from.type_only_any_) : nullptr;
+  wrapper_any_ = from._internal_has_wrapper_any() ? new ::proto_util_converter::testing::AnyWrapper(*from.wrapper_any_) : nullptr;
+  any_with_timestamp_value_ = from._internal_has_any_with_timestamp_value() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_timestamp_value_) : nullptr;
+  any_with_duration_value_ = from._internal_has_any_with_duration_value() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_duration_value_) : nullptr;
+  any_with_struct_value_ = from._internal_has_any_with_struct_value() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_struct_value_) : nullptr;
+  recursive_any_ = from._internal_has_recursive_any() ? new ::proto_util_converter::testing::AnyWrapper(*from.recursive_any_) : nullptr;
+  any_with_message_value_ = from._internal_has_any_with_message_value() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_value_) : nullptr;
+  any_with_nested_message_ = from._internal_has_any_with_nested_message() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_nested_message_) : nullptr;
+  any_with_message_with_wrapper_type_ = from._internal_has_any_with_message_with_wrapper_type() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_with_wrapper_type_) : nullptr;
+  any_with_message_with_timestamp_ = from._internal_has_any_with_message_with_timestamp() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_with_timestamp_) : nullptr;
+  any_with_message_containing_map_ = from._internal_has_any_with_message_containing_map() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_containing_map_) : nullptr;
+  any_with_message_containing_struct_ = from._internal_has_any_with_message_containing_struct() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_containing_struct_) : nullptr;
+  any_with_message_containing_repeated_message_ = from._internal_has_any_with_message_containing_repeated_message() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_message_containing_repeated_message_) : nullptr;
+  recursive_any_with_type_field_at_end_ = from._internal_has_recursive_any_with_type_field_at_end() ? new ::proto_util_converter::testing::AnyWrapper(*from.recursive_any_with_type_field_at_end_) : nullptr;
+  repeated_any_ = from._internal_has_repeated_any() ? new ::proto_util_converter::testing::AnyWrapper(*from.repeated_any_) : nullptr;
+  empty_any_with_null_type_url_ = from._internal_has_empty_any_with_null_type_url() ? new ::proto_util_converter::testing::AnyWrapper(*from.empty_any_with_null_type_url_) : nullptr;
+  any_with_empty_ = from._internal_has_any_with_empty() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_empty_) : nullptr;
+  any_with_default_timestamp_ = from._internal_has_any_with_default_timestamp() ? new ::proto_util_converter::testing::AnyWrapper(*from.any_with_default_timestamp_) : nullptr;
+  top_level_any_ = from._internal_has_top_level_any() ? new ::PROTOBUF_NAMESPACE_ID::Any(*from.top_level_any_) : nullptr;
+  top_level_any_with_type_field_at_end_ = from._internal_has_top_level_any_with_type_field_at_end() ? new ::PROTOBUF_NAMESPACE_ID::Any(*from.top_level_any_with_type_field_at_end_) : nullptr;
+  top_level_any_with_pivot_one_ = from._internal_has_top_level_any_with_pivot_one() ? new ::PROTOBUF_NAMESPACE_ID::Any(*from.top_level_any_with_pivot_one_) : nullptr;
+  top_level_any_with_pivot_two_ = from._internal_has_top_level_any_with_pivot_two() ? new ::PROTOBUF_NAMESPACE_ID::Any(*from.top_level_any_with_pivot_two_) : nullptr;
+  top_level_any_unordered_ = from._internal_has_top_level_any_unordered() ? new ::PROTOBUF_NAMESPACE_ID::Any(*from.top_level_any_unordered_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.AnyTestCases)
 }
 
 inline void AnyTestCases::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&empty_any_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&top_level_any_unordered_) -
-    reinterpret_cast<char*>(&empty_any_)) + sizeof(top_level_any_unordered_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&empty_any_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&top_level_any_unordered_) - reinterpret_cast<char*>(&empty_any_)) + sizeof(top_level_any_unordered_));
 }
 
 AnyTestCases::~AnyTestCases() {
@@ -712,8 +533,7 @@ void AnyTestCases::ArenaDtor(void* object) {
   AnyTestCases* _this = reinterpret_cast< AnyTestCases* >(object);
   (void)_this;
 }
-void AnyTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void AnyTestCases::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void AnyTestCases::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1029,10 +849,7 @@ const char* AnyTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1338,10 +1155,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData AnyTestCases::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*AnyTestCases::GetClassData() const { return &_class_data_; }
 
-void AnyTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<AnyTestCases *>(to)->MergeFrom(
-      static_cast<const AnyTestCases &>(from));
+void AnyTestCases::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<AnyTestCases *>(to)->MergeFrom(static_cast<const AnyTestCases &>(from));
 }
 
 
@@ -1459,10 +1274,7 @@ class AnyWrapper::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Any& any(const AnyWrapper* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Any&
-AnyWrapper::_Internal::any(const AnyWrapper* msg) {
-  return *msg->any_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Any & AnyWrapper::_Internal::any(const AnyWrapper* msg) { return *msg->any_; }
 void AnyWrapper::clear_any() {
   if(GetArenaForAllocation() == nullptr && any_ != nullptr) {
     delete any_;
@@ -1481,11 +1293,7 @@ AnyWrapper::AnyWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 AnyWrapper::AnyWrapper(const AnyWrapper& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_any()) {
-    any_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_);
-  } else {
-    any_ = nullptr;
-  }
+  any_ = from._internal_has_any() ? new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.AnyWrapper)
 }
 
@@ -1509,8 +1317,7 @@ void AnyWrapper::ArenaDtor(void* object) {
   AnyWrapper* _this = reinterpret_cast< AnyWrapper* >(object);
   (void)_this;
 }
-void AnyWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void AnyWrapper::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void AnyWrapper::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1550,10 +1357,7 @@ const char* AnyWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -1606,10 +1410,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData AnyWrapper::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*AnyWrapper::GetClassData() const { return &_class_data_; }
 
-void AnyWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<AnyWrapper *>(to)->MergeFrom(
-      static_cast<const AnyWrapper &>(from));
+void AnyWrapper::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<AnyWrapper *>(to)->MergeFrom(static_cast<const AnyWrapper &>(from));
 }
 
 
@@ -1659,34 +1461,13 @@ class Imports::_Internal {
   static const ::proto_util_converter::testing::Data& data(const Imports* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::DoubleValue&
-Imports::_Internal::dbl(const Imports* msg) {
-  return *msg->dbl_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Struct&
-Imports::_Internal::struct_(const Imports* msg) {
-  return *msg->struct__;
-}
-const ::PROTOBUF_NAMESPACE_ID::Timestamp&
-Imports::_Internal::timestamp(const Imports* msg) {
-  return *msg->timestamp_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Duration&
-Imports::_Internal::duration(const Imports* msg) {
-  return *msg->duration_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Int32Value&
-Imports::_Internal::i32(const Imports* msg) {
-  return *msg->i32_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Empty&
-Imports::_Internal::empty(const Imports* msg) {
-  return *msg->empty_;
-}
-const ::proto_util_converter::testing::Data&
-Imports::_Internal::data(const Imports* msg) {
-  return *msg->data_;
-}
+const ::PROTOBUF_NAMESPACE_ID::DoubleValue & Imports::_Internal::dbl(const Imports* msg) { return *msg->dbl_; }
+const ::PROTOBUF_NAMESPACE_ID::Struct & Imports::_Internal::struct_(const Imports* msg) { return *msg->struct__; }
+const ::PROTOBUF_NAMESPACE_ID::Timestamp & Imports::_Internal::timestamp(const Imports* msg) { return *msg->timestamp_; }
+const ::PROTOBUF_NAMESPACE_ID::Duration & Imports::_Internal::duration(const Imports* msg) { return *msg->duration_; }
+const ::PROTOBUF_NAMESPACE_ID::Int32Value & Imports::_Internal::i32(const Imports* msg) { return *msg->i32_; }
+const ::PROTOBUF_NAMESPACE_ID::Empty & Imports::_Internal::empty(const Imports* msg) { return *msg->empty_; }
+const ::proto_util_converter::testing::Data & Imports::_Internal::data(const Imports* msg) { return *msg->data_; }
 void Imports::clear_dbl() {
   if(GetArenaForAllocation() == nullptr && dbl_ != nullptr) {
     delete dbl_;
@@ -1735,49 +1516,18 @@ Imports::Imports(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 Imports::Imports(const Imports& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_dbl()) {
-    dbl_ = new ::PROTOBUF_NAMESPACE_ID::DoubleValue(*from.dbl_);
-  } else {
-    dbl_ = nullptr;
-  }
-  if(from._internal_has_struct_()) {
-    struct__ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.struct__);
-  } else {
-    struct__ = nullptr;
-  }
-  if(from._internal_has_timestamp()) {
-    timestamp_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.timestamp_);
-  } else {
-    timestamp_ = nullptr;
-  }
-  if(from._internal_has_duration()) {
-    duration_ = new ::PROTOBUF_NAMESPACE_ID::Duration(*from.duration_);
-  } else {
-    duration_ = nullptr;
-  }
-  if(from._internal_has_i32()) {
-    i32_ = new ::PROTOBUF_NAMESPACE_ID::Int32Value(*from.i32_);
-  } else {
-    i32_ = nullptr;
-  }
-  if(from._internal_has_empty()) {
-    empty_ = new ::PROTOBUF_NAMESPACE_ID::Empty(*from.empty_);
-  } else {
-    empty_ = nullptr;
-  }
-  if(from._internal_has_data()) {
-    data_ = new ::proto_util_converter::testing::Data(*from.data_);
-  } else {
-    data_ = nullptr;
-  }
+  dbl_ = from._internal_has_dbl() ? new ::PROTOBUF_NAMESPACE_ID::DoubleValue(*from.dbl_) : nullptr;
+  struct__ = from._internal_has_struct_() ? new ::PROTOBUF_NAMESPACE_ID::Struct(*from.struct__) : nullptr;
+  timestamp_ = from._internal_has_timestamp() ? new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.timestamp_) : nullptr;
+  duration_ = from._internal_has_duration() ? new ::PROTOBUF_NAMESPACE_ID::Duration(*from.duration_) : nullptr;
+  i32_ = from._internal_has_i32() ? new ::PROTOBUF_NAMESPACE_ID::Int32Value(*from.i32_) : nullptr;
+  empty_ = from._internal_has_empty() ? new ::PROTOBUF_NAMESPACE_ID::Empty(*from.empty_) : nullptr;
+  data_ = from._internal_has_data() ? new ::proto_util_converter::testing::Data(*from.data_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.Imports)
 }
 
 inline void Imports::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&dbl_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&data_) -
-    reinterpret_cast<char*>(&dbl_)) + sizeof(data_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&dbl_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&data_) - reinterpret_cast<char*>(&dbl_)) + sizeof(data_));
 }
 
 Imports::~Imports() {
@@ -1802,8 +1552,7 @@ void Imports::ArenaDtor(void* object) {
   Imports* _this = reinterpret_cast< Imports* >(object);
   (void)_this;
 }
-void Imports::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Imports::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Imports::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1915,10 +1664,7 @@ const char* Imports::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2037,10 +1783,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Imports::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Imports::GetClassData() const { return &_class_data_; }
 
-void Imports::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Imports *>(to)->MergeFrom(
-      static_cast<const Imports &>(from));
+void Imports::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Imports *>(to)->MergeFrom(static_cast<const Imports &>(from));
 }
 
 
@@ -2119,22 +1863,10 @@ class Data::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Struct& struct_data(const Data* msg);
 };
 
-const ::proto_util_converter::testing::Data&
-Data::_Internal::nested_data(const Data* msg) {
-  return *msg->nested_data_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Int32Value&
-Data::_Internal::int_wrapper(const Data* msg) {
-  return *msg->int_wrapper_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Timestamp&
-Data::_Internal::time(const Data* msg) {
-  return *msg->time_;
-}
-const ::PROTOBUF_NAMESPACE_ID::Struct&
-Data::_Internal::struct_data(const Data* msg) {
-  return *msg->struct_data_;
-}
+const ::proto_util_converter::testing::Data & Data::_Internal::nested_data(const Data* msg) { return *msg->nested_data_; }
+const ::PROTOBUF_NAMESPACE_ID::Int32Value & Data::_Internal::int_wrapper(const Data* msg) { return *msg->int_wrapper_; }
+const ::PROTOBUF_NAMESPACE_ID::Timestamp & Data::_Internal::time(const Data* msg) { return *msg->time_; }
+const ::PROTOBUF_NAMESPACE_ID::Struct & Data::_Internal::struct_data(const Data* msg) { return *msg->struct_data_; }
 void Data::clear_int_wrapper() {
   if(GetArenaForAllocation() == nullptr && int_wrapper_ != nullptr) {
     delete int_wrapper_;
@@ -2183,26 +1915,10 @@ Data::Data(const Data& from)
   if(!from._internal_str().empty()) {
     str_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_str(), GetArenaForAllocation());
   }
-  if(from._internal_has_nested_data()) {
-    nested_data_ = new ::proto_util_converter::testing::Data(*from.nested_data_);
-  } else {
-    nested_data_ = nullptr;
-  }
-  if(from._internal_has_int_wrapper()) {
-    int_wrapper_ = new ::PROTOBUF_NAMESPACE_ID::Int32Value(*from.int_wrapper_);
-  } else {
-    int_wrapper_ = nullptr;
-  }
-  if(from._internal_has_time()) {
-    time_ = new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.time_);
-  } else {
-    time_ = nullptr;
-  }
-  if(from._internal_has_struct_data()) {
-    struct_data_ = new ::PROTOBUF_NAMESPACE_ID::Struct(*from.struct_data_);
-  } else {
-    struct_data_ = nullptr;
-  }
+  nested_data_ = from._internal_has_nested_data() ? new ::proto_util_converter::testing::Data(*from.nested_data_) : nullptr;
+  int_wrapper_ = from._internal_has_int_wrapper() ? new ::PROTOBUF_NAMESPACE_ID::Int32Value(*from.int_wrapper_) : nullptr;
+  time_ = from._internal_has_time() ? new ::PROTOBUF_NAMESPACE_ID::Timestamp(*from.time_) : nullptr;
+  struct_data_ = from._internal_has_struct_data() ? new ::PROTOBUF_NAMESPACE_ID::Struct(*from.struct_data_) : nullptr;
   attr_ = from.attr_;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.Data)
 }
@@ -2212,10 +1928,7 @@ str_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyI
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   str_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&nested_data_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&attr_) -
-    reinterpret_cast<char*>(&nested_data_)) + sizeof(attr_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&nested_data_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&attr_) - reinterpret_cast<char*>(&nested_data_)) + sizeof(attr_));
 }
 
 Data::~Data() {
@@ -2239,10 +1952,11 @@ void Data::ArenaDtor(void* object) {
   (void)_this;
   _this->map_data_. ~MapField();
 }
-inline void Data::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if(arena != nullptr) {
-    arena->OwnCustomDestructor(this, &Data::ArenaDtor);
-  }
+inline void Data::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena * arena)
+{
+	if(arena != nullptr) {
+		arena->OwnCustomDestructor(this, &Data::ArenaDtor);
+	}
 }
 void Data::SetCachedSize(int size) const {
   _cached_size_.Set(size);
@@ -2397,10 +2111,7 @@ const char* Data::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2544,12 +2255,9 @@ size_t Data::ByteSizeLong() const {
   }
 
   // map<string, string> map_data = 7;
-  total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_data_size());
-  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator
-      it = this->_internal_map_data().begin();
-      it != this->_internal_map_data().end(); ++it) {
-    total_size += Data_MapDataEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
+  total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_map_data_size());
+  for(::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >::const_iterator it = this->_internal_map_data().begin(); it != this->_internal_map_data().end(); ++it) {
+  	total_size += Data_MapDataEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   // repeated .proto_util_converter.testing.Data repeated_data = 9;
@@ -2603,10 +2311,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Data::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Data::GetClassData() const { return &_class_data_; }
 
-void Data::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Data *>(to)->MergeFrom(
-      static_cast<const Data &>(from));
+void Data::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Data *>(to)->MergeFrom(static_cast<const Data &>(from));
 }
 
 
@@ -2661,11 +2367,7 @@ void Data::InternalSwap(Data* other) {
   map_data_.InternalSwap(&other->map_data_);
   repeated_data_.InternalSwap(&other->repeated_data_);
   repeated_any_.InternalSwap(&other->repeated_any_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &str_, lhs_arena,
-      &other->str_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &str_, lhs_arena, &other->str_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(Data, attr_)
       + sizeof(Data::attr_)
@@ -2685,10 +2387,7 @@ class AnyIn::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Any& any(const AnyIn* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Any&
-AnyIn::_Internal::any(const AnyIn* msg) {
-  return *msg->any_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Any & AnyIn::_Internal::any(const AnyIn* msg) { return *msg->any_; }
 void AnyIn::clear_any() {
   if(GetArenaForAllocation() == nullptr && any_ != nullptr) {
     delete any_;
@@ -2714,11 +2413,7 @@ AnyIn::AnyIn(const AnyIn& from)
   if(!from._internal_something().empty()) {
     something_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_something(), GetArenaForAllocation());
   }
-  if(from._internal_has_any()) {
-    any_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_);
-  } else {
-    any_ = nullptr;
-  }
+  any_ = from._internal_has_any() ? new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.AnyIn)
 }
 
@@ -2747,8 +2442,7 @@ void AnyIn::ArenaDtor(void* object) {
   AnyIn* _this = reinterpret_cast< AnyIn* >(object);
   (void)_this;
 }
-void AnyIn::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void AnyIn::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void AnyIn::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2799,10 +2493,7 @@ const char* AnyIn::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2869,10 +2560,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData AnyIn::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*AnyIn::GetClassData() const { return &_class_data_; }
 
-void AnyIn::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<AnyIn *>(to)->MergeFrom(
-      static_cast<const AnyIn &>(from));
+void AnyIn::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<AnyIn *>(to)->MergeFrom(static_cast<const AnyIn &>(from));
 }
 
 
@@ -2907,11 +2596,7 @@ void AnyIn::InternalSwap(AnyIn* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &something_, lhs_arena,
-      &other->something_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &something_, lhs_arena, &other->something_, rhs_arena);
   swap(any_, other->any_);
 }
 
@@ -2926,10 +2611,7 @@ class AnyOut::_Internal {
   static const ::PROTOBUF_NAMESPACE_ID::Any& any(const AnyOut* msg);
 };
 
-const ::PROTOBUF_NAMESPACE_ID::Any&
-AnyOut::_Internal::any(const AnyOut* msg) {
-  return *msg->any_;
-}
+const ::PROTOBUF_NAMESPACE_ID::Any & AnyOut::_Internal::any(const AnyOut* msg) { return *msg->any_; }
 void AnyOut::clear_any() {
   if(GetArenaForAllocation() == nullptr && any_ != nullptr) {
     delete any_;
@@ -2948,11 +2630,7 @@ AnyOut::AnyOut(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 AnyOut::AnyOut(const AnyOut& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_any()) {
-    any_ = new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_);
-  } else {
-    any_ = nullptr;
-  }
+  any_ = from._internal_has_any() ? new ::PROTOBUF_NAMESPACE_ID::Any(*from.any_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:proto_util_converter.testing.AnyOut)
 }
 
@@ -2976,8 +2654,7 @@ void AnyOut::ArenaDtor(void* object) {
   AnyOut* _this = reinterpret_cast< AnyOut* >(object);
   (void)_this;
 }
-void AnyOut::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void AnyOut::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void AnyOut::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -3017,10 +2694,7 @@ const char* AnyOut::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3073,10 +2747,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData AnyOut::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*AnyOut::GetClassData() const { return &_class_data_; }
 
-void AnyOut::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<AnyOut *>(to)->MergeFrom(
-      static_cast<const AnyOut &>(from));
+void AnyOut::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<AnyOut *>(to)->MergeFrom(static_cast<const AnyOut &>(from));
 }
 
 
@@ -3164,8 +2836,7 @@ void AnyM::ArenaDtor(void* object) {
   AnyM* _this = reinterpret_cast< AnyM* >(object);
   (void)_this;
 }
-void AnyM::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void AnyM::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void AnyM::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -3204,10 +2875,7 @@ const char* AnyM::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -3263,10 +2931,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData AnyM::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*AnyM::GetClassData() const { return &_class_data_; }
 
-void AnyM::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<AnyM *>(to)->MergeFrom(
-      static_cast<const AnyM &>(from));
+void AnyM::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<AnyM *>(to)->MergeFrom(static_cast<const AnyM &>(from));
 }
 
 
@@ -3298,11 +2964,7 @@ void AnyM::InternalSwap(AnyM* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &foo_, lhs_arena,
-      &other->foo_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &foo_, lhs_arena, &other->foo_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata AnyM::GetMetadata() const {

@@ -1082,30 +1082,27 @@ static time_t parse_time(const char * p, size_t n)
 	return (t);
 }
 
-static int heap_add_entry(struct archive_read * a,
-    struct heap_queue * heap, struct xar_file * file)
+static int heap_add_entry(struct archive_read * a, struct heap_queue * heap, struct xar_file * file)
 {
 	uint64 file_id, parent_id;
 	int hole, parent;
-
 	/* Expand our pending files list as necessary. */
 	if(heap->used >= heap->allocated) {
 		struct xar_file ** new_pending_files;
 		int new_size;
-
 		if(heap->allocated < 1024)
 			new_size = 1024;
 		else
 			new_size = heap->allocated * 2;
 		/* Overflow might keep us from growing the list. */
 		if(new_size <= heap->allocated) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		new_pending_files = (struct xar_file **)
 		    SAlloc::M(new_size * sizeof(new_pending_files[0]));
 		if(new_pending_files == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		if(heap->allocated) {
@@ -1197,7 +1194,7 @@ static int add_link(struct archive_read * a, struct xar * xar, struct xar_file *
 	}
 	hdlink = static_cast<struct hdlink *>(SAlloc::M(sizeof(*hdlink)));
 	if(hdlink == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	file->hdnext = NULL;
@@ -1326,16 +1323,9 @@ static int decompression_init(struct archive_read * a, enum enctype encoding)
 			    int err = ARCHIVE_ERRNO_MISC;
 			    detail = NULL;
 			    switch(r) {
-				    case BZ_PARAM_ERROR:
-					detail = "invalid setup parameter";
-					break;
-				    case BZ_MEM_ERROR:
-					err = ENOMEM;
-					detail = "out of memory";
-					break;
-				    case BZ_CONFIG_ERROR:
-					detail = "mis-compiled library";
-					break;
+				    case BZ_PARAM_ERROR: detail = "invalid setup parameter"; break;
+				    case BZ_MEM_ERROR: err = ENOMEM; detail = SlTxtOutOfMem; break;
+				    case BZ_CONFIG_ERROR: detail = "mis-compiled library"; break;
 			    }
 			    archive_set_error(&a->archive, err, "Internal error initializing decompressor: %s", detail == NULL ? "??" : detail);
 			    xar->bzstream_valid = 0;
@@ -1585,7 +1575,7 @@ static int file_new(struct archive_read * a, struct xar * xar, struct xmlattr_li
 	struct xmlattr * attr;
 	struct xar_file * file = static_cast<struct xar_file *>(SAlloc::C(1, sizeof(*file)));
 	if(file == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	file->parent = xar->file;
@@ -1628,7 +1618,7 @@ static int xattr_new(struct archive_read *a, struct xar *xar, struct xmlattr_lis
 	struct xmlattr *attr;
 	struct xattr * xattr = (struct xattr *)SAlloc::C(1, sizeof(*xattr));
 	if(xattr == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	xar->xattr = xattr;
@@ -1692,7 +1682,7 @@ static int unknowntag_start(struct archive_read * a, struct xar * xar, const cha
 {
 	struct unknown_tag * tag = static_cast<struct unknown_tag *>(SAlloc::M(sizeof(*tag)));
 	if(tag == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Out of memory");
+		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	tag->next = xar->unknowntags;
@@ -2791,20 +2781,20 @@ static int xml2_xmlattr_setup(struct archive_read * a, struct xmlattr_list * lis
 	while(r == 1) {
 		attr = static_cast<struct xmlattr *>(SAlloc::M(sizeof *(attr)));
 		if(attr == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		attr->name = sstrdup((const char *)xmlTextReaderConstLocalName(reader));
 		if(attr->name == NULL) {
 			SAlloc::F(attr);
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		attr->value = sstrdup((const char *)xmlTextReaderConstValue(reader));
 		if(attr->value == NULL) {
 			SAlloc::F(attr->name);
 			SAlloc::F(attr);
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
 		attr->next = NULL;
@@ -2924,7 +2914,7 @@ static int expat_xmlattr_setup(struct archive_read * a, struct xmlattr_list * li
 		name = sstrdup(atts[0]);
 		value = sstrdup(atts[1]);
 		if(attr == NULL || name == NULL || value == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out of memory");
+			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			SAlloc::F(attr);
 			SAlloc::F(name);
 			SAlloc::F(value);

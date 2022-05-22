@@ -298,7 +298,7 @@ static cairo_surface_t * _cairo_pdf_surface_create_for_stream_internal(cairo_out
 {
 	cairo_status_t status, status_ignored;
 	cairo_pdf_surface_t * surface = (cairo_pdf_surface_t *)_cairo_malloc(sizeof(cairo_pdf_surface_t));
-	if(UNLIKELY(surface == NULL)) {
+	if(UNLIKELY(!surface)) {
 		/* destroy stream on behalf of caller */
 		status = _cairo_output_stream_destroy(output);
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
@@ -4494,7 +4494,7 @@ cairo_int_status_t _cairo_utf8_to_pdf_string(const char * utf8, char ** str_out)
 	}
 	if(ascii) {
 		str = (char *)_cairo_malloc(len + 3);
-		if(str == NULL)
+		if(!str)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		str[0] = '(';
 		for(i = 0; i < len; i++)
@@ -4509,7 +4509,7 @@ cairo_int_status_t _cairo_utf8_to_pdf_string(const char * utf8, char ** str_out)
 		if(UNLIKELY(status))
 			return status;
 		str = (char *)_cairo_malloc(utf16_len*4 + 7);
-		if(str == NULL) {
+		if(!str) {
 			SAlloc::F(utf16);
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}

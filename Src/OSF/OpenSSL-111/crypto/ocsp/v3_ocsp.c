@@ -8,11 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/conf.h>
-//#include <openssl/asn1.h>
-//#include <openssl/ocsp.h>
-//#include <openssl/x509v3.h>
-//#include <ext_dat.h>
 #include "ocsp_lcl.h"
 /*
  * OCSP extensions and a couple of CRL entry extensions

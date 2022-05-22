@@ -149,8 +149,7 @@ typedef struct {
 	// type seems ill-advised (as it's illegal in at least clang).
 } ParseState;
 
-static_assert(sizeof(ParseState) == 4 * sizeof(int),
-    "unexpected size of ParseState");
+static_assert(sizeof(ParseState) == 4 * sizeof(int), "unexpected size of ParseState");
 
 // One-off state for demangling that's not subject to backtracking -- either
 // constant data, data that's intentionally immune to backtracking (steps), or

@@ -77,7 +77,7 @@ Jbig2Ctx * jbig2_ctx_new_imp(Jbig2Allocator * allocator, Jbig2Options options,
 	SETIFZ(allocator, &jbig2_default_allocator);
 	SETIFZ(error_callback, &jbig2_default_error);
 	result = (Jbig2Ctx*)jbig2_alloc(allocator, sizeof(Jbig2Ctx), 1);
-	if(result == NULL) {
+	if(!result) {
 		error_callback(error_callback_data, "failed to allocate initial context", JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER);
 		return NULL;
 	}
@@ -433,7 +433,7 @@ static int jbig2_word_stream_buf_get_next_word(Jbig2Ctx * ctx, Jbig2WordStream *
 Jbig2WordStream * jbig2_word_stream_buf_new(Jbig2Ctx * ctx, const byte * data, size_t size)
 {
 	Jbig2WordStreamBuf * result = jbig2_new(ctx, Jbig2WordStreamBuf, 1);
-	if(result == NULL) {
+	if(!result) {
 		jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate word stream");
 		return NULL;
 	}

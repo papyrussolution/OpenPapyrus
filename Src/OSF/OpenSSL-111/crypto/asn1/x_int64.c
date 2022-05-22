@@ -7,16 +7,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/numbers.h"
-//#include <openssl/asn1t.h>
-//#include <openssl/bn.h>
-//#include "asn1_locl.h"
 /*
  * Custom primitive types for handling int32_t, int64_t, uint32_t, uint64_t.
  * This converts between an ASN1_INTEGER and those types directly.
  * This is preferred to using the LONG / ZLONG primitives.
  */
-
 /*
  * We abuse the ASN1_ITEM fields |size| as a flags field
  */

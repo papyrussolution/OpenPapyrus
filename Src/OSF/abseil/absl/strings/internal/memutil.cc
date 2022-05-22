@@ -7,25 +7,23 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace strings_internal {
-int memcasecmp(const char* s1, const char* s2, size_t len) {
+int memcasecmp(const char* s1, const char* s2, size_t len) 
+{
 	const unsigned char* us1 = reinterpret_cast<const unsigned char*>(s1);
 	const unsigned char* us2 = reinterpret_cast<const unsigned char*>(s2);
-
 	for(size_t i = 0; i < len; i++) {
-		const int diff =
-		    int{static_cast<unsigned char>(absl::ascii_tolower(us1[i]))} -
-		int{static_cast<unsigned char>(absl::ascii_tolower(us2[i]))};
-		if(diff != 0) return diff;
+		const int diff = int{static_cast<unsigned char>(absl::ascii_tolower(us1[i]))} - int{static_cast<unsigned char>(absl::ascii_tolower(us2[i]))};
+		if(diff != 0) 
+			return diff;
 	}
 	return 0;
 }
 
 char* memdup(const char* s, size_t slen) 
 {
-	void * copy;
-	if((copy = SAlloc::M(slen)) == nullptr) 
-		return nullptr;
-	memcpy(copy, s, slen);
+	void * copy = SAlloc::M(slen);
+	if(copy) 
+		memcpy(copy, s, slen);
 	return reinterpret_cast<char*>(copy);
 }
 
@@ -38,11 +36,11 @@ char* memrchr(const char* s, int c, size_t slen)
 	return nullptr;
 }
 
-size_t memspn(const char* s, size_t slen, const char* accept) {
+size_t memspn(const char* s, size_t slen, const char* accept) 
+{
 	const char* p = s;
 	const char* spanp;
 	char c, sc;
-
 cont:
 	c = *p++;
 	if(slen-- == 0) return p - 1 - s;
@@ -51,11 +49,11 @@ cont:
 	return p - 1 - s;
 }
 
-size_t memcspn(const char* s, size_t slen, const char* reject) {
+size_t memcspn(const char* s, size_t slen, const char* reject) 
+{
 	const char* p = s;
 	const char* spanp;
 	char c, sc;
-
 	while(slen-- != 0) {
 		c = *p++;
 		for(spanp = reject; (sc = *spanp++) != '\0';)
@@ -64,32 +62,32 @@ size_t memcspn(const char* s, size_t slen, const char* reject) {
 	return p - s;
 }
 
-char* mempbrk(const char* s, size_t slen, const char* accept) {
+char* mempbrk(const char* s, size_t slen, const char* accept) 
+{
 	const char* scanp;
 	int sc;
-
 	for(; slen; ++s, --slen) {
 		for(scanp = accept; (sc = *scanp++) != '\0';)
-			if(sc == *s) return const_cast<char*>(s);
+			if(sc == *s) 
+				return const_cast<char*>(s);
 	}
 	return nullptr;
 }
 
 // This is significantly faster for case-sensitive matches with very
 // few possible matches.  See unit test for benchmarks.
-const char* memmatch(const char* phaystack, size_t haylen, const char* pneedle,
-    size_t neelen) {
+const char* memmatch(const char* phaystack, size_t haylen, const char* pneedle, size_t neelen) 
+{
 	if(0 == neelen) {
 		return phaystack; // even if haylen is 0
 	}
-	if(haylen < neelen) return nullptr;
-
+	if(haylen < neelen) 
+		return nullptr;
 	const char* match;
 	const char* hayend = phaystack + haylen - neelen + 1;
 	// A static cast is used here to work around the fact that memchr returns
 	// a void* on Posix-compliant systems and const void* on Windows.
-	while((match = static_cast<const char*>(
-		    memchr(phaystack, pneedle[0], hayend - phaystack)))) {
+	while((match = static_cast<const char*>(memchr(phaystack, pneedle[0], hayend - phaystack)))) {
 		if(memcmp(match, pneedle, neelen) == 0)
 			return match;
 		else

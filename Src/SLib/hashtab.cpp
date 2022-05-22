@@ -1653,7 +1653,7 @@ struct UT_hash_handle {
 	do {										 \
 		(tbl)->bloom_nbits = HASH_BLOOM;					       \
 		(tbl)->bloom_bv = static_cast<uint8_t *>(SAlloc::M(HASH_BLOOM_BYTELEN));		       \
-		if(!((tbl)->bloom_bv)) { uthash_fatal("out of memory"); }		     \
+		if(!((tbl)->bloom_bv)) { uthash_fatal(SlTxtOutOfMem); }		     \
 		memzero((tbl)->bloom_bv, HASH_BLOOM_BYTELEN);				       \
 		(tbl)->bloom_sig = HASH_BLOOM_SIGNATURE;				       \
 	} while(0)
@@ -1674,14 +1674,14 @@ struct UT_hash_handle {
 #define HASH_MAKE_TABLE(hh, head)						  \
 	do {										 \
 		(head)->hh.tbl = static_cast<UT_hash_table *>(SAlloc::M(sizeof(UT_hash_table))); \
-		if(!((head)->hh.tbl)) { uthash_fatal("out of memory"); }		     \
+		if(!((head)->hh.tbl)) { uthash_fatal(SlTxtOutOfMem); }		     \
 		memzero((head)->hh.tbl, sizeof(UT_hash_table));			       \
 		(head)->hh.tbl->tail = &((head)->hh);					       \
 		(head)->hh.tbl->num_buckets = HASH_INITIAL_NUM_BUCKETS;			       \
 		(head)->hh.tbl->log2_num_buckets = HASH_INITIAL_NUM_BUCKETS_LOG2;	       \
 		(head)->hh.tbl->hho = (char *)(&(head)->hh) - (char *)(head);		       \
 		(head)->hh.tbl->buckets = (UT_hash_bucket*)SAlloc::M(HASH_INITIAL_NUM_BUCKETS*sizeof(struct UT_hash_bucket)); \
-		if(!(head)->hh.tbl->buckets) { uthash_fatal("out of memory"); }		    \
+		if(!(head)->hh.tbl->buckets) { uthash_fatal(SlTxtOutOfMem); }		    \
 		memzero((head)->hh.tbl->buckets, HASH_INITIAL_NUM_BUCKETS*sizeof(struct UT_hash_bucket)); \
 		HASH_BLOOM_MAKE((head)->hh.tbl);					       \
 		(head)->hh.tbl->signature = HASH_SIGNATURE;				       \
@@ -2200,7 +2200,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 		struct UT_hash_handle * _he_thh, * _he_hh_nxt;				       \
 		UT_hash_bucket * _he_new_buckets, * _he_newbkt;				       \
 		_he_new_buckets = (UT_hash_bucket*)SAlloc::M(2 * tbl->num_buckets * sizeof(struct UT_hash_bucket)); \
-		if(!_he_new_buckets) { uthash_fatal("out of memory"); }			   \
+		if(!_he_new_buckets) { uthash_fatal(SlTxtOutOfMem); }			   \
 		memzero(_he_new_buckets, 2 * tbl->num_buckets * sizeof(struct UT_hash_bucket));		 \
 		tbl->ideal_chain_maxlen =						     \
 		    (tbl->num_items >> (tbl->log2_num_buckets+1)) +			      \

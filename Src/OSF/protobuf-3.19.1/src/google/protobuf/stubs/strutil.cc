@@ -2282,11 +2282,9 @@ static const unsigned char kUTF8LenTbl[256] = {
 };
 
 // Return length of a single UTF-8 source character
-int UTF8FirstLetterNumBytes(const char* src, int len) {
-	if(len == 0) {
-		return 0;
-	}
-	return kUTF8LenTbl[*reinterpret_cast<const uint8 *>(src)];
+int UTF8FirstLetterNumBytes(const char* src, int len) 
+{
+	return len ? kUTF8LenTbl[*reinterpret_cast<const uint8 *>(src)] : 0;
 }
 
 // ----------------------------------------------------------------------
@@ -2300,13 +2298,9 @@ int UTF8FirstLetterNumBytes(const char* src, int len) {
 //   Four different types of input are correctly handled:
 //
 //     - Unix/Linux files: line ending is LF: pass through unchanged
-//
 //     - DOS/Windows files: line ending is CRLF: convert to LF
-//
 //     - Legacy Mac files: line ending is CR: convert to LF
-//
-//     - Garbled files: random line endings: convert gracefully
-//                      lonely CR, lonely LF, CRLF: convert to LF
+//     - Garbled files: random line endings: convert gracefully lonely CR, lonely LF, CRLF: convert to LF
 //
 //   @param src The multi-line string to convert
 //   @param dst The converted string is appended to this string
@@ -2322,8 +2316,8 @@ int UTF8FirstLetterNumBytes(const char* src, int len) {
 //       (1) determines the presence of LF (first one is ok)
 //       (2) if yes, removes any CR, else convert every CR to LF
 
-void CleanStringLineEndings(const std::string &src, std::string * dst,
-    bool auto_end_last_line) {
+void CleanStringLineEndings(const std::string &src, std::string * dst, bool auto_end_last_line) 
+{
 	if(dst->empty()) {
 		dst->append(src);
 		CleanStringLineEndings(dst, auto_end_last_line);
@@ -2335,13 +2329,12 @@ void CleanStringLineEndings(const std::string &src, std::string * dst,
 	}
 }
 
-void CleanStringLineEndings(std::string * str, bool auto_end_last_line) {
+void CleanStringLineEndings(std::string * str, bool auto_end_last_line) 
+{
 	ptrdiff_t output_pos = 0;
 	bool r_seen = false;
 	ptrdiff_t len = str->size();
-
 	char * p = &(*str)[0];
-
 	for(ptrdiff_t input_pos = 0; input_pos < len;) {
 		if(!r_seen && input_pos + 8 < len) {
 			uint64_t v = GOOGLE_UNALIGNED_LOAD64(p + input_pos);
@@ -2379,7 +2372,8 @@ void CleanStringLineEndings(std::string * str, bool auto_end_last_line) {
 			r_seen = false;
 		}
 		else {
-			if(r_seen) p[output_pos++] = '\n';
+			if(r_seen) 
+				p[output_pos++] = '\n';
 			r_seen = false;
 			if(input_pos != output_pos)
 				p[output_pos++] = in;
@@ -2388,8 +2382,7 @@ void CleanStringLineEndings(std::string * str, bool auto_end_last_line) {
 		}
 		input_pos++;
 	}
-	if(r_seen ||
-	    (auto_end_last_line && output_pos > 0 && p[output_pos - 1] != '\n')) {
+	if(r_seen || (auto_end_last_line && output_pos > 0 && p[output_pos - 1] != '\n')) {
 		str->resize(output_pos + 1);
 		str->operator[](output_pos) = '\n';
 	}

@@ -12,7 +12,7 @@
 #ifndef ABSL_FLAGS_REFLECTION_H_
 #define ABSL_FLAGS_REFLECTION_H_
 
-#include <string>
+//#include <string>
 #include "absl/base/config.h"
 #include "absl/container/flat_hash_map.h"
 #include "absl/flags/commandlineflag.h"
@@ -59,15 +59,13 @@ absl::flat_hash_map<absl::string_view, absl::CommandLineFlag*> GetAllFlags();
 // This class is thread-safe.
 
 class FlagSaver {
- public:
-  FlagSaver();
-  ~FlagSaver();
-
-  FlagSaver(const FlagSaver&) = delete;
-  void operator = (const FlagSaver&) = delete;
-
- private:
-  flags_internal::FlagSaverImpl* impl_;
+public:
+	FlagSaver();
+	~FlagSaver();
+	FlagSaver(const FlagSaver&) = delete;
+	void operator =(const FlagSaver&) = delete;
+private:
+	flags_internal::FlagSaverImpl* impl_;
 };
 
 //-----------------------------------------------------------------------------

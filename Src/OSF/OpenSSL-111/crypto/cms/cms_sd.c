@@ -15,8 +15,6 @@
 #include <openssl/err.h>
 #include <openssl/cms.h>
 #include "cms_lcl.h"
-//#include <asn1_int.h>
-//#include <evp_int.h>
 
 /* CMS SignedData Utilities */
 
@@ -601,7 +599,7 @@ static int cms_SignerInfo_content_sign(CMS_ContentInfo * cms,
 			goto err;
 		siglen = EVP_PKEY_size(si->pkey);
 		sig = static_cast<uchar *>(OPENSSL_malloc(siglen));
-		if(sig == NULL) {
+		if(!sig) {
 			CMSerr(CMS_F_CMS_SIGNERINFO_CONTENT_SIGN, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
@@ -615,7 +613,7 @@ static int cms_SignerInfo_content_sign(CMS_ContentInfo * cms,
 		uchar * sig;
 		uint siglen;
 		sig = static_cast<uchar *>(OPENSSL_malloc(EVP_PKEY_size(si->pkey)));
-		if(sig == NULL) {
+		if(!sig) {
 			CMSerr(CMS_F_CMS_SIGNERINFO_CONTENT_SIGN, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}

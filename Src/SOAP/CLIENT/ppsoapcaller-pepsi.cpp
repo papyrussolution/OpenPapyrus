@@ -500,7 +500,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutDebtSettlement(PPSoapClientS
 				p_new_item->ISALES_USCOREID = GetDynamicParamString(p_src_pack->iSalesId, arg_str_pool);
 				p_new_item->DOC_USCORETP = GetDynamicParamString(p_src_pack->DocType, arg_str_pool);
 				p_new_item->DOC_USCORENO = GetDynamicParamString(p_src_pack->Code, arg_str_pool);
-				p_new_item->DOC_USCOREDT = GetDynamicParamString(p_src_pack->Dtm, DATF_GERMAN|DATF_CENTURY, TIMF_HMS, arg_str_pool);
+				p_new_item->DOC_USCOREDT = GetDynamicParamString(p_src_pack->Dtm, DATF_GERMANCENT, TIMF_HMS, arg_str_pool);
 				p_new_item->CUST_USCOREID = GetDynamicParamString(p_src_pack->PayerCode, arg_str_pool);
 				p_new_item->GROSS_USCORESUM = GetDynamicParamString_(p_src_pack->Amount, MKSFMTD(0, 2, NMBF_DECCOMMA), arg_str_pool);
 				p_new_item->DEBT = GetDynamicParamString_(p_src_pack->Debt, MKSFMTD(0, 2, NMBF_DECCOMMA), arg_str_pool);
@@ -744,14 +744,14 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 				p_new_bill->STATUS = GetDynamicParamString(p_src_pack->Status, arg_str_pool);
 				p_new_bill->DOC_USCORETP = GetDynamicParamString(p_src_pack->DocType, arg_str_pool);
 				p_new_bill->DOC_USCORENO = GetDynamicParamString(p_src_pack->Code, arg_str_pool);
-				p_new_bill->DOC_USCOREDT = GetDynamicParamString(p_src_pack->Dtm, DATF_GERMAN|DATF_CENTURY, TIMF_HMS, arg_str_pool);
+				p_new_bill->DOC_USCOREDT = GetDynamicParamString(p_src_pack->Dtm, DATF_GERMANCENT, TIMF_HMS, arg_str_pool);
 				{
 					// @v10.4.12 p_new_bill->INC_USCOREDT = 0;
 					// @v10.4.12 {
 					LDATETIME crdtm = p_src_pack->CreationDtm;
 					if(!checkdate(crdtm.d))
 						crdtm = p_src_pack->Dtm;
-					p_new_bill->INC_USCOREDT = GetDynamicParamString(crdtm.d, DATF_GERMAN|DATF_CENTURY, arg_str_pool); 
+					p_new_bill->INC_USCOREDT = GetDynamicParamString(crdtm.d, DATF_GERMANCENT, arg_str_pool); 
 					// } @v10.4.12 
 				}
 				p_new_bill->EXT_USCORETP = 0;
@@ -762,15 +762,15 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 				p_new_bill->SELLER = GetDynamicParamString(p_src_pack->SellerCode, arg_str_pool);
 				p_new_bill->PAYER  = GetDynamicParamString(p_src_pack->PayerCode, arg_str_pool);
 				p_new_bill->ITEMS_USCOREAMOUNT = GetDynamicParamString(p_src_pack->Items.getCountI(), arg_str_pool);
-				p_new_bill->DUE_USCOREDATE = GetDynamicParamString(p_src_pack->DueDate, DATF_GERMAN|DATF_CENTURY, arg_str_pool);
+				p_new_bill->DUE_USCOREDATE = GetDynamicParamString(p_src_pack->DueDate, DATF_GERMANCENT, arg_str_pool);
 				p_new_bill->COMMS = GetDynamicParamString(p_src_pack->Memo, arg_str_pool);
 				p_new_bill->WHS_USCORESRC = GetDynamicParamString(p_src_pack->SrcLocCode, arg_str_pool);
 				p_new_bill->WHS_USCOREDST = GetDynamicParamString(p_src_pack->DestLocCode, arg_str_pool);
 				p_new_bill->SR_USCOREID = GetDynamicParamString(p_src_pack->AgentCode, arg_str_pool);
 				p_new_bill->AUTH_USCOREID = GetDynamicParamString(p_src_pack->AuthId, arg_str_pool);
 				p_new_bill->EDIT_USCOREID = GetDynamicParamString(p_src_pack->EditId, arg_str_pool);
-				p_new_bill->CREATE_USCOREDT = GetDynamicParamString(p_src_pack->CreationDtm, DATF_GERMAN|DATF_CENTURY, TIMF_HMS, arg_str_pool);
-				p_new_bill->EDIT_USCOREDT = GetDynamicParamString(p_src_pack->LastUpdDtm, DATF_GERMAN|DATF_CENTURY, TIMF_HMS, arg_str_pool);
+				p_new_bill->CREATE_USCOREDT = GetDynamicParamString(p_src_pack->CreationDtm, DATF_GERMANCENT, TIMF_HMS, arg_str_pool);
+				p_new_bill->EDIT_USCOREDT = GetDynamicParamString(p_src_pack->LastUpdDtm, DATF_GERMANCENT, TIMF_HMS, arg_str_pool);
 				p_new_bill->ErrorMessage = 0;
 				p_new_bill->ATTRS = 0; // list
 				p_new_bill->REFS = 0; // list
@@ -856,7 +856,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & 
 						THROW(p_new_ref);
 						p_new_ref->REF_USCORETP = GetDynamicParamString(p_src_ref->DocType, arg_str_pool);
 						p_new_ref->REF_USCORENO = GetDynamicParamString(p_src_ref->Code, arg_str_pool);
-						p_new_ref->REF_USCOREDT = GetDynamicParamString(p_src_ref->Dtm, DATF_GERMAN|DATF_CENTURY, TIMF_HMS, arg_str_pool);
+						p_new_ref->REF_USCOREDT = GetDynamicParamString(p_src_ref->Dtm, DATF_GERMANCENT, TIMF_HMS, arg_str_pool);
 					}
 				}
 				{

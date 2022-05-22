@@ -63,32 +63,31 @@ static const char kCommonEscapes[160][7] = {
 
 // Determines if the given char value is a unicode surrogate code unit (either
 // high-surrogate or low-surrogate).
-inline bool IsSurrogate(uint32_t c) {
+inline bool IsSurrogate(uint32_t c) 
+{
 	// Optimized form of:
 	// return c >= kMinHighSurrogate && c <= kMaxLowSurrogate;
 	// (Reduced from 3 ALU instructions to 2 ALU instructions)
 	return (c & 0xfffff800) == JsonEscaping::kMinHighSurrogate;
 }
-
 // Returns true if the given unicode code point cp is a valid
 // unicode code point (i.e. in the range 0 <= cp <= kMaxCodePoint).
-inline bool IsValidCodePoint(uint32_t cp) {
-	return cp <= JsonEscaping::kMaxCodePoint;
+inline bool IsValidCodePoint(uint32_t cp) 
+{ 
+	return cp <= JsonEscaping::kMaxCodePoint; 
 }
-
 // Returns the low surrogate for the given unicode code point. The result is
 // meaningless if the given code point is not a supplementary character.
-inline uint16_t ToLowSurrogate(uint32_t cp) {
-	return (cp &
-	       (JsonEscaping::kMaxLowSurrogate - JsonEscaping::kMinLowSurrogate)) +
-	       JsonEscaping::kMinLowSurrogate;
+inline uint16_t ToLowSurrogate(uint32_t cp) 
+{
+	return (cp & (JsonEscaping::kMaxLowSurrogate - JsonEscaping::kMinLowSurrogate)) + JsonEscaping::kMinLowSurrogate;
 }
 
 // Returns the high surrogate for the given unicode code point. The result is
 // meaningless if the given code point is not a supplementary character.
-inline uint16_t ToHighSurrogate(uint32_t cp) {
-	return (cp >> 10) + (JsonEscaping::kMinHighSurrogate -
-	       (JsonEscaping::kMinSupplementaryCodePoint >> 10));
+inline uint16_t ToHighSurrogate(uint32_t cp) 
+{
+	return (cp >> 10) + (JsonEscaping::kMinHighSurrogate - (JsonEscaping::kMinSupplementaryCodePoint >> 10));
 }
 
 // Input str is encoded in UTF-8. A unicode code point could be encoded in
@@ -111,8 +110,8 @@ inline uint16_t ToHighSurrogate(uint32_t cp) {
 // Returns false if we encounter an invalid UTF-8 string. Returns true
 // otherwise, including the case when we reach the end of the input (str)
 // before a complete unicode code point is read.
-bool ReadCodePoint(StringPiece str, int index, uint32_t* cp,
-    int* num_left, int* num_read) {
+bool ReadCodePoint(StringPiece str, int index, uint32_t* cp, int* num_left, int* num_read) 
+{
 	if(*num_left == 0) {
 		// Last read was complete. Start reading a new unicode code point.
 		*cp = static_cast<uint8_t>(str[index++]);
@@ -182,7 +181,8 @@ bool ReadCodePoint(StringPiece str, int index, uint32_t* cp,
 // Stores the 16-bit unicode code point as its hexadecimal digits in buffer
 // and returns a StringPiece that points to this buffer. The input buffer needs
 // to be at least 6 bytes long.
-StringPiece ToHex(uint16_t cp, char* buffer) {
+StringPiece ToHex(uint16_t cp, char* buffer) 
+{
 	buffer[5] = kHex[cp & 0x0f];
 	cp >>= 4;
 	buffer[4] = kHex[cp & 0x0f];
@@ -196,10 +196,10 @@ StringPiece ToHex(uint16_t cp, char* buffer) {
 // Stores the 32-bit unicode code point as its hexadecimal digits in buffer
 // and returns a StringPiece that points to this buffer. The input buffer needs
 // to be at least 12 bytes long.
-StringPiece ToSurrogateHex(uint32_t cp, char* buffer) {
+StringPiece ToSurrogateHex(uint32_t cp, char* buffer) 
+{
 	uint16_t low = ToLowSurrogate(cp);
 	uint16_t high = ToHighSurrogate(cp);
-
 	buffer[11] = kHex[low & 0x0f];
 	low >>= 4;
 	buffer[10] = kHex[low & 0x0f];

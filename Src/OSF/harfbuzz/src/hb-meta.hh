@@ -191,8 +191,7 @@ using hb_is_integral = hb_bool_constant<
     false
     >;
 #define hb_is_integral(T) hb_is_integral<T>::value
-template <typename T> using hb_is_floating_point = hb_bool_constant<
-    hb_is_same(hb_decay<T>, float) || hb_is_same(hb_decay<T>, double) || hb_is_same(hb_decay<T>, long double) || false>;
+template <typename T> using hb_is_floating_point = hb_bool_constant<hb_is_same(hb_decay<T>, float) || hb_is_same(hb_decay<T>, double) || hb_is_same(hb_decay<T>, long double) || false>;
 #define hb_is_floating_point(T) hb_is_floating_point<T>::value
 template <typename T> using hb_is_arithmetic = hb_bool_constant<hb_is_integral(T) || hb_is_floating_point(T) || false>;
 #define hb_is_arithmetic(T) hb_is_arithmetic<T>::value

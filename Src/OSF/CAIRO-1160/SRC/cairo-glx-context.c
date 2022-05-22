@@ -251,7 +251,7 @@ cairo_surface_t * cairo_gl_surface_create_for_window(cairo_device_t * device, Wi
 	if(width <= 0 || height <= 0)
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_INVALID_SIZE));
 	surface = (cairo_glx_surface_t *)SAlloc::C(1, sizeof(cairo_glx_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return _cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	_cairo_gl_surface_init(device, &surface->base, CAIRO_CONTENT_COLOR_ALPHA, width, height);
 	surface->win = win;

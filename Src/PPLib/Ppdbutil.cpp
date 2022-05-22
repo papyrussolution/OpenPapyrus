@@ -625,7 +625,7 @@ int ConfigBackupDialog::editEntry(int isNewEntry, PPBackupScen * pEntry)
 	dlg->setCtrlData(CTL_BUCFG_COPIES,   &(entry.NumCopies));
 	dlg->setCtrlData(CTL_BUCFG_COMPRESS, &(entry.Flags));
 	dlg->setCtrlData(CTL_BUCFG_PATH,     entry.BackupPath);
-	SetupDBEntryComboBox(dlg, CTLSEL_BUCFG_DBNAME, &DBES);
+	SetupDBEntryComboBox(dlg, CTLSEL_BUCFG_DBNAME, &DBES, 0);
 	dlg->disableCtrl(CTL_BUCFG_CFGNAME, !isNewEntry);
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_BUCFG_PATH, CTL_BUCFG_PATH, 1, PPTXT_TITLE_SELBACKUPPATH, 0, FileBrowseCtrlGroup::fbcgfPath);
 	while(!valid_data && ExecView(dlg) == cmOK) {
@@ -883,7 +883,7 @@ int PrcssrDbDump::EditParam(Param * pData)
 			}
 			*/
 			SetupTblCombo(Data.Mode);
-			SetupDBEntryComboBox(this, CTLSEL_DBDUMP_DB, P_Dbes);
+			SetupDBEntryComboBox(this, CTLSEL_DBDUMP_DB, P_Dbes, 0);
 			setCtrlString(CTL_DBDUMP_FILE, Data.FileName);
 			return ok;
 		}
@@ -1344,7 +1344,7 @@ public:
 		if(dbes) {
 			if(dbes->GetCount() == 1)
 				dbes->SetSelection(1);
-			SetupDBEntryComboBox(this, CTLSEL_BU_PRELUDE_DB, dbes);
+			SetupDBEntryComboBox(this, CTLSEL_BU_PRELUDE_DB, dbes, 0);
 			int    enable_cmds = BIN(dbes->GetSelection());
 			enableCommand(cmBuBackup, enable_cmds);
 			enableCommand(cmBuRestore, enable_cmds);
@@ -2327,7 +2327,7 @@ static int PPRecoverDialog(PPDbEntrySet2 * pDbes, BTBLID * pTblID, SString & rDe
 		{
 			_dbes = dbes;
 			SetupDBTableComboBox(this, CTLSEL_RECOVER_TBL, dbes, dbes->GetSelection(), tblID);
-			SetupDBEntryComboBox(this, CTLSEL_RECOVER_DB, dbes);
+			SetupDBEntryComboBox(this, CTLSEL_RECOVER_DB, dbes, 0);
 			setCtrlString(CTL_RECOVER_DEST, rDest);
 			setCtrlString(CTL_RECOVER_LOG,  rLog);
 			return 1;
@@ -2495,7 +2495,7 @@ static int _DoProtect(PPDbEntrySet2 * pDbes, PPBackup * ppb)
 	if(CheckDialogPtrErr(&dlg)) {
 		char   new_pw[64], old_pw[64];
 		dlg->selectCtrl(CTL_LOGIN_PROTECT);
-		SetupDBEntryComboBox(dlg, CTLSEL_LOGIN_DB, pDbes);
+		SetupDBEntryComboBox(dlg, CTLSEL_LOGIN_DB, pDbes, 0);
 		dlg->disableCtrl(CTLSEL_LOGIN_DB, true);
 		if(ExecView(dlg) == cmOK) {
 			int    prot = 0;

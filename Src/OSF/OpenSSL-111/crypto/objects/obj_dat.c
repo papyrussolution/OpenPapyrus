@@ -8,12 +8,10 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <ctype.h>
 #include <openssl/lhash.h>
 #include <openssl/asn1.h>
 #include <objects.h>
 #include <openssl/bn.h>
-//#include <asn1_int.h>
 #include "obj_lcl.h"
 
 /* obj_dat.h is generated from objects.h by obj_dat.pl */
@@ -123,7 +121,7 @@ static int added_obj_cmp(const ADDED_OBJ * ca, const ADDED_OBJ * cb)
 
 static int init_added(void)
 {
-	if(added != NULL)
+	if(added)
 		return 1;
 	added = lh_ADDED_OBJ_new(added_obj_hash, added_obj_cmp);
 	return added != NULL;
@@ -233,7 +231,7 @@ ASN1_OBJECT * OBJ_nid2obj(int n)
 		ad.obj = &ob;
 		ob.nid = n;
 		adp = lh_ADDED_OBJ_retrieve(added, &ad);
-		if(adp != NULL)
+		if(adp)
 			return adp->obj;
 		else {
 			OBJerr(OBJ_F_OBJ_NID2OBJ, OBJ_R_UNKNOWN_NID);
@@ -260,7 +258,7 @@ const char * FASTCALL OBJ_nid2sn(int n)
 		ad.obj = &ob;
 		ob.nid = n;
 		adp = lh_ADDED_OBJ_retrieve(added, &ad);
-		if(adp != NULL)
+		if(adp)
 			return adp->obj->sn;
 		else {
 			OBJerr(OBJ_F_OBJ_NID2SN, OBJ_R_UNKNOWN_NID);
@@ -288,7 +286,7 @@ const char * OBJ_nid2ln(int n)
 		ad.obj = &ob;
 		ob.nid = n;
 		adp = lh_ADDED_OBJ_retrieve(added, &ad);
-		if(adp != NULL)
+		if(adp)
 			return adp->obj->ln;
 		else {
 			OBJerr(OBJ_F_OBJ_NID2LN, OBJ_R_UNKNOWN_NID);
@@ -323,15 +321,15 @@ int OBJ_obj2nid(const ASN1_OBJECT * a)
 		return a->nid;
 	if(a->length == 0)
 		return NID_undef;
-	if(added != NULL) {
+	if(added) {
 		ad.type = ADDED_DATA;
 		ad.obj = (ASN1_OBJECT*)a; /* XXX: ugly but harmless */
 		adp = lh_ADDED_OBJ_retrieve(added, &ad);
-		if(adp != NULL)
+		if(adp)
 			return adp->obj->nid;
 	}
 	op = OBJ_bsearch_obj(&a, obj_objs, NUM_OBJ);
-	if(op == NULL)
+	if(!op)
 		return NID_undef;
 	return nid_objs[*op].nid;
 }
@@ -392,12 +390,12 @@ int OBJ_obj2txt(char * buf, int buf_len, const ASN1_OBJECT * a, int no_name)
 	/* Ensure that, at every state, |buf| is NUL-terminated. */
 	if(buf && buf_len > 0)
 		buf[0] = '\0';
-	if((a == NULL) || (a->data == NULL))
+	if(!a || (a->data == NULL))
 		return 0;
 	if(!no_name && (nid = OBJ_obj2nid(a)) != NID_undef) {
 		const char * s;
 		s = OBJ_nid2ln(nid);
-		if(s == NULL)
+		if(!s)
 			s = OBJ_nid2sn(nid);
 		if(s) {
 			if(buf)
@@ -527,15 +525,15 @@ int OBJ_ln2nid(const char * s)
 	ADDED_OBJ ad, * adp;
 	const uint * op;
 	o.ln = s;
-	if(added != NULL) {
+	if(added) {
 		ad.type = ADDED_LNAME;
 		ad.obj = &o;
 		adp = lh_ADDED_OBJ_retrieve(added, &ad);
-		if(adp != NULL)
+		if(adp)
 			return adp->obj->nid;
 	}
 	op = OBJ_bsearch_ln(&oo, ln_objs, NUM_LN);
-	if(op == NULL)
+	if(!op)
 		return NID_undef;
 	return nid_objs[*op].nid;
 }
@@ -547,15 +545,15 @@ int OBJ_sn2nid(const char * s)
 	ADDED_OBJ ad, * adp;
 	const uint * op;
 	o.sn = s;
-	if(added != NULL) {
+	if(added) {
 		ad.type = ADDED_SNAME;
 		ad.obj = &o;
 		adp = lh_ADDED_OBJ_retrieve(added, &ad);
-		if(adp != NULL)
+		if(adp)
 			return adp->obj->nid;
 	}
 	op = OBJ_bsearch_sn(&oo, sn_objs, NUM_SN);
-	if(op == NULL)
+	if(!op)
 		return NID_undef;
 	return nid_objs[*op].nid;
 }

@@ -22,10 +22,6 @@
 #ifndef ZSTD_DEPS_COMMON
 #define ZSTD_DEPS_COMMON
 
-//#include <limits.h>
-//#include <stddef.h>
-//#include <string.h>
-
 //#if defined(__GNUC__) && __GNUC__ >= 4
 	//#define ZSTD_memcpy_Removed(d,s,l) __builtin_memcpy((d),(s),(l))
 	//#define ZSTD_memmove_Removed(d,s,l) __builtin_memmove((d),(s),(l))

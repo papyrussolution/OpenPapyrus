@@ -247,7 +247,7 @@ void * xmlReallocLoc(void * ptr, size_t size, const char * file, int line)
 #ifdef DEBUG_MEMORY
 	size_t oldsize;
 #endif
-	if(ptr == NULL)
+	if(!ptr)
 		return (xmlMallocLoc(size, file, line));
 	if(!xmlMemInitialized) xmlInitMemory();
 	TEST_POINT
@@ -323,7 +323,7 @@ void xmlMemFree(void * ptr)
 #ifdef DEBUG_MEMORY
 	size_t size;
 #endif
-	if(ptr == NULL)
+	if(!ptr)
 		return;
 	if(ptr == reinterpret_cast<void *>(-1)) {
 		xmlGenericError(0, "trying to free pointer from freed area\n");
@@ -515,9 +515,9 @@ void xmlMemDisplayLast(FILE * fp, long nbBytes)
 	FILE * old_fp = fp;
 	if(nbBytes <= 0)
 		return;
-	if(fp == NULL) {
+	if(!fp) {
 		fp = fopen(".memorylist", "w");
-		if(fp == NULL)
+		if(!fp)
 			return;
 	}
 #ifdef MEM_LIST
@@ -583,9 +583,9 @@ void xmlMemDisplay(FILE * fp)
 #endif
 #endif
 	FILE * old_fp = fp;
-	if(fp == NULL) {
+	if(!fp) {
 		fp = fopen(".memorylist", "w");
-		if(fp == NULL)
+		if(!fp)
 			return;
 	}
 #ifdef MEM_LIST

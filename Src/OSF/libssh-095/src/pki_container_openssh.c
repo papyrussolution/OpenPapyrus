@@ -560,7 +560,7 @@ ssh_string ssh_pki_openssh_privkey_export(const ssh_key privkey, const char * pa
 	}
 
 	str = ssh_string_new(ssh_buffer_get_len(buffer));
-	if(str == NULL) {
+	if(!str) {
 		goto error;
 	}
 

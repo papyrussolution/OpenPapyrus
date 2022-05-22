@@ -359,7 +359,7 @@ static const char * ngx_http_map(ngx_conf_t * cf, const ngx_command_t * dummy, v
 		return NGX_CONF_ERROR;
 	}
 
-	if(cv.lengths != NULL) {
+	if(cv.lengths) {
 		cvp = (ngx_http_complex_value_t *)ngx_palloc(ctx->keys.pool, sizeof(ngx_http_complex_value_t));
 		if(cvp == NULL) {
 			return NGX_CONF_ERROR;

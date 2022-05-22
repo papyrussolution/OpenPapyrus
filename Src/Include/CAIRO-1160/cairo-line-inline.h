@@ -26,14 +26,7 @@
 #ifndef CAIRO_LINE_INLINE_H
 #define CAIRO_LINE_INLINE_H
 
-//#include "cairo-types-private.h"
-//#include "cairo-compiler-private.h"
-//#include "cairo-fixed-private.h"
-//#include "cairo-line-private.h"
-
 static inline int cairo_lines_equal (const cairo_line_t *a, const cairo_line_t *b)
-{
-    return (a->p1.x == b->p1.x && a->p1.y == b->p1.y && a->p2.x == b->p2.x && a->p2.y == b->p2.y);
-}
+	{ return (a->p1.x == b->p1.x && a->p1.y == b->p1.y && a->p2.x == b->p2.x && a->p2.y == b->p2.y); }
 
 #endif /* CAIRO_LINE_INLINE_H */

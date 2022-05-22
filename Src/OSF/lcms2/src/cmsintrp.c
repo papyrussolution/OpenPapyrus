@@ -35,7 +35,7 @@ _cmsInterpPluginChunkType _cmsInterpPluginChunk = { NULL };
 void _cmsAllocInterpPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	void * from;
-	_cmsAssert(ctx);
+	assert(ctx);
 	if(src) {
 		from = src->chunks[InterpPlugin];
 	}
@@ -43,7 +43,7 @@ void _cmsAllocInterpPluginChunk(struct _cmsContext_struct* ctx, const struct _cm
 		static _cmsInterpPluginChunkType InterpPluginChunk = { NULL };
 		from = &InterpPluginChunk;
 	}
-	_cmsAssert(from != NULL);
+	assert(from != NULL);
 	ctx->chunks[InterpPlugin] = _cmsSubAllocDup(ctx->MemPool, from, sizeof(_cmsInterpPluginChunkType));
 }
 
@@ -149,8 +149,7 @@ cmsInterpParams * CMSEXPORT _cmsComputeInterpParams(cmsContext ContextID, uint32
 // Free all associated memory
 void CMSEXPORT _cmsFreeInterpParams(cmsInterpParams * p)
 {
-	if(p)
-		_cmsFree(p->ContextID, p);
+	_cmsFree(p->ContextID, p);
 }
 
 // Inline fixed point interpolation

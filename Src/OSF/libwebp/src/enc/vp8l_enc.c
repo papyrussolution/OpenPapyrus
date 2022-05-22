@@ -13,8 +13,6 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <stdlib.h>
 #include "src/enc/backward_references_enc.h"
 #include "src/enc/histogram_enc.h"
 #include "src/enc/vp8i_enc.h"
@@ -23,11 +21,9 @@
 #include "src/dsp/lossless_common.h"
 #include "src/utils/bit_writer_utils.h"
 #include "src/utils/huffman_encode_utils.h"
-//#include "src/utils/utils.h"
 #include "src/webp/format_constants.h"
 
-// Maximum number of histogram images (sub-blocks).
-#define MAX_HUFF_IMAGE_SIZE       2600
+#define MAX_HUFF_IMAGE_SIZE       2600 // Maximum number of histogram images (sub-blocks).
 
 // Palette reordering for smaller sum of deltas (and for smaller storage).
 
@@ -1662,17 +1658,17 @@ static VP8LEncoder* VP8LEncoderNew(const WebPConfig* const config,
 	enc->config_ = config;
 	enc->pic_ = picture;
 	enc->argb_content_ = kEncoderNone;
-
 	VP8LEncDspInit();
-
 	return enc;
 }
 
-static void VP8LEncoderDelete(VP8LEncoder* enc) {
-	if(enc != NULL) {
+static void VP8LEncoderDelete(VP8LEncoder* enc) 
+{
+	if(enc) {
 		int i;
 		VP8LHashChainClear(&enc->hash_chain_);
-		for(i = 0; i < 4; ++i) VP8LBackwardRefsClear(&enc->refs_[i]);
+		for(i = 0; i < 4; ++i) 
+			VP8LBackwardRefsClear(&enc->refs_[i]);
 		ClearTransformBuffer(enc);
 		WebPSafeFree(enc);
 	}

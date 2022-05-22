@@ -1,19 +1,11 @@
+// HEBRWCAL.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- * Copyright (C) 2003-2016, International Business Machines Corporation
- * and others. All Rights Reserved.
- ******************************************************************************
- *
- * File HEBRWCAL.CPP
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   12/03/2003  srl         ported from java HebrewCalendar
- *****************************************************************************
- */
+// Copyright (C) 2003-2016, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 12/03/2003  srl         ported from java HebrewCalendar
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "hebrwcal.h"
@@ -134,19 +126,17 @@ static const int16 LEAP_MONTH_START[][3] = {
 static icu::CalendarCache * gCache =  NULL;
 
 U_CDECL_BEGIN
-static bool calendar_hebrew_cleanup() {
-	delete gCache;
-	gCache = NULL;
+static bool calendar_hebrew_cleanup() 
+{
+	ZDELETE(gCache);
 	return TRUE;
 }
-
 U_CDECL_END
 
 U_NAMESPACE_BEGIN
-//-------------------------------------------------------------------------
+//
 // Constructors...
-//-------------------------------------------------------------------------
-
+//
 /**
  * Constructs a default <code>HebrewCalendar</code> using the current time
  * in the default time zone with the default locale.
@@ -159,27 +149,22 @@ HebrewCalendar::HebrewCalendar(const Locale & aLocale, UErrorCode & success)
 	setTimeInMillis(getNow(), success); // Call this again now that the vtable is set up properly.
 }
 
-HebrewCalendar::~HebrewCalendar() {
+HebrewCalendar::~HebrewCalendar() 
+{
 }
 
-const char * HebrewCalendar::getType() const {
-	return "hebrew";
-}
+const char * HebrewCalendar::getType() const { return "hebrew"; }
+HebrewCalendar* HebrewCalendar::clone() const { return new HebrewCalendar(*this); }
 
-HebrewCalendar* HebrewCalendar::clone() const {
-	return new HebrewCalendar(*this);
+HebrewCalendar::HebrewCalendar(const HebrewCalendar& other) : Calendar(other) 
+{
 }
-
-HebrewCalendar::HebrewCalendar(const HebrewCalendar& other) : Calendar(other) {
-}
-
-//-------------------------------------------------------------------------
+//
 // Rolling and adding functions overridden from Calendar
 //
 // These methods call through to the default implementation in IBMCalendar
 // for most of the fields and only handle the unusual ones themselves.
-//-------------------------------------------------------------------------
-
+//
 /**
  * Add a signed amount to a specified field, using this calendar's rules.
  * For example, to add three days to the current date, you can call
@@ -340,14 +325,10 @@ void HebrewCalendar::roll(UCalendarDateFields field, int32_t amount, UErrorCode 
 	}
 }
 
-void HebrewCalendar::roll(EDateFields field, int32_t amount, UErrorCode & status) {
-	roll((UCalendarDateFields)field, amount, status);
-}
-
-//-------------------------------------------------------------------------
+void HebrewCalendar::roll(EDateFields field, int32_t amount, UErrorCode & status) { roll((UCalendarDateFields)field, amount, status); }
+//
 // Support methods
-//-------------------------------------------------------------------------
-
+//
 // Hebrew date calculations are performed in terms of days, hours, and
 // "parts" (or halakim), which are 1/1080 of an hour, or 3 1/3 seconds.
 static const int32_t HOUR_PARTS = 1080;
@@ -470,20 +451,17 @@ int32_t HebrewCalendar::yearType(int32_t year) const
  * The rule here is that if(year % 19) == 0, 3, 6, 8, 11, 14, or 17.
  * The formula below performs the same test, believe it or not.
  */
-bool HebrewCalendar::isLeapYear(int32_t year) {
+bool HebrewCalendar::isLeapYear(int32_t year) 
+{
 	//return (year * 12 + 17) % 19 >= 12;
 	int32_t x = (year*12 + 17) % 19;
 	return x >= ((x < 0) ? -7 : 12);
 }
 
-int32_t HebrewCalendar::monthsInYear(int32_t year) {
-	return isLeapYear(year) ? 13 : 12;
-}
-
-//-------------------------------------------------------------------------
+int32_t HebrewCalendar::monthsInYear(int32_t year) { return isLeapYear(year) ? 13 : 12; }
+//
 // Calendar framework
-//-------------------------------------------------------------------------
-
+//
 /**
  * @internal
  */
@@ -526,23 +504,23 @@ int32_t HebrewCalendar::handleGetMonthLength(int32_t extendedYear, int32_t month
  * Returns the number of days in the given Hebrew year
  * @internal
  */
-int32_t HebrewCalendar::handleGetYearLength(int32_t eyear) const {
+int32_t HebrewCalendar::handleGetYearLength(int32_t eyear) const 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	return startOfYear(eyear+1, status) - startOfYear(eyear, status);
 }
 
-void HebrewCalendar::validateField(UCalendarDateFields field, UErrorCode & status) {
+void HebrewCalendar::validateField(UCalendarDateFields field, UErrorCode & status) 
+{
 	if(field == UCAL_MONTH && !isLeapYear(handleGetExtendedYear()) && internalGet(UCAL_MONTH) == ADAR_1) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
 	Calendar::validateField(field, status);
 }
-
-//-------------------------------------------------------------------------
+//
 // Functions for converting from milliseconds to field values
-//-------------------------------------------------------------------------
-
+//
 /**
  * Subclasses may override this method to compute several fields
  * specific to each calendar system.  These are:
@@ -610,15 +588,14 @@ void HebrewCalendar::handleComputeFields(int32_t julianDay, UErrorCode & status)
 	internalSet(UCAL_DAY_OF_MONTH, dayOfMonth);
 	internalSet(UCAL_DAY_OF_YEAR, dayOfYear);
 }
-
-//-------------------------------------------------------------------------
+//
 // Functions for converting from field values to milliseconds
-//-------------------------------------------------------------------------
-
+//
 /**
  * @internal
  */
-int32_t HebrewCalendar::handleGetExtendedYear() {
+int32_t HebrewCalendar::handleGetExtendedYear() 
+{
 	int32_t year;
 	if(newerField(UCAL_EXTENDED_YEAR, UCAL_YEAR) == UCAL_EXTENDED_YEAR) {
 		year = internalGet(UCAL_EXTENDED_YEAR, 1); // Default to year 1
@@ -628,12 +605,12 @@ int32_t HebrewCalendar::handleGetExtendedYear() {
 	}
 	return year;
 }
-
 /**
  * Return JD of start of given month/year.
  * @internal
  */
-int32_t HebrewCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, bool /*useMonth*/) const {
+int32_t HebrewCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, bool /*useMonth*/) const 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	// Resolve out-of-range months.  This is necessary in order to
 	// obtain the correct year.  We correct to
@@ -648,13 +625,10 @@ int32_t HebrewCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, bo
 	while(month > 12) {
 		month -= monthsInYear(eyear++);
 	}
-
 	int32_t day = startOfYear(eyear, status);
-
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-
 	if(month != 0) {
 		if(isLeapYear(eyear)) {
 			day += LEAP_MONTH_START[month][yearType(eyear)];
@@ -663,7 +637,6 @@ int32_t HebrewCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, bo
 			day += MONTH_START[month][yearType(eyear)];
 		}
 	}
-
 	return (int)(day + 347997);
 }
 
@@ -672,13 +645,10 @@ bool HebrewCalendar::inDaylightTime(UErrorCode & status) const
 	// copied from GregorianCalendar
 	if(U_FAILURE(status) || !getTimeZone().useDaylightTime())
 		return FALSE;
-
 	// Force an update of the state of the Calendar.
 	((HebrewCalendar*)this)->complete(status); // cast away const
-
 	return (bool)(U_SUCCESS(status) ? (internalGet(UCAL_DST_OFFSET) != 0) : FALSE);
 }
-
 /**
  * The system maintains a static default century start date and Year.  They are
  * initialized the first time they are used.  Once the system default century date

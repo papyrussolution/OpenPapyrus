@@ -211,9 +211,9 @@ static lzma_ret lzma2_encoder_init(lzma_lz_encoder * lz, const lzma_allocator * 
 	if(options == NULL)
 		return LZMA_PROG_ERROR;
 	lzma_lzma2_encoder_coder * coder = (lzma_lzma2_encoder_coder *)lz->coder;
-	if(coder == NULL) {
+	if(!coder) {
 		coder = (lzma_lzma2_encoder_coder *)lzma_alloc(sizeof(lzma_lzma2_encoder_coder), allocator);
-		if(coder == NULL)
+		if(!coder)
 			return LZMA_MEM_ERROR;
 		lz->coder = coder;
 		lz->code = &lzma2_encode;

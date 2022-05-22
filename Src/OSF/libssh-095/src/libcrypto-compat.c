@@ -17,7 +17,7 @@
 static void * OPENSSL_zalloc(size_t num)
 {
 	void * ret = OPENSSL_malloc(num);
-	if(ret != NULL)
+	if(ret)
 		memset(ret, 0, num);
 	return ret;
 }
@@ -34,7 +34,7 @@ int RSA_set0_key(RSA * r, BIGNUM * n, BIGNUM * e, BIGNUM * d)
 		BN_free(r->n);
 		r->n = n;
 	}
-	if(e != NULL) {
+	if(e) {
 		BN_free(r->e);
 		r->e = e;
 	}
@@ -82,36 +82,27 @@ int RSA_set0_crt_params(RSA * r, BIGNUM * dmp1, BIGNUM * dmq1, BIGNUM * iqmp)
 		BN_free(r->iqmp);
 		r->iqmp = iqmp;
 	}
-
 	return 1;
 }
 
 void RSA_get0_key(const RSA * r, const BIGNUM ** n, const BIGNUM ** e, const BIGNUM ** d)
 {
-	if(n)
-		*n = r->n;
-	if(e != NULL)
-		*e = r->e;
-	if(d)
-		*d = r->d;
+	ASSIGN_PTR(n, r->n);
+	ASSIGN_PTR(e, r->e);
+	ASSIGN_PTR(d, r->d);
 }
 
 void RSA_get0_factors(const RSA * r, const BIGNUM ** p, const BIGNUM ** q)
 {
-	if(p)
-		*p = r->p;
-	if(q)
-		*q = r->q;
+	ASSIGN_PTR(p, r->p);
+	ASSIGN_PTR(q, r->q);
 }
 
 void RSA_get0_crt_params(const RSA * r, const BIGNUM ** dmp1, const BIGNUM ** dmq1, const BIGNUM ** iqmp)
 {
-	if(dmp1)
-		*dmp1 = r->dmp1;
-	if(dmq1 != NULL)
-		*dmq1 = r->dmq1;
-	if(iqmp != NULL)
-		*iqmp = r->iqmp;
+	ASSIGN_PTR(dmp1, r->dmp1);
+	ASSIGN_PTR(dmq1, r->dmq1);
+	ASSIGN_PTR(iqmp, r->iqmp);
 }
 
 void DSA_get0_pqg(const DSA * d, const BIGNUM ** p, const BIGNUM ** q, const BIGNUM ** g)
@@ -222,7 +213,7 @@ EVP_MD_CTX * EVP_MD_CTX_new()
 
 static void OPENSSL_clear_free(void * str, size_t num)
 {
-	if(str == NULL)
+	if(!str)
 		return;
 	if(num)
 		OPENSSL_cleanse(str, num);
@@ -270,7 +261,7 @@ int EVP_CIPHER_CTX_reset(EVP_CIPHER_CTX * ctx)
 HMAC_CTX * HMAC_CTX_new()
 {
 	HMAC_CTX * ctx = (HMAC_CTX *)OPENSSL_zalloc(sizeof(HMAC_CTX));
-	if(ctx != NULL) {
+	if(ctx) {
 		if(!HMAC_CTX_reset(ctx)) {
 			HMAC_CTX_free(ctx);
 			return NULL;
@@ -291,7 +282,7 @@ static void hmac_ctx_cleanup(HMAC_CTX * ctx)
 
 void HMAC_CTX_free(HMAC_CTX * ctx)
 {
-	if(ctx != NULL) {
+	if(ctx) {
 		hmac_ctx_cleanup(ctx);
 #if OPENSSL_VERSION_NUMBER > 0x10100000L
 		EVP_MD_CTX_free(&ctx->i_ctx);

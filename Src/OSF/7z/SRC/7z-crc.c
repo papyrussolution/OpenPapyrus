@@ -117,7 +117,7 @@ void FASTCALL CrcGenerateTable()
 		for(; size > 0 && ((uint)(ptrdiff_t)p & 3) != 0; size--, p++)
 			v = CRC_UPDATE_BYTE_2(v, *p);
 		for(; size >= 4; size -= 4, p += 4) {
-			v ^= *(const uint32*)p;
+			v ^= *(const uint32 *)p;
 			v = (table + 0x300)[((v) & 0xFF)] ^ (table + 0x200)[((v >>  8) & 0xFF)] ^ (table + 0x100)[((v >> 16) & 0xFF)] ^ (table + 0x000)[((v >> 24))];
 		}
 		for(; size > 0; size--, p++)
@@ -132,9 +132,9 @@ void FASTCALL CrcGenerateTable()
 			v = CRC_UPDATE_BYTE_2(v, *p);
 		for(; size >= 8; size -= 8, p += 8) {
 			uint32 d;
-			v ^= *(const uint32*)p;
+			v ^= *(const uint32 *)p;
 			v = (table + 0x700)[((v) & 0xFF)] ^ (table + 0x600)[((v >>  8) & 0xFF)] ^ (table + 0x500)[((v >> 16) & 0xFF)] ^ (table + 0x400)[((v >> 24))];
-			d = *((const uint32*)p + 1);
+			d = *((const uint32 *)p + 1);
 			v ^= (table + 0x300)[((d) & 0xFF)] ^ (table + 0x200)[((d >>  8) & 0xFF)] ^ (table + 0x100)[((d >> 16) & 0xFF)] ^ (table + 0x000)[((d >> 24))];
 		}
 		for(; size > 0; size--, p++)
@@ -154,7 +154,7 @@ void FASTCALL CrcGenerateTable()
 		for(; size > 0 && ((uint)(ptrdiff_t)p & 3) != 0; size--, p++)
 			v = CRC_UPDATE_BYTE_2_BE(v, *p);
 		for(; size >= 4; size -= 4, p += 4) {
-			v ^= *(const uint32*)p;
+			v ^= *(const uint32 *)p;
 			v = (table + 0x000)[((v) & 0xFF)] ^ (table + 0x100)[((v >>  8) & 0xFF)] ^ (table + 0x200)[((v >> 16) & 0xFF)] ^ (table + 0x300)[((v >> 24))];
 		}
 		for(; size > 0; size--, p++)
@@ -171,9 +171,9 @@ void FASTCALL CrcGenerateTable()
 			v = CRC_UPDATE_BYTE_2_BE(v, *p);
 		for(; size >= 8; size -= 8, p += 8) {
 			uint32 d;
-			v ^= *(const uint32*)p;
+			v ^= *(const uint32 *)p;
 			v = (table + 0x400)[((v) & 0xFF)] ^ (table + 0x500)[((v >>  8) & 0xFF)] ^ (table + 0x600)[((v >> 16) & 0xFF)] ^ (table + 0x700)[((v >> 24))];
-			d = *((const uint32*)p + 1);
+			d = *((const uint32 *)p + 1);
 			v ^= (table + 0x000)[((d) & 0xFF)] ^ (table + 0x100)[((d >>  8) & 0xFF)] ^ (table + 0x200)[((d >> 16) & 0xFF)] ^ (table + 0x300)[((d >> 24))];
 		}
 		for(; size > 0; size--, p++)
@@ -250,7 +250,7 @@ void FASTCALL Crc64GenerateTable()
 		for(; size > 0 && ((uint)(ptrdiff_t)p & 3) != 0; size--, p++)
 			v = CRC_UPDATE_BYTE_2(v, *p);
 		for(; size >= 4; size -= 4, p += 4) {
-			uint32 d = (uint32)v ^ *(const uint32*)p;
+			uint32 d = (uint32)v ^ *(const uint32 *)p;
 			v = (v >> 32) ^ (table + 0x300)[((d) & 0xFF)] ^ (table + 0x200)[((d >>  8) & 0xFF)] ^ (table + 0x100)[((d >> 16) & 0xFF)] ^ (table + 0x000)[((d >> 24))];
 		}
 		for(; size > 0; size--, p++)
@@ -271,7 +271,7 @@ void FASTCALL Crc64GenerateTable()
 		for(; size > 0 && ((uint)(ptrdiff_t)p & 3) != 0; size--, p++)
 			v = CRC64_UPDATE_BYTE_2_BE(v, *p);
 		for(; size >= 4; size -= 4, p += 4) {
-			uint32 d = (uint32)(v >> 32) ^ *(const uint32*)p;
+			uint32 d = (uint32)(v >> 32) ^ *(const uint32 *)p;
 			v = (v << 32) ^ (table + 0x000)[((d) & 0xFF)] ^ (table + 0x100)[((d >>  8) & 0xFF)] ^ (table + 0x200)[((d >> 16) & 0xFF)] ^ (table + 0x300)[((d >> 24))];
 		}
 		for(; size > 0; size--, p++)

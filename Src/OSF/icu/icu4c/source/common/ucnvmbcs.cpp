@@ -868,14 +868,14 @@ U_CFUNC void ucnv_MBCSGetFilteredUnicodeSetForUnicode(const UConverterSharedData
 									    switch(st3Multiplier) {
 										    case 4:
 											b |= *stage3++;
-											U_FALLTHROUGH;
+											CXX_FALLTHROUGH;
 										    case 3:
 											b |= *stage3++;
-											U_FALLTHROUGH;
+											CXX_FALLTHROUGH;
 										    case 2:
 											b |= stage3[0]|stage3[1];
 											stage3 += 2;
-											U_FALLTHROUGH;
+											CXX_FALLTHROUGH;
 										    default:
 											break;
 									    }
@@ -4502,16 +4502,16 @@ unassigned:
 						/* each branch falls through to the next one */
 						case 4:
 						    *target++ = (uint8)(value>>24);
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 3:
 						    *target++ = (uint8)(value>>16);
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 2:
 						    *target++ = (uint8)(value>>8);
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 1:
 						    *target++ = (uint8)value;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						default:
 						    /* will never occur */
 						    break;
@@ -4523,19 +4523,19 @@ unassigned:
 						case 4:
 						    *target++ = (uint8)(value>>24);
 						    *offsets++ = sourceIndex;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 3:
 						    *target++ = (uint8)(value>>16);
 						    *offsets++ = sourceIndex;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 2:
 						    *target++ = (uint8)(value>>8);
 						    *offsets++ = sourceIndex;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						case 1:
 						    *target++ = (uint8)value;
 						    *offsets++ = sourceIndex;
-						    U_FALLTHROUGH;
+						    CXX_FALLTHROUGH;
 						default:
 						    /* will never occur */
 						    break;
@@ -4559,13 +4559,13 @@ unassigned:
 					/* each branch falls through to the next one */
 					case 3:
 					    *charErrorBuffer++ = (uint8)(value>>16);
-					    U_FALLTHROUGH;
+					    CXX_FALLTHROUGH;
 					case 2:
 					    *charErrorBuffer++ = (uint8)(value>>8);
-					    U_FALLTHROUGH;
+					    CXX_FALLTHROUGH;
 					case 1:
 					    *charErrorBuffer = (uint8)value;
-					    U_FALLTHROUGH;
+					    CXX_FALLTHROUGH;
 					default:
 					    /* will never occur */
 					    break;
@@ -4581,19 +4581,19 @@ unassigned:
 					    if(offsets) {
 						    *offsets++ = sourceIndex;
 					    }
-					    U_FALLTHROUGH;
+					    CXX_FALLTHROUGH;
 					case 2:
 					    *target++ = (uint8)(value>>8);
 					    if(offsets) {
 						    *offsets++ = sourceIndex;
 					    }
-					    U_FALLTHROUGH;
+					    CXX_FALLTHROUGH;
 					case 1:
 					    *target++ = (uint8)value;
 					    if(offsets) {
 						    *offsets++ = sourceIndex;
 					    }
-					    U_FALLTHROUGH;
+					    CXX_FALLTHROUGH;
 					default:
 					    /* will never occur */
 					    break;

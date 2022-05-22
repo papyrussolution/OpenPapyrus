@@ -91,7 +91,7 @@ ASN1_BIT_STRING * c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a,
 		goto err;
 	}
 
-	if((a == NULL) || ((*a) == NULL)) {
+	if(!a || ((*a) == NULL)) {
 		if((ret = ASN1_BIT_STRING_new()) == NULL)
 			return NULL;
 	}
@@ -113,7 +113,7 @@ ASN1_BIT_STRING * c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a,
 
 	if(len-- > 1) {         /* using one because of the bits left byte */
 		s = static_cast<uchar *>(OPENSSL_malloc((int)len));
-		if(s == NULL) {
+		if(!s) {
 			i = ERR_R_MALLOC_FAILURE;
 			goto err;
 		}
@@ -134,7 +134,7 @@ ASN1_BIT_STRING * c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a,
 	return ret;
 err:
 	ASN1err(ASN1_F_C2I_ASN1_BIT_STRING, i);
-	if((a == NULL) || (*a != ret))
+	if(!a || (*a != ret))
 		ASN1_BIT_STRING_free(ret);
 	return NULL;
 }
@@ -178,7 +178,7 @@ int ASN1_BIT_STRING_get_bit(const ASN1_BIT_STRING * a, int n)
 {
 	int w = n / 8;
 	int v = 1 << (7 - (n & 0x07));
-	if((a == NULL) || (a->length < (w + 1)) || (a->data == NULL))
+	if(!a || (a->length < (w + 1)) || (a->data == NULL))
 		return 0;
 	return ((a->data[w] & v) != 0);
 }

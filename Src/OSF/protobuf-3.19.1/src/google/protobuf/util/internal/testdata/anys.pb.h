@@ -1253,15 +1253,11 @@ class Data final :
   public:
   void clear_map_data();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-      _internal_map_data() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-      _internal_mutable_map_data();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > & _internal_map_data() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * _internal_mutable_map_data();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-      map_data() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-      mutable_map_data();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > & map_data() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * mutable_map_data();
 
   // repeated .proto_util_converter.testing.Data repeated_data = 9;
   int repeated_data_size() const;
@@ -1846,9 +1842,7 @@ class AnyM final :
 // AnyTestCases
 
 // .proto_util_converter.testing.AnyWrapper empty_any = 1;
-inline bool AnyTestCases::_internal_has_empty_any() const {
-  return this != internal_default_instance() && empty_any_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_empty_any() const { return this != internal_default_instance() && empty_any_ != nullptr; }
 inline bool AnyTestCases::has_empty_any() const {
   return _internal_has_empty_any();
 }
@@ -1935,9 +1929,7 @@ inline void AnyTestCases::set_allocated_empty_any(::proto_util_converter::testin
 }
 
 // .proto_util_converter.testing.AnyWrapper type_only_any = 2;
-inline bool AnyTestCases::_internal_has_type_only_any() const {
-  return this != internal_default_instance() && type_only_any_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_type_only_any() const { return this != internal_default_instance() && type_only_any_ != nullptr; }
 inline bool AnyTestCases::has_type_only_any() const {
   return _internal_has_type_only_any();
 }
@@ -2024,9 +2016,7 @@ inline void AnyTestCases::set_allocated_type_only_any(::proto_util_converter::te
 }
 
 // .proto_util_converter.testing.AnyWrapper wrapper_any = 3;
-inline bool AnyTestCases::_internal_has_wrapper_any() const {
-  return this != internal_default_instance() && wrapper_any_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_wrapper_any() const { return this != internal_default_instance() && wrapper_any_ != nullptr; }
 inline bool AnyTestCases::has_wrapper_any() const {
   return _internal_has_wrapper_any();
 }
@@ -2113,9 +2103,7 @@ inline void AnyTestCases::set_allocated_wrapper_any(::proto_util_converter::test
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_timestamp_value = 4;
-inline bool AnyTestCases::_internal_has_any_with_timestamp_value() const {
-  return this != internal_default_instance() && any_with_timestamp_value_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_timestamp_value() const { return this != internal_default_instance() && any_with_timestamp_value_ != nullptr; }
 inline bool AnyTestCases::has_any_with_timestamp_value() const {
   return _internal_has_any_with_timestamp_value();
 }
@@ -2202,9 +2190,7 @@ inline void AnyTestCases::set_allocated_any_with_timestamp_value(::proto_util_co
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_duration_value = 5;
-inline bool AnyTestCases::_internal_has_any_with_duration_value() const {
-  return this != internal_default_instance() && any_with_duration_value_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_duration_value() const { return this != internal_default_instance() && any_with_duration_value_ != nullptr; }
 inline bool AnyTestCases::has_any_with_duration_value() const {
   return _internal_has_any_with_duration_value();
 }
@@ -2291,9 +2277,7 @@ inline void AnyTestCases::set_allocated_any_with_duration_value(::proto_util_con
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_struct_value = 6;
-inline bool AnyTestCases::_internal_has_any_with_struct_value() const {
-  return this != internal_default_instance() && any_with_struct_value_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_struct_value() const { return this != internal_default_instance() && any_with_struct_value_ != nullptr; }
 inline bool AnyTestCases::has_any_with_struct_value() const {
   return _internal_has_any_with_struct_value();
 }
@@ -2380,9 +2364,7 @@ inline void AnyTestCases::set_allocated_any_with_struct_value(::proto_util_conve
 }
 
 // .proto_util_converter.testing.AnyWrapper recursive_any = 7;
-inline bool AnyTestCases::_internal_has_recursive_any() const {
-  return this != internal_default_instance() && recursive_any_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_recursive_any() const { return this != internal_default_instance() && recursive_any_ != nullptr; }
 inline bool AnyTestCases::has_recursive_any() const {
   return _internal_has_recursive_any();
 }
@@ -2469,9 +2451,7 @@ inline void AnyTestCases::set_allocated_recursive_any(::proto_util_converter::te
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_value = 8;
-inline bool AnyTestCases::_internal_has_any_with_message_value() const {
-  return this != internal_default_instance() && any_with_message_value_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_message_value() const { return this != internal_default_instance() && any_with_message_value_ != nullptr; }
 inline bool AnyTestCases::has_any_with_message_value() const {
   return _internal_has_any_with_message_value();
 }
@@ -2558,9 +2538,7 @@ inline void AnyTestCases::set_allocated_any_with_message_value(::proto_util_conv
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_nested_message = 9;
-inline bool AnyTestCases::_internal_has_any_with_nested_message() const {
-  return this != internal_default_instance() && any_with_nested_message_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_nested_message() const { return this != internal_default_instance() && any_with_nested_message_ != nullptr; }
 inline bool AnyTestCases::has_any_with_nested_message() const {
   return _internal_has_any_with_nested_message();
 }
@@ -2647,9 +2625,7 @@ inline void AnyTestCases::set_allocated_any_with_nested_message(::proto_util_con
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_with_wrapper_type = 10;
-inline bool AnyTestCases::_internal_has_any_with_message_with_wrapper_type() const {
-  return this != internal_default_instance() && any_with_message_with_wrapper_type_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_message_with_wrapper_type() const { return this != internal_default_instance() && any_with_message_with_wrapper_type_ != nullptr; }
 inline bool AnyTestCases::has_any_with_message_with_wrapper_type() const {
   return _internal_has_any_with_message_with_wrapper_type();
 }
@@ -2736,9 +2712,7 @@ inline void AnyTestCases::set_allocated_any_with_message_with_wrapper_type(::pro
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_with_timestamp = 11;
-inline bool AnyTestCases::_internal_has_any_with_message_with_timestamp() const {
-  return this != internal_default_instance() && any_with_message_with_timestamp_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_message_with_timestamp() const { return this != internal_default_instance() && any_with_message_with_timestamp_ != nullptr; }
 inline bool AnyTestCases::has_any_with_message_with_timestamp() const {
   return _internal_has_any_with_message_with_timestamp();
 }
@@ -2825,9 +2799,7 @@ inline void AnyTestCases::set_allocated_any_with_message_with_timestamp(::proto_
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_containing_map = 12;
-inline bool AnyTestCases::_internal_has_any_with_message_containing_map() const {
-  return this != internal_default_instance() && any_with_message_containing_map_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_message_containing_map() const { return this != internal_default_instance() && any_with_message_containing_map_ != nullptr; }
 inline bool AnyTestCases::has_any_with_message_containing_map() const {
   return _internal_has_any_with_message_containing_map();
 }
@@ -2914,9 +2886,7 @@ inline void AnyTestCases::set_allocated_any_with_message_containing_map(::proto_
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_containing_struct = 13;
-inline bool AnyTestCases::_internal_has_any_with_message_containing_struct() const {
-  return this != internal_default_instance() && any_with_message_containing_struct_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_message_containing_struct() const { return this != internal_default_instance() && any_with_message_containing_struct_ != nullptr; }
 inline bool AnyTestCases::has_any_with_message_containing_struct() const {
   return _internal_has_any_with_message_containing_struct();
 }
@@ -3003,9 +2973,7 @@ inline void AnyTestCases::set_allocated_any_with_message_containing_struct(::pro
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_message_containing_repeated_message = 14;
-inline bool AnyTestCases::_internal_has_any_with_message_containing_repeated_message() const {
-  return this != internal_default_instance() && any_with_message_containing_repeated_message_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_message_containing_repeated_message() const { return this != internal_default_instance() && any_with_message_containing_repeated_message_ != nullptr; }
 inline bool AnyTestCases::has_any_with_message_containing_repeated_message() const {
   return _internal_has_any_with_message_containing_repeated_message();
 }
@@ -3092,9 +3060,7 @@ inline void AnyTestCases::set_allocated_any_with_message_containing_repeated_mes
 }
 
 // .proto_util_converter.testing.AnyWrapper recursive_any_with_type_field_at_end = 15;
-inline bool AnyTestCases::_internal_has_recursive_any_with_type_field_at_end() const {
-  return this != internal_default_instance() && recursive_any_with_type_field_at_end_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_recursive_any_with_type_field_at_end() const { return this != internal_default_instance() && recursive_any_with_type_field_at_end_ != nullptr; }
 inline bool AnyTestCases::has_recursive_any_with_type_field_at_end() const {
   return _internal_has_recursive_any_with_type_field_at_end();
 }
@@ -3181,9 +3147,7 @@ inline void AnyTestCases::set_allocated_recursive_any_with_type_field_at_end(::p
 }
 
 // .proto_util_converter.testing.AnyWrapper repeated_any = 16;
-inline bool AnyTestCases::_internal_has_repeated_any() const {
-  return this != internal_default_instance() && repeated_any_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_repeated_any() const { return this != internal_default_instance() && repeated_any_ != nullptr; }
 inline bool AnyTestCases::has_repeated_any() const {
   return _internal_has_repeated_any();
 }
@@ -3270,9 +3234,7 @@ inline void AnyTestCases::set_allocated_repeated_any(::proto_util_converter::tes
 }
 
 // .proto_util_converter.testing.AnyWrapper empty_any_with_null_type_url = 17;
-inline bool AnyTestCases::_internal_has_empty_any_with_null_type_url() const {
-  return this != internal_default_instance() && empty_any_with_null_type_url_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_empty_any_with_null_type_url() const { return this != internal_default_instance() && empty_any_with_null_type_url_ != nullptr; }
 inline bool AnyTestCases::has_empty_any_with_null_type_url() const {
   return _internal_has_empty_any_with_null_type_url();
 }
@@ -3359,9 +3321,7 @@ inline void AnyTestCases::set_allocated_empty_any_with_null_type_url(::proto_uti
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_empty = 18;
-inline bool AnyTestCases::_internal_has_any_with_empty() const {
-  return this != internal_default_instance() && any_with_empty_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_empty() const { return this != internal_default_instance() && any_with_empty_ != nullptr; }
 inline bool AnyTestCases::has_any_with_empty() const {
   return _internal_has_any_with_empty();
 }
@@ -3448,9 +3408,7 @@ inline void AnyTestCases::set_allocated_any_with_empty(::proto_util_converter::t
 }
 
 // .proto_util_converter.testing.AnyWrapper any_with_default_timestamp = 19;
-inline bool AnyTestCases::_internal_has_any_with_default_timestamp() const {
-  return this != internal_default_instance() && any_with_default_timestamp_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_any_with_default_timestamp() const { return this != internal_default_instance() && any_with_default_timestamp_ != nullptr; }
 inline bool AnyTestCases::has_any_with_default_timestamp() const {
   return _internal_has_any_with_default_timestamp();
 }
@@ -3537,9 +3495,7 @@ inline void AnyTestCases::set_allocated_any_with_default_timestamp(::proto_util_
 }
 
 // .google.protobuf.Any top_level_any = 50;
-inline bool AnyTestCases::_internal_has_top_level_any() const {
-  return this != internal_default_instance() && top_level_any_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_top_level_any() const { return this != internal_default_instance() && top_level_any_ != nullptr; }
 inline bool AnyTestCases::has_top_level_any() const {
   return _internal_has_top_level_any();
 }
@@ -3621,9 +3577,7 @@ inline void AnyTestCases::set_allocated_top_level_any(::PROTOBUF_NAMESPACE_ID::A
 }
 
 // .google.protobuf.Any top_level_any_with_type_field_at_end = 51;
-inline bool AnyTestCases::_internal_has_top_level_any_with_type_field_at_end() const {
-  return this != internal_default_instance() && top_level_any_with_type_field_at_end_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_top_level_any_with_type_field_at_end() const { return this != internal_default_instance() && top_level_any_with_type_field_at_end_ != nullptr; }
 inline bool AnyTestCases::has_top_level_any_with_type_field_at_end() const {
   return _internal_has_top_level_any_with_type_field_at_end();
 }
@@ -3705,9 +3659,7 @@ inline void AnyTestCases::set_allocated_top_level_any_with_type_field_at_end(::P
 }
 
 // .google.protobuf.Any top_level_any_with_pivot_one = 52;
-inline bool AnyTestCases::_internal_has_top_level_any_with_pivot_one() const {
-  return this != internal_default_instance() && top_level_any_with_pivot_one_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_top_level_any_with_pivot_one() const { return this != internal_default_instance() && top_level_any_with_pivot_one_ != nullptr; }
 inline bool AnyTestCases::has_top_level_any_with_pivot_one() const {
   return _internal_has_top_level_any_with_pivot_one();
 }
@@ -3789,9 +3741,7 @@ inline void AnyTestCases::set_allocated_top_level_any_with_pivot_one(::PROTOBUF_
 }
 
 // .google.protobuf.Any top_level_any_with_pivot_two = 53;
-inline bool AnyTestCases::_internal_has_top_level_any_with_pivot_two() const {
-  return this != internal_default_instance() && top_level_any_with_pivot_two_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_top_level_any_with_pivot_two() const { return this != internal_default_instance() && top_level_any_with_pivot_two_ != nullptr; }
 inline bool AnyTestCases::has_top_level_any_with_pivot_two() const {
   return _internal_has_top_level_any_with_pivot_two();
 }
@@ -3873,9 +3823,7 @@ inline void AnyTestCases::set_allocated_top_level_any_with_pivot_two(::PROTOBUF_
 }
 
 // .google.protobuf.Any top_level_any_unordered = 54;
-inline bool AnyTestCases::_internal_has_top_level_any_unordered() const {
-  return this != internal_default_instance() && top_level_any_unordered_ != nullptr;
-}
+inline bool AnyTestCases::_internal_has_top_level_any_unordered() const { return this != internal_default_instance() && top_level_any_unordered_ != nullptr; }
 inline bool AnyTestCases::has_top_level_any_unordered() const {
   return _internal_has_top_level_any_unordered();
 }
@@ -3961,9 +3909,7 @@ inline void AnyTestCases::set_allocated_top_level_any_unordered(::PROTOBUF_NAMES
 // AnyWrapper
 
 // .google.protobuf.Any any = 1;
-inline bool AnyWrapper::_internal_has_any() const {
-  return this != internal_default_instance() && any_ != nullptr;
-}
+inline bool AnyWrapper::_internal_has_any() const { return this != internal_default_instance() && any_ != nullptr; }
 inline bool AnyWrapper::has_any() const {
   return _internal_has_any();
 }
@@ -4049,9 +3995,7 @@ inline void AnyWrapper::set_allocated_any(::PROTOBUF_NAMESPACE_ID::Any* any) {
 // Imports
 
 // .google.protobuf.DoubleValue dbl = 1;
-inline bool Imports::_internal_has_dbl() const {
-  return this != internal_default_instance() && dbl_ != nullptr;
-}
+inline bool Imports::_internal_has_dbl() const { return this != internal_default_instance() && dbl_ != nullptr; }
 inline bool Imports::has_dbl() const {
   return _internal_has_dbl();
 }
@@ -4133,9 +4077,7 @@ inline void Imports::set_allocated_dbl(::PROTOBUF_NAMESPACE_ID::DoubleValue* dbl
 }
 
 // .google.protobuf.Struct struct = 2;
-inline bool Imports::_internal_has_struct_() const {
-  return this != internal_default_instance() && struct__ != nullptr;
-}
+inline bool Imports::_internal_has_struct_() const { return this != internal_default_instance() && struct__ != nullptr; }
 inline bool Imports::has_struct_() const {
   return _internal_has_struct_();
 }
@@ -4217,9 +4159,7 @@ inline void Imports::set_allocated_struct_(::PROTOBUF_NAMESPACE_ID::Struct* stru
 }
 
 // .google.protobuf.Timestamp timestamp = 3;
-inline bool Imports::_internal_has_timestamp() const {
-  return this != internal_default_instance() && timestamp_ != nullptr;
-}
+inline bool Imports::_internal_has_timestamp() const { return this != internal_default_instance() && timestamp_ != nullptr; }
 inline bool Imports::has_timestamp() const {
   return _internal_has_timestamp();
 }
@@ -4301,9 +4241,7 @@ inline void Imports::set_allocated_timestamp(::PROTOBUF_NAMESPACE_ID::Timestamp*
 }
 
 // .google.protobuf.Duration duration = 4;
-inline bool Imports::_internal_has_duration() const {
-  return this != internal_default_instance() && duration_ != nullptr;
-}
+inline bool Imports::_internal_has_duration() const { return this != internal_default_instance() && duration_ != nullptr; }
 inline bool Imports::has_duration() const {
   return _internal_has_duration();
 }
@@ -4385,9 +4323,7 @@ inline void Imports::set_allocated_duration(::PROTOBUF_NAMESPACE_ID::Duration* d
 }
 
 // .google.protobuf.Int32Value i32 = 5;
-inline bool Imports::_internal_has_i32() const {
-  return this != internal_default_instance() && i32_ != nullptr;
-}
+inline bool Imports::_internal_has_i32() const { return this != internal_default_instance() && i32_ != nullptr; }
 inline bool Imports::has_i32() const {
   return _internal_has_i32();
 }
@@ -4469,9 +4405,7 @@ inline void Imports::set_allocated_i32(::PROTOBUF_NAMESPACE_ID::Int32Value* i32)
 }
 
 // .google.protobuf.Empty empty = 6;
-inline bool Imports::_internal_has_empty() const {
-  return this != internal_default_instance() && empty_ != nullptr;
-}
+inline bool Imports::_internal_has_empty() const { return this != internal_default_instance() && empty_ != nullptr; }
 inline bool Imports::has_empty() const {
   return _internal_has_empty();
 }
@@ -4553,9 +4487,7 @@ inline void Imports::set_allocated_empty(::PROTOBUF_NAMESPACE_ID::Empty* empty) 
 }
 
 // .proto_util_converter.testing.Data data = 100;
-inline bool Imports::_internal_has_data() const {
-  return this != internal_default_instance() && data_ != nullptr;
-}
+inline bool Imports::_internal_has_data() const { return this != internal_default_instance() && data_ != nullptr; }
 inline bool Imports::has_data() const {
   return _internal_has_data();
 }
@@ -4776,16 +4708,13 @@ Data::msgs() const {
   // @@protoc_insertion_point(field_list:proto_util_converter.testing.Data.msgs)
   return msgs_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-Data::mutable_msgs() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * Data::mutable_msgs() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Data.msgs)
   return &msgs_;
 }
 
 // .proto_util_converter.testing.Data nested_data = 4;
-inline bool Data::_internal_has_nested_data() const {
-  return this != internal_default_instance() && nested_data_ != nullptr;
-}
+inline bool Data::_internal_has_nested_data() const { return this != internal_default_instance() && nested_data_ != nullptr; }
 inline bool Data::has_nested_data() const {
   return _internal_has_nested_data();
 }
@@ -4872,9 +4801,7 @@ inline void Data::set_allocated_nested_data(::proto_util_converter::testing::Dat
 }
 
 // .google.protobuf.Int32Value int_wrapper = 5;
-inline bool Data::_internal_has_int_wrapper() const {
-  return this != internal_default_instance() && int_wrapper_ != nullptr;
-}
+inline bool Data::_internal_has_int_wrapper() const { return this != internal_default_instance() && int_wrapper_ != nullptr; }
 inline bool Data::has_int_wrapper() const {
   return _internal_has_int_wrapper();
 }
@@ -4956,9 +4883,7 @@ inline void Data::set_allocated_int_wrapper(::PROTOBUF_NAMESPACE_ID::Int32Value*
 }
 
 // .google.protobuf.Timestamp time = 6;
-inline bool Data::_internal_has_time() const {
-  return this != internal_default_instance() && time_ != nullptr;
-}
+inline bool Data::_internal_has_time() const { return this != internal_default_instance() && time_ != nullptr; }
 inline bool Data::has_time() const {
   return _internal_has_time();
 }
@@ -5048,28 +4973,22 @@ inline void Data::clear_map_data() {
   map_data_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
-Data::_internal_map_data() const {
-  return map_data_.GetMap();
-}
+Data::_internal_map_data() const { return map_data_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >&
 Data::map_data() const {
   // @@protoc_insertion_point(field_map:proto_util_converter.testing.Data.map_data)
   return _internal_map_data();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-Data::_internal_mutable_map_data() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * Data::_internal_mutable_map_data() {
   return map_data_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string >*
-Data::mutable_map_data() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, std::string > * Data::mutable_map_data() {
   // @@protoc_insertion_point(field_mutable_map:proto_util_converter.testing.Data.map_data)
   return _internal_mutable_map_data();
 }
 
 // .google.protobuf.Struct struct_data = 8;
-inline bool Data::_internal_has_struct_data() const {
-  return this != internal_default_instance() && struct_data_ != nullptr;
-}
+inline bool Data::_internal_has_struct_data() const { return this != internal_default_instance() && struct_data_ != nullptr; }
 inline bool Data::has_struct_data() const {
   return _internal_has_struct_data();
 }
@@ -5162,8 +5081,7 @@ inline ::proto_util_converter::testing::Data* Data::mutable_repeated_data(int in
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.Data.repeated_data)
   return repeated_data_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Data >*
-Data::mutable_repeated_data() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Data > * Data::mutable_repeated_data() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Data.repeated_data)
   return &repeated_data_;
 }
@@ -5196,8 +5114,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* Data::mutable_repeated_any(int index) {
   // @@protoc_insertion_point(field_mutable:proto_util_converter.testing.Data.repeated_any)
   return repeated_any_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any >*
-Data::mutable_repeated_any() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any > * Data::mutable_repeated_any() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Data.repeated_any)
   return &repeated_any_;
 }
@@ -5274,9 +5191,7 @@ inline void AnyIn::set_allocated_something(std::string* something) {
 }
 
 // .google.protobuf.Any any = 2;
-inline bool AnyIn::_internal_has_any() const {
-  return this != internal_default_instance() && any_ != nullptr;
-}
+inline bool AnyIn::_internal_has_any() const { return this != internal_default_instance() && any_ != nullptr; }
 inline bool AnyIn::has_any() const {
   return _internal_has_any();
 }
@@ -5362,9 +5277,7 @@ inline void AnyIn::set_allocated_any(::PROTOBUF_NAMESPACE_ID::Any* any) {
 // AnyOut
 
 // .google.protobuf.Any any = 1;
-inline bool AnyOut::_internal_has_any() const {
-  return this != internal_default_instance() && any_ != nullptr;
-}
+inline bool AnyOut::_internal_has_any() const { return this != internal_default_instance() && any_ != nullptr; }
 inline bool AnyOut::has_any() const {
   return _internal_has_any();
 }

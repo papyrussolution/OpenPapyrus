@@ -36,12 +36,11 @@ int archive_read_open_FILE(struct archive * a, FILE * f)
 	struct read_FILE_data * mine;
 	size_t block_size = 128 * 1024;
 	void * b;
-
 	archive_clear_error(a);
 	mine = (struct read_FILE_data *)SAlloc::M(sizeof(*mine));
 	b = SAlloc::M(block_size);
 	if(mine == NULL || b == NULL) {
-		archive_set_error(a, ENOMEM, "Out of memory");
+		archive_set_error(a, ENOMEM, SlTxtOutOfMem);
 		SAlloc::F(mine);
 		SAlloc::F(b);
 		return ARCHIVE_FATAL;

@@ -220,7 +220,7 @@ int tls_construct_cert_verify(SSL * s, WPACKET * pkt)
 	}
 	siglen = EVP_PKEY_size(pkey);
 	sig = static_cast<uchar *>(OPENSSL_malloc(siglen));
-	if(sig == NULL) {
+	if(!sig) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_CERT_VERIFY, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -981,15 +981,15 @@ WORK_STATE tls_finish_handshake(SSL * s, WORK_STATE wst, int clearbufs, int stop
 		}
 	}
 
-	if(s->info_callback != NULL)
+	if(s->info_callback)
 		cb = s->info_callback;
-	else if(s->ctx->info_callback != NULL)
+	else if(s->ctx->info_callback)
 		cb = s->ctx->info_callback;
 
 	/* The callback may expect us to not be in init at handshake done */
 	ossl_statem_set_in_init(s, 0);
 
-	if(cb != NULL) {
+	if(cb) {
 		if(cleanuphand
 		   || !SSL_IS_TLS13(s)
 		   || SSL_IS_FIRST_HANDSHAKE(s))

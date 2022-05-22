@@ -767,7 +767,7 @@ const char * ngx_conf_set_str_array_slot(ngx_conf_t * cf, const ngx_command_t * 
 		}
 	}
 	s = (ngx_str_t *)ngx_array_push(*a);
-	if(s == NULL) {
+	if(!s) {
 		return NGX_CONF_ERROR;
 	}
 	value = static_cast<ngx_str_t *>(cf->args->elts);

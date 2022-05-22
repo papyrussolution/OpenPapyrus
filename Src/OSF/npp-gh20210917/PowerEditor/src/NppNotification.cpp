@@ -209,19 +209,15 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 				    }
 				    _tabPopupDropMenu.display(p);
 			    }
-			    else if((hWin == _pNonDocTab->getHSelf()) ||
-				(hWin == _pNonEditView->getHSelf())) {                // In the another view group
+			    else if((hWin == _pNonDocTab->getHSelf()) || (hWin == _pNonEditView->getHSelf())) { // In the another view group
 				    docGotoAnotherEditView(isInCtrlStat ? TransferClone : TransferMove);
 			    }
 			    else {
 				    RECT nppZone;
 				    ::GetWindowRect(_pPublicInterface->getHSelf(), &nppZone);
-				    bool isInNppZone =
-					(((p.x >= nppZone.left) && (p.x <= nppZone.right)) && (p.y >= nppZone.top) &&
-					(p.y <= nppZone.bottom));
+				    bool isInNppZone = (((p.x >= nppZone.left) && (p.x <= nppZone.right)) && (p.y >= nppZone.top) && (p.y <= nppZone.bottom));
 				    if(isInNppZone) {
-					    // Do nothing
-					    return TRUE;
+					    return TRUE; // Do nothing
 				    }
 				    generic_string quotFileName = TEXT("\"");
 				    quotFileName += _pEditView->getCurrentBuffer()->getFullPathName();
@@ -230,14 +226,12 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 				    fileNamesData.dwData = COPYDATA_FILENAMES;
 				    fileNamesData.lpData = (void *)quotFileName.c_str();
 				    fileNamesData.cbData = long(quotFileName.length() + 1)*(sizeof(TCHAR));
-
 				    HWND hWinParent = ::GetParent(hWin);
 				    const rsize_t classNameBufferSize = MAX_PATH;
 				    TCHAR className[classNameBufferSize];
 				    ::GetClassName(hWinParent, className, classNameBufferSize);
 				    if(lstrcmp(className,
-					_pPublicInterface->getClassName()) == 0 && hWinParent != _pPublicInterface->getHSelf()) {                      // another
-					                                                                                                               // Notepad++
+					_pPublicInterface->getClassName()) == 0 && hWinParent != _pPublicInterface->getHSelf()) { // another Notepad++
 					    int index = _pDocTab->getCurrentTabIndex();
 					    BufferID bufferToClose = notifyDocTab->getBufferByIndex(index);
 					    Buffer * buf = MainFileManager.getBufferByID(bufferToClose);
@@ -534,8 +528,7 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 		    break;
 		case SCN_FOLDINGSTATECHANGED:
 	    {
-		    if((notification->nmhdr.hwndFrom == _mainEditView.getHSelf()) ||
-			(notification->nmhdr.hwndFrom == _subEditView.getHSelf())) {
+		    if((notification->nmhdr.hwndFrom == _mainEditView.getHSelf()) || (notification->nmhdr.hwndFrom == _subEditView.getHSelf())) {
 			    size_t lineClicked = notification->line;
 			    if(!_isFolding) {
 				    addHotSpot();
@@ -545,7 +538,6 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 		    }
 		    return TRUE;
 	    }
-
 		case SCN_CHARADDED:
 	    {
 		    if(!_recordingMacro && !_playingBackMacro) {    // No macro recording or playing back
@@ -553,27 +545,21 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 			    bool indentMaintain = nppGui._maitainIndent;
 			    if(indentMaintain)
 				    maintainIndentation(static_cast<TCHAR>(notification->ch));
-
 			    AutoCompletion * autoC = isFromPrimary ? &_autoCompleteMain : &_autoCompleteSub;
-			    bool isColumnMode = _pEditView->execute(SCI_GETSELECTIONS) > 1;     // Multi-Selection ||
-				                                                                // Column mode)
+			    bool isColumnMode = _pEditView->execute(SCI_GETSELECTIONS) > 1; // Multi-Selection || Column mode)
 			    if(nppGui._matchedPairConf.hasAnyPairsPair() && !isColumnMode)
 				    autoC->insertMatchedChars(notification->ch, nppGui._matchedPairConf);
 			    autoC->update(notification->ch);
 		    }
 		    break;
 	    }
-
 		case SCN_DOUBLECLICK:
 	    {
 		    if(!notifyView)
 			    return FALSE;
-
 		    if(notification->modifiers == SCMOD_CTRL) {
 			    const NppGUI & nppGUI = NppParameters::getInstance().getNppGUI();
-
 			    std::string bufstring;
-
 			    size_t position_of_click;
 			    // For some reason Ctrl+DoubleClick on an empty line means that notification->position == 1.
 			    // In that case we use SCI_GETCURRENTPOS to get the position.
@@ -737,21 +723,16 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 	    {
 		    if(!notifyView)
 			    return FALSE;
-
 		    NppParameters& nppParam = NppParameters::getInstance();
 		    NppGUI & nppGui = nppParam.getNppGUI();
-
 		    // replacement for obsolete custom SCN_SCROLLED
 		    if(notification->updated & SC_UPDATE_V_SCROLL) {
 			    addHotSpot(notifyView);
 		    }
-
 		    // if it's searching/replacing, then do nothing
 		    if(nppParam._isFindReplacing)
 			    break;
-
-		    if(notification->nmhdr.hwndFrom != _pEditView->getHSelf()) {    // notification come from unfocus
-			                                                            // view - both views ae visible
+		    if(notification->nmhdr.hwndFrom != _pEditView->getHSelf()) { // notification come from unfocus view - both views ae visible
 			    //ScintillaEditView * unfocusView = isFromPrimary ? &_subEditView : &_mainEditView;
 			    if(nppGui._smartHiliteOnAnotherView) {
 				    TCHAR selectedText[1024];

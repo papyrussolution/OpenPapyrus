@@ -448,14 +448,11 @@ void Notepad_plus::command(int id)
 		case IDM_EDIT_OPENINFOLDER:
 		case IDM_EDIT_OPENASFILE:
 	    {
-		    if(_pEditView->execute(SCI_GETSELECTIONS) != 1)      // Multi-Selection || Column mode || no
-				                                         // selection
+		    if(_pEditView->execute(SCI_GETSELECTIONS) != 1) // Multi-Selection || Column mode || no selection
 			    return;
-
 		    HWND hwnd = _pPublicInterface->getHSelf();
 		    TCHAR curentWord[CURRENTWORD_MAXLENGTH];
 		    ::SendMessage(hwnd, NPPM_GETFILENAMEATCURSOR, CURRENTWORD_MAXLENGTH, reinterpret_cast<LPARAM>(curentWord));
-
 		    TCHAR cmd2Exec[CURRENTWORD_MAXLENGTH];
 		    if(id == IDM_EDIT_OPENINFOLDER) {
 			    wcscpy_s(cmd2Exec, TEXT("explorer"));
@@ -463,7 +460,6 @@ void Notepad_plus::command(int id)
 		    else {
 			    ::SendMessage(hwnd, NPPM_GETNPPFULLFILEPATH, CURRENTWORD_MAXLENGTH, reinterpret_cast<LPARAM>(cmd2Exec));
 		    }
-
 		    // Full file path
 		    if(::PathFileExists(curentWord)) {
 			    generic_string fullFilePath = id == IDM_EDIT_OPENINFOLDER ? TEXT("/select,") : TEXT("");
@@ -1470,15 +1466,13 @@ void Notepad_plus::command(int id)
 			    }
 			    else {
 				    auto textWidth = _pEditView->execute(SCI_TEXTWIDTH, STYLE_DEFAULT, reinterpret_cast<LPARAM>("P"));
-				    auto edgeCol = _pEditView->execute(SCI_GETEDGECOLUMN);     // will work for edgeMode
-					                                                       // == EDGE_BACKGROUND
+				    auto edgeCol = _pEditView->execute(SCI_GETEDGECOLUMN); // will work for edgeMode == EDGE_BACKGROUND
 				    if(edgeMode == EDGE_MULTILINE) {
 					    NppParameters& nppParam = NppParameters::getInstance();
 					    ScintillaViewParams& svp = const_cast<ScintillaViewParams&>(nppParam.getSVP());
-					    edgeCol = svp._edgeMultiColumnPos.back();      // the LAST edge column
-						                                           // specified by the user
+					    edgeCol = svp._edgeMultiColumnPos.back(); // the LAST edge column specified by the user
 				    }
-				    ++edgeCol;      // compensate for zero-based column number
+				    ++edgeCol; // compensate for zero-based column number
 				    _pEditView->execute(SCI_LINESSPLIT, textWidth * edgeCol);
 			    }
 		    }
@@ -3107,13 +3101,11 @@ void Notepad_plus::command(int id)
 			    int i = id - ID_PLUGINS_CMD;
 			    _pluginsManager.runPluginCommand(i);
 		    }
-		    else if(_pluginsManager.inDynamicRange(id)) {    // in the dynamic range allocated with
-		                                                     // NPPM_ALLOCATECMDID
+		    else if(_pluginsManager.inDynamicRange(id)) { // in the dynamic range allocated with NPPM_ALLOCATECMDID
 			    _pluginsManager.relayNppMessages(WM_COMMAND, id, 0);
 		    }
 /*UNLOAD
-                        else if((id >= ID_PLUGINS_REMOVING) && (id < ID_PLUGINS_REMOVING_END))
-                        {
+                        else if((id >= ID_PLUGINS_REMOVING) && (id < ID_PLUGINS_REMOVING_END)) {
                                 int i = id - ID_PLUGINS_REMOVING;
                                 _pluginsManager.unloadPlugin(i, _pPublicInterface->getHSelf());
                         }

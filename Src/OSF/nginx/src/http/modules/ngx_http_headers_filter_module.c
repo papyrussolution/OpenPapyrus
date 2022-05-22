@@ -372,7 +372,7 @@ static ngx_int_t ngx_http_add_header(ngx_http_request_t * r, ngx_http_header_val
 	ngx_table_elt_t  * h;
 	if(value->len) {
 		h = (ngx_table_elt_t*)ngx_list_push(&r->headers_out.headers);
-		if(h == NULL) {
+		if(!h) {
 			return NGX_ERROR;
 		}
 		h->hash = 1;
@@ -445,7 +445,7 @@ static ngx_int_t ngx_http_set_response_header(ngx_http_request_t * r, ngx_http_h
 	}
 	else {
 		h = (ngx_table_elt_t*)ngx_list_push(&r->headers_out.headers);
-		if(h == NULL) {
+		if(!h) {
 			return NGX_ERROR;
 		}
 		*old = h;
@@ -535,7 +535,7 @@ static const char * ngx_http_headers_expires(ngx_conf_t * cf, const ngx_command_
 	if(ngx_http_compile_complex_value(&ccv) != NGX_OK) {
 		return NGX_CONF_ERROR;
 	}
-	if(cv.lengths != NULL) {
+	if(cv.lengths) {
 		hcf->expires_value = (ngx_http_complex_value_t*)ngx_palloc(cf->pool, sizeof(ngx_http_complex_value_t));
 		if(hcf->expires_value == NULL) {
 			return NGX_CONF_ERROR;

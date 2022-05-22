@@ -1083,7 +1083,7 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 		    }
 		    if(!etm) {
 			    ptr = (uint8 *)ssh_buffer_allocate(session->in_buffer, lenfield_blocksize);
-			    if(ptr == NULL) {
+			    if(!ptr) {
 				    goto error;
 			    }
 			    packet_len = ssh_packet_decrypt_len(session, ptr, (uint8 *)data);

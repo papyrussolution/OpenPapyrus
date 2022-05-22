@@ -474,7 +474,7 @@ static int dtls1_retrieve_buffered_fragment(SSL * s, size_t * len)
 
 	do {
 		item = pqueue_peek(s->d1->buffered_messages);
-		if(item == NULL)
+		if(!item)
 			return 0;
 
 		frag = (hm_fragment*)item->data;
@@ -546,7 +546,7 @@ static int dtls1_reassemble_fragment(SSL * s, const struct hm_header_st * msg_hd
 	seq64be[7] = (uchar)msg_hdr->seq;
 	item = pqueue_find(s->d1->buffered_messages, seq64be);
 
-	if(item == NULL) {
+	if(!item) {
 		frag = dtls1_hm_fragment_new(msg_hdr->msg_len, 1);
 		if(frag == NULL)
 			goto err;
@@ -606,9 +606,9 @@ static int dtls1_reassemble_fragment(SSL * s, const struct hm_header_st * msg_hd
 		frag->reassembly = NULL;
 	}
 
-	if(item == NULL) {
+	if(!item) {
 		item = pitem_new(seq64be, frag);
-		if(item == NULL) {
+		if(!item) {
 			i = -1;
 			goto err;
 		}
@@ -627,7 +627,7 @@ static int dtls1_reassemble_fragment(SSL * s, const struct hm_header_st * msg_hd
 	return DTLS1_HM_FRAGMENT_RETRY;
 
 err:
-	if(item == NULL)
+	if(!item)
 		dtls1_hm_fragment_free(frag);
 	return -1;
 }
@@ -704,7 +704,7 @@ static int dtls1_process_out_of_seq_message(SSL * s, const struct hm_header_st *
 		}
 
 		item = pitem_new(seq64be, frag);
-		if(item == NULL)
+		if(!item)
 			goto err;
 
 		item = pqueue_insert(s->d1->buffered_messages, item);
@@ -723,7 +723,7 @@ static int dtls1_process_out_of_seq_message(SSL * s, const struct hm_header_st *
 	return DTLS1_HM_FRAGMENT_RETRY;
 
 err:
-	if(item == NULL)
+	if(!item)
 		dtls1_hm_fragment_free(frag);
 	return 0;
 }
@@ -1063,7 +1063,7 @@ int dtls1_buffer_message(SSL * s, int is_ccs)
 	seq64be[6] = (uchar)(dtls1_get_queue_priority(frag->msg_header.seq, frag->msg_header.is_ccs) >> 8);
 	seq64be[7] = (uchar)(dtls1_get_queue_priority(frag->msg_header.seq, frag->msg_header.is_ccs));
 	item = pitem_new(seq64be, frag);
-	if(item == NULL) {
+	if(!item) {
 		dtls1_hm_fragment_free(frag);
 		return 0;
 	}
@@ -1087,7 +1087,7 @@ int dtls1_retransmit_message(SSL * s, ushort seq, int * found)
 	seq64be[7] = (uchar)seq;
 
 	item = pqueue_find(s->d1->sent_messages, seq64be);
-	if(item == NULL) {
+	if(!item) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_DTLS1_RETRANSMIT_MESSAGE,
 		    ERR_R_INTERNAL_ERROR);
 		*found = 0;

@@ -12,10 +12,6 @@
 // Operations to make atomic transitions on a word, and to allow
 // waiting for those transitions to become possible.
 
-//#include <stdint.h>
-//#include <atomic>
-//#include "absl/base/internal/scheduling_mode.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace base_internal {

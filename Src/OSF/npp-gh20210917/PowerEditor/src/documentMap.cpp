@@ -92,38 +92,37 @@ void DocumentMap::changeTextDirection(bool isRTL)
    char dchar[256];
    sprintf(dchar, "%f", ddd);
    ::MessageBoxA(NULL, dchar, "", MB_OK);
-
-                // -10    => 1
-                // -9     => 1
-                // -8     => 1
-                // -7     => 1
-                // -6     => 1.5
-                // -5     => 2
-                // -4     => 2.5
-                // -3     => 2.5
-                // -2     => 3.5
-                // -1     => 3.5
-                // 0: -10 => 4
-                // 1      => 4.5
-                // 2      => 5
-                // 3      => 5
-                // 4      => 5.5
-                // 5      => 6
-                // 6      => 6.5
-                // 7      => 7
-                // 8      => 7
-                // 9      => 7.5
-                // 10     => 8
-                // 11     => 8.5
-                // 12     => 8.5
-                // 13     => 9.5
-                // 14     => 9.5
-                // 15     => 10
-                // 16     => 10.5
-                // 17     => 11
-                // 18     => 11
-                // 19     => 11.5
-                // 20     => 12
+	// -10    => 1
+	// -9     => 1
+	// -8     => 1
+	// -7     => 1
+	// -6     => 1.5
+	// -5     => 2
+	// -4     => 2.5
+	// -3     => 2.5
+	// -2     => 3.5
+	// -1     => 3.5
+	// 0: -10 => 4
+	// 1      => 4.5
+	// 2      => 5
+	// 3      => 5
+	// 4      => 5.5
+	// 5      => 6
+	// 6      => 6.5
+	// 7      => 7
+	// 8      => 7
+	// 9      => 7.5
+	// 10     => 8
+	// 11     => 8.5
+	// 12     => 8.5
+	// 13     => 9.5
+	// 14     => 9.5
+	// 15     => 10
+	// 16     => 10.5
+	// 17     => 11
+	// 18     => 11
+	// 19     => 11.5
+	// 20     => 12
  */
 double zoomRatio[] = {1, 1, 1, 1, 1.5, 2, 2.5, 2.5, 3.5, 3.5, \
 		      4, 4.5, 5, 5, 5.5, 6, 6.5, 7, 7, 7.5, 8, 8.5, 8.5, 9.5, 9.5, 10, 10.5, 11, 11, 11.5, 12};
@@ -136,23 +135,17 @@ void DocumentMap::wrapMap(const ScintillaEditView * editView)
 	if(pEditView->isWrap()) {
 		// get current scintilla width W1
 		int editZoneWidth = pEditView->getTextZoneWidth();
-
 		// update the wrap needed data
 		_displayWidth = editZoneWidth;
 		_displayZoom = static_cast<int32_t>(pEditView->execute(SCI_GETZOOM));
 		double zr = zoomRatio[_displayZoom + 10];
-
 		// compute doc map width: dzw/ezw = 1/zoomRatio
 		double docMapWidth = editZoneWidth / zr;
-
 		::MoveWindow(_pMapView->getHSelf(), 0, 0, int(docMapWidth), rect.bottom-rect.top, TRUE);
 		_pMapView->wrap(true);
-
 		// sync wrapping indent mode
 		_pMapView->execute(SCI_SETWRAPINDENTMODE, pEditView->execute(SCI_GETWRAPINDENTMODE));
-
 		const ScintillaViewParams& svp = NppParameters::getInstance().getSVP();
-
 		if(svp._paddingLeft || svp._paddingRight) {
 			int paddingMapLeft = static_cast<int>(svp._paddingLeft / (editZoneWidth / docMapWidth));
 			int paddingMapRight = static_cast<int>(svp._paddingRight / (editZoneWidth / docMapWidth));
@@ -160,7 +153,6 @@ void DocumentMap::wrapMap(const ScintillaEditView * editView)
 			_pMapView->execute(SCI_SETMARGINRIGHT, 0, paddingMapRight);
 		}
 	}
-
 	doMove();
 }
 

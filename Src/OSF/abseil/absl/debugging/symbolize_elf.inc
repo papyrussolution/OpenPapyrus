@@ -300,33 +300,23 @@ public:
 				Symbolizer();
 				~Symbolizer();
 				const char * GetSymbol(const void * const pc);
-
 private:
-				char * CopyString(const char * s) {
+				char * CopyString(const char * s) 
+				{
 					int len = strlen(s);
-					char * dst = static_cast<char *>(
-						base_internal::LowLevelAlloc::AllocWithArena(len + 1, SigSafeArena()));
-					ABSL_RAW_CHECK(dst != nullptr, "out of memory");
+					char * dst = static_cast<char *>(base_internal::LowLevelAlloc::AllocWithArena(len + 1, SigSafeArena()));
+					ABSL_RAW_CHECK(dst != nullptr, SlTxtOutOfMem);
 					memcpy(dst, s, len + 1);
 					return dst;
 				}
-
-				ObjFile * FindObjFile(const void * const start,
-				    size_t size) ABSL_ATTRIBUTE_NOINLINE;
-				static bool RegisterObjFile(const char * filename,
-				    const void * const start_addr,
-				    const void * const end_addr, uint64_t offset,
-				    void * arg);
+				ObjFile * FindObjFile(const void * const start, size_t size) ABSL_ATTRIBUTE_NOINLINE;
+				static bool RegisterObjFile(const char * filename, const void * const start_addr, const void * const end_addr, uint64_t offset, void * arg);
 				SymbolCacheLine * GetCacheLine(const void * const pc);
 				const char * FindSymbolInCache(const void * const pc);
 				const char * InsertSymbolInCache(const void * const pc, const char * name);
 				void AgeSymbols(SymbolCacheLine * line);
 				void ClearAddrMap();
-				FindSymbolResult GetSymbolFromObjectFile(const ObjFile &obj,
-				    const void * const pc,
-				    const ptrdiff_t relocation,
-				    char * out, int out_size,
-				    char * tmp_buf, int tmp_buf_size);
+				FindSymbolResult GetSymbolFromObjectFile(const ObjFile &obj, const void * const pc, const ptrdiff_t relocation, char * out, int out_size, char * tmp_buf, int tmp_buf_size);
 
 				enum {
 					SYMBOL_BUF_SIZE = 3072,
@@ -335,20 +325,14 @@ private:
 				};
 
 				AddrMap addr_map_;
-
 				bool ok_;
 				bool addr_map_read_;
-
 				char symbol_buf_[SYMBOL_BUF_SIZE];
-
 				// tmp_buf_ will be used to store arrays of ElfW(Shdr) and ElfW(Sym)
 				// so we ensure that tmp_buf_ is properly aligned to store either.
 				alignas(16) char tmp_buf_[TMP_BUF_SIZE];
-				static_assert(alignof(ElfW(Shdr)) <= 16,
-				    "alignment of tmp buf too small for Shdr");
-				static_assert(alignof(ElfW(Sym)) <= 16,
-				    "alignment of tmp buf too small for Sym");
-
+				static_assert(alignof(ElfW(Shdr)) <= 16, "alignment of tmp buf too small for Shdr");
+				static_assert(alignof(ElfW(Sym)) <= 16, "alignment of tmp buf too small for Sym");
 				SymbolCacheLine symbol_cache_[SYMBOL_CACHE_LINES];
 			};
 
@@ -1505,13 +1489,10 @@ private:
 		    const char * filename) {
 			SAFE_ASSERT(start <= end);
 			SAFE_ASSERT(filename != nullptr);
-
 			InitSigSafeArena();
-
 			if(!g_file_mapping_mu.TryLock()) {
 				return false;
 			}
-
 			bool ret = true;
 			if(g_num_file_mapping_hints >= kMaxFileMappingHints) {
 				ret = false;
@@ -1519,24 +1500,21 @@ private:
 			else {
 				// TODO(ckennelly): Move this into a string copy routine.
 				int len = strlen(filename);
-				char * dst = static_cast<char *>(
-					base_internal::LowLevelAlloc::AllocWithArena(len + 1, SigSafeArena()));
-				ABSL_RAW_CHECK(dst != nullptr, "out of memory");
+				char * dst = static_cast<char *>(base_internal::LowLevelAlloc::AllocWithArena(len + 1, SigSafeArena()));
+				ABSL_RAW_CHECK(dst != nullptr, SlTxtOutOfMem);
 				memcpy(dst, filename, len + 1);
-
 				auto &hint = g_file_mapping_hints[g_num_file_mapping_hints++];
 				hint.start = start;
 				hint.end = end;
 				hint.offset = offset;
 				hint.filename = dst;
 			}
-
 			g_file_mapping_mu.Unlock();
 			return ret;
 		}
 
-		bool GetFileMappingHint(const void ** start, const void ** end, uint64_t * offset,
-		    const char ** filename) {
+		bool GetFileMappingHint(const void ** start, const void ** end, uint64_t * offset, const char ** filename) 
+		{
 			if(!g_file_mapping_mu.TryLock()) {
 				return false;
 			}

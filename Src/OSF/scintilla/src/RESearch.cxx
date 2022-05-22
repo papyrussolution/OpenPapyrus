@@ -462,7 +462,7 @@ const char * RESearch::Compile(const char * pattern, int length, bool caseSensit
 	sta = NOP;
 
 	const char * p = pattern; /* pattern pointer   */
-	for(int i = 0; i<length; i++, p++) {
+	for(int i = 0; i < length; i++, p++) {
 		if(mp > mpMax)
 			return badpat("Pattern too long");
 		lp = mp;

@@ -1202,9 +1202,7 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 	slfprintf_stderr(" tocEntryPath = %s\n", tocEntryName.data());
 #endif
 #if !defined(ICU_DATA_DIR_WINDOWS)
-	if(path == NULL) {
-		path = COMMON_DATA_NAME; /* "icudt26e" */
-	}
+	SETIFZQ(path, COMMON_DATA_NAME); /* "icudt26e" */
 #else
 	// When using the Windows system data, we expects only a single data file.
 	path = COMMON_DATA_NAME; /* "icudt26e" */
@@ -1330,9 +1328,10 @@ U_CAPI UDataMemory * U_EXPORT2 udata_openChoice(const char * path, const char * 
 	}
 }
 
-U_CAPI void U_EXPORT2 udata_getInfo(UDataMemory * pData, UDataInfo * pInfo) {
-	if(pInfo!=NULL) {
-		if(pData!=NULL && pData->pHeader!=NULL) {
+U_CAPI void U_EXPORT2 udata_getInfo(UDataMemory * pData, UDataInfo * pInfo) 
+{
+	if(pInfo) {
+		if(pData && pData->pHeader!=NULL) {
 			const UDataInfo * info = &pData->pHeader->info;
 			uint16 dataInfoSize = udata_getInfoSize(info);
 			if(pInfo->size>dataInfoSize) {

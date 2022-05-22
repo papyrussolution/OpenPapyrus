@@ -128,7 +128,7 @@ size_t ec_GF2m_simple_point2oct(const EC_GROUP * group, const EC_POINT * point,
 
 	if(EC_POINT_is_at_infinity(group, point)) {
 		/* encodes to a single 0 octet */
-		if(buf != NULL) {
+		if(buf) {
 			if(len < 1) {
 				ECerr(EC_F_EC_GF2M_SIMPLE_POINT2OCT, EC_R_BUFFER_TOO_SMALL);
 				return 0;
@@ -145,7 +145,7 @@ size_t ec_GF2m_simple_point2oct(const EC_GROUP * group, const EC_POINT * point,
 	    POINT_CONVERSION_COMPRESSED) ? 1 + field_len : 1 + 2 * field_len;
 
 	/* if 'buf' is NULL, just return required length */
-	if(buf != NULL) {
+	if(buf) {
 		if(len < ret) {
 			ECerr(EC_F_EC_GF2M_SIMPLE_POINT2OCT, EC_R_BUFFER_TOO_SMALL);
 			goto err;

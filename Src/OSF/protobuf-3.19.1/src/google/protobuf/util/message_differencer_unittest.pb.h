@@ -201,16 +201,13 @@ class TestField final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_rc() const;
   void _internal_add_rc(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_rc();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_rc();
   public:
   int32_t rc(int index) const;
   void set_rc(int index, int32_t value);
   void add_rc(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      rc() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_rc();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & rc() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_rc();
 
   // optional .protobuf_unittest.TestField m = 5;
   bool has_m() const;
@@ -441,16 +438,13 @@ class TestDiffMessage_Item final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_ra() const;
   void _internal_add_ra(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_ra();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_ra();
   public:
   int32_t ra(int index) const;
   void set_ra(int index, int32_t value);
   void add_ra(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      ra() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_ra();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & ra() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_ra();
 
   // repeated string rb = 5;
   int rb_size() const;
@@ -499,15 +493,11 @@ class TestDiffMessage_Item final :
   public:
   void clear_mp();
   private:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
-      _internal_mp() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >*
-      _internal_mutable_mp();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > & _internal_mp() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * _internal_mutable_mp();
   public:
-  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
-      mp() const;
-  ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >*
-      mutable_mp();
+  const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > & mp() const;
+  ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * mutable_mp();
 
   // optional string b = 4;
   bool has_b() const;
@@ -750,16 +740,13 @@ class TestDiffMessage final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_rv() const;
   void _internal_add_rv(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_rv();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_rv();
   public:
   int32_t rv(int index) const;
   void set_rv(int index, int32_t value);
   void add_rv(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      rv() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_rv();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & rv() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_rv();
 
   // repeated .protobuf_unittest.TestField rm = 12 [deprecated = true];
   PROTOBUF_DEPRECATED int rm_size() const;
@@ -1138,12 +1125,10 @@ TestField::rc() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestField.rc)
   return _internal_rc();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestField::_internal_mutable_rc() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestField::_internal_mutable_rc() {
   return &rc_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestField::mutable_rc() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestField::mutable_rc() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestField.rc)
   return _internal_mutable_rc();
 }
@@ -1364,12 +1349,10 @@ TestDiffMessage_Item::ra() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestDiffMessage.Item.ra)
   return _internal_ra();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestDiffMessage_Item::_internal_mutable_ra() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestDiffMessage_Item::_internal_mutable_ra() {
   return &ra_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestDiffMessage_Item::mutable_ra() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestDiffMessage_Item::mutable_ra() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.Item.ra)
   return _internal_mutable_ra();
 }
@@ -1437,8 +1420,7 @@ TestDiffMessage_Item::rb() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestDiffMessage.Item.rb)
   return rb_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-TestDiffMessage_Item::mutable_rb() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestDiffMessage_Item::mutable_rb() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.Item.rb)
   return &rb_;
 }
@@ -1544,8 +1526,7 @@ inline ::protobuf_unittest::TestField* TestDiffMessage_Item::mutable_rm(int inde
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestDiffMessage.Item.rm)
   return rm_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField >*
-TestDiffMessage_Item::mutable_rm() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField > * TestDiffMessage_Item::mutable_rm() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.Item.rm)
   return &rm_;
 }
@@ -1578,20 +1559,16 @@ inline void TestDiffMessage_Item::clear_mp() {
   mp_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
-TestDiffMessage_Item::_internal_mp() const {
-  return mp_.GetMap();
-}
+TestDiffMessage_Item::_internal_mp() const { return mp_.GetMap(); }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >&
 TestDiffMessage_Item::mp() const {
   // @@protoc_insertion_point(field_map:protobuf_unittest.TestDiffMessage.Item.mp)
   return _internal_mp();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >*
-TestDiffMessage_Item::_internal_mutable_mp() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * TestDiffMessage_Item::_internal_mutable_mp() {
   return mp_.MutableMap();
 }
-inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t >*
-TestDiffMessage_Item::mutable_mp() {
+inline ::PROTOBUF_NAMESPACE_ID::Map< std::string, int32_t > * TestDiffMessage_Item::mutable_mp() {
   // @@protoc_insertion_point(field_mutable_map:protobuf_unittest.TestDiffMessage.Item.mp)
   return _internal_mutable_mp();
 }
@@ -1612,8 +1589,7 @@ inline ::protobuf_unittest::TestDiffMessage_Item* TestDiffMessage::mutable_item(
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestDiffMessage.item)
   return item_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestDiffMessage_Item >*
-TestDiffMessage::mutable_item() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestDiffMessage_Item > * TestDiffMessage::mutable_item() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.item)
   return &item_;
 }
@@ -1847,12 +1823,10 @@ TestDiffMessage::rv() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestDiffMessage.rv)
   return _internal_rv();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestDiffMessage::_internal_mutable_rv() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestDiffMessage::_internal_mutable_rv() {
   return &rv_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-TestDiffMessage::mutable_rv() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * TestDiffMessage::mutable_rv() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.rv)
   return _internal_mutable_rv();
 }
@@ -1920,8 +1894,7 @@ TestDiffMessage::rw() const {
   // @@protoc_insertion_point(field_list:protobuf_unittest.TestDiffMessage.rw)
   return rw_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-TestDiffMessage::mutable_rw() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * TestDiffMessage::mutable_rw() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.rw)
   return &rw_;
 }
@@ -1938,8 +1911,7 @@ inline ::protobuf_unittest::TestField* TestDiffMessage::mutable_rm(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestDiffMessage.rm)
   return rm_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField >*
-TestDiffMessage::mutable_rm() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField > * TestDiffMessage::mutable_rm() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.rm)
   return &rm_;
 }
@@ -1972,8 +1944,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* TestDiffMessage::mutable_rany(int index) {
   // @@protoc_insertion_point(field_mutable:protobuf_unittest.TestDiffMessage.rany)
   return rany_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any >*
-TestDiffMessage::mutable_rany() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any > * TestDiffMessage::mutable_rany() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.rany)
   return &rany_;
 }

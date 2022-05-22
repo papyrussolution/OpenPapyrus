@@ -91,7 +91,7 @@ static int archive_write_set_format_ar(struct archive_write * a)
 {
 	struct ar_w * ar;
 	/* If someone else was already registered, unregister them. */
-	if(a->format_free != NULL)
+	if(a->format_free)
 		(a->format_free)(a);
 	ar = (struct ar_w *)SAlloc::C(1, sizeof(*ar));
 	if(ar == NULL) {

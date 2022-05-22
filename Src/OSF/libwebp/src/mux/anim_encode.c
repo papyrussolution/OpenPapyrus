@@ -11,14 +11,7 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <limits.h>
-//#include <math.h>    // for pow()
-//#include <stdio.h>
-//#include <stdlib.h>  // for abs()
 #include "src/mux/animi.h"
-//#include "src/utils/utils.h"
-//#include "src/webp/decode.h"
 #include "src/webp/encode.h"
 #include "src/webp/format_constants.h"
 #include "src/webp/mux.h"
@@ -317,7 +310,7 @@ static void FrameRelease(EncodedFrame* const encoded_frame)
 }
 
 void WebPAnimEncoderDelete(WebPAnimEncoder* enc) {
-	if(enc != NULL) {
+	if(enc) {
 		WebPPictureFree(&enc->curr_canvas_copy_);
 		WebPPictureFree(&enc->prev_canvas_);
 		WebPPictureFree(&enc->prev_canvas_disposed_);

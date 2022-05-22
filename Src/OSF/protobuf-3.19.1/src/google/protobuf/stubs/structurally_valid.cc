@@ -504,8 +504,8 @@ int UTF8GenericScanFastAscii(const UTF8ScanObj* st,
 		}
 		if(((uintptr_t)src & 0x07) == 0) {
 			while((src < srclimit8) &&
-			    (((reinterpret_cast<const uint32*>(src)[0] |
-			    reinterpret_cast<const uint32*>(src)[1]) & 0x80808080) == 0)) {
+			    (((reinterpret_cast<const uint32 *>(src)[0] |
+			    reinterpret_cast<const uint32 *>(src)[1]) & 0x80808080) == 0)) {
 				src += 8;
 			}
 		}

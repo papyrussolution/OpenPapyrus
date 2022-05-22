@@ -766,7 +766,7 @@ U_CAPI UFormattable * U_EXPORT2 unum_parseToUFormattable(const UNumberFormat * f
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return result;
 	}
-	if(result == NULL) { // allocate if not allocated.
+	if(!result) { // allocate if not allocated.
 		newFormattable = result = ufmt_open(status);
 	}
 	parseRes(*(Formattable::fromUFormattable(result)), fmt, text, textLength, parsePos, status);

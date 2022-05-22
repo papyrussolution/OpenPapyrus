@@ -13,13 +13,9 @@
 #pragma hdrstop
 #include "ustr_imp.h"
 
-U_CAPI UChar * U_EXPORT2 u_strFromUTF32WithSub(UChar * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const UChar32 * src,
-    int32_t srcLength,
-    UChar32 subchar, int32_t * pNumSubstitutions,
-    UErrorCode * pErrorCode) {
+U_CAPI UChar * U_EXPORT2 u_strFromUTF32WithSub(UChar * dest, int32_t destCapacity, int32_t * pDestLength,
+    const UChar32 * src, int32_t srcLength, UChar32 subchar, int32_t * pNumSubstitutions, UErrorCode * pErrorCode) 
+{
 	const UChar32 * srcLimit;
 	UChar32 ch;
 	UChar * destLimit;
@@ -39,7 +35,6 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF32WithSub(UChar * dest,
 	destLimit = (dest!=NULL) ? (dest + destCapacity) : NULL;
 	reqLength = 0;
 	numSubstitutions = 0;
-
 	if(srcLength < 0) {
 		/* simple loop for conversion of a NUL-terminated BMP string */
 		while((ch = *src) != 0 &&
@@ -60,7 +55,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF32WithSub(UChar * dest,
 		}
 	}
 	else {
-		srcLimit = (src!=NULL) ? (src + srcLength) : NULL;
+		srcLimit = src ? (src + srcLength) : NULL;
 	}
 	/* convert with length */
 	while(src < srcLimit) {
@@ -155,7 +150,7 @@ U_CAPI UChar32* U_EXPORT2 u_strToUTF32WithSub(UChar32 * dest, int32_t destCapaci
 		}
 	}
 	else {
-		srcLimit = (src!=NULL) ? (src + srcLength) : NULL;
+		srcLimit = src ? (src + srcLength) : NULL;
 	}
 	/* convert with length */
 	while(src < srcLimit) {
@@ -241,16 +236,11 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest, int32_t destCapacity
 			}
 			else {
 				uint8 __t1, __t2;
-				if( /* handle U+0800..U+FFFF inline */
-					(0xe0<=(c) && (c)<0xf0) &&
-					U8_IS_VALID_LEAD3_AND_T1((c), src[i]) &&
-					(__t2 = src[(i)+1]-0x80)<=0x3f) {
+				if( /* handle U+0800..U+FFFF inline */(0xe0<=(c) && (c)<0xf0) && U8_IS_VALID_LEAD3_AND_T1((c), src[i]) && (__t2 = src[(i)+1]-0x80)<=0x3f) {
 					*pDest++ = (((c)&0xf)<<12)|((src[i]&0x3f)<<6)|__t2;
 					i += 2;
 				}
-				else if( /* handle U+0080..U+07FF inline */
-					((c)<0xe0 && (c)>=0xc2) &&
-					(__t1 = src[i]-0x80)<=0x3f) {
+				else if( /* handle U+0080..U+07FF inline */ ((c)<0xe0 && (c)>=0xc2) && (__t1 = src[i]-0x80)<=0x3f) {
 					*pDest++ = (((c)&0x1f)<<6)|__t1;
 					++(i);
 				}
@@ -287,16 +277,11 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8WithSub(UChar * dest, int32_t destCapacity
 			}
 			else {
 				uint8 __t1, __t2;
-				if( /* handle U+0800..U+FFFF inline */
-					(0xe0<=(c) && (c)<0xf0) &&
-					U8_IS_VALID_LEAD3_AND_T1((c), src[i]) &&
-					(__t2 = src[(i)+1]-0x80)<=0x3f) {
+				if(/* handle U+0800..U+FFFF inline */(0xe0<=(c) && (c)<0xf0) && U8_IS_VALID_LEAD3_AND_T1((c), src[i]) && (__t2 = src[(i)+1]-0x80)<=0x3f) {
 					++reqLength;
 					i += 2;
 				}
-				else if( /* handle U+0080..U+07FF inline */
-					((c)<0xe0 && (c)>=0xc2) &&
-					(__t1 = src[i]-0x80)<=0x3f) {
+				else if( /* handle U+0080..U+07FF inline */((c)<0xe0 && (c)>=0xc2) && (__t1 = src[i]-0x80)<=0x3f) {
 					++reqLength;
 					++(i);
 				}
@@ -724,37 +709,24 @@ static inline uint8 * _appendUTF8(uint8 * pDest, UChar32 c)
 	return pDest;
 }
 
-U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const UChar * pSrc,
-    int32_t srcLength,
-    UChar32 subchar, int32_t * pNumSubstitutions,
-    UErrorCode * pErrorCode) {
+U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest, int32_t destCapacity, int32_t * pDestLength, const UChar * pSrc,
+    int32_t srcLength, UChar32 subchar, int32_t * pNumSubstitutions, UErrorCode * pErrorCode) 
+{
 	int32_t reqLength = 0;
 	uint32_t ch = 0, ch2 = 0;
 	uint8 * pDest = (uint8 *)dest;
 	uint8 * pDestLimit = (pDest!=NULL) ? (pDest + destCapacity) : NULL;
 	int32_t numSubstitutions;
-
 	/* args check */
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-
-	if((pSrc==NULL && srcLength!=0) || srcLength < -1 ||
-	    (destCapacity<0) || (dest == NULL && destCapacity > 0) ||
-	    subchar > 0x10ffff || U_IS_SURROGATE(subchar)
-	    ) {
+	if((pSrc==NULL && srcLength!=0) || srcLength < -1 || (destCapacity<0) || (dest == NULL && destCapacity > 0) || subchar > 0x10ffff || U_IS_SURROGATE(subchar)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
-
-	if(pNumSubstitutions!=NULL) {
-		*pNumSubstitutions = 0;
-	}
+	ASSIGN_PTR(pNumSubstitutions, 0);
 	numSubstitutions = 0;
-
 	if(srcLength==-1) {
 		while((ch = *pSrc)!=0) {
 			++pSrc;
@@ -790,7 +762,6 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 			}
 			else { /* ch is a surrogate */
 				int32_t length;
-
 				/*need not check for NUL because NUL fails U16_IS_TRAIL() anyway*/
 				if(U16_IS_SURROGATE_LEAD(ch) && U16_IS_TRAIL(ch2 = *pSrc)) {
 					++pSrc;
@@ -805,7 +776,6 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 					*pErrorCode = U_INVALID_CHAR_FOUND;
 					return NULL;
 				}
-
 				length = U8_LENGTH(ch);
 				if((pDestLimit - pDest) >= length) {
 					/* convert and append*/
@@ -845,7 +815,6 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 	else {
 		const UChar * pSrcLimit = (pSrc!=NULL) ? (pSrc+srcLength) : NULL;
 		int32_t count;
-
 		/* Faster loop without ongoing checking for pSrcLimit and pDestLimit. */
 		for(;;) {
 			/*
@@ -856,9 +825,7 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 			 */
 			count = (int32_t)((pDestLimit - pDest) / 3);
 			srcLength = (int32_t)(pSrcLimit - pSrc);
-			if(count > srcLength) {
-				count = srcLength; /* min(remaining dest/3, remaining src) */
-			}
+			SETMIN(count, srcLength); /* min(remaining dest/3, remaining src) */
 			if(count < 3) {
 				/*
 				 * Too much overhead if we get near the end of the string,
@@ -890,11 +857,9 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 						--pSrc; /* undo ch=*pSrc++ for the lead surrogate */
 						break; /* recompute count */
 					}
-
 					if(U16_IS_SURROGATE_LEAD(ch) && U16_IS_TRAIL(ch2 = *pSrc)) {
 						++pSrc;
 						ch = U16_GET_SUPPLEMENTARY(ch, ch2);
-
 						/* writing 4 bytes per 2 UChars is ok */
 						*pDest++ = (uint8)((ch>>18)|0xf0);
 						*pDest++ = (uint8)(((ch>>12)&0x3f)|0x80);
@@ -911,14 +876,11 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 							*pErrorCode = U_INVALID_CHAR_FOUND;
 							return NULL;
 						}
-
-						/* convert and append*/
-						pDest = _appendUTF8(pDest, ch);
+						pDest = _appendUTF8(pDest, ch); /* convert and append*/
 					}
 				}
 			} while(--count > 0);
 		}
-
 		while(pSrc<pSrcLimit) {
 			ch = *pSrc++;
 			if(ch <= 0x7f) {
@@ -953,7 +915,6 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 			}
 			else { /* ch is a surrogate */
 				int32_t length;
-
 				if(U16_IS_SURROGATE_LEAD(ch) && pSrc<pSrcLimit && U16_IS_TRAIL(ch2 = *pSrc)) {
 					++pSrc;
 					ch = U16_GET_SUPPLEMENTARY(ch, ch2);
@@ -967,7 +928,6 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest,
 					*pErrorCode = U_INVALID_CHAR_FOUND;
 					return NULL;
 				}
-
 				length = U8_LENGTH(ch);
 				if((pDestLimit - pDest) >= length) {
 					/* convert and append*/
@@ -1260,7 +1220,7 @@ U_CAPI char * U_EXPORT2 u_strToJavaModifiedUTF8(char * dest,
 		srcLength = u_strlen(src);
 	}
 	/* Faster loop without ongoing checking for pSrcLimit and pDestLimit. */
-	pSrcLimit = (src!=NULL) ? (src+srcLength) : NULL;
+	pSrcLimit = src ? (src+srcLength) : NULL;
 	for(;;) {
 		count = (int32_t)(pDestLimit - pDest);
 		srcLength = (int32_t)(pSrcLimit - src);

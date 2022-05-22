@@ -10,40 +10,40 @@
 #pragma hdrstop
 
 namespace absl {
-ABSL_NAMESPACE_BEGIN
-namespace cord_internal {
-CordRepConcat::ExtractResult CordRepConcat::ExtractAppendBuffer(CordRepConcat* tree, size_t extra_capacity) {
-	absl::InlinedVector<CordRepConcat*, kInlinedVectorSize> stack;
-	CordRepConcat* concat = tree;
-	CordRep* rep = concat->right;
-
-	// Dive down the tree, making sure no edges are shared
-	while(concat->refcount.IsOne() && rep->IsConcat()) {
-		stack.push_back(concat);
-		concat = rep->concat();
-		rep = concat->right;
-	}
-	// Validate we ended on a non shared flat.
-	if(concat->refcount.IsOne() && rep->IsFlat() && rep->refcount.IsOne()) {
-		// Verify it has at least the requested extra capacity
-		CordRepFlat* flat = rep->flat();
-		size_t remaining = flat->Capacity() - flat->length;
-		if(extra_capacity > remaining) return {tree, nullptr};
-
-		// Check if we have a parent to adjust, or if we must return the left node.
-		rep = concat->left;
-		if(!stack.empty()) {
-			stack.back()->right = rep;
-			for(CordRepConcat* parent : stack) {
-				parent->length -= flat->length;
+	ABSL_NAMESPACE_BEGIN
+	namespace cord_internal {
+		CordRepConcat::ExtractResult CordRepConcat::ExtractAppendBuffer(CordRepConcat* tree, size_t extra_capacity) 
+		{
+			absl::InlinedVector<CordRepConcat*, kInlinedVectorSize> stack;
+			CordRepConcat* concat = tree;
+			CordRep* rep = concat->right;
+			// Dive down the tree, making sure no edges are shared
+			while(concat->refcount.IsOne() && rep->IsConcat()) {
+				stack.push_back(concat);
+				concat = rep->concat();
+				rep = concat->right;
 			}
-			rep = tree;
+			// Validate we ended on a non shared flat.
+			if(concat->refcount.IsOne() && rep->IsFlat() && rep->refcount.IsOne()) {
+				// Verify it has at least the requested extra capacity
+				CordRepFlat* flat = rep->flat();
+				size_t remaining = flat->Capacity() - flat->length;
+				if(extra_capacity > remaining) 
+					return {tree, nullptr};
+				// Check if we have a parent to adjust, or if we must return the left node.
+				rep = concat->left;
+				if(!stack.empty()) {
+					stack.back()->right = rep;
+					for(CordRepConcat* parent : stack) {
+						parent->length -= flat->length;
+					}
+					rep = tree;
+				}
+				delete concat;
+				return {rep, flat};
+			}
+			return {tree, nullptr};
 		}
-		delete concat;
-		return {rep, flat};
-	}
-	return {tree, nullptr};
-}
-}  // namespace cord_internal
-ABSL_NAMESPACE_END
+	}  // namespace cord_internal
+	ABSL_NAMESPACE_END
 }  // namespace absl

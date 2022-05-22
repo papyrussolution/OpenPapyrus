@@ -207,7 +207,6 @@ int CALLBACK FunctionListPanel::categorySortFunc(LPARAM lParam1, LPARAM lParam2,
 {
 	generic_string* posString1 = reinterpret_cast<generic_string*>(lParam1);
 	generic_string* posString2 = reinterpret_cast<generic_string*>(lParam2);
-
 	size_t pos1 = generic_atoi(posString1->c_str());
 	size_t pos2 = generic_atoi(posString2->c_str());
 	if(pos1 > pos2)
@@ -220,12 +219,9 @@ bool FunctionListPanel::serialize(const generic_string & outputFilename)
 {
 	Buffer* currentBuf = (*_ppEditView)->getCurrentBuffer();
 	const TCHAR* fileNameLabel = currentBuf->getFileName();
-
 	generic_string fname2write;
-	if(outputFilename.empty()) { // if outputFilename is not given, get the current file path by adding the file
-	                             // extension
+	if(outputFilename.empty()) { // if outputFilename is not given, get the current file path by adding the file extension
 		const TCHAR * fullFilePath = currentBuf->getFullPathName();
-
 		// Export function list from an existing file
 		bool exportFuncntionList = (NppParameters::getInstance()).doFunctionListExport();
 		if(exportFuncntionList && ::PathFileExists(fullFilePath)) {
@@ -239,12 +235,10 @@ bool FunctionListPanel::serialize(const generic_string & outputFilename)
 	else {
 		fname2write = outputFilename;
 	}
-
 	const char * rootLabel = "root";
 	const char * nodesLabel = "nodes";
 	const char * leavesLabel = "leaves";
 	const char * nameLabel = "name";
-
 	WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
 	json j;
 	j[rootLabel] = wmc.wchar2char(fileNameLabel, CP_ACP);

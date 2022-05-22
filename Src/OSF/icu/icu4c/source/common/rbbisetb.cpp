@@ -1,14 +1,7 @@
+// rbbisetb.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-//
-//  rbbisetb.cpp
-//
-/*
- ***************************************************************************
- *   Copyright (C) 2002-2008 International Business Machines Corporation   *
- *   and others. All rights reserved.                                      *
- ***************************************************************************
- */
+// Copyright (C) 2002-2008 International Business Machines Corporation and others. All rights reserved.
 //
 //  RBBISetBuilder   Handles processing of Unicode Sets from RBBI rules
 //                   (part of the rule building process.)
@@ -284,13 +277,11 @@ void RBBISetBuilder::mergeCategories(IntPair categories) {
 		--fDictCategoriesStart;
 	}
 }
-
-//-----------------------------------------------------------------------------------
 //
 //  getTrieSize()    Return the size that will be required to serialize the Trie.
 //
-//-----------------------------------------------------------------------------------
-int32_t RBBISetBuilder::getTrieSize() {
+int32_t RBBISetBuilder::getTrieSize() 
+{
 	if(U_FAILURE(*fStatus)) {
 		return 0;
 	}
@@ -308,15 +299,13 @@ int32_t RBBISetBuilder::getTrieSize() {
 	}
 	return fTrieSize;
 }
-
-//-----------------------------------------------------------------------------------
 //
 //  serializeTrie()   Put the serialized trie at the specified address.
 //                    Trust the caller to have given us enough memory.
 //                    getTrieSize() MUST be called first.
 //
-//-----------------------------------------------------------------------------------
-void RBBISetBuilder::serializeTrie(uint8 * where) {
+void RBBISetBuilder::serializeTrie(uint8 * where) 
+{
 	ucptrie_toBinary(fTrie,
 	    where,                         // Buffer
 	    fTrieSize,                     // Capacity
@@ -546,16 +535,12 @@ void RBBISetBuilder::printSets() {
 }
 
 #endif
-
-//-------------------------------------------------------------------------------------
 //
 //  RangeDescriptor copy constructor
 //
-//-------------------------------------------------------------------------------------
-
-RangeDescriptor::RangeDescriptor(const RangeDescriptor &other, UErrorCode & status) :
-	fStartChar(other.fStartChar), fEndChar{other.fEndChar}, fNum{other.fNum},
-	fIncludesDict{other.fIncludesDict}, fFirstInGroup{other.fFirstInGroup} {
+RangeDescriptor::RangeDescriptor(const RangeDescriptor &other, UErrorCode & status) : fStartChar(other.fStartChar), fEndChar{other.fEndChar}, fNum{other.fNum},
+	fIncludesDict{other.fIncludesDict}, fFirstInGroup{other.fFirstInGroup} 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -571,13 +556,11 @@ RangeDescriptor::RangeDescriptor(const RangeDescriptor &other, UErrorCode & stat
 		this->fIncludesSets->addElement(other.fIncludesSets->elementAt(i), status);
 	}
 }
-
-//-------------------------------------------------------------------------------------
 //
 //  RangeDesriptor default constructor
 //
-//-------------------------------------------------------------------------------------
-RangeDescriptor::RangeDescriptor(UErrorCode & status) {
+RangeDescriptor::RangeDescriptor(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}

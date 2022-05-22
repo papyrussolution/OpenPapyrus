@@ -18,12 +18,8 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <stdlib.h>
-//#include <string.h>
 #include "src/enc/cost_enc.h"
 #include "src/enc/vp8i_enc.h"
-//#include "src/utils/utils.h"
 
 #if !defined(DISABLE_TOKEN_BUFFER)
 
@@ -56,7 +52,7 @@ void VP8TBufferInit(VP8TBuffer* const b, int page_size) {
 void VP8TBufferClear(VP8TBuffer* const b) {
 	if(b) {
 		VP8Tokens* p = b->pages_;
-		while(p != NULL) {
+		while(p) {
 			VP8Tokens* const next = p->next_;
 			WebPSafeFree(p);
 			p = next;
@@ -206,11 +202,11 @@ int VP8RecordCoeffTokens(int ctx, const struct VP8Residual* const res,
 //------------------------------------------------------------------------------
 // Final coding pass, with known probabilities
 
-int VP8EmitTokens(VP8TBuffer* const b, VP8BitWriter* const bw,
-    const uint8* const probas, int final_pass) {
+int VP8EmitTokens(VP8TBuffer* const b, VP8BitWriter* const bw, const uint8* const probas, int final_pass) 
+{
 	const VP8Tokens* p = b->pages_;
 	assert(!b->error_);
-	while(p != NULL) {
+	while(p) {
 		const VP8Tokens* const next = p->next_;
 		const int N = (next == NULL) ? b->left_ : 0;
 		int n = b->page_size_;
@@ -237,7 +233,7 @@ size_t VP8EstimateTokenSize(VP8TBuffer* const b, const uint8* const probas) {
 	size_t size = 0;
 	const VP8Tokens* p = b->pages_;
 	assert(!b->error_);
-	while(p != NULL) {
+	while(p) {
 		const VP8Tokens* const next = p->next_;
 		const int N = (next == NULL) ? b->left_ : 0;
 		int n = b->page_size_;
@@ -257,16 +253,16 @@ size_t VP8EstimateTokenSize(VP8TBuffer* const b, const uint8* const probas) {
 	return size;
 }
 
-//------------------------------------------------------------------------------
-
 #else     // DISABLE_TOKEN_BUFFER
 
-void VP8TBufferInit(VP8TBuffer* const b, int page_size) {
+void VP8TBufferInit(VP8TBuffer* const b, int page_size) 
+{
 	(void)b;
 	(void)page_size;
 }
 
-void VP8TBufferClear(VP8TBuffer* const b) {
+void VP8TBufferClear(VP8TBuffer* const b) 
+{
 	(void)b;
 }
 

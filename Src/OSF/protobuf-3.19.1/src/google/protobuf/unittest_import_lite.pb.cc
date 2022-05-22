@@ -13,8 +13,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest_import {
-constexpr ImportMessageLite::ImportMessageLite(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr ImportMessageLite::ImportMessageLite(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : d_(0){}
 struct ImportMessageLiteDefaultTypeInternal {
 	constexpr ImportMessageLiteDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -26,15 +25,16 @@ struct ImportMessageLiteDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ImportMessageLiteDefaultTypeInternal _ImportMessageLite_default_instance_;
 }  // namespace protobuf_unittest_import
 namespace protobuf_unittest_import {
-bool ImportEnumLite_IsValid(int value) {
-  switch (value) {
-    case 7:
-    case 8:
-    case 9:
-      return true;
-    default:
-      return false;
-  }
+bool ImportEnumLite_IsValid(int value)
+{
+	switch(value) {
+		case 7:
+		case 8:
+		case 9:
+			return true;
+		default:
+			return false;
+	}
 }
 
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> ImportEnumLite_strings[3] = {};
@@ -56,30 +56,22 @@ static const int ImportEnumLite_entries_by_number[] = {
   1, // 9 -> IMPORT_LITE_BAZ
 };
 
-const std::string& ImportEnumLite_Name(
-    ImportEnumLite value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          ImportEnumLite_entries,
-          ImportEnumLite_entries_by_number,
-          3, ImportEnumLite_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      ImportEnumLite_entries,
-      ImportEnumLite_entries_by_number,
-      3, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     ImportEnumLite_strings[idx].get();
+const std::string& ImportEnumLite_Name(ImportEnumLite value)
+{
+	static const bool dummy = ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+		ImportEnumLite_entries, ImportEnumLite_entries_by_number, 3, ImportEnumLite_strings);
+	(void)dummy;
+	int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(ImportEnumLite_entries, ImportEnumLite_entries_by_number, 3, value);
+	return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() : ImportEnumLite_strings[idx].get();
 }
-bool ImportEnumLite_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ImportEnumLite* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      ImportEnumLite_entries, 3, name, &int_value);
-  if (success) {
-    *value = static_cast<ImportEnumLite>(int_value);
-  }
-  return success;
+bool ImportEnumLite_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, ImportEnumLite * value)
+{
+	int int_value;
+	bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(ImportEnumLite_entries, 3, name, &int_value);
+	if(success) {
+		*value = static_cast<ImportEnumLite>(int_value);
+	}
+	return success;
 }
 
 // ===================================================================
@@ -126,8 +118,7 @@ void ImportMessageLite::ArenaDtor(void* object) {
   ImportMessageLite* _this = reinterpret_cast< ImportMessageLite* >(object);
   (void)_this;
 }
-void ImportMessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void ImportMessageLite::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void ImportMessageLite::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -167,10 +158,7 @@ const char* ImportMessageLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -225,10 +213,9 @@ size_t ImportMessageLite::ByteSizeLong() const {
   return total_size;
 }
 
-void ImportMessageLite::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ImportMessageLite*>(
-      &from));
+void ImportMessageLite::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ImportMessageLite*>(&from));
 }
 
 void ImportMessageLite::MergeFrom(const ImportMessageLite& from) {

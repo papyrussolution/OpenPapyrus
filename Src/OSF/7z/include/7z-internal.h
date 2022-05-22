@@ -745,7 +745,7 @@ EXTERN_C_BEGIN
 	#endif
 	#ifdef MY_CPU_LE_UNALIGN
 		#define GetUi16(p) (*(const uint16*)(const void *)(p))
-		#define GetUi32(p) (*(const uint32*)(const void *)(p))
+		#define GetUi32(p) (*(const uint32 *)(const void *)(p))
 		#define GetUi64(p) (*(const uint64*)(const void *)(p))
 		#define SetUi16(p, v) { *(uint16 *)(p) = (v); }
 		#define SetUi32(p, v) { *(uint32 *)(p) = (v); }
@@ -767,11 +767,11 @@ EXTERN_C_BEGIN
 		//#include <stdlib.h>
 		#pragma intrinsic(_byteswap_ulong)
 		#pragma intrinsic(_byteswap_uint64)
-		#define GetBe32(p) _byteswap_ulong(*(const uint32*)(const Byte *)(p))
+		#define GetBe32(p) _byteswap_ulong(*(const uint32 *)(const Byte *)(p))
 		#define GetBe64(p) _byteswap_uint64(*(const uint64*)(const Byte *)(p))
 		#define SetBe32(p, v) (*(uint32 *)(void *)(p)) = _byteswap_ulong(v)
 	#elif defined(MY_CPU_LE_UNALIGN) && defined (__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
-		#define GetBe32(p) __builtin_bswap32(*(const uint32*)(const Byte *)(p))
+		#define GetBe32(p) __builtin_bswap32(*(const uint32 *)(const Byte *)(p))
 		#define GetBe64(p) __builtin_bswap64(*(const uint64*)(const Byte *)(p))
 		#define SetBe32(p, v) (*(uint32 *)(void *)(p)) = __builtin_bswap32(v)
 	#else

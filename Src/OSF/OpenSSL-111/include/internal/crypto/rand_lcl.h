@@ -9,11 +9,8 @@
 #ifndef HEADER_RAND_LCL_H
 #define HEADER_RAND_LCL_H
 
-//#include <openssl/aes.h>
-//#include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
-//#include <openssl/ec.h>
 #include <openssl/rand_drbg.h>
 #include "internal/tsan_assist.h"
 #include "internal/numbers.h"

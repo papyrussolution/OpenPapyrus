@@ -113,7 +113,7 @@ static int32 CheckSingleSpecimen(const char * Profile)
 	sprintf(buff_src, "%s%s", ZOOfolder, Profile);
 	sprintf(buff_dst, "%s%s", ZOOwrite,  Profile);
 	h = cmsOpenProfileFromFile(buff_src, "r");
-	if(h == NULL) return 0;
+	if(!h) return 0;
 	printf("%s\n", Profile);
 	PrintAllInfos(h);
 	ReadAllTags(h);
@@ -122,7 +122,7 @@ static int32 CheckSingleSpecimen(const char * Profile)
 	cmsSaveProfileToFile(h, buff_dst);
 	cmsCloseProfile(h);
 	h = cmsOpenProfileFromFile(buff_dst, "r");
-	if(h == NULL) 
+	if(!h) 
 		return 0;
 	ReadAllTags(h);
 	cmsCloseProfile(h);
@@ -137,13 +137,13 @@ static int32 CheckRAWSpecimen(const char * Profile)
 	sprintf(buff_src, "%s%s", ZOOfolder, Profile);
 	sprintf(buff_dst, "%s%s", ZOORawWrite,  Profile);
 	h = cmsOpenProfileFromFile(buff_src, "r");
-	if(h == NULL) return 0;
+	if(!h) return 0;
 	ReadAllTags(h);
 	ReadAllRAWTags(h);
 	cmsSaveProfileToFile(h, buff_dst);
 	cmsCloseProfile(h);
 	h = cmsOpenProfileFromFile(buff_dst, "r");
-	if(h == NULL) return 0;
+	if(!h) return 0;
 	ReadAllTags(h);
 	cmsCloseProfile(h);
 	return 1;
@@ -169,7 +169,7 @@ static int count_stats(const char * Profile)
 	cmsCIEXYZ Black;
 	sprintf(buff_src, "%s%s", ZOOfolder, Profile);
 	h = cmsOpenProfileFromFile(buff_src, "r");
-	if(h == NULL) return 0;
+	if(!h) return 0;
 	switch(cmsGetDeviceClass(h)) {
 		case cmsSigInputClass: input++; break;
 		case cmsSigDisplayClass: disp++; break;

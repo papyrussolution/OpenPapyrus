@@ -1317,7 +1317,7 @@ int ec_GFp_nistp224_point_get_affine_coordinates(const EC_GROUP * group,
 	felem_mul(tmp, x_in, z1);
 	felem_reduce(x_in, tmp);
 	felem_contract(x_out, x_in);
-	if(x != NULL) {
+	if(x) {
 		if(!felem_to_BN(x, x_out)) {
 			ECerr(EC_F_EC_GFP_NISTP224_POINT_GET_AFFINE_COORDINATES,
 			    ERR_R_BN_LIB);
@@ -1329,25 +1329,22 @@ int ec_GFp_nistp224_point_get_affine_coordinates(const EC_GROUP * group,
 	felem_mul(tmp, y_in, z1);
 	felem_reduce(y_in, tmp);
 	felem_contract(y_out, y_in);
-	if(y != NULL) {
+	if(y) {
 		if(!felem_to_BN(y, y_out)) {
-			ECerr(EC_F_EC_GFP_NISTP224_POINT_GET_AFFINE_COORDINATES,
-			    ERR_R_BN_LIB);
+			ECerr(EC_F_EC_GFP_NISTP224_POINT_GET_AFFINE_COORDINATES, ERR_R_BN_LIB);
 			return 0;
 		}
 	}
 	return 1;
 }
 
-static void make_points_affine(size_t num, felem points[] /* num */  [3],
-    felem tmp_felems[] /* num+1 */)
+static void make_points_affine(size_t num, felem points[] /* num */  [3], felem tmp_felems[] /* num+1 */)
 {
 	/*
 	 * Runs in constant time, unless an input is the point at infinity (which
 	 * normally shouldn't happen).
 	 */
-	ec_GFp_nistp_points_make_affine_internal(num,
-	    points,
+	ec_GFp_nistp_points_make_affine_internal(num, points,
 	    sizeof(felem),
 	    tmp_felems,
 	    (void (*)(void *))felem_one,

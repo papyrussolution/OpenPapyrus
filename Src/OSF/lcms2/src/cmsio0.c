@@ -186,7 +186,7 @@ cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buf
 {
 	cmsIOHANDLER* iohandler = NULL;
 	FILEMEM* fm = NULL;
-	_cmsAssert(AccessMode != NULL);
+	assert(AccessMode != NULL);
 	iohandler = (cmsIOHANDLER*)_cmsMallocZero(ContextID, sizeof(cmsIOHANDLER));
 	if(iohandler == NULL) return NULL;
 	switch(*AccessMode) {
@@ -302,8 +302,8 @@ cmsIOHANDLER * CMSEXPORT cmsOpenIOhandlerFromFile(cmsContext ContextID, const ch
 	cmsIOHANDLER* iohandler = NULL;
 	FILE* fm = NULL;
 	int32 fileLen;
-	_cmsAssert(FileName != NULL);
-	_cmsAssert(AccessMode != NULL);
+	assert(FileName != NULL);
+	assert(AccessMode != NULL);
 	iohandler = (cmsIOHANDLER*)_cmsMallocZero(ContextID, sizeof(cmsIOHANDLER));
 	if(iohandler == NULL) 
 		return NULL;
@@ -471,8 +471,8 @@ int _cmsSearchTag(_cmsICCPROFILE* Icc, cmsTagSignature sig, boolint lFollowLinks
 
 static void _cmsDeleteTagByPos(_cmsICCPROFILE* Icc, int i)
 {
-	_cmsAssert(Icc != NULL);
-	_cmsAssert(i >= 0);
+	assert(Icc != NULL);
+	assert(i >= 0);
 	if(Icc->TagPtrs[i] != NULL) {
 		// Free previous version
 		if(Icc->TagSaveAsRaw[i]) {
@@ -1099,7 +1099,7 @@ uint32 CMSEXPORT cmsSaveProfileToIOhandler(cmsHPROFILE hProfile, cmsIOHANDLER* i
 	cmsIOHANDLER* PrevIO = NULL;
 	uint32 UsedSpace;
 	cmsContext ContextID;
-	_cmsAssert(hProfile != NULL);
+	assert(hProfile != NULL);
 	if(!_cmsLockMutex(Icc->ContextID, Icc->UsrMutex)) return 0;
 	memmove(&Keep, Icc, sizeof(_cmsICCPROFILE));
 	ContextID = cmsGetProfileContextID(hProfile);
@@ -1160,12 +1160,12 @@ boolint CMSEXPORT cmsSaveProfileToStream(cmsHPROFILE hProfile, FILE* Stream)
 }
 
 // Same as anterior, but for memory blocks. In this case, a NULL as MemPtr means calculate needed space only
-boolint CMSEXPORT cmsSaveProfileToMem(cmsHPROFILE hProfile, void * MemPtr, uint32* BytesNeeded)
+boolint CMSEXPORT cmsSaveProfileToMem(cmsHPROFILE hProfile, void * MemPtr, uint32 * BytesNeeded)
 {
 	boolint rc;
 	cmsIOHANDLER* io;
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
-	_cmsAssert(BytesNeeded != NULL);
+	assert(BytesNeeded != NULL);
 	// Should we just calculate the needed space?
 	if(MemPtr == NULL) {
 		*BytesNeeded =  cmsSaveProfileToIOhandler(hProfile, NULL);

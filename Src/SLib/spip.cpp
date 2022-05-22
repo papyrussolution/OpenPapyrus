@@ -17,8 +17,8 @@ S_GUID_Base & FASTCALL S_GUID_Base::Init(REFIID rIID)
 }
 
 S_GUID_Base::operator GUID & () { return *(GUID *)Data; }
-int FASTCALL S_GUID_Base::operator == (const S_GUID_Base & s) const { return BIN(memcmp(Data, s.Data, sizeof(Data)) == 0); }
-int FASTCALL S_GUID_Base::operator != (const S_GUID_Base & s) const { return BIN(memcmp(Data, s.Data, sizeof(Data)) != 0); }
+bool FASTCALL S_GUID_Base::operator == (const S_GUID_Base & s) const { return (memcmp(Data, s.Data, sizeof(Data)) == 0); }
+bool FASTCALL S_GUID_Base::operator != (const S_GUID_Base & s) const { return (memcmp(Data, s.Data, sizeof(Data)) != 0); }
 bool S_GUID_Base::IsZero() const { return (Data[0] == 0 && Data[1] == 0 && Data[2] == 0 && Data[3] == 0); }
 
 S_GUID_Base & S_GUID_Base::Z()

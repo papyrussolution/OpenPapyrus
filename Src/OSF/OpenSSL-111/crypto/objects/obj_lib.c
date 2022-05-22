@@ -22,7 +22,7 @@ ASN1_OBJECT * OBJ_dup(const ASN1_OBJECT * o)
 		return (ASN1_OBJECT*)o;
 
 	r = ASN1_OBJECT_new();
-	if(r == NULL) {
+	if(!r) {
 		OBJerr(OBJ_F_OBJ_DUP, ERR_R_ASN1_LIB);
 		return NULL;
 	}

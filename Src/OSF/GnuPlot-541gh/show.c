@@ -634,7 +634,7 @@ void GnuPlot::ShowVersion(FILE * fp)
 		compile_options = (char *)SAlloc::R(compile_options, strlen(compile_options)+1);
 	}
 	// The only effect of fp == NULL is to load the compile_options string 
-	if(fp == NULL)
+	if(!fp)
 		return;
 	if(fp == stderr) {
 		// No hash mark - let p point to the trailing '\0' 

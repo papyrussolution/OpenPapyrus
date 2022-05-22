@@ -342,7 +342,7 @@ public:
 	PPAsyncCashSession * AsyncInterface() { return new ACS_ATOL(NodeID); }
 };
 
-REGISTER_CMT(ATOL,0,1);
+REGISTER_CMT(ATOL, false, true);
 
 class ACS_ATOLWOATOLCARD : public ACS_ATOL {
 public:
@@ -359,7 +359,7 @@ public:
 	PPAsyncCashSession * AsyncInterface() { return new ACS_ATOLWOATOLCARD(NodeID); }
 };
 
-REGISTER_CMT(ATOLWOATOLCARD,0,1);
+REGISTER_CMT(ATOLWOATOLCARD, false, true);
 
 ACS_ATOLWOATOLCARD::ACS_ATOLWOATOLCARD(PPID id) : ACS_ATOL(id)
 {

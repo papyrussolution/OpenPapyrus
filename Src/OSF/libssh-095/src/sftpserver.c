@@ -430,7 +430,7 @@ int sftp_reply_status(sftp_client_message msg, uint32_t status,
 	}
 
 	s = ssh_string_from_char(message ? message : "");
-	if(s == NULL) {
+	if(!s) {
 		SSH_BUFFER_FREE(out);
 		return -1;
 	}

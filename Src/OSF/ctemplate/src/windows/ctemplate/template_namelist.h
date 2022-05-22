@@ -25,10 +25,6 @@
 #ifndef TEMPLATE_TEMPLATE_NAMELIST_H_
 #define TEMPLATE_TEMPLATE_NAMELIST_H_
 
-#include <time.h>    // for time_t
-#include <unordered_set>
-#include <string>
-#include <vector>
 #include <ctemplate/template_enums.h>    // for Strip
 #include <ctemplate/template_string.h>   // for StringHash
 

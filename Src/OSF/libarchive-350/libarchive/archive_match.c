@@ -155,7 +155,7 @@ static const struct archive_rb_tree_ops rb_ops_wcs = { cmp_node_wcs, cmp_key_wcs
  */
 static int error_nomem(struct archive_match * a)
 {
-	archive_set_error(&(a->archive), ENOMEM, "No memory");
+	archive_set_error(&(a->archive), ENOMEM, SlTxtOutOfMem);
 	a->archive.state = ARCHIVE_STATE_FATAL;
 	return ARCHIVE_FATAL;
 }
@@ -454,7 +454,7 @@ static int add_pattern_from_file(struct archive_match * a, struct match_list * m
 	int r;
 	struct archive * ar = archive_read_new();
 	if(ar == NULL) {
-		archive_set_error(&(a->archive), ENOMEM, "No memory");
+		archive_set_error(&(a->archive), ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
 	r = archive_read_support_format_raw(ar);
@@ -1134,7 +1134,7 @@ static int add_entry(struct archive_match * a, int flag, struct archive_entry * 
 	const void * pathname;
 	int r;
 	struct match_file * f = static_cast<struct match_file *>(SAlloc::C(1, sizeof(*f)));
-	if(f == NULL)
+	if(!f)
 		return (error_nomem(a));
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	pathname = archive_entry_pathname_w(entry);
@@ -1291,13 +1291,10 @@ static int time_excluded(struct archive_match * a, struct archive_entry * entry)
 #endif
 	if(pathname == NULL)
 		return 0;
-
-	f = (struct match_file *)__archive_rb_tree_find_node(
-		&(a->exclusion_tree), pathname);
+	f = (struct match_file *)__archive_rb_tree_find_node(&(a->exclusion_tree), pathname);
 	/* If the file wasn't rejected, include it. */
-	if(f == NULL)
+	if(!f)
 		return 0;
-
 	if(f->flag & ARCHIVE_MATCH_CTIME) {
 		sec = archive_entry_ctime(entry);
 		if(f->ctime_sec > sec) {
@@ -1503,7 +1500,7 @@ static int match_owner_name_mbs(struct archive_match * a, struct match_list * li
 		if(archive_mstring_get_mbs(&(a->archive), &(m->pattern), &p)
 		    < 0 && errno == ENOMEM)
 			return (error_nomem(a));
-		if(p != NULL && strcmp(p, name) == 0) {
+		if(p && strcmp(p, name) == 0) {
 			m->matches++;
 			return 1;
 		}
@@ -1521,7 +1518,7 @@ static int match_owner_name_wcs(struct archive_match * a, struct match_list * li
 	for(m = list->first; m; m = m->next) {
 		if(archive_mstring_get_wcs(&(a->archive), &(m->pattern), &p) < 0 && errno == ENOMEM)
 			return (error_nomem(a));
-		if(p != NULL && wcscmp(p, name) == 0) {
+		if(p && wcscmp(p, name) == 0) {
 			m->matches++;
 			return 1;
 		}

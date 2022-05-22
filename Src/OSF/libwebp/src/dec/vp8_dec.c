@@ -13,33 +13,20 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <stdlib.h>
-//#include "src/dec/alphai_dec.h"
 #include "src/dec/vp8i_dec.h"
 #include "src/dec/vp8li_dec.h"
-//#include "src/dec/webpi_dec.h"
 #include "src/utils/bit_reader_inl_utils.h"
-//#include "src/utils/utils.h"
 
-//------------------------------------------------------------------------------
-
-int WebPGetDecoderVersion(void) {
-	return (DEC_MAJ_VERSION << 16) | (DEC_MIN_VERSION << 8) | DEC_REV_VERSION;
-}
-
-//------------------------------------------------------------------------------
+int WebPGetDecoderVersion(void) { return (DEC_MAJ_VERSION << 16) | (DEC_MIN_VERSION << 8) | DEC_REV_VERSION; }
+//
 // Signature and pointer-to-function for GetCoeffs() variants below.
-
-typedef int (* GetCoeffsFunc)(VP8BitReader* const br,
-    const VP8BandProbas* const prob[],
-    int ctx, const quant_t dq, int n, int16_t* out);
+//
+typedef int (* GetCoeffsFunc)(VP8BitReader* const br, const VP8BandProbas* const prob[], int ctx, const quant_t dq, int n, int16_t* out);
 static volatile GetCoeffsFunc GetCoeffs = NULL;
-
 static void InitGetCoeffs(void);
-
-//------------------------------------------------------------------------------
+//
 // VP8Decoder
-
+//
 static void SetOk(VP8Decoder* const dec) 
 {
 	dec->status_ = VP8_STATUS_OK;

@@ -5,8 +5,9 @@
 
 namespace NWindows {
 namespace NShell {
-/////////////////////////
+//
 // CItemIDList
+//
 #ifndef UNDER_CE
 
 class CItemIDList {

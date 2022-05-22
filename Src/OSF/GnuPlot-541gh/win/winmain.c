@@ -60,7 +60,7 @@ int CALLBACK ShutDown();
 
 static void CheckMemory(LPTSTR str)
 {
-	if(str == NULL) {
+	if(!str) {
 		MessageBox(NULL, TEXT("out of memory"), TEXT("gnuplot"), MB_ICONSTOP | MB_OK);
 		gp_exit(EXIT_FAILURE);
 	}
@@ -919,7 +919,7 @@ int ConsoleReadCh()
 		return c;
 	}
 	h = GetStdHandle(STD_INPUT_HANDLE);
-	if(h == NULL)
+	if(!h)
 		return '\0';
 	ReadConsoleInputW(h, &rec, 1, &recRead);
 	/* FIXME: We should handle rec.Event.KeyEvent.wRepeatCount > 1, too. */

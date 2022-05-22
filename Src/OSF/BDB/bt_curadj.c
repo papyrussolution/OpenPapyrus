@@ -10,14 +10,14 @@
 #pragma hdrstop
 
 static int __bam_opd_cursor(DB*, DBC*, db_pgno_t, uint32, uint32);
-static int __bam_ca_delete_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
-static int __ram_ca_delete_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
-static int __bam_ca_di_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
-static int __bam_ca_dup_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
-static int __bam_ca_undodup_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
-static int __bam_ca_rsplit_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
-static int __bam_ca_split_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
-static int __bam_ca_undosplit_func(DBC*, DBC*, uint32*, db_pgno_t, uint32, void *);
+static int __bam_ca_delete_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
+static int __ram_ca_delete_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
+static int __bam_ca_di_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
+static int __bam_ca_dup_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
+static int __bam_ca_undodup_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
+static int __bam_ca_rsplit_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
+static int __bam_ca_split_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
+static int __bam_ca_undosplit_func(DBC*, DBC*, uint32 *, db_pgno_t, uint32, void *);
 
 /*
  * Cursor adjustments are logged if they are for subtransactions.  This is

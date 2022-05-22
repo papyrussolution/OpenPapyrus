@@ -9,8 +9,8 @@
 #ifndef ABSL_STRINGS_INTERNAL_CORD_REP_CRC_H_
 #define ABSL_STRINGS_INTERNAL_CORD_REP_CRC_H_
 
-#include <cassert>
-#include <cstdint>
+//#include <cassert>
+//#include <cstdint>
 #include "absl/base/config.h"
 #include "absl/base/optimization.h"
 #include "absl/strings/internal/cord_internal.h"

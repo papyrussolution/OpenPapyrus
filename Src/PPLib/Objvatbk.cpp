@@ -3171,12 +3171,12 @@ int PPViewVatBook::Export()
                             {
                             	n_item.PutAttrib("Ќомерѕор", temp_buf.Z().Cat(line_no));
                             	n_item.PutAttrib("Ќом—ч‘ѕрод", (temp_buf = item.Code).Transf(CTRANSF_INNER_TO_OUTER));
-                            	n_item.PutAttrib("ƒата—ч‘ѕрод", temp_buf.Z().Cat(item.InvcDt, DATF_GERMAN|DATF_CENTURY));
+                            	n_item.PutAttrib("ƒата—ч‘ѕрод", temp_buf.Z().Cat(item.InvcDt, DATF_GERMANCENT));
                             	//n_item.PutAttrib("Ќом»спр—ч‘", temp_buf.Z());
                             	//n_item.PutAttrib("ƒата»спр—ч‘", temp_buf.Z());
                             	if(item.CBillCode[0]) {
 									n_item.PutAttrib("Ќом —ч‘ѕрод", item.CBillCode);
-									n_item.PutAttrib("ƒата —ч‘ѕрод", temp_buf.Z().Cat(item.CBillDt, DATF_GERMAN|DATF_CENTURY));
+									n_item.PutAttrib("ƒата —ч‘ѕрод", temp_buf.Z().Cat(item.CBillDt, DATF_GERMANCENT));
                             	}
                             	//n_item.PutAttrib("Ќом»спр —ч‘", temp_buf.Z());
                             	//n_item.PutAttrib("ƒата»спр —ч‘", temp_buf.Z());
@@ -3215,7 +3215,7 @@ int PPViewVatBook::Export()
                             	}
                            		if(Filt.Kind == PPVTB_BUY) {
 									{
-										SXml::WNode n(g.P_X, "ƒата”ч“ов", temp_buf.Z().Cat(item.Dt, DATF_GERMAN|DATF_CENTURY));
+										SXml::WNode n(g.P_X, "ƒата”ч“ов", temp_buf.Z().Cat(item.Dt, DATF_GERMANCENT));
 									}
 									{
 										//SXml::WNode n(g.P_X, "—вѕрод");

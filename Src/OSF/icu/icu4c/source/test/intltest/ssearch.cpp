@@ -372,10 +372,10 @@ OrderList::OrderList(UCollator * coll, const UnicodeString & string, int32_t str
 	{
 		default:
 		    strengthMask |= UCOL_TERTIARYORDERMASK;
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case UCOL_SECONDARY:
 		    strengthMask |= UCOL_SECONDARYORDERMASK;
-		    U_FALLTHROUGH;
+		    CXX_FALLTHROUGH;
 		case UCOL_PRIMARY:
 		    strengthMask |= UCOL_PRIMARYORDERMASK;
 	}

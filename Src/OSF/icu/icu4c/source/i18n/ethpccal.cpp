@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2003 - 2013, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2003 - 2013, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -21,22 +17,15 @@ U_NAMESPACE_BEGIN
 //static const int32_t JD_EPOCH_OFFSET_AMETE_ALEM = -285019;
 static const int32_t JD_EPOCH_OFFSET_AMETE_MIHRET = 1723856;
 static const int32_t AMETE_MIHRET_DELTA = 5500; // 5501 - 1 (Amete Alem 5501 = Amete Mihret 1)
-
-//-------------------------------------------------------------------------
+//
 // Constructors...
-//-------------------------------------------------------------------------
-
-EthiopicCalendar::EthiopicCalendar(const Locale & aLocale,
-    UErrorCode & success,
-    EEraType type /*= AMETE_MIHRET_ERA*/)
-	:   CECalendar(aLocale, success),
-	eraType(type)
+//
+EthiopicCalendar::EthiopicCalendar(const Locale & aLocale, UErrorCode & success, EEraType type /*= AMETE_MIHRET_ERA*/) : 
+	CECalendar(aLocale, success), eraType(type)
 {
 }
 
-EthiopicCalendar::EthiopicCalendar(const EthiopicCalendar& other)
-	:   CECalendar(other),
-	eraType(other.eraType)
+EthiopicCalendar::EthiopicCalendar(const EthiopicCalendar& other) : CECalendar(other), eraType(other.eraType)
 {
 }
 
@@ -44,10 +33,7 @@ EthiopicCalendar::~EthiopicCalendar()
 {
 }
 
-EthiopicCalendar* EthiopicCalendar::clone() const
-{
-	return new EthiopicCalendar(*this);
-}
+EthiopicCalendar* EthiopicCalendar::clone() const { return new EthiopicCalendar(*this); }
 
 const char * EthiopicCalendar::getType() const
 {
@@ -57,20 +43,11 @@ const char * EthiopicCalendar::getType() const
 	return "ethiopic";
 }
 
-void EthiopicCalendar::setAmeteAlemEra(bool onOff)
-{
-	eraType = onOff ? AMETE_ALEM_ERA : AMETE_MIHRET_ERA;
-}
-
-bool EthiopicCalendar::isAmeteAlemEra() const
-{
-	return (eraType == AMETE_ALEM_ERA);
-}
-
-//-------------------------------------------------------------------------
+void EthiopicCalendar::setAmeteAlemEra(bool onOff) { eraType = onOff ? AMETE_ALEM_ERA : AMETE_MIHRET_ERA; }
+bool EthiopicCalendar::isAmeteAlemEra() const { return (eraType == AMETE_ALEM_ERA); }
+//
 // Calendar framework
-//-------------------------------------------------------------------------
-
+//
 int32_t EthiopicCalendar::handleGetExtendedYear()
 {
 	// Ethiopic calendar uses EXTENDED_YEAR aligned to
@@ -173,19 +150,15 @@ int32_t EthiopicCalendar::defaultCenturyStartYear() const
 	return gSystemDefaultCenturyStartYear;
 }
 
-int32_t EthiopicCalendar::getJDEpochOffset() const
-{
-	return JD_EPOCH_OFFSET_AMETE_MIHRET;
-}
+int32_t EthiopicCalendar::getJDEpochOffset() const { return JD_EPOCH_OFFSET_AMETE_MIHRET; }
 
 #if 0
 // We do not want to introduce this API in ICU4C.
 // It was accidentally introduced in ICU4J as a public API.
 
-//-------------------------------------------------------------------------
+//
 // Calendar system Conversion methods...
-//-------------------------------------------------------------------------
-
+//
 int32_t EthiopicCalendar::ethiopicToJD(int32_t year, int32_t month, int32_t date)
 {
 	return ceToJD(year, month, date, JD_EPOCH_OFFSET_AMETE_MIHRET);

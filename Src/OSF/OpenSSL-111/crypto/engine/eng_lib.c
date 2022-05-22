@@ -71,7 +71,7 @@ int engine_free_util(ENGINE * e, int not_locked)
 {
 	int i;
 
-	if(e == NULL)
+	if(!e)
 		return 1;
 	if(not_locked)
 		CRYPTO_DOWN_REF(&e->struct_ref, &i, global_engine_lock);

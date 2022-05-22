@@ -18,8 +18,7 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace one {
 namespace two {
 namespace a_three {
-constexpr Four::Four(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr Four::Four(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : a_string_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct FourDefaultTypeInternal {
 	constexpr FourDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -124,8 +123,7 @@ void Four::ArenaDtor(void* object) {
   Four* _this = reinterpret_cast< Four* >(object);
   (void)_this;
 }
-void Four::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void Four::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void Four::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -164,10 +162,7 @@ const char* Four::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -223,10 +218,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Four::_class_data_ = {
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Four::GetClassData() const { return &_class_data_; }
 
-void Four::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Four *>(to)->MergeFrom(
-      static_cast<const Four &>(from));
+void Four::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<Four *>(to)->MergeFrom(static_cast<const Four &>(from));
 }
 
 
@@ -258,11 +251,7 @@ void Four::InternalSwap(Four* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &a_string_, lhs_arena,
-      &other->a_string_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &a_string_, lhs_arena, &other->a_string_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Four::GetMetadata() const {

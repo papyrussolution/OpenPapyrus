@@ -622,7 +622,7 @@ char * SRP_create_verifier(const char * user, const char * pass, char ** salt,
 			goto err;
 		s = BN_bin2bn(tmp2, len, NULL);
 	}
-	if(s == NULL)
+	if(!s)
 		goto err;
 
 	if(!SRP_create_verifier_BN(user, pass, &s, &v, N_bn, g_bn))

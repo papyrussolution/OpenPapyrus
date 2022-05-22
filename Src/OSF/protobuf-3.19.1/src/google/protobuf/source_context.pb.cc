@@ -16,8 +16,7 @@
 
 PROTOBUF_PRAGMA_INIT_SEG
 PROTOBUF_NAMESPACE_OPEN
-constexpr SourceContext::SourceContext(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr SourceContext::SourceContext(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : file_name_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct SourceContextDefaultTypeInternal {
 	constexpr SourceContextDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -121,8 +120,7 @@ void SourceContext::ArenaDtor(void* object) {
   SourceContext* _this = reinterpret_cast< SourceContext* >(object);
   (void)_this;
 }
-void SourceContext::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void SourceContext::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void SourceContext::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -161,10 +159,7 @@ const char* SourceContext::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -220,10 +215,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData SourceContext::_class_data_ = 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*SourceContext::GetClassData() const { return &_class_data_; }
 
-void SourceContext::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<SourceContext *>(to)->MergeFrom(
-      static_cast<const SourceContext &>(from));
+void SourceContext::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<SourceContext *>(to)->MergeFrom(static_cast<const SourceContext &>(from));
 }
 
 
@@ -255,11 +248,7 @@ void SourceContext::InternalSwap(SourceContext* other) {
   auto* lhs_arena = GetArenaForAllocation();
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &file_name_, lhs_arena,
-      &other->file_name_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &file_name_, lhs_arena, &other->file_name_, rhs_arena);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SourceContext::GetMetadata() const {

@@ -22,26 +22,22 @@
 // Including this will define the __GLIBC__ macro if glibc is being
 // used.
 #include <climits>
-
 #include "absl/base/config.h"
 
 // Maybe one day we can rewrite this file not to require the elf
 // symbol extensions in glibc, but for right now we need them.
 #ifdef ABSL_HAVE_ELF_MEM_IMAGE
-#error ABSL_HAVE_ELF_MEM_IMAGE cannot be directly set
+	#error ABSL_HAVE_ELF_MEM_IMAGE cannot be directly set
 #endif
-
-#if defined(__ELF__) && !defined(__native_client__) && !defined(__asmjs__) && \
-	!defined(__wasm__)
-#define ABSL_HAVE_ELF_MEM_IMAGE 1
+#if defined(__ELF__) && !defined(__native_client__) && !defined(__asmjs__) && !defined(__wasm__)
+	#define ABSL_HAVE_ELF_MEM_IMAGE 1
 #endif
-
 #ifdef ABSL_HAVE_ELF_MEM_IMAGE
 
 #include <link.h>  // for ElfW
 
 #if defined(__FreeBSD__) && !defined(ElfW)
-#define ElfW(x) __ElfN(x)
+	#define ElfW(x) __ElfN(x)
 #endif
 
 namespace absl {

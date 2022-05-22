@@ -40,7 +40,7 @@ int SSL_CTX_SRP_CTX_free(struct ssl_ctx_st * ctx)
 
 int SSL_SRP_CTX_free(struct ssl_st * s)
 {
-	if(s == NULL)
+	if(!s)
 		return 0;
 	OPENSSL_free(s->srp_ctx.login);
 	OPENSSL_free(s->srp_ctx.info);
@@ -71,22 +71,10 @@ int SSL_SRP_CTX_init(struct ssl_st * s)
 	/* set SRP client passwd callback */
 	s->srp_ctx.SRP_give_srp_client_pwd_callback = ctx->srp_ctx.SRP_give_srp_client_pwd_callback;
 	s->srp_ctx.strength = ctx->srp_ctx.strength;
-	if(((ctx->srp_ctx.N != NULL) &&
-	    ((s->srp_ctx.N = BN_dup(ctx->srp_ctx.N)) == NULL)) ||
-	    ((ctx->srp_ctx.g != NULL) &&
-	    ((s->srp_ctx.g = BN_dup(ctx->srp_ctx.g)) == NULL)) ||
-	    ((ctx->srp_ctx.s != NULL) &&
-	    ((s->srp_ctx.s = BN_dup(ctx->srp_ctx.s)) == NULL)) ||
-	    ((ctx->srp_ctx.B != NULL) &&
-	    ((s->srp_ctx.B = BN_dup(ctx->srp_ctx.B)) == NULL)) ||
-	    ((ctx->srp_ctx.A != NULL) &&
-	    ((s->srp_ctx.A = BN_dup(ctx->srp_ctx.A)) == NULL)) ||
-	    ((ctx->srp_ctx.a != NULL) &&
-	    ((s->srp_ctx.a = BN_dup(ctx->srp_ctx.a)) == NULL)) ||
-	    ((ctx->srp_ctx.v != NULL) &&
-	    ((s->srp_ctx.v = BN_dup(ctx->srp_ctx.v)) == NULL)) ||
-	    ((ctx->srp_ctx.b != NULL) &&
-	    ((s->srp_ctx.b = BN_dup(ctx->srp_ctx.b)) == NULL))) {
+	if((ctx->srp_ctx.N && ((s->srp_ctx.N = BN_dup(ctx->srp_ctx.N)) == NULL)) || (ctx->srp_ctx.g && ((s->srp_ctx.g = BN_dup(ctx->srp_ctx.g)) == NULL)) ||
+	    (ctx->srp_ctx.s && ((s->srp_ctx.s = BN_dup(ctx->srp_ctx.s)) == NULL)) || (ctx->srp_ctx.B && ((s->srp_ctx.B = BN_dup(ctx->srp_ctx.B)) == NULL)) ||
+	    (ctx->srp_ctx.A && ((s->srp_ctx.A = BN_dup(ctx->srp_ctx.A)) == NULL)) || (ctx->srp_ctx.a && ((s->srp_ctx.a = BN_dup(ctx->srp_ctx.a)) == NULL)) ||
+	    (ctx->srp_ctx.v && ((s->srp_ctx.v = BN_dup(ctx->srp_ctx.v)) == NULL)) || (ctx->srp_ctx.b && ((s->srp_ctx.b = BN_dup(ctx->srp_ctx.b)) == NULL))) {
 		SSLerr(SSL_F_SSL_SRP_CTX_INIT, ERR_R_BN_LIB);
 		goto err;
 	}
@@ -99,7 +87,6 @@ int SSL_SRP_CTX_init(struct ssl_st * s)
 		goto err;
 	}
 	s->srp_ctx.srp_Mask = ctx->srp_ctx.srp_Mask;
-
 	return 1;
 err:
 	OPENSSL_free(s->srp_ctx.login);

@@ -537,7 +537,7 @@ static int _sasl_client_order_mechs(const sasl_utils_t * utils,
 	mechslen = strlen(mechs);
 
 	listp = list = (char *)utils->malloc(mechslen + 1);
-	if(list == NULL)
+	if(!list)
 		return SASL_NOMEM;
 
 	/* As per RFC 4422:

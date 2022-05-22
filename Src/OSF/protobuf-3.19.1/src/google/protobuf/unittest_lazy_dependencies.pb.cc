@@ -17,8 +17,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace protobuf_unittest {
 namespace lazy_imports {
-constexpr ImportedMessage::ImportedMessage(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr ImportedMessage::ImportedMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : lazy_message_(nullptr){}
 struct ImportedMessageDefaultTypeInternal {
 	constexpr ImportedMessageDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -28,8 +27,7 @@ struct ImportedMessageDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ImportedMessageDefaultTypeInternal _ImportedMessage_default_instance_;
-constexpr MessageCustomOption::MessageCustomOption(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MessageCustomOption::MessageCustomOption(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MessageCustomOptionDefaultTypeInternal {
 	constexpr MessageCustomOptionDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MessageCustomOptionDefaultTypeInternal() {}
@@ -38,8 +36,7 @@ struct MessageCustomOptionDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MessageCustomOptionDefaultTypeInternal _MessageCustomOption_default_instance_;
-constexpr MessageCustomOption2::MessageCustomOption2(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+constexpr MessageCustomOption2::MessageCustomOption2(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
 struct MessageCustomOption2DefaultTypeInternal {
 	constexpr MessageCustomOption2DefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
 	~MessageCustomOption2DefaultTypeInternal() {}
@@ -125,10 +122,7 @@ class ImportedMessage::_Internal {
   static void set_has_lazy_message(HasBits* has_bits) { (*has_bits)[0] |= 1u; }
 };
 
-const ::protobuf_unittest::lazy_imports::LazyMessage&
-ImportedMessage::_Internal::lazy_message(const ImportedMessage* msg) {
-  return *msg->lazy_message_;
-}
+const ::protobuf_unittest::lazy_imports::LazyMessage & ImportedMessage::_Internal::lazy_message(const ImportedMessage* msg) { return *msg->lazy_message_; }
 void ImportedMessage::clear_lazy_message() {
   if(lazy_message_ != nullptr) lazy_message_->Clear();
   _has_bits_[0] &= ~0x00000001u;
@@ -146,11 +140,7 @@ ImportedMessage::ImportedMessage(const ImportedMessage& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if(from._internal_has_lazy_message()) {
-    lazy_message_ = new ::protobuf_unittest::lazy_imports::LazyMessage(*from.lazy_message_);
-  } else {
-    lazy_message_ = nullptr;
-  }
+  lazy_message_ = from._internal_has_lazy_message() ? new ::protobuf_unittest::lazy_imports::LazyMessage(*from.lazy_message_) : nullptr;
   // @@protoc_insertion_point(copy_constructor:protobuf_unittest.lazy_imports.ImportedMessage)
 }
 
@@ -174,8 +164,7 @@ void ImportedMessage::ArenaDtor(void* object) {
   ImportedMessage* _this = reinterpret_cast< ImportedMessage* >(object);
   (void)_this;
 }
-void ImportedMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void ImportedMessage::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void ImportedMessage::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -218,10 +207,7 @@ const char* ImportedMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -277,10 +263,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData ImportedMessage::_class_data_ 
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ImportedMessage::GetClassData() const { return &_class_data_; }
 
-void ImportedMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<ImportedMessage *>(to)->MergeFrom(
-      static_cast<const ImportedMessage &>(from));
+void ImportedMessage::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+	static_cast<ImportedMessage *>(to)->MergeFrom(static_cast<const ImportedMessage &>(from));
 }
 
 

@@ -31,23 +31,12 @@
 
 #define _GNU_SOURCE /* required for RTLD_DEFAULT */
 #include "cairo-quartz-private.h"
-//#include "cairo-composite-rectangles-private.h"
-//#include "cairo-compositor-private.h"
-//#include "cairo-default-context-private.h"
-//#include "cairo-error-private.h"
-//#include "cairo-image-surface-inline.h"
-//#include "cairo-pattern-private.h"
-//#include "cairo-surface-backend-private.h"
-//#include "cairo-surface-clipper-private.h"
-//#include "cairo-recording-surface-private.h"
 #include <dlfcn.h>
 #ifndef RTLD_DEFAULT
 	#define RTLD_DEFAULT ((void *)0)
 #endif
 #include <limits.h>
-
 #undef QUARTZ_DEBUG
-
 #ifdef QUARTZ_DEBUG
 	#define ND(_x)  fprintf _x
 #else
@@ -2104,7 +2093,7 @@ cairo_quartz_surface_t * _cairo_quartz_surface_create_internal(CGContextRef cgCo
 	quartz_ensure_symbols();
 	/* Init the base surface */
 	surface = _cairo_malloc(sizeof(cairo_quartz_surface_t));
-	if(UNLIKELY(surface == NULL))
+	if(UNLIKELY(!surface))
 		return (cairo_quartz_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
 	memzero(surface, sizeof(cairo_quartz_surface_t));
 	_cairo_surface_init(&surface->base, &cairo_quartz_surface_backend,

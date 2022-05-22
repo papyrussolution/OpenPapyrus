@@ -163,7 +163,7 @@ static struct st_mysql_client_plugin * add_plugin(MYSQL * mysql, struct st_mysql
 	}
 	p = (struct st_client_plugin_int *)ma_memdup_root(&mem_root, (char *)&plugin_int, sizeof(plugin_int));
 	if(!p) {
-		errmsg = "Out of memory";
+		errmsg = SlTxtOutOfMem;
 		goto err2;
 	}
 	p->next = plugin_list[plugin_nr];

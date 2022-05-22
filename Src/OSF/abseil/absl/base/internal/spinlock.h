@@ -22,9 +22,9 @@
 #ifndef ABSL_BASE_INTERNAL_SPINLOCK_H_
 #define ABSL_BASE_INTERNAL_SPINLOCK_H_
 
-#include <stdint.h>
-#include <sys/types.h>
-#include <atomic>
+//#include <stdint.h>
+//#include <sys/types.h>
+//#include <atomic>
 #include "absl/base/attributes.h"
 #include "absl/base/const_init.h"
 #include "absl/base/dynamic_annotations.h"
