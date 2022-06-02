@@ -581,7 +581,7 @@ static void ColouriseSrecDoc(Sci_PositionU startPos, Sci_Position length, int in
 			    sc.SetState(dataFieldType);
 			    if(dataFieldType == SCE_HEX_DATA_ODD) {
 				    for(int i = 0; i < dataFieldSize * 2; i++) {
-					    if((i & 0x3) == 0) {
+					    if(!(i & 0x3)) {
 						    sc.SetState(SCE_HEX_DATA_ODD);
 					    }
 					    else if((i & 0x3) == 2) {
@@ -674,7 +674,7 @@ static void ColouriseIHexDoc(Sci_PositionU startPos, Sci_Position length, int in
 			    sc.SetState(dataFieldType);
 			    if(dataFieldType == SCE_HEX_DATA_ODD) {
 				    for(int i = 0; i < dataFieldSize * 2; i++) {
-					    if((i & 0x3) == 0) {
+					    if(!(i & 0x3)) {
 						    sc.SetState(SCE_HEX_DATA_ODD);
 					    }
 					    else if((i & 0x3) == 2) {
@@ -817,7 +817,7 @@ static void ColouriseTEHexDoc(Sci_PositionU startPos, Sci_Position length, int i
 			    digitCount = GetTEHexDigitCount(recStartPos, styler) - 14;
 			    sc.SetState(SCE_HEX_DATA_ODD);
 			    for(int i = 0; i < digitCount; i++) {
-				    if((i & 0x3) == 0) {
+				    if(!(i & 0x3)) {
 					    sc.SetState(SCE_HEX_DATA_ODD);
 				    }
 				    else if((i & 0x3) == 2) {

@@ -39,9 +39,11 @@
             <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonFaces"
                 android:layout_gravity="center_vertical|right"
                 app:srcCompat="@drawable/ic_faceprofile01"/>
+            <!-- debug
             <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonTest"
                 android:layout_gravity="center_vertical|right"
                 app:srcCompat="@drawable/ic_test01"/>
+            -->
     </Toolbar>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/serviceListView"

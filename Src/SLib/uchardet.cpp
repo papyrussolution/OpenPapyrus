@@ -3430,7 +3430,7 @@ nsProbingState nsBig5Prober::HandleData(const char * aBuf, uint32 aLen)
 		}
 		else if(codingState == eStart) {
 			const uint32 charLen = mCodingSM->GetCurrentCharLen();
-			if(i == 0) {
+			if(!i) {
 				mLastChar[1] = aBuf[0];
 				mDistributionAnalyser.HandleOneChar(mLastChar, charLen);
 			}
@@ -3524,7 +3524,7 @@ nsProbingState nsEUCJPProber::HandleData(const char * aBuf, uint32 aLen)
 		}
 		else if(codingState == eStart) {
 			const uint32 charLen = mCodingSM->GetCurrentCharLen();
-			if(i == 0) {
+			if(!i) {
 				mLastChar[1] = aBuf[0];
 				mContextAnalyser.HandleOneChar(mLastChar, charLen);
 				mDistributionAnalyser.HandleOneChar(mLastChar, charLen);
@@ -3592,7 +3592,7 @@ nsProbingState nsEUCKRProber::HandleData(const char * aBuf, uint32 aLen)
 		}
 		else if(codingState == eStart) {
 			const uint32 charLen = mCodingSM->GetCurrentCharLen();
-			if(i == 0) {
+			if(!i) {
 				mLastChar[1] = aBuf[0];
 				mDistributionAnalyser.HandleOneChar(mLastChar, charLen);
 			}
@@ -3660,7 +3660,7 @@ nsProbingState nsEUCTWProber::HandleData(const char * aBuf, uint32 aLen)
 		}
 		else if(codingState == eStart) {
 			const uint32 charLen = mCodingSM->GetCurrentCharLen();
-			if(i == 0) {
+			if(!i) {
 				mLastChar[1] = aBuf[0];
 				mDistributionAnalyser.HandleOneChar(mLastChar, charLen);
 			}
@@ -3732,7 +3732,7 @@ nsProbingState nsGB18030Prober::HandleData(const char * aBuf, uint32 aLen)
 		}
 		else if(codingState == eStart) {
 			const uint32 charLen = mCodingSM->GetCurrentCharLen();
-			if(i == 0) {
+			if(!i) {
 				mLastChar[1] = aBuf[0];
 				mDistributionAnalyser.HandleOneChar(mLastChar, charLen);
 			}
@@ -4093,7 +4093,7 @@ nsProbingState nsSJISProber::HandleData(const char * aBuf, uint32 aLen)
 		}
 		else if(codingState == eStart) {
 			uint32 charLen = mCodingSM->GetCurrentCharLen();
-			if(i == 0) {
+			if(!i) {
 				mLastChar[1] = aBuf[0];
 				mContextAnalyser.HandleOneChar(mLastChar+2-charLen, charLen);
 				mDistributionAnalyser.HandleOneChar(mLastChar, charLen);

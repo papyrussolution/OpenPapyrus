@@ -81,7 +81,7 @@ static void * jbig2dec_alloc(Jbig2Allocator * allocator_, size_t size)
 {
 	jbig2dec_allocator_t * allocator = (jbig2dec_allocator_t*)allocator_;
 	void * ptr;
-	if(size == 0)
+	if(!size)
 		return NULL;
 	if(size > allocator->memory_limit - ALIGNMENT - allocator->memory_used)
 		return NULL;
@@ -119,7 +119,7 @@ static void * jbig2dec_realloc(Jbig2Allocator * allocator_, void * p, size_t siz
 	if(size > SIZE_MAX - ALIGNMENT)
 		return NULL;
 	if(oldp == NULL) {
-		if(size == 0)
+		if(!size)
 			return NULL;
 		if(size > allocator->memory_limit - ALIGNMENT - allocator->memory_used)
 			return NULL;
@@ -128,7 +128,7 @@ static void * jbig2dec_realloc(Jbig2Allocator * allocator_, void * p, size_t siz
 	else {
 		size_t oldsize;
 		memcpy(&oldsize, oldp, sizeof(oldsize));
-		if(size == 0) {
+		if(!size) {
 			allocator->memory_used -= oldsize + ALIGNMENT;
 			SAlloc::F(oldp);
 			return NULL;

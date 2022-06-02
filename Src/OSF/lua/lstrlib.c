@@ -511,7 +511,7 @@ static const char * lmemfind(const char * s1, size_t l1, const char * s2, size_t
 static void push_onecapture(MatchState * ms, int i, const char * s, const char * e) 
 {
 	if(i >= ms->level) {
-		if(i == 0) /* ms->level == 0, too */
+		if(!i) /* ms->level == 0, too */
 			lua_pushlstring(ms->L, s, e - s); /* add whole match */
 		else
 			luaL_error(ms->L, "invalid capture index %%%d", i + 1);

@@ -87,7 +87,7 @@ BIO * BIO_new_mem_buf(const void * buf, int len)
 	BUF_MEM * b;
 	BIO_BUF_MEM * bb;
 	size_t sz;
-	if(buf == NULL) {
+	if(!buf) {
 		BIOerr(BIO_F_BIO_NEW_MEM_BUF, BIO_R_NULL_PARAMETER);
 		return NULL;
 	}

@@ -400,51 +400,23 @@ hb_requires(hb_is_iterator(Iter))>
 struct hb_map_iter_t :
 hb_iter_t<hb_map_iter_t<Iter, Proj, Sorted>,
 decltype(hb_get(hb_declval(Proj), *hb_declval(Iter)))> {
-	hb_map_iter_t(const Iter &it, Proj f_) : it(it), f(f_) {
+	hb_map_iter_t(const Iter &it, Proj f_) : it(it), f(f_) 
+	{
 	}
-
 	typedef decltype (hb_get (hb_declval(Proj), *hb_declval(Iter))) __item_t__;
 	static constexpr bool is_random_access_iterator = Iter::is_random_access_iterator;
-	static constexpr bool is_sorted_iterator =
-	    Sorted == hb_function_sortedness_t::SORTED ? true :
-	    Sorted == hb_function_sortedness_t::RETAINS_SORTING ? Iter::is_sorted_iterator :
-	    false;
-	__item_t__ __item__() const {
-		return hb_get(f.get(), *it);
-	}
-	__item_t__ __item_at__(uint i) const {
-		return hb_get(f.get(), it[i]);
-	}
-	bool __more__() const {
-		return bool (it);
-	}
-	unsigned __len__() const {
-		return it.len();
-	}
-
-	void __next__() {
-		++it;
-	}
-
-	void __forward__(uint n) {
-		it += n;
-	}
-
-	void __prev__() {
-		--it;
-	}
-
-	void __rewind__(uint n) {
-		it -= n;
-	}
-
-	hb_map_iter_t __end__() const {
-		return hb_map_iter_t(it.end(), f);
-	}
-
-	bool operator != (const hb_map_iter_t &o) const
-	{ return it != o.it; }
-
+	static constexpr bool is_sorted_iterator = Sorted == hb_function_sortedness_t::SORTED ? true : 
+		Sorted == hb_function_sortedness_t::RETAINS_SORTING ? Iter::is_sorted_iterator : false;
+	__item_t__ __item__() const { return hb_get(f.get(), *it); }
+	__item_t__ __item_at__(uint i) const { return hb_get(f.get(), it[i]); }
+	bool __more__() const { return bool (it); }
+	unsigned __len__() const { return it.len(); }
+	void __next__() { ++it; }
+	void __forward__(uint n) { it += n; }
+	void __prev__() { --it; }
+	void __rewind__(uint n) { it -= n; }
+	hb_map_iter_t __end__() const { return hb_map_iter_t(it.end(), f); }
+	bool operator != (const hb_map_iter_t &o) const { return it != o.it; }
 private:
 	Iter it;
 	hb_reference_wrapper<Proj> f;
@@ -602,9 +574,7 @@ template <typename A, typename B> struct hb_zip_iter_t : hb_iter_t<hb_zip_iter_t
 	{
 	}
 	typedef hb_pair_t<typename A::item_t, typename B::item_t> __item_t__;
-	static constexpr bool is_random_access_iterator =
-	    A::is_random_access_iterator &&
-	    B::is_random_access_iterator;
+	static constexpr bool is_random_access_iterator = A::is_random_access_iterator && B::is_random_access_iterator;
 	/* Note.  The following categorization is only valid if A is strictly sorted,
 	 * ie. does NOT have duplicates.  Previously I tried to categorize sortedness
 	 * more granularly, see commits:

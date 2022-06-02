@@ -152,7 +152,7 @@ const char * OBJ_NAME_get(const char * name, int type)
 	int num = 0, alias;
 	const char * value = NULL;
 
-	if(name == NULL)
+	if(!name)
 		return NULL;
 	if(!OBJ_NAME_init())
 		return NULL;

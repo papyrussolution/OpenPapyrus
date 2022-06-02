@@ -87,7 +87,7 @@ static void ColouriseRebolDoc(Sci_PositionU startPos, Sci_Position length, int i
 	}
 
 	StyleContext sc(startPos, length, initStyle, styler);
-	if(startPos == 0) {
+	if(!startPos) {
 		sc.SetState(SCE_REBOL_PREFACE);
 	}
 	for(; sc.More(); sc.Forward()) {

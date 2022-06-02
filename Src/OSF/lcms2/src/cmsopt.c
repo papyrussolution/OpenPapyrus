@@ -516,14 +516,10 @@ static boolint OptimizeByResampling(cmsPipeline ** Lut, uint32 Intent, uint32 * 
 		nGridPoints = 2;
 
 	Src = *Lut;
-
 	// Named color pipelines cannot be optimized either
-	for(mpe = cmsPipelineGetPtrToFirstStage(Src);
-	    mpe != NULL;
-	    mpe = cmsStageNext(mpe)) {
+	for(mpe = cmsPipelineGetPtrToFirstStage(Src); mpe != NULL; mpe = cmsStageNext(mpe)) {
 		if(cmsStageType(mpe) == cmsSigNamedColorElemType) return FALSE;
 	}
-
 	// Allocate an empty LUT
 	Dest =  cmsPipelineAlloc(Src->ContextID, Src->InputChannels, Src->OutputChannels);
 	if(!Dest) return FALSE;
@@ -847,19 +843,13 @@ static boolint OptimizeByComputingLinearization(cmsPipeline ** Lut, uint32 Inten
 	if(!_cmsFormatterIs8bit(*InputFormat)) {
 		if(!(*dwFlags & cmsFLAGS_CLUT_PRE_LINEARIZATION)) return FALSE;
 	}
-
 	OriginalLut = *Lut;
-
 	// Named color pipelines cannot be optimized either
-	for(mpe = cmsPipelineGetPtrToFirstStage(OriginalLut);
-	    mpe != NULL;
-	    mpe = cmsStageNext(mpe)) {
+	for(mpe = cmsPipelineGetPtrToFirstStage(OriginalLut); mpe != NULL; mpe = cmsStageNext(mpe)) {
 		if(cmsStageType(mpe) == cmsSigNamedColorElemType) return FALSE;
 	}
-
 	ColorSpace       = _cmsICCcolorSpace((int)T_COLORSPACE(*InputFormat));
 	OutputColorSpace = _cmsICCcolorSpace((int)T_COLORSPACE(*OutputFormat));
-
 	// Color space must be specified
 	if(ColorSpace == (cmsColorSpaceSignature)0 ||
 	    OutputColorSpace == (cmsColorSpaceSignature)0) return FALSE;
@@ -1100,16 +1090,14 @@ static boolint OptimizeByJoiningCurves(cmsPipeline ** Lut, uint32 Intent, uint32
 	if(_cmsFormatterIsFloat(*InputFormat) || _cmsFormatterIsFloat(*OutputFormat)) return FALSE;
 
 	//  Only curves in this LUT?
-	for(mpe = cmsPipelineGetPtrToFirstStage(Src);
-	    mpe != NULL;
-	    mpe = cmsStageNext(mpe)) {
-		if(cmsStageType(mpe) != cmsSigCurveSetElemType) return FALSE;
+	for(mpe = cmsPipelineGetPtrToFirstStage(Src); mpe != NULL; mpe = cmsStageNext(mpe)) {
+		if(cmsStageType(mpe) != cmsSigCurveSetElemType) 
+			return FALSE;
 	}
-
 	// Allocate an empty LUT
 	Dest =  cmsPipelineAlloc(Src->ContextID, Src->InputChannels, Src->OutputChannels);
-	if(Dest == NULL) return FALSE;
-
+	if(!Dest) 
+		return FALSE;
 	// Create target curves
 	GammaTables = (cmsToneCurve **)_cmsCalloc(Src->ContextID, Src->InputChannels, sizeof(cmsToneCurve *));
 	if(GammaTables == NULL) goto Error;

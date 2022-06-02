@@ -90,7 +90,7 @@ BIO * OCSP_REQ_CTX_get0_mem_bio(OCSP_REQ_CTX * rctx)
 
 void OCSP_set_max_response_length(OCSP_REQ_CTX * rctx, ulong len)
 {
-	if(len == 0)
+	if(!len)
 		rctx->max_resp_len = OCSP_MAX_RESP_LENGTH;
 	else
 		rctx->max_resp_len = len;

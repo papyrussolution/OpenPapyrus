@@ -5,7 +5,7 @@
 #include <7z-internal.h>
 #pragma hdrstop
 
-#define rotr32 rotrFixed
+// @v11.4.0 (replaced with slrotr32) #define rotr32 rotrFixed
 #define BLAKE2S_NUM_ROUNDS 10
 #define BLAKE2S_FINAL_FLAG (~(uint32)0)
 
@@ -57,8 +57,8 @@ static void Blake2s_Compress(CBlake2s * p)
 	v[15] = p->f[1] ^ k_Blake2s_IV[7];
 
   #define G(r, i, a, b, c, d) \
-	a += b + m[sigma[2*i+0]];  d ^= a; d = rotr32(d, 16);  c += d;  b ^= c; b = rotr32(b, 12); \
-	a += b + m[sigma[2*i+1]];  d ^= a; d = rotr32(d,  8);  c += d;  b ^= c; b = rotr32(b,  7); \
+	a += b + m[sigma[2*i+0]];  d ^= a; d = slrotr32(d, 16);  c += d;  b ^= c; b = slrotr32(b, 12); \
+	a += b + m[sigma[2*i+1]];  d ^= a; d = slrotr32(d,  8);  c += d;  b ^= c; b = slrotr32(b,  7); \
 
   #define R(r) \
 	G(r, 0, v[ 0], v[ 4], v[ 8], v[12]); \

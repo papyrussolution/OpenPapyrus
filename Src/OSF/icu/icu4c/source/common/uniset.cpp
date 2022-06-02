@@ -1070,7 +1070,7 @@ UnicodeSet & UnicodeSet::removeAllStrings() {
  */
 UnicodeSet* U_EXPORT2 UnicodeSet::createFrom(const UnicodeString & s) {
 	UnicodeSet * set = new UnicodeSet();
-	if(set != NULL) { // Check for memory allocation error.
+	if(set) { // Check for memory allocation error.
 		set->add(s);
 	}
 	return set;
@@ -1083,7 +1083,7 @@ UnicodeSet* U_EXPORT2 UnicodeSet::createFrom(const UnicodeString & s) {
  */
 UnicodeSet* U_EXPORT2 UnicodeSet::createFromAll(const UnicodeString & s) {
 	UnicodeSet * set = new UnicodeSet();
-	if(set != NULL) { // Check for memory allocation error.
+	if(set) { // Check for memory allocation error.
 		set->addAll(s);
 	}
 	return set;

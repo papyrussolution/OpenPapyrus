@@ -4471,7 +4471,7 @@ static int unravel_case_fold_string(Node * node, regex_t* reg, int state)
 			goto err;
 		}
 		one_len = (OnigLen)enclen(enc, p);
-		if(n == 0) {
+		if(!n) {
 			q = p + one_len;
 			if(q > end) 
 				q = end;

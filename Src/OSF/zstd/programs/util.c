@@ -783,7 +783,7 @@ static void convertPathnameToDirName(char * pathname)
 		pathname[len] = '\0';
 		len--;
 	}
-	if(len == 0) return;
+	if(!len) return;
 
 	/* if input is a single file, return '.' instead. i.e.
 	 * "xyz/abc/file.txt" => "xyz/abc"
@@ -1014,7 +1014,8 @@ FileNamesTable* UTIL_createExpandedFNT(const char* const* inputNames, size_t nbI
 		    }
 		    else {
 			    nbFiles += (uint)UTIL_prepareFileList(inputNames[ifnNb], &buf, &pos, &bufend, followLinks);
-			    if(buf == NULL) return NULL;
+			    if(!buf) 
+					return NULL;
 		    }
 	    }
 	}

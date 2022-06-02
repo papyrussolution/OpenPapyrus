@@ -219,7 +219,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 #ifndef HAVE_POLL
-#  ifndef __WIN32__
+#ifndef __WIN32__
 	{
 		// Unfortunately select() can't monitor fds >= FD_SETSIZE, so swap those to
 		// the end here and then handle those last letting them just block if not
@@ -236,7 +236,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 			}
 		}
 	}
-#  else
+#else
 	// We can only use select() on sockets under __WIN32__ and with the remote
 	// prog backend the fds aren't sockets so just avoid using select() for
 	// now.

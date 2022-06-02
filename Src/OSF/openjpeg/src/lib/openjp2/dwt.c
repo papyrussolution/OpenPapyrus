@@ -1027,7 +1027,7 @@ static void opj_dwt_encode_1_real(void * aIn, int32_t dn, int32_t sn,
 	opj_dwt_encode_step1(w + a, (uint32_t)sn,
 	    opj_invK);
 #else
-	if(a == 0) {
+	if(!a) {
 		opj_dwt_encode_step1_combined(w,
 		    (uint32_t)sn,
 		    (uint32_t)dn,

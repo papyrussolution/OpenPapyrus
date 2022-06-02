@@ -807,7 +807,7 @@ void DateFormatTest::TestCzechMonths459()
 {
 	UErrorCode status = U_ZERO_ERROR;
 	DateFormat* fmt = DateFormat::createDateInstance(DateFormat::FULL, Locale("cs", "", ""));
-	if(fmt == NULL) {
+	if(!fmt) {
 		dataerrln("Error calling DateFormat::createDateInstance()");
 		return;
 	}
@@ -1927,7 +1927,7 @@ void DateFormatTest::expectParse(const char ** data, int32_t data_length,
 		const char * expected = data[i++];
 
 		ec = U_ZERO_ERROR;
-		if(pattern != NULL) {
+		if(pattern) {
 			fmt.applyPattern(pattern);
 			currentPat = pattern;
 		}
@@ -2009,7 +2009,7 @@ void DateFormatTest::expect(const char ** data, int32_t data_length,
 	UnicodeString currentPat;
 	while(i<data_length) {
 		const char * pattern  = data[i++];
-		if(pattern != NULL) {
+		if(pattern) {
 			fmt.applyPattern(pattern);
 			currentPat = pattern;
 		}
@@ -2114,7 +2114,7 @@ void DateFormatTest::expectFormat(const char ** data, int32_t data_length,
 
 	while(i<data_length) {
 		const char * pattern  = data[i++];
-		if(pattern != NULL) {
+		if(pattern) {
 			fmt.applyPattern(pattern);
 			currentPat = pattern;
 		}
@@ -4030,7 +4030,7 @@ void DateFormatTest::Test6880() {
 	}
 
 	DateFormat * fmt = DateFormat::createTimeInstance(DateFormat::kFull, Locale("zh"));
-	if(fmt == NULL) {
+	if(!fmt) {
 		dataerrln("Unable to create DateFormat. Got NULL.");
 		return;
 	}
@@ -5028,7 +5028,7 @@ void DateFormatTest::TestParseLeniencyAPIs() {
 	UErrorCode status = U_ZERO_ERROR;
 	LocalPointer<DateFormat> dateFormat(DateFormat::createDateInstance());
 	DateFormat * fmt = dateFormat.getAlias();
-	if(fmt == NULL) {
+	if(!fmt) {
 		dataerrln("Failed calling dateFormat.getAlias()");
 		return;
 	}

@@ -690,29 +690,21 @@ static CURLcode pop3_state_capa_resp(struct connectdata * conn, int pop3code,
 			/* Advance past the SASL keyword */
 			line += 5;
 			len -= 5;
-
 			/* Loop through the data line */
 			for(;;) {
 				size_t llen;
 				size_t wordlen;
 				unsigned int mechbit;
-
-				while(len &&
-				    (*line == ' ' || *line == '\t' ||
-				    *line == '\r' || *line == '\n')) {
+				while(len && oneof4(*line, ' ', '\t', '\r', '\n')) {
 					line++;
 					len--;
 				}
-
 				if(!len)
 					break;
 
 				/* Extract the word */
-				for(wordlen = 0; wordlen < len && line[wordlen] != ' ' &&
-				    line[wordlen] != '\t' && line[wordlen] != '\r' &&
-				    line[wordlen] != '\n';)
+				for(wordlen = 0; wordlen < len && line[wordlen] != ' ' && line[wordlen] != '\t' && line[wordlen] != '\r' && line[wordlen] != '\n';)
 					wordlen++;
-
 				/* Test the word for a matching authentication mechanism */
 				mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
 				if(mechbit && llen == wordlen)

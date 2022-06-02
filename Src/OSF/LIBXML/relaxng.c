@@ -6474,7 +6474,7 @@ static int xmlRelaxNGValidateCompiledContent(xmlRelaxNGValidCtxtPtr ctxt, xmlReg
 		 */
 		VALID_ERR2(XML_RELAXNG_ERR_NOELEM, reinterpret_cast<const xmlChar *>(""));
 		ret = -1;
-		if((ctxt->flags & FLAGS_IGNORABLE) == 0)
+		if(!(ctxt->flags & FLAGS_IGNORABLE))
 			xmlRelaxNGDumpValidError(ctxt);
 	}
 	else {
@@ -7124,7 +7124,7 @@ static int xmlRelaxNGValidateValue(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    }
 		    ctxt->flags = oldflags;
 		    if(ret != 0) {
-			    if((ctxt->flags & FLAGS_IGNORABLE) == 0)
+			    if(!(ctxt->flags & FLAGS_IGNORABLE))
 				    xmlRelaxNGDumpValidError(ctxt);
 		    }
 		    else {
@@ -7922,7 +7922,7 @@ static int xmlRelaxNGElementMatch(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine 
 		}
 		if(ctxt) {
 			if(ret != 0) {
-				if((ctxt->flags & FLAGS_IGNORABLE) == 0)
+				if(!(ctxt->flags & FLAGS_IGNORABLE))
 					xmlRelaxNGDumpValidError(ctxt);
 			}
 			else {
@@ -8080,14 +8080,14 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    if(!p_node) {
 			    VALID_ERR2(XML_RELAXNG_ERR_NOELEM, define->name);
 			    ret = -1;
-			    if((ctxt->flags & FLAGS_IGNORABLE) == 0)
+			    if(!(ctxt->flags & FLAGS_IGNORABLE))
 				    xmlRelaxNGDumpValidError(ctxt);
 			    break;
 		    }
 		    if(p_node->type != XML_ELEMENT_NODE) {
 			    VALID_ERR(XML_RELAXNG_ERR_NOTELEM);
 			    ret = -1;
-			    if((ctxt->flags & FLAGS_IGNORABLE) == 0)
+			    if(!(ctxt->flags & FLAGS_IGNORABLE))
 				    xmlRelaxNGDumpValidError(ctxt);
 			    break;
 		    }
@@ -8109,7 +8109,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    ret = xmlRelaxNGElementMatch(ctxt, define, p_node);
 		    if(ret <= 0) {
 			    ret = -1;
-			    if((ctxt->flags & FLAGS_IGNORABLE) == 0)
+			    if(!(ctxt->flags & FLAGS_IGNORABLE))
 				    xmlRelaxNGDumpValidError(ctxt);
 			    break;
 		    }
@@ -8130,7 +8130,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    state = xmlRelaxNGNewValidState(ctxt, p_node);
 		    if(!state) {
 			    ret = -1;
-			    if((ctxt->flags & FLAGS_IGNORABLE) == 0)
+			    if(!(ctxt->flags & FLAGS_IGNORABLE))
 				    xmlRelaxNGDumpValidError(ctxt);
 			    break;
 		    }
@@ -8251,7 +8251,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    if(oldstate)
 			    oldstate->seq = xmlRelaxNGSkipIgnored(ctxt, p_node->next);
 		    if(ret != 0) {
-			    if((ctxt->flags & FLAGS_IGNORABLE) == 0) {
+			    if(!(ctxt->flags & FLAGS_IGNORABLE)) {
 				    xmlRelaxNGDumpValidError(ctxt);
 				    ret = 0;
 #if 0
@@ -8524,7 +8524,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 		    }
 		    ctxt->flags = oldflags;
 		    if(ret != 0) {
-			    if((ctxt->flags & FLAGS_IGNORABLE) == 0) {
+			    if(!(ctxt->flags & FLAGS_IGNORABLE)) {
 				    xmlRelaxNGDumpValidError(ctxt);
 			    }
 		    }

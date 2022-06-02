@@ -1779,7 +1779,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 				norm = xmlSchemaWhiteSpaceReplace(value);
 			else
 				norm = xmlSchemaCollapseString(value);
-			if(norm != NULL)
+			if(norm)
 				value = norm;
 		}
 	}
@@ -1836,7 +1836,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 					    norm = xmlSchemaCollapseString(value);
 				    else if(ws == XML_SCHEMA_WHITESPACE_REPLACE)
 					    norm = xmlSchemaWhiteSpaceReplace(value);
-				    if(norm != NULL)
+				    if(norm)
 					    value = norm;
 			    }
 			    v = xmlSchemaNewValue(XML_SCHEMAS_STRING);
@@ -1852,11 +1852,8 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		case XML_SCHEMAS_NORMSTRING: {
 		    if(normOnTheFly) {
 			    if(applyNorm) {
-				    if(ws == XML_SCHEMA_WHITESPACE_COLLAPSE)
-					    norm = xmlSchemaCollapseString(value);
-				    else
-					    norm = xmlSchemaWhiteSpaceReplace(value);
-				    if(norm != NULL)
+				    norm = (ws == XML_SCHEMA_WHITESPACE_COLLAPSE) ? xmlSchemaCollapseString(value) : xmlSchemaWhiteSpaceReplace(value);
+				    if(norm)
 					    value = norm;
 			    }
 		    }
@@ -1888,19 +1885,12 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    uint len, neg, integ, hasLeadingZeroes;
 		    xmlChar cval[25];
 		    xmlChar * cptr = cval;
-
 		    if(!cur || (*cur == 0))
 			    goto return1;
-
-		    /*
-		 * xs:decimal has a whitespace-facet value of 'collapse'.
-		     */
+			// xs:decimal has a whitespace-facet value of 'collapse'.
 		    if(normOnTheFly)
 			    while IS_WSP_BLANK_CH(*cur) cur++;
-
-		    /*
-		 * First we handle an optional sign.
-		     */
+			// First we handle an optional sign.
 		    neg = 0;
 		    if(*cur == '-') {
 			    neg = 1;
@@ -1908,9 +1898,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    }
 		    else if(*cur == '+')
 			    cur++;
-		    /*
-		 * Disallow: "", "-", "- "
-		     */
+			// Disallow: "", "-", "- "
 		    if(*cur == 0)
 			    goto return1;
 		    /*
@@ -1995,7 +1983,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 				 * Set the total digits to 1 if a zero value.
 				     */
 				    v->value.decimal.sign = neg;
-				    if(len == 0) {
+				    if(!len) {
 					    /* Speedup for zero values. */
 					    v->value.decimal.total = 1;
 				    }
@@ -2032,7 +2020,6 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    int neg = 0;
 		    int digits_before = 0;
 		    int digits_after = 0;
-
 		    if(normOnTheFly)
 			    while IS_WSP_BLANK_CH(*cur) cur++;
 
@@ -2266,7 +2253,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		case XML_SCHEMAS_LANGUAGE:
 		    if(normOnTheFly) {
 			    norm = xmlSchemaCollapseString(value);
-			    if(norm != NULL)
+			    if(norm)
 				    value = norm;
 		    }
 		    if(xmlCheckLanguageID(value) == 1) {
@@ -2523,7 +2510,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    xmlChar * tmpval, * cur;
 			    if(normOnTheFly) {
 				    norm = xmlSchemaCollapseString(value);
-				    if(norm != NULL)
+				    if(norm)
 					    value = norm;
 			    }
 			    tmpval = sstrdup(value);
@@ -3136,10 +3123,8 @@ static int xmlSchemaCompareDurations(xmlSchemaVal * x, xmlSchemaVal * y)
 		{ 0, 28, 59, 89, 120, 150, 181, 212, 242, 273, 303, 334, },
 		{ 0, 31, 62, 92, 123, 153, 184, 215, 245, 276, 306, 337}
 	};
-
 	if(!x || !y)
 		return -2;
-
 	/* months */
 	mon = x->value.dur.mon - y->value.dur.mon;
 	/* seconds */

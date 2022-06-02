@@ -233,7 +233,7 @@ int hzeta_e(const double s, const double q, SMathResult * pResult)
 static int psi_n_xg0(const int n, const double x, SMathResult * pResult)
 {
 	int    ok = 1;
-	if(n == 0)
+	if(!n)
 		ok = fpsi(x, pResult);
 	else {
 		/* Abramowitz + Stegun 6.4.10 */
@@ -420,7 +420,7 @@ int fpsi_n(int n, double x, SMathResult * pResult)
 {
 	int    ok = 1;
 	/* CHECK_POINTER(result) */
-	if(n == 0)
+	if(!n)
 		ok = fpsi(x, pResult);
 	else if(n == 1)
 		ok = fpsi_1(x, pResult);

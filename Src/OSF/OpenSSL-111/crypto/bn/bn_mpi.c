@@ -63,7 +63,7 @@ BIGNUM * BN_mpi2bn(const uchar * d, int n, BIGNUM * ain)
 	if(!a)
 		return NULL;
 
-	if(len == 0) {
+	if(!len) {
 		a->neg = 0;
 		a->top = 0;
 		return a;

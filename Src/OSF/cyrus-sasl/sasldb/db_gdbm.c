@@ -130,7 +130,7 @@ int _sasldb_getdata(const sasl_utils_t * utils, sasl_conn_t * conn, const char *
 	free(gvalue.dptr);
 
 cleanup:
-	utils->free(key);
+	utils->FnFree(key);
 
 	return result;
 }
@@ -200,7 +200,7 @@ int _sasldb_putdata(const sasl_utils_t * utils,
 	gdbm_close(db);
 
 cleanup:
-	utils->free(key);
+	utils->FnFree(key);
 
 	return result;
 }
@@ -277,7 +277,7 @@ sasldb_handle _sasldb_getkeyhandle(const sasl_utils_t * utils,
 		return NULL;
 	}
 
-	handle = utils->malloc(sizeof(handle_t));
+	handle = utils->FnMalloc(sizeof(handle_t));
 	if(!handle) {
 		utils->seterror(conn, 0, "no memory in _sasldb_getkeyhandle");
 		gdbm_close(db);
@@ -330,7 +330,7 @@ int _sasldb_releasekeyhandle(const sasl_utils_t * utils,
 
 	if(dbh->db) gdbm_close(dbh->db);
 
-	utils->free(dbh);
+	utils->FnFree(dbh);
 
 	return SASL_OK;
 }

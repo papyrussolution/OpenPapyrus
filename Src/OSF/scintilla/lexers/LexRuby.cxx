@@ -732,7 +732,7 @@ static void ColouriseRbDoc(Sci_PositionU startPos, Sci_Position length, int init
 
 	char prevWord[MAX_KEYWORD_LENGTH + 1]; // 1 byte for zero
 	prevWord[0] = '\0';
-	if(length == 0)
+	if(!length)
 		return;
 
 	char chPrev = styler.SafeGetCharAt(startPos - 1);
@@ -1150,21 +1150,16 @@ static void ColouriseRbDoc(Sci_PositionU startPos, Sci_Position length, int init
 				// Default accessor treats '.' as word-chars,
 				// but we don't for now.
 
-				if(ch == '=' && isSafeWordcharOrHigh(chPrev)
-				 && (chNext == '(' || sstrchr(" \t\n\r", chNext) != NULL)
+				if(ch == '=' && isSafeWordcharOrHigh(chPrev) && (chNext == '(' || sstrchr(" \t\n\r", chNext) != NULL)
 				 && (sstreq(prevWord, "def") || followsDot(styler.GetStartSegment(), styler))) {
 					// <name>= is a name only when being def'd -- Get it the next time
 					// This means that <name>=<name> is always lexed as
 					// <name>, (op, =), <name>
 				}
-				else if(ch == ':'
-				 && isSafeWordcharOrHigh(chPrev)
-				 && sstrchr(" \t\n\r", chNext) != NULL) {
+				else if(ch == ':' && isSafeWordcharOrHigh(chPrev) && sstrchr(" \t\n\r", chNext) != NULL) {
 					state = SCE_RB_SYMBOL;
 				}
-				else if((ch == '?' || ch == '!')
-				 && isSafeWordcharOrHigh(chPrev)
-				 && !isSafeWordcharOrHigh(chNext)) {
+				else if((ch == '?' || ch == '!') && isSafeWordcharOrHigh(chPrev) && !isSafeWordcharOrHigh(chNext)) {
 					// <name>? is a name -- Get it the next time
 					// But <name>?<name> is always lexed as
 					// <name>, (op, ?), <name>

@@ -614,17 +614,15 @@ void TimeUnitFormat::searchInLocaleChain(UTimeUnitFormatStyle style, const char 
 		else if(srcTimeUnitField == TimeUnit::UTIMEUNIT_YEAR) {
 			pattern = DEFAULT_PATTERN_FOR_YEAR;
 		}
-		if(pattern != NULL) {
-			messageFormat.adoptInsteadAndCheckErrorCode(
-				new MessageFormat(UnicodeString(TRUE, pattern, -1), getLocale(err), err), err);
+		if(pattern) {
+			messageFormat.adoptInsteadAndCheckErrorCode(new MessageFormat(UnicodeString(TRUE, pattern, -1), getLocale(err), err), err);
 		}
 		if(U_FAILURE(err)) {
 			return;
 		}
 		MessageFormat** formatters = (MessageFormat**)countToPatterns->get(srcPluralCount);
 		if(formatters == NULL) {
-			LocalMemory<MessageFormat *> localFormatters(
-				(MessageFormat**)uprv_malloc(UTMUTFMT_FORMAT_STYLE_COUNT*sizeof(MessageFormat*)));
+			LocalMemory<MessageFormat *> localFormatters((MessageFormat**)uprv_malloc(UTMUTFMT_FORMAT_STYLE_COUNT*sizeof(MessageFormat*)));
 			if(localFormatters.isNull()) {
 				err = U_MEMORY_ALLOCATION_ERROR;
 				return;
@@ -677,7 +675,8 @@ void TimeUnitFormat::deleteHash(Hashtable* htable)
 	delete htable;
 }
 
-void TimeUnitFormat::copyHash(const Hashtable* source, Hashtable* target, UErrorCode & status) {
+void TimeUnitFormat::copyHash(const Hashtable* source, Hashtable* target, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}

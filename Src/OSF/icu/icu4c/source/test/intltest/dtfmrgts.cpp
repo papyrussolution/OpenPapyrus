@@ -127,7 +127,7 @@ void DateFormatRegressionTest::Test4052408(void)
 {
 	DateFormat * fmt = DateFormat::createDateTimeInstance(DateFormat::SHORT,
 		DateFormat::SHORT, Locale::getUS());
-	if(fmt == NULL) {
+	if(!fmt) {
 		dataerrln("Error calling DateFormat::createDateTimeInstance");
 		return;
 	}
@@ -1210,7 +1210,7 @@ void DateFormatRegressionTest::Test714(void)
 	//try {
 	UDate d(978103543000.);
 	DateFormat * fmt = DateFormat::createDateTimeInstance(DateFormat::NONE, DateFormat::MEDIUM, Locale::getUS());
-	if(fmt == NULL) {
+	if(!fmt) {
 		dataerrln("Error calling DateFormat::createDateTimeInstance");
 		return;
 	}

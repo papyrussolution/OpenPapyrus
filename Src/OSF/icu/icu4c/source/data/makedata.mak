@@ -469,7 +469,7 @@ CLEAN : GODATA
 # If you modify this, modify winmode.c in pkgdata.
 "$(ICUTMP)\icudata.res": "$(ICUSRCDATA)\misc\icudata.rc"
 	@echo Creating data DLL version information from $**
-	@rc.exe /i "\papyrus\src\osf\icu\icu4c\include;\papyrus\src\osf\icu\icu4c\include\internal" /r /fo $@ $**
+	@rc.exe /i "\papyrus\src\include;\papyrus\src\osf\icu\icu4c\include;\papyrus\src\osf\icu\icu4c\include\internal" /r /fo $@ $**
 		
 # Targets for prebuilt Unicode data
 # Needed for ICU4J!

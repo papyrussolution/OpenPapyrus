@@ -600,7 +600,7 @@ ssize_t buf_getline(const char ** line, const char * buf, const size_t buf_len, 
 			}
 		}
 		// Not enough room in dst, add NUL and traverse rest of src 
-		if(n == 0) {
+		if(!n) {
 			if(size != 0) {
 				*d = '\0'; // NUL-terminate dst 
 			}

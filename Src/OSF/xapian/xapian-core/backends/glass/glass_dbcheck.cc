@@ -160,34 +160,25 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 					}
 
 					++num_doclens;
-
 					if(did > db_last_docid) {
 						if(out)
-							*out << "document id " << did << " in doclen "
-								"stream is larger than get_last_docid() "
-							     << db_last_docid << endl;
+							*out << "document id " << did << " in doclen stream is larger than get_last_docid() " << db_last_docid << endl;
 						++errors;
 					}
-
 					if(!doclens.empty()) {
 						// In glass, a document without terms doesn't get a
 						// termlist entry.
 						Xapian::termcount termlist_doclen = 0;
 						if(did < doclens.size())
 							termlist_doclen = doclens[did];
-
 						if(doclen != termlist_doclen) {
 							if(out)
-								*out << "document id " << did << ": length "
-								     << doclen << " doesn't match "
-								     << termlist_doclen << " in the termlist "
-									"table" << endl;
+								*out << "document id " << did << ": length " << doclen << " doesn't match " << termlist_doclen << " in the termlist table" << endl;
 							++errors;
 						}
 					}
-
-					if(pos == end) break;
-
+					if(pos == end) 
+						break;
 					Xapian::docid inc;
 					if(!unpack_uint(&pos, end, &inc)) {
 						if(out)
@@ -200,8 +191,7 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 					did += inc;
 					if(did > lastdid) {
 						if(out)
-							*out << "docid " << did << " > last docid "
-							     << lastdid << endl;
+							*out << "docid " << did << " > last docid " << lastdid << endl;
 						++errors;
 					}
 				}
@@ -211,15 +201,12 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				if(is_last_chunk) {
 					if(did != lastdid) {
 						if(out)
-							*out << "lastdid " << lastdid << " != last did "
-							     << did << endl;
+							*out << "lastdid " << lastdid << " != last did " << did << endl;
 						++errors;
 					}
 				}
-
 				continue;
 			}
-
 			if(key.size() >= 2 && key[0] == '\0' && key[1] == '\xd0') {
 				// Value stats.
 				const char * p = key.data();
@@ -232,11 +219,9 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 					++errors;
 					continue;
 				}
-
 				cursor->read_tag();
 				p = cursor->current_tag.data();
 				end = p + cursor->current_tag.size();
-
 				VStats & v = valuestats[slot];
 				if(!unpack_uint(&p, end, &v.freq)) {
 					if(out) {
@@ -271,10 +256,8 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				else {
 					v.upper_bound.assign(p, len);
 				}
-
 				continue;
 			}
-
 			if(key.size() >= 2 && key[0] == '\0' && key[1] == '\xd8') {
 				// Value stream chunk.
 				const char * p = key.data();
@@ -300,13 +283,10 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 					++errors;
 					continue;
 				}
-
 				VStats & v = valuestats[slot];
-
 				cursor->read_tag();
 				p = cursor->current_tag.data();
 				end = p + cursor->current_tag.size();
-
 				while(true) {
 					string value;
 					if(!unpack_string(&p, end, value)) {
@@ -315,9 +295,7 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 						++errors;
 						break;
 					}
-
 					++v.freq_real;
-
 					// FIXME: Cross-check that docid did has value slot (and
 					// vice versa - that there's a value here if the slot entry
 					// says so).
@@ -326,25 +304,19 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 					// as a separate tool which can also update the bounds?
 					if(value < v.lower_bound) {
 						if(out)
-							*out << "Value slot " << slot << " has value "
-								"below lower bound: '" << value << "' < '"
-							     << v.lower_bound << "'" << endl;
+							*out << "Value slot " << slot << " has value below lower bound: '" << value << "' < '" << v.lower_bound << "'" << endl;
 						++errors;
 					}
 					else if(value > v.upper_bound) {
 						if(out)
-							*out << "Value slot " << slot << " has value "
-								"above upper bound: '" << value << "' > '"
-							     << v.upper_bound << "'" << endl;
+							*out << "Value slot " << slot << " has value above upper bound: '" << value << "' > '" << v.upper_bound << "'" << endl;
 						++errors;
 					}
-
 					if(p == end) break;
 					Xapian::docid delta;
 					if(!unpack_uint(&p, end, &delta)) {
 						if(out)
-							*out << "Failed to unpack docid delta from chunk"
-							     << endl;
+							*out << "Failed to unpack docid delta from chunk" << endl;
 						++errors;
 						break;
 					}
@@ -356,24 +328,17 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 						break;
 					}
 					did = new_did;
-
 					if(did > db_last_docid) {
 						if(out)
-							*out << "document id " << did << " in value chunk "
-								"is larger than get_last_docid() "
-							     << db_last_docid << endl;
+							*out << "document id " << did << " in value chunk is larger than get_last_docid() " << db_last_docid << endl;
 						++errors;
 					}
 				}
 				continue;
 			}
-
-			const char * pos, * end;
-
 			// Get term from key.
-			pos = key.data();
-			end = pos + key.size();
-
+			const char * pos = key.data();
+			const char * end = pos + key.size();
 			string term;
 			Xapian::docid did;
 			if(!unpack_string_preserving_sort(&pos, end, term)) {
@@ -386,15 +351,12 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				// The term changed unexpectedly.
 				if(pos == end) {
 					if(out)
-						*out << "No last chunk for term '" << current_term
-						     << "'" << endl;
+						*out << "No last chunk for term '" << current_term << "'" << endl;
 					current_term.resize(0);
 				}
 				else {
 					if(out)
-						*out << "Mismatch in follow-on chunk in posting list "
-							"for term '" << current_term << "' (got '"
-						     << term << "')" << endl;
+						*out << "Mismatch in follow-on chunk in posting list for term '" << current_term << "' (got '" << term << "')" << endl;
 					current_term = term;
 					tf = cf = 0;
 					lastdid = 0;
@@ -406,36 +368,30 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				if(term == current_term) {
 					// This probably isn't possible.
 					if(out)
-						*out << "First posting list chunk for term '" << term
-						     << "' follows previous chunk for the same term"
-						     << endl;
+						*out << "First posting list chunk for term '" << term << "' follows previous chunk for the same term" << endl;
 					++errors;
 				}
 				current_term = term;
 				tf = cf = 0;
-
 				// Unpack extra header from first chunk.
 				cursor->read_tag();
 				pos = cursor->current_tag.data();
 				end = pos + cursor->current_tag.size();
 				if(!unpack_uint(&pos, end, &termfreq)) {
 					if(out)
-						*out << "Failed to unpack termfreq for term '" << term
-						     << "'" << endl;
+						*out << "Failed to unpack termfreq for term '" << term << "'" << endl;
 					++errors;
 					continue;
 				}
 				if(!unpack_uint(&pos, end, &collfreq)) {
 					if(out)
-						*out << "Failed to unpack collfreq for term '" << term
-						     << "'" << endl;
+						*out << "Failed to unpack collfreq for term '" << term << "'" << endl;
 					++errors;
 					continue;
 				}
 				if(!unpack_uint(&pos, end, &did)) {
 					if(out)
-						*out << "Failed to unpack firstdid for term '" << term
-						     << "'" << endl;
+						*out << "Failed to unpack firstdid for term '" << term << "'" << endl;
 					++errors;
 					continue;
 				}
@@ -445,8 +401,7 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				// Continuation chunk.
 				if(current_term.empty()) {
 					if(out)
-						*out << "First chunk for term '" << current_term
-						     << "' is a continuation chunk" << endl;
+						*out << "First chunk for term '" << current_term << "' is a continuation chunk" << endl;
 					++errors;
 					current_term = term;
 				}
@@ -459,8 +414,7 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				}
 				if(did <= lastdid) {
 					if(out)
-						*out << "First did in this chunk is <= last in "
-							"prev chunk" << endl;
+						*out << "First did in this chunk is <= last in prev chunk" << endl;
 					++errors;
 				}
 				cursor->read_tag();
@@ -510,8 +464,7 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				did += inc;
 				if(did > lastdid) {
 					if(out)
-						*out << "docid " << did << " > last docid " << lastdid
-						     << endl;
+						*out << "docid " << did << " > last docid " << lastdid << endl;
 					++errors;
 				}
 			}
@@ -521,20 +474,17 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 			if(is_last_chunk) {
 				if(tf != termfreq) {
 					if(out)
-						*out << "termfreq " << termfreq << " != # of entries "
-						     << tf << endl;
+						*out << "termfreq " << termfreq << " != # of entries " << tf << endl;
 					++errors;
 				}
 				if(cf != collfreq) {
 					if(out)
-						*out << "collfreq " << collfreq << " != sum wdf " << cf
-						     << endl;
+						*out << "collfreq " << collfreq << " != sum wdf " << cf << endl;
 					++errors;
 				}
 				if(did != lastdid) {
 					if(out)
-						*out << "lastdid " << lastdid << " != last did " << did
-						     << endl;
+						*out << "lastdid " << lastdid << " != last did " << did << endl;
 					++errors;
 				}
 				current_term.resize(0);
@@ -542,19 +492,15 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 		}
 		if(!current_term.empty()) {
 			if(out)
-				*out << "Last term '" << current_term << "' has no last chunk"
-				     << endl;
+				*out << "Last term '" << current_term << "' has no last chunk" << endl;
 			++errors;
 		}
-
 		Xapian::doccount doccount = version_file.get_doccount();
 		if(num_doclens != doccount) {
 			if(out)
-				*out << "Document length list has " << num_doclens
-				     << " entries, should be " << doccount << endl;
+				*out << "Document length list has " << num_doclens << " entries, should be " << doccount << endl;
 			++errors;
 		}
-
 		map<Xapian::valueno, VStats>::const_iterator i;
 		for(i = valuestats.begin(); i != valuestats.end(); ++i) {
 			if(i->second.freq != i->second.freq_real) {
@@ -571,19 +517,15 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 		Xapian::doccount doccount = version_file.get_doccount();
 		if(table->get_entry_count() > doccount) {
 			if(out)
-				*out << "More document data (" << table->get_entry_count()
-				     << ") then documents (" << doccount << ")" << endl;
+				*out << "More document data (" << table->get_entry_count() << ") then documents (" << doccount << ")" << endl;
 			++errors;
 		}
-
 		// Now check the contents of the docdata table.
 		for(; !cursor->after_end(); cursor->next()) {
 			string & key = cursor->current_key;
-
 			// Get docid from key.
 			const char * pos = key.data();
 			const char * end = pos + key.size();
-
 			Xapian::docid did;
 			if(!unpack_uint_preserving_sort(&pos, end, &did)) {
 				if(out)
@@ -676,35 +618,28 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 					slot += prev_slot + 1;
 					if(slot <= prev_slot) {
 						if(out)
-							*out << "Value slot number overflowed ("
-							     << prev_slot << " -> " << slot << ")" << endl;
+							*out << "Value slot number overflowed (" << prev_slot << " -> " << slot << ")" << endl;
 						++errors;
 					}
 					prev_slot = slot;
 				}
 				continue;
 			}
-
 			if(pos != end) {
 				if(out)
 					*out << "Extra junk in key" << endl;
 				++errors;
 				continue;
 			}
-
 			++num_termlists;
 			cursor->read_tag();
-
 			pos = cursor->current_tag.data();
 			end = pos + cursor->current_tag.size();
-
 			if(pos == end) {
 				// Empty termlist.
 				continue;
 			}
-
 			Xapian::termcount doclen, termlist_size;
-
 			// Read doclen
 			if(!unpack_uint(&pos, end, &doclen)) {
 				if(out) {
@@ -719,22 +654,18 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				++errors;
 				continue;
 			}
-
 			// Check doclen with doclen lower and upper bounds
 			if(doclen > version_file.get_doclength_upper_bound()) {
 				if(out)
-					*out << "doclen " << doclen << " > upper bound "
-					     << version_file.get_doclength_upper_bound() << endl;
+					*out << "doclen " << doclen << " > upper bound " << version_file.get_doclength_upper_bound() << endl;
 				++errors;
 			}
 			else if(doclen < version_file.get_doclength_lower_bound() &&
 			    doclen != 0) {
 				if(out)
-					*out << "doclen " << doclen << " < lower bound "
-					     << version_file.get_doclength_lower_bound() << endl;
+					*out << "doclen " << doclen << " < lower bound " << version_file.get_doclength_lower_bound() << endl;
 				++errors;
 			}
-
 			// Read termlist_size
 			if(!unpack_uint(&pos, end, &termlist_size)) {
 				if(out) {
@@ -742,18 +673,15 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 						*out << "termlist_size out of range";
 					}
 					else {
-						*out << "Unexpected end of data when reading "
-							"termlist_size";
+						*out << "Unexpected end of data when reading termlist_size";
 					}
 					*out << endl;
 				}
 				++errors;
 				continue;
 			}
-
 			Xapian::termcount actual_doclen = 0, actual_termlist_size = 0;
 			string current_tname;
-
 			bool bad = false;
 			while(pos != end) {
 				Xapian::doccount current_wdf = 0;
@@ -774,14 +702,12 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				string::size_type len = static_cast<uchar>(*pos++);
 				current_tname.append(pos, len);
 				pos += len;
-
 				if(!got_wdf) {
 					// Read wdf
 					if(!unpack_uint(&pos, end, &current_wdf)) {
 						if(out) {
 							if(pos == 0) {
-								*out << "Unexpected end of data when reading "
-									"termlist current_wdf";
+								*out << "Unexpected end of data when reading termlist current_wdf";
 							}
 							else {
 								*out << "Size of wdf out of range in termlist";
@@ -793,14 +719,12 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 						break;
 					}
 				}
-
 				++actual_termlist_size;
 				actual_doclen += current_wdf;
 			}
 			if(bad) {
 				continue;
 			}
-
 			if(termlist_size != actual_termlist_size) {
 				if(out)
 					*out << "termlist_size != # of entries in termlist" << endl;
@@ -811,20 +735,17 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 					*out << "doclen != sum(wdf)" << endl;
 				++errors;
 			}
-
 			// + 1 so that did is a valid subscript.
-			if(doclens.size() <= did) doclens.resize(did + 1);
+			if(doclens.size() <= did) 
+				doclens.resize(did + 1);
 			doclens[did] = actual_doclen;
 		}
-
 		Xapian::doccount doccount = version_file.get_doccount();
-
 		// glass doesn't store a termlist entry if there are no terms, so we
 		// can only check there aren't more termlists than documents.
 		if(num_termlists > doccount) {
 			if(out)
-				*out << "More termlists (" << num_termlists
-				     << ") then documents (" << doccount << ")" << endl;
+				*out << "More termlists (" << num_termlists << ") then documents (" << doccount << ")" << endl;
 			++errors;
 		}
 
@@ -832,8 +753,7 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 		// so we can only check there aren't more such entries than documents.
 		if(num_slotsused_entries > doccount) {
 			if(out)
-				*out << "More slots-used entries (" << num_slotsused_entries
-				     << ") then documents (" << doccount << ")" << endl;
+				*out << "More slots-used entries (" << num_slotsused_entries << ") then documents (" << doccount << ")" << endl;
 			++errors;
 		}
 	}
@@ -851,7 +771,6 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				++errors;
 				continue;
 			}
-
 			Xapian::docid did;
 			if(!unpack_uint_preserving_sort(&pos, end, &did)) {
 				if(out)
@@ -859,19 +778,15 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				++errors;
 				continue;
 			}
-
 			if(pos != end) {
 				if(out)
 					*out << "Extra junk in key with docid " << did << endl;
 				++errors;
 				continue;
 			}
-
 			if(did > db_last_docid) {
 				if(out)
-					*out << "document id " << did << " in position table "
-						"is larger than get_last_docid() "
-					     << db_last_docid << endl;
+					*out << "document id " << did << " in position table is larger than get_last_docid() " << db_last_docid << endl;
 				++errors;
 			}
 			else if(!doclens.empty()) {
@@ -880,23 +795,18 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				// easily.
 				if(did >= doclens.size() || doclens[did] == 0) {
 					if(out)
-						*out << "Position list entry for document " << did
-						     << " which doesn't exist or has no terms" << endl;
+						*out << "Position list entry for document " << did << " which doesn't exist or has no terms" << endl;
 					++errors;
 				}
 			}
-
 			cursor->read_tag();
-
 			const string & data = cursor->current_tag;
 			pos = data.data();
 			end = pos + data.size();
-
 			Xapian::termpos pos_last;
 			if(!unpack_uint(&pos, end, &pos_last)) {
 				if(out)
-					*out << tablename << " table: Position list data corrupt"
-					     << endl;
+					*out << tablename << " table: Position list data corrupt" << endl;
 				++errors;
 				continue;
 			}
@@ -916,8 +826,7 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 					p = rd.decode_interpolative_next();
 					if(p <= pos_prev) {
 						if(out)
-							*out << tablename << " table: Positions not "
-								"strictly monotonically increasing" << endl;
+							*out << tablename << " table: Positions not strictly monotonically increasing" << endl;
 						++errors;
 						ok = false;
 						break;
@@ -925,8 +834,7 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 				}
 				if(ok && !rd.check_all_gone()) {
 					if(out)
-						*out << tablename << " table: Junk after position data"
-						     << endl;
+						*out << tablename << " table: Junk after position data" << endl;
 					++errors;
 				}
 			}
@@ -934,11 +842,9 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 	}
 	else {
 		if(out)
-			*out << tablename << " table: Don't know how to check structure\n"
-			     << endl;
+			*out << tablename << " table: Don't know how to check structure\n" << endl;
 		return errors;
 	}
-
 	if(out) {
 		if(!errors)
 			*out << tablename << " table structure checked OK\n";
@@ -946,7 +852,6 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 			*out << tablename << " table errors found: " << errors << "\n";
 		*out << endl;
 	}
-
 	return errors;
 }
 

@@ -34,7 +34,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 		boolean result = false;
 		SearchPattern = query;
 		if(SLib.GetLen(SearchPattern) > 0) {
-			StyloQApp app_ctx = (StyloQApp)getApplication();
+			StyloQApp app_ctx = GetAppCtx();
 			ArrayList <StyloQApp.IgnitionServerEntry> isl = app_ctx.GetIgnitionServerList();
 			if(isl != null && isl.size() > 0) {
 				Collections.shuffle(isl);
@@ -111,19 +111,21 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 				{
 					Intent intent = getIntent();
 					setContentView(R.layout.activity_global_search);
-					StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-					View vg = findViewById(R.id.LAYOUT_ACTIVITYROOT);
-					if(vg != null && vg instanceof ViewGroup)
-						SLib.SubstituteStringSignatures(app_ctx, (ViewGroup)vg);
-					SetupRecyclerListView(null, R.id.CTL_GLOBALSEARCH_RESULTLIST, R.layout.li_global_search);
-					//
-					View inpv = findViewById(R.id.CTL_GLOBALSEARCH_INPUT);
-					if(inpv != null && inpv instanceof SearchView)
-						((SearchView)inpv).setOnQueryTextListener(this);
-					//
-					String svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");
-					if(svc_reply_doc_json != null) {
-						SetQueryResult(svc_reply_doc_json);
+					StyloQApp app_ctx = GetAppCtx();
+					if(app_ctx != null) {
+						View vg = findViewById(R.id.LAYOUT_ACTIVITYROOT);
+						if(vg != null && vg instanceof ViewGroup)
+							SLib.SubstituteStringSignatures(app_ctx, (ViewGroup) vg);
+						SetupRecyclerListView(null, R.id.CTL_GLOBALSEARCH_RESULTLIST, R.layout.li_global_search);
+						//
+						View inpv = findViewById(R.id.CTL_GLOBALSEARCH_INPUT);
+						if(inpv != null && inpv instanceof SearchView)
+							((SearchView) inpv).setOnQueryTextListener(this);
+						//
+						String svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");
+						if(svc_reply_doc_json != null) {
+							SetQueryResult(svc_reply_doc_json);
+						}
 					}
 				}
 				break;
@@ -156,7 +158,6 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 							try {
 								// RecyclerView
 								if(JsResultList != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < JsResultList.length()) {
-									StyloQApp app_ctx = (StyloQApp)getApplicationContext();
 									View iv = ev_subj.RvHolder.itemView;
 									JSONObject js_entry = JsResultList.getJSONObject(ev_subj.ItemIdx);
 									String rtext = js_entry.optString("text", "");
@@ -193,7 +194,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null) {
-						StyloQApp app_ctx = (StyloQApp)getApplication();
+						StyloQApp app_ctx = GetAppCtx();
 						if(app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < JsResultList.length()) {
 							try {
 								JSONObject js_entry = JsResultList.getJSONObject(ev_subj.ItemIdx);

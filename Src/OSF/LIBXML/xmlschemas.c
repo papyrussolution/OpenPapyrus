@@ -7842,7 +7842,7 @@ static int xmlSchemaParseSchemaElement(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr
 	 */
 	/* REMOVED:
 	   attr = xmlSchemaGetPropNode(node, "version");
-	   if(attr != NULL) {
+	   if(attr) {
 	    res = xmlSchemaPValAttrNode(ctxt, NULL, NULL, attr, xmlSchemaGetBuiltInType(XML_SCHEMAS_TOKEN), &val);
 	    HFAILURE;
 	   }

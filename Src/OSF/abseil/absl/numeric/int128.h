@@ -182,7 +182,6 @@ public:
 	//
 	// Returns the higher 64-bit value of a `uint128` value.
 	friend constexpr uint64_t Uint128High64(uint128 v);
-
 	// MakeUInt128()
 	//
 	// Constructs a `uint128` numeric value from two 64-bit unsigned integers.
@@ -193,18 +192,12 @@ public:
 	//
 	//   absl::uint128 big = absl::MakeUint128(1, 0);
 	friend constexpr uint128 MakeUint128(uint64_t high, uint64_t low);
-
 	// Uint128Max()
 	//
 	// Returns the highest value for a 128-bit unsigned integer.
 	friend constexpr uint128 Uint128Max();
-
 	// Support for absl::Hash.
-	template <typename H>
-	friend H AbslHashValue(H h, uint128 v) {
-		return H::combine(std::move(h), Uint128High64(v), Uint128Low64(v));
-	}
-
+	template <typename H> friend H AbslHashValue(H h, uint128 v) { return H::combine(std::move(h), Uint128High64(v), Uint128Low64(v)); }
 private:
 	constexpr uint128(uint64_t high, uint64_t low);
 
@@ -212,10 +205,10 @@ private:
 	// uint128 are fixed to not depend on alignof(uint128) == 8. Also add
 	// alignas(16) to class definition to keep alignment consistent across
 	// platforms.
-#if defined(ABSL_IS_LITTLE_ENDIAN)
+#if defined(SL_LITTLEENDIAN)
 	uint64_t lo_;
 	uint64_t hi_;
-#elif defined(ABSL_IS_BIG_ENDIAN)
+#elif defined(SL_BIGENDIAN)
 	uint64_t hi_;
 	uint64_t lo_;
 #else  // byte order
@@ -436,10 +429,10 @@ private:
 #if defined(ABSL_HAVE_INTRINSIC_INT128)
 	__int128 v_;
 #else  // ABSL_HAVE_INTRINSIC_INT128
-#if defined(ABSL_IS_LITTLE_ENDIAN)
+#if defined(SL_LITTLEENDIAN)
 	uint64_t lo_;
 	int64_t hi_;
-#elif defined(ABSL_IS_BIG_ENDIAN)
+#elif defined(SL_BIGENDIAN)
 	int64_t hi_;
 	uint64_t lo_;
 #else  // byte order
@@ -591,7 +584,7 @@ constexpr uint64_t Uint128High64(uint128 v) { return v.hi_; }
 
 // Constructors from integer types.
 
-#if defined(ABSL_IS_LITTLE_ENDIAN)
+#if defined(SL_LITTLEENDIAN)
 
 constexpr uint128::uint128(uint64_t high, uint64_t low) : lo_{low}, hi_{high} 
 {
@@ -646,7 +639,7 @@ constexpr uint128::uint128(int128 v)
 	: lo_{Int128Low64(v)}, hi_{static_cast<uint64_t>(Int128High64(v))} {
 }
 
-#elif defined(ABSL_IS_BIG_ENDIAN)
+#elif defined(SL_BIGENDIAN)
 
 constexpr uint128::uint128(uint64_t high, uint64_t low)
 	: hi_{high}, lo_{low} {

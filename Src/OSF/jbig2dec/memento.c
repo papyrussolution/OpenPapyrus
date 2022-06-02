@@ -2809,7 +2809,7 @@ void * operator new(size_t size)
 	void * ret;
 	if(!memento.inited)
 		Memento_init();
-	if(size == 0)
+	if(!size)
 		size = 1;
 	MEMENTO_LOCK();
 	ret = do_malloc(size, Memento_EventType_new);
@@ -2834,7 +2834,7 @@ void * operator new[] (size_t size)
 	void * ret;
 	if(!memento.inited)
 		Memento_init();
-	if(size == 0)
+	if(!size)
 		size = 1;
 	MEMENTO_LOCK();
 	ret = do_malloc(size, Memento_EventType_newArray);

@@ -64,18 +64,9 @@ namespace {
 using std::string;
 using std::wstring;
 
-template <typename char_type> struct CharTraits {
-	static bool is_alpha(char_type ch);
-};
-
-template <> struct CharTraits<char> {
-	static bool is_alpha(char ch) { return isalpha(ch); }
-};
-
-template <> struct CharTraits<wchar_t> {
-	static bool is_alpha(wchar_t ch) { return iswalpha(ch); }
-};
-
+template <typename char_type> struct CharTraits { static bool is_alpha(char_type ch); };
+template <> struct CharTraits<char> { static bool is_alpha(char ch) { return isalpha(ch); } };
+template <> struct CharTraits<wchar_t> { static bool is_alpha(wchar_t ch) { return iswalpha(ch); } };
 template <typename char_type> bool null_or_empty(const char_type* s) { return s == nullptr || *s == 0; }
 
 // Returns true if the path starts with a drive letter, e.g. "c:".
@@ -137,8 +128,7 @@ wstring normalize(wstring path)
 			wstring segment(p, segment_start, i - segment_start);
 			segment_start = -1;
 			if(segment == dotdot) {
-				if(!segments.empty() &&
-				    (!has_drive_letter(segments[0].c_str()) || segments.size() > 1)) {
+				if(!segments.empty() && (!has_drive_letter(segments[0].c_str()) || segments.size() > 1)) {
 					segments.pop_back();
 				}
 			}
@@ -150,14 +140,11 @@ wstring normalize(wstring path)
 			break;
 		}
 	}
-
 	// Handle the case when `path` is just a drive specifier (or some degenerate
 	// form of it, e.g. "c:\..").
-	if(segments.size() == 1 && segments[0].size() == 2 &&
-	    has_drive_letter(segments[0].c_str())) {
+	if(segments.size() == 1 && segments[0].size() == 2 && has_drive_letter(segments[0].c_str())) {
 		return segments[0] + L'\\';
 	}
-
 	// Join all segments.
 	bool first = true;
 	std::wstringstream result;
@@ -175,7 +162,8 @@ wstring normalize(wstring path)
 	return result.str();
 }
 
-bool as_windows_path(const char* path, wstring* result) {
+bool as_windows_path(const char* path, wstring* result) 
+{
 	if(null_or_empty(path)) {
 		result->clear();
 		return true;
@@ -227,7 +215,8 @@ int open(const char* path, int flags, int mode) {
 #endif
 }
 
-int mkdir(const char* path, int /*_mode*/) {
+int mkdir(const char* path, int /*_mode*/) 
+{
 #ifdef SUPPORT_LONGPATHS
 	wstring wpath;
 	if(!as_windows_path(path, &wpath)) {
@@ -253,7 +242,8 @@ int access(const char* path, int mode) {
 #endif
 }
 
-int chdir(const char* path) {
+int chdir(const char* path) 
+{
 #ifdef SUPPORT_LONGPATHS
 	wstring wpath;
 	if(!as_windows_path(path, &wpath)) {
@@ -279,7 +269,8 @@ int stat(const char* path, struct _stat* buffer) {
 #endif  // not SUPPORT_LONGPATHS
 }
 
-FILE* fopen(const char* path, const char* mode) {
+FILE* fopen(const char* path, const char* mode) 
+{
 #ifdef SUPPORT_LONGPATHS
 	if(null_or_empty(path)) {
 		errno = EINVAL;
@@ -301,36 +292,21 @@ FILE* fopen(const char* path, const char* mode) {
 #endif
 }
 
-int close(int fd) {
-	return ::_close(fd);
-}
+int close(int fd) { return ::_close(fd); }
+int dup(int fd) { return ::_dup(fd); }
+int dup2(int fd1, int fd2) { return ::_dup2(fd1, fd2); }
+int read(int fd, void* buffer, size_t size) { return ::_read(fd, buffer, size); }
+int setmode(int fd, int mode) { return ::_setmode(fd, mode); }
+int write(int fd, const void* buffer, size_t size) { return ::_write(fd, buffer, size); }
 
-int dup(int fd) {
-	return ::_dup(fd);
-}
-
-int dup2(int fd1, int fd2) {
-	return ::_dup2(fd1, fd2);
-}
-
-int read(int fd, void* buffer, size_t size) {
-	return ::_read(fd, buffer, size);
-}
-
-int setmode(int fd, int mode) {
-	return ::_setmode(fd, mode);
-}
-
-int write(int fd, const void* buffer, size_t size) {
-	return ::_write(fd, buffer, size);
-}
-
-wstring testonly_utf8_to_winpath(const char* path) {
+wstring testonly_utf8_to_winpath(const char* path) 
+{
 	wstring wpath;
 	return as_windows_path(path, &wpath) ? wpath : wstring();
 }
 
-ExpandWildcardsResult ExpandWildcards(const string & path, std::function<void(const string &)> consume) {
+ExpandWildcardsResult ExpandWildcards(const string & path, std::function<void(const string &)> consume) 
+{
 	if(path.find_first_of("*?") == string::npos) {
 		// There are no wildcards in the path, we don't need to expand it.
 		consume(path);

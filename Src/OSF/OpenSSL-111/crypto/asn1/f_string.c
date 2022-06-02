@@ -64,11 +64,11 @@ int a2i_ASN1_STRING(BIO * bp, ASN1_STRING * bs, char * buf, int size)
 		i = bufsize;
 		if(buf[i - 1] == '\n')
 			buf[--i] = '\0';
-		if(i == 0)
+		if(!i)
 			goto err;
 		if(buf[i - 1] == '\r')
 			buf[--i] = '\0';
-		if(i == 0)
+		if(!i)
 			goto err;
 		again = (buf[i - 1] == '\\');
 

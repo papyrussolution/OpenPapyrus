@@ -5731,7 +5731,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		NotifyMacroRecord(iMessage, wParam, lParam);
 	switch(iMessage) {
 		case SCI_GETTEXT: 
-			if(lParam == 0)
+			if(!lParam)
 				return pdoc->Length() + 1;
 			else if(wParam == 0)
 				return 0;
@@ -5744,7 +5744,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				return iChar;
 			}
 		case SCI_SETTEXT: 
-			if(lParam == 0)
+			if(!lParam)
 				return 0;
 			else {
 				UndoGroup ug(pdoc);
@@ -5792,7 +5792,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_GETLINE: { // Risk of overwriting the end of the buffer
 		    int lineStart = pdoc->LineStart(static_cast<int>(wParam));
 		    int lineEnd = pdoc->LineStart(static_cast<int>(wParam + 1));
-		    if(lParam == 0) {
+		    if(!lParam) {
 			    return lineEnd - lineStart;
 		    }
 		    char * ptr = CharPtrFromSPtr(lParam);
@@ -5823,7 +5823,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			{
 				SelectionText selectedText;
 				CopySelectionRange(&selectedText);
-				if(lParam == 0) {
+				if(!lParam) {
 					return selectedText.LengthWithTerminator();
 				}
 				else {
@@ -5858,7 +5858,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    return pdoc->LineStart(static_cast<int>(wParam) + 1) - pdoc->LineStart(static_cast<int>(wParam));
 		case SCI_REPLACESEL: 
 			{
-				if(lParam == 0)
+				if(!lParam)
 					return 0;
 				UndoGroup ug(pdoc);
 				ClearSelection();
@@ -5948,7 +5948,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_FINDTEXT: return FindText(wParam, lParam);
 		case SCI_GETTEXTRANGE: 
 			{
-				if(lParam == 0)
+				if(!lParam)
 					return 0;
 				Sci_TextRange * tr = reinterpret_cast<Sci_TextRange *>(lParam);
 				int cpMax = static_cast<int>(tr->chrg.cpMax);
@@ -6020,7 +6020,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_SETWORDCHARS: 
 			{
 				pdoc->SetDefaultCharClasses(false);
-				if(lParam == 0)
+				if(!lParam)
 					return 0;
 				pdoc->SetCharClasses(reinterpret_cast<uchar *>(lParam), CharClassify::ccWord);
 			}
@@ -6028,14 +6028,14 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_GETWHITESPACECHARS: return pdoc->GetCharsOfClass(CharClassify::ccSpace, reinterpret_cast<uchar *>(lParam));
 		case SCI_SETWHITESPACECHARS: 
 			{
-				if(lParam == 0)
+				if(!lParam)
 					return 0;
 				pdoc->SetCharClasses(reinterpret_cast<uchar *>(lParam), CharClassify::ccSpace);
 			}
 			break;
 		case SCI_GETPUNCTUATIONCHARS: return pdoc->GetCharsOfClass(CharClassify::ccPunctuation, reinterpret_cast<uchar *>(lParam));
 		case SCI_SETPUNCTUATIONCHARS:
-		    if(lParam == 0)
+		    if(!lParam)
 			    return 0;
 			else
 				pdoc->SetCharClasses(reinterpret_cast<uchar *>(lParam), CharClassify::ccPunctuation);
@@ -6129,7 +6129,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				int lineCurrentPos = pdoc->LineFromPosition(Sel.MainCaret());
 				int lineStart = pdoc->LineStart(lineCurrentPos);
 				uint lineEnd = pdoc->LineStart(lineCurrentPos + 1);
-				if(lParam == 0) {
+				if(!lParam) {
 					return (1 + lineEnd - lineStart);
 				}
 				else {
@@ -6164,7 +6164,7 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    pdoc->SetStyleFor(static_cast<int>(wParam), static_cast<char>(lParam));
 		    break;
 		case SCI_SETSTYLINGEX:     // Specify a complete styling buffer
-		    if(lParam == 0)
+		    if(!lParam)
 			    return 0;
 			else
 				pdoc->SetStyles(static_cast<int>(wParam), CharPtrFromSPtr(lParam));

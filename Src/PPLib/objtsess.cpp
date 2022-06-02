@@ -1,5 +1,5 @@
 // OBJTSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -420,9 +420,25 @@ private:
 //
 //
 //
-TSessionPacket::TSessionPacket()
+TSessionPacket::TSessionPacket() : ObjTagContainerHelper(TagL, PPOBJ_TSESSION, PPTAG_TSESS_UUID), Flags(0)
 {
-	destroy();
+	// @v11.4.0 destroy();
+}
+
+TSessionPacket::TSessionPacket(const TSessionPacket & rS) : ObjTagContainerHelper(TagL, PPOBJ_TSESSION, PPTAG_TSESS_UUID), 
+	Flags(rS.Flags), Rec(rS.Rec), CiList(rS.CiList), Lines(rS.Lines), TagL(rS.TagL), Ext(rS.Ext)
+{
+}
+
+TSessionPacket & FASTCALL TSessionPacket::operator = (const TSessionPacket & rS)
+{
+	Flags = rS.Flags;
+	Rec = rS.Rec;
+	CiList = rS.CiList;
+	Lines = rS.Lines;
+	TagL = rS.TagL;
+	Ext= rS.Ext;
+	return *this;
 }
 
 void TSessionPacket::destroy()
@@ -467,7 +483,7 @@ void TSessionPacket::destroy()
 	return BIN(oneof5(status, TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED));
 }
 
-struct TSessStatusSymb {
+/* @v11.4.0 struct TSessStatusSymb {
 	const char * P_Symb;
 	int8   Status;
 };
@@ -478,11 +494,21 @@ static TSessStatusSymb TSessStatusSymbList[] = {
 	{ "runned",   TSESST_INPROCESS },
 	{ "closed",   TSESST_CLOSED },
 	{ "canceled", TSESST_CANCELED }
+};*/
+// @v11.4.0 {
+static SIntToSymbTabEntry TSessStatusSymbList[] = {
+	{ TSESST_PLANNED, "planned" },
+	{ TSESST_PENDING, "pending" },
+	{ TSESST_INPROCESS, "runned" },
+	{ TSESST_CLOSED, "closed" },
+	{ TSESST_CANCELED, "canceled" }
 };
+// } @v11.4.0
 
-/*static*/int  FASTCALL PPObjTSession::ResolveStatusSymbol(const char * pSymbol)
+/*static*/int FASTCALL PPObjTSession::ResolveStatusSymbol(const char * pSymbol)
 {
-	int    status = 0;
+	return SIntToSymbTab_GetId(TSessStatusSymbList, SIZEOFARRAY(TSessStatusSymbList), pSymbol); // @v11.4.0
+	/* @v11.4.0 int    status = 0;
 	SString temp_buf(pSymbol);
 	if(temp_buf.NotEmptyS()) {
 		temp_buf.ToLower();
@@ -491,11 +517,13 @@ static TSessStatusSymb TSessStatusSymbList[] = {
 				status = TSessStatusSymbList[i].Status;
 		}
 	}
-	return status;
+	return status;*/
 }
 
 /*static*/int  FASTCALL PPObjTSession::GetStatusSymbol(int status, SString & rBuf)
 {
+	return SIntToSymbTab_GetSymb(TSessStatusSymbList, SIZEOFARRAY(TSessStatusSymbList), status, rBuf); // @v11.4.0
+	/* @v11.4.0
 	rBuf.Z();
 	int    ok = 0;
 	for(uint i = 0; !ok && i < SIZEOFARRAY(TSessStatusSymbList); i++) {
@@ -504,7 +532,7 @@ static TSessStatusSymb TSessStatusSymbList[] = {
 			ok = 1;
 		}
 	}
-	return ok;
+	return ok;*/
 }
 
 /*static*/int FASTCALL PPObjTSession::GetSessionKind(const TSessionTbl::Rec & rRec, int superSessAsSimple)

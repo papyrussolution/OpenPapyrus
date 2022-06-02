@@ -18,7 +18,7 @@ static int dh_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it, void *
 {
 	if(operation == ASN1_OP_NEW_PRE) {
 		*pval = (ASN1_VALUE*)DH_new();
-		if(*pval != NULL)
+		if(*pval)
 			return 2;
 		return 0;
 	}
@@ -89,12 +89,10 @@ DH *d2i_DHxparams(DH **a, const uchar ** pp, long length)
 		DH_free(dh);
 		return NULL;
 	}
-
 	if(a) {
 		DH_free(*a);
 		*a = dh;
 	}
-
 	dh->p = dhx->p;
 	dh->q = dhx->q;
 	dh->g = dhx->g;
@@ -133,6 +131,5 @@ int i2d_DHxparams(const DH * dh, uchar ** pp)
 	}
 	else
 		dhx.vparams = NULL;
-
 	return i2d_int_dhx(&dhx, pp);
 }

@@ -26,7 +26,7 @@ void DES_cfb64_encrypt(const uchar * in, uchar * out, long length, DES_key_sched
 	iv = &(*ivec)[0];
 	if(enc) {
 		while(l--) {
-			if(n == 0) {
+			if(!n) {
 				c2l(iv, v0);
 				ti[0] = v0;
 				c2l(iv, v1);
@@ -47,7 +47,7 @@ void DES_cfb64_encrypt(const uchar * in, uchar * out, long length, DES_key_sched
 	}
 	else {
 		while(l--) {
-			if(n == 0) {
+			if(!n) {
 				c2l(iv, v0);
 				ti[0] = v0;
 				c2l(iv, v1);

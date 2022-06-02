@@ -437,7 +437,7 @@ void opj_mqc_init_dec(opj_mqc_t * mqc, uint8 * bp, uint32_t len,
 	opj_mqc_init_dec_common(mqc, bp, len, extra_writable_bytes);
 	opj_mqc_setcurctx(mqc, 0);
 	mqc->end_of_byte_stream_counter = 0;
-	if(len == 0) {
+	if(!len) {
 		mqc->c = 0xff << 16;
 	}
 	else {

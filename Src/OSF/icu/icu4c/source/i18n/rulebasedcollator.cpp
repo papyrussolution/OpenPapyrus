@@ -579,7 +579,7 @@ uint32_t RuleBasedCollator::setVariableTop(const UChar * varTop, int32_t len, UE
 	if(len < 0) {
 		len = u_strlen(varTop);
 	}
-	if(len == 0) {
+	if(!len) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -655,7 +655,7 @@ int32_t RuleBasedCollator::getReorderCodes(int32_t * dest, int32_t capacity,
 		return 0;
 	}
 	int32_t length = settings->reorderCodesLength;
-	if(length == 0) {
+	if(!length) {
 		return 0;
 	}
 	if(length > capacity) {
@@ -1054,7 +1054,7 @@ UCollationResult RuleBasedCollator::doCompare(const UChar * left, int32_t leftLe
 		rightLimit = NULL;
 		UChar c;
 		while((c = left[equalPrefixLength]) == right[equalPrefixLength]) {
-			if(c == 0) {
+			if(!c) {
 				return UCOL_EQUAL;
 			}
 			++equalPrefixLength;
@@ -1179,7 +1179,7 @@ UCollationResult RuleBasedCollator::doCompare(const uint8 * left, int32_t leftLe
 	if(leftLength < 0) {
 		uint8 c;
 		while((c = left[equalPrefixLength]) == right[equalPrefixLength]) {
-			if(c == 0) {
+			if(!c) {
 				return UCOL_EQUAL;
 			}
 			++equalPrefixLength;
@@ -1716,7 +1716,7 @@ int32_t RuleBasedCollator::internalGetShortDefinitionString(const char * locale,
 	length = uloc_getKeywordValue(resultLocale, "collation", subtag, UPRV_LENGTHOF(subtag), &errorCode);
 	appendSubtag(result, 'K', subtag, length, errorCode);
 	length = uloc_getLanguage(resultLocale, subtag, UPRV_LENGTHOF(subtag), &errorCode);
-	if(length == 0) {
+	if(!length) {
 		appendSubtag(result, 'L', "root", 4, errorCode);
 	}
 	else {

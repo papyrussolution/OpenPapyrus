@@ -1296,7 +1296,6 @@ U_CAPI UDataMemory * U_EXPORT2 udata_open(const char * path, const char * type, 
 	slfprintf_stderr("udata_open(): Opening: %s : %s . %s\n", (path ? path : "NULL"), name, type);
 	fflush(stderr);
 #endif
-
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
@@ -1331,7 +1330,7 @@ U_CAPI UDataMemory * U_EXPORT2 udata_openChoice(const char * path, const char * 
 U_CAPI void U_EXPORT2 udata_getInfo(UDataMemory * pData, UDataInfo * pInfo) 
 {
 	if(pInfo) {
-		if(pData && pData->pHeader!=NULL) {
+		if(pData && pData->pHeader) {
 			const UDataInfo * info = &pData->pHeader->info;
 			uint16 dataInfoSize = udata_getInfoSize(info);
 			if(pInfo->size>dataInfoSize) {

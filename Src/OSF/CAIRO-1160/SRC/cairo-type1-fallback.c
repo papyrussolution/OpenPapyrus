@@ -360,7 +360,7 @@ static cairo_int_status_t cairo_type1_font_write_charstrings(cairo_type1_font_t 
 		if(font->scaled_font_subset->glyph_names != NULL) {
 			_cairo_output_stream_printf(encrypted_output, "/%s %d RD ", font->scaled_font_subset->glyph_names[i], length);
 		}
-		else if(i == 0) {
+		else if(!i) {
 			_cairo_output_stream_printf(encrypted_output, "/.notdef %d RD ", length);
 		}
 		else {

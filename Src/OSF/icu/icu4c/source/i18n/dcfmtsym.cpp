@@ -423,7 +423,7 @@ void DecimalFormatSymbols::initialize(const Locale & loc, UErrorCode & status,
 			break;
 		}
 		UChar32 cp = stringDigit.char32At(0);
-		if(i == 0) {
+		if(!i) {
 			tempCodePointZero = cp;
 		}
 		else if(cp != tempCodePointZero + i) {

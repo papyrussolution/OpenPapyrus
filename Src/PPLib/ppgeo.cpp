@@ -1,5 +1,5 @@
 // PPGEO.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1381,9 +1381,9 @@ IMPLEMENT_PPFILT_FACTORY(GeoTracking); GeoTrackingFilt::GeoTrackingFilt() : PPBa
 	Init(1, 0);
 }
 
-int  GeoTrackingFilt::IsEmpty() const
+bool GeoTrackingFilt::IsEmpty() const
 {
-	return BIN(Period.IsZero() && !Oi.Obj && !ExtOi.Obj && !Flags);
+	return (Period.IsZero() && !Oi.Obj && !ExtOi.Obj && !Flags);
 }
 //
 //

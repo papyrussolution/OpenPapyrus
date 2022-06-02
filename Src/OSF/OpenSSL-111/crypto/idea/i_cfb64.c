@@ -25,7 +25,7 @@
 	iv = (uchar *)ivec;
 	if(encrypt) {
 		while(l--) {
-			if(n == 0) {
+			if(!n) {
 				n2l(iv, v0);
 				ti[0] = v0;
 				n2l(iv, v1);
@@ -46,7 +46,7 @@
 	}
 	else {
 		while(l--) {
-			if(n == 0) {
+			if(!n) {
 				n2l(iv, v0);
 				ti[0] = v0;
 				n2l(iv, v1);

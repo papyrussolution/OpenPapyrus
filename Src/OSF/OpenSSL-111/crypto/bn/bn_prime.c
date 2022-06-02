@@ -368,7 +368,7 @@ loop:
 		i = BN_is_prime_fasttest_ex(ret, checks, ctx, 0, cb);
 		if(i == -1)
 			goto err;
-		if(i == 0)
+		if(!i)
 			goto loop;
 	}
 	else {

@@ -340,7 +340,7 @@ METHODDEF(boolean) encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 	ISHIFT_TEMPS
 	/* Emit restart marker if needed */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0) {
+		if(!entropy->restarts_to_go) {
 			emit_restart(cinfo, entropy->next_restart_num);
 			entropy->restarts_to_go = cinfo->restart_interval;
 			entropy->next_restart_num++;
@@ -421,7 +421,7 @@ METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 	int v, v2, m;
 	// Emit restart marker if needed 
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0) {
+		if(!entropy->restarts_to_go) {
 			emit_restart(cinfo, entropy->next_restart_num);
 			entropy->restarts_to_go = cinfo->restart_interval;
 			entropy->next_restart_num++;
@@ -518,7 +518,7 @@ METHODDEF(boolean) encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 
 	/* Emit restart marker if needed */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0) {
+		if(!entropy->restarts_to_go) {
 			emit_restart(cinfo, entropy->next_restart_num);
 			entropy->restarts_to_go = cinfo->restart_interval;
 			entropy->next_restart_num++;
@@ -553,7 +553,7 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 	int v;
 	// Emit restart marker if needed 
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0) {
+		if(!entropy->restarts_to_go) {
 			emit_restart(cinfo, entropy->next_restart_num);
 			entropy->restarts_to_go = cinfo->restart_interval;
 			entropy->next_restart_num++;
@@ -648,7 +648,7 @@ METHODDEF(boolean) encode_mcu(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 	jpeg_component_info * compptr;
 	// Emit restart marker if needed 
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0) {
+		if(!entropy->restarts_to_go) {
 			emit_restart(cinfo, entropy->next_restart_num);
 			entropy->restarts_to_go = cinfo->restart_interval;
 			entropy->next_restart_num++;

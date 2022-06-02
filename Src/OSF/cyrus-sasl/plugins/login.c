@@ -62,7 +62,7 @@ static int login_server_mech_new(void * glob_context __attribute__((unused)), sa
     const char * challenge __attribute__((unused)), unsigned challen __attribute__((unused)), void ** conn_context)
 {
 	// holds state are in 
-	server_context_t * text = (server_context_t *)sparams->utils->malloc(sizeof(server_context_t));
+	server_context_t * text = (server_context_t *)sparams->utils->FnMalloc(sizeof(server_context_t));
 	if(text == NULL) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		return SASL_NOMEM;
@@ -108,7 +108,7 @@ static int login_server_mech_step(void * conn_context, sasl_server_params_t * pa
 			    return SASL_BADPROT;
 		    }
 		    /* get username */
-		    text->username = (char *)params->utils->malloc(sizeof(sasl_secret_t) + clientinlen + 1);
+		    text->username = (char *)params->utils->FnMalloc(sizeof(sasl_secret_t) + clientinlen + 1);
 		    if(!text->username) {
 			    SASL_UTILS_MEMERROR(params->utils);
 			    return SASL_NOMEM;
@@ -130,7 +130,7 @@ static int login_server_mech_step(void * conn_context, sasl_server_params_t * pa
 			    return SASL_BADPROT;
 		    }
 		    /* get password */
-		    password = (sasl_secret_t *)params->utils->malloc(sizeof(sasl_secret_t) + clientinlen + 1);
+		    password = (sasl_secret_t *)params->utils->FnMalloc(sizeof(sasl_secret_t) + clientinlen + 1);
 		    if(!password) {
 			    SASL_UTILS_MEMERROR(params->utils);
 			    return SASL_NOMEM;
@@ -184,8 +184,8 @@ static void login_server_mech_dispose(void * conn_context, const sasl_utils_t * 
 {
 	server_context_t * text = (server_context_t*)conn_context;
 	if(!text) return;
-	if(text->username) utils->free(text->username);
-	utils->free(text);
+	if(text->username) utils->FnFree(text->username);
+	utils->FnFree(text);
 }
 
 static sasl_server_plug_t login_server_plugins[] =
@@ -232,7 +232,7 @@ typedef struct client_context {
 static int login_client_mech_new(void * glob_context __attribute__((unused)), sasl_client_params_t * params, void ** conn_context)
 {
 	// holds state are in 
-	client_context_t * text = (client_context_t *)params->utils->malloc(sizeof(client_context_t));
+	client_context_t * text = (client_context_t *)params->utils->FnMalloc(sizeof(client_context_t));
 	if(text == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
 		return SASL_NOMEM;
@@ -288,7 +288,7 @@ static int login_client_mech_step(void * conn_context,
 
 		    /* free prompts we got */
 		    if(prompt_need && *prompt_need) {
-			    params->utils->free(*prompt_need);
+			    params->utils->FnFree(*prompt_need);
 			    *prompt_need = NULL;
 		    }
 
@@ -337,7 +337,7 @@ static int login_client_mech_step(void * conn_context,
 
 		    /* free prompts we got */
 		    if(prompt_need && *prompt_need) {
-			    params->utils->free(*prompt_need);
+			    params->utils->FnFree(*prompt_need);
 			    *prompt_need = NULL;
 		    }
 
@@ -389,7 +389,7 @@ static void login_client_mech_dispose(void * conn_context, const sasl_utils_t * 
 	if(!text) return;
 	/* free sensitive info */
 	if(text->free_password) _plug_free_secret(utils, &(text->password));
-	utils->free(text);
+	utils->FnFree(text);
 }
 
 static sasl_client_plug_t login_client_plugins[] =

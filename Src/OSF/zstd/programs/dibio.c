@@ -112,7 +112,7 @@ static int DiB_loadFiles(void* buffer, size_t* bufferSizePtr, size_t* sampleSize
 			continue;
 		}
 		f = fopen(fileNamesTable[fileIndex], "rb");
-		if(f == NULL)
+		if(!f)
 			EXM_THROW(10, "zstd: dictBuilder: %s %s ", fileNamesTable[fileIndex], strerror(errno));
 		DISPLAYUPDATE(2, "Loading %s...       \r", fileNamesTable[fileIndex]);
 		/* Load the first chunk of data from the file */

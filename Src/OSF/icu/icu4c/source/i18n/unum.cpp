@@ -728,7 +728,7 @@ U_CAPI const char * U_EXPORT2 unum_getLocaleByType(const UNumberFormat * fmt,
     ULocDataLocaleType type,
     UErrorCode * status)
 {
-	if(fmt == NULL) {
+	if(!fmt) {
 		if(U_SUCCESS(*status)) {
 			*status = U_ILLEGAL_ARGUMENT_ERROR;
 		}

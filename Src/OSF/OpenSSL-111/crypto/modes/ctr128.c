@@ -118,7 +118,7 @@ void CRYPTO_ctr128_encrypt(const uchar * in, uchar * out,
 	/* the rest would be commonly eliminated by x86* compiler */
 #endif
 	while(l < len) {
-		if(n == 0) {
+		if(!n) {
 			(*block)(ivec, ecount_buf, key);
 			ctr128_inc(ivec);
 		}

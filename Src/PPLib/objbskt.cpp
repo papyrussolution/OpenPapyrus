@@ -1,5 +1,5 @@
 // OBJBSKT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -459,6 +459,46 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 		if(ok > 0 && action)
 			DS.LogAction(action, Obj, *pID, 0, 0);
 		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*virtual*/int PPObjGoodsBasket::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr) // @v11.4.0
+{
+	int    ok = DBRPL_OK;
+	if(msg == DBMSG_OBJDELETE) {
+		if(_obj == PPOBJ_GOODS) {
+			LAssocArray b2g_list;
+			PPID   basket_id = 0;
+			uint   pos = 0;
+			P_Ref->Assc.GetList(PPASS_GOODSBASKET, &b2g_list);
+			if(b2g_list.SearchByVal(_id, &basket_id, &pos)) {
+				ok = RetRefsExistsErr(Obj, basket_id);
+			}
+		}
+	}
+	else if(msg == DBMSG_OBJREPLACE) {
+		if(_obj == PPOBJ_GOODS) {
+			const PPID replacer_id = reinterpret_cast<long>(extraPtr);
+			THROW_PP(replacer_id != _id, PPERR_REPLSAMEOBJ);
+			{
+				LAssocArray b2g_list;
+				ObjAssocTbl::Rec assc_rec;
+				P_Ref->Assc.GetList(PPASS_GOODSBASKET, &b2g_list);
+				for(uint i = 0; i < b2g_list.getCount(); i++) {
+					const LAssoc & r_item = b2g_list.at(i);
+					if(r_item.Val == _id) {
+						if(P_Ref->Assc.Search(PPASS_GOODSBASKET, r_item.Key, r_item.Val, &assc_rec) > 0) {
+							if(assc_rec.AsscType == PPASS_GOODSBASKET && assc_rec.PrmrObjID == r_item.Key && assc_rec.ScndObjID == r_item.Val) { // @paranoic
+								assc_rec.ScndObjID = replacer_id;
+								THROW(P_Ref->Assc.Update(assc_rec.ID, &assc_rec, 0));
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	CATCHZOK
 	return ok;

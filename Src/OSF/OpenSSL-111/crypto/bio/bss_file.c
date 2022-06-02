@@ -65,7 +65,7 @@ BIO * BIO_new_file(const char * filename, const char * mode)
 	if(strchr(mode, 'b') == NULL)
 		fp_flags |= BIO_FP_TEXT;
 
-	if(file == NULL) {
+	if(!file) {
 		SYSerr(SYS_F_FOPEN, get_last_sys_error());
 		ERR_add_error_data(5, "fopen('", filename, "','", mode, "')");
 		if(errno == ENOENT

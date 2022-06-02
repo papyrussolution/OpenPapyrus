@@ -173,7 +173,7 @@ int BN_rshift(BIGNUM * r, const BIGNUM * a, int n)
 		r->neg = a->neg;
 	}
 	else {
-		if(n == 0)
+		if(!n)
 			return 1; /* or the copying loop will go berserk */
 	}
 

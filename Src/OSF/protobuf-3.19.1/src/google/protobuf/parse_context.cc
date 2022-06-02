@@ -39,7 +39,8 @@ bool ParseEndsInSlopRegion(const char* begin, int overrun, int depth) {
 		if(ptr == nullptr || ptr > end) return false;
 		// ending on 0 tag is allowed and is the major reason for the necessity of
 		// this function.
-		if(tag == 0) return true;
+		if(tag == 0) 
+			return true;
 		switch(tag & 7) {
 			case 0: { // Varint
 			    uint64_t val;
@@ -77,8 +78,10 @@ bool ParseEndsInSlopRegion(const char* begin, int overrun, int depth) {
 }
 }  // namespace
 
-const char* EpsCopyInputStream::NextBuffer(int overrun, int depth) {
-	if(next_chunk_ == nullptr) return nullptr; // We've reached end of stream.
+const char* EpsCopyInputStream::NextBuffer(int overrun, int depth) 
+{
+	if(next_chunk_ == nullptr) 
+		return nullptr; // We've reached end of stream.
 	if(next_chunk_ != buffer_) {
 		GOOGLE_DCHECK(size_ > kSlopBytes);
 		// The chunk is large enough to be used directly
@@ -133,7 +136,8 @@ const char* EpsCopyInputStream::NextBuffer(int overrun, int depth) {
 	return buffer_;
 }
 
-const char* EpsCopyInputStream::Next() {
+const char* EpsCopyInputStream::Next() 
+{
 	GOOGLE_DCHECK(limit_ > kSlopBytes);
 	auto p = NextBuffer(0 /* immaterial */, -1);
 	if(p == nullptr) {
@@ -147,8 +151,8 @@ const char* EpsCopyInputStream::Next() {
 	return p;
 }
 
-std::pair<const char*, bool> EpsCopyInputStream::DoneFallback(int overrun,
-    int depth) {
+std::pair<const char*, bool> EpsCopyInputStream::DoneFallback(int overrun, int depth) 
+{
 	// Did we exceeded the limit (parse error).
 	if(PROTOBUF_PREDICT_FALSE(overrun > limit_)) return {nullptr, true};
 	GOOGLE_DCHECK(overrun != limit_); // Guaranteed by caller.
@@ -183,13 +187,13 @@ std::pair<const char*, bool> EpsCopyInputStream::DoneFallback(int overrun,
 	return {p, false};
 }
 
-const char* EpsCopyInputStream::SkipFallback(const char* ptr, int size) {
-	return AppendSize(ptr, size, [](const char* /*p*/, int /*s*/) {
-				});
+const char* EpsCopyInputStream::SkipFallback(const char* ptr, int size) 
+{
+	return AppendSize(ptr, size, [](const char* /*p*/, int /*s*/) {});
 }
 
-const char* EpsCopyInputStream::ReadStringFallback(const char* ptr, int size,
-    std::string* str) {
+const char* EpsCopyInputStream::ReadStringFallback(const char* ptr, int size, std::string* str) 
+{
 	str->clear();
 	if(PROTOBUF_PREDICT_TRUE(size <= buffer_end_ - ptr + limit_)) {
 		// Reserve the string up to a static safe size. If strings are bigger than
@@ -197,43 +201,27 @@ const char* EpsCopyInputStream::ReadStringFallback(const char* ptr, int size,
 		// malicious payloads making protobuf hold on to a lot of memory.
 		str->reserve(str->size() + std::min<int>(size, kSafeStringSize));
 	}
-	return AppendSize(ptr, size,
-		   [str](const char* p, int s) {
-					str->append(p, s);
-				});
+	return AppendSize(ptr, size, [str](const char* p, int s) { str->append(p, s); });
 }
 
-const char* EpsCopyInputStream::AppendStringFallback(const char* ptr, int size,
-    std::string* str) {
+const char* EpsCopyInputStream::AppendStringFallback(const char* ptr, int size, std::string* str) 
+{
 	if(PROTOBUF_PREDICT_TRUE(size <= buffer_end_ - ptr + limit_)) {
 		// Reserve the string up to a static safe size. If strings are bigger than
 		// this we proceed by growing the string as needed. This protects against
 		// malicious payloads making protobuf hold on to a lot of memory.
 		str->reserve(str->size() + std::min<int>(size, kSafeStringSize));
 	}
-	return AppendSize(ptr, size,
-		   [str](const char* p, int s) {
-					str->append(p, s);
-				});
+	return AppendSize(ptr, size, [str](const char* p, int s) { str->append(p, s); });
 }
 
-template <int>
-void byteswap(void* p);
-template <>
-void byteswap<1>(void* /*p*/) {
-}
+template <int> void byteswap(void* p);
+template <> void byteswap<1>(void* /*p*/) {}
+template <> void byteswap<4>(void* p) { *static_cast<uint32_t*>(p) = bswap_32(*static_cast<uint32_t*>(p)); }
+template <> void byteswap<8>(void* p) { *static_cast<uint64_t*>(p) = bswap_64(*static_cast<uint64_t*>(p)); }
 
-template <>
-void byteswap<4>(void* p) {
-	*static_cast<uint32_t*>(p) = bswap_32(*static_cast<uint32_t*>(p));
-}
-
-template <>
-void byteswap<8>(void* p) {
-	*static_cast<uint64_t*>(p) = bswap_64(*static_cast<uint64_t*>(p));
-}
-
-const char* EpsCopyInputStream::InitFrom(io::ZeroCopyInputStream* zcis) {
+const char* EpsCopyInputStream::InitFrom(io::ZeroCopyInputStream* zcis) 
+{
 	zcis_ = zcis;
 	const void* data;
 	int size;
@@ -263,8 +251,8 @@ const char* EpsCopyInputStream::InitFrom(io::ZeroCopyInputStream* zcis) {
 	return buffer_;
 }
 
-const char* ParseContext::ReadSizeAndPushLimitAndDepth(const char* ptr,
-    int* old_limit) {
+const char* ParseContext::ReadSizeAndPushLimitAndDepth(const char* ptr, int* old_limit) 
+{
 	int size = ReadSize(&ptr);
 	if(PROTOBUF_PREDICT_FALSE(!ptr)) {
 		*old_limit = 0; // Make sure this isn't uninitialized even on error return
@@ -275,7 +263,8 @@ const char* ParseContext::ReadSizeAndPushLimitAndDepth(const char* ptr,
 	return ptr;
 }
 
-const char* ParseContext::ParseMessage(MessageLite* msg, const char* ptr) {
+const char* ParseContext::ParseMessage(MessageLite* msg, const char* ptr) 
+{
 	int old;
 	ptr = ReadSizeAndPushLimitAndDepth(ptr, &old);
 	ptr = ptr ? msg->_InternalParse(ptr, this) : nullptr;
@@ -284,7 +273,8 @@ const char* ParseContext::ParseMessage(MessageLite* msg, const char* ptr) {
 	return ptr;
 }
 
-inline void WriteVarint(uint64_t val, std::string* s) {
+inline void WriteVarint(uint64_t val, std::string* s) 
+{
 	while(val >= 128) {
 		uint8_t c = val | 0x80;
 		s->push_back(c);

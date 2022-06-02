@@ -285,36 +285,25 @@ SSH_PACKET_CALLBACK(ssh_packet_server_ecdh_init){
 		ssh_set_error(session, SSH_FATAL, "Could not create a session id");
 		goto out;
 	}
-
 	sig_blob = ssh_srv_pki_do_sign_sessionid(session, privkey, digest);
 	if(sig_blob == NULL) {
 		ssh_set_error(session, SSH_FATAL, "Could not sign the session id");
 		rc = SSH_ERROR;
 		goto out;
 	}
-
 	rc = ssh_dh_get_next_server_publickey_blob(session, &pubkey_blob);
 	if(rc != SSH_OK) {
 		ssh_set_error(session, SSH_FATAL, "Could not export server public key");
 		SSH_STRING_FREE(sig_blob);
 		goto out;
 	}
-
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bSSS",
-		SSH2_MSG_KEXDH_REPLY,
-		pubkey_blob,          /* host's pubkey */
-		q_s_string,          /* ecdh public key */
-		sig_blob); /* signature blob */
-
+	rc = ssh_buffer_pack(session->out_buffer, "bSSS", SSH2_MSG_KEXDH_REPLY, pubkey_blob/* host's pubkey */, q_s_string/* ecdh public key */, sig_blob/* signature blob */);
 	SSH_STRING_FREE(sig_blob);
 	SSH_STRING_FREE(pubkey_blob);
-
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto out;
 	}
-
 	SSH_LOG(SSH_LOG_PROTOCOL, "SSH_MSG_KEXDH_REPLY sent");
 	rc = ssh_packet_send(session);
 	if(rc != SSH_OK) {

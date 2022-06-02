@@ -1097,7 +1097,7 @@ sptr_t ScintillaWin::GetText(uptr_t wParam, sptr_t lParam)
 		pdoc->GetCharRange(&docBytes[0], 0, pdoc->Length());
 		if(IsUnicodeMode()) {
 			size_t lengthUTF16 = UTF16Length(&docBytes[0], static_cast<uint>(docBytes.size()));
-			if(lParam == 0)
+			if(!lParam)
 				return lengthUTF16;
 			else if(wParam == 0)
 				return 0;
@@ -1492,7 +1492,7 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 			    }
 			    return MAKELONG(SelectionStart().Position(), SelectionEnd().Position());
 			case EM_EXGETSEL: 
-				if(lParam == 0)
+				if(!lParam)
 					return 0;
 				else {
 					Sci_CharacterRange * pCR = reinterpret_cast<Sci_CharacterRange *>(lParam);
@@ -1515,7 +1515,7 @@ sptr_t ScintillaWin::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 				}
 				break;
 			case EM_EXSETSEL: 
-				if(lParam == 0)
+				if(!lParam)
 					return 0;
 				else {
 					Sci_CharacterRange * pCR = reinterpret_cast<Sci_CharacterRange *>(lParam);

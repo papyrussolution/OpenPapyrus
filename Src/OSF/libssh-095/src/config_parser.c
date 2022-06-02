@@ -90,7 +90,7 @@ const char * ssh_config_get_str_tok(char ** str, const char * def)
 int ssh_config_get_yesno(char ** str, int notfound)
 {
 	const char * p = ssh_config_get_str_tok(str, NULL);
-	if(p == NULL) {
+	if(!p) {
 		return notfound;
 	}
 	if(strncasecmp(p, "yes", 3) == 0) {

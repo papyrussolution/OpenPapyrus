@@ -484,7 +484,7 @@ LUA_API const char * lua_pushfstring(lua_State * L, const char * fmt, ...)
 LUA_API void lua_pushcclosure(lua_State * L, lua_CFunction fn, int n) 
 {
 	lua_lock(L);
-	if(n == 0) {
+	if(!n) {
 		setfvalue(L->top, fn);
 		api_incr_top(L);
 	}
@@ -1069,7 +1069,7 @@ LUA_API void lua_concat(lua_State * L, int n)
 	if(n >= 2) {
 		luaV_concat(L, n);
 	}
-	else if(n == 0) { /* push empty string */
+	else if(!n) { /* push empty string */
 		setsvalue2s(L, L->top, luaS_newlstr(L, "", 0));
 		api_incr_top(L);
 	}

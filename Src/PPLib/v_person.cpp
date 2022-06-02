@@ -1689,18 +1689,18 @@ void PersonFilt::Setup()
 		ZDELETE(P_TagF);
 }
 
-int PersonFilt::IsEmpty() const
+bool PersonFilt::IsEmpty() const
 {
-	int    yes = 1;
+	bool   yes = true;
 	if(Kind || Category || Status || CityID || (P_RegF && !P_RegF->IsEmpty()) ||
 		Flags & fVatFree || StaffDivID || StaffOrgID || List.GetCount() || (P_TagF && !P_TagF->IsEmpty()) || (P_SjF && !P_SjF->IsEmpty()))
-		yes = 0;
+		yes = false;
 	else {
 		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.0.1
 		if(GetExtssData(extssNameText, r_temp_buf) > 0 && r_temp_buf.NotEmptyS())
-			yes = 0;
+			yes = false;
 		else if(GetExtssData(extssEmailText, r_temp_buf) > 0 && r_temp_buf.NotEmptyS())
-			yes = 0;
+			yes = false;
 	}
 	return yes;
 }
@@ -1931,7 +1931,7 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			else if(event.isCmd(cmCBSelected)) {
 				const long preserve_attr = Data.AttribType;
 				const long preserve_regtypeid = Data.RegTypeID;
-				const int preserve_loc_attr = Data.IsLocAttr();
+				const bool preserve_loc_attr = Data.IsLocAttr();
 				int    do_rollback = 0;
 				getDTS(0);
 				if(preserve_loc_attr != Data.IsLocAttr() && (Data.P_TagF && !Data.P_TagF->IsEmpty())) {

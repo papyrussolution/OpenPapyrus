@@ -1924,7 +1924,7 @@ static UPKGOptions * pkg_checkFlag(UPKGOptions * o) {
 		uprv_strcat(mapFile, MAP_FILE_EXT);
 
 		f = T_FileStream_open(mapFile, "w");
-		if(f == NULL) {
+		if(!f) {
 			slfprintf_stderr("Unable to create map file: %s.\n", mapFile);
 			return NULL;
 		}

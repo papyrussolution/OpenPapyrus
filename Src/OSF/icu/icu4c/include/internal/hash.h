@@ -76,33 +76,19 @@ public:
   * in the future.
      */
     inline ~Hashtable();
-
     inline UObjectDeleter *setValueDeleter(UObjectDeleter *fn);
-
     inline int32_t count() const;
-
     inline void * put(const UnicodeString & key, void * value, UErrorCode & status);
-
     inline int32_t puti(const UnicodeString & key, int32_t value, UErrorCode & status);
-
     inline int32_t putiAllowZero(const UnicodeString & key, int32_t value, UErrorCode & status);
-
     inline void * get(const UnicodeString & key) const;
-
     inline int32_t geti(const UnicodeString & key) const;
-
     inline int32_t getiAndFound(const UnicodeString & key, bool &found) const;
-
     inline void * remove(const UnicodeString & key);
-
     inline int32_t removei(const UnicodeString & key);
-
     inline void removeAll();
-
     inline bool containsKey(const UnicodeString & key) const;
-
     inline const UHashElement* find(const UnicodeString & key) const;
-
     /**
   * @param pos - must be UHASH_FIRST on first call, and untouched afterwards.
   * @see uhash_nextElement

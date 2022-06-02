@@ -222,8 +222,8 @@ cleanup:
 #if !defined(KEEP_DB_OPEN)
 	if(mbdb != NULL) berkeleydb_close(utils, mbdb);
 #endif
-	utils->free(key);
-	utils->free(data.data);
+	utils->FnFree(key);
+	utils->FnFree(data.data);
 	return result;
 }
 
@@ -306,7 +306,7 @@ cleanup:
 #if !defined(KEEP_DB_OPEN)
 	if(mbdb != NULL) berkeleydb_close(utils, mbdb);
 #endif
-	utils->free(key);
+	utils->FnFree(key);
 	return result;
 }
 
@@ -382,7 +382,7 @@ sasldb_handle _sasldb_getkeyhandle(const sasl_utils_t * utils,
 		return NULL;
 	}
 
-	handle = utils->malloc(sizeof(berkleyhandle_t));
+	handle = utils->FnMalloc(sizeof(berkleyhandle_t));
 	if(!handle) {
 #if !defined(KEEP_DB_OPEN)
 		(void)mbdb->close(mbdb, 0);
@@ -466,7 +466,7 @@ int _sasldb_releasekeyhandle(const sasl_utils_t * utils,
 	}
 #endif
 
-	utils->free(dbh);
+	utils->FnFree(dbh);
 
 	if(ret) {
 		return SASL_FAIL;

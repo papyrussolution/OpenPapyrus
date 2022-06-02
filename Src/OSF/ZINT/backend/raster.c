@@ -505,32 +505,28 @@ static int save_raster_image_to_file(struct ZintSymbol * symbol, int image_heigh
 		case 0: // Plot the right way up 
 		    for(row = 0; row < image_height; row++) {
 			    for(column = 0; column < image_width; column++) {
-				    rotated_pixbuf[(row * image_width) + column] =
-				    pixelbuf[(image_width * row) + column];
+				    rotated_pixbuf[(row * image_width) + column] = pixelbuf[(image_width * row) + column];
 			    }
 		    }
 		    break;
 		case 90: // Plot 90 degrees clockwise 
 		    for(row = 0; row < image_width; row++) {
 			    for(column = 0; column < image_height; column++) {
-				    rotated_pixbuf[(row * image_height) + column] =
-				    *(pixelbuf + (image_width * (image_height - column - 1)) + row);
+				    rotated_pixbuf[(row * image_height) + column] = *(pixelbuf + (image_width * (image_height - column - 1)) + row);
 			    }
 		    }
 		    break;
 		case 180: // Plot upside down 
 		    for(row = 0; row < image_height; row++) {
 			    for(column = 0; column < image_width; column++) {
-				    rotated_pixbuf[(row * image_width) + column] =
-				    *(pixelbuf + (image_width * (image_height - row - 1)) + (image_width - column - 1));
+				    rotated_pixbuf[(row * image_width) + column] = *(pixelbuf + (image_width * (image_height - row - 1)) + (image_width - column - 1));
 			    }
 		    }
 		    break;
 		case 270: // Plot 90 degrees anti-clockwise 
 		    for(row = 0; row < image_width; row++) {
 			    for(column = 0; column < image_height; column++) {
-				    rotated_pixbuf[(row * image_height) + column] =
-				    *(pixelbuf + (image_width * column) + (image_width - row - 1));
+				    rotated_pixbuf[(row * image_height) + column] = *(pixelbuf + (image_width * column) + (image_width - row - 1));
 			    }
 		    }
 		    break;

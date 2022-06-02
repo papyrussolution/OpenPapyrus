@@ -26,22 +26,13 @@ IMPLEMENT_PPFILT_FACTORY(SysJournal); SysJournalFilt::SysJournalFilt() : PPBaseF
 {
 	SetFlatChunk(offsetof(SysJournalFilt, ReserveStart),
 		offsetof(SysJournalFilt, ActionIDList)-offsetof(SysJournalFilt, ReserveStart));
-	SetBranchSVector(offsetof(SysJournalFilt, ActionIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+	SetBranchSVector(offsetof(SysJournalFilt, ActionIDList));
 	Init(1, 0);
 }
 
-int  SysJournalFilt::IsEmpty() const
+bool SysJournalFilt::IsEmpty() const
 {
-	if(!Period.IsZero())
-		return 0;
-	else if(UserID)
-		return 0;
-	else if(ObjType)
-		return 0;
-	else if(ActionIDList.getCount())
-		return 0;
-	else
-		return 1;
+	return (Period.IsZero() && !UserID && !ObjType && !ActionIDList.getCount());
 }
 //
 //
@@ -660,7 +651,6 @@ DBQuery * PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 		THROW_MEM(p_t = new TempSysJournalTbl(P_SubstTbl->GetName().cptr()));
 		THROW(CheckTblPtr(p_t));
 		PPDbqFuncPool::InitObjNameFunc(dbe_avg_tm, PPDbqFuncPool::IdDurationToTime, p_t->Count);
-		// @v9.9.0 {
 		THROW_MEM(q = new DBQuery);
 		q->syntax |= DBQuery::t_select;
 		q->addField(p_t->ID);  // #0
@@ -677,17 +667,6 @@ DBQuery * PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 		q->addField(p_t->Count); // #5
 		q->addField(dbe_avg_tm); // #6
 		q->from(p_t, 0L);
-		// } @v9.9.0
-		/* @v9.9.0 q = & select(
-			p_t->ID,      // #0
-			p_t->ID2,     // #1
-			p_t->Dt,      // #2
-			p_t->DtSubst, // #3
-			p_t->Name,    // #4
-			p_t->Count,   // #5
-			dbe_avg_tm,   // #6
-			0L).from(p_t, 0L);*/
-		// @v9.9.0 q->orderBy(p_t->DtSubst, p_t->Name, 0L);
 	}
 	else {
 		THROW(CheckTblPtr(sj));
@@ -1239,18 +1218,9 @@ IMPLEMENT_PPFILT_FACTORY(GtaJournal); GtaJournalFilt::GtaJournalFilt() : PPBaseF
 	Init(1, 0);
 }
 
-int  GtaJournalFilt::IsEmpty() const
+bool GtaJournalFilt::IsEmpty() const
 {
-	if(!Period.IsZero())
-		return 0;
-	else if(GlobalUserID)
-		return 0;
-	else if(Oi.Obj)
-		return 0;
-	else if(ActionIDList.getCount())
-		return 0;
-	else
-		return 1;
+	return (Period.IsZero() && !GlobalUserID && !Oi.Obj && !ActionIDList.getCount());
 }
 
 PPViewGtaJournal::PPViewGtaJournal() : 
@@ -1586,4 +1556,3 @@ int PPViewGtaJournal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	}
 	return ok;
 }
-

@@ -451,7 +451,7 @@ U_CAPI UCHARBUF* U_EXPORT2 ucbuf_open(const char * fileName, const char ** cp, b
 	if(in!=NULL) {
 		UCHARBUF* buf = (UCHARBUF*)uprv_malloc(sizeof(UCHARBUF));
 		fileSize = T_FileStream_size(in);
-		if(buf == NULL) {
+		if(!buf) {
 			*error = U_MEMORY_ALLOCATION_ERROR;
 			T_FileStream_close(in);
 			return NULL;

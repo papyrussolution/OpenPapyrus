@@ -832,7 +832,8 @@ XXH3_hashLong_64b_withSecret(const void * XXH_RESTRICT data, size_t len, const v
 
 XXH_FORCE_INLINE void XXH_writeLE64(void * dst, uint64 v64)
 {
-	if(!XXH_CPU_LITTLE_ENDIAN) v64 = XXH_swap64(v64);
+	if(!XXH_CPU_LITTLE_ENDIAN) 
+		v64 = XXH_swap64(v64);
 	memcpy(dst, &v64, sizeof(v64));
 }
 

@@ -182,7 +182,7 @@ int SSL_set_srp_server_param(SSL * s, const BIGNUM * N, const BIGNUM * g, BIGNUM
 		else
 			s->srp_ctx.s = BN_dup(sa);
 	}
-	if(v != NULL) {
+	if(v) {
 		if(s->srp_ctx.v != NULL) {
 			if(!BN_copy(s->srp_ctx.v, v)) {
 				BN_free(s->srp_ctx.v);

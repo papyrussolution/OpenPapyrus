@@ -1503,11 +1503,13 @@ U_CAPI int32_t U_EXPORT2 u_terminateWChars(wchar_t * dest, int32_t destCapacity,
 } UPRV_BLOCK_MACRO_END
 
 /* Used by UnicodeString to compute its hashcode - Not public API. */
-U_CAPI int32_t U_EXPORT2 ustr_hashUCharsN(const UChar * str, int32_t length) {
+U_CAPI int32_t U_EXPORT2 ustr_hashUCharsN(const UChar * str, int32_t length) 
+{
 	STRING_HASH(UChar, str, length, *p);
 }
 
-U_CAPI int32_t U_EXPORT2 ustr_hashCharsN(const char * str, int32_t length) {
+U_CAPI int32_t U_EXPORT2 ustr_hashCharsN(const char * str, int32_t length) 
+{
 	STRING_HASH(uint8, str, length, *p);
 }
 

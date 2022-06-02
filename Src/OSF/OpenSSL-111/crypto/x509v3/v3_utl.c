@@ -560,7 +560,7 @@ static int equal_email(const uchar * a, size_t a_len, const uchar * b, size_t b_
 			break;
 		}
 	}
-	if(i == 0)
+	if(!i)
 		i = a_len;
 	return equal_case(a, i, b, i, 0);
 }
@@ -1033,7 +1033,7 @@ static int ipv6_cb(const char * elem, int len, void * usr)
 	/* Error if 16 bytes written */
 	if(s->total == 16)
 		return 0;
-	if(len == 0) {
+	if(!len) {
 		/* Zero length element, corresponds to '::' */
 		if(s->zero_pos == -1)
 			s->zero_pos = s->total;

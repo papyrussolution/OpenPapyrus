@@ -34,15 +34,14 @@
    (gcc x64 has no register spills, and clang 6+ uses SSE instructions)
    -----------------------------------------------------------------------------*/
 
-static inline uint32_t rotl(uint32_t x, uint32_t shift) {
-	return (x << shift) | (x >> (32 - shift));
-}
+// @v11.4.0 (replaced with slrotl32) static inline uint32_t rotl(uint32_t x, uint32_t shift) { return (x << shift) | (x >> (32 - shift)); }
 
-static inline void qround(uint32_t x[16], size_t a, size_t b, size_t c, size_t d) {
-	x[a] += x[b]; x[d] = rotl(x[d] ^ x[a], 16);
-	x[c] += x[d]; x[b] = rotl(x[b] ^ x[c], 12);
-	x[a] += x[b]; x[d] = rotl(x[d] ^ x[a], 8);
-	x[c] += x[d]; x[b] = rotl(x[b] ^ x[c], 7);
+static inline void qround(uint32_t x[16], size_t a, size_t b, size_t c, size_t d) 
+{
+	x[a] += x[b]; x[d] = slrotl32(x[d] ^ x[a], 16);
+	x[c] += x[d]; x[b] = slrotl32(x[b] ^ x[c], 12);
+	x[a] += x[b]; x[d] = slrotl32(x[d] ^ x[a], 8);
+	x[c] += x[d]; x[b] = slrotl32(x[b] ^ x[c], 7);
 }
 
 static void chacha_block(mi_random_ctx_t* ctx)
@@ -62,13 +61,11 @@ static void chacha_block(mi_random_ctx_t* ctx)
 		qround(x, 2, 7,  8, 13);
 		qround(x, 3, 4,  9, 14);
 	}
-
 	// add scrambled data to the initial state
 	for(size_t i = 0; i < 16; i++) {
 		ctx->output[i] = x[i] + ctx->input[i];
 	}
 	ctx->output_available = 16;
-
 	// increment the counter for the next round
 	ctx->input[12] += 1;
 	if(ctx->input[12] == 0) {

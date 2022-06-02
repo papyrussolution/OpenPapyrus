@@ -51,7 +51,7 @@ static int pkey_hkdf_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 	HKDF_PKEY_CTX * kctx = static_cast<HKDF_PKEY_CTX *>(ctx->data);
 	switch(type) {
 		case EVP_PKEY_CTRL_HKDF_MD:
-		    if(p2 == NULL)
+		    if(!p2)
 			    return 0;
 		    kctx->md = static_cast<const EVP_MD *>(p2);
 		    return 1;

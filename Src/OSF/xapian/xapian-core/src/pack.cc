@@ -14,7 +14,7 @@
 [[noreturn]] void unpack_throw_serialisation_error(const char * p)
 {
 	const char * m;
-	if(p == NULL) {
+	if(!p) {
 		m = "Insufficient serialised data";
 	}
 	else {

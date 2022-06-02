@@ -138,12 +138,11 @@ int DSA_set0_pqg(DSA * d, BIGNUM * p, BIGNUM * q, BIGNUM * g)
 	return 1;
 }
 
-void DSA_get0_key(const DSA * d,
-    const BIGNUM ** pub_key, const BIGNUM ** priv_key)
+void DSA_get0_key(const DSA * d, const BIGNUM ** pub_key, const BIGNUM ** priv_key)
 {
-	if(pub_key != NULL)
+	if(pub_key)
 		*pub_key = d->pub_key;
-	if(priv_key != NULL)
+	if(priv_key)
 		*priv_key = d->priv_key;
 }
 
@@ -156,11 +155,11 @@ int DSA_set0_key(DSA * d, BIGNUM * pub_key, BIGNUM * priv_key)
 	if(d->pub_key == NULL && pub_key == NULL)
 		return 0;
 
-	if(pub_key != NULL) {
+	if(pub_key) {
 		BN_free(d->pub_key);
 		d->pub_key = pub_key;
 	}
-	if(priv_key != NULL) {
+	if(priv_key) {
 		BN_free(d->priv_key);
 		d->priv_key = priv_key;
 	}

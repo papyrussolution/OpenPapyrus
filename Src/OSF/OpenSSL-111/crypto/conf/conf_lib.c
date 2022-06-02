@@ -307,7 +307,7 @@ int NCONF_get_number_e(const CONF * conf, const char * group, const char * name,
 	if(!str)
 		return 0;
 
-	if(conf != NULL) {
+	if(conf) {
 		if(conf->meth->is_number != NULL)
 			is_number = conf->meth->is_number;
 		if(conf->meth->to_int != NULL)

@@ -60,7 +60,7 @@ void CRYPTO_cfb128_encrypt(const uchar * in, uchar * out,
 		/* the rest would be commonly eliminated by x86* compiler */
 #endif
 		while(l < len) {
-			if(n == 0) {
+			if(!n) {
 				(*block)(ivec, ivec, key);
 			}
 			out[l] = ivec[n] ^= in[l];
@@ -114,7 +114,7 @@ void CRYPTO_cfb128_encrypt(const uchar * in, uchar * out,
 #endif
 		while(l < len) {
 			uchar c;
-			if(n == 0) {
+			if(!n) {
 				(*block)(ivec, ivec, key);
 			}
 			out[l] = ivec[n] ^ (c = in[l]);

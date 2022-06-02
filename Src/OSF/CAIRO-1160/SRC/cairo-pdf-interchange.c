@@ -428,7 +428,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_annot(cairo_pdf_surface_t 
 
 				_cairo_array_copy_element(&annot->link_attrs.rects, i, &rectf);
 				_cairo_rectangle_int_from_double(&recti, &rectf);
-				if(i == 0)
+				if(!i)
 					bbox_rect = recti;
 				else
 					_cairo_rectangle_union(&bbox_rect, &recti);
@@ -712,7 +712,7 @@ static char * split_label(const char * label, int * num)
 
 	*num = 0;
 	len = strlen(label);
-	if(len == 0)
+	if(!len)
 		return NULL;
 
 	i = len;

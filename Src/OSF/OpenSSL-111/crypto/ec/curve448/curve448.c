@@ -503,7 +503,7 @@ static uint32_t numtrailingzeros(uint32_t i)
 	uint32_t tmp;
 	uint32_t num = 31;
 
-	if(i == 0)
+	if(!i)
 		return 32;
 
 	tmp = i << 16;

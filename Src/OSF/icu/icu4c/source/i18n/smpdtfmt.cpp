@@ -2924,8 +2924,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, U
 		const UnicodeString * src;
 
 		bool parsedNumericLeapMonth = FALSE;
-		if(numericLeapMonthFormatter != NULL &&
-		    (patternCharIndex == UDAT_MONTH_FIELD || patternCharIndex == UDAT_STANDALONE_MONTH_FIELD)) {
+		if(numericLeapMonthFormatter != NULL && (patternCharIndex == UDAT_MONTH_FIELD || patternCharIndex == UDAT_STANDALONE_MONTH_FIELD)) {
 			int32_t argCount;
 			Formattable * args = numericLeapMonthFormatter->parse(text, pos, argCount);
 			if(args != NULL && argCount == 1 && pos.getIndex() > parseStart && args[0].isNumeric()) {

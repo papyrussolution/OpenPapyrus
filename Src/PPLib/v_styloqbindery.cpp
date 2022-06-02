@@ -142,7 +142,7 @@ int PPViewStyloQBindery::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						case StyloQCore::kSession: p_sign = "styloq_binderykind_session"; break;
 						case StyloQCore::kFace: p_sign = "styloq_binderykind_face"; break;
 						case StyloQCore::kDocIncoming: p_sign = "styloq_binderykind_docincoming"; break;
-						case StyloQCore::kDocOutcominig: p_sign = "styloq_binderykind_docoutcominig"; break;
+						case StyloQCore::kDocOutcoming: p_sign = "styloq_binderykind_docoutcominig"; break;
 					}
 					pBlk->TempBuf.CatChar('(').Cat(p_item->Kind).CatChar(')');
 					if(p_sign) {
@@ -234,7 +234,7 @@ int PPViewStyloQBindery::CellStyleFunc_(const void * pData, long col, int paintA
 						break;
 					case StyloQCore::kDocIncoming:
 						break;
-					case StyloQCore::kDocOutcominig:
+					case StyloQCore::kDocOutcoming:
 						break;
 					case StyloQCore::kCounter:
 						break;

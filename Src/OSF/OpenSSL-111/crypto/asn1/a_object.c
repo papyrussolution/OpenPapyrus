@@ -104,7 +104,7 @@ int a2d_ASN1_OBJECT(uchar * out, int olen, const char * buf, int num)
 			else
 				l = l * 10L + (long)(c - '0');
 		}
-		if(len == 0) {
+		if(!len) {
 			if((first < 2) && (l >= 40)) {
 				ASN1err(ASN1_F_A2D_ASN1_OBJECT,
 				    ASN1_R_SECOND_NUMBER_TOO_LARGE);

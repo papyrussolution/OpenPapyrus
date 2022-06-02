@@ -31,7 +31,7 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2, ASN1_
 		goto err;
 	}
 	for(i = 0; i < 2; i++) {
-		if(i == 0)
+		if(!i)
 			a = algor1;
 		else
 			a = algor2;

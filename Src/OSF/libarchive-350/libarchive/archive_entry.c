@@ -788,7 +788,7 @@ int archive_entry_update_hardlink_utf8(struct archive_entry * entry, const char 
 int _archive_entry_copy_hardlink_l(struct archive_entry * entry, const char * target, size_t len, struct archive_string_conv * sc)
 {
 	int r = archive_mstring_copy_mbs_len_l(&entry->ae_hardlink, target, len, sc);
-	if(target != NULL && r == 0)
+	if(target && r == 0)
 		entry->ae_set |= AE_SET_HARDLINK;
 	else
 		entry->ae_set &= ~AE_SET_HARDLINK;
@@ -972,19 +972,16 @@ void archive_entry_copy_pathname_w(struct archive_entry * entry, const wchar_t *
 
 int archive_entry_update_pathname_utf8(struct archive_entry * entry, const char * name)
 {
-	if(archive_mstring_update_utf8(entry->archive,
-	    &entry->ae_pathname, name) == 0)
+	if(archive_mstring_update_utf8(entry->archive, &entry->ae_pathname, name) == 0)
 		return 1;
 	if(errno == ENOMEM)
 		__archive_errx(1, SlTxtOutOfMem);
 	return 0;
 }
 
-int _archive_entry_copy_pathname_l(struct archive_entry * entry,
-    const char * name, size_t len, struct archive_string_conv * sc)
+int _archive_entry_copy_pathname_l(struct archive_entry * entry, const char * name, size_t len, struct archive_string_conv * sc)
 {
-	return (archive_mstring_copy_mbs_len_l(&entry->ae_pathname,
-	       name, len, sc));
+	return (archive_mstring_copy_mbs_len_l(&entry->ae_pathname, name, len, sc));
 }
 
 void archive_entry_set_perm(struct archive_entry * entry, mode_t p)
@@ -1041,10 +1038,7 @@ void archive_entry_copy_sourcepath_w(struct archive_entry * entry, const wchar_t
 void archive_entry_set_symlink(struct archive_entry * entry, const char * linkname)
 {
 	archive_mstring_copy_mbs(&entry->ae_symlink, linkname);
-	if(linkname)
-		entry->ae_set |= AE_SET_SYMLINK;
-	else
-		entry->ae_set &= ~AE_SET_SYMLINK;
+	SETFLAG(entry->ae_set, AE_SET_SYMLINK, linkname);
 }
 
 void archive_entry_set_symlink_type(struct archive_entry * entry, int type)
@@ -1055,38 +1049,25 @@ void archive_entry_set_symlink_type(struct archive_entry * entry, int type)
 void archive_entry_set_symlink_utf8(struct archive_entry * entry, const char * linkname)
 {
 	archive_mstring_copy_utf8(&entry->ae_symlink, linkname);
-	if(linkname)
-		entry->ae_set |= AE_SET_SYMLINK;
-	else
-		entry->ae_set &= ~AE_SET_SYMLINK;
+	SETFLAG(entry->ae_set, AE_SET_SYMLINK, linkname);
 }
 
 void archive_entry_copy_symlink(struct archive_entry * entry, const char * linkname)
 {
 	archive_mstring_copy_mbs(&entry->ae_symlink, linkname);
-	if(linkname)
-		entry->ae_set |= AE_SET_SYMLINK;
-	else
-		entry->ae_set &= ~AE_SET_SYMLINK;
+	SETFLAG(entry->ae_set, AE_SET_SYMLINK, linkname);
 }
 
 void archive_entry_copy_symlink_w(struct archive_entry * entry, const wchar_t * linkname)
 {
 	archive_mstring_copy_wcs(&entry->ae_symlink, linkname);
-	if(linkname)
-		entry->ae_set |= AE_SET_SYMLINK;
-	else
-		entry->ae_set &= ~AE_SET_SYMLINK;
+	SETFLAG(entry->ae_set, AE_SET_SYMLINK, linkname);
 }
 
 int archive_entry_update_symlink_utf8(struct archive_entry * entry, const char * linkname)
 {
-	if(linkname)
-		entry->ae_set |= AE_SET_SYMLINK;
-	else
-		entry->ae_set &= ~AE_SET_SYMLINK;
-	if(archive_mstring_update_utf8(entry->archive,
-	    &entry->ae_symlink, linkname) == 0)
+	SETFLAG(entry->ae_set, AE_SET_SYMLINK, linkname);
+	if(archive_mstring_update_utf8(entry->archive, &entry->ae_symlink, linkname) == 0)
 		return 1;
 	if(errno == ENOMEM)
 		__archive_errx(1, SlTxtOutOfMem);
@@ -1096,10 +1077,7 @@ int archive_entry_update_symlink_utf8(struct archive_entry * entry, const char *
 int _archive_entry_copy_symlink_l(struct archive_entry * entry, const char * linkname, size_t len, struct archive_string_conv * sc)
 {
 	int r = archive_mstring_copy_mbs_len_l(&entry->ae_symlink, linkname, len, sc);
-	if(linkname != NULL && r == 0)
-		entry->ae_set |= AE_SET_SYMLINK;
-	else
-		entry->ae_set &= ~AE_SET_SYMLINK;
+	SETFLAG(entry->ae_set, AE_SET_SYMLINK, (linkname && r == 0));
 	return r;
 }
 
@@ -1131,8 +1109,7 @@ void archive_entry_copy_uname_w(struct archive_entry * entry, const wchar_t * na
 
 int archive_entry_update_uname_utf8(struct archive_entry * entry, const char * name)
 {
-	if(archive_mstring_update_utf8(entry->archive,
-	    &entry->ae_uname, name) == 0)
+	if(archive_mstring_update_utf8(entry->archive, &entry->ae_uname, name) == 0)
 		return 1;
 	if(errno == ENOMEM)
 		__archive_errx(1, SlTxtOutOfMem);
@@ -1141,22 +1118,12 @@ int archive_entry_update_uname_utf8(struct archive_entry * entry, const char * n
 
 void archive_entry_set_is_data_encrypted(struct archive_entry * entry, char is_encrypted)
 {
-	if(is_encrypted) {
-		entry->encryption |= AE_ENCRYPTION_DATA;
-	}
-	else {
-		entry->encryption &= ~AE_ENCRYPTION_DATA;
-	}
+	SETFLAG(entry->encryption, AE_ENCRYPTION_DATA, is_encrypted);
 }
 
 void archive_entry_set_is_metadata_encrypted(struct archive_entry * entry, char is_encrypted)
 {
-	if(is_encrypted) {
-		entry->encryption |= AE_ENCRYPTION_METADATA;
-	}
-	else {
-		entry->encryption &= ~AE_ENCRYPTION_METADATA;
-	}
+	SETFLAG(entry->encryption, AE_ENCRYPTION_METADATA, is_encrypted);
 }
 
 int _archive_entry_copy_uname_l(struct archive_entry * entry, const char * name, size_t len, struct archive_string_conv * sc)
@@ -1173,7 +1140,7 @@ const void * archive_entry_mac_metadata(struct archive_entry * entry, size_t * s
 void archive_entry_copy_mac_metadata(struct archive_entry * entry, const void * p, size_t s)
 {
 	SAlloc::F(entry->mac_metadata);
-	if(p == NULL || s == 0) {
+	if(!p || !s) {
 		entry->mac_metadata = NULL;
 		entry->mac_metadata_size = 0;
 	}
@@ -1311,8 +1278,7 @@ int archive_entry_acl_from_text(struct archive_entry * entry, const char * text,
 	return (archive_acl_from_text_l(&entry->acl, text, type, NULL));
 }
 
-int _archive_entry_acl_from_text_l(struct archive_entry * entry, const char * text,
-    int type, struct archive_string_conv * sc)
+int _archive_entry_acl_from_text_l(struct archive_entry * entry, const char * text, int type, struct archive_string_conv * sc)
 {
 	return (archive_acl_from_text_l(&entry->acl, text, type, sc));
 }
@@ -1322,40 +1288,31 @@ static int archive_entry_acl_text_compat(int * flags)
 {
 	if((*flags & ARCHIVE_ENTRY_ACL_TYPE_POSIX1E) == 0)
 		return 1;
-
 	/* ABI compat with old ARCHIVE_ENTRY_ACL_STYLE_EXTRA_ID */
 	if((*flags & OLD_ARCHIVE_ENTRY_ACL_STYLE_EXTRA_ID) != 0)
 		*flags |= ARCHIVE_ENTRY_ACL_STYLE_EXTRA_ID;
-
 	/* ABI compat with old ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT */
 	if((*flags & OLD_ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT) != 0)
 		*flags |=  ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT;
-
 	*flags |= ARCHIVE_ENTRY_ACL_STYLE_SEPARATOR_COMMA;
-
 	return 0;
 }
 
 /* Deprecated */
 const wchar_t * archive_entry_acl_text_w(struct archive_entry * entry, int flags)
 {
-	SAlloc::F(entry->acl.acl_text_w);
-	entry->acl.acl_text_w = NULL;
+	ZFREE(entry->acl.acl_text_w);
 	if(archive_entry_acl_text_compat(&flags) == 0)
-		entry->acl.acl_text_w = archive_acl_to_text_w(&entry->acl,
-			NULL, flags, entry->archive);
+		entry->acl.acl_text_w = archive_acl_to_text_w(&entry->acl, NULL, flags, entry->archive);
 	return (entry->acl.acl_text_w);
 }
 
 /* Deprecated */
 const char * archive_entry_acl_text(struct archive_entry * entry, int flags)
 {
-	SAlloc::F(entry->acl.acl_text);
-	entry->acl.acl_text = NULL;
+	ZFREE(entry->acl.acl_text);
 	if(archive_entry_acl_text_compat(&flags) == 0)
-		entry->acl.acl_text = archive_acl_to_text_l(&entry->acl, NULL,
-			flags, NULL);
-
+		entry->acl.acl_text = archive_acl_to_text_l(&entry->acl, NULL, flags, NULL);
 	return (entry->acl.acl_text);
 }
 
@@ -1365,16 +1322,11 @@ int _archive_entry_acl_text_l(struct archive_entry * entry, int flags,
 {
 	SAlloc::F(entry->acl.acl_text);
 	entry->acl.acl_text = NULL;
-
 	if(archive_entry_acl_text_compat(&flags) == 0)
-		entry->acl.acl_text = archive_acl_to_text_l(&entry->acl,
-			(ssize_t*)len, flags, sc);
-
+		entry->acl.acl_text = archive_acl_to_text_l(&entry->acl, (ssize_t*)len, flags, sc);
 	*acl_text = entry->acl.acl_text;
-
 	return 0;
 }
-
 /*
  * Following code is modified from UC Berkeley sources, and
  * is subject to the following copyright notice.
@@ -1625,13 +1577,11 @@ static char * ae_fflagstostr(ulong bitset, ulong bitclear)
 			length += strlen(flag->name) + 1;
 			bits &= ~(flag->set | flag->clear);
 		}
-
 	if(length == 0)
 		return NULL;
 	string = (char *)SAlloc::M(length);
 	if(string == NULL)
 		return NULL;
-
 	dp = string;
 	for(flag = fileflags; flag->name != NULL; flag++) {
 		if(bitset & flag->set || bitclear & flag->clear) {
@@ -1654,7 +1604,6 @@ static char * ae_fflagstostr(ulong bitset, ulong bitclear)
 	*dp = '\0';
 	return (string);
 }
-
 /*
  * strtofflags --
  *	Take string of arguments and return file flags.  This
@@ -1701,7 +1650,6 @@ static const char * ae_strtofflags(const char * s, ulong * setp, ulong * clrp)
 		/* Ignore unknown flag names. */
 		if(flag->name == NULL && failed == NULL)
 			failed = start;
-
 		/* Find start of next token. */
 		start = end;
 		while(*start == '\t' || *start == ' ' || *start == ',')
@@ -1734,7 +1682,7 @@ static const wchar_t * ae_wcstofflags(const wchar_t * s, ulong * setp, ulong * c
 	start = s;
 	failed = NULL;
 	/* Find start of first token. */
-	while(*start == L'\t' || *start == L' ' || *start == L',')
+	while(*start == L' ' || *start == L'\t' || *start == L',')
 		start++;
 	while(*start != L'\0') {
 		size_t length;
@@ -1763,7 +1711,7 @@ static const wchar_t * ae_wcstofflags(const wchar_t * s, ulong * setp, ulong * c
 			failed = start;
 		/* Find start of next token. */
 		start = end;
-		while(*start == L'\t' || *start == L' ' || *start == L',')
+		while(*start == L' ' || *start == L'\t' || *start == L',')
 			start++;
 	}
 	ASSIGN_PTR(setp, set);

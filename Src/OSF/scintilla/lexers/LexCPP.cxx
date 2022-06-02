@@ -36,7 +36,7 @@ static bool FollowsPostfixOperator(const StyleContext & sc, LexAccessor & styler
 	Sci_Position pos = (Sci_Position)sc.currentPos;
 	while(--pos > 0) {
 		char ch = styler[pos];
-		if(ch == '+' || ch == '-') {
+		if(oneof2(ch, '+', '-')) {
 			return styler[pos - 1] == ch;
 		}
 	}
@@ -51,7 +51,7 @@ static bool followsReturnKeyword(const StyleContext & sc, LexAccessor &styler)
 	Sci_Position lineStartPos = styler.LineStart(currentLine);
 	while(--pos > lineStartPos) {
 		char ch = styler.SafeGetCharAt(pos);
-		if(ch != ' ' && ch != '\t') {
+		if(!oneof2(ch, ' ', '\t')) {
 			break;
 		}
 	}

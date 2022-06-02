@@ -173,7 +173,7 @@ static FT_Error ft_bzip2_file_fill_input(FT_BZip2File zip)
 	FT_ULong size;
 	if(stream->read) {
 		size = stream->read(stream, stream->pos, zip->input, FT_BZIP2_BUFFER_SIZE);
-		if(size == 0) {
+		if(!size) {
 			zip->limit = zip->cursor;
 			return FT_THROW(Invalid_Stream_Operation);
 		}
@@ -182,7 +182,7 @@ static FT_Error ft_bzip2_file_fill_input(FT_BZip2File zip)
 		size = stream->size - stream->pos;
 		if(size > FT_BZIP2_BUFFER_SIZE)
 			size = FT_BZIP2_BUFFER_SIZE;
-		if(size == 0) {
+		if(!size) {
 			zip->limit = zip->cursor;
 			return FT_THROW(Invalid_Stream_Operation);
 		}

@@ -471,7 +471,7 @@ PIXMAN_EXPORT boolint pixman_transform_bounds(const struct pixman_transform * ma
 		x2 = pixman_fixed_to_int(pixman_fixed_ceil(v[i].vector[0]));
 		y2 = pixman_fixed_to_int(pixman_fixed_ceil(v[i].vector[1]));
 
-		if(i == 0) {
+		if(!i) {
 			b->x1 = x1;
 			b->y1 = y1;
 			b->x2 = x2;
@@ -792,7 +792,7 @@ PIXMAN_EXPORT boolint pixman_f_transform_bounds(const struct pixman_f_transform 
 		y1 = ffloori(v[i].v[1]);
 		x2 = fceili(v[i].v[0]);
 		y2 = fceili(v[i].v[1]);
-		if(i == 0) {
+		if(!i) {
 			b->x1 = x1;
 			b->y1 = y1;
 			b->x2 = x2;

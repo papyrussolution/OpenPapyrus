@@ -1195,7 +1195,7 @@ int SCodepageMapPool::ParseXmlSingle(void * pXmlContext, const char * pFileName,
 				uint8  first = 0;
                 for(uint i = 0; is_solid && i < map_list.getCount(); i++) {
                 	const uint8 _c = map_list.at(i).B[0];
-					if(i == 0)
+					if(!i)
 						first = _c;
                     else if(_c != (map_list.at(i-1).B[0]+1))
 						is_solid = 0;

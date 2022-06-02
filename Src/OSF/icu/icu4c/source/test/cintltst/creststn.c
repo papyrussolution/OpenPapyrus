@@ -2463,7 +2463,7 @@ static void TestDirectAccess() {
 	}
 	else {
 		key = ures_getKey(t);
-		if(key != NULL) {
+		if(key) {
 			log_err("Got a strange key, expected NULL, got %s\n", key);
 		}
 	}
@@ -2474,7 +2474,7 @@ static void TestDirectAccess() {
 	}
 	else {
 		key = ures_getKey(t);
-		if(key != NULL) {
+		if(key) {
 			log_err("Got a strange key, expected NULL, got %s\n", key);
 		}
 	}
@@ -2949,7 +2949,7 @@ extern const UChar * tres_getString(const UResourceBundle * resB, int32_t idx, c
 	if(idx >= 0) {
 		s16 = ures_getStringByIndex(resB, idx, length, status);
 	}
-	else if(key != NULL) {
+	else if(key) {
 		s16 = ures_getStringByKey(resB, key, length, status);
 	}
 	else {
@@ -2966,7 +2966,7 @@ extern const UChar * tres_getString(const UResourceBundle * resB, int32_t idx, c
 		if(idx >= 0) {
 			s8 = ures_getUTF8StringByIndex(resB, idx, p8, &length8, LOGIC(forceCopy), status);
 		}
-		else if(key != NULL) {
+		else if(key) {
 			s8 = ures_getUTF8StringByKey(resB, key, p8, &length8, LOGIC(forceCopy), status);
 		}
 		else {
@@ -2985,7 +2985,7 @@ extern const UChar * tres_getString(const UResourceBundle * resB, int32_t idx, c
 			if(idx >= 0) {
 				s8 = ures_getUTF8StringByIndex(resB, idx, p8, &length8, LOGIC(forceCopy), status);
 			}
-			else if(key != NULL) {
+			else if(key) {
 				s8 = ures_getUTF8StringByKey(resB, key, p8, &length8, LOGIC(forceCopy), status);
 			}
 			else {

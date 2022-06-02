@@ -26,7 +26,7 @@ void BF_cfb64_encrypt(const uchar * in, uchar * out, long length, const BF_KEY *
 	iv = (uchar *)ivec;
 	if(encrypt) {
 		while(l--) {
-			if(n == 0) {
+			if(!n) {
 				n2l(iv, v0);
 				ti[0] = v0;
 				n2l(iv, v1);
@@ -47,7 +47,7 @@ void BF_cfb64_encrypt(const uchar * in, uchar * out, long length, const BF_KEY *
 	}
 	else {
 		while(l--) {
-			if(n == 0) {
+			if(!n) {
 				n2l(iv, v0);
 				ti[0] = v0;
 				n2l(iv, v1);

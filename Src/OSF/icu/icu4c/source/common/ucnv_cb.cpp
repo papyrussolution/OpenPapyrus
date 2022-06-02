@@ -177,7 +177,7 @@ U_CAPI void U_EXPORT2 ucnv_cbFromUWriteSub(UConverterFromUnicodeArgs * args,
 	converter = args->converter;
 	length = converter->subCharLen;
 
-	if(length == 0) {
+	if(!length) {
 		return;
 	}
 

@@ -91,7 +91,7 @@ static int ssl_read(BIO * b, char * buf, size_t size, size_t * readbytes)
 	SSL * ssl;
 	int retry_reason = 0;
 	int r = 0;
-	if(buf == NULL)
+	if(!buf)
 		return 0;
 	sb = static_cast<BIO_SSL *>(BIO_get_data(b));
 	ssl = sb->ssl;
@@ -147,7 +147,7 @@ static int ssl_write(BIO * b, const char * buf, size_t size, size_t * written)
 	int retry_reason = 0;
 	SSL * ssl;
 	BIO_SSL * bs;
-	if(buf == NULL)
+	if(!buf)
 		return 0;
 	bs = static_cast<BIO_SSL *>(BIO_get_data(b));
 	ssl = bs->ssl;

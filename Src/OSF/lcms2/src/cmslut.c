@@ -270,7 +270,7 @@ cmsStage * CMSEXPORT cmsStageAllocMatrix(cmsContext ContextID, uint32 Rows, uint
 	cmsStage * NewMPE;
 	n = Rows * Cols;
 	// Check for overflow
-	if(n == 0) return NULL;
+	if(!n) return NULL;
 	if(n >= UINT_MAX / Cols) return NULL;
 	if(n >= UINT_MAX / Rows) return NULL;
 	if(n < Rows || n < Cols) return NULL;
@@ -403,7 +403,7 @@ cmsStage * CMSEXPORT cmsStageAllocCLut16bitGranular(cmsContext ContextID, const 
 	NewMPE->Data  = (void *)NewElem;
 	NewElem->nEntries = n = outputChan * CubeSize(clutPoints, inputChan);
 	NewElem->HasFloatValues = FALSE;
-	if(n == 0) {
+	if(!n) {
 		cmsStageFree(NewMPE);
 		return NULL;
 	}
@@ -477,7 +477,7 @@ cmsStage * CMSEXPORT cmsStageAllocCLutFloatGranular(cmsContext ContextID,
 	// There is a potential integer overflow on conputing n and nEntries.
 	NewElem->nEntries = n = outputChan * CubeSize(clutPoints, inputChan);
 	NewElem->HasFloatValues = TRUE;
-	if(n == 0) {
+	if(!n) {
 		cmsStageFree(NewMPE);
 		return NULL;
 	}

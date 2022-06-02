@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "absl/absl-internal.h"
+#pragma hdrstop
 #include "absl/base/internal/atomic_hook_test_helper.h"
-
 #include "absl/base/attributes.h"
 #include "absl/base/internal/atomic_hook.h"
 

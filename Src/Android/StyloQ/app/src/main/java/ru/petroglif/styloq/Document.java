@@ -18,7 +18,7 @@ public class Document {
 	ArrayList <TransferItem> TiList;
 	ArrayList <BookingItem> BkList; // Список позиций повременных элементов, связанных с процессорами
 	ArrayList <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
-	private int AfterTransmitStatusFlags; // Флаги статуса документа, которые должны быть установлены в БД после успешной отправки сервису
+	private int AfterTransmitStatus; // Флаги статуса документа, которые должны быть установлены в БД после успешной отправки сервису
 
 	public static class Head {
 		long   ID;
@@ -33,8 +33,79 @@ public class Document {
 		String Code;
 		byte [] SvcIdent;
 		UUID Uuid; // Уникальный идентификатор, генерируемый на стороне эмитента
+		UUID OrgCmdUuid; // Идентификатор команды сервиса, на основании данных которой сформирован документ.
+			// Поле нужно для сопоставления сохраненных документов с данными сервиса.
 		String BaseCurrencySymb;
 		String Memo;
+	}
+	public static boolean ValidateSatusTransition(int status, int newStatus)
+	{
+		boolean ok = true;
+		switch(status) {
+			case StyloQDatabase.SecStoragePacket.styloqdocstUNDEF:
+				ok = (newStatus == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstDRAFT:
+				ok = (newStatus == StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC);
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC:
+				ok = (newStatus == StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED ||
+						newStatus == StyloQDatabase.SecStoragePacket.styloqdocstCORRECTED ||
+						newStatus == StyloQDatabase.SecStoragePacket.styloqdocstREJECTED ||
+						newStatus == StyloQDatabase.SecStoragePacket.styloqdocstMODIFIED ||
+						newStatus == StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED);
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED:
+				ok = (newStatus == StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED ||
+						newStatus == StyloQDatabase.SecStoragePacket.styloqdocstEXECUTED);
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCORRECTED:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCORRECTIONACCEPTED:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCORRECTIONREJECTED:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstREJECTED:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstMODIFIED:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstEXECUTED:
+				ok = (newStatus == StyloQDatabase.SecStoragePacket.styloqdocstEXECUTIONACCEPTED ||
+						newStatus == StyloQDatabase.SecStoragePacket.styloqdocstEXECUTIONCORRECTED);
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstEXECUTIONACCEPTED:
+				ok = (newStatus == StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_SUCC);
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstEXECUTIONCORRECTED:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstEXECORRECTIONACCEPTED:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstEXECORRECTIONREJECTED:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_SUCC:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_FAIL:
+				break;
+		}
+		return ok;
+	}
+	public int GetDocStatus()
+	{
+		return (H != null) ? StyloQDatabase.SecTable.Rec.GetDocStatus(H.Flags) : 0;
+	}
+	public boolean SetDocStatus(int s)
+	{
+		boolean ok = false;
+		if(H != null) {
+			if(((s << 1) & ~StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags) == 0) {
+				H.Flags &= ~StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags;
+				H.Flags |= ((s << 1) & StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags);
+				ok = true;
+			}
+		}
+		return ok;
 	}
 	//
 	// Descr: Специализированная структура используемая как элемент
@@ -179,7 +250,7 @@ public class Document {
 	}
 	Document()
 	{
-		AfterTransmitStatusFlags = 0;
+		AfterTransmitStatus = 0;
 		H = null;
 		TiList = null;
 		BkList = null;
@@ -194,7 +265,7 @@ public class Document {
 			H = new Document.Head();
 			H.CreationTime = System.currentTimeMillis();
 			H.OpID = opID;
-			H.Flags = StyloQDatabase.SecStoragePacket.styloqfDocDraft; // Новый док автоматом является draft-документом
+			SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT); // Новый док автоматом является draft-документом
 			H.Uuid = UUID.randomUUID();
 			if(SLib.GetLen(svcIdent) > 0 && appCtx != null) {
 				StyloQDatabase db = appCtx.GetDB();
@@ -211,20 +282,15 @@ public class Document {
 		VXcL = null;
 		return this;
 	}
-	int GetAfterTransmitStatusFlags()
+	int GetAfterTransmitStatus()
 	{
-		return AfterTransmitStatusFlags;
+		return AfterTransmitStatus;
 	}
-	boolean SetAfterTransmitStatusFlags(int f)
+	boolean SetAfterTransmitStatus(int s)
 	{
-		if(f == 0 || (f == StyloQDatabase.SecStoragePacket.styloqfDocDraft) ||
-			(f & (StyloQDatabase.SecStoragePacket.styloqfDocWaitForDesadv|StyloQDatabase.SecStoragePacket.styloqfDocWaitForOrdrsp)) != 0 ||
-			(f == StyloQDatabase.SecStoragePacket.styloqfDocFinished)) {
-			AfterTransmitStatusFlags = f;
-			return true;
-		}
-		else
-			return false;
+		if(((s << 1) & ~StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags) == 0)
+			AfterTransmitStatus = s;
+		return true;
 	}
 	double GetNominalAmount()
 	{
@@ -267,9 +333,10 @@ public class Document {
 		try {
 			if(H != null) {
 				result.put("id", H.ID);
-				if(H.Uuid != null) {
+				if(H.Uuid != null)
 					result.put("uuid", H.Uuid.toString());
-				}
+				if(H.OrgCmdUuid != null) // @v11.4.0
+					result.put("orgcmduuid", H.OrgCmdUuid.toString());
 				if(SLib.GetLen(H.Code) > 0)
 					result.put("code", H.Code);
 				if(SLib.GetLen(H.SvcIdent) > 0) {
@@ -402,6 +469,18 @@ public class Document {
 				JSONObject jsobj = new JSONObject(jsText);
 				H = new Head();
 				H.ID = jsobj.optLong("id", 0);
+				// @v11.4.0 {
+				{
+					String uuid_txt = jsobj.optString("uuid", null);
+					if(SLib.GetLen(uuid_txt) > 0)
+						H.Uuid = UUID.fromString(uuid_txt);
+				}
+				{
+					String uuid_txt = jsobj.optString("orgcmduuid", null);
+					if(SLib.GetLen(uuid_txt) > 0)
+						H.OrgCmdUuid = UUID.fromString(uuid_txt);
+				}
+				// } @v11.4.0
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss", Locale.getDefault());
 				{
 					String ts = jsobj.optString("crtm", "");

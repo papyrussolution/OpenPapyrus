@@ -155,7 +155,7 @@ int SFSortChunkInfo::Finish(const char * pSrcFileName, SfSortStringPool & rChunk
 		THROW(f_temp.IsValid());
 		for(uint i = 0; i < _c; i++) {
 			temp_buf = rChunk.Get(i);
-			if(i == 0)
+			if(!i)
 				First = temp_buf;
 			line_buf.Cat(temp_buf.CRB());
 			if(line_buf.Len() >= accum_limit) {

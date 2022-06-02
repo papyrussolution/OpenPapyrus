@@ -1,13 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ********************************************************************************
- *
- *   Copyright (C) 1996-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ********************************************************************************
- */
+// Copyright (C) 1996-2014, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "putilimp.h"
@@ -1223,7 +1217,6 @@ int32_t T_CTEST_EXPORT2 ctest_xml_testcase(const char * classname, const char * 
 	else {
 		fprintf(XML_FILE, "/>\n");
 	}
-
 	return 0;
 }
 

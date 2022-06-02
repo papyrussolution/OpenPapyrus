@@ -233,7 +233,7 @@ static char * create_nonce(const sasl_utils_t * utils,
 	}
 
 	estimated = (unsigned int)((buflen - 1) / 4 * 3);
-	intbuf = (char *)utils->malloc(estimated + 1);
+	intbuf = (char *)utils->FnMalloc(estimated + 1);
 	if(intbuf == NULL) {
 		return NULL;
 	}
@@ -246,11 +246,11 @@ static char * create_nonce(const sasl_utils_t * utils,
 	    buffer,
 	    (unsigned int)buflen,
 	    NULL) != SASL_OK) {
-		utils->free(intbuf);
+		utils->FnFree(intbuf);
 		return NULL;
 	}
 
-	utils->free(intbuf);
+	utils->FnFree(intbuf);
 
 	buffer[buflen-1] = '\0';
 
@@ -281,13 +281,13 @@ static void Hi(const sasl_utils_t * utils, const EVP_MD * md, const char * str, 
 	char * temp_result;
 	unsigned int hash_len = 0;
 	size_t k, hash_size = EVP_MD_size(md);
-	initial_key = (char *)utils->malloc(salt_len + 4);
+	initial_key = (char *)utils->FnMalloc(salt_len + 4);
 	memcpy(initial_key, salt, salt_len);
 	initial_key[salt_len] = 0;
 	initial_key[salt_len+1] = 0;
 	initial_key[salt_len+2] = 0;
 	initial_key[salt_len+3] = 1;
-	temp_result = (char *)utils->malloc(hash_size);
+	temp_result = (char *)utils->FnMalloc(hash_size);
 	/* U1   := HMAC(str, salt || INT(1)) */
 	if(HMAC(md, (const unsigned char *)str, (int)str_len, (const unsigned char *)initial_key, (int)salt_len + 4, (unsigned char *)result, &hash_len) == NULL) {
 	}
@@ -304,8 +304,8 @@ static void Hi(const sasl_utils_t * utils, const EVP_MD * md, const char * str, 
 		}
 		PRINT_HASH("Hi() - accumulated result inside loop", result, hash_size);
 	}
-	utils->free(initial_key);
-	utils->free(temp_result);
+	utils->FnFree(initial_key);
+	utils->FnFree(temp_result);
 }
 
 /**
@@ -316,7 +316,7 @@ static void Hi(const sasl_utils_t * utils, const EVP_MD * md, const char * str, 
 static unsigned char * scram_server_user_salt(const sasl_utils_t * utils, const EVP_MD * md, const char * username, size_t * p_salt_len)
 {
 	size_t hash_size = EVP_MD_size(md);
-	char * result = (char *)utils->malloc(hash_size);
+	char * result = (char *)utils->FnMalloc(hash_size);
 	Hi(utils, md, username, strlen(username), (const char *)g_salt_key, SALT_SIZE,
 	    20 /* iterations */, result);
 	*p_salt_len = hash_size;
@@ -344,7 +344,7 @@ static int GenerateScramSecrets(const sasl_utils_t * utils, const EVP_MD * md, c
 		result = SASL_FAIL;
 		goto cleanup;
 	}
-	sec = (sasl_secret_t *)utils->malloc(sizeof(sasl_secret_t) + password_len);
+	sec = (sasl_secret_t *)utils->FnMalloc(sizeof(sasl_secret_t) + password_len);
 	if(sec == NULL) {
 		result = SASL_NOMEM;
 		goto cleanup;
@@ -438,7 +438,7 @@ static int scram_server_mech_new(void * glob_context, sasl_server_params_t * spa
     const char * challenge __attribute__((unused)), unsigned challen __attribute__((unused)), void ** conn_context)
 {
 	/* holds state are in */
-	server_context_t * text = (server_context_t *)sparams->utils->malloc(sizeof(server_context_t));
+	server_context_t * text = (server_context_t *)sparams->utils->FnMalloc(sizeof(server_context_t));
 	if(text == NULL) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		return SASL_NOMEM;
@@ -481,7 +481,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 		sparams->utils->seterror(sparams->utils->conn, 0, "Invalid %s input", scram_sasl_mech);
 		return SASL_BADPROT;
 	}
-	inbuf = (char *)sparams->utils->malloc(clientinlen + 1);
+	inbuf = (char *)sparams->utils->FnMalloc(clientinlen + 1);
 	if(inbuf == NULL) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		return SASL_NOMEM;
@@ -515,7 +515,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 
 		    text->cbindingname = p + 1;
 		    p = strchr(p, ',');
-		    if(p == NULL) {
+		    if(!p) {
 			    text->cbindingname = NULL;
 
 			    sparams->utils->seterror(sparams->utils->conn, 0,
@@ -564,7 +564,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 		authorization_id = p + 2;
 
 		p = strchr(authorization_id, ',');
-		if(p == NULL) {
+		if(!p) {
 			sparams->utils->seterror(sparams->utils->conn, 0,
 			    "At least nonce is expected in %s input",
 			    scram_sasl_mech);
@@ -603,7 +603,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 
 		p++;
 	}
-	text->gs2_header = (char *)sparams->utils->malloc(text->gs2_header_length + 1);
+	text->gs2_header = (char *)sparams->utils->FnMalloc(text->gs2_header_length + 1);
 	if(text->gs2_header == NULL) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		result = SASL_NOMEM;
@@ -638,7 +638,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 	p = strchr(authentication_id, ',');
 
 	/* MUST be followed by a nonce */
-	if(p == NULL) {
+	if(!p) {
 		sparams->utils->seterror(sparams->utils->conn, 0,
 		    "Nonce expected after the username in %s input",
 		    scram_sasl_mech);
@@ -671,7 +671,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 	nonce = p;
 	p = strchr(nonce, ',');
 
-	if(p == NULL) {
+	if(!p) {
 		p = nonce + strlen(nonce);
 	}
 	else {
@@ -680,7 +680,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 
 	/* Generate server nonce, by appending some random stuff to the client nonce */
 	client_nonce_len = strlen(nonce);
-	text->nonce = (char *)sparams->utils->malloc(client_nonce_len + NONCE_SIZE + 1);
+	text->nonce = (char *)sparams->utils->FnMalloc(client_nonce_len + NONCE_SIZE + 1);
 	if(text->nonce == NULL) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		result = SASL_NOMEM;
@@ -851,7 +851,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 			}
 
 			base64_salt_len = p_field - scram_hash;
-			text->salt = (char *)sparams->utils->malloc(base64_salt_len);
+			text->salt = (char *)sparams->utils->FnMalloc(base64_salt_len);
 			if(sparams->utils->decode64(scram_hash,
 			    (unsigned int)base64_salt_len,
 			    text->salt,
@@ -872,7 +872,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 
 			if(*scram_hash != '$') {
 				/* syntax error, ignore the value */
-				sparams->utils->free(text->salt);
+				sparams->utils->FnFree(text->salt);
 				text->salt = NULL;
 				continue;
 			}
@@ -886,7 +886,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 			p_field = strchr(scram_hash, ':');
 			if(p_field == NULL || p_field == scram_hash) {
 				/* syntax error, ignore the value */
-				sparams->utils->free(text->salt);
+				sparams->utils->FnFree(text->salt);
 				text->salt = NULL;
 				continue;
 			}
@@ -899,7 +899,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 				sparams->utils->seterror(sparams->utils->conn, 0,
 				    "Invalid base64 encoding of StoredKey in %s per-user storage",
 				    scram_sasl_mech);
-				sparams->utils->free(text->salt);
+				sparams->utils->FnFree(text->salt);
 				text->salt = NULL;
 				continue;
 			}
@@ -908,7 +908,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 				sparams->utils->seterror(sparams->utils->conn, 0,
 				    "Invalid StoredKey in %s per-user storage",
 				    scram_sasl_mech);
-				sparams->utils->free(text->salt);
+				sparams->utils->FnFree(text->salt);
 				text->salt = NULL;
 				continue;
 			}
@@ -928,7 +928,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 				sparams->utils->seterror(sparams->utils->conn, 0,
 				    "Invalid base64 encoding of ServerKey in %s per-user storage",
 				    scram_sasl_mech);
-				sparams->utils->free(text->salt);
+				sparams->utils->FnFree(text->salt);
 				text->salt = NULL;
 				continue;
 			}
@@ -936,7 +936,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 			if(exact_key_len != hash_size) {
 				sparams->utils->seterror(sparams->utils->conn, 0,
 				    "Invalid ServerKey in %s per-user storage", scram_sasl_mech);
-				sparams->utils->free(text->salt);
+				sparams->utils->FnFree(text->salt);
 				text->salt = NULL;
 				continue;
 			}
@@ -965,7 +965,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 	/* base 64 encode it so it has valid chars */
 	base64len = (text->salt_len / 3 * 4) + ((text->salt_len % 3) ? 4 : 0);
 
-	base64_salt = (char *)sparams->utils->malloc(base64len + 1);
+	base64_salt = (char *)sparams->utils->FnMalloc(base64len + 1);
 	if(base64_salt == NULL) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		result = SASL_NOMEM;
@@ -993,7 +993,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 	   Note, we skip the GS2 prefix here */
 	pure_scram_length = clientinlen - text->gs2_header_length;
 	text->auth_message_len = pure_scram_length + 1 + estimated_challenge_len + 1;
-	text->auth_message = (char *)sparams->utils->malloc(text->auth_message_len + 1);
+	text->auth_message = (char *)sparams->utils->FnMalloc(text->auth_message_len + 1);
 	if(text->auth_message == NULL) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		result = SASL_NOMEM;
@@ -1011,10 +1011,10 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 	text->state = 2;
 cleanup:
 	if(inbuf != NULL) {
-		sparams->utils->free(inbuf);
+		sparams->utils->FnFree(inbuf);
 	}
 	if(base64_salt != NULL) {
-		sparams->utils->free(base64_salt);
+		sparams->utils->FnFree(base64_salt);
 	}
 	return result;
 }
@@ -1058,7 +1058,7 @@ static int scram_server_mech_step2(server_context_t * text,
 		sparams->utils->seterror(sparams->utils->conn, 0, "Invalid %s input", scram_sasl_mech);
 		return SASL_BADPROT;
 	}
-	inbuf = (char *)sparams->utils->malloc(clientinlen + 1);
+	inbuf = (char *)sparams->utils->FnMalloc(clientinlen + 1);
 	if(inbuf == NULL) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		return SASL_NOMEM;
@@ -1079,7 +1079,7 @@ static int scram_server_mech_step2(server_context_t * text,
 	}
 	channel_binding = p + 2;
 	p = strchr(channel_binding, ',');
-	if(p == NULL) {
+	if(!p) {
 		sparams->utils->seterror(sparams->utils->conn, 0,
 		    "At least nonce is expected in %s input",
 		    scram_sasl_mech);
@@ -1093,7 +1093,7 @@ static int scram_server_mech_step2(server_context_t * text,
 
 	/* We can calculate the exact length, but the decoded (binary) data
 	   is always shorter than its base64 version. */
-	binary_channel_binding = (char *)sparams->utils->malloc(channel_binding_len + 1);
+	binary_channel_binding = (char *)sparams->utils->FnMalloc(channel_binding_len + 1);
 
 	if(sparams->utils->decode64(channel_binding,
 	    (unsigned int)channel_binding_len,
@@ -1183,7 +1183,7 @@ static int scram_server_mech_step2(server_context_t * text,
 	nonce = p + 2;
 
 	p = strchr(nonce, ',');
-	if(p == NULL) {
+	if(!p) {
 		sparams->utils->seterror(sparams->utils->conn, 0,
 		    "At least proof is expected in %s input",
 		    scram_sasl_mech);
@@ -1209,7 +1209,7 @@ static int scram_server_mech_step2(server_context_t * text,
 		}
 
 		p = strchr(p, ',');
-		if(p == NULL) {
+		if(!p) {
 			break;
 		}
 		p++;
@@ -1236,7 +1236,7 @@ static int scram_server_mech_step2(server_context_t * text,
 		goto cleanup;
 	}
 	/* Construct the full AuthMessage */
-	full_auth_message = (char *)sparams->utils->realloc(text->auth_message, text->auth_message_len + proof_offset + 1);
+	full_auth_message = (char *)sparams->utils->FnRealloc(text->auth_message, text->auth_message_len + proof_offset + 1);
 	if(full_auth_message == NULL) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		result = SASL_NOMEM;
@@ -1372,10 +1372,10 @@ static int scram_server_mech_step2(server_context_t * text,
 
 cleanup:
 	if(inbuf != NULL) {
-		sparams->utils->free(inbuf);
+		sparams->utils->FnFree(inbuf);
 	}
 	if(binary_channel_binding != NULL) {
-		sparams->utils->free(binary_channel_binding);
+		sparams->utils->FnFree(binary_channel_binding);
 	}
 
 	return result;
@@ -1571,7 +1571,7 @@ static int scram_setpass(void * glob_context, sasl_server_params_t * sparams, co
 		base64_ServerKey[BASE64_LEN(hash_size)] = '\0';
 		secret_len = strlen(scram_sasl_mech) + strlen("$:$:") + ITERATION_COUNTER_BUF_LEN +
 		    sizeof(base64_salt) + sizeof(base64_StoredKey) + sizeof(base64_ServerKey);
-		sec = (sasl_secret_t *)sparams->utils->malloc(sizeof(sasl_secret_t) + secret_len);
+		sec = (sasl_secret_t *)sparams->utils->FnMalloc(sizeof(sasl_secret_t) + secret_len);
 		if(sec == NULL) {
 			SASL_UTILS_MEMERROR(sparams->utils);
 			r = SASL_NOMEM;
@@ -1619,17 +1619,17 @@ static void scram_server_mech_dispose(void * conn_context, const sasl_utils_t * 
 	if(text->out_buf) _plug_free_string(utils, &(text->out_buf));
 	if(text->auth_message) _plug_free_string(utils, &(text->auth_message));
 	if(text->nonce) _plug_free_string(utils, &(text->nonce));
-	if(text->salt) utils->free(text->salt);
+	if(text->salt) utils->FnFree(text->salt);
 	if(text->cbindingname != NULL) {
-		utils->free(text->cbindingname);
+		utils->FnFree(text->cbindingname);
 		text->cbindingname = NULL;
 	}
 	if(text->gs2_header != NULL) {
-		utils->free(text->gs2_header);
+		utils->FnFree(text->gs2_header);
 		text->gs2_header = NULL;
 	}
 
-	utils->free(text);
+	utils->FnFree(text);
 }
 
 static sasl_server_plug_t scram_server_plugins[] =
@@ -1795,7 +1795,7 @@ typedef struct client_context {
 static int scram_client_mech_new(void * glob_context, sasl_client_params_t * params, void ** conn_context)
 {
 	/* holds state are in */
-	client_context_t * text = (client_context_t *)params->utils->malloc(sizeof(client_context_t));
+	client_context_t * text = (client_context_t *)params->utils->FnMalloc(sizeof(client_context_t));
 	if(text == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
 		return SASL_NOMEM;
@@ -1868,7 +1868,7 @@ static int scram_client_mech_step1(client_context_t * text,
 
 	/* free prompts we got */
 	if(prompt_need && *prompt_need) {
-		params->utils->free(*prompt_need);
+		params->utils->FnFree(*prompt_need);
 		*prompt_need = NULL;
 	}
 
@@ -1940,7 +1940,7 @@ static int scram_client_mech_step1(client_context_t * text,
 		    channel_binding_state = 'y';
 		    break;
 	}
-	text->nonce = (char *)params->utils->malloc(NONCE_SIZE + 1);
+	text->nonce = (char *)params->utils->FnMalloc(NONCE_SIZE + 1);
 	if(text->nonce == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
 		result = SASL_NOMEM;
@@ -2056,7 +2056,7 @@ static int scram_client_mech_step2(client_context_t * text,
 		params->utils->seterror(params->utils->conn, 0, "Nonce (r=) expected in %s input", scram_sasl_mech);
 		return SASL_BADPROT;
 	}
-	inbuf = (char *)params->utils->malloc(serverinlen + 1);
+	inbuf = (char *)params->utils->FnMalloc(serverinlen + 1);
 	if(inbuf == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
 		return SASL_NOMEM;
@@ -2073,7 +2073,7 @@ static int scram_client_mech_step2(client_context_t * text,
 	p = strchr(nonce, ',');
 
 	/* MUST be followed by a salt */
-	if(p == NULL) {
+	if(!p) {
 		params->utils->seterror(params->utils->conn, 0,
 		    "Salt expected after the nonce in %s input",
 		    scram_sasl_mech);
@@ -2098,7 +2098,7 @@ static int scram_client_mech_step2(client_context_t * text,
 	p = strchr(base64_salt, ',');
 
 	/* MUST be followed by an iteration-count */
-	if(p == NULL) {
+	if(!p) {
 		params->utils->seterror(params->utils->conn, 0,
 		    "iteration-count expected after the salt in %s input",
 		    scram_sasl_mech);
@@ -2121,7 +2121,7 @@ static int scram_client_mech_step2(client_context_t * text,
 	counter = p;
 	p = strchr(counter, ',');
 
-	if(p == NULL) {
+	if(!p) {
 		p = counter + strlen(counter);
 	}
 	else {
@@ -2157,7 +2157,7 @@ static int scram_client_mech_step2(client_context_t * text,
 		goto cleanup;
 	}
 	/* Now we can forget about our nonce */
-	params->utils->free(text->nonce);
+	params->utils->FnFree(text->nonce);
 	_plug_strdup(params->utils, nonce, &text->nonce, NULL);
 	if(text->nonce == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
@@ -2177,7 +2177,7 @@ static int scram_client_mech_step2(client_context_t * text,
 		goto cleanup;
 	}
 	text->salt_len = base64_salt_len / 4 * 3;
-	text->salt = (char *)params->utils->malloc(text->salt_len + 1);
+	text->salt = (char *)params->utils->FnMalloc(text->salt_len + 1);
 	if(text->salt == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
 		result = SASL_NOMEM;
@@ -2208,7 +2208,7 @@ static int scram_client_mech_step2(client_context_t * text,
 	cb_encoded_length = (cb_bin_length / 3 * 4) + ((cb_bin_length % 3) ? 4 : 0);
 
 	if(channel_binding_data != NULL) {
-		cb_bin = (char *)params->utils->malloc(cb_bin_length + 1);
+		cb_bin = (char *)params->utils->FnMalloc(cb_bin_length + 1);
 		if(cb_bin == NULL) {
 			SASL_UTILS_MEMERROR(params->utils);
 			result = SASL_NOMEM;
@@ -2217,7 +2217,7 @@ static int scram_client_mech_step2(client_context_t * text,
 		memcpy(cb_bin, text->gs2_header, text->gs2_header_length);
 		memcpy(cb_bin + text->gs2_header_length, channel_binding_data, channel_binding_data_len);
 	}
-	cb_encoded = (char *)params->utils->malloc(cb_encoded_length + 1);
+	cb_encoded = (char *)params->utils->FnMalloc(cb_encoded_length + 1);
 	if(cb_encoded == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
 		result = SASL_NOMEM;
@@ -2248,7 +2248,7 @@ static int scram_client_mech_step2(client_context_t * text,
 	sprintf(text->out_buf, "c=%s,r=%s", cb_encoded, text->nonce);
 	length_no_proof = strlen(text->out_buf);
 	/* Build AuthMessage */
-	full_auth_message = (char *)params->utils->realloc(text->auth_message, text->auth_message_len + 1 + serverinlen + 1 + length_no_proof + 1);
+	full_auth_message = (char *)params->utils->FnRealloc(text->auth_message, text->auth_message_len + 1 + serverinlen + 1 + length_no_proof + 1);
 	if(full_auth_message == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
 		result = SASL_NOMEM;
@@ -2309,7 +2309,7 @@ static int scram_client_mech_step2(client_context_t * text,
 	PRINT_HASH("ClientProof", ClientProof, hash_size);
 
 	/* base64-encode ClientProof */
-	client_proof = (char *)params->utils->malloc(client_proof_len + 1);
+	client_proof = (char *)params->utils->FnMalloc(client_proof_len + 1);
 	if(client_proof == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
 		result = SASL_NOMEM;
@@ -2328,19 +2328,19 @@ static int scram_client_mech_step2(client_context_t * text,
 
 cleanup:
 	if(inbuf != NULL) {
-		params->utils->free(inbuf);
+		params->utils->FnFree(inbuf);
 	}
 
 	if(client_proof != NULL) {
-		params->utils->free(client_proof);
+		params->utils->FnFree(client_proof);
 	}
 
 	if(cb_encoded != NULL) {
-		params->utils->free(cb_encoded);
+		params->utils->FnFree(cb_encoded);
 	}
 
 	if(cb_bin != NULL) {
-		params->utils->free(cb_bin);
+		params->utils->FnFree(cb_bin);
 	}
 
 	return result;
@@ -2535,20 +2535,20 @@ static void scram_client_mech_dispose(void * conn_context, const sasl_utils_t * 
 	}
 
 	if(text->gs2_header) {
-		utils->free(text->gs2_header);
+		utils->FnFree(text->gs2_header);
 		text->gs2_header = NULL;
 	}
 
 	if(text->out_buf) {
-		utils->free(text->out_buf);
+		utils->FnFree(text->out_buf);
 		text->out_buf = NULL;
 	}
 
 	if(text->auth_message) _plug_free_string(utils, &(text->auth_message));
 	if(text->nonce) _plug_free_string(utils, &(text->nonce));
-	if(text->salt) utils->free(text->salt);
+	if(text->salt) utils->FnFree(text->salt);
 
-	utils->free(text);
+	utils->FnFree(text);
 }
 
 static sasl_client_plug_t scram_client_plugins[] =

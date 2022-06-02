@@ -17,14 +17,12 @@
 #include "archive_blake2.h"
 #include "archive_blake2_impl.h"
 
-static const uint32 blake2s_IV[8] =
-{
+static const uint32 blake2s_IV[8] = {
 	0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL,
 	0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL
 };
 
-static const uint8 blake2s_sigma[10][16] =
-{
+static const uint8 blake2s_sigma[10][16] = {
 	{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
 	{ 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 },
 	{ 11,  8, 12,  0,  5,  2, 15, 13, 10, 14,  3,  6,  7,  1,  9,  4 },
@@ -50,8 +48,8 @@ static int blake2s_is_lastblock(const blake2s_state * S)
 
 static void blake2s_set_lastblock(blake2s_state * S)
 {
-	if(S->last_node) blake2s_set_lastnode(S);
-
+	if(S->last_node) 
+		blake2s_set_lastnode(S);
 	S->f[0] = (uint32)-1;
 }
 
@@ -77,7 +75,6 @@ int blake2s_init_param(blake2s_state * S, const blake2s_param * P)
 	/* IV XOR ParamBlock */
 	for(i = 0; i < 8; ++i)
 		S->h[i] ^= load32(&p[i * 4]);
-
 	S->outlen = P->digest_length;
 	return 0;
 }
@@ -140,13 +137,13 @@ int blake2s_init_key(blake2s_state * S, size_t outlen, const void * key, size_t 
 #define G(r, i, a, b, c, d)                      \
 	do {                                      \
 		a = a + b + m[blake2s_sigma[r][2*i+0]]; \
-		d = rotr32(d ^ a, 16);                  \
+		d = slrotr32(d ^ a, 16);                  \
 		c = c + d;                              \
-		b = rotr32(b ^ c, 12);                  \
+		b = slrotr32(b ^ c, 12);                  \
 		a = a + b + m[blake2s_sigma[r][2*i+1]]; \
-		d = rotr32(d ^ a, 8);                   \
+		d = slrotr32(d ^ a, 8);                   \
 		c = c + d;                              \
-		b = rotr32(b ^ c, 7);                   \
+		b = slrotr32(b ^ c, 7);                   \
 	} while(0)
 
 #define ROUND(r)                    \
@@ -166,15 +163,12 @@ static void blake2s_compress(blake2s_state * S, const uint8 in[BLAKE2S_BLOCKBYTE
 	uint32 m[16];
 	uint32 v[16];
 	size_t i;
-
 	for(i = 0; i < 16; ++i) {
 		m[i] = load32(in + i * sizeof( m[i] ) );
 	}
-
 	for(i = 0; i < 8; ++i) {
 		v[i] = S->h[i];
 	}
-
 	v[ 8] = blake2s_IV[0];
 	v[ 9] = blake2s_IV[1];
 	v[10] = blake2s_IV[2];

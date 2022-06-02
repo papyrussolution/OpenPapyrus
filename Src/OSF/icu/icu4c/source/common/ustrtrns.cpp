@@ -1004,7 +1004,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromJavaModifiedUTF8WithSub(UChar * dest, int32_t 
 			*pDest++ = (UChar)c;
 			++src;
 		}
-		if(c == 0) {
+		if(!c) {
 			reqLength = (int32_t)(pDest - dest);
 			ASSIGN_PTR(pDestLength, reqLength);
 			/* Terminate the buffer */

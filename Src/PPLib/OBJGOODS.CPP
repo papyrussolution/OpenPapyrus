@@ -4051,7 +4051,7 @@ GoodsStockExt::GoodsStockExt()
 	Z();
 }
 
-int GoodsStockExt::IsEmpty() const
+bool GoodsStockExt::IsEmpty() const
 {
 	int    min_stock_empty = 1;
 	uint   min_stock_count = MinStockList.getCount();

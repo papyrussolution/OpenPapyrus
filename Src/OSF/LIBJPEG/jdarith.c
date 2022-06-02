@@ -230,7 +230,7 @@ METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 
 	/* Process restart marker if needed */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			process_restart(cinfo);
 		entropy->restarts_to_go--;
 	}
@@ -306,7 +306,7 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 	const uint8 * natural_order; // @sobolev int-->uint8
 	/* Process restart marker if needed */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			process_restart(cinfo);
 		entropy->restarts_to_go--;
 	}
@@ -381,7 +381,7 @@ METHODDEF(boolean) decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 
 	/* Process restart marker if needed */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			process_restart(cinfo);
 		entropy->restarts_to_go--;
 	}
@@ -415,7 +415,7 @@ METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 	const uint8 * natural_order; // @sobolev int-->uint8
 	/* Process restart marker if needed */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			process_restart(cinfo);
 		entropy->restarts_to_go--;
 	}
@@ -485,7 +485,7 @@ METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 	const uint8 * natural_order; // @sobolev int-->uint8
 	/* Process restart marker if needed */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			process_restart(cinfo);
 		entropy->restarts_to_go--;
 	}

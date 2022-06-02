@@ -2161,9 +2161,9 @@ PrcssrObjTextFilt & FASTCALL PrcssrObjTextFilt::operator = (const PrcssrObjTextF
 	return *this;
 }
 
-int PrcssrObjTextFilt::IsEmpty() const
+bool PrcssrObjTextFilt::IsEmpty() const
 {
-	return BIN(!ObjType && !ObjTextIdent && !Flags && RuleFileName.IsEmpty() && !P_GoodsF && !P_BrandF && !P_PsnF);
+	return (!ObjType && !ObjTextIdent && !Flags && RuleFileName.IsEmpty() && !P_GoodsF && !P_BrandF && !P_PsnF);
 }
 
 PrcssrObjText::SignalProcBlock::SignalProcBlock() : State(0)

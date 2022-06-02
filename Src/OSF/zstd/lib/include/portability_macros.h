@@ -7,10 +7,8 @@
  * in the COPYING file in the root directory of this source tree).
  * You may select, at your option, one of the above-listed licenses.
  */
-
 #ifndef ZSTD_PORTABILITY_MACROS_H
 #define ZSTD_PORTABILITY_MACROS_H
-
 /**
  * This header file contains macro definitions to support portability.
  * This header is shared between C and ASM code, so it MUST only
@@ -19,32 +17,26 @@
  * This header ONLY defines macros to detect platforms/feature support.
  *
  */
-
-
 /* compat. with non-clang compilers */
 #ifndef __has_attribute
-  #define __has_attribute(x) 0
+	#define __has_attribute(x) 0
 #endif
-
 /* compat. with non-clang compilers */
-#ifndef __has_builtin
-#define __has_builtin(x) 0
-#endif
-
+// @v11.4.0 #ifndef __has_builtin
+	// @v11.4.0 #define __has_builtin(x) 0
+// @v11.4.0 #endif
 /* compat. with non-clang compilers */
 #ifndef __has_feature
-#define __has_feature(x) 0
+	#define __has_feature(x) 0
 #endif
-
 /* detects whether we are being compiled under msan */
 #ifndef ZSTD_MEMORY_SANITIZER
-#if __has_feature(memory_sanitizer)
-#define ZSTD_MEMORY_SANITIZER 1
-#else
-#define ZSTD_MEMORY_SANITIZER 0
-#  endif
+	#if __has_feature(memory_sanitizer)
+		#define ZSTD_MEMORY_SANITIZER 1
+	#else
+		#define ZSTD_MEMORY_SANITIZER 0
+	#endif
 #endif
-
 /* detects whether we are being compiled under asan */
 #ifndef ZSTD_ADDRESS_SANITIZER
 #if __has_feature(address_sanitizer)
@@ -77,10 +69,10 @@
  */
 #ifndef DYNAMIC_BMI2
   #if ((defined(__clang__) && __has_attribute(__target__)) \
-      || (defined(__GNUC__) \
-          && (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)))) \
-      && (defined(__x86_64__) || defined(_M_X64)) \
-      && !defined(__BMI2__)
+	|| (defined(__GNUC__) \
+	&& (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)))) \
+	&& (defined(__x86_64__) || defined(_M_X64)) \
+	&& !defined(__BMI2__)
   #define DYNAMIC_BMI2 1
   #else
   #define DYNAMIC_BMI2 0
@@ -126,9 +118,9 @@
  *   - BMI2 is supported at compile time
  */
 #if !defined(ZSTD_DISABLE_ASM) &&                                 \
-    ZSTD_ASM_SUPPORTED &&                                         \
-    defined(__x86_64__) &&                                        \
-    (DYNAMIC_BMI2 || defined(__BMI2__))
+	ZSTD_ASM_SUPPORTED &&                                         \
+	defined(__x86_64__) &&                                        \
+	(DYNAMIC_BMI2 || defined(__BMI2__))
 #define ZSTD_ENABLE_ASM_X86_64_BMI2 1
 #else
 #define ZSTD_ENABLE_ASM_X86_64_BMI2 0
@@ -139,7 +131,7 @@
  * assembly sources when CET is enabled.
  */
 #if defined(__ELF__) && (defined(__x86_64__) || defined(__i386__)) \
-    && defined(__has_include)
+	&& defined(__has_include)
 #if __has_include(<cet.h>)
 #include <cet.h>
 #endif

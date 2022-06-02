@@ -191,7 +191,7 @@ static FT_Error ft_gzip_check_header(FT_Stream stream)
 			FT_UInt c;
 			if(FT_READ_BYTE(c))
 				goto Exit;
-			if(c == 0)
+			if(!c)
 				break;
 		}
 	/* skip .gz comment */
@@ -200,7 +200,7 @@ static FT_Error ft_gzip_check_header(FT_Stream stream)
 			FT_UInt c;
 			if(FT_READ_BYTE(c))
 				goto Exit;
-			if(c == 0)
+			if(!c)
 				break;
 		}
 	/* skip CRC */
@@ -299,7 +299,7 @@ static FT_Error ft_gzip_file_fill_input(FT_GZipFile zip)
 	FT_ULong size;
 	if(stream->read) {
 		size = stream->read(stream, stream->pos, zip->input, FT_GZIP_BUFFER_SIZE);
-		if(size == 0) {
+		if(!size) {
 			zip->limit = zip->cursor;
 			return FT_THROW(Invalid_Stream_Operation);
 		}
@@ -308,7 +308,7 @@ static FT_Error ft_gzip_file_fill_input(FT_GZipFile zip)
 		size = stream->size - stream->pos;
 		if(size > FT_GZIP_BUFFER_SIZE)
 			size = FT_GZIP_BUFFER_SIZE;
-		if(size == 0) {
+		if(!size) {
 			zip->limit = zip->cursor;
 			return FT_THROW(Invalid_Stream_Operation);
 		}

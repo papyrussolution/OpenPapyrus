@@ -107,7 +107,7 @@ static int b64_read(BIO * b, char * out, int outl)
 		return 0;
 	ctx = (BIO_B64_CTX*)BIO_get_data(b);
 	next = BIO_next(b);
-	if((ctx == NULL) || (next == NULL))
+	if(!ctx || !next)
 		return 0;
 	BIO_clear_retry_flags(b);
 	if(ctx->encode != B64_DECODE) {
@@ -145,13 +145,9 @@ static int b64_read(BIO * b, char * out, int outl)
 	while(outl > 0) {
 		if(ctx->cont <= 0)
 			break;
-
-		i = BIO_read(next, &(ctx->tmp[ctx->tmp_len]),
-			B64_BLOCK_SIZE - ctx->tmp_len);
-
+		i = BIO_read(next, &(ctx->tmp[ctx->tmp_len]), B64_BLOCK_SIZE - ctx->tmp_len);
 		if(i <= 0) {
 			ret_code = i;
-
 			/* Should we continue next time we are called? */
 			if(!BIO_should_retry(next)) {
 				ctx->cont = i;
@@ -183,7 +179,6 @@ static int b64_read(BIO * b, char * out, int outl)
 			for(j = 0; j < i; j++) {
 				if(*(q++) != '\n')
 					continue;
-
 				/*
 				 * due to a previous very long line, we need to keep on
 				 * scanning for a '\n' before we even start looking for
@@ -194,17 +189,12 @@ static int b64_read(BIO * b, char * out, int outl)
 					ctx->tmp_nl = 0;
 					continue;
 				}
-
-				k = EVP_DecodeUpdate(ctx->base64,
-					(uchar *)ctx->buf,
-					&num, p, q - p);
+				k = EVP_DecodeUpdate(ctx->base64, (uchar *)ctx->buf, &num, p, q - p);
 				if((k <= 0) && (num == 0) && (ctx->start))
 					EVP_DecodeInit(ctx->base64);
 				else {
-					if(p != (uchar *)
-					    &(ctx->tmp[0])) {
-						i -= (p - (uchar *)
-						    &(ctx->tmp[0]));
+					if(p != (uchar *)&(ctx->tmp[0])) {
+						i -= (p - (uchar *)&(ctx->tmp[0]));
 						for(x = 0; x < i; x++)
 							ctx->tmp[x] = p[x];
 					}
@@ -242,19 +232,12 @@ static int b64_read(BIO * b, char * out, int outl)
 			}
 		}
 		else if((i < B64_BLOCK_SIZE) && (ctx->cont > 0)) {
-			/*
-			 * If buffer isn't full and we can retry then restart to read in
-			 * more data.
-			 */
+			// If buffer isn't full and we can retry then restart to read in more data.
 			continue;
 		}
-
 		if(BIO_get_flags(b) & BIO_FLAGS_BASE64_NO_NL) {
-			int z, jj;
-
-			jj = i & ~3; /* process per 4 */
-			z = EVP_DecodeBlock((uchar *)ctx->buf,
-				(uchar *)ctx->tmp, jj);
+			int jj = i & ~3; /* process per 4 */
+			int z = EVP_DecodeBlock((uchar *)ctx->buf, (uchar *)ctx->tmp, jj);
 			if(jj > 2) {
 				if(ctx->tmp[jj - 1] == '=') {
 					z--;
@@ -324,7 +307,7 @@ static int b64_write(BIO * b, const char * in, int inl)
 	BIO * next;
 	BIO_B64_CTX * ctx = (BIO_B64_CTX*)BIO_get_data(b);
 	next = BIO_next(b);
-	if((ctx == NULL) || (next == NULL))
+	if(!ctx || !next)
 		return 0;
 
 	BIO_clear_retry_flags(b);
@@ -440,12 +423,10 @@ static long b64_ctrl(BIO * b, int cmd, long num, void * ptr)
 {
 	long ret = 1;
 	int i;
-	BIO * next;
 	BIO_B64_CTX * ctx = (BIO_B64_CTX*)BIO_get_data(b);
-	next = BIO_next(b);
-	if((ctx == NULL) || (next == NULL))
+	BIO * next = BIO_next(b);
+	if(!ctx || !next)
 		return 0;
-
 	switch(cmd) {
 		case BIO_CTRL_RESET:
 		    ctx->cont = 1;
@@ -462,8 +443,7 @@ static long b64_ctrl(BIO * b, int cmd, long num, void * ptr)
 		case BIO_CTRL_WPENDING: /* More to write in buffer */
 		    OPENSSL_assert(ctx->buf_len >= ctx->buf_off);
 		    ret = ctx->buf_len - ctx->buf_off;
-		    if((ret == 0) && (ctx->encode != B64_NONE)
-			&& (EVP_ENCODE_CTX_num(ctx->base64) != 0))
+		    if((ret == 0) && (ctx->encode != B64_NONE) && (EVP_ENCODE_CTX_num(ctx->base64) != 0))
 			    ret = 1;
 		    else if(ret <= 0)
 			    ret = BIO_ctrl(next, cmd, num, ptr);
@@ -484,19 +464,15 @@ again:
 		    }
 		    if(BIO_get_flags(b) & BIO_FLAGS_BASE64_NO_NL) {
 			    if(ctx->tmp_len != 0) {
-				    ctx->buf_len = EVP_EncodeBlock((uchar *)ctx->buf,
-					    (uchar *)ctx->tmp,
-					    ctx->tmp_len);
+				    ctx->buf_len = EVP_EncodeBlock((uchar *)ctx->buf, (uchar *)ctx->tmp, ctx->tmp_len);
 				    ctx->buf_off = 0;
 				    ctx->tmp_len = 0;
 				    goto again;
 			    }
 		    }
-		    else if(ctx->encode != B64_NONE
-			&& EVP_ENCODE_CTX_num(ctx->base64) != 0) {
+		    else if(ctx->encode != B64_NONE && EVP_ENCODE_CTX_num(ctx->base64) != 0) {
 			    ctx->buf_off = 0;
-			    EVP_EncodeFinal(ctx->base64,
-				(uchar *)ctx->buf, &(ctx->buf_len));
+			    EVP_EncodeFinal(ctx->base64, (uchar *)ctx->buf, &(ctx->buf_len));
 			    /* push out the bytes */
 			    goto again;
 		    }
@@ -509,7 +485,6 @@ again:
 		    ret = BIO_ctrl(next, cmd, num, ptr);
 		    BIO_copy_next_retry(b);
 		    break;
-
 		case BIO_CTRL_DUP:
 		    break;
 		case BIO_CTRL_INFO:

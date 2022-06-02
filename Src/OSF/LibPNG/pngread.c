@@ -374,7 +374,7 @@ void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 			    break;
 			case 3:
 			    if((png_ptr->row_number & 3) || png_ptr->width < 3) {
-				    if(dsp_row != NULL)
+				    if(dsp_row)
 					    png_combine_row(png_ptr, dsp_row, 1 /*display*/);
 				    png_read_finish_row(png_ptr);
 				    return;
@@ -390,7 +390,7 @@ void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 			    break;
 			case 5:
 			    if((png_ptr->row_number & 1) || png_ptr->width < 2) {
-				    if(dsp_row != NULL)
+				    if(dsp_row)
 					    png_combine_row(png_ptr, dsp_row, 1 /*display*/);
 				    png_read_finish_row(png_ptr);
 				    return;
@@ -440,24 +440,22 @@ void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 	}
 	else if(png_ptr->transformed_pixel_depth != row_info.pixel_depth)
 		png_error(png_ptr, "internal sequential row size calculation error");
-
 #ifdef PNG_READ_INTERLACING_SUPPORTED
-	/* Expand interlaced rows to full size */
-	if(png_ptr->interlaced != 0 &&
-	    (png_ptr->transformations & PNG_INTERLACE) != 0) {
+	// Expand interlaced rows to full size 
+	if(png_ptr->interlaced != 0 && (png_ptr->transformations & PNG_INTERLACE) != 0) {
 		if(png_ptr->pass < 6)
 			png_do_read_interlace(&row_info, png_ptr->row_buf + 1, png_ptr->pass, png_ptr->transformations);
-		if(dsp_row != NULL)
+		if(dsp_row)
 			png_combine_row(png_ptr, dsp_row, 1 /*display*/);
-		if(row != NULL)
+		if(row)
 			png_combine_row(png_ptr, row, 0 /*row*/);
 	}
 	else
 #endif
 	{
-		if(row != NULL)
+		if(row)
 			png_combine_row(png_ptr, row, -1 /*ignored*/);
-		if(dsp_row != NULL)
+		if(dsp_row)
 			png_combine_row(png_ptr, dsp_row, -1 /*ignored*/);
 	}
 	png_read_finish_row(png_ptr);

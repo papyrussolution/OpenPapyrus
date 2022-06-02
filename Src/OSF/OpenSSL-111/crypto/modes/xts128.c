@@ -63,7 +63,7 @@ int CRYPTO_xts128_encrypt(const XTS128_CONTEXT * ctx,
 		out += 16;
 		len -= 16;
 
-		if(len == 0)
+		if(!len)
 			return 0;
 
 		if(is_endian.little) {

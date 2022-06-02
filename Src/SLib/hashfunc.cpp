@@ -1478,8 +1478,8 @@ static FORCEINLINE uint64 fmix64(uint64 h) { h ^= h >> 33; h *= 0xff51afd7ed558c
 	const int nblocks = len / 4;
 	int i;
 	uint32 h1 = seed;
-	uint32 c1 = 0xcc9e2d51;
-	uint32 c2 = 0x1b873593;
+	const uint32 c1 = _SlConst.MagicMurmurC1;
+	const uint32 c2 = _SlConst.MagicMurmurC2;
 	// body
 	const uint32 * p_blocks = (const uint32 *)(data + nblocks*4);
 	for(i = -nblocks; i; i++) {
@@ -5444,8 +5444,8 @@ static uint32 SlEqualityTest_ngx_murmur_hash2(const uchar * data, size_t len)
 //
 static uint32 SlEqualityTest_gravity_murmur3_32(const char * key, uint32 len, uint32 seed) 
 {
-	static const uint32 c1 = 0xcc9e2d51;
-	static const uint32 c2 = 0x1b873593;
+	static const uint32 c1 = _SlConst.MagicMurmurC1;
+	static const uint32 c2 = _SlConst.MagicMurmurC2;
 	static const uint32 r1 = 15;
 	static const uint32 r2 = 13;
 	static const uint32 m = 5;

@@ -103,6 +103,11 @@
         <item name="android:textColor">@color/TextPrimaryLight</item>
         <item name="android:layout_margin">4dp</item>
     </style>
+    <style name="SearchResultTopicText">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/TextPrimaryLight</item>
+    </style>
     <style name="PageBodyRegular">
         <item name="android:background">@drawable/shape_viewframe</item>
     </style>

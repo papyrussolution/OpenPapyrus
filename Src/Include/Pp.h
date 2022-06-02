@@ -2954,8 +2954,8 @@ public:
 	// Descr: Эта функция должна сравнить фильтры и, если они эквивалентны,
 	//   вернуть значение >0.
 	//
-	virtual int IsEq(const PPBaseFilt *, int) const;
-	virtual int IsEmpty() const;
+	virtual bool IsEq(const PPBaseFilt *, int) const;
+	virtual bool IsEmpty() const;
 	//
 	// Descr: описание внутреннего состояния фильтра
 	//
@@ -3075,7 +3075,7 @@ public:
 	static int  FASTCALL SetRestrictionIdList(SString & rRestrictionBuf, const PPIDArray & rList);
 	static int  FASTCALL GetRestrictionIdList(const SString & rRestrictionBuf, PPIDArray * pList);
 	TagFilt();
-	virtual int IsEmpty() const;
+	virtual bool IsEmpty() const;
 	TagFilt & FASTCALL operator = (const TagFilt & rS);
 	int    FASTCALL Check(const ObjTagList * pList) const;
 	int    CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & rRestrict) const;
@@ -3554,6 +3554,7 @@ public:
 	DECL_INVARIANT_C();
 
 	PPCheckInPersonArray();
+	PPCheckInPersonArray(const PPCheckInPersonArray & rS);
 	PPCheckInPersonArray & Init(int kind = 0, PPID prmrID = 0);
 	PPCheckInPersonArray & Z();
 	PPCheckInPersonArray & FASTCALL Copy(const PPCheckInPersonArray & rS);
@@ -3583,7 +3584,7 @@ public:
 	int    GetMemo(uint rowPos, SString & rMemo) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 private:
-	SVerT Ver;    // Версия системы, создавшая структуру. Необходимо для сериализации.
+	SVerT  Ver;    // Версия системы, создавшая структуру. Необходимо для сериализации.
 	int32  Kind;
 	PPID   PrmrID;
 	long   LastAnonymN;     // Последнее значение, использованное для нумерации анонимных записей
@@ -3832,6 +3833,32 @@ public:
 	PPID   ObjID;
 protected:
 	virtual void FASTCALL freeItem(void *);
+};
+//
+// Descr: Вспомогательный класс, унифицирующий некоторые манипуляции с контейнером тегов
+//   внутри объектный пакетов.
+//
+class ObjTagContainerHelper {
+public:
+	//
+	// Descr: Устанавливает GUID объекта в значение rGuid. Если rGuid.IsZero(), то удаляет то, что есть.
+	//
+	int    SetGuid(const S_GUID & rGuid);
+	//
+	// Descr: Генерирует GUID объекта и уставливает его в пакет функцией SetGuid
+	//
+	int    GenerateGuid(S_GUID * pGuid);
+	//
+	// Descr: Извлекает GUID объекта из пакета. Если пакет не содержит GUID, то
+	//   возвращает 0 и присваевает rGuid пустое значение.
+	//
+	int    GetGuid(S_GUID & rGuid);
+protected:
+	ObjTagContainerHelper(ObjTagList & rTagL, PPID objType, PPID guidTagID);
+
+	ObjTagList & R_TagL;
+	const PPID ObjType;
+	const PPID GuidTagID;
 };
 //
 //
@@ -4822,7 +4849,7 @@ struct GoodsStockExt { // @persistent(DBX) @size=28+2*sizeof(SArray)
 	GoodsStockExt & Z();
 	GoodsStockExt & FASTCALL operator = (const GoodsStockExt & rSrc);
 	int    FASTCALL IsEq(const GoodsStockExt & rS) const;
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	//
 	// Descr: Рассчитывает массу брутто qtty единиц товара в килограммах
@@ -11033,9 +11060,10 @@ private:
     };
 };
 
-class PPBill {
+class PPBill : public ObjTagContainerHelper {
 public:
 	PPBill();
+	PPBill(const PPBill & rS);
 	PPBill & FASTCALL operator = (const PPBill & rS);
 	void   BaseDestroy();
 	int    FASTCALL Copy(const PPBill & rS);
@@ -11046,6 +11074,19 @@ public:
 	// Descr: Очищает список плана платежей и затем вызывает функцию PPBill::AddPayDate
 	//
 	int    SetPayDate(LDATE dt, double amount);
+	//
+	// Descr: Устанавливает GUID документа в значение rGuid. Если rGuid.IsZero(), то удаляет то, что есть.
+	//
+	//int    SetGuid(const S_GUID & rGuid);
+	//
+	// Descr: Генерирует GUID документа и уставливает его в пакет функцией SetGuid
+	//
+	//int    GenerateGuid(S_GUID * pGuid);
+	//
+	// Descr: Извлекает GUID документа из пакета. Если пакет не содержит GUID, то
+	//   возвращает 0 и присваевает rGuid пустое значение.
+	//
+	//int    GetGuid(S_GUID & rGuid);
 	//
 	// Descr: Присваивает по указателю pFreight блок данных о фрайхте документа.
 	// ARG(pFreight IN): @#{vptr0}
@@ -11092,8 +11133,8 @@ public:
 		Agreement();
 		Agreement(const Agreement & rS);
 		Agreement & FASTCALL operator = (const Agreement & rS);
-		int    IsEmpty() const;
-		int    FASTCALL IsEq(const Agreement & rS) const;
+		bool   IsEmpty() const;
+		bool   FASTCALL IsEq(const Agreement & rS) const;
 		int    FASTCALL Copy(const Agreement & rS);
 
 		long   ObjType;          // Const=PPOBJ_BILL
@@ -11852,19 +11893,6 @@ public:
 	//   ссылается на главную организацию, то результатом будет эта главная организация.
 	//
 	int    GetMainOrgID_(PPID * pID) const;
-	//
-	// Descr: Устанавливает GUID документа в значение rGuid. Если rGuid.IsZero(), то удаляет то, что есть.
-	//
-	int    SetGuid(const S_GUID & rGuid);
-	//
-	// Descr: Генерирует GUID документа и уставливает его в пакет функцией SetGuid
-	//
-	int    GenerateGuid(S_GUID * pGuid);
-	//
-	// Descr: Извлекает GUID документа из пакета. Если пакет не содержит GUID, то
-	//   возвращает 0 и присваевает rGuid пустое значение.
-	//
-	int    GetGuid(S_GUID & rGuid);
 	int    AddTSessCip(PPID tsessID, const char * pPlaceCode, PPID personID);
 	int    SerializeLots(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
@@ -13083,7 +13111,7 @@ private:
 	int ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmtd);
 };
 
-class PPLotFaultArray : public SVector { // @v9.8.10 SArray-->SVector
+class PPLotFaultArray : public SVector {
 public:
 	PPLotFaultArray(PPID lotID, PPLogger & rLogger);
 	int    AddFault(int fault, const TransferTbl::Rec *, double act, double valid);
@@ -13202,8 +13230,8 @@ struct TrUCL_Param {
 // Параметр функции Transfer::GetGoodsIdList
 //
 struct GoodsByTransferFilt {
-	GoodsByTransferFilt(const GoodsFilt * pGoodsFilt = 0);
-	int    IsEmpty() const;
+	explicit GoodsByTransferFilt(const GoodsFilt * pGoodsFilt = 0);
+	bool   IsEmpty() const;
 	enum {
 		fNoZeroRestOnLotPeriod = 0x0001,
 		fIncludeIntr   = 0x0002,
@@ -14901,7 +14929,7 @@ public:
 			fFixedPrice    = 0x10
 		};
 		LineExt();
-		int    IsEmpty() const;
+		bool   IsEmpty() const;
 
 		uint   ItemIdx;    // Индекс позиции (+1) в Items_
 		int8   Queue;
@@ -15956,7 +15984,7 @@ private:
 //
 struct RegisterFilt : public PPBaseFilt {
 	RegisterFilt();
-    virtual int IsEmpty() const;
+    virtual bool IsEmpty() const;
 
 	uint8  ReserveStart[20]; // @anchor
 	PPObjID Oid;             //
@@ -17797,14 +17825,14 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 class PPTimeSeriesPacket {
 public:
 	PPTimeSeriesPacket();
-	int    FASTCALL IsEq(const PPTimeSeriesPacket & rS) const;
+	bool   FASTCALL IsEq(const PPTimeSeriesPacket & rS) const;
 	double GetMargin(int sell) const;
 	const char * GetSymb() const;
 
 	struct Extension {
 		Extension();
-		int    IsEmpty() const;
-		int    FASTCALL IsEq(const Extension & rS) const;
+		bool   IsEmpty() const;
+		bool   FASTCALL IsEq(const Extension & rS) const;
 		double MarginManual; // Торговая маржина, используемая для расчетов и устанавливаемая в ручную.
 			// Требуется в случае, если необходимое для расчетов значение отличается от того, что возвращается торговым сервером.
 		double FixedStakeVolume;  // @v10.6.3 Фиксированный размер ставки (не привязанный к доступному объему и коэффициенту запаса)
@@ -19287,7 +19315,7 @@ struct PPDebtInventOpEx {    // @persistent @store(PropertyTbl)
 struct PPReckonOpEx {
 	PPReckonOpEx();
 	void   Init();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	PPReckonOpEx & FASTCALL operator = (const PPReckonOpEx &);
 	int    GetReckonPeriod(LDATE debtDate, DateRange & rPeriod) const;
 	void   GetDebtPeriod(LDATE paymDate, DateRange & rPeriod) const;
@@ -20767,7 +20795,7 @@ public:
 	//
 	struct SuspCheckFilt {
 		SuspCheckFilt();
-		int    IsEmpty() const;
+		bool   IsEmpty() const;
 		enum {
 			fNotSpFinished = 0x0001
 		};
@@ -22407,7 +22435,7 @@ public:
 	PalmBillQueue();
 	uint   GetItemsCount() const;
 	long   GetBillIdBias() const;
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    Push(PalmBillPacket *);
 	int    PushUnique(PalmBillPacket * pPack);
 	PalmBillPacket * Pop();
@@ -23175,7 +23203,7 @@ struct PPAutoSmsConfig {
 		asmsDaysSun = 0x40
 	};
 	PPAutoSmsConfig();
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // для запихивания стурктуры в буфер
 
 	uint8  Reserve[32];
@@ -24063,11 +24091,11 @@ public:
 	void   Init();
 	PPGoodsStruc & FASTCALL operator = (const PPGoodsStruc &);
 	PPGoodsStruc & FASTCALL Copy(const PPGoodsStruc & rS);
-	int    FASTCALL IsEq(const PPGoodsStruc &) const;
-	int    IsEmpty() const;
-	int    IsNamed() const;
-	int    CanExpand() const;
-	int    CanReduce() const;
+	bool   FASTCALL IsEq(const PPGoodsStruc &) const;
+	bool   IsEmpty() const;
+	bool   IsNamed() const;
+	bool   CanExpand() const;
+	bool   CanReduce() const;
 	SString & FASTCALL GetTypeString(SString & rBuf) const;
 	int    SetKind(int kind);
 	int    GetKind() const;
@@ -27952,12 +27980,9 @@ struct PersonFilt : public PPBaseFilt {
 	//
 	// IsEmpty calls PersonFilt::Setup, than this is not const
 	//
-	virtual int IsEmpty() const;
+	virtual bool IsEmpty() const;
 	PersonFilt & FASTCALL operator = (const PersonFilt &);
-	int    IsLocAttr() const
-	{
-		return oneof5(AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_HANGEDADDR, PPPSNATTR_DUPDLVRADDR, PPPSNATTR_STANDALONEADDR);
-	}
+	bool   IsLocAttr() const { return oneof5(AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_HANGEDADDR, PPPSNATTR_DUPDLVRADDR, PPPSNATTR_STANDALONEADDR); }
 	int    GetExtssData(int fldID, SString & rBuf) const;
 	int    PutExtssData(int fldID, const char * pBuf);
 
@@ -28308,7 +28333,7 @@ struct SysJournalFilt : public PPBaseFilt {
 	};
 
 	SysJournalFilt();
-	virtual int IsEmpty() const;
+	virtual bool IsEmpty() const;
 
 	char   ReserveStart[32]; // @anchor
 	DateRange Period;
@@ -28399,7 +28424,7 @@ private:
 //
 struct GtaJournalFilt : public PPBaseFilt {
 	GtaJournalFilt();
-	virtual int IsEmpty() const;
+	virtual bool IsEmpty() const;
 	enum {
 		fShowObjects  = 0x0001
 	};
@@ -28519,7 +28544,7 @@ void ViewLogsMonitor();
 //
 struct GeoTrackingFilt : public PPBaseFilt {
 	GeoTrackingFilt();
-	virtual int IsEmpty() const;
+	virtual bool IsEmpty() const;
 
 	char   ReserveStart[32]; // @anchor
 	DateRange Period;
@@ -28679,7 +28704,7 @@ public:
 	GoodsFilt(const GoodsFilt &);
 	GoodsFilt & FASTCALL operator = (const GoodsFilt & s);
 	int    Setup();
-	virtual int IsEmpty() const;
+	virtual bool IsEmpty() const;
 	//
 	// Descr: Преобразует строку, в которой перечислены через запятую длины
 	//   штрихкодов в список PPIDArray.
@@ -30464,7 +30489,7 @@ class BrandFilt : public PPBaseFilt {
 public:
 	BrandFilt();
 	BrandFilt & FASTCALL operator = (const BrandFilt & rS);
-	virtual int IsEmpty() const;
+	virtual bool IsEmpty() const;
 
 	enum {
 		fSubName        = 0x0001,
@@ -31853,7 +31878,7 @@ struct AsyncCashGoodsInfo { // @transient
 	StringSet AddedMsgList;  // Список дополнительных текстовых полей, составленный по правилам, определенным полем PPAsyncCashNode::AddedMsgSign.
 	SString LabelName;       // Наименование для ценника (этикетки и т.д.). Извлекается вызовом PPGoodsPacket::GetExtStrData(GDSEXSTR_LABELNAME, SString &)
 	const PPQuotArray  * P_QuotByQttyList; // @ownedby(AsyncCashGoodsIterator)
-	const BarcodeArray * P_CodeList;       // @v9.0.6 @ownedby(AsyncCashGoodsIterator)
+	const BarcodeArray * P_CodeList;       // @ownedby(AsyncCashGoodsIterator)
 };
 
 #define ACGIF_UPDATEDONLY       0x0001 // Только измененные товары
@@ -37022,9 +37047,11 @@ struct BhtTSessRec {
 //
 //
 //
-class TSessionPacket {
+class TSessionPacket : public ObjTagContainerHelper {
 public:
 	TSessionPacket();
+	TSessionPacket(const TSessionPacket & rS);
+	TSessionPacket & FASTCALL operator = (const TSessionPacket & rS);
 	void   destroy();
 
 	enum {
@@ -40578,42 +40605,42 @@ public:
 	int    GetQuotUsage() const;
 
 	enum {
-		fBarCode        = 0x00000001, // Остатки со штрих-кодами
-		fNullRest       = 0x00000002, // Выводить нулевые остатки
-		fCalcOrder      = 0x00000004, // Расчитывать заказанное количество
+		fBarCode                = 0x00000001, // Остатки со штрих-кодами
+		fNullRest               = 0x00000002, // Выводить нулевые остатки
+		fCalcOrder              = 0x00000004, // Расчитывать заказанное количество
 		//                      0x0008  // Occupied by GoodsRestParam
 		//                      0x0010  // Occupied by GoodsRestParam
 		//                      0x0020  // Occupied by GoodsRestParam
-		fPriceByQuot    = 0x00000040, // Формировать цены по котировкам
-		fUnderMinStock  = 0x00000080, // Показывать только те позиции, остаток по которым ниже установленного минимума
-		fDisplayWoPacks = 0x00000100, // Показывать остатки без упаковок
-		fNullRestsOnly  = 0x00000200, // Только нулевые остатки
-		fLabelOnly      = 0x00000400, // WL-only
+		fPriceByQuot            = 0x00000040, // Формировать цены по котировкам
+		fUnderMinStock          = 0x00000080, // Показывать только те позиции, остаток по которым ниже установленного минимума
+		fDisplayWoPacks         = 0x00000100, // Показывать остатки без упаковок
+		fNullRestsOnly          = 0x00000200, // Только нулевые остатки
+		fLabelOnly              = 0x00000400, // WL-only
 		fNoZeroOrderOnly        = 0x00000800, // Только с ненулевыми заказами
-		fCalcTotalOnly  = 0x00001000, // Расчитать только итоги
-		fEachLocation   = 0x00002000, // Рассчитывать остатки по каждому из складов
-		fComplPackQtty  = 0x00004000, // Показывать количество в упаковках
-		fCWoVat         = 0x00008000, // Показывать цены без НДС
-		fCalcDeficit    = 0x00010000, // Рассчитывать дефицит
-		fWoSupplier     = 0x00020000, // Рассчитывать остатки без учета поставщика
-		fShowMinStock   = 0x00040000, // Показывать минимальные остатки
+		fCalcTotalOnly          = 0x00001000, // Расчитать только итоги
+		fEachLocation           = 0x00002000, // Рассчитывать остатки по каждому из складов
+		fComplPackQtty          = 0x00004000, // Показывать количество в упаковках
+		fCWoVat                 = 0x00008000, // Показывать цены без НДС
+		fCalcDeficit            = 0x00010000, // Рассчитывать дефицит
+		fWoSupplier             = 0x00020000, // Рассчитывать остатки без учета поставщика
+		fShowMinStock           = 0x00040000, // Показывать минимальные остатки
 		fShowDraftReceipt       = 0x00080000, // Показывать остатки учитывая будущие драфт приходы
-		fCalcSStatSales = 0x00100000, // Заполнять поле среднедневных продаж из статистики продаж
-		fOuterGsl       = 0x00200000, // PPViewGoodsRest::Gsl инициализирован вне функции PPViewGoodsRest::Init_
-		fUseGoodsMatrix = 0x00400000, // Применять товарную матрицу при выборе товаров для отчета
-		fExtByArCode    = 0x00800000, // Выборка товаров, по которым строится отчет ДОПОЛНЯЕТСЯ //
+		fCalcSStatSales         = 0x00100000, // Заполнять поле среднедневных продаж из статистики продаж
+		fOuterGsl               = 0x00200000, // PPViewGoodsRest::Gsl инициализирован вне функции PPViewGoodsRest::Init_
+		fUseGoodsMatrix         = 0x00400000, // Применять товарную матрицу при выборе товаров для отчета
+		fExtByArCode            = 0x00800000, // Выборка товаров, по которым строится отчет ДОПОЛНЯЕТСЯ //
 			// теми товарами, которые имеют связанные с поставщиком SupplID коды (ArCodes).
 		fRestrictByArCode       = 0x01000000, // Выборка товаров, по которым строится отчет ОГРАНИЧИВАЕТСЯ //
 			// теми товарами, которые имеют связанные с поставщиком SupplID коды (ArCodes).
 			// Если SupplID == 0, то перебираются только те товары, которые имеют собственные коды.
 		// @#{fExtByArCode^fRestrictByArCode}
-		fCrosstab       = 0x02000000, // Кросстаб, если включена опция fEachLocation
+		fCrosstab               = 0x02000000, // Кросстаб, если включена опция fEachLocation
 		fShowGoodsMatrixBelongs = 0x04000000, // Отображать принадлежность товарной матрице
 		fCalcUncompleteSess     = 0x08000000,    // Рассчитывать с учетом незавершенных сессий
-		fZeroSupplAgent = 0x10000000,    // Только с нулевым агентом поставщика
-		fCalcCVat       = 0x20000000,    // Рассчитывать валовую сумму НДС в ценах поступления //
-		fCalcPVat       = 0x40000000,    // Рассчитывать валовую сумму НДС в ценах реализации //
-		fForceNullRest  = 0x80000000     // Предписывает показывать товар с нулевым остатком даже если не было ни одного лота
+		fZeroSupplAgent         = 0x10000000,    // Только с нулевым агентом поставщика
+		fCalcCVat               = 0x20000000,    // Рассчитывать валовую сумму НДС в ценах поступления //
+		fCalcPVat               = 0x40000000,    // Рассчитывать валовую сумму НДС в ценах реализации //
+		fForceNullRest          = 0x80000000     // Предписывает показывать товар с нулевым остатком даже если не было ни одного лота
 	};
 	//
 	// Descr: Значения флагов, хранящихся в поле Flags2
@@ -43489,11 +43516,11 @@ private:
 //
 struct ObjSyncFilt : public PPBaseFilt {
 	ObjSyncFilt();
-	virtual int Init(int fullyDestroy, long extraData);
-	virtual int Write(SBuffer &, long) const;
-	virtual int Read(SBuffer &, long);
-	virtual int Copy(const PPBaseFilt *, int);
-	virtual int IsEq(const PPBaseFilt *, int) const;
+	virtual int  Init(int fullyDestroy, long extraData);
+	virtual int  Write(SBuffer &, long) const;
+	virtual int  Read(SBuffer &, long);
+	virtual int  Copy(const PPBaseFilt *, int);
+	virtual bool IsEq(const PPBaseFilt *, int) const;
 
 	char   ReserveStart[32]; // @anchor
 	PPID   ObjType;
@@ -44765,6 +44792,7 @@ public:
 private:
 	static void SetAddLockErrInfo(PPID mutexID);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
+	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr); // @v11.4.0
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
@@ -46576,19 +46604,48 @@ public:
 		kSession        = 4, //
 		kFace           = 5, // Параметры лика, которые могут быть переданы серверу для ассоциации с нашим клиентским аккаунтом
 		kDocIncoming    = 6, // Входящие документы
-		kDocOutcominig  = 7, // Исходящие документы
+		kDocOutcoming   = 7, // Исходящие документы
 		kCounter        = 8  // @v11.2.10 Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
 	};
 	//
 	// Descr: Флаги записи таблицы данных StyloQ bindery (StyloQSec::Flags)
 	//
 	enum {
-		styloqfMediator         = 0x0001, // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
+		styloqfMediator          = 0x0001, // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
 			// записи после получения соответствующей информации от сервиса-медиатора
-		styloqfDocFinished      = 0x0002, // @v11.3.12 Для документа: цикл обработки для документа завершен. Не может содержать флаги (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft)
-		styloqfDocWaitForOrdrsp = 0x0004, // @v11.3.12 Для документа заказа: ожидает подтверждения заказа. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
-		styloqfDocWaitForDesadv = 0x0008, // @v11.3.12 Для документа заказа: ожидает документа отгрузки. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
-		styloqfDocDraft         = 0x0010  // @v11.3.12 Для документа: драфт-версия. Не может содержать флаги (styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
+		styloqfDocStatusFlags    = (0x02|0x04|0x08|0x10|0x20|0x40), // 6 bits используются для кодирования статуса документа
+		//styloqfDocFinished       = 0x0002, // @v11.3.12 Для документа: цикл обработки для документа завершен. Не может содержать флаги (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft)
+		//styloqfDocWaitForOrdrsp  = 0x0004, // @v11.3.12 Для документа заказа: ожидает подтверждения заказа. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
+		//styloqfDocWaitForDesadv  = 0x0008, // @v11.3.12 Для документа заказа: ожидает документа отгрузки. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
+		//styloqfDocDraft          = 0x0010, // @v11.3.12 Для документа: драфт-версия. Не может содержать флаги (styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
+		//styloqfDocCancelledByCli = 0x0040, // @v11.4.0 Для документа: документ отменен клиентом
+		//styloqfDocCancelledBySvc = 0x0080, // @v11.4.0 Для документа: документ отменен сервисом
+		//styloqfDocStatusFlagsMask = (styloqfDocDraft|styloqfDocTransmission|styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
+		styloqfDocTransmission     = 0x0080, // @v11.4.0  Для документа: технический флаг, устанавливаемый перед отправкой документа контрагенту и снимаемый после того, как 
+			// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
+	};
+	// 
+	// Статусы документов заказа клиент-->сервис
+	// 
+	enum {
+		styloqdocstUNDEF                 =  0, // неопределенный статус. Фактически, недопустимое состояние.
+		styloqdocstDRAFT               	 =  1, // драфт. Находится на стадии формирования на стороне эмитента
+		styloqdocstWAITFORAPPROREXEC   	 =  2, // ждет одобрения или исполнения от акцептора
+		styloqdocstAPPROVED            	 =  3, // одобрен акцептором
+		styloqdocstCORRECTED           	 =  4, // скорректирован акцептором (от акцептора поступает корректирующий документ, который привязывается к оригиналу)
+		styloqdocstCORRECTIONACCEPTED  	 =  5, // корректировка акцептора принята эмитентом 
+		styloqdocstCORRECTIONREJECTED  	 =  6, // корректировка акцептора отклонена эмитентом (документ полностью отменяется и цикл документа завершается)
+		styloqdocstREJECTED            	 =  7, // отклонен акцептором (цикл документа завершается)
+		styloqdocstMODIFIED            	 =  8, // изменен эмитентом (от эмитента поступает измененная версия документа, которая привязывается к оригиналу)
+		styloqdocstCANCELLED           	 =  9, // отменен эмитентом (цикл документа завершается). Переход в это состояние возможен с ограничениями.
+		styloqdocstEXECUTED            	 = 10, // исполнен акцептором
+		styloqdocstEXECUTIONACCEPTED   	 = 11, // подтверждение от эмитента исполнения документа акцептором (цикл документа завершается)
+		styloqdocstEXECUTIONCORRECTED    = 12, // корректировка от эмитента исполнения документа акцептором (от эмитента поступает документ согласования)
+		styloqdocstEXECORRECTIONACCEPTED = 13, // согласие акцептора с документом согласования эмитента
+		styloqdocstEXECORRECTIONREJECTED = 14, // отказ акцептора от документа согласования эмитента - тупиковая ситуация, которая должна быть
+			// разрешена посредством дополнительных механизмов (escrow счета, полный возврат с отменой платежей и т.д.)
+		styloqdocstFINISHED_SUCC         = 15, // Финальное состояние документа: завершен как учтенный и отработанный.
+		styloqdocstFINISHED_FAIL         = 16, // Финальное состояние документа: завершен как отмененный.
 	};
 	//
 	// Descr: Типы документов, хранящихся в реестре Stylo-Q
@@ -46611,9 +46668,8 @@ public:
 	struct StoragePacket {
 		bool   FASTCALL IsEq(const StoragePacket & rS) const;
 		bool   IsValid() const;
-		bool   SetDocStatus_Draft();
-		bool   SetDocStatus_Finished();
-		bool   SetDocStatus_Intermediate(int flags);
+		bool   SetDocStatus(int styloqDocStatus);
+		int    GetDocStatus() const;
 		int    GetFace(int tag, StyloQFace & rF) const;
 		StyloQSecTbl::Rec Rec;
 		SSecretTagPool Pool;
@@ -46893,6 +46949,7 @@ public:
 		Document();
 		int    FromJsonObject(const SJson * pJsObj);
 		int    FromJson(const char * pJson);
+		SJson * ToJsonObject() const;
 		int    ToJson(SString & rResult) const;
 		struct LotExtCode {
 			LotExtCode();
@@ -46943,6 +47000,8 @@ public:
 		SString BaseCurrencySymb; // @v11.3.12
 		SBinaryChunk SvcIdent;
 		S_GUID Uuid; // Уникальный идентификатор, генерируемый на стороне эмитента
+		S_GUID OrgCmdUuid; // @v11.4.0 Идентификатор команды сервиса, на основании данных которой сформирован документ.
+			// Поле нужно для сопоставления сохраненных документов с данными сервиса.
 		SString Memo;
 		TSCollection <TransferItem> TiList;
 		TSCollection <BookingItem> BkList; // @v11.3.6
@@ -47175,6 +47234,7 @@ private:
 	//    //0 - ошибка
 	//
 	SJson * ProcessCommand_PostDocument(const SBinaryChunk & rOwnIdent, const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument, PPID * pResultID);
+	SJson * ProcessCommand_RequestDocumentStatusList(const SBinaryChunk & rOwnIdent, const StyloQCore::StoragePacket & rCliPack, const SJson * pCommand);
 	SJson * MakeRsrvAttendancePrereqResponse_Prc(const SBinaryChunk & rOwnIdent, PPID prcID, PPID mainQuotKindID, PPObjTSession & rTSesObj, long maxScheduleDays, 
 		LAssocArray * pGoodsToPrcList, Stq_CmdStat_MakeRsrv_Response * pStat);
 	//
@@ -47791,7 +47851,7 @@ private:
 class CheckOpJrnlFilt : public PPBaseFilt {
 public:
 	CheckOpJrnlFilt();
-	virtual int IsEmpty() const;
+	virtual bool IsEmpty() const;
 
 	char   ReserveStart[32];
 	PPID   UserID;
@@ -47985,8 +48045,8 @@ class TransportFilt : public PPBaseFilt {
 public:
 	TransportFilt();
 	int    InitInstance();
-	int    IsEmpty() const;
-	virtual int Describe(long flags, SString & rBuf) const;
+	virtual bool IsEmpty() const;
+	virtual int  Describe(long flags, SString & rBuf) const;
 
 	char   ReserveStart[32];
 	long   TrType;
@@ -48291,8 +48351,8 @@ class SuprWareFilt : public PPBaseFilt {
 public:
 	SuprWareFilt();
 	int    InitInstance();
-	int    IsEmpty() const;
-	virtual int Describe(long flags, SString & rBuf) const;
+	virtual bool IsEmpty() const;
+	virtual int  Describe(long flags, SString & rBuf) const;
 
 	char   ReserveStart[20];  // @anchor
 	PPID   PrmrID;
@@ -48718,13 +48778,13 @@ public:
 	struct RouteBlock {
 		RouteBlock();
 		void   Destroy();
-		int    IsEmpty() const;
+		bool   IsEmpty() const;
 		//
 		// Descr: Функция сравнивает this с rS по критериям равенства Uuid или, если Uuid пустой,
 		//   по равенству Code (если не пустой).
 		//   Если и Uuid и Code у обоих экземпляров пустые, то экземпляры считаются эквивалентными.
 		//
-		int    FASTCALL IsEq(const RouteBlock & rS) const;
+		bool   FASTCALL IsEq(const RouteBlock & rS) const;
 
 		S_GUID Uuid;
 		SString System;
@@ -48823,8 +48883,8 @@ private:
 		xmlTextWriter * P_Xw;
 		SXml::WDoc * P_Xd;
 		SXml::WNode * P_Root;
-		S_GUID FileUUID;   // @v9.9.12
-		LDATETIME FileDtm; // @v9.9.12
+		S_GUID FileUUID;
+		LDATETIME FileDtm;
 		PPIDArray NeededQkList;
 		PPIDArray UsedQkList;
 		AsyncCashGoodsIterator * P_Acgi; // @notowned
@@ -50517,7 +50577,7 @@ public:
 	~DL2_Formula();  // no delete P_Stack (use destroy())
 	void   destroy();
 	int    Copy(const DL2_Formula *);
-	int    IsEmpty() const;
+	bool   IsEmpty() const;
 	int    GetCount() const;
 	//
 	// Construction methods
@@ -51510,7 +51570,7 @@ class PrcssrObjTextFilt : public PPBaseFilt { // @persistent
 public:
 	PrcssrObjTextFilt();
 	PrcssrObjTextFilt & FASTCALL operator = (const PrcssrObjTextFilt & rS);
-	int    IsEmpty() const;
+	virtual bool IsEmpty() const;
 
 	enum {
 		fLog  = 0x0001,
@@ -51903,7 +51963,7 @@ class PrcssrOsmFilt : public PPBaseFilt { // @persistent
 public:
 	PrcssrOsmFilt();
 	PrcssrOsmFilt & FASTCALL operator = (const PrcssrOsmFilt & rS);
-	int    IsEmpty() const;
+	virtual bool IsEmpty() const;
 
 	enum {
 		fPreprocess        = 0x0001, // Предварительная обработка osm-файла с выводом текстовых данных для дальнейшей обработки
@@ -52067,7 +52127,7 @@ class PrcssrSartreFilt : public PPBaseFilt { // @persistent
 public:
 	PrcssrSartreFilt();
 	PrcssrSartreFilt & FASTCALL operator = (const PrcssrSartreFilt & rS);
-	int    IsEmpty() const;
+	virtual bool IsEmpty() const;
 
 	enum {
 		fImportFlexia      = 0x0001,
@@ -54769,34 +54829,34 @@ protected:
 		CcAmountList AmL;        // Список оплат чека, по которому осуществляется возврат
 	};
 	enum {
-		fNoEdit     = 0x00000001, // Запрет на редактирование чеков
-		fError      = 0x00000002, // В строке статуса выводится сообщение об ошибке. Текст сообщения хранится в буфере ErrMsgBuf
-		fRetCheck   = 0x00000004, // Признак ввода чека возврата
-		fPctDis     = 0x00000008, // Скидка указана в процентах
+		fNoEdit             = 0x00000001, // Запрет на редактирование чеков
+		fError              = 0x00000002, // В строке статуса выводится сообщение об ошибке. Текст сообщения хранится в буфере ErrMsgBuf
+		fRetCheck           = 0x00000004, // Признак ввода чека возврата
+		fPctDis             = 0x00000008, // Скидка указана в процентах
 		fBankingPayment     = 0x00000010, // Чек оплачивается банковской кредитной картой
 		fWaitOnSCard        = 0x00000020, // Ожидание ввода дисконтной карты
 		fTouchScreen        = 0x00000040, // Используется TouchScreen
-		fSelByPrice = 0x00000080, // Выбор по цене
-		fAsSelector = 0x00000100, // Диалог работает на выбор строки
+		fSelByPrice         = 0x00000080, // Выбор по цене
+		fAsSelector         = 0x00000100, // Диалог работает на выбор строки
 		fLocPrinters        = 0x00000200, // Используются локальные принтеры
 		fRetByCredit        = 0x00000400, // Возврат осуществляется по чеку, часть которого была оплачена корпоративным кредитом (бонусом).
 		fCashNodeIsLocked   = 0x00000800, // Кассовый узел заблокирован
-		fSleepMode  = 0x00001000, // Панель находится в спящем режиме
+		fSleepMode          = 0x00001000, // Панель находится в спящем режиме
 		fSuspSleepTimeout   = 0x00002000, // Приостанавливает отсчет таймаута спящего режима
 		fPrintSlipDoc       = 0x00004000, // Печать подкладного документа (вместо печати на принтер)
-		fBarrier    = 0x00008000, // Флаг блокирует обработку команд. Необходим для избежания возможность "реентранса" (особенно, при работе с сенсорным экраном).
+		fBarrier            = 0x00008000, // Флаг блокирует обработку команд. Необходим для избежания возможность "реентранса" (особенно, при работе с сенсорным экраном).
 		fOnlyReports        = 0x00010000, //
-		fPresent    = 0x00020000, // Ввод товара-подарка
-		fSCardBonus = 0x00040000, // Карта, ассоциированная с чеком, является бонусной
-		fSelSerial  = 0x00080000, // Выбирать серийный номер после выбора товара. Проекция флага CASHFX_SELSERIALBYGOODS кассового узла
+		fPresent            = 0x00020000, // Ввод товара-подарка
+		fSCardBonus         = 0x00040000, // Карта, ассоциированная с чеком, является бонусной
+		fSelSerial          = 0x00080000, // Выбирать серийный номер после выбора товара. Проекция флага CASHFX_SELSERIALBYGOODS кассового узла
 		fDisableBeep        = 0x00100000, // Запрет на звуковой сигнал при сообщении об ошибке
 		fNotUseScale        = 0x00200000, // Не использовать прием с весов
 		fForceDivision      = 0x00400000, // Не разрешать проводить строку без номера отдела
 		fLockBankPaym       = 0x00800000, // @v10.0.10 Блокировка безналичной оплаты (например, из-за неработающего банковского терминала)
 		fSCardCredit        = 0x01000000, // Чек оплачивается корпоративной кредитной картой
 		fUsedRighsByAgent   = 0x04000000, // Применены права доступа по агенту.
-		fPrinted    = 0x08000000, // По чеку распечатан счет (called CheckPaneDialog::Print(x, 0))
-		fReprinting = 0x10000000, // @v10.6.11 В панель загружен незавершенный чек для перепечатки
+		fPrinted            = 0x08000000, // По чеку распечатан счет (called CheckPaneDialog::Print(x, 0))
+		fReprinting         = 0x10000000, // @v10.6.11 В панель загружен незавершенный чек для перепечатки
 		fSelModifier        = 0x20000000, // Режим выбора модификатора
 		fSCardBonusReal     = 0x40000000, // Карта, ассоциированная с чеком, является бонусной. Практически
 			// дублирует флаг fSCardBonus с небольшим нюансом. Если остаток на карте нулевой, то fSCardBonus не выставляется,

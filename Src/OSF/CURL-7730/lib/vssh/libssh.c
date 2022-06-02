@@ -2577,7 +2577,7 @@ static void sftp_quote(struct connectdata * conn)
 	 * command with a space so we can check for it unconditionally
 	 */
 	cp = strchr(cmd, ' ');
-	if(cp == NULL) {
+	if(!cp) {
 		failf(data, "Syntax error in SFTP command. Supply parameter(s)!");
 		state(conn, SSH_SFTP_CLOSE);
 		sshc->nextstate = SSH_NO_STATE;

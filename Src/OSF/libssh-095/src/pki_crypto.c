@@ -42,7 +42,7 @@ static int pem_get_password(char * buf, int size, int rwflag, void * userdata)
 {
 	struct pem_get_password_struct * pgp = (struct pem_get_password_struct *)userdata;
 	(void)rwflag; /* unused */
-	if(buf == NULL) {
+	if(!buf) {
 		return 0;
 	}
 	memzero(buf, size);
@@ -139,7 +139,7 @@ static ssh_string make_ecpoint_string(const EC_GROUP * g,
 	ssh_string s;
 	size_t len;
 	len = EC_POINT_point2oct(g, p, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, NULL);
-	if(len == 0) {
+	if(!len) {
 		return NULL;
 	}
 	s = ssh_string_new(len);
@@ -169,7 +169,7 @@ int pki_privkey_build_ecdsa(ssh_key key, int nid, ssh_string e, ssh_string exp)
 	}
 	g = EC_KEY_get0_group(key->ecdsa);
 	p = EC_POINT_new(g);
-	if(p == NULL) {
+	if(!p) {
 		return -1;
 	}
 	ok = EC_POINT_oct2point(g, p, (const uchar *)ssh_string_data(e), ssh_string_len(e), NULL);
@@ -211,7 +211,7 @@ int pki_pubkey_build_ecdsa(ssh_key key, int nid, ssh_string e)
 	}
 	g = EC_KEY_get0_group(key->ecdsa);
 	p = EC_POINT_new(g);
-	if(p == NULL) {
+	if(!p) {
 		return -1;
 	}
 	ok = EC_POINT_oct2point(g, p, (const uchar *)ssh_string_data(e), ssh_string_len(e), NULL);
@@ -429,7 +429,7 @@ ssh_key pki_key_dup(const ssh_key key, int demote)
 			    }
 
 			    p = EC_KEY_get0_public_key(key->ecdsa);
-			    if(p == NULL) {
+			    if(!p) {
 				    goto fail;
 			    }
 
@@ -668,12 +668,10 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 	BIO * mem = NULL;
 	EVP_PKEY * pkey = NULL;
 	int rc;
-
 	mem = BIO_new(BIO_s_mem());
-	if(mem == NULL) {
+	if(!mem) {
 		return NULL;
 	}
-
 	switch(key->type) {
 		case SSH_KEYTYPE_DSS:
 		    pkey = EVP_PKEY_new();
@@ -1150,7 +1148,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 		    const BIGNUM * bp, * bq, * bg, * bpub_key;
 		    DSA_get0_pqg(key->dsa, &bp, &bq, &bg);
 		    p = ssh_make_bignum_string((BIGNUM*)bp);
-		    if(p == NULL) {
+		    if(!p) {
 			    goto fail;
 		    }
 
@@ -1427,7 +1425,7 @@ static ssh_string pki_ecdsa_signature_to_blob(const ssh_signature sig)
 	}
 
 	buf = ssh_buffer_new();
-	if(buf == NULL) {
+	if(!buf) {
 		goto error;
 	}
 
@@ -1678,7 +1676,7 @@ static int pki_signature_from_ecdsa_blob(UNUSED_PARAM(const ssh_key pubkey),
 
 	/* build ecdsa signature */
 	buf = ssh_buffer_new();
-	if(buf == NULL) {
+	if(!buf) {
 		return SSH_ERROR;
 	}
 

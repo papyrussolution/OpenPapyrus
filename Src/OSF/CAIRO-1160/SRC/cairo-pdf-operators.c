@@ -536,7 +536,7 @@ cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t 
 				 * there are only two dash elements, then there is
 				 * nothing at all to draw.
 				 */
-				if(i == 0) {
+				if(!i) {
 					double last_two[2];
 
 					if(num_dashes == 2) {

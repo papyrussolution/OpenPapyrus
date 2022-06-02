@@ -374,7 +374,7 @@ void * _mi_mem_alloc_aligned(size_t size,
 	*is_pinned = false;
 	bool default_large = false;
 	if(large==NULL) large = &default_large; // ensure `large != NULL`
-	if(size == 0) return NULL;
+	if(!size) return NULL;
 	size = _mi_align_up(size, _mi_os_page_size());
 
 	// allocate from regions if possible
@@ -383,11 +383,11 @@ void * _mi_mem_alloc_aligned(size_t size,
 	const size_t blocks = mi_region_block_count(size);
 	if(blocks <= MI_REGION_MAX_OBJ_BLOCKS && alignment <= MI_SEGMENT_ALIGN) {
 		p = mi_region_try_alloc(blocks, commit, large, is_pinned, is_zero, memid, tld);
-		if(p == NULL) {
+		if(!p) {
 			_mi_warning_message("unable to allocate from region: size %zu\n", size);
 		}
 	}
-	if(p == NULL) {
+	if(!p) {
 		// and otherwise fall back to the OS
 		p = _mi_arena_alloc_aligned(size, alignment, commit, large, is_pinned, is_zero, &arena_memid, tld);
 		*memid = mi_memid_create_from_arena(arena_memid);
@@ -482,7 +482,7 @@ void _mi_mem_collect(mi_os_tld_t* tld)
 				memzero(&regions[i], sizeof(mem_region_t));
 				// and release the whole region
 				mi_atomic_store_release(&region->info, (uintptr_t)0);
-				if(start != NULL) { // && !_mi_os_is_huge_reserved(start)) {
+				if(start) { // && !_mi_os_is_huge_reserved(start)) {
 					_mi_abandoned_await_readers(); // ensure no pending reads
 					_mi_arena_free(start, MI_REGION_SIZE, arena_memid, (~commit == 0), tld->stats);
 				}

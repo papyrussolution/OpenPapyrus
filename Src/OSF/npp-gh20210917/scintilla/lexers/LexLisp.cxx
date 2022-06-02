@@ -21,7 +21,7 @@ using namespace Scintilla;
 #define SCE_LISP_MACRO_DISPATCH 31
 
 static inline bool isLispoperator(char ch) {
-	if(IsASCII(ch) && isalnum(ch))
+	if(isasciialnum(ch))
 		return false;
 	if(ch == '\'' || ch == '`' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}')
 		return true;

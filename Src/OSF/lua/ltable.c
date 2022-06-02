@@ -278,7 +278,7 @@ static void setarrayvector(lua_State * L, Table * t, unsigned int size)
 
 static void setnodevector(lua_State * L, Table * t, unsigned int size) 
 {
-	if(size == 0) { /* no elements to hash part? */
+	if(!size) { /* no elements to hash part? */
 		t->node = cast(Node *, dummynode); /* use common 'dummynode' */
 		t->lsizenode = 0;
 		t->lastfree = NULL; /* signal that it is using dummy node */

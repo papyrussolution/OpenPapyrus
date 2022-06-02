@@ -33,8 +33,7 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					if(view_id == R.id.STDCTL_OKBUTTON) {
 						Object data = GetDTS();
 						if(data != null) {
-							Context ctx = getContext();
-							StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
+							StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(getContext());
 							if(app_ctx != null)
 								app_ctx.HandleEvent(SLib.EV_IADATAEDITCOMMIT, this, data);
 						}
@@ -100,16 +99,18 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			case SLib.EV_CREATE:
 				setContentView(R.layout.activity_face_list);
 				{
-					StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-					try {
-						Db = app_ctx.GetDB();
-						ListData = (Db != null) ? Db.GetFaceList() : new ArrayList<StyloQFace>();
-					} catch(StyloQException exn) {
-						Db = null;
-						ListData = new ArrayList<StyloQFace>();
-						app_ctx.DisplayError(null, exn, 5000);
+					StyloQApp app_ctx = GetAppCtx();
+					if(app_ctx != null) {
+						try {
+							Db = app_ctx.GetDB();
+							ListData = (Db != null) ? Db.GetFaceList() : new ArrayList<StyloQFace>();
+						} catch(StyloQException exn) {
+							Db = null;
+							ListData = new ArrayList<StyloQFace>();
+							app_ctx.DisplayError(null, exn, 5000);
+						}
+						SetupListView(R.id.faceListView, R.layout.li_face, ListData);
 					}
-					SetupListView(R.id.faceListView, R.layout.li_face, ListData);
 				}
 				break;
 			case SLib.EV_GETLISTITEMVIEW:

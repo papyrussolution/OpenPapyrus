@@ -538,7 +538,7 @@ int bn_mul_fixed_top(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_CTX * ct
 	i = al - bl;
 #endif
 #ifdef BN_MUL_COMBA
-	if(i == 0) {
+	if(!i) {
 #if 0
 		if(al == 4) {
 			if(bn_wexpand(rr, 8) == NULL)

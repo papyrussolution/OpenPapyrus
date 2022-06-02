@@ -65,7 +65,7 @@ static int sasldb_auxprop_lookup(void * glob_context __attribute__((unused)), sa
 	int saw_user_password = 0;
 	if(!sparams || !user) 
 		return SASL_BADPARAM;
-	user_buf = (char *)sparams->utils->malloc(ulen + 1);
+	user_buf = (char *)sparams->utils->FnMalloc(ulen + 1);
 	if(!user_buf) {
 		ret = SASL_NOMEM;
 		goto done;
@@ -177,9 +177,9 @@ static int sasldb_auxprop_lookup(void * glob_context __attribute__((unused)), sa
 	}
 
 done:
-	if(userid) sparams->utils->free(userid);
-	if(realm) sparams->utils->free(realm);
-	if(user_buf) sparams->utils->free(user_buf);
+	if(userid) sparams->utils->FnFree(userid);
+	if(realm) sparams->utils->FnFree(realm);
+	if(user_buf) sparams->utils->FnFree(user_buf);
 
 	return ret;
 }
@@ -202,7 +202,7 @@ static int sasldb_auxprop_store(void * glob_context __attribute__((unused)),
 
 	if(!sparams || !user) return SASL_BADPARAM;
 
-	user_buf = (char *)sparams->utils->malloc(ulen + 1);
+	user_buf = (char *)sparams->utils->FnMalloc(ulen + 1);
 	if(!user_buf) {
 		ret = SASL_NOMEM;
 		goto done;
@@ -245,9 +245,9 @@ static int sasldb_auxprop_store(void * glob_context __attribute__((unused)),
 		}
 	}
 done:
-	if(userid) sparams->utils->free(userid);
-	if(realm) sparams->utils->free(realm);
-	if(user_buf) sparams->utils->free(user_buf);
+	if(userid) sparams->utils->FnFree(userid);
+	if(realm) sparams->utils->FnFree(realm);
+	if(user_buf) sparams->utils->FnFree(user_buf);
 
 	return ret;
 }

@@ -6,6 +6,8 @@
         android:targetSdkVersion="30"
         tools:overrideLibrary="com.google.zxing.client.android" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" />
     <application
         android:name=".StyloQApp"
         android:allowBackup="true"
@@ -56,5 +58,9 @@
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
+        <service
+            android:name=".StyloQJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true"/>
     </application>
 </manifest>

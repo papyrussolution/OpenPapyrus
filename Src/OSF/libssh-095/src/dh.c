@@ -459,8 +459,7 @@ int ssh_server_dh_process_init(ssh_session session, ssh_buffer packet)
 		    ssh_set_error(session, SSH_FATAL, "Invalid kex type");
 		    goto error;
 	}
-	rc = ssh_dh_keypair_get_keys(crypto->dh_ctx, DH_SERVER_KEYPAIR,
-		NULL, &server_pubkey);
+	rc = ssh_dh_keypair_get_keys(crypto->dh_ctx, DH_SERVER_KEYPAIR, NULL, &server_pubkey);
 	if(rc != SSH_OK) {
 		goto error;
 	}
@@ -469,12 +468,7 @@ int ssh_server_dh_process_init(ssh_session session, ssh_buffer packet)
 		ssh_set_error_oom(session);
 		goto error;
 	}
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bSBS",
-		packet_type,
-		pubkey_blob,
-		server_pubkey,
-		sig_blob);
+	rc = ssh_buffer_pack(session->out_buffer, "bSBS", packet_type, pubkey_blob, server_pubkey, sig_blob);
 	SSH_STRING_FREE(sig_blob);
 	SSH_STRING_FREE(pubkey_blob);
 	if(rc != SSH_OK) {
@@ -487,7 +481,6 @@ int ssh_server_dh_process_init(ssh_session session, ssh_buffer packet)
 		goto error;
 	}
 	SSH_LOG(SSH_LOG_DEBUG, "Sent KEX_DH_[GEX]_REPLY");
-
 	if(ssh_buffer_add_u8(session->out_buffer, SSH2_MSG_NEWKEYS) < 0) {
 		ssh_buffer_reinit(session->out_buffer);
 		goto error;
@@ -497,12 +490,10 @@ int ssh_server_dh_process_init(ssh_session session, ssh_buffer packet)
 		goto error;
 	}
 	SSH_LOG(SSH_LOG_PACKET, "SSH_MSG_NEWKEYS sent");
-
 	return SSH_OK;
 error:
 	SSH_STRING_FREE(sig_blob);
 	SSH_STRING_FREE(pubkey_blob);
-
 	session->session_state = SSH_SESSION_STATE_ERROR;
 	ssh_dh_cleanup(session->next_crypto);
 	return SSH_ERROR;

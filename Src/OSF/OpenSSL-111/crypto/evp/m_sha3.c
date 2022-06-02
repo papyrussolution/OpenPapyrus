@@ -54,7 +54,7 @@ static int sha3_update(EVP_MD_CTX * evp_ctx, const void * _inp, size_t len)
 	const uchar * inp = static_cast<const uchar *>(_inp);
 	size_t bsz = ctx->block_size;
 	size_t num, rem;
-	if(len == 0)
+	if(!len)
 		return 1;
 	if((num = ctx->num) != 0) {   /* process intermediate buffer? */
 		rem = bsz - num;
@@ -192,7 +192,7 @@ static int s390x_sha3_update(EVP_MD_CTX * evp_ctx, const void * _inp, size_t len
 	const size_t bsz = ctx->block_size;
 	size_t num, rem;
 
-	if(len == 0)
+	if(!len)
 		return 1;
 
 	if((num = ctx->num) != 0) {

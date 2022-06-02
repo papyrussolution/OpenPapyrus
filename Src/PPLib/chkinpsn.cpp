@@ -1,5 +1,5 @@
 // CHKINPSN.CPP
-// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -295,13 +295,18 @@ PPCheckInPersonArray::PPCheckInPersonArray() : TSVector <PPCheckInPersonItem> ()
 	MemoPool.add("$"); // zero index - is empty string
 }
 
+PPCheckInPersonArray::PPCheckInPersonArray(const PPCheckInPersonArray & rS) : TSVector <PPCheckInPersonItem> (rS), MemoPool(rS.MemoPool),
+	Ver(rS.Ver), Kind(rS.Kind), PrmrID(rS.PrmrID), LastAnonymN(rS.LastAnonymN)
+{
+}
+
 PPCheckInPersonArray & FASTCALL PPCheckInPersonArray::Copy(const PPCheckInPersonArray & rS)
 {
 	Ver = rS.Ver;
 	Kind = rS.Kind;
 	PrmrID = rS.PrmrID;
 	LastAnonymN = rS.LastAnonymN;
-	SVector::copy(rS); // @v9.8.6 SArray-->SVector
+	SVector::copy(rS);
 	MemoPool.copy(rS.MemoPool);
 	return *this;
 }

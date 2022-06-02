@@ -234,7 +234,7 @@ private:
 				return false;
 			}
 			length = stringArray.getSize();
-			if(length == 0) {
+			if(!length) {
 				return true;
 			}
 			int32_t * rawIndexes = indexes.allocateInsteadAndCopy(length);

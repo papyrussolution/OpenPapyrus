@@ -107,7 +107,7 @@ void ComplexUnitsConverter::init(const MeasureUnitImpl &inputUnit,
 	//              inches)
 	//              3. then, the final result will be (6 feet and 6.74016 inches)
 	for(int i = 0, n = units_.length(); i < n; i++) {
-		if(i == 0) { // first element
+		if(!i) { // first element
 			unitsConverters_.emplaceBackAndCheckErrorCode(status, inputUnit, units_[i]->unitImpl,
 			    ratesInfo, status);
 		}

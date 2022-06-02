@@ -701,7 +701,7 @@ void TransliteratorTest::TestFiltering() {
 
 	// ICU4C ONLY. Do not find Transliterator.orphanFilter() in ICU4J.
 	UnicodeFilter * f = hex->orphanFilter();
-	if(f == NULL) {
+	if(!f) {
 		errln("FAIL: orphanFilter() should get a UnicodeFilter");
 	}
 	else {

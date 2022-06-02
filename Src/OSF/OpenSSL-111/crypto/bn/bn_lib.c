@@ -397,7 +397,7 @@ BIGNUM * FASTCALL BN_bin2bn(const uchar * s, int len, BIGNUM * ret)
 	for(; len > 0 && *s == 0; s++, len--)
 		continue;
 	n = len;
-	if(n == 0) {
+	if(!n) {
 		ret->top = 0;
 		return ret;
 	}
@@ -502,7 +502,7 @@ BIGNUM * BN_lebin2bn(const uchar * s, int len, BIGNUM * ret)
 	for(; len > 0 && s[-1] == 0; s--, len--)
 		continue;
 	n = len;
-	if(n == 0) {
+	if(!n) {
 		ret->top = 0;
 		return ret;
 	}
@@ -697,7 +697,7 @@ int bn_cmp_words(const BN_ULONG * a, const BN_ULONG * b, int n)
 	int i;
 	BN_ULONG aa, bb;
 
-	if(n == 0)
+	if(!n)
 		return 0;
 
 	aa = a[n - 1];

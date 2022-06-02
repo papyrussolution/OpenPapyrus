@@ -296,9 +296,9 @@ PPSyncCashNode::SuspCheckFilt::SuspCheckFilt()
 	THISZERO();
 }
 
-int PPSyncCashNode::SuspCheckFilt::IsEmpty() const
+bool PPSyncCashNode::SuspCheckFilt::IsEmpty() const
 {
-	return BIN(DaysPeriod == 0 && DlvrItemsShowTag == 0 && Flags == 0);
+	return (DaysPeriod == 0 && DlvrItemsShowTag == 0 && Flags == 0);
 }
 
 PPSyncCashNode::PPSyncCashNode() : PPGenCashNode(), DownBill(0), CurDate(ZERODATE), CurSessID(0), TouchScreenID(0), ExtCashNodeID(0),

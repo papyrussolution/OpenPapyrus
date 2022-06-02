@@ -3437,7 +3437,7 @@ WORK_STATE tls_prepare_client_certificate(SSL * s, WORK_STATE wst)
 				s->rwstate = SSL_X509_LOOKUP;
 				return WORK_MORE_A;
 			}
-			if(i == 0) {
+			if(!i) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR,
 				    SSL_F_TLS_PREPARE_CLIENT_CERTIFICATE,
 				    SSL_R_CALLBACK_FAILED);
@@ -3482,7 +3482,7 @@ WORK_STATE tls_prepare_client_certificate(SSL * s, WORK_STATE wst)
 		EVP_PKEY_free(pkey);
 		if(i && !ssl3_check_client_certificate(s))
 			i = 0;
-		if(i == 0) {
+		if(!i) {
 			if(s->version == SSL3_VERSION) {
 				s->s3->tmp.cert_req = 0;
 				ssl3_send_alert(s, SSL3_AL_WARNING, SSL_AD_NO_CERTIFICATE);

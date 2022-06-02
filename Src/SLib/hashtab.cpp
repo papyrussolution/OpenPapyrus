@@ -2072,7 +2072,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 #endif
 #define MUR_GETBLOCK(p, i) (MUR_PLUS0_ALIGNED(p) ? ((p)[i]) : (MUR_PLUS1_ALIGNED(p) ? MUR_THREE_ONE(p) : (MUR_PLUS2_ALIGNED(p) ? MUR_TWO_TWO(p) : MUR_ONE_THREE(p))))
 #endif
-#define MUR_ROTL32(x, r) (((x) << (r)) | ((x) >> (32 - (r))))
+// @v11.4.0 (replaced with slrotl32) #define MUR_ROTL32(x, r) (((x) << (r)) | ((x) >> (32 - (r))))
 #define MUR_FMIX(_h) \
 	do {		     \
 		_h ^= _h >> 16;	   \
@@ -2087,8 +2087,8 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 		const uint8_t * _mur_data = (const uint8_t *)(key);		      \
 		const int _mur_nblocks = (keylen) / 4;				     \
 		uint32_t _mur_h1 = 0xf88D5353;					     \
-		uint32_t _mur_c1 = 0xcc9e2d51;					     \
-		uint32_t _mur_c2 = 0x1b873593;					     \
+		const uint32_t _mur_c1 = _SlConst.MagicMurmurC1; \
+		const uint32_t _mur_c2 = _SlConst.MagicMurmurC2; \
 		uint32_t _mur_k1 = 0;						     \
 		const uint8_t * _mur_tail;					      \
 		const uint32_t * _mur_blocks = (const uint32_t*)(_mur_data+_mur_nblocks*4); \
@@ -2096,11 +2096,11 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 		for(_mur_i = -_mur_nblocks; _mur_i; _mur_i++) {			     \
 			_mur_k1 = MUR_GETBLOCK(_mur_blocks, _mur_i);			    \
 			_mur_k1 *= _mur_c1;						   \
-			_mur_k1 = MUR_ROTL32(_mur_k1, 15);				    \
+			_mur_k1 = slrotl32(_mur_k1, 15);				    \
 			_mur_k1 *= _mur_c2;						   \
 								       \
 			_mur_h1 ^= _mur_k1;						   \
-			_mur_h1 = MUR_ROTL32(_mur_h1, 13);				    \
+			_mur_h1 = slrotl32(_mur_h1, 13);				    \
 			_mur_h1 = _mur_h1*5+0xe6546b64;					   \
 		}								     \
 		_mur_tail = (const uint8_t *)(_mur_data + _mur_nblocks*4);	     \
@@ -2110,7 +2110,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 			case 2: _mur_k1 ^= _mur_tail[1] << 8;				   \
 			case 1: _mur_k1 ^= _mur_tail[0];				   \
 			    _mur_k1 *= _mur_c1;						       \
-			    _mur_k1 = MUR_ROTL32(_mur_k1, 15);					\
+			    _mur_k1 = slrotl32(_mur_k1, 15);					\
 			    _mur_k1 *= _mur_c2;						       \
 			    _mur_h1 ^= _mur_k1;						       \
 		}								     \

@@ -191,7 +191,7 @@ static cairo_status_t _cairo_rectilinear_stroker_emit_segments(cairo_rectilinear
 		j = i == stroker->num_segments - 1 ? 0 : i+1;
 		lengthen_final = (stroker->segments[i].flags ^ stroker->segments[j].flags) & HORIZONTAL;
 		if(stroker->open_sub_path) {
-			if(i == 0)
+			if(!i)
 				lengthen_initial = line_cap != CAIRO_LINE_CAP_BUTT;
 			if(i == stroker->num_segments - 1)
 				lengthen_final = line_cap != CAIRO_LINE_CAP_BUTT;

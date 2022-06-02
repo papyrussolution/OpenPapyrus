@@ -1020,6 +1020,65 @@ int ObjTagList::ProcessObjRefs(PPObjIDArray * ary, int replace)
 //
 //
 //
+ObjTagContainerHelper::ObjTagContainerHelper(ObjTagList & rTagL, PPID objType, PPID guidTagID) : R_TagL(rTagL), ObjType(objType), GuidTagID(guidTagID)
+{
+}
+
+int ObjTagContainerHelper::SetGuid(const S_GUID & rGuid)
+{
+	int    ok = 1;
+	THROW(GuidTagID); // @err
+	if(rGuid.IsZero()) {
+		THROW(R_TagL.PutItem(GuidTagID, 0));
+	}
+	else {
+		ObjTagItem tag;
+		PPObjTag tagobj;
+		PPObjectTag tag_rec;
+		int    abs_tag_err = PPERR_OBJTAGUUIDABS;
+		if(ObjType == PPOBJ_BILL)
+			abs_tag_err = PPERR_BILLTAGUUIDABS;
+		else if(ObjType == PPOBJ_TSESSION)
+			abs_tag_err = PPERR_TSESSTAGUUIDABS;
+		THROW_PP(tagobj.Fetch(GuidTagID, &tag_rec) > 0, PPERR_BILLTAGUUIDABS);
+		THROW(tag.SetGuid(GuidTagID, &rGuid));
+		THROW(R_TagL.PutItem(GuidTagID, &tag));
+	}
+	CATCH
+		ok = 0;
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+	ENDCATCH
+	return ok;
+}
+
+int ObjTagContainerHelper::GenerateGuid(S_GUID * pGuid)
+{
+	int    ok = 1;
+	S_GUID guid;
+	THROW(GuidTagID); // @err
+	THROW_SL(guid.Generate());
+	THROW(SetGuid(guid));
+	CATCHZOK
+	ASSIGN_PTR(pGuid, guid);
+	return ok;
+}
+
+int ObjTagContainerHelper::GetGuid(S_GUID & rGuid)
+{
+	int    ok = 0;
+	const  ObjTagItem * p_tag_item = GuidTagID ? R_TagL.GetItem(GuidTagID) : 0;
+	if(p_tag_item && p_tag_item->GetGuid(&rGuid) > 0) {
+		ok = 1;
+	}
+	else {
+		rGuid.Z();
+		ok = 0;
+	}
+	return ok;
+}
+//
+//
+//
 ObjTagCore::ObjTagCore() : ObjTagTbl()
 {
 }

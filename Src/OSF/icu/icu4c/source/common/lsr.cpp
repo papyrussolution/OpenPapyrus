@@ -108,7 +108,8 @@ int32_t LSR::indexForRegion(const char * region)
 	return 0;
 }
 
-LSR &LSR::setHashCode() {
+LSR &LSR::setHashCode() 
+{
 	if(hashCode == 0) {
 		uint32_t h = ustr_hashCharsN(language, static_cast<int32_t>(uprv_strlen(language)));
 		h = h * 37 + ustr_hashCharsN(script, static_cast<int32_t>(uprv_strlen(script)));

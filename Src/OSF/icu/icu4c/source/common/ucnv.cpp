@@ -69,7 +69,7 @@ U_CAPI UConverter * U_EXPORT2 ucnv_openU(const UChar * name, UErrorCode * err)
 	char asciiName[UCNV_MAX_CONVERTER_NAME_LENGTH];
 	if(!err || U_FAILURE(*err))
 		return NULL;
-	if(name == NULL)
+	if(!name)
 		return ucnv_open(NULL, err);
 	if(u_strlen(name) >= UCNV_MAX_CONVERTER_NAME_LENGTH) {
 		*err = U_ILLEGAL_ARGUMENT_ERROR;

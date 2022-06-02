@@ -15,7 +15,7 @@ PalmBillQueue::PalmBillQueue() : SArray(sizeof(PalmBillPacket *), aryPtrContaine
 }
 
 uint PalmBillQueue::GetItemsCount() const { return getCount(); }
-int  PalmBillQueue::IsEmpty() const { return getCount() ? 0 : 1; }
+bool PalmBillQueue::IsEmpty() const { return !getCount(); }
 int  PalmBillQueue::Push(PalmBillPacket * pPack) { return insert(pPack) ? 1 : PPSetErrorSLib(); }
 
 // @v10.7.2 #define COMPARE(a,b) ((a)>(b)) ? 1 : (((a)<(b)) ? -1 : 0)

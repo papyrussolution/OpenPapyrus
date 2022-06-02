@@ -396,7 +396,7 @@ static void printOutAlias(UFILE * out, UResourceBundle * parent, Resource r, con
 		static const UChar openStr[] = { 0x003A, 0x0061, 0x006C, 0x0069, 0x0061, 0x0073, 0x0020, 0x007B, 0x0020, 0x0022 }; // ":alias { \"" 
 		static const UChar closeStr[] = { 0x0022, 0x0020, 0x007D, 0x0020 }; /* "\" } " */
 		printIndent(out, indent);
-		if(key != NULL) {
+		if(key) {
 			printCString(out, key, -1);
 		}
 		printString(out, openStr, UPRV_LENGTHOF(openStr));
@@ -436,7 +436,7 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 			    len = truncsize/2;
 		    }
 		    printIndent(out, indent);
-		    if(key != NULL) {
+		    if(key) {
 			    static const UChar openStr[] = { 0x0020, 0x007B, 0x0020, 0x0022 }; /* " { \"" */
 			    static const UChar closeStr[] = { 0x0022, 0x0020, 0x007D }; /* "\" }" */
 			    printCString(out, key, (int32_t)uprv_strlen(key));
@@ -470,7 +470,7 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 		    UChar num[20];
 
 		    printIndent(out, indent);
-		    if(key != NULL) {
+		    if(key) {
 			    printCString(out, key, -1);
 		    }
 		    printString(out, openStr, UPRV_LENGTHOF(openStr));
@@ -505,7 +505,7 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 				   */
 			    static const UChar closeStr[] = { 0x0020, 0x007D, 0x0020 }; /* " } " */
 			    printIndent(out, indent);
-			    if(key != NULL) {
+			    if(key) {
 				    printCString(out, key, -1);
 			    }
 			    printString(out, openStr, UPRV_LENGTHOF(openStr));
@@ -539,7 +539,7 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 			    UChar num[20];
 
 			    printIndent(out, indent);
-			    if(key != NULL) {
+			    if(key) {
 				    printCString(out, key, -1);
 			    }
 			    printString(out, openStr, UPRV_LENGTHOF(openStr));
@@ -574,7 +574,7 @@ static void printOutBundle(UFILE * out, UResourceBundle * resource, int32_t inde
 		    UResourceBundle * t = NULL;
 		    ures_resetIterator(resource);
 		    printIndent(out, indent);
-		    if(key != NULL) {
+		    if(key) {
 			    printCString(out, key, -1);
 		    }
 		    printString(out, openStr, UPRV_LENGTHOF(openStr));

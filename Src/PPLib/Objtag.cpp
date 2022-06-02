@@ -141,9 +141,9 @@ TagFilt & FASTCALL TagFilt::operator = (const TagFilt & rS)
 	return *this;
 }
 
-int TagFilt::IsEmpty() const
+bool TagFilt::IsEmpty() const
 {
-	return BIN(TagsRestrict.getCount() == 0);
+	return !TagsRestrict.getCount();
 }
 
 static int CheckTagItemForRawRestriction(const ObjTagItem * pTagItem, const char * pRawRestrictionString, SColor & rClr)

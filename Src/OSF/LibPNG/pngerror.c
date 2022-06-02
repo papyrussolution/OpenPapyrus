@@ -534,7 +534,7 @@ jmp_buf * PNGAPI png_set_longjmp_fn(png_structrp png_ptr, png_longjmp_ptr longjm
 	}
 	else { /* Already allocated: check the size */
 		size_t size = png_ptr->jmp_buf_size;
-		if(size == 0) {
+		if(!size) {
 			size = (sizeof png_ptr->jmp_buf_local);
 			if(png_ptr->jmp_buf_ptr != &png_ptr->jmp_buf_local) {
 				/* This is an internal error in libpng: somehow we have been left

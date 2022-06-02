@@ -1831,18 +1831,9 @@ BrandFilt & FASTCALL BrandFilt::operator = (const BrandFilt & rS)
 	return *this;
 }
 
-int BrandFilt::IsEmpty() const
+bool BrandFilt::IsEmpty() const
 {
-	int    yes = 1;
-	if(Flags != 0)
-		yes = 0;
-	else if(SrchStr.NotEmpty())
-		yes = 0;
-	else if(!ParentList.IsEmpty())
-		yes = 0;
-	else if(!OwnerList.IsEmpty())
-		yes = 0;
-	return yes;
+	return (!Flags && SrchStr.IsEmpty() && ParentList.IsEmpty() && OwnerList.IsEmpty());
 }
 
 PPBrandPacket::PPBrandPacket()

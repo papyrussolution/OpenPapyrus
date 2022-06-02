@@ -129,7 +129,7 @@ static int rsa_builtin_keygen(RSA * rsa, int bits, int primes, BIGNUM * e_value,
 	for(i = 0; i < primes; i++) {
 		adj = 0;
 		retries = 0;
-		if(i == 0) {
+		if(!i) {
 			prime = rsa->p;
 		}
 		else if(i == 1) {

@@ -333,7 +333,7 @@ void CollationBuilder::addReset(int32_t strength, const UnicodeString & str,
 	else if(strength == UCOL_PRIMARY) {
 		// root primary node (has no previous index)
 		uint32_t p = weight32FromNode(node);
-		if(p == 0) {
+		if(!p) {
 			errorCode = U_UNSUPPORTED_ERROR;
 			parserErrorReason = "reset primary-before ignorable not possible";
 			return;
@@ -856,7 +856,7 @@ namespace {
  */
 int32_t binarySearchForRootPrimaryNode(const int32_t * rootPrimaryIndexes, int32_t length,
     const int64_t * nodes, uint32_t p) {
-	if(length == 0) {
+	if(!length) {
 		return ~0;
 	}
 	int32_t start = 0;
@@ -1529,7 +1529,7 @@ void CollationBuilder::makeTailoredCEs(UErrorCode & errorCode) {
 							int32_t tCount = countTailoredNodes(nodesArray, nextIndex,
 								UCOL_TERTIARY) + 1;
 							uint32_t tLimit;
-							if(t == 0) {
+							if(!t) {
 								// Gap at the beginning of the tertiary CE range.
 								t = rootElements.getTertiaryBoundary() - 0x100;
 								tLimit = rootElements.getFirstTertiaryCE() & Collation::ONLY_TERTIARY_MASK;
@@ -1667,7 +1667,7 @@ void CollationBuilder::makeTailoredCEs(UErrorCode & errorCode) {
 int32_t CollationBuilder::countTailoredNodes(const int64_t * nodesArray, int32_t i, int32_t strength) {
 	int32_t count = 0;
 	for(;;) {
-		if(i == 0) {
+		if(!i) {
 			break;
 		}
 		int64_t node = nodesArray[i];

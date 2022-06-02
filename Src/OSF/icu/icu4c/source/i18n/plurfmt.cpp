@@ -142,7 +142,7 @@ PluralFormat::PluralFormat(const PluralFormat& other)
 
 void PluralFormat::copyObjects(const PluralFormat& other) {
 	UErrorCode status = U_ZERO_ERROR;
-	if(numberFormat != NULL) {
+	if(numberFormat) {
 		delete numberFormat;
 	}
 	if(pluralRulesWrapper.pluralRules != NULL) {

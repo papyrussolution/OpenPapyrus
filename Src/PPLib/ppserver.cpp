@@ -280,7 +280,7 @@ int PPServerCmd::GetWord(const char * pBuf, size_t * pPos)
 				c = pBuf[++p];
 			}
 		}
-		while(pBuf[p] == ' ' || pBuf[p] == '\t')
+		while(oneof2(pBuf[p], ' ', '\t'))
 			p++;
 	}
 	else

@@ -338,7 +338,7 @@ size_t FASTCALL xmlBufShrink(xmlBuf * buf, size_t len)
 	if(!buf || buf->error) 
 		return 0;
 	CHECK_COMPAT(buf)
-	if(len == 0) 
+	if(!len) 
 		return 0;
 	if(len > buf->use) 
 		return 0;
@@ -440,7 +440,7 @@ int FASTCALL xmlBufGrow(xmlBuf * buf, int len)
 	size_t ret;
 	if(!buf || (len < 0))
         return -1;
-	else if(len == 0)
+	else if(!len)
 		return 0;
 	else {
 		ret = xmlBufGrowInternal(buf, len);
@@ -828,7 +828,7 @@ int xmlBufAddHead(xmlBufPtr buf, const xmlChar * str, int len)
 #endif
 		return -1;
 	}
-	if(len == 0)
+	if(!len)
 		return 0;
 	if(len < 0)
 		len = sstrlen(str);

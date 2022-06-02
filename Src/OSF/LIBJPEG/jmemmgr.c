@@ -895,7 +895,7 @@ void jinit_memory_mgr(j_common_ptr cinfo)
 	max_to_use = jpeg_mem_init(cinfo); /* system-dependent initialization */
 	/* Attempt to allocate memory manager's control block */
 	mem = (my_mem_ptr)jpeg_get_small(cinfo, SIZEOF(my_memory_mgr));
-	if(mem == NULL) {
+	if(!mem) {
 		jpeg_mem_term(cinfo); /* system-dependent cleanup */
 		ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 0);
 	}

@@ -234,7 +234,7 @@ void json_add_string(GravityJson * json, const char * key, const char * value, s
 				write_escaped = true; break;
 			}
 		}
-		if(len == 0) write_escaped = true;
+		if(!len) write_escaped = true;
 		if(write_escaped)
 			json_write_escaped(json, value, len, true, (key == NULL));
 		else

@@ -333,7 +333,7 @@ int WPACKET_set_max_size(WPACKET * pkt, size_t maxsize)
 int WPACKET_memset(WPACKET * pkt, int ch, size_t len)
 {
 	uchar * dest;
-	if(len == 0)
+	if(!len)
 		return 1;
 	if(!WPACKET_allocate_bytes(pkt, len, &dest))
 		return 0;
@@ -344,7 +344,7 @@ int WPACKET_memset(WPACKET * pkt, int ch, size_t len)
 int WPACKET_memcpy(WPACKET * pkt, const void * src, size_t len)
 {
 	uchar * dest;
-	if(len == 0)
+	if(!len)
 		return 1;
 	if(!WPACKET_allocate_bytes(pkt, len, &dest))
 		return 0;

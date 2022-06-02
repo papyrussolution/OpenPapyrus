@@ -422,9 +422,9 @@ GoodsByTransferFilt::GoodsByTransferFilt(const GoodsFilt * pGoodsFilt) : SupplID
 	}
 }
 
-int GoodsByTransferFilt::IsEmpty() const
+bool GoodsByTransferFilt::IsEmpty() const
 {
-	return (SupplID || !LotPeriod.IsZero()) ? 0 : 1;
+	return (!SupplID && LotPeriod.IsZero());
 }
 
 int Transfer::GetGoodsIdList(const GoodsByTransferFilt & rFilt, PPIDArray & rList)

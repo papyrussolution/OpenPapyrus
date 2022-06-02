@@ -339,9 +339,9 @@ int main(int argc, char * argv[])
 			char * p;
 			p = strrchr(cnvName, U_FILE_SEP_CHAR); /* Find last file separator */
 
-			if(p == NULL) { /* OK, try alternate */
+			if(!p) { /* OK, try alternate */
 				p = strrchr(cnvName, U_FILE_ALT_SEP_CHAR);
-				if(p == NULL) {
+				if(!p) {
 					p = cnvName; /* If no separators, no problem */
 				}
 			}

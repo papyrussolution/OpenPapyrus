@@ -1636,7 +1636,7 @@ void TimeZoneNamesImpl::getDisplayNames(const UnicodeString & tzID,
 	for(int i = 0; i < numTypes; i++) {
 		UTimeZoneNameType type = types[i];
 		const UChar * name = ((ZNames*)tznames)->getName(type);
-		if(name == NULL) {
+		if(!name) {
 			if(mznames == NULL) {
 				// Load the meta zone name
 				UnicodeString mzID;

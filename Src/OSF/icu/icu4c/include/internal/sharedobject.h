@@ -132,7 +132,7 @@ public:
 			return const_cast<T *>(p);
 		}
 		T * p2 = new T(*p);
-		if(p2 == NULL) {
+		if(!p2) {
 			return NULL;
 		}
 		p->removeRef();

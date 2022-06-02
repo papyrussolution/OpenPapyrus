@@ -34,7 +34,7 @@ void BF_ofb64_encrypt(const uchar * in, uchar * out, long length, const BF_KEY *
 	l2n(v0, dp);
 	l2n(v1, dp);
 	while(l--) {
-		if(n == 0) {
+		if(!n) {
 			BF_encrypt((BF_LONG*)ti, schedule);
 			dp = (char *)d;
 			t = ti[0];

@@ -122,7 +122,7 @@ static int plain_server_mech_step(void * conn_context __attribute__((unused)),
 	/* this kinda sucks. we need password to be null terminated
 	   but we can't assume there is an allocated byte at the end
 	   of password so we have to copy it */
-	passcopy = (char *)params->utils->malloc(password_len + 1);
+	passcopy = (char *)params->utils->FnMalloc(password_len + 1);
 	if(passcopy == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
 		return SASL_NOMEM;
@@ -251,7 +251,7 @@ typedef struct client_context {
 static int plain_client_mech_new(void * glob_context __attribute__((unused)), sasl_client_params_t * params, void ** conn_context)
 {
 	/* holds state are in */
-	client_context_t * text = (client_context_t *)params->utils->malloc(sizeof(client_context_t));
+	client_context_t * text = (client_context_t *)params->utils->FnMalloc(sizeof(client_context_t));
 	if(text == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
 		return SASL_NOMEM;
@@ -315,7 +315,7 @@ static int plain_client_mech_step(void * conn_context,
 	}
 	/* free prompts we got */
 	if(prompt_need && *prompt_need) {
-		params->utils->free(*prompt_need);
+		params->utils->FnFree(*prompt_need);
 		*prompt_need = NULL;
 	}
 	/* if there are prompts not filled in */
@@ -385,8 +385,8 @@ static void plain_client_mech_dispose(void * conn_context, const sasl_utils_t * 
 	client_context_t * text = (client_context_t*)conn_context;
 	if(text) {
 		if(text->out_buf) 
-			utils->free(text->out_buf);
-		utils->free(text);
+			utils->FnFree(text->out_buf);
+		utils->FnFree(text);
 	}
 }
 

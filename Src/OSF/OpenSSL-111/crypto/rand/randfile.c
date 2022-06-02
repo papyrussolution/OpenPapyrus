@@ -139,11 +139,11 @@ int RAND_load_file(const char * file, long bytes)
 #ifdef EINTR
 		if(ferror(in) && errno == EINTR) {
 			clearerr(in);
-			if(i == 0)
+			if(!i)
 				continue;
 		}
 #endif
-		if(i == 0)
+		if(!i)
 			break;
 
 		RAND_add(buf, i, (double)i);

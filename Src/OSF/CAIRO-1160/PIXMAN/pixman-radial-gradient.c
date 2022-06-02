@@ -70,7 +70,7 @@ static uint32 radial_compute_color(double a, double b, double c, double inva, do
 	 *  - the above problems are worse if a is small (as inva becomes bigger)
 	 */
 	double discr;
-	if(a == 0) {
+	if(!a) {
 		double t;
 		if(b == 0)
 			return 0;

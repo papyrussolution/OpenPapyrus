@@ -185,8 +185,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		{
 			boolean do_update = false;
 			if(Data != null && Data instanceof Document.TransferItem) {
-				//Context ctx = getContext();
-				//StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
 				Document.TransferItem _data = (Document.TransferItem)Data;
 				CommonPrereqModule.WareEntry goods_item = ActivityCtx.CPM.FindGoodsItemByGoodsID(_data.GoodsID);
 				double _upp = 0.0;
@@ -240,20 +238,15 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					SetDTS(Data);
 					break;
 				case SLib.EV_COMMAND:
-					/*{
-						Context ctx = getContext();
-						StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
-						app_ctx.DisplayMessage(ctx, "debug ev_command", 10000);
-					}*/
 					if(srcObj != null && srcObj instanceof View) {
 						final int view_id = ((View)srcObj).getId();
 						if(view_id == R.id.STDCTL_OKBUTTON) {
 							Object data = GetDTS();
 							if(data != null) {
-								Context ctx = getContext();
-								StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
-								if(app_ctx != null)
-									app_ctx.HandleEvent(SLib.EV_IADATAEDITCOMMIT, this, data);
+								//Context ctx = getContext();
+								//StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+								//if(app_ctx != null)
+								ActivityCtx.HandleEvent(SLib.EV_IADATAEDITCOMMIT, this, data);
 							}
 							this.dismiss();
 						}
@@ -262,8 +255,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						}
 						else if(view_id == R.id.STDCTL_DELETEBUTTON) {
 							if(Data != null && Data instanceof Document.TransferItem) {
-								Context ctx = getContext();
-								StyloQApp app_ctx = (ctx != null) ? (StyloQApp) ctx.getApplicationContext() : null;
+								StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(getContext());
 								if(app_ctx != null) {
 									/*
 									try {
@@ -351,8 +343,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		Object GetDTS()
 		{
 			Object result = null;
-			Context ctx = getContext();
-			StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+			StyloQApp app_ctx = ActivityCtx.GetAppCtx();
 			if(app_ctx != null) {
 				Document.TransferItem _data = null;
 				if(Data != null && Data instanceof Document.TransferItem)
@@ -396,7 +387,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	private void CreateTabList(boolean force)
 	{
 		final int tab_layout_rcid = R.id.TABLAYOUT_ORDERPREREQ;
-		StyloQApp app_ctx = (StyloQApp)getApplicationContext();
+		StyloQApp app_ctx = GetAppCtx();
 		if(app_ctx != null && (CPM.TabList == null || force)) {
 			CPM.TabList = new ArrayList<CommonPrereqModule.TabEntry>();
 			LayoutInflater inflater = LayoutInflater.from(this);
@@ -622,7 +613,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				if(final_cli_js != null) {
 					int cli_id = final_cli_js.optInt("id", 0);
 					int dlvrloc_id = (dlvrLocItem != null) ? dlvrLocItem.optInt("id", 0) : 0;
-					result = CPM.SetClientToCurrentDocument((StyloQApp)getApplicationContext(), cli_id, dlvrloc_id);
+					result = CPM.SetClientToCurrentDocument(SLib.PPEDIOP_ORDER, cli_id, dlvrloc_id);
 					if(result) {
 						CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
 						NotifyCurrentOrderChanged();
@@ -638,7 +629,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	//
 	private boolean AddItemToCurrentOrder(Document.TransferItem item)
 	{
-		boolean result = CPM.AddTransferItemToCurrentDocument((StyloQApp)getApplication(), item);
+		boolean result = CPM.AddTransferItemToCurrentDocument(item);
 		if(result)
 			NotifyCurrentOrderChanged();
 		return result;
@@ -734,90 +725,95 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						CPM.GetAttributesFromIntent(intent);
 						long doc_id = intent.getLongExtra("SvcReplyDocID", 0);
 						String svc_reply_doc_json = null;
-						StyloQApp app_ctx = (StyloQApp)getApplication();
-						StyloQDatabase db = app_ctx.GetDB();
-						if(doc_id > 0) {
-							StyloQDatabase.SecStoragePacket doc_packet = db.GetPeerEntry(doc_id);
-							if(doc_packet != null) {
-								byte [] raw_doc = doc_packet.Pool.Get(SecretTagPool.tagRawData);
-								if(SLib.GetLen(raw_doc) > 0)
-									svc_reply_doc_json = new String(raw_doc);
+						StyloQApp app_ctx = GetAppCtx();
+						if(app_ctx != null) {
+							StyloQDatabase db = app_ctx.GetDB();
+							if(doc_id > 0) {
+								StyloQDatabase.SecStoragePacket doc_packet = db.GetPeerEntry(doc_id);
+								if(doc_packet != null) {
+									byte[] raw_doc = doc_packet.Pool.Get(SecretTagPool.tagRawData);
+									if(SLib.GetLen(raw_doc) > 0)
+										svc_reply_doc_json = new String(raw_doc);
+								}
 							}
-						}
-						else
-							svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");
-						if(SLib.GetLen(svc_reply_doc_json) > 0) {
-							JSONObject js_head = new JSONObject(svc_reply_doc_json);
-							CPM.GetCommonJsonFactors(js_head);
-							UomListData = js_head.optJSONArray("uom_list");
-							CPM.MakeGoodsGroupListFromCommonJson(js_head);
-							CPM.MakeGoodsListFromCommonJson(js_head);
-							{
-								JSONArray temp_array = js_head.optJSONArray("brand_list");
-								if(temp_array != null) {
-									BrandListData = new ArrayList<JSONObject>();
-									for(int i = 0; i < temp_array.length(); i++) {
-										Object temp_obj = temp_array.get(i);
-										if(temp_obj != null && temp_obj instanceof JSONObject)
-											BrandListData.add((JSONObject)temp_obj);
-									}
-									Collections.sort(BrandListData, new Comparator<JSONObject>() {
-										@Override public int compare(JSONObject lh, JSONObject rh)
-										{
-											String ls = lh.optString("nm", "");
-											String rs = rh.optString("nm", "");
-											return ls.toLowerCase().compareTo(rs.toLowerCase());
+							else
+								svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");
+							if(SLib.GetLen(svc_reply_doc_json) > 0) {
+								JSONObject js_head = new JSONObject(svc_reply_doc_json);
+								CPM.GetCommonJsonFactors(js_head);
+								UomListData = js_head.optJSONArray("uom_list");
+								CPM.MakeGoodsGroupListFromCommonJson(js_head);
+								CPM.MakeGoodsListFromCommonJson(js_head);
+								{
+									JSONArray temp_array = js_head.optJSONArray("brand_list");
+									if(temp_array != null) {
+										BrandListData = new ArrayList<JSONObject>();
+										for(int i = 0; i < temp_array.length(); i++) {
+											Object temp_obj = temp_array.get(i);
+											if(temp_obj != null && temp_obj instanceof JSONObject)
+												BrandListData.add((JSONObject) temp_obj);
 										}
-									});
-								}
-							}
-							WharehouseListData = js_head.optJSONArray("warehouse_list");
-							QuotKindListData = js_head.optJSONArray("quotkind_list");
-							{
-								JSONArray temp_array = js_head.optJSONArray("client_list");
-								if(temp_array != null) {
-									CliListData = new ArrayList<CliEntry>();
-									for(int i = 0; i < temp_array.length(); i++) {
-										Object temp_obj = temp_array.get(i);
-										if(temp_obj != null && temp_obj instanceof JSONObject)
-											CliListData.add(new CliEntry((JSONObject)temp_obj));
+										Collections.sort(BrandListData, new Comparator<JSONObject>() {
+											@Override
+											public int compare(JSONObject lh, JSONObject rh)
+											{
+												String ls = lh.optString("nm", "");
+												String rs = rh.optString("nm", "");
+												return ls.toLowerCase().compareTo(rs.toLowerCase());
+											}
+										});
 									}
-									Collections.sort(CliListData, new Comparator<CliEntry>() {
-										@Override public int compare(CliEntry lh, CliEntry rh)
-										{
-											String ls = lh.JsItem.optString("nm", "");
-											String rs = lh.JsItem.optString("nm", "");
-											return ls.toLowerCase().compareTo(rs.toLowerCase());
+								}
+								WharehouseListData = js_head.optJSONArray("warehouse_list");
+								QuotKindListData = js_head.optJSONArray("quotkind_list");
+								{
+									JSONArray temp_array = js_head.optJSONArray("client_list");
+									if(temp_array != null) {
+										CliListData = new ArrayList<CliEntry>();
+										for(int i = 0; i < temp_array.length(); i++) {
+											Object temp_obj = temp_array.get(i);
+											if(temp_obj != null && temp_obj instanceof JSONObject)
+												CliListData.add(new CliEntry((JSONObject) temp_obj));
 										}
-									});
+										Collections.sort(CliListData, new Comparator<CliEntry>() {
+											@Override
+											public int compare(CliEntry lh, CliEntry rh)
+											{
+												String ls = lh.JsItem.optString("nm", "");
+												String rs = lh.JsItem.optString("nm", "");
+												return ls.toLowerCase().compareTo(rs.toLowerCase());
+											}
+										});
+									}
+								}
+								CPM.RestoreRecentDraftDocumentAsCurrent(); // @v11.4.0
+								CPM.MakeCurrentDocList();
+								MakeSimpleSearchIndex();
+							}
+							requestWindowFeature(Window.FEATURE_NO_TITLE);
+							setContentView(R.layout.activity_cmdrorderprereq);
+							CPM.SetupActivity(db, R.id.VIEWPAGER_ORDERPREREQ, R.id.TABLAYOUT_ORDERPREREQ);
+							ViewPager2 view_pager = (ViewPager2) findViewById(R.id.VIEWPAGER_ORDERPREREQ);
+							SetupViewPagerWithFragmentAdapter(R.id.VIEWPAGER_ORDERPREREQ);
+							{
+								TabLayout lo_tab = findViewById(R.id.TABLAYOUT_ORDERPREREQ);
+								if(lo_tab != null) {
+									CreateTabList(false);
+									for(int i = 0; i < CPM.TabList.size(); i++) {
+										TabLayout.Tab tab = lo_tab.newTab();
+										tab.setText(CPM.TabList.get(i).TabText);
+										lo_tab.addTab(tab);
+									}
+									SLib.SetupTabLayoutStyle(lo_tab);
+									SLib.SetupTabLayoutListener(lo_tab, view_pager);
+									if(CPM.IsCurrentDocumentEmpty()) {
+										CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+									}
+									//SetTabVisibility(Tab.tabSearch, View.GONE);
 								}
 							}
-							CPM.MakeCurrentDocList(app_ctx);
-							MakeSimpleSearchIndex();
+							SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
 						}
-						requestWindowFeature(Window.FEATURE_NO_TITLE);
-						setContentView(R.layout.activity_cmdrorderprereq);
-						CPM.SetupActivity(db, R.id.VIEWPAGER_ORDERPREREQ, R.id.TABLAYOUT_ORDERPREREQ);
-						ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ORDERPREREQ);
-						SetupViewPagerWithFragmentAdapter(R.id.VIEWPAGER_ORDERPREREQ);
-						{
-							TabLayout lo_tab = findViewById(R.id.TABLAYOUT_ORDERPREREQ);
-							if(lo_tab != null) {
-								CreateTabList(false);
-								for(int i = 0; i < CPM.TabList.size(); i++) {
-									TabLayout.Tab tab = lo_tab.newTab();
-									tab.setText(CPM.TabList.get(i).TabText);
-									lo_tab.addTab(tab);
-								}
-								SLib.SetupTabLayoutStyle(lo_tab);
-								SLib.SetupTabLayoutListener(lo_tab, view_pager);
-								if(CPM.IsCurrentDocumentEmpty()) {
-									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
-								}
-								//SetTabVisibility(Tab.tabSearch, View.GONE);
-							}
-						}
-						SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
 					} catch(JSONException exn) {
 						//exn.printStackTrace();
 					} catch(StyloQException exn) {
@@ -917,7 +913,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							if(srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) {
 								SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
 								if(a.GetListRcId() == R.id.searchPaneListView) {
-									CPM.GetSearchPaneListViewItem((StyloQApp)getApplicationContext(), ev_subj.RvHolder.itemView, ev_subj.ItemIdx);
+									CPM.GetSearchPaneListViewItem(ev_subj.RvHolder.itemView, ev_subj.ItemIdx);
 								}
 								else if(a.GetListRcId() == R.id.orderPrereqClientsListView) {
 									if(CliListData != null && ev_subj.ItemIdx < CliListData.size()) {
@@ -1038,12 +1034,19 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 														String text = null;
 														if(i == 0) { // indicator image
 															if(ctl_view instanceof ImageView) {
-																if((cur_entry.H.Flags & StyloQDatabase.SecStoragePacket.styloqfDocFinished) != 0)
+																final int ds = StyloQDatabase.SecTable.Rec.GetDocStatus(cur_entry.H.Flags);
+																if(ds == StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_SUCC)
 																	((ImageView)ctl_view).setImageResource(R.drawable.ic_styloq_document_finished);
-																else if((cur_entry.H.Flags & (StyloQDatabase.SecStoragePacket.styloqfDocWaitForOrdrsp|StyloQDatabase.SecStoragePacket.styloqfDocWaitForDesadv)) != 0)
+																else if(ds == StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC)
 																	((ImageView)ctl_view).setImageResource(R.drawable.ic_styloq_document_itrm);
-																else if((cur_entry.H.Flags & StyloQDatabase.SecStoragePacket.styloqfDocDraft) != 0)
+																else if(ds == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT)
 																	((ImageView)ctl_view).setImageResource(R.drawable.ic_styloq_document_draft);
+																else if(ds == StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED)
+																	((ImageView)ctl_view).setImageResource(R.drawable.ic_styloqdocstatus_approved);
+																else if(ds == StyloQDatabase.SecStoragePacket.styloqdocstREJECTED)
+																	((ImageView)ctl_view).setImageResource(R.drawable.ic_styloqdocstatus_rejected);
+																else if(ds == StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED)
+																	((ImageView)ctl_view).setImageResource(R.drawable.ic_styloqdocstatus_cancelled);
 															}
 														}
 														else if(ctl_view instanceof TextView){
@@ -1151,113 +1154,115 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						else {
 							lv = fv.findViewById(R.id.orderPrereqOrderListView);
 							if(lv != null) {
-								StyloQApp app_ctx = (StyloQApp)getApplication();
-								SLib.Margin fld_mrgn = new SLib.Margin(8, 2, 8, 2);
-								VdlDocs = new ViewDescriptionList();
-								{ // #0
-									ViewDescriptionList.Item col = new ViewDescriptionList.Item();
-									col.Flags |= ViewDescriptionList.Item.fImage;
-									col.FixedWidth = 32;
-									col.FixedHeight = 32;
-									col.Mrgn = fld_mrgn;
-									VdlDocs.AddItem(col);
-								}
-								{ // #1
-									ViewDescriptionList.Item col = new ViewDescriptionList.Item();
-									col.Title = app_ctx.GetString("billdate");
-									col.StyleRcId = R.style.OrderListItemText;
-									col.Mrgn = fld_mrgn;
-									VdlDocs.AddItem(col);
-								}
-								{ // #2
-									ViewDescriptionList.Item col = new ViewDescriptionList.Item();
-									col.Title = app_ctx.GetString("billno");
-									col.TotalFunc = SLib.AGGRFUNC_COUNT;
-									col.StyleRcId = R.style.OrderListItemText;
-									col.Mrgn = fld_mrgn;
-									VdlDocs.AddItem(col);
-								}
-								{ // #3
-									ViewDescriptionList.Item col = new ViewDescriptionList.Item();
-									col.Title = app_ctx.GetString("billamount");
-									col.TotalFunc = SLib.AGGRFUNC_SUM;
-									col.StyleRcId = R.style.OrderListItemText;
-									col.Mrgn = fld_mrgn;
-									col.ForceAlignment = -1;
-									VdlDocs.AddItem(col);
-								}
-								if(CPM.GetAgentID() > 0) {
-									{ // #4
+								StyloQApp app_ctx = GetAppCtx();
+								if(app_ctx != null) {
+									SLib.Margin fld_mrgn = new SLib.Margin(8, 2, 8, 2);
+									VdlDocs = new ViewDescriptionList();
+									{ // #0
 										ViewDescriptionList.Item col = new ViewDescriptionList.Item();
-										col.Title = app_ctx.GetString("client");
+										col.Flags |= ViewDescriptionList.Item.fImage;
+										col.FixedWidth = 32;
+										col.FixedHeight = 32;
+										col.Mrgn = fld_mrgn;
+										VdlDocs.AddItem(col);
+									}
+									{ // #1
+										ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+										col.Title = app_ctx.GetString("billdate");
 										col.StyleRcId = R.style.OrderListItemText;
 										col.Mrgn = fld_mrgn;
 										VdlDocs.AddItem(col);
 									}
-								}
-								if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
-									final int _vdlc = VdlDocs.GetCount();
-									assert(_vdlc > 0);
-									for(int i = 0; i < _vdlc; i++) {
-										ViewDescriptionList.DataPreprocessBlock dpb = VdlDocs.StartDataPreprocessing(this, i);
-										if(dpb != null && dpb.ColumnDescription != null) {
-											for(int j = 0; j < CPM.OrderHList.size(); j++) {
-												Document.DisplayEntry cur_entry = CPM.OrderHList.get(j);
-												if(cur_entry != null && cur_entry.H != null) {
-													String text = null;
-													if(i == 0) { // status image
-														; // По-моему, здесь ничего замерять не надо - мы и так зафиксировали размер элемента
-													}
-													else if(i == 1) { // date
-														SLib.LDATE d = null;
-														if(cur_entry.H.Time > 0)
-															d = SLib.BuildDateByEpoch(cur_entry.H.Time);
-														else if(cur_entry.H.CreationTime > 0)
-															d = SLib.BuildDateByEpoch(cur_entry.H.CreationTime);
-														if(d != null) {
-															VdlDocs.DataPreprocessingIter(dpb, d.Format(SLib.DATF_DMY));
+									{ // #2
+										ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+										col.Title = app_ctx.GetString("billno");
+										col.TotalFunc = SLib.AGGRFUNC_COUNT;
+										col.StyleRcId = R.style.OrderListItemText;
+										col.Mrgn = fld_mrgn;
+										VdlDocs.AddItem(col);
+									}
+									{ // #3
+										ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+										col.Title = app_ctx.GetString("billamount");
+										col.TotalFunc = SLib.AGGRFUNC_SUM;
+										col.StyleRcId = R.style.OrderListItemText;
+										col.Mrgn = fld_mrgn;
+										col.ForceAlignment = -1;
+										VdlDocs.AddItem(col);
+									}
+									if(CPM.GetAgentID() > 0) {
+										{ // #4
+											ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+											col.Title = app_ctx.GetString("client");
+											col.StyleRcId = R.style.OrderListItemText;
+											col.Mrgn = fld_mrgn;
+											VdlDocs.AddItem(col);
+										}
+									}
+									if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
+										final int _vdlc = VdlDocs.GetCount();
+										assert (_vdlc > 0);
+										for(int i = 0; i < _vdlc; i++) {
+											ViewDescriptionList.DataPreprocessBlock dpb = VdlDocs.StartDataPreprocessing(this, i);
+											if(dpb != null && dpb.ColumnDescription != null) {
+												for(int j = 0; j < CPM.OrderHList.size(); j++) {
+													Document.DisplayEntry cur_entry = CPM.OrderHList.get(j);
+													if(cur_entry != null && cur_entry.H != null) {
+														String text = null;
+														if(i == 0) { // status image
+															; // По-моему, здесь ничего замерять не надо - мы и так зафиксировали размер элемента
 														}
-													}
-													else if(i == 2) { // code
-														VdlDocs.DataPreprocessingIter(dpb, cur_entry.H.Code);
-													}
-													else if(i == 3) { // amount
-														text = CPM.FormatCurrency(cur_entry.H.Amount);
-														VdlDocs.DataPreprocessingIter(dpb, new Double(cur_entry.H.Amount), text);
-													}
-													else if(i == 4) { // client
-														if(cur_entry.H.ClientID > 0) {
-															JSONObject cli_entry = FindClientEntry(cur_entry.H.ClientID);
-															if(cli_entry != null)
-																text = cli_entry.optString("nm", "");
+														else if(i == 1) { // date
+															SLib.LDATE d = null;
+															if(cur_entry.H.Time > 0)
+																d = SLib.BuildDateByEpoch(cur_entry.H.Time);
+															else if(cur_entry.H.CreationTime > 0)
+																d = SLib.BuildDateByEpoch(cur_entry.H.CreationTime);
+															if(d != null) {
+																VdlDocs.DataPreprocessingIter(dpb, d.Format(SLib.DATF_DMY));
+															}
 														}
-														VdlDocs.DataPreprocessingIter(dpb, text);
+														else if(i == 2) { // code
+															VdlDocs.DataPreprocessingIter(dpb, cur_entry.H.Code);
+														}
+														else if(i == 3) { // amount
+															text = CPM.FormatCurrency(cur_entry.H.Amount);
+															VdlDocs.DataPreprocessingIter(dpb, new Double(cur_entry.H.Amount), text);
+														}
+														else if(i == 4) { // client
+															if(cur_entry.H.ClientID > 0) {
+																JSONObject cli_entry = FindClientEntry(cur_entry.H.ClientID);
+																if(cli_entry != null)
+																	text = cli_entry.optString("nm", "");
+															}
+															VdlDocs.DataPreprocessingIter(dpb, text);
+														}
 													}
 												}
+												VdlDocs.FinishDataProcessing(dpb);
+												dpb = null;
 											}
-											VdlDocs.FinishDataProcessing(dpb);
-											dpb = null;
 										}
-									}
-									{
-										LinearLayout header_layout = (LinearLayout)fv.findViewById(R.id.orderPrereqOrderListHeader);
-										if(header_layout != null) {
-											LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(VdlDocs, this, 1);
-											if(_lo_ != null)
-												header_layout.addView(_lo_);
-										}
-										if(VdlDocs.IsThereTotals()) {
-											LinearLayout bottom_layout = (LinearLayout)fv.findViewById(R.id.orderPrereqOrderListBottom);
-											if(bottom_layout != null) {
-												LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(VdlDocs, this,2);
+										{
+											LinearLayout header_layout = (LinearLayout) fv.findViewById(R.id.orderPrereqOrderListHeader);
+											if(header_layout != null) {
+												LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(VdlDocs, this, 1);
 												if(_lo_ != null)
-													bottom_layout.addView(_lo_);
+													header_layout.addView(_lo_);
+											}
+											if(VdlDocs.IsThereTotals()) {
+												LinearLayout bottom_layout = (LinearLayout) fv.findViewById(R.id.orderPrereqOrderListBottom);
+												if(bottom_layout != null) {
+													LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(VdlDocs, this, 2);
+													if(_lo_ != null)
+														bottom_layout.addView(_lo_);
+												}
 											}
 										}
 									}
+									((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
+									SetupRecyclerListView(fv, R.id.orderPrereqOrderListView, /*R.layout.li_orderprereq_order*/0);
 								}
-								((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
-								SetupRecyclerListView(fv, R.id.orderPrereqOrderListView, /*R.layout.li_orderprereq_order*/0);
 							}
 							else {
 								lv = fv.findViewById(R.id.orderPrereqGoodsGroupListView);
@@ -1330,8 +1335,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 																	public void onTextChanged(CharSequence s, int start, int before, int count)
 																	{
 																		String pattern = s.toString();
-																		StyloQApp app_ctx = (StyloQApp)getApplication();
-																		boolean sr = CPM.SearchInSimpleIndex(app_ctx, pattern);
+																		boolean sr = CPM.SearchInSimpleIndex(pattern);
 																		String srit = CPM.SearchResult.GetSearchResultInfoText();
 																		if(!sr && CPM.SearchResult != null)
 																			CPM.SearchResult.Clear();
@@ -1432,7 +1436,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						}
 						else if(srcObj instanceof SLib.RecyclerListAdapter) {
 							SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
-							StyloQApp app_ctx = (StyloQApp)getApplication();
+							StyloQApp app_ctx = GetAppCtx();
 							boolean do_update_goods_list_and_toggle_to_it = false;
 							if(a.GetListRcId() == R.id.orderPrereqGoodsListView) {
 								if(app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.GetGoodsListSize()) {
@@ -1531,7 +1535,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
 					if(te != null)
 						GetFragmentData(te.TabView);
-					CPM.CommitCurrentDocument(this);
+					CPM.CommitCurrentDocument();
 				}
 				break;
 			case SLib.EV_IADATAEDITCOMMIT:
@@ -1570,7 +1574,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					if(ir.OriginalCmdItem != null && ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
 						CPM.Locker_CommitCurrentDocument = false;
 						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-							CPM.MakeCurrentDocList((StyloQApp)getApplication());
+							CPM.MakeCurrentDocList();
 							CPM.ResetCurrentDocument();
 							NotifyCurrentOrderChanged();
 							GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);

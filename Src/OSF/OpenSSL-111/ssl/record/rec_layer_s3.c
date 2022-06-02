@@ -171,7 +171,7 @@ int ssl3_read_n(SSL * s, size_t n, size_t max, int extend, int clearold,
 	uchar * pkt;
 	SSL3_BUFFER * rb;
 
-	if(n == 0)
+	if(!n)
 		return 0;
 
 	rb = &s->rlayer.rbuf;
@@ -372,7 +372,7 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 		/* SSLfatal() already called */
 		if(i < 0)
 			return i;
-		if(i == 0) {
+		if(!i) {
 			return -1;
 		}
 	}
@@ -554,7 +554,7 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 	for(;;) {
 		size_t pipelens[SSL_MAX_PIPELINES], tmppipelen, remain;
 		size_t numpipes, j;
-		if(n == 0)
+		if(!n)
 			numpipes = 1;
 		else
 			numpipes = ((n - 1) / split_send_fragment) + 1;
@@ -1223,7 +1223,7 @@ int ssl3_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf,
 		/* SSLfatal() already called */
 		if(i < 0)
 			return i;
-		if(i == 0)
+		if(!i)
 			return -1;
 	}
 start:
@@ -1334,7 +1334,7 @@ start:
 		if(recvd_type != NULL)
 			*recvd_type = SSL3_RECORD_get_type(rr);
 
-		if(len == 0) {
+		if(!len) {
 			/*
 			 * Mark a zero length record as read. This ensures multiple calls to
 			 * SSL_read() with a zero length buffer will eventually cause
@@ -1609,7 +1609,7 @@ start:
 		/* SSLfatal() already called if appropriate */
 		if(i < 0)
 			return i;
-		if(i == 0) {
+		if(!i) {
 			return -1;
 		}
 

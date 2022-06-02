@@ -95,7 +95,7 @@ static void usershell()
 			command[i++] = *cur++;
 		}
 		command[i] = 0;
-		if(i == 0) {
+		if(!i) {
 			SAlloc::F(cmdline);
 			continue;
 		}

@@ -18,7 +18,7 @@ static void TestTranslitOps()
 	UTransliterator * a = NULL, * b = NULL, * c = NULL;
 	log_verbose("opening a transliterator and UFILE for testing\n");
 	f = u_fopen(STANDARD_TEST_FILE, "w", "en_US_POSIX", NULL);
-	if(f == NULL) {
+	if(!f) {
 		log_err("Couldn't open test file for writing\n");
 		return;
 	}
@@ -99,7 +99,7 @@ static void TestTranslitFileOut()
 	int len;
 	log_verbose("opening a transliterator and UFILE for testing\n");
 	f = u_fopen(STANDARD_TEST_FILE, "w", "en_US_POSIX", "utf-16");
-	if(f == NULL) {
+	if(!f) {
 		log_err("Couldn't open test file for writing\n");
 		return;
 	}
@@ -181,7 +181,7 @@ static void TestTranslitStringOut()
 	log_verbose("opening a transliterator and UFILE for testing\n");
 
 	f = u_fstropen(ubuf, UPRV_LENGTHOF(ubuf), "en_US_POSIX");
-	if(f == NULL) {
+	if(!f) {
 		log_err("Couldn't open test file for writing\n");
 		return;
 	}

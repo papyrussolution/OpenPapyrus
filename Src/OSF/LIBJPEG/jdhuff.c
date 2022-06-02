@@ -469,7 +469,7 @@ static boolean FASTCALL jpeg_fill_bit_buffer(bitread_working_state * state, bit_
 					bytes_in_buffer--;
 					c = GETJOCTET(*next_input_byte++);
 				} while(c == 0xFF);
-				if(c == 0) {
+				if(!c) {
 					/* Found FF/00, which represents an FF data byte */
 					c = 0xFF;
 				}
@@ -644,7 +644,7 @@ METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 	jpeg_component_info * compptr;
 	// Process restart marker if needed; may have to suspend 
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			if(!process_restart(cinfo))
 				return FALSE;
 	}
@@ -705,7 +705,7 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 	d_derived_tbl * tbl;
 	/* Process restart marker if needed; may have to suspend */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			if(!process_restart(cinfo))
 				return FALSE;
 	}
@@ -780,7 +780,7 @@ METHODDEF(boolean) decode_mcu_DC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 
 	/* Process restart marker if needed; may have to suspend */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			if(!process_restart(cinfo))
 				return FALSE;
 	}
@@ -833,7 +833,7 @@ METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 
 	/* Process restart marker if needed; may have to suspend */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			if(!process_restart(cinfo))
 				return FALSE;
 	}
@@ -981,7 +981,7 @@ METHODDEF(boolean) decode_mcu_sub(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 
 	/* Process restart marker if needed; may have to suspend */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			if(!process_restart(cinfo))
 				return FALSE;
 	}
@@ -1103,7 +1103,7 @@ METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 
 	/* Process restart marker if needed; may have to suspend */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			if(!process_restart(cinfo))
 				return FALSE;
 	}

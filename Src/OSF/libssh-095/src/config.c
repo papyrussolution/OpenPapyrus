@@ -683,7 +683,7 @@ static int ssh_config_parse_line(ssh_session session, const char * line, uint co
 		    break;
 		case SOC_PROXYJUMP:
 		    p = ssh_config_get_str_tok(&s, NULL);
-		    if(p == NULL) {
+		    if(!p) {
 			    ZFREE(x);
 			    return -1;
 		    }
@@ -770,7 +770,7 @@ static int ssh_config_parse_line(ssh_session session, const char * line, uint co
 		case SOC_REKEYLIMIT:
 		    /* Parse the data limit */
 		    p = ssh_config_get_str_tok(&s, NULL);
-		    if(p == NULL) {
+		    if(!p) {
 			    break;
 		    }
 		    else if(strcmp(p, "default") == 0) {
@@ -832,7 +832,7 @@ static int ssh_config_parse_line(ssh_session session, const char * line, uint co
 		    }
 		    /* Parse the time limit */
 		    p = ssh_config_get_str_tok(&s, NULL);
-		    if(p == NULL) {
+		    if(!p) {
 			    break;
 		    }
 		    else if(strcmp(p, "none") == 0) {

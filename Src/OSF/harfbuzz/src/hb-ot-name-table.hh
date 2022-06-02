@@ -44,7 +44,7 @@ namespace OT {
 				return _hb_ot_name_language_for_mac_code(l);
 
 #ifndef HB_NO_OT_NAME_LANGUAGE_AAT
-			if(p == 0)
+			if(!p)
 				return face->table.ltag->get_language(l);
 #endif
 

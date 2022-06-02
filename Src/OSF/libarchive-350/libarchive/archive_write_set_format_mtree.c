@@ -555,7 +555,7 @@ static int attr_counter_inc(struct attr_counter ** top, struct attr_counter * ac
 			ac->next->prev = ac;
 		}
 	}
-	else if(last != NULL) {
+	else if(last) {
 		ac = attr_counter_new(me, last);
 		if(ac == NULL)
 			return -1;

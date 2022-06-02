@@ -508,7 +508,7 @@ int TInputLine::OnMouseWheel(int delta)
 		}
 		else if(GETSTYPE(Type) == S_FLOAT) {
 			int p = GETSPRECD(Type);
-			if(p == 0) {
+			if(!p) {
 				double v = 0.0;
 				if(GETSSIZED(Type) == 8)
 					TransmitData(-1, &v);
@@ -1087,7 +1087,7 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								int    y_offs = 0;
 								::GetWindowRect(h_wnd, &rc_temp);
 								TRect rc_item = rc_temp;
-								if(i == 0)
+								if(!i)
 									first_left = rc_item.a.x;
 								else {
 									const int min_gap_y = 1;

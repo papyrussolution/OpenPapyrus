@@ -665,15 +665,12 @@ static void debugmem_list_delete(MEMHDR * p)
 		Mem_Display(stderr);
 #endif
 }
-
 #endif
-
 /*
  * debugmem_tag_error:
  *
  * internal error function.
  */
-
 static void debugmem_tag_error(void * p)
 {
 	xmlGenericError(0, "Memory tag error occurs :%p \n\t bye\n", p);
@@ -735,7 +732,6 @@ void xmlMemShow(FILE * fp, int nr ATTRIBUTE_UNUSED)
  *
  * Dump in-extenso the memory blocks allocated to the file .memorylist
  */
-
 void xmlMemoryDump()
 {
 #ifdef MEM_LIST

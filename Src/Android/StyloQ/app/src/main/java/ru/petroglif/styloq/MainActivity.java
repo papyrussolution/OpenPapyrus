@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,7 +16,6 @@ import com.google.zxing.client.android.Intents;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -468,12 +468,15 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 													iv.setBackgroundResource(R.drawable.shape_listitem);
 												TextView ctl = (TextView)iv.findViewById(R.id.LVITEM_SVCNAME);
 												StyloQFace face = cur_entry.GetFace();
-												if(ctl != null) {
-													ctl.setText(cur_entry.GetSvcName(face));
-													//holder.flagView.setImageResource(state.getFlagResource());
+												if(face != null) { // @v11.4.0 @fix
+													if(ctl != null)
+														ctl.setText(cur_entry.GetSvcName(face));
+													View img_view = iv.findViewById(R.id.LVITEM_IMG);
+													if(img_view != null && img_view instanceof ImageView) {
+														String blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
+														SLib.SetupImage(this, img_view, blob_signature);
+													}
 												}
-												String blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
-												SLib.SetupImage(this, iv.findViewById(R.id.LVITEM_IMG), blob_signature);
 											}
 										}
 									} catch(StyloQException exn) {
@@ -540,7 +543,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					Intent intent = new Intent(this, GlobalSearchActivity.class);
 					startActivity(intent);
 				}
-				else if(view_id == R.id.tbButtonTest) {
+				/*else if(view_id == R.id.tbButtonTest) {
 					StyloQApp app_ctx = (StyloQApp)getApplication();
 					try {
 						// (it works!) ctx.TestDisplaySnackbar(v_info, "Тестовый текст для snackbar'а", -2);
@@ -574,28 +577,29 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							}
 							{
 								if(testDatabase()) {
-									/*{
-										StyloQDatabase dbs = ((StyloQApp)getApplication()).GetDB();
-										dbs.DropTable("SecTable");
-										long own_peer_id = dbs.SetupPeerInstance();
-										if(own_peer_id > 0) {
-											v_info.setText(":) It seems everything is OK");
-										}
-										else
-											v_info.setText(":( SetupPeerInstance test failed");
-									}*/
+									//{
+									//	StyloQDatabase dbs = ((StyloQApp)getApplication()).GetDB();
+									//	dbs.DropTable("SecTable");
+									//	long own_peer_id = dbs.SetupPeerInstance();
+									//	if(own_peer_id > 0) {
+									//		v_info.setText(":) It seems everything is OK");
+									//	}
+									//	else
+									//		v_info.setText(":( SetupPeerInstance test failed");
+									//}
 								}
 							}
 						}
-					} /*catch(NoSuchAlgorithmException e) {
+					} //catch(NoSuchAlgorithmException e) {
 						//e.printStackTrace();
-						v_info.setText(e.toString());
-					} catch(IllegalStateException e) {
-					v_info.setText(e.toString());
-					}*/ catch(StyloQException exn) {
+						//v_info.setText(e.toString());
+					//} catch(IllegalStateException e) {
+					//v_info.setText(e.toString());
+					//}
+					catch(StyloQException exn) {
 						exn.printStackTrace();
 					}
-				}
+				}*/
 				break;
 			case SLib.EV_IADATADELETECOMMIT:
 				if(srcObj != null && subj != null) {

@@ -54,120 +54,122 @@ public class CmdRGridActivity extends SLib.SlActivity {
 					try {
 						setContentView(R.layout.activity_cmdrgrid);
 						Intent intent = getIntent();
-						StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-						StyloQDatabase db = app_ctx.GetDB();
-						String svc_reply_doc_json = null;
-						SvcIdent = intent.getByteArrayExtra("SvcIdent");
-						CmdName = intent.getStringExtra("CmdName");
-						CmdDescr = intent.getStringExtra("CmdDescr");
-						{
-							String title_text = null;
-							if(SLib.GetLen(SvcIdent) > 0) {
-								StyloQDatabase.SecStoragePacket svc_packet = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
-								String svc_name = (svc_packet != null) ? svc_packet.GetSvcName(null) : null;
-								if(SLib.GetLen(svc_name) > 0)
-									SLib.SetCtrlString(this, R.id.tbSvcName, svc_name);
+						StyloQApp app_ctx = GetAppCtx();
+						if(app_ctx != null) {
+							StyloQDatabase db = app_ctx.GetDB();
+							String svc_reply_doc_json = null;
+							SvcIdent = intent.getByteArrayExtra("SvcIdent");
+							CmdName = intent.getStringExtra("CmdName");
+							CmdDescr = intent.getStringExtra("CmdDescr");
+							{
+								String title_text = null;
+								if(SLib.GetLen(SvcIdent) > 0) {
+									StyloQDatabase.SecStoragePacket svc_packet = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
+									String svc_name = (svc_packet != null) ? svc_packet.GetSvcName(null) : null;
+									if(SLib.GetLen(svc_name) > 0)
+										SLib.SetCtrlString(this, R.id.tbSvcName, svc_name);
+								}
+								if(SLib.GetLen(CmdName) > 0) {
+									title_text = CmdName;
+								}
+								if(SLib.GetLen(CmdDescr) > 0) {
+									if(SLib.GetLen(title_text) > 0)
+										title_text = title_text + "\n" + CmdDescr;
+									else
+										title_text = CmdDescr;
+								}
+								if(SLib.GetLen(title_text) > 0) {
+									SLib.SetCtrlString(this, R.id.tbTitle, title_text);
+								}
 							}
-							if(SLib.GetLen(CmdName) > 0) {
-								title_text = CmdName;
+							long doc_id = intent.getLongExtra("SvcReplyDocID", 0);
+							if(doc_id > 0) {
+								StyloQDatabase.SecStoragePacket doc_packet = db.GetPeerEntry(doc_id);
+								if(doc_packet != null) {
+									byte[] raw_doc = doc_packet.Pool.Get(SecretTagPool.tagRawData);
+									if(SLib.GetLen(raw_doc) > 0)
+										svc_reply_doc_json = new String(raw_doc);
+								}
 							}
-							if(SLib.GetLen(CmdDescr) > 0) {
-								if(SLib.GetLen(title_text) > 0)
-									title_text = title_text + "\n" + CmdDescr;
-								else
-									title_text = CmdDescr;
+							else {
+								svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");
 							}
-							if(SLib.GetLen(title_text) > 0) {
-								SLib.SetCtrlString(this, R.id.tbTitle, title_text);
-							}
-						}
-						long doc_id = intent.getLongExtra("SvcReplyDocID", 0);
-						if(doc_id > 0) {
-							StyloQDatabase.SecStoragePacket doc_packet = db.GetPeerEntry(doc_id);
-							if(doc_packet != null) {
-								byte [] raw_doc = doc_packet.Pool.Get(SecretTagPool.tagRawData);
-								if(SLib.GetLen(raw_doc) > 0)
-									svc_reply_doc_json = new String(raw_doc);
-							}
-						}
-						else {
-							svc_reply_doc_json = intent.getStringExtra("SvcReplyDocJson");
-						}
-						if(SLib.GetLen(svc_reply_doc_json) > 0) {
-							JSONObject js = new JSONObject(svc_reply_doc_json);
-							JSONObject js_vd = js.optJSONObject("ViewDescription");
-							ListData = js.optJSONArray("Iter");
-							if(js_vd != null) {
-								Vdl = new ViewDescriptionList();
-								if(Vdl.FromJsonObj(js_vd)) {
-									final int _vdlc = Vdl.GetCount();
-									assert(_vdlc > 0);
-									SLib.Margin fld_mrgn = new SLib.Margin(4, 2, 4, 2);
-									for(int i = 0; i < _vdlc; i++) {
-										ViewDescriptionList.Item vdl_item = Vdl.Get(i);
-										if(vdl_item != null) {
-											vdl_item.Mrgn = fld_mrgn;
-											vdl_item.StyleRcId = R.style.ReportListItemText;
-											ViewDescriptionList.DataPreprocessBlock dpb = Vdl.StartDataPreprocessing(this, i);
-											if(dpb != null && dpb.ColumnDescription != null) {
-												for(int j = 0; j < ListData.length(); j++) {
-													JSONObject cur_entry = (JSONObject) ListData.get(j);
-													if(cur_entry != null)
-														Vdl.DataPreprocessingIter(dpb, cur_entry.optString(dpb.ColumnDescription.FieldName, ""));
+							if(SLib.GetLen(svc_reply_doc_json) > 0) {
+								JSONObject js = new JSONObject(svc_reply_doc_json);
+								JSONObject js_vd = js.optJSONObject("ViewDescription");
+								ListData = js.optJSONArray("Iter");
+								if(js_vd != null) {
+									Vdl = new ViewDescriptionList();
+									if(Vdl.FromJsonObj(js_vd)) {
+										final int _vdlc = Vdl.GetCount();
+										assert (_vdlc > 0);
+										SLib.Margin fld_mrgn = new SLib.Margin(4, 2, 4, 2);
+										for(int i = 0; i < _vdlc; i++) {
+											ViewDescriptionList.Item vdl_item = Vdl.Get(i);
+											if(vdl_item != null) {
+												vdl_item.Mrgn = fld_mrgn;
+												vdl_item.StyleRcId = R.style.ReportListItemText;
+												ViewDescriptionList.DataPreprocessBlock dpb = Vdl.StartDataPreprocessing(this, i);
+												if(dpb != null && dpb.ColumnDescription != null) {
+													for(int j = 0; j < ListData.length(); j++) {
+														JSONObject cur_entry = (JSONObject) ListData.get(j);
+														if(cur_entry != null)
+															Vdl.DataPreprocessingIter(dpb, cur_entry.optString(dpb.ColumnDescription.FieldName, ""));
+													}
+													Vdl.FinishDataProcessing(dpb);
+													dpb = null;
 												}
-												Vdl.FinishDataProcessing(dpb);
-												dpb = null;
 											}
 										}
 									}
 								}
 							}
-						}
-						{
-							LinearLayout header_layout = (LinearLayout)findViewById(R.id.gridCommandViewHeader);
-							if(header_layout != null) {
-								LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(Vdl, this, 1);
-								if(_lo_ != null)
-									header_layout.addView(_lo_);
-							}
-						}
-						{
-							if(Vdl != null && Vdl.IsThereTotals()) {
-								LinearLayout bottom_layout = (LinearLayout) findViewById(R.id.gridCommandViewBottom);
-								if(bottom_layout != null) {
-									LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(Vdl, this,2);
+							{
+								LinearLayout header_layout = (LinearLayout) findViewById(R.id.gridCommandViewHeader);
+								if(header_layout != null) {
+									LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(Vdl, this, 1);
 									if(_lo_ != null)
-										bottom_layout.addView(_lo_);
+										header_layout.addView(_lo_);
 								}
 							}
-						}
-						SetupRecyclerListView(null, R.id.gridCommandView, null);
-						//RecyclerView lv = (RecyclerView)findViewById(R.id.gridCommandView);
-						//if(lv != null) {
+							{
+								if(Vdl != null && Vdl.IsThereTotals()) {
+									LinearLayout bottom_layout = (LinearLayout) findViewById(R.id.gridCommandViewBottom);
+									if(bottom_layout != null) {
+										LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(Vdl, this, 2);
+										if(_lo_ != null)
+											bottom_layout.addView(_lo_);
+									}
+								}
+							}
+							SetupRecyclerListView(null, R.id.gridCommandView, null);
+							//RecyclerView lv = (RecyclerView)findViewById(R.id.gridCommandView);
+							//if(lv != null) {
 							//lv.add
-						//}
-						/*
-						ResultText = intent.getStringExtra("SvcReplyText");
-						if(SLib.GetLen(ResultText) > 0) {
-							try {
-								JSONObject jsobj = new JSONObject(ResultText);
-								if(jsobj != null) {
-									String reply_result = jsobj.optString("result");
-									String reply_msg = jsobj.optString("msg");
-									String reply_errmsg = jsobj.optString("errmsg");
-									if(SLib.GetLen(reply_msg) > 0) {
-										SetCtrlString(R.id.cmdResultText, reply_msg);
+							//}
+							/*
+							ResultText = intent.getStringExtra("SvcReplyText");
+							if(SLib.GetLen(ResultText) > 0) {
+								try {
+									JSONObject jsobj = new JSONObject(ResultText);
+									if(jsobj != null) {
+										String reply_result = jsobj.optString("result");
+										String reply_msg = jsobj.optString("msg");
+										String reply_errmsg = jsobj.optString("errmsg");
+										if(SLib.GetLen(reply_msg) > 0) {
+											SetCtrlString(R.id.cmdResultText, reply_msg);
+										}
+										else if(SLib.GetLen(reply_errmsg) > 0) {
+											SetCtrlString(R.id.cmdResultText, reply_errmsg);
+										}
 									}
-									else if(SLib.GetLen(reply_errmsg) > 0) {
-										SetCtrlString(R.id.cmdResultText, reply_errmsg);
-									}
+								} catch(JSONException e) {
+									//e.printStackTrace();
 								}
-							} catch(JSONException e) {
-								//e.printStackTrace();
+								//SetCtrlString()
 							}
-							//SetCtrlString()
+							 */
 						}
-						 */
 					} catch(JSONException exn) {
 						//
 					} catch(StyloQException exn) {

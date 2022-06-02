@@ -34,21 +34,21 @@ public class FaceActivity extends SLib.SlActivity {
 	private ArrayList <TabEntry> TabList;
 	private void CreateTabList()
 	{
-		StyloQApp app = (StyloQApp)getApplicationContext();
-		if(app != null && TabList == null) {
+		StyloQApp app_ctx = GetAppCtx();
+		if(app_ctx != null && TabList == null) {
 			TabList = new ArrayList<TabEntry>();
 			LayoutInflater inflater = LayoutInflater.from(this);
 			{
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(R.layout.layout_face_basic, R.id.TABLAYOUT_STQFACE);
-				TabList.add(new TabEntry(1, SLib.ExpandString(app, "@{general}"), (Fragment)f));
+				TabList.add(new TabEntry(1, SLib.ExpandString(app_ctx, "@{general}"), (Fragment)f));
 			}
 			{
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(R.layout.layout_face_address, R.id.TABLAYOUT_STQFACE);
-				TabList.add(new TabEntry(2, SLib.ExpandString(app, "@{address}"), (Fragment)f));
+				TabList.add(new TabEntry(2, SLib.ExpandString(app_ctx, "@{address}"), (Fragment)f));
 			}
 			{
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(R.layout.layout_face_ids, R.id.TABLAYOUT_STQFACE);
-				TabList.add(new TabEntry(3, SLib.ExpandString(app, "@{identifier_pl}"), (Fragment)f));
+				TabList.add(new TabEntry(3, SLib.ExpandString(app_ctx, "@{identifier_pl}"), (Fragment)f));
 			}
 		}
 	}
@@ -66,7 +66,7 @@ public class FaceActivity extends SLib.SlActivity {
 			if(vg != null) {
 				int vg_id = vg.getId();
 				if(vg_id == R.id.LAYOUT_STQFACE_BASIC) {
-					StyloQApp app_ctx = (StyloQApp)getApplicationContext();
+					//StyloQApp app_ctx = GetAppCtx();
 					/*
 					View vrbv = findViewById(R.id.CTL_STQFACE_VRF);
 					if(vrbv != null && vrbv instanceof RadioGroup) {
@@ -140,8 +140,8 @@ public class FaceActivity extends SLib.SlActivity {
 					}
 				}
 				{
-					Context app_ctx = getApplicationContext();
-					if(app_ctx instanceof StyloQApp) {
+					Context app_ctx = GetAppCtx();
+					if(app_ctx != null) {
 						View vg = findViewById(R.id.LAYOUT_ACTIVITYROOT);
 						if(vg != null && vg instanceof ViewGroup)
 							SLib.SubstituteStringSignatures((StyloQApp)app_ctx, (ViewGroup)vg);
@@ -213,53 +213,55 @@ public class FaceActivity extends SLib.SlActivity {
 					ViewGroup vg = (ViewGroup)srcObj;
 					int vg_id = vg.getId();
 					if(vg_id == R.id.LAYOUT_STQFACE_BASIC) {
-						StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-						int _v = Data.GetVerifiability();
-						int _status = Data.GetStatus();
-						//String is_verifiable_text =  Data.Get(StyloQFace.tagVerifiable_Depricated, 0);
-						//boolean is_verifiable = false;
-						//if(SLib.GetLen(is_verifiable_text) > 0 && is_verifiable_text.equalsIgnoreCase("true"))
+						StyloQApp app_ctx = GetAppCtx();
+						if(app_ctx != null) {
+							int _v = Data.GetVerifiability();
+							int _status = Data.GetStatus();
+							//String is_verifiable_text =  Data.Get(StyloQFace.tagVerifiable_Depricated, 0);
+							//boolean is_verifiable = false;
+							//if(SLib.GetLen(is_verifiable_text) > 0 && is_verifiable_text.equalsIgnoreCase("true"))
 							//is_verifiable = true;
-						//SLib.SetCheckboxState(vg, R.id.CTL_STQFACE_VERIFIABLE, is_verifiable);
+							//SLib.SetCheckboxState(vg, R.id.CTL_STQFACE_VERIFIABLE, is_verifiable);
 
-						//SLib.SetupStrAssocCombo((StyloQApp)app_ctx, this, R.id.CTLSEL_STQFACE_VRF, vrf_list, _v.ordinal());
-						//SLib.SetupStrAssocCombo((StyloQApp)app_ctx, this, R.id.CTLSEL_STQFACE_STATUS, status_list, _status);
-						SLib.StrAssocArray vrf_list = new SLib.StrAssocArray();
-						{
-							vrf_list.Set(StyloQFace.vArbitrary, app_ctx.GetString("styloqface_varbitrary"));
-							vrf_list.Set(StyloQFace.vAnonymous, app_ctx.GetString("styloqface_vanonymous"));
-							vrf_list.Set(StyloQFace.vVerifiable, app_ctx.GetString("styloqface_vverifiable"));
+							//SLib.SetupStrAssocCombo((StyloQApp)app_ctx, this, R.id.CTLSEL_STQFACE_VRF, vrf_list, _v.ordinal());
+							//SLib.SetupStrAssocCombo((StyloQApp)app_ctx, this, R.id.CTLSEL_STQFACE_STATUS, status_list, _status);
+							SLib.StrAssocArray vrf_list = new SLib.StrAssocArray();
+							{
+								vrf_list.Set(StyloQFace.vArbitrary, app_ctx.GetString("styloqface_varbitrary"));
+								vrf_list.Set(StyloQFace.vAnonymous, app_ctx.GetString("styloqface_vanonymous"));
+								vrf_list.Set(StyloQFace.vVerifiable, app_ctx.GetString("styloqface_vverifiable"));
+							}
+							SLib.StrAssocArray status_list = new SLib.StrAssocArray();
+							{
+								status_list.Set(StyloQFace.statusUndef, app_ctx.GetString("styloqface_statusundef"));
+								status_list.Set(StyloQFace.statusPrvMale, app_ctx.GetString("styloqface_statusprvmale"));
+								status_list.Set(StyloQFace.statusPrvFemale, app_ctx.GetString("styloqface_statusprvfemale"));
+								status_list.Set(StyloQFace.statusPrvGenderQuestioning, app_ctx.GetString("styloqface_statusprvgenderquestioning"));
+								status_list.Set(StyloQFace.statusEnterprise, app_ctx.GetString("styloqface_statusenterprise"));
+							}
+							SLib.SetupStrAssocCombo(app_ctx, vg, R.id.CTLSEL_STQFACE_VRF, vrf_list, _v);
+							SLib.SetupStrAssocCombo(app_ctx, vg, R.id.CTLSEL_STQFACE_STATUS, status_list, _status);
+							//if(__v == )
+							/*View vrbv = findViewById(R.id.CTL_STQFACE_VRF);
+							if(vrbv != null && vrbv instanceof RadioGroup) {
+								RadioGroup vrbc = (RadioGroup)vrbv;
+								if(_v == StyloQFace.Verifiability.vVerifiable) {
+									vrbc.check(R.id.CTL_STQFACE_VRF_VRF);
+								}
+								else if(_v == StyloQFace.Verifiability.vAnonymous) {
+									vrbc.check(R.id.CTL_STQFACE_VRF_ANON);
+								}
+								else { // if(_v == StyloQFace.Verifiability.vArbitrary)
+									vrbc.check(R.id.CTL_STQFACE_VRF_ARB);
+								}
+							}*/
+							SLib.SetCtrlString(vg, R.id.CTL_STQFACE_CN, Data.Get(StyloQFace.tagCommonName, CurrentLangId));
+							SLib.SetCtrlString(vg, R.id.CTL_STQFACE_NAME, Data.Get(StyloQFace.tagName, CurrentLangId));
+							SLib.SetCtrlString(vg, R.id.CTL_STQFACE_PATRONYMIC, Data.Get(StyloQFace.tagPatronymic, CurrentLangId));
+							SLib.SetCtrlString(vg, R.id.CTL_STQFACE_SURNAME, Data.Get(StyloQFace.tagSurName, CurrentLangId));
+							SLib.SetCtrlString(vg, R.id.CTL_STQFACE_PHONE, Data.Get(StyloQFace.tagPhone, 0));
+							// @todo DayOfBirth
 						}
-						SLib.StrAssocArray status_list = new SLib.StrAssocArray();
-						{
-							status_list.Set(StyloQFace.statusUndef, app_ctx.GetString("styloqface_statusundef"));
-							status_list.Set(StyloQFace.statusPrvMale, app_ctx.GetString("styloqface_statusprvmale"));
-							status_list.Set(StyloQFace.statusPrvFemale, app_ctx.GetString("styloqface_statusprvfemale"));
-							status_list.Set(StyloQFace.statusPrvGenderQuestioning, app_ctx.GetString("styloqface_statusprvgenderquestioning"));
-							status_list.Set(StyloQFace.statusEnterprise, app_ctx.GetString("styloqface_statusenterprise"));
-						}
-						SLib.SetupStrAssocCombo(app_ctx, vg, R.id.CTLSEL_STQFACE_VRF, vrf_list, _v);
-						SLib.SetupStrAssocCombo(app_ctx, vg, R.id.CTLSEL_STQFACE_STATUS, status_list, _status);
-						//if(__v == )
-						/*View vrbv = findViewById(R.id.CTL_STQFACE_VRF);
-						if(vrbv != null && vrbv instanceof RadioGroup) {
-							RadioGroup vrbc = (RadioGroup)vrbv;
-							if(_v == StyloQFace.Verifiability.vVerifiable) {
-								vrbc.check(R.id.CTL_STQFACE_VRF_VRF);
-							}
-							else if(_v == StyloQFace.Verifiability.vAnonymous) {
-								vrbc.check(R.id.CTL_STQFACE_VRF_ANON);
-							}
-							else { // if(_v == StyloQFace.Verifiability.vArbitrary)
-								vrbc.check(R.id.CTL_STQFACE_VRF_ARB);
-							}
-						}*/
-						SLib.SetCtrlString(vg, R.id.CTL_STQFACE_CN, Data.Get(StyloQFace.tagCommonName, CurrentLangId));
-						SLib.SetCtrlString(vg, R.id.CTL_STQFACE_NAME, Data.Get(StyloQFace.tagName, CurrentLangId));
-						SLib.SetCtrlString(vg, R.id.CTL_STQFACE_PATRONYMIC, Data.Get(StyloQFace.tagPatronymic, CurrentLangId));
-						SLib.SetCtrlString(vg, R.id.CTL_STQFACE_SURNAME, Data.Get(StyloQFace.tagSurName, CurrentLangId));
-						SLib.SetCtrlString(vg, R.id.CTL_STQFACE_PHONE, Data.Get(StyloQFace.tagPhone, 0));
-						// @todo DayOfBirth
 					}
 					else if(vg_id == R.id.LAYOUT_STQFACE_ADDRESS) {
 						SLib.SetCtrlString(vg, R.id.CTL_STQFACE_COUNTRY, Data.Get(StyloQFace.tagCountryName, CurrentLangId));
@@ -279,23 +281,66 @@ public class FaceActivity extends SLib.SlActivity {
 					GetFragmentData(srcObj);
 				break;
 			case SLib.EV_COMMAND:
-				int view_id = View.class.isInstance(srcObj) ? ((View)srcObj).getId() : 0;
-				if(view_id == R.id.STDCTL_OKBUTTON) {
-					for(int tidx = 0; tidx < TabList.size(); tidx++) {
-						GetFragmentData(TabList.get(tidx).TabView);
+				if(srcObj != null) {
+					int view_id = (srcObj instanceof View) ? ((View) srcObj).getId() : 0;
+					if(view_id == R.id.STDCTL_OKBUTTON) {
+						for(int tidx = 0; tidx < TabList.size(); tidx++) {
+							GetFragmentData(TabList.get(tidx).TabView);
+						}
+						Intent intent = new Intent();
+						String result_json = Data.ToJson();
+						if(result_json != null) {
+							intent.putExtra("StyloQFaceJson", result_json);
+							intent.putExtra("ManagedLongId", Data.ID);
+						}
+						setResult(RESULT_OK, intent);
+						finish();
 					}
-					Intent intent = new Intent();
-					String result_json = Data.ToJson();
-					if(result_json != null) {
-						intent.putExtra("StyloQFaceJson", result_json);
-						intent.putExtra("ManagedLongId", Data.ID);
+					else if(view_id == R.id.STDCTL_CANCELBUTTON) {
+						setResult(RESULT_CANCELED, null);
+						finish();
 					}
-					setResult(RESULT_OK, intent);
-					finish();
 				}
-				else if(view_id == R.id.STDCTL_CANCELBUTTON) {
-					setResult(RESULT_CANCELED, null);
-					finish();
+				break;
+			case SLib.EV_CBSELECTED:
+				if(srcObj != null) {
+					if(subj != null && subj instanceof SLib.ListViewEvent) {
+						SLib.ListViewEvent lve = (SLib.ListViewEvent)subj;
+						int view_id = (srcObj instanceof View) ? ((View)srcObj).getId() : 0;
+						SLib.SlFragmentStatic fragment = null;
+						for(int i = 0; i < TabList.size(); i++) {
+							TabEntry te = TabList.get(i);
+							if(te != null && te.TabId == 1) {
+								if(te.TabView != null && te.TabView instanceof SLib.SlFragmentStatic)
+									fragment = (SLib.SlFragmentStatic)te.TabView;
+								break;
+							}
+						}
+						if(fragment != null) {
+							View v = fragment.getView();
+							ViewGroup vg = (v instanceof ViewGroup) ? (ViewGroup)v : null;
+							if(view_id == R.id.CTLSEL_STQFACE_STATUS) {
+								int result_id = (int) lve.ItemId;
+								if(result_id == StyloQFace.statusPrvMale || result_id == StyloQFace.statusPrvFemale || result_id == StyloQFace.statusPrvGenderQuestioning) {
+									SLib.SetCtrlVisibility(vg, R.id.CTL_STQFACE_CN, View.GONE);
+									SLib.SetCtrlVisibility(vg, R.id.CTL_STQFACE_NAME, View.VISIBLE);
+									SLib.SetCtrlVisibility(vg, R.id.CTL_STQFACE_PATRONYMIC, View.VISIBLE);
+									SLib.SetCtrlVisibility(vg, R.id.CTL_STQFACE_SURNAME, View.VISIBLE);
+									SLib.SetCtrlVisibility(vg, R.id.CTL_STQFACE_DOB, View.VISIBLE);
+								}
+								else {
+									SLib.SetCtrlVisibility(vg, R.id.CTL_STQFACE_CN, View.VISIBLE);
+									SLib.SetCtrlVisibility(vg, R.id.CTL_STQFACE_NAME, View.GONE);
+									SLib.SetCtrlVisibility(vg, R.id.CTL_STQFACE_PATRONYMIC, View.GONE);
+									SLib.SetCtrlVisibility(vg, R.id.CTL_STQFACE_SURNAME, View.GONE);
+									SLib.SetCtrlVisibility(vg, R.id.CTL_STQFACE_DOB, View.GONE);
+								}
+							}
+							else if(view_id == R.id.CTLSEL_STQFACE_VRF) {
+								long result_id = lve.ItemId;
+							}
+						}
+					}
 				}
 				break;
 		}

@@ -656,7 +656,7 @@ static cairo_status_t _cairo_ps_surface_emit_type3_font_subset(cairo_ps_surface_
 		if(UNLIKELY(status))
 			break;
 		_cairo_output_stream_printf(surface->final_stream, "    }\n");
-		if(i == 0) {
+		if(!i) {
 			font_bbox.p1.x = bbox.p1.x;
 			font_bbox.p1.y = bbox.p1.y;
 			font_bbox.p2.x = bbox.p2.x;
@@ -1958,7 +1958,7 @@ static cairo_status_t _base85_string_wrap_stream_write(cairo_output_stream_t * b
 	string_array_stream_t * stream = (string_array_stream_t*)base;
 	uchar c;
 
-	if(length == 0)
+	if(!length)
 		return CAIRO_STATUS_SUCCESS;
 
 	while(length--) {

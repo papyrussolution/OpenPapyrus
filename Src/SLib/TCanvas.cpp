@@ -1007,7 +1007,7 @@ int FASTCALL TCanvas2::Ellipse(const FRect & rRect)
 		//
 		//SPoint2F pt(distance * cosf(angle + SMathConst::Pi_f) + centerX, distance * sinf(angle + SMathConst::Pi_f) + centerY);
 		SPoint2F pt(distance * sinf(angle + SMathConst::Pi_f) + centerX, distance * cosf(angle + SMathConst::Pi_f) + centerY);
-		if(i == 0)
+		if(!i)
 			MoveTo(pt);
 		else {
 			Line(pt);

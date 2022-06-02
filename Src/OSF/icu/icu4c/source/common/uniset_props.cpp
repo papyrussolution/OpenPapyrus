@@ -203,7 +203,7 @@ public:
 	}
 
 	inline bool allocate() {
-		if(p == 0) {
+		if(!p) {
 			p = new UnicodeSet();
 		}
 		return p != 0;

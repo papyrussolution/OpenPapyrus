@@ -76,7 +76,7 @@ int RSA_padding_check_X931(uchar * to, int tlen,
 
 		j -= i;
 
-		if(i == 0) {
+		if(!i) {
 			RSAerr(RSA_F_RSA_PADDING_CHECK_X931, RSA_R_INVALID_PADDING);
 			return -1;
 		}

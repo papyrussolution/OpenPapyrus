@@ -614,7 +614,7 @@ int __libxml2_xzread(xzFile file, void * buf, unsigned len)
 	xz_statep state;
 	lzma_stream * strm;
 	/* get internal structure */
-	if(file == NULL)
+	if(!file)
 		return -1;
 	state = (xz_statep)file;
 	strm = &(state->strm);
@@ -628,7 +628,7 @@ int __libxml2_xzread(xzFile file, void * buf, unsigned len)
 		return -1;
 	}
 	/* if len is zero, avoid unnecessary operations */
-	if(len == 0)
+	if(!len)
 		return 0;
 	/* process a skip request */
 	if(state->seek) {
@@ -686,7 +686,7 @@ int __libxml2_xzclose(xzFile file)
 	int ret;
 	xz_statep state;
 	/* get internal structure */
-	if(file == NULL)
+	if(!file)
 		return LZMA_DATA_ERROR;
 	state = (xz_statep)file;
 	/* free memory and close file */

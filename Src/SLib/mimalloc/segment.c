@@ -363,7 +363,7 @@ static void mi_reset_delayed(mi_segments_tld_t* tld) {
 	}
 	// discard the reset pages from the queue
 	pq->last = page;
-	if(page != NULL) {
+	if(page) {
 		page->next = NULL;
 	}
 	else {

@@ -237,9 +237,7 @@ void TreeView::foldExpandRecursively(HTREEITEM hParentItem, bool isFold) const
 
 void TreeView::foldExpandAll(bool isFold) const
 {
-	for(HTREEITEM tvProj = getRoot();
-	    tvProj != NULL;
-	    tvProj = getNextSibling(tvProj)) {
+	for(HTREEITEM tvProj = getRoot(); tvProj != NULL; tvProj = getNextSibling(tvProj)) {
 		foldExpandRecursively(tvProj, isFold);
 		if(isFold) {
 			fold(tvProj);

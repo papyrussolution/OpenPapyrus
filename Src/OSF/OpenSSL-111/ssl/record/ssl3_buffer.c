@@ -87,7 +87,7 @@ int ssl3_setup_write_buffer(SSL * s, size_t numwpipes, size_t len)
 
 	s->rlayer.numwpipes = numwpipes;
 
-	if(len == 0) {
+	if(!len) {
 		if(SSL_IS_DTLS(s))
 			headerlen = DTLS1_RT_HEADER_LENGTH + 1;
 		else

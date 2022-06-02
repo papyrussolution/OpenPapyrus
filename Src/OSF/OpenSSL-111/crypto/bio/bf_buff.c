@@ -123,7 +123,7 @@ start:
 				BIO_copy_next_retry(b);
 				if(i < 0)
 					return ((num > 0) ? num : i);
-				if(i == 0)
+				if(!i)
 					return num;
 			}
 			num += i;
@@ -141,7 +141,7 @@ start:
 		BIO_copy_next_retry(b);
 		if(i < 0)
 			return ((num > 0) ? num : i);
-		if(i == 0)
+		if(!i)
 			return num;
 	}
 	ctx->ibuf_off = 0;
@@ -189,7 +189,7 @@ start:
 
 				if(i < 0)
 					return ((num > 0) ? num : i);
-				if(i == 0)
+				if(!i)
 					return num;
 			}
 			ctx->obuf_off += i;
@@ -211,7 +211,7 @@ start:
 			BIO_copy_next_retry(b);
 			if(i < 0)
 				return ((num > 0) ? num : i);
-			if(i == 0)
+			if(!i)
 				return num;
 		}
 		num += i;
@@ -280,7 +280,7 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 		case BIO_C_SET_BUFF_READ_DATA:
 		    if(num > ctx->ibuf_size) {
 			    p1 = static_cast<char *>(OPENSSL_malloc((int)num));
-			    if(p1 == NULL)
+			    if(!p1)
 				    goto malloc_error;
 			    OPENSSL_free(ctx->ibuf);
 			    ctx->ibuf = p1;
@@ -310,12 +310,12 @@ static long buffer_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    p2 = ctx->obuf;
 		    if((ibs > DEFAULT_BUFFER_SIZE) && (ibs != ctx->ibuf_size)) {
 			    p1 = static_cast<char *>(OPENSSL_malloc((int)num));
-			    if(p1 == NULL)
+			    if(!p1)
 				    goto malloc_error;
 		    }
 		    if((obs > DEFAULT_BUFFER_SIZE) && (obs != ctx->obuf_size)) {
 			    p2 = static_cast<char *>(OPENSSL_malloc((int)num));
-			    if(p2 == NULL) {
+			    if(!p2) {
 				    if(p1 != ctx->ibuf)
 					    OPENSSL_free(p1);
 				    goto malloc_error;
@@ -448,7 +448,7 @@ static int buffer_gets(BIO * b, char * buf, int size)
 				*buf = '\0';
 				if(i < 0)
 					return ((num > 0) ? num : i);
-				if(i == 0)
+				if(!i)
 					return num;
 			}
 			ctx->ibuf_len = i;

@@ -978,7 +978,7 @@ static void _appendLanguageToLanguageTag(const char * localeID, icu::ByteSink& s
 
 	/* Note: returned language code is in lower case letters */
 
-	if(len == 0) {
+	if(!len) {
 		sink.Append(LANG_UND, LANG_UND_LEN);
 	}
 	else if(!ultag_isLanguageSubtag(buf, len)) {

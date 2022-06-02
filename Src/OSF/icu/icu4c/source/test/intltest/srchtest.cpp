@@ -2120,7 +2120,7 @@ void StringSearchTest::TestGetSetOffsetCanonical()
 
 		strsrch->setPattern(pattern, status);
 
-		int count       = 0;
+		int count = 0;
 		int32_t matchindex  = search.offset[count];
 		while(U_SUCCESS(status) && matchindex >= 0) {
 			int32_t matchlength = search.size[count];

@@ -84,7 +84,7 @@ int TS_STATUS_INFO_print_bio(BIO * bio, TS_STATUS_INFO * a)
 		ASN1_STRING_print_ex(bio, sk_ASN1_UTF8STRING_value(a->text, i), 0);
 		BIO_puts(bio, "\n");
 	}
-	if(i == 0)
+	if(!i)
 		BIO_printf(bio, "unspecified\n");
 
 	BIO_printf(bio, "Failure info: ");

@@ -2288,7 +2288,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_image(cairo_pdf_surface_t * su
 			if(image->format == CAIRO_FORMAT_ARGB32) {
 				uint8 a;
 				a = (*pixel & 0xff000000) >> 24;
-				if(a == 0) {
+				if(!a) {
 					r = g = b = 0;
 				}
 				else {
@@ -5397,7 +5397,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_type3_font_subset(cairo_pdf_su
 		if(UNLIKELY(status))
 			break;
 
-		if(i == 0) {
+		if(!i) {
 			font_bbox.p1.x = bbox.p1.x;
 			font_bbox.p1.y = bbox.p1.y;
 			font_bbox.p2.x = bbox.p2.x;

@@ -1330,15 +1330,74 @@ int SrImportParam::GetField(int fld, SString & rVal) const { return StrItems.Get
 //
 //
 //
-SrUedContainer::SrUedContainer()
+SrUedContainer::SrUedContainer() : LinguaLocusMeta(0)
 {
 }
 	
 SrUedContainer::~SrUedContainer()
 {
 }
+
+uint64 SrUedContainer::SearchBaseIdBySymbP(uint symbp) const
+{
+	uint64 id = 0;
+	for(uint i = 0; !id && i < BL.getCount(); i++) {
+		if(BL.at(i).SymbP == symbp) {
+			id = BL.at(i).Id;
+		}
+	}
+	return id;
+}
+
+uint64 SrUedContainer::SearchBaseSymb(const char * pSymb, uint64 meta) const
+{
+	uint64 id = 0;
+	if(!meta || UED::IsMetaId(meta)) {
+		uint next_pos = 0;
+		for(uint pos = 0; !id && SStrGroup::Pool.searchNcAscii(pSymb, &pos, &next_pos); pos = next_pos) {
+			uint64 temp_id = SearchBaseIdBySymbP(pos);
+			if(!meta || UED::BelongToMeta(temp_id, meta))
+				id = temp_id;
+		}
+	}
+	return id;
+}
+
+bool   SrUedContainer::SearchBaseId(uint64 id, SString & rSymb) const
+{
+	rSymb.Z();
+	bool   ok = false;
+	for(uint i = 0; !ok && i < BL.getCount(); i++) {
+		if(BL.at(i).Id == id) {
+			GetS(BL.at(i).SymbP, rSymb);
+			ok = true;
+		}
+	}
+	return ok;
+}
+
+int SrUedContainer::ReplaceSurrogateLocaleIds(const SymbHashTable & rT)
+{
+	int    ok = 1;
+	SString temp_buf;
+	THROW(LinguaLocusMeta);
+	for(uint i = 0; i < TL.getCount(); i++) {
+		TextEntry & r_e = TL.at(i);
+		if(r_e.Locale) {
+			THROW(rT.GetByAssoc(r_e.Locale, temp_buf));
+			{
+				uint64 locale_id = SearchBaseSymb(temp_buf, LinguaLocusMeta);
+				THROW(locale_id);
+				THROW(UED::BelongToMeta(locale_id, LinguaLocusMeta));
+				r_e.Locale = locale_id;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
 	
-int    SrUedContainer::ReadSource(const char * pFileName)
+int SrUedContainer::ReadSource(const char * pFileName)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -1346,6 +1405,8 @@ int    SrUedContainer::ReadSource(const char * pFileName)
 	SString lang_buf;
 	SString text_buf;
 	StringSet ss;
+	uint   last_linglocus_temp_id = 0;
+	SymbHashTable temporary_linglocus_tab(512);
 	SFile f_in(pFileName, SFile::mRead);
 	THROW(f_in.IsValid());
 	while(f_in.ReadLine(line_buf)) {
@@ -1366,6 +1427,7 @@ int    SrUedContainer::ReadSource(const char * pFileName)
 				uint ssc = ss.getCount();
 				if(oneof2(ssc, 2, 3)) {
 					uint64 id = 0;
+					int   lang_id = 0;
 					text_buf.Z();
 					lang_buf.Z();
 					uint   token_n = 0;
@@ -1376,16 +1438,47 @@ int    SrUedContainer::ReadSource(const char * pFileName)
 						}
 						else if(token_n == 2) {
 							if(ssc == 2) {
-								text_buf = temp_buf;
+								text_buf = temp_buf.StripQuotes();
 							}
 							else {
 								assert(ssc == 3);
-								lang_buf = temp_buf;
+								(lang_buf = temp_buf).Utf8ToLower();
+								uint llid = 0;
+								if(!temporary_linglocus_tab.Search(lang_buf, &llid, 0)) {
+									llid = ++last_linglocus_temp_id;
+									temporary_linglocus_tab.Add(lang_buf, llid, 0);
+								}
+								lang_id = llid;
+								//lang_id = RecognizeLinguaSymb(lang_buf, 1);
 							}
 						}
 						else if(token_n == 3) {
 							assert(ssc == 3);
-							text_buf = temp_buf;
+							text_buf = temp_buf.StripQuotes();
+						}
+					}
+					if(id) {
+						if(ssc == 2) {
+							if(text_buf.IsEqiAscii("lingualocus")) {
+								if(!LinguaLocusMeta)
+									LinguaLocusMeta = id;
+								else {
+									; // @error
+								}
+							}
+							BaseEntry new_entry;
+							new_entry.Id = id;
+							AddS(text_buf, &new_entry.SymbP);
+							BL.insert(&new_entry);
+						}
+						else if(ssc == 3) {
+							if(lang_id) {
+								TextEntry new_entry;
+								new_entry.Id = id;
+								new_entry.Locale = lang_id;
+								AddS(text_buf, &new_entry.TextP);
+								TL.insert(&new_entry);
+							}
 						}
 					}
 				}
@@ -1395,6 +1488,8 @@ int    SrUedContainer::ReadSource(const char * pFileName)
 			}
 		}
 	}
+	THROW_SL(temporary_linglocus_tab.BuildAssoc());
+	THROW(ReplaceSurrogateLocaleIds(temporary_linglocus_tab));
 	CATCHZOK
 	return ok;
 }
@@ -1408,5 +1503,14 @@ int    SrUedContainer::WriteSource(const char * pFileName)
 int    SrUedContainer::Verify()
 {
 	int    ok = 1;
+	return ok;
+}
+
+int Test_ReadUed(const char * pFileName)
+{
+	int    ok = 1;
+	SrUedContainer uedc;
+	THROW(uedc.ReadSource(pFileName));
+	CATCHZOK
 	return ok;
 }

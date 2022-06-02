@@ -437,7 +437,7 @@ int ssh_scp_push_file64(ssh_scp scp, const char * filename, uint64_t size,
 	}
 
 	file = ssh_basename(filename);
-	if(file == NULL) {
+	if(!file) {
 		ssh_set_error_oom(scp->session);
 		return SSH_ERROR;
 	}
@@ -760,7 +760,7 @@ int ssh_scp_pull_request(ssh_scp scp)
 		case 'D':
 		    /* Directory */
 		    p = strchr(buffer, ' ');
-		    if(p == NULL) {
+		    if(!p) {
 			    goto error;
 		    }
 		    *p = '\0';
@@ -769,7 +769,7 @@ int ssh_scp_pull_request(ssh_scp scp)
 		    scp->request_mode = ssh_scp_integer_mode(&buffer[1]);
 		    tmp = p;
 		    p = strchr(p, ' ');
-		    if(p == NULL) {
+		    if(!p) {
 			    goto error;
 		    }
 		    *p = 0;

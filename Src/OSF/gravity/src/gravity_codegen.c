@@ -1808,7 +1808,7 @@ static void visit_list_expr(gvisitor_t * self, gnode_list_expr_t * node)
 	// then the optimizer could decide to optimize and merge the step
 	uint32 dest = ircode_register_push_temp(code);
 	ircode_add(code, (ismap) ? MAPNEW : LISTNEW, dest, n, 0, LINE_NUMBER(node));
-	if(n == 0) return;
+	if(!n) return;
 
 	// this is just like Lua "fields per flush"
 	// basically nodes are processed in a finite chunk

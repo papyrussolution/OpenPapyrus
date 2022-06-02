@@ -39,10 +39,7 @@ static BLAKE2_INLINE uint32 load32(const void * src)
 	return w;
 #else
 	const uint8 * p = (const uint8 *)src;
-	return ((uint32)( p[0] ) <<  0) |
-	       ((uint32)( p[1] ) <<  8) |
-	       ((uint32)( p[2] ) << 16) |
-	       ((uint32)( p[3] ) << 24);
+	return ((uint32)( p[0] ) <<  0) | ((uint32)( p[1] ) <<  8) | ((uint32)( p[2] ) << 16) | ((uint32)( p[3] ) << 24);
 #endif
 }
 
@@ -135,8 +132,8 @@ static BLAKE2_INLINE void store48(void * dst, uint64 w)
 	p[5] = (uint8)(w >> 40);
 }
 
-static BLAKE2_INLINE uint32 rotr32(const uint32 w, const unsigned c) { return ( w >> c ) | ( w << ( 32 - c ) ); }
-static BLAKE2_INLINE uint64 rotr64(const uint64 w, const unsigned c) { return ( w >> c ) | ( w << ( 64 - c ) ); }
+// @v11.4.0 (replaced with slrotr32) static BLAKE2_INLINE uint32 rotr32(const uint32 w, const unsigned c) { return ( w >> c ) | ( w << ( 32 - c ) ); }
+// @v11.4.0 (replaced with slrotr64) static BLAKE2_INLINE uint64 rotr64(const uint64 w, const unsigned c) { return ( w >> c ) | ( w << ( 64 - c ) ); }
 
 /* prevents compiler optimizing out memset() */
 static BLAKE2_INLINE void secure_zero_memory(void * v, size_t n)

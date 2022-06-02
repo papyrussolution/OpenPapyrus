@@ -383,7 +383,7 @@ mi_heap_t* mi_heap_set_default(mi_heap_t* heap)
 
 // static since it is not thread safe to access heaps from other threads.
 static mi_heap_t* mi_heap_of_block(const void * p) {
-	if(p == NULL) return NULL;
+	if(!p) return NULL;
 	mi_segment_t* segment = _mi_ptr_segment(p);
 	bool valid = (_mi_ptr_cookie(segment) == segment->cookie);
 	mi_assert_internal(valid);

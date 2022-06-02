@@ -436,7 +436,7 @@ int ssh_write_knownhost(ssh_session session)
 	}
 	errno = 0;
 	file = fopen(session->opts.knownhosts, "a");
-	if(file == NULL) {
+	if(!file) {
 		if(errno == ENOENT) {
 			dir = ssh_dirname(session->opts.knownhosts);
 			if(dir == NULL) {
@@ -452,7 +452,7 @@ int ssh_write_knownhost(ssh_session session)
 			ZFREE(dir);
 			errno = 0;
 			file = fopen(session->opts.knownhosts, "a");
-			if(file == NULL) {
+			if(!file) {
 				ssh_set_error(session, SSH_FATAL, "Couldn't open known_hosts file %s for appending: %s", session->opts.knownhosts, strerror(errno));
 				return SSH_ERROR;
 			}

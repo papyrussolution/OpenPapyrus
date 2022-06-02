@@ -327,7 +327,7 @@ const xmlChar * FASTCALL xmlStrstr(const xmlChar * str, const xmlChar * val)
 {
 	if(str && val) {
 		int n = sstrlen(val);
-		if(n == 0) 
+		if(!n) 
 			return str;
 		else {
 			while(*str != 0) { // non input consuming 
@@ -354,7 +354,7 @@ const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val)
 {
 	if(str && val) {
 		int n = sstrlen(val);
-		if(n == 0) 
+		if(!n) 
 			return (str);
 		else {
 			while(*str != 0) { /* non input consuming */

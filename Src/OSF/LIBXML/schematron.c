@@ -1065,7 +1065,7 @@ static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxt * ctxt, xmlNod
 					if(oneof4(c, ' ', '\n', '\r', '\t')) {
 						while(oneof4(c, ' ', '\n', '\r', '\t')) {
 							len--;
-							if(len == 0)
+							if(!len)
 								break;
 							c = ret[len-1];
 						}

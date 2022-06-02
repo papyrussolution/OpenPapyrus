@@ -233,7 +233,7 @@ inline ABSL_RANDOM_INTERNAL_ATTRIBUTE_ALWAYS_INLINE void Vector128Store(const Ve
 // symmetry of AES (ensures previously equal columns differ afterwards).
 inline ABSL_RANDOM_INTERNAL_ATTRIBUTE_ALWAYS_INLINE Vector128 AesRound(const Vector128& state, const Vector128& round_key) {
 	Vector128 result;
-#ifdef ABSL_IS_LITTLE_ENDIAN
+#ifdef SL_LITTLEENDIAN
 	result.s[0] = round_key.s[0] ^            //
 	    te0[uint8_t(state.s[0])] ^            //
 	    te1[uint8_t(state.s[1] >> 8)] ^       //
@@ -371,7 +371,7 @@ inline ABSL_RANDOM_INTERNAL_ATTRIBUTE_ALWAYS_INLINE void Permute(absl::uint128* 
 
 // Enables native loads in the round loop by pre-swapping.
 inline ABSL_RANDOM_INTERNAL_ATTRIBUTE_ALWAYS_INLINE void SwapEndian(absl::uint128* state) {
-#ifdef ABSL_IS_BIG_ENDIAN
+#ifdef SL_BIGENDIAN
 	for(uint32_t block = 0; block < RandenTraits::kFeistelBlocks; ++block) {
 		uint64_t new_lo = absl::little_endian::ToHost64(static_cast<uint64_t>(state[block] >> 64));
 		uint64_t new_hi = absl::little_endian::ToHost64(static_cast<uint64_t>((state[block] << 64) >> 64));
@@ -390,7 +390,7 @@ namespace random_internal {
 const void* RandenSlow::GetKeys() {
 	// Round keys for one AES per Feistel round and branch.
 	// The canonical implementation uses first digits of Pi.
-#ifdef ABSL_IS_LITTLE_ENDIAN
+#ifdef SL_LITTLEENDIAN
 	return kRandenRoundKeys;
 #else
 	return kRandenRoundKeysBE;

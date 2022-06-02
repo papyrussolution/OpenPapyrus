@@ -110,7 +110,7 @@ static ssh_string asn1_get(ssh_buffer buffer, uchar want)
 		return NULL;
 	}
 	size = asn1_get_len(buffer);
-	if(size == 0) {
+	if(!size) {
 		return NULL;
 	}
 	str = ssh_string_new(size);
@@ -137,7 +137,7 @@ static ssh_string asn1_get_bit_string(ssh_buffer buffer)
 		return NULL;
 	}
 	size = asn1_get_len(buffer);
-	if(size == 0) {
+	if(!size) {
 		return NULL;
 	}
 	/* The first octet encodes the number of unused bits.  */
@@ -147,14 +147,14 @@ static ssh_string asn1_get_bit_string(ssh_buffer buffer)
 		return NULL;
 	}
 	len = ssh_buffer_get_data(buffer, &unused, 1);
-	if(len == 0) {
+	if(!len) {
 		SSH_STRING_FREE(str);
 		return NULL;
 	}
 
 	if(unused == 0) {
 		len = ssh_buffer_get_data(buffer, ssh_string_data(str), size);
-		if(len == 0) {
+		if(!len) {
 			SSH_STRING_FREE(str);
 			return NULL;
 		}
@@ -165,7 +165,7 @@ static ssh_string asn1_get_bit_string(ssh_buffer buffer)
 	for(p = ssh_string_data(str), last = 0; size; size--, p++) {
 		uchar c;
 		len = ssh_buffer_get_data(buffer, &c, 1);
-		if(len == 0) {
+		if(!len) {
 			SSH_STRING_FREE(str);
 			return NULL;
 		}
@@ -1514,7 +1514,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 			    "p",
 			    GCRYMPI_FMT_USG,
 			    GCRYMPI_FMT_STD);
-		    if(p == NULL) {
+		    if(!p) {
 			    goto fail;
 		    }
 

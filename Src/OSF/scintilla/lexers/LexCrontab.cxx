@@ -165,7 +165,7 @@ static void ColouriseNncrontabDoc(Sci_PositionU startPos, Sci_Position length, i
 
 			case SCE_NNCRONTAB_IDENTIFIER:
 			    // stay  in CONF_IDENTIFIER state until we find a non-alphanumeric
-			    if((IsASCII(ch) && isalnum(ch)) || oneof8(ch, '_', '-', '/', '$', '.', '<', '>', '@')) {
+			    if(isasciialnum(ch) || oneof8(ch, '_', '-', '/', '$', '.', '<', '>', '@')) {
 				    buffer[bufferCount++] = ch;
 			    }
 			    else {

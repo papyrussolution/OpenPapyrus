@@ -34,7 +34,7 @@ void RC2_ofb64_encrypt(const uchar * in, uchar * out, long length, RC2_KEY * sch
 	l2c(v0, dp);
 	l2c(v1, dp);
 	while(l--) {
-		if(n == 0) {
+		if(!n) {
 			RC2_encrypt((ulong *)ti, schedule);
 			dp = (char *)d;
 			t = ti[0];

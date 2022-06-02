@@ -315,7 +315,7 @@ cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
 
 #define FIND_EXTREMES(a, b, c) \
 	{ \
-		if(a == 0) { \
+		if(!a) { \
 			if(b != 0) \
 				ADD(-c / (2*b)); \
 		} else { \

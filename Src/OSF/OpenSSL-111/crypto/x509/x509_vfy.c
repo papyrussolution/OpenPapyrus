@@ -916,7 +916,7 @@ static int check_crl_time(X509_STORE_CTX * ctx, X509_CRL * crl, int notify)
 		ptime = NULL;
 
 	i = X509_cmp_time(X509_CRL_get0_lastUpdate(crl), ptime);
-	if(i == 0) {
+	if(!i) {
 		if(!notify)
 			return 0;
 		if(!verify_cb_crl(ctx, X509_V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD))
@@ -933,7 +933,7 @@ static int check_crl_time(X509_STORE_CTX * ctx, X509_CRL * crl, int notify)
 	if(X509_CRL_get0_nextUpdate(crl)) {
 		i = X509_cmp_time(X509_CRL_get0_nextUpdate(crl), ptime);
 
-		if(i == 0) {
+		if(!i) {
 			if(!notify)
 				return 0;
 			if(!verify_cb_crl(ctx, X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD))

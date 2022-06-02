@@ -209,7 +209,7 @@ int ti_adosc(int size, double const * const * inputs, double const * options, do
 		if(hl != 0.0) {
 			sum += (close[i] - low[i] - high[i] + close[i]) / hl * volume[i];
 		}
-		if(i == 0) {
+		if(!i) {
 			short_ema = sum;
 			long_ema = sum;
 		}
@@ -3194,7 +3194,7 @@ const ti_indicator_info * ti_find_indicator(const char * name)
 	while(imax >= imin) {
 		const int i = (imin + ((imax-imin)/2));
 		const int c = strcmp(name, ti_indicators[i].name);
-		if(c == 0) {
+		if(!c) {
 			return ti_indicators + i;
 		}
 		else if(c > 0) {

@@ -546,16 +546,12 @@ cleanup:
 }
 
 /* output is only valid until next call to sasl_decode */
-int sasl_decode(sasl_conn_t * conn,
-    const char * input, unsigned inputlen,
-    const char ** output, unsigned * outputlen)
+int sasl_decode(sasl_conn_t * conn, const char * input, unsigned inputlen, const char ** output, unsigned * outputlen)
 {
 	int result;
-
 	if(!conn) return SASL_BADPARAM;
 	if(!input || !output || !outputlen)
 		PARAMERROR(conn);
-
 	if(!conn->props.maxbufsize) {
 		sasl_seterror(conn, 0, "called sasl_decode with application that does not support security layers");
 		RETURN(conn, SASL_TOOWEAK);
@@ -579,29 +575,21 @@ int sasl_decode(sasl_conn_t * conn,
 		conn->decode_buf[inputlen] = '\0';
 		*output = conn->decode_buf;
 		*outputlen = inputlen;
-
 		return SASL_OK;
 	}
 	else {
-		result = conn->oparams.decode(conn->context, input, inputlen,
-			output, outputlen);
-
+		result = conn->oparams.decode(conn->context, input, inputlen, output, outputlen);
 		/* NULL an empty buffer (for misbehaved applications) */
 		if(*outputlen == 0) *output = NULL;
-
 		RETURN(conn, result);
 	}
-
 	INTERROR(conn, SASL_FAIL);
 }
 
-void sasl_set_alloc(sasl_malloc_t * m,
-    sasl_calloc_t * c,
-    sasl_realloc_t * r,
-    sasl_free_t * f)
+void sasl_set_alloc(sasl_malloc_t * m, sasl_calloc_t * c, sasl_realloc_t * r, sasl_free_t * f)
 {
-	if(_sasl_allocation_locked++) return;
-
+	if(_sasl_allocation_locked++) 
+		return;
 	_sasl_allocation_utils.malloc = m;
 	_sasl_allocation_utils.calloc = c;
 	_sasl_allocation_utils.realloc = r;
@@ -1485,17 +1473,11 @@ static int _sasl_getsimple(void * context,
 			    DWORD i;
 			    BOOL rval;
 			    static char sender[128];
-
 			    TCHAR tsender[128];
 			    i = sizeof(tsender) / sizeof(tsender[0]);
 			    rval = GetUserName(tsender, &i);
 			    if(rval) { /* got a userid */
-				    WideCharToMultiByte(CP_UTF8, 0, tsender, -1, sender, sizeof(sender), NULL, NULL); /*
-				                                                                                         -1
-				                                                                                         ensures
-				                                                                                         null-terminated
-				                                                                                         utf8
-				                                                                                         */
+				    WideCharToMultiByte(CP_UTF8, 0, tsender, -1, sender, sizeof(sender), NULL, NULL); /* -1 ensures null-terminated utf8 */
 				    *result = sender;
 				    if(len) *len = strlen(sender);
 				    return SASL_OK;
@@ -1508,35 +1490,26 @@ static int _sasl_getsimple(void * context,
 	}
 }
 
-static int _sasl_getpath(void * context __attribute__((unused)),
-    const char ** path_dest)
+static int _sasl_getpath(void * context __attribute__((unused)), const char ** path_dest)
 {
 #if !defined(WIN32)
 	char * path;
 #endif
 	int res = SASL_OK;
-
 	if(!path_dest) {
 		return SASL_BADPARAM;
 	}
-
 	/* Only calculate the path once. */
 	if(default_plugin_path == NULL) {
 #if defined(WIN32)
 		/* NB: On Windows platforms this value is always allocated */
-		default_plugin_path = _sasl_get_default_win_path(context,
-			SASL_PLUGIN_PATH_ATTR,
-			PLUGINDIR);
+		default_plugin_path = _sasl_get_default_win_path(context, SASL_PLUGIN_PATH_ATTR, PLUGINDIR);
 #else
 		/* NB: On Unix platforms this value is never allocated */
-		path = _sasl_get_default_unix_path(context,
-			SASL_PATH_ENV_VAR,
-			PLUGINDIR);
-
+		path = _sasl_get_default_unix_path(context, SASL_PATH_ENV_VAR, PLUGINDIR);
 		res = _sasl_strdup(path, &default_plugin_path, NULL);
 #endif
 	}
-
 	if(res == SASL_OK) {
 		*path_dest = default_plugin_path;
 	}
@@ -1928,10 +1901,10 @@ sasl_utils_t * _sasl_alloc_utils(sasl_conn_t * conn, sasl_global_callbacks_t * g
 		utils->getopt = &_sasl_global_getopt;
 		utils->getopt_context = global_callbacks;
 	}
-	utils->malloc = _sasl_allocation_utils.malloc;
-	utils->calloc = _sasl_allocation_utils.calloc;
-	utils->realloc = _sasl_allocation_utils.realloc;
-	utils->free = _sasl_allocation_utils.free;
+	utils->FnMalloc = _sasl_allocation_utils.malloc;
+	utils->FnCalloc = _sasl_allocation_utils.calloc;
+	utils->FnRealloc = _sasl_allocation_utils.realloc;
+	utils->FnFree = _sasl_allocation_utils.free;
 	utils->mutex_alloc = _sasl_mutex_utils.alloc;
 	utils->mutex_lock = _sasl_mutex_utils.lock;
 	utils->mutex_unlock = _sasl_mutex_utils.unlock;

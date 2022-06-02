@@ -964,23 +964,15 @@ void PPPosProtocol::RouteBlock::Destroy()
 	Code.Z();
 }
 
-int PPPosProtocol::RouteBlock::IsEmpty() const
+bool PPPosProtocol::RouteBlock::IsEmpty() const
 {
-	return BIN(Uuid.IsZero() && System.IsEmpty() && Version.IsEmpty() && Code.IsEmpty());
+	return (!Uuid && System.IsEmpty() && Version.IsEmpty() && Code.IsEmpty());
 }
 
-int FASTCALL PPPosProtocol::RouteBlock::IsEq(const RouteBlock & rS) const
+bool FASTCALL PPPosProtocol::RouteBlock::IsEq(const RouteBlock & rS) const
 {
-	int    yes = 1;
-	if(!Uuid.IsZero())
-		yes = rS.Uuid.IsZero() ? 0 : (Uuid == rS.Uuid);
-	else if(!rS.Uuid.IsZero())
-		yes = 0;
-	else if(Code.NotEmpty())
-		yes = rS.Code.NotEmpty() ? (Code == rS.Code) : 0;
-	else if(rS.Code.NotEmpty())
-		yes = 0;
-	return yes;
+	// В сравнение на эквивалентность участвуют только Uuid и Code: Version и System не принимаются во внимание.
+	return (Uuid == rS.Uuid && Code == rS.Code);
 }
 //
 //

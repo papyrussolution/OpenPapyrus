@@ -1744,8 +1744,7 @@ int ssh_channel_request_x11(ssh_channel channel, int single_connection, const ch
 			goto error;
 		}
 	}
-	rc = ssh_buffer_pack(buffer, "bssd", single_connection == 0 ? 0 : 1,
-		protocol ? protocol : "MIT-MAGIC-COOKIE-1", cookie ? cookie : c, screen_number);
+	rc = ssh_buffer_pack(buffer, "bssd", single_connection == 0 ? 0 : 1, protocol ? protocol : "MIT-MAGIC-COOKIE-1", cookie ? cookie : c, screen_number);
 	ZFREE(c);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(channel->session);
@@ -3008,12 +3007,11 @@ int ssh_channel_write_stderr(ssh_channel channel, const void * data, uint32_t le
  *    forward the content of a socket to the channel. You still have to
  *    use channel_read and channel_write for this.
  */
-int ssh_channel_open_reverse_forward(ssh_channel channel, const char * remotehost,
-    int remoteport, const char * sourcehost, int localport) {
+int ssh_channel_open_reverse_forward(ssh_channel channel, const char * remotehost, int remoteport, const char * sourcehost, int localport) 
+{
 	ssh_session session;
 	ssh_buffer payload = NULL;
 	int rc = SSH_ERROR;
-
 	if(!channel) {
 		return rc;
 	}
@@ -3021,9 +3019,7 @@ int ssh_channel_open_reverse_forward(ssh_channel channel, const char * remotehos
 		ssh_set_error_invalid(channel->session);
 		return rc;
 	}
-
 	session = channel->session;
-
 	if(channel->state != SSH_CHANNEL_STATE_NOT_OPEN)
 		goto pending;
 	payload = ssh_buffer_new();
@@ -3031,29 +3027,17 @@ int ssh_channel_open_reverse_forward(ssh_channel channel, const char * remotehos
 		ssh_set_error_oom(session);
 		goto error;
 	}
-	rc = ssh_buffer_pack(payload,
-		"sdsd",
-		remotehost,
-		remoteport,
-		sourcehost,
-		localport);
+	rc = ssh_buffer_pack(payload, "sdsd", remotehost, remoteport, sourcehost, localport);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
 pending:
-	rc = channel_open(channel,
-		"forwarded-tcpip",
-		CHANNEL_INITIAL_WINDOW,
-		CHANNEL_MAX_PACKET,
-		payload);
-
+	rc = channel_open(channel, "forwarded-tcpip", CHANNEL_INITIAL_WINDOW, CHANNEL_MAX_PACKET, payload);
 error:
 	SSH_BUFFER_FREE(payload);
-
 	return rc;
 }
-
 /**
  * @brief Open a X11 channel.
  *
@@ -3071,12 +3055,11 @@ error:
  *    forward the content of a socket to the channel. You still have to
  *    use channel_read and channel_write for this.
  */
-int ssh_channel_open_x11(ssh_channel channel,
-    const char * orig_addr, int orig_port) {
+int ssh_channel_open_x11(ssh_channel channel, const char * orig_addr, int orig_port) 
+{
 	ssh_session session;
 	ssh_buffer payload = NULL;
 	int rc = SSH_ERROR;
-
 	if(!channel) {
 		return rc;
 	}
@@ -3085,37 +3068,24 @@ int ssh_channel_open_x11(ssh_channel channel,
 		return rc;
 	}
 	session = channel->session;
-
 	if(channel->state != SSH_CHANNEL_STATE_NOT_OPEN)
 		goto pending;
-
 	payload = ssh_buffer_new();
 	if(payload == NULL) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
-	rc = ssh_buffer_pack(payload,
-		"sd",
-		orig_addr,
-		orig_port);
+	rc = ssh_buffer_pack(payload, "sd", orig_addr, orig_port);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
 pending:
-	rc = channel_open(channel,
-		"x11",
-		CHANNEL_INITIAL_WINDOW,
-		CHANNEL_MAX_PACKET,
-		payload);
-
+	rc = channel_open(channel, "x11", CHANNEL_INITIAL_WINDOW, CHANNEL_MAX_PACKET, payload);
 error:
 	SSH_BUFFER_FREE(payload);
-
 	return rc;
 }
-
 /**
  * @brief Send the exit status to the remote process
  *

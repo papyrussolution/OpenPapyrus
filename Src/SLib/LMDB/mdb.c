@@ -2015,7 +2015,7 @@ static int mdb_pages_xkeep(MDB_cursor * mc, uint pflags, int all)
 		}
 		mc = mc->mc_next;
 		for(; !mc || mc == m0; mc = txn->mt_cursors[--i])
-			if(i == 0)
+			if(!i)
 				goto mark_done;
 	}
 mark_done:
@@ -9325,7 +9325,7 @@ static int ESECT mdb_env_cwalk(mdb_copy * my, pgno_t * pg, int flags)
 		return rc;
 	// Make cursor pages writable 
 	buf = ptr = (char *)SAlloc::M(my->mc_env->me_psize * mc.mc_snum);
-	if(buf == NULL)
+	if(!buf)
 		return ENOMEM;
 	for(i = 0; i<mc.mc_top; i++) {
 		mdb_page_copy((MDB_page*)ptr, mc.mc_pg[i], my->mc_env->me_psize);

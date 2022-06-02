@@ -75,9 +75,9 @@ public:
 			OrdQttyPos(-2), ShippedQttyPos(-2), VetisCertPos(-2)
 		{
 		}
-		int    IsEmpty() const
+		bool   IsEmpty() const
 		{
-			return BIN(QttyPos < 0 && CostPos < 0 && PricePos < 0 && SerialPos < 0 &&
+			return (QttyPos < 0 && CostPos < 0 && PricePos < 0 && SerialPos < 0 &&
 				QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0 && ShippedQttyPos < 0 && VetisCertPos < 0);
 		}
 		long   QttyPos;

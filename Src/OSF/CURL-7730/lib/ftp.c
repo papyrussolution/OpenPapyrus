@@ -1387,7 +1387,7 @@ static CURLcode ftp_state_list(struct connectdata * conn)
 			/* chop off the file part if format is dir/file otherwise remove
 			   the trailing slash for dir/dir/ except for absolute path / */
 			size_t n = slashPos - rawPath;
-			if(n == 0)
+			if(!n)
 				++n;
 
 			lstArg = rawPath;

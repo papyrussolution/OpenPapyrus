@@ -972,7 +972,7 @@ static enum enum_dyncol_func_result dynamic_column_string_read(DYNAMIC_COLUMN_VA
     uchar * data, size_t length){
 	size_t len;
 	uint charset_nr = (uint)dynamic_column_var_uint_get(data, length, &len);
-	if(len == 0)                           /* Wrong packed number */
+	if(!len)                           /* Wrong packed number */
 		return ER_DYNCOL_FORMAT;
 #ifndef LIBMARIADB
 	store_it_here->x.string.charset = get_charset_by_nr(charset_nr);
@@ -1075,7 +1075,7 @@ static enum enum_dyncol_func_result dynamic_column_decimal_read(DYNAMIC_COLUMN_V
 
 	dynamic_column_prepare_decimal(store_it_here);
 	/* Decimals 0.0 is stored as a zero length string */
-	if(length == 0)
+	if(!length)
 		return ER_DYNCOL_OK; /* value contains zero */
 
 	intg = (int)dynamic_column_var_uint_get(data, length, &intg_len);
@@ -2029,7 +2029,7 @@ static enum enum_dyncol_func_result dynamic_column_get_internal(DYNAMIC_COLUMN *
 	DYN_HEADER header;
 	enum enum_dyncol_func_result rc = ER_DYNCOL_FORMAT;
 	memzero(&header, sizeof(header));
-	if(str->length == 0)
+	if(!str->length)
 		goto null;
 
 	if((rc = init_read_hdr(&header, str)) < 0)
@@ -2093,7 +2093,7 @@ static enum enum_dyncol_func_result dynamic_column_exists_internal(DYNAMIC_COLUM
 	DYN_HEADER header;
 	enum enum_dyncol_func_result rc;
 	memzero(&header, sizeof(header));
-	if(str->length == 0)
+	if(!str->length)
 		return ER_DYNCOL_NO; /* no columns */
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;
@@ -2118,7 +2118,7 @@ enum enum_dyncol_func_result dynamic_column_list(DYNAMIC_COLUMN * str, DYNAMIC_A
 	uint i;
 	enum enum_dyncol_func_result rc;
 	memzero(array_of_uint, sizeof(*array_of_uint)); /* In case of errors */
-	if(str->length == 0)
+	if(!str->length)
 		return ER_DYNCOL_OK; /* no columns */
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;
@@ -2151,7 +2151,7 @@ enum enum_dyncol_func_result mariadb_dyncol_list_num(DYNAMIC_COLUMN * str, uint 
 	enum enum_dyncol_func_result rc;
 
 	(*nums) = 0; (*count) = 0; /* In case of errors */
-	if(str->length == 0)
+	if(!str->length)
 		return ER_DYNCOL_OK; /* no columns */
 
 	if((rc = init_read_hdr(&header, str)) < 0)
@@ -2195,7 +2195,7 @@ enum enum_dyncol_func_result mariadb_dyncol_list_named(DYNAMIC_COLUMN * str, uin
 	uint i;
 	enum enum_dyncol_func_result rc;
 	(*names) = 0; (*count) = 0;
-	if(str->length == 0)
+	if(!str->length)
 		return ER_DYNCOL_OK; /* no columns */
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;
@@ -2913,7 +2913,7 @@ static enum enum_dyncol_func_result dynamic_column_update_many_fmt(DYNAMIC_COLUM
 			not_null--;
 	}
 
-	if(str->length == 0) {
+	if(!str->length) {
 		/*
 		   Just add new columns. If there was no columns to add we return
 		   an empty string.
@@ -3159,7 +3159,7 @@ enum enum_dyncol_func_result mariadb_dyncol_check(DYNAMIC_COLUMN * str) {
 	void * key, * prev_key;
 	enum enum_dynamic_column_type type = DYN_COL_NULL, prev_type = DYN_COL_NULL;
 
-	if(str->length == 0) {
+	if(!str->length) {
 		return(ER_DYNCOL_OK);
 	}
 	memzero(&header, sizeof(header));
@@ -3580,7 +3580,7 @@ static enum enum_dyncol_func_result mariadb_dyncol_json_internal(DYNAMIC_COLUMN 
 		rc = ER_DYNCOL_RESOURCE;
 		goto err;
 	}
-	if(str->length == 0)
+	if(!str->length)
 		return ER_DYNCOL_OK; /* no columns */
 	if((rc = init_read_hdr(&header, str)) < 0)
 		goto err;
@@ -3690,7 +3690,7 @@ enum enum_dyncol_func_result mariadb_dyncol_unpack(DYNAMIC_COLUMN * str,
 	*count = 0; 
 	*names = 0; 
 	*vals = 0;
-	if(str->length == 0)
+	if(!str->length)
 		return ER_DYNCOL_OK; /* no columns */
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;
@@ -3756,7 +3756,7 @@ enum enum_dyncol_func_result mariadb_dyncol_column_count(DYNAMIC_COLUMN * str, u
 	DYN_HEADER header;
 	enum enum_dyncol_func_result rc;
 	(*column_count) = 0;
-	if(str->length == 0)
+	if(!str->length)
 		return ER_DYNCOL_OK;
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;

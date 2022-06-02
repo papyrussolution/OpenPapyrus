@@ -2566,7 +2566,7 @@ REF_REPEAT:
 			       zero, we can continue at the same level without recursion. For any other
 			       minimum, carrying on will result in NOMATCH. */
 
-			    if(length == 0) continue;
+			    if(!length) continue;
 			    if(length < 0 && min == 0) continue;
 
 			    /* First, ensure the minimum number of matches are present. We get back

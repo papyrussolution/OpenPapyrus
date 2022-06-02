@@ -1091,7 +1091,7 @@ static int capi_get_provname(CAPI_CTX * ctx, LPSTR * pname, DWORD * ptype,
 		return 0;
 	}
 	name = static_cast<LPTSTR>(OPENSSL_malloc(len));
-	if(name == NULL) {
+	if(!name) {
 		CAPIerr(CAPI_F_CAPI_GET_PROVNAME, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

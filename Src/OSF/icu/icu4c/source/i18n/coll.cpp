@@ -311,7 +311,7 @@ void setAttributesFromKeywords(const Locale &loc, Collator &coll, UErrorCode & e
 			errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 			return;
 		}
-		if(length == 0) {
+		if(!length) {
 			continue;
 		}
 		for(int32_t j = 0;; ++j) {
@@ -358,7 +358,7 @@ void setAttributesFromKeywords(const Locale &loc, Collator &coll, UErrorCode & e
 				return;
 			}
 			codes[codesLength++] = code;
-			if(c == 0) {
+			if(!c) {
 				break;
 			}
 			scriptName = limit + 1;
@@ -781,12 +781,12 @@ public:
 		const char * result;
 		if(index < availableLocaleListCount) {
 			result = availableLocaleList[index++].getName();
-			if(resultLength != NULL) {
+			if(resultLength) {
 				*resultLength = (int32_t)uprv_strlen(result);
 			}
 		}
 		else {
-			if(resultLength != NULL) {
+			if(resultLength) {
 				*resultLength = 0;
 			}
 			result = NULL;

@@ -40,6 +40,8 @@ PPDbEntrySet2::PPDbEntrySet2() : DbLoginBlockArray()
 		дополнительные аргументы - именованными параметрами
 */
 
+/*static*/const char * DbLoginBlock::GetDefaultDbSymb() { return P_DefaultSymb; }
+
 int DbLoginBlock::UrlParse(const char * pUrl)
 {
 	int    ok = 1;

@@ -13,7 +13,7 @@ typedef struct chacha_ctx chacha_ctx;
 
 #define U8V(v) ((uint8)(v) & U8C(0xFF))
 #define U32V(v) ((uint32_t)(v) & U32C(0xFFFFFFFF))
-#define ROTL32(v, n) (U32V((v) << (n)) | ((v) >> (32 - (n))))
+// @v11.4.0 (replaced with slrotl32) #define ROTL32(v, n) (U32V((v) << (n)) | ((v) >> (32 - (n))))
 #define U8TO32_LITTLE(p) (((uint32_t)((p)[0])) | ((uint32_t)((p)[1]) <<  8) | ((uint32_t)((p)[2]) << 16) | ((uint32_t)((p)[3]) << 24))
 
 #define U32TO8_LITTLE(p, v) \
@@ -24,7 +24,7 @@ typedef struct chacha_ctx chacha_ctx;
 		(p)[3] = U8V((v) >> 24); \
 	} while(0)
 
-#define ROTATE(v, c) (ROTL32(v, c))
+#define ROTATE(v, c) (slrotl32(v, c))
 #define XOR(v, w) ((v) ^ (w))
 #define PLUS(v, w) (U32V((v) + (w)))
 #define PLUSONE(v) (PLUS((v), 1))

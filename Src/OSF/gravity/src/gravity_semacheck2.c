@@ -110,7 +110,7 @@ static gnode_t * lookup_identifier(gvisitor_t * self, const char * identifier, g
 {
 	const GravityArray <gnode_t *> * decls = ((semacheck_t*)self->data)->declarations;
 	const uint len = gnode_array_size(decls);
-	if(len == 0) 
+	if(!len) 
 		return NULL;
 	uint16 nf = 0; // number of functions traversed
 	uint16 nc = 0; // number of classes traversed

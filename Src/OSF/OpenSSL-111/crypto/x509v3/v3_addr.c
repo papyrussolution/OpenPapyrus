@@ -143,7 +143,7 @@ static int i2r_address(BIO * out, const unsigned afi, const uchar fill, const AS
 				(i < 14 ? ":" : ""));
 		    if(i < 16)
 			    BIO_puts(out, ":");
-		    if(i == 0)
+		    if(!i)
 			    BIO_puts(out, ":");
 		    break;
 		default:

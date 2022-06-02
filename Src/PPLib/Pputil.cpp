@@ -1162,7 +1162,7 @@ long PPSymbTranslator::Translate(const char * pString, size_t * pNextPos, uint /
 	const size_t start_pos = DEREFPTRORZ(pNextPos);
 	size_t p = start_pos;
 	char * b, sub[256], temp[128];
-	while(pString[p] == ' ' || pString[p] == '\t')
+	while(oneof2(pString[p], ' ', '\t'))
 		p++;
 	size_t next_pos = p;
 	for(size_t bp = 0; /*!v &&*/ (b = NextStr(&bp, sub)) != 0;) {

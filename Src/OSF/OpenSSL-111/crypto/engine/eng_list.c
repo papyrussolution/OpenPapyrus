@@ -281,12 +281,11 @@ ENGINE * ENGINE_by_id(const char * id)
 		ENGINEerr(ENGINE_F_ENGINE_BY_ID, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	CRYPTO_THREAD_write_lock(global_engine_lock);
 	iterator = engine_list_head;
 	while(iterator && (strcmp(id, iterator->id) != 0))
 		iterator = iterator->next;
-	if(iterator != NULL) {
+	if(iterator) {
 		/*
 		 * We need to return a structural reference. If this is an ENGINE
 		 * type that returns copies, make a duplicate - otherwise increment
@@ -294,7 +293,7 @@ ENGINE * ENGINE_by_id(const char * id)
 		 */
 		if(iterator->flags & ENGINE_FLAGS_BY_ID_COPY) {
 			ENGINE * cp = ENGINE_new();
-			if(cp == NULL)
+			if(!cp)
 				iterator = NULL;
 			else {
 				engine_cpy(cp, iterator);
@@ -307,7 +306,7 @@ ENGINE * ENGINE_by_id(const char * id)
 		}
 	}
 	CRYPTO_THREAD_unlock(global_engine_lock);
-	if(iterator != NULL)
+	if(iterator)
 		return iterator;
 	/*
 	 * Prevent infinite recursion if we're looking for the dynamic engine.

@@ -142,7 +142,7 @@ void PNGAPI png_set_background(png_structrp png_ptr, png_const_color_16p backgro
 void PNGAPI png_set_scale_16(png_structrp png_ptr)
 {
 	png_debug(1, "in " __FUNCTION__);
-	if(png_rtran_ok(png_ptr, 0) == 0)
+	if(!png_rtran_ok(png_ptr, 0))
 		return;
 	png_ptr->transformations |= PNG_SCALE_16_TO_8;
 }
@@ -227,7 +227,7 @@ void PNGFAPI png_set_alpha_mode_fixed(png_structrp png_ptr, int mode, png_fixed_
 	int compose = 0;
 	png_fixed_point file_gamma;
 	png_debug(1, "in " __FUNCTION__);
-	if(png_rtran_ok(png_ptr, 0) == 0)
+	if(!png_rtran_ok(png_ptr, 0))
 		return;
 	output_gamma = translate_gamma_flags(png_ptr, output_gamma, 1 /*screen*/);
 	/* Validate the value to ensure it is in a reasonable range. The value
@@ -340,7 +340,7 @@ typedef png_dsort ** png_dsortpp;
 void PNGAPI png_set_quantize(png_structrp png_ptr, png_colorp palette, int num_palette, int maximum_colors, png_const_uint_16p histogram, int full_quantize)
 {
 	png_debug(1, "in " __FUNCTION__);
-	if(png_rtran_ok(png_ptr, 0) == 0)
+	if(!png_rtran_ok(png_ptr, 0))
 		return;
 	png_ptr->transformations |= PNG_QUANTIZE;
 	if(full_quantize == 0) {
@@ -648,7 +648,7 @@ void PNGAPI png_set_quantize(png_structrp png_ptr, png_colorp palette, int num_p
 void PNGFAPI png_set_gamma_fixed(png_structrp png_ptr, png_fixed_point scrn_gamma, png_fixed_point file_gamma)
 {
 	png_debug(1, "in " __FUNCTION__);
-	if(png_rtran_ok(png_ptr, 0) == 0)
+	if(!png_rtran_ok(png_ptr, 0))
 		return;
 	/* New in libpng-1.5.4 - reserve particular negative values as flags. */
 	scrn_gamma = translate_gamma_flags(png_ptr, scrn_gamma, 1 /*screen*/);
@@ -698,7 +698,7 @@ void PNGAPI png_set_gamma(png_structrp png_ptr, double scrn_gamma, double file_g
 void PNGAPI png_set_expand(png_structrp png_ptr)
 {
 	png_debug(1, "in " __FUNCTION__);
-	if(png_rtran_ok(png_ptr, 0) == 0)
+	if(!png_rtran_ok(png_ptr, 0))
 		return;
 	png_ptr->transformations |= (PNG_EXPAND | PNG_EXPAND_tRNS);
 }
@@ -725,7 +725,7 @@ void PNGAPI png_set_expand(png_structrp png_ptr)
 void PNGAPI png_set_palette_to_rgb(png_structrp png_ptr)
 {
 	png_debug(1, "in " __FUNCTION__);
-	if(png_rtran_ok(png_ptr, 0) == 0)
+	if(!png_rtran_ok(png_ptr, 0))
 		return;
 	png_ptr->transformations |= (PNG_EXPAND | PNG_EXPAND_tRNS);
 }
@@ -734,7 +734,7 @@ void PNGAPI png_set_palette_to_rgb(png_structrp png_ptr)
 void PNGAPI png_set_expand_gray_1_2_4_to_8(png_structrp png_ptr)
 {
 	png_debug(1, "in " __FUNCTION__);
-	if(png_rtran_ok(png_ptr, 0) == 0)
+	if(!png_rtran_ok(png_ptr, 0))
 		return;
 	png_ptr->transformations |= PNG_EXPAND;
 }
@@ -743,7 +743,7 @@ void PNGAPI png_set_expand_gray_1_2_4_to_8(png_structrp png_ptr)
 void PNGAPI png_set_tRNS_to_alpha(png_structrp png_ptr)
 {
 	png_debug(1, "in " __FUNCTION__);
-	if(png_rtran_ok(png_ptr, 0) == 0)
+	if(!png_rtran_ok(png_ptr, 0))
 		return;
 	png_ptr->transformations |= (PNG_EXPAND | PNG_EXPAND_tRNS);
 }
@@ -757,7 +757,7 @@ void PNGAPI png_set_tRNS_to_alpha(png_structrp png_ptr)
 void PNGAPI png_set_expand_16(png_structrp png_ptr)
 {
 	png_debug(1, "in " __FUNCTION__);
-	if(png_rtran_ok(png_ptr, 0) == 0)
+	if(!png_rtran_ok(png_ptr, 0))
 		return;
 	png_ptr->transformations |= (PNG_EXPAND_16 | PNG_EXPAND | PNG_EXPAND_tRNS);
 }
@@ -767,7 +767,7 @@ void PNGAPI png_set_expand_16(png_structrp png_ptr)
 void PNGAPI png_set_gray_to_rgb(png_structrp png_ptr)
 {
 	png_debug(1, "in " __FUNCTION__);
-	if(png_rtran_ok(png_ptr, 0) == 0)
+	if(!png_rtran_ok(png_ptr, 0))
 		return;
 	/* Because rgb must be 8 bits or more: */
 	png_set_expand_gray_1_2_4_to_8(png_ptr);
@@ -3010,7 +3010,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 						    png_uint_16 a = *(sp + 1);
 						    if(a == 0xff)
 							    *sp = gamma_table[*sp];
-						    else if(a == 0) {
+						    else if(!a) {
 							    /* Background is already in screen gamma */
 							    *sp = (uint8)png_ptr->background.gray;
 						    }
@@ -3030,7 +3030,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 2) {
 						    uint8 a = *(sp + 1);
-						    if(a == 0)
+						    if(!a)
 							    *sp = (uint8)png_ptr->background.gray;
 						    else if(a < 0xff)
 							    png_composite(*sp, *sp, a, png_ptr->background.gray);
@@ -3048,7 +3048,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 							    *sp = (uint8)((v >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(v & 0xff);
 						    }
-						    else if(a == 0) {
+						    else if(!a) {
 							    /* Background is already in screen gamma */
 							    *sp = (uint8)((png_ptr->background.gray >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(png_ptr->background.gray & 0xff);
@@ -3072,7 +3072,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 4) {
 						    png_uint_16 a = (png_uint_16)(((*(sp + 2)) << 8) + *(sp + 3));
-						    if(a == 0) {
+						    if(!a) {
 							    *sp = (uint8)((png_ptr->background.gray >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(png_ptr->background.gray & 0xff);
 						    }
@@ -3102,7 +3102,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 							    *(sp + 2) = gamma_table[*(sp + 2)];
 						    }
 
-						    else if(a == 0) {
+						    else if(!a) {
 							    /* Background is already in screen gamma */
 							    *sp = (uint8)png_ptr->background.red;
 							    *(sp + 1) = (uint8)png_ptr->background.green;
@@ -3135,7 +3135,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 4) {
 						    uint8 a = *(sp + 3);
-						    if(a == 0) {
+						    if(!a) {
 							    *sp = (uint8)png_ptr->background.red;
 							    *(sp + 1) = (uint8)png_ptr->background.green;
 							    *(sp + 2) = (uint8)png_ptr->background.blue;
@@ -3165,7 +3165,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 							    *(sp + 4) = (uint8)((v >> 8) & 0xff);
 							    *(sp + 5) = (uint8)(v & 0xff);
 						    }
-						    else if(a == 0) {
+						    else if(!a) {
 							    /* Background is already in screen gamma */
 							    *sp = (uint8)((png_ptr->background.red >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(png_ptr->background.red & 0xff);
@@ -3204,7 +3204,7 @@ static void png_do_compose(png_row_infop row_info, png_bytep row, png_structrp p
 					    sp = row;
 					    for(i = 0; i < row_width; i++, sp += 8) {
 						    png_uint_16 a = (png_uint_16)(((png_uint_16)(*(sp + 6)) << 8) + (png_uint_16)(*(sp + 7)));
-						    if(a == 0) {
+						    if(!a) {
 							    *sp = (uint8)((png_ptr->background.red >> 8) & 0xff);
 							    *(sp + 1) = (uint8)(png_ptr->background.red & 0xff);
 							    *(sp + 2) = (uint8)((png_ptr->background.green >> 8) & 0xff);

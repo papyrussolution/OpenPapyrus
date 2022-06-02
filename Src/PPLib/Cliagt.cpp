@@ -1124,7 +1124,7 @@ struct PPSupplExchangeCfg { // @persistent @store(PropertyTbl)
 		THISZERO();
 		return *this;
 	}
-	int    IsEmpty() const
+	bool   IsEmpty() const
 	{
 		return ((!SupplID || !GGrpID || !IP) && isempty(PrvdrSymb)); // @vmiller @added --> isempty(PrvdrSymb) // ???
 	}

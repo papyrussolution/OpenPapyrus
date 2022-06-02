@@ -5,11 +5,10 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     >
-    <TextView
+    <TextView style="@style/SearchResultTopicText"
         android:id="@+id/LVITEM_GENERICNAME"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:textColor="@color/TextPrimary"
         />
     <ListView
         android:id="@+id/searchPaneTerminalListView"

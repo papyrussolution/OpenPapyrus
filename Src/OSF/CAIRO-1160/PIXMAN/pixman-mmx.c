@@ -1306,7 +1306,7 @@ static void mmx_composite_over_n_8888(pixman_implementation_t * imp,
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
-	if(src == 0)
+	if(!src)
 		return;
 
 	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
@@ -1367,7 +1367,7 @@ static void mmx_composite_over_n_0565(pixman_implementation_t * imp,
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
-	if(src == 0)
+	if(!src)
 		return;
 
 	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
@@ -1441,7 +1441,7 @@ static void mmx_composite_over_n_8888_8888_ca(pixman_implementation_t * imp,
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
-	if(src == 0)
+	if(!src)
 		return;
 
 	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);
@@ -1845,7 +1845,7 @@ static void mmx_composite_over_n_8_8888(pixman_implementation_t * imp,
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
 	srca = src >> 24;
-	if(src == 0)
+	if(!src)
 		return;
 
 	srcsrc = (uint64)src << 32 | src;
@@ -2135,7 +2135,7 @@ static void mmx_composite_src_n_8_8888(pixman_implementation_t * imp,
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
 	srca = src >> 24;
-	if(src == 0) {
+	if(!src) {
 		mmx_fill(imp, dest_image->bits.bits, dest_image->bits.rowstride,
 		    PIXMAN_FORMAT_BPP(dest_image->bits.format),
 		    dest_x, dest_y, width, height, 0);
@@ -2235,13 +2235,10 @@ static void mmx_composite_over_n_8_0565(pixman_implementation_t * imp,
 	__m64 srcsrcsrcsrc;
 
 	CHECKPOINT();
-
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
-
 	srca = src >> 24;
-	if(src == 0)
+	if(!src)
 		return;
-
 	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
 	PIXMAN_IMAGE_GET_LINE(mask_image, mask_x, mask_y, uint8, mask_stride, mask_line, 1);
 
@@ -2543,7 +2540,7 @@ static void mmx_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
-	if(src == 0)
+	if(!src)
 		return;
 
 	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint16, dst_stride, dst_line, 1);
@@ -2777,7 +2774,7 @@ static void mmx_composite_add_n_8_8(pixman_implementation_t * imp,
 
 	sa = src >> 24;
 
-	if(src == 0)
+	if(!src)
 		return;
 
 	vsrc = load8888(&src);
@@ -3238,7 +3235,7 @@ static void mmx_composite_over_reverse_n_8888(pixman_implementation_t * imp,
 
 	src = _pixman_image_get_solid(imp, src_image, dest_image->bits.format);
 
-	if(src == 0)
+	if(!src)
 		return;
 
 	PIXMAN_IMAGE_GET_LINE(dest_image, dest_x, dest_y, uint32, dst_stride, dst_line, 1);

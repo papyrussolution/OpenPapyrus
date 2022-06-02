@@ -1256,22 +1256,16 @@ static int ssh_userauth_kbdint_send(ssh_session session)
 		ssh_set_error_invalid(session);
 		return SSH_ERROR;
 	}
-	rc = ssh_buffer_pack(session->out_buffer, "bd",
-		SSH2_MSG_USERAUTH_INFO_RESPONSE,
-		session->kbdint->nprompts);
+	rc = ssh_buffer_pack(session->out_buffer, "bd", SSH2_MSG_USERAUTH_INFO_RESPONSE, session->kbdint->nprompts);
 	if(rc < 0) {
 		goto fail;
 	}
-
 	for(i = 0; i < session->kbdint->nprompts; i++) {
-		rc = ssh_buffer_pack(session->out_buffer, "s",
-			session->kbdint->answers && session->kbdint->answers[i] ?
-			session->kbdint->answers[i] : "");
+		rc = ssh_buffer_pack(session->out_buffer, "s", session->kbdint->answers && session->kbdint->answers[i] ? session->kbdint->answers[i] : "");
 		if(rc < 0) {
 			goto fail;
 		}
 	}
-
 	session->auth.current_method = SSH_AUTH_METHOD_INTERACTIVE;
 	session->auth.state = SSH_AUTH_STATE_KBDINT_SENT;
 	session->pending_call_state = SSH_PENDING_CALL_AUTH_KBDINT_SEND;

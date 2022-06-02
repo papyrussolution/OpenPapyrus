@@ -208,7 +208,7 @@ void TDialog::RemoveUnusedControls()
 						return 0;
 					}
 					else {
-						if(lParam == 0) {
+						if(!lParam) {
 							if(hiw == 0) // from menu
 								TView::messageKeyDown(p_dlg, low);
 							else if(hiw == 1) { // from accelerator

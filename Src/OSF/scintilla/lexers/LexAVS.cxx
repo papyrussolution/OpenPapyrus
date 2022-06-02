@@ -116,7 +116,7 @@ static void ColouriseAvsDoc(Sci_PositionU startPos,
 			else if(sc.Match('*', '/') && blockCommentLevel > 0) {
 				blockCommentLevel--;
 				sc.Forward();
-				if(blockCommentLevel == 0) {
+				if(!blockCommentLevel) {
 					sc.ForwardSetState(SCE_AVS_DEFAULT);
 				}
 			}
@@ -129,7 +129,7 @@ static void ColouriseAvsDoc(Sci_PositionU startPos,
 			else if(sc.Match('*', ']') && blockCommentLevel > 0) {
 				blockCommentLevel--;
 				sc.Forward();
-				if(blockCommentLevel == 0) {
+				if(!blockCommentLevel) {
 					sc.ForwardSetState(SCE_AVS_DEFAULT);
 				}
 			}

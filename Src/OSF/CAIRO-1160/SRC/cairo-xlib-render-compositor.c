@@ -1208,7 +1208,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 			    uchar * d;
 			    uchar * new, * n;
 
-			    if(c == 0)
+			    if(!c)
 				    break;
 
 			    new = _cairo_malloc(c);
@@ -1236,7 +1236,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 			    const uint32 * d;
 			    uint32 * new, * n;
 
-			    if(c == 0)
+			    if(!c)
 				    break;
 
 			    new = _cairo_malloc(4 * c);

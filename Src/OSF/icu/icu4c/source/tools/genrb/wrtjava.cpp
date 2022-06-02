@@ -233,7 +233,7 @@ static void str_write_java(const UChar * src, int32_t srcLen, bool printEndLine,
 	uint32_t bufLen = 0;
 	uint32_t columnCount;
 	char * buf = (char *)SAlloc::M(sizeof(char)*length);
-	if(buf == NULL) {
+	if(!buf) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}

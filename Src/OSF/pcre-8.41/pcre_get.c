@@ -79,7 +79,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_get_stringnumber(const pcre32 * co
 		pcre_uchar * entry = nametable + entrysize*mid;
 		int c = STRCMP_UC_UC((pcre_uchar*)stringname,
 		    (pcre_uchar*)(entry + IMM2_SIZE));
-		if(c == 0) return GET2(entry, 0);
+		if(!c) return GET2(entry, 0);
 		if(c > 0) bot = mid + 1; else top = mid;
 	}
 
@@ -156,7 +156,7 @@ PCRE_EXP_DEFN int PCRE_CALL_CONVENTION pcre32_get_stringtable_entries(const pcre
 		pcre_uchar * entry = nametable + entrysize*mid;
 		int c = STRCMP_UC_UC((pcre_uchar*)stringname,
 		    (pcre_uchar*)(entry + IMM2_SIZE));
-		if(c == 0) {
+		if(!c) {
 			pcre_uchar * first = entry;
 			pcre_uchar * last = entry;
 			while(first > nametable) {

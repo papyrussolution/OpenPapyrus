@@ -162,7 +162,7 @@ int BN_mod_exp_recp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p,
 		return 0;
 	}
 	bits = BN_num_bits(p);
-	if(bits == 0) {
+	if(!bits) {
 		/* x**0 mod 1, or x**0 mod -1 is still zero. */
 		if(BN_abs_is_word(m, 1)) {
 			ret = 1;
@@ -299,7 +299,7 @@ int BN_mod_exp_mont(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p, const BIGNU
 		return 0;
 	}
 	bits = BN_num_bits(p);
-	if(bits == 0) {
+	if(!bits) {
 		/* x**0 mod 1, or x**0 mod -1 is still zero. */
 		if(BN_abs_is_word(m, 1)) {
 			ret = 1;
@@ -607,7 +607,7 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p,
 	 * whether the top bits are zero.
 	 */
 	bits = p->top * BN_BITS2;
-	if(bits == 0) {
+	if(!bits) {
 		/* x**0 mod 1, or x**0 mod -1 is still zero. */
 		if(BN_abs_is_word(m, 1)) {
 			ret = 1;
@@ -1142,7 +1142,7 @@ int BN_mod_exp_mont_word(BIGNUM * rr, BN_ULONG a, const BIGNUM * p, const BIGNUM
 	if(m->top == 1)
 		a %= m->d[0]; /* make sure that 'a' is reduced */
 	bits = BN_num_bits(p);
-	if(bits == 0) {
+	if(!bits) {
 		/* x**0 mod 1, or x**0 mod -1 is still zero. */
 		if(BN_abs_is_word(m, 1)) {
 			ret = 1;
@@ -1153,7 +1153,7 @@ int BN_mod_exp_mont_word(BIGNUM * rr, BN_ULONG a, const BIGNUM * p, const BIGNUM
 		}
 		return ret;
 	}
-	if(a == 0) {
+	if(!a) {
 		BN_zero(rr);
 		ret = 1;
 		return ret;
@@ -1257,7 +1257,7 @@ int BN_mod_exp_simple(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGN
 	}
 
 	bits = BN_num_bits(p);
-	if(bits == 0) {
+	if(!bits) {
 		/* x**0 mod 1, or x**0 mod -1 is still zero. */
 		if(BN_abs_is_word(m, 1)) {
 			ret = 1;

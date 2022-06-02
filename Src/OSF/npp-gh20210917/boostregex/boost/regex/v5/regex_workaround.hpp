@@ -3,18 +3,18 @@
  * Copyright (c) 1998-2005
  * John Maddock
  *
- * Use, modification and distribution are subject to the 
- * Boost Software License, Version 1.0. (See accompanying file 
+ * Use, modification and distribution are subject to the
+ * Boost Software License, Version 1.0. (See accompanying file
  * LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  *
  */
 
- /*
-  *   LOCATION:    see http://www.boost.org for most recent version.
-  *   FILE         regex_workarounds.cpp
-  *   VERSION      see <boost/version.hpp>
-  *   DESCRIPTION: Declares Misc workarounds.
-  */
+/*
+ *   LOCATION:    see http://www.boost.org for most recent version.
+ *   FILE         regex_workarounds.cpp
+ *   VERSION      see <boost/version.hpp>
+ *   DESCRIPTION: Declares Misc workarounds.
+ */
 
 #ifndef BOOST_REGEX_WORKAROUND_HPP
 #define BOOST_REGEX_WORKAROUND_HPP
@@ -42,8 +42,7 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
-namespace boost{ namespace BOOST_REGEX_DETAIL_NS{
-
+namespace boost { namespace BOOST_REGEX_DETAIL_NS {
 #ifdef BOOST_REGEX_MSVC
 #pragma warning (push)
 #pragma warning (disable : 4100)
@@ -51,7 +50,9 @@ namespace boost{ namespace BOOST_REGEX_DETAIL_NS{
 
 template <class T>
 inline void pointer_destroy(T* p)
-{ p->~T(); (void)p; }
+{
+	p->~T(); (void)p;
+}
 
 #ifdef BOOST_REGEX_MSVC
 #pragma warning (pop)
@@ -59,8 +60,9 @@ inline void pointer_destroy(T* p)
 
 template <class T>
 inline void pointer_construct(T* p, const T& t)
-{ new (p) T(t); }
-
+{
+	new (p) T(t);
+}
 }} // namespaces
 #endif
 
@@ -77,83 +79,74 @@ inline void pointer_construct(T* p, const T& t)
 #endif
 
 #ifdef __cplusplus
-namespace boost{ namespace BOOST_REGEX_DETAIL_NS{
-
+namespace boost { namespace BOOST_REGEX_DETAIL_NS {
 #if defined(BOOST_REGEX_MSVC) && (BOOST_REGEX_MSVC < 1910)
-   //
-   // MSVC 10 will either emit warnings or else refuse to compile
-   // code that makes perfectly legitimate use of std::copy, when
-   // the OutputIterator type is a user-defined class (apparently all user 
-   // defined iterators are "unsafe").  What's more Microsoft have removed their
-   // non-standard "unchecked" versions, even though they are still in the MS
-   // documentation!! Work around this as best we can: 
-   //
-   template<class InputIterator, class OutputIterator>
-   inline OutputIterator copy(
-      InputIterator first,
-      InputIterator last,
-      OutputIterator dest
-   )
-   {
-      while (first != last)
-         *dest++ = *first++;
-      return dest;
-   }
-#else 
-   using std::copy;
-#endif 
+//
+// MSVC 10 will either emit warnings or else refuse to compile
+// code that makes perfectly legitimate use of std::copy, when
+// the OutputIterator type is a user-defined class (apparently all user
+// defined iterators are "unsafe").  What's more Microsoft have removed their
+// non-standard "unchecked" versions, even though they are still in the MS
+// documentation!! Work around this as best we can:
+//
+template <class InputIterator, class OutputIterator>
+inline OutputIterator copy(InputIterator first,
+    InputIterator last,
+    OutputIterator dest
+    )
+{
+	while(first != last)
+		*dest++ = *first++;
+	return dest;
+}
 
+#else
+using std::copy;
+#endif
 
 #if defined(BOOST_REGEX_HAS_STRCPY_S)
 
-   // use safe versions of strcpy etc:
-   using ::strcpy_s;
-   using ::strcat_s;
+// use safe versions of strcpy etc:
+using ::strcpy_s;
+using ::strcat_s;
 #else
-   inline std::size_t strcpy_s(
-      char *strDestination,
-      std::size_t sizeInBytes,
-      const char *strSource 
-   )
-   {
-	  std::size_t lenSourceWithNull = std::strlen(strSource) + 1;
-	  if (lenSourceWithNull > sizeInBytes)
-         return 1;
-	  std::memcpy(strDestination, strSource, lenSourceWithNull);
-      return 0;
-   }
-   inline std::size_t strcat_s(
-      char *strDestination,
-      std::size_t sizeInBytes,
-      const char *strSource 
-   )
-   {
-	  std::size_t lenSourceWithNull = std::strlen(strSource) + 1;
-	  std::size_t lenDestination = std::strlen(strDestination);
-	  if (lenSourceWithNull + lenDestination > sizeInBytes)
-         return 1;
-	  std::memcpy(strDestination + lenDestination, strSource, lenSourceWithNull);
-      return 0;
-   }
+inline std::size_t strcpy_s(char * strDestination,
+    std::size_t sizeInBytes,
+    const char * strSource
+    )
+{
+	std::size_t lenSourceWithNull = std::strlen(strSource) + 1;
+	if(lenSourceWithNull > sizeInBytes)
+		return 1;
+	memcpy(strDestination, strSource, lenSourceWithNull);
+	return 0;
+}
+
+inline std::size_t strcat_s(char * strDestination, std::size_t sizeInBytes, const char * strSource)
+{
+	std::size_t lenSourceWithNull = std::strlen(strSource) + 1;
+	std::size_t lenDestination = std::strlen(strDestination);
+	if(lenSourceWithNull + lenDestination > sizeInBytes)
+		return 1;
+	memcpy(strDestination + lenDestination, strSource, lenSourceWithNull);
+	return 0;
+}
 
 #endif
 
-   inline void overflow_error_if_not_zero(std::size_t i)
-   {
-      if(i)
-      {
-         std::overflow_error e("String buffer too small");
+inline void overflow_error_if_not_zero(std::size_t i)
+{
+	if(i) {
+		std::overflow_error e("String buffer too small");
 #ifndef BOOST_REGEX_STANDALONE
-         boost::throw_exception(e);
+		boost::throw_exception(e);
 #else
-         throw e;
+		throw e;
 #endif
-      }
-   }
-
+	}
+}
 }} // namespaces
 
 #endif // __cplusplus
 
 #endif // include guard
-

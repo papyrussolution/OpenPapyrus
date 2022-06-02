@@ -35,7 +35,7 @@ void DES_ede3_ofb64_encrypt(const uchar * in, uchar * out, long length,
 	l2c(v0, dp);
 	l2c(v1, dp);
 	while(l--) {
-		if(n == 0) {
+		if(!n) {
 			/* ti[0]=v0; */
 			/* ti[1]=v1; */
 			DES_encrypt3(ti, k1, k2, k3);

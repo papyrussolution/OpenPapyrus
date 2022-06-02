@@ -235,7 +235,7 @@ int ec_GF2m_simple_oct2point(const EC_GROUP * group, EC_POINT * point, const uch
 	BIGNUM * x, * y, * yxi;
 	size_t field_len, enc_len;
 	int ret = 0;
-	if(len == 0) {
+	if(!len) {
 		ECerr(EC_F_EC_GF2M_SIMPLE_OCT2POINT, EC_R_BUFFER_TOO_SMALL);
 		return 0;
 	}

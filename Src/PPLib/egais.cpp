@@ -711,7 +711,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 								}
 								n_chk.PutInner(SXml::nst("ck", "Shift"), temp_buf.Z().Cat(rPack.Rec.SessID)); // Номер смены @todo Вероятно, здесь нужен номер, а не идентификатор
 								n_chk.PutInner(SXml::nst("ck", "Number"), temp_buf.Z().Cat(rPack.Rec.Code));
-								PPLoadStringS(PPSTR_HASHTOKEN_C, (rPack.Rec.Flags & CCHKF_RETURN) ? PPSHC_RU_EGAIS_RETOFSALE : PPSHC_RU_EGAIS_SALE, temp_buf);
+								PPLoadStringS(PPSTR_HASHTOKEN_C, (rPack.Rec.Flags & CCHKF_RETURN) ? PPHSC_RU_EGAIS_RETOFSALE : PPHSC_RU_EGAIS_SALE, temp_buf);
 								n_chk.PutInner(SXml::nst("ck", "Type"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 							}
 							{

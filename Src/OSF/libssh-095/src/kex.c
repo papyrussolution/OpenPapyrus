@@ -921,16 +921,11 @@ int ssh_make_sessionid(ssh_session session)
 	const_bignum modulus, generator;
 #endif
 	int rc = SSH_ERROR;
-
 	buf = ssh_buffer_new();
-	if(buf == NULL) {
+	if(!buf) {
 		return rc;
 	}
-
-	rc = ssh_buffer_pack(buf,
-		"ss",
-		session->clientbanner,
-		session->serverbanner);
+	rc = ssh_buffer_pack(buf, "ss", session->clientbanner, session->serverbanner);
 	if(rc == SSH_ERROR) {
 		goto error;
 	}

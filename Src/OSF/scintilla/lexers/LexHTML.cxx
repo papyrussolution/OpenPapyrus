@@ -42,7 +42,7 @@ static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum
 
 bool FASTCALL IsOperator(int ch)
 {
-	if(IsASCII(ch) && isalnum(ch))
+	if(isasciialnum(ch))
 		return false;
 	// '.' left out as it is used to make up numbers
 	if(oneof12(ch, '%', '^', '&', '*', '(', ')', '-', '+', '=', '|', '{', '}') || 
@@ -562,7 +562,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			length++;
 			state = styler.StyleAt(startPos);
 		}
-		if(startPos == 0)
+		if(!startPos)
 			state = SCE_H_DEFAULT;
 	}
 	styler.StartAt(startPos);
@@ -2086,7 +2086,7 @@ static void ColouriseHTMLDoc(Sci_PositionU startPos, Sci_Position length, int in
 
 static void ColourisePHPScriptDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
-	if(startPos == 0)
+	if(!startPos)
 		initStyle = SCE_HPHP_DEFAULT;
 	ColouriseHTMLDoc(startPos, length, initStyle, keywordlists, styler);
 }

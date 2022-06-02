@@ -89,12 +89,9 @@ typedef struct _SubAllocator {
 // Table. Each individual table can hold properties and rows & cols
 typedef struct _Table {
 	char SheetType[MAXSTR];               // The first row of the IT8 (the type)
-
 	int nSamples, nPatches;               // Cols, Rows
 	int SampleID;                         // Pos of ID
-
 	KEYVALUE*      HeaderList;            // The properties
-
 	char **         DataFormat;            // The binary stream descriptor
 	char **         Data;                  // The binary stream
 } TABLE;
@@ -109,37 +106,26 @@ typedef struct _FileContext {
 typedef struct {
 	uint32 TablesCount;                      // How many tables in this stream
 	uint32 nTable;                           // The actual table
-
 	TABLE Tab[MAXTABLES];
-
 	// Memory management
 	OWNEDMEM*      MemorySink;            // The storage backend
 	SUBALLOCATOR Allocator;               // String suballocator -- just to keep it fast
-
 	// Parser state machine
 	SYMBOL sy;                            // Current symbol
 	int ch;                               // Current character
-
 	int32 inum;                  // integer value
 	double dnum;                // real value
-
 	char id[MAXID];                       // identifier
 	char str[MAXSTR];                     // string
-
 	// Allowed keywords & datasets. They have visibility on whole stream
 	KEYVALUE*      ValidKeywords;
 	KEYVALUE*      ValidSampleID;
-
 	char *          Source;                // Points to loc. being parsed
 	int32 lineno;                // line counter for error reporting
-
 	FILECTX*       FileStack[MAXINCLUDE]; // Stack of files being parsed
 	int32 IncludeSP;             // Include Stack Pointer
-
 	char *          MemoryBlock;           // The stream if holded in memory
-
 	char DoubleFormatter[MAXID];          // Printf-like 'double' formatter
-
 	cmsContext ContextID;                 // The threading context
 } cmsIT8;
 
@@ -343,28 +329,13 @@ static const char * PredefinedSampleID[] = {
 static void * AllocChunk(cmsIT8* it8, uint32 size);
 
 // Checks whatever c is a separator
-static boolint isseparator(int c)
-{
-	return (c == ' ') || (c == '\t');
-}
-
+static boolint isseparator(int c) { return oneof2(c, ' ', '\t'); }
 // Checks whatever c is a valid identifier char
-static boolint ismiddle(int c)
-{
-	return (!isseparator(c) && (c != '#') && (c !='\"') && (c != '\'') && (c > 32) && (c < 127));
-}
-
+static boolint ismiddle(int c) { return (!isseparator(c) && (c != '#') && (c !='\"') && (c != '\'') && (c > 32) && (c < 127)); }
 // Checks whatsever c is a valid identifier middle char.
-static boolint isidchar(int c)
-{
-	return isalnum(c) || ismiddle(c);
-}
-
+static boolint isidchar(int c) { return isalnum(c) || ismiddle(c); }
 // Checks whatsever c is a valid identifier first char.
-static boolint isfirstidchar(int c)
-{
-	return !isdigit(c) && ismiddle(c);
-}
+static boolint isfirstidchar(int c) { return !isdigit(c) && ismiddle(c); }
 
 // Guess whether the supplied path looks like an absolute path
 static boolint isabsolutepath(const char * path)
@@ -801,15 +772,12 @@ static void InSymbol(cmsIT8* it8)
 
 	if(it8->sy == SINCLUDE) {
 		FILECTX* FileNest;
-
 		if(it8->IncludeSP >= (MAXINCLUDE-1)) {
 			SynError(it8, "Too many recursion levels");
 			return;
 		}
-
 		InSymbol(it8);
 		if(!Check(it8, SSTRING, "Filename expected")) return;
-
 		FileNest = it8->FileStack[it8->IncludeSP + 1];
 		if(FileNest == NULL) {
 			FileNest = it8->FileStack[it8->IncludeSP + 1] = (FILECTX*)AllocChunk(it8, sizeof(FILECTX));
@@ -877,9 +845,9 @@ static boolint GetVal(cmsIT8* it8, char * Buffer, uint32 max, const char * Error
 	Buffer[max] = 0;
 	return TRUE;
 }
-
-// ---------------------------------------------------------- Table
-
+//
+// Table
+//
 static TABLE * GetTable(cmsIT8* it8)
 {
 	if((it8->nTable >= it8->TablesCount)) {
@@ -888,9 +856,9 @@ static TABLE * GetTable(cmsIT8* it8)
 	}
 	return it8->Tab + it8->nTable;
 }
-
-// ---------------------------------------------------------- Memory management
-
+//
+// Memory management
+//
 // Frees an allocator and owned memory
 void CMSEXPORT cmsIT8Free(cmsHANDLE hIT8)
 {
@@ -915,10 +883,9 @@ void CMSEXPORT cmsIT8Free(cmsHANDLE hIT8)
 // Allocates a chunk of data, keep linked list
 static void * AllocBigBlock(cmsIT8* it8, uint32 size)
 {
-	OWNEDMEM* ptr1;
 	void * ptr = _cmsMallocZero(it8->ContextID, size);
 	if(ptr) {
-		ptr1 = (OWNEDMEM*)_cmsMallocZero(it8->ContextID, sizeof(OWNEDMEM));
+		OWNEDMEM * ptr1 = (OWNEDMEM*)_cmsMallocZero(it8->ContextID, sizeof(OWNEDMEM));
 		if(ptr1 == NULL) {
 			_cmsFree(it8->ContextID, ptr);
 			return NULL;
@@ -938,21 +905,16 @@ static void * AllocChunk(cmsIT8* it8, uint32 size)
 	size = _cmsALIGNMEM(size);
 	if(size > Free) {
 		if(it8->Allocator.BlockSize == 0)
-
 			it8->Allocator.BlockSize = 20*1024;
 		else
 			it8->Allocator.BlockSize *= 2;
-
 		if(it8->Allocator.BlockSize < size)
 			it8->Allocator.BlockSize = size;
-
 		it8->Allocator.Used = 0;
 		it8->Allocator.Block = (uint8 *)AllocBigBlock(it8, it8->Allocator.BlockSize);
 	}
-
 	ptr = it8->Allocator.Block + it8->Allocator.Used;
 	it8->Allocator.Used += size;
-
 	return (void *)ptr;
 }
 
@@ -993,7 +955,7 @@ static boolint IsAvailableOnList(KEYVALUE* p, const char * Key, const char * Sub
 }
 
 // Add a property into a linked list
-static KEYVALUE* AddToList(cmsIT8* it8, KEYVALUE** Head, const char * Key, const char * Subkey, const char * xValue, WRITEMODE WriteAs)
+static KEYVALUE * STDCALL AddToList(cmsIT8* it8, KEYVALUE** Head, const char * Key, const char * Subkey, const char * xValue, WRITEMODE WriteAs)
 {
 	KEYVALUE* p;
 	KEYVALUE* last;
@@ -1005,18 +967,15 @@ static KEYVALUE* AddToList(cmsIT8* it8, KEYVALUE** Head, const char * Key, const
 	}
 	else {
 		last = p;
-
 		// Allocate the container
 		p = (KEYVALUE*)AllocChunk(it8, sizeof(KEYVALUE));
 		if(!p) {
 			SynError(it8, "AddToList: out of memory");
 			return NULL;
 		}
-
 		// Store name and value
 		p->Keyword = AllocString(it8, Key);
 		p->Subkey = (Subkey == NULL) ? NULL : AllocString(it8, Subkey);
-
 		// Keep the container in our list
 		if(*Head == NULL) {
 			*Head = p;
@@ -1024,30 +983,20 @@ static KEYVALUE* AddToList(cmsIT8* it8, KEYVALUE** Head, const char * Key, const
 		else {
 			if(Subkey != NULL && last != NULL) {
 				last->NextSubkey = p;
-
 				// If Subkey is not null, then last is the last property with the same key,
 				// but not necessarily is the last property in the list, so we need to move
 				// to the actual list end
 				while(last->Next != NULL)
 					last = last->Next;
 			}
-
-			if(last != NULL) last->Next = p;
+			if(last)
+				last->Next = p;
 		}
-
 		p->Next    = NULL;
 		p->NextSubkey = NULL;
 	}
-
 	p->WriteAs = WriteAs;
-
-	if(xValue != NULL) {
-		p->Value   = AllocString(it8, xValue);
-	}
-	else {
-		p->Value   = NULL;
-	}
-
+	p->Value = xValue ? AllocString(it8, xValue) : NULL;
 	return p;
 }
 
@@ -1073,7 +1022,6 @@ static void AllocTable(cmsIT8* it8)
 int32 CMSEXPORT cmsIT8SetTable(cmsHANDLE IT8, uint32 nTable)
 {
 	cmsIT8* it8 = (cmsIT8*)IT8;
-
 	if(nTable >= it8->TablesCount) {
 		if(nTable == it8->TablesCount) {
 			AllocTable(it8);
@@ -1083,57 +1031,42 @@ int32 CMSEXPORT cmsIT8SetTable(cmsHANDLE IT8, uint32 nTable)
 			return -1;
 		}
 	}
-
 	it8->nTable = nTable;
-
 	return (int32)nTable;
 }
 
 // Init an empty container
 cmsHANDLE CMSEXPORT cmsIT8Alloc(cmsContext ContextID)
 {
-	cmsIT8* it8;
 	uint32 i;
-
-	it8 = (cmsIT8*)_cmsMallocZero(ContextID, sizeof(cmsIT8));
-	if(it8 == NULL) return NULL;
-
-	AllocTable(it8);
-
-	it8->MemoryBlock = NULL;
-	it8->MemorySink  = NULL;
-
-	it8->nTable = 0;
-
-	it8->ContextID = ContextID;
-	it8->Allocator.Used = 0;
-	it8->Allocator.Block = NULL;
-	it8->Allocator.BlockSize = 0;
-
-	it8->ValidKeywords = NULL;
-	it8->ValidSampleID = NULL;
-
-	it8->sy = SUNDEFINED;
-	it8->ch = ' ';
-	it8->Source = NULL;
-	it8->inum = 0;
-	it8->dnum = 0.0;
-
-	it8->FileStack[0] = (FILECTX*)AllocChunk(it8, sizeof(FILECTX));
-	it8->IncludeSP   = 0;
-	it8->lineno = 1;
-
-	strcpy(it8->DoubleFormatter, DEFAULT_DBL_FORMAT);
-	cmsIT8SetSheetType((cmsHANDLE)it8, "CGATS.17");
-
-	// Initialize predefined properties & data
-
-	for(i = 0; i < NUMPREDEFINEDPROPS; i++)
-		AddAvailableProperty(it8, PredefinedProperties[i].id, PredefinedProperties[i].as);
-
-	for(i = 0; i < NUMPREDEFINEDSAMPLEID; i++)
-		AddAvailableSampleID(it8, PredefinedSampleID[i]);
-
+	cmsIT8 * it8 = (cmsIT8*)_cmsMallocZero(ContextID, sizeof(cmsIT8));
+	if(it8)  {
+		AllocTable(it8);
+		it8->MemoryBlock = NULL;
+		it8->MemorySink  = NULL;
+		it8->nTable = 0;
+		it8->ContextID = ContextID;
+		it8->Allocator.Used = 0;
+		it8->Allocator.Block = NULL;
+		it8->Allocator.BlockSize = 0;
+		it8->ValidKeywords = NULL;
+		it8->ValidSampleID = NULL;
+		it8->sy = SUNDEFINED;
+		it8->ch = ' ';
+		it8->Source = NULL;
+		it8->inum = 0;
+		it8->dnum = 0.0;
+		it8->FileStack[0] = (FILECTX*)AllocChunk(it8, sizeof(FILECTX));
+		it8->IncludeSP   = 0;
+		it8->lineno = 1;
+		strcpy(it8->DoubleFormatter, DEFAULT_DBL_FORMAT);
+		cmsIT8SetSheetType((cmsHANDLE)it8, "CGATS.17");
+		// Initialize predefined properties & data
+		for(i = 0; i < NUMPREDEFINEDPROPS; i++)
+			AddAvailableProperty(it8, PredefinedProperties[i].id, PredefinedProperties[i].as);
+		for(i = 0; i < NUMPREDEFINEDSAMPLEID; i++)
+			AddAvailableSampleID(it8, PredefinedSampleID[i]);
+	}
 	return (cmsHANDLE)it8;
 }
 

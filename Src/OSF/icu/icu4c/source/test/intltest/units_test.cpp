@@ -1039,7 +1039,7 @@ void parsePreferencesTests(const char * filename, char delimiter, char * fields[
 	else {
 		file = T_FileStream_open(filename, "r");
 	}
-	if(file == NULL) {
+	if(!file) {
 		*pErrorCode = U_FILE_ACCESS_ERROR;
 		return;
 	}

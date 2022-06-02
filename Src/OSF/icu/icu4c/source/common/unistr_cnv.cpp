@@ -153,7 +153,7 @@ int32_t UnicodeString::extract(int32_t start,
 	UErrorCode status = U_ZERO_ERROR;
 
 	// just write the NUL if the string length is 0
-	if(length == 0) {
+	if(!length) {
 		return u_terminateChars(target, capacity, 0, &status);
 	}
 

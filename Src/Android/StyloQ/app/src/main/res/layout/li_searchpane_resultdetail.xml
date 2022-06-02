@@ -8,7 +8,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
        >
-        <TextView
+        <TextView style="@style/GenericListItemText"
             android:id="@+id/CTL_SEARCHPANE_FOUNDTEXT"
             android:layout_marginTop="2dp"
             android:layout_marginLeft="8dp"
@@ -18,7 +18,7 @@
             android:maxLines="1"
             android:textColor="@color/TextPrimary"
             />
-        <TextView
+        <TextView style="@style/GenericListItemText"
             android:id="@+id/CTL_SEARCHPANE_FOUNDDETAIL"
             android:layout_marginLeft="2dp"
             android:layout_marginRight="2dp"

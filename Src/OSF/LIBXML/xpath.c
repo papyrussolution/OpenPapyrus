@@ -5940,7 +5940,7 @@ static int xmlXPathEqualNodeSets(xmlXPathObject * arg1, xmlXPathObject * arg2, i
 	for(i = 0; i < ns1->nodeNr; i++) {
 		hashs1[i] = xmlXPathNodeValHash(ns1->PP_NodeTab[i]);
 		for(j = 0; j < ns2->nodeNr; j++) {
-			if(i == 0)
+			if(!i)
 				hashs2[j] = xmlXPathNodeValHash(ns2->PP_NodeTab[j]);
 			if(hashs1[i] != hashs2[j]) {
 				if(neq) {

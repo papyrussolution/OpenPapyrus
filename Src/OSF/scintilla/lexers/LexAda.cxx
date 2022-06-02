@@ -295,7 +295,7 @@ static bool IsValidIdentifier(const std::string & identifier)
 	size_t length = identifier.length();
 
 	// Zero-length identifiers are not valid (these can occur inside labels)
-	if(length == 0) {
+	if(!length) {
 		return false;
 	}
 
@@ -330,7 +330,7 @@ static bool IsValidNumber(const std::string & number)
 	size_t i = 0;
 	size_t length = number.length();
 
-	if(length == 0)
+	if(!length)
 		return false;  // Just in case
 
 	// Decimal number

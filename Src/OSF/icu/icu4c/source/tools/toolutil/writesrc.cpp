@@ -65,7 +65,7 @@ static FILE * usrc_createWithoutHeader(const char * path, const char * filename)
 
 U_CAPI FILE * U_EXPORT2 usrc_create(const char * path, const char * filename, int32_t copyrightYear, const char * generator) {
 	FILE * f = usrc_createWithoutHeader(path, filename);
-	if(f == NULL) {
+	if(!f) {
 		return f;
 	}
 	usrc_writeCopyrightHeader(f, "//", copyrightYear);
@@ -75,7 +75,7 @@ U_CAPI FILE * U_EXPORT2 usrc_create(const char * path, const char * filename, in
 
 U_CAPI FILE * U_EXPORT2 usrc_createTextData(const char * path, const char * filename, int32_t copyrightYear, const char * generator) {
 	FILE * f = usrc_createWithoutHeader(path, filename);
-	if(f == NULL) {
+	if(!f) {
 		return f;
 	}
 	usrc_writeCopyrightHeader(f, "#", copyrightYear);

@@ -152,7 +152,7 @@ static int add_cert_dir(BY_DIR * ctx, const char * dir, int type)
 			ss = s;
 			s = p + 1;
 			len = p - ss;
-			if(len == 0)
+			if(!len)
 				continue;
 			for(j = 0; j < sk_BY_DIR_ENTRY_num(ctx->dirs); j++) {
 				ent = sk_BY_DIR_ENTRY_value(ctx->dirs, j);
@@ -205,7 +205,7 @@ static int get_cert_by_subject(X509_LOOKUP * xl, X509_LOOKUP_TYPE type,
 	X509_OBJECT stmp, * tmp;
 	const char * postfix = "";
 
-	if(name == NULL)
+	if(!name)
 		return 0;
 
 	stmp.type = type;

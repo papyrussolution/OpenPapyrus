@@ -758,7 +758,7 @@ public:
 	}
 
 	int32_t findMostUsed() const {
-		if(length == 0) {
+		if(!length) {
 			return -1;
 		}
 		int32_t max = -1;

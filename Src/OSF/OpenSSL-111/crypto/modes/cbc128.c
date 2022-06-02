@@ -19,7 +19,7 @@ void CRYPTO_cbc128_encrypt(const uchar * in, uchar * out, size_t len, const void
 {
 	size_t n;
 	const uchar * iv = ivec;
-	if(len == 0)
+	if(!len)
 		return;
 #if !defined(OPENSSL_SMALL_FOOTPRINT)
 	if(STRICT_ALIGNMENT &&
@@ -70,7 +70,7 @@ void CRYPTO_cbc128_decrypt(const uchar * in, uchar * out, size_t len, const void
 		size_t t[16 / sizeof(size_t)];
 		uchar c[16];
 	} tmp;
-	if(len == 0)
+	if(!len)
 		return;
 
 #if !defined(OPENSSL_SMALL_FOOTPRINT)

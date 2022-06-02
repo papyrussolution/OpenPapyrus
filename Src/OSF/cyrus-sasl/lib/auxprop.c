@@ -501,19 +501,14 @@ int prop_format(struct propctx * ctx, const char * sep, int seplen, char * outbu
  *            if NULL, remove existing values
  *  vallen -- length of value, if <= 0 then strlen(value) will be used
  */
-int prop_set(struct propctx * ctx, const char * name,
-    const char * value, int vallen)
+int prop_set(struct propctx * ctx, const char * name, const char * value, int vallen)
 {
 	struct propval * cur;
-
 	if(!ctx) return SASL_BADPARAM;
 	if(!name && !ctx->prev_val) return SASL_BADPARAM;
-
 	if(name) {
 		struct propval * val;
-
 		ctx->prev_val = NULL;
-
 		for(val = ctx->values; val->name; val++) {
 			if(!strcmp(name, val->name)) {
 				ctx->prev_val = val;
@@ -981,28 +976,22 @@ int sasl_auxprop_store(sasl_conn_t * conn,
 	}
 	else {
 		char * pluginlist = NULL, * freeptr = NULL, * thisplugin = NULL;
-
 		if(_sasl_strdup(plist, &pluginlist, NULL) != SASL_OK) return SASL_FAIL;
 		thisplugin = freeptr = pluginlist;
-
 		/* Do store in all *specified* plugins, in order */
 		while(*thisplugin) {
 			char * p;
 			int last = 0;
-
-			while(*thisplugin && isspace((int)*thisplugin)) thisplugin++;
+			while(*thisplugin && isspace((int)*thisplugin)) 
+				thisplugin++;
 			if(!(*thisplugin)) break;
-
 			for(p = thisplugin; *p != '\0' && !isspace((int)*p); p++);
 			if(*p == '\0') last = 1;
 			else *p = '\0';
-
 			for(ptr = auxprop_head; ptr && ret == SASL_OK; ptr = ptr->next) {
 				/* Skip non-matching plugins */
-				if((!ptr->plug->name
-				    || strcasecmp(ptr->plug->name, thisplugin)))
+				if((!ptr->plug->name || strcasecmp(ptr->plug->name, thisplugin)))
 					continue;
-
 				total_plugins++;
 				if(ptr->plug->auxprop_store) {
 					ret = ptr->plug->auxprop_store(ptr->plug->glob_context,
@@ -1114,7 +1103,7 @@ int auxprop_plugin_info(const char * c_mech_list,              /* space separate
 			}
 		}
 		else {
-			mech_list = strdup(c_mech_list);
+			mech_list = sstrdup(c_mech_list);
 			cur_mech = mech_list;
 			while(cur_mech != NULL) {
 				p = strchr(cur_mech, ' ');

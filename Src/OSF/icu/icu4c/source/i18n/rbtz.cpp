@@ -238,8 +238,7 @@ void RuleBasedTimeZone::complete(UErrorCode & status) {
 						break;
 					}
 				}
-
-				if(fFinalRules != NULL) {
+				if(fFinalRules) {
 					// Check if one of final rules has earlier transition date
 					for(i = 0; i < 2 /* fFinalRules->size() */; i++) {
 						TimeZoneRule * fr = (TimeZoneRule*)fFinalRules->elementAt(i);
@@ -256,15 +255,12 @@ void RuleBasedTimeZone::complete(UErrorCode & status) {
 						}
 					}
 				}
-
-				if(nextRule == NULL) {
+				if(!nextRule) {
 					// Nothing more
 					break;
 				}
-
 				if(fHistoricTransitions == NULL) {
-					LocalPointer<UVector> lpHistoricTransitions(
-						new UVector(deleteTransition, nullptr, status), status);
+					LocalPointer<UVector> lpHistoricTransitions(new UVector(deleteTransition, nullptr, status), status);
 					if(U_FAILURE(status)) {
 						goto cleanup;
 					}
@@ -285,10 +281,9 @@ void RuleBasedTimeZone::complete(UErrorCode & status) {
 				curRule = nextRule;
 			}
 		}
-		if(fFinalRules != NULL) {
+		if(fFinalRules) {
 			if(fHistoricTransitions == NULL) {
-				LocalPointer<UVector> lpHistoricTransitions(
-					new UVector(deleteTransition, nullptr, status), status);
+				LocalPointer<UVector> lpHistoricTransitions(new UVector(deleteTransition, nullptr, status), status);
 				if(U_FAILURE(status)) {
 					goto cleanup;
 				}
@@ -298,10 +293,8 @@ void RuleBasedTimeZone::complete(UErrorCode & status) {
 			TimeZoneRule * rule0 = (TimeZoneRule*)fFinalRules->elementAt(0);
 			TimeZoneRule * rule1 = (TimeZoneRule*)fFinalRules->elementAt(1);
 			UDate tt0, tt1;
-			bool avail0 =
-			    rule0->getNextStart(lastTransitionTime, curRule->getRawOffset(), curRule->getDSTSavings(), false, tt0);
-			bool avail1 =
-			    rule1->getNextStart(lastTransitionTime, curRule->getRawOffset(), curRule->getDSTSavings(), false, tt1);
+			bool avail0 = rule0->getNextStart(lastTransitionTime, curRule->getRawOffset(), curRule->getDSTSavings(), false, tt0);
+			bool avail1 = rule1->getNextStart(lastTransitionTime, curRule->getRawOffset(), curRule->getDSTSavings(), false, tt1);
 			if(!avail0 || !avail1) {
 				// Should not happen, because both rules are permanent
 				status = U_INVALID_STATE_ERROR;
@@ -337,15 +330,12 @@ void RuleBasedTimeZone::complete(UErrorCode & status) {
 	}
 	fUpToDate = TRUE;
 	return;
-
 cleanup:
 	deleteTransitions();
 	fUpToDate = FALSE;
 }
 
-RuleBasedTimeZone* RuleBasedTimeZone::clone() const {
-	return new RuleBasedTimeZone(*this);
-}
+RuleBasedTimeZone* RuleBasedTimeZone::clone() const { return new RuleBasedTimeZone(*this); }
 
 int32_t RuleBasedTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
     uint8 dayOfWeek, int32_t millis, UErrorCode & status) const {
@@ -362,9 +352,8 @@ int32_t RuleBasedTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int
 	}
 }
 
-int32_t RuleBasedTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
-    uint8 /*dayOfWeek*/, int32_t millis,
-    int32_t /*monthLength*/, UErrorCode & status) const {
+int32_t RuleBasedTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int32_t day, uint8 /*dayOfWeek*/, int32_t millis, int32_t /*monthLength*/, UErrorCode & status) const 
+{
 	// dayOfWeek and monthLength are unused
 	if(U_FAILURE(status)) {
 		return 0;
@@ -382,27 +371,24 @@ int32_t RuleBasedTimeZone::getOffset(uint8 era, int32_t year, int32_t month, int
 	return (rawOffset + dstOffset);
 }
 
-void RuleBasedTimeZone::getOffset(UDate date, bool local, int32_t& rawOffset,
-    int32_t& dstOffset, UErrorCode & status) const {
+void RuleBasedTimeZone::getOffset(UDate date, bool local, int32_t& rawOffset, int32_t& dstOffset, UErrorCode & status) const 
+{
 	getOffsetInternal(date, local, kFormer, kLatter, rawOffset, dstOffset, status);
 }
 
-void RuleBasedTimeZone::getOffsetFromLocal(UDate date, UTimeZoneLocalOption nonExistingTimeOpt,
-    UTimeZoneLocalOption duplicatedTimeOpt,
-    int32_t& rawOffset, int32_t& dstOffset, UErrorCode & status) const {
+void RuleBasedTimeZone::getOffsetFromLocal(UDate date, UTimeZoneLocalOption nonExistingTimeOpt, 
+	UTimeZoneLocalOption duplicatedTimeOpt, int32_t& rawOffset, int32_t& dstOffset, UErrorCode & status) const 
+{
 	getOffsetInternal(date, TRUE, nonExistingTimeOpt, duplicatedTimeOpt, rawOffset, dstOffset, status);
 }
 
 /*
  * The internal getOffset implementation
  */
-void RuleBasedTimeZone::getOffsetInternal(UDate date, bool local,
-    int32_t NonExistingTimeOpt, int32_t DuplicatedTimeOpt,
-    int32_t& rawOffset, int32_t& dstOffset,
-    UErrorCode & status) const {
+void RuleBasedTimeZone::getOffsetInternal(UDate date, bool local, int32_t NonExistingTimeOpt, int32_t DuplicatedTimeOpt, int32_t& rawOffset, int32_t& dstOffset, UErrorCode & status) const 
+{
 	rawOffset = 0;
 	dstOffset = 0;
-
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -428,7 +414,7 @@ void RuleBasedTimeZone::getOffsetInternal(UDate date, bool local,
 			UDate tend = getTransitionTime((Transition*)fHistoricTransitions->elementAt(idx),
 				local, NonExistingTimeOpt, DuplicatedTimeOpt);
 			if(date > tend) {
-				if(fFinalRules != NULL) {
+				if(fFinalRules) {
 					rule = findRuleInFinal(date, local, NonExistingTimeOpt, DuplicatedTimeOpt);
 				}
 				if(rule == NULL) {
@@ -450,24 +436,25 @@ void RuleBasedTimeZone::getOffsetInternal(UDate date, bool local,
 			}
 		}
 	}
-	if(rule != NULL) {
+	if(rule) {
 		rawOffset = rule->getRawOffset();
 		dstOffset = rule->getDSTSavings();
 	}
 }
 
-void RuleBasedTimeZone::setRawOffset(int32_t /*offsetMillis*/) {
+void RuleBasedTimeZone::setRawOffset(int32_t /*offsetMillis*/) 
+{
 	// We don't support this operation at this moment.
 	// Nothing to do!
 }
 
-int32_t RuleBasedTimeZone::getRawOffset() const {
+int32_t RuleBasedTimeZone::getRawOffset() const 
+{
 	// Note: This implementation returns standard GMT offset
 	// as of current time.
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t raw, dst;
-	getOffset(uprv_getUTCtime() * U_MILLIS_PER_SECOND,
-	    FALSE, raw, dst, status);
+	getOffset(uprv_getUTCtime() * U_MILLIS_PER_SECOND, FALSE, raw, dst, status);
 	return raw;
 }
 
@@ -565,7 +552,7 @@ int32_t RuleBasedTimeZone::countTransitionRules(UErrorCode & /*status*/) const
 	if(fHistoricRules != NULL) {
 		count += fHistoricRules->size();
 	}
-	if(fFinalRules != NULL) {
+	if(fFinalRules) {
 		count += fFinalRules->size();
 	}
 	return count;
@@ -699,7 +686,7 @@ bool RuleBasedTimeZone::findNext(UDate base, bool inclusive, UDate& transitionTi
 			found = TRUE;
 		}
 		else if(tt <= base) {
-			if(fFinalRules != NULL) {
+			if(fFinalRules) {
 				// Find a transion time with finalRules
 				TimeZoneRule * r0 = (TimeZoneRule*)fFinalRules->elementAt(0);
 				TimeZoneRule * r1 = (TimeZoneRule*)fFinalRules->elementAt(1);
@@ -786,7 +773,7 @@ bool RuleBasedTimeZone::findPrev(UDate base, bool inclusive, UDate& transitionTi
 			found = TRUE;
 		}
 		else if(tt < base) {
-			if(fFinalRules != NULL) {
+			if(fFinalRules) {
 				// Find a transion time with finalRules
 				TimeZoneRule * r0 = (TimeZoneRule*)fFinalRules->elementAt(0);
 				TimeZoneRule * r1 = (TimeZoneRule*)fFinalRules->elementAt(1);

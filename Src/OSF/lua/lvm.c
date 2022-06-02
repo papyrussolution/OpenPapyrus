@@ -519,7 +519,7 @@ void luaV_objlen(lua_State * L, StkId ra, const TValue * rb) {
 */
 lua_Integer luaV_div(lua_State * L, lua_Integer m, lua_Integer n) {
 	if(l_castS2U(n) + 1u <= 1u) { /* special cases: -1 or 0 */
-		if(n == 0)
+		if(!n)
 			luaG_runerror(L, "attempt to divide by zero");
 		return intop(-, 0, m); /* n==-1; avoid overflow with 0x80000...//-1 */
 	}
@@ -538,7 +538,7 @@ lua_Integer luaV_div(lua_State * L, lua_Integer m, lua_Integer n) {
 */
 lua_Integer luaV_mod(lua_State * L, lua_Integer m, lua_Integer n) {
 	if(l_castS2U(n) + 1u <= 1u) { /* special cases: -1 or 0 */
-		if(n == 0)
+		if(!n)
 			luaG_runerror(L, "attempt to perform 'n%%0'");
 		return 0; /* m % -1 == 0; avoid overflow with 0x80000...%-1 */
 	}
@@ -1240,8 +1240,8 @@ l_tforloop:
 				int c = GETARG_C(i);
 				unsigned int last;
 				Table * h;
-				if(n == 0) n = cast_int(L->top - ra) - 1;
-				if(c == 0) {
+				if(!n) n = cast_int(L->top - ra) - 1;
+				if(!c) {
 					lua_assert(GET_OPCODE(*ci->u.l.savedpc) == OP_EXTRAARG);
 					c = GETARG_Ax(*ci->u.l.savedpc++);
 				}

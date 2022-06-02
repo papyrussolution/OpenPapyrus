@@ -49,21 +49,17 @@ typedef int sasl_getcallback_t (sasl_conn_t * conn,
  */
 typedef struct sasl_utils {
 	int version;
-
 	/* contexts */
 	sasl_conn_t * conn;
 	sasl_rand_t * rpool;
 	void * getopt_context;
-
 	/* option function */
 	sasl_getopt_t * getopt;
-
 	/* allocation functions: */
-	sasl_malloc_t * malloc;
-	sasl_calloc_t * calloc;
-	sasl_realloc_t * realloc;
-	sasl_free_t * free;
-
+	sasl_malloc_t * FnMalloc;
+	sasl_calloc_t * FnCalloc;
+	sasl_realloc_t * FnRealloc;
+	sasl_free_t * FnFree;
 	/* mutex functions: */
 	sasl_mutex_alloc_t * mutex_alloc;
 	sasl_mutex_lock_t * mutex_lock;

@@ -4463,8 +4463,7 @@ fail:
 				 * Push the current node to be able to roll back
 				 * and process within the entity
 				     */
-				    if((cur->children != NULL) &&
-				    (cur->children->children != NULL)) {
+				    if((cur->children != NULL) && (cur->children->children != NULL)) {
 					    nodeVPush(ctxt, cur);
 					    cur = cur->children->children;
 					    continue;
@@ -4501,8 +4500,7 @@ fail:
 				    }
 				    if(cur->type == XML_CDATA_SECTION_NODE) {
 					    /*
-					 * E59 spaces in CDATA does not match the
-					 * nonterminal S
+					 * E59 spaces in CDATA does not match the nonterminal S
 					     */
 					    tmp->content = sstrdup(reinterpret_cast<const xmlChar *>("CDATA"));
 				    }
@@ -4521,7 +4519,6 @@ fail:
 				cur = cur->next;
 			}
 		}
-
 		/*
 		 * Relaunch the validation
 		 */
@@ -4579,20 +4576,13 @@ done:
 		repl = tmp;
 	}
 	ctxt->vstateMax = 0;
-	if(ctxt->vstateTab != NULL) {
-		SAlloc::F(ctxt->vstateTab);
-		ctxt->vstateTab = NULL;
-	}
+	ZFREE(ctxt->vstateTab);
 #endif
 	ctxt->nodeMax = 0;
 	ctxt->nodeNr = 0;
-	if(ctxt->PP_NodeTab != NULL) {
-		SAlloc::F(ctxt->PP_NodeTab);
-		ctxt->PP_NodeTab = NULL;
-	}
+	ZFREE(ctxt->PP_NodeTab);
 	return ret;
 }
-
 /**
  * xmlValidateCdataElement:
  * @ctxt:  the validation context

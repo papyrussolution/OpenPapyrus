@@ -150,7 +150,7 @@ static int byteoffset(lua_State * L)
 	lua_Integer posi = (n >= 0) ? 1 : len + 1;
 	posi = u_posrelat(luaL_optinteger(L, 3, posi), len);
 	luaL_argcheck(L, 1 <= posi && --posi <= (lua_Integer)len, 3, "position out of range");
-	if(n == 0) {
+	if(!n) {
 		/* find beginning of current byte sequence */
 		while(posi > 0 && iscont(s + posi)) posi--;
 	}
@@ -175,7 +175,7 @@ static int byteoffset(lua_State * L)
 			}
 		}
 	}
-	if(n == 0) /* did it find given character? */
+	if(!n) /* did it find given character? */
 		lua_pushinteger(L, posi + 1);
 	else /* no such character */
 		lua_pushnil(L);

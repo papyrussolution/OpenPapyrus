@@ -222,7 +222,7 @@ int32_t nfs4_mixed_prepare(const char * src, int32_t srcLength,
 	if(*status == U_BUFFER_OVERFLOW_ERROR) {
 		*status = U_ZERO_ERROR;
 		p = (char *)SAlloc::M(pLen);
-		if(p == NULL) {
+		if(!p) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			goto CLEANUP;
 		}

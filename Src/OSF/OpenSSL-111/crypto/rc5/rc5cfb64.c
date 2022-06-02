@@ -25,7 +25,7 @@ void RC5_32_cfb64_encrypt(const uchar * in, uchar * out, long length, RC5_32_KEY
 	iv = (uchar *)ivec;
 	if(encrypt) {
 		while(l--) {
-			if(n == 0) {
+			if(!n) {
 				c2l(iv, v0);
 				ti[0] = v0;
 				c2l(iv, v1);
@@ -46,7 +46,7 @@ void RC5_32_cfb64_encrypt(const uchar * in, uchar * out, long length, RC5_32_KEY
 	}
 	else {
 		while(l--) {
-			if(n == 0) {
+			if(!n) {
 				c2l(iv, v0);
 				ti[0] = v0;
 				c2l(iv, v1);

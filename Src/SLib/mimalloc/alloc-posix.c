@@ -43,7 +43,7 @@ int mi_posix_memalign(void ** p, size_t alignment, size_t size) NOEXCEPT
 {
 	// Note: The spec dictates we should not modify `*p` on an error. (issue#27)
 	// <http://man7.org/linux/man-pages/man3/posix_memalign.3.html>
-	if(p == NULL) return EINVAL;
+	if(!p) return EINVAL;
 	if(alignment % sizeof(void *) != 0) return EINVAL; // natural alignment
 	if(!_mi_is_power_of_two(alignment)) return EINVAL; // not a power of 2
 	void * q = (mi_malloc_satisfies_alignment(alignment, size) ? mi_malloc(size) : mi_malloc_aligned(size, alignment));
@@ -104,11 +104,13 @@ mi_decl_restrict unsigned short* mi_wcsdup(const unsigned short* s) NOEXCEPT {
 	return p;
 }
 
-mi_decl_restrict uchar * mi_mbsdup(const uchar * s)  NOEXCEPT {
+mi_decl_restrict uchar * mi_mbsdup(const uchar * s)  NOEXCEPT 
+{
 	return (uchar *)mi_strdup((const char *)s);
 }
 
-int mi_dupenv_s(char ** buf, size_t* size, const char * name) NOEXCEPT {
+int mi_dupenv_s(char ** buf, size_t* size, const char * name) NOEXCEPT 
+{
 	if(buf==NULL || name==NULL) return EINVAL;
 	if(size != NULL) *size = 0;
 	char * p = getenv(name);  // mscver warning 4996

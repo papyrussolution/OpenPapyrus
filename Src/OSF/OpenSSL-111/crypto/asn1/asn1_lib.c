@@ -341,9 +341,9 @@ void ASN1_STRING_clear_free(ASN1_STRING * a)
 int ASN1_STRING_cmp(const ASN1_STRING * a, const ASN1_STRING * b)
 {
 	int i = (a->length - b->length);
-	if(i == 0) {
+	if(!i) {
 		i = memcmp(a->data, b->data, a->length);
-		if(i == 0)
+		if(!i)
 			return a->type - b->type;
 		else
 			return i;

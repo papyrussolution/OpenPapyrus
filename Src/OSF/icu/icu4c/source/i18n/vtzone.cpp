@@ -131,7 +131,7 @@ static UnicodeString & appendAsciiDigits(int32_t number, uint8 length, UnicodeSt
 	}
 
 	length = length > 10 ? 10 : length;
-	if(length == 0) {
+	if(!length) {
 		// variable length
 		i = 0;
 		do {

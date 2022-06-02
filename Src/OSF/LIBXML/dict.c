@@ -201,7 +201,7 @@ static const xmlChar * xmlDictAddString(xmlDict * dict, const xmlChar * name, ui
 		if((dict->limit > 0) && (limit > dict->limit)) {
 			return 0;
 		}
-		if(size == 0)
+		if(!size)
 			size = 1000;
 		else
 			size *= 4; /* exponential growth */
@@ -267,7 +267,7 @@ static const xmlChar * xmlDictAddQString(xmlDict * dict, const xmlChar * prefix,
 		if((dict->limit > 0) && (limit > dict->limit)) {
 			return 0;
 		}
-		if(size == 0)
+		if(!size)
 			size = 1000;
 		else
 			size *= 4; /* exponential growth */

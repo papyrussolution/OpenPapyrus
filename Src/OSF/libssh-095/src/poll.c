@@ -543,7 +543,7 @@ int ssh_poll_ctx_add_socket(ssh_poll_ctx ctx, ssh_socket s)
 {
 	int ret;
 	ssh_poll_handle p = ssh_socket_get_poll_handle(s);
-	if(p == NULL) {
+	if(!p) {
 		return -1;
 	}
 	ret = ssh_poll_ctx_add(ctx, p);
@@ -749,7 +749,7 @@ int ssh_event_add_fd(ssh_event event, socket_t fd, short events, ssh_event_callb
 	pw->userdata = userdata;
 	/* pw is freed by ssh_event_remove_fd */
 	p = ssh_poll_new(fd, events, ssh_event_fd_wrapper_callback, pw);
-	if(p == NULL) {
+	if(!p) {
 		SAlloc::F(pw);
 		return SSH_ERROR;
 	}

@@ -198,7 +198,7 @@ cairo_status_t FASTCALL _cairo_output_stream_destroy(cairo_output_stream_t * str
 
 void FASTCALL _cairo_output_stream_write(cairo_output_stream_t * stream, const void * data, size_t length)
 {
-	if(length == 0)
+	if(!length)
 		return;
 	if(stream->status)
 		return;
@@ -515,7 +515,7 @@ static cairo_status_t stdio_close(cairo_output_stream_t * base)
 
 cairo_output_stream_t * _cairo_output_stream_create_for_file(FILE * file)
 {
-	if(file == NULL) {
+	if(!file) {
 		_cairo_error_throw(CAIRO_STATUS_WRITE_ERROR);
 		return (cairo_output_stream_t*)&_cairo_output_stream_nil_write_error;
 	}
@@ -541,7 +541,7 @@ cairo_output_stream_t * _cairo_output_stream_create_for_filename(const char * fi
 	status = _cairo_fopen(filename, "wb", &file);
 	if(status != CAIRO_STATUS_SUCCESS)
 		return _cairo_output_stream_create_in_error(status);
-	if(file == NULL) {
+	if(!file) {
 		switch(errno) {
 			case ENOMEM:
 			    _cairo_error_throw(CAIRO_STATUS_NO_MEMORY);

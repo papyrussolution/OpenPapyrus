@@ -36,7 +36,7 @@ inline bool IsAWordStart(const int ch) {
 }
 
 inline bool IsOperator(int ch) {
-	if(IsASCII(ch) && isalnum(ch))
+	if(isasciialnum(ch))
 		return false;
 	// '.' left out as it is used to make up numbers
 	if(ch == '%' || ch == '^' || ch == '&' || ch == '*' ||

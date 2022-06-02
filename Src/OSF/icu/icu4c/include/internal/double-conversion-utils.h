@@ -30,8 +30,7 @@
 // ICU PATCH: Use U_ASSERT instead of <assert.h>
 #include "uassert.h"
 #ifndef DOUBLE_CONVERSION_ASSERT
-#define DOUBLE_CONVERSION_ASSERT(condition)         \
-	U_ASSERT(condition);
+#define DOUBLE_CONVERSION_ASSERT(condition) U_ASSERT(condition);
 #endif
 #ifndef DOUBLE_CONVERSION_UNIMPLEMENTED
 #define DOUBLE_CONVERSION_UNIMPLEMENTED() (abort())

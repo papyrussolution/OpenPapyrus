@@ -1474,7 +1474,7 @@ int DL2_Acc::GetAcc(char ** ptr, int isCorr, int substAr)
 		char * d;
 		if((d = strtok(acc_number, dot)) != 0)
 			do {
-				while(*d == ' ' || *d == '\t')
+				while(oneof2(*d, ' ', '\t'))
 					d++;
 				if(d[0] == '*') {
 					aster_count++;
@@ -1871,15 +1871,8 @@ void DL2_Formula::destroy()
 	ZFREE(P_Stack);
 }
 
-int DL2_Formula::IsEmpty() const
-{
-	return (Count == 0);
-}
-
-int DL2_Formula::GetCount() const
-{
-	return Count;
-}
+bool DL2_Formula::IsEmpty() const { return (Count == 0); }
+int  DL2_Formula::GetCount() const { return Count; }
 
 int DL2_Formula::Write(FILE * pStream) const
 {

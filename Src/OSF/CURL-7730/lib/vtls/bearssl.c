@@ -117,7 +117,7 @@ static CURLcode load_cafile(const char * path, br_x509_trust_anchor ** anchors,
 	br_pem_decoder_setdest(&pc, x509_push, &ca);
 	for(;;) {
 		n = fread(buf, 1, sizeof(buf), fp);
-		if(n == 0)
+		if(!n)
 			break;
 		p = buf;
 		while(n) {

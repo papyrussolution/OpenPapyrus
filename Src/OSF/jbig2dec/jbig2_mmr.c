@@ -958,7 +958,7 @@ static int jbig2_decode_mmr_line(Jbig2Ctx * ctx, Jbig2MmrCtx * mmr, const byte *
 			jbig2_decode_mmr_consume(mmr, 3);
 			if(a0 == MINUS1)
 				a0 = 0;
-			if(c == 0) {
+			if(!c) {
 				white_run = jbig2_decode_get_run(ctx, mmr, jbig2_mmr_white_decode, 8);
 				if(white_run < 0)
 					return jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to decode white H run");

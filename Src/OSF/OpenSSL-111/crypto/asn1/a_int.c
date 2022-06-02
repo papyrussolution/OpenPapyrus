@@ -479,7 +479,7 @@ static ASN1_STRING * bn_to_asn1_string(const BIGNUM * bn, ASN1_STRING * ai,
 
 	len = BN_num_bytes(bn);
 
-	if(len == 0)
+	if(!len)
 		len = 1;
 
 	if(ASN1_STRING_set(ret, NULL, len) == 0) {
@@ -552,7 +552,7 @@ long ASN1_INTEGER_get(const ASN1_INTEGER * a)
 	if(!a)
 		return 0;
 	i = ASN1_INTEGER_get_int64(&r, a);
-	if(i == 0)
+	if(!i)
 		return -1;
 	if(r > LONG_MAX || r < LONG_MIN)
 		return -1;
@@ -595,7 +595,7 @@ long ASN1_ENUMERATED_get(const ASN1_ENUMERATED * a)
 	if(a->length > (int)sizeof(long))
 		return 0xffffffffL;
 	i = ASN1_ENUMERATED_get_int64(&r, a);
-	if(i == 0)
+	if(!i)
 		return -1;
 	if(r > LONG_MAX || r < LONG_MIN)
 		return -1;

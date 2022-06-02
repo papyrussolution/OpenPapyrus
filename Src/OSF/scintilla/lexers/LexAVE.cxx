@@ -16,37 +16,18 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(const int ch) 
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_');
-}
-
-static bool FASTCALL IsEnumChar(const int ch) 
-{
-	return (ch < 0x80) && (isalnum(ch)|| ch == '_');
-}
-
-static bool FASTCALL IsANumberChar(const int ch) 
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '.' );
-}
-
-inline bool IsAWordStart(const int ch) 
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_');
-}
+static bool FASTCALL IsAWordChar(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_'); }
+static bool FASTCALL IsEnumChar(const int ch) { return (ch < 0x80) && (isalnum(ch)|| ch == '_'); }
+static bool FASTCALL IsANumberChar(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '.' ); }
+inline bool IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_'); }
 
 inline bool isAveOperator(char ch) 
 {
-	if(IsASCII(ch) && isalnum(ch))
+	if(isasciialnum(ch))
 		return false;
 	// '.' left out as it is used to make up numbers
-	if(ch == '*' || ch == '/' || ch == '-' || ch == '+' ||
-	    ch == '(' || ch == ')' || ch == '=' ||
-	    ch == '{' || ch == '}' ||
-	    ch == '[' || ch == ']' || ch == ';' ||
-	    ch == '<' || ch == '>' || ch == ',' ||
-	    ch == '.')
+	if(ch == '*' || ch == '/' || ch == '-' || ch == '+' || ch == '(' || ch == ')' || ch == '=' ||
+	    ch == '{' || ch == '}' || ch == '[' || ch == ']' || ch == ';' || ch == '<' || ch == '>' || ch == ',' || ch == '.')
 		return true;
 	return false;
 }

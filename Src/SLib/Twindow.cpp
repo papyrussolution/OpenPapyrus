@@ -1954,7 +1954,7 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 						//return 0;
 					}
 					else {
-						if(lParam == 0) {
+						if(!lParam) {
 							if(hiw == 0) { // from menu
 								TView::messageKeyDown(p_view, low);
 								return 0;

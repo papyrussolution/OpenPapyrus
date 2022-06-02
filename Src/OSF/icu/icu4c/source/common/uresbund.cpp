@@ -236,7 +236,7 @@ U_CAPI bool U_EXPORT2 ures_dumpCacheContents() {
 
 static bool U_CALLCONV ures_cleanup(void)
 {
-	if(cache != NULL) {
+	if(cache) {
 		ures_flushCache();
 		uhash_close(cache);
 		cache = NULL;
@@ -246,13 +246,15 @@ static bool U_CALLCONV ures_cleanup(void)
 }
 
 /** INTERNAL: Initializes the cache for resources */
-static void U_CALLCONV createCache(UErrorCode & status) {
+static void U_CALLCONV createCache(UErrorCode & status) 
+{
 	U_ASSERT(cache == NULL);
 	cache = uhash_open(hashEntry, compareEntries, NULL, &status);
 	ucln_common_registerCleanup(UCLN_COMMON_URES, ures_cleanup);
 }
 
-static void initCache(UErrorCode * status) {
+static void initCache(UErrorCode * status) 
+{
 	umtx_initOnce(gCacheInitOnce, &createCache, *status);
 }
 
@@ -409,7 +411,7 @@ static UResourceDataEntry * init_entry(const char * localeID, const char * path,
 			}
 		}
 	}
-	if(r != NULL) {
+	if(r) {
 		/* return the real bundle */
 		while(r->fAlias != NULL) {
 			r = r->fAlias;
@@ -661,7 +663,7 @@ static UResourceDataEntry * entryOpen(const char * path, const char * localeID, 
 		goto finish;
 	}
 
-	if(r != NULL) { /* if there is one real locale, we can look for parents. */
+	if(r) { /* if there is one real locale, we can look for parents. */
 		t1 = r;
 		hasRealData = TRUE;
 		if(usingUSRData) { /* This code inserts user override data into the inheritance chain */
@@ -702,7 +704,7 @@ static UResourceDataEntry * entryOpen(const char * path, const char * localeID, 
 			goto finish;
 		}
 		intStatus = U_USING_DEFAULT_WARNING;
-		if(r != NULL) { /* the default locale exists */
+		if(r) { /* the default locale exists */
 			t1 = r;
 			hasRealData = TRUE;
 			isDefault = TRUE;
@@ -725,7 +727,7 @@ static UResourceDataEntry * entryOpen(const char * path, const char * localeID, 
 			*status = intStatus;
 			goto finish;
 		}
-		if(r != NULL) {
+		if(r) {
 			t1 = r;
 			intStatus = U_USING_DEFAULT_WARNING;
 			hasRealData = TRUE;
@@ -769,12 +771,12 @@ finish:
  * Parent and root locale bundles are loaded if
  * the requested bundle does not have the "nofallback" flag.
  */
-static UResourceDataEntry * entryOpenDirect(const char * path, const char * localeID, UErrorCode * status) {
+static UResourceDataEntry * entryOpenDirect(const char * path, const char * localeID, UErrorCode * status) 
+{
 	initCache(status);
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-
 	// Note: We need to query the default locale *before* locking resbMutex.
 	// If the localeID is NULL, then we want to use the default locale.
 	if(!localeID) {
@@ -784,9 +786,7 @@ static UResourceDataEntry * entryOpenDirect(const char * path, const char * loca
 		// If the localeID is "", then we want to use the root locale.
 		localeID = kRootLocaleName;
 	}
-
 	Mutex lock(&resbMutex);
-
 	// findFirstExisting() without fallbacks.
 	UResourceDataEntry * r = init_entry(localeID, path, status);
 	if(U_SUCCESS(*status)) {
@@ -818,7 +818,7 @@ static UResourceDataEntry * entryOpenDirect(const char * path, const char * loca
 		}
 	}
 
-	if(r != NULL) {
+	if(r) {
 		// TODO: Does this ever loop?
 		while(t1->fParent != NULL) {
 			t1->fParent->fCountExisting++;
@@ -1434,7 +1434,7 @@ U_CAPI const uint8 * U_EXPORT2 ures_getBinary(const UResourceBundle * resB, int3
 		return NULL;
 	}
 	p = res_getBinary({resB}, &resB->getResData(), resB->fRes, len);
-	if(p == NULL) {
+	if(!p) {
 		*status = U_RESOURCE_TYPE_MISMATCH;
 	}
 	return p;
@@ -1451,7 +1451,7 @@ U_CAPI const int32_t* U_EXPORT2 ures_getIntVector(const UResourceBundle * resB, 
 		return NULL;
 	}
 	p = res_getIntVector({resB}, &resB->getResData(), resB->fRes, len);
-	if(p == NULL) {
+	if(!p) {
 		*status = U_RESOURCE_TYPE_MISMATCH;
 	}
 	return p;
@@ -3095,7 +3095,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 		if(copyLength>0) {
 			uprv_strncpy(result, found, copyLength);
 		}
-		if(length == 0) {
+		if(!length) {
 			*status = U_MISSING_RESOURCE_ERROR;
 		}
 	}

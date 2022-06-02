@@ -41,7 +41,7 @@ uchar * ssh_mbedcry_bn2num(const_bignum num, int radix)
 		return NULL;
 	}
 	buf = SAlloc::M(olen);
-	if(buf == NULL) {
+	if(!buf) {
 		return NULL;
 	}
 	rc = mbedtls_mpi_write_string(num, radix, buf, olen, &olen);

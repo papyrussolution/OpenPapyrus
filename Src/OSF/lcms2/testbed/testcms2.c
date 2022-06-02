@@ -779,7 +779,6 @@ static int32 TestSingleFixed8_8(double d)
 	cmsS15Fixed16Number f = _cmsDoubleTo8Fixed8(d);
 	double RoundTrip = _cms8Fixed8toDouble((uint16)f);
 	double Error     = fabs(d - RoundTrip);
-
 	return ( Error <= FIXED_PRECISION_8_8);
 }
 
@@ -866,15 +865,18 @@ static int32 Check1D(int32 nNodesToCheck, boolint Down, int32 max_err)
 	uint16 in, out;
 	cmsInterpParams* p;
 	uint16* Tab = (uint16*)SAlloc::M(sizeof(uint16)* nNodesToCheck);
-	if(Tab == NULL) return 0;
+	if(Tab == NULL) 
+		return 0;
 	p = _cmsComputeInterpParams(DbgThread(), nNodesToCheck, 1, 1, Tab, CMS_LERP_FLAGS_16BITS);
-	if(!p) return 0;
+	if(!p) 
+		return 0;
 	BuildTable(nNodesToCheck, Tab, Down);
 	for(uint32 i = 0; i <= 0xffff; i++) {
 		in = (uint16)i;
 		out = 0;
 		p->Interpolation.Lerp16(&in, &out, p);
-		if(Down) out = 0xffff - out;
+		if(Down) 
+			out = 0xffff - out;
 		if(abs(out - in) > max_err) {
 			Fail("(%dp): Must be %x, But is %x : ", nNodesToCheck, in, out);
 			_cmsFreeInterpParams(p);
@@ -899,9 +901,8 @@ static int32 Check1DLERP18Down() { return Check1D(18, TRUE, 0); }
 
 static int32 ExhaustiveCheck1DLERP(FILE * fOut)
 {
-	uint32 j;
 	fprintf(fOut, "\n");
-	for(j = 10; j <= 4096; j++) {
+	for(uint32 j = 10; j <= 4096; j++) {
 		if((j % 10) == 0) 
 			fprintf(fOut, "%u    \r", j);
 		if(!Check1D(j, FALSE, 1)) 
@@ -949,9 +950,12 @@ static int32 Check3DinterpolationFloatTetrahedral(FILE * fOut)
 	for(i = 0; i < 0xffff; i++) {
 		In[0] = In[1] = In[2] = (float)( (float)i / 65535.0F);
 		p->Interpolation.LerpFloat(In, Out, p);
-		if(!IsGoodFixed15_16("Channel 1", Out[0], In[0])) goto Error;
-		if(!IsGoodFixed15_16("Channel 2", Out[1], (float)In[1] / 2.F)) goto Error;
-		if(!IsGoodFixed15_16("Channel 3", Out[2], (float)In[2] / 4.F)) goto Error;
+		if(!IsGoodFixed15_16("Channel 1", Out[0], In[0])) 
+			goto Error;
+		if(!IsGoodFixed15_16("Channel 2", Out[1], (float)In[1] / 2.F)) 
+			goto Error;
+		if(!IsGoodFixed15_16("Channel 3", Out[2], (float)In[2] / 4.F)) 
+			goto Error;
 	}
 	if(MaxErr > 0) 
 		fprintf(fOut, "|Err|<%lf ", MaxErr);
@@ -1230,10 +1234,8 @@ static int32 ExhaustiveCheck3DinterpolationTrilinear16()
 				if(!IsGoodWord("Channel 2", Out[1], In[1])) goto Error;
 				if(!IsGoodWord("Channel 3", Out[2], In[2])) goto Error;
 			}
-
 	_cmsFreeInterpParams(p);
 	return 1;
-
 Error:
 	_cmsFreeInterpParams(p);
 	return 0;
@@ -1386,8 +1388,7 @@ static uint16 Fn8D2(uint16 a1, uint16 a2, uint16 a3, uint16 a4, uint16 a5, uint1
 	return (uint16)((a1 + 3* a2 + 3* a3 + a4 + a5 + a6 + a7 + a8 ) / (m + 4));
 }
 
-static uint16 Fn8D3(uint16 a1, uint16 a2, uint16 a3, uint16 a4,
-    uint16 a5, uint16 a6, uint16 a7, uint16 a8, uint32 m)
+static uint16 Fn8D3(uint16 a1, uint16 a2, uint16 a3, uint16 a4, uint16 a5, uint16 a6, uint16 a7, uint16 a8, uint32 m)
 {
 	return (uint16)((3*a1 + 2*a2 + 3*a3 + a4 + a5 + a6 + a7 + a8) / (m + 5));
 }
@@ -5374,7 +5375,7 @@ static void GenerateCSA(const char * cInProf, const char * FileName)
 	else
 		hProfile = cmsOpenProfileFromFile(cInProf, "r");
 	n = cmsGetPostScriptCSA(DbgThread(), hProfile, 0, 0, NULL, 0);
-	if(n == 0) return;
+	if(!n) return;
 	Buffer = (char *)_cmsMalloc(BuffThread, n + 1);
 	cmsGetPostScriptCSA(DbgThread(), hProfile, 0, 0, Buffer, n);
 	Buffer[n] = 0;
@@ -5401,7 +5402,7 @@ static void GenerateCRD(const char * cOutProf, const char * FileName)
 	else
 		hProfile = cmsOpenProfileFromFile(cOutProf, "r");
 	n = cmsGetPostScriptCRD(DbgThread(), hProfile, 0, dwFlags, NULL, 0);
-	if(n == 0) 
+	if(!n) 
 		return;
 	Buffer = (char *)_cmsMalloc(BuffThread, n + 1);
 	cmsGetPostScriptCRD(DbgThread(), hProfile, 0, dwFlags, Buffer, n);

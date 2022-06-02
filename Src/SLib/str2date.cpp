@@ -51,7 +51,7 @@ int STDCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int
 	int    is_first_subst = 0;
 	long   ret_flags = 0;
 
-	if(c == 0) {
+	if(!c) {
 		PTR32(zero_buf)[0] = 0;
 		c = zero_buf;
 		ret_flags |= strtodatefZero;

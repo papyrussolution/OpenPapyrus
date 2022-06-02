@@ -425,16 +425,19 @@ bool StringSet::search(const char * pPattern, uint * pPos, int ignoreCase) const
 	return false;
 }
 
-bool StringSet::searchNcAscii(const char * pPattern, uint * pPos) const
+bool StringSet::searchNcAscii(const char * pPattern, uint * pPos, uint * pNextPos) const
 {
 	uint   pos = DEREFPTRORZ(pPos);
 	SString temp_buf;
 	for(uint prev_pos = pos; get(&pos, temp_buf); prev_pos = pos) {
 		if(temp_buf.IsEqiAscii(pPattern)) {
 			ASSIGN_PTR(pPos, prev_pos);
+			ASSIGN_PTR(pNextPos, pos);
 			return true;
 		}
 	}
+	ASSIGN_PTR(pPos, 0);
+	ASSIGN_PTR(pNextPos, pos);
 	return false;
 }
 

@@ -252,7 +252,7 @@ INLINE LOCAL(boolean) emit_bits_s(working_state * state, uint code, int size)
 	INT32 put_buffer;
 	int put_bits;
 	// if size is 0, caller used an invalid Huffman table entry 
-	if(size == 0)
+	if(!size)
 		ERREXIT(state->cinfo, JERR_HUFF_MISSING_CODE);
 	// mask off any extra bits in code 
 	put_buffer = ((INT32)code) & ((((INT32)1) << size) - 1);
@@ -283,7 +283,7 @@ INLINE static void emit_bits_e(huff_entropy_ptr entropy, uint code, int size)
 	INT32 put_buffer;
 	int put_bits;
 	// if size is 0, caller used an invalid Huffman table entry 
-	if(size == 0)
+	if(!size)
 		ERREXIT(entropy->cinfo, JERR_HUFF_MISSING_CODE);
 	if(entropy->gather_statistics)
 		return; // do nothing if we're only getting stats 
@@ -434,7 +434,7 @@ METHODDEF(boolean) encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 	entropy->free_in_buffer = cinfo->dest->free_in_buffer;
 	/* Emit restart marker if needed */
 	if(cinfo->restart_interval)
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			emit_restart_e(entropy, entropy->next_restart_num);
 	/* Encode the MCU data blocks */
 	for(blkn = 0; blkn < cinfo->blocks_in_MCU; blkn++) {
@@ -477,7 +477,7 @@ METHODDEF(boolean) encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 	cinfo->dest->free_in_buffer = entropy->free_in_buffer;
 	/* Update restart-interval state too */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0) {
+		if(!entropy->restarts_to_go) {
 			entropy->restarts_to_go = cinfo->restart_interval;
 			entropy->next_restart_num++;
 			entropy->next_restart_num &= 7;
@@ -503,7 +503,7 @@ METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 	entropy->free_in_buffer = cinfo->dest->free_in_buffer;
 	/* Emit restart marker if needed */
 	if(cinfo->restart_interval)
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			emit_restart_e(entropy, entropy->next_restart_num);
 	Se = cinfo->Se;
 	Al = cinfo->Al;
@@ -568,7 +568,7 @@ METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 	cinfo->dest->free_in_buffer = entropy->free_in_buffer;
 	/* Update restart-interval state too */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0) {
+		if(!entropy->restarts_to_go) {
 			entropy->restarts_to_go = cinfo->restart_interval;
 			entropy->next_restart_num++;
 			entropy->next_restart_num &= 7;
@@ -590,7 +590,7 @@ METHODDEF(boolean) encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 	entropy->free_in_buffer = cinfo->dest->free_in_buffer;
 	/* Emit restart marker if needed */
 	if(cinfo->restart_interval)
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			emit_restart_e(entropy, entropy->next_restart_num);
 	Al = cinfo->Al;
 	/* Encode the MCU data blocks */
@@ -602,7 +602,7 @@ METHODDEF(boolean) encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 	cinfo->dest->free_in_buffer = entropy->free_in_buffer;
 	/* Update restart-interval state too */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0) {
+		if(!entropy->restarts_to_go) {
 			entropy->restarts_to_go = cinfo->restart_interval;
 			entropy->next_restart_num++;
 			entropy->next_restart_num &= 7;
@@ -631,7 +631,7 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 
 	/* Emit restart marker if needed */
 	if(cinfo->restart_interval)
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			emit_restart_e(entropy, entropy->next_restart_num);
 
 	Se = cinfo->Se;
@@ -714,7 +714,7 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 	cinfo->dest->free_in_buffer = entropy->free_in_buffer;
 	/* Update restart-interval state too */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0) {
+		if(!entropy->restarts_to_go) {
 			entropy->restarts_to_go = cinfo->restart_interval;
 			entropy->next_restart_num++;
 			entropy->next_restart_num &= 7;
@@ -819,7 +819,7 @@ METHODDEF(boolean) encode_mcu_huff(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 	state.cinfo = cinfo;
 	/* Emit restart marker if needed */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0)
+		if(!entropy->restarts_to_go)
 			if(!emit_restart_s(&state, entropy->next_restart_num))
 				return FALSE;
 	}
@@ -838,7 +838,7 @@ METHODDEF(boolean) encode_mcu_huff(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 	ASSIGN_STATE(entropy->saved, state.cur);
 	/* Update restart-interval state too */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0) {
+		if(!entropy->restarts_to_go) {
 			entropy->restarts_to_go = cinfo->restart_interval;
 			entropy->next_restart_num++;
 			entropy->next_restart_num &= 7;
@@ -956,7 +956,7 @@ METHODDEF(boolean) encode_mcu_gather(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 	jpeg_component_info * compptr;
 	/* Take care of restart intervals if needed */
 	if(cinfo->restart_interval) {
-		if(entropy->restarts_to_go == 0) {
+		if(!entropy->restarts_to_go) {
 			/* Re-initialize DC predictions to 0 */
 			for(ci = 0; ci < cinfo->comps_in_scan; ci++)
 				entropy->saved.last_dc_val[ci] = 0;

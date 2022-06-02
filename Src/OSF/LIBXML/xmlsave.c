@@ -1345,7 +1345,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxt * ctxt, xmlNode * cur)
 		return;
 	}
 	if(cur->type == XML_CDATA_SECTION_NODE) {
-		if(cur->content == NULL || *cur->content == '\0') {
+		if(isempty(cur->content)) {
 			xmlOutputBufferWrite(buf, 12, "<![CDATA[]]>");
 		}
 		else {

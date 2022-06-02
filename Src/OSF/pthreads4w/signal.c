@@ -96,7 +96,7 @@ int pthread_sigmask(int how, sigset_t const * set, sigset_t * oset)
 		return ENOENT;
 	}
 	/* Validate the `how' argument. */
-	if(set != NULL) {
+	if(set) {
 		switch(how) {
 			case SIG_BLOCK: break;
 			case SIG_UNBLOCK: break;
@@ -105,13 +105,12 @@ int pthread_sigmask(int how, sigset_t const * set, sigset_t * oset)
 		}
 	}
 	/* Copy the old mask before modifying it. */
-	if(oset != NULL) {
+	if(oset) {
 		memcpy(oset, &(thread.p->sigmask), sizeof(sigset_t));
 	}
-	if(set != NULL) {
+	if(set) {
 		unsigned int i;
-		/* FIXME: this code assumes that sigmask is an even multiple of
-		   the size of a long integer. */
+		// FIXME: this code assumes that sigmask is an even multiple of the size of a long integer.
 		unsigned long * src = (unsigned long const*)set;
 		unsigned long * dest = (ulong *)&(thread.p->sigmask);
 		switch(how) {

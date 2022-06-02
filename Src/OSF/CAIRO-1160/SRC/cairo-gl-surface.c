@@ -484,7 +484,7 @@ static cairo_status_t _cairo_gl_surface_clear(cairo_gl_surface_t * surface,
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	if(a == 0)
+	if(!a)
 		surface->base.is_clear = TRUE;
 
 	return _cairo_gl_context_release(ctx, status);

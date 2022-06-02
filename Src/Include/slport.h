@@ -1,5 +1,5 @@
 // SLPORT.H
-// Copyright (c) A.Sobolev 2020, 2021
+// Copyright (c) A.Sobolev 2020, 2021, 2022
 // @codepage UTF-8
 // Этот заголовочный файл призван унифицировать большинство макроопределений и деклараций, реализующих портируемость
 // компиляции между платформами и компиляторами.
@@ -234,6 +234,9 @@
 	#endif
 	#if !defined(CXX_CPLUSPLUS)
 		#define CXX_CPLUSPLUS 0
+	#endif
+	#ifndef __has_builtin
+		#define __has_builtin(x) 0
 	#endif
 	//
 	// [C++ Compiler Features]
@@ -571,6 +574,48 @@
 	#endif
 	#define CXX_ARCH_LE          (CXX_ARCH_X86 || CXX_ARCH_X86_64 || CXX_ARCH_ARM32 || CXX_ARCH_ARM64)
 	#define CXX_ARCH_BE          (!(CXX_ARCH_LE))
+	// @v11.4.0 {
+	// Следующая конструкция с изменениями позаимствована у библиотеки abseil
+	// Checks the endianness of the platform.
+	//
+	// Notes: uses the built in endian macros provided by GCC (since 4.6) and
+	// Clang (since 3.2); see
+	// https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html.
+	// Otherwise, if _WIN32, assume little endian. Otherwise, bail with an error.
+	#if defined(SL_BIGENDIAN)
+		#error "SL_BIGENDIAN cannot be directly set"
+	#endif
+	#if defined(SL_LITTLEENDIAN)
+		#error "SL_LITTLEENDIAN cannot be directly set"
+	#endif
+	#if (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+		#define SL_LITTLEENDIAN 1
+	#elif defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+		#define SL_BIGENDIAN    1
+	#elif defined(_WIN32)
+		#define SL_LITTLEENDIAN 1
+	#else
+		#error "Endian detection needs to be set up for your compiler"
+	#endif
+	// Здесь инициируем проверки ради избежания конфликтов в определениях CXX_ARCH_LE, CXX_ARCH_BE, SL_LITTLEENDIAN, SL_BIGENDIAN
+	#if CXX_ARCH_LE && CXX_ARCH_BE
+		#error "Conflict at CXX_ARCH_LE and CXX_ARCH_BE definitions"
+	#elif !defined(CXX_ARCH_LE) && !defined(CXX_ARCH_LE)
+		#error "Neither CXX_ARCH_LE nor CXX_ARCH_LE defined"
+	#elif defined(SL_BIGENDIAN) && defined(SL_LITTLEENDIAN)
+		#error "Conflict at SL_LITTLEENDIAN and SL_BIGENDIAN definitions"
+	#elif !defined(SL_BIGENDIAN) && !defined(SL_LITTLEENDIAN)
+		#error "Neither SL_LITTLEENDIAN nor SL_BIGENDIAN defined"
+	#elif defined(SL_BIGENDIAN) && SL_BIGENDIAN != 1
+		#error "Invalid SL_BIGENDIAN definition"
+	#elif defined(SL_LITTLEENDIAN) && SL_LITTLEENDIAN != 1
+		#error "Invalid SL_LITTLEENDIAN definition"
+	#elif defined(SL_BIGENDIAN) && (CXX_ARCH_LE)
+		#error "Conflict at SL_BIGENDIAN and CXX_ARCH_LE definitions"
+	#elif defined(SL_LITTLEENDIAN) && (CXX_ARCH_BE)
+		#error "Conflict at SL_LITTLEENDIAN and CXX_ARCH_BE definitions"
+	#endif
+	// } @v11.4.0
 	//
 	// [Target OS]
 	//
@@ -869,6 +914,11 @@
 	#define strcasecmp  _stricmp
 	#define strncasecmp _strnicmp
 	#define ftruncate   _chsize_s // @v11.0.1
+#endif
+#if CXX_HAS_CONSTEXPR
+	#define CONSTEXPR constexpr
+#else
+	#define CONSTEXPR
 #endif
 //
 // @v11.2.3 {

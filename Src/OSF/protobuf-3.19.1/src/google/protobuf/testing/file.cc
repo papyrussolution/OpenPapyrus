@@ -59,7 +59,7 @@ bool File::ReadFileToString(const std::string& name, std::string* output, bool t
 {
 	char buffer[1024];
 	FILE* file = fopen(name.c_str(), text_mode ? "rt" : "rb");
-	if(file == NULL) return false;
+	if(!file) return false;
 	while(true) {
 		size_t n = fread(buffer, 1, sizeof(buffer), file);
 		if(n <= 0) break;
@@ -78,7 +78,7 @@ void File::ReadFileToStringOrDie(const std::string& name, std::string* output) {
 bool File::WriteStringToFile(const std::string& contents, const std::string& name) 
 {
 	FILE* file = fopen(name.c_str(), "wb");
-	if(file == NULL) {
+	if(!file) {
 		GOOGLE_LOG(ERROR_) << "fopen(" << name << ", \"wb\"): " << strerror(errno);
 		return false;
 	}

@@ -647,7 +647,7 @@ extern uint64_t lzma_mt_block_size(const lzma_filter * filters)
 		const lzma_filter_encoder * const fe = encoder_find(filters[i].id);
 		if(fe->block_size != NULL) {
 			const uint64_t size = fe->block_size(filters[i].options);
-			if(size == 0)
+			if(!size)
 				return 0;
 			if(size > max)
 				max = size;

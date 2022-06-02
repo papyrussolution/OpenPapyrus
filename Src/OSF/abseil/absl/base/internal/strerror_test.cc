@@ -31,58 +31,57 @@ using ::testing::AnyOf;
 using ::testing::Eq;
 
 TEST(StrErrorTest, ValidErrorCode) {
-  errno = ERANGE;
-  EXPECT_THAT(absl::base_internal::StrError(EDOM), Eq(strerror(EDOM)));
-  EXPECT_THAT(errno, Eq(ERANGE));
+	errno = ERANGE;
+	EXPECT_THAT(absl::base_internal::StrError(EDOM), Eq(strerror(EDOM)));
+	EXPECT_THAT(errno, Eq(ERANGE));
 }
 
 TEST(StrErrorTest, InvalidErrorCode) {
-  errno = ERANGE;
-  EXPECT_THAT(absl::base_internal::StrError(-1),
-              AnyOf(Eq("No error information"), Eq("Unknown error -1")));
-  EXPECT_THAT(errno, Eq(ERANGE));
+	errno = ERANGE;
+	EXPECT_THAT(absl::base_internal::StrError(-1),
+	    AnyOf(Eq("No error information"), Eq("Unknown error -1")));
+	EXPECT_THAT(errno, Eq(ERANGE));
 }
 
 TEST(StrErrorTest, MultipleThreads) {
-  // In this test, we will start up 2 threads and have each one call
-  // StrError 1000 times, each time with a different errnum.  We
-  // expect that StrError(errnum) will return a string equal to the
-  // one returned by strerror(errnum), if the code is known.  Since
-  // strerror is known to be thread-hostile, collect all the expected
-  // strings up front.
-  const int kNumCodes = 1000;
-  std::vector<std::string> expected_strings(kNumCodes);
-  for (int i = 0; i < kNumCodes; ++i) {
-    expected_strings[i] = strerror(i);
-  }
+	// In this test, we will start up 2 threads and have each one call
+	// StrError 1000 times, each time with a different errnum.  We
+	// expect that StrError(errnum) will return a string equal to the
+	// one returned by strerror(errnum), if the code is known.  Since
+	// strerror is known to be thread-hostile, collect all the expected
+	// strings up front.
+	const int kNumCodes = 1000;
+	std::vector<std::string> expected_strings(kNumCodes);
+	for(int i = 0; i < kNumCodes; ++i) {
+		expected_strings[i] = strerror(i);
+	}
 
-  std::atomic_int counter(0);
-  auto thread_fun = [&]() {
-    for (int i = 0; i < kNumCodes; ++i) {
-      ++counter;
-      errno = ERANGE;
-      const std::string value = absl::base_internal::StrError(i);
-      // EXPECT_* could change errno. Stash it first.
-      int check_err = errno;
-      EXPECT_THAT(check_err, Eq(ERANGE));
-      // Only the GNU implementation is guaranteed to provide the
-      // string "Unknown error nnn". POSIX doesn't say anything.
-      if (!absl::StartsWith(value, "Unknown error ")) {
-        EXPECT_THAT(value, Eq(expected_strings[i]));
-      }
-    }
-  };
+	std::atomic_int counter(0);
+	auto thread_fun = [&]() {
+		    for(int i = 0; i < kNumCodes; ++i) {
+			    ++counter;
+			    errno = ERANGE;
+			    const std::string value = absl::base_internal::StrError(i);
+			    // EXPECT_* could change errno. Stash it first.
+			    int check_err = errno;
+			    EXPECT_THAT(check_err, Eq(ERANGE));
+			    // Only the GNU implementation is guaranteed to provide the
+			    // string "Unknown error nnn". POSIX doesn't say anything.
+			    if(!absl::StartsWith(value, "Unknown error ")) {
+				    EXPECT_THAT(value, Eq(expected_strings[i]));
+			    }
+		    }
+	    };
 
-  const int kNumThreads = 100;
-  std::vector<std::thread> threads;
-  for (int i = 0; i < kNumThreads; ++i) {
-    threads.push_back(std::thread(thread_fun));
-  }
-  for (auto& thread : threads) {
-    thread.join();
-  }
+	const int kNumThreads = 100;
+	std::vector<std::thread> threads;
+	for(int i = 0; i < kNumThreads; ++i) {
+		threads.push_back(std::thread(thread_fun));
+	}
+	for(auto& thread : threads) {
+		thread.join();
+	}
 
-  EXPECT_THAT(counter, Eq(kNumThreads * kNumCodes));
+	EXPECT_THAT(counter, Eq(kNumThreads * kNumCodes));
 }
-
 }  // namespace

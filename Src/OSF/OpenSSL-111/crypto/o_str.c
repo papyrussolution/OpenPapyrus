@@ -165,7 +165,7 @@ char * OPENSSL_buf2hexstr(const uchar * buffer, long len)
 	char * tmp, * q;
 	const uchar * p;
 	int i;
-	if(len == 0) {
+	if(!len) {
 		return static_cast<char *>(OPENSSL_zalloc(1));
 	}
 	if((tmp = static_cast<char *>(OPENSSL_malloc(len * 3))) == NULL) {

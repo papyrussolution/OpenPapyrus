@@ -44,11 +44,11 @@
 enum ssh_keytypes_e pki_privatekey_type_from_string(const char * privkey)
 {
 	const char * start = strstr(privkey, DSA_HEADER_BEGIN);
-	if(start != NULL) {
+	if(start) {
 		return SSH_KEYTYPE_DSS;
 	}
 	start = strstr(privkey, RSA_HEADER_BEGIN);
-	if(start != NULL) {
+	if(start) {
 		return SSH_KEYTYPE_RSA;
 	}
 	start = strstr(privkey, ECDSA_HEADER_BEGIN);
@@ -245,7 +245,7 @@ const char * ssh_key_type_to_char(enum ssh_keytypes_e type)
 
 enum ssh_digest_e ssh_key_hash_from_name(const char * name)
 {
-	if(name == NULL) {
+	if(!name) {
 		return SSH_DIGEST_AUTO; /* TODO we should rather fail */
 	}
 	if(strcmp(name, "ssh-rsa") == 0) {
@@ -400,7 +400,7 @@ const char * ssh_key_get_signature_algorithm(ssh_session session, enum ssh_keyty
  * @return              The enum ssh key algorithm type.
  */
 enum ssh_keytypes_e ssh_key_type_from_signature_name(const char * name) {
-	if(name == NULL) {
+	if(!name) {
 		return SSH_KEYTYPE_UNKNOWN;
 	}
 
@@ -421,7 +421,7 @@ enum ssh_keytypes_e ssh_key_type_from_signature_name(const char * name) {
  * @return              The enum ssh key type.
  */
 enum ssh_keytypes_e ssh_key_type_from_name(const char * name) {
-	if(name == NULL) {
+	if(!name) {
 		return SSH_KEYTYPE_UNKNOWN;
 	}
 
@@ -759,7 +759,7 @@ int ssh_pki_import_privkey_file(const char * filename,
 		return SSH_ERROR;
 	}
 	file = fopen(filename, "rb");
-	if(file == NULL) {
+	if(!file) {
 		SSH_LOG(SSH_LOG_WARN, "Error opening %s: %s", filename, strerror(errno));
 		return SSH_EOF;
 	}
@@ -1470,7 +1470,7 @@ int ssh_pki_import_pubkey_file(const char * filename, ssh_key * pkey)
 		return SSH_ERROR;
 	}
 	file = fopen(filename, "rb");
-	if(file == NULL) {
+	if(!file) {
 		SSH_LOG(SSH_LOG_WARN, "Error opening %s: %s", filename, strerror(errno));
 		return SSH_EOF;
 	}
@@ -1897,7 +1897,7 @@ int ssh_pki_export_signature_blob(const ssh_signature sig, ssh_string * sig_blob
 	}
 
 	buf = ssh_buffer_new();
-	if(buf == NULL) {
+	if(!buf) {
 		return SSH_ERROR;
 	}
 
@@ -1958,7 +1958,7 @@ int ssh_pki_import_signature_blob(const ssh_string sig_blob,
 	}
 
 	buf = ssh_buffer_new();
-	if(buf == NULL) {
+	if(!buf) {
 		return SSH_ERROR;
 	}
 

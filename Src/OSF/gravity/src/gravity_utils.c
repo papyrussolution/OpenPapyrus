@@ -265,7 +265,7 @@ int string_nocasencmp(const char * s1, const char * s2, size_t n)
 		s2++;
 		n--;
 	}
-	if(n == 0) 
+	if(!n) 
 		return 0;
 	return tolower((uchar)*s1) - tolower((uchar)*s2);
 }
@@ -279,7 +279,7 @@ int FASTCALL string_casencmp(const char * s1, const char * s2, size_t n)
 		s2++;
 		n--;
 	}
-	if(n == 0) 
+	if(!n) 
 		return 0;
 	return ((uchar)*s1) - ((uchar)*s2);
 }
@@ -504,7 +504,7 @@ uint32 FASTCALL utf8_len(const char * s, uint32 nbytes)
 		for(uint32 pos = 0; pos < nbytes;) {
 			++len;
 			uint32 n = utf8_charbytes(s, pos);
-			if(n == 0) 
+			if(!n) 
 				return 0; // means error
 			pos += n;
 		}

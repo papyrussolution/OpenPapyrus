@@ -49,7 +49,7 @@ Jbig2HuffmanState * jbig2_huffman_new(Jbig2Ctx * ctx, Jbig2WordStream * ws)
 {
 	int code;
 	Jbig2HuffmanState * result = jbig2_new(ctx, Jbig2HuffmanState, 1);
-	if(result != NULL) {
+	if(result) {
 		result->offset = 0;
 		result->offset_bits = 0;
 		result->offset_limit = 0;

@@ -171,14 +171,14 @@ void ElfMemImage::Init(const void * base) {
 	}
 	switch(base_as_char[EI_DATA]) {
 		case ELFDATA2LSB: {
-#ifndef ABSL_IS_LITTLE_ENDIAN
+#ifndef SL_LITTLEENDIAN
 		    assert(false);
 		    return;
 #endif
 		    break;
 	    }
 		case ELFDATA2MSB: {
-#ifndef ABSL_IS_BIG_ENDIAN
+#ifndef SL_BIGENDIAN
 		    assert(false);
 		    return;
 #endif

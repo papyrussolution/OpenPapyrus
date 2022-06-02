@@ -263,7 +263,7 @@ static int aes_ctr_do_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in
 		*out++ = *in++ ^ b1[i];
 	i = 15;
 	while(c->ctr[i]++ == 0xFF) {
-		if(i == 0)
+		if(!i)
 			break;
 		i--;
 	}

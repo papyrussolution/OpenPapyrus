@@ -61,7 +61,7 @@ U_CAPI void U_EXPORT2 ucasemap_setLocale(UCaseMap * csm, const char * locale, UE
 	if(U_FAILURE(*pErrorCode)) {
 		return;
 	}
-	if(locale != NULL && *locale == 0) {
+	if(locale && *locale == 0) {
 		csm->locale[0] = 0;
 		csm->caseLocale = UCASE_LOC_ROOT;
 		return;

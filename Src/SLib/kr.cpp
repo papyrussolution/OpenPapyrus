@@ -248,7 +248,7 @@ int KR::conjunction(__range & A /*dest*/, const __range & B, int * comp, int * e
 					cmp = (c <= 0) ? -1 : 1;
 				}
 		}
-		else if(c == 0)
+		else if(!c)
 			if(C.ol != 0 || C.ol != C.ou)
 				empty = 1;
 			else
@@ -289,7 +289,7 @@ int KR::disjunction(void * d)
 		makeRange(P_b + P_h->current, A);
 		C = A;
 		conjunction(C, B, &c, &eq);
-		if(c == 0) {
+		if(!c) {
 			if(A.low == 0 || B.low == 0)
 				{ C.low = 0; C.ol = 0; }
 			else if((tc = keyList->compareKey(P_h->keyNum, A.low, B.low)) == 0)

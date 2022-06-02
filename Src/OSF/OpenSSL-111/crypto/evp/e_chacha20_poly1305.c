@@ -65,7 +65,7 @@ static int chacha_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 		}
 		key->partial_len = n;
 
-		if(len == 0)
+		if(!len)
 			return 1;
 
 		if(n == CHACHA_BLK_SIZE) {

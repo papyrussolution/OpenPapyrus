@@ -363,10 +363,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_token_server){
 			return SSH_PACKET_USED;
 		}
 		if(ssh_string_len(out_token) != 0) {
-			rc = ssh_buffer_pack(session->out_buffer,
-				"bS",
-				SSH2_MSG_USERAUTH_GSSAPI_TOKEN,
-				out_token);
+			rc = ssh_buffer_pack(session->out_buffer, "bS", SSH2_MSG_USERAUTH_GSSAPI_TOKEN, out_token);
 			if(rc != SSH_OK) {
 				ssh_set_error_oom(session);
 				return SSH_PACKET_USED;
@@ -398,25 +395,17 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_token_server){
 		session->gssapi->canonic_user = ssh_gssapi_name_to_char(client_name);
 	}
 	if(GSS_ERROR(maj_stat)) {
-		ssh_gssapi_log_error(SSH_LOG_WARNING,
-		    "Gssapi error",
-		    maj_stat,
-		    min_stat);
+		ssh_gssapi_log_error(SSH_LOG_WARNING, "Gssapi error", maj_stat, min_stat);
 		ssh_auth_reply_default(session, 0);
 		ssh_gssapi_free(session);
 		session->gssapi = NULL;
 		return SSH_PACKET_USED;
 	}
-
 	if(output_token.length != 0) {
 		hexa = ssh_get_hexa(output_token.value, output_token.length);
 		SSH_LOG(SSH_LOG_PACKET, "GSSAPI: sending token %s", hexa);
 		ZFREE(hexa);
-		ssh_buffer_pack(session->out_buffer,
-		    "bdP",
-		    SSH2_MSG_USERAUTH_GSSAPI_TOKEN,
-		    output_token.length,
-		    (size_t)output_token.length, output_token.value);
+		ssh_buffer_pack(session->out_buffer, "bdP", SSH2_MSG_USERAUTH_GSSAPI_TOKEN, output_token.length, (size_t)output_token.length, output_token.value);
 		ssh_packet_send(session);
 	}
 	if(maj_stat == GSS_S_COMPLETE) {
@@ -432,26 +421,17 @@ static ssh_buffer ssh_gssapi_build_mic(ssh_session session)
 	struct ssh_crypto_struct * crypto = NULL;
 	ssh_buffer mic_buffer = NULL;
 	int rc;
-
 	crypto = ssh_packet_get_current_crypto(session, SSH_DIRECTION_BOTH);
 	if(crypto == NULL) {
 		return NULL;
 	}
-
 	mic_buffer = ssh_buffer_new();
 	if(mic_buffer == NULL) {
 		ssh_set_error_oom(session);
 		return NULL;
 	}
-
-	rc = ssh_buffer_pack(mic_buffer,
-		"dPbsss",
-		crypto->digest_len,
-		(size_t)crypto->digest_len, crypto->session_id,
-		SSH2_MSG_USERAUTH_REQUEST,
-		session->gssapi->user,
-		"ssh-connection",
-		"gssapi-with-mic");
+	rc = ssh_buffer_pack(mic_buffer, "dPbsss", crypto->digest_len, (size_t)crypto->digest_len, crypto->session_id, SSH2_MSG_USERAUTH_REQUEST, 
+		session->gssapi->user, "ssh-connection", "gssapi-with-mic");
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		SSH_BUFFER_FREE(mic_buffer);
@@ -571,43 +551,31 @@ ssh_gssapi_creds ssh_gssapi_get_creds(ssh_session session){
  */
 void ssh_gssapi_set_creds(ssh_session session, const ssh_gssapi_creds creds)
 {
-	if(!session) {
-		return;
-	}
-	if(session->gssapi == NULL) {
-		ssh_gssapi_init(session);
+	if(session) {
 		if(session->gssapi == NULL) {
-			return;
+			ssh_gssapi_init(session);
+			if(session->gssapi == NULL) {
+				return;
+			}
 		}
+		session->gssapi->client.client_deleg_creds = (gss_cred_id_t)creds;
 	}
-
-	session->gssapi->client.client_deleg_creds = (gss_cred_id_t)creds;
 }
 
-static int ssh_gssapi_send_auth_mic(ssh_session session, ssh_string * oid_set, int n_oid){
-	int rc;
+static int ssh_gssapi_send_auth_mic(ssh_session session, ssh_string * oid_set, int n_oid)
+{
 	int i;
-
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bsssd",
-		SSH2_MSG_USERAUTH_REQUEST,
-		session->opts.username,
-		"ssh-connection",
-		"gssapi-with-mic",
-		n_oid);
-
+	int rc = ssh_buffer_pack(session->out_buffer, "bsssd", SSH2_MSG_USERAUTH_REQUEST, session->opts.username, "ssh-connection", "gssapi-with-mic", n_oid);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		goto fail;
 	}
-
 	for(i = 0; i<n_oid; ++i) {
 		rc = ssh_buffer_add_ssh_string(session->out_buffer, oid_set[i]);
 		if(rc < 0) {
 			goto fail;
 		}
 	}
-
 	session->auth.state = SSH_AUTH_STATE_GSSAPI_REQUEST_SENT;
 	return ssh_packet_send(session);
 fail:
@@ -627,14 +595,11 @@ static int ssh_gssapi_match(ssh_session session, gss_OID_set * valid_oids)
 	uint i;
 	char * ptr;
 	int ret;
-
 	if(session->gssapi->client.client_deleg_creds == NULL) {
 		if(session->opts.gss_client_identity != NULL) {
 			namebuf.value = (void *)session->opts.gss_client_identity;
 			namebuf.length = strlen(session->opts.gss_client_identity);
-
-			maj_stat = gss_import_name(&min_stat, &namebuf,
-				GSS_C_NT_USER_NAME, &client_id);
+			maj_stat = gss_import_name(&min_stat, &namebuf, GSS_C_NT_USER_NAME, &client_id);
 			if(GSS_ERROR(maj_stat)) {
 				ret = SSH_ERROR;
 				goto end;
@@ -852,21 +817,14 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_response){
 		0, NULL, &input_token, NULL,
 		&output_token, NULL, NULL);
 	if(GSS_ERROR(maj_stat)) {
-		ssh_gssapi_log_error(SSH_LOG_WARNING,
-		    "Initializing gssapi context",
-		    maj_stat,
-		    min_stat);
+		ssh_gssapi_log_error(SSH_LOG_WARNING, "Initializing gssapi context", maj_stat, min_stat);
 		goto error;
 	}
 	if(output_token.length != 0) {
 		hexa = ssh_get_hexa(output_token.value, output_token.length);
 		SSH_LOG(SSH_LOG_PACKET, "GSSAPI: sending token %s", hexa);
 		ZFREE(hexa);
-		ssh_buffer_pack(session->out_buffer,
-		    "bdP",
-		    SSH2_MSG_USERAUTH_GSSAPI_TOKEN,
-		    output_token.length,
-		    (size_t)output_token.length, output_token.value);
+		ssh_buffer_pack(session->out_buffer, "bdP", SSH2_MSG_USERAUTH_GSSAPI_TOKEN, output_token.length, (size_t)output_token.length, output_token.value);
 		ssh_packet_send(session);
 		session->auth.state = SSH_AUTH_STATE_GSSAPI_TOKEN;
 	}
@@ -895,44 +853,32 @@ static int ssh_gssapi_send_mic(ssh_session session){
 	}
 	mic_buf.length = ssh_buffer_get_len(mic_buffer);
 	mic_buf.value = ssh_buffer_get(mic_buffer);
-
-	maj_stat = gss_get_mic(&min_stat, session->gssapi->ctx, GSS_C_QOP_DEFAULT,
-		&mic_buf, &mic_token_buf);
+	maj_stat = gss_get_mic(&min_stat, session->gssapi->ctx, GSS_C_QOP_DEFAULT, &mic_buf, &mic_token_buf);
 	if(GSS_ERROR(maj_stat)) {
 		SSH_BUFFER_FREE(mic_buffer);
-		ssh_gssapi_log_error(SSH_LOG_PROTOCOL,
-		    "generating MIC",
-		    maj_stat,
-		    min_stat);
+		ssh_gssapi_log_error(SSH_LOG_PROTOCOL, "generating MIC", maj_stat, min_stat);
 		return SSH_ERROR;
 	}
-
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bdP",
-		SSH2_MSG_USERAUTH_GSSAPI_MIC,
-		mic_token_buf.length,
-		(size_t)mic_token_buf.length, mic_token_buf.value);
+	rc = ssh_buffer_pack(session->out_buffer, "bdP", SSH2_MSG_USERAUTH_GSSAPI_MIC, mic_token_buf.length, (size_t)mic_token_buf.length, mic_token_buf.value);
 	if(rc != SSH_OK) {
 		SSH_BUFFER_FREE(mic_buffer);
 		ssh_set_error_oom(session);
 		return SSH_ERROR;
 	}
-
 	return ssh_packet_send(session);
 }
 
-SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_token_client){
+SSH_PACKET_CALLBACK(ssh_packet_userauth_gssapi_token_client)
+{
 	ssh_string token;
 	char * hexa;
 	OM_uint32 maj_stat, min_stat;
 	gss_buffer_desc input_token, output_token = GSS_C_EMPTY_BUFFER;
 	(void)user;
 	(void)type;
-
 	SSH_LOG(SSH_LOG_PACKET, "Received SSH_MSG_USERAUTH_GSSAPI_TOKEN");
 	if(!session->gssapi || session->auth.state != SSH_AUTH_STATE_GSSAPI_TOKEN) {
-		ssh_set_error(session, SSH_FATAL,
-		    "Received SSH_MSG_USERAUTH_GSSAPI_TOKEN in invalid state");
+		ssh_set_error(session, SSH_FATAL, "Received SSH_MSG_USERAUTH_GSSAPI_TOKEN in invalid state");
 		goto error;
 	}
 	token = ssh_buffer_get_ssh_string(packet);

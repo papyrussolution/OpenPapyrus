@@ -26,7 +26,7 @@
 	iv = &(*ivec)[0];
 	if(enc) {
 		while(l--) {
-			if(n == 0) {
+			if(!n) {
 				c2l(iv, v0);
 				c2l(iv, v1);
 
@@ -49,7 +49,7 @@
 	}
 	else {
 		while(l--) {
-			if(n == 0) {
+			if(!n) {
 				c2l(iv, v0);
 				c2l(iv, v1);
 

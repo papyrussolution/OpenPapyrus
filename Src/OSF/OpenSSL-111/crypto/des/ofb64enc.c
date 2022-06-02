@@ -33,7 +33,7 @@ void DES_ofb64_encrypt(const uchar * in, uchar * out, long length, DES_key_sched
 	l2c(v0, dp);
 	l2c(v1, dp);
 	while(l--) {
-		if(n == 0) {
+		if(!n) {
 			DES_encrypt1(ti, schedule, DES_ENCRYPT);
 			dp = d;
 			t = ti[0];

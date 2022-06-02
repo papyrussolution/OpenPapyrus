@@ -495,7 +495,7 @@ void NFSubstitution::setDivisor(int32_t /*radix*/, int16 /*exponent*/, UErrorCod
 }
 
 void NFSubstitution::setDecimalFormatSymbols(const DecimalFormatSymbols &newSymbols, UErrorCode & /*status*/) {
-	if(numberFormat != NULL) {
+	if(numberFormat) {
 		numberFormat->setDecimalFormatSymbols(newSymbols);
 	}
 }
@@ -545,7 +545,7 @@ void NFSubstitution::toString(UnicodeString & text) const
 	if(ruleSet != NULL) {
 		ruleSet->getName(temp);
 	}
-	else if(numberFormat != NULL) {
+	else if(numberFormat) {
 		numberFormat->toPattern(temp);
 	}
 	text.append(temp);
@@ -575,7 +575,7 @@ void NFSubstitution::doSubstitution(int64_t number, UnicodeString & toInsertInto
 		// rule set's format() method to format the result
 		ruleSet->format(transformNumber(number), toInsertInto, _pos + this->pos, recursionCount, status);
 	}
-	else if(numberFormat != NULL) {
+	else if(numberFormat) {
 		if(number <= MAX_INT64_IN_DOUBLE) {
 			// or perform the transformation on the number (preserving
 			// the result's fractional part if the formatter it set
@@ -642,7 +642,7 @@ void NFSubstitution::doSubstitution(double number, UnicodeString & toInsertInto,
 		if(ruleSet != NULL) {
 			ruleSet->format(numberToFormat, toInsertInto, _pos + this->pos, recursionCount, status);
 		}
-		else if(numberFormat != NULL) {
+		else if(numberFormat) {
 			UnicodeString temp;
 			numberFormat->format(numberToFormat, temp);
 			toInsertInto.insert(_pos + this->pos, temp);
@@ -720,7 +720,7 @@ bool NFSubstitution::doParse(const UnicodeString & text,
 
 		// ...or use our DecimalFormat to parse the text
 	}
-	else if(numberFormat != NULL) {
+	else if(numberFormat) {
 		numberFormat->parse(text, result, parsePosition);
 	}
 

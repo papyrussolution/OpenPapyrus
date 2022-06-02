@@ -88,7 +88,7 @@ bool Utf8Iterator::calculate_sequence_length() const noexcept
 
 uint Utf8Iterator::operator*() const noexcept 
 {
-	if(p == NULL) return uint(-1);
+	if(!p) return uint(-1);
 	if(seqlen == 0) calculate_sequence_length();
 	uchar ch = *p;
 	if(seqlen == 1) return ch;
@@ -100,7 +100,7 @@ uint Utf8Iterator::operator*() const noexcept
 
 uint Utf8Iterator::strict_deref() const noexcept
 {
-	if(p == NULL) 
+	if(!p) 
 		return uint(-1);
 	if(seqlen == 0) {
 		if(!calculate_sequence_length())

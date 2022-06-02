@@ -2079,7 +2079,7 @@ static int read_cert(const char * file, uchar ** out, size_t * outlen)
 			SAlloc::F(data);
 			return -1;
 		}
-		else if(n == 0) {
+		else if(!n) {
 			close(fd);
 			break;
 		}

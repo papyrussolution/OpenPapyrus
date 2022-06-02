@@ -39,7 +39,7 @@ U_CAPI int32_t U_EXPORT2 parseFlagsFile(const char * fileName,
 	int32_t result = 0;
 
 	FileStream * f = T_FileStream_open(fileName, "r");
-	if(f == NULL) {
+	if(!f) {
 		*status = U_FILE_ACCESS_ERROR;
 		goto parseFlagsFile_cleanup;
 	}

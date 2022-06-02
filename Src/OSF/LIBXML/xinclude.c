@@ -1390,7 +1390,7 @@ loaded:
 			    break;
 		}
 		set = xptr->nodesetval;
-		if(set != NULL) {
+		if(set) {
 			for(i = 0; i < set->nodeNr; i++) {
 				if(set->PP_NodeTab[i] == NULL)
 					continue;

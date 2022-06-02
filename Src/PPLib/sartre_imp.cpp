@@ -37,14 +37,14 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 		const char * p = line_buf;
 		//
 		temp_buf.Z();
-		while(*p != ' ' && *p != '\t' && *p != 0)
+		while(!oneof3(*p, ' ', '\t', 0))
 			temp_buf.CatChar(*p++);
 		rAncode = temp_buf;
 		//
 		while(oneof2(*p, ' ', '\t'))
 			p++;
 		temp_buf.Z();
-		while(*p != ' ' && *p != '\t' && *p != 0)
+		while(!oneof3(*p, ' ', '\t', 0))
 			temp_buf.CatChar(*p++);
 		//
 		int    prev_case = 0;  // Предыдущий токен обозначал падеж
@@ -53,7 +53,7 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 			while(oneof3(*p, ' ', '\t', ','))
 				p++;
 			temp_buf.Z();
-			while(*p != ' ' && *p != '\t' && *p != ',' && *p != 0)
+			while(!oneof4(*p, ' ', '\t', ',', 0))
 				temp_buf.CatChar(*p++);
 			if(temp_buf.NotEmpty()) {
 				temp_buf.Transf(CTRANSF_OUTER_TO_UTF8); // @v10.4.5 (module has been translated to utf-8)
@@ -411,7 +411,7 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 		const char * p = line_buf;
 		//
 		temp_buf.Z();
-		while(*p != ' ' && *p != '\t' && *p != 0)
+		while(!oneof3(*p, ' ', '\t', 0))
 			temp_buf.CatChar(*p++);
 		rAncode = temp_buf;
 		if(rAncode == "ga") { // Географическое наименование
@@ -466,17 +466,19 @@ static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordF
 		}
 		else {
 			//
-			while(*p == ' ' || *p == '\t') p++;
+			while(oneof2(*p, ' ', '\t'))
+				p++;
 			temp_buf.Z();
-			while(*p != ' ' && *p != '\t' && *p != 0)
+			while(!oneof3(*p, ' ', '\t', 0))
 				temp_buf.CatChar(*p++);
 			//
 			int    prev_case = 0;  // Предыдущий токен обозначал падеж
 			int    prev_compr = 0; // Предыдущий токен - сравнительная степень прилагательного SRADJCMP_COMPARATIVE
 			do {
-				while(*p == ' ' || *p == '\t' || *p == ',') p++;
+				while(oneof3(*p, ' ', '\t', ','))
+					p++;
 				temp_buf.Z();
-				while(*p != ' ' && *p != '\t' && *p != ',' && *p != 0)
+				while(!oneof4(*p, ' ', '\t', ',', 0))
 					temp_buf.CatChar(*p++);
 				if(temp_buf.NotEmpty()) {
 					if(temp_buf == "ADJECTIVE")
@@ -979,9 +981,9 @@ public:
 	public:
 		explicit Operator(SrConceptParser & rMaster);
 		Operator & Z();
-		int    IsEmpty() const;
+		bool   IsEmpty() const;
 		int    Close(int ifNeeded);
-		int    IsClosed() const;
+		bool   IsClosed() const;
 		//
 		// Descr: Извлекает идентификатор языка либо из данного элемента, либо, если здесь он не определен - из родительского.
 		//
@@ -1135,10 +1137,10 @@ SrConceptParser::Operator & SrConceptParser::Operator::Z()
 	return *this;
 }
 
-int SrConceptParser::Operator::IsEmpty() const
-	{ return BIN(!CID && !CLexID && !NgID__ && !LangID && !P_Child); }
-int SrConceptParser::Operator::IsClosed() const
-	{ return BIN(Flags & fClosed); }
+bool SrConceptParser::Operator::IsEmpty() const
+	{ return (!CID && !CLexID && !NgID__ && !LangID && !P_Child); }
+bool SrConceptParser::Operator::IsClosed() const
+	{ return LOGIC(Flags & fClosed); }
 
 int SrConceptParser::Operator::Close(int ifNeeded)
 {
@@ -2100,9 +2102,9 @@ PrcssrSartreFilt & FASTCALL PrcssrSartreFilt::operator = (const PrcssrSartreFilt
 	return *this;
 }
 
-int PrcssrSartreFilt::IsEmpty() const
+bool PrcssrSartreFilt::IsEmpty() const
 {
-	return BIN(!Flags && SrcPath.IsEmpty());
+	return (!Flags && SrcPath.IsEmpty());
 }
 
 class PrcssrSartreFiltDialog : public TDialog {

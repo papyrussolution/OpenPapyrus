@@ -175,7 +175,7 @@ static int i2d_x509_aux_internal(X509 * a, uchar ** pp)
 
 	tmplen = i2d_X509_CERT_AUX(a->aux, pp);
 	if(tmplen < 0) {
-		if(start != NULL)
+		if(start)
 			*pp = start;
 		return tmplen;
 	}

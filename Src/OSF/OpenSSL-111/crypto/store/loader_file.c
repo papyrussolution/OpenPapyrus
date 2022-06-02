@@ -977,7 +977,7 @@ err:
 		result = NULL;
 		goto again;
 	}
-	if(result != NULL)
+	if(result)
 		ERR_clear_error();
 	return result;
 }
@@ -1201,7 +1201,7 @@ static OSSL_STORE_INFO * file_load(OSSL_STORE_LOADER_CTX * ctx, const UI_METHOD 
 
 again:
 		result = file_load_try_repeat(ctx, ui_method, ui_data);
-		if(result != NULL)
+		if(result)
 			return result;
 
 		if(file_eof(ctx))
@@ -1232,7 +1232,7 @@ again:
 			result = file_load_try_decode(ctx, pem_name, pem_header, data, len,
 				ui_method, ui_data, &matchcount);
 
-			if(result != NULL)
+			if(result)
 				goto endloop;
 
 			/*

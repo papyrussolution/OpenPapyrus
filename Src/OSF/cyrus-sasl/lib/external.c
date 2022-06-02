@@ -256,7 +256,7 @@ static int external_client_mech_step(void * conn_context, sasl_client_params_t *
 
 	/* free prompts we got */
 	if(prompt_need && *prompt_need) {
-		params->utils->free(*prompt_need);
+		params->utils->FnFree(*prompt_need);
 		*prompt_need = NULL;
 	}
 

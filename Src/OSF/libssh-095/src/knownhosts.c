@@ -528,7 +528,7 @@ int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct 
 	}
 	// match pattern for hostname or hashed hostname 
 	p = strtok(known_host, " ");
-	if(p == NULL) {
+	if(!p) {
 		SAlloc::F(known_host);
 		return SSH_ERROR;
 	}
@@ -588,7 +588,7 @@ int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct 
 		goto out;
 	}
 	p = strtok(known_host, " ");
-	if(p == NULL) {
+	if(!p) {
 		rc = SSH_ERROR;
 		goto out;
 	}
@@ -599,7 +599,7 @@ int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct 
 	}
 	/* pubkey type */
 	p = strtok(NULL, " ");
-	if(p == NULL) {
+	if(!p) {
 		rc = SSH_ERROR;
 		goto out;
 	}
@@ -611,7 +611,7 @@ int ssh_known_hosts_parse_line(const char * hostname, const char * line, struct 
 	}
 	/* public key */
 	p = strtok(NULL, " ");
-	if(p == NULL) {
+	if(!p) {
 		rc = SSH_ERROR;
 		goto out;
 	}

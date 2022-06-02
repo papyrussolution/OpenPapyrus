@@ -128,14 +128,10 @@
         t=(key[n*2] OP1 R)&0xffffffffL; \
         i=key[n*2+1]; \
         t=ROTL(t,i); \
-        L^= (((((*(CAST_LONG *)((uchar *) \
-                        CAST_S_table0+((t>>C_2)&C_M)) OP2 \
-                *(CAST_LONG *)((uchar *) \
-                        CAST_S_table1+((t<<C_3)&C_M)))&0xffffffffL) OP3 \
-                *(CAST_LONG *)((uchar *) \
-                        CAST_S_table2+((t>>C_0)&C_M)))&0xffffffffL) OP1 \
-                *(CAST_LONG *)((uchar *) \
-                        CAST_S_table3+((t>>C_1)&C_M)))&0xffffffffL; \
+        L^= (((((*(CAST_LONG *)((uchar *) CAST_S_table0+((t>>C_2)&C_M)) OP2 \
+                *(CAST_LONG *)((uchar *) CAST_S_table1+((t<<C_3)&C_M)))&0xffffffffL) OP3 \
+                *(CAST_LONG *)((uchar *) CAST_S_table2+((t>>C_0)&C_M)))&0xffffffffL) OP1 \
+                *(CAST_LONG *)((uchar *) CAST_S_table3+((t>>C_1)&C_M)))&0xffffffffL; \
         }
 #elif defined(CAST_PTR2)
 #define E_CAST(n,key,L,R,OP1,OP2,OP3) \

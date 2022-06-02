@@ -159,7 +159,7 @@ UGender GenderInfo::getListGender(const UGender* genders, int32_t length, UError
 	if(U_FAILURE(status)) {
 		return UGENDER_OTHER;
 	}
-	if(length == 0) {
+	if(!length) {
 		return UGENDER_OTHER;
 	}
 	if(length == 1) {

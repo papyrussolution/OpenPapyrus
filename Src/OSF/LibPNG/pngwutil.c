@@ -1604,7 +1604,7 @@ void /* PRIVATE */ png_write_finish_row(png_structrp png_ptr)
 		}
 		/* Reset the row above the image for the next pass */
 		if(png_ptr->pass < 7) {
-			if(png_ptr->prev_row != NULL)
+			if(png_ptr->prev_row)
 				memzero(png_ptr->prev_row, (size_t)(PNG_ROWBYTES(png_ptr->usr_channels * png_ptr->usr_bit_depth, png_ptr->width)) + 1);
 			return;
 		}
@@ -1935,7 +1935,7 @@ void /* PRIVATE */ png_write_find_filter(png_structrp png_ptr, png_row_infop row
 		if(sum < mins) {
 			mins = sum;
 			best_row = png_ptr->try_row;
-			if(png_ptr->tst_row != NULL) {
+			if(png_ptr->tst_row) {
 				png_ptr->try_row = png_ptr->tst_row;
 				png_ptr->tst_row = best_row;
 			}
@@ -1952,7 +1952,7 @@ void /* PRIVATE */ png_write_find_filter(png_structrp png_ptr, png_row_infop row
 		if(sum < mins) {
 			mins = sum;
 			best_row = png_ptr->try_row;
-			if(png_ptr->tst_row != NULL) {
+			if(png_ptr->tst_row) {
 				png_ptr->try_row = png_ptr->tst_row;
 				png_ptr->tst_row = best_row;
 			}
@@ -1969,13 +1969,12 @@ void /* PRIVATE */ png_write_find_filter(png_structrp png_ptr, png_row_infop row
 		if(sum < mins) {
 			mins = sum;
 			best_row = png_ptr->try_row;
-			if(png_ptr->tst_row != NULL) {
+			if(png_ptr->tst_row) {
 				png_ptr->try_row = png_ptr->tst_row;
 				png_ptr->tst_row = best_row;
 			}
 		}
 	}
-
 	/* Paeth filter */
 	if((filter_to_do == PNG_FILTER_PAETH) != 0) {
 		(void)png_setup_paeth_row(png_ptr, bpp, row_bytes, mins);
@@ -1986,7 +1985,7 @@ void /* PRIVATE */ png_write_find_filter(png_structrp png_ptr, png_row_infop row
 		size_t sum = png_setup_paeth_row(png_ptr, bpp, row_bytes, lmins);
 		if(sum < mins) {
 			best_row = png_ptr->try_row;
-			if(png_ptr->tst_row != NULL) {
+			if(png_ptr->tst_row) {
 				png_ptr->try_row = png_ptr->tst_row;
 				png_ptr->tst_row = best_row;
 			}
@@ -2005,7 +2004,7 @@ static void png_write_filtered_row(png_structrp png_ptr, png_bytep filtered_row,
 	png_compress_IDAT(png_ptr, filtered_row, full_row_length, Z_NO_FLUSH);
 #ifdef PNG_WRITE_FILTER_SUPPORTED
 	/* Swap the current and previous rows */
-	if(png_ptr->prev_row != NULL) {
+	if(png_ptr->prev_row) {
 		png_bytep tptr = png_ptr->prev_row;
 		png_ptr->prev_row = png_ptr->row_buf;
 		png_ptr->row_buf = tptr;

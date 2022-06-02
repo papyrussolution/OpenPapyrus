@@ -1,5 +1,5 @@
 // V_COMPGDS.CPP
-// Copyright (c) V.Miller 2013, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) V.Miller 2013, 2016, 2017, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -29,15 +29,9 @@ IMPLEMENT_PPFILT_FACTORY(SuprWare); SuprWareFilt::SuprWareFilt() : PPBaseFilt(PP
 	return 1;
 }
 
-int SuprWareFilt::IsEmpty() const
+bool SuprWareFilt::IsEmpty() const
 {
-	if(SuprWareType)
-		return 0;
-	if(SuprWareCat)
-		return 0;
-	if(SrchStr.NotEmpty())
-		return 0;
-	return 1;
+	return (!SuprWareType && !SuprWareCat && SrchStr.IsEmpty());
 }
 //
 //

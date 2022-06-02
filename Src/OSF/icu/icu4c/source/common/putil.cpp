@@ -1810,11 +1810,11 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
    names to the ICU alias table in the data directory.
  */
 static const char * remapPlatformDependentCodepage(const char * locale, const char * name) {
-	if(locale != NULL && *locale == 0) {
+	if(locale && *locale == 0) {
 		/* Make sure that an empty locale is handled the same way. */
 		locale = NULL;
 	}
-	if(name == NULL) {
+	if(!name) {
 		return NULL;
 	}
 #if U_PLATFORM == U_PF_AIX
@@ -1827,7 +1827,7 @@ static const char * remapPlatformDependentCodepage(const char * locale, const ch
 		name = "IBM-5348";
 	}
 #elif U_PLATFORM == U_PF_SOLARIS
-	if(locale != NULL && uprv_strcmp(name, "EUC") == 0) {
+	if(locale && uprv_strcmp(name, "EUC") == 0) {
 		/* Solaris underspecifies the "EUC" name. */
 		if(uprv_strcmp(locale, "zh_CN") == 0) {
 			name = "EUC-CN";
@@ -1866,7 +1866,7 @@ static const char * remapPlatformDependentCodepage(const char * locale, const ch
 		/* Remap CP949 to a similar codepage to avoid issues with backslash and won symbol. */
 		name = "EUC-KR";
 	}
-	else if(locale != NULL && uprv_strcmp(locale, "en_US_POSIX") != 0 && uprv_strcmp(name, "US-ASCII") == 0) {
+	else if(locale && uprv_strcmp(locale, "en_US_POSIX") != 0 && uprv_strcmp(name, "US-ASCII") == 0) {
 		/*
 		 * For non C/POSIX locale, default the code page to UTF-8 instead of US-ASCII.
 		 */
@@ -1878,7 +1878,7 @@ static const char * remapPlatformDependentCodepage(const char * locale, const ch
 		name = "EUC-KR";
 	}
 #elif U_PLATFORM == U_PF_HPUX
-	if(locale != NULL && uprv_strcmp(locale, "zh_HK") == 0 && uprv_strcmp(name, "big5") == 0) {
+	if(locale && uprv_strcmp(locale, "zh_HK") == 0 && uprv_strcmp(name, "big5") == 0) {
 		/* HP decided to extend big5 as hkbig5 even though it's not compatible :-( */
 		/* zh_TW.big5 is not the same charset as zh_HK.big5! */
 		name = "hkbig5";
@@ -1892,7 +1892,7 @@ static const char * remapPlatformDependentCodepage(const char * locale, const ch
 		name = "eucjis";
 	}
 #elif U_PLATFORM == U_PF_LINUX
-	if(locale != NULL && uprv_strcmp(name, "euc") == 0) {
+	if(locale && uprv_strcmp(name, "euc") == 0) {
 		/* Linux underspecifies the "EUC" name. */
 		if(uprv_strcmp(locale, "korean") == 0) {
 			name = "EUC-KR";
@@ -1910,7 +1910,7 @@ static const char * remapPlatformDependentCodepage(const char * locale, const ch
 		 */
 		name = "eucjis";
 	}
-	else if(locale != NULL && uprv_strcmp(locale, "en_US_POSIX") != 0 &&
+	else if(locale && uprv_strcmp(locale, "en_US_POSIX") != 0 &&
 	    (uprv_strcmp(name, "ANSI_X3.4-1968") == 0 || uprv_strcmp(name, "US-ASCII") == 0)) {
 		/*
 		 * For non C/POSIX locale, default the code page to UTF-8 instead of US-ASCII.
@@ -2072,7 +2072,7 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultCodepage()
 {
 	static char const  * name = NULL;
 	umtx_lock(NULL);
-	if(name == NULL) {
+	if(!name) {
 		name = int_getDefaultCodepage();
 	}
 	umtx_unlock(NULL);

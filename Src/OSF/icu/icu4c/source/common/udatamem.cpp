@@ -29,9 +29,9 @@ U_CFUNC void UDatamemory_assign(UDataMemory * dest, UDataMemory * source) {
 	dest->heapAllocated = mallocedFlag;
 }
 
-U_CFUNC UDataMemory * UDataMemory_createNewInstance(UErrorCode * pErr) {
+U_CFUNC UDataMemory * UDataMemory_createNewInstance(UErrorCode * pErr) 
+{
 	UDataMemory * This;
-
 	if(U_FAILURE(*pErr)) {
 		return NULL;
 	}
@@ -73,12 +73,14 @@ U_CFUNC const DataHeader * UDataMemory_normalizeDataPointer(const void * p) {
 	}
 }
 
-U_CFUNC void UDataMemory_setData(UDataMemory * This, const void * dataAddr) {
+U_CFUNC void UDataMemory_setData(UDataMemory * This, const void * dataAddr) 
+{ 
 	This->pHeader = UDataMemory_normalizeDataPointer(dataAddr);
 }
 
-U_CAPI void U_EXPORT2 udata_close(UDataMemory * pData) {
-	if(pData!=NULL) {
+U_CAPI void U_EXPORT2 udata_close(UDataMemory * pData) 
+{
+	if(pData) {
 		uprv_unmapFile(pData);
 		if(pData->heapAllocated) {
 			uprv_free(pData);
@@ -89,15 +91,10 @@ U_CAPI void U_EXPORT2 udata_close(UDataMemory * pData) {
 	}
 }
 
-U_CAPI const void * U_EXPORT2 udata_getMemory(UDataMemory * pData) {
-	if(pData && pData->pHeader!=NULL) {
-		return (char *)(pData->pHeader)+udata_getHeaderSize(pData->pHeader);
-	}
-	else {
-		return NULL;
-	}
+U_CAPI const void * U_EXPORT2 udata_getMemory(UDataMemory * pData) 
+{
+	return (pData && pData->pHeader) ? (char *)(pData->pHeader)+udata_getHeaderSize(pData->pHeader) : NULL;
 }
-
 /**
  * Get the length of the data item if possible.
  * The length may be up to 15 bytes larger than the actual data.
@@ -118,8 +115,9 @@ U_CAPI const void * U_EXPORT2 udata_getMemory(UDataMemory * pData) {
  * @return the length of the data item, or -1 if not known
  * @internal Currently used only in cintltst/udatatst.c
  */
-U_CAPI int32_t U_EXPORT2 udata_getLength(const UDataMemory * pData) {
-	if(pData && pData->pHeader!=NULL && pData->length>=0) {
+U_CAPI int32_t U_EXPORT2 udata_getLength(const UDataMemory * pData) 
+{
+	if(pData && pData->pHeader && pData->length>=0) {
 		/*
 		 * subtract the header size,
 		 * return only the size of the actual data starting at udata_getMemory()
@@ -136,15 +134,9 @@ U_CAPI int32_t U_EXPORT2 udata_getLength(const UDataMemory * pData) {
  * Used in cintltst/udatatst.c
  * @internal
  */
-U_CAPI const void * U_EXPORT2 udata_getRawMemory(const UDataMemory * pData) {
-	if(pData && pData->pHeader!=NULL) {
-		return pData->pHeader;
-	}
-	else {
-		return NULL;
-	}
+U_CAPI const void * U_EXPORT2 udata_getRawMemory(const UDataMemory * pData) 
+{
+	return (pData && pData->pHeader) ? pData->pHeader : NULL;
 }
 
-U_CFUNC bool UDataMemory_isLoaded(const UDataMemory * This) {
-	return This->pHeader != NULL;
-}
+U_CFUNC bool UDataMemory_isLoaded(const UDataMemory * This) { return This->pHeader != NULL; }

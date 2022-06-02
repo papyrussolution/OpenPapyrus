@@ -90,7 +90,7 @@ struct ssh_buffer_struct * ssh_buffer_new()
 {
 	int rc;
 	struct ssh_buffer_struct * buf = (struct ssh_buffer_struct *)SAlloc::C(1, sizeof(struct ssh_buffer_struct));
-	if(buf == NULL) {
+	if(!buf) {
 		return NULL;
 	}
 	/*

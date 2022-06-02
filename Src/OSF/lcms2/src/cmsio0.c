@@ -157,7 +157,7 @@ static boolint MemoryWrite(struct _cms_io_handler* iohandler, uint32 size, const
 	if(ResData->Pointer + size > ResData->Size) {
 		size = ResData->Size - ResData->Pointer;
 	}
-	if(size == 0) 
+	if(!size) 
 		return TRUE;  // Write zero bytes is ok, but does nothing
 	memmove(ResData->Block + ResData->Pointer, Ptr, size);
 	ResData->Pointer += size;
@@ -281,7 +281,7 @@ static uint32 FileTell(cmsIOHANDLER* iohandler)
 // Writes data to stream, also keeps used space for further reference. Returns TRUE on success, FALSE on error
 static boolint FileWrite(cmsIOHANDLER* iohandler, uint32 size, const void * Buffer)
 {
-	if(size == 0) 
+	if(!size) 
 		return TRUE; // We allow to write 0 bytes, but nothing is written
 	iohandler->UsedSpace += size;
 	return (fwrite(Buffer, size, 1, (FILE*)iohandler->stream) == 1);

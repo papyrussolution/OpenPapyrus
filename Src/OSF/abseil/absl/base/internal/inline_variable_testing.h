@@ -20,9 +20,8 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace inline_variable_testing_internal {
-
 struct Foo {
-  int value = 5;
+	int value = 5;
 };
 
 ABSL_INTERNAL_INLINE_CONSTEXPR(Foo, inline_variable_foo, {});
@@ -31,14 +30,13 @@ ABSL_INTERNAL_INLINE_CONSTEXPR(Foo, other_inline_variable_foo, {});
 ABSL_INTERNAL_INLINE_CONSTEXPR(int, inline_variable_int, 5);
 ABSL_INTERNAL_INLINE_CONSTEXPR(int, other_inline_variable_int, 5);
 
-ABSL_INTERNAL_INLINE_CONSTEXPR(void(*)(), inline_variable_fun_ptr, nullptr);
+ABSL_INTERNAL_INLINE_CONSTEXPR(void (*)(), inline_variable_fun_ptr, nullptr);
 
 const Foo& get_foo_a();
 const Foo& get_foo_b();
 
 const int& get_int_a();
 const int& get_int_b();
-
 }  // namespace inline_variable_testing_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

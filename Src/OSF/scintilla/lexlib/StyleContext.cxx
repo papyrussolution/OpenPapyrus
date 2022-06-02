@@ -170,7 +170,7 @@ int FASTCALL StyleContext::GetRelative(Sci_Position n)
 
 int FASTCALL StyleContext::GetRelativeCharacter(Sci_Position n)
 {
-	if(n == 0)
+	if(!n)
 		return ch;
 	if(multiByteAccess) {
 		if((currentPosLastRelative != currentPos) ||

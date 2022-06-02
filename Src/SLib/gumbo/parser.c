@@ -1228,7 +1228,7 @@ static void reconstruct_active_formatting_elements(GumboParser * parser)
 	}
 	// Step 6
 	do {
-		if(i == 0) {
+		if(!i) {
 			// Step 4
 			i = -1; // Incremented to 0 below.
 			break;

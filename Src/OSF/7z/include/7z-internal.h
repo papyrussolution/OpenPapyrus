@@ -6004,19 +6004,19 @@ HRESULT SetProperties(IUnknown *unknown, const CObjectVector<CProperty> &propert
 UString GetNameOfProperty(PROPID propID, const wchar_t *name);
 //
 //#include <RotateDefs.h>
-#ifdef _MSC_VER
+/* @v11.4.0 (replaced with slrotl32) #ifdef _MSC_VER
 	// don't use _rotl with MINGW. It can insert slow call to function. 
-	/* #if(_MSC_VER >= 1200) */
+	// #if(_MSC_VER >= 1200)
 	#pragma intrinsic(_rotl)
 	#pragma intrinsic(_rotr)
-	/* #endif */
+	// #endif 
 	#define rotlFixed(x, n) _rotl((x), (n))
 	#define rotrFixed(x, n) _rotr((x), (n))
 #else
-	/* new compilers can translate these macros to fast commands. */
+	// new compilers can translate these macros to fast commands
 	#define rotlFixed(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
 	#define rotrFixed(x, n) (((x) >> (n)) | ((x) << (32 - (n))))
-#endif
+#endif*/
 //
 //#include <Sha1.h> <Sha256.h>
 EXTERN_C_BEGIN

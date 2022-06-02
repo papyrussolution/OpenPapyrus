@@ -15,15 +15,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.material.tabs.TabLayout;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,6 +73,10 @@ public class CommonPrereqModule {
 		String TabText;
 		/*View*/SLib.SlFragmentStatic TabView;
 	}
+	private StyloQApp GetAppCtx()
+	{
+		return (ActivityInstance != null) ? ActivityInstance.GetAppCtx() : null;
+	}
 	// sqbdtSvcReq
 	protected final boolean IsCurrentDocumentEmpty()
 	{
@@ -93,23 +94,130 @@ public class CommonPrereqModule {
 	{
 		return (CurrentOrder != null && CurrentOrder.BkList != null) ? CurrentOrder.BkList.size() : 0;
 	}
-	protected void InitCurrenDocument(StyloQApp appCtx, int opID) throws StyloQException
+	protected void InitCurrenDocument(int opID) throws StyloQException
 	{
 		if(CurrentOrder == null) {
-			CurrentOrder = new Document(opID, SvcIdent, appCtx);
-			CurrentOrder.H.BaseCurrencySymb = GetBaseCurrencySymb();
+			StyloQApp app_ctx = GetAppCtx();
+			if(app_ctx != null) {
+				CurrentOrder = new Document(opID, SvcIdent, app_ctx);
+				CurrentOrder.H.BaseCurrencySymb = GetBaseCurrencySymb();
+				CurrentOrder.H.OrgCmdUuid = CmdUuid;
+			}
 		}
 	}
 	protected void ResetCurrentDocument()
 	{
 		CurrentOrder = null;
 	}
+	protected void RestoreRecentDraftDocumentAsCurrent(/*int opID*/)
+	{
+		//public StyloQDatabase.SecStoragePacket FindRecentDraftDoc(int docType, long correspondId, byte [] ident, UUID orgCmdUuid)
+		if(CurrentOrder == null) {
+			StyloQApp app_ctx = GetAppCtx();
+			if(app_ctx != null) {
+				try {
+					StyloQDatabase db = app_ctx.GetDB();
+					if(db != null) {
+						StyloQDatabase.SecStoragePacket rdd =  db.FindRecentDraftDoc(StyloQDatabase.SecStoragePacket.doctypGeneric,
+							0, null, CmdUuid);
+						if(rdd != null) {
+							if(rdd.Pool != null) {
+								byte [] rawdata = rdd.Pool.Get(SecretTagPool.tagRawData);
+								if(SLib.GetLen(rawdata) > 0) {
+									String txt_rawdata = new String(rawdata);
+									if(SLib.GetLen(txt_rawdata) > 0) {
+										Document rd = new Document();
+										if(rd.FromJson(txt_rawdata)) {
+											// На этапе разработки было множество проблем, по этому,
+											// вероятно расхождение между идентификаторами в json и в заголовке записи.
+											if(rd.H.ID != rdd.Rec.ID)
+												rd.H.ID = rdd.Rec.ID;
+											CurrentOrder = rd;
+										}
+									}
+								}
+							}
+						}
+					}
+				} catch(StyloQException exn) {
+					;
+				}
+			}
+		}
+	}
+	private boolean OnCurrentDocumentModification()
+	{
+		boolean result = true;
+		int    turn_doc_result = -1;
+		assert(CurrentOrder != null && CurrentOrder.H != null && CurrentOrder.H.Uuid != null);
+		if(CurrentOrder != null && CurrentOrder.H != null && CurrentOrder.H.Uuid != null) {
+			if(CurrentOrder.GetDocStatus() == 0) {
+				CurrentOrder.SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
+			}
+			if(CurrentOrder.GetDocStatus() == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT) {
+				StyloQApp app_ctx = GetAppCtx();
+				if(app_ctx != null) {
+					turn_doc_result = 0;
+					try {
+						StyloQDatabase db = app_ctx.GetDB();
+						if(db != null && SLib.GetLen(SvcIdent) > 0) {
+							StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
+							JSONObject jsobj = CurrentOrder.ToJsonObj();
+							if(svc_pack != null && jsobj != null) {
+								SecretTagPool doc_pool = new SecretTagPool();
+								JSONObject js_query = new JSONObject();
+								String js_text_doc = jsobj.toString();
+								String js_text_docdecl = null;
+								{
+									JSONObject js_doc_decl = new JSONObject();
+									js_doc_decl.put("type", "generic");
+									js_doc_decl.put("format", "json");
+									js_doc_decl.put("time", SLib.datetimefmt(new SLib.LDATETIME(System.currentTimeMillis()), SLib.DATF_ISO8601 | SLib.DATF_CENTURY, 0));
+									js_query.put("declaration", js_doc_decl);
+									js_text_docdecl = js_doc_decl.toString();
+								}
+								//
+								// В базе данных мы сохраняем документ в виде "сырого" json (то есть только jsobj)
+								// в то время как сервису передаем этот же документ вложенный в объект команды (js_query).
+								// Но и то и другое вносится в пул хранения под тегом tagRawData.
+								//
+								SecretTagPool.DeflateStrategy ds = new SecretTagPool.DeflateStrategy(256);
+								doc_pool.Put(SecretTagPool.tagRawData, js_text_doc.getBytes(StandardCharsets.UTF_8), ds);
+								doc_pool.Put(SecretTagPool.tagDocDeclaration, js_text_docdecl.getBytes(StandardCharsets.UTF_8));
+								//
+								long svc_id = svc_pack.Rec.ID;
+								byte[] doc_ident = db.MakeDocumentStorageIdent(SvcIdent, CurrentOrder.H.Uuid);
+								long doc_id = db.PutDocument(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, CurrentOrder.H.Flags, doc_ident, svc_id, doc_pool);
+								if(doc_id > 0) {
+									assert (CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id);
+									if(CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id) {
+										CurrentOrder.H.ID = doc_id;
+										turn_doc_result = 1;
+									}
+								}
+							}
+						}
+					} catch(StyloQException exn) {
+						turn_doc_result = 0;
+					} catch(JSONException exn) {
+						turn_doc_result = 0;
+					}
+				}
+			}
+		}
+		return (turn_doc_result > 0) ? true : ((turn_doc_result == 0) ? false : result);
+	}
 	protected boolean UpdateMemoInCurrentDocument(String memo)
 	{
 		boolean result = false;
 		if(!IsCurrentDocumentEmpty()) {
-			CurrentOrder.H.Memo = memo;
-			result = true;
+			int len1 = SLib.GetLen(memo);
+			int len2 = SLib.GetLen(CurrentOrder.H.Memo);
+			if(len1 != len2 || (len1 > 0 && !memo.equals(CurrentOrder.H.Memo))) {
+				CurrentOrder.H.Memo = memo;
+				OnCurrentDocumentModification();
+				result = true;
+			}
 		}
 		return result;
 	}
@@ -128,17 +236,19 @@ public class CommonPrereqModule {
 					break;
 				}
 			}
+			if(result)
+				OnCurrentDocumentModification();
 		}
 		return result;
 	}
-	protected boolean AddTransferItemToCurrentDocument(StyloQApp appCtx, Document.TransferItem item)
+	protected boolean AddTransferItemToCurrentDocument(Document.TransferItem item)
 	{
 		boolean result = false;
 		try {
 			if(item != null && item.GoodsID > 0 && item.Set != null && item.Set.Qtty > 0.0) {
 				CommonPrereqModule.WareEntry goods_item = FindGoodsItemByGoodsID(item.GoodsID);
 				double price = goods_item.JsItem.optDouble("price", 0.0);
-				InitCurrenDocument(appCtx, SLib.PPEDIOP_ORDER);
+				InitCurrenDocument(SLib.PPEDIOP_ORDER);
 				Document.TransferItem ti = item;
 				ti.Set.Price = price;
 				int max_row_idx = 0;
@@ -159,6 +269,7 @@ public class CommonPrereqModule {
 				}
 				SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
 				//NotifyCurrentOrderChanged();
+				OnCurrentDocumentModification();
 				result = true;
 			}
 		} catch(StyloQException exn) {
@@ -166,12 +277,12 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	protected ArrayList <SLib.STimeChunk> PutBookingItemToCurrentDocument(StyloQApp appCtx, Document.BookingItem item)
+	protected ArrayList <SLib.STimeChunk> PutBookingItemToCurrentDocument(Document.BookingItem item)
 	{
 		ArrayList <SLib.STimeChunk> result = null;
 		try {
 			if(item != null) {
-				InitCurrenDocument(appCtx, SLib.sqbdtSvcReq);
+				InitCurrenDocument(SLib.sqbdtSvcReq);
 				if(CurrentOrder.BkList == null)
 					CurrentOrder.BkList = new ArrayList<Document.BookingItem>();
 				CurrentOrder.BkList.clear();
@@ -186,6 +297,7 @@ public class CommonPrereqModule {
 					bk_item.EstimatedDurationSec = 3600; // default value
 				 */
 				CurrentOrder.BkList.add(item);
+				OnCurrentDocumentModification();
 				result = GetCurrentDocumentBusyList(item.PrcID);
 			}
 		} catch(StyloQException exn) {
@@ -193,12 +305,14 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	protected boolean SetClientToCurrentDocument(StyloQApp appCtx, int cliID, int dlvrLocID) throws StyloQException
+	protected boolean SetClientToCurrentDocument(int opID, int cliID, int dlvrLocID) throws StyloQException
 	{
 		boolean result = false;
-		if(cliID > 0 && appCtx != null) {
+		StyloQApp app_ctx = GetAppCtx();
+		if(cliID > 0 && app_ctx != null) {
 			if(CurrentOrder == null) {
-				CurrentOrder = new Document(SLib.PPEDIOP_ORDER, SvcIdent, appCtx);
+				InitCurrenDocument(opID);
+				//CurrentOrder = new Document(SLib.PPEDIOP_ORDER, SvcIdent, app_ctx);
 				CurrentOrder.H.ClientID = cliID;
 				CurrentOrder.H.DlvrLocID = dlvrLocID;
 				CurrentOrder.H.BaseCurrencySymb = BaseCurrencySymb;
@@ -220,6 +334,8 @@ public class CommonPrereqModule {
 					// Здесь надо как-то умнО обработать изменение контрагента
 				}
 			}
+			if(result)
+				OnCurrentDocumentModification();
 		}
 		return result;
 	}
@@ -262,27 +378,22 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	protected boolean CommitCurrentDocument(SLib.SlActivity activity)
+	protected boolean CommitCurrentDocument()
 	{
 		boolean ok = false;
-		if(activity != null) {
-			Context app_ctx = activity.getApplicationContext();
-			if(app_ctx != null && app_ctx instanceof StyloQApp) {
-				if(!Locker_CommitCurrentDocument) {
-					Locker_CommitCurrentDocument = true;
-					if(CurrentOrder != null && CurrentOrder.Finalize()) {
-						if((CurrentOrder.H.Flags & StyloQDatabase.SecStoragePacket.styloqfDocDraft) != 0)
-							CurrentOrder.SetAfterTransmitStatusFlags(StyloQDatabase.SecStoragePacket.styloqfDocWaitForOrdrsp|StyloQDatabase.SecStoragePacket.styloqfDocWaitForDesadv);
-						else if((StyloQDatabase.SecStoragePacket.styloqfDocWaitForOrdrsp|StyloQDatabase.SecStoragePacket.styloqfDocWaitForDesadv) != 0) {
-							CurrentOrder.SetAfterTransmitStatusFlags(CurrentOrder.H.Flags & (StyloQDatabase.SecStoragePacket.styloqfDocWaitForOrdrsp | StyloQDatabase.SecStoragePacket.styloqfDocWaitForDesadv));
-						}
-						else if((CurrentOrder.H.Flags & StyloQDatabase.SecStoragePacket.styloqfDocFinished) != 0)
-							CurrentOrder.SetAfterTransmitStatusFlags(0);
-						StyloQApp.PostDocumentResult result = ((StyloQApp)app_ctx).RunSvcPostDocumentCommand(SvcIdent, CurrentOrder, activity);
-						ok = result.PostResult;
-						if(ok) {
-							;
-						}
+		StyloQApp app_ctx = GetAppCtx();
+		if(app_ctx != null) {
+			if(!Locker_CommitCurrentDocument) {
+				Locker_CommitCurrentDocument = true;
+				if(CurrentOrder != null && CurrentOrder.Finalize()) {
+					final int s = CurrentOrder.GetDocStatus();
+					if(s == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT)
+						CurrentOrder.SetAfterTransmitStatus(StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC);
+					// @todo Здесь еще долго со статусами разбираться придется!
+					StyloQApp.PostDocumentResult result = app_ctx.RunSvcPostDocumentCommand(SvcIdent, CurrentOrder, ActivityInstance);
+					ok = result.PostResult;
+					if(ok) {
+						;
 					}
 				}
 			}
@@ -497,7 +608,7 @@ public class CommonPrereqModule {
 		//SimpleSearchIndexEntry(int objType, int objID, int attr, final String text, final String displayText)
 		SimpleSearchIndex.add(new SimpleSearchIndexEntry(objType, objID, attr, text.toLowerCase(), displayText));
 	}
-	public boolean SearchInSimpleIndex(StyloQApp appCtx, String pattern)
+	public boolean SearchInSimpleIndex(String pattern)
 	{
 		final int min_pattern_len = 4;
 		final int min_pattern_len_code = 5;
@@ -505,50 +616,53 @@ public class CommonPrereqModule {
 		final int min_pattern_len_rukpp = 6;
 		final int max_result_count = 100;
 		boolean result = false;
-		if(SearchResult == null)
-			SearchResult = new CommonPrereqModule.SimpleSearchResult();
-		SearchResult.Clear();
-		SearchResult.Pattern = pattern;
-		if(SimpleSearchIndex != null && SLib.GetLen(pattern) >= min_pattern_len) {
-			pattern = pattern.toLowerCase();
-			for(int i = 0; i < SimpleSearchIndex.size(); i++) {
-				CommonPrereqModule.SimpleSearchIndexEntry entry = SimpleSearchIndex.get(i);
-				if(entry != null && SLib.GetLen(entry.Text) > 0 && entry.Text.indexOf(pattern) >= 0) {
-					boolean skip = false;
-					if(entry.Attr == SLib.PPOBJATTR_CODE && pattern.length() < min_pattern_len_code)
-						skip = true;
-					else if(entry.Attr == SLib.PPOBJATTR_RUINN && pattern.length() < min_pattern_len_ruinn)
-						skip = true;
-					else if(entry.Attr == SLib.PPOBJATTR_RUKPP && pattern.length() < min_pattern_len_rukpp)
-						skip = true;
-					if(!skip) {
-						if(SearchResult.List != null && SearchResult.List.size() >= max_result_count) {
-							// Если количество результатов превышает некий порог, то считаем поиск безуспешным - пусть
-							// клиент вводит что-то более длинное для релевантности результата
-							SearchResult.Clear();
-							String fmt_buf = appCtx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_TOOMANYRESULTS);
-							if(SLib.GetLen(fmt_buf) > 0)
-								SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(max_result_count));
-							result = false;
-							break;
-						}
-						else {
-							SearchResult.Add(entry);
-							result = true;
+		StyloQApp app_ctx = GetAppCtx();
+		if(app_ctx != null) {
+			if(SearchResult == null)
+				SearchResult = new CommonPrereqModule.SimpleSearchResult();
+			SearchResult.Clear();
+			SearchResult.Pattern = pattern;
+			if(SimpleSearchIndex != null && SLib.GetLen(pattern) >= min_pattern_len) {
+				pattern = pattern.toLowerCase();
+				for(int i = 0; i < SimpleSearchIndex.size(); i++) {
+					CommonPrereqModule.SimpleSearchIndexEntry entry = SimpleSearchIndex.get(i);
+					if(entry != null && SLib.GetLen(entry.Text) > 0 && entry.Text.indexOf(pattern) >= 0) {
+						boolean skip = false;
+						if(entry.Attr == SLib.PPOBJATTR_CODE && pattern.length() < min_pattern_len_code)
+							skip = true;
+						else if(entry.Attr == SLib.PPOBJATTR_RUINN && pattern.length() < min_pattern_len_ruinn)
+							skip = true;
+						else if(entry.Attr == SLib.PPOBJATTR_RUKPP && pattern.length() < min_pattern_len_rukpp)
+							skip = true;
+						if(!skip) {
+							if(SearchResult.List != null && SearchResult.List.size() >= max_result_count) {
+								// Если количество результатов превышает некий порог, то считаем поиск безуспешным - пусть
+								// клиент вводит что-то более длинное для релевантности результата
+								SearchResult.Clear();
+								String fmt_buf = app_ctx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_TOOMANYRESULTS);
+								if(SLib.GetLen(fmt_buf) > 0)
+									SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(max_result_count));
+								result = false;
+								break;
+							}
+							else {
+								SearchResult.Add(entry);
+								result = true;
+							}
 						}
 					}
 				}
+				if(result) {
+					String fmt_buf = app_ctx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_SUCCESS);
+					if(SLib.GetLen(fmt_buf) > 0)
+						SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(SearchResult.List.size()));
+				}
 			}
-			if(result) {
-				String fmt_buf = appCtx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_SUCCESS);
+			else {
+				String fmt_buf = app_ctx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_TOOSHRTPATTERN);
 				if(SLib.GetLen(fmt_buf) > 0)
-					SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(SearchResult.List.size()));
+					SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(min_pattern_len_code));
 			}
-		}
-		else {
-			String fmt_buf = appCtx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_TOOSHRTPATTERN);
-			if(SLib.GetLen(fmt_buf) > 0)
-				SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(min_pattern_len_code));
 		}
 		return result;
 	}
@@ -640,13 +754,14 @@ public class CommonPrereqModule {
 			}
 		}
 	}
-	public void MakeCurrentDocList(StyloQApp appCtx)
+	public void MakeCurrentDocList()
 	{
 		if(OrderHList != null)
 			OrderHList.clear();
 		try {
 			if(SvcIdent != null) {
-				StyloQDatabase db = (appCtx != null) ? appCtx.GetDB() : null;
+				StyloQApp app_ctx = GetAppCtx();
+				StyloQDatabase db = (app_ctx != null) ? app_ctx.GetDB() : null;
 				if(db != null) {
 					StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
 					if(svc_pack != null) {
@@ -1172,8 +1287,8 @@ public class CommonPrereqModule {
 									SpannableStringBuilder spbldr = new SpannableStringBuilder();
 									int color_reg = _ctx.getResources().getColor(R.color.ListItemRegular, _ctx.getTheme());
 									int color_found = _ctx.getResources().getColor(R.color.ListItemFound, _ctx.getTheme());
-									if(fp_start > 0) {
-										SpannableString ss = new SpannableString(se.Text.substring(0, fp_start-1));
+									{
+										SpannableString ss = new SpannableString(se.Text.substring(0, fp_start));
 										ss.setSpan(new BackgroundColorSpan(color_reg), 0, ss.length(), 0);
 										spbldr.append(ss);
 									}
@@ -1211,12 +1326,12 @@ public class CommonPrereqModule {
 			return convertView; // Return the completed view to render on screen
 		}
 	}
-	public void GetSearchPaneListViewItem(StyloQApp appCtx, View itemView, int itemIdx)
+	public void GetSearchPaneListViewItem(View itemView, int itemIdx)
 	{
-		if(appCtx != null && SearchResult != null && itemView != null && itemIdx < SearchResult.GetObjTypeCount()) {
+		StyloQApp app_ctx = GetAppCtx();
+		if(app_ctx != null && SearchResult != null && itemView != null && itemIdx < SearchResult.GetObjTypeCount()) {
 			int obj_type = SearchResult.GetObjTypeByIndex(itemIdx);
-			//StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-			String obj_type_title = SLib.GetObjectTitle(appCtx, obj_type);
+			String obj_type_title = SLib.GetObjectTitle(app_ctx, obj_type);
 			SLib.SetCtrlString(itemView, R.id.LVITEM_GENERICNAME, (obj_type_title != null) ? obj_type_title : "");
 			{
 				ListView detail_lv = (ListView)itemView.findViewById(R.id.searchPaneTerminalListView);

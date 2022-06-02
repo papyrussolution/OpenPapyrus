@@ -16,7 +16,7 @@ int dtls1_write_app_data_bytes(SSL * s, int type, const void * buf_, size_t len,
 		i = s->handshake_func(s);
 		if(i < 0)
 			return i;
-		if(i == 0) {
+		if(!i) {
 			SSLerr(SSL_F_DTLS1_WRITE_APP_DATA_BYTES,
 			    SSL_R_SSL_HANDSHAKE_FAILURE);
 			return -1;

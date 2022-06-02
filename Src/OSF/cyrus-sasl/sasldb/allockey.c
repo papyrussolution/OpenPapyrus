@@ -60,7 +60,7 @@ int _sasldb_alloc_key(const sasl_utils_t * utils, const char * auth_identity, co
 	realm_len = strlen(realm);
 	prop_len = strlen(propName);
 	*key_len = auth_id_len + realm_len + prop_len + 2;
-	*key = (char *)utils->malloc(*key_len);
+	*key = (char *)utils->FnMalloc(*key_len);
 	if(!*key)
 		return SASL_NOMEM;
 	memcpy(*key, auth_identity, auth_id_len);
@@ -145,7 +145,7 @@ int _sasldb_getsecret(const sasl_utils_t * utils,
 	if(ret != SASL_OK) {
 		return ret;
 	}
-	out = (sasl_secret_t *)utils->malloc(sizeof(sasl_secret_t) + len);
+	out = (sasl_secret_t *)utils->FnMalloc(sizeof(sasl_secret_t) + len);
 	if(!out) {
 		utils->seterror(context, 0, "Out of Memory in _sasldb_getsecret");
 		return SASL_NOMEM;

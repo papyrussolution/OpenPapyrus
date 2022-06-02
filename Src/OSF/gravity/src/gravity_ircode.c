@@ -560,7 +560,7 @@ bool ircode_register_istemp(const ircode_t * code, uint32 nreg) { return (nreg >
 void ircode_register_dump(ircode_t * code) 
 {
 	uint32 n = code->registers.getCount();
-	if(n == 0) 
+	if(!n) 
 		printf("EMPTY\n");
 	for(uint32 i = 0; i < n; ++i) {
 		uint32 value = code->registers.at(i);

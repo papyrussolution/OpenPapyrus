@@ -35,7 +35,7 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 	uchar ebcdic_buf[1024];
 #endif
 
-	if(buf == NULL) {
+	if(!buf) {
 		if((b = BUF_MEM_new()) == NULL)
 			goto err;
 		if(!BUF_MEM_grow(b, 200))
@@ -43,7 +43,7 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 		b->data[0] = '\0';
 		len = 200;
 	}
-	else if(len == 0) {
+	else if(!len) {
 		return NULL;
 	}
 	if(!a) {
@@ -175,7 +175,7 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 	}
 	else
 		p = buf;
-	if(i == 0)
+	if(!i)
 		*p = '\0';
 	return p;
 err:

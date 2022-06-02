@@ -312,7 +312,7 @@ static ulong FASTCALL ma_real_read(NET * net, size_t * complen)
 			remain -= (ulong)length;
 			pos += (ulong)length;
 		}
-		if(i == 0) {            /* First parts is packet length */
+		if(!i) {            /* First parts is packet length */
 			ulong helping;
 			net->pkt_nr = net->buff[net->where_b + 3];
 			net->compress_pkt_nr = ++net->pkt_nr;

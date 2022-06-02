@@ -95,7 +95,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeaderFile />
@@ -127,7 +127,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeaderFile />
@@ -161,7 +161,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeaderFile />
       <CompileAs>CompileAsCpp</CompileAs>
@@ -194,7 +194,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\rehex\include;..\OSF\rehex;..\osf\wxWidgets\include;..\OSF\jansson\include;..\OSF\capstone\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeaderFile />
       <CompileAs>CompileAsCpp</CompileAs>
@@ -260,49 +260,49 @@
     <ClCompile Include="..\OSF\rehex\src\win32lib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\OSF\rehex\include\AboutDialog.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\app.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\ArtProvider.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\BasicDataTypes.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\buffer.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\ByteRangeMap.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\ByteRangeSet.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\BytesPerLineDialog.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\ClickText.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\CodeCtrl.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\CommentTree.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\DataType.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\decodepanel.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\DiffWindow.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\disassemble.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\document.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\DocumentCtrl.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\EditCommentDialog.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\Events.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\FillRangeDialog.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\LicenseDialog.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\mainwindow.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\NestedOffsetLengthMap.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\NumericEntryDialog.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\NumericTextCtrl.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\Palette.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\platform.hpp" />
     <ClInclude Include="..\OSF\rehex\include\portable_endian.h" />
+    <ClInclude Include="..\OSF\rehex\include\rehex-internal.h" />
+    <ClInclude Include="..\OSF\rehex\include\SafeWindowPointer.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\search.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\SelectRangeDialog.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\SharedDocumentPointer.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\StringPanel.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\Tab.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\textentrydialog.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\ToolPanel.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\util.hpp" />
+    <ClInclude Include="..\OSF\rehex\include\win32lib.hpp" />
     <ClInclude Include="..\OSF\rehex\res\rehex-resource.h" />
     <ClInclude Include="..\OSF\rehex\res\version.h" />
     <ClInclude Include="..\OSF\rehex\res\version_msvc.h" />
     <ClInclude Include="..\OSF\rehex\res\winres.h" />
-    <ClInclude Include="..\OSF\rehex\src\AboutDialog.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\app.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\ArtProvider.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\BasicDataTypes.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\buffer.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\ByteRangeMap.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\ByteRangeSet.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\BytesPerLineDialog.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\ClickText.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\CodeCtrl.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\CommentTree.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\DataType.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\decodepanel.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\DiffWindow.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\disassemble.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\document.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\DocumentCtrl.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\EditCommentDialog.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\Events.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\FillRangeDialog.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\LicenseDialog.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\mainwindow.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\NestedOffsetLengthMap.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\NumericEntryDialog.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\NumericTextCtrl.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\Palette.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\platform.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\rehex-internal.h" />
-    <ClInclude Include="..\OSF\rehex\src\SafeWindowPointer.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\search.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\SelectRangeDialog.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\SharedDocumentPointer.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\StringPanel.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\Tab.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\textentrydialog.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\ToolPanel.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\util.hpp" />
-    <ClInclude Include="..\OSF\rehex\src\win32lib.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="libpng.vcxproj">

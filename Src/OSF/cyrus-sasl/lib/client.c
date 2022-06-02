@@ -536,7 +536,7 @@ static int _sasl_client_order_mechs(const sasl_utils_t * utils,
 
 	mechslen = strlen(mechs);
 
-	listp = list = (char *)utils->malloc(mechslen + 1);
+	listp = list = (char *)utils->FnMalloc(mechslen + 1);
 	if(!list)
 		return SASL_NOMEM;
 
@@ -576,7 +576,7 @@ static int _sasl_client_order_mechs(const sasl_utils_t * utils,
 	} while(1);
 
 	if(*count == 0) {
-		utils->free(list);
+		utils->FnFree(list);
 		return SASL_NOMECH;
 	}
 
@@ -802,7 +802,7 @@ dostep:
 
 done:
 	if(ordered_mechs != NULL)
-		c_conn->cparams->utils->free(ordered_mechs);
+		c_conn->cparams->utils->FnFree(ordered_mechs);
 	RETURN(conn, result);
 }
 
@@ -1155,23 +1155,21 @@ int sasl_client_plugin_info(const char * c_mech_list/* space separated mechanism
 	char * cur_mech;
 	char * mech_list = NULL;
 	char * p;
-	if(info_cb == NULL) {
-		info_cb = _sasl_print_mechanism;
-	}
+	SETIFZQ(info_cb, _sasl_print_mechanism);
 	if(cmechlist != NULL) {
 		info_cb(NULL, SASL_INFO_LIST_START, info_cb_rock);
 		if(c_mech_list == NULL) {
 			m = cmechlist->mech_list; /* m point to beginning of the list */
-			while(m != NULL) {
+			while(m) {
 				memcpy(&plug_data, &m->m, sizeof(plug_data));
 				info_cb(&plug_data, SASL_INFO_LIST_MECH, info_cb_rock);
 				m = m->next;
 			}
 		}
 		else {
-			mech_list = strdup(c_mech_list);
+			mech_list = sstrdup(c_mech_list);
 			cur_mech = mech_list;
-			while(cur_mech != NULL) {
+			while(cur_mech) {
 				p = strchr(cur_mech, ' ');
 				if(p) {
 					*p = '\0';

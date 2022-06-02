@@ -377,7 +377,7 @@ int32_t getStringArray(const ResourceData * pResData, const icu::ResourceArray &
 		return 0;
 	}
 	int32_t length = array.getSize();
-	if(length == 0) {
+	if(!length) {
 		return 0;
 	}
 	if(length > capacity) {

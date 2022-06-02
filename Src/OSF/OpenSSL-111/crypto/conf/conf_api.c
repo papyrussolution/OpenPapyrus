@@ -37,7 +37,7 @@ STACK_OF(CONF_VALUE) *_CONF_get_section_values(const CONF *conf,
 	CONF_VALUE * v;
 
 	v = _CONF_get_section(conf, section);
-	if(v != NULL)
+	if(v)
 		return ((STACK_OF(CONF_VALUE) *)v->value);
 	else
 		return NULL;
@@ -56,7 +56,7 @@ int _CONF_add_string(CONF * conf, CONF_VALUE * section, CONF_VALUE * value)
 	}
 
 	v = lh_CONF_VALUE_insert(conf->data, value);
-	if(v != NULL) {
+	if(v) {
 		(void)sk_CONF_VALUE_delete_ptr(ts, v);
 		OPENSSL_free(v->name);
 		OPENSSL_free(v->value);
@@ -70,15 +70,14 @@ char * _CONF_get_string(const CONF * conf, const char * section,
 {
 	CONF_VALUE * v, vv;
 	char * p;
-
-	if(name == NULL)
+	if(!name)
 		return NULL;
-	if(conf != NULL) {
+	if(conf) {
 		if(section != NULL) {
 			vv.name = (char *)name;
 			vv.section = (char *)section;
 			v = lh_CONF_VALUE_retrieve(conf->data, &vv);
-			if(v != NULL)
+			if(v)
 				return v->value;
 			if(sstreq(section, "ENV")) {
 				p = ossl_safe_getenv(name);
@@ -89,7 +88,7 @@ char * _CONF_get_string(const CONF * conf, const char * section,
 		vv.section = "default";
 		vv.name = (char *)name;
 		v = lh_CONF_VALUE_retrieve(conf->data, &vv);
-		if(v != NULL)
+		if(v)
 			return v->value;
 		else
 			return NULL;
@@ -211,7 +210,7 @@ CONF_VALUE * _CONF_new_section(CONF * conf, const char * section)
 
 err:
 	sk_CONF_VALUE_free(sk);
-	if(v != NULL)
+	if(v)
 		OPENSSL_free(v->section);
 	OPENSSL_free(v);
 	return NULL;

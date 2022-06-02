@@ -22,7 +22,7 @@ static int bnrand(BNRAND_FLAG flag, BIGNUM * rnd, int bits, int top, int bottom)
 {
 	uchar * buf = NULL;
 	int b, ret = 0, bit, bytes, mask;
-	if(bits == 0) {
+	if(!bits) {
 		if(top != BN_RAND_TOP_ANY || bottom != BN_RAND_BOTTOM_ANY)
 			goto toosmall;
 		BN_zero(rnd);
@@ -34,7 +34,7 @@ static int bnrand(BNRAND_FLAG flag, BIGNUM * rnd, int bits, int top, int bottom)
 	bit = (bits - 1) % 8;
 	mask = 0xff << (bit + 1);
 	buf = static_cast<uchar *>(OPENSSL_malloc(bytes));
-	if(buf == NULL) {
+	if(!buf) {
 		BNerr(BN_F_BNRAND, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

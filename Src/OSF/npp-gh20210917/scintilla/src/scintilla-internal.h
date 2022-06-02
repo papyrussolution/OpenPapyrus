@@ -1,5 +1,8 @@
 // scintilla-internal.h 
 //
+#define SLIB_INCLUDE_CPPSTDLIBS
+#include <slib.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

@@ -112,7 +112,7 @@ static int enc_read(BIO * b, char * out, int outl)
 	ctx = static_cast<BIO_ENC_CTX *>(BIO_get_data(b));
 
 	next = BIO_next(b);
-	if((ctx == NULL) || (next == NULL))
+	if(!ctx || !next)
 		return 0;
 
 	/* First check if there are bytes decoded/encoded */
@@ -240,7 +240,7 @@ static int enc_write(BIO * b, const char * in, int inl)
 
 	ctx = static_cast<BIO_ENC_CTX *>(BIO_get_data(b));
 	next = BIO_next(b);
-	if((ctx == NULL) || (next == NULL))
+	if(!ctx || !next)
 		return 0;
 
 	ret = inl;

@@ -2513,7 +2513,7 @@ static int ISO8859xToUTF8(uchar * out, int * outlen, const uchar * in, int * inl
 		while((in < inend) && (out < outend - 2)) {
 			if(*in >= 0x80) {
 				uint c = unicodetable[*in - 0x80];
-				if(c == 0) {
+				if(!c) {
 					// undefined code point
 					*outlen = out - outstart;
 					*inlen = in - instart;

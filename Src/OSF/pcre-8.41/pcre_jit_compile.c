@@ -3292,7 +3292,7 @@ static SLJIT_INLINE void add_prefix_char(pcre_uchar chr, pcre_uchar * chars)
 	if(len == 255)
 		return;
 
-	if(len == 0) {
+	if(!len) {
 		chars[0] = 1;
 		chars[1] = chr;
 		return;
@@ -5935,7 +5935,7 @@ static pcre_uchar * compile_simple_assertion_matchingpath(compiler_common * comm
 
 		case OP_REVERSE:
 		    length = GET(cc, 0);
-		    if(length == 0)
+		    if(!length)
 			    return cc + LINK_SIZE;
 		    OP1(SLJIT_MOV, TMP1, 0, ARGUMENTS, 0);
 #ifdef SUPPORT_UTF

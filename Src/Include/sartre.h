@@ -1148,6 +1148,20 @@ public:
 //
 //
 //
+class UED {
+public:
+	static bool IsMetaId(uint64 ued)
+	{
+		return ((ued >> 32) == 1);
+	}
+	static bool BelongToMeta(uint64 ued, uint64 meta)
+	{
+		return (IsMetaId(meta) && ((ued >> 32) & 0x00000000ffffffffULL) == (meta & 0x00000000ffffffffULL));
+	}
+};
+//
+//
+//
 class SrUedContainer : public SStrGroup {
 public:
 	SrUedContainer();
@@ -1155,6 +1169,8 @@ public:
 	int    ReadSource(const char * pFileName);
 	int    WriteSource(const char * pFileName);
 	int    Verify();
+	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
+	bool   SearchBaseId(uint64 id, SString & rSymb) const;
 
 	struct BaseEntry {
 		uint64 Id;
@@ -1167,4 +1183,8 @@ public:
 	};
 	TSVector <BaseEntry> BL;
 	TSVector <TextEntry> TL;
+private:
+	uint64 SearchBaseIdBySymbP(uint symbp) const;
+	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT);
+	uint64 LinguaLocusMeta;
 };

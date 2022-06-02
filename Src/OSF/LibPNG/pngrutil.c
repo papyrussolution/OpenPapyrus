@@ -1211,7 +1211,7 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 					    (sizeof local_buffer), &length, profile_header, &size,
 					    0 /*finish: don't, because the output is too small*/);
 
-					if(size == 0) {
+					if(!size) {
 						/* We have the ICC profile header; do the basic header checks.
 						 */
 						const uint32 profile_length =
@@ -1239,7 +1239,7 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 									/* Still expect a buffer error because we expect
 									 * there to be some tag data!
 									 */
-									if(size == 0) {
+									if(!size) {
 										if(png_icc_check_tag_table(png_ptr, &png_ptr->colorspace, keyword, profile_length, profile) != 0) {
 											/* The profile has been validated for basic
 											 * security issues, so read the whole thing in.
@@ -1256,7 +1256,7 @@ void /* PRIVATE */ png_handle_iCCP(png_structrp png_ptr, png_inforp info_ptr, ui
 												errmsg = "extra compressed data";
 
 											/* But otherwise allow extra data: */
-											else if(size == 0) {
+											else if(!size) {
 												if(length > 0) {
 													/* This can be handled completely,
 													   so
@@ -2269,7 +2269,7 @@ static int png_cache_unknown_chunk(png_structrp png_ptr, uint32 length)
 		/* 'mode' is a flag array, only the bottom four bits matter here */
 		png_ptr->unknown_chunk.location = (uint8)png_ptr->mode /*SAFE*/;
 
-		if(length == 0)
+		if(!length)
 			png_ptr->unknown_chunk.data = NULL;
 
 		else {

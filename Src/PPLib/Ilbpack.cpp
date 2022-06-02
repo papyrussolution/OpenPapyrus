@@ -621,6 +621,7 @@ private:
 int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows, uint flags, const char * pSerial, const GoodsReplacementArray * pGra)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef; // @v11.4.0
 	int    full_sync = 0; // Признак того, что сформированная строка документа полностью идентична ilti
 	uint   i = 0;
 	LongArray rows;
@@ -638,7 +639,15 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 	SString fmt_buf;
 	SString msg_buf;
 	SString serial;
-	(serial = pSerial).Strip();
+	bool serial_is_refb = false;
+	{
+		const char * p_refb_prefix = "rfb:";
+		(serial = pSerial).Strip();
+		if(serial.HasPrefix(p_refb_prefix)) {
+			serial_is_refb = true;
+			serial.ShiftLeft(sstrlen(p_refb_prefix));
+		}
+	}
 	bool   by_serial = (!(flags & CILTIF_EXCLUDESERIAL) && serial.NotEmpty());
 	// @v10.4.10 THROW_PP_S(GObj.Fetch(labs(ilti->GoodsID), &goods_rec) > 0, PPERR_NEXISTGOODSINBILL, ilti->GoodsID);
 	// @v10.4.10 {
@@ -829,7 +838,32 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 				//
 				for(i = 0; (qtty < (-_qtty_epsilon) || (flags & CILTIF_CUTRESTTOZERO)) && i < lots.getCount(); i++) { // @v11.0.4 (|| (flags & CILTIF_CUTRESTTOZERO))
 					const PPID lot_id = lots.get(i);
-					if(!by_serial || CmpSnrWithLotSnr(lot_id, serial)) {
+					bool local_skip = false;
+					if(by_serial) {
+						if(serial_is_refb) { // @v11.4.0
+							local_skip = true;
+							SString lot_ref_b;
+							if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_FSRARINFB, lot_ref_b) > 0) {
+								if(lot_ref_b.IsEqiAscii(serial))
+									local_skip = false;
+							}
+							else {
+								PPID   org_lot_id = 0;
+								ReceiptTbl::Rec org_lot_rec;
+								if(trfr->Rcpt.SearchOrigin(lot_id, &org_lot_id, 0, &org_lot_rec) > 0 && org_lot_id != lot_id) {
+									if(p_ref->Ot.GetTagStr(PPOBJ_LOT, org_lot_id, PPTAG_LOT_FSRARINFB, lot_ref_b) > 0) {
+										if(lot_ref_b.IsEqiAscii(serial))
+											local_skip = false;
+									}
+								}
+							}
+						}
+						else {
+							if(!CmpSnrWithLotSnr(lot_id, serial))
+								local_skip = true;
+						}
+					}
+					if(!local_skip) {
 						THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
 						if(rest >= _qtty_epsilon || (flags & CILTIF_CUTRESTTOZERO)) { // @v10.7.4 (|| (flags & CILTIF_CUTRESTTOZERO))
 							const double q = ((flags & CILTIF_CUTRESTTOZERO) || rest < -qtty) ? rest : -qtty; // @v11.0.4 (|| (flags & CILTIF_CUTRESTTOZERO))

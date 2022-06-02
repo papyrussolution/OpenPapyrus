@@ -654,7 +654,7 @@ void CollationRuleParser::parseSetting(UErrorCode & errorCode) {
 				setParseError("expected language tag in [import langTag]", errorCode);
 				return;
 			}
-			if(length == 0) {
+			if(!length) {
 				uprv_strcpy(baseID, "root");
 			}
 			else if(*baseID == '_') {

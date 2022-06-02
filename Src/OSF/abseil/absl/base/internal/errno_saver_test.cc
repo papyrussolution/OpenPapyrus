@@ -24,22 +24,26 @@ namespace {
 using ::testing::Eq;
 
 struct ErrnoPrinter {
-  int no;
+	int no;
 };
+
 std::ostream &operator<<(std::ostream &os, ErrnoPrinter ep) {
-  return os << absl::base_internal::StrError(ep.no) << " [" << ep.no << "]";
+	return os << absl::base_internal::StrError(ep.no) << " [" << ep.no << "]";
 }
-bool operator==(ErrnoPrinter one, ErrnoPrinter two) { return one.no == two.no; }
+
+bool operator==(ErrnoPrinter one, ErrnoPrinter two) {
+	return one.no == two.no;
+}
 
 TEST(ErrnoSaverTest, Works) {
-  errno = EDOM;
-  {
-    absl::base_internal::ErrnoSaver errno_saver;
-    EXPECT_THAT(ErrnoPrinter{errno}, Eq(ErrnoPrinter{EDOM}));
-    errno = ERANGE;
-    EXPECT_THAT(ErrnoPrinter{errno}, Eq(ErrnoPrinter{ERANGE}));
-    EXPECT_THAT(ErrnoPrinter{errno_saver()}, Eq(ErrnoPrinter{EDOM}));
-  }
-  EXPECT_THAT(ErrnoPrinter{errno}, Eq(ErrnoPrinter{EDOM}));
+	errno = EDOM;
+	{
+		absl::base_internal::ErrnoSaver errno_saver;
+		EXPECT_THAT(ErrnoPrinter{errno}, Eq(ErrnoPrinter{EDOM}));
+		errno = ERANGE;
+		EXPECT_THAT(ErrnoPrinter{errno}, Eq(ErrnoPrinter{ERANGE}));
+		EXPECT_THAT(ErrnoPrinter{errno_saver()}, Eq(ErrnoPrinter{EDOM}));
+	}
+	EXPECT_THAT(ErrnoPrinter{errno}, Eq(ErrnoPrinter{EDOM}));
 }
 }  // namespace

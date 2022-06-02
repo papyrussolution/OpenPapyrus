@@ -316,7 +316,7 @@ size_t ma_gcvt(double x, my_gcvt_arg_type type, int width, char * to,
 			len = (int)(end - res);
 		}
 
-		if(len == 0) {
+		if(!len) {
 			/* Underflow. Just print '0' and exit */
 			*dst++ = '0';
 			goto end;

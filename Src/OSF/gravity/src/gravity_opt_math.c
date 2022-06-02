@@ -549,7 +549,7 @@ static void lfsr258_init(uint64_t n)
 	static int lfsr258_inited = 0;
 	if(!lfsr258_inited) {
 		lfsr258_inited = 1;
-		if(n == 0) 
+		if(!n) 
 			n = LFSR_GERME;
 		lfsr258_y1 = n; 
 		lfsr258_y2 = n; 
@@ -586,7 +586,7 @@ static void lfsr113_init(uint32 n)
 	static int lfsr113_inited = 0;
 	if(lfsr113_inited) return;
 	lfsr113_inited = 1;
-	if(n == 0) n = LFSR_SEED;
+	if(!n) n = LFSR_SEED;
 	lfsr113_z1 = n; lfsr113_z2 = n; lfsr113_z3 = n; lfsr113_z4 = n;
 }
 

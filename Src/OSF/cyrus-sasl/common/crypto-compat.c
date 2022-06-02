@@ -17,7 +17,7 @@
 static void * OPENSSL_zalloc(size_t num)
 {
 	void * ret = OPENSSL_malloc(num);
-	if(ret != NULL)
+	if(ret)
 		memzero(ret, num);
 	return ret;
 }
@@ -34,7 +34,7 @@ int RSA_set0_key(RSA * r, BIGNUM * n, BIGNUM * e, BIGNUM * d)
 		BN_free(r->n);
 		r->n = n;
 	}
-	if(e != NULL) {
+	if(e) {
 		BN_free(r->e);
 		r->e = e;
 	}
@@ -75,11 +75,11 @@ int RSA_set0_crt_params(RSA * r, BIGNUM * dmp1, BIGNUM * dmq1, BIGNUM * iqmp)
 		BN_free(r->dmp1);
 		r->dmp1 = dmp1;
 	}
-	if(dmq1 != NULL) {
+	if(dmq1) {
 		BN_free(r->dmq1);
 		r->dmq1 = dmq1;
 	}
-	if(iqmp != NULL) {
+	if(iqmp) {
 		BN_free(r->iqmp);
 		r->iqmp = iqmp;
 	}
@@ -90,7 +90,7 @@ void RSA_get0_key(const RSA * r, const BIGNUM ** n, const BIGNUM ** e, const BIG
 {
 	if(n)
 		*n = r->n;
-	if(e != NULL)
+	if(e)
 		*e = r->e;
 	if(d)
 		*d = r->d;
@@ -108,9 +108,9 @@ void RSA_get0_crt_params(const RSA * r, const BIGNUM ** dmp1, const BIGNUM ** dm
 {
 	if(dmp1)
 		*dmp1 = r->dmp1;
-	if(dmq1 != NULL)
+	if(dmq1)
 		*dmq1 = r->dmq1;
-	if(iqmp != NULL)
+	if(iqmp)
 		*iqmp = r->iqmp;
 }
 
@@ -148,9 +148,9 @@ int DSA_set0_pqg(DSA * d, BIGNUM * p, BIGNUM * q, BIGNUM * g)
 
 void DSA_get0_key(const DSA * d, const BIGNUM ** pub_key, const BIGNUM ** priv_key)
 {
-	if(pub_key != NULL)
+	if(pub_key)
 		*pub_key = d->pub_key;
-	if(priv_key != NULL)
+	if(priv_key)
 		*priv_key = d->priv_key;
 }
 
@@ -162,12 +162,11 @@ int DSA_set0_key(DSA * d, BIGNUM * pub_key, BIGNUM * priv_key)
 	 */
 	if(d->pub_key == NULL && pub_key == NULL)
 		return 0;
-
-	if(pub_key != NULL) {
+	if(pub_key) {
 		BN_free(d->pub_key);
 		d->pub_key = pub_key;
 	}
-	if(priv_key != NULL) {
+	if(priv_key) {
 		BN_free(d->priv_key);
 		d->priv_key = priv_key;
 	}
@@ -177,9 +176,9 @@ int DSA_set0_key(DSA * d, BIGNUM * pub_key, BIGNUM * priv_key)
 
 void DSA_SIG_get0(const DSA_SIG * sig, const BIGNUM ** pr, const BIGNUM ** ps)
 {
-	if(pr != NULL)
+	if(pr)
 		*pr = sig->r;
-	if(ps != NULL)
+	if(ps)
 		*ps = sig->s;
 }
 
@@ -196,9 +195,9 @@ int DSA_SIG_set0(DSA_SIG * sig, BIGNUM * r, BIGNUM * s)
 
 void ECDSA_SIG_get0(const ECDSA_SIG * sig, const BIGNUM ** pr, const BIGNUM ** ps)
 {
-	if(pr != NULL)
+	if(pr)
 		*pr = sig->r;
-	if(ps != NULL)
+	if(ps)
 		*ps = sig->s;
 }
 
@@ -255,9 +254,9 @@ int DH_set0_pqg(DH * dh, BIGNUM * p, BIGNUM * q, BIGNUM * g)
 
 void DH_get0_key(const DH * dh, const BIGNUM ** pub_key, const BIGNUM ** priv_key)
 {
-	if(pub_key != NULL)
+	if(pub_key)
 		*pub_key = dh->pub_key;
-	if(priv_key != NULL)
+	if(priv_key)
 		*priv_key = dh->priv_key;
 }
 
@@ -270,11 +269,11 @@ int DH_set0_key(DH * dh, BIGNUM * pub_key, BIGNUM * priv_key)
 	if(dh->pub_key == NULL && pub_key == NULL)
 		return 0;
 
-	if(pub_key != NULL) {
+	if(pub_key) {
 		BN_free(dh->pub_key);
 		dh->pub_key = pub_key;
 	}
-	if(priv_key != NULL) {
+	if(priv_key) {
 		BN_free(dh->priv_key);
 		dh->priv_key = priv_key;
 	}
@@ -321,11 +320,8 @@ void EVP_ENCODE_CTX_free(EVP_ENCODE_CTX * ctx)
 
 RSA_METHOD * RSA_meth_dup(const RSA_METHOD * meth)
 {
-	RSA_METHOD * ret;
-
-	ret = OPENSSL_malloc(sizeof(RSA_METHOD));
-
-	if(ret != NULL) {
+	RSA_METHOD * ret = OPENSSL_malloc(sizeof(RSA_METHOD));
+	if(ret) {
 		memcpy(ret, meth, sizeof(*meth));
 		ret->name = OPENSSL_strdup(meth->name);
 		if(ret->name == NULL) {
@@ -378,7 +374,7 @@ int RSA_meth_set_finish(RSA_METHOD * meth, int (*finish)(RSA * rsa))
 
 void RSA_meth_free(RSA_METHOD * meth)
 {
-	if(meth != NULL) {
+	if(meth) {
 		OPENSSL_free((char *)meth->name);
 		OPENSSL_free(meth);
 	}
@@ -400,7 +396,7 @@ RSA * EVP_PKEY_get0_RSA(EVP_PKEY * pkey)
 HMAC_CTX * HMAC_CTX_new(void)
 {
 	HMAC_CTX * ctx = OPENSSL_malloc(sizeof(*ctx));
-	if(ctx != NULL) {
+	if(ctx) {
 		if(!HMAC_CTX_reset(ctx)) {
 			HMAC_CTX_free(ctx);
 			return NULL;
@@ -411,7 +407,7 @@ HMAC_CTX * HMAC_CTX_new(void)
 
 void HMAC_CTX_free(HMAC_CTX * ctx)
 {
-	if(ctx != NULL) {
+	if(ctx) {
 		HMAC_CTX_cleanup(ctx);
 		OPENSSL_free(ctx);
 	}

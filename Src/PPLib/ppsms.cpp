@@ -477,7 +477,7 @@ PPAutoSmsConfig::PPAutoSmsConfig() : AllowedWeekDays(0), Reserve2(0), AllowedSta
 	MEMSZERO(Reserve);
 }
 
-int PPAutoSmsConfig::IsEmpty() const { return TddoPath.IsEmpty() || !AllowedWeekDays || !AllowedStartTm || !AllowedEndTm; }
+bool PPAutoSmsConfig::IsEmpty() const { return (TddoPath.IsEmpty() && !AllowedWeekDays && !AllowedStartTm && !AllowedEndTm); }
 
 int PPAutoSmsConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {

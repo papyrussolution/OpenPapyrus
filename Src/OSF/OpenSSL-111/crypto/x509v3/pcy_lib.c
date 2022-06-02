@@ -73,7 +73,7 @@ X509_POLICY_NODE * X509_policy_level_get0_node(X509_POLICY_LEVEL * level, int i)
 	if(!level)
 		return NULL;
 	if(level->anyPolicy) {
-		if(i == 0)
+		if(!i)
 			return level->anyPolicy;
 		i--;
 	}

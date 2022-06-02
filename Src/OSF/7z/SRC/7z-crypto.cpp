@@ -906,37 +906,29 @@ namespace NCrypto {
 		void CData::CryptBlock(Byte * buf, bool encrypt)
 		{
 			Byte inBuf[16];
-			uint32 A, B, C, D;
-
-			A = GetUi32(buf +  0) ^ Keys[0];
-			B = GetUi32(buf +  4) ^ Keys[1];
-			C = GetUi32(buf +  8) ^ Keys[2];
-			D = GetUi32(buf + 12) ^ Keys[3];
-
+			uint32 A = GetUi32(buf +  0) ^ Keys[0];
+			uint32 B = GetUi32(buf +  4) ^ Keys[1];
+			uint32 C = GetUi32(buf +  8) ^ Keys[2];
+			uint32 D = GetUi32(buf + 12) ^ Keys[3];
 			if(!encrypt)
 				memcpy(inBuf, buf, sizeof(inBuf));
-
 			for(uint i = 0; i < kNumRounds; i++) {
 				uint32 key = Keys[(encrypt ? i : (kNumRounds - 1 - i)) & 3];
-				uint32 TA = A ^ SubstLong((C + rotlFixed(D, 11)) ^ key);
-				uint32 TB = B ^ SubstLong((D ^ rotlFixed(C, 17)) + key);
+				uint32 TA = A ^ SubstLong((C + /*rotlFixed*/slrotl32(D, 11)) ^ key);
+				uint32 TB = B ^ SubstLong((D ^ /*rotlFixed*/slrotl32(C, 17)) + key);
 				A = C; C = TA;
 				B = D; D = TB;
 			}
-
 			SetUi32(buf +  0, C ^ Keys[0]);
 			SetUi32(buf +  4, D ^ Keys[1]);
 			SetUi32(buf +  8, A ^ Keys[2]);
 			SetUi32(buf + 12, B ^ Keys[3]);
-
 			UpdateKeys(encrypt ? buf : inBuf);
 		}
-
 		STDMETHODIMP CDecoder::Init()
 		{
 			return S_OK;
 		}
-
 		static const uint32 kBlockSize = 16;
 
 		STDMETHODIMP_(uint32) CDecoder::Filter(Byte *data, uint32 size)

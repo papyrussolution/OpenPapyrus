@@ -449,13 +449,13 @@ static unsigned char * create_nonce(const sasl_utils_t * utils)
 {
 	unsigned char  * base64buf;
 	int base64len;
-	char * ret = (char *)utils->malloc(NONCE_SIZE);
+	char * ret = (char *)utils->FnMalloc(NONCE_SIZE);
 	if(ret == NULL)
 		return NULL;
 	utils->rand(utils->rpool, (char *)ret, NONCE_SIZE);
 	/* base 64 encode it so it has valid chars */
 	base64len = (NONCE_SIZE * 4 / 3) + (NONCE_SIZE % 3 ? 4 : 0);
-	base64buf = (unsigned char *)utils->malloc(base64len + 1);
+	base64buf = (unsigned char *)utils->FnMalloc(base64len + 1);
 	if(base64buf == NULL) {
 		utils->seterror(utils->conn, 0, "Unable to allocate final buffer");
 		return NULL;
@@ -464,10 +464,10 @@ static unsigned char * create_nonce(const sasl_utils_t * utils)
 	 * Returns SASL_OK on success, SASL_BUFOVER if result won't fit
 	 */
 	if(utils->encode64(ret, NONCE_SIZE, (char *)base64buf, base64len, NULL) != SASL_OK) {
-		utils->free(ret);
+		utils->FnFree(ret);
 		return NULL;
 	}
-	utils->free(ret);
+	utils->FnFree(ret);
 	return base64buf;
 }
 
@@ -551,7 +551,7 @@ static char * skip_r_lws(char * s)
 	if(!s) return NULL;
 
 	len = strlen(s);
-	if(len == 0) return NULL;
+	if(!len) return NULL;
 
 	/* the last character before terminating NUL */
 	end = s + len - 1;
@@ -691,20 +691,17 @@ static char * quote(char * str)
 	char * outp;
 	char * result;
 	int num_to_escape; /* How many characters need escaping */
-
-	if(!str) return NULL;
-
+	if(!str) 
+		return NULL;
 	num_to_escape = 0;
 	p = strpbrk(str, NEED_ESCAPING);
 	while(p != NULL) {
 		num_to_escape++;
 		p = strpbrk(p + 1, NEED_ESCAPING);
 	}
-
 	if(num_to_escape == 0) {
-		return (strdup(str));
+		return (sstrdup(str));
 	}
-
 	result = (char *)malloc(strlen(str) + num_to_escape + 1);
 	if(!result) {
 		return NULL;
@@ -911,7 +908,7 @@ static int init_3des(context_t * text,
 	unsigned char keybuf[8];
 
 	/* allocate enc & dec context */
-	c = (des_context_t*)text->utils->malloc(2 * sizeof(des_context_t));
+	c = (des_context_t*)text->utils->FnMalloc(2 * sizeof(des_context_t));
 	if(c == NULL) return SASL_NOMEM;
 
 	/* setup enc context */
@@ -1034,7 +1031,7 @@ static int init_des(context_t * text,
 	unsigned char keybuf[8];
 
 	/* allocate enc context */
-	c = (des_context_t*)text->utils->malloc(2 * sizeof(des_context_t));
+	c = (des_context_t*)text->utils->FnMalloc(2 * sizeof(des_context_t));
 	if(c == NULL) return SASL_NOMEM;
 
 	/* setup enc context */
@@ -1061,7 +1058,7 @@ static void free_des(context_t * text)
 {
 	/* free des contextss. only cipher_enc_context needs to be free'd,
 	   since cipher_dec_context was allocated at the same time. */
-	if(text->cipher_enc_context) text->utils->free(text->cipher_enc_context);
+	if(text->cipher_enc_context) text->utils->FnFree(text->cipher_enc_context);
 }
 
 #endif /* WITH_DES */
@@ -1281,11 +1278,11 @@ static void free_rc4(context_t * text)
 	/* free rc4 context structures */
 
 	if(text->cipher_enc_context) {
-		text->utils->free(text->cipher_enc_context);
+		text->utils->FnFree(text->cipher_enc_context);
 		text->cipher_enc_context = NULL;
 	}
 	if(text->cipher_dec_context) {
-		text->utils->free(text->cipher_dec_context);
+		text->utils->FnFree(text->cipher_dec_context);
 		text->cipher_dec_context = NULL;
 	}
 }
@@ -1296,11 +1293,11 @@ static int init_rc4(context_t * text,
 {
 	/* allocate rc4 context structures */
 	text->cipher_enc_context =
-	    (cipher_context_t*)text->utils->malloc(sizeof(rc4_context_t));
+	    (cipher_context_t*)text->utils->FnMalloc(sizeof(rc4_context_t));
 	if(text->cipher_enc_context == NULL) return SASL_NOMEM;
 
 	text->cipher_dec_context =
-	    (cipher_context_t*)text->utils->malloc(sizeof(rc4_context_t));
+	    (cipher_context_t*)text->utils->FnMalloc(sizeof(rc4_context_t));
 	if(text->cipher_dec_context == NULL) return SASL_NOMEM;
 
 	/* initialize them */
@@ -1636,48 +1633,48 @@ static void digestmd5_common_mech_dispose(void * conn_context, const sasl_utils_
 	if(!text || !utils) 
 		return;
 	utils->log(utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 common mech dispose");
-	if(text->authid) utils->free(text->authid);
-	if(text->realm) utils->free(text->realm);
+	if(text->authid) utils->FnFree(text->authid);
+	if(text->realm) utils->FnFree(text->realm);
 	if(text->realms) {
 		/* need to free all the realms */
 		for(lup = 0; lup < text->realm_cnt; lup++)
-			utils->free(text->realms[lup]);
+			utils->FnFree(text->realms[lup]);
 
-		utils->free(text->realms);
+		utils->FnFree(text->realms);
 	}
 
-	if(text->nonce) utils->free(text->nonce);
-	if(text->cnonce) utils->free(text->cnonce);
+	if(text->nonce) utils->FnFree(text->nonce);
+	if(text->cnonce) utils->FnFree(text->cnonce);
 
 	if(text->cipher_free) text->cipher_free(text);
 
 	/* free the stuff in the context */
-	if(text->response_value) utils->free(text->response_value);
+	if(text->response_value) utils->FnFree(text->response_value);
 
 	_plug_decode_free(&text->decode_context);
-	if(text->encode_buf) utils->free(text->encode_buf);
-	if(text->decode_buf) utils->free(text->decode_buf);
-	if(text->decode_packet_buf) utils->free(text->decode_packet_buf);
-	if(text->out_buf) utils->free(text->out_buf);
+	if(text->encode_buf) utils->FnFree(text->encode_buf);
+	if(text->decode_buf) utils->FnFree(text->decode_buf);
+	if(text->decode_packet_buf) utils->FnFree(text->decode_packet_buf);
+	if(text->out_buf) utils->FnFree(text->out_buf);
 
 	if(text->enc_in_buf) {
-		if(text->enc_in_buf->data) utils->free(text->enc_in_buf->data);
-		utils->free(text->enc_in_buf);
+		if(text->enc_in_buf->data) utils->FnFree(text->enc_in_buf->data);
+		utils->FnFree(text->enc_in_buf);
 	}
 
-	utils->free(conn_context);
+	utils->FnFree(conn_context);
 }
 
 static void clear_reauth_entry(reauth_entry_t * reauth, enum Context_type type,
     const sasl_utils_t * utils)
 {
 	if(!reauth) return;
-	if(reauth->authid) utils->free(reauth->authid);
-	if(reauth->realm) utils->free(reauth->realm);
-	if(reauth->nonce) utils->free(reauth->nonce);
-	if(reauth->cnonce) utils->free(reauth->cnonce);
+	if(reauth->authid) utils->FnFree(reauth->authid);
+	if(reauth->realm) utils->FnFree(reauth->realm);
+	if(reauth->nonce) utils->FnFree(reauth->nonce);
+	if(reauth->cnonce) utils->FnFree(reauth->cnonce);
 	if(type == CLIENT) {
-		if(reauth->u.c.serverFQDN) utils->free(reauth->u.c.serverFQDN);
+		if(reauth->u.c.serverFQDN) utils->FnFree(reauth->u.c.serverFQDN);
 	}
 	memzero(reauth, sizeof(reauth_entry_t));
 }
@@ -1696,14 +1693,14 @@ static void digestmd5_common_mech_free(void * glob_context,
 	for(n = 0; n < reauth_cache->size; n++) {
 		clear_reauth_entry(&reauth_cache->e[n], reauth_cache->i_am, utils);
 	}
-	if(reauth_cache->e) utils->free(reauth_cache->e);
+	if(reauth_cache->e) utils->FnFree(reauth_cache->e);
 
 	if(reauth_cache->mutex) {
 		utils->mutex_free(reauth_cache->mutex);
 		reauth_cache->mutex = NULL;
 	}
 
-	utils->free(reauth_cache);
+	utils->FnFree(reauth_cache);
 }
 
 /*****************************  Server Section  *****************************/
@@ -1812,14 +1809,13 @@ static char * create_response(context_t * text,
 	    Response            /* request-digest or response-digest */
 	    );
 
-	result = (char *)utils->malloc(HASHHEXLEN + 1);
+	result = (char *)utils->FnMalloc(HASHHEXLEN + 1);
 	memcpy(result, Response, HASHHEXLEN);
 	result[HASHHEXLEN] = 0;
 
 	/* Calculate response value for mutual auth with the client (NO Method) */
 	if(response_value != NULL) {
 		char * new_response_value;
-
 		DigestCalcResponse(utils,
 		    SessionKey,         /* HEX(H(A1)) */
 		    nonce,              /* nonce from server */
@@ -1833,7 +1829,7 @@ static char * create_response(context_t * text,
 		    Response            /* request-digest or response-digest */
 		    );
 
-		new_response_value = (char *)utils->realloc(*response_value, HASHHEXLEN + 1);
+		new_response_value = (char *)utils->FnRealloc(*response_value, HASHHEXLEN + 1);
 		if(new_response_value == NULL) {
 			free(*response_value);
 			*response_value = NULL;
@@ -1926,7 +1922,7 @@ static int digestmd5_server_mech_new(void * glob_context,
     void ** conn_context)
 {
 	/* holds state are in -- allocate server size */
-	context_t * text = (context_t *)sparams->utils->malloc(sizeof(server_context_t));
+	context_t * text = (context_t *)sparams->utils->FnMalloc(sizeof(server_context_t));
 	if(text == NULL)
 		return SASL_NOMEM;
 	memzero((server_context_t*)text, sizeof(server_context_t));
@@ -2242,7 +2238,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		request = &rfc2831_request;
 	}
 
-	in = (char *)sparams->utils->malloc(clientinlen + 1);
+	in = (char *)sparams->utils->FnMalloc(clientinlen + 1);
 
 	memcpy(in, clientin, clientinlen);
 	in[clientinlen] = 0;
@@ -2254,7 +2250,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		char           * name = NULL, * value = NULL;
 		get_pair(&in, &name, &value);
 
-		if(name == NULL) {
+		if(!name) {
 			SETERROR(sparams->utils,
 			    "Parse error");
 			result = SASL_BADAUTH;
@@ -2526,7 +2522,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		    (text->realm[0] != 0)) {
 			client_ignores_realm = 1;
 			sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG, "The client tries to override server provided realm");
-			if(text->realm) sparams->utils->free(text->realm);
+			if(text->realm) sparams->utils->FnFree(text->realm);
 			_plug_strdup(sparams->utils, realm, &text->realm, NULL);
 		}
 
@@ -2572,7 +2568,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 			_plug_strdup(sparams->utils, username, &full_username, NULL);
 		}
 		else {
-			full_username = (char *)sparams->utils->malloc(strlen(username) +
+			full_username = (char *)sparams->utils->FnMalloc(strlen(username) +
 				strlen(text->realm) + 2);
 			full_username[0] = '\0';
 			sprintf(full_username, "%s@%s", username, text->realm);
@@ -2625,12 +2621,12 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 
 	if(auxprop_values[0].name && auxprop_values[0].values) {
 		len = strlen(auxprop_values[0].values[0]);
-		if(len == 0) {
+		if(!len) {
 			sparams->utils->seterror(sparams->utils->conn, 0, "empty secret");
 			result = SASL_FAIL;
 			goto FreeAllMem;
 		}
-		sec = (sasl_secret_t *)sparams->utils->malloc(sizeof(sasl_secret_t) + len);
+		sec = (sasl_secret_t *)sparams->utils->FnMalloc(sizeof(sasl_secret_t) + len);
 		if(!sec) {
 			SETERROR(sparams->utils, "unable to allocate secret");
 			result = SASL_FAIL;
@@ -2777,7 +2773,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 	/* if ok verified */
 	if(strcmp(serverresponse, response) != 0) {
 		if(Try_8859_1) {
-			sparams->utils->free(serverresponse);
+			sparams->utils->FnFree(serverresponse);
 			serverresponse = create_response(text,
 				sparams->utils,
 				nonce,
@@ -2976,32 +2972,32 @@ FreeAllMem:
 	}
 
 	/* free everything */
-	if(in_start) sparams->utils->free(in_start);
+	if(in_start) sparams->utils->FnFree(in_start);
 
 	if(full_username != NULL)
-		sparams->utils->free(full_username);
+		sparams->utils->FnFree(full_username);
 	if(username)
-		sparams->utils->free(username);
+		sparams->utils->FnFree(username);
 	if(authorization_id != NULL)
-		sparams->utils->free(authorization_id);
+		sparams->utils->FnFree(authorization_id);
 	if(realm != NULL)
-		sparams->utils->free(realm);
+		sparams->utils->FnFree(realm);
 	if(nonce != NULL)
-		sparams->utils->free(nonce);
+		sparams->utils->FnFree(nonce);
 	if(cnonce != NULL)
-		sparams->utils->free(cnonce);
+		sparams->utils->FnFree(cnonce);
 	if(response != NULL)
-		sparams->utils->free(response);
+		sparams->utils->FnFree(response);
 	if(cipher != NULL)
-		sparams->utils->free(cipher);
+		sparams->utils->FnFree(cipher);
 	if(serverresponse != NULL)
-		sparams->utils->free(serverresponse);
+		sparams->utils->FnFree(serverresponse);
 	if(charset != NULL)
-		sparams->utils->free(charset);
+		sparams->utils->FnFree(charset);
 	if(digesturi != NULL)
-		sparams->utils->free(digesturi);
+		sparams->utils->FnFree(digesturi);
 	if(qop!=NULL)
-		sparams->utils->free(qop);
+		sparams->utils->FnFree(qop);
 	if(sec)
 		_plug_free_secret(sparams->utils, &sec);
 
@@ -3059,8 +3055,8 @@ static int digestmd5_server_mech_step(void * conn_context,
 			    sparams->utils->log(NULL, SASL_LOG_WARN, "DIGEST-MD5 reauth failed\n");
 			    /* re-initialize everything for a fresh start */
 			    memzero(oparams, sizeof(sasl_out_params_t));
-			    if(text->nonce) sparams->utils->free(text->nonce);
-			    if(text->realm) sparams->utils->free(text->realm);
+			    if(text->nonce) sparams->utils->FnFree(text->nonce);
+			    if(text->realm) sparams->utils->FnFree(text->realm);
 			    text->realm = NULL;
 			    text->nonce = NULL;
 
@@ -3122,7 +3118,7 @@ int digestmd5_server_plug_init(const sasl_utils_t * utils, int maxversion, int *
 		return SASL_BADVERS;
 	}
 	/* reauth cache */
-	reauth_cache = (reauth_cache_t *)utils->malloc(sizeof(reauth_cache_t));
+	reauth_cache = (reauth_cache_t *)utils->FnMalloc(sizeof(reauth_cache_t));
 	if(reauth_cache == NULL) {
 		return SASL_NOMEM;
 	}
@@ -3141,16 +3137,16 @@ int digestmd5_server_plug_init(const sasl_utils_t * utils, int maxversion, int *
 		/* mutex */
 		reauth_cache->mutex = utils->mutex_alloc();
 		if(!reauth_cache->mutex) {
-			utils->free(reauth_cache);
+			utils->FnFree(reauth_cache);
 			return SASL_FAIL;
 		}
 
 		/* entries */
 		reauth_cache->size = 100;
-		reauth_cache->e = (reauth_entry_t *)utils->malloc(reauth_cache->size * sizeof(reauth_entry_t));
+		reauth_cache->e = (reauth_entry_t *)utils->FnMalloc(reauth_cache->size * sizeof(reauth_entry_t));
 		if(reauth_cache->e == NULL) {
 			utils->mutex_free(reauth_cache->mutex);
-			utils->free(reauth_cache);
+			utils->FnFree(reauth_cache);
 			return SASL_NOMEM;
 		}
 		memzero(reauth_cache->e, reauth_cache->size * sizeof(reauth_entry_t));
@@ -3311,7 +3307,7 @@ static char * calculate_response(context_t * text,
 	    Response            /* request-digest or response-digest */
 	    );
 
-	result = (char *)utils->malloc(HASHHEXLEN + 1);
+	result = (char *)utils->FnMalloc(HASHHEXLEN + 1);
 	memcpy(result, Response, HASHHEXLEN);
 	result[HASHHEXLEN] = 0;
 
@@ -3331,7 +3327,7 @@ static char * calculate_response(context_t * text,
 		    Response            /* request-digest or response-digest */
 		    );
 
-		new_response_value = (char *)utils->realloc(*response_value, HASHHEXLEN + 1);
+		new_response_value = (char *)utils->FnRealloc(*response_value, HASHHEXLEN + 1);
 		if(new_response_value == NULL) {
 			free(*response_value);
 			*response_value = NULL;
@@ -3405,7 +3401,7 @@ static int make_client_response(context_t * text,
 	}
 	else {
 		/* per RFC 2831 */
-		digesturi = (char *)params->utils->malloc(strlen(params->service) + 1 + strlen(params->serverFQDN) + 1 + 1);
+		digesturi = (char *)params->utils->FnMalloc(strlen(params->service) + 1 + strlen(params->serverFQDN) + 1 + 1);
 		if(digesturi == NULL) {
 			result = SASL_NOMEM;
 			goto FreeAllocatedMem;
@@ -3445,7 +3441,7 @@ static int make_client_response(context_t * text,
 		&text->response_value);
 
 	resplen = 0;
-	if(text->out_buf) params->utils->free(text->out_buf);
+	if(text->out_buf) params->utils->FnFree(text->out_buf);
 	text->out_buf = NULL;
 	text->out_buf_len = 0;
 	if(add_to_challenge(params->utils,
@@ -3608,8 +3604,8 @@ static int make_client_response(context_t * text,
 	result = SASL_OK;
 
 FreeAllocatedMem:
-	if(digesturi) params->utils->free(digesturi);
-	if(response) params->utils->free(response);
+	if(digesturi) params->utils->FnFree(digesturi);
+	if(response) params->utils->FnFree(response);
 
 	return result;
 }
@@ -3638,7 +3634,7 @@ static int parse_server_challenge(client_context_t * ctext,
 		params->utils->seterror(params->utils->conn, 0, "no server challenge");
 		return SASL_FAIL;
 	}
-	in_start = in = (char *)params->utils->malloc(serverinlen + 1);
+	in_start = in = (char *)params->utils->FnMalloc(serverinlen + 1);
 	if(in == NULL) return SASL_NOMEM;
 
 	memcpy(in, serverin, serverinlen);
@@ -3662,7 +3658,7 @@ static int parse_server_challenge(client_context_t * ctext,
 		get_pair(&in, &name, &value);
 
 		/* if parse error */
-		if(name == NULL) {
+		if(!name) {
 			params->utils->seterror(params->utils->conn, 0, "Parse error");
 			result = SASL_BADAUTH;
 			goto FreeAllocatedMem;
@@ -3675,9 +3671,9 @@ static int parse_server_challenge(client_context_t * ctext,
 		if(strcasecmp(name, "realm") == 0) {
 			nrealm++;
 			if(!realms)
-				realms = (char **)params->utils->malloc(sizeof(char *) * (nrealm + 1));
+				realms = (char **)params->utils->FnMalloc(sizeof(char *) * (nrealm + 1));
 			else
-				realms = (char **)params->utils->realloc(realms, sizeof(char *) * (nrealm + 1));
+				realms = (char **)params->utils->FnRealloc(realms, sizeof(char *) * (nrealm + 1));
 			if(realms == NULL) {
 				result = SASL_NOMEM;
 				goto FreeAllocatedMem;
@@ -4001,16 +3997,16 @@ SKIP_SPACES_IN_CIPHER:
 	*noutrealm = nrealm;
 
 FreeAllocatedMem:
-	if(in_start) params->utils->free(in_start);
+	if(in_start) params->utils->FnFree(in_start);
 
 	if(result != SASL_OK && realms) {
 		int lup;
 
 		/* need to free all the realms */
 		for(lup = 0; lup < nrealm; lup++)
-			params->utils->free(realms[lup]);
+			params->utils->FnFree(realms[lup]);
 
-		params->utils->free(realms);
+		params->utils->FnFree(realms);
 	}
 
 	return result;
@@ -4088,7 +4084,7 @@ static int ask_user_info(client_context_t * ctext,
 
 	/* free prompts we got */
 	if(prompt_need && *prompt_need) {
-		params->utils->free(*prompt_need);
+		params->utils->FnFree(*prompt_need);
 		*prompt_need = NULL;
 	}
 
@@ -4102,7 +4098,7 @@ static int ask_user_info(client_context_t * ctext,
 				for(i = 0; i < nrealm; i++) {
 					len += strlen(realms[i]) + 4 /* " {}," */;
 				}
-				realm_chal = (char *)params->utils->malloc(len + 1);
+				realm_chal = (char *)params->utils->FnMalloc(len + 1);
 				strcpy(realm_chal, REALM_CHAL_PREFIX);
 				for(i = 0; i < nrealm; i++) {
 					strcat(realm_chal, " {");
@@ -4113,7 +4109,7 @@ static int ask_user_info(client_context_t * ctext,
 				realm_chal[len-1] = '.';
 			}
 			else if(params->serverFQDN) {
-				realm_chal = (char *)params->utils->malloc(3+strlen(params->serverFQDN));
+				realm_chal = (char *)params->utils->FnMalloc(3+strlen(params->serverFQDN));
 				if(realm_chal) {
 					sprintf(realm_chal, "{%s}", params->serverFQDN);
 				}
@@ -4180,7 +4176,7 @@ static int digestmd5_client_mech_new(void * glob_context,
 		return SASL_BADPARAM;
 	}
 	/* holds state are in -- allocate client size */
-	text = (context_t *)params->utils->malloc(sizeof(client_context_t));
+	text = (context_t *)params->utils->FnMalloc(sizeof(client_context_t));
 	if(text == NULL)
 		return SASL_NOMEM;
 	memzero((client_context_t*)text, sizeof(client_context_t));
@@ -4215,7 +4211,7 @@ static int digestmd5_client_mech_step1(client_context_t * ctext,
 		    params->serverFQDN) &&
 		    !strcmp(text->reauth->e[val].authid, oparams->authid)) {
 			/* we have info, so use it */
-			if(text->realm) params->utils->free(text->realm);
+			if(text->realm) params->utils->FnFree(text->realm);
 			_plug_strdup(params->utils, text->reauth->e[val].realm,
 			    &text->realm, NULL);
 			_plug_strdup(params->utils, (char *)text->reauth->e[val].nonce,
@@ -4286,11 +4282,11 @@ static int digestmd5_client_mech_step2(client_context_t * ctext,
 		if(result != SASL_OK) goto FreeAllocatedMem;
 		if(nrealm == 1) {
 			/* only one choice! */
-			if(text->realm) params->utils->free(text->realm);
+			if(text->realm) params->utils->FnFree(text->realm);
 			text->realm = realms[0];
 
 			/* free realms */
-			params->utils->free(realms);
+			params->utils->FnFree(realms);
 			realms = NULL;
 		}
 		else {
@@ -4343,7 +4339,7 @@ static int digestmd5_client_mech_step3(client_context_t * ctext,
 	int result = SASL_FAIL;
 	params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 client step 3");
 	/* Verify that server is really what he claims to be */
-	in_start = in = (char *)params->utils->malloc(serverinlen + 1);
+	in_start = in = (char *)params->utils->FnMalloc(serverinlen + 1);
 	if(in == NULL) return SASL_NOMEM;
 	memcpy(in, serverin, serverinlen);
 	in[serverinlen] = 0;
@@ -4352,7 +4348,7 @@ static int digestmd5_client_mech_step3(client_context_t * ctext,
 		char * name, * value;
 		get_pair(&in, &name, &value);
 
-		if(name == NULL) {
+		if(!name) {
 			params->utils->seterror(params->utils->conn, 0,
 			    "DIGEST-MD5 Received Garbage");
 			result = SASL_BADAUTH;
@@ -4380,7 +4376,7 @@ static int digestmd5_client_mech_step3(client_context_t * ctext,
 			params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 unrecognized pair %s/%s: ignoring", name, value);
 		}
 	}
-	params->utils->free(in_start);
+	params->utils->FnFree(in_start);
 	if(params->utils->mutex_lock(text->reauth->mutex) == SASL_OK) { /* LOCK */
 		unsigned val = hash(params->serverFQDN) % text->reauth->size;
 		switch(result) {
@@ -4487,9 +4483,9 @@ static int digestmd5_client_mech_step(void * conn_context,
 			    params->utils->mutex_unlock(text->reauth->mutex); /* UNLOCK */
 		    }
 
-		    if(text->realm) params->utils->free(text->realm);
-		    if(text->nonce) params->utils->free(text->nonce);
-		    if(text->cnonce) params->utils->free(text->cnonce);
+		    if(text->realm) params->utils->FnFree(text->realm);
+		    if(text->nonce) params->utils->FnFree(text->nonce);
+		    if(text->cnonce) params->utils->FnFree(text->cnonce);
 		    text->realm = NULL;
 		    text->nonce = text->cnonce = NULL;
 		    ctext->cipher = NULL;
@@ -4524,8 +4520,8 @@ static void digestmd5_client_mech_dispose(void * conn_context, const sasl_utils_
 	if(!ctext || !utils) return;
 	utils->log(utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 client mech dispose");
 	if(ctext->free_password) _plug_free_secret(utils, &ctext->password);
-	if(ctext->algorithm) utils->free(ctext->algorithm);
-	if(ctext->opaque) utils->free(ctext->opaque);
+	if(ctext->algorithm) utils->FnFree(ctext->algorithm);
+	if(ctext->opaque) utils->FnFree(ctext->opaque);
 	digestmd5_common_mech_dispose(conn_context, utils);
 }
 
@@ -4564,7 +4560,7 @@ int digestmd5_client_plug_init(const sasl_utils_t * utils, int maxversion, int *
 	if(maxversion < SASL_CLIENT_PLUG_VERSION)
 		return SASL_BADVERS;
 	/* reauth cache */
-	reauth_cache = (reauth_cache_t *)utils->malloc(sizeof(reauth_cache_t));
+	reauth_cache = (reauth_cache_t *)utils->FnMalloc(sizeof(reauth_cache_t));
 	if(reauth_cache == NULL)
 		return SASL_NOMEM;
 	memzero(reauth_cache, sizeof(reauth_cache_t));
@@ -4577,7 +4573,7 @@ int digestmd5_client_plug_init(const sasl_utils_t * utils, int maxversion, int *
 
 	/* entries */
 	reauth_cache->size = 10;
-	reauth_cache->e = (reauth_entry_t *)utils->malloc(reauth_cache->size * sizeof(reauth_entry_t));
+	reauth_cache->e = (reauth_entry_t *)utils->FnMalloc(reauth_cache->size * sizeof(reauth_entry_t));
 	if(reauth_cache->e == NULL)
 		return SASL_NOMEM;
 	memzero(reauth_cache->e, reauth_cache->size * sizeof(reauth_entry_t));

@@ -938,9 +938,7 @@ HTREEITEM FileBrowser::getRootFromFullPath(const generic_string & rootPath) cons
 
 HTREEITEM FileBrowser::findChildNodeFromName(HTREEITEM parent, const generic_string& label) const
 {
-	for(HTREEITEM hItemNode = _treeView.getChildFrom(parent);
-	    hItemNode != NULL;
-	    hItemNode = _treeView.getNextSibling(hItemNode)) {
+	for(HTREEITEM hItemNode = _treeView.getChildFrom(parent); hItemNode != NULL; hItemNode = _treeView.getNextSibling(hItemNode)) {
 		TCHAR textBuffer[MAX_PATH] = { '\0' };
 		TVITEM tvItem;
 		tvItem.mask = TVIF_TEXT;
@@ -948,7 +946,6 @@ HTREEITEM FileBrowser::findChildNodeFromName(HTREEITEM parent, const generic_str
 		tvItem.cchTextMax = MAX_PATH;
 		tvItem.hItem = hItemNode;
 		SendMessage(_treeView.getHSelf(), TVM_GETITEM, 0, reinterpret_cast<LPARAM>(&tvItem));
-
 		if(label == tvItem.pszText) {
 			return hItemNode;
 		}
@@ -1085,9 +1082,7 @@ bool FileBrowser::addToTree(FilesToChange & group, HTREEITEM node)
 		return true;
 	}
 	else {
-		for(HTREEITEM hItemNode = _treeView.getChildFrom(node);
-		    hItemNode != NULL;
-		    hItemNode = _treeView.getNextSibling(hItemNode)) {
+		for(HTREEITEM hItemNode = _treeView.getChildFrom(node); hItemNode != NULL; hItemNode = _treeView.getNextSibling(hItemNode)) {
 			TCHAR textBuffer[MAX_PATH] = { '\0' };
 			TVITEM tvItem;
 			tvItem.mask = TVIF_TEXT;
@@ -1134,9 +1129,7 @@ HTREEITEM FileBrowser::findInTree(const generic_string& rootPath, HTREEITEM node
 		return findChildNodeFromName(node, linarPathArray[0]);
 	}
 	else {
-		for(HTREEITEM hItemNode = _treeView.getChildFrom(node);
-		    hItemNode != NULL;
-		    hItemNode = _treeView.getNextSibling(hItemNode)) {
+		for(HTREEITEM hItemNode = _treeView.getChildFrom(node); hItemNode != NULL; hItemNode = _treeView.getNextSibling(hItemNode)) {
 			TCHAR textBuffer[MAX_PATH] = { '\0' };
 			TVITEM tvItem;
 			tvItem.mask = TVIF_TEXT;
@@ -1168,9 +1161,7 @@ std::vector <HTREEITEM> FileBrowser::findInTree(FilesToChange & group, HTREEITEM
 		return findChildNodesFromNames(node, group._files);
 	}
 	else {
-		for(HTREEITEM hItemNode = _treeView.getChildFrom(node);
-		    hItemNode != NULL;
-		    hItemNode = _treeView.getNextSibling(hItemNode)) {
+		for(HTREEITEM hItemNode = _treeView.getChildFrom(node); hItemNode != NULL; hItemNode = _treeView.getNextSibling(hItemNode)) {
 			TCHAR textBuffer[MAX_PATH] = {'\0'};
 			TVITEM tvItem;
 			tvItem.mask = TVIF_TEXT;

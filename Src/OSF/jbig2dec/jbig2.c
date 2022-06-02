@@ -202,7 +202,7 @@ int jbig2_data_in(Jbig2Ctx * ctx, const uchar * data, size_t size)
 			}
 			buf_size = jbig2_find_buffer_size(size + already);
 			buf = jbig2_new(ctx, byte, buf_size);
-			if(buf == NULL) {
+			if(!buf) {
 				return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to allocate bigger buffer when reading data");
 			}
 			memcpy(buf, ctx->buf + ctx->buf_rd_ix, already);

@@ -659,7 +659,7 @@ static int noecho_fgets(char * buf, int size, FILE * tty)
 
 	p = buf;
 	for(;;) {
-		if(size == 0) {
+		if(!size) {
 			*p = '\0';
 			break;
 		}

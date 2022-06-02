@@ -339,31 +339,29 @@ static void ColouriseCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length
 	sc.Complete();
 }
 
-static bool IsCommentLine(Sci_Position line, Accessor & styler) {
+static bool IsCommentLine(Sci_Position line, Accessor & styler) 
+{
 	Sci_Position pos = styler.LineStart(line);
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
 	for(Sci_Position i = pos; i < eol_pos; i++) {
 		char ch = styler[i];
 		if(ch == '#')
 			return true;
-		else if(ch != ' ' && ch != '\t')
+		else if(!oneof2(ch, ' ', '\t'))
 			return false;
 	}
 	return false;
 }
 
-static void FoldCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int,
-    WordList *[], Accessor & styler) {
+static void FoldCoffeeScriptDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor & styler) 
+{
 	// A simplified version of FoldPyDoc
 	const Sci_Position maxPos = startPos + length;
 	const Sci_Position maxLines = styler.GetLine(maxPos - 1);             // Requested last line
 	const Sci_Position docLines = styler.GetLine(styler.Length() - 1);  // Available last line
-
 	// property fold.coffeescript.comment
 	const bool foldComment = styler.GetPropertyInt("fold.coffeescript.comment") != 0;
-
 	const bool foldCompact = styler.GetPropertyInt("fold.compact") != 0;
-
 	// Backtrack to previous non-blank line so we can determine indent level
 	// for any white space lines
 	// and so we can fix any preceding fold level (which is why we go back

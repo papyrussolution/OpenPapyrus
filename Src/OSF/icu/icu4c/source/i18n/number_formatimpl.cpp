@@ -588,7 +588,7 @@ int32_t NumberFormatterImpl::writeNumber(const MicroProps& micros, DecimalQuanti
 		// Add the fraction digits
 		length += writeFractionDigits(micros, quantity, string, length + index, status);
 
-		if(length == 0) {
+		if(!length) {
 			// Force output of the digit for value 0
 			length += utils::insertDigitFromSymbols(
 				string,

@@ -962,7 +962,7 @@ int CRYPTO_gcm128_aad(GCM128_CONTEXT * ctx, const uchar * aad,
 			--len;
 			n = (n + 1) % 16;
 		}
-		if(n == 0)
+		if(!n)
 			GCM_MUL(ctx);
 		else {
 			ctx->ares = n;
@@ -1025,7 +1025,7 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT * ctx,
 	if(ctx->ares) {
 		/* First call to encrypt finalizes GHASH(AAD) */
 #if defined(GHASH) && !defined(OPENSSL_SMALL_FOOTPRINT)
-		if(len == 0) {
+		if(!len) {
 			GCM_MUL(ctx);
 			ctx->ares = 0;
 			return 0;
@@ -1060,7 +1060,7 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT * ctx,
 					--len;
 					n = (n + 1) % 16;
 				}
-				if(n == 0) {
+				if(!n) {
 					GHASH(ctx, ctx->Xn, mres);
 					mres = 0;
 				}
@@ -1074,7 +1074,7 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT * ctx,
 					--len;
 					n = (n + 1) % 16;
 				}
-				if(n == 0) {
+				if(!n) {
 					GCM_MUL(ctx);
 					mres = 0;
 				}
@@ -1200,7 +1200,7 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT * ctx,
 	}
 #endif
 	for(i = 0; i < len; ++i) {
-		if(n == 0) {
+		if(!n) {
 			(*block)(ctx->Yi.c, ctx->EKi.c, key);
 			++ctr;
 			if(is_endian.little)
@@ -1222,7 +1222,7 @@ int CRYPTO_gcm128_encrypt(GCM128_CONTEXT * ctx,
 #else
 		ctx->Xi.c[n] ^= out[i] = in[i] ^ ctx->EKi.c[n];
 		mres = n = (n + 1) % 16;
-		if(n == 0)
+		if(!n)
 			GCM_MUL(ctx);
 #endif
 	}
@@ -1262,7 +1262,7 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 	if(ctx->ares) {
 		/* First call to decrypt finalizes GHASH(AAD) */
 #if defined(GHASH) && !defined(OPENSSL_SMALL_FOOTPRINT)
-		if(len == 0) {
+		if(!len) {
 			GCM_MUL(ctx);
 			ctx->ares = 0;
 			return 0;
@@ -1297,7 +1297,7 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 					--len;
 					n = (n + 1) % 16;
 				}
-				if(n == 0) {
+				if(!n) {
 					GHASH(ctx, ctx->Xn, mres);
 					mres = 0;
 				}
@@ -1313,7 +1313,7 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 					--len;
 					n = (n + 1) % 16;
 				}
-				if(n == 0) {
+				if(!n) {
 					GCM_MUL(ctx);
 					mres = 0;
 				}
@@ -1443,7 +1443,7 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 #endif
 	for(i = 0; i < len; ++i) {
 		u8 c;
-		if(n == 0) {
+		if(!n) {
 			(*block)(ctx->Yi.c, ctx->EKi.c, key);
 			++ctr;
 			if(is_endian.little)
@@ -1467,7 +1467,7 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 		out[i] = c ^ ctx->EKi.c[n];
 		ctx->Xi.c[n] ^= c;
 		mres = n = (n + 1) % 16;
-		if(n == 0)
+		if(!n)
 			GCM_MUL(ctx);
 #endif
 	}
@@ -1509,7 +1509,7 @@ int CRYPTO_gcm128_encrypt_ctr32(GCM128_CONTEXT * ctx,
 	if(ctx->ares) {
 		/* First call to encrypt finalizes GHASH(AAD) */
 #if defined(GHASH)
-		if(len == 0) {
+		if(!len) {
 			GCM_MUL(ctx);
 			ctx->ares = 0;
 			return 0;
@@ -1541,7 +1541,7 @@ int CRYPTO_gcm128_encrypt_ctr32(GCM128_CONTEXT * ctx,
 			--len;
 			n = (n + 1) % 16;
 		}
-		if(n == 0) {
+		if(!n) {
 			GHASH(ctx, ctx->Xn, mres);
 			mres = 0;
 		}
@@ -1555,7 +1555,7 @@ int CRYPTO_gcm128_encrypt_ctr32(GCM128_CONTEXT * ctx,
 			--len;
 			n = (n + 1) % 16;
 		}
-		if(n == 0) {
+		if(!n) {
 			GCM_MUL(ctx);
 			mres = 0;
 		}
@@ -1675,7 +1675,7 @@ int CRYPTO_gcm128_decrypt_ctr32(GCM128_CONTEXT * ctx,
 	if(ctx->ares) {
 		/* First call to decrypt finalizes GHASH(AAD) */
 #if defined(GHASH)
-		if(len == 0) {
+		if(!len) {
 			GCM_MUL(ctx);
 			ctx->ares = 0;
 			return 0;
@@ -1707,7 +1707,7 @@ int CRYPTO_gcm128_decrypt_ctr32(GCM128_CONTEXT * ctx,
 			--len;
 			n = (n + 1) % 16;
 		}
-		if(n == 0) {
+		if(!n) {
 			GHASH(ctx, ctx->Xn, mres);
 			mres = 0;
 		}
@@ -1723,7 +1723,7 @@ int CRYPTO_gcm128_decrypt_ctr32(GCM128_CONTEXT * ctx,
 			--len;
 			n = (n + 1) % 16;
 		}
-		if(n == 0) {
+		if(!n) {
 			GCM_MUL(ctx);
 			mres = 0;
 		}

@@ -17,7 +17,7 @@ U_NAMESPACE_BEGIN
 
 int64_t CollationRootElements::lastCEWithPrimaryBefore(uint32_t p) const 
 {
-	if(p == 0) {
+	if(!p) {
 		return 0;
 	}
 	U_ASSERT(p > elements[elements[IX_FIRST_PRIMARY_INDEX]]);
@@ -66,7 +66,7 @@ int64_t CollationRootElements::lastCEWithPrimaryBefore(uint32_t p) const
 }
 
 int64_t CollationRootElements::firstCEWithPrimaryAtLeast(uint32_t p) const {
-	if(p == 0) {
+	if(!p) {
 		return 0;
 	}
 	int32_t index = findP(p);
@@ -118,7 +118,7 @@ uint32_t CollationRootElements::getPrimaryBefore(uint32_t p, bool isCompressible
 uint32_t CollationRootElements::getSecondaryBefore(uint32_t p, uint32_t s) const {
 	int32_t index;
 	uint32_t previousSec, sec;
-	if(p == 0) {
+	if(!p) {
 		index = (int32_t)elements[IX_FIRST_SECONDARY_INDEX];
 		// Gap at the beginning of the secondary CE range.
 		previousSec = 0;
@@ -143,7 +143,7 @@ uint32_t CollationRootElements::getTertiaryBefore(uint32_t p, uint32_t s, uint32
 	U_ASSERT((t & ~Collation::ONLY_TERTIARY_MASK) == 0);
 	int32_t index;
 	uint32_t previousTer, secTer;
-	if(p == 0) {
+	if(!p) {
 		if(s == 0) {
 			index = (int32_t)elements[IX_FIRST_TERTIARY_INDEX];
 			// Gap at the beginning of the tertiary CE range.

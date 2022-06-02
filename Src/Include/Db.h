@@ -2039,8 +2039,9 @@ public:
 		attrDbUuid,         // (S_GUID) UUID базы данных (передается как строка в формате S_GUID::fmtIDL)
 		attrUserName,       // Имя пользователя для регистрации в базе данных
 		attrPassword,       // Пароль для регистрации в базе данных (хранится в зашифрованном виде)
-		attrServerUrl       // @v10.9.2 URL хоста, на котором запущен сервер
+		attrServerUrl,      // @v10.9.2 URL хоста, на котором запущен сервер
 	};
+	static const char * GetDefaultDbSymb();
 	DbLoginBlock();
 	DbLoginBlock(const DbLoginBlock & rS);
 	~DbLoginBlock();

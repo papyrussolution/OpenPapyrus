@@ -1581,7 +1581,7 @@ char * SSL_CIPHER_description(const SSL_CIPHER * cipher, char * buf, int len)
 	const char * kx, * au, * enc, * mac;
 	uint32_t alg_mkey, alg_auth, alg_enc, alg_mac;
 	static const char * format = "%-23s %s Kx=%-8s Au=%-4s Enc=%-9s Mac=%-4s\n";
-	if(buf == NULL) {
+	if(!buf) {
 		len = 128;
 		if((buf = static_cast<char *>(OPENSSL_malloc(len))) == NULL) {
 			SSLerr(SSL_F_SSL_CIPHER_DESCRIPTION, ERR_R_MALLOC_FAILURE);

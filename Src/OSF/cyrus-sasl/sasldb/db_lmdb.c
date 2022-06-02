@@ -230,7 +230,7 @@ int _sasldb_getdata(const sasl_utils_t * utils, sasl_conn_t * context, const cha
 cleanup:
 
 	mdb_txn_abort(txn);
-	utils->free(key);
+	utils->FnFree(key);
 
 	return result;
 }
@@ -306,7 +306,7 @@ int _sasldb_putdata(const sasl_utils_t * utils, sasl_conn_t * context, const cha
 	txn = NULL;
 cleanup:
 	mdb_txn_abort(txn);
-	utils->free(key);
+	utils->FnFree(key);
 	return result;
 }
 

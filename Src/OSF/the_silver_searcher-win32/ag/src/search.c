@@ -312,7 +312,7 @@ void search_file(const char * file_full_path)
 		if(hmmap != NULL)
 			CloseHandle(hmmap);
 	}
-	if(buf == NULL) {
+	if(!buf) {
 		FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
 			NULL, GetLastError(), 0, (LPSTR)&buf, 0, NULL);
 		log_err("File %s failed to load: %s.", file_full_path, buf);

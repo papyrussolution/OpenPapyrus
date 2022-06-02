@@ -1073,15 +1073,18 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 						for(uint i = 0; i < R_P.Dbes.GetCount(); i++) {
 							if(R_P.Dbes.GetByPos(i, &dblb)) {
 								if(dblb.GetAttr(DbLoginBlock::attrDbSymb, dbsymb) && dbsymb.NotEmpty()) {
-									PPSession::LimitedDatabaseBlock * p_ldb = DS.LimitedOpenDatabase(dbsymb, PPSession::lodfReference);
-									if(p_ldb) {
-										if(p_ldb->P_Ref) {
-											PPID   user_id = 0;
-											Reference2Tbl::Rec ref_rec;
-											if(p_ldb->P_Ref->SearchName(PPOBJ_USR, &user_id, user_name, &ref_rec) > 0)
-												db_idx_list.add(i+1); // !(+1 in order to avoid zero value)
+									const bool is_default = (dbsymb == DbLoginBlock::GetDefaultDbSymb());
+									if(!is_default || R_P.Dbes.GetCount() == 1) {
+										PPSession::LimitedDatabaseBlock * p_ldb = DS.LimitedOpenDatabase(dbsymb, PPSession::lodfReference);
+										if(p_ldb) {
+											if(p_ldb->P_Ref) {
+												PPID   user_id = 0;
+												Reference2Tbl::Rec ref_rec;
+												if(p_ldb->P_Ref->SearchName(PPOBJ_USR, &user_id, user_name, &ref_rec) > 0)
+													db_idx_list.add(i+1); // !(+1 in order to avoid zero value)
+											}
+											ZDELETE(p_ldb);
 										}
-										ZDELETE(p_ldb);
 									}
 								}
 							}

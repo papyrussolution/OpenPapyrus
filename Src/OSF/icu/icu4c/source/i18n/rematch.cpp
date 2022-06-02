@@ -1161,7 +1161,7 @@ UnicodeString RegexMatcher::group(int32_t groupNum, UErrorCode & status) const {
 
 	status = U_ZERO_ERROR;
 	UChar * buf = result.getBuffer(length);
-	if(buf == NULL) {
+	if(!buf) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 	}
 	else {

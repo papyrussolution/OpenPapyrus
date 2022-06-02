@@ -372,7 +372,7 @@ static CURLcode verify_host(struct Curl_easy * data, CERT_CONTEXT * pCertContext
 	DWORD actual_len = 0;
 	/* Determine the size of the string needed for the cert hostname */
 	DWORD len = cert_get_name_string(data, pCertContextServer, NULL, 0);
-	if(len == 0) {
+	if(!len) {
 		failf(data, "schannel: CertGetNameString() returned no certificate name information");
 		result = CURLE_PEER_FAILED_VERIFICATION;
 		goto cleanup;

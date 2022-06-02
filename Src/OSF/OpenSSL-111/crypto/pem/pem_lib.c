@@ -586,7 +586,7 @@ int PEM_write_bio(BIO * bp, const char * name, const char * header,
 	}
 
 	buf = static_cast<uchar *>(OPENSSL_malloc(PEM_BUFSIZE * 8));
-	if(buf == NULL) {
+	if(!buf) {
 		reason = ERR_R_MALLOC_FAILURE;
 		goto err;
 	}
@@ -895,7 +895,7 @@ int PEM_read_bio_ex(BIO * bp, char ** name_out, char ** header,
 	buf_mem->length = len;
 
 	/* There was no data in the PEM file; avoid malloc(0). */
-	if(len == 0)
+	if(!len)
 		goto end;
 	headerlen = BIO_get_mem_data(headerB, NULL);
 	*header = static_cast<char *>(pem_malloc(headerlen + 1, flags));

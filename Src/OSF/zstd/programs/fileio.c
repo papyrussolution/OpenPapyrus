@@ -505,7 +505,7 @@ static FILE* FIO_openSrcFile(const FIO_prefs_t* const prefs, const char* srcFile
 	}
 	{   
 		FILE* const f = fopen(srcFileName, "rb");
-	    if(f == NULL)
+	    if(!f)
 		    DISPLAYLEVEL(1, "zstd: %s: %s \n", srcFileName, strerror(errno));
 	    return f;
 	}
@@ -582,7 +582,7 @@ static FILE* FIO_openDstFile(FIO_ctx_t* fCtx, FIO_prefs_t* const prefs, const ch
 			f = fdopen(fd, "wb");
 		}
 #endif
-		if(f == NULL) {
+		if(!f) {
 			DISPLAYLEVEL(1, "zstd: %s: %s\n", dstFileName, strerror(errno));
 		}
 		/* An increased buffer size can provide a significant performance boost on some platforms.

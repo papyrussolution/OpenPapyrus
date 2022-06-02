@@ -46,7 +46,7 @@ StringPiece::StringPiece(const StringPiece & x, int32_t pos, int32_t len) {
 
 void StringPiece::set(const char * str) {
 	ptr_ = str;
-	if(str != NULL)
+	if(str)
 		length_ = static_cast<int32_t>(uprv_strlen(str));
 	else
 		length_ = 0;
@@ -99,7 +99,7 @@ U_EXPORT bool U_EXPORT2 operator == (const StringPiece & x, const StringPiece & 
 	if(len != y.size()) {
 		return false;
 	}
-	if(len == 0) {
+	if(!len) {
 		return true;
 	}
 	const char * p = x.data();

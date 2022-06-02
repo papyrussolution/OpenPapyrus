@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <TextView
+    <TextView style="@style/SearchResultTopicText"
         android:id="@+id/LVITEM_SEARCH_SCOPE"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
@@ -14,17 +14,12 @@
         android:layout_marginRight="4dp"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="4dp"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:background="@drawable/shape_global_search_scope"
-        android:textSize="12sp"
-        android:textFontWeight="700"
-        android:textColor="@color/TextPrimary"
         />
+    <!-- android:background="@drawable/shape_global_search_scope"-->
     <TextView
         android:id="@+id/LVITEM_SEARCH_TEXT"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:textColor="@color/TextPrimary"

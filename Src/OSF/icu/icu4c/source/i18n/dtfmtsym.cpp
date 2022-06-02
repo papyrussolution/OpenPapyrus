@@ -1285,7 +1285,7 @@ const char16_t * U_EXPORT2 DateFormatSymbols::getPatternUChars(void)
 
 UDateFormatField U_EXPORT2 DateFormatSymbols::getPatternCharIndex(UChar c) {
 	const UChar * p = u_strchr(gPatternChars, c);
-	if(p == NULL) {
+	if(!p) {
 		return UDAT_FIELD_COUNT;
 	}
 	else {
@@ -1616,7 +1616,7 @@ struct CalendarDataSink : public ResourceSink {
 			// == Handle String elements ==
 			if(value.getType() == URES_STRING) {
 				// We are on a leaf, store the map elements into the stringMap
-				if(i == 0) {
+				if(!i) {
 					// mapRefs will keep ownership of 'stringMap':
 					stringMap = mapRefs.create(FALSE, errorCode);
 					if(stringMap == NULL) {

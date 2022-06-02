@@ -370,7 +370,7 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 						if(__flags & addifRecursive) {
 							PPGoodsStruc inner_struc;
 							if(GObj.LoadGoodsStruc(PPGoodsStruc::Ident(new_item.GoodsID, GSF_COMPL, GSF_PARTITIAL), &inner_struc) > 0) {
-								THROW(AddItem(new_item.GoodsID, inner_struc.Rec.ID, filtScndGroupID, filtScndID, (addifCheckExistance|addifRecursive)));
+								THROW(AddItem(new_item.GoodsID, inner_struc.Rec.ID, filtScndGroupID, filtScndID, (/*addifCheckExistance|*/addifRecursive))); // @recusive
 							}
 						}
 					}
@@ -949,6 +949,7 @@ StrAssocTree * GoodsStrucTreeListViewBlock::MakeTree()
 		if(slc > 16)
 			PPWait(1);
 		LongArray absence_struc_item_list;
+		LongArray recur_list;
 		SString temp_buf;
 		Goods2Tbl::Rec goods_rec;
 		PPGoodsStrucHeader gs_rec;
@@ -960,11 +961,12 @@ StrAssocTree * GoodsStrucTreeListViewBlock::MakeTree()
 				if(!_ph) {
 					SHandle result = p_list->Add_Unsafe(SHandle(), gs_id, MakeText(r_se, temp_buf));
 					if(result) {
-						LongArray recur_list;
 						for(uint iidx = 0; iidx < Cb.ItemList.getCount(); iidx++) {
 							const GoodsStrucProcessingBlock::ItemEntry & r_ie = Cb.ItemList.at(iidx);
-							if(r_ie.GStrucID == gs_id)
+							if(r_ie.GStrucID == gs_id) {
+								recur_list.Z(); // @v11.4.0
 								AddEntry_TopDown(p_list, 0, iidx, r_ie, result, recur_list);
+							}
 						}
 					}
 				}

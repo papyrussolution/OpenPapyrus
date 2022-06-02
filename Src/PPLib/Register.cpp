@@ -758,10 +758,9 @@ IMPLEMENT_PPFILT_FACTORY(Register); RegisterFilt::RegisterFilt() : PPBaseFilt(PP
 	Init(1, 0);
 }
 
-int RegisterFilt::IsEmpty() const
+bool RegisterFilt::IsEmpty() const
 {
-	return !(Oid.Id || ExclPersonID || ExclLocID || RegTypeID || SerPattern.NotEmpty() ||
-		NmbPattern.NotEmpty() || !RegPeriod.IsZero() || !ExpiryPeriod.IsZero());
+	return !(Oid.Id || ExclPersonID || ExclLocID || RegTypeID || SerPattern.NotEmpty() || NmbPattern.NotEmpty() || !RegPeriod.IsZero() || !ExpiryPeriod.IsZero());
 }
 
 /*static*/int FASTCALL RegisterCore::CheckRecForFilt(const RegisterTbl::Rec & rRec, const RegisterFilt * pFilt)

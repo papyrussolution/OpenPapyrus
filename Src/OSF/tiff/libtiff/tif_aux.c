@@ -56,7 +56,7 @@ void * _TIFFCheckRealloc(TIFF * tif, void * buffer, tmsize_t nmemb, tmsize_t ele
 	 */
 	if(nmemb && elem_size && bytes / elem_size == nmemb)
 		cp = SAlloc::R(buffer, bytes);
-	if(cp == NULL) {
+	if(!cp) {
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Failed to allocate memory for %s (%ld elements of %ld bytes each)", what, (long)nmemb, (long)elem_size);
 	}
 	return cp;

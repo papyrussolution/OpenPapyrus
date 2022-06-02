@@ -105,7 +105,7 @@ static void gradient_walker_reset(pixman_gradient_walker_t * walker,
 		right_x += (pos - x);
 	}
 	else if(walker->repeat == PIXMAN_REPEAT_NONE) {
-		if(n == 0)
+		if(!n)
 			right_c = left_c;
 		else if(n == count)
 			left_c = right_c;

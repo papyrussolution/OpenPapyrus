@@ -20,13 +20,11 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace atomic_hook_internal {
-
 using VoidF = void (*)();
 extern absl::base_internal::AtomicHook<VoidF> func;
 extern int default_func_calls;
 void DefaultFunc();
 void RegisterFunc(VoidF func);
-
 }  // namespace atomic_hook_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

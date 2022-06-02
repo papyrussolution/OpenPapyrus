@@ -1334,7 +1334,7 @@ static CURLcode telnet_do(struct connectdata * conn, bool * done)
 					    if(n == CURL_READFUNC_PAUSE)
 						    break;
 
-					    if(n == 0) /* no bytes */
+					    if(!n) /* no bytes */
 						    break;
 
 					    /* fall through with number of bytes read */

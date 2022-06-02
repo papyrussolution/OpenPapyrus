@@ -188,7 +188,7 @@ int ssh_options_set_algo(ssh_session session, enum ssh_kex_types_e algo, const c
 		p = ssh_keep_known_algos(algo, list);
 	}
 
-	if(p == NULL) {
+	if(!p) {
 		ssh_set_error(session, SSH_REQUEST_DENIED,
 		    "Setting method: no allowed algorithm for method \"%s\" (%s)",
 		    ssh_kex_get_description(algo), list);
@@ -786,7 +786,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 			    else {
 				    p = ssh_keep_known_algos(SSH_HOSTKEYS, v);
 			    }
-			    if(p == NULL) {
+			    if(!p) {
 				    ssh_set_error(session, SSH_REQUEST_DENIED, "Setting method: no known public key algorithm (%s)", v);
 				    return -1;
 			    }
@@ -1517,7 +1517,7 @@ static int ssh_bind_set_algo(ssh_bind sshbind, enum ssh_kex_types_e algo, const 
 	else {
 		p = ssh_keep_known_algos(algo, list);
 	}
-	if(p == NULL) {
+	if(!p) {
 		ssh_set_error(sshbind, SSH_REQUEST_DENIED, "Setting method: no algorithm for method \"%s\" (%s)", ssh_kex_get_description(algo), list);
 		return -1;
 	}
@@ -1966,7 +1966,7 @@ int ssh_bind_options_set(ssh_bind sshbind, enum ssh_bind_options_e type,
 			    else {
 				    p = ssh_keep_known_algos(SSH_HOSTKEYS, v);
 			    }
-			    if(p == NULL) {
+			    if(!p) {
 				    ssh_set_error(sshbind, SSH_REQUEST_DENIED, "Setting method: no known public key algorithm (%s)", v);
 				    return -1;
 			    }

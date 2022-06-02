@@ -303,15 +303,15 @@
 #if defined(_WIN32_WINNT) && _WIN32_WINNT < 0x0600
 #    undef _WIN32_WINNT
 #endif
-#  ifndef _WIN32_WINNT
+#ifndef _WIN32_WINNT
 #    if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #      define _WIN32_WINNT 0x0600
-#    endif
 #endif
-#  ifndef WIN32_LEAN_AND_MEAN
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
 #endif
-#  ifndef STRICT
+#ifndef STRICT
 #define STRICT 1
 #endif
 #if defined(_WIN32_WCE)
@@ -319,15 +319,15 @@
 #define vsnprintf _vsnprintf
 #ifndef HB_NO_GETENV
 #      define HB_NO_GETENV
-#    endif
+#endif
 #    if _WIN32_WCE < 0x800
 #      define HB_NO_SETLOCALE
 #      define HB_NO_ERRNO
-#    endif
+#endif
 #  elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #ifndef HB_NO_GETENV
 #      define HB_NO_GETENV
-#    endif
+#endif
 #endif
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
@@ -352,7 +352,7 @@
 #    if __GLIBC_PREREQ(2, 3)
 /* From atexit() manpage, it's safe with glibc 2.2.3 on Linux. */
 #      define HB_USE_ATEXIT 1
-#    endif
+#endif
 #  elif defined(_MSC_VER) || defined(__MINGW32__)
 /* For MSVC:
  * https://msdn.microsoft.com/en-us/library/tze57ck3.aspx

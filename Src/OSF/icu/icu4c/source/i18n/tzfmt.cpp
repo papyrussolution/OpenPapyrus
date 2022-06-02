@@ -1720,7 +1720,7 @@ int32_t TimeZoneFormat::parseOffsetLocalizedGMTPattern(const UnicodeString & tex
 
 		// Offset part
 		offset = parseOffsetFields(text, idx, FALSE, len);
-		if(len == 0) {
+		if(!len) {
 			// offset field match failed
 			break;
 		}
@@ -1822,7 +1822,7 @@ int32_t TimeZoneFormat::parseOffsetFieldsWithPattern(const UnicodeString & text,
 		if(fieldType == GMTOffsetField::TEXT) {
 			const UChar * patStr = field->getPatternText();
 			len = u_strlen(patStr);
-			if(i == 0) {
+			if(!i) {
 				// When TimeZoneFormat parse() is called from SimpleDateFormat,
 				// leading space characters might be truncated. If the first pattern text
 				// starts with such character (e.g. Bidi control), then we need to
@@ -1861,7 +1861,7 @@ int32_t TimeZoneFormat::parseOffsetFieldsWithPattern(const UnicodeString & text,
 				offsetS = parseOffsetFieldWithLocalizedDigits(text, idx, 2, 2, 0, MAX_OFFSET_SECOND, len);
 			}
 
-			if(len == 0) {
+			if(!len) {
 				failed = TRUE;
 				break;
 			}
@@ -2029,21 +2029,21 @@ int32_t TimeZoneFormat::parseDefaultOffsetFields(const UnicodeString & text, int
 
 	do {
 		hour = parseOffsetFieldWithLocalizedDigits(text, idx, 1, 2, 0, MAX_OFFSET_HOUR, len);
-		if(len == 0) {
+		if(!len) {
 			break;
 		}
 		idx += len;
 
 		if(idx + 1 < max && text.charAt(idx) == separator) {
 			min = parseOffsetFieldWithLocalizedDigits(text, idx + 1, 2, 2, 0, MAX_OFFSET_MINUTE, len);
-			if(len == 0) {
+			if(!len) {
 				break;
 			}
 			idx += (1 + len);
 
 			if(idx + 1 < max && text.charAt(idx) == separator) {
 				sec = parseOffsetFieldWithLocalizedDigits(text, idx + 1, 2, 2, 0, MAX_OFFSET_SECOND, len);
-				if(len == 0) {
+				if(!len) {
 					break;
 				}
 				idx += (1 + len);

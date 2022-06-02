@@ -95,7 +95,7 @@ static int anonymous_server_mech_step(void * conn_context __attribute__((unused)
 	if(clientinlen > 255) clientinlen = 255;
 
 	/* NULL-terminate the clientin... */
-	clientdata = (char *)sparams->utils->malloc(clientinlen + 1);
+	clientdata = (char *)sparams->utils->FnMalloc(clientinlen + 1);
 	if(!clientdata) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		return SASL_NOMEM;
@@ -104,7 +104,7 @@ static int anonymous_server_mech_step(void * conn_context __attribute__((unused)
 	clientdata[clientinlen] = '\0';
 	sparams->utils->log(sparams->utils->conn, SASL_LOG_NOTE, "ANONYMOUS login: \"%s\"", clientdata);
 	if(clientdata != clientin)
-		sparams->utils->free(clientdata);
+		sparams->utils->FnFree(clientdata);
 	result = sparams->canon_user(sparams->utils->conn, anonymous_id, 0, SASL_CU_AUTHID | SASL_CU_AUTHZID, oparams);
 	if(result != SASL_OK) 
 		return result;
@@ -169,7 +169,7 @@ static int anonymous_client_mech_new(void * glob_context __attribute__((unused))
 		return SASL_BADPARAM;
 	}
 	/* holds state are in */
-	text = (client_context_t *)cparams->utils->malloc(sizeof(client_context_t));
+	text = (client_context_t *)cparams->utils->FnMalloc(sizeof(client_context_t));
 	if(text == NULL) {
 		SASL_UTILS_MEMERROR(cparams->utils);
 		return SASL_NOMEM;
@@ -222,7 +222,7 @@ static int anonymous_client_mech_step(void * conn_context,
 
 	/* free prompts we got */
 	if(prompt_need && *prompt_need) {
-		cparams->utils->free(*prompt_need);
+		cparams->utils->FnFree(*prompt_need);
 		*prompt_need = NULL;
 	}
 
@@ -278,9 +278,9 @@ static void anonymous_client_dispose(void * conn_context,
 
 	if(!text) return;
 
-	if(text->out_buf) utils->free(text->out_buf);
+	if(text->out_buf) utils->FnFree(text->out_buf);
 
-	utils->free(text);
+	utils->FnFree(text);
 }
 
 static const unsigned long anonymous_required_prompts[] = {

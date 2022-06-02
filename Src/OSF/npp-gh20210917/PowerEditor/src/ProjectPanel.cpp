@@ -461,14 +461,10 @@ bool ProjectPanel::writeWorkSpace(const TCHAR * projectFileName)
 	HTREEITEM tvRoot = _treeView.getRoot();
 	if(!tvRoot)
 		return false;
-
-	for(HTREEITEM tvProj = _treeView.getChildFrom(tvRoot);
-	    tvProj != NULL;
-	    tvProj = _treeView.getNextSibling(tvProj)) {
+	for(HTREEITEM tvProj = _treeView.getChildFrom(tvRoot); tvProj != NULL; tvProj = _treeView.getNextSibling(tvProj)) {
 		tvItem.hItem = tvProj;
 		SendMessage(_treeView.getHSelf(), TVM_GETITEM, 0, reinterpret_cast<LPARAM>(&tvItem));
 		//printStr(tvItem.pszText);
-
 		TiXmlNode * projRoot = root->InsertEndChild(TiXmlElement(TEXT("Project")));
 		projRoot->ToElement()->SetAttribute(TEXT("name"), tvItem.pszText);
 		buildProjectXml(projRoot, tvProj, fn2write);
@@ -498,10 +494,7 @@ void ProjectPanel::buildProjectXml(TiXmlNode * node, HTREEITEM hItem, const TCHA
 	tvItem.mask = TVIF_TEXT | TVIF_PARAM;
 	tvItem.pszText = textBuffer;
 	tvItem.cchTextMax = MAX_PATH;
-
-	for(HTREEITEM hItemNode = _treeView.getChildFrom(hItem);
-	    hItemNode != NULL;
-	    hItemNode = _treeView.getNextSibling(hItemNode)) {
+	for(HTREEITEM hItemNode = _treeView.getChildFrom(hItem); hItemNode != NULL; hItemNode = _treeView.getNextSibling(hItemNode)) {
 		tvItem.hItem = hItemNode;
 		SendMessage(_treeView.getHSelf(), TVM_GETITEM, 0, reinterpret_cast<LPARAM>(&tvItem));
 		if(tvItem.lParam) {
@@ -528,22 +521,17 @@ void ProjectPanel::buildProjectXml(TiXmlNode * node, HTREEITEM hItem, const TCHA
 	TreeView_SetTextColor(_treeView.getHSelf(), fgColour);
 }
 
-bool ProjectPanel::enumWorkSpaceFiles(HTREEITEM tvFrom,
-    const std::vector <generic_string> & patterns,
-    std::vector <generic_string> & fileNames)
+bool ProjectPanel::enumWorkSpaceFiles(HTREEITEM tvFrom, const std::vector <generic_string> & patterns, std::vector <generic_string> & fileNames)
 {
 	TCHAR textBuffer[MAX_PATH];
 	TVITEM tvItem;
 	tvItem.mask = TVIF_TEXT | TVIF_PARAM;
 	tvItem.pszText = textBuffer;
 	tvItem.cchTextMax = MAX_PATH;
-
 	HTREEITEM tvRoot = tvFrom ? tvFrom : _treeView.getRoot();
-	if(!tvRoot) return false;
-
-	for(HTREEITEM tvProj = _treeView.getChildFrom(tvRoot);
-	    tvProj != NULL;
-	    tvProj = _treeView.getNextSibling(tvProj)) {
+	if(!tvRoot) 
+		return false;
+	for(HTREEITEM tvProj = _treeView.getChildFrom(tvRoot); tvProj != NULL; tvProj = _treeView.getNextSibling(tvProj)) {
 		tvItem.hItem = tvProj;
 		SendMessage(_treeView.getHSelf(), TVM_GETITEM, 0, reinterpret_cast<LPARAM>(&tvItem));
 		if(tvItem.lParam) {
@@ -553,7 +541,8 @@ bool ProjectPanel::enumWorkSpaceFiles(HTREEITEM tvFrom,
 			}
 		}
 		else {
-			if(!enumWorkSpaceFiles(tvProj, patterns, fileNames)) return false;
+			if(!enumWorkSpaceFiles(tvProj, patterns, fileNames)) 
+				return false;
 		}
 	}
 	return true;

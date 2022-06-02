@@ -164,7 +164,7 @@ static ssize_t zfile_read(void * cookie_, char * buf, size_t size)
 	lzma_ret lzret;
 	int ret;
 	assert(size <= SSIZE_MAX);
-	if(size == 0)
+	if(!size)
 		return 0;
 	if(cookie->eof)
 		return 0;
@@ -204,11 +204,11 @@ static ssize_t zfile_read(void * cookie_, char * buf, size_t size)
 			cookie->logic_offset += toread;
 			total += toread;
 
-			if(size == 0)
+			if(!size)
 				break;
 		}
 
-		if(size == 0)
+		if(!size)
 			break;
 
 		/*

@@ -2030,7 +2030,7 @@ static boolint opj_j2k_read_siz(opj_j2k_t * p_j2k, uint8 * p_header_data, uint32
 		l_img_comp->prec = (tmp & 0x7f) + 1;
 		l_img_comp->sgnd = tmp >> 7;
 		if(p_j2k->dump_state == 0) {
-			if(i == 0) {
+			if(!i) {
 				l_prec0 = l_img_comp->prec;
 				l_sgnd0 = l_img_comp->sgnd;
 			}

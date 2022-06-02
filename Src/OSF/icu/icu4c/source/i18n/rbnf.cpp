@@ -179,10 +179,11 @@ public:
 	VArray() : buf(NULL), cap(0), size(0), deleter(NULL) {
 	}
 
-	VArray(Fn_Deleter del) : buf(NULL), cap(0), size(0), deleter(del) {
+	VArray(Fn_Deleter del) : buf(NULL), cap(0), size(0), deleter(del) 
+	{
 	}
-
-	~VArray() {
+	~VArray() 
+	{
 		if(deleter) {
 			for(int i = 0; i < size; ++i) {
 				(*deleter)(buf[i]);
@@ -190,12 +191,9 @@ public:
 		}
 		uprv_free(buf);
 	}
-
-	int32_t length() {
-		return size;
-	}
-
-	void add(void * elem, UErrorCode & status) {
+	int32_t length() const { return size; }
+	void add(void * elem, UErrorCode & status) 
+	{
 		if(U_SUCCESS(status)) {
 			if(size == cap) {
 				if(cap == 0) {
@@ -207,13 +205,13 @@ public:
 				else {
 					cap += 256;
 				}
-				if(buf == NULL) {
+				if(!buf) {
 					buf = (void **)uprv_malloc(cap * sizeof(void *));
 				}
 				else {
 					buf = (void **)uprv_realloc(buf, cap * sizeof(void *));
 				}
-				if(buf == NULL) {
+				if(!buf) {
 					// if we couldn't realloc, we leak the memory we've already allocated, but we're
 					// in deep trouble anyway
 					status = U_MEMORY_ALLOCATION_ERROR;
@@ -607,7 +605,7 @@ StringLocalizationInfo* StringLocalizationInfo::create(const UnicodeString & inf
 	}
 
 	int32_t len = info.length();
-	if(len == 0) {
+	if(!len) {
 		return NULL; // no error;
 	}
 
@@ -929,7 +927,7 @@ bool RuleBasedNumberFormat::operator == (const Format& other) const
 		    : *localizations == rhs.localizations))) {
 			NFRuleSet** p = fRuleSets;
 			NFRuleSet** q = rhs.fRuleSets;
-			if(p == NULL) {
+			if(!p) {
 				return q == NULL;
 			}
 			else if(!q) {
@@ -1577,7 +1575,7 @@ void RuleBasedNumberFormat::init(const UnicodeString & rules, LocalizationInfo* 
 			if(rs == NULL) {
 				break; // error
 			}
-			if(i == 0) {
+			if(!i) {
 				defaultRuleSet = rs;
 			}
 		}

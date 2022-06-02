@@ -1600,7 +1600,7 @@ static bool FASTCALL does_extended_decimal_round_to_given_binary(uint64 a, int32
 static bool FASTCALL convert_binary_to_decimal_1st_approx(uint64 a, int32 b, uint64 * c, int32 * d)
 {
 	// 1. Check/normalize input mantissa.
-	if(a == 0)
+	if(!a)
 		return false;
 	uint lz = count_leading_zeros(a);
 	a <<= lz;
@@ -1653,7 +1653,7 @@ static bool FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint6
 	// 1. Check input parameters and convert binary mantissa in such way that
 	//    its most significant bits are 01. Zero out least significant bits of
 	//    mantissa, which are not representable in IEEE 754 double precision format.
-	if(a == 0)
+	if(!a)
 		return false;
 	uint lz = count_leading_zeros(a);
 	a <<= lz;

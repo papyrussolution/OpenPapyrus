@@ -114,7 +114,7 @@ const UChar * CompactData::getPattern(int32_t magnitude,
 	const UChar * patternString = nullptr;
 	if(dq.hasIntegerValue()) {
 		int64_t i = dq.toLong(true);
-		if(i == 0) {
+		if(!i) {
 			patternString = patterns[getIndex(magnitude, StandardPlural::Form::EQ_0)];
 		}
 		else if(i == 1) {

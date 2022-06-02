@@ -984,7 +984,7 @@ int onig_name_to_backref_number(regex_t* reg, const uchar * name, const uchar * 
 	int n = onig_name_to_group_numbers(reg, name, name_end, &nums);
 	if(n < 0)
 		return n;
-	else if(n == 0)
+	else if(!n)
 		return ONIGERR_PARSER_BUG;
 	else if(n == 1)
 		return nums[0];
@@ -6463,7 +6463,7 @@ static int prs_callout_of_contents(Node ** np, int cterm, uchar ** src, uchar * 
 				if(c == '}') i--;
 				else break;
 			}
-			if(i == 0) break;
+			if(!i) break;
 		}
 	}
 

@@ -77,7 +77,7 @@ static int md_read(BIO * b, char * out, int outl)
 	ctx = static_cast<EVP_MD_CTX *>(BIO_get_data(b));
 	next = BIO_next(b);
 
-	if((ctx == NULL) || (next == NULL))
+	if(!ctx || !next)
 		return 0;
 
 	ret = BIO_read(next, out, outl);

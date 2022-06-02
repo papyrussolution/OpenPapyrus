@@ -465,7 +465,7 @@ size_t ec_key_simple_priv2oct(const EC_KEY * eckey, uchar * buf, size_t len)
 	size_t buf_len = (EC_GROUP_order_bits(eckey->group) + 7) / 8;
 	if(eckey->priv_key == NULL)
 		return 0;
-	if(buf == NULL)
+	if(!buf)
 		return buf_len;
 	else if(len < buf_len)
 		return 0;
@@ -508,14 +508,14 @@ size_t EC_KEY_priv2buf(const EC_KEY * eckey, uchar ** pbuf)
 {
 	uchar * buf;
 	size_t len = EC_KEY_priv2oct(eckey, NULL, 0);
-	if(len == 0)
+	if(!len)
 		return 0;
 	if((buf = static_cast<uchar *>(OPENSSL_malloc(len))) == NULL) {
 		ECerr(EC_F_EC_KEY_PRIV2BUF, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 	len = EC_KEY_priv2oct(eckey, buf, len);
-	if(len == 0) {
+	if(!len) {
 		OPENSSL_free(buf);
 		return 0;
 	}

@@ -458,7 +458,7 @@ err:
 		CONF_free(conf->data);
 		conf->data = NULL;
 	}
-	if(v != NULL) {
+	if(v) {
 		OPENSSL_free(v->name);
 		OPENSSL_free(v->value);
 		OPENSSL_free(v);

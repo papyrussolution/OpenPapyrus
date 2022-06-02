@@ -809,7 +809,7 @@ ulong SRng::GetBinomial(double p, ulong n)
 {
 	int    ix; // return value
 	int    flipped = 0;
-	if(n == 0)
+	if(!n)
 		return 0;
 	if(p > 0.5) {
 		p = 1.0 - p; // work with small p

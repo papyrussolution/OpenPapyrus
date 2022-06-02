@@ -618,7 +618,7 @@ U_CFUNC void ulocimp_getKeywords(const char * localeID, char prev, ByteSink& sin
 			}
 
 			/* zero-length keyword is an error. */
-			if(n == 0) {
+			if(!n) {
 				*status = U_INVALID_FORMAT_ERROR;
 				return;
 			}
@@ -1507,7 +1507,7 @@ static void _canonicalize(const char * localeID, ByteSink& sink, uint32_t option
 	    tmpLocaleID != NULL && keywordAssign == NULL) {
 		for(;;) {
 			char c = *tmpLocaleID;
-			if(c == 0) {
+			if(!c) {
 				break;
 			}
 			tag.append(c, *err);

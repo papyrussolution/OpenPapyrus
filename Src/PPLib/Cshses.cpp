@@ -2295,7 +2295,7 @@ AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, D
 				// Получаем список карт, которые изменились с момента последней загрузки
 				//
 				PPIDArray acn_list;
-				acn_list.addzlist(PPACN_OBJADD, PPACN_OBJUPD, PPACN_SCARDDISUPD, 0L);
+				acn_list.addzlist(PPACN_OBJADD, PPACN_OBJUPD, PPACN_SCARDDISUPD, PPACN_SCARDOWNERUPDATED, 0L); // @v11.4.0 PPACN_SCARDOWNERUPDATED
 				p_sj->GetObjListByEventSince(PPOBJ_SCARD, &acn_list, Since, UpdSCardList);
 			}
 			else {
@@ -2314,7 +2314,7 @@ AsyncCashSCardsIterator::~AsyncCashSCardsIterator()
 int AsyncCashSCardsIterator::Init(const PPSCardSerPacket * pScsPack)
 {
 	int    ok = 1;
-	ScsPack = *pScsPack;
+	RVALUEPTR(ScsPack, pScsPack);
 	SCardTbl::Key2 k2, k2_;
 	MEMSZERO(k2);
 	k2.SeriesID = ScsPack.Rec.ID;
@@ -2423,8 +2423,8 @@ int AsyncCashiersIterator::Init(PPID cashNodeID)
 	int    ok = -1;
 	PPID   psn_kind_id = 0;
 	BExtQuery::ZDelete(&P_IterQuery);
-	Iterated.freeAll();
-	Unworked.freeAll();
+	Iterated.Z();
+	Unworked.Z();
 	ProsessUnworkedPos = 0;
 	{
 		PPEquipConfig eq_cfg;

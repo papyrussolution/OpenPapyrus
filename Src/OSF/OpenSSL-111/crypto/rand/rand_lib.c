@@ -723,7 +723,7 @@ int rand_pool_add(RAND_POOL * pool,
  */
 uchar * rand_pool_add_begin(RAND_POOL * pool, size_t len)
 {
-	if(len == 0)
+	if(!len)
 		return NULL;
 
 	if(len > pool->max_len - pool->len) {

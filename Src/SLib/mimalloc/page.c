@@ -704,7 +704,7 @@ static inline mi_page_t* mi_find_free_page(mi_heap_t* heap, size_t size)
 {
 	mi_page_queue_t* pq = mi_page_queue(heap, size);
 	mi_page_t* page = pq->first;
-	if(page != NULL) {
+	if(page) {
    #if(MI_SECURE>=3) // in secure mode, we extend half the time to increase randomness
 		if(page->capacity < page->reserved && ((_mi_heap_random_next(heap) & 1) == 1)) {
 			mi_page_extend_free(heap, page, heap->tld);
@@ -761,7 +761,7 @@ static mi_page_t* mi_huge_page_alloc(mi_heap_t* heap, size_t size) {
 	size_t block_size = _mi_os_good_alloc_size(size);
 	mi_assert_internal(_mi_bin(block_size) == MI_BIN_HUGE);
 	mi_page_t* page = mi_page_fresh_alloc(heap, NULL, block_size);
-	if(page != NULL) {
+	if(page) {
 		const size_t bsize = mi_page_block_size(page); // note: not `mi_page_usable_block_size` as `size`
 		                                               // includes padding already
 		mi_assert_internal(bsize >= size);

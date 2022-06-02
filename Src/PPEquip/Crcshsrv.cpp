@@ -1555,6 +1555,17 @@ static SString & GetDatetimeStrEnd(LDATE dt, int16 tm, SString & rBuf)
 	return rBuf;
 }
 
+struct _CrSetV5_GroupEntry { // @flat
+	_CrSetV5_GroupEntry()
+	{
+		THISZERO();
+	}
+	PPID   GrpID[5];
+	char   GrpName[64];
+	long   DivN;
+	uint   Level;
+};
+
 int ACS_CRCSHSRV::ExportData__(int updOnly)
 {
 	const long alco_special_grp_id = 100000000;
@@ -1570,7 +1581,8 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	int    add_time_to_fname = 0;
 	int    use_new_dscnt_code_alg = 0;
 	uint   i, k;
-	PPID   prev_goods_id = 0, old_dscnt_code_bias = 0;
+	PPID   prev_goods_id = 0;
+	PPID   old_dscnt_code_bias = 0;
 	PPID   loc_id = 0;
 	SString dttm_str;
 	SString msg_buf, fmt_buf;
@@ -1581,19 +1593,13 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	PPAsyncCashNode cn_data;
 	AsyncCashGoodsInfo gi;
 	AsyncCashGoodsGroupInfo grp_info;
-	struct _GroupEntry { // @flat
-		PPID   GrpID[5];
-		char   GrpName[64];
-		long   DivN;
-		uint   Level;
-	};
-	SVector grp_list(sizeof(_GroupEntry)); // @v9.8.8 SArray-->SVector
+	SVector grp_list(sizeof(_CrSetV5_GroupEntry));
 	struct _SalesGrpEntry { // @flat
 		PPID   GrpID;
 		char   GrpName[64];
 		char   Code[24];
 	};
-	SVector sales_grp_list(sizeof(_SalesGrpEntry)); // @v9.8.8 SArray-->SVector
+	SVector sales_grp_list(sizeof(_SalesGrpEntry));
 	PPObjGoods goods_obj;
 	PPObjGoodsGroup ggobj;
 	PrcssrAlcReport::GoodsItem agi;
@@ -1706,15 +1712,14 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			uint   level  = MIN(4, grp_info.Level);
 			uint   pos;
 			PPID   parent = grp_info.ParentID;
-			_GroupEntry  grpe;
-			MEMSZERO(grpe);
+			_CrSetV5_GroupEntry grpe;
 			grpe.GrpID[0] = grp_info.ID;
 			STRNSCPY(grpe.GrpName, grp_info.Name);
 			grpe.DivN = grp_info.DivN;
 			for(i = 1; i <= level; i++) {
 				grpe.GrpID[i] = parent;
 				if(parent && grp_list.lsearch(&parent, &(pos = 0), CMPF_LONG))
-					parent = static_cast<const _GroupEntry *>(grp_list.at(pos))->GrpID[1];
+					parent = static_cast<const _CrSetV5_GroupEntry *>(grp_list.at(pos))->GrpID[1];
 				else {
 					parent = 0;
 					level  = i - 1;
@@ -1723,7 +1728,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			}
 			if(parent)
 				for(i = 0; i < grp_list.getCount(); i++) {
-					_GroupEntry * p_grpe = static_cast<_GroupEntry *>(grp_list.at(i));
+					_CrSetV5_GroupEntry * p_grpe = static_cast<_CrSetV5_GroupEntry *>(grp_list.at(i));
 					for(k = 1; k <= 4; k++)
 						if(p_grpe->GrpID[k] == parent && p_grpe->GrpID[k - 1] == grpe.GrpID[4]) {
 							p_grpe->Level = k - 1;
@@ -1742,8 +1747,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			//
 			// Вставляем специальную группу для маркированного алкоголя
 			//
-			_GroupEntry  grpe;
-			MEMSZERO(grpe);
+			_CrSetV5_GroupEntry grpe;
 			grpe.GrpID[0] = alco_special_grp_id;
 			grpe.DivN = 0;
 			grpe.Level = 0;
@@ -1752,7 +1756,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 		}
 		for(i = 0; i < grp_list.getCount(); i++) {
 			uint  pos;
-			_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
+			_CrSetV5_GroupEntry grpe = *static_cast<const _CrSetV5_GroupEntry *>(grp_list.at(i));
 			DbfRecord dbfrGG(p_out_tbl_group);
 			dbfrGG.put(1, grpe.GrpName);
 			for(k = 0; k <= grpe.Level; k++)
@@ -1839,7 +1843,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			else {
 				// Группа товаров 1-5 {
 				if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gi.ParentID && grp_list.lsearch(&gi.ParentID, &(i = 0), CMPF_LONG)) {
-					_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
+					_CrSetV5_GroupEntry grpe = *static_cast<const _CrSetV5_GroupEntry *>(grp_list.at(i));
 					for(k = 0; k <= grpe.Level; k++)
 						dbfrG.put(5 + k, grpe.GrpID[grpe.Level - k]);
 					for(; k <= grpe.Level; k++)
@@ -2095,12 +2099,26 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 	if(ModuleVer == 10)
 		ok = ExportDataV10(updOnly);
 	else {
-		int    check_dig = 0, use_dscnt_code = 0, add_time_to_fname = 0, use_new_dscnt_code_alg = 0;
-		uint   i, k;
-		PPID   prev_goods_id = 0, old_dscnt_code_bias = 0;
-		SString path_goods, path_group, path_dscnt, path_barcode, path_cards;
-		SString path_cashiers, path_gdsqtty_dscnt, path_grpqtty_dscnt, path;
-		SString path_salesggrp, path_salesggrpi, dttm_str;
+		int    check_dig = 0;
+		int    use_dscnt_code = 0;
+		int    add_time_to_fname = 0;
+		int    use_new_dscnt_code_alg = 0;
+		uint   i;
+		uint   k;
+		PPID   prev_goods_id = 0;
+		PPID   old_dscnt_code_bias = 0;
+		SString path_goods;
+		SString path_group;
+		SString path_dscnt;
+		SString path_barcode;
+		SString path_cards;
+		SString path_cashiers;
+		SString path_gdsqtty_dscnt;
+		SString path_grpqtty_dscnt;
+		SString path;
+		SString path_salesggrp;
+		SString path_salesggrpi;
+		SString dttm_str;
 		PPUnit    unit_rec;
 		PPObjUnit unit_obj;
 		PPObjQuotKind qk_obj;
@@ -2108,19 +2126,13 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		PPAsyncCashNode    cn_data;
 		AsyncCashGoodsInfo gi;
 		AsyncCashGoodsGroupInfo grp_info;
-		struct _GroupEntry { // @flat
-			PPID   GrpID[5];
-			char   GrpName[64];
-			long   DivN;
-			uint   Level;
-		};
-		SVector grp_list(sizeof(_GroupEntry)); // @v9.8.8 SArray-->SVector
+		SVector grp_list(sizeof(_CrSetV5_GroupEntry));
 		struct _SalesGrpEntry { // @flat
 			PPID   GrpID;
 			char   GrpName[64];
 			char   Code[24];
 		};
-		SVector sales_grp_list(sizeof(_SalesGrpEntry)); // @v9.8.8 SArray-->SVector
+		SVector sales_grp_list(sizeof(_SalesGrpEntry));
 		PPObjGoodsGroup ggobj;
 		//
 		// Список ассоциаций {Серия карты; Вид котировки} => Key - серия карты, Val - вид котировки
@@ -2245,15 +2257,14 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				uint   level  = MIN(4, grp_info.Level);
 				uint   pos;
 				PPID   parent = grp_info.ParentID;
-				_GroupEntry  grpe;
-				MEMSZERO(grpe);
+				_CrSetV5_GroupEntry grpe;
 				grpe.GrpID[0] = grp_info.ID;
 				STRNSCPY(grpe.GrpName, grp_info.Name);
 				grpe.DivN = grp_info.DivN;
 				for(i = 1; i <= level; i++) {
 					grpe.GrpID[i] = parent;
 					if(parent && grp_list.lsearch(&parent, &(pos = 0), CMPF_LONG))
-						parent = static_cast<const _GroupEntry *>(grp_list.at(pos))->GrpID[1];
+						parent = static_cast<const _CrSetV5_GroupEntry *>(grp_list.at(pos))->GrpID[1];
 					else {
 						parent = 0;
 						level  = i - 1;
@@ -2262,7 +2273,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				}
 				if(parent)
 					for(i = 0; i < grp_list.getCount(); i++) {
-						_GroupEntry * p_grpe = static_cast<_GroupEntry *>(grp_list.at(i));
+						_CrSetV5_GroupEntry * p_grpe = static_cast<_CrSetV5_GroupEntry *>(grp_list.at(i));
 						for(k = 1; k <= 4; k++)
 							if(p_grpe->GrpID[k] == parent && p_grpe->GrpID[k - 1] == grpe.GrpID[4]) {
 								p_grpe->Level = k - 1;
@@ -2279,7 +2290,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 			}
 			for(i = 0; i < grp_list.getCount(); i++) {
 				uint  pos;
-				_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
+				_CrSetV5_GroupEntry grpe = *static_cast<const _CrSetV5_GroupEntry *>(grp_list.at(i));
 				DbfRecord dbfrGG(p_out_tbl_group);
 				dbfrGG.put(1, grpe.GrpName);
 				for(k = 0; k <= grpe.Level; k++)
@@ -2342,7 +2353,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				dbfrG.put(4,  (int)1);            // Разрешение к продаже
 				// Группа товаров 1-5 {
 				if(cn_data.Flags & CASHF_EXPGOODSGROUPS && gi.ParentID && grp_list.lsearch(&gi.ParentID, &(i = 0), CMPF_LONG)) {
-					_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
+					_CrSetV5_GroupEntry grpe = *static_cast<const _CrSetV5_GroupEntry *>(grp_list.at(i));
 					for(k = 0; k <= grpe.Level; k++)
 						dbfrG.put(5 + k, grpe.GrpID[grpe.Level - k]);
 					for(; k <= grpe.Level; k++)
@@ -3033,6 +3044,10 @@ static int GetCrCshSrvDateTime(const char * pDttmBuf, long chk, LDATETIME * pDtt
 }
 
 struct ZRep { // @flat
+	ZRep()
+	{
+		THISZERO();
+	}
 	long   CashCode;
 	long   ZRepCode;
 	LDATETIME Start;
@@ -3064,7 +3079,11 @@ static int FindFirstRec(xmlNode * pChild, xmlNode ** ppCurRec, const char * pTag
 
 class XmlReader {
 public:
-	struct Header {
+	struct Header { // @falt
+		Header()
+		{
+			THISZERO();
+		}
 		long   SmenaNum;
 		long   CashNum;
 		long   ChkNum;
@@ -3105,7 +3124,7 @@ public:
 		}
 		Packet & FASTCALL operator = (const Packet & rPack)
 		{
-			MEMSZERO(Head);
+			// @v11.4.0 (useless) MEMSZERO(Head);
 			Items.freeAll();
 			Head = rPack.Head;
 			Items.copy(rPack.Items);
@@ -3115,6 +3134,8 @@ public:
 		{
 			return (pHead) ? (Head = *pHead, 1) : (MEMSZERO(Head), 0);
 		}
+		uint   GetCount() const { return Items.getCount(); }
+		Item & GetItemByIdx(uint idx) { return Items.at(idx); }
 		int AddItem(const Item * pItem)
 		{
 			return (pItem) ? Items.insert(pItem) : 0;
@@ -3235,16 +3256,17 @@ int XmlReader::GetGiftCard(const xmlNode * const * pPlugins, SString & rSerial, 
 
 int XmlReader::Next(Packet * pPack)
 {
+	// "plugin-property"
 	//const char * p_attribs = "shop;operationType;operDay;cash;shift;saletime;number;amount;discountAmount;username;userTabNumber;tabNumber";
 	int    ok = -1;
-	Header hdr;
 	Packet pack;
 	SString tag_name;
 	SString val;
 	SString attr_name;
 	do {
 		if(P_CurRec) {
-			MEMSZERO(hdr);
+			Header hdr;
+			// @v11.4.0 @ctr MEMSZERO(hdr);
 			// Read header
 			tag_name.Set(P_CurRec->name).ToLower();
 			if(P_CurRec->properties) {
@@ -3304,9 +3326,29 @@ int XmlReader::Next(Packet * pPack)
 		const xmlNode * p_root  = 0;
 		const xmlNode * p_items = 0;
 		const xmlNode * p_fld_ = 0;
-		for(p_fld_ = P_CurRec->children; !p_root && p_fld_; p_fld_ = p_fld_->next)
-			if(sstreqi_ascii(reinterpret_cast<const char *>(p_fld_->name), "positions"))
+		SString attr_key;
+		SString attr_val;
+		for(p_fld_ = P_CurRec->children; /* @v11.4.0 (plugin-property считать еще надо!) !p_root &&*/ p_fld_; p_fld_ = p_fld_->next) {
+			if(sstreqi_ascii(reinterpret_cast<const char *>(p_fld_->name), "positions")) {
 				p_root = p_fld_;
+			}
+			else if(sstreqi_ascii(reinterpret_cast<const char *>(p_fld_->name), "plugin-property")) { // @v11.4.0
+				//
+				attr_key.Z();
+				attr_val.Z();
+				for(const xmlAttr * p_attr = p_fld_->properties; p_attr; p_attr = p_attr->next) {
+					if(sstreqi_ascii(reinterpret_cast<const char *>(p_attr->name), "key")) {
+						if(attr_key.IsEmpty())
+							attr_key.Set(p_attr->children->content);
+					}
+					else if(sstreqi_ascii(reinterpret_cast<const char *>(p_attr->name), "value")) {
+						if(attr_val.IsEmpty())
+							attr_val.Set(p_attr->children->content);
+					}
+				}
+				//if(attr_key.IsEqiAscii())
+			}
+		}
 		if(p_root) {
 			for(p_fld_ = p_root->children; !p_items && p_fld_; p_fld_ = p_fld_->next)
 				if(sstreqi_ascii(reinterpret_cast<const char *>(p_fld_->name), "position"))
@@ -3416,7 +3458,7 @@ int XmlReader::Next(Packet * pPack)
 					//const char * p_items_attr = "amount;typeClass";
 					CcAmountList ccpl;
 					Header head;
-					MEMSZERO(head);
+					// @v11.4.0 @ctr MEMSZERO(head);
 					pack.GetHead(&head);
 					for(const xmlNode * p_paym_fld = p_fld->children; p_paym_fld; p_paym_fld = p_paym_fld->next) {
 						if(p_paym_fld->type == XML_ELEMENT_NODE) {
@@ -3472,7 +3514,7 @@ int XmlReader::Next(Packet * pPack)
 				if(sstreqi_ascii((const char *)p_fld->name, "discounts")) {
 					const char * p_items_attr = "positionOrder;amount";
 					Header head;
-					MEMSZERO(head);
+					// @v11.4.0 @ctr MEMSZERO(head);
 					pack.GetHead(&head);
 					for(const xmlNode * p_dis_fld = p_fld->children; p_dis_fld; p_dis_fld = p_dis_fld->next) {
 						int16  banking = -1;
@@ -3516,7 +3558,7 @@ int XmlReader::Next(Packet * pPack)
 						p_dis_fld = p_fld;
 				if(p_dis_fld && p_dis_fld->children && p_dis_fld->children->content) {
 					Header head;
-					MEMSZERO(head);
+					// @v11.4.0 @ctr MEMSZERO(head);
 					pack.GetHead(&head);
 					STRNSCPY(head.SCardNum, p_dis_fld->children->content);
 					pack.PutHead(&head);
@@ -3525,12 +3567,29 @@ int XmlReader::Next(Packet * pPack)
 		}
 		{
 			// exciseBottles
+			SString barcode_as_ident;
+			SString egais_mark;
 			for(const xmlNode * p_fld = P_CurRec->children; p_fld; p_fld = p_fld->next) {
 				if(sstreqi_ascii((const char *)p_fld->name, "exciseBottles")) {
 					for(const xmlNode * p_inr_fld = p_fld->children; p_inr_fld; p_inr_fld = p_inr_fld->next) {
+						barcode_as_ident.Z();
+						egais_mark.Z();
 						if(SXml::IsName(p_inr_fld, "bottle")) {
 							//<bottle barcode="9414416305528" exciseBarcode="236304799221631120001PBU2FHEAH5OPPWAANJGZJFJCNMS6GCMVE4QWLH2QITKZC7HLYJE3TAMNOLFAZ4U64MJYET4QHBVLELKUK64G22V67EJGSXRKUIH3BBZ2QJJF22VT6HNJ35KFSJMHB667Y" volume="0.0" price="2726.0"/>
 							if(SXml::GetAttrib(p_inr_fld, "barcode", val)) {
+								barcode_as_ident = val;
+							}
+							if(SXml::GetAttrib(p_inr_fld, "exciseBarcode", val)) {
+								egais_mark = val;
+							}
+						}
+						if(egais_mark.NotEmpty() && barcode_as_ident.NotEmpty()) {
+							for(uint pidx = 0; pidx < pack.GetCount(); pidx++) {
+								Item & r_item = pack.GetItemByIdx(pidx);
+								if(barcode_as_ident.IsEqiAscii(r_item.Barcode) && isempty(r_item.Mark)) {
+									STRNSCPY(r_item.Mark, egais_mark);
+									break;
+								}
 							}
 						}
 					}
@@ -3547,6 +3606,7 @@ int XmlReader::Next(Packet * pPack)
 
 IMPL_CMPFUNC(AcceptedCheck_, i1, i2)
 {
+	/* @v11.4.0
 	const ACS_CRCSHSRV::AcceptedCheck_ * p_i1 = static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i1);
 	const ACS_CRCSHSRV::AcceptedCheck_ * p_i2 = static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i2);
 	if(p_i1->CashNum > p_i2->CashNum)
@@ -3563,6 +3623,8 @@ IMPL_CMPFUNC(AcceptedCheck_, i1, i2)
 		return -1;
 	else
 		return 0;
+	*/
+	RET_CMPCASCADE3(static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i1), static_cast<const ACS_CRCSHSRV::AcceptedCheck_ *>(i2), CashNum, Dt, Tm); // @v11.4.0 
 }
 
 int ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPath, const char * pWaitMsg)
@@ -3581,7 +3643,9 @@ int ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPa
 		while(reader.Next(&pack) > 0) {
 			int    r   = 0;
 			long   cshr_id = 0;
-			PPID   id = 0, scard_id = 0, gift_card_id = 0;
+			PPID   id = 0;
+			PPID   scard_id = 0;
+			PPID   gift_card_id = 0;
 			XmlReader::Item   item;
 			XmlReader::Header hdr;
 			AcceptedCheck_ accept_chk;
@@ -3603,7 +3667,7 @@ int ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPa
 				}
 				if(pZRepList) {
 					ZRep zrep_key;
-					MEMSZERO(zrep_key);
+					// @v11.4.0 @ctr MEMSZERO(zrep_key);
 					zrep_key.CashCode = hdr.CashNum;
 					zrep_key.ZRepCode = hdr.SmenaNum;
 					if(!pZRepList->lsearch(&zrep_key, 0, PTR_CMPFUNC(_2long)))
@@ -3652,6 +3716,7 @@ int ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPa
 						{
 							PPExtStrContainer ccl_ext_strings;
 							ccl_ext_strings.PutExtStrData(CCheckPacket::lnextSerial, item.Serial);
+							ccl_ext_strings.PutExtStrData(CCheckPacket::lnextEgaisMark, item.Mark); // @v11.4.0
 							THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, item.Qtty, item.Amount / item.Qtty + item.Discount, item.Discount/*, item.Serial*/, &ccl_ext_strings)); // @v10.7.3
 						}
 						if(!P_TmpCcTbl->data.SCardID && scard_id)
@@ -3803,7 +3868,7 @@ int ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitM
 					double sum = 0.0, dscnt = 0.0;
 					if(pZRepList) {
 						ZRep zrep_key;
-						MEMSZERO(zrep_key);
+						// @v11.4.0 @ctr MEMSZERO(zrep_key);
 						zrep_key.CashCode = csh;
 						zrep_key.ZRepCode = nsmena;
 						if(!pZRepList->lsearch(&zrep_key, 0, PTR_CMPFUNC(_2long)))
@@ -3942,7 +4007,7 @@ int ACS_CRCSHSRV::ConvertCheckHeads(const SVector * pZRepList, const char * pWai
 					long   fl  = (cs_chkhd.Operation == 'R') ? CCHKF_RETURN : 0;
 					if(pZRepList) {
 						ZRep zrep_key;
-						MEMSZERO(zrep_key);
+						// @v11.4.0 @ctr MEMSZERO(zrep_key);
 						zrep_key.CashCode = cs_chkhd.CashNumber;
 						zrep_key.ZRepCode = cs_chkhd.SessNumber;
 						if(!pZRepList->lsearch(&zrep_key, 0, PTR_CMPFUNC(_2long)))
@@ -3951,7 +4016,7 @@ int ACS_CRCSHSRV::ConvertCheckHeads(const SVector * pZRepList, const char * pWai
 					else if(Flags & PPACSF_TEMPSESS)
 						fl |= CCHKF_TEMPSESS;
 					THROW(r = AddTempCheck(&id, cs_chkhd.SessNumber, fl, cs_chkhd.CashNumber, cs_chkhd.CheckNumber, cshr_id, 0, dttm, 0.0, 0.0));
-					if(r < 0 && !(Flags & PPACSF_TEMPSESS)/*@v6.5.6{ */ && !(fl & CCHKF_TEMPSESS) /*}@v6.5.6*/) {
+					if(r < 0 && !(Flags & PPACSF_TEMPSESS) && !(fl & CCHKF_TEMPSESS)) {
 						PPID sess_id = 0;
 						if(CS.SearchByNumber(&sess_id, NodeID, cs_chkhd.CashNumber, cs_chkhd.SessNumber, dttm.d) > 0 && sess_id && CS.data.Temporary) {
 							THROW(CS.ResetTempSessTag(sess_id, 0));
@@ -4239,11 +4304,8 @@ private:
 	xmlTextReader * P_Reader;
 };
 
-XmlZRepReader::XmlZRepReader(const char * pPath)
+XmlZRepReader::XmlZRepReader(const char * pPath) : ZRepsCount(0), P_CurRec(0), P_Doc(0)
 {
-	ZRepsCount = 0;
-	P_CurRec    = 0;
-	P_Doc       = 0;
 	if(pPath)
 		P_Reader = xmlReaderForFile(pPath, NULL, XML_PARSE_NOENT);
 	if(P_Reader) {
@@ -4281,11 +4343,11 @@ int XmlZRepReader::Next(ZRep * pItem)
 {
 	int    ok = -1;
 	const char * p_tag_names = "shiftNumber;cashNumber;dateShiftClose";
-	ZRep item;
 	if(P_CurRec) {
 		SString val;
 		xmlNode * p_fld = P_CurRec->children;
-		MEMSZERO(item);
+		ZRep item;
+		// @v11.4.0 @ctr MEMSZERO(item);
 		for(; p_fld; p_fld = p_fld->next) {
 			if(p_fld->children && p_fld->children->content) {
 				int idx = 0;
@@ -4295,28 +4357,7 @@ int XmlZRepReader::Next(ZRep * pItem)
 						case 0: item.ZRepCode = val.ToLong(); break; // Номер смены
 						case 1: item.CashCode = val.ToLong(); break; // Номер кассы
 						case 2:  // Дата время чека
-							strtodatetime(val, &item.Start, DATF_ISO8601, TIMF_HMS); // @v10.1.1
-							/* @v10.1.1
-							{
-								SString s_dt, s_tm;
-								val.Divide('T', s_dt, s_tm);
-								{
-									int d = 0, m = 0, y = 0;
-									uint i = 0;
-									SString temp_buf;
-									StringSet ss("-");
-									ss.setBuf(s_dt, s_dt.Len() + 1);
-									ss.get(&i, temp_buf);
-									y = temp_buf.ToLong();
-									ss.get(&i, temp_buf);
-									m = temp_buf.ToLong();
-									ss.get(&i, temp_buf);
-									d = temp_buf.ToLong();
-									encodedate(d, m, y, &item.Start.d);
-								}
-								strtotime(s_tm, TIMF_SQL, &item.Start.t);
-							}
-							*/
+							strtodatetime(val, &item.Start, DATF_ISO8601, TIMF_HMS);
 							break;
 					}
 				}
@@ -4338,7 +4379,6 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 	SETIFZ(end, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	DbfTable * p_dbftz  = 0;
 	PPImpExp * p_ie_csz = 0;
-	ZRep   zrep;
 	for(oper_date = ChkRepPeriod.low; useLocalFiles || (r > 0 && oper_date <= end); oper_date = plusdate(oper_date, 1)) {
 		if(useLocalFiles)
 			r = 1;
@@ -4368,6 +4408,7 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 					// @v10.1.1 Backup("zrep", data_path);
 					DrfL.Add("zrep", data_path); // @v10.1.1
 					{
+						ZRep   zrep;
 						XmlZRepReader _rdr(data_path);
 						while(_rdr.Next(&zrep) > 0) {
 							// if(zrep.Start >= ChkRepPeriod.low && zrep.Stop <= ChkRepPeriod.upp) // @todo забирать только за определенную дату
@@ -4388,8 +4429,9 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 				p_ie_csz->GetNumRecs(&count);
 				for(long c = 0; c < count; c++) {
 					Sdr_CS_ZRep  cs_zrep;
+					ZRep   zrep;
 					// @v10.7.9 @ctr MEMSZERO(cs_zrep);
-					MEMSZERO(zrep);
+					// @v11.4.0 @ctr MEMSZERO(zrep);
 					THROW(p_ie_csz->ReadRecord(&cs_zrep, sizeof(cs_zrep)));
 					zrep.CashCode = cs_zrep.CashNumber;
 					zrep.ZRepCode = cs_zrep.SessNumber;
@@ -4429,8 +4471,9 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 				p_dbftz->getFieldNumber("status",    &fldn_z_status);
 				if(p_dbftz->getNumRecs() && p_dbftz->top()) {
 					do {
-						char  buf[64];
-						MEMSZERO(zrep);
+						char   buf[64];
+						ZRep   zrep;
+						// @v11.4.0 @ctr MEMSZERO(zrep);
 						DbfRecord dbfrz(p_dbftz);
 						if(p_dbftz->getRec(&dbfrz) <= 0)
 							break;
@@ -4498,7 +4541,8 @@ int ACS_CRCSHSRV::ImportSession(int)
 	SString wait_msg_tmpl;
 	SString wait_msg;
 	SString query_buf;
-	LDATE  oper_date, end = ChkRepPeriod.upp;
+	LDATE  oper_date;
+	LDATE  end = ChkRepPeriod.upp;
 	SVector zrep_list(sizeof(ZRep));
 	SETIFZ(end, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	PPLoadText(PPTXT_IMPORTCHECKS, wait_msg_tmpl);

@@ -6221,7 +6221,7 @@ int xmlBufferShrink(xmlBuffer * buf, uint len)
 {
 	if(!buf)
 		return -1;
-	if(len == 0)
+	if(!len)
 		return 0;
 	if(len > buf->use)
 		return -1;
@@ -6488,13 +6488,13 @@ int FASTCALL xmlBufferAdd(xmlBuffer * buf, const xmlChar * str, int len)
 #endif
 		return -1;
 	}
-	if(len == 0)
+	if(!len)
 		return 0;
 	if(len < 0)
 		len = sstrlen(str);
 	if(len < 0)
 		return -1;
-	if(len == 0)
+	if(!len)
 		return 0;
 	needSize = buf->use + len + 2;
 	if(needSize > buf->size) {
@@ -6539,7 +6539,7 @@ int xmlBufferAddHead(xmlBuffer * buf, const xmlChar * str, int len)
 #endif
 		return -1;
 	}
-	if(len == 0)
+	if(!len)
 		return 0;
 	if(len < 0)
 		len = sstrlen(str);

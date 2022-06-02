@@ -601,7 +601,7 @@ static boolint Type_Text_Write(struct _cms_typehandler_struct* self, cmsIOHANDLE
 
 	// Get the size of the string. Note there is an extra "\0" at the end
 	size = cmsMLUgetASCII(mlu, cmsNoLanguage, cmsNoCountry, NULL, 0);
-	if(size == 0) return FALSE;    // Cannot be zero!
+	if(!size) return FALSE;    // Cannot be zero!
 
 	// Create memory
 	Text = (char *)_cmsMalloc(self->ContextID, size);
@@ -1419,8 +1419,8 @@ static boolint Write8bitTables(cmsContext ContextID, cmsIOHANDLER* io, uint32 n,
 static uint32 uipow(uint32 n, uint32 a, uint32 b)
 {
 	uint32 rv = 1, rc;
-	if(a == 0) return 0;
-	if(n == 0) return 0;
+	if(!a) return 0;
+	if(!n) return 0;
 	for(; b > 0; b--) {
 		rv *= a;
 		// Check for overflow

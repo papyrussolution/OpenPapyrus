@@ -1,5 +1,5 @@
 // V_CHKOPJ.CPP
-// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2017, 2021
+// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2017, 2021, 2022
 // @codepage UTF-8
 // Журнал чековых операций
 //
@@ -69,16 +69,9 @@ IMPLEMENT_PPFILT_FACTORY(CheckOpJrnl); CheckOpJrnlFilt::CheckOpJrnlFilt() : PPBa
 	Init(1, 0);
 }
 
-int CheckOpJrnlFilt::IsEmpty() const
+bool CheckOpJrnlFilt::IsEmpty() const
 {
-	if(!Period.IsZero())
-		return 0;
-	else if(UserID)
-		return 0;
-	else if(ActionIDList.getCount())
-		return 0;
-	else
-		return 1;
+	return (Period.IsZero() && !UserID && !ActionIDList.getCount());
 }
 //
 //

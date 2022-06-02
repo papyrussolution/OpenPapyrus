@@ -4180,7 +4180,7 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 			    const uint8 * d;
 			    uint8 * new, * n;
 
-			    if(c == 0)
+			    if(!c)
 				    break;
 
 			    new = _cairo_malloc(c);
@@ -4211,7 +4211,7 @@ static cairo_status_t _cairo_xcb_surface_add_glyph(cairo_xcb_connection_t * conn
 			    const uint32 * d;
 			    uint32 * new, * n;
 
-			    if(c == 0)
+			    if(!c)
 				    break;
 
 			    new = _cairo_malloc(4 * c);

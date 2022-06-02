@@ -54,9 +54,9 @@ inline double now()
 	return double(std::time(NULL));
 # elif defined HAVE_FTIME
 	struct timeb tp;
-#  ifdef FTIME_RETURNS_VOID
+#ifdef FTIME_RETURNS_VOID
 	ftime(&tp);
-#  else
+#else
 	if(UNLIKELY(ftime(&tp) != 0))
 		return double(std::time(NULL));
 #endif

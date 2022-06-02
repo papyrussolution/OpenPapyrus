@@ -939,7 +939,7 @@ const char * SString::SearchChar(int c, size_t * pPos) const
 
 bool FASTCALL SString::HasChr(int c) const
 {
-	if(c == 0)
+	if(!c)
 		return false;
 	else {
 		const char * p_buf = P_Buf;
@@ -3973,7 +3973,7 @@ wchar_t SStringU::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
 
 int FASTCALL SStringU::HasChr(wchar_t c) const
 {
-	if(c == 0)
+	if(!c)
 		return 0;
 	else {
 		const wchar_t * p_buf = P_Buf;
@@ -6680,7 +6680,7 @@ int STokenizer::Search(long flags, TSCollection <STokenizer::SearchBlockEntry> &
 					rp_temp_list.clear();
 					for(uint j = 0; j < rl_c; j++)
 						rp_temp_list.add((long)p_entry->RL.at(j).RP);
-					if(i == 0)
+					if(!i)
 						rp_intersect_list = rp_temp_list;
 					else
 						rp_intersect_list.intersect(&rp_temp_list);

@@ -5163,14 +5163,9 @@ PrcssrOsmFilt & FASTCALL PrcssrOsmFilt::operator = (const PrcssrOsmFilt & rS)
 	return *this;
 }
 
-int PrcssrOsmFilt::IsEmpty() const
+bool PrcssrOsmFilt::IsEmpty() const
 {
-	if(Flags)
-		return 0;
-	else if(SrcFileName.NotEmpty())
-		return 0;
-	else
-		return 1;
+	return (!Flags && SrcFileName.IsEmpty());
 }
 
 PrcssrOsm::CommonAttrSet::CommonAttrSet()
@@ -7033,6 +7028,148 @@ int ImportYYE(const char * pSrcPath) // яндекс еда
 	THROW(Helper_ImportYYE(pSrcPath, "part3.sql"));
 	CATCHZOKPPERR
 	PPWait(0);
+	return ok;
+}
+
+int ImportSpecial(const char * pPath)
+{
+	int    ok = 1;
+	SString filename;
+	SString line_buf;
+	SString out_buf;
+	SString temp_buf;
+	// result:
+	// nm;eml;pw;phn;dob;id;cntry;cty;adr;src // id!
+	if(!isempty(pPath)) {
+		(filename = pPath).SetLastSlash().Cat("si.csv");
+		SFile f_out(filename, SFile::mWrite);
+		THROW(f_out.IsValid());
+		(out_buf = "nm;eml;pw;phn;dob;id;cntry;cty;adr;src").CR(); // id!
+		f_out.WriteLine(out_buf);
+		{
+			// ФИО;ДР;phn;addr;inn;work
+			StringSet ss(";");
+			(filename = pPath).SetLastSlash().Cat("fbkdntr.txt");
+			SFile f_in(filename, SFile::mRead);
+			if(f_in.IsValid()) {
+				SString nm;
+				LDATE dob;
+				SString phn;
+				SString ident;
+				SString addr;
+				SString work;
+				for(uint line_no = 0; f_in.ReadLine(line_buf); line_no++) {
+					line_buf.Chomp().Strip();
+					if(line_no > 0 && line_buf.NotEmpty()) {
+						ss.setBuf(line_buf);
+						uint fldno = 0;
+						dob = ZERODATE;
+						nm.Z();
+						phn.Z();
+						addr.Z();
+						ident.Z();
+						work.Z();
+						for(uint ssp = 0; ss.get(&ssp, temp_buf); fldno++) {
+							temp_buf.StripQuotes().Strip();
+							if(temp_buf == "-")
+								temp_buf.Z();
+							else {
+								temp_buf.ReplaceChar(';', ',');
+								temp_buf.TrimRightChr(',').Strip();
+								switch(fldno) {
+									case 0:
+										temp_buf.Utf8ToLower();
+										(nm = "snp").Colon().Cat(temp_buf);
+										break;
+									case 1:
+										dob = strtodate_(temp_buf, DATF_DMY);
+										break;
+									case 2:
+										phn = temp_buf;
+										break;
+									case 3:
+										temp_buf.Utf8ToLower();
+										addr = temp_buf;
+										break;
+									case 4:
+										if(temp_buf.NotEmpty()) {
+											(ident = "ruinn").Colon().Cat(temp_buf);
+										}
+										break;
+									case 5:
+										work = temp_buf;
+										break;
+								}
+							}
+						}
+						// "nm;eml;pw;phn;dob;id;cntry;cty;adr;src"
+						out_buf.Z().Cat(nm).Semicol().Cat("").Semicol().Cat("").Semicol().Cat(phn).
+							Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat(ident).Semicol().Cat("ru").Semicol().Cat("").
+							Semicol().Cat(addr).Semicol().Cat("fbk").CR();
+						f_out.WriteLine(out_buf);
+					}
+				}
+			}
+		}
+		{
+			const char * p_fileset01[] = {
+				"mskphn10000-01.txt",
+				"mskphn10000-02.txt",
+				"mskphn10000-03.txt",
+				"mskphn10000-04.txt"
+			};
+			for(uint fsi = 0; fsi < SIZEOFARRAY(p_fileset01); fsi++) {
+				(filename = pPath).SetLastSlash().Cat(p_fileset01[fsi]);
+				SFile f_in(filename, SFile::mRead);
+				if(f_in.IsValid()) {
+					//
+					// snp;dob;phn;eml
+					StringSet ss("|");
+					SString nm;
+					LDATE dob;
+					SString phn;
+					SString eml;
+					while(f_in.ReadLine(line_buf)) {
+						line_buf.Chomp().Strip();
+						if(line_buf.NotEmpty()) {
+							ss.setBuf(line_buf);
+							uint fldno = 0;
+							dob = ZERODATE;
+							nm.Z();
+							phn.Z();
+							eml.Z();
+							for(uint ssp = 0; ss.get(&ssp, temp_buf); fldno++) {
+								temp_buf.StripQuotes().Strip();
+								temp_buf.ReplaceChar(';', ',');
+								temp_buf.TrimRightChr(',').Strip();
+								switch(fldno) {
+									case 0:
+										temp_buf.Utf8ToLower();
+										(nm = "snp").Colon().Cat(temp_buf);
+										break;
+									case 1:
+										dob = strtodate_(temp_buf, DATF_DMY);
+										break;
+									case 2:
+										phn = temp_buf;
+										break;
+									case 3:
+										eml = temp_buf;
+										break;
+								}
+							}
+							// nm;eml;pw;phn;dob;cntry;cty;adr;src
+							out_buf.Z().Cat(nm).Semicol().Cat(eml).Semicol().Cat("").Semicol().Cat(phn).
+								Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat("").Semicol().Cat("ru").Semicol().Cat("moscow").
+								Semicol().Cat("").Semicol().Cat("unkn").CR();
+							f_out.WriteLine(out_buf);
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 //

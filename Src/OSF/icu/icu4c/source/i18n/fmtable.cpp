@@ -817,7 +817,7 @@ U_CAPI UFormattable* U_EXPORT2 ufmt_open(UErrorCode * status) {
 	}
 	UFormattable * fmt = (new Formattable())->toUFormattable();
 
-	if(fmt == NULL) {
+	if(!fmt) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 	}
 	return fmt;

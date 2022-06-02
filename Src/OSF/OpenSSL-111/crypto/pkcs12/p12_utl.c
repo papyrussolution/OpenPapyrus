@@ -148,7 +148,7 @@ static int bmp_to_utf8(char * str, const uchar * utf16, int len)
 {
 	ulong utf32chr;
 
-	if(len == 0) return 0;
+	if(!len) return 0;
 
 	if(len < 2) return -1;
 

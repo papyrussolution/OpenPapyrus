@@ -665,7 +665,7 @@ void                 _cmsTagSignature2String(char String[5], cmsTagSignature sig
 
 CMSCHECKPOINT cmsInterpParams* CMSEXPORT _cmsComputeInterpParams(cmsContext ContextID, uint32 nSamples, uint32 InputChan, uint32 OutputChan, const void * Table, uint32 dwFlags);
 cmsInterpParams * _cmsComputeInterpParamsEx(cmsContext ContextID, const uint32 nSamples[], uint32 InputChan, uint32 OutputChan, const void * Table, uint32 dwFlags);
-CMSCHECKPOINT void CMSEXPORT _cmsFreeInterpParams(cmsInterpParams* p);
+CMSCHECKPOINT void /*CMSEXPORT*/FASTCALL _cmsFreeInterpParams(cmsInterpParams* p);
 boolint _cmsSetInterpolationRoutine(cmsContext ContextID, cmsInterpParams* p);
 
 // Curves

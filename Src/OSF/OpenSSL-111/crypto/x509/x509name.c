@@ -25,7 +25,7 @@ int X509_NAME_get_text_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, char * 
 	if(i < 0)
 		return -1;
 	data = X509_NAME_ENTRY_get_data(X509_NAME_get_entry(name, i));
-	if(buf == NULL)
+	if(!buf)
 		return data->length;
 	if(len <= 0)
 		return 0;
@@ -54,7 +54,7 @@ int X509_NAME_get_index_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, int la
 	int n;
 	X509_NAME_ENTRY * ne;
 	STACK_OF(X509_NAME_ENTRY) *sk;
-	if(name == NULL)
+	if(!name)
 		return -1;
 	if(lastpos < 0)
 		lastpos = -1;
@@ -171,7 +171,7 @@ int X509_NAME_add_entry(X509_NAME * name, const X509_NAME_ENTRY * ne, int loc,
 	int n, i, inc;
 	STACK_OF(X509_NAME_ENTRY) *sk;
 
-	if(name == NULL)
+	if(!name)
 		return 0;
 	sk = name->entries;
 	n = sk_X509_NAME_ENTRY_num(sk);

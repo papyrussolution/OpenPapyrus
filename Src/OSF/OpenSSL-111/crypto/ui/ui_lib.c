@@ -321,7 +321,7 @@ int UI_dup_info_string(UI * ui, const char * text)
 {
 	char * text_copy = NULL;
 
-	if(text != NULL) {
+	if(text) {
 		text_copy = OPENSSL_strdup(text);
 		if(text_copy == NULL) {
 			UIerr(UI_F_UI_DUP_INFO_STRING, ERR_R_MALLOC_FAILURE);
@@ -343,7 +343,7 @@ int UI_dup_error_string(UI * ui, const char * text)
 {
 	char * text_copy = NULL;
 
-	if(text != NULL) {
+	if(text) {
 		text_copy = OPENSSL_strdup(text);
 		if(text_copy == NULL) {
 			UIerr(UI_F_UI_DUP_ERROR_STRING, ERR_R_MALLOC_FAILURE);

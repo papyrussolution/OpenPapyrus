@@ -41,17 +41,47 @@ public class StyloQDatabase extends Database {
 		public static final int kSession        = 4;
 		public static final int kFace           = 5; // Параметры лика, которые могут быть переданы серверу для ассоциации с нашим клиентским аккаунтом
 		public static final int kDocIncoming    = 6; // Входящие документы
-		public static final int kDocOutcominig  = 7; // Исходящие документы
+		public static final int kDocOutcoming   = 7; // Исходящие документы
 		public static final int kCounter        = 8; // @v11.2.10 Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
 		//
 		// Descr: Флаги записи таблицы данных StyloQ bindery (StyloQSec::Flags)
 		//
-		public static final int styloqfMediator         = 0x0001; // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
+		public static final int styloqfMediator           = 0x0001; // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
 			// записи после получения соответствующей информации от сервиса-медиатора
-		public static final int styloqfDocFinished      = 0x0002; // @v11.3.12 Для документа: цикл обработки для документа завершен. Не может содержать флаги (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft)
-		public static final int styloqfDocWaitForOrdrsp = 0x0004; // @v11.3.12 Для документа заказа: ожидает подтверждения заказа. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
-		public static final int styloqfDocWaitForDesadv = 0x0008; // @v11.3.12 Для документа заказа: ожидает документа отгрузки. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
-		public static final int styloqfDocDraft         = 0x0010; // @v11.3.12 Для документа: драфт-версия. Не может содержать флаги (styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
+		//public static final int styloqfDocFinished        = 0x0002; // @v11.3.12 Для документа: цикл обработки для документа завершен. Не может содержать флаги (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft)
+		//public static final int styloqfDocWaitForOrdrsp   = 0x0004; // @v11.3.12 Для документа заказа: ожидает подтверждения заказа. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
+		//public static final int styloqfDocWaitForDesadv   = 0x0008; // @v11.3.12 Для документа заказа: ожидает документа отгрузки. Не может содержать флаги (styloqfDocFinished|styloqfDocDraft)
+		//public static final int styloqfDocDraft           = 0x0010; // @v11.3.12 Для документа: драфт-версия. Не может содержать флаги (styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)
+		//public static final int styloqfDocTransmission    = 0x0020; // @v11.4.0  Для документа: технический флаг, устанавливаемый перед отправкой документа контрагенту и снимаемый после того, как
+			// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
+		//public static final int styloqfDocCancelledByCli  = 0x0040; // @v11.4.0 Для документа: документ отменен клиентом
+		//public static final int styloqfDocCancelledBySvc  = 0x0080; // @v11.4.0 Для документа: документ отменен сервисом
+		//public static final int styloqfDocStatusFlagsMask = (styloqfDocFinished|styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft|styloqfDocTransmission);
+		public static final int styloqfDocStatusFlags    = (0x02|0x04|0x08|0x10|0x20|0x40); // 6 bits используются для кодирования статуса документа
+		public static final int styloqfDocTransmission   = 0x0080; // @v11.4.0  Для документа: технический флаг, устанавливаемый перед отправкой документа контрагенту и снимаемый после того, как
+			// контрагент подтвердил получение. Необходим для управления документами, передача которых не завершилась.
+		//
+		//
+		// Статусы документов заказа клиент-->сервис
+		//
+		public static final int styloqdocstUNDEF                 =  0; // неопределенный статус. Фактически, недопустимое состояние.
+		public static final int styloqdocstDRAFT               	 =  1; // драфт. Находится на стадии формирования на стороне эмитента
+		public static final int styloqdocstWAITFORAPPROREXEC   	 =  2; // ждет одобрения или исполнения от акцептора
+		public static final int styloqdocstAPPROVED            	 =  3; // одобрен акцептором
+		public static final int styloqdocstCORRECTED           	 =  4; // скорректирован акцептором (от акцептора поступает корректирующий документ, который привязывается к оригиналу)
+		public static final int styloqdocstCORRECTIONACCEPTED  	 =  5; // корректировка акцептора принята эмитентом
+		public static final int styloqdocstCORRECTIONREJECTED  	 =  6; // корректировка акцептора отклонена эмитентом (документ полностью отменяется и цикл документа завершается)
+		public static final int styloqdocstREJECTED            	 =  7; // отклонен акцептором (цикл документа завершается)
+		public static final int styloqdocstMODIFIED            	 =  8; // изменен эмитентом (от эмитента поступает измененная версия документа, которая привязывается к оригиналу)
+		public static final int styloqdocstCANCELLED           	 =  9; // отменен эмитентом (цикл документа завершается). Переход в это состояние возможен с ограничениями.
+		public static final int styloqdocstEXECUTED            	 = 10; // исполнен акцептором
+		public static final int styloqdocstEXECUTIONACCEPTED   	 = 11; // подтверждение от эмитента исполнения документа акцептором (цикл документа завершается)
+		public static final int styloqdocstEXECUTIONCORRECTED    = 12; // корректировка от эмитента исполнения документа акцептором (от эмитента поступает документ согласования)
+		public static final int styloqdocstEXECORRECTIONACCEPTED = 13; // согласие акцептора с документом согласования эмитента
+		public static final int styloqdocstEXECORRECTIONREJECTED = 14; // отказ акцептора от документа согласования эмитента - тупиковая ситуация, которая должна быть
+			// разрешена посредством дополнительных механизмов (escrow счета, полный возврат с отменой платежей и т.д.)
+		public static final int styloqdocstFINISHED_SUCC         = 15; // Финальное состояние документа: завершен как учтенный и отработанный.
+		public static final int styloqdocstFINISHED_FAIL         = 16; // Финальное состояние документа: завершен как отмененный.
 		//
 		public static final int doctypUndef       = 0;
 		public static final int doctypCommandList = 1;
@@ -75,59 +105,24 @@ public class StyloQDatabase extends Database {
 			Pool = new SecretTagPool();
 			Pool.Unserialize(Rec.VT);
 		}
+		static boolean IsDocKind(int kind)
+		{
+			return (kind == kDocIncoming || kind == kDocOutcoming);
+		}
 		boolean IsValid()
 		{
 			boolean ok = true;
 			try {
-				THROW_SL(Rec.Kind == kNativeService || Rec.Kind == kForeignService || Rec.Kind == kDocIncoming ||
-						Rec.Kind == kDocOutcominig || Rec.Kind == kClient || Rec.Kind == kSession || Rec.Kind == kFace || Rec.Kind == kCounter, 0);
+				THROW_SL(Rec.Kind == kNativeService || Rec.Kind == kForeignService || IsDocKind(Rec.Kind) ||
+						Rec.Kind == kClient || Rec.Kind == kSession || Rec.Kind == kFace || Rec.Kind == kCounter, 0);
 				THROW_SL((Rec.Kind == kNativeService || Rec.Kind == kForeignService) || (Rec.Flags & styloqfMediator) == 0, 0);
-				THROW_SL((Rec.Kind == kDocIncoming || Rec.Kind == kDocOutcominig) || (styloqfDocFinished | styloqfDocWaitForOrdrsp | styloqfDocWaitForDesadv | styloqfDocDraft) == 0, 0);
-				if(Rec.Kind == kDocIncoming || Rec.Kind == kDocOutcominig) {
-					THROW_SL((Rec.Flags & styloqfDocFinished) == 0 || (Rec.Flags & (styloqfDocWaitForOrdrsp | styloqfDocWaitForDesadv | styloqfDocDraft)) == 0, 0);
-					THROW_SL((Rec.Flags & styloqfDocWaitForOrdrsp) == 0 || (Rec.Flags & (styloqfDocFinished | styloqfDocDraft)) == 0, 0);
-					THROW_SL((Rec.Flags & styloqfDocWaitForDesadv) == 0 || (Rec.Flags & (styloqfDocFinished | styloqfDocDraft)) == 0, 0);
-					THROW_SL((Rec.Flags & styloqfDocDraft) == 0 || (Rec.Flags & (styloqfDocFinished | styloqfDocWaitForOrdrsp | styloqfDocWaitForDesadv)) == 0, 0);
+				THROW_SL(IsDocKind(Rec.Kind) || ((Rec.Flags >> 1) & styloqfDocStatusFlags) == 0, 0);
+				if(IsDocKind(Rec.Kind)) {
+					//THROW_SL((Rec.Flags & styloqfDocFinished) == 0 || (Rec.Flags & (styloqfDocWaitForOrdrsp | styloqfDocWaitForDesadv | styloqfDocDraft)) == 0, 0);
+					//THROW_SL((Rec.Flags & styloqfDocWaitForOrdrsp) == 0 || (Rec.Flags & (styloqfDocFinished | styloqfDocDraft)) == 0, 0);
+					//THROW_SL((Rec.Flags & styloqfDocWaitForDesadv) == 0 || (Rec.Flags & (styloqfDocFinished | styloqfDocDraft)) == 0, 0);
+					//THROW_SL((Rec.Flags & styloqfDocDraft) == 0 || (Rec.Flags & (styloqfDocFinished | styloqfDocWaitForOrdrsp | styloqfDocWaitForDesadv)) == 0, 0);
 				}
-			} catch(StyloQException exn) {
-				ok = false;
-			}
-			return ok;
-		}
-		boolean SetDocStatus_Draft()
-		{
-			boolean ok = true;
-			try {
-				THROW(Rec.Kind == kDocIncoming || Rec.Kind == kDocOutcominig, 0);
-				THROW((Rec.Flags & (styloqfDocFinished | styloqfDocWaitForOrdrsp | styloqfDocWaitForDesadv)) == 0, 0);
-				Rec.Flags |= styloqfDocDraft;
-			} catch(StyloQException exn) {
-				ok = false;
-			}
-			return ok;
-		}
-		boolean SetDocStatus_Finished()
-		{
-			boolean ok = true;
-			try {
-				THROW(Rec.Kind == kDocIncoming || Rec.Kind == kDocOutcominig, 0);
-				Rec.Flags &= ~(styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv|styloqfDocDraft);
-				Rec.Flags |= styloqfDocFinished;
-			} catch(StyloQException exn) {
-				ok = false;
-			}
-			return ok;
-		}
-		boolean SetDocStatus_Intermediate(int flags)
-		{
-			boolean ok = true;
-			try {
-				THROW((flags & (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)) != 0, 0);
-				THROW((flags & ~(styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv)) == 0, 0);
-				THROW(Rec.Kind == kDocIncoming || Rec.Kind == kDocOutcominig, 0);
-				THROW((Rec.Flags & styloqfDocFinished) == 0, 0);
-				Rec.Flags |= (flags & (styloqfDocWaitForOrdrsp|styloqfDocWaitForDesadv));
-				Rec.Flags &= ~(styloqfDocDraft);
 			} catch(StyloQException exn) {
 				ok = false;
 			}
@@ -495,7 +490,7 @@ public class StyloQDatabase extends Database {
 					//public static final int kSession        = 4;
 					//public static final int kDocIncoming    = 6; // Входящие документы
 					//public static final int kDocOutcominig  = 7; // Исходящие документы
-					final int[] kind_list_to_delete = {SecStoragePacket.kSession, SecStoragePacket.kDocIncoming, SecStoragePacket.kDocOutcominig};
+					final int[] kind_list_to_delete = {SecStoragePacket.kSession, SecStoragePacket.kDocIncoming, SecStoragePacket.kDocOutcoming};
 					for(int i = 0; i < kind_list_to_delete.length; i++) {
 						int kind_to_delete = kind_list_to_delete[i];
 						String query = "DELETE FROM " + tn + " WHERE CorrespondID=" + id + " and kind=" + kind_to_delete;
@@ -731,41 +726,37 @@ public class StyloQDatabase extends Database {
 			for(int i = 0; i < docReqList.size(); i++) {
 				StyloQInterchange.DocumentRequestEntry dre = docReqList.get(i);
 				if(dre != null && dre.DocID > 0) {
-					if(dre.AfterTransmitStatusFlags != 0) {
-						try {
-							SecStoragePacket pack = GetPeerEntry(dre.DocID);
-							boolean local_set_result = false;
-							final int preserve_flags = pack.Rec.Flags;
-							if(dre.AfterTransmitStatusFlags == SecStoragePacket.styloqfDocFinished) {
-								local_set_result = pack.SetDocStatus_Finished();
-							}
-							else if((dre.AfterTransmitStatusFlags & (SecStoragePacket.styloqfDocWaitForOrdrsp|SecStoragePacket.styloqfDocWaitForDesadv)) != 0) {
-								local_set_result = pack.SetDocStatus_Intermediate(dre.AfterTransmitStatusFlags);
-							}
-							if(local_set_result && preserve_flags != pack.Rec.Flags) {
-								long local_result_id = PutPeerEntry(dre.DocID, pack, false);
-								if(local_result_id == dre.DocID) {
-									dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Successed;
-									upd_count++;
-								}
-								else if(local_result_id == 0) {
-									dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Error;
-									err_count++;
-								}
-								else {
-									dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Error;
-									err_count++;
-									assert(local_result_id != dre.DocID); // В этом случае все плохо - у нас где-то тяжелая ошибка
-								}
-							}
-							else
-								dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Skipped;
-						} catch(StyloQException exn) {
-							;
+					try {
+						SecStoragePacket pack = GetPeerEntry(dre.DocID);
+						final int preserve_flags = pack.Rec.Flags;
+						boolean local_set_result = false;
+						if((pack.Rec.Flags & SecStoragePacket.styloqfDocTransmission) != 0) {
+							pack.Rec.Flags &= ~SecStoragePacket.styloqfDocTransmission;
+							local_set_result = true;
 						}
+						if(dre.AfterTransmitStatus != 0)
+							local_set_result = pack.Rec.SetDocStatus(dre.AfterTransmitStatus);
+						if(local_set_result && preserve_flags != pack.Rec.Flags) {
+							long local_result_id = PutPeerEntry(dre.DocID, pack, false);
+							if(local_result_id == dre.DocID) {
+								dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Successed;
+								upd_count++;
+							}
+							else if(local_result_id == 0) {
+								dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Error;
+								err_count++;
+							}
+							else {
+								dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Error;
+								err_count++;
+								assert(local_result_id != dre.DocID); // В этом случае все плохо - у нас где-то тяжелая ошибка
+							}
+						}
+						else
+							dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Skipped;
+					} catch(StyloQException exn) {
+						;
 					}
-					else
-						dre.DbAcceptStatus = StyloQInterchange.DocumentRequestEntry.AcceptionResult.Skipped;
 				}
 			}
 			tra.Commit();
@@ -827,7 +818,7 @@ public class StyloQDatabase extends Database {
 					}
 					int pack_kind = 0;
 					if(direction > 0)
-						pack_kind = SecStoragePacket.kDocOutcominig;
+						pack_kind = SecStoragePacket.kDocOutcoming;
 					else if(direction < 0)
 						pack_kind = SecStoragePacket.kDocIncoming;
 					if(raw_doc_type != null) {
@@ -836,6 +827,7 @@ public class StyloQDatabase extends Database {
 								long _ex_doc_id_from_json = (direction > 0) ? js_document.optLong("ID", 0) : 0;
 								long _ex_doc_id_from_db = 0;
 								pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
+								pack.Rec.Flags |= (docFlags & (SecStoragePacket.styloqfDocStatusFlags|SecStoragePacket.styloqfDocTransmission));
 								{
 									Transaction tra = new Transaction(this, true);
 									// Документ такого типа может быть только один в комбинации {direction; rIdent}
@@ -843,7 +835,8 @@ public class StyloQDatabase extends Database {
 									if(ex_id_list != null) {
 										for(int i = 0; i < ex_id_list.size(); i++) {
 											long local_id = ex_id_list.get(i);
-											if(_ex_doc_id_from_json > 0 && local_id == _ex_doc_id_from_json)
+											// Последний (из гипотетически нескольких) встретившийся документ считаем нашим, остальные - удаляем
+											if(i == ex_id_list.size()-1)
 												_ex_doc_id_from_db = local_id;
 											else
 												PutPeerEntry(local_id, null, false); // @throw
@@ -911,25 +904,99 @@ public class StyloQDatabase extends Database {
 		}
 		return result_id;
 	}
+	public SecStoragePacket FindRecentDraftDoc(int docType, long correspondId, byte [] ident, UUID orgCmdUuid)
+	{
+		SecStoragePacket result = null;
+		try {
+			Database.Table tbl = CreateTable("SecTable");
+			if(tbl != null) {
+				final String tn = tbl.GetName();
+				SecTable.Rec last_suitable_rec = null;
+				String query = "SELECT * FROM " + tn + " WHERE docType=" + docType;
+				if(SLib.GetLen(ident) > 0) {
+					query += " and BI=x'" + SLib.ByteArrayToHexString(ident) + "'";
+				}
+				query += " and kind=" + SecStoragePacket.kDocOutcoming;
+				if(correspondId > 0)
+					query += " and CorrespondID=" + correspondId;
+				query += " and Flags=" + (SecStoragePacket.styloqdocstDRAFT << 1); // @fixme Опасный критерий: пока закладываемся на то, что с этим флагом ничто более не комбинируется.
+				query += " order by Kind, BI, TimeStamp"; // #idx1
+				android.database.Cursor cur = GetHandle().rawQuery(query, null);
+				if(cur != null && cur.moveToFirst()) {
+					do {
+						SecStoragePacket current_pack = null;
+						SecTable.Rec rec = new SecTable.Rec();
+						rec.Init();
+						rec.Set(cur);
+						if(rec.Kind == SecStoragePacket.kDocOutcoming) {
+							boolean is_suitable = false;
+							if(orgCmdUuid == null)
+								is_suitable = true;
+							else {
+								current_pack = new SecStoragePacket(rec);
+								if(current_pack.Pool != null) {
+									byte[] raw_data = current_pack.Pool.Get(SecretTagPool.tagRawData);
+									if(SLib.GetLen(raw_data) > 0) {
+										String txt_raw_data = new String(raw_data);
+										if(SLib.GetLen(txt_raw_data) > 0) {
+											try {
+												JSONObject js = new JSONObject(txt_raw_data);
+												if(js != null) {
+													String txt_orgcmduuid = js.optString("orgcmduuid", null);
+													if(SLib.GetLen(txt_orgcmduuid) > 0) {
+														UUID local_uuid = UUID.fromString(txt_orgcmduuid);
+														if(local_uuid != null && local_uuid.compareTo(orgCmdUuid) == 0) {
+															is_suitable = true;
+														}
+													}
+												}
+											} catch(JSONException exn) {
+												;
+											}
+										}
+									}
+								}
+							}
+							if(is_suitable) {
+								if(result == null || result.Rec.TimeStamp < rec.TimeStamp) {
+									if(current_pack != null)
+										result = current_pack;
+									else
+										result = new SecStoragePacket(rec);
+								}
+							}
+						}
+					} while(cur.moveToNext());
+				}
+			}
+		} catch(StyloQException exn) {
+			result = null;
+		}
+		return result;
+	}
+	public ArrayList<Long> GetDocIdListByType(int direction, int docType, long correspondId, byte [] ident) throws StyloQException
+	{
+		return GetDocIdListByType( direction, docType, correspondId, null, ident);
+	}
 	//
 	// ARG(direction IN): <0 - incoming, >0 - outcoming, 0 - no matter
 	//
-	public ArrayList<Long> GetDocIdListByType(int direction, int docType, long correspondId, byte [] ident) throws StyloQException
+	public ArrayList<Long> GetDocIdListByType(int direction, int docType, long correspondId, ArrayList<Integer> statusList, byte [] ident) throws StyloQException
 	{
 		ArrayList<Long> result = null;
 		Database.Table tbl = CreateTable("SecTable");
 		if(tbl != null) {
 			final String tn = tbl.GetName();
-			String query = "SELECT ID, Kind FROM " + tn + " WHERE docType=" + docType;
+			String query = "SELECT ID, Kind, Flags FROM " + tn + " WHERE docType=" + docType;
 			if(SLib.GetLen(ident) > 0) {
 				query += " and BI=x'" + SLib.ByteArrayToHexString(ident) + "'";
 			}
 			if(direction > 0)
-				query += " and kind=" + SecStoragePacket.kDocOutcominig;
+				query += " and kind=" + SecStoragePacket.kDocOutcoming;
 			else if(direction < 0)
 				query += " and kind=" + SecStoragePacket.kDocIncoming;
 			else
-				query += " and (kind=" + SecStoragePacket.kDocOutcominig + " or kind=" + SecStoragePacket.kDocIncoming + ")";
+				query += " and (kind=" + SecStoragePacket.kDocOutcoming + " or kind=" + SecStoragePacket.kDocIncoming + ")";
 			if(correspondId > 0)
 				query += " and CorrespondID=" + correspondId;
 			android.database.Cursor cur = GetHandle().rawQuery(query, null);
@@ -938,7 +1005,15 @@ public class StyloQDatabase extends Database {
 					SecTable.Rec rec = new SecTable.Rec();
 					rec.Init();
 					rec.Set(cur);
-					if(rec.Kind == SecStoragePacket.kDocIncoming || rec.Kind == SecStoragePacket.kDocOutcominig) {
+					boolean is_suitable = true;
+					if(!SecStoragePacket.IsDocKind(rec.Kind))
+						is_suitable = false;
+					else {
+						if(statusList != null && !statusList.contains(new Integer(rec.GetDocStatus()))) {
+							is_suitable = false;
+						}
+					}
+					if(is_suitable) {
 						if(result == null)
 							result = new ArrayList<Long>();
 						result.add(new Long(rec.ID));
@@ -1306,6 +1381,27 @@ public class StyloQDatabase extends Database {
 			public Rec() throws StyloQException
 			{
 				super();
+			}
+			static int GetDocStatus(int flags)
+			{
+				return ((flags & SecStoragePacket.styloqfDocStatusFlags) >> 1);
+			}
+			int GetDocStatus()
+			{
+				return SecStoragePacket.IsDocKind(Kind) ? GetDocStatus(Flags) : 0;
+			}
+			boolean SetDocStatus(int styloqDocStatus)
+			{
+				boolean ok = true;
+				try {
+					THROW(SecStoragePacket.IsDocKind(Kind), 0);
+					THROW(((styloqDocStatus << 1) & ~SecStoragePacket.styloqfDocStatusFlags) == 0, 0); // Проверяем чтоб за пределами битовой зоны статусов ничего не было.
+					Flags &= ~SecStoragePacket.styloqfDocStatusFlags;
+					Flags |= ((styloqDocStatus << 1) & SecStoragePacket.styloqfDocStatusFlags);
+				} catch(StyloQException exn) {
+					ok = false;
+				}
+				return ok;
 			}
 		}
 		public SecTable()

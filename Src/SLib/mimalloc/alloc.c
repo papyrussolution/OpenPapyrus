@@ -73,7 +73,7 @@ extern inline mi_decl_restrict void * mi_heap_malloc_small(mi_heap_t* heap, size
 	mi_assert(heap->thread_id == 0 || heap->thread_id == _mi_thread_id()); // heaps are thread local
 	mi_assert(size <= MI_SMALL_SIZE_MAX);
   #if(MI_PADDING)
-	if(size == 0) {
+	if(!size) {
 		size = sizeof(void *);
 	}
   #endif
@@ -622,7 +622,7 @@ mi_decl_restrict void * mi_mallocn(size_t count, size_t size) NOEXCEPT {
 // Expand in place or fail
 void * mi_expand(void * p, size_t newsize) NOEXCEPT 
 {
-	if(p == NULL) 
+	if(!p) 
 		return NULL;
 	size_t size = _mi_usable_size(p, "mi_expand");
 	if(newsize > size) 
@@ -632,7 +632,7 @@ void * mi_expand(void * p, size_t newsize) NOEXCEPT
 
 void * _mi_heap_realloc_zero(mi_heap_t* heap, void * p, size_t newsize, bool zero) 
 {
-	if(p == NULL) return _mi_heap_malloc_zero(heap, newsize, zero);
+	if(!p) return _mi_heap_malloc_zero(heap, newsize, zero);
 	size_t size = _mi_usable_size(p, "mi_realloc");
 	if(newsize <= size && newsize >= (size / 2)) {
 		return p; // reallocation still fits and not more than 50% waste

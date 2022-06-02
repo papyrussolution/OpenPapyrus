@@ -34,7 +34,7 @@ void RC5_32_ofb64_encrypt(const uchar * in, uchar * out, long length, RC5_32_KEY
 	l2c(v0, dp);
 	l2c(v1, dp);
 	while(l--) {
-		if(n == 0) {
+		if(!n) {
 			RC5_32_encrypt((ulong *)ti, schedule);
 			dp = (char *)d;
 			t = ti[0];

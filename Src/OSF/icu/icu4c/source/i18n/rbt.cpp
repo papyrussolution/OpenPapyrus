@@ -35,14 +35,11 @@ void RuleBasedTransliterator::_construct(const UnicodeString & rules,
 	if(U_FAILURE(status)) {
 		return;
 	}
-
-	if(parser.idBlockVector.size() != 0 ||
-	    parser.compoundFilter != NULL ||
+	if(parser.idBlockVector.size() != 0 || parser.compoundFilter != NULL ||
 	    parser.dataVector.size() == 0) {
 		status = U_INVALID_RBT_SYNTAX; // ::ID blocks disallowed in RBT
 		return;
 	}
-
 	fData = (TransliterationRuleData*)parser.dataVector.orphanElementAt(0);
 	setMaximumContextLength(fData->ruleSet.getMaximumContextLength());
 }

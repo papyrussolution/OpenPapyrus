@@ -284,7 +284,7 @@ public:
 		int len;
 		uchar buffer[1024];
 		FILE * file = fopen(filename, "rb");
-		if(file == NULL) {
+		if(!file) {
 			//printf("%s can't be opened\n", filename);
 			return NULL;
 		}

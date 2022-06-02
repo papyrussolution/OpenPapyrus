@@ -887,7 +887,7 @@ void BZ2_bzWrite(int*    bzerror, BZFILE* b, void *   buf, int len)
 		BZ_SETERR(BZ_IO_ERROR); 
 		return;
 	}
-	if(len == 0) {
+	if(!len) {
 		BZ_SETERR(BZ_OK); 
 		return;
 	}
@@ -1043,7 +1043,7 @@ int BZ2_bzRead(int * bzerror, BZFILE* b, void *   buf, int len)
 	if(bzf->writing) {
 		BZ_SETERR(BZ_SEQUENCE_ERROR); return 0;
 	}
-	if(len == 0) {
+	if(!len) {
 		BZ_SETERR(BZ_OK); return 0;
 	}
 	bzf->strm.avail_out = len;

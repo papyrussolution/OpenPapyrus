@@ -699,7 +699,7 @@ CURLcode rtp_client_write(struct connectdata * conn, char * ptr, size_t len)
 	curl_write_callback writeit;
 	void * user_ptr;
 
-	if(len == 0) {
+	if(!len) {
 		failf(data, "Cannot write a 0 size RTP packet.");
 		return CURLE_WRITE_ERROR;
 	}

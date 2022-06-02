@@ -2230,7 +2230,7 @@ xmlChar * xmlStringLenDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, 
 	else
 		c = 0;
 	while((c != 0) && (c != end) && /* non input consuming loop */ (c != end2) && (c != end3)) {
-		if(c == 0)
+		if(!c)
 			break;
 		if((c == '&') && (str[1] == '#')) {
 			int val = xmlParseStringCharRef(ctxt, &str);
@@ -2512,7 +2512,7 @@ xmlChar * xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** p
 	if(c == ':') {
 		c = *cur;
 		*prefix = ret;
-		if(c == 0) {
+		if(!c) {
 			return (xmlStrndup(reinterpret_cast<const xmlChar *>(""), 0));
 		}
 		len = 0;
@@ -2732,7 +2732,7 @@ static const xmlChar * xmlParseNameComplex(xmlParserCtxt * ctxt)
 			len += l;
 			NEXTL(l);
 			c = CUR_CHAR(l);
-			if(c == 0) {
+			if(!c) {
 				count = 0;
 				GROW;
 				if(ctxt->IsEof())
@@ -2837,7 +2837,7 @@ static const xmlChar * xmlParseNCNameComplex(xmlParserCtxt * ctxt)
 			NEXTL(l);
 			end = ctxt->input->cur;
 			c = CUR_CHAR(l);
-			if(c == 0) {
+			if(!c) {
 				count = 0;
 				GROW;
 				if(ctxt->IsEof())
@@ -3058,7 +3058,7 @@ xmlChar * xmlParseNmtoken(xmlParserCtxt * ctxt)
 		COPY_BUF(l, buf, len, c);
 		NEXTL(l);
 		c = CUR_CHAR(l);
-		if(c == 0) {
+		if(!c) {
 			count = 0;
 			GROW;
 			if(ctxt->IsEof())
@@ -3110,7 +3110,7 @@ xmlChar * xmlParseNmtoken(xmlParserCtxt * ctxt)
 			return buffer;
 		}
 	}
-	if(len == 0)
+	if(!len)
 		return 0;
 	else if((len > XML_MAX_NAME_LENGTH) && !(ctxt->options & XML_PARSE_HUGE)) {
 		xmlFatalErr(ctxt, XML_ERR_NAME_TOO_LONG, "NmToken");
@@ -3195,7 +3195,7 @@ xmlChar * xmlParseEntityValue(xmlParserCtxt * ctxt, xmlChar ** orig)
 			xmlPopInput(ctxt);
 		GROW;
 		c = CUR_CHAR(l);
-		if(c == 0) {
+		if(!c) {
 			GROW;
 			c = CUR_CHAR(l);
 		}
@@ -3307,7 +3307,7 @@ static xmlChar * xmlParseAttValueComplex(xmlParserCtxt * ctxt, int * attlen, int
 			xmlFatalErrMsg(ctxt, XML_ERR_ATTRIBUTE_NOT_FINISHED, "AttValue length too long\n");
 			goto mem_error;
 		}
-		if(c == 0)
+		if(!c)
 			break;
 		if(c == '&') {
 			in_space = 0;
@@ -6947,7 +6947,7 @@ static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntity * entity)
 		}
 		NEXTL(l);
 		c = CUR_CHAR(l);
-		if(c == 0) {
+		if(!c) {
 			count = 0;
 			GROW;
 			if(ctxt->IsEof()) {

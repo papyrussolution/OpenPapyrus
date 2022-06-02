@@ -253,7 +253,7 @@ char * ssh_get_local_username()
 		return NULL;
 	}
 	name = sstrdup(pwd.pw_name);
-	if(name == NULL) {
+	if(!name) {
 		return NULL;
 	}
 	return name;
@@ -429,7 +429,7 @@ void ssh_log_hexdump(const char * descr, const uchar * what, size_t len)
 		count += printed;
 	}
 
-	if(len == 0) {
+	if(!len) {
 		printed = snprintf(buffer + count, sizeof(buffer) - count,
 			"(zero length):");
 		if(printed < 0) {
@@ -754,13 +754,13 @@ char * ssh_dirname(const char * path)
 	while(len > 0 && path[len - 1] == '/') 
 		--len;
 	/* We have only slashes */
-	if(len == 0) {
+	if(!len) {
 		return sstrdup("/");
 	}
 	/* goto next slash */
 	while(len > 0 && path[len - 1] != '/') 
 		--len;
-	if(len == 0) {
+	if(!len) {
 		return sstrdup(".");
 	}
 	else if(len == 1) {
@@ -804,7 +804,7 @@ char * ssh_basename(const char * path)
 	while(len > 0 && path[len - 1] == '/') 
 		--len;
 	/* We have only slashes */
-	if(len == 0) {
+	if(!len) {
 		return sstrdup("/");
 	}
 	while(len > 0 && path[len - 1] != '/') 

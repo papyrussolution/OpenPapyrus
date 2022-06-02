@@ -55,9 +55,9 @@
 	#define LOCAL_CLANG_VERSION 0
 	#define LOCAL_CLANG_PREREQ(maj, min) 0
 #endif
-#ifndef __has_builtin
-	#define __has_builtin(x) 0
-#endif
+// @v11.4.0 #ifndef __has_builtin
+	// @v11.4.0 #define __has_builtin(x) 0
+// @v11.4.0 #endif
 #if !defined(HAVE_CONFIG_H)
 #if defined(_MSC_VER) && _MSC_VER > 1310 && (defined(_M_X64) || defined(_M_IX86))
 	#define WEBP_MSC_SSE2  // Visual C++ SSE2 targets

@@ -285,7 +285,7 @@ static int unload_buffer(const sasl_utils_t * utils, const u_char * buf,
 	uint16 len = itohs(buf + NTLM_BUFFER_LEN_OFFSET);
 	if(len) {
 		uint32 offset;
-		*str = (u_char *)utils->malloc(len + 1); /* add 1 for NUL */
+		*str = (u_char *)utils->FnMalloc(len + 1); /* add 1 for NUL */
 		if(*str == NULL) {
 			SASL_UTILS_MEMERROR(utils);
 			return SASL_NOMEM;
@@ -400,7 +400,7 @@ static HMAC_CTX * _plug_HMAC_CTX_new(const sasl_utils_t * utils)
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
 	return HMAC_CTX_new();
 #else
-	return utils->malloc(sizeof(HMAC_CTX));
+	return utils->FnMalloc(sizeof(HMAC_CTX));
 #endif
 }
 
@@ -411,7 +411,7 @@ static void _plug_HMAC_CTX_free(HMAC_CTX * ctx, const sasl_utils_t * utils)
 	HMAC_CTX_free(ctx);
 #else
 	HMAC_cleanup(ctx);
-	utils->free(ctx);
+	utils->FnFree(ctx);
 #endif
 }
 
@@ -843,7 +843,7 @@ static SOCKET smb_connect_server(const sasl_utils_t * utils, const char * client
 		error_str = _plug_get_error_message(utils, saved_errno);
 		utils->log(NULL, SASL_LOG_WARN, "NTLM: connect %s[%s]/%s: %s", ai->ai_canonname ? ai->ai_canonname : server,
 		    hbuf, pbuf, error_str);
-		utils->free(error_str);
+		utils->FnFree(error_str);
 	}
 	if(s < 0) {
 		if(getnameinfo(ai->ai_addr, ai->ai_addrlen, NULL, 0,
@@ -1055,7 +1055,7 @@ static int smb_negotiate_protocol(const sasl_utils_t * utils, server_context_t *
 	len -= resp.encryption_key_length;
 	/* if client asked for target, send domain */
 	if(text->flags & NTLM_ASK_TARGET) {
-		*domain = (char *)utils->malloc(len);
+		*domain = (char *)utils->FnMalloc(len);
 		if(*domain == NULL) {
 			SASL_UTILS_MEMERROR(utils);
 			return SASL_NOMEM;
@@ -1289,7 +1289,7 @@ static int ntlm_server_mech_new(void * glob_context __attribute__((unused)),
 	unsigned int len;
 	SOCKET sock = (SOCKET)-1;
 	/* holds state are in: allocate early */
-	text = (server_context_t *)sparams->utils->malloc(sizeof(server_context_t));
+	text = (server_context_t *)sparams->utils->FnMalloc(sizeof(server_context_t));
 	if(text == NULL) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		return SASL_NOMEM;
@@ -1318,7 +1318,7 @@ static int ntlm_server_mech_new(void * glob_context __attribute__((unused)),
 			sock = smb_connect_server(sparams->utils, sparams->serverFQDN, serv);
 		} while(sock == (SOCKET)-1 && next);
 
-		sparams->utils->free(tmp);
+		sparams->utils->FnFree(tmp);
 		if(sock == (SOCKET)-1) return SASL_UNAVAIL;
 	}
 	memzero(text, sizeof(server_context_t));
@@ -1388,7 +1388,7 @@ static int ntlm_server_mech_step1(server_context_t * text,
 	result = SASL_CONTINUE;
 
 cleanup:
-	if(domain) sparams->utils->free(domain);
+	if(domain) sparams->utils->FnFree(domain);
 
 	return result;
 }
@@ -1488,7 +1488,7 @@ static int ntlm_server_mech_step2(server_context_t * text,
 			result = SASL_FAIL;
 			goto cleanup;
 		}
-		password = (sasl_secret_t *)sparams->utils->malloc(sizeof(sasl_secret_t) + pass_len);
+		password = (sasl_secret_t *)sparams->utils->FnMalloc(sizeof(sasl_secret_t) + pass_len);
 		if(!password) {
 			result = SASL_NOMEM;
 			goto cleanup;
@@ -1577,10 +1577,10 @@ static int ntlm_server_mech_step2(server_context_t * text,
 	result = SASL_OK;
 
 cleanup:
-	if(lm_resp) sparams->utils->free(lm_resp);
-	if(nt_resp) sparams->utils->free(nt_resp);
-	if(domain) sparams->utils->free(domain);
-	if(authid) sparams->utils->free(authid);
+	if(lm_resp) sparams->utils->FnFree(lm_resp);
+	if(nt_resp) sparams->utils->FnFree(nt_resp);
+	if(domain) sparams->utils->FnFree(domain);
+	if(authid) sparams->utils->FnFree(authid);
 
 	return result;
 }
@@ -1624,10 +1624,10 @@ static void ntlm_server_mech_dispose(void * conn_context,
 
 	if(!text) return;
 
-	if(text->out_buf) utils->free(text->out_buf);
+	if(text->out_buf) utils->FnFree(text->out_buf);
 	if(text->sock != -1) closesocket(text->sock);
 
-	utils->free(text);
+	utils->FnFree(text);
 }
 
 static sasl_server_plug_t ntlm_server_plugins[] =
@@ -1781,7 +1781,7 @@ static int create_response(const sasl_utils_t * utils,
 static int ntlm_client_mech_new(void * glob_context __attribute__((unused)), sasl_client_params_t * params, void ** conn_context)
 {
 	/* holds state are in */
-	client_context_t * text = (client_context_t *)params->utils->malloc(sizeof(client_context_t));
+	client_context_t * text = (client_context_t *)params->utils->FnMalloc(sizeof(client_context_t));
 	if(text == NULL) {
 		SASL_UTILS_MEMERROR(params->utils);
 		return SASL_NOMEM;
@@ -1848,52 +1848,39 @@ static int ntlm_client_mech_step2(client_context_t * text,
 		SETERROR(params->utils, "server didn't issue valid NTLM challenge");
 		return SASL_BADPROT;
 	}
-
 	/* try to get the authid */
 	if(oparams->authid == NULL) {
 		auth_result = _plug_get_authid(params->utils, &authid, prompt_need);
-
 		if((auth_result != SASL_OK) && (auth_result != SASL_INTERACT))
 			return auth_result;
 	}
-
 	/* try to get the password */
 	if(password == NULL) {
-		pass_result = _plug_get_password(params->utils, &password,
-			&free_password, prompt_need);
-
+		pass_result = _plug_get_password(params->utils, &password, &free_password, prompt_need);
 		if((pass_result != SASL_OK) && (pass_result != SASL_INTERACT))
 			return pass_result;
 	}
 
 	/* free prompts we got */
 	if(prompt_need && *prompt_need) {
-		params->utils->free(*prompt_need);
+		params->utils->FnFree(*prompt_need);
 		*prompt_need = NULL;
 	}
 
 	/* if there are prompts not filled in */
 	if((auth_result == SASL_INTERACT) || (pass_result == SASL_INTERACT)) {
 		/* make the prompt list */
-		result =
-		    _plug_make_prompts(params->utils, prompt_need,
-			NULL, NULL,
-			auth_result == SASL_INTERACT ?
-			"Please enter your authentication name" : NULL,
+		result = _plug_make_prompts(params->utils, prompt_need, NULL, NULL,
+			auth_result == SASL_INTERACT ? "Please enter your authentication name" : NULL,
 			NULL,
-			pass_result == SASL_INTERACT ?
-			"Please enter your password" : NULL, NULL,
-			NULL, NULL, NULL,
-			NULL, NULL, NULL);
-		if(result != SASL_OK) goto cleanup;
-
+			pass_result == SASL_INTERACT ? "Please enter your password" : NULL, NULL,
+			NULL, NULL, NULL, NULL, NULL, NULL);
+		if(result != SASL_OK) 
+			goto cleanup;
 		return SASL_INTERACT;
 	}
-
-	result = params->canon_user(params->utils->conn, authid, 0,
-		SASL_CU_AUTHID | SASL_CU_AUTHZID, oparams);
+	result = params->canon_user(params->utils->conn, authid, 0, SASL_CU_AUTHID | SASL_CU_AUTHZID, oparams);
 	if(result != SASL_OK) goto cleanup;
-
 	flags = itohl(serverin + NTLM_TYPE2_FLAGS_OFFSET);
 	params->utils->log(NULL, SASL_LOG_DEBUG, "server flags: %x", flags);
 	flags &= NTLM_FLAGS_MASK; /* mask off the bits we don't support */
@@ -1958,9 +1945,8 @@ static int ntlm_client_mech_step2(client_context_t * text,
 	result = SASL_OK;
 
 cleanup:
-	if(domain) params->utils->free(domain);
+	if(domain) params->utils->FnFree(domain);
 	if(free_password) _plug_free_secret(params->utils, &password);
-
 	return result;
 }
 
@@ -1979,15 +1965,9 @@ static int ntlm_client_mech_step(void * conn_context,
 	params->utils->log(NULL, SASL_LOG_DEBUG, "NTLM client step %d\n", text->state);
 	switch(text->state) {
 		case 1:
-		    return ntlm_client_mech_step1(text, params, serverin, serverinlen,
-			       prompt_need, clientout, clientoutlen,
-			       oparams);
-
+		    return ntlm_client_mech_step1(text, params, serverin, serverinlen, prompt_need, clientout, clientoutlen, oparams);
 		case 2:
-		    return ntlm_client_mech_step2(text, params, serverin, serverinlen,
-			       prompt_need, clientout, clientoutlen,
-			       oparams);
-
+		    return ntlm_client_mech_step2(text, params, serverin, serverinlen, prompt_need, clientout, clientoutlen, oparams);
 		default:
 		    params->utils->log(NULL, SASL_LOG_ERR, "Invalid NTLM client step %d\n", text->state);
 		    return SASL_FAIL;
@@ -2000,8 +1980,8 @@ static void ntlm_client_mech_dispose(void * conn_context, const sasl_utils_t * u
 	client_context_t * text = (client_context_t*)conn_context;
 	if(text) {
 		if(text->out_buf) 
-			utils->free(text->out_buf);
-		utils->free(text);
+			utils->FnFree(text->out_buf);
+		utils->FnFree(text);
 	}
 }
 

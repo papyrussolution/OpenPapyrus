@@ -2298,7 +2298,7 @@ int sasl_server_plugin_info(const char * c_mech_list,              /* space sepa
 			}
 		}
 		else {
-			mech_list = strdup(c_mech_list);
+			mech_list = sstrdup(c_mech_list);
 			cur_mech = mech_list;
 			while(cur_mech != NULL) {
 				p = strchr(cur_mech, ' ');

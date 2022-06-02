@@ -361,17 +361,13 @@ constexpr uint64_t FormatConversionCharToConvInt(FormatConversionChar c) {
 	return uint64_t{1} << (1 + static_cast<uint8_t>(c));
 }
 
-constexpr uint64_t FormatConversionCharToConvInt(char conv) {
+constexpr uint64_t FormatConversionCharToConvInt(char conv) 
+{
 	return
 #define ABSL_INTERNAL_CHAR_SET_CASE(c)                                 \
-	conv == #c[0]                                                        \
-	? FormatConversionCharToConvInt(FormatConversionCharInternal::c) \
-	:
-		ABSL_INTERNAL_CONVERSION_CHARS_EXPAND_(ABSL_INTERNAL_CHAR_SET_CASE, )
+	conv == #c[0] ? FormatConversionCharToConvInt(FormatConversionCharInternal::c) : ABSL_INTERNAL_CONVERSION_CHARS_EXPAND_(ABSL_INTERNAL_CHAR_SET_CASE, )
 #undef ABSL_INTERNAL_CHAR_SET_CASE
-		conv == '*'
-		? 1
-		: 0;
+		conv == '*' ? 1 : 0;
 }
 
 constexpr FormatConversionCharSet FormatConversionCharToConvValue(char conv) {
@@ -381,21 +377,15 @@ constexpr FormatConversionCharSet FormatConversionCharToConvValue(char conv) {
 
 struct FormatConversionCharSetInternal {
 #define ABSL_INTERNAL_CHAR_SET_CASE(c)         \
-	static constexpr FormatConversionCharSet c = \
-	    FormatConversionCharToConvValue(#c[0]);
+	static constexpr FormatConversionCharSet c = FormatConversionCharToConvValue(#c[0]);
 	ABSL_INTERNAL_CONVERSION_CHARS_EXPAND_(ABSL_INTERNAL_CHAR_SET_CASE, )
 #undef ABSL_INTERNAL_CHAR_SET_CASE
 
 	// Used for width/precision '*' specification.
-	static constexpr FormatConversionCharSet kStar =
-	    FormatConversionCharToConvValue('*');
-
-	static constexpr FormatConversionCharSet kIntegral =
-	    FormatConversionCharSetUnion(d, i, u, o, x, X);
-	static constexpr FormatConversionCharSet kFloating =
-	    FormatConversionCharSetUnion(a, e, f, g, A, E, F, G);
-	static constexpr FormatConversionCharSet kNumeric =
-	    FormatConversionCharSetUnion(kIntegral, kFloating);
+	static constexpr FormatConversionCharSet kStar = FormatConversionCharToConvValue('*');
+	static constexpr FormatConversionCharSet kIntegral = FormatConversionCharSetUnion(d, i, u, o, x, X);
+	static constexpr FormatConversionCharSet kFloating = FormatConversionCharSetUnion(a, e, f, g, A, E, F, G);
+	static constexpr FormatConversionCharSet kNumeric = FormatConversionCharSetUnion(kIntegral, kFloating);
 	static constexpr FormatConversionCharSet kPointer = p;
 };
 
@@ -412,29 +402,22 @@ constexpr FormatConversionCharSet operator|(FormatConversionCharSet a,
 // Overloaded conversion functions to support absl::ParsedFormat.
 // Get a conversion with a single character in it.
 constexpr FormatConversionCharSet ToFormatConversionCharSet(char c) {
-	return static_cast<FormatConversionCharSet>(
-		FormatConversionCharToConvValue(c));
+	return static_cast<FormatConversionCharSet>(FormatConversionCharToConvValue(c));
 }
 
 // Get a conversion with a single character in it.
-constexpr FormatConversionCharSet ToFormatConversionCharSet(FormatConversionCharSet c) {
-	return c;
-}
-
-template <typename T>
-void ToFormatConversionCharSet(T) = delete;
+constexpr FormatConversionCharSet ToFormatConversionCharSet(FormatConversionCharSet c) { return c; }
+template <typename T> void ToFormatConversionCharSet(T) = delete;
 
 // Checks whether `c` exists in `set`.
 constexpr bool Contains(FormatConversionCharSet set, char c) {
-	return (static_cast<uint64_t>(set) &
-	       static_cast<uint64_t>(FormatConversionCharToConvValue(c))) != 0;
+	return (static_cast<uint64_t>(set) & static_cast<uint64_t>(FormatConversionCharToConvValue(c))) != 0;
 }
 
 // Checks whether all the characters in `c` are contained in `set`
 constexpr bool Contains(FormatConversionCharSet set,
     FormatConversionCharSet c) {
-	return (static_cast<uint64_t>(set) & static_cast<uint64_t>(c)) ==
-	       static_cast<uint64_t>(c);
+	return (static_cast<uint64_t>(set) & static_cast<uint64_t>(c)) == static_cast<uint64_t>(c);
 }
 
 // Checks whether all the characters in `c` are contained in `set`

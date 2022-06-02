@@ -1751,18 +1751,22 @@ int PPObjPerson::SearchFirstByName(const char * pName, const PPIDArray * pKindLi
 int PPObjPerson::SearchMaxLike(const PPPersonPacket * p, PPID * pID, long flags, PPID regTypeID)
 {
 	SString reg_buf;
-	PPID   id;
 	if(regTypeID) {
 		if(p->GetRegNumber(regTypeID, reg_buf) > 0) {
 			PPIDArray list;
-			if(GetListByRegNumber(regTypeID, 0, reg_buf, list) > 0)
-				for(uint i = 0; i < list.getCount(); i++)
-					if((id = list.at(i)) != 0 && id != p->Rec.ID)
-						for(uint j = 0; j < p->Kinds.getCount(); j++)
+			if(GetListByRegNumber(regTypeID, 0, reg_buf, list) > 0) {
+				for(uint i = 0; i < list.getCount(); i++) {
+					const PPID id = list.at(i);
+					if(id && id != p->Rec.ID) {
+						for(uint j = 0; j < p->Kinds.getCount(); j++) {
 							if(P_Tbl->IsBelongToKind(id, p->Kinds.at(j))) {
 								ASSIGN_PTR(pID, id);
 								return 1;
 							}
+						}
+					}
+				}
+			}
 		}
 	}
 	if(!(flags & smlRegisterOnly)) {

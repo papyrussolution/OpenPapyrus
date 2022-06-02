@@ -60,8 +60,7 @@ public class CommandListActivity extends SLib.SlActivity {
 					{
 						requestWindowFeature(Window.FEATURE_NO_TITLE);
 						setContentView(R.layout.dialog_personevent);
-						Context ctx = getContext();
-						StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
+						StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(getContext());
 						if(app_ctx != null)
 							setTitle(SLib.ExpandString(app_ctx, "@{personevent}"));
 						SetDTS(Data);
@@ -73,8 +72,7 @@ public class CommandListActivity extends SLib.SlActivity {
 						if(view_id == R.id.STDCTL_OKBUTTON) {
 							Object data = GetDTS();
 							if(data != null) {
-								Context ctx = getContext();
-								StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
+								StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(getContext());
 								if(app_ctx != null)
 									app_ctx.HandleEvent(SLib.EV_IADATAEDITCOMMIT, this, data);
 							}
@@ -104,8 +102,7 @@ public class CommandListActivity extends SLib.SlActivity {
 		Object GetDTS()
 		{
 			Object result = null;
-			Context ctx = getContext();
-			StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+			StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(getContext());
 			if(app_ctx != null) {
 				PersonEvent _data = null;
 				if(Data != null && Data instanceof PersonEvent)
@@ -143,7 +140,6 @@ public class CommandListActivity extends SLib.SlActivity {
 		StyloQCommand.CommandPrestatus result = new StyloQCommand.CommandPrestatus();
 		try {
 			if(cmdItem != null && SLib.GetLen(SvcIdent) > 0) {
-				Context app_ctx = getApplicationContext();
 				int pending = StyloQCommand.IsCommandPending(SvcIdent, cmdItem);
 				if(pending != 0) {
 					result.S = StyloQCommand.prestatusPending;
@@ -151,7 +147,8 @@ public class CommandListActivity extends SLib.SlActivity {
 						result.WaitingTimeMs = pending;
 				}
 				else {
-					if(app_ctx != null && app_ctx instanceof StyloQApp) {
+					StyloQApp app_ctx = GetAppCtx();
+					if(app_ctx != null) {
 						StyloQDatabase.SecStoragePacket pack = ((StyloQApp) app_ctx).LoadCommandSavedResult(SvcIdent, cmdItem);
 						if(pack != null) {
 							result.S = StyloQCommand.prestatusActualResultStored;
@@ -194,45 +191,47 @@ public class CommandListActivity extends SLib.SlActivity {
 				Intent intent = getIntent();
 				SvcIdent = intent.getByteArrayExtra("SvcIdent");
 				{
-					StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-					SetupRecyclerListView(null, R.id.commandListView, R.layout.li_command);
-					{
-						View vg = findViewById(R.id.CTL_PAGEHEADER_ROOT);
-						if(vg != null && vg instanceof ViewGroup)
-							SLib.SubstituteStringSignatures(app_ctx, (ViewGroup)vg);
-					}
-					try {
-						Db = app_ctx.GetDB();
-						if(Db != null) {
-							ListData = null/*Db.GetFaceList()*/;
-							if(SLib.GetLen(SvcIdent) > 0) {
-								if(SvcPack == null) {
-									SvcPack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
-								}
-								String blob_signature = null;
-								if(SvcPack != null) {
-									StyloQFace face = SvcPack.GetFace();
-									if(face != null)
-										blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
-									SLib.SetCtrlString(this, R.id.CTL_PAGEHEADER_SVCTITLE, SvcPack.GetSvcName(face));
-									StyloQDatabase.SecStoragePacket cmdl_pack = Db.GetForeignSvcCommandList(SvcIdent);
-									ListData = cmdl_pack.GetCommandList();
-									if(ListData == null)
-										ListData = new StyloQCommand.List();
-								}
-								SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
-							}
-						}
-						if(ListData == null)
-							ListData = new StyloQCommand.List();
+					StyloQApp app_ctx = GetAppCtx();
+					if(app_ctx != null) {
+						SetupRecyclerListView(null, R.id.commandListView, R.layout.li_command);
 						{
-							RTmr = new Timer();
-							RTmr.schedule(new RefreshTimerTask(), 1000, 750);
+							View vg = findViewById(R.id.CTL_PAGEHEADER_ROOT);
+							if(vg != null && vg instanceof ViewGroup)
+								SLib.SubstituteStringSignatures(app_ctx, (ViewGroup) vg);
 						}
-					} catch(StyloQException exn) {
-						Db = null;
-						ListData = new StyloQCommand.List();
-						app_ctx.DisplayError(null, exn, 5000);
+						try {
+							Db = app_ctx.GetDB();
+							if(Db != null) {
+								ListData = null/*Db.GetFaceList()*/;
+								if(SLib.GetLen(SvcIdent) > 0) {
+									if(SvcPack == null) {
+										SvcPack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
+									}
+									String blob_signature = null;
+									if(SvcPack != null) {
+										StyloQFace face = SvcPack.GetFace();
+										if(face != null)
+											blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
+										SLib.SetCtrlString(this, R.id.CTL_PAGEHEADER_SVCTITLE, SvcPack.GetSvcName(face));
+										StyloQDatabase.SecStoragePacket cmdl_pack = Db.GetForeignSvcCommandList(SvcIdent);
+										ListData = cmdl_pack.GetCommandList();
+										if(ListData == null)
+											ListData = new StyloQCommand.List();
+									}
+									SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
+								}
+							}
+							if(ListData == null)
+								ListData = new StyloQCommand.List();
+							{
+								RTmr = new Timer();
+								RTmr.schedule(new RefreshTimerTask(), 1000, 750);
+							}
+						} catch(StyloQException exn) {
+							Db = null;
+							ListData = new StyloQCommand.List();
+							app_ctx.DisplayError(null, exn, 5000);
+						}
 					}
 				}
 				break;
@@ -259,7 +258,7 @@ public class CommandListActivity extends SLib.SlActivity {
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null) {
-						StyloQApp app_ctx = (StyloQApp)getApplication();
+						StyloQApp app_ctx = GetAppCtx();
 						if(app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.Items.size()) {
 							boolean force_query = (ev == SLib.EV_LISTVIEWITEMLONGCLK) ? true : false;
 							StyloQCommand.Item cmd_item = ListData.Items.get(ev_subj.ItemIdx);
@@ -324,7 +323,7 @@ public class CommandListActivity extends SLib.SlActivity {
 				break;
 			case SLib.EV_IADATAEDITCOMMIT:
 				if(srcObj != null && srcObj instanceof PersonEventDialog && subj != null && subj instanceof PersonEvent) {
-					StyloQApp app_ctx = (StyloQApp)getApplication();
+					StyloQApp app_ctx = GetAppCtx();
 					if(app_ctx != null) {
 						PersonEvent _data = (PersonEvent)subj;
 						if(_data.SrcCmdItem != null) {
@@ -349,7 +348,7 @@ public class CommandListActivity extends SLib.SlActivity {
 					if(ir.OriginalCmdItem != null) {
 						String reply_msg = null;
 						String reply_errmsg = null;
-						StyloQApp app_ctx = (StyloQApp)getApplication();
+						StyloQApp app_ctx = GetAppCtx();
 						if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
 							byte [] reply_raw_data = ((SecretTagPool)ir.InfoReply).Get(SecretTagPool.tagRawData);
 							if(SLib.GetLen(reply_raw_data) > 0) {

@@ -144,7 +144,7 @@ Transliterator* TransliteratorAlias::create(UParseError& pe, UErrorCode & ec)
 
 		    if(U_SUCCESS(ec)) {
 			    t = new CompoundTransliterator(ID, transliterators, (compoundFilter ? compoundFilter->clone() : nullptr), anonymousRBTs, pe, ec);
-			    if(t == 0) {
+			    if(!t) {
 				    ec = U_MEMORY_ALLOCATION_ERROR;
 				    return 0;
 			    }
@@ -813,7 +813,7 @@ UnicodeString & TransliteratorRegistry::getAvailableVariant(int32_t index,
 		if(varMask & 1) {
 			if(varCount == index) {
 				UnicodeString * v = (UnicodeString *)variantList.elementAt(varListIndex);
-				if(v != NULL) {
+				if(v) {
 					result = *v;
 					return result;
 				}
@@ -1269,25 +1269,25 @@ Transliterator* TransliteratorRegistry::instantiateEntry(const UnicodeString & I
 	switch(entry->entryType) {
 		case TransliteratorEntry::RBT_DATA:
 		    t = new RuleBasedTransliterator(ID, entry->u.data);
-		    if(t == 0) {
+		    if(!t) {
 			    status = U_MEMORY_ALLOCATION_ERROR;
 		    }
 		    return t;
 		case TransliteratorEntry::PROTOTYPE:
 		    t = entry->u.prototype->clone();
-		    if(t == 0) {
+		    if(!t) {
 			    status = U_MEMORY_ALLOCATION_ERROR;
 		    }
 		    return t;
 		case TransliteratorEntry::ALIAS:
 		    aliasReturn = new TransliteratorAlias(entry->stringArg, entry->compoundFilter);
-		    if(aliasReturn == 0) {
+		    if(!aliasReturn) {
 			    status = U_MEMORY_ALLOCATION_ERROR;
 		    }
 		    return 0;
 		case TransliteratorEntry::FACTORY:
 		    t = entry->u.factory.function(ID, entry->u.factory.context);
-		    if(t == 0) {
+		    if(!t) {
 			    status = U_MEMORY_ALLOCATION_ERROR;
 		    }
 		    return t;
@@ -1318,14 +1318,14 @@ Transliterator* TransliteratorRegistry::instantiateEntry(const UnicodeString & I
 		    rbts->setDeleter(nullptr);
 		    aliasReturn = new TransliteratorAlias(ID, entry->stringArg, rbts, entry->compoundFilter);
 	    }
-		    if(aliasReturn == 0) {
+		    if(!aliasReturn) {
 			    status = U_MEMORY_ALLOCATION_ERROR;
 		    }
 		    return 0;
 		case TransliteratorEntry::LOCALE_RULES:
 		    aliasReturn = new TransliteratorAlias(ID, entry->stringArg,
 			    (UTransDirection)entry->intArg);
-		    if(aliasReturn == 0) {
+		    if(!aliasReturn) {
 			    status = U_MEMORY_ALLOCATION_ERROR;
 		    }
 		    return 0;
@@ -1364,7 +1364,7 @@ Transliterator* TransliteratorRegistry::instantiateEntry(const UnicodeString & I
 		    aliasReturn = new TransliteratorAlias(ID, rules,
 			    ((entry->entryType == TransliteratorEntry::RULES_REVERSE) ?
 			    UTRANS_REVERSE : UTRANS_FORWARD));
-		    if(aliasReturn == 0) {
+		    if(!aliasReturn) {
 			    status = U_MEMORY_ALLOCATION_ERROR;
 		    }
 		    //}

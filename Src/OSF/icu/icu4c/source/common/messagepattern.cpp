@@ -268,15 +268,16 @@ MessagePattern &MessagePattern::parsePluralStyle(const UnicodeString & pattern,
 	return *this;
 }
 
-MessagePattern &MessagePattern::parseSelectStyle(const UnicodeString & pattern,
-    UParseError * parseError, UErrorCode & errorCode) {
+MessagePattern &MessagePattern::parseSelectStyle(const UnicodeString & pattern, UParseError * parseError, UErrorCode & errorCode) 
+{
 	preParse(pattern, parseError, errorCode);
 	parsePluralOrSelectStyle(UMSGPAT_ARG_TYPE_SELECT, 0, 0, parseError, errorCode);
 	postParse();
 	return *this;
 }
 
-void MessagePattern::clear() {
+void MessagePattern::clear() 
+{
 	// Mostly the same as preParse().
 	msg.remove();
 	hasArgNames = hasArgNumbers = FALSE;
@@ -289,16 +290,14 @@ bool MessagePattern::operator ==(const MessagePattern &other) const {
 	if(this==&other) {
 		return true;
 	}
-	return
-		aposMode==other.aposMode &&
-		msg==other.msg &&
+	return aposMode==other.aposMode && msg==other.msg &&
 	        // parts.equals(o.parts)
-		partsLength==other.partsLength &&
-		(partsLength==0 || partsList->equals(*other.partsList, partsLength));
+		partsLength==other.partsLength && (partsLength==0 || partsList->equals(*other.partsList, partsLength));
 	// No need to compare numericValues if msg and parts are the same.
 }
 
-int32_t MessagePattern::hashCode() const {
+int32_t MessagePattern::hashCode() const 
+{
 	int32_t hash = (aposMode*37+msg.hashCode())*37+partsLength;
 	for(int32_t i = 0; i<partsLength; ++i) {
 		hash = hash*37+parts[i].hashCode();

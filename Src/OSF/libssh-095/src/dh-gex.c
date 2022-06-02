@@ -46,16 +46,10 @@ int ssh_client_dhgex_init(ssh_session session)
 	session->next_crypto->dh_pn = DH_PREQ;
 	session->next_crypto->dh_pmax = DH_PMAX;
 	/* Minimum group size, preferred group size, maximum group size */
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bddd",
-		SSH2_MSG_KEX_DH_GEX_REQUEST,
-		session->next_crypto->dh_pmin,
-		session->next_crypto->dh_pn,
-		session->next_crypto->dh_pmax);
+	rc = ssh_buffer_pack(session->out_buffer, "bddd", SSH2_MSG_KEX_DH_GEX_REQUEST, session->next_crypto->dh_pmin, session->next_crypto->dh_pn, session->next_crypto->dh_pmax);
 	if(rc != SSH_OK) {
 		goto error;
 	}
-
 	/* register the packet callbacks */
 	ssh_packet_set_callbacks(session, &ssh_dhgex_client_callbacks);
 	session->dh_handshake_state = DH_STATE_REQUEST_SENT;
@@ -144,39 +138,27 @@ SSH_PACKET_CALLBACK(ssh_packet_client_dhgex_group)
 #endif
 	modulus = NULL;
 	generator = NULL;
-
 	/* compute and send DH public parameter */
-	rc = ssh_dh_keypair_gen_keys(session->next_crypto->dh_ctx,
-		DH_CLIENT_KEYPAIR);
+	rc = ssh_dh_keypair_gen_keys(session->next_crypto->dh_ctx, DH_CLIENT_KEYPAIR);
 	if(rc == SSH_ERROR) {
 		goto error;
 	}
-
-	rc = ssh_dh_keypair_get_keys(session->next_crypto->dh_ctx,
-		DH_CLIENT_KEYPAIR, NULL, &pubkey);
+	rc = ssh_dh_keypair_get_keys(session->next_crypto->dh_ctx, DH_CLIENT_KEYPAIR, NULL, &pubkey);
 	if(rc != SSH_OK) {
 		goto error;
 	}
-
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bB",
-		SSH2_MSG_KEX_DH_GEX_INIT,
-		pubkey);
+	rc = ssh_buffer_pack(session->out_buffer, "bB", SSH2_MSG_KEX_DH_GEX_INIT, pubkey);
 	if(rc != SSH_OK) {
 		goto error;
 	}
-
 	session->dh_handshake_state = DH_STATE_INIT_SENT;
-
 	rc = ssh_packet_send(session);
 	if(rc == SSH_ERROR) {
 		goto error;
 	}
-
 	bignum_safe_free(one);
 	bignum_safe_free(pmin1);
 	return SSH_PACKET_USED;
-
 error:
 	bignum_safe_free(modulus);
 	bignum_safe_free(generator);
@@ -561,34 +543,18 @@ static SSH_PACKET_CALLBACK(ssh_packet_server_dhgex_request)
 			pn = pmin;
 		}
 	}
-	rc = ssh_retrieve_dhgroup(pmin,
-		pn,
-		pmax,
-		&size,
-		&modulus,
-		&generator);
+	rc = ssh_retrieve_dhgroup(pmin, pn, pmax, &size, &modulus, &generator);
 	if(rc == SSH_ERROR) {
-		ssh_set_error(session,
-		    SSH_FATAL,
-		    "Couldn't find DH group for [%u:%u:%u]",
-		    pmin,
-		    pn,
-		    pmax);
+		ssh_set_error(session, SSH_FATAL, "Couldn't find DH group for [%u:%u:%u]", pmin, pn, pmax);
 		goto error;
 	}
-	rc = ssh_dh_set_parameters(session->next_crypto->dh_ctx,
-		modulus, generator);
+	rc = ssh_dh_set_parameters(session->next_crypto->dh_ctx, modulus, generator);
 	if(rc != SSH_OK) {
 		bignum_safe_free(generator);
 		bignum_safe_free(modulus);
 		goto error;
 	}
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bBB",
-		SSH2_MSG_KEX_DH_GEX_GROUP,
-		modulus,
-		generator);
-
+	rc = ssh_buffer_pack(session->out_buffer, "bBB", SSH2_MSG_KEX_DH_GEX_GROUP, modulus, generator);
 #ifdef HAVE_LIBCRYPTO
 	bignum_safe_free(generator);
 	bignum_safe_free(modulus);

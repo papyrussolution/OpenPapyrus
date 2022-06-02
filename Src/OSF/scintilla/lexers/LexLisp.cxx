@@ -21,7 +21,7 @@ using namespace Scintilla;
 
 static bool FASTCALL isLispoperator(char ch) 
 {
-	if(IsASCII(ch) && isalnum(ch))
+	if(isasciialnum(ch))
 		return false;
 	if(ch == '\'' || ch == '`' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}')
 		return true;

@@ -336,7 +336,7 @@ int BN_nist_mod_192(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 	if(BN_is_negative(a) || BN_ucmp(a, &_bignum_nist_p_192_sqr) >= 0)
 		return BN_nnmod(r, a, field, ctx);
 	i = BN_ucmp(field, a);
-	if(i == 0) {
+	if(!i) {
 		BN_zero(r);
 		return 1;
 	}
@@ -482,7 +482,7 @@ int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		return BN_nnmod(r, a, field, ctx);
 
 	i = BN_ucmp(field, a);
-	if(i == 0) {
+	if(!i) {
 		BN_zero(r);
 		return 1;
 	}
@@ -667,7 +667,7 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		return BN_nnmod(r, a, field, ctx);
 
 	i = BN_ucmp(field, a);
-	if(i == 0) {
+	if(!i) {
 		BN_zero(r);
 		return 1;
 	}
@@ -917,7 +917,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		return BN_nnmod(r, a, field, ctx);
 
 	i = BN_ucmp(field, a);
-	if(i == 0) {
+	if(!i) {
 		BN_zero(r);
 		return 1;
 	}
@@ -1177,7 +1177,7 @@ int BN_nist_mod_521(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		return BN_nnmod(r, a, field, ctx);
 
 	i = BN_ucmp(field, a);
-	if(i == 0) {
+	if(!i) {
 		BN_zero(r);
 		return 1;
 	}

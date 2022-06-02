@@ -37,7 +37,7 @@ bool CollationIterator::CEBuffer::ensureAppendCapacity(int32_t appCap, UErrorCod
 		}
 	} while(capacity < (length + appCap));
 	int64_t * p = buffer.resize(capacity, length);
-	if(p == NULL) {
+	if(!p) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;
 	}
@@ -412,7 +412,7 @@ void CollationIterator::appendCEsFromCE32(const CollationData * d, UChar32 c, ui
 				    // In particular, there should be no offset or implicit ce32.
 				    appendCEsFromCE32(d, U_SENTINEL, jamoCE32s[c], forward, errorCode);
 				    appendCEsFromCE32(d, U_SENTINEL, jamoCE32s[19 + v], forward, errorCode);
-				    if(t == 0) {
+				    if(!t) {
 					    return;
 				    }
 				    // offset 39 = 19 + 21 - 1:

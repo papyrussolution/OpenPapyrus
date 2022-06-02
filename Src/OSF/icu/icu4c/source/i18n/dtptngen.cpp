@@ -2477,7 +2477,7 @@ void FormatParser::set(const UnicodeString & pattern) {
 
 int32_t FormatParser::getCanonicalIndex(const UnicodeString & s, bool strict) {
 	int32_t len = s.length();
-	if(len == 0) {
+	if(!len) {
 		return -1;
 	}
 	UChar ch = s.charAt(0);

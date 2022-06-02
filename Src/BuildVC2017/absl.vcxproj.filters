@@ -483,6 +483,66 @@
     <ClInclude Include="..\OSF\abseil\absl\container\internal\layout.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\atomic_hook.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\atomic_hook_test_helper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\dynamic_annotations.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\endian.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\errno_saver.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\exception_safety_testing.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\exception_testing.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\fast_type_id.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\hide_ptr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\identity.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\inline_variable.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\inline_variable_testing.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\invoke.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\pretty_function.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\scheduling_mode.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\thread_annotations.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\base\internal\unaligned_access.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\numeric\bits.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\numeric\internal\bits.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\abseil\absl\numeric\internal\representation.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\osf\abseil\absl\types\bad_any_cast.cc" />

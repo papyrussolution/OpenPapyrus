@@ -2730,7 +2730,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 					const size_t step_and = i*width_and;
 					for(uint j = 0; j < width; ++j) {
 						int a = (PTR8C(line_buf.vcptr())[step_and + (j>>3)]&(0x80>>(j&0x07))) != 0 ? 0 : 0xFF;
-						if(a == 0)
+						if(!a)
 							p_data[step+j] &= 0x00ffffff;
 						else
 							p_data[step+j] |= 0xff000000;

@@ -39,7 +39,7 @@ IMPLEMENT_PPFILT_FACTORY(Transport); TransportFilt::TransportFilt() : PPBaseFilt
 	return 1;
 }
 
-int TransportFilt::IsEmpty() const
+bool TransportFilt::IsEmpty() const
 {
 	return !(TrType || OwnerID || CaptainID || ModelID || CountryID || Code.NotEmpty() || TrailCode.NotEmpty());
 }

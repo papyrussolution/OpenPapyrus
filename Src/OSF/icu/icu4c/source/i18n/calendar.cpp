@@ -763,24 +763,12 @@ Calendar & Calendar::operator = (const Calendar &right)
 		validLocale[sizeof(validLocale)-1] = 0;
 		actualLocale[sizeof(validLocale)-1] = 0;
 	}
-
 	return *this;
 }
 
-Calendar* U_EXPORT2 Calendar::createInstance(UErrorCode & success)
-{
-	return createInstance(TimeZone::createDefault(), Locale::getDefault(), success);
-}
-
-Calendar* U_EXPORT2 Calendar::createInstance(const TimeZone& zone, UErrorCode & success)
-{
-	return createInstance(zone, Locale::getDefault(), success);
-}
-
-Calendar* U_EXPORT2 Calendar::createInstance(const Locale & aLocale, UErrorCode & success)
-{
-	return createInstance(TimeZone::forLocaleOrDefault(aLocale), aLocale, success);
-}
+Calendar* U_EXPORT2 Calendar::createInstance(UErrorCode & success) { return createInstance(TimeZone::createDefault(), Locale::getDefault(), success); }
+Calendar* U_EXPORT2 Calendar::createInstance(const TimeZone& zone, UErrorCode & success) { return createInstance(zone, Locale::getDefault(), success); }
+Calendar* U_EXPORT2 Calendar::createInstance(const Locale & aLocale, UErrorCode & success) { return createInstance(TimeZone::forLocaleOrDefault(aLocale), aLocale, success); }
 //
 // Adopting
 //
@@ -791,10 +779,8 @@ Calendar * U_EXPORT2 Calendar::makeInstance(const Locale & aLocale, UErrorCode &
 	if(U_FAILURE(success)) {
 		return NULL;
 	}
-
 	Locale actualLoc;
 	UObject* u = NULL;
-
 #if !UCONFIG_NO_SERVICE
 	if(isCalendarServiceUsed()) {
 		u = getCalendarService(success)->get(aLocale, LocaleKey::KIND_ANY, &actualLoc, success);
@@ -805,7 +791,6 @@ Calendar * U_EXPORT2 Calendar::makeInstance(const Locale & aLocale, UErrorCode &
 		u = createStandardCalendar(getCalendarTypeForLocale(aLocale.getName()), aLocale, success);
 	}
 	Calendar* c = NULL;
-
 	if(U_FAILURE(success) || !u) {
 		if(U_SUCCESS(success)) { // Propagate some kind of err
 			success = U_INTERNAL_PROGRAM_ERROR;
@@ -814,7 +799,7 @@ Calendar * U_EXPORT2 Calendar::makeInstance(const Locale & aLocale, UErrorCode &
 	}
 #if !UCONFIG_NO_SERVICE
 	const UnicodeString * str = dynamic_cast<const UnicodeString *>(u);
-	if(str != NULL) {
+	if(str) {
 		// It's a unicode string telling us what type of calendar to load ("gregorian", etc)
 		// Create a Locale over this string
 		Locale l("");
@@ -835,7 +820,7 @@ Calendar * U_EXPORT2 Calendar::makeInstance(const Locale & aLocale, UErrorCode &
 			return NULL;
 		}
 		str = dynamic_cast<const UnicodeString *>(c);
-		if(str != NULL) {
+		if(str) {
 			// recursed! Second lookup returned a UnicodeString.
 			// Perhaps DefaultCalendar{} was set to another locale.
 #ifdef U_DEBUG_CALSVC

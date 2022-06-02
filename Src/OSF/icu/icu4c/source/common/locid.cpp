@@ -1661,15 +1661,11 @@ bool canonicalizeLocale(const Locale & locale, CharString& out, UErrorCode & sta
 // of resources in the startup time until we really need it.
 bool isKnownCanonicalizedLocale(const char * locale, UErrorCode & status)
 {
-	if(uprv_strcmp(locale, "c") == 0 ||
-	    uprv_strcmp(locale, "en") == 0 ||
-	    uprv_strcmp(locale, "en_US") == 0) {
+	if(uprv_strcmp(locale, "c") == 0 || uprv_strcmp(locale, "en") == 0 || uprv_strcmp(locale, "en_US") == 0) {
 		return true;
 	}
-
 	// common well-known Canonicalized.
-	umtx_initOnce(gKnownCanonicalizedInitOnce,
-	    &loadKnownCanonicalized, status);
+	umtx_initOnce(gKnownCanonicalizedInitOnce, &loadKnownCanonicalized, status);
 	if(U_FAILURE(status)) {
 		return false;
 	}
@@ -2301,12 +2297,12 @@ public:
 			result = current;
 			len = (int32_t)uprv_strlen(current);
 			current += len+1;
-			if(resultLength != NULL) {
+			if(resultLength) {
 				*resultLength = len;
 			}
 		}
 		else {
-			if(resultLength != NULL) {
+			if(resultLength) {
 				*resultLength = 0;
 			}
 			result = NULL;

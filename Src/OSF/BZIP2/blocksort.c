@@ -100,7 +100,7 @@ static void fallbackQSort3(uint32 * fmap, uint32 * eclass, int32 loSt, int32 hiS
 				if(unLo > unHi) 
 					break;
 				n = (int32)eclass[fmap[unLo]] - (int32)med;
-				if(n == 0) {
+				if(!n) {
 					fswap(fmap[unLo], fmap[ltLo]);
 					ltLo++; unLo++;
 					continue;
@@ -113,7 +113,7 @@ static void fallbackQSort3(uint32 * fmap, uint32 * eclass, int32 loSt, int32 hiS
 				if(unLo > unHi) 
 					break;
 				n = (int32)eclass[fmap[unHi]] - (int32)med;
-				if(n == 0) {
+				if(!n) {
 					fswap(fmap[unHi], fmap[gtHi]);
 					gtHi--; unHi--;
 					continue;
@@ -582,7 +582,7 @@ static void mainQSort3(uint32 * ptr, uchar*  block, uint16* quadrant, int32 nblo
 			while(true) {
 				if(unLo > unHi) break;
 				n = ((int32)block[ptr[unLo]+d]) - med;
-				if(n == 0) {
+				if(!n) {
 					mswap(ptr[unLo], ptr[ltLo]);
 					ltLo++; unLo++; continue;
 				}
@@ -593,7 +593,7 @@ static void mainQSort3(uint32 * ptr, uchar*  block, uint16* quadrant, int32 nblo
 			while(true) {
 				if(unLo > unHi) break;
 				n = ((int32)block[ptr[unHi]+d]) - med;
-				if(n == 0) {
+				if(!n) {
 					mswap(ptr[unHi], ptr[gtHi]);
 					gtHi--; unHi--; continue;
 				}

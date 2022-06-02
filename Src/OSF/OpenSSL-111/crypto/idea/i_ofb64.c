@@ -34,7 +34,7 @@ void IDEA_ofb64_encrypt(const uchar * in, uchar * out, long length, IDEA_KEY_SCH
 	l2n(v0, dp);
 	l2n(v1, dp);
 	while(l--) {
-		if(n == 0) {
+		if(!n) {
 			IDEA_encrypt((ulong *)ti, schedule);
 			dp = (char *)d;
 			t = ti[0];

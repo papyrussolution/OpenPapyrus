@@ -49,26 +49,23 @@ static void * _getBuffer(UEnumeration* en, int32_t capacity)
 U_CAPI void U_EXPORT2 uenum_close(UEnumeration* en)
 {
 	if(en) {
-		if(en->close != NULL) {
+		if(en->close) {
 			if(en->baseContext) {
 				uprv_free(en->baseContext);
 			}
 			en->close(en);
 		}
-		else { /* this seems dangerous, but we better kill the object */
+		else // this seems dangerous, but we better kill the object
 			uprv_free(en);
-		}
 	}
 }
 
 U_CAPI int32_t U_EXPORT2 uenum_count(UEnumeration* en, UErrorCode * status)
 {
-	if(!en || U_FAILURE(*status)) {
+	if(!en || U_FAILURE(*status))
 		return -1;
-	}
-	if(en->count != NULL) {
+	else if(en->count)
 		return en->count(en, status);
-	}
 	else {
 		*status = U_UNSUPPORTED_ERROR;
 		return -1;
@@ -80,16 +77,14 @@ U_CAPI const UChar * U_EXPORT2 uenum_unextDefault(UEnumeration* en, int32_t* res
 {
 	UChar * ustr = NULL;
 	int32_t len = 0;
-	if(en->next != NULL) {
+	if(en->next) {
 		const char * cstr = en->next(en, &len, status);
-		if(cstr != NULL) {
+		if(cstr) {
 			ustr = (UChar *)_getBuffer(en, (len+1) * sizeof(UChar));
-			if(ustr == NULL) {
+			if(!ustr)
 				*status = U_MEMORY_ALLOCATION_ERROR;
-			}
-			else {
+			else
 				u_charsToUChars(cstr, ustr, len+1);
-			}
 		}
 	}
 	else {
@@ -102,7 +97,7 @@ U_CAPI const UChar * U_EXPORT2 uenum_unextDefault(UEnumeration* en, int32_t* res
 /* Don't call this directly. Only uenum_next should be calling this. */
 U_CAPI const char * U_EXPORT2 uenum_nextDefault(UEnumeration* en, int32_t* resultLength, UErrorCode * status)
 {
-	if(en->uNext != NULL) {
+	if(en->uNext) {
 		char * tempCharVal;
 		const UChar * tempUCharVal = en->uNext(en, resultLength, status);
 		if(tempUCharVal == NULL) {
@@ -124,12 +119,10 @@ U_CAPI const char * U_EXPORT2 uenum_nextDefault(UEnumeration* en, int32_t* resul
 
 U_CAPI const UChar * U_EXPORT2 uenum_unext(UEnumeration* en, int32_t* resultLength, UErrorCode * status)
 {
-	if(!en || U_FAILURE(*status)) {
+	if(!en || U_FAILURE(*status))
 		return NULL;
-	}
-	if(en->uNext != NULL) {
+	if(en->uNext)
 		return en->uNext(en, resultLength, status);
-	}
 	else {
 		*status = U_UNSUPPORTED_ERROR;
 		return NULL;
@@ -141,8 +134,8 @@ U_CAPI const char * U_EXPORT2 uenum_next(UEnumeration* en, int32_t* resultLength
 	if(!en || U_FAILURE(*status)) {
 		return NULL;
 	}
-	if(en->next != NULL) {
-		if(resultLength != NULL) {
+	if(en->next) {
+		if(resultLength) {
 			return en->next(en, resultLength, status);
 		}
 		else {
@@ -158,13 +151,10 @@ U_CAPI const char * U_EXPORT2 uenum_next(UEnumeration* en, int32_t* resultLength
 
 U_CAPI void U_EXPORT2 uenum_reset(UEnumeration* en, UErrorCode * status)
 {
-	if(!en || U_FAILURE(*status)) {
+	if(!en || U_FAILURE(*status))
 		return;
-	}
-	if(en->reset != NULL) {
+	if(en->reset)
 		en->reset(en, status);
-	}
-	else {
+	else
 		*status = U_UNSUPPORTED_ERROR;
-	}
 }

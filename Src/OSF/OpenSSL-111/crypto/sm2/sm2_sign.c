@@ -98,7 +98,7 @@ int sm2_compute_z_digest(uint8_t * out,
 
 	p_bytes = BN_num_bytes(p);
 	buf = static_cast<uint8_t *>(OPENSSL_zalloc(p_bytes));
-	if(buf == NULL) {
+	if(!buf) {
 		SM2err(SM2_F_SM2_COMPUTE_Z_DIGEST, ERR_R_MALLOC_FAILURE);
 		goto done;
 	}

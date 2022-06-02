@@ -484,7 +484,7 @@ ECPARAMETERS * EC_GROUP_get_ecparameters(const EC_GROUP * group,
 	form = EC_GROUP_get_point_conversion_form(group);
 
 	len = EC_POINT_point2buf(group, point, form, &buffer, NULL);
-	if(len == 0) {
+	if(!len) {
 		ECerr(EC_F_EC_GROUP_GET_ECPARAMETERS, ERR_R_EC_LIB);
 		goto err;
 	}
@@ -1288,7 +1288,7 @@ int ECDSA_size(const EC_KEY * r)
 		return 0;
 
 	i = EC_GROUP_order_bits(group);
-	if(i == 0)
+	if(!i)
 		return 0;
 	bs.length = (i + 7) / 8;
 	bs.data = buf;

@@ -47,10 +47,10 @@ void PPGoodsStruc::Init()
 }
 
 PPGoodsStruc & FASTCALL PPGoodsStruc::operator = (const PPGoodsStruc & rS) { return Copy(rS); }
-int    PPGoodsStruc::IsEmpty() const { return (Items.getCount() || Children.getCount()) ? 0 : 1; }
-int    PPGoodsStruc::IsNamed() const { return BIN(Rec.Flags & GSF_NAMED); }
-int    PPGoodsStruc::CanExpand() const { return (Rec.Flags & (GSF_CHILD|GSF_FOLDER)) ? 0 : 1; }
-int    PPGoodsStruc::CanReduce() const { return BIN(Rec.Flags & GSF_FOLDER && Children.getCount() <= 1); }
+bool   PPGoodsStruc::IsEmpty() const { return (!Items.getCount() && !Children.getCount()); }
+bool   PPGoodsStruc::IsNamed() const { return LOGIC(Rec.Flags & GSF_NAMED); }
+bool   PPGoodsStruc::CanExpand() const { return (Rec.Flags & (GSF_CHILD|GSF_FOLDER)) ? false : true; }
+bool   PPGoodsStruc::CanReduce() const { return (Rec.Flags & GSF_FOLDER && Children.getCount() <= 1); }
 double PPGoodsStruc::GetDenom() const { return (Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) ? Rec.CommDenom : 1.0; }
 int    PPGoodsStruc::MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos) { return Items.moveItem(pos, dir, pNewPos); }
 SString & PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
@@ -60,10 +60,10 @@ int    PPGoodsStruc::GetKind() const
 SString & FASTCALL PPGoodsStruc::GetTypeString(SString & rBuf) const
 	{ return PPGoodsStruc::MakeTypeString(Rec.ID, Rec.Flags, Rec.ParentID, rBuf); }
 
-int FASTCALL PPGoodsStruc::IsEq(const PPGoodsStruc & rS) const
+bool FASTCALL PPGoodsStruc::IsEq(const PPGoodsStruc & rS) const
 {
-	int   eq = 1;
-#define CMPRECF(f) if(Rec.f != rS.Rec.f) return 0;
+	int   eq = true;
+#define CMPRECF(f) if(Rec.f != rS.Rec.f) return false;
 	CMPRECF(GiftLimit);
 	CMPRECF(GiftQuotKindID);
 	CMPRECF(GiftAmtRestrict);
@@ -74,37 +74,37 @@ int FASTCALL PPGoodsStruc::IsEq(const PPGoodsStruc & rS) const
 	CMPRECF(ParentID);
 #undef CMPRECF
 	if(stricmp866(Rec.Name, rS.Rec.Name) != 0)
-		eq = 0;
+		eq = false;
 	else if(stricmp866(Rec.Symb, rS.Rec.Symb) != 0)
-		eq = 0;
+		eq = false;
 	else {
 		{
 			const uint c = Items.getCount();
 			if(c != rS.Items.getCount())
-				eq = 0;
+				eq = false;
 			else {
 				for(uint i = 0; eq && i < c; i++) {
 					if(!Items.at(i).IsEq(rS.Items.at(i)))
-						eq = 0;
+						eq = false;
 				}
 			}
 		}
 		if(eq) {
 			const uint c = Children.getCount();
 			if(c != rS.Children.getCount())
-				eq = 0;
+				eq = false;
 			else {
 				for(uint i = 0; eq && i < c; i++) {
 					const PPGoodsStruc * p_child = Children.at(i);
 					const PPGoodsStruc * p_s_child = rS.Children.at(i);
 					if(p_child && p_s_child) {
 						if(!p_child->IsEq(*p_s_child))
-							eq = 0;
+							eq = false;
 					}
 					else if(p_child && !p_s_child) // @paranoic
-						eq = 0;
+						eq = false;
 					else if(!p_child && p_s_child) // @paranoic
-						eq = 0;
+						eq = false;
 				}
 			}
 		}

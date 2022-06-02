@@ -326,7 +326,7 @@ int DeviceLoadingStat::GetUpdatedObjects(PPID objType, const LDATETIME & since, 
 	if(objType == PPOBJ_GOODS)
 		acn_list.addzlist(PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2, PPACN_GOODSNODISRMVD, 0L);
 	else if(objType == PPOBJ_SCARD)
-		acn_list.add(PPACN_SCARDDISUPD);
+		acn_list.addzlist(PPACN_SCARDDISUPD, PPACN_SCARDOWNERUPDATED, 0); // @v11.4.0 PPACN_SCARDOWNERUPDATED
 	acn_list.sort();
 	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		if(cmp(since, p_sj->data.Dt, p_sj->data.Tm) < 0 && acn_list.bsearch(p_sj->data.Action))

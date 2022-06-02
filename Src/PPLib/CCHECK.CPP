@@ -592,7 +592,7 @@ CCheckPacket::LineExt::LineExt()
 	THISZERO();
 }
 
-int CCheckPacket::LineExt::IsEmpty() const
+bool CCheckPacket::LineExt::IsEmpty() const
 {
 	return (Queue <= 0 && !(Flags & (fGroup|fModifier|fPartOfComplex|fQuotedByGift|fFixedPrice))); // @v10.1.7 fFixedPrice
 }
@@ -3472,9 +3472,8 @@ LDATE CCheckGoodsArray::GetMaxDate() const
 	LDATE  dt = ZERODATE;
 	uint   i = getCount();
 	if(i) do {
-		LDATE cur_dt = at(--i).Dt;
-		if(cur_dt > dt)
-			dt = cur_dt;
+		const LDATE cur_dt = at(--i).Dt;
+		SETMAX(dt, cur_dt);
 	} while(i);
 	return dt;
 }
@@ -3560,6 +3559,8 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 	};
 	int    ok = 1;
 	Reference * p_ref = PPRef;
+	PPObjBill * p_bobj = BillObj; // @v11.4.0
+	LotExtCodeCore * p_lotxct = p_bobj ? p_bobj->P_LotXcT : 0; // @v11.4.0
 	uint   i;
 	LDATE  curdt = getcurdate_();
 	SArray chk_list(sizeof(ChkItem), /*32,*/ O_ARRAY);
@@ -3617,6 +3618,69 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 							temp_buf_u.CopyFromUtf8(temp_buf);
 							THROW(p_ref->TrT.GetSelfRefText(temp_buf_u, &serial_id, 0));
 						}
+					}
+					else {
+						// @construction {
+						// @v11.4.0 {
+						// Попытка решить проблему сопоставления продаж через кассу по маркам егаис с лотами:
+						// Если со строкой чека связана марка, то ищем соответствующую марку и, если находим, то
+						// ищем код справки Б (RefB/Ref2). Этот код будем трактовать как серийный номер со спец префиксом "refb:"
+						// при этом механизм хранения ссылок на этот код в таблице CGoodsLine аналогичен варианту с серийных номеров (see above).
+						if(p_lotxct && CCheckPacket::Helper_GetLineTextExt(Lines.data.RByCheck, CCheckPacket::lnextEgaisMark, cc_ln_text_ext, temp_buf) > 0) {
+							if(temp_buf.NotEmptyS()) {
+								//temp_buf_u.CopyFromUtf8(temp_buf);
+								//THROW(p_ref->TrT.GetSelfRefText(temp_buf_u, &serial_id, 0));
+								TSVector <LotExtCodeTbl::Rec> rec_list;
+								if(p_lotxct->GetRecListByMark(temp_buf, rec_list) > 0) {
+									assert(rec_list.getCount());
+									//const int is_box = BIN(rec_list.at(0).Flags & PPLotExtCodeContainer::fBox);
+									BillTbl::Rec bill_rec;
+									TransferTbl::Rec trfr_rec;
+									SString ref_b;
+									for(uint i = 0; ref_b.IsEmpty() && i < rec_list.getCount(); i++) {
+										const LotExtCodeTbl::Rec & r_rec = rec_list.at(i);
+										if(r_rec.BillID && p_bobj->Fetch(r_rec.BillID, &bill_rec) > 0) {
+											const PPID op_type_id = GetOpType(bill_rec.OpID);
+											if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
+												if(r_rec.RByBill) {
+													int16 row_idx = 0;
+													int   rbb_target = 0;
+													PPTransferItem ti_iter;
+													for(int rbb_iter = 0; !rbb_target && p_bobj->trfr->EnumItems(r_rec.BillID, &rbb_iter, &ti_iter) > 0;) {
+														row_idx++;
+														if(row_idx == r_rec.RByBill)
+															rbb_target = ti_iter.RByBill;
+													}
+													if(rbb_target && p_bobj->trfr->SearchByBill(r_rec.BillID, 0, rbb_target, &trfr_rec) > 0) {
+														if(trfr_rec.Flags & PPTFR_RECEIPT) {
+															if(trfr_rec.LotID && p_ref->Ot.GetTagStr(PPOBJ_LOT, trfr_rec.LotID, PPTAG_LOT_FSRARINFB, ref_b) > 0) {
+																;
+															}
+														}
+														else if(trfr_rec.CorrLoc && p_bobj->trfr->SearchByBill(r_rec.BillID, 1, rbb_target, &trfr_rec) > 0) { // @v10.7.3
+															PPID org_lot_id = 0;
+															ReceiptTbl::Rec org_lot_rec;
+															if(p_bobj->trfr->Rcpt.SearchOrigin(trfr_rec.LotID, &org_lot_id, 0, &org_lot_rec) > 0) {
+																if(p_ref->Ot.GetTagStr(PPOBJ_LOT, org_lot_rec.ID, PPTAG_LOT_FSRARINFB, ref_b) > 0) {
+																	;
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+									if(ref_b.NotEmpty()) {
+										(temp_buf = "rfb:").Cat(ref_b);
+										temp_buf_u.CopyFromUtf8(temp_buf);
+										THROW(p_ref->TrT.GetSelfRefText(temp_buf_u, &serial_id, 0));
+									}
+								}
+							}							
+						}
+						// } @construction
+						// } @v11.4.0 
 					}
 					THROW(pCgList->Add(plusdate(curdt, dt_offs), &Lines.data, serial_id));
 					prev_cc_id = cc_id;
@@ -4546,6 +4610,7 @@ int CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PPID loc
 		};
 		Stage  stage = stgMain; // Тег этапа обработки
 		const CgBillCvtList * p_list = static_cast<const CgBillCvtList *>(pData);
+		const PPID autocompl_op_id = CConfig.AutoComplOp;
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		PPObjGoods goods_obj;
 		SString fmt_buf, msg_buf;
@@ -4612,7 +4677,7 @@ int CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PPID loc
 							}
 							if(qtty > 0.0 && sign > 0) {
 								THROW(p_bobj->ConvertILTI(&ilti, &pack, 0, cvt_flags, serial_buf));
-								if(ComplDfct && CConfig.AutoComplOp && R6(ilti.Rest) != 0.0) {
+								if(ComplDfct && autocompl_op_id && R6(ilti.Rest) != 0.0) {
 									PUGL * p_pugl = compl_dfct_list.CreateNewItem();
 									THROW_SL(p_pugl);
 									THROW(p_pugl->Add(&ilti, pack.Rec.LocID, item_pos, pack.Rec.Dt));
@@ -4650,7 +4715,7 @@ int CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PPID loc
 						PUGL * p_pugl = compl_dfct_list.at(j);
 						if(p_pugl) {
 							PPID   compl_bill_id = 0;
-							THROW(r = p_bobj->CreateModifByPUGL(CConfig.AutoComplOp, &compl_bill_id, p_pugl, sessID));
+							THROW(r = p_bobj->CreateModifByPUGL(autocompl_op_id, &compl_bill_id, p_pugl, sessID));
 							if(r > 0) {
 								Logger.LogAcceptMsg(PPOBJ_BILL, compl_bill_id, 0);
 								for(i = 0; i < p_pugl->getCount(); i++)
@@ -5225,9 +5290,8 @@ int CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPID locI
 							if(PPRef->TrT.SearchSelfRef(r_entry.SerialID, temp_buf_u) > 0) {
 								temp_buf_u.CopyToMb(CP_UTF8, serial_buf);
 								serial_buf.Transf(CTRANSF_UTF8_TO_INNER);
-								if(serial_buf.NotEmptyS()) {
+								if(serial_buf.NotEmptyS())
 									pack.LTagL.AddNumber(PPTAG_LOT_SN, &rows, serial_buf);
-								}
 							}
 						}
 					}

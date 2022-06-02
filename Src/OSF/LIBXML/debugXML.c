@@ -2270,7 +2270,7 @@ void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * 
 		 * Parse the command itself
 		 */
 		cur = cmdline;
-		while((*cur == ' ') || (*cur == '\t'))
+		while(oneof2(*cur, ' ', '\t'))
 			cur++;
 		i = 0;
 		while((*cur != ' ') && (*cur != '\t') && (*cur != '\n') && (*cur != '\r')) {
@@ -2279,7 +2279,7 @@ void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * 
 			command[i++] = *cur++;
 		}
 		command[i] = 0;
-		if(i == 0)
+		if(!i)
 			continue;
 
 		/*

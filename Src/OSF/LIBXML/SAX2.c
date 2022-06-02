@@ -1039,14 +1039,11 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 	ret = xmlNewNsPropEatName(ctxt->P_Node, namespace__, name, 0);
 	if(ret) {
 		if((ctxt->replaceEntities == 0) && (!ctxt->html)) {
-			xmlNode * tmp;
 			ret->children = xmlStringGetNodeList(ctxt->myDoc, value);
-			tmp = ret->children;
-			while(tmp) {
+			for(xmlNode * tmp = ret->children; tmp; tmp = tmp->next) {
 				tmp->P_ParentNode = reinterpret_cast<xmlNode *>(ret);
-				if(tmp->next == NULL)
+				if(!tmp->next)
 					ret->last = tmp;
-				tmp = tmp->next;
 			}
 		}
 		else if(value) {
@@ -1116,20 +1113,17 @@ error:
 	SAlloc::F(nval);
 	SAlloc::F(ns);
 }
-
 /*
  * xmlCheckDefaultedAttributes:
  *
  * Check defaulted attributes from the DTD
  */
-static void xmlCheckDefaultedAttributes(xmlParserCtxt * ctxt, const xmlChar * name,
-    const xmlChar * prefix, const xmlChar ** atts) {
-	xmlElement * elemDecl;
+static void xmlCheckDefaultedAttributes(xmlParserCtxt * ctxt, const xmlChar * name, const xmlChar * prefix, const xmlChar ** atts) 
+{
 	const xmlChar * att;
 	int internal = 1;
 	int i;
-
-	elemDecl = xmlGetDtdQElementDesc(ctxt->myDoc->intSubset, name, prefix);
+	xmlElement * elemDecl = xmlGetDtdQElementDesc(ctxt->myDoc->intSubset, name, prefix);
 	if(elemDecl == NULL) {
 		elemDecl = xmlGetDtdQElementDesc(ctxt->myDoc->extSubset, name, prefix);
 		internal = 0;
@@ -1153,15 +1147,13 @@ process_external_subset:
 					else {
 						fulln = sstrdup(attr->name);
 					}
-					if(fulln == NULL) {
+					if(!fulln) {
 						xmlSAX2ErrMemory(ctxt, "xmlSAX2StartElement");
 						break;
 					}
-
-					/*
-					 * Check that the attribute is not declared in the
-					 * serialization
-					 */
+					// 
+					// Check that the attribute is not declared in the serialization
+					// 
 					att = NULL;
 					if(atts) {
 						i = 0;
@@ -1173,9 +1165,8 @@ process_external_subset:
 							att = atts[i];
 						}
 					}
-					if(att == NULL) {
+					if(!att)
 						xmlErrValid(ctxt, XML_DTD_STANDALONE_DEFAULTED, "standalone: attribute %s on %s defaulted from external subset\n", (const char *)fulln, (const char *)attr->elem);
-					}
 					SAlloc::F(fulln);
 				}
 				attr = attr->nexth;
@@ -1205,14 +1196,13 @@ process_external_subset:
 					if((tst == attr) || (tst == NULL)) {
 						xmlChar fn[50];
 						xmlChar * fulln = xmlBuildQName(attr->name, attr->prefix, fn, 50);
-						if(fulln == NULL) {
+						if(!fulln) {
 							xmlSAX2ErrMemory(ctxt, "xmlSAX2StartElement");
 							return;
 						}
-						/*
-						 * Check that the attribute is not declared in the
-						 * serialization
-						 */
+						//
+						// Check that the attribute is not declared in the serialization
+						//
 						att = NULL;
 						if(atts) {
 							i = 0;
@@ -1224,9 +1214,8 @@ process_external_subset:
 								att = atts[i];
 							}
 						}
-						if(att == NULL) {
+						if(!att)
 							xmlSAX2AttributeInternal(ctxt, fulln, attr->defaultValue, prefix);
-						}
 						if((fulln != fn) && (fulln != attr->name))
 							SAlloc::F(fulln);
 					}

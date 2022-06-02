@@ -238,13 +238,12 @@ void Tokenizer::Refresh() {
 			return;
 		}
 	} while(buffer_size_ == 0);
-
 	buffer_ = static_cast<const char*>(data);
-
 	current_char_ = buffer_[0];
 }
 
-inline void Tokenizer::RecordTo(std::string* target) {
+inline void Tokenizer::RecordTo(std::string * target) 
+{
 	record_target_ = target;
 	record_start_ = buffer_pos_;
 }
@@ -278,13 +277,13 @@ inline void Tokenizer::EndToken() {
 // -------------------------------------------------------------------
 // Helper methods that consume characters.
 
-template <typename CharacterClass>
-inline bool Tokenizer::LookingAt() {
+template <typename CharacterClass> inline bool Tokenizer::LookingAt() 
+{
 	return CharacterClass::InClass(current_char_);
 }
 
-template <typename CharacterClass>
-inline bool Tokenizer::TryConsumeOne() {
+template <typename CharacterClass> inline bool Tokenizer::TryConsumeOne() 
+{
 	if(CharacterClass::InClass(current_char_)) {
 		NextChar();
 		return true;
@@ -294,7 +293,8 @@ inline bool Tokenizer::TryConsumeOne() {
 	}
 }
 
-inline bool Tokenizer::TryConsume(char c) {
+inline bool Tokenizer::TryConsume(char c) 
+{
 	if(current_char_ == c) {
 		NextChar();
 		return true;
@@ -304,15 +304,15 @@ inline bool Tokenizer::TryConsume(char c) {
 	}
 }
 
-template <typename CharacterClass>
-inline void Tokenizer::ConsumeZeroOrMore() {
+template <typename CharacterClass> inline void Tokenizer::ConsumeZeroOrMore() 
+{
 	while(CharacterClass::InClass(current_char_)) {
 		NextChar();
 	}
 }
 
-template <typename CharacterClass>
-inline void Tokenizer::ConsumeOneOrMore(const char* error) {
+template <typename CharacterClass> inline void Tokenizer::ConsumeOneOrMore(const char* error) 
+{
 	if(!CharacterClass::InClass(current_char_)) {
 		AddError(error);
 	}
@@ -455,31 +455,31 @@ Tokenizer::TokenType Tokenizer::ConsumeNumber(bool started_with_zero,
 	return is_float ? TYPE_FLOAT : TYPE_INTEGER;
 }
 
-void Tokenizer::ConsumeLineComment(std::string* content) {
-	if(content != NULL) RecordTo(content);
-
+void Tokenizer::ConsumeLineComment(std::string* content) 
+{
+	if(content) 
+		RecordTo(content);
 	while(current_char_ != '\0' && current_char_ != '\n') {
 		NextChar();
 	}
 	TryConsume('\n');
-
-	if(content != NULL) StopRecording();
+	if(content) 
+		StopRecording();
 }
 
-void Tokenizer::ConsumeBlockComment(std::string* content) {
+void Tokenizer::ConsumeBlockComment(std::string* content) 
+{
 	int start_line = line_;
 	int start_column = column_ - 2;
-
-	if(content != NULL) RecordTo(content);
-
+	if(content)
+		RecordTo(content);
 	while(true) {
-		while(current_char_ != '\0' && current_char_ != '*' &&
-		    current_char_ != '/' && current_char_ != '\n') {
+		while(current_char_ != '\0' && current_char_ != '*' && current_char_ != '/' && current_char_ != '\n') {
 			NextChar();
 		}
 
 		if(TryConsume('\n')) {
-			if(content != NULL) StopRecording();
+			if(content) StopRecording();
 
 			// Consume leading whitespace and asterisk;
 			ConsumeZeroOrMore<WhitespaceNoNewline>();
@@ -490,11 +490,11 @@ void Tokenizer::ConsumeBlockComment(std::string* content) {
 				}
 			}
 
-			if(content != NULL) RecordTo(content);
+			if(content) RecordTo(content);
 		}
 		else if(TryConsume('*') && TryConsume('/')) {
 			// End of comment.
-			if(content != NULL) {
+			if(content) {
 				StopRecording();
 				// Strip trailing "*/".
 				content->erase(content->size() - 2);
@@ -511,7 +511,7 @@ void Tokenizer::ConsumeBlockComment(std::string* content) {
 			AddError("End-of-file inside block comment.");
 			error_collector_->AddError(start_line, start_column,
 			    "  Comment started here.");
-			if(content != NULL) StopRecording();
+			if(content) StopRecording();
 			break;
 		}
 	}

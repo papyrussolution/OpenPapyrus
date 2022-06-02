@@ -2153,6 +2153,14 @@ class ppstr2 {
 	public static final int PPERR_BILLIMPSRCCOD2NEEDED = 12134;
 	public static final int PPERR_TECHCANTBESELFPARENTED = 12135;
 	public static final int PPERR_JOBSRV_ARG_JOBID = 12136;
+	public static final int PPERR_SCSERRULE_DUPZEROTRNOVR = 12137;
+	public static final int PPERR_LOCMUSTBEADDR = 12138;
+	public static final int PPERR_LOCMUSTBEADDRORWAREHOUSE = 12139;
+	public static final int PPERR_AR_HANGLINK_PRC = 12140;
+	public static final int PPERR_AR_UNEQNAME_PRC = 12141;
+	public static final int PPERR_BHTSAMPLEBILLNFOUND = 12142;
+	public static final int PPERR_TSESSTAGUUIDABS = 12143;
+	public static final int PPERR_OBJTAGUUIDABS = 12144;
 	//
 	// .N.
 	//
@@ -4446,6 +4454,9 @@ class ppstr2 {
 	public static final int PPTXT_SMPLSRCHRESULT_TOOSHRTPATTERN = 12039;
 	public static final int PPTXT_SMPLSRCHRESULT_TOOMANYRESULTS = 12040;
 	public static final int PPTXT_SMPLSRCHRESULT_SUCCESS = 12041;
+	public static final int PPTXT_LOG_STQENTRYPOINTCREATED = 12042;
+	public static final int PPTXT_LOG_STQMQBSVRENTPTNOTFOUND = 12043;
+	public static final int PPINIPARAM_BLINDLOGINMODE = 12044;
 	//
 	// .N.
 	//
@@ -4597,6 +4608,7 @@ class ppstr2 {
 	public static final int DVCPARAM_BUYERSPHONE = 10140;
 	public static final int DVCPARAM_BUYERSEMAIL = 10141;
 	public static final int DVCPARAM_PAPERLESS = 10142;
+	public static final int DVCCMD_OPENSESSION = 10143;
 	//
 	// .N.
 	//
@@ -5144,8 +5156,6 @@ class ppstr2 {
 	public static final int PPHSC_RU_SUPPLIERID_ = 10218;
 	public static final int PPHSC_RU_ORGEMAIL = 10219;
 	public static final int PPHSC_RU_LICENSE = 10220;
-	public static final int PPSHC_RU_EGAIS_SALE = 10221;
-	public static final int PPSHC_RU_EGAIS_RETOFSALE = 10222;
 	public static final int PPHSC_RU_CONFSHIPMDOC = 10223;
 	public static final int PPHSC_RU_CONFSHIPMDOCNAME = 10224;
 	public static final int PPHSC_RU_CONFSHIPMDOCNO = 10225;
@@ -5159,4 +5169,9 @@ class ppstr2 {
 	public static final int PPHSC_RU_PURCHASELEDGERLN = 10233;
 	public static final int PPHSC_RU_SALESLEDGERLN = 10234;
 	public static final int PPHSC_RU_CORRECTIONNO_ = 10235;
+	public static final int PPHSC_RU_EGAIS_SALE = 10236;
+	public static final int PPHSC_RU_EGAIS_RETOFSALE = 10237;
+	public static final int PPHSC_VETIS_LOSSES = 10238;
+	public static final int PPHSC_VETIS_UNRECORDEDBALANCE = 10239;
+	public static final int PPHSC_VETIS_FILLINGOUTERROR = 10240;
 }

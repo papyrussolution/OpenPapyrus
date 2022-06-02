@@ -76,7 +76,7 @@ static bool FASTCALL IsAWordStart(const int ch)
 
 static bool FASTCALL IsAOperator(char ch)
 {
-	if(IsASCII(ch) && isalnum(ch))
+	if(isasciialnum(ch))
 		return false;
 	if(ch == '+' || ch == '-' || ch == '*' || ch == '/' ||
 	    ch == '&' || ch == '^' || ch == '=' || ch == '<' || ch == '>' ||

@@ -2014,7 +2014,7 @@ int divsufsort(const uchar * T, int * SA, int n, int openMP)
 	if((T == NULL) || (SA == NULL) || (n < 0)) {
 		return -1;
 	}
-	else if(n == 0) {
+	else if(!n) {
 		return 0;
 	}
 	else if(n == 1) {

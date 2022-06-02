@@ -63,7 +63,7 @@ ASN1_ITEM_end(CBIGNUM)
 static int bn_new(ASN1_VALUE ** pval, const ASN1_ITEM * it)
 {
 	*pval = (ASN1_VALUE*)BN_new();
-	if(*pval != NULL)
+	if(*pval)
 		return 1;
 	else
 		return 0;
@@ -72,7 +72,7 @@ static int bn_new(ASN1_VALUE ** pval, const ASN1_ITEM * it)
 static int bn_secure_new(ASN1_VALUE ** pval, const ASN1_ITEM * it)
 {
 	*pval = (ASN1_VALUE*)BN_secure_new();
-	if(*pval != NULL)
+	if(*pval)
 		return 1;
 	else
 		return 0;

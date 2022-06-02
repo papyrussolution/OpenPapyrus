@@ -1407,7 +1407,9 @@ int  Test_StyloQInvitation();
 // @construction finished int  Test_Launch_SCalendarPicker();
 int  Test_StrAssocTree();
 int  Test_Fts();
+int  Test_ReadUed(const char * pFileName);
 int  ImportYYE(const char * pSrcPath);
+int  ImportSpecial(const char * pPath);
 
 extern int OnigTestSyntax_main(FILE * fOut);
 extern int OnigTestOptions_main(FILE * fOut);
@@ -1496,6 +1498,8 @@ int DoConstructionTest()
 		//Test_LCMS2(testbed_path, out_file_name, true);
 //#endif
 	}
+	Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
+	//ImportSpecial("d:\\DEV\\RESOURCE\\DATA\\ETC");
 	//ImportYYE("/DEV/Resource/Data/yeda");
 	//TestGtinStruc();
 	//DoTest_PThr4w();

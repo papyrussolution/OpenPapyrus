@@ -94,7 +94,7 @@ static void ColouriseSolDoc(Sci_PositionU startPos, Sci_Position length, int ini
 		Sci_Position lineCurrent = styler.GetLine(startPos);
 		if(lineCurrent > 0) {
 			startPos = styler.LineStart(lineCurrent-1);
-			if(startPos == 0) initStyle = SCE_SCRIPTOL_DEFAULT;
+			if(!startPos) initStyle = SCE_SCRIPTOL_DEFAULT;
 			else initStyle = styler.StyleAt(startPos-1);
 		}
 	}
@@ -105,7 +105,7 @@ static void ColouriseSolDoc(Sci_PositionU startPos, Sci_Position length, int ini
 
 	char prevWord[200];
 	prevWord[0] = '\0';
-	if(length == 0) return;
+	if(!length) return;
 
 	int state = initStyle & 31;
 
@@ -262,7 +262,7 @@ static void FoldSolDoc(Sci_PositionU startPos, Sci_Position length, int initStyl
 		if(lineCurrent > 0) {
 			lineCurrent--;
 			startPos = styler.LineStart(lineCurrent);
-			if(startPos == 0)
+			if(!startPos)
 				initStyle = SCE_SCRIPTOL_DEFAULT;
 			else
 				initStyle = styler.StyleAt(startPos-1);

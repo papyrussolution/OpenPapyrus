@@ -147,7 +147,7 @@ static int GetPyStringState(Accessor & styler, Sci_Position i, Sci_PositionU * n
 	// Approximation, Python uses the XID_Start set from unicode data
 	// see http://unicode.org/reports/tr31/
 	CharacterCategory c = CategoriseCharacter(ch);
-	return (c == ccLl || c == ccLu || c == ccLt || c == ccLm || c == ccLo || c == ccNl);
+	return oneof6(c, ccLl, ccLu, ccLt, ccLm, ccLo, ccNl);
 }
 
 static bool FASTCALL IsFirstNonWhitespace(Sci_Position pos, Accessor & styler)
@@ -156,7 +156,7 @@ static bool FASTCALL IsFirstNonWhitespace(Sci_Position pos, Accessor & styler)
 	Sci_Position start_pos = styler.LineStart(line);
 	for(Sci_Position i = start_pos; i < pos; i++) {
 		char ch = styler[i];
-		if(!(ch == ' ' || ch == '\t'))
+		if(!oneof2(ch, ' ', '\t'))
 			return false;
 	}
 	return true;

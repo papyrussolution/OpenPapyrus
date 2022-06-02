@@ -1037,7 +1037,7 @@ U_CAPI void U_EXPORT2 udat_setSymbols(UDateFormat * format, UDateFormatSymbolTyp
 
 U_CAPI const char * U_EXPORT2 udat_getLocaleByType(const UDateFormat * fmt, ULocDataLocaleType type, UErrorCode * status)
 {
-	if(fmt == NULL) {
+	if(!fmt) {
 		if(U_SUCCESS(*status)) {
 			*status = U_ILLEGAL_ARGUMENT_ERROR;
 		}

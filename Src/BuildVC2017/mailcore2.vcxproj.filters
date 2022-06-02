@@ -17,8 +17,6 @@
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCAbstractPart.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCAddress.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCAddressDisplay.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCArray.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCAssert.c" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCAttachment.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCAutoreleasePool.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCBase64.c" />
@@ -29,63 +27,9 @@
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCDataStreamDecoder.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCDateFormatter.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCErrorMessage.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCHashMap.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCHTMLBodyRendererTemplateCallback.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCHTMLCleaner.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCHTMLRenderer.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCHTMLRendererCallback.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCHTMLRendererIMAPDataCallback.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPAppendMessageOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPAsyncConnection.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPAsyncSession.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPCapabilityOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPCheckAccountOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPConnectOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPCopyMessagesOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPCreateFolderOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPCustomCommandOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPDeleteFolderOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPDisconnectOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPExpungeOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPFetchContentOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPFetchContentToFileOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPFetchFoldersOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPFetchMessagesOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPFetchNamespaceOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPFetchParsedContentOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPFolder.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPFolderInfo.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPFolderInfoOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPFolderStatus.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPFolderStatusOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPIdentity.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPIdentityOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPIdleOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPMessage.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPMessagePart.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPMessageRenderingOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPMoveMessagesOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPMultiDisconnectOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPMultipart.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPNamespace.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPNamespaceItem.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPNoopOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPPart.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPQuotaOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPRenameFolderOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPSearchExpression.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPSearchOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPSession.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPStoreFlagsOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPStoreLabelsOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPSubscribeFolderOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIMAPSyncResult.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIndexSet.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCJSON.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCJSONParser.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCLibetpan.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCLog.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCMailProvider.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCMailProvidersManager.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCMainThreadWin32.cpp" />
@@ -96,51 +40,21 @@
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCMessagePart.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCMultipart.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNetService.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPAsyncSession.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPCheckAccountOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPDisconnectOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPFetchAllArticlesOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPFetchArticleOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPFetchHeaderOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPFetchOverviewOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPFetchServerTimeOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPGroupInfo.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPListNewsgroupsOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPPostOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNNTPSession.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCNull.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCObject.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCOperation.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCOperationQueue.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCPOPAsyncSession.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCPOPCheckAccountOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCPOPDeleteMessagesOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCPOPFetchHeaderOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCPOPFetchMessageOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCPOPFetchMessagesOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCPOPMessageInfo.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCPOPNoopOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCPOPOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCPOPSession.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCRange.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCSet.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCSizeFormatter.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCSMTPAsyncSession.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCSMTPCheckAccountOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCSMTPDisconnectOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCSMTPLoginOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCSMTPNoopOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCSMTPOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCSMTPSendWithDataOperation.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCSMTPSession.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCString.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCStringWin32.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCValue.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCWin32.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCZip.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MiniZip\unzip.c" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MiniZip\zip.c" />
+    <ClCompile Include="..\OSF\Mailspring-Sync\mailcore2\src\MCHTML.cpp" />
+    <ClCompile Include="..\OSF\Mailspring-Sync\mailcore2\src\MCIMAP.cpp" />
+    <ClCompile Include="..\OSF\Mailspring-Sync\mailcore2\src\MCNNTP.cpp" />
+    <ClCompile Include="..\OSF\Mailspring-Sync\mailcore2\src\MCPOP.cpp" />
+    <ClCompile Include="..\OSF\Mailspring-Sync\mailcore2\src\MCSMTP.cpp" />
+    <ClCompile Include="..\OSF\Mailspring-Sync\mailcore2\src\MC2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\build_headers.list" />
@@ -152,175 +66,7 @@
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\mailcore2-internal.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAbstractMessage.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAbstractMessagePart.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAbstractMultipart.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAbstractPart.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAccountValidator.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAddress.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAddressDisplay.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAndroid.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCArray.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAttachment.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCAutoreleasePool.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCConnectionLogger.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCData.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCDateFormatter.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCDefines.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCErrorMessage.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCHashMap.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCHTMLCleaner.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCHTMLRendererCallback.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFolder.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPFolderStatus.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPIdleOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPPart.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPProgressCallback.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPSyncResult.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIndexSet.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCLog.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMailProvider.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMailProvidersManager.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMessageBuilder.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMessageConstants.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMessageHeader.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMessageParser.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCMXRecordResolverOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNetService.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPGroupInfo.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPProgressCallback.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPSession.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCObject.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCOperationCallback.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCOperationQueue.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPMessageInfo.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPProgressCallback.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPSession.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCRange.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCSMTPAsyncSession.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCSMTPDisconnectOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCSMTPLoginOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCSMTPOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCSMTPOperationCallback.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCSMTPProgressCallback.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCSMTPSession.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCString.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCUtils.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCValue.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCValuePrivate.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MiniZip\crypt.h">

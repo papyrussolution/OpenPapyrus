@@ -221,7 +221,7 @@ static int asn1_item_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent, const A
 
 		    if(asn1_cb) {
 			    i = asn1_cb(ASN1_OP_PRINT_PRE, fld, it, &parg);
-			    if(i == 0)
+			    if(!i)
 				    return 0;
 			    if(i == 2)
 				    return 1;
@@ -245,7 +245,7 @@ static int asn1_item_print_ctx(BIO * out, ASN1_VALUE ** fld, int indent, const A
 
 		    if(asn1_cb) {
 			    i = asn1_cb(ASN1_OP_PRINT_POST, fld, it, &parg);
-			    if(i == 0)
+			    if(!i)
 				    return 0;
 		    }
 		    break;

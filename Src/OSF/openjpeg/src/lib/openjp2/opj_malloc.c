@@ -73,7 +73,7 @@ static INLINE void * opj_aligned_alloc_n(size_t alignment, size_t size)
 			return NULL;
 		}
 		mem = (uint8*)SAlloc::M(size + overhead);
-		if(mem == NULL) {
+		if(!mem) {
 			return mem;
 		}
 		/* offset = ((alignment + 1U) - ((size_t)(mem + sizeof(void*)) & alignment)) & alignment; */

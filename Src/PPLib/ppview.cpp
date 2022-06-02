@@ -1065,60 +1065,60 @@ int PPBaseFilt::Copy(const PPBaseFilt * pS, int)
 	return ok;
 }
 
-int PPBaseFilt::IsEq(const PPBaseFilt * pS, int) const
+bool PPBaseFilt::IsEq(const PPBaseFilt * pS, int) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(IsA(pS)) {
 		if(Signature == pS->Signature && Capability == pS->Capability) {
 			if(!FlatSize || memcmp(PTR8C(this) + FlatOffs, PTR8C(pS) + FlatOffs, FlatSize) == 0) {
-				ok = 1;
+				ok = true;
 				for(uint i = 0; ok && i < BranchList.getCount(); i++) {
 					const Branch * p_b = static_cast<const Branch *>(BranchList.at(i));
 					if(p_b->Type == Branch::tSString) {
 						const SString * p_str = reinterpret_cast<const SString *>(PTR8C(this) + p_b->Offs);
 						const SString * p_src_str = reinterpret_cast<const SString *>(PTR8C(pS) + p_b->Offs);
 						if(p_str->Cmp(*p_src_str, 0) != 0)
-							ok = 0;
+							ok = false;
 					}
 					else if(p_b->Type == Branch::tSArray) {
 						const SArray * p_ary = reinterpret_cast<const SArray *>(PTR8C(this) + p_b->Offs);
 						const SArray * p_src_ary = reinterpret_cast<const SArray *>(PTR8C(pS) + p_b->Offs);
 						if(!p_ary->IsEq(*p_src_ary))
-							ok = 0;
+							ok = false;
 					}
 					else if(p_b->Type == Branch::tSVector) {
 						const SVector * p_ary = reinterpret_cast<const SVector *>(PTR8C(this) + p_b->Offs);
 						const SVector * p_src_ary = reinterpret_cast<const SVector *>(PTR8C(pS) + p_b->Offs);
 						if(!p_ary->IsEq(*p_src_ary))
-							ok = 0;
+							ok = false;
 					}
 					else if(p_b->Type == Branch::tObjIdListFilt) {
 						const ObjIdListFilt * p_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(this) + p_b->Offs);
 						const ObjIdListFilt * p_src_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(pS) + p_b->Offs);
 						if(!p_list->IsEq(*p_src_list))
-							ok = 0;
+							ok = false;
 					}
 					else if(p_b->Type == Branch::tStrAssocArray) {
 						const StrAssocArray * p_ary = reinterpret_cast<const StrAssocArray *>(PTR8C(this) + p_b->Offs);
 						const StrAssocArray * p_src_ary = reinterpret_cast<const StrAssocArray *>(PTR8C(pS) + p_b->Offs);
 						if(!p_ary->IsEq(*p_src_ary))
-							ok = 0;
+							ok = false;
 					}
 					else if(p_b->Type == Branch::tDisplayExtList) {
 						const PPViewDisplayExtList * p_list = reinterpret_cast<const PPViewDisplayExtList *>(PTR8C(this) + p_b->Offs);
 						const PPViewDisplayExtList * p_src_list = reinterpret_cast<const PPViewDisplayExtList *>(PTR8C(pS) + p_b->Offs);
 						if(!p_list->IsEq(*p_src_list))
-							ok = 0;
+							ok = false;
 					}
 					else if(p_b->Type == Branch::tBaseFiltPtr) {
 						const PPBaseFilt * p_filt = *reinterpret_cast<const PPBaseFilt * const *>(PTR8C(this) + p_b->Offs);
 						const PPBaseFilt * p_src_filt = *reinterpret_cast<const PPBaseFilt * const *>(PTR8C(pS) + p_b->Offs);
 						if(p_filt && p_src_filt) {
 							if(!p_filt->IsEq(p_src_filt, 0))
-								ok = 0;
+								ok = false;
 						}
 						else if(!(!p_filt && !p_src_filt))
-							ok = 0;
+							ok = false;
 					}
 				}
 			}
@@ -1127,11 +1127,11 @@ int PPBaseFilt::IsEq(const PPBaseFilt * pS, int) const
 	return ok;
 }
 
-/*virtual*/int PPBaseFilt::IsEmpty() const
+/*virtual*/bool PPBaseFilt::IsEmpty() const
 {
 	PPBaseFilt * p_filt = 0;
 	PPView::CreateFiltInstance(Signature, &p_filt);
-	int    r = BIN(p_filt && IsEq(p_filt, 0));
+	bool   r = (p_filt && IsEq(p_filt, 0));
 	ZDELETE(p_filt);
 	return r;
 }

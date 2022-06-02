@@ -352,7 +352,7 @@ int dtls1_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf,
 		/* SSLfatal() already called if appropriate */
 		if(i < 0)
 			return i;
-		if(i == 0)
+		if(!i)
 			return -1;
 	}
 
@@ -477,7 +477,7 @@ start:
 		if(recvd_type != NULL)
 			*recvd_type = SSL3_RECORD_get_type(rr);
 
-		if(len == 0) {
+		if(!len) {
 			/*
 			 * Mark a zero length record as read. This ensures multiple calls to
 			 * SSL_read() with a zero length buffer will eventually cause
@@ -701,7 +701,7 @@ start:
 		/* SSLfatal() called if appropriate */
 		if(i < 0)
 			return i;
-		if(i == 0)
+		if(!i)
 			return -1;
 
 		if(!(s->mode & SSL_MODE_AUTO_RETRY)) {

@@ -76,7 +76,7 @@ static TString * LoadString(LoadState * S) {
 	size_t size = LoadByte(S);
 	if(size == 0xFF)
 		LoadVar(S, size);
-	if(size == 0)
+	if(!size)
 		return NULL;
 	else if(--size <= LUAI_MAXSHORTLEN) { /* short string? */
 		char buff[LUAI_MAXSHORTLEN];

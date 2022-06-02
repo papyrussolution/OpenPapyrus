@@ -1398,6 +1398,7 @@ public class SLib {
 	public static final int EV_ACTIVITYSTART        = 18; // Посылается в SlActivity функцией onStart
 	public static final int EV_ACTIVITYRESUME       = 19; // Посылается в SlActivity функцией onResume
 	public static final int EV_SVCQUERYRESULT       = 20; // @v11.3.10 Посылается в SlActivity после выполнения запроса к сервису по заданию этой activity
+	public static final int EV_CBSELECTED           = 21; // @v11.4.0 Посылается в ответ на выбор элемента в combo-box'е (spinner)
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h
@@ -3857,7 +3858,7 @@ public class SLib {
 		}
 		public static void SetLastError(Context ctx, int errCode, String msg, String addInfo)
 		{
-			StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+			StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(ctx);
 			if(app_ctx != null) {
 				if(GetLen(msg) > 0)
 					app_ctx.SetLastErrorMsg(msg, addInfo);
@@ -3882,7 +3883,7 @@ public class SLib {
 		}
 		public static String GetLastErrorMessage(Context ctx)
 		{
-			StyloQApp app_ctx = (ctx != null) ? (StyloQApp)ctx.getApplicationContext() : null;
+			StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(ctx);
 			return (app_ctx != null) ? app_ctx.GetLastErrMessage(ctx) : "";
 		}
 	}
@@ -4172,8 +4173,8 @@ public class SLib {
 				if(ctx != null) {
 					if(ctx instanceof SlActivity) {
 						((SlActivity)ctx).HandleEvent(EV_SETUPFRAGMENT, this, result);
-						Context app_ctx = ctx.getApplicationContext();
-						if(app_ctx instanceof StyloQApp)
+						StyloQApp app_ctx = SlActivity.GetAppCtx(ctx);
+						if(app_ctx != null)
 							SubstituteStringSignatures((StyloQApp)app_ctx, (ViewGroup) result);
 					}
 					else if(ctx instanceof StyloQApp)
@@ -4367,6 +4368,15 @@ public class SLib {
 	}
 	public static abstract class SlActivity extends AppCompatActivity implements EventHandler {
 		private ActivityResultLauncher <Intent> StartForResult;
+		public static StyloQApp GetAppCtx(Context ctx)
+		{
+			return (ctx != null && ctx instanceof SlActivity) ? ((SlActivity)ctx).GetAppCtx() : null;
+		}
+		public StyloQApp GetAppCtx()
+		{
+			Context ctx = getApplication();
+			return (ctx != null && ctx instanceof StyloQApp) ? (StyloQApp)ctx : null;
+		}
 		//
 		// Descr: Функция запуска другой SlActivity с целью получения результата исполнения //
 		//
@@ -4645,6 +4655,29 @@ public class SLib {
 		if(spinner_view != null) {
 			StrAssocSpinnerAdapter adapter = new StrAssocSpinnerAdapter(ctx, data);
 			spinner_view.setAdapter(adapter);
+			{
+				spinner_view.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+					public void onItemSelected(AdapterView<?> adapterView, View view, int idx, long id)
+					{
+						Object item = view;
+						Context ctx = adapterView.getContext();
+						if(item != null && ctx != null && ctx instanceof SLib.SlActivity) {
+							SLib.SlActivity activity = (SLib.SlActivity)ctx;
+							SLib.ListViewEvent ev_subj = new SLib.ListViewEvent();
+							ev_subj.ItemIdx = idx;
+							ev_subj.ItemId = id;
+							ev_subj.ItemObj = item;
+							ev_subj.ItemView = view;
+							//ev_subj.ParentView = adapterView;
+							activity.HandleEvent(SLib.EV_CBSELECTED, adapterView, ev_subj);
+						}
+					}
+					public void onNothingSelected(AdapterView<?> adapterView)
+					{
+						return;
+					}
+				});
+			}
 			int sel_pos = (initValue != 0) ? adapter.GetIdxById(initValue) : AdapterView.INVALID_POSITION;
 			spinner_view.setSelection(sel_pos);
 		}
@@ -4828,8 +4861,12 @@ public class SLib {
 				if(tv != null && tv instanceof ViewGroup) {
 					ViewGroup vg = (ViewGroup)tv;
 					SetupButtonHandlerLoop(vg);
-					StyloQApp app_ctx = (StyloQApp)getContext().getApplicationContext();
-					SubstituteStringSignatures(app_ctx, vg);
+					Context ctx = getContext();
+					if(ctx != null) {
+						StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
+						if(app_ctx != null)
+							SubstituteStringSignatures(app_ctx, vg);
+					}
 				}
 			}
 		}

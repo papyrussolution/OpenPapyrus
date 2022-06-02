@@ -901,7 +901,7 @@ static cairo_image_transparency_t _cairo_image_compute_transparency(cairo_image_
 			if(a > 0 && a < 255) {
 				return CAIRO_IMAGE_HAS_ALPHA;
 			}
-			else if(a == 0) {
+			else if(!a) {
 				transparency = CAIRO_IMAGE_HAS_BILEVEL_ALPHA;
 			}
 		}
@@ -936,7 +936,7 @@ static cairo_image_color_t _cairo_image_compute_color(cairo_image_surface_t * im
 				int r = (*pixel & 0x00ff0000) >> 16;
 				int g = (*pixel & 0x0000ff00) >> 8;
 				int b = (*pixel & 0x000000ff);
-				if(a == 0) {
+				if(!a) {
 					r = g = b = 0;
 				}
 				else {

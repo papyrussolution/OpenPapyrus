@@ -134,20 +134,13 @@ static int auxprop_verify_password(sasl_conn_t * conn, const char * userstr, con
 	result = prop_request(sconn->sparams->propctx, password_request);
 
 	if(result != SASL_OK) return result;
-
-	result = _sasl_canon_user_lookup(conn,
-		userstr,
-		0,
-		SASL_CU_AUTHID | SASL_CU_AUTHZID,
-		&(conn->oparams));
-	if(result != SASL_OK) return result;
-
-	result = prop_getnames(sconn->sparams->propctx, password_request,
-		auxprop_values);
+	result = _sasl_canon_user_lookup(conn, userstr, 0, SASL_CU_AUTHID | SASL_CU_AUTHZID, &(conn->oparams));
+	if(result != SASL_OK) 
+		return result;
+	result = prop_getnames(sconn->sparams->propctx, password_request, auxprop_values);
 	if(result < 0) {
 		return result;
 	}
-
 	/* Verify that the returned <name>s are correct.
 	   But we defer checking for NULL values till after we verify
 	   that a passwd is specified. */
@@ -181,14 +174,10 @@ static int auxprop_verify_password(sasl_conn_t * conn, const char * userstr, con
 	 && auxprop_values[1].values[0]) {
 		const char * db_secret = auxprop_values[1].values[0];
 		sasl_secret_t * construct;
-
-		ret = _sasl_make_plain_secret(db_secret, passwd,
-			strlen(passwd),
-			&construct);
+		ret = _sasl_make_plain_secret(db_secret, passwd, strlen(passwd), &construct);
 		if(ret != SASL_OK) {
 			goto done;
 		}
-
 		if(!memcmp(db_secret, construct->data, construct->len)) {
 			/* password verified! */
 			ret = SASL_OK;
@@ -197,7 +186,6 @@ static int auxprop_verify_password(sasl_conn_t * conn, const char * userstr, con
 			/* passwords do not match */
 			ret = SASL_BADAUTH;
 		}
-
 		sasl_FREE(construct);
 	}
 	else {
@@ -799,20 +787,16 @@ static int saslauthd_verify_password(sasl_conn_t * conn,
 
 	{
 		struct iovec iov[8];
-
 		iov[0].iov_len = query_end - query;
 		iov[0].iov_base = query;
-
 		if(retry_writev(s, iov, 1, 0) == -1) {
 			close(s);
 			sasl_seterror(conn, 0, "write failed");
 			goto fail;
 		}
 	}
-
 	{
 		unsigned short count = 0;
-
 		/*
 		 * read response of the form:
 		 *

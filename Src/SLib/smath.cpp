@@ -448,7 +448,7 @@ uint64 ui64pow(uint64 x, uint n)
 
 double FASTCALL fpowi(double x, int n)
 {
-	if(n == 0)
+	if(!n)
 		return 1.0;
 	else {
 		//
@@ -493,7 +493,7 @@ double FASTCALL fpowi(double x, int n)
 
 float FASTCALL fpowfi(float x, int n)
 {
-	if(n == 0)
+	if(!n)
 		return 1.0f;
 	else {
 		//
@@ -830,7 +830,7 @@ long SHistogram::Put(double val)
 	}
 	else if(Flags & fDeviation) {
 		THROW(P_Stat); // StatBase
-		if(c == 0) {
+		if(!c) {
 			THROW(P_Stat->GetCount());
 			THROW(P_Stat->Finish());
 			THROW(DevBinCount);
@@ -1145,7 +1145,7 @@ ulong  FASTCALL Gcd(ulong a, ulong b)
 	ulong result = 0;
 	if(b == 0 || a == b)
 		result = a;
-	else if(a == 0)
+	else if(!a)
 		result = b;
 	else if(a > b) {
 		for(ulong rem = a%b; rem > 0; rem = a%b) {
@@ -1174,10 +1174,6 @@ ulong  FASTCALL Lcm(ulong a, ulong b)
     assert((result % a) == 0 && (result % b) == 0);
     return result;
 }
-
-bool FASTCALL IsPowerOfTwo(uint val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
-bool FASTCALL IsPowerOfTwo(uint32 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
-bool FASTCALL IsPowerOfTwo(uint64 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
 
 static const ushort FirstPrimeNumbers[] = {
         2,     3,     5,     7,    11,    13,    17,    19,    23,    29,    31,    37,    41,    43,    47,    53,

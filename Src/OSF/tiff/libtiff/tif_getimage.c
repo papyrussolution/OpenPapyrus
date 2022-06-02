@@ -655,7 +655,7 @@ static int gtTileSeparate(TIFFRGBAImage* img, uint32 * raster, uint32 w, uint32 
 		tocol = 0;
 		col = img->col_offset;
 		while(tocol < w) {
-			if(buf == NULL) {
+			if(!buf) {
 				if(_TIFFReadTileAndAllocBuffer(tif, (void **)&buf, bufsize, col, row+img->row_offset, 0, 0)==(tmsize_t)(-1) && (buf == NULL || img->stoponerr)) {
 					ret = 0;
 					break;
@@ -852,7 +852,7 @@ static int gtStripSeparate(TIFFRGBAImage* img, uint32 * raster, uint32 w, uint32
 		rowstoread = rowsperstrip - (row + img->row_offset) % rowsperstrip;
 		nrow = (row + rowstoread > h ? h - row : rowstoread);
 		offset_row = row + img->row_offset;
-		if(buf == NULL) {
+		if(!buf) {
 			if(_TIFFReadEncodedStripAndAllocBuffer(tif, TIFFComputeStrip(tif, offset_row, 0), (void **)&buf, bufsize,
 				    ((row + img->row_offset)%rowsperstrip + nrow) * scanline)==(tmsize_t)(-1) && (buf == NULL || img->stoponerr)) {
 				ret = 0;

@@ -515,10 +515,10 @@ void MessageFormat::setFormats(const Format** newFormats, int32_t count)
 {
 	if(newFormats && count >= 0) {
 		// Throw away any cached formatters.
-		if(cachedFormatters != NULL) {
+		if(cachedFormatters) {
 			uhash_removeAll(cachedFormatters);
 		}
-		if(customFormatArgStarts != NULL) {
+		if(customFormatArgStarts) {
 			uhash_removeAll(customFormatArgStarts);
 		}
 		UErrorCode status = U_ZERO_ERROR;
@@ -526,7 +526,7 @@ void MessageFormat::setFormats(const Format** newFormats, int32_t count)
 		for(int32_t partIndex = 0;
 			formatNumber < count && U_SUCCESS(status) && (partIndex = nextTopLevelArgStart(partIndex)) >= 0;) {
 			Format* newFormat = NULL;
-			if(newFormats[formatNumber] != NULL) {
+			if(newFormats[formatNumber]) {
 				newFormat = newFormats[formatNumber]->clone();
 				if(newFormat == NULL)
 					status = U_MEMORY_ALLOCATION_ERROR;
@@ -573,9 +573,7 @@ void MessageFormat::adoptFormat(const UnicodeString & formatName, Format* format
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-	for(int32_t partIndex = 0;
-	    (partIndex = nextTopLevelArgStart(partIndex)) >= 0 && U_SUCCESS(status);
-	    ) {
+	for(int32_t partIndex = 0; (partIndex = nextTopLevelArgStart(partIndex)) >= 0 && U_SUCCESS(status);) {
 		if(argNameMatches(partIndex + 1, formatName, argNumber)) {
 			Format* f;
 			if(p.isValid()) {
@@ -1183,10 +1181,10 @@ void MessageFormat::copyObjects(const MessageFormat& that, UErrorCode & ec) {
 		}
 		uprv_memcpy(argTypes, that.argTypes, argTypeCount * sizeof(argTypes[0]));
 	}
-	if(cachedFormatters != NULL) {
+	if(cachedFormatters) {
 		uhash_removeAll(cachedFormatters);
 	}
-	if(customFormatArgStarts != NULL) {
+	if(customFormatArgStarts) {
 		uhash_removeAll(customFormatArgStarts);
 	}
 	if(that.cachedFormatters) {
@@ -1226,11 +1224,8 @@ void MessageFormat::copyObjects(const MessageFormat& that, UErrorCode & ec) {
 	}
 }
 
-Formattable* MessageFormat::parse(int32_t msgStart,
-    const UnicodeString & source,
-    ParsePosition& pos,
-    int32_t& count,
-    UErrorCode & ec) const {
+Formattable* MessageFormat::parse(int32_t msgStart, const UnicodeString & source, ParsePosition& pos, int32_t& count, UErrorCode & ec) const 
+{
 	count = 0;
 	if(U_FAILURE(ec)) {
 		pos.setErrorIndex(pos.getIndex());
@@ -1366,9 +1361,8 @@ Formattable* MessageFormat::parse(int32_t msgStart,
 // the array count and the ending parse position.  The caller of this method
 // owns the array.
 //
-Formattable* MessageFormat::parse(const UnicodeString & source,
-    ParsePosition& pos,
-    int32_t& count) const {
+Formattable* MessageFormat::parse(const UnicodeString & source, ParsePosition& pos, int32_t& count) const 
+{
 	UErrorCode ec = U_ZERO_ERROR;
 	return parse(0, source, pos, count, ec);
 }
@@ -1377,9 +1371,7 @@ Formattable* MessageFormat::parse(const UnicodeString & source,
 // Formattable objects and the array count.  The caller
 // owns the returned array.
 //
-Formattable* MessageFormat::parse(const UnicodeString & source,
-    int32_t& cnt,
-    UErrorCode & success) const
+Formattable* MessageFormat::parse(const UnicodeString & source, int32_t& cnt, UErrorCode & success) const
 {
 	if(msgPattern.hasNamedArguments()) {
 		success = U_ARGUMENT_TYPE_MISMATCH;
@@ -1399,24 +1391,23 @@ Formattable* MessageFormat::parse(const UnicodeString & source,
 //
 // Parses the source text and copy into the result buffer.
 //
-void MessageFormat::parseObject(const UnicodeString & source,
-    Formattable& result,
-    ParsePosition& status) const
+void MessageFormat::parseObject(const UnicodeString & source, Formattable& result, ParsePosition& status) const
 {
 	int32_t cnt = 0;
 	Formattable* tmpResult = parse(source, status, cnt);
-	if(tmpResult != NULL)
+	if(tmpResult)
 		result.adoptArray(tmpResult, cnt);
 }
 
-UnicodeString MessageFormat::autoQuoteApostrophe(const UnicodeString & pattern, UErrorCode & status) {
+UnicodeString MessageFormat::autoQuoteApostrophe(const UnicodeString & pattern, UErrorCode & status) 
+{
 	UnicodeString result;
 	if(U_SUCCESS(status)) {
 		int32_t plen = pattern.length();
 		const UChar * pat = pattern.getBuffer();
 		int32_t blen = plen * 2 + 1; // space for null termination, convenience
 		UChar * buf = result.getBuffer(blen);
-		if(buf == NULL) {
+		if(!buf) {
 			status = U_MEMORY_ALLOCATION_ERROR;
 		}
 		else {
@@ -1430,9 +1421,10 @@ UnicodeString MessageFormat::autoQuoteApostrophe(const UnicodeString & pattern, 
 	return result;
 }
 
-static Format* makeRBNF(URBNFRuleSetTag tag, const Locale & locale, const UnicodeString & defaultRuleSet, UErrorCode & ec) {
+static Format* makeRBNF(URBNFRuleSetTag tag, const Locale & locale, const UnicodeString & defaultRuleSet, UErrorCode & ec) 
+{
 	RuleBasedNumberFormat* fmt = new RuleBasedNumberFormat(tag, locale, ec);
-	if(fmt == NULL) {
+	if(!fmt) {
 		ec = U_MEMORY_ALLOCATION_ERROR;
 	}
 	else if(U_SUCCESS(ec) && defaultRuleSet.length() > 0) {
@@ -1442,17 +1434,17 @@ static Format* makeRBNF(URBNFRuleSetTag tag, const Locale & locale, const Unicod
 	return fmt;
 }
 
-void MessageFormat::cacheExplicitFormats(UErrorCode & status) {
+void MessageFormat::cacheExplicitFormats(UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
-	if(cachedFormatters != NULL) {
+	if(cachedFormatters) {
 		uhash_removeAll(cachedFormatters);
 	}
-	if(customFormatArgStarts != NULL) {
+	if(customFormatArgStarts) {
 		uhash_removeAll(customFormatArgStarts);
 	}
-
 	// The last two "parts" can at most be ARG_LIMIT and MSG_LIMIT
 	// which we need not examine.
 	int32_t limit = msgPattern.countParts() - 2;
@@ -1600,23 +1592,19 @@ Format* MessageFormat::createAppropriateFormat(UnicodeString & type, UnicodeStri
 			    // Pattern
 			    styleID = findKeyword(style, DATE_STYLE_IDS);
 			    date_style = (styleID >= 0) ? DATE_STYLES[styleID] : DateFormat::kDefault;
-
 			    if(typeID == 1) {
 				    fmt = DateFormat::createDateInstance(date_style, fLocale);
 			    }
 			    else {
 				    fmt = DateFormat::createTimeInstance(date_style, fLocale);
 			    }
-
-			    if(styleID < 0 && fmt != NULL) {
+			    if(styleID < 0 && fmt) {
 				    SimpleDateFormat* sdtfmt = dynamic_cast<SimpleDateFormat*>(fmt);
-				    if(sdtfmt != NULL) {
+				    if(sdtfmt)
 					    sdtfmt->applyPattern(style);
-				    }
 			    }
 		    }
 		    break;
-
 		case 3: // spellout
 		    formattableType = Formattable::kDouble;
 		    fmt = makeRBNF(URBNF_SPELLOUT, fLocale, style, ec);
@@ -1637,16 +1625,14 @@ Format* MessageFormat::createAppropriateFormat(UnicodeString & type, UnicodeStri
 
 	return fmt;
 }
-
-//-------------------------------------
+//
 // Finds the string, s, in the string array, list.
-int32_t MessageFormat::findKeyword(const UnicodeString & s,
-    const UChar * const * list)
+//
+int32_t MessageFormat::findKeyword(const UnicodeString & s, const UChar * const * list)
 {
 	if(s.isEmpty()) {
 		return 0; // default
 	}
-
 	int32_t length = s.length();
 	const UChar * ps = PatternProps::trimWhiteSpace(s.getBuffer(), length);
 	UnicodeString buffer(FALSE, ps, length);
@@ -1664,18 +1650,17 @@ int32_t MessageFormat::findKeyword(const UnicodeString & s,
 /**
  * Convenience method that ought to be in NumberFormat
  */
-NumberFormat* MessageFormat::createIntegerFormat(const Locale & locale, UErrorCode & status) const {
+NumberFormat* MessageFormat::createIntegerFormat(const Locale & locale, UErrorCode & status) const 
+{
 	NumberFormat * temp = NumberFormat::createInstance(locale, status);
 	DecimalFormat * temp2;
-	if(temp != NULL && (temp2 = dynamic_cast<DecimalFormat*>(temp)) != NULL) {
+	if(temp && (temp2 = dynamic_cast<DecimalFormat*>(temp)) != NULL) {
 		temp2->setMaximumFractionDigits(0);
 		temp2->setDecimalSeparatorAlwaysShown(FALSE);
 		temp2->setParseIntegerOnly(TRUE);
 	}
-
 	return temp;
 }
-
 /**
  * Return the default number format.  Used to format a numeric
  * argument when subformats[i].format is NULL.  Returns NULL
@@ -1828,9 +1813,8 @@ UnicodeString MessageFormat::PluralSelectorProvider::select(void * ctx, double n
 	PluralSelectorContext &context = *static_cast<PluralSelectorContext *>(ctx);
 	int32_t otherIndex = msgFormat.findOtherSubMessage(context.startIndex);
 	context.numberArgIndex = msgFormat.findFirstPluralNumberArg(otherIndex, context.argName);
-	if(context.numberArgIndex > 0 && msgFormat.cachedFormatters != NULL) {
-		context.formatter =
-		    (const Format*)uhash_iget(msgFormat.cachedFormatters, context.numberArgIndex);
+	if(context.numberArgIndex > 0 && msgFormat.cachedFormatters) {
+		context.formatter = (const Format*)uhash_iget(msgFormat.cachedFormatters, context.numberArgIndex);
 	}
 	if(context.formatter == NULL) {
 		context.formatter = msgFormat.getDefaultNumberFormat(ec);
@@ -1842,7 +1826,7 @@ UnicodeString MessageFormat::PluralSelectorProvider::select(void * ctx, double n
 	}
 	context.formatter->format(context.number, context.numberString, ec);
 	auto* decFmt = dynamic_cast<const DecimalFormat *>(context.formatter);
-	if(decFmt != NULL) {
+	if(decFmt) {
 		number::impl::DecimalQuantity dq;
 		decFmt->formatToDecimalQuantity(context.number, dq, ec);
 		if(U_FAILURE(ec)) {

@@ -262,7 +262,7 @@ int SHA512_Update(SHA512_CTX * c, const void * _data, size_t len)
 	uchar * p = c->u.p;
 	const uchar * data = (const uchar *)_data;
 
-	if(len == 0)
+	if(!len)
 		return 1;
 
 	l = (c->Nl + (((SHA_LONG64)len) << 3)) & U64(0xffffffffffffffff);

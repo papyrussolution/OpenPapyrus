@@ -387,7 +387,7 @@ int ssh_bind_accept_fd(ssh_bind sshbind, ssh_session session, socket_t fd)
 			 * sshbind */
 			p = ssh_find_all_matching(sshbind->pubkey_accepted_key_types,
 				session->opts.pubkey_accepted_types);
-			if(p == NULL) {
+			if(!p) {
 				return SSH_ERROR;
 			}
 

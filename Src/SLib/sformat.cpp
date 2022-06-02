@@ -779,7 +779,7 @@ int FASTCALL strtodoub(const char * pBuf, double * pVal)
 {
 	char   temp[128];
 	char * p = sstrchr(clearDelimiters(STRNSCPY(temp, pBuf)), '.');
-	if(p == 0)
+	if(!p)
 		if((p = sstrchr(temp, ',')) != 0)
 			*p = '.';
 	ASSIGN_PTR(pVal, satof(temp)); // @v10.7.9 atof-->satof

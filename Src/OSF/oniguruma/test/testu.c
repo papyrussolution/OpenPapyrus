@@ -16,7 +16,7 @@ static void uconv(char * from, char * to, int len)
 	char * q = to;
 	for(int i = 0; i < len; i += 2) {
 		uchar c = (uchar)from[i];
-		if(c == 0) {
+		if(!c) {
 			c = (uchar)from[i+1];
 			if(c < 0x20 || c >= 0x7f || c == 0x5c || c == 0x22) {
 				sprintf(q, "\\%03o", (uint)c);

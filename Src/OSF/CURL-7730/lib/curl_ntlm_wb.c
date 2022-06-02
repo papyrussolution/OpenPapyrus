@@ -287,7 +287,7 @@ static CURLcode ntlm_wb_response(struct Curl_easy * data, struct ntlmdata * ntlm
 				continue;
 			goto done;
 		}
-		else if(size == 0)
+		else if(!size)
 			goto done;
 
 		if(Curl_dyn_addn(&b, buf, size))

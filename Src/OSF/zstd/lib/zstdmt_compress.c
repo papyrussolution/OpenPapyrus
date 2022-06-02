@@ -226,7 +226,7 @@ static buffer_t ZSTDMT_resizeBuffer(ZSTDMT_bufferPool* bufPool, buffer_t buffer)
 		buffer_t newBuffer;
 		newBuffer.start = start;
 		newBuffer.capacity = start == NULL ? 0 : bSize;
-		if(start != NULL) {
+		if(start) {
 			assert(newBuffer.capacity >= buffer.capacity);
 			memcpy(newBuffer.start, buffer.start, buffer.capacity);
 			DEBUGLOG(5, "ZSTDMT_resizeBuffer: created buffer of size %u", (uint32)bSize);

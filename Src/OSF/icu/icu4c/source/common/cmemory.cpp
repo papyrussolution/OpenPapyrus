@@ -52,7 +52,7 @@ U_CAPI void * U_EXPORT2 uprv_realloc(void * buffer, size_t size)
 	if(buffer == zeroMem) {
 		return uprv_malloc(size);
 	}
-	else if(size == 0) {
+	else if(!size) {
 		if(pFree) {
 			(*pFree)(pContext, buffer);
 		}

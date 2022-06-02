@@ -419,7 +419,7 @@ long TSessionDialog::getToolingTiming()
 		if(TSesObj.GetPrevSession(Data.Rec, &prev_sess_rec) > 0 && TSesObj.GetTech(Data.Rec.TechID, &tec_rec) > 0 &&
 			TSesObj.GetTech(prev_sess_rec.TechID, &prev_tec_rec, 1) > 0) {
 			//if(tec_rec.GoodsID != prev_tec_rec.GoodsID) {
-				TSVector <TechTbl::Rec> t_list; // @v9.8.4 TSArray-->TSVect
+				TSVector <TechTbl::Rec> t_list;
 				PPObjTech tec_obj;
 				if(tec_obj.SelectTooling(Data.Rec.PrcID, tec_rec.GoodsID, prev_tec_rec.GoodsID, &t_list) > 0)
 					for(uint i = 0; i < t_list.getCount(); i++)
@@ -452,8 +452,8 @@ void TSessionDialog::selectFreeEntry()
 		int    getSelectedPeriod(LDATETIME * pStart, LDATETIME * pFinish)
 		{
 			long   pos = 0, id = 0;
-			if(getCurItem(&pos, &id) && id > 0 && id <= (long)FreeList.getCount()) {
-				const PrcBusy & entry = *(PrcBusy *)FreeList.at(id-1);
+			if(getCurItem(&pos, &id) && id > 0 && id <= FreeList.getCountI()) {
+				const PrcBusy & entry = *static_cast<const PrcBusy *>(FreeList.at(id-1));
 				ASSIGN_PTR(pStart, entry.Start);
 				ASSIGN_PTR(pFinish, entry.Finish);
 				return 1;

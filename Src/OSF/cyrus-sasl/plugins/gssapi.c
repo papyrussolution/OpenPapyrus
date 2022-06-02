@@ -232,7 +232,7 @@ static int sasl_gss_seterror_(const sasl_utils_t * utils, OM_uint32 maj, OM_uint
 				    "GSSAPI Failure "
 				    "(could not get major error message)");
 			}
-			utils->free(out);
+			utils->FnFree(out);
 			return SASL_OK;
 		}
 
@@ -240,7 +240,7 @@ static int sasl_gss_seterror_(const sasl_utils_t * utils, OM_uint32 maj, OM_uint
 		ret = _plug_buf_alloc(utils, &out, &curlen, len);
 
 		if(ret != SASL_OK) {
-			utils->free(out);
+			utils->FnFree(out);
 			return SASL_NOMEM;
 		}
 
@@ -259,7 +259,7 @@ static int sasl_gss_seterror_(const sasl_utils_t * utils, OM_uint32 maj, OM_uint
 	len += 2;
 	ret = _plug_buf_alloc(utils, &out, &curlen, len);
 	if(ret != SASL_OK) {
-		utils->free(out);
+		utils->FnFree(out);
 		return SASL_NOMEM;
 	}
 	strcat(out, " (");
@@ -275,13 +275,13 @@ static int sasl_gss_seterror_(const sasl_utils_t * utils, OM_uint32 maj, OM_uint
 			else {
 				utils->seterror(utils->conn, 0, "GSSAPI Failure (could not get minor error message)");
 			}
-			utils->free(out);
+			utils->FnFree(out);
 			return SASL_OK;
 		}
 		len += len + msg.length;
 		ret = _plug_buf_alloc(utils, &out, &curlen, len);
 		if(ret != SASL_OK) {
-			utils->free(out);
+			utils->FnFree(out);
 			return SASL_NOMEM;
 		}
 		strcat(out, msg.value);
@@ -294,7 +294,7 @@ static int sasl_gss_seterror_(const sasl_utils_t * utils, OM_uint32 maj, OM_uint
 	len += 1;
 	ret = _plug_buf_alloc(utils, &out, &curlen, len);
 	if(ret != SASL_OK) {
-		utils->free(out);
+		utils->FnFree(out);
 		return SASL_NOMEM;
 	}
 	strcat(out, ")");
@@ -304,7 +304,7 @@ static int sasl_gss_seterror_(const sasl_utils_t * utils, OM_uint32 maj, OM_uint
 	else {
 		utils->seterror(utils->conn, 0, "%s", out);
 	}
-	utils->free(out);
+	utils->FnFree(out);
 	return SASL_OK;
 }
 
@@ -499,7 +499,7 @@ static int gssapi_decode(void * context,
 
 static context_t * sasl_gss_new_context(const sasl_utils_t * utils)
 {
-	context_t * ret = utils->malloc(sizeof(context_t));
+	context_t * ret = utils->FnMalloc(sizeof(context_t));
 	if(!ret) 
 		return NULL;
 	memzero(ret, sizeof(context_t));
@@ -507,7 +507,7 @@ static context_t * sasl_gss_new_context(const sasl_utils_t * utils)
 #ifdef GSS_USE_MUTEXES
 	ret->ctx_mutex = utils->mutex_alloc();
 	if(!ret->ctx_mutex) {
-		utils->free(ret);
+		utils->FnFree(ret);
 		return NULL;
 	}
 #endif
@@ -554,35 +554,35 @@ static int sasl_gss_free_context_contents(context_t * text)
 	}
 
 	if(text->out_buf) {
-		text->utils->free(text->out_buf);
+		text->utils->FnFree(text->out_buf);
 		text->out_buf = NULL;
 	}
 
 	if(text->encode_buf) {
-		text->utils->free(text->encode_buf);
+		text->utils->FnFree(text->encode_buf);
 		text->encode_buf = NULL;
 	}
 
 	if(text->decode_buf) {
-		text->utils->free(text->decode_buf);
+		text->utils->FnFree(text->decode_buf);
 		text->decode_buf = NULL;
 	}
 
 	if(text->decode_once_buf) {
-		text->utils->free(text->decode_once_buf);
+		text->utils->FnFree(text->decode_once_buf);
 		text->decode_once_buf = NULL;
 	}
 
 	if(text->enc_in_buf) {
-		if(text->enc_in_buf->data) text->utils->free(text->enc_in_buf->data);
-		text->utils->free(text->enc_in_buf);
+		if(text->enc_in_buf->data) text->utils->FnFree(text->enc_in_buf->data);
+		text->utils->FnFree(text->enc_in_buf);
 		text->enc_in_buf = NULL;
 	}
 
 	_plug_decode_free(&text->decode_context);
 
 	if(text->authid) { /* works for both client and server */
-		text->utils->free(text->authid);
+		text->utils->FnFree(text->authid);
 		text->authid = NULL;
 	}
 
@@ -601,7 +601,7 @@ static void gssapi_common_mech_dispose(void * conn_context,
     const sasl_utils_t * utils)
 {
 	sasl_gss_free_context_contents((context_t*)(conn_context));
-	utils->free(conn_context);
+	utils->FnFree(conn_context);
 }
 
 static void gssapi_common_mech_free(void * global_context __attribute__((unused)),
@@ -807,7 +807,7 @@ static int gssapi_server_mech_authneg(context_t * text,
 			return SASL_FAIL;
 		}
 		name_token.length = strlen(params->service) + 1 + strlen(params->serverFQDN);
-		name_token.value = (char *)params->utils->malloc((name_token.length + 1) * sizeof(char));
+		name_token.value = (char *)params->utils->FnMalloc((name_token.length + 1) * sizeof(char));
 		if(name_token.value == NULL) {
 			MEMERROR(text->utils);
 			sasl_gss_free_context_contents(text);
@@ -822,7 +822,7 @@ static int gssapi_server_mech_authneg(context_t * text,
 			&text->server_name);
 		GSS_UNLOCK_MUTEX_CTX(params->utils, text);
 
-		params->utils->free(name_token.value);
+		params->utils->FnFree(name_token.value);
 		name_token.value = NULL;
 
 		if(GSS_ERROR(maj_stat)) {
@@ -999,7 +999,7 @@ static int gssapi_server_mech_authneg(context_t * text,
 	if(strchr((char *)name_token.value, (int)'@') != NULL) {
 		/* NOTE: libc malloc, as it is freed below by a gssapi internal
 		 *       function! */
-		name_without_realm.value = params->utils->malloc(strlen(name_token.value)+1);
+		name_without_realm.value = params->utils->FnMalloc(strlen(name_token.value)+1);
 		if(name_without_realm.value == NULL) {
 			MEMERROR(text->utils);
 			ret = SASL_NOMEM;
@@ -1050,20 +1050,17 @@ static int gssapi_server_mech_authneg(context_t * text,
 	else {
 		equal = 0;
 	}
-
 	if(equal) {
-		text->authid = strdup(name_without_realm.value);
+		text->authid = sstrdup(name_without_realm.value);
 	}
 	else {
-		text->authid = strdup(name_token.value);
+		text->authid = sstrdup(name_token.value);
 	}
-
 	if(text->authid == NULL) {
 		MEMERROR(params->utils);
 		ret = SASL_NOMEM;
 		goto cleanup;
 	}
-
 	if(text->http_mode) {
 		/* HTTP doesn't do any ssf negotiation */
 		text->state = SASL_GSSAPI_STATE_AUTHENTICATED;
@@ -1102,7 +1099,7 @@ cleanup:
 		GSS_UNLOCK_MUTEX(params->utils);
 	}
 	if(name_without_realm.value) {
-		params->utils->free(name_without_realm.value);
+		params->utils->FnFree(name_without_realm.value);
 	}
 	if(without) {
 		GSS_LOCK_MUTEX(params->utils);
@@ -1648,7 +1645,7 @@ static int gssapi_client_mech_step(void * conn_context,
 
 			    /* free prompts we got */
 			    if(prompt_need && *prompt_need) {
-				    params->utils->free(*prompt_need);
+				    params->utils->FnFree(*prompt_need);
 				    *prompt_need = NULL;
 			    }
 
@@ -1676,7 +1673,7 @@ static int gssapi_client_mech_step(void * conn_context,
 				    return SASL_FAIL;
 			    }
 			    name_token.length = strlen(params->service) + 1 + strlen(params->serverFQDN);
-			    name_token.value = (char *)params->utils->malloc((name_token.length + 1) * sizeof(char));
+			    name_token.value = (char *)params->utils->FnMalloc((name_token.length + 1) * sizeof(char));
 			    if(name_token.value == NULL) {
 				    sasl_gss_free_context_contents(text);
 				    return SASL_NOMEM;
@@ -1691,7 +1688,7 @@ static int gssapi_client_mech_step(void * conn_context,
 				    &text->server_name);
 			    GSS_UNLOCK_MUTEX_CTX(params->utils, text);
 
-			    params->utils->free(name_token.value);
+			    params->utils->FnFree(name_token.value);
 			    name_token.value = NULL;
 
 			    if(GSS_ERROR(maj_stat)) {
@@ -2048,7 +2045,7 @@ static int gssapi_client_mech_step(void * conn_context,
 
 		    input_token->length = 4 + alen;
 		    input_token->value =
-			(char *)params->utils->malloc((input_token->length + 1)*sizeof(char));
+			(char *)params->utils->FnMalloc((input_token->length + 1)*sizeof(char));
 		    if(input_token->value == NULL) {
 			    sasl_gss_free_context_contents(text);
 			    return SASL_NOMEM;
@@ -2092,7 +2089,7 @@ static int gssapi_client_mech_step(void * conn_context,
 			    output_token);
 		    GSS_UNLOCK_MUTEX_CTX(params->utils, text);
 
-		    params->utils->free(input_token->value);
+		    params->utils->FnFree(input_token->value);
 		    input_token->value = NULL;
 
 		    if(GSS_ERROR(maj_stat)) {

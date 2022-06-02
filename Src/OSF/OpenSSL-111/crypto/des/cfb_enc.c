@@ -32,13 +32,10 @@ void DES_cfb_encrypt(const uchar * in, uchar * out, int numbits, long length, DE
 #else
 	uint sh[4];
 	uchar * ovec = (uchar *)sh;
-
 	/* I kind of count that compiler optimizes away this assertion, */
 	assert(sizeof(sh[0]) == 4); /* as this holds true for all, */
 	/* but 16-bit platforms...      */
-
 #endif
-
 	if(numbits <= 0 || numbits > 64)
 		return;
 	iv = &(*ivec)[0];

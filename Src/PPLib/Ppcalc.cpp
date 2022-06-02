@@ -1410,8 +1410,8 @@ int PosPaymentBlock::EditDialog2()
 		}
 		int GetSwitchKey(SString * pText) const
 		{
-			ASSIGN_PTR(pText, "[F2]");
-			return kbF2;
+			ASSIGN_PTR(pText, "[F12]");
+			return kbF12;
 		}
 		void   SetPaymKindSwitchKeyText(TCluster * pClu, uint itemIdx)
 		{

@@ -103,16 +103,13 @@ int _sasldb_getdata(const sasl_utils_t * utils, sasl_conn_t * conn, const char *
 		result = SASL_NOUSER;
 		goto cleanup;
 	}
-
 	if((size_t)dvalue.dsize > max_out + 1) {
 		utils->seterror(cntxt, 0, "buffer overflow");
 		return SASL_BUFOVER;
 	}
-
 	if(out_len) *out_len = dvalue.dsize;
 	memcpy(out, dvalue.dptr, dvalue.dsize);
 	out[dvalue.dsize] = '\0';
-
 #if NDBM_FREE
 	/* Note: not sasl_FREE!  This is memory allocated by ndbm,
 	 * which is using libc malloc/free. */
@@ -120,10 +117,9 @@ int _sasldb_getdata(const sasl_utils_t * utils, sasl_conn_t * conn, const char *
 #endif
 
 cleanup:
-	utils->free(key);
+	utils->FnFree(key);
 	if(db)
 		dbm_close(db);
-
 	return result;
 }
 
@@ -191,7 +187,7 @@ int _sasldb_putdata(const sasl_utils_t * utils,
 	}
 	dbm_close(db);
 cleanup:
-	utils->free(key);
+	utils->FnFree(key);
 	return result;
 }
 
@@ -217,7 +213,7 @@ int _sasl_check_db(const sasl_utils_t * utils, sasl_conn_t * conn)
 			path = p;
 		}
 	}
-	db = utils->malloc(strlen(path) + SUFLEN);
+	db = utils->FnMalloc(strlen(path) + SUFLEN);
 	if(db == NULL) {
 		ret = SASL_NOMEM;
 	}
@@ -242,7 +238,7 @@ int _sasl_check_db(const sasl_utils_t * utils, sasl_conn_t * conn)
 	}
 #endif
 	if(db) {
-		utils->free(db);
+		utils->FnFree(db);
 	}
 	if(ret == SASL_OK) {
 		db_ok = 1;
@@ -290,7 +286,7 @@ sasldb_handle _sasldb_getkeyhandle(const sasl_utils_t * utils,
 		utils->seterror(conn, 0, "Could not open db `%s': %s", path, strerror(errno));
 		return NULL;
 	}
-	handle = utils->malloc(sizeof(handle_t));
+	handle = utils->FnMalloc(sizeof(handle_t));
 	if(!handle) {
 		utils->seterror(conn, 0, "no memory in _sasldb_getkeyhandle");
 		dbm_close(db);
@@ -343,7 +339,7 @@ int _sasldb_releasekeyhandle(const sasl_utils_t * utils,
 
 	if(dbh->db) dbm_close(dbh->db);
 
-	utils->free(dbh);
+	utils->FnFree(dbh);
 
 	return SASL_OK;
 }

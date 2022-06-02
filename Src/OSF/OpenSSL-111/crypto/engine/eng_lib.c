@@ -198,7 +198,7 @@ int ENGINE_set_id(ENGINE * e, const char * id)
 
 int ENGINE_set_name(ENGINE * e, const char * name)
 {
-	if(name == NULL) {
+	if(!name) {
 		ENGINEerr(ENGINE_F_ENGINE_SET_NAME, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}

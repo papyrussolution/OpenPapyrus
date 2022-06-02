@@ -4361,6 +4361,7 @@ int PPSession::DirtyDbCache(long dbPathID, PPAdviseEventQueue::Client * pCli)
 						PPACN_BILLWROFFUNDO,
 						PPACN_BILLSTATUSUPD, // @v10.4.4
 						PPACN_UPDBILLFREIGHT, // @v10.4.5
+						PPACN_SCARDOWNERUPDATED, // @v11.4.0
 						0L);
 					p_comm_dirty_cache_ev_list->sort();
 					p_addendum_ev_list = new PPIDArray;

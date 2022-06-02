@@ -114,8 +114,8 @@ struct gravity_hash_t {
 
 static /*inline*/ uint32 murmur3_32(const char * key, uint32 len, uint32 seed) 
 {
-	static const uint32 c1 = 0xcc9e2d51;
-	static const uint32 c2 = 0x1b873593;
+	static const uint32 c1 = _SlConst.MagicMurmurC1;
+	static const uint32 c2 = _SlConst.MagicMurmurC2;
 	static const uint32 r1 = 15;
 	static const uint32 r2 = 13;
 	static const uint32 m = 5;

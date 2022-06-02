@@ -124,7 +124,7 @@ static const char16_t * hebrewVavDash = u"{0} \u05D5-{1}";
 // Starts with "hi" or "i" but not with "hie" nor "hia"
 static bool shouldChangeToE(const UnicodeString & text) {
 	int32_t len = text.length();
-	if(len == 0) {
+	if(!len) {
 		return false;
 	}
 	// Case insensitive match hi but not hie nor hia.
@@ -145,7 +145,7 @@ static bool shouldChangeToE(const UnicodeString & text) {
 // re: ^((o|ho|8).*|11)$
 static bool shouldChangeToU(const UnicodeString & text) {
 	int32_t len = text.length();
-	if(len == 0) {
+	if(!len) {
 		return false;
 	}
 	// Case insensitive match o.* and 8.*

@@ -1889,7 +1889,7 @@ static int png_compare_ICC_profile_with_sRGB(png_const_structrp png_ptr, png_con
 				return 1+png_sRGB_checks[i].is_broken;
 #endif
 			// Profile is unsigned or more checks have been configured in. 
-			if(length == 0) {
+			if(!length) {
 				length = png_get_uint_32(profile);
 				intent = png_get_uint_32(profile+64);
 			}

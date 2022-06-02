@@ -46,7 +46,7 @@ int CompareNCaseInsensitive(const char * a, const char * b, size_t len)
 		b++;
 		len--;
 	}
-	if(len == 0)
+	if(!len)
 		return 0;
 	else
 		return (*a - *b); // Either *a or *b is nul

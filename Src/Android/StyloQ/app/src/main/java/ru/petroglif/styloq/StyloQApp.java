@@ -29,11 +29,14 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 public class StyloQApp extends SLib.App {
 	protected StyloQDatabase Db;
 	private ArrayList <IgnitionServerEntry> ISL;
+	private Timer SvcPollTmr;
 	private void StartupTest()
 	{
 		SLib.LDATE d = SLib.GetCurDate();
@@ -171,6 +174,26 @@ public class StyloQApp extends SLib.App {
 								String pref_lang_ref = cfg_data.Get(StyloQConfig.tagPrefLanguage);
 								SetCurrentLang(SLib.GetLinguaIdent(pref_lang_ref));
 							}
+							// @construction StyloQJobService.ScheduleTask(this);
+							// @construction {
+							{
+								class TimerTask_DocStatusPoll extends TimerTask {
+									private StyloQApp AppCtx;
+									TimerTask_DocStatusPoll(StyloQApp appCtx)
+									{
+										AppCtx = appCtx;
+									}
+									@Override public void run()
+									{
+										Thread thr = new Thread(new StyloQInterchange.ThreadEngine_DocStatusPoll(AppCtx));
+										thr.start();
+										//runOnUiThread(new Runnable() { @Override public void run() { DocStatusPoll(AppCtx); }});
+									}
+								}
+								SvcPollTmr = new Timer();
+								SvcPollTmr.schedule(new TimerTask_DocStatusPoll(this), 30 * 1000, 300 * 1000);
+							}
+							// } @construction
 						}
 					}
 					catch(StyloQException e) {
@@ -266,12 +289,12 @@ public class StyloQApp extends SLib.App {
 	public static StyloQDatabase GetDB(Context ctx) throws StyloQException
 	{
 		StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
-		return app_ctx.GetDB();
+		return (app_ctx != null) ? app_ctx.GetDB() : null;
 	}
 	public static SQLiteDatabase GetDBHandle(Context ctx)
 	{
 		StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
-		return app_ctx.GetDBHandle();
+		return (app_ctx != null) ? app_ctx.GetDBHandle() : null;
 	}
 	static class IgnitionServerEntry {
 		byte [] SvcIdent;
@@ -404,9 +427,9 @@ public class StyloQApp extends SLib.App {
 	}
 	void SendSvcReplyToMainThread(@NotNull InterchangeResult subj, Object reply)
 	{
-		class SendSvcReplyToMainThreadEngine implements Runnable {
+		class ThreadEngine_SendSvcReplyToMainLooper implements Runnable {
 			private StyloQApp Ctx;
-			SendSvcReplyToMainThreadEngine(StyloQApp ctx)
+			ThreadEngine_SendSvcReplyToMainLooper(StyloQApp ctx)
 			{
 				Ctx = ctx;
 			}
@@ -414,7 +437,7 @@ public class StyloQApp extends SLib.App {
 		}
 		Looper lpr = Looper.getMainLooper();
 		if(lpr != null) {
-			new Handler(lpr).post(new SendSvcReplyToMainThreadEngine(this));
+			new Handler(lpr).post(new ThreadEngine_SendSvcReplyToMainLooper(this));
 		}
 	}
 	//
@@ -479,7 +502,13 @@ public class StyloQApp extends SLib.App {
 							doc_pool.Put(SecretTagPool.tagDocDeclaration, js_text_docdecl.getBytes(StandardCharsets.UTF_8));
 							{
 								byte [] doc_ident = Db.MakeDocumentStorageIdent(svcIdent, doc_uuid);
-								result.DocID = Db.PutDocument(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, doc.H.Flags, doc_ident, svc_id, doc_pool);
+								//
+								// Мы сейчас будем отправлять документ в "дальнее путешествие" до сервиса. По-этому, кроме прочих, устанавливаем
+								// флаг styloqfDocTransmission в сохраняемую у нас копию документа.
+								// Когда мы получим ответ от сервиса этот флаг надо будет снять.
+								//
+								int  doc_flags = ((doc.H.Flags & StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags) | StyloQDatabase.SecStoragePacket.styloqfDocTransmission);
+								result.DocID = Db.PutDocument(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, doc_flags, doc_ident, svc_id, doc_pool);
 								if(result.DocID > 0) {
 									StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svc_pack, js_query, org_cmd_item);
 									blk.RetrActivity = retrActivity;
@@ -487,12 +516,12 @@ public class StyloQApp extends SLib.App {
 										StyloQInterchange.DocumentRequestEntry dre = new StyloQInterchange.DocumentRequestEntry();
 										dre.DocUUID = doc.H.Uuid;
 										dre.DocID = result.DocID;
-										dre.AfterTransmitStatusFlags = doc.GetAfterTransmitStatusFlags();
+										dre.AfterTransmitStatus = doc.GetAfterTransmitStatus();
 										if(blk.DocReqList == null)
 											blk.DocReqList = new ArrayList<StyloQInterchange.DocumentRequestEntry>();
 										blk.DocReqList.add(dre);
 									}
-									if(DoSvcRequest(blk)) {
+									if(StyloQInterchange.DoSvcRequest(this, blk)) {
 										result.PostResult = true;
 									}
 								}
@@ -602,7 +631,7 @@ public class StyloQApp extends SLib.App {
 						}
 						StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svc_pack, js_query, cmdItem);
 						blk.RetrActivity = retrActivity;
-						if(DoSvcRequest(blk)) {
+						if(StyloQInterchange.DoSvcRequest(this, blk)) {
 							StyloQCommand.StartPendingCommand(svcIdent, cmdItem);
 							ok = true;
 						}
@@ -617,7 +646,7 @@ public class StyloQApp extends SLib.App {
 		}
 		return ok;
 	}
-	private boolean DoSvcRequest(StyloQInterchange.RequestBlock blk)
+	/* (replaced with StyloQInterchange.DoSvcRequest) private boolean DoSvcRequest(StyloQInterchange.RequestBlock blk)
 	{
 		boolean ok = false;
 		if(blk != null && blk.SvcPack != null) {
@@ -678,7 +707,7 @@ public class StyloQApp extends SLib.App {
 			}
 		}
 		return ok;
-	}
+	}*/
 	public boolean GetSvcCommandList(StyloQDatabase.SecStoragePacket svcPack, boolean forceQuery) throws StyloQException
 	{
 		//ArrayList <StyloQCommand.Item> result = null;
@@ -708,7 +737,7 @@ public class StyloQApp extends SLib.App {
 						JSONObject js_query = new JSONObject();
 						js_query.put("cmd", "GetCommandList");
 						StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svcPack, js_query, null);
-						if(DoSvcRequest(blk))
+						if(StyloQInterchange.DoSvcRequest(this, blk))
 							ok = true;
 					} catch(JSONException exn){
 						ok = false;

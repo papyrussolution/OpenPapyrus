@@ -128,22 +128,17 @@ static const float RESIZE_POLICY_RATIO_TABLE[6] = {
 #define HINT_KEY_POINTER   (1)
 #define HINT_VALUE_POINTER (2)
 #define HINT_ALLOW_ZERO    (4)
-
-/********************************************************************
-* PRIVATE Implementation
-********************************************************************/
-
-static UHashTok _uhash_setElement(UHashtable * hash, UHashElement* e,
-    int32_t hashcode,
-    UHashTok key, UHashTok value, int8 hint) {
+// 
+// PRIVATE Implementation
+// 
+static UHashTok _uhash_setElement(UHashtable * hash, UHashElement* e, int32_t hashcode, UHashTok key, UHashTok value, int8 hint) 
+{
 	UHashTok oldValue = e->value;
-	if(hash->keyDeleter != NULL && e->key.pointer != NULL &&
-	    e->key.pointer != key.pointer) { /* Avoid double deletion */
+	if(hash->keyDeleter != NULL && e->key.pointer != NULL && e->key.pointer != key.pointer) { /* Avoid double deletion */
 		(*hash->keyDeleter)(e->key.pointer);
 	}
 	if(hash->valueDeleter != NULL) {
-		if(oldValue.pointer != NULL &&
-		    oldValue.pointer != value.pointer) { /* Avoid double deletion */
+		if(oldValue.pointer != NULL && oldValue.pointer != value.pointer) { /* Avoid double deletion */
 			(*hash->valueDeleter)(oldValue.pointer);
 		}
 		oldValue.pointer = NULL;
@@ -169,11 +164,11 @@ static UHashTok _uhash_setElement(UHashtable * hash, UHashElement* e,
 	e->hashcode = hashcode;
 	return oldValue;
 }
-
 /**
  * Assumes that the given element is not empty or deleted.
  */
-static UHashTok _uhash_internalRemoveElement(UHashtable * hash, UHashElement* e) {
+static UHashTok _uhash_internalRemoveElement(UHashtable * hash, UHashElement* e) 
+{
 	UHashTok empty;
 	U_ASSERT(!IS_EMPTY_OR_DELETED(e->hashcode));
 	--hash->count;
@@ -181,7 +176,8 @@ static UHashTok _uhash_internalRemoveElement(UHashtable * hash, UHashElement* e)
 	return _uhash_setElement(hash, e, HASH_DELETED, empty, empty, 0);
 }
 
-static void _uhash_internalSetResizePolicy(UHashtable * hash, enum UHashResizePolicy policy) {
+static void _uhash_internalSetResizePolicy(UHashtable * hash, enum UHashResizePolicy policy) 
+{
 	U_ASSERT(hash != NULL);
 	U_ASSERT(((int32_t)policy) >= 0);
 	U_ASSERT(((int32_t)policy) < 3);
@@ -203,25 +199,18 @@ static void _uhash_allocate(UHashtable * hash,
     UErrorCode * status) {
 	UHashElement * p, * limit;
 	UHashTok emptytok;
-
-	if(U_FAILURE(*status)) return;
-
+	if(U_FAILURE(*status)) 
+		return;
 	U_ASSERT(primeIndex >= 0 && primeIndex < PRIMES_LENGTH);
-
 	hash->primeIndex = static_cast<int8>(primeIndex);
 	hash->length = PRIMES[primeIndex];
-
-	p = hash->elements = (UHashElement*)
-		uprv_malloc(sizeof(UHashElement) * hash->length);
-
+	p = hash->elements = (UHashElement*)uprv_malloc(sizeof(UHashElement) * hash->length);
 	if(hash->elements == NULL) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-
 	emptytok.pointer = NULL; /* Only one of these two is needed */
 	emptytok.integer = 0; /* but we don't know which one. */
-
 	limit = p + hash->length;
 	while(p < limit) {
 		p->key = emptytok;
@@ -229,18 +218,12 @@ static void _uhash_allocate(UHashtable * hash,
 		p->hashcode = HASH_EMPTY;
 		++p;
 	}
-
 	hash->count = 0;
 	hash->lowWaterMark = (int32_t)(hash->length * hash->lowWaterRatio);
 	hash->highWaterMark = (int32_t)(hash->length * hash->highWaterRatio);
 }
 
-static UHashtable * _uhash_init(UHashtable * result,
-    UHashFunction * keyHash,
-    UKeyComparator * keyComp,
-    UValueComparator * valueComp,
-    int32_t primeIndex,
-    UErrorCode * status)
+static UHashtable * _uhash_init(UHashtable * result, UHashFunction * keyHash, UKeyComparator * keyComp, UValueComparator * valueComp, int32_t primeIndex, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) return NULL;
 	U_ASSERT(keyHash != NULL);
@@ -259,11 +242,8 @@ static UHashtable * _uhash_init(UHashtable * result,
 	return result;
 }
 
-static UHashtable * _uhash_create(UHashFunction * keyHash,
-    UKeyComparator * keyComp,
-    UValueComparator * valueComp,
-    int32_t primeIndex,
-    UErrorCode * status) {
+static UHashtable * _uhash_create(UHashFunction * keyHash, UKeyComparator * keyComp, UValueComparator * valueComp, int32_t primeIndex, UErrorCode * status) 
+{
 	UHashtable * result;
 	if(U_FAILURE(*status))
 		return NULL;
@@ -280,7 +260,6 @@ static UHashtable * _uhash_create(UHashFunction * keyHash,
 	}
 	return result;
 }
-
 /**
  * Look for a key in the table, or if no such key exists, the first
  * empty slot matching the given hashcode.  Keys are compared using
@@ -309,17 +288,15 @@ static UHashtable * _uhash_create(UHashFunction * keyHash,
  * otherwise we are not guaranteed that the jump value (the secondary
  * hash) is relatively prime to the table length.
  */
-static UHashElement* _uhash_find(const UHashtable * hash, UHashTok key,
-    int32_t hashcode) {
+static UHashElement* _uhash_find(const UHashtable * hash, UHashTok key, int32_t hashcode) 
+{
 	int32_t firstDeleted = -1; /* assume invalid index */
 	int32_t theIndex, startIndex;
 	int32_t jump = 0; /* lazy evaluate */
 	int32_t tableHash;
 	UHashElement * elements = hash->elements;
-
 	hashcode &= 0x7FFFFFFF; /* must be positive */
 	startIndex = theIndex = (hashcode ^ 0x4000000) % hash->length;
-
 	do {
 		tableHash = elements[theIndex].hashcode;
 		if(tableHash == hashcode) {   /* quick check */
@@ -372,12 +349,12 @@ static UHashElement* _uhash_find(const UHashtable * hash, UHashTok key,
  * already at the low or high limit.  In any case, upon return the
  * arrays will be valid.
  */
-static void _uhash_rehash(UHashtable * hash, UErrorCode * status) {
+static void _uhash_rehash(UHashtable * hash, UErrorCode * status) 
+{
 	UHashElement * old = hash->elements;
 	int32_t oldLength = hash->length;
 	int32_t newPrimeIndex = hash->primeIndex;
 	int32_t i;
-
 	if(hash->count > hash->highWaterMark) {
 		if(++newPrimeIndex >= PRIMES_LENGTH) {
 			return;
@@ -391,15 +368,12 @@ static void _uhash_rehash(UHashtable * hash, UErrorCode * status) {
 	else {
 		return;
 	}
-
 	_uhash_allocate(hash, newPrimeIndex, status);
-
 	if(U_FAILURE(*status)) {
 		hash->elements = old;
 		hash->length = oldLength;
 		return;
 	}
-
 	for(i = oldLength - 1; i >= 0; --i) {
 		if(!IS_EMPTY_OR_DELETED(old[i].hashcode)) {
 			UHashElement * e = _uhash_find(hash, old[i].key, old[i].hashcode);
@@ -411,12 +385,11 @@ static void _uhash_rehash(UHashtable * hash, UErrorCode * status) {
 			++hash->count;
 		}
 	}
-
 	uprv_free(old);
 }
 
-static UHashTok _uhash_remove(UHashtable * hash,
-    UHashTok key) {
+static UHashTok _uhash_remove(UHashtable * hash, UHashTok key) 
+{
 	/* First find the position of the key in the table.  If the object
 	 * has not been removed already, remove it.  If the user wanted
 	 * keys deleted, then delete it also.  We have to put a special
@@ -439,11 +412,8 @@ static UHashTok _uhash_remove(UHashtable * hash,
 	return result;
 }
 
-static UHashTok _uhash_put(UHashtable * hash,
-    UHashTok key,
-    UHashTok value,
-    int8 hint,
-    UErrorCode * status) {
+static UHashTok _uhash_put(UHashtable * hash, UHashTok key, UHashTok value, int8 hint, UErrorCode * status) 
+{
 	/* Put finds the position in the table for the new value.  If the
 	 * key is already in the table, it is deleted, if there is a
 	 * non-NULL keyDeleter.  Then the key, the hash and the value are
@@ -452,14 +422,11 @@ static UHashTok _uhash_put(UHashtable * hash,
 	int32_t hashcode;
 	UHashElement* e;
 	UHashTok emptytok;
-
 	if(U_FAILURE(*status)) {
 		goto err;
 	}
 	U_ASSERT(hash != NULL);
-	if((hint & HINT_VALUE_POINTER) ?
-	    value.pointer == NULL :
-	    value.integer == 0 && (hint & HINT_ALLOW_ZERO) == 0) {
+	if((hint & HINT_VALUE_POINTER) ? value.pointer == NULL : value.integer == 0 && (hint & HINT_ALLOW_ZERO) == 0) {
 		/* Disallow storage of NULL values, since NULL is returned by
 		 * get() to indicate an absent key.  Storing NULL == removing.
 		 */
@@ -471,11 +438,9 @@ static UHashTok _uhash_put(UHashtable * hash,
 			goto err;
 		}
 	}
-
 	hashcode = (*hash->keyHasher)(key);
 	e = _uhash_find(hash, key, hashcode);
 	U_ASSERT(e != NULL);
-
 	if(IS_EMPTY_OR_DELETED(e->hashcode)) {
 		/* Important: We must never actually fill the table up.  If we
 		 * do so, then _uhash_find() will return NULL, and we'll have
@@ -656,28 +621,20 @@ U_CAPI int32_t U_EXPORT2 uhash_igetiAndFound(const UHashtable * hash,
 	return e->value.integer;
 }
 
-U_CAPI void * U_EXPORT2 uhash_put(UHashtable * hash,
-    void * key,
-    void * value,
-    UErrorCode * status) {
+U_CAPI void * U_EXPORT2 uhash_put(UHashtable * hash, void * key, void * value, UErrorCode * status) 
+{
 	UHashTok keyholder, valueholder;
 	keyholder.pointer = key;
 	valueholder.pointer = value;
-	return _uhash_put(hash, keyholder, valueholder,
-		   HINT_KEY_POINTER | HINT_VALUE_POINTER,
-		   status).pointer;
+	return _uhash_put(hash, keyholder, valueholder, HINT_KEY_POINTER | HINT_VALUE_POINTER, status).pointer;
 }
 
-U_CAPI void * U_EXPORT2 uhash_iput(UHashtable * hash,
-    int32_t key,
-    void * value,
-    UErrorCode * status) {
+U_CAPI void * U_EXPORT2 uhash_iput(UHashtable * hash, int32_t key, void * value, UErrorCode * status) 
+{
 	UHashTok keyholder, valueholder;
 	keyholder.integer = key;
 	valueholder.pointer = value;
-	return _uhash_put(hash, keyholder, valueholder,
-		   HINT_VALUE_POINTER,
-		   status).pointer;
+	return _uhash_put(hash, keyholder, valueholder, HINT_VALUE_POINTER, status).pointer;
 }
 
 U_CAPI int32_t U_EXPORT2 uhash_puti(UHashtable * hash,
@@ -851,7 +808,8 @@ U_CAPI int32_t U_EXPORT2 uhash_hashUChars(const UHashTok key) {
 	return s == NULL ? 0 : ustr_hashUCharsN(s, u_strlen(s));
 }
 
-U_CAPI int32_t U_EXPORT2 uhash_hashChars(const UHashTok key) {
+U_CAPI int32_t U_EXPORT2 uhash_hashChars(const UHashTok key) 
+{
 	const char * s = (const char *)key.pointer;
 	return s == NULL ? 0 : static_cast<int32_t>(ustr_hashCharsN(s, static_cast<int32_t>(uprv_strlen(s))));
 }

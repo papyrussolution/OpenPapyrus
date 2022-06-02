@@ -923,7 +923,7 @@ static int64 window_read(zip_source_t * src, void * _ctx, void * data, uint64 le
 		case ZIP_SOURCE_READ:
 		    if(len > ctx->end - ctx->offset)
 			    len = ctx->end - ctx->offset;
-		    if(len == 0)
+		    if(!len)
 			    return 0;
 		    if(ctx->needs_seek) {
 			    if(zip_source_seek(src, (int64)ctx->offset, SEEK_SET) < 0) {
@@ -1516,7 +1516,7 @@ static int64 buffer_read(ZipSourceBuffer * buffer, uint8 * data, uint64 length)
 {
 	uint64 n, i, fragment_offset;
 	length = MIN(length, buffer->size - buffer->offset);
-	if(length == 0) {
+	if(!length) {
 		return 0;
 	}
 	if(length > ZIP_INT64_MAX) {
@@ -2507,7 +2507,7 @@ zip_string_t * _zip_string_new(const uint8 * raw, uint16 length, zip_flags_t fla
 {
 	zip_string_t * s;
 	zip_encoding_type_t expected_encoding;
-	if(length == 0)
+	if(!length)
 		return NULL;
 	switch(flags & ZIP_FL_ENCODING_ALL) {
 		case ZIP_FL_ENC_GUESS: expected_encoding = ZIP_ENCODING_UNKNOWN; break;
@@ -3316,7 +3316,7 @@ int _zip_filerange_crc(zip_source_t * src, uint64 start, uint64 len, uLong * crc
 			_zip_error_set_from_source(error, src);
 			return -1;
 		}
-		if(n == 0)
+		if(!n)
 			return zip_error_set(error, SLERR_ZIP_EOF, 0);
 		*crcp = crc32(*crcp, buf, (uInt)n);
 		len -= (uint64)n;
@@ -3369,7 +3369,7 @@ static int64 crc_read(zip_source_t * src, void * _ctx, void * data, uint64 len, 
 			    _zip_error_set_from_source(&ctx->error, src);
 			    return -1;
 		    }
-		    if(n == 0) {
+		    if(!n) {
 			    if(ctx->crc_position == ctx->position) {
 				    ctx->crc_complete = 1;
 				    ctx->size = ctx->position;
@@ -3861,7 +3861,7 @@ static int64 compress_read(zip_source_t * src, ZipDeflate * ctx, void * data, ui
 					    end = 1;
 					    break;
 				    }
-				    else if(n == 0) {
+				    else if(!n) {
 					    ctx->eof = true;
 					    // @todo check against stat of src? 
 					    ctx->size = ctx->zstr.total_in;
@@ -3899,7 +3899,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 	uInt out_len;
 	if(zip_error_code_zip(&ctx->error) != SLERR_SUCCESS)
 		return -1;
-	if(len == 0)
+	if(!len)
 		return 0;
 	out_offset = 0;
 	out_len = (uInt)MIN(UINT_MAX, len);
@@ -3939,7 +3939,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 					    end = 1;
 					    break;
 				    }
-				    else if(n == 0) {
+				    else if(!n) {
 					    ctx->eof = 1;
 				    }
 				    else {
@@ -5063,7 +5063,7 @@ zip_t * _zip_open(zip_source_t * src, uint flags, zip_error_t * error)
 	}
 	len = st.size;
 	/* treat empty files as empty archives */
-	if(len == 0) {
+	if(!len) {
 		if((za = _zip_allocate_new(src, flags, error)) == NULL) {
 			zip_source_free(src);
 			return NULL;
@@ -5746,7 +5746,7 @@ static uint32 _zip_unicode_to_utf8(uint32 codepoint, uint8 * buf)
 uint8 * _zip_cp437_to_utf8(const uint8 * const _cp437buf, uint32 len, uint32 * utf8_lenp, zip_error_t * error)
 {
 	uint8 * utf8buf = 0;
-	if(len == 0) {
+	if(!len) {
 		ASSIGN_PTR(utf8_lenp, 0);
 	}
 	else {

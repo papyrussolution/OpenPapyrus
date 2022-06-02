@@ -129,7 +129,7 @@ static void free_blocks(cairo_mempool_t * pool, size_t first, size_t last, booli
 			bits--; len >>= 1;
 		} while(len);
 
-		if(len == 0)
+		if(!len)
 			break;
 
 		free_bits(pool, i, bits, clear);

@@ -607,7 +607,7 @@ PPBill::Agreement & FASTCALL PPBill::Agreement::operator = (const Agreement & rS
 	return *this;
 }
 
-int PPBill::Agreement::IsEmpty() const
+bool PPBill::Agreement::IsEmpty() const
 {
 	return !(Flags || Expiry || MaxCredit > 0.0 || MaxDscnt != 0.0 || Dscnt != 0.0 || DefAgentID ||
 		DefQuotKindID || DefPayPeriod > 0 || RetLimPrd || RetLimPart || DefDlvrTerm > 0 || PctRet);
@@ -619,9 +619,9 @@ int FASTCALL PPBill::Agreement::Copy(const Agreement & rS)
 	return 1;
 }
 
-int FASTCALL PPBill::Agreement::IsEq(const Agreement & rS) const
+bool FASTCALL PPBill::Agreement::IsEq(const Agreement & rS) const
 {
-	#define CF(f) if(f != rS.f) return 0
+	#define CF(f) if(f != rS.f) return false
 	CF(Flags);
 	CF(Expiry);
 	CF(MaxCredit);
@@ -636,13 +636,18 @@ int FASTCALL PPBill::Agreement::IsEq(const Agreement & rS) const
 	CF(DefDlvrTerm);
 	CF(PctRet);
 	#undef CF
-	return 1;
+	return true;
 }
 
-PPBill::PPBill() : P_PaymOrder(0), P_Freight(0), P_AdvRep(0), P_Agt(0), Ver(DS.GetVersion())
+PPBill::PPBill() : P_PaymOrder(0), P_Freight(0), P_AdvRep(0), P_Agt(0), Ver(DS.GetVersion()), ObjTagContainerHelper(BTagL, PPOBJ_BILL, PPTAG_BILL_UUID)
 {
 	// @v10.6.4 MEMSZERO(Rec);
 	MEMSZERO(Rent);
+}
+
+PPBill::PPBill(const PPBill & rS) : P_PaymOrder(0), P_Freight(0), P_AdvRep(0), P_Agt(0), Ver(DS.GetVersion()), ObjTagContainerHelper(BTagL, PPOBJ_BILL, PPTAG_BILL_UUID) 
+{
+	Copy(rS);
 }
 
 void PPBill::BaseDestroy()
@@ -751,19 +756,23 @@ int FASTCALL PPBill::Copy(const PPBill & rS)
 	Pays = rS.Pays;
 	Ext = rS.Ext;
 	Rent = rS.Rent;
-	if(rS.P_PaymOrder) {
+	if(rS.P_PaymOrder)
 		P_PaymOrder = new PPBankingOrder(*rS.P_PaymOrder);
-	}
-	if(rS.P_Freight) {
+	else
+		ZDELETE(P_PaymOrder);
+	if(rS.P_Freight)
 		P_Freight = new PPFreight(*rS.P_Freight);
-	}
-	if(rS.P_AdvRep) {
+	else
+		ZDELETE(P_Freight);
+	if(rS.P_AdvRep)
 		P_AdvRep = new PPAdvanceRep(*rS.P_AdvRep);
-	}
+	else
+		ZDELETE(P_AdvRep);
 	// @v10.1.12 {
-	if(rS.P_Agt) {
+	if(rS.P_Agt)
 		P_Agt = new Agreement(*rS.P_Agt);
-	}
+	else
+		ZDELETE(P_Agt);
 	// } @v10.1.12
 	Turns = rS.Turns;
 	AdvList = rS.AdvList;
@@ -807,6 +816,54 @@ int PPBill::SetPayDate(LDATE dt, double amount)
 	Pays.clear();
 	return AddPayDate(dt, amount);
 }
+
+#if 0 // @v11.4.0 {
+int PPBill::SetGuid(const S_GUID & rGuid)
+{
+	int    ok = 1;
+	if(rGuid.IsZero()) {
+		THROW(BTagL.PutItem(PPTAG_BILL_UUID, 0));
+	}
+	else {
+		ObjTagItem tag;
+		PPObjTag tagobj;
+		PPObjectTag tag_rec;
+		THROW_PP(tagobj.Fetch(PPTAG_BILL_UUID, &tag_rec) > 0, PPERR_BILLTAGUUIDABS);
+		THROW(tag.SetGuid(PPTAG_BILL_UUID, &rGuid));
+		THROW(BTagL.PutItem(PPTAG_BILL_UUID, &tag));
+	}
+	CATCH
+		ok = 0;
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER); // @v10.0.0
+	ENDCATCH
+	return ok;
+}
+
+int PPBill::GenerateGuid(S_GUID * pGuid)
+{
+	int    ok = 1;
+	S_GUID guid;
+	THROW_SL(guid.Generate());
+	THROW(SetGuid(guid));
+	CATCHZOK
+	ASSIGN_PTR(pGuid, guid);
+	return ok;
+}
+
+int PPBill::GetGuid(S_GUID & rGuid)
+{
+	int    ok = 0;
+	const ObjTagItem * p_tag_item = BTagL.GetItem(PPTAG_BILL_UUID);
+	if(p_tag_item && p_tag_item->GetGuid(&rGuid) > 0) {
+		ok = 1;
+	}
+	else {
+		rGuid.Z();
+		ok = 0;
+	}
+	return ok;
+}
+#endif // } 0 @v11.4.0
 
 PPID PPBill::GetDlvrAddrID() const { return P_Freight ? P_Freight->DlvrAddrID : 0; }
 
@@ -1895,52 +1952,6 @@ void PPBillPacket::SetupObjectBlock::Clear_()
 	RegInfoList.freeAll();
 	CliAgt.Z();
 	SupplAgt.Z();
-}
-
-int PPBillPacket::SetGuid(const S_GUID & rGuid)
-{
-	int    ok = 1;
-	if(rGuid.IsZero()) {
-		THROW(BTagL.PutItem(PPTAG_BILL_UUID, 0));
-	}
-	else {
-		ObjTagItem tag;
-		PPObjTag tagobj;
-		PPObjectTag tag_rec;
-		THROW_PP(tagobj.Fetch(PPTAG_BILL_UUID, &tag_rec) > 0, PPERR_BILLTAGUUIDABS);
-		THROW(tag.SetGuid(PPTAG_BILL_UUID, &rGuid));
-		THROW(BTagL.PutItem(PPTAG_BILL_UUID, &tag));
-	}
-	CATCH
-		ok = 0;
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER); // @v10.0.0
-	ENDCATCH
-	return ok;
-}
-
-int PPBillPacket::GenerateGuid(S_GUID * pGuid)
-{
-	int    ok = 1;
-	S_GUID guid;
-	THROW_SL(guid.Generate());
-	THROW(SetGuid(guid));
-	CATCHZOK
-	ASSIGN_PTR(pGuid, guid);
-	return ok;
-}
-
-int PPBillPacket::GetGuid(S_GUID & rGuid)
-{
-	int    ok = 0;
-	const ObjTagItem * p_tag_item = BTagL.GetItem(PPTAG_BILL_UUID);
-	if(p_tag_item && p_tag_item->GetGuid(&rGuid) > 0) {
-		ok = 1;
-	}
-	else {
-		rGuid.Z();
-		ok = 0;
-	}
-	return ok;
 }
 
 PPBillPacket::CipBlock::CipBlock() : P_CipList(0), P_TSesObj(0)

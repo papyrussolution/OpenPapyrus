@@ -318,7 +318,7 @@ void RBBITest::TestBug5775() {
 	}
 // Check for status first for better handling of no data errors.
 	TEST_ASSERT(bi != NULL);
-	if(bi == NULL) {
+	if(!bi) {
 		return;
 	}
 

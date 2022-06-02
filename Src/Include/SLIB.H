@@ -1188,7 +1188,9 @@ public:
 		ListBoxDefSignature_DBQ(0xABCD0005),      // DBQListBoxDef
 		ListBoxDefSignature_STDTREE2(0xABCD0006), // StdTreeListBoxDef2
 		MagicHashPrime32(2654435761U)/*0x9e3779b1*/, // Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
-		GoldenRatioInt32(2654435769U)/*0x9e3779b9*/  // The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
+		GoldenRatioInt32(2654435769U)/*0x9e3779b9*/, // The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
+		MagicMurmurC1(0xcc9e2d51U), // @v11.4.0 Magic number C1 for 32-bit hashing from Murmur3
+		MagicMurmurC2(0x1b873593U)  // @v11.4.0 Magic number C2 for 32-bit hashing from Murmur3
 	{
 	}
 	const uint VectorImageMask;
@@ -1211,6 +1213,8 @@ public:
 	const uint32 MagicHashPrime32;             // @v11.3.10 Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
 	const uint32 GoldenRatioInt32;             // @v11.3.12 The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
 	//0x9e3779b9 is the integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
+	const uint32 MagicMurmurC1; // @v11.4.0 0xcc9e2d51 // Magic number C1 for 32-bit hashing from Murmur3
+	const uint32 MagicMurmurC2; // @v11.4.0 0x1b873593 // Magic number C2 for 32-bit hashing from Murmur3
 };
 
 extern const SlConstParam _SlConst;
@@ -1287,8 +1291,11 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 #define	GIGABYTE	       SMEGABYTE(1024)
 //
 //
-// @v11.2.0 {
-#ifdef _MSC_VER
+// @v11.2.0 { // @v11.4.0 (some modifications)
+#if !defined(RC_INVOKED) && !defined(NO_CLANG_BUILTIN) && __has_builtin(__builtin_rotateleft32) && __has_builtin(__builtin_rotateleft64)
+	uint32 FORCEINLINE slrotl32(uint32 x, uint n) { return __builtin_rotateleft32(x, n); }
+	uint64 FORCEINLINE slrotl64(uint64 x, uint n) { return __builtin_rotateleft64(x, n); }
+#elif defined(_MSC_VER)
 	// don't use _rotl with MINGW. It can insert slow call to function.
 	// #if(_MSC_VER >= 1200)
 	#pragma intrinsic(_rotl)
@@ -1296,16 +1303,16 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 	#pragma intrinsic(_rotl64)
 	#pragma intrinsic(_rotr64)
 	// #endif
-	#define slrotl32(x, n) _rotl((x), (n))
-	#define slrotr32(x, n) _rotr((x), (n))
-	#define slrotl64(x, n) _rotl64((x), (n))
-	#define slrotr64(x, n) _rotr64((x), (n))
+	uint32 FORCEINLINE slrotl32(uint32 x, uint n) { return _rotl(x, n); }
+	uint32 FORCEINLINE slrotr32(uint32 x, uint n) { return _rotr((x), (n)); }
+	uint64 FORCEINLINE slrotl64(uint64 x, uint n) { return _rotl64((x), (n)); }
+	uint64 FORCEINLINE slrotr64(uint64 x, uint n) { return _rotr64((x), (n)); }
 #else
 	// new compilers can translate these macros to fast commands
-	#define slrotl32(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
-	#define slrotr32(x, n) (((x) >> (n)) | ((x) << (32 - (n))))
-	#define slrotl64(x, n) (((x) << (n)) | ((x) >> (64 - (n))))
-	#define slrotr64(x, n) (((x) >> (n)) | ((x) << (64 - (n))))
+	uint32 FORCEINLINE slrotl32(uint32 x, uint n) { return (((x) << (n)) | ((x) >> (32 - (n)))); }
+	uint32 FORCEINLINE slrotr32(uint32 x, uint n) { return (((x) >> (n)) | ((x) << (32 - (n)))); }
+	uint64 FORCEINLINE slrotl64(uint64 x, uint n) { return (((x) << (n)) | ((x) >> (64 - (n)))); }
+	uint64 FORCEINLINE slrotr64(uint64 x, uint n) { return (((x) >> (n)) | ((x) << (64 - (n)))); }
 #endif
 // } @v11.2.0
 //
@@ -4613,8 +4620,10 @@ public:
 	// Descr: Специальный, но часто встречаемый случай: поиск элемента, совпадающего
 	//  с pPattern с точностью до регистра символов, исходя из предположения, что все
 	//  символы в pPattern - ascii.
+	//  ARG(pNextPos OUT): @#{vtpr0} По этому указателю присваивается индекс следующей подстроки
+	//   набора.
 	//
-	bool   searchNcAscii(const char * pPattern, uint * pPos) const;
+	bool   searchNcAscii(const char * pPattern, uint * pPos, uint * pNextPos = 0) const;
 	//
 	// Descr: Сортирует строки набора в лексикографическом порядке
 	//
@@ -12787,9 +12796,10 @@ ulong  FASTCALL Lcm(ulong a, ulong b);
 //
 // use next three functions for replacing (is_)power_of_two in assimilated projects
 //
-bool   FASTCALL IsPowerOfTwo(uint val);
-bool   FASTCALL IsPowerOfTwo(uint32 val);
-bool   FASTCALL IsPowerOfTwo(uint64 val);
+//FORCEINLINE bool IsPowerOfTwo(uint val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
+//FORCEINLINE bool IsPowerOfTwo(uint32 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
+//FORCEINLINE bool IsPowerOfTwo(uint64 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
+template <class T> CONSTEXPR bool IsPowerOfTwo(T val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
 //
 // Descr: Если val - простое число, то возвращает !0, в противном случае - 0.
 //

@@ -71,9 +71,9 @@ PPReckonOpEx & FASTCALL PPReckonOpEx::operator = (const PPReckonOpEx & src)
 	return *this;
 }
 
-int PPReckonOpEx::IsEmpty() const
+bool PPReckonOpEx::IsEmpty() const
 {
-	return BIN(!Beg && !End && !Flags && !OpList.getCount());
+	return (!Beg && !End && !Flags && !OpList.getCount());
 }
 
 int PPReckonOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)

@@ -824,10 +824,7 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 	ptr = gnutls_cipher_suite_get_name(gnutls_kx_get(session),
 		gnutls_cipher_get(session),
 		gnutls_mac_get(session));
-
-	infof(data, "SSL connection using %s / %s\n",
-	    gnutls_protocol_get_name(version), ptr);
-
+	infof(data, "SSL connection using %s / %s\n", gnutls_protocol_get_name(version), ptr);
 	/* This function will return the peer's raw certificate (chain) as sent by
 	   the peer. These certificates are in raw format (DER encoded for
 	   X.509). In case of a X.509 then a certificate list may be present. The
@@ -836,14 +833,10 @@ static CURLcode gtls_connect_step3(struct connectdata * conn,
 
 	chainp = gnutls_certificate_get_peers(session, &cert_list_size);
 	if(!chainp) {
-		if(SSL_CONN_CONFIG(verifypeer) ||
-		    SSL_CONN_CONFIG(verifyhost) ||
-		    SSL_SET_OPTION(issuercert)) {
+		if(SSL_CONN_CONFIG(verifypeer) || SSL_CONN_CONFIG(verifyhost) || SSL_SET_OPTION(issuercert)) {
 #ifdef HAVE_GNUTLS_SRP
-			if(SSL_SET_OPTION(authtype) == CURL_TLSAUTH_SRP
-			 && SSL_SET_OPTION(username) != NULL
-			 && !SSL_CONN_CONFIG(verifypeer)
-			 && gnutls_cipher_get(session)) {
+			if(SSL_SET_OPTION(authtype) == CURL_TLSAUTH_SRP && SSL_SET_OPTION(username) != NULL && 
+				!SSL_CONN_CONFIG(verifypeer) && gnutls_cipher_get(session)) {
 				/* no peer cert, but auth is ok if we have SRP user and cipher and no
 				   peer verify */
 			}
@@ -1487,14 +1480,11 @@ static int Curl_gtls_shutdown(struct connectdata * conn, int sockindex)
 	gnutls_certificate_free_credentials(backend->cred);
 
 #ifdef HAVE_GNUTLS_SRP
-	if(SSL_SET_OPTION(authtype) == CURL_TLSAUTH_SRP
-	 && SSL_SET_OPTION(username) != NULL)
+	if(SSL_SET_OPTION(authtype) == CURL_TLSAUTH_SRP && SSL_SET_OPTION(username) != NULL)
 		gnutls_srp_free_client_credentials(backend->srp_client_cred);
 #endif
-
 	backend->cred = NULL;
 	backend->session = NULL;
-
 	return retval;
 }
 

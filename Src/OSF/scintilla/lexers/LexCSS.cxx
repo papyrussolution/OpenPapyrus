@@ -130,13 +130,13 @@ static void ColouriseCssDoc(Sci_PositionU startPos, Sci_Position length, int ini
 								if(lastState != SCE_CSS_OPERATOR && lastState != SCE_CSS_COMMENT)
 									break;
 							}
-							if(i == 0)
+							if(!i)
 								lastState = SCE_CSS_DEFAULT;
 						}
 						break;
 					}
 				}
-				if(i == 0)
+				if(!i)
 					lastStateC = SCE_CSS_DEFAULT;
 			}
 			if(comment_mode == eCommentBlock) {

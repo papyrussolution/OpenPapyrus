@@ -190,7 +190,7 @@
 #define STRUCT_IOVEC_DEFINED 1
 struct iovec {
 	long iov_len;
-	char * iov_base;
+    char * iov_base;
 };
 
 #endif
@@ -670,8 +670,7 @@ LIBSASL_API int sasl_set_path(int path_type, char * path);
  * version is a vender-defined representation of the version #.
  *
  * This function is being deprecated in favor of sasl_version_info. */
-LIBSASL_API void sasl_version(const char ** implementation,
-    int * version);
+LIBSASL_API void sasl_version(const char ** implementation, int * version);
 
 /* Extended version of sasl_version().
  *
@@ -683,12 +682,8 @@ LIBSASL_API void sasl_version(const char ** implementation,
  *
  * All parameters are optional. If NULL is specified, the value is not returned.
  */
-LIBSASL_API void sasl_version_info(const char ** implementation,
-    const char ** version_string,
-    int * version_major,
-    int * version_minor,
-    int * version_step,
-    int * version_patch);
+LIBSASL_API void sasl_version_info(const char ** implementation, const char ** version_string, int * version_major,
+    int * version_minor, int * version_step, int * version_patch);
 
 /* dispose of all SASL plugins.  Connection
  * states have to be disposed of before calling this.

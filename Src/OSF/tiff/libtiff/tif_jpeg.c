@@ -538,7 +538,7 @@ static int alloc_downsampled_buffers(TIFF * tif, jpeg_component_info* comp_info,
 	    ci++, compptr++) {
 		samples_per_clump += compptr->h_samp_factor * compptr->v_samp_factor;
 		buf = TIFFjpeg_alloc_sarray(sp, JPOOL_IMAGE, compptr->width_in_blocks * DCTSIZE, (JDIMENSION)(compptr->v_samp_factor*DCTSIZE));
-		if(buf == NULL)
+		if(!buf)
 			return 0;
 		sp->ds_buffer[ci] = buf;
 	}

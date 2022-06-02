@@ -21,7 +21,7 @@ ssh_string ssh_make_bignum_string(bignum num)
 	size_t pad = 0;
 	size_t len = bignum_num_bytes(num);
 	size_t bits = bignum_num_bits(num);
-	if(len == 0) {
+	if(!len) {
 		return NULL;
 	}
 	/* If the first bit is set we have a negative number */

@@ -167,7 +167,7 @@ int _plug_iovec_to_buf(const sasl_utils_t * utils, const struct iovec * vec, uns
 		return SASL_BADPARAM;
 	}
 	if(!(*output)) {
-		*output = (buffer_info_t *)utils->malloc(sizeof(buffer_info_t));
+		*output = (buffer_info_t *)utils->FnMalloc(sizeof(buffer_info_t));
 		if(!*output) {
 			SASL_UTILS_MEMERROR(utils);
 			return SASL_NOMEM;
@@ -200,7 +200,7 @@ int _plug_buf_alloc(const sasl_utils_t * utils, char ** rwbuf, unsigned * curlen
 		return SASL_BADPARAM;
 	}
 	if(!(*rwbuf)) {
-		*rwbuf = (char *)utils->malloc(newlen);
+		*rwbuf = (char *)utils->FnMalloc(newlen);
 		if(*rwbuf == NULL) {
 			*curlen = 0;
 			SASL_UTILS_MEMERROR(utils);
@@ -212,7 +212,7 @@ int _plug_buf_alloc(const sasl_utils_t * utils, char ** rwbuf, unsigned * curlen
 		unsigned needed = 2*(*curlen);
 		while(needed < newlen)
 			needed *= 2;
-		*rwbuf = (char *)utils->realloc(*rwbuf, needed);
+		*rwbuf = (char *)utils->FnRealloc(*rwbuf, needed);
 		if(*rwbuf == NULL) {
 			*curlen = 0;
 			SASL_UTILS_MEMERROR(utils);
@@ -232,7 +232,7 @@ int _plug_strdup(const sasl_utils_t * utils, const char * in, char ** out, int *
 		return SASL_BADPARAM;
 	}
 	len = strlen(in);
-	*out = (char *)utils->malloc(len + 1);
+	*out = (char *)utils->FnMalloc(len + 1);
 	if(!*out) {
 		SASL_UTILS_MEMERROR(utils);
 		return SASL_NOMEM;
@@ -249,7 +249,7 @@ void _plug_free_string(const sasl_utils_t * utils, char ** str)
 	if(!utils || !str || !(*str)) return;
 	len = strlen(*str);
 	utils->erasebuffer(*str, (unsigned int)len);
-	utils->free(*str);
+	utils->FnFree(*str);
 	*str = NULL;
 }
 
@@ -258,7 +258,7 @@ void _plug_free_secret(const sasl_utils_t * utils, sasl_secret_t ** secret)
 	if(!utils || !secret || !(*secret)) return;
 
 	utils->erasebuffer((char *)(*secret)->data, (*secret)->len);
-	utils->free(*secret);
+	utils->FnFree(*secret);
 	*secret = NULL;
 }
 
@@ -343,7 +343,7 @@ int _plug_get_password(const sasl_utils_t * utils, sasl_secret_t ** password, un
 		}
 
 		/* copy what we got into a secret_t */
-		*password = (sasl_secret_t*)utils->malloc(sizeof(sasl_secret_t) +
+		*password = (sasl_secret_t*)utils->FnMalloc(sizeof(sasl_secret_t) +
 			prompt->len + 1);
 		if(!*password) {
 			SASL_UTILS_MEMERROR(utils);
@@ -468,7 +468,7 @@ int _plug_make_prompts(const sasl_utils_t * utils,
 		return SASL_FAIL;
 	}
 	alloc_size = sizeof(sasl_interact_t)*num;
-	prompts = (sasl_interact_t *)utils->malloc(alloc_size);
+	prompts = (sasl_interact_t *)utils->FnMalloc(alloc_size);
 	if(!prompts) {
 		SASL_UTILS_MEMERROR(utils);
 		return SASL_NOMEM;
@@ -576,7 +576,7 @@ int _plug_decode(decode_context_t * text,
 					return SASL_FAIL;
 				}
 				if(!text->buffer)
-					text->buffer = (char *)text->utils->malloc(text->in_maxbuf);
+					text->buffer = (char *)text->utils->FnMalloc(text->in_maxbuf);
 				if(text->buffer == NULL) return SASL_NOMEM;
 
 				text->cursize = 0;
@@ -622,7 +622,7 @@ int _plug_decode(decode_context_t * text,
 
 void _plug_decode_free(decode_context_t * text)
 {
-	if(text->buffer) text->utils->free(text->buffer);
+	if(text->buffer) text->utils->FnFree(text->buffer);
 }
 
 /* returns the realm we should pretend to be in */
@@ -652,7 +652,7 @@ int _plug_parseuser(const sasl_utils_t * utils, char ** user, char ** realm, con
 		r++;
 		ret = _plug_strdup(utils, r, realm, NULL);
 		*--r = '\0';
-		*user = (char *)utils->malloc(r - input + 1);
+		*user = (char *)utils->FnMalloc(r - input + 1);
 		if(*user) {
 			strncpy(*user, input, r - input +1);
 		}
@@ -671,7 +671,7 @@ int _plug_make_fulluser(const sasl_utils_t * utils, char ** fulluser, const char
 		SASL_UTILS_PARAMERROR(utils);
 		return (SASL_BADPARAM);
 	}
-	*fulluser = (char *)utils->malloc(strlen(useronly) + strlen(realm) + 2);
+	*fulluser = (char *)utils->FnMalloc(strlen(useronly) + strlen(realm) + 2);
 	if(*fulluser == NULL) {
 		SASL_UTILS_MEMERROR(utils);
 		return (SASL_NOMEM);

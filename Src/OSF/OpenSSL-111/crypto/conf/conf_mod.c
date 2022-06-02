@@ -445,7 +445,7 @@ char * CONF_get1_default_config_file(void)
 
 	file = static_cast<char *>(OPENSSL_malloc(len + 1));
 
-	if(file == NULL)
+	if(!file)
 		return NULL;
 	BIO_snprintf(file, len + 1, "%s%s%s", X509_get_default_cert_area(),
 	    sep, OPENSSL_CONF);

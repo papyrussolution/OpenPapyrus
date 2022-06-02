@@ -221,7 +221,7 @@ void opj_tcd_makelayer(opj_tcd_t * tcd, uint32_t layno, double thresh, uint32_t 
 								uint32_t dr;
 								double dd;
 								opj_tcd_pass_t * pass = &cblk->passes[passno];
-								if(n == 0) {
+								if(!n) {
 									dr = pass->rate;
 									dd = pass->distortiondec;
 								}

@@ -1503,7 +1503,7 @@ static struct SResource * parseImport(ParseState* state, char * tag, uint32_t st
 	}
 
 	FileStream * file = T_FileStream_open(fullname.data(), "rb");
-	if(file == NULL) {
+	if(!file) {
 		error(line, "couldn't open input file %s", filename.getAlias());
 		*status = U_FILE_ACCESS_ERROR;
 		return NULL;

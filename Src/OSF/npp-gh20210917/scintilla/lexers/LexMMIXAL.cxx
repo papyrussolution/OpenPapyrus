@@ -23,7 +23,7 @@ static inline bool IsAWordChar(const int ch) {
 }
 
 static inline bool isMMIXALOperator(char ch) {
-	if(IsASCII(ch) && isalnum(ch))
+	if(isasciialnum(ch))
 		return false;
 	if(ch == '+' || ch == '-' || ch == '|' || ch == '^' ||
 	    ch == '*' || ch == '/' ||

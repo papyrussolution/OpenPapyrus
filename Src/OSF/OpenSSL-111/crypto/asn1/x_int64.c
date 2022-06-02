@@ -80,7 +80,7 @@ static int uint64_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
 	 * so for the sake of backward compatibility, we still decode zero
 	 * length INTEGERs as the number zero.
 	 */
-	if(len == 0)
+	if(!len)
 		goto long_compat;
 
 	if(!c2i_uint64_int(&utmp, &neg, &cont, len))
@@ -183,7 +183,7 @@ static int uint32_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
 	 * so for the sake of backward compatibility, we still decode zero
 	 * length INTEGERs as the number zero.
 	 */
-	if(len == 0)
+	if(!len)
 		goto long_compat;
 
 	if(!c2i_uint64_int(&utmp, &neg, &cont, len))

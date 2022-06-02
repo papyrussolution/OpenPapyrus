@@ -47,7 +47,7 @@ static void * mi_heap_malloc_zero_aligned_at(mi_heap_t* const heap, const size_t
 	}
 	// otherwise over-allocate
 	void * p = _mi_heap_malloc_zero(heap, size + alignment - 1, zero);
-	if(p == NULL) 
+	if(!p) 
 		return NULL;
 	// .. and align within the allocation
 	uintptr_t adjust = alignment - (((uintptr_t)p + offset) & align_mask);
@@ -125,7 +125,7 @@ static void * mi_heap_realloc_zero_aligned_at(mi_heap_t* heap, void * p, size_t 
 {
 	mi_assert(alignment > 0);
 	if(alignment <= sizeof(uintptr_t)) return _mi_heap_realloc_zero(heap, p, newsize, zero);
-	if(p == NULL) return mi_heap_malloc_zero_aligned_at(heap, newsize, alignment, offset, zero);
+	if(!p) return mi_heap_malloc_zero_aligned_at(heap, newsize, alignment, offset, zero);
 	size_t size = mi_usable_size(p);
 	if(newsize <= size && newsize >= (size - (size / 2))
 	 && (((uintptr_t)p + offset) % alignment) == 0) {

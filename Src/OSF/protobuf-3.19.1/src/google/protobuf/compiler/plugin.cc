@@ -91,7 +91,7 @@ bool GenerateCode(const CodeGeneratorRequest& request,
 	DescriptorPool pool;
 	for(int i = 0; i < request.proto_file_size(); i++) {
 		const FileDescriptor* file = pool.BuildFile(request.proto_file(i));
-		if(file == NULL) {
+		if(!file) {
 			// BuildFile() already wrote an error message.
 			return false;
 		}

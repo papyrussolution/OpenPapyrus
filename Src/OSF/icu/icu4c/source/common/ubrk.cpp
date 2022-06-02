@@ -21,41 +21,18 @@ U_NAMESPACE_USE
 //                   and locale.
 //
 //------------------------------------------------------------------------------
-U_CAPI UBreakIterator* U_EXPORT2 ubrk_open(UBreakIteratorType type,
-    const char * locale,
-    const UChar * text,
-    int32_t textLength,
-    UErrorCode * status)
+U_CAPI UBreakIterator* U_EXPORT2 ubrk_open(UBreakIteratorType type, const char * locale, const UChar * text, int32_t textLength, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) return 0;
-
 	BreakIterator * result = 0;
-
 	switch(type) {
-		case UBRK_CHARACTER:
-		    result = BreakIterator::createCharacterInstance(Locale(locale), *status);
-		    break;
-
-		case UBRK_WORD:
-		    result = BreakIterator::createWordInstance(Locale(locale), *status);
-		    break;
-
-		case UBRK_LINE:
-		    result = BreakIterator::createLineInstance(Locale(locale), *status);
-		    break;
-
-		case UBRK_SENTENCE:
-		    result = BreakIterator::createSentenceInstance(Locale(locale), *status);
-		    break;
-
-		case UBRK_TITLE:
-		    result = BreakIterator::createTitleInstance(Locale(locale), *status);
-		    break;
-
-		default:
-		    *status = U_ILLEGAL_ARGUMENT_ERROR;
+		case UBRK_CHARACTER: result = BreakIterator::createCharacterInstance(Locale(locale), *status); break;
+		case UBRK_WORD: result = BreakIterator::createWordInstance(Locale(locale), *status); break;
+		case UBRK_LINE: result = BreakIterator::createLineInstance(Locale(locale), *status); break;
+		case UBRK_SENTENCE: result = BreakIterator::createSentenceInstance(Locale(locale), *status); break;
+		case UBRK_TITLE: result = BreakIterator::createTitleInstance(Locale(locale), *status); break;
+		default: *status = U_ILLEGAL_ARGUMENT_ERROR;
 	}
-
 	// check for allocation error
 	if(U_FAILURE(*status)) {
 		return 0;
@@ -64,9 +41,8 @@ U_CAPI UBreakIterator* U_EXPORT2 ubrk_open(UBreakIteratorType type,
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return 0;
 	}
-
 	UBreakIterator * uBI = (UBreakIterator*)result;
-	if(text != NULL) {
+	if(text) {
 		ubrk_setText(uBI, text, textLength, status);
 	}
 	return uBI;
@@ -78,33 +54,26 @@ U_CAPI UBreakIterator* U_EXPORT2 ubrk_open(UBreakIteratorType type,
 //                       Invokes the rule builder.
 //
 //------------------------------------------------------------------------------
-U_CAPI UBreakIterator* U_EXPORT2 ubrk_openRules(const UChar * rules,
-    int32_t rulesLength,
-    const UChar * text,
-    int32_t textLength,
-    UParseError  * parseErr,
-    UErrorCode * status) {
+U_CAPI UBreakIterator* U_EXPORT2 ubrk_openRules(const UChar * rules, int32_t rulesLength, const UChar * text,
+    int32_t textLength, UParseError  * parseErr, UErrorCode * status) 
+{
 	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
-
 	BreakIterator * result = 0;
 	UnicodeString ruleString(rules, rulesLength);
 	result = RBBIRuleBuilder::createRuleBasedBreakIterator(ruleString, parseErr, *status);
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
-
 	UBreakIterator * uBI = (UBreakIterator*)result;
-	if(text != NULL) {
+	if(text) {
 		ubrk_setText(uBI, text, textLength, status);
 	}
 	return uBI;
 }
 
-U_CAPI UBreakIterator* U_EXPORT2 ubrk_openBinaryRules(const uint8 * binaryRules, int32_t rulesLength,
-    const UChar * text, int32_t textLength,
-    UErrorCode *   status)
+U_CAPI UBreakIterator* U_EXPORT2 ubrk_openBinaryRules(const uint8 * binaryRules, int32_t rulesLength, const UChar * text, int32_t textLength, UErrorCode *   status)
 {
 	if(U_FAILURE(*status)) {
 		return NULL;
@@ -118,21 +87,18 @@ U_CAPI UBreakIterator* U_EXPORT2 ubrk_openBinaryRules(const uint8 * binaryRules,
 		return NULL;
 	}
 	UBreakIterator * uBI = reinterpret_cast<UBreakIterator *>(lpRBBI.orphan());
-	if(text != NULL) {
+	if(text) {
 		ubrk_setText(uBI, text, textLength, status);
 	}
 	return uBI;
 }
 
-U_CAPI UBreakIterator * U_EXPORT2 ubrk_safeClone(const UBreakIterator * bi,
-    void * /*stackBuffer*/,
-    int32_t * pBufferSize,
-    UErrorCode * status)
+U_CAPI UBreakIterator * U_EXPORT2 ubrk_safeClone(const UBreakIterator * bi, void * /*stackBuffer*/, int32_t * pBufferSize, UErrorCode * status)
 {
 	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
-	if(bi == NULL) {
+	if(!bi) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
@@ -153,7 +119,8 @@ U_CAPI UBreakIterator * U_EXPORT2 ubrk_safeClone(const UBreakIterator * bi,
 	return (UBreakIterator*)newBI;
 }
 
-U_CAPI UBreakIterator * U_EXPORT2 ubrk_clone(const UBreakIterator * bi, UErrorCode * status) {
+U_CAPI UBreakIterator * U_EXPORT2 ubrk_clone(const UBreakIterator * bi, UErrorCode * status) 
+{
 	if(U_FAILURE(*status)) {
 		return nullptr;
 	}
@@ -170,10 +137,7 @@ U_CAPI void U_EXPORT2 ubrk_close(UBreakIterator * bi)
 	delete (BreakIterator*)bi;
 }
 
-U_CAPI void U_EXPORT2 ubrk_setText(UBreakIterator* bi,
-    const UChar * text,
-    int32_t textLength,
-    UErrorCode *  status)
+U_CAPI void U_EXPORT2 ubrk_setText(UBreakIterator* bi, const UChar * text, int32_t textLength, UErrorCode *  status)
 {
 	UText ut = UTEXT_INITIALIZER;
 	utext_openUChars(&ut, text, textLength, status);
@@ -182,9 +146,7 @@ U_CAPI void U_EXPORT2 ubrk_setText(UBreakIterator* bi,
 	//   can be dumped without explicitly closing it.
 }
 
-U_CAPI void U_EXPORT2 ubrk_setUText(UBreakIterator * bi,
-    UText          * text,
-    UErrorCode * status)
+U_CAPI void U_EXPORT2 ubrk_setUText(UBreakIterator * bi, UText          * text, UErrorCode * status)
 {
 	((BreakIterator*)bi)->setText(text, *status);
 }
@@ -214,14 +176,12 @@ U_CAPI int32_t U_EXPORT2 ubrk_last(UBreakIterator * bi)
 	return ((BreakIterator*)bi)->last();
 }
 
-U_CAPI int32_t U_EXPORT2 ubrk_preceding(UBreakIterator * bi,
-    int32_t offset)
+U_CAPI int32_t U_EXPORT2 ubrk_preceding(UBreakIterator * bi, int32_t offset)
 {
 	return ((BreakIterator*)bi)->preceding(offset);
 }
 
-U_CAPI int32_t U_EXPORT2 ubrk_following(UBreakIterator * bi,
-    int32_t offset)
+U_CAPI int32_t U_EXPORT2 ubrk_following(UBreakIterator * bi, int32_t offset)
 {
 	return ((BreakIterator*)bi)->following(offset);
 }
@@ -251,11 +211,9 @@ U_CAPI int32_t U_EXPORT2 ubrk_getRuleStatusVec(UBreakIterator * bi, int32_t * fi
 	return ((BreakIterator*)bi)->getRuleStatusVec(fillInVec, capacity, *status);
 }
 
-U_CAPI const char * U_EXPORT2 ubrk_getLocaleByType(const UBreakIterator * bi,
-    ULocDataLocaleType type,
-    UErrorCode * status)
+U_CAPI const char * U_EXPORT2 ubrk_getLocaleByType(const UBreakIterator * bi, ULocDataLocaleType type, UErrorCode * status)
 {
-	if(bi == NULL) {
+	if(!bi) {
 		if(U_SUCCESS(*status)) {
 			*status = U_ILLEGAL_ARGUMENT_ERROR;
 		}
@@ -264,17 +222,13 @@ U_CAPI const char * U_EXPORT2 ubrk_getLocaleByType(const UBreakIterator * bi,
 	return ((BreakIterator*)bi)->getLocaleID(type, *status);
 }
 
-U_CAPI void U_EXPORT2 ubrk_refreshUText(UBreakIterator * bi,
-    UText          * text,
-    UErrorCode * status)
+U_CAPI void U_EXPORT2 ubrk_refreshUText(UBreakIterator * bi, UText          * text, UErrorCode * status)
 {
 	BreakIterator * bii = reinterpret_cast<BreakIterator *>(bi);
 	bii->refreshInputText(text, *status);
 }
 
-U_CAPI int32_t U_EXPORT2 ubrk_getBinaryRules(UBreakIterator * bi,
-    uint8 *       binaryRules, int32_t rulesCapacity,
-    UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 ubrk_getBinaryRules(UBreakIterator * bi, uint8 *       binaryRules, int32_t rulesCapacity, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) {
 		return 0;

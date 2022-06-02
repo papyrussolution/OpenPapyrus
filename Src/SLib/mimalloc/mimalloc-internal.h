@@ -138,9 +138,9 @@ bool        _mi_page_is_valid(mi_page_t* page);
 	#define mi_likely_Removed(x)       (x)
 #endif
 */
-#ifndef __has_builtin
-	#define __has_builtin(x)  0
-#endif
+// @v11.4.0 #ifndef __has_builtin
+	// @v11.4.0 #define __has_builtin(x)  0
+// @v11.4.0 #endif
 /* -----------------------------------------------------------
    Error codes passed to `_mi_fatal_error`
    All are recoverable but EFAULT is a serious error and aborts by default in secure mode.

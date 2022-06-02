@@ -881,22 +881,22 @@ PPTimeSeriesPacket::Extension::Extension() : MarginManual(0.0), FixedStakeVolume
 {
 }
 
-int PPTimeSeriesPacket::Extension::IsEmpty() const
+bool PPTimeSeriesPacket::Extension::IsEmpty() const
 {
 	return (MarginManual == 0.0 && FixedStakeVolume == 0.0 && AvgLocalDeviation == 0.0 && !checkdate(UseDataForStrategiesSince));
 }
 
-int FASTCALL PPTimeSeriesPacket::Extension::IsEq(const PPTimeSeriesPacket::Extension & rS) const
+bool FASTCALL PPTimeSeriesPacket::Extension::IsEq(const PPTimeSeriesPacket::Extension & rS) const
 {
-	int    eq = 1;
+	bool   eq = true;
 	if(MarginManual != rS.MarginManual)
-		eq = 0;
+		eq = false;
 	else if(FixedStakeVolume != rS.FixedStakeVolume) // @v10.6.3
-		eq = 0;
+		eq = false;
 	else if(AvgLocalDeviation != rS.AvgLocalDeviation) // @v10.7.1
-		eq = 0;
+		eq = false;
 	else if(UseDataForStrategiesSince != rS.UseDataForStrategiesSince) // @v10.7.2
-		eq = 0;
+		eq = false;
 	return eq;
 }
 
@@ -904,14 +904,9 @@ PPTimeSeriesPacket::PPTimeSeriesPacket()
 {
 }
 
-int FASTCALL PPTimeSeriesPacket::IsEq(const PPTimeSeriesPacket & rS) const
+bool FASTCALL PPTimeSeriesPacket::IsEq(const PPTimeSeriesPacket & rS) const
 {
-	int    eq = 1;
-	if(!Rec.IsEq(rS.Rec))
-		eq = 0;
-	else if(!E.IsEq(rS.E))
-		eq = 0;
-	return eq;
+	return (Rec.IsEq(rS.Rec) && E.IsEq(rS.E));
 }
 
 double PPTimeSeriesPacket::GetMargin(int sell) const

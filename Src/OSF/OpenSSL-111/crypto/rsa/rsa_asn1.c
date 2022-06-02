@@ -21,7 +21,7 @@ static int rsa_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it, void 
 {
 	if(operation == ASN1_OP_NEW_PRE) {
 		*pval = (ASN1_VALUE*)RSA_new();
-		if(*pval != NULL)
+		if(*pval)
 			return 2;
 		return 0;
 	}

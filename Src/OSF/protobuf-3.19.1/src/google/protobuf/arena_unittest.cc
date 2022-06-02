@@ -40,36 +40,32 @@ namespace google {
 namespace protobuf {
 class Notifier {
 public:
-	Notifier() : count_(0) {
+	Notifier() : count_(0) 
+	{
 	}
-
-	void Notify() {
+	void Notify() 
+	{
 		count_++;
 	}
-
-	int GetCount() {
-		return count_;
-	}
-
+	int GetCount() { return count_; }
 private:
 	int count_;
 };
 
 class SimpleDataType {
 public:
-	SimpleDataType() : notifier_(NULL) {
+	SimpleDataType() : notifier_(NULL) 
+	{
 	}
-
-	void SetNotifier(Notifier* notifier) {
+	void SetNotifier(Notifier* notifier) 
+	{
 		notifier_ = notifier;
 	}
-
-	virtual ~SimpleDataType() {
-		if(notifier_ != NULL) {
+	virtual ~SimpleDataType() 
+	{
+		if(notifier_)
 			notifier_->Notify();
-		}
-	};
-
+	}
 private:
 	Notifier* notifier_;
 };
@@ -78,13 +74,10 @@ private:
 // parameter type without "const &".
 class PleaseDontCopyMe {
 public:
-	explicit PleaseDontCopyMe(int value) : value_(value) {
+	explicit PleaseDontCopyMe(int value) : value_(value) 
+	{
 	}
-
-	int value() const {
-		return value_;
-	}
-
+	int value() const { return value_; }
 private:
 	int value_;
 	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(PleaseDontCopyMe);
@@ -93,17 +86,13 @@ private:
 // A class that takes four different types as constructor arguments.
 class MustBeConstructedWithOneThroughFour {
 public:
-	MustBeConstructedWithOneThroughFour(int one, const char* two,
-	    const std::string& three,
-	    const PleaseDontCopyMe* four)
-		: one_(one), two_(two), three_(three), four_(four) {
+	MustBeConstructedWithOneThroughFour(int one, const char* two, const std::string& three, const PleaseDontCopyMe* four) : one_(one), two_(two), three_(three), four_(four) 
+	{
 	}
-
 	int one_;
 	const char* const two_;
 	std::string three_;
 	const PleaseDontCopyMe* four_;
-
 private:
 	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(MustBeConstructedWithOneThroughFour);
 };
@@ -1540,10 +1529,10 @@ TEST(ArenaTest, ArenaHooksSanity) {
 }
 
 // Test that allocation hooks are not called when we don't need them.
-TEST(ArenaTest, ArenaHooksWhenAllocationsNotNeeded) {
+TEST(ArenaTest, ArenaHooksWhenAllocationsNotNeeded) 
+{
 	ArenaOptions options;
 	ArenaOptionsTestFriend::EnableWithoutAllocs(&options);
-
 	Arena arena(options);
 	EXPECT_EQ(0, hooks_num_allocations);
 	Arena::Create<uint64_t>(&arena);

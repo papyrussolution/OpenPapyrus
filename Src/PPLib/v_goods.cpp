@@ -446,7 +446,7 @@ int GoodsFilt::Setup()
 	return 1;
 }
 
-int GoodsFilt::IsEmpty() const
+bool GoodsFilt::IsEmpty() const
 {
 	const long nemp_fl = (fWithStrucOnly|fIntUnitOnly|fFloatUnitOnly|fHidePassive|
 		fPassiveOnly|fHideGeneric|fGenGoodsOnly|fWOTaxGdsOnly|fNoDisOnly|fRestrictByMatrix|fOutOfMatrix|fActualOnly|fHasImages|fUseIndepWtOnly|fWoBrand);
@@ -458,61 +458,61 @@ int GoodsFilt::IsEmpty() const
 		(Flags & nemp_fl) || SrchStr.NotEmpty() || !GrpIDList.IsEmpty() || BarcodeLen.NotEmpty() || Ep.GdsClsID);
 	*/
 	if(GrpID)
-		return 0;
+		return false;
 	else if(ManufID)
-		return 0;
+		return false;
 	else if(UnitID)
-		return 0;
+		return false;
 	else if(SupplID)
-		return 0;
+		return false;
 	else if(GoodsTypeID)
-		return 0;
+		return false;
 	else if(BrandID_)
-		return 0;
+		return false;
 	else if(GoodsStrucID) // @v10.0.12
-		return 0;
+		return false;
 	else if(BrandOwnerID)
-		return 0;
+		return false;
 	else if(PhUnitID)
-		return 0;
+		return false;
 	else if(TaxGrpID)
-		return 0;
+		return false;
 	else if(VatRate)
-		return 0;
+		return false;
 	else if(ManufCountryID)
-		return 0;
+		return false;
 	else if(!LotPeriod.IsZero())
-		return 0;
+		return false;
 	else if(LocID_)
-		return 0;
+		return false;
 	else if(UhttStoreID)
-		return 0;
+		return false;
 	else if(RestrictQuotKindID)
-		return 0;
+		return false;
 	else if(Flags & nemp_fl)
-		return 0;
+		return false;
 	else if(Flags & fShowArCode && !(Flags & fShowWoArCode))
-		return 0;
+		return false;
 	else if(SrchStr_.NotEmpty())
-		return 0;
+		return false;
 	else if(!GrpIDList.IsEmpty())
-		return 0;
+		return false;
 	else if(BarcodeLen.NotEmpty())
-		return 0;
+		return false;
 	else if(Ep.GdsClsID)
-		return 0;
+		return false;
 	else if(!LocList.IsEmpty())
-		return 0;
+		return false;
 	else if(!BrandList.IsEmpty())
-		return 0;
+		return false;
 	else if(!BrandOwnerList.IsEmpty())
-		return 0;
+		return false;
 	else if(P_SjF && !P_SjF->IsEmpty())
-		return 0;
+		return false;
 	else if(P_TagF && !P_TagF->IsEmpty())
-		return 0;
+		return false;
 	else
-		return 1;
+		return true;
 }
 
 int GoodsFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData_def(fldID, extssNameText, SrchStr_, rBuf); }

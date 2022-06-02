@@ -821,7 +821,7 @@ int PPCommandFolder::Add(int pos, const PPCommandItem * pItem)
 				THROW_PP_S(pItem->Name.CmpNC(p->Name) != 0 || !p_new_grp->IsDbSymbEq(*p_grp), PPERR_DUPCMDNAME, pItem->Name);
 			}
 			else {
-				THROW_PP_S(pItem->Name.CmpNC(p->Name) != 0, PPERR_DUPCMDNAME, pItem->Name);
+				THROW_PP_S(pItem->Name.CmpNC(p->Name) != 0 || pItem->IsKind(PPCommandItem::kSeparator), PPERR_DUPCMDNAME, pItem->Name); //@SevaSob @v11.4.0
 			}
 		}
 	}

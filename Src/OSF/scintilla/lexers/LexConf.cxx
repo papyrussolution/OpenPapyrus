@@ -105,7 +105,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 			    // if we find a non-alphanumeric char,
 			    // we simply go to default state
 			    // else we're still dealing with an extension...
-			    if((IsASCII(ch) && isalnum(ch)) || oneof6(ch, '_', '-', '$', '/', '.', '*')) {
+			    if(isasciialnum(ch) || oneof6(ch, '_', '-', '$', '/', '.', '*')) {
 				    styler.ColourTo(i, SCE_CONF_EXTENSION);
 			    }
 			    else {
@@ -124,7 +124,7 @@ static void ColouriseConfDoc(Sci_PositionU startPos, Sci_Position length, int, W
 
 			case SCE_CONF_IDENTIFIER:
 			    // stay  in CONF_IDENTIFIER state until we find a non-alphanumeric
-			    if((IsASCII(ch) && isalnum(ch)) || oneof6(ch, '_', '-', '/', '$', '.', '*')) {
+			    if(isasciialnum(ch) || oneof6(ch, '_', '-', '/', '$', '.', '*')) {
 				    buffer[bufferCount++] = static_cast<char>(tolower(ch));
 			    }
 			    else {

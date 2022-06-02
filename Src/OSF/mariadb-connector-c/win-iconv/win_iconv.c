@@ -837,7 +837,7 @@ static int make_csconv(const char * _name, csconv_t * cv)
 	int flag = 0;
 	char * p;
 	char * name = xstrndup(_name, strlen(_name));
-	if(name == NULL)
+	if(!name)
 		return FALSE;
 	// check for option "enc_name//opt1//opt2" 
 	while((p = strrstr(name, "//")) != NULL) {
@@ -1179,7 +1179,7 @@ static int utf8_mblen(csconv_t * cv UNUSED, const uchar * buf, int bufsize)
 	else if((buf[0] & 0xFC) == 0xF8) len = 5;
 	else if((buf[0] & 0xFE) == 0xFC) len = 6;
 
-	if(len == 0)
+	if(!len)
 		return seterror(EILSEQ);
 	else if(bufsize < len)
 		return seterror(EINVAL);
@@ -1244,7 +1244,7 @@ static int kernel_wctomb(csconv_t * cv, ushort * wbuf, int wbufsize, uchar * buf
 	}
 	len = WideCharToMultiByte(cv->codepage, flags,
 		(const wchar_t *)wbuf, wbufsize, (char *)buf, bufsize, NULL, p);
-	if(len == 0) {
+	if(!len) {
 		if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 			return seterror(E2BIG);
 		return seterror(EILSEQ);

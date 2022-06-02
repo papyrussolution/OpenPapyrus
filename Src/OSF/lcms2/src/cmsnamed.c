@@ -577,7 +577,7 @@ cmsSEQ* CMSEXPORT cmsAllocProfileSequenceDescription(cmsContext ContextID, uint3
 {
 	cmsSEQ* Seq;
 	uint32 i;
-	if(n == 0) return NULL;
+	if(!n) return NULL;
 	// In a absolutely arbitrary way, I hereby decide to allow a maxim of 255 profiles linked
 	// in a devicelink. It makes not sense anyway and may be used for exploits, so let's close the door!
 	if(n > 255) return NULL;
