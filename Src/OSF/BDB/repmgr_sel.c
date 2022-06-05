@@ -43,7 +43,7 @@ void * __repmgr_select_thread(void * argsp)
 	ENV * env = args->env;
 	if((ret = __repmgr_select_loop(env)) == DB_DELETED)
 		ret = __repmgr_bow_out(env);
-	if(ret != 0) {
+	if(ret) {
 		__db_err(env, ret, DB_STR("3614", "select loop failed"));
 		__repmgr_thread_failure(env, ret);
 	}
@@ -791,7 +791,7 @@ static int prepare_input(ENV * env, REPMGR_CONNECTION * conn)
 			DB_ASSERT(env, size <= dbt->ulen);
 		}
 		dbt->size = size;
-		if(ret != 0)
+		if(ret)
 			return ret;
 		if(size > 0) {
 			__repmgr_add_dbt(&conn->iovecs, dbt);

@@ -993,7 +993,7 @@ static int _xmlSchemaParseGMonth(xmlSchemaValDatePtr dt, const xmlChar ** str)
 	int ret = 0;
 	uint value = 0;
 	PARSE_2_DIGITS(value, cur, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(!VALID_MONTH(value))
 		return 2;
@@ -1018,7 +1018,7 @@ static int _xmlSchemaParseGDay(xmlSchemaValDatePtr dt, const xmlChar ** str)
 	int ret = 0;
 	uint value = 0;
 	PARSE_2_DIGITS(value, cur, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(!VALID_DAY(value))
 		return 2;
@@ -1045,7 +1045,7 @@ static int _xmlSchemaParseTime(xmlSchemaValDatePtr dt, const xmlChar ** str)
 	int ret = 0;
 	int value = 0;
 	PARSE_2_DIGITS(value, cur, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(*cur != ':')
 		return 1;
@@ -1057,7 +1057,7 @@ static int _xmlSchemaParseTime(xmlSchemaValDatePtr dt, const xmlChar ** str)
 	dt->hour = value;
 
 	PARSE_2_DIGITS(value, cur, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(!VALID_MIN(value))
 		return 2;
@@ -1068,7 +1068,7 @@ static int _xmlSchemaParseTime(xmlSchemaValDatePtr dt, const xmlChar ** str)
 	cur++;
 
 	PARSE_FLOAT(dt->sec, cur, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 
 	if((!VALID_SEC(dt->sec)) || (!VALID_TZO(dt->tzo)))
@@ -1116,7 +1116,7 @@ static int _xmlSchemaParseTimeZone(xmlSchemaValDatePtr dt, const xmlChar ** str)
 		    cur++;
 
 		    PARSE_2_DIGITS(tmp, cur, ret);
-		    if(ret != 0)
+		    if(ret)
 			    return ret;
 		    if(!VALID_HOUR(tmp))
 			    return 2;
@@ -1128,7 +1128,7 @@ static int _xmlSchemaParseTimeZone(xmlSchemaValDatePtr dt, const xmlChar ** str)
 		    dt->tzo = tmp * 60;
 
 		    PARSE_2_DIGITS(tmp, cur, ret);
-		    if(ret != 0)
+		    if(ret)
 			    return ret;
 		    if(!VALID_MIN(tmp))
 			    return 2;
@@ -1272,7 +1272,7 @@ static int xmlSchemaValidateDates(xmlSchemaValType type, const xmlChar * dateTim
 				goto error;
 			++cur;
 			ret = _xmlSchemaParseGDay(&(dt->value.date), &cur);
-			if(ret != 0)
+			if(ret)
 				goto error;
 			RETURN_TYPE_IF_VALID(XML_SCHEMAS_GDAY);
 			goto error;
@@ -1281,7 +1281,7 @@ static int xmlSchemaValidateDates(xmlSchemaValType type, const xmlChar * dateTim
 		 * it should be an xs:gMonthDay or xs:gMonth
 		 */
 		ret = _xmlSchemaParseGMonth(&(dt->value.date), &cur);
-		if(ret != 0)
+		if(ret)
 			goto error;
 		/*
 		 * a '-' char could indicate this type is xs:gMonthDay or
@@ -1331,7 +1331,7 @@ static int xmlSchemaValidateDates(xmlSchemaValType type, const xmlChar * dateTim
 	/* fallback on date parsing */
 	cur = dateTime;
 	ret = _xmlSchemaParseGYear(&(dt->value.date), &cur);
-	if(ret != 0)
+	if(ret)
 		goto error;
 	/* is it an xs:gYear? */
 	RETURN_TYPE_IF_VALID(XML_SCHEMAS_GYEAR);
@@ -1339,7 +1339,7 @@ static int xmlSchemaValidateDates(xmlSchemaValType type, const xmlChar * dateTim
 		goto error;
 	cur++;
 	ret = _xmlSchemaParseGMonth(&(dt->value.date), &cur);
-	if(ret != 0)
+	if(ret)
 		goto error;
 	/* is it an xs:gYearMonth? */
 	RETURN_TYPE_IF_VALID(XML_SCHEMAS_GYEARMONTH);
@@ -1356,7 +1356,7 @@ static int xmlSchemaValidateDates(xmlSchemaValType type, const xmlChar * dateTim
 	cur++;
 	/* it should be an xs:dateTime */
 	ret = _xmlSchemaParseTime(&(dt->value.date), &cur);
-	if(ret != 0)
+	if(ret)
 		goto error;
 	ret = _xmlSchemaParseTimeZone(&(dt->value.date), &cur);
 	if(collapse)
@@ -2315,7 +2315,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    const xmlChar * uri = NULL;
 		    xmlChar * local = NULL;
 		    ret = xmlValidateQName(value, 1);
-		    if(ret != 0)
+		    if(ret)
 			    goto done;
 		    if(pNode) {
 			    xmlChar * prefix;
@@ -3546,7 +3546,7 @@ static int xmlSchemaCompareDates(xmlSchemaVal * x, xmlSchemaVal * y)
 					xmlSchemaFreeValue(p1);
 					xmlSchemaFreeValue(q1);
 					xmlSchemaFreeValue(q2);
-					if(ret != 0)
+					if(ret)
 						return ret;
 				}
 			}
@@ -3593,7 +3593,7 @@ static int xmlSchemaCompareDates(xmlSchemaVal * x, xmlSchemaVal * y)
 				xmlSchemaFreeValue(p1);
 				xmlSchemaFreeValue(q1);
 				xmlSchemaFreeValue(p2);
-				if(ret != 0)
+				if(ret)
 					return ret;
 			}
 		}

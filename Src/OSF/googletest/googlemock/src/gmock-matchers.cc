@@ -19,13 +19,8 @@
 //
 // This file implements Matcher<const string&>, Matcher<string>, and
 // utilities for defining matchers.
-
-#include "gmock/gmock-matchers.h"
-#include <string.h>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
+#include "gmock/internal/gmock-internal.h"
+#pragma hdrstop
 
 namespace testing {
 namespace internal {

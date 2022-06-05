@@ -2,5 +2,85 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\OSF\googletest\googletest\src\gtest-all.cc" />
+    <ClCompile Include="..\OSF\googletest\googletest\src\gtest.cc" />
+    <ClCompile Include="..\OSF\googletest\googletest\src\gtest-assertion-result.cc" />
+    <ClCompile Include="..\OSF\googletest\googletest\src\gtest-death-test.cc" />
+    <ClCompile Include="..\OSF\googletest\googletest\src\gtest-filepath.cc" />
+    <ClCompile Include="..\OSF\googletest\googletest\src\gtest-matchers.cc" />
+    <ClCompile Include="..\OSF\googletest\googletest\src\gtest-port.cc" />
+    <ClCompile Include="..\OSF\googletest\googletest\src\gtest-printers.cc" />
+    <ClCompile Include="..\OSF\googletest\googletest\src\gtest-test-part.cc" />
+    <ClCompile Include="..\OSF\googletest\googletest\src\gtest-typed-test.cc" />
+    <ClCompile Include="..\OSF\googletest\googletest\src\gtest-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{3ddacbaf-b1d1-4b53-b34f-592906c3394c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest_pred_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest_prod.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest-assertion-result.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest-death-test.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest-matchers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest-message.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest-param-test.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest-printers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest-spi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest-test-part.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\gtest-typed-test.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\internal\gtest-build-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\internal\gtest-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\internal\gtest-death-test-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\internal\gtest-filepath.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\internal\gtest-param-util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\internal\gtest-port.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\internal\gtest-port-arch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\internal\gtest-string.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\googletest\googletest\include\gtest\internal\gtest-type-util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -435,7 +435,7 @@
 #ifdef PNG_FIXED_POINT_SUPPORTED
 	#define PNGFAPI PNGAPI
 #else
-	#define PNGFAPI /* PRIVATE */
+	#define PNGFAPI /*PRIVATE*/
 #endif
 #ifndef PNG_VERSION_INFO_ONLY
 /* Other defines specific to compilers can go here.  Try to keep
@@ -1090,39 +1090,39 @@ void png_combine_row(png_const_structrp png_ptr, png_bytep row, int display);
  */
 void png_read_filter_row(png_structrp pp, png_row_infop row_info, png_bytep row, png_const_bytep prev_row, int filter);
 #if PNG_ARM_NEON_OPT > 0
-	PNG_INTERNAL_FUNCTION(void, png_read_filter_row_up_neon, (png_row_infop row_info, png_bytep row, png_const_bytep prev_row), PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void, png_read_filter_row_sub3_neon, (png_row_infop row_info, png_bytep row, png_const_bytep prev_row), PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void, png_read_filter_row_sub4_neon, (png_row_infop row_info, png_bytep row, png_const_bytep prev_row), PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void, png_read_filter_row_avg3_neon, (png_row_infop row_info, png_bytep row, png_const_bytep prev_row), PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void, png_read_filter_row_avg4_neon, (png_row_infop row_info, png_bytep row, png_const_bytep prev_row), PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void, png_read_filter_row_paeth3_neon, (png_row_infop row_info, png_bytep row, png_const_bytep prev_row), PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void, png_read_filter_row_paeth4_neon, (png_row_infop row_info, png_bytep row, png_const_bytep prev_row), PNG_EMPTY);
+	void png_read_filter_row_up_neon(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_sub3_neon(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_sub4_neon(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_avg3_neon(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_avg4_neon(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_paeth3_neon(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_paeth4_neon(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
 #endif
 #if PNG_MIPS_MSA_OPT > 0
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_up_msa,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_sub3_msa,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_sub4_msa,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_avg3_msa,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_avg4_msa,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_paeth3_msa,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_paeth4_msa,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
+	void png_read_filter_row_up_msa(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_sub3_msa(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_sub4_msa(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_avg3_msa(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_avg4_msa(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_paeth3_msa(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_paeth4_msa(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
 #endif
 #if PNG_POWERPC_VSX_OPT > 0
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_up_vsx,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_sub3_vsx,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_sub4_vsx,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_avg3_vsx,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_avg4_vsx,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_paeth3_vsx,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_paeth4_vsx,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
+	void png_read_filter_row_up_vsx(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_sub3_vsx(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_sub4_vsx(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_avg3_vsx(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_avg4_vsx(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_paeth3_vsx(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_paeth4_vsx(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
 #endif
 #if PNG_INTEL_SSE_IMPLEMENTATION > 0
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_sub3_sse2,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_sub4_sse2,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_avg3_sse2,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_avg4_sse2,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_paeth3_sse2,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
-	PNG_INTERNAL_FUNCTION(void,png_read_filter_row_paeth4_sse2,(png_row_infop row_info, png_bytep row, png_const_bytep prev_row),PNG_EMPTY);
+	void png_read_filter_row_sub3_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_sub4_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_avg3_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_avg4_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_paeth3_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
+	void png_read_filter_row_paeth4_sse2(png_row_infop row_info, png_bytep row, png_const_bytep prev_row);
 #endif
 // Choose the best filter to use and filter the row data 
 PNG_INTERNAL_FUNCTION(void, png_write_find_filter, (png_structrp png_ptr, png_row_infop row_info), PNG_EMPTY);
@@ -1680,7 +1680,7 @@ int FASTCALL png_image_error(png_imagep image, const char * error_message);
 		PNG_INTERNAL_FUNCTION(void, png_init_filter_functions_sse2, (png_structp png_ptr, uint bpp), PNG_EMPTY);
 	#endif
 #endif
-PNG_INTERNAL_FUNCTION(uint32, png_check_keyword, (png_structrp png_ptr, const char * key, png_bytep new_key), PNG_EMPTY);
+extern uint32 png_check_keyword(png_structrp png_ptr, const char * key, png_bytep new_key);
 
 // Maintainer: Put new private prototypes here ^ 
 

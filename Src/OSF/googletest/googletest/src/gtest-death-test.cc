@@ -2,8 +2,7 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -17,55 +16,44 @@
 //
 // This file implements death tests.
 //
-#include "gtest/gtest-death-test.h"
-#include <functional>
-#include <utility>
-#include "gtest/internal/custom/gtest.h"
-#include "gtest/internal/gtest-port.h"
+#include "gtest/internal/gtest-build-internal.h"
+#pragma hdrstop
 
 #if GTEST_HAS_DEATH_TEST
 
 #if GTEST_OS_MAC
-#include <crt_externs.h>
+	#include <crt_externs.h>
 #endif  // GTEST_OS_MAC
-
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-
+//#include <errno.h>
+//#include <fcntl.h>
+//#include <limits.h>
 #if GTEST_OS_LINUX
-#include <signal.h>
+	#include <signal.h>
 #endif  // GTEST_OS_LINUX
-
-#include <stdarg.h>
-
+//#include <stdarg.h>
 #if GTEST_OS_WINDOWS
-#include <windows.h>
+	//#include <windows.h>
 #else
-#include <sys/mman.h>
-#include <sys/wait.h>
+	#include <sys/mman.h>
+	#include <sys/wait.h>
 #endif  // GTEST_OS_WINDOWS
-
 #if GTEST_OS_QNX
-#include <spawn.h>
+	#include <spawn.h>
 #endif  // GTEST_OS_QNX
-
 #if GTEST_OS_FUCHSIA
-#include <lib/fdio/fd.h>
-#include <lib/fdio/io.h>
-#include <lib/fdio/spawn.h>
-#include <lib/zx/channel.h>
-#include <lib/zx/port.h>
-#include <lib/zx/process.h>
-#include <lib/zx/socket.h>
-#include <zircon/processargs.h>
-#include <zircon/syscalls.h>
-#include <zircon/syscalls/policy.h>
-#include <zircon/syscalls/port.h>
+	#include <lib/fdio/fd.h>
+	#include <lib/fdio/io.h>
+	#include <lib/fdio/spawn.h>
+	#include <lib/zx/channel.h>
+	#include <lib/zx/port.h>
+	#include <lib/zx/process.h>
+	#include <lib/zx/socket.h>
+	#include <zircon/processargs.h>
+	#include <zircon/syscalls.h>
+	#include <zircon/syscalls/policy.h>
+	#include <zircon/syscalls/port.h>
 #endif  // GTEST_OS_FUCHSIA
-
 #endif  // GTEST_HAS_DEATH_TEST
-
 #include "gtest/gtest-message.h"
 #include "gtest/internal/gtest-string.h"
 #include "src/gtest-internal-inl.h"
@@ -149,13 +137,9 @@ ExitedWithCode::ExitedWithCode(int exit_code) : exit_code_(exit_code) {
 // ExitedWithCode function-call operator.
 bool ExitedWithCode::operator()(int exit_status) const {
 #if GTEST_OS_WINDOWS || GTEST_OS_FUCHSIA
-
 	return exit_status == exit_code_;
-
 #else
-
 	return WIFEXITED(exit_status) && WEXITSTATUS(exit_status) == exit_code_;
-
 #endif  // GTEST_OS_WINDOWS || GTEST_OS_FUCHSIA
 }
 
@@ -335,19 +319,17 @@ static void FailFromInternalError(int fd)
 	}
 	else {
 		const int last_error = errno;
-		GTEST_LOG_(FATAL) << "Error while reading death test internal: "
-				  << GetLastErrnoDescription() << " [" << last_error << "]";
+		GTEST_LOG_(FATAL) << "Error while reading death test internal: " << GetLastErrnoDescription() << " [" << last_error << "]";
 	}
 }
 
 // Death test constructor.  Increments the running death test count
 // for the current test.
-DeathTest::DeathTest() {
+DeathTest::DeathTest() 
+{
 	TestInfo* const info = GetUnitTestImpl()->current_test_info();
 	if(info == nullptr) {
-		DeathTestAbort(
-			"Cannot run a death test outside of a TEST or "
-			"TEST_F construct");
+		DeathTestAbort("Cannot run a death test outside of a TEST or TEST_F construct");
 	}
 }
 
@@ -366,68 +348,28 @@ std::string DeathTest::last_death_test_message_;
 // Provides cross platform implementation for some death functionality.
 class DeathTestImpl : public DeathTest {
 protected:
-	DeathTestImpl(const char* a_statement, Matcher<const std::string&> matcher)
-		: statement_(a_statement),
-		matcher_(std::move(matcher)),
-		spawned_(false),
-		status_(-1),
-		outcome_(IN_PROGRESS),
-		read_fd_(-1),
-		write_fd_(-1) {
+	DeathTestImpl(const char* a_statement, Matcher<const std::string&> matcher) : statement_(a_statement),
+		matcher_(std::move(matcher)), spawned_(false), status_(-1), outcome_(IN_PROGRESS), read_fd_(-1), write_fd_(-1) 
+	{
 	}
-
 	// read_fd_ is expected to be closed and cleared by a derived class.
-	~DeathTestImpl() override {
+	~DeathTestImpl() override 
+	{
 		GTEST_DEATH_TEST_CHECK_(read_fd_ == -1);
 	}
-
 	void Abort(AbortReason reason) override;
 	bool Passed(bool status_ok) override;
-
-	const char* statement() const {
-		return statement_;
-	}
-
-	bool spawned() const {
-		return spawned_;
-	}
-
-	void set_spawned(bool is_spawned) {
-		spawned_ = is_spawned;
-	}
-
-	int status() const {
-		return status_;
-	}
-
-	void set_status(int a_status) {
-		status_ = a_status;
-	}
-
-	DeathTestOutcome outcome() const {
-		return outcome_;
-	}
-
-	void set_outcome(DeathTestOutcome an_outcome) {
-		outcome_ = an_outcome;
-	}
-
-	int read_fd() const {
-		return read_fd_;
-	}
-
-	void set_read_fd(int fd) {
-		read_fd_ = fd;
-	}
-
-	int write_fd() const {
-		return write_fd_;
-	}
-
-	void set_write_fd(int fd) {
-		write_fd_ = fd;
-	}
-
+	const char* statement() const { return statement_; }
+	bool spawned() const { return spawned_; }
+	void set_spawned(bool is_spawned) { spawned_ = is_spawned; }
+	int status() const { return status_; }
+	void set_status(int a_status) { status_ = a_status; }
+	DeathTestOutcome outcome() const { return outcome_; }
+	void set_outcome(DeathTestOutcome an_outcome) { outcome_ = an_outcome; }
+	int read_fd() const { return read_fd_; }
+	void set_read_fd(int fd) { read_fd_ = fd; }
+	int write_fd() const { return write_fd_; }
+	void set_write_fd(int fd) { write_fd_ = fd; }
 	// Called in the parent process only. Reads the result code of the death
 	// test child process via a pipe, interprets it to set the outcome_
 	// member, and closes read_fd_.  Outputs diagnostics and terminates in
@@ -1607,7 +1549,8 @@ static int GetStatusFileDescriptor(unsigned int parent_process_id,
 // Returns a newly created InternalRunDeathTestFlag object with fields
 // initialized from the GTEST_FLAG(internal_run_death_test) flag if
 // the flag is specified; otherwise returns NULL.
-InternalRunDeathTestFlag* ParseInternalRunDeathTestFlag() {
+InternalRunDeathTestFlag* ParseInternalRunDeathTestFlag() 
+{
 	if(GTEST_FLAG_GET(internal_run_death_test) == "") return nullptr;
 
 	// GTEST_HAS_DEATH_TEST implies that we have ::std::string, so we

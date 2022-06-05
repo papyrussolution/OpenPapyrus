@@ -56,7 +56,7 @@ int __heap_stat(DBC * dbc, void * spp, uint32 flags)
 			meta = NULL;
 			if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 				ret = t_ret;
-			if(ret != 0)
+			if(ret)
 				goto err;
 			if((ret = __db_lget(dbc, 0, metapgno, DB_LOCK_WRITE, 0, &metalock)) != 0)
 				goto err;
@@ -197,7 +197,7 @@ int __heap_traverse(DBC * dbc, int (*callback)__P((DBC*, PAGE*, void *, int *)),
 			ret = t_ret;
 		if((t_ret = __TLPUT(dbc, lock)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			break;
 		pgno++;
 	}

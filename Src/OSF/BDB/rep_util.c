@@ -397,7 +397,7 @@ int FASTCALL __rep_send_message(ENV * env, int eid, uint32 rtype, DB_LSN * lsnp,
 	 * I don't think it's worth grabbing the mutex for that bit of
 	 * extra accuracy.
 	 */
-	if(ret != 0) {
+	if(ret) {
 		RPRINT(env, (env, DB_VERB_REP_MSGS, "rep_send_function returned: %d", ret));
 #ifdef HAVE_STATISTICS
 		rep->stat.st_msgs_send_failures++;
@@ -569,7 +569,7 @@ int __rep_new_master(ENV*env, __rep_control_args * cntrl, int eid)
 			CLR_RECOVERY_SETTINGS(rep);
 		}
 		MUTEX_UNLOCK(env, rep->mtx_clientdb);
-		if(ret != 0) {
+		if(ret) {
 			/* @todo consider add'l error recovery steps. */
 			goto errlck;
 		}
@@ -633,7 +633,7 @@ int __rep_new_master(ENV*env, __rep_control_args * cntrl, int eid)
 		   (rep->sync_state != SYNC_OFF ||
 		    LOG_COMPARE(&lsn, &cntrl->lsn) < 0)) {
 			ret = __rep_resend_req(env, 0);
-			if(ret != 0)
+			if(ret)
 				RPRINT(env, (env, DB_VERB_REP_MISC,
 					     "resend_req ret is %lu", (ulong)ret));
 		}
@@ -678,7 +678,7 @@ int __rep_new_master(ENV*env, __rep_control_args * cntrl, int eid)
 			ret = t_ret;
 		if(ret == DB_NOTFOUND)
 			goto notfound;
-		else if(ret != 0)
+		else if(ret)
 			goto err;
 		if(cntrl->lsn.file < first_lsn.file)
 			goto notfound;
@@ -690,7 +690,7 @@ int __rep_new_master(ENV*env, __rep_control_args * cntrl, int eid)
 		ret = t_ret;
 	if(ret == DB_NOTFOUND)
 		goto notfound;
-	else if(ret != 0)
+	else if(ret)
 		goto err;
 	/*
 	 * Finally, we have a record to ask for.
@@ -2278,7 +2278,7 @@ retry:
 		 * If we have any kind of error at this point, bail.
 		 * Otherwise pause and try again.
 		 */
-		if(ret != 0)
+		if(ret)
 			goto err;
 		__os_yield(env, 0, 10000); /* Arbitrary duration. */
 		goto retry;

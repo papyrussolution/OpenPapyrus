@@ -1156,13 +1156,13 @@ generic_string getDateTimeStrFrom(const generic_string& dateTimeFormat, const SY
 
 	// 2. Format the time (h/m/s/t/H).
 	ret = GetTimeFormatEx(localeName, flags, &st, newFormat.c_str(), buffer, bufferSize);
-	if(ret != 0) {
+	if(ret) {
 		// 3. Format the date (d/y/g/M).
 		// Now use the buffer as a format string to process the format specifiers not recognized by
 		// GetTimeFormatEx().
 		ret = GetDateFormatEx(localeName, flags, &st, buffer, buffer, bufferSize, nullptr);
 	}
-	if(ret != 0) {
+	if(ret) {
 		if(hasMiddayFormat) {
 			// 4. Now format only the AM/PM string.
 			const generic_string midday = getMiddayString(localeName, st);

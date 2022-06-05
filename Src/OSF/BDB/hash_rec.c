@@ -757,7 +757,7 @@ int __ham_metagroup_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, 
 		ret = __memp_fget(mpf, &pgno, ip, NULL, DB_MPOOL_CREATE, &pagep);
 	else if(ret == DB_PAGE_NOTFOUND)
 		goto do_meta;
-	if(ret != 0) {
+	if(ret) {
 		if(ret != ENOSPC)
 			goto out;
 		pgno = 0;
@@ -1288,7 +1288,7 @@ static int __ham_chgpg_recover_func(DBC * cp, DBC * my_dbc, uint32 * countp, db_
 		MUTEX_UNLOCK(cp->dbp->env, cp->dbp->mutex);
 		ret = __dbc_close(lcp->opd);
 		MUTEX_LOCK(cp->dbp->env, cp->dbp->mutex);
-		if(ret != 0)
+		if(ret)
 			return ret;
 		lcp->opd = NULL;
 		break;
@@ -1374,7 +1374,7 @@ int __ham_metagroup_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops o
 	pagep = NULL;
 	LF_SET(DB_MPOOL_CREATE);
 	ret = __memp_fget(mpf, &pgno, ip,  NULL, flags, &pagep);
-	if(ret != 0) {
+	if(ret) {
 		if(ret != ENOSPC)
 			goto out;
 		pgno = 0;

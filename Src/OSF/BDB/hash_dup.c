@@ -489,13 +489,12 @@ static int __ham_check_move(DBC * dbc, uint32 add_len)
 	F_CLR(hcp, H_DELETED);
 	return ret;
 err:
-	if(new_pagep != NULL)
+	if(new_pagep)
 		__memp_fput(mpf, dbc->thread_info, new_pagep, dbc->priority);
-	if(next_pagep != NULL && next_pagep != hcp->page && next_pagep != new_pagep)
+	if(next_pagep && next_pagep != hcp->page && next_pagep != new_pagep)
 		__memp_fput(mpf, dbc->thread_info, next_pagep, dbc->priority);
 	return ret;
 }
-
 /*
  * __ham_move_offpage --
  *	Replace an onpage set of duplicates with the OFFDUP structure
@@ -572,21 +571,19 @@ static int __ham_move_offpage(DBC * dbc, PAGE * pagep, uint32 ndx, db_pgno_t pgn
 void __ham_dsearch(DBC * dbc, DBT * dbt, uint32 * offp, int * cmpp, uint32 flags)
 {
 	DBT cur;
-	db_indx_t i, len;
-	int (*func)(DB*, const DBT*, const DBT *);
-	uint8 * data;
+	db_indx_t len;
+	//int (*func)(DB*, const DBT*, const DBT *);
 	DB * dbp = dbc->dbp;
 	HASH_CURSOR * hcp = (HASH_CURSOR *)dbc->internal;
-	func = dbp->dup_compare == NULL ? __bam_defcmp : dbp->dup_compare;
-	i = F_ISSET(hcp, H_CONTINUE) ? hcp->dup_off : 0;
-	data = HKEYDATA_DATA(H_PAIRDATA(dbp, hcp->page, hcp->indx))+i;
+	int (*func)(DB*, const DBT*, const DBT *) = (dbp->dup_compare == NULL) ? __bam_defcmp : dbp->dup_compare;
+	db_indx_t i = F_ISSET(hcp, H_CONTINUE) ? hcp->dup_off : 0;
+	uint8 * data = HKEYDATA_DATA(H_PAIRDATA(dbp, hcp->page, hcp->indx))+i;
 	hcp->dup_tlen = LEN_HDATA(dbp, hcp->page, dbp->pgsize, hcp->indx);
 	len = hcp->dup_len;
 	while(i < hcp->dup_tlen) {
 		memcpy(&len, data, sizeof(db_indx_t));
 		data += sizeof(db_indx_t);
 		DB_SET_DBT(cur, data, len);
-
 		/*
 		 * If we find an exact match, we're done.  If in a sorted
 		 * duplicate set and the item is larger than our test item,

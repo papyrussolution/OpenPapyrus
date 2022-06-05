@@ -6,12 +6,10 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <ImageView
+    <ImageView style="@style/OuterImage_Side"
         android:id="@+id/ORDERPREREQ_GOODS_IMG"
         android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:padding="2dp"
-        android:layout_margin="2dp">
+        android:layout_height="64dp">
     </ImageView>
     <LinearLayout
         android:layout_width="match_parent"

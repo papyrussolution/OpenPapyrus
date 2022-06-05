@@ -363,7 +363,7 @@ int __bam_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 			goto err;
 		ret = __memp_fput(mpf, ip, meta, dbp->priority);
 		meta = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/* Build the root page. */
 		pgno = 1;
@@ -375,7 +375,7 @@ int __bam_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 			goto err;
 		ret = __memp_fput(mpf, ip, root, dbp->priority);
 		root = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	else {

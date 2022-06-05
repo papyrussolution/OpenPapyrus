@@ -14,7 +14,7 @@ void _libssh2_mbedtls_init(void)
 	mbedtls_entropy_init(&_libssh2_mbedtls_entropy);
 	mbedtls_ctr_drbg_init(&_libssh2_mbedtls_ctr_drbg);
 	ret = mbedtls_ctr_drbg_seed(&_libssh2_mbedtls_ctr_drbg, mbedtls_entropy_func, &_libssh2_mbedtls_entropy, NULL, 0);
-	if(ret != 0)
+	if(ret)
 		mbedtls_ctr_drbg_free(&_libssh2_mbedtls_ctr_drbg);
 }
 
@@ -408,7 +408,7 @@ int _libssh2_mbedtls_pub_priv_keyfile(LIBSSH2_SESSION * session, uchar ** method
 	int ret;
 	mbedtls_pk_init(&pkey);
 	ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase);
-	if(ret != 0) {
+	if(ret) {
 		mbedtls_strerror(ret, (char *)buf, sizeof(buf));
 		mbedtls_pk_free(&pkey);
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE, buf);
@@ -427,7 +427,7 @@ int _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION * session, uchar ** 
 	int ret;
 	mbedtls_pk_init(&pkey);
 	ret = mbedtls_pk_parse_key(&pkey, (uchar *)privatekeydata, privatekeydata_len, NULL, 0);
-	if(ret != 0) {
+	if(ret) {
 		mbedtls_strerror(ret, (char *)buf, sizeof(buf));
 		mbedtls_pk_free(&pkey);
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE, buf);

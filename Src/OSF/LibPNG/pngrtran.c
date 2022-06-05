@@ -877,7 +877,7 @@ void PNGAPI png_set_read_user_transform_fn(png_structrp png_ptr, png_user_transf
  * the [file] gamma and screen_gamma are not close reciprocals, otherwise it
  * slows things down slightly, and also needlessly introduces small errors.
  */
-static int /* PRIVATE */ png_gamma_threshold(png_fixed_point screen_gamma, png_fixed_point file_gamma)
+static int /*PRIVATE*/ png_gamma_threshold(png_fixed_point screen_gamma, png_fixed_point file_gamma)
 {
 	/* PNG_GAMMA_THRESHOLD is the threshold for performing gamma
 	 * correction as a difference of the overall transform from 1.0
@@ -901,7 +901,7 @@ static int /* PRIVATE */ png_gamma_threshold(png_fixed_point screen_gamma, png_f
  * The intent is that these two routines should have palette or rgb operations
  * extracted from 'png_init_read_transformations'.
  */
-static void /* PRIVATE */ png_init_palette_transformations(png_structrp png_ptr)
+static void /*PRIVATE*/ png_init_palette_transformations(png_structrp png_ptr)
 {
 	/* Called to handle the (input) palette case.  In png_do_read_transformations
 	 * the first step is to expand the palette if requested, so this code must
@@ -975,7 +975,7 @@ static void /* PRIVATE */ png_init_palette_transformations(png_structrp png_ptr)
 #endif /* READ_EXPAND && READ_BACKGROUND */
 }
 
-static void /* PRIVATE */ png_init_rgb_transformations(png_structrp png_ptr)
+static void /*PRIVATE*/ png_init_rgb_transformations(png_structrp png_ptr)
 {
 	/* Added to libpng-1.5.4: check the color type to determine whether there
 	 * is any alpha or transparency in the image and simply cancel the
@@ -1052,7 +1052,7 @@ static void /* PRIVATE */ png_init_rgb_transformations(png_structrp png_ptr)
 #endif /* READ_EXPAND && READ_BACKGROUND */
 }
 
-void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
+void /*PRIVATE*/ png_init_read_transformations(png_structrp png_ptr)
 {
 	png_debug(1, "in " __FUNCTION__);
 	/* This internal function is called from png_read_start_row in pngrutil.c
@@ -1613,7 +1613,7 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
  * info should be updated so a PNG file could be written with it,
  * assuming the transformations result in valid PNG data.
  */
-void /* PRIVATE */ png_read_transform_info(png_structrp png_ptr, png_inforp info_ptr)
+void /*PRIVATE*/ png_read_transform_info(png_structrp png_ptr, png_inforp info_ptr)
 {
 	png_debug(1, "in " __FUNCTION__);
 #ifdef PNG_READ_EXPAND_SUPPORTED
@@ -3872,7 +3872,7 @@ static void png_do_quantize(png_row_infop row_info, png_bytep row, png_const_byt
  * and is very touchy.  If you add a transformation, take care to
  * decide how it fits in with the other transformations here.
  */
-void /* PRIVATE */ png_do_read_transformations(png_structrp png_ptr, png_row_infop row_info)
+void /*PRIVATE*/ png_do_read_transformations(png_structrp png_ptr, png_row_infop row_info)
 {
 	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr->row_buf == NULL) {

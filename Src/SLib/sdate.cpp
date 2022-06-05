@@ -1804,6 +1804,28 @@ bool FASTCALL STimeChunk::ContainsIn(const STimeChunk & rDur) const
 	return (Intersect(rDur, &result) && *this == result);
 }
 
+bool STimeChunk::GetUnionIfIntersected(const STimeChunk & rOther, STimeChunk * pResult) const
+{
+	bool   ok = false;
+	STimeChunk is;
+	if(Intersect(rOther, &is)) {
+		STimeChunk result;
+		int sc = ::cmp(Start, rOther.Start);
+		int fc = ::cmp(Finish, rOther.Finish);
+		if(sc < 0)
+			result.Start = Start;
+		else
+			result.Start = rOther.Start;
+		if(fc > 0)
+			result.Finish = Finish;
+		else
+			result.Finish = rOther.Finish;
+		ASSIGN_PTR(pResult, result);
+		ok = true;
+	}
+	return ok;
+}
+
 bool FASTCALL STimeChunk::Has(const LDATETIME & rTm) const { return (::cmp(rTm, Start) >= 0 && ::cmp(rTm, Finish) <= 0); }
 
 bool FASTCALL STimeChunk::Intersect(const STimeChunk & test, STimeChunk * pResult) const

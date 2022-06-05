@@ -509,7 +509,7 @@ static int __ham_vrfy_bucket(DB * dbp, VRFY_DBINFO * vdp, HMETA * m, uint32 buck
 		next_pgno = pip->next_pgno;
 		ret = __db_vrfy_putpageinfo(env, vdp, pip);
 		pip = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		if(next_pgno == PGNO_INVALID)
 			break; /* End of the bucket. */

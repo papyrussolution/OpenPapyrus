@@ -181,7 +181,7 @@ int __txn_begin(ENV*env, DB_THREAD_INFO * ip, DB_TXN * parent, DB_TXN ** txnpp, 
 				parent = NULL;
 				ret = 0;
 			}
-			if(ret != 0)
+			if(ret)
 				goto err;
 		}
 		/*
@@ -593,7 +593,7 @@ int __txn_commit(DB_TXN * txn, uint32 flags)
 			}
 			if(request.obj && request.obj->data)
 				__os_free(env, request.obj->data);
-			if(ret != 0)
+			if(ret)
 				goto err;
 		}
 		else {
@@ -620,7 +620,7 @@ int __txn_commit(DB_TXN * txn, uint32 flags)
 		__db_txnlist_end(env, (DB_TXNHEAD *)txn->txn_list);
 		txn->txn_list = NULL;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * Check for master leases at the end of only a normal commit.
@@ -681,7 +681,7 @@ static int __txn_close_cursors(DB_TXN * txn)
 			ret = __dbc_close(dbc);
 		dbc->txn = NULL;
 		/* We have to close all cursors anyway, so continue on error. */
-		if(ret != 0) {
+		if(ret) {
 			__db_err(dbc->env, ret, "__dbc_close");
 			if(tret == 0)
 				tret = ret;
@@ -966,7 +966,7 @@ int __txn_prepare(DB_TXN * txn, uint8 * gid)
 			__db_err(env, ret, DB_STR("4528", "DB_TXN->prepare: log_write failed"));
 		if(request.obj && request.obj->data)
 			__os_free(env, request.obj->data);
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	MUTEX_LOCK(env, txn->mgrp->mutex);
@@ -1381,7 +1381,7 @@ static int __txn_undo(DB_TXN * txn)
 		rdbt.size = 0;
 		LSN_NOT_LOGGED(key_lsn);
 		ret = __txn_dispatch_undo(env, txn, &rdbt, &key_lsn, txnlist);
-		if(ret != 0) {
+		if(ret) {
 			__db_err(env, ret, DB_STR("4536", "DB_TXN->abort: in-memory log undo failed"));
 			goto err;
 		}
@@ -1397,7 +1397,7 @@ static int __txn_undo(DB_TXN * txn)
 		if((ret = __logc_get(logc, &key_lsn, &rdbt, DB_SET)) == 0) {
 			ret = __txn_dispatch_undo(env, txn, &rdbt, &key_lsn, txnlist);
 		}
-		if(ret != 0) {
+		if(ret) {
 			__db_err(env, ret, DB_STR_A("4537", "DB_TXN->abort: log undo failed for LSN: %lu %lu", "%lu %lu"), (ulong)key_lsn.file, (ulong)key_lsn.Offset_);
 			goto err;
 		}

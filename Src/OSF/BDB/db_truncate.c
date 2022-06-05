@@ -105,7 +105,7 @@ int __db_truncate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 * countp)
 				break;
 		if(sdbp)
 			__db_s_done(sdbp, txn);
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	DB_TEST_RECOVERY(dbp, DB_TEST_PREDESTROY, ret, 0);

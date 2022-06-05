@@ -2217,7 +2217,7 @@ int xmlPatternMatch(xmlPattern * comp, xmlNode * P_Node)
 	else {
 		while(comp) {
 			ret = xmlPatMatch(comp, P_Node);
-			if(ret != 0)
+			if(ret)
 				return ret;
 			comp = comp->next;
 		}

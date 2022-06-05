@@ -212,7 +212,7 @@ void PNGAPI png_set_invert_mono(png_structrp png_ptr)
 }
 
 /* Invert monochrome grayscale data */
-void /* PRIVATE */ png_do_invert(png_row_infop row_info, png_bytep row)
+void /*PRIVATE*/ png_do_invert(png_row_infop row_info, png_bytep row)
 {
 	png_debug(1, "in " __FUNCTION__);
 	/* This test removed from libpng version 1.0.13 and 1.2.0:
@@ -256,7 +256,7 @@ void /* PRIVATE */ png_do_invert(png_row_infop row_info, png_bytep row)
 #ifdef PNG_16BIT_SUPPORTED
 #if defined(PNG_READ_SWAP_SUPPORTED) || defined(PNG_WRITE_SWAP_SUPPORTED)
 /* Swaps byte order on 16-bit depth images */
-void /* PRIVATE */ png_do_swap(png_row_infop row_info, png_bytep row)
+void /*PRIVATE*/ png_do_swap(png_row_infop row_info, png_bytep row)
 {
 	png_debug(1, "in " __FUNCTION__);
 	if(row_info->bit_depth == 16) {
@@ -386,7 +386,7 @@ static const uint8 fourbppswaptable[256] = {
 };
 
 /* Swaps pixel packing order within bytes */
-void /* PRIVATE */ png_do_packswap(png_row_infop row_info, png_bytep row)
+void /*PRIVATE*/ png_do_packswap(png_row_infop row_info, png_bytep row)
 {
 	png_debug(1, "in " __FUNCTION__);
 	if(row_info->bit_depth < 8) {
@@ -418,7 +418,7 @@ void /* PRIVATE */ png_do_packswap(png_row_infop row_info, png_bytep row)
  * The routine isn't general - the channel must be the channel at the start or
  * end (not in the middle) of each pixel.
  */
-void /* PRIVATE */ png_do_strip_channel(png_row_infop row_info, png_bytep row, int at_start)
+void /*PRIVATE*/ png_do_strip_channel(png_row_infop row_info, png_bytep row, int at_start)
 {
 	png_bytep sp = row; /* source pointer */
 	png_bytep dp = row; /* destination pointer */
@@ -521,7 +521,7 @@ void /* PRIVATE */ png_do_strip_channel(png_row_infop row_info, png_bytep row, i
 
 #if defined(PNG_READ_BGR_SUPPORTED) || defined(PNG_WRITE_BGR_SUPPORTED)
 /* Swaps red and blue bytes within a pixel */
-void /* PRIVATE */ png_do_bgr(png_row_infop row_info, png_bytep row)
+void /*PRIVATE*/ png_do_bgr(png_row_infop row_info, png_bytep row)
 {
 	png_debug(1, "in " __FUNCTION__);
 	if((row_info->color_type & PNG_COLOR_MASK_COLOR) != 0) {
@@ -581,7 +581,7 @@ void /* PRIVATE */ png_do_bgr(png_row_infop row_info, png_bytep row)
 
 #if defined(PNG_READ_CHECK_FOR_INVALID_INDEX_SUPPORTED) || defined(PNG_WRITE_CHECK_FOR_INVALID_INDEX_SUPPORTED)
 /* Added at libpng-1.5.10 */
-void /* PRIVATE */ png_do_check_palette_indexes(png_structrp png_ptr, png_row_infop row_info)
+void /*PRIVATE*/ png_do_check_palette_indexes(png_structrp png_ptr, png_row_infop row_info)
 {
 	if(png_ptr->num_palette < (1 << row_info->bit_depth) && png_ptr->num_palette > 0) { /* num_palette can be 0 in MNG files */
 		/* Calculations moved outside switch in an attempt to stop different

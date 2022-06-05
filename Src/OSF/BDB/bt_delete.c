@@ -228,7 +228,7 @@ int __bam_dpages(DBC*dbc, int use_top, int flags)
 		cp->csp = epg;
 		ret = __bam_pupdate(dbc, epg->page);
 		cp->csp = save_sp;
-		if(ret != 0)
+		if(ret)
 			goto discard;
 	}
 	pgno = PGNO(epg->page);
@@ -238,7 +238,7 @@ int __bam_dpages(DBC*dbc, int use_top, int flags)
 	epg->page = NULL;
 	if((t_ret = __TLPUT(dbc, epg->lock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0)
+	if(ret)
 		goto err_inc;
 	// Then, discard any pages that we don't care about.
 discard: 
@@ -249,7 +249,7 @@ discard:
 		if((t_ret = __TLPUT(dbc, epg->lock)) != 0 && ret == 0)
 			ret = t_ret;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/* Free the rest of the pages in the stack. */
 	while(++epg <= cp->csp) {
@@ -281,7 +281,7 @@ discard:
 		epg->page = NULL;
 		if((t_ret = __TLPUT(dbc, epg->lock)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto err_inc;
 	}
 	if(0) {

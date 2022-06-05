@@ -51,7 +51,7 @@ int __ham_compact_int(DBC * dbc, DBT * start, DBT * stop, uint32 factor, DB_COMP
 			DB_ASSERT(dbp->env, PREV_PGNO(hcp->page) == PGNO_INVALID && NEXT_PGNO(hcp->page) == PGNO_INVALID);
 			goto err;
 		}
-		else if(ret != 0)
+		else if(ret)
 			break;
 		c_data->compact_pages_examine++;
 		if(NEXT_PGNO(hcp->page) != PGNO_INVALID) {

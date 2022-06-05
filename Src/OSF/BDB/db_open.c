@@ -166,7 +166,7 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 			id = TXN_INVALID;
 			ret = __fop_file_setup(dbp, ip, txn, dname, mode, flags, &id);
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	switch(dbp->type) {
@@ -177,7 +177,7 @@ int __db_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * fname, c
 	    case DB_QUEUE:   ret = __qam_open(dbp, ip, txn, fname, meta_pgno, mode, flags); break;
 	    case DB_UNKNOWN: return __db_unknown_type(env, "__db_dbopen", dbp->type);
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 #ifdef HAVE_PARTITION
 	if(dbp->p_internal && (ret = __partition_open(dbp, ip, txn, fname, type, flags, mode, 1)) != 0)
@@ -327,7 +327,7 @@ int __db_chk_meta(ENV * env, DB * dbp, DBMETA * meta, uint32 flags)
 			swapped = 0;
 chk_retry:
 			ret = __db_check_chksum(env, NULL, env->crypto_handle, chksum, meta, DBMETASIZE, is_hmac);
-			if(ret != 0) {
+			if(ret) {
 				if(is_hmac || swapped)
 					return ret;
 				M_32_SWAP(orig_chk);

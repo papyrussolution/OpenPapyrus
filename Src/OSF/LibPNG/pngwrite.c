@@ -1707,7 +1707,7 @@ int PNGAPI png_image_write_to_memory(png_imagep image, void * memory, png_alloc_
 				// write_memory returns true even if we ran out of buffer. 
 				if(result) {
 					// On out-of-buffer this function returns '0' but still updates memory_bytes:
-					if(memory != NULL && display.output_bytes > *memory_bytes)
+					if(memory && display.output_bytes > *memory_bytes)
 						result = 0;
 					*memory_bytes = display.output_bytes;
 				}
@@ -1745,7 +1745,6 @@ int PNGAPI png_image_write_to_stdio(png_imagep image, FILE * file, int convert_t
 				display.row_stride = row_stride;
 				display.colormap = colormap;
 				display.convert_to_8bit = convert_to_8bit;
-
 				result = png_safe_execute(image, png_image_write_main, &display);
 				png_image_free(image);
 				return result;
@@ -1765,14 +1764,14 @@ int PNGAPI png_image_write_to_stdio(png_imagep image, FILE * file, int convert_t
 int PNGAPI png_image_write_to_file(png_imagep image, const char * file_name,
     int convert_to_8bit, const void * buffer, png_int_32 row_stride, const void * colormap)
 {
-	/* Write the image to the named file. */
+	// Write the image to the named file
 	if(image && image->version == PNG_IMAGE_VERSION) {
 		if(file_name && buffer) {
 			FILE * fp = fopen(file_name, "wb");
 			if(fp) {
 				if(png_image_write_to_stdio(image, fp, convert_to_8bit, buffer, row_stride, colormap) != 0) {
 					int error; /* from fflush/fclose */
-					/* Make sure the file is flushed correctly. */
+					// Make sure the file is flushed correctly
 					if(fflush(fp) == 0 && ferror(fp) == 0) {
 						if(fclose(fp) == 0)
 							return 1;
@@ -1780,16 +1779,16 @@ int PNGAPI png_image_write_to_file(png_imagep image, const char * file_name,
 					}
 					else {
 						error = errno; /* from fflush or ferror */
-						(void)fclose(fp);
+						fclose(fp);
 					}
-					(void)remove(file_name);
+					remove(file_name);
 					// The image has already been cleaned up; this is just used to set the error (because the original write succeeded).
 					return png_image_error(image, strerror(error));
 				}
 				else {
-					/* Clean up: just the opened file. */
-					(void)fclose(fp);
-					(void)remove(file_name);
+					// Clean up: just the opened file
+					fclose(fp);
+					remove(file_name);
 					return 0;
 				}
 			}

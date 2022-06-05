@@ -121,7 +121,7 @@ int __crdel_inmem_create_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops
 		 * If the dbreg failed, that means that we're creating a
 		 * tmp file.
 		 */
-		if(ret != 0) {
+		if(ret) {
 			if((ret = __db_create_internal(&dbp, env, 0)) != 0)
 				goto out;
 			F_SET(dbp, DB_AM_RECOVER|DB_AM_INMEM);
@@ -149,7 +149,7 @@ int __crdel_inmem_create_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops
 			if((ret = __env_mpool(dbp, PTRCHRC(argp->name.data), DB_CREATE)) != 0)
 				goto out;
 		}
-		else if(ret != 0)
+		else if(ret)
 			goto out;
 	}
 	if(DB_UNDO(op)) {

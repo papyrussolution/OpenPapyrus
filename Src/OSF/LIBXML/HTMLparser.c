@@ -4093,21 +4093,21 @@ static int htmlInitParserCtxt(htmlParserCtxt * ctxt)
 		return -1;
 	memzero(ctxt, sizeof(htmlParserCtxt));
 	ctxt->dict = xmlDictCreate();
-	if(ctxt->dict == NULL) {
-		htmlErrMemory(NULL, "htmlInitParserCtxt: out of memory\n");
+	if(!ctxt->dict) {
+		htmlErrMemory(NULL, __FUNCTION__ ": out of memory\n");
 		return -1;
 	}
 	sax = (htmlSAXHandler*)SAlloc::M(sizeof(htmlSAXHandler));
-	if(sax == NULL) {
-		htmlErrMemory(NULL, "htmlInitParserCtxt: out of memory\n");
+	if(!sax) {
+		htmlErrMemory(NULL, __FUNCTION__ ": out of memory\n");
 		return -1;
 	}
 	else
 		memzero(sax, sizeof(htmlSAXHandler));
 	// Allocate the Input stack 
 	ctxt->inputTab = (htmlParserInputPtr*)SAlloc::M(5 * sizeof(htmlParserInputPtr));
-	if(ctxt->inputTab == NULL) {
-		htmlErrMemory(NULL, "htmlInitParserCtxt: out of memory\n");
+	if(!ctxt->inputTab) {
+		htmlErrMemory(NULL, __FUNCTION__ ": out of memory\n");
 		ctxt->inputNr = 0;
 		ctxt->inputMax = 0;
 		ctxt->input = NULL;
@@ -4122,8 +4122,8 @@ static int htmlInitParserCtxt(htmlParserCtxt * ctxt)
 	ctxt->instate = XML_PARSER_START;
 	// Allocate the Node stack 
 	ctxt->PP_NodeTab = (htmlNodePtr*)SAlloc::M(10 * sizeof(htmlNodePtr));
-	if(ctxt->PP_NodeTab == NULL) {
-		htmlErrMemory(NULL, "htmlInitParserCtxt: out of memory\n");
+	if(!ctxt->PP_NodeTab) {
+		htmlErrMemory(NULL, __FUNCTION__ ": out of memory\n");
 		ctxt->nodeNr = 0;
 		ctxt->nodeMax = 0;
 		ctxt->P_Node = NULL;
@@ -4137,8 +4137,8 @@ static int htmlInitParserCtxt(htmlParserCtxt * ctxt)
 	ctxt->P_Node = NULL;
 	// Allocate the Name stack 
 	ctxt->nameTab = (const xmlChar **)SAlloc::M(10 * sizeof(xmlChar *));
-	if(ctxt->nameTab == NULL) {
-		htmlErrMemory(NULL, "htmlInitParserCtxt: out of memory\n");
+	if(!ctxt->nameTab) {
+		htmlErrMemory(NULL, __FUNCTION__ ": out of memory\n");
 		ctxt->nameNr = 0;
 		ctxt->nameMax = 0;
 		ctxt->name = NULL;
@@ -4156,7 +4156,7 @@ static int htmlInitParserCtxt(htmlParserCtxt * ctxt)
 	ctxt->nodeInfoTab = NULL;
 	ctxt->nodeInfoNr  = 0;
 	ctxt->nodeInfoMax = 0;
-	if(sax == NULL)
+	if(!sax)
 		ctxt->sax = (xmlSAXHandler *)&htmlDefaultSAXHandler;
 	else {
 		ctxt->sax = sax;
@@ -4202,7 +4202,7 @@ htmlParserCtxt * htmlNewParserCtxt()
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)SAlloc::M(sizeof(xmlParserCtxt));
 	if(!ctxt)
-		htmlErrMemory(NULL, "NewParserCtxt: out of memory\n");
+		htmlErrMemory(NULL, __FUNCTION__ ": out of memory\n");
 	else {
 		memzero(ctxt, sizeof(xmlParserCtxt));
 		if(htmlInitParserCtxt(ctxt) < 0) {

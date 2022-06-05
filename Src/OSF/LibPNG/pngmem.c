@@ -22,7 +22,7 @@
 
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
 /* Free a png_struct */
-void /* PRIVATE */ png_destroy_png_struct(png_structrp png_ptr)
+void /*PRIVATE*/ png_destroy_png_struct(png_structrp png_ptr)
 {
 	if(png_ptr) {
 		/* png_free might call png_error and may certainly call
@@ -56,7 +56,7 @@ PNG_ALLOCATED void * PNGAPI png_calloc(png_const_structrp png_ptr, png_alloc_siz
  * Checking and error handling must happen outside this routine; it returns NULL
  * if the allocation cannot be done (for any reason.)
  */
-PNG_ALLOCATED void * /* PRIVATE */ png_malloc_base(png_const_structrp png_ptr, png_alloc_size_t size)
+PNG_ALLOCATED void * /*PRIVATE*/ png_malloc_base(png_const_structrp png_ptr, png_alloc_size_t size)
 {
 	/* Moved to png_malloc_base from png_malloc_default in 1.6.0; the DOS
 	 * allocators have also been removed in 1.6.0, so any 16-bit system now has
@@ -98,14 +98,14 @@ static void * png_malloc_array_checked(png_const_structrp png_ptr, int nelements
 	return NULL; // The failure case when the request is too large 
 }
 
-PNG_ALLOCATED void * /* PRIVATE */ png_malloc_array(png_const_structrp png_ptr, int nelements, size_t element_size)
+PNG_ALLOCATED void * /*PRIVATE*/ png_malloc_array(png_const_structrp png_ptr, int nelements, size_t element_size)
 {
 	if(nelements <= 0 || element_size == 0)
 		png_error(png_ptr, "internal error: array alloc");
 	return png_malloc_array_checked(png_ptr, nelements, element_size);
 }
 
-PNG_ALLOCATED void * /* PRIVATE */ png_realloc_array(png_const_structrp png_ptr, const void * old_array, int old_elements, int add_elements, size_t element_size)
+PNG_ALLOCATED void * /*PRIVATE*/ png_realloc_array(png_const_structrp png_ptr, const void * old_array, int old_elements, int add_elements, size_t element_size)
 {
 	/* These are internal errors: */
 	if(add_elements <= 0 || element_size == 0 || old_elements < 0 || (old_array == NULL && old_elements > 0))

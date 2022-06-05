@@ -190,7 +190,7 @@ int __db_big_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void * 
 		LSN(pagep) = DB_REDO(op) ? *lsnp : argp->pagelsn;
 	ret = __memp_fput(mpf, ip, pagep, file_dbp->priority);
 	pagep = NULL;
-	if(ret != 0)
+	if(ret)
 		goto out;
 	/*
 	 * We only delete a whole chain of overflow items, and appends only
@@ -225,7 +225,7 @@ ppage:  if(opcode != DB_ADD_BIG)
 			LSN(pagep) = DB_REDO(op) ? *lsnp : argp->prevlsn;
 		ret = __memp_fput(mpf, ip, pagep, file_dbp->priority);
 		pagep = NULL;
-		if(ret != 0)
+		if(ret)
 			goto out;
 	}
 	pagep = NULL;
@@ -253,7 +253,7 @@ npage:  if(argp->next_pgno != PGNO_INVALID) {
 			LSN(pagep) = DB_REDO(op) ? *lsnp : argp->nextlsn;
 		ret = __memp_fput(mpf, ip, pagep, file_dbp->priority);
 		pagep = NULL;
-		if(ret != 0)
+		if(ret)
 			goto out;
 	}
 	pagep = NULL;
@@ -332,7 +332,7 @@ int __db_big_42_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void
 		LSN(pagep) = DB_REDO(op) ? *lsnp : argp->pagelsn;
 	ret = __memp_fput(mpf, ip, pagep, file_dbp->priority);
 	pagep = NULL;
-	if(ret != 0)
+	if(ret)
 		goto out;
 	/*
 	 * We only delete a whole chain of overflow items, and appends only
@@ -366,7 +366,7 @@ ppage:
 			LSN(pagep) = DB_REDO(op) ? *lsnp : argp->prevlsn;
 		ret = __memp_fput(mpf, ip, pagep, file_dbp->priority);
 		pagep = NULL;
-		if(ret != 0)
+		if(ret)
 			goto out;
 	}
 	pagep = NULL;
@@ -393,7 +393,7 @@ npage:
 			LSN(pagep) = DB_REDO(op) ? *lsnp : argp->nextlsn;
 		ret = __memp_fput(mpf, ip, pagep, file_dbp->priority);
 		pagep = NULL;
-		if(ret != 0)
+		if(ret)
 			goto out;
 	}
 	pagep = NULL;
@@ -445,7 +445,7 @@ int __db_ovref_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 	}
 	ret = __memp_fput(mpf, ip, pagep, file_dbp->priority);
 	pagep = NULL;
-	if(ret != 0)
+	if(ret)
 		goto out;
 	pagep = NULL;
 done:
@@ -697,12 +697,12 @@ do_truncate:
 	if(pagep) {
 		ret = __memp_fput(mpf, ip, pagep, file_dbp->priority);
 		pagep = NULL;
-		if(ret != 0)
+		if(ret)
 			goto out;
 	}
 	ret = __memp_fput(mpf, ip, meta, file_dbp->priority);
 	meta = NULL;
-	if(ret != 0)
+	if(ret)
 		goto out;
 done:
 	*lsnp = argp->prev_lsn;
@@ -2020,7 +2020,7 @@ err:
 				if((t_ret = __lock_vec(file_dbp->env, dbc->locker, 0, &request, 1, NULL)) != 0 && ret == 0)
 					ret = t_ret;
 				F_SET(file_dbp, DB_AM_RECOVER);
-				if(ret != 0)
+				if(ret)
 					goto out;
 			}
 		}

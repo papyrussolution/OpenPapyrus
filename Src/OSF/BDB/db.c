@@ -152,7 +152,7 @@ int __db_master_update(DB * mdbp, DB * sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, 
 		 * doesn't exist, we won't get this far;  __db_subdb_remove
 		 * will already have returned an error from __db_open.
 		 */
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/*
 		 * Delete the subdatabase entry first;  if this fails,
@@ -188,7 +188,7 @@ int __db_master_update(DB * mdbp, DB * sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, 
 		break;
 	    case MU_RENAME:
 		/* We should have found something if we're renaming it. */
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/*
 		 * Before we rename, we need to make sure we're not
@@ -284,7 +284,7 @@ int __db_master_update(DB * mdbp, DB * sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, 
 
 	    case MU_MOVE:
 		/* We should have found something if we're moving it. */
-		if(ret != 0)
+		if(ret)
 			goto err;
 		t_pgno = sdbp->meta_pgno;
 		DB_HTONL_SWAP(env, &t_pgno);
@@ -1051,7 +1051,7 @@ loop:
 		if(ret == DB_LOCK_NOTGRANTED)
 			goto loop;
 		MUTEX_UNLOCK(env, ldbp->mutex);
-		if(ret != 0)
+		if(ret)
 			break;
 	}
 	MUTEX_UNLOCK(env, env->mtx_dblist);

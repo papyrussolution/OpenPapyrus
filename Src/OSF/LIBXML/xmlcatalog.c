@@ -200,7 +200,7 @@ static void usershell()
 						ret = xmlCatalogAdd(BAD_CAST argv[0], NULL, BAD_CAST argv[1]);
 					else
 						ret = xmlCatalogAdd(BAD_CAST argv[0], BAD_CAST argv[1], BAD_CAST argv[2]);
-					if(ret != 0)
+					if(ret)
 						printf("add command failed\n");
 				}
 			}
@@ -212,7 +212,7 @@ static void usershell()
 						ret = xmlCatalogAdd(BAD_CAST argv[0], NULL, BAD_CAST argv[1]);
 					else
 						ret = xmlCatalogAdd(BAD_CAST argv[0], BAD_CAST argv[1], BAD_CAST argv[2]);
-					if(ret != 0)
+					if(ret)
 						printf("add command failed\n");
 				}
 			}
@@ -483,7 +483,7 @@ int main(int argc, char ** argv)
 						ret = xmlCatalogAdd(BAD_CAST argv[i+1], NULL, BAD_CAST argv[i+2]);
 					else
 						ret = xmlCatalogAdd(BAD_CAST argv[i+1], BAD_CAST argv[i+2], BAD_CAST argv[i + 3]);
-					if(ret != 0) {
+					if(ret) {
 						printf("add command failed\n");
 						exit_value = 3;
 					}

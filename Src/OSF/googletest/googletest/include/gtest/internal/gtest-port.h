@@ -278,32 +278,35 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif  // !_WIN32_WCE
-
 #if defined __APPLE__
-#include <AvailabilityMacros.h>
-#include <TargetConditionals.h>
+	#include <AvailabilityMacros.h>
+	#include <TargetConditionals.h>
 #endif
-
 #include "gtest/internal/custom/gtest-port.h"
 #include "gtest/internal/gtest-port-arch.h"
-
 #if GTEST_HAS_ABSL
-#include "absl/flags/declare.h"
-#include "absl/flags/flag.h"
-#include "absl/flags/reflection.h"
+	#include "absl/base/config.h"
+	#include "absl/base/internal/inline_variable.h"
+	#include "absl/base/internal/invoke.h"
+	#include "absl/meta/type_traits.h"
+	#include "absl/utility/utility.h"
+	#include "absl/types/optional.h"
+	#include "absl/synchronization/mutex.h"
+	#include "absl/flags/commandlineflag.h"
+	#include "absl/flags/declare.h"
+	#include "absl/flags/flag.h"
+	#include "absl/flags/reflection.h"
 #endif
-
 #if !defined(GTEST_DEV_EMAIL_)
-#define GTEST_DEV_EMAIL_ "googletestframework@@googlegroups.com"
-#define GTEST_FLAG_PREFIX_ "gtest_"
-#define GTEST_FLAG_PREFIX_DASH_ "gtest-"
-#define GTEST_FLAG_PREFIX_UPPER_ "GTEST_"
-#define GTEST_NAME_ "Google Test"
-#define GTEST_PROJECT_URL_ "https://github.com/google/googletest/"
+	#define GTEST_DEV_EMAIL_ "googletestframework@@googlegroups.com"
+	#define GTEST_FLAG_PREFIX_ "gtest_"
+	#define GTEST_FLAG_PREFIX_DASH_ "gtest-"
+	#define GTEST_FLAG_PREFIX_UPPER_ "GTEST_"
+	#define GTEST_NAME_ "Google Test"
+	#define GTEST_PROJECT_URL_ "https://github.com/google/googletest/"
 #endif  // !defined(GTEST_DEV_EMAIL_)
-
 #if !defined(GTEST_INIT_GOOGLE_TEST_NAME_)
-#define GTEST_INIT_GOOGLE_TEST_NAME_ "testing::InitGoogleTest"
+	#define GTEST_INIT_GOOGLE_TEST_NAME_ "testing::InitGoogleTest"
 #endif  // !defined(GTEST_INIT_GOOGLE_TEST_NAME_)
 
 // Determines the version of gcc that is used to compile this.

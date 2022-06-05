@@ -354,7 +354,7 @@ int __dbreg_assign_id(DB*dbp, int32 id, int deleted)
 			ret = 0;
 			goto cont;
 		}
-		else if(ret != 0)
+		else if(ret)
 			goto err;
 		if((ret = __dbreg_revoke_id(close_dbp, 1, DB_LOGFILEID_INVALID)) != 0)
 			goto err;

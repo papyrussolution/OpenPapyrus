@@ -165,4 +165,10 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:textColor">@color/TextPrimary</item>
     </style>
+    <style name="OuterImage_Side">
+        <item name="android:padding">2dp</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <!-- <item name="android:background">@drawable/shape_frame_outer_image</item> -->
+    </style>
 </resources>

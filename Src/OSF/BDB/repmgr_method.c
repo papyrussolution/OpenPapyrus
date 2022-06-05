@@ -155,7 +155,7 @@ int __repmgr_start(DB_ENV * dbenv, int nthreads, uint32 flags)
 			ENV_LEAVE(env, ip);
 		}
 	}
-	if(ret != 0)
+	if(ret)
 		return ret;
 	DB_ASSERT(env, start_master || SITE_FROM_EID(db_rep->self_eid)->membership == SITE_PRESENT);
 	/*
@@ -262,7 +262,7 @@ int __repmgr_start(DB_ENV * dbenv, int nthreads, uint32 flags)
 			ret = __repmgr_become_master(env);
 			/* No other repmgr threads running yet. */
 			DB_ASSERT(env, ret != DB_REP_UNAVAIL);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			need_masterseek = FALSE;
 		}
@@ -422,7 +422,7 @@ static int __repmgr_restart(ENV*env, int nthreads, uint32 flags)
 		ret = __repmgr_become_client(env);
 	else if(FLD_ISSET(cur_repflags, REP_F_CLIENT) && flags == DB_REP_MASTER)
 		ret = __repmgr_become_master(env);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(nthreads == 0)
 		return 0;
@@ -511,7 +511,7 @@ int __repmgr_autostart(ENV*env)
 		ret = 0;
 	else
 		ret = __repmgr_init(env);
-	if(ret != 0)
+	if(ret)
 		goto out;
 	RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Automatically joining existing repmgr env"));
 	/*
@@ -899,7 +899,7 @@ int __repmgr_channel(DB_ENV * dbenv, int eid, DB_CHANNEL ** dbchannelp, uint32 f
 	*dbchannelp = dbchannel;
 
 err:
-	if(ret != 0) {
+	if(ret) {
 		if(conn != NULL)
 			__repmgr_disable_connection(env, conn);
 		if(channel != NULL) {
@@ -1019,7 +1019,7 @@ static int establish_connection(ENV*env, int eid, REPMGR_CONNECTION ** connp)
 out:
 	if(locked)
 		UNLOCK_MUTEX(db_rep->mutex);
-	if(ret != 0) {
+	if(ret) {
 		/*
 		 * Since we can't have given the connection to the select()
 		 * thread yet, clean-up is as simple as this:
@@ -1275,7 +1275,7 @@ int __repmgr_send_request(DB_CHANNEL*db_channel, DBT * request, uint32 nrequest,
 	ENV_ENTER(env, ip);
 	ret = get_channel_connection(channel, &conn);
 	ENV_LEAVE(env, ip);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(conn == NULL)
 		return request_self(env, request, nrequest, response, flags);
@@ -1328,7 +1328,7 @@ int __repmgr_send_request(DB_CHANNEL*db_channel, DBT * request, uint32 nrequest,
 		F_CLR(&conn->responses[i], RESP_IN_USE|RESP_THREAD_WAITING);
 	UNLOCK_MUTEX(db_rep->mutex);
 	__os_free(env, iovecs);
-	if(ret != 0) {
+	if(ret) {
 		/*
 		 * An error while writing will force the connection to be
 		 * closed, busted, abandoned.  Since there could be a few app
@@ -1930,7 +1930,7 @@ retry:
 		if((t_ret = __repmgr_destroy_conn(env, conn)) != 0 && ret == 0)
 			ret = t_ret;
 		conn = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		ret = __repmgr_gm_fwd_unmarshal(env, &fwd, response_buf, len, &p);
 		DB_ASSERT(env, ret == 0);
@@ -2113,7 +2113,7 @@ static int site_by_addr(ENV * env, const char * host, uint port, DB_SITE ** site
 		ENV_LEAVE(env, ip);
 		UNLOCK_MUTEX(db_rep->mutex);
 	}
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if((ret = init_dbsite(env, eid, host, port, &dbsite)) != 0)
 		return ret;

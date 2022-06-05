@@ -180,7 +180,7 @@ static int __hamc_close(DBC*dbc, db_pgno_t root_pgno, int * rmroot)
 		}
 	}
 out:    
-	if(ret != 0)
+	if(ret)
 		F_SET(dbc, DBC_ERROR);
 	if((t_ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
@@ -904,7 +904,7 @@ static int __hamc_put(DBC*dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t * 
 		}
 		else if(ret == 0 && flags == DB_NOOVERWRITE && !F_ISSET(hcp, H_DELETED)) {
 			ret = (*pgnop == PGNO_INVALID) ? DB_KEYEXIST : __bam_opd_exists(dbc, *pgnop);
-			if(ret != 0)
+			if(ret)
 				goto done;
 		}
 		break;
@@ -1429,7 +1429,7 @@ int __ham_overwrite(DBC*dbc, DBT * nval, uint32 flags)
 			ret = __ham_replpair(dbc, &tmp_val2, H_DUPLICATE);
 			__os_free(env, newrec);
 			/* Update cursor */
-			if(ret != 0)
+			if(ret)
 				return ret;
 			if(newsize > nondup_size) {
 				if((ret = __hamc_update(dbc, (newsize-nondup_size), DB_HAM_CURADJ_ADDMOD, 1)) != 0)

@@ -37,7 +37,7 @@ int __env_dbrename_pp(DB_ENV * dbenv, DB_TXN * txn, const char * name, const cha
 		return ret;
 	ENV_ENTER(env, ip);
 	XA_NO_TXN(ip, ret);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/* Check for replication block. */
 	handle_check = IS_ENV_REPLICATED(env);
@@ -268,7 +268,7 @@ static int __db_subdb_rename(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const 
 		goto err;
 	ret = __memp_fput(mdbp->mpf, ip, meta, dbp->priority);
 	meta = NULL;
-	if(ret != 0)
+	if(ret)
 		goto err;
 	if((ret = __db_master_update(mdbp, dbp, ip, txn, subdb, dbp->type, MU_RENAME, newname, 0)) != 0)
 		goto err;

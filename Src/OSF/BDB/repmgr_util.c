@@ -441,7 +441,7 @@ int __repmgr_repstart(ENV * env, uint32 flags)
 		return ret;
 	ret = __rep_start_int(env, &my_addr, flags);
 	__os_free(env, my_addr.data);
-	if(ret != 0)
+	if(ret)
 		__db_err(env, ret, DB_STR("3673", "rep_start"));
 	return ret;
 }

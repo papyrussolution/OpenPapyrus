@@ -103,7 +103,7 @@ int OCSP_basic_verify(OCSP_BASICRESP * bs, STACK_OF(X509) * certs, X509_STORE * 
 		ret = ocsp_check_issuer(bs, chain);
 
 		/* If fatal error or valid match then finish */
-		if(ret != 0)
+		if(ret)
 			goto end;
 
 		/*

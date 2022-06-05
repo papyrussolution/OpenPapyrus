@@ -320,7 +320,7 @@ master:         LOG_SYSTEM_LOCK(env);
 		}
 		if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto err_locked;
 		if((ret = __rep_get_datagen(env, &data_gen)) != 0)
 			goto err_locked;
@@ -370,7 +370,7 @@ master:         LOG_SYSTEM_LOCK(env);
 	}
 	ret = __rep_wait(env, &timeout, rep->full_elect, egen, REP_E_PHASE1);
 	REP_SYSTEM_LOCK(env);
-	if(ret != 0)
+	if(ret)
 		goto err_locked;
 	if(rep->egen > egen)
 		/*
@@ -451,7 +451,7 @@ phase2:
 	 * to acquire it before testing "ret" here, since we need it anyway for
 	 * the following stuff.
 	 */
-	if(ret != 0)
+	if(ret)
 		goto err_locked;
 	if(rep->egen > egen || !IN_ELECTION(rep))
 		goto out;

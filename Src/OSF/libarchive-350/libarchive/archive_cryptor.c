@@ -71,7 +71,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
 		return -1;
 	}
 	ret = mbedtls_md_setup(&ctx, info, 1);
-	if(ret != 0) {
+	if(ret) {
 		mbedtls_md_free(&ctx);
 		return -1;
 	}

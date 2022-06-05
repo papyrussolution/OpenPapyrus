@@ -1239,7 +1239,7 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 	}
 	xmlDefaultSAXHandlerInit();
 	SETIFZ(ctxt->dict, xmlDictCreate());
-	if(ctxt->dict == NULL) {
+	if(!ctxt->dict) {
 		xmlErrMemory(NULL, "cannot initialize parser context\n");
 		return -1;
 	}

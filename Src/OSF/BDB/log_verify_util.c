@@ -15,7 +15,7 @@
 
 #define BDBOP(op)       do {            \
 		ret = (op);                     \
-		if(ret != 0) {                 \
+		if(ret) {                 \
 			__lv_on_bdbop_err(ret); \
 			goto err;               \
 		}                               \
@@ -23,7 +23,7 @@
 
 #define BDBOP2(dbenv, op, funct)        do {                    \
 		ret = (op);                                             \
-		if(ret != 0) {                                         \
+		if(ret) {                                         \
 			__lv_on_bdbop_err(ret);                         \
 			__db_err(dbenv->env, ret, "\n%s", funct);       \
 			return ret;                                   \
@@ -32,7 +32,7 @@
 
 #define BDBOP3(dbenv, op, excpt, funct) do {                            \
 		ret = (op);                                                     \
-		if(ret != 0) {                                                 \
+		if(ret) {                                                 \
 			__lv_on_bdbop_err(ret);                                 \
 			if(ret != excpt) {                                     \
 				__db_err(dbenv->env, ret, "\n%s", funct);       \
@@ -513,7 +513,7 @@ err:
 	if(csr && (tret = __dbc_close(csr)) != 0 && ret == 0)
 		ret = tret;
 	__os_free(lvinfo->dbenv->env, param.ti2u);
-	if(ret != 0)
+	if(ret)
 		__db_err(lvinfo->dbenv->env, ret, "__add_recycle_lsn_range");
 	return ret;
 }
@@ -636,7 +636,7 @@ static int __lv_add_recycle_handler(DB_LOG_VRFY_INFO * lvinfo, VRFY_TXN_INFO * t
 		return ret;
 	}
 	ret = __lv_add_recycle_lsn(txninfop, &(param->recycle_lsn));
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * Below is one way to tell if a txn is aborted without doing another

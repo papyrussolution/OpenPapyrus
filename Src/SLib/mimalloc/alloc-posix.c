@@ -112,7 +112,7 @@ mi_decl_restrict uchar * mi_mbsdup(const uchar * s)  NOEXCEPT
 int mi_dupenv_s(char ** buf, size_t* size, const char * name) NOEXCEPT 
 {
 	if(buf==NULL || name==NULL) return EINVAL;
-	if(size != NULL) *size = 0;
+	ASSIGN_PTR(size, 0);
 	char * p = getenv(name);  // mscver warning 4996
 	if(p==NULL) {
 		*buf = NULL;
@@ -120,7 +120,7 @@ int mi_dupenv_s(char ** buf, size_t* size, const char * name) NOEXCEPT
 	else {
 		*buf = mi_strdup(p);
 		if(*buf==NULL) return ENOMEM;
-		if(size != NULL) *size = strlen(p);
+		ASSIGN_PTR(size, strlen(p));
 	}
 	return 0;
 }
@@ -128,7 +128,7 @@ int mi_dupenv_s(char ** buf, size_t* size, const char * name) NOEXCEPT
 int mi_wdupenv_s(unsigned short** buf, size_t* size, const unsigned short* name) NOEXCEPT 
 {
 	if(buf==NULL || name==NULL) return EINVAL;
-	if(size != NULL) *size = 0;
+	ASSIGN_PTR(size, 0);
 #if !defined(_WIN32) || (defined(WINAPI_FAMILY) && (WINAPI_FAMILY != WINAPI_FAMILY_DESKTOP_APP))
 	// not supported
 	*buf = NULL;
@@ -141,7 +141,7 @@ int mi_wdupenv_s(unsigned short** buf, size_t* size, const unsigned short* name)
 	else {
 		*buf = mi_wcsdup(p);
 		if(*buf==NULL) return ENOMEM;
-		if(size != NULL) *size = wcslen((const wchar_t *)p);
+		ASSIGN_PTR(size, wcslen((const wchar_t *)p));
 	}
 	return 0;
 #endif

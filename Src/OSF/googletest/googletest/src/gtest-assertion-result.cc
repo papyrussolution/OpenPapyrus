@@ -2,8 +2,7 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -19,10 +18,8 @@
 //
 // This file defines the AssertionResult type.
 
-#include "gtest/gtest-assertion-result.h"
-#include <string>
-#include <utility>
-#include "gtest/gtest-message.h"
+#include "gtest/internal/gtest-build-internal.h"
+#pragma hdrstop
 
 namespace testing {
 // AssertionResult constructors.

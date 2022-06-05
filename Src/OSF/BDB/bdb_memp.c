@@ -457,7 +457,7 @@ this_buffer:
 			 * finding something to allocate, avoid selecting this
 			 * buffer again by maximizing its priority.
 			 */
-			if(ret != 0) {
+			if(ret) {
 				if(ret != EPERM) {
 					write_error++;
 					__db_errx(env, DB_STR_A("3018", "%s: unwritable page %d remaining in the cache after error %d", "%s %d %d"), __memp_fns(dbmp, bh_mfp), bhp->pgno, ret);
@@ -483,7 +483,7 @@ this_buffer:
 				ret = 0;
 				goto next_hb;
 			}
-			else if(ret != 0) {
+			else if(ret) {
 				DB_ASSERT(env, BH_REFCOUNT(bhp) > 0);
 				atomic_dec(env, &bhp->ref);
 				DB_ASSERT(env, b_lock);
@@ -663,7 +663,7 @@ int __memp_bhwrite(DB_MPOOL * dbmp, DB_MPOOL_HASH * hp, MPOOLFILE * mfp, BH * bh
 			else
 				ret = 0;
 			MUTEX_UNLOCK(env, dbmp->mutex);
-			if(ret != 0) {
+			if(ret) {
 				__db_errx(env, DB_STR("3014", "unable to create temporary backing file"));
 				--dbmfp->ref;
 				return ret;
@@ -1165,7 +1165,7 @@ int __memp_fget_pp(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_TXN * txnp, ui
 		__op_rep_exit(env);
 	/* Similarly if an app has a page pinned it is ACTIVE. */
 err:
-	if(ret != 0)
+	if(ret)
 		ENV_LEAVE(env, ip);
 	return ret;
 }
@@ -1282,7 +1282,7 @@ int FASTCALL __memp_fget(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_I
 	 * page number can change.
 	 */
 	MP_GET_BUCKET(env, mfp, *pgnoaddr, &infop, hp, bucket, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	c_mp = (MPOOL *)infop->primary;
 	if(0) {
@@ -1530,7 +1530,7 @@ reuse:
 						//
 						ret = __memp_bh_thaw(dbmp, infop, hp, oldest_bhp, 0);
 						h_locked = 0;
-						if(ret != 0)
+						if(ret)
 							goto err;
 						goto reuse;
 					}
@@ -1592,7 +1592,7 @@ newpg:          /*
 			break;
 		}
 		MUTEX_UNLOCK(env, mfp->mutex);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/*
 		 * !!!
@@ -1601,7 +1601,7 @@ newpg:          /*
 		 */
 		if(hp == NULL) {
 			MP_GET_BUCKET(env, mfp, *pgnoaddr, &infop, hp, bucket, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			MUTEX_UNLOCK(env, hp->mtx_hash);
 			c_mp = (MPOOL *)infop->primary;
@@ -1660,7 +1660,7 @@ alloc:
 		if(flags == DB_MPOOL_NEW && *pgnoaddr != mfp->last_pgno+1) {
 			*pgnoaddr = mfp->last_pgno+1;
 			MP_GET_REGION(dbmfp, *pgnoaddr, &t_infop, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			if(t_infop != infop) {
 				//
@@ -1682,7 +1682,7 @@ alloc:
 			else
 				extending = 0;
 			MUTEX_UNLOCK(env, mfp->mutex);
-			if(ret != 0)
+			if(ret)
 				goto err;
 		}
 		goto retry;
@@ -1833,7 +1833,7 @@ alloc:
 		ret = __memp_bh_thaw(dbmp, infop, hp, bhp, alloc_bhp);
 		bhp = NULL;
 		b_lock = h_locked = 0;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		bhp = alloc_bhp;
 		alloc_bhp = NULL;
@@ -2574,7 +2574,7 @@ int __memp_fopen(DB_MPOOLFILE * dbmfp, MPOOLFILE * mfp, const char * path, const
 			MUTEX_LOCK(env, hp->mtx_hash);
 			ret = __memp_mpf_find(env, dbmfp, hp, path, flags, &mfp);
 			MUTEX_UNLOCK(env, hp->mtx_hash);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			if(mfp)
 				refinc = 1;
@@ -2660,7 +2660,7 @@ int __memp_fopen(DB_MPOOLFILE * dbmfp, MPOOLFILE * mfp, const char * path, const
 			ret = __os_open(env, rpath, (uint32)pagesize, oflags, mode, &dbmfp->fhp);
 		if(mfp)
 			MPOOL_SYSTEM_UNLOCK(env);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/*
 		 * Cache file handles are shared, and have mutexes to
@@ -3701,7 +3701,7 @@ int __memp_skip_curadj(DBC * dbc, db_pgno_t pgno)
 	 * page number can change.
 	 */
 	MP_GET_BUCKET(env, mfp, pgno, &infop, hp, bucket, ret);
-	if(ret != 0) {
+	if(ret) {
 		// Panic: there is no way to return the error
 		__env_panic(env, ret);
 		return 0;
@@ -3801,7 +3801,7 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 	}
 	else if(ret == EEXIST)
 		ret = __os_open(env, real_name, pagesize, 0, env->db_mode, &fhp);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	if((ret = __os_read(env, fhp, &magic, sizeof(uint32), &nio)) != 0 ||
 	   (ret = __os_read(env, fhp, &newpgno, sizeof(db_pgno_t), &nio)) != 0 ||
@@ -3830,7 +3830,7 @@ int __memp_bh_freeze(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * 
 		goto err;
 	ret = __os_closehandle(env, fhp);
 	fhp = NULL;
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * Set up the frozen_bhp with the freezer page number.  The original
@@ -4043,7 +4043,7 @@ int __memp_bh_thaw(DB_MPOOL * dbmp, REGINFO * infop, DB_MPOOL_HASH * hp, BH * fr
 			goto err;
 		ret = __os_closehandle(env, fhp);
 		fhp = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	/*
@@ -4107,7 +4107,7 @@ err:
 	__os_free(env, freelist);
 	if(fhp && (t_ret = __os_closehandle(env, fhp)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0)
+	if(ret)
 		__db_err(env, ret, "__memp_bh_thaw");
 	return ret;
 }
@@ -4817,7 +4817,7 @@ err:
 			atomic_dec(env, &bhp->ref);
 			F_CLR(bhp, BH_EXCLUSIVE);
 			MUTEX_UNLOCK(env, bhp->mtx_buf);
-			if(ret != 0)
+			if(ret)
 				return ret;
 			goto retry;
 		}
@@ -5329,7 +5329,7 @@ static int __memp_print_stats(ENV * env, uint32 flags)
 	DB_MPOOL_FSTAT ** fsp, ** tfsp;
 	DB_MPOOL_STAT * gsp;
 	int ret = __memp_stat(env, &gsp, &fsp, flags);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(LF_ISSET(DB_STAT_ALL))
 		__db_msg(env, "Default cache region information:");
@@ -5442,7 +5442,7 @@ static int __memp_print_all(ENV * env, uint32 flags)
 	cnt = 0;
 	ret = __memp_walk_files(env, mp, __memp_print_files, fmap, &cnt, flags);
 	MPOOL_SYSTEM_UNLOCK(env);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(cnt < FMAP_ENTRIES)
 		fmap[cnt] = INVALID_ROFF;
@@ -5909,7 +5909,7 @@ int __memp_sync_int(ENV * env, DB_MPOOLFILE * dbmfp, uint32 trickle_max, uint32 
 					ar_max *= 2;
 				}
 			}
-			if(ret != 0)
+			if(ret)
 				goto err;
 			/*
 			 * We are only checking this in diagnostic mode

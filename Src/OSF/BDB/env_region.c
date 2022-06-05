@@ -71,7 +71,7 @@ loop:
 		snprintf(buf, sizeof(buf), "%s", DB_REGION_ENV);
 		ret = __db_appname(env, DB_APP_NONE, buf, NULL, &infop->name);
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * We have to single-thread the creation of the REGENV region.  Once
@@ -801,7 +801,7 @@ static void __env_remove_file(ENV * env)
 	/* Restore the path, and free it. */
 	*p = saved_char;
 	__os_free(env, path);
-	if(ret != 0)
+	if(ret)
 		return;
 	/*
 	 * Remove files from the region directory.

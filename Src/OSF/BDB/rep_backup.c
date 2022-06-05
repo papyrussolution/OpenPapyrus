@@ -416,7 +416,7 @@ static int __rep_get_fileinfo(ENV * env, const char * file, const char * subdb, 
 	SETFLAG(rfp->finfo_flags, REPINFO_DB_LITTLEENDIAN, (lorder == 1234));
 	ret = __memp_fput(dbp->mpf, ip, pagep, dbc->priority);
 	pagep = NULL;
-	if(ret != 0)
+	if(ret)
 		goto err;
 err:
 	if((t_ret = __memp_fput(mpf, ip, pagep, dbc->priority)) != 0 && ret == 0)
@@ -568,7 +568,7 @@ static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_c
 				ret = DB_NOTFOUND;
 			goto err;
 		}
-		else if(ret != 0)
+		else if(ret)
 			goto err;
 		else
 			DB_SET_DBT(msgfp->info, pagep, msgfp->pgsize);
@@ -599,7 +599,7 @@ static int __rep_page_sendpages(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_c
 #endif
 		if(t_ret != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		DB_ASSERT(env, len <= msgsz);
 		DB_SET_DBT(msgdbt, buf, len);
@@ -767,7 +767,7 @@ int __rep_update_setup(ENV * env, int eid, __rep_control_args * rp, DBT * rec, _
 	if(db_rep->rep_db == NULL)
 		ret = __rep_client_dbinit(env, 0, REP_DB);
 	MUTEX_UNLOCK(env, rep->mtx_clientdb);
-	if(ret != 0)
+	if(ret)
 		goto err_nolock;
 	/*
 	 * We need to empty out any old log records that might be in the
@@ -814,7 +814,7 @@ int __rep_update_setup(ENV * env, int eid, __rep_control_args * rp, DBT * rec, _
 		MUTEX_LOCK(env, renv->mtx_regenv);
 		ret = __env_alloc(infop, (size_t)rep->infolen, &origbuf);
 		MUTEX_UNLOCK(env, renv->mtx_regenv);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		else
 			rep->originfo_off = R_OFFSET(infop, origbuf);
@@ -850,7 +850,7 @@ int __rep_update_setup(ENV * env, int eid, __rep_control_args * rp, DBT * rec, _
 	}
 	else
 		ret = __rep_remove_all(env, rp->rep_version, rec);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	FLD_CLR(rep->lockout_flags, REP_LOCKOUT_MSG);
 
@@ -860,7 +860,7 @@ int __rep_update_setup(ENV * env, int eid, __rep_control_args * rp, DBT * rec, _
 	REP_SYSTEM_LOCK(env);
 	rep->curfile = 0;
 	ret = __rep_nextfile(env, eid, rep);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	if(0) {
 err_nolock:     REP_SYSTEM_LOCK(env);
@@ -873,7 +873,7 @@ err:    /*
 	 * but it doesn't hurt to clear it again.
 	 */
 	FLD_CLR(rep->lockout_flags, REP_LOCKOUT_MSG);
-	if(ret != 0) {
+	if(ret) {
 		if(rep->originfo_off != INVALID_ROFF) {
 			MUTEX_LOCK(env, renv->mtx_regenv);
 			__env_alloc_free(infop, R_ADDR(infop, rep->originfo_off));
@@ -1236,7 +1236,7 @@ int __rep_bulk_page(ENV * env, DB_THREAD_INFO * ip, int eid, __rep_control_args 
 		/*
 		 * If this set of pages is already done just return.
 		 */
-		if(ret != 0) {
+		if(ret) {
 			if(ret == DB_REP_PAGEDONE)
 				ret = 0;
 			break;
@@ -1340,7 +1340,7 @@ int __rep_page(ENV*env, DB_THREAD_INFO * ip, int eid, __rep_control_args * rp, D
 		ret = 0;
 		goto err;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * We put the page in the database file itself.
@@ -1444,7 +1444,7 @@ static int __rep_write_page(ENV * env, DB_THREAD_INFO * ip, REP * rep, __rep_fil
 	}
 	else
 		ret = __memp_fget(db_rep->file_mpf, &msgfp->pgno, ip, NULL, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &dst);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * Before writing this page into our local mpool, see if its byte order
@@ -1595,7 +1595,7 @@ static int __rep_page_gap(ENV*env, REP * rep, __rep_fileinfo_args * msgfp, uint3
 			 * find the record.
 			 */
 			ret = __dbc_get(dbc, &key, &data, DB_SET);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			VPRINT(env, (env, DB_VERB_REP_SYNC, "PAGE_GAP: Set cursor for ready %lu, waiting %lu",
 				(ulong)rep->ready_pg, (ulong)rep->waiting_pg));
@@ -1889,7 +1889,7 @@ static int __rep_nextfile(ENV*env, int eid, REP * rep)
 		MUTEX_LOCK(env, renv->mtx_regenv);
 		ret = __env_alloc(infop, sizeof(__rep_fileinfo_args)+rfp->uid.size+rfp->info.size, &curbuf);
 		MUTEX_UNLOCK(env, renv->mtx_regenv);
-		if(ret != 0) {
+		if(ret) {
 			__os_free(env, rfp);
 			return ret;
 		}
@@ -2648,7 +2648,7 @@ static int __rep_unlink_by_list(ENV * env, uint32 version, uint8 * files, uint32
 				break;
 			ret = __rep_remove_by_prefix(env, dir, QUEUE_EXTENT_PREFIX, sizeof(QUEUE_EXTENT_PREFIX)-1, DB_APP_DATA);
 			__os_free(env, dir);
-			if(ret != 0)
+			if(ret)
 				break;
 		}
 	}

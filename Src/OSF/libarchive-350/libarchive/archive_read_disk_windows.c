@@ -389,7 +389,7 @@ static void entry_symlink_from_pathw(struct archive_entry * entry, const wchar_t
 	wchar_t * linkname = NULL;
 	int linktype;
 	int ret = la_linkname_from_pathw(path, &linkname, &linktype);
-	if(ret != 0)
+	if(ret)
 		return;
 	if(linktype >= 0) {
 		archive_entry_copy_symlink_w(entry, linkname);
@@ -2056,7 +2056,7 @@ static int setup_sparse_from_disk(struct archive_read_disk * a, struct archive_e
 			else
 				break;
 		}
-		if(ret != 0) {
+		if(ret) {
 			if(retbytes > 0) {
 				DWORD i;
 				DWORD n = retbytes / sizeof(outranges[0]);

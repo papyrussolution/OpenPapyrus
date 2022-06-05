@@ -8227,14 +8227,14 @@ static int xmlSchemaParseNewDocWithContext(xmlSchemaParserCtxtPtr pctxt, xmlSche
 	// Compile the schema doc. 
 	p_node = xmlDocGetRootElement(bucket->doc);
 	ret = xmlSchemaParseSchemaElement(pctxt, schema, p_node);
-	if(ret != 0)
+	if(ret)
 		goto exit;
 	// An empty schema; just get out. 
 	if(p_node->children == NULL)
 		goto exit;
 	oldErrs = pctxt->nberrors;
 	ret = xmlSchemaParseSchemaTopLevel(pctxt, schema, p_node->children);
-	if(ret != 0)
+	if(ret)
 		goto exit;
 	/*
 	 * @todo Not nice, but I'm not 100% sure we will get always an error
@@ -13602,7 +13602,7 @@ static int xmlSchemaCheckCTComponent(xmlSchemaParserCtxtPtr ctxt, xmlSchemaType 
 	 * Complex Type Definition Properties Correct
 	 */
 	int ret = xmlSchemaCheckCTPropsCorrect(ctxt, type);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(WXS_IS_EXTENSION(type))
 		ret = xmlSchemaCheckCOSCTExtends(ctxt, type);
@@ -15454,7 +15454,7 @@ int xmlSchemaCheckFacet(xmlSchemaFacet * facet, xmlSchemaType * typeDecl, xmlSch
 		 * of the facet.
 		     */
 		    ret = xmlSchemaVCheckCVCSimpleType(ACTXT_CAST pctxt, facet->P_Node, base, facet->value, &(facet->val), 1, 1, 0);
-		    if(ret != 0) {
+		    if(ret) {
 			    if(ret < 0) {
 				    /* No error message for RelaxNG. */
 				    if(ctxtGiven) {
@@ -15505,7 +15505,7 @@ int xmlSchemaCheckFacet(xmlSchemaFacet * facet, xmlSchemaType * typeDecl, xmlSch
 		    else {
 			    ret = xmlSchemaValidatePredefinedType(xmlSchemaGetBuiltInType(XML_SCHEMAS_NNINTEGER), facet->value, &(facet->val));
 		    }
-		    if(ret != 0) {
+		    if(ret) {
 			    if(ret < 0) {
 				    /* No error message for RelaxNG. */
 				    if(ctxtGiven) {
@@ -16117,7 +16117,7 @@ static int xmlSchemaCheckAttrPropsCorrect(xmlSchemaParserCtxtPtr pctxt, xmlSchem
 			 * will be removed in WXS 1.1 anyway.
 			 */
 			ret = xmlSchemaVCheckCVCSimpleType(ACTXT_CAST pctxt, attr->P_Node, WXS_ATTR_TYPEDEF(attr), attr->defValue, &(attr->defVal), 1, 1, 0);
-			if(ret != 0) {
+			if(ret) {
 				if(ret < 0) {
 					PERROR_INT(__FUNCTION__, "calling xmlSchemaVCheckCVCSimpleType()");
 					return -1;
@@ -16424,7 +16424,7 @@ static int xmlSchemaCheckElementDeclConsistent(xmlSchemaParserCtxtPtr pctxt,
 			    if(search == 0) {
 				    ret = xmlSchemaCheckElementDeclConsistent(pctxt,
 				    ctxtComponent, ctxtParticle, cur, ctxtParticle, 1);
-				    if(ret != 0)
+				    if(ret)
 					    return ret;
 			    }
 			    else {
@@ -16475,7 +16475,7 @@ static int xmlSchemaCheckElementDeclConsistent(xmlSchemaParserCtxtPtr pctxt,
 			       while(sub) {
 			        ret = xmlSchemaCheckElementDeclConsistent(pctxt, ctxtComponent,
 			            ctxtParticle, ctxtElem);
-			        if(ret != 0)
+			        if(ret)
 			            return ret;
 			        sub = sub->next;
 			       }
@@ -16622,7 +16622,7 @@ static int FASTCALL xmlSchemaAreValuesEqual(xmlSchemaVal * x, xmlSchemaVal * y)
 			int ret = xmlSchemaCompareValuesWhtsp(x, XML_SCHEMA_WHITESPACE_PRESERVE, y, XML_SCHEMA_WHITESPACE_PRESERVE);
 			if(ret == -2)
 				return -1;
-			else if(ret != 0)
+			else if(ret)
 				return 0;
 		}
 		// 
@@ -16713,7 +16713,7 @@ static int xmlSchemaCheckAttrUsePropsCorrect(xmlSchemaParserCtxtPtr ctxt, xmlSch
 			return (ctxt->err);
 		}
 		ret = xmlSchemaVCheckCVCSimpleType(ACTXT_CAST ctxt, use->P_Node, WXS_ATTRUSE_TYPEDEF(use), use->defValue, &(use->defVal), 1, 1, 0);
-		if(ret != 0) {
+		if(ret) {
 			if(ret < 0) {
 				PERROR_INT2("xmlSchemaCheckAttrUsePropsCorrect", "calling xmlSchemaVCheckCVCSimpleType()");
 				return -1;
@@ -17842,7 +17842,7 @@ static int xmlSchemaAssembleByLocation(xmlSchemaValidCtxt * vctxt, xmlSchemaPtr 
 	 * XML_SCHEMA_SCHEMA_MAIN if it is the first schema document.
 	 */
 	ret = xmlSchemaAddSchemaDoc(pctxt, XML_SCHEMA_SCHEMA_IMPORT, location, NULL, NULL, 0, P_Node, NULL, nsName, &bucket);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(bucket == NULL) {
 		/*
@@ -18040,7 +18040,7 @@ static int xmlSchemaValidateNotation(xmlSchemaValidCtxt * vctxt, xmlSchemaPtr sc
 		return -1;
 	}
 	ret = xmlValidateQName(value, 1);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	{
 		xmlChar * prefix = NULL;
@@ -20179,7 +20179,7 @@ pattern_and_enum:
 					return -1;
 				}
 			}
-			if(ret != 0)
+			if(ret)
 				break;
 			/*
 			 * Break on the first set of enumerations. Any additional
@@ -20264,7 +20264,7 @@ static int xmlSchemaValidateQName(xmlSchemaValidCtxt * vctxt, const xmlChar * va
 	const xmlChar * nsName;
 	xmlChar * local, * prefix = NULL;
 	int ret = xmlValidateQName(value, 1);
-	if(ret != 0) {
+	if(ret) {
 		if(ret == -1) {
 			VERROR_INT("xmlSchemaValidateQName", "calling xmlValidateQName()");
 			return -1;
@@ -20417,7 +20417,7 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 			TODO
 			goto internal_error;
 		}
-		if(ret != 0) {
+		if(ret) {
 			if(ret < 0) {
 				AERROR_INT("xmlSchemaVCheckCVCSimpleType", "validating against a built-in type");
 				goto internal_error;
@@ -20494,7 +20494,7 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 				prevVal = curVal;
 				curVal = NULL;
 			}
-			if(ret != 0) {
+			if(ret) {
 				if(ret < 0) {
 					AERROR_INT("xmlSchemaVCheckCVCSimpleType", "validating an item of list simple type");
 					goto internal_error;
@@ -20510,7 +20510,7 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 			 * Apply facets (pattern, enumeration).
 			 */
 			ret = xmlSchemaValidateFacets(actxt, P_Node, type, XML_SCHEMAS_UNKNOWN, value, val, len, fireErrors);
-			if(ret != 0) {
+			if(ret) {
 				if(ret < 0) {
 					AERROR_INT("xmlSchemaVCheckCVCSimpleType", "validating facets of list simple type");
 					goto internal_error;
@@ -20565,7 +20565,7 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 				break;
 			memberLink = memberLink->next;
 		}
-		if(ret != 0) {
+		if(ret) {
 			if(ret < 0) {
 				AERROR_INT("xmlSchemaVCheckCVCSimpleType", "validating members of union simple type");
 				goto internal_error;
@@ -20583,7 +20583,7 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 			 */
 			NORMALIZE(memberLink->type);
 			ret = xmlSchemaValidateFacets(actxt, P_Node, type, XML_SCHEMAS_UNKNOWN, value, val, 0, fireErrors);
-			if(ret != 0) {
+			if(ret) {
 				if(ret < 0) {
 					AERROR_INT("xmlSchemaVCheckCVCSimpleType", "validating facets of union simple type");
 					goto internal_error;
@@ -20682,7 +20682,7 @@ static int xmlSchemaProcessXSIType(xmlSchemaValidCtxt * vctxt, xmlSchemaAttrInfo
 		 * (cvc-assess-elt) (1.2.1.2.2)
 		 */
 		ret = xmlSchemaVExpandQName(vctxt, iattr->value, &nsName, &local);
-		if(ret != 0) {
+		if(ret) {
 			if(ret < 0) {
 				VERROR_INT("xmlSchemaValidateElementByDeclaration", "calling xmlSchemaQNameExpand() to validate the attribute 'xsi:type'");
 				goto internal_error;
@@ -20836,7 +20836,7 @@ static int xmlSchemaValidateElemDecl(xmlSchemaValidCtxt * vctxt)
 		if(iattr) {
 			xmlSchemaType * localType = NULL;
 			ret = xmlSchemaProcessXSIType(vctxt, iattr, &localType, elemDecl);
-			if(ret != 0) {
+			if(ret) {
 				if(ret == -1) {
 					VERROR_INT("xmlSchemaValidateElemDecl", "calling xmlSchemaProcessXSIType() to process the attribute 'xsi:type'");
 					return -1;
@@ -21755,7 +21755,7 @@ character_content:
 		 */
 		if(inode->flags & XML_SCHEMA_ELEM_INFO_LOCAL_TYPE) {
 			ret = xmlSchemaCheckCOSValidDefault(vctxt, inode->decl->value, &(inode->val));
-			if(ret != 0) {
+			if(ret) {
 				if(ret < 0) {
 					VERROR_INT("xmlSchemaValidatorPopElem", "calling xmlSchemaCheckCOSValidDefault()");
 					goto internal_error;
@@ -21782,7 +21782,7 @@ character_content:
 		else if(WXS_HAS_SIMPLE_CONTENT(inode->typeDef)) {
 			ret = xmlSchemaVCheckINodeDataType(vctxt, inode, inode->typeDef->contentTypeDef, inode->decl->value);
 		}
-		if(ret != 0) {
+		if(ret) {
 			if(ret < 0) {
 				VERROR_INT("xmlSchemaValidatorPopElem", "calling xmlSchemaVCheckCVCSimpleType()");
 				goto internal_error;
@@ -21847,7 +21847,7 @@ default_psvi:
 			 */
 			ret = xmlSchemaVCheckINodeDataType(vctxt, inode, inode->typeDef->contentTypeDef, inode->value);
 		}
-		if(ret != 0) {
+		if(ret) {
 			if(ret < 0) {
 				VERROR_INT("xmlSchemaValidatorPopElem", "calling xmlSchemaVCheckCVCSimpleType()");
 				goto internal_error;
@@ -22069,7 +22069,7 @@ static int xmlSchemaValidateChildElem(xmlSchemaValidCtxt * vctxt)
 			iattr = xmlSchemaGetMetaAttrInfo(vctxt, XML_SCHEMA_ATTR_INFO_META_XSI_TYPE);
 			if(iattr) {
 				ret = xmlSchemaProcessXSIType(vctxt, iattr, &(vctxt->inode->typeDef), 0);
-				if(ret != 0) {
+				if(ret) {
 					if(ret == -1) {
 						VERROR_INT("xmlSchemaValidateChildElem", "calling xmlSchemaProcessXSIType() to process the attribute 'xsi:nil'");
 						return -1;
@@ -22345,7 +22345,7 @@ static int xmlSchemaValidateElem(xmlSchemaValidCtxt * vctxt)
 		// Validate this element against the content model of the parent.
 		// 
 		ret = xmlSchemaValidateChildElem(vctxt);
-		if(ret != 0) {
+		if(ret) {
 			if(ret < 0) {
 				VERROR_INT("xmlSchemaValidateElem", "calling xmlSchemaStreamValidateChildElement()");
 				goto internal_error;
@@ -22378,7 +22378,7 @@ static int xmlSchemaValidateElem(xmlSchemaValidCtxt * vctxt)
 		// Wildcards.
 		// 
 		ret = xmlSchemaValidateElemWildcard(vctxt, &skip);
-		if(ret != 0) {
+		if(ret) {
 			if(ret < 0) {
 				VERROR_INT("xmlSchemaValidateElem", "calling xmlSchemaValidateElemWildcard()");
 				goto internal_error;
@@ -22405,7 +22405,7 @@ static int xmlSchemaValidateElem(xmlSchemaValidCtxt * vctxt)
 	// Validate against the declaration.
 	// 
 	ret = xmlSchemaValidateElemDecl(vctxt);
-	if(ret != 0) {
+	if(ret) {
 		if(ret < 0) {
 			VERROR_INT("xmlSchemaValidateElem", "calling xmlSchemaValidateElemDecl()");
 			goto internal_error;
@@ -22465,7 +22465,7 @@ type_validation:
 	 */
 	ret = 0;
 exit:
-	if(ret != 0)
+	if(ret)
 		vctxt->skipDepth = vctxt->depth;
 	return ret;
 internal_error:
@@ -22554,7 +22554,7 @@ root_found:
 			 * Validate the element.
 			 */
 			ret = xmlSchemaValidateElem(vctxt);
-			if(ret != 0) {
+			if(ret) {
 				if(ret == -1) {
 					VERROR_INT("xmlSchemaVReaderWalk", "calling xmlSchemaValidateElem()");
 					goto internal_error;
@@ -22596,7 +22596,7 @@ root_found:
 			 */
 leave_elem:
 			ret = xmlSchemaValidatorPopElem(vctxt);
-			if(ret != 0) {
+			if(ret) {
 				if(ret < 0) {
 					VERROR_INT("xmlSchemaVReaderWalk", "calling xmlSchemaValidatorPopElem()");
 					goto internal_error;
@@ -22788,7 +22788,7 @@ static void xmlSchemaSAXHandleStartElementNs(void * ctx, const xmlChar * localna
 	 * Validate the element.
 	 */
 	ret = xmlSchemaValidateElem(vctxt);
-	if(ret != 0) {
+	if(ret) {
 		if(ret == -1) {
 			VERROR_INT("xmlSchemaSAXHandleStartElementNs", "calling xmlSchemaValidateElem()");
 			goto internal_error;
@@ -23195,7 +23195,7 @@ static int xmlSchemaVDocWalk(xmlSchemaValidCtxt * vctxt)
 				// Validate the element.
 				// 
 				ret = xmlSchemaValidateElem(vctxt);
-				if(ret != 0) {
+				if(ret) {
 					if(ret == -1) {
 						VERROR_INT("xmlSchemaDocWalk", "calling xmlSchemaValidateElem()");
 						goto internal_error;
@@ -23248,7 +23248,7 @@ leave_node:
 					goto internal_error;
 				}
 				ret = xmlSchemaValidatorPopElem(vctxt);
-				if(ret != 0) {
+				if(ret) {
 					if(ret < 0) {
 						VERROR_INT("xmlSchemaVDocWalk", "calling xmlSchemaValidatorPopElem()");
 						goto internal_error;

@@ -630,7 +630,7 @@ static HUF_ASM_X86_64_BMI2_ATTRS size_t HUF_decompress4X1_usingDTable_internal_b
 	{
 		const size_t ret = HUF_DecompressAsmArgs_init(&args, dst, dstSize, cSrc, cSrcSize, DTable);
 		FORWARD_IF_ERROR(ret, "Failed to init asm args");
-		if(ret != 0)
+		if(ret)
 			return HUF_decompress4X1_usingDTable_internal_bmi2(dst, dstSize, cSrc, cSrcSize, DTable);
 	}
 	assert(args.ip[0] >= args.ilimit);
@@ -1296,7 +1296,7 @@ static HUF_ASM_X86_64_BMI2_ATTRS size_t HUF_decompress4X2_usingDTable_internal_b
 	{
 		const size_t ret = HUF_DecompressAsmArgs_init(&args, dst, dstSize, cSrc, cSrcSize, DTable);
 		FORWARD_IF_ERROR(ret, "Failed to init asm args");
-		if(ret != 0)
+		if(ret)
 			return HUF_decompress4X2_usingDTable_internal_bmi2(dst, dstSize, cSrc, cSrcSize, DTable);
 	}
 

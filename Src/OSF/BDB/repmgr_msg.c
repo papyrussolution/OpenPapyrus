@@ -129,7 +129,7 @@ static int message_loop(ENV*env, REPMGR_RUNNABLE * th)
 		LOCK_MUTEX(db_rep->mutex);
 		if(incremented)
 			db_rep->non_rep_th--;
-		if(ret != 0)
+		if(ret)
 			goto out;
 	}
 	/*
@@ -324,7 +324,7 @@ static int process_message(ENV*env, DBT * control, DBT * rec, int eid)
 		__db_err(env, t_ret, "DB_ENV->rep_process_message");
 		ret = t_ret;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	LOCK_MUTEX(db_rep->mutex);
 	dirty = db_rep->gmdb_dirty;
@@ -566,7 +566,7 @@ static int serve_join_request(ENV*env, DB_THREAD_INFO * ip, REPMGR_MESSAGE * msg
 	RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Request to join group from %s:%u", host, (uint)site_info.port));
 	if((ret = __repmgr_hold_master_role(env, conn)) == DB_REP_UNAVAIL)
 		return 0;
-	if(ret != 0)
+	if(ret)
 		return ret;
 	LOCK_MUTEX(db_rep->mutex);
 	if((ret = __repmgr_find_site(env, host, site_info.port, &eid)) == 0) {
@@ -574,7 +574,7 @@ static int serve_join_request(ENV*env, DB_THREAD_INFO * ip, REPMGR_MESSAGE * msg
 		status = SITE_FROM_EID(eid)->membership;
 	}
 	UNLOCK_MUTEX(db_rep->mutex);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	switch(status) {
 	    case 0:
@@ -592,12 +592,12 @@ static int serve_join_request(ENV*env, DB_THREAD_INFO * ip, REPMGR_MESSAGE * msg
 		ret = __db_unknown_path(env, "serve_join_request");
 		break;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	LOCK_MUTEX(db_rep->mutex);
 	ret = __repmgr_marshal_member_list(env, &buf, &len);
 	UNLOCK_MUTEX(db_rep->mutex);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	ret = __repmgr_send_sync_msg(env, conn, REPMGR_JOIN_SUCCESS, buf, (uint32)len);
 	__os_free(env, buf);
@@ -630,7 +630,7 @@ static int serve_remove_request(ENV*env, DB_THREAD_INFO * ip, REPMGR_MESSAGE * m
 	RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Request to remove %s:%u from group", host, (uint)site_info.port));
 	if((ret = __repmgr_hold_master_role(env, conn)) == DB_REP_UNAVAIL)
 		return 0;
-	if(ret != 0)
+	if(ret)
 		return ret;
 	LOCK_MUTEX(db_rep->mutex);
 	if((site = __repmgr_lookup_site(env, host, site_info.port)) == NULL)
@@ -690,7 +690,7 @@ static int resolve_limbo_wrapper(ENV*env, DB_THREAD_INFO * ip)
 	int do_close, ret, t_ret;
 	if((ret = __repmgr_hold_master_role(env, NULL)) == DB_REP_UNAVAIL)
 		return 0;
-	if(ret != 0)
+	if(ret)
 		return ret;
 retry:
 	if((ret = __repmgr_setup_gmdb_op(env, ip, NULL, 0)) != 0)
@@ -782,7 +782,7 @@ static int resolve_limbo_int(ENV*env, DB_THREAD_INFO * ip)
 		ret = __db_put(db_rep->gmdb, ip, txn, &key_dbt, &data_dbt, 0);
 		if((t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto out;
 		/*
 		 * Check to see whether we got another PERM failure.  This is
@@ -935,7 +935,7 @@ retry:
 		goto err;
 	ret = __txn_commit(txn, 0);
 	txn = NULL;
-	if(ret != 0)
+	if(ret)
 		goto err;
 	LOCK_MUTEX(db_rep->mutex);
 	locked = TRUE;
@@ -1083,7 +1083,7 @@ static int finish_gmdb_update(ENV*env, DB_THREAD_INFO * ip, DBT * key_dbt, uint3
 		marshal_site_data(env, status, data_buf, &data_dbt);
 		ret = __db_put(db_rep->gmdb, ip, txn, key_dbt, &data_dbt, 0);
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	if((ret = incr_gm_version(env, ip, txn)) != 0)
 		goto err;
@@ -1138,7 +1138,7 @@ int __repmgr_setup_gmdb_op(ENV*env, DB_THREAD_INFO * ip, DB_TXN ** txnp, uint32 
 			txn = NULL;
 		}
 		db_rep->active_gmdb_update = gmdb_none;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	/*

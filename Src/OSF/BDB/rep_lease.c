@@ -126,7 +126,7 @@ int __rep_lease_table_alloc(ENV*env, uint32 nsites)
 	}
 	ret = __env_alloc(infop, (size_t)nsites*sizeof(REP_LEASE_ENTRY), &lease);
 	MUTEX_UNLOCK(env, renv->mtx_regenv);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	else
 		rep->lease_off = R_OFFSET(infop, lease);

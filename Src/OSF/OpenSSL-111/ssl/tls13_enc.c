@@ -86,7 +86,7 @@ int tls13_hkdf_expand(SSL * s, const EVP_MD * md, const uchar * secret,
 		EVP_PKEY_CTX_set_hkdf_md(pctx, md) <= 0 || EVP_PKEY_CTX_set1_hkdf_key(pctx, secret, hashlen) <= 0 || 
 		EVP_PKEY_CTX_add1_hkdf_info(pctx, hkdflabel, hkdflabellen) <= 0 || EVP_PKEY_derive(pctx, out, &outlen) <= 0;
 	EVP_PKEY_CTX_free(pctx);
-	if(ret != 0) {
+	if(ret) {
 		if(fatal)
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_HKDF_EXPAND, ERR_R_INTERNAL_ERROR);
 		else
@@ -205,7 +205,7 @@ int tls13_generate_secret(SSL * s, const EVP_MD * md,
 	ret = EVP_PKEY_derive_init(pctx) <= 0 || EVP_PKEY_CTX_hkdf_mode(pctx, EVP_PKEY_HKDEF_MODE_EXTRACT_ONLY) <= 0 || 
 		EVP_PKEY_CTX_set_hkdf_md(pctx, md) <= 0 || EVP_PKEY_CTX_set1_hkdf_key(pctx, insecret, insecretlen) <= 0 || 
 		EVP_PKEY_CTX_set1_hkdf_salt(pctx, prevsecret, prevsecretlen) <= 0 || EVP_PKEY_derive(pctx, outsecret, &mdlen) <= 0;
-	if(ret != 0)
+	if(ret)
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS13_GENERATE_SECRET, ERR_R_INTERNAL_ERROR);
 	EVP_PKEY_CTX_free(pctx);
 	if(prevsecret == preextractsec)

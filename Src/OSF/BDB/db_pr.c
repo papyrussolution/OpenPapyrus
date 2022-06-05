@@ -1025,7 +1025,7 @@ int __db_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, i
 		}
 		else
 			ret = callback(handle, buf);
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	else if(is_heap) {
@@ -1047,7 +1047,7 @@ int __db_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, i
 		}
 		else
 			ret = callback(handle, buf);
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	else if(checkprint) {

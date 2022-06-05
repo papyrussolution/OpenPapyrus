@@ -558,38 +558,40 @@ int SmartListBox::SetupTreeWnd2(void * pParent)
 						SHandle current_h = item_h_list.at(i);
 						if(current_h) {
 							const long current_id = p_tree->GetNodeKey(current_h);
-							TVINSERTSTRUCT is;
-							is.hParent      = NZOR(h_parent, TVI_ROOT);
-							is.hInsertAfter = TVI_LAST;
-							is.item.mask    = TVIF_TEXT | TVIF_PARAM | TVIF_CHILDREN;
-							if(p_def2->GetImageIdxByID(current_id, 0) > 0) {
-								is.item.iImage = I_IMAGECALLBACK;
-								is.item.iSelectedImage = I_IMAGECALLBACK;
-								is.item.mask |= (TVIF_IMAGE|TVIF_SELECTEDIMAGE);
-							}
-							//const  uint32 first_child_p = p_tree->GetFirstChildP(t_iter.GetCurrentPos());
-							bool has_children = p_tree->HasNodeChildren(current_h);
-							is.item.cChildren = has_children ? 1 : 0;
-							is.item.pszText = LPSTR_TEXTCALLBACK;
-							is.item.lParam  = current_id;
-							HTREEITEM h_tree = TreeView_InsertItem(h_lb, &is);
-							if(h_tree) {
-								p_tree->SetNodeExtraPtr(current_h, reinterpret_cast<uintptr_t>(h_tree));
-								//p_item->H = h_tree;
-								if(has_children /*&& !(parentP == 0 && p_item->Id == 0)*/)
-									SetupTreeWnd2(current_h); // @recursion
-							}
-							else {
-								//
-								// @? Здесь программа получает сообщение от системы, которое нигде ни используется!
-								//
-								//TCHAR temp_buf[256];
-								//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, SIZEOFARRAY(temp_buf), 0);
-								//(err_msg = SUcSwitch(temp_buf)).Chomp();
-								// @v10.3.11 {
-								SSystem::SFormatMessage(err_msg); 
-								err_msg.Chomp();
-								// } @v10.3.11
+							if(pParent || p_def2->BelongToTopLevelResriction(current_id)) {
+								TVINSERTSTRUCT is;
+								is.hParent      = NZOR(h_parent, TVI_ROOT);
+								is.hInsertAfter = TVI_LAST;
+								is.item.mask    = TVIF_TEXT | TVIF_PARAM | TVIF_CHILDREN;
+								if(p_def2->GetImageIdxByID(current_id, 0) > 0) {
+									is.item.iImage = I_IMAGECALLBACK;
+									is.item.iSelectedImage = I_IMAGECALLBACK;
+									is.item.mask |= (TVIF_IMAGE|TVIF_SELECTEDIMAGE);
+								}
+								//const  uint32 first_child_p = p_tree->GetFirstChildP(t_iter.GetCurrentPos());
+								bool has_children = p_tree->HasNodeChildren(current_h);
+								is.item.cChildren = has_children ? 1 : 0;
+								is.item.pszText = LPSTR_TEXTCALLBACK;
+								is.item.lParam  = current_id;
+								HTREEITEM h_tree = TreeView_InsertItem(h_lb, &is);
+								if(h_tree) {
+									p_tree->SetNodeExtraPtr(current_h, reinterpret_cast<uintptr_t>(h_tree));
+									//p_item->H = h_tree;
+									if(has_children /*&& !(parentP == 0 && p_item->Id == 0)*/)
+										SetupTreeWnd2(current_h); // @recursion
+								}
+								else {
+									//
+									// @? Здесь программа получает сообщение от системы, которое нигде ни используется!
+									//
+									//TCHAR temp_buf[256];
+									//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, SIZEOFARRAY(temp_buf), 0);
+									//(err_msg = SUcSwitch(temp_buf)).Chomp();
+									// @v10.3.11 {
+									SSystem::SFormatMessage(err_msg); 
+									err_msg.Chomp();
+									// } @v10.3.11
+								}
 							}
 						}
 					}

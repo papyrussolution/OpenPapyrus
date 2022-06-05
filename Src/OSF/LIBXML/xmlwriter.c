@@ -124,7 +124,7 @@ static void FASTCALL xmlWriterErrMsg(xmlTextWriter * ctxt, xmlParserErrors error
 
 static void FASTCALL xmlWriterErrMsg_OutOfMem(xmlTextWriter * ctxt, const char * pFunc)
 {
-	xmlWriterErrMsg(ctxt, XML_ERR_NO_MEMORY, pFunc, "out of memory!");
+	xmlWriterErrMsg(ctxt, XML_ERR_NO_MEMORY, pFunc, SlTxtOutOfMem);
 }
 /**
  * xmlWriterErrMsgInt:

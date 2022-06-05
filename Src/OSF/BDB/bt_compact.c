@@ -333,12 +333,12 @@ retry:
 			else {
 				if(npgno != PGNO_INVALID) {
 					TRY_LOCK(dbc, npgno, saved_pgno, next_lock, DB_LOCK_WRITE, retry);
-					if(ret != 0)
+					if(ret)
 						goto err;
 				}
 				if(PREV_PGNO(pg) != PGNO_INVALID) {
 					TRY_LOCK(dbc, PREV_PGNO(pg), prev_pgno, prev_lock, DB_LOCK_WRITE, retry);
-					if(ret != 0)
+					if(ret)
 						goto err;
 				}
 				if((ret = __bam_dpages(dbc, 0, BTD_RELINK)) != 0)
@@ -390,13 +390,13 @@ retry:
 		 * same page, be careful not to free both.
 		 */
 		BT_STK_PUSH(env, ncp, cp->sp->page, cp->sp->indx, cp->sp->lock, cp->sp->lock_mode, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		clear_root = 1;
 		/* Copy the stack containing the next page. */
 		for(epg++; epg <= cp->csp; epg++) {
 			BT_STK_PUSH(env, ncp, epg->page, epg->indx, epg->lock, epg->lock_mode, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 		}
 		/* adjust the stack pointer to remove these items. */
@@ -429,7 +429,7 @@ retry:
 		if(check_trunc && PGNO(pg) > c_data->compact_truncate) {
 			if(PREV_PGNO(pg) != PGNO_INVALID) {
 				TRY_LOCK2(dbc, ndbc, PREV_PGNO(pg), prev_pgno, prev_lock, DB_LOCK_WRITE, retry);
-				if(ret != 0)
+				if(ret)
 					goto err1;
 			}
 			pgs_done++;
@@ -499,7 +499,7 @@ retry:
 		npgno = NEXT_PGNO(ncp->csp->page);
 		if(npgno != PGNO_INVALID) {
 			TRY_LOCK2(dbc, ndbc, npgno, nnext_pgno, nnext_lock, DB_LOCK_WRITE, retry);
-			if(ret != 0)
+			if(ret)
 				goto err1;
 		}
 		/*lint -e{794} */
@@ -561,12 +561,12 @@ retry:
 			if(check_trunc && PGNO(pg) > c_data->compact_truncate) {
 				if(PREV_PGNO(pg) != PGNO_INVALID) {
 					TRY_LOCK(dbc, PREV_PGNO(pg), prev_pgno, prev_lock, DB_LOCK_WRITE, retry);
-					if(ret != 0)
+					if(ret)
 						goto err1;
 				}
 				if(npgno != PGNO_INVALID) {
 					TRY_LOCK(dbc, npgno, saved_pgno, next_lock, DB_LOCK_WRITE, retry);
-					if(ret != 0)
+					if(ret)
 						goto err1;
 				}
 				// Get a fresh low numbered page. 
@@ -652,7 +652,7 @@ retry:
 		}
 		// Lock and get the next page. 
 		TRY_LOCK(dbc, npgno, saved_pgno, saved_lock, DB_LOCK_WRITE, retry);
-		if(ret != 0)
+		if(ret)
 			goto err1;
 		if((ret = __LPUT(dbc, ncp->lock)) != 0)
 			goto err1;
@@ -664,7 +664,7 @@ retry:
 		if(check_trunc && PGNO(pg) > c_data->compact_truncate) {
 			if(PREV_PGNO(pg) != PGNO_INVALID) {
 				TRY_LOCK(dbc, PREV_PGNO(pg), prev_pgno, prev_lock, DB_LOCK_WRITE, retry);
-				if(ret != 0)
+				if(ret)
 					goto err1;
 			}
 			pgno = PGNO(pg);
@@ -689,12 +689,12 @@ retry:
 		npgno = NEXT_PGNO(npg);
 		if(npgno != PGNO_INVALID) {
 			TRY_LOCK(dbc, npgno, nnext_pgno, nnext_lock, DB_LOCK_WRITE, retry);
-			if(ret != 0)
+			if(ret)
 				goto err1;
 		}
 		/* copy the common parent to the stack. */
 		BT_STK_PUSH(env, ncp, ppg, epg->indx+1, epg->lock, epg->lock_mode, ret);
-		if(ret != 0)
+		if(ret)
 			goto err1;
 		/* Put the page on the stack. */
 		BT_STK_ENTER(env, ncp, npg, 0, ncp->lock, DB_LOCK_WRITE, ret);
@@ -1246,7 +1246,7 @@ free_page:
 	if(level != 0) {
 		pgno = PGNO_INVALID;
 		BAM_GET_ROOT(ndbc, pgno, npg, 0, DB_LOCK_READ, root_lock, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		DB_ASSERT(dbp->env, npg != NULL);
 		if(level == LEVEL(npg))
@@ -1475,7 +1475,7 @@ fits:   memzero(&bi, sizeof(bi));
 	if(trecs != 0) {
 		cp->csp--;
 		ret = __bam_adjust(dbc, trecs);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		cp->csp++;
 		ncp->csp--;
@@ -1523,7 +1523,7 @@ fits:   memzero(&bi, sizeof(bi));
 		if(ret == 0 && level != 0) {
 			pgno = PGNO_INVALID;
 			BAM_GET_ROOT(ndbc, pgno, npg, 0, DB_LOCK_READ, root_lock, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			if(level == LEVEL(npg))
 				level = 0;
@@ -1827,7 +1827,7 @@ static int __bam_lock_subtree(DBC * dbc, PAGE * page, uint32 indx, uint32 stop)
 			ret = __bam_lock_subtree(dbc, cpage, 0, NUM_ENT(cpage));
 			if((t_ret = __memp_fput(dbp->mpf, dbc->thread_info, cpage, dbc->priority)) != 0 && ret == 0)
 				ret = t_ret;
-			if(ret != 0)
+			if(ret)
 				return ret;
 		}
 	}
@@ -1891,7 +1891,7 @@ static int __bam_savekey(DBC * dbc, int next, DBT * start)
 		pg = NULL;
 		if(level-1 == LEAFLEVEL) {
 			TRY_LOCK(dbc, pgno, saved_pgno, lock, DB_LOCK_READ, retry);
-			if(ret != 0)
+			if(ret)
 				goto err;
 		}
 		if((ret = __memp_fget(dbp->mpf, &pgno, dbc->thread_info, dbc->txn, 0, &pg)) != 0)
@@ -1984,7 +1984,7 @@ new_txn:
 	 */
 	pgno = PGNO_INVALID;
 	BAM_GET_ROOT(dbc, pgno, root, 0, DB_LOCK_READ, root_lock, ret);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	rlevel = LEVEL(root);
 	if((ret = __memp_fput(dbp->mpf, ip, root, dbp->priority)) != 0)
@@ -2089,7 +2089,7 @@ again:
 				dbc = NULL;
 				ret = __txn_abort(txn);
 				txn = NULL;
-				if(ret != 0)
+				if(ret)
 					goto err;
 			}
 			else {
@@ -2104,7 +2104,7 @@ again:
 			dbmeta = reinterpret_cast<DBMETA *>(meta);
 			ret = __db_move_metadata(dbc, &dbmeta, c_data);
 			meta = (BTMETA *)dbmeta;
-			if(ret != 0)
+			if(ret)
 				goto err;
 		}
 		if(bt->bt_root > c_data->compact_truncate) {

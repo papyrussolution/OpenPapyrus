@@ -351,7 +351,7 @@ retry:
 	 * secondary cursor.  This is how we finally finish the join
 	 * if all goes well.
 	 */
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * If jc->j_exhausted[0] == 1, we've just advanced the first cursor,
@@ -474,7 +474,7 @@ mem_err:
 			}
 			goto retry2;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/*
 		 * If we made it this far, we've found a matching
@@ -501,7 +501,7 @@ mem_err:
 			goto err;
 	}
 err:
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(0) {
 samekey:        /*

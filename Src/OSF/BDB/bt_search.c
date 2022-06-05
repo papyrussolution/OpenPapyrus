@@ -85,7 +85,7 @@ retry:
 			return ret;
 		goto retry;
 	}
-	if(ret != 0) {
+	if(ret) {
 		/* Did not read it, so we can release the lock */
 		__LPUT(dbc, lock);
 		return ret;
@@ -141,7 +141,7 @@ retry:
 			if(oneof2(ret, DB_LOCK_DEADLOCK, DB_LOCK_NOTGRANTED))
 				ret = 0;
 			SETIFZ(ret, t_ret);
-			if(ret != 0)
+			if(ret)
 				return ret;
 			get_mode = 0;
 			if(lock_mode == DB_LOCK_WRITE)
@@ -165,7 +165,7 @@ retry:
 			h = NULL;
 			if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 				ret = t_ret;
-			if(ret != 0)
+			if(ret)
 				return ret;
 			goto try_again;
 		}
@@ -341,7 +341,7 @@ retry:
 				if((t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 					ret = t_ret;
 				h = NULL;
-				if(ret != 0)
+				if(ret)
 					goto err;
 				goto done;
 			}
@@ -371,7 +371,7 @@ get_next:
 				if(LF_ISSET(SR_BOTH)) {
 					cp->csp++;
 					BT_STK_PUSH(env, cp, h, indx, lock, lock_mode, ret);
-					if(ret != 0)
+					if(ret)
 						goto err;
 					LOCK_INIT(lock);
 					h = cp->sp->page;
@@ -405,7 +405,7 @@ get_next:
 			if(LF_ISSET(SR_DEL) && cp->csp == cp->sp)
 				cp->csp++;
 			BT_STK_ENTER(env, cp, h, base, lock, lock_mode, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			goto done;
 		}
@@ -435,7 +435,7 @@ next:
 				if((t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 					ret = t_ret;
 				h = NULL;
-				if(ret != 0)
+				if(ret)
 					goto err;
 				goto done;
 			}
@@ -447,7 +447,7 @@ next:
 			// Return if this is the lowest page wanted. 
 			if(LF_ISSET(SR_PARENT) && slevel == level) {
 				BT_STK_ENTER(env, cp, h, indx, lock, lock_mode, ret);
-				if(ret != 0)
+				if(ret)
 					goto err;
 				goto done;
 			}
@@ -462,7 +462,7 @@ next:
 				goto do_del;
 			}
 			BT_STK_PUSH(env, cp, h, indx, lock, lock_mode, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			LOCK_INIT(lock);
 			get_mode = DB_MPOOL_DIRTY;
@@ -511,7 +511,7 @@ next:
 				cp->csp++;
 				// Push this node. 
 				BT_STK_PUSH(env, cp, h, indx, lock, DB_LOCK_NG, ret);
-				if(ret != 0)
+				if(ret)
 					goto err;
 				LOCK_INIT(lock);
 			}
@@ -530,7 +530,7 @@ do_del:
 				}
 				/* Save this node. */
 				BT_STK_ENTER(env, cp, h, indx, lock, lock_mode, ret);
-				if(ret != 0)
+				if(ret)
 					goto err;
 				LOCK_INIT(lock);
 			}
@@ -617,7 +617,7 @@ lock_next:
 				    TYPE(h) != (dbc->dbtype == DB_BTREE ? P_IBTREE : P_IRECNO))) {
 drop_lock:
 						ret = __LPUT(dbc, saved_lock);
-					if(ret != 0)
+					if(ret)
 						goto err;
 					pg = root_pgno;
 					saved_level = MAXBTREELEVEL;
@@ -715,7 +715,7 @@ found:
 			cp->csp++;
 		BT_STK_ENTER(env, cp, h, indx, lock, lock_mode, ret);
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	cp->csp->lock = lock;
 	DB_ASSERT(env, parent_h == NULL);

@@ -32,7 +32,7 @@ again:
 		ret = __LPUT(dbc, hcp->hlock);
 		t_ret = __memp_fput(mpf, dbc->thread_info, hcp->hdr, dbc->priority);
 		hcp->hdr = NULL;
-		if(ret != 0)
+		if(ret)
 			return ret;
 		if(t_ret != 0)
 			return t_ret;

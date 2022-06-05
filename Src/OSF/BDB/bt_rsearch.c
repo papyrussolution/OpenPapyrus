@@ -169,7 +169,7 @@ int __bam_rsearch(DBC * dbc, db_recno_t * recnop, uint32 flags, int stop, int * 
 					break;
 			}
 			BT_STK_ENTER(env, cp, h, indx, lock, lock_mode, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			if(LF_ISSET(SR_BOTH))
 				goto get_prev;
@@ -196,7 +196,7 @@ int __bam_rsearch(DBC * dbc, db_recno_t * recnop, uint32 flags, int stop, int * 
 			--recno;
 enter:
 			BT_STK_ENTER(env, cp, h, recno, lock, lock_mode, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			if(LF_ISSET(SR_BOTH)) {
 get_prev:
@@ -245,13 +245,13 @@ get_prev:
 		/* Return if this is the lowest page wanted. */
 		if(stop == LEVEL(h)) {
 			BT_STK_ENTER(env, cp, h, indx, lock, lock_mode, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			goto done;
 		}
 		if(stack) {
 			BT_STK_PUSH(env, cp, h, indx, lock, lock_mode, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			h = NULL;
 			lock_mode = DB_LOCK_WRITE;
@@ -276,7 +276,7 @@ get_prev:
 			}
 			BT_STK_PUSH(env, cp, h, indx, lock, lock_mode, ret);
 			h = NULL;
-			if(ret != 0)
+			if(ret)
 				goto err;
 lock_next:
 			if((ret = __db_lget(dbc, 0, pg, lock_mode, 0, &lock)) != 0)
@@ -343,7 +343,7 @@ int __bam_adjust(DBC * dbc, int32 adjust)
 		if(TYPE(h) == P_IBTREE || TYPE(h) == P_IRECNO) {
 			ret = __memp_dirty(mpf, &h, dbc->thread_info, dbc->txn, dbc->priority, 0);
 			epg->page = h;
-			if(ret != 0)
+			if(ret)
 				return ret;
 			if(DBC_LOGGING(dbc)) {
 				if((ret = __bam_cadjust_log(dbp, dbc->txn, &LSN(h), 0, PGNO(h), &LSN(h),
@@ -379,7 +379,7 @@ int FASTCALL __bam_nrecs(DBC * dbc, db_recno_t * rep)
 	LOCK_INIT(lock);
 	pgno = PGNO_INVALID;
 	BAM_GET_ROOT(dbc, pgno, h, 0, DB_LOCK_READ, lock, ret);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	DB_ASSERT(dbp->env, h != NULL);
 	*rep = RE_NREC(h);

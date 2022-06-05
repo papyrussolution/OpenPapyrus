@@ -388,7 +388,7 @@ init:
 		ip->dbth_state = state;
 	*ipp = ip;
 	DB_ASSERT(env, ret == 0);
-	if(ret != 0)
+	if(ret)
 		__db_errx(env, DB_STR("1508", "Unable to allocate thread control block"));
 	return ret;
 }

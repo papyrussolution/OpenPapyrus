@@ -20,19 +20,8 @@
 // This file defines some utilities useful for implementing Google
 // Mock.  They are subject to change without notice, so please DO NOT
 // USE THEM IN USER CODE.
-
-#include "gmock/internal/gmock-internal-utils.h"
-#include <ctype.h>
-#include <array>
-#include <cctype>
-#include <cstdint>
-#include <cstring>
-#include <ostream>  // NOLINT
-#include <string>
-#include <vector>
-#include "gmock/gmock.h"
-#include "gmock/internal/gmock-port.h"
-#include "gtest/gtest.h"
+#include "gmock/internal/gmock-internal.h"
+#pragma hdrstop
 
 namespace testing {
 namespace internal {

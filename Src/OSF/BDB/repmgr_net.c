@@ -281,7 +281,7 @@ int __repmgr_send(DB_ENV * dbenv, const DBT * control, const DBT * rec, const DB
 		if((ret = __repmgr_send_one(env, conn, REPMGR_REP_MESSAGE, control, rec, maxblock)) == DB_REP_UNAVAIL &&
 		   (t_ret = __repmgr_bust_connection(env, conn)) != 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto out;
 		nsites_sent = 1;
 		npeers_sent = F_ISSET(site, SITE_ELECTABLE) ? 1 : 0;
@@ -429,7 +429,7 @@ int __repmgr_send(DB_ENV * dbenv, const DBT * control, const DBT * rec, const DB
 out:
 	UNLOCK_MUTEX(db_rep->mutex);
 	if(LF_ISSET(DB_REP_PERMANENT)) {
-		if(ret != 0) {
+		if(ret) {
 			switch(db_rep->active_gmdb_update) {
 			    case gmdb_none:
 				/*
@@ -739,7 +739,7 @@ static int __repmgr_send_internal(ENV * env, REPMGR_CONNECTION * conn, struct se
 			VPRINT(env, (env, DB_VERB_REPMGR_MISC, "drain returned %d (%d,%d)", ret, db_rep->finished, conn->out_queue_length));
 			if(db_rep->finished)
 				return DB_TIMEOUT;
-			if(ret != 0)
+			if(ret)
 				return ret;
 			if(STAILQ_EMPTY(&conn->outbound_queue))
 				goto empty;
@@ -1497,7 +1497,7 @@ static uint fake_port(ENV * env, uint port)
 			s = INVALID_SOCKET;
 		}
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	snprintf(buf, sizeof(buf), "{config,%u}\r\n", port);
 	iovec.iov_base = buf;
@@ -1507,7 +1507,7 @@ static uint fake_port(ENV * env, uint port)
 		if((iovec.iov_len -= (ulong)count) == 0)
 			break;
 	}
-	if(ret != 0) {
+	if(ret) {
 		__db_err(env, ret, "fake_port:writev");
 		goto err;
 	}
@@ -1532,7 +1532,7 @@ static uint fake_port(ENV * env, uint port)
 		iovec.iov_len -= (ulong)count;
 		DB_ASSERT(env, iovec.iov_len > 0);
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	if(__db_getlong(env->dbenv, "repmgr_net.c:fake_port", buf, MIN_PORT, MAX_PORT, &result) == 0)
 		port = (uint)result;

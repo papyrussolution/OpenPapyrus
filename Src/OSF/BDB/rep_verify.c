@@ -373,7 +373,7 @@ int __rep_verify_req(ENV*env, __rep_control_args * rp, int eid)
 		   old != 0)
 			type = REP_VERIFY_FAIL;
 	}
-	if(ret != 0)
+	if(ret)
 		d = NULL;
 	__rep_send_message(env, eid, type, &rp->lsn, d, 0, 0);
 	return __logc_close(logc);
@@ -462,7 +462,7 @@ int __rep_dorecovery(ENV * env, DB_LSN * lsnp, DB_LSN * trunclsnp)
 	/*
 	 * Handle if the logc_get fails.
 	 */
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * If we successfully run recovery, we've opened all the necessary
@@ -485,7 +485,7 @@ int __rep_dorecovery(ENV * env, DB_LSN * lsnp, DB_LSN * trunclsnp)
 		}
 		ret = __db_apprec(env, ip, lsnp, trunclsnp, update, 0);
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	F_SET(db_rep, DBREP_OPENFILES);
 	/*
@@ -610,7 +610,7 @@ int __rep_verify_match(ENV * env, DB_LSN * reclsnp, __time64_t savetime)
 		event = 1;
 	CLR_RECOVERY_SETTINGS(rep);
 	FLD_CLR(rep->lockout_flags, REP_LOCKOUT_ARCHIVE|REP_LOCKOUT_MSG);
-	if(ret != 0)
+	if(ret)
 		goto errunlock2;
 	/*
 	 * If the master_id is invalid, this means that since

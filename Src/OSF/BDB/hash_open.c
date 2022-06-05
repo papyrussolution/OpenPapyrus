@@ -283,7 +283,7 @@ int __ham_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 			goto err;
 		ret = __memp_fput(mpf, ip, meta, dbp->priority);
 		meta = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		// Allocate the final hash bucket
 		if((ret = __memp_fget(mpf, &lpgno, ip, txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &page)) != 0)
@@ -295,7 +295,7 @@ int __ham_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, con
 			goto err;
 		ret = __memp_fput(mpf, ip, page, dbp->priority);
 		page = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	else {

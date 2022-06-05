@@ -18,10 +18,10 @@ int __os_rename(ENV * env, const char * oldname, const char * newname, uint32 si
 	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0036", "fileops: rename %s to %s", "%s %s"), oldname, newname);
 	TO_TSTRING(env, oldname, toldname, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	TO_TSTRING(env, newname, tnewname, ret);
-	if(ret != 0) {
+	if(ret) {
 		FREE_STRING(env, toldname);
 		return ret;
 	}
@@ -52,7 +52,7 @@ int __os_rename(ENV * env, const char * oldname, const char * newname, uint32 si
 	}
 	FREE_STRING(env, tnewname);
 	FREE_STRING(env, toldname);
-	if(ret != 0) {
+	if(ret) {
 		if(silent == 0)
 			__db_syserr(env, ret, DB_STR_A("0037", "MoveFileEx %s %s", "%s %s"), oldname, newname);
 		ret = __os_posix_err(ret);

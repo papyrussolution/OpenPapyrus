@@ -665,7 +665,7 @@ static int __log_putr(DB_LOG * dblp, DB_LSN * lsn, const DBT * dbt, uint32 prev,
 	ret = __log_fill(dblp, lsn, hdr, (uint32)nr);
 	if(LOG_SWAPPED(env))
 		__log_hdrswap(hdr, CRYPTO_ON(env));
-	if(ret != 0)
+	if(ret)
 		goto err;
 	if((ret = __log_fill(dblp, lsn, dbt->data, dbt->size)) != 0)
 		goto err;
@@ -1080,7 +1080,7 @@ static int __log_file(ENV * env, const DB_LSN * lsn, char * namep, size_t len)
 	LOG_SYSTEM_LOCK(env);
 	ret = __log_name(dblp, lsn->file, &name, NULL, 0);
 	LOG_SYSTEM_UNLOCK(env);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	/* Check to make sure there's enough room and copy the name. */
 	if(len < sstrlen(name)+1) {
@@ -1541,7 +1541,7 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 		LSN_NOT_LOGGED(*ret_lsnp);
 	}
 #ifdef LOG_DIAGNOSTIC
-	if(ret != 0)
+	if(ret)
 		__db_addrem_print(env, (DBT *)&logrec, ret_lsnp, DB_TXN_PRINT, 0);
 #endif
 

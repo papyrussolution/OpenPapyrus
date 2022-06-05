@@ -200,7 +200,7 @@ static int __qamc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t 
 		ret = t_ret;
 	cp->page = NULL;
 	cp->lock_mode = DB_LOCK_WRITE;
-	if(ret != 0)
+	if(ret)
 		return ret;
 	/* Unlock the record if not in a transaction. */
 	if((ret = __TLPUT(dbc, cp->lock)) != 0)
@@ -314,7 +314,7 @@ again:
 	/*
 	 * Capture errors from either the lock couple or the call to dbp->db_append_recno.
 	 */
-	if(ret != 0)
+	if(ret)
 		goto err;
 	pg = QAM_RECNO_PAGE(dbp, recno);
 	/* Fetch for write the data page. */
@@ -543,7 +543,7 @@ retry:  /* Update the record number. */
 					/* Drop the metapage before we wait. */
 					ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 					meta = NULL;
-					if(ret != 0)
+					if(ret)
 						goto err;
 					if((ret = __lock_get(env, dbc->locker, DB_LOCK_SWITCH, &dbc->lock_dbt, DB_LOCK_WAIT, &dbc->mylock)) != 0)
 						goto err;
@@ -562,7 +562,7 @@ retry:  /* Update the record number. */
 				/* Drop the metapage before we wait. */
 				ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 				meta = NULL;
-				if(ret != 0)
+				if(ret)
 					goto err;
 				/* Upgrade the lock to wait on it. */
 				if((ret = __db_lget(dbc, 0, PGNO_INVALID, DB_LOCK_WAIT, DB_LOCK_UPGRADE, &metalock)) != 0) {
@@ -629,7 +629,7 @@ dolock:
 		skip = 1;
 		goto retry;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * In the DB_FIRST or DB_LAST cases we must wait and then start over
@@ -937,7 +937,7 @@ static int __qam_consume(DBC * dbc, QMETA * meta, db_recno_t first)
 			ret = 0;
 			goto done;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 		if(cp->page && (ret = __qam_fput(dbc, cp->pgno, cp->page, dbc->priority)) != 0)
 			goto err;
@@ -996,7 +996,7 @@ static int __qam_consume(DBC * dbc, QMETA * meta, db_recno_t first)
 			ret = 0;
 			break;
 		}
-		if(ret != 0)
+		if(ret)
 			break;
 		if((ret = __qam_position(dbc, &first, 0, &exact)) != 0) {
 			__LPUT(dbc, lock);

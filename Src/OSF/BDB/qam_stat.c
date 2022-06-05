@@ -55,7 +55,7 @@ int __qam_stat(DBC*dbc, void * spp, uint32 flags)
 	ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0)
+	if(ret)
 		goto err;
 	pgno = first;
 	if(first > last)
@@ -85,7 +85,7 @@ begin:
 			pgno += (pg_ext-((pgno-1)%pg_ext))-1;
 			continue;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 		++sp->qs_pages;
 
@@ -101,7 +101,7 @@ begin:
 		ret = __qam_fput(dbc, pgno, h, dbc->priority);
 		if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	if((ret = __LPUT(dbc, lock)) != 0)
@@ -135,7 +135,7 @@ meta_only:
 	ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority);
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0)
+	if(ret)
 		goto err;
 	*(DB_QUEUE_STAT **)spp = sp;
 	if(0) {

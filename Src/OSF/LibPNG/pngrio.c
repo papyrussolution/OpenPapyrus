@@ -29,7 +29,7 @@
  * buffering if you are using unbuffered reads.  This should never be asked
  * to read more than 64K on a 16-bit machine.
  */
-void /* PRIVATE */ png_read_data(png_structrp png_ptr, png_bytep data, size_t length)
+void /*PRIVATE*/ png_read_data(png_structrp png_ptr, png_bytep data, size_t length)
 {
 	png_debug1(4, "reading %d bytes", (int)length);
 	if(png_ptr->read_data_fn != NULL)

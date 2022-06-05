@@ -120,7 +120,7 @@ int __qam_incfirst_recover(ENV*env, DBT * dbtp, DB_LSN * lsnp, db_recops op, voi
 			goto err;
 	}
 	ret = __memp_fput(mpf, ip, meta, dbc->priority);
-	if(ret != 0)
+	if(ret)
 		goto out;
 done:
 	*lsnp = argp->prev_lsn;

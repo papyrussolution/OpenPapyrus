@@ -759,10 +759,13 @@ static void png_read_destroy(png_structrp png_ptr)
 	png_free(png_ptr, png_ptr->chunk_list);
 	png_ptr->chunk_list = NULL;
 #endif
-	/* NOTE: the 'setjmp' buffer may still be allocated and the memory and error
-	 * callbacks are still set at this point.  They are required to complete the
-	 * destruction of the png_struct itself.
-	 */
+#if defined(PNG_READ_EXPAND_SUPPORTED) && defined(PNG_ARM_NEON_IMPLEMENTATION) // @libpng(1.6.37)
+	png_free(png_ptr, png_ptr->riffled_palette);
+	png_ptr->riffled_palette = NULL;
+#endif
+	// NOTE: the 'setjmp' buffer may still be allocated and the memory and error
+	// callbacks are still set at this point.  They are required to complete the
+	// destruction of the png_struct itself.
 }
 
 /* Free all memory used by the read */
@@ -770,19 +773,18 @@ void PNGAPI png_destroy_read_struct(png_structpp png_ptr_ptr, png_infopp info_pt
 {
 	png_structrp png_ptr = NULL;
 	png_debug(1, "in " __FUNCTION__);
-	if(png_ptr_ptr != NULL)
+	if(png_ptr_ptr)
 		png_ptr = *png_ptr_ptr;
-	if(!png_ptr)
-		return;
-	/* libpng 1.6.0: use the API to destroy info structs to ensure consistent
-	 * behavior.  Prior to 1.6.0 libpng did extra 'info' destruction in this API.
-	 * The extra was, apparently, unnecessary yet this hides memory leak bugs.
-	 */
-	png_destroy_info_struct(png_ptr, end_info_ptr_ptr);
-	png_destroy_info_struct(png_ptr, info_ptr_ptr);
-	*png_ptr_ptr = NULL;
-	png_read_destroy(png_ptr);
-	png_destroy_png_struct(png_ptr);
+	if(png_ptr) {
+		// libpng 1.6.0: use the API to destroy info structs to ensure consistent
+		// behavior.  Prior to 1.6.0 libpng did extra 'info' destruction in this API.
+		// The extra was, apparently, unnecessary yet this hides memory leak bugs.
+		png_destroy_info_struct(png_ptr, end_info_ptr_ptr);
+		png_destroy_info_struct(png_ptr, info_ptr_ptr);
+		*png_ptr_ptr = NULL;
+		png_read_destroy(png_ptr);
+		png_destroy_png_struct(png_ptr);
+	}
 }
 
 void PNGAPI png_set_read_status_fn(png_structrp png_ptr, png_read_status_ptr read_row_fn)
@@ -1180,8 +1182,8 @@ int PNGAPI png_image_begin_read_from_file(png_imagep image, const char * file_na
 					image->opaque->owned_file = 1;
 					return png_safe_execute(image, png_image_read_header, image);
 				}
-				/* Clean up: just the opened file. */
-				(void)fclose(fp);
+				// Clean up: just the opened file
+				fclose(fp);
 			}
 			else
 				return png_image_error(image, strerror(errno));

@@ -3954,6 +3954,11 @@ public:
 	virtual int    search(const void * pPattern, CompFunc fcmp, int srchMode);
 	virtual int    GetFrameSize();
 	virtual int    GetFrameState();
+	int    AddTopLevelRestrictionId(long id); // @v11.4.0
+	//
+	// Descr: Возвращает true если идентификатор id следует отображать среди узлов верхнего уровня.
+	//
+	bool   BelongToTopLevelResriction(long id) const; // @v11.4.0
 	int    setArray(StrAssocTree *);
 	int    GetStringByID(long id, SString & rBuf);
 	int    GoByID(long id);
@@ -3980,6 +3985,8 @@ private:
 		char   Txt[256];
 	};
 	Item   TempItem;
+	LongArray * P_TopLevelRestrictionIdList; // @v11.4.0 Список идентификаторов узлов верхнего уровня, которыми следует ограничить отображение.
+		// Эти ограничения касаются только верхнего уровня отображения. Если включенные идентификаторы встречаются и внутри дерева, то они отображаются.
 	LongArray LL; // Линеаризованный список идентификаторов P_SaList используемый для базовых функций навигации.
 	LAssocArray StrIndex; // @v11.2.11 Индекс соответствия идентификаторов элементов позициям строк в P_SaList
 	struct SearchBlock { // @v11.2.11 

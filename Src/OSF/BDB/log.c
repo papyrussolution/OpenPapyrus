@@ -839,7 +839,7 @@ int __log_vtruncate(ENV * env, DB_LSN * lsn, DB_LSN * ckplsn, DB_LSN * trunclsn)
 	len = logc->len;
 	if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0)
+	if(ret)
 		return ret;
 	// Now do the truncate
 	dblp = env->lg_handle;
@@ -987,7 +987,7 @@ int __log_zero(ENV * env, DB_LSN * from_lsn)
 		_time64(&lp->timestamp);
 		ret = __os_unlink(env, fname, 0);
 		__os_free(env, fname);
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	/* We removed some log files; have to 0 to end of file. */
@@ -1121,7 +1121,7 @@ int __log_inmem_chkspace(DB_LOG * dblp, size_t len)
 		LOG_SYSTEM_UNLOCK(env);
 		ret = __txn_getactive(env, &active_lsn);
 		LOG_SYSTEM_LOCK(env);
-		if(ret != 0)
+		if(ret)
 			return ret;
 		active_lsn.Offset_ = 0;
 		/* If we didn't make any progress, give up. */

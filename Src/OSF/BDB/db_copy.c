@@ -170,7 +170,7 @@ again:
 			ret = 0;
 			continue;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 		if(F_ISSET(dbp, DB_AM_CHKSUM) || passwd)
 			ret = __db_encrypt_and_checksum_pg(env, dbp, (PAGE *)pagep);
@@ -181,7 +181,7 @@ again:
 		}
 		if((t_ret = __qam_fput(dbc, pgno, pagep, DB_PRIORITY_VERY_LOW)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	if(current < first) {

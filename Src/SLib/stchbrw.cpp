@@ -857,7 +857,7 @@ int FASTCALL STimeChunkBrowser::IsQuantVisible(long q) const
 			LDATETIME dtm1, dtm2;
 			STimeChunk chunk(dtm1.Set(dt, ZEROTIME), dtm2.Set(dt, MAXDAYTIME));
 			STimeChunkArray isect_list;
-			if(p_collapse_list->Intersect(chunk, &isect_list)) {
+			if(p_collapse_list->Intersect(chunk, isect_list)) {
 				for(uint i = 0; yes && i < isect_list.getCount(); i++) {
 					const STimeChunk * p_ic = static_cast<const STimeChunk *>(isect_list.at(i));
 					if(*p_ic == chunk)
@@ -2054,7 +2054,7 @@ long STimeChunkBrowser::DiffTime(const LDATETIME & rEnd, const LDATETIME & rStar
 	if(p_collapse_list) {
 		STimeChunkArray intsect;
 		STimeChunk chunk(rStart, rEnd);
-		if(p_collapse_list->Intersect(chunk, &intsect)) {
+		if(p_collapse_list->Intersect(chunk, intsect)) {
 			for(uint i = 0; i < intsect.getCount(); i++) {
 				const STimeChunk * p_intsect_item = static_cast<const STimeChunk *>(intsect.at(i));
 				diff -= p_intsect_item->GetDuration();
@@ -2081,7 +2081,7 @@ LDATETIME STimeChunkBrowser::AddTime(const LDATETIME & rStart, long sec) const
 			prev_sec = adjusted_sec;
 			temp_list.clear();
 			temp_list.Add(&chunk, 0);
-			if(p_collapse_list->Intersect(&temp_list, &intsect)) {
+			if(p_collapse_list->Intersect(&temp_list, intsect)) {
 				for(uint i = 0; i < intsect.getCount(); i++) {
 					const STimeChunk * p_intsect_item = static_cast<const STimeChunk *>(intsect.at(i));
 					adjusted_sec += p_intsect_item->GetDuration();
@@ -2113,7 +2113,7 @@ void STimeChunkBrowser::CalcHdTimeBounds(const Area & rArea, DateRange & rPeriod
 			STimeChunk chunk(dtm1.Set(dt, ZEROTIME), dtm2.Set(dt, MAXDAYTIME));
 			intersect.clear();
 			int    skip_date = 0;
-			if(p_collapse_list->Intersect(chunk, &intersect)) {
+			if(p_collapse_list->Intersect(chunk, intersect)) {
 				uint   i;
 				for(i = 0; !skip_date && i < intersect.getCount(); i++) {
 					const STimeChunk * p_ic = static_cast<const STimeChunk *>(intersect.at(i));
@@ -2125,7 +2125,7 @@ void STimeChunkBrowser::CalcHdTimeBounds(const Area & rArea, DateRange & rPeriod
 					}
 				}
 				if(!skip_date) {
-					int    r = free_list.Intersect(chunk, &intersect);
+					int    r = free_list.Intersect(chunk, intersect);
 					assert(r);
 					for(i = 0; i < intersect.getCount(); i++) {
 						const STimeChunk * p_ic = static_cast<const STimeChunk *>(intersect.at(i));

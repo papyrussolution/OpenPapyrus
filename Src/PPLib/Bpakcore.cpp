@@ -2588,7 +2588,7 @@ void PPBillPacket::Helper_Init()
 	P_BObj = BillObj;
 	P_ShLots = 0;
 	P_ACPack = 0;
-	P_LinkPack = 0; // @v9.4.3
+	P_LinkPack = 0;
 	P_Outer  = 0;
 	PaymBillID = 0;
 	OutAmtType = 0;

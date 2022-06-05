@@ -77,7 +77,7 @@ void expandEnv(generic_string& s)
 	TCHAR buffer[MAX_PATH] = { 0 };
 	// This returns the resulting string length or 0 in case of error.
 	DWORD ret = ExpandEnvironmentStrings(s.c_str(), buffer, static_cast<DWORD>(std::size(buffer)));
-	if(ret != 0) {
+	if(ret) {
 		if(ret == static_cast<DWORD>(lstrlen(buffer) + 1)) {
 			s = buffer;
 		}

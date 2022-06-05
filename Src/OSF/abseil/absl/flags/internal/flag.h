@@ -197,16 +197,15 @@ extern const char kStrippedFlagHelp[];
 // pointer (&T::NonConst) genering the help message when necessary. This is
 // evaluatable in constexpr context, but the cost is an extra function being
 // generated in the ABSL_FLAG code.
-template <typename Gen, size_t N>
-constexpr FlagHelpArg HelpArg(const FixedCharArray<N>& value) {
+template <typename Gen, size_t N> constexpr FlagHelpArg HelpArg(const FixedCharArray<N>& value) 
+{
 	return {FlagHelpMsg(value.value), FlagHelpKind::kLiteral};
 }
 
-template <typename Gen>
-constexpr FlagHelpArg HelpArg(std::false_type) {
+template <typename Gen> constexpr FlagHelpArg HelpArg(std::false_type) 
+{
 	return {FlagHelpMsg(&Gen::NonConst), FlagHelpKind::kGenFunc};
 }
-
 //
 // Flag default value auxiliary structs.
 
@@ -215,10 +214,9 @@ constexpr FlagHelpArg HelpArg(std::false_type) {
 using FlagDfltGenFunc = void (*)(void*);
 
 union FlagDefaultSrc {
-	constexpr explicit FlagDefaultSrc(FlagDfltGenFunc gen_func_arg)
-		: gen_func(gen_func_arg) {
+	constexpr explicit FlagDefaultSrc(FlagDfltGenFunc gen_func_arg) : gen_func(gen_func_arg) 
+	{
 	}
-
 #define ABSL_FLAGS_INTERNAL_DFLT_FOR_TYPE(T, name) \
 	T name ## _value;                                  \
 	constexpr explicit FlagDefaultSrc(T value) : name ## _value(value) { \
@@ -246,39 +244,18 @@ struct FlagDefaultArg {
 // TODO(rogeeff): Fix handling types with explicit constructors.
 struct EmptyBraces {};
 
-template <typename T>
-constexpr T InitDefaultValue(T t) {
-	return t;
-}
-
-template <typename T>
-constexpr T InitDefaultValue(EmptyBraces) {
-	return T{};
-}
-
-template <typename ValueT, typename GenT,
-    typename std::enable_if<std::is_integral<ValueT>::value, int>::type =
-    ((void)GenT{}, 0)>
-constexpr FlagDefaultArg DefaultArg(int) {
-	return {FlagDefaultSrc(GenT{}.value), FlagDefaultKind::kOneWord};
-}
-
-template <typename ValueT, typename GenT>
-constexpr FlagDefaultArg DefaultArg(char) {
-	return {FlagDefaultSrc(&GenT::Gen), FlagDefaultKind::kGenFunc};
-}
+template <typename T> constexpr T InitDefaultValue(T t) { return t; }
+template <typename T> constexpr T InitDefaultValue(EmptyBraces) { return T{}; }
+template <typename ValueT, typename GenT, typename std::enable_if<std::is_integral<ValueT>::value, int>::type = ((void)GenT{}, 0)> 
+	constexpr FlagDefaultArg DefaultArg(int) { return {FlagDefaultSrc(GenT{}.value), FlagDefaultKind::kOneWord}; }
+template <typename ValueT, typename GenT> constexpr FlagDefaultArg DefaultArg(char) { return {FlagDefaultSrc(&GenT::Gen), FlagDefaultKind::kGenFunc}; }
 
 //
 // Flag current value auxiliary structs.
-
-constexpr int64_t UninitializedFlagValue() {
-	return static_cast<int64_t>(0xababababababababll);
-}
-
-template <typename T>
-using FlagUseValueAndInitBitStorage = std::integral_constant<
-    bool, absl::type_traits_internal::is_trivially_copyable<T>::value &&
-std::is_default_constructible<T>::value && (sizeof(T) < 8)>;
+//
+constexpr int64_t UninitializedFlagValue() { return static_cast<int64_t>(0xababababababababll); }
+template <typename T> using FlagUseValueAndInitBitStorage = std::integral_constant<bool, absl::type_traits_internal::is_trivially_copyable<T>::value && 
+	std::is_default_constructible<T>::value && (sizeof(T) < 8)>;
 
 template <typename T>
 using FlagUseOneWordStorage = std::integral_constant<

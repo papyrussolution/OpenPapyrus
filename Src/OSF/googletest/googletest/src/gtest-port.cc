@@ -15,26 +15,15 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-#include "gtest/internal/gtest-port.h"
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <cstdint>
-#include <fstream>
-#include <memory>
+#include "gtest/internal/gtest-build-internal.h"
+#pragma hdrstop
 #if GTEST_OS_WINDOWS
-#include <io.h>
-#include <sys/stat.h>
-#include <windows.h>
-#include <map>  // Used in ThreadLocal.
 #ifdef _MSC_VER
-#include <crtdbg.h>
+	#include <crtdbg.h>
 #endif  // _MSC_VER
 #else
-#include <unistd.h>
+	#include <unistd.h>
 #endif  // GTEST_OS_WINDOWS
-
 #if GTEST_OS_MAC
 #include <mach/mach_init.h>
 #include <mach/task.h>
@@ -48,28 +37,19 @@
 #include <sys/user.h>
 #endif
 #endif
-
 #if GTEST_OS_QNX
-#include <devctl.h>
-#include <fcntl.h>
-#include <sys/procfs.h>
+	#include <devctl.h>
+	#include <fcntl.h>
+	#include <sys/procfs.h>
 #endif  // GTEST_OS_QNX
-
 #if GTEST_OS_AIX
-#include <procinfo.h>
-#include <sys/types.h>
+	#include <procinfo.h>
+	#include <sys/types.h>
 #endif  // GTEST_OS_AIX
-
 #if GTEST_OS_FUCHSIA
-#include <zircon/process.h>
-#include <zircon/syscalls.h>
+	#include <zircon/process.h>
+	#include <zircon/syscalls.h>
 #endif  // GTEST_OS_FUCHSIA
-
-#include "gtest/gtest-message.h"
-#include "gtest/gtest-spi.h"
-#include "gtest/internal/gtest-internal.h"
-#include "gtest/internal/gtest-string.h"
-#include "src/gtest-internal-inl.h"
 
 namespace testing {
 namespace internal {

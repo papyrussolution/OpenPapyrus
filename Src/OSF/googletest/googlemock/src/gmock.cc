@@ -15,8 +15,8 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-#include "gmock/gmock.h"
-#include "gmock/internal/gmock-port.h"
+#include "gmock/internal/gmock-internal.h"
+#pragma hdrstop
 
 GMOCK_DEFINE_bool_(catch_leaked_mocks, true,
     "true if and only if Google Mock should report leaked "

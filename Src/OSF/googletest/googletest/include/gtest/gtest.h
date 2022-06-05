@@ -60,57 +60,23 @@ GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 /* class A needs to have dll-interface to be used by clients of class B */)
 
 // Declares the flags.
-
-// This flag temporary enables the disabled tests.
-GTEST_DECLARE_bool_(also_run_disabled_tests);
-// This flag brings the debugger on an assertion failure.
-GTEST_DECLARE_bool_(break_on_failure);
-// This flag controls whether Google Test catches all test-thrown exceptions
-// and logs them as failures.
-GTEST_DECLARE_bool_(catch_exceptions);
-
+GTEST_DECLARE_bool_(also_run_disabled_tests); // This flag temporary enables the disabled tests.
+GTEST_DECLARE_bool_(break_on_failure); // This flag brings the debugger on an assertion failure.
+GTEST_DECLARE_bool_(catch_exceptions); // This flag controls whether Google Test catches all test-thrown exceptions and logs them as failures.
 // This flag enables using colors in terminal output. Available values are
 // "yes" to enable colors, "no" (disable colors), or "auto" (the default)
 // to let Google Test decide.
 GTEST_DECLARE_string_(color);
-
-// This flag controls whether the test runner should continue execution past
-// first failure.
-GTEST_DECLARE_bool_(fail_fast);
-
-// This flag sets up the filter to select by name using a glob pattern
-// the tests to run. If the filter is not given all tests are executed.
-GTEST_DECLARE_string_(filter);
-
-// This flag controls whether Google Test installs a signal handler that dumps
-// debugging information when fatal signals are raised.
-GTEST_DECLARE_bool_(install_failure_signal_handler);
-
-// This flag causes the Google Test to list tests. None of the tests listed
-// are actually run if the flag is provided.
-GTEST_DECLARE_bool_(list_tests);
-
-// This flag controls whether Google Test emits a detailed XML report to a file
-// in addition to its normal textual output.
-GTEST_DECLARE_string_(output);
-
-// This flags control whether Google Test prints only test failures.
-GTEST_DECLARE_bool_(brief);
-
-// This flags control whether Google Test prints the elapsed time for each
-// test.
-GTEST_DECLARE_bool_(print_time);
-
-// This flags control whether Google Test prints UTF8 characters as text.
-GTEST_DECLARE_bool_(print_utf8);
-
-// This flag specifies the random number seed.
-GTEST_DECLARE_int32_(random_seed);
-
-// This flag sets how many times the tests are repeated. The default value
-// is 1. If the value is -1 the tests are repeating forever.
-GTEST_DECLARE_int32_(repeat);
-
+GTEST_DECLARE_bool_(fail_fast); // This flag controls whether the test runner should continue execution past first failure.
+GTEST_DECLARE_string_(filter); // This flag sets up the filter to select by name using a glob pattern the tests to run. If the filter is not given all tests are executed.
+GTEST_DECLARE_bool_(install_failure_signal_handler); // This flag controls whether Google Test installs a signal handler that dumps debugging information when fatal signals are raised.
+GTEST_DECLARE_bool_(list_tests); // This flag causes the Google Test to list tests. None of the tests listed are actually run if the flag is provided.
+GTEST_DECLARE_string_(output); // This flag controls whether Google Test emits a detailed XML report to a file in addition to its normal textual output.
+GTEST_DECLARE_bool_(brief); // This flags control whether Google Test prints only test failures.
+GTEST_DECLARE_bool_(print_time); // This flags control whether Google Test prints the elapsed time for each test.
+GTEST_DECLARE_bool_(print_utf8); // This flags control whether Google Test prints UTF8 characters as text.
+GTEST_DECLARE_int32_(random_seed); // This flag specifies the random number seed.
+GTEST_DECLARE_int32_(repeat); // This flag sets how many times the tests are repeated. The default value is 1. If the value is -1 the tests are repeating forever.
 // This flag controls whether Google Test Environments are recreated for each
 // repeat of the tests. The default value is true. If set to false the global
 // test Environment objects are only set up once, for the first iteration, and
@@ -213,54 +179,45 @@ class UnitTest;
 class GTEST_API_ Test {
 public:
 	friend class TestInfo;
-
 	// The d'tor is virtual as we intend to inherit from Test.
 	virtual ~Test();
-
 	// Sets up the stuff shared by all tests in this test suite.
 	//
 	// Google Test will call Foo::SetUpTestSuite() before running the first
 	// test in test suite Foo.  Hence a sub-class can define its own
 	// SetUpTestSuite() method to shadow the one defined in the super
 	// class.
-	static void SetUpTestSuite() {
+	static void SetUpTestSuite() 
+	{
 	}
-
 	// Tears down the stuff shared by all tests in this test suite.
 	//
 	// Google Test will call Foo::TearDownTestSuite() after running the last
 	// test in test suite Foo.  Hence a sub-class can define its own
 	// TearDownTestSuite() method to shadow the one defined in the super
 	// class.
-	static void TearDownTestSuite() {
+	static void TearDownTestSuite() 
+	{
 	}
-
 	// Legacy API is deprecated but still available. Use SetUpTestSuite and
 	// TearDownTestSuite instead.
 #ifndef GTEST_REMOVE_LEGACY_TEST_CASEAPI_
-	static void TearDownTestCase() {
+	static void TearDownTestCase() 
+	{
 	}
-
-	static void SetUpTestCase() {
+	static void SetUpTestCase() 
+	{
 	}
-
 #endif  // GTEST_REMOVE_LEGACY_TEST_CASEAPI_
-
 	// Returns true if and only if the current test has a fatal failure.
 	static bool HasFatalFailure();
-
 	// Returns true if and only if the current test has a non-fatal failure.
 	static bool HasNonfatalFailure();
-
 	// Returns true if and only if the current test was skipped.
 	static bool IsSkipped();
-
 	// Returns true if and only if the current test has a (either fatal or
 	// non-fatal) failure.
-	static bool HasFailure() {
-		return HasFatalFailure() || HasNonfatalFailure();
-	}
-
+	static bool HasFailure() { return HasFatalFailure() || HasNonfatalFailure(); }
 	// Logs a property for the current test, test suite, or for the entire
 	// invocation of the test program when used outside of the context of a
 	// test suite.  Only the last value for a given key is remembered.  These
@@ -276,17 +233,13 @@ public:
 	// Test) will be output as attributes of the <testsuites> element.
 	static void RecordProperty(const std::string& key, const std::string& value);
 	static void RecordProperty(const std::string& key, int value);
-
 protected:
 	// Creates a Test object.
 	Test();
-
 	// Sets up the test fixture.
 	virtual void SetUp();
-
 	// Tears down the test fixture.
 	virtual void TearDown();
-
 private:
 	// Returns true if and only if the current test has the same fixture class
 	// as the first test in the current test suite.
@@ -2362,9 +2315,7 @@ private:
 // namespace and has an all-caps name.
 int RUN_ALL_TESTS() GTEST_MUST_USE_RESULT_;
 
-inline int RUN_ALL_TESTS() {
-	return ::testing::UnitTest::GetInstance()->Run();
-}
+inline int RUN_ALL_TESTS() { return ::testing::UnitTest::GetInstance()->Run(); }
 
 GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 

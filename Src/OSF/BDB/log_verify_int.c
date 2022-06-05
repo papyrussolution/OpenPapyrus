@@ -366,7 +366,7 @@ static int __lv_vrfy_for_dbfile(DB_LOG_VRFY_INFO * lvh, int32 fileid, int * dovr
 		ret = 0;
 		goto out;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	for(i = 0; i < fregp->regcnt; i++)
 		if(fregp->dbregids[i] == fileid) {
@@ -1107,7 +1107,7 @@ int __dbreg_register_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 	ret = ret2;
 	if(ret != 0 && ret != 1 && ret != 2 && ret != -1)
 		goto err; /* DB operation error. */
-	if(ret != 0) {
+	if(ret) {
 		/* Newly seen dbregid does not need to check life. */
 		if(ret == 1)
 			checklife = 0;

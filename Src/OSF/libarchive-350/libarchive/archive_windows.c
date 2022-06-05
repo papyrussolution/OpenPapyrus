@@ -43,10 +43,7 @@
 #define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
 
 #if defined(__LA_LSEEK_NEEDED)
-static BOOL SetFilePointerEx_perso(HANDLE hFile,
-    LARGE_INTEGER liDistanceToMove,
-    PLARGE_INTEGER lpNewFilePointer,
-    DWORD dwMoveMethod)
+static BOOL SetFilePointerEx_perso(HANDLE hFile, LARGE_INTEGER liDistanceToMove, PLARGE_INTEGER lpNewFilePointer, DWORD dwMoveMethod)
 {
 	LARGE_INTEGER li;
 	li.QuadPart = liDistanceToMove.QuadPart;
@@ -250,10 +247,7 @@ int __la_open(const char * path, int flags, ...)
 	va_end(ap);
 	ws = NULL;
 	if((flags & ~O_BINARY) == O_RDONLY) {
-		/*
-		 * When we open a directory, _open function returns
-		 * "Permission denied" error.
-		 */
+		// When we open a directory, _open function returns "Permission denied" error.
 		attr = GetFileAttributesA(path);
 		if(attr == (DWORD)-1 && GetLastError() == ERROR_PATH_NOT_FOUND) {
 			ws = __la_win_permissive_name(path);
@@ -343,8 +337,7 @@ ssize_t __la_read(int fd, void * buf, size_t nbytes)
 	if(nbytes == 0)
 		return 0;
 	handle = (HANDLE)_get_osfhandle(fd);
-	r = ReadFile(handle, buf, (uint32)nbytes,
-		&bytes_read, NULL);
+	r = ReadFile(handle, buf, (uint32)nbytes, &bytes_read, NULL);
 	if(!r) {
 		lasterr = GetLastError();
 		if(lasterr == ERROR_NO_DATA) {
@@ -551,14 +544,12 @@ int __la_stat(const char * path, struct stat * st)
 	}
 	return ret;
 }
-
 /*
  * This waitpid is limited implementation.
  */
 pid_t __la_waitpid(HANDLE child, int * status, int option)
 {
 	DWORD cs;
-
 	(void)option; /* UNUSED */
 	do {
 		if(GetExitCodeProcess(child, &cs) == 0) {
@@ -568,7 +559,6 @@ pid_t __la_waitpid(HANDLE child, int * status, int option)
 			return -1;
 		}
 	} while(cs == STILL_ACTIVE);
-
 	*status = (int)(cs & 0xff);
 	return 0;
 }
@@ -576,7 +566,6 @@ pid_t __la_waitpid(HANDLE child, int * status, int option)
 ssize_t __la_write(int fd, const void * buf, size_t nbytes)
 {
 	DWORD bytes_written;
-
 #ifdef _WIN64
 	if(nbytes > UINT32_MAX)
 		nbytes = UINT32_MAX;
@@ -585,11 +574,8 @@ ssize_t __la_write(int fd, const void * buf, size_t nbytes)
 		errno = EBADF;
 		return -1;
 	}
-	if(!WriteFile((HANDLE)_get_osfhandle(fd), buf, (uint32)nbytes,
-	    &bytes_written, NULL)) {
-		DWORD lasterr;
-
-		lasterr = GetLastError();
+	if(!WriteFile((HANDLE)_get_osfhandle(fd), buf, (uint32)nbytes, &bytes_written, NULL)) {
+		DWORD lasterr = GetLastError();
 		if(lasterr == ERROR_ACCESS_DENIED)
 			errno = EBADF;
 		else
@@ -598,7 +584,6 @@ ssize_t __la_write(int fd, const void * buf, size_t nbytes)
 	}
 	return (bytes_written);
 }
-
 /*
  * Replace the Windows path separator '\' with '/'.
  */
@@ -606,7 +591,6 @@ static int replace_pathseparator(struct archive_wstring * ws, const wchar_t * wp
 {
 	wchar_t * w;
 	size_t path_length;
-
 	if(wp == NULL)
 		return 0;
 	if(wcschr(wp, L'\\') == NULL)
@@ -627,7 +611,6 @@ static int fix_pathseparator(struct archive_entry * entry)
 	struct archive_wstring ws;
 	const wchar_t * wp;
 	int ret = ARCHIVE_OK;
-
 	archive_string_init(&ws);
 	wp = archive_entry_pathname_w(entry);
 	switch(replace_pathseparator(&ws, wp)) {
@@ -719,27 +702,13 @@ struct archive_entry * __la_win_entry_in_posix_pathseparator(struct archive_entr
    (formerly known as Postgres, then as Postgres95)
 
    Portions Copyright (c) 1996-2008, PostgreSQL Global Development Group
-
    Portions Copyright (c) 1994, The Regents of the University of California
 
    Permission to use, copy, modify, and distribute this software and its
    documentation for any purpose, without fee, and without a written agreement
    is hereby granted, provided that the above copyright notice and this
    paragraph and the following two paragraphs appear in all copies.
-
-   IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
-   DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
-   LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
-   DOCUMENTATION, EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE
-   POSSIBILITY OF SUCH DAMAGE.
-
-   THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
-   INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-   AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
-   ON AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO
-   PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-
 static const struct {
 	DWORD winerr;
 	int doserr;

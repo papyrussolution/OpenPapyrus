@@ -343,7 +343,7 @@ static int __heapc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t
 		 * exist still.
 		 */
 		ACQUIRE_CUR(dbc, lock_type, cp->pgno, 0, 0, ret);
-		if(ret != 0) {
+		if(ret) {
 			if(ret == DB_PAGE_NOTFOUND)
 				ret = DB_NOTFOUND;
 			goto err;
@@ -373,7 +373,7 @@ first:
 		while(!found) {
 			/* Put old lock/page and get the new lock/page */
 			ACQUIRE_CUR(dbc, lock_type, pgno, 0, 0, ret);
-			if(ret != 0) {
+			if(ret) {
 				if(ret == DB_PAGE_NOTFOUND)
 					ret = DB_NOTFOUND;
 				goto err;
@@ -414,7 +414,7 @@ first:
 last:
 		pgno = PGNO_BASE_MD;
 		ACQUIRE(dbc, DB_LOCK_READ, pgno, meta_lock, pgno, meta, 0, 0, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		pgno = meta->dbmeta.last_pgno;
 
@@ -424,7 +424,7 @@ last:
 		 * this case from occurring by keeping meta page lock.
 		 */
 		DISCARD(dbc, meta, meta_lock, 1, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		while(!found) {
 			/* Don't look earlier than the first data page. */
@@ -434,7 +434,7 @@ last:
 			}
 			/* Put old lock/page and get the new lock/page. */
 			ACQUIRE_CUR(dbc, lock_type, pgno, 0, 0, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			dpage = (HEAPPG *)cp->page;
 			/*
@@ -472,7 +472,7 @@ last:
 		 * unless user has asked for a write lock.
 		 */
 		ACQUIRE_CUR(dbc, lock_type, cp->pgno, 0, 0, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		dpage = (HEAPPG *)cp->page;
 		/* At end of current page, must get next page */
@@ -484,7 +484,7 @@ last:
 
 				/* Put current page/lock and get next one */
 				ACQUIRE_CUR(dbc, lock_type, pgno, 0, 0, ret);
-				if(ret != 0) {
+				if(ret) {
 					/* Beyond last page? */
 					if(ret == DB_PAGE_NOTFOUND)
 						ret = DB_NOTFOUND;
@@ -534,7 +534,7 @@ last:
 		 * unless user has asked for a write lock.
 		 */
 		ACQUIRE_CUR(dbc, lock_type, cp->pgno, 0, 0, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		dpage = (HEAPPG *)cp->page;
 		/*
@@ -561,7 +561,7 @@ last:
 				}
 				/* Put current page/lock and get prev page. */
 				ACQUIRE_CUR(dbc, lock_type, pgno, 0, 0, ret);
-				if(ret != 0)
+				if(ret)
 					goto err;
 				dpage = (HEAPPG *)cp->page;
 				/*
@@ -608,7 +608,7 @@ last:
 		}
 		/* Lock the data page and get it. */
 		ACQUIRE_CUR(dbc, lock_type, pgno, 0, 0, ret);
-		if(ret != 0) {
+		if(ret) {
 			if(ret == DB_PAGE_NOTFOUND)
 				ret = DB_NOTFOUND;
 			goto err;
@@ -920,7 +920,7 @@ static int __heapc_reloc_partial(DBC * dbc, DBT * key, DBT * data)
 next_pg:
 		if(next_rid.pgno != PGNO_INVALID) {
 			ACQUIRE_CUR(dbc, DB_LOCK_WRITE, next_rid.pgno, 0, DB_MPOOL_DIRTY, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			cp->indx = next_rid.indx;
 			old_hdr = (HEAPHDR *)(P_ENTRY(dbp, cp->page, cp->indx));
@@ -936,7 +936,7 @@ next_pg:
 			last_rid.indx = cp->indx;
 			/* Discard the page and drop the lock, txn-ally. */
 			DISCARD(dbc, cp->page, cp->lock, 1, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			break;
 		}
@@ -959,7 +959,7 @@ next_pg:
 		if((ret = __heapc_split(dbc, &t_key, &t_data, 0)) != 0)
 			goto err;
 		ACQUIRE_CUR(dbc, DB_LOCK_WRITE, last_rid.pgno, 0, DB_MPOOL_DIRTY, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		cp->indx = last_rid.indx;
 		old_hdr = (HEAPHDR *)(P_ENTRY(dbp, cp->page, cp->indx));
@@ -1111,7 +1111,7 @@ static int __heapc_reloc(DBC * dbc, DBT * key, DBT * data)
 next_pg:
 		if(next_rid.pgno != PGNO_INVALID) {
 			ACQUIRE_CUR(dbc, DB_LOCK_WRITE, next_rid.pgno, 0, DB_MPOOL_DIRTY, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			cp->indx = next_rid.indx;
 			old_hdr = (HEAPHDR *)(P_ENTRY(dbp, cp->page, cp->indx));
@@ -1125,7 +1125,7 @@ next_pg:
 			last_rid.indx = cp->indx;
 			/* Discard the page and drop the lock, txn-ally. */
 			DISCARD(dbc, cp->page, cp->lock, 1, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			break;
 		}
@@ -1148,7 +1148,7 @@ next_pg:
 		if((ret = __heapc_split(dbc, &t_key, &t_data, 0)) != 0)
 			goto err;
 		ACQUIRE_CUR(dbc, DB_LOCK_WRITE, last_rid.pgno, 0, DB_MPOOL_DIRTY, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		cp->indx = last_rid.indx;
 		old_hdr = (HEAPHDR *)(P_ENTRY(dbp, cp->page, cp->indx));
@@ -1211,7 +1211,7 @@ static int __heapc_put(DBC * dbc, DBT * key, DBT * data, uint32 flags, db_pgno_t
 		ret = __heapc_get(dbc, key, data, DB_SET, pgnop);
 		F_CLR(key, DB_DBT_ISSET);
 		dbc->flags = old_flags;
-		if(ret != 0)
+		if(ret)
 			return ret;
 		else if(flags == DB_NOOVERWRITE)
 			return DB_KEYEXIST;
@@ -1557,12 +1557,12 @@ next:
 			 * will deadlock.
 			 */
 			DISCARD(dbc, cp->page, cp->lock, 0, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			if((ret = __db_lget(dbc, LCK_ALWAYS, meta_pgno, DB_LOCK_WRITE, 0, &meta_lock)) != 0)
 				goto err;
 			ACQUIRE_CUR(dbc, DB_LOCK_WRITE, data_pgno, 0, 0, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			/* Check if we lost a race. */
 			if(PGNO(cp->page) != PGNO_INVALID) {
@@ -1588,7 +1588,7 @@ next:
 		if((t_ret = __memp_fput(mpf, dbc->thread_info, meta, dbc->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		meta = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/* If the page doesn't actually exist we need to create it. */
 		if(cp->pgno == PGNO_INVALID) {
@@ -1607,7 +1607,7 @@ next:
 		LSN(cp->page) = meta_lsn;
 		if((t_ret = __TLPUT(dbc, meta_lock)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	else {
@@ -1616,7 +1616,7 @@ check:
 		if(size+sizeof(db_indx_t) > HEAP_FREESPACE(dbp, cp->page)) {
 			/* Put back the page and lock, they were never used. */
 			DISCARD(dbc, cp->page, cp->lock, 0, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			/* Re-start the bitmap check on the next page. */
 			i++;
@@ -1861,7 +1861,7 @@ static int __heapc_split(DBC * dbc, DBT * key, DBT * data, int is_first)
 			HEAP_SETSPACE(dbp, rpage, cp->pgno-region_pgno-1, spacebits);
 			ret = __memp_fput(mpf, dbc->thread_info, rpage, dbc->priority);
 			rpage = NULL;
-			if(ret != 0)
+			if(ret)
 				goto err;
 		}
 	}

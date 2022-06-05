@@ -168,7 +168,7 @@ int __heap_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, co
 		if((t_ret = __memp_fput(mpf, ip, meta, dbp->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		meta = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/* Build the first region page. */
 		pgno = 1;
@@ -181,7 +181,7 @@ int __heap_new_file(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_FH * fhp, co
 		if((t_ret = __memp_fput(mpf, ip, region, dbp->priority)) != 0 && ret == 0)
 			ret = t_ret;
 		region = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	else {

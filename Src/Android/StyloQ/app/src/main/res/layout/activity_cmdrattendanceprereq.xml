@@ -30,13 +30,10 @@ tools:context=".CmdRAttendancePrereqActivity">
             android:orientation="horizontal"
             android:layout_marginBottom="2dp"
             >
-            <ImageView
+            <ImageView style="@style/OuterImage_Side"
                 android:id="@+id/CTLIMG_PAGEHEADER_SVC"
                 android:layout_width="64dp"
-                android:layout_height="80dp"
-                android:padding="2dp"
-                android:layout_margin="2dp"
-                android:layout_gravity="center_vertical">
+                android:layout_height="80dp">
             </ImageView>
             <LinearLayout
                 android:layout_width="match_parent"

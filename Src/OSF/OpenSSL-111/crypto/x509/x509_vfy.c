@@ -457,7 +457,7 @@ static int check_chain_extensions(X509_STORE_CTX * ctx)
 				    ret = 1;
 			    break;
 			case 0:
-			    if(ret != 0) {
+			    if(ret) {
 				    ret = 0;
 				    ctx->error = X509_V_ERR_INVALID_NON_CA;
 			    }

@@ -133,7 +133,7 @@ err:
 		ret = t_ret;
 	__os_dirfree(env, names, count);
 	__os_free(env, buf);
-	if(ret != 0)
+	if(ret)
 		__os_free(env, extents);
 	if(LF_ISSET(DB_SALVAGE) && (t_ret = __db_salvage_markdone(vdp, pgno)) != 0 && ret == 0)
 		ret = t_ret;
@@ -396,7 +396,7 @@ begin:  for(; i <= stop; i++) {
 			 */
 			if((ret = __db_vrfy_common(dbp, vdp, h, i, flags)) == DB_VERIFY_BAD)
 				isbad = 1;
-			else if(ret != 0)
+			else if(ret)
 				goto err;
 			__db_vrfy_struct_feedback(dbp, vdp);
 			if((ret = __db_vrfy_getpageinfo(vdp, i, &pip)) != 0)
@@ -412,7 +412,7 @@ begin:  for(; i <= stop; i++) {
 				goto err;
 			if((ret = __qam_vrfy_data(dbp, vdp, (QPAGE *)h, i, flags)) == DB_VERIFY_BAD)
 				isbad = 1;
-			else if(ret != 0)
+			else if(ret)
 				goto err;
 put:
 			if((ret = __db_vrfy_putpageinfo(env, vdp, pip)) != 0)

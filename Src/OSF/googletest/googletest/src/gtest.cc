@@ -17,31 +17,8 @@
 //
 // The Google C++ Testing and Mocking Framework (Google Test)
 
-#include "gtest/gtest.h"
-#include <ctype.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <wchar.h>
-#include <wctype.h>
-#include <algorithm>
-#include <chrono>  // NOLINT
-#include <cmath>
-#include <cstdint>
-#include <initializer_list>
-#include <iomanip>
-#include <iterator>
-#include <limits>
-#include <list>
-#include <map>
-#include <ostream>  // NOLINT
-#include <sstream>
-#include <unordered_set>
-#include <vector>
-#include "gtest/gtest-assertion-result.h"
-#include "gtest/gtest-spi.h"
-#include "gtest/internal/custom/gtest.h"
+#include "gtest/internal/gtest-build-internal.h"
+#pragma hdrstop
 
 #if GTEST_OS_LINUX
 
@@ -58,73 +35,55 @@
 
 #elif GTEST_OS_ZOS
 #include <sys/time.h>  // NOLINT
-
-// On z/OS we additionally need strings.h for strcasecmp.
-#include <strings.h>   // NOLINT
-
+#include <strings.h>   // NOLINT // On z/OS we additionally need strings.h for strcasecmp.
 #elif GTEST_OS_WINDOWS_MOBILE  // We are on Windows CE.
-
-#include <windows.h>  // NOLINT
+//#include <windows.h>  // NOLINT
 #undef min
-
 #elif GTEST_OS_WINDOWS  // We are on Windows proper.
-
-#include <windows.h>  // NOLINT
+//#include <windows.h>  // NOLINT
 #undef min
-
 #ifdef _MSC_VER
-#include <crtdbg.h>  // NOLINT
+	#include <crtdbg.h>  // NOLINT
 #endif
-
 #include <io.h>         // NOLINT
 #include <sys/stat.h>   // NOLINT
 #include <sys/timeb.h>  // NOLINT
 #include <sys/types.h>  // NOLINT
-
 #if GTEST_OS_WINDOWS_MINGW
-#include <sys/time.h>  // NOLINT
+	#include <sys/time.h>  // NOLINT
 #endif                 // GTEST_OS_WINDOWS_MINGW
-
 #else
-
 // cpplint thinks that the header is already included, so we want to
 // silence it.
 #include <sys/time.h>  // NOLINT
 #include <unistd.h>    // NOLINT
-
 #endif  // GTEST_OS_LINUX
-
-#if GTEST_HAS_EXCEPTIONS
-#include <stdexcept>
-#endif
-
+//#if GTEST_HAS_EXCEPTIONS
+	//#include <stdexcept>
+//#endif
 #if GTEST_CAN_STREAM_RESULTS_
-#include <arpa/inet.h>   // NOLINT
-#include <netdb.h>       // NOLINT
-#include <sys/socket.h>  // NOLINT
-#include <sys/types.h>   // NOLINT
+	#include <arpa/inet.h>   // NOLINT
+	#include <netdb.h>       // NOLINT
+	#include <sys/socket.h>  // NOLINT
+	#include <sys/types.h>   // NOLINT
 #endif
-
 #include "src/gtest-internal-inl.h"
-
 #if GTEST_OS_WINDOWS
-#define vsnprintf _vsnprintf
+	#define vsnprintf _vsnprintf
 #endif  // GTEST_OS_WINDOWS
-
 #if GTEST_OS_MAC
-#ifndef GTEST_OS_IOS
-#include <crt_externs.h>
+	#ifndef GTEST_OS_IOS
+		#include <crt_externs.h>
+	#endif
 #endif
-#endif
-
 #if GTEST_HAS_ABSL
-#include "absl/debugging/failure_signal_handler.h"
-#include "absl/debugging/stacktrace.h"
-#include "absl/debugging/symbolize.h"
-#include "absl/flags/parse.h"
-#include "absl/flags/usage.h"
-#include "absl/strings/str_cat.h"
-#include "absl/strings/str_replace.h"
+	#include "absl/debugging/failure_signal_handler.h"
+	#include "absl/debugging/stacktrace.h"
+	#include "absl/debugging/symbolize.h"
+	#include "absl/flags/parse.h"
+	#include "absl/flags/usage.h"
+	#include "absl/strings/str_cat.h"
+	#include "absl/strings/str_replace.h"
 #endif  // GTEST_HAS_ABSL
 
 namespace testing {
@@ -169,11 +128,11 @@ const char kStackTraceMarker[] = "\nStack trace:\n";
 bool g_help_flag = false;
 
 // Utility function to Open File for Writing
-static FILE* OpenFileForWriting(const std::string& output_file) {
+static FILE* OpenFileForWriting(const std::string& output_file) 
+{
 	FILE* fileout = nullptr;
 	FilePath output_file_path(output_file);
 	FilePath output_dir(output_file_path.RemoveFileName());
-
 	if(output_dir.CreateDirectoriesRecursively()) {
 		fileout = posix::FOpen(output_file.c_str(), "w");
 	}
@@ -186,9 +145,9 @@ static FILE* OpenFileForWriting(const std::string& output_file) {
 
 // Bazel passes in the argument to '--test_filter' via the TESTBRIDGE_TEST_ONLY
 // environment variable.
-static const char* GetDefaultFilter() {
-	const char* const testbridge_test_only =
-	    internal::posix::GetEnv("TESTBRIDGE_TEST_ONLY");
+static const char* GetDefaultFilter() 
+{
+	const char* const testbridge_test_only = internal::posix::GetEnv("TESTBRIDGE_TEST_ONLY");
 	if(testbridge_test_only != nullptr) {
 		return testbridge_test_only;
 	}
@@ -6696,7 +6655,8 @@ void InitGoogleTest(int* argc, wchar_t** argv) {
 
 // This overloaded version can be used on Arduino/embedded platforms where
 // there is no argc/argv.
-void InitGoogleTest() {
+void InitGoogleTest() 
+{
 	// Since Arduino doesn't have a command line, fake out the argc/argv arguments
 	int argc = 1;
 	const auto arg0 = "dummy";
@@ -6715,8 +6675,8 @@ void InitGoogleTest() {
 // a non-empty string. If there are none, return the "fallback" string.
 // Since we like the temporary directory to have a directory separator suffix,
 // add it if not provided in the environment variable value.
-static std::string GetTempDirFromEnv(std::initializer_list<const char*> environment_variables,
-    const char* fallback, char separator) {
+static std::string GetTempDirFromEnv(std::initializer_list<const char*> environment_variables, const char* fallback, char separator) 
+{
 	for(const char* variable_name : environment_variables) {
 		const char* value = internal::posix::GetEnv(variable_name);
 		if(value != nullptr && value[0] != '\0') {

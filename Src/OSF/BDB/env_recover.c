@@ -262,7 +262,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 	 */
 	if(ret == DB_NOTFOUND)
 		ret = 0;
-	else if(ret != 0)
+	else if(ret)
 		goto err;
 	hi_txn = txnid;
 	// Get the record at first_lsn
@@ -330,7 +330,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 		}
 		tlsn = lsn;
 		ret = __db_dispatch(env, &env->recover_dtab, &data, &tlsn, DB_TXN_BACKWARD_ROLL, txninfo);
-		if(ret != 0) {
+		if(ret) {
 			if(ret != DB_TXN_CKP)
 				goto msgerr;
 			else
@@ -343,7 +343,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 		else
 			ret = 0;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * Pass #3.  If we are recovering to a timestamp or to an LSN,
@@ -366,7 +366,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 		}
 		tlsn = lsn;
 		ret = __db_dispatch(env, &env->recover_dtab, &data, &tlsn, DB_TXN_FORWARD_ROLL, txninfo);
-		if(ret != 0) {
+		if(ret) {
 			if(ret != DB_TXN_CKP)
 				goto msgerr;
 			else
@@ -382,7 +382,7 @@ int __db_apprec(ENV * env, DB_THREAD_INFO * ip, DB_LSN * max_lsn, DB_LSN * trunc
 	}
 	if(ret == DB_NOTFOUND)
 		ret = __db_log_corrupt(env, &lsn);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	if(max_lsn == NULL)
 		region->last_txnid = static_cast<DB_TXNHEAD *>(txninfo)->maxid;

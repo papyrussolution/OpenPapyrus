@@ -90,7 +90,7 @@ int db_create(DB ** dbpp, DB_ENV * dbenv, uint32 flags)
 	// 
 	if(LF_ISSET(DB_XA_CREATE)) {
 		XA_NO_TXN(ip, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	ret = __db_create_internal(dbpp, env, flags);

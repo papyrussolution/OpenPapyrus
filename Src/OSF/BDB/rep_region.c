@@ -144,7 +144,7 @@ int __rep_open(ENV*env)
 			goto err;
 		ret = __os_open(env, p, 0, DB_OSO_CREATE, DB_MODE_600, &db_rep->diagfile[i]);
 		__os_free(env, p);
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 out:

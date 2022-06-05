@@ -277,9 +277,9 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	protected ArrayList <SLib.STimeChunk> PutBookingItemToCurrentDocument(Document.BookingItem item)
+	protected SLib.STimeChunkArray PutBookingItemToCurrentDocument(Document.BookingItem item)
 	{
-		ArrayList <SLib.STimeChunk> result = null;
+		SLib.STimeChunkArray result = null;
 		try {
 			if(item != null) {
 				InitCurrenDocument(SLib.sqbdtSvcReq);
@@ -339,9 +339,9 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	public ArrayList <SLib.STimeChunk> GetCurrentDocumentBusyList(int prcID)
+	public SLib.STimeChunkArray GetCurrentDocumentBusyList(int prcID)
 	{
-		ArrayList <SLib.STimeChunk> result = null;
+		SLib.STimeChunkArray result = null;
 		if(prcID > 0 && CurrentOrder != null && CurrentOrder.BkList != null && CurrentOrder.BkList.size() > 0) {
 			for(int i = 0; i < CurrentOrder.BkList.size(); i++) {
 				Document.BookingItem bi = CurrentOrder.BkList.get(i);
@@ -349,7 +349,7 @@ public class CommonPrereqModule {
 					SLib.STimeChunk tc = bi.GetEsimatedTimeChunk();
 					if(tc != null) {
 						if(result == null)
-							result = new ArrayList<SLib.STimeChunk>();
+							result = new SLib.STimeChunkArray();
 						result.add(tc);
 					}
 				}

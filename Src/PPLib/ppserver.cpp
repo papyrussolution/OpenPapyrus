@@ -29,17 +29,14 @@ void PPThread::EvPollTiming::Register()
 	LastPollClock = clock() * 1000LL;
 }
 
-int PPThread::EvPollTiming::IsTime() const
+bool PPThread::EvPollTiming::IsTime() const
 {
 	if(!LastPollClock)
-		return 1;
+		return true;
 	else {
 		//const int64 ts = SLS.GetSSys().GetSystemTimestampMks();
 		const int64 ts = clock() * 1000LL;
-		if((ts - LastPollClock) >= PeriodMks)
-			return 1;
-		else
-			return 0;
+		return ((ts - LastPollClock) >= PeriodMks);
 	}
 }
 
@@ -137,7 +134,7 @@ void FASTCALL PPThread::GetInfo(PPThread::Info & rInfo) const
 
 void FASTCALL PPThread::LockStackToStr(SString & rBuf) const
 {
-	const SlThreadLocalArea * p_sl_tla = (const SlThreadLocalArea *)SlThread::P_Tla;
+	const SlThreadLocalArea * p_sl_tla = static_cast<const SlThreadLocalArea *>(SlThread::P_Tla);
 	if(p_sl_tla)
 		p_sl_tla->LckStk.ToStr(rBuf);
 	else
@@ -202,9 +199,9 @@ int PPTextCommandBlock::GetWord(const char * pBuf, size_t * pPos)
 //
 //
 //
-PPServerCmd::PPServerCmd() : PPJobSrvCmd(), P_SoBlk(0), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
+PPServerCmd::PPServerCmd() : PPJobSrvCmd(), P_SoBlk(0), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN)), SessID(0)
 {
-	Init();
+	// @v11.4.0 Init();
 }
 
 PPServerCmd::~PPServerCmd()
@@ -2097,6 +2094,7 @@ PPWorkerSession::FTB::FTB()
 PPWorkerSession::FTB::~FTB()
 {
 	delete P_F;
+	delete P_B; // @v11.4.0
 }
 
 PPWorkerSession::PPWorkerSession(int threadKind) : PPThread(/*PPThread::kNetSession*/threadKind, 0, 0), P_CPosBlk(0), State_PPws(0), Counter(0), P_TxtCmdTerminal(0)
@@ -2258,12 +2256,13 @@ void FASTCALL PPWorkerSession::RealeasFtbEntry(uint pos)
 		FTB * p_ftb = FtbList.at(pos);
 		if(p_ftb) {
 			ZDELETE(p_ftb->P_F);
+			ZDELETE(p_ftb->P_B); // @v11.4.0
 			memzero(p_ftb, sizeof(*p_ftb));
 		}
 	}
 }
 
-PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, const char * pParam, PPJobSrvReply & rReply)
+PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, int contentType /*tfctXXX*/, const void * pParam, PPJobSrvReply & rReply)
 {
 	const uint32 DefFileChunkSize = SMEGABYTE(4);
 
@@ -2276,22 +2275,28 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, const char * pPa
 	const uint32 chunk_size = DefFileChunkSize;
 	if(verb == tfvStart) {
 		rReply.SetDataType(rReply.htFile, "FILE");
-		THROW_SL(fileExists(pParam));
-		{
-			SFileUtil::Stat fs;
-			SFileFormat ff;
-			SPathStruc ps(pParam);
-			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+		if(contentType == tfctBuffer) {
+			const SBaseBuffer * p_inbuf = static_cast<const SBaseBuffer *>(pParam);
+			//SFileUtil::Stat fs;
+			SFileFormat ff(SFileFormat::Unkn);
+			THROW(p_inbuf && p_inbuf->P_Buf && p_inbuf->Size > 0 && p_inbuf->Size <= SMEGABYTE(1024)); // @err
+			//SPathStruc ps(_file_name);
+			//ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+			//
+			// В качестве имени файла используем суррогат: sha256 hash содержимого буфера закодированный в base32.
+			const binary256 hash = SlHash::Sha256(0, p_inbuf->P_Buf, p_inbuf->Size);
+			Base32_Encode(reinterpret_cast<const uint8 *>(&hash), sizeof(hash), temp_buf);
 			temp_buf.CopyTo(blk.Name, sizeof(blk.Name));
-			THROW(SFileUtil::GetStat(pParam, &fs));
-			blk.CrtTime = fs.CrtTime;
-			blk.AccsTime = fs.AccsTime;
-			blk.ModTime = fs.ModTime;
-			blk.Size = fs.Size;
-			ff.Identify(pParam);
+			//THROW(SFileUtil::GetStat(_file_name, &fs));
+			const LDATETIME now = getcurdatetime_();
+			blk.CrtTime = now;
+			blk.AccsTime = now;
+			blk.ModTime = now;
+			blk.Size = p_inbuf->Size;
+			//ff.Identify(_file_name);
 			blk.Format = ff;
-			if(fs.Size <= (int64)chunk_size) {
-				blk.PartSize = (uint32)fs.Size;
+			if(p_inbuf->Size <= chunk_size) {
+				blk.PartSize = p_inbuf->Size;
 			}
 			else {
 				blk.PartSize = chunk_size;
@@ -2301,10 +2306,12 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, const char * pPa
 				int64  offs = 0;
 				STempBuffer buf(blk.PartSize);
 				if(buf.GetSize()) {
-					THROW_MEM(p_f = new SFile(pParam, SFile::mRead|SFile::mBinary));
-					THROW_SL(p_f->IsValid());
-					THROW_SL(p_f->ReadV(buf, buf.GetSize()));
-					offs = p_f->Tell64();
+					//THROW_MEM(p_f = new SFile(_file_name, SFile::mRead|SFile::mBinary));
+					//THROW_SL(p_f->IsValid());
+					//THROW_SL(p_f->ReadV(buf, buf.GetSize()));
+					memcpy(buf, p_inbuf->P_Buf, buf.GetSize());
+					//offs = p_f->Tell64();
+					offs = buf.GetSize();
 				}
 				if(set_more_flag) {
 					FTB * p_ftb = new FTB;
@@ -2312,11 +2319,14 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, const char * pPa
 					memzero(p_ftb, sizeof(*p_ftb));
 					cookie = ++Counter;
 					blk.Cookie = cookie;
+					p_ftb->ContentType = contentType;
 					p_ftb->Cookie = blk.Cookie;
 					p_ftb->Offs = offs;
 					p_ftb->Tfb = blk;
-					p_ftb->P_F = p_f; // Передаем указатель на открытый файл в структуру FTB
-					p_f = 0;   // Освобождать память под p_f уже после этого не следует
+					p_ftb->P_F = 0; // Передаем указатель на открытый файл в структуру FTB
+					THROW_SL(p_ftb->P_B = new SBaseBuffer);
+					THROW_SL(p_ftb->P_B->Init().Copy(*p_inbuf));
+					//p_f = 0; // Освобождать память под p_f уже после этого не следует
 					FtbList.insert(p_ftb);
 				}
 				THROW_SL(rReply.Write(&blk, sizeof(blk)));
@@ -2324,15 +2334,100 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, const char * pPa
 				THROW(rReply.FinishWriting(set_more_flag ? PPJobSrvProtocol::hfMore : 0));
 			}
 		}
+		else if(contentType == tfctFile) {
+			const SString _file_name(static_cast<const char *>(pParam));
+			THROW_SL(fileExists(_file_name));
+			{
+				SFileUtil::Stat fs;
+				SFileFormat ff;
+				SPathStruc ps(_file_name);
+				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+				temp_buf.CopyTo(blk.Name, sizeof(blk.Name));
+				THROW(SFileUtil::GetStat(_file_name, &fs));
+				blk.CrtTime = fs.CrtTime;
+				blk.AccsTime = fs.AccsTime;
+				blk.ModTime = fs.ModTime;
+				blk.Size = fs.Size;
+				ff.Identify(_file_name);
+				blk.Format = ff;
+				if(fs.Size <= (int64)chunk_size) {
+					blk.PartSize = (uint32)fs.Size;
+				}
+				else {
+					blk.PartSize = chunk_size;
+					set_more_flag = 1;
+				}
+				{
+					int64  offs = 0;
+					STempBuffer buf(blk.PartSize);
+					if(buf.GetSize()) {
+						THROW_MEM(p_f = new SFile(_file_name, SFile::mRead|SFile::mBinary));
+						THROW_SL(p_f->IsValid());
+						THROW_SL(p_f->ReadV(buf, buf.GetSize()));
+						offs = p_f->Tell64();
+					}
+					if(set_more_flag) {
+						FTB * p_ftb = new FTB;
+						THROW_MEM(p_ftb);
+						memzero(p_ftb, sizeof(*p_ftb));
+						cookie = ++Counter;
+						blk.Cookie = cookie;
+						p_ftb->ContentType = contentType;
+						p_ftb->Cookie = blk.Cookie;
+						p_ftb->Offs = offs;
+						p_ftb->Tfb = blk;
+						p_ftb->P_F = p_f; // Передаем указатель на открытый файл в структуру FTB
+						p_f = 0;   // Освобождать память под p_f уже после этого не следует
+						FtbList.insert(p_ftb);
+					}
+					THROW_SL(rReply.Write(&blk, sizeof(blk)));
+					THROW_SL(rReply.Write(buf, buf.GetSize()));
+					THROW(rReply.FinishWriting(set_more_flag ? PPJobSrvProtocol::hfMore : 0));
+				}
+			}
+		}
 	}
 	else if(verb == tfvNext) {
-		temp_buf = pParam;
-		int32  cookie = temp_buf.ToLong();
+		//temp_buf = pParam;
+		const  int32  cookie = satoi(static_cast<const char *>(pParam));
 		uint   pos = 0;
-		THROW_PP_S(FtbList.lsearch(&cookie, &pos, CMPF_LONG), PPERR_JOBSRV_FTCOOKIENFOUND, pParam);
+		THROW_PP_S(FtbList.lsearch(&cookie, &pos, CMPF_LONG), PPERR_JOBSRV_FTCOOKIENFOUND, cookie);
 		FTB * p_ftb = FtbList.at(pos);
-		THROW_PP_S(p_ftb, PPERR_JOBSRV_FTCOOKIENFOUND, pParam);
-		if(p_ftb->P_F) {
+		THROW_PP_S(p_ftb, PPERR_JOBSRV_FTCOOKIENFOUND, cookie);
+		if(p_ftb->P_B) {
+			assert(p_ftb->ContentType == tfctBuffer);
+			blk = p_ftb->Tfb;
+			if(blk.Size <= (int64)chunk_size) {
+				blk.PartSize = (uint32)blk.Size;
+			}
+			else {
+				blk.PartSize = chunk_size;
+				set_more_flag = 1;
+			}
+			{
+				int64  offs = 0;
+				STempBuffer buf(blk.PartSize);
+				if(buf.GetSize()) {
+					THROW_SL(p_ftb->P_F->IsValid());
+					THROW(p_ftb->Offs < p_ftb->P_B->Size);
+					//THROW_SL(p_ftb->P_F->Seek64(p_ftb->Offs));
+					//THROW_SL(p_ftb->P_F->ReadV(buf, buf.GetSize())); // надо считать оставшееся кол-во байтов
+					//THROW_SL(p_ftb->P_F->Read(buf, buf.GetSize(), (size_t *)&blk.PartSize));
+					memcpy(buf, p_ftb->P_B->P_Buf+p_ftb->Offs, buf.GetSize());
+					offs += buf.GetSize();
+				}
+				buf.Alloc(blk.PartSize);
+				if(set_more_flag) {
+					p_ftb->Offs = offs;
+					p_ftb->Tfb = blk;
+				}
+				THROW_SL(rReply.Write(&blk, sizeof(blk)));
+				THROW_SL(rReply.Write(buf, buf.GetSize()));
+				THROW(rReply.FinishWriting(set_more_flag ? PPJobSrvProtocol::hfMore : 0));
+			}
+		}
+		else if(p_ftb->P_F) {
+			assert(p_ftb->ContentType == tfctFile);
 			blk = p_ftb->Tfb;
 			if(blk.Size <= (int64)chunk_size) {
 				blk.PartSize = (uint32)blk.Size;
@@ -2363,18 +2458,16 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, const char * pPa
 		}
 	}
 	else if(verb == tfvFinish) {
-		temp_buf = pParam;
-		int32  cookie = temp_buf.ToLong();
+		const  int32 cookie = satoi(static_cast<const char *>(pParam));
 		uint   pos = 0;
-		THROW_PP_S(FtbList.lsearch(&cookie, &pos, CMPF_LONG), PPERR_JOBSRV_FTCOOKIENFOUND, pParam);
+		THROW_PP_S(FtbList.lsearch(&cookie, &pos, CMPF_LONG), PPERR_JOBSRV_FTCOOKIENFOUND, cookie);
 		RealeasFtbEntry(pos);
 		rReply.SetAck();
 	}
 	else if(verb == tfvCancel) {
-		temp_buf = pParam;
-		int32  cookie = temp_buf.ToLong();
+		const  int32  cookie = satoi(static_cast<const char *>(pParam));
 		uint   ftb_pos = 0;
-		THROW_PP_S(FtbList.lsearch(&cookie, &ftb_pos, CMPF_LONG), PPERR_JOBSRV_FTCOOKIENFOUND, pParam);
+		THROW_PP_S(FtbList.lsearch(&cookie, &ftb_pos, CMPF_LONG), PPERR_JOBSRV_FTCOOKIENFOUND, cookie);
 		//
 		// Для принимаемых файлов
 		//
@@ -2673,7 +2766,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				pEv->GetParam(1, nf_symb); // PPGetExtStrData(1, pEv->Params, nf_symb);
 				pEv->GetParam(2, dl600_name); // PPGetExtStrData(2, pEv->Params, dl600_name);
 				THROW(PPView::ExecuteNF(nf_symb, dl600_name, file_name));
-				ok = TransmitFile(tfvStart, file_name, rReply);
+				ok = TransmitFile(tfvStart, tfctFile, file_name, rReply);
 			}
 			break;
 		case PPSCMD_SETIMAGEMIME:
@@ -2773,26 +2866,26 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				}
 				THROW(lf.GetZeroPositionFile(obj_type, obj_id, img_path));
 				THROW_PP_S(img_path.NotEmptyS(), PPERR_OBJHASNTIMG, obj_name);
-				ok = TransmitFile(tfvStart, img_path, rReply);
+				ok = TransmitFile(tfvStart, tfctFile, img_path, rReply);
 			}
 			break;
 		case PPSCMD_GETFILE:
 			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 			THROW_PP_S(name.HasPrefix(_PPConst.P_MagicFileTransmit), PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
 			name.ShiftLeft(sstrlen(_PPConst.P_MagicFileTransmit));
-			ok = TransmitFile(tfvStart, name, rReply);
+			ok = TransmitFile(tfvStart, tfctFile, name, rReply);
 			break;
 		case PPSCMD_GETNEXTFILEPART:
 			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
-			ok = TransmitFile(tfvNext, name, rReply);
+			ok = TransmitFile(tfvNext, tfctUnused, name, rReply);
 			break;
 		case PPSCMD_ACKFILE:
 			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
-			ok = TransmitFile(tfvFinish, name, rReply);
+			ok = TransmitFile(tfvFinish, tfctUnused, name, rReply);
 			break;
 		case PPSCMD_CANCELFILE:
 			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
-			ok = TransmitFile(tfvCancel, name, rReply);
+			ok = TransmitFile(tfvCancel, tfctUnused, name, rReply);
 			break;
 		case PPSCMD_GETSERVERSTAT:
 			{
@@ -3201,7 +3294,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				THROW(wb_obj.GetPacket(obj_id, &pack) > 0);
 				pack.F.GetZeroPositionFile(PPOBJ_WORKBOOK, obj_id, path);
 				THROW_PP_S(path.NotEmptyS(), PPERR_WORKBOOKHASNTCONTENT, pack.Rec.Name);
-				ok = TransmitFile(tfvStart, path, rReply);
+				// @todo ":buffer:" for absence file
+				ok = TransmitFile(tfvStart, tfctFile, path, rReply);
 			}
 			break;
 		case PPSCMD_EXECJOBIMM: // @v11.3.9 @construction
@@ -3249,7 +3343,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 	CATCH
 		if(!disable_err_reply)
 			rReply.SetError();
-		PPErrorZ();
+		if(PPErrCode != PPERR_OBJHASNTIMG) // @v11.4.0 Слишком много таких сообщений в журнале
+			PPErrorZ();
 		ok = cmdretError;
 	ENDCATCH
 	if(ok != cmdretResume)
@@ -3972,12 +4067,13 @@ int PPJobSrvReply::SetError()
 {
 	int    ok = 1;
 	SString text;
+	Z(); // @v11.4.0 @fix 
 	SetDataType(htGenericText, 0);
 	MEMSZERO(H);
 	H.ProtocolVer = CurrentProtocolVer;
 	H.Type = DataType;
 	H.Flags |= hfRepError;
-	Z();
+	// @v11.4.0 @fix Z();
 	THROW_SL(Write(&H, sizeof(H)));
 	PPGetLastErrorMessage(1, text);
 	THROW_SL(Write(text, text.Len()));
@@ -4447,7 +4543,7 @@ int run_server()
 				const int ClientTimeout;
 				const PPServerSession::InitBlock Sib;
 			};
-			addr.Set((ulong)0, port);
+			addr.Set(0UL, port);
 			PPServer server(addr, client_timeout, sib);
 			if(server.Run())
 				PPLogMessage(PPFILNAM_SERVER_LOG, PPSTR_TEXT, PPTXT_PPYSERVERSTOPPED, LOGMSGF_TIME);

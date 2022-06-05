@@ -58,11 +58,11 @@ int __os_mkdir(ENV * env, const char * name, int mode)
 		__db_msg(env, DB_STR_A("0013", "fileops: mkdir %s", "%s"), name);
 	/* Make the directory, with paranoid permissions. */
 	TO_TSTRING(env, name, tname, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	RETRY_CHK(!CreateDirectory(tname, NULL), ret);
 	FREE_STRING(env, tname);
-	if(ret != 0)
+	if(ret)
 		return __os_posix_err(ret);
 	return ret;
 }
@@ -87,7 +87,7 @@ int __os_open(ENV * env, const char * name, uint32 page_size, uint32 flags, int 
 	if((ret = __db_fchk(env, "__os_open", flags, OKFLAGS)) != 0)
 		return ret;
 	TO_TSTRING(env, name, tname, ret);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * Allocate the file handle and copy the file name.  We generally only
@@ -468,7 +468,7 @@ int __os_dirlist(ENV * env, const char * dir, int returndir, char *** namesp, in
 	*cntp = 0;
 
 	TO_TSTRING(env, dir, tdir, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	_sntprintf(tfilespec, DB_MAXPATHLEN, _T("%s%hc*"), tdir, PATH_SEPARATOR[0]);
 	/*
@@ -499,11 +499,11 @@ int __os_dirlist(ENV * env, const char * dir, int returndir, char *** namesp, in
 			 * copy twice.
 			 */
 			FROM_TSTRING(env, fdata.cFileName, onename, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			ret = __os_strdup(env, onename, &names[cnt]);
 			FREE_STRING(env, onename);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			cnt++;
 		}
@@ -1062,7 +1062,7 @@ int __os_fsync(ENV * env, DB_FH * fhp)
 	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0023", "fileops: flush %s", "%s"), fhp->name);
 	RETRY_CHK((!FlushFileBuffers(fhp->handle)), ret);
-	if(ret != 0) {
+	if(ret) {
 		__db_syserr(env, ret, DB_STR("0024", "FlushFileBuffers"));
 		ret = __os_posix_err(ret);
 	}
@@ -1098,7 +1098,7 @@ int __os_getenv(ENV * env, const char * name, char ** bpp, size_t buflen)
 			goto small_buf;
 	}
 	TO_TSTRING(env, name, tname, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	/*
 	 * The declared size of the tbuf buffer limits the maximum environment
@@ -1131,7 +1131,7 @@ int __os_getenv(ENV * env, const char * name, char ** bpp, size_t buflen)
 	if(ret > (int)sizeof(tbuf))
 		goto small_buf;
 	FROM_TSTRING(env, tbuf, p, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(sstrlen(p) < buflen)
 		strcpy(*bpp, p);
@@ -1260,7 +1260,7 @@ int FASTCALL __os_closehandle(ENV * env, DB_FH * fhp)
 				if(t_ret != 0 && ret == 0)
 					ret = t_ret;
 			}
-			if(ret != 0) {
+			if(ret) {
 				__db_syserr(env, ret, DB_STR("0032", "CloseHandle"));
 				ret = __os_posix_err(ret);
 			}
@@ -1326,7 +1326,7 @@ int __os_attach(ENV * env, REGINFO * infop, REGION * rp)
 	ret = __os_map(env, infop->name, infop, infop->fhp, rp->max, 1, F_ISSET(env, ENV_SYSTEM_MEM), 0, &infop->addr);
 	if(ret == 0 && F_ISSET(env, ENV_SYSTEM_MEM))
 		rp->segid = 1;
-	if(ret != 0) {
+	if(ret) {
 		__os_closehandle(env, infop->fhp);
 		infop->fhp = NULL;
 		return ret;
@@ -1355,11 +1355,11 @@ int __os_detach(ENV * env, REGINFO * infop, int destroy)
 	if(infop->fhp) {
 		ret = __os_closehandle(env, infop->fhp);
 		infop->fhp = NULL;
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	ret = !UnmapViewOfFile(infop->addr) ? __os_get_syserr() : 0;
-	if(ret != 0) {
+	if(ret) {
 		__db_syserr(env, ret, DB_STR("0007", "UnmapViewOfFile"));
 		ret = __os_posix_err(ret);
 	}
@@ -1489,11 +1489,11 @@ static int __os_map(ENV * env, const char * path, REGINFO * infop, DB_FH * fhp, 
 		return EFAULT;
 #endif
 		TO_TSTRING(env, path, tpath, ret);
-		if(ret != 0)
+		if(ret)
 			return ret;
 		ret = __os_unique_name(tpath, fhp->handle, shmem_name, sizeof(shmem_name));
 		FREE_STRING(env, tpath);
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	/*
@@ -1687,7 +1687,7 @@ int __os_read(ENV * env, DB_FH * fhp, void * addr, size_t len, size_t * nrp)
 		nr = (size_t)count;
 	}
 	*nrp = taddr-(uint8 *)addr;
-	if(ret != 0) {
+	if(ret) {
 		__db_syserr(env, ret, DB_STR_A("0016", "read: 0x%lx, %lu", "%lx %lu"), P_TO_ULONG(taddr), (ulong)len-offset);
 		ret = __os_posix_err(ret);
 	}
@@ -1724,12 +1724,12 @@ int __os_physwrite(ENV * env, DB_FH * fhp, const void * addr, size_t len, size_t
 	for(taddr = (uint8 *)addr, offset = 0; offset < len; taddr += nw, offset += nw) {
 		LAST_PANIC_CHECK_BEFORE_IO(env);
 		RETRY_CHK((!WriteFile(fhp->handle, taddr, (DWORD)(len-offset), &count, NULL)), ret);
-		if(ret != 0)
+		if(ret)
 			break;
 		nw = (size_t)count;
 	}
 	*nwp = len;
-	if(ret != 0) {
+	if(ret) {
 		__db_syserr(env, ret, DB_STR_A("0018", "write: %#lx, %lu", "%#lx %lu"), P_TO_ULONG(taddr), (ulong)len-offset);
 		ret = __os_posix_err(ret);
 		DB_EVENT(env, DB_EVENT_WRITE_FAILED, 0);
@@ -1807,7 +1807,7 @@ int __os_get_cluster_size(const char * path, uint32 * psize)
 	name_size = MAX_PATH+1;
 	*psize = 0;
 	TO_TSTRING(NULL, path, env_path, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	/* Retrieve the volume root path where the input path resides. */
 	if(!GetVolumePathName(env_path, root_path, name_size)) {
@@ -1891,7 +1891,7 @@ int __os_exists(ENV * env, const char * path, int * isdirp)
 	int ret;
 	DB_ENV * dbenv = env ? env->dbenv : 0;
 	TO_TSTRING(env, path, tpath, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(dbenv && FLD_ISSET(dbenv->verbose, DB_VERB_FILEOPS|DB_VERB_FILEOPS_ALL))
 		__db_msg(env, DB_STR_A("0033", "fileops: stat %s", "%s"), path);
@@ -1917,7 +1917,7 @@ int __os_ioinfo(ENV * env, const char * path, DB_FH * fhp, uint32 * mbytesp, uin
 	unsigned __int64 filesize;
 	uint32 io_sz;
 	RETRY_CHK((!GetFileInformationByHandle(fhp->handle, &bhfi)), ret);
-	if(ret != 0) {
+	if(ret) {
 		__db_syserr(env, ret, DB_STR("0034", "GetFileInformationByHandle"));
 		return __os_posix_err(ret);
 	}
@@ -1997,7 +1997,7 @@ int __os_truncate(ENV * env, DB_FH * fhp, db_pgno_t pgno, uint32 pgsize)
 	RETRY_CHK((off.bigint = (__int64)pgsize*pgno,
 		(SetFilePointer(fhp->trunc_handle, off.low, &off.high, FILE_BEGIN) == INVALID_SET_FILE_POINTER &&
 		GetLastError() != NO_ERROR) || !SetEndOfFile(fhp->trunc_handle)), ret);
-	if(ret != 0) {
+	if(ret) {
 		__db_syserr(env, ret, DB_STR_A("0022", "SetFilePointer: %lu", "%lu"), pgno*pgsize);
 		ret = __os_posix_err(ret);
 	}
@@ -2019,7 +2019,7 @@ int __os_unlink(ENV * env, const char * path, int overwrite_test)
 	if(dbenv && overwrite_test && F_ISSET(dbenv, DB_ENV_OVERWRITE))
 		__db_file_multi_write(env, path);
 	TO_TSTRING(env, path, tpath, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	orig_tpath = tpath;
 	LAST_PANIC_CHECK_BEFORE_IO(env);

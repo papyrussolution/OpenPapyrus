@@ -197,7 +197,7 @@ int __lock_vec(ENV * env, DB_LOCKER * sh_locker, uint32 flags, DB_LOCKREQ * list
 					}
 					ret = __lock_put_internal(lt, lp, sh_obj->indx, DB_LOCK_FREE|DB_LOCK_DOALL);
 					OBJECT_UNLOCK(lt, region, ndx);
-					if(ret != 0)
+					if(ret)
 						break;
 					continue;
 				}
@@ -208,7 +208,7 @@ int __lock_vec(ENV * env, DB_LOCKER * sh_locker, uint32 flags, DB_LOCKREQ * list
 					np++;
 				}
 			}
-			if(ret != 0)
+			if(ret)
 				goto up_done;
 			if(objlist != NULL)
 				if((ret = __lock_fix_list(env, objlist, sh_locker->nwrites)) != 0)
@@ -833,7 +833,7 @@ in_abort:
 expired:
 				ret = __lock_put_internal(lt, newl, ndx, DB_LOCK_UNLINK|DB_LOCK_FREE);
 				newl = NULL;
-				if(ret != 0)
+				if(ret)
 					goto err;
 #ifdef HAVE_STATISTICS
 			if(timespeccmp(&sh_locker->lk_expire, &sh_locker->tx_expire, ==))
@@ -1192,7 +1192,7 @@ retry:
 			ret = __env_alloc(&lt->reginfo, obj->size, &p);
 			if(region->part_t_size != 1)
 				LOCK_REGION_UNLOCK(env);
-			if(ret != 0) {
+			if(ret) {
 				__db_errx(env, "No space for lock object storage");
 				goto err;
 			}
@@ -1345,7 +1345,7 @@ static int __lock_inherit_locks(DB_LOCKTAB * lt, DB_LOCKER * sh_locker, uint32 f
 		 */
 		ret = __lock_promote(lt, obj, NULL, flags);
 		OBJECT_UNLOCK(lt, region, obj->indx);
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	return 0;

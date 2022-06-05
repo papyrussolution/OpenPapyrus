@@ -1497,12 +1497,12 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 	}
 	archive_pbkdf2_sha1(passphrase, strlen(passphrase), salt, salt_len, 1000, derived_key, key_len * 2 + 2);
 	ret = archive_encrypto_aes_ctr_init(&zip->cctx, derived_key, key_len);
-	if(ret != 0) {
+	if(ret) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Decryption is unsupported due to lack of crypto library");
 		return ARCHIVE_FAILED;
 	}
 	ret = archive_hmac_sha1_init(&zip->hctx, derived_key + key_len, key_len);
-	if(ret != 0) {
+	if(ret) {
 		archive_encrypto_aes_ctr_release(&zip->cctx);
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to initialize HMAC-SHA1");
 		return ARCHIVE_FAILED;
@@ -1539,15 +1539,15 @@ static int is_winzip_aes_encryption_supported(int encryption)
 	if(archive_random(salt, salt_len) != ARCHIVE_OK)
 		return 0;
 	ret = archive_pbkdf2_sha1("p", 1, salt, salt_len, 1000, derived_key, key_len * 2 + 2);
-	if(ret != 0)
+	if(ret)
 		return 0;
 	ret = archive_encrypto_aes_ctr_init(&cctx, derived_key, key_len);
-	if(ret != 0)
+	if(ret)
 		return 0;
 	ret = archive_hmac_sha1_init(&hctx, derived_key + key_len,
 		key_len);
 	archive_encrypto_aes_ctr_release(&cctx);
-	if(ret != 0)
+	if(ret)
 		return 0;
 	archive_hmac_sha1_cleanup(&hctx);
 	return 1;

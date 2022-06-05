@@ -1787,7 +1787,7 @@ int ssl_choose_client_version(SSL * s, int version, RAW_EXTENSION * extensions)
 	}
 
 	ret = ssl_get_min_max_version(s, &ver_min, &ver_max, &real_max);
-	if(ret != 0) {
+	if(ret) {
 		s->version = origv;
 		SSLfatal(s, SSL_AD_PROTOCOL_VERSION,
 		    SSL_F_SSL_CHOOSE_CLIENT_VERSION, ret);
@@ -1997,7 +1997,7 @@ int ssl_set_client_hello_version(SSL * s)
 
 	ret = ssl_get_min_max_version(s, &ver_min, &ver_max, NULL);
 
-	if(ret != 0)
+	if(ret)
 		return ret;
 
 	s->version = ver_max;

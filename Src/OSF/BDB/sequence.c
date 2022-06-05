@@ -293,7 +293,7 @@ oldver:
 err:
 	if(txn_local && (t_ret = __db_txn_auto_resolve(env, txn, 0, ret)) && ret == 0)
 		ret = t_ret;
-	if(ret != 0) {
+	if(ret) {
 		__os_free(env, seq->seq_key.data);
 		seq->seq_key.data = NULL;
 	}
@@ -546,7 +546,7 @@ overflow:
 	SEQ_SWAP_OUT(env, seq);
 	ret = __db_put(dbp, ip, txn, &seq->seq_key, &seq->seq_data, 0);
 	rp->seq_value -= adjust;
-	if(ret != 0) {
+	if(ret) {
 		__db_errx(env, DB_STR("4012", "Sequence update failed"));
 		goto err;
 	}

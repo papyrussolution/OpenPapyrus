@@ -205,7 +205,7 @@ static int mem_read(BIO * b, char * out, int outl)
 	}
 	else if(bm->length == 0) {
 		ret = b->num;
-		if(ret != 0)
+		if(ret)
 			BIO_set_retry_read(b);
 	}
 	return ret;

@@ -698,13 +698,13 @@ int __db_associate(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DB * sdbp, int (
 			build = 1;
 			ret = 0;
 		}
-		if(ret != 0)
+		if(ret)
 			F_SET(sdbc, DBC_ERROR);
 		if((t_ret = __dbc_close(sdbc)) != 0 && ret == 0)
 			ret = t_ret;
 		/* Reset for later error check. */
 		sdbc = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	/*

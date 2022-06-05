@@ -1174,7 +1174,7 @@ public:
 
 	struct BaseEntry {
 		uint64 Id;
-		uint32 SymbP;
+		uint32 SymbHashId;
 	};
 	struct TextEntry {
 		uint64 Id;
@@ -1184,7 +1184,9 @@ public:
 	TSVector <BaseEntry> BL;
 	TSVector <TextEntry> TL;
 private:
-	uint64 SearchBaseIdBySymbP(uint symbp) const;
+	uint64 SearchBaseIdBySymbId(uint symbId, uint64 meta) const;
 	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT);
 	uint64 LinguaLocusMeta;
+	SymbHashTable Ht; // Хэш-таблица символов из списка BL
+	uint   LastSymbHashId;
 };

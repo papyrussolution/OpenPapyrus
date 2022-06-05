@@ -1021,7 +1021,7 @@ static int __logc_io(DB_LOGC * logc, uint32 fnum, uint32 offset, void * p, size_
 		ret = __os_closehandle(env, logc->fhp);
 		logc->fhp = NULL;
 		logc->bp_lsn.file = 0;
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	if(logc->fhp == NULL) {
@@ -1122,7 +1122,7 @@ int __log_read_record_pp(DB_ENV * dbenv, DB ** dbpp, void * td, void * recbuf, D
 	if((ret = __os_umalloc(dbenv->env, size+sizeof(DB_TXN), argpp)) != 0)
 		goto done;
 	REPLICATION_WRAP(dbenv->env, (__log_read_record(dbenv->env, dbpp, td, recbuf, spec, size, argpp)), 0, ret);
-	if(ret != 0) {
+	if(ret) {
 		__os_ufree(dbenv->env, *argpp);
 		*argpp = NULL;
 	}

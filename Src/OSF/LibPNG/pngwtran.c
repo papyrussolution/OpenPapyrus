@@ -397,7 +397,7 @@ static void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row)
 /* Transform the data according to the user's wishes.  The order of
  * transformations is significant.
  */
-void /* PRIVATE */ png_do_write_transformations(png_structrp png_ptr, png_row_infop row_info)
+void /*PRIVATE*/ png_do_write_transformations(png_structrp png_ptr, png_row_infop row_info)
 {
 	png_debug(1, "in " __FUNCTION__);
 	if(!png_ptr)

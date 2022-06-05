@@ -1,5 +1,5 @@
 // OBJSALAR.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2129,7 +2129,7 @@ int PPObjStaffCal::Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
 	}
 	{
 		if(proj_chunk_list.getCount())
-			proj_chunk_list.Intersect(&cal_chunk_list, &list);
+			proj_chunk_list.Intersect(&cal_chunk_list, list);
 		else
 			list = cal_chunk_list;
 	}

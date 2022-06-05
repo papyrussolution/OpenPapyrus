@@ -139,12 +139,12 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size
 		return -1;
 	}
 	ret = mbedtls_md_setup(ctx, info, 1);
-	if(ret != 0) {
+	if(ret) {
 		mbedtls_md_free(ctx);
 		return -1;
 	}
 	ret = mbedtls_md_hmac_starts(ctx, key, key_len);
-	if(ret != 0) {
+	if(ret) {
 		mbedtls_md_free(ctx);
 		return -1;
 	}

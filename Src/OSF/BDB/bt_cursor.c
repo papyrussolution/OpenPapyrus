@@ -491,7 +491,7 @@ do_del:
 err_c:
 	if(F_ISSET(dbc_c, DBC_OPD))
 		LOCK_CHECK_ON(dbc_c->thread_info);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	if(count != 0)
 		goto done;
@@ -678,7 +678,7 @@ static int __bamc_del(DBC * dbc, uint32 flags)
 	}
 	else {
 		ACQUIRE_CUR(dbc, DB_LOCK_WRITE, cp->pgno, 0, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	/* Mark the page dirty. */
@@ -1519,7 +1519,7 @@ static int __bam_getlte(DBC * dbc, DBT * key, DBT * data)
 	ret = __bamc_search(dbc, PGNO_INVALID, key, DB_SET_RANGE, &exact);
 	if(ret == DB_NOTFOUND)
 		goto find_last;
-	if(ret != 0)
+	if(ret)
 		goto end;
 	if(cp->indx == NUM_ENT(cp->page) || IS_CUR_DELETED(dbc)) {
 		/*
@@ -1528,7 +1528,7 @@ static int __bam_getlte(DBC * dbc, DBT * key, DBT * data)
 		ret = __bamc_next(dbc, 0, 0);
 		if(ret == DB_NOTFOUND)
 			goto find_last;
-		if(ret != 0)
+		if(ret)
 			goto end;
 		/* Check if we're still on the correct key */
 		if((ret = __bam_cmp(dbc, key, (PAGE *)cp->page, cp->indx, static_cast<BTREE *>(dbp->bt_internal)->bt_compare, &exact)) != 0)
@@ -1550,7 +1550,7 @@ static int __bam_getlte(DBC * dbc, DBT * key, DBT * data)
 		ret = __bamc_search(cp->opd, PGNO_INVALID, data, data == NULL ? DB_FIRST : DB_SET_RANGE, &exact);
 		if(ret == DB_NOTFOUND)
 			goto find_last_dup;
-		if(ret != 0)
+		if(ret)
 			goto end;
 		ocp = (BTREE_CURSOR *)cp->opd->internal;
 		if(ocp->indx == NUM_ENT(ocp->page) || IS_CUR_DELETED(cp->opd)) {
@@ -1560,7 +1560,7 @@ static int __bam_getlte(DBC * dbc, DBT * key, DBT * data)
 			ret = __bamc_next(cp->opd, 0, 0);
 			if(ret == DB_NOTFOUND)
 				goto find_last_dup;
-			if(ret != 0)
+			if(ret)
 				goto end;
 			if(data) {
 				/* Check if we're still on the correct data */
@@ -1589,7 +1589,7 @@ static int __bam_getlte(DBC * dbc, DBT * key, DBT * data)
 		ret = __bam_getboth_finddatum(dbc, data, DB_GET_BOTH_RANGE);
 		if(ret == DB_NOTFOUND)
 			exact = 0;
-		else if(ret != 0)
+		else if(ret)
 			goto end;
 		else {
 			/* Check if we're still on the correct data */
@@ -1730,7 +1730,7 @@ split:
 
 		/* Acquire the current page with a write lock. */
 		ACQUIRE_WRITE_LOCK(dbc, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		if(cp->page == NULL && (ret = __memp_fget(mpf, &cp->pgno, dbc->thread_info, dbc->txn, 0, &cp->page)) != 0)
 			goto err;
@@ -1796,7 +1796,7 @@ split:
 				ret = __bam_opd_exists(dbc, *pgnop);
 			else
 				ret = DB_KEYEXIST;
-			if(ret != 0)
+			if(ret)
 				goto err;
 		}
 		//
@@ -1881,7 +1881,7 @@ split:
 			ret = __bam_stkrel(dbc, STK_CLRDBC|STK_NOLOCK);
 		else
 			DISCARD_CUR(dbc, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/*
 		 * SR [#6059]
@@ -1979,7 +1979,7 @@ int __bamc_rget(DBC * dbc, DBT * data)
 		goto err;
 	ret = __memp_fput(mpf, dbc->thread_info, cp->page, dbc->priority);
 	cp->page = NULL;
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if((ret = __bam_search(dbc, PGNO_INVALID, &dbt, F_ISSET(dbc, DBC_RMW) ? SR_FIND_WR : SR_FIND, 1, &recno, &exact)) != 0)
 		goto err;
@@ -2032,7 +2032,7 @@ static int FASTCALL __bamc_next(DBC * dbc, int initial_move, int deleted_okay)
 	}
 	if(cp->page == NULL) {
 		ACQUIRE_CUR(dbc, lock_mode, cp->pgno, 0, ret);
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	if(initial_move)
@@ -2049,7 +2049,7 @@ static int FASTCALL __bamc_next(DBC * dbc, int initial_move, int deleted_okay)
 			if((pgno = NEXT_PGNO(cp->page)) == PGNO_INVALID)
 				return DB_NOTFOUND;
 			ACQUIRE_CUR(dbc, lock_mode, pgno, 0, ret);
-			if(ret != 0)
+			if(ret)
 				return ret;
 			cp->indx = 0;
 			continue;
@@ -2087,7 +2087,7 @@ static int FASTCALL __bamc_prev(DBC * dbc)
 	}
 	if(cp->page == NULL) {
 		ACQUIRE_CUR(dbc, lock_mode, cp->pgno, 0, ret);
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	for(;; ) {
@@ -2096,7 +2096,7 @@ static int FASTCALL __bamc_prev(DBC * dbc)
 			if((pgno = PREV_PGNO(cp->page)) == PGNO_INVALID)
 				return DB_NOTFOUND;
 			ACQUIRE_CUR(dbc, lock_mode, pgno, 0, ret);
-			if(ret != 0)
+			if(ret)
 				return ret;
 			if((cp->indx = NUM_ENT(cp->page)) == 0)
 				continue;
@@ -2130,7 +2130,7 @@ static int FASTCALL __bamc_search(DBC * dbc, db_pgno_t root_pgno, const DBT * ke
 	// Find an entry in the database.  Discard any lock we currently hold, we're going to search the tree.
 	//
 	DISCARD_CUR(dbc, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	switch(flags) {
 	    case DB_FIRST:
@@ -2207,7 +2207,7 @@ static int FASTCALL __bamc_search(DBC * dbc, db_pgno_t root_pgno, const DBT * ke
 	 */
 	h = NULL;
 	ACQUIRE_CUR(dbc, DB_LOCK_WRITE, bt_lpgno, DB_LOCK_NOWAIT, ret);
-	if(ret != 0) {
+	if(ret) {
 		if(oneof3(ret, DB_LOCK_DEADLOCK, DB_LOCK_NOTGRANTED, DB_PAGE_NOTFOUND))
 			ret = 0;
 		goto fast_miss;
@@ -2293,7 +2293,7 @@ fast_hit:
 	 */
 	BT_STK_CLR(cp);
 	BT_STK_ENTER(dbp->env, cp, h, indx, cp->lock, cp->lock_mode, ret);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	goto done;
 fast_miss:
@@ -2307,7 +2307,7 @@ fast_miss:
 	cp->pgno = PGNO_INVALID;
 	if((t_ret = __LPUT(dbc, cp->lock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0)
+	if(ret)
 		return ret;
 search:
 	if((ret = __bam_search(dbc, root_pgno, key, sflags, 1, NULL, exactp)) != 0)
@@ -2431,7 +2431,7 @@ static int FASTCALL __bamc_physdel(DBC * dbc)
 		}
 	}
 	DISCARD_CUR(dbc, ret);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	ret = __bam_search(dbc, PGNO_INVALID, &key, SR_DEL, 0, NULL, &exact);
 	/*
@@ -2443,7 +2443,7 @@ static int FASTCALL __bamc_physdel(DBC * dbc)
 	else
 		__bam_stkrel(dbc, 0);
 err:
-	if(ret != 0)
+	if(ret)
 		F_SET(dbc, DBC_ERROR);
 	__TLPUT(dbc, prev_lock);
 	__TLPUT(dbc, next_lock);
@@ -2472,7 +2472,7 @@ static int __bamc_getstack(DBC * dbc)
 	ret = __db_ret(dbc, h, 0, &dbt, &dbc->my_rkey.data, &dbc->my_rkey.ulen);
 	if((t_ret = __memp_fput(mpf, dbc->thread_info, h, dbc->priority)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0)
+	if(ret)
 		return ret;
 	// Get a write-locked stack for the page. 
 	exact = 0;

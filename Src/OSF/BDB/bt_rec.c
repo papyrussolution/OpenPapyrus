@@ -1143,7 +1143,7 @@ int __bam_repl_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 
 		ret = __bam_ritem(dbc, pagep, argp->indx, &dbt, 0);
 		__os_free(env, dbt.data);
-		if(ret != 0)
+		if(ret)
 			goto out;
 		LSN(pagep) = *lsnp;
 	}
@@ -1170,7 +1170,7 @@ int __bam_repl_recover(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops op, void 
 
 		ret = __bam_ritem(dbc, pagep, argp->indx, &dbt, 0);
 		__os_free(env, dbt.data);
-		if(ret != 0)
+		if(ret)
 			goto out;
 		/* Reset the deleted flag, if necessary. */
 		if(argp->isdeleted)

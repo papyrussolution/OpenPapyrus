@@ -2826,7 +2826,7 @@ int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * bu
 			in->raw = xmlBufCreate();
 		}
 		ret = xmlBufAdd(in->raw, reinterpret_cast<const xmlChar *>(buf), len);
-		if(ret != 0)
+		if(ret)
 			return -1;
 		/*
 		 * convert as much as possible to the parser reading buffer.
@@ -2843,7 +2843,7 @@ int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * bu
 	else {
 		nbchars = len;
 		ret = xmlBufAdd(in->buffer, reinterpret_cast<const xmlChar *>(buf), nbchars);
-		if(ret != 0)
+		if(ret)
 			return -1;
 	}
 #ifdef DEBUG_INPUT
@@ -3014,7 +3014,7 @@ int STDCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * bu
 			// 
 			SETIFZ(out->conv, xmlBufCreate());
 			ret = xmlBufAdd(out->buffer, (const xmlChar *)buf, chunk);
-			if(ret != 0)
+			if(ret)
 				return -1;
 			if(xmlBufUse(out->buffer) < MINLEN && chunk == len)
 				goto done;
@@ -3031,7 +3031,7 @@ int STDCALL xmlOutputBufferWrite(xmlOutputBuffer * out, int len, const char * bu
 		}
 		else {
 			ret = xmlBufAdd(out->buffer, (const xmlChar *)buf, chunk);
-			if(ret != 0)
+			if(ret)
 				return -1;
 			nbchars = xmlBufUse(out->buffer);
 		}

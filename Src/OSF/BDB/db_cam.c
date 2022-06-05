@@ -497,7 +497,7 @@ int __dbc_idup(DBC * dbc_orig, DBC ** dbcp, uint32 flags)
 		    case DB_UNKNOWN:
 		    default:       ret = __db_unknown_type(env, "__dbc_idup", dbc_orig->dbtype);
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	else if(F_ISSET(dbc_orig, DBC_BULK)) {
@@ -680,7 +680,7 @@ int FASTCALL __dbc_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 			if(F_ISSET(dbc, DBC_TRANSIENT))
 				cp->opd = NULL;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	else if(cp->opd && F_ISSET(dbc, DBC_TRANSIENT)) {
@@ -715,7 +715,7 @@ int FASTCALL __dbc_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 		dbc_n = dbc;
 	else {
 		ret = __dbc_idup(dbc, &dbc_n, tmp_flags);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		COPY_RET_MEM(dbc, dbc_n);
 	}
@@ -742,7 +742,7 @@ retry:
 	F_CLR(dbc_n, tmp_read_locking);
 	F_SET(dbc, tmp_read_locking&DBC_WAS_READ_COMMITTED);
 	F_CLR(dbc_n, DBC_MULTIPLE|DBC_MULTIPLE_KEY);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	cp_n = dbc_n->internal;
 	/*
@@ -802,7 +802,7 @@ retry:
 			if(!ret)
 				goto retry;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 done:
@@ -1068,7 +1068,7 @@ static inline int __dbc_put_partial(DBC*dbc, DBT * pkey, DBT * data, DBT * orig_
 		}
 		if((t_ret = __dbc_close(pdbc)) != 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			return ret;
 		FLD_SET(*put_statep, DBC_PUT_HAVEREC);
 	}
@@ -1232,7 +1232,7 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 		if(fdbc && (t_ret = __dbc_close(fdbc)) != 0 && ret == 0)
 			ret = t_ret;
 		fdbc = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/*
 		 * If we have the old record, we can generate and remove any
@@ -1242,7 +1242,7 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 		if(FLD_ISSET(*put_statep, DBC_PUT_HAVEREC)) {
 			if((ret = __dbc_del_oldskey(sdbp, dbc, skeyp, pkey, orig_data)) == DB_KEYEXIST)
 				continue;
-			else if(ret != 0)
+			else if(ret)
 				goto err;
 		}
 		if(nskey == 0)
@@ -1338,7 +1338,7 @@ static inline int __dbc_put_secondaries(DBC*dbc, DBT * pkey, DBT * data, DBT * o
 		SWAP_IF_NEEDED(sdbp, pkey);
 		if((t_ret = __dbc_close(sdbc)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/*
 		 * Mark that we have a key for this secondary so we can check
@@ -1529,7 +1529,7 @@ static int __dbc_put_primary(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	}
 	if((t_ret = __dbc_close(pdbc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * Check whether we do in fact have an old record we may need to
@@ -1548,7 +1548,7 @@ static int __dbc_put_primary(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 		if((ret = __dbc_del_oldskey(sdbp, dbc, skeyp, key, &olddata)) != 0 && ret != DB_KEYEXIST)
 			goto err;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 done:
 err:
@@ -2067,7 +2067,7 @@ retry:  /* Step 1. */
 	 */
 	if(ret == 0 || oneof3(flags, DB_GET_BOTH, DB_GET_BOTHC, DB_GET_BOTH_RANGE))
 		SWAP_IF_NEEDED(sdbp, pkey);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * Now we're ready for "step 2".  If either or both of pkey and data do
@@ -2226,7 +2226,7 @@ perr:
 		__os_ufree(env, primary_key.data);
 		if(pdbc && (t_ret = __dbc_close(pdbc)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	else if((ret = __db_retcopy(env, data, &oob, sizeof(oob), &sdbc->rkey->data, &sdbc->rkey->ulen)) != 0)
@@ -2412,7 +2412,7 @@ int __dbc_del_primary(DBC*dbc)
 		}
 		if((t_ret = __dbc_close(sdbc)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/*
 		 * In the common case where there is a single secondary key, we
@@ -2494,7 +2494,7 @@ static int __dbc_del_foreign(DBC * dbc)
 			if(LF_ISSET(DB_FOREIGN_NULLIFY) && ret == 0)
 				ret = __db_cursor_int(pdbp, dbc->thread_info, dbc->txn, pdbp->type, PGNO_INVALID, 0, dbc->locker, &pdbc);
 		}
-		if(ret != 0) {
+		if(ret) {
 			if(sdbc)
 				__dbc_close(sdbc);
 			return ret;
@@ -2527,11 +2527,11 @@ static int __dbc_del_foreign(DBC * dbc)
 			ret = __dbc_close(sdbc);
 			if(LF_ISSET(DB_FOREIGN_NULLIFY) && (t_ret = __dbc_close(pdbc)) != 0)
 				ret = t_ret;
-			if(ret != 0)
+			if(ret)
 				return ret;
 			continue;
 		}
-		else if(ret != 0) {
+		else if(ret) {
 			/* Just return the error code from the pget */
 			__dbc_close(sdbc);
 			if(LF_ISSET(DB_FOREIGN_NULLIFY))
@@ -2586,7 +2586,7 @@ static int __dbc_del_foreign(DBC * dbc)
 			ret = t_ret;
 		if(LF_ISSET(DB_FOREIGN_NULLIFY) && (t_ret = __dbc_close(pdbc)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	return ret;

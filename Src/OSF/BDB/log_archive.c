@@ -123,7 +123,7 @@ static int __log_archive(ENV * env, char *** listp, uint32 flags)
 			ret = __logc_get(logc, &stable_lsn, &rec, DB_LAST);
 			if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 				ret = t_ret;
-			if(ret != 0)
+			if(ret)
 				goto err;
 			fnum = stable_lsn.file;
 			break;
@@ -137,7 +137,7 @@ static int __log_archive(ENV * env, char *** listp, uint32 flags)
 			 * is before the beginning of the log files we have.
 			 * This is not an error; it just means we're done.
 			 */
-			if(ret != 0) {
+			if(ret) {
 				if(ret == DB_NOTFOUND)
 					ret = 0;
 				goto err;
@@ -363,14 +363,14 @@ q_err:
 		}
 free_continue:
 		__os_free(env, argp);
-		if(ret != 0)
+		if(ret)
 			break;
 	}
 	if(ret == DB_NOTFOUND)
 		ret = 0;
 	if((t_ret = __logc_close(logc)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0)
+	if(ret)
 		goto err1;
 	// If there's nothing to return, we're done
 	if(n == 0) {
@@ -412,13 +412,13 @@ free_continue:
 		if(pref != NULL) {
 			ret = __absname(env, pref, real_name, &array[last]);
 			__os_free(env, real_name);
-			if(ret != 0)
+			if(ret)
 				goto err2;
 		}
 		else if((p = __db_rpath(real_name)) != NULL) {
 			ret = __os_strdup(env, p+1, &array[last]);
 			__os_free(env, real_name);
-			if(ret != 0)
+			if(ret)
 				goto err2;
 		}
 		else

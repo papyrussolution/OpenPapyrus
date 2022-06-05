@@ -57,7 +57,7 @@ int __bam_stat(DBC * dbc, void * spp, uint32 flags)
 	}
 	/* Get the root page. */
 	BAM_GET_ROOT(dbc, pgno, h, 0, DB_LOCK_READ, lock, ret);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	DB_ASSERT(env, h != NULL);
 
@@ -69,7 +69,7 @@ int __bam_stat(DBC * dbc, void * spp, uint32 flags)
 	h = NULL;
 	if((t_ret = __LPUT(dbc, lock)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/* Walk the tree. */
 	if((ret = __bam_traverse(dbc, DB_LOCK_READ, PGNO_INVALID, __bam_stat_callback, sp)) != 0)
@@ -90,7 +90,7 @@ meta_only:
 		meta = NULL;
 		if((t_ret = __LPUT(dbc, metalock)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		if((ret = __db_lget(dbc, 0, t->bt_meta, write_meta ? DB_LOCK_WRITE : DB_LOCK_READ, 0, &metalock)) != 0)
 			goto err;
@@ -100,7 +100,7 @@ meta_only:
 	if(flags == DB_FAST_STAT) {
 		if(dbp->type == DB_RECNO || (dbp->type == DB_BTREE && F_ISSET(dbp, DB_AM_RECNUM))) {
 			BAM_GET_ROOT(dbc, pgno, h, 0, DB_LOCK_READ, lock, ret);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			sp->bt_nkeys = RE_NREC(h);
 		}
@@ -431,7 +431,7 @@ int __bam_traverse(DBC * dbc, db_lockmode_t mode, db_pgno_t root_pgno, int (*cal
 	LOCK_INIT(lock);
 	COMPQUIET(h, 0);
 	BAM_GET_ROOT(dbc, root_pgno, h, 0, mode, lock, ret);
-	if(ret != 0)
+	if(ret)
 		goto err1;
 	switch(TYPE(h)) {
 	    case P_IBTREE:

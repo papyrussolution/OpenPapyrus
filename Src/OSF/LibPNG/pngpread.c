@@ -73,7 +73,7 @@ uint32 PNGAPI png_process_data_skip(png_structrp png_ptr)
 /* What we do with the incoming data depends on what we were previously
  * doing before we ran out of data...
  */
-void /* PRIVATE */ png_process_some_data(png_structrp png_ptr, png_inforp info_ptr)
+void /*PRIVATE*/ png_process_some_data(png_structrp png_ptr, png_inforp info_ptr)
 {
 	if(png_ptr) {
 		switch(png_ptr->process_mode) {
@@ -91,7 +91,7 @@ void /* PRIVATE */ png_process_some_data(png_structrp png_ptr, png_inforp info_p
  * checked by the calling application, or because of multiple calls to this
  * routine.
  */
-void /* PRIVATE */ png_push_read_sig(png_structrp png_ptr, png_inforp info_ptr)
+void /*PRIVATE*/ png_push_read_sig(png_structrp png_ptr, png_inforp info_ptr)
 {
 	size_t num_checked = png_ptr->sig_bytes; /* SAFE, does not exceed 8 */
 	size_t num_to_check = 8 - num_checked;
@@ -113,7 +113,7 @@ void /* PRIVATE */ png_push_read_sig(png_structrp png_ptr, png_inforp info_ptr)
 	}
 }
 
-void /* PRIVATE */ png_push_read_chunk(png_structrp png_ptr, png_inforp info_ptr)
+void /*PRIVATE*/ png_push_read_chunk(png_structrp png_ptr, png_inforp info_ptr)
 {
 	uint32 chunk_name;
 #ifdef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
@@ -301,7 +301,7 @@ void PNGCBAPI png_push_fill_buffer(png_structp png_ptr, png_bytep buffer, size_t
 	}
 }
 
-void /* PRIVATE */ png_push_save_buffer(png_structrp png_ptr)
+void /*PRIVATE*/ png_push_save_buffer(png_structrp png_ptr)
 {
 	if(png_ptr->save_buffer_size != 0) {
 		if(png_ptr->save_buffer_ptr != png_ptr->save_buffer) {
@@ -344,7 +344,7 @@ void /* PRIVATE */ png_push_save_buffer(png_structrp png_ptr)
 	png_ptr->buffer_size = 0;
 }
 
-void /* PRIVATE */ png_push_restore_buffer(png_structrp png_ptr, png_bytep buffer, size_t buffer_length)
+void /*PRIVATE*/ png_push_restore_buffer(png_structrp png_ptr, png_bytep buffer, size_t buffer_length)
 {
 	png_ptr->current_buffer = buffer;
 	png_ptr->current_buffer_size = buffer_length;
@@ -352,7 +352,7 @@ void /* PRIVATE */ png_push_restore_buffer(png_structrp png_ptr, png_bytep buffe
 	png_ptr->current_buffer_ptr = png_ptr->current_buffer;
 }
 
-void /* PRIVATE */ png_push_read_IDAT(png_structrp png_ptr)
+void /*PRIVATE*/ png_push_read_IDAT(png_structrp png_ptr)
 {
 	if((png_ptr->mode & PNG_HAVE_CHUNK_HEADER) == 0) {
 		uint8 chunk_length[4];
@@ -421,7 +421,7 @@ void /* PRIVATE */ png_push_read_IDAT(png_structrp png_ptr)
 	}
 }
 
-void /* PRIVATE */ png_process_IDAT_data(png_structrp png_ptr, png_bytep buffer, size_t buffer_length)
+void /*PRIVATE*/ png_process_IDAT_data(png_structrp png_ptr, png_bytep buffer, size_t buffer_length)
 {
 	// The caller checks for a non-zero buffer length. 
 	if(!(buffer_length > 0) || buffer == NULL)
@@ -498,7 +498,7 @@ void /* PRIVATE */ png_process_IDAT_data(png_structrp png_ptr, png_bytep buffer,
 		png_warning(png_ptr, "Extra compression data in IDAT");
 }
 
-void /* PRIVATE */ png_push_process_row(png_structrp png_ptr)
+void /*PRIVATE*/ png_push_process_row(png_structrp png_ptr)
 {
 	/* 1.5.6: row_info moved out of png_struct to a local here. */
 	png_row_info row_info;
@@ -662,7 +662,7 @@ void /* PRIVATE */ png_push_process_row(png_structrp png_ptr)
 	}
 }
 
-void /* PRIVATE */ FASTCALL png_read_push_finish_row(png_structrp png_ptr)
+void /*PRIVATE*/ FASTCALL png_read_push_finish_row(png_structrp png_ptr)
 {
 #ifdef PNG_READ_INTERLACING_SUPPORTED
 	/* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
@@ -700,19 +700,19 @@ void /* PRIVATE */ FASTCALL png_read_push_finish_row(png_structrp png_ptr)
 #endif /* READ_INTERLACING */
 }
 
-void /* PRIVATE */ png_push_have_info(png_structrp png_ptr, png_inforp info_ptr)
+void /*PRIVATE*/ png_push_have_info(png_structrp png_ptr, png_inforp info_ptr)
 {
 	if(png_ptr->info_fn)
 		png_ptr->info_fn(png_ptr, info_ptr);
 }
 
-void /* PRIVATE */ png_push_have_end(png_structrp png_ptr, png_inforp info_ptr)
+void /*PRIVATE*/ png_push_have_end(png_structrp png_ptr, png_inforp info_ptr)
 {
 	if(png_ptr->end_fn)
 		png_ptr->end_fn(png_ptr, info_ptr);
 }
 
-void /* PRIVATE */ FASTCALL png_push_have_row(png_structrp png_ptr, png_bytep row)
+void /*PRIVATE*/ FASTCALL png_push_have_row(png_structrp png_ptr, png_bytep row)
 {
 	if(png_ptr->row_fn)
 		png_ptr->row_fn(png_ptr, row, png_ptr->row_number, (int)png_ptr->pass);

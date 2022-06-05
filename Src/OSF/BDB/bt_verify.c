@@ -1672,7 +1672,7 @@ static int __bam_vrfy_treeorder(DB * dbp, DB_THREAD_INFO * ip, PAGE * h, BINTERN
 			EPRINT((env, DB_STR_A("1093", "Page %lu: first item on page had comparison error", "%lu"), (ulong)PGNO(h)));
 		if(dbt.data != lp->data)
 			__os_ufree(env, dbt.data);
-		if(ret != 0)
+		if(ret)
 			return ret;
 	}
 	if(rp) {

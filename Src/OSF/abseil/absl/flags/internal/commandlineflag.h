@@ -49,7 +49,6 @@ enum ValueSource {
 class FlagStateInterface {
 public:
 	virtual ~FlagStateInterface();
-
 	// Restores the flag originated this object to the saved state.
 	virtual void Restore() const = 0;
 };

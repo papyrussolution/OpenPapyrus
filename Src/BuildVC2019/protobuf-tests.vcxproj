@@ -680,8 +680,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="gmock.vcxproj">
+      <Project>{918f8086-8885-3bba-a7d5-64de17bb1804}</Project>
+    </ProjectReference>
     <ProjectReference Include="gmock_main.vcxproj">
       <Project>{803ec080-6a09-30a1-84ef-83d6db47323a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="gtest.vcxproj">
+      <Project>{1561c36f-eb82-363b-a782-999b4cd82b5b}</Project>
     </ProjectReference>
     <ProjectReference Include="libprotobuf.vcxproj">
       <Project>{F794984C-5ECC-3922-BA3F-6D27CD4BDEC7}</Project>
@@ -693,6 +699,9 @@
     </ProjectReference>
     <ProjectReference Include="protobuf-proto.vcxproj">
       <Project>{ff1cac86-3877-492d-a00d-62a72618fd2e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

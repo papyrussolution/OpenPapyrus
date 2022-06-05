@@ -71,10 +71,9 @@ ABSL_NAMESPACE_BEGIN
 //     // will be deduced to `0, 1, 2, 3, 4`.
 //     user_function(make_integer_sequence<int, 5>());
 //   }
-template <typename T, T... Ints>
-struct integer_sequence {
-  using value_type = T;
-  static constexpr size_t size() noexcept { return sizeof...(Ints); }
+template <typename T, T ... Ints> struct integer_sequence {
+	using value_type = T;
+	static constexpr size_t size() noexcept { return sizeof ... (Ints); }
 };
 
 // index_sequence
@@ -82,52 +81,48 @@ struct integer_sequence {
 // A helper template for an `integer_sequence` of `size_t`,
 // `absl::index_sequence` is designed to be a drop-in replacement for C++14's
 // `std::index_sequence`.
-template <size_t... Ints>
-using index_sequence = integer_sequence<size_t, Ints...>;
+template <size_t ... Ints> using index_sequence = integer_sequence<size_t, Ints ...>;
 
 namespace utility_internal {
-
-template <typename Seq, size_t SeqSize, size_t Rem>
-struct Extend;
+template <typename Seq, size_t SeqSize, size_t Rem> struct Extend;
 
 // Note that SeqSize == sizeof...(Ints). It's passed explicitly for efficiency.
-template <typename T, T... Ints, size_t SeqSize>
-struct Extend<integer_sequence<T, Ints...>, SeqSize, 0> {
-  using type = integer_sequence<T, Ints..., (Ints + SeqSize)...>;
+template <typename T, T ... Ints, size_t SeqSize>
+struct Extend<integer_sequence<T, Ints ...>, SeqSize, 0> {
+	using type = integer_sequence<T, Ints ..., (Ints + SeqSize) ...>;
 };
 
-template <typename T, T... Ints, size_t SeqSize>
-struct Extend<integer_sequence<T, Ints...>, SeqSize, 1> {
-  using type = integer_sequence<T, Ints..., (Ints + SeqSize)..., 2 * SeqSize>;
+template <typename T, T ... Ints, size_t SeqSize>
+struct Extend<integer_sequence<T, Ints ...>, SeqSize, 1> {
+	using type = integer_sequence<T, Ints ..., (Ints + SeqSize) ..., 2 * SeqSize>;
 };
 
 // Recursion helper for 'make_integer_sequence<T, N>'.
 // 'Gen<T, N>::type' is an alias for 'integer_sequence<T, 0, 1, ... N-1>'.
 template <typename T, size_t N>
 struct Gen {
-  using type =
-      typename Extend<typename Gen<T, N / 2>::type, N / 2, N % 2>::type;
+	using type =
+	    typename Extend<typename Gen<T, N / 2>::type, N / 2, N % 2>::type;
 };
 
 template <typename T>
 struct Gen<T, 0> {
-  using type = integer_sequence<T>;
+	using type = integer_sequence<T>;
 };
 
 template <typename T>
 struct InPlaceTypeTag {
-  explicit InPlaceTypeTag() = delete;
-  InPlaceTypeTag(const InPlaceTypeTag&) = delete;
-  InPlaceTypeTag& operator=(const InPlaceTypeTag&) = delete;
+	explicit InPlaceTypeTag() = delete;
+	InPlaceTypeTag(const InPlaceTypeTag&) = delete;
+	InPlaceTypeTag& operator=(const InPlaceTypeTag&) = delete;
 };
 
 template <size_t I>
 struct InPlaceIndexTag {
-  explicit InPlaceIndexTag() = delete;
-  InPlaceIndexTag(const InPlaceIndexTag&) = delete;
-  InPlaceIndexTag& operator=(const InPlaceIndexTag&) = delete;
+	explicit InPlaceIndexTag() = delete;
+	InPlaceIndexTag(const InPlaceIndexTag&) = delete;
+	InPlaceIndexTag& operator=(const InPlaceIndexTag&) = delete;
 };
-
 }  // namespace utility_internal
 
 // Compile-time sequences of integers
@@ -153,8 +148,8 @@ using make_index_sequence = make_integer_sequence<size_t, N>;
 // Converts a typename pack into an index sequence of the same length, and
 // is designed to be a drop-in replacement for C++14's
 // `std::index_sequence_for()`
-template <typename... Ts>
-using index_sequence_for = make_index_sequence<sizeof...(Ts)>;
+template <typename ... Ts>
+using index_sequence_for = make_index_sequence<sizeof ... (Ts)>;
 
 // Tag types
 
@@ -190,24 +185,24 @@ template <typename T>
 using in_place_type_t = void (*)(utility_internal::InPlaceTypeTag<T>);
 
 template <typename T>
-void in_place_type(utility_internal::InPlaceTypeTag<T>) {}
+void in_place_type(utility_internal::InPlaceTypeTag<T>) {
+}
+
 #endif  // ABSL_USES_STD_ANY || ABSL_USES_STD_VARIANT
 
 #ifdef ABSL_USES_STD_VARIANT
-using std::in_place_index;
-using std::in_place_index_t;
+	using std::in_place_index;
+	using std::in_place_index_t;
 #else
+	// in_place_index_t
+	//
+	// Tag type used for in-place construction when the type to construct needs to
+	// be specified, such as with `absl::any`, designed to be a drop-in replacement
+	// for C++17's `std::in_place_index_t`.
+	template <size_t I> using in_place_index_t = void (*)(utility_internal::InPlaceIndexTag<I>);
+	template <size_t I> void in_place_index(utility_internal::InPlaceIndexTag<I>) {
+}
 
-// in_place_index_t
-//
-// Tag type used for in-place construction when the type to construct needs to
-// be specified, such as with `absl::any`, designed to be a drop-in replacement
-// for C++17's `std::in_place_index_t`.
-template <size_t I>
-using in_place_index_t = void (*)(utility_internal::InPlaceIndexTag<I>);
-
-template <size_t I>
-void in_place_index(utility_internal::InPlaceIndexTag<I>) {}
 #endif  // ABSL_USES_STD_VARIANT
 
 // Constexpr move and forward
@@ -216,33 +211,26 @@ void in_place_index(utility_internal::InPlaceIndexTag<I>) {}
 //
 // A constexpr version of `std::move()`, designed to be a drop-in replacement
 // for C++14's `std::move()`.
-template <typename T>
-constexpr absl::remove_reference_t<T>&& move(T&& t) noexcept {
-  return static_cast<absl::remove_reference_t<T>&&>(t);
+template <typename T> constexpr absl::remove_reference_t<T>&& move(T&& t) noexcept {
+	return static_cast<absl::remove_reference_t<T>&&>(t);
 }
 
 // forward()
 //
 // A constexpr version of `std::forward()`, designed to be a drop-in replacement
 // for C++14's `std::forward()`.
-template <typename T>
-constexpr T&& forward(
-    absl::remove_reference_t<T>& t) noexcept {  // NOLINT(runtime/references)
-  return static_cast<T&&>(t);
+template <typename T> constexpr T&& forward(absl::remove_reference_t<T>&t) noexcept { // NOLINT(runtime/references)
+	return static_cast<T&&>(t);
 }
 
 namespace utility_internal {
 // Helper method for expanding tuple into a called method.
-template <typename Functor, typename Tuple, std::size_t... Indexes>
-auto apply_helper(Functor&& functor, Tuple&& t, index_sequence<Indexes...>)
-    -> decltype(absl::base_internal::invoke(
-        absl::forward<Functor>(functor),
-        std::get<Indexes>(absl::forward<Tuple>(t))...)) {
-  return absl::base_internal::invoke(
-      absl::forward<Functor>(functor),
-      std::get<Indexes>(absl::forward<Tuple>(t))...);
+template <typename Functor, typename Tuple, std::size_t ... Indexes>
+auto apply_helper(Functor&& functor, Tuple&& t, index_sequence<Indexes ...>)->decltype(absl::base_internal::invoke(
+	absl::forward<Functor>(functor), std::get<Indexes>(absl::forward<Tuple>(t)) ...)) 
+{
+	return absl::base_internal::invoke(absl::forward<Functor>(functor), std::get<Indexes>(absl::forward<Tuple>(t)) ...);
 }
-
 }  // namespace utility_internal
 
 // apply
@@ -284,16 +272,15 @@ auto apply_helper(Functor&& functor, Tuple&& t, index_sequence<Indexes...>)
 //       // Invokes a lambda.
 //       absl::apply(user_lambda, tuple4);
 //   }
-template <typename Functor, typename Tuple>
-auto apply(Functor&& functor, Tuple&& t)
-    -> decltype(utility_internal::apply_helper(
-        absl::forward<Functor>(functor), absl::forward<Tuple>(t),
-        absl::make_index_sequence<std::tuple_size<
-            typename std::remove_reference<Tuple>::type>::value>{})) {
-  return utility_internal::apply_helper(
-      absl::forward<Functor>(functor), absl::forward<Tuple>(t),
-      absl::make_index_sequence<std::tuple_size<
-          typename std::remove_reference<Tuple>::type>::value>{});
+template <typename Functor, typename Tuple> auto apply(Functor&& functor, Tuple&& t)->decltype(utility_internal::apply_helper(
+	absl::forward<Functor>(functor), absl::forward<Tuple>(t),
+	absl::make_index_sequence<std::tuple_size<
+		typename std::remove_reference<Tuple>::type>::value>{
+	})) {
+	return utility_internal::apply_helper(
+		absl::forward<Functor>(functor), absl::forward<Tuple>(t),
+		absl::make_index_sequence<std::tuple_size<
+			typename std::remove_reference<Tuple>::type>::value>{});
 }
 
 // exchange
@@ -309,17 +296,17 @@ auto apply(Functor&& functor, Tuple&& t)
 //     int1_ = absl::exchange(other.int1_, -1);
 //     return *this;
 //   }
-template <typename T, typename U = T>
-T exchange(T& obj, U&& new_value) {
-  T old_value = absl::move(obj);
-  obj = absl::forward<U>(new_value);
-  return old_value;
+template <typename T, typename U = T> T exchange(T& obj, U&& new_value) 
+{
+	T old_value = absl::move(obj);
+	obj = absl::forward<U>(new_value);
+	return old_value;
 }
 
 namespace utility_internal {
-template <typename T, typename Tuple, size_t... I>
-T make_from_tuple_impl(Tuple&& tup, absl::index_sequence<I...>) {
-  return T(std::get<I>(std::forward<Tuple>(tup))...);
+template <typename T, typename Tuple, size_t ... I>
+T make_from_tuple_impl(Tuple&& tup, absl::index_sequence<I ...>) {
+	return T(std::get<I>(std::forward<Tuple>(tup)) ...);
 }
 }  // namespace utility_internal
 
@@ -335,12 +322,9 @@ T make_from_tuple_impl(Tuple&& tup, absl::index_sequence<I...>) {
 //   auto s = absl::make_from_tuple<std::string>(args);
 //   assert(s == "hello");
 //
-template <typename T, typename Tuple>
-constexpr T make_from_tuple(Tuple&& tup) {
-  return utility_internal::make_from_tuple_impl<T>(
-      std::forward<Tuple>(tup),
-      absl::make_index_sequence<
-          std::tuple_size<absl::decay_t<Tuple>>::value>{});
+template <typename T, typename Tuple> constexpr T make_from_tuple(Tuple&& tup) 
+{
+	return utility_internal::make_from_tuple_impl<T>(std::forward<Tuple>(tup), absl::make_index_sequence<std::tuple_size<absl::decay_t<Tuple> >::value>{});
 }
 
 ABSL_NAMESPACE_END

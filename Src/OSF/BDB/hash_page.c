@@ -999,7 +999,7 @@ int __ham_del_pair(DBC * dbc, int flags, PAGE * ppg)
 			PREV_PGNO(nn_pagep) = PGNO(p);
 			ret = __memp_fput(mpf, dbc->thread_info, nn_pagep, dbc->priority);
 			nn_pagep = NULL;
-			if(ret != 0)
+			if(ret)
 				goto err;
 		}
 		tmp_pgno = PGNO(p);
@@ -1327,8 +1327,8 @@ int __ham_replpair(DBC * dbc, DBT * dbt, uint32 newtype)
 			 * the insert location is not computed until the actual
 			 * __ham_add_el call is made.
 			 */
-			if(carray != NULL) {
-				for(i = 0; carray[i] != NULL; i++) {
+			if(carray) {
+				for(i = 0; carray[i]; i++) {
 					cp = (HASH_CURSOR *)carray[i]->internal;
 					cp->pgno = hcp->pgno;
 					cp->indx = hcp->indx;
@@ -1539,7 +1539,7 @@ next_page:
 		if((ret = __ham_copypair(dbc, from_pagep, hcp->indx, to_pagep, &dest_indx, 1)) != 0)
 			goto err;
 		/* Update any cursors pointing at the moved item. */
-		if(carray != NULL) {
+		if(carray) {
 			found = 0;
 			for(i = 0; carray[i] != NULL; i++) {
 				cp = (HASH_CURSOR *)carray[i]->internal;
@@ -1853,10 +1853,10 @@ int __ham_split_page(DBC * dbc, uint32 obucket, uint32 nbucket)
 				if((ret = __dbc_close(tmp_dbc)) != 0)
 					goto err;
 			}
-			/* Update any cursors pointing at the moved item. */
-			if(carray != NULL) {
+			// Update any cursors pointing at the moved item
+			if(carray) {
 				found = 0;
-				for(i = 0; carray[i] != NULL; i++) {
+				for(i = 0; carray[i]; i++) {
 					cp = (HASH_CURSOR *)carray[i]->internal;
 					if(cp->pgno == PGNO(temp_pagep) && cp->indx == n) {
 						cp->pgno = PGNO(*pp);
@@ -1889,7 +1889,7 @@ int __ham_split_page(DBC * dbc, uint32 obucket, uint32 nbucket)
 			temp_pagep = NULL;
 		else if((ret = __memp_fget(mpf, &next_pgno, dbc->thread_info, dbc->txn, DB_MPOOL_CREATE|DB_MPOOL_DIRTY, &temp_pagep)) != 0)
 			goto err;
-		if(temp_pagep != NULL) {
+		if(temp_pagep) {
 			if(DBC_LOGGING(dbc)) {
 				page_dbt.size = dbp->pgsize;
 				page_dbt.data = temp_pagep;
@@ -1909,8 +1909,7 @@ int __ham_split_page(DBC * dbc, uint32 obucket, uint32 nbucket)
 	 * a pointer to a page that used to be on the bucket chain.  It
 	 * should be deleted.
 	 */
-	if(temp_pagep != NULL && PGNO(temp_pagep) != bucket_pgno &&
-	   (ret = __db_free(dbc, temp_pagep, 0)) != 0) {
+	if(temp_pagep && PGNO(temp_pagep) != bucket_pgno && (ret = __db_free(dbc, temp_pagep, 0)) != 0) {
 		temp_pagep = NULL;
 		goto err;
 	}
@@ -1923,7 +1922,6 @@ int __ham_split_page(DBC * dbc, uint32 obucket, uint32 nbucket)
 		if((ret = __ham_splitdata_log(dbp, dbc->txn, &new_lsn, 0, SPLITNEW, PGNO(old_pagep), &page_dbt, &LSN(old_pagep))) != 0)
 			goto err;
 		LSN(old_pagep) = new_lsn;
-
 		page_dbt.data = new_pagep;
 		if((ret = __ham_splitdata_log(dbp, dbc->txn, &new_lsn, 0, SPLITNEW, PGNO(new_pagep), &page_dbt, &LSN(new_pagep))) != 0)
 			goto err;
@@ -1939,11 +1937,11 @@ int __ham_split_page(DBC * dbc, uint32 obucket, uint32 nbucket)
 	if(0) {
 err:
 		__memp_fput(mpf, dbc->thread_info, old_pagep, dbc->priority);
-		if(new_pagep != NULL) {
+		if(new_pagep) {
 			P_INIT(new_pagep, dbp->pgsize, npgno, PGNO_INVALID, PGNO_INVALID, 0, P_HASH);
 			__memp_fput(mpf, dbc->thread_info, new_pagep, dbc->priority);
 		}
-		if(temp_pagep != NULL && PGNO(temp_pagep) != bucket_pgno)
+		if(temp_pagep && PGNO(temp_pagep) != bucket_pgno)
 			__memp_fput(mpf, dbc->thread_info, temp_pagep, dbc->priority);
 	}
 	if((t_ret = __TLPUT(dbc, block)) != 0 && ret == 0)

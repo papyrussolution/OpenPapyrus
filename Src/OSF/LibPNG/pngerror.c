@@ -23,7 +23,7 @@
 static PNG_NORETURN void png_default_error(png_const_structrp png_ptr, const char * error_message);
 
 #ifdef PNG_WARNINGS_SUPPORTED
-static void /* PRIVATE */ png_default_warning PNGARG((png_const_structrp png_ptr, const char * warning_message));
+static void /*PRIVATE*/ png_default_warning PNGARG((png_const_structrp png_ptr, const char * warning_message));
 #endif /* WARNINGS */
 
 /* This function is called whenever there is a fatal error.  This function
@@ -340,7 +340,7 @@ void PNGAPI png_benign_error(png_const_structrp png_ptr, const char * error_mess
 #endif
 }
 
-void /* PRIVATE */ png_app_warning(png_const_structrp png_ptr, const char * error_message)
+void /*PRIVATE*/ png_app_warning(png_const_structrp png_ptr, const char * error_message)
 {
 	if((png_ptr->flags & PNG_FLAG_APP_WARNINGS_WARN) != 0)
 		png_warning(png_ptr, error_message);
@@ -351,7 +351,7 @@ void /* PRIVATE */ png_app_warning(png_const_structrp png_ptr, const char * erro
 #endif
 }
 
-void /* PRIVATE */ png_app_error(png_const_structrp png_ptr, const char * error_message)
+void /*PRIVATE*/ png_app_error(png_const_structrp png_ptr, const char * error_message)
 {
 	if((png_ptr->flags & PNG_FLAG_APP_ERRORS_WARN) != 0)
 		png_warning(png_ptr, error_message);
@@ -376,7 +376,7 @@ void /* PRIVATE */ png_app_error(png_const_structrp png_ptr, const char * error_
 #define isnonalpha(c) ((c) < 65 || (c) > 122 || ((c) > 90 && (c) < 97))
 static const char png_digit[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-static void /* PRIVATE */ png_format_buffer(png_const_structrp png_ptr, char * buffer, const char * error_message)
+static void /*PRIVATE*/ png_format_buffer(png_const_structrp png_ptr, char * buffer, const char * error_message)
 {
 	uint32 chunk_name = png_ptr->chunk_name;
 	int iout = 0, ishift = 24;
@@ -451,7 +451,7 @@ void /*PNGAPI*/FASTCALL png_chunk_benign_error(png_const_structrp png_ptr, const
 #endif
 #endif /* READ */
 
-void /* PRIVATE */ png_chunk_report(png_const_structrp png_ptr, const char * message, int error)
+void /*PRIVATE*/ png_chunk_report(png_const_structrp png_ptr, const char * message, int error)
 {
 #ifndef PNG_WARNINGS_SUPPORTED
 	CXX_UNUSED(message);
@@ -558,7 +558,7 @@ jmp_buf * PNGAPI png_set_longjmp_fn(png_structrp png_ptr, png_longjmp_ptr longjm
 	return png_ptr->jmp_buf_ptr;
 }
 
-void /* PRIVATE */ png_free_jmpbuf(png_structrp png_ptr)
+void /*PRIVATE*/ png_free_jmpbuf(png_structrp png_ptr)
 {
 	if(png_ptr) {
 		jmp_buf * jb = png_ptr->jmp_buf_ptr;
@@ -595,7 +595,7 @@ void /* PRIVATE */ png_free_jmpbuf(png_structrp png_ptr)
  * function is used by default, or if the program supplies NULL for the
  * error function pointer in png_set_error_fn().
  */
-static PNG_NORETURN void /* PRIVATE */ png_default_error(png_const_structrp png_ptr, const char * error_message)
+static PNG_NORETURN void /*PRIVATE*/ png_default_error(png_const_structrp png_ptr, const char * error_message)
 {
 #ifdef PNG_CONSOLE_IO_SUPPORTED
 #ifdef PNG_ERROR_NUMBERS_SUPPORTED
@@ -655,7 +655,7 @@ PNG_NORETURN void PNGAPI png_longjmp(png_const_structrp png_ptr, int val)
  * here if you don't want them to.  In the default configuration, png_ptr is
  * not used, but it is passed in case it may be useful.
  */
-static void /* PRIVATE */ png_default_warning(png_const_structrp png_ptr, const char * warning_message)
+static void /*PRIVATE*/ png_default_warning(png_const_structrp png_ptr, const char * warning_message)
 {
 #ifdef PNG_CONSOLE_IO_SUPPORTED
 #ifdef PNG_ERROR_NUMBERS_SUPPORTED
@@ -731,34 +731,30 @@ void PNGAPI png_set_strip_error_numbers(png_structrp png_ptr, uint32 strip_mode)
  * possible to implement without setjmp support just so long as there is some
  * way to handle the error return here:
  */
-PNG_NORETURN void /* PRIVATE */ (PNGCBAPI png_safe_error)(png_structp png_nonconst_ptr, const char * error_message)
+PNG_NORETURN void /*PRIVATE*/ (PNGCBAPI png_safe_error)(png_structp png_nonconst_ptr, const char * error_message)
 {
 	const png_const_structrp png_ptr = png_nonconst_ptr;
 	png_imagep image = png_voidcast(png_imagep, png_ptr->error_ptr);
-	/* An error is always logged here, overwriting anything (typically a warning)
-	 * that is already there:
-	 */
+	// An error is always logged here, overwriting anything (typically a warning) that is already there:
 	if(image) {
 		png_safecat(image->message, (sizeof image->message), 0, error_message);
 		image->warning_or_error |= PNG_IMAGE_ERROR;
-		/* Retrieve the jmp_buf from within the png_control, making this work for
-		 * C++ compilation too is pretty tricky: C++ wants a pointer to the first
-		 * element of a jmp_buf, but C doesn't tell us the type of that.
-		 */
-		if(image->opaque != NULL && image->opaque->error_buf != NULL)
+		// Retrieve the jmp_buf from within the png_control, making this work for
+		// C++ compilation too is pretty tricky: C++ wants a pointer to the first
+		// element of a jmp_buf, but C doesn't tell us the type of that.
+		if(image->opaque && image->opaque->error_buf)
 			longjmp(png_control_jmp_buf(image->opaque), 1);
-		/* Missing longjmp buffer, the following is to help debugging: */
+		// Missing longjmp buffer, the following is to help debugging:
 		{
 			size_t pos = png_safecat(image->message, (sizeof image->message), 0, "bad longjmp: ");
 			png_safecat(image->message, (sizeof image->message), pos, error_message);
 		}
 	}
-	/* Here on an internal programming error. */
-	abort();
+	abort(); // Here on an internal programming error
 }
 
 #ifdef PNG_WARNINGS_SUPPORTED
-void /* PRIVATE */ PNGCBAPI png_safe_warning(png_structp png_nonconst_ptr, const char * warning_message)
+void /*PRIVATE*/ PNGCBAPI png_safe_warning(png_structp png_nonconst_ptr, const char * warning_message)
 {
 	const png_const_structrp png_ptr = png_nonconst_ptr;
 	png_imagep image = png_voidcast(png_imagep, png_ptr->error_ptr);
@@ -771,7 +767,7 @@ void /* PRIVATE */ PNGCBAPI png_safe_warning(png_structp png_nonconst_ptr, const
 
 #endif
 
-int /* PRIVATE */ png_safe_execute(png_imagep image_in, int (* function)(void *), void * arg)
+int /*PRIVATE*/ png_safe_execute(png_imagep image_in, int (* function)(void *), void * arg)
 {
 	volatile png_imagep image = image_in;
 	volatile int result;
@@ -780,13 +776,13 @@ int /* PRIVATE */ png_safe_execute(png_imagep image_in, int (* function)(void *)
 	// Safely execute function(arg) with png_error returning to this function. 
 	saved_error_buf = image->opaque->error_buf;
 	result = setjmp(safe_jmpbuf) == 0;
-	if(result != 0) {
+	if(result) {
 		image->opaque->error_buf = safe_jmpbuf;
 		result = function(arg);
 	}
 	image->opaque->error_buf = (void *)saved_error_buf;
 	// And do the cleanup prior to any failure return. 
-	if(result == 0)
+	if(!result)
 		png_image_free(image);
 	return result;
 }

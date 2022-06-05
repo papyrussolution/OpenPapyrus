@@ -395,7 +395,7 @@ int __ham_traverse(DBC * dbc, db_lockmode_t mode, int (*callback)__P((DBC*, PAGE
 			if(pgno == PGNO_INVALID)
 				break;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 		if(hcp->page != NULL) {
 			if((ret = __memp_fput(mpf, dbc->thread_info, hcp->page, dbc->priority)) != 0)

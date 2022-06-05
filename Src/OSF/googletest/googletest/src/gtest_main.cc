@@ -15,18 +15,20 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-#include <cstdio>
-#include "gtest/gtest.h"
+#include "gtest/internal/gtest-build-internal.h"
+#pragma hdrstop
 
 #if GTEST_OS_ESP8266 || GTEST_OS_ESP32
 #if GTEST_OS_ESP8266
 extern "C" {
 #endif
-void setup() {
+void setup() 
+{
 	testing::InitGoogleTest();
 }
 
-void loop() {
+void loop() 
+{
 	RUN_ALL_TESTS();
 }
 

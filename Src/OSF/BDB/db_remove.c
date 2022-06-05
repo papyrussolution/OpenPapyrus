@@ -34,7 +34,7 @@ int __env_dbremove_pp(DB_ENV * dbenv, DB_TXN * txn, const char * name, const cha
 		return ret;
 	ENV_ENTER(env, ip);
 	XA_NO_TXN(ip, ret);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/* Check for replication block. */
 	handle_check = IS_ENV_REPLICATED(env);

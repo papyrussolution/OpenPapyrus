@@ -446,7 +446,7 @@ int ssh_connect(ssh_session session)
 	/* If the system configuration files were not yet processed, do it now */
 	if(!session->opts.config_processed) {
 		ret = ssh_options_parse_config(session, NULL);
-		if(ret != 0) {
+		if(ret) {
 			ssh_set_error(session, SSH_FATAL, "Failed to process system configuration files");
 			return SSH_ERROR;
 		}

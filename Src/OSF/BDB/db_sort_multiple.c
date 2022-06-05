@@ -194,14 +194,14 @@ start:
 		if(stack == stackbuf) {
 			ret = __os_malloc(env, slen*
 				sizeof(struct DB_SORT_quicksort_stack), &stack);
-			if(ret != 0) goto error;
+			if(ret) goto error;
 			memcpy(stack, stackbuf, soff*
 				sizeof(struct DB_SORT_quicksort_stack));
 		}
 		else {
 			ret = __os_realloc(env, slen*
 				sizeof(struct DB_SORT_quicksort_stack), &stack);
-			if(ret != 0) goto error;
+			if(ret) goto error;
 		}
 	}
 	/* divide and conquer */

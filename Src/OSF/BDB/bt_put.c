@@ -236,7 +236,7 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 	cp->page = h;
 	if(F_ISSET(dbc, DBC_OPD))
 		LOCK_CHECK_ON(dbc->thread_info);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	/*
 	 * The code breaks it up into five cases:
@@ -362,7 +362,7 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 		else
 			ret = __db_pitem(dbc, h, indx, BKEYDATA_SIZE(data->size), NULL, data);
 	}
-	if(ret != 0) {
+	if(ret) {
 		if(del == 1 && (t_ret = __bam_ca_di(dbc, PGNO(h), indx+1, -1)) != 0) {
 			__db_err(env, t_ret, DB_STR("1005", "cursor adjustment after delete failed"));
 			return __env_panic(env, t_ret);

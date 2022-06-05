@@ -313,7 +313,7 @@ done: err :
 	   ret == DB_PAGE_NOTFOUND || (ret == 0 && isbad == 1))
 		ret = DB_VERIFY_BAD;
 	/* Make sure there's a public complaint if we found corruption. */
-	if(ret != 0)
+	if(ret)
 		__db_err(env, ret, "%s", name);
 	return ret;
 }
@@ -560,7 +560,7 @@ err1:
 				ret = __db_vrfy_common(dbp, vdp, h, i, flags);
 				if(ret == DB_VERIFY_BAD)
 					isbad = 1;
-				else if(ret != 0)
+				else if(ret)
 					goto err;
 			}
 			switch(TYPE(h)) {
@@ -616,7 +616,7 @@ err1:
 			 */
 			if(ret == DB_VERIFY_BAD)
 				isbad = 1;
-			else if(ret != 0)
+			else if(ret)
 				goto err;
 			/*
 			 * Provide feedback to the application about our
@@ -1546,7 +1546,7 @@ int __db_salvage_pg(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t pgno, PAGE * h, void 
 		 */
 		return 0;
 	}
-	if(ret != 0)
+	if(ret)
 		return ret;
 	/*
 	 * We have to display the dump header if it's a metadata page.  It's
@@ -1952,7 +1952,7 @@ static int __db_salvage_all(DB * dbp, VRFY_DBINFO * vdp, void * handle, int (*ca
 			ret = t_ret;
 		h = NULL;
 	}
-	if(ret != 0)
+	if(ret)
 		return ret;
 	// Without subdatabases, we can just dump from the meta pgno
 	if(*hassubsp == 0)
@@ -2180,7 +2180,7 @@ static int __db_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t meta_pgno, void *
 		}
 		else
 			ret = __memp_fget(mpf, &p, vdp->thread_info, NULL, 0, &subpg);
-		if(ret != 0) {
+		if(ret) {
 			err_ret = ret;
 			continue;
 		}
@@ -2194,7 +2194,7 @@ static int __db_salvage(DB * dbp, VRFY_DBINFO * vdp, db_pgno_t meta_pgno, void *
 #endif
 		else
 			ret = __memp_fput(mpf, vdp->thread_info, subpg, dbp->priority);
-		if(ret != 0)
+		if(ret)
 			err_ret = ret;
 	}
 	if(ret == DB_NOTFOUND)

@@ -461,10 +461,8 @@ void PNGAPI png_set_iCCP(png_const_structrp png_ptr, png_inforp info_ptr,
 
 	if(png_ptr == NULL || info_ptr == NULL || name == NULL || profile == NULL)
 		return;
-
 	if(compression_type != PNG_COMPRESSION_TYPE_BASE)
 		png_app_error(png_ptr, "Invalid iCCP compression method");
-
 	/* Set the colorspace first because this validates the profile; do not
 	 * override previously set app cHRM or gAMA here (because likely as not the
 	 * application knows better than libpng what the correct values are.)  Pass
@@ -472,45 +470,29 @@ void PNGAPI png_set_iCCP(png_const_structrp png_ptr, png_inforp info_ptr,
 	 * write case it has not yet been stored in png_ptr.
 	 */
 	{
-		int result = png_colorspace_set_ICC(png_ptr, &info_ptr->colorspace, name,
-		    proflen, profile, info_ptr->color_type);
-
+		int result = png_colorspace_set_ICC(png_ptr, &info_ptr->colorspace, name, proflen, profile, info_ptr->color_type);
 		png_colorspace_sync_info(png_ptr, info_ptr);
-
 		/* Don't do any of the copying if the profile was bad, or inconsistent. */
 		if(result == 0)
 			return;
-
 		/* But do write the gAMA and cHRM chunks from the profile. */
-		info_ptr->colorspace.flags |=
-		    PNG_COLORSPACE_FROM_gAMA|PNG_COLORSPACE_FROM_cHRM;
+		info_ptr->colorspace.flags |= PNG_COLORSPACE_FROM_gAMA|PNG_COLORSPACE_FROM_cHRM;
 	}
-
 	length = strlen(name)+1;
 	new_iccp_name = png_voidcast(char *, png_malloc_warn(png_ptr, length));
-
 	if(new_iccp_name == NULL) {
 		png_benign_error(png_ptr, "Insufficient memory to process iCCP chunk");
-
 		return;
 	}
-
 	memcpy(new_iccp_name, name, length);
-	new_iccp_profile = png_voidcast(png_bytep,
-	    png_malloc_warn(png_ptr, proflen));
-
+	new_iccp_profile = png_voidcast(png_bytep, png_malloc_warn(png_ptr, proflen));
 	if(new_iccp_profile == NULL) {
 		png_free(png_ptr, new_iccp_name);
-		png_benign_error(png_ptr,
-		    "Insufficient memory to process iCCP profile");
-
+		png_benign_error(png_ptr, "Insufficient memory to process iCCP profile");
 		return;
 	}
-
 	memcpy(new_iccp_profile, profile, proflen);
-
 	png_free_data(png_ptr, info_ptr, PNG_FREE_ICCP, 0);
-
 	info_ptr->iccp_proflen = proflen;
 	info_ptr->iccp_name = new_iccp_name;
 	info_ptr->iccp_profile = new_iccp_profile;
@@ -524,17 +506,16 @@ void PNGAPI png_set_iCCP(png_const_structrp png_ptr, png_inforp info_ptr,
 void PNGAPI png_set_text(png_const_structrp png_ptr, png_inforp info_ptr, png_const_textp text_ptr, int num_text)
 {
 	int ret = png_set_text_2(png_ptr, info_ptr, text_ptr, num_text);
-	if(ret != 0)
+	if(ret)
 		png_error(png_ptr, "Insufficient memory to store text");
 }
 
-int /* PRIVATE */ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr, png_const_textp text_ptr, int num_text)
+int /*PRIVATE*/ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr, png_const_textp text_ptr, int num_text)
 {
 	int i;
 	png_debug1(1, "in %lx storage function", png_ptr == NULL ? 0xabadca11U : (ulong)png_ptr->chunk_name);
 	if(png_ptr == NULL || info_ptr == NULL || num_text <= 0 || text_ptr == NULL)
 		return 0;
-
 	/* Make sure we have enough space in the "text" array in info_struct
 	 * to hold all of the incoming text_ptr objects.  This compare can't overflow
 	 * because max_text >= num_text (anyway, subtract of two positive integers
@@ -544,36 +525,23 @@ int /* PRIVATE */ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr
 		int old_num_text = info_ptr->num_text;
 		int max_text;
 		png_textp new_text = NULL;
-
 		/* Calculate an appropriate max_text, checking for overflow. */
 		max_text = old_num_text;
 		if(num_text <= INT_MAX - max_text) {
 			max_text += num_text;
-
 			/* Round up to a multiple of 8 */
 			if(max_text < INT_MAX-8)
 				max_text = (max_text + 8) & ~0x7;
-
 			else
 				max_text = INT_MAX;
-
-			/* Now allocate a new array and copy the old members in; this does all
-			 * the overflow checks.
-			 */
-			new_text = png_voidcast(png_textp, png_realloc_array(png_ptr,
-				    info_ptr->text, old_num_text, max_text-old_num_text,
-				    sizeof *new_text));
+			// Now allocate a new array and copy the old members in; this does all the overflow checks.
+			new_text = png_voidcast(png_textp, png_realloc_array(png_ptr, info_ptr->text, old_num_text, max_text-old_num_text, sizeof *new_text));
 		}
-
 		if(new_text == NULL) {
-			png_chunk_report(png_ptr, "too many text chunks",
-			    PNG_CHUNK_WRITE_ERROR);
-
+			png_chunk_report(png_ptr, "too many text chunks", PNG_CHUNK_WRITE_ERROR);
 			return 1;
 		}
-
 		png_free(png_ptr, info_ptr->text);
-
 		info_ptr->text = new_text;
 		info_ptr->free_me |= PNG_FREE_TEXT;
 		info_ptr->max_text = max_text;
@@ -1249,7 +1217,7 @@ void PNGAPI png_set_check_for_invalid_index(png_structrp png_ptr, int allowed)
  * trailing '\0').  If this routine returns 0 then there was no keyword, or a
  * valid one could not be generated, and the caller must png_error.
  */
-uint32 /* PRIVATE */ png_check_keyword(png_structrp png_ptr, const char * key, png_bytep new_key)
+uint32 /*PRIVATE*/ png_check_keyword(png_structrp png_ptr, const char * key, png_bytep new_key)
 {
 	const char * orig_key = key;
 	uint32 key_len = 0;

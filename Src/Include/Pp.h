@@ -7323,7 +7323,7 @@ protected:
 	public:
 		EvPollTiming(int periodMs, bool registerImmediate);
 		void   Register();
-		int    IsTime() const;
+		bool   IsTime() const;
 	private:
 		const  int64 PeriodMks;
 		int64  LastPollClock;
@@ -7393,7 +7393,25 @@ protected:
 		tfvFinish,
 		tfvCancel
 	};
-	CmdRet TransmitFile(int verb, const char * pParam, PPJobSrvReply & rReply);
+	//
+	// Descr: Типы контента, передаваемые функции TransmitFile
+	//
+	enum {
+		tfctUnused = -1, // Это значение следует передавать функции TransmitFile при обработке всех фаз, кроме tfvStart (только
+			// с этим значением vert параметр contentType имеет значение).
+		tfctFile   =  0, // Файл. Параметр pParam - имя файла. 
+		tfctBuffer =  1  // Буфер. Параметр pParam - указатель на SBaseBuffer. Если размер буфера более размера одной
+			// порции передачи, то будет сделана копия буфера и передана в FTB-блок. Буфер по указателю pParam не
+			// изменится, однако понадобится дополнительный объем памяти равный размеру этого буфера.
+	};
+	//
+	// Descr: Реализует передачу больших данных клиенту. 
+	// ARG(verb IN):
+	// ARG(contentType IN):
+	// ARG(pParam IN):
+	// ARG(rReply, OUT):
+	//
+	CmdRet TransmitFile(int verb, int contentType /*tfctXXX*/, const void * pParam, PPJobSrvReply & rReply);
 	int    FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply);
 	enum {
 		stLoggedIn  = 0x0001,
@@ -7415,12 +7433,14 @@ protected:
 			kObjImage
 		};
 		int32  Cookie;
+		int32  ContentType; // tfctXXX
 		int32  Kind;
 		int64  Offs;
 		PPID   ObjType;
 		PPID   ObjID;
 		PPJobSrvProtocol::TransmitFileBlock Tfb;
 		SFile * P_F;
+		SBaseBuffer * P_B; // @v11.4.0
 	};
 	TSCollection <FTB> FtbList;
 	SString HelloReplyText; // @fastreuse (команда HELLO)

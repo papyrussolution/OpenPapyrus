@@ -87,7 +87,7 @@ int __env_open(DB_ENV * dbenv, const char * db_home, uint32 flags, int mode)
 	int    register_recovery = 0;
 	// Initial configuration
 	ret = __env_config(dbenv, db_home, &flags, mode);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	/*
 	 * Save the DB_ENV handle's configuration flags as set by user-called
@@ -99,7 +99,7 @@ int __env_open(DB_ENV * dbenv, const char * db_home, uint32 flags, int mode)
 	orig_flags = dbenv->flags;
 	// Check open flags
 	ret = __env_open_arg(dbenv, flags);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	// 
 	// If we're going to register with the environment, that's the first thing we do.
@@ -117,7 +117,7 @@ int __env_open(DB_ENV * dbenv, const char * db_home, uint32 flags, int mode)
 			dbenv->is_alive = __envreg_isalive;
 		}
 		ret = __envreg_register(env, &register_recovery, flags);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		if(register_recovery) {
 			if(!LF_ISSET(DB_RECOVER)) {
@@ -161,7 +161,7 @@ int __env_open(DB_ENV * dbenv, const char * db_home, uint32 flags, int mode)
 		ENV_LEAVE(env, ip);
 	}
 err:    
-	if(ret != 0)
+	if(ret)
 		__env_refresh(dbenv, orig_flags, 0);
 	if(register_recovery) {
 		// 
@@ -171,7 +171,7 @@ err:
 		// 
 		if(ret == 0 && (t_ret = __envreg_xunlock(env)) != 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			__envreg_unregister(env, 1);
 	}
 	return ret;

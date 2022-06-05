@@ -650,7 +650,7 @@ static int __bamc_compress_relocate(DBC * dbc)
 			__bamc_compress_reset(dbc_n);
 			ret = 0;
 		}
-		else if(ret != 0)
+		else if(ret)
 			goto err;
 		F_SET(cp_n, C_COMPRESS_DELETED);
 
@@ -667,7 +667,7 @@ static int __bamc_compress_relocate(DBC * dbc)
 			F_SET(cp_n, C_COMPRESS_DELETED);
 			ret = 0;
 		}
-		else if(ret != 0)
+		else if(ret)
 			goto err;
 	}
 err:
@@ -770,7 +770,7 @@ static int __bamc_compress_merge_insert(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 				CMP_UNMARSHAL_DATA(&nextc, &nextd);
 			}
 		}
-		if(ret != 0)
+		if(ret)
 			goto end;
 		/* !nextExists || ikey/idata < nextk/nextd */
 		iSmallEnough = 1;
@@ -785,7 +785,7 @@ static int __bamc_compress_merge_insert(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 			if(cmp < 0) {
 store_current:                  
 				CMP_STORE(cp->currentKey, cp->currentData);
-				if(ret != 0)
+				if(ret)
 					goto end;
 			}
 			else {
@@ -805,7 +805,7 @@ store_current:
 					break;
 				}
 				CMP_STORE(ikey, idata);
-				if(ret != 0)
+				if(ret)
 					goto end;
 				++chunk_count;
 				/*
@@ -850,7 +850,7 @@ store_current:
 					moreCompressed = 0;
 					ret = 0;
 				}
-				else if(ret != 0)
+				else if(ret)
 					goto end;
 			}
 		}
@@ -953,7 +953,7 @@ static int __bamc_compress_merge_delete(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 				cmp = __db_compare_both(dbp, cp->currentKey, cp->currentData, &ikey, &idata);
 			if(cmp < 0) {
 				CMP_STORE(cp->currentKey, cp->currentData);
-				if(ret != 0)
+				if(ret)
 					goto end;
 				if((ret = __bam_compress_set_dbt(dbp, &pdestkey, cp->currentKey->data, cp->currentKey->size)) != 0)
 					goto end;
@@ -995,7 +995,7 @@ static int __bamc_compress_merge_delete(DBC * dbc, BTREE_COMPRESS_STREAM * strea
 					moreCompressed = 0;
 					ret = 0;
 				}
-				else if(ret != 0)
+				else if(ret)
 					goto end;
 			}
 		}
@@ -1084,7 +1084,7 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 				ret = 0;
 				break;
 			}
-			else if(ret != 0)
+			else if(ret)
 				goto end;
 		}
 		else
@@ -1105,7 +1105,7 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 			ret = 0;
 			nextExists = 0;
 		}
-		else if(ret != 0)
+		else if(ret)
 			goto end;
 		if((ret = __bamc_start_decompress(dbc)) != 0)
 			goto end;
@@ -1168,7 +1168,7 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 					moreCompressed = 0;
 					ret = 0;
 				}
-				else if(ret != 0)
+				else if(ret)
 					goto end;
 			}
 		}
@@ -1184,7 +1184,7 @@ static int __bamc_compress_merge_delete_dups(DBC * dbc, BTREE_COMPRESS_STREAM * 
 			ret = __dbc_iput(dbc_n, &destkey, &destbuf, DB_KEYLAST);
 			if((ret_n = __dbc_close(dbc_n)) != 0 && ret == 0)
 				ret = ret_n;
-			if(ret != 0)
+			if(ret)
 				goto end;
 			if(countp)
 				*countp += chunk_count;
@@ -1241,7 +1241,7 @@ static int __bamc_compress_get_prev(DBC * dbc, uint32 flags)
 			tofind = (uint32)(cp->prevcursor-(uint8 *)cp->compressed.data);
 		}
 		CMP_IGET_RETRY(ret, dbc, &cp->key1, &cp->compressed, flags);
-		if(ret != 0)
+		if(ret)
 			return ret;
 		else {
 			// Decompress until we reach tofind 
@@ -1337,7 +1337,7 @@ static int __bamc_compress_get_next(DBC * dbc, uint32 flags)
 		__bamc_compress_reset(dbc);
 		return DB_NOTFOUND;
 	}
-	else if(ret != 0)
+	else if(ret)
 		return ret;
 	ret = __bamc_start_decompress(dbc);
 	return ret;
@@ -1382,7 +1382,7 @@ static int __bamc_compress_get_next_dup(DBC * dbc, DBT * key, uint32 flags)
 		__bamc_compress_reset(dbc);
 		return DB_NOTFOUND;
 	}
-	else if(ret != 0)
+	else if(ret)
 		return ret;
 	if((ret = __bamc_start_decompress(dbc)) != 0)
 		return ret;
@@ -1430,7 +1430,7 @@ static int __bamc_compress_get_set(DBC * dbc, DBT * key, DBT * data, uint32 meth
 	ret = __bamc_compress_seek(dbc, key, data, flags);
 	if(ret == DB_NOTFOUND)
 		CMP_IGET_RETRY(ret, dbc, &cp->key1, &cp->compressed, DB_FIRST|flags);
-	if(ret != 0)
+	if(ret)
 		return ret;
 	/* Decompress and perform a linear search for the key */
 	cmp = 0;
@@ -1606,7 +1606,7 @@ static int __bamc_compress_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 	    case DB_GET_BOTHC: ret = __bamc_compress_get_bothc(dbc, data, flags); break;
 	    default: ret = __db_unknown_flag(dbp->env, "__bamc_compress_iget", method); break;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	switch(multiple) {
 	    case 0:
@@ -1839,7 +1839,7 @@ static int __bamc_compress_idel(DBC * dbc, uint32 flags)
 		__bamc_compress_reset(dbc);
 		ret = 0;
 	}
-	else if(ret != 0)
+	else if(ret)
 		goto err;
 	/* Mark current as being deleted */
 	F_SET(cp, C_COMPRESS_DELETED);
@@ -1961,7 +1961,7 @@ int __bamc_compress_count(DBC * dbc, db_recno_t * countp)
 		++count;
 	if(ret == DB_NOTFOUND)
 		ret = 0;
-	else if(ret != 0)
+	else if(ret)
 		goto err;
 	*countp = count;
 err:
@@ -2126,7 +2126,7 @@ int __bam_compress_salvage(DB * dbp, VRFY_DBINFO * vdp, void * handle, int (*cal
 			ret = DB_VERIFY_FATAL;
 			goto err;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 		compcursor += compressed.size;
 		if(compcursor > compend) {
@@ -2179,7 +2179,7 @@ int __bam_compress_count(DBC * dbc, uint32 * nkeysp, uint32 * ndatap)
 	nkeys = 0;
 	ndata = 0;
 	CMP_IGET_RETRY(ret, dbc_n, &cp_n->key1, &cp_n->compressed, DB_FIRST);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	if((ret = __bamc_start_decompress(dbc_n)) != 0)
 		goto err;
@@ -2197,12 +2197,12 @@ int __bam_compress_count(DBC * dbc, uint32 * nkeysp, uint32 * ndatap)
 					goto err;
 			}
 			CMP_IGET_RETRY(ret, dbc_n, &cp_n->key1, &cp_n->compressed, DB_NEXT);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			ret = __bamc_start_decompress(dbc_n);
 			cp_n->prevKey = &cp_n->key2;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 		if(t->bt_compare(dbp, cp_n->currentKey, cp_n->prevKey) != 0)
 			nkeys += 1;

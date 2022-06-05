@@ -2492,7 +2492,7 @@ static int xmlRegCheckCharacter(xmlRegAtom * atom, int codepoint)
 			    range = atom->ranges[i];
 			    if(range->neg == 2) {
 				    ret = xmlRegCheckCharacterRange(range->type, codepoint, 0, range->start, range->end, range->blockName);
-				    if(ret != 0)
+				    if(ret)
 					    return 0; /* excluded char */
 			    }
 			    else if(range->neg) {
@@ -2504,7 +2504,7 @@ static int xmlRegCheckCharacter(xmlRegAtom * atom, int codepoint)
 			    }
 			    else {
 				    ret = xmlRegCheckCharacterRange(range->type, codepoint, 0, range->start, range->end, range->blockName);
-				    if(ret != 0)
+				    if(ret)
 					    accept = 1; /* might still be excluded */
 			    }
 		    }
@@ -4763,7 +4763,7 @@ static int xmlFAParseBranch(xmlRegParserCtxt * ctxt, xmlRegStatePtr to)
 {
 	xmlRegStatePtr previous = ctxt->state;
 	int ret = xmlFAParsePiece(ctxt);
-	if(ret != 0) {
+	if(ret) {
 		if(xmlFAGenerateTransitions(ctxt, previous, (CUR=='|' || CUR==')') ? to : NULL, ctxt->atom) < 0)
 			return -1;
 		previous = ctxt->state;

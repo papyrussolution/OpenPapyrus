@@ -564,7 +564,7 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 				CLR_RECOVERY_SETTINGS(rep);
 			}
 			MUTEX_UNLOCK(env, rep->mtx_clientdb);
-			if(ret != 0) {
+			if(ret) {
 				RPRINT(env, (env, DB_VERB_REP_MSGS, "FILE_FAIL error cleaning up internal init: %d", ret));
 				goto errhlk;
 			}
@@ -1078,7 +1078,7 @@ gap_check:
 				ret = 0;
 				break;
 			}
-			else if(ret != 0)
+			else if(ret)
 				goto err;
 		}
 		/*
@@ -1122,7 +1122,7 @@ gap_check:
 		}
 		if(ret == DB_KEYEXIST)
 			ret = 0;
-		if(ret != 0)
+		if(ret)
 			goto done;
 		if(IS_ZERO_LSN(lp->waiting_lsn) || LOG_COMPARE(&rp->lsn, &lp->waiting_lsn) < 0) {
 			/*
@@ -1472,10 +1472,10 @@ static int __rep_collect_txn(ENV*env, DB_LSN * lsnp, LSN_COLLECTION * lc)
 			 */
 			LOGCOPY_TOLSN(env, lsnp, (uint8 *)data.data+sizeof(uint32)+sizeof(uint32));
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
-	if(ret != 0)
+	if(ret)
 		__db_errx(env, DB_STR_A("3524", "collect failed at: [%lu][%lu]", "%lu %lu"), (ulong)lsnp->file, (ulong)lsnp->Offset_);
 err:
 	if((t_ret = __logc_close(logc)) != 0 && ret == 0)
@@ -1786,7 +1786,7 @@ static int __rep_process_rec(ENV*env, DB_THREAD_INFO * ip, __rep_control_args * 
 		// Now flush the log unless we're running TXN_NOSYNC
 		if(ret == 0 && !F_ISSET(env->dbenv, DB_ENV_TXN_NOSYNC))
 			ret = __log_flush(env, 0);
-		if(ret != 0) {
+		if(ret) {
 			__db_errx(env, DB_STR_A("3526", "Error processing txn [%lu][%lu]", "%lu %lu"), (ulong)rp->lsn.file, (ulong)rp->lsn.Offset_);
 			ret = __env_panic(env, ret);
 		}
@@ -1821,7 +1821,7 @@ static int __rep_process_rec(ENV*env, DB_THREAD_INFO * ip, __rep_control_args * 
 			ASSIGN_PTR(ret_lsnp, rp->lsn);
 			ret = DB_REP_NOTPERM;
 		}
-		if(ret != 0)
+		if(ret)
 			break;
 		// 
 		// Now, do the checkpoint.  Regardless of whether the checkpoint succeeds or not,

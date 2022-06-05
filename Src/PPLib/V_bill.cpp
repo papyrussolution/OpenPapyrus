@@ -4260,7 +4260,7 @@ int PPViewBill::PrintBill(PPID billID /* @v10.0.0, int addCashSummator*/)
 			bv.GetCommonPoolAttribs(0, 0, &comm_op_id, 0);
 			if(comm_op_id > 0) {
 				THROW(ok = SelectPrintPoolVerb(&prn_verb));
-				if(ok > 0)
+				if(ok > 0) {
 					if(prn_verb == 1)
 						bv.Print();
 					else {
@@ -4268,6 +4268,7 @@ int PPViewBill::PrintBill(PPID billID /* @v10.0.0, int addCashSummator*/)
 						THROW(bv.CreateTempPoolPacket(&merged_pack));
 						PrintGoodsBill(&merged_pack);
 					}
+				}
 			}
 			else
 				bv.Print();
@@ -4289,7 +4290,7 @@ int PPViewBill::PrintAllBills()
 	SVector * p_rpt_ary = 0;
 	long   out_prn_flags = 0;
 	if(!oneof3(op_type_id, 0, PPOPT_POOL, PPOPT_GENERIC) && (op_type_id != PPOPT_PAYMENT || CheckOpPrnFlags(Filt.OpID, OPKF_PRT_INVOICE))) {
-		int    out_amt_type = 0, r = 1;
+		int    out_amt_type = 0;
 		uint   count = 0;
 		PPBillPacket pack;
 		BillViewItem item;
@@ -4300,17 +4301,28 @@ int PPViewBill::PrintAllBills()
 			order = OrdByCode;
 		else if(Filt.SortOrder == BillFilt::ordByObject)
 			order = OrdByObjectName;
+		int    r = 1;
 		for(InitIteration(order); r > 0 && NextIteration(&item) > 0;) {
 			if(item.ID) {
 				is_packet = 0;
 				THROW(P_BObj->ExtractPacket(item.ID, &pack));
 				is_packet = 1;
-				r = (count == 0) ? PrepareBillMultiPrint(&pack, &p_rpt_ary, &out_prn_flags) : 1;
+				// @v11.4.0 r = (count == 0) ? PrepareBillMultiPrint(&pack, &p_rpt_ary, &out_prn_flags) : 1;
+				// @v11.4.0 {
+				if(count == 0) {
+					r = PrepareBillMultiPrint(&pack, &p_rpt_ary, &out_prn_flags);
+					out_amt_type = pack.OutAmtType; // Сохраняем значение pack.OutAmtType выбранное в интерактивном режиме
+				}
+				else {
+					r = 1;
+					pack.OutAmtType = out_amt_type; // Используем вариант выбора цены, интерактивно выбранный на первой итерации
+				}
+				// } @v11.4.0 
 				if(r > 0) {
-					pack.OutAmtType = out_amt_type;
-					//THROW(r = PrintGoodsBill(&pack, &p_rpt_ary, 1));
+					// @v11.4.0 @SevaSob pack.OutAmtType = out_amt_type; 
+					// THROW(r = PrintGoodsBill(&pack, &p_rpt_ary, 1));
 					THROW(r = MultiPrintGoodsBill(&pack, p_rpt_ary, out_prn_flags));
-					out_amt_type = pack.OutAmtType;
+					// @v11.4.0 out_amt_type = pack.OutAmtType;
 					count++;
 				}
 			}

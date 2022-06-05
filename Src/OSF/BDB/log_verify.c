@@ -165,7 +165,7 @@ startscroll:
 				break;
 		}
 		ret = __logc_get(logc, &key, &data, logcflag);
-		if(ret != 0) {
+		if(ret) {
 			if(ret == DB_NOTFOUND) {
 				/* We may not start from the first log file. */
 				if(logcflag == DB_PREV && key.file > 1)

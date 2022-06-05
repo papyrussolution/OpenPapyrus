@@ -219,7 +219,7 @@ int __fop_rename(ENV * env, DB_TXN * txn, const char * oldname, const char * new
 			ret = __fop_rename_log(env, txn, &lsn, flags|DB_FLUSH, &old, &new_dbt, &dir, &fiddbt, (uint32)appname);
 		else
 			ret = __fop_rename_noundo_log(env, txn, &lsn, flags|DB_FLUSH, &old, &new_dbt, &dir, &fiddbt, (uint32)appname);
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	ret = __memp_nameop(env, fid, newname, o, n, 0);

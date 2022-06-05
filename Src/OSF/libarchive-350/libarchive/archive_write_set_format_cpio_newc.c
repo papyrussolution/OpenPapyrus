@@ -195,7 +195,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 #endif
 
 	ret = archive_entry_pathname_l(entry, &path, &len, sconv);
-	if(ret != 0) {
+	if(ret) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			ret_final = ARCHIVE_FATAL;
@@ -239,7 +239,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 
 	/* Symlinks get the link written as the body of the entry. */
 	ret = archive_entry_symlink_l(entry, &p, &len, sconv);
-	if(ret != 0) {
+	if(ret) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Likname");
 			ret_final = ARCHIVE_FATAL;

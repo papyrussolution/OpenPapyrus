@@ -19,7 +19,10 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace flags_internal {
-class PrivateHandleAccessor;
+	class PrivateHandleAccessor;
+	class FlagStateInterface; // @sobolev
+	enum FlagSettingMode; // @sobolev
+	enum ValueSource; // @sobolev
 }  // namespace flags_internal
 
 // CommandLineFlag

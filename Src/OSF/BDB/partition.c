@@ -452,7 +452,7 @@ static int __partition_setup_keys(DBC * dbc, DB_PARTITION * part, const DBMETA *
 		memzero(&key, sizeof(key));
 		ret = __db_put(dbp, dbc->thread_info, dbc->txn, &key, &data, 0);
 		t->bt_compare = compare;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 done:
@@ -748,7 +748,7 @@ int __partc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 			goto err;
 		GET_PART_CURSOR(dbc, new_dbc, part_id);
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/* Success: swap original and new cursors. */
 	if(new_dbc != orig_dbc) {
@@ -1343,7 +1343,7 @@ static int __part_rr(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * n
 		}
 		ptmpdbp->locker = NULL;
 		__db_close(ptmpdbp, NULL, DB_NOSYNC);
-		if(ret != 0)
+		if(ret)
 			break;
 	}
 	if(newname)
@@ -1404,7 +1404,7 @@ int __part_verify(DB * dbp, VRFY_DBINFO * vdp, const char * fname, void * handle
 			dbp->p_internal = NULL;
 		ret = __db_prheader(dbp, NULL, 0, 0, handle, callback, vdp, PGNO_BASE_MD);
 		dbp->p_internal = part;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	if((ret = __db_cursor(dbp, ip, NULL, &dbc, 0)) != 0)

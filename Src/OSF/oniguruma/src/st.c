@@ -125,7 +125,7 @@ static void stat_col(void)
 	FILE * f = fopen("/tmp/col", "w");
 	if(f) {
 		fprintf(f, "collision: %d\n", collision);
-		(void)fclose(f);
+		fclose(f);
 	}
 }
 #endif

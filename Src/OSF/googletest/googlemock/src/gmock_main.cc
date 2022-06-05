@@ -15,9 +15,11 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-#include <iostream>
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
+#include "gmock/internal/gmock-internal.h"
+#pragma hdrstop
+//#include <iostream>
+//#include "gmock/gmock.h"
+//#include "gtest/gtest.h"
 
 #if GTEST_OS_ESP8266 || GTEST_OS_ESP32
 #if GTEST_OS_ESP8266

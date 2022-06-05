@@ -175,7 +175,7 @@ int __rep_set_config(DB_ENV * dbenv, uint32 which, int on)
 				__db_errx(env, DB_STR("3551", "DB_ENV->rep_set_config: leases cannot be turned off"));
 				ret = EINVAL;
 			}
-			if(ret != 0) {
+			if(ret) {
 				ENV_LEAVE(env, ip);
 				return ret;
 			}
@@ -912,7 +912,7 @@ int __rep_open_sysdb(ENV * env, DB_THREAD_INFO * ip, DB_TXN * txn, const char * 
 	 */
 	ret = __db_close(dbp, txn, DB_NOSYNC);
 	dbp = NULL;
-	if(ret != 0)
+	if(ret)
 		goto err;
 	if(LF_ISSET(DB_CREATE)) {
 		if((ret = __db_create_internal(&dbp, env, 0)) != 0)
@@ -1160,7 +1160,7 @@ static int __rep_restore_prepared(ENV * env)
 			ckp_lsn = ckp_args->ckp_lsn;
 			__os_free(env, ckp_args);
 		}
-		if(ret != 0) {
+		if(ret) {
 			__db_errx(env, DB_STR_A("3561", "Invalid checkpoint record at [%lu][%lu]", "%lu %lu"), (ulong)lsn.file, (ulong)lsn.Offset_);
 			goto err;
 		}
@@ -1197,7 +1197,7 @@ static int __rep_restore_prepared(ENV * env)
 		ret = 0;
 		goto done;
 	}
-	else if(ret != 0)
+	else if(ret)
 		goto err;
 	/* Now, the high txnid. */
 	if((ret = __logc_get(logc, &lsn, &rec, DB_LAST)) != 0) {
@@ -1219,7 +1219,7 @@ static int __rep_restore_prepared(ENV * env)
 		ret = 0;
 		goto done;
 	}
-	else if(ret != 0)
+	else if(ret)
 		goto err;
 	/* We have a high and low txnid.  Initialise the txn list. */
 	if((ret = __db_txnlist_init(env,
@@ -1259,7 +1259,7 @@ static int __rep_restore_prepared(ENV * env)
 			if(ret == DB_NOTFOUND)
 				ret = __db_txnlist_add(env, txninfo,
 					txnid, txnop, &lsn);
-			else if(ret != 0)
+			else if(ret)
 				goto err;
 			break;
 		    case DB___txn_prepare:
@@ -1293,7 +1293,7 @@ static int __rep_restore_prepared(ENV * env)
 						&lsn, prep_args);
 				}
 			}
-			else if(ret != 0)
+			else if(ret)
 				goto err;
 			__os_free(env, prep_args);
 			break;
@@ -2047,7 +2047,7 @@ retry:
 				DB_ASSERT(env, ret != DB_TIMEOUT);
 			}
 			REP_SYSTEM_UNLOCK(env);
-			if(ret != 0)
+			if(ret)
 				goto out;
 			/*
 			 * Note that the "reason" that check_applied set, and
@@ -2091,7 +2091,7 @@ static int __rep_await_condition(ENV * env, struct rep_waitgoal * reasonp, db_ti
 				__env_alloc_free(infop, waiter);
 		}
 		MUTEX_UNLOCK(env, renv->mtx_regenv);
-		if(ret != 0)
+		if(ret)
 			return ret;
 		MUTEX_LOCK(env, waiter->mtx_repwait);
 	}
@@ -2162,7 +2162,7 @@ static int __rep_check_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * 
 			reasonp->why = AWAIT_HISTORY;
 			reasonp->u.lsn = lsn;
 		}
-		if(ret != 0)
+		if(ret)
 			goto out;
 		if(commit_info->envid != hist.envid) {
 			/*
@@ -2245,7 +2245,7 @@ static int __rep_check_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * 
 			ret = t_ret;
 			goto out;
 		}
-		if(ret != 0)
+		if(ret)
 			goto out; /* Unexpected error, first read. */
 		if(commit_info->envid != hist.envid) {
 			/*
@@ -2269,7 +2269,7 @@ static int __rep_check_applied(ENV * env, DB_THREAD_INFO * ip, DB_COMMIT_INFO * 
 			reasonp->why = AWAIT_HISTORY;
 			reasonp->u.lsn = lsn;
 		}
-		else if(ret != 0)
+		else if(ret)
 			goto out; /* Second read returned unexpeced error. */
 		/*
 		 * We now have the history info for the gen of the txn, and for
@@ -2371,11 +2371,11 @@ retry:
 		if(oneof2(ret, DB_LOCK_DEADLOCK, DB_LOCK_NOTGRANTED) && ++tries < 5) {  /* Limit of 5 is an arbitrary choice. */
 			ret = __dbc_close(*dbc);
 			*dbc = NULL;
-			if(ret != 0)
+			if(ret)
 				goto err;
 			ret = __txn_abort(*txn);
 			*txn = NULL;
-			if(ret != 0)
+			if(ret)
 				goto err;
 			__os_yield(env, 0, 10000); /* Arbitrary duration. */
 			goto retry;

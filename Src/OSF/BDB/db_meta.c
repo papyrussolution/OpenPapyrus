@@ -961,7 +961,7 @@ int __db_lget(DBC * dbc, int action, db_pgno_t pgno, db_lockmode_t mode, uint32 
 				return ret;
 			LOCK_INIT(*lockp);
 		}
-		else if(ret != 0)
+		else if(ret)
 			return ret;
 	}
 	dbc->lock.pgno = pgno;

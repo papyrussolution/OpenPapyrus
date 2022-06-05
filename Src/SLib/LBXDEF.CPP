@@ -742,7 +742,8 @@ StdTreeListBoxDef2_::SearchBlock & StdTreeListBoxDef2_::SearchBlock::Z()
 	return *this;
 }
 
-StdTreeListBoxDef2_::StdTreeListBoxDef2_(StrAssocTree * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), /*T(sizeof(TreeItem)),*/ P_SaList(0)
+StdTreeListBoxDef2_::StdTreeListBoxDef2_(StrAssocTree * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), /*T(sizeof(TreeItem)),*/ P_SaList(0),
+	P_TopLevelRestrictionIdList(0) /* @v11.4.0 */
 {
 	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, _SlConst.ListBoxDefSignature_STDTREE2);
 	setArray(pList);
@@ -752,7 +753,7 @@ StdTreeListBoxDef2_::~StdTreeListBoxDef2_()
 {
 	if(Options & lbtDisposeData)
 		delete P_SaList;
-	
+	delete P_TopLevelRestrictionIdList; // @v11.4.0
 }
 
 int StdTreeListBoxDef2_::setArray(StrAssocTree * pList)
@@ -770,6 +771,24 @@ int StdTreeListBoxDef2_::setArray(StrAssocTree * pList)
 	//Helper_CreateTree();
 	top();
 	return 1;
+}
+
+int StdTreeListBoxDef2_::AddTopLevelRestrictionId(long id) // @v11.4.0
+{
+	int    ok = 1;
+	THROW_S(id, SLERR_INVPARAM);
+	THROW(SETIFZ(P_TopLevelRestrictionIdList, new LongArray));
+	if(!P_TopLevelRestrictionIdList->lsearch(id))
+		P_TopLevelRestrictionIdList->add(id);
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+bool StdTreeListBoxDef2_::BelongToTopLevelResriction(long id) const // @v11.4.0
+{
+	return (!P_TopLevelRestrictionIdList || P_TopLevelRestrictionIdList->lsearch(id));
 }
 
 int StdTreeListBoxDef2_::getCurString(SString & rBuf)

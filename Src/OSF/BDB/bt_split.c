@@ -119,7 +119,7 @@ retry:
 		//
 		if(ISLEAF(cp->csp->page) && (pgno = NEXT_PGNO(cp->csp->page)) != PGNO_INVALID) {
 			TRY_LOCK(dbc, pgno, next_pgno, next_lock, DB_LOCK_WRITE, retry);
-			if(ret != 0)
+			if(ret)
 				goto err;
 		}
 		ret = cp->csp[0].page->pgno == root_pgno ? __bam_root(dbc, &cp->csp[0]) : __bam_page(dbc, &cp->csp[-1], &cp->csp[0]);
@@ -225,10 +225,10 @@ static int __bam_root(DBC*dbc, EPG * cp)
 		ret = __bam_split_log(dbp, dbc->txn, &LSN(cp->page), 0, OP_SET(opflags, cp->page), PGNO(lp), &LSN(lp),
 			PGNO(rp), &LSN(rp), (uint32)NUM_ENT(lp), PGNO_INVALID, &log_lsn, PGNO(cp->page), &LSN(cp->page), 0, &log_dbt, &rootent[0], &rootent[1]);
 		/* On failure, restore the page. */
-		if(ret != 0)
+		if(ret)
 			memcpy(cp->page, log_dbt.data, dbp->pgsize);
 		__os_free(dbp->env, log_dbt.data);
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	else
@@ -537,7 +537,7 @@ int __bam_broot(DBC*dbc, PAGE * rootp, uint32 split, PAGE * lp, PAGE * rp)
 			if((ret = __db_goff(dbc, &hdr, child_bo->tlen, child_bo->pgno, &hdr.data, &hdr.size)) == 0)
 				ret = __db_poff(dbc, &hdr, &bo.pgno);
 			__os_free(dbp->env, hdr.data);
-			if(ret != 0)
+			if(ret)
 				return ret;
 			bi.len = BOVERFLOW_SIZE;
 			B_TSET(bi.type, B_OVERFLOW);
@@ -800,7 +800,7 @@ noprefix:
 			if((ret = __db_goff(dbc, &hdr, child_bo->tlen, child_bo->pgno, &hdr.data, &hdr.size)) == 0)
 				ret = __db_poff(dbc, &hdr, &bo.pgno);
 			__os_free(dbp->env, hdr.data);
-			if(ret != 0)
+			if(ret)
 				return ret;
 			memzero(&bi, sizeof(bi));
 			bi.len = BOVERFLOW_SIZE;

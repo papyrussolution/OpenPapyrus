@@ -183,7 +183,7 @@ retry:
 
 	/* Copy the page into the cursor. */
 	STACK_TO_CURSOR(cp, ret);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * If re-numbering records, the on-page deleted flag can only mean
@@ -205,11 +205,11 @@ retry:
 		if(STD_LOCKING(dbc) && NUM_ENT(cp->page) == 1 && PGNO(cp->page) != BAM_ROOT_PGNO(dbc)) {
 			if((npgno = NEXT_PGNO(cp->page)) != PGNO_INVALID)
 				TRY_LOCK(dbc, npgno, save_npgno, next_lock, DB_LOCK_WRITE, retry);
-			if(ret != 0)
+			if(ret)
 				goto err;
 			if((ppgno = PREV_PGNO(cp->page)) != PGNO_INVALID)
 				TRY_LOCK(dbc, ppgno, save_ppgno, prev_lock, DB_LOCK_WRITE, retry);
-			if(ret != 0)
+			if(ret)
 				goto err;
 		}
 		/* Delete the item, adjust the counts, adjust the cursors. */
@@ -441,7 +441,7 @@ retry:
 		}
 		/* Copy the page into the cursor. */
 		STACK_TO_CURSOR(cp, ret);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/*
 		 * If re-numbering records, the on-page deleted flag means this
@@ -574,7 +574,7 @@ split:
 
 	/* Copy the page into the cursor. */
 	STACK_TO_CURSOR(cp, ret);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	ret = __bam_iitem(dbc, key, data, iiflags, 0);
 	t_ret = __bam_stkrel(dbc, STK_CLRDBC);
@@ -586,7 +586,7 @@ split:
 			goto err;
 		goto split;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	switch(flags) {                         /* Adjust the cursors. */
 	    case DB_AFTER:
@@ -1111,7 +1111,7 @@ retry:
 	stack = 1;
 	/* Copy the page into the cursor. */
 	STACK_TO_CURSOR(cp, ret);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	if(exact && flags == DB_NOOVERWRITE && !CD_ISSET(cp) && !B_DISSET(GET_BKEYDATA(dbc->dbp, cp->page, cp->indx)->type)) {
 		ret = DB_KEYEXIST;

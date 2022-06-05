@@ -1330,7 +1330,7 @@ int SrImportParam::GetField(int fld, SString & rVal) const { return StrItems.Get
 //
 //
 //
-SrUedContainer::SrUedContainer() : LinguaLocusMeta(0)
+SrUedContainer::SrUedContainer() : LinguaLocusMeta(0), Ht(1024*32, 0), LastSymbHashId(0)
 {
 }
 	
@@ -1338,12 +1338,14 @@ SrUedContainer::~SrUedContainer()
 {
 }
 
-uint64 SrUedContainer::SearchBaseIdBySymbP(uint symbp) const
+uint64 SrUedContainer::SearchBaseIdBySymbId(uint symbId, uint64 meta) const
 {
 	uint64 id = 0;
 	for(uint i = 0; !id && i < BL.getCount(); i++) {
-		if(BL.at(i).SymbP == symbp) {
-			id = BL.at(i).Id;
+		if(BL.at(i).SymbHashId == symbId) {
+			uint64 temp_id = BL.at(i).Id;
+			if(UED::BelongToMeta(temp_id, meta))
+				id = temp_id;
 		}
 	}
 	return id;
@@ -1353,11 +1355,9 @@ uint64 SrUedContainer::SearchBaseSymb(const char * pSymb, uint64 meta) const
 {
 	uint64 id = 0;
 	if(!meta || UED::IsMetaId(meta)) {
-		uint next_pos = 0;
-		for(uint pos = 0; !id && SStrGroup::Pool.searchNcAscii(pSymb, &pos, &next_pos); pos = next_pos) {
-			uint64 temp_id = SearchBaseIdBySymbP(pos);
-			if(!meta || UED::BelongToMeta(temp_id, meta))
-				id = temp_id;
+		uint symb_hash_id = 0;
+		if(Ht.Search(pSymb, &symb_hash_id, 0)) {
+			id = SearchBaseIdBySymbId(symb_hash_id, meta); 
 		}
 	}
 	return id;
@@ -1369,8 +1369,8 @@ bool   SrUedContainer::SearchBaseId(uint64 id, SString & rSymb) const
 	bool   ok = false;
 	for(uint i = 0; !ok && i < BL.getCount(); i++) {
 		if(BL.at(i).Id == id) {
-			GetS(BL.at(i).SymbP, rSymb);
-			ok = true;
+			if(Ht.GetByAssoc(BL.at(i).SymbHashId, rSymb))
+				ok = true;
 		}
 	}
 	return ok;
@@ -1404,6 +1404,7 @@ int SrUedContainer::ReadSource(const char * pFileName)
 	SString temp_buf;
 	SString lang_buf;
 	SString text_buf;
+	SString log_buf;
 	StringSet ss;
 	uint   last_linglocus_temp_id = 0;
 	SymbHashTable temporary_linglocus_tab(512);
@@ -1433,6 +1434,7 @@ int SrUedContainer::ReadSource(const char * pFileName)
 					uint   token_n = 0;
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 						token_n++;
+						temp_buf.Utf8ToLower();
 						if(token_n == 1) {
 							id = sxtou64(temp_buf);
 						}
@@ -1442,7 +1444,7 @@ int SrUedContainer::ReadSource(const char * pFileName)
 							}
 							else {
 								assert(ssc == 3);
-								(lang_buf = temp_buf).Utf8ToLower();
+								lang_buf = temp_buf;
 								uint llid = 0;
 								if(!temporary_linglocus_tab.Search(lang_buf, &llid, 0)) {
 									llid = ++last_linglocus_temp_id;
@@ -1457,6 +1459,10 @@ int SrUedContainer::ReadSource(const char * pFileName)
 							text_buf = temp_buf.StripQuotes();
 						}
 					}
+					{
+						log_buf.Z().Cat(id).Tab().Cat(lang_buf).Tab().Cat(text_buf);
+						//PPLogMessage("ued-import.log", log_buf, LOGMSGF_TIME);
+					}
 					if(id) {
 						if(ssc == 2) {
 							if(text_buf.IsEqiAscii("lingualocus")) {
@@ -1468,7 +1474,13 @@ int SrUedContainer::ReadSource(const char * pFileName)
 							}
 							BaseEntry new_entry;
 							new_entry.Id = id;
-							AddS(text_buf, &new_entry.SymbP);
+							uint   symb_hash_id = 0;
+							if(!Ht.Search(text_buf, &symb_hash_id, 0)) {
+								symb_hash_id = ++LastSymbHashId;
+								Ht.Add(text_buf, symb_hash_id);
+							}
+							new_entry.SymbHashId = symb_hash_id;
+							//AddS(text_buf, &new_entry.SymbP);
 							BL.insert(&new_entry);
 						}
 						else if(ssc == 3) {
@@ -1488,6 +1500,7 @@ int SrUedContainer::ReadSource(const char * pFileName)
 			}
 		}
 	}
+	Ht.BuildAssoc();
 	THROW_SL(temporary_linglocus_tab.BuildAssoc());
 	THROW(ReplaceSurrogateLocaleIds(temporary_linglocus_tab));
 	CATCHZOK

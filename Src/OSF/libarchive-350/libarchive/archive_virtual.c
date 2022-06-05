@@ -3,8 +3,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -15,42 +14,13 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_virtual.c 201098 2009-12-28 02:58:14Z kientzle $");
 
-int archive_filter_code(struct archive * a, int n)
-{
-	return ((a->vtable->archive_filter_code)(a, n));
-}
-
-int archive_filter_count(struct archive * a)
-{
-	return ((a->vtable->archive_filter_count)(a));
-}
-
-const char * archive_filter_name(struct archive * a, int n)
-{
-	return ((a->vtable->archive_filter_name)(a, n));
-}
-
-la_int64_t archive_filter_bytes(struct archive * a, int n)
-{
-	return ((a->vtable->archive_filter_bytes)(a, n));
-}
-
-int archive_free(struct archive * a)
-{
-	if(!a)
-		return ARCHIVE_OK;
-	return ((a->vtable->archive_free)(a));
-}
-
-int archive_write_close(struct archive * a)
-{
-	return ((a->vtable->archive_close)(a));
-}
-
-int archive_read_close(struct archive * a)
-{
-	return ((a->vtable->archive_close)(a));
-}
+int archive_filter_code(struct archive * a, int n) { return ((a->vtable->archive_filter_code)(a, n)); }
+int archive_filter_count(struct archive * a) { return ((a->vtable->archive_filter_count)(a)); }
+const char * archive_filter_name(struct archive * a, int n) { return ((a->vtable->archive_filter_name)(a, n)); }
+la_int64_t archive_filter_bytes(struct archive * a, int n) { return ((a->vtable->archive_filter_bytes)(a, n)); }
+int archive_free(struct archive * a) { return a ? ((a->vtable->archive_free)(a)) : ARCHIVE_OK; }
+int archive_write_close(struct archive * a) { return ((a->vtable->archive_close)(a)); }
+int archive_read_close(struct archive * a) { return ((a->vtable->archive_close)(a)); }
 
 int archive_write_fail(struct archive * a)
 {
@@ -58,32 +28,18 @@ int archive_write_fail(struct archive * a)
 	return a->state;
 }
 
-int archive_write_free(struct archive * a)
-{
-	return archive_free(a);
-}
+int archive_write_free(struct archive * a) { return archive_free(a); }
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-/* For backwards compatibility; will be removed with libarchive 4.0. */
-int archive_write_finish(struct archive * a)
-{
-	return archive_write_free(a);
-}
-
+	/* For backwards compatibility; will be removed with libarchive 4.0. */
+	int archive_write_finish(struct archive * a) { return archive_write_free(a); }
 #endif
 
-int archive_read_free(struct archive * a)
-{
-	return archive_free(a);
-}
+int archive_read_free(struct archive * a) { return archive_free(a); }
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-/* For backwards compatibility; will be removed with libarchive 4.0. */
-int archive_read_finish(struct archive * a)
-{
-	return archive_read_free(a);
-}
-
+	/* For backwards compatibility; will be removed with libarchive 4.0. */
+	int archive_read_finish(struct archive * a) { return archive_read_free(a); }
 #endif
 
 int archive_write_header(struct archive * a, struct archive_entry * entry)

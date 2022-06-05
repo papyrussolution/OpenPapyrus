@@ -316,7 +316,7 @@ reopen:
 			SETIFZ(ret, __db_meta_setup(env, dbp, real_name, reinterpret_cast<DBMETA *>(mbuf), flags, DB_CHK_META));
 		}
 		// Case 5: Invalid file. 
-		if(ret != 0)
+		if(ret)
 			goto err;
 		// Now, get our handle lock. 
 		if((ret = __fop_lock_handle(env, dbp, locker, DB_LOCK_READ, NULL, DB_LOCK_NOWAIT)) == 0) {
@@ -524,7 +524,7 @@ creat2:
 			ret = __txn_abort(stxn);
 			stxn = NULL;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 		goto reopen;
 	}
@@ -541,7 +541,7 @@ creat2:
 	}
 	else
 		*retidp = TXN_INVALID;
-	if(ret != 0)
+	if(ret)
 		goto err;
 	F_SET(dbp, DB_AM_CREATED);
 	if(0) {
@@ -589,7 +589,7 @@ static int __fop_set_pgsize(DB * dbp, DB_FH * fhp, const char * name)
 	 * default pagesize to 16K.
 	 */
 	int    ret = __os_ioinfo(env, name, fhp, NULL, NULL, &iopsize);
-	if(ret != 0) {
+	if(ret) {
 		__db_err(env, ret, "%s", name);
 	}
 	else {
@@ -805,14 +805,14 @@ retry:
 	}
 	else if(fhp == NULL)
 		ret = __os_open(env, name, 0, DB_OSO_RDONLY, 0, &fhp);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/* Get meta-data */
 	if(F_ISSET(dbp, DB_AM_INMEM))
 		ret = __fop_inmem_read_meta(dbp, txn, name, flags);
 	else if((ret = __fop_read_meta(env, name, mbuf, sizeof(mbuf), fhp, 0, NULL)) == 0)
 		ret = __db_meta_setup(env, dbp, name, reinterpret_cast<DBMETA *>(mbuf), flags, DB_CHK_META|DB_CHK_NOLSN);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * Now, get the handle lock.  We first try with NOWAIT, because if
@@ -882,7 +882,7 @@ int __fop_read_meta(ENV * env, const char * name, uint8 * buf, size_t size, DB_F
 	ASSIGN_PTR(nbytesp, 0);
 	int ret = __os_read(env, fhp, buf, size, &nr);
 	ASSIGN_PTR(nbytesp, nr);
-	if(ret != 0) {
+	if(ret) {
 		if(!errok)
 			__db_err(env, ret, "%s", name);
 		goto err;
@@ -931,12 +931,12 @@ int __fop_dummy(DB * dbp, DB_TXN * txn, const char * old, const char * pNewName)
 		goto err;
 	memzero(mbuf, sizeof(mbuf));
 	ret = F_ISSET(dbp, DB_AM_INMEM) ? __fop_inmem_dummy(tmpdbp, stxn, back, mbuf) : __fop_ondisk_dummy(tmpdbp, stxn, back, mbuf);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	ret = F_ISSET(dbp, DB_AM_INMEM) ? __fop_inmem_swap(dbp, tmpdbp, stxn, old, pNewName, back, txn->locker) : 
 		__fop_ondisk_swap(dbp, tmpdbp, stxn, old, pNewName, back, txn->locker);
 	stxn = NULL;
-	if(ret != 0)
+	if(ret)
 		goto err;
 err:
 	__txn_abort(stxn);
@@ -1127,7 +1127,7 @@ static int __fop_inmem_dummy(DB * dbp, DB_TXN * txn, const char * name, uint8 * 
 	memcpy(metap->uid, dbp->fileid, DB_FILE_ID_LEN);
 	if((t_ret = __memp_fput(dbp->mpf, ip, metap, ret == 0 ? dbp->priority : DB_PRIORITY_VERY_LOW)) != 0 && ret == 0)
 		ret = t_ret;
-	if(ret != 0)
+	if(ret)
 		goto err;
 	reinterpret_cast<DBMETA *>(mbuf)->magic = DB_RENAMEMAGIC;
 err:
@@ -1173,7 +1173,7 @@ retry:
 		}
 		ret = __os_closehandle(env, fhp);
 		fhp = NULL;
-		if(ret != 0)
+		if(ret)
 			goto err;
 		/*
 		 * Now, try to acquire the handle lock.  If the handle is locked
@@ -1216,7 +1216,7 @@ retry:
 		}
 		/* We got the read lock; try to upgrade it. */
 		ret = __fop_lock_handle(env, tmpdbp, locker, DB_LOCK_WRITE, NULL, DB_LOCK_UPGRADE|DB_LOCK_NOWAIT);
-		if(ret != 0) {
+		if(ret) {
 			/*
 			 * We did not get the writelock, so someone
 			 * has the handle open.  This is an error.
@@ -1231,7 +1231,7 @@ retry:
 			__lock_put(env, &tmpdbp->handle_lock);
 			ret = EEXIST;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	/*
@@ -1338,7 +1338,7 @@ retry:
 			if(!F_ISSET(tmpdbp, DB_AM_IN_RENAME))
 				ret = EEXIST;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	/* Log the renames. */

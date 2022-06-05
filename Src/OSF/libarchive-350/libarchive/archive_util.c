@@ -4,8 +4,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -40,69 +39,23 @@ int __archive_clean(struct archive * a)
 	return ARCHIVE_OK;
 }
 
-int archive_version_number(void)
-{
-	return (ARCHIVE_VERSION_NUMBER);
-}
-
-const char * archive_version_string(void)
-{
-	return (ARCHIVE_VERSION_STRING);
-}
-
-int archive_errno(struct archive * a)
-{
-	return (a->archive_error_number);
-}
-
-const char * archive_error_string(struct archive * a)
-{
-	if(a->error != NULL && *a->error != '\0')
-		return (a->error);
-	else
-		return NULL;
-}
-
-int archive_file_count(struct archive * a)
-{
-	return (a->file_count);
-}
-
-int archive_format(struct archive * a)
-{
-	return (a->archive_format);
-}
-
-const char * archive_format_name(struct archive * a)
-{
-	return (a->archive_format_name);
-}
-
-int archive_compression(struct archive * a)
-{
-	return archive_filter_code(a, 0);
-}
-
-const char * archive_compression_name(struct archive * a)
-{
-	return archive_filter_name(a, 0);
-}
-
+int archive_version_number(void) { return (ARCHIVE_VERSION_NUMBER); }
+const char * archive_version_string(void) { return (ARCHIVE_VERSION_STRING); }
+int archive_errno(struct archive * a) { return (a->archive_error_number); }
+const char * archive_error_string(struct archive * a) { return (a && !isempty(a->error)) ? a->error : NULL; }
+int archive_file_count(struct archive * a) { return (a->file_count); }
+int archive_format(struct archive * a) { return (a->archive_format); }
+const char * archive_format_name(struct archive * a) { return (a->archive_format_name); }
+int archive_compression(struct archive * a) { return archive_filter_code(a, 0); }
+const char * archive_compression_name(struct archive * a) { return archive_filter_name(a, 0); }
 /*
  * Return a count of the number of compressed bytes processed.
  */
-la_int64_t archive_position_compressed(struct archive * a)
-{
-	return archive_filter_bytes(a, -1);
-}
-
+la_int64_t archive_position_compressed(struct archive * a) { return archive_filter_bytes(a, -1); }
 /*
  * Return a count of the number of uncompressed bytes processed.
  */
-la_int64_t archive_position_uncompressed(struct archive * a)
-{
-	return archive_filter_bytes(a, 0);
-}
+la_int64_t archive_position_uncompressed(struct archive * a) { return archive_filter_bytes(a, 0); }
 
 void archive_clear_error(struct archive * a)
 {
@@ -170,22 +123,18 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 		L'm', L'n', L'o', L'p', L'q', L'r', L's', L't',
 		L'u', L'v', L'w', L'x', L'y', L'z'
 	};
-	HCRYPTPROV hProv;
 	struct archive_wstring temp_name;
-	wchar_t * ws;
 	DWORD attr;
 	wchar_t * xp, * ep;
-	int fd;
-	hProv = (HCRYPTPROV)NULL;
-	fd = -1;
-	ws = NULL;
+	HCRYPTPROV hProv = (HCRYPTPROV)NULL;
+	int fd = -1;
+	wchar_t * ws = NULL;
 	if(pTemplate == NULL) {
 		archive_string_init(&temp_name);
 		/* Get a temporary directory. */
 		if(tmpdir == NULL) {
-			size_t l;
 			wchar_t * tmp;
-			l = GetTempPathW(0, NULL);
+			size_t l = GetTempPathW(0, NULL);
 			if(l == 0) {
 				la_dosmaperr(GetLastError());
 				goto exit_tmpfile;
@@ -205,7 +154,6 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 			if(temp_name.s[temp_name.length-1] != L'/')
 				archive_wstrappend_wchar(&temp_name, L'/');
 		}
-
 		/* Check if temp_name is a directory. */
 		attr = GetFileAttributesW(temp_name.s);
 		if(attr == (DWORD)-1) {
@@ -228,9 +176,9 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 			errno = ENOTDIR;
 			goto exit_tmpfile;
 		}
-		/*
-		 * Create a temporary file.
-		 */
+		// 
+		// Create a temporary file.
+		// 
 		archive_wstrcat(&temp_name, prefix);
 		archive_wstrcat(&temp_name, suffix);
 		ep = temp_name.s + archive_strlen(&temp_name);
@@ -243,20 +191,17 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 			abort();
 		for(ep = xp; *ep == L'X'; ep++)
 			continue;
-		if(*ep)         /* X followed by non X, programming error */
+		if(*ep) /* X followed by non X, programming error */
 			abort();
 	}
 	if(!CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
 		la_dosmaperr(GetLastError());
 		goto exit_tmpfile;
 	}
-
 	for(;;) {
-		wchar_t * p;
 		HANDLE h;
-
-		/* Generate a random file name through CryptGenRandom(). */
-		p = xp;
+		// Generate a random file name through CryptGenRandom()
+		wchar_t * p = xp;
 		if(!CryptGenRandom(hProv, (DWORD)(ep - p)*sizeof(wchar_t),
 		    (BYTE*)p)) {
 			la_dosmaperr(GetLastError());
@@ -285,8 +230,7 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 			attr,
 			NULL);
 		if(h == INVALID_HANDLE_VALUE) {
-			/* The same file already exists. retry with
-			 * a new filename. */
+			// The same file already exists. retry with a new filename. 
 			if(GetLastError() == ERROR_FILE_EXISTS)
 				continue;
 			/* Otherwise, fail creation temporary file. */
@@ -311,23 +255,14 @@ exit_tmpfile:
 	return (fd);
 }
 
-int __archive_mktemp(const char * tmpdir)
-{
-	return __archive_mktempx(tmpdir, NULL);
-}
-
-int __archive_mkstemp(wchar_t * pTemplate)
-{
-	return __archive_mktempx(NULL, pTemplate);
-}
+int __archive_mktemp(const char * tmpdir) { return __archive_mktempx(tmpdir, NULL); }
+int __archive_mkstemp(wchar_t * pTemplate) { return __archive_mktempx(NULL, pTemplate); }
 
 #else
 
 static int get_tempdir(struct archive_string * temppath)
 {
-	const char * tmp;
-
-	tmp = getenv("TMPDIR");
+	const char * tmp = getenv("TMPDIR");
 	if(tmp == NULL)
 #ifdef _PATH_TMP
 		tmp = _PATH_TMP;
@@ -341,16 +276,13 @@ static int get_tempdir(struct archive_string * temppath)
 }
 
 #if defined(HAVE_MKSTEMP)
-
 /*
  * We can use mkstemp().
  */
-
 int __archive_mktemp(const char * tmpdir)
 {
 	struct archive_string temp_name;
 	int fd = -1;
-
 	archive_string_init(&temp_name);
 	if(tmpdir == NULL) {
 		if(get_tempdir(&temp_name) != ARCHIVE_OK)
@@ -379,19 +311,16 @@ exit_tmpfile:
 
 int __archive_mkstemp(char * pTemplate)
 {
-	int fd = -1;
-	fd = mkstemp(pTemplate);
+	int fd = mkstemp(pTemplate);
 	if(fd >= 0)
 		__archive_ensure_cloexec_flag(fd);
 	return (fd);
 }
 
 #else /* !HAVE_MKSTEMP */
-
 /*
  * We use a private routine.
  */
-
 static int __archive_mktempx(const char * tmpdir, char * pTemplate)
 {
 	static const char num[] = {
@@ -406,10 +335,8 @@ static int __archive_mktempx(const char * tmpdir, char * pTemplate)
 	};
 	struct archive_string temp_name;
 	struct stat st;
-	int fd;
 	char * tp, * ep;
-
-	fd = -1;
+	int fd = -1;
 	if(pTemplate == NULL) {
 		archive_string_init(&temp_name);
 		if(tmpdir == NULL) {
@@ -443,11 +370,8 @@ static int __archive_mktempx(const char * tmpdir, char * pTemplate)
 		if(*ep)         /* X followed by non X, programming error */
 			abort();
 	}
-
 	do {
-		char * p;
-
-		p = tp;
+		char * p = tp;
 		archive_random(p, ep - p);
 		while(p < ep) {
 			int d = *((uchar *)p) % sizeof(num);
@@ -495,7 +419,6 @@ void __archive_ensure_cloexec_flag(int fd)
 	CXX_UNUSED(fd);
 #else
 	int flags;
-
 	if(fd >= 0) {
 		flags = fcntl(fd, F_GETFD);
 		if(flags != -1 && (flags & FD_CLOEXEC) == 0)
@@ -512,11 +435,9 @@ static int archive_utility_string_sort_helper(char ** strings, uint n)
 	uint i, lesser_count, greater_count;
 	char ** lesser, ** greater, ** tmp, * pivot;
 	int retval1, retval2;
-
 	/* A list of 0 or 1 elements is already sorted */
 	if(n <= 1)
 		return ARCHIVE_OK;
-
 	lesser_count = greater_count = 0;
 	lesser = greater = NULL;
 	pivot = strings[0];
@@ -546,29 +467,25 @@ static int archive_utility_string_sort_helper(char ** strings, uint n)
 			greater[greater_count - 1] = strings[i];
 		}
 	}
-
 	/* quicksort(lesser) */
 	retval1 = archive_utility_string_sort_helper(lesser, lesser_count);
 	for(i = 0; i < lesser_count; i++)
 		strings[i] = lesser[i];
 	SAlloc::F(lesser);
-
 	/* pivot */
 	strings[lesser_count] = pivot;
-
 	/* quicksort(greater) */
 	retval2 = archive_utility_string_sort_helper(greater, greater_count);
 	for(i = 0; i < greater_count; i++)
 		strings[lesser_count + 1 + i] = greater[i];
 	SAlloc::F(greater);
-
 	return (retval1 < retval2) ? retval1 : retval2;
 }
 
 int archive_utility_string_sort(char ** strings)
 {
 	uint size = 0;
-	while(strings[size] != NULL)
+	while(strings[size])
 		size++;
 	return archive_utility_string_sort_helper(strings, size);
 }

@@ -53,6 +53,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
+import java.util.Vector;
 
 public class SLib {
 	//
@@ -3524,6 +3525,27 @@ public class SLib {
 			Start = start;
 			Finish = finish;
 		}
+		STimeChunk GetUnionIfIntersected(STimeChunk other)
+		{
+			STimeChunk result = null;
+			if(other != null) {
+				STimeChunk is = Intersect(other);
+				if(is != null) {
+					int sc = Cmp(Start, other.Start);
+					int fc = Cmp(Finish, other.Finish);
+					result = new STimeChunk();
+					if(sc < 0)
+						result.Start = Start;
+					else
+						result.Start = other.Start;
+					if(fc > 0)
+						result.Finish = Finish;
+					else
+						result.Finish = other.Finish;
+				}
+			}
+			return result;
+		}
 		STimeChunk Intersect(STimeChunk test)
 		{
 			if(Cmp(Start, test.Finish) > 0 || Cmp(Finish, test.Start) < 0) {
@@ -3542,19 +3564,16 @@ public class SLib {
 				if(Finish != null && CheckDate(Finish.d)) {
 					if(Start.d.IsEq(Finish.d)) {
 						result = Start.d.Format(datf);
-						if(Start.t.v == Finish.t.v) {
+						if(Start.t.v == Finish.t.v)
 							result += " " + timefmt(Start.t, timf);
-						}
-						else {
+						else
 							result += " " + timefmt(Start.t, timf) + ".." + timefmt(Finish.t, timf);
-						}
 					}
 					else
 						result = datetimefmt(Start, datf, timf) + ".." + datetimefmt(Finish, datf, timf);
 				}
-				else {
+				else
 					result = datetimefmt(Start, datf, timf) + "..";
-				}
 			}
 			else if(Finish != null && CheckDate(Finish.d)) {
 				result = ".." + datetimefmt(Finish, datf, timf);
@@ -3565,6 +3584,115 @@ public class SLib {
 		}
 		LDATETIME Start;
 		LDATETIME Finish;
+	}
+	public static class STimeChunkArray extends ArrayList<SLib.STimeChunk> {
+		STimeChunkArray()
+		{
+			super();
+		}
+		private STimeChunkArray Helper_Intersect(final STimeChunk chunk)
+		{
+			STimeChunkArray result = null;
+			if(chunk != null) {
+				for(int j = 0; j < size(); j++) {
+					final STimeChunk item = get(j);
+					STimeChunk sect = chunk.Intersect(item);
+					if(sect != null) {
+						if(result == null)
+							result = new STimeChunkArray();
+						result.add(sect);
+					}
+				}
+			}
+			return result;
+		}
+		STimeChunkArray Intersect(STimeChunk chunk)
+		{
+			STimeChunkArray result = Helper_Intersect(chunk);
+			//result.Sort();
+			return result;
+		}
+		STimeChunkArray Intersect(final STimeChunkArray list)
+		{
+			STimeChunkArray result = null;
+			for(int i = 0; i < list.size(); i++) {
+				STimeChunkArray temp_result = Helper_Intersect(list.get(i));
+				if(temp_result != null) {
+					if(result == null)
+						result = temp_result;
+					else {
+						for(int j = 0; j < temp_result.size(); j++) {
+							STimeChunk inner_item = temp_result.get(j);
+							if(inner_item != null)
+								result.add(inner_item);
+						}
+					}
+				}
+			}
+			return result;
+		}
+		//
+		// Descr: Формирует список rResult состоящий из объединения временных отрезков this со списком отрезков pList.
+		// Note: Функция не пытается объединять пересекающиеся элементы this но только лишь соединяет this с pList.
+		//
+		STimeChunkArray Union(STimeChunkArray list)
+		{
+			STimeChunkArray result = null;
+			if(list != null) {
+				for(int i = 0; i < list.size(); i++) {
+					STimeChunk item = list.get(i);
+					if(item != null) {
+						if(result == null) {
+							result = Union(item);
+						}
+						else {
+							result = result.Union(item);
+						}
+					}
+				}
+			}
+			else
+				result = this;
+			return result;
+		}
+		//
+		// Descr: Формирует список rResult состоящий из объединения временных отрезков this с отрезком rChunk.
+		// Note: Функция не пытается объединять пересекающиеся элементы this но только лишь соединяет this с rChunk.
+		//
+		STimeChunkArray Union(STimeChunk chunk)
+		{
+			STimeChunkArray result = null;
+			int    ok = 1;
+			if(size() == 0) {
+				result = new STimeChunkArray();
+				result.add(chunk);
+			}
+			else {
+				STimeChunk temp_chunk = chunk;
+				Vector<Integer> idx_list_to_exclude = new Vector<>();
+				{
+					for(int i = 0; i < size(); i++) {
+						STimeChunk item = get(i);
+						STimeChunk ur = item.GetUnionIfIntersected(chunk);
+						if(ur != null) {
+							temp_chunk = ur;
+							idx_list_to_exclude.add(i);
+						}
+					}
+				}
+				{
+					result = new STimeChunkArray();
+					for(int i = 0; i < size(); i++) {
+						if(!idx_list_to_exclude.contains(i)) {
+							STimeChunk item = get(i);
+							result.add(item);
+						}
+					}
+					result.add(temp_chunk);
+				}
+			}
+			return result;
+		}
 	}
 	public static int Cmp(LDATE t1, LDATE t2)
 	{
@@ -4095,7 +4223,42 @@ public class SLib {
 			return result;
 		}
 	}
-	private static class ListAdapter extends ArrayAdapter {
+	public static class InternalArrayAdapter extends ArrayAdapter {
+		protected int RcId;
+		private int FocusedIdx;
+		InternalArrayAdapter(Context ctx, int rcId, ArrayList data)
+		{
+			super(ctx, rcId, data);
+			RcId = rcId;
+			FocusedIdx = -1;
+		}
+		@Override public View getView(int position, View convertView, ViewGroup parent)
+		{
+			// Get the data item for this position
+			Object item = (Object)getItem(position);
+			Context ctx = parent.getContext();
+			if(item != null && ctx != null && ctx instanceof SlActivity) {
+				SlActivity activity = (SlActivity)parent.getContext();
+				// Check if an existing view is being reused, otherwise inflate the view
+				if(convertView == null)
+					convertView = LayoutInflater.from(getContext()).inflate(RcId, parent, false);
+				if(convertView != null) {
+					ListViewEvent ev_subj = new ListViewEvent();
+					ev_subj.ItemIdx = position;
+					ev_subj.ItemObj = item;
+					ev_subj.ItemView = convertView;
+					//ev_subj.ParentView = parent;
+					Object he_result = activity.HandleEvent(EV_GETLISTITEMVIEW, parent, ev_subj);
+					if(he_result instanceof View)
+						return (View)he_result;
+				}
+			}
+			return convertView; // Return the completed view to render on screen
+		}
+		public void SetFocusedIndex(int idx) { FocusedIdx = idx; }
+		public int  GetFocusedIndex() { return FocusedIdx; }
+	}
+	/*private static class ListAdapter extends ArrayAdapter {
 		//private static final int RcId = R.layout.face_list_item;
 		private int RcId;
 		ListAdapter(Context ctx, int rcId, ArrayList data)
@@ -4126,7 +4289,7 @@ public class SLib {
 			}
 			return convertView; // Return the completed view to render on screen
 		}
-	}
+	}*/
 	public static class SlFragmentStatic extends androidx.fragment.app.Fragment {
 		private int RcId;
 		private int TabLayoutRcId;
@@ -4472,7 +4635,7 @@ public class SLib {
 		{
 			ListView list_view = findViewById(rcListView);
 			if(list_view != null) {
-				ListAdapter adapter = new ListAdapter(this, rcItemView, data);
+				InternalArrayAdapter adapter = new InternalArrayAdapter(this, rcItemView, data);
 				list_view.setAdapter(adapter);
 				adapter.setNotifyOnChange(true);
 				list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -4541,7 +4704,7 @@ public class SLib {
 		{
 			ListView list_view = findViewById(rcListView);
 			if(list_view != null) {
-				ListAdapter adapter = (ListAdapter)list_view.getAdapter();
+				InternalArrayAdapter adapter = (InternalArrayAdapter)list_view.getAdapter();
 				if(adapter != null)
 					adapter.notifyDataSetChanged();
 			}
@@ -4746,7 +4909,7 @@ public class SLib {
 			ImageView imgv = (ImageView)imgView;
 			if(SLib.GetLen(blobSignature) > 0) {
 				imgv.setVisibility(View.VISIBLE);
-				Glide.with(activity).load(GlideSupport.ModelPrefix + blobSignature).
+				Glide.with(activity).load(GlideSupport.ModelPrefix + blobSignature)./*centerCrop().*/
 					/*signature(new ObjectKey(blobSignature)).*/into(imgv);
 			}
 			else

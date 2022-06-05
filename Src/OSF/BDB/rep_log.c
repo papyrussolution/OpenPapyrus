@@ -118,7 +118,7 @@ int __rep_allreq(ENV*env, __rep_control_args * rp, int eid)
 			ret = 0;
 			goto err;
 		}
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	/*
@@ -161,7 +161,7 @@ int __rep_allreq(ENV*env, __rep_control_args * rp, int eid)
 			ret = __rep_bulk_message(env, &bulk, &repth, &repth.lsn, &data_dbt, (REPCTL_RESEND|end_flag));
 		if(!use_bulk || ret == DB_REP_BULKOVF)
 			ret = __rep_send_throttle(env, eid, &repth, 0, end_flag);
-		if(ret != 0)
+		if(ret)
 			break;
 		/*
 		 * If we are about to change files, then we'll need the
@@ -529,7 +529,7 @@ int __rep_logreq(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 			ret = __logc_get(logc, &firstlsn, &data_dbt, DB_FIRST);
 			count++;
 		} while(ret == DB_NOTFOUND && count < 10);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		if(LOG_COMPARE(&firstlsn, &rp->lsn) > 0) {
 			/* Case 3 */
@@ -559,7 +559,7 @@ int __rep_logreq(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 				ret = DB_NOTFOUND;
 		}
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/*
 	 * If the user requested a gap, send the whole thing, while observing
@@ -618,7 +618,7 @@ int __rep_logreq(ENV * env, __rep_control_args * rp, DBT * rec, int eid)
 			ret = __rep_bulk_message(env, &bulk, &repth, &repth.lsn, &data_dbt, REPCTL_RESEND);
 		if(!use_bulk || ret == DB_REP_BULKOVF)
 			ret = __rep_send_throttle(env, eid, &repth, 0, 0);
-		if(ret != 0) {
+		if(ret) {
 			/* Ignore send failure, except to break the loop. */
 			if(ret == DB_REP_UNAVAIL)
 				ret = 0;
@@ -790,7 +790,7 @@ int __rep_logready(ENV * env, REP * rep, __time64_t savetime, DB_LSN * last_lsnp
 	F_SET(rep, REP_F_NIMDBS_LOADED);
 	ret = __rep_notify_threads(env, AWAIT_NIMDB);
 	REP_SYSTEM_UNLOCK(env);
-	if(ret != 0)
+	if(ret)
 		goto err;
 	return 0;
 err:

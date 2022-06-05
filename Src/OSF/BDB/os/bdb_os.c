@@ -617,7 +617,7 @@ found:                  return __os_strdup(env, tdir, &dbenv->db_tmp_dir);
 		char * path, * eos;
 		if(GetTempPath(DB_MAXPATHLEN, tpath) > 2) {
 			FROM_TSTRING(env, tpath, path, ret);
-			if(ret != 0)
+			if(ret)
 				return ret;
 			eos = path+sstrlen(path)-1;
 			if(*eos == '\\' || *eos == '/')

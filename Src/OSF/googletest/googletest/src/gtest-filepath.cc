@@ -15,20 +15,17 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-#include "gtest/internal/gtest-filepath.h"
-#include <stdlib.h>
-#include "gtest/gtest-message.h"
-#include "gtest/internal/gtest-port.h"
+#include "gtest/internal/gtest-build-internal.h"
+#pragma hdrstop
 #if GTEST_OS_WINDOWS_MOBILE
-	#include <windows.h>
+	//#include <windows.h>
 #elif GTEST_OS_WINDOWS
-	#include <direct.h>
-	#include <io.h>
+	//#include <direct.h>
+	//#include <io.h>
 #else
 	#include <limits.h>
 	#include <climits>  // Some Linux distributions define PATH_MAX here.
 #endif // GTEST_OS_WINDOWS_MOBILE
-#include "gtest/internal/gtest-string.h"
 
 #if GTEST_OS_WINDOWS
 #define GTEST_PATH_MAX_ _MAX_PATH
@@ -76,9 +73,7 @@ static bool IsPathSeparator(char c) {
 
 // Returns the current working directory, or "" if unsuccessful.
 FilePath FilePath::GetCurrentDir() {
-#if GTEST_OS_WINDOWS_MOBILE || GTEST_OS_WINDOWS_PHONE ||         \
-	GTEST_OS_WINDOWS_RT || GTEST_OS_ESP8266 || GTEST_OS_ESP32 || \
-	GTEST_OS_XTENSA
+#if GTEST_OS_WINDOWS_MOBILE || GTEST_OS_WINDOWS_PHONE || GTEST_OS_WINDOWS_RT || GTEST_OS_ESP8266 || GTEST_OS_ESP32 || GTEST_OS_XTENSA
 	// These platforms do not have a current directory, so we just return
 	// something reasonable.
 	return FilePath(kCurrentDirectoryString);
@@ -102,11 +97,11 @@ FilePath FilePath::GetCurrentDir() {
 // Example: FilePath("dir/file.exe").RemoveExtension("EXE") returns
 // FilePath("dir/file"). If a case-insensitive extension is not
 // found, returns a copy of the original FilePath.
-FilePath FilePath::RemoveExtension(const char* extension) const {
+FilePath FilePath::RemoveExtension(const char* extension) const 
+{
 	const std::string dot_extension = std::string(".") + extension;
 	if(String::EndsWithCaseInsensitive(pathname_, dot_extension)) {
-		return FilePath(
-			pathname_.substr(0, pathname_.length() - dot_extension.length()));
+		return FilePath(pathname_.substr(0, pathname_.length() - dot_extension.length()));
 	}
 	return *this;
 }
@@ -114,13 +109,13 @@ FilePath FilePath::RemoveExtension(const char* extension) const {
 // Returns a pointer to the last occurrence of a valid path separator in
 // the FilePath. On Windows, for example, both '/' and '\' are valid path
 // separators. Returns NULL if no path separator was found.
-const char* FilePath::FindLastPathSeparator() const {
+const char* FilePath::FindLastPathSeparator() const 
+{
 	const char* const last_sep = strrchr(c_str(), kPathSeparator);
 #if GTEST_HAS_ALT_PATH_SEP_
 	const char* const last_alt_sep = strrchr(c_str(), kAlternatePathSeparator);
 	// Comparing two pointers of which only one is NULL is undefined.
-	if(last_alt_sep != nullptr &&
-	    (last_sep == nullptr || last_alt_sep > last_sep)) {
+	if(last_alt_sep != nullptr && (last_sep == nullptr || last_alt_sep > last_sep)) {
 		return last_alt_sep;
 	}
 #endif
@@ -133,7 +128,8 @@ const char* FilePath::FindLastPathSeparator() const {
 // the FilePath unmodified. If there is no file part ("just_a_dir/") it
 // returns an empty FilePath ("").
 // On Windows platform, '\' is the path separator, otherwise it is '/'.
-FilePath FilePath::RemoveDirectoryName() const {
+FilePath FilePath::RemoveDirectoryName() const 
+{
 	const char* const last_sep = FindLastPathSeparator();
 	return last_sep ? FilePath(last_sep + 1) : *this;
 }
@@ -144,7 +140,8 @@ FilePath FilePath::RemoveDirectoryName() const {
 // FilePath("./") or, on Windows, FilePath(".\\"). If the filepath does
 // not have a file, like "just/a/dir/", it returns the FilePath unmodified.
 // On Windows platform, '\' is the path separator, otherwise it is '/'.
-FilePath FilePath::RemoveFileName() const {
+FilePath FilePath::RemoveFileName() const 
+{
 	const char* const last_sep = FindLastPathSeparator();
 	std::string dir;
 	if(last_sep) {
@@ -162,24 +159,22 @@ FilePath FilePath::RemoveFileName() const {
 // extension = "xml", returns "dir/test.xml". If number is greater
 // than zero (e.g., 12), returns "dir/test_12.xml".
 // On Windows platform, uses \ as the separator rather than /.
-FilePath FilePath::MakeFileName(const FilePath& directory,
-    const FilePath& base_name, int number,
-    const char* extension) {
+FilePath FilePath::MakeFileName(const FilePath& directory, const FilePath& base_name, int number, const char* extension) 
+{
 	std::string file;
 	if(number == 0) {
 		file = base_name.string() + "." + extension;
 	}
 	else {
-		file =
-		    base_name.string() + "_" + StreamableToString(number) + "." + extension;
+		file = base_name.string() + "_" + StreamableToString(number) + "." + extension;
 	}
 	return ConcatPaths(directory, FilePath(file));
 }
 
 // Given directory = "dir", relative_path = "test.xml", returns "dir/test.xml".
 // On Windows, uses \ as the separator rather than /.
-FilePath FilePath::ConcatPaths(const FilePath& directory,
-    const FilePath& relative_path) {
+FilePath FilePath::ConcatPaths(const FilePath& directory, const FilePath& relative_path) 
+{
 	if(directory.IsEmpty()) return relative_path;
 	const FilePath dir(directory.RemoveTrailingPathSeparator());
 	return FilePath(dir.string() + kPathSeparator + relative_path.string());
@@ -294,7 +289,8 @@ bool FilePath::CreateDirectoriesRecursively() const
 // if the directory already exists; returns false if unable to create the
 // directory for any reason, including if the parent directory does not
 // exist. Not named "CreateDirectory" because that's a macro on Windows.
-bool FilePath::CreateFolder() const {
+bool FilePath::CreateFolder() const 
+{
 #if GTEST_OS_WINDOWS_MOBILE
 	FilePath removed_sep(this->RemoveTrailingPathSeparator());
 	LPCWSTR unicode = String::AnsiToUtf16(removed_sep.c_str());

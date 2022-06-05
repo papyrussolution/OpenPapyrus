@@ -30,7 +30,7 @@
  * to write more than 64K on a 16-bit machine.
  */
 
-void /* PRIVATE */ png_write_data(png_structrp png_ptr, png_const_bytep data, size_t length)
+void /*PRIVATE*/ png_write_data(png_structrp png_ptr, png_const_bytep data, size_t length)
 {
 	/* NOTE: write_data_fn must not change the buffer! */
 	if(png_ptr->write_data_fn != NULL)
@@ -66,7 +66,7 @@ void PNGCBAPI png_default_write_data(png_structp png_ptr, png_bytep data, size_t
  * writing in any buffers.
  */
 #ifdef PNG_WRITE_FLUSH_SUPPORTED
-void /* PRIVATE */ png_flush(png_structrp png_ptr)
+void /*PRIVATE*/ png_flush(png_structrp png_ptr)
 {
 	if(png_ptr->output_flush_fn != NULL)
 		(*(png_ptr->output_flush_fn))(png_ptr);

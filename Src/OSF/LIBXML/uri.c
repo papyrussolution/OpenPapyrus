@@ -426,11 +426,11 @@ static int xmlParse3986Authority(xmlURI * uri, const char ** str)
 	else
 		cur++;
 	ret = xmlParse3986Host(uri, &cur);
-	if(ret != 0) return ret;
+	if(ret) return ret;
 	if(*cur == ':') {
 		cur++;
 		ret = xmlParse3986Port(uri, &cur);
-		if(ret != 0) return ret;
+		if(ret) return ret;
 	}
 	*str = cur;
 	return 0;
@@ -483,7 +483,7 @@ static int FASTCALL xmlParse3986PathAbEmpty(xmlURI * uri, const char ** str)
 	while(*cur == '/') {
 		cur++;
 		ret = xmlParse3986Segment(&cur, 0, 1);
-		if(ret != 0) 
+		if(ret) 
 			return ret;
 	}
 	if(uri) {
@@ -557,19 +557,14 @@ static int FASTCALL xmlParse3986PathRootless(xmlURI * uri, const char ** str)
 	while(*cur == '/') {
 		cur++;
 		ret = xmlParse3986Segment(&cur, 0, 1);
-		if(ret != 0) return ret;
+		if(ret) return ret;
 	}
 	if(uri) {
 		SAlloc::F(uri->path);
-		if(cur != *str) {
-			if(uri->cleanup & 2)
-				uri->path = STRNDUP(*str, cur - *str);
-			else
-				uri->path = xmlURIUnescapeString(*str, cur - *str, 0);
-		}
-		else {
+		if(cur != *str)
+			uri->path = (uri->cleanup & 2) ? STRNDUP(*str, cur - *str) : xmlURIUnescapeString(*str, cur - *str, 0);
+		else
 			uri->path = NULL;
-		}
 	}
 	*str = cur;
 	return 0;
@@ -600,15 +595,10 @@ static int xmlParse3986PathNoScheme(xmlURI * uri, const char ** str)
 	}
 	if(uri) {
 		SAlloc::F(uri->path);
-		if(cur != *str) {
-			if(uri->cleanup & 2)
-				uri->path = STRNDUP(*str, cur - *str);
-			else
-				uri->path = xmlURIUnescapeString(*str, cur - *str, 0);
-		}
-		else {
+		if(cur != *str)
+			uri->path = (uri->cleanup & 2) ? STRNDUP(*str, cur - *str) : xmlURIUnescapeString(*str, cur - *str, 0);
+		else
 			uri->path = NULL;
-		}
 	}
 	*str = cur;
 	return 0;
@@ -635,21 +625,21 @@ static int xmlParse3986HierPart(xmlURI * uri, const char ** str)
 	if(*cur == '/' && *(cur + 1) == '/') {
 		cur += 2;
 		ret = xmlParse3986Authority(uri, &cur);
-		if(ret != 0) return ret;
+		if(ret) return ret;
 		if(uri->server == NULL)
 			uri->port = -1;
 		ret = xmlParse3986PathAbEmpty(uri, &cur);
-		if(ret != 0) return ret;
+		if(ret) return ret;
 		*str = cur;
 		return 0;
 	}
 	else if(*cur == '/') {
 		ret = xmlParse3986PathAbsolute(uri, &cur);
-		if(ret != 0) return ret;
+		if(ret) return ret;
 	}
 	else if(ISA_PCHAR(cur)) {
 		ret = xmlParse3986PathRootless(uri, &cur);
-		if(ret != 0) return ret;
+		if(ret) return ret;
 	}
 	else {
 		/* path-empty is effectively empty */
@@ -683,35 +673,33 @@ static int xmlParse3986RelativeRef(xmlURI * uri, const char * str)
 	if((*str == '/') && (*(str + 1) == '/')) {
 		str += 2;
 		ret = xmlParse3986Authority(uri, &str);
-		if(ret != 0) return ret;
+		if(ret) return ret;
 		ret = xmlParse3986PathAbEmpty(uri, &str);
-		if(ret != 0) return ret;
+		if(ret) return ret;
 	}
 	else if(*str == '/') {
 		ret = xmlParse3986PathAbsolute(uri, &str);
-		if(ret != 0) return ret;
+		if(ret) return ret;
 	}
 	else if(ISA_PCHAR(str)) {
 		ret = xmlParse3986PathNoScheme(uri, &str);
-		if(ret != 0) return ret;
+		if(ret) return ret;
 	}
 	else {
-		/* path-empty is effectively empty */
-		if(uri) {
-			SAlloc::F(uri->path);
-			uri->path = NULL;
-		}
+		// path-empty is effectively empty 
+		if(uri)
+			ZFREE(uri->path);
 	}
 	if(*str == '?') {
 		str++;
 		ret = xmlParse3986Query(uri, &str);
-		if(ret != 0) 
+		if(ret) 
 			return ret;
 	}
 	if(*str == '#') {
 		str++;
 		ret = xmlParse3986Fragment(uri, &str);
-		if(ret != 0) 
+		if(ret) 
 			return ret;
 	}
 	if(*str != 0) {
@@ -735,25 +723,25 @@ static int xmlParse3986RelativeRef(xmlURI * uri, const char * str)
 static int xmlParse3986URI(xmlURI * uri, const char * str)
 {
 	int ret = xmlParse3986Scheme(uri, &str);
-	if(ret != 0) 
+	if(ret) 
 		return ret;
 	if(*str != ':') {
 		return 1;
 	}
 	str++;
 	ret = xmlParse3986HierPart(uri, &str);
-	if(ret != 0) 
+	if(ret) 
 		return ret;
 	if(*str == '?') {
 		str++;
 		ret = xmlParse3986Query(uri, &str);
-		if(ret != 0) 
+		if(ret) 
 			return ret;
 	}
 	if(*str == '#') {
 		str++;
 		ret = xmlParse3986Fragment(uri, &str);
-		if(ret != 0) 
+		if(ret) 
 			return ret;
 	}
 	if(*str != 0) {
@@ -785,10 +773,10 @@ static int xmlParse3986URIReference(xmlURI * uri, const char * str)
 	 * it fails.
 	 */
 	ret = xmlParse3986URI(uri, str);
-	if(ret != 0) {
+	if(ret) {
 		xmlCleanURI(uri);
 		ret = xmlParse3986RelativeRef(uri, str);
-		if(ret != 0) {
+		if(ret) {
 			xmlCleanURI(uri);
 			return ret;
 		}
@@ -1664,7 +1652,7 @@ xmlChar * FASTCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 		else
 			ret = 0;
 	}
-	if(ret != 0)
+	if(ret)
 		goto done;
 	if(ref && ref->scheme) {
 		// The URI is absolute don't modify.
@@ -1679,7 +1667,7 @@ xmlChar * FASTCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 			goto done;
 		ret = xmlParseURIReference(bas, (const char *)base);
 	}
-	if(ret != 0) {
+	if(ret) {
 		if(ref)
 			val = xmlSaveUri(ref);
 		goto done;
@@ -1902,7 +1890,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	/* If URI not already in "relative" form */
 	if(URI[0] != '.') {
 		ret = xmlParseURIReference(ref, (const char *)URI);
-		if(ret != 0)
+		if(ret)
 			goto done; /* Error in URI, return NULL */
 	}
 	else
@@ -1919,7 +1907,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 		goto done;
 	if(base[0] != '.') {
 		ret = xmlParseURIReference(bas, (const char *)base);
-		if(ret != 0)
+		if(ret)
 			goto done; /* Error in base, return NULL */
 	}
 	else

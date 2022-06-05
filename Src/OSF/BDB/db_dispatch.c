@@ -145,7 +145,7 @@ int __db_dispatch(ENV * env, DB_DISTAB * dtab, DBT * db /* The log record upon w
 			if(ret == DB_NOTFOUND)
 				return __db_txnlist_add(env,
 					info, txnid, TXN_IGNORE, lsnp);
-			if(ret != 0)
+			if(ret)
 				return ret;
 			/*
 			 * If we ignore the transaction, ignore the operation
@@ -193,7 +193,7 @@ int __db_dispatch(ENV * env, DB_DISTAB * dtab, DBT * db /* The log record upon w
 				if(ret == DB_NOTFOUND)
 					/* Break out out of if clause. */
 					;
-				else if(ret != 0)
+				else if(ret)
 					return ret;
 				else if(status == TXN_COMMIT) {
 					make_call = 1;
@@ -523,7 +523,7 @@ int __db_txnlist_update(ENV * env, DB_TXNHEAD * hp, uint32 txnid, uint32 status,
 		*ret_status = status;
 		return __db_txnlist_add(env, hp, txnid, status, lsn);
 	}
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(*ret_status == TXN_IGNORE)
 		return 0;

@@ -1072,6 +1072,7 @@ void GSDialog::ViewHierarchy() // @v11.2.11
 				if(p_tree) {
 					//PPListDialog a;
 					StdTreeListBoxDef2_ * p_def = new StdTreeListBoxDef2_(p_tree, 0, 0);
+					p_def->AddTopLevelRestrictionId(strucID); // @v11.4.0
 					P_Box->setDef(p_def);
 					P_Box->Draw_();
 				}

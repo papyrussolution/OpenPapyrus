@@ -112,7 +112,7 @@ terr:
 			ret = t_ret;
 		txn = NULL;
 	}
-	if(ret != 0)
+	if(ret)
 		goto err;
 	/* Save the number truncated so far, we will add what we get below. */
 	truncated = c_data->compact_pages_truncated;
@@ -139,7 +139,7 @@ no_free:
 	do {
 		deadlock = 0;
 		SAVE_START;
-		if(ret != 0)
+		if(ret)
 			break;
 		if(txn_local) {
 			if((ret = __txn_begin(env, ip, txn_orig, &txn, 0)) != 0)
@@ -421,7 +421,7 @@ int __db_exchange_page(DBC * dbc, PAGE ** pgp, PAGE * opg, db_pgno_t newpgno, in
 	else
 		ret = __db_free(dbc, *pgp, 0);
 	*pgp = newpage;
-	if(ret != 0)
+	if(ret)
 		return ret;
 	if(!LF_ISSET(DB_EXCH_PARENT))
 		goto done;
@@ -538,14 +538,14 @@ int __db_truncate_root(DBC * dbc, PAGE * ppg, uint32 indx, db_pgno_t * pgnop, ui
 		if((ret = __db_goff(dbc, &orig, tlen, *pgnop, &orig.data, &orig.size)) == 0)
 			ret = __db_poff(dbc, &orig, &newpgno);
 		__os_free(dbp->env, orig.data);
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	else {
 		LOCK_CHECK_OFF(dbc->thread_info);
 		ret = __db_exchange_page(dbc, &page, NULL, PGNO_INVALID, DB_EXCH_FREE);
 		LOCK_CHECK_ON(dbc->thread_info);
-		if(ret != 0)
+		if(ret)
 			goto err;
 		newpgno = PGNO(page);
 		/* If we could not allocate from the free list, give up.*/
@@ -769,7 +769,7 @@ int __db_relink(DBC * dbc, PAGE * pagep, PAGE * otherp, db_pgno_t new_pgno)
 			ret = __memp_fput(mpf, dbc->thread_info, np, dbc->priority);
 		if((t_ret = __TLPUT(dbc, npl)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	if(pp) {
@@ -778,7 +778,7 @@ int __db_relink(DBC * dbc, PAGE * pagep, PAGE * otherp, db_pgno_t new_pgno)
 			ret = __memp_fput(mpf, dbc->thread_info, pp, dbc->priority);
 		if((t_ret = __TLPUT(dbc, ppl)) != 0 && ret == 0)
 			ret = t_ret;
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	return 0;

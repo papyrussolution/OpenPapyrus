@@ -2748,6 +2748,12 @@ struct STimeChunk {
 	//
 	bool   FASTCALL Intersect(const STimeChunk & rTest, STimeChunk * pResult) const;
 	//
+	// Descr: Если отрезки this и rOther пересекаются, то присваивает объединение этих отрезков 
+	//   по указателю pResult и возвращает true. В противном случае возвращает false и не меняет 
+	//   значение по указателю pResult.
+	//
+	bool   GetUnionIfIntersected(const STimeChunk & rOther, STimeChunk * pResult) const;
+	//
 	// Descr: Определяет, содержится ли период this в периоде rDur.
 	//   Если this полностью содержится в rDur, то функция возвращает !0.
 	//
@@ -8874,8 +8880,18 @@ public:
 	//   <0 - функция ничего не изменила
 	//
 	int    Excise(const STimeChunk * pItem);
-	int    Intersect(const STimeChunkArray * pList, STimeChunkArray * pResult) const;
-	int    Intersect(const STimeChunk & rChunk, STimeChunkArray * pResult) const;
+	//
+	// Descr: Формирует список rResult состоящий из объединения временных отрезков this со списком отрезков pList.
+	// Note: Функция не пытается объединять пересекающиеся элементы this но только лишь соединяет this с pList.
+	//
+	int    Union(const STimeChunkArray * pList, STimeChunkArray & rResult) const;
+	//
+	// Descr: Формирует список rResult состоящий из объединения временных отрезков this с отрезком rChunk.
+	// Note: Функция не пытается объединять пересекающиеся элементы this но только лишь соединяет this с rChunk.
+	//
+	int    Union(const STimeChunk & rChunk, STimeChunkArray & rResult) const;
+	int    Intersect(const STimeChunkArray * pList, STimeChunkArray & rResult) const;
+	int    Intersect(const STimeChunk & rChunk, STimeChunkArray & rResult) const;
 	//
 	// Descr: Возвращает порядок пересечения отрезков в массиве.
 	//   Порядок пересечения представляет количество "этажей" в которое можно выстроить
@@ -8919,13 +8935,14 @@ public:
 	int    GetFreeList(STimeChunkArray * pList) const;
 	//
 	// Descr: Находит нижнюю и верхнюю границы списка. Если параметр update != 0, то
-	//   устанавилвает нижнюю границу не меньше, чем pBounds->Start,
+	//   устанавливает нижнюю границу не меньше, чем pBounds->Start,
 	//   а верхнюю не больше чем pBounds->Finish.
 	//
 	int    GetBounds(STimeChunk * pBounds, int update) const;
 protected:
 	explicit STimeChunkArray(size_t itemSize);
 private:
+	int    Helper_Union(const STimeChunk & rChunk, STimeChunkArray & rResult) const;
 	int    Helper_Intersect(const STimeChunk & rChunk, STimeChunkArray & rResult) const;
 };
 //

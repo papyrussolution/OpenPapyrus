@@ -180,7 +180,7 @@ int __repmgr_site_list(DB_ENV * dbenv, uint * countp, DB_REPMGR_SITE ** listp)
 		if(rep->siteinfo_seq > db_rep->siteinfo_seq)
 			ret = __repmgr_sync_siteaddr(env);
 		ENV_LEAVE(env, ip);
-		if(ret != 0)
+		if(ret)
 			goto err;
 	}
 	else {

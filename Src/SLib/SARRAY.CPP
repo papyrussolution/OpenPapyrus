@@ -4141,6 +4141,63 @@ int STimeChunkArray::Add(const STimeChunk * pEntry, int checkForFree)
 	return ok;
 }
 
+int STimeChunkArray::Union(const STimeChunkArray * pList, STimeChunkArray & rResult) const
+{
+	int    ok = 1;
+	rResult.clear();
+	if(pList) {
+		for(uint i = 0; i < pList->getCount(); i++) {
+			if(i == 0)
+				Helper_Union(*static_cast<const STimeChunk *>(pList->at(i)), rResult);
+			else {
+				STimeChunkArray temp_result;
+				rResult.Helper_Union(*static_cast<const STimeChunk *>(pList->at(i)), temp_result);
+				rResult = temp_result;
+			}
+		}
+	}
+	return ok;
+}
+
+int STimeChunkArray::Union(const STimeChunk & rChunk, STimeChunkArray & rResult) const
+{
+	rResult.clear();
+	return Helper_Union(rChunk, rResult);
+}
+
+int STimeChunkArray::Helper_Union(const STimeChunk & rChunk, STimeChunkArray & rResult) const
+{
+	int    ok = 1;
+	if(getCount() == 0) {
+		rResult.Add(&rChunk, 0);
+	}
+	else {
+		STimeChunk temp_chunk(rChunk);
+		LongArray idx_list_to_exclude;
+		{
+			for(uint i = 0; i < getCount(); i++) {
+				const STimeChunk * p_item = static_cast<const STimeChunk *>(at(i));
+				STimeChunk ur;
+				if(p_item->GetUnionIfIntersected(rChunk, &ur)) {
+					temp_chunk = ur;
+					idx_list_to_exclude.add(i);
+				}
+			}
+		}
+		idx_list_to_exclude.sortAndUndup();
+		{
+			for(uint i = 0; i < getCount(); i++) {
+				if(!idx_list_to_exclude.bsearch(i)) {
+					const STimeChunk * p_item = static_cast<const STimeChunk *>(at(i));
+					rResult.Add(p_item, 0);
+				}
+			}
+			rResult.Add(&temp_chunk, 0);
+		}
+	}
+	return ok;
+}
+
 int STimeChunkArray::Helper_Intersect(const STimeChunk & rChunk, STimeChunkArray & rResult) const
 {
 	int    yes = 0;
@@ -4155,25 +4212,25 @@ int STimeChunkArray::Helper_Intersect(const STimeChunk & rChunk, STimeChunkArray
 	return yes;
 }
 
-int STimeChunkArray::Intersect(const STimeChunkArray * pList, STimeChunkArray * pResult) const
+int STimeChunkArray::Intersect(const STimeChunkArray * pList, STimeChunkArray & rResult) const
 {
 	int    yes = 0;
-	pResult->clear();
+	rResult.clear();
 	for(uint i = 0; i < pList->getCount(); i++) {
 		const STimeChunk * p_item1 = static_cast<const STimeChunk *>(pList->at(i));
-		if(Helper_Intersect(*p_item1, *pResult))
+		if(Helper_Intersect(*p_item1, rResult))
 			yes = 1;
 	}
-	pResult->Sort();
+	rResult.Sort();
 	return yes;
 }
 
-int STimeChunkArray::Intersect(const STimeChunk & rChunk, STimeChunkArray * pResult) const
+int STimeChunkArray::Intersect(const STimeChunk & rChunk, STimeChunkArray & rResult) const
 {
 	int    yes = 0;
-	pResult->clear();
-	yes = Helper_Intersect(rChunk, *pResult);
-	pResult->Sort();
+	rResult.clear();
+	yes = Helper_Intersect(rChunk, rResult);
+	rResult.Sort();
 	return yes;
 }
 

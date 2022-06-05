@@ -78,7 +78,7 @@ static int __xa_get_txn(ENV * env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u
 	DB_ENV * dbenv = env->dbenv;
 	COMPQUIET(ip, 0);
 	ENV_ENTER_RET(env, ip, ret);
-	if(ret != 0)
+	if(ret)
 		return XAER_RMFAIL;
 	else
 		ret = XA_OK;
@@ -159,7 +159,7 @@ static int __xa_get_txn(ENV * env, XID * xid, TXN_DETAIL * td, DB_TXN ** txnp, u
 			else if((ret = __os_malloc(env, sizeof(DB_TXN), txnp)) == 0) {
 				/* We are joining this branch. */
 				ret = __txn_continue(env, *txnp, td, ip, 1);
-				if(ret != 0) {
+				if(ret) {
 					dbenv->err(dbenv, ret, DB_STR("4543", "xa_get_txn: txn_continue fails"));
 					ret = XAER_RMFAIL;
 				}
@@ -351,7 +351,7 @@ static int __db_xa_close(char * xa_info, int rmid, long arg_flags)
 	 */
 	if(ret == DB_RUNRECOVERY)
 		exit(1);
-	else if(ret != 0)
+	else if(ret)
 		return XAER_RMFAIL;
 	/*
 	 * If we are calling close without ever having called open, then we
@@ -538,7 +538,7 @@ static void corrupted_env(ENV * env, int rmid)
 	 */
 	if(__db_rmid_to_env(rmid, &env2) == 0) {
 		PANIC_CHECK_RET(env2, ret);
-		if(ret != 0)
+		if(ret)
 			__db_unmap_rmid(rmid);
 	}
 	/*
