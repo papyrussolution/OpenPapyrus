@@ -35,7 +35,7 @@ int QuantizeLevels(uint8* const data, int width, int height,
 	double last_err = 1.e38, err = 0.;
 	const double err_threshold = ERROR_THRESHOLD * data_size;
 
-	if(data == NULL) {
+	if(!data) {
 		return 0;
 	}
 

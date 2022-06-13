@@ -1161,7 +1161,7 @@ void RBBIRuleScanner::scanSet()
 
 	// Verify that the set contains at least one code point.
 	//
-	U_ASSERT(uset!=NULL);
+	U_ASSERT(uset != NULL);
 	if(uset->isEmpty()) {
 		// This set is empty.
 		//  Make it an error, because it almost certainly is not what the user wanted.

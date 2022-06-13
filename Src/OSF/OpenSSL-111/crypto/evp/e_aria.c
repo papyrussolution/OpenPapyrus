@@ -442,7 +442,7 @@ static int aria_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 	if(!gctx->iv_set)
 		return -1;
 	if(in) {
-		if(out == NULL) {
+		if(!out) {
 			if(CRYPTO_gcm128_aad(&gctx->gcm, in, len))
 				return -1;
 		}

@@ -90,7 +90,7 @@ static const int acl_nfs4_flag_map_size = (int)(SIZEOFARRAY(acl_nfs4_flag_map));
  * Translate POSIX.1e ACLs into libarchive internal structure
  */
 static int translate_acl(struct archive_read_disk * a,
-    struct archive_entry * entry, acl_t acl, int default_entry_acl_type)
+    ArchiveEntry * entry, acl_t acl, int default_entry_acl_type)
 {
 	acl_tag_t acl_tag;
 	acl_entry_t acl_entry;
@@ -181,7 +181,7 @@ static int translate_acl(struct archive_read_disk * a,
 /*
  * Translate RichACL into libarchive internal ACL
  */
-static int translate_richacl(struct archive_read_disk * a, struct archive_entry * entry,
+static int translate_richacl(struct archive_read_disk * a, ArchiveEntry * entry,
     struct richacl * richacl)
 {
 	int ae_id, ae_tag, ae_perm;
@@ -284,8 +284,8 @@ static void _richacl_mode_to_masks(struct richacl * richacl, __LA_MODE_T mode)
 #endif /* ARCHIVE_ACL_LIBRICHACL */
 
 #if ARCHIVE_ACL_LIBRICHACL
-static int set_richacl(struct archive * a, int fd, const char * name,
-    struct archive_acl * abstract_acl, __LA_MODE_T mode,
+static int set_richacl(Archive * a, int fd, const char * name,
+    archive_acl * abstract_acl, __LA_MODE_T mode,
     int ae_requested_type, const char * tname)
 {
 	int ae_type, ae_permset, ae_tag, ae_id;
@@ -411,9 +411,7 @@ exit_free:
 #endif /* ARCHIVE_ACL_RICHACL */
 
 #if ARCHIVE_ACL_LIBACL
-static int set_acl(struct archive * a, int fd, const char * name,
-    struct archive_acl * abstract_acl,
-    int ae_requested_type, const char * tname)
+static int set_acl(Archive * a, int fd, const char * name, archive_acl * abstract_acl, int ae_requested_type, const char * tname)
 {
 	int acl_type = 0;
 	int ae_type, ae_permset, ae_tag, ae_id;
@@ -426,7 +424,6 @@ static int set_acl(struct archive * a, int fd, const char * name,
 	acl_t acl = NULL;
 	acl_entry_t acl_entry;
 	acl_permset_t acl_permset;
-
 	ret = ARCHIVE_OK;
 	entries = archive_acl_reset(abstract_acl, ae_requested_type);
 	if(entries == 0)
@@ -542,8 +539,7 @@ exit_free:
 
 #endif /* ARCHIVE_ACL_LIBACL */
 
-int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
 	const char      * accpath;
 	int r;
@@ -554,10 +550,8 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	struct richacl * richacl;
 	mode_t mode;
 #endif
-
 	accpath = NULL;
 	r = ARCHIVE_OK;
-
 	/* For default ACLs we need reachable accpath */
 	if(*fd < 0 || S_ISDIR(archive_entry_mode(entry))) {
 		accpath = archive_read_disk_entry_setup_path(a, entry, fd);
@@ -642,8 +636,8 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	return r;
 }
 
-int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
-    struct archive_acl * abstract_acl, __LA_MODE_T mode)
+int archive_write_disk_set_acls(Archive * a, int fd, const char * name,
+    archive_acl * abstract_acl, __LA_MODE_T mode)
 {
 	int ret = ARCHIVE_OK;
 

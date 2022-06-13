@@ -37,6 +37,7 @@
             android:id="@+id/ATTENDANCEPREREQ_GOODS_DURATION"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
+            android:layout_marginLeft="8dp"
             />
         <View style="@style/FakeView"/>
         <TextView style="@style/TSessPriceText"

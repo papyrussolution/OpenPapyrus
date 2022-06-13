@@ -87,10 +87,10 @@ typedef unsigned char BYTE;
 #endif
 #endif
 
-MEM_STATIC unsigned MEM_32bits() { return sizeof(void*)==4; }
-MEM_STATIC unsigned MEM_64bits() { return sizeof(void*)==8; }
+MEM_STATIC uint MEM_32bits() { return sizeof(void*)==4; }
+MEM_STATIC uint MEM_64bits() { return sizeof(void*)==8; }
 
-MEM_STATIC unsigned MEM_isLittleEndian()
+MEM_STATIC uint MEM_isLittleEndian()
 {
 	const union { uint32 u; BYTE c[4]; } one = { 1 }; /* don't use static : performance detrimental  */
 	return one.c[0];
@@ -536,31 +536,31 @@ typedef enum {
 /* 1,2,4,8 would be better for bitmap combinations, but slows down performance a bit ... :( */
 
 MEM_STATIC size_t   BIT_initDStream(BIT_DStream_t* bitD, const void* srcBuffer, size_t srcSize);
-MEM_STATIC size_t   BIT_readBits(BIT_DStream_t* bitD, unsigned nbBits);
+MEM_STATIC size_t   BIT_readBits(BIT_DStream_t* bitD, uint nbBits);
 MEM_STATIC BIT_DStream_status BIT_reloadDStream(BIT_DStream_t* bitD);
-MEM_STATIC unsigned BIT_endOfDStream(const BIT_DStream_t* bitD);
+MEM_STATIC uint BIT_endOfDStream(const BIT_DStream_t* bitD);
 
 /******************************************
 *  unsafe API
 ******************************************/
-MEM_STATIC size_t BIT_readBitsFast(BIT_DStream_t* bitD, unsigned nbBits);
+MEM_STATIC size_t BIT_readBitsFast(BIT_DStream_t* bitD, uint nbBits);
 /* faster, but works only if nbBits >= 1 */
 
 /****************************************************************
 *  Helper functions
 ****************************************************************/
-MEM_STATIC unsigned BIT_highbit32(uint32 val)
+MEM_STATIC uint BIT_highbit32(uint32 val)
 {
 #if defined(_MSC_VER)   /* Visual */
-	unsigned long r;
+	ulong r;
 	return _BitScanReverse(&r, val) ? (uint)r : 0;
 #elif defined(__GNUC__) && (__GNUC__ >= 3)   /* Use GCC Intrinsic */
 	return __builtin_clz(val) ^ 31;
 #else   /* Software version */
-	static const unsigned DeBruijnClz[32] =
+	static const uint DeBruijnClz[32] =
 	{ 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30, 8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31 };
 	uint32 v = val;
-	unsigned r;
+	uint r;
 	v |= v >> 1;
 	v |= v >> 2;
 	v |= v >> 4;
@@ -686,7 +686,7 @@ MEM_STATIC BIT_DStream_status BIT_reloadDStream(BIT_DStream_t* bitD)
 /*! BIT_endOfDStream
  *   @return Tells if DStream has reached its exact end
  */
-MEM_STATIC unsigned BIT_endOfDStream(const BIT_DStream_t* DStream)
+MEM_STATIC uint BIT_endOfDStream(const BIT_DStream_t* DStream)
 {
 	return ((DStream->ptr == DStream->start) && (DStream->bitsConsumed == sizeof(DStream->bitContainer)*8));
 }
@@ -742,10 +742,10 @@ extern "C" {
 /* *****************************************
 *  FSE advanced API
 *******************************************/
-static size_t FSE_buildDTable_raw(FSE_DTable* dt, unsigned nbBits);
+static size_t FSE_buildDTable_raw(FSE_DTable* dt, uint nbBits);
 /* build a fake FSE_DTable, designed to read an uncompressed bitstream where each symbol uses nbBits */
 
-static size_t FSE_buildDTable_rle(FSE_DTable* dt, unsigned char symbolValue);
+static size_t FSE_buildDTable_rle(FSE_DTable* dt, uchar symbolValue);
 /* build a fake FSE_DTable, designed to always generate the same symbolValue */
 
 /* *****************************************
@@ -756,13 +756,13 @@ typedef struct {
 	const void* table; /* precise table may vary, depending on uint16 */
 } FSE_DState_t;
 
-static void     FSE_initDState(FSE_DState_t* DStatePtr, BIT_DStream_t* bitD, const FSE_DTable* dt);
-static unsigned char FSE_decodeSymbol(FSE_DState_t* DStatePtr, BIT_DStream_t* bitD);
-static unsigned FSE_endOfDState(const FSE_DState_t* DStatePtr);
+static void  FSE_initDState(FSE_DState_t* DStatePtr, BIT_DStream_t* bitD, const FSE_DTable* dt);
+static uchar FSE_decodeSymbol(FSE_DState_t* DStatePtr, BIT_DStream_t* bitD);
+static uint  FSE_endOfDState(const FSE_DState_t* DStatePtr);
 //
 // FSE unsafe API
 //
-static unsigned char FSE_decodeSymbolFast(FSE_DState_t* DStatePtr, BIT_DStream_t* bitD);
+static uchar FSE_decodeSymbolFast(FSE_DState_t* DStatePtr, BIT_DStream_t* bitD);
 /* faster, but works only if nbBits is always >= 1 (otherwise, result will be corrupted) */
 //
 // Implementation of inlined functions
@@ -775,9 +775,9 @@ typedef struct {
 } FSE_DTableHeader;   /* sizeof uint32 */
 
 typedef struct {
-	unsigned short newState;
-	unsigned char symbol;
-	unsigned char nbBits;
+	ushort newState;
+	uchar symbol;
+	uchar nbBits;
 } FSE_decode_t;   /* size == uint32 */
 
 MEM_STATIC void FSE_initDState(FSE_DState_t* DStatePtr, BIT_DStream_t* bitD, const FSE_DTable * dt)
@@ -811,7 +811,7 @@ MEM_STATIC BYTE FSE_decodeSymbolFast(FSE_DState_t* DStatePtr, BIT_DStream_t* bit
 	return symbol;
 }
 
-MEM_STATIC unsigned FSE_endOfDState(const FSE_DState_t* DStatePtr)
+MEM_STATIC uint FSE_endOfDState(const FSE_DState_t* DStatePtr)
 {
 	return DStatePtr->state == 0;
 }
@@ -929,10 +929,10 @@ typedef uint32 DTable_max_t[FSE_DTABLE_SIZE_U32(FSE_MAX_TABLELOG)];
 
 static uint32 FSE_tableStep(uint32 tableSize) { return (tableSize>>1) + (tableSize>>3) + 3; }
 
-static size_t FSE_buildDTable(FSE_DTable* dt, const short* normalizedCounter, unsigned maxSymbolValue, unsigned tableLog)
+static size_t FSE_buildDTable(FSE_DTable* dt, const short* normalizedCounter, uint maxSymbolValue, uint tableLog)
 {
 	FSE_DTableHeader DTableH;
-	void* const tdPtr = dt+1; /* because dt is unsigned, 32-bits aligned on 32-bits */
+	void * const tdPtr = dt+1; /* because dt is unsigned, 32-bits aligned on 32-bits */
 	FSE_DECODE_TYPE* const tableDecode = (FSE_DECODE_TYPE*)(tdPtr);
 	const uint32 tableSize = 1 << tableLog;
 	const uint32 tableMask = tableSize-1;
@@ -1006,7 +1006,7 @@ static size_t FSE_readNCount(short* normalizedCounter, uint * maxSVPtr, uint32 *
 	int threshold;
 	uint32 bitStream;
 	int bitCount;
-	unsigned charnum = 0;
+	uint charnum = 0;
 	int previous0 = 0;
 
 	if(hbSize < 4) return ERROR(srcSize_wrong);
@@ -1022,7 +1022,7 @@ static size_t FSE_readNCount(short* normalizedCounter, uint * maxSVPtr, uint32 *
 
 	while((remaining>1) && (charnum<=*maxSVPtr)) {
 		if(previous0) {
-			unsigned n0 = charnum;
+			uint n0 = charnum;
 			while((bitStream & 0xFFFF) == 0xFFFF) {
 				n0 += 24;
 				if(ip < iend-5) {
@@ -1115,17 +1115,16 @@ static size_t FSE_buildDTable_rle(FSE_DTable* dt, BYTE symbolValue)
 	return 0;
 }
 
-static size_t FSE_buildDTable_raw(FSE_DTable* dt, unsigned nbBits)
+static size_t FSE_buildDTable_raw(FSE_DTable* dt, uint nbBits)
 {
 	void* ptr = dt;
 	FSE_DTableHeader* const DTableH = (FSE_DTableHeader*)ptr;
 	void* dPtr = dt + 1;
 	FSE_decode_t* const dinfo = (FSE_decode_t*)dPtr;
-	const unsigned tableSize = 1 << nbBits;
-	const unsigned tableMask = tableSize - 1;
-	const unsigned maxSymbolValue = tableMask;
-	unsigned s;
-
+	const uint tableSize = 1 << nbBits;
+	const uint tableMask = tableSize - 1;
+	const uint maxSymbolValue = tableMask;
+	uint s;
 	/* Sanity checks */
 	if(nbBits < 1) return ERROR(GENERIC);      /* min size */
 
@@ -1141,20 +1140,16 @@ static size_t FSE_buildDTable_raw(FSE_DTable* dt, unsigned nbBits)
 	return 0;
 }
 
-FORCE_INLINE size_t FSE_decompress_usingDTable_generic(void* dst, size_t maxDstSize,
-    const void* cSrc, size_t cSrcSize,
-    const FSE_DTable* dt, const unsigned fast)
+FORCE_INLINE size_t FSE_decompress_usingDTable_generic(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const FSE_DTable* dt, const uint fast)
 {
 	BYTE * const ostart = (BYTE *)dst;
 	BYTE * op = ostart;
 	BYTE * const omax = op + maxDstSize;
 	BYTE * const olimit = omax-3;
-
 	BIT_DStream_t bitD;
 	FSE_DState_t state1;
 	FSE_DState_t state2;
 	size_t errorCode;
-
 	/* Init */
 	errorCode = BIT_initDStream(&bitD, cSrc, cSrcSize); /* replaced last arg by maxCompressed Size */
 	if(FSE_isError(errorCode)) return errorCode;
@@ -1371,8 +1366,8 @@ static size_t HUF_decompress4X4(void* dst, size_t dstSize, const void* cSrc, siz
    3. decode 1 or 4 segments in parallel using HUF_decompressSXn_usingDTable
 
  */
-static size_t HUF_readDTableX2(unsigned short* DTable, const void* src, size_t srcSize);
-static size_t HUF_readDTableX4(unsigned* DTable, const void* src, size_t srcSize);
+static size_t HUF_readDTableX2(ushort* DTable, const void* src, size_t srcSize);
+static size_t HUF_readDTableX4(uint * DTable, const void* src, size_t srcSize);
 static size_t HUF_decompress4X2_usingDTable(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const ushort* DTable);
 static size_t HUF_decompress4X4_usingDTable(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const uint32 * DTable);
 
@@ -2908,10 +2903,8 @@ static size_t ZSTD_decompressContinue(ZSTD_DCtx* ctx, void* dst, size_t maxDstSi
 	/* Sanity check */
 	if(srcSize != ctx->expected) return ERROR(srcSize_wrong);
 	ZSTD_checkContinuity(ctx, dst);
-
 	/* Decompress : frame header; part 1 */
-	switch(ctx->stage)
-	{
+	switch(ctx->stage) {
 		case ZSTDds_getFrameHeaderSize:
 		    /* get frame header size */
 		    if(srcSize != ZSTD_frameHeaderSize_min) return ERROR(srcSize_wrong); /* impossible */
@@ -3011,10 +3004,7 @@ static void ZSTD_decompress_insertDictionary(ZSTD_DCtx* ctx, const void* dict, s
  * You can use them for tests, provide feedback, or if you can endure risk of future changes.
  */
 
-/* *************************************
-*  Includes
-***************************************/
-#include <stdlib.h>
+//#include <stdlib.h>
 
 /** ************************************************
  *  Streaming decompression
@@ -3063,7 +3053,7 @@ struct ZBUFFv04_DCtx_s {
 	const char* dict;
 	size_t dictSize;
 	ZBUFF_dStage stage;
-	unsigned char headerBuffer[ZSTD_frameHeaderSize_max];
+	uchar headerBuffer[ZSTD_frameHeaderSize_max];
 };   /* typedef'd to ZBUFF_DCtx within "zstd_buffered.h" */
 
 typedef ZBUFFv04_DCtx ZBUFF_DCtx;

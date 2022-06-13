@@ -69,8 +69,7 @@ ABSL_NAMESPACE_BEGIN
 //
 // This routine may return fewer stack frame entries than are
 // available. Also note that `result` and `sizes` must both be non-null.
-extern int GetStackFrames(void** result, int* sizes, int max_depth,
-                          int skip_count);
+extern int GetStackFrames(void** result, int* sizes, int max_depth, int skip_count);
 
 // GetStackFramesWithContext()
 //
@@ -93,9 +92,7 @@ extern int GetStackFrames(void** result, int* sizes, int max_depth,
 // or other reasons. (This value will be set to `0` if no frames were dropped.)
 // The number of total stack frames is guaranteed to be >= skip_count +
 // max_depth + *min_dropped_frames.
-extern int GetStackFramesWithContext(void** result, int* sizes, int max_depth,
-                                     int skip_count, const void* uc,
-                                     int* min_dropped_frames);
+extern int GetStackFramesWithContext(void** result, int* sizes, int max_depth, int skip_count, const void* uc, int* min_dropped_frames);
 
 // GetStackTrace()
 //
@@ -143,10 +140,7 @@ extern int GetStackTrace(void** result, int max_depth, int skip_count);
 // or other reasons. (This value will be set to `0` if no frames were dropped.)
 // The number of total stack frames is guaranteed to be >= skip_count +
 // max_depth + *min_dropped_frames.
-extern int GetStackTraceWithContext(void** result, int max_depth,
-                                    int skip_count, const void* uc,
-                                    int* min_dropped_frames);
-
+extern int GetStackTraceWithContext(void** result, int max_depth, int skip_count, const void* uc, int* min_dropped_frames);
 // SetStackUnwinder()
 //
 // Provides a custom function for unwinding stack frames that will be used in
@@ -159,10 +153,7 @@ extern int GetStackTraceWithContext(void** result, int max_depth,
 //
 // If unwinder is set to null, we revert to the default stack-tracing behavior.
 //
-// *****************************************************************************
 // WARNING
-// *****************************************************************************
-//
 // absl::SetStackUnwinder is not suitable for general purpose use.  It is
 // provided for custom runtimes.
 // Some things to watch out for when calling `absl::SetStackUnwinder()`:
@@ -172,13 +163,9 @@ extern int GetStackTraceWithContext(void** result, int max_depth,
 //
 // (b) Even after a custom stack unwinder has been unregistered, other
 // threads may still be in the process of using that unwinder.
-// Therefore do not clean up any state that may be needed by an old
-// unwinder.
-// *****************************************************************************
-extern void SetStackUnwinder(int (*unwinder)(void** pcs, int* sizes,
-                                             int max_depth, int skip_count,
-                                             const void* uc,
-                                             int* min_dropped_frames));
+// Therefore do not clean up any state that may be needed by an old unwinder.
+//
+extern void SetStackUnwinder(int (* unwinder)(void** pcs, int* sizes, int max_depth, int skip_count, const void* uc, int* min_dropped_frames));
 
 // DefaultStackUnwinder()
 //
@@ -205,9 +192,7 @@ extern void SetStackUnwinder(int (*unwinder)(void** pcs, int* sizes,
 //     null uc | GetStackTrace()            | GetStackFrames()            |
 // non-null uc | GetStackTraceWithContext() | GetStackFramesWithContext() |
 //             |==========================================================|
-extern int DefaultStackUnwinder(void** pcs, int* sizes, int max_depth,
-                                int skip_count, const void* uc,
-                                int* min_dropped_frames);
+extern int DefaultStackUnwinder(void** pcs, int* sizes, int max_depth, int skip_count, const void* uc, int* min_dropped_frames);
 
 namespace debugging_internal {
 // Returns true for platforms which are expected to have functioning stack trace

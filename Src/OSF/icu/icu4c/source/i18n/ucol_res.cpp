@@ -203,7 +203,7 @@ const CollationCacheEntry * CollationLoader::createCacheEntry(UErrorCode & error
 	else if(collations == NULL) {
 		return loadFromBundle(errorCode);
 	}
-	else if(data == NULL) {
+	else if(!data) {
 		return loadFromCollations(errorCode);
 	}
 	else {
@@ -429,15 +429,12 @@ const CollationCacheEntry * CollationLoader::loadFromData(UErrorCode & errorCode
 	// For the actual locale "zh" we need to suppress pinyin instead.
 	if(actualAndValidLocalesAreDifferent) {
 		// Opening a bundle for the actual locale should always succeed.
-		LocalUResourceBundlePointer actualBundle(
-			ures_open(U_ICUDATA_COLL, actualLocale, &errorCode));
+		LocalUResourceBundlePointer actualBundle(ures_open(U_ICUDATA_COLL, actualLocale, &errorCode));
 		if(U_FAILURE(errorCode)) {
 			return NULL;
 		}
 		UErrorCode internalErrorCode = U_ZERO_ERROR;
-		LocalUResourceBundlePointer def(
-			ures_getByKeyWithFallback(actualBundle.getAlias(), "collations/default", NULL,
-			&internalErrorCode));
+		LocalUResourceBundlePointer def(ures_getByKeyWithFallback(actualBundle.getAlias(), "collations/default", NULL, &internalErrorCode));
 		int32_t len;
 		const UChar * s = ures_getString(def.getAlias(), &len, &internalErrorCode);
 		if(U_SUCCESS(internalErrorCode) && len < UPRV_LENGTHOF(defaultType)) {
@@ -493,9 +490,8 @@ const CollationCacheEntry * CollationLoader::makeCacheEntryFromRoot(const Locale
 	return makeCacheEntry(validLocale, rootEntry, errorCode);
 }
 
-const CollationCacheEntry * CollationLoader::makeCacheEntry(const Locale &loc,
-    const CollationCacheEntry * entryFromCache,
-    UErrorCode & errorCode) {
+const CollationCacheEntry * CollationLoader::makeCacheEntry(const Locale &loc, const CollationCacheEntry * entryFromCache, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode) || loc == entryFromCache->validLocale) {
 		return entryFromCache;
 	}
@@ -514,13 +510,11 @@ U_NAMESPACE_END
 
 U_NAMESPACE_USE
 
-U_CAPI UCollator* ucol_open(const char * loc,
-    UErrorCode * status)
+U_CAPI UCollator* ucol_open(const char * loc, UErrorCode * status)
 {
 	UTRACE_ENTRY_OC(UTRACE_UCOL_OPEN);
 	UTRACE_DATA1(UTRACE_INFO, "locale = \"%s\"", loc);
 	UCollator * result = NULL;
-
 	Collator * coll = Collator::createInstance(loc, *status);
 	if(U_SUCCESS(*status)) {
 		result = coll->toUCollator();

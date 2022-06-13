@@ -1280,7 +1280,7 @@ Formattable* MessageFormat::parse(int32_t msgStart, const UnicodeString & source
 		const Format* formatter = NULL;
 		Formattable& argResult = resultArray[argNumber];
 
-		if(cachedFormatters!=NULL && (formatter = getCachedFormatter(i - 2))!=NULL) {
+		if(cachedFormatters!=NULL && (formatter = getCachedFormatter(i - 2)) != NULL) {
 			// Just parse using the formatter.
 			tempStatus.setIndex(sourceOffset);
 			formatter->parseObject(source, argResult, tempStatus);

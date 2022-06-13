@@ -166,11 +166,9 @@ static bool U_CALLCONV numfmt_cleanup() {
 }
 
 U_CDECL_END
-
-// *****************************************************************************
+//
 // class NumberFormat
-// *****************************************************************************
-
+//
 U_NAMESPACE_BEGIN UOBJECT_DEFINE_ABSTRACT_RTTI_IMPLEMENTATION(NumberFormat)
 
 #if !UCONFIG_NO_SERVICE
@@ -1317,7 +1315,7 @@ NumberFormat* NumberFormat::makeInstance(const Locale & desiredLocale,
 	if(style==UNUM_CURRENCY || style == UNUM_CURRENCY_ISO || style == UNUM_CURRENCY_ACCOUNTING
 	 || style == UNUM_CASH_CURRENCY || style == UNUM_CURRENCY_STANDARD) {
 		const UChar * currPattern = symbolsToAdopt->getCurrencyPattern();
-		if(currPattern!=NULL) {
+		if(currPattern != NULL) {
 			pattern.setTo(currPattern, u_strlen(currPattern));
 		}
 	}

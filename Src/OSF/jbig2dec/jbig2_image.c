@@ -92,7 +92,7 @@ Jbig2Image * jbig2_image_resize(Jbig2Ctx * ctx, Jbig2Image * image, uint32_t wid
 		}
 		/* use the same stride, just change the length */
 		data = jbig2_renew(ctx, image->data, uint8_t, (size_t)height * image->stride);
-		if(data == NULL) {
+		if(!data) {
 			jbig2_error(ctx, JBIG2_SEVERITY_FATAL, JBIG2_UNKNOWN_SEGMENT_NUMBER, "failed to reallocate image");
 			return NULL;
 		}

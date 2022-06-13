@@ -47,10 +47,9 @@
 // #define PRINT_MEM_TRAFFIC
 // #define MALLOC_FAIL_AT
 // #define MALLOC_LIMIT
-
-//------------------------------------------------------------------------------
+//
 // Checked memory allocation
-
+//
 #if defined(PRINT_MEM_INFO)
 
 //#include <stdio.h>
@@ -84,7 +83,7 @@ static void PrintMemInfo(void)
 	fprintf(stderr, "total_mem: %u\n", (uint32_t)total_mem);
 	fprintf(stderr, "total_mem allocated: %u\n", (uint32_t)total_mem_allocated);
 	fprintf(stderr, "high-water mark: %u\n", (uint32_t)high_water_mark);
-	while(all_blocks != NULL) {
+	while(all_blocks) {
 		MemBlock* b = all_blocks;
 		all_blocks = b->next_;
 		SAlloc::F(b);
@@ -97,7 +96,7 @@ static void Increment(int* const v)
 #if defined(MALLOC_FAIL_AT)
 		{
 			const char* const malloc_fail_at_str = getenv("MALLOC_FAIL_AT");
-			if(malloc_fail_at_str != NULL) {
+			if(malloc_fail_at_str) {
 				countdown_to_fail = atoi(malloc_fail_at_str);
 			}
 		}
@@ -108,7 +107,7 @@ static void Increment(int* const v)
 #if MALLOC_LIMIT > 1
 			mem_limit = (size_t)MALLOC_LIMIT;
 #endif
-			if(malloc_limit_str != NULL) {
+			if(malloc_limit_str) {
 				mem_limit = atoi(malloc_limit_str);
 			}
 		}
@@ -123,9 +122,9 @@ static void Increment(int* const v)
 
 static void AddMem(void* ptr, size_t size) 
 {
-	if(ptr != NULL) {
+	if(ptr) {
 		MemBlock* const b = (MemBlock*)SAlloc::M(sizeof(*b));
-		if(b == NULL) 
+		if(!b) 
 			abort();
 		b->next_ = all_blocks;
 		all_blocks = b;
@@ -144,11 +143,12 @@ static void AddMem(void* ptr, size_t size)
 	}
 }
 
-static void SubMem(void* ptr) {
-	if(ptr != NULL) {
+static void SubMem(void* ptr) 
+{
+	if(ptr) {
 		MemBlock** b = &all_blocks;
 		// Inefficient search, but that's just for debugging.
-		while(*b != NULL && (*b)->ptr_ != ptr) b = &(*b)->next_;
+		while(*b && (*b)->ptr_ != ptr) b = &(*b)->next_;
 		if(*b == NULL) {
 			fprintf(stderr, "Invalid pointer free! (%p)\n", ptr);
 			abort();
@@ -221,7 +221,7 @@ void * FASTCALL WebPSafeCalloc(uint64_t nmemb, size_t size)
 
 void FASTCALL WebPSafeFree(void* const ptr) 
 {
-	if(ptr != NULL) {
+	if(ptr) {
 		Increment(&num_free_calls);
 		SubMem(ptr);
 	}
@@ -230,19 +230,11 @@ void FASTCALL WebPSafeFree(void* const ptr)
 
 // Public API functions.
 
-void* WebPMalloc(size_t size) 
+void* WebPMalloc(size_t size) { return WebPSafeMalloc(1, size); }
+void WebPFree(void* ptr) { WebPSafeFree(ptr); }
+
+void WebPCopyPlane(const uint8* src, int src_stride, uint8* dst, int dst_stride, int width, int height) 
 {
-	return WebPSafeMalloc(1, size);
-}
-
-void WebPFree(void* ptr) {
-	WebPSafeFree(ptr);
-}
-
-//------------------------------------------------------------------------------
-
-void WebPCopyPlane(const uint8* src, int src_stride,
-    uint8* dst, int dst_stride, int width, int height) {
 	assert(src != NULL && dst != NULL);
 	assert(abs(src_stride) >= width && abs(dst_stride) >= width);
 	while(height-- > 0) {
@@ -252,20 +244,19 @@ void WebPCopyPlane(const uint8* src, int src_stride,
 	}
 }
 
-void WebPCopyPixels(const WebPPicture* const src, WebPPicture* const dst) {
+void WebPCopyPixels(const WebPPicture* const src, WebPPicture* const dst) 
+{
 	assert(src != NULL && dst != NULL);
 	assert(src->width == dst->width && src->height == dst->height);
 	assert(src->use_argb && dst->use_argb);
-	WebPCopyPlane((uint8*)src->argb, 4 * src->argb_stride, (uint8*)dst->argb,
-	    4 * dst->argb_stride, 4 * src->width, src->height);
+	WebPCopyPlane((uint8*)src->argb, 4 * src->argb_stride, (uint8*)dst->argb, 4 * dst->argb_stride, 4 * src->width, src->height);
 }
-
-//------------------------------------------------------------------------------
 
 #define COLOR_HASH_SIZE         (MAX_PALETTE_SIZE * 4)
 #define COLOR_HASH_RIGHT_SHIFT  22  // 32 - log2(COLOR_HASH_SIZE).
 
-int WebPGetColorPalette(const WebPPicture* const pic, uint32_t* const palette) {
+int WebPGetColorPalette(const WebPPicture* const pic, uint32_t* const palette) 
+{
 	int i;
 	int x, y;
 	int num_colors = 0;
@@ -308,8 +299,7 @@ int WebPGetColorPalette(const WebPPicture* const pic, uint32_t* const palette) {
 		}
 		argb += pic->argb_stride;
 	}
-
-	if(palette != NULL) { // Fill the colors into palette.
+	if(palette) { // Fill the colors into palette.
 		num_colors = 0;
 		for(i = 0; i < COLOR_HASH_SIZE; ++i) {
 			if(in_use[i]) {
@@ -323,8 +313,6 @@ int WebPGetColorPalette(const WebPPicture* const pic, uint32_t* const palette) {
 
 #undef COLOR_HASH_SIZE
 #undef COLOR_HASH_RIGHT_SHIFT
-
-//------------------------------------------------------------------------------
 
 #if defined(WEBP_NEED_LOG_TABLE_8BIT)
 const uint8 WebPLogTable8bit[256] = {   // 31 ^ clz(i)

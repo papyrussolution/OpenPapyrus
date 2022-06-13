@@ -15,6 +15,7 @@ __FBSDID("$FreeBSD$");
 
 #ifdef HAVE_LZ4_H
 	#include <lz4.h>
+	#include <xxhash.h> // @sobolev
 #endif
 #ifdef HAVE_LZ4HC_H
 	#include <lz4hc.h>
@@ -59,14 +60,14 @@ static int archive_filter_lz4_write(struct archive_write_filter *, const void *,
 /*
  * Add a lz4 compression filter to this write handle.
  */
-int archive_write_add_filter_lz4(struct archive * _a)
+int archive_write_add_filter_lz4(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = static_cast<struct private_data *>(SAlloc::C(1, sizeof(*data)));
-	if(data == NULL) {
+	if(!data) {
 		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
@@ -275,7 +276,7 @@ static int archive_filter_lz4_close(struct archive_write_filter * f)
 		/* Write Stream checksum if needed. */
 		if(data->stream_checksum) {
 			uint checksum;
-			checksum = __archive_xxhash.XXH32_digest(data->xxh32_state);
+			checksum = __archive_xxhash.XXH32_digest((XXH32_state_t *)data->xxh32_state);
 			data->xxh32_state = NULL;
 			archive_le32enc(data->out, checksum);
 			data->out += 4;
@@ -384,7 +385,7 @@ static int drive_compressor(struct archive_write_filter * f, const char * p, siz
 {
 	struct private_data * data = (struct private_data *)f->data;
 	if(data->stream_checksum)
-		__archive_xxhash.XXH32_update(data->xxh32_state, p, (int)length);
+		__archive_xxhash.XXH32_update((XXH32_state_t *)data->xxh32_state, p, (int)length);
 	if(data->block_independence)
 		return drive_compressor_independence(f, p, length);
 	else
@@ -517,7 +518,7 @@ static int drive_compressor_dependence(struct archive_write_filter * f, const ch
 static int archive_filter_lz4_open(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-	struct archive_string as;
+	archive_string as;
 	int r;
 	archive_string_init(&as);
 	archive_strcpy(&as, "lz4 -z -q -q");

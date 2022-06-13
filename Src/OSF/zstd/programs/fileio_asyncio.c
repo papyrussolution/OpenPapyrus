@@ -238,7 +238,7 @@ static IOJob_t* AIO_IOPool_acquireJob(IOPoolCtx_t* ctx) {
  * Requires completion of all queues write jobs and release of all otherwise acquired jobs.
  * Also requires ending of sparse write if a previous file was used in sparse mode. */
 static void AIO_IOPool_setFile(IOPoolCtx_t* ctx, FILE* file) {
-	assert(ctx!=NULL);
+	assert(ctx != NULL);
 	AIO_IOPool_join(ctx);
 	assert(ctx->availableJobsCount == ctx->totalIoJobs);
 	ctx->file = file;
@@ -477,7 +477,7 @@ static void AIO_ReadPool_startReading(ReadPoolCtx_t* ctx) {
  * Sets the source file for future read in the pool. Initiates reading immediately if file is not NULL.
  * Waits for all current enqueued tasks to complete if a previous file was set. */
 void AIO_ReadPool_setFile(ReadPoolCtx_t* ctx, FILE* file) {
-	assert(ctx!=NULL);
+	assert(ctx != NULL);
 	AIO_IOPool_join(&ctx->base);
 	AIO_ReadPool_releaseAllCompletedJobs(ctx);
 	if(ctx->currentJobHeld) {

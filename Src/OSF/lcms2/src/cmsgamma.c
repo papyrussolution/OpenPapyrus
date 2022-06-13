@@ -65,7 +65,7 @@ static void DupPluginCurvesList(struct _cmsContext_struct* ctx, const struct _cm
 	// Walk the list copying all nodes
 	for(entry = head->ParametricCurves; entry != NULL; entry = entry->Next) {
 		_cmsParametricCurvesCollection * newEntry = (_cmsParametricCurvesCollection*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(_cmsParametricCurvesCollection));
-		if(newEntry == NULL)
+		if(!newEntry)
 			return;
 		// We want to keep the linked list order, so this is a little bit tricky
 		newEntry->Next = NULL;
@@ -100,7 +100,7 @@ boolint _cmsRegisterParametricCurvesPlugin(cmsContext ContextID, cmsPluginBase* 
 	cmsPluginParametricCurves* Plugin = (cmsPluginParametricCurves*)Data;
 	_cmsParametricCurvesCollection* fl;
 
-	if(Data == NULL) {
+	if(!Data) {
 		ctx->ParametricCurves =  NULL;
 		return TRUE;
 	}
@@ -855,7 +855,7 @@ cmsToneCurve * CMSEXPORT cmsReverseToneCurveEx(uint32 nResultSamples, const cmsT
 
 	// Nope, reverse the table.
 	out = cmsBuildTabulatedToneCurve16(InCurve->InterpParams->ContextID, nResultSamples, NULL);
-	if(out == NULL)
+	if(!out)
 		return NULL;
 
 	// We want to know if this is an ascending or descending table

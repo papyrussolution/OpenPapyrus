@@ -1308,7 +1308,7 @@ static bool checkArgs(const void * label, int32_t length,
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return FALSE;
 	}
-	if((label==NULL ? length!=0 : length<-1) || (dest==NULL ? capacity!=0 : capacity<0) || (dest==label && label!=NULL)) {
+	if((label==NULL ? length!=0 : length<-1) || (dest==NULL ? capacity!=0 : capacity<0) || (dest==label && label != NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return FALSE;
 	}

@@ -40,7 +40,7 @@
 #ifdef ZSTD_DEPS_NEED_MALLOC
 	#ifndef ZSTD_DEPS_MALLOC
 		#define ZSTD_DEPS_MALLOC
-		#include <stdlib.h>
+		//#include <stdlib.h>
 		#define ZSTD_malloc(s) malloc(s)
 		#define ZSTD_calloc(n,s) calloc((n), (s))
 		#define ZSTD_free(p) free((p))

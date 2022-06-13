@@ -32,9 +32,10 @@ namespace google {
 namespace protobuf {
 namespace compiler {
 namespace {
-char* portable_strdup(const char* s) {
+char* portable_strdup(const char* s) 
+{
 	char* ns = (char*)malloc(strlen(s) + 1);
-	if(ns != NULL) {
+	if(ns) {
 		strcpy(ns, s);
 	}
 	return ns;
@@ -57,11 +58,12 @@ Subprocess::Subprocess()
 	child_stdout_(NULL) {
 }
 
-Subprocess::~Subprocess() {
-	if(child_stdin_ != NULL) {
+Subprocess::~Subprocess() 
+{
+	if(child_stdin_) {
 		CloseHandleOrDie(child_stdin_);
 	}
-	if(child_stdout_ != NULL) {
+	if(child_stdout_) {
 		CloseHandleOrDie(child_stdout_);
 	}
 }
@@ -149,14 +151,13 @@ bool Subprocess::Communicate(const Message& input, Message* output, std::string*
 	std::string input_data = input.SerializeAsString();
 	std::string output_data;
 	int input_pos = 0;
-	while(child_stdout_ != NULL) {
+	while(child_stdout_) {
 		HANDLE handles[2];
 		int handle_count = 0;
-
-		if(child_stdin_ != NULL) {
+		if(child_stdin_) {
 			handles[handle_count++] = child_stdin_;
 		}
-		if(child_stdout_ != NULL) {
+		if(child_stdout_) {
 			handles[handle_count++] = child_stdout_;
 		}
 		DWORD wait_result = WaitForMultipleObjects(handle_count, handles, FALSE, INFINITE);
@@ -202,8 +203,7 @@ bool Subprocess::Communicate(const Message& input, Message* output, std::string*
 			}
 		}
 	}
-
-	if(child_stdin_ != NULL) {
+	if(child_stdin_) {
 		// Child did not finish reading input before it closed the output.
 		// Presumably it exited with an error.
 		CloseHandleOrDie(child_stdin_);

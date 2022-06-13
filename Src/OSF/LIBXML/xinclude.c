@@ -678,7 +678,7 @@ static xmlNode * xmlXIncludeCopyNodeList(xmlXIncludeCtxtPtr ctxt, xmlDoc * targe
 	cur = elem;
 	while(cur) {
 		res = xmlXIncludeCopyNode(ctxt, target, source, cur);
-		if(res != NULL) {
+		if(res) {
 			if(!result) {
 				result = last = res;
 			}

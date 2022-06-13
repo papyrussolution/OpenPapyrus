@@ -1,29 +1,18 @@
+// platform.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-******************************************************************************
-*
-*   Copyright (C) 1997-2016, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*
-******************************************************************************
-*
-*  FILE NAME : platform.h
-*
-*   Date        Name        Description
-*   05/13/98    nos         Creation (content moved here from ptypes.h).
-*   03/02/99    stephen     Added AS400 support.
-*   03/30/99    stephen     Added Linux support.
-*   04/13/99    stephen     Reworked for autoconf.
-******************************************************************************
-*/
-
+// Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 05/13/98    nos         Creation (content moved here from ptypes.h).
+// 03/02/99    stephen     Added AS400 support.
+// 03/30/99    stephen     Added Linux support.
+// 04/13/99    stephen     Reworked for autoconf.
+// 
 #ifndef _PLATFORM_H
 #define _PLATFORM_H
 
 #include "unicode/uconfig.h"
 #include "unicode/uvernum.h"
-
 /**
  * \file
  * \brief Basic types for the platform.
@@ -51,7 +40,6 @@
  * (You can provide an actual empty .c file rather than /dev/null.
  * <code>-x c++</code> is for C++.)
  */
-
 /**
  * Define some things so that they can be documented.
  * @internal
@@ -85,12 +73,9 @@
  * @internal
  */
 
-/** Unknown platform. @internal */
-#define U_PF_UNKNOWN 0
-/** Windows @internal */
-#define U_PF_WINDOWS 1000
-/** MinGW. Windows, calls to Win32 API, but using GNU gcc and binutils. @internal */
-#define U_PF_MINGW 1800
+#define U_PF_UNKNOWN 0 /** Unknown platform. @internal */
+#define U_PF_WINDOWS 1000 /** Windows @internal */
+#define U_PF_MINGW 1800 /** MinGW. Windows, calls to Win32 API, but using GNU gcc and binutils. @internal */
 /**
  * Cygwin. Windows, calls to cygwin1.dll for Posix functions,
  * using MSVC or GNU gcc and binutils.
@@ -98,16 +83,11 @@
  */
 #define U_PF_CYGWIN 1900
 /* Reserve 2000 for U_PF_UNIX? */
-/** HP-UX is based on UNIX System V. @internal */
-#define U_PF_HPUX 2100
-/** Solaris is a Unix operating system based on SVR4. @internal */
-#define U_PF_SOLARIS 2600
-/** BSD is a UNIX operating system derivative. @internal */
-#define U_PF_BSD 3000
-/** AIX is based on UNIX System V Releases and 4.3 BSD. @internal */
-#define U_PF_AIX 3100
-/** IRIX is based on UNIX System V with BSD extensions. @internal */
-#define U_PF_IRIX 3200
+#define U_PF_HPUX 2100 /** HP-UX is based on UNIX System V. @internal */
+#define U_PF_SOLARIS 2600 /** Solaris is a Unix operating system based on SVR4. @internal */
+#define U_PF_BSD 3000 /** BSD is a UNIX operating system derivative. @internal */
+#define U_PF_AIX 3100 /** AIX is based on UNIX System V Releases and 4.3 BSD. @internal */
+#define U_PF_IRIX 3200 /** IRIX is based on UNIX System V with BSD extensions. @internal */
 /**
  * Darwin is a POSIX-compliant operating system, composed of code developed by Apple,
  * as well as code derived from NeXTSTEP, BSD, and other projects,
@@ -117,12 +97,9 @@
  * @internal
  */
 #define U_PF_DARWIN 3500
-/** iPhone OS (iOS) is a derivative of Mac OS X. @internal */
-#define U_PF_IPHONE 3550
-/** QNX is a commercial Unix-like real-time operating system related to BSD. @internal */
-#define U_PF_QNX 3700
-/** Linux is a Unix-like operating system. @internal */
-#define U_PF_LINUX 4000
+#define U_PF_IPHONE 3550 /** iPhone OS (iOS) is a derivative of Mac OS X. @internal */
+#define U_PF_QNX 3700 /** QNX is a commercial Unix-like real-time operating system related to BSD. @internal */
+#define U_PF_LINUX 4000 /** Linux is a Unix-like operating system. @internal */
 /**
  * Native Client is pretty close to Linux.
  * See https://developer.chrome.com/native-client and
@@ -130,10 +107,8 @@
  *  @internal
  */
 #define U_PF_BROWSER_NATIVE_CLIENT 4020
-/** Android is based on Linux. @internal */
-#define U_PF_ANDROID 4050
-/** Fuchsia is a POSIX-ish platform. @internal */
-#define U_PF_FUCHSIA 4100
+#define U_PF_ANDROID 4050 /** Android is based on Linux. @internal */
+#define U_PF_FUCHSIA 4100 /** Fuchsia is a POSIX-ish platform. @internal */
 /* Maximum value for Linux-based platform is 4499 */
 /**
  * Emscripten is a C++ transpiler for the Web that can target asm.js or
@@ -143,10 +118,8 @@
  * @internal
  */
 #define U_PF_EMSCRIPTEN 5010
-/** z/OS is the successor to OS/390 which was the successor to MVS. @internal */
-#define U_PF_OS390 9000
-/** "IBM i" is the current name of what used to be i5/OS and earlier OS/400. @internal */
-#define U_PF_OS400 9400
+#define U_PF_OS390 9000 /** z/OS is the successor to OS/390 which was the successor to MVS. @internal */
+#define U_PF_OS400 9400 /** "IBM i" is the current name of what used to be i5/OS and earlier OS/400. @internal */
 
 #ifdef U_PLATFORM
     /* Use the predefined value. */
@@ -205,7 +178,6 @@
 #else
 #define U_PLATFORM U_PF_UNKNOWN
 #endif
-
 /**
  * \def CYGWINMSVC
  * Defined if this is Windows with Cygwin, but using MSVC rather than gcc.
@@ -346,11 +318,9 @@
     /* Most platforms have both inttypes.h and stdint.h, or neither. */
 #define U_HAVE_INTTYPES_H U_HAVE_STDINT_H
 #endif
-
-/*===========================================================================*/
-/** @{ Compiler and environment features */
-/*===========================================================================*/
-
+// 
+// @{ Compiler and environment features
+// 
 /**
  * \def U_GCC_MAJOR_MINOR
  * Indicates whether the compiler is gcc (test for != 0),
@@ -551,11 +521,9 @@ namespace std {
 	#define U_FALLTHROUGH_Removed
 #endif
 /** @} */
-
-/*===========================================================================*/
-/** @{ Character data types     */
-/*===========================================================================*/
-
+// 
+// @{ Character data types
+// 
 /**
  * U_CHARSET_FAMILY is equal to this value when the platform is an ASCII based platform.
  * @stable ICU 2.0
@@ -642,19 +610,15 @@ namespace std {
  */
 #ifdef U_CHARSET_IS_UTF8
     /* Use the predefined value. */
-#elif U_PLATFORM_IS_LINUX_BASED || U_PLATFORM_IS_DARWIN_BASED || \
-        U_PLATFORM == U_PF_EMSCRIPTEN
+#elif U_PLATFORM_IS_LINUX_BASED || U_PLATFORM_IS_DARWIN_BASED || U_PLATFORM == U_PF_EMSCRIPTEN
 #define U_CHARSET_IS_UTF8 1
 #else
 #define U_CHARSET_IS_UTF8 0
 #endif
-
 /** @} */
-
-/*===========================================================================*/
-/** @{ Information about wchar support   */
-/*===========================================================================*/
-
+// 
+// @{ Information about wchar support
+// 
 /**
  * \def U_HAVE_WCHAR_H
  * Indicates whether <wchar.h> is available (1) or not (0). Set to 1 by default.
@@ -776,7 +740,6 @@ namespace std {
 #define U_HAVE_CHAR16_T 0
 #endif
 #endif
-
 /**
  * @{
  * \def U_DECLARE_UTF16
@@ -786,25 +749,19 @@ namespace std {
  */
 #ifdef U_DECLARE_UTF16
     /* Use the predefined value. */
-#elif U_HAVE_CHAR16_T \
- || (defined(__xlC__) && defined(__IBM_UTF_LITERAL) && U_SIZEOF_WCHAR_T != 2) \
- || (defined(__HP_aCC) && __HP_aCC >= 035000) \
- || (defined(__HP_cc) && __HP_cc >= 111106) \
- || (defined(U_IN_DOXYGEN))
-#define U_DECLARE_UTF16(string) u ## string
-#elif U_SIZEOF_WCHAR_T == 2 \
-  && (U_CHARSET_FAMILY == 0 || (U_PF_OS390 <= U_PLATFORM && U_PLATFORM <= U_PF_OS400 && defined(__UCS2__)))
-#define U_DECLARE_UTF16(string) L ## string
+#elif U_HAVE_CHAR16_T || (defined(__xlC__) && defined(__IBM_UTF_LITERAL) && U_SIZEOF_WCHAR_T != 2) || \
+	(defined(__HP_aCC) && __HP_aCC >= 035000) || (defined(__HP_cc) && __HP_cc >= 111106) || (defined(U_IN_DOXYGEN))
+	#define U_DECLARE_UTF16(string) u ## string
+#elif U_SIZEOF_WCHAR_T == 2 && (U_CHARSET_FAMILY == 0 || (U_PF_OS390 <= U_PLATFORM && U_PLATFORM <= U_PF_OS400 && defined(__UCS2__)))
+	#define U_DECLARE_UTF16(string) L ## string
 #else
     /* Leave U_DECLARE_UTF16 undefined. See unistr.h. */
 #endif
 
 /** @} */
-
-/*===========================================================================*/
-/** @{ Symbol import-export control      */
-/*===========================================================================*/
-
+// 
+// @{ Symbol import-export control
+// 
 #ifdef U_EXPORT
     /* Use the predefined value. */
 #elif defined(U_STATIC_IMPLEMENTATION)
@@ -838,7 +795,6 @@ namespace std {
 #else
 #define U_IMPORT 
 #endif
-
 /**
  * \def U_CALLCONV
  * Similar to U_CDECL_BEGIN/U_CDECL_END, this qualifier is necessary

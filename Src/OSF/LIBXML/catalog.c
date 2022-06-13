@@ -1762,8 +1762,8 @@ static xmlChar * xmlCatalogListXMLResolveURI(xmlCatalogEntryPtr catal, const xml
 //
 // The SGML Catalog parser
 //
-#define RAW * cur
-#define NEXT cur ++;
+#define RAW     *cur
+#define NEXT    cur++;
 #define SKIP(x) cur += x;
 
 #define SKIP_BLANKS while(IS_BLANK_CH(*cur)) NEXT;

@@ -38,7 +38,7 @@
 		while(len-->0) {                                                                                                         \
 			if(targetIndex < targetLength) {                                                                                     \
 				args->target[targetIndex] = (unsigned char)*strToAppend;                                                       \
-				if(args->offsets!=NULL) {                                                                                        \
+				if(args->offsets != NULL) {                                                                                        \
 					*(offsets++) = sourceIndex-1;                                                                               \
 				}                                                                                                               \
 				targetIndex++;                                                                                                  \

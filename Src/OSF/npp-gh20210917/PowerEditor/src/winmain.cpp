@@ -203,7 +203,7 @@ int getNumberFromParam(char paramName, ParamVector & params, bool & isParamePres
 	}
 	else {
 		isParamePresent = true;
-		return generic_atoi(numStr.c_str());
+		return satoi(numStr.c_str());
 	}
 };
 

@@ -17,7 +17,7 @@
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_by_name.c 201168 2009-12-29 06:15:32Z kientzle $");
 
 /* A table that maps names to functions. */
-static const struct { const char * name; int (* format)(struct archive *); int (* filter)(struct archive *);  } names[] =
+static const struct { const char * name; int (* format)(Archive *); int (* filter)(Archive *);  } names[] =
 {
 	{ ".7z",        archive_write_set_format_7zip,            archive_write_add_filter_none},
 	{ ".zip",       archive_write_set_format_zip,             archive_write_add_filter_none},
@@ -64,7 +64,7 @@ static int get_array_index(const char * name)
 	return -1;
 }
 
-int archive_write_set_format_filter_by_ext(struct archive * a, const char * filename)
+int archive_write_set_format_filter_by_ext(Archive * a, const char * filename)
 {
 	int names_index = get_array_index(filename);
 
@@ -81,7 +81,7 @@ int archive_write_set_format_filter_by_ext(struct archive * a, const char * file
 	return ARCHIVE_FATAL;
 }
 
-int archive_write_set_format_filter_by_ext_def(struct archive * a, const char * filename, const char * def_ext)
+int archive_write_set_format_filter_by_ext_def(Archive * a, const char * filename, const char * def_ext)
 {
 	int names_index = get_array_index(filename);
 

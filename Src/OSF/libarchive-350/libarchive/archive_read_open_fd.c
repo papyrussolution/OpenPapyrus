@@ -26,12 +26,12 @@ struct read_fd_data {
 	void    * buffer;
 };
 
-static int file_close(struct archive *, void *);
-static ssize_t  file_read(struct archive *, void *, const void ** buff);
-static int64  file_seek(struct archive *, void *, int64 request, int);
-static int64  file_skip(struct archive *, void *, int64 request);
+static int file_close(Archive *, void *);
+static ssize_t  file_read(Archive *, void *, const void ** buff);
+static int64  file_seek(Archive *, void *, int64 request, int);
+static int64  file_skip(Archive *, void *, int64 request);
 
-int archive_read_open_fd(struct archive * a, int fd, size_t block_size)
+int archive_read_open_fd(Archive * a, int fd, size_t block_size)
 {
 	struct stat st;
 	struct read_fd_data * mine;
@@ -74,7 +74,7 @@ int archive_read_open_fd(struct archive * a, int fd, size_t block_size)
 	return (archive_read_open1(a));
 }
 
-static ssize_t file_read(struct archive * a, void * client_data, const void ** buff)
+static ssize_t file_read(Archive * a, void * client_data, const void ** buff)
 {
 	struct read_fd_data * mine = (struct read_fd_data *)client_data;
 	ssize_t bytes_read;
@@ -92,7 +92,7 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
 	}
 }
 
-static int64 file_skip(struct archive * a, void * client_data, int64 request)
+static int64 file_skip(Archive * a, void * client_data, int64 request)
 {
 	struct read_fd_data * mine = (struct read_fd_data *)client_data;
 	int64 skip = request;
@@ -138,7 +138,7 @@ static int64 file_skip(struct archive * a, void * client_data, int64 request)
 /*
  * TODO: Store the offset and use it in the read callback.
  */
-static int64 file_seek(struct archive * a, void * client_data, int64 request, int whence)
+static int64 file_seek(Archive * a, void * client_data, int64 request, int whence)
 {
 	struct read_fd_data * mine = (struct read_fd_data *)client_data;
 	// We use off_t here because lseek() is declared that way.
@@ -157,7 +157,7 @@ static int64 file_seek(struct archive * a, void * client_data, int64 request, in
 	}
 }
 
-static int file_close(struct archive * a, void * client_data)
+static int file_close(Archive * a, void * client_data)
 {
 	struct read_fd_data * mine = (struct read_fd_data *)client_data;
 	CXX_UNUSED(a);

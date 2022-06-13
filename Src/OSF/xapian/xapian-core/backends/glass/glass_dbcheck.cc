@@ -250,7 +250,7 @@ size_t check_glass_table(const char * tablename, const string &db_dir, int fd, o
 					continue;
 				}
 				size_t len = end - p;
-				if(len == 0) {
+				if(!len) {
 					v.upper_bound = v.lower_bound;
 				}
 				else {

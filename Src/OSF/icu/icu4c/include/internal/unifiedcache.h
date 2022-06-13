@@ -166,22 +166,21 @@ class LocaleCacheKey : public CacheKey<T> {
    /**
  * Use the locale id as the description.
     */
-   virtual char *writeDescription(char *buffer, int32_t bufLen) const override {
+   virtual char *writeDescription(char *buffer, int32_t bufLen) const override 
+   {
        const char *s = fLoc.getName();
        uprv_strncpy(buffer, s, bufLen);
        buffer[bufLen - 1] = 0;
        return buffer;
    }
-
 };
-
 /**
  * The unified cache. A singleton type.
  * Design doc here:
  * https://docs.google.com/document/d/1RwGQJs4N4tawNbf809iYDRCvXoMKqDJihxzYt1ysmd8/edit?usp=sharing
  */
 class U_COMMON_API UnifiedCache : public UnifiedCacheBase {
- public:
+public:
    /**
  * @internal
  * Do not call directly. Instead use UnifiedCache::getInstance() as
@@ -198,11 +197,8 @@ class U_COMMON_API UnifiedCache : public UnifiedCacheBase {
  * Fetches a value from the cache by key. Equivalent to
  * get(key, NULL, ptr, status);
     */
-   template<typename T>
-   void get(
-           const CacheKey<T>& key,
-           const T *&ptr,
-           UErrorCode & status) const {
+   template<typename T> void get(const CacheKey<T>& key, const T *&ptr, UErrorCode & status) const 
+   {
        get(key, NULL, ptr, status);
    }
 

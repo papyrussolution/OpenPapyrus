@@ -91,7 +91,7 @@ static void getNumberFormat(NUMBERFMTW * fmt, const wchar_t * windowsLocaleName)
 
 static void freeNumberFormat(NUMBERFMTW * fmt)
 {
-	if(fmt != NULL) {
+	if(fmt) {
 		DELETE_ARRAY(fmt->lpThousandSep);
 		DELETE_ARRAY(fmt->lpDecimalSep);
 	}
@@ -122,7 +122,7 @@ static void getCurrencyFormat(CURRENCYFMTW * fmt, const wchar_t * windowsLocaleN
 
 static void freeCurrencyFormat(CURRENCYFMTW * fmt)
 {
-	if(fmt != NULL) {
+	if(fmt) {
 		DELETE_ARRAY(fmt->lpCurrencySymbol);
 		DELETE_ARRAY(fmt->lpThousandSep);
 		DELETE_ARRAY(fmt->lpDecimalSep);

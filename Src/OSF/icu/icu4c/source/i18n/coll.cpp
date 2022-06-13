@@ -438,16 +438,12 @@ Collator* Collator::makeInstance(const Locale & desiredLocale, UErrorCode & stat
 		}
 		status = U_MEMORY_ALLOCATION_ERROR;
 	}
-	if(entry) {
-		// Undo the addRef() from the cache.get().
-		entry->removeRef();
-	}
+	// Undo the addRef() from the cache.get().
+	CALLPTRMEMB(entry, removeRef());
 	return NULL;
 }
 
-Collator * Collator::safeClone() const {
-	return clone();
-}
+Collator * Collator::safeClone() const { return clone(); }
 
 // implement deprecated, previously abstract method
 Collator::EComparisonResult Collator::compare(const UnicodeString & source,
@@ -555,7 +551,7 @@ UnicodeString & U_EXPORT2 Collator::getDisplayName(const Locale & objectLocale,
 /* This is useless information */
 /*void Collator::getVersion(UVersionInfo versionInfo) const
    {
-   if(versionInfo!=NULL)
+   if(versionInfo != NULL)
     uprv_memcpy(versionInfo, fVersion, U_MAX_VERSION_LENGTH);
    }
  */

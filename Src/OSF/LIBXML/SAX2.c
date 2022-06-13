@@ -363,7 +363,7 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
 		input->col = 1;
 		input->base = ctxt->input->cur;
 		input->cur = ctxt->input->cur;
-		input->free = NULL;
+		input->FnFree = NULL;
 		/*
 		 * let's parse that entity knowing it's an external subset.
 		 */

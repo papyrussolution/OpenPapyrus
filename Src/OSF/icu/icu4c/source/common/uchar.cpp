@@ -477,7 +477,7 @@ U_CAPI UChar32 U_EXPORT2 u_forDigit(int32_t digit, int8 radix) {
 /* miscellaneous, and support for uprops.cpp -------------------------------- */
 
 U_CAPI void U_EXPORT2 u_getUnicodeVersion(UVersionInfo versionArray) {
-	if(versionArray!=NULL) {
+	if(versionArray != NULL) {
 		uprv_memcpy(versionArray, dataVersion, U_MAX_VERSION_LENGTH);
 	}
 }
@@ -511,7 +511,7 @@ U_CFUNC int32_t uprv_getMaxValues(int32_t column) {
 }
 
 U_CAPI void U_EXPORT2 u_charAge(UChar32 c, UVersionInfo versionArray) {
-	if(versionArray!=NULL) {
+	if(versionArray != NULL) {
 		uint32_t version = u_getUnicodeProperties(c, 0)>>UPROPS_AGE_SHIFT;
 		versionArray[0] = (uint8)(version>>4);
 		versionArray[1] = (uint8)(version&0xf);

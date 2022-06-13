@@ -173,9 +173,9 @@ static void index_tree_node_end(index_tree_node * node, const lzma_allocator * a
 {
 	// The tree won't ever be very huge, so recursion should be fine.
 	// 20 levels in the tree is likely quite a lot already in practice.
-	if(node->left != NULL)
+	if(node->left)
 		index_tree_node_end(node->left, allocator, free_func);
-	if(node->right != NULL)
+	if(node->right)
 		index_tree_node_end(node->right, allocator, free_func);
 	free_func(node, allocator);
 }
@@ -187,7 +187,7 @@ static void index_tree_node_end(index_tree_node * node, const lzma_allocator * a
 static void index_tree_end(index_tree * tree, const lzma_allocator * allocator, void (*free_func)(void * node, const lzma_allocator * allocator))
 {
 	assert(free_func != NULL);
-	if(tree->root != NULL)
+	if(tree->root)
 		index_tree_node_end(tree->root, allocator, free_func);
 }
 
@@ -238,7 +238,7 @@ static void index_tree_append(index_tree * tree, index_tree_node * node)
 		}
 		pivot->parent = node->parent;
 		node->right = pivot->left;
-		if(node->right != NULL)
+		if(node->right)
 			node->right->parent = node;
 		pivot->left = node;
 		node->parent = pivot;
@@ -248,13 +248,13 @@ static void index_tree_append(index_tree * tree, index_tree_node * node)
 /// Get the next node in the tree. Return NULL if there are no more nodes.
 static void * index_tree_next(const index_tree_node * node)
 {
-	if(node->right != NULL) {
+	if(node->right) {
 		node = node->right;
-		while(node->left != NULL)
+		while(node->left)
 			node = node->left;
 		return (void *)(node);
 	}
-	while(node->parent != NULL && node->parent->right == node)
+	while(node->parent && node->parent->right == node)
 		node = node->parent;
 	return (void *)(node->parent);
 }
@@ -269,7 +269,7 @@ static void * index_tree_locate(const index_tree * tree, lzma_vli target)
 	assert(tree->leftmost == NULL || tree->leftmost->uncompressed_base == 0);
 	// Consecutive nodes may have the same uncompressed_base.
 	// We must pick the rightmost one.
-	while(node != NULL) {
+	while(node) {
 		if(node->uncompressed_base > target) {
 			node = node->left;
 		}
@@ -499,7 +499,7 @@ lzma_ret lzma_index_append(lzma_index *i, const lzma_allocator *allocator, lzma_
 	if(index_size(i->record_count + 1, i->index_list_size + index_list_size_add) > LZMA_BACKWARD_SIZE_MAX)
 		return LZMA_DATA_ERROR;
 
-	if(g != NULL && g->last + 1 < g->allocated) {
+	if(g && g->last + 1 < g->allocated) {
 		// There is space in the last group at least for one Record.
 		++g->last;
 	}
@@ -567,14 +567,14 @@ static void index_cat_helper(const index_cat_info * info, index_stream * pThis)
 {
 	index_stream * left = (index_stream*)(pThis->node.left);
 	index_stream * right = (index_stream*)(pThis->node.right);
-	if(left != NULL)
+	if(left)
 		index_cat_helper(info, left);
 	pThis->node.uncompressed_base += info->uncompressed_size;
 	pThis->node.compressed_base += info->file_size;
 	pThis->number += info->stream_number_add;
 	pThis->block_number_base += info->block_number_add;
 	index_tree_append(info->streams, &pThis->node);
-	if(right != NULL)
+	if(right)
 		index_cat_helper(info, right);
 }
 
@@ -602,7 +602,7 @@ lzma_ret lzma_index_cat(lzma_index * dest, lzma_index * src, const lzma_allocato
 	{
 		index_stream * s = (index_stream*)(dest->streams.rightmost);
 		index_group * g = (index_group*)(s->groups.rightmost);
-		if(g != NULL && g->last + 1 < g->allocated) {
+		if(g && g->last + 1 < g->allocated) {
 			assert(g->node.left == NULL);
 			assert(g->node.right == NULL);
 			index_group * newg = static_cast<index_group *>(lzma_alloc(sizeof(index_group) + (g->last + 1) * sizeof(index_record), allocator));
@@ -613,7 +613,7 @@ lzma_ret lzma_index_cat(lzma_index * dest, lzma_index * src, const lzma_allocato
 			newg->last = g->last;
 			newg->number_base = g->number_base;
 			memcpy(newg->records, g->records, newg->allocated * sizeof(index_record));
-			if(g->node.parent != NULL) {
+			if(g->node.parent) {
 				assert(g->node.parent->right == &g->node);
 				g->node.parent->right = &newg->node;
 			}
@@ -694,7 +694,7 @@ static index_stream * index_dup_stream(const index_stream * src, const lzma_allo
 		memcpy(destg->records + i, srcg->records, (srcg->last + 1) * sizeof(index_record));
 		i += srcg->last + 1;
 		srcg = static_cast<const index_group *>(index_tree_next(&srcg->node));
-	} while(srcg != NULL);
+	} while(srcg);
 	assert(i == destg->allocated);
 	// Add the group to the new Stream.
 	index_tree_append(&dest->groups, &destg->node);
@@ -722,7 +722,7 @@ lzma_index * lzma_index_dup(const lzma_index *src, const lzma_allocator *allocat
 		}
 		index_tree_append(&dest->streams, &deststream->node);
 		srcstream = static_cast<const index_stream *>(index_tree_next(&srcstream->node));
-	} while(srcstream != NULL);
+	} while(srcstream);
 	return dest;
 }
 
@@ -800,8 +800,7 @@ static void iter_set_info(lzma_index_iter * iter)
 		iter->stream.compressed_size = 2 * LZMA_STREAM_HEADER_SIZE + index_size(stream->record_count, stream->index_list_size) + vli_ceil4(g->records[g->last].unpadded_sum);
 		iter->stream.uncompressed_size = g->records[g->last].uncompressed_sum;
 	}
-
-	if(group != NULL) {
+	if(group) {
 		iter->block.number_in_stream = group->number_base + record;
 		iter->block.number_in_file = iter->block.number_in_stream + stream->block_number_base;
 		iter->block.compressed_stream_offset = record == 0 ? group->node.compressed_base : vli_ceil4(group->records[record - 1].unpadded_sum);
@@ -877,7 +876,7 @@ again:
 		group = (const index_group*)(stream->groups.leftmost);
 		record = 0;
 	}
-	else if(group != NULL && record < group->last) {
+	else if(group && record < group->last) {
 		// The next Record is in the same group.
 		++record;
 	}
@@ -888,7 +887,7 @@ again:
 
 		// If group is not NULL, this Stream has at least one Block
 		// and thus at least one group. Find the next group.
-		if(group != NULL)
+		if(group)
 			group = static_cast<const index_group *>(index_tree_next(&group->node));
 		if(group == NULL) {
 			// This Stream has no more Records. Find the next

@@ -320,8 +320,7 @@ FontCached::FontCached(const FontParameters &fp) : next(0), usage(0), size(1.0),
 					}
 				}
 				pTextLayout->Release();
-				pTextFormat->SetLineSpacing(DWRITE_LINE_SPACING_METHOD_UNIFORM,
-				    lineMetrics[0].height, lineMetrics[0].baseline);
+				pTextFormat->SetLineSpacing(DWRITE_LINE_SPACING_METHOD_UNIFORM, lineMetrics[0].height, lineMetrics[0].baseline);
 			}
 			fid = static_cast<void *>(new FormatAndMetrics(pTextFormat, fp.extraFontFlag, fp.characterSet, yAscent, yDescent, yInternalLeading));
 		}
@@ -332,13 +331,8 @@ FontCached::FontCached(const FontParameters &fp) : next(0), usage(0), size(1.0),
 
 bool FontCached::SameAs(const FontParameters &fp)
 {
-	if(
-	    (size == fp.size) &&
-	    (lf.lfWeight == fp.weight) &&
-	    (lf.lfItalic == static_cast<BYTE>(fp.italic ? 1 : 0)) &&
-	    (lf.lfCharSet == fp.characterSet) &&
-	    (lf.lfQuality == Win32MapFontQuality(fp.extraFontFlag)) &&
-	    (technology == fp.technology)) {
+	if((size == fp.size) && (lf.lfWeight == fp.weight) && (lf.lfItalic == static_cast<BYTE>(fp.italic ? 1 : 0)) &&
+	    (lf.lfCharSet == fp.characterSet) && (lf.lfQuality == Win32MapFontQuality(fp.extraFontFlag)) && (technology == fp.technology)) {
 		wchar_t wszFace[LF_FACESIZE];
 		UTF16FromUTF8(fp.faceName, sstrlen(fp.faceName)+1, wszFace, LF_FACESIZE);
 		return 0 == wcscmp(lf.lfFaceName, wszFace);
@@ -394,10 +388,8 @@ void FontCached::ReleaseId(FontID fid_)
 	::LeaveCriticalSection(&crPlatformLock);
 }
 
-FontParameters::FontParameters(const char * faceName_, float size_, int weight_,
-	bool italic_, int extraFontFlag_, int technology_, int characterSet_) :
-	faceName(faceName_), size(size_), weight(weight_), italic(italic_), extraFontFlag(extraFontFlag_),
-	technology(technology_), characterSet(characterSet_)
+FontParameters::FontParameters(const char * faceName_, float size_, int weight_, bool italic_, int extraFontFlag_, int technology_, int characterSet_) :
+	faceName(faceName_), size(size_), weight(weight_), italic(italic_), extraFontFlag(extraFontFlag_), technology(technology_), characterSet(characterSet_)
 {
 }
 
@@ -733,10 +725,10 @@ static void AllFour(DWORD * pixels, int width, int height, int x, int y, DWORD v
 }
 
 #ifndef AC_SRC_OVER
-#define AC_SRC_OVER                 0x00
+	#define AC_SRC_OVER                 0x00
 #endif
 #ifndef AC_SRC_ALPHA
-#define AC_SRC_ALPHA            0x01
+	#define AC_SRC_ALPHA            0x01
 #endif
 
 static DWORD dwordFromBGRA(byte b, byte g, byte r, byte a)
@@ -1232,14 +1224,11 @@ void SurfaceD2D::SetFont(SciFont &font_)
 		codePageText = CodePageFromCharSet(pfm->characterSet, codePage);
 	}
 	if(pRenderTarget) {
-		D2D1_TEXT_ANTIALIAS_MODE aaMode;
-		aaMode = DWriteMapFontQuality(pfm->extraFontFlag);
-
+		D2D1_TEXT_ANTIALIAS_MODE aaMode = DWriteMapFontQuality(pfm->extraFontFlag);
 		if(aaMode == D2D1_TEXT_ANTIALIAS_MODE_CLEARTYPE && customClearTypeRenderingParams)
 			pRenderTarget->SetTextRenderingParams(customClearTypeRenderingParams);
 		else if(defaultRenderingParams)
 			pRenderTarget->SetTextRenderingParams(defaultRenderingParams);
-
 		pRenderTarget->SetTextAntialiasMode(aaMode);
 	}
 }
@@ -1290,19 +1279,16 @@ void SurfaceD2D::LineTo(int x_, int y_)
 			int yEnd = y_ - yDelta;
 			int top = smin(y, yEnd);
 			int height = abs(y - yEnd) + 1;
-			D2D1_RECT_F rectangle1 = D2D1::RectF(static_cast<float>(left), static_cast<float>(top),
-			    static_cast<float>(left+width), static_cast<float>(top+height));
+			D2D1_RECT_F rectangle1 = D2D1::RectF(static_cast<float>(left), static_cast<float>(top), static_cast<float>(left+width), static_cast<float>(top+height));
 			pRenderTarget->FillRectangle(&rectangle1, pBrush);
 		}
 		else if((abs(xDiff) == abs(yDiff))) {
 			// 45 degree slope
-			pRenderTarget->DrawLine(D2D1::Point2F(x + 0.5f, y + 0.5f),
-			    D2D1::Point2F(x_ + 0.5f - xDelta, y_ + 0.5f - yDelta), pBrush);
+			pRenderTarget->DrawLine(D2D1::Point2F(x + 0.5f, y + 0.5f), D2D1::Point2F(x_ + 0.5f - xDelta, y_ + 0.5f - yDelta), pBrush);
 		}
 		else {
 			// Line has a different slope so difficult to avoid last pixel
-			pRenderTarget->DrawLine(D2D1::Point2F(x + 0.5f, y + 0.5f),
-			    D2D1::Point2F(x_ + 0.5f, y_ + 0.5f), pBrush);
+			pRenderTarget->DrawLine(D2D1::Point2F(x + 0.5f, y + 0.5f), D2D1::Point2F(x_ + 0.5f, y_ + 0.5f), pBrush);
 		}
 		x = x_;
 		y = y_;
@@ -1327,13 +1313,11 @@ void SurfaceD2D::Polygon(SciPoint * pts, int npts, ColourDesired fore, ColourDes
 				sink->EndFigure(D2D1_FIGURE_END_CLOSED);
 				sink->Close();
 				sink->Release();
-
 				D2DPenColour(back);
 				pRenderTarget->FillGeometry(geometry, pBrush);
 				D2DPenColour(fore);
 				pRenderTarget->DrawGeometry(geometry, pBrush);
 			}
-
 			geometry->Release();
 		}
 	}
@@ -1364,21 +1348,16 @@ void SurfaceD2D::FillRectangle(PRectangle rc, SciSurface &surfacePattern)
 	SurfaceD2D &surfOther = static_cast<SurfaceD2D &>(surfacePattern);
 	surfOther.FlushDrawing();
 	ID2D1Bitmap * pBitmap = NULL;
-	ID2D1BitmapRenderTarget * pCompatibleRenderTarget = reinterpret_cast<ID2D1BitmapRenderTarget *>(
-	    surfOther.pRenderTarget);
+	ID2D1BitmapRenderTarget * pCompatibleRenderTarget = reinterpret_cast<ID2D1BitmapRenderTarget *>(surfOther.pRenderTarget);
 	HRESULT hr = pCompatibleRenderTarget->GetBitmap(&pBitmap);
 	if(SUCCEEDED(hr)) {
 		ID2D1BitmapBrush * pBitmapBrush = NULL;
-		D2D1_BITMAP_BRUSH_PROPERTIES brushProperties =
-		    D2D1::BitmapBrushProperties(D2D1_EXTEND_MODE_WRAP, D2D1_EXTEND_MODE_WRAP,
-		    D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+		D2D1_BITMAP_BRUSH_PROPERTIES brushProperties = D2D1::BitmapBrushProperties(D2D1_EXTEND_MODE_WRAP, D2D1_EXTEND_MODE_WRAP, D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
 		// Create the bitmap brush.
 		hr = pRenderTarget->CreateBitmapBrush(pBitmap, brushProperties, &pBitmapBrush);
 		pBitmap->Release();
 		if(SUCCEEDED(hr)) {
-			pRenderTarget->FillRectangle(
-			    D2D1::RectF(rc.left, rc.top, rc.right, rc.bottom),
-			    pBitmapBrush);
+			pRenderTarget->FillRectangle(D2D1::RectF(rc.left, rc.top, rc.right, rc.bottom), pBitmapBrush);
 			pBitmapBrush->Release();
 		}
 	}
@@ -1387,17 +1366,10 @@ void SurfaceD2D::FillRectangle(PRectangle rc, SciSurface &surfacePattern)
 void SurfaceD2D::RoundedRectangle(PRectangle rc, ColourDesired fore, ColourDesired back)
 {
 	if(pRenderTarget) {
-		D2D1_ROUNDED_RECT roundedRectFill = {
-			D2D1::RectF(rc.left+1.0f, rc.top+1.0f, rc.right-1.0f, rc.bottom-1.0f),
-			4, 4
-		};
+		D2D1_ROUNDED_RECT roundedRectFill = { D2D1::RectF(rc.left+1.0f, rc.top+1.0f, rc.right-1.0f, rc.bottom-1.0f), 4, 4 };
 		D2DPenColour(back);
 		pRenderTarget->FillRoundedRectangle(roundedRectFill, pBrush);
-
-		D2D1_ROUNDED_RECT roundedRect = {
-			D2D1::RectF(rc.left + 0.5f, rc.top+0.5f, rc.right - 0.5f, rc.bottom-0.5f),
-			4, 4
-		};
+		D2D1_ROUNDED_RECT roundedRect = { D2D1::RectF(rc.left + 0.5f, rc.top+0.5f, rc.right - 0.5f, rc.bottom-0.5f), 4, 4 };
 		D2DPenColour(fore);
 		pRenderTarget->DrawRoundedRectangle(roundedRect, pBrush);
 	}

@@ -682,7 +682,7 @@ encoding_error:
  */
 int FASTCALL xmlCopyCharMultiByte(xmlChar * out, int val) 
 {
-	if(out == NULL) 
+	if(!out) 
 		return 0;
 	/*
 	 * We are supposed to handle UTF8, check it's valid
@@ -732,7 +732,7 @@ int FASTCALL xmlCopyCharMultiByte(xmlChar * out, int val)
 int FASTCALL xmlCopyChar(int len ATTRIBUTE_UNUSED, xmlChar * out, int val) 
 {
 	// the len parameter is ignored 
-	if(out == NULL) 
+	if(!out) 
 		return 0;
 	else if(val >= 0x80)
 		return xmlCopyCharMultiByte(out, val);
@@ -1048,8 +1048,8 @@ void FASTCALL xmlFreeInputStream(xmlParserInput * input)
 		SAlloc::F((char *)input->directory);
 		SAlloc::F((char *)input->encoding);
 		SAlloc::F((char *)input->version);
-		if(input->free && input->base)
-			input->free((xmlChar *)input->base);
+		if(input->FnFree && input->base)
+			input->FnFree((xmlChar *)input->base);
 		xmlFreeParserInputBuffer(input->buf);
 		SAlloc::F(input);
 	}

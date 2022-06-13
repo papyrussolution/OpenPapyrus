@@ -557,8 +557,7 @@ const EVP_MD * ssl_prf_md(SSL * s)
 #define ITEM_SEP(a) \
 	(((a) == ':') || ((a) == ' ') || ((a) == ';') || ((a) == ','))
 
-static void ll_append_tail(CIPHER_ORDER ** head, CIPHER_ORDER * curr,
-    CIPHER_ORDER ** tail)
+static void ll_append_tail(CIPHER_ORDER ** head, CIPHER_ORDER * curr, CIPHER_ORDER ** tail)
 {
 	if(curr == *tail)
 		return;

@@ -290,7 +290,7 @@ int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
 
 /*static*/bool SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult)
 {
-	int    ok = false;
+	bool   ok = false;
 	rResult.Z();
     if(pNode) {
 		for(const xmlAttr * p_attr = pNode->properties; p_attr; p_attr = p_attr->next) {

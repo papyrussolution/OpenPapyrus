@@ -105,11 +105,9 @@ LZ4LIB_API int LZ4_saveDictHC(LZ4_streamHC_t* streamHCPtr, char * safeBuffer, in
    you can save it to a more stable memory space, using LZ4_saveDictHC().
    Return value of LZ4_saveDictHC() is the size of dictionary effectively saved into 'safeBuffer'.
  */
-
-/*^**********************************************
- * !!!!!!   STATIC LINKING ONLY   !!!!!!
- ***********************************************/
-
+// 
+// STATIC LINKING ONLY
+// 
 /*-******************************************************************
 * PRIVATE DEFINITIONS :
 * Do not use these definitions directly.

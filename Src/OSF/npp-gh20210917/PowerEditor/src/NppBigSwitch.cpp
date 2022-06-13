@@ -1021,17 +1021,13 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
 		    mainVerStr[j] = '\0';
 		    auxVerStr[k] = '\0';
-
 		    int mainVer = 0, auxVer = 0;
 		    if(mainVerStr[0])
-			    mainVer = generic_atoi(mainVerStr);
-
+			    mainVer = satoi(mainVerStr);
 		    if(auxVerStr[0])
-			    auxVer = generic_atoi(auxVerStr);
-
+			    auxVer = satoi(auxVerStr);
 		    return MAKELONG(auxVer, mainVer);
 	    }
-
 		case WM_GETCURRENTMACROSTATUS:
 	    {
 		    if(_recordingMacro)

@@ -295,18 +295,18 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_clone(const UTrie2 * other, UErrorCode * pError
 	}
 	uprv_memcpy(trie, other, sizeof(UTrie2));
 
-	if(other->memory!=NULL) {
+	if(other->memory != NULL) {
 		trie->memory = uprv_malloc(other->length);
-		if(trie->memory!=NULL) {
+		if(trie->memory != NULL) {
 			trie->isMemoryOwned = TRUE;
 			uprv_memcpy(trie->memory, other->memory, other->length);
 
 			/* make the clone's pointers point to its own memory */
 			trie->index = (uint16*)trie->memory+(other->index-(uint16*)other->memory);
-			if(other->data16!=NULL) {
+			if(other->data16 != NULL) {
 				trie->data16 = (uint16*)trie->memory+(other->data16-(uint16*)other->memory);
 			}
-			if(other->data32!=NULL) {
+			if(other->data32 != NULL) {
 				trie->data32 = (uint32_t*)trie->memory+(other->data32-(uint32_t*)other->memory);
 			}
 		}

@@ -321,7 +321,7 @@ static void mi_pages_reset_remove(mi_page_t* page, mi_segments_tld_t* tld) {
 	if(mi_page_not_in_queue(page, tld)) return;
 
 	mi_page_queue_t* pq = &tld->pages_reset;
-	mi_assert_internal(pq!=NULL);
+	mi_assert_internal(pq != NULL);
 	mi_assert_internal(!page->segment_in_use);
 	mi_assert_internal(mi_pages_reset_contains(page, tld));
 	if(page->prev != NULL) page->prev->next = page->next;

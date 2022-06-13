@@ -25,16 +25,12 @@ U_NAMESPACE_BEGIN
 
 // The state number of the starting state
 constexpr int32_t START_STATE = 1;
-
 // The state-transition value indicating "stop"
 constexpr int32_t STOP_STATE = 0;
-
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(RuleBasedBreakIterator)
-
-//=======================================================================
+// 
 // constructors
-//=======================================================================
-
+// 
 /**
  * Constructs a RuleBasedBreakIterator that uses the already-created
  * tables object that is passed in as a parameter.
@@ -64,10 +60,7 @@ RuleBasedBreakIterator::RuleBasedBreakIterator(RBBIDataHeader* data, UErrorCode 
 //  Construct from precompiled binary rules (tables).  This constructor is public API,
 //  taking the rules as a (const uint8 *) to match the type produced by getBinaryRules().
 //
-RuleBasedBreakIterator::RuleBasedBreakIterator(const uint8 * compiledRules,
-    uint32_t ruleLength,
-    UErrorCode     &status)
-	: fSCharIter(UnicodeString())
+RuleBasedBreakIterator::RuleBasedBreakIterator(const uint8 * compiledRules, uint32_t ruleLength, UErrorCode &status) : fSCharIter(UnicodeString())
 {
 	init(status);
 	if(U_FAILURE(status)) {
@@ -364,32 +357,26 @@ void RuleBasedBreakIterator::setText(UText * ut, UErrorCode & status) {
 	//   we can come to signaling a failure.
 	//   (GetText() is obsolete, this failure is sort of OK)
 	fSCharIter.setText(UnicodeString());
-
 	if(fCharIter != &fSCharIter) {
 		// existing fCharIter was adopted from the outside.  Delete it now.
 		delete fCharIter;
 	}
 	fCharIter = &fSCharIter;
-
 	this->first();
 }
 
-UText * RuleBasedBreakIterator::getUText(UText * fillIn, UErrorCode & status) const {
+UText * RuleBasedBreakIterator::getUText(UText * fillIn, UErrorCode & status) const 
+{
 	UText * result = utext_clone(fillIn, &fText, FALSE, TRUE, &status);
 	return result;
 }
-
-//=======================================================================
+// 
 // BreakIterator overrides
-//=======================================================================
-
+// 
 /**
  * Return a CharacterIterator over the text being analyzed.
  */
-CharacterIterator&RuleBasedBreakIterator::getText() const {
-	return *fCharIter;
-}
-
+CharacterIterator&RuleBasedBreakIterator::getText() const { return *fCharIter; }
 /**
  * Set the iterator to analyze a new piece of text.  This function resets
  * the current iteration position to the beginning of the text.
@@ -633,19 +620,14 @@ bool RuleBasedBreakIterator::isBoundary(int32_t offset)
 	}
 	return result;
 }
-
 /**
  * Returns the current iteration position.
  * @return The current iteration position.
  */
-int32_t RuleBasedBreakIterator::current() const {
-	return fPosition;
-}
-
-//=======================================================================
+int32_t RuleBasedBreakIterator::current() const { return fPosition; }
+// 
 // implementation
-//=======================================================================
-
+// 
 //
 // RBBIRunMode  -  the state machine runs an extra iteration at the beginning and end
 //                 of user text.  A variable with this enum type keeps track of where we

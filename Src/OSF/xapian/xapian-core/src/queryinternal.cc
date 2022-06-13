@@ -654,7 +654,7 @@ Query::Internal * Query::Internal::unserialise(const char ** p, const char * end
 		    //     2: wqf = 1; pos -> encoded value follows
 		    //     3: wqf -> encoded value follows; pos -> encoded value follows
 		    size_t len = ch & 0x0f;
-		    if(len == 0) {
+		    if(!len) {
 			    if(!unpack_uint(p, end, &len)) {
 				    unpack_throw_serialisation_error(*p);
 			    }
@@ -1780,7 +1780,7 @@ void QueryScaleWeight::gather_terms(void * void_terms) const
 void QueryTerm::serialise(string & result) const
 {
 	size_t len = term.size();
-	if(len == 0) {
+	if(!len) {
 		if(wqf == 1 && pos == 0) {
 			// Query::MatchAll
 			result += '\x0f';

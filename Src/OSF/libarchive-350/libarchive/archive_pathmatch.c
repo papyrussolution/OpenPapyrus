@@ -362,18 +362,15 @@ static int pm_w(const wchar_t * p, const wchar_t * s, int flags)
 int __archive_pathmatch(const char * p, const char * s, int flags)
 {
 	/* Empty pattern only matches the empty string. */
-	if(p == NULL || *p == '\0')
-		return (s == NULL || *s == '\0');
-
+	if(isempty(p))
+		return isempty(s);
 	/* Leading '^' anchors the start of the pattern. */
 	if(*p == '^') {
 		++p;
 		flags &= ~PATHMATCH_NO_ANCHOR_START;
 	}
-
 	if(*p == '/' && *s != '/')
 		return 0;
-
 	/* Certain patterns anchor implicitly. */
 	if(*p == '*' || *p == '/') {
 		while(*p == '/')
@@ -401,18 +398,15 @@ int __archive_pathmatch(const char * p, const char * s, int flags)
 int __archive_pathmatch_w(const wchar_t * p, const wchar_t * s, int flags)
 {
 	/* Empty pattern only matches the empty string. */
-	if(p == NULL || *p == L'\0')
-		return (s == NULL || *s == L'\0');
-
+	if(isempty(p))
+		return isempty(s);
 	/* Leading '^' anchors the start of the pattern. */
 	if(*p == L'^') {
 		++p;
 		flags &= ~PATHMATCH_NO_ANCHOR_START;
 	}
-
 	if(*p == L'/' && *s != L'/')
 		return 0;
-
 	/* Certain patterns anchor implicitly. */
 	if(*p == L'*' || *p == L'/') {
 		while(*p == L'/')

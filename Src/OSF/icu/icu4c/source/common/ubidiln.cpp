@@ -370,7 +370,7 @@ U_CAPI UBiDiDirection U_EXPORT2 ubidi_getVisualRun(UBiDi * pBiDi, int32_t runInd
 	RETURN_IF_BAD_RANGE(runIndex, 0, pBiDi->runCount, errorCode, UBIDI_LTR);
 
 	start = pBiDi->runs[runIndex].logicalStart;
-	if(pLogicalStart!=NULL) {
+	if(pLogicalStart != NULL) {
 		*pLogicalStart = GET_INDEX(start);
 	}
 	if(pLength) {

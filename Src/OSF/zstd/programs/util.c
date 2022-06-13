@@ -694,7 +694,7 @@ static int UTIL_prepareFileList(const char * dirName, char** bufStart, size_t* p
 int UTIL_isCompressedFile(const char * inputName, const char * extensionList[])
 {
 	const char* ext = UTIL_getFileExtension(inputName);
-	while(*extensionList!=NULL) {
+	while(*extensionList != NULL) {
 		const int isCompressedExtension = strcmp(ext, *extensionList);
 		if(isCompressedExtension==0)
 			return 1;

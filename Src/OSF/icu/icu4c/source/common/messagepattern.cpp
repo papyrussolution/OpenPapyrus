@@ -110,7 +110,7 @@ bool MessagePatternList<T, stackCapacity>::ensureCapacityForOneMore(int32_t oldL
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
-	if(a.getCapacity()>oldLength || a.resize(2*oldLength, oldLength)!=NULL) {
+	if(a.getCapacity()>oldLength || a.resize(2*oldLength, oldLength) != NULL) {
 		return TRUE;
 	}
 	errorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -374,7 +374,7 @@ void MessagePattern::preParse(const UnicodeString & pattern, UParseError * parse
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	if(parseError!=NULL) {
+	if(parseError != NULL) {
 		parseError->line = 0;
 		parseError->offset = 0;
 		parseError->preContext[0] = 0;
@@ -389,10 +389,10 @@ void MessagePattern::preParse(const UnicodeString & pattern, UParseError * parse
 
 void MessagePattern::postParse() 
 {
-	if(partsList!=NULL) {
+	if(partsList != NULL) {
 		parts = partsList->a.getAlias();
 	}
-	if(numericValuesList!=NULL) {
+	if(numericValuesList != NULL) {
 		numericValues = numericValuesList->a.getAlias();
 	}
 }

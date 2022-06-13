@@ -3075,7 +3075,7 @@ static void mdb_txn_end(MDB_txn * txn, uint mode)
 			env->me_pghead = NULL;
 			env->me_pglast = 0;
 			env->me_txn = NULL;
-			mode = 0; /* txn == env->me_txn0, do not free() it */
+			mode = 0; /* txn == env->me_txn0, do not SAlloc::F() it */
 			// The writer mutex was locked in mdb_txn_begin. 
 			if(env->me_txns)
 				UNLOCK_MUTEX(env->me_wmutex);
@@ -6736,7 +6736,7 @@ int mdb_cursor_get(MDB_cursor * mc, MDB_val * key, MDB_val * data, MDB_cursor_op
 		    break;
 		case MDB_GET_BOTH:
 		case MDB_GET_BOTH_RANGE:
-		    if(data == NULL) {
+		    if(!data) {
 			    rc = EINVAL;
 			    break;
 		    }
@@ -6771,7 +6771,7 @@ int mdb_cursor_get(MDB_cursor * mc, MDB_val * key, MDB_val * data, MDB_cursor_op
 			    break;
 		    goto fetchm;
 		case MDB_NEXT_MULTIPLE:
-		    if(data == NULL) {
+		    if(!data) {
 			    rc = EINVAL;
 			    break;
 		    }
@@ -6795,7 +6795,7 @@ fetchm:
 		    }
 		    break;
 		case MDB_PREV_MULTIPLE:
-		    if(data == NULL) {
+		    if(!data) {
 			    rc = EINVAL;
 			    break;
 		    }

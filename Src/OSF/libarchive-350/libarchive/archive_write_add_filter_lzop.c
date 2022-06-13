@@ -106,13 +106,13 @@ static const uchar header[] = {
 };
 #endif
 
-int archive_write_add_filter_lzop(struct archive * _a)
+int archive_write_add_filter_lzop(Archive * _a)
 {
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct write_lzop * data;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = (write_lzop *)SAlloc::C(1, sizeof(*data));
-	if(data == NULL) {
+	if(!data) {
 		archive_set_error(_a, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
@@ -384,7 +384,7 @@ static int archive_write_lzop_close(struct archive_write_filter * f)
 static int archive_write_lzop_open(struct archive_write_filter * f)
 {
 	struct write_lzop * data = (struct write_lzop *)f->data;
-	struct archive_string as;
+	archive_string as;
 	int r;
 
 	archive_string_init(&as);

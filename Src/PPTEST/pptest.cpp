@@ -1,5 +1,6 @@
 // PPTEST.CPP
 // Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2022
+// @codepage UTF-8 // @v11.4.1
 //
 #include <pp.h>
 #pragma hdrstop
@@ -269,7 +270,7 @@ static int TestSearch(int alg, int flags, const SString & rPat, const SString & 
 	const  size_t max_suc = 256;
 	size_t suc_test[max_suc];
 	int    ok = 1, r = 0;
-
+	SString msg_buf;
 	SSrchPattern blk(rPat, flags, alg);
 	//PROFILE_START
 	for(size_t start = 0; (r = blk.Search(rText, start, rText.Len(), &srch_pos)) != 0; start = srch_pos+1) {
@@ -281,12 +282,14 @@ static int TestSearch(int alg, int flags, const SString & rPat, const SString & 
 	if(num_suc_test == numSucc) {
 		for(size_t j = 0; j < num_suc_test; j++)
 			if(j < max_suc && pSuccList[j] != suc_test[j]) {
-				PPLogMessage(PPFILNAM_DEBUG_LOG, "Ошибка тестового поиска строк: не совпадают позиции", 0);
+				(msg_buf = "РћС€РёР±РєР° С‚РµСЃС‚РѕРІРѕРіРѕ РїРѕРёСЃРєР° СЃС‚СЂРѕРє: РЅРµ СЃРѕРІРїР°РґР°СЋС‚ РїРѕР·РёС†РёРё").Transf(CTRANSF_UTF8_TO_INNER);
+				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, 0);
 				ok = 0;
 			}
 	}
 	else {
-		PPLogMessage(PPFILNAM_DEBUG_LOG, "Ошибка тестового поиска строк: не совпадает количество удач", 0);
+		(msg_buf = "РћС€РёР±РєР° С‚РµСЃС‚РѕРІРѕРіРѕ РїРѕРёСЃРєР° СЃС‚СЂРѕРє: РЅРµ СЃРѕРІРїР°РґР°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ СѓРґР°С‡").Transf(CTRANSF_UTF8_TO_INNER);
+		PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, 0);
 		ok = 0;
 	}
 	return ok;
@@ -312,9 +315,9 @@ int Test_Hash_And_Search(const char * pInputFileName)
 			uint   i = 1;
 			uint   pos = 0;
 			//
-			// Вставляем строки в хэш-таблицу
+			// Р’СЃС‚Р°РІР»СЏРµРј СЃС‚СЂРѕРєРё РІ С…СЌС€-С‚Р°Р±Р»РёС†Сѓ
 			//
-			// Одновременно забрасываем строки в общий текст для тестирования функции поиска.
+			// РћРґРЅРѕРІСЂРµРјРµРЅРЅРѕ Р·Р°Р±СЂР°СЃС‹РІР°РµРј СЃС‚СЂРѕРєРё РІ РѕР±С‰РёР№ С‚РµРєСЃС‚ РґР»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ С„СѓРЅРєС†РёРё РїРѕРёСЃРєР°.
 			//
 			while(ok && file.ReadLine(word_buf)) {
 				word_buf.Chomp();
@@ -329,7 +332,7 @@ int Test_Hash_And_Search(const char * pInputFileName)
 			}
 
 			//
-			// Проверяем правильно ли были вставлены строки в хэш-таблицу?
+			// РџСЂРѕРІРµСЂСЏРµРј РїСЂР°РІРёР»СЊРЅРѕ Р»Рё Р±С‹Р»Рё РІСЃС‚Р°РІР»РµРЅС‹ СЃС‚СЂРѕРєРё РІ С…СЌС€-С‚Р°Р±Р»РёС†Сѓ?
 			//
 			file.Seek(0, SEEK_SET);
 			file_pos = file.Tell();
@@ -345,7 +348,7 @@ int Test_Hash_And_Search(const char * pInputFileName)
 						ok = 0;
 					file_pos = file.Tell();
 					//
-					// Проверяем функцию поиска
+					// РџСЂРѕРІРµСЂСЏРµРј С„СѓРЅРєС†РёСЋ РїРѕРёСЃРєР°
 					//
 					int srch_flags = 0;//SSrchPattern::fNoCase;
 					if(srch_flags == SSrchPattern::fNoCase) {
@@ -362,7 +365,7 @@ int Test_Hash_And_Search(const char * pInputFileName)
 					}
 					else {
 						//
-						// Традиционный поиск для сравнения производительности
+						// РўСЂР°РґРёС†РёРѕРЅРЅС‹Р№ РїРѕРёСЃРє РґР»СЏ СЃСЂР°РІРЅРµРЅРёСЏ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё
 						//
 						memzero(suc, sizeof(suc));
 						PROFILE_START_S("standard");
@@ -384,14 +387,14 @@ int Test_Hash_And_Search(const char * pInputFileName)
 			}
 			{
 				//
-				// Проверяем функцию поиска для случайных строк. Результат должен быть отрицательным.
+				// РџСЂРѕРІРµСЂСЏРµРј С„СѓРЅРєС†РёСЋ РїРѕРёСЃРєР° РґР»СЏ СЃР»СѓС‡Р°Р№РЅС‹С… СЃС‚СЂРѕРє. Р РµР·СѓР»СЊС‚Р°С‚ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рј.
 				//
 				char * miss_strings[] = {
-					"Проверяем функц",
+					"РџСЂРѕРІРµСЂСЏРµРј С„СѓРЅРєС†",
 					"if(!r || strncmp(text_buf + srch_pos, word_buf, word_buf.Len()) != ",
 					"",
 					"$$##!@ ",
-					"Результат должен быть отрицательным."
+					"Р РµР·СѓР»СЊС‚Р°С‚ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рј."
 				};
 				for(i = 0; i < sizeof(miss_strings) / sizeof(char *); i++) {
 					size_t srch_pos = 0;
@@ -402,8 +405,8 @@ int Test_Hash_And_Search(const char * pInputFileName)
 				}
 			}
 			//
-			// Перебираем все элементы хэш-таблицы и скидываем их в исходящий файл.
-			// В результате мы должны получить файл, содержащий ровно столько же строк, что и входящий файл.
+			// РџРµСЂРµР±РёСЂР°РµРј РІСЃРµ СЌР»РµРјРµРЅС‚С‹ С…СЌС€-С‚Р°Р±Р»РёС†С‹ Рё СЃРєРёРґС‹РІР°РµРј РёС… РІ РёСЃС…РѕРґСЏС‰РёР№ С„Р°Р№Р».
+			// Р’ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РјС‹ РґРѕР»Р¶РЅС‹ РїРѕР»СѓС‡РёС‚СЊ С„Р°Р№Р», СЃРѕРґРµСЂР¶Р°С‰РёР№ СЂРѕРІРЅРѕ СЃС‚РѕР»СЊРєРѕ Р¶Рµ СЃС‚СЂРѕРє, С‡С‚Рѕ Рё РІС…РѕРґСЏС‰РёР№ С„Р°Р№Р».
 			//
 			{
 				SString fn(pInputFileName);
@@ -522,7 +525,7 @@ int TestTextDbFile(const char * pInDbfFile);
 int Test_InterfaceCall();
 int DummyProc_dirent(); // @prototype @forcelink
 // @v11.2.0 {
-// Для сборки _MSC_VER менее чем 2015 мы не будем поддерживать LMDB. Здесь включена пустышка для пропуска соответствующего теста
+// Р”Р»СЏ СЃР±РѕСЂРєРё _MSC_VER РјРµРЅРµРµ С‡РµРј 2015 РјС‹ РЅРµ Р±СѓРґРµРј РїРѕРґРґРµСЂР¶РёРІР°С‚СЊ LMDB. Р—РґРµСЃСЊ РІРєР»СЋС‡РµРЅР° РїСѓСЃС‚С‹С€РєР° РґР»СЏ РїСЂРѕРїСѓСЃРєР° СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРіРѕ С‚РµСЃС‚Р°
 #if _MSC_VER >= 1900
 	int DummyProc_LMDB();   // @prototype @forcelink
 	int DummyProc_SFileStorage(); // @prototype @forcelink
@@ -551,11 +554,10 @@ int TestNoLogin()
 #endif
 #ifdef TEST_LOCALE
 	char * p_loc = setlocale(LC_COLLATE, "rus_rus.1251");
-	SString c1, c2;
-	c1 = "аврора";
-	c2 = "аВрОра";
-	//c1.ToOem();
-	//c2.ToOem();
+	SString c1("Р°РІСЂРѕСЂР°");
+	SString c2("Р°Р’СЂРћСЂР°");
+	c1.Transf(CTRANSF_UTF8_TO_OUTER);
+	c2.Transf(CTRANSF_UTF8_TO_OUTER);
 	if(stricmp(c1, c2) != 0) {
 		ok = 0;
 	}
@@ -593,9 +595,9 @@ int TestLogin()
 
 // turistti	@v5.3.1 {
 //
-//Descr:Генератор случайных чисел.
-//  Может генерировать как равномернораспределенные числа,
-//  так и распределенные по некоторому з-ну числа...
+//Descr:Р“РµРЅРµСЂР°С‚РѕСЂ СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР».
+//  РњРѕР¶РµС‚ РіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ РєР°Рє СЂР°РІРЅРѕРјРµСЂРЅРѕСЂР°СЃРїСЂРµРґРµР»РµРЅРЅС‹Рµ С‡РёСЃР»Р°,
+//  С‚Р°Рє Рё СЂР°СЃРїСЂРµРґРµР»РµРЅРЅС‹Рµ РїРѕ РЅРµРєРѕС‚РѕСЂРѕРјСѓ Р·-РЅСѓ С‡РёСЃР»Р°...
 //
 #ifndef VAR
 
@@ -788,8 +790,8 @@ Rng * RngAlloc(const RngType * pT)
 uint RngGet(const Rng * pR) {return (pR->P_Type->P_Get) (pR->P_State);}
 double RngUniform (const Rng * pR) {return (pR->P_Type->P_GetDouble) (pR->P_State);}
 //
-//Descr: Генератор равномернораспределенных
-//  случайных чисел с плавающей точкой
+//Descr: Р“РµРЅРµСЂР°С‚РѕСЂ СЂР°РІРЅРѕРјРµСЂРЅРѕСЂР°СЃРїСЂРµРґРµР»РµРЅРЅС‹С…
+//  СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР» СЃ РїР»Р°РІР°СЋС‰РµР№ С‚РѕС‡РєРѕР№
 //
 double RngUniformPos (const Rng * pR)
 {
@@ -799,8 +801,8 @@ double RngUniformPos (const Rng * pR)
 	return x ;
 }
 //
-//Descr: Генератор равномернораспределенных
-//  целых случайных чисел
+//Descr: Р“РµРЅРµСЂР°С‚РѕСЂ СЂР°РІРЅРѕРјРµСЂРЅРѕСЂР°СЃРїСЂРµРґРµР»РµРЅРЅС‹С…
+//  С†РµР»С‹С… СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
 //
 //Note: to avoid integer overflow in (range+1) we work with scale =
 //  range/n = (max-min)/n rather than scale=(max-min+1)/n, this reduces
@@ -856,15 +858,15 @@ const RngType * RngEnvSetup()
 	RngDefaultSeed = seed;
 	return RngDefault;
 }
-//Варианты распределения случайных чисел
+//Р’Р°СЂРёР°РЅС‚С‹ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
 class RandNumbGen {
 public:
 	double Exponential(const Rng * P_r, const double mu);
 	double Gaussian(const Rng * P_r, const double sigma);
 };
 //
-//Descr: Генератор случайных чисел распределенных
-//  по экспоненциональному закону
+//Descr: Р“РµРЅРµСЂР°С‚РѕСЂ СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР» СЂР°СЃРїСЂРµРґРµР»РµРЅРЅС‹С…
+//  РїРѕ СЌРєСЃРїРѕРЅРµРЅС†РёРѕРЅР°Р»СЊРЅРѕРјСѓ Р·Р°РєРѕРЅСѓ
 //
 double RandNumbGen::Exponential(const Rng * P_r, const double mu)
 {
@@ -872,8 +874,8 @@ double RandNumbGen::Exponential(const Rng * P_r, const double mu)
 	return -mu * log(u);
 }
 //
-//Descr: Генератор случайных чисел распределенных
-//  по закону Гаусса
+//Descr: Р“РµРЅРµСЂР°С‚РѕСЂ СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР» СЂР°СЃРїСЂРµРґРµР»РµРЅРЅС‹С…
+//  РїРѕ Р·Р°РєРѕРЅСѓ Р“Р°СѓСЃСЃР°
 //
 double RandNumbGen::Gaussian(const Rng * P_r, const double sigma)
 {
@@ -889,10 +891,10 @@ double RandNumbGen::Gaussian(const Rng * P_r, const double sigma)
 	return sigma * y * sqrt (-2.0 * log (r2) / r2);
 }
 
-//ГЕНЕРАЦИЯ ТОВАРНЫХ ДОКУМЕНТОВ ПО ЭКСПОНЕНЦИАЛЬНОМУ З-НУ
+//Р“Р•РќР•Р РђР¦РРЇ РўРћР’РђР РќР«РҐ Р”РћРљРЈРњР•РќРўРћР’ РџРћ Р­РљРЎРџРћРќР•РќР¦РРђР›Р¬РќРћРњРЈ Р—-РќРЈ
 int GetRandom(int min, int max)
 {
-	return (int)(((double)rand() / (RAND_MAX + 1)) * (max - min) + min);  //генератор псевдослучайных чисел
+	return (int)(((double)rand() / (RAND_MAX + 1)) * (max - min) + min);  //РіРµРЅРµСЂР°С‚РѕСЂ РїСЃРµРІРґРѕСЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
 }
 
 int GenerateGoodsBills()
@@ -902,42 +904,42 @@ int GenerateGoodsBills()
 	PPViewGoodsOpAnalyze * p_vgoods = 0;
 	Rng * p_rng = 0;
 	const PPConfig & r_lcfg = LConfig;
-	int  i = 0, j = 0, m = 0;  //счетчики в циклах
+	int  i = 0, j = 0, m = 0;  //СЃС‡РµС‚С‡РёРєРё РІ С†РёРєР»Р°С…
 	uint k = 0;
-	double cost = 0, price = 0; //сумма и цена
-	double qtty = 0; //количество товара
-	long int k1 = 0;  //генерируемое число для случайного выбора типа операции
-	double k2 = 0;    //генерируемое число для случайного выбора номера строки
-	ulong iter = 0; //кол-во итераций
-	//для определения временного периода
+	double cost = 0, price = 0; //СЃСѓРјРјР° Рё С†РµРЅР°
+	double qtty = 0; //РєРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР°
+	long int k1 = 0;  //РіРµРЅРµСЂРёСЂСѓРµРјРѕРµ С‡РёСЃР»Рѕ РґР»СЏ СЃР»СѓС‡Р°Р№РЅРѕРіРѕ РІС‹Р±РѕСЂР° С‚РёРїР° РѕРїРµСЂР°С†РёРё
+	double k2 = 0;    //РіРµРЅРµСЂРёСЂСѓРµРјРѕРµ С‡РёСЃР»Рѕ РґР»СЏ СЃР»СѓС‡Р°Р№РЅРѕРіРѕ РІС‹Р±РѕСЂР° РЅРѕРјРµСЂР° СЃС‚СЂРѕРєРё
+	ulong iter = 0; //РєРѕР»-РІРѕ РёС‚РµСЂР°С†РёР№
+	//РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РІСЂРµРјРµРЅРЅРѕРіРѕ РїРµСЂРёРѕРґР°
 	DateRange period;
-	//для определения типа и вида операции
-	PPID  op_id = 0,  id = 0;//id операции
-	PPID  op_type = 0; //тип операции
-	PPOprKind op_kind; //тип операции
-	PPIDArray ops;  //массив типов операции по доходам и расходам
-	PPIDArray allow_ops;  //массив доступных операции за временной период
-	uint opscount, allow_opscount;  //кол-во элементов в массиве ооперации
-	// для генератора
+	//РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ С‚РёРїР° Рё РІРёРґР° РѕРїРµСЂР°С†РёРё
+	PPID  op_id = 0,  id = 0;//id РѕРїРµСЂР°С†РёРё
+	PPID  op_type = 0; //С‚РёРї РѕРїРµСЂР°С†РёРё
+	PPOprKind op_kind; //С‚РёРї РѕРїРµСЂР°С†РёРё
+	PPIDArray ops;  //РјР°СЃСЃРёРІ С‚РёРїРѕРІ РѕРїРµСЂР°С†РёРё РїРѕ РґРѕС…РѕРґР°Рј Рё СЂР°СЃС…РѕРґР°Рј
+	PPIDArray allow_ops;  //РјР°СЃСЃРёРІ РґРѕСЃС‚СѓРїРЅС‹С… РѕРїРµСЂР°С†РёРё Р·Р° РІСЂРµРјРµРЅРЅРѕР№ РїРµСЂРёРѕРґ
+	uint opscount, allow_opscount;  //РєРѕР»-РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РјР°СЃСЃРёРІРµ РѕРѕРїРµСЂР°С†РёРё
+	// РґР»СЏ РіРµРЅРµСЂР°С‚РѕСЂР°
 	const RngType * p_type = 0;
 	RandNumbGen generator;
-	int mu = 100;     //переменная для генератора по показательному з-ну
-	//для введения кол-ва документов
+	int mu = 100;     //РїРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ РіРµРЅРµСЂР°С‚РѕСЂР° РїРѕ РїРѕРєР°Р·Р°С‚РµР»СЊРЅРѕРјСѓ Р·-РЅСѓ
+	//РґР»СЏ РІРІРµРґРµРЅРёСЏ РєРѕР»-РІР° РґРѕРєСѓРјРµРЅС‚РѕРІ
 	SString title, inp_title;
 	SString msg_buf;
 	double bills_count = 0;
-	//для фильтра "Группировка операций"
+	//РґР»СЏ С„РёР»СЊС‚СЂР° "Р“СЂСѓРїРїРёСЂРѕРІРєР° РѕРїРµСЂР°С†РёР№"
 	OpGroupingFilt op_flt;
 	BillStatArray list;
-	//для фильтра "Товарный отчет по операции"
+	//РґР»СЏ С„РёР»СЊС‚СЂР° "РўРѕРІР°СЂРЅС‹Р№ РѕС‚С‡РµС‚ РїРѕ РѕРїРµСЂР°С†РёРё"
 	GoodsOpAnalyzeFilt goods_flt;
 	GoodsOpAnalyzeViewItem goods_item;
 	PPIDArray goods_list;
-	int count = 0;    //кол-во док-тов в выборке по фильру по товарам
-	// для массива контрагентов
-	PPID acc_sheet_id = 0, acc_sheet2_id = 0; //таблица статей
-	PPIDArray contragent_list; //масииви контрагентов
-	long contragent_count = 0; //количество контрагентов
+	int count = 0;    //РєРѕР»-РІРѕ РґРѕРє-С‚РѕРІ РІ РІС‹Р±РѕСЂРєРµ РїРѕ С„РёР»СЊСЂСѓ РїРѕ С‚РѕРІР°СЂР°Рј
+	// РґР»СЏ РјР°СЃСЃРёРІР° РєРѕРЅС‚СЂР°РіРµРЅС‚РѕРІ
+	PPID acc_sheet_id = 0, acc_sheet2_id = 0; //С‚Р°Р±Р»РёС†Р° СЃС‚Р°С‚РµР№
+	PPIDArray contragent_list; //РјР°СЃРёРёРІРё РєРѕРЅС‚СЂР°РіРµРЅС‚РѕРІ
+	long contragent_count = 0; //РєРѕР»РёС‡РµСЃС‚РІРѕ РєРѕРЅС‚СЂР°РіРµРЅС‚РѕРІ
 	PPObjArticle ar_obj;
 	//PPLogger logger;
 
@@ -945,22 +947,22 @@ int GenerateGoodsBills()
 	int    enbl = 0;
 	THROW_PP(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ENABLEBILLGENERATOR, &enbl) && enbl, PPERR_BILLGEN_NOTALLOWED);
 
-	//установка генератора
+	//СѓСЃС‚Р°РЅРѕРІРєР° РіРµРЅРµСЂР°С‚РѕСЂР°
 	RngEnvSetup();
 	p_type = RngDefault;
 	p_rng = RngAlloc(p_type);
 
-	//генерация периода времени (год назад от настоящего)
+	//РіРµРЅРµСЂР°С†РёСЏ РїРµСЂРёРѕРґР° РІСЂРµРјРµРЅРё (РіРѕРґ РЅР°Р·Р°Рґ РѕС‚ РЅР°СЃС‚РѕСЏС‰РµРіРѕ)
 	period.SetDate(r_lcfg.OperDate);
 	plusperiod(&period.low, PRD_ANNUAL, -1, 0);
 
-	//введение количества документов
+	//РІРІРµРґРµРЅРёРµ РєРѕР»РёС‡РµСЃС‚РІР° РґРѕРєСѓРјРµРЅС‚РѕРІ
 	PPLoadText(PPTXT_BILL_COUNT, title);
 	PPLoadText(PPTXT_INP_BILL_COUNT, inp_title);
 	if(InputQttyDialog(title, inp_title, &bills_count) > 0) {
 		PPWaitStart();
 		//
-		// фильтр "Группировка операций"
+		// С„РёР»СЊС‚СЂ "Р“СЂСѓРїРїРёСЂРѕРІРєР° РѕРїРµСЂР°С†РёР№"
 		//
 		op_flt.Flags = OpGroupingFilt::fCalcAvgLn;
 		op_flt.Period.upp = period.upp;
@@ -969,12 +971,12 @@ int GenerateGoodsBills()
 		THROW_MEM(p_vop = new PPViewOpGrouping);
 		THROW(p_vop->Init_(&op_flt));
 		//
-		// создание BillStatArray массива
+		// СЃРѕР·РґР°РЅРёРµ BillStatArray РјР°СЃСЃРёРІР°
 		//
 		p_vop->CalcStat(&list);
 		allow_opscount = list.getCount();
 		//
-		// массив операций расходов или доходов
+		// РјР°СЃСЃРёРІ РѕРїРµСЂР°С†РёР№ СЂР°СЃС…РѕРґРѕРІ РёР»Рё РґРѕС…РѕРґРѕРІ
 		//
 		while(EnumOperations(0, &op_id, &op_kind) > 0)
 			if(oneof2(op_kind.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND))
@@ -982,7 +984,7 @@ int GenerateGoodsBills()
 		opscount = ops.getCount();
 		{
 			//
-			// Инициализация фильтра "Товарный отчет по операции"
+			// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С„РёР»СЊС‚СЂР° "РўРѕРІР°СЂРЅС‹Р№ РѕС‚С‡РµС‚ РїРѕ РѕРїРµСЂР°С†РёРё"
 			//
 			goods_flt.OpGrpID = GoodsOpAnalyzeFilt::ogIncoming;
 			goods_flt.Period.low = period.low;
@@ -990,7 +992,7 @@ int GenerateGoodsBills()
 			THROW_MEM(p_vgoods = new PPViewGoodsOpAnalyze);
 			THROW(p_vgoods->Init_(&goods_flt));
 			//
-			// Поиск документа по флагу доходные без возвратов
+			// РџРѕРёСЃРє РґРѕРєСѓРјРµРЅС‚Р° РїРѕ С„Р»Р°РіСѓ РґРѕС…РѕРґРЅС‹Рµ Р±РµР· РІРѕР·РІСЂР°С‚РѕРІ
 			//
 			for(p_vgoods->InitIteration(PPViewGoodsOpAnalyze::OrdByIncome); p_vgoods->NextIteration(&goods_item) > 0;)
 				goods_list.add(goods_item.GoodsID);
@@ -1001,12 +1003,12 @@ int GenerateGoodsBills()
 					THROW(tra);
 					PPWaitStart();
 					//
-					// ГЕНЕРАЦИЯ ТОВАРНЫХ ДОКУМЕНТОВ
+					// Р“Р•РќР•Р РђР¦РРЇ РўРћР’РђР РќР«РҐ Р”РћРљРЈРњР•РќРўРћР’
 					//
 					for(j = 0; j < bills_count; j++) {
 						PPBillPacket bpack;
-						//случ. выбор ID операции из массива доступных операций с условием
-						//принадлежания этой операции к типу доход или расход
+						//СЃР»СѓС‡. РІС‹Р±РѕСЂ ID РѕРїРµСЂР°С†РёРё РёР· РјР°СЃСЃРёРІР° РґРѕСЃС‚СѓРїРЅС‹С… РѕРїРµСЂР°С†РёР№ СЃ СѓСЃР»РѕРІРёРµРј
+						//РїСЂРёРЅР°РґР»РµР¶Р°РЅРёСЏ СЌС‚РѕР№ РѕРїРµСЂР°С†РёРё Рє С‚РёРїСѓ РґРѕС…РѕРґ РёР»Рё СЂР°СЃС…РѕРґ
 						while(op_type != PPOPT_GOODSRECEIPT && op_type != PPOPT_GOODSEXPEND){
 							if(allow_opscount !=0) {
 								k1 = RngUniformInt(p_rng, allow_opscount);
@@ -1015,24 +1017,24 @@ int GenerateGoodsBills()
 							}
 						}
 						//
-						// создание бланка документа с выбранным типом операции
+						// СЃРѕР·РґР°РЅРёРµ Р±Р»Р°РЅРєР° РґРѕРєСѓРјРµРЅС‚Р° СЃ РІС‹Р±СЂР°РЅРЅС‹Рј С‚РёРїРѕРј РѕРїРµСЂР°С†РёРё
 						//
 						THROW(bpack.CreateBlank(op_id, 0, r_lcfg.Location, 0));
 						//
-						// выбор таблицы статей
+						// РІС‹Р±РѕСЂ С‚Р°Р±Р»РёС†С‹ СЃС‚Р°С‚РµР№
 						//
 						GetOpCommonAccSheet(op_id, &acc_sheet_id, &acc_sheet2_id);
-						if(ar_obj.P_Tbl->GetListBySheet(acc_sheet_id, &contragent_list, &contragent_count) > 0) { // массив контрагентов
-							bpack.Rec.Object = contragent_list.at(RngUniformInt(p_rng, contragent_count)); //запись контрагента
-							contragent_list.freeAll(); // очищает массив конграгентов и освобождает память
+						if(ar_obj.P_Tbl->GetListBySheet(acc_sheet_id, &contragent_list, &contragent_count) > 0) { // РјР°СЃСЃРёРІ РєРѕРЅС‚СЂР°РіРµРЅС‚РѕРІ
+							bpack.Rec.Object = contragent_list.at(RngUniformInt(p_rng, contragent_count)); //Р·Р°РїРёСЃСЊ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
+							contragent_list.freeAll(); // РѕС‡РёС‰Р°РµС‚ РјР°СЃСЃРёРІ РєРѕРЅРіСЂР°РіРµРЅС‚РѕРІ Рё РѕСЃРІРѕР±РѕР¶РґР°РµС‚ РїР°РјСЏС‚СЊ
 						}
 						//
-						// примечание у генерируемого документа
+						// РїСЂРёРјРµС‡Р°РЅРёРµ Сѓ РіРµРЅРµСЂРёСЂСѓРµРјРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 						//
 						// @v11.1.12 sprintf(bpack.Rec.Memo, "//@autogen");
 						bpack.SMemo = "//@autogen"; // @v11.1.12
 						//
-						// кол-во строк в генерируемом документе
+						// РєРѕР»-РІРѕ СЃС‚СЂРѕРє РІ РіРµРЅРµСЂРёСЂСѓРµРјРѕРј РґРѕРєСѓРјРµРЅС‚Рµ
 						//
 						int billrows_count = 0;
 						for(k = 0; k < list.getCount(); k++) {
@@ -1043,7 +1045,7 @@ int GenerateGoodsBills()
 							}
 						}
 						//
-						// заполнение созданного бланка документа товарными строками
+						// Р·Р°РїРѕР»РЅРµРЅРёРµ СЃРѕР·РґР°РЅРЅРѕРіРѕ Р±Р»Р°РЅРєР° РґРѕРєСѓРјРµРЅС‚Р° С‚РѕРІР°СЂРЅС‹РјРё СЃС‚СЂРѕРєР°РјРё
 						//
 						for(i = 0; i < billrows_count; i++) {
 							PPID   goods_id = 0;
@@ -1057,8 +1059,8 @@ int GenerateGoodsBills()
 							// @v10.6.4 MEMSZERO(rcpt_rec);
 							// @v10.7.9 @ctr MEMSZERO(ilti);
 							//
-							// выбор ID товара с использованием генератора по экспон. з-ну
-							// и учетом остатка товара по данному ID
+							// РІС‹Р±РѕСЂ ID С‚РѕРІР°СЂР° СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј РіРµРЅРµСЂР°С‚РѕСЂР° РїРѕ СЌРєСЃРїРѕРЅ. Р·-РЅСѓ
+							// Рё СѓС‡РµС‚РѕРј РѕСЃС‚Р°С‚РєР° С‚РѕРІР°СЂР° РїРѕ РґР°РЅРЅРѕРјСѓ ID
 							//
 							while(rest <= 0){
 								k2 = count + 1;
@@ -1073,30 +1075,30 @@ int GenerateGoodsBills()
 								rest = rest_param.Total.Rest;
 							}
 							//
-							// кол-во товара
+							// РєРѕР»-РІРѕ С‚РѕРІР°СЂР°
 							//
 							qtty = (rest > 2) ? GetRandom(1, (int)rest) : rest;
 							//
-							// цена реализации по последнему лоту
+							// С†РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё РїРѕ РїРѕСЃР»РµРґРЅРµРјСѓ Р»РѕС‚Сѓ
 							//
 							BillObj->trfr->Rcpt.GetCurrentGoodsPrice(goods_id, r_lcfg.Location, GPRET_INDEF, &price, &rcpt_rec);
-							cost = rcpt_rec.Cost; //цена поступления по товару
-							//ti.Discount = GetRandom(0, 10); //скидка по товару
-							//знак документа
+							cost = rcpt_rec.Cost; //С†РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РїРѕ С‚РѕРІР°СЂСѓ
+							//ti.Discount = GetRandom(0, 10); //СЃРєРёРґРєР° РїРѕ С‚РѕРІР°СЂСѓ
+							//Р·РЅР°Рє РґРѕРєСѓРјРµРЅС‚Р°
 							sign = (op_type == PPOPT_GOODSRECEIPT) ? 1 : -1;
-							//добавление товарной строки
+							//РґРѕР±Р°РІР»РµРЅРёРµ С‚РѕРІР°СЂРЅРѕР№ СЃС‚СЂРѕРєРё
 							ilti.Setup(goods_id, sign, qtty, cost, price);
 							BillObj->ConvertILTI(&ilti, &bpack, 0, 0, 0);
 							THROW(bpack.InitAmounts());
 						}
-						//добавление документа
+						//РґРѕР±Р°РІР»РµРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р°
 						THROW(BillObj->TurnPacket(&bpack, 0));
 						//logger.Log("Bill was added");
 
 						op_id = 0;
 						op_type = 0;
-						//сообщение ожидания
-						(msg_buf = "Генерация товарных документов").Transf(CTRANSF_OUTER_TO_INNER);
+						//СЃРѕРѕР±С‰РµРЅРёРµ РѕР¶РёРґР°РЅРёСЏ
+						(msg_buf = "Р“РµРЅРµСЂР°С†РёСЏ С‚РѕРІР°СЂРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ").Transf(CTRANSF_UTF8_TO_INNER);
 						PPWaitPercent(++iter, (ulong)bills_count, msg_buf);
 					}
 					THROW(tra.Commit());
@@ -1112,7 +1114,7 @@ int GenerateGoodsBills()
 	if(p_rng)
 		RngFree(p_rng);
 	//
-	// показать созданные документы
+	// РїРѕРєР°Р·Р°С‚СЊ СЃРѕР·РґР°РЅРЅС‹Рµ РґРѕРєСѓРјРµРЅС‚С‹
 	//
 	if(ok > 0) {
 		BillFilt filt;
@@ -1184,7 +1186,7 @@ int TestFann()
 {
 	const size_t input_count = 48;
 	const size_t output_count = 1;
-	const uint   iter_count = 5; // Последняя итерация - только результат (без обучения)
+	const uint   iter_count = 5; // РџРѕСЃР»РµРґРЅСЏСЏ РёС‚РµСЂР°С†РёСЏ - С‚РѕР»СЊРєРѕ СЂРµР·СѓР»СЊС‚Р°С‚ (Р±РµР· РѕР±СѓС‡РµРЅРёСЏ)
 	int    ok = 1;
 #ifndef NDEBUG // {
 	uint   i;
@@ -1281,7 +1283,7 @@ int TestFann()
 #endif // } @v10.2.4
 //
 // Construction tests
-// Ситуативные тесты, доступные через команду рабочего стола
+// РЎРёС‚СѓР°С‚РёРІРЅС‹Рµ С‚РµСЃС‚С‹, РґРѕСЃС‚СѓРїРЅС‹Рµ С‡РµСЂРµР· РєРѕРјР°РЅРґСѓ СЂР°Р±РѕС‡РµРіРѕ СЃС‚РѕР»Р°
 //
 //#ifndef NDEBUG // @construction {
 #if 1
@@ -1428,7 +1430,7 @@ extern int OnigTestC_Windows_main(FILE * fOut);
 	return BIN(path.NotEmpty());
 }*/
 
-//int Test_LCMS2(const char * pTestBedPath, const char * pOutputFileName, bool exhaustive); // @v10.9.7 (Экспериментальное внедрение тестирования библиотеки lcms2) 
+//int Test_LCMS2(const char * pTestBedPath, const char * pOutputFileName, bool exhaustive); // @v10.9.7 (Р­РєСЃРїРµСЂРёРјРµРЅС‚Р°Р»СЊРЅРѕРµ РІРЅРµРґСЂРµРЅРёРµ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ Р±РёР±Р»РёРѕС‚РµРєРё lcms2) 
 int DoTest_PThr4w();
 
 static void Test_LibPhoneNumber()
@@ -1490,7 +1492,7 @@ int DoConstructionTest()
 		QueryPerformanceCounter(&qpc2);
 		SDelay(1);
 	}*/
-	{ // @v10.9.7 Экпериментальное внедрение тестирования библиотеки lcms2
+	{ // @v10.9.7 Р­РєРїРµСЂРёРјРµРЅС‚Р°Р»СЊРЅРѕРµ РІРЅРµРґСЂРµРЅРёРµ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ Р±РёР±Р»РёРѕС‚РµРєРё lcms2
 //#if _MSC_VER >= 1910
 		//SString out_file_name;
 		//SString testbed_path("/Papyrus/Src/OSF/lcms2/testbed");
@@ -1498,6 +1500,9 @@ int DoConstructionTest()
 		//Test_LCMS2(testbed_path, out_file_name, true);
 //#endif
 	}
+#if(_MSC_VER >= 1900)
+	//Test_Fts();
+#endif
 	Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	//ImportSpecial("d:\\DEV\\RESOURCE\\DATA\\ETC");
 	//ImportYYE("/DEV/Resource/Data/yeda");
@@ -1533,9 +1538,6 @@ int DoConstructionTest()
 		}
 		ZDELETE(p_json);
 	}*/
-#if(_MSC_VER >= 1900)
-	//Test_Fts();
-#endif
 	//Test_LibPhoneNumber();
 	//Test_StyloQInvitation();
 	//Test_StrAssocTree();

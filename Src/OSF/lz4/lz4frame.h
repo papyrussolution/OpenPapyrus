@@ -142,7 +142,7 @@ typedef struct {
 	LZ4F_blockMode_t blockMode; /* LZ4F_blockLinked, LZ4F_blockIndependent; 0 == default */
 	LZ4F_contentChecksum_t contentChecksumFlag; // 1: frame terminated with 32-bit checksum of decompressed data; 0: disabled (default) 
 	LZ4F_frameType_t frameType; /* read-only field : LZ4F_frame or LZ4F_skippableFrame */
-	unsigned long long contentSize; /* Size of uncompressed content ; 0 == unknown */
+	uint64 contentSize; /* Size of uncompressed content ; 0 == unknown */
 	uint   dictID; // Dictionary ID, sent by compressor to help decoder select correct dictionary; 0 == no dictID provided 
 	LZ4F_blockChecksum_t blockChecksumFlag; // 1: each block followed by a checksum of block's compressed data; 0: disabled (default) 
 } LZ4F_frameInfo_t;

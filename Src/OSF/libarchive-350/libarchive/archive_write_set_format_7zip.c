@@ -76,8 +76,8 @@ struct la_zstream {
 	uint8 * props;
 	int valid;
 	void * real_stream;
-	int (* code) (struct archive * a, struct la_zstream * lastrm, enum la_zaction action);
-	int (* end)(struct archive * a, struct la_zstream * lastrm);
+	int (* code) (Archive * a, struct la_zstream * lastrm, enum la_zaction action);
+	int (* end)(Archive * a, struct la_zstream * lastrm);
 };
 
 #define PPMD7_DEFAULT_ORDER     6
@@ -148,7 +148,7 @@ struct _7zip {
 	int    opt_compression_level;
 	struct la_zstream stream;
 	struct coder coder;
-	struct archive_string_conv * sconv;
+	archive_string_conv * sconv;
 	/*
 	 * Compressed data buffer.
 	 */
@@ -167,14 +167,14 @@ struct _7zip {
 };
 
 static int  _7z_options(struct archive_write *, const char *, const char *);
-static int  _7z_write_header(struct archive_write *, struct archive_entry *);
+static int  _7z_write_header(struct archive_write *, ArchiveEntry *);
 static ssize_t  _7z_write_data(struct archive_write *, const void *, size_t);
 static int  _7z_finish_entry(struct archive_write *);
 static int  _7z_close(struct archive_write *);
 static int  _7z_free(struct archive_write *);
 static int  file_cmp_node(const struct archive_rb_node *, const struct archive_rb_node *);
 static int  file_cmp_key(const struct archive_rb_node *, const void *);
-static int  file_new(struct archive_write * a, struct archive_entry *, struct file **);
+static int  file_new(struct archive_write * a, ArchiveEntry *, struct file **);
 static void file_free(struct file *);
 static void file_register(struct _7zip *, struct file *);
 static void file_register_empty(struct _7zip *, struct file *);
@@ -182,36 +182,36 @@ static void file_init_register(struct _7zip *);
 static void file_init_register_empty(struct _7zip *);
 static void file_free_register(struct _7zip *);
 static ssize_t  compress_out(struct archive_write *, const void *, size_t, enum la_zaction);
-static int compression_init_encoder_copy(struct archive *, struct la_zstream *);
-static int compression_code_copy(struct archive *, struct la_zstream *, enum la_zaction);
-static int compression_end_copy(struct archive *, struct la_zstream *);
-static int compression_init_encoder_deflate(struct archive *, struct la_zstream *, int, int);
+static int compression_init_encoder_copy(Archive *, struct la_zstream *);
+static int compression_code_copy(Archive *, struct la_zstream *, enum la_zaction);
+static int compression_end_copy(Archive *, struct la_zstream *);
+static int compression_init_encoder_deflate(Archive *, struct la_zstream *, int, int);
 #ifdef HAVE_ZLIB_H
-static int compression_code_deflate(struct archive *, struct la_zstream *, enum la_zaction);
-static int compression_end_deflate(struct archive *, struct la_zstream *);
+static int compression_code_deflate(Archive *, struct la_zstream *, enum la_zaction);
+static int compression_end_deflate(Archive *, struct la_zstream *);
 #endif
-static int compression_init_encoder_bzip2(struct archive *, struct la_zstream *, int);
+static int compression_init_encoder_bzip2(Archive *, struct la_zstream *, int);
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
-static int compression_code_bzip2(struct archive *, struct la_zstream *, enum la_zaction);
-static int compression_end_bzip2(struct archive *, struct la_zstream *);
+static int compression_code_bzip2(Archive *, struct la_zstream *, enum la_zaction);
+static int compression_end_bzip2(Archive *, struct la_zstream *);
 #endif
-static int compression_init_encoder_lzma1(struct archive *, struct la_zstream *, int);
-static int compression_init_encoder_lzma2(struct archive *, struct la_zstream *, int);
+static int compression_init_encoder_lzma1(Archive *, struct la_zstream *, int);
+static int compression_init_encoder_lzma2(Archive *, struct la_zstream *, int);
 #if defined(HAVE_LZMA_H)
-static int compression_code_lzma(struct archive *, struct la_zstream *, enum la_zaction);
-static int compression_end_lzma(struct archive *, struct la_zstream *);
+static int compression_code_lzma(Archive *, struct la_zstream *, enum la_zaction);
+static int compression_end_lzma(Archive *, struct la_zstream *);
 #endif
-static int compression_init_encoder_ppmd(struct archive *, struct la_zstream *, unsigned, uint32);
-static int compression_code_ppmd(struct archive *, struct la_zstream *, enum la_zaction);
-static int compression_end_ppmd(struct archive *, struct la_zstream *);
+static int compression_init_encoder_ppmd(Archive *, struct la_zstream *, unsigned, uint32);
+static int compression_code_ppmd(Archive *, struct la_zstream *, enum la_zaction);
+static int compression_end_ppmd(Archive *, struct la_zstream *);
 static int _7z_compression_init_encoder(struct archive_write *, unsigned, int);
-static int compression_code(struct archive *, struct la_zstream *, enum la_zaction);
-static int compression_end(struct archive *, struct la_zstream *);
+static int compression_code(Archive *, struct la_zstream *, enum la_zaction);
+static int compression_end(Archive *, struct la_zstream *);
 static int enc_uint64(struct archive_write *, uint64);
 static int make_header(struct archive_write *, uint64, uint64, uint64, int, struct coder *);
 static int make_streamsInfo(struct archive_write *, uint64, uint64, uint64, int, struct coder *, int, uint32);
 
-int archive_write_set_format_7zip(struct archive * _a)
+int archive_write_set_format_7zip(Archive * _a)
 {
 	static const struct archive_rb_tree_ops rb_ops = {
 		file_cmp_node, file_cmp_key
@@ -313,7 +313,7 @@ static int _7z_options(struct archive_write * a, const char * key, const char * 
 	return ARCHIVE_WARN;
 }
 
-static int _7z_write_header(struct archive_write * a, struct archive_entry * entry)
+static int _7z_write_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	struct file * file;
 	int r;
@@ -709,12 +709,10 @@ static int make_substreamsInfo(struct archive_write * a, struct coder * coders)
 		r = enc_uint64(a, kNumUnPackStream);
 		if(r < 0)
 			return r;
-
 		/* Write numUnpackStreams */
 		r = enc_uint64(a, zip->total_number_nonempty_entry);
 		if(r < 0)
 			return r;
-
 		/*
 		 * Make kSize.
 		 */
@@ -723,8 +721,7 @@ static int make_substreamsInfo(struct archive_write * a, struct coder * coders)
 			return r;
 		file = zip->file_list.first;
 		for(; file; file = file->next) {
-			if(file->next == NULL ||
-			    file->next->size == 0)
+			if(file->next == NULL || file->next->size == 0)
 				break;
 			r = enc_uint64(a, file->size);
 			if(r < 0)
@@ -1269,7 +1266,7 @@ static int file_cmp_key(const struct archive_rb_node * n, const void * key)
 	return (f->name_len - *(const char *)key);
 }
 
-static int file_new(struct archive_write * a, struct archive_entry * entry, struct file ** newfile)
+static int file_new(struct archive_write * a, ArchiveEntry * entry, struct file ** newfile)
 {
 	struct _7zip * zip;
 	struct file * file;
@@ -1376,7 +1373,7 @@ static void file_init_register_empty(struct _7zip * zip)
 }
 
 #if !defined(HAVE_ZLIB_H) || !defined(HAVE_BZLIB_H) || !defined(BZ_CONFIG_ERROR) || !defined(HAVE_LZMA_H)
-static int compression_unsupported_encoder(struct archive * a, struct la_zstream * lastrm, const char * name)
+static int compression_unsupported_encoder(Archive * a, struct la_zstream * lastrm, const char * name)
 {
 	archive_set_error(a, ARCHIVE_ERRNO_MISC, "%s compression not supported on this platform", name);
 	lastrm->valid = 0;
@@ -1387,7 +1384,7 @@ static int compression_unsupported_encoder(struct archive * a, struct la_zstream
 /*
  * _7_COPY compressor.
  */
-static int compression_init_encoder_copy(struct archive * a, struct la_zstream * lastrm)
+static int compression_init_encoder_copy(Archive * a, struct la_zstream * lastrm)
 {
 	if(lastrm->valid)
 		compression_end(a, lastrm);
@@ -1397,7 +1394,7 @@ static int compression_init_encoder_copy(struct archive * a, struct la_zstream *
 	return ARCHIVE_OK;
 }
 
-static int compression_code_copy(struct archive * a, struct la_zstream * lastrm, enum la_zaction action)
+static int compression_code_copy(Archive * a, struct la_zstream * lastrm, enum la_zaction action)
 {
 	size_t bytes;
 	CXX_UNUSED(a);
@@ -1419,7 +1416,7 @@ static int compression_code_copy(struct archive * a, struct la_zstream * lastrm,
 	return ARCHIVE_OK;
 }
 
-static int compression_end_copy(struct archive * a, struct la_zstream * lastrm)
+static int compression_end_copy(Archive * a, struct la_zstream * lastrm)
 {
 	CXX_UNUSED(a);
 	lastrm->valid = 0;
@@ -1430,7 +1427,7 @@ static int compression_end_copy(struct archive * a, struct la_zstream * lastrm)
  * _7_DEFLATE compressor.
  */
 #ifdef HAVE_ZLIB_H
-static int compression_init_encoder_deflate(struct archive * a, struct la_zstream * lastrm, int level, int withheader)
+static int compression_init_encoder_deflate(Archive * a, struct la_zstream * lastrm, int level, int withheader)
 {
 	z_stream * strm;
 	if(lastrm->valid)
@@ -1462,7 +1459,7 @@ static int compression_init_encoder_deflate(struct archive * a, struct la_zstrea
 	return ARCHIVE_OK;
 }
 
-static int compression_code_deflate(struct archive * a, struct la_zstream * lastrm, enum la_zaction action)
+static int compression_code_deflate(Archive * a, struct la_zstream * lastrm, enum la_zaction action)
 {
 	int r;
 	z_stream * strm = (z_stream*)lastrm->real_stream;
@@ -1493,7 +1490,7 @@ static int compression_code_deflate(struct archive * a, struct la_zstream * last
 	}
 }
 
-static int compression_end_deflate(struct archive * a, struct la_zstream * lastrm)
+static int compression_end_deflate(Archive * a, struct la_zstream * lastrm)
 {
 	z_stream * strm = (z_stream*)lastrm->real_stream;
 	int r = deflateEnd(strm);
@@ -1508,7 +1505,7 @@ static int compression_end_deflate(struct archive * a, struct la_zstream * lastr
 }
 
 #else
-static int compression_init_encoder_deflate(struct archive * a, struct la_zstream * lastrm, int level, int withheader)
+static int compression_init_encoder_deflate(Archive * a, struct la_zstream * lastrm, int level, int withheader)
 {
 	CXX_UNUSED(level);
 	(void)withheader; /* UNUSED */
@@ -1521,7 +1518,7 @@ static int compression_init_encoder_deflate(struct archive * a, struct la_zstrea
  * _7_BZIP2 compressor.
  */
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
-static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream * lastrm, int level)
+static int compression_init_encoder_bzip2(Archive * a, struct la_zstream * lastrm, int level)
 {
 	bz_stream * strm;
 	if(lastrm->valid)
@@ -1555,7 +1552,7 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
 	return ARCHIVE_OK;
 }
 
-static int compression_code_bzip2(struct archive * a,
+static int compression_code_bzip2(Archive * a,
     struct la_zstream * lastrm, enum la_zaction action)
 {
 	bz_stream * strm;
@@ -1599,7 +1596,7 @@ static int compression_code_bzip2(struct archive * a,
 	}
 }
 
-static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
+static int compression_end_bzip2(Archive * a, struct la_zstream * lastrm)
 {
 	bz_stream * strm = (bz_stream*)lastrm->real_stream;
 	int r = BZ2_bzCompressEnd(strm);
@@ -1614,7 +1611,7 @@ static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
 }
 
 #else
-static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream * lastrm, int level)
+static int compression_init_encoder_bzip2(Archive * a, struct la_zstream * lastrm, int level)
 {
 	CXX_UNUSED(level);
 	if(lastrm->valid)
@@ -1627,7 +1624,7 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
  * _7_LZMA1, _7_LZMA2 compressor.
  */
 #if defined(HAVE_LZMA_H)
-static int compression_init_encoder_lzma(struct archive * a, struct la_zstream * lastrm, int level, uint64 filter_id)
+static int compression_init_encoder_lzma(Archive * a, struct la_zstream * lastrm, int level, uint64 filter_id)
 {
 	static const lzma_stream lzma_init_data = LZMA_STREAM_INIT;
 	lzma_stream * strm;
@@ -1702,17 +1699,17 @@ static int compression_init_encoder_lzma(struct archive * a, struct la_zstream *
 	return r;
 }
 
-static int compression_init_encoder_lzma1(struct archive * a, struct la_zstream * lastrm, int level)
+static int compression_init_encoder_lzma1(Archive * a, struct la_zstream * lastrm, int level)
 {
 	return compression_init_encoder_lzma(a, lastrm, level, LZMA_FILTER_LZMA1);
 }
 
-static int compression_init_encoder_lzma2(struct archive * a, struct la_zstream * lastrm, int level)
+static int compression_init_encoder_lzma2(Archive * a, struct la_zstream * lastrm, int level)
 {
 	return compression_init_encoder_lzma(a, lastrm, level, LZMA_FILTER_LZMA2);
 }
 
-static int compression_code_lzma(struct archive * a, struct la_zstream * lastrm, enum la_zaction action)
+static int compression_code_lzma(Archive * a, struct la_zstream * lastrm, enum la_zaction action)
 {
 	int r;
 	lzma_stream * strm = (lzma_stream*)lastrm->real_stream;
@@ -1742,7 +1739,7 @@ static int compression_code_lzma(struct archive * a, struct la_zstream * lastrm,
 	}
 }
 
-static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
+static int compression_end_lzma(Archive * a, struct la_zstream * lastrm)
 {
 	lzma_stream * strm;
 	CXX_UNUSED(a);
@@ -1755,7 +1752,7 @@ static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
 }
 
 #else
-static int compression_init_encoder_lzma1(struct archive * a, struct la_zstream * lastrm, int level)
+static int compression_init_encoder_lzma1(Archive * a, struct la_zstream * lastrm, int level)
 {
 	CXX_UNUSED(level);
 	if(lastrm->valid)
@@ -1763,7 +1760,7 @@ static int compression_init_encoder_lzma1(struct archive * a, struct la_zstream 
 	return (compression_unsupported_encoder(a, lastrm, "lzma"));
 }
 
-static int compression_init_encoder_lzma2(struct archive * a, struct la_zstream * lastrm, int level)
+static int compression_init_encoder_lzma2(Archive * a, struct la_zstream * lastrm, int level)
 {
 	CXX_UNUSED(level);
 	if(lastrm->valid)
@@ -1793,7 +1790,7 @@ static void ppmd_write(void * p, Byte b)
 	}
 }
 
-static int compression_init_encoder_ppmd(struct archive * a, struct la_zstream * lastrm, unsigned maxOrder, uint32 msize)
+static int compression_init_encoder_ppmd(Archive * a, struct la_zstream * lastrm, unsigned maxOrder, uint32 msize)
 {
 	struct ppmd_stream * strm;
 	uint8 * props;
@@ -1846,7 +1843,7 @@ static int compression_init_encoder_ppmd(struct archive * a, struct la_zstream *
 	return ARCHIVE_OK;
 }
 
-static int compression_code_ppmd(struct archive * a, struct la_zstream * lastrm, enum la_zaction action)
+static int compression_code_ppmd(Archive * a, struct la_zstream * lastrm, enum la_zaction action)
 {
 	CXX_UNUSED(a);
 	struct ppmd_stream * strm = (struct ppmd_stream *)lastrm->real_stream;
@@ -1880,7 +1877,7 @@ static int compression_code_ppmd(struct archive * a, struct la_zstream * lastrm,
 	return ARCHIVE_OK;
 }
 
-static int compression_end_ppmd(struct archive * a, struct la_zstream * lastrm)
+static int compression_end_ppmd(Archive * a, struct la_zstream * lastrm)
 {
 	CXX_UNUSED(a);
 	struct ppmd_stream * strm = (struct ppmd_stream *)lastrm->real_stream;
@@ -1928,12 +1925,12 @@ static int _7z_compression_init_encoder(struct archive_write * a, unsigned compr
 	return r;
 }
 
-static int compression_code(struct archive * a, struct la_zstream * lastrm, enum la_zaction action)
+static int compression_code(Archive * a, struct la_zstream * lastrm, enum la_zaction action)
 {
 	return lastrm->valid ? (lastrm->code(a, lastrm, action)) : (ARCHIVE_OK);
 }
 
-static int compression_end(struct archive * a, struct la_zstream * lastrm)
+static int compression_end(Archive * a, struct la_zstream * lastrm)
 {
 	if(lastrm->valid) {
 		lastrm->prop_size = 0;

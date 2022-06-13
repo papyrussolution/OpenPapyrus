@@ -2108,7 +2108,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					else
 						is_local_err = true;
 					ZDELETE(p_json_doc);
-					THROW(is_local_err);
+					THROW(!is_local_err); // @v11.4.1 @fix THROW(is_local_err)-->THROW(!is_local_err)
 				}
 				// } @Muxa
 			}

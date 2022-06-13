@@ -133,12 +133,10 @@ RBBIDataWrapper::~RBBIDataWrapper()
 	U_ASSERT(fRefCount == 0);
 	ucptrie_close(fTrie);
 	fTrie = nullptr;
-	if(fUDataMem) {
+	if(fUDataMem)
 		udata_close(fUDataMem);
-	}
-	else if(!fDontFreeData) {
+	else if(!fDontFreeData)
 		uprv_free((void *)fHeader);
-	}
 }
 //
 //   Operator ==    Consider two RBBIDataWrappers to be equal if they

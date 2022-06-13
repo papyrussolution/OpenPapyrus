@@ -36,7 +36,8 @@ SStringU & SRevolver_SStringU::Get() { return Implement_Get().Z(); }
 //
 //
 //
-SRegExpSet::SRegExpSet() : P_ReQuotedStr(0), P_ReNumber(0), P_ReHex(0), P_ReIdent(0), P_ReDigits(0), P_ReEMail(0), P_ReDate(0), P_RePhone(0)
+SRegExpSet::SRegExpSet() : P_ReQuotedStr(0), P_ReNumber(0), P_ReHex(0), P_ReIdent(0), 
+	P_ReDigits(0), P_ReXDigits(0), P_ReEMail(0), P_ReDate(0), P_RePhone(0)
 {
 }
 
@@ -47,6 +48,7 @@ SRegExpSet::~SRegExpSet()
 	ZDELETE(P_ReHex);
 	ZDELETE(P_ReIdent);
 	ZDELETE(P_ReDigits);
+	ZDELETE(P_ReXDigits); // @v11.4.1
 	ZDELETE(P_ReEMail);
 	ZDELETE(P_ReDate);
 	ZDELETE(P_RePhone);
@@ -341,6 +343,19 @@ int FASTCALL SStrScan::GetIdent(SString & rBuf)
 	}
 	else
 		return 0;
+}
+
+int FASTCALL SStrScan::GetXDigits(SString & rBuf)
+{
+    int    ok = 0;
+    if(SETIFZ(P_ReXDigits, new SRegExp2("^[0-9a-fA-F]+", cp1251, SRegExp2::syntaxDefault, 0))) {
+        if(P_ReXDigits->Find(this, 0)) {
+            Get(rBuf);
+            IncrLen();
+            ok = 1;
+        }
+    }
+    return ok;
 }
 
 int FASTCALL SStrScan::GetDigits(SString & rBuf)

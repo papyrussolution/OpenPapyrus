@@ -81,10 +81,8 @@ static int is_valid_mbc_string(const uchar * s, const uchar * end)
 		}
 		else if(UTF16_IS_SURROGATE_SECOND(*s))
 			return FALSE;
-
 		s += len;
 	}
-
 	if(s != end)
 		return FALSE;
 	else

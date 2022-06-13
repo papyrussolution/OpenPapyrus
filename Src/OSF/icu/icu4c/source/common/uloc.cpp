@@ -1117,7 +1117,7 @@ CharString U_EXPORT2 ulocimp_getLanguage(const char * localeID, const char ** pE
 		}
 	}
 
-	if(pEnd!=NULL) {
+	if(pEnd != NULL) {
 		*pEnd = localeID;
 	}
 
@@ -1203,7 +1203,7 @@ static void _getVariant(const char * localeID, char prev, ByteSink& sink, bool n
 		if(prev=='@') {
 			/* keep localeID */
 		}
-		else if((localeID = locale_getKeywordsStart(localeID))!=NULL) {
+		else if((localeID = locale_getKeywordsStart(localeID)) != NULL) {
 			++localeID; /* point after the '@' */
 		}
 		else {
@@ -1497,7 +1497,7 @@ static void _canonicalize(const char * localeID, ByteSink& sink, uint32_t option
 
 	/* Scan ahead to next '@' and determine if it is followed by '=' and/or ';'
 	   After this, tmpLocaleID either points to '@' or is NULL */
-	if((tmpLocaleID = locale_getKeywordsStart(tmpLocaleID))!=NULL) {
+	if((tmpLocaleID = locale_getKeywordsStart(tmpLocaleID)) != NULL) {
 		keywordAssign = uprv_strchr(tmpLocaleID, '=');
 		separatorIndicator = uprv_strchr(tmpLocaleID, ';');
 	}
@@ -1580,7 +1580,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getParent(const char * localeID,
 		localeID = uloc_getDefault();
 
 	lastUnderscore = uprv_strrchr(localeID, '_');
-	if(lastUnderscore!=NULL) {
+	if(lastUnderscore != NULL) {
 		i = (int32_t)(lastUnderscore-localeID);
 	}
 	else {

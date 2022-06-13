@@ -32,7 +32,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF32WithSub(UChar * dest, int32_t destCapacit
 	}
 	ASSIGN_PTR(pNumSubstitutions, 0);
 	pDest = dest;
-	destLimit = (dest!=NULL) ? (dest + destCapacity) : NULL;
+	destLimit = (dest != NULL) ? (dest + destCapacity) : NULL;
 	reqLength = 0;
 	numSubstitutions = 0;
 	if(srcLength < 0) {
@@ -128,7 +128,7 @@ U_CAPI UChar32* U_EXPORT2 u_strToUTF32WithSub(UChar32 * dest, int32_t destCapaci
 	}
 	ASSIGN_PTR(pNumSubstitutions, 0);
 	pDest = dest;
-	destLimit = (dest!=NULL) ? (dest + destCapacity) : NULL;
+	destLimit = (dest != NULL) ? (dest + destCapacity) : NULL;
 	reqLength = 0;
 	numSubstitutions = 0;
 	if(srcLength < 0) {
@@ -483,7 +483,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8Lenient(UChar * dest,
 
 	if(srcLength < 0) {
 		/* Transform a NUL-terminated string. */
-		UChar * pDestLimit = (dest!=NULL) ? (dest+destCapacity) : NULL;
+		UChar * pDestLimit = (dest != NULL) ? (dest+destCapacity) : NULL;
 		uint8 t1, t2, t3; /* trail bytes */
 
 		while(((ch = *pSrc) != 0) && (pDest < pDestLimit)) {
@@ -579,7 +579,7 @@ U_CAPI UChar * U_EXPORT2 u_strFromUTF8Lenient(UChar * dest,
 		}
 	}
 	else { /* srcLength >= 0 */
-		const uint8 * pSrcLimit = (pSrc!=NULL) ? (pSrc + srcLength) : NULL;
+		const uint8 * pSrcLimit = (pSrc != NULL) ? (pSrc + srcLength) : NULL;
 
 		/*
 		 * This function requires that if srcLength is given, then it must be
@@ -715,7 +715,7 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest, int32_t destCapacity, in
 	int32_t reqLength = 0;
 	uint32_t ch = 0, ch2 = 0;
 	uint8 * pDest = (uint8 *)dest;
-	uint8 * pDestLimit = (pDest!=NULL) ? (pDest + destCapacity) : NULL;
+	uint8 * pDestLimit = (pDest != NULL) ? (pDest + destCapacity) : NULL;
 	int32_t numSubstitutions;
 	/* args check */
 	if(U_FAILURE(*pErrorCode)) {
@@ -813,7 +813,7 @@ U_CAPI char * U_EXPORT2 u_strToUTF8WithSub(char * dest, int32_t destCapacity, in
 		}
 	}
 	else {
-		const UChar * pSrcLimit = (pSrc!=NULL) ? (pSrc+srcLength) : NULL;
+		const UChar * pSrcLimit = (pSrc != NULL) ? (pSrc+srcLength) : NULL;
 		int32_t count;
 		/* Faster loop without ongoing checking for pSrcLimit and pDestLimit. */
 		for(;;) {

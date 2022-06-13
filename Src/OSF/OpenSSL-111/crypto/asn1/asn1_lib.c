@@ -267,7 +267,7 @@ int ASN1_STRING_set(ASN1_STRING * str, const void * _data, int len)
 	uchar * c;
 	const char * data = static_cast<const char *>(_data);
 	if(len < 0) {
-		if(data == NULL)
+		if(!data)
 			return 0;
 		else
 			len = strlen(data);

@@ -587,7 +587,7 @@ ssize_t __la_write(int fd, const void * buf, size_t nbytes)
 /*
  * Replace the Windows path separator '\' with '/'.
  */
-static int replace_pathseparator(struct archive_wstring * ws, const wchar_t * wp)
+static int replace_pathseparator(archive_wstring * ws, const wchar_t * wp)
 {
 	wchar_t * w;
 	size_t path_length;
@@ -606,9 +606,9 @@ static int replace_pathseparator(struct archive_wstring * ws, const wchar_t * wp
 	return 1;
 }
 
-static int fix_pathseparator(struct archive_entry * entry)
+static int fix_pathseparator(ArchiveEntry * entry)
 {
-	struct archive_wstring ws;
+	archive_wstring ws;
 	const wchar_t * wp;
 	int ret = ARCHIVE_OK;
 	archive_string_init(&ws);
@@ -646,9 +646,9 @@ static int fix_pathseparator(struct archive_entry * entry)
 	return(ret);
 }
 
-struct archive_entry * __la_win_entry_in_posix_pathseparator(struct archive_entry * entry)                        
+ArchiveEntry * __la_win_entry_in_posix_pathseparator(ArchiveEntry * entry)                        
 {
-	struct archive_entry * entry_main;
+	ArchiveEntry * entry_main;
 	int has_backslash = 0;
 	int ret;
 	const wchar_t * wp = archive_entry_pathname_w(entry);

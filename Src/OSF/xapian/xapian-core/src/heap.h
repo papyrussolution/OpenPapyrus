@@ -98,7 +98,7 @@ void sift_up_(_RandomAccessIterator first, _RandomAccessIterator last, _Compare 
 			do {
 				*last = std::move(*ptr);
 				last = ptr;
-				if(len == 0)
+				if(!len)
 					break;
 				len = (len - 1) / 2;
 				ptr = first + len;

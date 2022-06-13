@@ -491,7 +491,7 @@ static void ngx_http_ssl_handshake_handler(ngx_connection_t * c)
 #ifdef TLSEXT_TYPE_application_layer_protocol_negotiation
 				SSL_get0_alpn_selected(c->ssl->connection, &data, &len);
 	#ifdef TLSEXT_TYPE_next_proto_neg
-				if(len == 0) {
+				if(!len) {
 					SSL_get0_next_proto_negotiated(c->ssl->connection, &data, &len);
 				}
 	#endif

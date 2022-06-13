@@ -24,7 +24,7 @@ void * ASN1_dup(i2d_of_void * i2d, d2i_of_void * d2i, void * x)
 
 	i = i2d(x, NULL);
 	b = static_cast<uchar *>(OPENSSL_malloc(i + 10));
-	if(b == NULL) {
+	if(!b) {
 		ASN1err(ASN1_F_ASN1_DUP, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -56,7 +56,7 @@ void * ASN1_item_dup(const ASN1_ITEM * it, void * x)
 		return NULL;
 
 	i = ASN1_item_i2d(static_cast<ASN1_VALUE *>(x), &b, it);
-	if(b == NULL) {
+	if(!b) {
 		ASN1err(ASN1_F_ASN1_ITEM_DUP, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

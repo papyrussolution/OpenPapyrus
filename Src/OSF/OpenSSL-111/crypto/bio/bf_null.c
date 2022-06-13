@@ -43,7 +43,7 @@ const BIO_METHOD * BIO_f_null(void)
 static int nullf_read(BIO * b, char * out, int outl)
 {
 	int ret = 0;
-	if(out == NULL)
+	if(!out)
 		return 0;
 	if(b->next_bio == NULL)
 		return 0;

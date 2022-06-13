@@ -21,7 +21,6 @@
 
 #include "hb-ft.h"
 #include "hb-font.hh"
-#include "hb-machinery.hh"
 #include "hb-cache.hh"
 
 #include FT_ADVANCES_H

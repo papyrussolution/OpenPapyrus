@@ -9,15 +9,21 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+
 import com.blankj.utilcode.util.ActivityUtils;
 import com.google.android.material.snackbar.Snackbar;
+
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -233,17 +239,52 @@ public class StyloQApp extends SLib.App {
 	{
 		return _StrStor.GetString(GetCurrentLang(), strGroup, strIdent);
 	}
+	enum DisplayMessageKind {
+		Notification,
+		Error,
+		Warning
+	}
+	private Toast MakeToast(Context anchorView, DisplayMessageKind msgkind, String text, int duration)
+	{
+		Toast result = null;
+		if(anchorView != null && anchorView instanceof SLib.SlActivity && SLib.GetLen(text) > 0) {
+			SLib.SlActivity activity = (SLib.SlActivity)anchorView;
+			LayoutInflater inflater = activity.getLayoutInflater();
+			View layout = inflater.inflate(R.layout.layout_toast, activity.findViewById(R.id.TOAST_CONTAINER));
+			if(layout != null) {
+				TextView tv = layout.findViewById(R.id.CTL_TOAST_TEXT);
+				if(tv != null) {
+					tv.setText(text);
+					tv.setTextColor(Color.WHITE);
+				}
+				result = new Toast(getApplicationContext());
+				//toast.setGravity(Gravity.BOTTOM, 0, 40);
+				result.setDuration((duration > 0) ? duration : Toast.LENGTH_LONG);
+				if(msgkind == DisplayMessageKind.Error)
+					layout.setBackgroundResource(R.color.Red);
+				else if(msgkind == DisplayMessageKind.Notification)
+					layout.setBackgroundResource(R.color.PrimaryDark);
+				result.setView(layout);
+			}
+		}
+		return result;
+	}
 	public void DisplayMessage(Context anchorView, String msg, int duration)
 	{
-		Toast window = Toast.makeText(this, msg, duration);
-		window.show();
+		//Toast window = Toast.makeText(this, msg, duration);
+		//window.show();
+		Toast window = MakeToast(anchorView, DisplayMessageKind.Notification, msg, duration);
+		if(window != null)
+			window.show();
 	}
 	public void DisplayMessage(Context anchorView, int strGroup, int strIdent, int duration)
 	{
 		String msg = _StrStor.GetString(GetCurrentLang(), strGroup, strIdent);
 		if(msg != null) {
-			Toast window = Toast.makeText(this, msg, duration);
-			window.show();
+			//Toast window = Toast.makeText(this, msg, duration);
+			Toast window = MakeToast(anchorView, DisplayMessageKind.Notification, msg, duration);
+			if(window != null)
+				window.show();
 		}
 	}
 	public void DisplayError(Context anchorView, String msg, int duration)
@@ -252,8 +293,10 @@ public class StyloQApp extends SLib.App {
 		//window.setBackgroundTint(Color.RED);
 		//window.setTextColor(Color.WHITE);
 		//window.show();
-		Toast window = Toast.makeText(this, msg, duration);
-		window.show();
+		//Toast window = Toast.makeText(this, msg, duration);
+		Toast window = MakeToast(anchorView, DisplayMessageKind.Error, msg, duration);
+		if(window != null)
+			window.show();
 	}
 	public void DisplayError(Context anchorView, int errCode, int duration)
 	{
@@ -802,6 +845,8 @@ public class StyloQApp extends SLib.App {
 				subj_text = (String) reply;
 			StyloQCommand.Item original_cmd_item = subj.OriginalCmdItem;
 			SLib.SlActivity retr_activity = subj.RetrActivity;
+			MainActivity main_activity = FindMainActivity();
+			SLib.SlActivity activity_for_message = (retr_activity != null) ? retr_activity : main_activity;
 			if(subj.SvcIdent != null && original_cmd_item != null) {
 				StyloQCommand.StopPendingCommand(subj.SvcIdent, original_cmd_item);
 			}
@@ -810,23 +855,22 @@ public class StyloQApp extends SLib.App {
 					retr_activity.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
 				else if(SLib.GetLen(subj_text) > 0) {
 					msg_text = "Exception: " + subj_text;
-					DisplayMessage(null, msg_text, 5000);
+					DisplayError(activity_for_message, msg_text, 0);
 				}
 				else
-					DisplayMessage(null, "Unknown exception", 5000);
+					DisplayError(activity_for_message, "Unknown exception", 0);
 			}
 			else if(subj.ResultTag != StyloQApp.SvcQueryResult.ERROR && subj.ResultTag != SvcQueryResult.SUCCESS) {
 				if(retr_activity != null)
 					retr_activity.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
 				else if(SLib.GetLen(subj_text) > 0) {
 					msg_text = "UNKN result tag: " + subj_text;
-					DisplayMessage(null, msg_text, 5000);
+					DisplayError(activity_for_message, msg_text, 0);
 				}
 				else
-					DisplayMessage(null, "Unknown result", 5000);
+					DisplayError(activity_for_message, "Unknown result", 0);
 			}
 			else {
-				MainActivity main_activity = FindMainActivity();
 				byte[] rawdata = null;
 				if(original_cmd_item != null || retr_activity != null || subj_text.equalsIgnoreCase("Command")) {
 					Class intent_cls = null;
@@ -972,10 +1016,10 @@ public class StyloQApp extends SLib.App {
 				else if(subj.ResultTag == StyloQApp.SvcQueryResult.ERROR) {
 					if(SLib.GetLen(subj_text) > 0) {
 						msg_text = "Error: " + subj_text;
-						DisplayMessage(null, msg_text, 5000);
+						DisplayError(activity_for_message, msg_text, 0);
 					}
 					else
-						DisplayMessage(null, "Unknown error", 5000);
+						DisplayError(activity_for_message, "Unknown error", 0);
 				}
 			}
 		}

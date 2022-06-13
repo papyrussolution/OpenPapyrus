@@ -195,7 +195,7 @@ U_CAPI void U_EXPORT2 ucnv_cbFromUWriteSub(UConverterFromUnicodeArgs * args,
 		return;
 	}
 
-	if(converter->sharedData->impl->writeSub!=NULL) {
+	if(converter->sharedData->impl->writeSub != NULL) {
 		converter->sharedData->impl->writeSub(args, offsetIndex, err);
 	}
 	else if(converter->subChar1!=0 && (uint16)converter->invalidUCharBuffer[0]<=(uint16)0xffu) {

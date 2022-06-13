@@ -16,17 +16,15 @@
 __FBSDID("$FreeBSD$");
 #include "archive_read_private.h"
 
-int archive_read_append_filter(struct archive * _a, int code)
+int archive_read_append_filter(Archive * _a, int code)
 {
 	int r1, r2, number_bidders, i;
 	char str[20];
-	struct archive_read_filter_bidder * bidder;
-	struct archive_read_filter * filter;
-	struct archive_read * a = (struct archive_read *)_a;
-
+	ArchiveReadFilterBidder * bidder;
+	ArchiveReadFilter * filter;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	r2 = (ARCHIVE_OK);
-	switch(code)
-	{
+	switch(code) {
 		case ARCHIVE_FILTER_NONE:
 		    /* No filter to add, so do nothing.
 		     * NOTE: An initial "NONE" type filter is always set at the end of the
@@ -96,7 +94,7 @@ int archive_read_append_filter(struct archive * _a, int code)
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: Unable to append filter");
 			return ARCHIVE_FATAL;
 		}
-		filter = (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
+		filter = (ArchiveReadFilter *)SAlloc::C(1, sizeof(*filter));
 		if(filter == NULL) {
 			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
@@ -105,7 +103,7 @@ int archive_read_append_filter(struct archive * _a, int code)
 		filter->archive = a;
 		filter->upstream = a->filter;
 		a->filter = filter;
-		r2 = (bidder->init)(a->filter);
+		r2 = (bidder->FnInit)(a->filter);
 		if(r2 != ARCHIVE_OK) {
 			__archive_read_free_filters(a);
 			return ARCHIVE_FATAL;
@@ -115,17 +113,17 @@ int archive_read_append_filter(struct archive * _a, int code)
 	return (r1 < r2) ? r1 : r2;
 }
 
-int archive_read_append_filter_program(struct archive * _a, const char * cmd)
+int archive_read_append_filter_program(Archive * _a, const char * cmd)
 {
 	return (archive_read_append_filter_program_signature(_a, cmd, NULL, 0));
 }
 
-int archive_read_append_filter_program_signature(struct archive * _a, const char * cmd, const void * signature, size_t signature_len)
+int archive_read_append_filter_program_signature(Archive * _a, const char * cmd, const void * signature, size_t signature_len)
 {
 	int r, number_bidders, i;
-	struct archive_read_filter_bidder * bidder;
-	struct archive_read_filter * filter;
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveReadFilterBidder * bidder;
+	ArchiveReadFilter * filter;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	if(archive_read_support_filter_program_signature(_a, cmd, signature, signature_len) != (ARCHIVE_OK))
 		return ARCHIVE_FATAL;
 	number_bidders = sizeof(a->bidders) / sizeof(a->bidders[0]);
@@ -139,7 +137,7 @@ int archive_read_append_filter_program_signature(struct archive * _a, const char
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: Unable to append program filter");
 		return ARCHIVE_FATAL;
 	}
-	filter = (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
+	filter = (ArchiveReadFilter *)SAlloc::C(1, sizeof(*filter));
 	if(filter == NULL) {
 		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
@@ -148,7 +146,7 @@ int archive_read_append_filter_program_signature(struct archive * _a, const char
 	filter->archive = a;
 	filter->upstream = a->filter;
 	a->filter = filter;
-	r = (bidder->init)(a->filter);
+	r = (bidder->FnInit)(a->filter);
 	if(r != ARCHIVE_OK) {
 		__archive_read_free_filters(a);
 		return ARCHIVE_FATAL;

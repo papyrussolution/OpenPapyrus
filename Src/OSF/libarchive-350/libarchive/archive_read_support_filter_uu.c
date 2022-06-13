@@ -35,33 +35,33 @@ struct uudecode {
 #define ST_IGNORE       4
 };
 
-static int uudecode_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter * filter);
-static int uudecode_bidder_init(struct archive_read_filter *);
-static ssize_t  uudecode_filter_read(struct archive_read_filter *, const void **);
-static int uudecode_filter_close(struct archive_read_filter *);
+static int uudecode_bidder_bid(ArchiveReadFilterBidder *, ArchiveReadFilter * filter);
+static int uudecode_bidder_init(ArchiveReadFilter *);
+static ssize_t  uudecode_filter_read(ArchiveReadFilter *, const void **);
+static int uudecode_filter_close(ArchiveReadFilter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Deprecated; remove in libarchive 4.0 */
-int archive_read_support_compression_uu(struct archive * a)
+int archive_read_support_compression_uu(Archive * a)
 {
 	return archive_read_support_filter_uu(a);
 }
 
 #endif
 
-int archive_read_support_filter_uu(struct archive * _a)
+int archive_read_support_filter_uu(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
-	struct archive_read_filter_bidder * bidder;
+	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveReadFilterBidder * bidder;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	bidder->data = NULL;
 	bidder->name = "uu";
-	bidder->bid = uudecode_bidder_bid;
-	bidder->init = uudecode_bidder_init;
-	bidder->options = NULL;
-	bidder->free = NULL;
+	bidder->FnBid = uudecode_bidder_bid;
+	bidder->FnInit = uudecode_bidder_init;
+	bidder->FnOptions = NULL;
+	bidder->FnFree = NULL;
 	return ARCHIVE_OK;
 }
 
@@ -168,7 +168,7 @@ static ssize_t get_line(const uchar * b, ssize_t avail, ssize_t * nlsize)
 	return (avail);
 }
 
-static ssize_t bid_get_line(struct archive_read_filter * filter, const uchar ** b, ssize_t * avail, ssize_t * ravail, ssize_t * nl, size_t* nbytes_read)
+static ssize_t bid_get_line(ArchiveReadFilter * filter, const uchar ** b, ssize_t * avail, ssize_t * ravail, ssize_t * nl, size_t* nbytes_read)
 {
 	ssize_t len;
 	int quit = 0;
@@ -211,7 +211,7 @@ static ssize_t bid_get_line(struct archive_read_filter * filter, const uchar ** 
 
 #define UUDECODE(c) (((c) - 0x20) & 0x3f)
 
-static int uudecode_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
+static int uudecode_bidder_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * filter)
 {
 	const uchar * b;
 	ssize_t avail, ravail;
@@ -221,7 +221,7 @@ static int uudecode_bidder_bid(struct archive_read_filter_bidder * self, struct 
 	size_t nbytes_read;
 	CXX_UNUSED(self);
 	b = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 1, &avail));
-	if(b == NULL)
+	if(!b)
 		return 0;
 
 	firstline = 20;
@@ -307,7 +307,7 @@ static int uudecode_bidder_bid(struct archive_read_filter_bidder * self, struct 
 	return 0;
 }
 
-static int uudecode_bidder_init(struct archive_read_filter * self)
+static int uudecode_bidder_init(ArchiveReadFilter * self)
 {
 	struct uudecode   * uudecode;
 	void * out_buff;
@@ -336,7 +336,7 @@ static int uudecode_bidder_init(struct archive_read_filter * self)
 	return ARCHIVE_OK;
 }
 
-static int ensure_in_buff_size(struct archive_read_filter * self, struct uudecode * uudecode, size_t size)
+static int ensure_in_buff_size(ArchiveReadFilter * self, struct uudecode * uudecode, size_t size)
 {
 	if(size > uudecode->in_allocated) {
 		uchar * ptr;
@@ -369,7 +369,7 @@ static int ensure_in_buff_size(struct archive_read_filter * self, struct uudecod
 	return ARCHIVE_OK;
 }
 
-static ssize_t uudecode_filter_read(struct archive_read_filter * self, const void ** buff)
+static ssize_t uudecode_filter_read(ArchiveReadFilter * self, const void ** buff)
 {
 	struct uudecode * uudecode;
 	const uchar * b, * d;
@@ -580,7 +580,7 @@ finish:
 	return (total);
 }
 
-static int uudecode_filter_close(struct archive_read_filter * self)
+static int uudecode_filter_close(ArchiveReadFilter * self)
 {
 	struct uudecode * uudecode = (struct uudecode *)self->data;
 	SAlloc::F(uudecode->in_buff);

@@ -19,7 +19,7 @@
 static BIO * cms_get_text_bio(BIO * out, uint flags)
 {
 	BIO * rbio;
-	if(out == NULL)
+	if(!out)
 		rbio = BIO_new(BIO_s_null());
 	else if(flags & CMS_TEXT) {
 		rbio = BIO_new(BIO_s_mem());

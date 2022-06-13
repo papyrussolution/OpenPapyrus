@@ -1,21 +1,11 @@
+// ucnv_err.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *****************************************************************************
- *
- *   Copyright (C) 1998-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *****************************************************************************
- *
- *  ucnv_err.c
- *  Implements error behaviour functions called by T_UConverter_{from,to}Unicode
- *
- *
- *   Change history:
- *
- *   06/29/2000  helena      Major rewrite of the callback APIs.
- */
+// Copyright (C) 1998-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Implements error behaviour functions called by T_UConverter_{from,to}Unicode
+// Change history:
+// 06/29/2000  helena      Major rewrite of the callback APIs.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -84,13 +74,8 @@
 		(0xE0000 <= c && c <= 0xE0FFF))
 
 /*Function Pointer STOPS at the ILLEGAL_SEQUENCE */
-U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_STOP(const void * context,
-    UConverterFromUnicodeArgs * fromUArgs,
-    const UChar * codeUnits,
-    int32_t length,
-    UChar32 codePoint,
-    UConverterCallbackReason reason,
-    UErrorCode * err)
+U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_STOP(const void * context, UConverterFromUnicodeArgs * fromUArgs,
+    const UChar * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
 {
 	(void)context;
 	(void)fromUArgs;
@@ -119,13 +104,8 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_STOP(const void * context,
 	return;
 }
 
-U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SKIP(const void * context,
-    UConverterFromUnicodeArgs * fromUArgs,
-    const UChar * codeUnits,
-    int32_t length,
-    UChar32 codePoint,
-    UConverterCallbackReason reason,
-    UErrorCode * err)
+U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SKIP(const void * context, UConverterFromUnicodeArgs * fromUArgs,
+    const UChar * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
 {
 	(void)fromUArgs;
 	(void)codeUnits;
@@ -145,13 +125,8 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SKIP(const void * context,
 	/* else ignore the reset, close and clone calls. */
 }
 
-U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SUBSTITUTE(const void * context,
-    UConverterFromUnicodeArgs * fromArgs,
-    const UChar * codeUnits,
-    int32_t length,
-    UChar32 codePoint,
-    UConverterCallbackReason reason,
-    UErrorCode * err)
+U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SUBSTITUTE(const void * context, UConverterFromUnicodeArgs * fromArgs,
+    const UChar * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
 {
 	(void)codeUnits;
 	(void)length;
@@ -176,26 +151,18 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_SUBSTITUTE(const void * context,
  * escape sequence to the target codepage (if conversion failure happens then
  * we revert to substituting with subchar)
  */
-U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context,
-    UConverterFromUnicodeArgs * fromArgs,
-    const UChar * codeUnits,
-    int32_t length,
-    UChar32 codePoint,
-    UConverterCallbackReason reason,
-    UErrorCode * err)
+U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context, UConverterFromUnicodeArgs * fromArgs,
+    const UChar * codeUnits, int32_t length, UChar32 codePoint, UConverterCallbackReason reason, UErrorCode * err)
 {
 	UChar valueString[VALUE_STRING_LENGTH];
 	int32_t valueStringLength = 0;
 	int32_t i = 0;
-
 	const UChar * myValueSource = NULL;
 	UErrorCode err2 = U_ZERO_ERROR;
 	UConverterFromUCallback original = NULL;
 	const void * originalContext;
-
 	UConverterFromUCallback ignoredCallback = NULL;
 	const void * ignoredContext;
-
 	if(reason > UCNV_IRREGULAR) {
 		return;
 	}
@@ -501,7 +468,6 @@ U_CAPI void U_EXPORT2 UCNV_TO_U_CALLBACK_ESCAPE(const void * context,
 	}
 	/* reset the error */
 	*err = U_ZERO_ERROR;
-
 	ucnv_cbToUWriteUChars(toArgs, uniValueString, valueStringLength, 0, err);
 }
 

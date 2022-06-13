@@ -990,7 +990,7 @@ CURLcode curl_easy_pause(struct Curl_easy * data, int action)
 
 static CURLcode easy_connection(struct Curl_easy * data, curl_socket_t * sfd, struct connectdata ** connp)
 {
-	if(data == NULL)
+	if(!data)
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 	/* only allow these to be called on handles with CURLOPT_CONNECT_ONLY */
 	if(!data->set.connect_only) {

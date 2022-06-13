@@ -20,7 +20,6 @@
 #ifdef HAVE_ICU
 
 #include "hb-icu.h"
-#include "hb-machinery.hh"
 #include <unicode/uchar.h>
 #include <unicode/unorm2.h>
 #include <unicode/ustring.h>
@@ -29,11 +28,10 @@
 
 /* ICU extra semicolon, fixed since 65, https://github.com/unicode-org/icu/commit/480bec3 */
 #if U_ICU_VERSION_MAJOR_NUM < 65 && (defined(__GNUC__) || defined(__clang__))
-#define HB_ICU_EXTRA_SEMI_IGNORED
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wextra-semi-stmt"
+	#define HB_ICU_EXTRA_SEMI_IGNORED
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wextra-semi-stmt"
 #endif
-
 /**
  * SECTION:hb-icu
  * @title: hb-icu
@@ -63,7 +61,6 @@ hb_script_t hb_icu_script_to_script(UScriptCode script)
 		return HB_SCRIPT_INVALID;
 	return hb_script_from_string(uscript_getShortName(script), -1);
 }
-
 /**
  * hb_icu_script_from_script:
  * @script: The #hb_script_t script to query
@@ -94,36 +91,36 @@ static hb_unicode_general_category_t hb_icu_unicode_general_category(hb_unicode_
     hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	switch(u_getIntPropertyValue(unicode, UCHAR_GENERAL_CATEGORY)) {
-		case U_UNASSIGNED:                    return HB_UNICODE_GENERAL_CATEGORY_UNASSIGNED;
-		case U_UPPERCASE_LETTER:              return HB_UNICODE_GENERAL_CATEGORY_UPPERCASE_LETTER;
-		case U_LOWERCASE_LETTER:              return HB_UNICODE_GENERAL_CATEGORY_LOWERCASE_LETTER;
-		case U_TITLECASE_LETTER:              return HB_UNICODE_GENERAL_CATEGORY_TITLECASE_LETTER;
-		case U_MODIFIER_LETTER:               return HB_UNICODE_GENERAL_CATEGORY_MODIFIER_LETTER;
-		case U_OTHER_LETTER:                  return HB_UNICODE_GENERAL_CATEGORY_OTHER_LETTER;
-		case U_NON_SPACING_MARK:              return HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK;
-		case U_ENCLOSING_MARK:                return HB_UNICODE_GENERAL_CATEGORY_ENCLOSING_MARK;
-		case U_COMBINING_SPACING_MARK:        return HB_UNICODE_GENERAL_CATEGORY_SPACING_MARK;
-		case U_DECIMAL_DIGIT_NUMBER:          return HB_UNICODE_GENERAL_CATEGORY_DECIMAL_NUMBER;
-		case U_LETTER_NUMBER:                 return HB_UNICODE_GENERAL_CATEGORY_LETTER_NUMBER;
-		case U_OTHER_NUMBER:                  return HB_UNICODE_GENERAL_CATEGORY_OTHER_NUMBER;
-		case U_SPACE_SEPARATOR:               return HB_UNICODE_GENERAL_CATEGORY_SPACE_SEPARATOR;
-		case U_LINE_SEPARATOR:                return HB_UNICODE_GENERAL_CATEGORY_LINE_SEPARATOR;
-		case U_PARAGRAPH_SEPARATOR:           return HB_UNICODE_GENERAL_CATEGORY_PARAGRAPH_SEPARATOR;
-		case U_CONTROL_CHAR:                  return HB_UNICODE_GENERAL_CATEGORY_CONTROL;
-		case U_FORMAT_CHAR:                   return HB_UNICODE_GENERAL_CATEGORY_FORMAT;
-		case U_PRIVATE_USE_CHAR:              return HB_UNICODE_GENERAL_CATEGORY_PRIVATE_USE;
-		case U_SURROGATE:                     return HB_UNICODE_GENERAL_CATEGORY_SURROGATE;
-		case U_DASH_PUNCTUATION:              return HB_UNICODE_GENERAL_CATEGORY_DASH_PUNCTUATION;
-		case U_START_PUNCTUATION:             return HB_UNICODE_GENERAL_CATEGORY_OPEN_PUNCTUATION;
-		case U_END_PUNCTUATION:               return HB_UNICODE_GENERAL_CATEGORY_CLOSE_PUNCTUATION;
-		case U_CONNECTOR_PUNCTUATION:         return HB_UNICODE_GENERAL_CATEGORY_CONNECT_PUNCTUATION;
-		case U_OTHER_PUNCTUATION:             return HB_UNICODE_GENERAL_CATEGORY_OTHER_PUNCTUATION;
-		case U_MATH_SYMBOL:                   return HB_UNICODE_GENERAL_CATEGORY_MATH_SYMBOL;
-		case U_CURRENCY_SYMBOL:               return HB_UNICODE_GENERAL_CATEGORY_CURRENCY_SYMBOL;
-		case U_MODIFIER_SYMBOL:               return HB_UNICODE_GENERAL_CATEGORY_MODIFIER_SYMBOL;
-		case U_OTHER_SYMBOL:                  return HB_UNICODE_GENERAL_CATEGORY_OTHER_SYMBOL;
-		case U_INITIAL_PUNCTUATION:           return HB_UNICODE_GENERAL_CATEGORY_INITIAL_PUNCTUATION;
-		case U_FINAL_PUNCTUATION:             return HB_UNICODE_GENERAL_CATEGORY_FINAL_PUNCTUATION;
+		case U_UNASSIGNED:             return HB_UNICODE_GENERAL_CATEGORY_UNASSIGNED;       
+		case U_UPPERCASE_LETTER:       return HB_UNICODE_GENERAL_CATEGORY_UPPERCASE_LETTER;       
+		case U_LOWERCASE_LETTER:       return HB_UNICODE_GENERAL_CATEGORY_LOWERCASE_LETTER;       
+		case U_TITLECASE_LETTER:       return HB_UNICODE_GENERAL_CATEGORY_TITLECASE_LETTER;       
+		case U_MODIFIER_LETTER:        return HB_UNICODE_GENERAL_CATEGORY_MODIFIER_LETTER;       
+		case U_OTHER_LETTER:           return HB_UNICODE_GENERAL_CATEGORY_OTHER_LETTER;       
+		case U_NON_SPACING_MARK:       return HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK;       
+		case U_ENCLOSING_MARK:         return HB_UNICODE_GENERAL_CATEGORY_ENCLOSING_MARK;       
+		case U_COMBINING_SPACING_MARK: return HB_UNICODE_GENERAL_CATEGORY_SPACING_MARK;       
+		case U_DECIMAL_DIGIT_NUMBER:   return HB_UNICODE_GENERAL_CATEGORY_DECIMAL_NUMBER;       
+		case U_LETTER_NUMBER:          return HB_UNICODE_GENERAL_CATEGORY_LETTER_NUMBER;       
+		case U_OTHER_NUMBER:           return HB_UNICODE_GENERAL_CATEGORY_OTHER_NUMBER;       
+		case U_SPACE_SEPARATOR:        return HB_UNICODE_GENERAL_CATEGORY_SPACE_SEPARATOR;       
+		case U_LINE_SEPARATOR:         return HB_UNICODE_GENERAL_CATEGORY_LINE_SEPARATOR;       
+		case U_PARAGRAPH_SEPARATOR:    return HB_UNICODE_GENERAL_CATEGORY_PARAGRAPH_SEPARATOR;       
+		case U_CONTROL_CHAR:           return HB_UNICODE_GENERAL_CATEGORY_CONTROL;       
+		case U_FORMAT_CHAR:            return HB_UNICODE_GENERAL_CATEGORY_FORMAT;       
+		case U_PRIVATE_USE_CHAR:       return HB_UNICODE_GENERAL_CATEGORY_PRIVATE_USE;       
+		case U_SURROGATE:              return HB_UNICODE_GENERAL_CATEGORY_SURROGATE;       
+		case U_DASH_PUNCTUATION:       return HB_UNICODE_GENERAL_CATEGORY_DASH_PUNCTUATION;       
+		case U_START_PUNCTUATION:      return HB_UNICODE_GENERAL_CATEGORY_OPEN_PUNCTUATION;       
+		case U_END_PUNCTUATION:        return HB_UNICODE_GENERAL_CATEGORY_CLOSE_PUNCTUATION;       
+		case U_CONNECTOR_PUNCTUATION:  return HB_UNICODE_GENERAL_CATEGORY_CONNECT_PUNCTUATION;       
+		case U_OTHER_PUNCTUATION:      return HB_UNICODE_GENERAL_CATEGORY_OTHER_PUNCTUATION;       
+		case U_MATH_SYMBOL:            return HB_UNICODE_GENERAL_CATEGORY_MATH_SYMBOL;       
+		case U_CURRENCY_SYMBOL:        return HB_UNICODE_GENERAL_CATEGORY_CURRENCY_SYMBOL;       
+		case U_MODIFIER_SYMBOL:        return HB_UNICODE_GENERAL_CATEGORY_MODIFIER_SYMBOL;       
+		case U_OTHER_SYMBOL:           return HB_UNICODE_GENERAL_CATEGORY_OTHER_SYMBOL;       
+		case U_INITIAL_PUNCTUATION:    return HB_UNICODE_GENERAL_CATEGORY_INITIAL_PUNCTUATION;       
+		case U_FINAL_PUNCTUATION:      return HB_UNICODE_GENERAL_CATEGORY_FINAL_PUNCTUATION;       
 	}
 	return HB_UNICODE_GENERAL_CATEGORY_UNASSIGNED;
 }
@@ -146,7 +143,8 @@ static hb_bool_t hb_icu_unicode_compose(hb_unicode_funcs_t * ufuncs CXX_UNUSED_P
 {
 	const UNormalizer2 * normalizer = (const UNormalizer2*)user_data;
 	UChar32 ret = unorm2_composePair(normalizer, a, b);
-	if(ret < 0) return false;
+	if(ret < 0) 
+		return false;
 	*ab = ret;
 	return true;
 }
@@ -158,10 +156,9 @@ static hb_bool_t hb_icu_unicode_decompose(hb_unicode_funcs_t * ufuncs CXX_UNUSED
 	UChar decomposed[4];
 	int len;
 	UErrorCode icu_err = U_ZERO_ERROR;
-	len = unorm2_getRawDecomposition(normalizer, ab, decomposed,
-		ARRAY_LENGTH(decomposed), &icu_err);
-	if(U_FAILURE(icu_err) || len < 0) return false;
-
+	len = unorm2_getRawDecomposition(normalizer, ab, decomposed, ARRAY_LENGTH(decomposed), &icu_err);
+	if(U_FAILURE(icu_err) || len < 0) 
+		return false;
 	len = u_countChar32(decomposed, len);
 	if(len == 1) {
 		U16_GET_UNSAFE(decomposed, 0, *a);
@@ -207,9 +204,7 @@ static void free_static_icu_funcs()
 {
 	static_icu_funcs.free_instance();
 }
-
 #endif
-
 /**
  * hb_icu_get_unicode_funcs:
  *

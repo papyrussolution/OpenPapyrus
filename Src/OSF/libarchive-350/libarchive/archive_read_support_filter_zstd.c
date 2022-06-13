@@ -35,8 +35,8 @@ struct private_data {
 };
 
 /* Zstd Filter. */
-static ssize_t  zstd_filter_read(struct archive_read_filter *, const void**);
-static int zstd_filter_close(struct archive_read_filter *);
+static ssize_t  zstd_filter_read(ArchiveReadFilter *, const void**);
+static int zstd_filter_close(ArchiveReadFilter *);
 #endif
 
 /*
@@ -45,22 +45,22 @@ static int zstd_filter_close(struct archive_read_filter *);
  * messages.)  So the bid framework here gets compiled even if no zstd library
  * is available.
  */
-static int zstd_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
-static int zstd_bidder_init(struct archive_read_filter *);
+static int zstd_bidder_bid(ArchiveReadFilterBidder *, ArchiveReadFilter *);
+static int zstd_bidder_init(ArchiveReadFilter *);
 
-int archive_read_support_filter_zstd(struct archive * _a)
+int archive_read_support_filter_zstd(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
-	struct archive_read_filter_bidder * bidder;
+	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveReadFilterBidder * bidder;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	bidder->data = NULL;
 	bidder->name = "zstd";
-	bidder->bid = zstd_bidder_bid;
-	bidder->init = zstd_bidder_init;
-	bidder->options = NULL;
-	bidder->free = NULL;
+	bidder->FnBid = zstd_bidder_bid;
+	bidder->FnInit = zstd_bidder_init;
+	bidder->FnOptions = NULL;
+	bidder->FnFree = NULL;
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
 	return ARCHIVE_OK;
 #else
@@ -71,7 +71,7 @@ int archive_read_support_filter_zstd(struct archive * _a)
 /*
  * Test whether we can handle this data.
  */
-static int zstd_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
+static int zstd_bidder_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * filter)
 {
 	const uchar * buffer;
 	ssize_t avail;
@@ -98,7 +98,7 @@ static int zstd_bidder_bid(struct archive_read_filter_bidder * self, struct arch
  * decompression directly.  We can, however, try to run "zstd -d"
  * in case that's available.
  */
-static int zstd_bidder_init(struct archive_read_filter * self)
+static int zstd_bidder_init(ArchiveReadFilter * self)
 {
 	int r = __archive_read_program(self, "zstd -d -qq");
 	/* Note: We set the format here even if __archive_read_program()
@@ -112,7 +112,7 @@ static int zstd_bidder_init(struct archive_read_filter * self)
 /*
  * Initialize the filter object
  */
-static int zstd_bidder_init(struct archive_read_filter * self)
+static int zstd_bidder_init(ArchiveReadFilter * self)
 {
 	struct private_data * state;
 	const size_t out_block_size = ZSTD_DStreamOutSize();
@@ -142,7 +142,7 @@ static int zstd_bidder_init(struct archive_read_filter * self)
 	return ARCHIVE_OK;
 }
 
-static ssize_t zstd_filter_read(struct archive_read_filter * self, const void ** p)
+static ssize_t zstd_filter_read(ArchiveReadFilter * self, const void ** p)
 {
 	size_t decompressed;
 	ssize_t avail_in;
@@ -195,7 +195,7 @@ static ssize_t zstd_filter_read(struct archive_read_filter * self, const void **
 /*
  * Clean up the decompressor.
  */
-static int zstd_filter_close(struct archive_read_filter * self)
+static int zstd_filter_close(ArchiveReadFilter * self)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	ZSTD_freeDStream(state->dstream);

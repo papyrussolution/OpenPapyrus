@@ -929,7 +929,7 @@ U_CAPI const char * U_EXPORT2 ufmt_getDecNumChars(UFormattable * fmt, int32_t * 
 		return "";
 	}
 	else {
-		if(len!=NULL) {
+		if(len != NULL) {
 			*len = charString->length();
 		}
 		return charString->data();

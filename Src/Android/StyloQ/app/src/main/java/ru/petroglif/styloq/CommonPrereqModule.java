@@ -12,14 +12,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ public class CommonPrereqModule {
 	public UUID CmdUuid;  // Получает через intent ("CmdUuid")
 	public ArrayList<SimpleSearchIndexEntry> SimpleSearchIndex;
 	public SimpleSearchResult SearchResult;
+	public ArrayList <CliEntry> CliListData;
 	public ArrayList<JSONObject> GoodsGroupListData;
 	public GoodsFilt Gf;
 	private String BaseCurrencySymb;
@@ -49,6 +53,38 @@ public class CommonPrereqModule {
 	private SLib.SlActivity ActivityInstance;
 	private int ViewPagerResourceId;
 	private int TabLayoutResourceId;
+	public static class CliEntry {
+		CliEntry(JSONObject jsItem)
+		{
+			JsItem = jsItem;
+			AddrExpandStatus = 0;
+			if(JsItem != null) {
+				JSONArray dlvr_loc_list = JsItem.optJSONArray("dlvrloc_list");
+				if(dlvr_loc_list != null && dlvr_loc_list.length() > 0)
+					AddrExpandStatus = 1;
+			}
+		}
+		public ArrayList <JSONObject> GetDlvrLocListAsArray()
+		{
+			ArrayList <JSONObject> result = null;
+			JSONArray dlvr_loc_list = JsItem.optJSONArray("dlvrloc_list");
+			if(dlvr_loc_list != null && dlvr_loc_list.length() > 0) {
+				result = new ArrayList<JSONObject>();
+				try {
+					for(int i = 0; i < dlvr_loc_list.length(); i++) {
+						Object dlvr_loc_list_item_obj = dlvr_loc_list.get(i);
+						if(dlvr_loc_list_item_obj != null && dlvr_loc_list_item_obj instanceof JSONObject)
+							result.add((JSONObject)dlvr_loc_list_item_obj);
+					}
+				} catch(JSONException exn) {
+					result = null;
+				}
+			}
+			return result;
+		}
+		int   AddrExpandStatus; // 0 - no addressed, 1 - addresses collapsed, 2 - addresses expanded
+		JSONObject JsItem;
+	}
 	public enum Tab {
 		tabUndef,
 		tabGoodsGroups,
@@ -109,6 +145,45 @@ public class CommonPrereqModule {
 	{
 		CurrentOrder = null;
 	}
+	protected boolean LoadDocument(long id)
+	{
+		boolean ok = false;
+		StyloQApp app_ctx = GetAppCtx();
+		if(id > 0 && app_ctx != null) {
+			try {
+				StyloQDatabase db = app_ctx.GetDB();
+				if(db != null) {
+					StyloQDatabase.SecStoragePacket pack = db.GetPeerEntry(id);
+					if(pack != null && pack.Rec.Kind == StyloQDatabase.SecStoragePacket.kDocIncoming || pack.Rec.Kind == StyloQDatabase.SecStoragePacket.kDocOutcoming) {
+						if(pack.Pool != null) {
+							byte [] rawdata = pack.Pool.Get(SecretTagPool.tagRawData);
+							if(SLib.GetLen(rawdata) > 0) {
+								String txt_rawdata = new String(rawdata);
+								if(SLib.GetLen(txt_rawdata) > 0) {
+									Document rd = new Document();
+									if(rd.FromJson(txt_rawdata)) {
+										rd.H.Flags = pack.Rec.Flags;
+										// На этапе разработки было множество проблем, по этому,
+										// вероятно расхождение между идентификаторами в json и в заголовке записи.
+										if(rd.H.ID != pack.Rec.ID)
+											rd.H.ID = pack.Rec.ID;
+										if(CurrentOrder != null) {
+											StoreCurrentDocument(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT, StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
+										}
+										CurrentOrder = rd;
+										ok = true;
+									}
+								}
+							}
+						}
+					}
+				}
+			} catch(StyloQException exn) {
+				ok = false;
+			}
+		}
+		return ok;
+	}
 	protected void RestoreRecentDraftDocumentAsCurrent(/*int opID*/)
 	{
 		//public StyloQDatabase.SecStoragePacket FindRecentDraftDoc(int docType, long correspondId, byte [] ident, UUID orgCmdUuid)
@@ -118,7 +193,7 @@ public class CommonPrereqModule {
 				try {
 					StyloQDatabase db = app_ctx.GetDB();
 					if(db != null) {
-						StyloQDatabase.SecStoragePacket rdd =  db.FindRecentDraftDoc(StyloQDatabase.SecStoragePacket.doctypGeneric,
+						StyloQDatabase.SecStoragePacket rdd = db.FindRecentDraftDoc(StyloQDatabase.SecStoragePacket.doctypGeneric,
 							0, null, CmdUuid);
 						if(rdd != null) {
 							if(rdd.Pool != null) {
@@ -132,6 +207,7 @@ public class CommonPrereqModule {
 											// вероятно расхождение между идентификаторами в json и в заголовке записи.
 											if(rd.H.ID != rdd.Rec.ID)
 												rd.H.ID = rdd.Rec.ID;
+											rd.H.Flags = rdd.Rec.Flags;
 											CurrentOrder = rd;
 										}
 									}
@@ -145,67 +221,69 @@ public class CommonPrereqModule {
 			}
 		}
 	}
-	private boolean OnCurrentDocumentModification()
+	private boolean StoreCurrentDocument(int reqStatus, int newStatus)
 	{
 		boolean result = true;
 		int    turn_doc_result = -1;
-		assert(CurrentOrder != null && CurrentOrder.H != null && CurrentOrder.H.Uuid != null);
-		if(CurrentOrder != null && CurrentOrder.H != null && CurrentOrder.H.Uuid != null) {
-			if(CurrentOrder.GetDocStatus() == 0) {
-				CurrentOrder.SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
-			}
-			if(CurrentOrder.GetDocStatus() == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT) {
-				StyloQApp app_ctx = GetAppCtx();
-				if(app_ctx != null) {
+		try {
+			StyloQApp app_ctx = GetAppCtx();
+			assert(CurrentOrder != null && CurrentOrder.H != null && CurrentOrder.H.Uuid != null);
+			if(app_ctx != null && CurrentOrder != null && CurrentOrder.H != null && CurrentOrder.H.Uuid != null) {
+				if(CurrentOrder.GetDocStatus() == 0)
+					CurrentOrder.SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
+				final int preserve_status = CurrentOrder.GetDocStatus();
+				if((reqStatus == 0 || preserve_status == reqStatus) && (newStatus == 0 || CurrentOrder.SetDocStatus(newStatus))) {
 					turn_doc_result = 0;
-					try {
-						StyloQDatabase db = app_ctx.GetDB();
-						if(db != null && SLib.GetLen(SvcIdent) > 0) {
-							StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
-							JSONObject jsobj = CurrentOrder.ToJsonObj();
-							if(svc_pack != null && jsobj != null) {
-								SecretTagPool doc_pool = new SecretTagPool();
-								JSONObject js_query = new JSONObject();
-								String js_text_doc = jsobj.toString();
-								String js_text_docdecl = null;
-								{
-									JSONObject js_doc_decl = new JSONObject();
-									js_doc_decl.put("type", "generic");
-									js_doc_decl.put("format", "json");
-									js_doc_decl.put("time", SLib.datetimefmt(new SLib.LDATETIME(System.currentTimeMillis()), SLib.DATF_ISO8601 | SLib.DATF_CENTURY, 0));
-									js_query.put("declaration", js_doc_decl);
-									js_text_docdecl = js_doc_decl.toString();
-								}
-								//
-								// В базе данных мы сохраняем документ в виде "сырого" json (то есть только jsobj)
-								// в то время как сервису передаем этот же документ вложенный в объект команды (js_query).
-								// Но и то и другое вносится в пул хранения под тегом tagRawData.
-								//
-								SecretTagPool.DeflateStrategy ds = new SecretTagPool.DeflateStrategy(256);
-								doc_pool.Put(SecretTagPool.tagRawData, js_text_doc.getBytes(StandardCharsets.UTF_8), ds);
-								doc_pool.Put(SecretTagPool.tagDocDeclaration, js_text_docdecl.getBytes(StandardCharsets.UTF_8));
-								//
-								long svc_id = svc_pack.Rec.ID;
-								byte[] doc_ident = db.MakeDocumentStorageIdent(SvcIdent, CurrentOrder.H.Uuid);
-								long doc_id = db.PutDocument(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, CurrentOrder.H.Flags, doc_ident, svc_id, doc_pool);
-								if(doc_id > 0) {
-									assert (CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id);
-									if(CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id) {
-										CurrentOrder.H.ID = doc_id;
-										turn_doc_result = 1;
-									}
+					StyloQDatabase db = app_ctx.GetDB();
+					if(db != null && SLib.GetLen(SvcIdent) > 0) {
+						StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
+						JSONObject jsobj = CurrentOrder.ToJsonObj();
+						if(svc_pack != null && jsobj != null) {
+							SecretTagPool doc_pool = new SecretTagPool();
+							JSONObject js_query = new JSONObject();
+							String js_text_doc = jsobj.toString();
+							String js_text_docdecl = null;
+							{
+								JSONObject js_doc_decl = new JSONObject();
+								js_doc_decl.put("type", "generic");
+								js_doc_decl.put("format", "json");
+								js_doc_decl.put("time", SLib.datetimefmt(new SLib.LDATETIME(System.currentTimeMillis()), SLib.DATF_ISO8601 | SLib.DATF_CENTURY, 0));
+								js_query.put("declaration", js_doc_decl);
+								js_text_docdecl = js_doc_decl.toString();
+							}
+							//
+							// В базе данных мы сохраняем документ в виде "сырого" json (то есть только jsobj)
+							// в то время как сервису передаем этот же документ вложенный в объект команды (js_query).
+							// Но и то и другое вносится в пул хранения под тегом tagRawData.
+							//
+							SecretTagPool.DeflateStrategy ds = new SecretTagPool.DeflateStrategy(256);
+							doc_pool.Put(SecretTagPool.tagRawData, js_text_doc.getBytes(StandardCharsets.UTF_8), ds);
+							doc_pool.Put(SecretTagPool.tagDocDeclaration, js_text_docdecl.getBytes(StandardCharsets.UTF_8));
+							//
+							long svc_id = svc_pack.Rec.ID;
+							byte[] doc_ident = db.MakeDocumentStorageIdent(SvcIdent, CurrentOrder.H.Uuid);
+							long doc_id = db.PutDocument(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, CurrentOrder.H.Flags, doc_ident, svc_id, doc_pool);
+							if(doc_id > 0) {
+								assert(CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id);
+								if(CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id) {
+									CurrentOrder.H.ID = doc_id;
+									turn_doc_result = 1;
 								}
 							}
 						}
-					} catch(StyloQException exn) {
-						turn_doc_result = 0;
-					} catch(JSONException exn) {
-						turn_doc_result = 0;
 					}
 				}
 			}
+		} catch(StyloQException exn) {
+			turn_doc_result = 0;
+		} catch(JSONException exn) {
+			turn_doc_result = 0;
 		}
 		return (turn_doc_result > 0) ? true : ((turn_doc_result == 0) ? false : result);
+	}
+	private boolean OnCurrentDocumentModification()
+	{
+		return StoreCurrentDocument(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT, StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
 	}
 	protected boolean UpdateMemoInCurrentDocument(String memo)
 	{
@@ -305,37 +383,81 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	protected boolean SetClientToCurrentDocument(int opID, int cliID, int dlvrLocID) throws StyloQException
+	protected boolean SetClientToCurrentDocument(int opID, int cliID, int dlvrLocID, boolean forceUpdate)
 	{
 		boolean result = false;
-		StyloQApp app_ctx = GetAppCtx();
-		if(cliID > 0 && app_ctx != null) {
-			if(CurrentOrder == null) {
-				InitCurrenDocument(opID);
-				//CurrentOrder = new Document(SLib.PPEDIOP_ORDER, SvcIdent, app_ctx);
-				CurrentOrder.H.ClientID = cliID;
-				CurrentOrder.H.DlvrLocID = dlvrLocID;
-				CurrentOrder.H.BaseCurrencySymb = BaseCurrencySymb;
-				result = true;
-			}
-			else {
-				if(CurrentOrder.H.ClientID == 0) {
-					CurrentOrder.H.ClientID = cliID;
-					CurrentOrder.H.DlvrLocID = dlvrLocID;
-					result = true;
-				}
-				else if(CurrentOrder.H.ClientID == cliID) {
-					if(dlvrLocID != CurrentOrder.H.DlvrLocID) {
+		try {
+			StyloQApp app_ctx = GetAppCtx();
+			if(cliID > 0 && app_ctx != null) {
+				JSONObject new_cli_entry = FindClientEntry(cliID);
+				if(new_cli_entry != null) {
+					if(CurrentOrder == null) {
+						InitCurrenDocument(opID);
+						//CurrentOrder = new Document(SLib.PPEDIOP_ORDER, SvcIdent, app_ctx);
+						CurrentOrder.H.ClientID = cliID;
 						CurrentOrder.H.DlvrLocID = dlvrLocID;
+						CurrentOrder.H.BaseCurrencySymb = BaseCurrencySymb;
 						result = true;
 					}
+					else {
+						if(CurrentOrder.H.ClientID == 0) {
+							CurrentOrder.H.ClientID = cliID;
+							CurrentOrder.H.DlvrLocID = dlvrLocID;
+							result = true;
+						}
+						else if(CurrentOrder.H.ClientID == cliID) {
+							if(dlvrLocID != CurrentOrder.H.DlvrLocID) {
+								CurrentOrder.H.DlvrLocID = dlvrLocID;
+								result = true;
+							}
+						}
+						else {
+							// Здесь надо как-то умнО обработать изменение контрагента
+							if(forceUpdate) {
+								CurrentOrder.H.ClientID = cliID;
+								CurrentOrder.H.DlvrLocID = dlvrLocID;
+								result = true;
+							}
+							else {
+								final int st = CurrentOrder.GetDocStatus();
+								if(st == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT || st == 0) {
+									JSONObject prev_cli_entry = FindClientEntry(CurrentOrder.H.ClientID);
+									if(prev_cli_entry != null) {
+										String prev_cli_name = prev_cli_entry.optString("nm", "");
+										String new_cli_name = new_cli_entry.optString("nm", "");
+										String msg_addendum = prev_cli_name + " -> " + new_cli_name;
+										String text_fmt = app_ctx.GetString(ppstr2.PPSTR_CONFIRMATION, ppstr2.PPCFM_STQ_CHANGEORDCLI);
+										class OnResultListener implements SLib.ConfirmationListener {
+											@Override
+											public void OnResult(SLib.ConfirmationResult r)
+											{
+												if(r == SLib.ConfirmationResult.YES) {
+													SetClientToCurrentDocument(opID, cliID, dlvrLocID, true);
+												}
+											}
+										}
+										SLib.Confirm_YesNo(ActivityInstance, String.format(text_fmt, msg_addendum), new OnResultListener());
+									}
+									else {
+
+									}
+								}
+								else {
+
+								}
+							}
+						}
+					}
+					if(result)
+						OnCurrentDocumentModification();
 				}
 				else {
-					// Здесь надо как-то умнО обработать изменение контрагента
+					; // @err
 				}
+
 			}
-			if(result)
-				OnCurrentDocumentModification();
+		} catch(StyloQException exn) {
+			result = false;
 		}
 		return result;
 	}
@@ -395,6 +517,69 @@ public class CommonPrereqModule {
 					if(ok) {
 						;
 					}
+				}
+				else
+					Locker_CommitCurrentDocument = false;
+			}
+		}
+		return ok;
+	}
+	protected boolean CancelCurrentDocument()
+	{
+		boolean ok = false;
+		if(!Locker_CommitCurrentDocument) {
+			Locker_CommitCurrentDocument = true;
+			ok = Helper_CancelCurrentDocument(false);
+			if(!ok)
+				Locker_CommitCurrentDocument = false;
+		}
+		return ok;
+	}
+	private boolean Helper_CancelCurrentDocument(boolean force)
+	{
+		boolean ok = true;
+		StyloQApp app_ctx = GetAppCtx();
+		if(app_ctx != null) {
+			if(CurrentOrder != null && CurrentOrder.Finalize()) {
+				final int st = CurrentOrder.GetDocStatus();
+				if(st == 0 || st == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT) {
+					// Такой документ просто удаляем
+					if(!force) {
+						class OnResultListener implements SLib.ConfirmationListener {
+							@Override
+							public void OnResult(SLib.ConfirmationResult r)
+							{
+								if(r == SLib.ConfirmationResult.YES) {
+									Helper_CancelCurrentDocument(true);
+								}
+							}
+						}
+						String text = app_ctx.GetString(ppstr2.PPSTR_CONFIRMATION, ppstr2.PPCFM_STQ_RMVORD_DRAFT);
+						SLib.Confirm_YesNo(ActivityInstance, text, new OnResultListener());
+					}
+					else {
+						boolean local_err = false;
+						if(CurrentOrder.H.ID > 0) {
+							//SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT); // Новый док автоматом является draft-документом
+							boolean r = StoreCurrentDocument(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT, StyloQDatabase.SecStoragePacket.styloqdocstCANCELLEDDRAFT);
+							//
+							// Далее эмулируем ответ от сервиса, ибо в данном случае никакого обращения не было (драфт-документ у сервиса не бывал)
+							//
+							StyloQApp.InterchangeResult subj = null;
+							if(r) {
+								subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, SvcIdent, "", null);
+							}
+							else {
+								subj = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, SvcIdent, "", null);
+							}
+							subj.OriginalCmdItem = new StyloQCommand.Item();
+							subj.OriginalCmdItem.Name = "CancelDocument";
+							ActivityInstance.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
+						}
+					}
+				}
+				else if(st == StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED) {
+					// Надо отправить уведомление об отмене сервису
 				}
 			}
 		}
@@ -603,10 +788,63 @@ public class CommonPrereqModule {
 			return (idx >= 0 && idx < ObjTypeCount) ? ObjTypeList[idx] : 0;
 		}
 	}
+	public void InitSimpleIndex()
+	{
+		if(SimpleSearchIndex == null)
+			SimpleSearchIndex = new ArrayList<SimpleSearchIndexEntry>();
+		else
+			SimpleSearchIndex.clear();
+	}
 	public void AddSimpleIndexEntry(int objType, int objID, int attr, final String text, final String displayText)
 	{
 		//SimpleSearchIndexEntry(int objType, int objID, int attr, final String text, final String displayText)
 		SimpleSearchIndex.add(new SimpleSearchIndexEntry(objType, objID, attr, text.toLowerCase(), displayText));
+	}
+	public void AddGoodsToSimpleIndex()
+	{
+		if(GoodsListData != null) {
+			for(int i = 0; i < GoodsListData.size(); i++) {
+				CommonPrereqModule.WareEntry ware_item = GoodsListData.get(i);
+				if(ware_item != null && ware_item.JsItem != null) {
+					int id = ware_item.JsItem.optInt("id", 0);
+					if(id > 0) {
+						String nm = ware_item.JsItem.optString("nm");
+						if(SLib.GetLen(nm) > 0) {
+							AddSimpleIndexEntry(SLib.PPOBJ_GOODS, id, SLib.PPOBJATTR_NAME, nm, null);
+						}
+						{
+							JSONArray js_code_list = ware_item.JsItem.optJSONArray("code_list");
+							if(js_code_list != null && js_code_list.length() > 0) {
+								for(int j = 0; j < js_code_list.length(); j++) {
+									JSONObject js_code = js_code_list.optJSONObject(j);
+									if(js_code != null) {
+										String code = js_code.optString("cod");
+										if(SLib.GetLen(code) > 0)
+											AddSimpleIndexEntry(SLib.PPOBJ_GOODS, id, SLib.PPOBJATTR_CODE, code, nm);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	public void AddGoodsGroupsToSimpleIndex()
+	{
+		if(GoodsGroupListData != null) {
+			for(int i = 0; i < GoodsGroupListData.size(); i++) {
+				JSONObject js_item = GoodsGroupListData.get(i);
+				if(js_item != null) {
+					final int id = js_item.optInt("id", 0);
+					if(id > 0) {
+						String nm = js_item.optString("nm");
+						if(SLib.GetLen(nm) > 0)
+							AddSimpleIndexEntry(SLib.PPOBJ_GOODSGROUP, id, SLib.PPOBJATTR_NAME, nm, null);
+					}
+				}
+			}
+		}
 	}
 	public boolean SearchInSimpleIndex(String pattern)
 	{
@@ -1249,21 +1487,100 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	private static class SearchDetailListAdapter extends ArrayAdapter {
-		private int RcId;
+	public JSONObject FindClientEntry(int cliID)
+	{
+		JSONObject result = null;
+		if(CliListData != null && cliID > 0) {
+			for(int i = 0; i < CliListData.size(); i++) {
+				CommonPrereqModule.CliEntry ce = CliListData.get(i);
+				if(ce != null && ce.JsItem != null) {
+					int _id = ce.JsItem.optInt("id", 0);
+					if(_id == cliID) {
+						result = ce.JsItem;
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
+	public JSONObject FindDlvrLocEntryInCliEntry(JSONObject cliJs, int dlvrLocID)
+	{
+		JSONObject result = null;
+		try {
+			if(CliListData != null && cliJs != null && dlvrLocID > 0) {
+				JSONArray dvlrloc_list_js = cliJs.optJSONArray("dlvrloc_list");
+				if(dvlrloc_list_js != null && dvlrloc_list_js.length() > 0) {
+					for(int j = 0; j < dvlrloc_list_js.length(); j++) {
+						JSONObject dlvrloc_js = dvlrloc_list_js.getJSONObject(j);
+						if(dlvrloc_js != null) {
+							int iter_id = dlvrloc_js.optInt("id", 0);
+							if(iter_id == dlvrLocID) {
+								result = dlvrloc_js;
+								break;
+							}
+						}
+					}
+				}
+			}
+		} catch(JSONException exn) {
+			result = null;
+		}
+		return result;
+	}
+	public int FindDlvrLocEntryIndexInCliEntry(JSONObject cliJs, int dlvrLocID)
+	{
+		int result = -1;
+		try {
+			if(CliListData != null && cliJs != null && dlvrLocID > 0) {
+				JSONArray dvlrloc_list_js = cliJs.optJSONArray("dlvrloc_list");
+				if(dvlrloc_list_js != null && dvlrloc_list_js.length() > 0) {
+					for(int j = 0; j < dvlrloc_list_js.length(); j++) {
+						JSONObject dlvrloc_js = dvlrloc_list_js.getJSONObject(j);
+						if(dlvrloc_js != null) {
+							int iter_id = dlvrloc_js.optInt("id", 0);
+							if(iter_id == dlvrLocID) {
+								result = j;
+								break;
+							}
+						}
+					}
+				}
+			}
+		} catch(JSONException exn) {
+			result = -1;
+		}
+		return result;
+	}
+	public JSONObject FindClientEntryByDlvrLocID(int dlvrLocID)
+	{
+		JSONObject result = null;
+		if(CliListData != null && dlvrLocID > 0) {
+			for(int i = 0; result == null && i < CliListData.size(); i++) {
+				CommonPrereqModule.CliEntry ce = CliListData.get(i);
+				if(ce != null && ce.JsItem != null) {
+					if(FindDlvrLocEntryInCliEntry(ce.JsItem, dlvrLocID) != null)
+						result = ce.JsItem;
+				}
+			}
+		}
+		return result;
+	}
+	private static class SearchDetailListAdapter extends SLib.InternalArrayAdapter {
+		//private int RcId;
 		SearchDetailListAdapter(Context ctx, int rcId, ArrayList data)
 		{
 			super(ctx, rcId, data);
-			RcId = rcId;
+			//RcId = rcId;
 		}
 		@Override public View getView(int position, View convertView, ViewGroup parent)
 		{
 			// Get the data item for this position
 			Object item = (Object)getItem(position);
 			//Context ctx = parent.getContext();
-			if(item != null) {
+			Context _ctx = getContext();
+			if(item != null && _ctx != null) {
 				// Check if an existing view is being reused, otherwise inflate the view
-				Context _ctx = getContext();
 				if(convertView == null) {
 					convertView = LayoutInflater.from(_ctx).inflate(RcId, parent, false);
 				}

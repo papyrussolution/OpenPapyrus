@@ -297,7 +297,7 @@ ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
 		ret->length = 0;
 		OPENSSL_free(data);
 		data = static_cast<uchar *>(OPENSSL_malloc(length));
-		if(data == NULL) {
+		if(!data) {
 			i = ERR_R_MALLOC_FAILURE;
 			goto err;
 		}

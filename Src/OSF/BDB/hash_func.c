@@ -73,7 +73,7 @@ uint32 __ham_func3(DB * dbp, const void * key, uint32 len)
 	uint32 n, loop;
 	if(dbp)
 		COMPQUIET(dbp, 0);
-	if(len == 0)
+	if(!len)
 		return 0;
 #define HASHC   n = *k+++65599*n
 	n = 0;
@@ -104,7 +104,7 @@ uint32 __ham_func4(DB * dbp, const void * key, uint32 len)
 	uint32 h, loop;
 	if(dbp)
 		COMPQUIET(dbp, 0);
-	if(len == 0)
+	if(!len)
 		return 0;
 #define HASH4a  h = (h<<5)-h+*k++;
 #define HASH4b  h = (h<<5)+h+*k++;

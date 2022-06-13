@@ -220,7 +220,7 @@ int CRYPTO_new_ex_data(int class_index, void * obj, CRYPTO_EX_DATA * ad)
 			storage = stack;
 		else
 			storage = static_cast<EX_CALLBACK **>(OPENSSL_malloc(sizeof(*storage) * mx));
-		if(storage != NULL)
+		if(storage)
 			for(i = 0; i < mx; i++)
 				storage[i] = sk_EX_CALLBACK_value(ip->meth, i);
 	}
@@ -271,7 +271,7 @@ int CRYPTO_dup_ex_data(int class_index, CRYPTO_EX_DATA * to,
 			storage = stack;
 		else
 			storage = static_cast<EX_CALLBACK **>(OPENSSL_malloc(sizeof(*storage) * mx));
-		if(storage != NULL)
+		if(storage)
 			for(i = 0; i < mx; i++)
 				storage[i] = sk_EX_CALLBACK_value(ip->meth, i);
 	}
@@ -328,20 +328,20 @@ void CRYPTO_free_ex_data(int class_index, void * obj, CRYPTO_EX_DATA * ad)
 			storage = stack;
 		else
 			storage = static_cast<EX_CALLBACK **>(OPENSSL_malloc(sizeof(*storage) * mx));
-		if(storage != NULL)
+		if(storage)
 			for(i = 0; i < mx; i++)
 				storage[i] = sk_EX_CALLBACK_value(ip->meth, i);
 	}
 	CRYPTO_THREAD_unlock(ex_data_lock);
 	for(i = 0; i < mx; i++) {
-		if(storage != NULL)
+		if(storage)
 			f = storage[i];
 		else {
 			CRYPTO_THREAD_write_lock(ex_data_lock);
 			f = sk_EX_CALLBACK_value(ip->meth, i);
 			CRYPTO_THREAD_unlock(ex_data_lock);
 		}
-		if(f != NULL && f->free_func != NULL) {
+		if(f && f->free_func) {
 			ptr = CRYPTO_get_ex_data(ad, i);
 			f->free_func(obj, ptr, ad, i, f->argl, f->argp);
 		}

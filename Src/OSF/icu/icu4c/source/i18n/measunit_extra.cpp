@@ -344,8 +344,7 @@ void U_CALLCONV initUnitExtras(UErrorCode & status)
 	LocalUResourceBundlePointer unitsBundle(ures_openDirect(nullptr, "units", &status));
 	// Collect unitQuantities information into gSerializedUnitCategoriesTrie and gCategories.
 	const char * CATEGORY_TABLE_NAME = "unitQuantities";
-	LocalUResourceBundlePointer unitQuantities(
-		ures_getByKey(unitsBundle.getAlias(), CATEGORY_TABLE_NAME, nullptr, &status));
+	LocalUResourceBundlePointer unitQuantities(ures_getByKey(unitsBundle.getAlias(), CATEGORY_TABLE_NAME, nullptr, &status));
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -412,15 +411,12 @@ void U_CALLCONV initUnitExtras(UErrorCode & status)
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	// Add sanctioned simple units by offset: simple units all have entries in
 	// units/convertUnits resources.
-	LocalUResourceBundlePointer convertUnits(
-		ures_getByKey(unitsBundle.getAlias(), "convertUnits", nullptr, &status));
+	LocalUResourceBundlePointer convertUnits(ures_getByKey(unitsBundle.getAlias(), "convertUnits", nullptr, &status));
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	// Allocate enough space: with identifierSink below skipping kilogram, we're
 	// probably allocating one more than needed.
 	int32_t simpleUnitsCount = convertUnits.getAlias()->fSize;
@@ -1192,26 +1188,31 @@ MeasureUnit MeasureUnitImpl::build(UErrorCode & status) && {
 	return MeasureUnit(std::move(*this));
 }
 
-MeasureUnit MeasureUnit::forIdentifier(StringPiece identifier, UErrorCode & status) {
+MeasureUnit MeasureUnit::forIdentifier(StringPiece identifier, UErrorCode & status) 
+{
 	return Parser::from(identifier, status).parse(status).build(status);
 }
 
-UMeasureUnitComplexity MeasureUnit::getComplexity(UErrorCode & status) const {
+UMeasureUnitComplexity MeasureUnit::getComplexity(UErrorCode & status) const 
+{
 	MeasureUnitImpl temp;
 	return MeasureUnitImpl::forMeasureUnit(*this, temp, status).complexity;
 }
 
-UMeasurePrefix MeasureUnit::getPrefix(UErrorCode & status) const {
+UMeasurePrefix MeasureUnit::getPrefix(UErrorCode & status) const 
+{
 	return SingleUnitImpl::forMeasureUnit(*this, status).unitPrefix;
 }
 
-MeasureUnit MeasureUnit::withPrefix(UMeasurePrefix prefix, UErrorCode & status) const {
+MeasureUnit MeasureUnit::withPrefix(UMeasurePrefix prefix, UErrorCode & status) const 
+{
 	SingleUnitImpl singleUnit = SingleUnitImpl::forMeasureUnit(*this, status);
 	singleUnit.unitPrefix = prefix;
 	return singleUnit.build(status);
 }
 
-int32_t MeasureUnit::getDimensionality(UErrorCode & status) const {
+int32_t MeasureUnit::getDimensionality(UErrorCode & status) const 
+{
 	SingleUnitImpl singleUnit = SingleUnitImpl::forMeasureUnit(*this, status);
 	if(U_FAILURE(status)) {
 		return 0;
@@ -1222,7 +1223,8 @@ int32_t MeasureUnit::getDimensionality(UErrorCode & status) const {
 	return singleUnit.dimensionality;
 }
 
-MeasureUnit MeasureUnit::withDimensionality(int32_t dimensionality, UErrorCode & status) const {
+MeasureUnit MeasureUnit::withDimensionality(int32_t dimensionality, UErrorCode & status) const 
+{
 	SingleUnitImpl singleUnit = SingleUnitImpl::forMeasureUnit(*this, status);
 	singleUnit.dimensionality = dimensionality;
 	return singleUnit.build(status);
@@ -1251,7 +1253,8 @@ MeasureUnit MeasureUnit::product(const MeasureUnit& other, UErrorCode & status) 
 	return std::move(impl).build(status);
 }
 
-LocalArray<MeasureUnit> MeasureUnit::splitToSingleUnitsImpl(int32_t& outCount, UErrorCode & status) const {
+LocalArray<MeasureUnit> MeasureUnit::splitToSingleUnitsImpl(int32_t& outCount, UErrorCode & status) const 
+{
 	MeasureUnitImpl temp;
 	const MeasureUnitImpl& impl = MeasureUnitImpl::forMeasureUnit(*this, temp, status);
 	outCount = impl.singleUnits.length();

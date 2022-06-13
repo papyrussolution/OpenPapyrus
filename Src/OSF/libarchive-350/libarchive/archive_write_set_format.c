@@ -17,7 +17,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format.c 201168 2009-1
 #include "archive_write_set_format_private.h"
 
 /* A table that maps format codes to functions. */
-static const struct { int code; int (* setter)(struct archive *); } codes[] = {
+static const struct { int code; int (* setter)(Archive *); } codes[] = {
 	{ ARCHIVE_FORMAT_7ZIP,          archive_write_set_format_7zip },
 	{ ARCHIVE_FORMAT_CPIO,          archive_write_set_format_cpio },
 	{ ARCHIVE_FORMAT_CPIO_POSIX,    archive_write_set_format_cpio },
@@ -39,7 +39,7 @@ static const struct { int code; int (* setter)(struct archive *); } codes[] = {
 	{ 0,            NULL }
 };
 
-int archive_write_set_format(struct archive * a, int code)
+int archive_write_set_format(Archive * a, int code)
 {
 	for(int i = 0; codes[i].code != 0; i++) {
 		if(code == codes[i].code)
@@ -49,7 +49,7 @@ int archive_write_set_format(struct archive * a, int code)
 	return ARCHIVE_FATAL;
 }
 
-void __archive_write_entry_filetype_unsupported(struct archive * a, struct archive_entry * entry, const char * format)
+void __archive_write_entry_filetype_unsupported(Archive * a, ArchiveEntry * entry, const char * format)
 {
 	const char * name = NULL;
 	switch(archive_entry_filetype(entry)) {

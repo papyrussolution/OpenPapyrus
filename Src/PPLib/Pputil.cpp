@@ -1306,7 +1306,7 @@ DBFCreateFld * LoadDBFStruct(uint rezID, uint * pNumFlds)
 	return p_flds;
 }
 
-int FASTCALL LoadSdRecord(uint rezID, SdRecord * pRec, int headerOnly /*=0*/)
+int STDCALL LoadSdRecord(uint rezID, SdRecord * pRec, int headerOnly /*=0*/)
 {
 	int    ok = 1;
 	PROFILE_START

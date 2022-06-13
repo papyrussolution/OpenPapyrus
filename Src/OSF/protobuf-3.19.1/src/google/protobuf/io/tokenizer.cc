@@ -994,7 +994,7 @@ static void AppendUTF8(uint32_t code_point, std::string* output) {
 // *result. Returns true if that many digits were successfully consumed.
 static bool ReadHexDigits(const char* ptr, int len, uint32_t* result) {
 	*result = 0;
-	if(len == 0) return false;
+	if(!len) return false;
 	for(const char* end = ptr + len; ptr < end; ++ptr) {
 		if(*ptr == '\0') return false;
 		*result = (*result << 4) + DigitValue(*ptr);

@@ -22,8 +22,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_ustar.c 191579 
 struct ustar {
 	uint64 entry_bytes_remaining;
 	uint64 entry_padding;
-	struct archive_string_conv * opt_sconv;
-	struct archive_string_conv * sconv_default;
+	archive_string_conv * opt_sconv;
+	archive_string_conv * sconv_default;
 	int init_default_conversion;
 };
 /*
@@ -110,7 +110,7 @@ static ssize_t  archive_write_ustar_data(struct archive_write * a, const void * 
 static int archive_write_ustar_free(struct archive_write *);
 static int archive_write_ustar_close(struct archive_write *);
 static int archive_write_ustar_finish_entry(struct archive_write *);
-static int archive_write_ustar_header(struct archive_write *, struct archive_entry * entry);
+static int archive_write_ustar_header(struct archive_write *, ArchiveEntry * entry);
 static int archive_write_ustar_options(struct archive_write *, const char *, const char *);
 static int format_256(int64, char *, int);
 static int format_number(int64, char *, int size, int max, int strict);
@@ -119,7 +119,7 @@ static int format_octal(int64, char *, int);
 /*
  * Set output format to 'ustar' format.
  */
-int archive_write_set_format_ustar(struct archive * _a)
+int archive_write_set_format_ustar(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct ustar * ustar;
@@ -155,7 +155,7 @@ static int archive_write_ustar_options(struct archive_write * a, const char * ke
 	struct ustar * ustar = (struct ustar *)a->format_data;
 	int ret = ARCHIVE_FAILED;
 	if(sstreq(key, "hdrcharset")) {
-		if(val == NULL || val[0] == 0)
+		if(isempty(val))
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {
 			ustar->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
@@ -172,12 +172,12 @@ static int archive_write_ustar_options(struct archive_write * a, const char * ke
 	return ARCHIVE_WARN;
 }
 
-static int archive_write_ustar_header(struct archive_write * a, struct archive_entry * entry)
+static int archive_write_ustar_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	char buff[512];
 	int ret, ret2;
-	struct archive_entry * entry_main;
-	struct archive_string_conv * sconv;
+	ArchiveEntry * entry_main;
+	archive_string_conv * sconv;
 	struct ustar * ustar = (struct ustar *)a->format_data;
 	/* Setup default string conversion. */
 	if(ustar->opt_sconv == NULL) {
@@ -207,7 +207,7 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 #if defined(_WIN32) && !defined(__CYGWIN__)
 		const wchar_t * wp = archive_entry_pathname_w(entry);
 		if(wp && wp[wcslen(wp) -1] != L'/') {
-			struct archive_wstring ws;
+			archive_wstring ws;
 			archive_string_init(&ws);
 			path_length = wcslen(wp);
 			if(archive_wstring_ensure(&ws,
@@ -234,7 +234,7 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 		 * normal operation.
 		 */
 		if(!isempty(p) && p[strlen(p)-1] != '/') {
-			struct archive_string as;
+			archive_string as;
 			archive_string_init(&as);
 			path_length = strlen(p);
 			if(archive_string_ensure(&as, path_length + 2) == NULL) {
@@ -299,7 +299,7 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
  *
  * This is exported so that other 'tar' formats can use it.
  */
-int __archive_write_format_header_ustar(struct archive_write * a, char h[512], struct archive_entry * entry, int tartype, int strict, struct archive_string_conv * sconv)
+int __archive_write_format_header_ustar(struct archive_write * a, char h[512], ArchiveEntry * entry, int tartype, int strict, archive_string_conv * sconv)
 {
 	uint checksum;
 	int i, r;

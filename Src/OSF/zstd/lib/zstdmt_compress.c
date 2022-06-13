@@ -919,7 +919,7 @@ MEM_STATIC ZSTDMT_CCtx* ZSTDMT_createCCtx_advanced_internal(uint nbWorkers, ZSTD
 	if(nbWorkers < 1) 
 		return NULL;
 	nbWorkers = MIN(nbWorkers, ZSTDMT_NBWORKERS_MAX);
-	if((cMem.customAlloc!=NULL) ^ (cMem.customFree!=NULL))
+	if((cMem.customAlloc != NULL) ^ (cMem.customFree != NULL))
 		/* invalid custom allocator */
 		return NULL;
 	mtctx = (ZSTDMT_CCtx*)ZSTD_customCalloc(sizeof(ZSTDMT_CCtx), cMem);

@@ -1319,22 +1319,19 @@ static int is_allowed_callout_tag_name(OnigEncoding enc, uchar * name, uchar * n
 {
 	uchar * p;
 	OnigCodePoint c;
-
-	if(name >= name_end) return 0;
-
+	if(name >= name_end) 
+		return 0;
 	p = name;
 	while(p < name_end) {
 		c = ONIGENC_MBC_TO_CODE(enc, p, name_end);
 		if(!IS_ALLOWED_CODE_IN_CALLOUT_TAG_NAME(c))
 			return 0;
-
 		if(p == name) {
-			if(c >= '0' && c <= '9') return 0;
+			if(c >= '0' && c <= '9') 
+				return 0;
 		}
-
 		p += ONIGENC_MBC_ENC_LEN(enc, p);
 	}
-
 	return 1;
 }
 
@@ -1378,27 +1375,23 @@ int onig_set_callout_of_name(OnigEncoding enc, OnigCalloutType callout_type, uch
 			}
 		}
 	}
-
 	if(!is_allowed_callout_name(enc, name, name_end)) {
 		return ONIGERR_INVALID_CALLOUT_NAME;
 	}
-
 	is_not_single = (callout_type != ONIG_CALLOUT_TYPE_SINGLE);
 	id = callout_name_entry(&e, enc, is_not_single, name, name_end);
-	if(id < 0) return id;
-
+	if(id < 0) 
+		return id;
 	r = ONIG_NORMAL;
 	if(IS_NULL(GlobalCalloutNameList)) {
 		r = make_callout_func_list(&GlobalCalloutNameList, 10);
 		if(r != ONIG_NORMAL) return r;
 	}
-
 	while(id >= GlobalCalloutNameList->n) {
 		int rid;
 		r = callout_func_list_add(GlobalCalloutNameList, &rid);
 		if(r != ONIG_NORMAL) return r;
 	}
-
 	fe = GlobalCalloutNameList->v + id;
 	fe->type = callout_type;
 	fe->in   = in;
@@ -1407,7 +1400,6 @@ int onig_set_callout_of_name(OnigEncoding enc, OnigCalloutType callout_type, uch
 	fe->arg_num      = arg_num;
 	fe->opt_arg_num  = opt_arg_num;
 	fe->name = e->name;
-
 	for(i = 0; i < arg_num; i++) {
 		fe->arg_types[i] = arg_types[i];
 	}
@@ -1433,24 +1425,19 @@ int onig_set_callout_of_name(OnigEncoding enc, OnigCalloutType callout_type, uch
 	return r;
 }
 
-static int get_callout_name_id_by_name(OnigEncoding enc, int is_not_single,
-    uchar * name, uchar * name_end, int* rid)
+static int get_callout_name_id_by_name(OnigEncoding enc, int is_not_single, uchar * name, uchar * name_end, int* rid)
 {
 	int r;
 	CalloutNameEntry* e;
-
 	if(!is_allowed_callout_name(enc, name, name_end)) {
 		return ONIGERR_INVALID_CALLOUT_NAME;
 	}
-
 	e = callout_name_find(enc, is_not_single, name, name_end);
 	if(IS_NULL(e)) {
 		return ONIGERR_UNDEFINED_CALLOUT_NAME;
 	}
-
 	r = ONIG_NORMAL;
 	*rid = e->id;
-
 	return r;
 }
 
@@ -1485,23 +1472,17 @@ OnigCalloutType onig_get_callout_type_by_name_id(int name_id)
 
 OnigCalloutFunc onig_get_callout_start_func_by_name_id(int name_id)
 {
-	if(name_id < 0 || name_id >= GlobalCalloutNameList->n)
-		return 0;
-	return GlobalCalloutNameList->v[name_id].start_func;
+	return (name_id < 0 || name_id >= GlobalCalloutNameList->n) ? 0 : GlobalCalloutNameList->v[name_id].start_func;
 }
 
 OnigCalloutFunc onig_get_callout_end_func_by_name_id(int name_id)
 {
-	if(name_id < 0 || name_id >= GlobalCalloutNameList->n)
-		return 0;
-	return GlobalCalloutNameList->v[name_id].end_func;
+	return (name_id < 0 || name_id >= GlobalCalloutNameList->n) ? 0 : GlobalCalloutNameList->v[name_id].end_func;
 }
 
 int onig_get_callout_in_by_name_id(int name_id)
 {
-	if(name_id < 0 || name_id >= GlobalCalloutNameList->n)
-		return 0;
-	return GlobalCalloutNameList->v[name_id].in;
+	return (name_id < 0 || name_id >= GlobalCalloutNameList->n) ? 0 : GlobalCalloutNameList->v[name_id].in;
 }
 
 static int get_callout_arg_num_by_name_id(int name_id) { return GlobalCalloutNameList->v[name_id].arg_num; }
@@ -1511,9 +1492,7 @@ static OnigValue get_callout_opt_default_by_name_id(int name_id, int index) { re
 
 uchar * onig_get_callout_name_by_name_id(int name_id)
 {
-	if(name_id < 0 || name_id >= GlobalCalloutNameList->n)
-		return 0;
-	return GlobalCalloutNameList->v[name_id].name;
+	return (name_id < 0 || name_id >= GlobalCalloutNameList->n) ? 0 : GlobalCalloutNameList->v[name_id].name;
 }
 
 int onig_global_callout_names_free(void)
@@ -1549,19 +1528,16 @@ static int setup_ext_callout_list_values(regex_t* reg)
 		if(e->of == ONIG_CALLOUT_OF_NAME) {
 			for(j = 0; j < e->u.arg.num; j++) {
 				if(e->u.arg.types[j] == ONIG_TYPE_TAG) {
-					uchar * start;
-					uchar * end;
-					int num;
-					start = e->u.arg.vals[j].s.start;
-					end   = e->u.arg.vals[j].s.end;
-					num = onig_get_callout_num_by_tag(reg, start, end);
-					if(num < 0) return num;
+					uchar * start = e->u.arg.vals[j].s.start;
+					uchar * end   = e->u.arg.vals[j].s.end;
+					int num = onig_get_callout_num_by_tag(reg, start, end);
+					if(num < 0) 
+						return num;
 					e->u.arg.vals[j].tag = num;
 				}
 			}
 		}
 	}
-
 	return ONIG_NORMAL;
 }
 
@@ -1939,7 +1915,6 @@ static Node* node_new_ctype(int type, int not, OnigOptionType options)
 {
 	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
-
 	NODE_SET_TYPE(node, NODE_CTYPE);
 	CTYPE_(node)->ctype   = type;
 	CTYPE_(node)->not     = not;
@@ -1949,11 +1924,8 @@ static Node* node_new_ctype(int type, int not, OnigOptionType options)
 
 static Node* node_new_anychar(OnigOptionType options)
 {
-	Node * node;
-
-	node = node_new_ctype(CTYPE_ANYCHAR, FALSE, options);
+	Node * node = node_new_ctype(CTYPE_ANYCHAR, FALSE, options);
 	CHECK_NULL_RETURN(node);
-
 	if(OPTON_MULTILINE(options))
 		NODE_STATUS_ADD(node, MULTILINE);
 	return node;
@@ -1961,9 +1933,7 @@ static Node* node_new_anychar(OnigOptionType options)
 
 static int node_new_no_newline(Node ** node, ScanEnv* env)
 {
-	Node* n;
-
-	n = node_new_anychar(ONIG_OPTION_NONE);
+	Node * n = node_new_anychar(ONIG_OPTION_NONE);
 	CHECK_NULL_RETURN_MEMERR(n);
 	*node = n;
 	return 0;
@@ -1971,9 +1941,7 @@ static int node_new_no_newline(Node ** node, ScanEnv* env)
 
 static int node_new_true_anychar(Node ** node)
 {
-	Node* n;
-
-	n = node_new_anychar(ONIG_OPTION_MULTILINE);
+	Node * n = node_new_anychar(ONIG_OPTION_MULTILINE);
 	CHECK_NULL_RETURN_MEMERR(n);
 	*node = n;
 	return 0;
@@ -1983,7 +1951,6 @@ static Node* node_new_list(Node* left, Node* right)
 {
 	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
-
 	NODE_SET_TYPE(node, NODE_LIST);
 	NODE_CAR(node)  = left;
 	NODE_CDR(node) = right;
@@ -1999,7 +1966,6 @@ Node* onig_node_new_alt(Node* left, Node* right)
 {
 	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
-
 	NODE_SET_TYPE(node, NODE_ALT);
 	NODE_CAR(node)  = left;
 	NODE_CDR(node) = right;
@@ -2008,10 +1974,9 @@ Node* onig_node_new_alt(Node* left, Node* right)
 
 static Node* make_list_or_alt(NodeType type, int n, Node* ns[])
 {
-	Node* r;
-
-	if(n <= 0) return NULL_NODE;
-
+	Node * r;
+	if(n <= 0) 
+		return NULL_NODE;
 	if(n == 1) {
 		r = node_new();
 		CHECK_NULL_RETURN(r);
@@ -2021,21 +1986,17 @@ static Node* make_list_or_alt(NodeType type, int n, Node* ns[])
 	}
 	else {
 		Node* right;
-
 		r = node_new();
 		CHECK_NULL_RETURN(r);
-
 		right = make_list_or_alt(type, n - 1, ns + 1);
 		if(IS_NULL(right)) {
 			onig_node_free(r);
 			return NULL_NODE;
 		}
-
 		NODE_SET_TYPE(r, type);
 		NODE_CAR(r) = ns[0];
 		NODE_CDR(r) = right;
 	}
-
 	return r;
 }
 
@@ -2051,11 +2012,8 @@ static Node* make_alt(int n, Node* ns[])
 
 static Node* node_new_anchor(int type)
 {
-	Node * node;
-
-	node = node_new();
+	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
-
 	NODE_SET_TYPE(node, NODE_ANCHOR);
 	ANCHOR_(node)->type       = type;
 	ANCHOR_(node)->char_min_len = 0;
@@ -2068,20 +2026,14 @@ static Node* node_new_anchor(int type)
 static Node* node_new_anchor_with_options(int type, OnigOptionType options)
 {
 	int ascii_mode;
-	Node * node;
-
-	node = node_new_anchor(type);
+	Node * node = node_new_anchor(type);
 	CHECK_NULL_RETURN(node);
-
 	ascii_mode = OPTON_WORD_ASCII(options) && IS_WORD_ANCHOR_TYPE(type) ? 1 : 0;
 	ANCHOR_(node)->ascii_mode = ascii_mode;
-
-	if(type == ANCR_TEXT_SEGMENT_BOUNDARY ||
-	    type == ANCR_NO_TEXT_SEGMENT_BOUNDARY) {
+	if(type == ANCR_TEXT_SEGMENT_BOUNDARY || type == ANCR_NO_TEXT_SEGMENT_BOUNDARY) {
 		if(OPTON_TEXT_SEGMENT_WORD(options))
 			NODE_STATUS_ADD(node, TEXT_SEGMENT_WORD);
 	}
-
 	return node;
 }
 
@@ -2092,20 +2044,15 @@ static Node* node_new_backref(int back_num, int* backrefs, int by_name,
     ScanEnv* env)
 {
 	int i;
-	Node * node;
-
-	node = node_new();
+	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
-
 	NODE_SET_TYPE(node, NODE_BACKREF);
 	BACKREF_(node)->back_num = back_num;
 	BACKREF_(node)->back_dynamic = (int*)NULL;
 	if(by_name != 0)
 		NODE_STATUS_ADD(node, BY_NAME);
-
 	if(OPTON_IGNORECASE(env->options))
 		NODE_STATUS_ADD(node, IGNORECASE);
-
 #ifdef USE_BACKREF_WITH_LEVEL
 	if(exist_level != 0) {
 		NODE_STATUS_ADD(node, NEST_LEVEL);
@@ -2120,7 +2067,6 @@ static Node* node_new_backref(int back_num, int* backrefs, int by_name,
 			break;
 		}
 	}
-
 	if(back_num <= NODE_BACKREFS_SIZE) {
 		for(i = 0; i < back_num; i++)
 			BACKREF_(node)->back_static[i] = backrefs[i];
@@ -2135,7 +2081,6 @@ static Node* node_new_backref(int back_num, int* backrefs, int by_name,
 		for(i = 0; i < back_num; i++)
 			p[i] = backrefs[i];
 	}
-
 	env->backref_num++;
 	return node;
 }
@@ -2146,15 +2091,12 @@ static Node* node_new_backref_checker(int back_num, int* backrefs, int by_name,
 #endif
     ScanEnv* env)
 {
-	Node * node;
-
-	node = node_new_backref(back_num, backrefs, by_name,
+	Node * node = node_new_backref(back_num, backrefs, by_name,
 #ifdef USE_BACKREF_WITH_LEVEL
 		exist_level, nest_level,
 #endif
 		env);
 	CHECK_NULL_RETURN(node);
-
 	NODE_STATUS_ADD(node, CHECKER);
 	return node;
 }
@@ -2164,7 +2106,6 @@ static Node* node_new_call(uchar * name, uchar * name_end, int gnum, int by_numb
 {
 	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
-
 	NODE_SET_TYPE(node, NODE_CALL);
 	CALL_(node)->by_number   = by_number;
 	CALL_(node)->name        = name;
@@ -2180,7 +2121,6 @@ static Node* node_new_quantifier(int lower, int upper, int by_number)
 {
 	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
-
 	NODE_SET_TYPE(node, NODE_QUANT);
 	QUANT_(node)->lower    = lower;
 	QUANT_(node)->upper    = upper;
@@ -2200,10 +2140,8 @@ static Node* node_new_bag(enum BagType type)
 {
 	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
-
 	NODE_SET_TYPE(node, NODE_BAG);
 	BAG_(node)->type = type;
-
 	switch(type) {
 		case BAG_MEMORY:
 		    BAG_(node)->m.regnum       =  0;
@@ -2211,20 +2149,16 @@ static Node* node_new_bag(enum BagType type)
 		    BAG_(node)->m.entry_count  =  1;
 		    BAG_(node)->m.called_state =  0;
 		    break;
-
 		case BAG_OPTION:
 		    BAG_(node)->o.options =  0;
 		    break;
-
 		case BAG_STOP_BACKTRACK:
 		    break;
-
 		case BAG_IF_ELSE:
 		    BAG_(node)->te.Then = 0;
 		    BAG_(node)->te.Else = 0;
 		    break;
 	}
-
 	BAG_(node)->opt_count = 0;
 	return node;
 }
@@ -2236,10 +2170,8 @@ Node* onig_node_new_bag(enum BagType type)
 
 static Node* node_new_bag_if_else(Node* cond, Node* Then, Node* Else)
 {
-	Node* n;
-	n = node_new_bag(BAG_IF_ELSE);
+	Node * n = node_new_bag(BAG_IF_ELSE);
 	CHECK_NULL_RETURN(n);
-
 	NODE_BODY(n) = cond;
 	BAG_(n)->te.Then = Then;
 	BAG_(n)->te.Else = Else;
@@ -2252,7 +2184,6 @@ static Node* node_new_memory(int is_named)
 	CHECK_NULL_RETURN(node);
 	if(is_named != 0)
 		NODE_STATUS_ADD(node, NAMED_GROUP);
-
 	return node;
 }
 
@@ -2266,22 +2197,17 @@ static Node* node_new_option(OnigOptionType option)
 
 static Node* node_new_group(Node* content)
 {
-	Node * node;
-
-	node = node_new();
+	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
 	NODE_SET_TYPE(node, NODE_LIST);
 	NODE_CAR(node) = content;
 	NODE_CDR(node) = NULL_NODE;
-
 	return node;
 }
 
 static Node* node_drop_group(Node* group)
 {
-	Node* content;
-
-	content = NODE_CAR(group);
+	Node * content = NODE_CAR(group);
 	NODE_CAR(group) = NULL_NODE;
 	onig_node_free(group);
 	return content;
@@ -2298,7 +2224,6 @@ static int node_new_fail(Node ** node, ScanEnv* env)
 {
 	*node = node_new();
 	CHECK_NULL_RETURN_MEMERR(*node);
-
 	return node_set_fail(*node);
 }
 
@@ -2311,41 +2236,32 @@ int onig_node_reset_fail(Node * node)
 static int node_new_save_gimmick(Node ** node, enum SaveType save_type, ScanEnv* env)
 {
 	int id;
-
 	ID_ENTRY(env, id);
-
 	*node = node_new();
 	CHECK_NULL_RETURN_MEMERR(*node);
-
 	NODE_SET_TYPE(*node, NODE_GIMMICK);
 	GIMMICK_(*node)->id   = id;
 	GIMMICK_(*node)->type = GIMMICK_SAVE;
 	GIMMICK_(*node)->detail_type = (int)save_type;
-
 	return ONIG_NORMAL;
 }
 
-static int node_new_update_var_gimmick(Node ** node, enum UpdateVarType update_var_type,
-    int id, ScanEnv* env)
+static int node_new_update_var_gimmick(Node ** node, enum UpdateVarType update_var_type, int id, ScanEnv* env)
 {
 	*node = node_new();
 	CHECK_NULL_RETURN_MEMERR(*node);
-
 	NODE_SET_TYPE(*node, NODE_GIMMICK);
 	GIMMICK_(*node)->id   = id;
 	GIMMICK_(*node)->type = GIMMICK_UPDATE_VAR;
 	GIMMICK_(*node)->detail_type = (int)update_var_type;
-
 	return ONIG_NORMAL;
 }
 
 static int node_new_keep(Node ** node, ScanEnv* env)
 {
-	int r;
-
-	r = node_new_save_gimmick(node, SAVE_KEEP, env);
-	if(r) return r;
-
+	int r = node_new_save_gimmick(node, SAVE_KEEP, env);
+	if(r) 
+		return r;
 	env->keep_num++;
 	return ONIG_NORMAL;
 }
@@ -2373,7 +2289,6 @@ void onig_free_reg_callout_list(int n, CalloutListEntry* list)
 			}
 		}
 	}
-
 	SAlloc::F(list);
 }
 
@@ -2435,7 +2350,6 @@ static int node_new_callout(Node ** node, OnigCalloutOf callout_of, int num, int
 	GIMMICK_(*node)->num = num;
 	GIMMICK_(*node)->type        = GIMMICK_CALLOUT;
 	GIMMICK_(*node)->detail_type = (int)callout_of;
-
 	return ONIG_NORMAL;
 }
 
@@ -2489,69 +2403,51 @@ static int make_absent_engine(Node ** node, int pre_save_right_id, Node* absent,
 	int id;
 	Node* x;
 	Node* ns[4];
-
-	for(i = 0; i < 4; i++) ns[i] = NULL_NODE;
-
+	for(i = 0; i < 4; i++) 
+		ns[i] = NULL_NODE;
 	ns[1] = absent;
 	ns[3] = step_one; /* for err */
 	r = node_new_save_gimmick(&ns[0], SAVE_S, env);
-	if(r) goto err;
-
+	if(r) 
+		goto err;
 	id = GIMMICK_(ns[0])->id;
-	r = node_new_update_var_gimmick(&ns[2], UPDATE_VAR_RIGHT_RANGE_FROM_S_STACK,
-		id, env);
+	r = node_new_update_var_gimmick(&ns[2], UPDATE_VAR_RIGHT_RANGE_FROM_S_STACK, id, env);
 	if(r) goto err;
-
 	if(is_range_cutter != 0)
 		NODE_STATUS_ADD(ns[2], ABSENT_WITH_SIDE_EFFECTS);
-
 	r = node_new_fail(&ns[3], env);
-	if(r) goto err;
-
+	if(r) 
+		goto err;
 	x = make_list(4, ns);
-	if(IS_NULL(x)) goto err0;
-
+	if(IS_NULL(x)) 
+		goto err0;
 	ns[0] = x;
 	ns[1] = step_one;
 	ns[2] = ns[3] = NULL_NODE;
-
 	x = make_alt(2, ns);
 	if(IS_NULL(x)) goto err0;
-
 	ns[0] = x;
-
 	x = node_new_quantifier(lower, upper, FALSE);
 	if(IS_NULL(x)) goto err0;
-
 	NODE_BODY(x) = ns[0];
 	ns[0] = x;
-
 	if(possessive != 0) {
 		x = node_new_bag(BAG_STOP_BACKTRACK);
 		if(IS_NULL(x)) goto err0;
-
 		NODE_BODY(x) = ns[0];
 		ns[0] = x;
 	}
-
-	r = node_new_update_var_gimmick(&ns[1], UPDATE_VAR_RIGHT_RANGE_FROM_STACK,
-		pre_save_right_id, env);
+	r = node_new_update_var_gimmick(&ns[1], UPDATE_VAR_RIGHT_RANGE_FROM_STACK, pre_save_right_id, env);
 	if(r) goto err;
-
 	r = node_new_fail(&ns[2], env);
 	if(r) goto err;
-
 	x = make_list(2, ns + 1);
 	if(IS_NULL(x)) goto err0;
-
 	ns[1] = x; ns[2] = NULL_NODE;
-
 	x = make_alt(2, ns);
 	if(IS_NULL(x)) goto err0;
-
 	if(is_range_cutter != FALSE)
 		NODE_STATUS_ADD(x, SUPER);
-
 	*node = x;
 	return ONIG_NORMAL;
 
@@ -2562,15 +2458,13 @@ err:
 	return r;
 }
 
-static int make_absent_tail(Node ** node1, Node ** node2, int pre_save_right_id,
-    ScanEnv* env)
+static int make_absent_tail(Node ** node1, Node ** node2, int pre_save_right_id, ScanEnv* env)
 {
 	int r;
 	int id;
 	Node* save;
 	Node* x;
 	Node* ns[2];
-
 	*node1 = *node2 = NULL_NODE;
 	save = ns[0] = ns[1] = NULL_NODE;
 

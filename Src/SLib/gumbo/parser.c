@@ -105,7 +105,7 @@ static bool handle_in_template(GumboParser*, GumboToken*);
 static void FASTCALL destroy_node(GumboNode * pNode);
 
 //static void * malloc_wrapper(void * unused, size_t size) { return malloc(size); }
-//static void free_wrapper(void * unused, void * ptr) { free(ptr); }
+//static void free_wrapper(void * unused, void * ptr) { SAlloc::F(ptr); }
 const GumboOptions kGumboDefaultOptions = { /*&malloc_wrapper, &free_wrapper,*/ NULL, 8, false, -1, GUMBO_TAG_LAST, GUMBO_NAMESPACE_HTML};
 
 static const GumboStringPiece kDoctypeHtml = GUMBO_STRING("html");

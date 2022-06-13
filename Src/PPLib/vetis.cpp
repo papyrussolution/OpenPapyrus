@@ -6102,12 +6102,12 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 																		if(p_rr) {
 																			for(uint cgidx = 0; cgidx < p_rr->ConditionGroup.getCount(); cgidx++) {
 																				const VetisRegionalizationCondition * p_rc = p_rr->ConditionGroup.at(cgidx);
-																				if(p_rc && (!!p_rc->Guid || !!p_rc->Uuid)) { // @v11.4.0 (&& (!!p_rc->Guid || !!p_rc->Uuid))
+																				if(p_rc && (!!p_rc->Guid/* @v11.4.1 || !!p_rc->Uuid*/)) { // @v11.4.0 (&& (!!p_rc->Guid || !!p_rc->Uuid))
 																					SXml::WNode n_r13(srb, _xmlnst_vd("r13nClause"));
 																					{
 																						SXml::WNode n_rc(srb, _xmlnst_vd("condition"));
 																						PutNonZeroGuid(n_rc, "bs", p_rc->Guid);
-																						PutNonZeroUuid(n_rc, "bs", p_rc->Uuid);
+																						// @v11.4.1 PutNonZeroUuid(n_rc, "bs", p_rc->Uuid);
 																						//n_rc.PutInner(_xmlnst_bs_uuid(), temp_buf.Z().Cat(p_rc->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
 																						//(temp_buf = p_rc->Text).Transf(CTRANSF_INNER_TO_UTF8);
 																						//XMLReplaceSpecSymb(temp_buf, "<>&");

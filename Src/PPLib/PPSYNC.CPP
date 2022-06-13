@@ -339,14 +339,14 @@ int FASTCALL PPSync::Unlock(ulong offs)
 	return ok;
 }
 
-int FASTCALL PPSync::IsLocked(ulong offs)
+bool FASTCALL PPSync::IsLocked(ulong offs)
 {
 	if(Lock(offs, 1) > 0) {
 		Unlock(offs);
-		return 0;
+		return false;
 	}
 	else
-		return 1;
+		return true;
 }
 
 int PPSync::LockDB()

@@ -26,11 +26,11 @@ __FBSDID("$FreeBSD$");
 #define wmemcmp(a, b, i)  memcmp((a), (b), (i) * sizeof(wchar_t))
 #endif
 
-static int    acl_special(struct archive_acl * acl, int type, int permset, int tag);
-static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl, int type, int permset, int tag, int id);
-static int    archive_acl_add_entry_len_l(struct archive_acl * acl, int type, int permset, int tag, int id, const char * name, size_t len, struct archive_string_conv * sc);
-static int    archive_acl_text_want_type(struct archive_acl * acl, int flags);
-static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int flags, int wide, struct archive * a, struct archive_string_conv * sc);
+static int    acl_special(archive_acl * acl, int type, int permset, int tag);
+static archive_acl_entry * acl_new_entry(archive_acl * acl, int type, int permset, int tag, int id);
+static int    archive_acl_add_entry_len_l(archive_acl * acl, int type, int permset, int tag, int id, const char * name, size_t len, archive_string_conv * sc);
+static int    archive_acl_text_want_type(archive_acl * acl, int flags);
+static ssize_t archive_acl_text_len(archive_acl * acl, int want_type, int flags, int wide, Archive * a, archive_string_conv * sc);
 static int    isint_w(const wchar_t * start, const wchar_t * end, int * result);
 static int    ismode_w(const wchar_t * start, const wchar_t * end, int * result);
 static int    is_nfs4_flags_w(const wchar_t * start, const wchar_t * end, int * result);
@@ -85,10 +85,10 @@ static const struct {
 
 static const int nfsv4_acl_flag_map_size = (int)(sizeof(nfsv4_acl_flag_map) / sizeof(nfsv4_acl_flag_map[0]));
 
-void archive_acl_clear(struct archive_acl * acl)
+void archive_acl_clear(archive_acl * acl)
 {
 	while(acl->acl_head) {
-		struct archive_acl_entry * ap = acl->acl_head->next;
+		archive_acl_entry * ap = acl->acl_head->next;
 		archive_mstring_clean(&acl->acl_head->name);
 		SAlloc::F(acl->acl_head);
 		acl->acl_head = ap;
@@ -100,23 +100,20 @@ void archive_acl_clear(struct archive_acl * acl)
 	acl->acl_state = 0; /* Not counting. */
 }
 
-void archive_acl_copy(struct archive_acl * dest, struct archive_acl * src)
+void archive_acl_copy(archive_acl * dest, archive_acl * src)
 {
-	struct archive_acl_entry * ap, * ap2;
 	archive_acl_clear(dest);
 	dest->mode = src->mode;
-	ap = src->acl_head;
-	while(ap != NULL) {
-		ap2 = acl_new_entry(dest, ap->type, ap->permset, ap->tag, ap->id);
-		if(ap2 != NULL)
+	for(archive_acl_entry * ap = src->acl_head; ap; ap = ap->next) {
+		archive_acl_entry * ap2 = acl_new_entry(dest, ap->type, ap->permset, ap->tag, ap->id);
+		if(ap2)
 			archive_mstring_copy(&ap2->name, &ap->name);
-		ap = ap->next;
 	}
 }
 
-int archive_acl_add_entry(struct archive_acl * acl, int type, int permset, int tag, int id, const char * name)
+int archive_acl_add_entry(archive_acl * acl, int type, int permset, int tag, int id, const char * name)
 {
-	struct archive_acl_entry * ap;
+	archive_acl_entry * ap;
 	if(acl_special(acl, type, permset, tag) == 0)
 		return ARCHIVE_OK;
 	ap = acl_new_entry(acl, type, permset, tag, id);
@@ -130,12 +127,12 @@ int archive_acl_add_entry(struct archive_acl * acl, int type, int permset, int t
 	return ARCHIVE_OK;
 }
 
-int archive_acl_add_entry_w_len(struct archive_acl * acl, int type, int permset, int tag, int id, const wchar_t * name, size_t len)
+int archive_acl_add_entry_w_len(archive_acl * acl, int type, int permset, int tag, int id, const wchar_t * name, size_t len)
 {
 	if(acl_special(acl, type, permset, tag) == 0)
 		return ARCHIVE_OK;
 	else {
-		struct archive_acl_entry * ap = acl_new_entry(acl, type, permset, tag, id);
+		archive_acl_entry * ap = acl_new_entry(acl, type, permset, tag, id);
 		if(!ap) {
 			return ARCHIVE_FAILED; /* XXX Error XXX */
 		}
@@ -147,9 +144,9 @@ int archive_acl_add_entry_w_len(struct archive_acl * acl, int type, int permset,
 	}
 }
 
-static int archive_acl_add_entry_len_l(struct archive_acl * acl, int type, int permset, int tag, int id, const char * name, size_t len, struct archive_string_conv * sc)
+static int archive_acl_add_entry_len_l(archive_acl * acl, int type, int permset, int tag, int id, const char * name, size_t len, archive_string_conv * sc)
 {
-	struct archive_acl_entry * ap;
+	archive_acl_entry * ap;
 	int r;
 	if(acl_special(acl, type, permset, tag) == 0)
 		return ARCHIVE_OK;
@@ -175,7 +172,7 @@ static int archive_acl_add_entry_len_l(struct archive_acl * acl, int type, int p
  * If this ACL entry is part of the standard POSIX permissions set,
  * store the permissions in the stat structure and return zero.
  */
-static int acl_special(struct archive_acl * acl, int type, int permset, int tag)
+static int acl_special(archive_acl * acl, int type, int permset, int tag)
 {
 	if(type == ARCHIVE_ENTRY_ACL_TYPE_ACCESS && ((permset & ~007) == 0)) {
 		switch(tag) {
@@ -199,9 +196,9 @@ static int acl_special(struct archive_acl * acl, int type, int permset, int tag)
  * Allocate and populate a new ACL entry with everything but the
  * name.
  */
-static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl, int type, int permset, int tag, int id)
+static archive_acl_entry * acl_new_entry(archive_acl * acl, int type, int permset, int tag, int id)
 {
-	struct archive_acl_entry * ap, * aq;
+	archive_acl_entry * ap, * aq;
 	/* Type argument must be a valid NFS4 or POSIX.1e type.
 	 * The type must agree with anything already set and
 	 * the permset must be compatible. */
@@ -270,7 +267,7 @@ static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl, int ty
 		ap = ap->next;
 	}
 	/* Add a new entry to the end of the list. */
-	ap = (struct archive_acl_entry *)SAlloc::C(1, sizeof(*ap));
+	ap = (archive_acl_entry *)SAlloc::C(1, sizeof(*ap));
 	if(!ap)
 		return NULL;
 	if(aq == NULL)
@@ -287,14 +284,12 @@ static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl, int ty
 /*
  * Return a count of entries matching "want_type".
  */
-int archive_acl_count(struct archive_acl * acl, int want_type)
+int archive_acl_count(archive_acl * acl, int want_type)
 {
 	int count = 0;
-	struct archive_acl_entry * ap = acl->acl_head;
-	while(ap != NULL) {
+	for(archive_acl_entry * ap = acl->acl_head; ap; ap = ap->next) {
 		if((ap->type & want_type) != 0)
 			count++;
-		ap = ap->next;
 	}
 	if(count > 0 && ((want_type & ARCHIVE_ENTRY_ACL_TYPE_ACCESS) != 0))
 		count += 3;
@@ -303,7 +298,7 @@ int archive_acl_count(struct archive_acl * acl, int want_type)
 /*
  * Return a bitmask of stored ACL types in an ACL list
  */
-int archive_acl_types(struct archive_acl * acl)
+int FASTCALL archive_acl_types(const archive_acl * acl)
 {
 	return (acl->acl_types);
 }
@@ -312,7 +307,7 @@ int archive_acl_types(struct archive_acl * acl)
  * of entries matching "want_type", or zero if there are no
  * non-extended ACL entries of that type.
  */
-int archive_acl_reset(struct archive_acl * acl, int want_type)
+int archive_acl_reset(archive_acl * acl, int want_type)
 {
 	const int count = archive_acl_count(acl, want_type);
 	/*
@@ -329,7 +324,7 @@ int archive_acl_reset(struct archive_acl * acl, int want_type)
  * Return the next ACL entry in the list.  Fake entries for the
  * standard permissions and include them in the returned list.
  */
-int archive_acl_next(struct archive * a, struct archive_acl * acl, int want_type, int * type, int * permset, int * tag, int * id, const char ** name)
+int archive_acl_next(Archive * a, archive_acl * acl, int want_type, int * type, int * permset, int * tag, int * id, const char ** name)
 {
 	*name = NULL;
 	*id = -1;
@@ -392,7 +387,7 @@ int archive_acl_next(struct archive * a, struct archive_acl * acl, int want_type
 /*
  * Determine what type of ACL do we want
  */
-static int archive_acl_text_want_type(struct archive_acl * acl, int flags)
+static int archive_acl_text_want_type(archive_acl * acl, int flags)
 {
 	int want_type;
 	/* Check if ACL is NFSv4 */
@@ -417,16 +412,16 @@ static int archive_acl_text_want_type(struct archive_acl * acl, int flags)
 /*
  * Calculate ACL text string length
  */
-static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int flags, int wide, struct archive * a, struct archive_string_conv * sc) 
+static ssize_t archive_acl_text_len(archive_acl * acl, int want_type, int flags, int wide, Archive * a, archive_string_conv * sc) 
 {
-	struct archive_acl_entry * ap;
+	archive_acl_entry * ap;
 	const char * name;
 	const wchar_t * wname;
 	int idlen, tmp, r;
 	size_t len;
 	int count = 0;
 	ssize_t length = 0;
-	for(ap = acl->acl_head; ap != NULL; ap = ap->next) {
+	for(ap = acl->acl_head; ap; ap = ap->next) {
 		if((ap->type & want_type) == 0)
 			continue;
 		/*
@@ -517,8 +512,8 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 		length++; /* entry separator */
 	}
 	/* Add filemode-mapping access entries to the length */
-	if((want_type & ARCHIVE_ENTRY_ACL_TYPE_ACCESS) != 0) {
-		if((flags & ARCHIVE_ENTRY_ACL_STYLE_SOLARIS) != 0) {
+	if(want_type & ARCHIVE_ENTRY_ACL_TYPE_ACCESS) {
+		if(flags & ARCHIVE_ENTRY_ACL_STYLE_SOLARIS) {
 			/* "user::rwx\ngroup::rwx\nother:rwx\n" */
 			length += 31;
 		}
@@ -535,7 +530,7 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
  * Generate a wide text version of the ACL. The flags parameter controls
  * the type and style of the generated ACL.
  */
-wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, int flags, struct archive * a)
+wchar_t * archive_acl_to_text_w(archive_acl * acl, ssize_t * text_len, int flags, Archive * a)
 {
 	int count;
 	ssize_t length;
@@ -543,7 +538,7 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 	const wchar_t * wname;
 	const wchar_t * prefix;
 	wchar_t separator;
-	struct archive_acl_entry * ap;
+	archive_acl_entry * ap;
 	int id, r;
 	wchar_t * wp, * ws;
 	int want_type = archive_acl_text_want_type(acl, flags);
@@ -575,20 +570,16 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 		append_entry_w(&wp, NULL, ARCHIVE_ENTRY_ACL_TYPE_ACCESS, ARCHIVE_ENTRY_ACL_OTHER, flags, NULL, acl->mode & 0007, -1);
 		count += 3;
 	}
-	for(ap = acl->acl_head; ap != NULL; ap = ap->next) {
+	for(ap = acl->acl_head; ap; ap = ap->next) {
 		if((ap->type & want_type) == 0)
 			continue;
 		/*
 		 * Filemode-mapping ACL entries are stored exclusively in
 		 * ap->mode so they should not be in the list
 		 */
-		if((ap->type == ARCHIVE_ENTRY_ACL_TYPE_ACCESS)
-		    && (ap->tag == ARCHIVE_ENTRY_ACL_USER_OBJ
-		   || ap->tag == ARCHIVE_ENTRY_ACL_GROUP_OBJ
-		   || ap->tag == ARCHIVE_ENTRY_ACL_OTHER))
+		if((ap->type == ARCHIVE_ENTRY_ACL_TYPE_ACCESS) && (ap->tag == ARCHIVE_ENTRY_ACL_USER_OBJ || ap->tag == ARCHIVE_ENTRY_ACL_GROUP_OBJ || ap->tag == ARCHIVE_ENTRY_ACL_OTHER))
 			continue;
-		if(ap->type == ARCHIVE_ENTRY_ACL_TYPE_DEFAULT &&
-		    (flags & ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT) != 0)
+		if(ap->type == ARCHIVE_ENTRY_ACL_TYPE_DEFAULT && (flags & ARCHIVE_ENTRY_ACL_STYLE_MARK_DEFAULT) != 0)
 			prefix = L"default:";
 		else
 			prefix = NULL;
@@ -728,7 +719,7 @@ static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type, int 
  * Generate a text version of the ACL. The flags parameter controls
  * the type and style of the generated ACL.
  */
-char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int flags, struct archive_string_conv * sc)
+char * archive_acl_to_text_l(archive_acl * acl, ssize_t * text_len, int flags, archive_string_conv * sc)
 {
 	int count;
 	ssize_t length;
@@ -736,7 +727,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 	const char * name;
 	const char * prefix;
 	char separator;
-	struct archive_acl_entry * ap;
+	archive_acl_entry * ap;
 	int id, r;
 	char * p, * s;
 	const int want_type = archive_acl_text_want_type(acl, flags);
@@ -768,7 +759,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 		append_entry(&p, NULL, ARCHIVE_ENTRY_ACL_TYPE_ACCESS, ARCHIVE_ENTRY_ACL_OTHER, flags, NULL, acl->mode & 0007, -1);
 		count += 3;
 	}
-	for(ap = acl->acl_head; ap != NULL; ap = ap->next) {
+	for(ap = acl->acl_head; ap; ap = ap->next) {
 		if((ap->type & want_type) == 0)
 			continue;
 		/*
@@ -788,8 +779,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 		}
 		if(count > 0)
 			*p++ = separator;
-		if(name == NULL ||
-		    (flags & ARCHIVE_ENTRY_ACL_STYLE_EXTRA_ID)) {
+		if(name == NULL || (flags & ARCHIVE_ENTRY_ACL_STYLE_EXTRA_ID)) {
 			id = ap->id;
 		}
 		else {
@@ -923,14 +913,12 @@ static void append_entry(char ** p, const char * prefix, int type, int tag, int 
  * POSIX.1e ACL entries prefixed with "default:" are treated as
  * ARCHIVE_ENTRY_ACL_TYPE_DEFAULT unless type is ARCHIVE_ENTRY_ACL_TYPE_NFS4
  */
-int archive_acl_from_text_w(struct archive_acl * acl, const wchar_t * text,
-    int want_type)
+int archive_acl_from_text_w(archive_acl * acl, const wchar_t * text, int want_type)
 {
 	struct {
 		const wchar_t * start;
 		const wchar_t * end;
 	} field[6], name;
-
 	const wchar_t * s, * st;
 	int numfields, fields, n, r, sol;
 	int type, tag, permset, id;
@@ -1307,7 +1295,7 @@ static void next_field_w(const wchar_t ** wp, const wchar_t ** start, const wcha
  * POSIX.1e ACL entries prefixed with "default:" are treated as
  * ARCHIVE_ENTRY_ACL_TYPE_DEFAULT unless type is ARCHIVE_ENTRY_ACL_TYPE_NFS4
  */
-int archive_acl_from_text_l(struct archive_acl * acl, const char * text, int want_type, struct archive_string_conv * sc)
+int archive_acl_from_text_l(archive_acl * acl, const char * text, int want_type, archive_string_conv * sc)
 {
 	struct {
 		const char * start;
@@ -1388,7 +1376,7 @@ int archive_acl_from_text_l(struct archive_acl * acl, const char * text, int wan
 			s = field[n].start;
 			st = field[n].start + 1;
 			len = field[n].end - field[n].start;
-			if(len == 0) {
+			if(!len) {
 				ret = ARCHIVE_WARN;
 				continue;
 			}

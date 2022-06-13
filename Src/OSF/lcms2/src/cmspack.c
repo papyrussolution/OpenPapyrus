@@ -867,18 +867,15 @@ static uint8 * UnrollLabDoubleToFloat(_cmsTRANSFORM * info, float wIn[], uint8 *
 	double * Pt = (double *)accum;
 	if(T_PLANAR(info->InputFormat)) {
 		Stride /= PixelSize(info->InputFormat);
-
 		wIn[0] = (float)(Pt[0] / 100.0);          // from 0..100 to 0..1
 		wIn[1] = (float)((Pt[Stride] + 128) / 255.0); // form -128..+127 to 0..1
 		wIn[2] = (float)((Pt[Stride*2] + 128) / 255.0);
-
 		return accum + sizeof(double);
 	}
 	else {
 		wIn[0] = (float)(Pt[0] / 100.0);     // from 0..100 to 0..1
 		wIn[1] = (float)((Pt[1] + 128) / 255.0); // form -128..+127 to 0..1
 		wIn[2] = (float)((Pt[2] + 128) / 255.0);
-
 		accum += sizeof(double)*(3 + T_EXTRA(info->InputFormat));
 		return accum;
 	}
@@ -2416,7 +2413,7 @@ static void DupFormatterFactoryList(struct _cmsContext_struct* ctx, const struct
 	// Walk the list copying all nodes
 	for(entry = head->FactoryList; entry != NULL; entry = entry->Next) {
 		cmsFormattersFactoryList * newEntry = (cmsFormattersFactoryList*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(cmsFormattersFactoryList));
-		if(newEntry == NULL)
+		if(!newEntry)
 			return;
 		// We want to keep the linked list order, so this is a little bit tricky
 		newEntry->Next = NULL;
@@ -2449,7 +2446,7 @@ boolint _cmsRegisterFormattersPlugin(cmsContext ContextID, cmsPluginBase* Data)
 	cmsPluginFormatters* Plugin = (cmsPluginFormatters*)Data;
 	cmsFormattersFactoryList* fl;
 	// Reset to built-in defaults
-	if(Data == NULL) {
+	if(!Data) {
 		ctx->FactoryList = NULL;
 		return TRUE;
 	}

@@ -276,7 +276,7 @@ void CollationDataBuilder::initForTailoring(const CollationData * b, UErrorCode 
 		errorCode = U_INVALID_STATE_ERROR;
 		return;
 	}
-	if(b == NULL) {
+	if(!b) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}

@@ -768,7 +768,7 @@ ssh_string pki_signature_to_blob(const ssh_signature sig)
 		    int rc;
 
 		    b = ssh_buffer_new();
-		    if(b == NULL) {
+		    if(!b) {
 			    return NULL;
 		    }
 
@@ -920,7 +920,7 @@ ssh_signature pki_signature_from_blob(const ssh_key pubkey,
 		    size_t rlen;
 
 		    b = ssh_buffer_new();
-		    if(b == NULL) {
+		    if(!b) {
 			    ssh_signature_free(sig);
 			    return NULL;
 		    }

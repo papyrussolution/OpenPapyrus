@@ -19,9 +19,9 @@ __FBSDID("$FreeBSD$");
 /*
  * sparse handling
  */
-void archive_entry_sparse_clear(struct archive_entry * entry)
+void archive_entry_sparse_clear(ArchiveEntry * entry)
 {
-	while(entry->sparse_head != NULL) {
+	while(entry->sparse_head) {
 		struct ae_sparse * sp = entry->sparse_head->next;
 		SAlloc::F(entry->sparse_head);
 		entry->sparse_head = sp;
@@ -29,7 +29,7 @@ void archive_entry_sparse_clear(struct archive_entry * entry)
 	entry->sparse_tail = NULL;
 }
 
-void archive_entry_sparse_add_entry(struct archive_entry * entry, la_int64_t offset, la_int64_t length)
+void archive_entry_sparse_add_entry(ArchiveEntry * entry, la_int64_t offset, la_int64_t length)
 {
 	struct ae_sparse * sp;
 	if(offset < 0 || length < 0)
@@ -64,7 +64,7 @@ void archive_entry_sparse_add_entry(struct archive_entry * entry, la_int64_t off
 /*
  * returns number of the sparse entries
  */
-int archive_entry_sparse_count(struct archive_entry * entry)
+int archive_entry_sparse_count(ArchiveEntry * entry)
 {
 	struct ae_sparse * sp;
 	int count = 0;
@@ -85,13 +85,13 @@ int archive_entry_sparse_count(struct archive_entry * entry)
 	return (count);
 }
 
-int archive_entry_sparse_reset(struct archive_entry * entry)
+int archive_entry_sparse_reset(ArchiveEntry * entry)
 {
 	entry->sparse_p = entry->sparse_head;
 	return archive_entry_sparse_count(entry);
 }
 
-int archive_entry_sparse_next(struct archive_entry * entry, la_int64_t * offset, la_int64_t * length)
+int archive_entry_sparse_next(ArchiveEntry * entry, la_int64_t * offset, la_int64_t * length)
 {
 	if(entry->sparse_p) {
 		*offset = entry->sparse_p->offset;

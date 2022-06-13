@@ -805,6 +805,9 @@
       <Project>{813784d9-8b70-4880-91e7-51bb4265d187}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="libarchive-350.vcxproj">
+      <Project>{3e6b3daf-e5ed-446d-9313-feda5391ab9f}</Project>
+    </ProjectReference>
     <ProjectReference Include="libxml.vcxproj">
       <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

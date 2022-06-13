@@ -909,19 +909,14 @@ static int nexttoken(const char ** in, time_t * value)
 				src++;
 			}
 			buff[i] = '\0';
-
 			/*
 			 * Find the first match.  If the word can be
 			 * abbreviated, make sure we match at least
 			 * the minimum abbreviation.
 			 */
 			for(tp = TimeWords; tp->name; tp++) {
-				size_t abbrev = tp->abbrev;
-				if(abbrev == 0)
-					abbrev = strlen(tp->name);
-				if(strlen(buff) >= abbrev
-				    && strncmp(tp->name, buff, strlen(buff))
-				    == 0) {
+				const size_t abbrev = NZOR(tp->abbrev, strlen(tp->name));
+				if(strlen(buff) >= abbrev && strncmp(tp->name, buff, strlen(buff)) == 0) {
 					/* Skip over token. */
 					*in = src;
 					/* Return the match. */
@@ -930,7 +925,6 @@ static int nexttoken(const char ** in, time_t * value)
 				}
 			}
 		}
-
 		/*
 		 * Not in the word table, maybe it's a number.  Note:
 		 * Because '-' and '+' have other special meanings, I
@@ -942,7 +936,6 @@ static int nexttoken(const char ** in, time_t * value)
 			(*in)--;
 			return (tUNUMBER);
 		}
-
 		return *(*in)++;
 	}
 }

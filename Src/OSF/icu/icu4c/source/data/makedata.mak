@@ -62,7 +62,6 @@ ICUP=$(ICUP:\source\data\..\..=)
 ICUP=$(ICUP:\source\data\\..\..=)
 !MESSAGE ICU root path is $(ICUP)
 
-
 #  ICUSRCDATA
 #       The data directory in source
 #
@@ -416,6 +415,7 @@ icu4j-data-install :
 	copy "$(U_ICUDATA_NAME).dll" "$(DLL_OUTPUT)"
 	-@erase "$(U_ICUDATA_NAME).dll"
 	copy "$(ICUTMP)\$(ICUPKG).dat" "$(ICUOUT)\$(U_ICUDATA_NAME)$(U_ICUDATA_ENDIAN_SUFFIX).dat"
+	copy "$(ICUTMP)\$(ICUPKG).dat" "$(DLL_OUTPUT)\$(U_ICUDATA_NAME)$(U_ICUDATA_ENDIAN_SUFFIX).dat"
 	-@erase "$(ICUTMP)\$(ICUPKG).dat"
 !ELSE
 "$(ICU_LIB_TARGET)" : $(COMMON_ICUDATA_DEPENDENCIES) $(COREDATA_TS)
@@ -427,6 +427,7 @@ icu4j-data-install :
 	copy "$(U_ICUDATA_NAME).dll" "$(ICU_LIB_TARGET)"
 	-@erase "$(U_ICUDATA_NAME).dll"
 	copy "$(ICUTMP)\$(ICUPKG).dat" "$(ICUOUT)\$(U_ICUDATA_NAME)$(U_ICUDATA_ENDIAN_SUFFIX).dat"
+	copy "$(ICUTMP)\$(ICUPKG).dat" "$(DLL_OUTPUT)\$(U_ICUDATA_NAME)$(U_ICUDATA_ENDIAN_SUFFIX).dat"
 	-@erase "$(ICUTMP)\$(ICUPKG).dat"
 !ENDIF
 
@@ -439,6 +440,7 @@ icu4j-data-install :
 	copy "$(U_ICUDATA_NAME).dll" "$(ICU_LIB_TARGET)"
 	-@erase "$(U_ICUDATA_NAME).dll"
 	copy "$(ICUTMP)\$(ICUPKG).dat" "$(ICUOUT)\$(U_ICUDATA_NAME)$(U_ICUDATA_ENDIAN_SUFFIX).dat"
+	copy "$(ICUTMP)\$(ICUPKG).dat" "$(DLL_OUTPUT)\$(U_ICUDATA_NAME)$(U_ICUDATA_ENDIAN_SUFFIX).dat"
 	-@erase "$(ICUTMP)\$(ICUPKG).dat"
 	@echo "timestamp" > $(ARM_CROSSBUILD_TS)
 

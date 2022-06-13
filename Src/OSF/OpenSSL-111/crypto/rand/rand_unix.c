@@ -314,8 +314,7 @@ static ssize_t syscall_random(void * buf, size_t buflen)
 	 */
 #if defined(__GNUC__) && __GNUC__>=2 && defined(__ELF__) && !defined(__hpux)
 	extern int getentropy(void * buffer, size_t length) __attribute__((weak));
-
-	if(getentropy != NULL)
+	if(getentropy)
 		return getentropy(buf, buflen) == 0 ? (ssize_t)buflen : -1;
 #else
 	union {
@@ -330,7 +329,7 @@ static ssize_t syscall_random(void * buf, size_t buflen)
 	ERR_set_mark();
 	p_getentropy.p = DSO_global_lookup("getentropy");
 	ERR_pop_to_mark();
-	if(p_getentropy.p != NULL)
+	if(p_getentropy.p)
 		return p_getentropy.f(buf, buflen) == 0 ? (ssize_t)buflen : -1;
 #endif
 
@@ -503,7 +502,6 @@ static int get_random_device(size_t n)
 static void close_random_device(size_t n)
 {
 	struct random_device * rd = &random_devices[n];
-
 	if(check_random_device(rd))
 		close(rd->fd);
 	rd->fd = -1;
@@ -512,17 +510,14 @@ static void close_random_device(size_t n)
 int rand_pool_init(void)
 {
 	size_t i;
-
 	for(i = 0; i < OSSL_NELEM(random_devices); i++)
 		random_devices[i].fd = -1;
-
 	return 1;
 }
 
 void rand_pool_cleanup(void)
 {
 	size_t i;
-
 	for(i = 0; i < OSSL_NELEM(random_devices); i++)
 		close_random_device(i);
 }
@@ -531,7 +526,6 @@ void rand_pool_keep_random_devices_open(int keep)
 {
 	if(!keep)
 		rand_pool_cleanup();
-
 	keep_random_devices_open = keep;
 }
 
@@ -670,13 +664,11 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 		int i;
 
 		bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
-		for(i = 0; bytes_needed > 0 && paths[i] != NULL; i++) {
+		for(i = 0; bytes_needed > 0 && paths[i]; i++) {
 			size_t bytes = 0;
 			int num;
-
 			buffer = rand_pool_add_begin(pool, bytes_needed);
-			num = RAND_query_egd_bytes(paths[i],
-				buffer, (int)bytes_needed);
+			num = RAND_query_egd_bytes(paths[i], buffer, (int)bytes_needed);
 			if(num == (int)bytes_needed)
 				bytes = bytes_needed;
 

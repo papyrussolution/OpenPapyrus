@@ -7,8 +7,7 @@
 
 using namespace std;
 
-const TCHAR * USERMSG = TEXT(
-	" is not compatible with the current version of Notepad++.\n\n\
+const TCHAR * USERMSG = TEXT(" is not compatible with the current version of Notepad++.\n\n\
 Do you want to remove this plugin from the plugins directory to prevent this message from the next launch?");
 
 bool PluginsManager::unloadPlugin(int index, HWND nppHandle)
@@ -489,21 +488,15 @@ void PluginsManager::runPluginCommand(const TCHAR * pluginName, int commandID)
 	for(size_t i = 0, len = _pluginsCommands.size(); i < len; ++i) {
 		if(!generic_stricmp(_pluginsCommands[i]._pluginName.c_str(), pluginName)) {
 			if(_pluginsCommands[i]._funcID == commandID) {
-				try
-				{
+				try {
 					_pluginsCommands[i]._pFunc();
 				}
-				catch(std::exception& e)
-				{
+				catch(std::exception& e) {
 					pluginExceptionAlert(_pluginsCommands[i]._pluginName.c_str(), e);
 				}
-				catch(...)
-				{
+				catch(...) {
 					TCHAR funcInfo[128];
-					generic_sprintf(funcInfo,
-					    TEXT("runPluginCommand(const TCHAR *pluginName : %s, int commandID : %d)"),
-					    pluginName,
-					    commandID);
+					generic_sprintf(funcInfo, TEXT("runPluginCommand(const TCHAR *pluginName : %s, int commandID : %d)"), pluginName, commandID);
 					pluginCrashAlert(_pluginsCommands[i]._pluginName.c_str(), funcInfo);
 				}
 			}
@@ -516,27 +509,21 @@ void PluginsManager::notify(size_t indexPluginInfo, const SCNotification * notif
 {
 	if(indexPluginInfo >= _pluginInfos.size())
 		return;
-
 	if(_pluginInfos[indexPluginInfo]->_hLib) {
 		// To avoid the plugin change the data in SCNotification
 		// Each notification to pass to a plugin is a copy of SCNotification instance
 		SCNotification scNotif = *notification;
-		try
-		{
+		try {
 			_pluginInfos[indexPluginInfo]->_pBeNotified(&scNotif);
 		}
-		catch(std::exception& e)
-		{
+		catch(std::exception& e) {
 			pluginExceptionAlert(_pluginInfos[indexPluginInfo]->_moduleName.c_str(), e);
 		}
-		catch(...)
-		{
+		catch(...) {
 			TCHAR funcInfo[256];
 			generic_sprintf(funcInfo,
-			    TEXT(
-				    "notify(SCNotification *notification) : \r notification->nmhdr.code == %d\r notification->nmhdr.hwndFrom == %p\r notification->nmhdr.idFrom == %"
-				    PRIuPTR), \
-			    scNotif.nmhdr.code, scNotif.nmhdr.hwndFrom, scNotif.nmhdr.idFrom);
+			    TEXT("notify(SCNotification *notification) : \r notification->nmhdr.code == %d\r notification->nmhdr.hwndFrom == %p\r notification->nmhdr.idFrom == %" PRIuPTR), 
+				scNotif.nmhdr.code, scNotif.nmhdr.hwndFrom, scNotif.nmhdr.idFrom);
 			pluginCrashAlert(_pluginInfos[indexPluginInfo]->_moduleName.c_str(), funcInfo);
 		}
 	}
@@ -545,12 +532,11 @@ void PluginsManager::notify(size_t indexPluginInfo, const SCNotification * notif
 // broadcast the notification to all plugins
 void PluginsManager::notify(const SCNotification * notification)
 {
-	if(_noMoreNotification)  // this boolean should be enabled after NPPN_SHUTDOWN has been sent
-		return;
-	_noMoreNotification = notification->nmhdr.code == NPPN_SHUTDOWN;
-
-	for(size_t i = 0, len = _pluginInfos.size(); i < len; ++i) {
-		notify(i, notification);
+	if(!_noMoreNotification) { // this boolean should be enabled after NPPN_SHUTDOWN has been sent
+		_noMoreNotification = notification->nmhdr.code == NPPN_SHUTDOWN;
+		for(size_t i = 0, len = _pluginInfos.size(); i < len; ++i) {
+			notify(i, notification);
+		}
 	}
 }
 
@@ -558,22 +544,17 @@ void PluginsManager::relayNppMessages(UINT Message, WPARAM wParam, LPARAM lParam
 {
 	for(size_t i = 0, len = _pluginInfos.size(); i < len; ++i) {
 		if(_pluginInfos[i]->_hLib) {
-			try
-			{
+			try {
 				_pluginInfos[i]->_pMessageProc(Message, wParam, lParam);
 			}
-			catch(std::exception& e)
-			{
+			catch(std::exception& e) {
 				pluginExceptionAlert(_pluginInfos[i]->_moduleName.c_str(), e);
 			}
-			catch(...)
-			{
+			catch(...) {
 				TCHAR funcInfo[128];
 				generic_sprintf(funcInfo,
 				    TEXT("relayNppMessages(UINT Message : %u, WPARAM wParam : %" PRIuPTR ", LPARAM lParam : %" PRIiPTR ")"),
-				    Message,
-				    wParam,
-				    lParam);
+				    Message, wParam, lParam);
 				pluginCrashAlert(_pluginInfos[i]->_moduleName.c_str(), funcInfo);
 			}
 		}
@@ -585,20 +566,16 @@ bool PluginsManager::relayPluginMessages(UINT Message, WPARAM wParam, LPARAM lPa
 	const TCHAR * moduleName = (const TCHAR*)wParam;
 	if(!moduleName || !moduleName[0] || !lParam)
 		return false;
-
 	for(size_t i = 0, len = _pluginInfos.size(); i < len; ++i) {
 		if(_pluginInfos[i]->_moduleName == moduleName) {
 			if(_pluginInfos[i]->_hLib) {
-				try
-				{
+				try {
 					_pluginInfos[i]->_pMessageProc(Message, wParam, lParam);
 				}
-				catch(std::exception& e)
-				{
+				catch(std::exception& e) {
 					pluginExceptionAlert(_pluginInfos[i]->_moduleName.c_str(), e);
 				}
-				catch(...)
-				{
+				catch(...) {
 					TCHAR funcInfo[128];
 					generic_sprintf(funcInfo,
 					    TEXT("relayPluginMessages(UINT Message : %u, WPARAM wParam : %" PRIuPTR ", LPARAM lParam : %"

@@ -9,6 +9,7 @@
 #define DEF_STRLEN             36   // Длина строки
 #define DEF_DRAWER_NUMBER		0	// Номер денежного ящика
 #define DEF_FONTSIZE			3	// Средний размер шрифта
+#define MIN_FONTSIZE			1   // Минимальный размер шрифта
 
 #define SERVICEDOC				0	// Тип документа - сервисный
 #define	SALECHECK				1	// Тип документа - чек на продажу
@@ -1932,7 +1933,7 @@ int SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 					}
 					// } @v11.0.9
 					THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
-					THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
+					THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, MIN_FONTSIZE)); //@SevaSob @v11.4.1
 					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
 					THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}

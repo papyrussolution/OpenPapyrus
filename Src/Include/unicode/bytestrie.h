@@ -174,7 +174,7 @@ private:
 	 * @stable ICU 4.8
 	 */
 	BytesTrie &resetToState(const State &state) {
-		if(bytes_==state.bytes && bytes_!=NULL) {
+		if(bytes_==state.bytes && bytes_ != NULL) {
 			pos_ = state.pos;
 			remainingMatchLength_ = state.remainingMatchLength;
 		}

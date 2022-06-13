@@ -21,6 +21,7 @@ __FBSDID("$FreeBSD$");
 // @sobolev #ifdef HAVE_LZ4_H
 #if defined(HAVE_LIBLZ4) // @sobolev
 	#include <lz4.h>
+	#include <xxhash.h> // @sobolev
 #endif
 #include "archive_read_private.h"
 #include "archive_xxhash.h"
@@ -30,6 +31,24 @@ __FBSDID("$FreeBSD$");
 #define LZ4_LEGACY              0x184c2102
 
 #if defined(HAVE_LIBLZ4)
+
+// @sobolev {
+static void * XXH32_init(uint seed)
+{
+	XXH32_state_t * state = (XXH32_state_t *)SAlloc::M(sizeof(XXH32_state_t));
+	XXH32_reset(state, seed);
+	return state;
+}
+
+
+const struct archive_xxhash __archive_xxhash = {
+	XXH32,
+	XXH32_init,
+	XXH32_update,
+	XXH32_digest
+};
+// } @sobolev
+
 struct private_data {
 	enum {  
 		SELECT_STREAM,
@@ -61,8 +80,8 @@ struct private_data {
 #define LEGACY_BLOCK_SIZE       (8 * 1024 * 1024)
 
 /* Lz4 filter */
-static ssize_t  lz4_filter_read(struct archive_read_filter *, const void **);
-static int lz4_filter_close(struct archive_read_filter *);
+static ssize_t  lz4_filter_read(ArchiveReadFilter *, const void **);
+static int lz4_filter_close(ArchiveReadFilter *);
 #endif
 /*
  * Note that we can detect lz4 archives even if we can't decompress
@@ -70,27 +89,27 @@ static int lz4_filter_close(struct archive_read_filter *);
  * error messages.)  So the bid framework here gets compiled even
  * if liblz4 is unavailable.
  */
-static int lz4_reader_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
-static int lz4_reader_init(struct archive_read_filter *);
-static int lz4_reader_free(struct archive_read_filter_bidder *);
+static int lz4_reader_bid(ArchiveReadFilterBidder *, ArchiveReadFilter *);
+static int lz4_reader_init(ArchiveReadFilter *);
+static int lz4_reader_free(ArchiveReadFilterBidder *);
 #if defined(HAVE_LIBLZ4)
-	static ssize_t  lz4_filter_read_default_stream(struct archive_read_filter *, const void **);
-	static ssize_t  lz4_filter_read_legacy_stream(struct archive_read_filter *, const void **);
+	static ssize_t  lz4_filter_read_default_stream(ArchiveReadFilter *, const void **);
+	static ssize_t  lz4_filter_read_legacy_stream(ArchiveReadFilter *, const void **);
 #endif
 
-int archive_read_support_filter_lz4(struct archive * _a)
+int archive_read_support_filter_lz4(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
-	struct archive_read_filter_bidder * reader;
+	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveReadFilterBidder * reader;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	reader->data = NULL;
 	reader->name = "lz4";
-	reader->bid = lz4_reader_bid;
-	reader->init = lz4_reader_init;
-	reader->options = NULL;
-	reader->free = lz4_reader_free;
+	reader->FnBid = lz4_reader_bid;
+	reader->FnInit = lz4_reader_init;
+	reader->FnOptions = NULL;
+	reader->FnFree = lz4_reader_free;
 #if defined(HAVE_LIBLZ4)
 	return ARCHIVE_OK;
 #else
@@ -99,12 +118,11 @@ int archive_read_support_filter_lz4(struct archive * _a)
 #endif
 }
 
-static int lz4_reader_free(struct archive_read_filter_bidder * self)
+static int lz4_reader_free(ArchiveReadFilterBidder * self)
 {
 	CXX_UNUSED(self);
 	return ARCHIVE_OK;
 }
-
 /*
  * Test whether we can handle this data.
  *
@@ -112,39 +130,37 @@ static int lz4_reader_free(struct archive_read_filter_bidder * self)
  * also tries to Do The Right Thing if a very short buffer prevents us
  * from verifying as much as we would like.
  */
-static int lz4_reader_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
+static int lz4_reader_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * filter)
 {
 	const uchar * buffer;
 	ssize_t avail;
 	int bits_checked;
 	uint32 number;
 	CXX_UNUSED(self);
-	/* Minimal lz4 archive is 11 bytes. */
+	// Minimal lz4 archive is 11 bytes
 	buffer = (const uchar *)__archive_read_filter_ahead(filter, 11, &avail);
 	if(!buffer)
 		return 0;
-
-	/* First four bytes must be LZ4 magic numbers. */
+	// First four bytes must be LZ4 magic numbers
 	bits_checked = 0;
 	if((number = archive_le32dec(buffer)) == LZ4_MAGICNUMBER) {
 		uchar flag, BD;
-
 		bits_checked += 32;
-		/* Next follows a stream descriptor. */
-		/* Descriptor Flags. */
+		// Next follows a stream descriptor
+		// Descriptor Flags
 		flag = buffer[4];
-		/* A version number must be "01". */
+		// A version number must be "01"
 		if(((flag & 0xc0) >> 6) != 1)
 			return 0;
-		/* A reserved bit must be "0". */
+		// A reserved bit must be "0"
 		if(flag & 2)
 			return 0;
 		bits_checked += 8;
 		BD = buffer[5];
-		/* A block maximum size should be more than 3. */
+		// A block maximum size should be more than 3
 		if(((BD & 0x70) >> 4) < 4)
 			return 0;
-		/* Reserved bits must be "0". */
+		// Reserved bits must be "0"
 		if(BD & ~0x70)
 			return 0;
 		bits_checked += 8;
@@ -152,21 +168,18 @@ static int lz4_reader_bid(struct archive_read_filter_bidder * self, struct archi
 	else if(number == LZ4_LEGACY) {
 		bits_checked += 32;
 	}
-
 	return (bits_checked);
 }
 
 #if !defined(HAVE_LIBLZ4)
-
 /*
  * If we don't have the library on this system, we can't actually do the
  * decompression.  We can, however, still detect compressed archives
  * and emit a useful message.
  */
-static int lz4_reader_init(struct archive_read_filter * self)
+static int lz4_reader_init(ArchiveReadFilter * self)
 {
 	int r;
-
 	r = __archive_read_program(self, "lz4 -d -q");
 	/* Note: We set the format here even if __archive_read_program()
 	 * above fails.  We do, after all, know what the format is
@@ -180,7 +193,7 @@ static int lz4_reader_init(struct archive_read_filter * self)
 /*
  * Setup the callbacks.
  */
-static int lz4_reader_init(struct archive_read_filter * self)
+static int lz4_reader_init(ArchiveReadFilter * self)
 {
 	struct private_data * state;
 	self->code = ARCHIVE_FILTER_LZ4;
@@ -198,7 +211,7 @@ static int lz4_reader_init(struct archive_read_filter * self)
 	return ARCHIVE_OK;
 }
 
-static int lz4_allocate_out_block(struct archive_read_filter * self)
+static int lz4_allocate_out_block(ArchiveReadFilter * self)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	size_t out_block_size = state->flags.block_maximum_size;
@@ -220,7 +233,7 @@ static int lz4_allocate_out_block(struct archive_read_filter * self)
 	return ARCHIVE_OK;
 }
 
-static int lz4_allocate_out_block_for_legacy(struct archive_read_filter * self)
+static int lz4_allocate_out_block_for_legacy(ArchiveReadFilter * self)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	size_t out_block_size = LEGACY_BLOCK_SIZE;
@@ -241,7 +254,7 @@ static int lz4_allocate_out_block_for_legacy(struct archive_read_filter * self)
 /*
  * Return the next block of decompressed data.
  */
-static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** p)
+static ssize_t lz4_filter_read(ArchiveReadFilter * self, const void ** p)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	ssize_t ret;
@@ -309,7 +322,7 @@ static ssize_t lz4_filter_read(struct archive_read_filter * self, const void ** 
 	return 0;
 }
 
-static int lz4_filter_read_descriptor(struct archive_read_filter * self)
+static int lz4_filter_read_descriptor(ArchiveReadFilter * self)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	ssize_t bytes_remaining;
@@ -395,7 +408,7 @@ malformed_error:
 	return ARCHIVE_FATAL;
 }
 
-static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, const void ** p)
+static ssize_t lz4_filter_read_data_block(ArchiveReadFilter * self, const void ** p)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	ssize_t compressed_size;
@@ -438,10 +451,8 @@ static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, con
 
 	/* Optional processing, checking a block sum. */
 	if(checksum_size) {
-		uint chsum = __archive_xxhash.XXH32(
-			read_buf + 4, (int)compressed_size, 0);
-		uint chsum_block =
-		    archive_le32dec(read_buf + 4 + compressed_size);
+		uint chsum = __archive_xxhash.XXH32(read_buf + 4, (int)compressed_size, 0);
+		uint chsum_block = archive_le32dec(read_buf + 4 + compressed_size);
 		if(chsum != chsum_block)
 			goto malformed_error;
 	}
@@ -452,10 +463,7 @@ static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, con
 		if(!state->flags.block_independence) {
 			prefix64k = 64 * 1024;
 			if(uncompressed_size < (ssize_t)prefix64k) {
-				memcpy(state->out_block
-				    + prefix64k - uncompressed_size,
-				    read_buf + 4,
-				    uncompressed_size);
+				memcpy(state->out_block + prefix64k - uncompressed_size, read_buf + 4, uncompressed_size);
 				memzero(state->out_block, prefix64k - uncompressed_size);
 			}
 			else {
@@ -467,7 +475,6 @@ static ssize_t lz4_filter_read_data_block(struct archive_read_filter * self, con
 		*p = read_buf + 4;
 		return uncompressed_size;
 	}
-
 	/*
 	   Decompress a block data.
 	 */
@@ -519,7 +526,7 @@ truncated_error:
 	return ARCHIVE_FATAL;
 }
 
-static ssize_t lz4_filter_read_default_stream(struct archive_read_filter * self, const void ** p)
+static ssize_t lz4_filter_read_default_stream(ArchiveReadFilter * self, const void ** p)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	const char * read_buf;
@@ -552,7 +559,7 @@ static ssize_t lz4_filter_read_default_stream(struct archive_read_filter * self,
 			}
 			checksum = archive_le32dec(read_buf);
 			__archive_read_filter_consume(self->upstream, 4);
-			checksum_stream = __archive_xxhash.XXH32_digest(state->xxh32_state);
+			checksum_stream = __archive_xxhash.XXH32_digest((XXH32_state_t *)state->xxh32_state);
 			state->xxh32_state = NULL;
 			if(checksum != checksum_stream) {
 				archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "lz4 stream checksum error");
@@ -560,12 +567,12 @@ static ssize_t lz4_filter_read_default_stream(struct archive_read_filter * self,
 			}
 		}
 		else if(ret > 0)
-			__archive_xxhash.XXH32_update(state->xxh32_state, *p, (int)ret);
+			__archive_xxhash.XXH32_update((XXH32_state_t *)state->xxh32_state, *p, (int)ret);
 	}
 	return ret;
 }
 
-static ssize_t lz4_filter_read_legacy_stream(struct archive_read_filter * self, const void ** p)
+static ssize_t lz4_filter_read_legacy_stream(ArchiveReadFilter * self, const void ** p)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	uint32 compressed;
@@ -611,7 +618,7 @@ static ssize_t lz4_filter_read_legacy_stream(struct archive_read_filter * self, 
 /*
  * Clean up the decompressor.
  */
-static int lz4_filter_close(struct archive_read_filter * self)
+static int lz4_filter_close(ArchiveReadFilter * self)
 {
 	int ret = ARCHIVE_OK;
 	struct private_data * state = (struct private_data *)self->data;

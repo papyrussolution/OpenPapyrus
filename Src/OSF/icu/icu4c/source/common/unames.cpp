@@ -150,15 +150,13 @@ static const char * const charCatNames[U_CHAR_EXTENDED_CATEGORY_COUNT] = {
 	"lead surrogate",
 	"trail surrogate"
 };
-
-/* implementation ----------------------------------------------------------- */
-
+//
+// implementation
+//
 static bool U_CALLCONV unames_cleanup(void)
 {
-	if(uCharNamesData) {
-		udata_close(uCharNamesData);
-		uCharNamesData = NULL;
-	}
+	udata_close(uCharNamesData);
+	uCharNamesData = NULL;
 	if(uCharNames) {
 		uCharNames = NULL;
 	}
@@ -167,9 +165,8 @@ static bool U_CALLCONV unames_cleanup(void)
 	return TRUE;
 }
 
-static bool U_CALLCONV isAcceptable(void * /*context*/,
-    const char * /*type*/, const char * /*name*/,
-    const UDataInfo * pInfo) {
+static bool U_CALLCONV isAcceptable(void * /*context*/, const char * /*type*/, const char * /*name*/, const UDataInfo * pInfo) 
+{
 	return (bool)(
 		pInfo->size>=20 &&
 		pInfo->isBigEndian==U_IS_BIG_ENDIAN &&

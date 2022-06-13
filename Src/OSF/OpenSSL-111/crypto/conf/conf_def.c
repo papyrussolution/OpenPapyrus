@@ -232,9 +232,8 @@ read_retry:
 
 #ifndef OPENSSL_NO_POSIX_IO
 			/* continue processing with the next file from directory */
-			if(dirctx != NULL) {
+			if(dirctx) {
 				BIO * next;
-
 				if((next = get_next_file(dirpath, &dirctx)) != NULL) {
 					BIO_vfree(in);
 					in = next;
@@ -447,10 +446,10 @@ err:
 	sk_BIO_free(biosk);
 #ifndef OPENSSL_NO_POSIX_IO
 	OPENSSL_free(dirpath);
-	if(dirctx != NULL)
+	if(dirctx)
 		OPENSSL_DIR_end(&dirctx);
 #endif
-	if(line != NULL)
+	if(line)
 		*line = eline;
 	BIO_snprintf(btmp, sizeof(btmp), "%ld", eline);
 	ERR_add_error_data(2, "line ", btmp);
@@ -615,7 +614,7 @@ static int str_copy(CONF * conf, char * section, char ** pto, char * from)
 			 * rp and rrp is where 'r' and 'rr' came from.
 			 */
 			p = _CONF_get_string(conf, cp, np);
-			if(rrp != NULL)
+			if(rrp)
 				*rrp = rr;
 			*rp = r;
 			if(!p) {
@@ -678,7 +677,7 @@ static BIO * process_include(char * include, OPENSSL_DIR_CTX ** dirctx, char ** 
 		return NULL;
 	}
 	if(S_ISDIR(st.st_mode)) {
-		if(*dirctx != NULL) {
+		if(*dirctx) {
 			CONFerr(CONF_F_PROCESS_INCLUDE, CONF_R_RECURSIVE_DIRECTORY_INCLUDE);
 			ERR_add_error_data(1, include);
 			return NULL;
@@ -729,7 +728,7 @@ static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx)
 			bio = BIO_new_file(newpath, "r");
 			OPENSSL_free(newpath);
 			/* Errors when opening files are non-fatal. */
-			if(bio != NULL)
+			if(bio)
 				return bio;
 		}
 	}

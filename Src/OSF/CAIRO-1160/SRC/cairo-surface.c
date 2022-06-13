@@ -304,7 +304,7 @@ void FASTCALL _cairo_surface_detach_snapshot(cairo_surface_t * snapshot)
 	assert(snapshot->snapshot_of != NULL);
 	snapshot->snapshot_of = NULL;
 	cairo_list_del(&snapshot->snapshot);
-	if(snapshot->snapshot_detach != NULL)
+	if(snapshot->snapshot_detach)
 		snapshot->snapshot_detach(snapshot);
 	cairo_surface_destroy(snapshot);
 }
@@ -314,7 +314,7 @@ void _cairo_surface_attach_snapshot(cairo_surface_t * surface, cairo_surface_t *
 	assert(surface != snapshot);
 	assert(snapshot->snapshot_of != surface);
 	cairo_surface_reference(snapshot);
-	if(snapshot->snapshot_of != NULL)
+	if(snapshot->snapshot_of)
 		_cairo_surface_detach_snapshot(snapshot);
 	snapshot->snapshot_of = surface;
 	snapshot->snapshot_detach = detach_func;
@@ -2341,7 +2341,7 @@ cairo_status_t _cairo_surface_show_text_glyphs(cairo_surface_t * surface, cairo_
 	if(clusters) {
 		/* A real show_text_glyphs call.  Try show_text_glyphs backend
 		 * method first */
-		if(surface->backend->show_text_glyphs != NULL) {
+		if(surface->backend->show_text_glyphs) {
 			status = surface->backend->show_text_glyphs(surface, op,
 				source,
 				utf8, utf8_len,
@@ -2356,10 +2356,10 @@ cairo_status_t _cairo_surface_show_text_glyphs(cairo_surface_t * surface, cairo_
 	}
 	else {
 		/* A mere show_glyphs call.  Try show_glyphs backend method first */
-		if(surface->backend->show_glyphs != NULL) {
+		if(surface->backend->show_glyphs) {
 			status = surface->backend->show_glyphs(surface, op, source, glyphs, num_glyphs, scaled_font, clip);
 		}
-		else if(surface->backend->show_text_glyphs != NULL) {
+		else if(surface->backend->show_text_glyphs) {
 			/* Intentionally only try show_text_glyphs method for show_glyphs
 			 * calls if backend does not have show_glyphs.  If backend has
 			 * both methods implemented, we don't fallback from show_glyphs to

@@ -19,8 +19,8 @@ __FBSDID("$FreeBSD$");
 
 struct private_uuencode {
 	int mode;
-	struct archive_string name;
-	struct archive_string encoded_buff;
+	archive_string name;
+	archive_string encoded_buff;
 	size_t bs;
 	size_t hold_len;
 	uchar hold[LBYTES];
@@ -33,13 +33,13 @@ static int archive_filter_uuencode_write(struct archive_write_filter *,
     const void *, size_t);
 static int archive_filter_uuencode_close(struct archive_write_filter *);
 static int archive_filter_uuencode_free(struct archive_write_filter *);
-static void uu_encode(struct archive_string *, const uchar *, size_t);
+static void uu_encode(archive_string *, const uchar *, size_t);
 static int64 atol8(const char *, size_t);
 
 /*
  * Add a compress filter to this write handle.
  */
-int archive_write_add_filter_uuencode(struct archive * _a)
+int archive_write_add_filter_uuencode(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
@@ -116,7 +116,7 @@ static int archive_filter_uuencode_open(struct archive_write_filter * f)
 	return 0;
 }
 
-static void uu_encode(struct archive_string * as, const uchar * p, size_t len)
+static void uu_encode(archive_string * as, const uchar * p, size_t len)
 {
 	int c = (int)len;
 	archive_strappend_char(as, c ? c + 0x20 : '`');

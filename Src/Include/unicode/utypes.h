@@ -44,7 +44,7 @@
  * @internal
  */
 #ifdef __cplusplus
-#   ifndef U_SHOW_CPLUSPLUS_API
+#ifndef U_SHOW_CPLUSPLUS_API
 #define U_SHOW_CPLUSPLUS_API 1
 #endif
 #else
@@ -70,13 +70,10 @@
 #if !U_DEFAULT_SHOW_DRAFT && !defined(U_SHOW_INTERNAL_API)
 #define U_HIDE_INTERNAL_API 1
 #endif
-
 /** @} */
-
-/*===========================================================================*/
-/* ICUDATA naming scheme        */
-/*===========================================================================*/
-
+// 
+// ICUDATA naming scheme
+// 
 /**
  * \def U_ICUDATA_TYPE_LETTER
  *
@@ -87,7 +84,6 @@
  * This letter is part of the common data file name.
  * @stable ICU 2.0
  */
-
 /**
  * \def U_ICUDATA_TYPE_LITLETTER
  * The non-string form of U_ICUDATA_TYPE_LETTER
@@ -159,7 +155,6 @@
 #endif
 #endif
 #endif  /* U_HIDE_INTERNAL_API */
-
 /**
  * \def NULL
  * Define NULL if necessary, to nullptr for C++ and to ((void *)0) for C.
@@ -172,11 +167,9 @@
 #define NULL    ((void *)0)
 #endif
 #endif
-
-/*===========================================================================*/
-/* Calendar/TimeZone data types */
-/*===========================================================================*/
-
+// 
+// Calendar/TimeZone data types
+// 
 /**
  * Date and Time data type.
  * This is a primitive data type that holds the date and time
@@ -206,11 +199,9 @@ typedef double UDate;
  * @stable ICU 4.8
  */
 #define U_DATE_MIN -U_DATE_MAX
-
-/*===========================================================================*/
-/* Shared library/DLL import-export API control   */
-/*===========================================================================*/
-
+// 
+// Shared library/DLL import-export API control
+// 
 /*
  * Control of symbol import/export.
  * ICU is separated into three libraries.
@@ -363,11 +354,9 @@ typedef double UDate;
 #else
 #define U_STANDARD_CPP_NAMESPACE
 #endif
-
-/*===========================================================================*/
-/* UErrorCode */
-/*===========================================================================*/
-
+// 
+// UErrorCode
+// 
 /**
  * Standard ICU4C error code type, a substitute for exceptions.
  *
@@ -401,35 +390,16 @@ typedef enum UErrorCode {
 	 * and is that way because VC++ debugger displays first encountered constant,
 	 * which is not the what the code is used for
 	 */
-
 	U_USING_FALLBACK_WARNING  = -128,/**< A resource bundle lookup returned a fallback result (not an error) */
-
 	U_ERROR_WARNING_START     = -128,/**< Start of information results (semantically successful) */
-
-	U_USING_DEFAULT_WARNING   = -127,/**< A resource bundle lookup returned a result from the root locale (not an
-	                                   error) */
-
-	U_SAFECLONE_ALLOCATED_WARNING = -126, /**< A SafeClone operation required allocating memory (informational only)
-	     */
-
-	U_STATE_OLD_WARNING       = -125,/**< ICU has to use compatibility layer to construct the service. Expect
-	                                   performance/memory usage degradation. Consider upgrading */
-
-	U_STRING_NOT_TERMINATED_WARNING = -124,/**< An output string could not be NUL-terminated because output
-	                                          length==destCapacity. */
-
-	U_SORT_KEY_TOO_SHORT_WARNING = -123, /**< Number of levels requested in getBound is higher than the number of
-	                                        levels in the sort key */
-
+	U_USING_DEFAULT_WARNING   = -127,/**< A resource bundle lookup returned a result from the root locale (not an error) */
+	U_SAFECLONE_ALLOCATED_WARNING = -126, /**< A SafeClone operation required allocating memory (informational only) */
+	U_STATE_OLD_WARNING       = -125,/**< ICU has to use compatibility layer to construct the service. Expect performance/memory usage degradation. Consider upgrading */
+	U_STRING_NOT_TERMINATED_WARNING = -124,/**< An output string could not be NUL-terminated because output length==destCapacity. */
+	U_SORT_KEY_TOO_SHORT_WARNING = -123, /**< Number of levels requested in getBound is higher than the number of levels in the sort key */
 	U_AMBIGUOUS_ALIAS_WARNING = -122, /**< This converter alias can go to different converter implementations */
-
-	U_DIFFERENT_UCA_VERSION = -121, /**< ucol_open encountered a mismatch between UCA version and collator image
-	                                   version, so the collator was constructed from rules. No impact to further
-	                                   function */
-
-	U_PLUGIN_CHANGED_LEVEL_WARNING = -120, /**< A plugin caused a level change. May not be an error, but later
-	                                          plugins may not load. */
-
+	U_DIFFERENT_UCA_VERSION = -121, /**< ucol_open encountered a mismatch between UCA version and collator image version, so the collator was constructed from rules. No impact to further function */
+	U_PLUGIN_CHANGED_LEVEL_WARNING = -120, /**< A plugin caused a level change. May not be an error, but later plugins may not load. */
 #ifndef U_HIDE_DEPRECATED_API
 	/**
 	 * One more than the highest normal UErrorCode warning value.
@@ -449,8 +419,7 @@ typedef enum UErrorCode {
 	U_MEMORY_ALLOCATION_ERROR =  7, /**< Memory allocation error */
 	U_INDEX_OUTOFBOUNDS_ERROR =  8, /**< Trying to access the index that is out of bounds */
 	U_PARSE_ERROR             =  9, /**< Equivalent to Java ParseException */
-	U_INVALID_CHAR_FOUND      = 10, /**< Character conversion: Unmappable input sequence. In other APIs: Invalid
-	                                   character. */
+	U_INVALID_CHAR_FOUND      = 10, /**< Character conversion: Unmappable input sequence. In other APIs: Invalid character. */
 	U_TRUNCATED_CHAR_FOUND    = 11, /**< Character conversion: Incomplete input sequence. */
 	U_ILLEGAL_CHAR_FOUND      = 12, /**< Character conversion: Illegal input sequence/combination of input units. */
 	U_INVALID_TABLE_FORMAT    = 13, /**< Conversion table file found, but corrupted */
@@ -461,17 +430,12 @@ typedef enum UErrorCode {
 	U_ILLEGAL_ESCAPE_SEQUENCE = 18, /**< ISO-2022 illegal escape sequence */
 	U_UNSUPPORTED_ESCAPE_SEQUENCE = 19, /**< ISO-2022 unsupported escape sequence */
 	U_NO_SPACE_AVAILABLE      = 20, /**< No space available for in-buffer expansion for Arabic shaping */
-	U_CE_NOT_FOUND_ERROR      = 21, /**< Currently used only while setting variable top, but can be used generally
-	        */
-	U_PRIMARY_TOO_LONG_ERROR  = 22, /**< User tried to set variable top to a primary that is longer than two bytes
-	        */
-	U_STATE_TOO_OLD_ERROR     = 23, /**< ICU cannot construct a service from this state, as it is no longer
-	                                   supported */
-	U_TOO_MANY_ALIASES_ERROR  = 24, /**< There are too many aliases in the path to the requested resource.
-	                                     It is very possible that a circular alias definition has occurred */
+	U_CE_NOT_FOUND_ERROR      = 21, /**< Currently used only while setting variable top, but can be used generally */
+	U_PRIMARY_TOO_LONG_ERROR  = 22, /**< User tried to set variable top to a primary that is longer than two bytes */
+	U_STATE_TOO_OLD_ERROR     = 23, /**< ICU cannot construct a service from this state, as it is no longer supported */
+	U_TOO_MANY_ALIASES_ERROR  = 24, /**< There are too many aliases in the path to the requested resource. It is very possible that a circular alias definition has occurred */
 	U_ENUM_OUT_OF_SYNC_ERROR  = 25, /**< UEnumeration out of sync with underlying collection */
-	U_INVARIANT_CONVERSION_ERROR = 26, /**< Unable to convert a UChar * string to char * with the invariant converter.
-	  */
+	U_INVARIANT_CONVERSION_ERROR = 26, /**< Unable to convert a UChar * string to char * with the invariant converter. */
 	U_INVALID_STATE_ERROR     = 27, /**< Requested operation can not be completed with ICU in its current state */
 	U_COLLATOR_VERSION_MISMATCH = 28, /**< Collator version is not compatible with the base version */
 	U_USELESS_COLLATOR_ERROR  = 29, /**< Collator is options only and no base is specified */
@@ -546,8 +510,7 @@ typedef enum UErrorCode {
 	U_UNEXPECTED_TOKEN = 0x10100, /**< Syntax error in format pattern */
 	U_FMT_PARSE_ERROR_START = 0x10100, /**< Start of format library errors */
 	U_MULTIPLE_DECIMAL_SEPARATORS, /**< More than one decimal separator in number pattern */
-	U_MULTIPLE_DECIMAL_SEPERATORS = U_MULTIPLE_DECIMAL_SEPARATORS, /**< Typo: kept for backward compatibility. Use
-	                                                                  U_MULTIPLE_DECIMAL_SEPARATORS */
+	U_MULTIPLE_DECIMAL_SEPERATORS = U_MULTIPLE_DECIMAL_SEPARATORS, /**< Typo: kept for backward compatibility. Use U_MULTIPLE_DECIMAL_SEPARATORS */
 	U_MULTIPLE_EXPONENTIAL_SYMBOLS, /**< More than one exponent symbol in number pattern */
 	U_MALFORMED_EXPONENTIAL_PATTERN, /**< Grouping symbol in exponent pattern */
 	U_MULTIPLE_PERCENT_SYMBOLS,   /**< More than one percent symbol in number pattern */
@@ -563,12 +526,9 @@ typedef enum UErrorCode {
 	U_UNDEFINED_KEYWORD,          /**< Undefined Plural keyword */
 	U_DEFAULT_KEYWORD_MISSING,    /**< Missing DEFAULT rule in plural rules */
 	U_DECIMAL_NUMBER_SYNTAX_ERROR, /**< Decimal number syntax error */
-	U_FORMAT_INEXACT_ERROR,       /**< Cannot format a number exactly and rounding mode is ROUND_UNNECESSARY @stable
-	                                 ICU 4.8 */
-	U_NUMBER_ARG_OUTOFBOUNDS_ERROR, /**< The argument to a NumberFormatter helper method was out of bounds; the
-	                                   bounds are usually 0 to 999. @stable ICU 61 */
-	U_NUMBER_SKELETON_SYNTAX_ERROR, /**< The number skeleton passed to C++ NumberFormatter or C UNumberFormatter was
-	                                   invalid or contained a syntax error. @stable ICU 62 */
+	U_FORMAT_INEXACT_ERROR,       /**< Cannot format a number exactly and rounding mode is ROUND_UNNECESSARY @stable ICU 4.8 */
+	U_NUMBER_ARG_OUTOFBOUNDS_ERROR, /**< The argument to a NumberFormatter helper method was out of bounds; the bounds are usually 0 to 999. @stable ICU 61 */
+	U_NUMBER_SKELETON_SYNTAX_ERROR, /**< The number skeleton passed to C++ NumberFormatter or C UNumberFormatter was invalid or contained a syntax error. @stable ICU 62 */
 #ifndef U_HIDE_DEPRECATED_API
 	/**
 	 * One more than the highest normal formatting API error code.
@@ -576,7 +536,6 @@ typedef enum UErrorCode {
 	 */
 	U_FMT_PARSE_ERROR_LIMIT = 0x10114,
 #endif  // U_HIDE_DEPRECATED_API
-
 	/*
 	 * Error codes in the range 0x10200 0x102ff are reserved for BreakIterator.
 	 */
@@ -667,7 +626,6 @@ typedef enum UErrorCode {
 	U_STRINGPREP_PROHIBITED_ERROR = U_IDNA_PROHIBITED_ERROR,
 	U_STRINGPREP_UNASSIGNED_ERROR = U_IDNA_UNASSIGNED_ERROR,
 	U_STRINGPREP_CHECK_BIDI_ERROR = U_IDNA_CHECK_BIDI_ERROR,
-
 	/*
 	 * Error codes in the range 0x10500-0x105ff are reserved for Plugin related error codes.
 	 */
@@ -700,7 +658,6 @@ typedef enum UErrorCode {
  * @stable ICU 2.0
  */
 static inline bool U_SUCCESS(UErrorCode code) { return (bool)(code<=U_ZERO_ERROR); }
-
 /**
  * Does the error code indicate a failure?
  * @stable ICU 2.0

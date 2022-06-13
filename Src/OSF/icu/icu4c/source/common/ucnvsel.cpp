@@ -524,9 +524,7 @@ U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_openFromSerialized(const void * buf
 	p += UCNVSEL_INDEX_COUNT * 4;
 	// create and populate the selector object
 	UConverterSelector* sel = (UConverterSelector*)uprv_malloc(sizeof(UConverterSelector));
-	char ** encodings =
-	    (char **)uprv_malloc(
-		indexes[UCNVSEL_INDEX_NAMES_COUNT] * sizeof(char *));
+	char ** encodings = (char **)uprv_malloc(indexes[UCNVSEL_INDEX_NAMES_COUNT] * sizeof(char *));
 	if(sel == NULL || encodings == NULL) {
 		uprv_free(swapped);
 		uprv_free(sel);
@@ -541,9 +539,7 @@ U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_openFromSerialized(const void * buf
 	sel->encodingStrLength = indexes[UCNVSEL_INDEX_NAMES_LENGTH];
 	sel->swapped = swapped;
 	// trie
-	sel->trie = utrie2_openFromSerialized(UTRIE2_16_VALUE_BITS,
-		p, indexes[UCNVSEL_INDEX_TRIE_SIZE], NULL,
-		status);
+	sel->trie = utrie2_openFromSerialized(UTRIE2_16_VALUE_BITS, p, indexes[UCNVSEL_INDEX_TRIE_SIZE], NULL, status);
 	p += indexes[UCNVSEL_INDEX_TRIE_SIZE];
 	if(U_FAILURE(*status)) {
 		ucnvsel_close(sel);
@@ -559,7 +555,6 @@ U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_openFromSerialized(const void * buf
 		s += uprv_strlen(s) + 1;
 	}
 	p += sel->encodingStrLength;
-
 	return sel;
 }
 

@@ -8,7 +8,7 @@
 #include <..\osf\lz4\lz4.h>
 #include <zlib.h>
 #include <..\osf\bzip2\bzlib.h>
-// @construction #include <..\osf\libarchive\libarchive\archive.h> // @v10.4.4
+#include <..\osf\libarchive-350\libarchive\archive.h> // @v10.4.4
 //
 //
 //
@@ -174,8 +174,9 @@ struct SArc_Bz2_Block {
 	SString FileName;
 };
 
-SArchive::SArchive() : Type(0), H(0)/*, P_Cb_Blk(0)*/
+SArchive::SArchive(int type) : Type(type), H(0), P_Cb_Blk(0)
 {
+	assert(oneof3(Type, tLA, tZip, tBz2));
 }
 
 SArchive::~SArchive()
@@ -199,23 +200,25 @@ int SArchive::Close()
 			delete static_cast<SArc_Bz2_Block *>(H);
 		}
 	}
-	/*else if(Type == tLA) {
-		
-	}*/
+	else if(Type == tLA) {
+		if(H) {
+			
+		}	
+	}
 	CATCHZOK
 	H = 0;
-	// @v10.4.4 @construction ZDELETE(P_Cb_Blk);
-	Type = tUnkn;
+	ZDELETE(P_Cb_Blk);
+	//Type = tUnkn;
 	return ok;
 }
 
 // @v10.4.4 {
-#if 0 // @construction {
+#if 1 // @construction {
 SArchive::LaCbBlock::LaCbBlock(SArchive * pMaster, size_t bufSize) : P_Master(pMaster), Buf(bufSize)
 {
 }
 
-/*static*/int cdecl SArchive::LaCbOpen(struct archive * pA, void * pClientData)
+/*static*/int cdecl SArchive::LaCbOpen(Archive * pA, void * pClientData)
 {
 	int    err = -1; // 0 - ok
 	LaCbBlock * p_blk = static_cast<LaCbBlock *>(pClientData);
@@ -225,7 +228,7 @@ SArchive::LaCbBlock::LaCbBlock(SArchive * pMaster, size_t bufSize) : P_Master(pM
 	return err;
 }
 
-/*static*/int cdecl SArchive::LaCbClose(struct archive * pA, void * pClientData)
+/*static*/int cdecl SArchive::LaCbClose(Archive * pA, void * pClientData)
 {
 	int    err = -1; // 0 - ok
 	LaCbBlock * p_blk = static_cast<LaCbBlock *>(pClientData);
@@ -237,7 +240,7 @@ SArchive::LaCbBlock::LaCbBlock(SArchive * pMaster, size_t bufSize) : P_Master(pM
 	return err;
 }
 
-/*static*/SSIZE_T cdecl SArchive::LaCbRead(struct archive * pA, void * pClientData, const void ** ppBuf)
+/*static*/SSIZE_T cdecl SArchive::LaCbRead(Archive * pA, void * pClientData, const void ** ppBuf)
 {
 	SSIZE_T result = 0;
 	LaCbBlock * p_blk = static_cast<LaCbBlock *>(pClientData);
@@ -251,7 +254,7 @@ SArchive::LaCbBlock::LaCbBlock(SArchive * pMaster, size_t bufSize) : P_Master(pM
 	return result;
 }
 
-/*static*/int64 cdecl SArchive::LaCbSkip(struct archive * pA, void * pClientData, int64 request)
+/*static*/int64 cdecl SArchive::LaCbSkip(Archive * pA, void * pClientData, int64 request)
 {
 	int64  result = 0;
 	LaCbBlock * p_blk = static_cast<LaCbBlock *>(pClientData);
@@ -266,13 +269,13 @@ SArchive::LaCbBlock::LaCbBlock(SArchive * pMaster, size_t bufSize) : P_Master(pM
 #endif // } 0 @construction
 // } @v10.4.4
 
-int SArchive::Open(int type, const char * pName, int mode /*SFile::mXXX*/, SArchive::Format * pFmt)
+int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Format * pFmt)
 {
 	int    ok = 1;
 	Close();
 	const   int mm = (mode & 0xff);
-	if(type == tZip) {
-		Type = type;
+	if(Type == tZip) {
+		//Type = type;
 		int    flags = 0;
 		if(mm == SFile::mRead)
 			flags = ZIP_RDONLY;
@@ -284,8 +287,8 @@ int SArchive::Open(int type, const char * pName, int mode /*SFile::mXXX*/, SArch
 		H = zip_open(pName, flags, &zip_err);
 		THROW(H);
 	}
-	else if(type == tBz2) {
-		Type = type;
+	else if(Type == tBz2) {
+		//Type = type;
 		const char * p_mode = 0;
 		if(mm == SFile::mRead)
 			p_mode = "rb";
@@ -308,16 +311,16 @@ int SArchive::Open(int type, const char * pName, int mode /*SFile::mXXX*/, SArch
 		}
 	}
 	// @v10.4.4 {
-#if 0 // @construction {
-	else if(type == tLA) {
-		Type = type;
-		struct archive * p_larc = 0;
+	else if(Type == tLA) {
+		//Type = type;
+		Archive * p_larc = 0;
 		if(mm == SFile::mRead) {
 			p_larc = archive_read_new();
 			H = p_larc;
 			THROW(P_Cb_Blk = new LaCbBlock(this, SKILOBYTE(512)));
 			THROW(P_Cb_Blk->F.Open(pName, mm & (SFile::mBinary|SFile::mNoStd)));
-			archive_read_support_compression_all(p_larc);
+			//archive_read_support_compression_all(p_larc);
+			archive_read_support_filter_all(p_larc);
 			archive_read_support_format_all(p_larc);
 			const int r = archive_read_open2(p_larc, P_Cb_Blk, LaCbOpen, LaCbRead, LaCbSkip, LaCbClose);
 			THROW(r == 0);
@@ -340,14 +343,13 @@ int SArchive::Open(int type, const char * pName, int mode /*SFile::mXXX*/, SArch
 			p_larc_w = archive_write_new();
 		}*/
 	}
-#endif // } @construction 
 	// } @v10.4.4 
 	else {
 		CALLEXCEPT();
 	}
 	CATCH
 		H = 0;
-		Type = 0;
+		//Type = 0;
 		// @v10.4.4 @construction ZDELETE(P_Cb_Blk);
 		ok = 0;
 	ENDCATCH
@@ -663,13 +665,13 @@ void TestSArchive()
 		TestCompressor(c);
 	}*/
 	//const  char * p_root = "d:/papyrus/src/pptest";
-	SArchive arc;
 	// "D:\Papyrus\Src\PPTEST\DATA\Test Directory\Test Directory Level 2\Directory With Many Files"
 	{
+		SArchive arc(SArchive::tZip);
 		//(temp_buf = p_root).SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
 		SLS.QueryPath("testroot", temp_buf);
 		temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
-		THROW(arc.Open(SArchive::tZip, temp_buf, SFile::mReadWrite, 0));
+		THROW(arc.Open(temp_buf, SFile::mReadWrite, 0));
 		{
 			//SDirEntry de;
 			//SString src_dir = "D:/Papyrus/Src/PPTEST/DATA/Test Directory/Test Directory Level 2/Directory With Many Files";
@@ -693,10 +695,11 @@ void TestSArchive()
 		THROW(arc.Close());
 	}
 	{
+		SArchive arc(SArchive::tZip);
 		//(temp_buf = p_root).SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
 		SLS.QueryPath("testroot", temp_buf);
 		temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
-		THROW(arc.Open(SArchive::tZip, temp_buf, SFile::mRead, 0));
+		THROW(arc.Open(temp_buf, SFile::mRead, 0));
 		{
 			int64 c = arc.GetEntriesCount();
 			if(c > 0) {

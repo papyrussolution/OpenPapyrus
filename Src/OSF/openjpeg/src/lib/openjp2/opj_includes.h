@@ -156,10 +156,10 @@ static INLINE long opj_lrintf(float f)
 /* Apparently Visual Studio doesn't define __SSE__ / __SSE2__ macros */
 #if defined(_M_X64)
 /* Intel 64bit support SSE and SSE2 */
-#   ifndef __SSE__
+#ifndef __SSE__
 #       define __SSE__ 1
 #   endif
-#   ifndef __SSE2__
+#ifndef __SSE2__
 #       define __SSE2__ 1
 #   endif
 #endif

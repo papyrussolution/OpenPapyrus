@@ -19,7 +19,7 @@ __FBSDID("$FreeBSD$");
 static const char * parse_option(const char ** str,
     const char ** mod, const char ** opt, const char ** val);
 
-int _archive_set_option(struct archive * a, const char * m, const char * o, const char * v,
+int _archive_set_option(Archive * a, const char * m, const char * o, const char * v,
     int magic, const char * fn, option_handler use_option)
 {
 	const char * mp, * op, * vp;
@@ -46,7 +46,7 @@ int _archive_set_option(struct archive * a, const char * m, const char * o, cons
 	return r;
 }
 
-int _archive_set_either_option(struct archive * a, const char * m, const char * o, const char * v,
+int _archive_set_either_option(Archive * a, const char * m, const char * o, const char * v,
     option_handler use_format_option, option_handler use_filter_option)
 {
 	int r1, r2;
@@ -65,7 +65,7 @@ int _archive_set_either_option(struct archive * a, const char * m, const char * 
 	return r1 > r2 ? r1 : r2;
 }
 
-int _archive_set_options(struct archive * a, const char * options, int magic, const char * fn, option_handler use_option)
+int _archive_set_options(Archive * a, const char * options, int magic, const char * fn, option_handler use_option)
 {
 	int allok = 1, anyok = 0, ignore_mod_err = 0, r;
 	char * data;
@@ -123,18 +123,16 @@ int _archive_set_options(struct archive * a, const char * options, int magic, co
 
 static const char * parse_option(const char ** s, const char ** m, const char ** o, const char ** v)
 {
-	const char * end, * mod, * opt, * val;
-	char * p;
-	end = NULL;
-	mod = NULL;
-	opt = *s;
-	val = "1";
-	p = (char *)(strchr(opt, ',')); // @badcast
+	const char * end = NULL;
+	const char * mod = NULL;
+	const char * opt = *s;
+	const char * val = "1";
+	char * p = (char *)(strchr(opt, ',')); // @badcast
 	if(p) {
 		*p = '\0';
 		end = ((const char *)p) + 1;
 	}
-	if(0 == strlen(opt)) {
+	if(!strlen(opt)) {
 		*s = end;
 		*m = NULL;
 		*o = NULL;
@@ -156,11 +154,9 @@ static const char * parse_option(const char ** s, const char ** m, const char **
 		++opt;
 		val = NULL;
 	}
-
 	*s = end;
 	*m = mod;
 	*o = opt;
 	*v = val;
-
 	return end;
 }

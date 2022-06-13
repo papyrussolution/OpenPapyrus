@@ -16,10 +16,9 @@
 //#include "src/dsp/dsp.h"
 #include "src/dsp/yuv.h"
 //#include <assert.h>
-
-//------------------------------------------------------------------------------
+//
 // Fancy upsampler
-
+//
 #ifdef FANCY_UPSAMPLING
 
 // Fancy upsampling functions to convert YUV to RGB
@@ -134,8 +133,6 @@ static void EmptyUpsampleFunc(const uint8* top_y, const uint8* bottom_y,
 
 #endif  // FANCY_UPSAMPLING
 
-//------------------------------------------------------------------------------
-
 #if !defined(FANCY_UPSAMPLING)
 #define DUAL_SAMPLE_FUNC(FUNC_NAME, FUNC)                                      \
 	static void FUNC_NAME(const uint8* top_y, const uint8* bot_y,              \
@@ -175,10 +172,9 @@ WebPUpsampleLinePairFunc WebPGetLinePairConverter(int alpha_is_last) {
 	return (alpha_is_last ? DualLineSamplerBGRA : DualLineSamplerARGB);
 #endif
 }
-
-//------------------------------------------------------------------------------
+//
 // YUV444 converter
-
+//
 #define YUV444_FUNC(FUNC_NAME, FUNC, XSTEP)                                    \
 	extern void FUNC_NAME(const uint8* y, const uint8* u, const uint8* v,    \
 	    uint8* dst, int len);                                  \
@@ -253,10 +249,9 @@ WEBP_DSP_INIT_FUNC(WebPInitYUV444Converters) {
 #endif
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Main calls
-
+//
 extern void WebPInitUpsamplersSSE2(void);
 extern void WebPInitUpsamplersSSE41(void);
 extern void WebPInitUpsamplersNEON(void);

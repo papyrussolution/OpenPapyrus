@@ -25,28 +25,28 @@ static const uchar grzip_magic[] = {
 	0x02, 0x04, 0x3a, 0x29
 };
 
-static int grzip_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
-static int grzip_bidder_init(struct archive_read_filter *);
+static int grzip_bidder_bid(ArchiveReadFilterBidder *, ArchiveReadFilter *);
+static int grzip_bidder_init(ArchiveReadFilter *);
 
-static int grzip_reader_free(struct archive_read_filter_bidder * self)
+static int grzip_reader_free(ArchiveReadFilterBidder * self)
 {
 	CXX_UNUSED(self);
 	return ARCHIVE_OK;
 }
 
-int archive_read_support_filter_grzip(struct archive * _a)
+int archive_read_support_filter_grzip(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
-	struct archive_read_filter_bidder * reader;
+	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveReadFilterBidder * reader;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	reader->data = NULL;
-	reader->bid = grzip_bidder_bid;
-	reader->init = grzip_bidder_init;
-	reader->options = NULL;
-	reader->free = grzip_reader_free;
-	/* This filter always uses an external program. */
+	reader->FnBid = grzip_bidder_bid;
+	reader->FnInit = grzip_bidder_init;
+	reader->FnOptions = NULL;
+	reader->FnFree = grzip_reader_free;
+	// This filter always uses an external program
 	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external grzip program for grzip decompression");
 	return ARCHIVE_WARN;
 }
@@ -54,7 +54,7 @@ int archive_read_support_filter_grzip(struct archive * _a)
 /*
  * Bidder just verifies the header and returns the number of verified bits.
  */
-static int grzip_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
+static int grzip_bidder_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * filter)
 {
 	const uchar * p;
 	ssize_t avail;
@@ -67,12 +67,12 @@ static int grzip_bidder_bid(struct archive_read_filter_bidder * self, struct arc
 	return (sizeof(grzip_magic) * 8);
 }
 
-static int grzip_bidder_init(struct archive_read_filter * self)
+static int grzip_bidder_init(ArchiveReadFilter * self)
 {
 	int r = __archive_read_program(self, "grzip -d");
-	/* Note: We set the format here even if __archive_read_program()
-	 * above fails.  We do, after all, know what the format is
-	 * even if we weren't able to read it. */
+	// Note: We set the format here even if __archive_read_program()
+	// above fails.  We do, after all, know what the format is
+	// even if we weren't able to read it. */
 	self->code = ARCHIVE_FILTER_GRZIP;
 	self->name = "grzip";
 	return r;

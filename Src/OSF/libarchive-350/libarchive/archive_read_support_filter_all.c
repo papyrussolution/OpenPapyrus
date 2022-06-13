@@ -17,14 +17,13 @@ __FBSDID("$FreeBSD$");
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Deprecated; remove in libarchive 4.0 */
-int archive_read_support_compression_all(struct archive * a)
+int archive_read_support_compression_all(Archive * a)
 {
 	return archive_read_support_filter_all(a);
 }
-
 #endif
 
-int archive_read_support_filter_all(struct archive * a)
+int archive_read_support_filter_all(Archive * a)
 {
 	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* Bzip falls back to "bunzip2" command-line */

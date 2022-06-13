@@ -630,7 +630,7 @@ static uint32 MatchFinderMt_GetMatches(CMatchFinderMt * p, uint32 * distances)
 	const uint32 * btBuf = p->btBuf + p->btBufPos;
 	uint32 len = *btBuf++;
 	p->btBufPos += 1 + len;
-	if(len == 0) {
+	if(!len) {
 		/* change for bt5 ! */
 		if(p->btNumAvailBytes-- >= 4)
 			len = (uint32)(p->MixMatchesFunc(p, p->lzPos - p->historySize, distances) - (distances));

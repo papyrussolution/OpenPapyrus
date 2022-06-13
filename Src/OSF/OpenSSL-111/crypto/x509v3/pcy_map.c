@@ -44,11 +44,11 @@ int policy_cache_set_mapping(X509 * x, POLICY_MAPPINGS * maps)
 			continue;
 
 		/* Create a NODE from anyPolicy */
-		if(data == NULL) {
+		if(!data) {
 			data = policy_data_new(NULL, map->issuerDomainPolicy,
 				cache->anyPolicy->flags
 				& POLICY_DATA_FLAG_CRITICAL);
-			if(data == NULL)
+			if(!data)
 				goto bad_mapping;
 			data->qualifier_set = cache->anyPolicy->qualifier_set;
 			/*

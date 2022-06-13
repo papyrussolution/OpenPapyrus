@@ -1,31 +1,19 @@
+// umachine.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-******************************************************************************
-*
-*   Copyright (C) 1999-2015, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*
-******************************************************************************
-*   file name:  umachine.h
-*   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:4
-*
-*   created on: 1999sep13
-*   created by: Markus W. Scherer
-*
-*   This file defines basic types and constants for ICU to be
-*   platform-independent. umachine.h and utf.h are included into
-*   utypes.h to provide all the general definitions for ICU.
-*   All of these definitions used to be in utypes.h before
-*   the UTF-handling macros made this unmaintainable.
-*/
-
+// Copyright (C) 1999-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 1999sep13
+// created by: Markus W. Scherer
+// 
+// This file defines basic types and constants for ICU to be
+// platform-independent. umachine.h and utf.h are included into
+// utypes.h to provide all the general definitions for ICU.
+// All of these definitions used to be in utypes.h before
+// the UTF-handling macros made this unmaintainable.
+// 
 #ifndef __UMACHINE_H__
 #define __UMACHINE_H__
-
-
 /**
  * \file
  * \brief Basic types and constants for UTF
@@ -38,32 +26,27 @@
  *   the UTF-handling macros made this unmaintainable.
  *
  */
-/*==========================================================================*/
-/* Include platform-dependent definitions        */
-/* which are contained in the platform-specific file platform.h    */
-/*==========================================================================*/
-
+//
+// Include platform-dependent definitions
+// which are contained in the platform-specific file platform.h
+//
 #include "unicode/ptypes.h" /* platform.h is included in ptypes.h */
-
 /*
  * ANSI C headers:
  * stddef.h defines wchar_t
  */
 #include <stdbool.h>
 #include <stddef.h>
-
-/*==========================================================================*/
-/* For C wrappers, we use the symbol U_CAPI.     */
-/* This works properly if the includer is C or C++.       */
-/* Functions are declared   U_CAPI return-type U_EXPORT2 function-name()... */
-/*==========================================================================*/
-
+// 
+// For C wrappers, we use the symbol U_CAPI
+// This works properly if the includer is C or C++.
+// Functions are declared   U_CAPI return-type U_EXPORT2 function-name()...
+// 
 /**
  * \def U_CFUNC
  * This is used in a declaration of a library private ICU C function.
  * @stable ICU 2.4
  */
-
 /**
  * \def U_CDECL_BEGIN
  * This is used to begin a declaration of a library private ICU C API.
@@ -96,7 +79,7 @@
 #define U_ATTRIBUTE_DEPRECATED __attribute__ ((deprecated))
 /**
  * \def U_ATTRIBUTE_DEPRECATED
- * This is used for Visual C++ specific attributes 
+ * This is used for Visual C++ specific attributes
  * @internal
  */
 #elif defined(_MSC_VER) && (_MSC_VER >= 1400)
@@ -105,20 +88,12 @@
 #define U_ATTRIBUTE_DEPRECATED
 #endif
 #endif
-
-/** This is used to declare a function as a public ICU C API @stable ICU 2.0*/
-#define U_CAPI U_CFUNC U_EXPORT
-/** Obsolete/same as U_CAPI; was used to declare a function as a stable public ICU C API*/
-#define U_STABLE U_CAPI
-/** Obsolete/same as U_CAPI; was used to declare a function as a draft public ICU C API  */
-#define U_DRAFT  U_CAPI
-/** This is used to declare a function as a deprecated public ICU C API  */
-#define U_DEPRECATED U_CAPI U_ATTRIBUTE_DEPRECATED
-/** Obsolete/same as U_CAPI; was used to declare a function as an obsolete public ICU C API  */
-#define U_OBSOLETE U_CAPI
-/** Obsolete/same as U_CAPI; was used to declare a function as an internal ICU C API  */
-#define U_INTERNAL U_CAPI
-
+#define U_CAPI U_CFUNC U_EXPORT /** This is used to declare a function as a public ICU C API @stable ICU 2.0*/
+#define U_STABLE U_CAPI /** Obsolete/same as U_CAPI; was used to declare a function as a stable public ICU C API*/
+#define U_DRAFT  U_CAPI /** Obsolete/same as U_CAPI; was used to declare a function as a draft public ICU C API  */
+#define U_DEPRECATED U_CAPI U_ATTRIBUTE_DEPRECATED /** This is used to declare a function as a deprecated public ICU C API  */
+#define U_OBSOLETE U_CAPI /** Obsolete/same as U_CAPI; was used to declare a function as an obsolete public ICU C API  */
+#define U_INTERNAL U_CAPI /** Obsolete/same as U_CAPI; was used to declare a function as an internal ICU C API  */
 /**
  * \def U_OVERRIDE
  * Defined to the C++11 "override" keyword if available.
@@ -175,13 +150,11 @@
  * @internal
  */
 #ifndef UPRV_BLOCK_MACRO_END
-#define UPRV_BLOCK_MACRO_END while (false)
+#define UPRV_BLOCK_MACRO_END while(false)
 #endif
-
-/*==========================================================================*/
-/* limits for int32_t etc., like in POSIX inttypes.h      */
-/*==========================================================================*/
-
+// 
+// limits for int32_t etc., like in POSIX inttypes.h
+// 
 #ifndef INT8_MIN
 /** The smallest value an 8 bit signed integer can hold @stable ICU 2.0 */
 #define INT8_MIN        ((int8)(-128))
@@ -253,11 +226,9 @@
 #define U_UINT64_MAX      ((uint64_t)(UINT64_C(18446744073709551615)))
 #endif
 #endif
-
-/*==========================================================================*/
-/* Boolean data type  */
-/*==========================================================================*/
-
+// 
+// Boolean data type
+// 
 /**
  * The ICU boolean type, a signed-byte integer.
  * ICU-specific for historical reasons: The C and C++ standards used to not define type bool.
@@ -281,15 +252,13 @@ typedef int8 UBool_Removed; // @sobolev _Removed
  * @internal ICU 68
  */
 #ifdef U_DEFINE_FALSE_AND_TRUE
-    // Use the predefined value.
-#elif defined(U_COMBINED_IMPLEMENTATION) || \
-        defined(U_COMMON_IMPLEMENTATION) || defined(U_I18N_IMPLEMENTATION) || \
-        defined(U_IO_IMPLEMENTATION) || defined(U_LAYOUTEX_IMPLEMENTATION) || \
-        defined(U_TOOLUTIL_IMPLEMENTATION)
-    // Inside ICU: Keep FALSE & TRUE available.
+// Use the predefined value.
+#elif defined(U_COMBINED_IMPLEMENTATION) || defined(U_COMMON_IMPLEMENTATION) || defined(U_I18N_IMPLEMENTATION) || defined(U_IO_IMPLEMENTATION) || defined(U_LAYOUTEX_IMPLEMENTATION) || \
+	defined(U_TOOLUTIL_IMPLEMENTATION)
+// Inside ICU: Keep FALSE & TRUE available.
 #define U_DEFINE_FALSE_AND_TRUE 1
 #else
-    // Outside ICU: Avoid collision with non-macro definitions of FALSE & TRUE.
+// Outside ICU: Avoid collision with non-macro definitions of FALSE & TRUE.
 #define U_DEFINE_FALSE_AND_TRUE 0
 #endif
 
@@ -311,11 +280,9 @@ typedef int8 UBool_Removed; // @sobolev _Removed
 #define FALSE 0
 #endif
 #endif  // U_DEFINE_FALSE_AND_TRUE
-
-/*==========================================================================*/
-/* Unicode data types */
-/*==========================================================================*/
-
+// 
+// Unicode data types
+// 
 /* wchar_t-related definitions -------------------------------------------- */
 
 /*
@@ -374,7 +341,6 @@ typedef int8 UBool_Removed; // @sobolev _Removed
 #define U_CHAR16_IS_TYPEDEF 0
 #endif
 
-
 /**
  * \var UChar
  *
@@ -400,23 +366,23 @@ typedef int8 UBool_Removed; // @sobolev _Removed
  */
 
 #if 1
-    // #if 1 is normal. UChar defaults to char16_t in C++.
-    // For configuration testing of UChar=uint16 temporarily change this to #if 0.
-    // The intltest Makefile #defines UCHAR_TYPE=char16_t,
-    // so we only #define it to uint16 if it is undefined so far.
+// #if 1 is normal. UChar defaults to char16_t in C++.
+// For configuration testing of UChar=uint16 temporarily change this to #if 0.
+// The intltest Makefile #defines UCHAR_TYPE=char16_t,
+// so we only #define it to uint16 if it is undefined so far.
 #elif !defined(UCHAR_TYPE)
 #define UCHAR_TYPE uint16
 #endif
 
 #if defined(U_COMBINED_IMPLEMENTATION) || defined(U_COMMON_IMPLEMENTATION) || defined(U_I18N_IMPLEMENTATION) || defined(U_IO_IMPLEMENTATION)
-    // Inside the ICU library code, never configurable.
-    typedef char16_t UChar;
+// Inside the ICU library code, never configurable.
+typedef char16_t UChar;
 #elif defined(UCHAR_TYPE)
-    typedef UCHAR_TYPE UChar;
+typedef UCHAR_TYPE UChar;
 #elif (U_CPLUSPLUS_VERSION >= 11)
-    typedef char16_t UChar;
+typedef char16_t UChar;
 #else
-    typedef uint16 UChar;
+typedef uint16 UChar;
 #endif
 
 /**
@@ -439,11 +405,11 @@ typedef int8 UBool_Removed; // @sobolev _Removed
  * @stable ICU 59
  */
 #if U_SIZEOF_WCHAR_T==2
-    typedef wchar_t OldUChar;
+typedef wchar_t OldUChar;
 #elif defined(__CHAR16_TYPE__)
-    typedef __CHAR16_TYPE__ OldUChar;
+typedef __CHAR16_TYPE__ OldUChar;
 #else
-    typedef uint16 OldUChar;
+typedef uint16 OldUChar;
 #endif
 
 /**
@@ -469,7 +435,7 @@ typedef int32_t UChar32;
  * This value is intended for sentinel values for APIs that
  * (take or) return single code points (UChar32).
  * It is outside of the Unicode code point range 0..0x10ffff.
- * 
+ *
  * For example, a "done" or "error" value in a new API
  * could be indicated with U_SENTINEL.
  *

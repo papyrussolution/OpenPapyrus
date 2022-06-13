@@ -486,21 +486,16 @@ static int parsedate(const char * date, time_t * output)
 	if(yearnum < 1583)
 		return PARSEDATE_FAIL;
 #endif
-
-	if((mdaynum > 31) || (monnum > 11) ||
-	    (hournum > 23) || (minnum > 59) || (secnum > 60))
+	if((mdaynum > 31) || (monnum > 11) || (hournum > 23) || (minnum > 59) || (secnum > 60))
 		return PARSEDATE_FAIL; /* clearly an illegal date */
-
 	/* time2epoch() returns a time_t. time_t is often 32 bits, sometimes even on
 	   architectures that feature 64 bit 'long' but ultimately time_t is the
 	   correct data type to use.
 	 */
 	t = time2epoch(secnum, minnum, hournum, mdaynum, monnum, yearnum);
-
 	/* Add the time zone diff between local time zone and GMT. */
 	if(tzoff == -1)
 		tzoff = 0;
-
 	if((tzoff > 0) && (t > TIME_T_MAX - tzoff)) {
 		*output = TIME_T_MAX;
 		return PARSEDATE_LATER; /* time_t overflow */

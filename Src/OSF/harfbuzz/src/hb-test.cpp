@@ -3,6 +3,10 @@
 #include "harfbuzz-internal.h"
 #pragma hdrstop
 
+#ifdef HB_NO_OPEN
+	#define hb_blob_create_from_file(x)  hb_blob_get_empty()
+#endif
+
 int HarfBuzzTestAlgs(); // ###
 int HarfBuzzTestArray(); // ###
 int HarfBuzzTestBitmap(); // ###
@@ -15,6 +19,57 @@ int HarfBuzzTestBufferSerialize(const char * pFileName); // ###
 int HarfBuzzTestGPosSizeParams(const char * pFileName); // ###
 int HarfBuzzTestOtGlyphName(const char * pFileName); // ###
 int HarfBuzzTestOtMeta(const char * pFileName); // ###
+int HarfBuzzTestOtName(const char * pFileName/*int argc, char ** argv*/); // ###
+int HarfBuzzTestGsubWouldSubstitutes(/*int argc, char ** argv*/); // ###
+
+#if 0 // {
+int HarfBuzzTestGsubWouldSubstitutes(/*int argc, char ** argv*/)
+{
+	if(argc != 4 && argc != 5) {
+		slfprintf_stderr("usage: %s font-file lookup-index first-glyph [second-glyph]\n", argv[0]);
+		exit(1);
+	}
+	// Create the face 
+	hb_blob_t * blob = hb_blob_create_from_file(argv[1]);
+	hb_face_t * face = hb_face_create(blob, 0 /* first face */);
+	hb_blob_destroy(blob);
+	blob = nullptr;
+	hb_font_t * font = hb_font_create(face);
+#ifdef HAVE_FREETYPE
+	hb_ft_font_set_funcs(font);
+#endif
+	uint len = argc - 3;
+	hb_codepoint_t glyphs[2];
+	if(!hb_font_glyph_from_string(font, argv[3], -1, &glyphs[0]) || (argc > 4 && !hb_font_glyph_from_string(font, argv[4], -1, &glyphs[1])))
+		return 2;
+	return !hb_ot_layout_lookup_would_substitute(face, strtol(argv[2], nullptr, 0), glyphs, len, false);
+}
+#endif // } 0
+
+int HarfBuzzTestOtName(const char * pFileName/*int argc, char ** argv*/)
+{
+	/*if(argc != 2) {
+		slfprintf_stderr("usage: %s font-file\n", argv[0]);
+		exit(1);
+	}*/
+	hb_blob_t * blob = hb_blob_create_from_file(pFileName/*argv[1]*/);
+	hb_face_t * face = hb_face_create(blob, 0 /* first face */);
+	hb_blob_destroy(blob);
+	blob = nullptr;
+	uint count = 0;
+#ifndef HB_NO_NAME
+	const hb_ot_name_entry_t * entries = hb_ot_name_list_names(face, &count);
+	for(uint i = 0; i < count; i++) {
+		printf("%u	%s	", entries[i].name_id, hb_language_to_string(entries[i].language));
+		char buf[64];
+		uint buf_size = sizeof(buf);
+		hb_ot_name_get_utf8(face, entries[i].name_id, entries[i].language, &buf_size, buf);
+		printf("%s\n", buf);
+	}
+#endif
+	hb_face_destroy(face);
+	return count ? 0 : 1;
+}
 
 static char * test_func(int a, char ** b)
 {
@@ -426,7 +481,6 @@ int HarfBuzzTestNumber() // ###
 		assert(end - pp == 0);
 		assert(!*end);
 	}
-
 	{
 		const char str[] = "12F";
 		const char * pp = str;
@@ -439,7 +493,6 @@ int HarfBuzzTestNumber() // ###
 		assert(end - pp == 0);
 		assert(!*end);
 	}
-
 	{
 		const char str[] = "12Fq";
 		const char * pp = str;
@@ -453,7 +506,6 @@ int HarfBuzzTestNumber() // ###
 		assert(end - pp == 1);
 		assert(!*end);
 	}
-
 	{
 		const char str[] = "-123";
 		const char * pp = str;
@@ -466,7 +518,6 @@ int HarfBuzzTestNumber() // ###
 		assert(end - pp == 0);
 		assert(!*end);
 	}
-
 	{
 		const char str[] = "123";
 		const char * pp = str;
@@ -479,7 +530,6 @@ int HarfBuzzTestNumber() // ###
 		assert(pp - str == 3);
 		assert(end - pp == 1);
 	}
-
 	{
 		const char str[] = "123\0";
 		const char * pp = str;
@@ -492,7 +542,6 @@ int HarfBuzzTestNumber() // ###
 		assert(pp - str == 3);
 		assert(end - pp == 2);
 	}
-
 	{
 		const char str[] = "123V";
 		const char * pp = str;
@@ -505,7 +554,6 @@ int HarfBuzzTestNumber() // ###
 		assert(pp - str == 3);
 		assert(end - pp == 2);
 	}
-
 	{
 		const char str[] = ".123";
 		const char * pp = str;
@@ -517,7 +565,6 @@ int HarfBuzzTestNumber() // ###
 		assert(pp - str == 4);
 		assert(end - pp == 1);
 	}
-
 	{
 		const char str[] = "0.123";
 		const char * pp = str;
@@ -529,7 +576,6 @@ int HarfBuzzTestNumber() // ###
 		assert(pp - str == 5);
 		assert(end - pp == 0);
 	}
-
 	{
 		const char str[] = "0.123e0";
 		const char * pp = str;
@@ -541,7 +587,6 @@ int HarfBuzzTestNumber() // ###
 		assert(pp - str == 7);
 		assert(end - pp == 0);
 	}
-
 	{
 		const char str[] = "123e-3";
 		const char * pp = str;

@@ -1,21 +1,11 @@
+// uobject.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-******************************************************************************
-*
-*   Copyright (C) 2002-2012, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*
-******************************************************************************
-*   file name:  uobject.h
-*   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:4
-*
-*   created on: 2002jun26
-*   created by: Markus W. Scherer
-*/
-
+// Copyright (C) 2002-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002jun26
+// created by: Markus W. Scherer
+//
 #ifndef __UOBJECT_H__
 #define __UOBJECT_H__
 
@@ -37,10 +27,10 @@
  *         Previously, define this to define the throw() specification so
  *                 certain functions do not throw any exceptions
  *
- *         UMemory operator new methods should have the throw() specification 
- *         appended to them, so that the compiler adds the additional NULL check 
- *         before calling constructors. Without, if <code>operator new</code> returns NULL the 
- *         constructor is still called, and if the constructor references member 
+ *         UMemory operator new methods should have the throw() specification
+ *         appended to them, so that the compiler adds the additional NULL check
+ *         before calling constructors. Without, if <code>operator new</code> returns NULL the
+ *         constructor is still called, and if the constructor references member
  *         data, (which it typically does), the result is a segmentation violation.
  *
  * @stable ICU 4.2. Since ICU 64, Use U_NOEXCEPT instead. See ICU-20422.
@@ -48,11 +38,9 @@
 #ifndef U_NO_THROW
 #define U_NO_THROW U_NOEXCEPT
 #endif
-
-/*===========================================================================*/
-/* UClassID-based RTTI */
-/*===========================================================================*/
-
+//
+// UClassID-based RTTI
+//
 /**
  * UClassID is used to identify classes without using the compiler's RTTI.
  * This was used before C++ compilers consistently supported RTTI.
@@ -114,94 +102,88 @@ U_NAMESPACE_BEGIN
  */
 class U_COMMON_API UMemory {
 public:
-
 /* test versions for debugging shaper heap memory problems */
-#ifdef SHAPER_MEMORY_DEBUG  
-    static void * NewArray(int size, int count);
-    static void * GrowArray(void * array, int newSize );
-    static void   FreeArray(void * array );
+#ifdef SHAPER_MEMORY_DEBUG
+	static void * NewArray(int size, int count);
+	static void * GrowArray(void * array, int newSize);
+	static void   FreeArray(void * array);
 #endif
-
 #if U_OVERRIDE_CXX_ALLOCATION
-    /**
-     * Override for ICU4C C++ memory management.
-     * simple, non-class types are allocated using the macros in common/cmemory.h
-     * (uprv_malloc(), uprv_free(), uprv_realloc());
-     * they or something else could be used here to implement C++ new/delete
-     * for ICU4C C++ classes
-     * @stable ICU 2.4
-     */
-    static void * U_EXPORT2 operator new(size_t size) U_NOEXCEPT;
+	/**
+	 * Override for ICU4C C++ memory management.
+	 * simple, non-class types are allocated using the macros in common/cmemory.h
+	 * (uprv_malloc(), uprv_free(), uprv_realloc());
+	 * they or something else could be used here to implement C++ new/delete
+	 * for ICU4C C++ classes
+	 * @stable ICU 2.4
+	 */
+	static void * U_EXPORT2 operator new(size_t size) U_NOEXCEPT;
 
-    /**
-     * Override for ICU4C C++ memory management.
-     * See new().
-     * @stable ICU 2.4
-     */
-    static void * U_EXPORT2 operator new[](size_t size) U_NOEXCEPT;
-
-    /**
-     * Override for ICU4C C++ memory management.
-     * simple, non-class types are allocated using the macros in common/cmemory.h
-     * (uprv_malloc(), uprv_free(), uprv_realloc());
-     * they or something else could be used here to implement C++ new/delete
-     * for ICU4C C++ classes
-     * @stable ICU 2.4
-     */
-    static void U_EXPORT2 operator delete(void *p) U_NOEXCEPT;
-
-    /**
-     * Override for ICU4C C++ memory management.
-     * See delete().
-     * @stable ICU 2.4
-     */
-    static void U_EXPORT2 operator delete[](void *p) U_NOEXCEPT;
-
+	/**
+	 * Override for ICU4C C++ memory management.
+	 * See new().
+	 * @stable ICU 2.4
+	 */
+	static void * U_EXPORT2 operator new[](size_t size) U_NOEXCEPT;
+	/**
+	 * Override for ICU4C C++ memory management.
+	 * simple, non-class types are allocated using the macros in common/cmemory.h
+	 * (uprv_malloc(), uprv_free(), uprv_realloc());
+	 * they or something else could be used here to implement C++ new/delete
+	 * for ICU4C C++ classes
+	 * @stable ICU 2.4
+	 */
+	static void U_EXPORT2 operator delete(void * p) U_NOEXCEPT;
+	/**
+	 * Override for ICU4C C++ memory management.
+	 * See delete().
+	 * @stable ICU 2.4
+	 */
+	static void U_EXPORT2 operator delete[](void * p) U_NOEXCEPT;
 #if U_HAVE_PLACEMENT_NEW
-    /**
-     * Override for ICU4C C++ memory management for STL.
-     * See new().
-     * @stable ICU 2.6
-     */
-    static inline void * U_EXPORT2 operator new(size_t, void *ptr) U_NOEXCEPT { return ptr; }
-
-    /**
-     * Override for ICU4C C++ memory management for STL.
-     * See delete().
-     * @stable ICU 2.6
-     */
-    static inline void U_EXPORT2 operator delete(void *, void *) U_NOEXCEPT {}
+	/**
+	 * Override for ICU4C C++ memory management for STL.
+	 * See new().
+	 * @stable ICU 2.6
+	 */
+	static inline void * U_EXPORT2 operator new(size_t, void * ptr) U_NOEXCEPT { return ptr; }
+	/**
+	 * Override for ICU4C C++ memory management for STL.
+	 * See delete().
+	 * @stable ICU 2.6
+	 */
+	static inline void U_EXPORT2 operator delete(void *, void *) U_NOEXCEPT {}
 #endif /* U_HAVE_PLACEMENT_NEW */
 #if U_HAVE_DEBUG_LOCATION_NEW
-    /**
-      * This method overrides the MFC debug version of the operator new
-      * 
-      * @param size   The requested memory size
-      * @param file   The file where the allocation was requested
-      * @param line   The line where the allocation was requested 
-      */ 
-    static void * U_EXPORT2 operator new(size_t size, const char * file, int line) U_NOEXCEPT;
-    /**
-      * This method provides a matching delete for the MFC debug new
-      * 
-      * @param p      The pointer to the allocated memory
-      * @param file   The file where the allocation was requested
-      * @param line   The line where the allocation was requested 
-      */ 
-    static void U_EXPORT2 operator delete(void * p, const char * file, int line) U_NOEXCEPT;
+	/**
+	 * This method overrides the MFC debug version of the operator new
+	 *
+	 * @param size   The requested memory size
+	 * @param file   The file where the allocation was requested
+	 * @param line   The line where the allocation was requested
+	 */
+	static void * U_EXPORT2 operator new(size_t size, const char * file, int line) U_NOEXCEPT;
+	/**
+	 * This method provides a matching delete for the MFC debug new
+	 *
+	 * @param p      The pointer to the allocated memory
+	 * @param file   The file where the allocation was requested
+	 * @param line   The line where the allocation was requested
+	 */
+	static void U_EXPORT2 operator delete(void * p, const char * file, int line) U_NOEXCEPT;
 #endif /* U_HAVE_DEBUG_LOCATION_NEW */
 #endif /* U_OVERRIDE_CXX_ALLOCATION */
 
-    /*
-     * Assignment operator not declared. The compiler will provide one
-     * which does nothing since this class does not contain any data members.
-     * API/code coverage may show the assignment operator as present and
-     * untested - ignore.
-     * Subclasses need this assignment operator if they use compiler-provided
-     * assignment operators of their own. An alternative to not declaring one
-     * here would be to declare and empty-implement a protected or public one.
-    UMemory &UMemory::operator = (const UMemory &);
-     */
+	/*
+	 * Assignment operator not declared. The compiler will provide one
+	 * which does nothing since this class does not contain any data members.
+	 * API/code coverage may show the assignment operator as present and
+	 * untested - ignore.
+	 * Subclasses need this assignment operator if they use compiler-provided
+	 * assignment operators of their own. An alternative to not declaring one
+	 * here would be to declare and empty-implement a protected or public one.
+	   UMemory &UMemory::operator = (const UMemory &);
+	 */
 };
 
 /**
@@ -222,66 +204,65 @@ public:
  */
 class U_COMMON_API UObject : public UMemory {
 public:
-    /**
-     * Destructor.
-     *
-     * @stable ICU 2.2
-     */
-    virtual ~UObject();
+	/**
+	 * Destructor.
+	 *
+	 * @stable ICU 2.2
+	 */
+	virtual ~UObject();
 
-    /**
-     * ICU4C "poor man's RTTI", returns a UClassID for the actual ICU class.
-     * The base class implementation returns a dummy value.
-     *
-     * Use compiler RTTI rather than ICU's "poor man's RTTI".
-     * Since ICU 4.6, new ICU C++ class hierarchies do not implement "poor man's RTTI".
-     *
-     * @stable ICU 2.2
-     */
-    virtual UClassID getDynamicClassID() const;
+	/**
+	 * ICU4C "poor man's RTTI", returns a UClassID for the actual ICU class.
+	 * The base class implementation returns a dummy value.
+	 *
+	 * Use compiler RTTI rather than ICU's "poor man's RTTI".
+	 * Since ICU 4.6, new ICU C++ class hierarchies do not implement "poor man's RTTI".
+	 *
+	 * @stable ICU 2.2
+	 */
+	virtual UClassID getDynamicClassID() const;
 
 protected:
-    // the following functions are protected to prevent instantiation and
-    // direct use of UObject itself
+	// the following functions are protected to prevent instantiation and
+	// direct use of UObject itself
 
-    // default constructor
-    // inline UObject() {}
+	// default constructor
+	// inline UObject() {}
 
-    // copy constructor
-    // inline UObject(const UObject &other) {}
+	// copy constructor
+	// inline UObject(const UObject &other) {}
 
 #if 0
-    // TODO Sometime in the future. Implement operator==().
-    // (This comment inserted in 2.2)
-    // some or all of the following "boilerplate" functions may be made public
-    // in a future ICU4C release when all subclasses implement them
+	// TODO Sometime in the future. Implement operator==().
+	// (This comment inserted in 2.2)
+	// some or all of the following "boilerplate" functions may be made public
+	// in a future ICU4C release when all subclasses implement them
 
-    // assignment operator
-    // (not virtual, see "Taligent's Guide to Designing Programs" pp.73..74)
-    // commented out because the implementation is the same as a compiler's default
-    // UObject & operator = (const UObject &other) { return *this; }
+	// assignment operator
+	// (not virtual, see "Taligent's Guide to Designing Programs" pp.73..74)
+	// commented out because the implementation is the same as a compiler's default
+	// UObject & operator = (const UObject &other) { return *this; }
 
-    // comparison operators
-    virtual inline bool operator==(const UObject &other) const { return this==&other; }
-    inline bool operator != (const UObject &other) const { return !operator==(other); }
-
-    // clone() commented out from the base class:
-    // some compilers do not support co-variant return types
-    // (i.e., subclasses would have to return UObject * as well, instead of SubClass *)
-    // see also UObject class documentation.
-    // virtual UObject *clone() const;
+	// comparison operators
+	virtual inline bool operator==(const UObject &other) const { return this==&other; }
+	inline bool operator !=(const UObject &other) const { return !operator==(other); }
+	// clone() commented out from the base class:
+	// some compilers do not support co-variant return types
+	// (i.e., subclasses would have to return UObject * as well, instead of SubClass *)
+	// see also UObject class documentation.
+	// virtual UObject *clone() const;
 #endif
 
-    /*
-     * Assignment operator not declared. The compiler will provide one
-     * which does nothing since this class does not contain any data members.
-     * API/code coverage may show the assignment operator as present and
-     * untested - ignore.
-     * Subclasses need this assignment operator if they use compiler-provided
-     * assignment operators of their own. An alternative to not declaring one
-     * here would be to declare and empty-implement a protected or public one.
-    UObject &UObject::operator = (const UObject &);
-     */
+	/*
+	 * Assignment operator not declared. The compiler will provide one
+	 * which does nothing since this class does not contain any data members.
+	 * API/code coverage may show the assignment operator as present and
+	 * untested - ignore.
+	 * Subclasses need this assignment operator if they use compiler-provided
+	 * assignment operators of their own. An alternative to not declaring one
+	 * here would be to declare and empty-implement a protected or public one.
+	   UObject &UObject::operator = (const UObject &);
+	 */
 };
 
 #ifndef U_HIDE_INTERNAL_API
@@ -293,13 +274,8 @@ protected:
  * @internal
  */
 #define UOBJECT_DEFINE_RTTI_IMPLEMENTATION(myClass) \
-    UClassID U_EXPORT2 myClass::getStaticClassID() { \
-        static char classID = 0; \
-        return (UClassID)&classID; \
-    } \
-    UClassID myClass::getDynamicClassID() const \
-    { return myClass::getStaticClassID(); }
-
+	UClassID U_EXPORT2 myClass::getStaticClassID() { static char classID = 0; return (UClassID)&classID; } \
+	UClassID myClass::getDynamicClassID() const { return myClass::getStaticClassID(); }
 
 /**
  * This macro adds ICU RTTI to an ICU abstract class implementation.
@@ -310,15 +286,11 @@ protected:
  * @internal
  */
 #define UOBJECT_DEFINE_ABSTRACT_RTTI_IMPLEMENTATION(myClass) \
-    UClassID U_EXPORT2 myClass::getStaticClassID() { \
-        static char classID = 0; \
-        return (UClassID)&classID; \
-    }
+	UClassID U_EXPORT2 myClass::getStaticClassID() { static char classID = 0; return (UClassID)&classID; }
 
 #endif  /* U_HIDE_INTERNAL_API */
 
 U_NAMESPACE_END
 
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif

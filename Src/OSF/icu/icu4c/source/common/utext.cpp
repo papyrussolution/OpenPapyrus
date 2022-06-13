@@ -1332,7 +1332,7 @@ static UChar * utext_strFromUTF8(UChar * dest,
     )
 {
 	UChar * pDest = dest;
-	UChar * pDestLimit = (dest!=NULL) ? (dest+destCapacity) : NULL;
+	UChar * pDestLimit = (dest != NULL) ? (dest+destCapacity) : NULL;
 	UChar32 ch = 0;
 	int32_t index = 0;
 	int32_t reqLength = 0;
@@ -1992,7 +1992,7 @@ static int32_t U_CALLCONV unistrTextExtract(UText * t,
 	int32_t limit32 = limit<length ? us->getChar32Start((int32_t)limit) : length;
 
 	length = limit32-start32;
-	if(destCapacity>0 && dest!=NULL) {
+	if(destCapacity>0 && dest != NULL) {
 		int32_t trimmedLength = length;
 		if(trimmedLength>destCapacity) {
 			trimmedLength = destCapacity;

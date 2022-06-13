@@ -49,7 +49,8 @@ int32_t gMaxInpcValue = 0;
 int32_t gMaxInscValue = 0;
 int32_t gMaxVoValue = 0;
 
-bool U_CALLCONV uprops_cleanup() {
+bool U_CALLCONV uprops_cleanup() 
+{
 	udata_close(gLayoutMemory);
 	gLayoutMemory = nullptr;
 	ucptrie_close(gInpcTrie);

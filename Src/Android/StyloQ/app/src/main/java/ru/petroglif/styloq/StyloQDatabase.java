@@ -82,6 +82,7 @@ public class StyloQDatabase extends Database {
 			// разрешена посредством дополнительных механизмов (escrow счета, полный возврат с отменой платежей и т.д.)
 		public static final int styloqdocstFINISHED_SUCC         = 15; // Финальное состояние документа: завершен как учтенный и отработанный.
 		public static final int styloqdocstFINISHED_FAIL         = 16; // Финальное состояние документа: завершен как отмененный.
+		public static final int styloqdocstCANCELLEDDRAFT        = 17; // @v11.4.1 Драфт отмененый эмитентом. Переход в это состояние возможен только после styloqdocstDRAFT || styloqdocstUNDEF.
 		//
 		public static final int doctypUndef       = 0;
 		public static final int doctypCommandList = 1;

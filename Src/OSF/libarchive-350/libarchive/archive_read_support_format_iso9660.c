@@ -248,11 +248,11 @@ struct file_info {
 	gid_t gid;
 	int64 number;
 	int nlinks;
-	struct archive_string name; /* Pathname */
+	archive_string name; /* Pathname */
 	uchar   * utf16be_name;
 	size_t utf16be_bytes;
 	char name_continues; /* Non-zero if name continues */
-	struct archive_string symlink;
+	archive_string symlink;
 	char symlink_continues; /* Non-zero if link continues */
 	/* Set 1 if this file compressed by paged zlib(zisofs) */
 	int pz;
@@ -284,7 +284,7 @@ struct iso9660 {
 	int opt_support_joliet;
 	int opt_support_rockridge;
 
-	struct archive_string pathname;
+	archive_string pathname;
 	char seenRockridge; /* Set true if RR extensions are used. */
 	char seenSUSP; /* Set true if SUSP is being used. */
 	char seenJoliet;
@@ -302,7 +302,7 @@ struct iso9660 {
 	}       read_ce_req;
 
 	int64 previous_number;
-	struct archive_string previous_pathname;
+	archive_string previous_pathname;
 
 	struct file_info                * use_files;
 	struct heap_queue pending_files;
@@ -331,7 +331,7 @@ struct iso9660 {
 	size_t entry_bytes_unconsumed;
 	struct zisofs entry_zisofs;
 	struct content  * entry_content;
-	struct archive_string_conv * sconv_utf16be;
+	archive_string_conv * sconv_utf16be;
 	/*
 	 * Buffers for a full pathname in UTF-16BE in Joliet extensions.
 	 */
@@ -344,18 +344,14 @@ struct iso9660 {
 	uchar null[2048];
 };
 
-static int archive_read_format_iso9660_bid(struct archive_read *, int);
-static int archive_read_format_iso9660_options(struct archive_read *,
-    const char *, const char *);
-static int archive_read_format_iso9660_cleanup(struct archive_read *);
-static int archive_read_format_iso9660_read_data(struct archive_read *,
-    const void **, size_t *, int64 *);
-static int archive_read_format_iso9660_read_data_skip(struct archive_read *);
-static int archive_read_format_iso9660_read_header(struct archive_read *,
-    struct archive_entry *);
-static const char * build_pathname(struct archive_string *, struct file_info *, int);
-static int build_pathname_utf16be(uchar *, size_t, size_t *,
-    struct file_info *);
+static int archive_read_format_iso9660_bid(ArchiveRead *, int);
+static int archive_read_format_iso9660_options(ArchiveRead *, const char *, const char *);
+static int archive_read_format_iso9660_cleanup(ArchiveRead *);
+static int archive_read_format_iso9660_read_data(ArchiveRead *, const void **, size_t *, int64 *);
+static int archive_read_format_iso9660_read_data_skip(ArchiveRead *);
+static int archive_read_format_iso9660_read_header(ArchiveRead *, ArchiveEntry *);
+static const char * build_pathname(archive_string *, struct file_info *, int);
+static int build_pathname_utf16be(uchar *, size_t, size_t *, struct file_info *);
 #if DEBUG
 static void     dump_isodirrec(FILE *, const uchar * isodirrec);
 #endif
@@ -369,27 +365,16 @@ static int isJolietSVD(struct iso9660 *, const uchar *);
 static int isSVD(struct iso9660 *, const uchar *);
 static int isEVD(struct iso9660 *, const uchar *);
 static int isPVD(struct iso9660 *, const uchar *);
-static int next_cache_entry(struct archive_read *, struct iso9660 *,
-    struct file_info **);
-static int next_entry_seek(struct archive_read *, struct iso9660 *,
-    struct file_info **);
-static struct file_info * parse_file_info(struct archive_read * a,
-    struct file_info * parent, const uchar * isodirrec,
-    size_t reclen);
-static int parse_rockridge(struct archive_read * a,
-    struct file_info * file, const uchar * start,
-    const uchar * end);
-static int register_CE(struct archive_read * a, int32_t location,
-    struct file_info * file);
-static int read_CE(struct archive_read * a, struct iso9660 * iso9660);
-static void     parse_rockridge_NM1(struct file_info *,
-    const uchar *, int);
-static void     parse_rockridge_SL1(struct file_info *,
-    const uchar *, int);
-static void     parse_rockridge_TF1(struct file_info *,
-    const uchar *, int);
-static void     parse_rockridge_ZF1(struct file_info *,
-    const uchar *, int);
+static int next_cache_entry(ArchiveRead *, struct iso9660 *, struct file_info **);
+static int next_entry_seek(ArchiveRead *, struct iso9660 *, struct file_info **);
+static struct file_info * parse_file_info(ArchiveRead * a, struct file_info * parent, const uchar * isodirrec, size_t reclen);
+static int parse_rockridge(ArchiveRead * a, struct file_info * file, const uchar * start, const uchar * end);
+static int register_CE(ArchiveRead * a, int32_t location, struct file_info * file);
+static int read_CE(ArchiveRead * a, struct iso9660 * iso9660);
+static void     parse_rockridge_NM1(struct file_info *, const uchar *, int);
+static void     parse_rockridge_SL1(struct file_info *, const uchar *, int);
+static void     parse_rockridge_TF1(struct file_info *, const uchar *, int);
+static void     parse_rockridge_ZF1(struct file_info *, const uchar *, int);
 static void     register_file(struct iso9660 *, struct file_info *);
 static void     release_files(struct iso9660 *);
 static unsigned toi(const void * p, int n);
@@ -397,21 +382,17 @@ static inline void re_add_entry(struct iso9660 *, struct file_info *);
 static inline struct file_info * re_get_entry(struct iso9660 *);
 static inline int rede_add_entry(struct file_info *);
 static inline struct file_info * rede_get_entry(struct file_info *);
-static inline void cache_add_entry(struct iso9660 * iso9660,
-    struct file_info * file);
+static inline void cache_add_entry(struct iso9660 * iso9660, struct file_info * file);
 static inline struct file_info * cache_get_entry(struct iso9660 * iso9660);
-static int heap_add_entry(struct archive_read * a, struct heap_queue * heap,
-    struct file_info * file, uint64 key);
+static int heap_add_entry(ArchiveRead * a, struct heap_queue * heap, struct file_info * file, uint64 key);
 static struct file_info * heap_get_entry(struct heap_queue * heap);
 
-#define add_entry(arch, iso9660, file)  \
-	heap_add_entry(arch, &((iso9660)->pending_files), file, file->offset)
-#define next_entry(iso9660)             \
-	heap_get_entry(&((iso9660)->pending_files))
+#define add_entry(arch, iso9660, file)  heap_add_entry(arch, &((iso9660)->pending_files), file, file->offset)
+#define next_entry(iso9660)             heap_get_entry(&((iso9660)->pending_files))
 
-int archive_read_support_format_iso9660(struct archive * _a)
+int archive_read_support_format_iso9660(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	struct iso9660 * iso9660;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -450,7 +431,7 @@ int archive_read_support_format_iso9660(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_iso9660_bid(struct archive_read * a, int best_bid)
+static int archive_read_format_iso9660_bid(ArchiveRead * a, int best_bid)
 {
 	struct iso9660 * iso9660;
 	ssize_t bytes_read;
@@ -512,7 +493,7 @@ static int archive_read_format_iso9660_bid(struct archive_read * a, int best_bid
 	return 0;
 }
 
-static int archive_read_format_iso9660_options(struct archive_read * a, const char * key, const char * val)
+static int archive_read_format_iso9660_options(ArchiveRead * a, const char * key, const char * val)
 {
 	struct iso9660 * iso9660 = (struct iso9660 *)(a->format->data);
 	if(sstreq(key, "joliet")) {
@@ -861,7 +842,7 @@ static int isPVD(struct iso9660 * iso9660, const uchar * h)
 	return (48);
 }
 
-static int read_children(struct archive_read * a, struct file_info * parent)
+static int read_children(ArchiveRead * a, struct file_info * parent)
 {
 	struct iso9660 * iso9660;
 	const uchar * b, * p;
@@ -894,7 +875,7 @@ static int read_children(struct archive_read * a, struct file_info * parent)
 	}
 	step = (size_t)(((parent->size + iso9660->logical_block_size -1) / iso9660->logical_block_size) * iso9660->logical_block_size);
 	b = static_cast<const uchar *>(__archive_read_ahead(a, step, NULL));
-	if(b == NULL) {
+	if(!b) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to read full block when scanning ISO9660 directory list");
 		return ARCHIVE_FATAL;
 	}
@@ -969,7 +950,7 @@ static int read_children(struct archive_read * a, struct file_info * parent)
 	return ARCHIVE_OK;
 }
 
-static int choose_volume(struct archive_read * a, struct iso9660 * iso9660)
+static int choose_volume(ArchiveRead * a, struct iso9660 * iso9660)
 {
 	struct file_info * file;
 	int64 skipsize;
@@ -1048,26 +1029,20 @@ static int choose_volume(struct archive_read * a, struct iso9660 * iso9660)
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_iso9660_read_header(struct archive_read * a,
-    struct archive_entry * entry)
+static int archive_read_format_iso9660_read_header(ArchiveRead * a, ArchiveEntry * entry)
 {
-	struct iso9660 * iso9660;
 	struct file_info * file;
 	int r, rd_r = ARCHIVE_OK;
-
-	iso9660 = (struct iso9660 *)(a->format->data);
-
+	struct iso9660 * iso9660 = (struct iso9660 *)(a->format->data);
 	if(!a->archive.archive_format) {
 		a->archive.archive_format = ARCHIVE_FORMAT_ISO9660;
 		a->archive.archive_format_name = "ISO9660";
 	}
-
 	if(iso9660->current_position == 0) {
 		r = choose_volume(a, iso9660);
 		if(r != ARCHIVE_OK)
 			return r;
 	}
-
 	file = NULL; /* Eliminate a warning. */
 	/* Get the next entry that appears after the current offset. */
 	r = next_entry_seek(a, iso9660, &file);
@@ -1250,7 +1225,7 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a,
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_iso9660_read_data_skip(struct archive_read * a)
+static int archive_read_format_iso9660_read_data_skip(ArchiveRead * a)
 {
 	/* Because read_next_header always does an explicit skip
 	 * to the next entry, we don't need to do anything here. */
@@ -1260,7 +1235,7 @@ static int archive_read_format_iso9660_read_data_skip(struct archive_read * a)
 
 #ifdef HAVE_ZLIB_H
 
-static int zisofs_read_data(struct archive_read * a,
+static int zisofs_read_data(ArchiveRead * a,
     const void ** buff, size_t * size, int64 * offset)
 {
 	struct iso9660 * iso9660;
@@ -1465,7 +1440,7 @@ next_data:
 
 #else /* HAVE_ZLIB_H */
 
-static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
+static int zisofs_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	(void)buff; /* UNUSED */
 	(void)size; /* UNUSED */
@@ -1476,7 +1451,7 @@ static int zisofs_read_data(struct archive_read * a, const void ** buff, size_t 
 
 #endif /* HAVE_ZLIB_H */
 
-static int archive_read_format_iso9660_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
+static int archive_read_format_iso9660_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	ssize_t bytes_read;
 	struct iso9660 * iso9660 = (struct iso9660 *)(a->format->data);
@@ -1531,7 +1506,7 @@ static int archive_read_format_iso9660_read_data(struct archive_read * a, const 
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_iso9660_cleanup(struct archive_read * a)
+static int archive_read_format_iso9660_cleanup(ArchiveRead * a)
 {
 	struct iso9660 * iso9660;
 	int r = ARCHIVE_OK;
@@ -1563,7 +1538,7 @@ static int archive_read_format_iso9660_cleanup(struct archive_read * a)
  * This routine parses a single ISO directory record, makes sense
  * of any extensions, and stores the result in memory.
  */
-static struct file_info * parse_file_info(struct archive_read * a, struct file_info * parent,
+static struct file_info * parse_file_info(ArchiveRead * a, struct file_info * parent,
     const uchar * isodirrec, size_t reclen){
 	struct iso9660 * iso9660;
 	struct file_info * file, * filep;
@@ -1886,7 +1861,7 @@ fail:
 	return NULL;
 }
 
-static int parse_rockridge(struct archive_read * a, struct file_info * file,
+static int parse_rockridge(ArchiveRead * a, struct file_info * file,
     const uchar * p, const uchar * end)
 {
 	struct iso9660 * iso9660;
@@ -2056,7 +2031,7 @@ static int parse_rockridge(struct archive_read * a, struct file_info * file,
 	}
 }
 
-static int register_CE(struct archive_read * a, int32_t location, struct file_info * file)
+static int register_CE(ArchiveRead * a, int32_t location, struct file_info * file)
 {
 	struct iso9660 * iso9660;
 	struct iso9660::read_ce_queue * heap;
@@ -2155,7 +2130,7 @@ static void next_CE(struct iso9660::read_ce_queue * heap)
 	}
 }
 
-static int read_CE(struct archive_read * a, struct iso9660 * iso9660)
+static int read_CE(ArchiveRead * a, struct iso9660 * iso9660)
 {
 	struct iso9660::read_ce_queue * heap;
 	const uchar * b, * p, * end;
@@ -2168,7 +2143,7 @@ static int read_CE(struct archive_read * a, struct iso9660 * iso9660)
 	while(heap->cnt &&
 	    heap->reqs[0].offset == iso9660->current_position) {
 		b = static_cast<const uchar *>(__archive_read_ahead(a, step, NULL));
-		if(b == NULL) {
+		if(!b) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to read full block when scanning ISO9660 directory list");
 			return ARCHIVE_FATAL;
 		}
@@ -2436,7 +2411,7 @@ static void release_files(struct iso9660 * iso9660)
 	}
 }
 
-static int next_entry_seek(struct archive_read * a, struct iso9660 * iso9660,
+static int next_entry_seek(ArchiveRead * a, struct iso9660 * iso9660,
     struct file_info ** pfile)
 {
 	struct file_info * file;
@@ -2473,7 +2448,7 @@ static int next_entry_seek(struct archive_read * a, struct iso9660 * iso9660,
 	return ARCHIVE_OK;
 }
 
-static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
+static int next_cache_entry(ArchiveRead * a, struct iso9660 * iso9660,
     struct file_info ** pfile)
 {
 	struct file_info * file;
@@ -2729,7 +2704,7 @@ static inline struct file_info * cache_get_entry(struct iso9660 * iso9660)
 	return (file);
 }
 
-static int heap_add_entry(struct archive_read * a, struct heap_queue * heap, struct file_info * file, uint64 key)
+static int heap_add_entry(ArchiveRead * a, struct heap_queue * heap, struct file_info * file, uint64 key)
 {
 	uint64 file_key, parent_key;
 	int hole, parent;
@@ -2893,7 +2868,7 @@ static time_t time_from_tm(struct tm * t)
 #endif
 }
 
-static const char * build_pathname(struct archive_string * as, struct file_info * file, int depth)
+static const char * build_pathname(archive_string * as, struct file_info * file, int depth)
 {
 	// Plain ISO9660 only allows 8 dir levels; if we get
 	// to 1000, then something is very, very wrong.

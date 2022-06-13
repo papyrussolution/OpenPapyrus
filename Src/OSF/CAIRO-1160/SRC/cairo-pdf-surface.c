@@ -1516,7 +1516,7 @@ static cairo_int_status_t _cairo_pdf_surface_open_stream(cairo_pdf_surface_t * s
 		_cairo_output_stream_printf(surface->output,
 		    "   /Filter /FlateDecode\n");
 
-	if(fmt != NULL) {
+	if(fmt) {
 		va_start(ap, fmt);
 		_cairo_output_stream_vprintf(surface->output, fmt, ap);
 		va_end(ap);

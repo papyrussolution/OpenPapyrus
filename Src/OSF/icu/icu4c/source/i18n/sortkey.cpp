@@ -1,16 +1,7 @@
+// sortkey.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 1996-2012, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
-//===============================================================================
-//
-// File sortkey.cpp
-//
-//
+// Copyright (C) 1996-2012, International Business Machines Corporation and others. All Rights Reserved.
 //
 // Created by: Helena Shih
 //
@@ -25,10 +16,8 @@
 //                             Cleaned up operator=
 // 07/12/99      helena        HPUX 11 CC port.
 // 03/06/01      synwee        Modified compareTo, to handle the result of
-//                             2 string similar in contents, but one is longer
-//                             than the other
-//===============================================================================
-
+//                             2 string similar in contents, but one is longer than the other
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -176,13 +165,10 @@ UCollationResult CollationKey::compareTo(const CollationKey& target, UErrorCode 
 	if(U_SUCCESS(status)) {
 		const uint8 * src = getBytes();
 		const uint8 * tgt = target.getBytes();
-
 		// are we comparing the same string
 		if(src == tgt)
 			return UCOL_EQUAL;
-
 		UCollationResult result;
-
 		// are we comparing different lengths?
 		int32_t minLength = getLength();
 		int32_t targetLength = target.getLength();
@@ -196,7 +182,6 @@ UCollationResult CollationKey::compareTo(const CollationKey& target, UErrorCode 
 			minLength = targetLength;
 			result = UCOL_GREATER;
 		}
-
 		if(minLength > 0) {
 			int diff = uprv_memcmp(src, tgt, minLength);
 			if(diff > 0) {
@@ -206,7 +191,6 @@ UCollationResult CollationKey::compareTo(const CollationKey& target, UErrorCode 
 				return UCOL_LESS;
 			}
 		}
-
 		return result;
 	}
 	else {
@@ -219,7 +203,6 @@ UCollationResult CollationKey::compareTo(const CollationKey& target, UErrorCode 
 uint8 * CollationKey::toByteArray(int32_t& count) const
 {
 	uint8 * result = (uint8 *)uprv_malloc(sizeof(uint8) * fCount);
-
 	if(!result) {
 		count = 0;
 	}
@@ -229,7 +212,6 @@ uint8 * CollationKey::toByteArray(int32_t& count) const
 			uprv_memcpy(result, fBytes, fCount);
 		}
 	}
-
 	return result;
 }
 
@@ -255,20 +237,16 @@ int32_t CollationKey::hashCode() const
 	// (Cribbed from UnicodeString)
 	// We cache the hashCode; when it becomes invalid, due to any change to the
 	// string, we note this by setting it to kInvalidHashCode. [LIU]
-
 	// Note: This method is semantically const, but physically non-const.
-
 	if(fHashCode == kInvalidHashCode) {
 		fHashCode = computeHashCode(getBytes(), getLength());
 	}
-
 	return fHashCode;
 }
 
 U_NAMESPACE_END
 
-U_CAPI int32_t U_EXPORT2 ucol_keyHashCode(const uint8 * key,
-    int32_t length)
+U_CAPI int32_t U_EXPORT2 ucol_keyHashCode(const uint8 * key, int32_t length)
 {
 	return icu::computeHashCode(key, length);
 }

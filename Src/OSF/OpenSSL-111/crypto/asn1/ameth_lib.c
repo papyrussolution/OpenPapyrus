@@ -137,10 +137,7 @@ int EVP_PKEY_asn1_add0(const EVP_PKEY_ASN1_METHOD * ameth)
 	 *
 	 * Anything else is an error and may lead to a corrupt ASN1 method table
 	 */
-	if(!((ameth->pem_str == NULL
-	 && (ameth->pkey_flags & ASN1_PKEY_ALIAS) != 0)
-	   || (ameth->pem_str != NULL
-	 && (ameth->pkey_flags & ASN1_PKEY_ALIAS) == 0))) {
+	if(!((ameth->pem_str == NULL && (ameth->pkey_flags & ASN1_PKEY_ALIAS) != 0) || (ameth->pem_str != NULL && (ameth->pkey_flags & ASN1_PKEY_ALIAS) == 0))) {
 		EVPerr(EVP_F_EVP_PKEY_ASN1_ADD0, ERR_R_PASSED_INVALID_ARGUMENT);
 		return 0;
 	}
@@ -157,7 +154,6 @@ int EVP_PKEY_asn1_add0(const EVP_PKEY_ASN1_METHOD * ameth)
 		    EVP_R_PKEY_APPLICATION_ASN1_METHOD_ALREADY_REGISTERED);
 		return 0;
 	}
-
 	if(!sk_EVP_PKEY_ASN1_METHOD_push(app_methods, ameth))
 		return 0;
 	sk_EVP_PKEY_ASN1_METHOD_sort(app_methods);
@@ -178,10 +174,7 @@ int EVP_PKEY_asn1_add_alias(int to, int from)
 	return 1;
 }
 
-int EVP_PKEY_asn1_get0_info(int * ppkey_id, int * ppkey_base_id,
-    int * ppkey_flags, const char ** pinfo,
-    const char ** ppem_str,
-    const EVP_PKEY_ASN1_METHOD * ameth)
+int EVP_PKEY_asn1_get0_info(int * ppkey_id, int * ppkey_base_id, int * ppkey_flags, const char ** pinfo, const char ** ppem_str, const EVP_PKEY_ASN1_METHOD * ameth)
 {
 	if(!ameth)
 		return 0;
@@ -221,47 +214,36 @@ EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_new(int id, int flags, const char * pem_str
 		if(!ameth->pem_str)
 			goto err;
 	}
-
 	return ameth;
-
 err:
 	EVP_PKEY_asn1_free(ameth);
 	return NULL;
 }
 
-void EVP_PKEY_asn1_copy(EVP_PKEY_ASN1_METHOD * dst,
-    const EVP_PKEY_ASN1_METHOD * src)
+void EVP_PKEY_asn1_copy(EVP_PKEY_ASN1_METHOD * dst, const EVP_PKEY_ASN1_METHOD * src)
 {
 	dst->pub_decode = src->pub_decode;
 	dst->pub_encode = src->pub_encode;
 	dst->pub_cmp = src->pub_cmp;
 	dst->pub_print = src->pub_print;
-
 	dst->priv_decode = src->priv_decode;
 	dst->priv_encode = src->priv_encode;
 	dst->priv_print = src->priv_print;
-
 	dst->old_priv_encode = src->old_priv_encode;
 	dst->old_priv_decode = src->old_priv_decode;
-
 	dst->pkey_size = src->pkey_size;
 	dst->pkey_bits = src->pkey_bits;
-
 	dst->param_decode = src->param_decode;
 	dst->param_encode = src->param_encode;
 	dst->param_missing = src->param_missing;
 	dst->param_copy = src->param_copy;
 	dst->param_cmp = src->param_cmp;
 	dst->param_print = src->param_print;
-
 	dst->pkey_free = src->pkey_free;
 	dst->pkey_ctrl = src->pkey_ctrl;
-
 	dst->item_sign = src->item_sign;
 	dst->item_verify = src->item_verify;
-
 	dst->siginf_set = src->siginf_set;
-
 	dst->pkey_check = src->pkey_check;
 }
 

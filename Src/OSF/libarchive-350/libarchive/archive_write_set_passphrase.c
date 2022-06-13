@@ -15,7 +15,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-int archive_write_set_passphrase(struct archive * _a, const char * p)
+int archive_write_set_passphrase(Archive * _a, const char * p)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -32,7 +32,7 @@ int archive_write_set_passphrase(struct archive * _a, const char * p)
 	return ARCHIVE_OK;
 }
 
-int archive_write_set_passphrase_callback(struct archive * _a, void * client_data, archive_passphrase_callback * cb)
+int archive_write_set_passphrase_callback(Archive * _a, void * client_data, archive_passphrase_callback * cb)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);

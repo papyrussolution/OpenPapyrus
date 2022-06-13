@@ -517,7 +517,7 @@ void GlassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats
 			stats.lower_bound.assign(1, '\0');
 		}
 		size_t len = end - pos;
-		if(len == 0) {
+		if(!len) {
 			stats.upper_bound = stats.lower_bound;
 		}
 		else {

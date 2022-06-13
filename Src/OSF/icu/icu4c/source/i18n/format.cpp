@@ -10,10 +10,9 @@
 	  03/27/97    helena      Updated to pass the simple test after code review.
 	  07/20/98    stephen        Added explicit init values for Field/ParsePosition
 */
-// *****************************************************************************
+//
 // This file was generated from the java source file Format.java
-// *****************************************************************************
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 

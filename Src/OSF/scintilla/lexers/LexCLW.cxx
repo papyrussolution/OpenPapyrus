@@ -64,13 +64,13 @@ static void FASTCALL StringUpper(char * szString)
 {
 	// Case insensitive.
 	if(!bCaseSensitive) {
-		if(sstrchr("ABCDEFabcdef", iChar) != NULL) {
+		if(sstrchr("ABCDEFabcdef", iChar)) {
 			return true;
 		}
 	}
 	// Case sensitive
 	else {
-		if(sstrchr("ABCDEF", iChar) != NULL) {
+		if(sstrchr("ABCDEF", iChar)) {
 			return true;
 		}
 	}
@@ -83,14 +83,14 @@ static void FASTCALL StringUpper(char * szString)
 	// Case insensitive.
 	if(!bCaseSensitive) {
 		// If character is a numeric base character
-		if(sstrchr("BOHboh", iChar) != NULL) {
+		if(sstrchr("BOHboh", iChar)) {
 			return true;
 		}
 	}
 	// Case sensitive
 	else {
 		// If character is a numeric base character
-		if(sstrchr("BOH", iChar) != NULL) {
+		if(sstrchr("BOH", iChar)) {
 			return true;
 		}
 	}
@@ -481,7 +481,7 @@ static void ColouriseClarionDoc(Sci_PositionU uiStartPos,
 					// Case insensitive.
 					if(!bCaseSensitive) {
 						// If character is a valid picture token character
-						if(sstrchr("DEKNPSTdeknpst", scDoc.chNext) != NULL) {
+						if(sstrchr("DEKNPSTdeknpst", scDoc.chNext)) {
 							// Set to the picture string state
 							scDoc.SetState(SCE_CLW_PICTURE_STRING);
 						}
@@ -489,7 +489,7 @@ static void ColouriseClarionDoc(Sci_PositionU uiStartPos,
 					// Case sensitive
 					else {
 						// If character is a valid picture token character
-						if(sstrchr("DEKNPST", scDoc.chNext) != NULL) {
+						if(sstrchr("DEKNPST", scDoc.chNext)) {
 							// Set the picture string state
 							scDoc.SetState(SCE_CLW_PICTURE_STRING);
 						}

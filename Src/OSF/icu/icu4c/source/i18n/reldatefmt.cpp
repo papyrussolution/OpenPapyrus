@@ -1,14 +1,8 @@
+// reldatefmt.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- * Copyright (C) 2014-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- ******************************************************************************
- *
- * File reldatefmt.cpp
- ******************************************************************************
- */
+// Copyright (C) 2014-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/reldatefmt.h"
@@ -40,7 +34,8 @@ U_NAMESPACE_BEGIN
 // RelativeDateTimeFormatter specific data for a single locale
 class RelativeDateTimeCacheData : public SharedObject {
 public:
-	RelativeDateTimeCacheData() : combinedDateAndTime(nullptr) {
+	RelativeDateTimeCacheData() : combinedDateAndTime(nullptr) 
+	{
 		// Initialize the cache arrays
 		for(int32_t style = 0; style < UDAT_STYLE_COUNT; ++style) {
 			for(int32_t relUnit = 0; relUnit < UDAT_REL_UNIT_COUNT; ++relUnit) {
@@ -86,7 +81,8 @@ private:
 	RelativeDateTimeCacheData& operator = (const RelativeDateTimeCacheData &other);
 };
 
-RelativeDateTimeCacheData::~RelativeDateTimeCacheData() {
+RelativeDateTimeCacheData::~RelativeDateTimeCacheData() 
+{
 	// clear out the cache arrays
 	for(int32_t style = 0; style < UDAT_STYLE_COUNT; ++style) {
 		for(int32_t relUnit = 0; relUnit < UDAT_REL_UNIT_COUNT; ++relUnit) {
@@ -597,40 +593,29 @@ static void loadWeekdayNames(UnicodeString absoluteUnits[UDAT_STYLE_COUNT]
 	}
 }
 
-static bool loadUnitData(const UResourceBundle * resource,
-    RelativeDateTimeCacheData &cacheData,
-    const char * localeId,
-    UErrorCode & status) {
+static bool loadUnitData(const UResourceBundle * resource, RelativeDateTimeCacheData &cacheData, const char * localeId, UErrorCode & status) 
+{
 	RelDateTimeFmtDataSink sink(cacheData);
-
 	ures_getAllItemsWithFallback(resource, "fields", sink, status);
 	if(U_FAILURE(status)) {
 		return false;
 	}
-
 	// Get the weekday names from DateFormatSymbols.
 	loadWeekdayNames(cacheData.absoluteUnits, localeId, status);
 	return U_SUCCESS(status);
 }
 
-static bool getDateTimePattern(const UResourceBundle * resource,
-    UnicodeString & result,
-    UErrorCode & status) {
+static bool getDateTimePattern(const UResourceBundle * resource, UnicodeString & result, UErrorCode & status) 
+{
 	UnicodeString defaultCalendarName;
-	if(!getStringWithFallback(
-		    resource,
-		    "calendar/default",
-		    defaultCalendarName,
-		    status)) {
+	if(!getStringWithFallback(resource, "calendar/default", defaultCalendarName, status)) {
 		return FALSE;
 	}
 	CharString pathBuffer;
 	pathBuffer.append("calendar/", status)
 	.appendInvariantChars(defaultCalendarName, status)
 	.append("/DateTimePatterns", status);
-	LocalUResourceBundlePointer topLevel(
-		ures_getByKeyWithFallback(
-			resource, pathBuffer.data(), nullptr, &status));
+	LocalUResourceBundlePointer topLevel(ures_getByKeyWithFallback(resource, pathBuffer.data(), nullptr, &status));
 	if(U_FAILURE(status)) {
 		return FALSE;
 	}
@@ -776,7 +761,8 @@ RelativeDateTimeFormatter::RelativeDateTimeFormatter(const RelativeDateTimeForma
 	}
 }
 
-RelativeDateTimeFormatter& RelativeDateTimeFormatter::operator = (const RelativeDateTimeFormatter& other) {
+RelativeDateTimeFormatter& RelativeDateTimeFormatter::operator = (const RelativeDateTimeFormatter& other) 
+{
 	if(this != &other) {
 		SharedObject::copyPtr(other.fCache, fCache);
 		SharedObject::copyPtr(other.fNumberFormat, fNumberFormat);
@@ -789,32 +775,17 @@ RelativeDateTimeFormatter& RelativeDateTimeFormatter::operator = (const Relative
 	return *this;
 }
 
-RelativeDateTimeFormatter::~RelativeDateTimeFormatter() {
-	if(fCache != nullptr) {
-		fCache->removeRef();
-	}
-	if(fNumberFormat != nullptr) {
-		fNumberFormat->removeRef();
-	}
-	if(fPluralRules != nullptr) {
-		fPluralRules->removeRef();
-	}
-	if(fOptBreakIterator != nullptr) {
-		fOptBreakIterator->removeRef();
-	}
+RelativeDateTimeFormatter::~RelativeDateTimeFormatter() 
+{
+	CALLPTRMEMB(fCache, removeRef());
+	CALLPTRMEMB(fNumberFormat, removeRef());
+	CALLPTRMEMB(fPluralRules, removeRef());
+	CALLPTRMEMB(fOptBreakIterator, removeRef());
 }
 
-const NumberFormat& RelativeDateTimeFormatter::getNumberFormat() const {
-	return **fNumberFormat;
-}
-
-UDisplayContext RelativeDateTimeFormatter::getCapitalizationContext() const {
-	return fContext;
-}
-
-UDateRelativeDateTimeFormatterStyle RelativeDateTimeFormatter::getFormatStyle() const {
-	return fStyle;
-}
+const NumberFormat& RelativeDateTimeFormatter::getNumberFormat() const { return **fNumberFormat; }
+UDisplayContext RelativeDateTimeFormatter::getCapitalizationContext() const { return fContext; }
+UDateRelativeDateTimeFormatterStyle RelativeDateTimeFormatter::getFormatStyle() const { return fStyle; }
 
 // To reduce boilerplate code, we use a helper function that forwards variadic
 // arguments to the formatImpl function.
@@ -1121,9 +1092,8 @@ bool RelativeDateTimeFormatter::checkNoAdjustForContext(UErrorCode & status) con
 	return TRUE;
 }
 
-void RelativeDateTimeFormatter::init(NumberFormat * nfToAdopt,
-    BreakIterator * biToAdopt,
-    UErrorCode & status) {
+void RelativeDateTimeFormatter::init(NumberFormat * nfToAdopt, BreakIterator * biToAdopt, UErrorCode & status) 
+{
 	LocalPointer<NumberFormat> nf(nfToAdopt);
 	LocalPointer<BreakIterator> bi(biToAdopt);
 	UnifiedCache::getByLocale(fLocale, fCache, status);
@@ -1138,8 +1108,7 @@ void RelativeDateTimeFormatter::init(NumberFormat * nfToAdopt,
 	SharedObject::copyPtr(pr, fPluralRules);
 	pr->removeRef();
 	if(nf.isNull()) {
-		const SharedNumberFormat * shared = NumberFormat::createSharedInstance(
-			fLocale, UNUM_DECIMAL, status);
+		const SharedNumberFormat * shared = NumberFormat::createSharedInstance(fLocale, UNUM_DECIMAL, status);
 		if(U_FAILURE(status)) {
 			return;
 		}

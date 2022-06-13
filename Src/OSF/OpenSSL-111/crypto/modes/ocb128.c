@@ -313,24 +313,18 @@ int CRYPTO_ocb128_aad(OCB128_CONTEXT * ctx, const uchar * aad,
  * Provide any data to be encrypted. This can be called multiple times. Only
  * the final time can have a partial block
  */
-int CRYPTO_ocb128_encrypt(OCB128_CONTEXT * ctx,
-    const uchar * in, uchar * out,
-    size_t len)
+int CRYPTO_ocb128_encrypt(OCB128_CONTEXT * ctx, const uchar * in, uchar * out, size_t len)
 {
 	u64 i, all_num_blocks;
 	size_t num_blocks, last_len;
-
 	/*
 	 * Calculate the number of blocks of data to be encrypted provided now, and
 	 * so far
 	 */
 	num_blocks = len / 16;
 	all_num_blocks = num_blocks + ctx->sess.blocks_processed;
-
-	if(num_blocks && all_num_blocks == (size_t)all_num_blocks
-	 && ctx->stream != NULL) {
+	if(num_blocks && all_num_blocks == (size_t)all_num_blocks && ctx->stream != NULL) {
 		size_t max_idx = 0, top = (size_t)all_num_blocks;
-
 		/*
 		 * See how many L_{i} entries we need to process data at hand
 		 * and pre-compute missing entries in the table [if any]...
@@ -339,29 +333,21 @@ int CRYPTO_ocb128_encrypt(OCB128_CONTEXT * ctx,
 			max_idx++;
 		if(ocb_lookup_l(ctx, max_idx) == NULL)
 			return 0;
-
-		ctx->stream(in, out, num_blocks, ctx->keyenc,
-		    (size_t)ctx->sess.blocks_processed + 1, ctx->sess.offset.c,
-		    (const uchar (*)[16])ctx->l, ctx->sess.checksum.c);
+		ctx->stream(in, out, num_blocks, ctx->keyenc, (size_t)ctx->sess.blocks_processed + 1, ctx->sess.offset.c, (const uchar (*)[16])ctx->l, ctx->sess.checksum.c);
 	}
 	else {
 		/* Loop through all full blocks to be encrypted */
 		for(i = ctx->sess.blocks_processed + 1; i <= all_num_blocks; i++) {
-			OCB_BLOCK * lookup;
 			OCB_BLOCK tmp;
-
 			/* Offset_i = Offset_{i-1} xor L_{ntz(i)} */
-			lookup = ocb_lookup_l(ctx, ocb_ntz(i));
+			OCB_BLOCK * lookup = ocb_lookup_l(ctx, ocb_ntz(i));
 			if(lookup == NULL)
 				return 0;
 			ocb_block16_xor(&ctx->sess.offset, lookup, &ctx->sess.offset);
-
 			memcpy(tmp.c, in, 16);
 			in += 16;
-
 			/* Checksum_i = Checksum_{i-1} xor P_i */
 			ocb_block16_xor(&tmp, &ctx->sess.checksum, &ctx->sess.checksum);
-
 			/* C_i = Offset_i xor ENCIPHER(K, P_i xor Offset_i) */
 			ocb_block16_xor(&ctx->sess.offset, &tmp, &tmp);
 			ctx->encrypt(tmp.c, tmp.c, ctx->keyenc);
@@ -406,24 +392,18 @@ int CRYPTO_ocb128_encrypt(OCB128_CONTEXT * ctx,
  * Provide any data to be decrypted. This can be called multiple times. Only
  * the final time can have a partial block
  */
-int CRYPTO_ocb128_decrypt(OCB128_CONTEXT * ctx,
-    const uchar * in, uchar * out,
-    size_t len)
+int CRYPTO_ocb128_decrypt(OCB128_CONTEXT * ctx, const uchar * in, uchar * out, size_t len)
 {
 	u64 i, all_num_blocks;
 	size_t num_blocks, last_len;
-
 	/*
 	 * Calculate the number of blocks of data to be decrypted provided now, and
 	 * so far
 	 */
 	num_blocks = len / 16;
 	all_num_blocks = num_blocks + ctx->sess.blocks_processed;
-
-	if(num_blocks && all_num_blocks == (size_t)all_num_blocks
-	 && ctx->stream != NULL) {
+	if(num_blocks && all_num_blocks == (size_t)all_num_blocks && ctx->stream != NULL) {
 		size_t max_idx = 0, top = (size_t)all_num_blocks;
-
 		/*
 		 * See how many L_{i} entries we need to process data at hand
 		 * and pre-compute missing entries in the table [if any]...
@@ -432,14 +412,10 @@ int CRYPTO_ocb128_decrypt(OCB128_CONTEXT * ctx,
 			max_idx++;
 		if(ocb_lookup_l(ctx, max_idx) == NULL)
 			return 0;
-
-		ctx->stream(in, out, num_blocks, ctx->keydec,
-		    (size_t)ctx->sess.blocks_processed + 1, ctx->sess.offset.c,
-		    (const uchar (*)[16])ctx->l, ctx->sess.checksum.c);
+		ctx->stream(in, out, num_blocks, ctx->keydec, (size_t)ctx->sess.blocks_processed + 1, ctx->sess.offset.c, (const uchar (*)[16])ctx->l, ctx->sess.checksum.c);
 	}
 	else {
 		OCB_BLOCK tmp;
-
 		/* Loop through all full blocks to be decrypted */
 		for(i = ctx->sess.blocks_processed + 1; i <= all_num_blocks; i++) {
 			/* Offset_i = Offset_{i-1} xor L_{ntz(i)} */

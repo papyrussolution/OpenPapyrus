@@ -27,15 +27,15 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write.c 201099 2009-12-28 03:03:
 #endif
 
 static struct archive_vtable * archive_write_vtable(void);
-static int _archive_filter_code(struct archive *, int);
-static const char * _archive_filter_name(struct archive *, int);
-static int64  _archive_filter_bytes(struct archive *, int);
-static int  _archive_write_filter_count(struct archive *);
-static int _archive_write_close(struct archive *);
-static int _archive_write_free(struct archive *);
-static int _archive_write_header(struct archive *, struct archive_entry *);
-static int _archive_write_finish_entry(struct archive *);
-static ssize_t  _archive_write_data(struct archive *, const void *, size_t);
+static int _archive_filter_code(Archive *, int);
+static const char * _archive_filter_name(Archive *, int);
+static int64  _archive_filter_bytes(Archive *, int);
+static int  _archive_write_filter_count(Archive *);
+static int _archive_write_close(Archive *);
+static int _archive_write_free(Archive *);
+static int _archive_write_header(Archive *, ArchiveEntry *);
+static int _archive_write_finish_entry(Archive *);
+static ssize_t  _archive_write_data(Archive *, const void *, size_t);
 
 struct archive_none {
 	size_t buffer_size;
@@ -66,7 +66,7 @@ static struct archive_vtable * archive_write_vtable(void)
 /*
  * Allocate, initialize and return an archive object.
  */
-struct archive * archive_write_new(void)                 {
+Archive * archive_write_new(void)                 {
 	struct archive_write * a;
 	uchar * nulls;
 
@@ -98,7 +98,7 @@ struct archive * archive_write_new(void)                 {
 /*
  * Set the block size.  Returns 0 if successful.
  */
-int archive_write_set_bytes_per_block(struct archive * _a, int bytes_per_block)
+int archive_write_set_bytes_per_block(Archive * _a, int bytes_per_block)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -109,7 +109,7 @@ int archive_write_set_bytes_per_block(struct archive * _a, int bytes_per_block)
 /*
  * Get the current block size.  -1 if it has never been set.
  */
-int archive_write_get_bytes_per_block(struct archive * _a)
+int archive_write_get_bytes_per_block(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -120,7 +120,7 @@ int archive_write_get_bytes_per_block(struct archive * _a)
  * Set the size for the last block.
  * Returns 0 if successful.
  */
-int archive_write_set_bytes_in_last_block(struct archive * _a, int bytes)
+int archive_write_set_bytes_in_last_block(Archive * _a, int bytes)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -131,7 +131,7 @@ int archive_write_set_bytes_in_last_block(struct archive * _a, int bytes)
 /*
  * Return the value set above.  -1 indicates it has not been set.
  */
-int archive_write_get_bytes_in_last_block(struct archive * _a)
+int archive_write_get_bytes_in_last_block(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -142,7 +142,7 @@ int archive_write_get_bytes_in_last_block(struct archive * _a)
  * dev/ino of a file to be rejected.  Used to prevent adding
  * an archive to itself recursively.
  */
-int archive_write_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
+int archive_write_set_skip_file(Archive * _a, la_int64_t d, la_int64_t i)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -155,7 +155,7 @@ int archive_write_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
 /*
  * Allocate and return the next filter structure.
  */
-struct archive_write_filter * __archive_write_allocate_filter(struct archive * _a)                               
+struct archive_write_filter * __archive_write_allocate_filter(Archive * _a)                               
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = static_cast<struct archive_write_filter *>(SAlloc::C(1, sizeof(*f)));
@@ -441,7 +441,7 @@ static int archive_write_client_close(struct archive_write_filter * f)
 /*
  * Open the archive using the current settings.
  */
-int archive_write_open2(struct archive * _a, void * client_data,
+int archive_write_open2(Archive * _a, void * client_data,
     archive_open_callback * opener, archive_write_callback * writer,
     archive_close_callback * closer, archive_free_callback * freer)
 {
@@ -472,7 +472,7 @@ int archive_write_open2(struct archive * _a, void * client_data,
 	return ret;
 }
 
-int archive_write_open(struct archive * _a, void * client_data,
+int archive_write_open(Archive * _a, void * client_data,
     archive_open_callback * opener, archive_write_callback * writer,
     archive_close_callback * closer)
 {
@@ -483,7 +483,7 @@ int archive_write_open(struct archive * _a, void * client_data,
 /*
  * Close out the archive.
  */
-static int _archive_write_close(struct archive * _a)
+static int _archive_write_close(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r = ARCHIVE_OK, r1 = ARCHIVE_OK;
@@ -512,7 +512,7 @@ static int _archive_write_close(struct archive * _a)
 	return r;
 }
 
-static int _archive_write_filter_count(struct archive * _a)
+static int _archive_write_filter_count(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * p = a->filter_first;
@@ -524,7 +524,7 @@ static int _archive_write_filter_count(struct archive * _a)
 	return count;
 }
 
-void __archive_write_filters_free(struct archive * _a)
+void __archive_write_filters_free(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r = ARCHIVE_OK, r1;
@@ -547,7 +547,7 @@ void __archive_write_filters_free(struct archive * _a)
  * Don't assume we actually wrote anything or performed any non-trivial
  * initialization.
  */
-static int _archive_write_free(struct archive * _a)
+static int _archive_write_free(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r = ARCHIVE_OK, r1;
@@ -581,7 +581,7 @@ static int _archive_write_free(struct archive * _a)
 /*
  * Write the appropriate header.
  */
-static int _archive_write_header(struct archive * _a, struct archive_entry * entry)
+static int _archive_write_header(Archive * _a, ArchiveEntry * entry)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int ret, r2;
@@ -620,7 +620,7 @@ static int _archive_write_header(struct archive * _a, struct archive_entry * ent
 	return ret;
 }
 
-static int _archive_write_finish_entry(struct archive * _a)
+static int _archive_write_finish_entry(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int ret = ARCHIVE_OK;
@@ -633,7 +633,7 @@ static int _archive_write_finish_entry(struct archive * _a)
 /*
  * Note that the compressor is responsible for blocking.
  */
-static ssize_t _archive_write_data(struct archive * _a, const void * buff, size_t s)
+static ssize_t _archive_write_data(Archive * _a, const void * buff, size_t s)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	const size_t max_write = INT_MAX;
@@ -645,7 +645,7 @@ static ssize_t _archive_write_data(struct archive * _a, const void * buff, size_
 	return ((a->format_write_data)(a, buff, s));
 }
 
-static struct archive_write_filter * filter_lookup(struct archive * _a, int n)                                      {
+static struct archive_write_filter * filter_lookup(Archive * _a, int n)                                      {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = a->filter_first;
 	if(n == -1)
@@ -659,19 +659,19 @@ static struct archive_write_filter * filter_lookup(struct archive * _a, int n)  
 	return f;
 }
 
-static int _archive_filter_code(struct archive * _a, int n)
+static int _archive_filter_code(Archive * _a, int n)
 {
 	struct archive_write_filter * f = filter_lookup(_a, n);
 	return f == NULL ? -1 : f->code;
 }
 
-static const char * _archive_filter_name(struct archive * _a, int n)
+static const char * _archive_filter_name(Archive * _a, int n)
 {
 	struct archive_write_filter * f = filter_lookup(_a, n);
 	return f != NULL ? f->name : NULL;
 }
 
-static int64 _archive_filter_bytes(struct archive * _a, int n)
+static int64 _archive_filter_bytes(Archive * _a, int n)
 {
 	struct archive_write_filter * f = filter_lookup(_a, n);
 	return f == NULL ? -1 : f->bytes_written;

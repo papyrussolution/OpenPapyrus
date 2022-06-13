@@ -681,7 +681,7 @@ const UnicodeString * RegionNameEnumeration::snext(UErrorCode & status)
 		return NULL;
 	}
 	const UnicodeString * nextStr = (const UnicodeString *)fRegionNames->elementAt(pos);
-	if(nextStr!=NULL) {
+	if(nextStr != NULL) {
 		pos++;
 	}
 	return nextStr;

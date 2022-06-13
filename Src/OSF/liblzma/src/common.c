@@ -16,11 +16,7 @@ const char * lzma_version_string(void) { return LZMA_VERSION_STRING; }
 extern void * lzma_attribute((__malloc__)) lzma_attr_alloc_size(1) lzma_alloc(size_t size, const lzma_allocator *allocator)
 {
 	SETIFZ(size, 1); // Some malloc() variants return NULL if called with size == 0.
-	void * ptr;
-	if(allocator && allocator->alloc)
-		ptr = allocator->alloc(allocator->opaque, 1, size);
-	else
-		ptr = SAlloc::M(size);
+	void * ptr = (allocator && allocator->FnAlloc) ? allocator->FnAlloc(allocator->opaque, 1, size) : SAlloc::M(size);
 	return ptr;
 }
 
@@ -28,8 +24,8 @@ extern void * lzma_attribute((__malloc__)) lzma_attr_alloc_size(1) lzma_alloc_ze
 {
 	SETIFZ(size, 1); // Some calloc() variants return NULL if called with size == 0.
 	void * ptr;
-	if(allocator && allocator->alloc) {
-		ptr = allocator->alloc(allocator->opaque, 1, size);
+	if(allocator && allocator->FnAlloc) {
+		ptr = allocator->FnAlloc(allocator->opaque, 1, size);
 		memzero(ptr, size);
 	}
 	else
@@ -39,8 +35,8 @@ extern void * lzma_attribute((__malloc__)) lzma_attr_alloc_size(1) lzma_alloc_ze
 
 extern void lzma_free(void * ptr, const lzma_allocator * allocator)
 {
-	if(allocator && allocator->free)
-		allocator->free(allocator->opaque, ptr);
+	if(allocator && allocator->FnFree)
+		allocator->FnFree(allocator->opaque, ptr);
 	else
 		SAlloc::F(ptr);
 }

@@ -1,21 +1,11 @@
+// ucnvmbcs.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-******************************************************************************
-*
-*   Copyright (C) 2000-2013, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*
-******************************************************************************
-*   file name:  ucnvmbcs.h
-*   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:4
-*
-*   created on: 2000jul07
-*   created by: Markus W. Scherer
-*/
-
+// Copyright (C) 2000-2013, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2000jul07
+// created by: Markus W. Scherer
+// 
 #ifndef __UCNVMBCS_H__
 #define __UCNVMBCS_H__
 
@@ -26,7 +16,6 @@
 #include "unicode/ucnv.h"
 #include "ucnv_cnv.h"
 #include "ucnv_ext.h"
-
 /**
  * ICU conversion (.cnv) data file structure, following the usual UDataInfo
  * header.
@@ -180,15 +169,15 @@
  *     -- normal base table with optional extension
  *
  *     int32_t stateTable[countStates][256];
- *    
+ *
  *     struct _MBCSToUFallback { (fallbacks are sorted by offset)
  *         uint32_t offset;
  *         UChar32 codePoint;
  *     } toUFallbacks[countToUFallbacks];
- *    
+ *
  *     uint16 unicodeCodeUnits[(offsetFromUTable-offsetToUCodeUnits)/2];
  *                  (padded to an even number of units)
- *    
+ *
  *     -- stage 1 tables
  *     if(staticData.unicodeMask&UCNV_HAS_SUPPLEMENTARY) {
  *         -- stage 1 table for all of Unicode
@@ -243,7 +232,7 @@
 /* MBCS converter data and state -------------------------------------------- */
 
 enum {
-    MBCS_MAX_STATE_COUNT=128
+	MBCS_MAX_STATE_COUNT = 128
 };
 
 /**
@@ -251,19 +240,15 @@ enum {
  * These values are in bits 23..20 of the state table entries.
  */
 enum {
-    MBCS_STATE_VALID_DIRECT_16,
-    MBCS_STATE_VALID_DIRECT_20,
-
-    MBCS_STATE_FALLBACK_DIRECT_16,
-    MBCS_STATE_FALLBACK_DIRECT_20,
-
-    MBCS_STATE_VALID_16,
-    MBCS_STATE_VALID_16_PAIR,
-
-    MBCS_STATE_UNASSIGNED,
-    MBCS_STATE_ILLEGAL,
-
-    MBCS_STATE_CHANGE_ONLY
+	MBCS_STATE_VALID_DIRECT_16,
+	MBCS_STATE_VALID_DIRECT_20,
+	MBCS_STATE_FALLBACK_DIRECT_16,
+	MBCS_STATE_FALLBACK_DIRECT_20,
+	MBCS_STATE_VALID_16,
+	MBCS_STATE_VALID_16_PAIR,
+	MBCS_STATE_UNASSIGNED,
+	MBCS_STATE_ILLEGAL,
+	MBCS_STATE_CHANGE_ONLY
 };
 
 /* Macros for state table entries */
@@ -305,11 +290,11 @@ enum {
 #define SBCS_RESULT_FROM_UTF8(table, results, l, t) (results)[ (table)[l] +(t) ]
 
 /* multi-byte fromUnicode: get the 32-bit stage 2 entry */
-#define MBCS_STAGE_2_FROM_U(table, c) ((const uint32_t *)(table))[ (table)[(c)>>10] +(((c)>>4)&0x3f) ]
+#define MBCS_STAGE_2_FROM_U(table, c) ((const uint32_t*)(table))[ (table)[(c)>>10] +(((c)>>4)&0x3f) ]
 #define MBCS_FROM_U_IS_ROUNDTRIP(stage2Entry, c) ( ((stage2Entry) & ((uint32_t)1<< (16+((c)&0xf)) )) !=0)
 
-#define MBCS_VALUE_2_FROM_STAGE_2(bytes, stage2Entry, c) ((uint16 *)(bytes))[16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf)]
-#define MBCS_VALUE_4_FROM_STAGE_2(bytes, stage2Entry, c) ((uint32_t *)(bytes))[16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf)]
+#define MBCS_VALUE_2_FROM_STAGE_2(bytes, stage2Entry, c) ((uint16*)(bytes))[16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf)]
+#define MBCS_VALUE_4_FROM_STAGE_2(bytes, stage2Entry, c) ((uint32_t*)(bytes))[16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf)]
 
 #define MBCS_POINTER_3_FROM_STAGE_2(bytes, stage2Entry, c) ((bytes)+(16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf))*3)
 
@@ -319,29 +304,23 @@ enum {
 /* double-byte fromUTF8 using the mbcsIndex; l and t1 combined into lt1; lt1 and t2 must be masked externally */
 #define DBCS_RESULT_FROM_UTF8(table, results, lt1, t2) (results)[ (table)[lt1] +(t2) ]
 
-
 /**
  * MBCS output types for conversions from Unicode.
  * These per-converter types determine the storage method in stage 3 of the lookup table,
  * mostly how many bytes are stored per entry.
  */
 enum {
-    MBCS_OUTPUT_1,          /* 0 */
-    MBCS_OUTPUT_2,          /* 1 */
-    MBCS_OUTPUT_3,          /* 2 */
-    MBCS_OUTPUT_4,          /* 3 */
-
-    MBCS_OUTPUT_3_EUC=8,    /* 8 */
-    MBCS_OUTPUT_4_EUC,      /* 9 */
-
-    MBCS_OUTPUT_2_SISO=12,  /* c */
-    MBCS_OUTPUT_2_HZ,       /* d */
-
-    MBCS_OUTPUT_EXT_ONLY,   /* e */
-
-    MBCS_OUTPUT_COUNT,
-
-    MBCS_OUTPUT_DBCS_ONLY=0xdb  /* runtime-only type for DBCS-only handling of SISO tables */
+	MBCS_OUTPUT_1,      /* 0 */
+	MBCS_OUTPUT_2,      /* 1 */
+	MBCS_OUTPUT_3,      /* 2 */
+	MBCS_OUTPUT_4,      /* 3 */
+	MBCS_OUTPUT_3_EUC = 8, /* 8 */
+	MBCS_OUTPUT_4_EUC,  /* 9 */
+	MBCS_OUTPUT_2_SISO = 12, /* c */
+	MBCS_OUTPUT_2_HZ,   /* d */
+	MBCS_OUTPUT_EXT_ONLY, /* e */
+	MBCS_OUTPUT_COUNT,
+	MBCS_OUTPUT_DBCS_ONLY = 0xdb /* runtime-only type for DBCS-only handling of SISO tables */
 };
 
 /**
@@ -349,18 +328,17 @@ enum {
  * in a vector of items of this type. They are sorted by offset.
  */
 typedef struct {
-    uint32_t offset;
-    UChar32 codePoint;
+	uint32_t offset;
+	UChar32 codePoint;
 } _MBCSToUFallback;
 
 /** Constants for fast and UTF-8-friendly conversion. */
 enum {
-    SBCS_FAST_MAX=0x0fff, /* maximum code point with UTF-8-friendly SBCS runtime code, see makeconv SBCS_UTF8_MAX */
-    SBCS_FAST_LIMIT=SBCS_FAST_MAX+1,    /* =0x1000 */
-    MBCS_FAST_MAX=0xd7ff, /* maximum code point with UTF-8-friendly MBCS runtime code, see makeconv MBCS_UTF8_MAX */
-    MBCS_FAST_LIMIT=MBCS_FAST_MAX+1     /* =0xd800 */
+	SBCS_FAST_MAX = 0x0fff, /* maximum code point with UTF-8-friendly SBCS runtime code, see makeconv SBCS_UTF8_MAX */
+	SBCS_FAST_LIMIT = SBCS_FAST_MAX+1, /* =0x1000 */
+	MBCS_FAST_MAX = 0xd7ff, /* maximum code point with UTF-8-friendly MBCS runtime code, see makeconv MBCS_UTF8_MAX */
+	MBCS_FAST_LIMIT = MBCS_FAST_MAX+1 /* =0xd800 */
 };
-
 /**
  * This is the MBCS part of the UConverterTable union (a runtime data structure).
  * It keeps all the per-converter data and points into the loaded mapping tables.
@@ -368,113 +346,104 @@ enum {
  * utf8Friendly data structures added with _MBCSHeader.version 4.3
  */
 typedef struct UConverterMBCSTable {
-    /* toUnicode */
-    uint8 countStates, dbcsOnlyState, stateTableOwned;
-    uint32_t countToUFallbacks;
-
-    const int32_t (*stateTable)/*[countStates]*/[256];
-    int32_t (*swapLFNLStateTable)/*[countStates]*/[256]; /* for swaplfnl */
-    const uint16 *unicodeCodeUnits/*[countUnicodeResults]*/;
-    const _MBCSToUFallback *toUFallbacks;
-
-    /* fromUnicode */
-    const uint16 *fromUnicodeTable;
-    const uint16 *mbcsIndex; /* for fast conversion from most of BMP to MBCS (utf8Friendly data) */
-    uint16 sbcsIndex[SBCS_FAST_LIMIT>>6]; /* for fast conversion from low BMP to SBCS (utf8Friendly data) */
-    const uint8 *fromUnicodeBytes;
-    uint8 *swapLFNLFromUnicodeBytes; /* for swaplfnl */
-    uint32_t fromUBytesLength;
-    uint8 outputType, unicodeMask;
-    bool utf8Friendly; /* for utf8Friendly data */
-    UChar maxFastUChar; /* for utf8Friendly data */
-
-    /* roundtrips */
-    uint32_t asciiRoundtrips;
-
-    /* reconstituted data that was omitted from the .cnv file */
-    uint8 *reconstitutedData;
-
-    /* converter name for swaplfnl */
-    char *swapLFNLName;
-
-    /* extension data */
-    struct UConverterSharedData *baseSharedData;
-    const int32_t *extIndexes;
+	/* toUnicode */
+	uint8 countStates, dbcsOnlyState, stateTableOwned;
+	uint32_t countToUFallbacks;
+	const int32_t(*stateTable) /*[countStates]*/[256];
+	int32_t(*swapLFNLStateTable) /*[countStates]*/[256]; /* for swaplfnl */
+	const uint16 * unicodeCodeUnits /*[countUnicodeResults]*/;
+	const _MBCSToUFallback * toUFallbacks;
+	/* fromUnicode */
+	const uint16 * fromUnicodeTable;
+	const uint16 * mbcsIndex; /* for fast conversion from most of BMP to MBCS (utf8Friendly data) */
+	uint16 sbcsIndex[SBCS_FAST_LIMIT>>6]; /* for fast conversion from low BMP to SBCS (utf8Friendly data) */
+	const uint8 * fromUnicodeBytes;
+	uint8 * swapLFNLFromUnicodeBytes; /* for swaplfnl */
+	uint32_t fromUBytesLength;
+	uint8 outputType, unicodeMask;
+	bool utf8Friendly; /* for utf8Friendly data */
+	UChar maxFastUChar; /* for utf8Friendly data */
+	uint32_t asciiRoundtrips; /* roundtrips */
+	uint8 * reconstitutedData; /* reconstituted data that was omitted from the .cnv file */
+	char * swapLFNLName; /* converter name for swaplfnl */
+	/* extension data */
+	struct UConverterSharedData * baseSharedData;
+	const int32_t * extIndexes;
 } UConverterMBCSTable;
 
 #define UCNV_MBCS_TABLE_INITIALIZER { \
-    /* toUnicode */ \
-    0, 0, 0, \
-    0, \
+		/* toUnicode */ \
+		0, 0, 0, \
+		0, \
      \
-    NULL, \
-    NULL, \
-    NULL, \
-    NULL, \
+		NULL, \
+		NULL, \
+		NULL, \
+		NULL, \
      \
-    /* fromUnicode */ \
-    NULL, \
-    NULL, \
-    { 0 }, \
-    NULL, \
-    NULL, \
-    0, \
-    0, 0, \
-    false, \
-    0, \
+		/* fromUnicode */ \
+		NULL, \
+		NULL, \
+		{ 0 }, \
+		NULL, \
+		NULL, \
+		0, \
+		0, 0, \
+		false, \
+		0, \
      \
-    /* roundtrips */ \
-    0, \
+		/* roundtrips */ \
+		0, \
      \
-    /* reconstituted data that was omitted from the .cnv file */ \
-    NULL, \
+		/* reconstituted data that was omitted from the .cnv file */ \
+		NULL, \
      \
-    /* converter name for swaplfnl */ \
-    NULL, \
+		/* converter name for swaplfnl */ \
+		NULL, \
      \
-    /* extension data */ \
-    NULL, \
-    NULL \
+		/* extension data */ \
+		NULL, \
+		NULL \
 }
 
 enum {
-    MBCS_OPT_LENGTH_MASK=0x3f,
-    MBCS_OPT_NO_FROM_U=0x40,
-    /*
-  * If any of the following options bits are set,
-  * then the file must be rejected.
-     */
-    MBCS_OPT_INCOMPATIBLE_MASK=0xffc0,
-    /*
-  * Remove bits from this mask as more options are recognized
-  * by all implementations that use this constant.
-     */
-    MBCS_OPT_UNKNOWN_INCOMPATIBLE_MASK=0xff80
+	MBCS_OPT_LENGTH_MASK = 0x3f,
+	MBCS_OPT_NO_FROM_U = 0x40,
+	/*
+	 * If any of the following options bits are set,
+	 * then the file must be rejected.
+	 */
+	MBCS_OPT_INCOMPATIBLE_MASK = 0xffc0,
+	/*
+	 * Remove bits from this mask as more options are recognized
+	 * by all implementations that use this constant.
+	 */
+	MBCS_OPT_UNKNOWN_INCOMPATIBLE_MASK = 0xff80
 };
 
 enum {
-    MBCS_HEADER_V4_LENGTH=8,
-    MBCS_HEADER_V5_MIN_LENGTH=9
+	MBCS_HEADER_V4_LENGTH = 8,
+	MBCS_HEADER_V5_MIN_LENGTH = 9
 };
 
 /**
  * MBCS data header. See data format description above.
  */
 typedef struct {
-    UVersionInfo version;
-    uint32_t countStates,
-             countToUFallbacks,
-             offsetToUCodeUnits,
-             offsetFromUTable,
-             offsetFromUBytes,
-             flags,
-             fromUBytesLength;
+	UVersionInfo version;
+	uint32_t countStates,
+	    countToUFallbacks,
+	    offsetToUCodeUnits,
+	    offsetFromUTable,
+	    offsetFromUBytes,
+	    flags,
+	    fromUBytesLength;
 
-    /* new and required in version 5 */
-    uint32_t options;
+	/* new and required in version 5 */
+	uint32_t options;
 
-    /* new and optional in version 5; used if options&MBCS_OPT_NO_FROM_U */
-    uint32_t fullStage2Length; /* number of 32-bit units */
+	/* new and optional in version 5; used if options&MBCS_OPT_NO_FROM_U */
+	uint32_t fullStage2Length; /* number of 32-bit units */
 } _MBCSHeader;
 
 #define UCNV_MBCS_HEADER_INITIALIZER { { 0 }, 0, 0, 0, 0, 0, 0, 0,  0,  0 }
@@ -492,39 +461,29 @@ typedef struct {
  * U+ffff   illegal
  * otherwise the Unicode code point
  */
-U_CFUNC UChar32
-ucnv_MBCSSimpleGetNextUChar(UConverterSharedData *sharedData,
-                        const char *source, int32_t length,
-                        bool useFallback);
-
+U_CFUNC UChar32 ucnv_MBCSSimpleGetNextUChar(UConverterSharedData * sharedData,
+    const char * source, int32_t length, bool useFallback);
 /**
  * This version of _MBCSSimpleGetNextUChar() is optimized for single-byte, single-state codepages.
  * It does not handle the EBCDIC swaplfnl option (set in UConverter).
  * It does not handle conversion extensions (_extToU()).
  */
-U_CFUNC UChar32
-ucnv_MBCSSingleSimpleGetNextUChar(UConverterSharedData *sharedData,
-                              uint8 b, bool useFallback);
-
+U_CFUNC UChar32 ucnv_MBCSSingleSimpleGetNextUChar(UConverterSharedData * sharedData, uint8 b, bool useFallback);
 /**
  * This macro version of _MBCSSingleSimpleGetNextUChar() gets a code point from a byte.
  * It works for single-byte, single-state codepages that only map
  * to and from BMP code points, and it always
  * returns fallback values.
  */
-#define _MBCS_SINGLE_SIMPLE_GET_NEXT_BMP(sharedData, b) \
-    (UChar)MBCS_ENTRY_FINAL_VALUE_16((sharedData)->mbcs.stateTable[0][(uint8)(b)])
-
+#define _MBCS_SINGLE_SIMPLE_GET_NEXT_BMP(sharedData, b) (UChar)MBCS_ENTRY_FINAL_VALUE_16((sharedData)->mbcs.stateTable[0][(uint8)(b)])
 /**
  * This is an internal function that allows other converter implementations
  * to check whether a byte is a lead byte.
  */
-U_CFUNC bool
-ucnv_MBCSIsLeadByte(UConverterSharedData *sharedData, char byte);
+U_CFUNC bool ucnv_MBCSIsLeadByte(UConverterSharedData * sharedData, char byte);
 
 /** This is a macro version of _MBCSIsLeadByte(). */
-#define _MBCS_IS_LEAD_BYTE(sharedData, byte) \
-    (bool)MBCS_ENTRY_IS_TRANSITION((sharedData)->mbcs.stateTable[0][(uint8)(byte)])
+#define _MBCS_IS_LEAD_BYTE(sharedData, byte) (bool)MBCS_ENTRY_IS_TRANSITION((sharedData)->mbcs.stateTable[0][(uint8)(byte)])
 
 /*
  * This is another simple conversion function for internal use by other
@@ -543,36 +502,21 @@ ucnv_MBCSIsLeadByte(UConverterSharedData *sharedData, char byte);
  * the second to last byte in bits 15..8, etc.
  * Currently, the function assumes but does not check that 0<=c<=0x10ffff.
  */
-U_CFUNC int32_t
-ucnv_MBCSFromUChar32(UConverterSharedData *sharedData,
-                 UChar32 c, uint32_t *pValue,
-                 bool useFallback);
-
+U_CFUNC int32_t ucnv_MBCSFromUChar32(UConverterSharedData * sharedData, UChar32 c, uint32_t * pValue, bool useFallback);
 /**
  * This version of _MBCSFromUChar32() is optimized for single-byte codepages.
  * It does not handle the EBCDIC swaplfnl option (set in UConverter).
  *
  * It returns the codepage byte for the code point, or -1 if it is unassigned.
  */
-U_CFUNC int32_t
-ucnv_MBCSSingleFromUChar32(UConverterSharedData *sharedData,
-                       UChar32 c,
-                       bool useFallback);
-
+U_CFUNC int32_t ucnv_MBCSSingleFromUChar32(UConverterSharedData * sharedData, UChar32 c, bool useFallback);
 /**
  * SBCS, DBCS, and EBCDIC_STATEFUL are replaced by MBCS, but
  * we cheat a little about the type, returning the old types if appropriate.
  */
-U_CFUNC UConverterType
-ucnv_MBCSGetType(const UConverter * converter);
-
-U_CFUNC void 
-ucnv_MBCSFromUnicodeWithOffsets(UConverterFromUnicodeArgs *pArgs,
-                            UErrorCode *pErrorCode);
-U_CFUNC void 
-ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs *pArgs,
-                          UErrorCode *pErrorCode);
-
+U_CFUNC UConverterType ucnv_MBCSGetType(const UConverter * converter);
+U_CFUNC void ucnv_MBCSFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode);
+U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode);
 /*
  * Internal function returning a UnicodeSet for toUnicode() conversion.
  * Currently only used for ISO-2022-CN, and only handles roundtrip mappings.
@@ -581,25 +525,15 @@ ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs *pArgs,
  * Handles extensions.
  * Does not empty the set first.
  */
-U_CFUNC void
-ucnv_MBCSGetUnicodeSetForUnicode(const UConverterSharedData *sharedData,
-                                 const USetAdder *sa,
-                                 UConverterUnicodeSet which,
-                                 UErrorCode *pErrorCode);
-
+U_CFUNC void ucnv_MBCSGetUnicodeSetForUnicode(const UConverterSharedData * sharedData, const USetAdder * sa, UConverterUnicodeSet which, UErrorCode * pErrorCode);
 /*
  * Same as ucnv_MBCSGetUnicodeSetForUnicode() but
  * the set can be filtered by encoding scheme.
  * Used by stateful converters which share regular conversion tables
  * but only use a subset of their mappings.
  */
-U_CFUNC void
-ucnv_MBCSGetFilteredUnicodeSetForUnicode(const UConverterSharedData *sharedData,
-                                         const USetAdder *sa,
-                                         UConverterUnicodeSet which,
-                                         UConverterSetFilter filter,
-                                         UErrorCode *pErrorCode);
+U_CFUNC void ucnv_MBCSGetFilteredUnicodeSetForUnicode(const UConverterSharedData * sharedData, const USetAdder * sa, 
+	UConverterUnicodeSet which, UConverterSetFilter filter, UErrorCode * pErrorCode);
 
 #endif
-
 #endif

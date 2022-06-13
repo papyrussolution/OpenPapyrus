@@ -646,29 +646,26 @@ CordRepRing::Position CordRepRing::FindTailSlow(index_type head,
 	return {advance(head), end_offset - offset};
 }
 
-char CordRepRing::GetCharacter(size_t offset) const {
+char CordRepRing::GetCharacter(size_t offset) const 
+{
 	assert(offset < length);
-
 	Position pos = Find(offset);
 	size_t data_offset = entry_data_offset(pos.index) + pos.offset;
 	return GetRepData(entry_child(pos.index))[data_offset];
 }
 
-CordRepRing* CordRepRing::SubRing(CordRepRing* rep, size_t offset,
-    size_t len, size_t extra) {
+CordRepRing* CordRepRing::SubRing(CordRepRing* rep, size_t offset, size_t len, size_t extra) 
+{
 	assert(offset <= rep->length);
 	assert(offset <= rep->length - len);
-
-	if(len == 0) {
+	if(!len) {
 		CordRep::Unref(rep);
 		return nullptr;
 	}
-
 	// Find position of first byte
 	Position head = rep->Find(offset);
 	Position tail = rep->FindTail(head.index, offset + len);
 	const size_t new_entries = rep->entries(head.index, tail.index);
-
 	if(rep->refcount.IsOne() && extra <= (rep->capacity() - new_entries)) {
 		// We adopt a privately owned rep and no extra entries needed.
 		if(head.index != rep->head_) UnrefEntries(rep, rep->head_, head.index);
@@ -682,11 +679,9 @@ CordRepRing* CordRepRing::SubRing(CordRepRing* rep, size_t offset,
 		head.index = rep->head_;
 		tail.index = rep->tail_;
 	}
-
 	// Adjust begin_pos and length
 	rep->length = len;
 	rep->begin_pos_ += offset;
-
 	// Adjust head and tail blocks
 	if(head.offset) {
 		rep->AddDataOffset(head.index, head.offset);
@@ -694,18 +689,16 @@ CordRepRing* CordRepRing::SubRing(CordRepRing* rep, size_t offset,
 	if(tail.offset) {
 		rep->SubLength(rep->retreat(tail.index), tail.offset);
 	}
-
 	return Validate(rep);
 }
 
-CordRepRing* CordRepRing::RemovePrefix(CordRepRing* rep, size_t len,
-    size_t extra) {
+CordRepRing* CordRepRing::RemovePrefix(CordRepRing* rep, size_t len, size_t extra) 
+{
 	assert(len <= rep->length);
 	if(len == rep->length) {
 		CordRep::Unref(rep);
 		return nullptr;
 	}
-
 	Position head = rep->Find(len);
 	if(rep->refcount.IsOne()) {
 		if(head.index != rep->head_) UnrefEntries(rep, rep->head_, head.index);
@@ -715,28 +708,23 @@ CordRepRing* CordRepRing::RemovePrefix(CordRepRing* rep, size_t len,
 		rep = Copy(rep, head.index, rep->tail_, extra);
 		head.index = rep->head_;
 	}
-
 	// Adjust begin_pos and length
 	rep->length -= len;
 	rep->begin_pos_ += len;
-
 	// Adjust head block
 	if(head.offset) {
 		rep->AddDataOffset(head.index, head.offset);
 	}
-
 	return Validate(rep);
 }
 
-CordRepRing* CordRepRing::RemoveSuffix(CordRepRing* rep, size_t len,
-    size_t extra) {
+CordRepRing* CordRepRing::RemoveSuffix(CordRepRing* rep, size_t len, size_t extra) 
+{
 	assert(len <= rep->length);
-
 	if(len == rep->length) {
 		CordRep::Unref(rep);
 		return nullptr;
 	}
-
 	Position tail = rep->FindTail(rep->length - len);
 	if(rep->refcount.IsOne()) {
 		// We adopt a privately owned rep, scrub.
@@ -748,15 +736,12 @@ CordRepRing* CordRepRing::RemoveSuffix(CordRepRing* rep, size_t len,
 		rep = Copy(rep, rep->head_, tail.index, extra);
 		tail.index = rep->tail_;
 	}
-
 	// Adjust length
 	rep->length -= len;
-
 	// Adjust tail block
 	if(tail.offset) {
 		rep->SubLength(rep->retreat(tail.index), tail.offset);
 	}
-
 	return Validate(rep);
 }
 }  // namespace cord_internal

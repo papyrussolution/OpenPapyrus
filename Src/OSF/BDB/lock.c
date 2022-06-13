@@ -161,7 +161,7 @@ int __lock_vec(ENV * env, DB_LOCKER * sh_locker, uint32 flags, DB_LOCKREQ * list
 				writes = 0;
 			}
 			objlist = list[i].obj;
-			if(objlist != NULL) {
+			if(objlist) {
 				/*
 				 * We know these should be ilocks,
 				 * but they could be something else,
@@ -176,7 +176,7 @@ int __lock_vec(ENV * env, DB_LOCKER * sh_locker, uint32 flags, DB_LOCKREQ * list
 			else
 				np = NULL;
 			/* Now traverse the locks, releasing each one. */
-			for(lp = SH_LIST_FIRST(&sh_locker->heldby, __db_lock); lp != NULL; lp = next_lock) {
+			for(lp = SH_LIST_FIRST(&sh_locker->heldby, __db_lock); lp; lp = next_lock) {
 				sh_obj = SH_OFF_TO_PTR(lp, lp->obj, DB_LOCKOBJ);
 				next_lock = SH_LIST_NEXT(lp, locker_links, __db_lock);
 				if(writes == 1 || lp->mode == DB_LOCK_READ || lp->mode == DB_LOCK_READ_UNCOMMITTED) {
@@ -201,7 +201,7 @@ int __lock_vec(ENV * env, DB_LOCKER * sh_locker, uint32 flags, DB_LOCKREQ * list
 						break;
 					continue;
 				}
-				if(objlist != NULL) {
+				if(objlist) {
 					DB_ASSERT(env, (uint8 *)np < (uint8 *)objlist->data+objlist->size);
 					np->data = SH_DBT_PTR(&sh_obj->lockobj);
 					np->size = sh_obj->lockobj.size;
@@ -210,7 +210,7 @@ int __lock_vec(ENV * env, DB_LOCKER * sh_locker, uint32 flags, DB_LOCKREQ * list
 			}
 			if(ret)
 				goto up_done;
-			if(objlist != NULL)
+			if(objlist)
 				if((ret = __lock_fix_list(env, objlist, sh_locker->nwrites)) != 0)
 					goto up_done;
 			switch(list[i].op) {
@@ -254,14 +254,14 @@ up_done:
 			 * released.  The processes waiting will still get
 			 * awakened as their waiters are released.
 			 */
-			for(lp = SH_TAILQ_FIRST(&sh_obj->waiters, __db_lock); ret == 0 && lp != NULL; lp = SH_TAILQ_FIRST(&sh_obj->waiters, __db_lock))
+			for(lp = SH_TAILQ_FIRST(&sh_obj->waiters, __db_lock); ret == 0 && lp; lp = SH_TAILQ_FIRST(&sh_obj->waiters, __db_lock))
 				ret = __lock_put_internal(lt, lp, ndx, DB_LOCK_UNLINK|DB_LOCK_NOPROMOTE|DB_LOCK_DOALL);
 			/*
 			 * On the last time around, the object will get
 			 * reclaimed by __lock_put_internal, structure the
 			 * loop carefully so we do not get bitten.
 			 */
-			for(lp = SH_TAILQ_FIRST(&sh_obj->holders, __db_lock); ret == 0 && lp != NULL; lp = next_lock) {
+			for(lp = SH_TAILQ_FIRST(&sh_obj->holders, __db_lock); ret == 0 && lp; lp = next_lock) {
 				next_lock = SH_TAILQ_NEXT(lp, links, __db_lock);
 				ret = __lock_put_internal(lt, lp, ndx, DB_LOCK_UNLINK|DB_LOCK_NOPROMOTE|DB_LOCK_DOALL);
 			}
@@ -306,7 +306,7 @@ up_done:
 	LOCK_SYSTEM_UNLOCK(lt, region);
 	if(run_dd)
 		__lock_detect(env, region->detect, &did_abort);
-	if(ret != 0 && elistp != NULL)
+	if(ret != 0 && elistp)
 		*elistp = &list[i-1];
 	return ret;
 }
@@ -519,7 +519,7 @@ again:
 	else
 		lp = SH_TAILQ_FIRST(&sh_obj->holders, __db_lock);
 	sh_off = R_OFFSET(&lt->reginfo, sh_locker);
-	for(; lp != NULL; lp = SH_TAILQ_NEXT(lp, links, __db_lock)) {
+	for(; lp; lp = SH_TAILQ_NEXT(lp, links, __db_lock)) {
 		if(sh_off == lp->holder) {
 			if(lp->mode == lock_mode && lp->status == DB_LSTAT_HELD) {
 				if(LF_ISSET(DB_LOCK_UPGRADE))
@@ -567,7 +567,7 @@ again:
 	 * this is a dirty reader it goes to the head of the queue, everyone
 	 * else to the back.
 	 */
-	if(lp != NULL) {
+	if(lp) {
 		if(ihold || LF_ISSET(DB_LOCK_UPGRADE) ||
 		   lock_mode == DB_LOCK_READ_UNCOMMITTED)
 			action = HEAD;
@@ -1313,7 +1313,7 @@ static int __lock_inherit_locks(DB_LOCKTAB * lt, DB_LOCKER * sh_locker, uint32 f
 	 * to merge the child's locks with its parent's.
 	 */
 	poff = R_OFFSET(&lt->reginfo, sh_parent);
-	for(lp = SH_LIST_FIRST(&sh_locker->heldby, __db_lock); lp != NULL; lp = SH_LIST_FIRST(&sh_locker->heldby, __db_lock)) {
+	for(lp = SH_LIST_FIRST(&sh_locker->heldby, __db_lock); lp; lp = SH_LIST_FIRST(&sh_locker->heldby, __db_lock)) {
 		SH_LIST_REMOVE(lp, locker_links, __db_lock);
 		/* See if the parent already has a lock. */
 		obj = SH_OFF_TO_PTR(lp, lp->obj, DB_LOCKOBJ);
@@ -1321,7 +1321,7 @@ static int __lock_inherit_locks(DB_LOCKTAB * lt, DB_LOCKER * sh_locker, uint32 f
 		SH_TAILQ_FOREACH(hlp, &obj->holders, links, __db_lock)
 		if(hlp->holder == poff && lp->mode == hlp->mode)
 			break;
-		if(hlp != NULL) {
+		if(hlp) {
 			/* Parent already holds lock. */
 			hlp->refcount += lp->refcount;
 			/* Remove lock from object list and free it. */
@@ -1368,7 +1368,7 @@ int __lock_wakeup(ENV * env, const DBT * obj)
 	lt = env->lk_handle;
 	region = (DB_LOCKREGION *)lt->reginfo.primary;
 	OBJECT_LOCK(lt, region, obj, ndx);
-	if((ret = __lock_getobj(lt, obj, ndx, 0, &sh_obj)) == 0 && sh_obj != NULL)
+	if((ret = __lock_getobj(lt, obj, ndx, 0, &sh_obj)) == 0 && sh_obj)
 		ret = __lock_promote(lt, sh_obj, NULL, DB_LOCK_ONEWAITER);
 	OBJECT_UNLOCK(lt, region, ndx);
 	return ret;
@@ -1400,8 +1400,7 @@ int __lock_promote(DB_LOCKTAB * lt, DB_LOCKOBJ * obj, int * state_changedp, uint
 	 * During promotion, we look for state changes so we can return this
 	 * information to the caller.
 	 */
-
-	for(lp_w = SH_TAILQ_FIRST(&obj->waiters, __db_lock), state_changed = lp_w == NULL; lp_w != NULL; lp_w = next_waiter) {
+	for(lp_w = SH_TAILQ_FIRST(&obj->waiters, __db_lock), state_changed = lp_w == NULL; lp_w; lp_w = next_waiter) {
 		had_waiters = 1;
 		next_waiter = SH_TAILQ_NEXT(lp_w, links, __db_lock);
 		/* Waiter may have aborted or expired. */
@@ -1413,7 +1412,7 @@ int __lock_promote(DB_LOCKTAB * lt, DB_LOCKOBJ * obj, int * state_changedp, uint
 					break;
 			}
 		}
-		if(lp_h != NULL)        /* Found a conflict. */
+		if(lp_h) /* Found a conflict. */
 			break;
 		/* No conflict, promote the waiting lock. */
 		SH_TAILQ_REMOVE(&obj->waiters, lp_w, links, __db_lock);
@@ -1440,7 +1439,7 @@ int __lock_promote(DB_LOCKTAB * lt, DB_LOCKOBJ * obj, int * state_changedp, uint
 		SH_TAILQ_REMOVE(&region->dd_objs, obj, dd_links, __db_lockobj);
 		UNLOCK_DD(lt->env, region);
 	}
-	if(state_changedp != NULL)
+	if(state_changedp)
 		*state_changedp = state_changed;
 	return 0;
 }
@@ -1542,13 +1541,13 @@ int __lock_change(ENV * env, DB_LOCK * old_lock, DB_LOCK * new_lock)
 		MUTEX_LOCK_PARTITION(lt, region, old_part);
 		MUTEX_LOCK_PARTITION(lt, region, new_part);
 	}
-	for(lp = SH_TAILQ_FIRST(&old_obj->waiters, __db_lock); lp != NULL; lp = SH_TAILQ_FIRST(&old_obj->waiters, __db_lock)) {
+	for(lp = SH_TAILQ_FIRST(&old_obj->waiters, __db_lock); lp; lp = SH_TAILQ_FIRST(&old_obj->waiters, __db_lock)) {
 		SH_TAILQ_REMOVE(&old_obj->waiters, lp, links, __db_lock);
 		SH_TAILQ_INSERT_TAIL(&new_obj->waiters, lp, links);
 		lp->indx = new_obj->indx;
 		lp->obj = (roff_t)SH_PTR_TO_OFF(lp, new_obj);
 	}
-	for(lp = SH_TAILQ_FIRST(&old_obj->holders, __db_lock); lp != NULL; lp = SH_TAILQ_FIRST(&old_obj->holders, __db_lock)) {
+	for(lp = SH_TAILQ_FIRST(&old_obj->holders, __db_lock); lp; lp = SH_TAILQ_FIRST(&old_obj->holders, __db_lock)) {
 		SH_TAILQ_REMOVE(&old_obj->holders, lp, links, __db_lock);
 		if(lp == old_lp)
 			continue;

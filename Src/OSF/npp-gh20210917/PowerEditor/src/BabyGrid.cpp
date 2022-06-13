@@ -534,22 +534,18 @@ void DisplayColumn(HWND hWnd, int SI, int c, int offset, HFONT hfont, HFONT hcol
 				rect.top += excess / 2;
 				rect.bottom -= excess / 2;
 			}
-
 			DrawFrameControl(gdc, &rect, DFC_BUTTON, DFCS_BUTTONCHECK);
 		}
-
 		if(iDataType == 5) { //user drawn graphic
 			WPARAM wParam;
 			buffer[0] = 0x20;
-			BGHS[SI].ownerdrawitem = generic_atoi(buffer);
+			BGHS[SI].ownerdrawitem = satoi(buffer);
 			wParam = MAKEWPARAM(::GetMenu(hWnd), BGN_OWNERDRAW);
 			SendMessage(GetParent(hWnd), WM_COMMAND, wParam, reinterpret_cast<LPARAM>(&rect));
 		}
-
 		if(BGHS[SI].EDITING) {
 			DisplayEditString(hWnd, SI, TEXT(""));
 		}
-
 		rect = rectsave;
 		r++;
 	} //end while r<=bottomvisiblerow
@@ -1480,7 +1476,7 @@ LRESULT CALLBACK GridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					    return TRUE;
 				    SendMessage(BGHS[SelfIndex].hlist1, LB_GETTEXT, j - 1, reinterpret_cast<LPARAM>(buffer));
 				    buffer[5] = 0x00;
-				    j = generic_atoi(buffer);
+				    j = satoi(buffer);
 				    if(j>SendMessage(hWnd, BGM_GETROWS, 0, 0)) {
 					    SendMessage(hWnd, BGM_SETGRIDDIM, j, BGHS[SelfIndex].cols);
 				    }

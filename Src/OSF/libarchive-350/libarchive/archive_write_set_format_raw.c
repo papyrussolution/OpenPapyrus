@@ -16,7 +16,7 @@
 
 static ssize_t  archive_write_raw_data(struct archive_write *, const void * buff, size_t s);
 static int archive_write_raw_free(struct archive_write *);
-static int archive_write_raw_header(struct archive_write *, struct archive_entry *);
+static int archive_write_raw_header(struct archive_write *, ArchiveEntry *);
 
 struct raw {
 	int entries_written;
@@ -25,7 +25,7 @@ struct raw {
 /*
  * Set output format to 'raw' format.
  */
-int archive_write_set_format_raw(struct archive * _a)
+int archive_write_set_format_raw(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct raw * raw;
@@ -54,7 +54,7 @@ int archive_write_set_format_raw(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int archive_write_raw_header(struct archive_write * a, struct archive_entry * entry)
+static int archive_write_raw_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	struct raw * raw = (struct raw *)a->format_data;
 	if(archive_entry_filetype(entry) != AE_IFREG) {

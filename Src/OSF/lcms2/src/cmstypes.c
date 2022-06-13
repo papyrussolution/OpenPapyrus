@@ -58,7 +58,7 @@ static boolint RegisterTypesPlugin(cmsContext id, cmsPluginBase* Data, _cmsMemor
 	_cmsTagTypePluginChunkType* ctx = (_cmsTagTypePluginChunkType*)_cmsContextGetClientChunk(id, pos);
 	_cmsTagTypeLinkedList * pt;
 	// Calling the function with NULL as plug-in would unregister the plug in.
-	if(Data == NULL) {
+	if(!Data) {
 		// There is no need to set free the memory, as pool is destroyed as a whole.
 		ctx->TagTypes = NULL;
 		return TRUE;
@@ -217,15 +217,13 @@ Error:
 	_cmsFree(io->ContextID, ElementSizes);
 	return FALSE;
 }
-
-// ********************************************************************************
+//
 // Type XYZ. Only one value is allowed
-// ********************************************************************************
-
+//
 //The XYZType contains an array of three encoded values for the XYZ tristimulus
 //values. Tristimulus values must be non-negative. The signed encoding allows for
 //implementation optimizations by minimizing the number of fixed formats.
-
+//
 static void * Type_XYZ_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsCIEXYZ* xyz;
@@ -265,13 +263,12 @@ static cmsTagTypeSignature DecideXYZtype(double ICCVersion, const void * Data)
 	CXX_UNUSED(ICCVersion);
 	CXX_UNUSED(Data);
 }
-
-// ********************************************************************************
+//
 // Type chromaticity. Only one value is allowed
-// ********************************************************************************
+//
 // The chromaticity tag type provides basic chromaticity data and type of
 // phosphors or colorants of a monitor to applications and utilities.
-
+//
 static void * Type_Chromaticity_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsCIExyYTRIPLE* chrm;
@@ -348,20 +345,17 @@ static void Type_Chromaticity_Free(struct _cms_typehandler_struct* self, void * 
 {
 	_cmsFree(self->ContextID, Ptr);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigColorantOrderType
-// ********************************************************************************
-
+//
 // This is an optional tag which specifies the laydown order in which colorants will
 // be printed on an n-colorant device. The laydown order may be the same as the
 // channel generation order listed in the colorantTableTag or the channel order of a
 // colour space such as CMYK, in which case this tag is not needed. When this is not
 // the case (for example, ink-towers sometimes use the order KCMY), this tag may be
 // used to specify the laydown order of the colorants.
-
-static void * Type_ColorantOrderType_Read(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
+//
+static void * Type_ColorantOrderType_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint8 * ColorantOrder;
 	uint32 Count;
@@ -409,13 +403,12 @@ static void Type_ColorantOrderType_Free(struct _cms_typehandler_struct* self, vo
 {
 	_cmsFree(self->ContextID, Ptr);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigS15Fixed16ArrayType
-// ********************************************************************************
+//
 // This type represents an array of generic 4-byte/32-bit fixed point quantity.
 // The number of values is determined from the size of the tag.
-
+//
 static void * Type_S15Fixed16_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	double *  array_double;
@@ -459,13 +452,12 @@ static void Type_S15Fixed16_Free(struct _cms_typehandler_struct* self, void * Pt
 {
 	_cmsFree(self->ContextID, Ptr);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigU16Fixed16ArrayType
-// ********************************************************************************
+//
 // This type represents an array of generic 4-byte/32-bit quantity.
 // The number of values is determined from the size of the tag.
-
+//
 static void * Type_U16Fixed16_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	double *  array_double;
@@ -512,16 +504,14 @@ static void Type_U16Fixed16_Free(struct _cms_typehandler_struct* self, void * Pt
 {
 	_cmsFree(self->ContextID, Ptr);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigSignatureType
-// ********************************************************************************
 //
 // The signatureType contains a four-byte sequence, Sequences of less than four
 // characters are padded at the end with spaces, 20h.
 // Typically this type is used for registered tags that can be displayed on many
 // development systems as a sequence of four characters.
-
+//
 static void * Type_Signature_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsSignature* SigPtr = (cmsSignature*)_cmsMalloc(self->ContextID, sizeof(cmsSignature));
@@ -549,15 +539,13 @@ static void Type_Signature_Free(struct _cms_typehandler_struct* self, void * Ptr
 {
 	_cmsFree(self->ContextID, Ptr);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigTextType
-// ********************************************************************************
 //
 // The textType is a simple text structure that contains a 7-bit ASCII text string.
 // The length of the string is obtained by subtracting 8 from the element size portion
 // of the tag itself. This string must be terminated with a 00h byte.
-
+//
 static void * Type_Text_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	char * Text = NULL;
@@ -640,11 +628,9 @@ static cmsTagTypeSignature DecideTextType(double ICCVersion, const void * Data)
 	return cmsSigTextType;
 	CXX_UNUSED(Data);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigDataType
-// ********************************************************************************
-
+//
 // General purpose data type
 static void * Type_Data_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
@@ -692,13 +678,10 @@ static void Type_Data_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigTextDescriptionType
-// ********************************************************************************
-
-static void * Type_Text_Description_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems,
-    uint32 SizeOfTag)
+//
+static void * Type_Text_Description_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	char * Text = NULL;
 	cmsMLU* mlu = NULL;
@@ -706,12 +689,9 @@ static void * Type_Text_Description_Read(struct _cms_typehandler_struct* self, c
 	uint32 i, UnicodeCode, UnicodeCount;
 	uint16 ScriptCodeCode, Dummy;
 	uint8 ScriptCodeCount;
-
 	*nItems = 0;
-
 	//  One dword should be there
 	if(SizeOfTag < sizeof(uint32)) return NULL;
-
 	// Read len of ASCII
 	if(!_cmsReadUInt32Number(io, &AsciiCount)) return NULL;
 	SizeOfTag -= sizeof(uint32);
@@ -889,11 +869,9 @@ static cmsTagTypeSignature DecideTextDescType(double ICCVersion, const void * Da
 	return cmsSigTextDescriptionType;
 	CXX_UNUSED(Data);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigCurveType
-// ********************************************************************************
-
+//
 static void * Type_Curve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint32 Count;
@@ -976,11 +954,9 @@ static void Type_Curve_Free(struct _cms_typehandler_struct* self, void * Ptr)
 	return;
 	CXX_UNUSED(self);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigParametricCurveType
-// ********************************************************************************
-
+//
 // Decide which curve type to use on writing
 static cmsTagTypeSignature DecideCurveType(double ICCVersion, const void * Data)
 {
@@ -1061,11 +1037,9 @@ static void Type_ParametricCurve_Free(struct _cms_typehandler_struct* self, void
 	return;
 	CXX_UNUSED(self);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigDateTimeType
-// ********************************************************************************
-
+//
 // A 12-byte value representation of the time and date, where the byte usage is assigned
 // as specified in table 1. The actual values are encoded as 16-bit unsigned integers
 // (uInt16Number - see 5.1.6).
@@ -1075,7 +1049,7 @@ static void Type_ParametricCurve_Free(struct _cms_typehandler_struct* self, void
 // time to UTC when setting these values. Programmes that display these values may show
 // the dateTimeNumber as UTC, show the equivalent local time (at current locale), or
 // display both UTC and local versions of the dateTimeNumber.
-
+//
 static void * Type_DateTime_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsDateTimeNumber timestamp;
@@ -1111,17 +1085,14 @@ static void Type_DateTime_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
-
-// ********************************************************************************
+//
 // Type icMeasurementType
-// ********************************************************************************
-
+//
 /*
    The measurementType information refers only to the internal profile data and is
    meant to provide profile makers an alternative to the default measurement
    specifications.
  */
-
 static void * Type_Measurement_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsICCMeasurementConditions mc;
@@ -1163,15 +1134,12 @@ static void Type_Measurement_Free(struct _cms_typehandler_struct* self, void * P
 {
 	_cmsFree(self->ContextID, Ptr);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigMultiLocalizedUnicodeType
-// ********************************************************************************
 //
 //   Do NOT trust SizeOfTag as there is an issue on the definition of profileSequenceDescTag. See the TechNote from
 //   Max Derhak and Rohit Patil about this: basically the size of the string table should be guessed and cannot be
-//   taken from the size of tag if this tag is embedded as part of bigger structures (profileSequenceDescTag, for
-// instance)
+//   taken from the size of tag if this tag is embedded as part of bigger structures (profileSequenceDescTag, for instance)
 //
 static void * Type_MLU_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
@@ -1302,11 +1270,9 @@ static void Type_MLU_Free(struct _cms_typehandler_struct* self, void * Ptr)
 	return;
 	CXX_UNUSED(self);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigLut8Type
-// ********************************************************************************
-
+//
 // Decide which LUT type to use on writing
 static cmsTagTypeSignature DecideLUTtypeA2B(double ICCVersion, const void * Data)
 {
@@ -1621,11 +1587,9 @@ static void Type_LUT8_Free(struct _cms_typehandler_struct* self, void * Ptr)
 	return;
 	CXX_UNUSED(self);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigLut16Type
-// ********************************************************************************
-
+//
 // Read 16 bit tables as gamma functions
 static boolint Read16bitTables(cmsContext ContextID, cmsIOHANDLER* io, cmsPipeline * lut, uint32 nChannels, uint32 nEntries)
 {
@@ -1886,13 +1850,10 @@ static void Type_LUT16_Free(struct _cms_typehandler_struct* self, void * Ptr)
 	return;
 	CXX_UNUSED(self);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigLutAToBType
-// ********************************************************************************
-
+//
 // V4 stuff. Read matrix for LutAtoB and LutBtoA
-
 static cmsStage * ReadMatrix(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 Offset)
 {
 	double dMat[3*3];
@@ -1964,29 +1925,24 @@ static cmsStage * ReadCLUT(struct _cms_typehandler_struct* self, cmsIOHANDLER* i
 		cmsSignalError(self->ContextID, cmsERROR_UNKNOWN_EXTENSION, "Unknown precision of '%d'", Precision);
 		return NULL;
 	}
-
 	return CLUT;
 }
 
 static cmsToneCurve * ReadEmbeddedCurve(struct _cms_typehandler_struct* self, cmsIOHANDLER* io)
 {
-	cmsTagTypeSignature BaseType;
 	uint32 nItems;
-	BaseType = _cmsReadTypeBase(io);
+	cmsTagTypeSignature BaseType = _cmsReadTypeBase(io);
 	switch(BaseType) {
 		case cmsSigCurveType:
 		    return (cmsToneCurve *)Type_Curve_Read(self, io, &nItems, 0);
-
 		case cmsSigParametricCurveType:
 		    return (cmsToneCurve *)Type_ParametricCurve_Read(self, io, &nItems, 0);
-
 		default:
-	    {
-		    char String[5];
-
-		    _cmsTagSignature2String(String, (cmsTagSignature)BaseType);
-		    cmsSignalError(self->ContextID, cmsERROR_UNKNOWN_EXTENSION, "Unknown curve type '%s'", String);
-	    }
+			{
+				char String[5];
+				_cmsTagSignature2String(String, (cmsTagSignature)BaseType);
+				cmsSignalError(self->ContextID, cmsERROR_UNKNOWN_EXTENSION, "Unknown curve type '%s'", String);
+			}
 		    return NULL;
 	}
 }
@@ -2471,10 +2427,9 @@ static void Type_LUTB2A_Free(struct _cms_typehandler_struct* self, void * Ptr)
 	return;
 	CXX_UNUSED(self);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigColorantTableType
-// ********************************************************************************
+//
 /*
    The purpose of this tag is to identify the colorants used in the profile by a
    unique name and set of XYZ or L*a*b* values to give the colorant an unambiguous
@@ -2482,7 +2437,6 @@ static void Type_LUTB2A_Free(struct _cms_typehandler_struct* self, void * Ptr)
    a lut tag. The second colorant listed is the colorant of the second device channel
    of a lut tag, and so on.
  */
-
 static void * Type_ColorantTable_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint32 i, Count;
@@ -2548,10 +2502,8 @@ static void Type_ColorantTable_Free(struct _cms_typehandler_struct* self, void *
 	return;
 	CXX_UNUSED(self);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigNamedColor2Type
-// ********************************************************************************
 //
 //The namedColor2Type is a count value and array of structures that provide color
 //coordinates for 7-bit ASCII color names. For each named color, a PCS and optional
@@ -2563,7 +2515,7 @@ static void Type_ColorantTable_Free(struct _cms_typehandler_struct* self, void *
 //is always provided. Color names are fixed-length, 32-byte fields including null
 //termination. In order to maintain maximum portability, it is strongly recommended
 //that special characters of the 7-bit ASCII set not be used.
-
+//
 static void * Type_NamedColor_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	uint32 vendorFlag;      // Bottom 16 bits for ICC use
@@ -3048,14 +3000,12 @@ static void Type_CrdInfo_Free(struct _cms_typehandler_struct* self, void * Ptr)
 	return;
 	CXX_UNUSED(self);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigScreeningType
-// ********************************************************************************
 //
 //The screeningType describes various screening parameters including screen
 //frequency, screening angle, and spot shape.
-
+//
 static void * Type_Screening_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 * nItems, uint32 SizeOfTag)
 {
 	cmsScreening* sc = NULL;
@@ -3503,22 +3453,19 @@ static void * Type_MPEclut_Read(struct _cms_typehandler_struct* self, cmsIOHANDL
 
 	// Allocate the true CLUT
 	mpe = cmsStageAllocCLutFloatGranular(self->ContextID, GridPoints, InputChans, OutputChans, NULL);
-	if(mpe == NULL) goto Error;
-
+	if(!mpe) 
+		goto Error;
 	// Read and sanitize the data
 	clut = (_cmsStageCLutData*)mpe->Data;
 	for(i = 0; i < clut->nEntries; i++) {
 		if(!_cmsReadFloat32Number(io, &clut->Tab.TFloat[i])) goto Error;
 	}
-
 	*nItems = 1;
 	return mpe;
-
 Error:
 	*nItems = 0;
-	if(mpe != NULL) cmsStageFree(mpe);
+	cmsStageFree(mpe);
 	return NULL;
-
 	CXX_UNUSED(SizeOfTag);
 }
 
@@ -3731,11 +3678,9 @@ static void Type_MPE_Free(struct _cms_typehandler_struct* self, void * Ptr)
 	return;
 	CXX_UNUSED(self);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigVcgtType
-// ********************************************************************************
-
+//
 #define cmsVideoCardGammaTableType    0
 #define cmsVideoCardGammaFormulaType  1
 
@@ -3929,11 +3874,9 @@ static void Type_vcgt_Free(struct _cms_typehandler_struct* self, void * Ptr)
 	cmsFreeToneCurveTriple((cmsToneCurve **)Ptr);
 	_cmsFree(self->ContextID, Ptr);
 }
-
-// ********************************************************************************
+//
 // Type cmsSigDictType
-// ********************************************************************************
-
+//
 // Single column of the table can point to wchar or MLUC elements. Holds arrays of data
 typedef struct {
 	cmsContext ContextID;
@@ -4316,7 +4259,7 @@ static void DupTagTypeList(struct _cmsContext_struct* ctx, const struct _cmsCont
 	// Walk the list copying all nodes
 	for(entry = head->TagTypes; entry != NULL; entry = entry->Next) {
 		_cmsTagTypeLinkedList * newEntry = (_cmsTagTypeLinkedList*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(_cmsTagTypeLinkedList));
-		if(newEntry == NULL)
+		if(!newEntry)
 			return;
 		// We want to keep the linked list order, so this is a little bit tricky
 		newEntry->Next = NULL;
@@ -4515,7 +4458,7 @@ static void DupTagList(struct _cmsContext_struct* ctx, const struct _cmsContext_
 	// Walk the list copying all nodes
 	for(entry = head->Tag; entry != NULL; entry = entry->Next) {
 		_cmsTagLinkedList * newEntry = (_cmsTagLinkedList*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(_cmsTagLinkedList));
-		if(newEntry == NULL)
+		if(!newEntry)
 			return;
 		// We want to keep the linked list order, so this is a little bit tricky
 		newEntry->Next = NULL;
@@ -4544,7 +4487,7 @@ boolint _cmsRegisterTagPlugin(cmsContext id, cmsPluginBase* Data)
 	cmsPluginTag* Plugin = (cmsPluginTag*)Data;
 	_cmsTagLinkedList * pt;
 	_cmsTagPluginChunkType* TagPluginChunk = (_cmsTagPluginChunkType*)_cmsContextGetClientChunk(id, TagPlugin);
-	if(Data == NULL) {
+	if(!Data) {
 		TagPluginChunk->Tag = NULL;
 		return TRUE;
 	}

@@ -81,7 +81,7 @@ static int nbiof_read(BIO * b, char * out, int outl)
 	int num;
 	uchar n;
 
-	if(out == NULL)
+	if(!out)
 		return 0;
 	if(b->next_bio == NULL)
 		return 0;

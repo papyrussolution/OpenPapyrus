@@ -41,8 +41,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_link_resolver.c 201100 200
 struct links_entry {
 	struct links_entry * next;
 	struct links_entry * previous;
-	struct archive_entry    * canonical;
-	struct archive_entry    * entry;
+	ArchiveEntry * canonical;
+	ArchiveEntry * entry;
 	size_t hash;
 	uint links; /* # links not yet seen */
 };
@@ -59,9 +59,9 @@ struct archive_entry_linkresolver {
 #define NEXT_ENTRY_PARTIAL      2
 #define NEXT_ENTRY_ALL          (NEXT_ENTRY_DEFERRED | NEXT_ENTRY_PARTIAL)
 
-static struct links_entry * find_entry(struct archive_entry_linkresolver *, struct archive_entry *);
+static struct links_entry * find_entry(struct archive_entry_linkresolver *, ArchiveEntry *);
 static void grow_hash(struct archive_entry_linkresolver *);
-static struct links_entry * insert_entry(struct archive_entry_linkresolver *, struct archive_entry *);
+static struct links_entry * insert_entry(struct archive_entry_linkresolver *, ArchiveEntry *);
 static struct links_entry * next_entry(struct archive_entry_linkresolver *, int);
 
 struct archive_entry_linkresolver * archive_entry_linkresolver_new(void)                                    
@@ -82,11 +82,9 @@ struct archive_entry_linkresolver * archive_entry_linkresolver_new(void)
 	return (res);
 }
 
-void archive_entry_linkresolver_set_strategy(struct archive_entry_linkresolver * res,
-    int fmt)
+void archive_entry_linkresolver_set_strategy(struct archive_entry_linkresolver * res, int fmt)
 {
 	int fmtbase = fmt & ARCHIVE_FORMAT_BASE_MASK;
-
 	switch(fmtbase) {
 		case ARCHIVE_FORMAT_7ZIP:
 		case ARCHIVE_FORMAT_AR:
@@ -122,24 +120,19 @@ void archive_entry_linkresolver_set_strategy(struct archive_entry_linkresolver *
 void archive_entry_linkresolver_free(struct archive_entry_linkresolver * res)
 {
 	struct links_entry * le;
-
 	if(res == NULL)
 		return;
-
 	while((le = next_entry(res, NEXT_ENTRY_ALL)) != NULL)
 		archive_entry_free(le->entry);
 	SAlloc::F(res->buckets);
 	SAlloc::F(res);
 }
 
-void archive_entry_linkify(struct archive_entry_linkresolver * res,
-    struct archive_entry ** e, struct archive_entry ** f)
+void archive_entry_linkify(struct archive_entry_linkresolver * res, ArchiveEntry ** e, ArchiveEntry ** f)
 {
 	struct links_entry * le;
-	struct archive_entry * t;
-
+	ArchiveEntry * t;
 	*f = NULL; /* Default: Don't return a second entry. */
-
 	if(*e == NULL) {
 		le = next_entry(res, NEXT_ENTRY_DEFERRED);
 		if(le) {
@@ -219,15 +212,14 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res,
 	return;
 }
 
-static struct links_entry * find_entry(struct archive_entry_linkresolver * res,
-    struct archive_entry * entry){
+static struct links_entry * find_entry(struct archive_entry_linkresolver * res, ArchiveEntry * entry)
+{
 	struct links_entry * le;
 	size_t hash, bucket;
 	dev_t dev;
 	int64 ino;
-
 	/* Free a held entry. */
-	if(res->spare != NULL) {
+	if(res->spare) {
 		archive_entry_free(res->spare->canonical);
 		archive_entry_free(res->spare->entry);
 		SAlloc::F(res->spare);
@@ -240,7 +232,7 @@ static struct links_entry * find_entry(struct archive_entry_linkresolver * res,
 
 	/* Try to locate this entry in the links cache. */
 	bucket = hash & (res->number_buckets - 1);
-	for(le = res->buckets[bucket]; le != NULL; le = le->next) {
+	for(le = res->buckets[bucket]; le; le = le->next) {
 		if(le->hash == hash
 		    && dev == archive_entry_dev(le->canonical)
 		    && ino == archive_entry_ino64(le->canonical)) {
@@ -254,9 +246,9 @@ static struct links_entry * find_entry(struct archive_entry_linkresolver * res,
 			if(le->links > 0)
 				return (le);
 			/* Remove it from this hash bucket. */
-			if(le->previous != NULL)
+			if(le->previous)
 				le->previous->next = le->next;
-			if(le->next != NULL)
+			if(le->next)
 				le->next->previous = le->previous;
 			if(res->buckets[bucket] == le)
 				res->buckets[bucket] = le->next;
@@ -273,7 +265,7 @@ static struct links_entry * next_entry(struct archive_entry_linkresolver * res, 
 	struct links_entry * le;
 	size_t bucket;
 	/* Free a held entry. */
-	if(res->spare != NULL) {
+	if(res->spare) {
 		archive_entry_free(res->spare->canonical);
 		archive_entry_free(res->spare->entry);
 		SAlloc::F(res->spare);
@@ -281,15 +273,15 @@ static struct links_entry * next_entry(struct archive_entry_linkresolver * res, 
 	}
 	/* Look for next non-empty bucket in the links cache. */
 	for(bucket = 0; bucket < res->number_buckets; bucket++) {
-		for(le = res->buckets[bucket]; le != NULL; le = le->next) {
-			if(le->entry != NULL && (mode & NEXT_ENTRY_DEFERRED) == 0)
+		for(le = res->buckets[bucket]; le; le = le->next) {
+			if(le->entry && (mode & NEXT_ENTRY_DEFERRED) == 0)
 				continue;
 			if(le->entry == NULL && (mode & NEXT_ENTRY_PARTIAL) == 0)
 				continue;
 			/* Remove it from this hash bucket. */
-			if(le->next != NULL)
+			if(le->next)
 				le->next->previous = le->previous;
-			if(le->previous != NULL)
+			if(le->previous)
 				le->previous->next = le->next;
 			else
 				res->buckets[bucket] = le->next;
@@ -302,7 +294,7 @@ static struct links_entry * next_entry(struct archive_entry_linkresolver * res, 
 	return NULL;
 }
 
-static struct links_entry * insert_entry(struct archive_entry_linkresolver * res, struct archive_entry * entry)
+static struct links_entry * insert_entry(struct archive_entry_linkresolver * res, ArchiveEntry * entry)
 {
 	size_t hash, bucket;
 	/* Add this entry to the links cache. */
@@ -316,7 +308,7 @@ static struct links_entry * insert_entry(struct archive_entry_linkresolver * res
 	hash = (size_t)(archive_entry_dev(entry) ^ archive_entry_ino64(entry));
 	bucket = hash & (res->number_buckets - 1);
 	/* If we could allocate the entry, record it. */
-	if(res->buckets[bucket] != NULL)
+	if(res->buckets[bucket])
 		res->buckets[bucket]->previous = le;
 	res->number_entries++;
 	le->next = res->buckets[bucket];
@@ -339,15 +331,14 @@ static void grow_hash(struct archive_entry_linkresolver * res)
 	if(new_buckets == NULL)
 		return;
 	for(i = 0; i < res->number_buckets; i++) {
-		while(res->buckets[i] != NULL) {
+		while(res->buckets[i]) {
 			/* Remove entry from old bucket. */
 			le = res->buckets[i];
 			res->buckets[i] = le->next;
 
 			/* Add entry to new bucket. */
 			bucket = le->hash & (new_size - 1);
-
-			if(new_buckets[bucket] != NULL)
+			if(new_buckets[bucket])
 				new_buckets[bucket]->previous = le;
 			le->next = new_buckets[bucket];
 			le->previous = NULL;
@@ -359,29 +350,27 @@ static void grow_hash(struct archive_entry_linkresolver * res)
 	res->number_buckets = new_size;
 }
 
-struct archive_entry * archive_entry_partial_links(struct archive_entry_linkresolver * res,
-    uint * links){
-	struct archive_entry    * e;
+ArchiveEntry * archive_entry_partial_links(struct archive_entry_linkresolver * res, uint * links)
+{
+	ArchiveEntry    * e;
 	struct links_entry * le;
-
 	/* Free a held entry. */
-	if(res->spare != NULL) {
+	if(res->spare) {
 		archive_entry_free(res->spare->canonical);
 		archive_entry_free(res->spare->entry);
 		SAlloc::F(res->spare);
 		res->spare = NULL;
 	}
-
 	le = next_entry(res, NEXT_ENTRY_PARTIAL);
 	if(le) {
 		e = le->canonical;
-		if(links != NULL)
+		if(links)
 			*links = le->links;
 		le->canonical = NULL;
 	}
 	else {
 		e = NULL;
-		if(links != NULL)
+		if(links)
 			*links = 0;
 	}
 	return (e);

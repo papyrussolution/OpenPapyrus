@@ -194,10 +194,9 @@ static void ReconstructRow(const VP8Decoder* const dec,
 		}
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Filtering
-
+//
 // kFilterExtraRows[] = How many extra lines are needed on the MB boundary
 // for caching, given a filtering level.
 // Simple filter:  up to 2 luma samples are read and 1 is written.
@@ -264,10 +263,9 @@ static void FilterRow(const VP8Decoder* const dec) {
 		DoFilter(dec, mb_x, mb_y);
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Precompute the filtering strength for each segment and each i4x4/i16x16 mode.
-
+//
 static void PrecomputeFilterStrengths(VP8Decoder* const dec) {
 	if(dec->filter_type_ > 0) {
 		int s;
@@ -321,10 +319,9 @@ static void PrecomputeFilterStrengths(VP8Decoder* const dec) {
 		}
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Dithering
-
+//
 // minimal amp that will provide a non-zero dithering effect
 #define MIN_DITHER_AMP 4
 
@@ -394,8 +391,7 @@ static void DitherRow(VP8Decoder* const dec) {
 		}
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // This function is called after a row of macroblocks is finished decoding.
 // It also takes into account the following restrictions:
 //  * In case of in-loop filtering, we must hold off sending some of the bottom
@@ -405,7 +401,7 @@ static void DitherRow(VP8Decoder* const dec) {
 //    picture of course.
 //  * we must clip the remaining pixels against the cropping area. The VP8Io
 //    struct must have the following fields set correctly before calling put():
-
+//
 #define MACROBLOCK_VPOS(mb_y)  ((mb_y) * 16)    // vertical position of a MB
 
 // Finalize and transmit a complete row. Return false in case of user-abort.
@@ -507,9 +503,8 @@ static int FinishRow(void* arg1, void* arg2) {
 
 #undef MACROBLOCK_VPOS
 
-//------------------------------------------------------------------------------
-
-int VP8ProcessRow(VP8Decoder* const dec, VP8Io* const io) {
+int VP8ProcessRow(VP8Decoder* const dec, VP8Io* const io) 
+{
 	int ok = 1;
 	VP8ThreadContext* const ctx = &dec->thread_ctx_;
 	const int filter_row =
@@ -555,10 +550,9 @@ int VP8ProcessRow(VP8Decoder* const dec, VP8Io* const io) {
 	}
 	return ok;
 }
-
-//------------------------------------------------------------------------------
+//
 // Finish setting up the decoding parameter once user's setup() is called.
-
+//
 VP8StatusCode VP8EnterCritical(VP8Decoder* const dec, VP8Io* const io) {
 	// Call setup() first. This may trigger additional decoding features on 'io'.
 	// Note: Afterward, we must call teardown() no matter what.
@@ -623,8 +617,7 @@ int VP8ExitCritical(VP8Decoder* const dec, VP8Io* const io) {
 	}
 	return ok;
 }
-
-//------------------------------------------------------------------------------
+//
 // For multi-threaded decoding we need to use 3 rows of 16 pixels as delay line.
 //
 // Reason is: the deblocking filter cannot deblock the bottom horizontal edges
@@ -690,26 +683,21 @@ int VP8GetThreadMethod(const WebPDecoderOptions* const options,
 
 #undef MT_CACHE_LINES
 #undef ST_CACHE_LINES
-
-//------------------------------------------------------------------------------
+//
 // Memory setup
-
-static int AllocateMemory(VP8Decoder* const dec) {
+//
+static int AllocateMemory(VP8Decoder* const dec) 
+{
 	const int num_caches = dec->num_caches_;
 	const int mb_w = dec->mb_w_;
 	// Note: we use 'size_t' when there's no overflow risk, uint64_t otherwise.
 	const size_t intra_pred_mode_size = 4 * mb_w * sizeof(uint8);
 	const size_t top_size = sizeof(VP8TopSamples) * mb_w;
 	const size_t mb_info_size = (mb_w + 1) * sizeof(VP8MB);
-	const size_t f_info_size =
-	    (dec->filter_type_ > 0) ?
-	    mb_w * (dec->mt_method_ > 0 ? 2 : 1) * sizeof(VP8FInfo)
-	    : 0;
+	const size_t f_info_size = (dec->filter_type_ > 0) ? mb_w * (dec->mt_method_ > 0 ? 2 : 1) * sizeof(VP8FInfo) : 0;
 	const size_t yuv_size = YUV_SIZE * sizeof(*dec->yuv_b_);
-	const size_t mb_data_size =
-	    (dec->mt_method_ == 2 ? 2 : 1) * mb_w * sizeof(*dec->mb_data_);
-	const size_t cache_height = (16 * num_caches
-	    + kFilterExtraRows[dec->filter_type_]) * 3 / 2;
+	const size_t mb_data_size = (dec->mt_method_ == 2 ? 2 : 1) * mb_w * sizeof(*dec->mb_data_);
+	const size_t cache_height = (16 * num_caches + kFilterExtraRows[dec->filter_type_]) * 3 / 2;
 	const size_t cache_size = top_size * cache_height;
 	// alpha_size is the only one that scales as width x height.
 	const uint64_t alpha_size = (dec->alpha_data_ != NULL) ?
@@ -719,7 +707,6 @@ static int AllocateMemory(VP8Decoder* const dec) {
 	    + yuv_size + mb_data_size
 	    + cache_size + alpha_size + WEBP_ALIGN_CST;
 	uint8* mem;
-
 	if(!CheckSizeOverflow(needed)) return 0; // check for overflow
 	if(needed > dec->mem_size_) {
 		WebPSafeFree(dec->mem_);

@@ -1,28 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug-PCRE|Win32">
-      <Configuration>Debug-PCRE</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-PCRE|x64">
-      <Configuration>Debug-PCRE</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-PCRE|Win32">
-      <Configuration>Release-PCRE</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-PCRE|x64">
-      <Configuration>Release-PCRE</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
@@ -35,302 +18,242 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\cppcheck\externals\simplecpp\simplecpp.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\externals\tinyxml\tinyxml2.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\analyzerinfo.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\astutils.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\check.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    <ClCompile Include="..\osf\cppcheck\externals\simplecpp\simplecpp.cpp" />
+    <ClCompile Include="..\osf\cppcheck\externals\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\analyzerinfo.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\astutils.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\check.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\check64bit.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkassert.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkautovariables.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkbool.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkboost.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkbufferoverrun.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkclass.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkcondition.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkfunctions.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkstring.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkexceptionsafety.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkinternal.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkio.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkleakautovar.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkmemoryleak.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checknullpointer.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkother.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkpostfixoperator.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checksizeof.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkstl.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checktype.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkuninitvar.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkunusedfunctions.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkunusedvar.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkvaarg.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\clangimport.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\color.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\lib\cppcheck-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\OSF\cppcheck\lib\check64bit.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkassert.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkautovariables.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkbool.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkboost.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkbufferoverrun.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkclass.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkcondition.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkfunctions.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkstring.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkexceptionsafety.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkinternal.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkio.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkleakautovar.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkmemoryleak.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checknullpointer.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkother.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkpostfixoperator.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checksizeof.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkstl.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checktype.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkuninitvar.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkunusedfunctions.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkunusedvar.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\checkvaarg.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\cppcheck.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\ctu.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\errorlogger.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\exprengine.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\library.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\mathlib.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\path.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\pathmatch.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\platform.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\preprocessor.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\importproject.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\settings.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\suppressions.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\symboldatabase.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\templatesimplifier.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\timer.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\token.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\tokenize.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\tokenlist.cpp" />
-    <ClCompile Include="..\OSF\cppcheck\lib\valueflow.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\cppcheck.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\ctu.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\errorlogger.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\errortypes.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\infer.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\library.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\mathlib.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\path.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\pathanalysis.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\pathmatch.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\platform.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\preprocessor.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\importproject.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\programmemory.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\settings.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\summaries.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\suppressions.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\symboldatabase.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\templatesimplifier.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\timer.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\token.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\tokenize.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\tokenlist.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\utils.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\valueflow.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\forwardanalyzer.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\reverseanalyzer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\cppcheck\externals\simplecpp\simplecpp.h" />
-    <ClInclude Include="..\OSF\cppcheck\externals\tinyxml\tinyxml2.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\analyzerinfo.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\astutils.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\check.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\check64bit.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkassert.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkautovariables.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkbool.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkboost.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkbufferoverrun.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkclass.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkcondition.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkfunctions.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkstring.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkexceptionsafety.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkinternal.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkio.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkleakautovar.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkmemoryleak.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checknullpointer.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkother.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkpostfixoperator.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checksizeof.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkstl.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checktype.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkuninitvar.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkunusedfunctions.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkunusedvar.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\checkvaarg.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\config.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\cppcheck.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\ctu.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\errorlogger.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\library.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\mathlib.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\path.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\pathmatch.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\platform.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\preprocessor.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\importproject.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\settings.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\suppressions.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\symboldatabase.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\templatesimplifier.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\timer.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\token.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\tokenize.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\tokenlist.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\utils.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\valueflow.h" />
-    <ClInclude Include="..\OSF\cppcheck\lib\version.h" />
+    <ClInclude Include="..\osf\cppcheck\externals\simplecpp\simplecpp.h" />
+    <ClInclude Include="..\osf\cppcheck\externals\tinyxml2\tinyxml2.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\analyzerinfo.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\astutils.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\check.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\check64bit.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkassert.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkautovariables.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkbool.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkboost.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkbufferoverrun.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkclass.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkcondition.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkfunctions.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkstring.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkexceptionsafety.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkinternal.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkio.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkleakautovar.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkmemoryleak.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checknullpointer.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkother.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkpostfixoperator.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checksizeof.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkstl.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checktype.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkuninitvar.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkunusedfunctions.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkunusedvar.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\checkvaarg.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\clangimport.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\color.h" />
+    <ClInclude Include="..\OSF\cppcheck\lib\cppcheck-config.h" />
+    <ClInclude Include="..\OSF\cppcheck\lib\cppcheck-internal.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\cppcheck.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\ctu.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\errorlogger.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\errortypes.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\infer.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\library.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\mathlib.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\path.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\pathmatch.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\platform.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\preprocessor.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\importproject.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\programmemory.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\settings.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\summaries.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\suppressions.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\symboldatabase.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\templatesimplifier.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\timer.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\token.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\tokenize.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\tokenlist.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\tokenrange.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\utils.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\valueflow.h" />
+    <ClInclude Include="..\osf\cppcheck\lib\version.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\OSF\cppcheck\lib\version.rc" />
+    <ResourceCompile Include="..\osf\cppcheck\lib\version.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Natvis Include="..\OSF\cppcheck\lib\cppcheck.natvis" />
+    <Natvis Include="..\osf\cppcheck\lib\cppcheck.natvis" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C183DB5B-AD6C-423D-80CA-1F9549555A1A}</ProjectGuid>
     <RootNamespace>cppcheck_lib</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|Win32'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|x64'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cppcheck-core</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|Win32'">cppcheck-core</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cppcheck-core</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|x64'">cppcheck-core</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</IgnoreImportLibrary>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|Win32'">false</IgnoreImportLibrary>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IgnoreImportLibrary>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|x64'">false</IgnoreImportLibrary>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|Win32'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|x64'">$(SolutionDir)..\..\ppy\bin\cppcheck\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|Win32'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|x64'">$(SolutionDir)..\..\__TEMP__\VC2017\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\..\__TEMP__\VC2019\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cppcheck-core</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|Win32'">cppcheck-core</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cppcheck-core</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|x64'">cppcheck-core</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</IgnoreImportLibrary>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|Win32'">false</IgnoreImportLibrary>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IgnoreImportLibrary>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|x64'">false</IgnoreImportLibrary>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|x64'">true</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>CPPCHECKLIB_EXPORT;TINYXML2_EXPORT;SIMPLECPP_EXPORT;WIN32;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4018;4244;4251;4389;4482;4512;4701</DisableSpecificWarnings>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\include;..\osf\cppcheck\lib;..\osf\cppcheck\externals;..\osf\cppcheck\externals\picojson;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4018;4127;4146;4244;4251;4267;4389;4482;4512;4701;4706;4800;4805</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>check.h</PrecompiledHeaderFile>
-      <ForcedIncludeFiles>check.h</ForcedIncludeFiles>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:throwingNew /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <ConformanceMode>true</ConformanceMode>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
       <LargeAddressAware>true</LargeAddressAware>
       <StackReserveSize>8000000</StackReserveSize>
       <StackCommitSize>8000000</StackCommitSize>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
-xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|Win32'">
-    <ClCompile>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>CPPCHECKLIB_EXPORT;TINYXML2_EXPORT;SIMPLECPP_EXPORT;WIN32;HAVE_RULES;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4018;4244;4251;4389;4482;4512;4701</DisableSpecificWarnings>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>check.h</PrecompiledHeaderFile>
-      <ForcedIncludeFiles>check.h</ForcedIncludeFiles>
-      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <LargeAddressAware>true</LargeAddressAware>
-      <StackReserveSize>8000000</StackReserveSize>
-      <StackCommitSize>8000000</StackCommitSize>
-    </Link>
-    <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
+      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\addons" "$(OutDir)addons" /E /I /D /Y
+xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
 xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -339,16 +262,24 @@ xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>CPPCHECKLIB_EXPORT;TINYXML2_EXPORT;SIMPLECPP_EXPORT;WIN32;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4018;4244;4251;4389;4482;4512;4701</DisableSpecificWarnings>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\include;..\osf\cppcheck\lib;..\osf\cppcheck\externals;..\osf\cppcheck\externals\picojson;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4018;4127;4146;4244;4251;4267;4389;4482;4512;4701;4706;4800;4805</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>check.h</PrecompiledHeaderFile>
-      <ForcedIncludeFiles>check.h</ForcedIncludeFiles>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:throwingNew /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <ConformanceMode>true</ConformanceMode>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -356,38 +287,11 @@ xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <StackReserveSize>8000000</StackReserveSize>
       <StackCommitSize>8000000</StackCommitSize>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
-xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-PCRE|x64'">
-    <ClCompile>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>CPPCHECKLIB_EXPORT;TINYXML2_EXPORT;SIMPLECPP_EXPORT;WIN32;HAVE_RULES;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4018;4244;4251;4389;4482;4512;4701</DisableSpecificWarnings>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>check.h</PrecompiledHeaderFile>
-      <ForcedIncludeFiles>check.h</ForcedIncludeFiles>
-      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>pcre64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <StackReserveSize>8000000</StackReserveSize>
-      <StackCommitSize>8000000</StackCommitSize>
-    </Link>
-    <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
+      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\addons" "$(OutDir)addons" /E /I /D /Y
+xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
 xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -395,26 +299,29 @@ xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <WarningLevel>Level4</WarningLevel>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4018;4244;4251;4389;4482;4512;4701</DisableSpecificWarnings>
-      <PreprocessorDefinitions>CPPCHECKLIB_EXPORT;TINYXML2_EXPORT;SIMPLECPP_EXPORT;NDEBUG;WIN32;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <AdditionalIncludeDirectories>..\include;..\osf\cppcheck\lib;..\osf\cppcheck\externals;..\osf\cppcheck\externals\picojson;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4018;4127;4146;4244;4251;4267;4389;4482;4512;4701;4706;4800;4805</DisableSpecificWarnings>
+      <PreprocessorDefinitions>NDEBUG;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <DebugInformationFormat>None</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>check.h</PrecompiledHeaderFile>
-      <ForcedIncludeFiles>check.h</ForcedIncludeFiles>
-      <AdditionalOptions>/Zc:inline /Zc:throwingNew %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalOptions>/Zc:throwingNew /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <ConformanceMode>true</ConformanceMode>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -427,48 +334,8 @@ xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y
       <StackCommitSize>8000000</StackCommitSize>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
-xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|Win32'">
-    <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
-      <WarningLevel>Level4</WarningLevel>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>true</OmitFramePointers>
-      <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4018;4244;4251;4389;4482;4512;4701</DisableSpecificWarnings>
-      <PreprocessorDefinitions>CPPCHECKLIB_EXPORT;TINYXML2_EXPORT;SIMPLECPP_EXPORT;NDEBUG;WIN32;HAVE_RULES;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>check.h</PrecompiledHeaderFile>
-      <ForcedIncludeFiles>check.h</ForcedIncludeFiles>
-      <AdditionalOptions>/Zc:inline /Zc:throwingNew %(AdditionalOptions)</AdditionalOptions>
-      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <SetChecksum>true</SetChecksum>
-      <LargeAddressAware>true</LargeAddressAware>
-      <StackReserveSize>8000000</StackReserveSize>
-      <StackCommitSize>8000000</StackCommitSize>
-    </Link>
-    <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
+      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\addons" "$(OutDir)addons" /E /I /D /Y
+xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
 xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -476,68 +343,31 @@ xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <WarningLevel>Level4</WarningLevel>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4018;4244;4251;4389;4482;4512;4701</DisableSpecificWarnings>
-      <PreprocessorDefinitions>CPPCHECKLIB_EXPORT;TINYXML2_EXPORT;SIMPLECPP_EXPORT;NDEBUG;WIN32;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <AdditionalIncludeDirectories>..\include;..\osf\cppcheck\lib;..\osf\cppcheck\externals;..\osf\cppcheck\externals\picojson;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4018;4127;4146;4244;4251;4267;4389;4482;4512;4701;4706;4800;4805</DisableSpecificWarnings>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <DebugInformationFormat>None</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>check.h</PrecompiledHeaderFile>
-      <ForcedIncludeFiles>check.h</ForcedIncludeFiles>
-      <AdditionalOptions>/Zc:inline /Zc:throwingNew %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <AdditionalOptions>/Zc:throwingNew /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <ConformanceMode>true</ConformanceMode>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <SetChecksum>true</SetChecksum>
-      <StackReserveSize>8000000</StackReserveSize>
-      <StackCommitSize>8000000</StackCommitSize>
-    </Link>
-    <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
-xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-PCRE|x64'">
-    <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
-      <WarningLevel>Level4</WarningLevel>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>true</OmitFramePointers>
-      <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>..\osf\cppcheck\externals;..\osf\cppcheck\externals\simplecpp;..\osf\cppcheck\externals\tinyxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4018;4244;4251;4389;4482;4512;4701</DisableSpecificWarnings>
-      <PreprocessorDefinitions>CPPCHECKLIB_EXPORT;TINYXML2_EXPORT;SIMPLECPP_EXPORT;NDEBUG;WIN32;HAVE_RULES;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <DebugInformationFormat>
-      </DebugInformationFormat>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>check.h</PrecompiledHeaderFile>
-      <ForcedIncludeFiles>check.h</ForcedIncludeFiles>
-      <AdditionalOptions>/Zc:inline /Zc:throwingNew %(AdditionalOptions)</AdditionalOptions>
-      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>pcre64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../externals;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <OptimizeReferences>true</OptimizeReferences>
@@ -545,9 +375,11 @@ xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y
       <SetChecksum>true</SetChecksum>
       <StackReserveSize>8000000</StackReserveSize>
       <StackCommitSize>8000000</StackCommitSize>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
+      <Command>xcopy "$(SolutionDir)..\osf\cppcheck\addons" "$(OutDir)addons" /E /I /D /Y
+xcopy "$(SolutionDir)..\osf\cppcheck\cfg" "$(OutDir)cfg" /E /I /D /Y
 xcopy "$(SolutionDir)..\osf\cppcheck\platforms" "$(OutDir)platforms" /E /I /D /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

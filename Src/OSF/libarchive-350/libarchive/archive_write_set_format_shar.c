@@ -21,7 +21,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_shar.c 189438 2
 struct shar {
 	int dump;
 	int end_of_line;
-	struct archive_entry    * entry;
+	ArchiveEntry    * entry;
 	int has_data;
 	char * last_dir;
 
@@ -30,25 +30,22 @@ struct shar {
 	size_t outpos;
 
 	int wrote_header;
-	struct archive_string work;
-	struct archive_string quoted_name;
+	archive_string work;
+	archive_string quoted_name;
 };
 
 static int archive_write_shar_close(struct archive_write *);
 static int archive_write_shar_free(struct archive_write *);
-static int archive_write_shar_header(struct archive_write *,
-    struct archive_entry *);
-static ssize_t  archive_write_shar_data_sed(struct archive_write *,
-    const void * buff, size_t);
-static ssize_t  archive_write_shar_data_uuencode(struct archive_write *,
-    const void * buff, size_t);
+static int archive_write_shar_header(struct archive_write *, ArchiveEntry *);
+static ssize_t  archive_write_shar_data_sed(struct archive_write *, const void * buff, size_t);
+static ssize_t  archive_write_shar_data_uuencode(struct archive_write *, const void * buff, size_t);
 static int archive_write_shar_finish_entry(struct archive_write *);
 
 /*
  * Copy the given string to the buffer, quoting all shell meta characters
  * found.
  */
-static void shar_quote(struct archive_string * buf, const char * str, int in_shell)
+static void shar_quote(archive_string * buf, const char * str, int in_shell)
 {
 	static const char meta[] = "\n \t'`\";&<>()|*?{}[]\\$!#^~";
 	size_t len;
@@ -75,7 +72,7 @@ static void shar_quote(struct archive_string * buf, const char * str, int in_she
 /*
  * Set output format to 'shar' format.
  */
-int archive_write_set_format_shar(struct archive * _a)
+int archive_write_set_format_shar(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct shar * shar;
@@ -108,11 +105,10 @@ int archive_write_set_format_shar(struct archive * _a)
  * In addition, this variant also attempts to restore ownership, file modes,
  * and other extended file information.
  */
-int archive_write_set_format_shar_dump(struct archive * _a)
+int archive_write_set_format_shar_dump(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct shar * shar;
-
 	archive_write_set_format_shar(&a->archive);
 	shar = (struct shar *)a->format_data;
 	shar->dump = 1;
@@ -122,20 +118,17 @@ int archive_write_set_format_shar_dump(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int archive_write_shar_header(struct archive_write * a, struct archive_entry * entry)
+static int archive_write_shar_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	const char * linkname;
 	const char * name;
 	char * p, * pp;
-	struct shar * shar;
-
-	shar = (struct shar *)a->format_data;
+	struct shar * shar = (struct shar *)a->format_data;
 	if(!shar->wrote_header) {
 		archive_strcat(&shar->work, "#!/bin/sh\n");
 		archive_strcat(&shar->work, "# This is a shell archive\n");
 		shar->wrote_header = 1;
 	}
-
 	/* Save the entry for the closing. */
 	archive_entry_free(shar->entry);
 	shar->entry = archive_entry_clone(entry);

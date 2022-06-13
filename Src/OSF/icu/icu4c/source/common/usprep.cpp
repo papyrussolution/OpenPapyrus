@@ -117,17 +117,18 @@ static bool U_CALLCONV compareEntries(const UHashTok p1, const UHashTok p2) {
 	       uhash_compareChars(path1, path2)));
 }
 
-static void usprep_unload(UStringPrepProfile* data) {
+static void usprep_unload(UStringPrepProfile* data) 
+{
 	udata_close(data->sprepData);
 }
 
-static int32_t usprep_internal_flushCache(bool noRefCount) {
+static int32_t usprep_internal_flushCache(bool noRefCount) 
+{
 	UStringPrepProfile * profile = NULL;
 	UStringPrepKey  * key  = NULL;
 	int32_t pos = UHASH_FIRST;
 	int32_t deletedNum = 0;
 	const UHashElement * e;
-
 	/*
 	 * if shared data hasn't even been lazy evaluated yet
 	 * return 0
@@ -225,17 +226,14 @@ static bool U_CALLCONV loadData(UStringPrepProfile* profile,
 	if(U_FAILURE(*errorCode)) {
 		return FALSE;
 	}
-
 	p = (const int32_t*)udata_getMemory(dataMemory);
 	pb = (const uint8 *)(p+_SPREP_INDEX_TOP);
 	utrie_unserialize(&_sprepTrie, pb, p[_SPREP_INDEX_TRIE_SIZE], errorCode);
 	_sprepTrie.getFoldingOffset = getSPrepFoldingOffset;
-
 	if(U_FAILURE(*errorCode)) {
 		udata_close(dataMemory);
 		return FALSE;
 	}
-
 	/* in the mutex block, set the data for this process */
 	umtx_lock(&usprepMutex);
 	if(profile->sprepData==NULL) {
@@ -274,9 +272,7 @@ static bool U_CALLCONV loadData(UStringPrepProfile* profile,
 	}
 	profile->isDataLoaded = TRUE;
 	/* if a different thread set it first, then close the extra data */
-	if(dataMemory) {
-		udata_close(dataMemory); /* NULL if it was set correctly */
-	}
+	udata_close(dataMemory); /* NULL if it was set correctly */
 	return profile->isDataLoaded;
 }
 

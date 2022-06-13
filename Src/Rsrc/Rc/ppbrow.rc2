@@ -1043,16 +1043,17 @@ toolbar export LIST_ACCSHEET TB_FIRST_TOOLBAR {
 }
 
 toolbar export LIST_GOODSBASKET TB_FIRST_TOOLBAR {
-	cmaEdit,           "@{edit}\tEnter",           PPDV_EDITFILE02
-	cmaInsert,         "@{add}\tInsert",           PPDV_ADDFILE02
-	cmaDelete,         "@{delete}\tDelete",        PPDV_DELETEFILE02
+	cmaEdit,              "@{edit}\tEnter",           PPDV_EDITFILE02
+	cmaInsert,            "@{add}\tInsert",           PPDV_ADDFILE02
+	cmaDelete,            "@{delete}\tDelete",        PPDV_DELETEFILE02
 	separator
-	cmaMore,           "@{cmd_goods}",             PPDV_WARESINGLE01
+	cmaMore,              "@{cmd_goods}",             PPDV_WARESINGLE01
 	separator
-	cmForceUnlock,     "Разблокировать корзину",   TBBM_UNLOCK
-	cmTransmit,        "@{dotransmit_short}",      PPDV_SYNC01
+	cmToggleAllOrOwnOnly, "@{showownbasketsonly}",    PPDV_TOGGLE01
+	cmForceUnlock,        "@{unlockbasket}",          TBBM_UNLOCK
+	cmTransmit,           "@{dotransmit_short}",      PPDV_SYNC01
 	separator
-	cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J", PPDV_SYSJOURNAL
+	cmSysJournalByObj,    "@{view_sysjournal}\tCtrl-J", PPDV_SYSJOURNAL
 }
 
 toolbar export LIST_GRPNUSR TB_FIRST_TOOLBAR {

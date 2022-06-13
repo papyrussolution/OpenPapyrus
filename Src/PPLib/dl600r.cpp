@@ -1596,14 +1596,14 @@ int DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 	return ok;
 }
 
-int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj, int cp) const
+int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj, int cp, bool adoptTypes) const
 {
 	int    ok = 1;
 	const  DlScope * p_scope = 0;
 	SString buf;
 	SdbField fld;
 	SFormatParam fp;
-	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ);
+	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_OMITEPS);
 	fp.FDate  = DATF_DMY|DATF_CENTURY;
 	fp.Flags |= SFormatParam::fFloatSize;
 	THROW(pJsonObj);
@@ -1629,6 +1629,7 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 	int     ok = 1;
 	SString temp_buf;
 	SString suffix;
+	SdbField _temp_fld;
 	const   DlScope * p_data = GetData();
 	DlScope * p_child = 0;
 	SJson * p_hdr_obj = 0;
@@ -1643,8 +1644,10 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 			}
 			{
 				SJson * p_vd_list = SJson::CreateArr();
-				for(uint i = 0; i < p_vd->GetCount(); i++) {
-					if(p_vd->GetEntry(i, tmp_entry)) {
+				SString fld_type_symb; // string || int || double || date ...
+				for(uint vdidx = 0; vdidx < p_vd->GetCount(); vdidx++) {
+					if(p_vd->GetEntry(vdidx, tmp_entry)) {
+						fld_type_symb.Z();
 						if(oneof2(rParam.Cp, cpANSI, cp1251)){
 							tmp_entry.Zone.Transf(CTRANSF_INNER_TO_OUTER);
 							tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_OUTER);
@@ -1655,11 +1658,63 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 							tmp_entry.FieldName.Transf(CTRANSF_INNER_TO_UTF8);
 							tmp_entry.Text.Transf(CTRANSF_INNER_TO_UTF8);
 						}
+						// @v11.4.1 {
+						{
+							bool   descr_fld_found = false;
+							STypEx descr_fld_type;
+							descr_fld_type.Init();
+							for(uint i = 0; !descr_fld_found && p_data->EnumChilds(&i, &p_child);) {
+								if(p_child->Name.IsEqiAscii(tmp_entry.Zone) || (p_child->Name == "iter@def" && tmp_entry.Zone.IsEqiAscii("iter"))) {
+									const  DlScope * p_scope = 0;
+									for(uint j = 0; !descr_fld_found && p_child->EnumInheritance(&j, &p_scope);) {
+										for(uint fidx = 0; p_scope->EnumFields(&fidx, &_temp_fld);) {
+											if(_temp_fld.Name.IsEqiAscii(tmp_entry.FieldName)) {
+												descr_fld_type = _temp_fld.T;		
+												descr_fld_found = true;
+											}
+											//fld.GetFieldDataFromBuf(buf, p_scope->GetDataC(0), fp);
+											if(_temp_fld.T.IsZStr(0)) {
+											}
+											else {
+											}
+											//buf.Escape();
+											//pJsonObj->InsertString(fld.Name.cptr(), buf);
+										}
+									}
+								}
+							}
+							if(descr_fld_found) {
+								if(descr_fld_type.IsPure()) {
+									const int st = GETSTYPE(descr_fld_type.Typ);
+									if(st == S_ZSTRING)
+										fld_type_symb = "string";
+									else if(oneof3(st, S_INT, S_UINT, S_AUTOINC))
+										fld_type_symb = "int";
+									else if(oneof4(st, S_FLOAT, S_DEC, S_MONEY, S_NUMERIC))
+										fld_type_symb = "real";
+									else if(st == S_DATE)
+										fld_type_symb = "date";
+									else if(st == S_TIME)
+										fld_type_symb = "time";
+									else if(st == S_DATETIME)
+										fld_type_symb = "timestamp";
+								}
+							}
+							else {
+								; // @todo Это - плохо: описание ссылается на отсутствующее поле. Надо обработать эту ситуацию!
+							}
+						}
+						// } @v11.4.1 
 						{
 							//SXml::WNode n_item(p_writer, "Item");
 							SJson * p_vd_item = SJson::CreateObj();
 							p_vd_item->InsertString("Zone", tmp_entry.Zone);
 							p_vd_item->InsertString("FieldName", tmp_entry.FieldName);
+							// @v11.4.1 {
+							if(fld_type_symb.NotEmpty()) {
+								p_vd_item->InsertString("FieldType", fld_type_symb);
+							}
+							// } @v11.4.1 
 							p_vd_item->InsertString("Text", tmp_entry.Text);
 							p_vd_item->InsertString("TotalFunc", temp_buf.Z().Cat(tmp_entry.TotalFunc));
 							p_vd_list->InsertChild(p_vd_item);
@@ -1670,34 +1725,36 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 			}
 			pRoot->Insert("ViewDescription", p_view_def);
 		}
-		for(uint i = 0; p_data->EnumChilds(&i, &p_child);) {
-			if(p_child->Name.IsEqiAscii("hdr")) {
-				//THROW(InitData(*pFilt, 0));
-				THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
-				{
-					SJson * p_ho = SJson::CreateObj();
-					Helper_PutScopeToJson(p_child, p_ho, rParam.Cp);
-					pRoot->Insert("hdr", p_ho);
-				}
-			}
-			else {
-				long iter_id = GetIterID(p_child->Name);
-				if(p_child->Name == "iter@def") {
-					suffix = "Iter";
-				}
-				else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
+		{
+			for(uint i = 0; p_data->EnumChilds(&i, &p_child);) {
+				if(p_child->Name.IsEqiAscii("hdr")) {
+					//THROW(InitData(*pFilt, 0));
+					THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
+					{
+						SJson * p_ho = SJson::CreateObj();
+						Helper_PutScopeToJson(p_child, p_ho, rParam.Cp, false);
+						pRoot->Insert("hdr", p_ho);
+					}
 				}
 				else {
-					suffix = p_child->Name;
+					long iter_id = GetIterID(p_child->Name);
+					if(p_child->Name == "iter@def") {
+						suffix = "Iter";
+					}
+					else if(p_child->Name.Divide('@', temp_buf, suffix) > 0) {
+					}
+					else {
+						suffix = p_child->Name;
+					}
+					THROW(InitIteration(iter_id, 0));
+					SJson * p_iter_ary = SJson::CreateArr();
+					while(NextIteration(iter_id) > 0) {
+						SJson * p_iter_obj = SJson::CreateObj();
+						Helper_PutScopeToJson(p_child, p_iter_obj, rParam.Cp, false);
+						THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
+					}
+					THROW_SL(pRoot->Insert(suffix.cptr(), p_iter_ary));
 				}
-				THROW(InitIteration(iter_id, 0));
-				SJson * p_iter_ary = SJson::CreateArr();
-				while(NextIteration(iter_id) > 0) {
-					SJson * p_iter_obj = SJson::CreateObj();
-					Helper_PutScopeToJson(p_child, p_iter_obj, rParam.Cp);
-					THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
-				}
-				THROW_SL(pRoot->Insert(suffix.cptr(), p_iter_ary));
 			}
 		}
 	}
@@ -1710,7 +1767,7 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 			if(p_child->Name.IsEqiAscii("hdr")) {
 				//THROW(InitData(*pFilt, 0));
 				THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
-				Helper_PutScopeToJson(p_child, p_hdr_obj, cpUndef);
+				Helper_PutScopeToJson(p_child, p_hdr_obj, cpUndef, false);
 			}
 			else {
 				long iter_id = GetIterID(p_child->Name);
@@ -1726,7 +1783,7 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 				SJson * p_iter_ary = SJson::CreateArr();
 				while(NextIteration(iter_id) > 0) {
 					SJson * p_iter_obj = SJson::CreateObj();
-					Helper_PutScopeToJson(p_child, p_iter_obj, cpUndef);
+					Helper_PutScopeToJson(p_child, p_iter_obj, cpUndef, false);
 					THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
 				}
 				THROW_SL(p_hdr_obj->Insert(suffix.cptr(), p_iter_ary));

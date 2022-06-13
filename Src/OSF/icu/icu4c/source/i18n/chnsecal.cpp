@@ -105,20 +105,13 @@ U_CDECL_END
 U_NAMESPACE_BEGIN
 
 // Implementation of the ChineseCalendar class
-
-//-------------------------------------------------------------------------
+//
 // Constructors...
-//-------------------------------------------------------------------------
+//
+ChineseCalendar* ChineseCalendar::clone() const { return new ChineseCalendar(*this); }
 
-ChineseCalendar* ChineseCalendar::clone() const {
-	return new ChineseCalendar(*this);
-}
-
-ChineseCalendar::ChineseCalendar(const Locale & aLocale, UErrorCode & success)
-	:   Calendar(TimeZone::forLocaleOrDefault(aLocale), aLocale, success),
-	isLeapYear(FALSE),
-	fEpochYear(CHINESE_EPOCH_YEAR),
-	fZoneAstroCalc(getChineseCalZoneAstroCalc())
+ChineseCalendar::ChineseCalendar(const Locale & aLocale, UErrorCode & success) : Calendar(TimeZone::forLocaleOrDefault(aLocale), aLocale, success),
+	isLeapYear(FALSE), fEpochYear(CHINESE_EPOCH_YEAR), fZoneAstroCalc(getChineseCalZoneAstroCalc())
 {
 	setTimeInMillis(getNow(), success); // Call this again now that the vtable is set up properly.
 }
@@ -156,11 +149,9 @@ const TimeZone* ChineseCalendar::getChineseCalZoneAstroCalc() const {
 	umtx_initOnce(gChineseCalendarZoneAstroCalcInitOnce, &initChineseCalZoneAstroCalc);
 	return gChineseCalendarZoneAstroCalc;
 }
-
-//-------------------------------------------------------------------------
+//
 // Minimum / Maximum access functions
-//-------------------------------------------------------------------------
-
+//
 static const int32_t LIMITS[UCAL_FIELD_COUNT][4] = {
 	// Minimum  Greatest     Least    Maximum
 	//           Minimum   Maximum
@@ -195,11 +186,9 @@ static const int32_t LIMITS[UCAL_FIELD_COUNT][4] = {
 int32_t ChineseCalendar::handleGetLimit(UCalendarDateFields field, ELimitType limitType) const {
 	return LIMITS[field][limitType];
 }
-
-//----------------------------------------------------------------------
+//
 // Calendar framework
-//----------------------------------------------------------------------
-
+//
 /**
  * Implement abstract Calendar method to return the extended year
  * defined by the current fields.  This will use either the ERA and
@@ -207,7 +196,8 @@ int32_t ChineseCalendar::handleGetLimit(UCalendarDateFields field, ELimitType li
  * field as the continuous year count, depending on which is newer.
  * @stable ICU 2.8
  */
-int32_t ChineseCalendar::handleGetExtendedYear() {
+int32_t ChineseCalendar::handleGetExtendedYear() 
+{
 	int32_t year;
 	if(newestStamp(UCAL_ERA, UCAL_YEAR, kUnset) <= fStamp[UCAL_EXTENDED_YEAR]) {
 		year = internalGet(UCAL_EXTENDED_YEAR, 1); // Default to year 1

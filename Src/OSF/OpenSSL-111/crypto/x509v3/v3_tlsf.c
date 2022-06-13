@@ -55,9 +55,7 @@ static TLS_FEATURE_NAME tls_feature_tbl[] = {
  * used by the CONF library to represent a multi-valued extension.  ext_list is
  * returned.
  */
-static STACK_OF(CONF_VALUE) *i2v_TLS_FEATURE(const X509V3_EXT_METHOD *method,
-    TLS_FEATURE *tls_feature,
-    STACK_OF(CONF_VALUE) *ext_list)
+static STACK_OF(CONF_VALUE) *i2v_TLS_FEATURE(const X509V3_EXT_METHOD *method, TLS_FEATURE *tls_feature, STACK_OF(CONF_VALUE) *ext_list)
 {
 	int i;
 	size_t j;

@@ -143,7 +143,7 @@ BIO * BIO_new_dgram(int fd, int close_flag)
 static int dgram_new(BIO * bi)
 {
 	bio_dgram_data * data = static_cast<bio_dgram_data *>(OPENSSL_zalloc(sizeof(*data)));
-	if(data == NULL)
+	if(!data)
 		return 0;
 	bi->ptr = data;
 	return 1;

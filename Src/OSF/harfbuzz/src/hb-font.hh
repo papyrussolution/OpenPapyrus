@@ -17,7 +17,6 @@
 #define HB_FONT_HH
 
 #include "hb.hh"
-
 #include "hb-face.hh"
 #include "hb-shaper.hh"
 /*
@@ -87,66 +86,35 @@ DECLARE_NULL_INSTANCE(hb_font_funcs_t);
 
 struct hb_font_t {
 	hb_object_header_t header;
-
 	hb_font_t * parent;
 	hb_face_t * face;
-
 	int32_t x_scale;
 	int32_t y_scale;
 	int64_t x_mult;
 	int64_t y_mult;
-
 	uint x_ppem;
 	uint y_ppem;
-
 	float ptem;
-
 	/* Font variation coordinates. */
 	uint num_coords;
 	int * coords;
 	float * design_coords;
-
 	hb_font_funcs_t * klass;
 	void * user_data;
 	hb_destroy_func_t destroy;
-
 	hb_shaper_object_dataset_t<hb_font_t> data; /* Various shaper data. */
-
 	/* Convert from font-space to user-space */
 	int64_t dir_mult(hb_direction_t direction)
 	{
 		return HB_DIRECTION_IS_VERTICAL(direction) ? y_mult : x_mult;
 	}
-
-	hb_position_t em_scale_x(int16_t v) {
-		return em_mult(v, x_mult);
-	}
-
-	hb_position_t em_scale_y(int16_t v) {
-		return em_mult(v, y_mult);
-	}
-
-	hb_position_t em_scalef_x(float v) {
-		return em_scalef(v, x_scale);
-	}
-
-	hb_position_t em_scalef_y(float v) {
-		return em_scalef(v, y_scale);
-	}
-
-	float em_fscale_x(int16_t v) {
-		return em_fscale(v, x_scale);
-	}
-
-	float em_fscale_y(int16_t v) {
-		return em_fscale(v, y_scale);
-	}
-
-	hb_position_t em_scale_dir(int16_t v, hb_direction_t direction)
-	{
-		return em_mult(v, dir_mult(direction));
-	}
-
+	hb_position_t em_scale_x(int16_t v) { return em_mult(v, x_mult); }
+	hb_position_t em_scale_y(int16_t v) { return em_mult(v, y_mult); }
+	hb_position_t em_scalef_x(float v) { return em_scalef(v, x_scale); }
+	hb_position_t em_scalef_y(float v) { return em_scalef(v, y_scale); }
+	float em_fscale_x(int16_t v) { return em_fscale(v, x_scale); }
+	float em_fscale_y(int16_t v) { return em_fscale(v, y_scale); }
+	hb_position_t em_scale_dir(int16_t v, hb_direction_t direction) { return em_mult(v, dir_mult(direction)); }
 	/* Convert from parent-font user-space to our user-space */
 	hb_position_t parent_scale_x_distance(hb_position_t v)
 	{
@@ -154,52 +122,36 @@ struct hb_font_t {
 			return (hb_position_t)(v * (int64_t)this->x_scale / this->parent->x_scale);
 		return v;
 	}
-
 	hb_position_t parent_scale_y_distance(hb_position_t v)
 	{
 		if(UNLIKELY(parent && parent->y_scale != y_scale))
 			return (hb_position_t)(v * (int64_t)this->y_scale / this->parent->y_scale);
 		return v;
 	}
-
-	hb_position_t parent_scale_x_position(hb_position_t v)
-	{
-		return parent_scale_x_distance(v);
-	}
-
-	hb_position_t parent_scale_y_position(hb_position_t v)
-	{
-		return parent_scale_y_distance(v);
-	}
-
+	hb_position_t parent_scale_x_position(hb_position_t v) { return parent_scale_x_distance(v); }
+	hb_position_t parent_scale_y_position(hb_position_t v) { return parent_scale_y_distance(v); }
 	void parent_scale_distance(hb_position_t * x, hb_position_t * y)
 	{
 		* x = parent_scale_x_distance(*x);
 		* y = parent_scale_y_distance(*y);
 	}
-
 	void parent_scale_position(hb_position_t * x, hb_position_t * y)
 	{
 		* x = parent_scale_x_position(*x);
 		* y = parent_scale_y_position(*y);
 	}
-
 	/* Public getters */
-
 	HB_INTERNAL bool has_func(uint i);
 	HB_INTERNAL bool has_func_set(uint i);
-
 	/* has_* ... */
 #define HB_FONT_FUNC_IMPLEMENT(name) \
-	bool \
-	has_ ## name ## _func() \
+	bool has_ ## name ## _func() \
 	{ \
 		hb_font_funcs_t * funcs = this->klass; \
 		uint i = offsetof(hb_font_funcs_t::get_t::get_funcs_t, name) / sizeof(funcs->get.array[0]); \
 		return has_func(i); \
 	} \
-	bool \
-	    has_ ## name ## _func_set() \
+	bool has_ ## name ## _func_set() \
 	{ \
 		hb_font_funcs_t * funcs = this->klass; \
 		uint i = offsetof(hb_font_funcs_t::get_t::get_funcs_t, name) / sizeof(funcs->get.array[0]); \
@@ -207,88 +159,51 @@ struct hb_font_t {
 	}
 	HB_FONT_FUNCS_IMPLEMENT_CALLBACKS
 #undef HB_FONT_FUNC_IMPLEMENT
-
 	hb_bool_t get_font_h_extents(hb_font_extents_t * extents)
 	{
 		memzero(extents, sizeof(*extents));
 		return klass->get.f.font_h_extents(this, user_data, extents, klass->user_data.font_h_extents);
 	}
-
 	hb_bool_t get_font_v_extents(hb_font_extents_t * extents)
 	{
 		memzero(extents, sizeof(*extents));
 		return klass->get.f.font_v_extents(this, user_data, extents, klass->user_data.font_v_extents);
 	}
-
 	bool has_glyph(hb_codepoint_t unicode)
 	{
 		hb_codepoint_t glyph;
 		return get_nominal_glyph(unicode, &glyph);
 	}
-
-	hb_bool_t get_nominal_glyph(hb_codepoint_t unicode,
-	    hb_codepoint_t * glyph)
+	hb_bool_t get_nominal_glyph(hb_codepoint_t unicode, hb_codepoint_t * glyph)
 	{
 		* glyph = 0;
-		return klass->get.f.nominal_glyph(this, user_data,
-			   unicode, glyph,
-			   klass->user_data.nominal_glyph);
+		return klass->get.f.nominal_glyph(this, user_data, unicode, glyph, klass->user_data.nominal_glyph);
 	}
-
-	uint get_nominal_glyphs(uint count,
-	    const hb_codepoint_t * first_unicode,
-	    uint unicode_stride,
-	    hb_codepoint_t * first_glyph,
-	    uint glyph_stride)
+	uint get_nominal_glyphs(uint count, const hb_codepoint_t * first_unicode, uint unicode_stride, hb_codepoint_t * first_glyph, uint glyph_stride)
 	{
-		return klass->get.f.nominal_glyphs(this, user_data,
-			   count,
-			   first_unicode, unicode_stride,
-			   first_glyph, glyph_stride,
-			   klass->user_data.nominal_glyphs);
+		return klass->get.f.nominal_glyphs(this, user_data, count, first_unicode, unicode_stride, first_glyph, glyph_stride, klass->user_data.nominal_glyphs);
 	}
-
-	hb_bool_t get_variation_glyph(hb_codepoint_t unicode, hb_codepoint_t variation_selector,
-	    hb_codepoint_t * glyph)
+	hb_bool_t get_variation_glyph(hb_codepoint_t unicode, hb_codepoint_t variation_selector, hb_codepoint_t * glyph)
 	{
 		* glyph = 0;
-		return klass->get.f.variation_glyph(this, user_data,
-			   unicode, variation_selector, glyph,
-			   klass->user_data.variation_glyph);
+		return klass->get.f.variation_glyph(this, user_data, unicode, variation_selector, glyph, klass->user_data.variation_glyph);
 	}
-
 	hb_position_t get_glyph_h_advance(hb_codepoint_t glyph)
 	{
-		return klass->get.f.glyph_h_advance(this, user_data,
-			   glyph,
-			   klass->user_data.glyph_h_advance);
+		return klass->get.f.glyph_h_advance(this, user_data, glyph, klass->user_data.glyph_h_advance);
 	}
-
 	hb_position_t get_glyph_v_advance(hb_codepoint_t glyph)
 	{
-		return klass->get.f.glyph_v_advance(this, user_data,
-			   glyph,
-			   klass->user_data.glyph_v_advance);
+		return klass->get.f.glyph_v_advance(this, user_data, glyph, klass->user_data.glyph_v_advance);
 	}
-
-	void get_glyph_h_advances(uint count,
-	    const hb_codepoint_t * first_glyph,
-	    uint glyph_stride,
-	    hb_position_t * first_advance,
-	    uint advance_stride)
+	void get_glyph_h_advances(uint count, const hb_codepoint_t * first_glyph, uint glyph_stride, hb_position_t * first_advance, uint advance_stride)
 	{
-		return klass->get.f.glyph_h_advances(this, user_data,
-			   count,
-			   first_glyph, glyph_stride,
-			   first_advance, advance_stride,
-			   klass->user_data.glyph_h_advances);
+		return klass->get.f.glyph_h_advances(this, user_data, count, first_glyph, glyph_stride, first_advance, advance_stride, klass->user_data.glyph_h_advances);
 	}
-
 	void get_glyph_v_advances(uint count, const hb_codepoint_t * first_glyph, uint glyph_stride, hb_position_t * first_advance, uint advance_stride)
 	{
 		return klass->get.f.glyph_v_advances(this, user_data, count, first_glyph, glyph_stride, first_advance, advance_stride, klass->user_data.glyph_v_advances);
 	}
-
 	hb_bool_t get_glyph_h_origin(hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y)
 	{
 		* x = *y = 0;
@@ -334,19 +249,13 @@ struct hb_font_t {
 		if(size) *name = '\0';
 		return klass->get.f.glyph_name(this, user_data, glyph, name, size, klass->user_data.glyph_name);
 	}
-	hb_bool_t get_glyph_from_name(const char * name, int len, /* -1 means nul-terminated */
-	    hb_codepoint_t * glyph)
+	hb_bool_t get_glyph_from_name(const char * name, int len, /* -1 means nul-terminated */ hb_codepoint_t * glyph)
 	{
 		* glyph = 0;
 		if(len == -1) len = strlen(name);
-		return klass->get.f.glyph_from_name(this, user_data,
-			   name, len,
-			   glyph,
-			   klass->user_data.glyph_from_name);
+		return klass->get.f.glyph_from_name(this, user_data, name, len, glyph, klass->user_data.glyph_from_name);
 	}
-
 	/* A bit higher-level, and with fallback */
-
 	void get_h_extents_with_fallback(hb_font_extents_t * extents)
 	{
 		if(!get_font_h_extents(extents)) {
@@ -355,7 +264,6 @@ struct hb_font_t {
 			extents->line_gap = 0;
 		}
 	}
-
 	void get_v_extents_with_fallback(hb_font_extents_t * extents)
 	{
 		if(!get_font_v_extents(extents)) {
@@ -364,7 +272,6 @@ struct hb_font_t {
 			extents->line_gap = 0;
 		}
 	}
-
 	void get_extents_for_direction(hb_direction_t direction, hb_font_extents_t * extents)
 	{
 		if(LIKELY(HB_DIRECTION_IS_HORIZONTAL(direction)))
@@ -372,7 +279,6 @@ struct hb_font_t {
 		else
 			get_v_extents_with_fallback(extents);
 	}
-
 	void get_glyph_advance_for_direction(hb_codepoint_t glyph, hb_direction_t direction, hb_position_t * x, hb_position_t * y)
 	{
 		*x = *y = 0;
@@ -381,7 +287,6 @@ struct hb_font_t {
 		else
 			*y = get_glyph_v_advance(glyph);
 	}
-
 	void get_glyph_advances_for_direction(hb_direction_t direction, uint count, const hb_codepoint_t * first_glyph,
 	    uint glyph_stride, hb_position_t * first_advance, uint advance_stride)
 	{
@@ -390,7 +295,6 @@ struct hb_font_t {
 		else
 			get_glyph_v_advances(count, first_glyph, glyph_stride, first_advance, advance_stride);
 	}
-
 	void guess_v_origin_minus_h_origin(hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y)
 	{
 		*x = get_glyph_h_advance(glyph) / 2;
@@ -399,7 +303,6 @@ struct hb_font_t {
 		get_h_extents_with_fallback(&extents);
 		*y = extents.ascender;
 	}
-
 	void get_glyph_h_origin_with_fallback(hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y)
 	{
 		if(!get_glyph_h_origin(glyph, x, y) && get_glyph_v_origin(glyph, x, y)) {
@@ -408,7 +311,6 @@ struct hb_font_t {
 			* x -= dx; * y -= dy;
 		}
 	}
-
 	void get_glyph_v_origin_with_fallback(hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y)
 	{
 		if(!get_glyph_v_origin(glyph, x, y) && get_glyph_h_origin(glyph, x, y)) {
@@ -417,7 +319,6 @@ struct hb_font_t {
 			* x += dx; * y += dy;
 		}
 	}
-
 	void get_glyph_origin_for_direction(hb_codepoint_t glyph, hb_direction_t direction, hb_position_t * x, hb_position_t * y)
 	{
 		if(LIKELY(HB_DIRECTION_IS_HORIZONTAL(direction)))
@@ -425,7 +326,6 @@ struct hb_font_t {
 		else
 			get_glyph_v_origin_with_fallback(glyph, x, y);
 	}
-
 	void add_glyph_h_origin(hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y)
 	{
 		hb_position_t origin_x, origin_y;
@@ -433,7 +333,6 @@ struct hb_font_t {
 		* x += origin_x;
 		* y += origin_y;
 	}
-
 	void add_glyph_v_origin(hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y)
 	{
 		hb_position_t origin_x, origin_y;
@@ -441,7 +340,6 @@ struct hb_font_t {
 		* x += origin_x;
 		* y += origin_y;
 	}
-
 	void add_glyph_origin_for_direction(hb_codepoint_t glyph, hb_direction_t direction, hb_position_t * x, hb_position_t * y)
 	{
 		hb_position_t origin_x, origin_y;
@@ -449,42 +347,28 @@ struct hb_font_t {
 		* x += origin_x;
 		* y += origin_y;
 	}
-
 	void subtract_glyph_h_origin(hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y)
 	{
 		hb_position_t origin_x, origin_y;
 		get_glyph_h_origin_with_fallback(glyph, &origin_x, &origin_y);
-
 		* x -= origin_x;
 		* y -= origin_y;
 	}
-
-	void subtract_glyph_v_origin(hb_codepoint_t glyph,
-	    hb_position_t * x, hb_position_t * y)
+	void subtract_glyph_v_origin(hb_codepoint_t glyph, hb_position_t * x, hb_position_t * y)
 	{
 		hb_position_t origin_x, origin_y;
-
 		get_glyph_v_origin_with_fallback(glyph, &origin_x, &origin_y);
-
 		* x -= origin_x;
 		* y -= origin_y;
 	}
-
-	void subtract_glyph_origin_for_direction(hb_codepoint_t glyph,
-	    hb_direction_t direction,
-	    hb_position_t * x, hb_position_t * y)
+	void subtract_glyph_origin_for_direction(hb_codepoint_t glyph, hb_direction_t direction, hb_position_t * x, hb_position_t * y)
 	{
 		hb_position_t origin_x, origin_y;
-
 		get_glyph_origin_for_direction(glyph, direction, &origin_x, &origin_y);
-
 		* x -= origin_x;
 		* y -= origin_y;
 	}
-
-	void get_glyph_kerning_for_direction(hb_codepoint_t first_glyph, hb_codepoint_t second_glyph,
-	    hb_direction_t direction,
-	    hb_position_t * x, hb_position_t * y)
+	void get_glyph_kerning_for_direction(hb_codepoint_t first_glyph, hb_codepoint_t second_glyph, hb_direction_t direction, hb_position_t * x, hb_position_t * y)
 	{
 		if(LIKELY(HB_DIRECTION_IS_HORIZONTAL(direction))) {
 			* y = 0;
@@ -495,43 +379,33 @@ struct hb_font_t {
 			* y = get_glyph_v_kerning(first_glyph, second_glyph);
 		}
 	}
-
-	hb_bool_t get_glyph_extents_for_origin(hb_codepoint_t glyph,
-	    hb_direction_t direction,
-	    hb_glyph_extents_t * extents)
+	hb_bool_t get_glyph_extents_for_origin(hb_codepoint_t glyph, hb_direction_t direction, hb_glyph_extents_t * extents)
 	{
 		hb_bool_t ret = get_glyph_extents(glyph, extents);
-
 		if(ret)
 			subtract_glyph_origin_for_direction(glyph, direction, &extents->x_bearing, &extents->y_bearing);
-
 		return ret;
 	}
-
-	hb_bool_t get_glyph_contour_point_for_origin(hb_codepoint_t glyph, uint point_index,
-	    hb_direction_t direction,
-	    hb_position_t * x, hb_position_t * y)
+	hb_bool_t get_glyph_contour_point_for_origin(hb_codepoint_t glyph, uint point_index, hb_direction_t direction, hb_position_t * x, hb_position_t * y)
 	{
 		hb_bool_t ret = get_glyph_contour_point(glyph, point_index, x, y);
-
 		if(ret)
 			subtract_glyph_origin_for_direction(glyph, direction, x, y);
-
 		return ret;
 	}
 	/* Generates gidDDD if glyph has no name. */
 	void glyph_to_string(hb_codepoint_t glyph, char * s, uint size)
 	{
-		if(get_glyph_name(glyph, s, size)) return;
+		if(get_glyph_name(glyph, s, size)) 
+			return;
 		if(size && snprintf(s, size, "gid%u", glyph) < 0)
 			*s = '\0';
 	}
 	/* Parses gidDDD and uniUUUU strings automatically. */
-	hb_bool_t glyph_from_string(const char * s, int len, /* -1 means nul-terminated */
-	    hb_codepoint_t * glyph)
+	hb_bool_t glyph_from_string(const char * s, int len, /* -1 means nul-terminated */ hb_codepoint_t * glyph)
 	{
-		if(get_glyph_from_name(s, len, glyph)) return true;
-
+		if(get_glyph_from_name(s, len, glyph)) 
+			return true;
 		if(len == -1) len = strlen(s);
 		/* Straight glyph index. */
 		if(hb_codepoint_parse(s, len, 10, glyph))

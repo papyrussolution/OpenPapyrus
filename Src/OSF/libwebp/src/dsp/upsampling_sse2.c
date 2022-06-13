@@ -185,10 +185,9 @@ SSE2_UPSAMPLE_FUNC(UpsampleRgb565LinePair_SSE2, VP8YuvToRgb565, 2)
 #undef CONVERT2RGB
 #undef CONVERT2RGB_32
 #undef SSE2_UPSAMPLE_FUNC
-
-//------------------------------------------------------------------------------
+//
 // Entry point
-
+//
 extern WebPUpsampleLinePairFunc WebPUpsamplers[] /* MODE_LAST */;
 
 extern void WebPInitUpsamplersSSE2(void);
@@ -210,8 +209,6 @@ WEBP_TSAN_IGNORE_FUNCTION void WebPInitUpsamplersSSE2(void) {
 }
 
 #endif  // FANCY_UPSAMPLING
-
-//------------------------------------------------------------------------------
 
 extern WebPYUV444Converter WebPYUV444Converters[] /* MODE_LAST */;
 extern void WebPInitYUV444ConvertersSSE2(void);

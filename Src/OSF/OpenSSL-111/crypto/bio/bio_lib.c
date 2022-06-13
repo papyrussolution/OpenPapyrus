@@ -269,7 +269,7 @@ int BIO_read_ex(BIO * b, void * data, size_t dlen, size_t * readbytes)
 static int bio_write_intern(BIO * b, const void * data, size_t dlen, size_t * written)
 {
 	int ret;
-	if(b == NULL)
+	if(!b)
 		return 0;
 	if((b->method == NULL) || (b->method->bwrite == NULL)) {
 		BIOerr(BIO_F_BIO_WRITE_INTERN, BIO_R_UNSUPPORTED_METHOD);
@@ -433,7 +433,7 @@ void * BIO_ptr_ctrl(BIO * b, int cmd, long larg)
 long FASTCALL BIO_ctrl(BIO * b, int cmd, long larg, void * parg)
 {
 	long ret;
-	if(b == NULL)
+	if(!b)
 		return 0;
 	if((b->method == NULL) || (b->method->ctrl == NULL)) {
 		BIOerr(BIO_F_BIO_CTRL, BIO_R_UNSUPPORTED_METHOD);
@@ -455,7 +455,7 @@ long FASTCALL BIO_ctrl(BIO * b, int cmd, long larg, void * parg)
 long BIO_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 {
 	long ret;
-	if(b == NULL)
+	if(!b)
 		return 0;
 	if((b->method == NULL) || (b->method->callback_ctrl == NULL) || (cmd != BIO_CTRL_SET_CALLBACK)) {
 		BIOerr(BIO_F_BIO_CALLBACK_CTRL, BIO_R_UNSUPPORTED_METHOD);
@@ -489,7 +489,7 @@ size_t BIO_ctrl_wpending(BIO * bio)
 BIO * BIO_push(BIO * b, BIO * bio)
 {
 	BIO * lb;
-	if(b == NULL)
+	if(!b)
 		return bio;
 	lb = b;
 	while(lb->next_bio != NULL)
@@ -507,7 +507,7 @@ BIO * BIO_pop(BIO * b)
 {
 	BIO * ret;
 
-	if(b == NULL)
+	if(!b)
 		return NULL;
 	ret = b->next_bio;
 
@@ -533,7 +533,7 @@ BIO * BIO_get_retry_BIO(BIO * bio, int * reason)
 			break;
 		last = b;
 		b = b->next_bio;
-		if(b == NULL)
+		if(!b)
 			break;
 	}
 	if(reason != NULL)
@@ -576,7 +576,7 @@ BIO * BIO_find_type(BIO * bio, int type)
 
 BIO * BIO_next(BIO * b)
 {
-	if(b == NULL)
+	if(!b)
 		return NULL;
 	return b->next_bio;
 }

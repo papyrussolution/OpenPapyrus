@@ -756,6 +756,11 @@
   <ItemGroup>
     <ClInclude Include="..\Include\stdsoap2.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="libarchive-350.vcxproj">
+      <Project>{3e6b3daf-e5ed-446d-9313-feda5391ab9f}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

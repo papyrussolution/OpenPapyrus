@@ -14,15 +14,11 @@
  #ifndef ZSTD_DECOMPRESS_INTERNAL_H
  #define ZSTD_DECOMPRESS_INTERNAL_H
 
-/*-*******************************************************
-*  Dependencies
-*********************************************************/
 #include <zstd_mem.h> // BYTE, uint16, uint32
 #include <zstd_internal.h>   /* constants : MaxLL, MaxML, MaxOff, LLFSELog, etc. */
-
-/*-*******************************************************
-*  Constants
-*********************************************************/
+//
+// Constants
+//
 static UNUSED_ATTR const uint32 LL_base[MaxLL+1] = {
 	0,    1,    2,     3,     4,     5,     6,      7,
 	8,    9,   10,    11,    12,    13,    14,     15,
@@ -54,10 +50,9 @@ static UNUSED_ATTR const uint32 ML_base[MaxML+1] = {
 	67, 83, 99, 0x83, 0x103, 0x203, 0x403, 0x803,
 	0x1003, 0x2003, 0x4003, 0x8003, 0x10003
 };
-
-/*-*******************************************************
-*  Decompression types
-*********************************************************/
+//
+// Decompression types
+//
 typedef struct {
 	uint32 fastMode;
 	uint32 tableLog;
@@ -78,10 +73,8 @@ typedef struct {
 
 typedef struct {
 	ZSTD_seqSymbol LLTable[SEQSYMBOL_TABLE_SIZE(LLFSELog)]; /* Note : Space reserved for FSE Tables */
-	ZSTD_seqSymbol OFTable[SEQSYMBOL_TABLE_SIZE(OffFSELog)]; /* is also used as temporary workspace while building
-	                                                            hufTable during DDict creation */
-	ZSTD_seqSymbol MLTable[SEQSYMBOL_TABLE_SIZE(MLFSELog)]; /* and therefore must be at least
-	                                                           HUF_DECOMPRESS_WORKSPACE_SIZE large */
+	ZSTD_seqSymbol OFTable[SEQSYMBOL_TABLE_SIZE(OffFSELog)]; /* is also used as temporary workspace while building hufTable during DDict creation */
+	ZSTD_seqSymbol MLTable[SEQSYMBOL_TABLE_SIZE(MLFSELog)]; /* and therefore must be at least HUF_DECOMPRESS_WORKSPACE_SIZE large */
 	HUF_DTable hufTable[HUF_DTABLE_SIZE(ZSTD_HUFFDTABLE_CAPACITY_LOG)]; /* can accommodate HUF_decompress4X */
 	uint32 rep[ZSTD_REP_NUM];
 	uint32 workspace[ZSTD_BUILD_FSE_TABLE_WKSP_SIZE_U32];

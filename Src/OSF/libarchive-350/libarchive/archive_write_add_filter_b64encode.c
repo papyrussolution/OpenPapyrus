@@ -19,8 +19,8 @@ __FBSDID("$FreeBSD$");
 
 struct private_b64encode {
 	int mode;
-	struct archive_string name;
-	struct archive_string encoded_buff;
+	archive_string name;
+	archive_string encoded_buff;
 	size_t bs;
 	size_t hold_len;
 	uchar hold[LBYTES];
@@ -33,7 +33,7 @@ static int archive_filter_b64encode_write(struct archive_write_filter *,
     const void *, size_t);
 static int archive_filter_b64encode_close(struct archive_write_filter *);
 static int archive_filter_b64encode_free(struct archive_write_filter *);
-static void la_b64_encode(struct archive_string *, const uchar *, size_t);
+static void la_b64_encode(archive_string *, const uchar *, size_t);
 static int64 atol8(const char *, size_t);
 
 static const char base64[] = {
@@ -50,7 +50,7 @@ static const char base64[] = {
 /*
  * Add a compress filter to this write handle.
  */
-int archive_write_add_filter_b64encode(struct archive * _a)
+int archive_write_add_filter_b64encode(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
@@ -128,7 +128,7 @@ static int archive_filter_b64encode_open(struct archive_write_filter * f)
 	return 0;
 }
 
-static void la_b64_encode(struct archive_string * as, const uchar * p, size_t len)
+static void la_b64_encode(archive_string * as, const uchar * p, size_t len)
 {
 	int c;
 

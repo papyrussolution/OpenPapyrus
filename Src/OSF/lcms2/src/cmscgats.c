@@ -868,7 +868,7 @@ void CMSEXPORT cmsIT8Free(cmsHANDLE hIT8)
 	if(it8->MemorySink) {
 		OWNEDMEM* p;
 		OWNEDMEM* n;
-		for(p = it8->MemorySink; p != NULL; p = n) {
+		for(p = it8->MemorySink; p; p = n) {
 			n = p->Next;
 			if(p->Ptr) 
 				_cmsFree(it8->ContextID, p->Ptr);
@@ -933,7 +933,7 @@ static char * AllocString(cmsIT8* it8, const char * str)
 static boolint IsAvailableOnList(KEYVALUE* p, const char * Key, const char * Subkey, KEYVALUE** LastPtr)
 {
 	ASSIGN_PTR(LastPtr, p);
-	for(; p != NULL; p = p->Next) {
+	for(; p; p = p->Next) {
 		ASSIGN_PTR(LastPtr, p);
 		if(*Key != '#') { // Comments are ignored
 			if(cmsstrcasecmp(Key, p->Keyword) == 0)
@@ -944,7 +944,7 @@ static boolint IsAvailableOnList(KEYVALUE* p, const char * Key, const char * Sub
 		return FALSE;
 	if(Subkey == 0)
 		return TRUE;
-	for(; p != NULL; p = p->NextSubkey) {
+	for(; p; p = p->NextSubkey) {
 		if(p->Subkey == NULL) 
 			continue;
 		ASSIGN_PTR(LastPtr, p);
@@ -981,12 +981,12 @@ static KEYVALUE * STDCALL AddToList(cmsIT8* it8, KEYVALUE** Head, const char * K
 			*Head = p;
 		}
 		else {
-			if(Subkey != NULL && last != NULL) {
+			if(Subkey && last) {
 				last->NextSubkey = p;
 				// If Subkey is not null, then last is the last property with the same key,
 				// but not necessarily is the last property in the list, so we need to move
 				// to the actual list end
-				while(last->Next != NULL)
+				while(last->Next)
 					last = last->Next;
 			}
 			if(last)
@@ -1296,7 +1296,7 @@ static void WriteHeader(cmsIT8* it8, SAVESTREAM* fp)
 	// Writes the type
 	WriteStr(fp, t->SheetType);
 	WriteStr(fp, "\n");
-	for(p = t->HeaderList; (p != NULL); p = p->Next) {
+	for(p = t->HeaderList; p; p = p->Next) {
 		if(*p->Keyword == '#') {
 			char * Pt;
 			WriteStr(fp, "#\n# ");
@@ -1583,9 +1583,8 @@ static boolint HeaderSection(cmsIT8* it8)
 					    return SynError(it8, "Invalid value '%s' for property '%s'.", Buffer, VarName);
 
 				    // chop the string as a list of "subkey, value" pairs, using ';' as a separator
-				    for(Subkey = Buffer; Subkey != NULL; Subkey = Nextkey) {
+				    for(Subkey = Buffer; Subkey; Subkey = Nextkey) {
 					    char * Value, * temp;
-
 					    //  identify token pair boundary
 					    Nextkey = (char *)strchr(Subkey, ';');
 					    if(Nextkey)
@@ -1933,26 +1932,19 @@ uint32 CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** PropertyNames)
 	uint32 n;
 	char ** Props;
 	TABLE* t;
-
 	assert(hIT8);
-
 	t = GetTable(it8);
-
 	// Pass#1 - count properties
-
 	n = 0;
-	for(p = t->HeaderList; p != NULL; p = p->Next) {
+	for(p = t->HeaderList; p; p = p->Next) {
 		n++;
 	}
-
 	Props = (char **)AllocChunk(it8, sizeof(char *) * n);
-
 	// Pass#2 - Fill pointers
 	n = 0;
 	for(p = t->HeaderList; p != NULL; p = p->Next) {
 		Props[n++] = p->Keyword;
 	}
-
 	*PropertyNames = Props;
 	return n;
 }
@@ -1972,17 +1964,15 @@ uint32 CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char * cProp, con
 	}
 	// Pass#1 - count properties
 	n = 0;
-	for(tmp = p; tmp != NULL; tmp = tmp->NextSubkey) {
-		if(tmp->Subkey != NULL)
+	for(tmp = p; tmp; tmp = tmp->NextSubkey) {
+		if(tmp->Subkey)
 			n++;
 	}
-
 	Props = (const char **)AllocChunk(it8, sizeof(char *) * n);
-
 	// Pass#2 - Fill pointers
 	n = 0;
-	for(tmp = p; tmp != NULL; tmp = tmp->NextSubkey) {
-		if(tmp->Subkey != NULL)
+	for(tmp = p; tmp; tmp = tmp->NextSubkey) {
+		if(tmp->Subkey)
 			Props[n++] = p->Subkey;
 	}
 
@@ -2014,14 +2004,11 @@ static int LocateEmptyPatch(cmsIT8* it8)
 	int i;
 	const char * data;
 	TABLE* t = GetTable(it8);
-
 	for(i = 0; i < t->nPatches; i++) {
 		data = GetData(it8, i, t->SampleID);
-
-		if(data == NULL)
+		if(!data)
 			return i;
 	}
-
 	return -1;
 }
 
@@ -2030,15 +2017,13 @@ static int LocateSample(cmsIT8* it8, const char * cSample)
 	int i;
 	const char * fld;
 	TABLE* t = GetTable(it8);
-
 	for(i = 0; i < t->nSamples; i++) {
 		fld = GetDataFormat(it8, i);
-		if(fld != NULL) {
+		if(fld) {
 			if(cmsstrcasecmp(fld, cSample) == 0)
 				return i;
 		}
 	}
-
 	return -1;
 }
 
@@ -2201,7 +2186,7 @@ int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char * cSet, const cha
 	char Type[256], Label[256];
 	uint32 nTable;
 	assert(hIT8);
-	if(cField != NULL && *cField == 0)
+	if(cField && *cField == 0)
 		cField = "LABEL";
 	if(cField == NULL)
 		cField = "LABEL";
@@ -2209,7 +2194,7 @@ int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char * cSet, const cha
 	if(!cLabelFld) return -1;
 	if(sscanf(cLabelFld, "%255s %u %255s", Label, &nTable, Type) != 3)
 		return -1;
-	if(ExpectedType != NULL && *ExpectedType == 0)
+	if(ExpectedType && *ExpectedType == 0)
 		ExpectedType = NULL;
 	if(ExpectedType) {
 		if(cmsstrcasecmp(Type, ExpectedType) != 0) return -1;

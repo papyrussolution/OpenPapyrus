@@ -86,7 +86,7 @@ static int buffer_read(BIO * b, char * out, int outl)
 {
 	int i, num = 0;
 	BIO_F_BUFFER_CTX * ctx;
-	if(out == NULL)
+	if(!out)
 		return 0;
 	ctx = (BIO_F_BUFFER_CTX*)b->ptr;
 	if((ctx == NULL) || (b->next_bio == NULL))

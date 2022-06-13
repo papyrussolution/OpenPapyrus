@@ -4313,14 +4313,11 @@ SOAP_FMAC1 SOAP_SOCKET SOAP_FMAC2 soap_accept(struct soap * soap)
 	for(;; ) {
 		if(soap->accept_timeout || soap->send_timeout || soap->recv_timeout) {
 			for(;; ) {
-				int r;
-				r = tcp_select(soap, soap->master, SOAP_TCP_SELECT_ALL,
-					    soap->accept_timeout ? soap->accept_timeout : 60);
+				int r = tcp_select(soap, soap->master, SOAP_TCP_SELECT_ALL, soap->accept_timeout ? soap->accept_timeout : 60);
 				if(r > 0)
 					break;
 				if(!r && soap->accept_timeout) {
-					soap_set_receiver_error(soap, "Timeout", "accept failed in soap_accept()",
-						    SOAP_TCP_ERROR);
+					soap_set_receiver_error(soap, "Timeout", "accept failed in soap_accept()", SOAP_TCP_ERROR);
 					return SOAP_INVALID_SOCKET;
 				}
 				if(r < 0) {

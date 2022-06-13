@@ -455,7 +455,7 @@ static ngx_http_v2_out_frame_t * ngx_http_v2_create_trailers_frame(ngx_http_requ
 			tmp_len = header[i].value.len;
 		}
 	}
-	if(len == 0) {
+	if(!len) {
 		return NGX_HTTP_V2_NO_TRAILERS;
 	}
 	tmp = (u_char *)ngx_palloc(r->pool, tmp_len);

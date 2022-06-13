@@ -148,42 +148,42 @@ struct links_entry {
 #define CPIO_MAGIC   0x13141516
 struct cpio {
 	int magic;
-	int (* read_header)(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
+	int (* read_header)(ArchiveRead *, struct cpio *, ArchiveEntry *, size_t *, size_t *);
 	struct links_entry * links_head;
 	int64 entry_bytes_remaining;
 	int64 entry_bytes_unconsumed;
 	int64 entry_offset;
 	int64 entry_padding;
 
-	struct archive_string_conv * opt_sconv;
-	struct archive_string_conv * sconv_default;
+	archive_string_conv * opt_sconv;
+	archive_string_conv * sconv_default;
 	int init_default_conversion;
 };
 
 static int64  atol16(const char *, unsigned);
 static int64  atol8(const char *, unsigned);
-static int archive_read_format_cpio_bid(struct archive_read *, int);
-static int archive_read_format_cpio_options(struct archive_read *, const char *, const char *);
-static int archive_read_format_cpio_cleanup(struct archive_read *);
-static int archive_read_format_cpio_read_data(struct archive_read *, const void **, size_t *, int64 *);
-static int archive_read_format_cpio_read_header(struct archive_read *, struct archive_entry *);
-static int archive_read_format_cpio_skip(struct archive_read *);
+static int archive_read_format_cpio_bid(ArchiveRead *, int);
+static int archive_read_format_cpio_options(ArchiveRead *, const char *, const char *);
+static int archive_read_format_cpio_cleanup(ArchiveRead *);
+static int archive_read_format_cpio_read_data(ArchiveRead *, const void **, size_t *, int64 *);
+static int archive_read_format_cpio_read_header(ArchiveRead *, ArchiveEntry *);
+static int archive_read_format_cpio_skip(ArchiveRead *);
 static int64  be4(const uchar *);
-static int find_odc_header(struct archive_read *);
-static int find_newc_header(struct archive_read *);
-static int header_bin_be(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
-static int header_bin_le(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
-static int header_newc(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
-static int header_odc(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
-static int header_afiol(struct archive_read *, struct cpio *, struct archive_entry *, size_t *, size_t *);
+static int find_odc_header(ArchiveRead *);
+static int find_newc_header(ArchiveRead *);
+static int header_bin_be(ArchiveRead *, struct cpio *, ArchiveEntry *, size_t *, size_t *);
+static int header_bin_le(ArchiveRead *, struct cpio *, ArchiveEntry *, size_t *, size_t *);
+static int header_newc(ArchiveRead *, struct cpio *, ArchiveEntry *, size_t *, size_t *);
+static int header_odc(ArchiveRead *, struct cpio *, ArchiveEntry *, size_t *, size_t *);
+static int header_afiol(ArchiveRead *, struct cpio *, ArchiveEntry *, size_t *, size_t *);
 static int is_octal(const char *, size_t);
 static int is_hex(const char *, size_t);
 static int64  le4(const uchar *);
-static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct archive_entry * entry);
+static int record_hardlink(ArchiveRead * a, struct cpio * cpio, ArchiveEntry * entry);
 
-int archive_read_support_format_cpio(struct archive * _a)
+int archive_read_support_format_cpio(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	struct cpio * cpio;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -201,7 +201,7 @@ int archive_read_support_format_cpio(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_cpio_bid(struct archive_read * a, int best_bid)
+static int archive_read_format_cpio_bid(ArchiveRead * a, int best_bid)
 {
 	const uchar * p;
 	struct cpio * cpio;
@@ -265,7 +265,7 @@ static int archive_read_format_cpio_bid(struct archive_read * a, int best_bid)
 	return (bid);
 }
 
-static int archive_read_format_cpio_options(struct archive_read * a, const char * key, const char * val)
+static int archive_read_format_cpio_options(ArchiveRead * a, const char * key, const char * val)
 {
 	int ret = ARCHIVE_FAILED;
 	struct cpio * cpio = (struct cpio *)(a->format->data);
@@ -275,7 +275,7 @@ static int archive_read_format_cpio_options(struct archive_read * a, const char 
 		return ARCHIVE_OK;
 	}
 	else if(sstreq(key, "hdrcharset")) {
-		if(val == NULL || val[0] == 0)
+		if(isempty(val))
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "cpio: hdrcharset option needs a character-set name");
 		else {
 			cpio->opt_sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
@@ -292,14 +292,14 @@ static int archive_read_format_cpio_options(struct archive_read * a, const char 
 	return ARCHIVE_WARN;
 }
 
-static int archive_read_format_cpio_read_header(struct archive_read * a, struct archive_entry * entry)
+static int archive_read_format_cpio_read_header(ArchiveRead * a, ArchiveEntry * entry)
 {
 	const void * h, * hl;
 	size_t namelength;
 	size_t name_pad;
 	int r;
 	struct cpio * cpio = (struct cpio *)(a->format->data);
-	struct archive_string_conv * sconv = cpio->opt_sconv;
+	archive_string_conv * sconv = cpio->opt_sconv;
 	if(sconv == NULL) {
 		if(!cpio->init_default_conversion) {
 			cpio->sconv_default = archive_string_default_conversion_for_read(&(a->archive));
@@ -361,7 +361,7 @@ static int archive_read_format_cpio_read_header(struct archive_read * a, struct 
 	return r;
 }
 
-static int archive_read_format_cpio_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
+static int archive_read_format_cpio_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	ssize_t bytes_read;
 	struct cpio * cpio = (struct cpio *)(a->format->data);
@@ -394,7 +394,7 @@ static int archive_read_format_cpio_read_data(struct archive_read * a, const voi
 	}
 }
 
-static int archive_read_format_cpio_skip(struct archive_read * a)
+static int archive_read_format_cpio_skip(ArchiveRead * a)
 {
 	struct cpio * cpio = (struct cpio *)(a->format->data);
 	int64 to_skip = cpio->entry_bytes_remaining + cpio->entry_padding + cpio->entry_bytes_unconsumed;
@@ -422,7 +422,7 @@ static int is_hex(const char * p, size_t len)
 	return 1;
 }
 
-static int find_newc_header(struct archive_read * a)
+static int find_newc_header(ArchiveRead * a)
 {
 	const void * h;
 	const char * p, * q;
@@ -471,7 +471,7 @@ static int find_newc_header(struct archive_read * a)
 	}
 }
 
-static int header_newc(struct archive_read * a, struct cpio * cpio, struct archive_entry * entry, size_t * namelength, size_t * name_pad)
+static int header_newc(ArchiveRead * a, struct cpio * cpio, ArchiveEntry * entry, size_t * namelength, size_t * name_pad)
 {
 	const void * h;
 	const char * header;
@@ -563,7 +563,7 @@ static int is_afio_large(const char * h, size_t len)
 	return 1;
 }
 
-static int find_odc_header(struct archive_read * a)
+static int find_odc_header(ArchiveRead * a)
 {
 	const void * h;
 	const char * p, * q;
@@ -617,8 +617,8 @@ static int find_odc_header(struct archive_read * a)
 	}
 }
 
-static int header_odc(struct archive_read * a, struct cpio * cpio,
-    struct archive_entry * entry, size_t * namelength, size_t * name_pad)
+static int header_odc(ArchiveRead * a, struct cpio * cpio,
+    ArchiveEntry * entry, size_t * namelength, size_t * name_pad)
 {
 	const void * h;
 	int r;
@@ -683,8 +683,8 @@ static int header_odc(struct archive_read * a, struct cpio * cpio,
  * to get a uncompressed file size while reading each header. It means
  * we also cannot uncompress file contents under our framework.
  */
-static int header_afiol(struct archive_read * a, struct cpio * cpio,
-    struct archive_entry * entry, size_t * namelength, size_t * name_pad)
+static int header_afiol(ArchiveRead * a, struct cpio * cpio,
+    ArchiveEntry * entry, size_t * namelength, size_t * name_pad)
 {
 	const void * h;
 	const char * header;
@@ -723,7 +723,7 @@ static int header_afiol(struct archive_read * a, struct cpio * cpio,
 	return ARCHIVE_OK;
 }
 
-static int header_bin_le(struct archive_read * a, struct cpio * cpio, struct archive_entry * entry, size_t * namelength, size_t * name_pad)
+static int header_bin_le(ArchiveRead * a, struct cpio * cpio, ArchiveEntry * entry, size_t * namelength, size_t * name_pad)
 {
 	const void * h;
 	const uchar * header;
@@ -755,8 +755,8 @@ static int header_bin_le(struct archive_read * a, struct cpio * cpio, struct arc
 	return ARCHIVE_OK;
 }
 
-static int header_bin_be(struct archive_read * a, struct cpio * cpio,
-    struct archive_entry * entry, size_t * namelength, size_t * name_pad)
+static int header_bin_be(ArchiveRead * a, struct cpio * cpio,
+    ArchiveEntry * entry, size_t * namelength, size_t * name_pad)
 {
 	const void * h;
 	const uchar * header;
@@ -788,7 +788,7 @@ static int header_bin_be(struct archive_read * a, struct cpio * cpio,
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_cpio_cleanup(struct archive_read * a)
+static int archive_read_format_cpio_cleanup(ArchiveRead * a)
 {
 	struct cpio * cpio;
 
@@ -857,7 +857,7 @@ static int64 atol16(const char * p, uint char_cnt)
 	return (l);
 }
 
-static int record_hardlink(struct archive_read * a, struct cpio * cpio, struct archive_entry * entry)
+static int record_hardlink(ArchiveRead * a, struct cpio * cpio, ArchiveEntry * entry)
 {
 	struct links_entry * le;
 	dev_t dev;

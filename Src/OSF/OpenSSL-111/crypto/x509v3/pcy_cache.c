@@ -40,7 +40,7 @@ static int policy_cache_create(X509 * x,
 	for(i = 0; i < num; i++) {
 		policy = sk_POLICYINFO_value(policies, i);
 		data = policy_data_new(policy, NULL, crit);
-		if(data == NULL) {
+		if(!data) {
 			X509V3err(X509V3_F_POLICY_CACHE_CREATE, ERR_R_MALLOC_FAILURE);
 			goto just_cleanup;
 		}

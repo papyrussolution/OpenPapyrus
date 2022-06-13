@@ -16,14 +16,14 @@
 __FBSDID("$FreeBSD$");
 #include "archive_read_private.h"
 
-static void add_passphrase_to_tail(struct archive_read * a, struct archive_read_passphrase * p)
+static void add_passphrase_to_tail(ArchiveRead * a, struct archive_read_passphrase * p)
 {
 	*a->passphrases.last = p;
 	a->passphrases.last = &p->next;
 	p->next = NULL;
 }
 
-static struct archive_read_passphrase * remove_passphrases_from_head(struct archive_read * a) 
+static struct archive_read_passphrase * remove_passphrases_from_head(ArchiveRead * a) 
 {
 	struct archive_read_passphrase * p;
 	p = a->passphrases.first;
@@ -32,7 +32,7 @@ static struct archive_read_passphrase * remove_passphrases_from_head(struct arch
 	return (p);
 }
 
-static void insert_passphrase_to_head(struct archive_read * a, struct archive_read_passphrase * p)
+static void insert_passphrase_to_head(ArchiveRead * a, struct archive_read_passphrase * p)
 {
 	p->next = a->passphrases.first;
 	a->passphrases.first = p;
@@ -42,7 +42,7 @@ static void insert_passphrase_to_head(struct archive_read * a, struct archive_re
 	}
 }
 
-static struct archive_read_passphrase * new_read_passphrase(struct archive_read * a, const char * passphrase) 
+static struct archive_read_passphrase * new_read_passphrase(ArchiveRead * a, const char * passphrase) 
 {
 	struct archive_read_passphrase * p = static_cast<struct archive_read_passphrase *>(SAlloc::M(sizeof(*p)));
 	if(!p) {
@@ -58,9 +58,9 @@ static struct archive_read_passphrase * new_read_passphrase(struct archive_read 
 	return (p);
 }
 
-int archive_read_add_passphrase(struct archive * _a, const char * passphrase)
+int archive_read_add_passphrase(Archive * _a, const char * passphrase)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	struct archive_read_passphrase * p;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(isempty(passphrase)) {
@@ -74,9 +74,9 @@ int archive_read_add_passphrase(struct archive * _a, const char * passphrase)
 	return ARCHIVE_OK;
 }
 
-int archive_read_set_passphrase_callback(struct archive * _a, void * client_data, archive_passphrase_callback * cb)
+int archive_read_set_passphrase_callback(Archive * _a, void * client_data, archive_passphrase_callback * cb)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->passphrases.callback = cb;
 	a->passphrases.client_data = client_data;
@@ -86,7 +86,7 @@ int archive_read_set_passphrase_callback(struct archive * _a, void * client_data
  * Call this in advance when you start to get a passphrase for decryption
  * for a entry.
  */
-void __archive_read_reset_passphrase(struct archive_read * a)
+void __archive_read_reset_passphrase(ArchiveRead * a)
 {
 	a->passphrases.candidate = -1;
 }
@@ -94,7 +94,7 @@ void __archive_read_reset_passphrase(struct archive_read * a)
 /*
  * Get a passphrase for decryption.
  */
-const char * __archive_read_next_passphrase(struct archive_read * a)
+const char * __archive_read_next_passphrase(ArchiveRead * a)
 {
 	struct archive_read_passphrase * p;
 	const char * passphrase;

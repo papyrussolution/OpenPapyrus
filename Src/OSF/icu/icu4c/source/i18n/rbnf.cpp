@@ -891,7 +891,7 @@ RuleBasedNumberFormat&RuleBasedNumberFormat::operator = (const RuleBasedNumberFo
 	capitalizationForUIListMenu = rhs.capitalizationForUIListMenu;
 	capitalizationForStandAlone = rhs.capitalizationForStandAlone;
 #if !UCONFIG_NO_BREAK_ITERATION
-	capitalizationBrkIter = (rhs.capitalizationBrkIter!=NULL) ? rhs.capitalizationBrkIter->clone() : NULL;
+	capitalizationBrkIter = (rhs.capitalizationBrkIter != NULL) ? rhs.capitalizationBrkIter->clone() : NULL;
 #endif
 
 	return *this;

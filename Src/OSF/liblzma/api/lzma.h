@@ -723,7 +723,7 @@ typedef struct {
 	 *        returned NULL if some function from liblzma
 	 *        returns LZMA_MEM_ERROR.
 	 */
-	void *(LZMA_API_CALL *alloc)(void * opaque, size_t nmemb, size_t size);
+	void *(LZMA_API_CALL * FnAlloc)(void * opaque, size_t nmemb, size_t size);
 
 	/**
 	 * \brief       Pointer to a custom memory freeing function
@@ -737,7 +737,7 @@ typedef struct {
 	 *                or when it is set to NULL, a pointer returned
 	 *                by the standard malloc().
 	 */
-	void(LZMA_API_CALL *free)(void * opaque, void * ptr);
+	void(LZMA_API_CALL * FnFree)(void * opaque, void * ptr);
 	/**
 	 * \brief       Pointer passed to .alloc() and .free()
 	 *

@@ -1,8 +1,8 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/* ------------------------------------------------------------------ */
-/* decNumber package local type, tuning, and macro definitions        */
-/* ------------------------------------------------------------------ */
+//
+// decNumber package local type, tuning, and macro definitions
+//
 /* Copyright (c) IBM Corporation, 2000-2016.   All rights reserved.   */
 /* */
 /* This software is made available under the terms of the    */
@@ -25,61 +25,53 @@
 /* ------------------------------------------------------------------ */
 
 #if !defined(DECNUMBERLOC)
-  #define DECNUMBERLOC
-  #define DECVERSION    "decNumber 3.61" /* Package Version [16 max.] */
-  #define DECNLAUTHOR   "Mike Cowlishaw"              /* Who to blame */
+#define DECNUMBERLOC
+#define DECVERSION    "decNumber 3.61" /* Package Version [16 max.] */
+#define DECNLAUTHOR   "Mike Cowlishaw"              /* Who to blame */
 
-  #include <stdlib.h>         /* for abs   */
-  #include <string.h>         /* for memset, strcpy */
-  #include "decContext.h"
+#include <stdlib.h>         /* for abs   */
+#include <string.h>         /* for memset, strcpy */
+#include "decContext.h"
 
 /* Conditional code flag -- set this to match hardware platform     */
-  #if !defined(DECLITEND)
-  #define DECLITEND 1         /* 1=little-endian, 0=big-endian        */
-  #endif
-
+#if !defined(DECLITEND)
+	#define DECLITEND 1         /* 1=little-endian, 0=big-endian        */
+#endif
 /* Conditional code flag -- set this to 1 for best performance      */
-  #if !defined(DECUSE64)
-  #define DECUSE64  1         /* 1=use int64s, 0=int32 & smaller only */
-  #endif
-
+#if !defined(DECUSE64)
+	#define DECUSE64  1         /* 1=use int64s, 0=int32 & smaller only */
+#endif
 /* Conditional check flags -- set these to 0 for best performance   */
-  #if !defined(DECCHECK)
-  #define DECCHECK  0         /* 1 to enable robust checking */
-  #endif
-  #if !defined(DECALLOC)
-  #define DECALLOC  0         /* 1 to enable memory accounting        */
-  #endif
-  #if !defined(DECTRACE)
-  #define DECTRACE  0         /* 1 to trace certain internals, etc.   */
-  #endif
-
+#if !defined(DECCHECK)
+	#define DECCHECK  0         /* 1 to enable robust checking */
+#endif
+#if !defined(DECALLOC)
+	#define DECALLOC  0         /* 1 to enable memory accounting        */
+#endif
+#if !defined(DECTRACE)
+	#define DECTRACE  0         /* 1 to trace certain internals, etc.   */
+#endif
 /* Tuning parameter for decNumber (arbitrary precision) module      */
-  #if !defined(DECBUFFER)
-  #define DECBUFFER 36        /* Size basis for local buffers.  This  */
-                              /* should be a common maximum precision */
-                              /* rounded up to a multiple of 4; must  */
-                              /* be zero or positive.        */
-  #endif
-
-/* ---------------------------------------------------------------- */
-/* Definitions for all modules (general-purpose)  */
-/* ---------------------------------------------------------------- */
-
+#if !defined(DECBUFFER)
+	#define DECBUFFER 36 // Size basis for local buffers.  This should be a common maximum precision rounded up to a multiple of 4; must be zero or positive
+#endif
+//
+// Definitions for all modules (general-purpose)
+//
 /* Local names for common types -- for safety, decNumber modules do */
 /* not use int or long directly.         */
-  #define Flag   uint8
-  #define Byte   int8
-  #define uByte  uint8
-  #define Short  int16
-  #define uShort uint16
-  #define Int    int32_t
-  #define uInt   uint32_t
-  #define Unit   decNumberUnit
-  #if DECUSE64
-  #define Long   int64_t
-  #define uLong  uint64_t
-  #endif
+#define Flag   uint8
+#define Byte   int8
+#define uByte  uint8
+#define Short  int16
+#define uShort uint16
+#define Int    int32_t
+#define uInt   uint32_t
+#define Unit   decNumberUnit
+#if DECUSE64
+#define Long   int64_t
+#define uLong  uint64_t
+#endif
 
 /* Development-use definitions  */
 typedef long int LI;   /* for printf arguments only   */
@@ -272,12 +264,10 @@ typedef long int LI;   /* for printf arguments only   */
 		pow /= 2;                               \
 		if((u)>=pow) {(u) -= pow; *(c) += 1;}    \
 } UPRV_BLOCK_MACRO_END
-
-/* ---------------------------------------------------------------- */
-/* Definitions for fixed-precision modules (only valid after        */
-/* decSingle.h, decDouble.h, or decQuad.h has been included)        */
-/* ---------------------------------------------------------------- */
-
+// 
+// Definitions for fixed-precision modules (only valid after
+// decSingle.h, decDouble.h, or decQuad.h has been included)
+// 
 /* bcdnum -- a structure describing a format-independent finite     */
 /* number, whose coefficient is a string of bcd8 uBytes    */
 typedef struct {
@@ -474,7 +464,7 @@ extern void decShowNum(const bcdnum *, const char *);
 /* GETWCOEFF extracts the coefficient of the next-wider format. */
 /* The latter is a copy of the next-wider GETCOEFF using DFWWORD. */
 
-    #if DECPMAX==7
+  #if DECPMAX==7
     #define GETCOEFF(df, bcd) {                          \
 		uInt sourhi = DFWORD(df, 0);                         \
 		*(bcd) = (uByte)DECCOMBMSD[sourhi>>26];              \

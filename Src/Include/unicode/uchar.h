@@ -38,10 +38,9 @@ typedef struct USet USet;
 #endif
 
 U_CDECL_BEGIN
-
-/*==========================================================================*/
-/* Unicode version number      */
-/*==========================================================================*/
+// 
+// Unicode version number
+// 
 /**
  * Unicode version number, default for the current ICU version.
  * The actual Unicode Character Database (UCD) data is stored in uprops.dat

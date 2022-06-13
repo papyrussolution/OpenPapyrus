@@ -10,7 +10,7 @@ ssize_t FASTCALL ngx_parse_size(const ngx_str_t * line)
 {
 	ssize_t size, scale, max;
 	size_t len = line->len;
-	if(len == 0) {
+	if(!len) {
 		return NGX_ERROR;
 	}
 	else {
@@ -47,7 +47,7 @@ nginx_off_t FASTCALL ngx_parse_offset(const ngx_str_t * line)
 	u_char unit;
 	nginx_off_t offset, scale, max;
 	size_t len = line->len;
-	if(len == 0) {
+	if(!len) {
 		return NGX_ERROR;
 	}
 	unit = line->data[len-1];

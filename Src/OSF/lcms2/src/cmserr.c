@@ -66,11 +66,10 @@ long int CMSEXPORT cmsfilelength(FILE* f)
 // replace the optional mallocZero, calloc and dup as well.
 
 boolint _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase* Plugin);
-
-// *********************************************************************************
-
+//
 // This is the default memory allocation function. It does a very coarse
 // check of amount of memory, just to prevent exploits
+//
 static void * _cmsMallocDefaultFn(cmsContext ContextID, uint32 size)
 {
 	if(size > MAX_MEMORY_FOR_ALLOC) 
@@ -184,7 +183,7 @@ boolint _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase * Data)
 	// NULL forces to reset to defaults. In this special case, the defaults are stored in the context structure.
 	// Remaining plug-ins does NOT have any copy in the context structure, but this is somehow special as the
 	// context internal data should be malloce'd by using those functions.
-	if(Data == NULL) {
+	if(!Data) {
 		struct _cmsContext_struct* ctx = (struct _cmsContext_struct*)ContextID;
 		// Return to the default allocators
 		if(ContextID != NULL) {
@@ -461,7 +460,7 @@ boolint _cmsRegisterMutexPlugin(cmsContext ContextID, cmsPluginBase* Data)
 {
 	cmsPluginMutex* Plugin = (cmsPluginMutex*)Data;
 	_cmsMutexPluginChunkType* ctx = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
-	if(Data == NULL) {
+	if(!Data) {
 		// No lock routines
 		ctx->CreateMutexPtr = NULL;
 		ctx->DestroyMutexPtr = NULL;

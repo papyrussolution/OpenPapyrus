@@ -32,8 +32,8 @@ struct gnutar {
 	size_t uname_length;
 	const char * gname;
 	size_t gname_length;
-	struct archive_string_conv * opt_sconv;
-	struct archive_string_conv * sconv_default;
+	archive_string_conv * opt_sconv;
+	archive_string_conv * sconv_default;
 	int init_default_conversion;
 };
 
@@ -125,14 +125,10 @@ static const char template_header[] = {
 	0, 0, 0, 0, 0, 0, 0
 };
 
-static int archive_write_gnutar_options(struct archive_write *,
-    const char *, const char *);
-static int archive_format_gnutar_header(struct archive_write *, char h[512],
-    struct archive_entry *, int tartype);
-static int archive_write_gnutar_header(struct archive_write *,
-    struct archive_entry * entry);
-static ssize_t  archive_write_gnutar_data(struct archive_write * a, const void * buff,
-    size_t s);
+static int archive_write_gnutar_options(struct archive_write *, const char *, const char *);
+static int archive_format_gnutar_header(struct archive_write *, char h[512], ArchiveEntry *, int tartype);
+static int archive_write_gnutar_header(struct archive_write *, ArchiveEntry * entry);
+static ssize_t  archive_write_gnutar_data(struct archive_write * a, const void * buff, size_t s);
 static int archive_write_gnutar_free(struct archive_write *);
 static int archive_write_gnutar_close(struct archive_write *);
 static int archive_write_gnutar_finish_entry(struct archive_write *);
@@ -143,7 +139,7 @@ static int format_octal(int64, char *, int);
 /*
  * Set output format to 'GNU tar' format.
  */
-int archive_write_set_format_gnutar(struct archive * _a)
+int archive_write_set_format_gnutar(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct gnutar * gnutar = (struct gnutar *)SAlloc::C(1, sizeof(*gnutar));
@@ -169,7 +165,7 @@ static int archive_write_gnutar_options(struct archive_write * a, const char * k
 	struct gnutar * gnutar = (struct gnutar *)a->format_data;
 	int ret = ARCHIVE_FAILED;
 	if(sstreq(key, "hdrcharset")) {
-		if(val == NULL || val[0] == 0)
+		if(isempty(val))
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {
 			gnutar->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
@@ -228,13 +224,13 @@ static ssize_t archive_write_gnutar_data(struct archive_write * a, const void * 
 	return (s);
 }
 
-static int archive_write_gnutar_header(struct archive_write * a, struct archive_entry * entry)
+static int archive_write_gnutar_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	char buff[512];
 	int r, ret, ret2 = ARCHIVE_OK;
 	int tartype;
-	struct archive_string_conv * sconv;
-	struct archive_entry * entry_main;
+	archive_string_conv * sconv;
+	ArchiveEntry * entry_main;
 	struct gnutar * gnutar = (struct gnutar *)a->format_data;
 	/* Setup default string conversion. */
 	if(gnutar->opt_sconv == NULL) {
@@ -260,7 +256,7 @@ static int archive_write_gnutar_header(struct archive_write * a, struct archive_
 #if defined(_WIN32) && !defined(__CYGWIN__)
 		const wchar_t * wp = archive_entry_pathname_w(entry);
 		if(wp && wp[wcslen(wp) -1] != L'/') {
-			struct archive_wstring ws;
+			archive_wstring ws;
 			archive_string_init(&ws);
 			path_length = wcslen(wp);
 			if(archive_wstring_ensure(&ws, path_length + 2) == NULL) {
@@ -286,7 +282,7 @@ static int archive_write_gnutar_header(struct archive_write * a, struct archive_
 		 * normal operation.
 		 */
 		if(p && p[0] != '\0' && p[strlen(p) - 1] != '/') {
-			struct archive_string as;
+			archive_string as;
 			archive_string_init(&as);
 			path_length = strlen(p);
 			if(archive_string_ensure(&as, path_length + 2) == NULL) {
@@ -380,7 +376,7 @@ static int archive_write_gnutar_header(struct archive_write * a, struct archive_
 	}
 	if(gnutar->linkname_length > GNUTAR_linkname_size) {
 		size_t length = gnutar->linkname_length + 1;
-		struct archive_entry * temp = archive_entry_new2(&a->archive);
+		ArchiveEntry * temp = archive_entry_new2(&a->archive);
 		/* Uname/gname here don't really matter since no one reads them;
 		 * these are the values that GNU tar happens to use on FreeBSD. */
 		archive_entry_set_uname(temp, "root");
@@ -408,7 +404,7 @@ static int archive_write_gnutar_header(struct archive_write * a, struct archive_
 	if(gnutar->pathname_length > GNUTAR_name_size) {
 		const char * pathname = gnutar->pathname;
 		size_t length = gnutar->pathname_length + 1;
-		struct archive_entry * temp = archive_entry_new2(&a->archive);
+		ArchiveEntry * temp = archive_entry_new2(&a->archive);
 
 		/* Uname/gname here don't really matter since no one reads them;
 		 * these are the values that GNU tar happens to use on FreeBSD. */
@@ -472,7 +468,7 @@ exit_write_header:
 }
 
 static int archive_format_gnutar_header(struct archive_write * a, char h[512],
-    struct archive_entry * entry, int tartype)
+    ArchiveEntry * entry, int tartype)
 {
 	uint checksum;
 	int i, ret;

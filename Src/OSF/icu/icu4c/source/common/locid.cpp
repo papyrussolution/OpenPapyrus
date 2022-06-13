@@ -469,80 +469,52 @@ class AliasData;
  */
 class AliasDataBuilder {
 public:
-	AliasDataBuilder() {
+	AliasDataBuilder() 
+	{
 	}
-
 	// Build the AliasData from resource.
 	AliasData* build(UErrorCode & status);
-
 private:
-	void readAlias(UResourceBundle * alias,
-	    UniqueCharStrings* strings,
-	    LocalMemory<const char *>& types,
-	    LocalMemory<int32_t>& replacementIndexes,
-	    int32_t &length,
-	    void (*checkType)(const char * type),
-	    void (*checkReplacement)(const UnicodeString &replacement),
-	    UErrorCode & status);
-
+	void readAlias(UResourceBundle * alias, UniqueCharStrings* strings, LocalMemory<const char *>& types,
+	    LocalMemory<int32_t>& replacementIndexes, int32_t &length, void (*checkType)(const char * type),
+	    void (*checkReplacement)(const UnicodeString &replacement), UErrorCode & status);
 	// Read the languageAlias data from alias to
 	// strings+types+replacementIndexes
 	// The number of record will be stored into length.
 	// Allocate length items for types, to store the type field.
 	// Allocate length items for replacementIndexes,
 	// to store the index in the strings for the replacement script.
-	void readLanguageAlias(UResourceBundle * alias,
-	    UniqueCharStrings* strings,
-	    LocalMemory<const char *>& types,
-	    LocalMemory<int32_t>& replacementIndexes,
-	    int32_t &length,
-	    UErrorCode & status);
-
+	void readLanguageAlias(UResourceBundle * alias, UniqueCharStrings* strings, LocalMemory<const char *>& types,
+	    LocalMemory<int32_t>& replacementIndexes, int32_t &length, UErrorCode & status);
 	// Read the scriptAlias data from alias to
 	// strings+types+replacementIndexes
 	// Allocate length items for types, to store the type field.
 	// Allocate length items for replacementIndexes,
 	// to store the index in the strings for the replacement script.
-	void readScriptAlias(UResourceBundle * alias,
-	    UniqueCharStrings* strings,
-	    LocalMemory<const char *>& types,
-	    LocalMemory<int32_t>& replacementIndexes,
-	    int32_t &length, UErrorCode & status);
-
+	void readScriptAlias(UResourceBundle * alias, UniqueCharStrings* strings, LocalMemory<const char *>& types,
+	    LocalMemory<int32_t>& replacementIndexes, int32_t &length, UErrorCode & status);
 	// Read the territoryAlias data from alias to
 	// strings+types+replacementIndexes
 	// Allocate length items for types, to store the type field.
 	// Allocate length items for replacementIndexes,
 	// to store the index in the strings for the replacement script.
-	void readTerritoryAlias(UResourceBundle * alias,
-	    UniqueCharStrings* strings,
-	    LocalMemory<const char *>& types,
-	    LocalMemory<int32_t>& replacementIndexes,
-	    int32_t &length, UErrorCode & status);
-
+	void readTerritoryAlias(UResourceBundle * alias, UniqueCharStrings* strings, LocalMemory<const char *>& types,
+	    LocalMemory<int32_t>& replacementIndexes, int32_t &length, UErrorCode & status);
 	// Read the variantAlias data from alias to
 	// strings+types+replacementIndexes
 	// Allocate length items for types, to store the type field.
 	// Allocate length items for replacementIndexes,
 	// to store the index in the strings for the replacement variant.
-	void readVariantAlias(UResourceBundle * alias,
-	    UniqueCharStrings* strings,
-	    LocalMemory<const char *>& types,
-	    LocalMemory<int32_t>& replacementIndexes,
-	    int32_t &length, UErrorCode & status);
-
+	void readVariantAlias(UResourceBundle * alias, UniqueCharStrings* strings, LocalMemory<const char *>& types,
+	    LocalMemory<int32_t>& replacementIndexes, int32_t &length, UErrorCode & status);
 	// Read the subdivisionAlias data from alias to
 	// strings+types+replacementIndexes
 	// Allocate length items for types, to store the type field.
 	// Allocate length items for replacementIndexes,
 	// to store the index in the strings for the replacement variant.
-	void readSubdivisionAlias(UResourceBundle * alias,
-	    UniqueCharStrings* strings,
-	    LocalMemory<const char *>& types,
-	    LocalMemory<int32_t>& replacementIndexes,
-	    int32_t &length, UErrorCode & status);
+	void readSubdivisionAlias(UResourceBundle * alias, UniqueCharStrings* strings,
+	    LocalMemory<const char *>& types, LocalMemory<int32_t>& replacementIndexes, int32_t &length, UErrorCode & status);
 };
-
 /**
  * A class to hold the Alias Data.
  */
@@ -623,14 +595,10 @@ bool U_CALLCONV AliasData::cleanup()
 	return TRUE;
 }
 
-void AliasDataBuilder::readAlias(UResourceBundle * alias,
-    UniqueCharStrings* strings,
-    LocalMemory<const char *>& types,
-    LocalMemory<int32_t>& replacementIndexes,
-    int32_t &length,
-    void (*checkType)(const char * type),
-    void (*checkReplacement)(const UnicodeString &replacement),
-    UErrorCode & status) {
+void AliasDataBuilder::readAlias(UResourceBundle * alias, UniqueCharStrings* strings, LocalMemory<const char *>& types,
+    LocalMemory<int32_t>& replacementIndexes, int32_t &length, void (*checkType)(const char * type),
+    void (*checkReplacement)(const UnicodeString &replacement), UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -647,8 +615,7 @@ void AliasDataBuilder::readAlias(UResourceBundle * alias,
 	}
 	int i = 0;
 	while(ures_hasNext(alias)) {
-		LocalUResourceBundlePointer res(
-			ures_getNextResource(alias, nullptr, &status));
+		LocalUResourceBundlePointer res(ures_getNextResource(alias, nullptr, &status));
 		const char * aliasFrom = ures_getKey(res.getAlias());
 		UnicodeString aliasTo = ures_getUnicodeStringByKey(res.getAlias(), "replacement", &status);
 		checkType(aliasFrom);
@@ -665,15 +632,10 @@ void AliasDataBuilder::readAlias(UResourceBundle * alias,
  * items for replacementIndexes, to store the index in the strings for the
  * replacement language.
  */
-void AliasDataBuilder::readLanguageAlias(UResourceBundle * alias,
-    UniqueCharStrings* strings,
-    LocalMemory<const char *>& types,
-    LocalMemory<int32_t>& replacementIndexes,
-    int32_t &length,
-    UErrorCode & status)
+void AliasDataBuilder::readLanguageAlias(UResourceBundle * alias, UniqueCharStrings* strings,
+    LocalMemory<const char *>& types, LocalMemory<int32_t>& replacementIndexes, int32_t &length, UErrorCode & status)
 {
-	return readAlias(
-		alias, strings, types, replacementIndexes, length,
+	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
 		[] (const char * type) {
 			// Assert the aliasFrom only contains the following possibilities
@@ -807,28 +769,23 @@ void U_CALLCONV AliasData::loadData(UErrorCode & status)
 /**
  * Build the alias data from resources.
  */
-AliasData* AliasDataBuilder::build(UErrorCode & status) {
-	LocalUResourceBundlePointer metadata(
-		ures_openDirect(nullptr, "metadata", &status));
-	LocalUResourceBundlePointer metadataAlias(
-		ures_getByKey(metadata.getAlias(), "alias", nullptr, &status));
-	LocalUResourceBundlePointer languageAlias(
-		ures_getByKey(metadataAlias.getAlias(), "language", nullptr, &status));
-	LocalUResourceBundlePointer scriptAlias(
-		ures_getByKey(metadataAlias.getAlias(), "script", nullptr, &status));
-	LocalUResourceBundlePointer territoryAlias(
-		ures_getByKey(metadataAlias.getAlias(), "territory", nullptr, &status));
-	LocalUResourceBundlePointer variantAlias(
-		ures_getByKey(metadataAlias.getAlias(), "variant", nullptr, &status));
-	LocalUResourceBundlePointer subdivisionAlias(
-		ures_getByKey(metadataAlias.getAlias(), "subdivision", nullptr, &status));
-
+AliasData* AliasDataBuilder::build(UErrorCode & status) 
+{
+	LocalUResourceBundlePointer metadata(ures_openDirect(nullptr, "metadata", &status));
+	LocalUResourceBundlePointer metadataAlias(ures_getByKey(metadata.getAlias(), "alias", nullptr, &status));
+	LocalUResourceBundlePointer languageAlias(ures_getByKey(metadataAlias.getAlias(), "language", nullptr, &status));
+	LocalUResourceBundlePointer scriptAlias(ures_getByKey(metadataAlias.getAlias(), "script", nullptr, &status));
+	LocalUResourceBundlePointer territoryAlias(ures_getByKey(metadataAlias.getAlias(), "territory", nullptr, &status));
+	LocalUResourceBundlePointer variantAlias(ures_getByKey(metadataAlias.getAlias(), "variant", nullptr, &status));
+	LocalUResourceBundlePointer subdivisionAlias(ures_getByKey(metadataAlias.getAlias(), "subdivision", nullptr, &status));
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}
-	int32_t languagesLength = 0, scriptLength = 0, territoryLength = 0,
-	    variantLength = 0, subdivisionLength = 0;
-
+	int32_t languagesLength = 0;
+	int32_t scriptLength = 0;
+	int32_t territoryLength = 0;
+	int32_t variantLength = 0;
+	int32_t subdivisionLength = 0;
 	// Read the languageAlias into languageTypes, languageReplacementIndexes
 	// and strings
 	UniqueCharStrings strings(status);
@@ -1765,7 +1722,7 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 		// variant may contain @foo or .foo POSIX cruft; remove it
 		separator = uprv_strchr(field[fieldIdx-1], '@');
 		char * sep2 = uprv_strchr(field[fieldIdx-1], '.');
-		if(separator!=NULL || sep2!=NULL) {
+		if(separator!=NULL || sep2 != NULL) {
 			if(separator==NULL || (sep2!=NULL && separator > sep2)) {
 				separator = sep2;
 			}
@@ -1986,7 +1943,6 @@ void Locale::canonicalize(UErrorCode & status) {
 Locale U_EXPORT2 Locale::forLanguageTag(StringPiece tag, UErrorCode & status)
 {
 	Locale result(Locale::eBOGUS);
-
 	if(U_FAILURE(status)) {
 		return result;
 	}
@@ -2516,9 +2472,8 @@ void Locale::setKeywordValue(const char * keywordName, const char * keywordValue
 	}
 }
 
-void Locale::setKeywordValue(StringPiece keywordName,
-    StringPiece keywordValue,
-    UErrorCode & status) {
+void Locale::setKeywordValue(StringPiece keywordName, StringPiece keywordValue, UErrorCode & status) 
+{
 	// TODO: Remove the need for a const char * to a NUL terminated buffer.
 	const CharString keywordName_nul(keywordName, status);
 	const CharString keywordValue_nul(keywordValue, status);

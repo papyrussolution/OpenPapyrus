@@ -311,8 +311,7 @@ void RBBISetBuilder::serializeTrie(uint8 * where)
 	    fTrieSize,                     // Capacity
 	    fStatus);
 }
-
-//------------------------------------------------------------------------
+//
 //
 //  addValToSets     Add a runtime-mapped input value to each uset from a
 //                   list of uset nodes. (val corresponds to a state table column.)
@@ -325,10 +324,10 @@ void RBBISetBuilder::serializeTrie(uint8 * where)
 //                   The "logically equivalent expression" is the tree for an
 //                   or-ing together of all of the symbols that go into the set.
 //
-//------------------------------------------------------------------------
-void RBBISetBuilder::addValToSets(UVector * sets, uint32_t val) {
+//
+void RBBISetBuilder::addValToSets(UVector * sets, uint32_t val) 
+{
 	int32_t ix;
-
 	for(ix = 0; ix<sets->size(); ix++) {
 		RBBINode * usetNode = (RBBINode*)sets->elementAt(ix);
 		addValToSet(usetNode, val);
@@ -363,41 +362,24 @@ void RBBISetBuilder::addValToSet(RBBINode * usetNode, uint32_t val) {
 		orNode->fParent = usetNode;
 	}
 }
-
-//------------------------------------------------------------------------
 //
 //   getNumCharCategories
 //
-//------------------------------------------------------------------------
-int32_t RBBISetBuilder::getNumCharCategories() const {
-	return fGroupCount + 3;
-}
-
-//------------------------------------------------------------------------
+int32_t RBBISetBuilder::getNumCharCategories() const { return fGroupCount + 3; }
 //
 //   getDictCategoriesStart
 //
-//------------------------------------------------------------------------
-int32_t RBBISetBuilder::getDictCategoriesStart() const {
-	return fDictCategoriesStart;
-}
-
-//------------------------------------------------------------------------
+int32_t RBBISetBuilder::getDictCategoriesStart() const { return fDictCategoriesStart; }
 //
 //   sawBOF
 //
-//------------------------------------------------------------------------
-bool RBBISetBuilder::sawBOF() const {
-	return fSawBOF;
-}
-
-//------------------------------------------------------------------------
+bool RBBISetBuilder::sawBOF() const { return fSawBOF; }
 //
 //   getFirstChar      Given a runtime RBBI character category, find
 //                     the first UChar32 that is in the set of chars
 //                     in the category.
-//------------------------------------------------------------------------
-UChar32 RBBISetBuilder::getFirstChar(int32_t category) const {
+UChar32 RBBISetBuilder::getFirstChar(int32_t category) const 
+{
 	RangeDescriptor   * rlRange;
 	UChar32 retVal = (UChar32)-1;
 	for(rlRange = fRangeList; rlRange!=nullptr; rlRange = rlRange->fNext) {
@@ -408,18 +390,15 @@ UChar32 RBBISetBuilder::getFirstChar(int32_t category) const {
 	}
 	return retVal;
 }
-
-//------------------------------------------------------------------------
 //
 //   printRanges        A debugging function.
 //                      dump out all of the range definitions.
 //
-//------------------------------------------------------------------------
 #ifdef RBBI_DEBUG
-void RBBISetBuilder::printRanges() {
+void RBBISetBuilder::printRanges() 
+{
 	RangeDescriptor       * rlRange;
 	int i;
-
 	RBBIDebugPrintf("\n\n Nonoverlapping Ranges ...\n");
 	for(rlRange = fRangeList; rlRange!=nullptr; rlRange = rlRange->fNext) {
 		RBBIDebugPrintf("%4x-%4x  ", rlRange->fStartChar, rlRange->fEndChar);
@@ -441,17 +420,14 @@ void RBBISetBuilder::printRanges() {
 }
 
 #endif
-
-//------------------------------------------------------------------------
 //
 //   printRangeGroups     A debugging function.
 //                        dump out all of the range groups.
 //
-//------------------------------------------------------------------------
 #ifdef RBBI_DEBUG
-void RBBISetBuilder::printRangeGroups() {
+void RBBISetBuilder::printRangeGroups() 
+{
 	int i;
-
 	RBBIDebugPrintf("\nRanges grouped by Unicode Set Membership...\n");
 	for(RangeDescriptor * rlRange = fRangeList; rlRange!=nullptr; rlRange = rlRange->fNext) {
 		if(rlRange->fFirstInGroup) {
@@ -491,17 +467,14 @@ void RBBISetBuilder::printRangeGroups() {
 }
 
 #endif
-
-//------------------------------------------------------------------------
 //
 //   printSets          A debugging function.
 //                      dump out all of the set definitions.
 //
-//------------------------------------------------------------------------
 #ifdef RBBI_DEBUG
-void RBBISetBuilder::printSets() {
+void RBBISetBuilder::printSets() 
+{
 	int i;
-
 	RBBIDebugPrintf("\n\nUnicode Sets List\n------------------\n");
 	for(i = 0;; i++) {
 		RBBINode        * usetNode;

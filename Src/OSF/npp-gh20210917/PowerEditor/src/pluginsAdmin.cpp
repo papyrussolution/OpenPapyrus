@@ -16,14 +16,12 @@ Version::Version(const generic_string& versionStr)
 	try {
 		auto ss = tokenizeString(versionStr, '.');
 		if(ss.size() > 4)
-			throw generic_string(TEXT(
-					  "The string to parse is not a valid version format. Let's make it default value in catch block."));
+			throw generic_string(TEXT("The string to parse is not a valid version format. Let's make it default value in catch block."));
 		int i = 0;
 		vector <ulong *> v = {&_major, &_minor, &_patch, &_build};
 		for(const auto& s : ss) {
 			if(!isNumber(s)) {
-				throw generic_string(TEXT(
-						  "The string to parse is not a valid version format. Let's make it default value in catch block."));
+				throw generic_string(TEXT("The string to parse is not a valid version format. Let's make it default value in catch block."));
 			}
 			*(v[i]) = std::stoi(s);
 
@@ -467,7 +465,6 @@ bool PluginsAdminDlg::exitToInstallRemovePlugins(Operation op, const vector <Plu
 	auto res = pNativeSpeaker->messageBox("ExitToUpdatePlugins", _hSelf,
 		TEXT("If you click YES, you will quit Notepad++ to continue the operations.\nNotepad++ will be restarted after all the operations are terminated.\nContinue?"),
 		TEXT("Notepad++ is about to exit"), MB_YESNO | MB_APPLMODAL);
-
 	if(res == IDYES) {
 		NppParameters& nppParam = NppParameters::getInstance();
 		// gup path: makes trigger ready
@@ -477,34 +474,27 @@ bool PluginsAdminDlg::exitToInstallRemovePlugins(Operation op, const vector <Plu
 		// plugin global path
 		// plugin names or "plugin names + download url"
 		nppParam.setWingupParams(updaterParams);
-
 		// gup folder path
 		nppParam.setWingupDir(updaterDir);
-
 		// Quite Notepad++ so just before quitting Notepad++ launches gup with needed arguments
 		::PostMessage(_hParent, WM_COMMAND, IDM_FILE_EXIT, 0);
 	}
-
 	return true;
 }
 
 bool PluginsAdminDlg::installPlugins()
 {
 	// Need to exit Notepad++
-
 	vector <size_t> indexes = _availableList.getCheckedIndexes();
 	vector <PluginUpdateInfo*> puis = _availableList.fromUiIndexesToPluginInfos(indexes);
-
 	return exitToInstallRemovePlugins(pa_install, puis);
 }
 
 bool PluginsAdminDlg::updatePlugins()
 {
 	// Need to exit Notepad++
-
 	vector <size_t> indexes = _updateList.getCheckedIndexes();
 	vector <PluginUpdateInfo*> puis = _updateList.fromUiIndexesToPluginInfos(indexes);
-
 	return exitToInstallRemovePlugins(pa_update, puis);
 }
 

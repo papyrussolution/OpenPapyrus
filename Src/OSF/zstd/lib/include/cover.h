@@ -11,10 +11,10 @@
 	#define ZDICT_STATIC_LINKING_ONLY
 #endif
 
-#include <stdio.h>  /* fprintf */
-#include <stdlib.h> /* malloc, free, qsort */
-#include <string.h> /* memset */
-#include <time.h>   /* clock */
+//#include <stdio.h>  /* fprintf */
+//#include <stdlib.h> /* malloc, free, qsort */
+//#include <string.h> /* memset */
+//#include <time.h>   /* clock */
 #include <zstd_mem.h> // read 
 #include <pool.h>
 #include <threading.h>

@@ -442,7 +442,7 @@ static void DupPluginTransformList(struct _cmsContext_struct* ctx, const struct 
 	// Walk the list copying all nodes
 	for(entry = head->TransformCollection; entry != NULL; entry = entry->Next) {
 		_cmsTransformCollection * newEntry = (_cmsTransformCollection*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(_cmsTransformCollection));
-		if(newEntry == NULL)
+		if(!newEntry)
 			return;
 		// We want to keep the linked list order, so this is a little bit tricky
 		newEntry->Next = NULL;
@@ -493,7 +493,7 @@ boolint _cmsRegisterTransformPlugin(cmsContext ContextID, cmsPluginBase* Data)
 	_cmsTransformCollection* fl;
 	_cmsTransformPluginChunkType* ctx = (_cmsTransformPluginChunkType*)_cmsContextGetClientChunk(ContextID, TransformPlugin);
 
-	if(Data == NULL) {
+	if(!Data) {
 		// Free the chain. Memory is safely freed at exit
 		ctx->TransformCollection = NULL;
 		return TRUE;

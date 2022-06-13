@@ -1,4 +1,3 @@
-
 /* pngget.c - retrieval of values from info struct
  *
  * Last changed in libpng 1.6.17 [March 26, 2015]
@@ -11,7 +10,6 @@
  * and license in png.h
  *
  */
-
 #include "pngpriv.h"
 #pragma hdrstop
 
@@ -316,19 +314,19 @@ uint32 PNGAPI png_get_pHYs_dpi(png_const_structrp png_ptr, png_const_inforp info
 	uint32 retval = 0;
 	if(png_ptr && info_ptr && (info_ptr->valid & PNG_INFO_pHYs) != 0) {
 		png_debug1(1, "in %s retrieval function", "pHYs");
-		if(res_x != NULL) {
+		if(res_x) {
 			*res_x = info_ptr->x_pixels_per_unit;
 			retval |= PNG_INFO_pHYs;
 		}
-		if(res_y != NULL) {
+		if(res_y) {
 			*res_y = info_ptr->y_pixels_per_unit;
 			retval |= PNG_INFO_pHYs;
 		}
-		if(unit_type != NULL) {
+		if(unit_type) {
 			*unit_type = (int)info_ptr->phys_unit_type;
 			retval |= PNG_INFO_pHYs;
 			if(*unit_type == 1) {
-				if(res_x != NULL) *res_x = (uint32)(*res_x * .0254 + .50);
+				if(res_x) *res_x = (uint32)(*res_x * .0254 + .50);
 				if(res_y != NULL) *res_y = (uint32)(*res_y * .0254 + .50);
 			}
 		}

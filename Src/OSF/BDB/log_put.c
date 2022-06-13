@@ -1481,7 +1481,7 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 
 		    case LOGREC_PGDDBT:
 			data = va_arg(argp, DBT *);
-			if(data == NULL) {
+			if(!data) {
 				zero = 0;
 				LOGCOPY_32(env, bp, &zero);
 				bp += sizeof(uint32);

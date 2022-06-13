@@ -590,7 +590,7 @@ enum amqp_delivery_mode_enum {
 	 *
 	 * @param [in] constantNumber constant to get the name of
 	 * @returns string describing the constant. String is managed by
-	 *  the library and should not be free()'d by the program
+	 *  the library and should not be SAlloc::F()'d by the program
 	 */
 	AMQP_PUBLIC_FUNCTION char const * amqp_constant_name(int constantNumber);
 	/**

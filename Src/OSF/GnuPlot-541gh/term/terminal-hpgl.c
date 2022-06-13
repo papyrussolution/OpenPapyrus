@@ -1179,7 +1179,7 @@ TERM_PUBLIC void HPGL2_dashtype(GpTermEntry_Static * pThis, int type, t_dashtype
 				    len += custom_dash_pattern->pattern[count];
 				    count++;
 			    }
-			    if(len == 0) 
+			    if(!len) 
 					len = 1.0;
 			    for(i = 0; i < count; i++) {
 				    fprintf(GPT.P_GpOutFile, ",%d", (int)(100 * custom_dash_pattern->pattern[i] / len + 0.5));

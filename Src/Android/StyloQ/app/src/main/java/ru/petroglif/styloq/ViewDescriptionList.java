@@ -32,10 +32,12 @@ public class ViewDescriptionList {
 			ForceAlignment = 0;
 			Mrgn = null;
 			StyleRcId = 0;
+			DataTypeBTS = 0;
 		}
 		String Zone;
 		String FieldName;
 		String Title;
+		int   DataTypeBTS; // @v11.4.1 BTS_XXX (отображается в json как "FieldType"
 		int   StyleRcId;
 		int   ForceAlignment; // >0 - left, <0 - right
 		int   TotalFunc;
@@ -137,6 +139,25 @@ public class ViewDescriptionList {
 							new_item.FieldName = _vdl_item.optString("FieldName", "");
 							new_item.Title = _vdl_item.optString("Text", "");
 							new_item.TotalFunc = _vdl_item.optInt("TotalFunc", 0);
+							String field_type_text = _vdl_item.optString("FieldType", null);
+							if(SLib.GetLen(field_type_text) > 0) {
+								if(field_type_text.equalsIgnoreCase("int"))
+									new_item.DataTypeBTS = DataType.BTS_INT;
+								else if(field_type_text.equalsIgnoreCase("real"))
+									new_item.DataTypeBTS = DataType.BTS_REAL;
+								else if(field_type_text.equalsIgnoreCase("string"))
+									new_item.DataTypeBTS = DataType.BTS_STRING;
+								else if(field_type_text.equalsIgnoreCase("date"))
+									new_item.DataTypeBTS = DataType.BTS_DATE;
+								else if(field_type_text.equalsIgnoreCase("time"))
+									new_item.DataTypeBTS = DataType.BTS_TIME;
+								else if(field_type_text.equalsIgnoreCase("timestamp"))
+									new_item.DataTypeBTS = DataType.BTS_DATETIME;
+								else
+									new_item.DataTypeBTS = 0;
+							}
+							else
+								new_item.DataTypeBTS = 0;
 							AddItem(new_item);
 							result = true;
 						}
@@ -180,6 +201,8 @@ public class ViewDescriptionList {
 					if(di.ForceAlignment > 0)
 						alignment = View.TEXT_ALIGNMENT_TEXT_START;
 					else if(di.ForceAlignment < 0)
+						alignment = View.TEXT_ALIGNMENT_TEXT_END;
+					else if(di.DataTypeBTS == DataType.BTS_INT || di.DataTypeBTS == DataType.BTS_REAL)
 						alignment = View.TEXT_ALIGNMENT_TEXT_END;
 					else if((di.Flags & Item.fAllNumeric) != 0)
 						alignment = View.TEXT_ALIGNMENT_TEXT_END;
@@ -278,7 +301,17 @@ public class ViewDescriptionList {
 			if(SLib.GetLen(text) > 0) {
 				float tw = dpb.Tp.measureText(text);
 				if(tw > 0.0) {
-					if(SLib.IsNumeric(text)) {
+					boolean is_num = false;
+					if(dpb.ColumnDescription.DataTypeBTS == DataType.BTS_INT) {
+						is_num = true;
+					}
+					else if(dpb.ColumnDescription.DataTypeBTS == DataType.BTS_REAL) {
+						is_num = true;
+					}
+					else if(SLib.IsNumeric(text)) {
+						is_num = true;
+					}
+					if(is_num) {
 						double rv = Double.valueOf(text);
 						dpb.Sum += rv;
 						if(dpb.Max < rv)
@@ -348,14 +381,43 @@ public class ViewDescriptionList {
 		boolean ok = true;
 		if(dpb != null && dpb.ColumnDescription != null) {
 			if(dpb.ColumnDescription.TotalFunc > 0) {
+				String total_text = null;
 				switch(dpb.ColumnDescription.TotalFunc) {
-					case SLib.AGGRFUNC_COUNT: dpb.ColumnDescription.ITotalResult = dpb.Count; break;
-					case SLib.AGGRFUNC_SUM: dpb.ColumnDescription.RTotalResult = dpb.Sum; break;
-					case SLib.AGGRFUNC_AVG: dpb.ColumnDescription.RTotalResult = (dpb.Count > 0) ? dpb.Sum / dpb.Count : 0.0; break;
-					case SLib.AGGRFUNC_MAX: dpb.ColumnDescription.RTotalResult = (dpb.Max > -Double.MAX_VALUE) ? dpb.Max : 0.0; break;
-					case SLib.AGGRFUNC_MIN: dpb.ColumnDescription.RTotalResult = (dpb.Min < Double.MAX_VALUE) ? dpb.Min : 0.0; break;
+					case SLib.AGGRFUNC_COUNT:
+						dpb.ColumnDescription.ITotalResult = dpb.Count;
+						total_text = Integer.toString(dpb.Count);
+						break;
+					case SLib.AGGRFUNC_SUM:
+						{
+							dpb.ColumnDescription.RTotalResult = dpb.Sum;
+							total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
+							//StringBuilder sb = new StringBuilder();
+							//Formatter f = new Formatter(sb, Locale.getDefault());
+							//total_text = String.format("%10.2f", dpb.ColumnDescription.RTotalResult);
+						}
+						break;
+					case SLib.AGGRFUNC_AVG:
+						dpb.ColumnDescription.RTotalResult = (dpb.Count > 0) ? dpb.Sum / dpb.Count : 0.0;
+						total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
+						break;
+					case SLib.AGGRFUNC_MAX:
+						dpb.ColumnDescription.RTotalResult = (dpb.Max > -Double.MAX_VALUE) ? dpb.Max : 0.0;
+						total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
+						break;
+					case SLib.AGGRFUNC_MIN:
+						dpb.ColumnDescription.RTotalResult = (dpb.Min < Double.MAX_VALUE) ? dpb.Min : 0.0;
+						total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
+						break;
 				}
-				//there_is_totals = true;
+				if(SLib.GetLen(total_text) > 0) {
+					float tw = dpb.Tp.measureText(total_text);
+					if(tw > 0.0) {
+						dpb.NzTextCount++;
+						dpb.TextLenSum += tw;
+						if(dpb.TextLenMax < tw)
+							dpb.TextLenMax = tw;
+					}
+				}
 			}
 			{
 				double avgl;

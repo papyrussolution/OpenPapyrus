@@ -145,11 +145,11 @@ void VP8LRefsCursorNextBlock(VP8LRefsCursor* const c) {
 // Create a new block, either from the free list or allocated
 static PixOrCopyBlock* BackwardRefsNewBlock(VP8LBackwardRefs* const refs) {
 	PixOrCopyBlock* b = refs->free_blocks_;
-	if(b == NULL) { // allocate new memory chunk
+	if(!b) { // allocate new memory chunk
 		const size_t total_size =
 		    sizeof(*b) + refs->block_size_ * sizeof(*b->start_);
 		b = (PixOrCopyBlock*)WebPSafeMalloc(1ULL, total_size);
-		if(b == NULL) {
+		if(!b) {
 			refs->error_ |= 1;
 			return NULL;
 		}
@@ -189,7 +189,7 @@ void VP8LBackwardRefsCursorAdd(VP8LBackwardRefs* const refs,
 	PixOrCopyBlock* b = refs->last_block_;
 	if(b == NULL || b->size_ == refs->block_size_) {
 		b = BackwardRefsNewBlock(refs);
-		if(b == NULL) return; // refs->error_ is set
+		if(!b) return; // refs->error_ is set
 	}
 	b->start_[b->size_++] = v;
 }

@@ -59,7 +59,6 @@ public:
 			if(!unpack_uint_preserving_sort(&p, end, &did))
 				throw Xapian::DatabaseCorruptError("bad value key");
 			did += offset;
-
 			key.assign("\0\xd8", 2);
 			pack_uint(key, slot);
 			pack_uint_preserving_sort(key, did);
@@ -79,7 +78,6 @@ public:
 			if(!unpack_string_preserving_sort(&d, e, tname))
 				throw Xapian::DatabaseCorruptError("Bad postlist key");
 		}
-
 		if(d == e) {
 			// This is an initial chunk for a term, so adjust tag header.
 			d = tag.data();
@@ -113,15 +111,15 @@ class PostlistCursorGt {
 public:
 	/** Return true if and only if a's key is strictly greater than b's key.
 	 */
-	bool operator()(const PostlistCursor * a, const PostlistCursor * b) const {
+	bool operator()(const PostlistCursor * a, const PostlistCursor * b) const 
+	{
 		if(a->key > b->key) return true;
 		if(a->key != b->key) return false;
 		return (a->firstdid > b->firstdid);
 	}
 };
 
-static string encode_valuestats(Xapian::doccount freq,
-    const string & lbound, const string & ubound)
+static string encode_valuestats(Xapian::doccount freq, const string & lbound, const string & ubound)
 {
 	string value;
 	pack_uint(value, freq);
@@ -133,10 +131,8 @@ static string encode_valuestats(Xapian::doccount freq,
 	return value;
 }
 
-static void merge_postlists(Xapian::Compactor * compactor,
-    GlassTable * out, vector <Xapian::docid>::const_iterator offset,
-    vector <const GlassTable*>::const_iterator b,
-    vector <const GlassTable*>::const_iterator e)
+static void merge_postlists(Xapian::Compactor * compactor, GlassTable * out, vector <Xapian::docid>::const_iterator offset,
+    vector <const GlassTable*>::const_iterator b, vector <const GlassTable*>::const_iterator e)
 {
 	priority_queue<PostlistCursor *, vector <PostlistCursor *>, PostlistCursorGt> pq;
 	for(; b != e; ++b, ++offset) {
@@ -145,10 +141,8 @@ static void merge_postlists(Xapian::Compactor * compactor,
 			// Skip empty tables.
 			continue;
 		}
-
 		pq.push(new PostlistCursor(in, *offset));
 	}
-
 	string last_key;
 	{
 		// Merge user metadata.
@@ -156,8 +150,8 @@ static void merge_postlists(Xapian::Compactor * compactor,
 		while(!pq.empty()) {
 			PostlistCursor * cur = pq.top();
 			const string & key = cur->key;
-			if(!is_user_metadata_key(key)) break;
-
+			if(!is_user_metadata_key(key)) 
+				break;
 			if(key != last_key) {
 				if(!tags.empty()) {
 					if(tags.size() > 1 && compactor) {
@@ -165,10 +159,7 @@ static void merge_postlists(Xapian::Compactor * compactor,
 						// FIXME: It would be better to merge all duplicates
 						// for a key in one call, but currently we don't in
 						// multipass mode.
-						const string & resolved_tag =
-						    compactor->resolve_duplicate_metadata(last_key,
-							tags.size(),
-							&tags[0]);
+						const string & resolved_tag = compactor->resolve_duplicate_metadata(last_key, tags.size(), &tags[0]);
 						if(!resolved_tag.empty())
 							out->add(last_key, resolved_tag);
 					}
@@ -181,7 +172,6 @@ static void merge_postlists(Xapian::Compactor * compactor,
 				last_key = key;
 			}
 			tags.push_back(cur->tag);
-
 			pq.pop();
 			if(cur->next()) {
 				pq.push(cur);
@@ -193,10 +183,7 @@ static void merge_postlists(Xapian::Compactor * compactor,
 		if(!tags.empty()) {
 			if(tags.size() > 1 && compactor) {
 				Assert(!last_key.empty());
-				const string & resolved_tag =
-				    compactor->resolve_duplicate_metadata(last_key,
-					tags.size(),
-					&tags[0]);
+				const string & resolved_tag = compactor->resolve_duplicate_metadata(last_key, tags.size(), &tags[0]);
 				if(!resolved_tag.empty())
 					out->add(last_key, resolved_tag);
 			}
@@ -206,12 +193,10 @@ static void merge_postlists(Xapian::Compactor * compactor,
 			}
 		}
 	}
-
 	{
 		// Merge valuestats.
 		Xapian::doccount freq = 0;
 		string lbound, ubound;
-
 		while(!pq.empty()) {
 			PostlistCursor * cur = pq.top();
 			const string & key = cur->key;
@@ -226,12 +211,9 @@ static void merge_postlists(Xapian::Compactor * compactor,
 				}
 				last_key = key;
 			}
-
 			const string & tag = cur->tag;
-
 			const char * pos = tag.data();
 			const char * end = pos + tag.size();
-
 			Xapian::doccount f;
 			string l, u;
 			if(!unpack_uint(&pos, end, &f)) {
@@ -243,7 +225,7 @@ static void merge_postlists(Xapian::Compactor * compactor,
 				throw Xapian::RangeError("Lower bound in value table is too large");
 			}
 			size_t len = end - pos;
-			if(len == 0) {
+			if(!len) {
 				u = l;
 			}
 			else {

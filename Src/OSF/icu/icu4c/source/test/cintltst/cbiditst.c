@@ -2273,8 +2273,7 @@ static void _testInverseBidi(UBiDi * pBiDi, const UChar * src, int32_t srcLength
 
 	/* check and print results */
 	if(U_FAILURE(*pErrorCode)) {
-		log_err("inverse BiDi: *** error %s\n"
-		    "                 turn on verbose mode to see details\n", u_errorName(*pErrorCode));
+		log_err("inverse BiDi: *** error %s\n                 turn on verbose mode to see details\n", u_errorName(*pErrorCode));
 	}
 	else if(srcLength==visualLength && memcmp(src, visualDest, srcLength*U_SIZEOF_UCHAR)==0) {
 		++countRoundtrips;
@@ -2288,44 +2287,34 @@ static void _testInverseBidi(UBiDi * pBiDi, const UChar * src, int32_t srcLength
 	}
 }
 
-static void _testWriteReverse() {
+static void _testWriteReverse() 
+{
 	/* U+064e and U+0650 are combining marks (Mn) */
-	static const UChar forward[] = {
-		0x200f, 0x627, 0x64e, 0x650, 0x20, 0x28, 0x31, 0x29
-	}, reverseKeepCombining[] = {
-		0x29, 0x31, 0x28, 0x20, 0x627, 0x64e, 0x650, 0x200f
-	}, reverseRemoveControlsKeepCombiningDoMirror[] = {
-		0x28, 0x31, 0x29, 0x20, 0x627, 0x64e, 0x650
-	};
+	static const UChar forward[] = { 0x200f, 0x627, 0x64e, 0x650, 0x20, 0x28, 0x31, 0x29 };
+	static const UChar reverseKeepCombining[] = { 0x29, 0x31, 0x28, 0x20, 0x627, 0x64e, 0x650, 0x200f };
+	static const UChar reverseRemoveControlsKeepCombiningDoMirror[] = { 0x28, 0x31, 0x29, 0x20, 0x627, 0x64e, 0x650 };
 	UChar reverse[10];
 	int32_t length;
 	/* test ubidi_writeReverse() with "interesting" options */
 	UErrorCode errorCode = U_ZERO_ERROR;
-	length = ubidi_writeReverse(forward, UPRV_LENGTHOF(forward),
-		reverse, UPRV_LENGTHOF(reverse),
-		UBIDI_KEEP_BASE_COMBINING,
-		&errorCode);
+	length = ubidi_writeReverse(forward, UPRV_LENGTHOF(forward), reverse, UPRV_LENGTHOF(reverse), UBIDI_KEEP_BASE_COMBINING, &errorCode);
 	if(U_FAILURE(errorCode) || length!=UPRV_LENGTHOF(reverseKeepCombining) ||
 	    memcmp(reverse, reverseKeepCombining, length*U_SIZEOF_UCHAR)!=0) {
-		log_err("failure in ubidi_writeReverse(UBIDI_KEEP_BASE_COMBINING): length=%d (should be %d), error code %s\n",
-		    length, UPRV_LENGTHOF(reverseKeepCombining), u_errorName(errorCode));
+		log_err("failure in ubidi_writeReverse(UBIDI_KEEP_BASE_COMBINING): length=%d (should be %d), error code %s\n", length, UPRV_LENGTHOF(reverseKeepCombining), u_errorName(errorCode));
 	}
-
 	memset(reverse, 0xa5, UPRV_LENGTHOF(reverse)*U_SIZEOF_UCHAR);
 	errorCode = U_ZERO_ERROR;
-	length = ubidi_writeReverse(forward, UPRV_LENGTHOF(forward),
-		reverse, UPRV_LENGTHOF(reverse),
-		UBIDI_REMOVE_BIDI_CONTROLS|UBIDI_DO_MIRRORING|UBIDI_KEEP_BASE_COMBINING,
-		&errorCode);
+	length = ubidi_writeReverse(forward, UPRV_LENGTHOF(forward), reverse, UPRV_LENGTHOF(reverse), 
+		UBIDI_REMOVE_BIDI_CONTROLS|UBIDI_DO_MIRRORING|UBIDI_KEEP_BASE_COMBINING, &errorCode);
 	if(U_FAILURE(errorCode) || length!=UPRV_LENGTHOF(reverseRemoveControlsKeepCombiningDoMirror) ||
 	    memcmp(reverse, reverseRemoveControlsKeepCombiningDoMirror, length*U_SIZEOF_UCHAR)!=0) {
-		log_err("failure in ubidi_writeReverse(UBIDI_REMOVE_BIDI_CONTROLS|UBIDI_DO_MIRRORING|UBIDI_KEEP_BASE_COMBINING):\n"
-		    "    length=%d (should be %d), error code %s\n",
+		log_err("failure in ubidi_writeReverse(UBIDI_REMOVE_BIDI_CONTROLS|UBIDI_DO_MIRRORING|UBIDI_KEEP_BASE_COMBINING):\n    length=%d (should be %d), error code %s\n",
 		    length, UPRV_LENGTHOF(reverseRemoveControlsKeepCombiningDoMirror), u_errorName(errorCode));
 	}
 }
 
-static void _testManyAddedPoints() {
+static void _testManyAddedPoints() 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UBiDi * bidi = ubidi_open();
 	UChar text[90], dest[MAXLEN], expected[120];
@@ -2346,15 +2335,13 @@ static void _testManyAddedPoints() {
 		expected[i+3] = 0x0033; /* '3' */
 	}
 	if(memcmp(dest, expected, destLen * sizeof(UChar))) {
-		log_err("\nInvalid output with many added points, "
-		    "expected '%s', got '%s'\n",
-		    aescstrdup(expected, UPRV_LENGTHOF(expected)),
-		    aescstrdup(dest, destLen));
+		log_err("\nInvalid output with many added points, expected '%s', got '%s'\n", aescstrdup(expected, UPRV_LENGTHOF(expected)), aescstrdup(dest, destLen));
 	}
 	ubidi_close(bidi);
 }
 
-static void _testMisc() {
+static void _testMisc() 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UBiDi * bidi = ubidi_open();
 	UChar src[3], dest[MAXLEN], expected[5];

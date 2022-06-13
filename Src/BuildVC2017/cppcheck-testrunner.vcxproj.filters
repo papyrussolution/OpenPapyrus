@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\cppcheck\cli\cmdlineparser.cpp" />
+    <ClCompile Include="..\osf\cppcheck\cli\cppcheckexecutor.cpp" />
+    <ClCompile Include="..\osf\cppcheck\cli\filelister.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\options.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\test64bit.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testassert.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testastutils.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testautovariables.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testbool.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testboost.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testbufferoverrun.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testcharvar.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testclass.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testcmdlineparser.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testcondition.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testconstructors.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testcppcheck.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testerrorlogger.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testexceptionsafety.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testfilelister.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testfunctions.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testgarbage.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testimportproject.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testincompletestatement.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testinternal.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testio.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testleakautovar.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testlibrary.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testmathlib.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testmemleak.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testnullpointer.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testoptions.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testother.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testpath.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testpathmatch.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testplatform.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testpostfixoperator.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testpreprocessor.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testrunner.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testsimplifytemplate.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testsimplifytokens.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testsimplifytypedef.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testsimplifyusing.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testsizeof.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\teststl.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\teststring.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testsuite.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testsummaries.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testsuppressions.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testsymboldatabase.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testthreadexecutor.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testtimer.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testtoken.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testtokenize.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testtokenlist.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testtokenrange.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testtype.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testuninitvar.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testunusedfunctions.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testunusedprivfunc.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testunusedvar.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testutils.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testvaarg.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testvalueflow.cpp" />
+    <ClCompile Include="..\osf\cppcheck\test\testvarid.cpp" />
+    <ClCompile Include="..\osf\cppcheck\cli\threadexecutor.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\test\cppcheck-test-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\cppcheck\test\options.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\test\redirect.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\test\testsuite.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\test\testutils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\cli\filelister.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\cli\threadexecutor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\cli\cmdlineparser.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\test\precompiled.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cppcheck\test\cppcheck-test-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

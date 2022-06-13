@@ -252,7 +252,7 @@ __owur static int ctr_update(RAND_DRBG * drbg,
 
 	if((drbg->flags & RAND_DRBG_FLAG_CTR_NO_DF) == 0) {
 		/* If no input reuse existing derived value */
-		if(in1 != NULL || nonce != NULL || in2 != NULL)
+		if(in1 || nonce || in2)
 			if(!ctr_df(ctr, in1, in1len, nonce, noncelen, in2, in2len))
 				return 0;
 		/* If this a reuse input in1len != 0 */
@@ -293,13 +293,10 @@ __owur static int drbg_ctr_reseed(RAND_DRBG * drbg, const uchar * entropy, size_
 	return 1;
 }
 
-__owur static int drbg_ctr_generate(RAND_DRBG * drbg,
-    uchar * out, size_t outlen,
-    const uchar * adin, size_t adinlen)
+__owur static int drbg_ctr_generate(RAND_DRBG * drbg, uchar * out, size_t outlen, const uchar * adin, size_t adinlen)
 {
 	RAND_DRBG_CTR * ctr = &drbg->data.ctr;
-
-	if(adin != NULL && adinlen != 0) {
+	if(adin && adinlen != 0) {
 		if(!ctr_update(drbg, adin, adinlen, NULL, 0, NULL, 0))
 			return 0;
 		/* This means we reuse derived value */

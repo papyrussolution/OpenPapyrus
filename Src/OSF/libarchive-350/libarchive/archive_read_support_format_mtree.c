@@ -61,7 +61,7 @@ struct mtree_entry {
 };
 
 struct mtree {
-	struct archive_string line;
+	archive_string line;
 	size_t buffsize;
 	char * buff;
 	int64 offset;
@@ -71,8 +71,8 @@ struct mtree {
 	struct mtree_entry * entries;
 	struct mtree_entry * this_entry;
 	struct archive_rb_tree entry_rbtree;
-	struct archive_string current_dir;
-	struct archive_string contents_name;
+	archive_string current_dir;
+	archive_string contents_name;
 	struct archive_entry_linkresolver * resolver;
 	struct archive_rb_tree rbtree;
 	int64 cur_size;
@@ -80,17 +80,17 @@ struct mtree {
 };
 
 static int bid_keycmp(const char *, const char *, ssize_t);
-static int cleanup(struct archive_read *);
-static int detect_form(struct archive_read *, int *);
-static int mtree_bid(struct archive_read *, int);
-static int parse_file(struct archive_read *, struct archive_entry *, struct mtree *, struct mtree_entry *, int *);
+static int cleanup(ArchiveRead *);
+static int detect_form(ArchiveRead *, int *);
+static int mtree_bid(ArchiveRead *, int);
+static int parse_file(ArchiveRead *, ArchiveEntry *, struct mtree *, struct mtree_entry *, int *);
 static void     parse_escapes(char *, struct mtree_entry *);
-static int parse_line(struct archive_read *, struct archive_entry *, struct mtree *, struct mtree_entry *, int *);
-static int parse_keyword(struct archive_read *, struct mtree *, struct archive_entry *, struct mtree_option *, int *);
-static int read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset);
-static ssize_t  readline(struct archive_read *, struct mtree *, char **, ssize_t);
-static int skip(struct archive_read * a);
-static int read_header(struct archive_read *, struct archive_entry *);
+static int parse_line(ArchiveRead *, ArchiveEntry *, struct mtree *, struct mtree_entry *, int *);
+static int parse_keyword(ArchiveRead *, struct mtree *, ArchiveEntry *, struct mtree_option *, int *);
+static int read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset);
+static ssize_t  readline(ArchiveRead *, struct mtree *, char **, ssize_t);
+static int skip(ArchiveRead * a);
+static int read_header(ArchiveRead *, ArchiveEntry *);
 static int64  mtree_atol(char **, int base);
 
 /*
@@ -145,12 +145,12 @@ static int64 get_time_t_min(void)
 #endif
 }
 
-static int archive_read_format_mtree_options(struct archive_read * a, const char * key, const char * val)
+static int archive_read_format_mtree_options(ArchiveRead * a, const char * key, const char * val)
 {
 	struct mtree * mtree = (struct mtree *)(a->format->data);
 	if(sstreq(key, "checkfs")) {
 		/* Allows to read information missing from the mtree from the file system */
-		if(val == NULL || val[0] == 0) {
+		if(isempty(val)) {
 			mtree->checkfs = 0;
 		}
 		else {
@@ -187,12 +187,12 @@ static int mtree_cmp_key(const struct archive_rb_node * n, const void * key)
 	return (strcmp(e->name, static_cast<const char *>(key)));
 }
 
-int archive_read_support_format_mtree(struct archive * _a)
+int archive_read_support_format_mtree(Archive * _a)
 {
 	static const struct archive_rb_tree_ops rb_ops = {
 		mtree_cmp_node, mtree_cmp_key,
 	};
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	struct mtree * mtree;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -210,7 +210,7 @@ int archive_read_support_format_mtree(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int cleanup(struct archive_read * a)
+static int cleanup(ArchiveRead * a)
 {
 	struct mtree_entry * q;
 	struct mtree * mtree = (struct mtree *)(a->format->data);
@@ -268,7 +268,7 @@ static ssize_t get_line_size(const char * b, ssize_t avail, ssize_t * nlsize)
  *            b
  *
  */
-static ssize_t next_line(struct archive_read * a, const char ** b, ssize_t * avail, ssize_t * ravail, ssize_t * nl)
+static ssize_t next_line(ArchiveRead * a, const char ** b, ssize_t * avail, ssize_t * ravail, ssize_t * nl)
 {
 	ssize_t len;
 	int quit = 0;
@@ -535,7 +535,7 @@ static int bid_entry(const char * p, ssize_t len, ssize_t nl, int * last_is_path
 
 #define MAX_BID_ENTRY   3
 
-static int mtree_bid(struct archive_read * a, int best_bid)
+static int mtree_bid(ArchiveRead * a, int best_bid)
 {
 	const char * signature = "#mtree";
 	const char * p;
@@ -552,7 +552,7 @@ static int mtree_bid(struct archive_read * a, int best_bid)
 	return (detect_form(a, NULL));
 }
 
-static int detect_form(struct archive_read * a, int * is_form_d)
+static int detect_form(ArchiveRead * a, int * is_form_d)
 {
 	const char * p;
 	ssize_t avail, ravail;
@@ -681,7 +681,7 @@ static int detect_form(struct archive_read * a, int * is_form_d)
  * Otherwise, the options of the line are merged with the current
  * global options.
  */
-static int add_option(struct archive_read * a, struct mtree_option ** global, const char * value, size_t len)
+static int add_option(ArchiveRead * a, struct mtree_option ** global, const char * value, size_t len)
 {
 	struct mtree_option * opt;
 	if((opt = static_cast<struct mtree_option *>(SAlloc::M(sizeof(*opt)))) == NULL) {
@@ -722,7 +722,7 @@ static void remove_option(struct mtree_option ** global, const char * value, siz
 	SAlloc::F(iter);
 }
 
-static int process_global_set(struct archive_read * a,
+static int process_global_set(ArchiveRead * a,
     struct mtree_option ** global, const char * line)
 {
 	const char * next, * eq;
@@ -750,7 +750,7 @@ static int process_global_set(struct archive_read * a,
 	}
 }
 
-static int process_global_unset(struct archive_read * a, struct mtree_option ** global, const char * line)
+static int process_global_unset(ArchiveRead * a, struct mtree_option ** global, const char * line)
 {
 	const char * next;
 	size_t len;
@@ -778,7 +778,7 @@ static int process_global_unset(struct archive_read * a, struct mtree_option ** 
 	}
 }
 
-static int process_add_entry(struct archive_read * a, struct mtree * mtree,
+static int process_add_entry(ArchiveRead * a, struct mtree * mtree,
     struct mtree_option ** global, const char * line, ssize_t line_len,
     struct mtree_entry ** last_entry, int is_form_d)
 {
@@ -878,7 +878,7 @@ static int process_add_entry(struct archive_read * a, struct mtree * mtree,
 	}
 }
 
-static int read_mtree(struct archive_read * a, struct mtree * mtree)
+static int read_mtree(ArchiveRead * a, struct mtree * mtree)
 {
 	ssize_t len;
 	uintmax_t counter;
@@ -898,7 +898,7 @@ static int read_mtree(struct archive_read * a, struct mtree * mtree)
 	for(counter = 1;; ++counter) {
 		r = ARCHIVE_OK;
 		len = readline(a, mtree, &p, 65536);
-		if(len == 0) {
+		if(!len) {
 			mtree->this_entry = mtree->entries;
 			free_options(global);
 			return ARCHIVE_OK;
@@ -957,7 +957,7 @@ static int read_mtree(struct archive_read * a, struct mtree * mtree)
  * Read in the entire mtree file into memory on the first request.
  * Then use the next unused file to satisfy each header request.
  */
-static int read_header(struct archive_read * a, struct archive_entry * entry)
+static int read_header(ArchiveRead * a, ArchiveEntry * entry)
 {
 	struct mtree * mtree;
 	char * p;
@@ -1010,32 +1010,26 @@ static int read_header(struct archive_read * a, struct archive_entry * entry)
 		mtree->this_entry = mtree->this_entry->next;
 	}
 }
-
 /*
  * A single file can have multiple lines contribute specifications.
  * Parse as many lines as necessary, then pull additional information
  * from a backing file on disk as necessary.
  */
-static int parse_file(struct archive_read * a, struct archive_entry * entry,
-    struct mtree * mtree, struct mtree_entry * mentry, int * use_next)
+static int parse_file(ArchiveRead * a, ArchiveEntry * entry, struct mtree * mtree, struct mtree_entry * mentry, int * use_next)
 {
 	const char * path;
 	struct stat st_storage, * st;
 	struct mtree_entry * mp;
-	struct archive_entry * sparse_entry;
+	ArchiveEntry * sparse_entry;
 	int r = ARCHIVE_OK, r1, parsed_kws;
-
 	mentry->used = 1;
-
 	/* Initialize reasonable defaults. */
 	archive_entry_set_filetype(entry, AE_IFREG);
 	archive_entry_set_size(entry, 0);
 	archive_string_empty(&mtree->contents_name);
-
 	/* Parse options from this line. */
 	parsed_kws = 0;
 	r = parse_line(a, entry, mtree, mentry, &parsed_kws);
-
 	if(mentry->full) {
 		archive_entry_copy_pathname(entry, mentry->name);
 		/*
@@ -1211,7 +1205,7 @@ static int parse_file(struct archive_read * a, struct archive_entry * entry,
 /*
  * Each line contains a sequence of keywords.
  */
-static int parse_line(struct archive_read * a, struct archive_entry * entry,
+static int parse_line(ArchiveRead * a, ArchiveEntry * entry,
     struct mtree * mtree, struct mtree_entry * mp, int * parsed_kws)
 {
 	struct mtree_option * iter;
@@ -1250,7 +1244,7 @@ static char * la_strsep(char ** sp, const char * sep)
 	return(s);
 }
 
-static int parse_device(dev_t * pdev, struct archive * a, char * val)
+static int parse_device(dev_t * pdev, Archive * a, char * val)
 {
 #define MAX_PACK_ARGS 3
 	ulong numbers[MAX_PACK_ARGS];
@@ -1316,7 +1310,7 @@ static int parse_hex_nibble(char c)
 	return -1;
 }
 
-static int parse_digest(struct archive_read * a, struct archive_entry * entry,
+static int parse_digest(ArchiveRead * a, ArchiveEntry * entry,
     const char * digest, int type)
 {
 	uchar digest_buf[64];
@@ -1356,8 +1350,8 @@ static int parse_digest(struct archive_read * a, struct archive_entry * entry,
 /*
  * Parse a single keyword and its value.
  */
-static int parse_keyword(struct archive_read * a, struct mtree * mtree,
-    struct archive_entry * entry, struct mtree_option * opt, int * parsed_kws)
+static int parse_keyword(ArchiveRead * a, struct mtree * mtree,
+    ArchiveEntry * entry, struct mtree_option * opt, int * parsed_kws)
 {
 	char * val;
 	char * key = opt->value;
@@ -1597,7 +1591,7 @@ static int parse_keyword(struct archive_read * a, struct mtree * mtree,
 	return ARCHIVE_OK;
 }
 
-static int read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
+static int read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	size_t bytes_to_read;
 	ssize_t bytes_read;
@@ -1637,7 +1631,7 @@ static int read_data(struct archive_read * a, const void ** buff, size_t * size,
 }
 
 /* Skip does nothing except possibly close the contents file. */
-static int skip(struct archive_read * a)
+static int skip(ArchiveRead * a)
 {
 	struct mtree * mtree = (struct mtree *)(a->format->data);
 	if(mtree->fd >= 0) {
@@ -1790,7 +1784,7 @@ static int64 mtree_atol(char ** p, int base)
  * or negative on error.  'start' argument is updated to
  * point to first character of line.
  */
-static ssize_t readline(struct archive_read * a, struct mtree * mtree, char ** start,
+static ssize_t readline(ArchiveRead * a, struct mtree * mtree, char ** start,
     ssize_t limit)
 {
 	ssize_t bytes_read;

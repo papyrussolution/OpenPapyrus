@@ -144,7 +144,7 @@ uchar * ssh_packet_encrypt(ssh_session session, void * data, uint32_t len)
 		return NULL;
 	}
 	out = (char *)SAlloc::C(1, len);
-	if(out == NULL) {
+	if(!out) {
 		return NULL;
 	}
 	seq = ntohl(session->send_seq);

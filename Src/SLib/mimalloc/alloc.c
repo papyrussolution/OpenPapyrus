@@ -69,7 +69,7 @@ extern inline void * _mi_page_malloc(mi_heap_t* heap, mi_page_t* page, size_t si
 // allocate a small block
 extern inline mi_decl_restrict void * mi_heap_malloc_small(mi_heap_t* heap, size_t size) NOEXCEPT 
 {
-	mi_assert(heap!=NULL);
+	mi_assert(heap != NULL);
 	mi_assert(heap->thread_id == 0 || heap->thread_id == _mi_thread_id()); // heaps are thread local
 	mi_assert(size <= MI_SMALL_SIZE_MAX);
   #if(MI_PADDING)
@@ -103,7 +103,7 @@ extern inline mi_decl_restrict void * mi_heap_malloc(mi_heap_t* heap, size_t siz
 		return mi_heap_malloc_small(heap, size);
 	}
 	else {
-		mi_assert(heap!=NULL);
+		mi_assert(heap != NULL);
 		mi_assert(heap->thread_id == 0 || heap->thread_id == _mi_thread_id()); // heaps are thread local
 		void * const p = _mi_malloc_generic(heap, size + MI_PADDING_SIZE); // note: size can overflow but it is detected in malloc_generic
 		mi_assert_internal(p == NULL || mi_usable_size(p) >= size);
@@ -439,7 +439,7 @@ static inline void _mi_free_block(mi_page_t* page, bool local, mi_block_t* block
 
 // Adjust a block that was allocated aligned, to the actual start of the block in the page.
 mi_block_t* _mi_page_ptr_unalign(const mi_segment_t* segment, const mi_page_t* page, const void * p) {
-	mi_assert_internal(page!=NULL && p!=NULL);
+	mi_assert_internal(page!=NULL && p != NULL);
 	const size_t diff   = (uint8_t*)p - _mi_page_start(segment, page, NULL);
 	const size_t adjust = (diff % mi_page_block_size(page));
 	return (mi_block_t*)((uintptr_t)p - adjust);

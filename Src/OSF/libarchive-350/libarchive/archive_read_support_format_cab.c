@@ -192,7 +192,7 @@ struct cffile {
 	uchar attr;
 #define ATTR_RDONLY             0x01
 #define ATTR_NAME_IS_UTF        0x80
-	struct archive_string pathname;
+	archive_string pathname;
 };
 
 struct cfheader {
@@ -226,15 +226,13 @@ struct cab {
 	int64 entry_unconsumed;
 	int64 entry_compressed_bytes_read;
 	int64 entry_uncompressed_bytes_read;
-	struct cffolder         * entry_cffolder;
-	struct cffile           * entry_cffile;
-	struct cfdata           * entry_cfdata;
-
+	struct cffolder * entry_cffolder;
+	struct cffile   * entry_cffile;
+	struct cfdata   * entry_cfdata;
 	/* Offset from beginning of a cabinet file. */
 	int64 cab_offset;
 	struct cfheader cfheader;
-	struct archive_wstring ws;
-
+	archive_wstring ws;
 	/* Flag to mark progress that an archive was read their first header.*/
 	char found_header;
 	char end_of_archive;
@@ -242,16 +240,13 @@ struct cab {
 	char end_of_entry_cleanup;
 	char read_data_invoked;
 	int64 bytes_skipped;
-
 	uchar * uncompressed_buffer;
 	size_t uncompressed_buffer_size;
-
 	int init_default_conversion;
-	struct archive_string_conv * sconv;
-	struct archive_string_conv * sconv_default;
-	struct archive_string_conv * sconv_utf8;
+	archive_string_conv * sconv;
+	archive_string_conv * sconv_default;
+	archive_string_conv * sconv_utf8;
 	char format_name[64];
-
 #ifdef HAVE_ZLIB_H
 	z_stream stream;
 	char stream_valid;
@@ -259,34 +254,27 @@ struct cab {
 	struct lzx_stream xstrm;
 };
 
-static int archive_read_format_cab_bid(struct archive_read *, int);
-static int archive_read_format_cab_options(struct archive_read *,
-    const char *, const char *);
-static int archive_read_format_cab_read_header(struct archive_read *,
-    struct archive_entry *);
-static int archive_read_format_cab_read_data(struct archive_read *,
-    const void **, size_t *, int64 *);
-static int archive_read_format_cab_read_data_skip(struct archive_read *);
-static int archive_read_format_cab_cleanup(struct archive_read *);
-
-static int cab_skip_sfx(struct archive_read *);
+static int archive_read_format_cab_bid(ArchiveRead *, int);
+static int archive_read_format_cab_options(ArchiveRead *, const char *, const char *);
+static int archive_read_format_cab_read_header(ArchiveRead *, ArchiveEntry *);
+static int archive_read_format_cab_read_data(ArchiveRead *, const void **, size_t *, int64 *);
+static int archive_read_format_cab_read_data_skip(ArchiveRead *);
+static int archive_read_format_cab_cleanup(ArchiveRead *);
+static int cab_skip_sfx(ArchiveRead *);
 static time_t   cab_dos_time(const uchar *);
-static int cab_read_data(struct archive_read *, const void **,
-    size_t *, int64 *);
-static int cab_read_header(struct archive_read *);
+static int cab_read_data(ArchiveRead *, const void **, size_t *, int64 *);
+static int cab_read_header(ArchiveRead *);
 static uint32 cab_checksum_cfdata_4(const void *, size_t bytes, uint32);
 static uint32 cab_checksum_cfdata(const void *, size_t bytes, uint32);
-static void     cab_checksum_update(struct archive_read *, size_t);
-static int cab_checksum_finish(struct archive_read *);
-static int cab_next_cfdata(struct archive_read *);
-static const void * cab_read_ahead_cfdata(struct archive_read *, ssize_t *);
-static const void * cab_read_ahead_cfdata_none(struct archive_read *, ssize_t *);
-static const void * cab_read_ahead_cfdata_deflate(struct archive_read *,
-    ssize_t *);
-static const void * cab_read_ahead_cfdata_lzx(struct archive_read *,
-    ssize_t *);
-static int64  cab_consume_cfdata(struct archive_read *, int64);
-static int64  cab_minimum_consume_cfdata(struct archive_read *, int64);
+static void     cab_checksum_update(ArchiveRead *, size_t);
+static int cab_checksum_finish(ArchiveRead *);
+static int cab_next_cfdata(ArchiveRead *);
+static const void * cab_read_ahead_cfdata(ArchiveRead *, ssize_t *);
+static const void * cab_read_ahead_cfdata_none(ArchiveRead *, ssize_t *);
+static const void * cab_read_ahead_cfdata_deflate(ArchiveRead *, ssize_t *);
+static const void * cab_read_ahead_cfdata_lzx(ArchiveRead *, ssize_t *);
+static int64  cab_consume_cfdata(ArchiveRead *, int64);
+static int64  cab_minimum_consume_cfdata(ArchiveRead *, int64);
 static int lzx_decode_init(struct lzx_stream *, int);
 static int lzx_read_blocks(struct lzx_stream *, int);
 static int lzx_decode_blocks(struct lzx_stream *, int);
@@ -378,9 +366,9 @@ static inline int lzx_decode_huffman(const struct lzx_dec::huffman * hf, uint rb
 	return (c < hf->len_size) ? (c) : 0;
 }
 
-int archive_read_support_format_cab(struct archive * _a)
+int archive_read_support_format_cab(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	struct cab * cab;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -421,7 +409,7 @@ static int find_cab_magic(const char * p)
 	}
 }
 
-static int archive_read_format_cab_bid(struct archive_read * a, int best_bid)
+static int archive_read_format_cab_bid(ArchiveRead * a, int best_bid)
 {
 	const char * p;
 	ssize_t bytes_avail, offset, window;
@@ -463,12 +451,12 @@ static int archive_read_format_cab_bid(struct archive_read * a, int best_bid)
 	return 0;
 }
 
-static int archive_read_format_cab_options(struct archive_read * a, const char * key, const char * val)
+static int archive_read_format_cab_options(ArchiveRead * a, const char * key, const char * val)
 {
 	int ret = ARCHIVE_FAILED;
 	struct cab * cab = (struct cab *)(a->format->data);
 	if(sstreq(key, "hdrcharset")) {
-		if(val == NULL || val[0] == 0)
+		if(isempty(val))
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "cab: hdrcharset option needs a character-set name");
 		else {
 			cab->sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
@@ -485,7 +473,7 @@ static int archive_read_format_cab_options(struct archive_read * a, const char *
 	return ARCHIVE_WARN;
 }
 
-static int cab_skip_sfx(struct archive_read * a)
+static int cab_skip_sfx(ArchiveRead * a)
 {
 	const char * p, * q;
 	size_t skip;
@@ -523,7 +511,7 @@ static int cab_skip_sfx(struct archive_read * a)
 	}
 }
 
-static int truncated_error(struct archive_read * a)
+static int truncated_error(ArchiveRead * a)
 {
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated CAB header");
 	return ARCHIVE_FATAL;
@@ -542,7 +530,7 @@ static ssize_t cab_strnlen(const uchar * p, size_t maxlen)
 }
 
 /* Read bytes as much as remaining. */
-static const void * cab_read_ahead_remaining(struct archive_read * a, size_t min, ssize_t * avail)
+static const void * cab_read_ahead_remaining(ArchiveRead * a, size_t min, ssize_t * avail)
 {
 	while(min > 0) {
 		const void * p = __archive_read_ahead(a, min, avail);
@@ -554,7 +542,7 @@ static const void * cab_read_ahead_remaining(struct archive_read * a, size_t min
 }
 
 /* Convert a path separator '\' -> '/' */
-static int cab_convert_path_separator_1(struct archive_string * fn, uchar attr)
+static int cab_convert_path_separator_1(archive_string * fn, uchar attr)
 {
 	size_t i;
 	/* Easy check if we have '\' in multi-byte string. */
@@ -581,7 +569,7 @@ static int cab_convert_path_separator_1(struct archive_string * fn, uchar attr)
 /*
  * Replace a character '\' with '/' in wide character.
  */
-static void cab_convert_path_separator_2(struct cab * cab, struct archive_entry * entry)
+static void cab_convert_path_separator_2(struct cab * cab, ArchiveEntry * entry)
 {
 	const wchar_t * wp;
 	size_t i;
@@ -598,7 +586,7 @@ static void cab_convert_path_separator_2(struct cab * cab, struct archive_entry 
 /*
  * Read CFHEADER, CFFOLDER and CFFILE.
  */
-static int cab_read_header(struct archive_read * a)
+static int cab_read_header(ArchiveRead * a)
 {
 	const uchar * p;
 	struct cab * cab;
@@ -847,17 +835,14 @@ nomem:
 	return ARCHIVE_FATAL;
 }
 
-static int archive_read_format_cab_read_header(struct archive_read * a,
-    struct archive_entry * entry)
+static int archive_read_format_cab_read_header(ArchiveRead * a, ArchiveEntry * entry)
 {
-	struct cab * cab;
 	struct cfheader * hd;
 	struct cffolder * prev_folder;
 	struct cffile * file;
-	struct archive_string_conv * sconv;
+	archive_string_conv * sconv;
 	int err = ARCHIVE_OK, r;
-
-	cab = (struct cab *)(a->format->data);
+	struct cab * cab = (struct cab *)(a->format->data);
 	if(cab->found_header == 0) {
 		err = cab_read_header(a);
 		if(err < ARCHIVE_WARN)
@@ -958,7 +943,7 @@ static int archive_read_format_cab_read_header(struct archive_read * a,
 	return (err);
 }
 
-static int archive_read_format_cab_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
+static int archive_read_format_cab_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	int r;
@@ -1044,7 +1029,7 @@ static uint32 cab_checksum_cfdata(const void * p, size_t bytes, uint32 seed)
 	return (sum);
 }
 
-static void cab_checksum_update(struct archive_read * a, size_t bytes)
+static void cab_checksum_update(ArchiveRead * a, size_t bytes)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata = cab->entry_cfdata;
@@ -1079,7 +1064,7 @@ static void cab_checksum_update(struct archive_read * a, size_t bytes)
 	cfdata->sum_ptr = NULL;
 }
 
-static int cab_checksum_finish(struct archive_read * a)
+static int cab_checksum_finish(ArchiveRead * a)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata = cab->entry_cfdata;
@@ -1109,7 +1094,7 @@ static int cab_checksum_finish(struct archive_read * a)
 /*
  * Read CFDATA if needed.
  */
-static int cab_next_cfdata(struct archive_read * a)
+static int cab_next_cfdata(ArchiveRead * a)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata = cab->entry_cfdata;
@@ -1243,7 +1228,7 @@ invalid:
 /*
  * Read ahead CFDATA.
  */
-static const void * cab_read_ahead_cfdata(struct archive_read * a, ssize_t * avail)
+static const void * cab_read_ahead_cfdata(ArchiveRead * a, ssize_t * avail)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	int err = cab_next_cfdata(a);
@@ -1265,7 +1250,7 @@ static const void * cab_read_ahead_cfdata(struct archive_read * a, ssize_t * ava
 /*
  * Read ahead CFDATA as uncompressed data.
  */
-static const void * cab_read_ahead_cfdata_none(struct archive_read * a, ssize_t * avail)
+static const void * cab_read_ahead_cfdata_none(ArchiveRead * a, ssize_t * avail)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata;
@@ -1296,7 +1281,7 @@ static const void * cab_read_ahead_cfdata_none(struct archive_read * a, ssize_t 
  * Read ahead CFDATA as deflate data.
  */
 #ifdef HAVE_ZLIB_H
-static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize_t * avail)
+static const void * cab_read_ahead_cfdata_deflate(ArchiveRead * a, ssize_t * avail)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata;
@@ -1495,7 +1480,7 @@ nomszip:
 
 #else /* HAVE_ZLIB_H */
 
-static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize_t * avail)
+static const void * cab_read_ahead_cfdata_deflate(ArchiveRead * a, ssize_t * avail)
 {
 	*avail = ARCHIVE_FATAL;
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "libarchive compiled without deflate support (no libz)");
@@ -1504,7 +1489,7 @@ static const void * cab_read_ahead_cfdata_deflate(struct archive_read * a, ssize
 
 #endif /* HAVE_ZLIB_H */
 
-static const void * cab_read_ahead_cfdata_lzx(struct archive_read * a, ssize_t * avail)
+static const void * cab_read_ahead_cfdata_lzx(ArchiveRead * a, ssize_t * avail)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata;
@@ -1620,7 +1605,7 @@ static const void * cab_read_ahead_cfdata_lzx(struct archive_read * a, ssize_t *
  * iFoldCONTINUED_FROM_PREV, we won't decompress because a CFDATA for
  * the CFFILE is remaining bytes of previous Multivolume CAB file.
  */
-static int64 cab_consume_cfdata(struct archive_read * a, int64 consumed_bytes)
+static int64 cab_consume_cfdata(ArchiveRead * a, int64 consumed_bytes)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata;
@@ -1704,7 +1689,7 @@ static int64 cab_consume_cfdata(struct archive_read * a, int64 consumed_bytes)
  * Consume CFDATA as much as we have already gotten and
  * compute the sum of CFDATA.
  */
-static int64 cab_minimum_consume_cfdata(struct archive_read * a, int64 consumed_bytes)
+static int64 cab_minimum_consume_cfdata(ArchiveRead * a, int64 consumed_bytes)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata;
@@ -1760,7 +1745,7 @@ static int64 cab_minimum_consume_cfdata(struct archive_read * a, int64 consumed_
  * Returns ARCHIVE_OK if successful, ARCHIVE_FATAL otherwise, sets
  * cab->end_of_entry if it consumes all of the data.
  */
-static int cab_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
+static int cab_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	ssize_t bytes_avail;
@@ -1801,7 +1786,7 @@ static int cab_read_data(struct archive_read * a, const void ** buff, size_t * s
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_cab_read_data_skip(struct archive_read * a)
+static int archive_read_format_cab_read_data_skip(ArchiveRead * a)
 {
 	int64 bytes_skipped;
 	int r;
@@ -1846,7 +1831,7 @@ static int archive_read_format_cab_read_data_skip(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_cab_cleanup(struct archive_read * a)
+static int archive_read_format_cab_cleanup(ArchiveRead * a)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfheader * hd = &cab->cfheader;

@@ -516,31 +516,10 @@ const BIGNUM bn_group_8192 = {
 };
 
 static const BN_ULONG bn_generator_19_value[] = { 19 };
-
-const BIGNUM bn_generator_19 = {
-	(BN_ULONG*)bn_generator_19_value,
-	1,
-	1,
-	0,
-	BN_FLG_STATIC_DATA
-};
+const BIGNUM bn_generator_19 = { (BN_ULONG*)bn_generator_19_value, 1, 1, 0, BN_FLG_STATIC_DATA };
 static const BN_ULONG bn_generator_5_value[] = { 5 };
-
-const BIGNUM bn_generator_5 = {
-	(BN_ULONG*)bn_generator_5_value,
-	1,
-	1,
-	0,
-	BN_FLG_STATIC_DATA
-};
+const BIGNUM bn_generator_5 = { (BN_ULONG*)bn_generator_5_value, 1, 1, 0, BN_FLG_STATIC_DATA };
 static const BN_ULONG bn_generator_2_value[] = { 2 };
-
-const BIGNUM bn_generator_2 = {
-	(BN_ULONG*)bn_generator_2_value,
-	1,
-	1,
-	0,
-	BN_FLG_STATIC_DATA
-};
+const BIGNUM bn_generator_2 = { (BN_ULONG*)bn_generator_2_value, 1, 1, 0, BN_FLG_STATIC_DATA };
 
 #endif

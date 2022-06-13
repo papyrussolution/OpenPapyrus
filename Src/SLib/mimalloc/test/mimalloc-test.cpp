@@ -15,7 +15,7 @@
 #ifdef USE_STD_MALLOC
 	#define custom_calloc(n, s)    calloc(n, s)
 	#define custom_realloc(p, s)   realloc(p, s)
-	#define custom_free(p)        free(p)
+	#define custom_free(p)         free(p)
 #else
 	#define custom_calloc(n, s)    mi_calloc(n, s)
 	#define custom_realloc(p, s)   mi_realloc(p, s)

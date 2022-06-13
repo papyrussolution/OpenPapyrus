@@ -296,9 +296,7 @@ static int sun_acl_is_trivial(void * aclp, int aclcnt, mode_t mode, int is_nfs4,
 /*
  * Translate Solaris POSIX.1e and NFSv4 ACLs into libarchive internal ACL
  */
-static int translate_acl(struct archive_read_disk * a,
-    struct archive_entry * entry, void * aclp, int aclcnt,
-    int default_entry_acl_type)
+static int translate_acl(struct archive_read_disk * a, ArchiveEntry * entry, void * aclp, int aclcnt, int default_entry_acl_type)
 {
 	int e, i;
 	int ae_id, ae_tag, ae_perm;
@@ -308,7 +306,6 @@ static int translate_acl(struct archive_read_disk * a,
 #if ARCHIVE_ACL_SUNOS_NFS4
 	ace_t * ace;
 #endif
-
 	if(aclcnt <= 0)
 		return ARCHIVE_OK;
 
@@ -424,7 +421,7 @@ static int translate_acl(struct archive_read_disk * a,
 	return ARCHIVE_OK;
 }
 
-static int set_acl(struct archive * a, int fd, const char * name, struct archive_acl * abstract_acl, int ae_requested_type, const char * tname)
+static int set_acl(Archive * a, int fd, const char * name, archive_acl * abstract_acl, int ae_requested_type, const char * tname)
 {
 	aclent_t         * aclent;
 #if ARCHIVE_ACL_SUNOS_NFS4
@@ -672,7 +669,7 @@ exit_free:
 	return ret;
 }
 
-int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
+int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
 	void * aclp;
 	int aclcnt;
@@ -730,8 +727,8 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct arch
 	return ARCHIVE_OK;
 }
 
-int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
-    struct archive_acl * abstract_acl, __LA_MODE_T mode)
+int archive_write_disk_set_acls(Archive * a, int fd, const char * name,
+    archive_acl * abstract_acl, __LA_MODE_T mode)
 {
 	int ret = ARCHIVE_OK;
 

@@ -37,18 +37,14 @@ int ASN1_GENERALIZEDTIME_set_string(ASN1_GENERALIZEDTIME * s, const char * str)
 	t.length = strlen(str);
 	t.data = (uchar *)str;
 	t.flags = 0;
-
 	if(!ASN1_GENERALIZEDTIME_check(&t))
 		return 0;
-
-	if(s != NULL && !ASN1_STRING_copy(s, &t))
+	if(s && !ASN1_STRING_copy(s, &t))
 		return 0;
-
 	return 1;
 }
 
-ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_set(ASN1_GENERALIZEDTIME * s,
-    time_t t)
+ASN1_GENERALIZEDTIME * ASN1_GENERALIZEDTIME_set(ASN1_GENERALIZEDTIME * s, time_t t)
 {
 	return ASN1_GENERALIZEDTIME_adj(s, t, 0, 0);
 }

@@ -519,9 +519,9 @@ typedef struct {
  *    it may change in a future version !
  */
 #define LZ4_STREAMSIZE_U64 ((1 << (LZ4_MEMORY_USAGE-3)) + 4 + ((sizeof(void *)==16) ? 4 : 0) /*AS-400*/ )
-#define LZ4_STREAMSIZE     (LZ4_STREAMSIZE_U64 * sizeof(unsigned long long))
+#define LZ4_STREAMSIZE     (LZ4_STREAMSIZE_U64 * sizeof(uint64))
 union LZ4_stream_u {
-	unsigned long long table[LZ4_STREAMSIZE_U64];
+	uint64 table[LZ4_STREAMSIZE_U64];
 	LZ4_stream_t_internal internal_donotuse;
 }; /* previously typedef'd to LZ4_stream_t */
 
@@ -533,9 +533,9 @@ union LZ4_stream_u {
  *    and may change in a future version !
  */
 #define LZ4_STREAMDECODESIZE_U64 (4 + ((sizeof(void *)==16) ? 2 : 0) /*AS-400*/ )
-#define LZ4_STREAMDECODESIZE     (LZ4_STREAMDECODESIZE_U64 * sizeof(unsigned long long))
+#define LZ4_STREAMDECODESIZE     (LZ4_STREAMDECODESIZE_U64 * sizeof(uint64))
 union LZ4_streamDecode_u {
-	unsigned long long table[LZ4_STREAMDECODESIZE_U64];
+	uint64 table[LZ4_STREAMDECODESIZE_U64];
 	LZ4_streamDecode_t_internal internal_donotuse;
 }; /* previously typedef'd to LZ4_streamDecode_t */
 

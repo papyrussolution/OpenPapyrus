@@ -1158,6 +1158,25 @@ public:
 	{
 		return (IsMetaId(meta) && ((ued >> 32) & 0x00000000ffffffffULL) == (meta & 0x00000000ffffffffULL));
 	}
+	static uint32 MakeShort(uint64 ued, uint64 meta)
+	{
+		uint32 result = 0;
+		THROW(IsMetaId(meta));
+		THROW(BelongToMeta(ued, meta));
+		result = static_cast<uint32>(ued & 0xffffffffULL);
+		CATCH
+			result = 0;
+		ENDCATCH
+		return result;
+	}
+	static uint64 MakeCanonical(uint32 shortUed, uint64 meta)
+	{
+		uint64 result = 0;
+		if(IsMetaId(meta)) {
+			result = (((meta & 0xffffffffULL) << 32) | shortUed);
+		}
+		return result;
+	}
 };
 //
 //

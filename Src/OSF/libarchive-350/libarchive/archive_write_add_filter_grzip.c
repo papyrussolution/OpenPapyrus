@@ -25,13 +25,13 @@ static int archive_write_grzip_write(struct archive_write_filter *, const void *
 static int archive_write_grzip_close(struct archive_write_filter *);
 static int archive_write_grzip_free(struct archive_write_filter *);
 
-int archive_write_add_filter_grzip(struct archive * _a)
+int archive_write_add_filter_grzip(Archive * _a)
 {
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct write_grzip * data;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = (write_grzip *)SAlloc::C(1, sizeof(*data));
-	if(data == NULL) {
+	if(!data) {
 		archive_set_error(_a, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}

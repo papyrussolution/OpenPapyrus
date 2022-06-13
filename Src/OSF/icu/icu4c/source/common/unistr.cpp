@@ -84,12 +84,9 @@ UnicodeString U_EXPORT2 operator+(const UnicodeString & s1, const UnicodeString 
 {
 	return UnicodeString(s1.length()+s2.length()+1, (UChar32)0, 0).append(s1).append(s2);
 }
-
-//========================================
-// Reference Counting functions, put at top of file so that optimizing compilers
-//                               have a chance to automatically inline.
-//========================================
-
+//
+// Reference Counting functions, put at top of file so that optimizing compilers have a chance to automatically inline.
+//
 void UnicodeString::addRef() 
 {
 	umtx_atomic_inc((u_atomic_int32_t*)fUnion.fFields.fArray - 1);
@@ -104,19 +101,19 @@ int32_t UnicodeString::refCount() const {
 	return umtx_loadAcquire(*((u_atomic_int32_t*)fUnion.fFields.fArray - 1));
 }
 
-void UnicodeString::releaseArray() {
+void UnicodeString::releaseArray() 
+{
 	if((fUnion.fFields.fLengthAndFlags & kRefCounted) && removeRef() == 0) {
 		uprv_free((int32_t*)fUnion.fFields.fArray - 1);
 	}
 }
-
-//========================================
+//
 // Constructors
-//========================================
-
+//
 // The default constructor is inline in unistr.h.
-
-UnicodeString::UnicodeString(int32_t capacity, UChar32 c, int32_t count) {
+//
+UnicodeString::UnicodeString(int32_t capacity, UChar32 c, int32_t count) 
+{
 	fUnion.fFields.fLengthAndFlags = 0;
 	if(count <= 0 || (uint32_t)c > 0x10ffff) {
 		// just allocate and do not do anything else
@@ -306,11 +303,9 @@ Replaceable * Replaceable::clone() const { return NULL; }
 
 // UnicodeString overrides clone() with a real implementation
 UnicodeString * UnicodeString::clone() const { return new UnicodeString(*this); }
-
-//========================================
+//
 // array allocation
-//========================================
-
+//
 namespace {
 const int32_t kGrowSize = 128;
 
@@ -365,16 +360,15 @@ bool UnicodeString::allocate(int32_t capacity) {
 	fUnion.fFields.fCapacity = 0;
 	return FALSE;
 }
-
-//========================================
+//
 // Destructor
-//========================================
-
+//
 #ifdef UNISTR_COUNT_FINAL_STRING_LENGTHS
 static u_atomic_int32_t finalLengthCounts[0x400];  // UnicodeString::kMaxShortLength+1
 static u_atomic_int32_t beyondCount(0);
 
-U_CAPI void unistr_printLengths() {
+U_CAPI void unistr_printLengths() 
+{
 	int32_t i;
 	for(i = 0; i <= 59; ++i) {
 		printf("%2d,  %9d\n", i, (int32_t)finalLengthCounts[i]);
@@ -407,12 +401,11 @@ UnicodeString::~UnicodeString()
 
 	releaseArray();
 }
-
-//========================================
+//
 // Factory methods
-//========================================
-
-UnicodeString UnicodeString::fromUTF8(StringPiece utf8) {
+//
+UnicodeString UnicodeString::fromUTF8(StringPiece utf8) 
+{
 	UnicodeString result;
 	result.setToUTF8(utf8);
 	return result;
@@ -451,25 +444,18 @@ UnicodeString UnicodeString::fromUTF32(const UChar32 * utf32, int32_t length) {
 	} while(true);
 	return result;
 }
-
-//========================================
+//
 // Assignment
-//========================================
+//
+UnicodeString & UnicodeString::operator = (const UnicodeString & src) { return copyFrom(src); }
+UnicodeString & UnicodeString::fastCopyFrom(const UnicodeString & src) { return copyFrom(src, TRUE); }
 
-UnicodeString & UnicodeString::operator = (const UnicodeString & src) {
-	return copyFrom(src);
-}
-
-UnicodeString & UnicodeString::fastCopyFrom(const UnicodeString & src) {
-	return copyFrom(src, TRUE);
-}
-
-UnicodeString & UnicodeString::copyFrom(const UnicodeString & src, bool fastCopy) {
+UnicodeString & UnicodeString::copyFrom(const UnicodeString & src, bool fastCopy) 
+{
 	// if assigning to ourselves, do nothing
 	if(this == &src) {
 		return *this;
 	}
-
 	// is the right side bogus?
 	if(src.isBogus()) {
 		setToBogus();
@@ -577,7 +563,8 @@ void UnicodeString::copyFieldsFrom(UnicodeString & src, bool setSrcToBogus) U_NO
 	}
 }
 
-void UnicodeString::swap(UnicodeString & other) U_NOEXCEPT {
+void UnicodeString::swap(UnicodeString & other) U_NOEXCEPT 
+{
 	UnicodeString temp; // Empty short string: Known not to need releaseArray().
 	// Copy fields without resetting source values in between.
 	temp.copyFieldsFrom(*this, FALSE);
@@ -586,12 +573,11 @@ void UnicodeString::swap(UnicodeString & other) U_NOEXCEPT {
 	// Set temp to an empty string so that other's memory is not released twice.
 	temp.fUnion.fFields.fLengthAndFlags = kShortString;
 }
-
-//========================================
+//
 // Miscellaneous operations
-//========================================
-
-UnicodeString UnicodeString::unescape() const {
+//
+UnicodeString UnicodeString::unescape() const 
+{
 	UnicodeString result(length(), (UChar32)0, (int32_t)0); // construct with capacity
 	if(result.isBogus()) {
 		return result;
@@ -618,14 +604,15 @@ UnicodeString UnicodeString::unescape() const {
 	return result;
 }
 
-UChar32 UnicodeString::unescapeAt(int32_t &offset) const {
+UChar32 UnicodeString::unescapeAt(int32_t &offset) const 
+{
 	return u_unescapeAt(UnicodeString_charAt, &offset, length(), (void *)this);
 }
-
-//========================================
+//
 // Read-only implementation
-//========================================
-bool UnicodeString::doEquals(const UnicodeString & text, int32_t len) const {
+//
+bool UnicodeString::doEquals(const UnicodeString & text, int32_t len) const 
+{
 	// Requires: this & text not bogus and have same lengths.
 	// Byte-wise comparison works for equality regardless of endianness.
 	return uprv_memcmp(getArrayStart(), text.getArrayStart(), len * U_SIZEOF_UCHAR) == 0;
@@ -1033,11 +1020,9 @@ int32_t UnicodeString::doLastIndexOf(UChar32 c, int32_t start, int32_t length) c
 	const UChar * match = u_memrchr32(array + start, c, length);
 	return match ? (int32_t)(match - array) : -1;
 }
-
-//========================================
+//
 // Write implementation
-//========================================
-
+//
 UnicodeString & UnicodeString::findAndReplace(int32_t start, int32_t length, const UnicodeString & oldText, int32_t oldStart,
     int32_t oldLength, const UnicodeString & newText, int32_t newStart, int32_t newLength)
 {
@@ -1583,25 +1568,21 @@ bool UnicodeString::padTrailing(int32_t targetLength,
 		return TRUE;
 	}
 }
-
-//========================================
+//
 // Hashing
-//========================================
+//
 int32_t UnicodeString::doHashCode() const
 {
-	/* Delegate hash computation to uhash.  This makes UnicodeString
-	 * hashing consistent with UChar * hashing.  */
+	// Delegate hash computation to uhash.  This makes UnicodeString hashing consistent with UChar * hashing.
 	int32_t hashCode = ustr_hashUCharsN(getArrayStart(), length());
 	if(hashCode == kInvalidHashCode) {
 		hashCode = kEmptyHashCode;
 	}
 	return hashCode;
 }
-
-//========================================
+//
 // External Buffer
-//========================================
-
+//
 char16_t * UnicodeString::getBuffer(int32_t minCapacity) 
 {
 	if(minCapacity>=-1 && cloneArrayIfNeeded(minCapacity)) {
@@ -1684,7 +1665,7 @@ bool UnicodeString::cloneArrayIfNeeded(int32_t newCapacity, int32_t growCapacity
 		}
 		else {
 			oldArray = fUnion.fFields.fArray;
-			U_ASSERT(oldArray!=NULL); /* when stack buffer is not used, oldArray must have a non-NULL reference */
+			U_ASSERT(oldArray != NULL); /* when stack buffer is not used, oldArray must have a non-NULL reference */
 		}
 		// allocate a new array
 		if(allocate(growCapacity) || (newCapacity < growCapacity && allocate(newCapacity))) {
@@ -1773,7 +1754,6 @@ UChar * UnicodeStringAppendable::getAppendBuffer(int32_t minCapacity, int32_t de
 }
 
 U_NAMESPACE_END
-
 U_NAMESPACE_USE
 
 U_CAPI int32_t U_EXPORT2 uhash_hashUnicodeString(const UElement key) 
@@ -1804,7 +1784,8 @@ U_CAPI bool U_EXPORT2 uhash_compareUnicodeString(const UElement key1, const UEle
    but defining it here makes sure that it is included with this object file.
    This makes sure that static library dependencies are kept to a minimum.
  */
-static void uprv_UnicodeStringDummy() {
+static void uprv_UnicodeStringDummy() 
+{
 	delete [] (new UnicodeString[2]);
 }
 

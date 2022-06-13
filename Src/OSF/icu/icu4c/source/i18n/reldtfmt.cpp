@@ -155,7 +155,7 @@ UnicodeString & RelativeDateFormat::format(Calendar& cal,
 	// look up string
 	int32_t len = 0;
 	const UChar * theString = getStringForDay(dayDiff, len, status);
-	if(U_SUCCESS(status) && (theString!=NULL)) {
+	if(U_SUCCESS(status) && (theString != NULL)) {
 		// found a relative string
 		relativeDayString.setTo(theString, len);
 	}
@@ -498,10 +498,7 @@ static const int32_t patItem1Len = 3;
 void RelativeDateFormat::loadDates(UErrorCode & status) 
 {
 	UResourceBundle * rb = ures_open(NULL, fLocale.getBaseName(), &status);
-	LocalUResourceBundlePointer dateTimePatterns(
-		ures_getByKeyWithFallback(rb,
-		"calendar/gregorian/DateTimePatterns",
-		(UResourceBundle*)NULL, &status));
+	LocalUResourceBundlePointer dateTimePatterns(ures_getByKeyWithFallback(rb, "calendar/gregorian/DateTimePatterns", (UResourceBundle*)NULL, &status));
 	if(U_SUCCESS(status)) {
 		int32_t patternsSize = ures_getSize(dateTimePatterns.getAlias());
 		if(patternsSize > kDateTime) {
@@ -509,12 +506,10 @@ void RelativeDateFormat::loadDates(UErrorCode & status)
 			int32_t glueIndex = kDateTime;
 			if(patternsSize >= (kDateTimeOffset + kShort + 1)) {
 				int32_t offsetIncrement = (fDateStyle & ~kRelative); // Remove relative bit.
-				if(offsetIncrement >= (int32_t)kFull &&
-				    offsetIncrement <= (int32_t)kShortRelative) {
+				if(offsetIncrement >= (int32_t)kFull && offsetIncrement <= (int32_t)kShortRelative) {
 					glueIndex = kDateTimeOffset + offsetIncrement;
 				}
 			}
-
 			const UChar * resStr = ures_getStringByIndex(dateTimePatterns.getAlias(), glueIndex, &resStrLen, &status);
 			if(U_SUCCESS(status) && resStrLen >= patItem1Len && u_strncmp(resStr, patItem1, patItem1Len)==0) {
 				fCombinedHasDateAtStart = TRUE;

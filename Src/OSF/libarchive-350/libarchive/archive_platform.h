@@ -184,7 +184,7 @@
 #endif*/
 #if HAVE_LIBXML_XMLWRITER_H
 	#include <..\osf\libxml\libxml.h>
-	#include <libxml/xmlwriter.h>
+	#include <libxml\xmlwriter.h>
 #endif
 #ifdef HAVE_BZLIB_H
 	#include <..\OSF\BZIP2\bzlib.h>

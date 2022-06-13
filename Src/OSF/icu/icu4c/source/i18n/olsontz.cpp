@@ -715,27 +715,21 @@ void OlsonTimeZone::initTransitionRules(UErrorCode & status) {
 	deleteTransitionRules();
 	UnicodeString tzid;
 	getID(tzid);
-
 	UnicodeString stdName = tzid + UNICODE_STRING_SIMPLE("(STD)");
 	UnicodeString dstName = tzid + UNICODE_STRING_SIMPLE("(DST)");
-
-	int32_t raw, dst;
-
 	// Create initial rule
-	raw = initialRawOffset() * U_MILLIS_PER_SECOND;
-	dst = initialDstOffset() * U_MILLIS_PER_SECOND;
+	int32_t raw = initialRawOffset() * U_MILLIS_PER_SECOND;
+	int32_t dst = initialDstOffset() * U_MILLIS_PER_SECOND;
 	initialRule = new InitialTimeZoneRule((dst == 0 ? stdName : dstName), raw, dst);
 	// Check to make sure initialRule was created
-	if(initialRule == NULL) {
+	if(!initialRule) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		deleteTransitionRules();
 		return;
 	}
-
 	int32_t transCount = transitionCount();
 	if(transCount > 0) {
 		int16 transitionIdx, typeIdx;
-
 		// We probably no longer need to check the first "real" transition
 		// here, because the new tzcode remove such transitions already.
 		// For now, keeping this code for just in case. Feb 19, 2010 Yoshito

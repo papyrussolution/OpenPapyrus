@@ -374,7 +374,7 @@ static ngx_int_t ngx_http_dav_copy_move_handler(ngx_http_request_t * r)
 		goto destination_done;
 	}
 	len = r->headers_in.server.len;
-	if(len == 0) {
+	if(!len) {
 		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "client sent no \"Host\" header");
 		return NGX_HTTP_BAD_REQUEST;
 	}

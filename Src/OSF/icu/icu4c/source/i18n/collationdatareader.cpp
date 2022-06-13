@@ -178,7 +178,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	offset = getIndex(inIndexes, indexesLength, index);
 	length = getIndex(inIndexes, indexesLength, index + 1) - offset;
 	if(length >= 8) {
-		if(data == NULL) {
+		if(!data) {
 			errorCode = U_INVALID_FORMAT_ERROR; // Tailored ces without tailored trie.
 			return;
 		}
@@ -190,7 +190,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	offset = getIndex(inIndexes, indexesLength, index);
 	length = getIndex(inIndexes, indexesLength, index + 1) - offset;
 	if(length >= 4) {
-		if(data == NULL) {
+		if(!data) {
 			errorCode = U_INVALID_FORMAT_ERROR; // Tailored ce32s without tailored trie.
 			return;
 		}
@@ -206,7 +206,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 		}
 		data->jamoCE32s = data->ce32s + jamoCE32sStart;
 	}
-	else if(data == NULL) {
+	else if(!data) {
 		// Nothing to do.
 	}
 	else if(baseData) {
@@ -246,7 +246,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	offset = getIndex(inIndexes, indexesLength, index);
 	length = getIndex(inIndexes, indexesLength, index + 1) - offset;
 	if(length >= 2) {
-		if(data == NULL) {
+		if(!data) {
 			errorCode = U_INVALID_FORMAT_ERROR; // Tailored contexts without tailored trie.
 			return;
 		}
@@ -258,7 +258,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	offset = getIndex(inIndexes, indexesLength, index);
 	length = getIndex(inIndexes, indexesLength, index + 1) - offset;
 	if(length >= 2) {
-		if(data == NULL) {
+		if(!data) {
 			errorCode = U_INVALID_FORMAT_ERROR;
 			return;
 		}
@@ -328,7 +328,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 		tailoring.unsafeBackwardSet->freeze();
 		data->unsafeBackwardSet = tailoring.unsafeBackwardSet;
 	}
-	else if(data == NULL) {
+	else if(!data) {
 		// Nothing to do.
 	}
 	else if(baseData) {
@@ -369,7 +369,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	offset = getIndex(inIndexes, indexesLength, index);
 	length = getIndex(inIndexes, indexesLength, index + 1) - offset;
 	if(length >= 2) {
-		if(data == NULL) {
+		if(!data) {
 			errorCode = U_INVALID_FORMAT_ERROR;
 			return;
 		}
@@ -393,7 +393,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 			return;
 		}
 	}
-	else if(data == NULL) {
+	else if(!data) {
 		// Nothing to do.
 	}
 	else if(baseData) {
@@ -407,13 +407,13 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	offset = getIndex(inIndexes, indexesLength, index);
 	length = getIndex(inIndexes, indexesLength, index + 1) - offset;
 	if(length >= 256) {
-		if(data == NULL) {
+		if(!data) {
 			errorCode = U_INVALID_FORMAT_ERROR;
 			return;
 		}
 		data->compressibleBytes = reinterpret_cast<const bool *>(inBytes + offset);
 	}
-	else if(data == NULL) {
+	else if(!data) {
 		// Nothing to do.
 	}
 	else if(baseData) {

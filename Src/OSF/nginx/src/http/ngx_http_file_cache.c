@@ -774,7 +774,7 @@ static void ngx_http_file_cache_vary_header(ngx_http_request_t * r, ngx_md5_t * 
 				p++;
 			}
 			len = p - start;
-			if(len == 0) {
+			if(!len) {
 				break;
 			}
 			if(multiple) {

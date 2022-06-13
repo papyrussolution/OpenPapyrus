@@ -79,14 +79,14 @@ struct warc_s {
 	/* previous version */
 	uint pver;
 	/* stringified format name */
-	struct archive_string sver;
+	archive_string sver;
 };
 
-static int _warc_bid(struct archive_read * a, int);
-static int _warc_cleanup(struct archive_read * a);
-static int _warc_read(struct archive_read*, const void**, size_t*, int64*);
-static int _warc_skip(struct archive_read * a);
-static int _warc_rdhdr(struct archive_read * a, struct archive_entry * e);
+static int _warc_bid(ArchiveRead * a, int);
+static int _warc_cleanup(ArchiveRead * a);
+static int _warc_read(ArchiveRead*, const void**, size_t*, int64*);
+static int _warc_skip(ArchiveRead * a);
+static int _warc_rdhdr(ArchiveRead * a, ArchiveEntry * e);
 
 /* private routines */
 static uint _warc_rdver(const char buf[10], size_t bsz);
@@ -98,9 +98,9 @@ static time_t _warc_rdmtm(const char * buf, size_t bsz);
 static const char * _warc_find_eoh(const char * buf, size_t bsz);
 static const char * _warc_find_eol(const char * buf, size_t bsz);
 
-int archive_read_support_format_warc(struct archive * _a)
+int archive_read_support_format_warc(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	struct warc_s * w;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -116,7 +116,7 @@ int archive_read_support_format_warc(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int _warc_cleanup(struct archive_read * a)
+static int _warc_cleanup(ArchiveRead * a)
 {
 	struct warc_s * w = static_cast<struct warc_s *>(a->format->data);
 	if(w->pool.len > 0U) {
@@ -128,7 +128,7 @@ static int _warc_cleanup(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static int _warc_bid(struct archive_read * a, int best_bid)
+static int _warc_bid(ArchiveRead * a, int best_bid)
 {
 	const char * hdr;
 	ssize_t nrd;
@@ -153,7 +153,7 @@ static int _warc_bid(struct archive_read * a, int best_bid)
 	return (64);
 }
 
-static int _warc_rdhdr(struct archive_read * a, struct archive_entry * entry)
+static int _warc_rdhdr(ArchiveRead * a, ArchiveEntry * entry)
 {
 #define HDR_PROBE_LEN           (12U)
 	struct warc_s * w = static_cast<struct warc_s *>(a->format->data);
@@ -316,7 +316,7 @@ start_over:
 	return ARCHIVE_OK;
 }
 
-static int _warc_read(struct archive_read * a, const void ** buf, size_t * bsz, int64 * off)
+static int _warc_read(ArchiveRead * a, const void ** buf, size_t * bsz, int64 * off)
 {
 	struct warc_s * w = static_cast<struct warc_s *>(a->format->data);
 	const char * rab;
@@ -358,7 +358,7 @@ eof:
 	return ARCHIVE_OK;
 }
 
-static int _warc_skip(struct archive_read * a)
+static int _warc_skip(ArchiveRead * a)
 {
 	struct warc_s * w = static_cast<struct warc_s *>(a->format->data);
 	__archive_read_consume(a, w->cntlen + 4U /*\r\n\r\n separator*/);

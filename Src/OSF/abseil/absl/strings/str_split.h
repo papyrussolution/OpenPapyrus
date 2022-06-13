@@ -27,10 +27,8 @@
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
-
-//------------------------------------------------------------------------------
+//
 // Delimiters
-//------------------------------------------------------------------------------
 //
 // `StrSplit()` uses delimiters to define the boundaries between elements in the
 // provided input. Several `Delimiter` types are defined below. If a string
@@ -277,10 +275,8 @@ inline strings_internal::MaxSplitsImpl<
 	return strings_internal::MaxSplitsImpl<DelimiterType>(
 		DelimiterType(delimiter), limit);
 }
-
-//------------------------------------------------------------------------------
+//
 // Predicates
-//------------------------------------------------------------------------------
 //
 // Predicates filter the results of a `StrSplit()` by determining whether or not
 // a resultant element is included in the result set. A predicate may be passed
@@ -347,22 +343,17 @@ struct SkipEmpty {
 //   std::vector <std::string> v = absl::StrSplit(" a , ,,b,", ',', SkipEmpty());
 //   // v[0] == " a ", v[1] == " ", v[2] == "b"
 struct SkipWhitespace {
-	bool operator()(absl::string_view sp) const {
+	bool operator()(absl::string_view sp) const 
+	{
 		sp = absl::StripAsciiWhitespace(sp);
 		return !sp.empty();
 	}
 };
 
-template <typename T>
-using EnableSplitIfString =
-    typename std::enable_if<std::is_same<T, std::string>::value ||
-	std::is_same<T, const std::string>::value,
-	int>::type;
-
-//------------------------------------------------------------------------------
+template <typename T> using EnableSplitIfString = typename std::enable_if<std::is_same<T, std::string>::value || std::is_same<T, const std::string>::value, int>::type;
+//
 //                                  StrSplit()
-//------------------------------------------------------------------------------
-
+//
 // StrSplit()
 //
 // Splits a given string based on the provided `Delimiter` object, returning the
@@ -398,9 +389,7 @@ using EnableSplitIfString =
 //
 // See above for more information on predicates.
 //
-//------------------------------------------------------------------------------
 // StrSplit() Return Types
-//------------------------------------------------------------------------------
 //
 // The `StrSplit()` function adapts the returned collection to the collection
 // specified by the caller (e.g. `std::vector` above). The returned collections

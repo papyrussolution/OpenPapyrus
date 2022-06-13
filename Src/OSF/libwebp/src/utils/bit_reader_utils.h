@@ -65,22 +65,20 @@ extern void BitTrace(const struct VP8BitReader* const br, const char label[]);
 #else                                          // reasonable default
 #define BITS 24
 #endif
-
-//------------------------------------------------------------------------------
+//
 // Derived types and constants:
 //   bit_t = natural register type for storing 'value_' (which is BITS+8 bits)
 //   range_t = register for 'range_' (which is 8bits only)
-
+//
 #if (BITS > 24)
 	typedef uint64_t bit_t;
 #else
 	typedef uint32_t bit_t;
 #endif
 typedef uint32_t range_t;
-
-//------------------------------------------------------------------------------
+//
 // Bitreader
-
+//
 typedef struct VP8BitReader VP8BitReader;
 struct VP8BitReader {
 	// boolean decoder  (keep the field ordering as is!)

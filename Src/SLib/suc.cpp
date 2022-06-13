@@ -817,7 +817,7 @@ const SCodepageMapPool::MapEntry * FASTCALL SCodepageMapPool::CpMap::SearchFallb
 		const MapEntry * p_org = P_Fallback;
 		for(uint i = 0, lo = 0, up = FallbackCount-1; lo <= up;) {
 			const MapEntry * p = p_org + (i = (lo + up) >> 1);
-			const int cmp = CMPSIGN(p->U2, u);
+			const int cmp = CMPSIGN(static_cast<uint32>(p->U2), u);
 			if(cmp < 0)
 				lo = i + 1;
 			else if(cmp) {
@@ -1316,7 +1316,7 @@ const SCodepageMapPool::MapEntry * FASTCALL SCodepageMapPool::CpMap::SearchU(wch
 		const  MapEntry * p_org = P_Map;
 		for(uint i = 0, lo = 0, up = pIdx->getCount()-1; lo <= up;) {
 			const uint _pos = static_cast<uint>(pIdx->get(i = (lo + up) >> 1));
-			const int cmp = CMPSIGN(p_org[_pos].U2, u);
+			const int cmp = CMPSIGN(static_cast<wchar_t>(p_org[_pos].U2), u);
 			if(cmp < 0)
 				lo = i + 1;
 			else if(cmp) {

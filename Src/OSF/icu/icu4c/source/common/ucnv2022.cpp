@@ -648,7 +648,7 @@ static void U_CALLCONV _ISO2022Close(UConverter * converter) {
 	if(converter->extraInfo != NULL) {
 		/*close the array of converter pointers and free the memory*/
 		for(i = 0; i<UCNV_2022_MAX_CONVERTERS; i++) {
-			if(array[i]!=NULL) {
+			if(array[i] != NULL) {
 				ucnv_unloadSharedDataIfReady(array[i]);
 			}
 		}
@@ -1177,7 +1177,7 @@ static inline int32_t MBCS_FROM_UCHAR32_ISO2022(UConverterSharedData* sharedData
 		}
 	}
 	cx = sharedData->mbcs.extIndexes;
-	if(cx!=NULL) {
+	if(cx != NULL) {
 		return ucnv_extSimpleMatchFromU(cx, c, value, useFallback);
 	}
 	/* unassigned */
@@ -3809,7 +3809,7 @@ static void U_CALLCONV _ISO_2022_GetUnicodeSet(const UConverter * cnv,
 
 	for(i = 0; i<UCNV_2022_MAX_CONVERTERS; i++) {
 		UConverterSetFilter filter;
-		if(cnvData->myConverterArray[i]!=NULL) {
+		if(cnvData->myConverterArray[i] != NULL) {
 			if(cnvData->locale[0]=='j' && i==JISX208) {
 				/*
 				 * Only add code points that map to Shift-JIS codes

@@ -1108,15 +1108,11 @@ static int ssl_set_cert_and_key(SSL * ssl, SSL_CTX * ctx, X509 * x509, EVP_PKEY 
 		SSLerr(SSL_F_SSL_SET_CERT_AND_KEY, SSL_R_UNKNOWN_CERTIFICATE_TYPE);
 		goto out;
 	}
-
-	if(!override && (c->pkeys[i].x509 != NULL
-	   || c->pkeys[i].privatekey != NULL
-	   || c->pkeys[i].chain != NULL)) {
+	if(!override && (c->pkeys[i].x509 != NULL || c->pkeys[i].privatekey != NULL || c->pkeys[i].chain != NULL)) {
 		/* No override, and something already there */
 		SSLerr(SSL_F_SSL_SET_CERT_AND_KEY, SSL_R_NOT_REPLACING_CERTIFICATE);
 		goto out;
 	}
-
 	if(chain != NULL) {
 		dup_chain = X509_chain_up_ref(chain);
 		if(dup_chain == NULL) {
@@ -1124,34 +1120,27 @@ static int ssl_set_cert_and_key(SSL * ssl, SSL_CTX * ctx, X509 * x509, EVP_PKEY 
 			goto out;
 		}
 	}
-
 	sk_X509_pop_free(c->pkeys[i].chain, X509_free);
 	c->pkeys[i].chain = dup_chain;
-
 	X509_free(c->pkeys[i].x509);
 	X509_up_ref(x509);
 	c->pkeys[i].x509 = x509;
-
 	EVP_PKEY_free(c->pkeys[i].privatekey);
 	EVP_PKEY_up_ref(privatekey);
 	c->pkeys[i].privatekey = privatekey;
-
 	c->key = &(c->pkeys[i]);
-
 	ret = 1;
 out:
 	EVP_PKEY_free(pubkey);
 	return ret;
 }
 
-int SSL_use_cert_and_key(SSL * ssl, X509 * x509, EVP_PKEY * privatekey,
-    STACK_OF(X509) * chain, int override)
+int SSL_use_cert_and_key(SSL * ssl, X509 * x509, EVP_PKEY * privatekey, STACK_OF(X509) * chain, int override)
 {
 	return ssl_set_cert_and_key(ssl, NULL, x509, privatekey, chain, override);
 }
 
-int SSL_CTX_use_cert_and_key(SSL_CTX * ctx, X509 * x509, EVP_PKEY * privatekey,
-    STACK_OF(X509) * chain, int override)
+int SSL_CTX_use_cert_and_key(SSL_CTX * ctx, X509 * x509, EVP_PKEY * privatekey, STACK_OF(X509) * chain, int override)
 {
 	return ssl_set_cert_and_key(NULL, ctx, x509, privatekey, chain, override);
 }

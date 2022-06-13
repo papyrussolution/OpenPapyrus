@@ -339,6 +339,7 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\pphelp.chm"
 	File "${SRC_TARGET}\ppgplot.exe"
 	File "${SRC_TARGET}\icudt70.dll" ; @v11.3.1 Данные ICU
+	File "${SRC_TARGET}\icudt70l.dat" ; @v11.4.1 Данные ICU
 	File "${SRC_TOOLS}\dl600c.exe"
 	File "${SRC_TOOLS}\dl600c-xp.exe" ; @v10.9.3
 	; @v8.9.8 File "${SRC_REDIST}\stdrpt.ini"	

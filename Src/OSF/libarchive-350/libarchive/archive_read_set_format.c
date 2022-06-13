@@ -16,12 +16,12 @@
 __FBSDID("$FreeBSD$");
 #include "archive_read_private.h"
 
-int archive_read_set_format(struct archive * _a, int code)
+int archive_read_set_format(Archive * _a, int code)
 {
 	int r1, r2, i;
 	//char str[10];
 	const char * p_str = 0;
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	if((r1 = archive_read_support_format_by_code(_a, code)) < (ARCHIVE_OK))
 		return r1;
 	r1 = r2 = (ARCHIVE_OK);

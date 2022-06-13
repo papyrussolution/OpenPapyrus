@@ -70,14 +70,11 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size
 	PBYTE hash;
 	ULONG result;
 	NTSTATUS status;
-
 	ctx->hAlg = NULL;
-	status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA1_ALGORITHM,
-		MS_PRIMITIVE_PROVIDER, BCRYPT_ALG_HANDLE_HMAC_FLAG);
+	status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA1_ALGORITHM, MS_PRIMITIVE_PROVIDER, BCRYPT_ALG_HANDLE_HMAC_FLAG);
 	if(!BCRYPT_SUCCESS(status))
 		return -1;
-	status = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH, (PUCHAR)&hash_len,
-		sizeof(hash_len), &result, 0);
+	status = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH, (PUCHAR)&hash_len, sizeof(hash_len), &result, 0);
 	if(!BCRYPT_SUCCESS(status)) {
 		BCryptCloseAlgorithmProvider(hAlg, 0);
 		return -1;
@@ -87,24 +84,20 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size
 		BCryptCloseAlgorithmProvider(hAlg, 0);
 		return -1;
 	}
-	status = BCryptCreateHash(hAlg, &hHash, NULL, 0,
-		(PUCHAR)key, (ULONG)key_len, BCRYPT_HASH_REUSABLE_FLAG);
+	status = BCryptCreateHash(hAlg, &hHash, NULL, 0, (PUCHAR)key, (ULONG)key_len, BCRYPT_HASH_REUSABLE_FLAG);
 	if(!BCRYPT_SUCCESS(status)) {
 		BCryptCloseAlgorithmProvider(hAlg, 0);
 		HeapFree(GetProcessHeap(), 0, hash);
 		return -1;
 	}
-
 	ctx->hAlg = hAlg;
 	ctx->hHash = hHash;
 	ctx->hash_len = hash_len;
 	ctx->hash = hash;
-
 	return 0;
 }
 
-static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
-    size_t data_len)
+static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data, size_t data_len)
 {
 	BCryptHashData(ctx->hHash, (PUCHAR)(uintptr_t)data, (ULONG)data_len, 0);
 }
@@ -131,7 +124,6 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size
 {
 	const mbedtls_md_info_t * info;
 	int ret;
-
 	mbedtls_md_init(ctx);
 	info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA1);
 	if(info == NULL) {
@@ -178,8 +170,7 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size
 	return 0;
 }
 
-static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
-    size_t data_len)
+static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data, size_t data_len)
 {
 	hmac_sha1_update(ctx, data_len, data);
 }
@@ -236,8 +227,7 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size
 	return -1;
 }
 
-static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data,
-    size_t data_len)
+static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data, size_t data_len)
 {
 	CXX_UNUSED(ctx);
 	(void)data; /* UNUSED */

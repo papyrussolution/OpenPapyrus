@@ -190,7 +190,8 @@ PluralRules* U_EXPORT2 PluralRules::forLocale(const Locale & locale, UErrorCode 
 	return forLocale(locale, UPLURAL_TYPE_CARDINAL, status);
 }
 
-PluralRules* U_EXPORT2 PluralRules::forLocale(const Locale & locale, UPluralType type, UErrorCode & status) {
+PluralRules* U_EXPORT2 PluralRules::forLocale(const Locale & locale, UPluralType type, UErrorCode & status) 
+{
 	if(type != UPLURAL_TYPE_CARDINAL) {
 		return internalForLocale(locale, type, status);
 	}
@@ -204,7 +205,8 @@ PluralRules* U_EXPORT2 PluralRules::forLocale(const Locale & locale, UPluralType
 	return result;
 }
 
-PluralRules* U_EXPORT2 PluralRules::internalForLocale(const Locale & locale, UPluralType type, UErrorCode & status) {
+PluralRules* U_EXPORT2 PluralRules::internalForLocale(const Locale & locale, UPluralType type, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}

@@ -2996,7 +2996,7 @@ FreeAllMem:
 		sparams->utils->FnFree(charset);
 	if(digesturi != NULL)
 		sparams->utils->FnFree(digesturi);
-	if(qop!=NULL)
+	if(qop != NULL)
 		sparams->utils->FnFree(qop);
 	if(sec)
 		_plug_free_secret(sparams->utils, &sec);

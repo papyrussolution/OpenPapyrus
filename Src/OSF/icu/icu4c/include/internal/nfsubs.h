@@ -74,11 +74,9 @@ public:
 	 */
 	virtual void toString(UnicodeString & result) const;
 	void setDecimalFormatSymbols(const DecimalFormatSymbols &newSymbols, UErrorCode & status);
-
-	//-----------------------------------------------------------------------
+	//
 	// formatting
-	//-----------------------------------------------------------------------
-
+	//
 	/**
 	 * Performs a mathematical operation on the number, formats it using
 	 * either ruleSet or decimalFormat, and inserts the result into
@@ -127,12 +125,10 @@ protected:
 	 * @return The result of performing the opreration on the number
 	 */
 	virtual double transformNumber(double number) const = 0;
-
 public:
-	//-----------------------------------------------------------------------
+	//
 	// parsing
-	//-----------------------------------------------------------------------
-
+	//
 	/**
 	 * Parses a string using the rule set or DecimalFormat belonging
 	 * to this substitution.  If there's a match, a mathematical
@@ -187,11 +183,9 @@ public:
 	 *      this substitution.
 	 */
 	virtual double calcUpperBound(double oldUpperBound) const = 0;
-
-	//-----------------------------------------------------------------------
+	//
 	// simple accessors
-	//-----------------------------------------------------------------------
-
+	//
 	/**
 	 * Returns the substitution's position in the rule that owns it.
 	 * @return The substitution's position in the rule that owns it.

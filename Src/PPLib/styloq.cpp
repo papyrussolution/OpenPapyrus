@@ -1720,7 +1720,31 @@ int StyloQCore::PutDocument(PPID * pID, const SBinaryChunk & rContractorIdent, i
 			pack.Rec.Expiration.SetTimeT(tm_now + doc_expiry);
 		}
 		pack.Pool = rPool;
-		if(docType == doctypIndexingContent) {
+		if(docType == doctypGeneric) {
+			long _ex_doc_id_from_db = 0;
+			// Документ такого типа может быть только один в комбинации {direction; rIdent}
+			LongArray ex_id_list;
+			{
+				PPTransaction tra(use_ta);
+				THROW(tra);
+				if(GetDocIdListByType(direction, docType, &rIdent, ex_id_list) > 0) {
+					for(uint i = 0; i < ex_id_list.getCount(); i++)	{
+						if(i == ex_id_list.getCount()-1) {
+							_ex_doc_id_from_db = ex_id_list.get(i);
+						}
+						else {
+							PPID _id_to_remove = ex_id_list.get(i);
+							THROW(PutPeerEntry(&_id_to_remove, 0, 0));
+						}
+					}
+				}
+				THROW(PutPeerEntry(&_ex_doc_id_from_db, &pack, 0));
+				THROW(tra.Commit());
+				new_id = _ex_doc_id_from_db;
+				ok = 1;
+			}
+		}
+		else if(docType == doctypIndexingContent) {
 			pack.Rec.Flags |= fUnprocessedDoc;
 			// Документ такого типа может быть только один в комбинации {direction; rIdent}
 			LongArray ex_id_list;
@@ -6166,7 +6190,7 @@ int PPStyloQInterchange::DoInterchange(InterchangeParam & rParam, SSecretTagPool
 //long CreateOnetimePass(PPID userID); // @v11.1.9
 long OnetimePass(PPID userID); // @v11.1.9
 
-int PPStyloQInterchange::ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos)
+int PPStyloQInterchange::ProcessCommand_PersonEvent(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos)
 {
 	int    ok = 1;
 	PPID   new_id = 0;
@@ -6178,7 +6202,10 @@ int PPStyloQInterchange::ProcessCommand_PersonEvent(StyloQCommandList::Item & rC
 		PPObjPersonEvent psnevobj;
 		PPPsnEventPacket pe_pack;
 		THROW(rCmdItem.Param.GetAvailableSize());
-		THROW(psnevobj.SerializePacket(-1, &pe_pack, rCmdItem.Param, &sctx));
+		{
+			SBuffer temp_non_const_buf(rCmdItem.Param);
+			THROW(psnevobj.SerializePacket(-1, &pe_pack, temp_non_const_buf, &sctx));
+		}
 		pe_pack.Rec.Dt = _now.d;
 		pe_pack.Rec.Tm = _now.t;
 		THROW(pe_pack.Rec.OpID);
@@ -7037,7 +7064,7 @@ static int StqInsertIntoJs_BaseCurrency(SJson * pJs) // @v11.3.12
 }
 
 int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
-	SString & rResult, SString & rDocDeclaration)
+	SString & rResult, SString & rDocDeclaration, bool debugOutput)
 {
 	int    ok = 1;
 	/*
@@ -7221,7 +7248,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	}
 	THROW(js.ToStr(rResult));
 	// @debug {
-	{
+	if(debugOutput) {
 		SString out_file_name;
 		PPGetFilePath(PPPATH_OUT, "stq-rsrvattendanceprereq.json", out_file_name);
 		SFile f_out(out_file_name, SFile::mWrite);
@@ -7244,7 +7271,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 }
 
 int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, 
-	SString & rResult, SString & rDocDeclaration)
+	SString & rResult, SString & rDocDeclaration, bool debugOutput)
 {
 	//StoreOidListWithBlob
 	int    ok = 1;
@@ -7286,7 +7313,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 		}
 		THROW(js.ToStr(rResult));
 		// @debug {
-		{
+		if(debugOutput) {
 			SString out_file_name;
 			PPGetFilePath(PPPATH_OUT, "stq-rsrvorderprereq.json", out_file_name);
 			SFile f_out(out_file_name, SFile::mWrite);
@@ -7312,8 +7339,8 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 	return ok;
 }
 
-int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, 
-	SString & rResult, SString & rDocDeclaration)
+int PPStyloQInterchange::ProcessCommand_Report(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos, 
+	SString & rResult, SString & rDocDeclaration, bool debugOutput)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -7336,7 +7363,8 @@ int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdIte
 		THROW(PPView::CreateInstance(view_id, &p_view));
 		{
 			if(rCmdItem.Param.GetAvailableSize()) {
-				THROW(PPView::ReadFiltPtr(rCmdItem.Param, &p_filt));
+				SBuffer temp_non_const_buf(rCmdItem.Param);
+				THROW(PPView::ReadFiltPtr(temp_non_const_buf, &p_filt));
 			}
 			else {
 				THROW(p_filt = p_view->CreateFilt(0));
@@ -7375,6 +7403,14 @@ int PPStyloQInterchange::ProcessCommand_Report(StyloQCommandList::Item & rCmdIte
 					THROW(p_js = p_rtm->ExportJson(ep));
 					THROW_SL(p_js->ToStr(rResult));
 				}
+				// @debug {
+				if(debugOutput) {
+					SString out_file_name;
+					PPGetFilePath(PPPATH_OUT, "stq-report.json", out_file_name);
+					SFile f_out(out_file_name, SFile::mWrite);
+					f_out.WriteLine(rResult);
+				}
+				// } @debug
 				{
 					SJson js_decl(SJson::tOBJECT);
 					js_decl.InsertString("type", "view");
@@ -7406,14 +7442,14 @@ void PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) //
 			SString decl;
 			StyloQCore::StoragePacket fake_cli_pack;
 			SGeoPosLL fake_geo_pos;
-			ProcessCommand_RsrvOrderPrereq(*pCmd, fake_cli_pack, fake_geo_pos, result, decl);
+			ProcessCommand_RsrvOrderPrereq(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, true);
 		}
 		else if(pCmd->BaseCmdId == StyloQCommandList::sqbcRsrvAttendancePrereq) {
 			SString result;
 			SString decl;
 			StyloQCore::StoragePacket fake_cli_pack;
 			SGeoPosLL fake_geo_pos;
-			ProcessCommand_RsrvAttendancePrereq(*pCmd, fake_cli_pack, fake_geo_pos, result, decl);
+			ProcessCommand_RsrvAttendancePrereq(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, true);
 		}
 		else if(pCmd->BaseCmdId == StyloQCommandList::sqbcRsrvPushIndexContent) {
 			StyloQCore::StoragePacket own_pack;
@@ -7424,7 +7460,11 @@ void PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) //
 			}
 		}
 		else if(pCmd->BaseCmdId == StyloQCommandList::sqbcReport) {
-			;
+			SString result;
+			SString decl;
+			StyloQCore::StoragePacket fake_cli_pack;
+			SGeoPosLL fake_geo_pos;
+			ProcessCommand_Report(*pCmd, fake_cli_pack, fake_geo_pos, result, decl, true);
 		}
 	}
 }
@@ -8357,7 +8397,7 @@ SJson * PPStyloQInterchange::ProcessCommand_RequestDocumentStatusList(const SBin
 										p_js_result_entry = new SJson(SJson::tOBJECT);
 										p_js_result_entry->InsertString("uuid", temp_buf.Z().Cat(doc_uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
 										if(cid) {
-											p_js_result_entry->InsertInt("cid", cid);
+											p_js_result_entry->InsertInt64("cid", cid);
 										}
 										p_js_result_entry->InsertInt("sid", bill_rec.ID);
 										p_js_result_entry->InsertInt("sst", new_status);
@@ -8378,7 +8418,7 @@ SJson * PPStyloQInterchange::ProcessCommand_RequestDocumentStatusList(const SBin
 										p_js_result_entry = new SJson(SJson::tOBJECT);
 										p_js_result_entry->InsertString("uuid", temp_buf.Z().Cat(doc_uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
 										if(cid) {
-											p_js_result_entry->InsertInt("cid", cid);
+											p_js_result_entry->InsertInt64("cid", cid);
 										}
 										p_js_result_entry->InsertInt("sid", tses_pack.Rec.ID);
 										p_js_result_entry->InsertInt("sst", new_status);
@@ -8412,15 +8452,19 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 {
 	int    result_obj_type = 0;
 	PPID   result_obj_id = 0;
+	bool   do_store_original_doc = false; // Индикатор необходимости сохранить входящий док в реестре (если проведение "родной" операции было успешным)
 	SString temp_buf;
 	SJson * p_js_reply = 0;
 	//PPID   result_bill_id = 0;
 	//PPID   result_tses_id = 0;
+	SBinaryChunk cli_ident;
 	Document doc;
 	if(pDeclaration) {
 			
 	}
+	THROW(rCliPack.Pool.Get(SSecretTagPool::tagClientIdent, &cli_ident)); // @todo @err
 	THROW(doc.FromJsonObject(pDocument));
+	THROW(doc.Uuid); // @err
 	THROW(oneof2(doc.OpID, PPEDIOP_ORDER, StyloQCommandList::sqbdtSvcReq)); // Пока только документ заказа умеем принимать
 	THROW(checkdate(doc.CreationTime.d) || checkdate(doc.Time.d));
 	if(doc.OpID == StyloQCommandList::sqbdtSvcReq) {
@@ -8523,6 +8567,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 						}
 						p_js_reply->InsertString("result", "ok");
 					}
+					do_store_original_doc = true;
 				}
 			}
 		}
@@ -8661,9 +8706,30 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 						}
 						p_js_reply->InsertString("result", "ok");
 					}
+					do_store_original_doc = true;
 				}
 			}
 		}
+	}
+	if(do_store_original_doc) {
+		//PPID PPStyloQInterchange::ProcessCommand_IndexingContent(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult)
+		//rResult.Z();
+		assert(p_js_reply != 0); // Иначе do_store_original_doc должен был быть false
+		PPID   inner_doc_id = 0;
+		SBinaryChunk doc_ident;
+		SSecretTagPool doc_pool;
+		THROW(P_T->MakeDocumentStorageIdent(cli_ident, doc.Uuid, doc_ident));
+		{
+			SBinarySet::DeflateStrategy ds(256);
+			THROW_SL(pDocument->ToStr(temp_buf));
+			THROW_SL(doc_pool.Put(SSecretTagPool::tagRawData, temp_buf, temp_buf.Len(), &ds));
+			if(pDeclaration) {
+				THROW_SL(pDeclaration->ToStr(temp_buf));
+				THROW_SL(doc_pool.Put(SSecretTagPool::tagDocDeclaration, temp_buf, temp_buf.Len(), &ds));
+			}
+		}
+		THROW(P_T->PutDocument(&inner_doc_id, cli_ident, -1/*input*/, StyloQCore::doctypGeneric, doc_ident, doc_pool, 1/*use_ta*/));
+		//rResult.CatEq("stored-document-id", doc_id).CatDiv(';', 2).CatEq("raw-json-size", js_doc_text.Len()+1).CatDiv(';', 2).CatEq("result-pool-size", doc_pool.GetDataLen());
 	}
 	CATCH
 		result_obj_type = 0;
@@ -9199,7 +9265,23 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 								}
 								break;
 							case StyloQCommandList::sqbcReport:
-								if(ProcessCommand_Report(StyloQCommandList::Item(*p_targeted_item), cli_pack, geopos, reply_text_buf, temp_buf.Z())) {
+								// @v11.4.1 {
+								if(intermediateReplyProc) { 
+									StyloQProtocol irp;
+									irp.StartWriting(PPSCMD_SQ_COMMAND, StyloQProtocol::psubtypeIntermediateReply);
+									{
+										SJson ir_js(SJson::tOBJECT);
+										ir_js.InsertInt("waitms", 5*60*1000);
+										ir_js.InsertInt("pollintervalms", 1000);
+										ir_js.ToStr(cmd_buf);
+										cmd_bch.Put(cmd_buf.cptr(), cmd_buf.Len());
+										irp.P.Put(SSecretTagPool::tagRawData, cmd_bch, 0);
+									}
+									irp.FinishWriting(pSessSecret);
+									intermediateReplyProc(irp, pIntermediateReplyExtra);
+								}
+								// } @v11.4.1 
+								if(ProcessCommand_Report(StyloQCommandList::Item(*p_targeted_item), cli_pack, geopos, reply_text_buf, temp_buf.Z(), false)) {
 									reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 									if(temp_buf.Len())
 										reply_doc_declaration.Put(temp_buf, temp_buf.Len());
@@ -9228,7 +9310,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 										intermediateReplyProc(irp, pIntermediateReplyExtra);
 									}
 									// } @v11.2.12 
-									if(ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item(*p_targeted_item), cli_pack, geopos, reply_text_buf, temp_buf.Z())) {
+									if(ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item(*p_targeted_item), cli_pack, geopos, reply_text_buf, temp_buf.Z(), false)) {
 										reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 										if(temp_buf.Len())
 											reply_doc_declaration.Put(temp_buf, temp_buf.Len());
@@ -9256,7 +9338,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 										irp.FinishWriting(pSessSecret);
 										intermediateReplyProc(irp, pIntermediateReplyExtra);
 									}
-									if(ProcessCommand_RsrvAttendancePrereq(StyloQCommandList::Item(*p_targeted_item), cli_pack, geopos, reply_text_buf, temp_buf.Z())) {
+									if(ProcessCommand_RsrvAttendancePrereq(StyloQCommandList::Item(*p_targeted_item), cli_pack, geopos, reply_text_buf, temp_buf.Z(), false)) {
 										reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 										if(temp_buf.Len())
 											reply_doc_declaration.Put(temp_buf, temp_buf.Len());

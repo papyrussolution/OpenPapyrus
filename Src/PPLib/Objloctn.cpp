@@ -1936,7 +1936,7 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 		setCtrlData(CTL_LOCATION_NUMROWS,   &Data.NumRows);
 		setCtrlData(CTL_LOCATION_NUMLAYERS, &Data.NumLayers);
 		setCtrlData(CTL_LOCATION_DEPTH,     &Data.Depth);
-		setCtrlReal(CTL_LOCATION_CAPACITY, Data.MassCapacity / 1000.0);
+		setCtrlReal(CTL_LOCATION_CAPACITY,  fdiv1000i(Data.MassCapacity));
 		setCtrlLong(CTL_LOCATION_SZWD, Data.X);
 		setCtrlLong(CTL_LOCATION_SZLN, Data.Y);
 		setCtrlLong(CTL_LOCATION_SZHT, Data.Z);

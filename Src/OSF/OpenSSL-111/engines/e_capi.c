@@ -276,7 +276,7 @@ static int capi_ctrl(ENGINE * e, int cmd, long i, void * p, void (*f)(void))
 	}
 	ctx = static_cast<CAPI_CTX *>(ENGINE_get_ex_data(e, capi_idx));
 	out = BIO_new_fp(stdout, BIO_NOCLOSE);
-	if(out == NULL) {
+	if(!out) {
 		CAPIerr(CAPI_F_CAPI_CTRL, CAPI_R_FILE_OPEN_ERROR);
 		return 0;
 	}
@@ -1022,7 +1022,7 @@ static void capi_vtrace(CAPI_CTX * ctx, int level, char * format,
 	if(!ctx || (ctx->debug_level < level) || (!ctx->debug_file))
 		return;
 	out = BIO_new_file(ctx->debug_file, "a+");
-	if(out == NULL) {
+	if(!out) {
 		CAPIerr(CAPI_F_CAPI_VTRACE, CAPI_R_FILE_OPEN_ERROR);
 		return;
 	}

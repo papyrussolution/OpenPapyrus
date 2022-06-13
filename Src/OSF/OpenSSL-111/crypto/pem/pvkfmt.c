@@ -428,7 +428,7 @@ static int do_i2b(uchar ** out, EVP_PKEY * pk, int ispub)
 		return -1;
 	outlen = 16 + blob_length(bitlen,
 		keyalg == MS_KEYALG_DSS_SIGN ? 1 : 0, ispub);
-	if(out == NULL)
+	if(!out)
 		return outlen;
 	if(*out)
 		p = *out;
@@ -773,7 +773,7 @@ static int i2b_PVK(uchar ** out, EVP_PKEY * pk, int enclevel,
 	if(pklen < 0)
 		return -1;
 	outlen += pklen;
-	if(out == NULL)
+	if(!out)
 		return outlen;
 	if(*out != NULL) {
 		p = *out;

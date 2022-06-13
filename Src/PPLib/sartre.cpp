@@ -4,6 +4,12 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#if(_MSC_VER >= 1900)
+	#include <unicode\uclean.h>
+	#include <unicode\brkiter.h>
+	#include <unicode\measunit.h>
+	#include <unicode\measfmt.h>
+#endif
 #include <sartre.h>
 #include <locale.h>
 //
@@ -1330,6 +1336,13 @@ int SrImportParam::GetField(int fld, SString & rVal) const { return StrItems.Get
 //
 //
 //
+static IMPL_CMPFUNC(SrUedContainer_TextEntry, p1, p2)
+{
+	const SrUedContainer::TextEntry * p_e1 = static_cast<const SrUedContainer::TextEntry *>(p1);
+	const SrUedContainer::TextEntry * p_e2 = static_cast<const SrUedContainer::TextEntry *>(p2);
+	RET_CMPCASCADE2(p_e1, p_e2, Locale, Id);
+}
+
 SrUedContainer::SrUedContainer() : LinguaLocusMeta(0), Ht(1024*32, 0), LastSymbHashId(0)
 {
 }
@@ -1389,7 +1402,8 @@ int SrUedContainer::ReplaceSurrogateLocaleIds(const SymbHashTable & rT)
 				uint64 locale_id = SearchBaseSymb(temp_buf, LinguaLocusMeta);
 				THROW(locale_id);
 				THROW(UED::BelongToMeta(locale_id, LinguaLocusMeta));
-				r_e.Locale = locale_id;
+				r_e.Locale = UED::MakeShort(locale_id, LinguaLocusMeta);
+				assert(r_e.Locale);
 			}
 		}
 	}
@@ -1408,6 +1422,7 @@ int SrUedContainer::ReadSource(const char * pFileName)
 	StringSet ss;
 	uint   last_linglocus_temp_id = 0;
 	SymbHashTable temporary_linglocus_tab(512);
+	SStrScan scan;
 	SFile f_in(pFileName, SFile::mRead);
 	THROW(f_in.IsValid());
 	while(f_in.ReadLine(line_buf)) {
@@ -1424,9 +1439,33 @@ int SrUedContainer::ReadSource(const char * pFileName)
 				line_buf.Trim(comment_pos).Strip();
 			}
 			if(line_buf.NotEmpty()) {
-				line_buf.Tokenize(" \t", ss.Z());
+				//line_buf.Tokenize(" \t", ss.Z());
+				ss.Z();
+				bool scan_ok = true;
+				{
+					scan.Set(line_buf, 0);
+					if(scan.GetXDigits(temp_buf.Z())) {
+						ss.add(temp_buf);
+						scan.Skip();
+						if(scan.GetQuotedString(temp_buf) || scan.GetIdent(temp_buf)) {
+							ss.add(temp_buf);
+							scan.Skip();
+							if(!scan.IsEnd()) {
+								if(scan.GetQuotedString(temp_buf)) {
+									ss.add(temp_buf);
+								}
+								else
+									scan_ok = false;
+							}
+						}
+						else
+							scan_ok = false;
+					}
+					else
+						scan_ok = false;
+				}
 				uint ssc = ss.getCount();
-				if(oneof2(ssc, 2, 3)) {
+				if(scan_ok && oneof2(ssc, 2, 3)) {
 					uint64 id = 0;
 					int   lang_id = 0;
 					text_buf.Z();
@@ -1507,23 +1546,93 @@ int SrUedContainer::ReadSource(const char * pFileName)
 	return ok;
 }
 	
-int    SrUedContainer::WriteSource(const char * pFileName)
+int SrUedContainer::WriteSource(const char * pFileName)
 {
 	int    ok = 1;
+	THROW(!isempty(pFileName)); // @err
+	THROW(LinguaLocusMeta); // @err
+	{
+		SString line_buf;
+		SString temp_buf;
+		SFile f_out(pFileName, SFile::mWrite|SFile::mBinary);
+		THROW_SL(f_out.IsValid());
+		BL.sort(PTR_CMPFUNC(int64));
+		TL.sort(PTR_CMPFUNC(SrUedContainer_TextEntry));
+		{
+			for(uint i = 0; i < BL.getCount(); i++) {
+				const BaseEntry & r_e = BL.at(i);
+				SearchBaseId(r_e.Id, temp_buf);
+				assert(temp_buf.NotEmpty());
+				line_buf.Z().CatHex(r_e.Id).Space().CatQStr(temp_buf).CRB();
+				f_out.WriteLine(line_buf);
+			}
+		}
+		{
+			for(uint i = 0; i < TL.getCount(); i++) {
+				const TextEntry & r_e = TL.at(i);
+				line_buf.Z().CatHex(r_e.Id).Space();
+				assert(r_e.Locale);
+				uint64 ued_locus = UED::MakeCanonical(r_e.Locale, LinguaLocusMeta);
+				assert(ued_locus);
+				SearchBaseId(ued_locus, temp_buf);
+				assert(temp_buf.NotEmpty());
+				line_buf.CatQStr(temp_buf).Space();
+				GetS(r_e.TextP, temp_buf);
+				assert(temp_buf.NotEmpty());
+				line_buf.Cat(temp_buf);
+				line_buf.CRB();
+				f_out.WriteLine(line_buf);
+			}
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 	
-int    SrUedContainer::Verify()
+int SrUedContainer::Verify()
 {
 	int    ok = 1;
 	return ok;
 }
 
+#if(_MSC_VER >= 1900)
+	using namespace U_ICU_NAMESPACE;
+#endif
+
 int Test_ReadUed(const char * pFileName)
 {
 	int    ok = 1;
+	SString temp_buf;
+	SStringU temp_buf_u;
+#if(_MSC_VER >= 1900)
+	{
+		UErrorCode icu_st = U_ZERO_ERROR;
+		{
+			PPGetPath(PPPATH_BIN, temp_buf);
+			u_setDataDirectory(temp_buf);
+			u_init(&icu_st);
+		}
+		//
+		MeasureUnit avl_units[2048];
+		icu_st = U_ZERO_ERROR;
+		Locale lcl("ru_RU");
+		MeasureFormat mf(lcl, UMEASFMT_WIDTH_WIDE, icu_st);
+		int avl_count = MeasureUnit::getAvailable(avl_units, SIZEOFARRAY(avl_units), icu_st);
+		//MeasureUnit mu("kilogram");
+		for(int i = 0; i < avl_count; i++) {
+			UnicodeString udn = mf.getUnitDisplayName(avl_units[i], icu_st);
+			temp_buf_u.Z().CatN(reinterpret_cast<const wchar_t *>(udn.getBuffer()), udn.length());
+		}
+	}
+#endif
 	SrUedContainer uedc;
 	THROW(uedc.ReadSource(pFileName));
+	{
+		SPathStruc ps(pFileName);
+		ps.Nam.CatChar('-').Cat("out");
+		ps.Merge(temp_buf);
+		THROW(uedc.WriteSource(temp_buf));
+	}
 	CATCHZOK
 	return ok;
 }

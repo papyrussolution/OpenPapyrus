@@ -118,7 +118,7 @@ cmsToneCurve * _cmsBuildKToneCurve(cmsContext ContextID,
 		BPC + (nProfiles - 1),
 		AdaptationStates + (nProfiles - 1),
 		dwFlags);
-	if(out == NULL) {
+	if(!out) {
 		cmsFreeToneCurve(in);
 		return NULL;
 	}

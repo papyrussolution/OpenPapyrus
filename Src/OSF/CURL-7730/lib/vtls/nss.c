@@ -1470,16 +1470,11 @@ static int Curl_nss_check_cxn(struct connectdata * conn)
 	struct ssl_backend_data * backend = connssl->backend;
 	int rc;
 	char buf;
-
-	rc =
-	    PR_Recv(backend->handle, (void *)&buf, 1, PR_MSG_PEEK,
-		PR_SecondsToInterval(1));
+	rc = PR_Recv(backend->handle, (void *)&buf, 1, PR_MSG_PEEK, PR_SecondsToInterval(1));
 	if(rc > 0)
 		return 1; /* connection still in place */
-
 	if(rc == 0)
 		return 0; /* connection has been closed */
-
 	return -1; /* connection status unknown */
 }
 
@@ -1487,9 +1482,7 @@ static void nss_close(struct ssl_connect_data * connssl)
 {
 	/* before the cleanup, check whether we are using a client certificate */
 	struct ssl_backend_data * backend = connssl->backend;
-	const bool client_cert = (backend->client_nickname != NULL)
-	   || (backend->obj_clicert != NULL);
-
+	const bool client_cert = (backend->client_nickname != NULL) || (backend->obj_clicert != NULL);
 	SAlloc::F(backend->client_nickname);
 	backend->client_nickname = NULL;
 

@@ -38,18 +38,13 @@
 //void * icudt70_dat = 0; // @sobolev @fake-global
 
 U_NAMESPACE_USE
-
 /*
  *  Forward declarations
  */
 static UDataMemory * udata_findCachedData(const char * path, UErrorCode &err);
-
-/***********************************************************************
- *
- *    static (Global) data
- *
- ************************************************************************/
-
+// 
+// static (Global) data
+// 
 /*
  * Pointers to the common ICU data.
  *
@@ -87,7 +82,7 @@ static bool U_CALLCONV udata_cleanup(void)
 		gCommonDataCache = NULL; /* Cleanup is not thread safe.       */
 	}
 	gCommonDataCacheInitOnce.reset();
-	for(i = 0; i < UPRV_LENGTHOF(gCommonICUDataArray) && gCommonICUDataArray[i] != NULL; ++i) {
+	for(i = 0; i < UPRV_LENGTHOF(gCommonICUDataArray) && gCommonICUDataArray[i]; ++i) {
 		udata_close(gCommonICUDataArray[i]);
 		gCommonICUDataArray[i] = NULL;
 	}
@@ -105,7 +100,7 @@ static bool U_CALLCONV findCommonICUDataByName(const char * inBasename, UErrorCo
 	{
 		Mutex lock;
 		for(i = 0; i < UPRV_LENGTHOF(gCommonICUDataArray); ++i) {
-			if((gCommonICUDataArray[i] != NULL) && (gCommonICUDataArray[i]->pHeader == pData->pHeader)) {
+			if(gCommonICUDataArray[i] && (gCommonICUDataArray[i]->pHeader == pData->pHeader)) {
 				/* The data pointer is already in the array. */
 				found = TRUE;
 				break;
@@ -258,17 +253,15 @@ static UDataMemory * udata_findCachedData(const char * path, UErrorCode &err)
 	UDataMemory    * retVal = NULL;
 	DataCacheElement  * el;
 	const char * baseName;
-
 	htable = udata_getHashTable(err);
 	if(U_FAILURE(err)) {
 		return NULL;
 	}
-
 	baseName = findBasename(path); /* Cache remembers only the base name, not the full path. */
 	umtx_lock(NULL);
 	el = (DataCacheElement*)uhash_get(htable, baseName);
 	umtx_unlock(NULL);
-	if(el != NULL) {
+	if(el) {
 		retVal = el->item;
 	}
 #ifdef UDATA_DEBUG
@@ -320,7 +313,7 @@ static UDataMemory * udata_cacheDataItem(const char * path, UDataMemory * item, 
 	 */
 	umtx_lock(NULL);
 	oldValue = (DataCacheElement*)uhash_get(htable, path);
-	if(oldValue != NULL) {
+	if(oldValue) {
 		subErr = U_USING_DEFAULT_WARNING;
 	}
 	else {
@@ -409,9 +402,8 @@ UDataPathIterator::UDataPathIterator(const char * inPath, const char * pkg,
 	else {
 		path = inPath;
 	}
-
 	/** Package **/
-	if(pkg != NULL) {
+	if(pkg) {
 		packageStub.append(U_FILE_SEP_CHAR, *pErrorCode).append(pkg, *pErrorCode);
 #ifdef UDATA_DEBUG
 		slfprintf_stderr("STUB=%s [%d]\n", packageStub.data(), packageStub.length());
@@ -433,17 +425,14 @@ UDataPathIterator::UDataPathIterator(const char * inPath, const char * pkg,
 #ifdef UDATA_DEBUG
 	slfprintf_stderr("SUFFIX=%s [%p]\n", inSuffix, (void *)inSuffix);
 #endif
-
 	/** Suffix  **/
-	if(inSuffix != NULL) {
+	if(inSuffix) {
 		suffix = inSuffix;
 	}
 	else {
 		suffix = "";
 	}
-
 	checkLastFour = doCheckLastFour;
-
 	/* pathBuffer will hold the output path strings returned by this iterator */
 
 #ifdef UDATA_DEBUG
@@ -640,7 +629,7 @@ static UDataMemory * openCommonData(const char * path,          /* Path from Ope
 		}
 		{
 			Mutex lock;
-			if(gCommonICUDataArray[commonDataIndex] != NULL) {
+			if(gCommonICUDataArray[commonDataIndex]) {
 				return gCommonICUDataArray[commonDataIndex];
 			}
 #if !defined(ICU_DATA_DIR_WINDOWS)
@@ -703,16 +692,13 @@ static UDataMemory * openCommonData(const char * path,          /* Path from Ope
 	/* Note that the cache is keyed by the base name only.  The rest of the path,   */
 	/* if any, is not considered.    */
 	UDataMemory  * dataToReturn = udata_findCachedData(inBasename, *pErrorCode);
-	if(dataToReturn != NULL || U_FAILURE(*pErrorCode)) {
+	if(dataToReturn || U_FAILURE(*pErrorCode)) {
 		return dataToReturn;
 	}
-
 	/* Requested item is not in the cache.
 	 * Hunt it down, trying all the path locations
 	 */
-
 	UDataPathIterator iter(u_getDataDirectory(), inBasename, path, ".dat", TRUE, pErrorCode);
-
 	while((UDataMemory_isLoaded(&tData)==FALSE) && (pathBuffer = iter.next(pErrorCode)) != NULL) {
 #ifdef UDATA_DEBUG
 		slfprintf_stderr("ocd: trying path %s - ", pathBuffer);
@@ -791,11 +777,9 @@ static bool extendICUData(UErrorCode * pErr)
 			U_ICUDATA_NAME,       /* "icudt20l" , for example. */
 			-1,                   /* Pretend we're not opening ICUData  */
 			pErr);
-
 		/* How about if there is no pData, eh... */
-
 		UDataMemory_init(&copyPData);
-		if(pData != NULL) {
+		if(pData) {
 			UDatamemory_assign(&copyPData, pData);
 			copyPData.map = 0; /* The mapping for this data is owned by the hash table */
 			copyPData.mapAddr = 0; /* which will unmap it when ICU is shut down.         */
@@ -947,14 +931,13 @@ static UDataMemory * doLoadFromIndividualFiles(const char * pkgName,
 	/* look in ind. files: package\nam.typ  ========================= */
 	/* init path iterator for individual files */
 	UDataPathIterator iter(dataPath, pkgName, path, tocEntryPathSuffix, FALSE, pErrorCode);
-
 	while((pathBuffer = iter.next(pErrorCode)) != NULL) {
 #ifdef UDATA_DEBUG
 		slfprintf_stderr("UDATA: trying individual file %s\n", pathBuffer);
 #endif
 		if(uprv_mapFile(&dataMemory, pathBuffer, pErrorCode)) {
 			pEntryData = checkDataItem(dataMemory.pHeader, isAcceptable, context, type, name, subErrorCode, pErrorCode);
-			if(pEntryData != NULL) {
+			if(pEntryData) {
 				/* Data is good.
 				 *  Hand off ownership of the backing memory to the user's UDataMemory.
 				 *  and return it.   */
@@ -966,10 +949,8 @@ static UDataMemory * doLoadFromIndividualFiles(const char * pkgName,
 #endif
 				return pEntryData;
 			}
-
 			/* the data is not acceptable, or some error occurred.  Either way, unmap the memory */
 			udata_close(&dataMemory);
-
 			/* If we had a nasty error, bail out completely.  */
 			if(U_FAILURE(*pErrorCode)) {
 				return NULL;
@@ -1012,17 +993,14 @@ static UDataMemory * doLoadFromCommonData(bool isICUData, const char * /*pkgName
 	 */
 	for(commonDataIndex = isICUData ? 0 : -1;;) {
 		pCommonData = openCommonData(path, commonDataIndex, subErrorCode); /** search for pkg **/
-
-		if(U_SUCCESS(*subErrorCode) && pCommonData!=NULL) {
+		if(U_SUCCESS(*subErrorCode) && pCommonData) {
 			int32_t length;
-
 			/* look up the data piece in the common data */
 			pHeader = pCommonData->vFuncs->Lookup(pCommonData, tocEntryName, &length, subErrorCode);
 #ifdef UDATA_DEBUG
 			slfprintf_stderr("%s: pHeader=%p - %s\n", tocEntryName, (void *)pHeader, u_errorName(*subErrorCode));
 #endif
-
-			if(pHeader!=NULL) {
+			if(pHeader) {
 				pEntryData = checkDataItem(pHeader, isAcceptable, context, type, name, subErrorCode, pErrorCode);
 #ifdef UDATA_DEBUG
 				slfprintf_stderr("pEntryData=%p\n", (void *)pEntryData);
@@ -1030,7 +1008,7 @@ static UDataMemory * doLoadFromCommonData(bool isICUData, const char * /*pkgName
 				if(U_FAILURE(*pErrorCode)) {
 					return NULL;
 				}
-				if(pEntryData != NULL) {
+				if(pEntryData) {
 					pEntryData->length = length;
 					return pEntryData;
 				}
@@ -1047,7 +1025,7 @@ static UDataMemory * doLoadFromCommonData(bool isICUData, const char * /*pkgName
 		if(!isICUData) {
 			return NULL;
 		}
-		else if(pCommonData != NULL) {
+		else if(pCommonData) {
 			++commonDataIndex; /* try the next data package */
 		}
 		else if((!checkedExtendedICUData) && extendICUData(subErrorCode)) {

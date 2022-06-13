@@ -284,7 +284,7 @@ static UConverterSharedData* ucnv_data_unFlattenClone(UConverterLoadArgs * pArgs
 	}
 
 	data = (UConverterSharedData*)uprv_malloc(sizeof(UConverterSharedData));
-	if(data == NULL) {
+	if(!data) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
@@ -317,36 +317,29 @@ static UConverterSharedData * createConverterFromFile(UConverterLoadArgs * pArgs
 {
 	UDataMemory * data;
 	UConverterSharedData * sharedData;
-
 	UTRACE_ENTRY_OC(UTRACE_UCNV_LOAD);
-
 	if(U_FAILURE(*err)) {
 		UTRACE_EXIT_STATUS(*err);
 		return NULL;
 	}
-
 	UTRACE_DATA2(UTRACE_OPEN_CLOSE, "load converter %s from package %s", pArgs->name, pArgs->pkg);
-
 	data = udata_openChoice(pArgs->pkg, DATA_TYPE, pArgs->name, isCnvAcceptable, NULL, err);
 	if(U_FAILURE(*err)) {
 		UTRACE_EXIT_STATUS(*err);
 		return NULL;
 	}
-
 	sharedData = ucnv_data_unFlattenClone(pArgs, data, err);
 	if(U_FAILURE(*err)) {
 		udata_close(data);
 		UTRACE_EXIT_STATUS(*err);
 		return NULL;
 	}
-
 	/*
 	 * TODO Store pkg in a field in the shared data so that delta-only converters
 	 * can load base converters from the same package.
 	 * If the pkg name is longer than the field, then either do not load the converter
 	 * in the first place, or just set the pkg field to "".
 	 */
-
 	UTRACE_EXIT_PTR_STATUS(sharedData, *err);
 	return sharedData;
 }
@@ -481,23 +474,18 @@ static bool ucnv_deleteSharedConverterData(UConverterSharedData * deadSharedData
 {
 	UTRACE_ENTRY_OC(UTRACE_UCNV_UNLOAD);
 	UTRACE_DATA2(UTRACE_OPEN_CLOSE, "unload converter %s shared data %p", deadSharedData->staticData->name, deadSharedData);
-
 	if(deadSharedData->referenceCounter > 0) {
 		UTRACE_EXIT_VALUE((int32_t)FALSE);
 		return FALSE;
 	}
-
 	if(deadSharedData->impl->unload != NULL) {
 		deadSharedData->impl->unload(deadSharedData);
 	}
-
 	if(deadSharedData->dataMemory != NULL) {
 		UDataMemory * data = (UDataMemory*)deadSharedData->dataMemory;
 		udata_close(data);
 	}
-
 	uprv_free(deadSharedData);
-
 	UTRACE_EXIT_VALUE((int32_t)TRUE);
 	return TRUE;
 }
@@ -506,13 +494,12 @@ static bool ucnv_deleteSharedConverterData(UConverterSharedData * deadSharedData
  * Load a non-algorithmic converter.
  * If pkg==NULL, then this function must be called inside umtx_lock(&cnvCacheMutex).
  */
-UConverterSharedData * ucnv_load(UConverterLoadArgs * pArgs, UErrorCode * err) {
+UConverterSharedData * ucnv_load(UConverterLoadArgs * pArgs, UErrorCode * err) 
+{
 	UConverterSharedData * mySharedConverterData;
-
 	if(!err || U_FAILURE(*err)) {
 		return NULL;
 	}
-
 	if(pArgs->pkg != NULL && *pArgs->pkg != 0) {
 		/* application-provided converters are not currently cached */
 		return createConverterFromFile(pArgs, err);
@@ -1185,7 +1172,7 @@ U_CAPI const char * U_EXPORT2 ucnv_getDefaultName() {
 		name = uprv_getDefaultCodepage();
 
 		/* if the name is there, test it out and get the canonical name with options */
-		if(name != NULL) {
+		if(name) {
 			cnv = ucnv_open(name, &errorCode);
 			if(U_SUCCESS(errorCode) && cnv != NULL) {
 				name = ucnv_getName(cnv, &errorCode);
@@ -1241,7 +1228,7 @@ U_CAPI void U_EXPORT2 ucnv_setDefaultName(const char * converterName) {
 			name = ucnv_getName(cnv, &errorCode);
 		}
 
-		if(U_SUCCESS(errorCode) && name!=NULL) {
+		if(U_SUCCESS(errorCode) && name != NULL) {
 			internalSetName(name, &errorCode);
 		}
 		/* else this converter is bad to use. Don't change it to a bad value. */

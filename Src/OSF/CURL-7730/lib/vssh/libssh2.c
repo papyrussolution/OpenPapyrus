@@ -905,8 +905,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    break;
 
 			case SSH_AUTH_PASS_INIT:
-			    if((data->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD) &&
-				(strstr(sshc->authlist, "password") != NULL)) {
+			    if((data->set.ssh_auth_types & CURLSSH_AUTH_PASSWORD) && (strstr(sshc->authlist, "password") != NULL)) {
 				    state(conn, SSH_AUTH_PASS);
 			    }
 			    else {
@@ -936,8 +935,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    break;
 
 			case SSH_AUTH_HOST_INIT:
-			    if((data->set.ssh_auth_types & CURLSSH_AUTH_HOST) &&
-				(strstr(sshc->authlist, "hostbased") != NULL)) {
+			    if((data->set.ssh_auth_types & CURLSSH_AUTH_HOST) && (strstr(sshc->authlist, "hostbased") != NULL)) {
 				    state(conn, SSH_AUTH_HOST);
 			    }
 			    else {
@@ -951,8 +949,7 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 
 			case SSH_AUTH_AGENT_INIT:
 #ifdef HAVE_LIBSSH2_AGENT_API
-			    if((data->set.ssh_auth_types & CURLSSH_AUTH_AGENT)
-				&& (strstr(sshc->authlist, "publickey") != NULL)) {
+			    if((data->set.ssh_auth_types & CURLSSH_AUTH_AGENT) && (strstr(sshc->authlist, "publickey") != NULL)) {
 				    /* Connect to the ssh-agent */
 				    /* The agent could be shared by a curl thread i believe
 				       but nothing obvious as keys can be added/removed at any time */
@@ -1023,7 +1020,6 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 				    infof(data, "Failure requesting identities to agent\n");
 			    else if(rc == 1)
 				    infof(data, "No identity would match\n");
-
 			    if(rc == LIBSSH2_ERROR_NONE) {
 				    sshc->authed = TRUE;
 				    infof(data, "Agent based authentication successful\n");
@@ -1035,10 +1031,8 @@ static CURLcode ssh_statemach_act(struct connectdata * conn, bool * block)
 			    }
 #endif
 			    break;
-
 			case SSH_AUTH_KEY_INIT:
-			    if((data->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD)
-				&& (strstr(sshc->authlist, "keyboard-interactive") != NULL)) {
+			    if((data->set.ssh_auth_types & CURLSSH_AUTH_KEYBOARD) && (strstr(sshc->authlist, "keyboard-interactive") != NULL)) {
 				    state(conn, SSH_AUTH_KEY);
 			    }
 			    else {

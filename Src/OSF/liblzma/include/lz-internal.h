@@ -353,7 +353,7 @@ static inline bool dict_repeat(lzma_dict * dict, uint32 distance, uint32 * len)
 {
 	// Don't write past the end of the dictionary.
 	const size_t dict_avail = dict->limit - dict->pos;
-	uint32 left = MIN(dict_avail, *len);
+	uint32 left = MIN(dict_avail, static_cast<size_t>(*len));
 	*len -= left;
 	// Repeat a block of data from the history. Because memcpy() is faster
 	// than copying byte by byte in a loop, the copying process gets split

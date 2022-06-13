@@ -62,8 +62,8 @@ struct tree_entry {
 	struct tree_entry       * next;
 	struct tree_entry       * parent;
 	size_t full_path_dir_length;
-	struct archive_wstring name;
-	struct archive_wstring full_path;
+	archive_wstring name;
+	archive_wstring full_path;
 	size_t dirname_length;
 	int64 dev;
 	int64 ino;
@@ -100,7 +100,6 @@ struct filesystem {
 	                                       https://technet.microsoft.com/en-us/library/cc938632.aspx */
 #define DIRECT_IO       0/* Disabled */
 #define ASYNC_IO        1/* Enabled */
-
 /*
  * Local data for this package.
  */
@@ -112,50 +111,37 @@ struct tree {
 	WIN32_FIND_DATAW        * findData;
 	int flags;
 	int visit_type;
-	/* Error code from last failed operation. */
-	int tree_errno;
-
-	/* A full path with "\\?\" prefix. */
-	struct archive_wstring full_path;
+	int tree_errno; // Error code from last failed operation
+	archive_wstring full_path; // A full path with "\\?\" prefix
 	size_t full_path_dir_length;
-	/* Dynamically-sized buffer for holding path */
-	struct archive_wstring path;
-
-	/* Last path element */
-	const wchar_t           * basename;
-	/* Leading dir length */
-	size_t dirname_length;
-
+	archive_wstring path; // Dynamically-sized buffer for holding path
+	const wchar_t * basename; // Last path element
+	size_t dirname_length; // Leading dir length
 	int depth;
-
 	BY_HANDLE_FILE_INFORMATION lst;
 	BY_HANDLE_FILE_INFORMATION st;
 	int descend;
-	/* How to restore time of a file. */
-	struct restore_time restore_time;
+	struct restore_time restore_time; // How to restore time of a file
 
 	struct entry_sparse {
 		int64 length;
 		int64 offset;
-	}                       * sparse_list, * current_sparse;
+	} * sparse_list, * current_sparse;
 
-	int sparse_count;
-	int sparse_list_size;
-
+	int  sparse_count;
+	int  sparse_list_size;
 	char initial_symlink_mode;
 	char symlink_mode;
-	struct filesystem       * current_filesystem;
-	struct filesystem       * filesystem_table;
+	struct filesystem * current_filesystem;
+	struct filesystem * filesystem_table;
 	int initial_filesystem_id;
 	int current_filesystem_id;
 	int max_filesystem_id;
 	int allocated_filesystem;
-
 	HANDLE entry_fh;
 	int entry_eof;
 	int64 entry_remaining_bytes;
 	int64 entry_total;
-
 	int ol_idx_doing;
 	int ol_idx_done;
 	int ol_num_doing;
@@ -164,7 +150,7 @@ struct tree {
 	int64 ol_total;
 	struct la_overlapped {
 		OVERLAPPED ol;
-		struct archive * _a;
+		Archive * _a;
 		uchar   * buff;
 		size_t buff_size;
 		int64 offset;
@@ -178,9 +164,7 @@ struct tree {
 #define bhfi_dev(bhfi)  ((bhfi)->dwVolumeSerialNumber)
 /* Treat FileIndex as i-node. We should remove a sequence number
  * which is high-16-bits of nFileIndexHigh. */
-#define bhfi_ino(bhfi)  \
-	((((int64)((bhfi)->nFileIndexHigh & 0x0000FFFFUL)) << 32) \
-	+ (bhfi)->nFileIndexLow)
+#define bhfi_ino(bhfi)  ((((int64)((bhfi)->nFileIndexHigh & 0x0000FFFFUL)) << 32) + (bhfi)->nFileIndexLow)
 
 /* Definitions for tree.flags bitmap. */
 #define hasStat         16 /* The st entry is valid. */
@@ -194,9 +178,7 @@ static struct tree * tree_open(const wchar_t *, int, int);
 static struct tree * tree_reopen(struct tree *, const wchar_t *, int);
 static void tree_close(struct tree *);
 static void tree_free(struct tree *);
-static void tree_push(struct tree *, const wchar_t *, const wchar_t *,
-    int, int64, int64, struct restore_time *);
-
+static void tree_push(struct tree *, const wchar_t *, const wchar_t *, int, int64, int64, struct restore_time *);
 /*
  * tree_next() returns Zero if there is no next entry, non-zero if
  * there is.  Note that directories are visited three times.
@@ -253,26 +235,26 @@ static int tree_current_is_physical_dir(struct tree *);
 /* "is_physical_link" is equivalent to S_ISLNK(tree_current_lstat()->st_mode) */
 static int tree_current_is_physical_link(struct tree *);
 /* Instead of archive_entry_copy_stat for BY_HANDLE_FILE_INFORMATION */
-static void tree_archive_entry_copy_bhfi(struct archive_entry *, struct tree *, const BY_HANDLE_FILE_INFORMATION *);
+static void tree_archive_entry_copy_bhfi(ArchiveEntry *, struct tree *, const BY_HANDLE_FILE_INFORMATION *);
 /* "is_dir" is equivalent to S_ISDIR(tree_current_stat()->st_mode) */
 static int tree_current_is_dir(struct tree *);
 static int update_current_filesystem(struct archive_read_disk * a, int64 dev);
 static int setup_current_filesystem(struct archive_read_disk *);
 static int tree_target_is_same_as_parent(struct tree *, const BY_HANDLE_FILE_INFORMATION *);
-static int _archive_read_disk_open_w(struct archive *, const wchar_t *);
-static int _archive_read_free(struct archive *);
-static int _archive_read_close(struct archive *);
-static int _archive_read_data_block(struct archive *, const void **, size_t *, int64 *);
-static int _archive_read_next_header(struct archive *, struct archive_entry **);
-static int _archive_read_next_header2(struct archive *, struct archive_entry *);
+static int _archive_read_disk_open_w(Archive *, const wchar_t *);
+static int _archive_read_free(Archive *);
+static int _archive_read_close(Archive *);
+static int _archive_read_data_block(Archive *, const void **, size_t *, int64 *);
+static int _archive_read_next_header(Archive *, ArchiveEntry **);
+static int _archive_read_next_header2(Archive *, ArchiveEntry *);
 static const char * trivial_lookup_gname(void *, int64 gid);
 static const char * trivial_lookup_uname(void *, int64 uid);
-static int setup_sparse(struct archive_read_disk *, struct archive_entry *);
+static int setup_sparse(struct archive_read_disk *, ArchiveEntry *);
 static int close_and_restore_time(HANDLE, struct tree *, struct restore_time *);
-static int setup_sparse_from_disk(struct archive_read_disk *, struct archive_entry *, HANDLE);
+static int setup_sparse_from_disk(struct archive_read_disk *, ArchiveEntry *, HANDLE);
 static int la_linkname_from_handle(HANDLE, wchar_t **, int *);
 static int la_linkname_from_pathw(const wchar_t *, wchar_t **, int *);
-static void     entry_symlink_from_pathw(struct archive_entry *, const wchar_t * path);
+static void     entry_symlink_from_pathw(ArchiveEntry *, const wchar_t * path);
 
 typedef struct _REPARSE_DATA_BUFFER {
 	ULONG ReparseTag;
@@ -384,7 +366,7 @@ static int la_linkname_from_pathw(const wchar_t * path, wchar_t ** outbuf, int *
 	return ret;
 }
 
-static void entry_symlink_from_pathw(struct archive_entry * entry, const wchar_t * path)
+static void entry_symlink_from_pathw(ArchiveEntry * entry, const wchar_t * path)
 {
 	wchar_t * linkname = NULL;
 	int linktype;
@@ -414,7 +396,7 @@ static struct archive_vtable * archive_read_disk_vtable(void)
 	return (&av);
 }
 
-const char * archive_read_disk_gname(struct archive * _a, la_int64_t gid)
+const char * archive_read_disk_gname(Archive * _a, la_int64_t gid)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
@@ -425,7 +407,7 @@ const char * archive_read_disk_gname(struct archive * _a, la_int64_t gid)
 	return ((*a->lookup_gname)(a->lookup_gname_data, gid));
 }
 
-const char * archive_read_disk_uname(struct archive * _a, la_int64_t uid)
+const char * archive_read_disk_uname(Archive * _a, la_int64_t uid)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
@@ -436,7 +418,7 @@ const char * archive_read_disk_uname(struct archive * _a, la_int64_t uid)
 	return ((*a->lookup_uname)(a->lookup_uname_data, uid));
 }
 
-int archive_read_disk_set_gname_lookup(struct archive * _a, void * private_data,
+int archive_read_disk_set_gname_lookup(Archive * _a, void * private_data,
     const char * (*lookup_gname)(void * pPrivate, la_int64_t gid), void (*cleanup_gname)(void * pPrivate))
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
@@ -449,7 +431,7 @@ int archive_read_disk_set_gname_lookup(struct archive * _a, void * private_data,
 	return ARCHIVE_OK;
 }
 
-int archive_read_disk_set_uname_lookup(struct archive * _a, void * private_data,
+int archive_read_disk_set_uname_lookup(Archive * _a, void * private_data,
     const char * (*lookup_uname)(void * pPrivate, int64 uid), void (*cleanup_uname)(void * pPrivate))
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
@@ -464,7 +446,7 @@ int archive_read_disk_set_uname_lookup(struct archive * _a, void * private_data,
 /*
  * Create a new archive_read_disk object and initialize it with global state.
  */
-struct archive * archive_read_disk_new(void)                 
+Archive * archive_read_disk_new(void)                 
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)SAlloc::C(1, sizeof(*a));
 	if(!a)
@@ -479,7 +461,7 @@ struct archive * archive_read_disk_new(void)
 	return (&a->archive);
 }
 
-static int _archive_read_free(struct archive * _a)
+static int _archive_read_free(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	int r;
@@ -502,7 +484,7 @@ static int _archive_read_free(struct archive * _a)
 	return r;
 }
 
-static int _archive_read_close(struct archive * _a)
+static int _archive_read_close(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, __FUNCTION__);
@@ -523,7 +505,7 @@ static void setup_symlink_mode(struct archive_read_disk * a, char symlink_mode,
 	}
 }
 
-int archive_read_disk_set_symlink_logical(struct archive * _a)
+int archive_read_disk_set_symlink_logical(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -531,7 +513,7 @@ int archive_read_disk_set_symlink_logical(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-int archive_read_disk_set_symlink_physical(struct archive * _a)
+int archive_read_disk_set_symlink_physical(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -539,7 +521,7 @@ int archive_read_disk_set_symlink_physical(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-int archive_read_disk_set_symlink_hybrid(struct archive * _a)
+int archive_read_disk_set_symlink_hybrid(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -547,7 +529,7 @@ int archive_read_disk_set_symlink_hybrid(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-int archive_read_disk_set_atime_restored(struct archive * _a)
+int archive_read_disk_set_atime_restored(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -557,7 +539,7 @@ int archive_read_disk_set_atime_restored(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-int archive_read_disk_set_behavior(struct archive * _a, int flags)
+int archive_read_disk_set_behavior(Archive * _a, int flags)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	int r = ARCHIVE_OK;
@@ -689,7 +671,7 @@ static void cancel_async(struct tree * t)
 	}
 }
 
-static int _archive_read_data_block(struct archive * _a, const void ** buff, size_t * size, int64 * offset)
+static int _archive_read_data_block(Archive * _a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	struct tree * t = a->tree;
@@ -762,7 +744,7 @@ abort_read_data:
 	return r;
 }
 
-static int next_entry(struct archive_read_disk * a, struct tree * t, struct archive_entry * entry)
+static int next_entry(struct archive_read_disk * a, struct tree * t, ArchiveEntry * entry)
 {
 	const char* name;
 	int descend, r;
@@ -944,7 +926,7 @@ static int next_entry(struct archive_read_disk * a, struct tree * t, struct arch
 	return r;
 }
 
-static int _archive_read_next_header(struct archive * _a, struct archive_entry ** entryp)
+static int _archive_read_next_header(Archive * _a, ArchiveEntry ** entryp)
 {
 	int ret;
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
@@ -954,7 +936,7 @@ static int _archive_read_next_header(struct archive * _a, struct archive_entry *
 	return ret;
 }
 
-static int _archive_read_next_header2(struct archive * _a, struct archive_entry * entry)
+static int _archive_read_next_header2(Archive * _a, ArchiveEntry * entry)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	struct tree * t;
@@ -1007,7 +989,7 @@ static int _archive_read_next_header2(struct archive * _a, struct archive_entry 
 	return r;
 }
 
-static int setup_sparse(struct archive_read_disk * a, struct archive_entry * entry)
+static int setup_sparse(struct archive_read_disk * a, ArchiveEntry * entry)
 {
 	struct tree * t = a->tree;
 	int64 aligned, length, offset;
@@ -1070,7 +1052,7 @@ static int setup_sparse(struct archive_read_disk * a, struct archive_entry * ent
 	return ARCHIVE_OK;
 }
 
-int archive_read_disk_set_matching(struct archive * _a, struct archive * _ma, void (*_excluded_func)(struct archive *, void *, struct archive_entry *), void * _client_data)
+int archive_read_disk_set_matching(Archive * _a, Archive * _ma, void (*_excluded_func)(Archive *, void *, ArchiveEntry *), void * _client_data)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -1080,7 +1062,7 @@ int archive_read_disk_set_matching(struct archive * _a, struct archive * _ma, vo
 	return ARCHIVE_OK;
 }
 
-int archive_read_disk_set_metadata_filter_callback(struct archive * _a, int (*_metadata_filter_func)(struct archive *, void *, struct archive_entry *), void * _client_data)
+int archive_read_disk_set_metadata_filter_callback(Archive * _a, int (*_metadata_filter_func)(Archive *, void *, ArchiveEntry *), void * _client_data)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -1089,7 +1071,7 @@ int archive_read_disk_set_metadata_filter_callback(struct archive * _a, int (*_m
 	return ARCHIVE_OK;
 }
 
-int archive_read_disk_can_descend(struct archive * _a)
+int archive_read_disk_can_descend(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	struct tree * t = a->tree;
@@ -1101,7 +1083,7 @@ int archive_read_disk_can_descend(struct archive * _a)
  * Called by the client to mark the directory just returned from
  * tree_next() as needing to be visited.
  */
-int archive_read_disk_descend(struct archive * _a)
+int archive_read_disk_descend(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	struct tree * t = a->tree;
@@ -1120,17 +1102,16 @@ int archive_read_disk_descend(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-int archive_read_disk_open(struct archive * _a, const char * pathname)
+int archive_read_disk_open(Archive * _a, const char * pathname)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	struct archive_wstring wpath;
+	archive_wstring wpath;
 	int ret;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_NEW | ARCHIVE_STATE_CLOSED, __FUNCTION__);
 	archive_clear_error(&a->archive);
 	/* Make a wchar_t string from a char string. */
 	archive_string_init(&wpath);
-	if(archive_wstring_append_from_mbs(&wpath, pathname,
-	    strlen(pathname)) != 0) {
+	if(archive_wstring_append_from_mbs(&wpath, pathname, strlen(pathname)) != 0) {
 		if(errno == ENOMEM)
 			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		else
@@ -1144,7 +1125,7 @@ int archive_read_disk_open(struct archive * _a, const char * pathname)
 	return ret;
 }
 
-int archive_read_disk_open_w(struct archive * _a, const wchar_t * pathname)
+int archive_read_disk_open_w(Archive * _a, const wchar_t * pathname)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_NEW | ARCHIVE_STATE_CLOSED, __FUNCTION__);
@@ -1152,7 +1133,7 @@ int archive_read_disk_open_w(struct archive * _a, const wchar_t * pathname)
 	return (_archive_read_disk_open_w(_a, pathname));
 }
 
-static int _archive_read_disk_open_w(struct archive * _a, const wchar_t * pathname)
+static int _archive_read_disk_open_w(Archive * _a, const wchar_t * pathname)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	if(a->tree)
@@ -1171,7 +1152,7 @@ static int _archive_read_disk_open_w(struct archive * _a, const wchar_t * pathna
  * Return a current filesystem ID which is index of the filesystem entry
  * you've visited through archive_read_disk.
  */
-int archive_read_disk_current_filesystem(struct archive * _a)
+int archive_read_disk_current_filesystem(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
@@ -1215,7 +1196,7 @@ static int update_current_filesystem(struct archive_read_disk * a, int64 dev)
  * Returns 1 if current filesystem is generated filesystem, 0 if it is not
  * or -1 if it is unknown.
  */
-int archive_read_disk_current_filesystem_is_synthetic(struct archive * _a)
+int archive_read_disk_current_filesystem_is_synthetic(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
@@ -1226,7 +1207,7 @@ int archive_read_disk_current_filesystem_is_synthetic(struct archive * _a)
  * Returns 1 if current filesystem is remote filesystem, 0 if it is not
  * or -1 if it is unknown.
  */
-int archive_read_disk_current_filesystem_is_remote(struct archive * _a)
+int archive_read_disk_current_filesystem_is_remote(Archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
@@ -1262,7 +1243,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 	struct tree * t = a->tree;
 	wchar_t vol[256];
 	wchar_t * path;
-	t->current_filesystem->synthetic = -1; /* Not supported */
+	t->current_filesystem->synthetic = -1; // Not supported
 	path = safe_path_for_statfs(t);
 	if(!GetVolumePathNameW(path, vol, SIZEOFARRAY(vol))) {
 		SAlloc::F(path);
@@ -1390,7 +1371,7 @@ static struct tree * tree_open(const wchar_t * path, int symlink_mode, int resto
 
 static struct tree * tree_reopen(struct tree * t, const wchar_t * path, int restore_time)                       
 {
-	struct archive_wstring ws;
+	archive_wstring ws;
 	wchar_t * pathname, * p, * base;
 	t->flags = (restore_time != 0) ? needsRestoreTimes : 0;
 	t->visit_type = 0;
@@ -1625,7 +1606,7 @@ static int tree_dir_next_windows(struct tree * t, const wchar_t * pattern)
 	int r;
 	for(;;) {
 		if(pattern != NULL) {
-			struct archive_wstring pt;
+			archive_wstring pt;
 			archive_string_init(&pt);
 			archive_wstring_ensure(&pt, archive_strlen(&(t->full_path)) + 2 + wcslen(pattern));
 			archive_wstring_copy(&pt, &(t->full_path));
@@ -1683,7 +1664,7 @@ static void fileTimeToUtc(const FILETIME * filetime, time_t * t, long * ns)
 	}
 }
 
-static void entry_copy_bhfi(struct archive_entry * entry, const wchar_t * path,
+static void entry_copy_bhfi(ArchiveEntry * entry, const wchar_t * path,
     const WIN32_FIND_DATAW * findData,
     const BY_HANDLE_FILE_INFORMATION * bhfi)
 {
@@ -1743,7 +1724,7 @@ static void entry_copy_bhfi(struct archive_entry * entry, const wchar_t * path,
 	archive_entry_set_mode(entry, mode);
 }
 
-static void tree_archive_entry_copy_bhfi(struct archive_entry * entry, struct tree * t, const BY_HANDLE_FILE_INFORMATION * bhfi)
+static void tree_archive_entry_copy_bhfi(ArchiveEntry * entry, struct tree * t, const BY_HANDLE_FILE_INFORMATION * bhfi)
 {
 	entry_copy_bhfi(entry, tree_current_path(t), t->findData, bhfi);
 }
@@ -1877,7 +1858,7 @@ static void tree_free(struct tree * t)
 /*
  * Populate the archive_entry with metadata from the disk.
  */
-int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry * entry, int fd, const struct stat * st)
+int archive_read_disk_entry_from_file(Archive * _a, ArchiveEntry * entry, int fd, const struct stat * st)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	const wchar_t * path;
@@ -2022,7 +2003,7 @@ typedef struct {
 } FILE_ALLOCATED_RANGE_BUFFER;
 #endif
 
-static int setup_sparse_from_disk(struct archive_read_disk * a, struct archive_entry * entry, HANDLE handle)
+static int setup_sparse_from_disk(struct archive_read_disk * a, ArchiveEntry * entry, HANDLE handle)
 {
 	FILE_ALLOCATED_RANGE_BUFFER range, * outranges = NULL;
 	size_t outranges_size;
@@ -2071,9 +2052,7 @@ static int setup_sparse_from_disk(struct archive_read_disk * a, struct archive_e
 			}
 			else {
 				/* The entire file is a hole. Add one data block of size 0 at the end. */
-				archive_entry_sparse_add_entry(entry,
-				    entry_size,
-				    0);
+				archive_entry_sparse_add_entry(entry, entry_size, 0);
 			}
 			break;
 		}
@@ -2086,7 +2065,6 @@ static int setup_sparse_from_disk(struct archive_read_disk * a, struct archive_e
 	}
 exit_setup_sparse:
 	SAlloc::F(outranges);
-
 	return (exit_sts);
 }
 

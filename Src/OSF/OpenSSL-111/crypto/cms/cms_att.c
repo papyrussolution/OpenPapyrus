@@ -220,33 +220,25 @@ static X509_ATTRIBUTE * cms_attrib_get(int nid,
 	return at;
 }
 
-static int cms_check_attribute(int nid, int flags, int type,
-    const STACK_OF(X509_ATTRIBUTE) * attrs,
-    int have_attrs)
+static int cms_check_attribute(int nid, int flags, int type, const STACK_OF(X509_ATTRIBUTE) * attrs, int have_attrs)
 {
 	int lastpos = -1;
 	X509_ATTRIBUTE * at = cms_attrib_get(nid, attrs, &lastpos);
-
 	if(at != NULL) {
 		int count = X509_ATTRIBUTE_count(at);
-
 		/* Is this attribute allowed? */
 		if(((flags & type) == 0)
 		    /* check if multiple attributes of the same type are allowed */
-		   || (((flags & CMS_ATTR_F_ONLY_ONE) != 0)
-		 && cms_attrib_get(nid, attrs, &lastpos) != NULL)
+		   || (((flags & CMS_ATTR_F_ONLY_ONE) != 0) && cms_attrib_get(nid, attrs, &lastpos) != NULL)
 		    /* Check if attribute should have exactly one value in its set */
-		   || (((flags & CMS_ATTR_F_ONE_ATTR_VALUE) != 0)
-		 && count != 1)
+		   || (((flags & CMS_ATTR_F_ONE_ATTR_VALUE) != 0) && count != 1)
 		    /* There should be at least one value */
 		   || count == 0)
 			return 0;
 	}
 	else {
 		/* fail if a required attribute is missing */
-		if(have_attrs
-		 && ((flags & CMS_ATTR_F_REQUIRED_COND) != 0)
-		 && (flags & type) != 0)
+		if(have_attrs && ((flags & CMS_ATTR_F_REQUIRED_COND) != 0) && (flags & type) != 0)
 			return 0;
 	}
 	return 1;

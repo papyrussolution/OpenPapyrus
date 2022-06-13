@@ -60,7 +60,7 @@
             android:orientation="horizontal"
             android:padding="2dp"
             >
-            <View style="@style/FakeView"/>
+            <!--<View style="@style/FakeView"/>-->
             <ImageView
                 android:id="@+id/CTL_PREV"
                 android:layout_width="wrap_content"

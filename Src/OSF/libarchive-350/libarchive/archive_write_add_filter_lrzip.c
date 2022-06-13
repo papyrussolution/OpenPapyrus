@@ -27,13 +27,13 @@ static int archive_write_lrzip_write(struct archive_write_filter *, const void *
 static int archive_write_lrzip_close(struct archive_write_filter *);
 static int archive_write_lrzip_free(struct archive_write_filter *);
 
-int archive_write_add_filter_lrzip(struct archive * _a)
+int archive_write_add_filter_lrzip(Archive * _a)
 {
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct write_lrzip * data;
 	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = (write_lrzip *)SAlloc::C(1, sizeof(*data));
-	if(data == NULL) {
+	if(!data) {
 		archive_set_error(_a, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
@@ -91,7 +91,7 @@ static int archive_write_lrzip_options(struct archive_write_filter * f, const ch
 static int archive_write_lrzip_open(struct archive_write_filter * f)
 {
 	struct write_lrzip * data = (struct write_lrzip *)f->data;
-	struct archive_string as;
+	archive_string as;
 	int r;
 	archive_string_init(&as);
 	archive_strcpy(&as, "lrzip -q");

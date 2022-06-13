@@ -619,7 +619,7 @@ static const char k_DefultChar = '_';
 
 			   if(i != src.Len()) {
 			   uint len = MultiByteToWideChar(codePage, 0, s + i, src.Len() - i, d + i, src.Len() + 1 - i);
-			   if(len == 0)
+			   if(!len)
 				throw 282228;
 			   i += len;
 			   }
@@ -628,13 +628,13 @@ static const char k_DefultChar = '_';
 			   dest.ReleaseBuf_SetLen(i);
 			 */
 			uint len = MultiByteToWideChar(codePage, 0, src, src.Len(), NULL, 0);
-			if(len == 0) {
+			if(!len) {
 				if(GetLastError() != 0)
 					throw 282228;
 			}
 			else {
 				len = MultiByteToWideChar(codePage, 0, src, src.Len(), dest.GetBuf(len), len);
-				if(len == 0)
+				if(!len)
 					throw 282228;
 				dest.ReleaseBuf_SetEnd(len);
 			}
@@ -689,7 +689,7 @@ static const char k_DefultChar = '_';
 				  (isUtf ? NULL : &defaultChar),
 				  (isUtf ? NULL : &defUsed));
 			   defaultCharWasUsed = (defUsed != FALSE);
-			   if(len == 0)
+			   if(!len)
 				throw 282229;
 			   i += len;
 			   }
@@ -727,7 +727,7 @@ static const char k_DefultChar = '_';
 			   }
 			 */
 			uint len = WideCharToMultiByte(codePage, 0, src, src.Len(), NULL, 0, NULL, NULL);
-			if(len == 0) {
+			if(!len) {
 				if(GetLastError() != 0)
 					throw 282228;
 			}
@@ -738,7 +738,7 @@ static const char k_DefultChar = '_';
 				len = WideCharToMultiByte(codePage, 0, src, src.Len(), dest.GetBuf(len), len, (isUtf ? NULL : &defaultChar), (isUtf ? NULL : &defUsed));
 				if(!isUtf)
 					defaultCharWasUsed = (defUsed != FALSE);
-				if(len == 0)
+				if(!len)
 					throw 282228;
 				dest.ReleaseBuf_SetEnd(len);
 			}

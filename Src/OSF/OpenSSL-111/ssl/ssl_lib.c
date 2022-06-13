@@ -2305,7 +2305,7 @@ STACK_OF(SSL_CIPHER) *SSL_get_ciphers(const SSL *s)
 		if(s->cipher_list != NULL) {
 			return s->cipher_list;
 		}
-		else if((s->ctx != NULL) && (s->ctx->cipher_list != NULL)) {
+		else if(s->ctx && (s->ctx->cipher_list != NULL)) {
 			return s->ctx->cipher_list;
 		}
 	}
@@ -2352,7 +2352,7 @@ STACK_OF(SSL_CIPHER) *ssl_get_ciphers_by_id(SSL *s)
 		if(s->cipher_list_by_id != NULL) {
 			return s->cipher_list_by_id;
 		}
-		else if((s->ctx != NULL) && (s->ctx->cipher_list_by_id != NULL)) {
+		else if(s->ctx && (s->ctx->cipher_list_by_id != NULL)) {
 			return s->ctx->cipher_list_by_id;
 		}
 	}

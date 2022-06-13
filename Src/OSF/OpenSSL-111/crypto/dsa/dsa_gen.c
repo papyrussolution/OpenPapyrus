@@ -74,13 +74,10 @@ int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
 	else {
 		qsize = EVP_MD_size(evpmd);
 	}
-
 	if(bits < 512)
 		bits = 512;
-
 	bits = (bits + 63) / 64 * 64;
-
-	if(seed_in != NULL) {
+	if(seed_in) {
 		if(seed_len < (size_t)qsize) {
 			DSAerr(DSA_F_DSA_BUILTIN_PARAMGEN, DSA_R_SEED_LEN_SMALL);
 			return 0;
@@ -277,9 +274,9 @@ err:
 			ok = 0;
 			goto err;
 		}
-		if(counter_ret != NULL)
+		if(counter_ret)
 			*counter_ret = counter;
-		if(h_ret != NULL)
+		if(h_ret)
 			*h_ret = h;
 		if(seed_out)
 			memcpy(seed_out, seed, qsize);
@@ -588,9 +585,9 @@ err:
 			ok = -1;
 			goto err;
 		}
-		if(counter_ret != NULL)
+		if(counter_ret)
 			*counter_ret = counter;
-		if(h_ret != NULL)
+		if(h_ret)
 			*h_ret = h;
 	}
 	OPENSSL_free(seed);

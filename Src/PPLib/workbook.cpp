@@ -2362,8 +2362,14 @@ int PPObjWorkbook::InterchangeUhtt()
 										else {
 											const LDATETIME foreign_content_mod_dtm = p_item->ContentModifDtm;
 											const LDATETIME content_mod_dtm = GetContentLastModifTime(native_id);
-											if(cmp(content_mod_dtm, foreign_content_mod_dtm) > 0 && cmp(content_mod_dtm, blk.SinceEvTime) > 0)
+											// @v11.4.1 Специальный случай: у нас есть контент, а на сервере его нет - форсируем передачу. {
+											if(!foreign_content_mod_dtm && !!content_mod_dtm) {
 												to_transmit_list.add(native_id);
+											}
+											else { // } @v11.4.1
+												if(cmp(content_mod_dtm, foreign_content_mod_dtm) > 0 && cmp(content_mod_dtm, blk.SinceEvTime) > 0)
+													to_transmit_list.add(native_id);
+											}
 										}
 										found = 1;
 									}
@@ -2472,11 +2478,18 @@ int PPObjWorkbook::Helper_ExportToUhtt(PPUhttClient & rUc, PPID id,
 			}
 		}
 	}
-	THROW(rUc.CreateWorkbookItem(&uhtt_id, uhtt_pack));
 	{
-		// PPTXT_LOG_WBS_WBVSENTTOUHTT    "Рабочая книга '@zstr' передана на сервер"
-		(temp_buf = uhtt_pack.Name).Transf(CTRANSF_UTF8_TO_INNER);
-		CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_WBS_WBVSENTTOUHTT, &msg_buf, temp_buf.cptr())));
+		const int cwir = rUc.CreateWorkbookItem(&uhtt_id, uhtt_pack);
+		if(cwir) {
+			// PPTXT_LOG_WBS_WBVSENTTOUHTT    "Рабочая книга '@zstr' передана на сервер"
+			(temp_buf = uhtt_pack.Name).Transf(CTRANSF_UTF8_TO_INNER);
+			CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_WBS_WBVSENTTOUHTT, &msg_buf, temp_buf.cptr())));
+		}
+		else { // @v11.4.1
+			(temp_buf = uhtt_pack.Name).Transf(CTRANSF_UTF8_TO_INNER).CatDiv('-', 1).Cat(rUc.GetLastMessage());
+			CALLPTRMEMB(pLogger, Log(PPFormatT(PPTXT_LOG_WBS_WBTRANSMITERROR, &msg_buf, temp_buf.cptr())));
+			CALLEXCEPT();
+		}
 	}
 	if(attach_file_name.NotEmpty()) {
 		THROW(rUc.SetWorkbookContentByID(uhtt_id, attach_file_name));

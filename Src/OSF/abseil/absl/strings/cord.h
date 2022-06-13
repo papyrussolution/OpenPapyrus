@@ -309,11 +309,8 @@ public:
 	friend void CopyCordToString(const Cord& src, std::string* dst);
 
 	class CharIterator;
-
-	//----------------------------------------------------------------------------
-	// Cord::ChunkIterator
-	//----------------------------------------------------------------------------
 	//
+	// Cord::ChunkIterator
 	// A `Cord::ChunkIterator` allows iteration over the constituent chunks of its
 	// Cord. Such iteration allows you to perform non-const operatons on the data
 	// of a Cord without modifying it.
@@ -436,10 +433,8 @@ private:
 	// iterating over the chunks of a Cord. This method may be useful for getting
 	// a `ChunkIterator` where range-based for-loops may not be available.
 	ChunkIterator chunk_end() const;
-
-	//----------------------------------------------------------------------------
+	//
 	// Cord::ChunkIterator::ChunkRange
-	//----------------------------------------------------------------------------
 	//
 	// `ChunkRange` is a helper class for iterating over the chunks of the `Cord`,
 	// producing an iterator which can be used within a range-based for loop.
@@ -491,10 +486,8 @@ private:
 	//     }
 	//   }
 	ChunkRange Chunks() const;
-
-	//----------------------------------------------------------------------------
+	//
 	// Cord::CharIterator
-	//----------------------------------------------------------------------------
 	//
 	// A `Cord::CharIterator` allows iteration over the constituent characters of
 	// a `Cord`.

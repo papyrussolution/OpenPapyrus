@@ -23,11 +23,11 @@ static ssize_t  archive_write_cpio_data(struct archive_write *, const void * buf
 static int archive_write_cpio_close(struct archive_write *);
 static int archive_write_cpio_free(struct archive_write *);
 static int archive_write_cpio_finish_entry(struct archive_write *);
-static int archive_write_cpio_header(struct archive_write *, struct archive_entry *);
+static int archive_write_cpio_header(struct archive_write *, ArchiveEntry *);
 static int archive_write_cpio_options(struct archive_write *, const char *, const char *);
 static int format_octal(int64, void *, int);
 static int64  format_octal_recursive(int64, char *, int);
-static int write_header(struct archive_write *, struct archive_entry *);
+static int write_header(struct archive_write *, ArchiveEntry *);
 
 struct cpio {
 	uint64 entry_bytes_remaining;
@@ -38,8 +38,8 @@ struct cpio {
 	} * ino_list;
 	size_t ino_list_size;
 	size_t ino_list_next;
-	struct archive_string_conv * opt_sconv;
-	struct archive_string_conv * sconv_default;
+	archive_string_conv * opt_sconv;
+	archive_string_conv * sconv_default;
 	int init_default_conversion;
 };
 
@@ -68,7 +68,7 @@ struct cpio {
 /*
  * Set output format to 'cpio' format.
  */
-int archive_write_set_format_cpio(struct archive * _a)
+int archive_write_set_format_cpio(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct cpio * cpio;
@@ -99,7 +99,7 @@ static int archive_write_cpio_options(struct archive_write * a, const char * key
 	struct cpio * cpio = (struct cpio *)a->format_data;
 	int ret = ARCHIVE_FAILED;
 	if(sstreq(key, "hdrcharset")) {
-		if(val == NULL || val[0] == 0)
+		if(isempty(val))
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {
 			cpio->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
@@ -130,7 +130,7 @@ static int archive_write_cpio_options(struct archive_write * a, const char * key
  *
  * TODO: Work with dev/ino pairs here instead of just ino values.
  */
-static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry)
+static int synthesize_ino_value(struct cpio * cpio, ArchiveEntry * entry)
 {
 	int64 ino = archive_entry_ino64(entry);
 	int ino_new;
@@ -171,10 +171,10 @@ static int synthesize_ino_value(struct cpio * cpio, struct archive_entry * entry
 	return (ino_new);
 }
 
-static struct archive_string_conv * get_sconv(struct archive_write * a)                                     
+static archive_string_conv * get_sconv(struct archive_write * a)                                     
 {
 	struct cpio * cpio;
-	struct archive_string_conv * sconv;
+	archive_string_conv * sconv;
 	cpio = (struct cpio *)a->format_data;
 	sconv = cpio->opt_sconv;
 	if(sconv == NULL) {
@@ -189,7 +189,7 @@ static struct archive_string_conv * get_sconv(struct archive_write * a)
 	return (sconv);
 }
 
-static int archive_write_cpio_header(struct archive_write * a, struct archive_entry * entry)
+static int archive_write_cpio_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	const char * path;
 	size_t len;
@@ -212,14 +212,14 @@ static int archive_write_cpio_header(struct archive_write * a, struct archive_en
 	return write_header(a, entry);
 }
 
-static int write_header(struct archive_write * a, struct archive_entry * entry)
+static int write_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	const char * p, * path;
 	int pathlength, ret, ret_final;
 	int64 ino;
 	char h[76];
-	struct archive_string_conv * sconv;
-	struct archive_entry * entry_main;
+	archive_string_conv * sconv;
+	ArchiveEntry * entry_main;
 	size_t len;
 	struct cpio * cpio = (struct cpio *)a->format_data;
 	ret_final = ARCHIVE_OK;
@@ -370,7 +370,7 @@ static int64 format_octal_recursive(int64 v, char * p, int s)
 static int archive_write_cpio_close(struct archive_write * a)
 {
 	int er;
-	struct archive_entry * trailer = archive_entry_new2(NULL);
+	ArchiveEntry * trailer = archive_entry_new2(NULL);
 	/* nlink = 1 here for GNU cpio compat. */
 	archive_entry_set_nlink(trailer, 1);
 	archive_entry_set_size(trailer, 0);

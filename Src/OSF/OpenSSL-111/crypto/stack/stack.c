@@ -286,7 +286,7 @@ static int internal_find(OPENSSL_STACK * st, const void * data,
 			qsort(st->data, st->num, sizeof(void *), st->comp);
 		st->sorted = 1; /* empty or single-element stack is considered sorted */
 	}
-	if(data == NULL)
+	if(!data)
 		return -1;
 	r = OBJ_bsearch_ex_(&data, st->data, st->num, sizeof(void *), st->comp,
 		ret_val_options);

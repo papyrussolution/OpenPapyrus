@@ -173,6 +173,10 @@ public class MqbClient {
 		int    Port;
 		ArrayList<RoutingParamEntry> ConsumeParamList;
 	}
+	boolean IsOpened()
+	{
+		return (Chnnl != null && Chnnl.isOpen());
+	}
 	boolean QueueDeclare(final String queueName, long queueFlags) throws StyloQException
 	{
 		boolean ok = true;
@@ -217,6 +221,7 @@ public class MqbClient {
 		AMQP.Queue.UnbindOk r;
 		THROW(SLib.GetLen(queueName) > 0, ppstr2.PPERR_MQBC_EMPTYQUEUENAME);
 		THROW(Chnnl != null, ppstr2.PPERR_MQBC_NOTINITED);
+		THROW(IsOpened(), ppstr2.PPERR_MQBC_CHANNELNOTOPENED);
 		try {
 			r = Chnnl.queueUnbind(queueName, exchangeName, routingKey);
 			ok = true;
@@ -231,6 +236,7 @@ public class MqbClient {
 		AMQP.Queue.DeleteOk r;
 		THROW(SLib.GetLen(queueName) > 0, ppstr2.PPERR_MQBC_EMPTYQUEUENAME);
 		THROW(Chnnl != null, ppstr2.PPERR_MQBC_NOTINITED);
+		THROW(IsOpened(), ppstr2.PPERR_MQBC_CHANNELNOTOPENED);
 		try {
 			boolean if_unused = false;
 			boolean if_empty = false;

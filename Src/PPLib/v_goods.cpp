@@ -1644,7 +1644,7 @@ void PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderTbl::Re
 			else
 				temp_buf.Z();
 			const size_t len = temp_buf.Trim(max_prefix_len).Len();
-			if(len == 0) {
+			if(!len) {
 				last_alphabet_symb.Z().CatChar('я').Transf(CTRANSF_UTF8_TO_INNER);
 				temp_buf.CatCharN(last_alphabet_symb.C(0), max_prefix_len);
 			}
@@ -1663,7 +1663,7 @@ void PPViewGoods::MakeTempRec(const Goods2Tbl::Rec * pGoodsRec, TempOrderTbl::Re
 			else
 				temp_buf.Z();
 			const size_t len = temp_buf.Trim(max_prefix_len).Len();
-			if(len == 0) {
+			if(!len) {
 				last_alphabet_symb.Z().CatChar('я').Transf(CTRANSF_UTF8_TO_INNER);
 				temp_buf.CatCharN(last_alphabet_symb.C(0), max_prefix_len);
 			}

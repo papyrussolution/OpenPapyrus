@@ -53,7 +53,7 @@ boolint _cmsRegisterInterpPlugin(cmsContext ContextID, cmsPluginBase* Data)
 	cmsPluginInterpolation* Plugin = (cmsPluginInterpolation*)Data;
 	_cmsInterpPluginChunkType* ptr = (_cmsInterpPluginChunkType*)_cmsContextGetClientChunk(ContextID, InterpPlugin);
 
-	if(Data == NULL) {
+	if(!Data) {
 		ptr->Interpolators = NULL;
 		return TRUE;
 	}

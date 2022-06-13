@@ -171,11 +171,9 @@ void TransliteratorAlias::parse(TransliteratorParser& parser, UParseError& pe, U
 	}
 	parser.parse(aliasesOrRules, direction, pe, ec);
 }
-
-//----------------------------------------------------------------------
+//
 // class TransliteratorSpec
-//----------------------------------------------------------------------
-
+//
 /**
  * A TransliteratorSpec is a string specifying either a source or a target.  In more
  * general terms, it may also specify a variant, but we only use the
@@ -331,8 +329,6 @@ ResourceBundle& TransliteratorSpec::getBundle() const {
 	return *res;
 }
 
-//----------------------------------------------------------------------
-
 #ifdef DEBUG_MEM
 
 // Vector of Entry pointers currently in use
@@ -395,11 +391,9 @@ static void DEBUG_useEntry(TransliteratorEntry* e) {
 #define DEBUG_delEntry(x)
 #define DEBUG_useEntry(x)
 #endif
-
-//----------------------------------------------------------------------
+//
 // class Entry
-//----------------------------------------------------------------------
-
+//
 /**
  * The Entry object stores objects of different types and
  * singleton objects as placeholders for rule-based transliterators to
@@ -501,11 +495,9 @@ static void U_CALLCONV deleteEntry(void * obj) {
 }
 
 U_CDECL_END
-
-//----------------------------------------------------------------------
+//
 // class TransliteratorRegistry: Basic public API
-//----------------------------------------------------------------------
-
+//
 TransliteratorRegistry::TransliteratorRegistry(UErrorCode & status) :
 	registry(TRUE, status),
 	specDAG(TRUE, SPECDAG_INIT_SIZE, status),
@@ -695,11 +687,9 @@ void TransliteratorRegistry::remove(const UnicodeString & ID) {
 	removeSTV(source, target, variant);
 	availableIDs.removeElement((void *)&id);
 }
-
-//----------------------------------------------------------------------
+//
 // class TransliteratorRegistry: Public ID and spec management
-//----------------------------------------------------------------------
-
+//
 /**
  * == OBSOLETE - remove in ICU 3.4 ==
  * Return the number of IDs currently registered with the system.
@@ -827,11 +817,9 @@ UnicodeString & TransliteratorRegistry::getAvailableVariant(int32_t index,
 	result.truncate(0); // invalid target or index
 	return result;
 }
-
-//----------------------------------------------------------------------
+//
 // class TransliteratorRegistry::Enumeration
-//----------------------------------------------------------------------
-
+//
 TransliteratorRegistry::Enumeration::Enumeration(const TransliteratorRegistry& _reg) :
 	index(0), reg(_reg) {
 }
@@ -876,11 +864,9 @@ void TransliteratorRegistry::Enumeration::reset(UErrorCode & /*status*/) {
 }
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(TransliteratorRegistry::Enumeration)
-
-//----------------------------------------------------------------------
+//
 // class TransliteratorRegistry: internal
-//----------------------------------------------------------------------
-
+//
 /**
  * Convenience method.  Calls 6-arg registerEntry().
  */

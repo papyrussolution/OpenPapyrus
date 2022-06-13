@@ -1181,7 +1181,7 @@ static ngx_int_t ngx_http_ssi_evaluate_string(ngx_http_request_t * r, ngx_http_s
 			if(prefix) {
 				len = prefix + text->len;
 				data = static_cast<u_char *>(ngx_pnalloc(r->pool, len));
-				if(data == NULL) {
+				if(!data) {
 					return NGX_ERROR;
 				}
 				p = ngx_copy(data, r->uri.data, prefix);

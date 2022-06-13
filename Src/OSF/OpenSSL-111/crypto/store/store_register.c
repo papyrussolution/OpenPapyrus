@@ -141,7 +141,6 @@ int ossl_store_register_loader_int(OSSL_STORE_LOADER * loader)
 {
 	const char * scheme = loader->scheme;
 	int ok = 0;
-
 	/*
 	 * Check that the given scheme conforms to correct scheme syntax as per
 	 * RFC 3986:
@@ -149,36 +148,25 @@ int ossl_store_register_loader_int(OSSL_STORE_LOADER * loader)
 	 * scheme        = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 	 */
 	if(ossl_isalpha(*scheme))
-		while(*scheme != '\0'
-		 && (ossl_isalpha(*scheme)
-		   || ossl_isdigit(*scheme)
-		   || strchr("+-.", *scheme) != NULL))
+		while(*scheme != '\0' && (ossl_isalpha(*scheme) || ossl_isdigit(*scheme) || strchr("+-.", *scheme) != NULL))
 			scheme++;
 	if(*scheme != '\0') {
-		OSSL_STOREerr(OSSL_STORE_F_OSSL_STORE_REGISTER_LOADER_INT,
-		    OSSL_STORE_R_INVALID_SCHEME);
+		OSSL_STOREerr(OSSL_STORE_F_OSSL_STORE_REGISTER_LOADER_INT, OSSL_STORE_R_INVALID_SCHEME);
 		ERR_add_error_data(2, "scheme=", loader->scheme);
 		return 0;
 	}
-
 	/* Check that functions we absolutely require are present */
-	if(loader->open == NULL || loader->load == NULL || loader->eof == NULL
-	   || loader->error == NULL || loader->close == NULL) {
-		OSSL_STOREerr(OSSL_STORE_F_OSSL_STORE_REGISTER_LOADER_INT,
-		    OSSL_STORE_R_LOADER_INCOMPLETE);
+	if(loader->open == NULL || loader->load == NULL || loader->eof == NULL || loader->error == NULL || loader->close == NULL) {
+		OSSL_STOREerr(OSSL_STORE_F_OSSL_STORE_REGISTER_LOADER_INT, OSSL_STORE_R_LOADER_INCOMPLETE);
 		return 0;
 	}
-
 	if(!RUN_ONCE(&registry_init, do_registry_init)) {
-		OSSL_STOREerr(OSSL_STORE_F_OSSL_STORE_REGISTER_LOADER_INT,
-		    ERR_R_MALLOC_FAILURE);
+		OSSL_STOREerr(OSSL_STORE_F_OSSL_STORE_REGISTER_LOADER_INT, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}
 	CRYPTO_THREAD_write_lock(registry_lock);
-
 	if(loader_register == NULL) {
-		loader_register = lh_OSSL_STORE_LOADER_new(store_loader_hash,
-			store_loader_cmp);
+		loader_register = lh_OSSL_STORE_LOADER_new(store_loader_hash, store_loader_cmp);
 	}
 
 	if(loader_register != NULL

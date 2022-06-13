@@ -746,7 +746,8 @@ int PPObject::Browse(void * extraPtr)
 
 int PPObject::EditPrereq(PPID * pID, TDialog * pDlg, int * pIsNew)
 {
-	int    ok = 1, is_new = 0;
+	int    ok = 1;
+	int    is_new = 0;
 	assert(pID);
 	if(!pID)
 		ok = PPSetErrorInvParam();
@@ -1172,9 +1173,11 @@ int FASTCALL PPGetObjTypeList(PPIDArray * pList, long flags)
 			if(!skip)
 				pList->add(obj_type);
 		}
-		if(!(flags & gotlfExcludeDyn))
-			for(PPID dyn_obj_type = 0; PPRef->EnumItems(PPOBJ_DYNAMICOBJS, &dyn_obj_type) > 0;)
+		if(!(flags & gotlfExcludeDyn)) {
+			Reference * p_ref = PPRef;
+			for(PPID dyn_obj_type = 0; p_ref->EnumItems(PPOBJ_DYNAMICOBJS, &dyn_obj_type) > 0;)
 				pList->add(dyn_obj_type);
+		}
 		pList->sortAndUndup();
 	}
 	else
@@ -1275,12 +1278,12 @@ static int FASTCALL Helper_SendObjMessage(int msg, PPID destObj, PPID obj, PPID 
 	return r;
 }
 
-int FASTCALL SendObjMessage(int msg, PPID destObj, PPID obj, PPID id, void * msgExtraPtr, ObjCollection * pDestObjColl)
+int STDCALL SendObjMessage(int msg, PPID destObj, PPID obj, PPID id, void * msgExtraPtr, ObjCollection * pDestObjColl)
 	{ return Helper_SendObjMessage(msg, destObj, obj, id, msgExtraPtr, pDestObjColl); }
-int FASTCALL SendObjMessage(int msg, PPID destObj, PPID obj, PPID id)
+int STDCALL SendObjMessage(int msg, PPID destObj, PPID obj, PPID id)
 	{ return Helper_SendObjMessage(msg, destObj, obj, id, 0, 0); }
 
-int FASTCALL BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void * msgExtraPtr)
+int STDCALL BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void * msgExtraPtr)
 {
 	PPIDArray obj_type_list;
 	PPGetObjTypeList(&obj_type_list, gotlfExcludeObsolete);
@@ -1293,7 +1296,7 @@ int FASTCALL BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void *
 	return 1;
 }
 
-int FASTCALL GetObjectName(PPID obj, PPID id, char * pBuf, size_t bufLen)
+int STDCALL GetObjectName(PPID obj, PPID id, char * pBuf, size_t bufLen)
 {
 	int    r = 0;
 	ASSIGN_PTR(pBuf, 0);
@@ -1307,7 +1310,7 @@ int FASTCALL GetObjectName(PPID obj, PPID id, char * pBuf, size_t bufLen)
 	return r;
 }
 
-int FASTCALL GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat)
+int STDCALL GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat)
 {
 	int    ok = 0;
 	char   temp_buf[256];

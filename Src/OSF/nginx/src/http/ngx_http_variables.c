@@ -484,7 +484,7 @@ static ngx_int_t ngx_http_variable_headers_internal(ngx_http_request_t * r, ngx_
 		if(h[i]->hash)
 			len += h[i]->value.len + 2;
 	}
-	if(len == 0) {
+	if(!len) {
 		v->not_found = 1;
 		return NGX_OK;
 	}

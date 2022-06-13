@@ -1761,7 +1761,7 @@ private:
 	long   AddRecord(long type, long appID, const char * pName, long, long, ulong * pOffs, const MACAddr * pMachineID, ulong terminalSessID);
 	int    Lock(ulong offs, int checkOnly);
 	int    FASTCALL Unlock(ulong offs);
-	int    FASTCALL IsLocked(ulong offs);
+	bool   FASTCALL IsLocked(ulong offs);
 	int    ReleaseItem(ulong offs);
 	int    GetInitPosition(ulong * pOffs, long * pNumItems);
 	int    GetHeader(ulong offs, PPSyncHeader *, int * pIsLocked);
@@ -20874,10 +20874,10 @@ public:
 		PPID   ParentID;
 	};
 
-	static int  Lock(PPID);
-	static int  Unlock(PPID);
-	static int  IsLocked(PPID);
-	static int  IsExtCashNode(PPID nodeID, PPID * pParentID);
+	static int   Lock(PPID);
+	static int   Unlock(PPID);
+	static int   IsLocked(PPID);
+	static int   IsExtCashNode(PPID nodeID, PPID * pParentID);
 	//
 	// Descr: Вызывает список выбора кассового узла. В списке отображаются узлы
 	//   в соотвествии со следующими условиями:
@@ -40287,8 +40287,8 @@ public:
 		long   Flags;      // @flags Param::fXXX
 		uint   GoodsQuant; // Квант товарных идентификаторов, по которому ведется заполнение
 	};
-	static int EditPredictCfg();
-	static int IsLocked();
+	static int   EditPredictCfg();
+	static int   IsLocked();
 	PrcssrPrediction();
 	~PrcssrPrediction();
 	int    GetLastUpdate(PPID goodsID, const ObjIdListFilt & rLocList, LDATE *);
@@ -44787,7 +44787,24 @@ public:
 		PPID   ID;
 		int    L;
 	};
+	struct SelFilt { // @flat
+		SelFilt();
+		//
+		// Descr: Реализует обычную семантику методов Z().
+		// Note: Важно! Метод включен в класс для использования в качестве упреждающего конструктора
+		//   для применения в PPObjGoodsBasket::CreateObjListWin() поскольку базовый класс объекта отображения //
+		//   формируется при инициализации ранее, чем вызывается конструктор SelFilt.
+		//   До тех пор, пока этот класс плоский (@flat) все будет хорошо, но если здесь появятся члены,
+		//   требующие сложной инициализации, то описанное использование метода Z() приведет к тяжелым проблемам.
+		//
+		SelFilt & Z();
 
+		enum {
+			fOwnOnly = 0x0001, // Показывать только те, корзины, которые ассоциированы с текущим пользователем
+		};
+		long   Flags;
+		uint8  Reserved[64];
+	};
 	explicit PPObjGoodsBasket(void * extraPtr = 0);
 	virtual int  Edit(PPID * pID, void * extraPtr /*goodsID*/);
 	virtual int  Browse(void * extraPtr);
@@ -44810,14 +44827,15 @@ public:
 	int    SelectBasket(PPBasketCombine & rBasket);
 	int    Transfer(PPID);
 private:
-	static void SetAddLockErrInfo(PPID mutexID);
-	virtual void FASTCALL Destroy(PPObjPack * pPack);
-	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr); // @v11.4.0
-	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
-	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	static  void   SetAddLockErrInfo(PPID mutexID);
+	virtual StrAssocArray * MakeStrAssocList(void * extraPtr); // @v11.4.1
+	virtual void   FASTCALL Destroy(PPObjPack * pPack);
+	virtual int    HandleMsg(int, PPID, PPID, void * extraPtr); // @v11.4.0
+	virtual int    Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
+	virtual int    Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
+	virtual int    ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
-	virtual int  ProcessReservedItem(TVRez &);
+	virtual int    ProcessReservedItem(TVRez &);
 };
 
 class PPBasketCombine {
@@ -46666,6 +46684,7 @@ public:
 			// разрешена посредством дополнительных механизмов (escrow счета, полный возврат с отменой платежей и т.д.)
 		styloqdocstFINISHED_SUCC         = 15, // Финальное состояние документа: завершен как учтенный и отработанный.
 		styloqdocstFINISHED_FAIL         = 16, // Финальное состояние документа: завершен как отмененный.
+		styloqdocstCANCELLEDDRAFT        = 17, // @v11.4.1 Драфт отмененый эмитентом. Переход в это состояние возможен только после styloqdocstDRAFT || styloqdocstUNDEF.
 	};
 	//
 	// Descr: Типы документов, хранящихся в реестре Stylo-Q
@@ -47028,7 +47047,7 @@ public:
 		TSVector <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
 	};
 	//
-	// Descr: Ифномация о BLOB'е
+	// Descr: Информация о BLOB'е
 	//
 	struct BlobInfo {
 		BlobInfo();
@@ -47237,13 +47256,13 @@ private:
 	};
 	int    AddImgBlobToReqBlobInfoList(const SBinaryChunk & rOwnIdent, PPObjID oid, Stq_ReqBlobInfoList & rList);
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
-	int    ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos);
-	int    ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
-		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration);
+	int    ProcessCommand_PersonEvent(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SJson * pJsCmd, const SGeoPosLL & rGeoPos);
+	int    ProcessCommand_Report(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
+		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	int    ProcessCommand_RsrvOrderPrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, 
-		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration);
+		const SGeoPosLL & rGeoPos, SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	int    ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
-		SString & rResult, SString & rDocDeclaration);
+		SString & rResult, SString & rDocDeclaration, bool debugOutput);
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
 	// Returns:
@@ -56172,7 +56191,7 @@ int    PPBackupOperationFile(const char * pFileName, const char * pFolderName, l
 //   >0 - структура успешно загружена
 //   0  - ошибка
 //
-int    FASTCALL LoadSdRecord(uint rezID, SdRecord * pRec, int headerOnly = 0); // @defined(PPUTIL.CPP)
+int    STDCALL LoadSdRecord(uint rezID, SdRecord * pRec, int headerOnly = 0); // @defined(PPUTIL.CPP)
 //
 // Следующие функции возвращают таблицу аналитических статей,
 // ассоциированную соответственно с поставщиками, покупателями и агентами.
@@ -56248,8 +56267,8 @@ enum {
 };
 
 int    FASTCALL PPGetObjTypeList(PPIDArray * pList, long flags);
-int    FASTCALL SendObjMessage(int msg, PPID destObj, PPID obj, PPID id, void * msgExtraPtr, ObjCollection * pDestObjColl);
-int    FASTCALL SendObjMessage(int msg, PPID destObj, PPID obj, PPID id);
+int    STDCALL  SendObjMessage(int msg, PPID destObj, PPID obj, PPID id, void * msgExtraPtr, ObjCollection * pDestObjColl);
+int    STDCALL  SendObjMessage(int msg, PPID destObj, PPID obj, PPID id);
 //
 // Descr: Функция возвращает идентификаторы PPView и PPFilt, соответствующие типу объекта objType.
 // Returns:
@@ -56274,7 +56293,7 @@ int    PPUpdateLic(const char * pSrcFile);
 //   !0 - все объекты, которым было послано сообщение, отреагировали на сообщение без ошибок
 //   0  - по крайней мере один из объектов в ответ на сообщение вернул код DBRPL_ERROR
 //
-int    FASTCALL BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void * msgExtraPtr);
+int    STDCALL  BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void * msgExtraPtr);
 //
 // Descr: возвращает запись PPOprKind, соответствующую идентификатору вида операции opID.
 //   Возвращаемая запись извлекается из кэша, поэтому, не все поля в ней заполнены так,
@@ -56416,8 +56435,8 @@ SString & FASTCALL GetObjectTitle(PPID objType, SString & rBuf);
 //   по указателю pExtra присваивает WORLDOBJ_CITY.
 //
 PPID   FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtra);
-int    FASTCALL GetObjectName(PPID objType, PPID objID, char * pBuf, size_t bufLen);
-int    FASTCALL GetObjectName(PPID objType, PPID objID, SString &, int cat = 0);
+int    STDCALL  GetObjectName(PPID objType, PPID objID, char * pBuf, size_t bufLen);
+int    STDCALL  GetObjectName(PPID objType, PPID objID, SString &, int cat = 0);
 SString & GetExtObjectName(const ObjIdListFilt & rObjList, PPID obj, size_t maxItems, SString & rBuf);
 int    FASTCALL ShowObjects(PPID objType, void * extraPtr);
 	// @>>GetPPObject(objType, extra)->Browse(extra)

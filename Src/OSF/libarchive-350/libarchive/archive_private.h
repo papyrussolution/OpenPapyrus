@@ -45,24 +45,24 @@
 #define ARCHIVE_STATE_ANY       (0xFFFFU & ~ARCHIVE_STATE_FATAL)
 
 struct archive_vtable {
-	int (* archive_close)(struct archive *);
-	int (* archive_free)(struct archive *);
-	int (* archive_write_header)(struct archive *, struct archive_entry *);
-	int (* archive_write_finish_entry)(struct archive *);
-	ssize_t (* archive_write_data)(struct archive *, const void *, size_t);
-	ssize_t (* archive_write_data_block)(struct archive *, const void *, size_t, int64);
-	int (* archive_read_next_header)(struct archive *, struct archive_entry **);
-	int (* archive_read_next_header2)(struct archive *, struct archive_entry *);
-	int (* archive_read_data_block)(struct archive *, const void **, size_t *, int64 *);
-	int (* archive_filter_count)(struct archive *);
-	int64 (* archive_filter_bytes)(struct archive *, int);
-	int (* archive_filter_code)(struct archive *, int);
-	const char * (* archive_filter_name)(struct archive *, int);
+	int (* archive_close)(Archive *);
+	int (* archive_free)(Archive *);
+	int (* archive_write_header)(Archive *, ArchiveEntry *);
+	int (* archive_write_finish_entry)(Archive *);
+	ssize_t (* archive_write_data)(Archive *, const void *, size_t);
+	ssize_t (* archive_write_data_block)(Archive *, const void *, size_t, int64);
+	int (* archive_read_next_header)(Archive *, ArchiveEntry **);
+	int (* archive_read_next_header2)(Archive *, ArchiveEntry *);
+	int (* archive_read_data_block)(Archive *, const void **, size_t *, int64 *);
+	int (* archive_filter_count)(Archive *);
+	int64 (* archive_filter_bytes)(Archive *, int);
+	int (* archive_filter_code)(Archive *, int);
+	const char * (* archive_filter_name)(Archive *, int);
 };
 
 struct archive_string_conv;
 
-struct archive {
+struct Archive {
 	/*
 	 * The magic/state values are used to sanity-check the
 	 * client's usage.  If an API function is called at a
@@ -72,23 +72,21 @@ struct archive {
 	uint magic;
 	uint state;
 	/*
-	 * Some public API functions depend on the "real" type of the
-	 * archive object.
+	 * Some public API functions depend on the "real" type of the archive object.
 	 */
 	struct archive_vtable * vtable;
 	int archive_format;
 	const char * archive_format_name;
 	int compression_code; /* Currently active compression. */
 	const char * compression_name;
-	/* Number of file entries processed. */
-	int file_count;
+	int file_count; /* Number of file entries processed. */
 	int archive_error_number;
 	const char * error;
-	struct archive_string error_string;
+	archive_string error_string;
 	char * current_code;
 	uint   current_codepage; /* Current ACP(ANSI CodePage). */
 	uint   current_oemcp; /* Current OEMCP(OEM CodePage). */
-	struct archive_string_conv * sconv;
+	archive_string_conv * sconv;
 	/*
 	 * Used by archive_read_data() to track blocks and copy
 	 * data to client buffers, filling gaps with zero bytes.
@@ -97,7 +95,6 @@ struct archive {
 	int64 read_data_offset;
 	int64 read_data_output_offset;
 	size_t read_data_remaining;
-
 	/*
 	 * Used by formats/filters to determine the amount of data
 	 * requested from a call to archive_read_data(). This is only
@@ -108,7 +105,7 @@ struct archive {
 };
 
 /* Check magic value and state; return(ARCHIVE_FATAL) if it isn't valid. */
-int STDCALL __archive_check_magic(struct archive *, uint magic, uint state, const char * func);
+int STDCALL __archive_check_magic(Archive *, uint magic, uint state, const char * func);
 #define archive_check_magic(a, expected_magic, allowed_states, function_name) \
 	do { \
 		int magic_test = __archive_check_magic((a), (expected_magic), (allowed_states), (function_name)); \
@@ -124,8 +121,8 @@ int     __archive_mktemp(const char * tmpdir);
 #else
 	int __archive_mkstemp(char * p_template);
 #endif
-int     __archive_clean(struct archive *);
-void __archive_reset_read_data(struct archive *);
+int     __archive_clean(Archive *);
+void __archive_reset_read_data(Archive *);
 
 #define err_combine(a, b)        ((a) < (b) ? (a) : (b))
 

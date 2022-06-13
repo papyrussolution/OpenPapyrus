@@ -65,7 +65,7 @@ static void DupPluginIntentsList(struct _cmsContext_struct* ctx, const struct _c
 	// Walk the list copying all nodes
 	for(entry = head->Intents; entry != NULL; entry = entry->Next) {
 		cmsIntentsList * newEntry = (cmsIntentsList*)_cmsSubAllocDup(ctx->MemPool, entry, sizeof(cmsIntentsList));
-		if(newEntry == NULL)
+		if(!newEntry)
 			return;
 		// We want to keep the linked list order, so this is a little bit tricky
 		newEntry->Next = NULL;
@@ -894,7 +894,7 @@ boolint _cmsRegisterRenderingIntentPlugin(cmsContext id, cmsPluginBase* Data)
 	cmsPluginRenderingIntent* Plugin = (cmsPluginRenderingIntent*)Data;
 	cmsIntentsList* fl;
 	// Do we have to reset the custom intents?
-	if(Data == NULL) {
+	if(!Data) {
 		ctx->Intents = NULL;
 		return TRUE;
 	}

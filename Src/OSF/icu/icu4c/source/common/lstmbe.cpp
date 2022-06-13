@@ -381,14 +381,11 @@ struct LSTMData : public UMemory {
 	ConstArray1D fBackwardB;
 	ConstArray2D fOutputW;
 	ConstArray1D fOutputB;
-
 private:
 	UResourceBundle * fBundle;
 };
 
-LSTMData::LSTMData(UResourceBundle * rb, UErrorCode & status)
-	: fDict(nullptr), fType(UNKNOWN), fName(nullptr),
-	fBundle(rb)
+LSTMData::LSTMData(UResourceBundle * rb, UErrorCode & status) : fDict(nullptr), fType(UNKNOWN), fName(nullptr), fBundle(rb)
 {
 	if(U_FAILURE(status)) {
 		return;
@@ -397,11 +394,9 @@ LSTMData::LSTMData(UResourceBundle * rb, UErrorCode & status)
 		status = U_UNSUPPORTED_ERROR;
 		return;
 	}
-	LocalUResourceBundlePointer embeddings_res(
-		ures_getByKey(rb, "embeddings", nullptr, &status));
+	LocalUResourceBundlePointer embeddings_res(ures_getByKey(rb, "embeddings", nullptr, &status));
 	int32_t embedding_size = ures_getInt(embeddings_res.getAlias(), &status);
-	LocalUResourceBundlePointer hunits_res(
-		ures_getByKey(rb, "hunits", nullptr, &status));
+	LocalUResourceBundlePointer hunits_res(ures_getByKey(rb, "hunits", nullptr, &status));
 	if(U_FAILURE(status)) return;
 	int32_t hunits = ures_getInt(hunits_res.getAlias(), &status);
 	const UChar * type = ures_getStringByKey(rb, "type", nullptr, &status);
@@ -811,11 +806,9 @@ U_CAPI const LSTMData* U_EXPORT2 CreateLSTMDataForScript(UScriptCode script, UEr
 	if(U_FAILURE(status)) return nullptr;
 	CharString namebuf;
 	namebuf.appendInvariantChars(name, status).truncate(namebuf.lastIndexOf('.'));
-
-	LocalUResourceBundlePointer rb(
-		ures_openDirect(U_ICUDATA_BRKITR, namebuf.data(), &status));
-	if(U_FAILURE(status)) return nullptr;
-
+	LocalUResourceBundlePointer rb(ures_openDirect(U_ICUDATA_BRKITR, namebuf.data(), &status));
+	if(U_FAILURE(status)) 
+		return nullptr;
 	return CreateLSTMData(rb.orphan(), status);
 }
 

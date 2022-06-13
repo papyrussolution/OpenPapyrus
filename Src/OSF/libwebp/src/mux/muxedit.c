@@ -618,7 +618,7 @@ WebPMuxError WebPMuxAssemble(WebPMux* mux, WebPData* assembled_data)
 	    + ChunkListDiskSize(mux->unknown_) + RIFF_HEADER_SIZE;
 
 	data = (uint8*)WebPSafeMalloc(1ULL, size);
-	if(data == NULL) return WEBP_MUX_MEMORY_ERROR;
+	if(!data) return WEBP_MUX_MEMORY_ERROR;
 
 	// Emit header & chunks.
 	dst = MuxEmitRiffHeader(data, size);

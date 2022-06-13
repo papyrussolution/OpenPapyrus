@@ -691,22 +691,16 @@ int X509v3_asid_subset(ASIdentifiers * a, ASIdentifiers * b)
 /*
  * Core code for RFC 3779 3.3 path validation.
  */
-static int asid_validate_path_internal(X509_STORE_CTX * ctx,
-    STACK_OF(X509) * chain,
-    ASIdentifiers * ext)
+static int asid_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * chain, ASIdentifiers * ext)
 {
 	ASIdOrRanges * child_as = NULL, * child_rdi = NULL;
 	int i, ret = 1, inherit_as = 0, inherit_rdi = 0;
 	X509 * x;
-
-	if(!ossl_assert(chain != NULL && sk_X509_num(chain) > 0)
-	   || !ossl_assert(ctx != NULL || ext != NULL)
-	   || !ossl_assert(ctx == NULL || ctx->verify_cb != NULL)) {
+	if(!ossl_assert(chain != NULL && sk_X509_num(chain) > 0) || !ossl_assert(ctx != NULL || ext != NULL) || !ossl_assert(ctx == NULL || ctx->verify_cb != NULL)) {
 		if(ctx)
 			ctx->error = X509_V_ERR_UNSPECIFIED;
 		return 0;
 	}
-
 	/*
 	 * Figure out where to start.  If we don't have an extension to
 	 * check, we're done.  Otherwise, check canonical form and

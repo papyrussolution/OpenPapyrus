@@ -6,6 +6,7 @@ package ru.petroglif.styloq;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,9 +19,64 @@ public class Document {
 	ArrayList <TransferItem> TiList;
 	ArrayList <BookingItem> BkList; // Список позиций повременных элементов, связанных с процессорами
 	ArrayList <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
-	private int AfterTransmitStatus; // Флаги статуса документа, которые должны быть установлены в БД после успешной отправки сервису
+	private int AfterTransmitStatus; // @transient Флаги статуса документа, которые должны быть установлены в БД после успешной отправки сервису
 
 	public static class Head {
+		public static boolean ArEq(final Head a1, final Head a2)
+		{
+			return (a1 != null) ? (a2 != null && a1.IsEq(a2)) : (a2 == null);
+		}
+		Head()
+		{
+			ID = 0;
+			CreationTime = 0;
+			Time = 0;
+			DueTime = 0;
+			OpID = 0;
+			ClientID = 0;
+			DlvrLocID = 0;
+			Flags = 0;
+			Amount = 0;
+			Code = null;
+			SvcIdent = null;
+			Uuid = null;
+			OrgCmdUuid = null;
+			BaseCurrencySymb = null;
+			Memo = null;
+		}
+		boolean IsEq(final Head s)
+		{
+			boolean yes = true;
+			if(s == null)
+				yes = false;
+			else if(ID != s.ID)
+				yes = false;
+			else if(CreationTime != s.CreationTime)
+				yes = false;
+			else if(DueTime != s.DueTime)
+				yes = false;
+			else if(ClientID != s.ClientID)
+				yes = false;
+			else if(DlvrLocID != s.DlvrLocID)
+				yes = false;
+			else if(Flags != s.Flags)
+				yes = false;
+			else if(Amount != s.Amount)
+				yes = false;
+			else if(!SLib.AreStringsEqual(Code, s.Code))
+				yes = false;
+			else if(!SLib.AreStringsEqual(BaseCurrencySymb, s.BaseCurrencySymb))
+				yes = false;
+			else if(!SLib.AreStringsEqual(Memo, s.Memo))
+				yes = false;
+			else if(!SLib.AreByteArraysEqual(SvcIdent, s.SvcIdent))
+				yes = false;
+			else if(!SLib.AreUUIDsEqual(Uuid, s.Uuid))
+				yes = false;
+			else if(!SLib.AreUUIDsEqual(OrgCmdUuid, s.OrgCmdUuid))
+				yes = false;
+			return yes;
+		}
 		long   ID;
 		long   CreationTime;
 		long   Time;
@@ -31,14 +87,14 @@ public class Document {
 		int    Flags;     // Проекция поля SecTable.Rec.Flags styloqfDocXXX
 		double Amount;    // Номинальная сумма документа
 		String Code;
-		byte [] SvcIdent;
+		byte [] SvcIdent; // Идентификатор сервиса, с которым связан документ
 		UUID Uuid; // Уникальный идентификатор, генерируемый на стороне эмитента
 		UUID OrgCmdUuid; // Идентификатор команды сервиса, на основании данных которой сформирован документ.
 			// Поле нужно для сопоставления сохраненных документов с данными сервиса.
 		String BaseCurrencySymb;
 		String Memo;
 	}
-	public static boolean ValidateSatusTransition(int status, int newStatus)
+	public static boolean ValidateStatusTransition(int status, int newStatus)
 	{
 		boolean ok = true;
 		switch(status) {
@@ -91,6 +147,26 @@ public class Document {
 		}
 		return ok;
 	}
+	public static int GetImageResourceByDocStatus(int status)
+	{
+		switch(status) {
+			case StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_SUCC:
+				return R.drawable.ic_styloq_document_finished;
+			case StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC:
+				return R.drawable.ic_styloq_document_itrm;
+			case StyloQDatabase.SecStoragePacket.styloqdocstDRAFT:
+				return R.drawable.ic_styloq_document_draft;
+			case StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED:
+				return R.drawable.ic_styloqdocstatus_approved;
+			case StyloQDatabase.SecStoragePacket.styloqdocstREJECTED:
+				return R.drawable.ic_styloqdocstatus_rejected;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED:
+				return R.drawable.ic_styloqdocstatus_cancelled;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCANCELLEDDRAFT:
+				return R.drawable.ic_styloqdocstatus_cancelled; // @todo change icon
+		}
+		return 0;
+	}
 	public int GetDocStatus()
 	{
 		return (H != null) ? StyloQDatabase.SecTable.Rec.GetDocStatus(H.Flags) : 0;
@@ -99,7 +175,10 @@ public class Document {
 	{
 		boolean ok = false;
 		if(H != null) {
-			if(((s << 1) & ~StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags) == 0) {
+			final int preserve_status = GetDocStatus();
+			if(s == preserve_status)
+				ok = true;
+			else if(((s << 1) & ~StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags) == 0) {
 				H.Flags &= ~StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags;
 				H.Flags |= ((s << 1) & StyloQDatabase.SecStoragePacket.styloqfDocStatusFlags);
 				ok = true;
@@ -129,6 +208,16 @@ public class Document {
 		BookingItem SingleBkItem;
 	}
 	public static class LotExtCode {
+		LotExtCode()
+		{
+			Flags = 0;
+			BoxRefN = 0;
+			Code = null;
+		}
+		boolean IsEq(final LotExtCode s)
+		{
+			return (s != null && Flags == s.Flags && BoxRefN == s.BoxRefN && SLib.AreStringsEqual(Code, s.Code));
+		}
 		int    Flags;
 		int    BoxRefN;
 		String Code;
@@ -136,12 +225,20 @@ public class Document {
 	// Так как одна строка может иметь более одного набора значений {qtty, cost, price},
 	// то выделяем такой набор в отдельную структуру.
 	public static class ValuSet {
+		public static boolean ArEq(final ValuSet a1, final ValuSet a2)
+		{
+			return (a1 != null) ? (a2 != null && a1.IsEq(a2)) : (a2 == null);
+		}
 		public ValuSet()
 		{
 			Qtty = 0.0;
 			Cost = 0.0;
 			Price = 0.0;
 			Discount = 0.0;
+		}
+		boolean IsEq(final ValuSet s)
+		{
+			return (s != null && Qtty == s.Qtty && Cost == s.Cost && Price == s.Price && Discount == s.Discount);
 		}
 		public double GetAmount_Cost() { return (Qtty * Cost); }
 		public double GetAmount_Price() { return (Qtty * (Price-Discount)); }
@@ -197,6 +294,39 @@ public class Document {
 			Set = new ValuSet();
 			XcL = null;
 		}
+		boolean IsEq(final TransferItem s)
+		{
+			boolean yes = true;
+			if(!(s != null && RowIdx == s.RowIdx && GoodsID == s.GoodsID && UnitID == s.UnitID && Flags == s.Flags && ValuSet.ArEq(Set, s.Set)))
+				yes = false;
+			else {
+				if(XcL != null) {
+					if(s.XcL != null) {
+						final int c1 = XcL.size();
+						final int c2 = s.XcL.size();
+						if(c1 != c2)
+							yes = false;
+						else if(c1 > 0) {
+							for(int i = 0; yes && i < c1; i++) {
+								final LotExtCode i1 = XcL.get(i);
+								final LotExtCode i2 = s.XcL.get(i);
+								if(i1 != null) {
+									if(i2 == null || !i1.IsEq(i2))
+										yes = false;
+								}
+								else if(i2 != null)
+									yes = false;
+							}
+						}
+					}
+					else
+						yes = false;
+				}
+				else if(s.XcL != null)
+					yes = false;
+			}
+			return yes;
+		}
 		double GetAmount_Cost() { return (Set != null) ? Set.GetAmount_Cost() : 0.0; }
 		double GetAmount_Price() { return (Set != null) ? Set.GetAmount_Price() : 0.0; }
 		int    RowIdx;  // [1..]
@@ -217,6 +347,19 @@ public class Document {
 			EstimatedDurationSec = 0;
 			Set = new ValuSet();
 			Memo = null;
+		}
+		boolean IsEq(final BookingItem s)
+		{
+			boolean yes = true;
+			if(!(s != null && RowIdx == s.RowIdx && PrcID == s.PrcID && GoodsID == s.GoodsID && Flags == s.Flags &&
+				EstimatedDurationSec == s.EstimatedDurationSec && ValuSet.ArEq(Set, s.Set)))
+				yes = false;
+			else if(SLib.AreStringsEqual(Memo, s.Memo)) {
+				yes = false;
+			}
+			else if(!SLib.LDATETIME.ArEq(ReqTime, s.ReqTime))
+				yes = false;
+			return yes;
 		}
 		double GetAmount_Price()
 		{
@@ -265,6 +408,7 @@ public class Document {
 			H = new Document.Head();
 			H.CreationTime = System.currentTimeMillis();
 			H.OpID = opID;
+			H.SvcIdent = svcIdent; // @v11.4.1 @fix
 			SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT); // Новый док автоматом является draft-документом
 			H.Uuid = UUID.randomUUID();
 			if(SLib.GetLen(svcIdent) > 0 && appCtx != null) {
@@ -273,6 +417,91 @@ public class Document {
 					H.Code = db.MakeDocumentCode(svcIdent);
 			}
 		}
+	}
+	boolean IsEq(final Document s)
+	{
+		boolean yes = true;
+		if(!(s != null && Head.ArEq(H, s.H)))
+			yes = false;
+		else {
+			if(TiList != null) {
+				if(s.TiList != null) {
+					final int c1 = TiList.size();
+					final int c2 = s.TiList.size();
+					if(c1 != c2)
+						yes = false;
+					else if(c1 > 0) {
+						for(int i = 0; yes && i < c1; i++) {
+							final TransferItem i1 = TiList.get(i);
+							final TransferItem i2 = s.TiList.get(i);
+							if(i1 != null) {
+								if(i2 == null || !i1.IsEq(i2))
+									yes = false;
+							}
+							else if(i2 != null)
+								yes = false;
+						}
+					}
+				}
+				else
+					yes = false;
+			}
+			else if(s.TiList != null)
+				yes = false;
+			if(yes) {
+				if(BkList != null) {
+					if(s.BkList != null) {
+						final int c1 = BkList.size();
+						final int c2 = s.BkList.size();
+						if(c1 != c2)
+							yes = false;
+						else if(c1 > 0) {
+							for(int i = 0; yes && i < c1; i++) {
+								final BookingItem i1 = BkList.get(i);
+								final BookingItem i2 = s.BkList.get(i);
+								if(i1 != null) {
+									if(i2 == null || !i1.IsEq(i2))
+										yes = false;
+								}
+								else if(i2 != null)
+									yes = false;
+							}
+						}
+					}
+					else
+						yes = false;
+				}
+				else if(s.BkList != null)
+					yes = false;
+			}
+			if(yes) {
+				if(VXcL != null) {
+					if(s.VXcL != null) {
+						final int c1 = VXcL.size();
+						final int c2 = s.VXcL.size();
+						if(c1 != c2)
+							yes = false;
+						else if(c1 > 0) {
+							for(int i = 0; yes && i < c1; i++) {
+								final LotExtCode i1 = VXcL.get(i);
+								final LotExtCode i2 = s.VXcL.get(i);
+								if(i1 != null) {
+									if(i2 == null || !i1.IsEq(i2))
+										yes = false;
+								}
+								else if(i2 != null)
+									yes = false;
+							}
+						}
+					}
+					else
+						yes = false;
+				}
+				else if(s.VXcL != null)
+					yes = false;
+			}
+		}
+		return yes;
 	}
 	Document Z()
 	{

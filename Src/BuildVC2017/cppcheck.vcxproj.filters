@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\cppcheck\lib\analyzerinfo.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\astutils.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\check.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\check64bit.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkassert.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkautovariables.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkbool.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkboost.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkbufferoverrun.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkclass.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkcondition.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkexceptionsafety.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkfunctions.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkinternal.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkio.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkleakautovar.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkmemoryleak.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checknullpointer.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkother.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkpostfixoperator.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checksizeof.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkstl.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkstring.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checktype.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkuninitvar.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkunusedfunctions.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkunusedvar.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\checkvaarg.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\clangimport.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\color.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\cppcheck.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\ctu.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\errorlogger.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\errortypes.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\forwardanalyzer.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\importproject.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\infer.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\library.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\mathlib.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\path.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\pathanalysis.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\pathmatch.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\platform.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\preprocessor.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\programmemory.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\reverseanalyzer.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\settings.cpp" />
+    <ClCompile Include="..\osf\cppcheck\externals\simplecpp\simplecpp.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\summaries.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\suppressions.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\symboldatabase.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\templatesimplifier.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\timer.cpp" />
+    <ClCompile Include="..\osf\cppcheck\externals\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\token.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\tokenize.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\tokenlist.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\utils.cpp" />
+    <ClCompile Include="..\osf\cppcheck\lib\valueflow.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\lib\cppcheck-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\cppcheck\lib\checkbufferoverrun.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkclass.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkexceptionsafety.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkmemoryleak.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checknullpointer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkother.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkpostfixoperator.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkstl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkuninitvar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkunusedfunctions.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkunusedvar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\config.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\cppcheck.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\errorlogger.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\mathlib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\path.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\preprocessor.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\settings.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\suppressions.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\symboldatabase.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\timer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\token.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\tokenize.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\check.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\check64bit.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkautovariables.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkboost.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkio.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkinternal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\tokenlist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\templatesimplifier.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkleakautovar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\version.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkbool.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checksizeof.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkassert.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\library.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\externals\tinyxml2\tinyxml2.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\valueflow.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkvaarg.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkstring.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkcondition.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checktype.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\astutils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\checkfunctions.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\externals\simplecpp\simplecpp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\importproject.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\platform.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\pathmatch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\analyzerinfo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\ctu.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\clangimport.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\programmemory.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\precompiled.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\summaries.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\tokenrange.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\errortypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\color.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\cppcheck\lib\infer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\cppcheck\lib\cppcheck-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\osf\cppcheck\lib\version.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\osf\cppcheck\lib\cppcheck.natvis" />
+  </ItemGroup>
+</Project>

@@ -345,7 +345,7 @@ static const char * ngx_mail_ssl_session_cache(ngx_conf_t * cf, const ngx_comman
 				}
 				len++;
 			}
-			if(len == 0) {
+			if(!len) {
 				goto invalid;
 			}
 			name.len = len;

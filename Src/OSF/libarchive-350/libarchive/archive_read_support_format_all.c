@@ -15,7 +15,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_all.c 174991 2007-12-30 04:58:22Z kientzle $");
 
-int archive_read_support_format_all(struct archive * a)
+int archive_read_support_format_all(Archive * a)
 {
 	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* TODO: It would be nice to compute the ordering

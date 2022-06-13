@@ -64,7 +64,7 @@ static bool mi_heap_page_is_valid(mi_heap_t* heap, mi_page_queue_t* pq, mi_page_
 #if MI_DEBUG>=3
 	static bool mi_heap_is_valid(mi_heap_t* heap) 
 	{
-		mi_assert_internal(heap!=NULL);
+		mi_assert_internal(heap != NULL);
 		mi_heap_visit_pages(heap, &mi_heap_page_is_valid, NULL, NULL);
 		return true;
 	}
@@ -163,9 +163,9 @@ mi_heap_t* mi_heap_get_default(void)
 mi_heap_t* mi_heap_get_backing(void) 
 {
 	mi_heap_t* heap = mi_heap_get_default();
-	mi_assert_internal(heap!=NULL);
+	mi_assert_internal(heap != NULL);
 	mi_heap_t* bheap = heap->tld->heap_backing;
-	mi_assert_internal(bheap!=NULL);
+	mi_assert_internal(bheap != NULL);
 	mi_assert_internal(bheap->thread_id == _mi_thread_id());
 	return bheap;
 }
@@ -228,7 +228,7 @@ static void mi_heap_free(mi_heap_t* heap) {
 	}
 	mi_assert_internal(curr == heap);
 	if(curr == heap) {
-		if(prev != NULL) {
+		if(prev) {
 			prev->next = heap->next;
 		}
 		else {
@@ -314,7 +314,7 @@ void mi_heap_destroy(mi_heap_t* heap) {
 // Tranfer the pages from one heap to the other
 static void mi_heap_absorb(mi_heap_t* heap, mi_heap_t* from) 
 {
-	mi_assert_internal(heap!=NULL);
+	mi_assert_internal(heap != NULL);
 	if(from==NULL || from->page_count == 0) return;
 
 	// reduce the size of the delayed frees
@@ -332,7 +332,6 @@ static void mi_heap_absorb(mi_heap_t* heap, mi_heap_t* from)
 		from->page_count -= pcount;
 	}
 	mi_assert_internal(from->page_count == 0);
-
 	// and do outstanding delayed frees in the `from` heap
 	// note: be careful here as the `heap` field in all those pages no longer point to `from`,
 	// turns out to be ok as `_mi_heap_delayed_free` only visits the list and calls a
@@ -341,8 +340,7 @@ static void mi_heap_absorb(mi_heap_t* heap, mi_heap_t* from)
   #if !defined(_MSC_VER) || (_MSC_VER > 1900) // somehow the following line gives an error in VS2015, issue #353
 	mi_assert_internal(mi_atomic_load_ptr_relaxed(mi_block_t, &from->thread_delayed_free) == NULL);
   #endif
-
-	// and reset the `from` heap
+  	// and reset the `from` heap
 	mi_heap_reset_pages(from);
 }
 

@@ -62,10 +62,9 @@ void WebPSamplerProcessPlane(const uint8* y, int y_stride,
 		dst += dst_stride;
 	}
 }
-
-//-----------------------------------------------------------------------------
+//
 // Main call
-
+//
 WebPSamplerRowFunc WebPSamplers[MODE_LAST];
 
 extern void WebPInitSamplersSSE2(void);
@@ -110,11 +109,11 @@ WEBP_DSP_INIT_FUNC(WebPInitSamplers) {
 #endif  // WEBP_USE_MIPS_DSP_R2
 	}
 }
-
-//-----------------------------------------------------------------------------
+//
 // ARGB -> YUV converters
-
-static void ConvertARGBToY_C(const uint32_t* argb, uint8* y, int width) {
+//
+static void ConvertARGBToY_C(const uint32_t* argb, uint8* y, int width) 
+{
 	int i;
 	for(i = 0; i < width; ++i) {
 		const uint32_t p = argb[i];
@@ -166,9 +165,8 @@ void WebPConvertARGBToUV_C(const uint32_t* argb, uint8* u, uint8* v,
 	}
 }
 
-//-----------------------------------------------------------------------------
-
-static void ConvertRGB24ToY_C(const uint8* rgb, uint8* y, int width) {
+static void ConvertRGB24ToY_C(const uint8* rgb, uint8* y, int width) 
+{
 	int i;
 	for(i = 0; i < width; ++i, rgb += 3) {
 		y[i] = VP8RGBToY(rgb[0], rgb[1], rgb[2], YUV_HALF);
@@ -191,8 +189,6 @@ void WebPConvertRGBA32ToUV_C(const uint16_t* rgb,
 		v[i] = VP8RGBToV(r, g, b, YUV_HALF << 2);
 	}
 }
-
-//-----------------------------------------------------------------------------
 
 #if !WEBP_NEON_OMIT_C_CODE
 #define MAX_Y ((1 << 10) - 1)    // 10b precision over 16b-arithmetic
@@ -237,23 +233,14 @@ static void SharpYUVFilterRow_C(const int16_t* A, const int16_t* B, int len,
 
 #undef MAX_Y
 
-//-----------------------------------------------------------------------------
-
 void (* WebPConvertRGB24ToY)(const uint8* rgb, uint8* y, int width);
 void (* WebPConvertBGR24ToY)(const uint8* bgr, uint8* y, int width);
-void (* WebPConvertRGBA32ToUV)(const uint16_t* rgb,
-    uint8* u, uint8* v, int width);
-
+void (* WebPConvertRGBA32ToUV)(const uint16_t* rgb, uint8* u, uint8* v, int width);
 void (* WebPConvertARGBToY)(const uint32_t* argb, uint8* y, int width);
-void (* WebPConvertARGBToUV)(const uint32_t* argb, uint8* u, uint8* v,
-    int src_width, int do_store);
-
-uint64_t (* WebPSharpYUVUpdateY)(const uint16_t* ref, const uint16_t* src,
-    uint16_t* dst, int len);
-void (* WebPSharpYUVUpdateRGB)(const int16_t* ref, const int16_t* src,
-    int16_t* dst, int len);
-void (* WebPSharpYUVFilterRow)(const int16_t* A, const int16_t* B, int len,
-    const uint16_t* best_y, uint16_t* out);
+void (* WebPConvertARGBToUV)(const uint32_t* argb, uint8* u, uint8* v, int src_width, int do_store);
+uint64_t (* WebPSharpYUVUpdateY)(const uint16_t* ref, const uint16_t* src, uint16_t* dst, int len);
+void (* WebPSharpYUVUpdateRGB)(const int16_t* ref, const int16_t* src, int16_t* dst, int len);
+void (* WebPSharpYUVFilterRow)(const int16_t* A, const int16_t* B, int len, const uint16_t* best_y, uint16_t* out);
 
 extern void WebPInitConvertARGBToYUVSSE2(void);
 extern void WebPInitConvertARGBToYUVSSE41(void);

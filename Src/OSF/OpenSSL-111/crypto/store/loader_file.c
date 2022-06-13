@@ -557,26 +557,20 @@ static OSSL_STORE_INFO * try_decode_X509Certificate(const char * pem_name,
 	 * the fallback can be used (1) or not (0).
 	 */
 	int ignore_trusted = 1;
-
 	if(pem_name) {
 		if(strcmp(pem_name, PEM_STRING_X509_TRUSTED) == 0)
 			ignore_trusted = 0;
-		else if(strcmp(pem_name, PEM_STRING_X509_OLD) != 0
-		 && strcmp(pem_name, PEM_STRING_X509) != 0)
+		else if(strcmp(pem_name, PEM_STRING_X509_OLD) != 0 && strcmp(pem_name, PEM_STRING_X509) != 0)
 			/* No match */
 			return NULL;
 		*matchcount = 1;
 	}
-
-	if((cert = d2i_X509_AUX(NULL, &blob, len)) != NULL
-	   || (ignore_trusted && (cert = d2i_X509(NULL, &blob, len)) != NULL)) {
+	if((cert = d2i_X509_AUX(NULL, &blob, len)) != NULL || (ignore_trusted && (cert = d2i_X509(NULL, &blob, len)) != NULL)) {
 		*matchcount = 1;
 		store_info = OSSL_STORE_INFO_new_CERT(cert);
 	}
-
 	if(store_info == NULL)
 		X509_free(cert);
-
 	return store_info;
 }
 

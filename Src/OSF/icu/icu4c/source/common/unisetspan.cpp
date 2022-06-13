@@ -66,7 +66,7 @@ public:
 		}
 		else {
 			bool * l = (bool*)uprv_malloc(maxLength);
-			if(l!=NULL) {
+			if(l != NULL) {
 				list = l;
 				capacity = maxLength;
 			}

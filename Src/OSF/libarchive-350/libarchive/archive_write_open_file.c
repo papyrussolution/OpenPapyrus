@@ -26,11 +26,11 @@ struct write_FILE_data {
 	FILE            * f;
 };
 
-static int file_free(struct archive *, void *);
-static int file_open(struct archive *, void *);
-static ssize_t  file_write(struct archive *, void *, const void * buff, size_t);
+static int file_free(Archive *, void *);
+static int file_open(Archive *, void *);
+static ssize_t  file_write(Archive *, void *, const void * buff, size_t);
 
-int archive_write_open_FILE(struct archive * a, FILE * f)
+int archive_write_open_FILE(Archive * a, FILE * f)
 {
 	struct write_FILE_data * mine = (struct write_FILE_data *)SAlloc::M(sizeof(*mine));
 	if(mine == NULL) {
@@ -41,14 +41,14 @@ int archive_write_open_FILE(struct archive * a, FILE * f)
 	return (archive_write_open2(a, mine, file_open, reinterpret_cast<archive_write_callback *>(file_write), NULL, file_free));
 }
 
-static int file_open(struct archive * a, void * client_data)
+static int file_open(Archive * a, void * client_data)
 {
 	CXX_UNUSED(a);
 	(void)client_data; /* UNUSED */
 	return ARCHIVE_OK;
 }
 
-static ssize_t file_write(struct archive * a, void * client_data, const void * buff, size_t length)
+static ssize_t file_write(Archive * a, void * client_data, const void * buff, size_t length)
 {
 	size_t bytesWritten;
 	struct write_FILE_data * mine = static_cast<struct write_FILE_data *>(client_data);
@@ -64,7 +64,7 @@ static ssize_t file_write(struct archive * a, void * client_data, const void * b
 	}
 }
 
-static int file_free(struct archive * a, void * client_data)
+static int file_free(Archive * a, void * client_data)
 {
 	struct write_FILE_data  * mine = static_cast<struct write_FILE_data *>(client_data);
 	CXX_UNUSED(a);

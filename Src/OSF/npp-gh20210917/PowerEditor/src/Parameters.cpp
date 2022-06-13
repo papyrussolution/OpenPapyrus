@@ -4031,19 +4031,17 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 					_nppGUI._styleMRU = (sstreq(val, TEXT("yes")));
 			}
 		}
-
 		else if(sstreq(nm, TEXT("URL"))) {
 			TiXmlNode * n = childNode->FirstChild();
 			if(n) {
 				const TCHAR* val = n->Value();
 				if(val) {
-					int const i = generic_atoi(val);
+					int const i = satoi(val);
 					if((i >= urlMin) && (i <= urlMax))
 						_nppGUI._styleURL = urlMode(i);
 				}
 			}
 		}
-
 		else if(sstreq(nm, TEXT("uriCustomizedSchemes"))) {
 			TiXmlNode * n = childNode->FirstChild();
 			if(n) {
@@ -6446,9 +6444,9 @@ NppDate::NppDate(const TCHAR * dateStr)
 		generic_string yyyy(ds, 0, 4);
 		generic_string mm(ds, 4, 2);
 		generic_string dd(ds, 6, 2);
-		int y = generic_atoi(yyyy.c_str());
-		int m = generic_atoi(mm.c_str());
-		int d = generic_atoi(dd.c_str());
+		int y = satoi(yyyy.c_str());
+		int m = satoi(mm.c_str());
+		int d = satoi(dd.c_str());
 		if((y > 0 && y <= 9999) && (m > 0 && m <= 12) && (d > 0 && d <= 31)) {
 			_year = y;
 			_month = m;

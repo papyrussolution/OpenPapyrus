@@ -24,18 +24,18 @@ static ssize_t  archive_write_newc_data(struct archive_write *, const void * buf
 static int archive_write_newc_close(struct archive_write *);
 static int archive_write_newc_free(struct archive_write *);
 static int archive_write_newc_finish_entry(struct archive_write *);
-static int archive_write_newc_header(struct archive_write *, struct archive_entry *);
+static int archive_write_newc_header(struct archive_write *, ArchiveEntry *);
 static int archive_write_newc_options(struct archive_write *, const char *, const char *);
 static int format_hex(int64, void *, int);
 static int64  format_hex_recursive(int64, char *, int);
-static int write_header(struct archive_write *, struct archive_entry *);
+static int write_header(struct archive_write *, ArchiveEntry *);
 
 struct cpio {
 	uint64 entry_bytes_remaining;
 	int padding;
 
-	struct archive_string_conv * opt_sconv;
-	struct archive_string_conv * sconv_default;
+	archive_string_conv * opt_sconv;
+	archive_string_conv * sconv_default;
 	int init_default_conversion;
 };
 
@@ -75,7 +75,7 @@ struct cpio {
 /*
  * Set output format to 'cpio' format.
  */
-int archive_write_set_format_cpio_newc(struct archive * _a)
+int archive_write_set_format_cpio_newc(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct cpio * cpio;
@@ -106,7 +106,7 @@ static int archive_write_newc_options(struct archive_write * a, const char * key
 	struct cpio * cpio = (struct cpio *)a->format_data;
 	int ret = ARCHIVE_FAILED;
 	if(sstreq(key, "hdrcharset")) {
-		if(val == NULL || val[0] == 0)
+		if(isempty(val))
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {
 			cpio->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
@@ -123,17 +123,13 @@ static int archive_write_newc_options(struct archive_write * a, const char * key
 	return ARCHIVE_WARN;
 }
 
-static struct archive_string_conv * get_sconv(struct archive_write * a)                                     {
-	struct cpio * cpio;
-	struct archive_string_conv * sconv;
-
-	cpio = (struct cpio *)a->format_data;
-	sconv = cpio->opt_sconv;
+static archive_string_conv * get_sconv(struct archive_write * a)                                     
+{
+	struct cpio * cpio = (struct cpio *)a->format_data;
+	archive_string_conv * sconv = cpio->opt_sconv;
 	if(sconv == NULL) {
 		if(!cpio->init_default_conversion) {
-			cpio->sconv_default =
-			    archive_string_default_conversion_for_write(
-				&(a->archive));
+			cpio->sconv_default = archive_string_default_conversion_for_write(&(a->archive));
 			cpio->init_default_conversion = 1;
 		}
 		sconv = cpio->sconv_default;
@@ -141,7 +137,7 @@ static struct archive_string_conv * get_sconv(struct archive_write * a)         
 	return (sconv);
 }
 
-static int archive_write_newc_header(struct archive_write * a, struct archive_entry * entry)
+static int archive_write_newc_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	const char * path;
 	size_t len;
@@ -164,15 +160,15 @@ static int archive_write_newc_header(struct archive_write * a, struct archive_en
 	return write_header(a, entry);
 }
 
-static int write_header(struct archive_write * a, struct archive_entry * entry)
+static int write_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	int64 ino;
 	struct cpio * cpio;
 	const char * p, * path;
 	int pathlength, ret, ret_final;
 	char h[c_header_size];
-	struct archive_string_conv * sconv;
-	struct archive_entry * entry_main;
+	archive_string_conv * sconv;
+	ArchiveEntry * entry_main;
 	size_t len;
 	int pad;
 	cpio = (struct cpio *)a->format_data;
@@ -346,7 +342,7 @@ static int64 format_hex_recursive(int64 v, char * p, int s)
 static int archive_write_newc_close(struct archive_write * a)
 {
 	int er;
-	struct archive_entry * trailer;
+	ArchiveEntry * trailer;
 
 	trailer = archive_entry_new();
 	archive_entry_set_nlink(trailer, 1);

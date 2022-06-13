@@ -111,7 +111,7 @@ bool _mi_page_is_valid(mi_page_t* page) {
   #if MI_SECURE
 	mi_assert_internal(page->keys[0] != 0);
   #endif
-	if(mi_page_heap(page)!=NULL) {
+	if(mi_page_heap(page) != NULL) {
 		mi_segment_t* segment = _mi_page_segment(page);
 		mi_assert_internal(!_mi_process_is_initialized || segment->thread_id == mi_page_heap(
 			    page)->thread_id || segment->thread_id==0);
@@ -196,7 +196,7 @@ static void _mi_page_thread_free_collect(mi_page_t* page)
 }
 
 void _mi_page_free_collect(mi_page_t* page, bool force) {
-	mi_assert_internal(page!=NULL);
+	mi_assert_internal(page != NULL);
 
 	// collect the thread free list
 	if(force || mi_page_thread_free(page) != NULL) { // quick test to avoid an atomic operation
@@ -260,7 +260,7 @@ static mi_page_t* mi_page_fresh_alloc(mi_heap_t* heap, mi_page_queue_t* pq, size
 	mi_assert_internal(pq==NULL || _mi_page_segment(page)->page_kind != MI_PAGE_HUGE);
 	mi_page_init(heap, page, block_size, heap->tld);
 	_mi_stat_increase(&heap->tld->stats.pages, 1);
-	if(pq!=NULL) mi_page_queue_push(heap, pq, page); // huge pages use pq==NULL
+	if(pq != NULL) mi_page_queue_push(heap, pq, page); // huge pages use pq==NULL
 	mi_assert_expensive(_mi_page_is_valid(page));
 	return page;
 }

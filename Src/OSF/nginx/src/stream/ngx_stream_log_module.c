@@ -414,7 +414,7 @@ static void ngx_stream_log_flush(ngx_open_file_t * file, ngx_log_t * log)
 	ngx_stream_log_buf_t  * buffer;
 	buffer = (ngx_stream_log_buf_t *)file->data;
 	len = buffer->pos - buffer->start;
-	if(len == 0) {
+	if(!len) {
 		return;
 	}
 #if (NGX_ZLIB)

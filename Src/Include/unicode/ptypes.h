@@ -1,24 +1,14 @@
+// ptypes.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-******************************************************************************
-*
-*   Copyright (C) 1997-2012, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*
-******************************************************************************
-*
-*  FILE NAME : ptypes.h
-*
-*   Date        Name        Description
-*   05/13/98    nos         Creation (content moved here from ptypes.h).
-*   03/02/99    stephen     Added AS400 support.
-*   03/30/99    stephen     Added Linux support.
-*   04/13/99    stephen     Reworked for autoconf.
-*   09/18/08    srl         Moved basic types back to ptypes.h from platform.h
-******************************************************************************
-*/
-
+// Copyright (C) 1997-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 05/13/98    nos         Creation (content moved here from ptypes.h).
+// 03/02/99    stephen     Added AS400 support.
+// 03/30/99    stephen     Added Linux support.
+// 04/13/99    stephen     Reworked for autoconf.
+// 09/18/08    srl         Moved basic types back to ptypes.h from platform.h
+// 
 /**
  * \file
  * \brief C API: Definitions of integer types of various widths
@@ -38,28 +28,20 @@
 #ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
 #endif
-
-/* NULL, size_t, wchar_t */
-#include <stddef.h>
-
+#include <stddef.h> /* NULL, size_t, wchar_t */
 /*
  * If all compilers provided all of the C99 headers and types,
  * we would just unconditionally #include <stdint.h> here
  * and not need any of the stuff after including platform.h.
  */
-
-/* Find out if we have stdint.h etc. */
-#include "unicode/platform.h"
-
-/*===========================================================================*/
-/* Generic data types  */
-/*===========================================================================*/
-
+#include "unicode/platform.h" /* Find out if we have stdint.h etc. */
+// 
+// Generic data types
+// 
 /* If your platform does not have the <stdint.h> header, you may
    need to edit the typedefs in the #else section below.
    Use #if...#else...#endif with predefined compiler macros if possible. */
 #if U_HAVE_STDINT_H
-
 /*
  * We mostly need <stdint.h> (which defines the standard integer types) but not <inttypes.h>.
  * <inttypes.h> includes <stdint.h> and adds the printf/scanf helpers PRId32, SCNx16 etc.
@@ -85,29 +67,23 @@ typedef unsigned char uint8;
 
 /// \cond
 #if ! U_HAVE_INT8_T
-typedef signed char int8;
+	typedef signed char int8;
 #endif
-
 #if ! U_HAVE_UINT8_T
-typedef unsigned char uint8;
+	typedef unsigned char uint8;
 #endif
-
 #if ! U_HAVE_INT16_T
-typedef signed short int16;
+	typedef signed short int16;
 #endif
-
 #if ! U_HAVE_UINT16_T
-typedef unsigned short uint16;
+	typedef unsigned short uint16;
 #endif
-
 #if ! U_HAVE_INT32_T
-typedef signed int int32_t;
+	typedef signed int int32_t;
 #endif
-
 #if ! U_HAVE_UINT32_T
-typedef unsigned int uint32_t;
+	typedef unsigned int uint32_t;
 #endif
-
 #if ! U_HAVE_INT64_T
 #ifdef _MSC_VER
     typedef signed __int64 int64_t;
@@ -115,7 +91,6 @@ typedef unsigned int uint32_t;
     typedef signed long long int64_t;
 #endif
 #endif
-
 #if ! U_HAVE_UINT64_T
 #ifdef _MSC_VER
     typedef unsigned __int64 uint64_t;
@@ -126,5 +101,4 @@ typedef unsigned int uint32_t;
 /// \endcond
 
 #endif /* U_HAVE_STDINT_H / U_HAVE_INTTYPES_H */
-
 #endif /* _PTYPES_H */

@@ -249,13 +249,11 @@ void RAND_DRBG_free(RAND_DRBG * drbg)
 {
 	if(drbg == NULL)
 		return;
-
-	if(drbg->meth != NULL)
+	if(drbg->meth)
 		drbg->meth->uninstantiate(drbg);
 	rand_pool_free(drbg->adin_pool);
 	CRYPTO_THREAD_lock_free(drbg->lock);
 	CRYPTO_free_ex_data(CRYPTO_EX_INDEX_DRBG, drbg, &drbg->ex_data);
-
 	if(drbg->secure)
 		OPENSSL_secure_clear_free(drbg, sizeof(*drbg));
 	else
@@ -319,18 +317,15 @@ int RAND_DRBG_instantiate(RAND_DRBG * drbg,
 			drbg->reseed_next_counter = 1;
 	}
 
-	if(drbg->get_entropy != NULL)
-		entropylen = drbg->get_entropy(drbg, &entropy, min_entropy,
-			min_entropylen, max_entropylen, 0);
-	if(entropylen < min_entropylen
-	   || entropylen > max_entropylen) {
+	if(drbg->get_entropy)
+		entropylen = drbg->get_entropy(drbg, &entropy, min_entropy, min_entropylen, max_entropylen, 0);
+	if(entropylen < min_entropylen || entropylen > max_entropylen) {
 		RANDerr(RAND_F_RAND_DRBG_INSTANTIATE, RAND_R_ERROR_RETRIEVING_ENTROPY);
 		goto end;
 	}
 
-	if(drbg->min_noncelen > 0 && drbg->get_nonce != NULL) {
-		noncelen = drbg->get_nonce(drbg, &nonce, drbg->strength / 2,
-			drbg->min_noncelen, drbg->max_noncelen);
+	if(drbg->min_noncelen > 0 && drbg->get_nonce) {
+		noncelen = drbg->get_nonce(drbg, &nonce, drbg->strength / 2, drbg->min_noncelen, drbg->max_noncelen);
 		if(noncelen < drbg->min_noncelen || noncelen > drbg->max_noncelen) {
 			RANDerr(RAND_F_RAND_DRBG_INSTANTIATE, RAND_R_ERROR_RETRIEVING_NONCE);
 			goto end;
@@ -349,9 +344,9 @@ int RAND_DRBG_instantiate(RAND_DRBG * drbg,
 	tsan_store(&drbg->reseed_prop_counter, drbg->reseed_next_counter);
 
 end:
-	if(entropy != NULL && drbg->cleanup_entropy != NULL)
+	if(entropy && drbg->cleanup_entropy)
 		drbg->cleanup_entropy(drbg, entropy, entropylen);
-	if(nonce != NULL && drbg->cleanup_nonce != NULL)
+	if(nonce && drbg->cleanup_nonce)
 		drbg->cleanup_nonce(drbg, nonce, noncelen);
 	if(drbg->state == DRBG_READY)
 		return 1;
@@ -422,13 +417,9 @@ int RAND_DRBG_reseed(RAND_DRBG * drbg,
 			drbg->reseed_next_counter = 1;
 	}
 
-	if(drbg->get_entropy != NULL)
-		entropylen = drbg->get_entropy(drbg, &entropy, drbg->strength,
-			drbg->min_entropylen,
-			drbg->max_entropylen,
-			prediction_resistance);
-	if(entropylen < drbg->min_entropylen
-	   || entropylen > drbg->max_entropylen) {
+	if(drbg->get_entropy)
+		entropylen = drbg->get_entropy(drbg, &entropy, drbg->strength, drbg->min_entropylen, drbg->max_entropylen, prediction_resistance);
+	if(entropylen < drbg->min_entropylen || entropylen > drbg->max_entropylen) {
 		RANDerr(RAND_F_RAND_DRBG_RESEED, RAND_R_ERROR_RETRIEVING_ENTROPY);
 		goto end;
 	}
@@ -440,9 +431,8 @@ int RAND_DRBG_reseed(RAND_DRBG * drbg,
 	drbg->reseed_gen_counter = 1;
 	drbg->reseed_time = time(NULL);
 	tsan_store(&drbg->reseed_prop_counter, drbg->reseed_next_counter);
-
 end:
-	if(entropy != NULL && drbg->cleanup_entropy != NULL)
+	if(entropy && drbg->cleanup_entropy)
 		drbg->cleanup_entropy(drbg, entropy, entropylen);
 	if(drbg->state == DRBG_READY)
 		return 1;
@@ -466,26 +456,22 @@ end:
  *
  * This function is used internally only.
  */
-int rand_drbg_restart(RAND_DRBG * drbg,
-    const uchar * buffer, size_t len, size_t entropy)
+int rand_drbg_restart(RAND_DRBG * drbg, const uchar * buffer, size_t len, size_t entropy)
 {
 	int reseeded = 0;
 	const uchar * adin = NULL;
 	size_t adinlen = 0;
-
-	if(drbg->seed_pool != NULL) {
+	if(drbg->seed_pool) {
 		RANDerr(RAND_F_RAND_DRBG_RESTART, ERR_R_INTERNAL_ERROR);
 		drbg->state = DRBG_ERROR;
 		rand_pool_free(drbg->seed_pool);
 		drbg->seed_pool = NULL;
 		return 0;
 	}
-
 	if(buffer) {
 		if(entropy > 0) {
 			if(drbg->max_entropylen < len) {
-				RANDerr(RAND_F_RAND_DRBG_RESTART,
-				    RAND_R_ENTROPY_INPUT_TOO_LONG);
+				RANDerr(RAND_F_RAND_DRBG_RESTART, RAND_R_ENTROPY_INPUT_TOO_LONG);
 				drbg->state = DRBG_ERROR;
 				return 0;
 			}
@@ -529,7 +515,7 @@ int rand_drbg_restart(RAND_DRBG * drbg,
 
 	/* refresh current state if entropy or additional input has been provided */
 	if(drbg->state == DRBG_READY) {
-		if(adin != NULL) {
+		if(adin) {
 			/*
 			 * mix in additional input without reseeding
 			 *
@@ -609,11 +595,9 @@ int RAND_DRBG_generate(RAND_DRBG * drbg, uchar * out, size_t outlen,
 		   || now - drbg->reseed_time >= drbg->reseed_time_interval)
 			reseed_required = 1;
 	}
-	if(drbg->parent != NULL) {
+	if(drbg->parent) {
 		uint reseed_counter = tsan_load(&drbg->reseed_prop_counter);
-		if(reseed_counter > 0
-		 && tsan_load(&drbg->parent->reseed_prop_counter)
-		    != reseed_counter)
+		if(reseed_counter > 0 && tsan_load(&drbg->parent->reseed_prop_counter) != reseed_counter)
 			reseed_required = 1;
 	}
 
@@ -659,10 +643,7 @@ int RAND_DRBG_bytes(RAND_DRBG * drbg, uchar * out, size_t outlen)
 		if(drbg->adin_pool == NULL)
 			goto err;
 	}
-
-	additional_len = rand_drbg_get_additional_data(drbg->adin_pool,
-		&additional);
-
+	additional_len = rand_drbg_get_additional_data(drbg->adin_pool, &additional);
 	for(; outlen > 0; outlen -= chunk, out += chunk) {
 		chunk = outlen;
 		if(chunk > drbg->max_request)
@@ -672,11 +653,9 @@ int RAND_DRBG_bytes(RAND_DRBG * drbg, uchar * out, size_t outlen)
 			goto err;
 	}
 	ret = 1;
-
 err:
-	if(additional != NULL)
+	if(additional)
 		rand_drbg_cleanup_additional_data(drbg->adin_pool, additional);
-
 	return ret;
 }
 
@@ -688,14 +667,10 @@ err:
  *
  * Returns 1 on success, 0 on failure.
  */
-int RAND_DRBG_set_callbacks(RAND_DRBG * drbg,
-    RAND_DRBG_get_entropy_fn get_entropy,
-    RAND_DRBG_cleanup_entropy_fn cleanup_entropy,
-    RAND_DRBG_get_nonce_fn get_nonce,
-    RAND_DRBG_cleanup_nonce_fn cleanup_nonce)
+int RAND_DRBG_set_callbacks(RAND_DRBG * drbg, RAND_DRBG_get_entropy_fn get_entropy, RAND_DRBG_cleanup_entropy_fn cleanup_entropy,
+    RAND_DRBG_get_nonce_fn get_nonce, RAND_DRBG_cleanup_nonce_fn cleanup_nonce)
 {
-	if(drbg->state != DRBG_UNINITIALISED
-	   || drbg->parent != NULL)
+	if(drbg->state != DRBG_UNINITIALISED || drbg->parent)
 		return 0;
 	drbg->get_entropy = get_entropy;
 	drbg->cleanup_entropy = cleanup_entropy;
@@ -779,9 +754,8 @@ int RAND_DRBG_set_reseed_defaults(uint _master_reseed_interval,
  */
 int rand_drbg_lock(RAND_DRBG * drbg)
 {
-	if(drbg->lock != NULL)
+	if(drbg->lock)
 		return CRYPTO_THREAD_write_lock(drbg->lock);
-
 	return 1;
 }
 
@@ -793,9 +767,8 @@ int rand_drbg_lock(RAND_DRBG * drbg)
  */
 int rand_drbg_unlock(RAND_DRBG * drbg)
 {
-	if(drbg->lock != NULL)
+	if(drbg->lock)
 		return CRYPTO_THREAD_unlock(drbg->lock);
-
 	return 1;
 }
 
@@ -816,7 +789,7 @@ int rand_drbg_enable_locking(RAND_DRBG * drbg)
 	}
 
 	if(drbg->lock == NULL) {
-		if(drbg->parent != NULL && drbg->parent->lock == NULL) {
+		if(drbg->parent && drbg->parent->lock == NULL) {
 			RANDerr(RAND_F_RAND_DRBG_ENABLE_LOCKING,
 			    RAND_R_PARENT_LOCKING_NOT_ENABLED);
 			return 0;
@@ -923,10 +896,9 @@ err1:
 /* Clean up the global DRBGs before exit */
 void rand_drbg_cleanup_int(void)
 {
-	if(master_drbg != NULL) {
+	if(master_drbg) {
 		RAND_DRBG_free(master_drbg);
 		master_drbg = NULL;
-
 		CRYPTO_THREAD_cleanup_local(&private_drbg);
 		CRYPTO_THREAD_cleanup_local(&public_drbg);
 	}

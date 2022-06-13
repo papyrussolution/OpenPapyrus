@@ -42,11 +42,9 @@ static const int32_t LIMITS[UCAL_FIELD_COUNT][4] = {
 	{ /*N/A*/ -1, /*N/A*/ -1, /*N/A*/ -1, /*N/A*/ -1}, // MILLISECONDS_IN_DAY
 	{ /*N/A*/ -1, /*N/A*/ -1, /*N/A*/ -1, /*N/A*/ -1}, // IS_LEAP_MONTH
 };
-
-//-------------------------------------------------------------------------
+//
 // Constructors...
-//-------------------------------------------------------------------------
-
+//
 CECalendar::CECalendar(const Locale & aLocale, UErrorCode & success) : Calendar(TimeZone::forLocaleOrDefault(aLocale), aLocale, success)
 {
 	setTimeInMillis(getNow(), success);
@@ -65,11 +63,9 @@ CECalendar&CECalendar::operator = (const CECalendar& right)
 	Calendar::operator = (right);
 	return *this;
 }
-
-//-------------------------------------------------------------------------
+//
 // Calendar framework
-//-------------------------------------------------------------------------
-
+//
 int32_t CECalendar::handleComputeMonthStart(int32_t eyear, int32_t emonth, bool /*useMonth*/) const
 {
 	return ceToJD(eyear, emonth, 0, getJDEpochOffset());
@@ -96,10 +92,9 @@ bool CECalendar::haveDefaultCentury() const
 {
 	return TRUE;
 }
-
-//-------------------------------------------------------------------------
+//
 // Calendar system Conversion methods...
-//-------------------------------------------------------------------------
+//
 int32_t CECalendar::ceToJD(int32_t year, int32_t month, int32_t date, int32_t jdEpochOffset)
 {
 	// handle month > 12, < 0 (e.g. from add/set)

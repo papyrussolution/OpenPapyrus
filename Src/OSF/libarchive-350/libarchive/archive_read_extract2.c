@@ -17,13 +17,13 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_extract.c,v 1.61 2008/05/26 
 
 #include "archive_read_private.h"
 
-static int copy_data(struct archive * ar, struct archive * aw);
-static int archive_read_extract_cleanup(struct archive_read *);
+static int copy_data(Archive * ar, Archive * aw);
+static int archive_read_extract_cleanup(ArchiveRead *);
 
 /* Retrieve an extract object without initialising the associated
  * archive_write_disk object.
  */
-struct archive_read_extract * __archive_read_get_extract(struct archive_read * a)                               
+struct archive_read_extract * __archive_read_get_extract(ArchiveRead * a)                               
 {
 	if(a->extract == NULL) {
 		a->extract = (struct archive_read_extract *)SAlloc::C(1, sizeof(*a->extract));
@@ -38,20 +38,21 @@ struct archive_read_extract * __archive_read_get_extract(struct archive_read * a
 /*
  * Cleanup function for archive_extract.
  */
-static int archive_read_extract_cleanup(struct archive_read * a)
+static int archive_read_extract_cleanup(ArchiveRead * a)
 {
 	int ret = ARCHIVE_OK;
-	if(a->extract->ad != NULL) {
-		ret = archive_write_free(a->extract->ad);
+	if(a) {
+		if(a->extract->ad)
+			ret = archive_write_free(a->extract->ad);
+		SAlloc::F(a->extract);
+		a->extract = NULL;
 	}
-	SAlloc::F(a->extract);
-	a->extract = NULL;
 	return ret;
 }
 
-int archive_read_extract2(struct archive * _a, struct archive_entry * entry, struct archive * ad)
+int archive_read_extract2(Archive * _a, ArchiveEntry * entry, Archive * ad)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	int r, r2;
 	/* Set up for this particular entry. */
 	if(a->skip_file_set)
@@ -77,23 +78,23 @@ int archive_read_extract2(struct archive * _a, struct archive_entry * entry, str
 	return r;
 }
 
-void archive_read_extract_set_progress_callback(struct archive * _a, void (*progress_func)(void *), void * user_data)
+void archive_read_extract_set_progress_callback(Archive * _a, void (*progress_func)(void *), void * user_data)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	struct archive_read_extract * extract = __archive_read_get_extract(a);
-	if(extract != NULL) {
+	if(extract) {
 		extract->extract_progress = progress_func;
 		extract->extract_progress_user_data = user_data;
 	}
 }
 
-static int copy_data(struct archive * ar, struct archive * aw)
+static int copy_data(Archive * ar, Archive * aw)
 {
 	int64 offset;
 	const void * buff;
 	size_t size;
 	int r;
-	struct archive_read_extract * extract = __archive_read_get_extract((struct archive_read *)ar);
+	struct archive_read_extract * extract = __archive_read_get_extract((ArchiveRead *)ar);
 	if(extract == NULL)
 		return ARCHIVE_FATAL;
 	for(;;) {

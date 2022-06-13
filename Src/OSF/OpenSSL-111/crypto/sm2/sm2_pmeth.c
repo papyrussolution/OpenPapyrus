@@ -124,7 +124,7 @@ static int pkey_sm2_encrypt(EVP_PKEY_CTX * ctx, uchar * out, size_t * outlen, co
 	EC_KEY * ec = ctx->pkey->pkey.ec;
 	SM2_PKEY_CTX * dctx = static_cast<SM2_PKEY_CTX *>(ctx->data);
 	const EVP_MD * md = (dctx->md == NULL) ? EVP_sm3() : dctx->md;
-	if(out == NULL) {
+	if(!out) {
 		if(!sm2_ciphertext_size(ec, md, inlen, outlen))
 			return -1;
 		else
@@ -139,7 +139,7 @@ static int pkey_sm2_decrypt(EVP_PKEY_CTX * ctx, uchar * out, size_t * outlen, co
 	SM2_PKEY_CTX * dctx = static_cast<SM2_PKEY_CTX *>(ctx->data);
 	const EVP_MD * md = (dctx->md == NULL) ? EVP_sm3() : dctx->md;
 
-	if(out == NULL) {
+	if(!out) {
 		if(!sm2_plaintext_size(ec, md, inlen, outlen))
 			return -1;
 		else

@@ -69,7 +69,7 @@
 // 
 // Includes & Memory related functions
 //
-// Modify the local functions below should you wish to use some other memory routines for malloc(), free() 
+// Modify the local functions below should you wish to use some other memory routines for malloc(), SAlloc::F() 
 //static void * XXH_malloc(size_t s) { return malloc(s); }
 //static void  XXH_free(void * p) { free(p); }
 //static void * XXH_memcpy(void * dest, const void * src, size_t size) { return memcpy(dest, src, size); }
@@ -745,7 +745,7 @@ XXH_FORCE_INLINE uint64 XXH64_endian_align(const void * input, size_t len, uint6
 	return XXH64_finalize(h64, p, len, align);
 }
 
-XXH_PUBLIC_API XXH64_hash_t XXH64(const void * input, size_t len, unsigned long long seed)
+XXH_PUBLIC_API XXH64_hash_t XXH64(const void * input, size_t len, uint64 seed)
 {
 #if 0
 	/* Simple version, good for code maintenance, but unfortunately slow for small inputs */
@@ -781,7 +781,7 @@ XXH_PUBLIC_API void XXH64_copyState(XXH64_state_t* dstState, const XXH64_state_t
 	memcpy(dstState, srcState, sizeof(*dstState));
 }
 
-XXH_PUBLIC_API XXH_errorcode XXH64_reset(XXH64_state_t* statePtr, unsigned long long seed)
+XXH_PUBLIC_API XXH_errorcode XXH64_reset(XXH64_state_t* statePtr, uint64 seed)
 {
 	XXH64_state_t state; /* using a local state to memcpy() in order to avoid strict-aliasing warnings */
 	memzero(&state, sizeof(state));

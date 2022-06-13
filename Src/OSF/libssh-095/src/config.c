@@ -634,7 +634,7 @@ static int ssh_config_parse_line(ssh_session session, const char * line, uint co
 		    if(p && *parsing) {
 			    char * a;
 			    char * b = sstrdup(p);
-			    if(b == NULL) {
+			    if(!b) {
 				    ZFREE(x);
 				    ssh_set_error_oom(session);
 				    return -1;

@@ -127,14 +127,14 @@ struct isofile {
 	/* Used for managing a hardlinked struct isofile list. */
 	struct isofile          * hlnext;
 	struct isofile          * hardlink_target;
-	struct archive_entry    * entry;
+	ArchiveEntry    * entry;
 	/*
 	 * Used for making a directory tree.
 	 */
-	struct archive_string parentdir;
-	struct archive_string basename;
-	struct archive_string basename_utf16;
-	struct archive_string symlink;
+	archive_string parentdir;
+	archive_string basename;
+	archive_string basename_utf16;
+	archive_string symlink;
 	int dircnt; // The number of elements of its parent directory 
 	/*
 	 * Used for a Directory Record.
@@ -635,16 +635,16 @@ struct iso9660 {
 
 	struct isofile          * cur_file;
 	struct isoent           * cur_dirent;
-	struct archive_string cur_dirstr;
+	archive_string cur_dirstr;
 	uint64 bytes_remaining;
 	int need_multi_extent;
 
 	/* Temporary string buffer for Joliet extension. */
-	struct archive_string utf16be;
-	struct archive_string mbs;
+	archive_string utf16be;
+	archive_string mbs;
 
-	struct archive_string_conv * sconv_to_utf16be;
-	struct archive_string_conv * sconv_from_utf16be;
+	archive_string_conv * sconv_to_utf16be;
+	archive_string_conv * sconv_from_utf16be;
 
 	/* A list of all of struct isofile entries. */
 	struct {
@@ -693,13 +693,13 @@ struct iso9660 {
 	int volume_space_size;
 	int volume_sequence_number;
 	int total_file_block;
-	struct archive_string volume_identifier;
-	struct archive_string publisher_identifier;
-	struct archive_string data_preparer_identifier;
-	struct archive_string application_identifier;
-	struct archive_string copyright_file_identifier;
-	struct archive_string abstract_file_identifier;
-	struct archive_string bibliographic_file_identifier;
+	archive_string volume_identifier;
+	archive_string publisher_identifier;
+	archive_string data_preparer_identifier;
+	archive_string application_identifier;
+	archive_string copyright_file_identifier;
+	archive_string abstract_file_identifier;
+	archive_string bibliographic_file_identifier;
 
 	/* Used for making rockridge extensions. */
 	int location_rrip_er;
@@ -759,17 +759,17 @@ struct iso9660 {
 	/* 'El Torito' boot data. */
 	struct {
 		/* boot catalog file */
-		struct archive_string catalog_filename;
+		archive_string catalog_filename;
 		struct isoent           * catalog;
 		/* boot image file */
-		struct archive_string boot_filename;
+		archive_string boot_filename;
 		struct isoent           * boot;
 
 		uchar platform_id;
 #define BOOT_PLATFORM_X86       0
 #define BOOT_PLATFORM_PPC       1
 #define BOOT_PLATFORM_MAC       2
-		struct archive_string id;
+		archive_string id;
 		uchar media_type;
 #define BOOT_MEDIA_NO_EMULATION         0
 #define BOOT_MEDIA_1_2M_DISKETTE        1
@@ -850,29 +850,20 @@ enum char_type {
 	D_CHAR
 };
 
-static int iso9660_options(struct archive_write *,
-    const char *, const char *);
-static int iso9660_write_header(struct archive_write *,
-    struct archive_entry *);
-static ssize_t  iso9660_write_data(struct archive_write *,
-    const void *, size_t);
+static int iso9660_options(struct archive_write *, const char *, const char *);
+static int iso9660_write_header(struct archive_write *, ArchiveEntry *);
+static ssize_t  iso9660_write_data(struct archive_write *, const void *, size_t);
 static int iso9660_finish_entry(struct archive_write *);
 static int iso9660_close(struct archive_write *);
 static int iso9660_free(struct archive_write *);
-
 static void     get_system_identitier(char *, size_t);
-static void     set_str(uchar *, const char *, size_t, char,
-    const char *);
+static void     set_str(uchar *, const char *, size_t, char, const char *);
 static inline int joliet_allowed_char(uchar, uchar);
-static int set_str_utf16be(struct archive_write *, uchar *,
-    const char *, size_t, uint16, enum vdc);
-static int set_str_a_characters_bp(struct archive_write *,
-    uchar *, int, int, const char *, enum vdc);
-static int set_str_d_characters_bp(struct archive_write *,
-    uchar *, int, int, const char *, enum  vdc);
+static int set_str_utf16be(struct archive_write *, uchar *, const char *, size_t, uint16, enum vdc);
+static int set_str_a_characters_bp(struct archive_write *, uchar *, int, int, const char *, enum vdc);
+static int set_str_d_characters_bp(struct archive_write *, uchar *, int, int, const char *, enum  vdc);
 static void     set_VD_bp(uchar *, enum VD_type, uchar);
 static inline void set_unused_field_bp(uchar *, int, int);
-
 static uchar * extra_open_record(uchar *, int, struct isoent *, struct ctl_extr_rec *);
 static void     extra_close_record(struct ctl_extr_rec *, int);
 static uchar * extra_next_record(struct ctl_extr_rec *, int);
@@ -891,7 +882,7 @@ static int wb_set_offset(struct archive_write *, int64);
 static int write_null(struct archive_write *, size_t);
 static int write_VD_terminator(struct archive_write *);
 static int set_file_identifier(uchar *, int, int, enum vdc, struct archive_write *, struct iso9660::vdd *,
-    struct archive_string *, const char *, int, enum char_type);
+    archive_string *, const char *, int, enum char_type);
 static int write_VD(struct archive_write *, struct iso9660::vdd *);
 static int write_VD_boot_record(struct archive_write *);
 static int write_information_block(struct archive_write *);
@@ -906,28 +897,20 @@ static void     isofile_add_entry(struct iso9660 *, struct isofile *);
 static void     isofile_free_all_entries(struct iso9660 *);
 static void     isofile_init_entry_data_file_list(struct iso9660 *);
 static void     isofile_add_data_file(struct iso9660 *, struct isofile *);
-static struct isofile * isofile_new(struct archive_write *,
-    struct archive_entry *);
+static struct isofile * isofile_new(struct archive_write *, ArchiveEntry *);
 static void     isofile_free(struct isofile *);
-static int isofile_gen_utility_names(struct archive_write *,
-    struct isofile *);
-static int isofile_register_hardlink(struct archive_write *,
-    struct isofile *);
+static int isofile_gen_utility_names(struct archive_write *, struct isofile *);
+static int isofile_register_hardlink(struct archive_write *, struct isofile *);
 static void     isofile_connect_hardlink_files(struct iso9660 *);
 static void     isofile_init_hardlinks(struct iso9660 *);
 static void     isofile_free_hardlinks(struct iso9660 *);
-
 static struct isoent * isoent_new(struct isofile *);
-static int isoent_clone_tree(struct archive_write *,
-    struct isoent **, struct isoent *);
+static int isoent_clone_tree(struct archive_write *, struct isoent **, struct isoent *);
 static void     _isoent_free(struct isoent * isoent);
 static void     isoent_free_all(struct isoent *);
-static struct isoent * isoent_create_virtual_dir(struct archive_write *,
-    struct iso9660 *, const char *);
-static int isoent_cmp_node(const struct archive_rb_node *,
-    const struct archive_rb_node *);
-static int isoent_cmp_key(const struct archive_rb_node *,
-    const void *);
+static struct isoent * isoent_create_virtual_dir(struct archive_write *, struct iso9660 *, const char *);
+static int isoent_cmp_node(const struct archive_rb_node *, const struct archive_rb_node *);
+static int isoent_cmp_key(const struct archive_rb_node *, const void *);
 static int isoent_add_child_head(struct isoent *, struct isoent *);
 static int isoent_add_child_tail(struct isoent *, struct isoent *);
 static void     isoent_remove_child(struct isoent *, struct isoent *);
@@ -983,7 +966,7 @@ static int zisofs_finish_entry(struct archive_write *);
 static int zisofs_rewind_boot_file(struct archive_write *);
 static int zisofs_free(struct archive_write *);
 
-int archive_write_set_format_iso9660(struct archive * _a)
+int archive_write_set_format_iso9660(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct iso9660 * iso9660;
@@ -1112,7 +1095,7 @@ int archive_write_set_format_iso9660(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int STDCALL get_str_opt(struct archive_write * a, struct archive_string * s, size_t maxsize, const char * key, const char * value)
+static int STDCALL get_str_opt(struct archive_write * a, archive_string * s, size_t maxsize, const char * key, const char * value)
 {
 	if(strlen(value) > maxsize) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Value is longer than %zu characters for option ``%s''", maxsize, key);
@@ -1394,7 +1377,7 @@ invalid_value:
 	return ARCHIVE_FAILED;
 }
 
-static int iso9660_write_header(struct archive_write * a, struct archive_entry * entry)
+static int iso9660_write_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	struct isofile * file;
 	struct isoent * isoent;
@@ -3495,7 +3478,7 @@ static int write_VD_terminator(struct archive_write * a)
 }
 
 static int set_file_identifier(uchar * bp, int from, int to, enum vdc vdc,
-    struct archive_write * a, struct iso9660::vdd * vdd, struct archive_string * id,
+    struct archive_write * a, struct iso9660::vdd * vdd, archive_string * id,
     const char * label, int leading_under, enum char_type char_type)
 {
 	char identifier[256];
@@ -3720,7 +3703,7 @@ enum keytype {
 	KEY_HEX
 };
 
-static void set_option_info(struct archive_string * info, int * opt, const char * key,
+static void set_option_info(archive_string * info, int * opt, const char * key,
     enum keytype type,  ...)
 {
 	va_list ap;
@@ -3766,7 +3749,7 @@ static int write_information_block(struct archive_write * a)
 	char buf[128];
 	const char * v;
 	int opt, r;
-	struct archive_string info;
+	archive_string info;
 	size_t info_size = LOGICAL_BLOCK_SIZE * NON_ISO_FILE_SYSTEM_INFORMATION_BLOCK;
 	iso9660 = (struct iso9660 *)a->format_data;
 	if(info_size > wb_remaining(a)) {
@@ -4268,7 +4251,7 @@ static void isofile_add_data_file(struct iso9660 * iso9660, struct isofile * fil
 	iso9660->data_file_list.last = &(file->datanext);
 }
 
-static struct isofile * isofile_new(struct archive_write * a, struct archive_entry * entry) 
+static struct isofile * isofile_new(struct archive_write * a, ArchiveEntry * entry) 
 {
 	struct isofile * file = (struct isofile *)SAlloc::C(1, sizeof(*file));
 	if(file == NULL)
@@ -4446,7 +4429,7 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 	 */
 	if(cleanup_backslash_1(file->parentdir.s) != 0) {
 		const wchar_t * wp = archive_entry_pathname_w(file->entry);
-		struct archive_wstring ws;
+		archive_wstring ws;
 		if(wp) {
 			int r;
 			archive_string_init(&ws);
@@ -4561,7 +4544,7 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 		 */
 		if(archive_strlen(&(file->symlink)) > 0 && cleanup_backslash_1(file->symlink.s) != 0) {
 			const wchar_t * wp = archive_entry_symlink_w(file->entry);
-			struct archive_wstring ws;
+			archive_wstring ws;
 			if(wp) {
 				int r;
 				archive_string_init(&ws);
@@ -5160,7 +5143,7 @@ static int isoent_tree(struct archive_write * a, struct isoent ** isoentpp)
 		 */
 		while(fn[0] != '\0') {
 			struct isoent * vp;
-			struct archive_string as;
+			archive_string as;
 
 			archive_string_init(&as);
 			archive_strncat(&as, p, fn - p + l);
@@ -6526,7 +6509,7 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	struct isoent * isoent;
-	struct archive_entry * entry;
+	ArchiveEntry * entry;
 	(void)rootent; /* UNUSED */
 	/*
 	 * Create the entry which is the "boot.catalog" file.

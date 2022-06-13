@@ -155,11 +155,9 @@
 	}
 #endif
 #endif
-
-/* ==========================================
- * XXH3 default settings
- * ========================================== */
-
+// 
+// XXH3 default settings
+// 
 #define XXH_SECRET_DEFAULT_SIZE 192   /* minimum XXH3_SECRET_SIZE_MIN */
 
 #if(XXH_SECRET_DEFAULT_SIZE < XXH3_SECRET_SIZE_MIN)
@@ -194,8 +192,8 @@ static XXH128_hash_t XXH3_mul128(uint64 ll1, uint64 ll2)
 	#pragma intrinsic(_umul128)
 #endif
 	uint64 llhigh;
-	uint64 const lllow = _umul128(ll1, ll2, &llhigh);
-	XXH128_hash_t const r128 = { lllow, llhigh };
+	const uint64 lllow = _umul128(ll1, ll2, &llhigh);
+	const XXH128_hash_t r128 = { lllow, llhigh };
 	return r128;
 #else /* Portable scalar version */
 	/* emulate 64x64->128b multiplication, using four 32x32->64 */
@@ -203,20 +201,16 @@ static XXH128_hash_t XXH3_mul128(uint64 ll1, uint64 ll2)
 	const uint32 h2 = (uint32)(ll2 >> 32);
 	const uint32 l1 = (uint32)ll1;
 	const uint32 l2 = (uint32)ll2;
-
-	uint64 const llh  = XXH_mult32to64(h1, h2);
-	uint64 const llm1 = XXH_mult32to64(l1, h2);
-	uint64 const llm2 = XXH_mult32to64(h1, l2);
-	uint64 const lll  = XXH_mult32to64(l1, l2);
-
-	uint64 const t = lll + (llm1 << 32);
-	uint64 const carry1 = t < lll;
-
-	uint64 const lllow = t + (llm2 << 32);
-	uint64 const carry2 = lllow < t;
-	uint64 const llhigh = llh + (llm1 >> 32) + (llm2 >> 32) + carry1 + carry2;
-
-	XXH128_hash_t const r128 = { lllow, llhigh };
+	const uint64 llh  = XXH_mult32to64(h1, h2);
+	const uint64 llm1 = XXH_mult32to64(l1, h2);
+	const uint64 llm2 = XXH_mult32to64(h1, l2);
+	const uint64 lll  = XXH_mult32to64(l1, l2);
+	const uint64 t = lll + (llm1 << 32);
+	const uint64 carry1 = t < lll;
+	const uint64 lllow = t + (llm2 << 32);
+	const uint64 carry2 = lllow < t;
+	const uint64 llhigh = llh + (llm1 >> 32) + (llm2 >> 32) + carry1 + carry2;
+	const XXH128_hash_t r128 = { lllow, llhigh };
 	return r128;
 #endif
 }

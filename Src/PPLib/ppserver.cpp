@@ -2121,7 +2121,7 @@ SString & PPWorkerSession::GetTxtCmdTermMnemonic(SString & rBuf) const
 	}
 	else {
 		const size_t len = sstrlen(P_TxtCmdTerminal);
-		if(len == 0) {
+		if(!len) {
 			rBuf.CatHex((uint8)0);
 		}
 		else {
@@ -3866,12 +3866,9 @@ PPServerSession::CmdRet PPServerSession::Testing()
 Протокол обмена данными при обработке команд:
 
 	Command:
-
 		Если первые два байта команды нулевые, то далее следует бинарный пакет команды,
 		в противном случае - команда символьная.
-
 	Reply:
-
 	{
 	}
 
@@ -4283,7 +4280,7 @@ void PPServerSession::Run()
 									}
 									if(cmd.ParseLine(s, (State_PPws & stLoggedIn) ? cmd.plfLoggedIn : 0)) {
 										int    log_level = 1;
-										const  int is_login_cmd = BIN(cmd.GetH().Type == PPSCMD_LOGIN);
+										const  bool is_login_cmd = (cmd.GetH().Type == PPSCMD_LOGIN);
 										if(cmd.GetH().Type == PPSCMD_HELLO)
 											log_level = 0;
 										else if(is_login_cmd)

@@ -19,8 +19,6 @@
 #ifdef HAVE_GLIB
 
 #include "hb-glib.h"
-#include "hb-machinery.hh"
-
 /**
  * SECTION:hb-glib
  * @title: hb-glib
@@ -49,7 +47,6 @@ hb_script_t hb_glib_script_to_script(GUnicodeScript script)
 {
 	return (hb_script_t)g_unicode_script_to_iso15924(script);
 }
-
 /**
  * hb_glib_script_from_script:
  * @script: The #hb_script_t to query
@@ -67,62 +64,49 @@ GUnicodeScript hb_glib_script_from_script(hb_script_t script)
 }
 
 static hb_unicode_combining_class_t hb_glib_unicode_combining_class(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM,
-    hb_codepoint_t unicode,
-    void * user_data CXX_UNUSED_PARAM)
-
+    hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	return (hb_unicode_combining_class_t)g_unichar_combining_class(unicode);
 }
 
 static hb_unicode_general_category_t hb_glib_unicode_general_category(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM,
-    hb_codepoint_t unicode,
-    void * user_data CXX_UNUSED_PARAM)
-
+    hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	/* hb_unicode_general_category_t and GUnicodeType are identical */
 	return (hb_unicode_general_category_t)g_unichar_type(unicode);
 }
 
 static hb_codepoint_t hb_glib_unicode_mirroring(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM,
-    hb_codepoint_t unicode,
-    void * user_data CXX_UNUSED_PARAM)
+    hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	g_unichar_get_mirror_char(unicode, &unicode);
 	return unicode;
 }
 
 static hb_script_t hb_glib_unicode_script(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM,
-    hb_codepoint_t unicode,
-    void * user_data CXX_UNUSED_PARAM)
+    hb_codepoint_t unicode, void * user_data CXX_UNUSED_PARAM)
 {
 	return hb_glib_script_to_script(g_unichar_get_script(unicode));
 }
 
-static hb_bool_t hb_glib_unicode_compose(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM,
-    hb_codepoint_t a,
-    hb_codepoint_t b,
-    hb_codepoint_t * ab,
-    void * user_data CXX_UNUSED_PARAM)
+static hb_bool_t hb_glib_unicode_compose(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t a, hb_codepoint_t b,
+    hb_codepoint_t * ab, void * user_data CXX_UNUSED_PARAM)
 {
 #if GLIB_CHECK_VERSION(2, 29, 12)
 	return g_unichar_compose(a, b, ab);
 #endif
-
 	/* We don't ifdef-out the fallback code such that compiler always
 	 * sees it and makes sure it's compilable. */
-
 	gchar utf8[12];
 	gchar * normalized;
 	int len;
 	hb_bool_t ret;
-
 	len = g_unichar_to_utf8(a, utf8);
 	len += g_unichar_to_utf8(b, utf8 + len);
 	normalized = g_utf8_normalize(utf8, len, G_NORMALIZE_NFC);
 	len = g_utf8_strlen(normalized, -1);
 	if(UNLIKELY(!len))
 		return false;
-
 	if(len == 1) {
 		*ab = g_utf8_get_char(normalized);
 		ret = true;
@@ -130,35 +114,27 @@ static hb_bool_t hb_glib_unicode_compose(hb_unicode_funcs_t * ufuncs CXX_UNUSED_
 	else {
 		ret = false;
 	}
-
 	g_free(normalized);
 	return ret;
 }
 
-static hb_bool_t hb_glib_unicode_decompose(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM,
-    hb_codepoint_t ab,
-    hb_codepoint_t * a,
-    hb_codepoint_t * b,
-    void * user_data CXX_UNUSED_PARAM)
+static hb_bool_t hb_glib_unicode_decompose(hb_unicode_funcs_t * ufuncs CXX_UNUSED_PARAM, hb_codepoint_t ab,
+    hb_codepoint_t * a, hb_codepoint_t * b, void * user_data CXX_UNUSED_PARAM)
 {
 #if GLIB_CHECK_VERSION(2, 29, 12)
 	return g_unichar_decompose(ab, a, b);
 #endif
-
 	/* We don't ifdef-out the fallback code such that compiler always
 	 * sees it and makes sure it's compilable. */
-
 	gchar utf8[6];
 	gchar * normalized;
 	int len;
 	hb_bool_t ret;
-
 	len = g_unichar_to_utf8(ab, utf8);
 	normalized = g_utf8_normalize(utf8, len, G_NORMALIZE_NFD);
 	len = g_utf8_strlen(normalized, -1);
 	if(UNLIKELY(!len))
 		return false;
-
 	if(len == 1) {
 		*a = g_utf8_get_char(normalized);
 		*b = 0;
@@ -191,7 +167,6 @@ static hb_bool_t hb_glib_unicode_decompose(hb_unicode_funcs_t * ufuncs CXX_UNUSE
 		g_free(recomposed);
 		ret = true;
 	}
-
 	g_free(normalized);
 	return ret;
 }
@@ -204,31 +179,22 @@ static struct hb_glib_unicode_funcs_lazy_loader_t : hb_unicode_funcs_lazy_loader
 	static hb_unicode_funcs_t * create()
 	{
 		hb_unicode_funcs_t * funcs = hb_unicode_funcs_create(nullptr);
-
 		hb_unicode_funcs_set_combining_class_func(funcs, hb_glib_unicode_combining_class, nullptr, nullptr);
 		hb_unicode_funcs_set_general_category_func(funcs, hb_glib_unicode_general_category, nullptr, nullptr);
 		hb_unicode_funcs_set_mirroring_func(funcs, hb_glib_unicode_mirroring, nullptr, nullptr);
 		hb_unicode_funcs_set_script_func(funcs, hb_glib_unicode_script, nullptr, nullptr);
 		hb_unicode_funcs_set_compose_func(funcs, hb_glib_unicode_compose, nullptr, nullptr);
 		hb_unicode_funcs_set_decompose_func(funcs, hb_glib_unicode_decompose, nullptr, nullptr);
-
 		hb_unicode_funcs_make_immutable(funcs);
-
 #if HB_USE_ATEXIT
 		atexit(free_static_glib_funcs);
 #endif
-
 		return funcs;
 	}
 } static_glib_funcs;
 
 #if HB_USE_ATEXIT
-static
-void free_static_glib_funcs()
-{
-	static_glib_funcs.free_instance();
-}
-
+static void free_static_glib_funcs() { static_glib_funcs.free_instance(); }
 #endif
 
 /**
@@ -241,18 +207,11 @@ void free_static_glib_funcs()
  *
  * Since: 0.9.38
  **/
-hb_unicode_funcs_t * hb_glib_get_unicode_funcs()
-{
-	return static_glib_funcs.get_unconst();
-}
+hb_unicode_funcs_t * hb_glib_get_unicode_funcs() { return static_glib_funcs.get_unconst(); }
 
 #if GLIB_CHECK_VERSION(2, 31, 10)
 
-static void _hb_g_bytes_unref(void * data)
-{
-	g_bytes_unref((GBytes*)data);
-}
-
+static void _hb_g_bytes_unref(void * data) { g_bytes_unref((GBytes*)data); }
 /**
  * hb_glib_blob_create:
  * @gbytes: the GBytes structure to work upon
@@ -272,5 +231,4 @@ hb_blob_t * hb_glib_blob_create(GBytes * gbytes)
 }
 
 #endif
-
 #endif

@@ -21,11 +21,9 @@
  * \file
  * \brief C API: Platform Utilities
  */
-
-/*==========================================================================*/
-/* Platform utilities */
-/*==========================================================================*/
-
+// 
+// Platform utilities
+// 
 /**
  * Platform utilities isolates the platform dependencies of the
  * library.  For each platform which this code is ported to, these

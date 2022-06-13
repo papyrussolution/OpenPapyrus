@@ -107,7 +107,7 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						} catch(StyloQException exn) {
 							Db = null;
 							ListData = new ArrayList<StyloQFace>();
-							app_ctx.DisplayError(null, exn, 5000);
+							app_ctx.DisplayError(this, exn, 5000);
 						}
 						SetupListView(R.id.faceListView, R.layout.li_face, ListData);
 					}

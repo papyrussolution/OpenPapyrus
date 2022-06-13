@@ -50,7 +50,7 @@ U_CAPI USpoofChecker * U_EXPORT2 uspoof_openFromSource(const char * confusables,
 	*status = U_UNSUPPORTED_ERROR;
 	return NULL;
 #else
-	if(errorType!=NULL) {
+	if(errorType != NULL) {
 		*errorType = 0;
 	}
 	if(pe != NULL) {

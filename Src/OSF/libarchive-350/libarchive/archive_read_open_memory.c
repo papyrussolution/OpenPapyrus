@@ -29,13 +29,13 @@ struct read_memory_data {
 	ssize_t read_size;
 };
 
-static int memory_read_close(struct archive *, void *);
-static int memory_read_open(struct archive *, void *);
-static int64  memory_read_seek(struct archive *, void *, int64 offset, int whence);
-static int64  memory_read_skip(struct archive *, void *, int64 request);
-static ssize_t  memory_read(struct archive *, void *, const void ** buff);
+static int memory_read_close(Archive *, void *);
+static int memory_read_open(Archive *, void *);
+static int64  memory_read_seek(Archive *, void *, int64 offset, int whence);
+static int64  memory_read_skip(Archive *, void *, int64 request);
+static ssize_t  memory_read(Archive *, void *, const void ** buff);
 
-int archive_read_open_memory(struct archive * a, const void * buff, size_t size)
+int archive_read_open_memory(Archive * a, const void * buff, size_t size)
 {
 	return archive_read_open_memory2(a, buff, size, size);
 }
@@ -45,7 +45,7 @@ int archive_read_open_memory(struct archive * a, const void * buff, size_t size)
  * version is the one you really want.  This is just here so that
  * test harnesses can exercise block operations inside the library.
  */
-int archive_read_open_memory2(struct archive * a, const void * buff, size_t size, size_t read_size)
+int archive_read_open_memory2(Archive * a, const void * buff, size_t size, size_t read_size)
 {
 	struct read_memory_data * mine = (struct read_memory_data *)SAlloc::C(1, sizeof(*mine));
 	if(mine == NULL) {
@@ -67,7 +67,7 @@ int archive_read_open_memory2(struct archive * a, const void * buff, size_t size
 /*
  * There's nothing to open.
  */
-static int memory_read_open(struct archive * a, void * client_data)
+static int memory_read_open(Archive * a, void * client_data)
 {
 	CXX_UNUSED(a);
 	(void)client_data; /* UNUSED */
@@ -81,7 +81,7 @@ static int memory_read_open(struct archive * a, void * client_data)
  * in a test harness.  Production use should not specify a block
  * size; then this is much faster.
  */
-static ssize_t memory_read(struct archive * a, void * client_data, const void ** buff)
+static ssize_t memory_read(Archive * a, void * client_data, const void ** buff)
 {
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
 	ssize_t size;
@@ -100,7 +100,7 @@ static ssize_t memory_read(struct archive * a, void * client_data, const void **
  * necessary in order to better exercise internal code when used
  * as a test harness.
  */
-static int64 memory_read_skip(struct archive * a, void * client_data, int64 skip)
+static int64 memory_read_skip(Archive * a, void * client_data, int64 skip)
 {
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
 
@@ -117,7 +117,7 @@ static int64 memory_read_skip(struct archive * a, void * client_data, int64 skip
 /*
  * Seeking.
  */
-static int64 memory_read_seek(struct archive * a, void * client_data, int64 offset, int whence)
+static int64 memory_read_seek(Archive * a, void * client_data, int64 offset, int whence)
 {
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
 
@@ -149,7 +149,7 @@ static int64 memory_read_seek(struct archive * a, void * client_data, int64 offs
 /*
  * Close is just cleaning up our one small bit of data.
  */
-static int memory_read_close(struct archive * a, void * client_data)
+static int memory_read_close(Archive * a, void * client_data)
 {
 	struct read_memory_data * mine = (struct read_memory_data *)client_data;
 	CXX_UNUSED(a);

@@ -54,7 +54,7 @@ static void     cleanup(void *);
  * walking a list of 128 items is a lot faster than calling
  * getpwnam()!
  */
-int archive_write_disk_set_standard_lookup(struct archive * a)
+int archive_write_disk_set_standard_lookup(Archive * a)
 {
 	struct bucket * ucache = static_cast<struct bucket *>(SAlloc::C(cache_size, sizeof(struct bucket)));
 	struct bucket * gcache = static_cast<struct bucket *>(SAlloc::C(cache_size, sizeof(struct bucket)));
@@ -74,7 +74,7 @@ static int64 lookup_gid(void * private_data, const char * gname, int64 gid)
 	struct bucket * b;
 	struct bucket * gcache = (struct bucket *)private_data;
 	/* If no gname, just use the gid provided. */
-	if(gname == NULL || *gname == '\0')
+	if(isempty(gname))
 		return (gid);
 	/* Try to find gname in the cache. */
 	h = hash(gname);
@@ -137,17 +137,14 @@ static int64 lookup_uid(void * private_data, const char * uname, int64 uid)
 	int h;
 	struct bucket * b;
 	struct bucket * ucache = (struct bucket *)private_data;
-
 	/* If no uname, just use the uid provided. */
-	if(uname == NULL || *uname == '\0')
+	if(isempty(uname))
 		return (uid);
-
 	/* Try to find uname in the cache. */
 	h = hash(uname);
 	b = &ucache[h % cache_size ];
 	if(b->name != NULL && b->hash == h && strcmp(uname, b->name) == 0)
 		return ((uid_t)b->id);
-
 	/* Free the cache slot for a new entry. */
 	SAlloc::F(b->name);
 	b->name = sstrdup(uname);

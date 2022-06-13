@@ -47,15 +47,14 @@ static icu::UInitOnce gServiceInitOnce = U_INITONCE_INITIALIZER;
 
 // INTERNAL - for cleanup
 U_CDECL_BEGIN
-static bool calendar_cleanup() 
-{
-#if !UCONFIG_NO_SERVICE
-	ZDELETE(gService);
-	gServiceInitOnce.reset();
-#endif
-	return TRUE;
-}
-
+	static bool calendar_cleanup() 
+	{
+	#if !UCONFIG_NO_SERVICE
+		ZDELETE(gService);
+		gServiceInitOnce.reset();
+	#endif
+		return TRUE;
+	}
 U_CDECL_END
 #endif
 //
@@ -90,9 +89,7 @@ void Calendar::dump() const
 	int i;
 	slfprintf_stderr("@calendar=%s, timeset=%c, fieldset=%c, allfields=%c, virtualset=%c, t=%.2f",
 	    getType(), fIsTimeSet ? 'y' : 'n',  fAreFieldsSet ? 'y' : 'n',  fAreAllFieldsSet ? 'y' : 'n',
-	    fAreFieldsVirtuallySet ? 'y' : 'n',
-	    fTime);
-
+	    fAreFieldsVirtuallySet ? 'y' : 'n', fTime);
 	// can add more things here: DST, zone, etc.
 	slfprintf_stderr("\n");
 	for(i = 0; i<UCAL_FIELD_COUNT; i++) {
@@ -114,12 +111,12 @@ void Calendar::dump() const
 	}
 }
 
-U_CFUNC void ucal_dump(UCalendar* cal) {
+U_CFUNC void ucal_dump(UCalendar* cal) 
+{
 	ucal_dump(*((Calendar*)cal)  );
 }
 
 #endif
-
 #endif
 
 /* Max value for stamp allowable before recalculation */
@@ -302,7 +299,6 @@ static Calendar * createStandardCalendar(ECalType calType, const Locale &loc, UE
 		return nullptr;
 	}
 	LocalPointer<Calendar> cal;
-
 	switch(calType) {
 		case CALTYPE_GREGORIAN:
 		    cal.adoptInsteadAndCheckErrorCode(new GregorianCalendar(loc, status), status);
@@ -377,10 +373,9 @@ public:
 	/**
 	 * @param calendarType static const string (caller owns storage - will be aliased) to calendar type
 	 */
-	BasicCalendarFactory()
-		: LocaleKeyFactory(LocaleKeyFactory::INVISIBLE) {
+	BasicCalendarFactory() : LocaleKeyFactory(LocaleKeyFactory::INVISIBLE) 
+	{
 	}
-
 	virtual ~BasicCalendarFactory();
 
 protected:

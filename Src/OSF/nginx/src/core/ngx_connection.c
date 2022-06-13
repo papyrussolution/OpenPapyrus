@@ -149,7 +149,7 @@ ngx_int_t ngx_set_inherited_sockets(ngx_cycle_t * cycle)
 			return NGX_ERROR;
 		}
 		len = ngx_sock_ntop(ls[i].sockaddr, ls[i].socklen, ls[i].addr_text.data, len, 1);
-		if(len == 0) {
+		if(!len) {
 			return NGX_ERROR;
 		}
 		ls[i].addr_text.len = len;

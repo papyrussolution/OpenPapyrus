@@ -291,7 +291,7 @@ WINBASEAPI BOOL WINAPI FlsFree(_In_ DWORD dwFlsIndex);
   #endif
 static DWORD mi_fls_key = (DWORD)(-1);
 static void NTAPI mi_fls_done(PVOID value) {
-	if(value!=NULL) _mi_thread_done((mi_heap_t*)value);
+	if(value != NULL) _mi_thread_done((mi_heap_t*)value);
 }
 
 #elif defined(MI_USE_PTHREADS)
@@ -300,7 +300,7 @@ static void NTAPI mi_fls_done(PVOID value) {
   #include <pthread.h>
 pthread_key_t _mi_heap_default_key = (pthread_key_t)(-1);
 static void mi_pthread_done(void * value) {
-	if(value!=NULL) _mi_thread_done((mi_heap_t*)value);
+	if(value != NULL) _mi_thread_done((mi_heap_t*)value);
 }
 
 #elif defined(__wasi__)

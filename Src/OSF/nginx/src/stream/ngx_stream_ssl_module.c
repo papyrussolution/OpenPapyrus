@@ -459,7 +459,7 @@ static const char * ngx_stream_ssl_session_cache(ngx_conf_t * cf, const ngx_comm
 				}
 				len++;
 			}
-			if(len == 0) {
+			if(!len) {
 				goto invalid;
 			}
 			name.len = len;

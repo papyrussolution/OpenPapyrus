@@ -607,7 +607,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 		goto err;
 	}
 	b = BN_bin2bn(params->curve->b->data, params->curve->b->length, NULL);
-	if(b == NULL) {
+	if(!b) {
 		ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_BN_LIB);
 		goto err;
 	}

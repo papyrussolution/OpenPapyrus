@@ -21,10 +21,9 @@
 //#ifdef __cplusplus
 //extern "C" {
 //#endif
-
-//------------------------------------------------------------------------------
+//
 // Derived type lbit_t = natural type for memory I/O
-
+//
 #if (BITS > 32)
 	typedef uint64_t lbit_t;
 #elif (BITS > 16)
@@ -40,13 +39,13 @@ extern const uint8 kVP8NewRange[128];
 
 // special case for the tail byte-reading
 void VP8LoadFinalBytes(VP8BitReader* const br);
-
-//------------------------------------------------------------------------------
+//
 // Inlined critical functions
-
+//
 // makes sure br->value_ has at least BITS bits worth of data
 static WEBP_UBSAN_IGNORE_UNDEF FORCEINLINE
-void VP8LoadNewBytes(VP8BitReader* WEBP_RESTRICT const br) {
+void VP8LoadNewBytes(VP8BitReader* WEBP_RESTRICT const br) 
+{
 	assert(br != NULL && br->buf_ != NULL);
 	// Read 'BITS' bits at a time if possible.
 	if(br->buf_ < br->buf_max_) {

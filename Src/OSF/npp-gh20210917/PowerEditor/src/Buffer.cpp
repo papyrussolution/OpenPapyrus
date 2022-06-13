@@ -905,7 +905,7 @@ size_t FileManager::nextUntitledNewNumber() const
 			if((buf->_referees[0])->isVisible()) {
 				generic_string newTitle = ((NppParameters::getInstance()).getNativeLangSpeaker())->getLocalizedStrFromID("tab-untitled-string", UNTITLED_STR);
 				TCHAR * numberStr = buf->_fileName + newTitle.length();
-				int usedNumber = generic_atoi(numberStr);
+				int usedNumber = satoi(numberStr);
 				usedNumbers.push_back(usedNumber);
 			}
 		}

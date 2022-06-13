@@ -694,7 +694,7 @@ private:
 
 		for(int32_t i = 0; i < UTZNM_INDEX_COUNT; i++) {
 			const UChar * name = fNames[i];
-			if(name != NULL) {
+			if(name) {
 				ZNameInfo * nameinfo = (ZNameInfo*)uprv_malloc(sizeof(ZNameInfo));
 				if(nameinfo == NULL) {
 					status = U_MEMORY_ALLOCATION_ERROR;
@@ -1664,7 +1664,7 @@ void TimeZoneNamesImpl::getDisplayNames(const UnicodeString & tzID,
 				name = ((ZNames*)mznames)->getName(type);
 			}
 		}
-		if(name != NULL) {
+		if(name) {
 			dest[i].setTo(TRUE, name, -1);
 		}
 		else {

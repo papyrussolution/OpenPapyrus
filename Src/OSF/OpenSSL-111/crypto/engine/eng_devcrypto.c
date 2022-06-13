@@ -407,19 +407,15 @@ static void destroy_cipher_method(int nid)
 static void destroy_all_cipher_methods(void)
 {
 	size_t i;
-
 	for(i = 0; i < OSSL_NELEM(cipher_data); i++)
 		destroy_cipher_method(cipher_data[i].nid);
 }
 
-static int devcrypto_ciphers(ENGINE * e, const EVP_CIPHER ** cipher,
-    const int ** nids, int nid)
+static int devcrypto_ciphers(ENGINE * e, const EVP_CIPHER ** cipher, const int ** nids, int nid)
 {
 	if(cipher == NULL)
 		return get_cipher_nids(nids);
-
 	*cipher = get_cipher_method(nid);
-
 	return *cipher != NULL;
 }
 

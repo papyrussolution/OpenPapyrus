@@ -321,7 +321,7 @@ int _sasl_load_plugins(const add_plugin_list_t * entrypoints, const sasl_callbac
 				_tcscpy((TCHAR*)plugname, finddata.name); // w/o unicode local enconding is fine
 			}
 			c = strchr(plugname, '.');
-			if(c != NULL) *c = '\0';
+			if(c) *c = '\0';
 
 			result = _tsasl_get_plugin(full_name, verifyfile_cb, &library);
 

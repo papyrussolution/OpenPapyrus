@@ -40,14 +40,14 @@ void EC_KEY_set_default_method(const EC_KEY_METHOD * meth)
 int EC_KEY_set_method(EC_KEY * key, const EC_KEY_METHOD * meth)
 {
 	void (* finish)(EC_KEY * key) = key->meth->finish;
-	if(finish != NULL)
+	if(finish)
 		finish(key);
 #ifndef OPENSSL_NO_ENGINE
 	ENGINE_finish(key->engine);
 	key->engine = NULL;
 #endif
 	key->meth = meth;
-	if(meth->init != NULL)
+	if(meth->init)
 		return meth->init(key);
 	return 1;
 }
@@ -68,7 +68,7 @@ EC_KEY * EC_KEY_new_method(ENGINE * engine)
 	}
 	ret->meth = EC_KEY_get_default_method();
 #ifndef OPENSSL_NO_ENGINE
-	if(engine != NULL) {
+	if(engine) {
 		if(!ENGINE_init(engine)) {
 			ECerr(EC_F_EC_KEY_NEW_METHOD, ERR_R_ENGINE_LIB);
 			goto err;
@@ -77,7 +77,7 @@ EC_KEY * EC_KEY_new_method(ENGINE * engine)
 	}
 	else
 		ret->engine = ENGINE_get_default_EC();
-	if(ret->engine != NULL) {
+	if(ret->engine) {
 		ret->meth = ENGINE_get_EC(ret->engine);
 		if(ret->meth == NULL) {
 			ECerr(EC_F_EC_KEY_NEW_METHOD, ERR_R_ENGINE_LIB);
@@ -90,7 +90,7 @@ EC_KEY * EC_KEY_new_method(ENGINE * engine)
 	if(!CRYPTO_new_ex_data(CRYPTO_EX_INDEX_EC_KEY, ret, &ret->ex_data)) {
 		goto err;
 	}
-	if(ret->meth->init != NULL && ret->meth->init(ret) == 0) {
+	if(ret->meth->init && ret->meth->init(ret) == 0) {
 		ECerr(EC_F_EC_KEY_NEW_METHOD, ERR_R_INIT_FAIL);
 		goto err;
 	}
@@ -115,7 +115,7 @@ int ECDH_compute_key(void * out, size_t outlen, const EC_POINT * pub_key,
 	}
 	if(!eckey->meth->compute_key(&sec, &seclen, pub_key, eckey))
 		return 0;
-	if(KDF != NULL) {
+	if(KDF) {
 		KDF(sec, seclen, out, &outlen);
 	}
 	else {
@@ -132,7 +132,7 @@ EC_KEY_METHOD * EC_KEY_METHOD_new(const EC_KEY_METHOD * meth)
 	EC_KEY_METHOD * ret = static_cast<EC_KEY_METHOD *>(OPENSSL_zalloc(sizeof(*meth)));
 	if(ret == NULL)
 		return NULL;
-	if(meth != NULL)
+	if(meth)
 		*ret = *meth;
 	ret->flags |= EC_KEY_METHOD_DYNAMIC;
 	return ret;

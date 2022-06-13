@@ -8,6 +8,10 @@
 #include <private\_ppo.h>
 #include <ppsoapclient.h>
 #include <sartre.h>
+#if(_MSC_VER >= 1900)
+	#include <unicode\uclean.h> // @v11.4.1
+	#include <unicode\putil.h> // @v11.4.1
+#endif
 //
 //
 //
@@ -2338,8 +2342,8 @@ int PPSession::Init(long flags, HINSTANCE hInst)
             epb.F_CallHelp = PPCallHelp;
             epb.F_CallCalc = PPCalculator;
             epb.F_CallCalendar = ExecDateCalendar;
-            epb.F_GetDefaultEncrKey = PPGetDefaultEncrKey; // @v9.4.6
-            epb.F_QueryPath = PPQueryPathFunc; // @v9.8.7
+            epb.F_GetDefaultEncrKey = PPGetDefaultEncrKey;
+            epb.F_QueryPath = PPQueryPathFunc;
             SLS.SetExtraProcBlock(&epb);
 			//SLS.SetLoadStringFunc(PPLoadStringFunc);
 			//SLS.SetExpandStringFunc(PPExpandStringFunc); // @v9.0.11
@@ -2454,6 +2458,19 @@ int PPSession::Init(long flags, HINSTANCE hInst)
 		CheckRemoteHosts(host_list); 
 	}
 	// } @v11.1.2
+	// @v11.4.1 {
+#if(_MSC_VER >= 1900)
+	{
+		using namespace U_ICU_NAMESPACE;
+		UErrorCode icu_status = U_ZERO_ERROR;
+		u_setDataDirectory(BinPath);
+		u_init(&icu_status);
+		if(U_FAILURE(icu_status)) {
+			; // @todo log error/warning
+		}
+	}
+#endif
+	// } @v11.4.1 
 	InitTest();
 	CATCHZOK
 	return ok;

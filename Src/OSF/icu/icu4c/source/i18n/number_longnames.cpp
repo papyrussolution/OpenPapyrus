@@ -1461,10 +1461,8 @@ void LongNameHandler::processPatternTimes(MeasureUnitImpl &&productUnit,
 	}
 }
 
-UnicodeString LongNameHandler::getUnitDisplayName(const Locale & loc,
-    const MeasureUnit& unit,
-    UNumberUnitWidth width,
-    UErrorCode & status) {
+UnicodeString LongNameHandler::getUnitDisplayName(const Locale & loc, const MeasureUnit& unit, UNumberUnitWidth width, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return ICU_Utility::makeBogusString();
 	}
@@ -1473,11 +1471,8 @@ UnicodeString LongNameHandler::getUnitDisplayName(const Locale & loc,
 	return simpleFormats[DNAM_INDEX];
 }
 
-UnicodeString LongNameHandler::getUnitPattern(const Locale & loc,
-    const MeasureUnit& unit,
-    UNumberUnitWidth width,
-    StandardPlural::Form pluralForm,
-    UErrorCode & status) {
+UnicodeString LongNameHandler::getUnitPattern(const Locale & loc, const MeasureUnit& unit, UNumberUnitWidth width, StandardPlural::Form pluralForm, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return ICU_Utility::makeBogusString();
 	}
@@ -1488,14 +1483,12 @@ UnicodeString LongNameHandler::getUnitPattern(const Locale & loc,
 		return ICU_Utility::makeBogusString();
 	}
 	// Now handle fallback from other plural forms to OTHER
-	return (!(simpleFormats[pluralForm]).isBogus()) ? simpleFormats[pluralForm] :
-	       simpleFormats[StandardPlural::Form::OTHER];
+	return (!(simpleFormats[pluralForm]).isBogus()) ? simpleFormats[pluralForm] : simpleFormats[StandardPlural::Form::OTHER];
 }
 
-LongNameHandler* LongNameHandler::forCurrencyLongNames(const Locale &loc, const CurrencyUnit &currency,
-    const PluralRules * rules,
-    const MicroPropsGenerator * parent,
-    UErrorCode & status) {
+LongNameHandler* LongNameHandler::forCurrencyLongNames(const Locale &loc, const CurrencyUnit &currency, const PluralRules * rules,
+    const MicroPropsGenerator * parent, UErrorCode & status) 
+{
 	auto* result = new LongNameHandler(rules, parent);
 	if(result == nullptr) {
 		status = U_MEMORY_ALLOCATION_ERROR;
@@ -1511,8 +1504,8 @@ LongNameHandler* LongNameHandler::forCurrencyLongNames(const Locale &loc, const 
 	return result;
 }
 
-void LongNameHandler::simpleFormatsToModifiers(const UnicodeString * simpleFormats, Field field,
-    UErrorCode & status) {
+void LongNameHandler::simpleFormatsToModifiers(const UnicodeString * simpleFormats, Field field, UErrorCode & status) 
+{
 	for(int32_t i = 0; i < StandardPlural::Form::COUNT; i++) {
 		StandardPlural::Form plural = static_cast<StandardPlural::Form>(i);
 		UnicodeString simpleFormat = getWithPlural(simpleFormats, plural, status);
@@ -1528,7 +1521,8 @@ void LongNameHandler::simpleFormatsToModifiers(const UnicodeString * simpleForma
 }
 
 void LongNameHandler::multiSimpleFormatsToModifiers(const UnicodeString * leadFormats, UnicodeString trailFormat,
-    Field field, UErrorCode & status) {
+    Field field, UErrorCode & status) 
+{
 	SimpleFormatter trailCompiled(trailFormat, 1, 1, status);
 	if(U_FAILURE(status)) {
 		return;

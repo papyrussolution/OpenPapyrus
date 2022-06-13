@@ -441,7 +441,7 @@ again:
 		__db_errx(env, DB_STR("1583", "block not at end of region"));
 		return __env_panic(env, EINVAL);
 	}
-	if(len == 0)
+	if(!len)
 		goto done;
 	if((ret = __env_region_extend(env, infop)) != 0) {
 		if(ret != ENOMEM)

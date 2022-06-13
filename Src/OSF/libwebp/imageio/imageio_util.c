@@ -116,7 +116,7 @@ int ImgIoUtilWriteFile(const char* const file_name, const uint8* data, size_t da
 	int ok;
 	FILE* out;
 	const int to_stdout = (file_name == NULL) || !WSTRCMP(file_name, "-");
-	if(data == NULL) {
+	if(!data) {
 		return 0;
 	}
 	out = to_stdout ? ImgIoUtilSetBinaryMode(stdout) : WFOPEN(file_name, "wb");

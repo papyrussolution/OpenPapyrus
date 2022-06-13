@@ -21,7 +21,7 @@ __FBSDID("$FreeBSD$");
 static int cmdline_set_path(struct archive_cmdline *, const char *);
 static int cmdline_add_arg(struct archive_cmdline *, const char *);
 
-static ssize_t extract_quotation(struct archive_string * as, const char * p)
+static ssize_t extract_quotation(archive_string * as, const char * p)
 {
 	const char * s;
 	for(s = p + 1; *s;) {
@@ -45,7 +45,7 @@ static ssize_t extract_quotation(struct archive_string * as, const char * p)
 	return ((ssize_t)(s + 1 - p));
 }
 
-static ssize_t get_argument(struct archive_string * as, const char * p)
+static ssize_t get_argument(archive_string * as, const char * p)
 {
 	const char * s = p;
 	archive_string_empty(as);
@@ -87,7 +87,7 @@ static ssize_t get_argument(struct archive_string * as, const char * p)
  */
 int __archive_cmdline_parse(struct archive_cmdline * data, const char * cmd)
 {
-	struct archive_string as;
+	archive_string as;
 	const char * p;
 	ssize_t al;
 	int r;

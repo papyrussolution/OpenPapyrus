@@ -66,18 +66,15 @@ struct ae_digest {
  *
  * TODO: Design a good API for handling sparse files.
  */
-struct archive_entry {
-	struct archive *archive;
-
+struct ArchiveEntry {
+	Archive * archive;
 	/*
 	 * Note that ae_stat.st_mode & AE_IFMT  can be  0!
 	 *
 	 * This occurs when the actual file type of the object is not
 	 * in the archive.  For example, 'tar' archives store
-	 * hardlinks without marking the type of the underlying
-	 * object.
+	 * hardlinks without marking the type of the underlying object.
 	 */
-
 	/*
 	 * We have a "struct aest" for holding file metadata rather than just
 	 * a "struct stat" because on some platforms the "struct stat" has
@@ -157,7 +154,7 @@ struct archive_entry {
 	void * mac_metadata;
 	size_t mac_metadata_size;
 	struct ae_digest digest; /* Digest support. */
-	struct archive_acl    acl; /* ACL support. */
+	archive_acl    acl; /* ACL support. */
 	/* extattr support. */
 	struct ae_xattr *xattr_head;
 	struct ae_xattr *xattr_p;
@@ -169,6 +166,6 @@ struct archive_entry {
 	int    ae_symlink_type; /* Symlink type support */
 };
 
-int archive_entry_set_digest(struct archive_entry *entry, int type, const uchar *digest);
+int archive_entry_set_digest(ArchiveEntry *entry, int type, const uchar *digest);
 
 #endif /* ARCHIVE_ENTRY_PRIVATE_H_INCLUDED */

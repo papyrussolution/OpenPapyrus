@@ -554,22 +554,17 @@ UnicodeString &TZGNCore::formatGenericNonLocationName(const TimeZone& tz, UTimeZ
 		bool useStandard = FALSE;
 		int32_t raw, sav;
 		UChar tmpNameBuf[ZONE_NAME_U16_MAX];
-
 		tz.getOffset(date, FALSE, raw, sav, status);
 		if(U_FAILURE(status)) {
 			return name;
 		}
-
 		if(sav == 0) {
 			useStandard = TRUE;
-
 			TimeZone * tmptz = tz.clone();
 			// Check if the zone actually uses daylight saving time around the time
 			BasicTimeZone * btz = NULL;
-			if(dynamic_cast<OlsonTimeZone *>(tmptz) != NULL
-			 || dynamic_cast<SimpleTimeZone *>(tmptz) != NULL
-			 || dynamic_cast<RuleBasedTimeZone *>(tmptz) != NULL
-			 || dynamic_cast<VTimeZone *>(tmptz) != NULL) {
+			if(dynamic_cast<OlsonTimeZone *>(tmptz) != NULL || dynamic_cast<SimpleTimeZone *>(tmptz) != NULL || 
+				dynamic_cast<RuleBasedTimeZone *>(tmptz) != NULL || dynamic_cast<VTimeZone *>(tmptz) != NULL) {
 				btz = (BasicTimeZone*)tmptz;
 			}
 

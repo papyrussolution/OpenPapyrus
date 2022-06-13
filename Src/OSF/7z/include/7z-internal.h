@@ -8691,7 +8691,7 @@ namespace NArchive {
 					}
 					p += cl;
 					len -= cl;
-					if(len == 0)
+					if(!len)
 						break;
 					if(needSlash)
 						link += '/';

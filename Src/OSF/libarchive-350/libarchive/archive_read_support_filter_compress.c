@@ -92,42 +92,42 @@ struct private_data {
 	uchar stack[65300];
 };
 
-static int compress_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
-static int compress_bidder_init(struct archive_read_filter *);
-static int compress_bidder_free(struct archive_read_filter_bidder *);
-static ssize_t  compress_filter_read(struct archive_read_filter *, const void **);
-static int compress_filter_close(struct archive_read_filter *);
-static int getbits(struct archive_read_filter *, int n);
-static int next_code(struct archive_read_filter *);
+static int compress_bidder_bid(ArchiveReadFilterBidder *, ArchiveReadFilter *);
+static int compress_bidder_init(ArchiveReadFilter *);
+static int compress_bidder_free(ArchiveReadFilterBidder *);
+static ssize_t  compress_filter_read(ArchiveReadFilter *, const void **);
+static int compress_filter_close(ArchiveReadFilter *);
+static int getbits(ArchiveReadFilter *, int n);
+static int next_code(ArchiveReadFilter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Deprecated; remove in libarchive 4.0 */
-int archive_read_support_compression_compress(struct archive * a)
+int archive_read_support_compression_compress(Archive * a)
 {
 	return archive_read_support_filter_compress(a);
 }
 #endif
 
-int archive_read_support_filter_compress(struct archive * _a)
+int archive_read_support_filter_compress(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
-	struct archive_read_filter_bidder * bidder;
+	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveReadFilterBidder * bidder;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	bidder->data = NULL;
 	bidder->name = "compress (.Z)";
-	bidder->bid = compress_bidder_bid;
-	bidder->init = compress_bidder_init;
-	bidder->options = NULL;
-	bidder->free = compress_bidder_free;
+	bidder->FnBid = compress_bidder_bid;
+	bidder->FnInit = compress_bidder_init;
+	bidder->FnOptions = NULL;
+	bidder->FnFree = compress_bidder_free;
 	return ARCHIVE_OK;
 }
 /*
  * Test whether we can handle this data.
  * This logic returns zero if any part of the signature fails.
  */
-static int compress_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
+static int compress_bidder_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * filter)
 {
 	const uchar * buffer;
 	ssize_t avail;
@@ -153,7 +153,7 @@ static int compress_bidder_bid(struct archive_read_filter_bidder * self, struct 
 /*
  * Setup the callbacks.
  */
-static int compress_bidder_init(struct archive_read_filter * self)
+static int compress_bidder_init(ArchiveReadFilter * self)
 {
 	struct private_data * state;
 	static const size_t out_block_size = 64 * 1024;
@@ -206,7 +206,7 @@ static int compress_bidder_init(struct archive_read_filter * self)
  * Return a block of data from the decompression buffer.  Decompress more
  * as necessary.
  */
-static ssize_t compress_filter_read(struct archive_read_filter * self, const void ** pblock)
+static ssize_t compress_filter_read(ArchiveReadFilter * self, const void ** pblock)
 {
 	uchar * p, * start, * end;
 	int ret;
@@ -238,7 +238,7 @@ static ssize_t compress_filter_read(struct archive_read_filter * self, const voi
 /*
  * Clean up the reader.
  */
-static int compress_bidder_free(struct archive_read_filter_bidder * self)
+static int compress_bidder_free(ArchiveReadFilterBidder * self)
 {
 	self->data = NULL;
 	return ARCHIVE_OK;
@@ -247,7 +247,7 @@ static int compress_bidder_free(struct archive_read_filter_bidder * self)
 /*
  * Close and release the filter.
  */
-static int compress_filter_close(struct archive_read_filter * self)
+static int compress_filter_close(ArchiveReadFilter * self)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	SAlloc::F(state->out_block);
@@ -260,7 +260,7 @@ static int compress_filter_close(struct archive_read_filter * self)
  * of the code.  Returns ARCHIVE_FATAL if there is a fatal I/O or
  * format error, ARCHIVE_EOF if we hit end of data, ARCHIVE_OK otherwise.
  */
-static int next_code(struct archive_read_filter * self)
+static int next_code(ArchiveReadFilter * self)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	int code, newcode;
@@ -340,7 +340,7 @@ static int next_code(struct archive_read_filter * self)
  *
  * -1 indicates end of available data.
  */
-static int getbits(struct archive_read_filter * self, int n)
+static int getbits(ArchiveReadFilter * self, int n)
 {
 	struct private_data * state = (struct private_data *)self->data;
 	int code;

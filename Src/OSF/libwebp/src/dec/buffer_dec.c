@@ -288,22 +288,16 @@ VP8StatusCode WebPCopyDecBufferPixels(const WebPDecBuffer* const src_buf, WebPDe
 	if(WebPIsRGBMode(src_buf->colorspace)) {
 		const WebPRGBABuffer* const src = &src_buf->u.RGBA;
 		const WebPRGBABuffer* const dst = &dst_buf->u.RGBA;
-		WebPCopyPlane(src->rgba, src->stride, dst->rgba, dst->stride,
-		    src_buf->width * kModeBpp[src_buf->colorspace],
-		    src_buf->height);
+		WebPCopyPlane(src->rgba, src->stride, dst->rgba, dst->stride, src_buf->width * kModeBpp[src_buf->colorspace], src_buf->height);
 	}
 	else {
 		const WebPYUVABuffer* const src = &src_buf->u.YUVA;
 		const WebPYUVABuffer* const dst = &dst_buf->u.YUVA;
-		WebPCopyPlane(src->y, src->y_stride, dst->y, dst->y_stride,
-		    src_buf->width, src_buf->height);
-		WebPCopyPlane(src->u, src->u_stride, dst->u, dst->u_stride,
-		    (src_buf->width + 1) / 2, (src_buf->height + 1) / 2);
-		WebPCopyPlane(src->v, src->v_stride, dst->v, dst->v_stride,
-		    (src_buf->width + 1) / 2, (src_buf->height + 1) / 2);
+		WebPCopyPlane(src->y, src->y_stride, dst->y, dst->y_stride, src_buf->width, src_buf->height);
+		WebPCopyPlane(src->u, src->u_stride, dst->u, dst->u_stride, (src_buf->width + 1) / 2, (src_buf->height + 1) / 2);
+		WebPCopyPlane(src->v, src->v_stride, dst->v, dst->v_stride, (src_buf->width + 1) / 2, (src_buf->height + 1) / 2);
 		if(WebPIsAlphaMode(src_buf->colorspace)) {
-			WebPCopyPlane(src->a, src->a_stride, dst->a, dst->a_stride,
-			    src_buf->width, src_buf->height);
+			WebPCopyPlane(src->a, src->a_stride, dst->a, dst->a_stride, src_buf->width, src_buf->height);
 		}
 	}
 	return VP8_STATUS_OK;

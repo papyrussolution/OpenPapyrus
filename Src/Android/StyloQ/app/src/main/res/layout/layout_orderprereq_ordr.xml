@@ -20,67 +20,87 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-                <LinearLayout
+                <ImageView
+                    android:id="@+id/CTL_DOCUMENT_STATUSICON"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:src="@drawable/ic_info01">
+                </ImageView>
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/CTLLBL_DOCUMENT_CODE"
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:layout_marginRight="16dp"
-                        android:text="@{billno}"
-                        />
-                    <TextView
-                        android:id="@+id/CTL_DOCUMENT_CODE"
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:layout_weight="1"
-                        android:textColor="@color/TextPrimary"
-                        />
-                </LinearLayout>
-                <LinearLayout
                     android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/CTLLBL_DOCUMENT_DATE"
+                    android:orientation="horizontal">
+                    <LinearLayout style="@style/TextWithLabel"
                         android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:layout_marginRight="16dp"
-                        android:text="@{billdate}"
-                        />
-                    <TextView
-                        android:id="@+id/CTL_DOCUMENT_DATE"
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_weight="1"
-                        android:textColor="@color/TextPrimary"
-                        />
+                        android:orientation="vertical">
+                        <TextView style="@style/FormLabelText"
+                            android:id="@+id/CTLLBL_DOCUMENT_CODE"
+                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:layout_marginRight="16dp"
+                            android:text="@{billno}"
+                            />
+                        <TextView style="@style/FormText"
+                            android:id="@+id/CTL_DOCUMENT_CODE"
+                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:layout_weight="1"
+                            />
+                    </LinearLayout>
+                    <LinearLayout style="@style/TextWithLabel"
+                        android:layout_height="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView style="@style/FormLabelText"
+                            android:id="@+id/CTLLBL_DOCUMENT_DATE"
+                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:layout_marginRight="16dp"
+                            android:text="@{billdate}"
+                            />
+                        <TextView style="@style/FormText"
+                            android:id="@+id/CTL_DOCUMENT_DATE"
+                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:layout_weight="1"
+                            />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout
-                android:id="@+id/CTLGRP_DOCUMENT_CLI"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/CTL_DOCUMENT_CLI"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/CTL_DOCUMENT_BACK_CLI"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:textColor="@color/TextPrimary"
-                    />
-                <TextView
-                    android:id="@+id/CTL_DOCUMENT_DLVRLOC"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_arrowback">
+                </ImageView>
+                <LinearLayout
+                    android:id="@+id/CTLGRP_DOCUMENT_CLI"
                     android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:textColor="@color/TextPrimary"
-                    />
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView style="@style/FormText"
+                        android:id="@+id/CTL_DOCUMENT_CLI"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        />
+                    <TextView style="@style/FormText"
+                        android:id="@+id/CTL_DOCUMENT_DLVRLOC"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        />
+                </LinearLayout>
             </LinearLayout>
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/InputLine"
+            <com.google.android.material.textfield.TextInputLayout style="@style/InputLine"
                 android:id="@+id/CTL_DOCUMENT_MEMO"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -114,8 +134,10 @@
                 android:orientation="horizontal">
                 <Button style="@style/PushButton" android:id="@+id/STDCTL_COMMITBUTTON"
                     android:text="@{but_ok}" />
+                <Button style="@style/PushButton" android:id="@+id/STDCTL_CANCELBUTTON"
+                    android:text="@{but_cancel}" />
                 <View style="@style/FakeView"/>
-                <TextView
+                <TextView style="@style/FormText"
                     android:id="@+id/CTL_DOCUMENT_AMOUNT"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"

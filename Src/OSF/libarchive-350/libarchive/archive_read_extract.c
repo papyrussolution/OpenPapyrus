@@ -17,10 +17,10 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_extract.c,v 1.61 2008/05/26 
 
 #include "archive_read_private.h"
 
-int archive_read_extract(struct archive * _a, struct archive_entry * entry, int flags)
+int archive_read_extract(Archive * _a, ArchiveEntry * entry, int flags)
 {
 	struct archive_read_extract * extract;
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	extract = __archive_read_get_extract(a);
 	if(extract == NULL)
 		return ARCHIVE_FATAL;

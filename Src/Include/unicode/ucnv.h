@@ -1,23 +1,16 @@
+// ucnv.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 1999-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *  ucnv.h:
- *  External APIs for the ICU's codeset conversion library
- *  Bertrand A. Damiba
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   04/04/99    helena      Fixed internal header inclusion.
- *   05/11/00    helena      Added setFallback and usesFallback APIs.
- *   06/29/2000  helena      Major rewrite of the callback APIs.
- *   12/07/2000  srl         Update of documentation
- */
-
+// Copyright (C) 1999-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// External APIs for the ICU's codeset conversion library
+// Bertrand A. Damiba
+// Modification History:
+//   Date        Name        Description
+//   04/04/99    helena      Fixed internal header inclusion.
+//   05/11/00    helena      Added setFallback and usesFallback APIs.
+//   06/29/2000  helena      Major rewrite of the callback APIs.
+//   12/07/2000  srl         Update of documentation
+// 
 /**
  * \file
  * \brief C API: Character conversion
@@ -98,44 +91,25 @@ typedef enum {
 	UCNV_MBCS = 2, /** @stable ICU 2.0 */
 	UCNV_LATIN_1 = 3, /** @stable ICU 2.0 */
 	UCNV_UTF8 = 4, /** @stable ICU 2.0 */
-	/** @stable ICU 2.0 */
-	UCNV_UTF16_BigEndian = 5,
-	/** @stable ICU 2.0 */
-	UCNV_UTF16_LittleEndian = 6,
-	/** @stable ICU 2.0 */
-	UCNV_UTF32_BigEndian = 7,
-	/** @stable ICU 2.0 */
-	UCNV_UTF32_LittleEndian = 8,
-	/** @stable ICU 2.0 */
-	UCNV_EBCDIC_STATEFUL = 9,
-	/** @stable ICU 2.0 */
-	UCNV_ISO_2022 = 10,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_1 = 11,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_2,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_3,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_4,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_5,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_6,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_8,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_11,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_16,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_17,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_18,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_19,
-	/** @stable ICU 2.0 */
-	UCNV_LMBCS_LAST = UCNV_LMBCS_19,
+	UCNV_UTF16_BigEndian = 5, /** @stable ICU 2.0 */
+	UCNV_UTF16_LittleEndian = 6, /** @stable ICU 2.0 */
+	UCNV_UTF32_BigEndian = 7, /** @stable ICU 2.0 */
+	UCNV_UTF32_LittleEndian = 8, /** @stable ICU 2.0 */
+	UCNV_EBCDIC_STATEFUL = 9, /** @stable ICU 2.0 */
+	UCNV_ISO_2022 = 10, /** @stable ICU 2.0 */
+	UCNV_LMBCS_1 = 11, /** @stable ICU 2.0 */
+	UCNV_LMBCS_2, /** @stable ICU 2.0 */
+	UCNV_LMBCS_3, /** @stable ICU 2.0 */
+	UCNV_LMBCS_4, /** @stable ICU 2.0 */
+	UCNV_LMBCS_5, /** @stable ICU 2.0 */
+	UCNV_LMBCS_6, /** @stable ICU 2.0 */
+	UCNV_LMBCS_8, /** @stable ICU 2.0 */
+	UCNV_LMBCS_11, /** @stable ICU 2.0 */
+	UCNV_LMBCS_16, /** @stable ICU 2.0 */
+	UCNV_LMBCS_17, /** @stable ICU 2.0 */
+	UCNV_LMBCS_18, /** @stable ICU 2.0 */
+	UCNV_LMBCS_19, /** @stable ICU 2.0 */
+	UCNV_LMBCS_LAST = UCNV_LMBCS_19, /** @stable ICU 2.0 */
 	/** @stable ICU 2.0 */
 	UCNV_HZ,
 	/** @stable ICU 2.0 */
@@ -192,14 +166,8 @@ typedef enum {
  * @see UConverterToUnicodeArgs
  * @stable ICU 2.0
  */
-typedef void (U_EXPORT2 *UConverterToUCallback)(
-	const void * context,
-	UConverterToUnicodeArgs * args,
-	const char * codeUnits,
-	int32_t length,
-	UConverterCallbackReason reason,
-	UErrorCode * pErrorCode);
-
+typedef void (U_EXPORT2 *UConverterToUCallback)(const void * context, UConverterToUnicodeArgs * args, const char * codeUnits,
+	int32_t length, UConverterCallbackReason reason, UErrorCode * pErrorCode);
 /**
  * Function pointer for error callback in the unicode to codepage direction.
  * Called when an error has occurred in conversion from unicode, or on open/close of the callback (see reason).
@@ -215,14 +183,8 @@ typedef void (U_EXPORT2 *UConverterToUCallback)(
  * @see ucnv_setFromUCallBack
  * @stable ICU 2.0
  */
-typedef void (U_EXPORT2 *UConverterFromUCallback)(
-	const void * context,
-	UConverterFromUnicodeArgs * args,
-	const UChar * codeUnits,
-	int32_t length,
-	UChar32 codePoint,
-	UConverterCallbackReason reason,
-	UErrorCode * pErrorCode);
+typedef void (U_EXPORT2 *UConverterFromUCallback)(const void * context, UConverterFromUnicodeArgs * args, const UChar * codeUnits, int32_t length, UChar32 codePoint,
+	UConverterCallbackReason reason, UErrorCode * pErrorCode);
 
 U_CDECL_END
 

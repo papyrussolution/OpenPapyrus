@@ -485,7 +485,9 @@
 /* #undef HAVE_WORKING_EXT2_IOC_GETFLAGS */ /* Define to 1 if you have a working EXT2_IOC_GETFLAGS */
 /* #undef HAVE_WORKING_FS_IOC_GETFLAGS */ /* Define to 1 if you have a working FS_IOC_GETFLAGS */
 #define HAVE_ZLIB_H 1 // Define to 1 if you have the <zlib.h> header file. 
-#define HAVE_ZSTD_H 1 // @v11.3.11 Define to 1 if you have the <zstd.h> header file.
+#if _MSC_VER >= 1900
+	#define HAVE_ZSTD_H 1 // @v11.3.11 Define to 1 if you have the <zstd.h> header file.
+#endif
 /* #undef HAVE__CTIME64_S */ /* Define to 1 if you have the `_ctime64_s' function. */
 /* #undef HAVE__FSEEKI64 */ /* Define to 1 if you have the `_fseeki64' function. */
 /* #undef HAVE__GET_TIMEZONE */ /* Define to 1 if you have the `_get_timezone' function. */

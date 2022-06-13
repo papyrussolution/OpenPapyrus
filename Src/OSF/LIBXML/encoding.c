@@ -1820,7 +1820,7 @@ int xmlCharEncInFunc(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffe
 	int toconv;
 	if(handler == NULL)
 		return -1;
-	if(out == NULL)
+	if(!out)
 		return -1;
 	if(!in)
 		return -1;

@@ -259,7 +259,7 @@ static uint32_t U_CALLCONV pointerTOCEntryCount(const UDataMemory * pData)
 static const DataHeader * U_CALLCONV pointerTOCLookupFn(const UDataMemory * pData, const char * name, int32_t * pLength, UErrorCode * pErrorCode) 
 {
 	(void)pErrorCode;
-	if(pData->toc!=NULL) {
+	if(pData->toc != NULL) {
 		const PointerTOC * toc = (PointerTOC*)pData->toc;
 		int32_t number, count = (int32_t)toc->count;
 #if defined (UDATA_DEBUG_DUMP)

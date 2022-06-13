@@ -195,7 +195,7 @@ WebPMux* WebPMuxCreateInternal(const WebPData* bitstream, int copy_data,
 	data = bitstream->bytes;
 	size = bitstream->size;
 
-	if(data == NULL) return NULL;
+	if(!data) return NULL;
 	if(size < RIFF_HEADER_SIZE + CHUNK_HEADER_SIZE) return NULL;
 	if(GetLE32(data + 0) != MKFOURCC('R', 'I', 'F', 'F') ||
 	    GetLE32(data + CHUNK_HEADER_SIZE) != MKFOURCC('W', 'E', 'B', 'P')) {
@@ -399,7 +399,7 @@ static WebPMuxError SynthesizeBitstream(const WebPMuxImage* const wpi,
 	const size_t size = RIFF_HEADER_SIZE + vp8x_size + alpha_size +
 	    ChunkDiskSize(wpi->img_);
 	uint8* const data = (uint8*)WebPSafeMalloc(1ULL, size);
-	if(data == NULL) return WEBP_MUX_MEMORY_ERROR;
+	if(!data) return WEBP_MUX_MEMORY_ERROR;
 
 	// There should be at most one alpha_ chunk and exactly one img_ chunk.
 	assert(wpi->alpha_ == NULL || wpi->alpha_->next_ == NULL);

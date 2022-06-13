@@ -25,7 +25,7 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_read_data_into_fd.c,v 1.16 2008/0
 /*
  * This implementation minimizes copying of data and is sparse-file aware.
  */
-static int pad_to(struct archive * a, int fd, int can_lseek, size_t nulls_size, const char * nulls, int64 target_offset, int64 actual_offset)
+static int pad_to(Archive * a, int fd, int can_lseek, size_t nulls_size, const char * nulls, int64 target_offset, int64 actual_offset)
 {
 	size_t to_write;
 	ssize_t bytes_written;
@@ -51,7 +51,7 @@ static int pad_to(struct archive * a, int fd, int can_lseek, size_t nulls_size, 
 	return ARCHIVE_OK;
 }
 
-int archive_read_data_into_fd(struct archive * a, int fd)
+int archive_read_data_into_fd(Archive * a, int fd)
 {
 	struct stat st;
 	int r, r2;

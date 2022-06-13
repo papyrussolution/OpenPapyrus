@@ -1927,6 +1927,7 @@
 #define cmPeriodReset            1189 // @v11.2.4 Кнопка сброса периода в календарях
 #define cmTree                   1190 // @v11.2.11 Кнопка для просмотра древовидной структуры объекта (пока для товарных структур)
 #define cmSelectProcessors       1191 // @v11.3.4  Кнопка выбора списка процессоров
+#define cmToggleAllOrOwnOnly     1192 // @v11.4.1  Переключение отображения все/только свои (пока для товарных корзин) 
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -5539,6 +5540,7 @@
 	#define CTL_GBTRUC_VOLUME            (13 + WINDOWS_ID_BIAS)
 	#define CTL_GBTRUC_ID                (14 + WINDOWS_ID_BIAS)
 	#define CTL_GBTRUC_PRIVATE           (15 + WINDOWS_ID_BIAS)
+	#define CTL_GBTRUC_USER              (16 + WINDOWS_ID_BIAS) // @v11.4.1 read-only user-name
 #define DLG_GBITEM                501   // Элемент корзины товаров
 	#define cmShowBasket                 104
 	#define cmPrognosis                  105

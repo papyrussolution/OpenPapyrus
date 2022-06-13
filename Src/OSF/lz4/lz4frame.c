@@ -282,7 +282,7 @@ size_t LZ4F_compressFrameBound(size_t srcSize, const LZ4F_preferences_t* prefere
 {
     LZ4F_preferences_t prefs;
     const size_t headerSize = maxFHSize; /* max header size, including optional fields */
-    if(preferencesPtr!=NULL) 
+    if(preferencesPtr != NULL) 
 		prefs = *preferencesPtr;
     else 
 		memzero(&prefs, sizeof(prefs));
@@ -307,7 +307,7 @@ size_t LZ4F_compressFrame_usingCDict(LZ4F_cctx* cctx, void * dstBuffer, size_t d
     uint8 * const dstStart = (uint8 *) dstBuffer;
     uint8 * dstPtr = dstStart;
     uint8 * const dstEnd = dstStart + dstCapacity;
-    if(preferencesPtr!=NULL)
+    if(preferencesPtr != NULL)
         prefs = *preferencesPtr;
     else
         memzero(&prefs, sizeof(prefs));
@@ -1463,7 +1463,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* dstSizePtr,
                     dctx->tmpOut = dctx->tmpOutBuffer + dctx->dictSize;
                 } 
 				else {  /* dict not within tmp */
-                    const size_t reservedDictSpace = MIN(dctx->dictSize, SKILOBYTE(64));
+                    const size_t reservedDictSpace = MIN(dctx->dictSize, static_cast<size_t>(SKILOBYTE(64)));
                     dctx->tmpOut = dctx->tmpOutBuffer + reservedDictSpace;
                 }   
             }
@@ -1629,7 +1629,7 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* dstSizePtr,
         } 
 		else {
             const uint8 * const oldDictEnd = dctx->dict + dctx->dictSize;
-            const size_t newDictSize = MIN(dctx->dictSize, SKILOBYTE(64));
+            const size_t newDictSize = MIN(dctx->dictSize, static_cast<size_t>(SKILOBYTE(64)));
             if(newDictSize > 0)
                 memcpy(dctx->tmpOutBuffer, oldDictEnd - newDictSize, newDictSize);
             dctx->dict = dctx->tmpOutBuffer;

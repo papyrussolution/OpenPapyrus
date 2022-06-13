@@ -22,10 +22,9 @@
 
 /* --- Error management --- */
 uint HIST_isError(size_t code) { return ERR_isError(code); }
-
-/*-**************************************************************
-*  Histogram functions
-****************************************************************/
+// 
+// Histogram functions
+// 
 uint HIST_count_simple(uint * count, uint * maxSymbolValuePtr, const void * src, size_t srcSize)
 {
 	const BYTE * ip = (const BYTE *)src;

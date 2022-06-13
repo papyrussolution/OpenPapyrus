@@ -44,7 +44,7 @@ __FBSDID("$FreeBSD$");
  *   o bzlib2 (option)
  *   o liblzma (option)
  */
-int archive_write_set_format_xar(struct archive * _a)
+int archive_write_set_format_xar(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Xar not supported on this platform");
@@ -83,12 +83,13 @@ enum enctype {
 
 struct chksumwork {
 	enum sumalg alg;
-#ifdef ARCHIVE_HAS_MD5
-	archive_md5_ctx md5ctx;
-#endif
-#ifdef ARCHIVE_HAS_SHA1
-	archive_sha1_ctx sha1ctx;
-#endif
+	SlHash::State HCtx; // @sobolev
+//#ifdef ARCHIVE_HAS_MD5
+	//archive_md5_ctx md5ctx;
+//#endif
+//#ifdef ARCHIVE_HAS_SHA1
+	//archive_sha1_ctx sha1ctx;
+//#endif
 };
 
 enum la_zaction {
@@ -110,10 +111,10 @@ struct la_zstream {
 
 	int valid;
 	void                    * real_stream;
-	int (* code) (struct archive * a,
+	int (* code) (Archive * a,
 	    struct la_zstream * lastrm,
 	    enum la_zaction action);
-	int (* end)(struct archive * a,
+	int (* end)(Archive * a,
 	    struct la_zstream * lastrm);
 };
 
@@ -137,7 +138,7 @@ struct heap_data {
 struct file {
 	struct archive_rb_node rbnode;
 	int id;
-	struct archive_entry    * entry;
+	ArchiveEntry    * entry;
 	struct archive_rb_tree rbtree;
 	struct file             * next;
 	struct file             * chnext;
@@ -156,9 +157,9 @@ struct file {
 	}                        children;
 
 	/* For making a directory tree. */
-	struct archive_string parentdir;
-	struct archive_string basename;
-	struct archive_string symlink;
+	archive_string parentdir;
+	archive_string basename;
+	archive_string symlink;
 
 	int ea_idx;
 	struct {
@@ -167,7 +168,7 @@ struct file {
 	} xattr;
 
 	struct heap_data data;
-	struct archive_string script;
+	archive_string script;
 
 	signed int IsVirtual : 1;
 	signed int dir : 1;
@@ -189,11 +190,11 @@ struct xar {
 	int file_idx;
 	struct file             * root;
 	struct file             * cur_dirent;
-	struct archive_string cur_dirstr;
+	archive_string cur_dirstr;
 	struct file             * cur_file;
 	uint64 bytes_remaining;
-	struct archive_string tstr;
-	struct archive_string vstr;
+	archive_string tstr;
+	archive_string vstr;
 
 	enum sumalg opt_toc_sumalg;
 	enum sumalg opt_sumalg;
@@ -204,7 +205,7 @@ struct xar {
 	struct chksumwork a_sumwrk; /* archived checksum.	*/
 	struct chksumwork e_sumwrk; /* extracted checksum.	*/
 	struct la_zstream stream;
-	struct archive_string_conv * sconv;
+	archive_string_conv * sconv;
 	/*
 	 * Compressed data buffer.
 	 */
@@ -230,13 +231,13 @@ struct xar {
 };
 
 static int xar_options(struct archive_write *, const char *, const char *);
-static int xar_write_header(struct archive_write *, struct archive_entry *);
+static int xar_write_header(struct archive_write *, ArchiveEntry *);
 static ssize_t  xar_write_data(struct archive_write *, const void *, size_t);
 static int xar_finish_entry(struct archive_write *);
 static int xar_close(struct archive_write *);
 static int xar_free(struct archive_write *);
 
-static struct file * file_new(struct archive_write * a, struct archive_entry *);
+static struct file * file_new(struct archive_write * a, ArchiveEntry *);
 static void     file_free(struct file *);
 static struct file * file_create_virtual_dir(struct archive_write * a, struct xar *, const char *);
 static int file_add_child_tail(struct file *, struct file *);
@@ -255,28 +256,28 @@ static void     file_free_hardlinks(struct xar *);
 static void     checksum_init(struct chksumwork *, enum sumalg);
 static void     checksum_update(struct chksumwork *, const void *, size_t);
 static void     checksum_final(struct chksumwork *, struct chksumval *);
-static int compression_init_encoder_gzip(struct archive *, struct la_zstream *, int, int);
-static int compression_code_gzip(struct archive *, struct la_zstream *, enum la_zaction);
-static int compression_end_gzip(struct archive *, struct la_zstream *);
-static int compression_init_encoder_bzip2(struct archive *, struct la_zstream *, int);
+static int compression_init_encoder_gzip(Archive *, struct la_zstream *, int, int);
+static int compression_code_gzip(Archive *, struct la_zstream *, enum la_zaction);
+static int compression_end_gzip(Archive *, struct la_zstream *);
+static int compression_init_encoder_bzip2(Archive *, struct la_zstream *, int);
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
-static int compression_code_bzip2(struct archive *, struct la_zstream *, enum la_zaction);
-static int compression_end_bzip2(struct archive *, struct la_zstream *);
+static int compression_code_bzip2(Archive *, struct la_zstream *, enum la_zaction);
+static int compression_end_bzip2(Archive *, struct la_zstream *);
 #endif
-static int compression_init_encoder_lzma(struct archive *, struct la_zstream *, int);
-static int compression_init_encoder_xz(struct archive *, struct la_zstream *, int, int);
+static int compression_init_encoder_lzma(Archive *, struct la_zstream *, int);
+static int compression_init_encoder_xz(Archive *, struct la_zstream *, int, int);
 #if defined(HAVE_LZMA_H)
-static int compression_code_lzma(struct archive *, struct la_zstream *, enum la_zaction);
-static int compression_end_lzma(struct archive *, struct la_zstream *);
+static int compression_code_lzma(Archive *, struct la_zstream *, enum la_zaction);
+static int compression_end_lzma(Archive *, struct la_zstream *);
 #endif
 static int xar_compression_init_encoder(struct archive_write *);
-static int compression_code(struct archive *, struct la_zstream *, enum la_zaction);
-static int compression_end(struct archive *, struct la_zstream *);
+static int compression_code(Archive *, struct la_zstream *, enum la_zaction);
+static int compression_end(Archive *, struct la_zstream *);
 static int save_xattrs(struct archive_write *, struct file *);
 static int getalgsize(enum sumalg);
 static const char * getalgname(enum sumalg);
 
-int archive_write_set_format_xar(struct archive * _a)
+int archive_write_set_format_xar(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct xar * xar;
@@ -435,10 +436,10 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 	return ARCHIVE_WARN;
 }
 
-static int xar_write_header(struct archive_write * a, struct archive_entry * entry)
+static int xar_write_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	struct file * file;
-	struct archive_entry * file_entry;
+	ArchiveEntry * file_entry;
 	int r, r2;
 	struct xar * xar = (struct xar *)a->format_data;
 	xar->cur_file = NULL;
@@ -979,7 +980,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 {
 	struct xar * xar;
 	const char * filetype, * filelink, * fflags;
-	struct archive_string linkto;
+	archive_string linkto;
 	struct heap_data * heap;
 	uchar * tmp;
 	const char * p;
@@ -1608,7 +1609,7 @@ static int file_cmp_key(const struct archive_rb_node * n, const void * key)
 	return (strcmp(f->basename.s, (const char *)key));
 }
 
-static struct file * file_new(struct archive_write * a, struct archive_entry * entry)                       
+static struct file * file_new(struct archive_write * a, ArchiveEntry * entry)                       
 {
 	struct file * file;
 	static const struct archive_rb_tree_ops rb_ops = {
@@ -1903,7 +1904,7 @@ static int file_tree(struct archive_write * a, struct file ** filepp)
 #endif
 	struct xar * xar = (struct xar *)a->format_data;
 	struct file * np;
-	struct archive_entry * ent;
+	ArchiveEntry * ent;
 	const char * fn, * p;
 	int l;
 	struct file * file = *filepp;
@@ -1959,7 +1960,7 @@ static int file_tree(struct archive_write * a, struct file ** filepp)
 		 */
 		while(fn[0] != '\0') {
 			struct file * vp;
-			struct archive_string as;
+			archive_string as;
 			archive_string_init(&as);
 			archive_strncat(&as, p, fn - p + l);
 			if(as.s[as.length-1] == '/') {
@@ -2162,10 +2163,12 @@ static void checksum_init(struct chksumwork * sumwrk, enum sumalg sum_alg)
 		case CKSUM_NONE:
 		    break;
 		case CKSUM_SHA1:
-		    archive_sha1_init(&(sumwrk->sha1ctx));
+		    //archive_sha1_init(&(sumwrk->sha1ctx));
+			sumwrk->HCtx.Z();
 		    break;
 		case CKSUM_MD5:
-		    archive_md5_init(&(sumwrk->md5ctx));
+		    //archive_md5_init(&(sumwrk->md5ctx));
+			sumwrk->HCtx.Z();
 		    break;
 	}
 }
@@ -2176,10 +2179,12 @@ static void checksum_update(struct chksumwork * sumwrk, const void * buff, size_
 		case CKSUM_NONE:
 		    break;
 		case CKSUM_SHA1:
-		    archive_sha1_update(&(sumwrk->sha1ctx), buff, size);
+		    //archive_sha1_update(&(sumwrk->sha1ctx), buff, size);
+			SlHash::Sha1(&sumwrk->HCtx, buff, size);
 		    break;
 		case CKSUM_MD5:
-		    archive_md5_update(&(sumwrk->md5ctx), buff, size);
+		    //archive_md5_update(&(sumwrk->md5ctx), buff, size);
+			SlHash::Md5(&sumwrk->HCtx, buff, size);
 		    break;
 	}
 }
@@ -2191,29 +2196,36 @@ static void checksum_final(struct chksumwork * sumwrk, struct chksumval * sumval
 		    sumval->len = 0;
 		    break;
 		case CKSUM_SHA1:
-		    archive_sha1_final(&(sumwrk->sha1ctx), sumval->val);
-		    sumval->len = SHA1_SIZE;
+			{
+				//archive_sha1_final(&(sumwrk->sha1ctx), sumval->val);
+				binary160 hash = SlHash::Sha1(&sumwrk->HCtx, 0, 0);
+				memcpy(sumval->val, &hash, MIN(sizeof(hash), sizeof(sumval->val)));
+				sumval->len = SHA1_SIZE;
+			}
 		    break;
 		case CKSUM_MD5:
-		    archive_md5_final(&(sumwrk->md5ctx), sumval->val);
-		    sumval->len = MD5_SIZE;
+			{
+				//archive_md5_final(&(sumwrk->md5ctx), sumval->val);
+				binary128 hash = SlHash::Md5(&sumwrk->HCtx, 0, 0);
+				memcpy(sumval->val, &hash, MIN(sizeof(hash), sizeof(sumval->val)));
+				sumval->len = MD5_SIZE;
+			}
 		    break;
 	}
 	sumval->alg = sumwrk->alg;
 }
 
 #if !defined(HAVE_BZLIB_H) || !defined(BZ_CONFIG_ERROR) || !defined(HAVE_LZMA_H)
-static int compression_unsupported_encoder(struct archive * a, struct la_zstream * lastrm, const char * name)
+static int compression_unsupported_encoder(Archive * a, struct la_zstream * lastrm, const char * name)
 {
 	archive_set_error(a, ARCHIVE_ERRNO_MISC, "%s compression not supported on this platform", name);
 	lastrm->valid = 0;
 	lastrm->real_stream = NULL;
 	return ARCHIVE_FAILED;
 }
-
 #endif
 
-static int compression_init_encoder_gzip(struct archive * a, struct la_zstream * lastrm, int level, int withheader)
+static int compression_init_encoder_gzip(Archive * a, struct la_zstream * lastrm, int level, int withheader)
 {
 	z_stream * strm;
 	if(lastrm->valid)
@@ -2245,7 +2257,7 @@ static int compression_init_encoder_gzip(struct archive * a, struct la_zstream *
 	return ARCHIVE_OK;
 }
 
-static int compression_code_gzip(struct archive * a, struct la_zstream * lastrm, enum la_zaction action)
+static int compression_code_gzip(Archive * a, struct la_zstream * lastrm, enum la_zaction action)
 {
 	int r;
 	z_stream * strm = (z_stream*)lastrm->real_stream;
@@ -2277,7 +2289,7 @@ static int compression_code_gzip(struct archive * a, struct la_zstream * lastrm,
 	}
 }
 
-static int compression_end_gzip(struct archive * a, struct la_zstream * lastrm)
+static int compression_end_gzip(Archive * a, struct la_zstream * lastrm)
 {
 	z_stream * strm = (z_stream*)lastrm->real_stream;
 	int r = deflateEnd(strm);
@@ -2292,7 +2304,7 @@ static int compression_end_gzip(struct archive * a, struct la_zstream * lastrm)
 }
 
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
-static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream * lastrm, int level)
+static int compression_init_encoder_bzip2(Archive * a, struct la_zstream * lastrm, int level)
 {
 	bz_stream * strm;
 	if(lastrm->valid)
@@ -2326,7 +2338,7 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
 	return ARCHIVE_OK;
 }
 
-static int compression_code_bzip2(struct archive * a,
+static int compression_code_bzip2(Archive * a,
     struct la_zstream * lastrm, enum la_zaction action)
 {
 	bz_stream * strm;
@@ -2365,7 +2377,7 @@ static int compression_code_bzip2(struct archive * a,
 	}
 }
 
-static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
+static int compression_end_bzip2(Archive * a, struct la_zstream * lastrm)
 {
 	bz_stream * strm = (bz_stream*)lastrm->real_stream;
 	int r = BZ2_bzCompressEnd(strm);
@@ -2380,7 +2392,7 @@ static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
 }
 
 #else
-static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream * lastrm, int level)
+static int compression_init_encoder_bzip2(Archive * a, struct la_zstream * lastrm, int level)
 {
 	CXX_UNUSED(level);
 	if(lastrm->valid)
@@ -2390,7 +2402,7 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
 #endif
 
 #if defined(HAVE_LZMA_H)
-static int compression_init_encoder_lzma(struct archive * a, struct la_zstream * lastrm, int level)
+static int compression_init_encoder_lzma(Archive * a, struct la_zstream * lastrm, int level)
 {
 	static const lzma_stream lzma_init_data = LZMA_STREAM_INIT;
 	lzma_stream * strm;
@@ -2434,7 +2446,7 @@ static int compression_init_encoder_lzma(struct archive * a, struct la_zstream *
 	return r;
 }
 
-static int compression_init_encoder_xz(struct archive * a,
+static int compression_init_encoder_xz(Archive * a,
     struct la_zstream * lastrm, int level, int threads)
 {
 	static const lzma_stream lzma_init_data = LZMA_STREAM_INIT;
@@ -2503,7 +2515,7 @@ static int compression_init_encoder_xz(struct archive * a,
 	return r;
 }
 
-static int compression_code_lzma(struct archive * a,
+static int compression_code_lzma(Archive * a,
     struct la_zstream * lastrm, enum la_zaction action)
 {
 	lzma_stream * strm;
@@ -2541,7 +2553,7 @@ static int compression_code_lzma(struct archive * a,
 	}
 }
 
-static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
+static int compression_end_lzma(Archive * a, struct la_zstream * lastrm)
 {
 	lzma_stream * strm;
 
@@ -2555,7 +2567,7 @@ static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
 }
 
 #else
-static int compression_init_encoder_lzma(struct archive * a,
+static int compression_init_encoder_lzma(Archive * a,
     struct la_zstream * lastrm, int level)
 {
 	CXX_UNUSED(level);
@@ -2564,7 +2576,7 @@ static int compression_init_encoder_lzma(struct archive * a,
 	return (compression_unsupported_encoder(a, lastrm, "lzma"));
 }
 
-static int compression_init_encoder_xz(struct archive * a,
+static int compression_init_encoder_xz(Archive * a,
     struct la_zstream * lastrm, int level, int threads)
 {
 	CXX_UNUSED(level);
@@ -2617,7 +2629,7 @@ static int xar_compression_init_encoder(struct archive_write * a)
 	return r;
 }
 
-static int compression_code(struct archive * a, struct la_zstream * lastrm,
+static int compression_code(Archive * a, struct la_zstream * lastrm,
     enum la_zaction action)
 {
 	if(lastrm->valid)
@@ -2625,7 +2637,7 @@ static int compression_code(struct archive * a, struct la_zstream * lastrm,
 	return ARCHIVE_OK;
 }
 
-static int compression_end(struct archive * a, struct la_zstream * lastrm)
+static int compression_end(Archive * a, struct la_zstream * lastrm)
 {
 	if(lastrm->valid)
 		return (lastrm->end(a, lastrm));

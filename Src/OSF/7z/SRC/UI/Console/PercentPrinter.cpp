@@ -140,7 +140,7 @@ void CPercentPrinter::Print()
 				if(_s.Len() + _temp.Len() <= MaxLen)
 					break;
 			}
-			if(len == 0)
+			if(!len)
 				_temp.Empty();
 		}
 		_s += _temp;

@@ -105,10 +105,9 @@ static const UChar * ures_a_getNextString(UResourceBundleAIterator * aiter, int3
 #endif
 
 U_NAMESPACE_BEGIN
-
-// *****************************************************************************
+//
 // class DateTimePatternGenerator
-// *****************************************************************************
+//
 static const UChar Canonical_Items[] = {
 	// GyQMwWEDFdaHmsSv
 	CAP_G, LOW_Y, CAP_Q, CAP_M, LOW_W, CAP_W, CAP_E,

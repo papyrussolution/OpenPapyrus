@@ -66,8 +66,9 @@ U_CAPI UPropsVectors * U_EXPORT2 upvec_open(int32_t columns, UErrorCode * pError
 	return pv;
 }
 
-U_CAPI void U_EXPORT2 upvec_close(UPropsVectors * pv) {
-	if(pv!=NULL) {
+U_CAPI void U_EXPORT2 upvec_close(UPropsVectors * pv) 
+{
+	if(pv) {
 		uprv_free(pv->v);
 		uprv_free(pv);
 	}
@@ -270,21 +271,19 @@ U_CAPI uint32_t U_EXPORT2 upvec_getValue(const UPropsVectors * pv, UChar32 c, in
 	return row[2+column];
 }
 
-U_CAPI uint32_t * U_EXPORT2 upvec_getRow(const UPropsVectors * pv, int32_t rowIndex,
-    UChar32 * pRangeStart, UChar32 * pRangeEnd) {
+U_CAPI uint32_t * U_EXPORT2 upvec_getRow(const UPropsVectors * pv, int32_t rowIndex, UChar32 * pRangeStart, UChar32 * pRangeEnd) 
+{
 	uint32_t * row;
 	int32_t columns;
-
 	if(pv->isCompacted || rowIndex<0 || rowIndex>=pv->rows) {
 		return NULL;
 	}
-
 	columns = pv->columns;
 	row = pv->v+rowIndex*columns;
-	if(pRangeStart!=NULL) {
+	if(pRangeStart) {
 		*pRangeStart = (UChar32)row[0];
 	}
-	if(pRangeEnd!=NULL) {
+	if(pRangeEnd) {
 		*pRangeEnd = (UChar32)row[1]-1;
 	}
 	return row+2;
@@ -412,14 +411,15 @@ U_CAPI void U_EXPORT2 upvec_compact(UPropsVectors * pv, UPVecCompactHandler * ha
 	pv->rows = count/valueColumns+1;
 }
 
-U_CAPI const uint32_t * U_EXPORT2 upvec_getArray(const UPropsVectors * pv, int32_t * pRows, int32_t * pColumns) {
+U_CAPI const uint32_t * U_EXPORT2 upvec_getArray(const UPropsVectors * pv, int32_t * pRows, int32_t * pColumns) 
+{
 	if(!pv->isCompacted) {
 		return NULL;
 	}
-	if(pRows!=NULL) {
+	if(pRows) {
 		*pRows = pv->rows;
 	}
-	if(pColumns!=NULL) {
+	if(pColumns) {
 		*pColumns = pv->columns-2;
 	}
 	return pv->v;
@@ -444,10 +444,10 @@ U_CAPI uint32_t * U_EXPORT2 upvec_cloneArray(const UPropsVectors * pv,
 		return NULL;
 	}
 	uprv_memcpy(clonedArray, pv->v, byteLength);
-	if(pRows!=NULL) {
+	if(pRows) {
 		*pRows = pv->rows;
 	}
-	if(pColumns!=NULL) {
+	if(pColumns) {
 		*pColumns = pv->columns-2;
 	}
 	return clonedArray;

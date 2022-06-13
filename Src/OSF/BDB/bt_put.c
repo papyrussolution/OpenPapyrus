@@ -600,7 +600,7 @@ int __bam_ritem_nolog(DBC * dbc, PAGE * h, uint32 indx, DBT * hdr, DBT * data, u
 		bi = GET_BINTERNAL(dbp, h, indx);
 		t = (uint8 *)bi;
 		lo = (db_indx_t)BINTERNAL_SIZE(bi->len);
-		if(data == NULL) {
+		if(!data) {
 			DB_ASSERT(dbp->env, hdr != NULL);
 			bi = (BINTERNAL *)hdr->data;
 			P_16_COPY(&bi->len, &cnt);

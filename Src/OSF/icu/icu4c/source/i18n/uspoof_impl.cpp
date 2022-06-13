@@ -557,8 +557,7 @@ SpoofData::SpoofData(UDataMemory * udm, UErrorCode & status)
 	}
 	fUDM = udm;
 	// fRawData is non-const because it may be constructed by the data builder.
-	fRawData = reinterpret_cast<SpoofDataHeader *>(
-		const_cast<void *>(udata_getMemory(udm)));
+	fRawData = reinterpret_cast<SpoofDataHeader *>(const_cast<void *>(udata_getMemory(udm)));
 	validateDataVersion(status);
 	initPtrs(status);
 }
@@ -573,7 +572,7 @@ SpoofData::SpoofData(const void * data, int32_t length, UErrorCode & status)
 		status = U_INVALID_FORMAT_ERROR;
 		return;
 	}
-	if(data == NULL) {
+	if(!data) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
@@ -645,7 +644,8 @@ void SpoofData::reset() {
 //            in turn requires reinitializing all of the pointers into it, hence
 //            multiple calls to this function during building.
 //
-void SpoofData::initPtrs(UErrorCode & status) {
+void SpoofData::initPtrs(UErrorCode & status) 
+{
 	fCFUKeys = NULL;
 	fCFUValues = NULL;
 	fCFUStrings = NULL;
@@ -663,24 +663,25 @@ void SpoofData::initPtrs(UErrorCode & status) {
 	}
 }
 
-SpoofData::~SpoofData() {
+SpoofData::~SpoofData() 
+{
 	if(fDataOwned) {
 		uprv_free(fRawData);
 	}
 	fRawData = NULL;
-	if(fUDM != NULL) {
-		udata_close(fUDM);
-	}
+	udata_close(fUDM);
 	fUDM = NULL;
 }
 
-void SpoofData::removeReference() {
+void SpoofData::removeReference() 
+{
 	if(umtx_atomic_dec(&fRefCount) == 0) {
 		delete this;
 	}
 }
 
-SpoofData * SpoofData::addReference() {
+SpoofData * SpoofData::addReference() 
+{
 	umtx_atomic_inc(&fRefCount);
 	return this;
 }

@@ -131,9 +131,7 @@ generic_string FunctionListPanel::parseSubLevel(size_t begin, size_t end, std::v
 	}
 	else { // only one processed element, so we conclude the result
 		TCHAR foundStr[1024];
-
 		(*_ppEditView)->getGenericText(foundStr, 1024, targetStart, targetEnd);
-
 		foundPos = targetStart;
 		return foundStr;
 	}
@@ -176,24 +174,19 @@ void FunctionListPanel::sortOrUnsort()
 	else {
 		TCHAR text2search[MAX_PATH];
 		::SendMessage(_hSearchEdit, WM_GETTEXT, MAX_PATH, reinterpret_cast<LPARAM>(text2search));
-
 		if(text2search[0] == '\0') { // main view
 			_pTreeView->customSorting(_pTreeView->getRoot(), categorySortFunc, 0, true);
 		}
 		else { // aux view
 			reload();
-
 			if(_treeView.getRoot() == NULL)
 				return;
-
 			_treeViewSearchResult.removeAllItems();
 			const TCHAR * fn = ((*_ppEditView)->getCurrentBuffer())->getFileName();
-
 			generic_string* invalidValueStr = new generic_string(TEXT("-1"));
 			posStrs.push_back(invalidValueStr);
 			LPARAM lParamInvalidPosStr = reinterpret_cast<LPARAM>(invalidValueStr);
 			_treeViewSearchResult.addItem(fn, NULL, INDEX_ROOT, lParamInvalidPosStr);
-
 			_treeView.searchLeafAndBuildTree(_treeViewSearchResult, text2search, INDEX_LEAF);
 			_treeViewSearchResult.display(true);
 			_treeViewSearchResult.expand(_treeViewSearchResult.getRoot());
@@ -207,8 +200,8 @@ int CALLBACK FunctionListPanel::categorySortFunc(LPARAM lParam1, LPARAM lParam2,
 {
 	generic_string* posString1 = reinterpret_cast<generic_string*>(lParam1);
 	generic_string* posString2 = reinterpret_cast<generic_string*>(lParam2);
-	size_t pos1 = generic_atoi(posString1->c_str());
-	size_t pos2 = generic_atoi(posString2->c_str());
+	size_t pos1 = satoi(posString1->c_str());
+	size_t pos2 = satoi(posString2->c_str());
 	if(pos1 > pos2)
 		return 1;
 	else
@@ -242,10 +235,8 @@ bool FunctionListPanel::serialize(const generic_string & outputFilename)
 	WcharMbcsConvertor& wmc = WcharMbcsConvertor::getInstance();
 	json j;
 	j[rootLabel] = wmc.wchar2char(fileNameLabel, CP_ACP);
-
 	for(const auto & info : _foundFuncInfos) {
 		std::string leafName = wmc.wchar2char(info._data.c_str(), CP_ACP);
-
 		if(!info._data2.empty()) { // node
 			bool isFound = false;
 			std::string nodeName = wmc.wchar2char(info._data2.c_str(), CP_ACP);
@@ -312,30 +303,23 @@ void FunctionListPanel::reload()
 	}
 
 	TCHAR * ext = ::PathFindExtension(fn);
-
 	bool parsedOK = _funcParserMgr.parse(_foundFuncInfos, AssociationInfo(-1, langID, ext, udln));
 	if(parsedOK) {
 		generic_string* invalidValueStr = new generic_string(TEXT("-1"));
 		posStrs.push_back(invalidValueStr);
 		LPARAM lParamInvalidPosStr = reinterpret_cast<LPARAM>(invalidValueStr);
-
 		_treeView.addItem(fn, NULL, INDEX_ROOT, lParamInvalidPosStr);
 	}
-
 	for(size_t i = 0, len = _foundFuncInfos.size(); i < len; ++i) {
 		addEntry(_foundFuncInfos[i]._data2.c_str(), _foundFuncInfos[i]._data.c_str(), _foundFuncInfos[i]._pos);
 	}
-
 	HTREEITEM root = _treeView.getRoot();
-
 	if(root) {
 		currentBuf = (*_ppEditView)->getCurrentBuffer();
 		const TCHAR * fullFilePath = currentBuf->getFullPathName();
-
 		generic_string* fullPathStr = new generic_string(fullFilePath);
 		posStrs.push_back(fullPathStr);
 		LPARAM lParamFullPathStr = reinterpret_cast<LPARAM>(fullPathStr);
-
 		_treeView.setItemParam(root, lParamFullPathStr);
 		TreeParams * previousParams = getFromStateArray(fullFilePath);
 		if(!previousParams) {
@@ -346,19 +330,15 @@ void FunctionListPanel::reload()
 		else {
 			::SendMessage(_hSearchEdit, WM_SETTEXT, 0,
 			    reinterpret_cast<LPARAM>((previousParams->_searchParameters)._text2Find.c_str()));
-
 			bool isSort = (previousParams->_searchParameters)._doSort;
 			setSort(isSort);
 			if(isSort)
 				_pTreeView->sort(_pTreeView->getRoot(), true);
-
 			_treeView.restoreFoldingStateFrom(previousParams->_treeState, root);
 		}
 	}
-
 	// invalidate the editor rect
 	::InvalidateRect(_hSearchEdit, NULL, TRUE);
-
 	//set scroll position
 	if(isScrollBarOn) {
 		SetScrollInfo(_treeView.getHSelf(), SB_VERT, &si, TRUE);
@@ -395,10 +375,9 @@ void FunctionListPanel::findMarkEntry(HTREEITEM htItem, LONG line)
 			tvItem.hItem = htItem;
 			tvItem.mask = TVIF_IMAGE | TVIF_PARAM;
 			::SendMessage(_treeViewSearchResult.getHSelf(), TVM_GETITEM, 0, reinterpret_cast<LPARAM>(&tvItem));
-
 			generic_string * posStr = reinterpret_cast<generic_string *>(tvItem.lParam);
 			if(posStr) {
-				int pos = generic_atoi(posStr->c_str());
+				int pos = satoi(posStr->c_str());
 				if(pos != -1) {
 					LONG sci_line = static_cast<LONG>((*_ppEditView)->execute(SCI_LINEFROMPOSITION, pos));
 					if(line >= sci_line) {
@@ -484,14 +463,12 @@ bool FunctionListPanel::openSelection(const TreeView & treeView)
 	generic_string * posStr = reinterpret_cast<generic_string *>(tvItem.lParam);
 	if(!posStr)
 		return false;
-	int pos = generic_atoi(posStr->c_str());
+	int pos = satoi(posStr->c_str());
 	if(pos == -1)
 		return false;
-
 	auto sci_line = (*_ppEditView)->execute(SCI_LINEFROMPOSITION, pos);
 	(*_ppEditView)->execute(SCI_ENSUREVISIBLE, sci_line);
 	(*_ppEditView)->scrollPosToCenter(pos);
-
 	return true;
 }
 

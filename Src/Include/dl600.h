@@ -1325,8 +1325,10 @@ public:
 	//   cpUTF8 - строки преобразуются в UTF8
 	//   cpANSI, cp1251 - строки преобразуются в cpANSI
 	//   Все остальные варианты - строки преобразуются в cpANSI
+	// ARG(adoptTypes IN): Если true то в json вставляются значения, типизированные в соответствии
+	//   с типами, определенными описанием структуры. Если false, то все значения вставляются как строки.
 	//
-	int    Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj, int cp) const;
+	int    Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj, int cp, bool adoptTypes) const;
 	int    Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot);
 	int    PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags);
 	int    PutToJsonBuffer(void * ptr, SString & rBuf, int flags);

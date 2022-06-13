@@ -2161,6 +2161,7 @@ class ppstr2 {
 	public static final int PPERR_BHTSAMPLEBILLNFOUND = 12142;
 	public static final int PPERR_TSESSTAGUUIDABS = 12143;
 	public static final int PPERR_OBJTAGUUIDABS = 12144;
+	public static final int PPERR_MQBC_CHANNELNOTOPENED = 12145;
 	//
 	// .N.
 	//
@@ -2338,6 +2339,8 @@ class ppstr2 {
 	public static final int PPCFM_WROFFALLVETISCERTS = 10172;
 	public static final int PPCFM_TSESSAUTOCOMPLETE = 10173;
 	public static final int PPCFM_CREATESPCOPRKIND = 10174;
+	public static final int PPCFM_STQ_CHANGEORDCLI = 10175;
+	public static final int PPCFM_STQ_RMVORD_DRAFT = 10176;
 	//
 	// .N.
 	//

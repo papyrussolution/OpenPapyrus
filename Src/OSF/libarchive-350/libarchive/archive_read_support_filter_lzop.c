@@ -64,39 +64,38 @@ struct read_lzop {
 #define CRC32_COMPRESSED        0x0200
 #define MAX_BLOCK_SIZE          (64 * 1024 * 1024)
 
-static ssize_t  lzop_filter_read(struct archive_read_filter *, const void **);
-static int lzop_filter_close(struct archive_read_filter *);
+static ssize_t  lzop_filter_read(ArchiveReadFilter *, const void **);
+static int lzop_filter_close(ArchiveReadFilter *);
 #endif
 
-static int lzop_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
-static int lzop_bidder_init(struct archive_read_filter *);
+static int lzop_bidder_bid(ArchiveReadFilterBidder *, ArchiveReadFilter *);
+static int lzop_bidder_init(ArchiveReadFilter *);
 
-int archive_read_support_filter_lzop(struct archive * _a)
+int archive_read_support_filter_lzop(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
-	struct archive_read_filter_bidder * reader;
+	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveReadFilterBidder * reader;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	reader->data = NULL;
-	reader->bid = lzop_bidder_bid;
-	reader->init = lzop_bidder_init;
-	reader->options = NULL;
-	reader->free = NULL;
-	/* Signal the extent of lzop support with the return value here. */
+	reader->FnBid = lzop_bidder_bid;
+	reader->FnInit = lzop_bidder_init;
+	reader->FnOptions = NULL;
+	reader->FnFree = NULL;
+	// Signal the extent of lzop support with the return value here
 #if defined(HAVE_LZO_LZOCONF_H) && defined(HAVE_LZO_LZO1X_H)
 	return ARCHIVE_OK;
 #else
-	/* Return ARCHIVE_WARN since this always uses an external program. */
+	// Return ARCHIVE_WARN since this always uses an external program
 	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external lzop program for lzop decompression");
 	return ARCHIVE_WARN;
 #endif
 }
-
 /*
  * Bidder just verifies the header and returns the number of verified bits.
  */
-static int lzop_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
+static int lzop_bidder_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * filter)
 {
 	const uchar * p;
 	ssize_t avail;
@@ -115,11 +114,9 @@ static int lzop_bidder_bid(struct archive_read_filter_bidder * self, struct arch
  * decompression directly.  We can, however, try to run "lzop -d"
  * in case that's available.
  */
-static int lzop_bidder_init(struct archive_read_filter * self)
+static int lzop_bidder_init(ArchiveReadFilter * self)
 {
-	int r;
-
-	r = __archive_read_program(self, "lzop -d");
+	int r = __archive_read_program(self, "lzop -d");
 	/* Note: We set the format here even if __archive_read_program()
 	 * above fails.  We do, after all, know what the format is
 	 * even if we weren't able to read it. */
@@ -132,7 +129,7 @@ static int lzop_bidder_init(struct archive_read_filter * self)
 /*
  * Initialize the filter object.
  */
-static int lzop_bidder_init(struct archive_read_filter * self)
+static int lzop_bidder_init(ArchiveReadFilter * self)
 {
 	struct read_lzop * state;
 	self->code = ARCHIVE_FILTER_LZOP;
@@ -149,7 +146,7 @@ static int lzop_bidder_init(struct archive_read_filter * self)
 	return ARCHIVE_OK;
 }
 
-static int consume_header(struct archive_read_filter * self)
+static int consume_header(ArchiveReadFilter * self)
 {
 	struct read_lzop * state = (struct read_lzop *)self->data;
 	const uchar * p, * _p;
@@ -239,7 +236,7 @@ corrupted:
 	return ARCHIVE_FAILED;
 }
 
-static int consume_block_info(struct archive_read_filter * self)
+static int consume_block_info(ArchiveReadFilter * self)
 {
 	struct read_lzop * state = (struct read_lzop *)self->data;
 	const uchar * p;
@@ -288,7 +285,7 @@ corrupted:
 	return ARCHIVE_FAILED;
 }
 
-static ssize_t lzop_filter_read(struct archive_read_filter * self, const void ** p)
+static ssize_t lzop_filter_read(ArchiveReadFilter * self, const void ** p)
 {
 	struct read_lzop * state = (struct read_lzop *)self->data;
 	const void * b;
@@ -332,7 +329,7 @@ static ssize_t lzop_filter_read(struct archive_read_filter * self, const void **
 		state->out_block_size = state->uncompressed_size;
 	}
 	b = __archive_read_filter_ahead(self->upstream, state->compressed_size, NULL);
-	if(b == NULL) {
+	if(!b) {
 		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated lzop data");
 		return ARCHIVE_FATAL;
 	}
@@ -399,7 +396,7 @@ static ssize_t lzop_filter_read(struct archive_read_filter * self, const void **
 /*
  * Clean up the decompressor.
  */
-static int lzop_filter_close(struct archive_read_filter * self)
+static int lzop_filter_close(ArchiveReadFilter * self)
 {
 	struct read_lzop * state = (struct read_lzop *)self->data;
 

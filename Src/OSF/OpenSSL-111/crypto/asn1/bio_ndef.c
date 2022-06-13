@@ -65,7 +65,7 @@ BIO * BIO_new_NDEF(BIO * out, ASN1_VALUE * val, const ASN1_ITEM * it)
 
 	/* ASN1 bio needs to be next to output BIO */
 	out = BIO_push(asn_bio, out);
-	if(out == NULL)
+	if(!out)
 		goto err;
 
 	BIO_asn1_set_prefix(asn_bio, ndef_prefix, ndef_prefix_free);

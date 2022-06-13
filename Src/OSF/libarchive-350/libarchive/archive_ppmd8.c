@@ -11,39 +11,31 @@ static const UInt16 kInitBinEsc[] = { 0x3CDD, 0x1F3F, 0x59BF, 0x48F3, 0x64A1, 0x
 
 #define MAX_FREQ 124
 #define UNIT_SIZE 12
-
 #define U2B(nu) ((UInt32)(nu) * UNIT_SIZE)
 #define U2I(nu) (p->Units2Indx[(nu) - 1])
 #define I2U(indx) (p->Indx2Units[indx])
-
 #ifdef PPMD_32BIT
-  #define REF(ptr) (ptr)
+	#define REF(ptr) (ptr)
 #else
-  #define REF(ptr) ((UInt32)((Byte*)(ptr) - (p)->Base))
+	#define REF(ptr) ((UInt32)((Byte*)(ptr) - (p)->Base))
 #endif
-
 #define STATS_REF(ptr) ((CPpmd_State_Ref)REF(ptr))
-
 #define CTX(ref) ((CPpmd8_Context*)Ppmd8_GetContext(p, ref))
 #define STATS(ctx) Ppmd8_GetStats(p, ctx)
 #define ONE_STATE(ctx) Ppmd8Context_OneState(ctx)
 #define SUFFIX(ctx) CTX((ctx)->Suffix)
-
 #define kTop (1 << 24)
 #define kBot (1 << 15)
 
 typedef CPpmd8_Context * CTX_PTR;
-
 struct CPpmd8_Node_;
 
-typedef
-  #ifdef PPMD_32BIT
-    struct CPpmd8_Node_ *
-  #else
-    UInt32
-  #endif
-    CPpmd8_Node_Ref;
-
+#ifdef PPMD_32BIT
+	typedef struct CPpmd8_Node_ * CPpmd8_Node_Ref;
+#else
+	typedef UInt32 CPpmd8_Node_Ref;
+#endif
+    
 typedef struct CPpmd8_Node_ {
 	UInt32 Stamp;
 	CPpmd8_Node_Ref Next;
@@ -51,11 +43,10 @@ typedef struct CPpmd8_Node_ {
 } CPpmd8_Node;
 
 #ifdef PPMD_32BIT
-  #define NODE(ptr) (ptr)
+	#define NODE(ptr) (ptr)
 #else
-  #define NODE(offs) ((CPpmd8_Node*)(p->Base + (offs)))
+	#define NODE(offs) ((CPpmd8_Node*)(p->Base + (offs)))
 #endif
-
 #define EMPTY_NODE 0xFFFFFFFF
 
 void Ppmd8_Construct(CPpmd8 * p)
@@ -1049,7 +1040,6 @@ static void RangeDec_Decode(CPpmd8 * p, UInt32 start, UInt32 size)
 	p->Low += start;
 	p->Code -= start;
 	p->Range *= size;
-
 	while((p->Low ^ (p->Low + p->Range)) < kTop ||
 	    (p->Range < kBot && ((p->Range = (0 - p->Low) & (kBot - 1)), 1))) {
 		p->Code = (p->Code << 8) | p->Stream.In->Read(p->Stream.In);

@@ -204,7 +204,7 @@ U_CAPI int32_t U_EXPORT2 utf8_appendCharSafeBody(uint8 * s, int32_t i, int32_t l
 		}
 	}
 	/* c>0x10ffff or not enough space, write an error value */
-	if(pIsError!=NULL) {
+	if(pIsError != NULL) {
 		*pIsError = TRUE;
 	}
 	else {

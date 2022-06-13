@@ -271,7 +271,7 @@ const Normalizer2 * Normalizer2::getInstance(const char * packageName,
 	if(allModes==NULL && U_SUCCESS(errorCode)) {
 		{
 			Mutex lock;
-			if(cache!=NULL) {
+			if(cache != NULL) {
 				allModes = (Norm2AllModes*)uhash_get(cache, name);
 			}
 		}

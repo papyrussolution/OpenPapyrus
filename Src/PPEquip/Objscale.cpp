@@ -1130,7 +1130,7 @@ int CommLP15::GetData(int * pGdsNo, double * pWeight)
 		}
 		THROW_PP(bcc == buf[34], PPERR_SCALE_RCV); // Контрольный байт
 		sc_st.Price = static_cast<long>(round(temp_buf.ToReal() * 100.0, 0)); // Цена
-		weight = static_cast<double>(sc_st.Weight) / 1000.0;
+		weight = fdiv1000i(sc_st.Weight);
 		ok = 1;
 	}
 	// } @paul
@@ -1159,7 +1159,7 @@ int CommLP15::GetData(int * pGdsNo, double * pWeight)
 		//
 		if((sc_st.Status & 0x40) && !(sc_st.Status & 0x8D)) {
 			gds_no = (int)sc_st.PLUNumber;
-			weight = ((double)sc_st.Weight) / 1000.0;
+			weight = fdiv1000i(sc_st.Weight);
 			ok = 1;
 		}
 	}

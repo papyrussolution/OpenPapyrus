@@ -30,13 +30,13 @@ struct sparse_block {
 struct pax {
 	uint64 entry_bytes_remaining;
 	uint64 entry_padding;
-	struct archive_string l_url_encoded_name;
-	struct archive_string pax_header;
-	struct archive_string sparse_map;
+	archive_string l_url_encoded_name;
+	archive_string pax_header;
+	archive_string sparse_map;
 	size_t sparse_map_padding;
 	struct sparse_block     * sparse_list;
 	struct sparse_block     * sparse_tail;
-	struct archive_string_conv * sconv_utf8;
+	archive_string_conv * sconv_utf8;
 	int opt_binary;
 
 	unsigned flags;
@@ -44,16 +44,16 @@ struct pax {
 #define WRITE_LIBARCHIVE_XATTR   (1 << 1)
 };
 
-static void add_pax_attr(struct archive_string *, const char * key, const char * value);
-static void add_pax_attr_binary(struct archive_string *, const char * key, const char * value, size_t value_len);
-static void add_pax_attr_int(struct archive_string *, const char * key, int64 value);
-static void add_pax_attr_time(struct archive_string *, const char * key, int64 sec, ulong nanos);
-static int  add_pax_acl(struct archive_write *, struct archive_entry *, struct pax *, int);
+static void add_pax_attr(archive_string *, const char * key, const char * value);
+static void add_pax_attr_binary(archive_string *, const char * key, const char * value, size_t value_len);
+static void add_pax_attr_int(archive_string *, const char * key, int64 value);
+static void add_pax_attr_time(archive_string *, const char * key, int64 sec, ulong nanos);
+static int  add_pax_acl(struct archive_write *, ArchiveEntry *, struct pax *, int);
 static ssize_t archive_write_pax_data(struct archive_write *, const void *, size_t);
 static int  archive_write_pax_close(struct archive_write *);
 static int  archive_write_pax_free(struct archive_write *);
 static int  archive_write_pax_finish_entry(struct archive_write *);
-static int  archive_write_pax_header(struct archive_write *, struct archive_entry *);
+static int  archive_write_pax_header(struct archive_write *, ArchiveEntry *);
 static int  archive_write_pax_options(struct archive_write *, const char *, const char *);
 static char * base64_encode(const char * src, size_t len);
 static char * build_gnu_sparse_name(char * dest, const char * src);
@@ -71,7 +71,7 @@ static char * url_encode(const char * in);
  * the pax header whenever possible.  This is the default for
  * bsdtar, for instance.
  */
-int archive_write_set_format_pax_restricted(struct archive * _a)
+int archive_write_set_format_pax_restricted(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r;
@@ -84,7 +84,7 @@ int archive_write_set_format_pax_restricted(struct archive * _a)
 /*
  * Set output format to 'pax' format.
  */
-int archive_write_set_format_pax(struct archive * _a)
+int archive_write_set_format_pax(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct pax * pax;
@@ -120,7 +120,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 		 * The character-set we can use are defined in
 		 * IEEE Std 1003.1-2001
 		 */
-		if(val == NULL || val[0] == 0)
+		if(isempty(val))
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: hdrcharset option needs a character-set name");
 		else if(sstreq(val, "BINARY") || sstreq(val, "binary")) {
 			/*
@@ -149,7 +149,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 		return ret;
 	}
 	else if(sstreq(key, "xattrheader")) {
-		if(val == NULL || val[0] == 0) {
+		if(isempty(val)) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: xattrheader requires a value");
 		}
 		else if(sstreq(val, "ALL") || sstreq(val, "all")) {
@@ -183,7 +183,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
  * unlikely to encounter many real files created before Jan 1, 1970,
  * much less ones with timestamps recorded to sub-second resolution.
  */
-static void add_pax_attr_time(struct archive_string * as, const char * key, int64 sec, ulong nanos)
+static void add_pax_attr_time(archive_string * as, const char * key, int64 sec, ulong nanos)
 {
 	int digit, i;
 	char * t;
@@ -232,7 +232,7 @@ static char * format_int(char * t, int64 i)
 	return (t);
 }
 
-static void add_pax_attr_int(struct archive_string * as, const char * key, int64 value)
+static void add_pax_attr_int(archive_string * as, const char * key, int64 value)
 {
 	char tmp[1 + 3 * sizeof(value)];
 
@@ -244,7 +244,7 @@ static void add_pax_attr_int(struct archive_string * as, const char * key, int64
  * Add a key/value attribute to the pax header.  This function handles
  * the length field and various other syntactic requirements.
  */
-static void add_pax_attr(struct archive_string * as, const char * key, const char * value)
+static void add_pax_attr(archive_string * as, const char * key, const char * value)
 {
 	add_pax_attr_binary(as, key, value, strlen(value));
 }
@@ -253,7 +253,7 @@ static void add_pax_attr(struct archive_string * as, const char * key, const cha
  * Add a key/value attribute to the pax header.  This function handles
  * binary values.
  */
-static void add_pax_attr_binary(struct archive_string * as, const char * key,
+static void add_pax_attr_binary(archive_string * as, const char * key,
     const char * value, size_t value_len)
 {
 	int digits, i, len, next_ten;
@@ -301,7 +301,7 @@ static void add_pax_attr_binary(struct archive_string * as, const char * key,
 static void archive_write_pax_header_xattr(struct pax * pax, const char * encoded_name,
     const void * value, size_t value_len)
 {
-	struct archive_string s;
+	archive_string s;
 	char * encoded_value;
 
 	if(pax->flags & WRITE_LIBARCHIVE_XATTR) {
@@ -325,7 +325,7 @@ static void archive_write_pax_header_xattr(struct pax * pax, const char * encode
 	}
 }
 
-static int archive_write_pax_header_xattrs(struct archive_write * a, struct pax * pax, struct archive_entry * entry)
+static int archive_write_pax_header_xattrs(struct archive_write * a, struct pax * pax, ArchiveEntry * entry)
 {
 	int i = archive_entry_xattr_reset(entry);
 	while(i--) {
@@ -353,7 +353,7 @@ static int archive_write_pax_header_xattrs(struct archive_write * a, struct pax 
 	return ARCHIVE_OK;
 }
 
-static int get_entry_hardlink(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
+static int get_entry_hardlink(struct archive_write * a, ArchiveEntry * entry, const char ** name, size_t * length, archive_string_conv * sc)
 {
 	int r = archive_entry_hardlink_l(entry, name, length, sc);
 	if(r) {
@@ -366,7 +366,7 @@ static int get_entry_hardlink(struct archive_write * a, struct archive_entry * e
 	return ARCHIVE_OK;
 }
 
-static int get_entry_pathname(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
+static int get_entry_pathname(struct archive_write * a, ArchiveEntry * entry, const char ** name, size_t * length, archive_string_conv * sc)
 {
 	int r = archive_entry_pathname_l(entry, name, length, sc);
 	if(r) {
@@ -379,7 +379,7 @@ static int get_entry_pathname(struct archive_write * a, struct archive_entry * e
 	return ARCHIVE_OK;
 }
 
-static int get_entry_uname(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
+static int get_entry_uname(struct archive_write * a, ArchiveEntry * entry, const char ** name, size_t * length, archive_string_conv * sc)
 {
 	int r = archive_entry_uname_l(entry, name, length, sc);
 	if(r) {
@@ -392,7 +392,7 @@ static int get_entry_uname(struct archive_write * a, struct archive_entry * entr
 	return ARCHIVE_OK;
 }
 
-static int get_entry_gname(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
+static int get_entry_gname(struct archive_write * a, ArchiveEntry * entry, const char ** name, size_t * length, archive_string_conv * sc)
 {
 	int r = archive_entry_gname_l(entry, name, length, sc);
 	if(r) {
@@ -405,7 +405,7 @@ static int get_entry_gname(struct archive_write * a, struct archive_entry * entr
 	return ARCHIVE_OK;
 }
 
-static int get_entry_symlink(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
+static int get_entry_symlink(struct archive_write * a, ArchiveEntry * entry, const char ** name, size_t * length, archive_string_conv * sc)
 {
 	int r = archive_entry_symlink_l(entry, name, length, sc);
 	if(r) {
@@ -419,7 +419,7 @@ static int get_entry_symlink(struct archive_write * a, struct archive_entry * en
 }
 
 /* Add ACL to pax header */
-static int add_pax_acl(struct archive_write * a, struct archive_entry * entry, struct pax * pax, int flags)
+static int add_pax_acl(struct archive_write * a, ArchiveEntry * entry, struct pax * pax, int flags)
 {
 	char * p;
 	const char * attr;
@@ -456,9 +456,9 @@ static int add_pax_acl(struct archive_write * a, struct archive_entry * entry, s
  *
  * TODO: Break up this 700-line function!!!!  Yowza!
  */
-static int archive_write_pax_header(struct archive_write * a, struct archive_entry * entry_original)
+static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * entry_original)
 {
-	struct archive_entry * entry_main;
+	ArchiveEntry * entry_main;
 	const char * p;
 	const char * suffix;
 	int need_extension, r, ret;
@@ -471,7 +471,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	const char * uname = NULL, * gname = NULL;
 	const void * mac_metadata;
 	size_t mac_metadata_size;
-	struct archive_string_conv * sconv;
+	archive_string_conv * sconv;
 	size_t hardlink_length, path_length, linkpath_length;
 	size_t uname_length, gname_length;
 	char paxbuff[512];
@@ -479,7 +479,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	char ustar_entry_name[256];
 	char pax_entry_name[256];
 	char gnu_sparse_name[256];
-	struct archive_string entry_name;
+	archive_string entry_name;
 	ret = ARCHIVE_OK;
 	need_extension = 0;
 	pax = (struct pax *)a->format_data;
@@ -536,7 +536,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 #if defined(_WIN32) && !defined(__CYGWIN__)
 			    const wchar_t * wp = archive_entry_pathname_w(entry_original);
 			    if(wp && wp[wcslen(wp) -1] != L'/') {
-				    struct archive_wstring ws;
+				    archive_wstring ws;
 				    archive_string_init(&ws);
 				    path_length = wcslen(wp);
 				    if(archive_wstring_ensure(&ws,
@@ -564,7 +564,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			     * normal operation.
 			     */
 			    if(p && p[0] != '\0' && p[strlen(p) - 1] != '/') {
-				    struct archive_string as;
+				    archive_string as;
 				    archive_string_init(&as);
 				    path_length = strlen(p);
 				    if(archive_string_ensure(&as, path_length + 2) == NULL) {
@@ -609,17 +609,13 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	 * should not lose data just because the local filesystem
 	 * can't store it.
 	 */
-	mac_metadata =
-	    archive_entry_mac_metadata(entry_original, &mac_metadata_size);
-	if(mac_metadata != NULL) {
-		const char * oname;
-		char * name, * bname;
-		size_t name_length;
-		struct archive_entry * extra = archive_entry_new2(&a->archive);
-
-		oname = archive_entry_pathname(entry_original);
-		name_length = strlen(oname);
-		name = static_cast<char *>(SAlloc::M(name_length + 3));
+	mac_metadata = archive_entry_mac_metadata(entry_original, &mac_metadata_size);
+	if(mac_metadata) {
+		char * bname;
+		ArchiveEntry * extra = archive_entry_new2(&a->archive);
+		const char * oname = archive_entry_pathname(entry_original);
+		size_t name_length = strlen(oname);
+		char * name = static_cast<char *>(SAlloc::M(name_length + 3));
 		if(name == NULL || extra == NULL) {
 			/* XXX error message */
 			archive_entry_free(extra);
@@ -644,23 +640,14 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 		}
 		archive_entry_copy_pathname(extra, name);
 		SAlloc::F(name);
-
 		archive_entry_set_size(extra, mac_metadata_size);
 		archive_entry_set_filetype(extra, AE_IFREG);
-		archive_entry_set_perm(extra,
-		    archive_entry_perm(entry_original));
-		archive_entry_set_mtime(extra,
-		    archive_entry_mtime(entry_original),
-		    archive_entry_mtime_nsec(entry_original));
-		archive_entry_set_gid(extra,
-		    archive_entry_gid(entry_original));
-		archive_entry_set_gname(extra,
-		    archive_entry_gname(entry_original));
-		archive_entry_set_uid(extra,
-		    archive_entry_uid(entry_original));
-		archive_entry_set_uname(extra,
-		    archive_entry_uname(entry_original));
-
+		archive_entry_set_perm(extra, archive_entry_perm(entry_original));
+		archive_entry_set_mtime(extra, archive_entry_mtime(entry_original), archive_entry_mtime_nsec(entry_original));
+		archive_entry_set_gid(extra, archive_entry_gid(entry_original));
+		archive_entry_set_gname(extra, archive_entry_gname(entry_original));
+		archive_entry_set_uid(extra, archive_entry_uid(entry_original));
+		archive_entry_set_uname(extra, archive_entry_uname(entry_original));
 		/* Recurse to write the special copyfile entry. */
 		r = archive_write_pax_header(a, extra);
 		archive_entry_free(extra);
@@ -668,8 +655,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			return r;
 		if(r < ret)
 			ret = r;
-		r = (int)archive_write_pax_data(a, mac_metadata,
-			mac_metadata_size);
+		r = (int)archive_write_pax_data(a, mac_metadata, mac_metadata_size);
 		if(r < ARCHIVE_WARN)
 			return r;
 		if(r < ret)
@@ -680,7 +666,6 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 		if(r < ret)
 			ret = r;
 	}
-
 	/* Copy entry so we can modify it as needed. */
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	/* Make sure the path separators in pathname, hardlink and symlink
@@ -699,28 +684,22 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	archive_string_empty(&(pax->sparse_map));
 	sparse_total = 0;
 	sparse_list_clear(pax);
-
-	if(hardlink == NULL &&
-	    archive_entry_filetype(entry_main) == AE_IFREG)
+	if(hardlink == NULL && archive_entry_filetype(entry_main) == AE_IFREG)
 		sparse_count = archive_entry_sparse_reset(entry_main);
 	else
 		sparse_count = 0;
 	if(sparse_count) {
 		int64 offset, length, last_offset = 0;
 		/* Get the last entry of sparse block. */
-		while(archive_entry_sparse_next(
-			    entry_main, &offset, &length) == ARCHIVE_OK)
+		while(archive_entry_sparse_next(entry_main, &offset, &length) == ARCHIVE_OK)
 			last_offset = offset + length;
-
 		/* If the last sparse block does not reach the end of file,
 		 * We have to add a empty sparse block as the last entry to
 		 * manage storing file data. */
 		if(last_offset < archive_entry_size(entry_main))
-			archive_entry_sparse_add_entry(entry_main,
-			    archive_entry_size(entry_main), 0);
+			archive_entry_sparse_add_entry(entry_main, archive_entry_size(entry_main), 0);
 		sparse_count = archive_entry_sparse_reset(entry_main);
 	}
-
 	/*
 	 * First, check the name fields and see if any of them
 	 * require binary coding.  If any of them does, then all of
@@ -1198,7 +1177,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	}
 	/* If we built any extended attributes, write that entry first. */
 	if(archive_strlen(&(pax->pax_header)) > 0) {
-		struct archive_entry * pax_attr_entry;
+		ArchiveEntry * pax_attr_entry;
 		time_t s;
 		int64 uid, gid;
 		int mode;
@@ -1465,13 +1444,11 @@ static char * build_pax_attribute_name(char * dest, const char * src)
 {
 	char buff[64];
 	const char * p;
-
 	/* Handle the null filename case. */
-	if(src == NULL || *src == '\0') {
+	if(isempty(src)) {
 		strcpy(dest, "PaxHeader/blank");
 		return (dest);
 	}
-
 	/* Prune final '/' and other unwanted final elements. */
 	p = src + strlen(src);
 	for(;;) {
@@ -1532,13 +1509,11 @@ static char * build_pax_attribute_name(char * dest, const char * src)
 static char * build_gnu_sparse_name(char * dest, const char * src)
 {
 	const char * p;
-
 	/* Handle the null filename case. */
-	if(src == NULL || *src == '\0') {
+	if(isempty(src)) {
 		strcpy(dest, "GNUSparseFile/blank");
 		return (dest);
 	}
-
 	/* Prune final '/' and other unwanted final elements. */
 	p = src + strlen(src);
 	for(;;) {
@@ -1548,18 +1523,14 @@ static char * build_gnu_sparse_name(char * dest, const char * src)
 			continue;
 		}
 		/* Ends in "/.", remove the '.' */
-		if(p > src + 1 && p[-1] == '.'
-		    && p[-2] == '/') {
+		if(p > src + 1 && p[-1] == '.' && p[-2] == '/') {
 			--p;
 			continue;
 		}
 		break;
 	}
-
-	/* General case: build a ustar-compatible name adding
-	 * "/GNUSparseFile/". */
+	// General case: build a ustar-compatible name adding "/GNUSparseFile/"
 	build_ustar_entry_name(dest, src, p - src, "GNUSparseFile.0");
-
 	return (dest);
 }
 
@@ -1571,12 +1542,9 @@ static int archive_write_pax_close(struct archive_write * a)
 
 static int archive_write_pax_free(struct archive_write * a)
 {
-	struct pax * pax;
-
-	pax = (struct pax *)a->format_data;
+	struct pax * pax = (struct pax *)a->format_data;
 	if(pax == NULL)
 		return ARCHIVE_OK;
-
 	archive_string_free(&pax->pax_header);
 	archive_string_free(&pax->sparse_map);
 	archive_string_free(&pax->l_url_encoded_name);
@@ -1588,12 +1556,9 @@ static int archive_write_pax_free(struct archive_write * a)
 
 static int archive_write_pax_finish_entry(struct archive_write * a)
 {
-	struct pax * pax;
-	uint64 remaining;
 	int ret;
-
-	pax = (struct pax *)a->format_data;
-	remaining = pax->entry_bytes_remaining;
+	struct pax * pax = (struct pax *)a->format_data;
+	uint64 remaining = pax->entry_bytes_remaining;
 	if(remaining == 0) {
 		while(pax->sparse_list) {
 			struct sparse_block * sb;
@@ -1611,20 +1576,16 @@ static int archive_write_pax_finish_entry(struct archive_write * a)
 
 static ssize_t archive_write_pax_data(struct archive_write * a, const void * buff, size_t s)
 {
-	struct pax * pax;
 	size_t ws;
 	size_t total;
 	int ret;
-
-	pax = (struct pax *)a->format_data;
-
+	struct pax * pax = (struct pax *)a->format_data;
 	/*
 	 * According to GNU PAX format 1.0, write a sparse map
 	 * before the body.
 	 */
 	if(archive_strlen(&(pax->sparse_map))) {
-		ret = __archive_write_output(a, pax->sparse_map.s,
-			archive_strlen(&(pax->sparse_map)));
+		ret = __archive_write_output(a, pax->sparse_map.s, archive_strlen(&(pax->sparse_map)));
 		if(ret != ARCHIVE_OK)
 			return ret;
 		ret = __archive_write_nulls(a, pax->sparse_map_padding);
@@ -1632,29 +1593,22 @@ static ssize_t archive_write_pax_data(struct archive_write * a, const void * buf
 			return ret;
 		archive_string_empty(&(pax->sparse_map));
 	}
-
 	total = 0;
 	while(total < s) {
 		const uchar * p;
-
-		while(pax->sparse_list != NULL &&
-		    pax->sparse_list->remaining == 0) {
+		while(pax->sparse_list != NULL && pax->sparse_list->remaining == 0) {
 			struct sparse_block * sb = pax->sparse_list->next;
 			SAlloc::F(pax->sparse_list);
 			pax->sparse_list = sb;
 		}
-
 		if(pax->sparse_list == NULL)
 			return (total);
-
 		p = ((const uchar *)buff) + total;
 		ws = s - total;
 		if(ws > pax->sparse_list->remaining)
 			ws = (size_t)pax->sparse_list->remaining;
-
 		if(pax->sparse_list->is_hole) {
-			/* Current block is hole thus we do not write
-			 * the body. */
+			// Current block is hole thus we do not write the body
 			pax->sparse_list->remaining -= ws;
 			total += ws;
 			continue;
@@ -1694,21 +1648,21 @@ static char * url_encode(const char * in)
 			out_len++;
 	}
 	out = (char *)SAlloc::M(out_len + 1);
-	if(out == NULL)
-		return NULL;
-	for(s = in, d = out; *s != '\0'; s++) {
-		/* encode any non-printable ASCII character or '%' or '=' */
-		if(*s < 33 || *s > 126 || *s == '%' || *s == '=') {
-			/* URL encoding is '%' followed by two hex digits */
-			*d++ = '%';
-			*d++ = "0123456789ABCDEF"[0x0f & (*s >> 4)];
-			*d++ = "0123456789ABCDEF"[0x0f & *s];
+	if(out) {
+		for(s = in, d = out; *s != '\0'; s++) {
+			/* encode any non-printable ASCII character or '%' or '=' */
+			if(*s < 33 || *s > 126 || *s == '%' || *s == '=') {
+				/* URL encoding is '%' followed by two hex digits */
+				*d++ = '%';
+				*d++ = "0123456789ABCDEF"[0x0f & (*s >> 4)];
+				*d++ = "0123456789ABCDEF"[0x0f & *s];
+			}
+			else {
+				*d++ = *s;
+			}
 		}
-		else {
-			*d++ = *s;
-		}
+		*d = '\0';
 	}
-	*d = '\0';
 	return (out);
 }
 
@@ -1799,13 +1753,11 @@ static int sparse_list_add(struct pax * pax, int64 offset, int64 length)
 	if(pax->sparse_tail == NULL)
 		last_offset = 0;
 	else {
-		last_offset = pax->sparse_tail->offset +
-		    pax->sparse_tail->remaining;
+		last_offset = pax->sparse_tail->offset + pax->sparse_tail->remaining;
 	}
 	if(last_offset < offset) {
 		/* Add a hole block. */
-		r = _sparse_list_add_block(pax, last_offset,
-			offset - last_offset, 1);
+		r = _sparse_list_add_block(pax, last_offset, offset - last_offset, 1);
 		if(r != ARCHIVE_OK)
 			return r;
 	}

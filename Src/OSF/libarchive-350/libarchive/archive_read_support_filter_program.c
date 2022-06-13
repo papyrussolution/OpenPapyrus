@@ -30,12 +30,12 @@ __FBSDID("$FreeBSD$");
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Deprecated; remove in libarchive 4.0 */
-int archive_read_support_compression_program(struct archive * a, const char * cmd)
+int archive_read_support_compression_program(Archive * a, const char * cmd)
 {
 	return archive_read_support_filter_program(a, cmd);
 }
 
-int archive_read_support_compression_program_signature(struct archive * a,
+int archive_read_support_compression_program_signature(Archive * a,
     const char * cmd, const void * signature, size_t signature_len)
 {
 	return archive_read_support_filter_program_signature(a,
@@ -44,7 +44,7 @@ int archive_read_support_compression_program_signature(struct archive * a,
 
 #endif
 
-int archive_read_support_filter_program(struct archive * a, const char * cmd)
+int archive_read_support_filter_program(Archive * a, const char * cmd)
 {
 	return (archive_read_support_filter_program_signature(a, cmd, NULL, 0));
 }
@@ -62,16 +62,16 @@ struct program_bidder {
 	int inhibit;
 };
 
-static int program_bidder_bid(struct archive_read_filter_bidder *,
-    struct archive_read_filter * upstream);
-static int program_bidder_init(struct archive_read_filter *);
-static int program_bidder_free(struct archive_read_filter_bidder *);
+static int program_bidder_bid(ArchiveReadFilterBidder *,
+    ArchiveReadFilter * upstream);
+static int program_bidder_init(ArchiveReadFilter *);
+static int program_bidder_free(ArchiveReadFilterBidder *);
 
 /*
  * The actual filter needs to track input and output data.
  */
 struct program_filter {
-	struct archive_string description;
+	archive_string description;
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	HANDLE child;
 #else
@@ -85,44 +85,39 @@ struct program_filter {
 	size_t out_buf_len;
 };
 
-static ssize_t  program_filter_read(struct archive_read_filter *,
+static ssize_t  program_filter_read(ArchiveReadFilter *,
     const void **);
-static int program_filter_close(struct archive_read_filter *);
+static int program_filter_close(ArchiveReadFilter *);
 static void     free_state(struct program_bidder *);
 
-static int set_bidder_signature(struct archive_read_filter_bidder * bidder,
-    struct program_bidder * state, const void * signature, size_t signature_len)
+static int set_bidder_signature(ArchiveReadFilterBidder * bidder, struct program_bidder * state, const void * signature, size_t signature_len)
 {
 	if(signature != NULL && signature_len > 0) {
 		state->signature_len = signature_len;
 		state->signature = SAlloc::M(signature_len);
 		memcpy(state->signature, signature, signature_len);
 	}
-
 	/*
 	 * Fill in the bidder object.
 	 */
 	bidder->data = state;
-	bidder->bid = program_bidder_bid;
-	bidder->init = program_bidder_init;
-	bidder->options = NULL;
-	bidder->free = program_bidder_free;
+	bidder->FnBid = program_bidder_bid;
+	bidder->FnInit = program_bidder_init;
+	bidder->FnOptions = NULL;
+	bidder->FnFree = program_bidder_free;
 	return ARCHIVE_OK;
 }
 
-int archive_read_support_filter_program_signature(struct archive * _a,
-    const char * cmd, const void * signature, size_t signature_len)
+int archive_read_support_filter_program_signature(Archive * _a, const char * cmd, const void * signature, size_t signature_len)
 {
-	struct archive_read * a = (struct archive_read *)_a;
-	struct archive_read_filter_bidder * bidder;
+	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveReadFilterBidder * bidder;
 	struct program_bidder * state;
-
 	/*
 	 * Get a bidder object from the read core.
 	 */
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/*
 	 * Allocate our private state.
 	 */
@@ -132,7 +127,6 @@ int archive_read_support_filter_program_signature(struct archive * _a,
 	state->cmd = sstrdup(cmd);
 	if(state->cmd == NULL)
 		goto memerr;
-
 	return set_bidder_signature(bidder, state, signature, signature_len);
 memerr:
 	free_state(state);
@@ -140,7 +134,7 @@ memerr:
 	return ARCHIVE_FATAL;
 }
 
-static int program_bidder_free(struct archive_read_filter_bidder * self)
+static int program_bidder_free(ArchiveReadFilterBidder * self)
 {
 	struct program_bidder * state = (struct program_bidder *)self->data;
 	free_state(state);
@@ -162,7 +156,7 @@ static void free_state(struct program_bidder * state)
  * If there's no signature, we bid INT_MAX the first time
  * we're called, then never bid again.
  */
-static int program_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * upstream)
+static int program_bidder_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * upstream)
 {
 	struct program_bidder * state = static_cast<struct program_bidder *>(self->data);
 	const char * p;
@@ -191,7 +185,7 @@ static int program_bidder_bid(struct archive_read_filter_bidder * self, struct a
  * we won't reap the child again, but we will return the same status
  * (including error message if the child came to a bad end).
  */
-static int child_stop(struct archive_read_filter * self, struct program_filter * state)
+static int child_stop(ArchiveReadFilter * self, struct program_filter * state)
 {
 	/* Close our side of the I/O with the child. */
 	if(state->child_stdin != -1) {
@@ -244,7 +238,7 @@ static int child_stop(struct archive_read_filter * self, struct program_filter *
 /*
  * Use select() to decide whether the child is ready for read or write.
  */
-static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t buf_len)
+static ssize_t child_read(ArchiveReadFilter * self, char * buf, size_t buf_len)
 {
 	struct program_filter * state = static_cast<struct program_filter *>(self->data);
 	ssize_t ret, requested, avail;
@@ -319,7 +313,7 @@ static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t 
 	}
 }
 
-int __archive_read_program(struct archive_read_filter * self, const char * cmd)
+int __archive_read_program(ArchiveReadFilter * self, const char * cmd)
 {
 	static const size_t out_buf_len = 65536;
 	const char * prefix = "Program: ";
@@ -358,13 +352,13 @@ int __archive_read_program(struct archive_read_filter * self, const char * cmd)
 	return ARCHIVE_OK;
 }
 
-static int program_bidder_init(struct archive_read_filter * self)
+static int program_bidder_init(ArchiveReadFilter * self)
 {
 	struct program_bidder * bidder_state = (struct program_bidder *)self->bidder->data;
 	return (__archive_read_program(self, bidder_state->cmd));
 }
 
-static ssize_t program_filter_read(struct archive_read_filter * self, const void ** buff)
+static ssize_t program_filter_read(ArchiveReadFilter * self, const void ** buff)
 {
 	ssize_t bytes;
 	struct program_filter * state = (struct program_filter *)self->data;
@@ -383,7 +377,7 @@ static ssize_t program_filter_read(struct archive_read_filter * self, const void
 	return (total);
 }
 
-static int program_filter_close(struct archive_read_filter * self)
+static int program_filter_close(ArchiveReadFilter * self)
 {
 	struct program_filter * state = (struct program_filter *)self->data;
 	int e = child_stop(self, state);

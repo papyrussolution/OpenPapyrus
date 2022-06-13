@@ -230,7 +230,7 @@ public class CommandListActivity extends SLib.SlActivity {
 						} catch(StyloQException exn) {
 							Db = null;
 							ListData = new StyloQCommand.List();
-							app_ctx.DisplayError(null, exn, 5000);
+							app_ctx.DisplayError(this, exn, 5000);
 						}
 					}
 				}
@@ -370,14 +370,14 @@ public class CommandListActivity extends SLib.SlActivity {
 							if(app_ctx != null) {
 								if(SLib.GetLen(reply_msg) <= 0)
 									reply_msg = "OK";
-								app_ctx.DisplayMessage(this, reply_msg, 20000);
+								app_ctx.DisplayMessage(this, reply_msg, 0);
 							}
 						}
 						else {
 							if(app_ctx != null) {
 								if(SLib.GetLen(reply_errmsg) <= 0)
 									reply_msg = "ERROR";
-								app_ctx.DisplayMessage(this, reply_msg, 20000);
+								app_ctx.DisplayError(this, reply_msg, 0);
 							}
 						}
 					}

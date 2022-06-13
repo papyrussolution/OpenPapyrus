@@ -286,7 +286,7 @@ U_CAPI int32_t U_EXPORT2 unorm2_normalize(const UNormalizer2 * norm2, const UCha
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if((src==NULL ? length!=0 : length<-1) || (dest==NULL ? capacity!=0 : capacity<0) || (src==dest && src!=NULL)) {
+	if((src==NULL ? length!=0 : length<-1) || (dest==NULL ? capacity!=0 : capacity<0) || (src==dest && src != NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -295,7 +295,7 @@ U_CAPI int32_t U_EXPORT2 unorm2_normalize(const UNormalizer2 * norm2, const UCha
 	if(length!=0) {
 		const Normalizer2 * n2 = (const Normalizer2*)norm2;
 		const Normalizer2WithImpl * n2wi = dynamic_cast<const Normalizer2WithImpl *>(n2);
-		if(n2wi!=NULL) {
+		if(n2wi != NULL) {
 			// Avoid duplicate argument checking and support NUL-terminated src.
 			ReorderingBuffer buffer(n2wi->impl, destString);
 			if(buffer.init(length, *pErrorCode)) {
@@ -318,7 +318,7 @@ static int32_t normalizeSecondAndAppend(const UNormalizer2 * norm2,
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if((second==NULL ? secondLength!=0 : secondLength<-1) || (first==NULL ? (firstCapacity!=0 || firstLength!=0) : (firstCapacity<0 || firstLength<-1)) || (first==second && first!=NULL)) {
+	if((second==NULL ? secondLength!=0 : secondLength<-1) || (first==NULL ? (firstCapacity!=0 || firstLength!=0) : (firstCapacity<0 || firstLength<-1)) || (first==second && first != NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -328,7 +328,7 @@ static int32_t normalizeSecondAndAppend(const UNormalizer2 * norm2,
 	if(secondLength!=0) {
 		const Normalizer2 * n2 = (const Normalizer2*)norm2;
 		const Normalizer2WithImpl * n2wi = dynamic_cast<const Normalizer2WithImpl *>(n2);
-		if(n2wi!=NULL) {
+		if(n2wi != NULL) {
 			// Avoid duplicate argument checking and support NUL-terminated src.
 			UnicodeString safeMiddle;
 			{
@@ -342,7 +342,7 @@ static int32_t normalizeSecondAndAppend(const UNormalizer2 * norm2,
 				// Restore the modified suffix of the first string.
 				// This does not restore first[] array contents between firstLength and firstCapacity.
 				// (That might be uninitialized memory, as far as we know.)
-				if(first!=NULL) { /* don't dereference NULL */
+				if(first != NULL) { /* don't dereference NULL */
 					safeMiddle.extract(0, 0x7fffffff, first+firstLength-safeMiddle.length());
 					if(firstLength<firstCapacity) {
 						first[firstLength] = 0; // NUL-terminate in case it was originally.

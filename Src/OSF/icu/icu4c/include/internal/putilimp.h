@@ -61,11 +61,9 @@
 #if !defined(__intptr_t_defined) && !defined(UINTPTR_MAX) && (U_PLATFORM != U_PF_OS390)
 typedef size_t uintptr_t;
 #endif
-
-/*===========================================================================*/
-/** @{ Information about POSIX support   */
-/*===========================================================================*/
-
+// 
+// @{ Information about POSIX support
+// 
 #ifdef U_HAVE_NL_LANGINFO_CODESET
 /* Use the predefined value. */
 #elif U_PLATFORM_USES_ONLY_WIN32_API || U_PLATFORM == U_PF_ANDROID || U_PLATFORM == U_PF_QNX
@@ -165,13 +163,10 @@ typedef size_t uintptr_t;
 #else
 #define U_HAVE_DIRENT_H 1
 #endif
-
 /** @} */
-
-/*===========================================================================*/
-/** @{ Programs used by ICU code         */
-/*===========================================================================*/
-
+// 
+// @{ Programs used by ICU code
+// 
 /**
  * \def U_MAKE_IS_NMAKE
  * Defines whether the "make" program is Windows nmake.
@@ -185,11 +180,9 @@ typedef size_t uintptr_t;
 #endif
 
 /** @} */
-
-/*==========================================================================*/
-/* Platform utilities */
-/*==========================================================================*/
-
+// 
+// Platform utilities
+// 
 /**
  * Platform utilities isolates the platform dependencies of the
  * library.  For each platform which this code is ported to, these

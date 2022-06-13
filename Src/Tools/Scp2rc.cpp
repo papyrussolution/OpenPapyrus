@@ -1,5 +1,6 @@
 // SCP2RC.CPP
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019, 2020, 2021, 2022
+// @codepage UTF-8
 //
 #include <slib.h>
 
@@ -23,26 +24,26 @@
 #define DEF_CTL_ID "control"
 /*
 TInputLine
-	Тип данных записывается в поле EXTRA[1] в формате:
-		ТИП, ДЛИНА[, ТОЧНОСТЬ] (default S_ZSTRING, maxLen, 0)
-	Формат записывается в поле EXTRA[2] в формате
-		ФЛАГИ, ДЛИНА[, ТОЧНОСТЬ] (default maxLen-1, 0)
-	TCalcInputLine записывается в поле EXTRA[3] в формате:
-		Идентификатор (VB_XXX - max 31 символ)
-	Длина InputLine +=1 для размещения TCalcInputLine
+	РўРёРї РґР°РЅРЅС‹С… Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ РІ РїРѕР»Рµ EXTRA[1] РІ С„РѕСЂРјР°С‚Рµ:
+		РўРРџ, Р”Р›РРќРђ[, РўРћР§РќРћРЎРўР¬] (default S_ZSTRING, maxLen, 0)
+	Р¤РѕСЂРјР°С‚ Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ РІ РїРѕР»Рµ EXTRA[2] РІ С„РѕСЂРјР°С‚Рµ
+		Р¤Р›РђР“Р, Р”Р›РРќРђ[, РўРћР§РќРћРЎРўР¬] (default maxLen-1, 0)
+	TCalcInputLine Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ РІ РїРѕР»Рµ EXTRA[3] РІ С„РѕСЂРјР°С‚Рµ:
+		РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ (VB_XXX - max 31 СЃРёРјРІРѕР»)
+	Р”Р»РёРЅР° InputLine +=1 РґР»СЏ СЂР°Р·РјРµС‰РµРЅРёСЏ TCalcInputLine
 SmartListBox
-	Тип данных в поле EXTRA[1]
-		ТИП, ДЛИНА, ТОЧНОСТЬ
-	Формат в поле EXTRA[2]
-		ФЛАГИ, ДЛИНА[, ТОЧНОСТЬ]
-	Опции в поле EXTRA[3]
-		ФЛАГИ
+	РўРёРї РґР°РЅРЅС‹С… РІ РїРѕР»Рµ EXTRA[1]
+		РўРРџ, Р”Р›РРќРђ, РўРћР§РќРћРЎРўР¬
+	Р¤РѕСЂРјР°С‚ РІ РїРѕР»Рµ EXTRA[2]
+		Р¤Р›РђР“Р, Р”Р›РРќРђ[, РўРћР§РќРћРЎРўР¬]
+	РћРїС†РёРё РІ РїРѕР»Рµ EXTRA[3]
+		Р¤Р›РђР“Р
 
 	EXTRA[4]:
 		Length,Flags,ColumnName;...
 		Flags = L(eft) | R(ight) | C(enter)
 TButton
-	Идентификатор Bitmap в поле EXTRA[3]
+	РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Bitmap РІ РїРѕР»Рµ EXTRA[3]
 */
 
 static void error(const char * s)
@@ -94,7 +95,7 @@ public:
 		}
 		else {
 			fscanf(In, "%s", str);
-			if(strcmp(str, "SCRIPT1") != 0)
+			if(!sstreq(str, "SCRIPT1"))
 				error("Input file is not script file");
 			fprintf(R_Out, "/*\n    Source file: %s\n*/\n", pFileName);
 			GetString(str);
@@ -229,7 +230,7 @@ public:
 						break;
 					*/
 					case __ScrollBar:
-						// Присутствие ScrollBar'а засечет ListBox
+						// РџСЂРёСЃСѓС‚СЃС‚РІРёРµ ScrollBar'Р° Р·Р°СЃРµС‡РµС‚ ListBox
 						break;
 					case __Combo:
 						Ctrl.Combo.get(*this);
@@ -260,7 +261,7 @@ public:
 	void SkipWS()
 	{
 		char   c = fgetc(In);
-		while(!feof(static_cast<FILE *>(In)) && (c == ' ' || c == '\t' || c == '\n'))
+		while(!feof(static_cast<FILE *>(In)) && oneof3(c, ' ', '\t', '\n'))
 			c = fgetc(In);
 		ungetc(c, In);
 	}
@@ -285,12 +286,12 @@ public:
 	char ** GetStrColl(unsigned count)
 	{
 		char   buf[128];
-		char ** coll = static_cast<char **>(SAlloc::C(count, sizeof(char *)));
+		char ** pp_coll = static_cast<char **>(SAlloc::C(count, sizeof(char *)));
 		for(uint i = 0; i < count; i++) {
 			GetString(buf);
-			coll[i] = sstrdup(buf);
+			pp_coll[i] = sstrdup(buf);
 		}
-		return coll;
+		return pp_coll;
 	}
 	uint GetUINT()
 	{
@@ -642,7 +643,7 @@ public:
 		strcpy(colWidth, strip(Fix.extra[5]));
 	}
 	//
-	// Записывает наименование элемента, координаты и идентификатор
+	// Р—Р°РїРёСЃС‹РІР°РµС‚ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ СЌР»РµРјРµРЅС‚Р°, РєРѕРѕСЂРґРёРЅР°С‚С‹ Рё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
 	//
 	void WriteHeader(int kind)
 	{
@@ -944,7 +945,7 @@ int main(int argc, char ** argv)
 					msg_buf.Printf("Unable open output file %s", out_file_name.cptr());
 					error(msg_buf);
 				}
-				// Проверяя время модификации файлов мы переместили текущую позицию - вернем назад
+				// РџСЂРѕРІРµСЂСЏСЏ РІСЂРµРјСЏ РјРѕРґРёС„РёРєР°С†РёРё С„Р°Р№Р»РѕРІ РјС‹ РїРµСЂРµРјРµСЃС‚РёР»Рё С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ - РІРµСЂРЅРµРј РЅР°Р·Р°Рґ
 				rspf.Seek(0); 
 				//
 				if(tools_path.NotEmptyS()) {
@@ -1003,9 +1004,9 @@ int main(int argc, char ** argv)
 				outf.Close();
 				if(perl_cmd.NotEmptyS()) {
 					//
-					// Надо отконвертировать кодировку символов OemToChar
-					// Для этого придется создать временный файл с расширением tmp и пренести в него 
-					// файл out_file_name в перекодированном виде.
+					// РќР°РґРѕ РѕС‚РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ РєРѕРґРёСЂРѕРІРєСѓ СЃРёРјРІРѕР»РѕРІ OemToChar
+					// Р”Р»СЏ СЌС‚РѕРіРѕ РїСЂРёРґРµС‚СЃСЏ СЃРѕР·РґР°С‚СЊ РІСЂРµРјРµРЅРЅС‹Р№ С„Р°Р№Р» СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј tmp Рё РїСЂРµРЅРµСЃС‚Рё РІ РЅРµРіРѕ 
+					// С„Р°Р№Р» out_file_name РІ РїРµСЂРµРєРѕРґРёСЂРѕРІР°РЅРЅРѕРј РІРёРґРµ.
 					//
 					SString temp_file_name;
 					temp_file_name = out_file_name;
@@ -1069,4 +1070,3 @@ int main(int argc, char ** argv)
 	}
 	return 0;
 }
-

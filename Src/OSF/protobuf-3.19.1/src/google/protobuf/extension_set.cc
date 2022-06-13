@@ -965,32 +965,24 @@ size_t SizeOfUnion(ItX it_xs, ItX end_xs, ItY it_ys, ItY end_ys) {
 }
 }  // namespace
 
-void ExtensionSet::MergeFrom(const MessageLite* extendee,
-    const ExtensionSet& other) {
+void ExtensionSet::MergeFrom(const MessageLite* extendee, const ExtensionSet& other) 
+{
 	if(PROTOBUF_PREDICT_TRUE(!is_large())) {
 		if(PROTOBUF_PREDICT_TRUE(!other.is_large())) {
-			GrowCapacity(SizeOfUnion(flat_begin(), flat_end(), other.flat_begin(),
-			    other.flat_end()));
+			GrowCapacity(SizeOfUnion(flat_begin(), flat_end(), other.flat_begin(), other.flat_end()));
 		}
 		else {
-			GrowCapacity(SizeOfUnion(flat_begin(), flat_end(),
-			    other.map_.large->begin(),
-			    other.map_.large->end()));
+			GrowCapacity(SizeOfUnion(flat_begin(), flat_end(), other.map_.large->begin(), other.map_.large->end()));
 		}
 	}
-	other.ForEach([extendee, this, &other](int number, const Extension& ext) {
-					this->InternalExtensionMergeFrom(extendee, number, ext, other.arena_);
-				});
+	other.ForEach([extendee, this, &other](int number, const Extension& ext) { this->InternalExtensionMergeFrom(extendee, number, ext, other.arena_); });
 }
 
-void ExtensionSet::InternalExtensionMergeFrom(const MessageLite* extendee,
-    int number,
-    const Extension& other_extension,
-    Arena* other_arena) {
+void ExtensionSet::InternalExtensionMergeFrom(const MessageLite* extendee, int number, const Extension& other_extension, Arena* other_arena) 
+{
 	if(other_extension.is_repeated) {
 		Extension* extension;
-		bool is_new =
-		    MaybeNewExtension(number, other_extension.descriptor, &extension);
+		bool is_new = MaybeNewExtension(number, other_extension.descriptor, &extension);
 		if(is_new) {
 			// Extension did not already exist in set.
 			extension->type = other_extension.type;
@@ -1036,10 +1028,7 @@ void ExtensionSet::InternalExtensionMergeFrom(const MessageLite* extendee,
 				other_extension.repeated_message_value;
 			    for(int i = 0; i < other_repeated_message->size(); i++) {
 				    const MessageLite& other_message = other_repeated_message->Get(i);
-				    MessageLite* target =
-					reinterpret_cast<internal::RepeatedPtrFieldBase*>(
-					    extension->repeated_message_value)
-					->AddFromCleared<GenericTypeHandler<MessageLite> >();
+				    MessageLite* target = reinterpret_cast<internal::RepeatedPtrFieldBase*>(extension->repeated_message_value)->AddFromCleared<GenericTypeHandler<MessageLite> >();
 				    if(target == nullptr) {
 					    target = other_message.New(arena_);
 					    extension->repeated_message_value->AddAllocated(target);
@@ -1074,26 +1063,20 @@ void ExtensionSet::InternalExtensionMergeFrom(const MessageLite* extendee,
 				    break;
 				case WireFormatLite::CPPTYPE_MESSAGE: {
 				    Extension* extension;
-				    bool is_new =
-					MaybeNewExtension(number, other_extension.descriptor, &extension);
+				    bool is_new = MaybeNewExtension(number, other_extension.descriptor, &extension);
 				    if(is_new) {
 					    extension->type = other_extension.type;
 					    extension->is_packed = other_extension.is_packed;
 					    extension->is_repeated = false;
 					    if(other_extension.is_lazy) {
 						    extension->is_lazy = true;
-						    extension->lazymessage_value =
-							other_extension.lazymessage_value->New(arena_);
-						    extension->lazymessage_value->MergeFrom(
-							    GetPrototypeForLazyMessage(extendee, number),
-							    *other_extension.lazymessage_value, arena_);
+						    extension->lazymessage_value = other_extension.lazymessage_value->New(arena_);
+						    extension->lazymessage_value->MergeFrom(GetPrototypeForLazyMessage(extendee, number), *other_extension.lazymessage_value, arena_);
 					    }
 					    else {
 						    extension->is_lazy = false;
-						    extension->message_value =
-							other_extension.message_value->New(arena_);
-						    extension->message_value->CheckTypeAndMergeFrom(
-							    *other_extension.message_value);
+						    extension->message_value = other_extension.message_value->New(arena_);
+						    extension->message_value->CheckTypeAndMergeFrom(*other_extension.message_value);
 					    }
 				    }
 				    else {
@@ -1102,25 +1085,18 @@ void ExtensionSet::InternalExtensionMergeFrom(const MessageLite* extendee,
 					    GOOGLE_DCHECK(!extension->is_repeated);
 					    if(other_extension.is_lazy) {
 						    if(extension->is_lazy) {
-							    extension->lazymessage_value->MergeFrom(
-								    GetPrototypeForLazyMessage(extendee, number),
-								    *other_extension.lazymessage_value, arena_);
+							    extension->lazymessage_value->MergeFrom(GetPrototypeForLazyMessage(extendee, number), *other_extension.lazymessage_value, arena_);
 						    }
 						    else {
-							    extension->message_value->CheckTypeAndMergeFrom(
-								    other_extension.lazymessage_value->GetMessage(
-									    *extension->message_value, other_arena));
+							    extension->message_value->CheckTypeAndMergeFrom(other_extension.lazymessage_value->GetMessage(*extension->message_value, other_arena));
 						    }
 					    }
 					    else {
 						    if(extension->is_lazy) {
-							    extension->lazymessage_value
-							    ->MutableMessage(*other_extension.message_value, arena_)
-							    ->CheckTypeAndMergeFrom(*other_extension.message_value);
+							    extension->lazymessage_value->MutableMessage(*other_extension.message_value, arena_)->CheckTypeAndMergeFrom(*other_extension.message_value);
 						    }
 						    else {
-							    extension->message_value->CheckTypeAndMergeFrom(
-								    *other_extension.message_value);
+							    extension->message_value->CheckTypeAndMergeFrom(*other_extension.message_value);
 						    }
 					    }
 				    }
@@ -1132,7 +1108,8 @@ void ExtensionSet::InternalExtensionMergeFrom(const MessageLite* extendee,
 	}
 }
 
-void ExtensionSet::Swap(const MessageLite* extendee, ExtensionSet* other) {
+void ExtensionSet::Swap(const MessageLite* extendee, ExtensionSet* other) 
+{
 #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
 	if(GetArena() != nullptr && GetArena() == other->GetArena()) {
 #else   // PROTOBUF_FORCE_COPY_IN_SWAP
@@ -1153,7 +1130,8 @@ void ExtensionSet::Swap(const MessageLite* extendee, ExtensionSet* other) {
 	}
 }
 
-void ExtensionSet::InternalSwap(ExtensionSet* other) {
+void ExtensionSet::InternalSwap(ExtensionSet* other) 
+{
 	using std::swap;
 	swap(arena_, other->arena_);
 	swap(flat_capacity_, other->flat_capacity_);
@@ -1161,20 +1139,18 @@ void ExtensionSet::InternalSwap(ExtensionSet* other) {
 	swap(map_, other->map_);
 }
 
-void ExtensionSet::SwapExtension(const MessageLite* extendee,
-    ExtensionSet* other, int number) {
-	if(this == other) return;
-
+void ExtensionSet::SwapExtension(const MessageLite* extendee, ExtensionSet* other, int number) 
+{
+	if(this == other) 
+		return;
 	if(GetArena() == other->GetArena()) {
 		UnsafeShallowSwapExtension(other, number);
 		return;
 	}
-
 	Extension* this_ext = FindOrNull(number);
 	Extension* other_ext = other->FindOrNull(number);
-
-	if(this_ext == other_ext) return;
-
+	if(this_ext == other_ext) 
+		return;
 	if(this_ext != nullptr && other_ext != nullptr) {
 		// TODO(cfallin, rohananil): We could further optimize these cases,
 		// especially avoid creation of ExtensionSet, and move MergeFrom logic
@@ -1182,13 +1158,10 @@ void ExtensionSet::SwapExtension(const MessageLite* extendee,
 		// We do it this way to reuse the copy-across-arenas logic already
 		// implemented in ExtensionSet's MergeFrom.
 		ExtensionSet temp;
-		temp.InternalExtensionMergeFrom(extendee, number, *other_ext,
-		    other->GetArena());
+		temp.InternalExtensionMergeFrom(extendee, number, *other_ext, other->GetArena());
 		Extension* temp_ext = temp.FindOrNull(number);
-
 		other_ext->Clear();
-		other->InternalExtensionMergeFrom(extendee, number, *this_ext,
-		    this->GetArena());
+		other->InternalExtensionMergeFrom(extendee, number, *this_ext, this->GetArena());
 		this_ext->Clear();
 		InternalExtensionMergeFrom(extendee, number, *temp_ext, temp.GetArena());
 	}
@@ -1198,23 +1171,20 @@ void ExtensionSet::SwapExtension(const MessageLite* extendee,
 		other->Erase(number);
 	}
 	else {
-		other->InternalExtensionMergeFrom(extendee, number, *this_ext,
-		    this->GetArena());
-		if(GetArena() == nullptr) this_ext->Free();
+		other->InternalExtensionMergeFrom(extendee, number, *this_ext, this->GetArena());
+		if(GetArena() == nullptr) 
+			this_ext->Free();
 		Erase(number);
 	}
 }
 
-void ExtensionSet::UnsafeShallowSwapExtension(ExtensionSet* other, int number) {
+void ExtensionSet::UnsafeShallowSwapExtension(ExtensionSet* other, int number) 
+{
 	if(this == other) return;
-
 	Extension* this_ext = FindOrNull(number);
 	Extension* other_ext = other->FindOrNull(number);
-
 	if(this_ext == other_ext) return;
-
 	GOOGLE_DCHECK_EQ(GetArena(), other->GetArena());
-
 	if(this_ext != nullptr && other_ext != nullptr) {
 		std::swap(*this_ext, *other_ext);
 	}
@@ -1243,16 +1213,11 @@ bool ExtensionSet::IsInitialized() const {
 	return true;
 }
 
-bool ExtensionSet::FindExtensionInfoFromTag(uint32_t tag,
-    ExtensionFinder* extension_finder,
-    int* field_number,
-    ExtensionInfo* extension,
-    bool* was_packed_on_wire) {
+bool ExtensionSet::FindExtensionInfoFromTag(uint32_t tag, ExtensionFinder* extension_finder, int* field_number, ExtensionInfo* extension, bool* was_packed_on_wire) 
+{
 	*field_number = WireFormatLite::GetTagFieldNumber(tag);
 	WireFormatLite::WireType wire_type = WireFormatLite::GetTagWireType(tag);
-	return FindExtensionInfoFromFieldNumber(wire_type, *field_number,
-		   extension_finder, extension,
-		   was_packed_on_wire);
+	return FindExtensionInfoFromFieldNumber(wire_type, *field_number, extension_finder, extension, was_packed_on_wire);
 }
 
 bool ExtensionSet::FindExtensionInfoFromFieldNumber(int wire_type, int field_number, ExtensionFinder* extension_finder,

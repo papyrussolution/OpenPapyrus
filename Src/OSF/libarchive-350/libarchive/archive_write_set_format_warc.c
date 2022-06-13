@@ -71,20 +71,20 @@ typedef struct {
 } warc_uuid_t;
 
 static int _warc_options(struct archive_write*, const char * key, const char * v);
-static int _warc_header(struct archive_write * a, struct archive_entry * entry);
+static int _warc_header(struct archive_write * a, ArchiveEntry * entry);
 static ssize_t _warc_data(struct archive_write * a, const void * buf, size_t sz);
 static int _warc_finish_entry(struct archive_write * a);
 static int _warc_close(struct archive_write * a);
 static int _warc_free(struct archive_write * a);
 
 /* private routines */
-static ssize_t _popul_ehdr(struct archive_string * t, size_t z, warc_essential_hdr_t);
+static ssize_t _popul_ehdr(archive_string * t, size_t z, warc_essential_hdr_t);
 static int _gen_uuid(warc_uuid_t * tgt);
 
 /*
  * Set output format to ISO 28500 (aka WARC) format.
  */
-int archive_write_set_format_warc(struct archive * _a)
+int archive_write_set_format_warc(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct warc_s * w;
@@ -136,10 +136,10 @@ static int _warc_options(struct archive_write * a, const char * key, const char 
 	return ARCHIVE_WARN;
 }
 
-static int _warc_header(struct archive_write * a, struct archive_entry * entry)
+static int _warc_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	struct warc_s * w = static_cast<struct warc_s *>(a->format_data);
-	struct archive_string hdr;
+	archive_string hdr;
 #define MAX_HDR_SIZE 512
 
 	/* check whether warcinfo record needs outputting */
@@ -261,7 +261,7 @@ static int _warc_free(struct archive_write * a)
 }
 
 /* private routines */
-static void xstrftime(struct archive_string * as, const char * fmt, time_t t)
+static void xstrftime(archive_string * as, const char * fmt, time_t t)
 {
 /** like strftime(3) but for time_t objects */
 	struct tm * rt;
@@ -294,7 +294,7 @@ static void xstrftime(struct archive_string * as, const char * fmt, time_t t)
 	archive_strncat(as, strtime, len);
 }
 
-static ssize_t _popul_ehdr(struct archive_string * tgt, size_t tsz, warc_essential_hdr_t hdr)
+static ssize_t _popul_ehdr(archive_string * tgt, size_t tsz, warc_essential_hdr_t hdr)
 {
 	static const char _ver[] = "WARC/1.0\r\n";
 	static const char * const _typ[LAST_WT] = {

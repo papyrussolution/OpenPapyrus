@@ -1,12 +1,8 @@
+// sharedobject.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- * Copyright (C) 2015, International Business Machines
- * Corporation and others.  All Rights Reserved.
- ******************************************************************************
- * sharedobject.cpp
- */
+// Copyright (C) 2015, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "sharedobject.h"
@@ -14,15 +10,15 @@
 
 U_NAMESPACE_BEGIN
 
-SharedObject::~SharedObject() {
+SharedObject::~SharedObject() 
+{
 }
 
-UnifiedCacheBase::~UnifiedCacheBase() {
+UnifiedCacheBase::~UnifiedCacheBase() 
+{
 }
 
-void SharedObject::addRef() const {
-	umtx_atomic_inc(&hardRefCount);
-}
+void SharedObject::addRef() const { umtx_atomic_inc(&hardRefCount); }
 
 // removeRef Decrement the reference count and delete if it is zero.
 //           Note that SharedObjects with a non-null cachePtr are owned by the
@@ -32,25 +28,23 @@ void SharedObject::addRef() const {
 //           a cache eviction cycle concurrently.
 //           NO ACCESS TO *this PERMITTED AFTER REFERENCE COUNT == 0 for cached objects.
 //           THE OBJECT MAY ALREADY BE GONE.
-void SharedObject::removeRef() const {
+void SharedObject::removeRef() const 
+{
 	const UnifiedCacheBase * cache = this->cachePtr;
 	int32_t updatedRefCount = umtx_atomic_dec(&hardRefCount);
 	U_ASSERT(updatedRefCount >= 0);
 	if(updatedRefCount == 0) {
-		if(cache) {
+		if(cache)
 			cache->handleUnreferencedObject();
-		}
-		else {
+		else
 			delete this;
-		}
 	}
 }
 
-int32_t SharedObject::getRefCount() const {
-	return umtx_loadAcquire(hardRefCount);
-}
+int32_t SharedObject::getRefCount() const { return umtx_loadAcquire(hardRefCount); }
 
-void SharedObject::deleteIfZeroRefCount() const {
+void SharedObject::deleteIfZeroRefCount() const 
+{
 	if(this->cachePtr == nullptr && getRefCount() == 0) {
 		delete this;
 	}

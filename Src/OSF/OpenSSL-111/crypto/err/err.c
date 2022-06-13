@@ -473,7 +473,7 @@ static ulong get_error_values(int inc, int top, const char ** file, int * line, 
 			*line = es->err_line[i];
 		}
 	}
-	if(data == NULL) {
+	if(!data) {
 		if(inc) {
 			err_clear_data(es, i);
 		}

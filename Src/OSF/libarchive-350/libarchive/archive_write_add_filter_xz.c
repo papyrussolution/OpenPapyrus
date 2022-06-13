@@ -17,19 +17,19 @@
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_xz.c 201108 2009-12-28 03:28:21Z kientzle $");
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-int archive_write_set_compression_lzip(struct archive * a)
+int archive_write_set_compression_lzip(Archive * a)
 {
 	__archive_write_filters_free(a);
 	return (archive_write_add_filter_lzip(a));
 }
 
-int archive_write_set_compression_lzma(struct archive * a)
+int archive_write_set_compression_lzma(Archive * a)
 {
 	__archive_write_filters_free(a);
 	return (archive_write_add_filter_lzma(a));
 }
 
-int archive_write_set_compression_xz(struct archive * a)
+int archive_write_set_compression_xz(Archive * a)
 {
 	__archive_write_filters_free(a);
 	return (archive_write_add_filter_xz(a));
@@ -38,19 +38,19 @@ int archive_write_set_compression_xz(struct archive * a)
 #endif
 
 #ifndef HAVE_LZMA_H
-int archive_write_add_filter_xz(struct archive * a)
+int archive_write_add_filter_xz(Archive * a)
 {
 	archive_set_error(a, ARCHIVE_ERRNO_MISC, "xz compression not supported on this platform");
 	return ARCHIVE_FATAL;
 }
 
-int archive_write_add_filter_lzma(struct archive * a)
+int archive_write_add_filter_lzma(Archive * a)
 {
 	archive_set_error(a, ARCHIVE_ERRNO_MISC, "lzma compression not supported on this platform");
 	return ARCHIVE_FATAL;
 }
 
-int archive_write_add_filter_lzip(struct archive * a)
+int archive_write_add_filter_lzip(Archive * a)
 {
 	archive_set_error(a, ARCHIVE_ERRNO_MISC, "lzma compression not supported on this platform");
 	return ARCHIVE_FATAL;
@@ -103,7 +103,7 @@ static int common_setup(struct archive_write_filter * f)
 {
 	struct archive_write * a = (struct archive_write *)f->archive;
 	struct private_data * data = static_cast<struct private_data *>(SAlloc::C(1, sizeof(*data)));
-	if(data == NULL) {
+	if(!data) {
 		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
@@ -119,7 +119,7 @@ static int common_setup(struct archive_write_filter * f)
 /*
  * Add an xz compression filter to this write handle.
  */
-int archive_write_add_filter_xz(struct archive * _a)
+int archive_write_add_filter_xz(Archive * _a)
 {
 	struct archive_write_filter * f;
 	int r;
@@ -136,7 +136,7 @@ int archive_write_add_filter_xz(struct archive * _a)
 /* LZMA is handled identically, we just need a different compression
  * code set.  (The liblzma setup looks at the code to determine
  * the one place that XZ and LZMA require different handling.) */
-int archive_write_add_filter_lzma(struct archive * _a)
+int archive_write_add_filter_lzma(Archive * _a)
 {
 	struct archive_write_filter * f;
 	int r;
@@ -150,7 +150,7 @@ int archive_write_add_filter_lzma(struct archive * _a)
 	return r;
 }
 
-int archive_write_add_filter_lzip(struct archive * _a)
+int archive_write_add_filter_lzip(Archive * _a)
 {
 	struct archive_write_filter * f;
 	int r;

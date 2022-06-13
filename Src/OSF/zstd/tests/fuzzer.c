@@ -2283,7 +2283,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 			    ZSTD_dct_fullDict,
 			    cParams,
 			    ZSTD_defaultCMem);
-		    if(cdict!=NULL) goto _output_error;
+		    if(cdict != NULL) goto _output_error;
 		    ZSTD_freeCDict(cdict);
 	    }
 	    DISPLAYLEVEL(3, "OK \n");

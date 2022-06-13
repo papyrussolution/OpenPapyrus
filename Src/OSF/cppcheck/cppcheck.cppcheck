@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="1">
+    <root name="."/>
+    <builddir>out1</builddir>
+    <analyze-all-vs-configs>true</analyze-all-vs-configs>
+    <includedir>
+        <dir name="lib/"/>
+        <dir name="cli/"/>
+        <dir name="externals/"/>
+        <dir name="gui/temp/"/>
+        <dir name="gui/"/>
+    </includedir>
+    <paths>
+        <dir name="lib/"/>
+        <dir name="cli/"/>
+        <dir name="gui/"/>
+        <dir name="test/"/>
+    </paths>
+    <exclude>
+        <path name="gui/temp/"/>
+        <path name="test/test.cxx"/>
+    </exclude>
+</project>

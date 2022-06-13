@@ -1,31 +1,18 @@
+// SMPDTFMT.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 1997-2016, International Business Machines Corporation and    *
- * others. All Rights Reserved.
- *******************************************************************************
- *
- * File SMPDTFMT.CPP
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   02/19/97    aliu        Converted from java.
- *   03/31/97    aliu        Modified extensively to work with 50 locales.
- *   04/01/97    aliu        Added support for centuries.
- *   07/09/97    helena      Made ParsePosition into a class.
- *   07/21/98    stephen     Added initializeDefaultCentury.
- *          Removed getZoneIndex (added in DateFormatSymbols)
- *          Removed subParseLong
- *          Removed chk
- *   02/22/99    stephen     Removed character literals for EBCDIC safety
- *   10/14/99    aliu        Updated 2-digit year parsing so that only "00" thru
- *        "99" are recognized. {j28 4182066}
- *   11/15/99    weiv        Added support for week of year/day of week format
- ********************************************************************************
- */
-
+// Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 02/19/97    aliu        Converted from java.
+// 03/31/97    aliu        Modified extensively to work with 50 locales.
+// 04/01/97    aliu        Added support for centuries.
+// 07/09/97    helena      Made ParsePosition into a class.
+// 07/21/98    stephen     Added initializeDefaultCentury. Removed getZoneIndex (added in DateFormatSymbols), Removed subParseLong, Removed chk
+// 02/22/99    stephen     Removed character literals for EBCDIC safety
+// 10/14/99    aliu        Updated 2-digit year parsing so that only "00" thru "99" are recognized. {j28 4182066}
+// 11/15/99    weiv        Added support for week of year/day of week format
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -46,11 +33,9 @@
 #include "dayperiodrules.h"
 #include "tznames_impl.h"   // ZONE_NAME_U16_MAX
 #include "number_utypes.h"
-
-// *****************************************************************************
+//
 // class SimpleDateFormat
-// *****************************************************************************
-
+//
 U_NAMESPACE_BEGIN
 
 /**
@@ -219,8 +204,7 @@ SimpleDateFormat::NSOverride::~NSOverride()
 
 void SimpleDateFormat::NSOverride::free() 
 {
-	NSOverride * cur = this;
-	while(cur) {
+	for(NSOverride * cur = this; cur;) {
 		NSOverride * next_temp = cur->next;
 		delete cur;
 		cur = next_temp;
@@ -265,21 +249,22 @@ static const SharedNumberFormat * createSharedNumberFormat(const Locale &loc, UE
 static const SharedNumberFormat ** allocSharedNumberFormatters() 
 {
 	const SharedNumberFormat ** result = (const SharedNumberFormat**)uprv_malloc(UDAT_FIELD_COUNT * sizeof(const SharedNumberFormat*));
-	if(!result) {
-		return NULL;
-	}
-	for(int32_t i = 0; i < UDAT_FIELD_COUNT; ++i) {
-		result[i] = NULL;
+	if(result) {
+		for(int32_t i = 0; i < UDAT_FIELD_COUNT; ++i) {
+			result[i] = NULL;
+		}
 	}
 	return result;
 }
 
-static void freeSharedNumberFormatters(const SharedNumberFormat ** list) 
+static void freeSharedNumberFormatters(const SharedNumberFormat ** ppList) 
 {
-	for(int32_t i = 0; i < UDAT_FIELD_COUNT; ++i) {
-		SharedObject::clearPtr(list[i]);
+	if(ppList) {
+		for(int32_t i = 0; i < UDAT_FIELD_COUNT; ++i) {
+			SharedObject::clearPtr(ppList[i]);
+		}
+		uprv_free(ppList);
 	}
-	uprv_free(list);
 }
 
 const NumberFormat * SimpleDateFormat::getNumberFormatByIndex(UDateFormatField index) const 
@@ -293,37 +278,24 @@ const NumberFormat * SimpleDateFormat::getNumberFormatByIndex(UDateFormatField i
 SimpleDateFormat::~SimpleDateFormat()
 {
 	delete fSymbols;
-	if(fSharedNumberFormatters) {
-		freeSharedNumberFormatters(fSharedNumberFormatters);
-	}
-	if(fTimeZoneFormat) {
-		delete fTimeZoneFormat;
-	}
+	freeSharedNumberFormatters(fSharedNumberFormatters);
+	delete fTimeZoneFormat;
 	freeFastNumberFormatters();
 #if !UCONFIG_NO_BREAK_ITERATION
 	delete fCapitalizationBrkIter;
 #endif
 }
 
-SimpleDateFormat::SimpleDateFormat(UErrorCode & status) : fLocale(Locale::getDefault()),
-	fSymbols(NULL),
-	fTimeZoneFormat(NULL),
-	fSharedNumberFormatters(NULL),
-	fCapitalizationBrkIter(NULL)
+SimpleDateFormat::SimpleDateFormat(UErrorCode & status) : fLocale(Locale::getDefault()), fSymbols(NULL), fTimeZoneFormat(NULL),
+	fSharedNumberFormatters(NULL), fCapitalizationBrkIter(NULL)
 {
 	initializeBooleanAttributes();
 	construct(kShort, (EStyle)(kShort + kDateOffset), fLocale, status);
 	initializeDefaultCentury();
 }
 
-SimpleDateFormat::SimpleDateFormat(const UnicodeString & pattern,
-    UErrorCode & status)
-	:   fPattern(pattern),
-	fLocale(Locale::getDefault()),
-	fSymbols(NULL),
-	fTimeZoneFormat(NULL),
-	fSharedNumberFormatters(NULL),
-	fCapitalizationBrkIter(NULL)
+SimpleDateFormat::SimpleDateFormat(const UnicodeString & pattern, UErrorCode & status) : fPattern(pattern), fLocale(Locale::getDefault()),
+	fSymbols(NULL), fTimeZoneFormat(NULL), fSharedNumberFormatters(NULL), fCapitalizationBrkIter(NULL)
 {
 	fDateOverride.setToBogus();
 	fTimeOverride.setToBogus();
@@ -334,15 +306,8 @@ SimpleDateFormat::SimpleDateFormat(const UnicodeString & pattern,
 	initializeDefaultCentury();
 }
 
-SimpleDateFormat::SimpleDateFormat(const UnicodeString & pattern,
-    const UnicodeString & override,
-    UErrorCode & status)
-	:   fPattern(pattern),
-	fLocale(Locale::getDefault()),
-	fSymbols(NULL),
-	fTimeZoneFormat(NULL),
-	fSharedNumberFormatters(NULL),
-	fCapitalizationBrkIter(NULL)
+SimpleDateFormat::SimpleDateFormat(const UnicodeString & pattern, const UnicodeString & override, UErrorCode & status) :
+	fPattern(pattern), fLocale(Locale::getDefault()), fSymbols(NULL), fTimeZoneFormat(NULL), fSharedNumberFormatters(NULL), fCapitalizationBrkIter(NULL)
 {
 	fDateOverride.setTo(override);
 	fTimeOverride.setToBogus();
@@ -351,23 +316,15 @@ SimpleDateFormat::SimpleDateFormat(const UnicodeString & pattern,
 	fSymbols = DateFormatSymbols::createForLocale(fLocale, status);
 	initialize(fLocale, status);
 	initializeDefaultCentury();
-
 	processOverrideString(fLocale, override, kOvrStrBoth, status);
 }
 
-SimpleDateFormat::SimpleDateFormat(const UnicodeString & pattern,
-    const Locale & locale,
-    UErrorCode & status)
-	:   fPattern(pattern),
-	fLocale(locale),
-	fTimeZoneFormat(NULL),
-	fSharedNumberFormatters(NULL),
-	fCapitalizationBrkIter(NULL)
+SimpleDateFormat::SimpleDateFormat(const UnicodeString & pattern, const Locale & locale, UErrorCode & status) :
+	fPattern(pattern), fLocale(locale), fTimeZoneFormat(NULL), fSharedNumberFormatters(NULL), fCapitalizationBrkIter(NULL)
 {
 	fDateOverride.setToBogus();
 	fTimeOverride.setToBogus();
 	initializeBooleanAttributes();
-
 	initializeCalendar(NULL, fLocale, status);
 	fSymbols = DateFormatSymbols::createForLocale(fLocale, status);
 	initialize(fLocale, status);
@@ -552,32 +509,24 @@ SimpleDateFormat& SimpleDateFormat::operator = (const SimpleDateFormat& other)
 	if(otherTZFormat) {
 		fTimeZoneFormat = new TimeZoneFormat(*otherTZFormat);
 	}
-
 #if !UCONFIG_NO_BREAK_ITERATION
 	if(other.fCapitalizationBrkIter != NULL) {
 		fCapitalizationBrkIter = (other.fCapitalizationBrkIter)->clone();
 	}
 #endif
-
-	if(fSharedNumberFormatters != NULL) {
-		freeSharedNumberFormatters(fSharedNumberFormatters);
-		fSharedNumberFormatters = NULL;
-	}
+	freeSharedNumberFormatters(fSharedNumberFormatters);
+	fSharedNumberFormatters = NULL;
 	if(other.fSharedNumberFormatters != NULL) {
 		fSharedNumberFormatters = allocSharedNumberFormatters();
 		if(fSharedNumberFormatters) {
 			for(int32_t i = 0; i < UDAT_FIELD_COUNT; ++i) {
-				SharedObject::copyPtr(
-					other.fSharedNumberFormatters[i],
-					fSharedNumberFormatters[i]);
+				SharedObject::copyPtr(other.fSharedNumberFormatters[i], fSharedNumberFormatters[i]);
 			}
 		}
 	}
-
 	UErrorCode localStatus = U_ZERO_ERROR;
 	freeFastNumberFormatters();
 	initFastNumberFormatters(localStatus);
-
 	return *this;
 }
 
@@ -586,8 +535,7 @@ SimpleDateFormat* SimpleDateFormat::clone() const
 	return new SimpleDateFormat(*this);
 }
 
-bool
-SimpleDateFormat::operator == (const Format &other) const
+bool SimpleDateFormat::operator == (const Format &other) const
 {
 	if(DateFormat::operator == (other)) {
 		// The DateFormat::operator== check for fCapitalizationContext equality above
@@ -951,8 +899,7 @@ UnicodeString &SimpleDateFormat::format(Calendar& cal, UnicodeString & appendTo,
 	return _format(cal, appendTo, handler, status);
 }
 
-UnicodeString &SimpleDateFormat::_format(Calendar& cal, UnicodeString & appendTo,
-    FieldPositionHandler& handler, UErrorCode & status) const
+UnicodeString &SimpleDateFormat::_format(Calendar& cal, UnicodeString & appendTo, FieldPositionHandler& handler, UErrorCode & status) const
 {
 	if(U_FAILURE(status)) {
 		return appendTo;
@@ -964,7 +911,7 @@ UnicodeString &SimpleDateFormat::_format(Calendar& cal, UnicodeString & appendTo
 		// We use the time and time zone from the input calendar, but
 		// do not use the input calendar for field calculation.
 		calClone = fCalendar->clone();
-		if(calClone != NULL) {
+		if(calClone) {
 			UDate t = cal.getTime(status);
 			calClone->setTime(t, status);
 			calClone->setTimeZone(cal.getTimeZone());
@@ -975,7 +922,6 @@ UnicodeString &SimpleDateFormat::_format(Calendar& cal, UnicodeString & appendTo
 			return appendTo;
 		}
 	}
-
 	bool inQuote = FALSE;
 	UChar prevCh = 0;
 	int32_t count = 0;
@@ -1022,7 +968,7 @@ UnicodeString &SimpleDateFormat::_format(Calendar& cal, UnicodeString & appendTo
 		    prevCh, handler, *workCal, status);
 	}
 
-	if(calClone != NULL) {
+	if(calClone) {
 		delete calClone;
 	}
 
@@ -2010,31 +1956,28 @@ void SimpleDateFormat::subFormat(UnicodeString & appendTo,
 	handler.addAttribute(DateFormatSymbols::getPatternCharIndex(fieldToOutput), beginOffset, appendTo.length());
 }
 
-void SimpleDateFormat::adoptNumberFormat(NumberFormat * formatToAdopt) {
+void SimpleDateFormat::adoptNumberFormat(NumberFormat * formatToAdopt) 
+{
 	fixNumberFormatForDates(*formatToAdopt);
 	delete fNumberFormat;
 	fNumberFormat = formatToAdopt;
-
 	// We successfully set the default number format. Now delete the overrides
 	// (can't fail).
-	if(fSharedNumberFormatters) {
-		freeSharedNumberFormatters(fSharedNumberFormatters);
-		fSharedNumberFormatters = NULL;
-	}
-
+	freeSharedNumberFormatters(fSharedNumberFormatters);
+	fSharedNumberFormatters = NULL;
 	// Also re-compute the fast formatters.
 	UErrorCode localStatus = U_ZERO_ERROR;
 	freeFastNumberFormatters();
 	initFastNumberFormatters(localStatus);
 }
 
-void SimpleDateFormat::adoptNumberFormat(const UnicodeString & fields, NumberFormat * formatToAdopt, UErrorCode & status) {
+void SimpleDateFormat::adoptNumberFormat(const UnicodeString & fields, NumberFormat * formatToAdopt, UErrorCode & status) 
+{
 	fixNumberFormatForDates(*formatToAdopt);
 	LocalPointer<NumberFormat> fmt(formatToAdopt);
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	// We must ensure fSharedNumberFormatters is allocated.
 	if(fSharedNumberFormatters == NULL) {
 		fSharedNumberFormatters = allocSharedNumberFormatters();
@@ -2209,7 +2152,7 @@ void SimpleDateFormat::parse(const UnicodeString & text, Calendar& cal, ParsePos
 		// We use the time/zone from the input calendar, but
 		// do not use the input calendar for field calculation.
 		calClone = fCalendar->clone();
-		if(calClone != NULL) {
+		if(calClone) {
 			calClone->setTime(cal.getTime(status), status);
 			if(U_FAILURE(status)) {
 				goto ExitParse;
@@ -2567,7 +2510,7 @@ ExitParse:
 	if(numericLeapMonthFormatter != NULL) {
 		delete numericLeapMonthFormatter;
 	}
-	if(calClone != NULL) {
+	if(calClone) {
 		delete calClone;
 	}
 
@@ -3750,24 +3693,19 @@ void SimpleDateFormat::applyPattern(const UnicodeString & pattern)
 	parsePattern();
 	// Hack to update use of Gannen year numbering for ja@calendar=japanese -
 	// use only if format is non-numeric (includes 年) and no other fDateOverride.
-	if(fCalendar != nullptr && uprv_strcmp(fCalendar->getType(), "japanese") == 0 &&
-	    uprv_strcmp(fLocale.getLanguage(), "ja") == 0) {
+	if(fCalendar != nullptr && uprv_strcmp(fCalendar->getType(), "japanese") == 0 && uprv_strcmp(fLocale.getLanguage(), "ja") == 0) {
 		if(fDateOverride==UnicodeString(u"y=jpanyear") && !fHasHanYearChar) {
 			// Gannen numbering is set but new pattern should not use it, unset;
 			// use procedure from adoptNumberFormat to clear overrides
-			if(fSharedNumberFormatters) {
-				freeSharedNumberFormatters(fSharedNumberFormatters);
-				fSharedNumberFormatters = NULL;
-			}
+			freeSharedNumberFormatters(fSharedNumberFormatters);
+			fSharedNumberFormatters = NULL;
 			fDateOverride.setToBogus(); // record status
 		}
 		else if(fDateOverride.isBogus() && fHasHanYearChar) {
 			// No current override (=> no Gannen numbering) but new pattern needs it;
 			// use procedures from initNUmberFormatters / adoptNumberFormat
 			umtx_lock(&LOCK);
-			if(fSharedNumberFormatters == NULL) {
-				fSharedNumberFormatters = allocSharedNumberFormatters();
-			}
+			SETIFZQ(fSharedNumberFormatters, allocSharedNumberFormatters());
 			umtx_unlock(&LOCK);
 			if(fSharedNumberFormatters != NULL) {
 				Locale ovrLoc(fLocale.getLanguage(), fLocale.getCountry(), fLocale.getVariant(), "numbers=jpanyear");

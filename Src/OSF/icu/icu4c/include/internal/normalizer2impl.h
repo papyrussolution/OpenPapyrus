@@ -145,7 +145,7 @@ public:
 	ReorderingBuffer(const Normalizer2Impl &ni, UnicodeString & dest, UErrorCode & errorCode);
 	~ReorderingBuffer() 
 	{
-		if(start!=NULL) {
+		if(start != NULL) {
 			str.releaseBuffer((int32_t)(limit-start));
 		}
 	}

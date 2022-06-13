@@ -1,23 +1,13 @@
+// uconfig.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*  
-**********************************************************************
-*   Copyright (C) 2002-2016, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-**********************************************************************
-*   file name:  uconfig.h
-*   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:4
-*
-*   created on: 2002sep19
-*   created by: Markus W. Scherer
-*/
-
+// Copyright (C) 2002-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002sep19
+// created by: Markus W. Scherer
+//
 #ifndef __UCONFIG_H__
 #define __UCONFIG_H__
-
-
 /*!
  * \file
  * \brief User-configurable settings
@@ -44,7 +34,6 @@
  *
  * @stable ICU 2.4
  */
-
 /**
  * If this switch is defined, ICU will attempt to load a header file named "uconfig_local.h"
  * prior to determining default settings for uconfig variables.
@@ -52,9 +41,8 @@
  * @internal ICU 4.0
  */
 #if defined(UCONFIG_USE_LOCAL)
-#include "uconfig_local.h"
+	#include "uconfig_local.h"
 #endif
-
 /**
  * \def U_DEBUG
  * Determines whether to include debugging code.
@@ -63,35 +51,32 @@
  * @internal
  */
 #ifdef U_DEBUG
-    /* Use the predefined value. */
+/* Use the predefined value. */
 #elif defined(_DEBUG)
-    /*
-     * _DEBUG is defined by Visual Studio debug compilation.
-     * Do *not* test for its NDEBUG macro: It is an orthogonal macro
-     * which disables assert().
-     */
+/*
+ * _DEBUG is defined by Visual Studio debug compilation.
+ * Do *not* test for its NDEBUG macro: It is an orthogonal macro
+ * which disables assert().
+ */
 #define U_DEBUG 1
 #else
-#define U_DEBUG 0
+	#define U_DEBUG 0
 #endif
-
 /**
- * Determines whether to enable auto cleanup of libraries. 
+ * Determines whether to enable auto cleanup of libraries.
  * @internal
  */
 #ifndef UCLN_NO_AUTO_CLEANUP
-#define UCLN_NO_AUTO_CLEANUP 1
+	#define UCLN_NO_AUTO_CLEANUP 1
 #endif
-
 /**
  * \def U_DISABLE_RENAMING
  * Determines whether to disable renaming or not.
  * @internal
  */
 #ifndef U_DISABLE_RENAMING
-#define U_DISABLE_RENAMING 0
+	#define U_DISABLE_RENAMING 0
 #endif
-
 /**
  * \def U_NO_DEFAULT_INCLUDE_UTF_HEADERS
  * Determines whether utypes.h includes utf.h, utf8.h, utf16.h and utf_old.h.
@@ -101,10 +86,10 @@
  * @stable ICU 49
  */
 #ifdef U_NO_DEFAULT_INCLUDE_UTF_HEADERS
-    /* Use the predefined value. */
+/* Use the predefined value. */
 #elif defined(U_COMBINED_IMPLEMENTATION) || defined(U_COMMON_IMPLEMENTATION) || defined(U_I18N_IMPLEMENTATION) || \
-      defined(U_IO_IMPLEMENTATION) || defined(U_LAYOUT_IMPLEMENTATION) || defined(U_LAYOUTEX_IMPLEMENTATION) || \
-      defined(U_TOOLUTIL_IMPLEMENTATION)
+	defined(U_IO_IMPLEMENTATION) || defined(U_LAYOUT_IMPLEMENTATION) || defined(U_LAYOUTEX_IMPLEMENTATION) || \
+	defined(U_TOOLUTIL_IMPLEMENTATION)
 #define U_NO_DEFAULT_INCLUDE_UTF_HEADERS 1
 #else
 #define U_NO_DEFAULT_INCLUDE_UTF_HEADERS 0
@@ -124,9 +109,8 @@
  * @stable ICU 2.2
  */
 #ifndef U_OVERRIDE_CXX_ALLOCATION
-#define U_OVERRIDE_CXX_ALLOCATION 1
+	#define U_OVERRIDE_CXX_ALLOCATION 1
 #endif
-
 /**
  * \def U_ENABLE_TRACING
  * Determines whether to enable tracing.
@@ -160,29 +144,26 @@
  * @internal
  */
 #ifndef U_CHECK_DYLOAD
-#define U_CHECK_DYLOAD 1
+	#define U_CHECK_DYLOAD 1
 #endif
-
 /**
  * \def U_DEFAULT_SHOW_DRAFT
  * Do we allow ICU users to use the draft APIs by default?
  * @internal
  */
 #ifndef U_DEFAULT_SHOW_DRAFT
-#define U_DEFAULT_SHOW_DRAFT 1
+	#define U_DEFAULT_SHOW_DRAFT 1
 #endif
-
-/*===========================================================================*/
-/* Custom icu entry point renaming       */
-/*===========================================================================*/
-
+//
+// Custom icu entry point renaming
+//
 /**
  * \def U_HAVE_LIB_SUFFIX
  * 1 if a custom library suffix is set.
  * @internal
  */
 #ifdef U_HAVE_LIB_SUFFIX
-    /* Use the predefined value. */
+/* Use the predefined value. */
 #elif defined(U_LIB_SUFFIX_C_NAME) || defined(U_IN_DOXYGEN)
 #define U_HAVE_LIB_SUFFIX 1
 #endif
@@ -193,7 +174,7 @@
  * @internal
  */
 #ifdef U_LIB_SUFFIX_C_NAME_STRING
-    /* Use the predefined value. */
+/* Use the predefined value. */
 #elif defined(U_LIB_SUFFIX_C_NAME)
 #define CONVERT_TO_STRING(s) #s
 #define U_LIB_SUFFIX_C_NAME_STRING CONVERT_TO_STRING(U_LIB_SUFFIX_C_NAME)
@@ -219,11 +200,11 @@
 #endif
 
 #if UCONFIG_ONLY_COLLATION
-    /* common library */
+/* common library */
 #define UCONFIG_NO_BREAK_ITERATION 1
 #define UCONFIG_NO_IDNA 1
 
-    /* i18n library */
+/* i18n library */
 #if UCONFIG_NO_COLLATION
 #error Contradictory collation switches in uconfig.h.
 #endif
@@ -256,7 +237,7 @@
 #define UCONFIG_NO_FILE_IO 0
 #endif
 
-#if UCONFIG_NO_FILE_IO && defined(U_TIMEZONE_FILES_DIR) 
+#if UCONFIG_NO_FILE_IO && defined(U_TIMEZONE_FILES_DIR)
 #   error Contradictory file io switches in uconfig.h.
 #endif
 
@@ -324,13 +305,13 @@
 #endif
 
 #if UCONFIG_NO_NORMALIZATION
-    /* common library */
-    /* ICU 50 CJK dictionary BreakIterator uses normalization */
+/* common library */
+/* ICU 50 CJK dictionary BreakIterator uses normalization */
 #define UCONFIG_NO_BREAK_ITERATION 1
-    /* IDNA (UTS #46) is implemented via normalization */
+/* IDNA (UTS #46) is implemented via normalization */
 #define UCONFIG_NO_IDNA 1
 
-    /* i18n library */
+/* i18n library */
 #if UCONFIG_ONLY_COLLATION
 #error Contradictory collation switches in uconfig.h.
 #endif
@@ -374,7 +355,7 @@
  * On platforms where U_PLATFORM_HAS_WIN32_API is true, this switch determines
  * if the Windows platform APIs are used for LCID<->Locale Name conversions.
  * Otherwise, only the built-in ICU tables are used.
- * 
+ *
  * @internal ICU 64
  */
 #ifndef UCONFIG_USE_WINDOWS_LCID_MAPPING_API

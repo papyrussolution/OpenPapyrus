@@ -745,7 +745,7 @@ static gss_OID ssh_gssapi_oid_from_string(ssh_string oid_s)
 	uchar * data = ssh_string_data(oid_s);
 	size_t len = ssh_string_len(oid_s);
 
-	if(data == NULL) {
+	if(!data) {
 		return NULL;
 	}
 

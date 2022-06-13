@@ -406,17 +406,14 @@ void CompoundTransliteratorTest::TestTransliterate() {
 		delete ct2;
 	}
 }
-
-//======================================================================
+// 
 // Support methods
-//======================================================================
-void CompoundTransliteratorTest::expect(const CompoundTransliterator& t,
-    const UnicodeString & source,
-    const UnicodeString & expectedResult) {
+// 
+void CompoundTransliteratorTest::expect(const CompoundTransliterator& t, const UnicodeString & source, const UnicodeString & expectedResult) 
+{
 	UnicodeString rsource(source);
 	t.transliterate(rsource);
 	expectAux(t.getID() + ":Replaceable", source + "->" + rsource, rsource==expectedResult, expectedResult);
-
 	// Test transliterate (incremental) transliteration --
 	rsource.remove();
 	rsource.append(source);

@@ -40,11 +40,10 @@ IMPL_CMPFUNC(ILTIGGRP, i1, i2)
 IMPL_CMPFUNC(ILTIGOODS, i1, i2)
 {
 	PPObjGoods goods_obj;
-	SString name1, name2;
 	Goods2Tbl::Rec rec1, rec2;
 	goods_obj.Fetch(static_cast<const ILTI *>(i1)->GoodsID, &rec1);
 	goods_obj.Fetch(static_cast<const ILTI *>(i2)->GoodsID, &rec2);
-	int    cmp = stricmp866(rec1.Name, rec2.Name);
+	const int cmp = stricmp866(rec1.Name, rec2.Name);
 	if(cmp > 0)
 		return 1;
 	else if(cmp < 0)
@@ -223,6 +222,17 @@ int PPObjGoodsBasket::Locking::Unlock()
 		ok = 1;
 	}
 	return ok;
+}
+
+PPObjGoodsBasket::SelFilt::SelFilt() : Flags(0)
+{
+	memzero(Reserved, sizeof(Reserved));
+}
+
+PPObjGoodsBasket::SelFilt & PPObjGoodsBasket::SelFilt::Z()
+{
+	Flags = 0;
+	return *this;
 }
 
 PPObjGoodsBasket::PPObjGoodsBasket(void * extraPtr) : PPObjReference(PPOBJ_GOODSBASKET, extraPtr)
@@ -462,6 +472,29 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 	}
 	CATCHZOK
 	return ok;
+}
+
+StrAssocArray * PPObjGoodsBasket::MakeStrAssocList(void * extraPtr)
+{
+	const PPID cur_user_id = LConfig.UserID;
+	SelFilt f;
+	if(!RVALUEPTR(f, static_cast<const SelFilt *>(extraPtr)))
+		MEMSZERO(f);
+	StrAssocArray * p_ary = new StrAssocArray;
+	THROW_MEM(p_ary);
+	{
+		PPGoodsBasket rec;
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+			if(!(f.Flags & SelFilt::fOwnOnly) || rec.User == cur_user_id) {
+				THROW_SL(p_ary->Add(rec.ID, 0, rec.Name));
+			}
+		}
+		p_ary->SortByText();
+	}
+	CATCH
+		ZDELETE(p_ary);
+	ENDCATCH
+	return p_ary;
 }
 
 /*virtual*/int PPObjGoodsBasket::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr) // @v11.4.0
@@ -719,7 +752,7 @@ int PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 	int    r;
 	SString name;
 	SString symb;
-	PPID   id = static_cast<PPID>(rRez.getUINT());
+	const  PPID   id = static_cast<PPID>(rRez.getUINT());
 	rRez.getString(name, 2);
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	rRez.getString(symb, 2);
@@ -741,7 +774,7 @@ int PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 {
 	class PPObjGoodsBasketListWindow : public PPObjListWindow {
 	public:
-		PPObjGoodsBasketListWindow(PPObject * pObj, uint flags, void * extraPtr) : PPObjListWindow(pObj, flags, extraPtr)
+		PPObjGoodsBasketListWindow(PPObject * pObj, uint flags, void * extraPtr) : PPObjListWindow(pObj, flags, &Sf.Z()/* see note to SelFilt::Z() at pp.h*/)
 		{
 			DefaultCmd = cmaEdit;
 			SetToolbar(TOOLBAR_LIST_GOODSBASKET);
@@ -789,6 +822,10 @@ int PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 							if(id)
 								PPObjGoodsBasket::ForceUnlock(id);
 							break;
+						case cmToggleAllOrOwnOnly: // @v11.4.1
+							INVERSEFLAG(Sf.Flags, PPObjGoodsBasket::SelFilt::fOwnOnly);
+							update = 2;
+							break;
 					}
 				}
 				PostProcessHandleEvent(update, id);
@@ -798,6 +835,7 @@ int PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 		{
 			return id ? static_cast<PPObjGoodsBasket *>(P_Obj)->Transfer(id) : -1;
 		}
+		PPObjGoodsBasket::SelFilt Sf;
 	};
 	return /*0; */ new PPObjGoodsBasketListWindow(this, flags, extraPtr);
 }
@@ -1584,13 +1622,21 @@ public:
 	int setDTS()
 	{
 		int    ok = 0;
+		SString temp_buf;
+		// @v11.4.1 {
+		setCtrlLong(CTL_GBTRUC_ID, R_Data.Pack.Head.ID); 
+		GetObjectName(PPOBJ_USR, R_Data.Pack.Head.User, temp_buf);
+		setCtrlString(CTL_GBTRUC_USER, temp_buf);
+		// } @v11.4.1 
 		if(Flags & gbdfEditNameNFlags) {
-			SString buf(R_Data.Pack.Head.Name);
-			setCtrlString(CTL_GBTRUC_BASKET, buf);
+			temp_buf = R_Data.Pack.Head.Name;
+			setCtrlString(CTL_GBTRUC_BASKET, temp_buf);
+			/* @v11.4.1 
 			buf.Z();
 			if(R_Data.Pack.Head.ID)
 				buf.Cat(R_Data.Pack.Head.ID);
 			setStaticText(CTL_GBTRUC_ID, buf);
+			*/
 			AddClusterAssoc(CTL_GBTRUC_FLAGS, 0, GBASKF_DEFAULT);
 			AddClusterAssoc(CTL_GBTRUC_FLAGS, 1, GBASKF_SORTITEMS);
 			SetClusterData(CTL_GBTRUC_FLAGS, R_Data.Pack.Head.Flags);
@@ -1932,7 +1978,9 @@ int GBDialog::IsChanged()
 
 int GoodsBasketDialog(PPBasketCombine & rBasket, int action)
 {
-	int    ok = -1, valid_data = 0, r;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    r;
 	GBDialog * dlg = 0;
 	PPObjGoodsBasket gb_obj;
 	THROW(CheckDialogPtr(&(dlg = new GBDialog(&rBasket.BasketID, rBasket, action))));

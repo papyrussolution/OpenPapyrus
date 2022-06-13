@@ -86,7 +86,7 @@ static const int acl_nfs4_flag_map_size = (int)(SIZEOFARRAY(acl_nfs4_flag_map));
 #endif /* ARCHIVE_ACL_FREEBSD_NFS4 */
 
 static int translate_acl(struct archive_read_disk * a,
-    struct archive_entry * entry, acl_t acl, int default_entry_acl_type)
+    ArchiveEntry * entry, acl_t acl, int default_entry_acl_type)
 {
 #if ARCHIVE_ACL_FREEBSD_NFS4
 	int brand;
@@ -284,8 +284,8 @@ static int translate_acl(struct archive_read_disk * a,
 	return ARCHIVE_OK;
 }
 
-static int set_acl(struct archive * a, int fd, const char * name,
-    struct archive_acl * abstract_acl,
+static int set_acl(Archive * a, int fd, const char * name,
+    archive_acl * abstract_acl,
     int ae_requested_type, const char * tname)
 {
 	int acl_type = 0;
@@ -510,25 +510,18 @@ exit_free:
 	return ret;
 }
 
-int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
-	const char      * accpath;
 	acl_t acl;
 	int r;
-
-	accpath = NULL;
-
+	const char * accpath = NULL;
 	if(*fd < 0) {
 		accpath = archive_read_disk_entry_setup_path(a, entry, fd);
 		if(accpath == NULL)
 			return ARCHIVE_WARN;
 	}
-
 	archive_entry_acl_clear(entry);
-
 	acl = NULL;
-
 #if ARCHIVE_ACL_FREEBSD_NFS4
 	/* Try NFSv4 ACL first. */
 	if(*fd >= 0)
@@ -606,8 +599,8 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	return ARCHIVE_OK;
 }
 
-int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
-    struct archive_acl * abstract_acl, __LA_MODE_T mode)
+int archive_write_disk_set_acls(Archive * a, int fd, const char * name,
+    archive_acl * abstract_acl, __LA_MODE_T mode)
 {
 	int ret = ARCHIVE_OK;
 

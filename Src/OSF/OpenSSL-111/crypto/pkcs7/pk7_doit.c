@@ -301,7 +301,7 @@ BIO * PKCS7_dataInit(PKCS7 * p7, BIO * bio)
 		}
 		OPENSSL_cleanse(key, keylen);
 
-		if(out == NULL)
+		if(!out)
 			out = btmp;
 		else
 			BIO_push(out, btmp);
@@ -447,7 +447,7 @@ BIO * PKCS7_dataDecode(PKCS7 * p7, EVP_PKEY * pkey, BIO * in_bio, X509 * pcert)
 			}
 
 			BIO_set_md(btmp, evp_md);
-			if(out == NULL)
+			if(!out)
 				out = btmp;
 			else
 				BIO_push(out, btmp);
@@ -550,7 +550,7 @@ BIO * PKCS7_dataDecode(PKCS7 * p7, EVP_PKEY * pkey, BIO * in_bio, X509 * pcert)
 		OPENSSL_clear_free(tkey, tkeylen);
 		tkey = NULL;
 
-		if(out == NULL)
+		if(!out)
 			out = etmp;
 		else
 			BIO_push(out, etmp);

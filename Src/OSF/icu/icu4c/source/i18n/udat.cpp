@@ -127,9 +127,9 @@ U_CAPI UDateFormat* U_EXPORT2 udat_open(UDateFormatStyle timeStyle,
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
-	if(gOpener!=NULL) { // if it's registered
+	if(gOpener != NULL) { // if it's registered
 		fmt = (DateFormat*)(*gOpener)(timeStyle, dateStyle, locale, tzID, tzIDLength, pattern, patternLength, status);
-		if(fmt!=NULL) {
+		if(fmt) {
 			return (UDateFormat*)fmt;
 		} // else fall through.
 	}
@@ -444,7 +444,7 @@ U_CAPI void U_EXPORT2 udat_adoptNumberFormatForFields(UDateFormat*    fmt,
 	verifyIsSimpleDateFormat(fmt, status);
 	if(U_FAILURE(*status)) 
 		return;
-	if(fields!=NULL) {
+	if(fields != NULL) {
 		UnicodeString overrideFields(fields);
 		((SimpleDateFormat*)fmt)->adoptNumberFormat(overrideFields, (NumberFormat*)numberFormatToSet, *status);
 	}
@@ -504,13 +504,13 @@ U_CAPI int32_t U_EXPORT2 udat_toPattern(const UDateFormat     * fmt, bool locali
 	const DateFormat * df = reinterpret_cast<const DateFormat *>(fmt);
 	const SimpleDateFormat * sdtfmt = dynamic_cast<const SimpleDateFormat *>(df);
 	const RelativeDateFormat * reldtfmt;
-	if(sdtfmt!=NULL) {
+	if(sdtfmt != NULL) {
 		if(localized)
 			sdtfmt->toLocalizedPattern(res, *status);
 		else
 			sdtfmt->toPattern(res);
 	}
-	else if(!localized && (reldtfmt = dynamic_cast<const RelativeDateFormat *>(df))!=NULL) {
+	else if(!localized && (reldtfmt = dynamic_cast<const RelativeDateFormat *>(df)) != NULL) {
 		reldtfmt->toPattern(res, *status);
 	}
 	else {

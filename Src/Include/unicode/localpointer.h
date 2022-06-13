@@ -130,12 +130,12 @@ public:
 	 *         caller becomes responsible for deleting the object
 	 * @stable ICU 4.4
 	 */
-	T * orphan() {
+	T * orphan() 
+	{
 		T * p = ptr;
 		ptr = NULL;
 		return p;
 	}
-
 	/**
 	 * Deletes the object it owns,
 	 * and adopts (takes ownership of) the one passed in.
@@ -143,11 +143,11 @@ public:
 	 * @param p simple pointer to an object that is adopted
 	 * @stable ICU 4.4
 	 */
-	void adoptInstead(T * p) {
+	void adoptInstead(T * p) 
+	{
 		// delete ptr;
 		ptr = p;
 	}
-
 protected:
 	/**
 	 * Actual pointer.

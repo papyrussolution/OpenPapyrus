@@ -204,7 +204,7 @@ typedef struct {
 	                            */
 } ZSTD_window_t;
 
-#define ZSTD_WINDOW_START_INDEX 2
+#define ZSTD_WINDOW_START_INDEX 2U
 
 typedef struct ZSTD_matchState_t ZSTD_matchState_t;
 
@@ -931,7 +931,7 @@ static uint64 ZSTD_rollingHash_append(uint64 hash, const void * buf, size_t size
 	const uint32 curr = (uint32)((BYTE const*)src - window->base);
 	const uint32 currentCycle = curr & cycleMask;
 	/* Ensure newCurrent - maxDist >= ZSTD_WINDOW_START_INDEX. */
-	const uint32 currentCycleCorrection = currentCycle < ZSTD_WINDOW_START_INDEX ? MAX(cycleSize, ZSTD_WINDOW_START_INDEX) : 0;
+	const uint32 currentCycleCorrection = (currentCycle < ZSTD_WINDOW_START_INDEX) ? MAX(cycleSize, static_cast<uint32>(ZSTD_WINDOW_START_INDEX)) : 0;
 	const uint32 newCurrent = currentCycle + currentCycleCorrection + MAX(maxDist, cycleSize);
 	const uint32 correction = curr - newCurrent;
 	/* maxDist must be a power of two so that:

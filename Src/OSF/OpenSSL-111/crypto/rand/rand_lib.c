@@ -801,10 +801,8 @@ const RAND_METHOD * RAND_get_rand_method(void)
 	if(default_RAND_meth == NULL) {
 #ifndef OPENSSL_NO_ENGINE
 		ENGINE * e;
-
 		/* If we have an engine that can do RAND, use it. */
-		if((e = ENGINE_get_default_RAND()) != NULL
-		 && (tmp_meth = ENGINE_get_RAND(e)) != NULL) {
+		if((e = ENGINE_get_default_RAND()) != NULL && (tmp_meth = ENGINE_get_RAND(e)) != NULL) {
 			funct_ref = e;
 			default_RAND_meth = tmp_meth;
 		}
@@ -825,10 +823,8 @@ const RAND_METHOD * RAND_get_rand_method(void)
 int RAND_set_rand_engine(ENGINE * engine)
 {
 	const RAND_METHOD * tmp_meth = NULL;
-
 	if(!RUN_ONCE(&rand_init, do_rand_init))
 		return 0;
-
 	if(engine != NULL) {
 		if(!ENGINE_init(engine))
 			return 0;

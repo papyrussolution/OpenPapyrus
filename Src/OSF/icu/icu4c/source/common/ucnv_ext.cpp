@@ -1,22 +1,13 @@
+// ucnv_ext.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 2003-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  ucnv_ext.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2003jun13
- *   created by: Markus W. Scherer
- *
- *   Conversion extensions
- */
+// Copyright (C) 2003-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2003jun13
+// created by: Markus W. Scherer
+// 
+// Conversion extensions
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -46,7 +37,6 @@ static inline uint32_t ucnv_extFindToU(const uint32_t * toUSection, int32_t leng
 		/* direct access on a linear array */
 		return UCNV_EXT_TO_U_GET_VALUE(toUSection[byte-start]); /* could be 0 */
 	}
-
 	/* word0 is suitable for <=toUSection[] comparison, word for <toUSection[] */
 	word0 = UCNV_EXT_TO_U_MAKE_WORD(byte, 0);
 
@@ -881,21 +871,14 @@ U_CFUNC int32_t ucnv_extSimpleMatchFromU(const int32_t * cx,
  * continue partial match with new input, requires cnv->preFromUFirstCP>=0
  * never called for simple, single-character conversion
  */
-U_CFUNC void ucnv_extContinueMatchFromU(UConverter * cnv,
-    UConverterFromUnicodeArgs * pArgs, int32_t srcIndex,
-    UErrorCode * pErrorCode) {
+U_CFUNC void ucnv_extContinueMatchFromU(UConverter * cnv, UConverterFromUnicodeArgs * pArgs, int32_t srcIndex, UErrorCode * pErrorCode) 
+{
 	uint32_t value = 0; /* initialize output-only param to 0 to silence gcc */
 	int32_t match;
-
-	match = ucnv_extMatchFromU(cnv->sharedData->mbcs.extIndexes,
-		cnv->preFromUFirstCP,
-		cnv->preFromU, cnv->preFromULength,
-		pArgs->source, (int32_t)(pArgs->sourceLimit-pArgs->source),
-		&value,
-		cnv->useFallback, pArgs->flush);
+	match = ucnv_extMatchFromU(cnv->sharedData->mbcs.extIndexes, cnv->preFromUFirstCP, cnv->preFromU, cnv->preFromULength, 
+		pArgs->source, (int32_t)(pArgs->sourceLimit-pArgs->source), &value, cnv->useFallback, pArgs->flush);
 	if(match>=2) {
 		match -= 2; /* remove 2 for the initial code point */
-
 		if(match>=cnv->preFromULength) {
 			/* advance src pointer for the consumed input */
 			pArgs->source += match-cnv->preFromULength;

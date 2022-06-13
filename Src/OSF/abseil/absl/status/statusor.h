@@ -626,11 +626,9 @@ template <typename T> bool operator !=(const StatusOr<T>& lhs, const StatusOr<T>
 {
 	return !(lhs == rhs);
 }
-
-//------------------------------------------------------------------------------
+//
 // Implementation details for StatusOr<T>
-//------------------------------------------------------------------------------
-
+//
 // TODO(sbenza): avoid the string here completely.
 template <typename T> StatusOr<T>::StatusOr() : Base(Status(absl::StatusCode::kUnknown, "")) 
 {

@@ -23,16 +23,16 @@ struct raw_info {
 	int end_of_file;
 };
 
-static int archive_read_format_raw_bid(struct archive_read *, int);
-static int archive_read_format_raw_cleanup(struct archive_read *);
-static int archive_read_format_raw_read_data(struct archive_read *, const void **, size_t *, int64 *);
-static int archive_read_format_raw_read_data_skip(struct archive_read *);
-static int archive_read_format_raw_read_header(struct archive_read *, struct archive_entry *);
+static int archive_read_format_raw_bid(ArchiveRead *, int);
+static int archive_read_format_raw_cleanup(ArchiveRead *);
+static int archive_read_format_raw_read_data(ArchiveRead *, const void **, size_t *, int64 *);
+static int archive_read_format_raw_read_data_skip(ArchiveRead *);
+static int archive_read_format_raw_read_header(ArchiveRead *, ArchiveEntry *);
 
-int archive_read_support_format_raw(struct archive * _a)
+int archive_read_support_format_raw(Archive * _a)
 {
 	struct raw_info * info;
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	info = (struct raw_info *)SAlloc::C(1, sizeof(*info));
@@ -54,7 +54,7 @@ int archive_read_support_format_raw(struct archive * _a)
  * folks if there are bid errors or minor file damage, so we don't
  * include "raw" as part of support_format_all().
  */
-static int archive_read_format_raw_bid(struct archive_read * a, int best_bid)
+static int archive_read_format_raw_bid(ArchiveRead * a, int best_bid)
 {
 	if(best_bid < 1 && __archive_read_ahead(a, 1, NULL) != NULL)
 		return 1;
@@ -63,7 +63,7 @@ static int archive_read_format_raw_bid(struct archive_read * a, int best_bid)
 /*
  * Mock up a fake header.
  */
-static int archive_read_format_raw_read_header(struct archive_read * a, struct archive_entry * entry)
+static int archive_read_format_raw_read_header(ArchiveRead * a, ArchiveEntry * entry)
 {
 	struct raw_info * info = (struct raw_info *)(a->format->data);
 	if(info->end_of_file)
@@ -79,7 +79,7 @@ static int archive_read_format_raw_read_header(struct archive_read * a, struct a
 	return __archive_read_header(a, entry);
 }
 
-static int archive_read_format_raw_read_data(struct archive_read * a,
+static int archive_read_format_raw_read_data(ArchiveRead * a,
     const void ** buff, size_t * size, int64 * offset)
 {
 	struct raw_info * info;
@@ -121,7 +121,7 @@ static int archive_read_format_raw_read_data(struct archive_read * a,
 	}
 }
 
-static int archive_read_format_raw_read_data_skip(struct archive_read * a)
+static int archive_read_format_raw_read_data_skip(ArchiveRead * a)
 {
 	struct raw_info * info = (struct raw_info *)(a->format->data);
 
@@ -134,7 +134,7 @@ static int archive_read_format_raw_read_data_skip(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_raw_cleanup(struct archive_read * a)
+static int archive_read_format_raw_cleanup(ArchiveRead * a)
 {
 	struct raw_info * info;
 	info = (struct raw_info *)(a->format->data);

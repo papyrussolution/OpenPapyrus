@@ -92,7 +92,7 @@ int BN_div_recp(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m,
 	r = (rem != NULL) ? rem : BN_CTX_get(ctx);
 	a = BN_CTX_get(ctx);
 	b = BN_CTX_get(ctx);
-	if(b == NULL)
+	if(!b)
 		goto err;
 
 	if(BN_ucmp(m, &(recp->N)) < 0) {

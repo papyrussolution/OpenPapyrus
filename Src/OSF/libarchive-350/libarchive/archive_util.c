@@ -32,8 +32,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:1
 
 static int archive_utility_string_sort_helper(char **, uint);
 
-/* Generic initialization of 'struct archive' objects. */
-int __archive_clean(struct archive * a)
+/* Generic initialization of 'Archive' objects. */
+int __archive_clean(Archive * a)
 {
 	archive_string_conversion_free(a);
 	return ARCHIVE_OK;
@@ -41,30 +41,30 @@ int __archive_clean(struct archive * a)
 
 int archive_version_number(void) { return (ARCHIVE_VERSION_NUMBER); }
 const char * archive_version_string(void) { return (ARCHIVE_VERSION_STRING); }
-int archive_errno(struct archive * a) { return (a->archive_error_number); }
-const char * archive_error_string(struct archive * a) { return (a && !isempty(a->error)) ? a->error : NULL; }
-int archive_file_count(struct archive * a) { return (a->file_count); }
-int archive_format(struct archive * a) { return (a->archive_format); }
-const char * archive_format_name(struct archive * a) { return (a->archive_format_name); }
-int archive_compression(struct archive * a) { return archive_filter_code(a, 0); }
-const char * archive_compression_name(struct archive * a) { return archive_filter_name(a, 0); }
+int archive_errno(Archive * a) { return (a->archive_error_number); }
+const char * archive_error_string(Archive * a) { return (a && !isempty(a->error)) ? a->error : NULL; }
+int archive_file_count(Archive * a) { return (a->file_count); }
+int archive_format(Archive * a) { return (a->archive_format); }
+const char * archive_format_name(Archive * a) { return (a->archive_format_name); }
+int archive_compression(Archive * a) { return archive_filter_code(a, 0); }
+const char * archive_compression_name(Archive * a) { return archive_filter_name(a, 0); }
 /*
  * Return a count of the number of compressed bytes processed.
  */
-la_int64_t archive_position_compressed(struct archive * a) { return archive_filter_bytes(a, -1); }
+la_int64_t archive_position_compressed(Archive * a) { return archive_filter_bytes(a, -1); }
 /*
  * Return a count of the number of uncompressed bytes processed.
  */
-la_int64_t archive_position_uncompressed(struct archive * a) { return archive_filter_bytes(a, 0); }
+la_int64_t archive_position_uncompressed(Archive * a) { return archive_filter_bytes(a, 0); }
 
-void archive_clear_error(struct archive * a)
+void archive_clear_error(Archive * a)
 {
 	archive_string_empty(&a->error_string);
 	a->error = NULL;
 	a->archive_error_number = 0;
 }
 
-void archive_set_error(struct archive * a, int error_number, const char * fmt, ...)
+void archive_set_error(Archive * a, int error_number, const char * fmt, ...)
 {
 	va_list ap;
 	a->archive_error_number = error_number;
@@ -79,7 +79,7 @@ void archive_set_error(struct archive * a, int error_number, const char * fmt, .
 	}
 }
 
-void archive_copy_error(struct archive * dest, struct archive * src)
+void archive_copy_error(Archive * dest, Archive * src)
 {
 	dest->archive_error_number = src->archive_error_number;
 	archive_string_copy(&dest->error_string, &src->error_string);
@@ -123,7 +123,7 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 		L'm', L'n', L'o', L'p', L'q', L'r', L's', L't',
 		L'u', L'v', L'w', L'x', L'y', L'z'
 	};
-	struct archive_wstring temp_name;
+	archive_wstring temp_name;
 	DWORD attr;
 	wchar_t * xp, * ep;
 	HCRYPTPROV hProv = (HCRYPTPROV)NULL;
@@ -260,7 +260,7 @@ int __archive_mkstemp(wchar_t * pTemplate) { return __archive_mktempx(NULL, pTem
 
 #else
 
-static int get_tempdir(struct archive_string * temppath)
+static int get_tempdir(archive_string * temppath)
 {
 	const char * tmp = getenv("TMPDIR");
 	if(tmp == NULL)
@@ -281,7 +281,7 @@ static int get_tempdir(struct archive_string * temppath)
  */
 int __archive_mktemp(const char * tmpdir)
 {
-	struct archive_string temp_name;
+	archive_string temp_name;
 	int fd = -1;
 	archive_string_init(&temp_name);
 	if(tmpdir == NULL) {
@@ -333,7 +333,7 @@ static int __archive_mktempx(const char * tmpdir, char * pTemplate)
 		'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
 		'u', 'v', 'w', 'x', 'y', 'z'
 	};
-	struct archive_string temp_name;
+	archive_string temp_name;
 	struct stat st;
 	char * tp, * ep;
 	int fd = -1;

@@ -171,7 +171,7 @@ U_CAPI USpoofChecker * U_EXPORT2 uspoof_openFromSerialized(const void * data, in
 		return NULL;
 	}
 
-	if(data == NULL) {
+	if(!data) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
@@ -625,7 +625,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_getSkeleton(const USpoofChecker * sc,
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
-	if(length<-1 || destCapacity<0 || (destCapacity==0 && dest!=NULL)) {
+	if(length<-1 || destCapacity<0 || (destCapacity==0 && dest != NULL)) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -674,7 +674,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_getSkeletonUTF8(const USpoofChecker * sc,
 	if(U_FAILURE(*status)) {
 		return 0;
 	}
-	if(length<-1 || destCapacity<0 || (destCapacity==0 && dest!=NULL)) {
+	if(length<-1 || destCapacity<0 || (destCapacity==0 && dest != NULL)) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

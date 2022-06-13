@@ -870,7 +870,7 @@ int PPApp::processCommand(uint cmd)
 				taz.Test();
 			}
 			break;
-		case cmWorkbookInterchange: PPObjWorkbook().InterchangeUhtt(); break; // @v9.3.10
+		case cmWorkbookInterchange: PPObjWorkbook().InterchangeUhtt(); break;
 		case cmProcessObjText:     DoProcessObjText(0); break;
 		case cmGenerateKeywordSeq: Test_KeywordListGenerator(); break;
 		case cmLotPacking:         ReceiptPacking();        break;
@@ -1602,11 +1602,11 @@ int PPBackupSystemFiles_Arc()
 			f.Close();
 			strtodate(buf, DATF_DMY, &last_copy_dt);
 			if(last_copy_dt < cur_dtm.d) {
-				SArchive arc;
+				SArchive arc(SArchive::tZip);
 				SString arc_file_name;
 				// NB: archive file name will be created without extention (this is a protection against crypto-viruses)
 				(arc_file_name = backup_dir).SetLastSlash().Cat("bu").CatChar('-').Cat(cur_dtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat(cur_dtm.t, TIMF_HMS|TIMF_NODIV);
-				if(arc.Open(SArchive::tZip, arc_file_name, SFile::mReadWrite, 0)) {
+				if(arc.Open(arc_file_name, SFile::mReadWrite, 0)) {
 					long start = 1;
 					SString path;
 					SString dest_dir;

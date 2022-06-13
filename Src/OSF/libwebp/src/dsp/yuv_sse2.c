@@ -284,13 +284,11 @@ void VP8YuvToBgr32_SSE2(const uint8* y, const uint8* u, const uint8* v,
 	// Pack as BGRBGRBGRBGR.
 	PlanarTo24b_SSE2(&bgr0, &bgr1, &bgr2, &bgr3, &bgr4, &bgr5, dst);
 }
-
-//-----------------------------------------------------------------------------
+//
 // Arbitrary-length row conversion functions
-
-static void YuvToRgbaRow_SSE2(const uint8* y,
-    const uint8* u, const uint8* v,
-    uint8* dst, int len) {
+//
+static void YuvToRgbaRow_SSE2(const uint8* y, const uint8* u, const uint8* v, uint8* dst, int len) 
+{
 	const __m128i kAlpha = _mm_set1_epi16(255);
 	int n;
 	for(n = 0; n + 8 <= len; n += 8, dst += 32) {
@@ -427,10 +425,9 @@ static void YuvToBgrRow_SSE2(const uint8* y,
 		v += (n & 1);
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Entry point
-
+//
 extern void WebPInitSamplersSSE2(void);
 
 WEBP_TSAN_IGNORE_FUNCTION void WebPInitSamplersSSE2(void) {
@@ -440,10 +437,9 @@ WEBP_TSAN_IGNORE_FUNCTION void WebPInitSamplersSSE2(void) {
 	WebPSamplers[MODE_BGRA] = YuvToBgraRow_SSE2;
 	WebPSamplers[MODE_ARGB] = YuvToArgbRow_SSE2;
 }
-
-//------------------------------------------------------------------------------
+//
 // RGB24/32 -> YUV converters
-
+//
 // Load eight 16b-words from *src.
 #define LOAD_16(src) _mm_loadu_si128((const __m128i*)(src))
 // Store either 16b-words into *dst
@@ -727,26 +723,19 @@ static void ConvertRGBA32ToUV_SSE2(const uint16_t* rgb,
 	}
 }
 
-//------------------------------------------------------------------------------
-
 extern void WebPInitConvertARGBToYUVSSE2(void);
 
-WEBP_TSAN_IGNORE_FUNCTION void WebPInitConvertARGBToYUVSSE2(void) {
+WEBP_TSAN_IGNORE_FUNCTION void WebPInitConvertARGBToYUVSSE2(void) 
+{
 	WebPConvertARGBToY = ConvertARGBToY_SSE2;
 	WebPConvertARGBToUV = ConvertARGBToUV_SSE2;
-
 	WebPConvertRGB24ToY = ConvertRGB24ToY_SSE2;
 	WebPConvertBGR24ToY = ConvertBGR24ToY_SSE2;
-
 	WebPConvertRGBA32ToUV = ConvertRGBA32ToUV_SSE2;
 }
 
-//------------------------------------------------------------------------------
-
 #define MAX_Y ((1 << 10) - 1)    // 10b precision over 16b-arithmetic
-static uint16_t clip_y(int v) {
-	return (v < 0) ? 0 : (v > MAX_Y) ? MAX_Y : (uint16_t)v;
-}
+static uint16_t clip_y(int v) { return (v < 0) ? 0 : (v > MAX_Y) ? MAX_Y : (uint16_t)v; }
 
 static uint64_t SharpYUVUpdateY_SSE2(const uint16_t* ref, const uint16_t* src,
     uint16_t* dst, int len) {
@@ -848,8 +837,6 @@ static void SharpYUVFilterRow_SSE2(const int16_t* A, const int16_t* B, int len,
 }
 
 #undef MAX_Y
-
-//------------------------------------------------------------------------------
 
 extern void WebPInitSharpYUVSSE2(void);
 

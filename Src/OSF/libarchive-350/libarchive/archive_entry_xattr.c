@@ -34,7 +34,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_xattr.c 201096 2009-12-28 
  * extended attribute handling
  */
 
-void archive_entry_xattr_clear(struct archive_entry * entry)
+void archive_entry_xattr_clear(ArchiveEntry * entry)
 {
 	struct ae_xattr * xp;
 
@@ -49,7 +49,7 @@ void archive_entry_xattr_clear(struct archive_entry * entry)
 	entry->xattr_head = NULL;
 }
 
-void archive_entry_xattr_add_entry(struct archive_entry * entry, const char * name, const void * value, size_t size)
+void archive_entry_xattr_add_entry(ArchiveEntry * entry, const char * name, const void * value, size_t size)
 {
 	struct ae_xattr * xp;
 	if((xp = (struct ae_xattr *)SAlloc::M(sizeof(struct ae_xattr))) == NULL)
@@ -68,7 +68,7 @@ void archive_entry_xattr_add_entry(struct archive_entry * entry, const char * na
 /*
  * returns number of the extended attribute entries
  */
-int archive_entry_xattr_count(struct archive_entry * entry)
+int archive_entry_xattr_count(ArchiveEntry * entry)
 {
 	struct ae_xattr * xp;
 	int count = 0;
@@ -78,14 +78,14 @@ int archive_entry_xattr_count(struct archive_entry * entry)
 	return count;
 }
 
-int archive_entry_xattr_reset(struct archive_entry * entry)
+int archive_entry_xattr_reset(ArchiveEntry * entry)
 {
 	entry->xattr_p = entry->xattr_head;
 
 	return archive_entry_xattr_count(entry);
 }
 
-int archive_entry_xattr_next(struct archive_entry * entry,
+int archive_entry_xattr_next(ArchiveEntry * entry,
     const char ** name, const void ** value, size_t * size)
 {
 	if(entry->xattr_p) {

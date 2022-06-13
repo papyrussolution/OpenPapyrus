@@ -1168,7 +1168,7 @@ struct cairo_surface_t;
 typedef struct _cairo cairo_t;
 typedef struct _cairo_font_face cairo_font_face_t;
 typedef struct _cairo_scaled_font cairo_scaled_font_t;
-// @construction struct archive; // @v10.4.4
+struct Archive; // @v10.4.4 libarchive
 //
 //
 //
@@ -1235,7 +1235,8 @@ typedef int (FASTCALL *CompFunc)(const void *, const void *, void * pExtraData);
 #define CMPF_LONG                Cmp_long
 #define CMPF_INT64               Cmp_int64
 
-#define CMPSIGN(p1, p2) ((p1)>(p2))?+1:(((p1)<(p2))?-1:0)
+// @v11.4.1 #define CMPSIGN(p1, p2) ((p1)>(p2))?+1:(((p1)<(p2))?-1:0)
+template <class T> int CMPSIGN(T p1, T p2) { return ((p1)>(p2))?+1:(((p1)<(p2))?-1:0); } // @v11.4.1 (размер бинарного кода стал меньше; скорость, очевидно, будет выше)
 #define CMPCASCADE2(si, s1, s2, m1, m2)      \
 	if(!(si=CMPSIGN((s1)->m1,(s2)->m1))) si=CMPSIGN((s1)->m2,(s2)->m2);
 #define CMPCASCADE3(si, s1, s2, m1, m2, m3)     \
@@ -10420,8 +10421,8 @@ public:
 	enum {
 		tUnkn = 0,
 		tZip  = 1, // LibZIP
-		tBz2  = 2
-		// @construction tLA   = 3  // @v10.4.4 LibArchive
+		tBz2  = 2,
+		tLA   = 3  // @v10.4.4 LibArchive
 		//t7Z // @construction
 	};
 	//
@@ -10432,9 +10433,9 @@ public:
 		int    Sis;    // ssisXXX
 		int    Var;    // Вариация
 	};
-	SArchive();
+	explicit SArchive(int type);
 	~SArchive();
-	int    Open(int type, const char * pName, int mode/*SFile::mXXX*/, SArchive::Format * pFmt);
+	int    Open(const char * pName, int mode/*SFile::mXXX*/, SArchive::Format * pFmt);
 	int    Close();
 	bool   IsValid() const;
 	//
@@ -10463,24 +10464,24 @@ public:
     int    AddEntries(const char * pMask, int flags);
 private:
 	// @v10.4.4
-#if 0 // @construction {
+#if 1 // @construction {
 	struct LaCbBlock {
 		LaCbBlock(SArchive * pMaster, size_t bufSize);
 		SArchive * P_Master;
 		SFile F;
 		STempBuffer Buf;
 	};
-	static SSIZE_T cdecl LaCbRead(struct archive * pA, void * pClientData, const void ** ppBuf);
-	static int64   cdecl LaCbSkip(struct archive * pA, void * pClientData, int64 request);
-	static int     cdecl LaCbOpen(struct archive * pA, void * pClientData);
-	static int     cdecl LaCbClose(struct archive * pA, void * pClientData);
+	static SSIZE_T cdecl LaCbRead(Archive * pA, void * pClientData, const void ** ppBuf);
+	static int64   cdecl LaCbSkip(Archive * pA, void * pClientData, int64 request);
+	static int     cdecl LaCbOpen(Archive * pA, void * pClientData);
+	static int     cdecl LaCbClose(Archive * pA, void * pClientData);
 #endif // } 0 @construction
 	// } @v10.4.4
 	int    Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
 
-	int    Type;
+	const  int Type;
 	void * H;
-	// @construction LaCbBlock * P_Cb_Blk; // @v10.4.4
+	LaCbBlock * P_Cb_Blk; // @v10.4.4
 };
 //
 // Descr: Тип функции, используемый для регистрации форматов файлов.
@@ -11387,6 +11388,7 @@ protected:
 	SRegExp2 * P_ReIdent;
 	SRegExp2 * P_ReHex;
 	SRegExp2 * P_ReDigits;
+	SRegExp2 * P_ReXDigits; // @v11.4.1
 	SRegExp2 * P_ReEMail;
 	SRegExp2 * P_ReDate;
 	SRegExp2 * P_RePhone; // @v11.0.3
@@ -11473,6 +11475,7 @@ struct SStrScan : public SRegExpSet {
 	int    FASTCALL GetDotPrefixedNumber(SString & rBuf);
 	int    FASTCALL GetHex(SString & rBuf);
 	int    FASTCALL GetDigits(SString & rBuf);
+	int    FASTCALL GetXDigits(SString & rBuf); // @v11.4.1
 	int    FASTCALL GetEMail(SString & rBuf);
 	int    GetDate(long datefmt, LDATE & rDate);
 	//

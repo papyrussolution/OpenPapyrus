@@ -16,7 +16,7 @@
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry_stat.c 201100 2009-12-28 03:05:31Z kientzle $");
 #include "archive_entry_private.h"
 
-const struct stat * archive_entry_stat(struct archive_entry * entry)                     
+const struct stat * archive_entry_stat(ArchiveEntry * entry)                     
 {
 	struct stat * st;
 	if(entry->stat == NULL) {
@@ -83,13 +83,11 @@ const struct stat * archive_entry_stat(struct archive_entry * entry)
 #if HAVE_STRUCT_STAT_ST_BIRTHTIMESPEC_TV_NSEC
 	st->st_birthtimespec.tv_nsec = archive_entry_birthtime_nsec(entry);
 #endif
-
 	/*
 	 * TODO: On Linux, store 32 or 64 here depending on whether
 	 * the cached stat structure is a stat32 or a stat64.  This
 	 * will allow us to support both variants interchangeably.
 	 */
 	entry->stat_valid = 1;
-
 	return (st);
 }

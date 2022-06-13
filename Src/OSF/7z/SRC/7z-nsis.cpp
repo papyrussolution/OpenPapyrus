@@ -5771,7 +5771,7 @@ namespace NArchive {
 				if(size < 4)
 					return false;
 				uint32 len = Get32(p);
-				if(len == 0)
+				if(!len)
 					return size == 4;
 				if(size < 8)
 					return false;

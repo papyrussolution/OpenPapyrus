@@ -26,11 +26,11 @@ struct read_FILE_data {
 	char can_skip;
 };
 
-static int file_close(struct archive *, void *);
-static ssize_t  file_read(struct archive *, void *, const void ** buff);
-static int64  file_skip(struct archive *, void *, int64 request);
+static int file_close(Archive *, void *);
+static ssize_t  file_read(Archive *, void *, const void ** buff);
+static int64  file_skip(Archive *, void *, int64 request);
 
-int archive_read_open_FILE(struct archive * a, FILE * f)
+int archive_read_open_FILE(Archive * a, FILE * f)
 {
 	struct stat st;
 	struct read_FILE_data * mine;
@@ -72,7 +72,7 @@ int archive_read_open_FILE(struct archive * a, FILE * f)
 	return (archive_read_open1(a));
 }
 
-static ssize_t file_read(struct archive * a, void * client_data, const void ** buff)
+static ssize_t file_read(Archive * a, void * client_data, const void ** buff)
 {
 	struct read_FILE_data * mine = (struct read_FILE_data *)client_data;
 	size_t bytes_read;
@@ -84,7 +84,7 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
 	return (bytes_read);
 }
 
-static int64 file_skip(struct archive * a, void * client_data, int64 request)
+static int64 file_skip(Archive * a, void * client_data, int64 request)
 {
 	struct read_FILE_data * mine = (struct read_FILE_data *)client_data;
 #if HAVE_FSEEKO
@@ -127,7 +127,7 @@ static int64 file_skip(struct archive * a, void * client_data, int64 request)
 	return (request);
 }
 
-static int file_close(struct archive * a, void * client_data)
+static int file_close(Archive * a, void * client_data)
 {
 	struct read_FILE_data * mine = (struct read_FILE_data *)client_data;
 	CXX_UNUSED(a);

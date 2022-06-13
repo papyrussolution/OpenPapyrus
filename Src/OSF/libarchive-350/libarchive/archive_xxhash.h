@@ -16,16 +16,16 @@
 	#error This header is only to be used internally to libarchive.
 #endif
 
-typedef enum { 
+/*typedef enum { 
 	XXH_OK = 0, 
 	XXH_ERROR 
-} XXH_errorcode;
+} XXH_errorcode;*/
 
 struct archive_xxhash {
-	uint (* XXH32)(const void * input, uint len, uint seed);
+	XXH32_hash_t (* XXH32)(const void * input, size_t len, uint seed);
 	void * (* XXH32_init)(uint seed);
-	XXH_errorcode (* XXH32_update)(void * state, const void * input, uint len);
-	uint (* XXH32_digest)(void * state);
+	XXH_errorcode (* XXH32_update)(XXH32_state_t * state, const void * input, size_t len);
+	XXH32_hash_t (* XXH32_digest)(const XXH32_state_t * state);
 };
 
 extern const struct archive_xxhash __archive_xxhash;

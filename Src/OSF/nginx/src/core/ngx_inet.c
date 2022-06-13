@@ -46,7 +46,7 @@ ngx_int_t ngx_inet6_addr(u_char * p, size_t len, u_char * addr)
 	u_char c, * zero, * digit, * s, * d;
 	size_t len4;
 	ngx_uint_t n, nibbles, word;
-	if(len == 0) {
+	if(!len) {
 		return NGX_ERROR;
 	}
 	zero = NULL;
@@ -545,7 +545,7 @@ static ngx_int_t ngx_parse_unix_domain_url(ngx_pool_t * pool, ngx_url_t * u)
 			u->uri.data = uri;
 		}
 	}
-	if(len == 0) {
+	if(!len) {
 		u->err = "no path in the unix domain socket";
 		return NGX_ERROR;
 	}
@@ -655,7 +655,7 @@ static ngx_int_t ngx_parse_inet_url(ngx_pool_t * pool, ngx_url_t * u)
 		sin->sin_port = htons(u->default_port);
 	}
 	len = last - host;
-	if(len == 0) {
+	if(!len) {
 		u->err = "no host";
 		return NGX_ERROR;
 	}
@@ -769,7 +769,7 @@ static ngx_int_t ngx_parse_inet6_url(ngx_pool_t * pool, ngx_url_t * u)
 		sin6->sin6_port = htons(u->default_port);
 	}
 	len = p - host;
-	if(len == 0) {
+	if(!len) {
 		u->err = "no host";
 		return NGX_ERROR;
 	}

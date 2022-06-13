@@ -95,7 +95,7 @@ struct zip {
 	int64 entry_compressed_written;
 	int64 entry_uncompressed_written;
 	int64 entry_uncompressed_limit;
-	struct archive_entry * entry;
+	ArchiveEntry * entry;
 	uint32 entry_crc32;
 	enum compression entry_compression;
 	enum encryption entry_encryption;
@@ -122,8 +122,8 @@ struct zip {
 
 	int64 written_bytes; /* Overall position in file. */
 
-	struct archive_string_conv * opt_sconv;
-	struct archive_string_conv * sconv_default;
+	archive_string_conv * opt_sconv;
+	archive_string_conv * sconv_default;
 	enum compression requested_compression;
 	int deflate_compression_level;
 	int init_default_conversion;
@@ -145,23 +145,19 @@ struct zip {
    on lots of platforms (but not all). */
 #define zipmin(a, b) ((a) > (b) ? (b) : (a))
 
-static ssize_t archive_write_zip_data(struct archive_write *,
-    const void * buff, size_t s);
+static ssize_t archive_write_zip_data(struct archive_write *, const void * buff, size_t s);
 static int archive_write_zip_close(struct archive_write *);
 static int archive_write_zip_free(struct archive_write *);
 static int archive_write_zip_finish_entry(struct archive_write *);
-static int archive_write_zip_header(struct archive_write *,
-    struct archive_entry *);
-static int archive_write_zip_options(struct archive_write *,
-    const char *, const char *);
+static int archive_write_zip_header(struct archive_write *, ArchiveEntry *);
+static int archive_write_zip_options(struct archive_write *, const char *, const char *);
 static uint dos_time(const time_t);
-static size_t path_length(struct archive_entry *);
-static int write_path(struct archive_entry *, struct archive_write *);
-static void copy_path(struct archive_entry *, uchar *);
-static struct archive_string_conv * get_sconv(struct archive_write *, struct zip *);
+static size_t path_length(ArchiveEntry *);
+static int write_path(ArchiveEntry *, struct archive_write *);
+static void copy_path(ArchiveEntry *, uchar *);
+static archive_string_conv * get_sconv(struct archive_write *, struct zip *);
 static int trad_enc_init(struct trad_enc_ctx *, const char *, size_t);
-static unsigned trad_enc_encrypt_update(struct trad_enc_ctx *, const uint8 *,
-    size_t, uint8 *, size_t);
+static unsigned trad_enc_encrypt_update(struct trad_enc_ctx *, const uint8 *, size_t, uint8 *, size_t);
 static int init_traditional_pkware_encryption(struct archive_write *);
 static int is_traditional_pkware_encryption_supported(void);
 static int init_winzip_aes_encryption(struct archive_write *);
@@ -189,7 +185,6 @@ static uchar * cd_alloc(struct zip * zip, size_t length)
 			zip->central_directory_last = segment;
 		}
 	}
-
 	p = zip->central_directory_last->p;
 	zip->central_directory_last->p += length;
 	zip->central_directory_bytes += length;
@@ -218,7 +213,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		 * Set compression to use on all future entries.
 		 * This only affects regular files.
 		 */
-		if(val == NULL || val[0] == 0) {
+		if(isempty(val)) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: compression option needs a compression name", a->format_name);
 		}
 		else if(sstreq(val, "deflate")) {
@@ -294,7 +289,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		return ret;
 	}
 	else if(sstreq(key, "experimental")) {
-		if(val == NULL || val[0] == 0) {
+		if(isempty(val)) {
 			zip->flags &= ~ZIP_FLAG_EXPERIMENT_xl;
 		}
 		else {
@@ -307,7 +302,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		 * FOR TESTING ONLY:  disable CRC calculation to speed up
 		 * certain complex tests.
 		 */
-		if(val == NULL || val[0] == 0) {
+		if(isempty(val)) {
 			zip->crc32func = real_crc32;
 		}
 		else {
@@ -319,12 +314,11 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		/*
 		 * Set the character set used in translating filenames.
 		 */
-		if(val == NULL || val[0] == 0) {
+		if(isempty(val)) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		}
 		else {
-			zip->opt_sconv = archive_string_conversion_to_charset(
-				&a->archive, val, 0);
+			zip->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
 			if(zip->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else
@@ -349,14 +343,13 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		}
 		return ARCHIVE_OK;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
 	return ARCHIVE_WARN;
 }
 
-int archive_write_zip_set_compression_deflate(struct archive * _a)
+int archive_write_zip_set_compression_deflate(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int ret = ARCHIVE_FAILED;
@@ -378,7 +371,7 @@ int archive_write_zip_set_compression_deflate(struct archive * _a)
 	return ret;
 }
 
-int archive_write_zip_set_compression_store(struct archive * _a)
+int archive_write_zip_set_compression_store(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
@@ -395,7 +388,7 @@ int archive_write_zip_set_compression_store(struct archive * _a)
 	return ret;
 }
 
-int archive_write_set_format_zip(struct archive * _a)
+int archive_write_set_format_zip(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct zip * zip;
@@ -432,14 +425,12 @@ int archive_write_set_format_zip(struct archive * _a)
 	a->format_free = archive_write_zip_free;
 	a->archive.archive_format = ARCHIVE_FORMAT_ZIP;
 	a->archive.archive_format_name = "ZIP";
-
 	return ARCHIVE_OK;
 }
 
 static int is_all_ascii(const char * p)
 {
 	const uchar * pp = (const uchar *)p;
-
 	while(*pp) {
 		if(*pp++ > 127)
 			return 0;
@@ -447,7 +438,7 @@ static int is_all_ascii(const char * p)
 	return 1;
 }
 
-static int archive_write_zip_header(struct archive_write * a, struct archive_entry * entry)
+static int archive_write_zip_header(struct archive_write * a, ArchiveEntry * entry)
 {
 	uchar local_header[32];
 	uchar local_extra[144];
@@ -457,20 +448,15 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	size_t filename_length;
 	const char * slink = NULL;
 	size_t slink_size = 0;
-	struct archive_string_conv * sconv = get_sconv(a, zip);
+	archive_string_conv * sconv = get_sconv(a, zip);
 	int ret, ret2 = ARCHIVE_OK;
-	mode_t type;
 	int version_needed = 10;
-
 	/* Ignore types of entries that we don't support. */
-	type = archive_entry_filetype(entry);
+	mode_t type = archive_entry_filetype(entry);
 	if(type != AE_IFREG && type != AE_IFDIR && type != AE_IFLNK) {
-		__archive_write_entry_filetype_unsupported(
-			&a->archive, entry, "zip");
+		__archive_write_entry_filetype_unsupported(&a->archive, entry, "zip");
 		return ARCHIVE_FAILED;
 	}
-	;
-
 	/* If we're not using Zip64, reject large files. */
 	if(zip->flags & ZIP_FLAG_AVOID_ZIP64) {
 		/* Reject entries over 4GB. */
@@ -484,11 +470,9 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 			return ARCHIVE_FAILED;
 		}
 	}
-
 	/* Only regular files can have size > 0. */
 	if(type != AE_IFREG)
 		archive_entry_set_size(entry, 0);
-
 	/* Reset information from last entry. */
 	zip->entry_offset = zip->written_bytes;
 	zip->entry_uncompressed_limit = INT64_MAX;
@@ -502,16 +486,12 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	zip->entry_encryption = static_cast<encryption>(0);
 	archive_entry_free(zip->entry);
 	zip->entry = NULL;
-
 	if(zip->cctx_valid)
 		archive_encrypto_aes_ctr_release(&zip->cctx);
 	if(zip->hctx_valid)
 		archive_hmac_sha1_cleanup(&zip->hctx);
 	zip->tctx_valid = zip->cctx_valid = zip->hctx_valid = 0;
-
-	if(type == AE_IFREG
-	    &&(!archive_entry_size_is_set(entry)
-	   || archive_entry_size(entry) > 0)) {
+	if(type == AE_IFREG &&(!archive_entry_size_is_set(entry) || archive_entry_size(entry) > 0)) {
 		switch(zip->encryption_type) {
 			case ENCRYPTION_TRADITIONAL:
 			case ENCRYPTION_WINZIP_AES128:
@@ -524,10 +504,8 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 			    break;
 		}
 	}
-
 #if defined(_WIN32) && !defined(__CYGWIN__)
-	/* Make sure the path separators in pathname, hardlink and symlink
-	 * are all slash '/', not the Windows path separator '\'. */
+	// Make sure the path separators in pathname, hardlink and symlink are all slash '/', not the Windows path separator '\'
 	zip->entry = __la_win_entry_in_posix_pathseparator(entry);
 	if(zip->entry == entry)
 		zip->entry = archive_entry_clone(entry);
@@ -551,7 +529,6 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		}
 		if(len > 0)
 			archive_entry_set_pathname(zip->entry, p);
-
 		/*
 		 * There is no standard for symlink handling; we convert
 		 * it using the same character-set translation that we use
@@ -569,7 +546,6 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 				archive_entry_set_symlink(zip->entry, p);
 		}
 	}
-
 	/* If filename isn't ASCII and we can use UTF-8, set the UTF-8 flag. */
 	if(!is_all_ascii(archive_entry_pathname(zip->entry))) {
 		if(zip->opt_sconv != NULL) {
@@ -583,19 +559,14 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 		}
 	}
 	filename_length = path_length(zip->entry);
-
 	/* Determine appropriate compression and size for this entry. */
 	if(type == AE_IFLNK) {
 		slink = archive_entry_symlink(zip->entry);
-		if(slink != NULL)
-			slink_size = strlen(slink);
-		else
-			slink_size = 0;
+		slink_size = sstrlen(slink);
 		zip->entry_uncompressed_limit = slink_size;
 		zip->entry_compressed_size = slink_size;
 		zip->entry_uncompressed_size = slink_size;
-		zip->entry_crc32 = zip->crc32func(zip->entry_crc32,
-			(const uchar *)slink, slink_size);
+		zip->entry_crc32 = zip->crc32func(zip->entry_crc32, (const uchar *)slink, slink_size);
 		zip->entry_compression = COMPRESSION_STORE;
 		version_needed = 20;
 	}
@@ -607,7 +578,6 @@ static int archive_write_zip_header(struct archive_write * a, struct archive_ent
 	else if(archive_entry_size_is_set(zip->entry)) {
 		int64 size = archive_entry_size(zip->entry);
 		int64 additional_size = 0;
-
 		zip->entry_uncompressed_limit = size;
 		zip->entry_compression = zip->requested_compression;
 		if(zip->entry_compression == COMPRESSION_UNSPECIFIED) {
@@ -1334,7 +1304,7 @@ static uint dos_time(const time_t unix_time)
 	return dt;
 }
 
-static size_t path_length(struct archive_entry * entry)
+static size_t path_length(ArchiveEntry * entry)
 {
 	size_t len = 0;
 	mode_t type = archive_entry_filetype(entry);
@@ -1347,7 +1317,7 @@ static size_t path_length(struct archive_entry * entry)
 	return len;
 }
 
-static int write_path(struct archive_entry * entry, struct archive_write * archive)
+static int write_path(ArchiveEntry * entry, struct archive_write * archive)
 {
 	int ret;
 	const char * path = archive_entry_pathname(entry);
@@ -1369,7 +1339,7 @@ static int write_path(struct archive_entry * entry, struct archive_write * archi
 	return ((int)written_bytes);
 }
 
-static void copy_path(struct archive_entry * entry, uchar * p)
+static void copy_path(ArchiveEntry * entry, uchar * p)
 {
 	const char * path = archive_entry_pathname(entry);
 	size_t pathlen = strlen(path);
@@ -1380,7 +1350,7 @@ static void copy_path(struct archive_entry * entry, uchar * p)
 		p[pathlen] = '/';
 }
 
-static struct archive_string_conv * get_sconv(struct archive_write * a, struct zip * zip)                                      
+static archive_string_conv * get_sconv(struct archive_write * a, struct zip * zip)                                      
 {
 	if(zip->opt_sconv != NULL)
 		return (zip->opt_sconv);

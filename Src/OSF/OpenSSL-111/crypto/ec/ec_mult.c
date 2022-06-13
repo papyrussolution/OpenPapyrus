@@ -65,7 +65,7 @@ static EC_PRE_COMP * ec_pre_comp_new(const EC_GROUP * group)
 EC_PRE_COMP * EC_ec_pre_comp_dup(EC_PRE_COMP * pre)
 {
 	int i;
-	if(pre != NULL)
+	if(pre)
 		CRYPTO_UP_REF(&pre->references, &i, pre->lock);
 	return pre;
 }
@@ -80,9 +80,9 @@ void EC_ec_pre_comp_free(EC_PRE_COMP * pre)
 	if(i > 0)
 		return;
 	REF_ASSERT_ISNT(i < 0);
-	if(pre->points != NULL) {
+	if(pre->points) {
 		EC_POINT ** pts;
-		for(pts = pre->points; *pts != NULL; pts++)
+		for(pts = pre->points; *pts; pts++)
 			EC_POINT_free(*pts);
 		OPENSSL_free(pre->points);
 	}
@@ -134,7 +134,7 @@ int ec_scalar_mul_ladder(const EC_GROUP * group, EC_POINT * r,
 	int ret = 0;
 
 	/* early exit if the input point is the point at infinity */
-	if(point != NULL && EC_POINT_is_at_infinity(group, point))
+	if(point && EC_POINT_is_at_infinity(group, point))
 		return EC_POINT_set_to_infinity(group, r);
 
 	if(BN_is_zero(group->order)) {
@@ -391,9 +391,7 @@ err:
  *      scalar*generator
  * in the addition if scalar != NULL
  */
-int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
-    size_t num, const EC_POINT * points[], const BIGNUM * scalars[],
-    BN_CTX * ctx)
+int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar, size_t num, const EC_POINT * points[], const BIGNUM * scalars[], BN_CTX * ctx)
 {
 	const EC_POINT * generator = NULL;
 	EC_POINT * tmp = NULL;
@@ -425,7 +423,7 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 		 * scalar multiplication implementation based on a Montgomery ladder,
 		 * with various timing attack defenses.
 		 */
-		if((scalar != group->order) && (scalar != NULL) && (num == 0)) {
+		if((scalar != group->order) && scalar && (num == 0)) {
 			/*-
 			 * In this case we want to compute scalar * GeneratorPoint: this
 			 * codepath is reached most prominently by (ephemeral) key
@@ -447,8 +445,7 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 			return ec_scalar_mul_ladder(group, r, scalars[0], points[0], ctx);
 		}
 	}
-
-	if(scalar != NULL) {
+	if(scalar) {
 		generator = EC_GROUP_get0_generator(group);
 		if(generator == NULL) {
 			ECerr(EC_F_EC_WNAF_MUL, EC_R_UNDEFINED_GENERATOR);
@@ -498,9 +495,8 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 	val_sub = static_cast<EC_POINT ***>(OPENSSL_malloc(totalnum * sizeof(val_sub[0])));
 
 	/* Ensure wNAF is initialised in case we end up going to err */
-	if(wNAF != NULL)
+	if(wNAF)
 		wNAF[0] = NULL; /* preliminary pivot */
-
 	if(wsize == NULL || wNAF_len == NULL || wNAF == NULL || val_sub == NULL) {
 		ECerr(EC_F_EC_WNAF_MUL, ERR_R_MALLOC_FAILURE);
 		goto err;
@@ -526,10 +522,8 @@ int ec_wNAF_mul(const EC_GROUP * group, EC_POINT * r, const BIGNUM * scalar,
 		if(wNAF_len[i] > max_len)
 			max_len = wNAF_len[i];
 	}
-
 	if(numblocks) {
 		/* we go here iff scalar != NULL */
-
 		if(pre_comp == NULL) {
 			if(num_scalar != 1) {
 				ECerr(EC_F_EC_WNAF_MUL, ERR_R_INTERNAL_ERROR);
@@ -761,18 +755,15 @@ err:
 	EC_POINT_free(tmp);
 	OPENSSL_free(wsize);
 	OPENSSL_free(wNAF_len);
-	if(wNAF != NULL) {
+	if(wNAF) {
 		signed char ** w;
-
-		for(w = wNAF; *w != NULL; w++)
+		for(w = wNAF; *w; w++)
 			OPENSSL_free(*w);
-
 		OPENSSL_free(wNAF);
 	}
-	if(val != NULL) {
-		for(v = val; *v != NULL; v++)
+	if(val) {
+		for(v = val; *v; v++)
 			EC_POINT_clear_free(*v);
-
 		OPENSSL_free(val);
 	}
 	OPENSSL_free(val_sub);
@@ -932,7 +923,7 @@ err:
 	EC_ec_pre_comp_free(pre_comp);
 	if(points) {
 		EC_POINT ** p;
-		for(p = points; *p != NULL; p++)
+		for(p = points; *p; p++)
 			EC_POINT_free(*p);
 		OPENSSL_free(points);
 	}

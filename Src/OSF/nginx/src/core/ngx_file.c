@@ -659,7 +659,7 @@ ngx_int_t ngx_walk_tree(ngx_tree_ctx_t * ctx, ngx_str_t * tree)
 	prev = ctx->data;
 	if(ctx->alloc) {
 		data = ngx_alloc(ctx->alloc, ctx->log);
-		if(data == NULL) {
+		if(!data) {
 			goto failed;
 		}
 		if(ctx->init_handler(data, prev) == NGX_ABORT) {

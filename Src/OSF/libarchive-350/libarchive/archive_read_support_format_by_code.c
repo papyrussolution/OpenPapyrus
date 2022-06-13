@@ -15,7 +15,7 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
 
-int archive_read_support_format_by_code(struct archive * a, int format_code)
+int archive_read_support_format_by_code(Archive * a, int format_code)
 {
 	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	switch(format_code & ARCHIVE_FORMAT_BASE_MASK) {

@@ -24,5 +24,5 @@
 #include "archive.h"
 #include "archive_entry.h"
 
-void __archive_write_entry_filetype_unsupported(struct archive *a, struct archive_entry *entry, const char *format);
+void __archive_write_entry_filetype_unsupported(Archive *a, ArchiveEntry *entry, const char *format);
 #endif

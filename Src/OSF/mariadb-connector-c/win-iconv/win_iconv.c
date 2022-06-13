@@ -1771,7 +1771,7 @@ int main(int argc, char ** argv)
 			ignore = 1;
 		else if(sstreq(argv[i], "--output")) {
 			out = fopen(argv[++i], "wb");
-			if(out == NULL) {
+			if(!out) {
 				slfprintf_stderr("cannot open %s\n", argv[i]);
 				return 1;
 			}

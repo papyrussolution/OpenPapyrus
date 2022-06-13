@@ -26,25 +26,10 @@ static void ColouriseVHDLDoc(
     WordList *keywordlists[],
     Accessor & styler);
 
-/***************************************/
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_' );
-}
+static bool FASTCALL IsAWordChar(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_' ); }
+static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_'); }
+static bool FASTCALL IsABlank(uint ch) { return (ch == ' ') || (ch == 0x09) || (ch == 0x0b); }
 
-/***************************************/
-static bool FASTCALL IsAWordStart(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_');
-}
-
-/***************************************/
-static bool FASTCALL IsABlank(uint ch)
-{
-	return (ch == ' ') || (ch == 0x09) || (ch == 0x0b);
-}
-
-/***************************************/
 static void ColouriseVHDLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList &Keywords   = *keywordlists[0];
@@ -157,7 +142,6 @@ static void ColouriseVHDLDoc(Sci_PositionU startPos, Sci_Position length, int in
 	sc.Complete();
 }
 
-//=============================================================================
 static bool IsCommentLine(Sci_Position line, Accessor & styler)
 {
 	Sci_Position pos = styler.LineStart(line);
@@ -205,9 +189,9 @@ static bool IsCommentStyle(char style)
 {
 	return style == SCE_VHDL_BLOCK_COMMENT || style == SCE_VHDL_COMMENT || style == SCE_VHDL_COMMENTLINEBANG;
 }
-
-//=============================================================================
+//
 // Folding the code
+//
 static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, Accessor & styler)
 {
 	// Decided it would be smarter to have the lexer have all keywords included. Therefore I
@@ -236,12 +220,8 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 	int levelMinCurrentElse = levelCurrent; //< Used for folding at 'else'
 	int levelMinCurrentBegin = levelCurrent; //< Used for folding at 'begin'
 	int levelNext = levelCurrent;
-
-	/***************************************/
 	Sci_Position lastStart = 0;
 	char prevWord[32]     = "";
-
-	/***************************************/
 	// Find prev word
 	// The logic for going up or down a level depends on a the previous keyword
 	// This code could be cleaned up.
@@ -288,8 +268,6 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 	char chNextNonBlank;
 	int styleNext       = styler.StyleAt(startPos);
 	//Platform::DebugPrintf("Line[%04d] Prev[%20s] ************************* Level[%x]\n", lineCurrent+1, prevWord, levelCurrent);
-
-	/***************************************/
 	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext  = styler.SafeGetCharAt(i + 1);
@@ -456,22 +434,17 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 			levelMinCurrentBegin = levelCurrent;
 			visibleChars = 0;
 		}
-		/***************************************/
-		if(!isspacechar(ch)) visibleChars++;
+		if(!isspacechar(ch)) 
+			visibleChars++;
 	}
-
-	/***************************************/
-//  Platform::DebugPrintf("Line[%04d] ---------------------------------------------------- Level[%x]\n", lineCurrent+1, levelCurrent);
+	//  Platform::DebugPrintf("Line[%04d] ---------------------------------------------------- Level[%x]\n", lineCurrent+1, levelCurrent);
 }
 
-//=============================================================================
-static void FoldVHDLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[],
-    Accessor & styler)
+static void FoldVHDLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	FoldNoBoxVHDLDoc(startPos, length, initStyle, styler);
 }
 
-//=============================================================================
 static const char * const VHDLWordLists[] = {
 	"Keywords",
 	"Operators",

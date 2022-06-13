@@ -144,7 +144,7 @@ const bool dirDown = false;
 #define generic_strnicmp wcsnicmp
 #define generic_strncat wcsncat
 #define generic_strchr wcschr
-#define generic_atoi _wtoi
+// @sobolev #define generic_atoi_Removed _wtoi
 #define generic_itoa _itow
 #define generic_atof _wtof
 #define generic_strtok wcstok

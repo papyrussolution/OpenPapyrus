@@ -199,7 +199,7 @@ xmlTextWriter * xmlNewTextWriterFilename(const char * uri, int compression)
 	const char * _p_func_name = __FUNCTION__;
 	xmlTextWriter * ret = 0;
 	xmlOutputBuffer * out = xmlOutputBufferCreateFilename(uri, NULL, compression);
-	if(out == NULL) {
+	if(!out) {
 		xmlWriterErrMsg(NULL, XML_IO_EIO, _p_func_name, "cannot open uri");
 	}
 	else {
@@ -228,7 +228,7 @@ xmlTextWriter * xmlNewTextWriterMemory(xmlBuffer * buf, int compression ATTRIBUT
 	xmlTextWriter * ret = 0;
 	//::todo handle compression 
 	xmlOutputBuffer * out = xmlOutputBufferCreateBuffer(buf, 0);
-	if(out == NULL) {
+	if(!out) {
 		xmlWriterErrMsg_OutOfMem(0, _p_func_name);
 	}
 	else {
@@ -261,7 +261,7 @@ xmlTextWriter * xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compression
 		return NULL;
 	}
 	out = xmlOutputBufferCreateIO((xmlOutputWriteCallback)xmlTextWriterWriteDocCallback, (xmlOutputCloseCallback)xmlTextWriterCloseDocCallback, (void *)ctxt, 0);
-	if(out == NULL) {
+	if(!out) {
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, _p_func_name, "error at xmlOutputBufferCreateIO!");
 		return NULL;
 	}
@@ -304,7 +304,7 @@ xmlTextWriter * xmlNewTextWriterDoc(xmlDoc ** doc, int compression)
 	//
 	ctxt->dictNames = 0;
 	ctxt->myDoc = xmlNewDoc(BAD_CAST XML_DEFAULT_VERSION);
-	if(ctxt->myDoc == NULL) {
+	if(!ctxt->myDoc) {
 		xmlFreeParserCtxt(ctxt);
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, _p_func_name, "error at xmlNewDoc!");
 		return NULL;
@@ -3552,7 +3552,7 @@ static void xmlTextWriterStartDocumentCallback(void * ctx)
 	if(ctxt->html) {
 #ifdef LIBXML_HTML_ENABLED
 		SETIFZ(ctxt->myDoc, htmlNewDocNoDtD(NULL, NULL));
-		if(ctxt->myDoc == NULL) {
+		if(!ctxt->myDoc) {
 			if(ctxt->sax && ctxt->sax->error)
 				ctxt->sax->error(ctxt->userData, "SAX.startDocument(): out of memory\n");
 			ctxt->errNo = XML_ERR_NO_MEMORY;

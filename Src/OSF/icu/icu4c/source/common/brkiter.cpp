@@ -14,14 +14,12 @@
 #include "utracimp.h"
 
 #if !UCONFIG_NO_BREAK_ITERATION
-
-// *****************************************************************************
+//
 // class BreakIterator
 // This class implements methods for finding the location of boundaries in text.
 // Instances of BreakIterator maintain a current position and scan over text
 // returning the index of characters where boundaries occur.
-// *****************************************************************************
-
+//
 U_NAMESPACE_BEGIN
 
 BreakIterator* BreakIterator::buildInstance(const Locale & loc, const char * type, UErrorCode & status)
@@ -65,7 +63,7 @@ BreakIterator* BreakIterator::buildInstance(const Locale & loc, const char * typ
 			actualLocale.append(ures_getLocaleInternal(brkName, &status), -1, status);
 			UChar * extStart = u_strchr(brkfname, 0x002e);
 			int len = 0;
-			if(extStart!=NULL) {
+			if(extStart) {
 				len = (int)(extStart-brkfname);
 				u_UCharsToChars(extStart+1, ext, sizeof(ext)); // nul terminates the buff
 				u_UCharsToChars(brkfname, fnbuff, len);
@@ -83,13 +81,12 @@ BreakIterator* BreakIterator::buildInstance(const Locale & loc, const char * typ
 	// Create a RuleBasedBreakIterator
 	result = new RuleBasedBreakIterator(file, status);
 	// If there is a result, set the valid locale and actual locale, and the kind
-	if(U_SUCCESS(status) && result != NULL) {
+	if(U_SUCCESS(status) && result) {
 		U_LOCALE_BASED(locBased, *(BreakIterator*)result);
-		locBased.setLocaleIDs(ures_getLocaleByType(b, ULOC_VALID_LOCALE, &status),
-		    actualLocale.data());
+		locBased.setLocaleIDs(ures_getLocaleByType(b, ULOC_VALID_LOCALE, &status), actualLocale.data());
 	}
 	ures_close(b);
-	if(U_FAILURE(status) && result != NULL) { // Sometimes redundant check, but simple
+	if(U_FAILURE(status) && result) { // Sometimes redundant check, but simple
 		delete result;
 		return NULL;
 	}
@@ -249,13 +246,10 @@ static inline bool hasService(void)
 	return !gInitOnceBrkiter.isReset() && getService() != NULL;
 }
 
-URegistryKey U_EXPORT2 BreakIterator::registerInstance(BreakIterator* toAdopt,
-    const Locale & locale,
-    UBreakIteratorType kind,
-    UErrorCode & status)
+URegistryKey U_EXPORT2 BreakIterator::registerInstance(BreakIterator* toAdopt, const Locale & locale, UBreakIteratorType kind, UErrorCode & status)
 {
 	ICULocaleService * service = getService();
-	if(service == NULL) {
+	if(!service) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
@@ -276,7 +270,7 @@ bool U_EXPORT2 BreakIterator::unregister(URegistryKey key, UErrorCode & status)
 StringEnumeration * U_EXPORT2 BreakIterator::getAvailableLocales(void)
 {
 	ICULocaleService * service = getService();
-	if(service == NULL) {
+	if(!service) {
 		return NULL;
 	}
 	return service->getAvailableLocales();
@@ -304,7 +298,7 @@ BreakIterator* BreakIterator::createInstance(const Locale & loc, int32_t kind, U
 		// handleDefault calls), so we don't touch it.  YES, A COMMENT
 		// THIS LONG is a sign of bad code -- so the action item is to
 		// revisit this in ICU 3.0 and clean it up/fix it/remove it.
-		if(U_SUCCESS(status) && (result != NULL) && *actualLoc.getName() != 0) {
+		if(U_SUCCESS(status) && result && *actualLoc.getName() != 0) {
 			U_LOCALE_BASED(locBased, *result);
 			locBased.setLocaleIDs(actualLoc.getName(), actualLoc.getName());
 		}

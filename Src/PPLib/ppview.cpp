@@ -234,7 +234,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 			case PPVIEW_JOB:             p_v = new PPViewJob();          break;
 			case PPVIEW_GEOTRACKING:     p_v = new PPViewGeoTracking();  break;
 			case PPVIEW_OPRKIND:         p_v = new PPViewOprKind();      break;
-			case PPVIEW_PHNSVCMONITOR:   p_v = new PPViewPhnSvcMonitor(); break; // @v9.9.10
+			case PPVIEW_PHNSVCMONITOR:   p_v = new PPViewPhnSvcMonitor(); break;
 			case PPVIEW_VETISDOCUMENT:   p_v = new PPViewVetisDocument(); break; // @v10.0.12
 			case PPVIEW_TIMESERIES:      p_v = new PPViewTimeSeries();    break; // @v10.4.4
 			case PPVIEW_TIMSERDETAIL:    p_v = new PPViewTimSerDetail();  break; // @v10.5.4

@@ -273,11 +273,7 @@ public:
 	 * @see uloc_getDefault
 	 * @stable ICU 2.0
 	 */
-	Locale(const char * language,
-	    const char * country  = 0,
-	    const char * variant  = 0,
-	    const char * keywordsAndValues = 0);
-
+	Locale(const char * language, const char * country  = 0, const char * variant  = 0, const char * keywordsAndValues = 0);
 	/**
 	 * Initializes a Locale object from another Locale object.
 	 *
@@ -285,7 +281,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	Locale(const Locale & other);
-
 	/**
 	 * Move constructor; might leave source in bogus state.
 	 * This locale will have the same contents that the source locale had.
@@ -294,13 +289,11 @@ public:
 	 * @stable ICU 63
 	 */
 	Locale(Locale&& other) U_NOEXCEPT;
-
 	/**
 	 * Destructor
 	 * @stable ICU 2.0
 	 */
 	virtual ~Locale();
-
 	/**
 	 * Replaces the entire contents of *this with the specified value.
 	 *
@@ -309,7 +302,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	Locale & operator = (const Locale & other);
-
 	/**
 	 * Move assignment operator; might leave source in bogus state.
 	 * This locale will have the same contents that the source locale had.
@@ -370,7 +362,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	static const Locale & U_EXPORT2 getDefault();
-
 	/**
 	 * Sets the default. Normally set once at the beginning of a process,
 	 * then never reset.
@@ -383,8 +374,7 @@ public:
 	 * @system
 	 * @stable ICU 2.0
 	 */
-	static void U_EXPORT2 setDefault(const Locale & newLocale,
-	    UErrorCode & success);
+	static void U_EXPORT2 setDefault(const Locale & newLocale, UErrorCode & success);
 #endif  /* U_HIDE_SYSTEM_API */
 
 	/**

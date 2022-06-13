@@ -670,7 +670,7 @@ int channel_default_bufferize(ssh_channel channel, void * data, size_t len, bool
 		return -1;
 	}
 	session = channel->session;
-	if(data == NULL) {
+	if(!data) {
 		ssh_set_error_invalid(session);
 		return -1;
 	}
@@ -1129,7 +1129,7 @@ static int channel_write_common(ssh_channel channel,
 		return -1;
 	}
 	session = channel->session;
-	if(data == NULL) {
+	if(!data) {
 		ssh_set_error_invalid(session);
 		return -1;
 	}

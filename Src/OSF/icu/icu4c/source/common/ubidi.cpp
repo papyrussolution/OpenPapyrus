@@ -186,7 +186,7 @@ U_CFUNC bool ubidi_getMemory(BidiMemoryForAllocation * bidiMem, int32_t * pSize,
 	/* check for existing memory */
 	if(*pMemory==NULL) {
 		/* we need to allocate memory */
-		if(mayAllocate && (*pMemory = uprv_malloc(sizeNeeded))!=NULL) {
+		if(mayAllocate && (*pMemory = uprv_malloc(sizeNeeded)) != NULL) {
 			*pSize = sizeNeeded;
 			return TRUE;
 		}
@@ -210,7 +210,7 @@ U_CFUNC bool ubidi_getMemory(BidiMemoryForAllocation * bidiMem, int32_t * pSize,
 			 * realloc, but it is needed when adding runs using getRunsMemory()
 			 * in setParaRunsOnly()
 			 */
-			if((memory = uprv_realloc(*pMemory, sizeNeeded))!=NULL) {
+			if((memory = uprv_realloc(*pMemory, sizeNeeded)) != NULL) {
 				*pMemory = memory;
 				*pSize = sizeNeeded;
 				return TRUE;

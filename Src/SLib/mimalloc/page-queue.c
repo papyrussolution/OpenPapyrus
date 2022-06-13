@@ -313,8 +313,8 @@ size_t _mi_page_queue_append(mi_heap_t* heap, mi_page_queue_t* pq, mi_page_queue
 	}
 	else {
 		// append to end
-		mi_assert_internal(pq->last!=NULL);
-		mi_assert_internal(append->first!=NULL);
+		mi_assert_internal(pq->last != NULL);
+		mi_assert_internal(append->first != NULL);
 		pq->last->next = append->first;
 		append->first->prev = pq->last;
 		pq->last = append->last;

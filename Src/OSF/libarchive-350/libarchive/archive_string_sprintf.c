@@ -30,7 +30,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_string_sprintf.c 189435 2009-03-
  * Utility functions to format signed/unsigned integers and append
  * them to an archive_string.
  */
-static void append_uint(struct archive_string * as, uintmax_t d, unsigned base)
+static void append_uint(archive_string * as, uintmax_t d, unsigned base)
 {
 	static const char digits[] = "0123456789abcdef";
 	if(d >= base)
@@ -38,7 +38,7 @@ static void append_uint(struct archive_string * as, uintmax_t d, unsigned base)
 	archive_strappend_char(as, digits[d % base]);
 }
 
-static void append_int(struct archive_string * as, intmax_t d, unsigned base)
+static void append_int(archive_string * as, intmax_t d, unsigned base)
 {
 	uintmax_t ud;
 
@@ -51,7 +51,7 @@ static void append_int(struct archive_string * as, intmax_t d, unsigned base)
 	append_uint(as, ud, base);
 }
 
-void archive_string_sprintf(struct archive_string * as, const char * fmt, ...)
+void archive_string_sprintf(archive_string * as, const char * fmt, ...)
 {
 	va_list ap;
 
@@ -64,7 +64,7 @@ void archive_string_sprintf(struct archive_string * as, const char * fmt, ...)
  * Like 'vsprintf', but ensures the target is big enough, resizing if
  * necessary.
  */
-void archive_string_vsprintf(struct archive_string * as, const char * fmt,
+void archive_string_vsprintf(archive_string * as, const char * fmt,
     va_list ap)
 {
 	char long_flag;

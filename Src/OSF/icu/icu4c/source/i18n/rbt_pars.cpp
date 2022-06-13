@@ -103,11 +103,9 @@ static const UChar ID_TOKEN[] = { 0x3A, 0x3A };   // ':', ':'
  */
 
 U_NAMESPACE_BEGIN
-
-//----------------------------------------------------------------------
+//
 // BEGIN ParseData
-//----------------------------------------------------------------------
-
+//
 /**
  * This class implements the SymbolTable interface.  It is used
  * during parsing to give UnicodeSet access to variables that
@@ -117,17 +115,11 @@ U_NAMESPACE_BEGIN
 class ParseData : public UMemory, public SymbolTable {
 public:
 	const TransliterationRuleData* data; // alias
-
 	const UVector* variablesVector; // alias
-
 	const Hashtable* variableNames; // alias
 
-	ParseData(const TransliterationRuleData* data = 0,
-	    const UVector* variablesVector = 0,
-	    const Hashtable* variableNames = 0);
-
+	ParseData(const TransliterationRuleData* data = 0, const UVector* variablesVector = 0, const Hashtable* variableNames = 0);
 	virtual ~ParseData();
-
 	virtual const UnicodeString * lookup(const UnicodeString & s) const override;
 
 	virtual const UnicodeFunctor* lookupMatcher(UChar32 ch) const override;
@@ -222,7 +214,8 @@ bool ParseData::isMatcher(UChar32 ch) {
  * Return true if the given character is a replacer standin or a plain
  * character (non standin).
  */
-bool ParseData::isReplacer(UChar32 ch) {
+bool ParseData::isReplacer(UChar32 ch) 
+{
 	// Note that we cannot use data.lookup() because the
 	// set array has not been constructed yet.
 	int i = ch - data->variablesBase;
@@ -232,11 +225,9 @@ bool ParseData::isReplacer(UChar32 ch) {
 	}
 	return TRUE;
 }
-
-//----------------------------------------------------------------------
+//
 // BEGIN RuleHalf
-//----------------------------------------------------------------------
-
+//
 /**
  * A class representing one side of a rule.  This class knows how to
  * parse half of a rule.  It is tightly coupled to the method
@@ -807,11 +798,9 @@ bool RuleHalf::isValidInput(TransliteratorParser& transParser) {
 	}
 	return TRUE;
 }
-
-//----------------------------------------------------------------------
+//
 // PUBLIC API
-//----------------------------------------------------------------------
-
+//
 /**
  * Constructor.
  */
@@ -858,11 +847,9 @@ UnicodeSet* TransliteratorParser::orphanCompoundFilter() {
 	compoundFilter = NULL;
 	return f;
 }
-
-//----------------------------------------------------------------------
+//
 // Private implementation
-//----------------------------------------------------------------------
-
+//
 /**
  * Parse the given string as a sequence of rules, separated by newline
  * characters ('\n'), and cause this object to implement those rules.  Any
@@ -871,9 +858,7 @@ UnicodeSet* TransliteratorParser::orphanCompoundFilter() {
  * @exception IllegalArgumentException if there is a syntax error in the
  * rules
  */
-void TransliteratorParser::parseRules(const UnicodeString & rule,
-    UTransDirection theDirection,
-    UErrorCode & status)
+void TransliteratorParser::parseRules(const UnicodeString & rule, UTransDirection theDirection, UErrorCode & status)
 {
 	// Clear error struct
 	memzero(&parseError, sizeof(parseError));
@@ -1750,7 +1735,6 @@ U_CAPI int32_t utrans_stripRules(const UChar * source, int32_t sourceLen, UChar 
 			}
 			continue;
 		}
-
 		/* Append UChar * after dissembling if c > 0xffff*/
 		index = 0;
 		U16_APPEND_UNSAFE(target, index, c);

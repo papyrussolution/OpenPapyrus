@@ -1369,7 +1369,7 @@ boolint /*CMSEXPORT*/STDCALL cmsWriteTag(cmsHPROFILE hProfile, cmsTagSignature s
 	char TypeString[5], SigString[5];
 	if(!_cmsLockMutex(Icc->ContextID, Icc->UsrMutex)) return FALSE;
 	// To delete tags.
-	if(data == NULL) {
+	if(!data) {
 		// Delete the tag
 		i = _cmsSearchTag(Icc, sig, FALSE);
 		if(i >= 0) {
@@ -1536,7 +1536,7 @@ uint32 CMSEXPORT cmsReadRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, void *
 
 	// Now we need to serialize to a memory block: just use a memory iohandler
 
-	if(data == NULL) {
+	if(!data) {
 		MemIO = cmsOpenIOhandlerFromNULL(cmsGetProfileContextID(hProfile));
 	}
 	else {

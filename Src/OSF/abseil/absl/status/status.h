@@ -517,11 +517,9 @@ public:
 	//
 	// Swap the contents of one status with another.
 	friend void swap(Status& a, Status& b);
-
-	//----------------------------------------------------------------------------
+	//
 	// Payload Management APIs
-	//----------------------------------------------------------------------------
-
+	//
 	// A payload may be attached to a status to provide additional context to an
 	// error that may not be satisifed by an existing `absl::StatusCode`.
 	// Typically, this payload serves one of several purposes:
@@ -729,18 +727,19 @@ Status UnauthenticatedError(absl::string_view message);
 Status UnavailableError(absl::string_view message);
 Status UnimplementedError(absl::string_view message);
 Status UnknownError(absl::string_view message);
-
-//------------------------------------------------------------------------------
+//
 // Implementation details follow
-//------------------------------------------------------------------------------
-
-inline Status::Status() : rep_(CodeToInlinedRep(absl::StatusCode::kOk)) {
+//
+inline Status::Status() : rep_(CodeToInlinedRep(absl::StatusCode::kOk)) 
+{
 }
 
-inline Status::Status(absl::StatusCode code) : rep_(CodeToInlinedRep(code)) {
+inline Status::Status(absl::StatusCode code) : rep_(CodeToInlinedRep(code)) 
+{
 }
 
-inline Status::Status(const Status& x) : rep_(x.rep_) {
+inline Status::Status(const Status& x) : rep_(x.rep_) 
+{
 	Ref(rep_);
 }
 

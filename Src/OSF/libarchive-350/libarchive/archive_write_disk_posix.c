@@ -76,19 +76,19 @@ __FBSDID("$FreeBSD$");
 #if defined(HAVE_EXT2FS_EXT2_FS_H) && !defined(__CYGWIN__)
 #include <ext2fs/ext2_fs.h>     /* Linux file flags, broken on Cygwin */
 #endif
-#ifdef HAVE_LIMITS_H
-#include <limits.h>
-#endif
+//#ifdef HAVE_LIMITS_H
+//#include <limits.h>
+//#endif
 #ifdef HAVE_PWD_H
 #include <pwd.h>
 #endif
-#include <stdio.h>
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
+//#include <stdio.h>
+//#ifdef HAVE_STDLIB_H
+//#include <stdlib.h>
+//#endif
+//#ifdef HAVE_STRING_H
+//#include <string.h>
+//#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -149,7 +149,7 @@ __FBSDID("$FreeBSD$");
 
 struct fixup_entry {
 	struct fixup_entry      * next;
-	struct archive_acl acl;
+	archive_acl acl;
 	mode_t mode;
 	int64 atime;
 	int64 birthtime;
@@ -196,7 +196,7 @@ struct fixup_entry {
 #define TODO_HFS_COMPRESSION    ARCHIVE_EXTRACT_HFS_COMPRESSION_FORCED
 
 struct archive_write_disk {
-	struct archive archive;
+	Archive archive;
 
 	mode_t user_umask;
 	struct fixup_entry      * fixup_list;
@@ -217,7 +217,7 @@ struct archive_write_disk {
 	/*
 	 * Full path of last file to satisfy symlink checks.
 	 */
-	struct archive_string path_safe;
+	archive_string path_safe;
 
 	/*
 	 * Cached stat data from disk for the current entry.
@@ -228,11 +228,11 @@ struct archive_write_disk {
 	struct stat             * pst;
 
 	/* Information about the object being restored right now. */
-	struct archive_entry    * entry; /* Entry being extracted. */
+	ArchiveEntry    * entry; /* Entry being extracted. */
 	char * name; /* Name of entry, possibly edited. */
-	struct archive_string _name_data; /* backing store for 'name' */
+	archive_string _name_data; /* backing store for 'name' */
 	char * tmpname; /* Temporary name * */
-	struct archive_string _tmpname_data; /* backing store for 'tmpname' */
+	archive_string _tmpname_data; /* backing store for 'tmpname' */
 	/* Tasks remaining for this object. */
 	int todo;
 	/* Tasks deferred until end-of-archive. */
@@ -334,21 +334,21 @@ struct archive_write_disk {
 
 static int la_opendirat(int, const char *);
 static int la_mktemp(struct archive_write_disk *);
-static void     fsobj_error(int *, struct archive_string *, int, const char *, const char *);
-static int check_symlinks_fsobj(char *, int *, struct archive_string *, int);
+static void     fsobj_error(int *, archive_string *, int, const char *, const char *);
+static int check_symlinks_fsobj(char *, int *, archive_string *, int);
 static int check_symlinks(struct archive_write_disk *);
 static int create_filesystem_object(struct archive_write_disk *);
 static struct fixup_entry * current_fixup(struct archive_write_disk *, const char * pathname);
 #if defined(HAVE_FCHDIR) && defined(PATH_MAX)
 static void     edit_deep_directories(struct archive_write_disk * ad);
 #endif
-static int cleanup_pathname_fsobj(char *, int *, struct archive_string *, int);
+static int cleanup_pathname_fsobj(char *, int *, archive_string *, int);
 static int cleanup_pathname(struct archive_write_disk *);
 static int create_dir(struct archive_write_disk *, char *);
 static int create_parent_dir(struct archive_write_disk *, char *);
 static ssize_t  hfs_write_data_block(struct archive_write_disk *, const char *, size_t);
 static int fixup_appledouble(struct archive_write_disk *, const char *);
-static int older(struct stat *, struct archive_entry *);
+static int older(struct stat *, ArchiveEntry *);
 static int restore_entry(struct archive_write_disk *);
 static int set_mac_metadata(struct archive_write_disk *, const char *, const void *, size_t);
 static int set_xattrs(struct archive_write_disk *);
@@ -363,13 +363,13 @@ static int set_times_from_entry(struct archive_write_disk *);
 static struct fixup_entry * sort_dir_list(struct fixup_entry * p);
 static ssize_t  write_data_block(struct archive_write_disk *, const char *, size_t);
 static struct archive_vtable * archive_write_disk_vtable(void);
-static int _archive_write_disk_close(struct archive *);
-static int _archive_write_disk_free(struct archive *);
-static int _archive_write_disk_header(struct archive *, struct archive_entry *);
-static int64  _archive_write_disk_filter_bytes(struct archive *, int);
-static int _archive_write_disk_finish_entry(struct archive *);
-static ssize_t  _archive_write_disk_data(struct archive *, const void *, size_t);
-static ssize_t  _archive_write_disk_data_block(struct archive *, const void *, size_t, int64);
+static int _archive_write_disk_close(Archive *);
+static int _archive_write_disk_free(Archive *);
+static int _archive_write_disk_header(Archive *, ArchiveEntry *);
+static int64  _archive_write_disk_filter_bytes(Archive *, int);
+static int _archive_write_disk_finish_entry(Archive *);
+static ssize_t  _archive_write_disk_data(Archive *, const void *, size_t);
+static ssize_t  _archive_write_disk_data_block(Archive *, const void *, size_t, int64);
 
 static int la_mktemp(struct archive_write_disk * a)
 {
@@ -464,7 +464,7 @@ static struct archive_vtable * archive_write_disk_vtable(void)
 	return (&av);
 }
 
-static int64 _archive_write_disk_filter_bytes(struct archive * _a, int n)
+static int64 _archive_write_disk_filter_bytes(Archive * _a, int n)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	CXX_UNUSED(n);
@@ -473,7 +473,7 @@ static int64 _archive_write_disk_filter_bytes(struct archive * _a, int n)
 	return -1;
 }
 
-int archive_write_disk_set_options(struct archive * _a, int flags)
+int archive_write_disk_set_options(Archive * _a, int flags)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	a->flags = flags;
@@ -491,7 +491,7 @@ int archive_write_disk_set_options(struct archive * _a, int flags)
  * entire archive?? Ugh.
  *
  */
-static int _archive_write_disk_header(struct archive * _a, struct archive_entry * entry)
+static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	struct fixup_entry * fe;
@@ -819,7 +819,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	return ret;
 }
 
-int archive_write_disk_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
+int archive_write_disk_set_skip_file(Archive * _a, la_int64_t d, la_int64_t i)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -1487,7 +1487,7 @@ static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * 
 
 #endif
 
-static ssize_t _archive_write_disk_data_block(struct archive * _a, const void * buff, size_t size, int64 offset)
+static ssize_t _archive_write_disk_data_block(Archive * _a, const void * buff, size_t size, int64 offset)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	ssize_t r;
@@ -1510,7 +1510,7 @@ static ssize_t _archive_write_disk_data_block(struct archive * _a, const void * 
 #endif
 }
 
-static ssize_t _archive_write_disk_data(struct archive * _a, const void * buff, size_t size)
+static ssize_t _archive_write_disk_data(Archive * _a, const void * buff, size_t size)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
@@ -1519,7 +1519,7 @@ static ssize_t _archive_write_disk_data(struct archive * _a, const void * buff, 
 	return (write_data_block(a, buff, size));
 }
 
-static int _archive_write_disk_finish_entry(struct archive * _a)
+static int _archive_write_disk_finish_entry(Archive * _a)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	int ret = ARCHIVE_OK;
@@ -1732,7 +1732,7 @@ finish_metadata:
 	return ret;
 }
 
-int archive_write_disk_set_group_lookup(struct archive * _a, void * private_data,
+int archive_write_disk_set_group_lookup(Archive * _a, void * private_data,
     la_int64_t (*lookup_gid)(void * private, const char * gname, la_int64_t gid), void (*cleanup_gid)(void * private))
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
@@ -1745,7 +1745,7 @@ int archive_write_disk_set_group_lookup(struct archive * _a, void * private_data
 	return ARCHIVE_OK;
 }
 
-int archive_write_disk_set_user_lookup(struct archive * _a, void * private_data,
+int archive_write_disk_set_user_lookup(Archive * _a, void * private_data,
     int64 (*lookup_uid)(void * private, const char * uname, int64 uid), void (*cleanup_uid)(void * private))
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
@@ -1758,7 +1758,7 @@ int archive_write_disk_set_user_lookup(struct archive * _a, void * private_data,
 	return ARCHIVE_OK;
 }
 
-int64 archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t id)
+int64 archive_write_disk_gid(Archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -1767,7 +1767,7 @@ int64 archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t 
 	return (id);
 }
 
-int64 archive_write_disk_uid(struct archive * _a, const char * name, la_int64_t id)
+int64 archive_write_disk_uid(Archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
@@ -1779,7 +1779,7 @@ int64 archive_write_disk_uid(struct archive * _a, const char * name, la_int64_t 
 /*
  * Create a new archive_write_disk object and initialize it with global state.
  */
-struct archive * archive_write_disk_new(void)                 {
+Archive * archive_write_disk_new(void)                 {
 	struct archive_write_disk * a;
 
 	a = (struct archive_write_disk *)SAlloc::C(1, sizeof(*a));
@@ -2051,7 +2051,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 	/* these for check_symlinks_fsobj */
 	char * linkname_copy; /* non-const copy of linkname */
 	struct stat st;
-	struct archive_string error_string;
+	archive_string error_string;
 	int error_number;
 
 	/* We identify hard/symlinks according to the link names. */
@@ -2271,7 +2271,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
  * XXX TODO: Directory ACLs should be restored here, for the same
  * reason we set directory perms here. XXX
  */
-static int _archive_write_disk_close(struct archive * _a)
+static int _archive_write_disk_close(Archive * _a)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	struct fixup_entry * next, * p;
@@ -2320,7 +2320,7 @@ static int _archive_write_disk_close(struct archive * _a)
 	return ret;
 }
 
-static int _archive_write_disk_free(struct archive * _a)
+static int _archive_write_disk_free(Archive * _a)
 {
 	struct archive_write_disk * a;
 	int ret;
@@ -2448,7 +2448,7 @@ static struct fixup_entry * current_fixup(struct archive_write_disk * a, const c
 }
 
 /* Error helper for new *_fsobj functions */
-static void fsobj_error(int * a_eno, struct archive_string * a_estr, int err, const char * errstr, const char * path)
+static void fsobj_error(int * a_eno, archive_string * a_estr, int err, const char * errstr, const char * path)
 {
 	if(a_eno)
 		*a_eno = err;
@@ -2464,7 +2464,7 @@ static void fsobj_error(int * a_eno, struct archive_string * a_estr, int err, co
  * Checks the given path to see if any elements along it are symlinks.  Returns
  * ARCHIVE_OK if there are none, otherwise puts an error in errmsg.
  */
-static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string * a_estr,
+static int check_symlinks_fsobj(char * path, int * a_eno, archive_string * a_estr,
     int flags)
 {
 #if !defined(HAVE_LSTAT) && \
@@ -2764,7 +2764,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
  */
 static int check_symlinks(struct archive_write_disk * a)
 {
-	struct archive_string error_string;
+	archive_string error_string;
 	int error_number;
 	int rc;
 	archive_string_init(&error_string);
@@ -2846,7 +2846,7 @@ static void cleanup_pathname_win(char * path)
  * set) any '..' in the path or (if ARCHIVE_EXTRACT_SECURE_NOABSOLUTEPATHS
  * is set) if the path is absolute.
  */
-static int cleanup_pathname_fsobj(char * path, int * a_eno, struct archive_string * a_estr, int flags)
+static int cleanup_pathname_fsobj(char * path, int * a_eno, archive_string * a_estr, int flags)
 {
 	char * dest, * src;
 	char separator = '\0';
@@ -2934,7 +2934,7 @@ static int cleanup_pathname_fsobj(char * path, int * a_eno, struct archive_strin
 
 static int cleanup_pathname(struct archive_write_disk * a)
 {
-	struct archive_string error_string;
+	archive_string error_string;
 	int error_number;
 	int rc;
 	archive_string_init(&error_string);
@@ -3845,7 +3845,7 @@ exit_acl:
 
 static int create_tempdatafork(struct archive_write_disk * a, const char * pathname)
 {
-	struct archive_string tmpdatafork;
+	archive_string tmpdatafork;
 	int tmpfd;
 
 	archive_string_init(&tmpdatafork);
@@ -3912,7 +3912,7 @@ static int copy_metadata(struct archive_write_disk * a, const char * metadata,
 static int set_mac_metadata(struct archive_write_disk * a, const char * pathname,
     const void * metadata, size_t metadata_size)
 {
-	struct archive_string tmp;
+	archive_string tmp;
 	ssize_t written;
 	int fd;
 	int ret = ARCHIVE_OK;
@@ -3959,7 +3959,7 @@ static int fixup_appledouble(struct archive_write_disk * a, const char * pathnam
 	char buff[8];
 	struct stat st;
 	const char * p;
-	struct archive_string datafork;
+	archive_string datafork;
 	int fd = -1, ret = ARCHIVE_OK;
 
 	archive_string_init(&datafork);
@@ -4032,8 +4032,8 @@ skip_appledouble:
  */
 static int set_xattrs(struct archive_write_disk * a)
 {
-	struct archive_entry * entry = a->entry;
-	struct archive_string errlist;
+	ArchiveEntry * entry = a->entry;
+	archive_string errlist;
 	int ret = ARCHIVE_OK;
 	int i = archive_entry_xattr_reset(entry);
 	short fail = 0;
@@ -4107,8 +4107,8 @@ static int set_xattrs(struct archive_write_disk * a)
  */
 static int set_xattrs(struct archive_write_disk * a)
 {
-	struct archive_entry * entry = a->entry;
-	struct archive_string errlist;
+	ArchiveEntry * entry = a->entry;
+	archive_string errlist;
 	int ret = ARCHIVE_OK;
 	int i = archive_entry_xattr_reset(entry);
 	short fail = 0;
@@ -4217,7 +4217,7 @@ static int set_xattrs(struct archive_write_disk * a)
 /*
  * Test if file on disk is older than entry.
  */
-static int older(struct stat * st, struct archive_entry * entry)
+static int older(struct stat * st, ArchiveEntry * entry)
 {
 	/* First, test the seconds and return if we have a definite answer. */
 	/* Definitely older. */
@@ -4255,8 +4255,8 @@ static int older(struct stat * st, struct archive_entry * entry)
 }
 
 #ifndef ARCHIVE_ACL_SUPPORT
-int archive_write_disk_set_acls(struct archive * a, int fd, const char * name,
-    struct archive_acl * abstract_acl, __LA_MODE_T mode)
+int archive_write_disk_set_acls(Archive * a, int fd, const char * name,
+    archive_acl * abstract_acl, __LA_MODE_T mode)
 {
 	CXX_UNUSED(a);
 	CXX_UNUSED(fd);

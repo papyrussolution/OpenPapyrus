@@ -18,7 +18,7 @@
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_bzip2.c 201091 2009-12-28 02:22:41Z kientzle $");
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-int archive_write_set_compression_bzip2(struct archive * a)
+int archive_write_set_compression_bzip2(Archive * a)
 {
 	__archive_write_filters_free(a);
 	return (archive_write_add_filter_bzip2(a));
@@ -49,14 +49,14 @@ static int archive_compressor_bzip2_write(struct archive_write_filter *,
 /*
  * Add a bzip2 compression filter to this write handle.
  */
-int archive_write_add_filter_bzip2(struct archive * _a)
+int archive_write_add_filter_bzip2(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = static_cast<struct private_data *>(SAlloc::C(1, sizeof(*data)));
-	if(data == NULL) {
+	if(!data) {
 		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
@@ -255,7 +255,7 @@ static int drive_compressor(struct archive_write_filter * f, struct private_data
 static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-	struct archive_string as;
+	archive_string as;
 	int r;
 	archive_string_init(&as);
 	archive_strcpy(&as, "bzip2");

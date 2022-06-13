@@ -963,7 +963,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							// Error parsing of invatation
 						}
 					} catch(StyloQException exn) {
-						((StyloQApp) getApplication()).DisplayError(null, exn, 5000);
+						((StyloQApp)getApplication()).DisplayError(this, exn, 5000);
 						//String msg = exn.GetMessage(this);
 						//v_info.setText((msg != null) ? msg : "unkn exception");
 					}

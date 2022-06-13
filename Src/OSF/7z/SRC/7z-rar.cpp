@@ -90,7 +90,7 @@ namespace NCompress {
 		uint32 CDecoder::ReadBits(int numBits) { return m_InBitStream.ReadBits(numBits); }
 		HRESULT CDecoder::CopyBlock(uint32 distance, uint32 len)
 		{
-			if(len == 0)
+			if(!len)
 				return S_FALSE;
 			m_UnpackSize -= len;
 			return m_OutWindowStream.CopyBlock(distance, len) ? S_OK : S_FALSE;
@@ -3384,8 +3384,8 @@ namespace NCompress {
 							len = _lastLen;
 							// if(len = 0), we ignore that symbol, like original unRAR code, but it can
 							// mean error in stream.
-							// if(len == 0) return S_FALSE;
-							if(len == 0)
+							// if(!len) return S_FALSE;
+							if(!len)
 								continue;
 						}
 					}

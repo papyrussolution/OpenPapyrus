@@ -326,9 +326,9 @@ struct rar5 {
 /* Forward function declarations. */
 
 static void rar5_signature(char * buf);
-static int verify_global_checksums(struct archive_read* a);
-static int rar5_read_data_skip(struct archive_read * a);
-static int push_data_ready(struct archive_read* a, struct rar5* rar,
+static int verify_global_checksums(ArchiveRead* a);
+static int rar5_read_data_skip(ArchiveRead * a);
+static int push_data_ready(ArchiveRead* a, struct rar5* rar,
     const uint8 * buf, size_t size, int64 offset);
 
 /* CDE_xxx = Circular Double Ended (Queue) return values. */
@@ -458,7 +458,7 @@ static inline uint8 bf_is_table_present(const struct compressed_block_header* hd
 	return (hdr->block_flags_u8 >> 7) & 1;
 }
 
-static inline struct rar5* get_context(struct archive_read* a) 
+static inline struct rar5* get_context(ArchiveRead* a) 
 {
 	return (struct rar5*)a->format->data;
 }
@@ -571,7 +571,7 @@ static int run_arm_filter(struct rar5* rar, struct filter_info* flt)
 	return ARCHIVE_OK;
 }
 
-static int run_filter(struct archive_read* a, struct filter_info* flt) 
+static int run_filter(ArchiveRead* a, struct filter_info* flt) 
 {
 	int ret;
 	struct rar5* rar = get_context(a);
@@ -612,7 +612,7 @@ static int run_filter(struct archive_read* a, struct filter_info* flt)
  * Next call of `use_data` will use the pointer, size and offset arguments
  * that are specified here. These arguments are pushed to the FIFO stack here,
  * and popped from the stack by the `use_data` function. */
-static void push_data(struct archive_read* a, struct rar5* rar, const uint8 * buf, int64 idx_begin, int64 idx_end)
+static void push_data(ArchiveRead* a, struct rar5* rar, const uint8 * buf, int64 idx_begin, int64 idx_end)
 {
 	const uint64 wmask = rar->cstate.window_mask;
 	const ssize_t solid_write_ptr = static_cast<const ssize_t>((rar->cstate.solid_offset + rar->cstate.last_write_ptr) & wmask);
@@ -642,12 +642,12 @@ static void push_data(struct archive_read* a, struct rar5* rar, const uint8 * bu
 
 /* Convenience function that submits the data to the user. It uses the
  * unpack window buffer as a source location. */
-static void push_window_data(struct archive_read* a, struct rar5* rar, int64 idx_begin, int64 idx_end)
+static void push_window_data(ArchiveRead* a, struct rar5* rar, int64 idx_begin, int64 idx_end)
 {
 	push_data(a, rar, rar->cstate.window_buf, idx_begin, idx_end);
 }
 
-static int apply_filters(struct archive_read* a) 
+static int apply_filters(ArchiveRead* a) 
 {
 	struct filter_info* flt;
 	struct rar5* rar = get_context(a);
@@ -754,14 +754,14 @@ static void reset_file_context(struct rar5* rar)
 	free_filters(rar);
 }
 
-static inline int get_archive_read(struct archive* a, struct archive_read** ar)
+static inline int get_archive_read(Archive* a, ArchiveRead** ar)
 {
-	*ar = (struct archive_read*)a;
+	*ar = (ArchiveRead*)a;
 	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	return ARCHIVE_OK;
 }
 
-static int read_ahead(struct archive_read* a, size_t how_many, const uint8 ** ptr)
+static int read_ahead(ArchiveRead* a, size_t how_many, const uint8 ** ptr)
 {
 	ssize_t avail = -1;
 	if(!ptr)
@@ -773,7 +773,7 @@ static int read_ahead(struct archive_read* a, size_t how_many, const uint8 ** pt
 	return 1;
 }
 
-static int consume(struct archive_read* a, int64 how_many) 
+static int consume(ArchiveRead* a, int64 how_many) 
 {
 	int ret = how_many == __archive_read_consume(a, how_many) ? ARCHIVE_OK : ARCHIVE_FATAL;
 	return ret;
@@ -795,7 +795,7 @@ static int consume(struct archive_read* a, int64 how_many)
  *     invalid value.
  */
 
-static int read_var(struct archive_read* a, uint64* pvalue,
+static int read_var(ArchiveRead* a, uint64* pvalue,
     uint64* pvalue_len)
 {
 	uint64 result = 0;
@@ -868,7 +868,7 @@ static int read_var(struct archive_read* a, uint64* pvalue,
 	return 1;
 }
 
-static int read_var_sized(struct archive_read* a, size_t* pvalue, size_t* pvalue_len)
+static int read_var_sized(ArchiveRead* a, size_t* pvalue, size_t* pvalue_len)
 {
 	uint64 v;
 	uint64 v_size = 0;
@@ -938,7 +938,7 @@ static int read_consume_bits(struct rar5* rar, const uint8 * p, int n,
 	return ARCHIVE_OK;
 }
 
-static int read_u32(struct archive_read* a, uint32 * pvalue) {
+static int read_u32(ArchiveRead* a, uint32 * pvalue) {
 	const uint8 * p;
 	if(!read_ahead(a, 4, &p))
 		return 0;
@@ -947,7 +947,7 @@ static int read_u32(struct archive_read* a, uint32 * pvalue) {
 	return ARCHIVE_OK == consume(a, 4) ? 1 : 0;
 }
 
-static int read_u64(struct archive_read* a, uint64* pvalue) {
+static int read_u64(ArchiveRead* a, uint64* pvalue) {
 	const uint8 * p;
 	if(!read_ahead(a, 8, &p))
 		return 0;
@@ -956,7 +956,7 @@ static int read_u64(struct archive_read* a, uint64* pvalue) {
 	return ARCHIVE_OK == consume(a, 8) ? 1 : 0;
 }
 
-static int bid_standard(struct archive_read* a) {
+static int bid_standard(ArchiveRead* a) {
 	const uint8 * p;
 	char signature[sizeof(rar5_signature_xor)];
 
@@ -971,7 +971,7 @@ static int bid_standard(struct archive_read* a) {
 	return -1;
 }
 
-static int rar5_bid(struct archive_read* a, int best_bid) {
+static int rar5_bid(ArchiveRead* a, int best_bid) {
 	int my_bid;
 
 	if(best_bid > 30)
@@ -985,7 +985,7 @@ static int rar5_bid(struct archive_read* a, int best_bid) {
 	return -1;
 }
 
-static int rar5_options(struct archive_read * a, const char * key,
+static int rar5_options(ArchiveRead * a, const char * key,
     const char * val) {
 	(void)a;
 	(void)key;
@@ -998,7 +998,7 @@ static int rar5_options(struct archive_read * a, const char * key,
 	return ARCHIVE_WARN;
 }
 
-static void init_header(struct archive_read* a) {
+static void init_header(ArchiveRead* a) {
 	a->archive.archive_format = ARCHIVE_FORMAT_RAR_V5;
 	a->archive.archive_format_name = "RAR5";
 }
@@ -1020,7 +1020,7 @@ enum HEADER_FLAGS {
 	HFL_INHERITED = 0x0040
 };
 
-static int process_main_locator_extra_block(struct archive_read* a, struct rar5* rar)
+static int process_main_locator_extra_block(ArchiveRead* a, struct rar5* rar)
 {
 	uint64 locator_flags;
 	enum LOCATOR_FLAGS {
@@ -1048,7 +1048,7 @@ static int process_main_locator_extra_block(struct archive_read* a, struct rar5*
 	return ARCHIVE_OK;
 }
 
-static int parse_file_extra_hash(struct archive_read* a, struct rar5* rar, ssize_t* extra_data_size)
+static int parse_file_extra_hash(ArchiveRead* a, struct rar5* rar, ssize_t* extra_data_size)
 {
 	size_t hash_type = 0;
 	size_t value_len;
@@ -1088,7 +1088,7 @@ static uint64 time_win_to_unix(uint64 win_time)
 	return win_time / ns_in_sec - sec_to_unix;
 }
 
-static int parse_htime_item(struct archive_read* a, char unix_time, uint64* where, ssize_t* extra_data_size)
+static int parse_htime_item(ArchiveRead* a, char unix_time, uint64* where, ssize_t* extra_data_size)
 {
 	if(unix_time) {
 		uint32 time_val;
@@ -1107,13 +1107,13 @@ static int parse_htime_item(struct archive_read* a, char unix_time, uint64* wher
 	return ARCHIVE_OK;
 }
 
-static int parse_file_extra_version(struct archive_read* a, struct archive_entry* e, ssize_t* extra_data_size)
+static int parse_file_extra_version(ArchiveRead* a, ArchiveEntry* e, ssize_t* extra_data_size)
 {
 	size_t flags = 0;
 	size_t version = 0;
 	size_t value_len = 0;
-	struct archive_string version_string;
-	struct archive_string name_utf8_string;
+	archive_string version_string;
+	archive_string name_utf8_string;
 	const char* cur_filename;
 	/* Flags are ignored. */
 	if(!read_var_sized(a, &flags, &value_len))
@@ -1148,7 +1148,7 @@ static int parse_file_extra_version(struct archive_read* a, struct archive_entry
 	return ARCHIVE_OK;
 }
 
-static int parse_file_extra_htime(struct archive_read* a, struct archive_entry* e, struct rar5* rar, ssize_t* extra_data_size)
+static int parse_file_extra_htime(ArchiveRead* a, ArchiveEntry* e, struct rar5* rar, ssize_t* extra_data_size)
 {
 	char unix_time = 0;
 	size_t flags = 0;
@@ -1187,7 +1187,7 @@ static int parse_file_extra_htime(struct archive_read* a, struct archive_entry* 
 	return ARCHIVE_OK;
 }
 
-static int parse_file_extra_redir(struct archive_read* a, struct archive_entry* e, struct rar5* rar, ssize_t* extra_data_size)
+static int parse_file_extra_redir(ArchiveRead* a, ArchiveEntry* e, struct rar5* rar, ssize_t* extra_data_size)
 {
 	uint64 value_size = 0;
 	size_t target_size = 0;
@@ -1245,7 +1245,7 @@ static int parse_file_extra_redir(struct archive_read* a, struct archive_entry* 
 	return ARCHIVE_OK;
 }
 
-static int parse_file_extra_owner(struct archive_read* a, struct archive_entry* e, ssize_t* extra_data_size)
+static int parse_file_extra_owner(ArchiveRead* a, ArchiveEntry* e, ssize_t* extra_data_size)
 {
 	uint64 flags = 0;
 	uint64 value_size = 0;
@@ -1317,7 +1317,7 @@ static int parse_file_extra_owner(struct archive_read* a, struct archive_entry* 
 	return ARCHIVE_OK;
 }
 
-static int process_head_file_extra(struct archive_read* a, struct archive_entry* e, struct rar5* rar, ssize_t extra_data_size)
+static int process_head_file_extra(ArchiveRead* a, ArchiveEntry* e, struct rar5* rar, ssize_t extra_data_size)
 {
 	size_t extra_field_size;
 	size_t extra_field_id = 0;
@@ -1368,7 +1368,7 @@ static int process_head_file_extra(struct archive_read* a, struct archive_entry*
 	return ARCHIVE_OK;
 }
 
-static int process_head_file(struct archive_read* a, struct rar5* rar, struct archive_entry* entry, size_t block_flags)
+static int process_head_file(ArchiveRead* a, struct rar5* rar, ArchiveEntry* entry, size_t block_flags)
 {
 	ssize_t extra_data_size = 0;
 	size_t data_size = 0;
@@ -1401,23 +1401,18 @@ static int process_head_file(struct archive_read* a, struct rar5* rar, struct ar
 		HOST_WINDOWS = 0,
 		HOST_UNIX = 1,
 	};
-
 	archive_entry_clear(entry);
-
 	/* Do not reset file context if we're switching archives. */
 	if(!rar->cstate.switch_multivolume) {
 		reset_file_context(rar);
 	}
-
 	if(block_flags & HFL_EXTRA_DATA) {
 		size_t edata_size = 0;
 		if(!read_var_sized(a, &edata_size, NULL))
 			return ARCHIVE_EOF;
-
 		/* Intentional type cast from unsigned to signed. */
 		extra_data_size = (ssize_t)edata_size;
 	}
-
 	if(block_flags & HFL_DATA) {
 		if(!read_var_sized(a, &data_size, NULL))
 			return ARCHIVE_EOF;
@@ -1606,7 +1601,7 @@ static int process_head_file(struct archive_read* a, struct rar5* rar, struct ar
 	}
 }
 
-static int process_head_service(struct archive_read* a, struct rar5* rar, struct archive_entry* entry, size_t block_flags)
+static int process_head_service(ArchiveRead* a, struct rar5* rar, ArchiveEntry* entry, size_t block_flags)
 {
 	// Process this SERVICE block the same way as FILE blocks.
 	int ret = process_head_file(a, rar, entry, block_flags);
@@ -1623,8 +1618,7 @@ static int process_head_service(struct archive_read* a, struct rar5* rar, struct
 	return ARCHIVE_RETRY;
 }
 
-static int process_head_main(struct archive_read* a, struct rar5* rar,
-    struct archive_entry* entry, size_t block_flags)
+static int process_head_main(ArchiveRead* a, struct rar5* rar, ArchiveEntry* entry, size_t block_flags)
 {
 	int ret;
 	size_t extra_data_size = 0;
@@ -1704,7 +1698,7 @@ static int process_head_main(struct archive_read* a, struct rar5* rar,
 	return ARCHIVE_OK;
 }
 
-static int skip_unprocessed_bytes(struct archive_read* a) 
+static int skip_unprocessed_bytes(ArchiveRead* a) 
 {
 	struct rar5* rar = get_context(a);
 	int ret;
@@ -1739,7 +1733,7 @@ static int skip_unprocessed_bytes(struct archive_read* a)
 	return ARCHIVE_OK;
 }
 
-static int scan_for_signature(struct archive_read* a);
+static int scan_for_signature(ArchiveRead* a);
 
 /* Base block processing function. A 'base block' is a RARv5 header block
  * that tells the reader what kind of data is stored inside the block.
@@ -1786,11 +1780,9 @@ static int scan_for_signature(struct archive_read* a);
  * <FILE> block.
  */
 
-static int process_base_block(struct archive_read* a,
-    struct archive_entry* entry)
+static int process_base_block(ArchiveRead* a, ArchiveEntry* entry)
 {
 	const size_t SMALLEST_RAR5_BLOCK_SIZE = 3;
-
 	struct rar5* rar = get_context(a);
 	uint32 hdr_crc, computed_crc;
 	size_t raw_hdr_size = 0, hdr_size_len, hdr_size;
@@ -1798,13 +1790,15 @@ static int process_base_block(struct archive_read* a,
 	size_t header_flags = 0;
 	const uint8 * p;
 	int ret;
-
 	enum HEADER_TYPE {
-		HEAD_MARK    = 0x00, HEAD_MAIN  = 0x01, HEAD_FILE   = 0x02,
-		HEAD_SERVICE = 0x03, HEAD_CRYPT = 0x04, HEAD_ENDARC = 0x05,
+		HEAD_MARK    = 0x00, 
+		HEAD_MAIN  = 0x01, 
+		HEAD_FILE   = 0x02,
+		HEAD_SERVICE = 0x03, 
+		HEAD_CRYPT = 0x04, 
+		HEAD_ENDARC = 0x05,
 		HEAD_UNKNOWN = 0xff,
 	};
-
 	/* Skip any unprocessed data for this file. */
 	ret = skip_unprocessed_bytes(a);
 	if(ret != ARCHIVE_OK)
@@ -1926,41 +1920,35 @@ static int process_base_block(struct archive_read* a,
 #endif
 }
 
-static int skip_base_block(struct archive_read* a) 
+static int skip_base_block(ArchiveRead* a) 
 {
 	int ret;
 	struct rar5* rar = get_context(a);
 	/* Create a new local archive_entry structure that will be operated on
 	 * by header reader; operations on this archive_entry will be discarded.
 	 */
-	struct archive_entry* entry = archive_entry_new();
+	ArchiveEntry* entry = archive_entry_new();
 	ret = process_base_block(a, entry);
-
 	/* Discard operations on this archive_entry structure. */
 	archive_entry_free(entry);
 	if(ret == ARCHIVE_FATAL)
 		return ret;
-
 	if(rar->generic.last_header_id == 2 && rar->generic.split_before > 0)
 		return ARCHIVE_OK;
-
 	if(ret == ARCHIVE_OK)
 		return ARCHIVE_RETRY;
 	else
 		return ret;
 }
 
-static int rar5_read_header(struct archive_read * a,
-    struct archive_entry * entry)
+static int rar5_read_header(ArchiveRead * a, ArchiveEntry * entry)
 {
 	struct rar5* rar = get_context(a);
 	int ret;
-
 	if(rar->header_initialized == 0) {
 		init_header(a);
 		rar->header_initialized = 1;
 	}
-
 	if(rar->skipped_magic == 0) {
 		if(ARCHIVE_OK != consume(a, sizeof(rar5_signature_xor))) {
 			return ARCHIVE_EOF;
@@ -2092,7 +2080,7 @@ static int create_decode_tables(uint8 * bit_length, struct decode_table* table, 
 	return ARCHIVE_OK;
 }
 
-static int decode_number(struct archive_read* a, struct decode_table* table,
+static int decode_number(ArchiveRead* a, struct decode_table* table,
     const uint8 * p, uint16* num)
 {
 	int i, bits, dist;
@@ -2136,7 +2124,7 @@ static int decode_number(struct archive_read* a, struct decode_table* table,
 }
 
 /* Reads and parses Huffman tables from the beginning of the block. */
-static int parse_tables(struct archive_read* a, struct rar5* rar, const uint8 * p)
+static int parse_tables(ArchiveRead* a, struct rar5* rar, const uint8 * p)
 {
 	int ret, value, i, w, idx = 0;
 	uint8 bit_length[HUFF_BC];
@@ -2288,7 +2276,7 @@ static int parse_tables(struct archive_read* a, struct rar5* rar, const uint8 * 
 
 /* Parses the block header, verifies its CRC byte, and saves the header
  * fields inside the `hdr` pointer. */
-static int parse_block_header(struct archive_read* a, const uint8 * p, ssize_t* block_size, struct compressed_block_header* hdr)
+static int parse_block_header(ArchiveRead* a, const uint8 * p, ssize_t* block_size, struct compressed_block_header* hdr)
 {
 	uint8 calculated_cksum;
 	memcpy(hdr, p, sizeof(struct compressed_block_header));
@@ -2380,7 +2368,7 @@ static int is_valid_filter_block_start(struct rar5* rar,
 
 /* The function will create a new filter, read its parameters from the input
  * stream and add it to the filter collection. */
-static int parse_filter(struct archive_read* ar, const uint8 * p) {
+static int parse_filter(ArchiveRead* ar, const uint8 * p) {
 	uint32 block_start, block_length;
 	uint16 filter_type;
 	struct filter_info* filt = NULL;
@@ -2459,7 +2447,7 @@ static int decode_code_length(struct rar5* rar, const uint8 * p,
 	return length;
 }
 
-static int copy_string(struct archive_read* a, int len, int dist) {
+static int copy_string(ArchiveRead* a, int len, int dist) {
 	struct rar5* rar = get_context(a);
 	const uint64 cmask = rar->cstate.window_mask;
 	const uint64 write_ptr = rar->cstate.write_ptr + rar->cstate.solid_offset;
@@ -2482,7 +2470,7 @@ static int copy_string(struct archive_read* a, int len, int dist) {
 	return ARCHIVE_OK;
 }
 
-static int do_uncompress_block(struct archive_read* a, const uint8 * p) 
+static int do_uncompress_block(ArchiveRead* a, const uint8 * p) 
 {
 	struct rar5* rar = get_context(a);
 	uint16 num;
@@ -2667,7 +2655,7 @@ static int do_uncompress_block(struct archive_read* a, const uint8 * p)
 }
 
 /* Binary search for the RARv5 signature. */
-static int scan_for_signature(struct archive_read* a) {
+static int scan_for_signature(ArchiveRead* a) {
 	const uint8 * p;
 	const int chunk_size = 512;
 	ssize_t i;
@@ -2714,7 +2702,7 @@ static int scan_for_signature(struct archive_read* a) {
 
 /* This function will switch the multivolume archive file to another file,
  * i.e. from part03 to part 04. */
-static int advance_multivolume(struct archive_read* a) {
+static int advance_multivolume(ArchiveRead* a) {
 	int lret;
 	struct rar5* rar = get_context(a);
 
@@ -2791,7 +2779,7 @@ static int advance_multivolume(struct archive_read* a) {
  * partial block from the second multivolume archive file. The result is
  * a chunk of memory containing the whole block, and the stream pointer
  * is advanced to the next block in the second multivolume archive file. */
-static int merge_block(struct archive_read* a, ssize_t block_size, const uint8 ** p)
+static int merge_block(ArchiveRead* a, ssize_t block_size, const uint8 ** p)
 {
 	struct rar5* rar = get_context(a);
 	ssize_t cur_block_size, partial_offset = 0;
@@ -2877,7 +2865,7 @@ static int merge_block(struct archive_read* a, ssize_t block_size, const uint8 *
 	return ARCHIVE_OK;
 }
 
-static int process_block(struct archive_read* a) 
+static int process_block(ArchiveRead* a) 
 {
 	const uint8 * p;
 	struct rar5* rar = get_context(a);
@@ -3045,7 +3033,7 @@ static int use_data(struct rar5* rar, const void** buf, size_t* size,
 /* Pushes the `buf`, `size` and `offset` arguments to the rar->cstate.dready
  * FIFO stack. Those values will be popped from this stack by the `use_data`
  * function. */
-static int push_data_ready(struct archive_read* a, struct rar5* rar,
+static int push_data_ready(ArchiveRead* a, struct rar5* rar,
     const uint8 * buf, size_t size, int64 offset)
 {
 	int i;
@@ -3132,7 +3120,7 @@ static int push_data_ready(struct archive_read* a, struct rar5* rar,
  * tells the decompressor what it should do.
  * */
 
-static int do_uncompress_file(struct archive_read* a) {
+static int do_uncompress_file(ArchiveRead* a) {
 	struct rar5* rar = get_context(a);
 	int ret;
 	int64 max_end_pos;
@@ -3227,7 +3215,7 @@ static int do_uncompress_file(struct archive_read* a) {
 	return ARCHIVE_OK;
 }
 
-static int uncompress_file(struct archive_read* a) {
+static int uncompress_file(ArchiveRead* a) {
 	int ret;
 
 	while(1) {
@@ -3240,7 +3228,7 @@ static int uncompress_file(struct archive_read* a) {
 	}
 }
 
-static int do_unstore_file(struct archive_read* a, struct rar5* rar, const void** buf, size_t* size, int64* offset)
+static int do_unstore_file(ArchiveRead* a, struct rar5* rar, const void** buf, size_t* size, int64* offset)
 {
 	size_t to_read;
 	const uint8 * p;
@@ -3277,7 +3265,7 @@ static int do_unstore_file(struct archive_read* a, struct rar5* rar, const void*
 	return ARCHIVE_OK;
 }
 
-static int do_unpack(struct archive_read* a, struct rar5* rar,
+static int do_unpack(ArchiveRead* a, struct rar5* rar,
     const void** buf, size_t* size, int64* offset)
 {
 	enum COMPRESSION_METHOD {
@@ -3313,7 +3301,7 @@ static int do_unpack(struct archive_read* a, struct rar5* rar,
 #endif
 }
 
-static int verify_checksums(struct archive_read* a) 
+static int verify_checksums(ArchiveRead* a) 
 {
 	int verify_crc;
 	struct rar5* rar = get_context(a);
@@ -3398,7 +3386,7 @@ static int verify_checksums(struct archive_read* a)
 	return ARCHIVE_OK;
 }
 
-static int verify_global_checksums(struct archive_read* a) 
+static int verify_global_checksums(ArchiveRead* a) 
 {
 	return verify_checksums(a);
 }
@@ -3413,7 +3401,7 @@ static void rar5_signature(char * buf)
 	}
 }
 
-static int rar5_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset) 
+static int rar5_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset) 
 {
 	int ret;
 	struct rar5* rar = get_context(a);
@@ -3455,7 +3443,7 @@ static int rar5_read_data(struct archive_read * a, const void ** buff, size_t * 
 	return ARCHIVE_OK;
 }
 
-static int rar5_read_data_skip(struct archive_read * a) 
+static int rar5_read_data_skip(ArchiveRead * a) 
 {
 	struct rar5* rar = get_context(a);
 	if(rar->main.solid) {
@@ -3499,7 +3487,7 @@ static int rar5_read_data_skip(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static int64 rar5_seek_data(struct archive_read * a, int64 offset, int whence)
+static int64 rar5_seek_data(ArchiveRead * a, int64 offset, int whence)
 {
 	(void)a;
 	(void)offset;
@@ -3508,7 +3496,7 @@ static int64 rar5_seek_data(struct archive_read * a, int64 offset, int whence)
 	return ARCHIVE_FATAL;
 }
 
-static int rar5_cleanup(struct archive_read * a) 
+static int rar5_cleanup(ArchiveRead * a) 
 {
 	struct rar5 * rar = get_context(a);
 	if(rar) {
@@ -3523,13 +3511,13 @@ static int rar5_cleanup(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static int rar5_capabilities(struct archive_read * a) 
+static int rar5_capabilities(ArchiveRead * a) 
 {
 	(void)a;
 	return 0;
 }
 
-static int rar5_has_encrypted_entries(struct archive_read * _a) 
+static int rar5_has_encrypted_entries(ArchiveRead * _a) 
 {
 	(void)_a;
 	/* Unsupported for now. */
@@ -3544,9 +3532,9 @@ static int rar5_init(struct rar5* rar)
 	return ARCHIVE_OK;
 }
 
-int archive_read_support_format_rar5(struct archive * _a) 
+int archive_read_support_format_rar5(Archive * _a) 
 {
-	struct archive_read* ar;
+	ArchiveRead* ar;
 	int ret;
 	struct rar5* rar;
 	if(ARCHIVE_OK != (ret = get_archive_read(_a, &ar)))

@@ -1905,7 +1905,7 @@ static int __bam_savekey(DBC * dbc, int next, DBT * start)
 			bk = GET_BKEYDATA(dbp, pg, NUM_ENT(pg)-2);
 			data = bk->data;
 			len = bk->len;
-			if(len == 0) {
+			if(!len) {
 no_key:
 				__db_errx(env, DB_STR("1023", "Compact cannot handle zero length key"));
 				ret = DB_NOTFOUND;

@@ -30,8 +30,8 @@ struct private_data {
 };
 
 /* Bzip2 filter */
-static ssize_t  bzip2_filter_read(struct archive_read_filter *, const void **);
-static int bzip2_filter_close(struct archive_read_filter *);
+static ssize_t  bzip2_filter_read(ArchiveReadFilter *, const void **);
+static int bzip2_filter_close(ArchiveReadFilter *);
 #endif
 
 /*
@@ -40,32 +40,31 @@ static int bzip2_filter_close(struct archive_read_filter *);
  * error messages.)  So the bid framework here gets compiled even
  * if bzlib is unavailable.
  */
-static int bzip2_reader_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
-static int bzip2_reader_init(struct archive_read_filter *);
-static int bzip2_reader_free(struct archive_read_filter_bidder *);
+static int bzip2_reader_bid(ArchiveReadFilterBidder *, ArchiveReadFilter *);
+static int bzip2_reader_init(ArchiveReadFilter *);
+static int bzip2_reader_free(ArchiveReadFilterBidder *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
-/* Deprecated; remove in libarchive 4.0 */
-int archive_read_support_compression_bzip2(struct archive * a)
-{
-	return archive_read_support_filter_bzip2(a);
-}
-
+	// Deprecated; remove in libarchive 4.0
+	int archive_read_support_compression_bzip2(Archive * a)
+	{
+		return archive_read_support_filter_bzip2(a);
+	}
 #endif
 
-int archive_read_support_filter_bzip2(struct archive * _a)
+int archive_read_support_filter_bzip2(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
-	struct archive_read_filter_bidder * reader;
+	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveReadFilterBidder * reader;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	reader->data = NULL;
 	reader->name = "bzip2";
-	reader->bid = bzip2_reader_bid;
-	reader->init = bzip2_reader_init;
-	reader->options = NULL;
-	reader->free = bzip2_reader_free;
+	reader->FnBid = bzip2_reader_bid;
+	reader->FnInit = bzip2_reader_init;
+	reader->FnOptions = NULL;
+	reader->FnFree = bzip2_reader_free;
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 	return ARCHIVE_OK;
 #else
@@ -74,7 +73,8 @@ int archive_read_support_filter_bzip2(struct archive * _a)
 #endif
 }
 
-static int bzip2_reader_free(struct archive_read_filter_bidder * self){
+static int bzip2_reader_free(ArchiveReadFilterBidder * self)
+{
 	CXX_UNUSED(self);
 	return ARCHIVE_OK;
 }
@@ -86,17 +86,17 @@ static int bzip2_reader_free(struct archive_read_filter_bidder * self){
  * also tries to Do The Right Thing if a very short buffer prevents us
  * from verifying as much as we would like.
  */
-static int bzip2_reader_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
+static int bzip2_reader_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * filter)
 {
 	const uchar * buffer;
 	ssize_t avail;
 	int bits_checked;
 	CXX_UNUSED(self);
-	/* Minimal bzip2 archive is 14 bytes. */
+	// Minimal bzip2 archive is 14 bytes
 	buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 14, &avail));
 	if(!buffer)
 		return 0;
-	/* First three bytes must be "BZh" */
+	// First three bytes must be "BZh"
 	bits_checked = 0;
 	if(memcmp(buffer, "BZh", 3) != 0)
 		return 0;
@@ -127,7 +127,7 @@ static int bzip2_reader_bid(struct archive_read_filter_bidder * self, struct arc
  * decompression.  We can, however, still detect compressed archives
  * and emit a useful message.
  */
-static int bzip2_reader_init(struct archive_read_filter * self)
+static int bzip2_reader_init(ArchiveReadFilter * self)
 {
 	int r;
 
@@ -145,7 +145,7 @@ static int bzip2_reader_init(struct archive_read_filter * self)
 /*
  * Setup the callbacks.
  */
-static int bzip2_reader_init(struct archive_read_filter * self)
+static int bzip2_reader_init(ArchiveReadFilter * self)
 {
 	static const size_t out_block_size = 64 * 1024;
 	void * out_block;
@@ -171,7 +171,7 @@ static int bzip2_reader_init(struct archive_read_filter * self)
 /*
  * Return the next block of decompressed data.
  */
-static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void ** p)
+static ssize_t bzip2_filter_read(ArchiveReadFilter * self, const void ** p)
 {
 	size_t decompressed;
 	const char * read_buf;
@@ -260,7 +260,7 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 /*
  * Clean up the decompressor.
  */
-static int bzip2_filter_close(struct archive_read_filter * self)
+static int bzip2_filter_close(ArchiveReadFilter * self)
 {
 	int ret = ARCHIVE_OK;
 	struct private_data * state = (struct private_data *)self->data;

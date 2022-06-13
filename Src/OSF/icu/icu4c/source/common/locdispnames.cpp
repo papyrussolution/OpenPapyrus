@@ -465,36 +465,24 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayName(const char * locale,
 	UChar formatReplaceOpenParen  = 0x005B;// [
 	UChar formatCloseParen        = 0x0029;// )
 	UChar formatReplaceCloseParen = 0x005D; // ]
-
-	bool haveLang = TRUE; /* assume true, set false if we find we don't have
-	                          a lang component in the locale */
-	bool haveRest = TRUE; /* assume true, set false if we find we don't have
-	                          any other component in the locale */
+	bool haveLang = TRUE; /* assume true, set false if we find we don't have a lang component in the locale */
+	bool haveRest = TRUE; /* assume true, set false if we find we don't have any other component in the locale */
 	bool retry = FALSE; /* set true if we need to retry, see below */
-
 	int32_t langi = 0; /* index of the language substitution (0 or 1), virtually always 0 */
-
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
 	if(destCapacity<0 || (destCapacity>0 && dest==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	{
 		UErrorCode status = U_ZERO_ERROR;
-
-		icu::LocalUResourceBundlePointer locbundle(
-			ures_open(U_ICUDATA_LANG, displayLocale, &status));
-		icu::LocalUResourceBundlePointer dspbundle(
-			ures_getByKeyWithFallback(locbundle.getAlias(), _kLocaleDisplayPattern, NULL, &status));
-
+		icu::LocalUResourceBundlePointer locbundle(ures_open(U_ICUDATA_LANG, displayLocale, &status));
+		icu::LocalUResourceBundlePointer dspbundle(ures_getByKeyWithFallback(locbundle.getAlias(), _kLocaleDisplayPattern, NULL, &status));
 		separator = ures_getStringByKeyWithFallback(dspbundle.getAlias(), _kSeparator, &sepLen, &status);
 		pattern = ures_getStringByKeyWithFallback(dspbundle.getAlias(), _kPattern, &patLen, &status);
 	}
-
 	/* If we couldn't find any data, then use the defaults */
 	if(sepLen == 0) {
 		separator = defaultSeparator;
@@ -791,14 +779,12 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayKeywordValue(const char * locale,
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* get the keyword value */
 	CharString keywordValue;
 	{
 		CharStringByteSink sink(&keywordValue);
 		ulocimp_getKeywordValue(locale, keyword, sink, status);
 	}
-
 	/*
 	 * if the keyword is equal to currency .. then to get the display name
 	 * we need to do the fallback ourselves
@@ -806,16 +792,10 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayKeywordValue(const char * locale,
 	if(uprv_stricmp(keyword, _kCurrency)==0) {
 		int32_t dispNameLen = 0;
 		const UChar * dispName = NULL;
-
-		icu::LocalUResourceBundlePointer bundle(
-			ures_open(U_ICUDATA_CURR, displayLocale, status));
-		icu::LocalUResourceBundlePointer currencies(
-			ures_getByKey(bundle.getAlias(), _kCurrencies, NULL, status));
-		icu::LocalUResourceBundlePointer currency(
-			ures_getByKeyWithFallback(currencies.getAlias(), keywordValue.data(), NULL, status));
-
+		icu::LocalUResourceBundlePointer bundle(ures_open(U_ICUDATA_CURR, displayLocale, status));
+		icu::LocalUResourceBundlePointer currencies(ures_getByKey(bundle.getAlias(), _kCurrencies, NULL, status));
+		icu::LocalUResourceBundlePointer currency(ures_getByKeyWithFallback(currencies.getAlias(), keywordValue.data(), NULL, status));
 		dispName = ures_getStringByIndex(currency.getAlias(), UCURRENCY_DISPLAY_NAME_INDEX, &dispNameLen, status);
-
 		if(U_FAILURE(*status)) {
 			if(*status == U_MISSING_RESOURCE_ERROR) {
 				/* we just want to write the value over if nothing is available */
@@ -825,7 +805,6 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayKeywordValue(const char * locale,
 				return 0;
 			}
 		}
-
 		/* now copy the dispName over if not NULL */
 		if(dispName != NULL) {
 			if(dispNameLen <= destCapacity) {

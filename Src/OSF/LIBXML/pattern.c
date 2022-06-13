@@ -502,7 +502,7 @@ restart:
 						    break;
 					    lst = lst->next;
 				    }
-				    if(lst != NULL)
+				    if(lst)
 					    continue;
 			    }
 			    goto rollback;
@@ -648,8 +648,8 @@ rollback:
 #define PEEKPREV(val) ctxt->cur[-(val)]
 #define CUR_PTR ctxt->cur
 #define SKIP_BLANKS while(IS_BLANK_CH(CUR)) NEXT
-#define CURRENT (* ctxt->cur)
-#define NEXT ((* ctxt->cur) ?  ctxt->cur ++ : ctxt->cur)
+#define CURRENT (*ctxt->cur)
+#define NEXT ((*ctxt->cur) ? ctxt->cur++ : ctxt->cur)
 #define PUSH(op, val, val2) if(xmlPatternAdd(ctxt, ctxt->comp, (op), (val), (val2))) goto error;
 #define XSLT_ERROR(X) { xsltError(ctxt, __FILE__, __LINE__, X); ctxt->error = (X); return; }
 #define XSLT_ERROR0(X) { xsltError(ctxt, __FILE__, __LINE__, X); ctxt->error = (X); return 0; }

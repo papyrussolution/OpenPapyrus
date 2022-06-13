@@ -19,11 +19,9 @@
 #include "ustr_imp.h"
 
 U_NAMESPACE_BEGIN
-
-//========================================
+//
 // Constructors
-//========================================
-
+//
 #if !U_CHARSET_IS_UTF8
 
 UnicodeString::UnicodeString(const char * codepageData) 
@@ -99,37 +97,26 @@ UnicodeString::UnicodeString(const char * src, int32_t srcLength,
 		}
 	}
 }
-
-//========================================
+//
 // Codeset conversion
-//========================================
-
+//
 #if !U_CHARSET_IS_UTF8
 
-int32_t UnicodeString::extract(int32_t start,
-    int32_t length,
-    char * target,
-    uint32_t dstSize) const {
+int32_t UnicodeString::extract(int32_t start, int32_t length, char * target, uint32_t dstSize) const 
+{
 	return extract(start, length, target, dstSize, 0);
 }
-
 // else see unistr.cpp
 #endif
 
-int32_t UnicodeString::extract(int32_t start,
-    int32_t length,
-    char * target,
-    uint32_t dstSize,
-    const char * codepage) const
+int32_t UnicodeString::extract(int32_t start, int32_t length, char * target, uint32_t dstSize, const char * codepage) const
 {
 	// if the arguments are illegal, then do nothing
 	if(/*dstSize < 0 || */ (dstSize > 0 && target == 0)) {
 		return 0;
 	}
-
 	// pin the indices to legal values
 	pinIndices(start, length);
-
 	// We need to cast dstSize to int32_t for all subsequent code.
 	// I don't know why the API was defined with uint32_t but we are stuck with it.
 	// Also, dstSize==0xffffffff means "unlimited" but if we use target+dstSize
@@ -381,24 +368,18 @@ void UnicodeString::doCodepageCreate(const char * codepageData,
 			setToBogus();
 			break;
 		}
-
 		// perform the conversion
 		array = getArrayStart();
 		myTarget = array + length();
-		ucnv_toUnicode(converter, &myTarget,  array + getCapacity(),
-		    &mySource, mySourceEnd, 0, TRUE, &status);
-
+		ucnv_toUnicode(converter, &myTarget,  array + getCapacity(), &mySource, mySourceEnd, 0, TRUE, &status);
 		// update the conversion parameters
 		setLength((int32_t)(myTarget - array));
-
 		// allocate more space and copy data, if needed
 		if(status == U_BUFFER_OVERFLOW_ERROR) {
 			// reset the error code
 			status = U_ZERO_ERROR;
-
 			// keep the previous conversion results
 			doCopyArray = TRUE;
-
 			// estimate the new size needed, larger than before
 			// try 2 UChar's per remaining source byte
 			arraySize = (int32_t)(length() + 2 * (mySourceEnd - mySource));
@@ -410,5 +391,4 @@ void UnicodeString::doCodepageCreate(const char * codepageData,
 }
 
 U_NAMESPACE_END
-
 #endif

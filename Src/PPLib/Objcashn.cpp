@@ -1729,7 +1729,7 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  7, 0x0080);
 		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  8, 0x0100);
 		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  9, 0x0200);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 10, 0x0400); // @v9.5.10
+		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 10, 0x0400);
 		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 11, 0x0800); // @v10.8.1 CASHFX_NOTIFYEQPTIMEMISM
 
 		long   ef = 0;

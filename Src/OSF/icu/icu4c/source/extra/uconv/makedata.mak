@@ -1,15 +1,14 @@
 # Copyright (C) 2016 and later: Unicode, Inc. and others.
 # License & terms of use: http://www.unicode.org/copyright.html
-#**********************************************************************
-#* Copyright (C) 1999-2008, International Business Machines Corporation
-#* and others.  All Rights Reserved.
-#**********************************************************************
+#
+# Copyright (C) 1999-2008, International Business Machines Corporation and others.  All Rights Reserved.
+#
 # nmake file for creating data files on win32
 # invoke with
 # nmake /f makedata.mak icup=<path_to_icu_instalation> [Debug|Release]
 #
 #   12/10/1999  weiv    Created
-
+#
 #If no config, we default to debug
 !IF "$(CFG)" == ""
 CFG=Debug

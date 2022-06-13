@@ -54,21 +54,21 @@ struct read_file_data {
 	} filename; /* Must be last! */
 };
 
-static int file_open(struct archive *, void *);
-static int file_close(struct archive *, void *);
-static int file_close2(struct archive *, void *);
-static int file_switch(struct archive *, void *, void *);
-static ssize_t  file_read(struct archive *, void *, const void ** buff);
-static int64  file_seek(struct archive *, void *, int64 request, int);
-static int64  file_skip(struct archive *, void *, int64 request);
-static int64  file_skip_lseek(struct archive *, void *, int64 request);
+static int file_open(Archive *, void *);
+static int file_close(Archive *, void *);
+static int file_close2(Archive *, void *);
+static int file_switch(Archive *, void *, void *);
+static ssize_t  file_read(Archive *, void *, const void ** buff);
+static int64  file_seek(Archive *, void *, int64 request, int);
+static int64  file_skip(Archive *, void *, int64 request);
+static int64  file_skip_lseek(Archive *, void *, int64 request);
 
-int archive_read_open_file(struct archive * a, const char * filename, size_t block_size)
+int archive_read_open_file(Archive * a, const char * filename, size_t block_size)
 {
 	return (archive_read_open_filename(a, filename, block_size));
 }
 
-int archive_read_open_filename(struct archive * a, const char * filename, size_t block_size)
+int archive_read_open_filename(Archive * a, const char * filename, size_t block_size)
 {
 	const char * filenames[2];
 	filenames[0] = filename;
@@ -76,7 +76,7 @@ int archive_read_open_filename(struct archive * a, const char * filename, size_t
 	return archive_read_open_filenames(a, filenames, block_size);
 }
 
-int archive_read_open_filenames(struct archive * a, const char ** filenames, size_t block_size)
+int archive_read_open_filenames(Archive * a, const char ** filenames, size_t block_size)
 {
 	struct read_file_data * mine;
 	const char * filename = NULL;
@@ -112,7 +112,7 @@ no_memory:
 	return ARCHIVE_FATAL;
 }
 
-int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, size_t block_size)
+int archive_read_open_filename_w(Archive * a, const wchar_t * wfilename, size_t block_size)
 {
 	struct read_file_data * mine = (struct read_file_data *)SAlloc::C(1, sizeof(*mine) + wcslen(wfilename) * sizeof(wchar_t));
 	if(!mine) {
@@ -134,7 +134,7 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, 
 		 * open() system call, so we have to translate a wchar_t
 		 * filename to multi-byte one and use it.
 		 */
-		struct archive_string fn;
+		archive_string fn;
 		archive_string_init(&fn);
 		if(archive_string_append_from_wcs(&fn, wfilename,
 		    wcslen(wfilename)) != 0) {
@@ -162,7 +162,7 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, 
 	return (archive_read_open1(a));
 }
 
-static int file_open(struct archive * a, void * client_data)
+static int file_open(Archive * a, void * client_data)
 {
 	struct stat st;
 	struct read_file_data * mine = (struct read_file_data *)client_data;
@@ -314,7 +314,7 @@ fail:
 	return ARCHIVE_FATAL;
 }
 
-static ssize_t file_read(struct archive * a, void * client_data, const void ** buff)
+static ssize_t file_read(Archive * a, void * client_data, const void ** buff)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
 	/* TODO: If a recent lseek() operation has left us
@@ -365,7 +365,7 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
  * seek request here and then actually performed the seek at the
  * top of the read callback above.
  */
-static int64 file_skip_lseek(struct archive * a, void * client_data, int64 request)
+static int64 file_skip_lseek(Archive * a, void * client_data, int64 request)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -401,7 +401,7 @@ static int64 file_skip_lseek(struct archive * a, void * client_data, int64 reque
  * TODO: Implement another file_skip_XXXX that uses MTIO ioctls to
  * accelerate operation on tape drives.
  */
-static int64 file_skip(struct archive * a, void * client_data, int64 request)
+static int64 file_skip(Archive * a, void * client_data, int64 request)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
 	/* Delegate skip requests. */
@@ -413,7 +413,7 @@ static int64 file_skip(struct archive * a, void * client_data, int64 request)
 /*
  * TODO: Store the offset and use it in the read callback.
  */
-static int64 file_seek(struct archive * a, void * client_data, int64 request, int whence)
+static int64 file_seek(Archive * a, void * client_data, int64 request, int whence)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
 	/* We use off_t here because lseek() is declared that way. */
@@ -433,7 +433,7 @@ static int64 file_seek(struct archive * a, void * client_data, int64 request, in
 	}
 }
 
-static int file_close2(struct archive * a, void * client_data)
+static int file_close2(Archive * a, void * client_data)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
 	CXX_UNUSED(a);
@@ -466,7 +466,7 @@ static int file_close2(struct archive * a, void * client_data)
 	return ARCHIVE_OK;
 }
 
-static int file_close(struct archive * a, void * client_data)
+static int file_close(Archive * a, void * client_data)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
 	file_close2(a, client_data);
@@ -474,7 +474,7 @@ static int file_close(struct archive * a, void * client_data)
 	return ARCHIVE_OK;
 }
 
-static int file_switch(struct archive * a, void * client_data1, void * client_data2)
+static int file_switch(Archive * a, void * client_data1, void * client_data2)
 {
 	file_close2(a, client_data1);
 	return file_open(a, client_data2);

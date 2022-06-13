@@ -546,7 +546,7 @@ void PNGAPI png_save_int_32(png_bytep buf, png_int_32 i)
 int PNGAPI png_convert_to_rfc1123_buffer(char out[29], png_const_timep ptime)
 {
 	// @v9.7.10 static const char short_months[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-	if(out == NULL)
+	if(!out)
 		return 0;
 	if(ptime->year > 9999 /* RFC1123 limitation */ || ptime->month == 0 || ptime->month > 12 || ptime->day == 0 || ptime->day > 31 ||
 	    ptime->hour > 23 ||  ptime->minute > 59 || ptime->second > 60)

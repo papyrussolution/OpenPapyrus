@@ -124,7 +124,7 @@ STACK_OF(SRTP_PROTECTION_PROFILE) *SSL_get_srtp_profiles(SSL *s)
 		if(s->srtp_profiles != NULL) {
 			return s->srtp_profiles;
 		}
-		else if((s->ctx != NULL) && (s->ctx->srtp_profiles != NULL)) {
+		else if(s->ctx && (s->ctx->srtp_profiles != NULL)) {
 			return s->ctx->srtp_profiles;
 		}
 	}

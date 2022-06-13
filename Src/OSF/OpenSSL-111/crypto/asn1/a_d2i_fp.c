@@ -96,7 +96,7 @@ int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb)
 	int inf, tag, xclass;
 
 	b = BUF_MEM_new();
-	if(b == NULL) {
+	if(!b) {
 		ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ERR_R_MALLOC_FAILURE);
 		return -1;
 	}

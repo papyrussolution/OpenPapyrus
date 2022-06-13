@@ -170,7 +170,7 @@ int sasl_decode64(const char * in, unsigned inlen, char * out, unsigned outmax/*
 	int c[4];
 	int saw_equal = 0;
 	/* check parameters */
-	if(out == NULL) return SASL_FAIL;
+	if(!out) return SASL_FAIL;
 
 	if(inlen > 0 && *in == '\r') return SASL_FAIL;
 

@@ -126,7 +126,7 @@ U_CFUNC void ucnv_toUWriteCodePoint(UConverter * cnv, UChar32 c, UChar ** target
 			}
 		}
 		/* write offsets */
-		if(offsets && (o = *offsets)!=NULL) {
+		if(offsets && (o = *offsets) != NULL) {
 			*o++ = sourceIndex;
 			if((*target+1)<t) {
 				*o++ = sourceIndex;

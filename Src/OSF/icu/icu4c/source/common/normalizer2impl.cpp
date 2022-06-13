@@ -560,7 +560,7 @@ void Normalizer2Impl::decompose(const UChar * src, const UChar * limit,
     UnicodeString & dest,
     int32_t destLengthEstimate,
     UErrorCode & errorCode) const {
-	if(destLengthEstimate<0 && limit!=NULL) {
+	if(destLengthEstimate<0 && limit != NULL) {
 		destLengthEstimate = (int32_t)(limit-src);
 	}
 	dest.remove();
@@ -1368,7 +1368,7 @@ void Normalizer2Impl::recompose(ReorderingBuffer &buffer, int32_t recomposeStart
 		// If c did not combine, then check if it is a starter.
 		if(cc==0) {
 			// Found a new starter.
-			if((compositionsList = getCompositionsListForDecompYes(norm16))!=NULL) {
+			if((compositionsList = getCompositionsListForDecompYes(norm16)) != NULL) {
 				// It may combine with something, prepare for it.
 				if(U_IS_BMP(c)) {
 					starterIsSupplementary = FALSE;
@@ -1852,7 +1852,7 @@ const UChar * Normalizer2Impl::composeQuickCheck(const UChar * src, const UChar 
 				}
 			}
 		}
-		if(pQCResult!=NULL) {
+		if(pQCResult != NULL) {
 			*pQCResult = UNORM_NO;
 		}
 		return prevBoundary;

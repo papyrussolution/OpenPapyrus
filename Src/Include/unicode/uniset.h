@@ -1679,7 +1679,7 @@ private:
 };
 
 inline bool UnicodeSet::operator !=(const UnicodeSet & o) const { return !operator==(o); }
-inline bool UnicodeSet::isFrozen() const { return (bool)(bmpSet!=NULL || stringSpan!=NULL); }
+inline bool UnicodeSet::isFrozen() const { return (bool)(bmpSet!=NULL || stringSpan != NULL); }
 inline bool UnicodeSet::containsSome(UChar32 start, UChar32 end) const { return !containsNone(start, end); }
 inline bool UnicodeSet::containsSome(const UnicodeSet & s) const { return !containsNone(s); }
 inline bool UnicodeSet::containsSome(const UnicodeString & s) const { return !containsNone(s); }

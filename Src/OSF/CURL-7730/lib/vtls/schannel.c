@@ -666,8 +666,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 				/* Convert key-pair data to the in-memory certificate store */
 				datablob.pbData = (BYTE*)certdata;
 				datablob.cbData = (DWORD)certsize;
-
-				if(data->set.ssl.key_passwd != NULL)
+				if(data->set.ssl.key_passwd)
 					pwd_len = strlen(data->set.ssl.key_passwd);
 				pszPassword = (WCHAR*)SAlloc::M(sizeof(WCHAR)*(pwd_len + 1));
 				if(pszPassword) {
@@ -1149,9 +1148,8 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 						return CURLE_SSL_CONNECT_ERROR;
 					}
 				}
-
 				/* free obsolete buffer */
-				if(outbuf[i].pvBuffer != NULL) {
+				if(outbuf[i].pvBuffer) {
 					s_pSecFn->FreeContextBuffer(outbuf[i].pvBuffer);
 				}
 			}
@@ -1256,16 +1254,13 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 
 static bool valid_cert_encoding(const CERT_CONTEXT * cert_context)
 {
-	return (cert_context != NULL) &&
-	       ((cert_context->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
-	       (cert_context->pbCertEncoded != NULL) &&
-	       (cert_context->cbCertEncoded > 0);
+	return (cert_context != NULL) && ((cert_context->dwCertEncodingType & X509_ASN_ENCODING) != 0) &&
+	       (cert_context->pbCertEncoded != NULL) && (cert_context->cbCertEncoded > 0);
 }
 
 typedef bool (* Read_crt_func)(const CERT_CONTEXT * ccert_context, void * arg);
 
-static void traverse_cert_store(const CERT_CONTEXT * context, Read_crt_func func,
-    void * arg)
+static void traverse_cert_store(const CERT_CONTEXT * context, Read_crt_func func, void * arg)
 {
 	const CERT_CONTEXT * current_context = NULL;
 	bool should_continue = true;
@@ -1600,7 +1595,7 @@ static ssize_t schannel_send(struct connectdata * conn, int sockindex,
 	data_len = BACKEND->stream_sizes.cbHeader + len +
 	    BACKEND->stream_sizes.cbTrailer;
 	data = (uchar *)SAlloc::M(data_len);
-	if(data == NULL) {
+	if(!data) {
 		*err = CURLE_OUT_OF_MEMORY;
 		return -1;
 	}
@@ -2171,22 +2166,19 @@ static int Curl_schannel_shutdown(struct connectdata * conn, int sockindex)
 		Curl_ssl_sessionid_unlock(conn);
 		BACKEND->cred = NULL;
 	}
-
 	/* free internal buffer for received encrypted data */
-	if(BACKEND->encdata_buffer != NULL) {
+	if(BACKEND->encdata_buffer) {
 		Curl_safefree(BACKEND->encdata_buffer);
 		BACKEND->encdata_length = 0;
 		BACKEND->encdata_offset = 0;
 		BACKEND->encdata_is_incomplete = false;
 	}
-
 	/* free internal buffer for received decrypted data */
-	if(BACKEND->decdata_buffer != NULL) {
+	if(BACKEND->decdata_buffer) {
 		Curl_safefree(BACKEND->decdata_buffer);
 		BACKEND->decdata_length = 0;
 		BACKEND->decdata_offset = 0;
 	}
-
 	return CURLE_OK;
 }
 

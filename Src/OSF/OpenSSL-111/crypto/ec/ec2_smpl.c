@@ -188,7 +188,7 @@ int ec_GF2m_simple_group_check_discriminant(const EC_GROUP * group,
 	}
 	BN_CTX_start(ctx);
 	b = BN_CTX_get(ctx);
-	if(b == NULL)
+	if(!b)
 		goto err;
 
 	if(!BN_GF2m_mod_arr(b, group->b, group->poly))

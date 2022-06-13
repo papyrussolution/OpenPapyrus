@@ -14,31 +14,31 @@
 __FBSDID("$FreeBSD$");
 #include "archive_options_private.h"
 
-static int archive_set_format_option(struct archive * a, const char * m, const char * o, const char * v);
-static int archive_set_filter_option(struct archive * a, const char * m, const char * o, const char * v);
-static int archive_set_option(struct archive * a, const char * m, const char * o, const char * v);
+static int archive_set_format_option(Archive * a, const char * m, const char * o, const char * v);
+static int archive_set_filter_option(Archive * a, const char * m, const char * o, const char * v);
+static int archive_set_option(Archive * a, const char * m, const char * o, const char * v);
 
-int archive_write_set_format_option(struct archive * a, const char * m, const char * o, char * v)
+int archive_write_set_format_option(Archive * a, const char * m, const char * o, char * v)
 {
-	return _archive_set_option(a, m, o, v, ARCHIVE_WRITE_MAGIC, "archive_write_set_format_option", archive_set_format_option);
+	return _archive_set_option(a, m, o, v, ARCHIVE_WRITE_MAGIC, __FUNCTION__, archive_set_format_option);
 }
 
-int archive_write_set_filter_option(struct archive * a, const char * m, const char * o, const char * v)
+int archive_write_set_filter_option(Archive * a, const char * m, const char * o, const char * v)
 {
-	return _archive_set_option(a, m, o, v, ARCHIVE_WRITE_MAGIC, "archive_write_set_filter_option", archive_set_filter_option);
+	return _archive_set_option(a, m, o, v, ARCHIVE_WRITE_MAGIC, __FUNCTION__, archive_set_filter_option);
 }
 
-int archive_write_set_option(struct archive * a, const char * m, const char * o, const char * v)
+int archive_write_set_option(Archive * a, const char * m, const char * o, const char * v)
 {
-	return _archive_set_option(a, m, o, v, ARCHIVE_WRITE_MAGIC, "archive_write_set_option", archive_set_option);
+	return _archive_set_option(a, m, o, v, ARCHIVE_WRITE_MAGIC, __FUNCTION__, archive_set_option);
 }
 
-int archive_write_set_options(struct archive * a, const char * options)
+int archive_write_set_options(Archive * a, const char * options)
 {
-	return _archive_set_options(a, options, ARCHIVE_WRITE_MAGIC, "archive_write_set_options", archive_set_option);
+	return _archive_set_options(a, options, ARCHIVE_WRITE_MAGIC, __FUNCTION__, archive_set_option);
 }
 
-static int archive_set_format_option(struct archive * _a, const char * m, const char * o, const char * v)
+static int archive_set_format_option(Archive * _a, const char * m, const char * o, const char * v)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	if(a->format_name == NULL)
@@ -52,7 +52,7 @@ static int archive_set_format_option(struct archive * _a, const char * m, const 
 	return a->format_options(a, o, v);
 }
 
-static int archive_set_filter_option(struct archive * _a, const char * m, const char * o, const char * v)
+static int archive_set_filter_option(Archive * _a, const char * m, const char * o, const char * v)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * filter;
@@ -77,7 +77,7 @@ static int archive_set_filter_option(struct archive * _a, const char * m, const 
 	return (rv);
 }
 
-static int archive_set_option(struct archive * a, const char * m, const char * o, const char * v)
+static int archive_set_option(Archive * a, const char * m, const char * o, const char * v)
 {
 	return _archive_set_either_option(a, m, o, v, archive_set_format_option, archive_set_filter_option);
 }

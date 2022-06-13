@@ -99,7 +99,7 @@ static ngx_int_t ngx_stream_realip_set_addr(ngx_stream_session_t * s, ngx_addr_t
 		return NGX_ERROR;
 	}
 	len = ngx_sock_ntop(addr->sockaddr, addr->socklen, text, NGX_SOCKADDR_STRLEN, 0);
-	if(len == 0) {
+	if(!len) {
 		return NGX_ERROR;
 	}
 	p = (u_char *)ngx_pnalloc(c->pool, len);

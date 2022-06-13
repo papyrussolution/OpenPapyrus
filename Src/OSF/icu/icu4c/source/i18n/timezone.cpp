@@ -264,9 +264,7 @@ UResourceBundle * TimeZone::loadRule(const UResourceBundle * top, const UnicodeS
  * @param ec input-output error code
  * @return top-level resource bundle
  */
-static UResourceBundle * openOlsonResource(const UnicodeString & id,
-    UResourceBundle& res,
-    UErrorCode & ec)
+static UResourceBundle * openOlsonResource(const UnicodeString & id, UResourceBundle& res, UErrorCode & ec)
 {
 #ifdef U_DEBUG_TZ
 	char buf[128];
@@ -319,15 +317,12 @@ const TimeZone* U_EXPORT2 TimeZone::getGMT(void)
 	umtx_initOnce(gStaticZonesInitOnce, &initStaticTimeZones);
 	return reinterpret_cast<SimpleTimeZone*>(gRawGMT);
 }
-
-// *****************************************************************************
+//
 // class TimeZone
-// *****************************************************************************
-
+//
 UOBJECT_DEFINE_ABSTRACT_RTTI_IMPLEMENTATION(TimeZone)
 
-TimeZone::TimeZone()
-	:   UObject(), fID()
+TimeZone::TimeZone() : UObject(), fID()
 {
 }
 

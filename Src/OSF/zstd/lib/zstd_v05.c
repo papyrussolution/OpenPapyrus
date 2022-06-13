@@ -649,16 +649,14 @@ MEM_STATIC size_t   BITv05_initDStream(BITv05_DStream_t* bitD, const void* srcBu
 MEM_STATIC size_t   BITv05_readBits(BITv05_DStream_t* bitD, uint nbBits);
 MEM_STATIC BITv05_DStream_status BITv05_reloadDStream(BITv05_DStream_t* bitD);
 MEM_STATIC uint BITv05_endOfDStream(const BITv05_DStream_t* bitD);
-
-/*-****************************************
-*  unsafe API
-******************************************/
+// 
+// unsafe API
+// 
 MEM_STATIC size_t BITv05_readBitsFast(BITv05_DStream_t* bitD, uint nbBits);
 /* faster, but works only if nbBits >= 1 */
-
-/*-**************************************************************
-*  Helper functions
-****************************************************************/
+// 
+// Helper functions
+// 
 MEM_STATIC uint BITv05_highbit32(uint32 val)
 {
 #if defined(_MSC_VER)   /* Visual */
@@ -1110,15 +1108,14 @@ size_t FSEv05_buildDTable(FSEv05_DTable* dt, const short* normalizedCounter, uin
 }
 
 #ifndef FSEv05_COMMONDEFS_ONLY
-/*-****************************************
-*  FSEv05 helper functions
-******************************************/
+// 
+// FSEv05 helper functions
+// 
 uint FSEv05_isError(size_t code) { return ERR_isError(code); }
 const char* FSEv05_getErrorName(size_t code) { return ERR_getErrorName(code); }
-
-/*-**************************************************************
-*  FSEv05 NCount encoding-decoding
-****************************************************************/
+// 
+// FSEv05 NCount encoding-decoding
+// 
 static short FSEv05_abs(short a) { return a<0 ? -a : a; }
 
 size_t FSEv05_readNCount(short* normalizedCounter, uint * maxSVPtr, uint * tableLogPtr, const void* headerBuffer, size_t hbSize)

@@ -95,7 +95,7 @@ int SCT_set1_log_id(SCT * sct, const uchar * log_id, size_t log_id_len)
 	sct->log_id_len = 0;
 	sct->validation_status = SCT_VALIDATION_STATUS_NOT_SET;
 
-	if(log_id != NULL && log_id_len > 0) {
+	if(log_id && log_id_len > 0) {
 		sct->log_id = static_cast<uchar *>(OPENSSL_memdup(log_id, log_id_len));
 		if(sct->log_id == NULL) {
 			CTerr(CT_F_SCT_SET1_LOG_ID, ERR_R_MALLOC_FAILURE);
@@ -145,8 +145,7 @@ int SCT_set1_extensions(SCT * sct, const uchar * ext, size_t ext_len)
 	sct->ext = NULL;
 	sct->ext_len = 0;
 	sct->validation_status = SCT_VALIDATION_STATUS_NOT_SET;
-
-	if(ext != NULL && ext_len > 0) {
+	if(ext && ext_len > 0) {
 		sct->ext = static_cast<uchar *>(OPENSSL_memdup(ext, ext_len));
 		if(sct->ext == NULL) {
 			CTerr(CT_F_SCT_SET1_EXTENSIONS, ERR_R_MALLOC_FAILURE);
@@ -171,8 +170,7 @@ int SCT_set1_signature(SCT * sct, const uchar * sig, size_t sig_len)
 	sct->sig = NULL;
 	sct->sig_len = 0;
 	sct->validation_status = SCT_VALIDATION_STATUS_NOT_SET;
-
-	if(sig != NULL && sig_len > 0) {
+	if(sig && sig_len > 0) {
 		sct->sig = static_cast<uchar *>(OPENSSL_memdup(sig, sig_len));
 		if(sct->sig == NULL) {
 			CTerr(CT_F_SCT_SET1_SIGNATURE, ERR_R_MALLOC_FAILURE);
@@ -247,8 +245,7 @@ int SCT_is_complete(const SCT * sct)
 
 int SCT_signature_is_complete(const SCT * sct)
 {
-	return SCT_get_signature_nid(sct) != NID_undef &&
-	       sct->sig != NULL && sct->sig_len > 0;
+	return SCT_get_signature_nid(sct) != NID_undef && sct->sig != NULL && sct->sig_len > 0;
 }
 
 sct_source_t SCT_get_source(const SCT * sct)

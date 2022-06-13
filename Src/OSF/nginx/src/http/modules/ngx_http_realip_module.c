@@ -171,7 +171,7 @@ static ngx_int_t ngx_http_realip_set_addr(ngx_http_request_t * r, ngx_addr_t * a
 		ngx_http_realip_ctx_t  * ctx = (ngx_http_realip_ctx_t *)cln->data;
 		ngx_connection_t  * c = r->connection;
 		size_t len = ngx_sock_ntop(addr->sockaddr, addr->socklen, text, NGX_SOCKADDR_STRLEN, 0);
-		if(len == 0) {
+		if(!len) {
 			return NGX_HTTP_INTERNAL_SERVER_ERROR;
 		}
 		else {

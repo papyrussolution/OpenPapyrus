@@ -30,10 +30,9 @@ uint   FSE_isError(size_t code) { return ERR_isError(code); }
 const  char * FSE_getErrorName(size_t code) { return ERR_getErrorName(code); }
 uint   HUF_isError(size_t code) { return ERR_isError(code); }
 const  char * HUF_getErrorName(size_t code) { return ERR_getErrorName(code); }
-
-/*-**************************************************************
-*  FSE NCount encoding-decoding
-****************************************************************/
+// 
+// FSE NCount encoding-decoding
+// 
 FORCE_INLINE_TEMPLATE size_t FSE_readNCount_body(short* normalizedCounter, uint * maxSVPtr, uint * tableLogPtr, const void * headerBuffer, size_t hbSize)
 {
 	const BYTE * const istart = (const BYTE *)headerBuffer;

@@ -2383,7 +2383,7 @@ static void statTimesToUtc(const char * zPath,
 	if(zUnicodeName) {
 		memset(&fd, 0, sizeof(WIN32_FIND_DATAW));
 		hFindFile = FindFirstFileW(zUnicodeName, &fd);
-		if(hFindFile!=NULL) {
+		if(hFindFile != NULL) {
 			pStatBuf->st_ctime = (time_t)fileTimeToUnixTime(&fd.ftCreationTime);
 			pStatBuf->st_atime = (time_t)fileTimeToUnixTime(&fd.ftLastAccessTime);
 			pStatBuf->st_mtime = (time_t)fileTimeToUnixTime(&fd.ftLastWriteTime);

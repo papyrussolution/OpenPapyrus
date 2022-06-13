@@ -4473,7 +4473,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_create_train(uint num_data,
 	float * data_input, * data_output;
 	uint i;
 	struct fann_train_data * data = static_cast<struct fann_train_data *>(SAlloc::M(sizeof(struct fann_train_data)));
-	if(data == NULL) {
+	if(!data) {
 		fann_error_2(NULL, FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;
 	}
@@ -4546,7 +4546,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_create_train_from_callback(
 {
 	uint i;
 	struct fann_train_data * data = fann_create_train(num_data, num_input, num_output);
-	if(data == NULL) {
+	if(!data) {
 		return NULL;
 	}
 	for(i = 0; i != num_data; i++) {

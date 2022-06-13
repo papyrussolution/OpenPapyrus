@@ -768,12 +768,10 @@ U_CAPI const UChar * U_EXPORT2 ucurr_getPluralName(const UChar * currency,
 	*ec = U_USING_DEFAULT_WARNING;
 	return currency;
 }
-
-//========================================================================
+// 
 // Following are structure and function for parsing currency names
-
+// 
 #define NEED_TO_BE_DELETED 0x1
-
 // TODO: a better way to define this?
 #define MAX_CURRENCY_NAME_LEN 100
 

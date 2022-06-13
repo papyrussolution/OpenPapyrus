@@ -536,10 +536,7 @@ int EVP_PKEY_type(int type)
 	int ret;
 	ENGINE * e;
 	const EVP_PKEY_ASN1_METHOD * ameth = EVP_PKEY_asn1_find(&e, type);
-	if(ameth)
-		ret = ameth->pkey_id;
-	else
-		ret = NID_undef;
+	ret = ameth ? ameth->pkey_id : NID_undef;
 #ifndef OPENSSL_NO_ENGINE
 	ENGINE_finish(e);
 #endif
@@ -639,7 +636,5 @@ int EVP_PKEY_set1_tls_encodedpoint(EVP_PKEY * pkey, const uchar * pt, size_t ptl
 size_t EVP_PKEY_get1_tls_encodedpoint(EVP_PKEY * pkey, uchar ** ppt)
 {
 	int rv = evp_pkey_asn1_ctrl(pkey, ASN1_PKEY_CTRL_GET1_TLS_ENCPT, 0, ppt);
-	if(rv <= 0)
-		return 0;
-	return rv;
+	return (rv <= 0) ? 0 : rv;
 }

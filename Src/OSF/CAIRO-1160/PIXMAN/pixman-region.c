@@ -663,7 +663,7 @@ static boolint pixman_op(region_type_t *  new_reg,               /* Place to sto
 		if(r1y1 < r2y1) {
 			if(append_non1) {
 				top = MAX(r1y1, ybot);
-				bot = MIN(r1->y2, r2y1);
+				bot = MIN(static_cast<int>(r1->y2), r2y1);
 				if(top != bot) {
 					cur_band = new_reg->data->numRects;
 					if(!pixman_region_append_non_o(new_reg, r1, r1_band_end, top, bot))
@@ -676,7 +676,7 @@ static boolint pixman_op(region_type_t *  new_reg,               /* Place to sto
 		else if(r2y1 < r1y1) {
 			if(append_non2) {
 				top = MAX(r2y1, ybot);
-				bot = MIN(r2->y2, r1y1);
+				bot = MIN(static_cast<int>(r2->y2), r1y1);
 				if(top != bot) {
 					cur_band = new_reg->data->numRects;
 					if(!pixman_region_append_non_o(new_reg, r2, r2_band_end, top, bot))

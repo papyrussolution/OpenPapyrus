@@ -222,7 +222,7 @@ static UDate getUTCtime_fake() {
 	if(!fakeClock_set) {
 		UDate real = getUTCtime_real();
 		const char * fake_start = getenv("U_FAKETIME_START");
-		if((fake_start!=NULL) && (fake_start[0]!=0)) {
+		if((fake_start != NULL) && (fake_start[0]!=0)) {
 			sscanf(fake_start, "%lf", &fakeClock_t0);
 			fakeClock_dt = fakeClock_t0 - real;
 			slfprintf_stderr("U_DEBUG_FAKETIME was set at compile time, so the ICU clock will start at a preset value\n"
@@ -2090,7 +2090,7 @@ U_CAPI void U_EXPORT2 u_versionFromString(UVersionInfo versionArray, const char 
 	char * end;
 	uint16 part = 0;
 	if(versionArray) {
-		if(versionString!=NULL) {
+		if(versionString != NULL) {
 			for(;;) {
 				versionArray[part] = (uint8)uprv_strtoul(versionString, &end, 10);
 				if(end==versionString || ++part==U_MAX_VERSION_LENGTH || *end!=U_VERSION_DELIMITER) {
@@ -2107,7 +2107,7 @@ U_CAPI void U_EXPORT2 u_versionFromString(UVersionInfo versionArray, const char 
 
 U_CAPI void U_EXPORT2 u_versionFromUString(UVersionInfo versionArray, const UChar * versionString) 
 {
-	if(versionArray!=NULL && versionString!=NULL) {
+	if(versionArray!=NULL && versionString != NULL) {
 		char versionChars[U_MAX_VERSION_STRING_LENGTH+1];
 		int32_t len = u_strlen(versionString);
 		if(len>U_MAX_VERSION_STRING_LENGTH) {

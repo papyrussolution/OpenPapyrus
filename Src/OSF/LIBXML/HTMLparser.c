@@ -231,7 +231,7 @@ static htmlParserNodeInfo * htmlNodeInfoPop(htmlParserCtxt * ctxt)
 
 /* #define CUR (ctxt->token ? ctxt->token : (int)(*ctxt->input->cur)) */
 #define CUR ((int)(* ctxt->input->cur))
-#define NEXT xmlNextChar(ctxt)
+// #define NEXT xmlNextChar(ctxt)
 
 #define RAW (ctxt->token ? -1 : (* ctxt->input->cur))
 
@@ -1813,7 +1813,7 @@ static htmlParserInputPtr htmlNewInputStream(htmlParserCtxt * ctxt)
 		input->line = 1;
 		input->col = 1;
 		input->buf = NULL;
-		input->free = NULL;
+		input->FnFree = NULL;
 		input->version = NULL;
 		input->consumed = 0;
 		input->length = 0;
@@ -1998,7 +1998,7 @@ static const xmlChar * FASTCALL htmlParseHTMLName(htmlParserCtxt * ctxt)
 			else 
 				loc[i] = CUR;
 			i++;
-			NEXT;
+			xmlNextChar(ctxt);
 		}
 		return xmlDictLookup(ctxt->dict, loc, i);
 	}
@@ -2238,7 +2238,7 @@ static xmlChar * FASTCALL htmlParseHTMLAttribute(htmlParserCtxt * ctxt, const xm
 			for(; bits >= 0; bits -= 6) {
 				*out++  = ((c >> bits) & 0x3F) | 0x80;
 			}
-			NEXT;
+			xmlNextChar(ctxt);
 		}
 	}
 	*out = 0;
@@ -2265,7 +2265,7 @@ const htmlEntityDesc * htmlParseEntityRef(htmlParserCtxt * ctxt, const xmlChar *
 	if(!ctxt || (ctxt->input == NULL)) 
 		return NULL;
 	if(CUR == '&') {
-		NEXT;
+		xmlNextChar(ctxt);
 		name = htmlParseName(ctxt);
 		if(!name) {
 			htmlParseErr(ctxt, XML_ERR_NAME_REQUIRED, "htmlParseEntityRef: no name\n", 0, 0);
@@ -2279,7 +2279,7 @@ const htmlEntityDesc * htmlParseEntityRef(htmlParserCtxt * ctxt, const xmlChar *
 				 */
 				ent = htmlEntityLookup(name);
 				if(ent != NULL) /* OK that's ugly !!! */
-					NEXT;
+					xmlNextChar(ctxt);
 			}
 			else {
 				htmlParseErr(ctxt, XML_ERR_ENTITYREF_SEMICOL_MISSING, "htmlParseEntityRef: expecting ';'\n", 0, 0);
@@ -2306,22 +2306,22 @@ static xmlChar * htmlParseAttValue(htmlParserCtxt * ctxt)
 {
 	xmlChar * ret = NULL;
 	if(CUR == '"') {
-		NEXT;
+		xmlNextChar(ctxt);
 		ret = htmlParseHTMLAttribute(ctxt, '"');
 		if(CUR != '"') {
 			htmlParseErr(ctxt, XML_ERR_ATTRIBUTE_NOT_FINISHED, "AttValue: \" expected\n", 0, 0);
 		}
 		else
-			NEXT;
+			xmlNextChar(ctxt);
 	}
 	else if(CUR == '\'') {
-		NEXT;
+		xmlNextChar(ctxt);
 		ret = htmlParseHTMLAttribute(ctxt, '\'');
 		if(CUR != '\'') {
 			htmlParseErr(ctxt, XML_ERR_ATTRIBUTE_NOT_FINISHED, "AttValue: ' expected\n", 0, 0);
 		}
 		else
-			NEXT;
+			xmlNextChar(ctxt);
 	}
 	else {
 		/*
@@ -2351,29 +2351,29 @@ static xmlChar * htmlParseSystemLiteral(htmlParserCtxt * ctxt)
 	const xmlChar * q;
 	xmlChar * ret = NULL;
 	if(CUR == '"') {
-		NEXT;
+		xmlNextChar(ctxt);
 		q = CUR_PTR;
 		while((IS_CHAR_CH(CUR)) && (CUR != '"'))
-			NEXT;
+			xmlNextChar(ctxt);
 		if(!IS_CHAR_CH(CUR)) {
 			htmlParseErr(ctxt, XML_ERR_LITERAL_NOT_FINISHED, "Unfinished SystemLiteral\n", 0, 0);
 		}
 		else {
 			ret = xmlStrndup(q, CUR_PTR - q);
-			NEXT;
+			xmlNextChar(ctxt);
 		}
 	}
 	else if(CUR == '\'') {
-		NEXT;
+		xmlNextChar(ctxt);
 		q = CUR_PTR;
 		while((IS_CHAR_CH(CUR)) && (CUR != '\''))
-			NEXT;
+			xmlNextChar(ctxt);
 		if(!IS_CHAR_CH(CUR)) {
 			htmlParseErr(ctxt, XML_ERR_LITERAL_NOT_FINISHED, "Unfinished SystemLiteral\n", 0, 0);
 		}
 		else {
 			ret = xmlStrndup(q, CUR_PTR - q);
-			NEXT;
+			xmlNextChar(ctxt);
 		}
 	}
 	else {
@@ -2399,29 +2399,29 @@ static xmlChar * htmlParsePubidLiteral(htmlParserCtxt * ctxt)
 	 * Name ::= (Letter | '_') (NameChar)*
 	 */
 	if(CUR == '"') {
-		NEXT;
+		xmlNextChar(ctxt);
 		q = CUR_PTR;
 		while(IS_PUBIDCHAR_CH(CUR)) 
-			NEXT;
+			xmlNextChar(ctxt);
 		if(CUR != '"') {
 			htmlParseErr(ctxt, XML_ERR_LITERAL_NOT_FINISHED, "Unfinished PubidLiteral\n", 0, 0);
 		}
 		else {
 			ret = xmlStrndup(q, CUR_PTR - q);
-			NEXT;
+			xmlNextChar(ctxt);
 		}
 	}
 	else if(CUR == '\'') {
-		NEXT;
+		xmlNextChar(ctxt);
 		q = CUR_PTR;
 		while((IS_PUBIDCHAR_CH(CUR)) && (CUR != '\''))
-			NEXT;
+			xmlNextChar(ctxt);
 		if(CUR != '\'') {
 			htmlParseErr(ctxt, XML_ERR_LITERAL_NOT_FINISHED, "Unfinished PubidLiteral\n", 0, 0);
 		}
 		else {
 			ret = xmlStrndup(q, CUR_PTR - q);
-			NEXT;
+			xmlNextChar(ctxt);
 		}
 	}
 	else {
@@ -2505,7 +2505,7 @@ static void htmlParseScript(htmlParserCtxt * ctxt)
 	if((!(IS_CHAR_CH(cur))) && (!((cur == 0) && (ctxt->progressive)))) {
 		htmlParseErrInt(ctxt, XML_ERR_INVALID_CHAR, "Invalid char in CDATA 0x%X\n", cur);
 		if(ctxt->input->cur < ctxt->input->end) {
-			NEXT;
+			xmlNextChar(ctxt);
 		}
 	}
 	if(nbchar && ctxt->sax && !ctxt->disableSAX) {
@@ -2838,7 +2838,7 @@ static void htmlParseComment(htmlParserCtxt * ctxt)
 		SAlloc::F(buf);
 	}
 	else {
-		NEXT;
+		xmlNextChar(ctxt);
 		if(ctxt->sax && (ctxt->sax->comment != NULL) && (!ctxt->disableSAX))
 			ctxt->sax->comment(ctxt->userData, buf);
 		SAlloc::F(buf);
@@ -2878,10 +2878,10 @@ int htmlParseCharRef(htmlParserCtxt * ctxt)
 				htmlParseErr(ctxt, XML_ERR_INVALID_HEX_CHARREF, "htmlParseCharRef: missing semicolon\n", 0, 0);
 				break;
 			}
-			NEXT;
+			xmlNextChar(ctxt);
 		}
 		if(CUR == ';')
-			NEXT;
+			xmlNextChar(ctxt);
 	}
 	else if((CUR == '&') && (NXT(1) == '#')) {
 		SKIP(2);
@@ -2892,10 +2892,10 @@ int htmlParseCharRef(htmlParserCtxt * ctxt)
 				htmlParseErr(ctxt, XML_ERR_INVALID_DEC_CHARREF, "htmlParseCharRef: missing semicolon\n", 0, 0);
 				break;
 			}
-			NEXT;
+			xmlNextChar(ctxt);
 		}
 		if(CUR == ';')
-			NEXT;
+			xmlNextChar(ctxt);
 	}
 	else {
 		htmlParseErr(ctxt, XML_ERR_INVALID_CHARREF, "htmlParseCharRef: invalid value\n", 0, 0);
@@ -2958,7 +2958,7 @@ static void htmlParseDocTypeDecl(htmlParserCtxt * ctxt)
 		htmlParseErr(ctxt, XML_ERR_DOCTYPE_NOT_FINISHED, "DOCTYPE improperly terminated\n", 0, 0);
 		/* We shouldn't try to resynchronize ... */
 	}
-	NEXT;
+	xmlNextChar(ctxt);
 
 	/*
 	 * Create or update the document accordingly to the DOCTYPE
@@ -3008,7 +3008,7 @@ static const xmlChar * htmlParseAttribute(htmlParserCtxt * ctxt, xmlChar ** valu
 	 */
 	SKIP_BLANKS;
 	if(CUR == '=') {
-		NEXT;
+		xmlNextChar(ctxt);
 		SKIP_BLANKS;
 		val = htmlParseAttValue(ctxt);
 	}
@@ -3183,7 +3183,7 @@ static int htmlParseStartTag(htmlParserCtxt * ctxt)
 		return -1;
 	if(CUR != '<')
 		return -1;
-	NEXT;
+	xmlNextChar(ctxt);
 	atts = ctxt->atts;
 	maxatts = ctxt->maxatts;
 	GROW;
@@ -3192,7 +3192,7 @@ static int htmlParseStartTag(htmlParserCtxt * ctxt)
 		htmlParseErr(ctxt, XML_ERR_NAME_REQUIRED, "htmlParseStartTag: invalid element name\n", 0, 0);
 		/* Dump the bogus tag like browsers do */
 		while((IS_CHAR_CH(CUR)) && (CUR != '>') && (ctxt->instate != XML_PARSER_EOF))
-			NEXT;
+			xmlNextChar(ctxt);
 		return -1;
 	}
 	if(sstreq(name, "meta"))
@@ -3288,7 +3288,7 @@ static int htmlParseStartTag(htmlParserCtxt * ctxt)
 			SAlloc::F(attvalue);
 			// Dump the bogus attribute string up to the next blank or the end of the tag. 
 			while((IS_CHAR_CH(CUR)) && !(IS_BLANK_CH(CUR)) && (CUR != '>') && ((CUR != '/') || (NXT(1) != '>')))
-				NEXT;
+				xmlNextChar(ctxt);
 		}
 failed:
 		SKIP_BLANKS;
@@ -3363,12 +3363,12 @@ static int htmlParseEndTag(htmlParserCtxt * ctxt)
 			 * Error, unless in recover mode where we search forwards
 			 * until we find a >
 			 */
-			while(CUR != '\0' && CUR != '>') NEXT;
-			NEXT;
+			while(CUR != '\0' && CUR != '>') xmlNextChar(ctxt);
+			xmlNextChar(ctxt);
 		}
 	}
 	else
-		NEXT;
+		xmlNextChar(ctxt);
 
 	/*
 	 * if we ignored misplaced tags in htmlParseStartTag don't pop them
@@ -3544,7 +3544,7 @@ static void htmlParseContent(htmlParserCtxt * ctxt)
 				htmlParseErr(ctxt, XML_ERR_NAME_REQUIRED, "htmlParseStartTag: invalid element name\n", 0, 0);
 				/* Dump the bogus tag like browsers do */
 				while((IS_CHAR_CH(CUR)) && (CUR != '>'))
-					NEXT;
+					xmlNextChar(ctxt);
 				SAlloc::F(currentNode);
 				return;
 			}
@@ -3667,7 +3667,7 @@ void htmlParseElement(htmlParserCtxt * ctxt)
 	name = ctxt->name;
 	if((failed == -1) || !name) {
 		if(CUR == '>')
-			NEXT;
+			xmlNextChar(ctxt);
 		return;
 	}
 	/*
@@ -3688,7 +3688,7 @@ void htmlParseElement(htmlParserCtxt * ctxt)
 		return;
 	}
 	if(CUR == '>') {
-		NEXT;
+		xmlNextChar(ctxt);
 	}
 	else {
 		htmlParseErr(ctxt, XML_ERR_GT_REQUIRED, "Couldn't find end of Start Tag %s\n", name, 0);
@@ -3794,7 +3794,7 @@ static void htmlParseElementInternal(htmlParserCtxt * ctxt)
 	name = ctxt->name;
 	if((failed == -1) || !name) {
 		if(CUR == '>')
-			NEXT;
+			xmlNextChar(ctxt);
 		return;
 	}
 	/*
@@ -3815,7 +3815,7 @@ static void htmlParseElementInternal(htmlParserCtxt * ctxt)
 		return;
 	}
 	if(CUR == '>') {
-		NEXT;
+		xmlNextChar(ctxt);
 	}
 	else {
 		htmlParseErr(ctxt, XML_ERR_GT_REQUIRED, "Couldn't find end of Start Tag %s\n", name, 0);
@@ -3878,7 +3878,7 @@ static void htmlParseContentInternal(htmlParserCtxt * ctxt)
 				htmlParseErr(ctxt, XML_ERR_NAME_REQUIRED, "htmlParseStartTag: invalid element name\n", 0, 0);
 				/* Dump the bogus tag like browsers do */
 				while((IS_CHAR_CH(CUR)) && (CUR != '>'))
-					NEXT;
+					xmlNextChar(ctxt);
 				htmlParserFinishElementParsing(ctxt);
 				SAlloc::F(currentNode);
 				currentNode = sstrdup(ctxt->name);
@@ -4792,7 +4792,7 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 			    name = ctxt->name;
 			    if((failed == -1) || !name) {
 				    if(CUR == '>')
-					    NEXT;
+					    xmlNextChar(ctxt);
 				    break;
 			    }
 			    /*
@@ -4816,7 +4816,7 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 				    break;
 			    }
 			    if(CUR == '>') {
-				    NEXT;
+				    xmlNextChar(ctxt);
 			    }
 			    else {
 				    htmlParseErr(ctxt, XML_ERR_GT_REQUIRED, "Couldn't find end of Start Tag %s\n", name, 0);
@@ -4996,7 +4996,7 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 				    if(ctxt->P_Node != NULL) {
 					    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "detected an error in element content\n", 0, 0);
 				    }
-				    NEXT;
+				    xmlNextChar(ctxt);
 				    break;
 			    }
 

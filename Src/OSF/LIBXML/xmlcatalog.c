@@ -112,7 +112,6 @@ static void usershell()
 			arg[i++] = *cur++;
 		}
 		arg[i] = 0;
-
 		/*
 		 * Parse the arguments
 		 */
@@ -444,7 +443,7 @@ int main(int argc, char ** argv)
 					}
 					else {
 						out = fopen(argv[i+1], "w");
-						if(out == NULL) {
+						if(!out) {
 							slfprintf_stderr("could not open %s for saving\n", argv[i+1]);
 							exit_value = 2;
 							noout = 0;
@@ -460,7 +459,7 @@ int main(int argc, char ** argv)
 						}
 						else {
 							out = fopen(XML_SGML_DEFAULT_CATALOG, "w");
-							if(out == NULL) {
+							if(!out) {
 								slfprintf_stderr("could not open %s for saving\n", XML_SGML_DEFAULT_CATALOG);
 								exit_value = 2;
 								noout = 0;
@@ -543,7 +542,7 @@ int main(int argc, char ** argv)
 	if((!sgml) && ((add) || (del) || (create) || (convert))) {
 		if(noout && filename && *filename) {
 			FILE * out = fopen(filename, "w");
-			if(out == NULL) {
+			if(!out) {
 				slfprintf_stderr("could not open %s for saving\n", filename);
 				exit_value = 2;
 				noout = 0;

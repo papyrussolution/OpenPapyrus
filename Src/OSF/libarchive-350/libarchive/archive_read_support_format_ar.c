@@ -51,19 +51,19 @@ struct ar {
 #define AR_fmag_offset 58
 #define AR_fmag_size 2
 
-static int archive_read_format_ar_bid(struct archive_read * a, int);
-static int archive_read_format_ar_cleanup(struct archive_read * a);
-static int archive_read_format_ar_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset);
-static int archive_read_format_ar_skip(struct archive_read * a);
-static int archive_read_format_ar_read_header(struct archive_read * a, struct archive_entry * e);
+static int archive_read_format_ar_bid(ArchiveRead * a, int);
+static int archive_read_format_ar_cleanup(ArchiveRead * a);
+static int archive_read_format_ar_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset);
+static int archive_read_format_ar_skip(ArchiveRead * a);
+static int archive_read_format_ar_read_header(ArchiveRead * a, ArchiveEntry * e);
 static uint64 ar_atol8(const char * p, uint char_cnt);
 static uint64 ar_atol10(const char * p, uint char_cnt);
-static int ar_parse_gnu_filename_table(struct archive_read * a);
-static int ar_parse_common_header(struct ar * ar, struct archive_entry *, const char * h);
+static int ar_parse_gnu_filename_table(ArchiveRead * a);
+static int ar_parse_common_header(struct ar * ar, ArchiveEntry *, const char * h);
 
-int archive_read_support_format_ar(struct archive * _a)
+int archive_read_support_format_ar(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	struct ar * ar;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -83,7 +83,7 @@ int archive_read_support_format_ar(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_ar_cleanup(struct archive_read * a)
+static int archive_read_format_ar_cleanup(ArchiveRead * a)
 {
 	struct ar * ar = (struct ar *)(a->format->data);
 	SAlloc::F(ar->strtab);
@@ -92,7 +92,7 @@ static int archive_read_format_ar_cleanup(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_ar_bid(struct archive_read * a, int best_bid)
+static int archive_read_format_ar_bid(ArchiveRead * a, int best_bid)
 {
 	const void * h;
 	CXX_UNUSED(best_bid);
@@ -108,7 +108,7 @@ static int archive_read_format_ar_bid(struct archive_read * a, int best_bid)
 	return -1;
 }
 
-static int _ar_read_header(struct archive_read * a, struct archive_entry * entry,
+static int _ar_read_header(ArchiveRead * a, ArchiveEntry * entry,
     struct ar * ar, const char * h, size_t * unconsumed)
 {
 	char filename[AR_name_size + 1];
@@ -330,7 +330,7 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 	return (ar_parse_common_header(ar, entry, h));
 }
 
-static int archive_read_format_ar_read_header(struct archive_read * a, struct archive_entry * entry)
+static int archive_read_format_ar_read_header(ArchiveRead * a, ArchiveEntry * entry)
 {
 	struct ar * ar = (struct ar *)(a->format->data);
 	size_t unconsumed;
@@ -355,7 +355,7 @@ static int archive_read_format_ar_read_header(struct archive_read * a, struct ar
 	return ret;
 }
 
-static int ar_parse_common_header(struct ar * ar, struct archive_entry * entry, const char * h)
+static int ar_parse_common_header(struct ar * ar, ArchiveEntry * entry, const char * h)
 {
 	uint64 n;
 	// Copy remaining header 
@@ -372,7 +372,7 @@ static int ar_parse_common_header(struct ar * ar, struct archive_entry * entry, 
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_ar_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
+static int archive_read_format_ar_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	ssize_t bytes_read;
 	struct ar * ar = (struct ar *)(a->format->data);
@@ -415,7 +415,7 @@ static int archive_read_format_ar_read_data(struct archive_read * a, const void 
 	}
 }
 
-static int archive_read_format_ar_skip(struct archive_read * a)
+static int archive_read_format_ar_skip(ArchiveRead * a)
 {
 	struct ar * ar = (struct ar *)(a->format->data);
 	int64 bytes_skipped = __archive_read_consume(a, ar->entry_bytes_remaining + ar->entry_padding + ar->entry_bytes_unconsumed);
@@ -427,7 +427,7 @@ static int archive_read_format_ar_skip(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static int ar_parse_gnu_filename_table(struct archive_read * a)
+static int ar_parse_gnu_filename_table(ArchiveRead * a)
 {
 	char * p;
 	struct ar * ar = (struct ar *)(a->format->data);

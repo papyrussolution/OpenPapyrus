@@ -169,7 +169,7 @@ static int ok_read(BIO * b, char * out, int outl)
 	BIO_OK_CTX * ctx;
 	BIO * next;
 
-	if(out == NULL)
+	if(!out)
 		return 0;
 
 	ctx = static_cast<BIO_OK_CTX *>(BIO_get_data(b));

@@ -63,7 +63,7 @@ static bool U_CALLCONV compareEntries(const UHashTok p1, const UHashTok p2)
 static bool chopLocale(char * name) 
 {
 	char * i = uprv_strrchr(name, '_');
-	if(i != NULL) {
+	if(i) {
 		*i = '\0';
 		return TRUE;
 	}
@@ -87,7 +87,7 @@ static void entryIncrease(UResourceDataEntry * entry)
 {
 	Mutex lock(&resbMutex);
 	entry->fCountExisting++;
-	while(entry->fParent != NULL) {
+	while(entry->fParent) {
 		entry = entry->fParent;
 		entry->fCountExisting++;
 	}
@@ -137,21 +137,22 @@ static UResourceDataEntry * getFallbackData(const UResourceBundle * resBundle, c
 	return dataEntry;
 }
 
-static void free_entry(UResourceDataEntry * entry) {
+static void free_entry(UResourceDataEntry * entry) 
+{
 	UResourceDataEntry * alias;
 	res_unload(&(entry->fData));
-	if(entry->fName != NULL && entry->fName != entry->fNameBuffer) {
+	if(entry->fName && entry->fName != entry->fNameBuffer) {
 		uprv_free(entry->fName);
 	}
-	if(entry->fPath != NULL) {
+	if(entry->fPath) {
 		uprv_free(entry->fPath);
 	}
-	if(entry->fPool != NULL) {
+	if(entry->fPool) {
 		--entry->fPool->fCountExisting;
 	}
 	alias = entry->fAlias;
-	if(alias != NULL) {
-		while(alias->fAlias != NULL) {
+	if(alias) {
+		while(alias->fAlias) {
 			alias = alias->fAlias;
 		}
 		--alias->fCountExisting;
@@ -260,9 +261,10 @@ static void initCache(UErrorCode * status)
 
 /** INTERNAL: sets the name (locale) of the resource bundle to given name */
 
-static void setEntryName(UResourceDataEntry * res, const char * name, UErrorCode * status) {
+static void setEntryName(UResourceDataEntry * res, const char * name, UErrorCode * status) 
+{
 	int32_t len = (int32_t)uprv_strlen(name);
-	if(res->fName != NULL && res->fName != res->fNameBuffer) {
+	if(res->fName && res->fName != res->fNameBuffer) {
 		uprv_free(res->fName);
 	}
 	if(len < (int32_t)sizeof(res->fNameBuffer)) {
@@ -285,7 +287,8 @@ static UResourceDataEntry * getPoolEntry(const char * path, UErrorCode * status)
  *  INTERNAL: Inits and opens an entry from a data DLL.
  *    CAUTION:  resbMutex must be locked when calling this function.
  */
-static UResourceDataEntry * init_entry(const char * localeID, const char * path, UErrorCode * status) {
+static UResourceDataEntry * init_entry(const char * localeID, const char * path, UErrorCode * status) 
+{
 	UResourceDataEntry * r = NULL;
 	UResourceDataEntry find;
 	/*int32_t hashValue;*/
@@ -294,11 +297,9 @@ static UResourceDataEntry * init_entry(const char * localeID, const char * path,
 	int32_t aliasLen = 0;
 	/*bool isAlias = FALSE;*/
 	/*UHashTok hashkey; */
-
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-
 	/* here we try to deduce the right locale name */
 	if(!localeID) { /* if localeID is NULL, we're trying to open default locale */
 		name = uloc_getDefault();
@@ -309,10 +310,8 @@ static UResourceDataEntry * init_entry(const char * localeID, const char * path,
 	else { /* otherwise, we'll open what we're given */
 		name = localeID;
 	}
-
 	find.fName = (char *)name;
 	find.fPath = (char *)path;
-
 	/* calculate the hash value of the entry */
 	/*hashkey.pointer = (void *)&find;*/
 	/*hashValue = hashEntry(hashkey);*/
@@ -333,8 +332,7 @@ static UResourceDataEntry * init_entry(const char * localeID, const char * path,
 			uprv_free(r);
 			return NULL;
 		}
-
-		if(path != NULL) {
+		if(path) {
 			r->fPath = (char *)uprv_strdup(path);
 			if(r->fPath == NULL) {
 				*status = U_MEMORY_ALLOCATION_ERROR;
@@ -342,10 +340,8 @@ static UResourceDataEntry * init_entry(const char * localeID, const char * path,
 				return NULL;
 			}
 		}
-
 		/* this is the actual loading */
 		res_load(&(r->fData), r->fPath, r->fName, status);
-
 		if(U_FAILURE(*status)) {
 			/* if we failed to load due to an out-of-memory error, exit early. */
 			if(*status == U_MEMORY_ALLOCATION_ERROR) {
@@ -382,15 +378,13 @@ static UResourceDataEntry * init_entry(const char * localeID, const char * path,
 				if(aliasres != RES_BOGUS) {
 					// No tracing: called during initial data loading
 					const UChar * alias = res_getStringNoTrace(&(r->fData), aliasres, &aliasLen);
-					if(alias != NULL && aliasLen > 0) { /* if there is actual alias - unload and
-						                               load new data */
+					if(alias && aliasLen > 0) { /* if there is actual alias - unload and load new data */
 						u_UCharsToChars(alias, aliasName, aliasLen+1);
 						r->fAlias = init_entry(aliasName, path, status);
 					}
 				}
 			}
 		}
-
 		{
 			UResourceDataEntry * oldR = NULL;
 			if((oldR = (UResourceDataEntry*)uhash_get(cache, r)) == NULL) { /* if the data is not cached */
@@ -413,7 +407,7 @@ static UResourceDataEntry * init_entry(const char * localeID, const char * path,
 	}
 	if(r) {
 		/* return the real bundle */
-		while(r->fAlias != NULL) {
+		while(r->fAlias) {
 			r = r->fAlias;
 		}
 		r->fCountExisting++; /* we increase its reference count */
@@ -489,9 +483,7 @@ static void ures_setIsStackObject(UResourceBundle * resB, bool state) {
 	}
 }
 
-static bool ures_isStackObject(const UResourceBundle * resB) {
-	return((resB->fMagic1 == MAGIC1 && resB->fMagic2 == MAGIC2) ? FALSE : TRUE);
-}
+static bool ures_isStackObject(const UResourceBundle * resB) { return((resB->fMagic1 == MAGIC1 && resB->fMagic2 == MAGIC2) ? FALSE : TRUE); }
 
 U_CFUNC void ures_initStackObject(UResourceBundle * resB) 
 {
@@ -501,32 +493,32 @@ U_CFUNC void ures_initStackObject(UResourceBundle * resB)
 
 U_NAMESPACE_BEGIN
 
-StackUResourceBundle::StackUResourceBundle() {
+StackUResourceBundle::StackUResourceBundle() 
+{
 	ures_initStackObject(&bundle);
 }
 
-StackUResourceBundle::~StackUResourceBundle() {
+StackUResourceBundle::~StackUResourceBundle() 
+{
 	ures_close(&bundle);
 }
 
 U_NAMESPACE_END
 
-static bool  // returns U_SUCCESS(*status)
-loadParentsExceptRoot(UResourceDataEntry *&t1,
-    char name[], int32_t nameCapacity,
-    bool usingUSRData, char usrDataPath[], UErrorCode * status) {
+// returns U_SUCCESS(*status)
+static bool loadParentsExceptRoot(UResourceDataEntry *&t1, char name[], int32_t nameCapacity, bool usingUSRData, char usrDataPath[], UErrorCode * status) 
+{
 	if(U_FAILURE(*status)) {
 		return FALSE;
 	}
 	bool checkParent = TRUE;
-	while(checkParent && t1->fParent == NULL && !t1->fData.noFallback &&
-	    res_getResource(&t1->fData, "%%ParentIsRoot") == RES_BOGUS) {
+	while(checkParent && t1->fParent == NULL && !t1->fData.noFallback && res_getResource(&t1->fData, "%%ParentIsRoot") == RES_BOGUS) {
 		Resource parentRes = res_getResource(&t1->fData, "%%Parent");
 		if(parentRes != RES_BOGUS) { // An explicit parent was found.
 			int32_t parentLocaleLen = 0;
 			// No tracing: called during initial data loading
 			const UChar * parentLocaleName = res_getStringNoTrace(&(t1->fData), parentRes, &parentLocaleLen);
-			if(parentLocaleName != NULL && 0 < parentLocaleLen && parentLocaleLen < nameCapacity) {
+			if(parentLocaleName && 0 < parentLocaleLen && parentLocaleLen < nameCapacity) {
 				u_UCharsToChars(parentLocaleName, name, parentLocaleLen + 1);
 				if(uprv_strcmp(name, kRootLocaleName) == 0) {
 					return TRUE;
@@ -550,7 +542,6 @@ loadParentsExceptRoot(UResourceDataEntry *&t1,
 				return FALSE;
 			}
 		}
-
 		if(usingUSRData && U_SUCCESS(usrStatus) && u2->fBogus == U_ZERO_ERROR) {
 			t1->fParent = u2;
 			u2->fParent = t2;
@@ -568,8 +559,9 @@ loadParentsExceptRoot(UResourceDataEntry *&t1,
 	return TRUE;
 }
 
-static bool  // returns U_SUCCESS(*status)
-insertRootBundle(UResourceDataEntry *&t1, UErrorCode * status) {
+// returns U_SUCCESS(*status)
+static bool insertRootBundle(UResourceDataEntry *&t1, UErrorCode * status) 
+{
 	if(U_FAILURE(*status)) {
 		return FALSE;
 	}
@@ -648,21 +640,16 @@ static UResourceDataEntry * entryOpen(const char * path, const char * localeID, 
 			usrDataPath[sizeof(usrDataPath) - 1] = 0;
 		}
 	}
-
 	// Note: We need to query the default locale *before* locking resbMutex.
 	const char * defaultLocale = uloc_getDefault();
-
 	Mutex lock(&resbMutex); // Lock resbMutex until the end of this function.
-
 	/* We're going to skip all the locales that do not have any data */
 	r = findFirstExisting(path, name, defaultLocale, &isRoot, &hasChopped, &isDefault, &intStatus);
-
 	// If we failed due to out-of-memory, report the failure and exit early.
 	if(intStatus == U_MEMORY_ALLOCATION_ERROR) {
 		*status = intStatus;
 		goto finish;
 	}
-
 	if(r) { /* if there is one real locale, we can look for parents. */
 		t1 = r;
 		hasRealData = TRUE;
@@ -674,7 +661,7 @@ static UResourceDataEntry * entryOpen(const char * path, const char * localeID, 
 				*status = intStatus;
 				goto finish;
 			}
-			if(u1 != NULL) {
+			if(u1) {
 				if(u1->fBogus == U_ZERO_ERROR) {
 					u1->fParent = t1;
 					r = u1;
@@ -746,13 +733,11 @@ static UResourceDataEntry * entryOpen(const char * path, const char * localeID, 
 			r->fBogus = U_USING_DEFAULT_WARNING;
 		}
 	}
-
 	// TODO: Does this ever loop?
-	while(r != NULL && !isRoot && t1->fParent != NULL) {
+	while(r && !isRoot && t1->fParent) {
 		t1->fParent->fCountExisting++;
 		t1 = t1->fParent;
 	}
-
 finish:
 	if(U_SUCCESS(*status)) {
 		if(intStatus != U_ZERO_ERROR) {
@@ -802,7 +787,7 @@ static UResourceDataEntry * entryOpenDirect(const char * path, const char * loca
 	// Some code depends on the ures_openDirect() bundle to have a parent bundle chain,
 	// unless it is marked with "nofallback".
 	UResourceDataEntry * t1 = r;
-	if(r != NULL && uprv_strcmp(localeID, kRootLocaleName) != 0 && // not root
+	if(r && uprv_strcmp(localeID, kRootLocaleName) != 0 && // not root
 	    r->fParent == NULL && !r->fData.noFallback &&
 	    uprv_strlen(localeID) < ULOC_FULLNAME_CAPACITY) {
 		char name[ULOC_FULLNAME_CAPACITY];
@@ -820,7 +805,7 @@ static UResourceDataEntry * entryOpenDirect(const char * path, const char * loca
 
 	if(r) {
 		// TODO: Does this ever loop?
-		while(t1->fParent != NULL) {
+		while(t1->fParent) {
 			t1->fParent->fCountExisting++;
 			t1 = t1->fParent;
 		}
@@ -833,10 +818,10 @@ static UResourceDataEntry * entryOpenDirect(const char * path, const char * loca
  *     CAUTION:  resbMutex must be locked when calling this function.
  */
 /* INTERNAL: */
-static void entryCloseInt(UResourceDataEntry * resB) {
+static void entryCloseInt(UResourceDataEntry * resB) 
+{
 	UResourceDataEntry * p = resB;
-
-	while(resB != NULL) {
+	while(resB) {
 		p = resB->fParent;
 		resB->fCountExisting--;
 
@@ -848,16 +833,15 @@ static void entryCloseInt(UResourceDataEntry * resB) {
             if(resB->fBogus == U_ZERO_ERROR) {
                 res_unload(&(resB->fData));
             }
-            if(resB->fName != NULL) {
+            if(resB->fName) {
                 uprv_free(resB->fName);
             }
-            if(resB->fPath != NULL) {
+            if(resB->fPath) {
                 uprv_free(resB->fPath);
             }
             uprv_free(resB);
         }
  */
-
 		resB = p;
 	}
 }
@@ -929,11 +913,11 @@ static void ures_freeResPath(UResourceBundle * resB) {
 
 static void ures_closeBundle(UResourceBundle * resB, bool freeBundleObj)
 {
-	if(resB != NULL) {
-		if(resB->fData != NULL) {
+	if(resB) {
+		if(resB->fData) {
 			entryClose(resB->fData);
 		}
-		if(resB->fVersion != NULL) {
+		if(resB->fVersion) {
 			uprv_free(resB->fVersion);
 		}
 		ures_freeResPath(resB);
@@ -965,8 +949,8 @@ UResourceBundle * init_resb_result(UResourceDataEntry * dataEntry, Resource r, c
 // May need to entryIncrease() the resulting dataEntry.
 UResourceBundle * getAliasTargetAsResourceBundle(const ResourceData &resData, Resource r, const char * key, int32_t idx,
     UResourceDataEntry * validLocaleDataEntry, const char * containerResPath,
-    int32_t recursionDepth,
-    UResourceBundle * resB, UErrorCode * status) {
+    int32_t recursionDepth, UResourceBundle * resB, UErrorCode * status) 
+{
 	// TODO: When an error occurs: Should we return nullptr vs. resB?
 	if(U_FAILURE(*status)) {
 		return resB;
@@ -1228,10 +1212,10 @@ UResourceBundle * init_resb_result(UResourceDataEntry * dataEntry, Resource r, c
 		resB->fResPathLen = 0;
 	}
 	else {
-		if(resB->fData != NULL) {
+		if(resB->fData) {
 			entryClose(resB->fData);
 		}
-		if(resB->fVersion != NULL) {
+		if(resB->fVersion) {
 			uprv_free(resB->fVersion);
 		}
 		/*
@@ -1302,7 +1286,7 @@ UResourceBundle * ures_copyResb(UResourceBundle * r, const UResourceBundle * ori
 	if(U_FAILURE(*status) || r == original) {
 		return r;
 	}
-	if(original != NULL) {
+	if(original) {
 		if(!r) {
 			isStackObject = FALSE;
 			r = (UResourceBundle*)uprv_malloc(sizeof(UResourceBundle));
@@ -1323,7 +1307,7 @@ UResourceBundle * ures_copyResb(UResourceBundle * r, const UResourceBundle * ori
 			ures_appendResPath(r, original->fResPath, original->fResPathLen, status);
 		}
 		ures_setIsStackObject(r, isStackObject);
-		if(r->fData != NULL) {
+		if(r->fData) {
 			entryIncrease(r->fData);
 		}
 	}
@@ -1359,7 +1343,7 @@ static const char * ures_toUTF8String(const UChar * s16, int32_t length16,
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-	if(pLength != NULL) {
+	if(pLength) {
 		capacity = *pLength;
 	}
 	else {
@@ -1372,7 +1356,7 @@ static const char * ures_toUTF8String(const UChar * s16, int32_t length16,
 
 	if(length16 == 0) {
 		/* empty string, return as read-only pointer */
-		if(pLength != NULL) {
+		if(pLength) {
 			*pLength = 0;
 		}
 		if(forceCopy) {
@@ -1794,14 +1778,11 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_findResource(const char * path, UResourc
 			locale = pathToResource+1;
 		}
 	}
-
 	localeEnd = uprv_strchr(locale, RES_PATH_SEPARATOR);
-	if(localeEnd != NULL) {
+	if(localeEnd) {
 		*localeEnd = 0;
 	}
-
 	first = ures_open(packageName, locale, status);
-
 	if(U_SUCCESS(*status)) {
 		if(localeEnd) {
 			result = ures_findSubResource(first, localeEnd+1, fillIn, status);
@@ -1865,7 +1846,7 @@ U_CAPI const UChar * U_EXPORT2 ures_getStringByKeyWithFallback(const UResourceBu
 		length = 0;
 		*status = U_MISSING_RESOURCE_ERROR;
 	}
-	if(len != NULL) {
+	if(len) {
 		*len = length;
 	}
 	return retVal;
@@ -1886,7 +1867,7 @@ static Resource getTableItemByKeyPath(const ResourceData * pResData, Resource ta
 	UResType type = (UResType)RES_GET_TYPE(resource); /* the current resource type */
 	while(*pathPart && resource != RES_BOGUS && URES_IS_CONTAINER(type)) {
 		char * nextPathPart = uprv_strchr(pathPart, RES_PATH_SEPARATOR);
-		if(nextPathPart != NULL) {
+		if(nextPathPart) {
 			*nextPathPart = 0; /* Terminating null for this part of path. */
 			nextPathPart++;
 		}
@@ -2009,9 +1990,8 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByKeyWithFallback(const UResourceBund
 			char * myPath = NULL;
 			const char * resPath = resB->fResPath;
 			int32_t len = resB->fResPathLen;
-			while(res == RES_BOGUS && (dataEntry->fParent != NULL || !didRootOnce)) { /* Otherwise, we'll
-				                                                                     look in parents */
-				if(dataEntry->fParent != NULL) {
+			while(res == RES_BOGUS && (dataEntry->fParent || !didRootOnce)) { /* Otherwise, we'll look in parents */
+				if(dataEntry->fParent) {
 					dataEntry = dataEntry->fParent;
 				}
 				else {
@@ -2481,21 +2461,14 @@ U_CAPI const char * U_EXPORT2 ures_getLocaleByType(const UResourceBundle * resou
 
 U_CFUNC const char * ures_getName(const UResourceBundle * resB) 
 {
-	if(resB == NULL) {
-		return NULL;
-	}
-	return resB->fData->fName;
+	return resB ? resB->fData->fName : NULL;
 }
 
 #ifdef URES_DEBUG
-U_CFUNC const char * ures_getPath(const UResourceBundle * resB) {
-	if(resB == NULL) {
-		return NULL;
-	}
-
-	return resB->fData->fPath;
+U_CFUNC const char * ures_getPath(const UResourceBundle * resB) 
+{
+	return resB ? resB->fData->fPath : NULL;
 }
-
 #endif
 
 static UResourceBundle * ures_openWithType(UResourceBundle * r, const char * path, const char * localeID, UResOpenType openType, UErrorCode * status) 
@@ -2608,12 +2581,12 @@ U_CAPI int32_t U_EXPORT2 ures_countArrayItems(const UResourceBundle * resourceBu
 	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
-	if(resourceBundle == NULL) {
+	if(!resourceBundle) {
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
 	ures_getByKey(resourceBundle, resourceKey, &resData, status);
-	if(resData.getResData().data != NULL) {
+	if(resData.getResData().data) {
 		int32_t result = res_countArrayItems(&resData.getResData(), resData.fRes);
 		ures_close(&resData);
 		return result;
@@ -2674,10 +2647,10 @@ U_CAPI const char * U_EXPORT2 ures_getVersionNumber(const UResourceBundle *   re
 	return ures_getVersionNumberInternal(resourceBundle);
 }
 
-U_CAPI void U_EXPORT2 ures_getVersion(const UResourceBundle * resB, UVersionInfo versionInfo) {
-	if(!resB) return;
-
-	u_versionFromString(versionInfo, ures_getVersionNumberInternal(resB));
+U_CAPI void U_EXPORT2 ures_getVersion(const UResourceBundle * resB, UVersionInfo versionInfo) 
+{
+	if(resB) 
+		u_versionFromString(versionInfo, ures_getVersionNumberInternal(resB));
 }
 
 /** Tree support functions *******************************/
@@ -2690,7 +2663,8 @@ typedef struct ULocalesContext {
 	UResourceBundle curr;
 } ULocalesContext;
 
-static void U_CALLCONV ures_loc_closeLocales(UEnumeration * enumerator) {
+static void U_CALLCONV ures_loc_closeLocales(UEnumeration * enumerator) 
+{
 	ULocalesContext * ctx = (ULocalesContext*)enumerator->context;
 	ures_close(&ctx->curr);
 	ures_close(&ctx->installed);
@@ -2698,16 +2672,16 @@ static void U_CALLCONV ures_loc_closeLocales(UEnumeration * enumerator) {
 	uprv_free(enumerator);
 }
 
-static int32_t U_CALLCONV ures_loc_countLocales(UEnumeration * en, UErrorCode * /*status*/) {
+static int32_t U_CALLCONV ures_loc_countLocales(UEnumeration * en, UErrorCode * /*status*/) 
+{
 	ULocalesContext * ctx = (ULocalesContext*)en->context;
 	return ures_getSize(&ctx->installed);
 }
 
 U_CDECL_BEGIN
 
-static const char * U_CALLCONV ures_loc_nextLocale(UEnumeration* en,
-    int32_t* resultLength,
-    UErrorCode * status) {
+static const char * U_CALLCONV ures_loc_nextLocale(UEnumeration* en, int32_t* resultLength, UErrorCode * status) 
+{
 	ULocalesContext * ctx = (ULocalesContext*)en->context;
 	UResourceBundle * res = &(ctx->installed);
 	UResourceBundle * k = NULL;
@@ -2723,8 +2697,8 @@ static const char * U_CALLCONV ures_loc_nextLocale(UEnumeration* en,
 	return result;
 }
 
-static void U_CALLCONV ures_loc_resetLocales(UEnumeration* en,
-    UErrorCode * /*status*/) {
+static void U_CALLCONV ures_loc_resetLocales(UEnumeration* en, UErrorCode * /*status*/) 
+{
 	UResourceBundle * res = &((ULocalesContext*)en->context)->installed;
 	ures_resetIterator(res);
 }
@@ -2746,7 +2720,6 @@ U_CAPI UEnumeration* U_EXPORT2 ures_openAvailableLocales(const char * path, UErr
 	UResourceBundle * idx = NULL;
 	UEnumeration * en = NULL;
 	ULocalesContext * myContext = NULL;
-
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
@@ -2780,13 +2753,12 @@ U_CAPI UEnumeration* U_EXPORT2 ures_openAvailableLocales(const char * path, UErr
 		uprv_free(en);
 		en = NULL;
 	}
-
 	ures_close(idx);
-
 	return en;
 }
 
-static bool isLocaleInList(UEnumeration * locEnum, const char * locToSearch, UErrorCode * status) {
+static bool isLocaleInList(UEnumeration * locEnum, const char * locToSearch, UErrorCode * status) 
+{
 	const char * loc;
 	while((loc = uenum_next(locEnum, NULL, status)) != NULL) {
 		if(uprv_strcmp(loc, locToSearch) == 0) {
@@ -2888,7 +2860,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 
 		subStatus = U_ZERO_ERROR;
 
-		if(res != NULL) {
+		if(res) {
 			uprv_strcpy(found, ures_getLocaleByType(res, ULOC_VALID_LOCALE, &subStatus));
 		}
 
@@ -2967,9 +2939,7 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 				}
 			}
 		}
-
 		subStatus = U_ZERO_ERROR;
-
 		uprv_strcpy(found, parent);
 		uloc_getParent(found, parent, 1023, &subStatus);
 		ures_close(res);
@@ -3040,7 +3010,6 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 				}
 			}
 			subStatus = U_ZERO_ERROR;
-
 			uprv_strcpy(found, parent);
 			uloc_getParent(found, parent, 1023, &subStatus);
 			ures_close(res);
@@ -3084,12 +3053,9 @@ U_CAPI int32_t U_EXPORT2 ures_getFunctionalEquivalent(char * result, int32_t res
 		}
 	}
 	/* we found the default locale - no need to repeat it.*/
-
 	ures_close(&bund1);
 	ures_close(&bund2);
-
 	length = (int32_t)uprv_strlen(found);
-
 	if(U_SUCCESS(*status)) {
 		int32_t copyLength = smin(length, resultCapacity);
 		if(copyLength>0) {
@@ -3149,13 +3115,10 @@ U_CAPI UEnumeration* U_EXPORT2 ures_getKeywordValues(const char * path, const ch
 			bund = NULL;
 			continue;
 		}
-
-		while((subPtr = ures_getNextResource(&item, &subItem, &subStatus)) != 0
-		 && U_SUCCESS(subStatus)) {
+		while((subPtr = ures_getNextResource(&item, &subItem, &subStatus)) != 0 && U_SUCCESS(subStatus)) {
 			const char * k;
 			int32_t i;
 			k = ures_getKey(subPtr);
-
 #if defined(URES_TREE_DEBUG)
 			/* slfprintf_stderr("%s | %s | %s | %s\n", path?path:"<ICUDATA>", keyword, locale, k); */
 #endif
@@ -3170,7 +3133,7 @@ U_CAPI UEnumeration* U_EXPORT2 ures_getKeywordValues(const char * path, const ch
 					break;
 				}
 			}
-			if(k != NULL) {
+			if(k) {
 				int32_t kLen = (int32_t)uprv_strlen(k);
 				if((valuesCount >= (VALUES_LIST_SIZE-1)) || /* no more space in list .. */
 				    ((valuesIndex+kLen+1+1) >= VALUES_BUF_SIZE)) { /* no more space in buffer (string +
@@ -3250,7 +3213,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_clone(const UResourceBundle * res, UErro
 		return NULL;
 	}
 	bundle = ures_open(res->fData->fPath, res->fData->fName, status);
-	if(res->fResPath!=NULL) {
+	if(res->fResPath) {
 		ret = ures_findSubResource(bundle, res->fResPath, NULL, status);
 		ures_close(bundle);
 	}

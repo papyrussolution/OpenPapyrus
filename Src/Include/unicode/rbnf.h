@@ -1,12 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-*******************************************************************************
-* Copyright (C) 1997-2015, International Business Machines Corporation and others.
-* All Rights Reserved.
-*******************************************************************************
-*/
-
+// Copyright (C) 1997-2015, International Business Machines Corporation and others. All Rights Reserved.
+//
 #ifndef RBNF_H
 #define RBNF_H
 
@@ -54,16 +49,16 @@ class RuleBasedCollator;
  * @stable ICU 2.2
  */
 enum URBNFRuleSetTag {
-    URBNF_SPELLOUT,
-    URBNF_ORDINAL,
-    URBNF_DURATION,
-    URBNF_NUMBERING_SYSTEM,
+	URBNF_SPELLOUT,
+	URBNF_ORDINAL,
+	URBNF_DURATION,
+	URBNF_NUMBERING_SYSTEM,
 #ifndef U_HIDE_DEPRECATED_API
-    /**
-     * One more than the highest normal URBNFRuleSetTag value.
-     * @deprecated ICU 58 The numeric value may change over time, see ICU ticket #12420.
-     */
-    URBNF_COUNT
+	/**
+	 * One more than the highest normal URBNFRuleSetTag value.
+	 * @deprecated ICU 58 The numeric value may change over time, see ICU ticket #12420.
+	 */
+	URBNF_COUNT
 #endif  // U_HIDE_DEPRECATED_API
 };
 
@@ -561,554 +556,535 @@ enum URBNFRuleSetTag {
  */
 class U_I18N_API RuleBasedNumberFormat : public NumberFormat {
 public:
+	//
+	// constructors
+	//
+	/**
+	 * Creates a RuleBasedNumberFormat that behaves according to the description
+	 * passed in.  The formatter uses the default locale.
+	 * @param rules A description of the formatter's desired behavior.
+	 * See the class documentation for a complete explanation of the description
+	 * syntax.
+	 * @param perror The parse error if an error was encountered.
+	 * @param status The status indicating whether the constructor succeeded.
+	 * @stable ICU 3.2
+	 */
+	RuleBasedNumberFormat(const UnicodeString & rules, UParseError& perror, UErrorCode& status);
 
-  //-----------------------------------------------------------------------
-  // constructors
-  //-----------------------------------------------------------------------
+	/**
+	 * Creates a RuleBasedNumberFormat that behaves according to the description
+	 * passed in.  The formatter uses the default locale.
+	 * <p>
+	 * The localizations data provides information about the public
+	 * rule sets and their localized display names for different
+	 * locales. The first element in the list is an array of the names
+	 * of the public rule sets.  The first element in this array is
+	 * the initial default ruleset.  The remaining elements in the
+	 * list are arrays of localizations of the names of the public
+	 * rule sets.  Each of these is one longer than the initial array,
+	 * with the first String being the ULocale ID, and the remaining
+	 * Strings being the localizations of the rule set names, in the
+	 * same order as the initial array.  Arrays are NULL-terminated.
+	 * @param rules A description of the formatter's desired behavior.
+	 * See the class documentation for a complete explanation of the description
+	 * syntax.
+	 * @param localizations the localization information.
+	 * names in the description.  These will be copied by the constructor.
+	 * @param perror The parse error if an error was encountered.
+	 * @param status The status indicating whether the constructor succeeded.
+	 * @stable ICU 3.2
+	 */
+	RuleBasedNumberFormat(const UnicodeString & rules, const UnicodeString & localizations,
+	    UParseError& perror, UErrorCode& status);
 
-    /**
-     * Creates a RuleBasedNumberFormat that behaves according to the description
-     * passed in.  The formatter uses the default locale.
-     * @param rules A description of the formatter's desired behavior.
-     * See the class documentation for a complete explanation of the description
-     * syntax.
-     * @param perror The parse error if an error was encountered.
-     * @param status The status indicating whether the constructor succeeded.
-     * @stable ICU 3.2
-     */
-    RuleBasedNumberFormat(const UnicodeString & rules, UParseError& perror, UErrorCode& status);
+	/**
+	 * Creates a RuleBasedNumberFormat that behaves according to the rules
+	 * passed in.  The formatter uses the specified locale to determine the
+	 * characters to use when formatting numerals, and to define equivalences
+	 * for lenient parsing.
+	 * @param rules The formatter rules.
+	 * See the class documentation for a complete explanation of the rule
+	 * syntax.
+	 * @param locale A locale that governs which characters are used for
+	 * formatting values in numerals and which characters are equivalent in
+	 * lenient parsing.
+	 * @param perror The parse error if an error was encountered.
+	 * @param status The status indicating whether the constructor succeeded.
+	 * @stable ICU 2.0
+	 */
+	RuleBasedNumberFormat(const UnicodeString & rules, const Locale& locale,
+	    UParseError& perror, UErrorCode& status);
 
-    /**
-     * Creates a RuleBasedNumberFormat that behaves according to the description
-     * passed in.  The formatter uses the default locale.
-     * <p>
-     * The localizations data provides information about the public
-     * rule sets and their localized display names for different
-     * locales. The first element in the list is an array of the names
-     * of the public rule sets.  The first element in this array is
-     * the initial default ruleset.  The remaining elements in the
-     * list are arrays of localizations of the names of the public
-     * rule sets.  Each of these is one longer than the initial array,
-     * with the first String being the ULocale ID, and the remaining
-     * Strings being the localizations of the rule set names, in the
-     * same order as the initial array.  Arrays are NULL-terminated.
-     * @param rules A description of the formatter's desired behavior.
-     * See the class documentation for a complete explanation of the description
-     * syntax.
-     * @param localizations the localization information.
-     * names in the description.  These will be copied by the constructor.
-     * @param perror The parse error if an error was encountered.
-     * @param status The status indicating whether the constructor succeeded.
-     * @stable ICU 3.2
-     */
-    RuleBasedNumberFormat(const UnicodeString & rules, const UnicodeString & localizations,
-                        UParseError& perror, UErrorCode& status);
+	/**
+	 * Creates a RuleBasedNumberFormat that behaves according to the description
+	 * passed in.  The formatter uses the default locale.
+	 * <p>
+	 * The localizations data provides information about the public
+	 * rule sets and their localized display names for different
+	 * locales. The first element in the list is an array of the names
+	 * of the public rule sets.  The first element in this array is
+	 * the initial default ruleset.  The remaining elements in the
+	 * list are arrays of localizations of the names of the public
+	 * rule sets.  Each of these is one longer than the initial array,
+	 * with the first String being the ULocale ID, and the remaining
+	 * Strings being the localizations of the rule set names, in the
+	 * same order as the initial array.  Arrays are NULL-terminated.
+	 * @param rules A description of the formatter's desired behavior.
+	 * See the class documentation for a complete explanation of the description
+	 * syntax.
+	 * @param localizations a list of localizations for the rule set
+	 * names in the description.  These will be copied by the constructor.
+	 * @param locale A locale that governs which characters are used for
+	 * formatting values in numerals and which characters are equivalent in
+	 * lenient parsing.
+	 * @param perror The parse error if an error was encountered.
+	 * @param status The status indicating whether the constructor succeeded.
+	 * @stable ICU 3.2
+	 */
+	RuleBasedNumberFormat(const UnicodeString & rules, const UnicodeString & localizations,
+	    const Locale& locale, UParseError& perror, UErrorCode& status);
 
-  /**
-   * Creates a RuleBasedNumberFormat that behaves according to the rules
-   * passed in.  The formatter uses the specified locale to determine the
-   * characters to use when formatting numerals, and to define equivalences
-   * for lenient parsing.
-   * @param rules The formatter rules.
-   * See the class documentation for a complete explanation of the rule
-   * syntax.
-   * @param locale A locale that governs which characters are used for
-   * formatting values in numerals and which characters are equivalent in
-   * lenient parsing.
-   * @param perror The parse error if an error was encountered.
-   * @param status The status indicating whether the constructor succeeded.
-   * @stable ICU 2.0
-   */
-  RuleBasedNumberFormat(const UnicodeString & rules, const Locale& locale,
-                        UParseError& perror, UErrorCode& status);
+	/**
+	 * Creates a RuleBasedNumberFormat from a predefined ruleset.  The selector
+	 * code chose among three possible predefined formats: spellout, ordinal,
+	 * and duration.
+	 * @param tag A selector code specifying which kind of formatter to create for that
+	 * locale.  There are four legal values: URBNF_SPELLOUT, which creates a formatter that
+	 * spells out a value in words in the desired language, URBNF_ORDINAL, which attaches
+	 * an ordinal suffix from the desired language to the end of a number (e.g. "123rd"),
+	 * URBNF_DURATION, which formats a duration in seconds as hours, minutes, and seconds always rounding down,
+	 * and URBNF_NUMBERING_SYSTEM, which is used to invoke rules for alternate numbering
+	 * systems such as the Hebrew numbering system, or for Roman Numerals, etc.
+	 * @param locale The locale for the formatter.
+	 * @param status The status indicating whether the constructor succeeded.
+	 * @stable ICU 2.0
+	 */
+	RuleBasedNumberFormat(URBNFRuleSetTag tag, const Locale& locale, UErrorCode& status);
+	//
+	// boilerplate
+	//
+	/**
+	 * Copy constructor
+	 * @param rhs    the object to be copied from.
+	 * @stable ICU 2.6
+	 */
+	RuleBasedNumberFormat(const RuleBasedNumberFormat& rhs);
 
-    /**
-     * Creates a RuleBasedNumberFormat that behaves according to the description
-     * passed in.  The formatter uses the default locale.
-     * <p>
-     * The localizations data provides information about the public
-     * rule sets and their localized display names for different
-     * locales. The first element in the list is an array of the names
-     * of the public rule sets.  The first element in this array is
-     * the initial default ruleset.  The remaining elements in the
-     * list are arrays of localizations of the names of the public
-     * rule sets.  Each of these is one longer than the initial array,
-     * with the first String being the ULocale ID, and the remaining
-     * Strings being the localizations of the rule set names, in the
-     * same order as the initial array.  Arrays are NULL-terminated.
-     * @param rules A description of the formatter's desired behavior.
-     * See the class documentation for a complete explanation of the description
-     * syntax.
-     * @param localizations a list of localizations for the rule set
-     * names in the description.  These will be copied by the constructor.
-     * @param locale A locale that governs which characters are used for
-     * formatting values in numerals and which characters are equivalent in
-     * lenient parsing.
-     * @param perror The parse error if an error was encountered.
-     * @param status The status indicating whether the constructor succeeded.
-     * @stable ICU 3.2
-     */
-    RuleBasedNumberFormat(const UnicodeString & rules, const UnicodeString & localizations,
-                        const Locale& locale, UParseError& perror, UErrorCode& status);
+	/**
+	 * Assignment operator
+	 * @param rhs    the object to be copied from.
+	 * @stable ICU 2.6
+	 */
+	RuleBasedNumberFormat& operator =(const RuleBasedNumberFormat& rhs);
 
-  /**
-   * Creates a RuleBasedNumberFormat from a predefined ruleset.  The selector
-   * code chose among three possible predefined formats: spellout, ordinal,
-   * and duration.
-   * @param tag A selector code specifying which kind of formatter to create for that
-   * locale.  There are four legal values: URBNF_SPELLOUT, which creates a formatter that
-   * spells out a value in words in the desired language, URBNF_ORDINAL, which attaches
-   * an ordinal suffix from the desired language to the end of a number (e.g. "123rd"),
-   * URBNF_DURATION, which formats a duration in seconds as hours, minutes, and seconds always rounding down,
-   * and URBNF_NUMBERING_SYSTEM, which is used to invoke rules for alternate numbering
-   * systems such as the Hebrew numbering system, or for Roman Numerals, etc.
-   * @param locale The locale for the formatter.
-   * @param status The status indicating whether the constructor succeeded.
-   * @stable ICU 2.0
-   */
-  RuleBasedNumberFormat(URBNFRuleSetTag tag, const Locale& locale, UErrorCode& status);
+	/**
+	 * Release memory allocated for a RuleBasedNumberFormat when you are finished with it.
+	 * @stable ICU 2.6
+	 */
+	virtual ~RuleBasedNumberFormat();
 
-  //-----------------------------------------------------------------------
-  // boilerplate
-  //-----------------------------------------------------------------------
+	/**
+	 * Clone this object polymorphically.  The caller is responsible
+	 * for deleting the result when done.
+	 * @return  A copy of the object.
+	 * @stable ICU 2.6
+	 */
+	virtual RuleBasedNumberFormat* clone() const override;
 
-  /**
-   * Copy constructor
-   * @param rhs    the object to be copied from.
-   * @stable ICU 2.6
-   */
-  RuleBasedNumberFormat(const RuleBasedNumberFormat& rhs);
+	/**
+	 * Return true if the given Format objects are semantically equal.
+	 * Objects of different subclasses are considered unequal.
+	 * @param other    the object to be compared with.
+	 * @return        true if the given Format objects are semantically equal.
+	 * @stable ICU 2.6
+	 */
+	virtual bool operator==(const Format& other) const override;
+	//
+	// public API functions
+	//
+	/**
+	 * return the rules that were provided to the RuleBasedNumberFormat.
+	 * @return the result String that was passed in
+	 * @stable ICU 2.0
+	 */
+	virtual UnicodeString getRules() const;
+	/**
+	 * Return the number of public rule set names.
+	 * @return the number of public rule set names.
+	 * @stable ICU 2.0
+	 */
+	virtual int32_t getNumberOfRuleSetNames() const;
+	/**
+	 * Return the name of the index'th public ruleSet.  If index is not valid,
+	 * the function returns null.
+	 * @param index the index of the ruleset
+	 * @return the name of the index'th public ruleSet.
+	 * @stable ICU 2.0
+	 */
+	virtual UnicodeString getRuleSetName(int32_t index) const;
 
-  /**
-   * Assignment operator
-   * @param rhs    the object to be copied from.
-   * @stable ICU 2.6
-   */
-  RuleBasedNumberFormat& operator = (const RuleBasedNumberFormat& rhs);
+	/**
+	 * Return the number of locales for which we have localized rule set display names.
+	 * @return the number of locales for which we have localized rule set display names.
+	 * @stable ICU 3.2
+	 */
+	virtual int32_t getNumberOfRuleSetDisplayNameLocales(void) const;
 
-  /**
-   * Release memory allocated for a RuleBasedNumberFormat when you are finished with it.
-   * @stable ICU 2.6
-   */
-  virtual ~RuleBasedNumberFormat();
+	/**
+	 * Return the index'th display name locale.
+	 * @param index the index of the locale
+	 * @param status set to a failure code when this function fails
+	 * @return the locale
+	 * @see #getNumberOfRuleSetDisplayNameLocales
+	 * @stable ICU 3.2
+	 */
+	virtual Locale getRuleSetDisplayNameLocale(int32_t index, UErrorCode& status) const;
 
-  /**
-   * Clone this object polymorphically.  The caller is responsible
-   * for deleting the result when done.
-   * @return  A copy of the object.
-   * @stable ICU 2.6
-   */
-  virtual RuleBasedNumberFormat* clone() const override;
+	/**
+	 * Return the rule set display names for the provided locale.  These are in the same order
+	 * as those returned by getRuleSetName.  The locale is matched against the locales for
+	 * which there is display name data, using normal fallback rules.  If no locale matches,
+	 * the default display names are returned.  (These are the internal rule set names minus
+	 * the leading '%'.)
+	 * @param index the index of the rule set
+	 * @param locale the locale (returned by getRuleSetDisplayNameLocales) for which the localized
+	 * display name is desired
+	 * @return the display name for the given index, which might be bogus if there is an error
+	 * @see #getRuleSetName
+	 * @stable ICU 3.2
+	 */
+	virtual UnicodeString getRuleSetDisplayName(int32_t index,
+	    const Locale& locale = Locale::getDefault());
 
-  /**
-   * Return true if the given Format objects are semantically equal.
-   * Objects of different subclasses are considered unequal.
-   * @param other    the object to be compared with.
-   * @return        true if the given Format objects are semantically equal.
-   * @stable ICU 2.6
-   */
-  virtual bool operator==(const Format& other) const override;
+	/**
+	 * Return the rule set display name for the provided rule set and locale.
+	 * The locale is matched against the locales for which there is display name data, using
+	 * normal fallback rules.  If no locale matches, the default display name is returned.
+	 * @return the display name for the rule set
+	 * @stable ICU 3.2
+	 * @see #getRuleSetDisplayName
+	 */
+	virtual UnicodeString getRuleSetDisplayName(const UnicodeString & ruleSetName,
+	    const Locale& locale = Locale::getDefault());
 
-//-----------------------------------------------------------------------
-// public API functions
-//-----------------------------------------------------------------------
+	using NumberFormat::format;
 
-  /**
-   * return the rules that were provided to the RuleBasedNumberFormat.
-   * @return the result String that was passed in
-   * @stable ICU 2.0
-   */
-  virtual UnicodeString getRules() const;
+	/**
+	 * Formats the specified 32-bit number using the default ruleset.
+	 * @param number The number to format.
+	 * @param toAppendTo the string that will hold the (appended) result
+	 * @param pos the fieldposition
+	 * @return A textual representation of the number.
+	 * @stable ICU 2.0
+	 */
+	virtual UnicodeString & format(int32_t number,
+	    UnicodeString & toAppendTo,
+	    FieldPosition& pos) const override;
 
-  /**
-   * Return the number of public rule set names.
-   * @return the number of public rule set names.
-   * @stable ICU 2.0
-   */
-  virtual int32_t getNumberOfRuleSetNames() const;
+	/**
+	 * Formats the specified 64-bit number using the default ruleset.
+	 * @param number The number to format.
+	 * @param toAppendTo the string that will hold the (appended) result
+	 * @param pos the fieldposition
+	 * @return A textual representation of the number.
+	 * @stable ICU 2.1
+	 */
+	virtual UnicodeString & format(int64_t number,
+	    UnicodeString & toAppendTo,
+	    FieldPosition& pos) const override;
+	/**
+	 * Formats the specified number using the default ruleset.
+	 * @param number The number to format.
+	 * @param toAppendTo the string that will hold the (appended) result
+	 * @param pos the fieldposition
+	 * @return A textual representation of the number.
+	 * @stable ICU 2.0
+	 */
+	virtual UnicodeString & format(double number,
+	    UnicodeString & toAppendTo,
+	    FieldPosition& pos) const override;
 
-  /**
-   * Return the name of the index'th public ruleSet.  If index is not valid,
-   * the function returns null.
-   * @param index the index of the ruleset
-   * @return the name of the index'th public ruleSet.
-   * @stable ICU 2.0
-   */
-  virtual UnicodeString getRuleSetName(int32_t index) const;
-
-  /**
-   * Return the number of locales for which we have localized rule set display names.
-   * @return the number of locales for which we have localized rule set display names.
-   * @stable ICU 3.2
-   */
-  virtual int32_t getNumberOfRuleSetDisplayNameLocales(void) const;
-
-  /**
-   * Return the index'th display name locale.
-   * @param index the index of the locale
-   * @param status set to a failure code when this function fails
-   * @return the locale
-   * @see #getNumberOfRuleSetDisplayNameLocales
-   * @stable ICU 3.2
-   */
-  virtual Locale getRuleSetDisplayNameLocale(int32_t index, UErrorCode& status) const;
-
-    /**
-     * Return the rule set display names for the provided locale.  These are in the same order
-     * as those returned by getRuleSetName.  The locale is matched against the locales for
-     * which there is display name data, using normal fallback rules.  If no locale matches,
-     * the default display names are returned.  (These are the internal rule set names minus
-     * the leading '%'.)
-     * @param index the index of the rule set
-     * @param locale the locale (returned by getRuleSetDisplayNameLocales) for which the localized
-     * display name is desired
-     * @return the display name for the given index, which might be bogus if there is an error
-     * @see #getRuleSetName
-     * @stable ICU 3.2
-     */
-  virtual UnicodeString getRuleSetDisplayName(int32_t index,
-                          const Locale& locale = Locale::getDefault());
-
-    /**
-     * Return the rule set display name for the provided rule set and locale.
-     * The locale is matched against the locales for which there is display name data, using
-     * normal fallback rules.  If no locale matches, the default display name is returned.
-     * @return the display name for the rule set
-     * @stable ICU 3.2
-     * @see #getRuleSetDisplayName
-     */
-  virtual UnicodeString getRuleSetDisplayName(const UnicodeString & ruleSetName,
-                          const Locale& locale = Locale::getDefault());
-
-
-  using NumberFormat::format;
-
-  /**
-   * Formats the specified 32-bit number using the default ruleset.
-   * @param number The number to format.
-   * @param toAppendTo the string that will hold the (appended) result
-   * @param pos the fieldposition
-   * @return A textual representation of the number.
-   * @stable ICU 2.0
-   */
-  virtual UnicodeString & format(int32_t number,
-                                UnicodeString & toAppendTo,
-                                FieldPosition& pos) const override;
-
-  /**
-   * Formats the specified 64-bit number using the default ruleset.
-   * @param number The number to format.
-   * @param toAppendTo the string that will hold the (appended) result
-   * @param pos the fieldposition
-   * @return A textual representation of the number.
-   * @stable ICU 2.1
-   */
-  virtual UnicodeString & format(int64_t number,
-                                UnicodeString & toAppendTo,
-                                FieldPosition& pos) const override;
-  /**
-   * Formats the specified number using the default ruleset.
-   * @param number The number to format.
-   * @param toAppendTo the string that will hold the (appended) result
-   * @param pos the fieldposition
-   * @return A textual representation of the number.
-   * @stable ICU 2.0
-   */
-  virtual UnicodeString & format(double number,
-                                UnicodeString & toAppendTo,
-                                FieldPosition& pos) const override;
-
-  /**
-   * Formats the specified number using the named ruleset.
-   * @param number The number to format.
-   * @param ruleSetName The name of the rule set to format the number with.
-   * This must be the name of a valid public rule set for this formatter.
-   * @param toAppendTo the string that will hold the (appended) result
-   * @param pos the fieldposition
-   * @param status the status
-   * @return A textual representation of the number.
-   * @stable ICU 2.0
-   */
-  virtual UnicodeString & format(int32_t number,
-                                const UnicodeString & ruleSetName,
-                                UnicodeString & toAppendTo,
-                                FieldPosition& pos,
-                                UErrorCode& status) const;
-  /**
-   * Formats the specified 64-bit number using the named ruleset.
-   * @param number The number to format.
-   * @param ruleSetName The name of the rule set to format the number with.
-   * This must be the name of a valid public rule set for this formatter.
-   * @param toAppendTo the string that will hold the (appended) result
-   * @param pos the fieldposition
-   * @param status the status
-   * @return A textual representation of the number.
-   * @stable ICU 2.1
-   */
-  virtual UnicodeString & format(int64_t number,
-                                const UnicodeString & ruleSetName,
-                                UnicodeString & toAppendTo,
-                                FieldPosition& pos,
-                                UErrorCode& status) const;
-  /**
-   * Formats the specified number using the named ruleset.
-   * @param number The number to format.
-   * @param ruleSetName The name of the rule set to format the number with.
-   * This must be the name of a valid public rule set for this formatter.
-   * @param toAppendTo the string that will hold the (appended) result
-   * @param pos the fieldposition
-   * @param status the status
-   * @return A textual representation of the number.
-   * @stable ICU 2.0
-   */
-  virtual UnicodeString & format(double number,
-                                const UnicodeString & ruleSetName,
-                                UnicodeString & toAppendTo,
-                                FieldPosition& pos,
-                                UErrorCode& status) const;
+	/**
+	 * Formats the specified number using the named ruleset.
+	 * @param number The number to format.
+	 * @param ruleSetName The name of the rule set to format the number with.
+	 * This must be the name of a valid public rule set for this formatter.
+	 * @param toAppendTo the string that will hold the (appended) result
+	 * @param pos the fieldposition
+	 * @param status the status
+	 * @return A textual representation of the number.
+	 * @stable ICU 2.0
+	 */
+	virtual UnicodeString & format(int32_t number,
+	    const UnicodeString & ruleSetName,
+	    UnicodeString & toAppendTo,
+	    FieldPosition& pos,
+	    UErrorCode& status) const;
+	/**
+	 * Formats the specified 64-bit number using the named ruleset.
+	 * @param number The number to format.
+	 * @param ruleSetName The name of the rule set to format the number with.
+	 * This must be the name of a valid public rule set for this formatter.
+	 * @param toAppendTo the string that will hold the (appended) result
+	 * @param pos the fieldposition
+	 * @param status the status
+	 * @return A textual representation of the number.
+	 * @stable ICU 2.1
+	 */
+	virtual UnicodeString & format(int64_t number,
+	    const UnicodeString & ruleSetName,
+	    UnicodeString & toAppendTo,
+	    FieldPosition& pos,
+	    UErrorCode& status) const;
+	/**
+	 * Formats the specified number using the named ruleset.
+	 * @param number The number to format.
+	 * @param ruleSetName The name of the rule set to format the number with.
+	 * This must be the name of a valid public rule set for this formatter.
+	 * @param toAppendTo the string that will hold the (appended) result
+	 * @param pos the fieldposition
+	 * @param status the status
+	 * @return A textual representation of the number.
+	 * @stable ICU 2.0
+	 */
+	virtual UnicodeString & format(double number,
+	    const UnicodeString & ruleSetName,
+	    UnicodeString & toAppendTo,
+	    FieldPosition& pos,
+	    UErrorCode& status) const;
 
 protected:
-    /**
-     * Format a decimal number.
-     * The number is a DigitList wrapper onto a floating point decimal number.
-     * The default implementation in NumberFormat converts the decimal number
-     * to a double and formats that.  Subclasses of NumberFormat that want
-     * to specifically handle big decimal numbers must override this method.
-     * class DecimalFormat does so.
-     *
-     * @param number    The number, a DigitList format Decimal Floating Point.
-     * @param appendTo  Output parameter to receive result.
-     *                  Result is appended to existing contents.
-     * @param pos       On input: an alignment field, if desired.
-     *                  On output: the offsets of the alignment field.
-     * @param status    Output param filled with success/failure status.
-     * @return          Reference to 'appendTo' parameter.
-     * @internal
-     */
-    virtual UnicodeString & format(const number::impl::DecimalQuantity &number,
-                                  UnicodeString & appendTo,
-                                  FieldPosition& pos,
-                                  UErrorCode& status) const override;
+	/**
+	 * Format a decimal number.
+	 * The number is a DigitList wrapper onto a floating point decimal number.
+	 * The default implementation in NumberFormat converts the decimal number
+	 * to a double and formats that.  Subclasses of NumberFormat that want
+	 * to specifically handle big decimal numbers must override this method.
+	 * class DecimalFormat does so.
+	 *
+	 * @param number    The number, a DigitList format Decimal Floating Point.
+	 * @param appendTo  Output parameter to receive result.
+	 *                  Result is appended to existing contents.
+	 * @param pos       On input: an alignment field, if desired.
+	 *                  On output: the offsets of the alignment field.
+	 * @param status    Output param filled with success/failure status.
+	 * @return          Reference to 'appendTo' parameter.
+	 * @internal
+	 */
+	virtual UnicodeString & format(const number::impl::DecimalQuantity &number,
+	    UnicodeString & appendTo,
+	    FieldPosition& pos,
+	    UErrorCode& status) const override;
 public:
 
-  using NumberFormat::parse;
+	using NumberFormat::parse;
 
-  /**
-   * Parses the specified string, beginning at the specified position, according
-   * to this formatter's rules.  This will match the string against all of the
-   * formatter's public rule sets and return the value corresponding to the longest
-   * parseable substring.  This function's behavior is affected by the lenient
-   * parse mode.
-   * @param text The string to parse
-   * @param result the result of the parse, either a double or a long.
-   * @param parsePosition On entry, contains the position of the first character
-   * in "text" to examine.  On exit, has been updated to contain the position
-   * of the first character in "text" that wasn't consumed by the parse.
-   * @see #setLenient
-   * @stable ICU 2.0
-   */
-  virtual void parse(const UnicodeString & text,
-                     Formattable& result,
-                     ParsePosition& parsePosition) const override;
+	/**
+	 * Parses the specified string, beginning at the specified position, according
+	 * to this formatter's rules.  This will match the string against all of the
+	 * formatter's public rule sets and return the value corresponding to the longest
+	 * parseable substring.  This function's behavior is affected by the lenient
+	 * parse mode.
+	 * @param text The string to parse
+	 * @param result the result of the parse, either a double or a long.
+	 * @param parsePosition On entry, contains the position of the first character
+	 * in "text" to examine.  On exit, has been updated to contain the position
+	 * of the first character in "text" that wasn't consumed by the parse.
+	 * @see #setLenient
+	 * @stable ICU 2.0
+	 */
+	virtual void parse(const UnicodeString & text,
+	    Formattable& result,
+	    ParsePosition& parsePosition) const override;
 
 #if !UCONFIG_NO_COLLATION
 
-  /**
-   * Turns lenient parse mode on and off.
-   *
-   * When in lenient parse mode, the formatter uses a Collator for parsing the text.
-   * Only primary differences are treated as significant.  This means that case
-   * differences, accent differences, alternate spellings of the same letter
-   * (e.g., ae and a-umlaut in German), ignorable characters, etc. are ignored in
-   * matching the text.  In many cases, numerals will be accepted in place of words
-   * or phrases as well.
-   *
-   * For example, all of the following will correctly parse as 255 in English in
-   * lenient-parse mode:
-   * <br>"two hundred fifty-five"
-   * <br>"two hundred fifty five"
-   * <br>"TWO HUNDRED FIFTY-FIVE"
-   * <br>"twohundredfiftyfive"
-   * <br>"2 hundred fifty-5"
-   *
-   * The Collator used is determined by the locale that was
-   * passed to this object on construction.  The description passed to this object
-   * on construction may supply additional collation rules that are appended to the
-   * end of the default collator for the locale, enabling additional equivalences
-   * (such as adding more ignorable characters or permitting spelled-out version of
-   * symbols; see the demo program for examples).
-   *
-   * It's important to emphasize that even strict parsing is relatively lenient: it
-   * will accept some text that it won't produce as output.  In English, for example,
-   * it will correctly parse "two hundred zero" and "fifteen hundred".
-   *
-   * @param enabled If true, turns lenient-parse mode on; if false, turns it off.
-   * @see RuleBasedCollator
-   * @stable ICU 2.0
-   */
-  virtual void setLenient(bool enabled) override;
+	/**
+	 * Turns lenient parse mode on and off.
+	 *
+	 * When in lenient parse mode, the formatter uses a Collator for parsing the text.
+	 * Only primary differences are treated as significant.  This means that case
+	 * differences, accent differences, alternate spellings of the same letter
+	 * (e.g., ae and a-umlaut in German), ignorable characters, etc. are ignored in
+	 * matching the text.  In many cases, numerals will be accepted in place of words
+	 * or phrases as well.
+	 *
+	 * For example, all of the following will correctly parse as 255 in English in
+	 * lenient-parse mode:
+	 * <br>"two hundred fifty-five"
+	 * <br>"two hundred fifty five"
+	 * <br>"TWO HUNDRED FIFTY-FIVE"
+	 * <br>"twohundredfiftyfive"
+	 * <br>"2 hundred fifty-5"
+	 *
+	 * The Collator used is determined by the locale that was
+	 * passed to this object on construction.  The description passed to this object
+	 * on construction may supply additional collation rules that are appended to the
+	 * end of the default collator for the locale, enabling additional equivalences
+	 * (such as adding more ignorable characters or permitting spelled-out version of
+	 * symbols; see the demo program for examples).
+	 *
+	 * It's important to emphasize that even strict parsing is relatively lenient: it
+	 * will accept some text that it won't produce as output.  In English, for example,
+	 * it will correctly parse "two hundred zero" and "fifteen hundred".
+	 *
+	 * @param enabled If true, turns lenient-parse mode on; if false, turns it off.
+	 * @see RuleBasedCollator
+	 * @stable ICU 2.0
+	 */
+	virtual void setLenient(bool enabled) override;
 
-  /**
-   * Returns true if lenient-parse mode is turned on.  Lenient parsing is off
-   * by default.
-   * @return true if lenient-parse mode is turned on.
-   * @see #setLenient
-   * @stable ICU 2.0
-   */
-  virtual inline bool isLenient(void) const override;
+	/**
+	 * Returns true if lenient-parse mode is turned on.  Lenient parsing is off
+	 * by default.
+	 * @return true if lenient-parse mode is turned on.
+	 * @see #setLenient
+	 * @stable ICU 2.0
+	 */
+	virtual inline bool isLenient(void) const override;
 
 #endif
 
-  /**
-   * Override the default rule set to use.  If ruleSetName is null, reset
-   * to the initial default rule set.  If the rule set is not a public rule set name,
-   * U_ILLEGAL_ARGUMENT_ERROR is returned in status.
-   * @param ruleSetName the name of the rule set, or null to reset the initial default.
-   * @param status set to failure code when a problem occurs.
-   * @stable ICU 2.6
-   */
-  virtual void setDefaultRuleSet(const UnicodeString & ruleSetName, UErrorCode& status);
+	/**
+	 * Override the default rule set to use.  If ruleSetName is null, reset
+	 * to the initial default rule set.  If the rule set is not a public rule set name,
+	 * U_ILLEGAL_ARGUMENT_ERROR is returned in status.
+	 * @param ruleSetName the name of the rule set, or null to reset the initial default.
+	 * @param status set to failure code when a problem occurs.
+	 * @stable ICU 2.6
+	 */
+	virtual void setDefaultRuleSet(const UnicodeString & ruleSetName, UErrorCode& status);
 
-  /**
-   * Return the name of the current default rule set.  If the current rule set is
-   * not public, returns a bogus (and empty) UnicodeString.
-   * @return the name of the current default rule set
-   * @stable ICU 3.0
-   */
-  virtual UnicodeString getDefaultRuleSetName() const;
+	/**
+	 * Return the name of the current default rule set.  If the current rule set is
+	 * not public, returns a bogus (and empty) UnicodeString.
+	 * @return the name of the current default rule set
+	 * @stable ICU 3.0
+	 */
+	virtual UnicodeString getDefaultRuleSetName() const;
 
-  /**
-   * Set a particular UDisplayContext value in the formatter, such as
-   * UDISPCTX_CAPITALIZATION_FOR_STANDALONE. Note: For getContext, see
-   * NumberFormat.
-   * @param value The UDisplayContext value to set.
-   * @param status Input/output status. If at entry this indicates a failure
-   *               status, the function will do nothing; otherwise this will be
-   *               updated with any new status from the function. 
-   * @stable ICU 53
-   */
-  virtual void setContext(UDisplayContext value, UErrorCode& status) override;
+	/**
+	 * Set a particular UDisplayContext value in the formatter, such as
+	 * UDISPCTX_CAPITALIZATION_FOR_STANDALONE. Note: For getContext, see
+	 * NumberFormat.
+	 * @param value The UDisplayContext value to set.
+	 * @param status Input/output status. If at entry this indicates a failure
+	 *               status, the function will do nothing; otherwise this will be
+	 *               updated with any new status from the function.
+	 * @stable ICU 53
+	 */
+	virtual void setContext(UDisplayContext value, UErrorCode& status) override;
 
-    /**
-     * Get the rounding mode.
-     * @return A rounding mode
-     * @stable ICU 60
-     */
-    virtual ERoundingMode getRoundingMode(void) const override;
+	/**
+	 * Get the rounding mode.
+	 * @return A rounding mode
+	 * @stable ICU 60
+	 */
+	virtual ERoundingMode getRoundingMode(void) const override;
 
-    /**
-     * Set the rounding mode.
-     * @param roundingMode A rounding mode
-     * @stable ICU 60
-     */
-    virtual void setRoundingMode(ERoundingMode roundingMode) override;
+	/**
+	 * Set the rounding mode.
+	 * @param roundingMode A rounding mode
+	 * @stable ICU 60
+	 */
+	virtual void setRoundingMode(ERoundingMode roundingMode) override;
 
 public:
-    /**
-     * ICU "poor man's RTTI", returns a UClassID for this class.
-     *
-     * @stable ICU 2.8
-     */
-    static UClassID U_EXPORT2 getStaticClassID(void);
+	/**
+	 * ICU "poor man's RTTI", returns a UClassID for this class.
+	 *
+	 * @stable ICU 2.8
+	 */
+	static UClassID U_EXPORT2 getStaticClassID(void);
 
-    /**
-     * ICU "poor man's RTTI", returns a UClassID for the actual class.
-     *
-     * @stable ICU 2.8
-     */
-    virtual UClassID getDynamicClassID(void) const override;
+	/**
+	 * ICU "poor man's RTTI", returns a UClassID for the actual class.
+	 *
+	 * @stable ICU 2.8
+	 */
+	virtual UClassID getDynamicClassID(void) const override;
 
-    /**
-     * Sets the decimal format symbols, which is generally not changed
-     * by the programmer or user. The formatter takes ownership of
-     * symbolsToAdopt; the client must not delete it.
-     *
-     * @param symbolsToAdopt DecimalFormatSymbols to be adopted.
-     * @stable ICU 49
-     */
-    virtual void adoptDecimalFormatSymbols(DecimalFormatSymbols* symbolsToAdopt);
+	/**
+	 * Sets the decimal format symbols, which is generally not changed
+	 * by the programmer or user. The formatter takes ownership of
+	 * symbolsToAdopt; the client must not delete it.
+	 *
+	 * @param symbolsToAdopt DecimalFormatSymbols to be adopted.
+	 * @stable ICU 49
+	 */
+	virtual void adoptDecimalFormatSymbols(DecimalFormatSymbols* symbolsToAdopt);
 
-    /**
-     * Sets the decimal format symbols, which is generally not changed
-     * by the programmer or user. A clone of the symbols is created and
-     * the symbols is _not_ adopted; the client is still responsible for
-     * deleting it.
-     *
-     * @param symbols DecimalFormatSymbols.
-     * @stable ICU 49
-     */
-    virtual void setDecimalFormatSymbols(const DecimalFormatSymbols& symbols);
-
-private:
-    RuleBasedNumberFormat(); // default constructor not implemented
-
-    // this will ref the localizations if they are not NULL
-    // caller must deref to get adoption
-    RuleBasedNumberFormat(const UnicodeString & description, LocalizationInfo* localizations,
-              const Locale& locale, UParseError& perror, UErrorCode& status);
-
-    void init(const UnicodeString & rules, LocalizationInfo* localizations, UParseError& perror, UErrorCode& status);
-    void initCapitalizationContextInfo(const Locale& thelocale);
-    void dispose();
-    void stripWhitespace(UnicodeString & src);
-    void initDefaultRuleSet();
-    NFRuleSet* findRuleSet(const UnicodeString & name, UErrorCode& status) const;
-
-    /* friend access */
-    friend class NFSubstitution;
-    friend class NFRule;
-    friend class NFRuleSet;
-    friend class FractionalPartSubstitution;
-
-    inline NFRuleSet * getDefaultRuleSet() const;
-    const RuleBasedCollator * getCollator() const;
-    DecimalFormatSymbols * initializeDecimalFormatSymbols(UErrorCode &status);
-    const DecimalFormatSymbols * getDecimalFormatSymbols() const;
-    NFRule * initializeDefaultInfinityRule(UErrorCode &status);
-    const NFRule * getDefaultInfinityRule() const;
-    NFRule * initializeDefaultNaNRule(UErrorCode &status);
-    const NFRule * getDefaultNaNRule() const;
-    PluralFormat *createPluralFormat(UPluralType pluralType, const UnicodeString &pattern, UErrorCode& status) const;
-    UnicodeString & adjustForCapitalizationContext(int32_t startPos, UnicodeString & currentResult, UErrorCode& status) const;
-    UnicodeString & format(int64_t number, NFRuleSet *ruleSet, UnicodeString & toAppendTo, UErrorCode& status) const;
-    void format(double number, NFRuleSet& rs, UnicodeString & toAppendTo, UErrorCode& status) const;
+	/**
+	 * Sets the decimal format symbols, which is generally not changed
+	 * by the programmer or user. A clone of the symbols is created and
+	 * the symbols is _not_ adopted; the client is still responsible for
+	 * deleting it.
+	 *
+	 * @param symbols DecimalFormatSymbols.
+	 * @stable ICU 49
+	 */
+	virtual void setDecimalFormatSymbols(const DecimalFormatSymbols& symbols);
 
 private:
-    NFRuleSet **fRuleSets;
-    UnicodeString * ruleSetDescriptions;
-    int32_t numRuleSets;
-    NFRuleSet *defaultRuleSet;
-    Locale locale;
-    RuleBasedCollator* collator;
-    DecimalFormatSymbols* decimalFormatSymbols;
-    NFRule *defaultInfinityRule;
-    NFRule *defaultNaNRule;
-    ERoundingMode fRoundingMode;
-    bool lenient;
-    UnicodeString * lenientParseRules;
-    LocalizationInfo* localizations;
-    UnicodeString originalDescription;
-    bool capitalizationInfoSet;
-    bool capitalizationForUIListMenu;
-    bool capitalizationForStandAlone;
-    BreakIterator* capitalizationBrkIter;
+	RuleBasedNumberFormat(); // default constructor not implemented
+
+	// this will ref the localizations if they are not NULL
+	// caller must deref to get adoption
+	RuleBasedNumberFormat(const UnicodeString & description, LocalizationInfo* localizations,
+	    const Locale& locale, UParseError& perror, UErrorCode& status);
+
+	void init(const UnicodeString & rules, LocalizationInfo* localizations, UParseError& perror, UErrorCode& status);
+	void initCapitalizationContextInfo(const Locale& thelocale);
+	void dispose();
+	void stripWhitespace(UnicodeString & src);
+	void initDefaultRuleSet();
+	NFRuleSet* findRuleSet(const UnicodeString & name, UErrorCode& status) const;
+
+	/* friend access */
+	friend class NFSubstitution;
+	friend class NFRule;
+	friend class NFRuleSet;
+	friend class FractionalPartSubstitution;
+
+	inline NFRuleSet * getDefaultRuleSet() const;
+	const RuleBasedCollator * getCollator() const;
+	DecimalFormatSymbols * initializeDecimalFormatSymbols(UErrorCode &status);
+	const DecimalFormatSymbols * getDecimalFormatSymbols() const;
+	NFRule * initializeDefaultInfinityRule(UErrorCode &status);
+	const NFRule * getDefaultInfinityRule() const;
+	NFRule * initializeDefaultNaNRule(UErrorCode &status);
+	const NFRule * getDefaultNaNRule() const;
+	PluralFormat * createPluralFormat(UPluralType pluralType, const UnicodeString &pattern, UErrorCode& status) const;
+	UnicodeString & adjustForCapitalizationContext(int32_t startPos, UnicodeString & currentResult, UErrorCode& status) const;
+	UnicodeString & format(int64_t number, NFRuleSet * ruleSet, UnicodeString & toAppendTo, UErrorCode& status) const;
+	void format(double number, NFRuleSet& rs, UnicodeString & toAppendTo, UErrorCode& status) const;
+
+private:
+	NFRuleSet ** fRuleSets;
+	UnicodeString * ruleSetDescriptions;
+	int32_t numRuleSets;
+	NFRuleSet * defaultRuleSet;
+	Locale locale;
+	RuleBasedCollator* collator;
+	DecimalFormatSymbols* decimalFormatSymbols;
+	NFRule * defaultInfinityRule;
+	NFRule * defaultNaNRule;
+	ERoundingMode fRoundingMode;
+	bool lenient;
+	UnicodeString * lenientParseRules;
+	LocalizationInfo* localizations;
+	UnicodeString originalDescription;
+	bool capitalizationInfoSet;
+	bool capitalizationForUIListMenu;
+	bool capitalizationForStandAlone;
+	BreakIterator* capitalizationBrkIter;
 };
 
-// ---------------
-
 #if !UCONFIG_NO_COLLATION
-
-inline bool
-RuleBasedNumberFormat::isLenient(void) const {
-    return lenient;
-}
-
+	inline bool RuleBasedNumberFormat::isLenient(void) const { return lenient; }
 #endif
 
-inline NFRuleSet*
-RuleBasedNumberFormat::getDefaultRuleSet() const {
-    return defaultRuleSet;
-}
+inline NFRuleSet* RuleBasedNumberFormat::getDefaultRuleSet() const { return defaultRuleSet; }
 
 U_NAMESPACE_END
 

@@ -34,24 +34,16 @@
 #define PT_BITLEN_SIZE          (3 + 16)
 
 struct lzh_dec {
-	/* Decoding status. */
-	int state;
+	int state; /* Decoding status. */
 	/*
-	 * Window to see last 8Ki(lh5),32Ki(lh6),64Ki(lh7) bytes of decoded
-	 * data.
+	 * Window to see last 8Ki(lh5),32Ki(lh6),64Ki(lh7) bytes of decoded data.
 	 */
 	int w_size;
 	int w_mask;
-	/* Window buffer, which is a loop buffer. */
-	uchar * w_buff;
-	/* The insert position to the window. */
-	int w_pos;
-	/* The position where we can copy decoded code from the window. */
-	int copy_pos;
-	/* The length how many bytes we can copy decoded code from
-	 * the window. */
-	int copy_len;
-
+	uchar * w_buff; /* Window buffer, which is a loop buffer. */
+	int w_pos; /* The insert position to the window. */
+	int copy_pos; /* The position where we can copy decoded code from the window. */
+	int copy_len; /* The length how many bytes we can copy decoded code from the window. */
 	/*
 	 * Bit stream reader.
 	 */
@@ -63,7 +55,6 @@ struct lzh_dec {
 		/* Indicates how many bits avail in cache_buffer. */
 		int cache_avail;
 	} br;
-
 	/*
 	 * Huffman coding.
 	 */
@@ -73,7 +64,6 @@ struct lzh_dec {
 		int len_bits;
 		int freq[17];
 		uchar   * bitlen;
-
 		/*
 		 * Use a index table. It's faster than searching a huffman
 		 * coding tree, which is a binary tree. But a use of a large
@@ -120,7 +110,6 @@ struct lha {
 	int64 entry_bytes_remaining;
 	int64 entry_unconsumed;
 	uint16 entry_crc_calculated;
-
 	size_t header_size; /* header size		    */
 	uchar level;                    /* header level		    */
 	char method[3];                         /* compress type	    */
@@ -140,34 +129,25 @@ struct lha {
 	mode_t mode;
 	int64 uid;
 	int64 gid;
-	struct archive_string uname;
-	struct archive_string gname;
+	archive_string uname;
+	archive_string gname;
 	uint16 header_crc;
 	uint16 crc;
 	/* dirname and filename could be in different codepages */
-	struct archive_string_conv * sconv_dir;
-	struct archive_string_conv * sconv_fname;
-	struct archive_string_conv * opt_sconv;
-
-	struct archive_string dirname;
-	struct archive_string filename;
-	struct archive_wstring ws;
-
+	archive_string_conv * sconv_dir;
+	archive_string_conv * sconv_fname;
+	archive_string_conv * opt_sconv;
+	archive_string dirname;
+	archive_string filename;
+	archive_wstring ws;
 	uchar dos_attr;
-
-	/* Flag to mark progress that an archive was read their first header.*/
-	char found_first_header;
-	/* Flag to mark that indicates an empty directory. */
-	char directory;
-
-	/* Flags to mark progress of decompression. */
-	char decompress_init;
+	char found_first_header; /* Flag to mark progress that an archive was read their first header.*/
+	char directory; /* Flag to mark that indicates an empty directory. */
+	char decompress_init; /* Flags to mark progress of decompression. */
 	char end_of_entry;
 	char end_of_entry_cleanup;
 	char entry_is_compressed;
-
 	char format_name[64];
-
 	struct lzh_stream strm;
 };
 
@@ -179,36 +159,26 @@ struct lha {
 #define H_LEVEL_OFFSET  20      /* Header Level.  */
 #define H_SIZE          22      /* Minimum header size. */
 
-static int archive_read_format_lha_bid(struct archive_read *, int);
-static int archive_read_format_lha_options(struct archive_read *,
-    const char *, const char *);
-static int archive_read_format_lha_read_header(struct archive_read *,
-    struct archive_entry *);
-static int archive_read_format_lha_read_data(struct archive_read *,
-    const void **, size_t *, int64 *);
-static int archive_read_format_lha_read_data_skip(struct archive_read *);
-static int archive_read_format_lha_cleanup(struct archive_read *);
-
-static void     lha_replace_path_separator(struct lha *,
-    struct archive_entry *);
-static int lha_read_file_header_0(struct archive_read *, struct lha *);
-static int lha_read_file_header_1(struct archive_read *, struct lha *);
-static int lha_read_file_header_2(struct archive_read *, struct lha *);
-static int lha_read_file_header_3(struct archive_read *, struct lha *);
-static int lha_read_file_extended_header(struct archive_read *,
-    struct lha *, uint16 *, int, size_t, size_t *);
+static int archive_read_format_lha_bid(ArchiveRead *, int);
+static int archive_read_format_lha_options(ArchiveRead *, const char *, const char *);
+static int archive_read_format_lha_read_header(ArchiveRead *, ArchiveEntry *);
+static int archive_read_format_lha_read_data(ArchiveRead *, const void **, size_t *, int64 *);
+static int archive_read_format_lha_read_data_skip(ArchiveRead *);
+static int archive_read_format_lha_cleanup(ArchiveRead *);
+static void     lha_replace_path_separator(struct lha *, ArchiveEntry *);
+static int lha_read_file_header_0(ArchiveRead *, struct lha *);
+static int lha_read_file_header_1(ArchiveRead *, struct lha *);
+static int lha_read_file_header_2(ArchiveRead *, struct lha *);
+static int lha_read_file_header_3(ArchiveRead *, struct lha *);
+static int lha_read_file_extended_header(ArchiveRead *, struct lha *, uint16 *, int, size_t, size_t *);
 static size_t   lha_check_header_format(const void *);
-static int lha_skip_sfx(struct archive_read *);
+static int lha_skip_sfx(ArchiveRead *);
 static time_t   lha_dos_time(const uchar *);
 static time_t   lha_win_time(uint64, long *);
-static uchar    lha_calcsum(uchar, const void *,
-    int, size_t);
-static int lha_parse_linkname(struct archive_wstring *,
-    struct archive_wstring *);
-static int lha_read_data_none(struct archive_read *, const void **,
-    size_t *, int64 *);
-static int lha_read_data_lzh(struct archive_read *, const void **,
-    size_t *, int64 *);
+static uchar    lha_calcsum(uchar, const void *, int, size_t);
+static int lha_parse_linkname(archive_wstring *, archive_wstring *);
+static int lha_read_data_none(ArchiveRead *, const void **, size_t *, int64 *);
+static int lha_read_data_lzh(ArchiveRead *, const void **, size_t *, int64 *);
 static void     lha_crc16_init(void);
 static uint16 lha_crc16(uint16, const void *, size_t);
 static int lzh_decode_init(struct lzh_stream *, const char *);
@@ -223,9 +193,9 @@ static int lzh_make_huffman_table(struct lzh_dec::huffman *);
 static inline int lzh_decode_huffman(struct lzh_dec::huffman *, unsigned);
 static int lzh_decode_huffman_tree(struct lzh_dec::huffman *, unsigned, int);
 
-int archive_read_support_format_lha(struct archive * _a)
+int archive_read_support_format_lha(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	struct lha * lha;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -304,7 +274,7 @@ static size_t lha_check_header_format(const void * h)
 	return (next_skip_bytes);
 }
 
-static int archive_read_format_lha_bid(struct archive_read * a, int best_bid)
+static int archive_read_format_lha_bid(ArchiveRead * a, int best_bid)
 {
 	const char * p;
 	const void * buff;
@@ -344,12 +314,12 @@ static int archive_read_format_lha_bid(struct archive_read * a, int best_bid)
 	return 0;
 }
 
-static int archive_read_format_lha_options(struct archive_read * a, const char * key, const char * val)
+static int archive_read_format_lha_options(ArchiveRead * a, const char * key, const char * val)
 {
 	int ret = ARCHIVE_FAILED;
 	struct lha * lha = (struct lha *)(a->format->data);
 	if(sstreq(key, "hdrcharset")) {
-		if(val == NULL || val[0] == 0)
+		if(isempty(val))
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "lha: hdrcharset option needs a character-set name");
 		else {
 			lha->opt_sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
@@ -367,7 +337,7 @@ static int archive_read_format_lha_options(struct archive_read * a, const char *
 	return ARCHIVE_WARN;
 }
 
-static int lha_skip_sfx(struct archive_read * a)
+static int lha_skip_sfx(ArchiveRead * a)
 {
 	const void * h;
 	const char * p, * q;
@@ -408,24 +378,22 @@ fatal:
 	return ARCHIVE_FATAL;
 }
 
-static int truncated_error(struct archive_read * a)
+static int truncated_error(ArchiveRead * a)
 {
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated LHa header");
 	return ARCHIVE_FATAL;
 }
 
-static int archive_read_format_lha_read_header(struct archive_read * a,
-    struct archive_entry * entry)
+static int archive_read_format_lha_read_header(ArchiveRead * a, ArchiveEntry * entry)
 {
-	struct archive_wstring linkname;
-	struct archive_wstring pathname;
+	archive_wstring linkname;
+	archive_wstring pathname;
 	struct lha * lha;
 	const uchar * p;
 	const char * signature;
 	int err;
 	struct archive_mstring conv_buffer;
 	const wchar_t * conv_buffer_p;
-
 	lha_crc16_init();
 	a->archive.archive_format = ARCHIVE_FORMAT_LHA;
 	if(a->archive.archive_format_name == NULL)
@@ -619,10 +587,8 @@ static int archive_read_format_lha_read_header(struct archive_read * a,
 	if(archive_strlen(&lha->gname) > 0)
 		archive_entry_set_gname(entry, lha->gname.s);
 	if(lha->setflag & BIRTHTIME_IS_SET) {
-		archive_entry_set_birthtime(entry, lha->birthtime,
-		    lha->birthtime_tv_nsec);
-		archive_entry_set_ctime(entry, lha->birthtime,
-		    lha->birthtime_tv_nsec);
+		archive_entry_set_birthtime(entry, lha->birthtime, lha->birthtime_tv_nsec);
+		archive_entry_set_ctime(entry, lha->birthtime, lha->birthtime_tv_nsec);
 	}
 	else {
 		archive_entry_unset_birthtime(entry);
@@ -660,7 +626,7 @@ static int archive_read_format_lha_read_header(struct archive_read * a,
  * Replace a DOS path separator '\' by a character '/'.
  * Some multi-byte character set have  a character '\' in its second byte.
  */
-static void lha_replace_path_separator(struct lha * lha, struct archive_entry * entry)
+static void lha_replace_path_separator(struct lha * lha, ArchiveEntry * entry)
 {
 	const wchar_t * wp;
 	size_t i;
@@ -715,7 +681,7 @@ static void lha_replace_path_separator(struct lha * lha, struct archive_entry * 
 #define H0_NAME_LEN_OFFSET      21
 #define H0_FILE_NAME_OFFSET     22
 #define H0_FIXED_SIZE           24
-static int lha_read_file_header_0(struct archive_read * a, struct lha * lha)
+static int lha_read_file_header_0(ArchiveRead * a, struct lha * lha)
 {
 	const uchar * p;
 	int extdsize, namelen;
@@ -801,7 +767,7 @@ static int lha_read_file_header_0(struct archive_read * a, struct lha * lha)
 #define H1_NAME_LEN_OFFSET      21
 #define H1_FILE_NAME_OFFSET     22
 #define H1_FIXED_SIZE           27
-static int lha_read_file_header_1(struct archive_read * a, struct lha * lha)
+static int lha_read_file_header_1(ArchiveRead * a, struct lha * lha)
 {
 	const uchar * p;
 	size_t extdsize;
@@ -888,7 +854,7 @@ invalid:
 #define H2_TIME_OFFSET          15
 #define H2_CRC_OFFSET           21
 #define H2_FIXED_SIZE           24
-static int lha_read_file_header_2(struct archive_read * a, struct lha * lha)
+static int lha_read_file_header_2(ArchiveRead * a, struct lha * lha)
 {
 	const uchar * p;
 	size_t extdsize;
@@ -958,7 +924,7 @@ static int lha_read_file_header_2(struct archive_read * a, struct lha * lha)
 #define H3_CRC_OFFSET           21
 #define H3_HEADER_SIZE_OFFSET   24
 #define H3_FIXED_SIZE           28
-static int lha_read_file_header_3(struct archive_read * a, struct lha * lha)
+static int lha_read_file_header_3(ArchiveRead * a, struct lha * lha)
 {
 	const uchar * p;
 	size_t extdsize;
@@ -1010,7 +976,7 @@ invalid:
  * headers.
  *
  */
-static int lha_read_file_extended_header(struct archive_read * a, struct lha * lha,
+static int lha_read_file_extended_header(ArchiveRead * a, struct lha * lha,
     uint16 * crc, int sizefield_length, size_t limitsize, size_t * total_size)
 {
 	const void * h;
@@ -1215,7 +1181,7 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 			     * This overwrites the charset specified by
 			     * hdrcharset option. */
 			    if(datasize == sizeof(uint32)) {
-				    struct archive_string cp;
+				    archive_string cp;
 				    const char * charset;
 
 				    archive_string_init(&cp);
@@ -1288,7 +1254,7 @@ static int lha_read_file_extended_header(struct archive_read * a, struct lha * l
 					| BIRTHTIME_IS_SET | ATIME_IS_SET;
 			    }
 			    break;
-			case EXT_TIMEZONE:      /* Not supported */
+			case EXT_TIMEZONE: // Not supported
 			    break;
 			default:
 			    break;
@@ -1301,7 +1267,7 @@ invalid:
 	return ARCHIVE_FATAL;
 }
 
-static int lha_end_of_entry(struct archive_read * a)
+static int lha_end_of_entry(ArchiveRead * a)
 {
 	struct lha * lha = (struct lha *)(a->format->data);
 	int r = ARCHIVE_EOF;
@@ -1319,7 +1285,7 @@ static int lha_end_of_entry(struct archive_read * a)
 	return r;
 }
 
-static int archive_read_format_lha_read_data(struct archive_read * a,
+static int archive_read_format_lha_read_data(ArchiveRead * a,
     const void ** buff, size_t * size, int64 * offset)
 {
 	struct lha * lha = (struct lha *)(a->format->data);
@@ -1351,7 +1317,7 @@ static int archive_read_format_lha_read_data(struct archive_read * a,
  * Returns ARCHIVE_OK if successful, ARCHIVE_FATAL otherwise, sets
  * lha->end_of_entry if it consumes all of the data.
  */
-static int lha_read_data_none(struct archive_read * a, const void ** buff,
+static int lha_read_data_none(ArchiveRead * a, const void ** buff,
     size_t * size, int64 * offset)
 {
 	struct lha * lha = (struct lha *)(a->format->data);
@@ -1396,13 +1362,11 @@ static int lha_read_data_none(struct archive_read * a, const void ** buff,
  * unsupported, ARCHIVE_FATAL otherwise, sets lha->end_of_entry if it consumes
  * all of the data.
  */
-static int lha_read_data_lzh(struct archive_read * a, const void ** buff,
-    size_t * size, int64 * offset)
+static int lha_read_data_lzh(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct lha * lha = (struct lha *)(a->format->data);
 	ssize_t bytes_avail;
 	int r;
-
 	/* If we haven't yet read any data, initialize the decompressor. */
 	if(!lha->decompress_init) {
 		r = lzh_decode_init(&(lha->strm), lha->method);
@@ -1459,7 +1423,6 @@ static int lha_read_data_lzh(struct archive_read * a, const void ** buff,
 	}
 	lha->entry_unconsumed = lha->strm.total_in;
 	lha->entry_bytes_remaining -= lha->strm.total_in;
-
 	if(lha->strm.avail_out) {
 		*offset = lha->entry_offset;
 		*size = lha->strm.avail_out;
@@ -1477,44 +1440,35 @@ static int lha_read_data_lzh(struct archive_read * a, const void ** buff,
 	}
 	return ARCHIVE_OK;
 }
-
 /*
  * Skip a file content.
  */
-static int archive_read_format_lha_read_data_skip(struct archive_read * a)
+static int archive_read_format_lha_read_data_skip(ArchiveRead * a)
 {
-	struct lha * lha;
 	int64 bytes_skipped;
-
-	lha = (struct lha *)(a->format->data);
-
+	struct lha * lha = (struct lha *)(a->format->data);
 	if(lha->entry_unconsumed) {
-		/* Consume as much as the decompressor actually used. */
+		// Consume as much as the decompressor actually used
 		__archive_read_consume(a, lha->entry_unconsumed);
 		lha->entry_unconsumed = 0;
 	}
-
-	/* if we've already read to end of data, we're done. */
+	// if we've already read to end of data, we're done
 	if(lha->end_of_entry_cleanup)
 		return ARCHIVE_OK;
-
-	/*
-	 * If the length is at the beginning, we can skip the
-	 * compressed data much more quickly.
-	 */
+	//
+	// If the length is at the beginning, we can skip the compressed data much more quickly.
+	//
 	bytes_skipped = __archive_read_consume(a, lha->entry_bytes_remaining);
 	if(bytes_skipped < 0)
 		return ARCHIVE_FATAL;
-
 	/* This entry is finished and done. */
 	lha->end_of_entry_cleanup = lha->end_of_entry = 1;
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_lha_cleanup(struct archive_read * a)
+static int archive_read_format_lha_cleanup(ArchiveRead * a)
 {
 	struct lha * lha = (struct lha *)(a->format->data);
-
 	lzh_decode_free(&(lha->strm));
 	archive_string_free(&(lha->dirname));
 	archive_string_free(&(lha->filename));
@@ -1525,7 +1479,6 @@ static int archive_read_format_lha_cleanup(struct archive_read * a)
 	(a->format->data) = NULL;
 	return ARCHIVE_OK;
 }
-
 /*
  * 'LHa for UNIX' utility has archived a symbolic-link name after
  * a pathname with '|' character.
@@ -1536,20 +1489,15 @@ static int archive_read_format_lha_cleanup(struct archive_read * a)
  *   2. a filename is 'xxx/bbb'
  *  then a archived pathname is 'xxx/bbb|aaa/bb/cc'
  */
-static int lha_parse_linkname(struct archive_wstring * linkname,
-    struct archive_wstring * pathname)
+static int lha_parse_linkname(archive_wstring * linkname, archive_wstring * pathname)
 {
-	wchar_t * linkptr;
 	size_t symlen;
-
-	linkptr = wcschr(pathname->s, L'|');
+	wchar_t * linkptr = wcschr(pathname->s, L'|');
 	if(linkptr != NULL) {
 		symlen = wcslen(linkptr + 1);
 		archive_wstrncpy(linkname, linkptr+1, symlen);
-
 		*linkptr = 0;
 		pathname->length = wcslen(pathname->s);
-
 		return 1;
 	}
 	return 0;
@@ -1576,7 +1524,6 @@ static time_t lha_dos_time(const uchar * p)
 static time_t lha_win_time(uint64 wintime, long * ns)
 {
 #define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
-
 	if(wintime >= EPOC_TIME) {
 		wintime -= EPOC_TIME; // 1970-01-01 00:00:00 (UTC) 
 		ASSIGN_PTR(ns, static_cast<long>((wintime % 10000000) * 100));
@@ -1625,7 +1572,7 @@ static uint16 lha_crc16(uint16 crc, const void * pp, size_t len)
 		uint32 i;
 		char c[4];
 	} u = { 0x01020304 };
-	if(len == 0)
+	if(!len)
 		return crc;
 	/* Process unaligned address. */
 	if(((uintptr_t)p) & (uintptr_t)0x1) {
@@ -1706,7 +1653,7 @@ static int lzh_decode_init(struct lzh_stream * strm, const char * method)
 		    w_bits = 16; /* 64KiB for window */
 		    break;
 		default:
-		    return ARCHIVE_FAILED; /* Not supported. */
+		    return ARCHIVE_FAILED; // Not supported
 	}
 	ds->error = ARCHIVE_FATAL;
 	/* Expand a window size up to 128 KiB for decompressing process

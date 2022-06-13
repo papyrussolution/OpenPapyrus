@@ -216,7 +216,7 @@ U_CAPI const UChar * U_EXPORT2 utrans_getUnicodeID(const UTransliterator * trans
     int32_t * resultLength) {
 	// Transliterator keeps its ID NUL-terminated
 	const UnicodeString & ID = ((Transliterator*)trans)->getID();
-	if(resultLength!=NULL) {
+	if(resultLength != NULL) {
 		*resultLength = ID.length();
 	}
 	return ID.getBuffer();
@@ -305,14 +305,14 @@ static const UChar * U_CALLCONV utrans_enum_unext(UEnumeration * uenum,
 	if(index<ute->count) {
 		const UnicodeString & ID = Transliterator::getAvailableID(index);
 		ute->index = index+1;
-		if(resultLength!=NULL) {
+		if(resultLength != NULL) {
 			*resultLength = ID.length();
 		}
 		// Transliterator keeps its ID NUL-terminated
 		return ID.getBuffer();
 	}
 
-	if(resultLength!=NULL) {
+	if(resultLength != NULL) {
 		*resultLength = 0;
 	}
 	return NULL;

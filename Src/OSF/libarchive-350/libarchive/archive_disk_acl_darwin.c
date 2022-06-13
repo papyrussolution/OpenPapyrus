@@ -73,7 +73,7 @@ static const acl_perm_map_t acl_nfs4_flag_map[] = {
 
 static const int acl_nfs4_flag_map_size = (int)(SIZEOFARRAY(acl_nfs4_flag_map));
 
-static int translate_guid(struct archive * a, acl_entry_t acl_entry, int * ae_id, int * ae_tag, const char ** ae_name)
+static int translate_guid(Archive * a, acl_entry_t acl_entry, int * ae_id, int * ae_tag, const char ** ae_name)
 {
 	void * q;
 	uid_t ugid;
@@ -103,7 +103,7 @@ static int translate_guid(struct archive * a, acl_entry_t acl_entry, int * ae_id
 	return r;
 }
 
-static void add_trivial_nfs4_acl(struct archive_entry * entry)
+static void add_trivial_nfs4_acl(ArchiveEntry * entry)
 {
 	mode_t mode;
 	int i;
@@ -185,7 +185,7 @@ static void add_trivial_nfs4_acl(struct archive_entry * entry)
 	return;
 }
 
-static int translate_acl(struct archive_read_disk * a, struct archive_entry * entry, acl_t acl)
+static int translate_acl(struct archive_read_disk * a, ArchiveEntry * entry, acl_t acl)
 {
 	acl_tag_t acl_tag;
 	acl_flagset_t acl_flagset;
@@ -286,8 +286,8 @@ static int translate_acl(struct archive_read_disk * a, struct archive_entry * en
 	return ARCHIVE_OK;
 }
 
-static int set_acl(struct archive * a, int fd, const char * name,
-    struct archive_acl * abstract_acl,
+static int set_acl(Archive * a, int fd, const char * name,
+    archive_acl * abstract_acl,
     int ae_requested_type, const char * tname)
 {
 	acl_t acl;
@@ -447,7 +447,7 @@ exit_free:
 	return ret;
 }
 
-int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
+int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
 	acl_t acl;
 	int r;
@@ -485,7 +485,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct arch
 	return ARCHIVE_OK;
 }
 
-int archive_write_disk_set_acls(struct archive * a, int fd, const char * name, struct archive_acl * abstract_acl, __LA_MODE_T mode)
+int archive_write_disk_set_acls(Archive * a, int fd, const char * name, archive_acl * abstract_acl, __LA_MODE_T mode)
 {
 	int ret = ARCHIVE_OK;
 	CXX_UNUSED(mode);

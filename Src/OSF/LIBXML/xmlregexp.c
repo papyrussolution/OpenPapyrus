@@ -4506,10 +4506,8 @@ static void xmlFAParsePosCharGroup(xmlRegParserCtxt * ctxt)
 		else {
 			xmlFAParseCharRange(ctxt);
 		}
-	} while((CUR != ']') && (CUR != '^') && (CUR != '-') &&
-	    (CUR != 0) && (ctxt->error == 0));
+	} while((CUR != ']') && (CUR != '^') && (CUR != '-') && (CUR != 0) && (ctxt->error == 0));
 }
-
 /**
  * xmlFAParseCharGroup:
  * @ctxt:  a regexp parser context

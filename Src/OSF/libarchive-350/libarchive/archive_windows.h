@@ -236,11 +236,13 @@ extern ssize_t	 __la_write(int fd, const void *buf, size_t nbytes);
 #define WIFEXITED(sts)		((sts & 0x100) == 0)
 #define WEXITSTATUS(sts)	(sts & 0x0FF)
 
+struct ArchiveEntry;
+
 extern wchar_t *__la_win_permissive_name(const char *name);
 extern wchar_t *__la_win_permissive_name_w(const wchar_t *wname);
 extern void __la_dosmaperr(ulong e);
 #define la_dosmaperr(e) __la_dosmaperr(e)
-extern struct archive_entry *__la_win_entry_in_posix_pathseparator(struct archive_entry *);
+extern ArchiveEntry * __la_win_entry_in_posix_pathseparator(ArchiveEntry *);
 
 #if defined(HAVE_WCRTOMB) && defined(__BORLANDC__)
 	typedef int mbstate_t;

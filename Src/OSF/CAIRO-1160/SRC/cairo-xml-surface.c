@@ -261,7 +261,7 @@ static void CAIRO_PRINTF_FORMAT(2, 3) _cairo_xml_printf_start(cairo_xml_t *xml, 
 	int len = MIN(xml->indent, ARRAY_LENGTH(indent));
 	memset(indent, ' ', len);
 	_cairo_output_stream_write(xml->stream, indent, len);
-	if(fmt != NULL) {
+	if(fmt) {
 		va_list ap;
 		va_start(ap, fmt);
 		_cairo_output_stream_vprintf(xml->stream, fmt, ap);
@@ -280,7 +280,7 @@ static void CAIRO_PRINTF_FORMAT(2, 3) _cairo_xml_printf_continue(cairo_xml_t *xm
 static void CAIRO_PRINTF_FORMAT(2, 3)
 _cairo_xml_printf_end(cairo_xml_t *xml, const char * fmt, ...)
 {
-	if(fmt != NULL) {
+	if(fmt) {
 		va_list ap;
 		va_start(ap, fmt);
 		_cairo_output_stream_vprintf(xml->stream, fmt, ap);

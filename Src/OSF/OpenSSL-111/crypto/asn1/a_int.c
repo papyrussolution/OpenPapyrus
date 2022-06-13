@@ -215,7 +215,7 @@ static int asn1_get_uint64(uint64_t * pr, const uchar * b, size_t blen)
 		ASN1err(ASN1_F_ASN1_GET_UINT64, ASN1_R_TOO_LARGE);
 		return 0;
 	}
-	if(b == NULL)
+	if(!b)
 		return 0;
 	for(r = 0, i = 0; i < blen; i++) {
 		r <<= 8;

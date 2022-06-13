@@ -24,8 +24,8 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 	SECURITY_ATTRIBUTES secAtts;
 	STARTUPINFOA staInfo;
 	PROCESS_INFORMATION childInfo;
-	struct archive_string cmdline;
-	struct archive_string fullpath;
+	archive_string cmdline;
+	archive_string fullpath;
 	struct archive_cmdline * acmd;
 	char * arg0;
 	const char * ext;
@@ -49,13 +49,10 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 	 * parameter, but I do not like that way.
 	 */
 	ext = strrchr(acmd->path, '.');
-	if(ext == NULL || strlen(ext) > 4)
-		/* 'path' does not have a proper extension, so we have to
-		 * give SearchPath() ".exe" as the extension. */
-		ext = ".exe";
+	if(!ext || strlen(ext) > 4)
+		ext = ".exe"; // 'path' does not have a proper extension, so we have to give SearchPath() ".exe" as the extension
 	else
 		ext = NULL; /* 'path' has an extension. */
-
 	fl = MAX_PATH;
 	do {
 		if(archive_string_ensure(&fullpath, fl) == NULL)

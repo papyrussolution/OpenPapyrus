@@ -20,11 +20,9 @@
 //#if U_HAVE_WCHAR_H
 //#include <wchar.h>
 //#endif
-
-/*===========================================================================*/
-/* Wide-character functions     */
-/*===========================================================================*/
-
+// 
+// Wide-character functions
+// 
 /* The following are not available on all systems, defined in wchar.h or string.h. */
 #if U_HAVE_WCSCPY
 #define uprv_wcscpy wcscpy

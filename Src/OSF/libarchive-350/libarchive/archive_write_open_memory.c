@@ -22,15 +22,15 @@ struct write_memory_data {
 	uchar * buff;
 };
 
-static int memory_write_free(struct archive *, void *);
-static int memory_write_open(struct archive *, void *);
-static ssize_t  memory_write(struct archive *, void *, const void * buff, size_t);
+static int memory_write_free(Archive *, void *);
+static int memory_write_open(Archive *, void *);
+static ssize_t  memory_write(Archive *, void *, const void * buff, size_t);
 /*
  * Client provides a pointer to a block of memory to receive
  * the data.  The 'size' param both tells us the size of the
  * client buffer and lets us tell the client the final size.
  */
-int archive_write_open_memory(struct archive * a, void * buff, size_t buffSize, size_t * used)
+int archive_write_open_memory(Archive * a, void * buff, size_t buffSize, size_t * used)
 {
 	struct write_memory_data * mine = (struct write_memory_data *)SAlloc::C(1, sizeof(*mine));
 	if(mine == NULL) {
@@ -43,7 +43,7 @@ int archive_write_open_memory(struct archive * a, void * buff, size_t buffSize, 
 	return (archive_write_open2(a, mine, memory_write_open, reinterpret_cast<archive_write_callback *>(memory_write), NULL, memory_write_free));
 }
 
-static int memory_write_open(struct archive * a, void * client_data)
+static int memory_write_open(Archive * a, void * client_data)
 {
 	struct write_memory_data * mine = static_cast<struct write_memory_data *>(client_data);
 	mine->used = 0;
@@ -61,7 +61,7 @@ static int memory_write_open(struct archive * a, void * client_data)
  * In particular, this means the client can follow exactly
  * how much has been written into their buffer at any time.
  */
-static ssize_t memory_write(struct archive * a, void * client_data, const void * buff, size_t length)
+static ssize_t memory_write(Archive * a, void * client_data, const void * buff, size_t length)
 {
 	struct write_memory_data * mine = static_cast<struct write_memory_data *>(client_data);
 	if(mine->used + length > mine->size) {
@@ -75,7 +75,7 @@ static ssize_t memory_write(struct archive * a, void * client_data, const void *
 	return (length);
 }
 
-static int memory_write_free(struct archive * a, void * client_data)
+static int memory_write_free(Archive * a, void * client_data)
 {
 	CXX_UNUSED(a);
 	struct write_memory_data * mine = static_cast<struct write_memory_data *>(client_data);

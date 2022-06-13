@@ -86,18 +86,18 @@ __FBSDID("$FreeBSD");
 #define O_CLOEXEC       0
 #endif
 
-static int setup_mac_metadata(struct archive_read_disk *, struct archive_entry *, int * fd);
+static int setup_mac_metadata(struct archive_read_disk *, ArchiveEntry *, int * fd);
 #ifdef ARCHIVE_XATTR_FREEBSD
-static int setup_xattrs_namespace(struct archive_read_disk *, struct archive_entry *, int *, int);
+static int setup_xattrs_namespace(struct archive_read_disk *, ArchiveEntry *, int *, int);
 #endif
-static int setup_xattrs(struct archive_read_disk *, struct archive_entry *, int * fd);
-static int setup_sparse(struct archive_read_disk *, struct archive_entry *, int * fd);
+static int setup_xattrs(struct archive_read_disk *, ArchiveEntry *, int * fd);
+static int setup_sparse(struct archive_read_disk *, ArchiveEntry *, int * fd);
 #if defined(HAVE_LINUX_FIEMAP_H)
-static int setup_sparse_fiemap(struct archive_read_disk *, struct archive_entry *, int * fd);
+static int setup_sparse_fiemap(struct archive_read_disk *, ArchiveEntry *, int * fd);
 #endif
 
 #if !ARCHIVE_ACL_SUPPORT
-int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
+int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
 	CXX_UNUSED(a);
 	CXX_UNUSED(entry);
@@ -112,7 +112,7 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct arch
  * If a pointer to an integer is provided and its value is below zero
  * open a file descriptor on this pathname.
  */
-const char * archive_read_disk_entry_setup_path(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
+const char * archive_read_disk_entry_setup_path(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
 	const char * path = archive_entry_sourcepath(entry);
 	if(path == NULL || (a->tree != NULL && a->tree_enter_working_dir(a->tree) != 0))
@@ -126,7 +126,7 @@ const char * archive_read_disk_entry_setup_path(struct archive_read_disk * a, st
 	return (path);
 }
 
-int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry * entry, int fd, const struct stat * st)
+int archive_read_disk_entry_from_file(Archive * _a, ArchiveEntry * entry, int fd, const struct stat * st)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	const char * path, * name;
@@ -287,7 +287,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
  * TODO: If there's a failure, report it and return ARCHIVE_WARN.
  */
 static int setup_mac_metadata(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+    ArchiveEntry * entry, int * fd)
 {
 	int tempfd = -1;
 	int copyfile_flags = COPYFILE_NOFOLLOW | COPYFILE_ACL | COPYFILE_XATTR;
@@ -296,7 +296,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
 	void * buff = NULL;
 	int have_attrs;
 	const char * name, * tempdir;
-	struct archive_string tempfile;
+	archive_string tempfile;
 
 	CXX_UNUSED(fd);
 
@@ -372,7 +372,7 @@ cleanup:
  * Stub implementation for non-Mac systems.
  */
 static int setup_mac_metadata(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+    ArchiveEntry * entry, int * fd)
 {
 	CXX_UNUSED(a);
 	CXX_UNUSED(entry);
@@ -396,7 +396,7 @@ static int setup_mac_metadata(struct archive_read_disk * a,
  */
 
 static int setup_xattr(struct archive_read_disk * a,
-    struct archive_entry * entry, const char * name, int fd, const char * accpath)
+    ArchiveEntry * entry, const char * name, int fd, const char * accpath)
 {
 	ssize_t size;
 	void * value = NULL;
@@ -472,7 +472,7 @@ static int setup_xattr(struct archive_read_disk * a,
 	return ARCHIVE_OK;
 }
 
-static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
+static int setup_xattrs(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
 	char * list, * p;
 	ssize_t list_size;
@@ -581,9 +581,9 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
  * to not include the system extattrs that hold ACLs; we handle
  * those separately.
  */
-static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entry, int _namespace, const char * name, const char * fullname, int fd, const char * path);
+static int setup_xattr(struct archive_read_disk * a, ArchiveEntry * entry, int _namespace, const char * name, const char * fullname, int fd, const char * path);
 
-static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entry, int _namespace, const char * name, const char * fullname, int fd, const char * accpath)
+static int setup_xattr(struct archive_read_disk * a, ArchiveEntry * entry, int _namespace, const char * name, const char * fullname, int fd, const char * accpath)
 {
 	ssize_t size;
 	void * value = NULL;
@@ -617,7 +617,7 @@ static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entr
 	return ARCHIVE_OK;
 }
 
-static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_entry * entry, int * fd, int _namespace)
+static int setup_xattrs_namespace(struct archive_read_disk * a, ArchiveEntry * entry, int * fd, int _namespace)
 {
 	char buff[512];
 	char * list, * p;
@@ -683,7 +683,7 @@ static int setup_xattrs_namespace(struct archive_read_disk * a, struct archive_e
 	return ARCHIVE_OK;
 }
 
-static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
+static int setup_xattrs(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
 	int namespaces[2];
 	int i, res;
@@ -707,7 +707,7 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
 /*
  * Generic (stub) extended attribute support.
  */
-static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
+static int setup_xattrs(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
 	CXX_UNUSED(a);
 	CXX_UNUSED(entry);
@@ -733,7 +733,7 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
  * to not trigger sparse file extensions if we don't have to, since
  * not all readers support them.
  */
-static int setup_sparse_fiemap(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
+static int setup_sparse_fiemap(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
 	char buff[4096];
 	struct fiemap * fm;
@@ -798,8 +798,7 @@ static int setup_sparse_fiemap(struct archive_read_disk * a, struct archive_entr
 					break;
 				}
 				if(length > 0)
-					archive_entry_sparse_add_entry(entry,
-					    fe->fe_logical, length);
+					archive_entry_sparse_add_entry(entry, fe->fe_logical, length);
 			}
 			if(fe->fe_flags & FIEMAP_EXTENT_LAST)
 				do_fiemap = 0;
@@ -817,7 +816,7 @@ exit_setup_sparse_fiemap:
 
 #if !defined(SEEK_HOLE) || !defined(SEEK_DATA)
 static int setup_sparse(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+    ArchiveEntry * entry, int * fd)
 {
 	return setup_sparse_fiemap(a, entry, fd);
 }
@@ -831,7 +830,7 @@ static int setup_sparse(struct archive_read_disk * a,
  * SEEK_HOLE sparse interface (FreeBSD, Linux, Solaris)
  */
 
-static int setup_sparse(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
+static int setup_sparse(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
 	int64 size;
 	off_t initial_off;
@@ -934,7 +933,7 @@ exit_setup_sparse:
 /*
  * Generic (stub) sparse support.
  */
-static int setup_sparse(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
+static int setup_sparse(struct archive_read_disk * a, ArchiveEntry * entry, int * fd)
 {
 	CXX_UNUSED(a);
 	CXX_UNUSED(entry);

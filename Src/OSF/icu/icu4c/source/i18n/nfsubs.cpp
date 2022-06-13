@@ -490,20 +490,20 @@ NFSubstitution::~NFSubstitution()
  * @param radix The radix of the divisor
  * @param exponent The exponent of the divisor
  */
-void NFSubstitution::setDivisor(int32_t /*radix*/, int16 /*exponent*/, UErrorCode & /*status*/) {
+void NFSubstitution::setDivisor(int32_t /*radix*/, int16 /*exponent*/, UErrorCode & /*status*/) 
+{
 	// a no-op for all substitutions except multiplier and modulus substitutions
 }
 
-void NFSubstitution::setDecimalFormatSymbols(const DecimalFormatSymbols &newSymbols, UErrorCode & /*status*/) {
+void NFSubstitution::setDecimalFormatSymbols(const DecimalFormatSymbols &newSymbols, UErrorCode & /*status*/) 
+{
 	if(numberFormat) {
 		numberFormat->setDecimalFormatSymbols(newSymbols);
 	}
 }
-
-//-----------------------------------------------------------------------
+//
 // boilerplate
-//-----------------------------------------------------------------------
-
+//
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(NFSubstitution)
 
 /**
@@ -551,11 +551,9 @@ void NFSubstitution::toString(UnicodeString & text) const
 	text.append(temp);
 	text.append(tokenChar());
 }
-
-//-----------------------------------------------------------------------
+//
 // formatting
-//-----------------------------------------------------------------------
-
+//
 /**
  * Performs a mathematical operation on the number, formats it using
  * either ruleSet or decimalFormat, and inserts the result into
@@ -649,10 +647,9 @@ void NFSubstitution::doSubstitution(double number, UnicodeString & toInsertInto,
 		}
 	}
 }
-
-//-----------------------------------------------------------------------
+//
 // parsing
-//-----------------------------------------------------------------------
+//
 /**
  * Parses a string using the rule set or DecimalFormat belonging
  * to this substitution.  If there's a match, a mathematical
@@ -774,20 +771,15 @@ bool NFSubstitution::doParse(const UnicodeString & text,
 bool NFSubstitution::isModulusSubstitution() const {
 	return FALSE;
 }
-
-//===================================================================
+//
 // SameValueSubstitution
-//===================================================================
-
+//
 /**
  * A substitution that passes the value passed to it through unchanged.
  * Represented by == in rule descriptions.
  */
-SameValueSubstitution::SameValueSubstitution(int32_t _pos,
-    const NFRuleSet* _ruleSet,
-    const UnicodeString & description,
-    UErrorCode & status)
-	: NFSubstitution(_pos, _ruleSet, description, status)
+SameValueSubstitution::SameValueSubstitution(int32_t _pos, const NFRuleSet* _ruleSet, const UnicodeString & description, UErrorCode & status) : 
+	NFSubstitution(_pos, _ruleSet, description, status)
 {
 	if(0 == description.compare(gEqualsEquals, 2)) {
 		// throw new IllegalArgumentException("== is not a legal token");
@@ -796,22 +788,18 @@ SameValueSubstitution::SameValueSubstitution(int32_t _pos,
 }
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(SameValueSubstitution)
-
-//===================================================================
+//
 // MultiplierSubstitution
-//===================================================================
-
+//
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(MultiplierSubstitution)
 
 bool MultiplierSubstitution::operator == (const NFSubstitution& rhs) const
 {
 	return NFSubstitution::operator == (rhs) && divisor == ((const MultiplierSubstitution*)&rhs)->divisor;
 }
-
-//===================================================================
+//
 // ModulusSubstitution
-//===================================================================
-
+//
 /**
  * A substitution that divides the number being formatted by the its rule's
  * divisor and formats the remainder.  Represented by "&gt;&gt;" in a
@@ -844,11 +832,9 @@ bool ModulusSubstitution::operator == (const NFSubstitution& rhs) const
 	return NFSubstitution::operator == (rhs) && divisor == ((const ModulusSubstitution*)&rhs)->divisor &&
 	       ruleToUse == ((const ModulusSubstitution*)&rhs)->ruleToUse;
 }
-
-//-----------------------------------------------------------------------
+//
 // formatting
-//-----------------------------------------------------------------------
-
+//
 /**
  * If this is a &gt;&gt;&gt; substitution, use ruleToUse to fill in
  * the substitution.  Otherwise, just use the superclass function.
@@ -901,11 +887,9 @@ void ModulusSubstitution::doSubstitution(double number, UnicodeString & toInsert
 		ruleToUse->doFormat(numberToFormat, toInsertInto, _pos + getPos(), recursionCount, status);
 	}
 }
-
-//-----------------------------------------------------------------------
+//
 // parsing
-//-----------------------------------------------------------------------
-
+//
 /**
  * If this is a &gt;&gt;&gt; substitution, match only against ruleToUse.
  * Otherwise, use the superclass function.
@@ -975,17 +959,13 @@ void ModulusSubstitution::toString(UnicodeString & text) const
 		NFSubstitution::toString(text);
 	}
 }
-
-//===================================================================
+//
 // IntegralPartSubstitution
-//===================================================================
-
+//
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(IntegralPartSubstitution)
-
-//===================================================================
+//
 // FractionalPartSubstitution
-//===================================================================
-
+//
 /**
  * Constructs a FractionalPartSubstitution.  This object keeps a flag
  * telling whether it should format by digits or not.  In addition,
@@ -1014,11 +994,9 @@ FractionalPartSubstitution::FractionalPartSubstitution(int32_t _pos,
 		((NFRuleSet*)getRuleSet())->makeIntoFractionRuleSet();
 	}
 }
-
-//-----------------------------------------------------------------------
+//
 // formatting
-//-----------------------------------------------------------------------
-
+//
 /**
  * If in "by digits" mode, fills in the substitution one decimal digit
  * at a time using the rule set containing this substitution.
@@ -1089,11 +1067,9 @@ void FractionalPartSubstitution::doSubstitution(double number, UnicodeString & t
 		}
 	}
 }
-
-//-----------------------------------------------------------------------
+//
 // parsing
-//-----------------------------------------------------------------------
-
+//
 /**
  * If in "by digits" mode, parses the string as if it were a string
  * of individual digits; otherwise, uses the superclass function.
@@ -1187,36 +1163,25 @@ bool FractionalPartSubstitution::doParse(const UnicodeString & text,
 	}
 }
 
-bool
-FractionalPartSubstitution::operator == (const NFSubstitution &rhs) const
+bool FractionalPartSubstitution::operator == (const NFSubstitution &rhs) const
 {
-	return NFSubstitution::operator == (rhs) &&
-	       ((const FractionalPartSubstitution*)&rhs)->byDigits == byDigits;
+	return NFSubstitution::operator == (rhs) && ((const FractionalPartSubstitution*)&rhs)->byDigits == byDigits;
 }
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(FractionalPartSubstitution)
-
-//===================================================================
+//
 // AbsoluteValueSubstitution
-//===================================================================
-
+//
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(AbsoluteValueSubstitution)
-
-//===================================================================
+//
 // NumeratorSubstitution
-//===================================================================
-
-void NumeratorSubstitution::doSubstitution(double number,
-    UnicodeString & toInsertInto,
-    int32_t apos,
-    int32_t recursionCount,
-    UErrorCode & status) const {
+//
+void NumeratorSubstitution::doSubstitution(double number, UnicodeString & toInsertInto, int32_t apos, int32_t recursionCount, UErrorCode & status) const 
+{
 	// perform a transformation on the number being formatted that
 	// is dependent on the type of substitution this is
-
 	double numberToFormat = transformNumber(number);
 	int64_t longNF = util64_fromDouble(numberToFormat);
-
 	const NFRuleSet* aruleSet = getRuleSet();
 	if(withZeros && aruleSet != NULL) {
 		// if there are leading zeros in the decimal expansion then emit them
@@ -1228,12 +1193,10 @@ void NumeratorSubstitution::doSubstitution(double number,
 		}
 		apos += toInsertInto.length() - len;
 	}
-
 	// if the result is an integer, from here on out we work in integer
 	// space (saving time and memory and preserving accuracy)
 	if(numberToFormat == longNF && aruleSet != NULL) {
 		aruleSet->format(longNF, toInsertInto, apos + getPos(), recursionCount, status);
-
 		// if the result isn't an integer, then call either our rule set's
 		// format() method or our DecimalFormat's format() method to
 		// format the result

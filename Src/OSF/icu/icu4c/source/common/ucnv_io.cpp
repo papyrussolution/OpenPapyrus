@@ -199,10 +199,8 @@ static bool U_CALLCONV isAcceptable(void * /*context*/,
 
 static bool U_CALLCONV ucnv_io_cleanup(void)
 {
-	if(gAliasData) {
-		udata_close(gAliasData);
-		gAliasData = NULL;
-	}
+	udata_close(gAliasData);
+	gAliasData = NULL;
 	gAliasDataInitOnce.reset();
 	memzero(&gMainTable, sizeof(gMainTable));
 	return TRUE; /* Everything was cleaned up */

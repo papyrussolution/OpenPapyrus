@@ -121,6 +121,19 @@
         <item name="android:textSize">10sp</item>
         <item name="android:gravity">center_horizontal|center_vertical</item>
     </style>
+    <style name="FormLabelText">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textColor">@color/TextPrimaryLight</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+    <style name="FormText">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/TextPrimary</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
     <style name="TSessDurationText">
         <item name="android:textSize">10sp</item>
         <item name="android:textFontWeight">600</item>
@@ -153,8 +166,8 @@
         <item name="android:textColor">@color/TextPrimary</item>
         <item name="android:layout_marginLeft">4dp</item>
         <item name="android:layout_marginRight">4dp</item>
-        <item name="android:layout_marginTop">4dp</item>
-        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
         <item name="android:layout_gravity">center_horizontal|center_vertical</item>
     </style>
     <style name="GenericListItemText">
@@ -170,5 +183,9 @@
         <item name="android:layout_margin">2dp</item>
         <item name="android:layout_gravity">center_vertical</item>
         <!-- <item name="android:background">@drawable/shape_frame_outer_image</item> -->
+    </style>
+    <style name="TextWithLabel">
+        <item name="android:background">@drawable/shape_text_with_label_frame</item>
+        <item name="android:layout_margin">2dp</item>
     </style>
 </resources>

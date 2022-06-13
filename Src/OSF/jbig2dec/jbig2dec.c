@@ -359,7 +359,7 @@ static void error_callback(void * error_callback_data, const char * message, Jbi
 		    break;
 	}
 
-	if(state->last_message != NULL && !strcmp(message, state->last_message) && state->severity == severity && state->type == type) {
+	if(state->last_message && !strcmp(message, state->last_message) && state->severity == severity && state->type == type) {
 		state->repeats++;
 		if(state->repeats % 1000000 == 0) {
 			ret = slfprintf_stderr("jbig2dec %s last message repeated %ld times so far\n", state->type, state->repeats);
@@ -562,7 +562,7 @@ int main(int argc, char ** argv)
 			    allocator->memory_used = 0;
 			    allocator->memory_peak = 0;
 		    }
-		    ctx = jbig2_ctx_new((Jbig2Allocator*)allocator, (Jbig2Options)(f_page != NULL || params.embedded ? JBIG2_OPTIONS_EMBEDDED : 0),
+		    ctx = jbig2_ctx_new((Jbig2Allocator*)allocator, (Jbig2Options)(f_page || params.embedded ? JBIG2_OPTIONS_EMBEDDED : 0),
 			    NULL, error_callback, &error_callback_state);
 		    if(!ctx) {
 			    fclose(f);
@@ -570,13 +570,13 @@ int main(int argc, char ** argv)
 				    fclose(f_page);
 			    goto cleanup;
 		    }
-		    if(allocator != NULL)
+		    if(allocator)
 			    allocator->ctx = ctx;
 		    /* pull the whole file/global stream into memory */
 		    for(;;) {
 			    int n_bytes = fread(buf, 1, sizeof(buf), f);
 			    if(n_bytes < 0) {
-				    if(f_page != NULL)
+				    if(f_page)
 					    jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "unable to read jbig2 global stream");
 				    else
 					    jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "unable to read jbig2 page stream");
@@ -584,7 +584,7 @@ int main(int argc, char ** argv)
 			    if(n_bytes <= 0)
 				    break;
 			    if(jbig2_data_in(ctx, buf, (size_t)n_bytes) < 0) {
-				    if(f_page != NULL)
+				    if(f_page)
 					    jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "unable to process jbig2 global stream");
 				    else
 					    jbig2_error(ctx, JBIG2_SEVERITY_WARNING, JBIG2_UNKNOWN_SEGMENT_NUMBER, "unable to process jbig2 page stream");
@@ -594,11 +594,11 @@ int main(int argc, char ** argv)
 		    fclose(f);
 
 		    /* if there's a local page stream read that in its entirety */
-		    if(f_page != NULL) {
+		    if(f_page) {
 			    Jbig2GlobalCtx * global_ctx = jbig2_make_global_ctx(ctx);
 			    ctx = jbig2_ctx_new((Jbig2Allocator*)allocator, JBIG2_OPTIONS_EMBEDDED, global_ctx, error_callback, &error_callback_state);
 			    if(ctx) {
-				    if(allocator != NULL)
+				    if(allocator)
 					    allocator->ctx = ctx;
 				    for(;;) {
 					    int n_bytes = fread(buf, 1, sizeof(buf), f_page);
@@ -672,7 +672,7 @@ int main(int argc, char ** argv)
 				    write_document_hash(&params);
 		    }
 	}                       /* end params.mode switch */
-	if(allocator != NULL && allocator->ctx != NULL) {
+	if(allocator && allocator->ctx) {
 		size_t limit_mb = allocator->memory_limit / MBYTE;
 		size_t peak_mb = allocator->memory_peak / MBYTE;
 		jbig2_error(allocator->ctx, JBIG2_SEVERITY_DEBUG, JBIG2_UNKNOWN_SEGMENT_NUMBER, "memory: limit: %lu Mbyte peak usage: %lu Mbyte", limit_mb, peak_mb);

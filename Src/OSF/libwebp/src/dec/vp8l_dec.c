@@ -1459,7 +1459,7 @@ static int DecodeImageStream(int xsize, int ysize, int is_level0, VP8LDecoder* c
 	{
 		const uint64_t total_size = (uint64_t)transform_xsize * transform_ysize;
 		data = (uint32_t*)WebPSafeMalloc(total_size, sizeof(*data));
-		if(data == NULL) {
+		if(!data) {
 			dec->status_ = VP8_STATUS_OUT_OF_MEMORY;
 			ok = 0;
 			goto End;

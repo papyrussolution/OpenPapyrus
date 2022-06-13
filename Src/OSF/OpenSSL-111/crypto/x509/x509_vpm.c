@@ -247,7 +247,7 @@ static int int_x509_param_set1(char ** pdest, size_t * pdestlen,
 	}
 	OPENSSL_free(*pdest);
 	*pdest = static_cast<char *>(tmp);
-	if(pdestlen != NULL)
+	if(pdestlen)
 		*pdestlen = srclen;
 	return 1;
 }
@@ -402,11 +402,9 @@ char * X509_VERIFY_PARAM_get0_peername(X509_VERIFY_PARAM * param)
  * at the target.  If the source is a NULL parameter structure, free and zero
  * the target peername.
  */
-void X509_VERIFY_PARAM_move_peername(X509_VERIFY_PARAM * to,
-    X509_VERIFY_PARAM * from)
+void X509_VERIFY_PARAM_move_peername(X509_VERIFY_PARAM * to, X509_VERIFY_PARAM * from)
 {
-	char * peername = (from != NULL) ? from->peername : NULL;
-
+	char * peername = from ? from->peername : NULL;
 	if(to->peername != peername) {
 		OPENSSL_free(to->peername);
 		to->peername = peername;
@@ -415,11 +413,9 @@ void X509_VERIFY_PARAM_move_peername(X509_VERIFY_PARAM * to,
 		from->peername = NULL;
 }
 
-int X509_VERIFY_PARAM_set1_email(X509_VERIFY_PARAM * param,
-    const char * email, size_t emaillen)
+int X509_VERIFY_PARAM_set1_email(X509_VERIFY_PARAM * param, const char * email, size_t emaillen)
 {
-	return int_x509_param_set1(&param->email, &param->emaillen,
-		   email, emaillen);
+	return int_x509_param_set1(&param->email, &param->emaillen, email, emaillen);
 }
 
 int X509_VERIFY_PARAM_set1_ip(X509_VERIFY_PARAM * param,
@@ -538,8 +534,7 @@ static int table_cmp(const X509_VERIFY_PARAM * a, const X509_VERIFY_PARAM * b)
 DECLARE_OBJ_BSEARCH_CMP_FN(X509_VERIFY_PARAM, X509_VERIFY_PARAM, table);
 IMPLEMENT_OBJ_BSEARCH_CMP_FN(X509_VERIFY_PARAM, X509_VERIFY_PARAM, table);
 
-static int param_cmp(const X509_VERIFY_PARAM * const * a,
-    const X509_VERIFY_PARAM * const * b)
+static int param_cmp(const X509_VERIFY_PARAM * const * a, const X509_VERIFY_PARAM * const * b)
 {
 	return strcmp((*a)->name, (*b)->name);
 }
@@ -585,9 +580,8 @@ const X509_VERIFY_PARAM * X509_VERIFY_PARAM_lookup(const char * name)
 {
 	int idx;
 	X509_VERIFY_PARAM pm;
-
 	pm.name = (char *)name;
-	if(param_table != NULL) {
+	if(param_table) {
 		idx = sk_X509_VERIFY_PARAM_find(param_table, &pm);
 		if(idx >= 0)
 			return sk_X509_VERIFY_PARAM_value(param_table, idx);

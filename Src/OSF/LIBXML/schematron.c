@@ -1384,6 +1384,7 @@ int xmlSchematronValidateDoc(xmlSchematronValidCtxt * ctxt, xmlDoc * instance)
 	return (ctxt->nberrors);
 }
 
+#if 0 // @v11.4.1 {
 #ifdef STANDALONE
 int main()
 {
@@ -1422,7 +1423,7 @@ int main()
 	xmlMemoryDump();
 	return 0;
 }
-
 #endif
+#endif // } 0 @v11.4.1
 #define bottom_schematron
 #endif /* LIBXML_SCHEMATRON_ENABLED */

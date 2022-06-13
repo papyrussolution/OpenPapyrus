@@ -143,7 +143,7 @@ RBBIDataHeader * RBBIRuleBuilder::flattenData()
 #endif
 
 	RBBIDataHeader  * data     = (RBBIDataHeader*)uprv_malloc(totalSize);
-	if(data == NULL) {
+	if(!data) {
 		*fStatus = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}

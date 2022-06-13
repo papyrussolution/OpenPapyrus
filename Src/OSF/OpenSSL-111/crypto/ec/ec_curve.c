@@ -3156,8 +3156,7 @@ int ec_curve_nid_from_params(const EC_GROUP * group, BN_CTX * ctx)
 	 * i.e. the values are p, a, b, x, y, order.
 	 */
 	/* Get p, a & b */
-	if(!(EC_GROUP_get_curve(group, bn[0], bn[1], bn[2], ctx)
-	 && ((generator = EC_GROUP_get0_generator(group)) != NULL)
+	if(!(EC_GROUP_get_curve(group, bn[0], bn[1], bn[2], ctx) && ((generator = EC_GROUP_get0_generator(group)) != NULL)
 	    /* Get x & y */
 	 && EC_POINT_get_affine_coordinates(group, generator, bn[3], bn[4], ctx)
 	    /* Get order */

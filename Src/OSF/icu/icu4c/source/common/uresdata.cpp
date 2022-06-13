@@ -49,11 +49,11 @@ static const struct {
  */
 
 static int32_t _res_findTableItem(const ResourceData * pResData, const uint16 * keyOffsets, int32_t length,
-    const char * key, const char ** realKey) {
+    const char * key, const char ** realKey) 
+{
 	const char * tableKey;
 	int32_t mid, start, limit;
 	int result;
-
 	/* do a binary search for the key */
 	start = 0;
 	limit = length;
@@ -82,11 +82,11 @@ static int32_t _res_findTableItem(const ResourceData * pResData, const uint16 * 
 }
 
 static int32_t _res_findTable32Item(const ResourceData * pResData, const int32_t * keyOffsets, int32_t length,
-    const char * key, const char ** realKey) {
+    const char * key, const char ** realKey) 
+{
 	const char * tableKey;
 	int32_t mid, start, limit;
 	int result;
-
 	/* do a binary search for the key */
 	start = 0;
 	limit = length;
@@ -113,27 +113,19 @@ static int32_t _res_findTable32Item(const ResourceData * pResData, const int32_t
 	}
 	return URESDATA_ITEM_NOT_FOUND; /* not found or table is empty. */
 }
-
-/* helper for res_load() ---------------------------------------------------- */
-
-static bool U_CALLCONV isAcceptable(void * context,
-    const char * /*type*/, const char * /*name*/,
-    const UDataInfo * pInfo) {
+// 
+// helper for res_load()
+// 
+static bool U_CALLCONV isAcceptable(void * context, const char * /*type*/, const char * /*name*/, const UDataInfo * pInfo) 
+{
 	uprv_memcpy(context, pInfo->formatVersion, 4);
-	return (bool)(
-		pInfo->size>=20 &&
-		pInfo->isBigEndian==U_IS_BIG_ENDIAN &&
-		pInfo->charsetFamily==U_CHARSET_FAMILY &&
-		pInfo->sizeofUChar==U_SIZEOF_UCHAR &&
-		pInfo->dataFormat[0]==0x52 && /* dataFormat="ResB" */
-		pInfo->dataFormat[1]==0x65 &&
-		pInfo->dataFormat[2]==0x73 &&
-		pInfo->dataFormat[3]==0x42 &&
-		(1<=pInfo->formatVersion[0] && pInfo->formatVersion[0]<=3));
+	return (bool)(pInfo->size>=20 && pInfo->isBigEndian==U_IS_BIG_ENDIAN && pInfo->charsetFamily==U_CHARSET_FAMILY &&
+		pInfo->sizeofUChar==U_SIZEOF_UCHAR && pInfo->dataFormat[0]==0x52 && /* dataFormat="ResB" */
+		pInfo->dataFormat[1]==0x65 && pInfo->dataFormat[2]==0x73 && pInfo->dataFormat[3]==0x42 && (1<=pInfo->formatVersion[0] && pInfo->formatVersion[0]<=3));
 }
-
-/* semi-public functions ---------------------------------------------------- */
-
+//
+// semi-public functions
+//
 static void res_init(ResourceData * pResData,
     UVersionInfo formatVersion, const void * inBytes, int32_t length,
     UErrorCode * errorCode) {
@@ -171,10 +163,7 @@ static void res_init(ResourceData * pResData,
 			res_unload(pResData);
 			return;
 		}
-		if(length>=0 &&
-		    (length<((1+indexLength)<<2) ||
-		    length<(indexes[URES_INDEX_BUNDLE_TOP]<<2))
-		    ) {
+		if(length>=0 && (length<((1+indexLength)<<2) || length<(indexes[URES_INDEX_BUNDLE_TOP]<<2))) {
 			*errorCode = U_INVALID_FORMAT_ERROR;
 			res_unload(pResData);
 			return;
@@ -249,7 +238,7 @@ U_CFUNC void res_load(ResourceData * pResData, const char * path, const char * n
 
 U_CFUNC void res_unload(ResourceData * pResData) 
 {
-	if(pResData->data) {
+	if(pResData) {
 		udata_close(pResData->data);
 		pResData->data = NULL;
 	}
@@ -544,7 +533,7 @@ const uint8 * ResourceDataValue::getBinary(int32_t &length, UErrorCode & errorCo
 		return NULL;
 	}
 	const uint8 * b = res_getBinary(fTraceInfo, &getData(), res, &length);
-	if(b == NULL) {
+	if(!b) {
 		errorCode = U_RESOURCE_TYPE_MISMATCH;
 	}
 	return b;
@@ -875,8 +864,9 @@ U_CAPI Resource U_EXPORT2 res_getArrayItem(const ResourceData * pResData, Resour
 	return RES_BOGUS;
 }
 
-uint32_t icu::ResourceArray::internalGetResource(const ResourceData * pResData, int32_t i) const {
-	if(items16 != NULL) {
+uint32_t icu::ResourceArray::internalGetResource(const ResourceData * pResData, int32_t i) const 
+{
+	if(items16) {
 		return makeResourceFrom16(pResData, items16[i]);
 	}
 	else {
@@ -925,7 +915,7 @@ U_CFUNC Resource res_findResource(const ResourceData * pResData, Resource r, cha
 		/* if there are more separators, terminate string
 		 * and set path to the remaining part of the string
 		 */
-		if(nextSepP != NULL) {
+		if(nextSepP) {
 			if(nextSepP == pathP) {
 				// Empty key string.
 				return RES_BOGUS;

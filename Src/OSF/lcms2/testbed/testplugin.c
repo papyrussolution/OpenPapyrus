@@ -631,7 +631,7 @@ int32 CheckTagTypePlugin(FILE * fOut)
 		goto Error;
 	}
 	data = static_cast<char *>(SAlloc::M(clen));
-	if(data == NULL) {
+	if(!data) {
 		Fail("malloc failed ?!?");
 		goto Error;
 	}
@@ -761,7 +761,7 @@ int32 CheckMPEPlugin(FILE * fOut)
 		goto Error;
 	}
 	data = static_cast<char *>(SAlloc::M(clen));
-	if(data == NULL) {
+	if(!data) {
 		Fail("malloc failed ?!?");
 		goto Error;
 	}

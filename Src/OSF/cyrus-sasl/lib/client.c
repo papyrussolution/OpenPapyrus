@@ -919,9 +919,9 @@ int _sasl_client_listmech(sasl_conn_t * conn,
 	if(!result)
 		PARAMERROR(conn);
 
-	if(plen != NULL)
+	if(plen)
 		*plen = 0;
-	if(pcount != NULL)
+	if(pcount)
 		*pcount = 0;
 
 	if(sep) {
@@ -991,7 +991,7 @@ int _sasl_client_listmech(sasl_conn_t * conn,
 
 		/* Okay, we like it, add it to the list! */
 
-		if(pcount != NULL)
+		if(pcount)
 			(*pcount)++;
 
 		/* print seperator */
@@ -1008,7 +1008,7 @@ int _sasl_client_listmech(sasl_conn_t * conn,
 
 	if(suffix)
 		strcat(conn->mechlist_buf, suffix);
-	if(plen!=NULL)
+	if(plen)
 		*plen = (unsigned)strlen(conn->mechlist_buf);
 	*result = conn->mechlist_buf;
 	return SASL_OK;

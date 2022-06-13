@@ -51,7 +51,7 @@ static inline bool u_growAnyBufferFromStatic(void * context, void ** pBuffer, in
 		uprv_free(*pBuffer);
 	}
 	*pBuffer = newBuffer;
-	return (bool)(newBuffer!=NULL);
+	return (bool)(newBuffer != NULL);
 }
 
 /* helper function */

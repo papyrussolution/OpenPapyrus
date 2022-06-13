@@ -28,7 +28,7 @@ u_char * ngx_strerror(ngx_err_t err, u_char * errstr, size_t size)
 			lang = 0;
 			len = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, lang, (char *)errstr, size, NULL);
 		}
-		if(len == 0) {
+		if(!len) {
 			return ngx_snprintf(errstr, size, "FormatMessage() error:(%d)", GetLastError());
 		} */
 		// remove ".\r\n\0" 

@@ -1,0 +1,8 @@
+unreadVariable
+shadowVar
+shadowFunction
+unusedStructMember
+nullPointer
+uninitvar
+noExplicitConstructor
+

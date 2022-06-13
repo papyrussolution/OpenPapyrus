@@ -53,7 +53,7 @@ RegularExpression::~RegularExpression()
 		uprv_free(fPatString);
 		uprv_free((void *)fPatRefCount);
 	}
-	if(fOwnsText && fText!=NULL) {
+	if(fOwnsText && fText != NULL) {
 		uprv_free((void *)fText);
 	}
 	fMagic = 0;

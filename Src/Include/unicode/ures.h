@@ -40,32 +40,25 @@
  * <a href="http://icu-project.org/userguide/ResourceManagement.html">Users Guide</a>.
  * <P>
  */
-
 /**
  * UResourceBundle is an opaque type for handles for resource bundles in C APIs.
  * @stable ICU 2.0
  */
 struct UResourceBundle;
-
 /**
  * @stable ICU 2.0
  */
 typedef struct UResourceBundle UResourceBundle;
-
 /**
  * Numeric constants for types of resource items.
  * @see ures_getType
  * @stable ICU 2.0
  */
 typedef enum {
-	/** Resource type constant for "no resource". @stable ICU 2.6 */
-	URES_NONE = -1,
-	/** Resource type constant for 16-bit Unicode strings. @stable ICU 2.6 */
-	URES_STRING = 0,
-	/** Resource type constant for binary data. @stable ICU 2.6 */
-	URES_BINARY = 1,
-	/** Resource type constant for tables of key-value pairs. @stable ICU 2.6 */
-	URES_TABLE = 2,
+	URES_NONE = -1, /** Resource type constant for "no resource". @stable ICU 2.6 */
+	URES_STRING = 0, /** Resource type constant for 16-bit Unicode strings. @stable ICU 2.6 */
+	URES_BINARY = 1, /** Resource type constant for binary data. @stable ICU 2.6 */
+	URES_TABLE = 2, /** Resource type constant for tables of key-value pairs. @stable ICU 2.6 */
 	/**
 	 * Resource type constant for aliases;
 	 * internally stores a string which identifies the actual resource
@@ -82,10 +75,7 @@ typedef enum {
 	 * @stable ICU 2.6
 	 */
 	URES_INT = 7,
-
-	/** Resource type constant for arrays of resources. @stable ICU 2.6 */
-	URES_ARRAY = 8,
-
+	URES_ARRAY = 8, /** Resource type constant for arrays of resources. @stable ICU 2.6 */
 	/**
 	 * Resource type constant for vectors of 32-bit integers.
 	 * @see ures_getIntVector
@@ -93,25 +83,15 @@ typedef enum {
 	 */
 	URES_INT_VECTOR = 14,
 #ifndef U_HIDE_DEPRECATED_API
-	/** @deprecated ICU 2.6 Use the URES_ constant instead. */
-	RES_NONE = URES_NONE,
-	/** @deprecated ICU 2.6 Use the URES_ constant instead. */
-	RES_STRING = URES_STRING,
-	/** @deprecated ICU 2.6 Use the URES_ constant instead. */
-	RES_BINARY = URES_BINARY,
-	/** @deprecated ICU 2.6 Use the URES_ constant instead. */
-	RES_TABLE = URES_TABLE,
-	/** @deprecated ICU 2.6 Use the URES_ constant instead. */
-	RES_ALIAS = URES_ALIAS,
-	/** @deprecated ICU 2.6 Use the URES_ constant instead. */
-	RES_INT = URES_INT,
-	/** @deprecated ICU 2.6 Use the URES_ constant instead. */
-	RES_ARRAY = URES_ARRAY,
-	/** @deprecated ICU 2.6 Use the URES_ constant instead. */
-	RES_INT_VECTOR = URES_INT_VECTOR,
-	/** @deprecated ICU 2.6 Not used. */
-	RES_RESERVED = 15,
-
+	RES_NONE = URES_NONE, /** @deprecated ICU 2.6 Use the URES_ constant instead. */
+	RES_STRING = URES_STRING, /** @deprecated ICU 2.6 Use the URES_ constant instead. */
+	RES_BINARY = URES_BINARY, /** @deprecated ICU 2.6 Use the URES_ constant instead. */
+	RES_TABLE = URES_TABLE, /** @deprecated ICU 2.6 Use the URES_ constant instead. */
+	RES_ALIAS = URES_ALIAS, /** @deprecated ICU 2.6 Use the URES_ constant instead. */
+	RES_INT = URES_INT, /** @deprecated ICU 2.6 Use the URES_ constant instead. */
+	RES_ARRAY = URES_ARRAY, /** @deprecated ICU 2.6 Use the URES_ constant instead. */
+	RES_INT_VECTOR = URES_INT_VECTOR, /** @deprecated ICU 2.6 Use the URES_ constant instead. */
+	RES_RESERVED = 15, /** @deprecated ICU 2.6 Not used. */
 	/**
 	 * One more than the highest normal UResType value.
 	 * @deprecated ICU 58 The numeric value may change over time, see ICU ticket #12420.
@@ -152,9 +132,7 @@ typedef enum {
  * @see ures_close
  * @stable ICU 2.0
  */
-U_CAPI UResourceBundle *  U_EXPORT2 ures_open(const char * packageName,
-    const char * locale,
-    UErrorCode *  status);
+U_CAPI UResourceBundle *  U_EXPORT2 ures_open(const char * packageName, const char * locale, UErrorCode *  status);
 
 /** This function does not care what kind of localeID is passed in. It simply opens a bundle with
  *  that name. Fallback mechanism is disabled for the new bundle. If the requested bundle contains
@@ -173,10 +151,7 @@ U_CAPI UResourceBundle *  U_EXPORT2 ures_open(const char * packageName,
  * @see ures_close
  * @stable ICU 2.0
  */
-U_CAPI UResourceBundle * U_EXPORT2 ures_openDirect(const char * packageName,
-    const char * locale,
-    UErrorCode * status);
-
+U_CAPI UResourceBundle * U_EXPORT2 ures_openDirect(const char * packageName, const char * locale, UErrorCode * status);
 /**
  * Same as ures_open() but takes a const UChar *path.
  * This path will be converted to char * using the default converter,
@@ -195,9 +170,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_openDirect(const char * packageName,
  * @see ures_open
  * @stable ICU 2.0
  */
-U_CAPI UResourceBundle * U_EXPORT2 ures_openU(const UChar * packageName,
-    const char * locale,
-    UErrorCode * status);
+U_CAPI UResourceBundle * U_EXPORT2 ures_openU(const UChar * packageName, const char * locale, UErrorCode * status);
 
 #ifndef U_HIDE_DEPRECATED_API
 /**
@@ -216,9 +189,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_openU(const UChar * packageName,
  *@see ures_getSize
  * @deprecated ICU 2.8 User ures_getSize instead
  */
-U_DEPRECATED int32_t U_EXPORT2 ures_countArrayItems(const UResourceBundle * resourceBundle,
-    const char * resourceKey,
-    UErrorCode * err);
+U_DEPRECATED int32_t U_EXPORT2 ures_countArrayItems(const UResourceBundle * resourceBundle, const char * resourceKey, UErrorCode * err);
 #endif  /* U_HIDE_DEPRECATED_API */
 
 /**
@@ -273,8 +244,7 @@ U_DEPRECATED const char * U_EXPORT2 ures_getVersionNumber(const UResourceBundle 
  *                    as specified in the resource bundle or its parent.
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 ures_getVersion(const UResourceBundle * resB,
-    UVersionInfo versionInfo);
+U_CAPI void U_EXPORT2 ures_getVersion(const UResourceBundle * resB, UVersionInfo versionInfo);
 
 #ifndef U_HIDE_DEPRECATED_API
 /**
@@ -289,8 +259,7 @@ U_CAPI void U_EXPORT2 ures_getVersion(const UResourceBundle * resB,
  * @return  A Locale name
  * @deprecated ICU 2.8 Use ures_getLocaleByType instead.
  */
-U_DEPRECATED const char * U_EXPORT2 ures_getLocale(const UResourceBundle * resourceBundle,
-    UErrorCode * status);
+U_DEPRECATED const char * U_EXPORT2 ures_getLocale(const UResourceBundle * resourceBundle, UErrorCode * status);
 #endif  /* U_HIDE_DEPRECATED_API */
 
 /**
@@ -305,9 +274,7 @@ U_DEPRECATED const char * U_EXPORT2 ures_getLocale(const UResourceBundle * resou
  * @return  A Locale name
  * @stable ICU 2.8
  */
-U_CAPI const char * U_EXPORT2 ures_getLocaleByType(const UResourceBundle * resourceBundle,
-    ULocDataLocaleType type,
-    UErrorCode * status);
+U_CAPI const char * U_EXPORT2 ures_getLocaleByType(const UResourceBundle * resourceBundle, ULocDataLocaleType type, UErrorCode * status);
 
 #ifndef U_HIDE_INTERNAL_API
 /**
@@ -326,10 +293,7 @@ U_CAPI const char * U_EXPORT2 ures_getLocaleByType(const UResourceBundle * resou
  * @param status The error code.
  * @internal
  */
-U_CAPI void U_EXPORT2 ures_openFillIn(UResourceBundle * r,
-    const char * packageName,
-    const char * localeID,
-    UErrorCode * status);
+U_CAPI void U_EXPORT2 ures_openFillIn(UResourceBundle * r, const char * packageName, const char * localeID, UErrorCode * status);
 #endif  /* U_HIDE_INTERNAL_API */
 
 /**
@@ -349,10 +313,7 @@ U_CAPI void U_EXPORT2 ures_openFillIn(UResourceBundle * r,
  * @see ures_getUInt
  * @stable ICU 2.0
  */
-U_CAPI const UChar * U_EXPORT2 ures_getString(const UResourceBundle * resourceBundle,
-    int32_t* len,
-    UErrorCode * status);
-
+U_CAPI const UChar * U_EXPORT2 ures_getString(const UResourceBundle * resourceBundle, int32_t* len, UErrorCode * status);
 /**
  * Returns a UTF-8 string from a string resource.
  * The UTF-8 string may be returnable directly as a pointer, or
@@ -400,11 +361,7 @@ U_CAPI const UChar * U_EXPORT2 ures_getString(const UResourceBundle * resourceBu
  * @see u_strToUTF8
  * @stable ICU 3.6
  */
-U_CAPI const char * U_EXPORT2 ures_getUTF8String(const UResourceBundle * resB,
-    char * dest, int32_t * length,
-    bool forceCopy,
-    UErrorCode * status);
-
+U_CAPI const char * U_EXPORT2 ures_getUTF8String(const UResourceBundle * resB, char * dest, int32_t * length, bool forceCopy, UErrorCode * status);
 /**
  * Returns a binary data from a binary resource.
  *
@@ -422,10 +379,7 @@ U_CAPI const char * U_EXPORT2 ures_getUTF8String(const UResourceBundle * resB,
  * @see ures_getUInt
  * @stable ICU 2.0
  */
-U_CAPI const uint8* U_EXPORT2 ures_getBinary(const UResourceBundle * resourceBundle,
-    int32_t* len,
-    UErrorCode * status);
-
+U_CAPI const uint8* U_EXPORT2 ures_getBinary(const UResourceBundle * resourceBundle, int32_t* len, UErrorCode * status);
 /**
  * Returns a 32 bit integer array from a resource.
  *
@@ -443,10 +397,7 @@ U_CAPI const uint8* U_EXPORT2 ures_getBinary(const UResourceBundle * resourceBun
  * @see ures_getUInt
  * @stable ICU 2.0
  */
-U_CAPI const int32_t* U_EXPORT2 ures_getIntVector(const UResourceBundle * resourceBundle,
-    int32_t* len,
-    UErrorCode * status);
-
+U_CAPI const int32_t* U_EXPORT2 ures_getIntVector(const UResourceBundle * resourceBundle, int32_t* len, UErrorCode * status);
 /**
  * Returns an unsigned integer from a resource.
  * This integer is originally 28 bits.
@@ -463,9 +414,7 @@ U_CAPI const int32_t* U_EXPORT2 ures_getIntVector(const UResourceBundle * resour
  * @see ures_getString
  * @stable ICU 2.0
  */
-U_CAPI uint32_t U_EXPORT2 ures_getUInt(const UResourceBundle * resourceBundle,
-    UErrorCode * status);
-
+U_CAPI uint32_t U_EXPORT2 ures_getUInt(const UResourceBundle * resourceBundle, UErrorCode * status);
 /**
  * Returns a signed integer from a resource.
  * This integer is originally 28 bit and the sign gets propagated.
@@ -482,9 +431,7 @@ U_CAPI uint32_t U_EXPORT2 ures_getUInt(const UResourceBundle * resourceBundle,
  * @see ures_getString
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 ures_getInt(const UResourceBundle * resourceBundle,
-    UErrorCode * status);
-
+U_CAPI int32_t U_EXPORT2 ures_getInt(const UResourceBundle * resourceBundle, UErrorCode * status);
 /**
  * Returns the size of a resource. Size for scalar types is always 1,
  * and for vector/table types is the number of child resources.
@@ -496,7 +443,6 @@ U_CAPI int32_t U_EXPORT2 ures_getInt(const UResourceBundle * resourceBundle,
  * @stable ICU 2.0
  */
 U_CAPI int32_t U_EXPORT2 ures_getSize(const UResourceBundle * resourceBundle);
-
 /**
  * Returns the type of a resource. Available types are defined in enum UResType
  *
@@ -506,7 +452,6 @@ U_CAPI int32_t U_EXPORT2 ures_getSize(const UResourceBundle * resourceBundle);
  * @stable ICU 2.0
  */
 U_CAPI UResType U_EXPORT2 ures_getType(const UResourceBundle * resourceBundle);
-
 /**
  * Returns the key associated with a given resource. Not all the resources have a key - only
  * those that are members of a table.
@@ -516,7 +461,6 @@ U_CAPI UResType U_EXPORT2 ures_getType(const UResourceBundle * resourceBundle);
  * @stable ICU 2.0
  */
 U_CAPI const char * U_EXPORT2 ures_getKey(const UResourceBundle * resourceBundle);
-
 /* ITERATION API
     This API provides means for iterating through a resource
  */
@@ -528,7 +472,6 @@ U_CAPI const char * U_EXPORT2 ures_getKey(const UResourceBundle * resourceBundle
  * @stable ICU 2.0
  */
 U_CAPI void U_EXPORT2 ures_resetIterator(UResourceBundle * resourceBundle);
-
 /**
  * Checks whether the given resource has another element to iterate over.
  *
@@ -537,7 +480,6 @@ U_CAPI void U_EXPORT2 ures_resetIterator(UResourceBundle * resourceBundle);
  * @stable ICU 2.0
  */
 U_CAPI bool U_EXPORT2 ures_hasNext(const UResourceBundle * resourceBundle);
-
 /**
  * Returns the next resource in a given resource or NULL if there are no more resources
  * to iterate over. Features a fill-in parameter.
@@ -550,10 +492,7 @@ U_CAPI bool U_EXPORT2 ures_hasNext(const UResourceBundle * resourceBundle);
  * @return                  a pointer to a UResourceBundle struct. If fill in param was NULL, caller must close it
  * @stable ICU 2.0
  */
-U_CAPI UResourceBundle * U_EXPORT2 ures_getNextResource(UResourceBundle * resourceBundle,
-    UResourceBundle * fillIn,
-    UErrorCode * status);
-
+U_CAPI UResourceBundle * U_EXPORT2 ures_getNextResource(UResourceBundle * resourceBundle, UResourceBundle * fillIn, UErrorCode * status);
 /**
  * Returns the next string in a given resource or NULL if there are no more resources
  * to iterate over.
@@ -566,11 +505,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getNextResource(UResourceBundle * resour
  * @return a pointer to a zero-terminated UChar array which lives in a memory mapped/DLL file.
  * @stable ICU 2.0
  */
-U_CAPI const UChar * U_EXPORT2 ures_getNextString(UResourceBundle * resourceBundle,
-    int32_t* len,
-    const char ** key,
-    UErrorCode * status);
-
+U_CAPI const UChar * U_EXPORT2 ures_getNextString(UResourceBundle * resourceBundle, int32_t* len, const char ** key, UErrorCode * status);
 /**
  * Returns the resource in a given resource at the specified index. Features a fill-in parameter.
  *
@@ -583,11 +518,7 @@ U_CAPI const UChar * U_EXPORT2 ures_getNextString(UResourceBundle * resourceBund
  * @return                  a pointer to a UResourceBundle struct. If fill in param was NULL, caller must close it
  * @stable ICU 2.0
  */
-U_CAPI UResourceBundle * U_EXPORT2 ures_getByIndex(const UResourceBundle * resourceBundle,
-    int32_t indexR,
-    UResourceBundle * fillIn,
-    UErrorCode * status);
-
+U_CAPI UResourceBundle * U_EXPORT2 ures_getByIndex(const UResourceBundle * resourceBundle, int32_t indexR, UResourceBundle * fillIn, UErrorCode * status);
 /**
  * Returns the string in a given resource at the specified index.
  *
@@ -599,11 +530,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByIndex(const UResourceBundle * resou
  * @return                  a pointer to a zero-terminated UChar array which lives in a memory mapped/DLL file.
  * @stable ICU 2.0
  */
-U_CAPI const UChar * U_EXPORT2 ures_getStringByIndex(const UResourceBundle * resourceBundle,
-    int32_t indexS,
-    int32_t* len,
-    UErrorCode * status);
-
+U_CAPI const UChar * U_EXPORT2 ures_getStringByIndex(const UResourceBundle * resourceBundle, int32_t indexS, int32_t* len, UErrorCode * status);
 /**
  * Returns a UTF-8 string from a resource at the specified index.
  * The UTF-8 string may be returnable directly as a pointer, or
@@ -652,12 +579,7 @@ U_CAPI const UChar * U_EXPORT2 ures_getStringByIndex(const UResourceBundle * res
  * @see u_strToUTF8
  * @stable ICU 3.6
  */
-U_CAPI const char * U_EXPORT2 ures_getUTF8StringByIndex(const UResourceBundle * resB,
-    int32_t stringIndex,
-    char * dest, int32_t * pLength,
-    bool forceCopy,
-    UErrorCode * status);
-
+U_CAPI const char * U_EXPORT2 ures_getUTF8StringByIndex(const UResourceBundle * resB, int32_t stringIndex, char * dest, int32_t * pLength, bool forceCopy, UErrorCode * status);
 /**
  * Returns a resource in a given resource that has a given key. This procedure works only with table
  * resources. Features a fill-in parameter.
@@ -670,11 +592,7 @@ U_CAPI const char * U_EXPORT2 ures_getUTF8StringByIndex(const UResourceBundle * 
  * @return                  a pointer to a UResourceBundle struct. If fill in param was NULL, caller must close it
  * @stable ICU 2.0
  */
-U_CAPI UResourceBundle * U_EXPORT2 ures_getByKey(const UResourceBundle * resourceBundle,
-    const char * key,
-    UResourceBundle * fillIn,
-    UErrorCode * status);
-
+U_CAPI UResourceBundle * U_EXPORT2 ures_getByKey(const UResourceBundle * resourceBundle, const char * key, UResourceBundle * fillIn, UErrorCode * status);
 /**
  * Returns a string in a given resource that has a given key. This procedure works only with table
  * resources.
@@ -687,11 +605,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByKey(const UResourceBundle * resourc
  * @return                  a pointer to a zero-terminated UChar array which lives in a memory mapped/DLL file.
  * @stable ICU 2.0
  */
-U_CAPI const UChar * U_EXPORT2 ures_getStringByKey(const UResourceBundle * resB,
-    const char * key,
-    int32_t* len,
-    UErrorCode * status);
-
+U_CAPI const UChar * U_EXPORT2 ures_getStringByKey(const UResourceBundle * resB, const char * key, int32_t* len, UErrorCode * status);
 /**
  * Returns a UTF-8 string from a resource and a key.
  * This function works only with table resources.
@@ -742,11 +656,7 @@ U_CAPI const UChar * U_EXPORT2 ures_getStringByKey(const UResourceBundle * resB,
  * @see u_strToUTF8
  * @stable ICU 3.6
  */
-U_CAPI const char * U_EXPORT2 ures_getUTF8StringByKey(const UResourceBundle * resB,
-    const char * key,
-    char * dest, int32_t * pLength,
-    bool forceCopy,
-    UErrorCode * status);
+U_CAPI const char * U_EXPORT2 ures_getUTF8StringByKey(const UResourceBundle * resB, const char * key, char * dest, int32_t * pLength, bool forceCopy, UErrorCode * status);
 
 #if U_SHOW_CPLUSPLUS_API
 #include "unicode/unistr.h"
@@ -763,7 +673,8 @@ U_NAMESPACE_BEGIN
  * @return The string value, or a bogus string if there is a failure UErrorCode.
  * @stable ICU 2.0
  */
-inline UnicodeString ures_getUnicodeString(const UResourceBundle * resB, UErrorCode * status) {
+inline UnicodeString ures_getUnicodeString(const UResourceBundle * resB, UErrorCode * status) 
+{
 	UnicodeString result;
 	int32_t len = 0;
 	const UChar * r = ures_getString(resB, &len, status);
@@ -788,7 +699,8 @@ inline UnicodeString ures_getUnicodeString(const UResourceBundle * resB, UErrorC
  * @return The string value, or a bogus string if there is a failure UErrorCode.
  * @stable ICU 2.0
  */
-inline UnicodeString ures_getNextUnicodeString(UResourceBundle * resB, const char ** key, UErrorCode * status) {
+inline UnicodeString ures_getNextUnicodeString(UResourceBundle * resB, const char ** key, UErrorCode * status) 
+{
 	UnicodeString result;
 	int32_t len = 0;
 	const UChar * r = ures_getNextString(resB, &len, key, status);
@@ -810,7 +722,8 @@ inline UnicodeString ures_getNextUnicodeString(UResourceBundle * resB, const cha
  * @return The string value, or a bogus string if there is a failure UErrorCode.
  * @stable ICU 2.0
  */
-inline UnicodeString ures_getUnicodeStringByIndex(const UResourceBundle * resB, int32_t indexS, UErrorCode * status) {
+inline UnicodeString ures_getUnicodeStringByIndex(const UResourceBundle * resB, int32_t indexS, UErrorCode * status) 
+{
 	UnicodeString result;
 	int32_t len = 0;
 	const UChar * r = ures_getStringByIndex(resB, indexS, &len, status);

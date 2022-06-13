@@ -251,7 +251,7 @@
  *
  *             // we need to render several lines
  *             line=ubidi_openSized(length, 0, pErrorCode);
- *             if(line!=NULL) {
+ *             if(line != NULL) {
  *                 int32_t start=0, limit;
  *                 int styleRunStart=0, styleRunLimit;
  *

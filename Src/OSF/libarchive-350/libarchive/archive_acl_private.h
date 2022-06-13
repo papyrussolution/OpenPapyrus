@@ -22,49 +22,39 @@
 #include "archive_string.h"
 
 struct archive_acl_entry {
-	struct archive_acl_entry *next;
-	int	type;			/* E.g., access or default */
-	int	tag;			/* E.g., user/group/other/mask */
-	int	permset;		/* r/w/x bits */
-	int	id;			/* uid/gid for user/group */
-	struct archive_mstring name;		/* uname/gname */
+	archive_acl_entry *next;
+	int    type;    // E.g., access or default
+	int    tag;     // E.g., user/group/other/mask 
+	int    permset; // r/w/x bits
+	int    id;      // uid/gid for user/group
+	struct archive_mstring name; // uname/gname 
 };
 
 struct archive_acl {
-	mode_t		mode;
-	struct archive_acl_entry	*acl_head;
-	struct archive_acl_entry	*acl_p;
-	int		 acl_state;	/* See acl_next for details. */
-	wchar_t		*acl_text_w;
-	char		*acl_text;
-	int		 acl_types;
+	mode_t mode;
+	archive_acl_entry * acl_head;
+	archive_acl_entry * acl_p;
+	int    acl_state; // See acl_next for details
+	wchar_t * acl_text_w;
+	char * acl_text;
+	int    acl_types;
 };
 
-void archive_acl_clear(struct archive_acl *);
-void archive_acl_copy(struct archive_acl *, struct archive_acl *);
-int archive_acl_count(struct archive_acl *, int);
-int archive_acl_types(struct archive_acl *);
-int archive_acl_reset(struct archive_acl *, int);
-int archive_acl_next(struct archive *, struct archive_acl *, int,
-    int *, int *, int *, int *, const char **);
-
-int archive_acl_add_entry(struct archive_acl *, int, int, int, int, const char *);
-int archive_acl_add_entry_w_len(struct archive_acl *,
-    int, int, int, int, const wchar_t *, size_t);
-int archive_acl_add_entry_len(struct archive_acl *,
-    int, int, int, int, const char *, size_t);
-
-wchar_t *archive_acl_to_text_w(struct archive_acl *, ssize_t *, int,
-    struct archive *);
-char *archive_acl_to_text_l(struct archive_acl *, ssize_t *, int,
-    struct archive_string_conv *);
-
+void archive_acl_clear(archive_acl *);
+void archive_acl_copy(archive_acl *, archive_acl *);
+int archive_acl_count(archive_acl *, int);
+int FASTCALL archive_acl_types(const archive_acl *);
+int archive_acl_reset(archive_acl *, int);
+int archive_acl_next(Archive *, archive_acl *, int, int *, int *, int *, int *, const char **);
+int archive_acl_add_entry(archive_acl *, int, int, int, int, const char *);
+int archive_acl_add_entry_w_len(archive_acl *, int, int, int, int, const wchar_t *, size_t);
+int archive_acl_add_entry_len(archive_acl *, int, int, int, int, const char *, size_t);
+wchar_t *archive_acl_to_text_w(archive_acl *, ssize_t *, int, Archive *);
+char *archive_acl_to_text_l(archive_acl *, ssize_t *, int, archive_string_conv *);
 /*
  * ACL text parser.
  */
-int archive_acl_from_text_w(struct archive_acl *, const wchar_t * /* wtext */,
-    int /* type */);
-int archive_acl_from_text_l(struct archive_acl *, const char * /* text */,
-    int /* type */, struct archive_string_conv *);
+int archive_acl_from_text_w(archive_acl *, const wchar_t * /* wtext */, int /* type */);
+int archive_acl_from_text_l(archive_acl *, const char * /* text */, int /* type */, archive_string_conv *);
 
 #endif /* ARCHIVE_ENTRY_PRIVATE_H_INCLUDED */

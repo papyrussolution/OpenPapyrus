@@ -1154,22 +1154,16 @@ int X509v3_addr_subset(IPAddrBlocks * a, IPAddrBlocks * b)
  * When returning 0, ctx->error MUST be set to an appropriate value other than
  * X509_V_OK.
  */
-static int addr_validate_path_internal(X509_STORE_CTX * ctx,
-    STACK_OF(X509) * chain,
-    IPAddrBlocks * ext)
+static int addr_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * chain, IPAddrBlocks * ext)
 {
 	IPAddrBlocks * child = NULL;
 	int i, j, ret = 1;
 	X509 * x;
-
-	if(!ossl_assert(chain != NULL && sk_X509_num(chain) > 0)
-	   || !ossl_assert(ctx != NULL || ext != NULL)
-	   || !ossl_assert(ctx == NULL || ctx->verify_cb != NULL)) {
+	if(!ossl_assert(chain != NULL && sk_X509_num(chain) > 0) || !ossl_assert(ctx != NULL || ext != NULL) || !ossl_assert(ctx == NULL || ctx->verify_cb != NULL)) {
 		if(ctx)
 			ctx->error = X509_V_ERR_UNSPECIFIED;
 		return 0;
 	}
-
 	/*
 	 * Figure out where to start.  If we don't have an extension to
 	 * check, we're done.  Otherwise, check canonical form and

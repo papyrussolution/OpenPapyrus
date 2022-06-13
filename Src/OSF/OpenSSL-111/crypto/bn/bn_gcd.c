@@ -23,7 +23,7 @@ int BN_gcd(BIGNUM * r, const BIGNUM * in_a, const BIGNUM * in_b, BN_CTX * ctx)
 	BN_CTX_start(ctx);
 	a = BN_CTX_get(ctx);
 	b = BN_CTX_get(ctx);
-	if(b == NULL)
+	if(!b)
 		goto err;
 
 	if(BN_copy(a, in_a) == NULL)

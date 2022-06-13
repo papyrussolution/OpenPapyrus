@@ -793,6 +793,9 @@
     <ClCompile Include="..\PPEquip\EquipDll\ImpExpLeraData.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="libarchive-350.vcxproj">
+      <Project>{3e6b3daf-e5ed-446d-9313-feda5391ab9f}</Project>
+    </ProjectReference>
     <ProjectReference Include="libxml.vcxproj">
       <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

@@ -703,24 +703,20 @@ bool TiXmlDocumentA::SaveUnicodeFilePath(const TCHAR* filename) const
 TiXmlNodeA* TiXmlDocumentA::Clone() const
 {
 	TiXmlDocumentA* clone = new TiXmlDocumentA();
-	if(!clone)
-		return 0;
-
-	CopyToClone(clone);
-	clone->error = error;
-	clone->errorDesc = errorDesc.c_str();
-
-	TiXmlNodeA* node = 0;
-	for(node = firstChild; node; node = node->NextSibling()) {
-		clone->LinkEndChild(node->Clone());
+	if(clone) {
+		CopyToClone(clone);
+		clone->error = error;
+		clone->errorDesc = errorDesc.c_str();
+		for(TiXmlNodeA * node = firstChild; node; node = node->NextSibling()) {
+			clone->LinkEndChild(node->Clone());
+		}
 	}
 	return clone;
 }
 
 void TiXmlDocumentA::Print(FILE* cfile, int depth) const
 {
-	TiXmlNodeA* node;
-	for(node = FirstChild(); node; node = node->NextSibling()) {
+	for(TiXmlNodeA * node = FirstChild(); node; node = node->NextSibling()) {
 		node->Print(cfile, depth);
 		fprintf(cfile, "\n");
 	}
@@ -728,10 +724,8 @@ void TiXmlDocumentA::Print(FILE* cfile, int depth) const
 
 void TiXmlDocumentA::StreamOut(TIXMLA_OSTREAM * out) const
 {
-	TiXmlNodeA* node;
-	for(node = FirstChild(); node; node = node->NextSibling()) {
+	for(TiXmlNodeA * node = FirstChild(); node; node = node->NextSibling()) {
 		node->StreamOut(out);
-
 		// Special rule for streams: stop after the root element.
 		// The stream in code will only read one element, so don't
 		// write more than one.
@@ -742,29 +736,21 @@ void TiXmlDocumentA::StreamOut(TIXMLA_OSTREAM * out) const
 
 TiXmlAttributeA* TiXmlAttributeA::Next() const
 {
-	// We are using knowledge of the sentinel. The sentinel
-	// have a value or name.
-	if(next->value.empty() && next->name.empty() )
-		return 0;
-	return next;
+	// We are using knowledge of the sentinel. The sentinel have a value or name.
+	return (next->value.empty() && next->name.empty()) ? 0 : next;
 }
 
 TiXmlAttributeA* TiXmlAttributeA::Previous() const
 {
-	// We are using knowledge of the sentinel. The sentinel
-	// have a value or name.
-	if(prev->value.empty() && prev->name.empty() )
-		return 0;
-	return prev;
+	// We are using knowledge of the sentinel. The sentinel have a value or name.
+	return (prev->value.empty() && prev->name.empty()) ? 0 : prev;
 }
 
 void TiXmlAttributeA::Print(FILE* cfile, int /*depth*/) const
 {
 	TIXMLA_STRING n, v;
-
 	PutString(Name(), &n);
 	PutString(Value(), &v);
-
 	if(value.find('\"') == TIXMLA_STRING::npos)
 		fprintf(cfile, "%s=\"%s\"", n.c_str(), v.c_str());
 	else
@@ -803,7 +789,7 @@ int TiXmlAttributeA::QueryDoubleValue(double* dval) const
 
 void TiXmlAttributeA::SetIntValue(int _value)
 {
-	char buf [64];
+	char buf[64];
 	sprintf(buf, "%d", _value);
 	SetValue(buf);
 }
@@ -843,8 +829,7 @@ void TiXmlCommentA::StreamOut(TIXMLA_OSTREAM * stream) const
 TiXmlNodeA* TiXmlCommentA::Clone() const
 {
 	TiXmlCommentA * clone = new TiXmlCommentA();
-	if(clone)
-		CopyToClone(clone);
+	CopyToClone(clone);
 	return clone;
 }
 
@@ -863,8 +848,7 @@ void TiXmlTextA::StreamOut(TIXMLA_OSTREAM * stream) const
 TiXmlNodeA* TiXmlTextA::Clone() const
 {
 	TiXmlTextA * clone = new TiXmlTextA("");
-	if(clone)
-		CopyToClone(clone);
+	CopyToClone(clone);
 	return clone;
 }
 
@@ -935,8 +919,7 @@ void TiXmlUnknownA::StreamOut(TIXMLA_OSTREAM * stream) const
 TiXmlNodeA* TiXmlUnknownA::Clone() const
 {
 	TiXmlUnknownA * clone = new TiXmlUnknownA();
-	if(clone)
-		CopyToClone(clone);
+	CopyToClone(clone);
 	return clone;
 }
 

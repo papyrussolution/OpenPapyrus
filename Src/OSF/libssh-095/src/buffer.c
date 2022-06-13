@@ -252,7 +252,7 @@ int ssh_buffer_add_data(struct ssh_buffer_struct * buffer, const void * data, ui
 		return -1;
 	}
 	buffer_verify(buffer);
-	if(data == NULL) {
+	if(!data) {
 		return -1;
 	}
 	if(buffer->used + len < len) {

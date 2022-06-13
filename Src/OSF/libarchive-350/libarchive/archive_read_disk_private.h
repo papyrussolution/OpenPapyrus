@@ -3,8 +3,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer
  *    in this position and unchanged.
@@ -23,12 +22,11 @@
 #include "archive_platform_acl.h"
 
 struct tree;
-struct archive_entry;
+struct ArchiveEntry;
 
 struct archive_read_disk {
-	struct archive	archive;
-	/* Reused by archive_read_next_header() */
-	struct archive_entry *entry;
+	Archive	archive;
+	ArchiveEntry *entry; // Reused by archive_read_next_header()
 	/*
 	 * Symlink mode is one of 'L'ogical, 'P'hysical, or 'H'ybrid,
 	 * following an old BSD convention.  'L' follows all symlinks,
@@ -36,46 +34,32 @@ struct archive_read_disk {
 	 * item.
 	 */
 	char	symlink_mode;
-
 	/*
 	 * Since symlink interaction changes, we need to track whether
 	 * we're following symlinks for the current item.  'L' mode above
 	 * sets this true, 'P' sets it false, 'H' changes it as we traverse.
 	 */
 	char	follow_symlinks; /* Either 'L' or 'P'. */
-
-	/* Directory traversals. */
-	struct tree *tree;
+	// Directory traversals
+	struct tree * tree;
 	int	(*open_on_current_dir)(struct tree*, const char *, int);
 	int	(*tree_current_dir_fd)(struct tree*);
 	int	(*tree_enter_working_dir)(struct tree*);
-
-	/* Bitfield with ARCHIVE_READDISK_* tunables */
-	int	flags;
-
+	int	flags; // Bitfield with ARCHIVE_READDISK_* tunables
 	const char * (*lookup_gname)(void * pPrivate, int64 gid);
 	void	(*cleanup_gname)(void *pPrivate);
 	void	 *lookup_gname_data;
 	const char * (*lookup_uname)(void *pPrivate, int64 uid);
 	void	(*cleanup_uname)(void *pPrivate);
 	void	 *lookup_uname_data;
-	int	(*metadata_filter_func)(struct archive *, void *, struct archive_entry *);
-	void	*metadata_filter_data;
-
-	/* ARCHIVE_MATCH object. */
-	struct archive	*matching;
-	/* Callback function, this will be invoked when ARCHIVE_MATCH
-	 * archive_match_*_excluded_ae return true. */
-	void	(*excluded_cb_func)(struct archive *, void *,
-			 struct archive_entry *);
+	int	(*metadata_filter_func)(Archive *, void *, ArchiveEntry *);
+	void	* metadata_filter_data;
+	Archive	* matching; // ARCHIVE_MATCH object
+	// Callback function, this will be invoked when ARCHIVE_MATCH archive_match_*_excluded_ae return true
+	void	(*excluded_cb_func)(Archive *, void *, ArchiveEntry *);
 	void	*excluded_cb_data;
 };
 
-const char *
-archive_read_disk_entry_setup_path(struct archive_read_disk *,
-    struct archive_entry *, int *);
-
-int
-archive_read_disk_entry_setup_acls(struct archive_read_disk *,
-    struct archive_entry *, int *);
+const char * archive_read_disk_entry_setup_path(struct archive_read_disk *, ArchiveEntry *, int *);
+int archive_read_disk_entry_setup_acls(struct archive_read_disk *, ArchiveEntry *, int *);
 #endif

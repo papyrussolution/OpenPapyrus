@@ -1,12 +1,12 @@
 // PPCOLORS.CPP
-// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017, 2018, 2019, 2020, 2022
 //
 #include <pp.h>
 #pragma hdrstop
 
 #define RECT_WIDTH	5
 #define RADIUS	    100
-#define TOSCALE(x)	  (((x)*RADIUS)/255.0)
+#define TOSCALE(x)	  (((x)*RADIUS) / 255.0)
 #define SCALETOMAX(x) (((x)*255.0)/RADIUS)
 #define DISTANCE(pt1, pt2) sqrt(static_cast<double>((pt1.x - pt2.x) * (pt1.x - pt2.x) + (pt1.y - pt2.y) * (pt1.y - pt2.y)))
 #define CALC_LINE_K(pt1, pt2) (pt2.x != pt1.x) ? static_cast<double>(pt2.y - pt1.y) / static_cast<double>(pt2.x - pt1.x) : 0
@@ -21,9 +21,14 @@ struct HSV {
 
 COLORREF HSV::ToRGB()
 {
-	int    r = 0, g = 0, b = 0;
-	double min = 0, max = 0, delta = 0, hue = 0;
-	if(!H  && !S)
+	int    r = 0;
+	int    g = 0;
+	int    b = 0;
+	double min = 0.0;
+	double max = 0.0;
+	double delta = 0.0;
+	double hue = 0.0;
+	if(!H && !S)
 		r = g = b = V;
 	max = V;
 	delta = (max * S) / 255.0;

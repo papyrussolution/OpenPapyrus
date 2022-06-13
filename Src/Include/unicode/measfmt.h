@@ -13,12 +13,10 @@
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 #if !UCONFIG_NO_FORMATTING
 
 #include "unicode/format.h"
 #include "unicode/udat.h"
-
 /**
  * \file
  * \brief C++ API: Compatibility APIs for measure formatting.
@@ -103,7 +101,6 @@ public:
 	 * @stable ICU 53
 	 */
 	MeasureFormat(const Locale &locale, UMeasureFormatWidth width, UErrorCode &status);
-
 	/**
 	 * Constructor.
 	 * <p>
@@ -111,17 +108,12 @@ public:
 	 * {@link icu::number::NumberFormatter} instead of NumberFormat.
 	 * @stable ICU 53
 	 */
-	MeasureFormat(const Locale &locale,
-	    UMeasureFormatWidth width,
-	    NumberFormat * nfToAdopt,
-	    UErrorCode &status);
-
+	MeasureFormat(const Locale &locale, UMeasureFormatWidth width, NumberFormat * nfToAdopt, UErrorCode &status);
 	/**
 	 * Copy constructor.
 	 * @stable ICU 3.0
 	 */
 	MeasureFormat(const MeasureFormat &other);
-
 	/**
 	 * Assignment operator.
 	 * @stable ICU 3.0
@@ -145,16 +137,11 @@ public:
 	 * @stable ICU 53
 	 */
 	virtual MeasureFormat * clone() const override;
-
 	/**
 	 * Formats object to produce a string.
 	 * @stable ICU 53
 	 */
-	virtual UnicodeString &format(const Formattable &obj,
-	    UnicodeString &appendTo,
-	    FieldPosition &pos,
-	    UErrorCode &status) const override;
-
+	virtual UnicodeString &format(const Formattable &obj, UnicodeString &appendTo, FieldPosition &pos, UErrorCode &status) const override;
 #ifndef U_FORCE_HIDE_DRAFT_API
 	/**
 	 * Parse a string to produce an object. This implementation sets
@@ -162,9 +149,7 @@ public:
 	 *
 	 * @draft ICU 53
 	 */
-	virtual void parseObject(const UnicodeString &source,
-	    Formattable &reslt,
-	    ParsePosition &pos) const override;
+	virtual void parseObject(const UnicodeString &source, Formattable &reslt, ParsePosition &pos) const override;
 #endif  // U_FORCE_HIDE_DRAFT_API
 
 	/**
@@ -183,12 +168,7 @@ public:
 	 *
 	 * @stable ICU 53
 	 */
-	UnicodeString &formatMeasures(const Measure * measures,
-	    int32_t measureCount,
-	    UnicodeString &appendTo,
-	    FieldPosition &pos,
-	    UErrorCode &status) const;
-
+	UnicodeString &formatMeasures(const Measure * measures, int32_t measureCount, UnicodeString &appendTo, FieldPosition &pos, UErrorCode &status) const;
 	/**
 	 * Formats a single measure per unit. An example of such a
 	 * formatted string is 3.5 meters per second.
@@ -202,12 +182,7 @@ public:
 	 *
 	 * @stable ICU 55
 	 */
-	UnicodeString &formatMeasurePerUnit(const Measure &measure,
-	    const MeasureUnit &perUnit,
-	    UnicodeString &appendTo,
-	    FieldPosition &pos,
-	    UErrorCode &status) const;
-
+	UnicodeString &formatMeasurePerUnit(const Measure &measure, const MeasureUnit &perUnit, UnicodeString &appendTo, FieldPosition &pos, UErrorCode &status) const;
 	/**
 	 * Gets the display name of the specified {@link MeasureUnit} corresponding to the current
 	 * locale and format width.
@@ -220,7 +195,6 @@ public:
 	 * @stable ICU 58
 	 */
 	UnicodeString getUnitDisplayName(const MeasureUnit& unit, UErrorCode &status) const;
-
 	/**
 	 * Return a formatter for CurrencyAmount objects in the given
 	 * locale.
@@ -232,9 +206,7 @@ public:
 	 * @return a formatter object, or NULL upon error
 	 * @stable ICU 3.0
 	 */
-	static MeasureFormat* U_EXPORT2 createCurrencyFormat(const Locale& locale,
-	    UErrorCode& ec);
-
+	static MeasureFormat* U_EXPORT2 createCurrencyFormat(const Locale& locale, UErrorCode& ec);
 	/**
 	 * Return a formatter for CurrencyAmount objects in the default
 	 * locale.
@@ -259,7 +231,6 @@ public:
 	 * @stable ICU 53
 	 */
 	static UClassID U_EXPORT2 getStaticClassID(void);
-
 	/**
 	 * Returns a unique class ID POLYMORPHICALLY. Pure virtual override. This
 	 * method is to implement a simple version of RTTI, since not all C++
@@ -272,25 +243,19 @@ public:
 	 * @stable ICU 53
 	 */
 	virtual UClassID getDynamicClassID(void) const override;
-
 protected:
 	/**
 	 * Default constructor.
 	 * @stable ICU 3.0
 	 */
 	MeasureFormat();
-
 #ifndef U_HIDE_INTERNAL_API
-
 	/**
 	 * ICU use only.
 	 * Initialize or change MeasureFormat class from subclass.
 	 * @internal.
 	 */
-	void initMeasureFormat(const Locale &locale,
-	    UMeasureFormatWidth width,
-	    NumberFormat * nfToAdopt,
-	    UErrorCode &status);
+	void initMeasureFormat(const Locale &locale, UMeasureFormatWidth width, NumberFormat * nfToAdopt, UErrorCode &status);
 	/**
 	 * ICU use only.
 	 * Allows subclass to change locale. Note that this method also changes
@@ -299,20 +264,17 @@ protected:
 	 * @internal.
 	 */
 	bool setMeasureFormatLocale(const Locale &locale, UErrorCode &status);
-
 	/**
 	 * ICU use only.
 	 * Let subclass change NumberFormat.
 	 * @internal.
 	 */
 	void adoptNumberFormat(NumberFormat * nfToAdopt, UErrorCode &status);
-
 	/**
 	 * ICU use only.
 	 * @internal.
 	 */
 	const NumberFormat &getNumberFormatInternal() const;
-
 	/**
 	 * ICU use only.
 	 * Always returns the short form currency formatter.
@@ -325,7 +287,6 @@ protected:
 	 * @internal.
 	 */
 	const PluralRules &getPluralRules() const;
-
 	/**
 	 * ICU use only.
 	 * @internal.

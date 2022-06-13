@@ -1,8 +1,8 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/* ------------------------------------------------------------------ */
-/* Decimal Number arithmetic module        */
-/* ------------------------------------------------------------------ */
+// 
+// Decimal Number arithmetic module
+// 
 /* Copyright (c) IBM Corporation, 2000-2014.  All rights reserved.    */
 /* */
 /* This software is made available under the terms of the    */

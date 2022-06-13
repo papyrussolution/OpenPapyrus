@@ -461,16 +461,14 @@ MEM_STATIC size_t   BITv07_initDStream(BITv07_DStream_t* bitD, const void* srcBu
 MEM_STATIC size_t   BITv07_readBits(BITv07_DStream_t* bitD, uint nbBits);
 MEM_STATIC BITv07_DStream_status BITv07_reloadDStream(BITv07_DStream_t* bitD);
 MEM_STATIC uint BITv07_endOfDStream(const BITv07_DStream_t* bitD);
-
-/*-****************************************
-*  unsafe API
-******************************************/
+// 
+// unsafe API
+// 
 MEM_STATIC size_t BITv07_readBitsFast(BITv07_DStream_t* bitD, uint nbBits);
 /* faster, but works only if nbBits >= 1 */
-
-/*-**************************************************************
-*  Internal functions
-****************************************************************/
+// 
+// Internal functions
+// 
 MEM_STATIC uint BITv07_highbit32(uint32 val)
 {
 #if defined(_MSC_VER)   /* Visual */
@@ -1051,10 +1049,9 @@ const char* FSEv07_getErrorName(size_t code) { return ERR_getErrorName(code); }
 //
 uint HUFv07_isError(size_t code) { return ERR_isError(code); }
 const char* HUFv07_getErrorName(size_t code) { return ERR_getErrorName(code); }
-
-/*-**************************************************************
-*  FSE NCount encoding-decoding
-****************************************************************/
+// 
+// FSE NCount encoding-decoding
+// 
 static short FSEv07_abs(short a) { return (short)(a<0 ? -a : a); }
 
 size_t FSEv07_readNCount(short * normalizedCounter, uint * maxSVPtr, uint * tableLogPtr, const void* headerBuffer, size_t hbSize)
@@ -2989,8 +2986,7 @@ size_t ZSTDv07_getFrameParams(ZSTDv07_frameParams* fparamsPtr, const void* src, 
 		    case 2: dictID = MEM_readLE16(ip+pos); pos += 2; break;
 		    case 3: dictID = MEM_readLE32(ip+pos); pos += 4; break;
 	    }
-	    switch(fcsID)
-	    {
+	    switch(fcsID) {
 		    default: /* impossible */
 		    case 0: if(directMode) frameContentSize = ip[pos]; break;
 		    case 1: frameContentSize = MEM_readLE16(ip+pos)+256; break;
@@ -3044,21 +3040,22 @@ static size_t ZSTDv07_getcBlockSize(const void* src, size_t srcSize, blockProper
 {
 	const BYTE * const in = (const BYTE *)src;
 	uint32 cSize;
-
-	if(srcSize < ZSTDv07_blockHeaderSize) return ERROR(srcSize_wrong);
-
+	if(srcSize < ZSTDv07_blockHeaderSize) 
+		return ERROR(srcSize_wrong);
 	bpPtr->blockType = (blockType_t)((*in) >> 6);
 	cSize = in[2] + (in[1]<<8) + ((in[0] & 7)<<16);
 	bpPtr->origSize = (bpPtr->blockType == bt_rle) ? cSize : 0;
-
-	if(bpPtr->blockType == bt_end) return 0;
-	if(bpPtr->blockType == bt_rle) return 1;
+	if(bpPtr->blockType == bt_end) 
+		return 0;
+	if(bpPtr->blockType == bt_rle) 
+		return 1;
 	return cSize;
 }
 
 static size_t ZSTDv07_copyRawBlock(void* dst, size_t dstCapacity, const void* src, size_t srcSize)
 {
-	if(srcSize > dstCapacity) return ERROR(dstSize_tooSmall);
+	if(srcSize > dstCapacity) 
+		return ERROR(dstSize_tooSmall);
 	if(srcSize > 0) {
 		memcpy(dst, src, srcSize);
 	}
@@ -3073,9 +3070,7 @@ static size_t ZSTDv07_decodeLiteralsBlock(ZSTDv07_DCtx* dctx,
 	const BYTE * const istart = (const BYTE *)src;
 
 	if(srcSize < MIN_CBLOCK_SIZE) return ERROR(corruption_detected);
-
-	switch((litBlockType_t)(istart[0]>> 6))
-	{
+	switch((litBlockType_t)(istart[0]>> 6)) {
 		case lbt_huffman:
 	    {   size_t litSize, litCSize, singleStream = 0;
 		uint32 lhSize = (istart[0] >> 4) & 3;
@@ -3315,11 +3310,9 @@ typedef struct {
 static seq_t ZSTDv07_decodeSequence(seqState_t* seqState)
 {
 	seq_t seq;
-
 	const uint32 llCode = FSEv07_peekSymbol(&(seqState->stateLL));
 	const uint32 mlCode = FSEv07_peekSymbol(&(seqState->stateML));
 	const uint32 ofCode = FSEv07_peekSymbol(&(seqState->stateOffb)); /* <= maxOff, by table construction */
-
 	const uint32 llBits = LL_bits[llCode];
 	const uint32 mlBits = ML_bits[mlCode];
 	const uint32 ofBits = ofCode;
@@ -3822,7 +3815,8 @@ size_t ZSTDv07_decompressContinue(ZSTDv07_DCtx* dctx, void* dst, size_t dstCapac
 		}
 		return 0;}
 		case ZSTDds_decompressBlock:
-	    {   size_t rSize;
+	    {   
+		size_t rSize;
 		switch(dctx->bType) {
 			case bt_compressed:
 			    rSize = ZSTDv07_decompressBlock_internal(dctx, dst, dstCapacity, src, srcSize);
@@ -3846,14 +3840,18 @@ size_t ZSTDv07_decompressContinue(ZSTDv07_DCtx* dctx, void* dst, size_t dstCapac
 		if(dctx->fParams.checksumFlag) XXH64_update(&dctx->xxhState, dst, rSize);
 		return rSize;}
 		case ZSTDds_decodeSkippableHeader:
-	    {   memcpy(dctx->headerBuffer + ZSTDv07_frameHeaderSize_min, src, dctx->expected);
-		dctx->expected = MEM_readLE32(dctx->headerBuffer + 4);
-		dctx->stage = ZSTDds_skipFrame;
-		return 0;}
+			{   
+				memcpy(dctx->headerBuffer + ZSTDv07_frameHeaderSize_min, src, dctx->expected);
+				dctx->expected = MEM_readLE32(dctx->headerBuffer + 4);
+				dctx->stage = ZSTDds_skipFrame;
+				return 0;
+			}
 		case ZSTDds_skipFrame:
-	    {   dctx->expected = 0;
-		dctx->stage = ZSTDds_getFrameHeaderSize;
-		return 0;}
+			{   
+				dctx->expected = 0;
+				dctx->stage = ZSTDds_getFrameHeaderSize;
+				return 0;
+			}
 		default:
 		    return ERROR(GENERIC); /* impossible */
 	}
@@ -4142,8 +4140,10 @@ size_t ZBUFFv07_freeDCtx(ZBUFFv07_DCtx* zbd)
 	if(!zbd)
 		return 0; /* support free on null */
 	ZSTDv07_freeDCtx(zbd->zd);
-	if(zbd->inBuff) zbd->customMem.customFree(zbd->customMem.opaque, zbd->inBuff);
-	if(zbd->outBuff) zbd->customMem.customFree(zbd->customMem.opaque, zbd->outBuff);
+	if(zbd->inBuff) 
+		zbd->customMem.customFree(zbd->customMem.opaque, zbd->inBuff);
+	if(zbd->outBuff) 
+		zbd->customMem.customFree(zbd->customMem.opaque, zbd->outBuff);
 	zbd->customMem.customFree(zbd->customMem.opaque, zbd);
 	return 0;
 }

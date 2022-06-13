@@ -192,13 +192,13 @@ static char x11_userbkg[] = "#RRGGBB";
 // these construct their own full path GNUPLOT_X11 in their build script).
 // 
 #if defined(_Windows)
-#   ifndef GNUPLOT_X11
+#ifndef GNUPLOT_X11
 static char X11_default_command[] = "gnuplot_x11.exe";
 #   else
 static char X11_default_command[] = GNUPLOT_X11 ".exe";
 #endif
 #else  /* thus !OS/2 && !Windows */
-#   ifndef GNUPLOT_X11
+#ifndef GNUPLOT_X11
 static char X11_default_command[] = "gnuplot_x11";
 #   else
 static char X11_default_command[] = GNUPLOT_X11;

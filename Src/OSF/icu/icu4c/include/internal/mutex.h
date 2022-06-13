@@ -1,15 +1,7 @@
+// mutex.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-******************************************************************************
-*
-*   Copyright (C) 1997-2013, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*
-******************************************************************************
-*/
-//----------------------------------------------------------------------------
-// File:     mutex.h
+// Copyright (C) 1997-2013, International Business Machines Corporation and others.  All Rights Reserved.
 //
 // Lightweight C++ wrapper for umtx_ C mutex functions
 //
@@ -18,7 +10,6 @@
 // 06/04/97   helena         Updated setImplementation as per feedback from 5/21 drop.
 // 04/07/1999  srl               refocused as a thin wrapper
 //
-//----------------------------------------------------------------------------
 #ifndef MUTEX_H
 #define MUTEX_H
 

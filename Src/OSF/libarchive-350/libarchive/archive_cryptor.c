@@ -3,8 +3,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -29,13 +28,9 @@ int __libarchive_cryptor_build_hack(void) {
 
 #ifdef ARCHIVE_CRYPTOR_USE_Apple_CommonCrypto
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
-    size_t salt_len, unsigned rounds, uint8 * derived_key,
-    size_t derived_key_len)
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len)
 {
-	CCKeyDerivationPBKDF(kCCPBKDF2, (const char *)pw,
-	    pw_len, salt, salt_len, kCCPRFHmacAlgSHA1, rounds,
-	    derived_key, derived_key_len);
+	CCKeyDerivationPBKDF(kCCPBKDF2, (const char *)pw, pw_len, salt, salt_len, kCCPRFHmacAlgSHA1, rounds, derived_key, derived_key_len);
 	return 0;
 }
 
@@ -58,8 +53,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_
 
 #elif defined(HAVE_LIBMBEDCRYPTO) && defined(HAVE_MBEDTLS_PKCS5_H)
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
-    size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len)
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len)
 {
 	mbedtls_md_context_t ctx;
 	const mbedtls_md_info_t * info;
@@ -91,8 +85,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
 
 #elif defined(HAVE_LIBCRYPTO) && defined(HAVE_PKCS5_PBKDF2_HMAC_SHA1)
 
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
-    size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len) 
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len) 
 {
 	PKCS5_PBKDF2_HMAC_SHA1(pw, pw_len, salt, salt_len, rounds, derived_key_len, derived_key);
 	return 0;
@@ -134,12 +127,10 @@ static int aes_ctr_encrypt_counter(archive_crypto_ctx * ctx)
 {
 	CCCryptorRef ref = ctx->ctx;
 	CCCryptorStatus r;
-
 	r = CCCryptorReset(ref, NULL);
 	if(r != kCCSuccess && r != kCCUnimplemented)
 		return -1;
-	r = CCCryptorUpdate(ref, ctx->nonce, AES_BLOCK_SIZE, ctx->encr_buf,
-		AES_BLOCK_SIZE, NULL);
+	r = CCCryptorUpdate(ref, ctx->nonce, AES_BLOCK_SIZE, ctx->encr_buf, AES_BLOCK_SIZE, NULL);
 	return (r == kCCSuccess) ? 0 : -1;
 }
 
@@ -161,7 +152,6 @@ static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_
 	ULONG result;
 	NTSTATUS status;
 	BCRYPT_KEY_LENGTHS_STRUCT key_lengths;
-
 	ctx->hAlg = NULL;
 	ctx->hKey = NULL;
 	ctx->keyObj = NULL;
@@ -181,13 +171,11 @@ static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_
 		BCryptCloseAlgorithmProvider(hAlg, 0);
 		return -1;
 	}
-	if(key_lengths.dwMinLength > aes_key_len
-	   || key_lengths.dwMaxLength < aes_key_len) {
+	if(key_lengths.dwMinLength > aes_key_len || key_lengths.dwMaxLength < aes_key_len) {
 		BCryptCloseAlgorithmProvider(hAlg, 0);
 		return -1;
 	}
-	status = BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH, (PUCHAR)&keyObj_len,
-		sizeof(keyObj_len), &result, 0);
+	status = BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH, (PUCHAR)&keyObj_len, sizeof(keyObj_len), &result, 0);
 	if(!BCRYPT_SUCCESS(status)) {
 		BCryptCloseAlgorithmProvider(hAlg, 0);
 		return -1;
@@ -197,28 +185,23 @@ static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_
 		BCryptCloseAlgorithmProvider(hAlg, 0);
 		return -1;
 	}
-	status = BCryptSetProperty(hAlg, BCRYPT_CHAINING_MODE,
-		(PUCHAR)BCRYPT_CHAIN_MODE_ECB, sizeof(BCRYPT_CHAIN_MODE_ECB), 0);
+	status = BCryptSetProperty(hAlg, BCRYPT_CHAINING_MODE, (PUCHAR)BCRYPT_CHAIN_MODE_ECB, sizeof(BCRYPT_CHAIN_MODE_ECB), 0);
 	if(!BCRYPT_SUCCESS(status)) {
 		BCryptCloseAlgorithmProvider(hAlg, 0);
 		HeapFree(GetProcessHeap(), 0, keyObj);
 		return -1;
 	}
-	status = BCryptGenerateSymmetricKey(hAlg, &hKey,
-		keyObj, keyObj_len,
-		(PUCHAR)(uintptr_t)key, (ULONG)key_len, 0);
+	status = BCryptGenerateSymmetricKey(hAlg, &hKey, keyObj, keyObj_len, (PUCHAR)(uintptr_t)key, (ULONG)key_len, 0);
 	if(!BCRYPT_SUCCESS(status)) {
 		BCryptCloseAlgorithmProvider(hAlg, 0);
 		HeapFree(GetProcessHeap(), 0, keyObj);
 		return -1;
 	}
-
 	ctx->hAlg = hAlg;
 	ctx->hKey = hKey;
 	ctx->keyObj = keyObj;
 	ctx->keyObj_len = keyObj_len;
 	ctx->encr_pos = AES_BLOCK_SIZE;
-
 	return 0;
 }
 
@@ -226,10 +209,7 @@ static int aes_ctr_encrypt_counter(archive_crypto_ctx * ctx)
 {
 	NTSTATUS status;
 	ULONG result;
-
-	status = BCryptEncrypt(ctx->hKey, (PUCHAR)ctx->nonce, AES_BLOCK_SIZE,
-		NULL, NULL, 0, (PUCHAR)ctx->encr_buf, AES_BLOCK_SIZE,
-		&result, 0);
+	status = BCryptEncrypt(ctx->hKey, (PUCHAR)ctx->nonce, AES_BLOCK_SIZE, NULL, NULL, 0, (PUCHAR)ctx->encr_buf, AES_BLOCK_SIZE, &result, 0);
 	return BCRYPT_SUCCESS(status) ? 0 : -1;
 }
 
@@ -341,7 +321,7 @@ static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_
 	memcpy(ctx->key, key, key_len);
 	memzero(ctx->nonce, sizeof(ctx->nonce));
 	ctx->encr_pos = AES_BLOCK_SIZE;
-#if OPENSSL_VERSION_NUMBER  >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined(LIBRESSL_VERSION_NUMBER)
 	if(!EVP_CIPHER_CTX_reset(ctx->ctx)) {
 		EVP_CIPHER_CTX_free(ctx->ctx);
 		ctx->ctx = NULL;
@@ -355,13 +335,10 @@ static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_
 static int aes_ctr_encrypt_counter(archive_crypto_ctx * ctx)
 {
 	int outl = 0;
-	int r;
-
-	r = EVP_EncryptInit_ex(ctx->ctx, ctx->type, NULL, ctx->key, NULL);
+	int r = EVP_EncryptInit_ex(ctx->ctx, ctx->type, NULL, ctx->key, NULL);
 	if(!r)
 		return -1;
-	r = EVP_EncryptUpdate(ctx->ctx, ctx->encr_buf, &outl, ctx->nonce,
-		AES_BLOCK_SIZE);
+	r = EVP_EncryptUpdate(ctx->ctx, ctx->encr_buf, &outl, ctx->nonce, AES_BLOCK_SIZE);
 	if(r == 0 || outl != AES_BLOCK_SIZE)
 		return -1;
 	return 0;

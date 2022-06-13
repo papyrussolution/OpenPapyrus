@@ -1554,7 +1554,7 @@ namespace NWindows {
 			bool IsAltPathPrefix(CFSTR s) throw()
 			{
 				uint   len = sstrlen(s);
-				if(len == 0)
+				if(!len)
 					return false;
 				if(s[len - 1] != ':')
 					return false;

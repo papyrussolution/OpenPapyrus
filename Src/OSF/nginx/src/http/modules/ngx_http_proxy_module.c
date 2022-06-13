@@ -1661,7 +1661,7 @@ static ngx_int_t ngx_http_proxy_add_x_forwarded_for_variable(ngx_http_request_t 
 	for(i = 0; i < n; i++) {
 		len += h[i]->value.len + sizeof(", ") - 1;
 	}
-	if(len == 0) {
+	if(!len) {
 		v->len = r->connection->addr_text.len;
 		v->data = r->connection->addr_text.data;
 		return NGX_OK;
@@ -1861,7 +1861,7 @@ static ngx_int_t ngx_http_proxy_rewrite(ngx_http_request_t * r, ngx_table_elt_t 
 	size_t new_len = replacement->len + h->value.len - len;
 	if(replacement->len > len) {
 		data = (u_char *)ngx_pnalloc(r->pool, new_len + 1);
-		if(data == NULL) {
+		if(!data) {
 			return NGX_ERROR;
 		}
 		p = ngx_copy(data, h->value.data, prefix);

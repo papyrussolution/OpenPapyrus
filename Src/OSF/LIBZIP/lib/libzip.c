@@ -340,7 +340,7 @@ uint32 FASTCALL _zip_buffer_get_32(zip_buffer_t * buffer)
 uint64 FASTCALL _zip_buffer_get_64(zip_buffer_t * buffer)
 {
 	uint8 * data = _zip_buffer_get(buffer, 8);
-	if(data == NULL) {
+	if(!data) {
 		return 0;
 	}
 	return ((uint64)data[7] << 56) + ((uint64)data[6] << 48) + ((uint64)data[5] << 40) + 
@@ -455,7 +455,7 @@ int FASTCALL _zip_buffer_put_64(zip_buffer_t * buffer, uint64 i)
 int FASTCALL _zip_buffer_put_8(zip_buffer_t * buffer, uint8 i)
 {
 	uint8 * data = _zip_buffer_get(buffer, 1);
-	if(data == NULL) {
+	if(!data) {
 		return -1;
 	}
 	else {
@@ -2357,7 +2357,7 @@ uint8 * _zip_read_data(zip_buffer_t * buffer, zip_source_t * src, size_t length,
 	}
 	if(buffer) {
 		uint8 * data = _zip_buffer_get(buffer, length);
-		if(data == NULL) {
+		if(!data) {
 			zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 			SAlloc::F(r);
 			return NULL;
@@ -3389,7 +3389,7 @@ static int64 crc_read(zip_source_t * src, void * _ctx, void * data, uint64 len, 
 		    else if(!ctx->crc_complete && ctx->position <= ctx->crc_position) {
 			    uint64 nn;
 			    for(uint64 i = ctx->crc_position - ctx->position; i < (uint64)n; i += nn) {
-				    nn = MIN(UINT_MAX, (uint64)n-i);
+				    nn = MIN(UINT64_MAX, (uint64)n-i);
 				    ctx->crc = (uint32)crc32(ctx->crc, (const Bytef*)data+i, (uInt)nn);
 				    ctx->crc_position += nn;
 			    }
@@ -3902,7 +3902,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 	if(!len)
 		return 0;
 	out_offset = 0;
-	out_len = (uInt)MIN(UINT_MAX, len);
+	out_len = (uInt)MIN(UINT64_MAX, len);
 	ctx->zstr.next_out = static_cast<Bytef *>(data);
 	ctx->zstr.avail_out = out_len;
 	end = 0;
@@ -3913,7 +3913,7 @@ static int64 decompress_read(zip_source_t * src, ZipDeflate * ctx, void * data, 
 			    if(ctx->zstr.avail_out == 0) {
 				    out_offset += out_len;
 				    if(out_offset < len) {
-					    out_len = (uInt)MIN(UINT_MAX, len-out_offset);
+					    out_len = (uInt)MIN(UINT64_MAX, len-out_offset);
 					    ctx->zstr.next_out = (Bytef *)data+out_offset;
 					    ctx->zstr.avail_out = out_len;
 				    }

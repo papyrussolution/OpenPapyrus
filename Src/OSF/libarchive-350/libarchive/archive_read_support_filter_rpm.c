@@ -32,44 +32,44 @@ struct rpm {
 
 #define RPM_LEAD_SIZE   96      /* Size of 'Lead' section. */
 
-static int rpm_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
-static int rpm_bidder_init(struct archive_read_filter *);
-static ssize_t  rpm_filter_read(struct archive_read_filter *, const void **);
-static int rpm_filter_close(struct archive_read_filter *);
+static int rpm_bidder_bid(ArchiveReadFilterBidder *, ArchiveReadFilter *);
+static int rpm_bidder_init(ArchiveReadFilter *);
+static ssize_t  rpm_filter_read(ArchiveReadFilter *, const void **);
+static int rpm_filter_close(ArchiveReadFilter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 /* Deprecated; remove in libarchive 4.0 */
-int archive_read_support_compression_rpm(struct archive * a)
+int archive_read_support_compression_rpm(Archive * a)
 {
 	return archive_read_support_filter_rpm(a);
 }
 
 #endif
 
-int archive_read_support_filter_rpm(struct archive * _a)
+int archive_read_support_filter_rpm(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
-	struct archive_read_filter_bidder * bidder;
+	ArchiveRead * a = (ArchiveRead *)_a;
+	ArchiveReadFilterBidder * bidder;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	bidder->data = NULL;
 	bidder->name = "rpm";
-	bidder->bid = rpm_bidder_bid;
-	bidder->init = rpm_bidder_init;
-	bidder->options = NULL;
-	bidder->free = NULL;
+	bidder->FnBid = rpm_bidder_bid;
+	bidder->FnInit = rpm_bidder_init;
+	bidder->FnOptions = NULL;
+	bidder->FnFree = NULL;
 	return ARCHIVE_OK;
 }
 
-static int rpm_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
+static int rpm_bidder_bid(ArchiveReadFilterBidder * self, ArchiveReadFilter * filter)
 {
 	const uchar * b;
 	ssize_t avail;
 	int bits_checked;
 	CXX_UNUSED(self);
 	b = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 8, &avail));
-	if(b == NULL)
+	if(!b)
 		return 0;
 	bits_checked = 0;
 	/*
@@ -96,7 +96,7 @@ static int rpm_bidder_bid(struct archive_read_filter_bidder * self, struct archi
 	return (bits_checked);
 }
 
-static int rpm_bidder_init(struct archive_read_filter * self)
+static int rpm_bidder_init(ArchiveReadFilter * self)
 {
 	struct rpm * rpm;
 	self->code = ARCHIVE_FILTER_RPM;
@@ -114,7 +114,7 @@ static int rpm_bidder_init(struct archive_read_filter * self)
 	return ARCHIVE_OK;
 }
 
-static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** buff)
+static ssize_t rpm_filter_read(ArchiveReadFilter * self, const void ** buff)
 {
 	const uchar * b;
 	ssize_t avail_in, total;
@@ -127,9 +127,9 @@ static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** 
 	b = NULL;
 	used = 0;
 	do {
-		if(b == NULL) {
+		if(!b) {
 			b = static_cast<const uchar *>(__archive_read_filter_ahead(self->upstream, 1, &avail_in));
-			if(b == NULL) {
+			if(!b) {
 				if(avail_in < 0)
 					return ARCHIVE_FATAL;
 				else
@@ -213,7 +213,6 @@ static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** 
 			used = 0;
 		}
 	} while(total == 0 && avail_in > 0);
-
 	if(used > 0 && b != NULL) {
 		rpm->total_in += used;
 		__archive_read_filter_consume(self->upstream, used);
@@ -221,12 +220,9 @@ static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** 
 	return (total);
 }
 
-static int rpm_filter_close(struct archive_read_filter * self)
+static int rpm_filter_close(ArchiveReadFilter * self)
 {
-	struct rpm * rpm;
-
-	rpm = (struct rpm *)self->data;
+	struct rpm * rpm = (struct rpm *)self->data;
 	SAlloc::F(rpm);
-
 	return ARCHIVE_OK;
 }

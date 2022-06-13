@@ -1352,20 +1352,15 @@ EXT_RETURN tls_construct_stoc_maxfragmentlen(SSL * s, WPACKET * pkt,
 }
 
 #ifndef OPENSSL_NO_EC
-EXT_RETURN tls_construct_stoc_ec_pt_formats(SSL * s, WPACKET * pkt,
-    uint context, X509 * x,
-    size_t chainidx)
+EXT_RETURN tls_construct_stoc_ec_pt_formats(SSL * s, WPACKET * pkt, uint context, X509 * x, size_t chainidx)
 {
 	ulong alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
 	ulong alg_a = s->s3->tmp.new_cipher->algorithm_auth;
-	int using_ecc = ((alg_k & SSL_kECDHE) || (alg_a & SSL_aECDSA))
-	 && (s->ext.peer_ecpointformats != NULL);
+	int using_ecc = ((alg_k & SSL_kECDHE) || (alg_a & SSL_aECDSA)) && (s->ext.peer_ecpointformats != NULL);
 	const uchar * plist;
 	size_t plistlen;
-
 	if(!using_ecc)
 		return EXT_RETURN_NOT_SENT;
-
 	tls1_get_formatlist(s, &plist, &plistlen);
 	if(!WPACKET_put_bytes_u16(pkt, TLSEXT_TYPE_ec_point_formats)
 	   || !WPACKET_start_sub_packet_u16(pkt)

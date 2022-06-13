@@ -218,7 +218,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <OutputFile>..\..\TOOLS\ICU\$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalDependencies>uconvmsg.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <!-- <AdditionalLibraryDirectories>$(OutDir);..\..\..\$(IcuLibOutputDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories> -->
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>

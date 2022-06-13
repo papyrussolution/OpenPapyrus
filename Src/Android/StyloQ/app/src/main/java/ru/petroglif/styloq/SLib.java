@@ -53,6 +53,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.Vector;
 
 public class SLib {
@@ -2206,6 +2207,38 @@ public class SLib {
 	{
 		return (s != null) ? s.length : 0;
 	}
+	public static boolean AreUUIDsEqual(final UUID a1, final UUID a2)
+	{
+		if(a1 == null)
+			if(a2 == null)
+				return true;
+			else
+				return false;
+		else if(a2 == null)
+			return false;
+		else
+			return a1.equals(a2);
+	}
+	public static boolean AreStringsEqual(final String a1, final String a2)
+	{
+		if(a1 == null)
+			if(a2 == null)
+				return true;
+			else
+				return false;
+		else if(a2 == null)
+			return false;
+		else {
+			final int len1 = a1.length();
+			final int len2 = a2.length();
+			if(len1 != len2)
+				return false;
+			else if(len1 == 0)
+				return true;
+			else
+				return a1.equals(a2);
+		}
+	}
 	public static boolean AreByteArraysEqual(final byte [] a1, final byte [] a2)
 	{
 		if(a1 == null)
@@ -2460,6 +2493,10 @@ public class SLib {
 		private static final int ANY_MONITEM_VALUE  = 0x7d;
 		private static final int ANY_YEARITEM_VALUE = 0x7d0a;
 
+		public static boolean ArEq(final LDATE a1, final LDATE a2)
+		{
+			return (a1 != null) ? (a2 != null && a1.v == a2.v) : (a2 == null);
+		}
 		LDATE()
 		{
 			v = 0;
@@ -3298,6 +3335,10 @@ public class SLib {
 	// Descr: Представление времени. Бинарно совместимо с LTIME из slib.h
 	//
 	public static class LTIME {
+		public static boolean ArEq(final LTIME a1, final LTIME a2)
+		{
+			return (a1 != null) ? (a2 != null && a1.v == a2.v) : (a2 == null);
+		}
 		LTIME()
 		{
 			v = 0;
@@ -3444,6 +3485,10 @@ public class SLib {
 		return result;
 	}
 	public static class LDATETIME {
+		public static boolean ArEq(final LDATETIME a1, final LDATETIME a2)
+		{
+			return (a1 != null) ? (a2 != null && LDATE.ArEq(a1.d, a2.d) && LTIME.ArEq(a1.t, a2.t)) : (a2 == null);
+		}
 		LDATETIME()
 		{
 			d = new LDATE();
@@ -3461,7 +3506,7 @@ public class SLib {
 			d = new LDATE(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH)+1, c.get(Calendar.YEAR));
 			t = new LTIME(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND), c.get(Calendar.MILLISECOND));
 		}
-		void addsec(long sec)
+		void addsec(long sec) // @todo
 		{
 
 		}
@@ -4611,14 +4656,25 @@ public class SLib {
 			if(view != null)
 				SetRecyclerListFocusedIndex(view.getAdapter(), idx);
 		}
-		public int GetRecyclerListFocusedIndex(RecyclerView.Adapter adapter)
+		/*public int GetRecyclerListFocusedIndex(RecyclerView.Adapter adapter)
 		{
 			return (adapter != null && adapter instanceof RecyclerListAdapter) ? ((RecyclerListAdapter)adapter).GetFocusedIndex() : -1;
+		}*/
+		public int GetListFocusedIndex(Object adapter)
+		{
+			int    result = -1;
+			if(adapter != null) {
+				if(adapter instanceof RecyclerListAdapter)
+					result = ((RecyclerListAdapter)adapter).GetFocusedIndex();
+				else if(adapter instanceof InternalArrayAdapter)
+					result = ((InternalArrayAdapter)adapter).GetFocusedIndex();
+			}
+			return result;
 		}
 		public int GetRecyclerListFocusedIndex(View parentView, int rcListView)
 		{
 			RecyclerView view = (RecyclerView)((parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView));
-			return (view != null) ? GetRecyclerListFocusedIndex(view.getAdapter()) : -1;
+			return (view != null) ? GetListFocusedIndex(view.getAdapter()) : -1;
 		}
 		public void SetupViewPagerWithFragmentAdapter(int rcViewPager)
 		{
@@ -4750,13 +4806,11 @@ public class SLib {
 		@Override public void unregisterDataSetObserver(DataSetObserver observer)
 		{
 		}
-		@Override
-		public int getCount()
+		@Override public int getCount()
 		{
 			return (Data != null) ? Data.GetCount() : 0;
 		}
-		@Override
-		public Object getItem(int idx) { return (Data != null && idx < Data.GetCount()) ? Data.GetTextByPos(idx) : ""; }
+		@Override public Object getItem(int idx) { return (Data != null && idx < Data.GetCount()) ? Data.GetTextByPos(idx) : ""; }
 		@Override public long getItemId(int idx)
 		{
 			if(Data != null && idx < Data.GetCount()) {
@@ -5033,5 +5087,70 @@ public class SLib {
 				}
 			}
 		}
+	}
+	enum ConfirmationResult {
+		YES,
+		NO,
+		CANCEL
+	}
+	public interface ConfirmationListener {
+		void OnResult(ConfirmationResult r);
+	}
+	public static class ConfirmDialog extends SlDialog {
+		private int LayoutIdent;
+		private ConfirmationListener OnResult;
+		ConfirmDialog(Context ctx, int ident, int layoutIdent, String text, ConfirmationListener result)
+		{
+			super(ctx, ident, text);
+			LayoutIdent = layoutIdent;
+			OnResult = result;
+		}
+		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
+		{
+			Object result = null;
+			switch(ev) {
+				case SLib.EV_CREATE:
+				{
+					//requestWindowFeature(Window.FEATURE_NO_TITLE);
+					setContentView(/*R.layout.dialog_personevent*/LayoutIdent);
+					StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(getContext());
+					if(app_ctx != null) {
+						setTitle(SLib.ExpandString(app_ctx, "@{confirm}"));
+					}
+					if(Data != null && Data instanceof String) {
+						SetCtrlString(this, R.id.CTL_CONFIRM_QUEST, (String)Data);
+					}
+				}
+				break;
+				case SLib.EV_COMMAND:
+					if(srcObj != null && srcObj instanceof View) {
+						final int view_id = ((View)srcObj).getId();
+						if(view_id == R.id.CTL_BUTTON_YES) {
+							StyloQApp app_ctx = SLib.SlActivity.GetAppCtx(getContext());
+							if(OnResult != null) {
+								OnResult.OnResult(ConfirmationResult.YES);
+							}
+							/*
+							if(app_ctx != null)
+								app_ctx.HandleEvent(SLib.EV_IADATAEDITCOMMIT, this, "yes");
+							 */
+							this.dismiss();
+						}
+						else if(view_id == R.id.CTL_BUTTON_NO) {
+							if(OnResult != null) {
+								OnResult.OnResult(ConfirmationResult.NO);
+							}
+							this.dismiss();
+						}
+					}
+					break;
+			}
+			return null;
+		}
+	}
+	public static void Confirm_YesNo(Context ctx, String text, ConfirmationListener result)
+	{
+		ConfirmDialog dlg = new ConfirmDialog(ctx, R.id.DLG_CONFIRM_YESNO, R.layout.dialog_confirm_yesno, text, result);
+		dlg.show();
 	}
 }

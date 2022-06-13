@@ -1358,7 +1358,7 @@ static void set_termio()
 		rl_termio.c_cc[VMIN] = 1;
 		rl_termio.c_cc[VTIME] = 0;
 
-#   ifndef VWERASE
+#ifndef VWERASE
 #define VWERASE 3
 #endif                  /* VWERASE */
 		term_chars[VERASE] = orig_termio.c_cc[VERASE];

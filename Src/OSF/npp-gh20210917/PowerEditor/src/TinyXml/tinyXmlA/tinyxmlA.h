@@ -490,10 +490,7 @@ public:
 		return ( this && type == UNKNOWN  ) ? (TiXmlUnknownA*)this : 0;
 	} ///< Cast to a more defined type. Will return null not of the requested type.
 
-	TiXmlTextA * ToText() const {
-		return ( this && type == TEXT     ) ? (TiXmlTextA*)this : 0;
-	} ///< Cast to a more defined type. Will return null not of the requested type.
-
+	TiXmlTextA * ToText() const { return (this && type == TEXT) ? (TiXmlTextA*)this : 0; } ///< Cast to a more defined type. Will return null not of the requested type.
 	TiXmlDeclarationA* ToDeclaration() const {
 		return ( this && type == DECLARATION ) ? (TiXmlDeclarationA*)this : 0;
 	} ///< Cast to a more defined type. Will return null not of the requested type.
@@ -501,7 +498,6 @@ public:
 	virtual TiXmlNodeA* Clone() const = 0;
 	void  SetUserData(void * user) { userData = user; }
 	void * GetUserData() { return userData; }
-
 protected:
 	TiXmlNodeA(NodeType type);
 
@@ -511,11 +507,13 @@ protected:
 	#endif
 
 	// Figure out what is at *p, and parse it. Returns null if it is not an xml node.
-	TiXmlNodeA* Identify(const char * start);
-	void CopyToClone(TiXmlNodeA* target) const 
+	TiXmlNodeA * Identify(const char * start);
+	void CopyToClone(TiXmlNodeA * target) const 
 	{
-		target->SetValue(value.c_str());
-		target->userData = userData;
+		if(target) {
+			target->SetValue(value.c_str());
+			target->userData = userData;
+		}
 	}
 
 	// Internal Value function returning a TIXMLA_STRING
@@ -626,16 +624,13 @@ public:
 	virtual void StreamOut(TIXMLA_OSTREAM * out) const;
 	// [internal use]
 	// Set the document pointer so the attribute can report errors.
-	void SetDocument(TiXmlDocumentA* doc) {
-		document = doc;
-	}
-
+	void SetDocument(TiXmlDocumentA* doc) { document = doc; }
 private:
 	TiXmlDocumentA* document;       // A pointer back to a document, for error reporting.
 	TIXMLA_STRING name;
 	TIXMLA_STRING value;
-	TiXmlAttributeA*        prev;
-	TiXmlAttributeA*        next;
+	TiXmlAttributeA * prev;
+	TiXmlAttributeA * next;
 };
 
 /*	A class used to manage a group of attributes.
@@ -667,12 +662,10 @@ private:
         and can contain other elements, text, comments, and unknowns.
         Elements also contain an arbitrary number of attributes.
  */
-class TiXmlElementA : public TiXmlNodeA
-{
+class TiXmlElementA : public TiXmlNodeA {
 public:
 	/// Construct an element.
 	TiXmlElementA (const char * in_value);
-
 	#ifdef TIXMLA_USE_STL
 	/// std::string constructor.
 	TiXmlElementA(const std::string & _value) :    TiXmlNodeA(TiXmlNodeA::ELEMENT)
@@ -680,7 +673,6 @@ public:
 		firstChild = lastChild = 0;
 		value = _value;
 	}
-
 	#endif
 
 	virtual ~TiXmlElementA();
@@ -987,13 +979,13 @@ public:
 	bool SaveUnicodeFilePath(const TCHAR* filename) const;
 
 	#ifdef TIXMLA_USE_STL
-	bool LoadFile(const std::string & filename)                      ///< STL std::string version.
+	bool LoadFile(const std::string & filename) ///< STL std::string version.
 	{
 		StringToBuffer f(filename);
 		return ( f.buffer && LoadFile(f.buffer));
 	}
 
-	bool SaveFile(const std::string & filename) const                ///< STL std::string version.
+	bool SaveFile(const std::string & filename) const ///< STL std::string version.
 	{
 		StringToBuffer f(filename);
 		return ( f.buffer && SaveFile(f.buffer));
@@ -1009,31 +1001,19 @@ public:
 	        In well formed XML, there should only be one. TinyXml is tolerant of
 	        multiple elements at the document level.
 	 */
-	TiXmlElementA* RootElement() const {
-		return FirstChildElement();
-	}
-
+	TiXmlElementA* RootElement() const { return FirstChildElement(); }
 	/** If an error occurs, Error will be set to true. Also,
 	        - The ErrorId() will contain the integer identifier of the error (not generally useful)
 	        - The ErrorDesc() method will return the name of the error. (very useful)
 	        - The ErrorRow() and ErrorCol() will return the location of the error (if known)
 	 */
-	bool Error() const {
-		return error;
-	}
-
+	bool Error() const { return error; }
 	/// Contains a textual (english) description of the error if one occurs.
-	const char * ErrorDesc() const {
-		return errorDesc.c_str();
-	}
-
+	const char * ErrorDesc() const { return errorDesc.c_str(); }
 	/** Generally, you probably want the error string ( ErrorDesc() ). But if you
 	        prefer the ErrorId, this function will fetch it.
 	 */
-	const int ErrorId() const {
-		return errorId;
-	}
-
+	const int ErrorId() const { return errorId; }
 	/** Returns the location (if known) of the error. The first column is column 1,
 	        and the first row is row 1. A value of 0 means the row and column wasn't applicable
 	        (memory errors, for example, have no row/column) or the parser lost the error. (An
@@ -1041,13 +1021,8 @@ public:
 
 	        @sa SetTabSize, Row, Column
 	 */
-	int ErrorRow() {
-		return errorLocation.row+1;
-	}
-
-	int ErrorCol() {
-		return errorLocation.col+1;
-	}                                               ///< The column where the error occured. See ErrorRow()
+	int ErrorRow() { return errorLocation.row+1; }
+	int ErrorCol() { return errorLocation.col+1; } ///< The column where the error occured. See ErrorRow()
 
 	/** By calling this method, with a tab size
 	        greater than 0, the row and column of each node and attribute is stored
@@ -1069,18 +1044,14 @@ public:
 
 	        @sa Row, Column
 	 */
-	void SetTabSize(int _tabsize) {
-		tabsize = _tabsize;
-	}
-
-	int TabSize() const {
-		return tabsize;
-	}
+	void SetTabSize(int _tabsize) { tabsize = _tabsize; }
+	int TabSize() const { return tabsize; }
 
 	/** If you have handled the error, it can be reset with this call. The error
 	        state is automatically cleared if you Parse a new XML block.
 	 */
-	void ClearError()                                               {
+	void ClearError()
+	{
 		error = false;
 		errorId = 0;
 		errorDesc = "";
@@ -1197,8 +1168,7 @@ private:
         }
         @endverbatim
  */
-class TiXmlHandleA
-{
+class TiXmlHandleA {
 public:
 	/// Create a handle from any node (at any depth of the tree.) This can be a null pointer.
 	TiXmlHandleA(TiXmlNodeA* node)                        {
@@ -1239,33 +1209,17 @@ public:
 	TiXmlHandleA ChildElement(int index) const;
 
 	#ifdef TIXMLA_USE_STL
-	TiXmlHandleA FirstChild(const std::string & _value) const {
-		return FirstChild(_value.c_str());
-	}
-	TiXmlHandleA FirstChildElement(const std::string & _value) const {
-		return FirstChildElement(_value.c_str());
-	}
-	TiXmlHandleA Child(const std::string & _value, int index) const {
-		return Child(_value.c_str(), index);
-	}
-	TiXmlHandleA ChildElement(const std::string & _value, int index) const {
-		return ChildElement(_value.c_str(), index);
-	}
+	TiXmlHandleA FirstChild(const std::string & _value) const { return FirstChild(_value.c_str()); }
+	TiXmlHandleA FirstChildElement(const std::string & _value) const { return FirstChildElement(_value.c_str()); }
+	TiXmlHandleA Child(const std::string & _value, int index) const { return Child(_value.c_str(), index); }
+	TiXmlHandleA ChildElement(const std::string & _value, int index) const { return ChildElement(_value.c_str(), index); }
 	#endif
-
 	/// Return the handle as a TiXmlNodeA. This may return null.
-	TiXmlNodeA* Node() const {
-		return node;
-	}
+	TiXmlNodeA* Node() const { return node; }
 	/// Return the handle as a TiXmlElementA. This may return null.
-	TiXmlElementA* Element() const {
-		return ((node && node->ToElement() ) ? node->ToElement() : 0);
-	}
+	TiXmlElementA* Element() const { return ((node && node->ToElement() ) ? node->ToElement() : 0); }
 	/// Return the handle as a TiXmlTextA. This may return null.
-	TiXmlTextA* Text() const {
-		return ((node && node->ToText() ) ? node->ToText() : 0);
-	}
-
+	TiXmlTextA* Text() const { return ((node && node->ToText() ) ? node->ToText() : 0); }
 private:
 	TiXmlNodeA* node;
 };

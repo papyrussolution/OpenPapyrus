@@ -222,8 +222,8 @@ static NumericDateFormatters * loadNumericDateFormatters(const UResourceBundle *
 	return result;
 }
 
-template <> U_I18N_API
-const MeasureFormatCacheData * LocaleCacheKey<MeasureFormatCacheData>::createObject(const void * /*unused*/, UErrorCode & status) const {
+template <> U_I18N_API const MeasureFormatCacheData * LocaleCacheKey<MeasureFormatCacheData>::createObject(const void * /*unused*/, UErrorCode & status) const 
+{
 	const char * localeId = fLoc.getName();
 	LocalUResourceBundlePointer unitsBundle(ures_open(U_ICUDATA_UNIT, localeId, &status));
 	static UNumberFormatStyle currencyStyles[] = {
@@ -259,7 +259,7 @@ const MeasureFormatCacheData * LocaleCacheKey<MeasureFormatCacheData>::createObj
 	}
 	inf->setMaximumFractionDigits(0);
 	DecimalFormat * decfmt = dynamic_cast<DecimalFormat *>(inf);
-	if(decfmt != NULL) {
+	if(decfmt) {
 		decfmt->setRoundingMode(DecimalFormat::kRoundDown);
 	}
 	result->adoptIntegerFormat(inf);
@@ -365,7 +365,7 @@ MeasureFormat::MeasureFormat(const MeasureFormat &other) :
 	cache->addRef();
 	numberFormat->addRef();
 	pluralRules->addRef();
-	if(other.listFormatter != NULL) {
+	if(other.listFormatter) {
 		listFormatter = new ListFormatter(*other.listFormatter);
 	}
 }
@@ -380,7 +380,7 @@ MeasureFormat &MeasureFormat::operator = (const MeasureFormat &other) {
 	SharedObject::copyPtr(other.pluralRules, pluralRules);
 	fWidth = other.fWidth;
 	delete listFormatter;
-	if(other.listFormatter != NULL) {
+	if(other.listFormatter) {
 		listFormatter = new ListFormatter(*other.listFormatter);
 	}
 	else {
@@ -399,19 +399,14 @@ MeasureFormat::MeasureFormat() :
 
 MeasureFormat::~MeasureFormat() 
 {
-	if(cache) {
-		cache->removeRef();
-	}
-	if(numberFormat) {
-		numberFormat->removeRef();
-	}
-	if(pluralRules != NULL) {
-		pluralRules->removeRef();
-	}
+	CALLPTRMEMB(cache, removeRef());
+	CALLPTRMEMB(numberFormat, removeRef());
+	CALLPTRMEMB(pluralRules, removeRef());
 	delete listFormatter;
 }
 
-bool MeasureFormat::operator == (const Format &other) const {
+bool MeasureFormat::operator == (const Format &other) const 
+{
 	if(this == &other) { // Same object, equal
 		return true;
 	}
@@ -442,43 +437,33 @@ bool MeasureFormat::operator == (const Format &other) const {
 		}
 	}
 	// Locales same, check NumberFormat if shared data differs.
-	return (
-		numberFormat == rhs.numberFormat ||
-		**numberFormat == **rhs.numberFormat);
+	return (numberFormat == rhs.numberFormat || **numberFormat == **rhs.numberFormat);
 }
 
-MeasureFormat * MeasureFormat::clone() const {
-	return new MeasureFormat(*this);
-}
+MeasureFormat * MeasureFormat::clone() const { return new MeasureFormat(*this); }
 
-UnicodeString & MeasureFormat::format(const Formattable &obj,
-    UnicodeString & appendTo,
-    FieldPosition &pos,
-    UErrorCode & status) const {
+UnicodeString & MeasureFormat::format(const Formattable &obj, UnicodeString & appendTo, FieldPosition &pos, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) return appendTo;
 	if(obj.getType() == Formattable::kObject) {
 		const UObject* formatObj = obj.getObject();
 		const Measure* amount = dynamic_cast<const Measure*>(formatObj);
-		if(amount != NULL) {
-			return formatMeasure(
-				*amount, **numberFormat, appendTo, pos, status);
+		if(amount) {
+			return formatMeasure(*amount, **numberFormat, appendTo, pos, status);
 		}
 	}
 	status = U_ILLEGAL_ARGUMENT_ERROR;
 	return appendTo;
 }
 
-void MeasureFormat::parseObject(const UnicodeString & /*source*/,
-    Formattable & /*result*/,
-    ParsePosition& /*pos*/) const {
+void MeasureFormat::parseObject(const UnicodeString & /*source*/, Formattable & /*result*/, ParsePosition& /*pos*/) const 
+{
 	return;
 }
 
-UnicodeString & MeasureFormat::formatMeasurePerUnit(const Measure &measure,
-    const MeasureUnit &perUnit,
-    UnicodeString & appendTo,
-    FieldPosition &pos,
-    UErrorCode & status) const {
+UnicodeString & MeasureFormat::formatMeasurePerUnit(const Measure &measure, const MeasureUnit &perUnit,
+    UnicodeString & appendTo, FieldPosition &pos, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return appendTo;
 	}
@@ -491,21 +476,16 @@ UnicodeString & MeasureFormat::formatMeasurePerUnit(const Measure &measure,
 	UFormattedNumberData result;
 	if(auto* lnf = df->toNumberFormatter(status)) {
 		result.quantity.setToDouble(measure.getNumber().getDouble(status));
-		lnf->unit(measure.getUnit())
-		.perUnit(perUnit)
-		.unitWidth(getUnitWidth(fWidth))
-		.formatImpl(&result, status);
+		lnf->unit(measure.getUnit()).perUnit(perUnit).unitWidth(getUnitWidth(fWidth)).formatImpl(&result, status);
 	}
 	DecimalFormat::fieldPositionHelper(result, pos, appendTo.length(), status);
 	appendTo.append(result.toTempString(status));
 	return appendTo;
 }
 
-UnicodeString & MeasureFormat::formatMeasures(const Measure * measures,
-    int32_t measureCount,
-    UnicodeString & appendTo,
-    FieldPosition &pos,
-    UErrorCode & status) const {
+UnicodeString & MeasureFormat::formatMeasures(const Measure * measures, int32_t measureCount, UnicodeString & appendTo,
+    FieldPosition &pos, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return appendTo;
 	}
@@ -523,8 +503,7 @@ UnicodeString & MeasureFormat::formatMeasures(const Measure * measures,
 		}
 	}
 	if(pos.getField() != FieldPosition::DONT_CARE) {
-		return formatMeasuresSlowTrack(
-			measures, measureCount, appendTo, pos, status);
+		return formatMeasuresSlowTrack(measures, measureCount, appendTo, pos, status);
 	}
 	UnicodeString * results = new UnicodeString[measureCount];
 	if(results == NULL) {
@@ -536,30 +515,20 @@ UnicodeString & MeasureFormat::formatMeasures(const Measure * measures,
 		if(i == measureCount - 1) {
 			nf = numberFormat->get();
 		}
-		formatMeasure(
-			measures[i],
-			*nf,
-			results[i],
-			pos,
-			status);
+		formatMeasure(measures[i], *nf, results[i], pos, status);
 	}
 	listFormatter->format(results, measureCount, appendTo, status);
 	delete [] results;
 	return appendTo;
 }
 
-UnicodeString MeasureFormat::getUnitDisplayName(const MeasureUnit& unit, UErrorCode & status) const {
-	return number::impl::LongNameHandler::getUnitDisplayName(
-		getLocale(status),
-		unit,
-		getUnitWidth(fWidth),
-		status);
+UnicodeString MeasureFormat::getUnitDisplayName(const MeasureUnit& unit, UErrorCode & status) const 
+{
+	return number::impl::LongNameHandler::getUnitDisplayName(getLocale(status), unit, getUnitWidth(fWidth), status);
 }
 
-void MeasureFormat::initMeasureFormat(const Locale &locale,
-    UMeasureFormatWidth w,
-    NumberFormat * nfToAdopt,
-    UErrorCode & status) {
+void MeasureFormat::initMeasureFormat(const Locale &locale, UMeasureFormatWidth w, NumberFormat * nfToAdopt, UErrorCode & status) 
+{
 	static const UListFormatterWidth listWidths[] = {
 		ULISTFMT_WIDTH_WIDE,
 		ULISTFMT_WIDTH_SHORT,
@@ -571,14 +540,11 @@ void MeasureFormat::initMeasureFormat(const Locale &locale,
 	}
 	const char * name = locale.getName();
 	setLocaleIDs(name, name);
-
 	UnifiedCache::getByLocale(locale, cache, status);
 	if(U_FAILURE(status)) {
 		return;
 	}
-
-	const SharedPluralRules * pr = PluralRules::createSharedInstance(
-		locale, UPLURAL_TYPE_CARDINAL, status);
+	const SharedPluralRules * pr = PluralRules::createSharedInstance(locale, UPLURAL_TYPE_CARDINAL, status);
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -586,8 +552,7 @@ void MeasureFormat::initMeasureFormat(const Locale &locale,
 	pr->removeRef();
 	if(nf.isNull()) {
 		// TODO: Clean this up
-		const SharedNumberFormat * shared = NumberFormat::createSharedInstance(
-			locale, UNUM_DECIMAL, status);
+		const SharedNumberFormat * shared = NumberFormat::createSharedInstance(locale, UNUM_DECIMAL, status);
 		if(U_FAILURE(status)) {
 			return;
 		}
@@ -602,14 +567,11 @@ void MeasureFormat::initMeasureFormat(const Locale &locale,
 	}
 	fWidth = w;
 	delete listFormatter;
-	listFormatter = ListFormatter::createInstance(
-		locale,
-		ULISTFMT_TYPE_UNITS,
-		listWidths[getRegularWidth(fWidth)],
-		status);
+	listFormatter = ListFormatter::createInstance(locale, ULISTFMT_TYPE_UNITS, listWidths[getRegularWidth(fWidth)], status);
 }
 
-void MeasureFormat::adoptNumberFormat(NumberFormat * nfToAdopt, UErrorCode & status) {
+void MeasureFormat::adoptNumberFormat(NumberFormat * nfToAdopt, UErrorCode & status) 
+{
 	LocalPointer<NumberFormat> nf(nfToAdopt);
 	if(U_FAILURE(status)) {
 		return;
@@ -623,7 +585,8 @@ void MeasureFormat::adoptNumberFormat(NumberFormat * nfToAdopt, UErrorCode & sta
 	SharedObject::copyPtr(shared, numberFormat);
 }
 
-bool MeasureFormat::setMeasureFormatLocale(const Locale &locale, UErrorCode & status) {
+bool MeasureFormat::setMeasureFormatLocale(const Locale &locale, UErrorCode & status) 
+{
 	if(U_FAILURE(status) || locale == getLocale(status)) {
 		return FALSE;
 	}
@@ -631,31 +594,14 @@ bool MeasureFormat::setMeasureFormatLocale(const Locale &locale, UErrorCode & st
 	return U_SUCCESS(status);
 }
 
-const NumberFormat &MeasureFormat::getNumberFormatInternal() const {
-	return **numberFormat;
-}
+const NumberFormat &MeasureFormat::getNumberFormatInternal() const { return **numberFormat; }
+const NumberFormat &MeasureFormat::getCurrencyFormatInternal() const { return *cache->getCurrencyFormat(UMEASFMT_WIDTH_NARROW); }
+const PluralRules &MeasureFormat::getPluralRules() const { return **pluralRules; }
+Locale MeasureFormat::getLocale(UErrorCode & status) const { return Format::getLocale(ULOC_VALID_LOCALE, status); }
+const char * MeasureFormat::getLocaleID(UErrorCode & status) const { return Format::getLocaleID(ULOC_VALID_LOCALE, status); }
 
-const NumberFormat &MeasureFormat::getCurrencyFormatInternal() const {
-	return *cache->getCurrencyFormat(UMEASFMT_WIDTH_NARROW);
-}
-
-const PluralRules &MeasureFormat::getPluralRules() const {
-	return **pluralRules;
-}
-
-Locale MeasureFormat::getLocale(UErrorCode & status) const {
-	return Format::getLocale(ULOC_VALID_LOCALE, status);
-}
-
-const char * MeasureFormat::getLocaleID(UErrorCode & status) const {
-	return Format::getLocaleID(ULOC_VALID_LOCALE, status);
-}
-
-UnicodeString & MeasureFormat::formatMeasure(const Measure &measure,
-    const NumberFormat &nf,
-    UnicodeString & appendTo,
-    FieldPosition &pos,
-    UErrorCode & status) const {
+UnicodeString & MeasureFormat::formatMeasure(const Measure &measure, const NumberFormat &nf, UnicodeString & appendTo, FieldPosition &pos, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return appendTo;
 	}
@@ -664,21 +610,15 @@ UnicodeString & MeasureFormat::formatMeasure(const Measure &measure,
 	if(isCurrency(amtUnit)) {
 		UChar isoCode[4];
 		u_charsToUChars(amtUnit.getSubtype(), isoCode, 4);
-		return cache->getCurrencyFormat(fWidth)->format(
-			new CurrencyAmount(amtNumber, isoCode, status),
-			appendTo,
-			pos,
-			status);
+		return cache->getCurrencyFormat(fWidth)->format(new CurrencyAmount(amtNumber, isoCode, status), appendTo, pos, status);
 	}
 	auto* df = dynamic_cast<const DecimalFormat*>(&nf);
 	if(df == nullptr) {
 		// Handle other types of NumberFormat using the ICU 63 code, modified to
 		// get the unitPattern from LongNameHandler and handle fallback to OTHER.
 		UnicodeString formattedNumber;
-		StandardPlural::Form pluralForm = QuantityFormatter::selectPlural(
-			amtNumber, nf, **pluralRules, formattedNumber, pos, status);
-		UnicodeString pattern = number::impl::LongNameHandler::getUnitPattern(getLocale(status),
-			amtUnit, getUnitWidth(fWidth), pluralForm, status);
+		StandardPlural::Form pluralForm = QuantityFormatter::selectPlural(amtNumber, nf, **pluralRules, formattedNumber, pos, status);
+		UnicodeString pattern = number::impl::LongNameHandler::getUnitPattern(getLocale(status), amtUnit, getUnitWidth(fWidth), pluralForm, status);
 		// The above  handles fallback from other widths to short, and from other plural forms to OTHER
 		if(U_FAILURE(status)) {
 			return appendTo;
@@ -689,9 +629,7 @@ UnicodeString & MeasureFormat::formatMeasure(const Measure &measure,
 	UFormattedNumberData result;
 	if(auto* lnf = df->toNumberFormatter(status)) {
 		result.quantity.setToDouble(amtNumber.getDouble(status));
-		lnf->unit(amtUnit)
-		.unitWidth(getUnitWidth(fWidth))
-		.formatImpl(&result, status);
+		lnf->unit(amtUnit).unitWidth(getUnitWidth(fWidth)).formatImpl(&result, status);
 	}
 	DecimalFormat::fieldPositionHelper(result, pos, appendTo.length(), status);
 	appendTo.append(result.toTempString(status));
@@ -699,23 +637,19 @@ UnicodeString & MeasureFormat::formatMeasure(const Measure &measure,
 }
 
 // Formats numeric time duration as 5:00:47 or 3:54.
-UnicodeString & MeasureFormat::formatNumeric(const Formattable * hms,  // always length 3
-    int32_t bitMap,       // 1=hour set, 2=minute set, 4=second set
-    UnicodeString & appendTo,
-    UErrorCode & status) const {
+UnicodeString & MeasureFormat::formatNumeric(const Formattable * hms/*always length 3*/, int32_t bitMap/*1=hour set, 2=minute set, 4=second set*/,
+    UnicodeString & appendTo, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return appendTo;
 	}
-
 	UnicodeString pattern;
-
 	double hours = hms[0].getDouble(status);
 	double minutes = hms[1].getDouble(status);
 	double seconds = hms[2].getDouble(status);
 	if(U_FAILURE(status)) {
 		return appendTo;
 	}
-
 	// All possible combinations: "h", "m", "s", "hm", "hs", "ms", "hms"
 	if(bitMap == 5 || bitMap == 7) { // "hms" & "hs" (we add minutes if "hs")
 		pattern = cache->getNumericDateFormatters()->hourMinuteSecond;
@@ -734,7 +668,6 @@ UnicodeString & MeasureFormat::formatNumeric(const Formattable * hms,  // always
 		status = U_INTERNAL_PROGRAM_ERROR;
 		return appendTo;
 	}
-
 	const DecimalFormat * numberFormatter = dynamic_cast<const DecimalFormat*>(numberFormat->get());
 	if(!numberFormatter) {
 		status = U_INTERNAL_PROGRAM_ERROR;
@@ -747,14 +680,11 @@ UnicodeString & MeasureFormat::formatNumeric(const Formattable * hms,  // always
 	else {
 		return appendTo;
 	}
-
 	FormattedStringBuilder fsb;
-
 	bool protect = FALSE;
 	const int32_t patternLength = pattern.length();
 	for(int32_t i = 0; i < patternLength; i++) {
 		char16_t c = pattern[i];
-
 		// Also set the proper field in this switch
 		// We don't use DateFormat.Field because this is not a date / time, is a duration.
 		double value = 0;
@@ -763,7 +693,6 @@ UnicodeString & MeasureFormat::formatNumeric(const Formattable * hms,  // always
 			case u'm': value = minutes; break;
 			case u's': value = seconds; break;
 		}
-
 		// There is not enough info to add Field(s) for the unit because all we have are plain
 		// text patterns. For example in "21:51" there is no text for something like "hour",
 		// while in something like "21h51" there is ("h"). But we can't really tell...
@@ -807,11 +736,9 @@ UnicodeString & MeasureFormat::formatNumeric(const Formattable * hms,  // always
 	return appendTo;
 }
 
-UnicodeString & MeasureFormat::formatMeasuresSlowTrack(const Measure * measures,
-    int32_t measureCount,
-    UnicodeString & appendTo,
-    FieldPosition& pos,
-    UErrorCode & status) const {
+UnicodeString & MeasureFormat::formatMeasuresSlowTrack(const Measure * measures, int32_t measureCount, UnicodeString & appendTo,
+    FieldPosition& pos, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return appendTo;
 	}
@@ -838,13 +765,7 @@ UnicodeString & MeasureFormat::formatMeasuresSlowTrack(const Measure * measures,
 		}
 	}
 	int32_t offset;
-	listFormatter->format(
-		results.getAlias(),
-		measureCount,
-		appendTo,
-		fieldPositionFoundIndex,
-		offset,
-		status);
+	listFormatter->format(results.getAlias(), measureCount, appendTo, fieldPositionFoundIndex, offset, status);
 	if(U_FAILURE(status)) {
 		return appendTo;
 	}
@@ -856,8 +777,8 @@ UnicodeString & MeasureFormat::formatMeasuresSlowTrack(const Measure * measures,
 	return appendTo;
 }
 
-MeasureFormat* U_EXPORT2 MeasureFormat::createCurrencyFormat(const Locale & locale,
-    UErrorCode & ec) {
+MeasureFormat* U_EXPORT2 MeasureFormat::createCurrencyFormat(const Locale & locale, UErrorCode & ec) 
+{
 	if(U_FAILURE(ec)) {
 		return nullptr;
 	}
@@ -865,11 +786,9 @@ MeasureFormat* U_EXPORT2 MeasureFormat::createCurrencyFormat(const Locale & loca
 	return fmt.orphan();
 }
 
-MeasureFormat* U_EXPORT2 MeasureFormat::createCurrencyFormat(UErrorCode & ec) {
-	if(U_FAILURE(ec)) {
-		return nullptr;
-	}
-	return MeasureFormat::createCurrencyFormat(Locale::getDefault(), ec);
+MeasureFormat* U_EXPORT2 MeasureFormat::createCurrencyFormat(UErrorCode & ec) 
+{
+	return U_FAILURE(ec) ? nullptr : MeasureFormat::createCurrencyFormat(Locale::getDefault(), ec);
 }
 
 U_NAMESPACE_END

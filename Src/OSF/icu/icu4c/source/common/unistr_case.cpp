@@ -1,22 +1,13 @@
+// unistr_case.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 1999-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  unistr_case.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:2
- *
- *   created on: 2004aug19
- *   created by: Markus W. Scherer
- *
- *   Case-mapping functions moved here from unistr.cpp
- */
+// Copyright (C) 1999-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2004aug19
+// created by: Markus W. Scherer
+// 
+// Case-mapping functions moved here from unistr.cpp
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/casemap.h"
@@ -24,31 +15,21 @@
 #include "uelement.h"
 
 U_NAMESPACE_BEGIN
-
-//========================================
+//
 // Read-only implementation
-//========================================
-
-int8 UnicodeString::doCaseCompare(int32_t start,
-    int32_t length,
-    const UChar * srcChars,
-    int32_t srcStart,
-    int32_t srcLength,
-    uint32_t options) const
+//
+int8 UnicodeString::doCaseCompare(int32_t start, int32_t length, const UChar * srcChars, int32_t srcStart, int32_t srcLength, uint32_t options) const
 {
 	// compare illegal string values
 	// treat const UChar *srcChars==NULL as an empty string
 	if(isBogus()) {
 		return -1;
 	}
-
 	// pin indices to legal values
 	pinIndices(start, length);
-
 	if(srcChars == NULL) {
 		srcStart = srcLength = 0;
 	}
-
 	// get the correct pointer
 	const UChar * chars = getArrayStart();
 
@@ -76,25 +57,21 @@ int8 UnicodeString::doCaseCompare(int32_t start,
 	}
 	return 0;
 }
-
-//========================================
+//
 // Write implementation
-//========================================
-
-UnicodeString & UnicodeString::caseMap(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM
-    UStringCaseMapper * stringCaseMapper) {
+//
+UnicodeString & UnicodeString::caseMap(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM UStringCaseMapper * stringCaseMapper) 
+{
 	if(isEmpty() || !isWritable()) {
 		// nothing to do
 		return *this;
 	}
-
 	UChar oldBuffer[2 * US_STACKBUF_SIZE];
 	UChar * oldArray;
 	int32_t oldLength = length();
 	int32_t newLength;
 	bool writable = isBufferWritable();
 	UErrorCode errorCode = U_ZERO_ERROR;
-
 #if !UCONFIG_NO_BREAK_ITERATION
 	// Read-only alias to the original string contents for the titlecasing BreakIterator.
 	// We cannot set the iterator simply to *this because *this is being modified.

@@ -52,14 +52,14 @@ static int archive_compressor_zstd_free(struct archive_write_filter *);
 /*
  * Add a zstd compression filter to this write handle.
  */
-int archive_write_add_filter_zstd(struct archive * _a)
+int archive_write_add_filter_zstd(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = (private_data *)SAlloc::C(1, sizeof(*data));
-	if(data == NULL) {
+	if(!data) {
 		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
@@ -109,7 +109,7 @@ static int string_is_numeric(const char* value)
 {
 	size_t len = strlen(value);
 	size_t i;
-	if(len == 0) {
+	if(!len) {
 		return ARCHIVE_WARN;
 	}
 	else if(len == 1 && !(value[0] >= '0' && value[0] <= '9')) {
@@ -259,20 +259,20 @@ static int drive_compressor(struct archive_write_filter * f, struct private_data
 static int archive_compressor_zstd_open(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-	struct archive_string as;
+	archive_string as;
 	int r;
 	archive_string_init(&as);
 	/* --no-check matches library default */
 	archive_strcpy(&as, "zstd --no-check");
 	if(data->compression_level < CLEVEL_STD_MIN) {
-		struct archive_string as2;
+		archive_string as2;
 		archive_string_init(&as2);
 		archive_string_sprintf(&as2, " --fast=%d", -data->compression_level);
 		archive_string_concat(&as, &as2);
 		archive_string_free(&as2);
 	}
 	else {
-		struct archive_string as2;
+		archive_string as2;
 		archive_string_init(&as2);
 		archive_string_sprintf(&as2, " -%d", data->compression_level);
 		archive_string_concat(&as, &as2);
@@ -281,7 +281,7 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 	if(data->compression_level > CLEVEL_STD_MAX) {
 		archive_strcat(&as, " --ultra");
 	}
-	f->write = archive_compressor_zstd_write;
+	f->FnWrite = archive_compressor_zstd_write;
 	r = __archive_write_program_open(f, data->pdata, as.s);
 	archive_string_free(&as);
 	return r;

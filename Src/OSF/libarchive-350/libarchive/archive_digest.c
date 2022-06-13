@@ -39,8 +39,7 @@ static int win_crypto_init(Digest_CTX * ctx, ALG_ID algId)
 	    PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
 		if(GetLastError() != (DWORD)NTE_BAD_KEYSET)
 			return ARCHIVE_FAILED;
-		if(!CryptAcquireContext(&ctx->cryptProv, NULL, NULL,
-		    PROV_RSA_FULL, CRYPT_NEWKEYSET))
+		if(!CryptAcquireContext(&ctx->cryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_NEWKEYSET))
 			return ARCHIVE_FAILED;
 	}
 	if(!CryptCreateHash(ctx->cryptProv, algId, 0, 0, &ctx->hash)) {
@@ -82,13 +81,11 @@ static int win_crypto_Final(uchar * buf, size_t bufsize, Digest_CTX * ctx)
 		MD5Init(ctx);
 		return ARCHIVE_OK;
 	}
-
 	static int __archive_md5update(archive_md5_ctx * ctx, const void * indata, size_t insize)
 	{
 		MD5Update(ctx, indata, insize);
 		return ARCHIVE_OK;
 	}
-
 	static int __archive_md5final(archive_md5_ctx * ctx, void * md)
 	{
 		MD5Final(md, ctx);
@@ -100,13 +97,11 @@ static int win_crypto_Final(uchar * buf, size_t bufsize, Digest_CTX * ctx)
 		MD5Init(ctx);
 		return ARCHIVE_OK;
 	}
-
 	static int __archive_md5update(archive_md5_ctx * ctx, const void * indata, size_t insize)
 	{
 		MD5Update(ctx, indata, insize);
 		return ARCHIVE_OK;
 	}
-
 	static int __archive_md5final(archive_md5_ctx * ctx, void * md)
 	{
 		MD5Final(md, ctx);
@@ -1130,27 +1125,22 @@ const struct archive_digest __archive_digest =
 	&__archive_md5init,
 	&__archive_md5update,
 	&__archive_md5final,
-
 /* RIPEMD160 */
 	&__archive_ripemd160init,
 	&__archive_ripemd160update,
 	&__archive_ripemd160final,
-
 /* SHA1 */
 	&__archive_sha1init,
 	&__archive_sha1update,
 	&__archive_sha1final,
-
 /* SHA256 */
 	&__archive_sha256init,
 	&__archive_sha256update,
 	&__archive_sha256final,
-
 /* SHA384 */
 	&__archive_sha384init,
 	&__archive_sha384update,
 	&__archive_sha384final,
-
 /* SHA512 */
 	&__archive_sha512init,
 	&__archive_sha512update,

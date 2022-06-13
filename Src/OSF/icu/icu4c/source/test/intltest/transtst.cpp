@@ -1,15 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 1999-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
- *   11/10/99    aliu        Creation.
- **********************************************************************
- */
-
+// Copyright (C) 1999-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 11/10/99    aliu        Creation.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -83,17 +77,16 @@ enum {
 	UPPER_A   = ((UChar)0x0041)/*A*/
 };
 
-TransliteratorTest::TransliteratorTest()
-	:   DESERET_DEE((UChar32)0x10414),
-	DESERET_dee((UChar32)0x1043C)
+TransliteratorTest::TransliteratorTest() : DESERET_DEE((UChar32)0x10414), DESERET_dee((UChar32)0x1043C)
 {
 }
 
-TransliteratorTest::~TransliteratorTest() {
+TransliteratorTest::~TransliteratorTest() 
+{
 }
 
-void TransliteratorTest::runIndexedTest(int32_t index, bool exec,
-    const char *& name, char * /*par*/) {
+void TransliteratorTest::runIndexedTest(int32_t index, bool exec, const char *& name, char * /*par*/) 
+{
 	switch(index) {
 		TESTCASE(0, TestInstantiation);
 		TESTCASE(1, TestSimpleRules);
@@ -953,7 +946,8 @@ void TransliteratorTest::TestSegments() {
 /**
  * Test cursor positioning outside of the key
  */
-void TransliteratorTest::TestCursorOffset() {
+void TransliteratorTest::TestCursorOffset() 
+{
 	// Array of 3n items
 	// Each item is <rules>, <input>, <expected output>
 	UnicodeString DATA[] = {
@@ -1317,11 +1311,11 @@ void TransliteratorTest::TestNameMap() {
 	expect(*t, s, s);
 	delete t;
 }
-
 /**
  * Test liberalized ID syntax.  1006c
  */
-void TransliteratorTest::TestLiberalizedID() {
+void TransliteratorTest::TestLiberalizedID() 
+{
 	// Some test cases have an expected getID() value of NULL.  This
 	// means I have disabled the test case for now.  This stuff is
 	// still under development, and I haven't decided whether to make
@@ -2631,11 +2625,11 @@ void TransliteratorTest::TestQuantifiedSegment() {
 	}
 	delete t;
 }
-
-//======================================================================
+// 
 // Ram's tests
-//======================================================================
-void TransliteratorTest::TestDevanagariLatinRT() {
+// 
+void TransliteratorTest::TestDevanagariLatinRT() 
+{
 	const int MAX_LEN = 52;
 	const char * const source[MAX_LEN] = {
 		"bh\\u0101rata",
@@ -4126,14 +4120,13 @@ void TransliteratorTest::TestSourceTargetSet() {
 /**
  * Test handling of Pattern_White_Space, for both RBT and UnicodeSet.
  */
-void TransliteratorTest::TestPatternWhiteSpace() {
+void TransliteratorTest::TestPatternWhiteSpace() 
+{
 	// Rules
 	const char * r = "a > \\u200E b;";
-
 	UErrorCode ec = U_ZERO_ERROR;
 	UParseError pe;
 	Transliterator* t = Transliterator::createFromRules("test", CharsToUnicodeString(r), UTRANS_FORWARD, pe, ec);
-
 	if(U_FAILURE(ec)) {
 		errln("FAIL: Couldn't set up test");
 	}
@@ -4141,11 +4134,9 @@ void TransliteratorTest::TestPatternWhiteSpace() {
 		expect(*t, "a", "b");
 	}
 	delete t;
-
 	// UnicodeSet
 	ec = U_ZERO_ERROR;
 	UnicodeSet set(CharsToUnicodeString("[a \\u200E]"), ec);
-
 	if(U_FAILURE(ec)) {
 		errln("FAIL: Couldn't set up test");
 	}
@@ -4155,11 +4146,11 @@ void TransliteratorTest::TestPatternWhiteSpace() {
 		}
 	}
 }
-
-//======================================================================
+// 
 // this method is in TestUScript.java
-//======================================================================
-void TransliteratorTest::TestAllCodepoints() {
+// 
+void TransliteratorTest::TestAllCodepoints() 
+{
 	UScriptCode code = USCRIPT_INVALID_CODE;
 	char id[256] = {'\0'};
 	char abbr[256] = {'\0'};
@@ -4821,21 +4812,17 @@ void TransliteratorTest::TestThai() {
 	UnicodeString xlitText(thaiText);
 	xlitText = xlitText.unescape();
 	tr->transliterate(xlitText);
-
 	UnicodeString expectedText(latinText);
 	expectedText = expectedText.unescape();
 	expect(*tr, xlitText, expectedText);
-
 	delete tr;
 #endif
 }
-
-//======================================================================
+// 
 // Support methods
-//======================================================================
-void TransliteratorTest::expectT(const UnicodeString & id,
-    const UnicodeString & source,
-    const UnicodeString & expectedResult) {
+// 
+void TransliteratorTest::expectT(const UnicodeString & id, const UnicodeString & source, const UnicodeString & expectedResult) 
+{
 	UErrorCode ec = U_ZERO_ERROR;
 	UParseError pe;
 	Transliterator * t = Transliterator::createInstance(id, UTRANS_FORWARD, pe, ec);
@@ -4848,9 +4835,8 @@ void TransliteratorTest::expectT(const UnicodeString & id,
 	delete t;
 }
 
-void TransliteratorTest::reportParseError(const UnicodeString & message,
-    const UParseError& parseError,
-    const UErrorCode & status) {
+void TransliteratorTest::reportParseError(const UnicodeString & message, const UParseError& parseError, const UErrorCode & status) 
+{
 	dataerrln(message +
 	    /*", parse error " + parseError.code +*/
 	    ", line " + parseError.line +
@@ -4860,18 +4846,14 @@ void TransliteratorTest::reportParseError(const UnicodeString & message,
 	    ", Error: " + u_errorName(status));
 }
 
-void TransliteratorTest::expect(const UnicodeString & rules,
-    const UnicodeString & source,
-    const UnicodeString & expectedResult,
-    UTransPosition * pos) {
+void TransliteratorTest::expect(const UnicodeString & rules, const UnicodeString & source, const UnicodeString & expectedResult, UTransPosition * pos) 
+{
 	expect("<ID>", rules, source, expectedResult, pos);
 }
 
-void TransliteratorTest::expect(const UnicodeString & id,
-    const UnicodeString & rules,
-    const UnicodeString & source,
-    const UnicodeString & expectedResult,
-    UTransPosition * pos) {
+void TransliteratorTest::expect(const UnicodeString & id, const UnicodeString & rules, const UnicodeString & source,
+    const UnicodeString & expectedResult, UTransPosition * pos) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	UParseError parseError;
 	Transliterator* t = Transliterator::createFromRules(id, rules, UTRANS_FORWARD, parseError, status);
@@ -4884,18 +4866,14 @@ void TransliteratorTest::expect(const UnicodeString & id,
 	delete t;
 }
 
-void TransliteratorTest::expect(const Transliterator& t,
-    const UnicodeString & source,
-    const UnicodeString & expectedResult,
-    const Transliterator& reverseTransliterator) {
+void TransliteratorTest::expect(const Transliterator& t, const UnicodeString & source, const UnicodeString & expectedResult, const Transliterator& reverseTransliterator) 
+{
 	expect(t, source, expectedResult);
 	expect(reverseTransliterator, expectedResult, source);
 }
 
-void TransliteratorTest::expect(const Transliterator& t,
-    const UnicodeString & source,
-    const UnicodeString & expectedResult,
-    UTransPosition * pos) {
+void TransliteratorTest::expect(const Transliterator& t, const UnicodeString & source, const UnicodeString & expectedResult, UTransPosition * pos) 
+{
 	if(pos == 0) {
 		UnicodeString result(source);
 		t.transliterate(result);
@@ -4945,10 +4923,7 @@ void TransliteratorTest::expect(const Transliterator& t,
 	// were waiting for more input.
 	t.finishTransliteration(rsource, index);
 	log.append(" => ").append(rsource);
-
-	expectAux(t.getID() + ":Keyboard", log,
-	    rsource == expectedResult,
-	    expectedResult);
+	expectAux(t.getID() + ":Keyboard", log, rsource == expectedResult, expectedResult);
 }
 
 /**
@@ -4956,9 +4931,8 @@ void TransliteratorTest::expect(const Transliterator& t,
  * @param input the string being transliterated
  * @param pos the index struct
  */
-UnicodeString & TransliteratorTest::formatInput(UnicodeString & appendTo,
-    const UnicodeString & input,
-    const UTransPosition& pos) {
+UnicodeString & TransliteratorTest::formatInput(UnicodeString & appendTo, const UnicodeString & input, const UTransPosition& pos) 
+{
 	// Output a string of the form aaa{bbb|ccc|ddd}eee, where
 	// the {} indicate the context start and limit, and the ||
 	// indicate the start and limit.
@@ -4978,10 +4952,7 @@ UnicodeString & TransliteratorTest::formatInput(UnicodeString & appendTo,
 		append((UChar)125 /*}*/).append(e);
 	}
 	else {
-		appendTo.append((UnicodeString)"INVALID UTransPosition {cs=" +
-		    pos.contextStart + ", s=" + pos.start + ", l=" +
-		    pos.limit + ", cl=" + pos.contextLimit + "} on " +
-		    input);
+		appendTo.append((UnicodeString)"INVALID UTransPosition {cs=" + pos.contextStart + ", s=" + pos.start + ", l=" + pos.limit + ", cl=" + pos.contextLimit + "} on " + input);
 	}
 	return appendTo;
 }
@@ -4997,9 +4968,7 @@ void TransliteratorTest::expectAux(const UnicodeString & tag, const UnicodeStrin
 		logln(UnicodeString("(")+tag+") " + prettify(summary));
 	}
 	else {
-		dataerrln(UnicodeString("FAIL: (")+tag+") "
-		    + prettify(summary)
-		    + ", expected " + prettify(expectedResult));
+		dataerrln(UnicodeString("FAIL: (")+tag+") " + prettify(summary) + ", expected " + prettify(expectedResult));
 	}
 }
 

@@ -244,7 +244,7 @@ static mi_output_fun* mi_out_get_default(void ** parg) {
 void mi_register_output(mi_output_fun* out, void * arg) NOEXCEPT {
 	mi_out_default = (out == NULL ? &mi_out_stderr : out); // stop using the delayed output buffer
 	mi_atomic_store_ptr_release(void, &mi_out_arg, arg);
-	if(out!=NULL) mi_out_buf_flush(out, true, arg);  // output all the delayed output now
+	if(out != NULL) mi_out_buf_flush(out, true, arg);  // output all the delayed output now
 }
 
 // add stderr to the delayed output after the module is loaded

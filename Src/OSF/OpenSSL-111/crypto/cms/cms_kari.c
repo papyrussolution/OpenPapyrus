@@ -201,7 +201,7 @@ static int cms_kek_cipher(uchar ** pout, size_t * poutlen,
 	if(!EVP_CipherUpdate(kari->ctx, NULL, &outlen, in, inlen))
 		goto err;
 	out = static_cast<uchar *>(OPENSSL_malloc(outlen));
-	if(out == NULL)
+	if(!out)
 		goto err;
 	if(!EVP_CipherUpdate(kari->ctx, out, &outlen, in, inlen))
 		goto err;

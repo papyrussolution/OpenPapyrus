@@ -533,7 +533,7 @@ static int server_done()
 	}
 	if(mechlist != NULL) {
 		m = mechlist->mech_list; /* m point to beginning of the list */
-		while(m!=NULL) {
+		while(m != NULL) {
 			prevm = m;
 			m = m->next;
 			if(prevm->m.plug->mech_free) {
@@ -1694,9 +1694,9 @@ int _sasl_server_listmech(sasl_conn_t * conn,
 	if(!result)
 		PARAMERROR(conn);
 
-	if(plen != NULL)
+	if(plen)
 		*plen = 0;
-	if(pcount != NULL)
+	if(pcount)
 		*pcount = 0;
 
 	if(sep) {
@@ -1737,9 +1737,8 @@ int _sasl_server_listmech(sasl_conn_t * conn,
 			 * the non-PLUS-variant due to policy reasons, it MUST advertise
 			 * only the PLUS-variant.
 			 */
-			if((listptr->m.plug->features & SASL_FEAT_CHANNEL_BINDING) &&
-			    SASL_CB_PRESENT(s_conn->sparams)) {
-				if(pcount != NULL) {
+			if((listptr->m.plug->features & SASL_FEAT_CHANNEL_BINDING) && SASL_CB_PRESENT(s_conn->sparams)) {
+				if(pcount) {
 					(*pcount)++;
 				}
 				if(flag) {
@@ -1760,7 +1759,7 @@ int _sasl_server_listmech(sasl_conn_t * conn,
 			 */
 			if(!SASL_CB_PRESENT(s_conn->sparams) ||
 			    !SASL_CB_CRITICAL(s_conn->sparams)) {
-				if(pcount != NULL) {
+				if(pcount) {
 					(*pcount)++;
 				}
 				if(flag) {
@@ -1772,13 +1771,11 @@ int _sasl_server_listmech(sasl_conn_t * conn,
 				strcat(conn->mechlist_buf, listptr->m.plug->mech_name);
 			}
 		}
-
 		listptr = listptr->next;
 	}
-
 	if(suffix)
 		strcat(conn->mechlist_buf, suffix);
-	if(plen!=NULL)
+	if(plen)
 		*plen = (unsigned)strlen(conn->mechlist_buf);
 	*result = conn->mechlist_buf;
 	return SASL_OK;
@@ -1802,9 +1799,7 @@ sasl_string_list_t * _sasl_server_mechs(void)
 			} while(next);
 			return NULL;
 		}
-
 		next->d = listptr->m.plug->mech_name;
-
 		if(!retval) {
 			next->next = NULL;
 			retval = next;
@@ -1814,7 +1809,6 @@ sasl_string_list_t * _sasl_server_mechs(void)
 			retval = next;
 		}
 	}
-
 	return retval;
 }
 
@@ -1826,11 +1820,7 @@ static int is_mech(const char * t, const char * m)
 }
 
 /* returns OK if it's valid */
-static int _sasl_checkpass(sasl_conn_t * conn,
-    const char * user,
-    unsigned userlen,
-    const char * pass,
-    unsigned passlen)
+static int _sasl_checkpass(sasl_conn_t * conn, const char * user, unsigned userlen, const char * pass, unsigned passlen)
 {
 	sasl_server_conn_t * s_conn = (sasl_server_conn_t*)conn;
 	int result;
@@ -2141,39 +2131,27 @@ static void _sasl_print_mechanism(server_sasl_mechanism_t * m,
 	else if(stage == SASL_INFO_LIST_END) {
 		return;
 	}
-
 	/* Process the mechanism */
 	printf("Plugin \"%s\" ", m->plugname);
-
 	switch(m->condition) {
 		case SASL_OK:
 		    printf("[loaded]");
 		    break;
-
 		case SASL_CONTINUE:
 		    printf("[delayed]");
 		    break;
-
 		case SASL_NOUSER:
 		    printf("[no users]");
 		    break;
-
 		default:
 		    printf("[unknown]");
 		    break;
 	}
-
 	printf(", \tAPI version: %d\n", m->version);
-
 	if(m->plug != NULL) {
-		printf("\tSASL mechanism: %s, best SSF: %d, supports setpass: %s\n",
-		    m->plug->mech_name,
-		    m->plug->max_ssf,
-		    (m->plug->setpass != NULL) ? "yes" : "no"
-		    );
-
+		printf("\tSASL mechanism: %s, best SSF: %d, supports setpass: %s\n", m->plug->mech_name,
+		    m->plug->max_ssf, (m->plug->setpass != NULL) ? "yes" : "no");
 		printf("\tsecurity flags:");
-
 		delimiter = ' ';
 		if(m->plug->security_flags & SASL_SEC_NOANONYMOUS) {
 			printf("%cNO_ANONYMOUS", delimiter);

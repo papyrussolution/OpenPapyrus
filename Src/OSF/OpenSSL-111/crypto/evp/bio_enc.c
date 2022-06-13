@@ -90,7 +90,7 @@ static int enc_free(BIO * a)
 		return 0;
 
 	b = static_cast<BIO_ENC_CTX *>(BIO_get_data(a));
-	if(b == NULL)
+	if(!b)
 		return 0;
 
 	EVP_CIPHER_CTX_free(b->cipher);
@@ -107,7 +107,7 @@ static int enc_read(BIO * b, char * out, int outl)
 	BIO_ENC_CTX * ctx;
 	BIO * next;
 
-	if(out == NULL)
+	if(!out)
 		return 0;
 	ctx = static_cast<BIO_ENC_CTX *>(BIO_get_data(b));
 

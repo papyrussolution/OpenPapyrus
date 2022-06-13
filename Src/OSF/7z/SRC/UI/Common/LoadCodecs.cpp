@@ -109,7 +109,7 @@ static void SplitString(const UString &srcString, UStringVector &destStrings)
 	destStrings.Clear();
 	UString s;
 	uint len = srcString.Len();
-	if(len == 0)
+	if(!len)
 		return;
 	for(uint i = 0; i < len; i++) {
 		wchar_t c = srcString[i];

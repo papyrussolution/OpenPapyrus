@@ -208,7 +208,7 @@ public class StyloQInterchange {
 							if(pack != null && StyloQDatabase.SecStoragePacket.IsDocKind(pack.Rec.Kind)) {
 								int ex_status = StyloQDatabase.SecTable.Rec.GetDocStatus(pack.Rec.Flags);
 								if(sst != 0 && sst != ex_status) {
-									if(Document.ValidateSatusTransition(ex_status, sst)) {
+									if(Document.ValidateStatusTransition(ex_status, sst)) {
 										pack.Rec.SetDocStatus(sst);
 										long temp_id = db.PutPeerEntry(cid, pack, true);
 										if(temp_id == cid)
@@ -330,7 +330,7 @@ public class StyloQInterchange {
 		}
 		void Close()
 		{
-			if(Mqbc != null) {
+			if(Mqbc != null && Mqbc.IsOpened()) {
 				if(MqbRpeReply != null) {
 					if(SLib.GetLen(MqbRpeReply.QueueName) > 0 && SLib.GetLen(MqbRpeReply.ExchangeName) > 0 &&
 							SLib.GetLen(MqbRpeReply.RoutingKey) > 0) {

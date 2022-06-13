@@ -344,7 +344,7 @@ static const char * min_expand(MatchState * ms, const char * s, const char * p, 
 {
 	for(;;) {
 		const char * res = match(ms, s, ep+1);
-		if(res != NULL)
+		if(res)
 			return res;
 		else if(singlematch(ms, s, p, ep))
 			s++; /* try with one more repetition */

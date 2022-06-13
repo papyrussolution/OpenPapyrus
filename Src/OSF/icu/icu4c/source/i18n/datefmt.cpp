@@ -181,7 +181,7 @@ UnicodeString &DateFormat::format(UDate date, UnicodeString & appendTo, FieldPos
 	if(fCalendar) {
 		// Use a clone of our calendar instance
 		Calendar* calClone = fCalendar->clone();
-		if(calClone != NULL) {
+		if(calClone) {
 			UErrorCode ec = U_ZERO_ERROR;
 			calClone->setTime(date, ec);
 			if(U_SUCCESS(ec)) {
@@ -197,7 +197,7 @@ UnicodeString &DateFormat::format(UDate date, UnicodeString & appendTo, FieldPos
 {
 	if(fCalendar) {
 		Calendar* calClone = fCalendar->clone();
-		if(calClone != NULL) {
+		if(calClone) {
 			calClone->setTime(date, status);
 			if(U_SUCCESS(status)) {
 				format(*calClone, appendTo, posIter, status);
@@ -221,7 +221,7 @@ UDate DateFormat::parse(const UnicodeString & text, ParsePosition& pos) const
 	UDate d = 0; // Error return UDate is 0 (the epoch)
 	if(fCalendar) {
 		Calendar* calClone = fCalendar->clone();
-		if(calClone != NULL) {
+		if(calClone) {
 			int32_t start = pos.getIndex();
 			calClone->clear();
 			parse(text, *calClone, pos);
@@ -304,10 +304,9 @@ UnicodeString U_EXPORT2 DateFormat::getBestPattern(const Locale &locale, const U
 	return result;
 }
 
-DateFormat* U_EXPORT2 DateFormat::createInstanceForSkeleton(Calendar * calendarToAdopt,
-    const UnicodeString & skeleton,
-    const Locale &locale,
-    UErrorCode & status) {
+DateFormat* U_EXPORT2 DateFormat::createInstanceForSkeleton(Calendar * calendarToAdopt, const UnicodeString & skeleton,
+    const Locale &locale, UErrorCode & status) 
+{
 	LocalPointer<Calendar> calendar(calendarToAdopt);
 	if(U_FAILURE(status)) {
 		return NULL;
@@ -342,8 +341,6 @@ DateFormat* U_EXPORT2 DateFormat::createInstanceForSkeleton(const UnicodeString 
 {
 	return createInstanceForSkeleton(skeleton, Locale::getDefault(), status);
 }
-
-//----------------------------------------------------------------------
 
 DateFormat* U_EXPORT2 DateFormat::create(EStyle timeStyle, EStyle dateStyle, const Locale & locale)
 {
@@ -400,13 +397,11 @@ void DateFormat::adoptCalendar(Calendar* newCalendar)
 	fCalendar = newCalendar;
 }
 
-//----------------------------------------------------------------------
 void DateFormat::setCalendar(const Calendar& newCalendar)
 {
 	Calendar* newCalClone = newCalendar.clone();
-	if(newCalClone != NULL) {
+	if(newCalClone)
 		adoptCalendar(newCalClone);
-	}
 }
 
 const Calendar* DateFormat::getCalendar() const { return fCalendar; }
@@ -418,8 +413,6 @@ void DateFormat::adoptNumberFormat(NumberFormat* newNumberFormat)
 	newNumberFormat->setParseIntegerOnly(TRUE);
 	newNumberFormat->setGroupingUsed(FALSE);
 }
-
-//----------------------------------------------------------------------
 
 void DateFormat::setNumberFormat(const NumberFormat& newNumberFormat)
 {
@@ -462,8 +455,6 @@ bool DateFormat::isCalendarLenient() const
 	return fCalendar ? fCalendar->isLenient() : /*fCalendar is rarely null*/false;
 }
 
-//----------------------------------------------------------------------
-
 void DateFormat::setContext(UDisplayContext value, UErrorCode & status)
 {
 	if(U_FAILURE(status))
@@ -475,8 +466,6 @@ void DateFormat::setContext(UDisplayContext value, UErrorCode & status)
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 	}
 }
-
-//----------------------------------------------------------------------
 
 UDisplayContext DateFormat::getContext(UDisplayContextType type, UErrorCode & status) const
 {

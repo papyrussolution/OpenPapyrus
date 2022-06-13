@@ -5,8 +5,7 @@
 **/
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
-/***************************************/
-
+//
 #include <Platform.h>
 #include <Scintilla.h>
 #include <scintilla-internal.h>
@@ -16,31 +15,11 @@
 using namespace Scintilla;
 #endif
 
-/***********************************************/
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '%');
-}
+static bool FASTCALL IsAWordChar(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '%'); }
+static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch)); }
+static bool FASTCALL IsABlank(uint ch) { return (ch == ' ') || (ch == 0x09) || (ch == 0x0b); }
+static bool FASTCALL IsALineEnd(char ch) { return ((ch == '\n') || (ch == '\r')); }
 
-/**********************************************/
-static bool FASTCALL IsAWordStart(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch));
-}
-
-/***************************************/
-static bool FASTCALL IsABlank(uint ch)
-{
-	return (ch == ' ') || (ch == 0x09) || (ch == 0x0b);
-}
-
-/***************************************/
-static bool FASTCALL IsALineEnd(char ch)
-{
-	return ((ch == '\n') || (ch == '\r'));
-}
-
-/***************************************/
 static Sci_PositionU GetContinuedPos(Sci_PositionU pos, Accessor & styler)
 {
 	while(!IsALineEnd(styler.SafeGetCharAt(pos++))) continue;
@@ -56,18 +35,14 @@ static Sci_PositionU GetContinuedPos(Sci_PositionU pos, Accessor & styler)
 	}
 }
 
-/***************************************/
-static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor & styler, bool isFixFormat)
+static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler, bool isFixFormat)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
 	WordList &keywords3 = *keywordlists[2];
-	/***************************************/
 	Sci_Position posLineStart = 0;
 	int numNonBlank = 0, prevState = 0;
 	Sci_Position endPos = startPos + length;
-	/***************************************/
 	// backtrack to the nearest keyword
 	while((startPos > 1) && (styler.StyleAt(startPos) != SCE_F_WORD)) {
 		startPos--;
@@ -75,7 +50,6 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 	startPos = styler.LineStart(styler.GetLine(startPos));
 	initStyle = styler.StyleAt(startPos - 1);
 	StyleContext sc(startPos, endPos-startPos, initStyle, styler);
-	/***************************************/
 	for(; sc.More(); sc.Forward()) {
 		// remember the start position of the line
 		if(sc.atLineStart) {
@@ -123,14 +97,12 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 			}
 			continue;
 		}
-		/***************************************/
 		// Hanndle preprocessor directives
 		if(sc.ch == '#' && numNonBlank == 1) {
 			sc.SetState(SCE_F_PREPROCESSOR);
 			while(!sc.atLineEnd && sc.More())
 				sc.Forward();  // Until line end
 		}
-		/***************************************/
 		// Handle line continuation generically.
 		if(!isFixFormat && sc.ch == '&' && sc.state != SCE_F_COMMENT) {
 			char chTemp = ' ';
@@ -155,7 +127,6 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 				sc.SetState(currentState);
 			}
 		}
-		/***************************************/
 		// Determine if the current state should terminate.
 		if(sc.state == SCE_F_OPERATOR) {
 			sc.SetState(SCE_F_DEFAULT);
@@ -237,7 +208,6 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 					sc.SetState(SCE_F_DEFAULT);
 			}
 		}
-		/***************************************/
 		// Determine if a new state should be entered.
 		if(sc.state == SCE_F_DEFAULT) {
 			if(sc.ch == '!') {
@@ -279,9 +249,9 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 	}
 	sc.Complete();
 }
-
-/***************************************/
+//
 // To determine the folding level depending on keywords
+//
 static int classifyFoldPointFortran(const char * s, const char * prevWord, const char chNextNonBlank)
 {
 	int lev = 0;
@@ -321,11 +291,10 @@ static int classifyFoldPointFortran(const char * s, const char * prevWord, const
 	}
 	return lev;
 }
-
-/***************************************/
+//
 // Folding the code
-static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    Accessor & styler, bool isFixFormat)
+//
+static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, Accessor & styler, bool isFixFormat)
 {
 	//
 	// bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
@@ -351,10 +320,8 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 	int styleNext = styler.StyleAt(startPos);
 	int style = initStyle;
 	int levelDeltaNext = 0;
-	/***************************************/
 	Sci_Position lastStart = 0;
 	char prevWord[32] = "";
-	/***************************************/
 	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
@@ -379,12 +346,10 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 		styleNext = styler.StyleAt(i + 1);
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
 		//
-		if(((isFixFormat && stylePrev == SCE_F_CONTINUATION) || stylePrev == SCE_F_DEFAULT
-			   || stylePrev == SCE_F_OPERATOR) && (style == SCE_F_WORD || style == SCE_F_LABEL)) {
+		if(((isFixFormat && stylePrev == SCE_F_CONTINUATION) || stylePrev == SCE_F_DEFAULT || stylePrev == SCE_F_OPERATOR) && (style == SCE_F_WORD || style == SCE_F_LABEL)) {
 			// Store last word and label start point.
 			lastStart = i;
 		}
-		/***************************************/
 		if(style == SCE_F_WORD) {
 			if(iswordchar(ch) && !iswordchar(chNext)) {
 				char s[32];
@@ -522,47 +487,37 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 			strcpy(prevWord, "");
 			isPrevLine = false;
 		}
-		/***************************************/
-		if(!isspacechar(ch)) visibleChars++;
+		if(!isspacechar(ch)) 
+			visibleChars++;
 	}
-	/***************************************/
 }
 
-/***************************************/
 static const char * const FortranWordLists[] = {
 	"Primary keywords and identifiers",
 	"Intrinsic functions",
 	"Extended and user defined functions",
 	0,
 };
-/***************************************/
-static void ColouriseFortranDocFreeFormat(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor & styler)
+
+static void ColouriseFortranDocFreeFormat(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	ColouriseFortranDoc(startPos, length, initStyle, keywordlists, styler, false);
 }
 
-/***************************************/
-static void ColouriseFortranDocFixFormat(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor & styler)
+static void ColouriseFortranDocFixFormat(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	ColouriseFortranDoc(startPos, length, initStyle, keywordlists, styler, true);
 }
 
-/***************************************/
-static void FoldFortranDocFreeFormat(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor & styler)
+static void FoldFortranDocFreeFormat(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	FoldFortranDoc(startPos, length, initStyle, styler, false);
 }
 
-/***************************************/
-static void FoldFortranDocFixFormat(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList *[], Accessor & styler)
+static void FoldFortranDocFixFormat(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor & styler)
 {
 	FoldFortranDoc(startPos, length, initStyle, styler, true);
 }
 
-/***************************************/
 LexerModule lmFortran(SCLEX_FORTRAN, ColouriseFortranDocFreeFormat, "fortran", FoldFortranDocFreeFormat, FortranWordLists);
 LexerModule lmF77(SCLEX_F77, ColouriseFortranDocFixFormat, "f77", FoldFortranDocFixFormat, FortranWordLists);

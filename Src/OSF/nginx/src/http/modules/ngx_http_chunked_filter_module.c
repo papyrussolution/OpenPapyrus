@@ -190,7 +190,7 @@ static ngx_chain_t * ngx_http_chunked_create_trailers(ngx_http_request_t * r, ng
 	b->temporary = 0;
 	b->memory = 1;
 	b->last_buf = 1;
-	if(len == 0) {
+	if(!len) {
 		b->pos = (u_char *)CRLF "0" CRLF CRLF;
 		b->last = b->pos + sizeof(CRLF "0" CRLF CRLF) - 1;
 		return cl;

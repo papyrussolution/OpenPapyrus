@@ -121,7 +121,7 @@ static void _cairo_test_init(cairo_test_context_t * ctx, const cairo_test_contex
 		slfprintf_stderr("Error opening log file: %s\n", log_name);
 		ctx->log_file = stderr;
 	}
-	free(log_name);
+	SAlloc::F(log_name);
 	ctx->ref_name = NULL;
 	ctx->ref_image = NULL;
 	ctx->ref_image_flattened = NULL;
@@ -174,11 +174,11 @@ void cairo_test_fini(cairo_test_context_t * ctx)
 	if(ctx->log_file != stderr)
 		fclose(ctx->log_file);
 	ctx->log_file = NULL;
-	free(ctx->ref_name);
+	SAlloc::F(ctx->ref_name);
 	cairo_surface_destroy(ctx->ref_image);
 	cairo_surface_destroy(ctx->ref_image_flattened);
 	if(ctx->test_name != NULL)
-		free((char *)ctx->test_name);
+		SAlloc::F((char *)ctx->test_name);
 	if(ctx->own_targets)
 		cairo_boilerplate_free_targets(ctx->targets_to_test);
 	cairo_boilerplate_fini();
@@ -218,7 +218,7 @@ char * cairo_test_reference_filename(const cairo_test_context_t * ctx, const cha
 	if(ctx->refdir != NULL && strcmp(suffix, CAIRO_TEST_REF_SUFFIX) == 0) {
 		xasprintf(&ref_name, "%s/%s" CAIRO_TEST_OUT_SUFFIX "%s", ctx->refdir, base_name, extension);
 		if(access(ref_name, F_OK) != 0)
-			free(ref_name);
+			SAlloc::F(ref_name);
 		else
 			goto done;
 	}
@@ -232,46 +232,27 @@ char * cairo_test_reference_filename(const cairo_test_context_t * ctx, const cha
 		    suffix,
 		    extension);
 		if(access(ref_name, F_OK) != 0)
-			free(ref_name);
+			SAlloc::F(ref_name);
 		else
 			goto done;
-
 		/* Next, look for target-specific reference image. */
-		xasprintf(&ref_name, "%s/reference/%s.%s%s%s",
-		    ctx->srcdir,
-		    test_name,
-		    target_name,
-		    suffix,
-		    extension);
+		xasprintf(&ref_name, "%s/reference/%s.%s%s%s", ctx->srcdir, test_name, target_name, suffix, extension);
 		if(access(ref_name, F_OK) != 0)
-			free(ref_name);
+			SAlloc::F(ref_name);
 		else
 			goto done;
 	}
-
 	if(base_target_name != NULL) {
 		/* Next look for a base/format-specific reference image. */
-		xasprintf(&ref_name, "%s/reference/%s.%s.%s%s%s",
-		    ctx->srcdir,
-		    test_name,
-		    base_target_name,
-		    format,
-		    suffix,
-		    extension);
+		xasprintf(&ref_name, "%s/reference/%s.%s.%s%s%s", ctx->srcdir, test_name, base_target_name, format, suffix, extension);
 		if(access(ref_name, F_OK) != 0)
-			free(ref_name);
+			SAlloc::F(ref_name);
 		else
 			goto done;
-
 		/* Next, look for base-specific reference image. */
-		xasprintf(&ref_name, "%s/reference/%s.%s%s%s",
-		    ctx->srcdir,
-		    test_name,
-		    base_target_name,
-		    suffix,
-		    extension);
+		xasprintf(&ref_name, "%s/reference/%s.%s%s%s", ctx->srcdir, test_name, base_target_name, suffix, extension);
 		if(access(ref_name, F_OK) != 0)
-			free(ref_name);
+			SAlloc::F(ref_name);
 		else
 			goto done;
 	}
@@ -284,7 +265,7 @@ char * cairo_test_reference_filename(const cairo_test_context_t * ctx, const cha
 	    suffix,
 	    extension);
 	if(access(ref_name, F_OK) != 0)
-		free(ref_name);
+		SAlloc::F(ref_name);
 	else
 		goto done;
 
@@ -294,7 +275,7 @@ char * cairo_test_reference_filename(const cairo_test_context_t * ctx, const cha
 	    suffix,
 	    extension);
 	if(access(ref_name, F_OK) != 0)
-		free(ref_name);
+		SAlloc::F(ref_name);
 	else
 		goto done;
 
@@ -348,7 +329,7 @@ cairo_test_similar_t cairo_test_target_has_similar(const cairo_test_context_t * 
 			target->cleanup(closure);
 	} while(!has_similar && cairo_test_malloc_failure(ctx, status));
 out:
-	free(path);
+	SAlloc::F(path);
 	return has_similar;
 }
 
@@ -384,7 +365,7 @@ cairo_surface_t * cairo_test_get_reference_image(cairo_test_context_t * ctx, con
 		ctx->ref_image = NULL;
 		cairo_surface_destroy(ctx->ref_image_flattened);
 		ctx->ref_image_flattened = NULL;
-		free(ctx->ref_name);
+		SAlloc::F(ctx->ref_name);
 		ctx->ref_name = NULL;
 	}
 	surface = cairo_image_surface_create_from_png(filename);
@@ -520,9 +501,9 @@ static cairo_test_status_t cairo_test_for_target(cairo_test_context_t * ctx, con
 	    scale_str);
 
 	if(offset_str != empty_str)
-		free(offset_str);
+		SAlloc::F(offset_str);
 	if(scale_str != empty_str)
-		free(scale_str);
+		SAlloc::F(scale_str);
 
 	ref_png_path = cairo_test_reference_filename(ctx,
 	    base_name,
@@ -1160,7 +1141,7 @@ REPEAT:
 					}
 				}
 
-				free(image_out_path);
+				SAlloc::F(image_out_path);
 			}
 		}
 
@@ -1176,9 +1157,9 @@ REPEAT:
 	}
 
 UNWIND_CAIRO:
-	free(test_filename);
-	free(fail_filename);
-	free(pass_filename);
+	SAlloc::F(test_filename);
+	SAlloc::F(fail_filename);
+	SAlloc::F(pass_filename);
 
 	test_filename = fail_filename = pass_filename = NULL;
 
@@ -1217,22 +1198,20 @@ UNWIND_SURFACE:
 		}
 		cairo_test_log(ctx, "REFERENCE: %s\nDIFFERENCE: %s\n", cmp_png_path, diff_png_path);
 	}
-
 UNWIND_STRINGS:
-	free(out_png_path);
-	free(ref_png_path);
-	free(base_ref_png_path);
-	free(ref_path);
-	free(new_png_path);
-	free(base_new_png_path);
-	free(new_path);
-	free(xfail_png_path);
-	free(base_xfail_png_path);
-	free(xfail_path);
-	free(diff_png_path);
-	free(base_path);
-	free(base_name);
-
+	SAlloc::F(out_png_path);
+	SAlloc::F(ref_png_path);
+	SAlloc::F(base_ref_png_path);
+	SAlloc::F(ref_path);
+	SAlloc::F(new_png_path);
+	SAlloc::F(base_new_png_path);
+	SAlloc::F(new_path);
+	SAlloc::F(xfail_png_path);
+	SAlloc::F(base_xfail_png_path);
+	SAlloc::F(xfail_path);
+	SAlloc::F(diff_png_path);
+	SAlloc::F(base_path);
+	SAlloc::F(base_name);
 	return ret;
 }
 
@@ -1427,7 +1406,7 @@ cairo_surface_t * cairo_test_create_surface_from_png(const cairo_test_context_t 
 			xasprintf(&srcdir_filename, "%s/%s", ctx->srcdir, filename);
 			cairo_surface_destroy(image);
 			image = cairo_image_surface_create_from_png(srcdir_filename);
-			free(srcdir_filename);
+			SAlloc::F(srcdir_filename);
 		}
 	}
 	return image;

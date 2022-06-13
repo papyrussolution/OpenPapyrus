@@ -205,10 +205,9 @@ size_t FSE_buildCTable_wksp(FSE_CTable* ct, const short* normalizedCounter, uint
 }
 
 #ifndef FSE_COMMONDEFS_ONLY
-
-/*-**************************************************************
-*  FSE NCount encoding
-****************************************************************/
+// 
+// FSE NCount encoding
+// 
 size_t FSE_NCountWriteBound(uint maxSymbolValue, uint tableLog)
 {
 	const size_t maxHeaderSize = (((maxSymbolValue+1) * tableLog
@@ -321,11 +320,9 @@ size_t FSE_writeNCount(void * buffer, size_t bufferSize, const short* normalized
 		return FSE_writeNCount_generic(buffer, bufferSize, normalizedCounter, maxSymbolValue, tableLog, 0);
 	return FSE_writeNCount_generic(buffer, bufferSize, normalizedCounter, maxSymbolValue, tableLog, 1 /* write in buffer is safe */);
 }
-
-/*-**************************************************************
-*  FSE Compression Code
-****************************************************************/
-
+// 
+// FSE Compression Code
+// 
 FSE_CTable* FSE_createCTable(uint maxSymbolValue, uint tableLog)
 {
 	size_t size;
@@ -346,7 +343,7 @@ static uint FSE_minTableLog(size_t srcSize, uint maxSymbolValue)
 	uint32 minBitsSrc = ZSTD_highbit32((uint32)(srcSize)) + 1;
 	uint32 minBitsSymbols = ZSTD_highbit32(maxSymbolValue) + 2;
 	uint32 minBits = minBitsSrc < minBitsSymbols ? minBitsSrc : minBitsSymbols;
-	assert(srcSize > 1); /* Not supported, RLE should be used instead */
+	assert(srcSize > 1); // Not supported RLE should be used instead
 	return minBits;
 }
 
@@ -355,7 +352,7 @@ uint FSE_optimalTableLog_internal(uint maxTableLog, size_t srcSize, uint maxSymb
 	uint32 maxBitsSrc = ZSTD_highbit32((uint32)(srcSize - 1)) - minus;
 	uint32 tableLog = maxTableLog;
 	uint32 minBits = FSE_minTableLog(srcSize, maxSymbolValue);
-	assert(srcSize > 1); /* Not supported, RLE should be used instead */
+	assert(srcSize > 1); // Not supported RLE should be used instead
 	if(tableLog==0) tableLog = FSE_DEFAULT_TABLELOG;
 	if(maxBitsSrc < tableLog) tableLog = maxBitsSrc; /* Accuracy can be reduced */
 	if(minBits > tableLog) tableLog = minBits; /* Need a minimum to safely represent all symbol values */

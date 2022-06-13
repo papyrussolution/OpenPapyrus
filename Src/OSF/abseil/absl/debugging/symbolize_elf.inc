@@ -412,7 +412,7 @@ private:
 					ABSL_RAW_LOG(WARNING, "read failed: errno=%d", errno);
 					return -1;
 				}
-				if(len == 0) { // Reached EOF.
+				if(!len) { // Reached EOF.
 					break;
 				}
 				num_bytes += len;

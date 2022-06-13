@@ -2650,7 +2650,7 @@ int Memento_paranoidAt(int i)
 int Memento_getBlockNum(void * b)
 {
 	Memento_BlkHeader * memblk;
-	if(b == NULL)
+	if(!b)
 		return 0;
 	memblk = MEMBLK_FROMBLK(b);
 	return (memblk->sequence);

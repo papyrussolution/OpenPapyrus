@@ -97,11 +97,9 @@ ZSTDLIBv06_API size_t ZSTDv06_decompressBegin_usingDict(ZSTDv06_DCtx* dctx, cons
 ZSTDLIBv06_API void   ZSTDv06_copyDCtx(ZSTDv06_DCtx* dctx, const ZSTDv06_DCtx* preparedDCtx);
 ZSTDLIBv06_API size_t ZSTDv06_nextSrcSizeToDecompress(ZSTDv06_DCtx* dctx);
 ZSTDLIBv06_API size_t ZSTDv06_decompressContinue(ZSTDv06_DCtx* dctx, void* dst, size_t dstCapacity, const void* src, size_t srcSize);
-
-/* *************************************
-*  ZBUFF API
-***************************************/
-
+// 
+// ZBUFF API
+// 
 typedef struct ZBUFFv06_DCtx_s ZBUFFv06_DCtx;
 ZSTDLIBv06_API ZBUFFv06_DCtx* ZBUFFv06_createDCtx(void);
 ZSTDLIBv06_API size_t         ZBUFFv06_freeDCtx(ZBUFFv06_DCtx* dctx);

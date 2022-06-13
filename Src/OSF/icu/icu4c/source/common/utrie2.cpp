@@ -188,7 +188,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openFromSerialized(UTrie2ValueBits valueBits,
 		    return 0;
 	}
 
-	if(pActualLength!=NULL) {
+	if(pActualLength != NULL) {
 		*pActualLength = actualLength;
 	}
 	return trie;
@@ -388,7 +388,7 @@ static void enumEitherTrie(const UTrie2 * trie, UChar32 start, UChar32 limit, UT
 	if(trie->newTrie==NULL) {
 		/* frozen trie */
 		idx = trie->index;
-		U_ASSERT(idx!=NULL); /* the following code assumes trie->newTrie is not NULL when idx is NULL */
+		U_ASSERT(idx != NULL); /* the following code assumes trie->newTrie is not NULL when idx is NULL */
 		data32 = trie->data32;
 		index2NullOffset = trie->index2NullOffset;
 		nullBlock = trie->dataNullOffset;
@@ -397,7 +397,7 @@ static void enumEitherTrie(const UTrie2 * trie, UChar32 start, UChar32 limit, UT
 		/* unfrozen, mutable trie */
 		idx = NULL;
 		data32 = trie->newTrie->data;
-		U_ASSERT(data32!=NULL); /* the following code assumes idx is not NULL when data32 is NULL */
+		U_ASSERT(data32 != NULL); /* the following code assumes idx is not NULL when data32 is NULL */
 		index2NullOffset = trie->newTrie->index2NullOffset;
 		nullBlock = trie->newTrie->dataNullOffset;
 	}

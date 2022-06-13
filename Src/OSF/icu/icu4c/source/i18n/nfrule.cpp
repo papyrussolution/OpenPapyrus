@@ -170,7 +170,7 @@ void NFRule::makeRules(UnicodeString & description, NFRuleSet * owner, const NFR
 		// BEFORE rule1 in the list: in all cases, rule2 OMITS the
 		// material in the brackets and rule1 INCLUDES the material
 		// in the brackets)
-		if(rule2 != NULL) {
+		if(rule2) {
 			if(rule2->baseValue >= kNoBase) {
 				rules.add(rule2);
 			}
@@ -493,10 +493,10 @@ void NFRule::setBaseValue(int64_t newBaseValue, UErrorCode & status)
 		// description didn't specify a base value.  This means it
 		// has substitutions, and some substitutions hold on to copies
 		// of the rule's divisor.  Fix their copies of the divisor.
-		if(sub1 != NULL) {
+		if(sub1) {
 			sub1->setDivisor(radix, exponent, status);
 		}
-		if(sub2 != NULL) {
+		if(sub2) {
 			sub2->setDivisor(radix, exponent, status);
 		}
 
@@ -635,11 +635,11 @@ void NFRule::_appendRuleText(UnicodeString & result) const
 	ruleTextCopy.setTo(fRuleText);
 
 	UnicodeString temp;
-	if(sub2 != NULL) {
+	if(sub2) {
 		sub2->toString(temp);
 		ruleTextCopy.insert(sub2->getPos(), temp);
 	}
-	if(sub1 != NULL) {
+	if(sub1) {
 		sub1->toString(temp);
 		ruleTextCopy.insert(sub1->getPos(), temp);
 	}
@@ -696,19 +696,11 @@ void NFRule::doFormat(int64_t number, UnicodeString & toInsertInto, int32_t pos,
 		lengthOffset = fRuleText.length() - (toInsertInto.length() - initialLength);
 	}
 
-	if(sub2 != NULL) {
-		sub2->doSubstitution(number,
-		    toInsertInto,
-		    pos - (sub2->getPos() > pluralRuleStart ? lengthOffset : 0),
-		    recursionCount,
-		    status);
+	if(sub2) {
+		sub2->doSubstitution(number, toInsertInto, pos - (sub2->getPos() > pluralRuleStart ? lengthOffset : 0), recursionCount, status);
 	}
-	if(sub1 != NULL) {
-		sub1->doSubstitution(number,
-		    toInsertInto,
-		    pos - (sub1->getPos() > pluralRuleStart ? lengthOffset : 0),
-		    recursionCount,
-		    status);
+	if(sub1) {
+		sub1->doSubstitution(number, toInsertInto, pos - (sub1->getPos() > pluralRuleStart ? lengthOffset : 0), recursionCount, status);
 	}
 }
 
@@ -757,19 +749,11 @@ void NFRule::doFormat(double number, UnicodeString & toInsertInto, int32_t pos, 
 		lengthOffset = fRuleText.length() - (toInsertInto.length() - initialLength);
 	}
 
-	if(sub2 != NULL) {
-		sub2->doSubstitution(number,
-		    toInsertInto,
-		    pos - (sub2->getPos() > pluralRuleStart ? lengthOffset : 0),
-		    recursionCount,
-		    status);
+	if(sub2) {
+		sub2->doSubstitution(number, toInsertInto, pos - (sub2->getPos() > pluralRuleStart ? lengthOffset : 0), recursionCount, status);
 	}
-	if(sub1 != NULL) {
-		sub1->doSubstitution(number,
-		    toInsertInto,
-		    pos - (sub1->getPos() > pluralRuleStart ? lengthOffset : 0),
-		    recursionCount,
-		    status);
+	if(sub1) {
+		sub1->doSubstitution(number, toInsertInto, pos - (sub1->getPos() > pluralRuleStart ? lengthOffset : 0), recursionCount, status);
 	}
 }
 
@@ -799,7 +783,7 @@ bool NFRule::shouldRollBack(int64_t number) const
 	// a modulus substitution, its base value isn't an even multiple
 	// of 100, and the value we're trying to format _is_ an even
 	// multiple of 100.  This is called the "rollback rule."
-	if((sub1 != NULL && sub1->isModulusSubstitution()) || (sub2 != NULL && sub2->isModulusSubstitution())) {
+	if((sub1 && sub1->isModulusSubstitution()) || (sub2 && sub2->isModulusSubstitution())) {
 		int64_t re = util64_pow(radix, exponent);
 		return (number % re) == 0 && (baseValue % re) != 0;
 	}
@@ -849,8 +833,8 @@ bool NFRule::doParse(const UnicodeString & text, ParsePosition& parsePosition, b
 	// (because we're going to change it) and use our own ParsePosition
 	ParsePosition pp;
 	UnicodeString workText(text);
-	int32_t sub1Pos = sub1 != NULL ? sub1->getPos() : fRuleText.length();
-	int32_t sub2Pos = sub2 != NULL ? sub2->getPos() : fRuleText.length();
+	int32_t sub1Pos = sub1 ? sub1->getPos() : fRuleText.length();
+	int32_t sub2Pos = sub2 ? sub2->getPos() : fRuleText.length();
 	// check to see whether the text before the first substitution
 	// matches the text at the beginning of the string being
 	// parsed.  If it does, strip that off the front of workText;

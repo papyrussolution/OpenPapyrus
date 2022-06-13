@@ -86,10 +86,10 @@ typedef struct {
 /* ---------- Encode ---------- */
 
 typedef struct {
-	UInt64 Low;
+	uint64 Low;
 	UInt32 Range;
 	Byte Cache;
-	UInt64 CacheSize;
+	uint64 CacheSize;
 	IByteOut * Stream;
 } CPpmd7z_RangeEnc;
 

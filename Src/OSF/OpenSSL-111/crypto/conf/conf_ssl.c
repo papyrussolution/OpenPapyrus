@@ -98,7 +98,7 @@ static int ssl_module_init(CONF_IMODULE * md, const CONF * cnf)
 
 			/* Skip any initial dot in name */
 			name = strchr(cmd_conf->name, '.');
-			if(name != NULL)
+			if(name)
 				name++;
 			else
 				name = cmd_conf->name;

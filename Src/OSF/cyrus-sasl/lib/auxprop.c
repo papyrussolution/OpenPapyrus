@@ -1060,28 +1060,19 @@ static void _sasl_print_mechanism(sasl_auxprop_plug_t * m,
 		    break;
 	}
 #endif
-
 	printf(", \tAPI version: %d\n", /* m->version */ SASL_AUXPROP_PLUG_VERSION);
-
 	/* TODO - Update for auxprop_export, etc. */
-	printf("\tsupports store: %s\n",
-	    (m->auxprop_store != NULL) ? "yes" : "no"
-	    );
-
+	printf("\tsupports store: %s\n", (m->auxprop_store != NULL) ? "yes" : "no");
 	/* No features defined yet */
 #ifdef NOT_YET
 	printf("\n\tfeatures:");
 #endif
-
 	printf("\n");
 }
 
 /* Dump information about available auxprop plugins (separate functions are
    used for canon and server authentication plugins) */
-int auxprop_plugin_info(const char * c_mech_list,              /* space separated mechanism list or NULL for ALL */
-    auxprop_info_callback_t * info_cb,
-    void * info_cb_rock
-    )
+int auxprop_plugin_info(const char * c_mech_list/* space separated mechanism list or NULL for ALL */, auxprop_info_callback_t * info_cb, void * info_cb_rock)
 {
 	auxprop_plug_list_t * m;
 	sasl_auxprop_plug_t plug_data;

@@ -1,21 +1,13 @@
+// ucnv_cnv.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-**********************************************************************
-*   Copyright (C) 1999-2011, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-**********************************************************************
-*
-*   ucnv_cnv.h:
-*   Definitions for converter implementations.
-*
-* Modification History:
-*
-*   Date        Name        Description
-*   05/09/00    helena      Added implementation to handle fallback mappings.
-*   06/29/2000  helena      Major rewrite of the callback APIs.
-*/
-
+// Copyright (C) 1999-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// Definitions for converter implementations.
+// Modification History:
+// Date        Name        Description
+// 05/09/00    helena      Added implementation to handle fallback mappings.
+// 06/29/2000  helena      Major rewrite of the callback APIs.
+// 
 #ifndef UCNV_CNV_H
 #define UCNV_CNV_H
 
@@ -43,39 +35,40 @@ U_CDECL_BEGIN
 
 /** Forward declaration, see ucnv_bld.h */
 struct UConverterSharedData;
+
 typedef struct UConverterSharedData UConverterSharedData;
 
 /* function types for UConverterImpl ---------------------------------------- */
 
 /* struct with arguments for UConverterLoad and ucnv_load() */
 typedef struct {
-    int32_t size; /* sizeof(UConverterLoadArgs) */
-    int32_t nestedLoads; /* count nested ucnv_load() calls */
-    bool onlyTestIsLoadable; /* input: don't actually load */
-    bool reserved0; /* reserved - for good alignment of the pointers */
-    int16 reserved; /* reserved - for good alignment of the pointers */
-    uint32_t options;
-    const char *pkg, *name, *locale;
+	int32_t size; /* sizeof(UConverterLoadArgs) */
+	int32_t nestedLoads; /* count nested ucnv_load() calls */
+	bool onlyTestIsLoadable; /* input: don't actually load */
+	bool reserved0; /* reserved - for good alignment of the pointers */
+	int16 reserved; /* reserved - for good alignment of the pointers */
+	uint32_t options;
+	const char * pkg, * name, * locale;
 } UConverterLoadArgs;
 
 #define UCNV_LOAD_ARGS_INITIALIZER \
-    { (int32_t)sizeof(UConverterLoadArgs), 0, false, false, 0, 0, NULL, NULL, NULL }
+	{ (int32_t)sizeof(UConverterLoadArgs), 0, false, false, 0, 0, NULL, NULL, NULL }
 
-typedef void (*UConverterLoad) (UConverterSharedData *sharedData,
-                                UConverterLoadArgs *pArgs,
-                                const uint8 *raw, UErrorCode *pErrorCode);
-typedef void (*UConverterUnload) (UConverterSharedData *sharedData);
+typedef void (* UConverterLoad) (UConverterSharedData * sharedData,
+    UConverterLoadArgs * pArgs,
+    const uint8 * raw, UErrorCode * pErrorCode);
+typedef void (* UConverterUnload) (UConverterSharedData * sharedData);
 
-typedef void (*UConverterOpen) (UConverter *cnv, UConverterLoadArgs *pArgs, UErrorCode *pErrorCode);
-typedef void (*UConverterClose) (UConverter *cnv);
+typedef void (* UConverterOpen) (UConverter * cnv, UConverterLoadArgs * pArgs, UErrorCode * pErrorCode);
+typedef void (* UConverterClose) (UConverter * cnv);
 
 typedef enum UConverterResetChoice {
-    UCNV_RESET_BOTH,
-    UCNV_RESET_TO_UNICODE,
-    UCNV_RESET_FROM_UNICODE
+	UCNV_RESET_BOTH,
+	UCNV_RESET_TO_UNICODE,
+	UCNV_RESET_FROM_UNICODE
 } UConverterResetChoice;
 
-typedef void (*UConverterReset) (UConverter *cnv, UConverterResetChoice choice);
+typedef void (* UConverterReset) (UConverter * cnv, UConverterResetChoice choice);
 
 /*
  * Converter implementation function(s) for ucnv_toUnicode().
@@ -100,7 +93,7 @@ typedef void (*UConverterReset) (UConverter *cnv, UConverterResetChoice choice);
  * The ucnv.c code will handle the end of the input (reset)
  * (reset, and truncation detection) and callbacks.
  */
-typedef void (*UConverterToUnicode) (UConverterToUnicodeArgs *, UErrorCode *);
+typedef void (* UConverterToUnicode) (UConverterToUnicodeArgs *, UErrorCode *);
 
 /*
  * Same rules as for UConverterToUnicode.
@@ -108,7 +101,7 @@ typedef void (*UConverterToUnicode) (UConverterToUnicodeArgs *, UErrorCode *);
  * occurs, then the offending input code point must be put into fromUChar32
  * as well.
  */
-typedef void (*UConverterFromUnicode) (UConverterFromUnicodeArgs *, UErrorCode *);
+typedef void (* UConverterFromUnicode) (UConverterFromUnicodeArgs *, UErrorCode *);
 
 /*
  * Converter implementation function for ucnv_convertEx(), for direct conversion
@@ -123,10 +116,7 @@ typedef void (*UConverterFromUnicode) (UConverterFromUnicodeArgs *, UErrorCode *
  * - Continuing a partial match and flushing the toUnicode replay buffer
  *   are handled by pivoting, using the toUnicode and fromUnicode functions.
  */
-typedef void (*UConverterConvert) (UConverterFromUnicodeArgs *pFromUArgs,
-                                   UConverterToUnicodeArgs *pToUArgs,
-                                   UErrorCode *pErrorCode);
-
+typedef void (* UConverterConvert) (UConverterFromUnicodeArgs * pFromUArgs, UConverterToUnicodeArgs * pToUArgs, UErrorCode * pErrorCode);
 /*
  * Converter implementation function for ucnv_getNextUChar().
  * If the function pointer is NULL, then the toUnicode function will be used.
@@ -147,17 +137,17 @@ typedef void (*UConverterConvert) (UConverterFromUnicodeArgs *pFromUArgs,
  * The ucnv.c code will handle the end of the input (reset)
  * (except for truncation detection!) and callbacks.
  */
-typedef UChar32 (*UConverterGetNextUChar) (UConverterToUnicodeArgs *, UErrorCode *);
+typedef UChar32 (* UConverterGetNextUChar) (UConverterToUnicodeArgs *, UErrorCode *);
 
-typedef void (*UConverterGetStarters)(const UConverter * converter,
-                                      bool starters[256],
-                                      UErrorCode *pErrorCode);
+typedef void (* UConverterGetStarters)(const UConverter * converter,
+    bool starters[256],
+    UErrorCode * pErrorCode);
 
 /* If this function pointer is null or if the function returns null
- * the name field in static data struct should be returned by 
+ * the name field in static data struct should be returned by
  * ucnv_getName() API function
  */
-typedef const char * (*UConverterGetName) (const UConverter *cnv);
+typedef const char * (* UConverterGetName) (const UConverter * cnv);
 
 /**
  * Write the codepage substitution character.
@@ -166,7 +156,7 @@ typedef const char * (*UConverterGetName) (const UConverter *cnv);
  * For stateful converters, it is typically necessary to handle this
  * specifically for the converter in order to properly maintain the state.
  */
-typedef void (*UConverterWriteSub) (UConverterFromUnicodeArgs *pArgs, int32_t offsetIndex, UErrorCode *pErrorCode);
+typedef void (* UConverterWriteSub) (UConverterFromUnicodeArgs * pArgs, int32_t offsetIndex, UErrorCode * pErrorCode);
 
 /**
  * For converter-specific safeClone processing
@@ -177,22 +167,22 @@ typedef void (*UConverterWriteSub) (UConverterFromUnicodeArgs *pArgs, int32_t of
  * the initial state of the converter.  It is not expected to increment the
  * reference counts of the standard data types such as the shared data.
  */
-typedef UConverter * (*UConverterSafeClone) (const UConverter   *cnv, 
-                                             void   *stackBuffer,
-                                             int32_t *pBufferSize, 
-                                             UErrorCode         *status);
+typedef UConverter * (* UConverterSafeClone) (const UConverter   * cnv,
+    void   * stackBuffer,
+    int32_t * pBufferSize,
+    UErrorCode         * status);
 
 /**
  * Filters for some ucnv_getUnicodeSet() implementation code.
  */
 typedef enum UConverterSetFilter {
-    UCNV_SET_FILTER_NONE,
-    UCNV_SET_FILTER_DBCS_ONLY,
-    UCNV_SET_FILTER_2022_CN,
-    UCNV_SET_FILTER_SJIS,
-    UCNV_SET_FILTER_GR94DBCS,
-    UCNV_SET_FILTER_HZ,
-    UCNV_SET_FILTER_COUNT
+	UCNV_SET_FILTER_NONE,
+	UCNV_SET_FILTER_DBCS_ONLY,
+	UCNV_SET_FILTER_2022_CN,
+	UCNV_SET_FILTER_SJIS,
+	UCNV_SET_FILTER_GR94DBCS,
+	UCNV_SET_FILTER_HZ,
+	UCNV_SET_FILTER_COUNT
 } UConverterSetFilter;
 
 /**
@@ -206,12 +196,12 @@ typedef enum UConverterSetFilter {
  *
  * For more documentation, see ucnv_getUnicodeSet() in ucnv.h.
  */
-typedef void (*UConverterGetUnicodeSet) (const UConverter *cnv,
-                                         const USetAdder *sa,
-                                         UConverterUnicodeSet which,
-                                         UErrorCode *pErrorCode);
+typedef void (* UConverterGetUnicodeSet) (const UConverter * cnv,
+    const USetAdder * sa,
+    UConverterUnicodeSet which,
+    UErrorCode * pErrorCode);
 
-bool CONVERSION_U_SUCCESS (UErrorCode err);
+bool CONVERSION_U_SUCCESS(UErrorCode err);
 
 /**
  * UConverterImpl contains all the data and functions for a converter type.
@@ -230,39 +220,57 @@ bool CONVERSION_U_SUCCESS (UErrorCode err);
  * When open() fails, then close() will be called, if present.
  */
 struct UConverterImpl {
-    UConverterType type;
-
-    UConverterLoad load;
-    UConverterUnload unload;
-
-    UConverterOpen open;
-    UConverterClose close;
-    UConverterReset reset;
-
-    UConverterToUnicode toUnicode;
-    UConverterToUnicode toUnicodeWithOffsets;
-    UConverterFromUnicode fromUnicode;
-    UConverterFromUnicode fromUnicodeWithOffsets;
-    UConverterGetNextUChar getNextUChar;
-
-    UConverterGetStarters getStarters;
-    UConverterGetName getName;
-    UConverterWriteSub writeSub;
-    UConverterSafeClone safeClone;
-    UConverterGetUnicodeSet getUnicodeSet;
-
-    UConverterConvert toUTF8;
-    UConverterConvert fromUTF8;
+	UConverterType type;
+	UConverterLoad load;
+	UConverterUnload unload;
+	UConverterOpen open;
+	UConverterClose close;
+	UConverterReset reset;
+	UConverterToUnicode toUnicode;
+	UConverterToUnicode toUnicodeWithOffsets;
+	UConverterFromUnicode fromUnicode;
+	UConverterFromUnicode fromUnicodeWithOffsets;
+	UConverterGetNextUChar getNextUChar;
+	UConverterGetStarters getStarters;
+	UConverterGetName getName;
+	UConverterWriteSub writeSub;
+	UConverterSafeClone safeClone;
+	UConverterGetUnicodeSet getUnicodeSet;
+	UConverterConvert toUTF8;
+	UConverterConvert fromUTF8;
 };
 
-extern const UConverterSharedData
-    _MBCSData, _Latin1Data,
-    _UTF8Data, _UTF16BEData, _UTF16LEData, _UTF32BEData, _UTF32LEData,
-    _ISO2022Data, 
-    _LMBCSData1,_LMBCSData2, _LMBCSData3, _LMBCSData4, _LMBCSData5, _LMBCSData6,
-    _LMBCSData8,_LMBCSData11,_LMBCSData16,_LMBCSData17,_LMBCSData18,_LMBCSData19,
-    _HZData,_ISCIIData, _SCSUData, _ASCIIData,
-    _UTF7Data, _Bocu1Data, _UTF16Data, _UTF32Data, _CESU8Data, _IMAPData, _CompoundTextData;
+extern const UConverterSharedData _MBCSData;
+extern const UConverterSharedData _Latin1Data;
+extern const UConverterSharedData _UTF8Data;
+extern const UConverterSharedData _UTF16BEData;
+extern const UConverterSharedData _UTF16LEData;
+extern const UConverterSharedData _UTF32BEData;
+extern const UConverterSharedData _UTF32LEData;
+extern const UConverterSharedData _ISO2022Data;
+extern const UConverterSharedData _LMBCSData1;
+extern const UConverterSharedData _LMBCSData2;
+extern const UConverterSharedData _LMBCSData3;
+extern const UConverterSharedData _LMBCSData4;
+extern const UConverterSharedData _LMBCSData5;
+extern const UConverterSharedData _LMBCSData6;
+extern const UConverterSharedData _LMBCSData8;
+extern const UConverterSharedData _LMBCSData11;
+extern const UConverterSharedData _LMBCSData16;
+extern const UConverterSharedData _LMBCSData17;
+extern const UConverterSharedData _LMBCSData18;
+extern const UConverterSharedData _LMBCSData19;
+extern const UConverterSharedData _HZData;
+extern const UConverterSharedData _ISCIIData;
+extern const UConverterSharedData _SCSUData;
+extern const UConverterSharedData _ASCIIData;
+extern const UConverterSharedData _UTF7Data;
+extern const UConverterSharedData _Bocu1Data;
+extern const UConverterSharedData _UTF16Data;
+extern const UConverterSharedData _UTF32Data;
+extern const UConverterSharedData _CESU8Data;
+extern const UConverterSharedData _IMAPData;
+extern const UConverterSharedData _CompoundTextData;
 
 U_CDECL_END
 
@@ -283,40 +291,11 @@ U_CDECL_END
  */
 #define UCNV_GET_NEXT_UCHAR_USE_TO_U -9
 
-U_CFUNC void
-ucnv_getCompleteUnicodeSet(const UConverter *cnv,
-                   const USetAdder *sa,
-                   UConverterUnicodeSet which,
-                   UErrorCode *pErrorCode);
-
-U_CFUNC void
-ucnv_getNonSurrogateUnicodeSet(const UConverter *cnv,
-                               const USetAdder *sa,
-                               UConverterUnicodeSet which,
-                               UErrorCode *pErrorCode);
-
-U_CFUNC void
-ucnv_fromUWriteBytes(UConverter *cnv,
-                     const char *bytes, int32_t length,
-                     char **target, const char *targetLimit,
-                     int32_t **offsets,
-                     int32_t sourceIndex,
-                     UErrorCode *pErrorCode);
-U_CFUNC void
-ucnv_toUWriteUChars(UConverter *cnv,
-                    const UChar *uchars, int32_t length,
-                    UChar **target, const UChar *targetLimit,
-                    int32_t **offsets,
-                    int32_t sourceIndex,
-                    UErrorCode *pErrorCode);
-
-U_CFUNC void
-ucnv_toUWriteCodePoint(UConverter *cnv,
-                       UChar32 c,
-                       UChar **target, const UChar *targetLimit,
-                       int32_t **offsets,
-                       int32_t sourceIndex,
-                       UErrorCode *pErrorCode);
+U_CFUNC void ucnv_getCompleteUnicodeSet(const UConverter * cnv, const USetAdder * sa, UConverterUnicodeSet which, UErrorCode * pErrorCode);
+U_CFUNC void ucnv_getNonSurrogateUnicodeSet(const UConverter * cnv, const USetAdder * sa, UConverterUnicodeSet which, UErrorCode * pErrorCode); 
+U_CFUNC void ucnv_fromUWriteBytes(UConverter * cnv, const char * bytes, int32_t length, char ** target, const char * targetLimit, int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode);
+U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv, const UChar * uchars, int32_t length, UChar ** target, const UChar * targetLimit, int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode);
+U_CFUNC void ucnv_toUWriteCodePoint(UConverter * cnv, UChar32 c, UChar ** target, const UChar * targetLimit, int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode);
 
 #endif
 

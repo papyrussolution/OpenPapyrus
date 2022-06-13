@@ -49,7 +49,7 @@ struct zip_entry {
 	int64 uncompressed_size;
 	int64 gid;
 	int64 uid;
-	struct archive_string rsrcname;
+	archive_string rsrcname;
 	time_t mtime;
 	time_t atime;
 	time_t ctime;
@@ -106,7 +106,7 @@ struct trad_enc_ctx {
 
 struct zip {
 	/* Structural information about the archive. */
-	struct archive_string format_name;
+	archive_string format_name;
 	int64 central_directory_offset;
 	size_t central_directory_entries_total;
 	size_t central_directory_entries_on_this_disk;
@@ -154,9 +154,9 @@ struct zip {
 	char ppmd8_valid;
 	char ppmd8_stream_failed;
 
-	struct archive_string_conv * sconv;
-	struct archive_string_conv * sconv_default;
-	struct archive_string_conv * sconv_utf8;
+	archive_string_conv * sconv;
+	archive_string_conv * sconv_default;
+	archive_string_conv * sconv_utf8;
 	int init_default_conversion;
 	int process_mac_extensions;
 
@@ -211,7 +211,7 @@ struct zip {
 static Byte ppmd_read(void * p) 
 {
 	/* Get the handle to current decompression context. */
-	struct archive_read * a = ((IByteIn*)p)->a;
+	ArchiveRead * a = ((IByteIn*)p)->a;
 	struct zip * zip = (struct zip*)a->format->data;
 	ssize_t bytes_avail = 0;
 	/* Fetch next byte. */
@@ -399,7 +399,7 @@ static time_t zip_time(const char * p)
  *	id1+size1+data1 + id2+size2+data2 ...
  *  triplets.  id and size are 2 bytes each.
  */
-static int process_extra(struct archive_read * a, struct archive_entry * entry,
+static int process_extra(ArchiveRead * a, ArchiveEntry * entry,
     const char * p, size_t extra_length, struct zip_entry* zip_entry)
 {
 	unsigned offset = 0;
@@ -819,7 +819,7 @@ static int zipx_lzma_uncompress_buffer(const char * compressed_buffer, size_t co
 /*
  * Assumes file pointer is at beginning of local file header.
  */
-static int zip_read_local_file_header(struct archive_read * a, struct archive_entry * entry,
+static int zip_read_local_file_header(ArchiveRead * a, ArchiveEntry * entry,
     struct zip * zip)
 {
 	const char * p;
@@ -827,7 +827,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 	const wchar_t * wp;
 	const char * cp;
 	size_t len, filename_length, extra_length;
-	struct archive_string_conv * sconv;
+	archive_string_conv * sconv;
 	struct zip_entry * zip_entry = zip->entry;
 	struct zip_entry zip_entry_central_dir;
 	int ret = ARCHIVE_OK;
@@ -938,7 +938,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 	    (wp = archive_entry_pathname_w(entry)) != NULL) {
 		if(wcschr(wp, L'/') == NULL && wcschr(wp, L'\\') != NULL) {
 			size_t i;
-			struct archive_wstring s;
+			archive_wstring s;
 			archive_string_init(&s);
 			archive_wstrcpy(&s, wp);
 			for(i = 0; i < archive_strlen(&s); i++) {
@@ -961,7 +961,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 		}
 		else {
 			cp = archive_entry_pathname(entry);
-			len = (cp != NULL) ? strlen(cp) : 0;
+			len = sstrlen(cp);
 			has_slash = len > 0 && cp[len - 1] == '/';
 		}
 		/* Correct file type as needed. */
@@ -980,7 +980,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 		if(wp) {
 			len = wcslen(wp);
 			if(len > 0 && wp[len - 1] != L'/') {
-				struct archive_wstring s;
+				archive_wstring s;
 				archive_string_init(&s);
 				archive_wstrcat(&s, wp);
 				archive_wstrappend_wchar(&s, L'/');
@@ -990,9 +990,9 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 		}
 		else {
 			cp = archive_entry_pathname(entry);
-			len = (cp != NULL) ? strlen(cp) : 0;
+			len = sstrlen(cp);
 			if(len > 0 && cp[len - 1] != '/') {
-				struct archive_string s;
+				archive_string s;
 				archive_string_init(&s);
 				archive_strcat(&s, cp);
 				archive_strappend_char(&s, '/');
@@ -1133,7 +1133,7 @@ static int zip_read_local_file_header(struct archive_read * a, struct archive_en
 	return ret;
 }
 
-static int check_authentication_code(struct archive_read * a, const void * _p)
+static int check_authentication_code(ArchiveRead * a, const void * _p)
 {
 	struct zip * zip = (struct zip *)(a->format->data);
 	/* Check authentication code. */
@@ -1188,7 +1188,7 @@ static int check_authentication_code(struct archive_read * a, const void * _p)
  * Returns ARCHIVE_OK if successful, ARCHIVE_FATAL otherwise, sets
  * zip->end_of_entry if it consumes all of the data.
  */
-static int zip_read_data_none(struct archive_read * a, const void ** _buff, size_t * size, int64 * offset)
+static int zip_read_data_none(ArchiveRead * a, const void ** _buff, size_t * size, int64 * offset)
 {
 	struct zip * zip;
 	const char * buff;
@@ -1319,7 +1319,7 @@ static int zip_read_data_none(struct archive_read * a, const void ** _buff, size
 	return ARCHIVE_OK;
 }
 
-static int consume_optional_marker(struct archive_read * a, struct zip * zip)
+static int consume_optional_marker(ArchiveRead * a, struct zip * zip)
 {
 	if(zip->end_of_entry && (zip->entry->zip_flags & ZIP_LENGTH_AT_END)) {
 		const char * p;
@@ -1358,7 +1358,7 @@ static int consume_optional_marker(struct archive_read * a, struct zip * zip)
 }
 
 #if HAVE_LZMA_H && HAVE_LIBLZMA
-static int zipx_xz_init(struct archive_read * a, struct zip * zip)
+static int zipx_xz_init(ArchiveRead * a, struct zip * zip)
 {
 	lzma_ret r;
 	if(zip->zipx_lzma_valid) {
@@ -1383,7 +1383,7 @@ static int zipx_xz_init(struct archive_read * a, struct zip * zip)
 	return ARCHIVE_OK;
 }
 
-static int zipx_lzma_alone_init(struct archive_read * a, struct zip * zip)
+static int zipx_lzma_alone_init(ArchiveRead * a, struct zip * zip)
 {
 	lzma_ret r;
 	const uint8 * p;
@@ -1499,7 +1499,7 @@ static int zipx_lzma_alone_init(struct archive_read * a, struct zip * zip)
 	return ARCHIVE_OK;
 }
 
-static int zip_read_data_zipx_xz(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
+static int zip_read_data_zipx_xz(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct zip* zip = (struct zip *)(a->format->data);
 	int ret;
@@ -1565,7 +1565,7 @@ static int zip_read_data_zipx_xz(struct archive_read * a, const void ** buff, si
 	return ARCHIVE_OK;
 }
 
-static int zip_read_data_zipx_lzma_alone(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
+static int zip_read_data_zipx_lzma_alone(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct zip* zip = (struct zip *)(a->format->data);
 	int ret;
@@ -1660,7 +1660,7 @@ static int zip_read_data_zipx_lzma_alone(struct archive_read * a, const void ** 
 
 #endif /* HAVE_LZMA_H && HAVE_LIBLZMA */
 
-static int zipx_ppmd8_init(struct archive_read * a, struct zip * zip)
+static int zipx_ppmd8_init(ArchiveRead * a, struct zip * zip)
 {
 	const void * p;
 	uint32 val;
@@ -1750,7 +1750,7 @@ static int zipx_ppmd8_init(struct archive_read * a, struct zip * zip)
 	return ARCHIVE_OK;
 }
 
-static int zip_read_data_zipx_ppmd(struct archive_read * a, const void ** buff,
+static int zip_read_data_zipx_ppmd(ArchiveRead * a, const void ** buff,
     size_t * size, int64 * offset)
 {
 	struct zip* zip = (struct zip *)(a->format->data);
@@ -1824,7 +1824,7 @@ static int zip_read_data_zipx_ppmd(struct archive_read * a, const void ** buff,
 }
 
 #ifdef HAVE_BZLIB_H
-static int zipx_bzip2_init(struct archive_read * a, struct zip * zip)
+static int zipx_bzip2_init(ArchiveRead * a, struct zip * zip)
 {
 	int r;
 	/* Deallocate already existing BZ2 decompression context if it
@@ -1860,7 +1860,7 @@ static int zipx_bzip2_init(struct archive_read * a, struct zip * zip)
 	return ARCHIVE_OK;
 }
 
-static int zip_read_data_zipx_bzip2(struct archive_read * a, const void ** buff,
+static int zip_read_data_zipx_bzip2(ArchiveRead * a, const void ** buff,
     size_t * size, int64 * offset)
 {
 	struct zip * zip = (struct zip *)(a->format->data);
@@ -1949,7 +1949,7 @@ static int zip_read_data_zipx_bzip2(struct archive_read * a, const void ** buff,
 #endif
 
 #ifdef HAVE_ZLIB_H
-static int zip_deflate_init(struct archive_read * a, struct zip * zip)
+static int zip_deflate_init(ArchiveRead * a, struct zip * zip)
 {
 	int r;
 
@@ -1972,7 +1972,7 @@ static int zip_deflate_init(struct archive_read * a, struct zip * zip)
 	return ARCHIVE_OK;
 }
 
-static int zip_read_data_deflate(struct archive_read * a, const void ** buff,
+static int zip_read_data_deflate(ArchiveRead * a, const void ** buff,
     size_t * size, int64 * offset)
 {
 	struct zip * zip;
@@ -2098,7 +2098,7 @@ static int zip_read_data_deflate(struct archive_read * a, const void ** buff,
 
 #endif
 
-static int read_decryption_header(struct archive_read * a)
+static int read_decryption_header(ArchiveRead * a)
 {
 	struct zip * zip = (struct zip *)(a->format->data);
 	const char * p;
@@ -2274,7 +2274,7 @@ nomem:
 	return ARCHIVE_FATAL;
 }
 
-static int zip_alloc_decryption_buffer(struct archive_read * a)
+static int zip_alloc_decryption_buffer(ArchiveRead * a)
 {
 	struct zip * zip = (struct zip *)(a->format->data);
 	size_t bs = 256 * 1024;
@@ -2290,7 +2290,7 @@ static int zip_alloc_decryption_buffer(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static int init_traditional_PKWARE_decryption(struct archive_read * a)
+static int init_traditional_PKWARE_decryption(ArchiveRead * a)
 {
 	struct zip * zip = (struct zip *)(a->format->data);
 	const void * p;
@@ -2345,7 +2345,7 @@ static int init_traditional_PKWARE_decryption(struct archive_read * a)
 #undef ENC_HEADER_SIZE
 }
 
-static int init_WinZip_AES_decryption(struct archive_read * a)
+static int init_WinZip_AES_decryption(ArchiveRead * a)
 {
 	struct zip * zip = (struct zip *)(a->format->data);
 	const void * p;
@@ -2423,7 +2423,7 @@ corrupted:
 	return ARCHIVE_FATAL;
 }
 
-static int archive_read_format_zip_read_data(struct archive_read * a,
+static int archive_read_format_zip_read_data(ArchiveRead * a,
     const void ** buff, size_t * size, int64 * offset)
 {
 	int r;
@@ -2533,7 +2533,7 @@ static int archive_read_format_zip_read_data(struct archive_read * a,
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_zip_cleanup(struct archive_read * a)
+static int archive_read_format_zip_cleanup(ArchiveRead * a)
 {
 	struct zip * zip;
 	struct zip_entry * zip_entry, * next_zip_entry;
@@ -2585,7 +2585,7 @@ static int archive_read_format_zip_cleanup(struct archive_read * a)
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_zip_has_encrypted_entries(struct archive_read * _a)
+static int archive_read_format_zip_has_encrypted_entries(ArchiveRead * _a)
 {
 	if(_a && _a->format) {
 		struct zip * zip = (struct zip *)_a->format->data;
@@ -2596,7 +2596,7 @@ static int archive_read_format_zip_has_encrypted_entries(struct archive_read * _
 	return ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW;
 }
 
-static int archive_read_format_zip_options(struct archive_read * a, const char * key, const char * val)
+static int archive_read_format_zip_options(ArchiveRead * a, const char * key, const char * val)
 {
 	struct zip * zip;
 	int ret = ARCHIVE_FAILED;
@@ -2607,7 +2607,7 @@ static int archive_read_format_zip_options(struct archive_read * a, const char *
 		return ARCHIVE_OK;
 	}
 	else if(sstreq(key, "hdrcharset")) {
-		if(val == NULL || val[0] == 0)
+		if(isempty(val))
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "zip: hdrcharset option needs a character-set name");
 		else {
 			zip->sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
@@ -2623,7 +2623,7 @@ static int archive_read_format_zip_options(struct archive_read * a, const char *
 	}
 	else if(sstreq(key, "ignorecrc32")) {
 		// Mostly useful for testing
-		if(val == NULL || val[0] == 0) {
+		if(isempty(val)) {
 			zip->crc32func = real_crc32;
 			zip->ignore_crc32 = 0;
 		}
@@ -2634,7 +2634,7 @@ static int archive_read_format_zip_options(struct archive_read * a, const char *
 		return ARCHIVE_OK;
 	}
 	else if(sstreq(key, "mac-ext")) {
-		zip->process_mac_extensions = (val != NULL && val[0] != 0);
+		zip->process_mac_extensions = !isempty(val);
 		return ARCHIVE_OK;
 	}
 	/* Note: The "warn" return is just to inform the options
@@ -2643,7 +2643,7 @@ static int archive_read_format_zip_options(struct archive_read * a, const char *
 	return ARCHIVE_WARN;
 }
 
-int archive_read_support_format_zip(struct archive * a)
+int archive_read_support_format_zip(Archive * a)
 {
 	int r;
 	r = archive_read_support_format_zip_streamable(a);
@@ -2658,14 +2658,14 @@ int archive_read_support_format_zip(struct archive * a)
  * Streaming-mode support
  */
 
-static int archive_read_support_format_zip_capabilities_streamable(struct archive_read * a)
+static int archive_read_support_format_zip_capabilities_streamable(ArchiveRead * a)
 {
 	CXX_UNUSED(a);
 	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA |
 	       ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
 }
 
-static int archive_read_format_zip_streamable_bid(struct archive_read * a, int best_bid)
+static int archive_read_format_zip_streamable_bid(ArchiveRead * a, int best_bid)
 {
 	const char * p;
 	CXX_UNUSED(best_bid);
@@ -2697,7 +2697,7 @@ static int archive_read_format_zip_streamable_bid(struct archive_read * a, int b
 	return 0;
 }
 
-static int archive_read_format_zip_streamable_read_header(struct archive_read * a, struct archive_entry * entry)
+static int archive_read_format_zip_streamable_read_header(ArchiveRead * a, ArchiveEntry * entry)
 {
 	struct zip * zip;
 	a->archive.archive_format = ARCHIVE_FORMAT_ZIP;
@@ -2780,7 +2780,7 @@ static int archive_read_format_zip_streamable_read_header(struct archive_read * 
 	}
 }
 
-static int archive_read_format_zip_read_data_skip_streamable(struct archive_read * a)
+static int archive_read_format_zip_read_data_skip_streamable(ArchiveRead * a)
 {
 	struct zip * zip = (struct zip *)(a->format->data);
 	int64 bytes_skipped = __archive_read_consume(a, zip->unconsumed);
@@ -2864,9 +2864,9 @@ static int archive_read_format_zip_read_data_skip_streamable(struct archive_read
 	}
 }
 
-int archive_read_support_format_zip_streamable(struct archive * _a)
+int archive_read_support_format_zip_streamable(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	struct zip * zip;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
@@ -2910,7 +2910,7 @@ int archive_read_support_format_zip_streamable(struct archive * _a)
  * Seeking-mode support
  */
 
-static int archive_read_support_format_zip_capabilities_seekable(struct archive_read * a)
+static int archive_read_support_format_zip_capabilities_seekable(ArchiveRead * a)
 {
 	CXX_UNUSED(a);
 	return (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA |
@@ -2958,7 +2958,7 @@ static int read_eocd(struct zip * zip, const char * p, int64 current_offset)
  * Examine Zip64 EOCD locator:  If it's valid, store the information
  * from it.
  */
-static int read_zip64_eocd(struct archive_read * a, struct zip * zip, const char * p)
+static int read_zip64_eocd(ArchiveRead * a, struct zip * zip, const char * p)
 {
 	int64 eocd64_offset;
 	int64 eocd64_size;
@@ -3000,7 +3000,7 @@ static int read_zip64_eocd(struct archive_read * a, struct zip * zip, const char
 	return 32;
 }
 
-static int archive_read_format_zip_seekable_bid(struct archive_read * a, int best_bid)
+static int archive_read_format_zip_seekable_bid(ArchiveRead * a, int best_bid)
 {
 	struct zip * zip = (struct zip *)a->format->data;
 	int64 file_size, current_offset;
@@ -3111,7 +3111,7 @@ static const char * rsrc_basename(const char * name, size_t name_length)
 
 static void expose_parent_dirs(struct zip * zip, const char * name, size_t name_length)
 {
-	struct archive_string str;
+	archive_string str;
 	struct zip_entry * dir;
 	char * s;
 	archive_string_init(&str);
@@ -3134,7 +3134,7 @@ static void expose_parent_dirs(struct zip * zip, const char * name, size_t name_
 	archive_string_free(&str);
 }
 
-static int slurp_central_directory(struct archive_read * a, struct archive_entry* entry,
+static int slurp_central_directory(ArchiveRead * a, ArchiveEntry* entry,
     struct zip * zip)
 {
 	ssize_t i;
@@ -3345,7 +3345,7 @@ static int slurp_central_directory(struct archive_read * a, struct archive_entry
 	return ARCHIVE_OK;
 }
 
-static ssize_t zip_get_local_file_header_size(struct archive_read * a, size_t extra)
+static ssize_t zip_get_local_file_header_size(ArchiveRead * a, size_t extra)
 {
 	const char * p;
 	ssize_t filename_length, extra_length;
@@ -3363,7 +3363,7 @@ static ssize_t zip_get_local_file_header_size(struct archive_read * a, size_t ex
 	return (30 + filename_length + extra_length);
 }
 
-static int zip_read_mac_metadata(struct archive_read * a, struct archive_entry * entry, struct zip_entry * rsrc)
+static int zip_read_mac_metadata(ArchiveRead * a, ArchiveEntry * entry, struct zip_entry * rsrc)
 {
 	struct zip * zip = (struct zip *)a->format->data;
 	uchar * metadata, * mp;
@@ -3484,7 +3484,7 @@ exit_mac_metadata:
 	return ret;
 }
 
-static int archive_read_format_zip_seekable_read_header(struct archive_read * a, struct archive_entry * entry)
+static int archive_read_format_zip_seekable_read_header(ArchiveRead * a, ArchiveEntry * entry)
 {
 	struct zip * zip = (struct zip *)a->format->data;
 	struct zip_entry * rsrc;
@@ -3550,16 +3550,16 @@ static int archive_read_format_zip_seekable_read_header(struct archive_read * a,
  * We're going to seek for the next header anyway, so we don't
  * need to bother doing anything here.
  */
-static int archive_read_format_zip_read_data_skip_seekable(struct archive_read * a)
+static int archive_read_format_zip_read_data_skip_seekable(ArchiveRead * a)
 {
 	struct zip * zip = (struct zip *)(a->format->data);
 	zip->unconsumed = 0;
 	return ARCHIVE_OK;
 }
 
-int archive_read_support_format_zip_seekable(struct archive * _a)
+int archive_read_support_format_zip_seekable(Archive * _a)
 {
-	struct archive_read * a = (struct archive_read *)_a;
+	ArchiveRead * a = (ArchiveRead *)_a;
 	struct zip * zip;
 	int r;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);

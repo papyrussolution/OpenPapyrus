@@ -1045,7 +1045,7 @@ int ssh_packet_socket_callback(const void * data, size_t receivedlen, void * use
 	else if(lenfield_blocksize == 0) {
 		lenfield_blocksize = blocksize;
 	}
-	if(data == NULL) {
+	if(!data) {
 		goto error;
 	}
 

@@ -20,32 +20,28 @@ typedef uchar Byte;
 typedef short Int16;
 typedef unsigned short UInt16;
 #ifdef _LZMA_UINT32_IS_ULONG
-typedef long Int32;
-typedef unsigned long UInt32;
+	typedef long Int32;
+	typedef unsigned long UInt32;
 #else
-typedef int Int32;
-typedef uint UInt32;
+	typedef int Int32;
+	typedef uint UInt32;
 #endif
-
-#ifdef _SZ_NO_INT_64
-// define _SZ_NO_INT_64, if your compiler doesn't support 64-bit integers.
-// NOTES: Some code will work incorrectly in that case!
-typedef long Int64;
-typedef unsigned long UInt64;
-#else
-
-#if defined(_MSC_VER) || defined(__BORLANDC__)
-typedef __int64 Int64;
-typedef unsigned __int64 UInt64;
-#define UINT64_CONST(n) n
-#else
-typedef long long int Int64;
-typedef unsigned long long int UInt64;
-#define UINT64_CONST(n) n ## ULL
-#endif
-
-#endif
-
+//#ifdef _SZ_NO_INT_64
+	// define _SZ_NO_INT_64, if your compiler doesn't support 64-bit integers.
+	// NOTES: Some code will work incorrectly in that case!
+	//typedef long Int64_Removed;
+	//typedef unsigned long UInt64_Removed;
+//#else
+	//#if defined(_MSC_VER) || defined(__BORLANDC__)
+		//typedef __int64 Int64_Removed;
+		//typedef unsigned __int64 UInt64_Removed;
+		//#define UINT64_CONST(n) n
+	//#else
+		//typedef long long int Int64_Removed;
+		//typedef unsigned long long int UInt64_Removed;
+		//#define UINT64_CONST(n) n ## ULL
+	//#endif
+//#endif
 // @sobolev typedef int Bool;
 // @sobolev #define True 1
 // @sobolev #define False 0
@@ -53,7 +49,7 @@ typedef unsigned long long int UInt64;
 /* The following interfaces use first parameter as pointer to structure */
 
 typedef struct {
-	struct archive_read * a;
+	ArchiveRead * a;
 	Byte (* Read)(void * p); /* reads one byte, returns 0 in case of EOF or error */
 } IByteIn;
 

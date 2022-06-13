@@ -103,7 +103,7 @@ static int b64_read(BIO * b, char * out, int outl)
 	BIO_B64_CTX * ctx;
 	uchar * p, * q;
 	BIO * next;
-	if(out == NULL)
+	if(!out)
 		return 0;
 	ctx = (BIO_B64_CTX*)BIO_get_data(b);
 	next = BIO_next(b);

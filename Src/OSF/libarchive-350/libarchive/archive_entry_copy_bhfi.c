@@ -35,7 +35,7 @@ __inline static void fileTimeToUtc(const FILETIME * filetime, time_t * t, long *
 	}
 }
 
-void archive_entry_copy_bhfi(struct archive_entry * entry, BY_HANDLE_FILE_INFORMATION * bhfi)
+void archive_entry_copy_bhfi(ArchiveEntry * entry, BY_HANDLE_FILE_INFORMATION * bhfi)
 {
 	time_t secs;
 	long nsecs;

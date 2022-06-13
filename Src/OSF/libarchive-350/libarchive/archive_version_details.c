@@ -24,7 +24,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:1
 
 const char * archive_version_details(void)
 {
-	static struct archive_string str;
+	static archive_string str;
 	static int init = 0;
 	const char * zlib = archive_zlib_version();
 	const char * liblzma = archive_liblzma_version();
