@@ -28,29 +28,25 @@
 #    define CPPCHECKLIB
 #  endif
 #else
-#  define CPPCHECKLIB
+	#define CPPCHECKLIB
 #endif
-
 // MS Visual C++ memory leak debug tracing
 #if !defined(DISABLE_CRTDBG_MAP_ALLOC) && defined(_MSC_VER) && defined(_DEBUG)
-#  define _CRTDBG_MAP_ALLOC
-#  include <crtdbg.h>
+	#define _CRTDBG_MAP_ALLOC
+	#include <crtdbg.h>
 #endif
-
 // C++11 noexcept
-#if (defined(__GNUC__) && (__GNUC__ >= 5)) || defined(__clang__) || defined(__CPPCHECK__)
-#  define NOEXCEPT noexcept
-#else
-#  define NOEXCEPT
-#endif
-
+//#if (defined(__GNUC__) && (__GNUC__ >= 5)) || defined(__clang__) || defined(__CPPCHECK__)
+	//#define NOEXCEPT noexcept
+//#else
+	//#define NOEXCEPT
+//#endif
 // C++11 noreturn
 #if (defined(__GNUC__) && (__GNUC__ >= 5)) || defined(__clang__) || defined(__CPPCHECK__)
-#  define NORETURN [[noreturn]]
+	#define NORETURN [[noreturn]]
 #else
-#  define NORETURN
+	#define NORETURN
 #endif
-
 // fallthrough
 #if defined(__clang__)
 #  define FALLTHROUGH [[clang::fallthrough]]

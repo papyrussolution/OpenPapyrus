@@ -392,7 +392,7 @@ opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void* user_data)
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	if(pthread_create(&(thread->thread), &attr,
-	    opj_thread_callback_adapter, (void*)thread) != 0) {
+	    opj_thread_callback_adapter, (void *)thread) != 0) {
 		SAlloc::F(thread);
 		return NULL;
 	}

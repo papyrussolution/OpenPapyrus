@@ -217,7 +217,7 @@ start:
 		num += i;
 		in += i;
 		inl -= i;
-		if(inl == 0)
+		if(!inl)
 			return num;
 	}
 

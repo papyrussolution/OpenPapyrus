@@ -199,26 +199,22 @@ static int chacha20_poly1305_init_key(EVP_CIPHER_CTX * ctx,
 
 #if !defined(OPENSSL_SMALL_FOOTPRINT)
 
-#if defined(POLY1305_ASM) && (defined(__x86_64) || defined(__x86_64__) || \
-	defined(_M_AMD64) || defined(_M_X64))
-#define XOR128_HELPERS
-void * xor128_encrypt_n_pad(void * out, const void * inp, void * otp, size_t len);
-void * xor128_decrypt_n_pad(void * out, const void * inp, void * otp, size_t len);
-static const uchar zero[4 * CHACHA_BLK_SIZE] = { 0 };
+#if defined(POLY1305_ASM) && (defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64))
+	#define XOR128_HELPERS
+	extern "C" void * xor128_encrypt_n_pad(void * out, const void * inp, void * otp, size_t len);
+	extern "C" void * xor128_decrypt_n_pad(void * out, const void * inp, void * otp, size_t len);
+	static const uchar zero[4 * CHACHA_BLK_SIZE] = { 0 };
 #else
-static const uchar zero[2 * CHACHA_BLK_SIZE] = { 0 };
+	static const uchar zero[2 * CHACHA_BLK_SIZE] = { 0 };
 #endif
 
-static int chacha20_poly1305_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t len)
+static int chacha20_poly1305_tls_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len)
 {
 	EVP_CHACHA_AEAD_CTX * actx = aead_data(ctx);
 	size_t tail, tohash_len, buf_len, plen = actx->tls_payload_length;
 	uchar * buf, * tohash, * ctr, storage[sizeof(zero) + 32];
-
 	if(len != plen + POLY1305_BLOCK_SIZE)
 		return -1;
-
 	buf = storage + ((0 - (size_t)storage) & 15); /* align */
 	ctr = buf + CHACHA_BLK_SIZE;
 	tohash = buf + CHACHA_BLK_SIZE - POLY1305_BLOCK_SIZE;

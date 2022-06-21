@@ -3203,7 +3203,7 @@ typedef enum  FT_Kerning_Mode_ {
 	FT_KERNING_UNSCALED
 } FT_Kerning_Mode;
 
-/* these constants are deprecated; use the corresponding `FT_Kerning_Mode` values instead                      */
+/* these constants are deprecated; use the corresponding `FT_Kerning_Mode` values instead */
 #define ft_kerning_default   FT_KERNING_DEFAULT
 #define ft_kerning_unfitted  FT_KERNING_UNFITTED
 #define ft_kerning_unscaled  FT_KERNING_UNSCALED

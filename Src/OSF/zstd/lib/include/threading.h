@@ -63,12 +63,12 @@ extern "C" {
 /* ZSTD_pthread_create() and ZSTD_pthread_join() */
 typedef struct {
 	HANDLE handle;
-	void* (*start_routine)(void*);
+	void* (*start_routine)(void *);
 	void* arg;
 } ZSTD_pthread_t;
 
 int ZSTD_pthread_create(ZSTD_pthread_t* thread, const void* unused,
-    void* (*start_routine)(void*), void* arg);
+    void* (*start_routine)(void *), void* arg);
 
 int ZSTD_pthread_join(ZSTD_pthread_t thread, void** value_ptr);
 

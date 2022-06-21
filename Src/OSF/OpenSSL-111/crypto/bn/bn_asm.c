@@ -189,7 +189,7 @@ void bn_sqr_words(BN_ULONG * r, const BN_ULONG * a, int n)
 	}
 }
 
-#endif                          /* !(defined(BN_LLONG) ||
+#endif /* !(defined(BN_LLONG) ||
                                  * defined(BN_UMULT_HIGH)) */
 
 #if defined(BN_LLONG) && defined(BN_DIV2W)
@@ -266,7 +266,7 @@ BN_ULONG bn_div_words(BN_ULONG h, BN_ULONG l, BN_ULONG d)
 	return ret;
 }
 
-#endif                          /* !defined(BN_LLONG) && defined(BN_DIV2W) */
+#endif /* !defined(BN_LLONG) && defined(BN_DIV2W) */
 
 #ifdef BN_LLONG
 BN_ULONG bn_add_words(BN_ULONG * r, const BN_ULONG * a, const BN_ULONG * b,
@@ -368,7 +368,7 @@ BN_ULONG bn_add_words(BN_ULONG * r, const BN_ULONG * a, const BN_ULONG * b,
 	return (BN_ULONG)c;
 }
 
-#endif                          /* !BN_LLONG */
+#endif /* !BN_LLONG */
 
 BN_ULONG bn_sub_words(BN_ULONG * r, const BN_ULONG * a, const BN_ULONG * b,
     int n)
@@ -1042,4 +1042,4 @@ int bn_mul_mont(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp,
 #endif                        /* OPENSSL_BN_ASM_MONT */
 #endif
 
-#endif                          /* !BN_MUL_COMBA */
+#endif /* !BN_MUL_COMBA */

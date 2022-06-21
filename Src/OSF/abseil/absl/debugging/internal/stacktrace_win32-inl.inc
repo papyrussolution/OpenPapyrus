@@ -67,7 +67,7 @@ static int UnwindImpl(void** result, int* sizes, int max_depth, int skip_count,
     // No implementation for finding out the stack frame sizes yet.
     memset(sizes, 0, sizeof(*sizes) * n);
   }
-  if (min_dropped_frames != nullptr) {
+  if(min_dropped_frames) {
     // Not implemented.
     *min_dropped_frames = 0;
   }

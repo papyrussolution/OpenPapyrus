@@ -1087,7 +1087,7 @@ void SSL_free(SSL * s)
 	OPENSSL_free(s->ext.peer_ecpointformats);
 	OPENSSL_free(s->ext.supportedgroups);
 	OPENSSL_free(s->ext.peer_supportedgroups);
-#endif                          /* OPENSSL_NO_EC */
+#endif /* OPENSSL_NO_EC */
 	sk_X509_EXTENSION_pop_free(s->ext.ocsp.exts, X509_EXTENSION_free);
 #ifndef OPENSSL_NO_OCSP
 	sk_OCSP_RESPID_pop_free(s->ext.ocsp.ids, OCSP_RESPID_free);
@@ -1241,10 +1241,7 @@ int SSL_get_wfd(const SSL * s)
 int SSL_set_fd(SSL * s, int fd)
 {
 	int ret = 0;
-	BIO * bio = NULL;
-
-	bio = BIO_new(BIO_s_socket());
-
+	BIO * bio = BIO_new(BIO_s_socket());
 	if(bio == NULL) {
 		SSLerr(SSL_F_SSL_SET_FD, ERR_R_BUF_LIB);
 		goto err;
@@ -1259,11 +1256,8 @@ err:
 int SSL_set_wfd(SSL * s, int fd)
 {
 	BIO * rbio = SSL_get_rbio(s);
-
-	if(rbio == NULL || BIO_method_type(rbio) != BIO_TYPE_SOCKET
-	   || (int)BIO_get_fd(rbio, NULL) != fd) {
+	if(rbio == NULL || BIO_method_type(rbio) != BIO_TYPE_SOCKET || (int)BIO_get_fd(rbio, NULL) != fd) {
 		BIO * bio = BIO_new(BIO_s_socket());
-
 		if(bio == NULL) {
 			SSLerr(SSL_F_SSL_SET_WFD, ERR_R_BUF_LIB);
 			return 0;

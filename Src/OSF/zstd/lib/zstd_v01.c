@@ -177,7 +177,7 @@ typedef unsigned char BYTE;
 #endif
 #endif
 
-static uint FSE_32bits(void) { return sizeof(void*)==4; }
+static uint FSE_32bits(void) { return sizeof(void *)==4; }
 
 static uint FSE_isLittleEndian(void)
 {
@@ -1028,10 +1028,8 @@ static size_t HUF_decompress_usingDTable(   /* -3% slower when non static */
 			HUF_DECODE_SYMBOL_0(15, bitD4);
 		}
 
-		if(reloadStatus!=FSE_DStream_completed) /* not complete : some bitStream might be FSE_DStream_unfinished
-			                                   */
+		if(reloadStatus!=FSE_DStream_completed) /* not complete : some bitStream might be FSE_DStream_unfinished */
 			return (size_t)-FSE_ERROR_corruptionDetected;
-
 		/* tail */
 		{
 			/* bitTail = bitD1; */   /* *much* slower : -20% !??! */
@@ -1197,7 +1195,7 @@ static const size_t ZSTD_frameHeaderSize_local = 4;
 // 
 // Memory operations
 // 
-static uint ZSTD_32bits(void) { return sizeof(void*)==4; }
+static uint ZSTD_32bits(void) { return sizeof(void *)==4; }
 
 static uint ZSTD_isLittleEndian(void)
 {
@@ -1969,7 +1967,7 @@ size_t ZSTDv01_decompressContinue(ZSTDv01_Dctx* dctx, void* dst, size_t maxDstSi
 		}
 		ctx->phase = 1;
 		ctx->expected = ZSTD_blockHeaderSize;
-		ctx->previousDstEnd = (void*)( ((char *)dst) + rSize);
+		ctx->previousDstEnd = (void *)( ((char *)dst) + rSize);
 		return rSize;
 	}
 }

@@ -20,7 +20,7 @@
 /* ------------------------------------------------------------------ */
 
 /* Modified version, for use from within ICU.
- *    Renamed public functions, to avoid an unwanted export of the 
+ *    Renamed public functions, to avoid an unwanted export of the
  *    standard names from the ICU library.
  *
  *    Use ICU's uprv_malloc() and uprv_free()
@@ -58,49 +58,50 @@
   #define DECCAUTHOR   "Mike Cowlishaw"               /* Who to blame */
 
   #if !defined(int32_t)
-/* #include <stdint.h>   */         /* C99 standard integers  */
+/* #include <stdint.h>   */ /* C99 standard integers  */
   #endif
-  #include <stdio.h>               /* for printf, etc.       */
-  #include <signal.h>              /* for traps     */
+  #include <stdio.h> /* for printf, etc.       */
+  #include <signal.h> /* for traps     */
 
-  /* Extended flags setting -- set this to 0 to use only IEEE flags   */
+/* Extended flags setting -- set this to 0 to use only IEEE flags   */
   #if !defined(DECEXTFLAG)
-  #define DECEXTFLAG 1             /* 1=enable extended flags         */
+  #define DECEXTFLAG 1 /* 1=enable extended flags         */
   #endif
 
-  /* Conditional code flag -- set this to 0 for best performance      */
+/* Conditional code flag -- set this to 0 for best performance      */
   #if !defined(DECSUBSET)
-  #define DECSUBSET  0             /* 1=enable subset arithmetic      */
+  #define DECSUBSET  0 /* 1=enable subset arithmetic      */
   #endif
 
-  /* Context for operations, with associated constants       */
-  enum rounding {
-    DEC_ROUND_CEILING,             /* round towards +infinity         */
-    DEC_ROUND_UP,                  /* round away from 0      */
-    DEC_ROUND_HALF_UP,             /* 0.5 rounds up */
-    DEC_ROUND_HALF_EVEN,           /* 0.5 rounds to nearest even      */
-    DEC_ROUND_HALF_DOWN,           /* 0.5 rounds down        */
-    DEC_ROUND_DOWN,                /* round towards 0 (truncate)      */
-    DEC_ROUND_FLOOR, /* round towards -infinity         */
-    DEC_ROUND_05UP,                /* round for reround      */
-    DEC_ROUND_MAX                  /* enum must be less than this     */
-    };
+/* Context for operations, with associated constants       */
+enum rounding {
+	DEC_ROUND_CEILING,         /* round towards +infinity         */
+	DEC_ROUND_UP,              /* round away from 0      */
+	DEC_ROUND_HALF_UP,         /* 0.5 rounds up */
+	DEC_ROUND_HALF_EVEN,       /* 0.5 rounds to nearest even      */
+	DEC_ROUND_HALF_DOWN,       /* 0.5 rounds down        */
+	DEC_ROUND_DOWN,          /* round towards 0 (truncate)      */
+	DEC_ROUND_FLOOR, /* round towards -infinity         */
+	DEC_ROUND_05UP,            /* round for reround      */
+	DEC_ROUND_MAX              /* enum must be less than this     */
+};
+
   #define DEC_ROUND_DEFAULT DEC_ROUND_HALF_EVEN;
 
-  typedef struct {
-    int32_t digits; /* working precision      */
-    int32_t emax; /* maximum positive exponent       */
-    int32_t emin; /* minimum negative exponent       */
-    enum     rounding round; /* rounding mode */
-    uint32_t traps; /* trap-enabler flags     */
-    uint32_t status; /* status flags  */
-    uint8  clamp; /* flag: apply IEEE exponent clamp */
+typedef struct {
+	int32_t digits; /* working precision      */
+	int32_t emax; /* maximum positive exponent       */
+	int32_t emin; /* minimum negative exponent       */
+	enum     rounding round;/* rounding mode */
+	uint32_t traps; /* trap-enabler flags     */
+	uint32_t status; /* status flags  */
+	uint8 clamp; /* flag: apply IEEE exponent clamp */
     #if DECSUBSET
-    uint8  extended; /* flag: special-values allowed    */
+	uint8 extended; /* flag: special-values allowed    */
     #endif
-    } decContext;
+} decContext;
 
-  /* Maxima and Minima for context settings         */
+/* Maxima and Minima for context settings         */
   #define DEC_MAX_DIGITS 999999999
   #define DEC_MIN_DIGITS         1
   #define DEC_MAX_EMAX   999999999
@@ -109,22 +110,23 @@
   #define DEC_MIN_EMIN  -999999999
   #define DEC_MAX_MATH      999999 /* max emax, etc., for math funcs. */
 
-  /* Classifications for decimal numbers, aligned with 754 (note that */
-  /* 'normal' and 'subnormal' are meaningful only with a decContext   */
-  /* or a fixed size format).     */
-  enum decClass {
-    DEC_CLASS_SNAN,
-    DEC_CLASS_QNAN,
-    DEC_CLASS_NEG_INF,
-    DEC_CLASS_NEG_NORMAL,
-    DEC_CLASS_NEG_SUBNORMAL,
-    DEC_CLASS_NEG_ZERO,
-    DEC_CLASS_POS_ZERO,
-    DEC_CLASS_POS_SUBNORMAL,
-    DEC_CLASS_POS_NORMAL,
-    DEC_CLASS_POS_INF
-    };
-  /* Strings for the decClasses */
+/* Classifications for decimal numbers, aligned with 754 (note that */
+/* 'normal' and 'subnormal' are meaningful only with a decContext   */
+/* or a fixed size format).     */
+enum decClass {
+	DEC_CLASS_SNAN,
+	DEC_CLASS_QNAN,
+	DEC_CLASS_NEG_INF,
+	DEC_CLASS_NEG_NORMAL,
+	DEC_CLASS_NEG_SUBNORMAL,
+	DEC_CLASS_NEG_ZERO,
+	DEC_CLASS_POS_ZERO,
+	DEC_CLASS_POS_SUBNORMAL,
+	DEC_CLASS_POS_NORMAL,
+	DEC_CLASS_POS_INF
+};
+
+/* Strings for the decClasses */
   #define DEC_ClassString_SN  "sNaN"
   #define DEC_ClassString_QN  "NaN"
   #define DEC_ClassString_NI  "-Infinity"
@@ -137,10 +139,10 @@
   #define DEC_ClassString_PI  "+Infinity"
   #define DEC_ClassString_UN  "Invalid"
 
-  /* Trap-enabler and Status flags (exceptional conditions), and      */
-  /* their names.  The top byte is reserved for internal use */
+/* Trap-enabler and Status flags (exceptional conditions), and      */
+/* their names.  The top byte is reserved for internal use */
   #if DECEXTFLAG
-    /* Extended flags */
+/* Extended flags */
     #define DEC_Conversion_syntax    0x00000001
     #define DEC_Division_by_zero     0x00000002
     #define DEC_Division_impossible  0x00000004
@@ -158,7 +160,7 @@
     #define DEC_Subnormal            0x00001000
     #define DEC_Underflow            0x00002000
   #else
-    /* IEEE flags only */
+/* IEEE flags only */
     #define DEC_Conversion_syntax    0x00000010
     #define DEC_Division_by_zero     0x00000002
     #define DEC_Division_impossible  0x00000010
@@ -177,9 +179,9 @@
     #define DEC_Underflow            0x00000004
   #endif
 
-  /* IEEE 754 groupings for the flags      */
-  /* [DEC_Clamped, DEC_Lost_digits, DEC_Rounded, and DEC_Subnormal    */
-  /* are not in IEEE 754]         */
+/* IEEE 754 groupings for the flags      */
+/* [DEC_Clamped, DEC_Lost_digits, DEC_Rounded, and DEC_Subnormal    */
+/* are not in IEEE 754]         */
   #define DEC_IEEE_754_Division_by_zero  (DEC_Division_by_zero)
   #if DECSUBSET
   #define DEC_IEEE_754_Inexact           (DEC_Inexact | DEC_Lost_digits)
@@ -187,37 +189,37 @@
   #define DEC_IEEE_754_Inexact           (DEC_Inexact)
   #endif
   #define DEC_IEEE_754_Invalid_operation (DEC_Conversion_syntax |     \
-                                          DEC_Division_impossible |   \
-                                          DEC_Division_undefined |    \
-                                          DEC_Insufficient_storage |  \
-                                          DEC_Invalid_context |       \
-                                          DEC_Invalid_operation)
+	DEC_Division_impossible |   \
+	DEC_Division_undefined |    \
+	DEC_Insufficient_storage |  \
+	DEC_Invalid_context |       \
+	DEC_Invalid_operation)
   #define DEC_IEEE_754_Overflow          (DEC_Overflow)
   #define DEC_IEEE_754_Underflow         (DEC_Underflow)
 
-  /* flags which are normally errors (result is qNaN, infinite, or 0) */
+/* flags which are normally errors (result is qNaN, infinite, or 0) */
   #define DEC_Errors (DEC_IEEE_754_Division_by_zero |                 \
-                      DEC_IEEE_754_Invalid_operation |                \
-                      DEC_IEEE_754_Overflow | DEC_IEEE_754_Underflow)
-  /* flags which cause a result to become qNaN      */
+	DEC_IEEE_754_Invalid_operation |                \
+	DEC_IEEE_754_Overflow | DEC_IEEE_754_Underflow)
+/* flags which cause a result to become qNaN      */
   #define DEC_NaNs    DEC_IEEE_754_Invalid_operation
 
-  /* flags which are normally for information only (finite results)   */
+/* flags which are normally for information only (finite results)   */
   #if DECSUBSET
   #define DEC_Information (DEC_Clamped | DEC_Rounded | DEC_Inexact    \
-                          | DEC_Lost_digits)
+	| DEC_Lost_digits)
   #else
   #define DEC_Information (DEC_Clamped | DEC_Rounded | DEC_Inexact)
   #endif
 
-  /* IEEE 854 names (for compatibility with older decNumber versions) */
+/* IEEE 854 names (for compatibility with older decNumber versions) */
   #define DEC_IEEE_854_Division_by_zero  DEC_IEEE_754_Division_by_zero
   #define DEC_IEEE_854_Inexact           DEC_IEEE_754_Inexact
   #define DEC_IEEE_854_Invalid_operation DEC_IEEE_754_Invalid_operation
   #define DEC_IEEE_854_Overflow          DEC_IEEE_754_Overflow
   #define DEC_IEEE_854_Underflow         DEC_IEEE_754_Underflow
 
-  /* Name strings for the exceptional conditions    */
+/* Name strings for the exceptional conditions    */
   #define DEC_Condition_CS "Conversion syntax"
   #define DEC_Condition_DZ "Division by zero"
   #define DEC_Condition_DI "Division impossible"
@@ -239,32 +241,32 @@
   #define DEC_Condition_Length 21  /* length of the longest string,   */
                                    /* including terminator   */
 
-  /* Initialization descriptors, used by decContextDefault   */
+/* Initialization descriptors, used by decContextDefault   */
   #define DEC_INIT_BASE         0
   #define DEC_INIT_DECIMAL32   32
   #define DEC_INIT_DECIMAL64   64
   #define DEC_INIT_DECIMAL128 128
-  /* Synonyms */
+/* Synonyms */
   #define DEC_INIT_DECSINGLE  DEC_INIT_DECIMAL32
   #define DEC_INIT_DECDOUBLE  DEC_INIT_DECIMAL64
   #define DEC_INIT_DECQUAD    DEC_INIT_DECIMAL128
 
-  /* decContext routines */
-  U_CAPI decContext  * U_EXPORT2 uprv_decContextClearStatus(decContext *, uint32_t);
-  U_CAPI decContext  * U_EXPORT2 uprv_decContextDefault(decContext *, int32_t);
-  U_CAPI enum rounding U_EXPORT2 uprv_decContextGetRounding(decContext *);
-  U_CAPI uint32_t      U_EXPORT2 uprv_decContextGetStatus(decContext *);
-  U_CAPI decContext  * U_EXPORT2 uprv_decContextRestoreStatus(decContext *, uint32_t, uint32_t);
-  U_CAPI uint32_t      U_EXPORT2 uprv_decContextSaveStatus(decContext *, uint32_t);
-  U_CAPI decContext  * U_EXPORT2 uprv_decContextSetRounding(decContext *, enum rounding);
-  U_CAPI decContext  * U_EXPORT2 uprv_decContextSetStatus(decContext *, uint32_t);
-  U_CAPI decContext  * U_EXPORT2 uprv_decContextSetStatusFromString(decContext *, const char *);
-  U_CAPI decContext  * U_EXPORT2 uprv_decContextSetStatusFromStringQuiet(decContext *, const char *);
-  U_CAPI decContext  * U_EXPORT2 uprv_decContextSetStatusQuiet(decContext *, uint32_t);
-  U_CAPI const char * U_EXPORT2 uprv_decContextStatusToString(const decContext *);
-  U_CAPI int32_t U_EXPORT2 uprv_decContextTestEndian(uint8);
-  U_CAPI uint32_t      U_EXPORT2 uprv_decContextTestSavedStatus(uint32_t, uint32_t);
-  U_CAPI uint32_t      U_EXPORT2 uprv_decContextTestStatus(decContext *, uint32_t);
-  U_CAPI decContext  * U_EXPORT2 uprv_decContextZeroStatus(decContext *);
+/* decContext routines */
+U_CAPI decContext  * U_EXPORT2 uprv_decContextClearStatus(decContext *, uint32_t);
+U_CAPI decContext  * U_EXPORT2 uprv_decContextDefault(decContext *, int32_t);
+U_CAPI enum rounding U_EXPORT2 uprv_decContextGetRounding(decContext *);
+U_CAPI uint32_t U_EXPORT2 uprv_decContextGetStatus(decContext *);
+U_CAPI decContext  * U_EXPORT2 uprv_decContextRestoreStatus(decContext *, uint32_t, uint32_t);
+U_CAPI uint32_t U_EXPORT2 uprv_decContextSaveStatus(decContext *, uint32_t);
+U_CAPI decContext  * U_EXPORT2 uprv_decContextSetRounding(decContext *, enum rounding);
+U_CAPI decContext  * U_EXPORT2 uprv_decContextSetStatus(decContext *, uint32_t);
+U_CAPI decContext  * U_EXPORT2 uprv_decContextSetStatusFromString(decContext *, const char *);
+U_CAPI decContext  * U_EXPORT2 uprv_decContextSetStatusFromStringQuiet(decContext *, const char *);
+U_CAPI decContext  * U_EXPORT2 uprv_decContextSetStatusQuiet(decContext *, uint32_t);
+U_CAPI const char * U_EXPORT2 uprv_decContextStatusToString(const decContext *);
+U_CAPI int32_t U_EXPORT2 uprv_decContextTestEndian(uint8);
+U_CAPI uint32_t U_EXPORT2 uprv_decContextTestSavedStatus(uint32_t, uint32_t);
+U_CAPI uint32_t U_EXPORT2 uprv_decContextTestStatus(decContext *, uint32_t);
+U_CAPI decContext  * U_EXPORT2 uprv_decContextZeroStatus(decContext *);
 
 #endif

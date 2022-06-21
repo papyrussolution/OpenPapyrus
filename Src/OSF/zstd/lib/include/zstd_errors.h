@@ -7,7 +7,6 @@
  * in the COPYING file in the root directory of this source tree).
  * You may select, at your option, one of the above-listed licenses.
  */
-
 #ifndef ZSTD_ERRORS_H_398273423
 #define ZSTD_ERRORS_H_398273423
 
@@ -15,7 +14,6 @@
 extern "C" {
 #endif
 
-/*===== dependency =====*/
 #include <stddef.h>   /* size_t */
 
 /* =====   ZSTDERRORLIB_API : control library symbols visibility   ===== */
@@ -29,27 +27,20 @@ extern "C" {
 #if defined(ZSTD_DLL_EXPORT) && (ZSTD_DLL_EXPORT==1)
 #define ZSTDERRORLIB_API __declspec(dllexport) ZSTDERRORLIB_VISIBILITY
 #elif defined(ZSTD_DLL_IMPORT) && (ZSTD_DLL_IMPORT==1)
-#define ZSTDERRORLIB_API __declspec(dllimport) ZSTDERRORLIB_VISIBILITY /* It isn't required but allows to generate
-	                                                                    better code, saving a function pointer load
-	                                                                    from the IAT and an indirect jump.*/
+#define ZSTDERRORLIB_API __declspec(dllimport) ZSTDERRORLIB_VISIBILITY /* It isn't required but allows to generate better code, saving a function pointer load from the IAT and an indirect jump.*/
 #else
 #define ZSTDERRORLIB_API ZSTDERRORLIB_VISIBILITY
 #endif
-
-/*-*********************************************
- *  Error codes list
- *-*********************************************
- *  Error codes _values_ are pinned down since v1.3.1 only.
- *  Therefore, don't rely on values if you may link to any version < v1.3.1.
- *
- *  Only values < 100 are considered stable.
- *
- *  note 1 : this API shall be used with static linking only.
- *           dynamic linking is not yet officially supported.
- *  note 2 : Prefer relying on the enum than on its value whenever possible
- *           This is the only supported way to use the error list < v1.3.1
- *  note 3 : ZSTD_isError() is always correct, whatever the library version.
- **********************************************/
+// 
+// Error codes list
+// 
+// Error codes _values_ are pinned down since v1.3.1 only.
+// Therefore, don't rely on values if you may link to any version < v1.3.1.
+// Only values < 100 are considered stable.
+// note 1 : this API shall be used with static linking only. dynamic linking is not yet officially supported.
+// note 2 : Prefer relying on the enum than on its value whenever possible This is the only supported way to use the error list < v1.3.1
+// note 3 : ZSTD_isError() is always correct, whatever the library version.
+// 
 typedef enum {
 	ZSTD_error_no_error = 0,
 	ZSTD_error_GENERIC  = 1,

@@ -221,7 +221,7 @@ static int UnwindImpl(void** result, int* sizes, int max_depth, int skip_count,
     next_sp = NextStackFrame<!IS_STACK_FRAMES, IS_WITH_CONTEXT>(sp, ucp);
   }
 
-  if (min_dropped_frames != nullptr) {
+  if(min_dropped_frames) {
     // Implementation detail: we clamp the max of frames we are willing to
     // count, so as not to spend too much time in the loop below.
     const int kMaxUnwind = 1000;

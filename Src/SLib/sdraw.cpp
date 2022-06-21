@@ -3300,7 +3300,7 @@ int SImageBuffer::StoreWebp(const StoreParam & rP, SFile & rF) const
 //
 //
 //
-/*#include <..\OSF\tiff\libtiff\tiffio.h>
+/*#include <..\osf\tiff\libtiff\tiffio.h>
 
 int SImageBuffer::LoadTiff(SFile & rF, int fileFmt)
 {

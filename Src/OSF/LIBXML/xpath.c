@@ -7569,7 +7569,7 @@ static xmlNodeSet * xmlXPathGetElementsByIds(xmlDoc * doc, const xmlChar * ids)
 		return ret;
 	while(IS_BLANK_CH(*cur)) 
 		cur++;
-	while(*cur != 0) {
+	while(*cur) {
 		while((!IS_BLANK_CH(*cur)) && (*cur != 0))
 			cur++;
 		ID = xmlStrndup(ids, cur - ids);
@@ -8960,12 +8960,12 @@ double xmlXPathStringEvalNumber(const xmlChar * str)
 #endif
 	if(*cur == '.') {
 		int v, frac = 0;
-		double fraction = 0;
+		double fraction = 0.0;
 		cur++;
-		if(((*cur < '0') || (*cur > '9')) && (!ok)) {
+		if(!isdec(*cur) && !ok) {
 			return xmlXPathNAN;
 		}
-		while(((*cur >= '0') && (*cur <= '9')) && (frac < MAX_FRAC)) {
+		while(isdec(*cur) && frac < MAX_FRAC) {
 			v = (*cur - '0');
 			fraction = fraction * 10 + v;
 			frac = frac + 1;
@@ -8985,14 +8985,14 @@ double xmlXPathStringEvalNumber(const xmlChar * str)
 		else if(*cur == '+') {
 			cur++;
 		}
-		while((*cur >= '0') && (*cur <= '9')) {
+		while(isdec(*cur)) {
 			exponent = exponent * 10 + (*cur - '0');
 			cur++;
 		}
 	}
 	while(IS_BLANK_CH(*cur)) 
 		cur++;
-	if(*cur != 0) 
+	if(*cur)
 		return (xmlXPathNAN);
 	if(isneg) 
 		ret = -ret;

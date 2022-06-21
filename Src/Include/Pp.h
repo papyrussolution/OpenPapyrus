@@ -7287,7 +7287,8 @@ public:
 		kWorkerSession,  // Рабочий поток для исполнения команд (также является базовым для kNetSession)
 		kNginxWorker,    // Рабочий поток сервера NGINX (запускается потоком kNginxServer)
 		kStyloQServer,   // @v11.0.9 Поток сервера, принимающего запросы StyloQ
-		kStyloQSession   // @v11.0.0 Поток, получающий управление сеансом обмена от сервера StyloQ
+		kStyloQSession,  // @v11.0.0 Поток, получающий управление сеансом обмена от сервера StyloQ
+		kCasualJob       // @v11.4.2 Поток для исполнения утилитарной функции
 	};
 	static int FASTCALL GetKindText(int kind, SString & rBuf);
 	PPThread(int kind, const char * pText, void * pInitData);
@@ -12259,7 +12260,8 @@ public:
 	enum {
 		safDefault    = 0x0000,
 		safIgnoreOp   = 0x0001,
-		safCheckEdiOp = 0x0002
+		safCheckEdiOp = 0x0002,
+		safIgnoreDate = 0x0004  // @v11.4.2 Не принимать во внимание дату документа (только номер и, возможно, вид операции)
 	};
 	int    SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID, BillTbl::Rec * pRec);
 	int    GetRentCondition(PPID, PPRentCondition *);
@@ -16540,11 +16542,15 @@ public:
 			SString FieldName;
 			SString Text;
 			int32  TotalFunc; // AGGRFUNC_XXX
+			TYPEID DataType;  // @v11.4.2 0 или автоматически извлекается из DL600
+			int32  Format;    // @v11.4.2 Если DataType определен, то формат задается пользователем
+			int32  Format2;   // @v11.4.2 Если DataType определен, то в этом поле задается дополнительное значение формата 
+				// Сейчас, это формат времени для TIMESTAMP (формат даты при этом идет в Format)
 		};
 		ViewDefinition();
 		uint   GetCount() const;
 		const  SString & GetStrucSymb() const;
-		int    SetStrucSymb(const char * pSymb);
+		void   SetStrucSymb(const char * pSymb);
 		int    GetEntry(uint pos, Entry & rE) const;
 		int    SetEntry(const Entry & rE);
 		int    XmlRead(const xmlNode * pParentNode); //@erik v10.7.5
@@ -16559,7 +16565,11 @@ public:
 			uint32 FieldNameP;
 			uint32 TextP;
 			int32  TotalFunc;
-			uint8  Reserve[16]; // @reserve
+			TYPEID DataType;  // @v11.4.2 0 или автоматически извлекается из DL600
+			int32  Format;    // @v11.4.2 Если DataType определен, то формат задается пользователем
+			int32  Format2;   // @v11.4.2 Если DataType определен, то в этом поле задается дополнительное значение формата 
+				// Сейчас, это формат времени для TIMESTAMP (формат даты при этом идет в Format)
+			uint8  Reserve[4]; // @reserve // @v11.4.2 [16]-->[4]
 		};
 		int    SearchEntry(const char * pZone, const char * pFieldName, uint * pPos, InnerEntry * pInneEntry) const;
 		TSVector <InnerEntry> L;
@@ -46726,6 +46736,13 @@ public:
 	// Descr: Возвращает копию ассоциаций идентификаторов сервисов с символами баз данных.
 	//
 	static bool GetDbMap(SvcDbSymbMap & rMap);
+	//
+	// Descr: Возвращает true если статус документа status является завершающим.
+	//   По документу с таким статусом любые операции невозможны либо бессмысленны.
+	// @todo Потребуются уточнения спецификации!
+	//
+	static bool IsDocStatusFinished(int status);
+	static bool ValidateStatusTransition(int status, int newStatus);
 
 	StyloQCore();
 	int    PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta);
@@ -47288,7 +47305,7 @@ private:
 	int    ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult, SString & rDocDeclaration);
 	bool   AmIMediator(const char * pCommand);
 	SJson * MakeQuery_StoreBlob(const void * pBlobBuf, size_t blobSize, const SString & rSignature);
-	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID);
+	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID, bool logResult);
 	int    AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKind, PPID * pPersonID, int use_ta);
 	int    QueryConfigIfNeeded(RoundTripBlock & rB);
 	int    QuerySvcConfig(const SBinaryChunk & rSvcIdent, StyloQConfig &);

@@ -10,12 +10,6 @@
 #include "cppcheck-internal.h"
 #pragma hdrstop
 #include "summaries.h"
-#include "analyzerinfo.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
 
 std::string Summaries::create(const Tokenizer * tokenizer, const std::string &cfg)
 {

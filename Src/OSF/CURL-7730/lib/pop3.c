@@ -646,7 +646,7 @@ static CURLcode pop3_state_servergreet_resp(struct connectdata * conn,
 					   therefore do not use APOP authentication. */
 					at = strchr(pop3c->apoptimestamp, '@');
 					if(!at)
-						Curl_safefree(pop3c->apoptimestamp);
+						ZFREE(pop3c->apoptimestamp);
 					else
 						/* Store the APOP capability */
 						pop3c->authtypes |= POP3_TYPE_APOP;
@@ -916,7 +916,7 @@ static CURLcode pop3_state_command_resp(struct connectdata * conn,
 			}
 
 			/* Free the cache */
-			Curl_safefree(pp->cache);
+			ZFREE(pp->cache);
 
 			/* Reset the cache size */
 			pp->cache_size = 0;
@@ -1126,8 +1126,8 @@ static CURLcode pop3_done(struct connectdata * conn, CURLcode status,
 	}
 
 	/* Cleanup our per-request based variables */
-	Curl_safefree(pop3->id);
-	Curl_safefree(pop3->custom);
+	ZFREE(pop3->id);
+	ZFREE(pop3->custom);
 
 	/* Clear the transfer mode for the next request */
 	pop3->transfer = FTPTRANSFER_BODY;
@@ -1232,7 +1232,7 @@ static CURLcode pop3_disconnect(struct connectdata * conn, bool dead_connection)
 	Curl_sasl_cleanup(conn, pop3c->sasl.authused);
 
 	/* Cleanup our connection based variables */
-	Curl_safefree(pop3c->apoptimestamp);
+	ZFREE(pop3c->apoptimestamp);
 
 	return CURLE_OK;
 }

@@ -13,19 +13,11 @@
 //
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkpostfixoperator.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
 
 // Register this check class (by creating a static instance of it)
 namespace {
 CheckPostfixOperator instance;
 }
-
-// CWE ids used
-static const struct CWE CWE398(398U);   // Indicator of Poor Code Quality
 
 void CheckPostfixOperator::postfixOperator()
 {

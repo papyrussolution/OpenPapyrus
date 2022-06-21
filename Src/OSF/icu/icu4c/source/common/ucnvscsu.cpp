@@ -1430,7 +1430,7 @@ outputBytes:
 	/* write the output character bytes from c and length [code copied from ucnvmbcs.c] */
 	/* from the first if in the loop we know that targetCapacity>0 */
 	if(length<=targetCapacity) {
-		if(offsets==NULL) {
+		if(!offsets) {
 			switch(length) {
 				/* each branch falls through to the next one */
 				case 4:

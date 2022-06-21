@@ -1228,7 +1228,7 @@ static CURLcode telnet_done(struct connectdata * conn,
 	curl_slist_free_all(tn->telnet_vars);
 	tn->telnet_vars = NULL;
 
-	Curl_safefree(conn->data->req.protop);
+	ZFREE(conn->data->req.protop);
 
 	return CURLE_OK;
 }

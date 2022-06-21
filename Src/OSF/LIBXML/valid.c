@@ -3127,7 +3127,7 @@ static int xmlValidateAttributeValue2(xmlValidCtxtPtr ctxt, xmlDoc * doc, const 
 		    if(dup == NULL)
 			    return 0;
 		    cur = dup;
-		    while(*cur != 0) {
+		    while(*cur) {
 			    nam = cur;
 			    while((*cur != 0) && (!IS_BLANK_CH(*cur))) 
 					cur++;
@@ -3785,7 +3785,7 @@ int xmlValidateOneNamespace(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, 
 	/* Validity Constraint: Enumeration */
 	if(attrDecl->atype == XML_ATTRIBUTE_ENUMERATION) {
 		xmlEnumeration * tree = attrDecl->tree;
-		while(tree != NULL) {
+		while(tree) {
 			if(sstreq(tree->name, value)) 
 				break;
 			tree = tree->next;
@@ -3900,12 +3900,8 @@ cont:
 	 * we may have to save a backup state here. This is the equivalent
 	 * of handling epsilon transition in NFAs.
 	 */
-	if((CONT != NULL) &&
-	    ((CONT->parent == NULL) ||
-		    (CONT->parent->type != XML_ELEMENT_CONTENT_OR)) &&
-	    ((CONT->ocur == XML_ELEMENT_CONTENT_MULT) ||
-		    (CONT->ocur == XML_ELEMENT_CONTENT_OPT) ||
-		    ((CONT->ocur == XML_ELEMENT_CONTENT_PLUS) && (OCCURRENCE)))) {
+	if(CONT && ((CONT->parent == NULL) || (CONT->parent->type != XML_ELEMENT_CONTENT_OR)) && ((CONT->ocur == XML_ELEMENT_CONTENT_MULT) ||
+		    (CONT->ocur == XML_ELEMENT_CONTENT_OPT) || ((CONT->ocur == XML_ELEMENT_CONTENT_PLUS) && (OCCURRENCE)))) {
 		DEBUG_VALID_MSG("saving parent branch");
 		if(vstateVPush(ctxt, CONT, NODE, DEPTH, OCCURS, ROLLBACK_PARENT) < 0)
 			return 0;
@@ -3932,7 +3928,7 @@ cont:
 				    NODE = xmlValidateSkipIgnorable(NODE);
 				    if(NODE && NODE->type == XML_ENTITY_REF_NODE)
 					    return -2;
-			    } while((NODE != NULL) && ((NODE->type != XML_ELEMENT_NODE) && (NODE->type != XML_TEXT_NODE) && (NODE->type != XML_CDATA_SECTION_NODE)));
+			    } while(NODE && ((NODE->type != XML_ELEMENT_NODE) && (NODE->type != XML_TEXT_NODE) && (NODE->type != XML_CDATA_SECTION_NODE)));
 			    ret = 1;
 			    break;
 		    }
@@ -3972,7 +3968,7 @@ cont:
 				    NODE = xmlValidateSkipIgnorable(NODE);
 				    if(NODE && NODE->type == XML_ENTITY_REF_NODE)
 					    return -2;
-			    } while((NODE != NULL) && ((NODE->type != XML_ELEMENT_NODE) && (NODE->type != XML_TEXT_NODE) && (NODE->type != XML_CDATA_SECTION_NODE)));
+			    } while(NODE && ((NODE->type != XML_ELEMENT_NODE) && (NODE->type != XML_TEXT_NODE) && (NODE->type != XML_CDATA_SECTION_NODE)));
 		    }
 		    else {
 			    DEBUG_VALID_MSG("element failed");
@@ -4058,7 +4054,7 @@ cont:
 		return ret;
 	}
 analyze:
-	while(CONT != NULL) {
+	while(CONT) {
 		/*
 		 * First do the analysis depending on the occurrence model at
 		 * this level.
@@ -4195,10 +4191,8 @@ analyze:
 			    }
 		}
 	}
-	if(NODE != NULL) {
-		xmlNode * cur;
-
-		cur = ctxt->vstate->node;
+	if(NODE) {
+		xmlNode * cur = ctxt->vstate->node;
 		DEBUG_VALID_MSG("Failed, remaining input, rollback");
 		if(vstateVPop(ctxt) < 0) {
 			DEBUG_VALID_MSG("exhaustion, failed");
@@ -4253,7 +4247,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNode * P_Node, int glob
 			}
 			switch(cur->type) {
 				case XML_ELEMENT_NODE:
-					if(cur->ns && (cur->ns->prefix != NULL)) {
+					if(cur->ns && cur->ns->prefix) {
 						if((size - len) < (int)(sstrlen(cur->ns->prefix) + 10)) {
 							if((size - len > 4) && (buf[len-1] != '.'))
 								strcat(buf, " ...");
@@ -4359,7 +4353,7 @@ static int xmlValidateElementContent(xmlValidCtxtPtr ctxt, xmlNode * child, xmlE
 		ctxt->nodeNr = 0;
 		ctxt->PP_NodeTab = NULL;
 		exec = xmlRegNewExecCtxt(elemDecl->contModel, 0, 0);
-		if(exec != NULL) {
+		if(exec) {
 			cur = child;
 			while(cur) {
 				switch(cur->type) {
@@ -4368,7 +4362,7 @@ static int xmlValidateElementContent(xmlValidCtxtPtr ctxt, xmlNode * child, xmlE
 					 * Push the current node to be able to roll back
 					 * and process within the entity
 					     */
-					    if((cur->children != NULL) && (cur->children->children != NULL)) {
+					    if(cur->children && cur->children->children) {
 						    nodeVPush(ctxt, cur);
 						    cur = cur->children->children;
 						    continue;
@@ -4384,7 +4378,7 @@ static int xmlValidateElementContent(xmlValidCtxtPtr ctxt, xmlNode * child, xmlE
 					    ret = 0;
 					    goto fail;
 					case XML_ELEMENT_NODE:
-					    if(cur->ns && (cur->ns->prefix != NULL)) {
+					    if(cur->ns && cur->ns->prefix) {
 						    xmlChar fn[50];
 						    xmlChar * fullname = xmlBuildQName(cur->name, cur->ns->prefix, fn, 50);
 						    if(fullname == NULL) {
@@ -4463,7 +4457,7 @@ fail:
 				 * Push the current node to be able to roll back
 				 * and process within the entity
 				     */
-				    if((cur->children != NULL) && (cur->children->children != NULL)) {
+				    if(cur->children && cur->children->children) {
 					    nodeVPush(ctxt, cur);
 					    cur = cur->children->children;
 					    continue;
@@ -4540,7 +4534,7 @@ fail:
 			xmlSnprintfElementContent(&expr[0], 5000, cont, 1);
 			list[0] = 0;
 #ifndef LIBXML_REGEXP_ENABLED
-			if(repl != NULL)
+			if(repl)
 				xmlSnprintfElements(&list[0], 5000, repl, 1);
 			else
 #endif /* LIBXML_REGEXP_ENABLED */
@@ -4570,7 +4564,7 @@ done:
 	/*
 	 * Deallocate the copy if done, and free up the validation stack
 	 */
-	while(repl != NULL) {
+	while(repl) {
 		tmp = repl->next;
 		SAlloc::F(repl);
 		repl = tmp;
@@ -4609,7 +4603,7 @@ static int xmlValidateOneCdataElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNod
 			 * Push the current node to be able to roll back
 			 * and process within the entity
 			     */
-			    if((cur->children != NULL) && (cur->children->children != NULL)) {
+			    if(cur->children && cur->children->children) {
 				    nodeVPush(ctxt, cur);
 				    cur = cur->children->children;
 				    continue;
@@ -4663,7 +4657,7 @@ static int xmlValidateCheckMixed(xmlValidCtxtPtr ctxt, xmlElementContent * cont,
 				if((cont->prefix == NULL) && (sstreq(cont->name, qname)))
 					return 1;
 			}
-			else if((cont->type == XML_ELEMENT_CONTENT_OR) && (cont->c1 != NULL) && (cont->c1->type == XML_ELEMENT_CONTENT_ELEMENT)) {
+			else if((cont->type == XML_ELEMENT_CONTENT_OR) && cont->c1 && (cont->c1->type == XML_ELEMENT_CONTENT_ELEMENT)) {
 				if((cont->c1->prefix == NULL) && (sstreq(cont->c1->name, qname)))
 					return 1;
 			}
@@ -4677,11 +4671,11 @@ static int xmlValidateCheckMixed(xmlValidCtxtPtr ctxt, xmlElementContent * cont,
 	else {
 		while(cont) {
 			if(cont->type == XML_ELEMENT_CONTENT_ELEMENT) {
-				if((cont->prefix != NULL) && (xmlStrncmp(cont->prefix, qname, plen) == 0) && (sstreq(cont->name, name)))
+				if(cont->prefix && (xmlStrncmp(cont->prefix, qname, plen) == 0) && (sstreq(cont->name, name)))
 					return 1;
 			}
-			else if((cont->type == XML_ELEMENT_CONTENT_OR) && (cont->c1 != NULL) && (cont->c1->type == XML_ELEMENT_CONTENT_ELEMENT)) {
-				if((cont->c1->prefix != NULL) && (xmlStrncmp(cont->c1->prefix, qname, plen) == 0) && (sstreq(cont->c1->name, name)))
+			else if((cont->type == XML_ELEMENT_CONTENT_OR) && cont->c1 && (cont->c1->type == XML_ELEMENT_CONTENT_ELEMENT)) {
+				if(cont->c1->prefix && (xmlStrncmp(cont->c1->prefix, qname, plen) == 0) && (sstreq(cont->c1->name, name)))
 					return 1;
 			}
 			else if((cont->type != XML_ELEMENT_CONTENT_OR) || (cont->c1 == NULL) || (cont->c1->type != XML_ELEMENT_CONTENT_PCDATA)) {
@@ -4716,13 +4710,13 @@ static xmlElement * xmlValidGetElemDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlN
 	/*
 	 * Fetch the declaration for the qualified name
 	 */
-	if((elem->ns != NULL) && (elem->ns->prefix != NULL))
+	if(elem->ns && elem->ns->prefix)
 		prefix = elem->ns->prefix;
 	if(prefix) {
 		elemDecl = xmlGetDtdQElementDesc(doc->intSubset, elem->name, prefix);
-		if((elemDecl == NULL) && (doc->extSubset != NULL)) {
+		if((elemDecl == NULL) && doc->extSubset) {
 			elemDecl = xmlGetDtdQElementDesc(doc->extSubset, elem->name, prefix);
-			if((elemDecl != NULL) && (extsubset != NULL))
+			if(elemDecl && extsubset)
 				*extsubset = 1;
 		}
 	}
@@ -4733,9 +4727,9 @@ static xmlElement * xmlValidGetElemDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlN
 	 */
 	if(elemDecl == NULL) {
 		elemDecl = xmlGetDtdElementDesc(doc->intSubset, elem->name);
-		if((elemDecl == NULL) && (doc->extSubset != NULL)) {
+		if((elemDecl == NULL) && doc->extSubset) {
 			elemDecl = xmlGetDtdElementDesc(doc->extSubset, elem->name);
-			if((elemDecl != NULL) && (extsubset != NULL))
+			if(elemDecl && extsubset)
 				*extsubset = 1;
 		}
 	}
@@ -4786,7 +4780,7 @@ int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, c
 				    break;
 				case XML_ELEMENT_TYPE_MIXED:
 				    /* simple case of declared as #PCDATA */
-				    if((elemDecl->content != NULL) && (elemDecl->content->type == XML_ELEMENT_CONTENT_PCDATA)) {
+				    if(elemDecl->content && (elemDecl->content->type == XML_ELEMENT_CONTENT_PCDATA)) {
 					    xmlErrValidNode(ctxt, state->P_Node, XML_DTD_NOT_PCDATA, "Element %s was declared #PCDATA but contains non text nodes\n", state->P_Node->name, 0, 0);
 					    ret = 0;
 				    }
@@ -4804,7 +4798,7 @@ int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, c
 				 *   - element types with element content, if white space
 				 *  occurs directly within any instance of those types.
 				     */
-				    if(state->exec != NULL) {
+				    if(state->exec) {
 					    ret = xmlRegExecPushString(state->exec, qname, 0);
 					    if(ret < 0) {
 						    xmlErrValidNode(ctxt, state->P_Node, XML_DTD_CONTENT_MODEL, "Element %s content does not follow the DTD, Misplaced %s\n", state->P_Node->name, qname, 0);
@@ -4841,13 +4835,13 @@ int xmlValidatePushCData(xmlValidCtxtPtr ctxt, const xmlChar * data, int len) {
 		return 0;
 	if(len <= 0)
 		return ret;
-	if((ctxt->vstateNr > 0) && (ctxt->vstate != NULL)) {
+	if((ctxt->vstateNr > 0) && ctxt->vstate) {
 		xmlValidStatePtr state = ctxt->vstate;
 		xmlElement * elemDecl;
 		/*
 		 * Check the new element agaisnt the content model of the new elem.
 		 */
-		if(state->elemDecl != NULL) {
+		if(state->elemDecl) {
 			elemDecl = state->elemDecl;
 			switch(elemDecl->etype) {
 				case XML_ELEMENT_TYPE_UNDEFINED:
@@ -4904,18 +4898,16 @@ int xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDoc * doc ATTRIBUTE_UNUSED, x
 	if(!ctxt)
 		return 0;
 /* printf("PopElem %s\n", qname); */
-	if((ctxt->vstateNr > 0) && (ctxt->vstate != NULL)) {
+	if((ctxt->vstateNr > 0) && ctxt->vstate) {
 		xmlValidStatePtr state = ctxt->vstate;
 		xmlElement * elemDecl;
-
 		/*
 		 * Check the new element agaisnt the content model of the new elem.
 		 */
-		if(state->elemDecl != NULL) {
+		if(state->elemDecl) {
 			elemDecl = state->elemDecl;
-
 			if(elemDecl->etype == XML_ELEMENT_TYPE_ELEMENT) {
-				if(state->exec != NULL) {
+				if(state->exec) {
 					ret = xmlRegExecPushString(state->exec, 0, 0);
 					if(!ret) {
 						xmlErrValidNode(ctxt, state->P_Node, XML_DTD_CONTENT_MODEL, "Element %s content does not follow the DTD, Expecting more child\n", state->P_Node->name, 0, 0);
@@ -4971,11 +4963,11 @@ int xmlValidateOneElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem)
 		    xmlErrValidNode(ctxt, elem, XML_ERR_INTERNAL_ERROR, "Attribute element not expected\n", NULL, 0, 0);
 		    return 0;
 		case XML_TEXT_NODE:
-		    if(elem->children != NULL) {
+		    if(elem->children) {
 			    xmlErrValidNode(ctxt, elem, XML_ERR_INTERNAL_ERROR, "Text element has children !\n", NULL, 0, 0);
 			    return 0;
 		    }
-		    if(elem->ns != NULL) {
+		    if(elem->ns) {
 			    xmlErrValidNode(ctxt, elem, XML_ERR_INTERNAL_ERROR, "Text element has namespace !\n", NULL, 0, 0);
 			    return 0;
 		    }
@@ -5031,7 +5023,7 @@ int xmlValidateOneElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem)
 			    xmlErrValidNode(ctxt, elem, XML_DTD_UNKNOWN_ELEM, "No declaration for element %s\n", elem->name, 0, 0);
 			    return 0;
 			case XML_ELEMENT_TYPE_EMPTY:
-			    if(elem->children != NULL) {
+			    if(elem->children) {
 				    xmlErrValidNode(ctxt, elem, XML_DTD_NOT_EMPTY, "Element %s was declared EMPTY this one has content\n", elem->name, 0, 0);
 				    ret = 0;
 			    }
@@ -5095,7 +5087,7 @@ int xmlValidateOneElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem)
 						    }
 						    cont = cont->c2;
 					    }
-					    if(cont == NULL) {
+					    if(!cont) {
 						    xmlErrValidNode(ctxt, elem, XML_DTD_INVALID_CHILD, "Element %s is not declared in %s list of possible children\n", name, elem->name, 0);
 						    ret = 0;
 					    }

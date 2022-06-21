@@ -472,20 +472,16 @@ static uint32 ZSTD_insertBt1(const ZSTD_matchState_t* ms,
 		}
 
 		if(ip+matchLength == iend) { /* equal : no way to know if inf or sup */
-			break; /* drop , to guarantee consistency ; miss a bit of compression, but other solutions can
-			          corrupt tree */
+			break; /* drop , to guarantee consistency ; miss a bit of compression, but other solutions can corrupt tree */
 		}
-
 		if(match[matchLength] < ip[matchLength]) { /* necessarily within buffer */
 			/* match is smaller than current */
 			*smallerPtr = matchIndex; /* update smaller idx */
-			commonLengthSmaller = matchLength; /* all smaller will now have at least this guaranteed common
-			                                      length */
+			commonLengthSmaller = matchLength; /* all smaller will now have at least this guaranteed common length */
 			if(matchIndex <= btLow) {
 				smallerPtr = &dummy32; break;
 			}                                              /* beyond tree size, stop searching */
-			smallerPtr = nextPtr+1;   /* new "candidate" => larger than match, which was smaller than target
-			                             */
+			smallerPtr = nextPtr+1;   /* new "candidate" => larger than match, which was smaller than target */
 			matchIndex = nextPtr[1];  /* new matchIndex, larger than previous and closer to current */
 		}
 		else {
@@ -494,7 +490,7 @@ static uint32 ZSTD_insertBt1(const ZSTD_matchState_t* ms,
 			commonLengthLarger = matchLength;
 			if(matchIndex <= btLow) {
 				largerPtr = &dummy32; break;
-			}                                             /* beyond tree size, stop searching */
+			} /* beyond tree size, stop searching */
 			largerPtr = nextPtr;
 			matchIndex = nextPtr[0];
 		}
@@ -615,9 +611,7 @@ uint32 ZSTD_insertBtAndGetAllMatches(ZSTD_match_t* matches,   /* store result (f
 				dictBase + repIndex;
 			    assert(curr >= windowLow);
 			    if(dictMode == ZSTD_extDict
-				&& ( ((repOffset-1) /*intentional overflow*/ < curr - windowLow) /* equivalent to `curr
-				                                                                    > repIndex >=
-				                                                                    windowLow` */
+				&& ( ((repOffset-1) /*intentional overflow*/ < curr - windowLow) /* equivalent to `curr > repIndex >= windowLow` */
 				& (((uint32)((dictLimit-1) - repIndex) >=
 				3) ) /* intentional overflow : do not test positions overlapping 2 memory segments */)
 				&& (ZSTD_readMINMATCH(ip, minMatch) == ZSTD_readMINMATCH(repMatch, minMatch)) ) {
@@ -626,15 +620,7 @@ uint32 ZSTD_insertBtAndGetAllMatches(ZSTD_match_t* matches,   /* store result (f
 					    prefixStart) + minMatch;
 			    }
 			    if(dictMode == ZSTD_dictMatchState
-				&& ( ((repOffset-1) /*intentional overflow*/ < curr - (dmsLowLimit + dmsIndexDelta)) /*
-				                                                                                        equivalent
-				                                                                                        to
-				                                                                                        `curr
-				                                                                                        >
-				                                                                                        repIndex
-				                                                                                        >=
-				                                                                                        dmsLowLimit`
-				                                                                                        */
+				&& ( ((repOffset-1) /*intentional overflow*/ < curr - (dmsLowLimit + dmsIndexDelta)) /* equivalent to `curr > repIndex >= dmsLowLimit` */
 				& ((uint32)((dictLimit-1) - repIndex) >= 3) ) /* intentional overflow : do not test
 				                                              positions overlapping 2 memory segments */
 				&& (ZSTD_readMINMATCH(ip, minMatch) == ZSTD_readMINMATCH(repMatch, minMatch)) ) {
@@ -648,8 +634,7 @@ uint32 ZSTD_insertBtAndGetAllMatches(ZSTD_match_t* matches,   /* store result (f
 			    DEBUGLOG(8, "found repCode %u (ll0:%u, offset:%u) of length %u",
 				repCode, ll0, repOffset, repLen);
 			    bestLength = repLen;
-			    matches[mnum].off = REPCODE_TO_OFFBASE(repCode - ll0 + 1); /* expect value between 1 and 3
-				                                                          */
+			    matches[mnum].off = REPCODE_TO_OFFBASE(repCode - ll0 + 1); /* expect value between 1 and 3 */
 			    matches[mnum].len = (uint32)repLen;
 			    mnum++;
 			    if( (repLen > sufficient_len)
@@ -748,8 +733,7 @@ uint32 ZSTD_insertBtAndGetAllMatches(ZSTD_match_t* matches,   /* store result (f
 			if(matchIndex <= btLow) {
 				smallerPtr = &dummy32; break;
 			}                                              /* beyond tree size, stop the search */
-			smallerPtr = nextPtr+1;   /* new candidate => larger than match, which was smaller than current
-			                             */
+			smallerPtr = nextPtr+1;   /* new candidate => larger than match, which was smaller than current */
 			matchIndex = nextPtr[1];  /* new matchIndex, larger than previous, closer to current */
 		}
 		else {
@@ -799,12 +783,10 @@ uint32 ZSTD_insertBtAndGetAllMatches(ZSTD_match_t* matches,   /* store result (f
 
 			if(dictMatchIndex <= dmsBtLow) {
 				break;
-			}                                /* beyond tree size, stop the search */
+			} /* beyond tree size, stop the search */
 			if(match[matchLength] < ip[matchLength]) {
-				commonLengthSmaller = matchLength; /* all smaller will now have at least this guaranteed
-				                                      common length */
-				dictMatchIndex = nextPtr[1]; /* new matchIndex larger than previous (closer to current)
-				                                */
+				commonLengthSmaller = matchLength; /* all smaller will now have at least this guaranteed common length */
+				dictMatchIndex = nextPtr[1]; /* new matchIndex larger than previous (closer to current) */
 			}
 			else {
 				/* match is larger than current */
@@ -1286,10 +1268,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_opt_generic(ZSTD_matchState_t* m
 							pos, mlen, ZSTD_fCost(price), ZSTD_fCost(opt[pos].price));
 						    while(last_pos < pos) {
 							    opt[last_pos+1].price = ZSTD_MAX_PRICE; last_pos++;
-						    }                                                        /* fill
-							                                                        empty
-							                                                        positions
-							                                                        */
+						    } /* fill empty positions */
 						    opt[pos].mlen = mlen;
 						    opt[pos].off = offset;
 						    opt[pos].litlen = litlen;
@@ -1298,26 +1277,17 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_opt_generic(ZSTD_matchState_t* m
 					    else {
 						    DEBUGLOG(7, "rPos:%u (ml=%2u) => new price is worse (%.2f>=%.2f)",
 							pos, mlen, ZSTD_fCost(price), ZSTD_fCost(opt[pos].price));
-						    if(optLevel==0) break; /* early update abort; gets ~+10% speed for
-							                      about -0.01 ratio loss */
+						    if(optLevel==0) break; /* early update abort; gets ~+10% speed for about -0.01 ratio loss */
 					    }
 				    }
 			    }
 			}
 		} /* for (cur = 1; cur <= last_pos; cur++) */
-
 		lastSequence = opt[last_pos];
-		cur = last_pos > ZSTD_totalLen(lastSequence) ? last_pos - ZSTD_totalLen(lastSequence) : 0; /* single
-		                                                                                              sequence,
-		                                                                                              and it
-		                                                                                              starts
-		                                                                                              before
-		                                                                                              `ip` */
+		cur = last_pos > ZSTD_totalLen(lastSequence) ? last_pos - ZSTD_totalLen(lastSequence) : 0; /* single sequence, and it starts before `ip` */
 		assert(cur < ZSTD_OPT_NUM); /* control overflow*/
-
 _shortestPath:  /* cur, last_pos, best_mlen, best_off have to be set */
 		assert(opt[0].mlen == 0);
-
 		/* Set the next chunk's repcodes based on the repcodes of the beginning
 		 * of the last match, and the last sequence. This avoids us having to
 		 * update them while traversing the sequences.
@@ -1329,11 +1299,10 @@ _shortestPath:  /* cur, last_pos, best_mlen, best_off have to be set */
 		else {
 			memcpy(rep, opt[cur].rep, sizeof(repcodes_t));
 		}
-
-		{   const uint32 storeEnd = cur + 1;
+		{   
+			const uint32 storeEnd = cur + 1;
 		    uint32 storeStart = storeEnd;
 		    uint32 seqPos = cur;
-
 		    DEBUGLOG(6, "start reverse traversal (last_pos:%u, cur:%u)",
 			last_pos, cur); (void)last_pos;
 		    assert(storeEnd < ZSTD_OPT_NUM);

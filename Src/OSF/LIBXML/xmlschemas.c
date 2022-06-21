@@ -5484,7 +5484,7 @@ static int xmlSchemaParseWildcardNs(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr sc
 			}
 			SAlloc::F(nsItem);
 			cur = end;
-		} while(*cur != 0);
+		} while(*cur);
 	}
 	return ret;
 }
@@ -7242,7 +7242,7 @@ static int xmlSchemaParseUnion(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema,
 			}
 			ZFREE(tmp);
 			cur = end;
-		} while(*cur != 0);
+		} while(*cur);
 	}
 	/*
 	 * And now for the children...
@@ -7265,7 +7265,7 @@ static int xmlSchemaParseUnion(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr schema,
 		while(IS_SCHEMA(child, "simpleType")) {
 			subtype = (xmlSchemaType *)xmlSchemaParseSimpleType(ctxt, schema, child, 0);
 			if(subtype) {
-				if(last == NULL) {
+				if(!last) {
 					type->subtypes = subtype;
 					last = subtype;
 				}
@@ -9174,7 +9174,7 @@ static xmlSchemaTreeItem * xmlSchemaParseModelGroup(xmlSchemaParserCtxtPtr ctxt,
 					/* Reset to 1. */
 					part->maxOccurs = 1;
 				}
-				if(last == NULL)
+				if(!last)
 					item->children = (xmlSchemaTreeItem *)part;
 				else
 					last->next = (xmlSchemaTreeItem *)part;
@@ -9250,7 +9250,7 @@ static xmlSchemaTreeItem * xmlSchemaParseModelGroup(xmlSchemaParserCtxtPtr ctxt,
 				part = xmlSchemaParseModelGroup(ctxt, schema, child, XML_SCHEMA_TYPE_SEQUENCE, 1);
 			}
 			if(part) {
-				if(last == NULL)
+				if(!last)
 					item->children = part;
 				else
 					last->next = part;
@@ -10958,7 +10958,7 @@ static int xmlSchemaCloneWildcardNsConstraints(xmlSchemaParserCtxtPtr ctxt, xmlS
 		if(!tmp)
 			return -1;
 		tmp->value = cur->value;
-		if(last == NULL)
+		if(!last)
 			dest->nsSet = tmp;
 		else
 			last->next = tmp;
@@ -14619,7 +14619,7 @@ static int xmlSchemaDeriveAndValidateFacets(xmlSchemaParserCtxtPtr pctxt, xmlSch
 			}
 			link->facet = cur->facet;
 			link->next = NULL;
-			if(last == NULL)
+			if(!last)
 				type->facetSet = link;
 			else
 				last->next = link;
@@ -17987,7 +17987,7 @@ static int xmlSchemaAssembleByXSI(xmlSchemaValidCtxt * vctxt)
 			VERROR_INT("xmlSchemaAssembleByXSI", "assembling schemata");
 			return -1;
 		}
-	} while(*cur != 0);
+	} while(*cur);
 	return ret;
 }
 
@@ -19254,7 +19254,7 @@ static int xmlSchemaIDCRegisterMatchers(xmlSchemaValidCtxt * vctxt, xmlSchemaEle
 			}
 			memzero(matcher, sizeof(xmlSchemaIDCMatcher));
 		}
-		if(last == NULL)
+		if(!last)
 			vctxt->inode->idcMatchers = matcher;
 		else
 			last->next = matcher;
@@ -20503,7 +20503,7 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 				break;
 			}
 			cur = end;
-		} while(*cur != 0);
+		} while(*cur);
 		ZFREE(tmpValue);
 		if((ret == 0) && (type->flags & XML_SCHEMAS_TYPE_HAS_FACETS)) {
 			/*

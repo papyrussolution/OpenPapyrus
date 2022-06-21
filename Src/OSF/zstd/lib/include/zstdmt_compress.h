@@ -31,7 +31,7 @@ extern "C" {
 
 /* ===   Constants   === */
 #ifndef ZSTDMT_NBWORKERS_MAX /* a different value can be selected at compile time */
-#define ZSTDMT_NBWORKERS_MAX ((sizeof(void*)==4) /*32-bit*/ ? 64 : 256)
+#define ZSTDMT_NBWORKERS_MAX ((sizeof(void *)==4) /*32-bit*/ ? 64 : 256)
 #endif
 #ifndef ZSTDMT_JOBSIZE_MIN   /* a different value can be selected at compile time */
 #define ZSTDMT_JOBSIZE_MIN (SKILOBYTE(512))

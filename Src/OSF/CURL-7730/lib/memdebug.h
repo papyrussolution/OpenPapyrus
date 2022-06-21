@@ -160,17 +160,14 @@ CURL_EXTERN int curl_dbg_fclose(FILE *file, int line, const char *source);
 /*
 ** Following section applies even when CURLDEBUG is not defined.
 */
-
 #ifndef fake_sclose
 #define fake_sclose(x)  Curl_nop_stmt
 #endif
-
 /*
- * Curl_safefree defined as a macro to allow MemoryTracking feature
- * to log SAlloc::F() calls at same location where Curl_safefree is used.
+ * ZFREE defined as a macro to allow MemoryTracking feature
+ * to log SAlloc::F() calls at same location where ZFREE is used.
  * This macro also assigns NULL to given pointer when free'd.
  */
-
-#define Curl_safefree(ptr) do { SAlloc::F((ptr)); (ptr) = NULL;} while(0)
+// @v11.4.2 #define Curl_safefree_Removed(ptr) do { SAlloc::F((ptr)); (ptr) = NULL;} while(0)
 
 #endif /* HEADER_CURL_MEMDEBUG_H */

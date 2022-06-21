@@ -986,7 +986,7 @@ static char * printUnicode(const UChar * unicode, int32_t length, char * out) {
 static char * printOffsets(const int32_t * offsets, int32_t length, char * out) {
 	int32_t i, o, d;
 
-	if(offsets==NULL) {
+	if(!offsets) {
 		length = 0;
 	}
 

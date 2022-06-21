@@ -9,25 +9,11 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkunusedvar.h"
-#include "astutils.h"
-#include "errortypes.h"
-#include "library.h"
-#include "preprocessor.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
-#include "utils.h"
 
 // Register this check class (by creating a static instance of it)
 namespace {
 CheckUnusedVar instance;
 }
-
-static const struct CWE CWE563(563U);   // Assignment to Variable without Use ('Unused Variable')
-static const struct CWE CWE665(665U);   // Improper Initialization
 
 /** Is scope a raii class scope */
 static bool isRaiiClassScope(const Scope * classScope)

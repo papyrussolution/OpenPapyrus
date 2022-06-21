@@ -12,16 +12,6 @@
 //
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkassert.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
-
-// CWE ids used
-static const struct CWE CWE398(398U);   // Indicator of Poor Code Quality
 
 // Register this check class (by creating a static instance of it)
 namespace {
@@ -32,21 +22,16 @@ void CheckAssert::assertWithSideEffects()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	for(const Token* tok = mTokenizer->list.front(); tok; tok = tok->next()) {
 		if(!Token::simpleMatch(tok, "assert ("))
 			continue;
-
 		const Token * endTok = tok->next()->link();
 		for(const Token* tmp = tok->next(); tmp != endTok; tmp = tmp->next()) {
 			if(Token::simpleMatch(tmp, "sizeof ("))
 				tmp = tmp->linkAt(1);
-
 			checkVariableAssignment(tmp, tok->scope());
-
 			if(tmp->tokType() != Token::eFunction)
 				continue;
-
 			const Function* f = tmp->function();
 			if(f->nestedIn->isClassOrStruct() && !f->isStatic() && !f->isConst()) {
 				sideEffectInAssertError(tmp, f->name()); // Non-const member function called
@@ -54,11 +39,9 @@ void CheckAssert::assertWithSideEffects()
 			}
 			const Scope* scope = f->functionScope;
 			if(!scope) continue;
-
 			for(const Token * tok2 = scope->bodyStart; tok2 != scope->bodyEnd; tok2 = tok2->next()) {
 				if(!tok2->isAssignmentOp() && tok2->tokType() != Token::eIncDecOp)
 					continue;
-
 				const Variable* var = tok2->previous()->variable();
 				if(!var || var->isLocal() || (var->isArgument() && !var->isReference() && !var->isPointer()))
 					continue; // See ticket #4937. Assigning function arguments not passed by
@@ -75,7 +58,6 @@ void CheckAssert::assertWithSideEffects()
 					}
 				}
 				if(noReturnInScope) continue;
-
 				sideEffectInAssertError(tmp, f->name());
 				break;
 			}
@@ -83,8 +65,6 @@ void CheckAssert::assertWithSideEffects()
 		tok = endTok;
 	}
 }
-
-//---------------------------------------------------------------------------
 
 void CheckAssert::sideEffectInAssertError(const Token * tok, const std::string& functionName)
 {
@@ -115,11 +95,9 @@ void CheckAssert::checkVariableAssignment(const Token* assignTok, const Scope * 
 {
 	if(!assignTok->isAssignmentOp() && assignTok->tokType() != Token::eIncDecOp)
 		return;
-
 	const Variable* var = assignTok->astOperand1()->variable();
 	if(!var)
 		return;
-
 	// Variable declared in inner scope in assert => don't warn
 	if(assertionScope != var->scope()) {
 		const Scope * s = var->scope();
@@ -128,7 +106,6 @@ void CheckAssert::checkVariableAssignment(const Token* assignTok, const Scope * 
 		if(s == assertionScope)
 			return;
 	}
-
 	// assignment
 	if(assignTok->isAssignmentOp() || assignTok->tokType() == Token::eIncDecOp) {
 		if(var->isConst()) {

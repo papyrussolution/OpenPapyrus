@@ -187,10 +187,10 @@
 	#include <libxml\xmlwriter.h>
 #endif
 #ifdef HAVE_BZLIB_H
-	#include <..\OSF\BZIP2\bzlib.h>
+	#include <..\osf\BZIP2\bzlib.h>
 #endif
 #ifdef HAVE_LZMA_H
-	#include <..\OSF\liblzma\api\lzma.h>
+	#include <..\osf\liblzma\api\lzma.h>
 #endif
 #ifdef HAVE_ZLIB_H
 	#include <zlib.h>

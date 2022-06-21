@@ -2922,7 +2922,7 @@ static xmlRelaxNGDefine * xmlRelaxNGParseData(xmlRelaxNGParserCtxt * ctxt, xmlNo
 		while(child) {
 			tmp2 = xmlRelaxNGParsePattern(ctxt, child);
 			if(tmp2) {
-				if(last == NULL) {
+				if(!last) {
 					except->content = last = tmp2;
 				}
 				else {
@@ -3556,7 +3556,7 @@ static xmlRelaxNGDefine * xmlRelaxNGParseInterleave(xmlRelaxNGParserCtxt * ctxt,
 		}
 		if(cur) {
 			cur->parent = def;
-			if(last == NULL) {
+			if(!last) {
 				def->content = last = cur;
 			}
 			else {
@@ -4164,7 +4164,7 @@ static xmlRelaxNGDefine * xmlRelaxNGParseExceptNameClass(xmlRelaxNGParserCtxt * 
 			break;
 		cur->type = attr ? XML_RELAXNG_ATTRIBUTE : XML_RELAXNG_ELEMENT;
 		if(xmlRelaxNGParseNameClass(ctxt, child, cur)) {
-			if(last == NULL) {
+			if(!last) {
 				ret->content = cur;
 			}
 			else {
@@ -4255,7 +4255,7 @@ static xmlRelaxNGDefine * xmlRelaxNGParseNameClass(xmlRelaxNGParserCtxt * ctxt, 
 			while(child) {
 				tmp = xmlRelaxNGParseNameClass(ctxt, child, ret);
 				if(tmp) {
-					if(last == NULL) {
+					if(!last) {
 						last = ret->nameClass = tmp;
 					}
 					else {
@@ -4342,7 +4342,7 @@ static xmlRelaxNGDefine * xmlRelaxNGParseElement(xmlRelaxNGParserCtxt * ctxt, xm
 				case XML_RELAXNG_CHOICE:
 				case XML_RELAXNG_GROUP:
 				case XML_RELAXNG_INTERLEAVE:
-				    if(last == NULL) {
+				    if(!last) {
 					    ret->content = last = cur;
 				    }
 				    else {
@@ -4643,7 +4643,7 @@ static void xmlRelaxNGCheckCombine(xmlRelaxNGDefine * define, xmlRelaxNGParserCt
 					else {
 						tmp2 = tmp->content;
 					}
-					if(last == NULL) {
+					if(!last) {
 						cur->content = tmp2;
 					}
 					else {
@@ -7017,7 +7017,7 @@ static int xmlRelaxNGNextValue(xmlRelaxNGValidCtxtPtr ctxt)
 		ctxt->state->endvalue = NULL;
 		return 0;
 	}
-	while(*cur != 0)
+	while(*cur)
 		cur++;
 	while((cur != ctxt->state->endvalue) && (*cur == 0))
 		cur++;
@@ -7148,7 +7148,7 @@ static int xmlRelaxNGValidateValue(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 			    return -1;
 		    }
 		    cur = val;
-		    while(*cur != 0) {
+		    while(*cur) {
 			    if(IS_BLANK_CH(*cur)) {
 				    *cur = 0;
 				    cur++;

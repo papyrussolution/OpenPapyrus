@@ -980,7 +980,7 @@ int FASTCALL xmlBufWriteQuotedString(xmlBufPtr buf, const xmlChar * string)
 #endif
 			xmlBufCCat(buf, "\"");
 			base = cur = string;
-			while(*cur != 0) {
+			while(*cur) {
 				if(*cur == '"') {
 					if(base != cur)
 						xmlBufAdd(buf, base, cur - base);

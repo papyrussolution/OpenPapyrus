@@ -9,17 +9,12 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "checkpostfixoperator.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
 
 class TestPostfixOperator : public TestFixture {
 public:
-	TestPostfixOperator() : TestFixture("TestPostfixOperator") {
+	TestPostfixOperator() : TestFixture("TestPostfixOperator") 
+	{
 	}
-
 private:
 	Settings settings;
 

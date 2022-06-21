@@ -9,11 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "analyzerinfo.h"
-#include "errorlogger.h"
-#include "path.h"
-#include "utils.h"
-#include <tinyxml2.h>
 
 AnalyzerInformation::~AnalyzerInformation()
 {

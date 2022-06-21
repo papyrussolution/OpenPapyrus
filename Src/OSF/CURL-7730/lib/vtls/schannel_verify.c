@@ -264,7 +264,7 @@ cleanup:
 	if(ca_file_handle != INVALID_HANDLE_VALUE) {
 		CloseHandle(ca_file_handle);
 	}
-	Curl_safefree(ca_file_buffer);
+	ZFREE(ca_file_buffer);
 	curlx_unicodefree(ca_file_tstr);
 
 	return result;

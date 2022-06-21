@@ -10,12 +10,6 @@
 #ifndef astutilsH
 #define astutilsH
 
-#include <functional>
-#include <set>
-#include <stack>
-#include <string>
-#include <vector>
-#include "cppcheck-config.h"
 #include "errortypes.h"
 #include "symboldatabase.h"
 

@@ -632,7 +632,7 @@ void bundle_write_java(struct SRBRoot * bundle, const char * outputDir, const ch
 
 	out = T_FileStream_open(fileName, "w");
 
-	if(out==NULL) {
+	if(!out) {
 		*status = U_FILE_ACCESS_ERROR;
 		return;
 	}

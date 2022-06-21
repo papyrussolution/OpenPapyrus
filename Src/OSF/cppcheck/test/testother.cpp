@@ -9,16 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "checkother.h"
-#include "errortypes.h"
-#include "library.h"
-#include "platform.h"
-#include "preprocessor.h"
-#include "settings.h"
-#include "standards.h"
-#include "testsuite.h"
-#include "tokenize.h"
-#include <simplecpp.h>
 
 class TestOther : public TestFixture {
 public:
@@ -28,11 +18,10 @@ public:
 private:
 	Settings _settings;
 
-	void run() override {
+	void run() override 
+	{
 		LOAD_LIB_2(_settings.library, "std.cfg");
-
 		TEST_CASE(emptyBrackets);
-
 		TEST_CASE(zeroDiv1);
 		TEST_CASE(zeroDiv2);
 		TEST_CASE(zeroDiv3);
@@ -46,11 +35,8 @@ private:
 		TEST_CASE(zeroDiv11);
 		TEST_CASE(zeroDiv12);
 		TEST_CASE(zeroDiv13);
-
 		TEST_CASE(zeroDivCond); // division by zero / useless condition
-
 		TEST_CASE(nanInArithmeticExpression);
-
 		TEST_CASE(varScope1);
 		TEST_CASE(varScope2);
 		TEST_CASE(varScope3);
@@ -81,27 +67,21 @@ private:
 		TEST_CASE(varScope29); // #10888
 		TEST_CASE(varScope30); // #8541
 		TEST_CASE(varScope31); // #11099
-
 		TEST_CASE(oldStylePointerCast);
 		TEST_CASE(invalidPointerCast);
-
 		TEST_CASE(passedByValue);
 		TEST_CASE(passedByValue_nonConst);
 		TEST_CASE(passedByValue_externC);
-
 		TEST_CASE(constVariable);
 		TEST_CASE(constParameterCallback);
 		TEST_CASE(constPointer);
-
 		TEST_CASE(switchRedundantAssignmentTest);
 		TEST_CASE(switchRedundantOperationTest);
 		TEST_CASE(switchRedundantBitwiseOperationTest);
 		TEST_CASE(unreachableCode);
-
 		TEST_CASE(suspiciousCase);
 		TEST_CASE(suspiciousEqualityComparison);
 		TEST_CASE(suspiciousUnaryPlusMinus); // #8004
-
 		TEST_CASE(selfAssignment);
 		TEST_CASE(trac1132);
 		TEST_CASE(testMisusedScopeObjectDoesNotPickFunction1);
@@ -120,10 +100,8 @@ private:
 		TEST_CASE(trac2071);
 		TEST_CASE(trac2084);
 		TEST_CASE(trac3693);
-
 		TEST_CASE(clarifyCalculation);
 		TEST_CASE(clarifyStatement);
-
 		TEST_CASE(duplicateBranch);
 		TEST_CASE(duplicateBranch1); // tests extracted by http://www.viva64.com/en/b/0149/ ( Comparison between
 		                             // PVS-Studio and cppcheck ): Errors detected in Quake 3: Arena by
@@ -158,21 +136,15 @@ private:
 		TEST_CASE(duplicateVarExpressionAssign);
 		TEST_CASE(duplicateVarExpressionCrash);
 		TEST_CASE(multiConditionSameExpression);
-
 		TEST_CASE(checkSignOfUnsignedVariable);
 		TEST_CASE(checkSignOfPointer);
-
 		TEST_CASE(checkSuspiciousSemicolon1);
 		TEST_CASE(checkSuspiciousSemicolon2);
 		TEST_CASE(checkSuspiciousSemicolon3);
 		TEST_CASE(checkSuspiciousComparison);
-
 		TEST_CASE(checkInvalidFree);
-
 		TEST_CASE(checkRedundantCopy);
-
 		TEST_CASE(checkNegativeShift);
-
 		TEST_CASE(incompleteArrayFill);
 
 		TEST_CASE(redundantVarAssignment);
@@ -8408,14 +8380,14 @@ private:
 
 		check("void f() {\n"
 		    "   void* a;\n"
-		    "   a = (void*)0;\n"
+		    "   a = (void *)0;\n"
 		    "   a = p;\n"
 		    "}");
 		ASSERT_EQUALS("", errout.str());
 
 		check("void f() {\n"
 		    "   void* a;\n"
-		    "   a = (void*)0U;\n"
+		    "   a = (void *)0U;\n"
 		    "   a = p;\n"
 		    "}");
 		ASSERT_EQUALS("", errout.str());

@@ -795,7 +795,7 @@ winVer NppParameters::getWindowsVersion()
 			return WV_UNKNOWN;
 	}
 	pGNSI = (PGNSI)GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "GetNativeSystemInfo");
-	if(pGNSI != NULL)
+	if(pGNSI)
 		pGNSI(&si);
 	else
 		GetSystemInfo(&si);
@@ -1368,7 +1368,7 @@ void NppParameters::setWorkSpaceFilePath(int i, const TCHAR* wsFile)
 
 void NppParameters::removeTransparent(HWND hwnd)
 {
-	if(hwnd != NULL)
+	if(hwnd)
 		::SetWindowLongPtr(hwnd, GWL_EXSTYLE,  ::GetWindowLongPtr(hwnd, GWL_EXSTYLE) & ~0x00080000);
 }
 
@@ -3147,7 +3147,7 @@ bool NppParameters::feedStylerArray(TiXmlNode * node)
 		const TCHAR * lexerExcluded = element->Attribute(TEXT("excluded"));
 		if(lexerName) {
 			_lexerStylerVect.addLexerStyler(lexerName, lexerDesc, lexerUserExt, childNode);
-			if(lexerExcluded != NULL && (lstrcmp(lexerExcluded, TEXT("yes")) == 0)) {
+			if(lexerExcluded && (lstrcmp(lexerExcluded, TEXT("yes")) == 0)) {
 				int index = getExternalLangIndexFromName(lexerName);
 				if(index != -1)
 					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)(index + L_EXTERNAL)));
@@ -4631,15 +4631,13 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 
 		else if(sstreq(nm, TEXT("stylerTheme"))) {
 			const TCHAR * themePath = element->Attribute(TEXT("path"));
-			if(themePath != NULL && themePath[0])
+			if(themePath && themePath[0])
 				_nppGUI._themeName.assign(themePath);
 		}
-
 		else if(sstreq(nm, TEXT("insertDateTime"))) {
 			const TCHAR* customFormat = element->Attribute(TEXT("customizedFormat"));
-			if(customFormat != NULL && customFormat[0])
+			if(customFormat && customFormat[0])
 				_nppGUI._dateTimeFormat = customFormat;
-
 			const TCHAR* value = element->Attribute(TEXT("reverseDefaultOrder"));
 			if(value && value[0]) {
 				if(lstrcmp(value, TEXT("yes")) == 0)
@@ -4648,7 +4646,6 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 					_nppGUI._dateTimeReverseDefaultOrder = false;
 			}
 		}
-
 		else if(sstreq(nm, TEXT("wordCharList"))) {
 			const TCHAR * value = element->Attribute(TEXT("useDefault"));
 			if(value && value[0]) {
@@ -4669,14 +4666,12 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 			element->Attribute(TEXT("leftmostDelimiter"), &leftmost);
 			if(leftmost > 0 && leftmost < 256)
 				_nppGUI._leftmostDelimiter = static_cast<char>(leftmost);
-
 			int rightmost = 0;
 			element->Attribute(TEXT("rightmostDelimiter"), &rightmost);
 			if(rightmost > 0 && rightmost < 256)
 				_nppGUI._rightmostDelimiter = static_cast<char>(rightmost);
-
 			const TCHAR * delimiterSelectionOnEntireDocument = element->Attribute(TEXT("delimiterSelectionOnEntireDocument"));
-			if(delimiterSelectionOnEntireDocument != NULL && !lstrcmp(delimiterSelectionOnEntireDocument, TEXT("yes")))
+			if(delimiterSelectionOnEntireDocument && !lstrcmp(delimiterSelectionOnEntireDocument, TEXT("yes")))
 				_nppGUI._delimiterSelectionOnEntireDocument = true;
 			else
 				_nppGUI._delimiterSelectionOnEntireDocument = false;
@@ -4692,7 +4687,6 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 			int i;
 			if(element->Attribute(TEXT("searchEngineChoice"), &i))
 				_nppGUI._searchEngineChoice = static_cast<NppGUI::SearchEngineChoice>(i);
-
 			const TCHAR * searchEngineCustom = element->Attribute(TEXT("searchEngineCustom"));
 			if(searchEngineCustom && searchEngineCustom[0])
 				_nppGUI._searchEngineCustom = searchEngineCustom;
@@ -4701,19 +4695,15 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 			const TCHAR* optNameMonoFont = element->Attribute(TEXT("monospacedFontFindDlg"));
 			if(optNameMonoFont)
 				_nppGUI._monospacedFontFindDlg = (lstrcmp(optNameMonoFont, TEXT("yes")) == 0);
-
 			const TCHAR* optStopFillingFindField = element->Attribute(TEXT("stopFillingFindField"));
 			if(optStopFillingFindField)
 				_nppGUI._stopFillingFindField = (lstrcmp(optStopFillingFindField, TEXT("yes")) == 0);
-
 			const TCHAR* optFindDlgAlwaysVisible = element->Attribute(TEXT("findDlgAlwaysVisible"));
 			if(optFindDlgAlwaysVisible)
 				_nppGUI._findDlgAlwaysVisible = (lstrcmp(optFindDlgAlwaysVisible, TEXT("yes")) == 0);
-
 			const TCHAR* optConfirmReplaceOpenDocs = element->Attribute(TEXT("confirmReplaceInAllOpenDocs"));
 			if(optConfirmReplaceOpenDocs)
 				_nppGUI._confirmReplaceInAllOpenDocs = (lstrcmp(optConfirmReplaceOpenDocs, TEXT("yes")) == 0);
-
 			const TCHAR* optReplaceStopsWithoutFindingNext = element->Attribute(TEXT("replaceStopsWithoutFindingNext"));
 			if(optReplaceStopsWithoutFindingNext)
 				_nppGUI._replaceStopsWithoutFindingNext = (lstrcmp(optReplaceStopsWithoutFindingNext, TEXT("yes")) == 0);
@@ -4722,43 +4712,32 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 			const TCHAR * optName = element->Attribute(TEXT("fileSwitcherWithoutExtColumn"));
 			if(optName)
 				_nppGUI._fileSwitcherWithoutExtColumn = (lstrcmp(optName, TEXT("yes")) == 0);
-
 			int i = 0;
 			if(element->Attribute(TEXT("fileSwitcherExtWidth"), &i))
 				_nppGUI._fileSwitcherExtWidth = i;
-
 			const TCHAR * optNamePath = element->Attribute(TEXT("fileSwitcherWithoutPathColumn"));
 			if(optNamePath)
 				_nppGUI._fileSwitcherWithoutPathColumn = (lstrcmp(optNamePath, TEXT("yes")) == 0);
-
 			if(element->Attribute(TEXT("fileSwitcherPathWidth"), &i))
 				_nppGUI._fileSwitcherPathWidth = i;
-
 			const TCHAR * optNameBackSlashEscape = element->Attribute(TEXT("backSlashIsEscapeCharacterForSql"));
 			if(optNameBackSlashEscape && !lstrcmp(optNameBackSlashEscape, TEXT("no")))
 				_nppGUI._backSlashIsEscapeCharacterForSql = false;
-
 			const TCHAR * optNameWriteTechnologyEngine = element->Attribute(TEXT("writeTechnologyEngine"));
 			if(optNameWriteTechnologyEngine)
-				_nppGUI._writeTechnologyEngine =
-				    (lstrcmp(optNameWriteTechnologyEngine, TEXT("1")) == 0) ? directWriteTechnology : defaultTechnology;
-
+				_nppGUI._writeTechnologyEngine = (lstrcmp(optNameWriteTechnologyEngine, TEXT("1")) == 0) ? directWriteTechnology : defaultTechnology;
 			const TCHAR * optNameFolderDroppedOpenFiles = element->Attribute(TEXT("isFolderDroppedOpenFiles"));
 			if(optNameFolderDroppedOpenFiles)
 				_nppGUI._isFolderDroppedOpenFiles = (lstrcmp(optNameFolderDroppedOpenFiles, TEXT("yes")) == 0);
-
 			const TCHAR * optDocPeekOnTab = element->Attribute(TEXT("docPeekOnTab"));
 			if(optDocPeekOnTab)
 				_nppGUI._isDocPeekOnTab = (lstrcmp(optDocPeekOnTab, TEXT("yes")) == 0);
-
 			const TCHAR * optDocPeekOnMap = element->Attribute(TEXT("docPeekOnMap"));
 			if(optDocPeekOnMap)
 				_nppGUI._isDocPeekOnMap = (lstrcmp(optDocPeekOnMap, TEXT("yes")) == 0);
-
 			const TCHAR* saveDlgExtFilterToAllTypes = element->Attribute(TEXT("saveDlgExtFilterToAllTypes"));
 			if(saveDlgExtFilterToAllTypes)
 				_nppGUI._setSaveDlgExtFiltToAllTypes = (lstrcmp(saveDlgExtFilterToAllTypes, TEXT("yes")) == 0);
-
 			const TCHAR * optMuteSounds = element->Attribute(TEXT("muteSounds"));
 			if(optMuteSounds)
 				_nppGUI._muteSounds = lstrcmp(optMuteSounds, TEXT("yes")) == 0;
@@ -4767,7 +4746,7 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 			TiXmlNode * node = childNode->FirstChild();
 			if(node) {
 				const TCHAR * cli = node->Value();
-				if(cli && cli[0])
+				if(!isempty(cli))
 					_nppGUI._commandLineInterpreter.assign(cli);
 			}
 		}
@@ -4786,43 +4765,34 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 			_nppGUI._darkmode._isEnabled = parseYesNoBoolAttribute(TEXT("enable"));
 
 			int i;
-			const TCHAR* val;
+			const TCHAR * val;
 			val = element->Attribute(TEXT("colorTone"), &i);
 			if(val)
 				_nppGUI._darkmode._colorTone = static_cast<NppDarkMode::ColorTone>(i);
-
 			val = element->Attribute(TEXT("customColorTop"), &i);
 			if(val)
 				_nppGUI._darkmode._customColors.pureBackground = i;
-
 			val = element->Attribute(TEXT("customColorMenuHotTrack"), &i);
 			if(val)
 				_nppGUI._darkmode._customColors.hotBackground = i;
-
 			val = element->Attribute(TEXT("customColorActive"), &i);
 			if(val)
 				_nppGUI._darkmode._customColors.softerBackground = i;
-
 			val = element->Attribute(TEXT("customColorMain"), &i);
 			if(val)
 				_nppGUI._darkmode._customColors.background = i;
-
 			val = element->Attribute(TEXT("customColorError"), &i);
 			if(val)
 				_nppGUI._darkmode._customColors.errorBackground = i;
-
 			val = element->Attribute(TEXT("customColorText"), &i);
 			if(val)
 				_nppGUI._darkmode._customColors.text = i;
-
 			val = element->Attribute(TEXT("customColorDarkText"), &i);
 			if(val)
 				_nppGUI._darkmode._customColors.darkerText = i;
-
 			val = element->Attribute(TEXT("customColorDisabledText"), &i);
 			if(val)
 				_nppGUI._darkmode._customColors.disabledText = i;
-
 			val = element->Attribute(TEXT("customColorEdge"), &i);
 			if(val)
 				_nppGUI._darkmode._customColors.edge = i;
@@ -4833,7 +4803,6 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 void NppParameters::feedScintillaParam(TiXmlNode * node)
 {
 	TiXmlElement* element = node->ToElement();
-
 	// Line Number Margin
 	const TCHAR * nm = element->Attribute(TEXT("lineNumberMargin"));
 	if(nm) {
@@ -4842,7 +4811,6 @@ void NppParameters::feedScintillaParam(TiXmlNode * node)
 		else if(sstreq(nm, TEXT("hide")))
 			_svp._lineNumberMarginShow = false;
 	}
-
 	// Line Number Margin dynamic width
 	nm = element->Attribute(TEXT("lineNumberDynamicWidth"));
 	if(nm) {
@@ -4851,7 +4819,6 @@ void NppParameters::feedScintillaParam(TiXmlNode * node)
 		else if(sstreq(nm, TEXT("no")))
 			_svp._lineNumberMarginDynamicWidth = false;
 	}
-
 	// Bookmark Margin
 	nm = element->Attribute(TEXT("bookMarkMargin"));
 	if(nm) {
@@ -4860,7 +4827,6 @@ void NppParameters::feedScintillaParam(TiXmlNode * node)
 		else if(sstreq(nm, TEXT("hide")))
 			_svp._bookMarkMarginShow = false;
 	}
-
 	// Indent GuideLine
 	nm = element->Attribute(TEXT("indentGuideLine"));
 	if(nm) {
@@ -4869,7 +4835,6 @@ void NppParameters::feedScintillaParam(TiXmlNode * node)
 		else if(sstreq(nm, TEXT("hide")))
 			_svp._indentGuideLineShow = false;
 	}
-
 	// Folder Mark Style
 	nm = element->Attribute(TEXT("folderMarkStyle"));
 	if(nm) {
@@ -4884,7 +4849,6 @@ void NppParameters::feedScintillaParam(TiXmlNode * node)
 		else if(sstreq(nm, TEXT("none")))
 			_svp._folderStyle = FOLDER_STYLE_NONE;
 	}
-
 	// Line Wrap method
 	nm = element->Attribute(TEXT("lineWrapMethod"));
 	if(nm) {
@@ -4895,7 +4859,6 @@ void NppParameters::feedScintillaParam(TiXmlNode * node)
 		else if(sstreq(nm, TEXT("indent")))
 			_svp._lineWrapMethod = LINEWRAP_INDENT;
 	}
-
 	// Current Line Highlighting State
 	nm = element->Attribute(TEXT("currentLineHilitingShow"));
 	if(nm) {
@@ -4904,7 +4867,6 @@ void NppParameters::feedScintillaParam(TiXmlNode * node)
 		else if(sstreq(nm, TEXT("hide")))
 			_svp._currentLineHilitingShow = false;
 	}
-
 	// Scrolling Beyond Last Line State
 	nm = element->Attribute(TEXT("scrollBeyondLastLine"));
 	if(nm) {

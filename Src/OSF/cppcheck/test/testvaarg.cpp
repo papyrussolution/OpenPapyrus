@@ -10,10 +10,6 @@
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
 #include "checkvaarg.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
 
 class TestVaarg : public TestFixture {
 public:

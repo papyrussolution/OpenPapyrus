@@ -9,7 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "testsuite.h"
 #include "timer.h"
 
 class TestTimer : public TestFixture {

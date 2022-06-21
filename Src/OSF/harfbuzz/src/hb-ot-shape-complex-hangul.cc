@@ -161,14 +161,10 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan CXX_UNUSED_PA
 	 */
 
 	buffer->clear_output();
-	uint start = 0, end = 0; /* Extent of most recently seen syllable;
-	       * valid only if start < end
-	                                  */
+	uint start = 0, end = 0; /* Extent of most recently seen syllable; valid only if start < end */
 	uint count = buffer->len;
-
 	for(buffer->idx = 0; buffer->idx < count && buffer->successful;) {
 		hb_codepoint_t u = buffer->cur().codepoint;
-
 		if(isHangulTone(u)) {
 			/*
 			 * We could cache the width of the tone marks and the existence of dotted-circle,
@@ -210,11 +206,7 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan CXX_UNUSED_PA
 			start = end = buffer->out_len;
 			continue;
 		}
-
-		start = buffer->out_len; /* Remember current position as a potential syllable start;
-		  * will only be used if we set end to a later position.
-		                          */
-
+		start = buffer->out_len; /* Remember current position as a potential syllable start; will only be used if we set end to a later position. */
 		if(isL(u) && buffer->idx + 1 < count) {
 			hb_codepoint_t l = u;
 			hb_codepoint_t v = buffer->cur(+1).codepoint;
@@ -225,13 +217,11 @@ static void preprocess_text_hangul(const hb_ot_shape_plan_t * plan CXX_UNUSED_PA
 				if(buffer->idx + 2 < count) {
 					t = buffer->cur(+2).codepoint;
 					if(isT(t))
-						tindex = t - TBase; /* Only used if isCombiningT (t); otherwise invalid.
-					                               */
+						tindex = t - TBase; /* Only used if isCombiningT (t); otherwise invalid. */
 					else
 						t = 0; /* The next character was not a trailing jamo. */
 				}
 				buffer->unsafe_to_break(buffer->idx, buffer->idx + (t ? 3 : 2));
-
 				/* We've got a syllable <L,V,T?>; see if it can potentially be composed. */
 				if(isCombiningL(l) && isCombiningV(v) && (t == 0 || isCombiningT(t))) {
 					/* Try to compose; if this succeeds, end is set to start+1. */

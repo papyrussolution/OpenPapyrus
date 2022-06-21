@@ -16,11 +16,9 @@
 #endif
 #include "fileio_asyncio.h"
 #include "fileio_common.h"
-
-/* **********************************************************************
-*  Sparse write
-************************************************************************/
-
+// 
+// Sparse write
+// 
 /** AIO_fwriteSparse() :
  *  @return : storedSkips,
  *            argument for next call to AIO_fwriteSparse() or AIO_fwriteSparseEnd() */
@@ -110,11 +108,9 @@ static void AIO_fwriteSparseEnd(const FIO_prefs_t* const prefs, FILE* file, unsi
 			    EXM_THROW(69, "Write error : cannot write last zero : %s", strerror(errno)); }
 	}
 }
-
-/* **********************************************************************
-*  AsyncIO functionality
-************************************************************************/
-
+// 
+// AsyncIO functionality
+// 
 /* AIO_supported:
  * Returns 1 if AsyncIO is supported on the system, 0 otherwise. */
 int AIO_supported(void) {
@@ -124,11 +120,9 @@ int AIO_supported(void) {
 	return 0;
 #endif
 }
-
-/* ***********************************
-*  General IoPool implementation
-*************************************/
-
+// 
+// General IoPool implementation
+// 
 static IOJob_t * AIO_IOPool_createIoJob(IOPoolCtx_t * ctx, size_t bufferSize) 
 {
 	IOJob_t* const job  = (IOJob_t*)SAlloc::M(sizeof(IOJob_t));

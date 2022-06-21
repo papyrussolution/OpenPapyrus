@@ -14,9 +14,7 @@
 #include "color.h"
 #include "cppcheck.h"
 #include "cppcheckexecutor.h"
-#include "errorlogger.h"
 #include "importproject.h"
-#include "settings.h"
 #include "suppressions.h"
 #ifdef __SVR4  // Solaris
 	#include <sys/loadavg.h>
@@ -27,12 +25,9 @@
 #if defined(__linux__)
 	#include <sys/prctl.h>
 #endif
-#include <cerrno>
-#include <cstring>
 #include <sys/select.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <csignal>
 #include <unistd.h>
 
 // NOLINTNEXTLINE(misc-unused-using-decls) - required for FD_ZERO
@@ -52,20 +47,18 @@ ThreadExecutor::ThreadExecutor(const std::map<std::string, std::size_t> &files, 
 ThreadExecutor::~ThreadExecutor()
 {
 }
-
-///////////////////////////////////////////////////////////////////////////////
-////// This code is for platforms that support fork() only ////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
+//
+// This code is for platforms that support fork() only
+//
 #if defined(THREADING_MODEL_FORK)
 
 class PipeWriter : public ErrorLogger {
 public:
 	enum PipeSignal {REPORT_OUT = '1', REPORT_ERROR = '2', REPORT_INFO = '3', REPORT_VERIFICATION = '4', CHILD_END = '5'};
 
-	explicit PipeWriter(int pipe) : mWpipe(pipe) {
+	explicit PipeWriter(int pipe) : mWpipe(pipe) 
+	{
 	}
-
 	void reportOut(const std::string &outmsg, Color c) override {
 		writeToPipe(REPORT_OUT, ::toString(c) + outmsg + ::toString(Color::Reset));
 	}

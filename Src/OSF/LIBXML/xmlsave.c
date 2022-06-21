@@ -1796,7 +1796,7 @@ void xmlBufAttrSerializeTxtContent(xmlBufPtr buf, xmlDoc * doc, xmlAttr * attr, 
 	if(string) {
 		const xmlChar * base = string;
 		const xmlChar * cur = string;
-		while(*cur != 0) {
+		while(*cur) {
 			if(*cur == '\n') {
 				if(base != cur)
 					xmlBufAdd(buf, base, cur - base);

@@ -118,22 +118,18 @@ static void ZSTD_insertDUBT1(const ZSTD_matchState_t* ms,
 		    curr, matchIndex, (uint32)matchLength);
 
 		if(ip+matchLength == iend) { /* equal : no way to know if inf or sup */
-			break; /* drop , to guarantee consistency ; miss a bit of compression, but other solutions can
-			          corrupt tree */
+			break; /* drop , to guarantee consistency ; miss a bit of compression, but other solutions can corrupt tree */
 		}
-
 		if(match[matchLength] < ip[matchLength]) { /* necessarily within buffer */
 			/* match is smaller than current */
 			*smallerPtr = matchIndex; /* update smaller idx */
-			commonLengthSmaller = matchLength; /* all smaller will now have at least this guaranteed common
-			                                      length */
+			commonLengthSmaller = matchLength; /* all smaller will now have at least this guaranteed common length */
 			if(matchIndex <= btLow) {
 				smallerPtr = &dummy32; break;
 			}                                              /* beyond tree size, stop searching */
 			DEBUGLOG(8, "ZSTD_insertDUBT1: %u (>btLow=%u) is smaller : next => %u",
 			    matchIndex, btLow, nextPtr[1]);
-			smallerPtr = nextPtr+1;   /* new "candidate" => larger than match, which was smaller than target
-			                             */
+			smallerPtr = nextPtr+1;   /* new "candidate" => larger than match, which was smaller than target */
 			matchIndex = nextPtr[1];  /* new matchIndex, larger than previous and closer to current */
 		}
 		else {
@@ -142,9 +138,8 @@ static void ZSTD_insertDUBT1(const ZSTD_matchState_t* ms,
 			commonLengthLarger = matchLength;
 			if(matchIndex <= btLow) {
 				largerPtr = &dummy32; break;
-			}                                             /* beyond tree size, stop searching */
-			DEBUGLOG(8, "ZSTD_insertDUBT1: %u (>btLow=%u) is larger => %u",
-			    matchIndex, btLow, nextPtr[0]);
+			} /* beyond tree size, stop searching */
+			DEBUGLOG(8, "ZSTD_insertDUBT1: %u (>btLow=%u) is larger => %u", matchIndex, btLow, nextPtr[0]);
 			largerPtr = nextPtr;
 			matchIndex = nextPtr[0];
 		}
@@ -723,8 +718,7 @@ size_t ZSTD_HcFindBestMatch(ZSTD_matchState_t* ms,
 				ml = currentMl;
 				assert(curr > matchIndex + dmsIndexDelta);
 				*offsetPtr = OFFSET_TO_OFFBASE(curr - (matchIndex + dmsIndexDelta));
-				if(ip+currentMl == iLimit) break; /* best possible, avoids read overflow on next attempt
-				                                     */
+				if(ip+currentMl == iLimit) break; /* best possible, avoids read overflow on next attempt */
 			}
 
 			if(matchIndex <= dmsMinChain) break;
@@ -1577,9 +1571,7 @@ FORCE_INLINE_TEMPLATE size_t ZSTD_compressBlock_lazy_generic(ZSTD_matchState_t* 
 					}
 					{   size_t ofbCandidate = 999999999;
 					    const size_t ml2 = searchMax(ms, ip, iend, &ofbCandidate);
-					    int const gain2 = (int)(ml2*4 - ZSTD_highbit32((uint32)ofbCandidate)); /* raw
-						                                                                   approx
-						                                                                   */
+					    int const gain2 = (int)(ml2*4 - ZSTD_highbit32((uint32)ofbCandidate)); /* raw approx */
 					    int const gain1 = (int)(matchLength*4 - ZSTD_highbit32((uint32)offBase) + 7);
 					    if((ml2 >= 4) && (gain2 > gain1)) {
 						    matchLength = ml2, offBase = ofbCandidate, start = ip;

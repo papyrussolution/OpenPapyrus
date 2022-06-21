@@ -1532,6 +1532,55 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 			if(!force || enforce_param.ToLong() != 0) {
 				if(force)
 					PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_LOG_TIMECHANGE_FORCE, LOGMSGF_TIME|LOGMSGF_COMP);
+				// @v11.4.2 {
+				class LocalThread : public PPThread {
+					SString TimeServerName;
+				public:
+					LocalThread(const char * pServerName) : PPThread(PPThread::kCasualJob, 0, 0), TimeServerName(pServerName)
+					{
+					}
+					virtual void Run()
+					{
+						ENTER_CRITICAL_SECTION
+						int    ok = -1;
+						LDATETIME dtm;
+						SString msg_buf;
+						int r = SGetTimeFromRemoteServer(TimeServerName, &dtm);
+						if(!r) {
+							PPSetErrorSLib();
+							PPFormatT(PPTXT_LOG_TIMESERVERERR, &msg_buf, TimeServerName.cptr(), PPErrCode);
+							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+							ok = 0;
+						}
+						else if(r > 0) {
+							const  LDATETIME curdtm = getcurdatetime_();
+							const  long   diff = diffdatetimesec(dtm, curdtm);
+							if(labs(diff) >= 2) {
+								//LocalState |= lsLockSettingTimeByServer;
+								if(setcurdatetime(dtm)) {
+									PPFormatT(PPTXT_LOG_TIMESERVERSET, &msg_buf, TimeServerName.cptr(), diff);
+									PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+									ok = 1;
+								}
+								else {
+									PPSetErrorSLib();
+									PPFormatT(PPTXT_LOG_TIMESERVERSETERR, &msg_buf, TimeServerName.cptr(), PPErrCode);
+									PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+									ok = 0;
+								}
+								//LocalState &= ~lsLockSettingTimeByServer;
+							}
+							else
+								ok = -2;
+						}
+						LEAVE_CRITICAL_SECTION
+					}
+				};
+
+				LocalThread * p_thread = new LocalThread(server_name);
+				p_thread->Start();
+				// } @v11.4.2 
+				/* @v11.4.2 
 				int r = SGetTimeFromRemoteServer(server_name, &dtm);
 				if(!r) {
 					PPSetErrorSLib();
@@ -1559,7 +1608,7 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 					}
 					else
 						ok = -2;
-				}
+				}*/
 			}
 			else if(force) {
 				PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_LOG_TIMECHANGE_NOFORCE, LOGMSGF_TIME|LOGMSGF_COMP);

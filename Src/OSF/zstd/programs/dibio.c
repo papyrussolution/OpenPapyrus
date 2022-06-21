@@ -40,7 +40,7 @@ static const size_t g_maxMemory = (sizeof(size_t) == 4) ? (SGIGABYTE(2) - SMEGAB
 //
 // Console display
 //
-#define DISPLAY(...)         fprintf(stderr, __VA_ARGS__)
+#define DISPLAY(...)         slfprintf_stderr(__VA_ARGS__)
 #define DISPLAYLEVEL(l, ...) if(displayLevel>=l) { DISPLAY(__VA_ARGS__); }
 
 static const uint64 g_refreshRate = SEC_TO_MICRO / 6;

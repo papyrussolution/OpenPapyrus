@@ -198,7 +198,7 @@ static int dh_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 
 	params = ASN1_STRING_new();
 
-	if(params == NULL) {
+	if(!params) {
 		DHerr(DH_F_DH_PRIV_ENCODE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

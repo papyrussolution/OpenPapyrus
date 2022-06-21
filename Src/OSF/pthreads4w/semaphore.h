@@ -91,4 +91,4 @@ __PTW32_BEGIN_C_DECLS
 	__PTW32_DLLPORT int __PTW32_CDECL sem_getvalue(sem_t * sem, int * sval);
 __PTW32_END_C_DECLS
 
-#endif                          /* !SEMAPHORE_H */
+#endif /* !SEMAPHORE_H */

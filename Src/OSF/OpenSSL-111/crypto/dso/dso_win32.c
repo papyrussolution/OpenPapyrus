@@ -677,4 +677,4 @@ static void * win32_globallookup(const char * name)
 	return NULL;
 }
 
-#endif                          /* DSO_WIN32 */
+#endif /* DSO_WIN32 */

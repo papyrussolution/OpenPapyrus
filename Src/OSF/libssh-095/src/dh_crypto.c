@@ -83,7 +83,7 @@ int ssh_dh_keypair_set_keys(struct dh_ctx * ctx, int peer, const bignum priv, co
 
 int ssh_dh_get_parameters(struct dh_ctx * ctx, const_bignum * modulus, const_bignum * generator)
 {
-	if(ctx == NULL || ctx->keypair[0] == NULL) {
+	if(!ctx || ctx->keypair[0] == NULL) {
 		return SSH_ERROR;
 	}
 	DH_get0_pqg(ctx->keypair[0], modulus, NULL, generator);

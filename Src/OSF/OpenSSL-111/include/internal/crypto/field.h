@@ -163,4 +163,4 @@ static ossl_inline void gf_cond_swap(gf x, gf_s * RESTRICT y, mask_t swap)
 	}
 }
 
-#endif                          /* HEADER_FIELD_H */
+#endif /* HEADER_FIELD_H */

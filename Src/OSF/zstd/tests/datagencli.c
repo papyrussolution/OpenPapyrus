@@ -24,7 +24,7 @@
 /*-************************************
 *  Macros
 **************************************/
-#define DISPLAY(...)         fprintf(stderr, __VA_ARGS__)
+#define DISPLAY(...)         slfprintf_stderr(__VA_ARGS__)
 #define DISPLAYLEVEL(l, ...) if(displayLevel>=l) { DISPLAY(__VA_ARGS__); }
 static uint displayLevel = 2;
 
@@ -47,7 +47,7 @@ static int usage(const char* programName)
 
 int main(int argc, const char** argv)
 {
-	unsigned probaU32 = COMPRESSIBILITY_DEFAULT;
+	uint   probaU32 = COMPRESSIBILITY_DEFAULT;
 	double litProba = 0.0;
 	uint64 size = SIZE_DEFAULT;
 	uint32 seed = SEED_DEFAULT;
@@ -115,14 +115,11 @@ int main(int argc, const char** argv)
 			}
 		}
 	}       /* for(argNb=1; argNb<argc; argNb++) */
-
 	DISPLAYLEVEL(4, "Compressible data Generator \n");
 	if(probaU32!=COMPRESSIBILITY_DEFAULT)
 		DISPLAYLEVEL(3, "Compressibility : %i%%\n", probaU32);
-	DISPLAYLEVEL(3, "Seed = %u \n", (unsigned)seed);
-
+	DISPLAYLEVEL(3, "Seed = %u \n", (uint)seed);
 	RDG_genStdout(size, (double)probaU32/100, litProba, seed);
 	DISPLAYLEVEL(3, "\n");
-
 	return 0;
 }

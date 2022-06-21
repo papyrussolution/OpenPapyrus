@@ -19,9 +19,6 @@
 
 /* utypes.h is included to get the proper define for uint8 */
 #include "unicode/utypes.h"
-/* for abort */
-#include <stdlib.h>
-
 /**
  * \def U_ASSERT
  * By default, U_ASSERT just wraps the C library assert macro.

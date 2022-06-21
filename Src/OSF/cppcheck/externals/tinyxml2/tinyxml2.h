@@ -325,7 +325,7 @@ public:
 	}
 	virtual int ItemSize() const = 0;
 	virtual void* Alloc() = 0;
-	virtual void Free(void*) = 0;
+	virtual void Free(void *) = 0;
 	virtual void SetTracked() = 0;
 	virtual void Clear() = 0;
 };

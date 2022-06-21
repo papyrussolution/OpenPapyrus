@@ -10,7 +10,6 @@
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
 #include "pathmatch.h"
-#include "testsuite.h"
 
 class TestPathMatch : public TestFixture {
 public:

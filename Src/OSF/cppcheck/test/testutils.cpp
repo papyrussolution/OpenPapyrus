@@ -9,9 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "testutils.h"
-#include "testsuite.h"
-#include "utils.h"
 
 const Settings givenACodeSampleToTokenize::settings;
 

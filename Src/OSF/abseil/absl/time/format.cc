@@ -109,7 +109,7 @@ bool ParseTime(absl::string_view format, absl::string_view input, absl::TimeZone
 	if(b) {
 		*time = Join(parts);
 	}
-	else if(err != nullptr) {
+	else if(err) {
 		*err = error;
 	}
 	return b;

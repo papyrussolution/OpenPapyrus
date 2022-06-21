@@ -382,7 +382,7 @@ void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 			    break;
 			case 4:
 			    if((png_ptr->row_number & 3) != 2) {
-				    if(dsp_row != NULL && (png_ptr->row_number & 2))
+				    if(dsp_row && (png_ptr->row_number & 2))
 					    png_combine_row(png_ptr, dsp_row, 1 /*display*/);
 				    png_read_finish_row(png_ptr);
 				    return;
@@ -459,8 +459,7 @@ void PNGAPI png_read_row(png_structrp png_ptr, png_bytep row, png_bytep dsp_row)
 			png_combine_row(png_ptr, dsp_row, -1 /*ignored*/);
 	}
 	png_read_finish_row(png_ptr);
-
-	if(png_ptr->read_row_fn != NULL)
+	if(png_ptr->read_row_fn)
 		(*(png_ptr->read_row_fn))(png_ptr, png_ptr->row_number, png_ptr->pass);
 }
 
@@ -498,19 +497,19 @@ void PNGAPI png_read_rows(png_structrp png_ptr, png_bytepp row, png_bytepp displ
 	if(png_ptr) {
 		png_bytepp rp = row;
 		png_bytepp dp = display_row;
-		if(rp != NULL && dp != NULL)
+		if(rp && dp)
 			for(i = 0; i < num_rows; i++) {
 				png_bytep rptr = *rp++;
 				png_bytep dptr = *dp++;
 				png_read_row(png_ptr, rptr, dptr);
 			}
-		else if(rp != NULL)
+		else if(rp)
 			for(i = 0; i < num_rows; i++) {
 				png_bytep rptr = *rp;
 				png_read_row(png_ptr, rptr, 0);
 				rp++;
 			}
-		else if(dp != NULL)
+		else if(dp)
 			for(i = 0; i < num_rows; i++) {
 				png_bytep dptr = *dp;
 				png_read_row(png_ptr, NULL, dptr);
@@ -1173,10 +1172,10 @@ int PNGAPI png_image_begin_read_from_stdio(png_imagep image, FILE* file)
 
 int PNGAPI png_image_begin_read_from_file(png_imagep image, const char * file_name)
 {
-	if(image != NULL && image->version == PNG_IMAGE_VERSION) {
-		if(file_name != NULL) {
+	if(image && image->version == PNG_IMAGE_VERSION) {
+		if(file_name) {
 			FILE * fp = fopen(file_name, "rb");
-			if(fp != NULL) {
+			if(fp) {
 				if(png_image_read_init(image) != 0) {
 					image->opaque->png_ptr->io_ptr = fp;
 					image->opaque->owned_file = 1;
@@ -1204,10 +1203,10 @@ static void PNGCBAPI png_image_memory_read(png_structp png_ptr, png_bytep out, s
 		png_imagep image = png_voidcast(png_imagep, png_ptr->io_ptr);
 		if(image) {
 			png_controlp cp = image->opaque;
-			if(cp != NULL) {
+			if(cp) {
 				png_const_bytep memory = cp->memory;
 				size_t size = cp->size;
-				if(memory != NULL && size >= need) {
+				if(memory && size >= need) {
 					memcpy(out, memory, need);
 					cp->memory = memory + need;
 					cp->size = size - need;
@@ -2176,7 +2175,7 @@ static int png_image_read_colormap(void * argument)
 		    uint   num_trans = png_ptr->num_trans;
 		    png_const_bytep trans = num_trans > 0 ? png_ptr->trans_alpha : NULL;
 		    png_const_colorp colormap = png_ptr->palette;
-		    const int do_background = trans != NULL && (output_format & PNG_FORMAT_FLAG_ALPHA) == 0;
+		    const int do_background = (trans && (output_format & PNG_FORMAT_FLAG_ALPHA) == 0);
 		    uint   i;
 		    // Just in case: 
 		    if(trans == NULL)
@@ -3006,7 +3005,7 @@ static int png_image_read_direct(void * argument)
 					png_set_strip_alpha(png_ptr);
 
 				/* 8-bit output: do an appropriate compose */
-				else if(display->background != NULL) {
+				else if(display->background) {
 					png_color_16 c;
 					c.index = 0; /*unused*/
 					c.red = display->background->R;
@@ -3260,13 +3259,13 @@ int PNGAPI png_image_finish_read(png_imagep image, png_const_colorp background, 
 				check = (uint32)(-row_stride);
 			else
 				check = (uint32)row_stride;
-			if(image->opaque != NULL && buffer != NULL && check >= png_row_stride) {
+			if(image->opaque && buffer && check >= png_row_stride) {
 				/* Now check for overflow of the image buffer calculation; this
 				 * limits the whole image size to 32 bits for API compatibility with
 				 * the current, 32-bit, PNG_IMAGE_BUFFER_SIZE macro.
 				 */
 				if(image->height <= 0xFFFFFFFF/png_row_stride) {
-					if((image->format & PNG_FORMAT_FLAG_COLORMAP) == 0 || (image->colormap_entries > 0 && colormap != NULL)) {
+					if((image->format & PNG_FORMAT_FLAG_COLORMAP) == 0 || (image->colormap_entries > 0 && colormap)) {
 						int result;
 						png_image_read_control display;
 						memzero(&display, (sizeof display));

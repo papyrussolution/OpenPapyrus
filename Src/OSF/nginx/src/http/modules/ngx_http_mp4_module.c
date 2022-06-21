@@ -351,7 +351,7 @@ static ngx_int_t ngx_http_mp4_handler(ngx_http_request_t * r)
 		return rc;
 	}
 	last = ngx_http_map_uri_to_path(r, &path, &root, 0);
-	if(last == NULL) {
+	if(!last) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	log = r->connection->log;

@@ -9,11 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "checkautovariables.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
 
 class TestAutoVariables : public TestFixture {
 public:
@@ -725,7 +720,7 @@ private:
 
 		// #6506
 		check("struct F {\n"
-		    "  void free(void*) {}\n"
+		    "  void free(void *) {}\n"
 		    "};\n"
 		    "void foo() {\n"
 		    "  char c1[1];\n"

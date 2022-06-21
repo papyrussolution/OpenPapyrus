@@ -827,7 +827,7 @@ static int lua_number2strx(lua_State * L, char * buff, int sz, const char * fmt,
 	return n;
 }
 
-#endif                          /* } */
+#endif /* } */
 
 /*
 ** Maximum size of each formatted item. This maximum size is produced

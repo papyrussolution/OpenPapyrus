@@ -1,20 +1,13 @@
+// ucnv_u16.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2002-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  ucnv_u16.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2002jul01
- *   created by: Markus W. Scherer
- *
- *   UTF-16 converter implementation. Used to be in ucnv_utf.c.
- */
+// Copyright (C) 2002-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002jul01
+// created by: Markus W. Scherer
+// 
+// UTF-16 converter implementation. Used to be in ucnv_utf.c.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -34,15 +27,14 @@ U_CDECL_BEGIN
  * The UTF-16 toUnicode implementation is also used for the Java-specific
  * "with BOM" variants of UTF-16BE and UTF-16LE.
  */
-static void U_CALLCONV _UTF16ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode);
+static void U_CALLCONV _UTF16ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode);
 
 /* UTF-16BE ----------------------------------------------------------------- */
 
 #if U_IS_BIG_ENDIAN
-#define _UTF16PEFromUnicodeWithOffsets   _UTF16BEFromUnicodeWithOffsets
+	#define _UTF16PEFromUnicodeWithOffsets   _UTF16BEFromUnicodeWithOffsets
 #else
-#define _UTF16PEFromUnicodeWithOffsets   _UTF16LEFromUnicodeWithOffsets
+	#define _UTF16PEFromUnicodeWithOffsets   _UTF16LEFromUnicodeWithOffsets
 #endif
 
 static void U_CALLCONV _UTF16BEFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
@@ -106,7 +98,7 @@ static void U_CALLCONV _UTF16BEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 		count >>= 1;
 		length -= count;
 
-		if(offsets==NULL) {
+		if(!offsets) {
 			while(count>0) {
 				c = *source++;
 				if(U16_IS_SINGLE(c)) {
@@ -370,16 +362,14 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 		length -= count;
 		count >>= 1;
 		targetCapacity -= count;
-		if(offsets==NULL) {
+		if(!offsets) {
 			do {
 				c = ((UChar)source[0]<<8)|source[1];
 				source += 2;
 				if(U16_IS_SINGLE(c)) {
 					*target++ = c;
 				}
-				else if(U16_IS_SURROGATE_LEAD(c) && count>=2 &&
-				    U16_IS_TRAIL(trail = ((UChar)source[0]<<8)|source[1])
-				    ) {
+				else if(U16_IS_SURROGATE_LEAD(c) && count>=2 && U16_IS_TRAIL(trail = ((UChar)source[0]<<8)|source[1])) {
 					source += 2;
 					--count;
 					*target++ = c;
@@ -399,9 +389,7 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 					*offsets++ = sourceIndex;
 					sourceIndex += 2;
 				}
-				else if(U16_IS_SURROGATE_LEAD(c) && count>=2 &&
-				    U16_IS_TRAIL(trail = ((UChar)source[0]<<8)|source[1])
-				    ) {
+				else if(U16_IS_SURROGATE_LEAD(c) && count>=2 && U16_IS_TRAIL(trail = ((UChar)source[0]<<8)|source[1])) {
 					source += 2;
 					--count;
 					*target++ = c;
@@ -415,7 +403,6 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 				}
 			} while(--count>0);
 		}
-
 		if(count==0) {
 			/* done with the loop for complete UChars */
 			c = 0;
@@ -711,7 +698,7 @@ static void U_CALLCONV _UTF16LEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 		count >>= 1;
 		length -= count;
 
-		if(offsets==NULL) {
+		if(!offsets) {
 			while(count>0) {
 				c = *source++;
 				if(U16_IS_SINGLE(c)) {
@@ -978,7 +965,7 @@ static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 		length -= count;
 		count >>= 1;
 		targetCapacity -= count;
-		if(offsets==NULL) {
+		if(!offsets) {
 			do {
 				c = ((UChar)source[1]<<8)|source[0];
 				source += 2;

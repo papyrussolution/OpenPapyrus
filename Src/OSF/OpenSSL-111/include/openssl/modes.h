@@ -198,7 +198,7 @@ int CRYPTO_ocb128_finish(OCB128_CONTEXT *ctx, const uchar *tag,
                          size_t len);
 int CRYPTO_ocb128_tag(OCB128_CONTEXT *ctx, uchar *tag, size_t len);
 void CRYPTO_ocb128_cleanup(OCB128_CONTEXT *ctx);
-#endif                          /* OPENSSL_NO_OCB */
+#endif /* OPENSSL_NO_OCB */
 
 #ifdef  __cplusplus
 }

@@ -64,36 +64,25 @@ void SSL3_RECORD_set_seq_num(SSL3_RECORD * r, const uchar * seq_num)
  */
 static int ssl3_record_app_data_waiting(SSL * s)
 {
-	SSL3_BUFFER * rbuf;
 	size_t left, len;
-	uchar * p;
-
-	rbuf = RECORD_LAYER_get_rbuf(&s->rlayer);
-
-	p = SSL3_BUFFER_get_buf(rbuf);
+	SSL3_BUFFER * rbuf = RECORD_LAYER_get_rbuf(&s->rlayer);
+	uchar * p = SSL3_BUFFER_get_buf(rbuf);
 	if(!p)
 		return 0;
-
 	left = SSL3_BUFFER_get_left(rbuf);
-
 	if(left < SSL3_RT_HEADER_LENGTH)
 		return 0;
-
 	p += SSL3_BUFFER_get_offset(rbuf);
-
 	/*
 	 * We only check the type and record length, we will sanity check version
 	 * etc later
 	 */
 	if(*p != SSL3_RT_APPLICATION_DATA)
 		return 0;
-
 	p += 3;
 	n2s(p, len);
-
 	if(left < SSL3_RT_HEADER_LENGTH + len)
 		return 0;
-
 	return 1;
 }
 
@@ -101,49 +90,37 @@ int early_data_count_ok(SSL * s, size_t length, size_t overhead, int send)
 {
 	uint32_t max_early_data;
 	SSL_SESSION * sess = s->session;
-
 	/*
 	 * If we are a client then we always use the max_early_data from the
 	 * session/psksession. Otherwise we go with the lowest out of the max early
 	 * data set in the session and the configured max_early_data.
 	 */
 	if(!s->server && sess->ext.max_early_data == 0) {
-		if(!ossl_assert(s->psksession != NULL
-		 && s->psksession->ext.max_early_data > 0)) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_EARLY_DATA_COUNT_OK,
-			    ERR_R_INTERNAL_ERROR);
+		if(!ossl_assert(s->psksession != NULL && s->psksession->ext.max_early_data > 0)) {
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_EARLY_DATA_COUNT_OK, ERR_R_INTERNAL_ERROR);
 			return 0;
 		}
 		sess = s->psksession;
 	}
-
 	if(!s->server)
 		max_early_data = sess->ext.max_early_data;
 	else if(s->ext.early_data != SSL_EARLY_DATA_ACCEPTED)
 		max_early_data = s->recv_max_early_data;
 	else
-		max_early_data = s->recv_max_early_data < sess->ext.max_early_data
-		    ? s->recv_max_early_data : sess->ext.max_early_data;
-
+		max_early_data = s->recv_max_early_data < sess->ext.max_early_data ? s->recv_max_early_data : sess->ext.max_early_data;
 	if(max_early_data == 0) {
-		SSLfatal(s, send ? SSL_AD_INTERNAL_ERROR : SSL_AD_UNEXPECTED_MESSAGE,
-		    SSL_F_EARLY_DATA_COUNT_OK, SSL_R_TOO_MUCH_EARLY_DATA);
+		SSLfatal(s, send ? SSL_AD_INTERNAL_ERROR : SSL_AD_UNEXPECTED_MESSAGE, SSL_F_EARLY_DATA_COUNT_OK, SSL_R_TOO_MUCH_EARLY_DATA);
 		return 0;
 	}
-
 	/* If we are dealing with ciphertext we need to allow for the overhead */
 	max_early_data += overhead;
-
 	if(s->early_data_count + length > max_early_data) {
-		SSLfatal(s, send ? SSL_AD_INTERNAL_ERROR : SSL_AD_UNEXPECTED_MESSAGE,
-		    SSL_F_EARLY_DATA_COUNT_OK, SSL_R_TOO_MUCH_EARLY_DATA);
+		SSLfatal(s, send ? SSL_AD_INTERNAL_ERROR : SSL_AD_UNEXPECTED_MESSAGE, SSL_F_EARLY_DATA_COUNT_OK, SSL_R_TOO_MUCH_EARLY_DATA);
 		return 0;
 	}
 	s->early_data_count += length;
-
 	return 1;
 }
-
 /*
  * MAX_EMPTY_RECORDS defines the number of consecutive, empty records that
  * will be processed per call to ssl3_get_record. Without this limit an
@@ -320,59 +297,41 @@ int ssl3_get_record(SSL * s)
 							    SSL_R_HTTPS_PROXY_REQUEST);
 							return -1;
 						}
-
 						/* Doesn't look like TLS - don't send an alert */
-						SSLfatal(s, SSL_AD_NO_ALERT, SSL_F_SSL3_GET_RECORD,
-						    SSL_R_WRONG_VERSION_NUMBER);
+						SSLfatal(s, SSL_AD_NO_ALERT, SSL_F_SSL3_GET_RECORD, SSL_R_WRONG_VERSION_NUMBER);
 						return -1;
 					}
 					else {
-						SSLfatal(s, SSL_AD_PROTOCOL_VERSION,
-						    SSL_F_SSL3_GET_RECORD,
-						    SSL_R_WRONG_VERSION_NUMBER);
+						SSLfatal(s, SSL_AD_PROTOCOL_VERSION, SSL_F_SSL3_GET_RECORD, SSL_R_WRONG_VERSION_NUMBER);
 						return -1;
 					}
 				}
-
-				if(SSL_IS_TLS13(s) && s->enc_read_ctx != NULL) {
-					if(thisrr->type != SSL3_RT_APPLICATION_DATA
-					 && (thisrr->type != SSL3_RT_CHANGE_CIPHER_SPEC
-					   || !SSL_IS_FIRST_HANDSHAKE(s))
-					 && (thisrr->type != SSL3_RT_ALERT
-					   || s->statem.enc_read_state
-					    != ENC_READ_STATE_ALLOW_PLAIN_ALERTS)) {
-						SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE,
-						    SSL_F_SSL3_GET_RECORD, SSL_R_BAD_RECORD_TYPE);
+				if(SSL_IS_TLS13(s) && s->enc_read_ctx) {
+					if(thisrr->type != SSL3_RT_APPLICATION_DATA && (thisrr->type != SSL3_RT_CHANGE_CIPHER_SPEC || !SSL_IS_FIRST_HANDSHAKE(s)) && 
+						(thisrr->type != SSL3_RT_ALERT || s->statem.enc_read_state != ENC_READ_STATE_ALLOW_PLAIN_ALERTS)) {
+						SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD, SSL_R_BAD_RECORD_TYPE);
 						return -1;
 					}
 					if(thisrr->rec_version != TLS1_2_VERSION) {
-						SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL3_GET_RECORD,
-						    SSL_R_WRONG_VERSION_NUMBER);
+						SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL3_GET_RECORD, SSL_R_WRONG_VERSION_NUMBER);
 						return -1;
 					}
 				}
-
-				if(thisrr->length >
-				    SSL3_BUFFER_get_len(rbuf) - SSL3_RT_HEADER_LENGTH) {
-					SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD,
-					    SSL_R_PACKET_LENGTH_TOO_LONG);
+				if(thisrr->length > SSL3_BUFFER_get_len(rbuf) - SSL3_RT_HEADER_LENGTH) {
+					SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD, SSL_R_PACKET_LENGTH_TOO_LONG);
 					return -1;
 				}
 			}
-
 			/* now s->rlayer.rstate == SSL_ST_READ_BODY */
 		}
-
 		if(SSL_IS_TLS13(s)) {
 			if(thisrr->length > SSL3_RT_MAX_TLS13_ENCRYPTED_LENGTH) {
-				SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD,
-				    SSL_R_ENCRYPTED_LENGTH_TOO_LONG);
+				SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD, SSL_R_ENCRYPTED_LENGTH_TOO_LONG);
 				return -1;
 			}
 		}
 		else {
 			size_t len = SSL3_RT_MAX_ENCRYPTED_LENGTH;
-
 #ifndef OPENSSL_NO_COMP
 			/*
 			 * If OPENSSL_NO_COMP is defined then SSL3_RT_MAX_ENCRYPTED_LENGTH
@@ -452,7 +411,7 @@ int ssl3_get_record(SSL * s)
 		RECORD_LAYER_reset_packet_length(&s->rlayer);
 		RECORD_LAYER_clear_first_record(&s->rlayer);
 	} while(num_recs < max_recs && thisrr->type == SSL3_RT_APPLICATION_DATA && SSL_USE_EXPLICIT_IV(s)
-	 && s->enc_read_ctx != NULL && (EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_read_ctx)) & EVP_CIPH_FLAG_PIPELINE)
+	 && s->enc_read_ctx && (EVP_CIPHER_flags(EVP_CIPHER_CTX_cipher(s->enc_read_ctx)) & EVP_CIPH_FLAG_PIPELINE)
 	 && ssl3_record_app_data_waiting(s));
 	if(num_recs == 1 && thisrr->type == SSL3_RT_CHANGE_CIPHER_SPEC && (SSL_IS_TLS13(s) || s->hello_retry_request != ssl_st::SSL_HRR_NONE) && SSL_IS_FIRST_HANDSHAKE(s)) {
 		/*
@@ -547,7 +506,7 @@ int ssl3_get_record(SSL * s)
 	printf("\n");
 #endif
 	/* r->length is now the compressed data plus mac */
-	if((sess != NULL) && (s->enc_read_ctx != NULL) && (!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash) != NULL)) {
+	if(sess && s->enc_read_ctx && (!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash))) {
 		/* s->read_hash != NULL => mac_size != -1 */
 		uchar * mac = NULL;
 		uchar mac_tmp[EVP_MAX_MD_SIZE];
@@ -634,16 +593,13 @@ int ssl3_get_record(SSL * s)
 		 * not reveal which kind of error occurred -- this might become
 		 * visible to an attacker (e.g. via a logfile)
 		 */
-		SSLfatal(s, SSL_AD_BAD_RECORD_MAC, SSL_F_SSL3_GET_RECORD,
-		    SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
+		SSLfatal(s, SSL_AD_BAD_RECORD_MAC, SSL_F_SSL3_GET_RECORD, SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
 		return -1;
 	}
-
 	for(j = 0; j < num_recs; j++) {
 		thisrr = &rr[j];
-
 		/* thisrr->length is now just compressed */
-		if(s->expand != NULL) {
+		if(s->expand) {
 			if(thisrr->length > SSL3_RT_MAX_COMPRESSED_LENGTH) {
 				SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD, SSL_R_COMPRESSED_LENGTH_TOO_LONG);
 				return -1;
@@ -653,7 +609,7 @@ int ssl3_get_record(SSL * s)
 				return -1;
 			}
 		}
-		if(SSL_IS_TLS13(s) && s->enc_read_ctx != NULL && thisrr->type != SSL3_RT_ALERT) {
+		if(SSL_IS_TLS13(s) && s->enc_read_ctx && thisrr->type != SSL3_RT_ALERT) {
 			size_t end;
 			if(thisrr->length == 0 || thisrr->type != SSL3_RT_APPLICATION_DATA) {
 				SSLfatal(s, SSL_AD_UNEXPECTED_MESSAGE, SSL_F_SSL3_GET_RECORD, SSL_R_BAD_RECORD_TYPE);
@@ -683,11 +639,10 @@ int ssl3_get_record(SSL * s)
 			return -1;
 		}
 		/* If received packet overflows current Max Fragment Length setting */
-		if(s->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(s->session) && thisrr->length > GET_MAX_FRAGMENT_LENGTH(s->session)) {
+		if(s->session && USE_MAX_FRAGMENT_LENGTH_EXT(s->session) && thisrr->length > GET_MAX_FRAGMENT_LENGTH(s->session)) {
 			SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_SSL3_GET_RECORD, SSL_R_DATA_LENGTH_TOO_LONG);
 			return -1;
 		}
-
 		thisrr->off = 0;
 		/*-
 		 * So at this point the following is true
@@ -833,23 +788,19 @@ int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, size_t n_recs, int sending)
 			rec->length += i;
 			rec->input[l - 1] = (uchar)(i - 1);
 		}
-
 		if(!sending) {
 			if(l == 0 || l % bs != 0)
 				return 0;
 			/* otherwise, rec->length >= bs */
 		}
-
 		/* TODO(size_t): Convert this call */
 		if(EVP_Cipher(ds, rec->data, rec->input, (uint)l) < 1)
 			return -1;
-
-		if(EVP_MD_CTX_md(s->read_hash) != NULL) {
+		if(EVP_MD_CTX_md(s->read_hash)) {
 			/* TODO(size_t): convert me */
 			imac_size = EVP_MD_CTX_size(s->read_hash);
 			if(imac_size < 0) {
-				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_ENC,
-				    ERR_R_INTERNAL_ERROR);
+				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_ENC, ERR_R_INTERNAL_ERROR);
 				return -1;
 			}
 			mac_size = (size_t)imac_size;
@@ -1087,9 +1038,8 @@ int tls1_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 				}
 			}
 		}
-
 		ret = 1;
-		if(!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash) != NULL) {
+		if(!SSL_READ_ETM(s) && EVP_MD_CTX_md(s->read_hash)) {
 			imac_size = EVP_MD_CTX_size(s->read_hash);
 			if(imac_size < 0) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_ENC,
@@ -1640,14 +1590,11 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 	}
 	printf("\n");
 #endif
-
 	/* r->length is now the compressed data plus mac */
-	if((sess != NULL) && !SSL_READ_ETM(s) &&
-	    (s->enc_read_ctx != NULL) && (EVP_MD_CTX_md(s->read_hash) != NULL)) {
+	if(sess && !SSL_READ_ETM(s) && s->enc_read_ctx && EVP_MD_CTX_md(s->read_hash)) {
 		/* s->read_hash != NULL => mac_size != -1 */
 		uchar * mac = NULL;
 		uchar mac_tmp[EVP_MAX_MD_SIZE];
-
 		/* TODO(size_t): Convert this to do size_t properly */
 		imac_size = EVP_MD_CTX_size(s->read_hash);
 		if(imac_size < 0) {
@@ -1713,9 +1660,8 @@ int dtls1_process_record(SSL * s, DTLS1_BITMAP * bitmap)
 		RECORD_LAYER_reset_packet_length(&s->rlayer);
 		return 0;
 	}
-
 	/* r->length is now just compressed */
-	if(s->expand != NULL) {
+	if(s->expand) {
 		if(rr->length > SSL3_RT_MAX_COMPRESSED_LENGTH) {
 			SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_DTLS1_PROCESS_RECORD, SSL_R_COMPRESSED_LENGTH_TOO_LONG);
 			return 0;
@@ -1866,22 +1812,17 @@ again:
 		}
 
 		/* If received packet overflows own-client Max Fragment Length setting */
-		if(s->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(s->session)
-		 && rr->length > GET_MAX_FRAGMENT_LENGTH(s->session)) {
+		if(s->session && USE_MAX_FRAGMENT_LENGTH_EXT(s->session) && rr->length > GET_MAX_FRAGMENT_LENGTH(s->session)) {
 			/* record too long, silently discard it */
 			rr->length = 0;
 			rr->read = 1;
 			RECORD_LAYER_reset_packet_length(&s->rlayer);
 			goto again;
 		}
-
 		/* now s->rlayer.rstate == SSL_ST_READ_BODY */
 	}
-
 	/* s->rlayer.rstate == SSL_ST_READ_BODY, get and decode the data */
-
-	if(rr->length >
-	    RECORD_LAYER_get_packet_length(&s->rlayer) - DTLS1_RT_HEADER_LENGTH) {
+	if(rr->length > RECORD_LAYER_get_packet_length(&s->rlayer) - DTLS1_RT_HEADER_LENGTH) {
 		/* now s->packet_length == DTLS1_RT_HEADER_LENGTH */
 		more = rr->length;
 		rret = ssl3_read_n(s, more, more, 1, 1, &n);

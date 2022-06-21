@@ -972,8 +972,7 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 						    if(cc >= CHAR_a) cc -= 32; /* Convert to upper case */
 						    c = (c << 4) + cc - ((cc < CHAR_A) ? CHAR_0 : (CHAR_A - 10));
 #else           /* EBCDIC coding */
-						    if(cc >= CHAR_a && cc <= CHAR_z) cc += 64; /* Convert to upper case
-						                                                  */
+						    if(cc >= CHAR_a && cc <= CHAR_z) cc += 64; /* Convert to upper case */
 						    c = (c << 4) + cc - ((cc >= CHAR_0) ? CHAR_0 : (CHAR_A - 10));
 #endif
 					    }
@@ -2937,9 +2936,7 @@ static BOOL compare_opcodes(const pcre_uchar * code, BOOL utf, const compile_dat
                                            1   Character groups are distinct (possessify if both are OP_PROP)
                                            2   Check character categories in the same group (general or particular)
                                            3   Return TRUE if the two opcodes are not the same
-                                           ... see comments below
-                                         */
-
+                                           ... see comments below */
 					n = propposstab[base_list[2]][list[2]];
 					switch(n) {
 						case 0: break;

@@ -1538,7 +1538,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 			    "y",
 			    GCRYMPI_FMT_USG,
 			    GCRYMPI_FMT_STD);
-		    if(n == NULL) {
+		    if(!n) {
 			    goto fail;
 		    }
 
@@ -1582,7 +1582,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 			    "n",
 			    GCRYMPI_FMT_USG,
 			    GCRYMPI_FMT_STD);
-		    if(n == NULL) {
+		    if(!n) {
 			    goto fail;
 		    }
 

@@ -852,33 +852,25 @@ static void initial_reordering_syllable_indic(const hb_ot_shape_plan_t * plan,
     uint start, uint end)
 {
 	indic_syllable_type_t syllable_type = (indic_syllable_type_t)(buffer->info[start].syllable() & 0x0F);
-	switch(syllable_type)
-	{
-		case indic_vowel_syllable: /* We made the vowels look like consonants.  So let's call the consonant
-		                              logic! */
+	switch(syllable_type) {
+		case indic_vowel_syllable: /* We made the vowels look like consonants.  So let's call the consonant logic! */
 		case indic_consonant_syllable:
 		    initial_reordering_consonant_syllable(plan, face, buffer, start, end);
 		    break;
-
-		case indic_broken_cluster: /* We already inserted dotted-circles, so just call the standalone_cluster.
-		                              */
+		case indic_broken_cluster: /* We already inserted dotted-circles, so just call the standalone_cluster. */
 		case indic_standalone_cluster:
 		    initial_reordering_standalone_cluster(plan, face, buffer, start, end);
 		    break;
-
 		case indic_symbol_cluster:
 		case indic_non_indic_cluster:
 		    break;
 	}
 }
 
-static inline void insert_dotted_circles_indic(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
-    hb_font_t * font,
-    hb_buffer_t * buffer)
+static inline void insert_dotted_circles_indic(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM, hb_font_t * font, hb_buffer_t * buffer)
 {
 	if(UNLIKELY(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
 		return;
-
 	/* Note: This loop is extra overhead, but should not be measurable.
 	 * TODO Use a buffer scratch flag to remove the loop. */
 	bool has_broken_syllables = false;

@@ -65,11 +65,11 @@ static int match_hashed_hostname(const char * host, const char * hashed_host)
 	b64_hash++;
 
 	salt = base64_to_bin(hashed);
-	if(salt == NULL) {
+	if(!salt) {
 		goto error;
 	}
 	hash = base64_to_bin(b64_hash);
-	if(hash == NULL) {
+	if(!hash) {
 		goto error;
 	}
 	rc = hash_hostname(host, (uchar *)ssh_buffer_get(salt), ssh_buffer_get_len(salt), &hashed_buf_ptr, &hashed_buf_size);

@@ -9,22 +9,15 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "astutils.h"
-#include "library.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
 
 class TestAstUtils : public TestFixture {
 public:
-	TestAstUtils() : TestFixture("TestAstUtils") {
+	TestAstUtils() : TestFixture("TestAstUtils") 
+	{
 	}
-
 private:
-
-	void run() override {
+	void run() override 
+	{
 		TEST_CASE(findLambdaEndTokenTest);
 		TEST_CASE(findLambdaStartTokenTest);
 		TEST_CASE(isNullOperandTest);
@@ -113,16 +106,16 @@ private:
 	}
 
 	void isNullOperandTest() {
-		ASSERT_EQUALS(true, isNullOperand("(void*)0;"));
-		ASSERT_EQUALS(true, isNullOperand("(void*)0U;"));
-		ASSERT_EQUALS(true, isNullOperand("(void*)0x0LL;"));
+		ASSERT_EQUALS(true, isNullOperand("(void *)0;"));
+		ASSERT_EQUALS(true, isNullOperand("(void *)0U;"));
+		ASSERT_EQUALS(true, isNullOperand("(void *)0x0LL;"));
 		ASSERT_EQUALS(true, isNullOperand("NULL;"));
 		ASSERT_EQUALS(true, isNullOperand("nullptr;"));
-		ASSERT_EQUALS(true, isNullOperand("(void*)NULL;"));
+		ASSERT_EQUALS(true, isNullOperand("(void *)NULL;"));
 		ASSERT_EQUALS(true, isNullOperand("static_cast<int*>(0);"));
 		ASSERT_EQUALS(false, isNullOperand("0;"));
-		ASSERT_EQUALS(false, isNullOperand("(void*)0.0;"));
-		ASSERT_EQUALS(false, isNullOperand("(void*)1;"));
+		ASSERT_EQUALS(false, isNullOperand("(void *)0.0;"));
+		ASSERT_EQUALS(false, isNullOperand("(void *)1;"));
 	}
 
 #define isReturnScope(code, offset) isReturnScope_(code, offset, __FILE__, __LINE__)

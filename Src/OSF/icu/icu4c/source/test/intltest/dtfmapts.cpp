@@ -95,7 +95,7 @@ void IntlTestDateFormatAPI::TestEquals(void)
 	while(Calendar::getNow() == start); // Wait for time to change
 	DateFormat * b = DateFormat::createInstance();
 
-	if(a == NULL || b == NULL) {
+	if(!a || !b) {
 		dataerrln("Error calling DateFormat::createInstance()");
 		delete a;
 		delete b;

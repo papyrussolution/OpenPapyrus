@@ -9,8 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "mathlib.h"
-#include "testsuite.h"
 
 struct InternalError;
 

@@ -69,7 +69,7 @@ static struct ssh_tokens_st * ssh_get_knownhost_line(FILE ** file, const char * 
 			continue; /* skip empty lines */
 		}
 		tokens = ssh_tokenize(buffer, ' ');
-		if(tokens == NULL) {
+		if(!tokens) {
 			fclose(*file);
 			*file = NULL;
 			return NULL;
@@ -176,18 +176,18 @@ static int match_hashed_host(const char * host, const char * sourcehash)
 	*b64hash = '\0';
 	b64hash++;
 	salt = base64_to_bin(source);
-	if(salt == NULL) {
+	if(!salt) {
 		ZFREE(source);
 		return 0;
 	}
 	hash = base64_to_bin(b64hash);
 	ZFREE(source);
-	if(hash == NULL) {
+	if(!hash) {
 		ssh_buffer_free(salt);
 		return 0;
 	}
 	mac = hmac_init(ssh_buffer_get(salt), ssh_buffer_get_len(salt), SSH_HMAC_SHA1);
-	if(mac == NULL) {
+	if(!mac) {
 		ssh_buffer_free(salt);
 		ssh_buffer_free(hash);
 		return 0;
@@ -230,60 +230,42 @@ int ssh_is_server_known(ssh_session session)
 	int match;
 	int i = 0;
 	char * files[3];
-
 	struct ssh_tokens_st * tokens;
-
 	int ret = SSH_SERVER_NOT_KNOWN;
-
 	if(session->opts.knownhosts == NULL) {
 		if(ssh_options_apply(session) < 0) {
-			ssh_set_error(session, SSH_REQUEST_DENIED,
-			    "Can't find a known_hosts file");
-
+			ssh_set_error(session, SSH_REQUEST_DENIED, "Can't find a known_hosts file");
 			return SSH_SERVER_FILE_NOT_FOUND;
 		}
 	}
-
 	if(session->opts.host == NULL) {
-		ssh_set_error(session, SSH_FATAL,
-		    "Can't verify host in known hosts if the hostname isn't known");
-
+		ssh_set_error(session, SSH_FATAL, "Can't verify host in known hosts if the hostname isn't known");
 		return SSH_SERVER_ERROR;
 	}
-
 	if(session->current_crypto == NULL) {
-		ssh_set_error(session, SSH_FATAL,
-		    "ssh_is_host_known called without cryptographic context");
-
+		ssh_set_error(session, SSH_FATAL, "ssh_is_host_known called without cryptographic context");
 		return SSH_SERVER_ERROR;
 	}
-
 	host = ssh_lowercase(session->opts.host);
 	hostport = ssh_hostport(host, session->opts.port > 0 ? session->opts.port : 22);
 	if(host == NULL || hostport == NULL) {
 		ssh_set_error_oom(session);
 		ZFREE(host);
 		ZFREE(hostport);
-
 		return SSH_SERVER_ERROR;
 	}
-
 	/* Set the list of known hosts files */
 	i = 0;
-	if(session->opts.global_knownhosts != NULL) {
+	if(session->opts.global_knownhosts) {
 		files[i++] = session->opts.global_knownhosts;
 	}
 	files[i++] = session->opts.knownhosts;
 	files[i] = NULL;
 	i = 0;
-
 	do {
-		tokens = ssh_get_knownhost_line(&file,
-			files[i],
-			&type);
-
+		tokens = ssh_get_knownhost_line(&file, files[i], &type);
 		/* End of file, return the current state or use next file */
-		if(tokens == NULL) {
+		if(!tokens) {
 			++i;
 			if(files[i] == NULL)
 				break;

@@ -606,7 +606,7 @@ CURLcode Curl_http_auth_act(struct connectdata * conn)
 		/* In case this is GSS auth, the newurl field is already allocated so
 		   we must make sure to free it before allocating a new one. As figured
 		   out in bug #2284386 */
-		Curl_safefree(data->req.newurl);
+		ZFREE(data->req.newurl);
 		data->req.newurl = sstrdup(data->change.url); /* clone URL */
 		if(!data->req.newurl)
 			return CURLE_OUT_OF_MEMORY;
@@ -2045,7 +2045,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 	else
 		conn->bits.authneg = FALSE;
 
-	Curl_safefree(data->state.aptr.ref);
+	ZFREE(data->state.aptr.ref);
 	if(data->change.referer && !Curl_checkheaders(conn, "Referer")) {
 		data->state.aptr.ref = aprintf("Referer: %s\r\n", data->change.referer);
 		if(!data->state.aptr.ref)
@@ -2061,14 +2061,14 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 
 	if(!Curl_checkheaders(conn, "Accept-Encoding") &&
 	    data->set.str[STRING_ENCODING]) {
-		Curl_safefree(data->state.aptr.accept_encoding);
+		ZFREE(data->state.aptr.accept_encoding);
 		data->state.aptr.accept_encoding =
 		    aprintf("Accept-Encoding: %s\r\n", data->set.str[STRING_ENCODING]);
 		if(!data->state.aptr.accept_encoding)
 			return CURLE_OUT_OF_MEMORY;
 	}
 	else {
-		Curl_safefree(data->state.aptr.accept_encoding);
+		ZFREE(data->state.aptr.accept_encoding);
 		data->state.aptr.accept_encoding = NULL;
 	}
 
@@ -2085,7 +2085,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 		char * cptr = Curl_checkheaders(conn, "Connection");
 #define TE_HEADER "TE: gzip\r\n"
 
-		Curl_safefree(data->state.aptr.te);
+		ZFREE(data->state.aptr.te);
 
 		if(cptr) {
 			cptr = Curl_copy_header_value(cptr);
@@ -2181,7 +2181,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 			te = "Transfer-Encoding: chunked\r\n";
 	}
 
-	Curl_safefree(data->state.aptr.host);
+	ZFREE(data->state.aptr.host);
 
 	ptr = Curl_checkheaders(conn, "Host");
 	if(ptr && (!data->state.this_is_a_follow ||
@@ -2216,7 +2216,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 				if(colon)
 					*colon = 0; /* The host must not include an embedded port number */
 			}
-			Curl_safefree(data->state.aptr.cookiehost);
+			ZFREE(data->state.aptr.cookiehost);
 			data->state.aptr.cookiehost = cookiehost;
 		}
 #endif
@@ -2483,7 +2483,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 	if(conn->bits.httpproxy && !conn->bits.tunnel_proxy) {
 		char * url = data->set.str[STRING_TEMP_URL];
 		result = Curl_dyn_add(&req, url);
-		Curl_safefree(data->set.str[STRING_TEMP_URL]);
+		ZFREE(data->set.str[STRING_TEMP_URL]);
 	}
 	else
 #endif
@@ -2561,8 +2561,8 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 
 	/* clear userpwd and proxyuserpwd to avoid re-using old credentials
 	 * from re-used connections */
-	Curl_safefree(data->state.aptr.userpwd);
-	Curl_safefree(data->state.aptr.proxyuserpwd);
+	ZFREE(data->state.aptr.userpwd);
+	ZFREE(data->state.aptr.proxyuserpwd);
 	SAlloc::F(altused);
 
 	if(result)
@@ -3725,7 +3725,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata
 				/* ignore empty data */
 				SAlloc::F(contenttype);
 			else {
-				Curl_safefree(data->info.contenttype);
+				ZFREE(data->info.contenttype);
 				data->info.contenttype = contenttype;
 			}
 		}

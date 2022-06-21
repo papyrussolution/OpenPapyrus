@@ -9,12 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "checksizeof.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
-#include <simplecpp.h>
 
 class TestSizeof : public TestFixture {
 public:

@@ -32,24 +32,18 @@ enum {
     UPROPS_PROPS32_INDEX,
     UPROPS_EXCEPTIONS_INDEX,
     UPROPS_EXCEPTIONS_TOP_INDEX,
-
     UPROPS_ADDITIONAL_TRIE_INDEX,
     UPROPS_ADDITIONAL_VECTORS_INDEX,
     UPROPS_ADDITIONAL_VECTORS_COLUMNS_INDEX,
-
     UPROPS_SCRIPT_EXTENSIONS_INDEX,
-
     UPROPS_RESERVED_INDEX_7,
     UPROPS_RESERVED_INDEX_8,
-
     /* size of the data file (number of 32-bit units after the header) */
     UPROPS_DATA_TOP_INDEX,
-
     /* maximum values for code values in vector word 0 */
     UPROPS_MAX_VALUES_INDEX=10,
     /* maximum values for code values in vector word 2 */
     UPROPS_MAX_VALUES_2_INDEX,
-
     UPROPS_INDEX_COUNT=16
 };
 

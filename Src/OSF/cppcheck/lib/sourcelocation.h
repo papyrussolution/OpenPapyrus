@@ -46,25 +46,15 @@ using SourceLocation = std::source_location;
 using SourceLocation = std::experimental::source_location;
 #else
 struct SourceLocation {
-    static SourceLocation current() {
-        return SourceLocation();
-    }
+    static SourceLocation current() { return SourceLocation(); }
     std::uint_least32_t m_line = 0;
     std::uint_least32_t m_column = 0;
     const char* m_file_name = "";
     const char* m_function_name = "";
-    std::uint_least32_t line() const {
-        return m_line;
-    }
-    std::uint_least32_t column() const {
-        return m_column;
-    }
-    const char* file_name() const {
-        return m_file_name;
-    }
-    const char* function_name() const {
-        return m_function_name;
-    }
+    std::uint_least32_t line() const { return m_line; }
+    std::uint_least32_t column() const { return m_column; }
+    const char* file_name() const { return m_file_name; }
+    const char* function_name() const { return m_function_name; }
 };
 #endif
 

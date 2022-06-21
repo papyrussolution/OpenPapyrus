@@ -9,10 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkexceptionsafety.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
 
 // Register CheckExceptionSafety..
 namespace {
@@ -135,24 +131,20 @@ void CheckExceptionSafety::deallocThrowError(const Token * const tok, const std:
 	reportError(tok, Severity::warning, "exceptDeallocThrow", "Exception thrown in invalid state, '" +
 	    varname + "' points at deallocated memory.", CWE398, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 //      catch(const exception & err)
 //      {
 //         throw err;            // <- should be just "throw;"
 //      }
-//---------------------------------------------------------------------------
+//
 void CheckExceptionSafety::checkRethrowCopy()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
-
 	for(const Scope &scope : symbolDatabase->scopeList) {
 		if(scope.type != Scope::eCatch)
 			continue;
-
 		const unsigned int varid = scope.bodyStart->tokAt(-2)->varId();
 		if(varid) {
 			for(const Token* tok = scope.bodyStart->next(); tok && tok != scope.bodyEnd; tok = tok->next()) {
@@ -196,21 +188,17 @@ void CheckExceptionSafety::rethrowCopyError(const Token * const tok, const std::
 	    "Rethrowing an exception with 'throw " + varname + ";' creates an unnecessary copy of '" + varname + "'. "
 	    "To rethrow the caught exception without unnecessary copying or slicing, use a bare 'throw;'.", CWE398, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 //    try {} catch (std::exception err) {} <- Should be "std::exception& err"
-//---------------------------------------------------------------------------
+//
 void CheckExceptionSafety::checkCatchExceptionByValue()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
-
 	for(const Scope &scope : symbolDatabase->scopeList) {
 		if(scope.type != Scope::eCatch)
 			continue;
-
 		// Find a pass-by-value declaration in the catch(), excluding basic types
 		// e.g. catch (std::exception err)
 		const Variable * var = scope.bodyStart->tokAt(-2)->variable();
@@ -268,12 +256,11 @@ static const Token * functionThrows(const Function * function)
 
 	return functionThrowsRecursive(function, recursive);
 }
-
-//--------------------------------------------------------------------------
+//
 //    void func() noexcept { throw x; }
 //    void func() throw() { throw x; }
 //    void func() __attribute__((nothrow)); void func() { throw x; }
-//--------------------------------------------------------------------------
+//
 void CheckExceptionSafety::nothrowThrows()
 {
 	const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
@@ -316,17 +303,14 @@ void CheckExceptionSafety::noexceptThrowError(const Token * const tok)
 	    CWE398,
 	    Certainty::normal);
 }
-
-//--------------------------------------------------------------------------
+//
 //    void func() { functionWithExceptionSpecification(); }
-//--------------------------------------------------------------------------
+//
 void CheckExceptionSafety::unhandledExceptionSpecification()
 {
 	if(!mSettings->severity.isEnabled(Severity::style) || !mSettings->certainty.isEnabled(Certainty::inconclusive))
 		return;
-
 	const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
-
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		// only check functions without exception epecification
 		if(scope->function && !scope->function->isThrow() &&
@@ -351,8 +335,7 @@ void CheckExceptionSafety::unhandledExceptionSpecification()
 }
 
 void CheckExceptionSafety::unhandledExceptionSpecificationError(const Token * const tok1,
-    const Token * const tok2,
-    const std::string & funcname)
+    const Token * const tok2, const std::string & funcname)
 {
 	const std::string str1(tok1 ? tok1->str() : "foo");
 	const std::list<const Token*> locationList = { tok1, tok2 };
@@ -365,10 +348,9 @@ void CheckExceptionSafety::unhandledExceptionSpecificationError(const Token * co
 	    CWE703,
 	    Certainty::inconclusive);
 }
-
-//--------------------------------------------------------------------------
+//
 // 7.6.18.4 If no exception is presently being handled, evaluating a throw-expression with no operand calls std​::​​terminate().
-//--------------------------------------------------------------------------
+//
 void CheckExceptionSafety::rethrowNoCurrentException()
 {
 	const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();

@@ -111,10 +111,8 @@ ABSL_NAMESPACE_BEGIN
 namespace numbers_internal {
 // Digit conversion.
 ABSL_DLL extern const char kHexChar[17];  // 0123456789abcdef
-ABSL_DLL extern const char
-    kHexTable[513];  // 000102030405060708090a0b0c0d0e0f1011...
-ABSL_DLL extern const char
-    two_ASCII_digits[100][2];  // 00, 01, 02, 03...
+ABSL_DLL extern const char kHexTable[513];  // 000102030405060708090a0b0c0d0e0f1011...
+ABSL_DLL extern const char two_ASCII_digits[100][2];  // 00, 01, 02, 03...
 
 // Writes a two-character representation of 'i' to 'buf'. 'i' must be in the
 // range 0 <= i < 100, and buf must have space for two characters. Example:
@@ -122,7 +120,8 @@ ABSL_DLL extern const char
 //   PutTwoDigits(42, buf);
 //   // buf[0] == '4'
 //   // buf[1] == '2'
-inline void PutTwoDigits(size_t i, char* buf) {
+inline void PutTwoDigits(size_t i, char* buf) 
+{
 	assert(i < 100);
 	memcpy(buf, two_ASCII_digits[i], 2);
 }
@@ -186,9 +185,8 @@ template <typename int_type> char* FastIntToBuffer(int_type i, char* buffer)
 
 // Implementation of SimpleAtoi, generalized to support arbitrary base (used
 // with base different from 10 elsewhere in Abseil implementation).
-template <typename int_type>
-ABSL_MUST_USE_RESULT bool safe_strtoi_base(absl::string_view s, int_type* out,
-    int base) {
+template <typename int_type> ABSL_MUST_USE_RESULT bool safe_strtoi_base(absl::string_view s, int_type* out, int base) 
+{
 	static_assert(sizeof(*out) == 4 || sizeof(*out) == 8, "SimpleAtoi works only with 32-bit or 64-bit integers.");
 	static_assert(!std::is_floating_point<int_type>::value, "Use SimpleAtof or SimpleAtod instead.");
 	bool parsed;
@@ -231,7 +229,8 @@ ABSL_MUST_USE_RESULT bool safe_strtoi_base(absl::string_view s, int_type* out,
 // without the terminating null character. Thus `out` must be of length >= 16.
 // Returns the number of non-pad digits of the output (it can never be zero
 // since 0 has one digit).
-inline size_t FastHexToBufferZeroPad16(uint64_t val, char* out) {
+inline size_t FastHexToBufferZeroPad16(uint64_t val, char* out) 
+{
 #ifdef __SSE4_2__
 	uint64_t be = absl::big_endian::FromHost64(val);
 	const auto kNibbleMask = _mm_set1_epi8(0xf);
@@ -255,33 +254,33 @@ inline size_t FastHexToBufferZeroPad16(uint64_t val, char* out) {
 }
 }  // namespace numbers_internal
 
-template <typename int_type>
-ABSL_MUST_USE_RESULT bool SimpleAtoi(absl::string_view str, int_type* out) {
+template <typename int_type> ABSL_MUST_USE_RESULT bool SimpleAtoi(absl::string_view str, int_type* out) 
+{
 	return numbers_internal::safe_strtoi_base(str, out, 10);
 }
 
-ABSL_MUST_USE_RESULT inline bool SimpleAtoi(absl::string_view str,
-    absl::int128* out) {
+ABSL_MUST_USE_RESULT inline bool SimpleAtoi(absl::string_view str, absl::int128* out) 
+{
 	return numbers_internal::safe_strto128_base(str, out, 10);
 }
 
-ABSL_MUST_USE_RESULT inline bool SimpleAtoi(absl::string_view str,
-    absl::uint128* out) {
+ABSL_MUST_USE_RESULT inline bool SimpleAtoi(absl::string_view str, absl::uint128* out) 
+{
 	return numbers_internal::safe_strtou128_base(str, out, 10);
 }
 
-template <typename int_type>
-ABSL_MUST_USE_RESULT bool SimpleHexAtoi(absl::string_view str, int_type* out) {
+template <typename int_type> ABSL_MUST_USE_RESULT bool SimpleHexAtoi(absl::string_view str, int_type* out) 
+{
 	return numbers_internal::safe_strtoi_base(str, out, 16);
 }
 
-ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str,
-    absl::int128* out) {
+ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str, absl::int128* out) 
+{
 	return numbers_internal::safe_strto128_base(str, out, 16);
 }
 
-ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str,
-    absl::uint128* out) {
+ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str, absl::uint128* out) 
+{
 	return numbers_internal::safe_strtou128_base(str, out, 16);
 }
 

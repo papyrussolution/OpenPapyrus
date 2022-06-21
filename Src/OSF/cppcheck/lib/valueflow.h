@@ -6,37 +6,15 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//---------------------------------------------------------------------------
 #ifndef valueflowH
 #define valueflowH
-//---------------------------------------------------------------------------
 
-#include "cppcheck-config.h"
+//#include "cppcheck-config.h"
 #include "mathlib.h"
-
-#include <algorithm>
-#include <cassert>
-#include <cstdlib>
-#include <functional>
-#include <list>
-#include <string>
-#include <type_traits>
-#include <utility>
-#include <vector>
 
 class ErrorLogger;
 struct InferModel;
-
 class Settings;
 class SymbolDatabase;
 class Token;
@@ -44,9 +22,7 @@ class TokenList;
 class ValueType;
 class Variable;
 class Scope;
-
-template <class T>
-class ValuePtr;
+template <class T> class ValuePtr;
 
 namespace ValueFlow {
 struct increment {
@@ -90,36 +66,17 @@ public:
 	typedef std::list<ErrorPathItem> ErrorPath;
 	enum class Bound { Upper, Lower, Point };
 
-	explicit Value(long long val = 0, Bound b = Bound::Point)
-		: valueType(ValueType::INT),
-		bound(b),
-		intvalue(val),
-		tokvalue(nullptr),
-		floatValue(0.0),
-		moveKind(MoveKind::NonMovedVariable),
-		varvalue(val),
-		condition(nullptr),
-		varId(0U),
-		safe(false),
-		conditional(false),
-		macro(false),
-		defaultArg(false),
-		indirect(0),
-		path(0),
-		wideintvalue(val),
-		subexpressions(),
-		capturetok(nullptr),
-		lifetimeKind(LifetimeKind::Object),
-		lifetimeScope(LifetimeScope::Local),
-		valueKind(ValueKind::Possible)
+	explicit Value(long long val = 0, Bound b = Bound::Point) : valueType(ValueType::INT), bound(b),
+		intvalue(val), tokvalue(nullptr), floatValue(0.0), moveKind(MoveKind::NonMovedVariable),
+		varvalue(val), condition(nullptr), varId(0U), safe(false), conditional(false), macro(false),
+		defaultArg(false), indirect(0), path(0), wideintvalue(val), subexpressions(), capturetok(nullptr),
+		lifetimeKind(LifetimeKind::Object), lifetimeScope(LifetimeScope::Local), valueKind(ValueKind::Possible)
 	{
 	}
-
 	Value(const Token* c, long long val, Bound b = Bound::Point);
-
 	static Value unknown();
-
-	bool equalValue(const ValueFlow::Value& rhs) const {
+	bool equalValue(const ValueFlow::Value& rhs) const 
+	{
 		if(valueType != rhs.valueType)
 			return false;
 		switch(valueType) {
@@ -521,41 +478,21 @@ struct LifetimeToken {
 	}
 };
 
-const Token * parseCompareInt(const Token * tok, ValueFlow::Value &true_value, ValueFlow::Value &false_value,
-    const std::function<std::vector<MathLib::bigint>(const Token*)>& evaluate);
+const Token * parseCompareInt(const Token * tok, ValueFlow::Value &true_value, ValueFlow::Value &false_value, const std::function<std::vector<MathLib::bigint>(const Token*)>& evaluate);
 const Token * parseCompareInt(const Token * tok, ValueFlow::Value &true_value, ValueFlow::Value &false_value);
-
 ValueFlow::Value inferCondition(std::string op, MathLib::bigint val, const Token* varTok);
 ValueFlow::Value inferCondition(const std::string& op, const Token* varTok, MathLib::bigint val);
-
 CPPCHECKLIB ValuePtr<InferModel> makeIntegralInferModel();
-
-const Token* solveExprValue(const Token* expr,
-    const std::function<std::vector<MathLib::bigint>(const Token*)>& eval,
-    ValueFlow::Value& value);
-
-std::vector<LifetimeToken> getLifetimeTokens(const Token* tok,
-    bool escape = false,
-    ValueFlow::Value::ErrorPath errorPath = ValueFlow::Value::ErrorPath{});
-
+const Token* solveExprValue(const Token* expr, const std::function<std::vector<MathLib::bigint>(const Token*)>& eval, ValueFlow::Value& value);
+std::vector<LifetimeToken> getLifetimeTokens(const Token* tok, bool escape = false, ValueFlow::Value::ErrorPath errorPath = ValueFlow::Value::ErrorPath{});
 bool hasLifetimeToken(const Token* tok, const Token* lifetime);
-
 const Variable* getLifetimeVariable(const Token* tok, ValueFlow::Value::ErrorPath& errorPath, bool* addressOf = nullptr);
-
 const Variable* getLifetimeVariable(const Token* tok);
-
 bool isLifetimeBorrowed(const Token * tok, const Settings * settings);
-
 std::string lifetimeType(const Token * tok, const ValueFlow::Value * val);
-
 std::string lifetimeMessage(const Token * tok, const ValueFlow::Value * val, ValueFlow::Value::ErrorPath &errorPath);
-
 CPPCHECKLIB ValueFlow::Value getLifetimeObjValue(const Token * tok, bool inconclusive = false);
-
-CPPCHECKLIB std::vector<ValueFlow::Value> getLifetimeObjValues(const Token* tok,
-    bool inconclusive = false,
-    MathLib::bigint path = 0);
-
+CPPCHECKLIB std::vector<ValueFlow::Value> getLifetimeObjValues(const Token* tok, bool inconclusive = false, MathLib::bigint path = 0);
 const Token* getEndOfExprScope(const Token* tok, const Scope* defaultScope = nullptr, bool smallest = true);
 
 #endif // valueflowH

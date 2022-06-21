@@ -296,7 +296,7 @@ static int sm2_sig_verify(const EC_KEY * key, const ECDSA_SIG * sig,
 
 	ctx = BN_CTX_new();
 	pt = EC_POINT_new(group);
-	if(ctx == NULL || pt == NULL) {
+	if(!ctx || pt == NULL) {
 		SM2err(SM2_F_SM2_SIG_VERIFY, ERR_R_MALLOC_FAILURE);
 		goto done;
 	}

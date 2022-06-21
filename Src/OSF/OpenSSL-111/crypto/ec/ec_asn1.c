@@ -451,7 +451,7 @@ ECPARAMETERS * EC_GROUP_get_ecparameters(const EC_GROUP * group,
 	const EC_POINT * point = NULL;
 	point_conversion_form_t form;
 
-	if(params == NULL) {
+	if(!params) {
 		if((ret = ECPARAMETERS_new()) == NULL) {
 			ECerr(EC_F_EC_GROUP_GET_ECPARAMETERS, ERR_R_MALLOC_FAILURE);
 			goto err;
@@ -520,7 +520,7 @@ ECPARAMETERS * EC_GROUP_get_ecparameters(const EC_GROUP * group,
 	return ret;
 
 err:
-	if(params == NULL)
+	if(!params)
 		ECPARAMETERS_free(ret);
 	return NULL;
 }
@@ -884,7 +884,7 @@ EC_GROUP * EC_GROUP_new_from_ecpkparameters(const ECPKPARAMETERS * params)
 	EC_GROUP * ret = NULL;
 	int tmp = 0;
 
-	if(params == NULL) {
+	if(!params) {
 		ECerr(EC_F_EC_GROUP_NEW_FROM_ECPKPARAMETERS, EC_R_MISSING_PARAMETERS);
 		return NULL;
 	}

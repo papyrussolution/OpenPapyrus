@@ -155,7 +155,7 @@ merr:
 int EVP_PKEY_check(EVP_PKEY_CTX * ctx)
 {
 	EVP_PKEY * pkey = ctx->pkey;
-	if(pkey == NULL) {
+	if(!pkey) {
 		EVPerr(EVP_F_EVP_PKEY_CHECK, EVP_R_NO_KEY_SET);
 		return 0;
 	}
@@ -173,7 +173,7 @@ int EVP_PKEY_check(EVP_PKEY_CTX * ctx)
 int EVP_PKEY_public_check(EVP_PKEY_CTX * ctx)
 {
 	EVP_PKEY * pkey = ctx->pkey;
-	if(pkey == NULL) {
+	if(!pkey) {
 		EVPerr(EVP_F_EVP_PKEY_PUBLIC_CHECK, EVP_R_NO_KEY_SET);
 		return 0;
 	}
@@ -191,7 +191,7 @@ int EVP_PKEY_public_check(EVP_PKEY_CTX * ctx)
 int EVP_PKEY_param_check(EVP_PKEY_CTX * ctx)
 {
 	EVP_PKEY * pkey = ctx->pkey;
-	if(pkey == NULL) {
+	if(!pkey) {
 		EVPerr(EVP_F_EVP_PKEY_PARAM_CHECK, EVP_R_NO_KEY_SET);
 		return 0;
 	}

@@ -10,11 +10,6 @@
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
 #include "checkother.h"
-#include "errortypes.h"
-#include "platform.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
 
 class TestCharVar : public TestFixture {
 public:

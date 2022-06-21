@@ -236,7 +236,7 @@ CURLcode Curl_output_ntlm(struct connectdata * conn, bool proxy)
 		    *state = NTLMSTATE_LAST;
 		// @fallthrough
 		case NTLMSTATE_LAST:
-		    Curl_safefree(*allocuserpwd);
+		    ZFREE(*allocuserpwd);
 		    authp->done = TRUE;
 		    break;
 	}

@@ -97,4 +97,4 @@ extern "C" {
 #ifdef  __cplusplus
 }
 #endif
-#endif                          /* HEADER_OPENSSLV_H */
+#endif /* HEADER_OPENSSLV_H */

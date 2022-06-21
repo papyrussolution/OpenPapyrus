@@ -12,33 +12,16 @@
 //
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkfunctions.h"
-#include "astutils.h"
-#include "mathlib.h"
-#include "standards.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-#include "valueflow.h"
 
 // Register this check class (by creating a static instance of it)
 namespace {
 CheckFunctions instance;
 }
 
-static const CWE CWE252(252U);  // Unchecked Return Value
-static const CWE CWE477(477U);  // Use of Obsolete Functions
-static const CWE CWE758(758U);  // Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
-static const CWE CWE628(628U);  // Function Call with Incorrectly Specified Arguments
-static const CWE CWE686(686U);  // Function Call With Incorrect Argument Type
-static const CWE CWE687(687U);  // Function Call With Incorrectly Specified Argument Value
-static const CWE CWE688(688U);  // Function Call With Incorrect Variable or Reference as Argument
-
 void CheckFunctions::checkProhibitedFunctions()
 {
 	const bool checkAlloca = mSettings->severity.isEnabled(Severity::warning) &&
 	    ((mSettings->standards.c >= Standards::C99 && mTokenizer->isC()) || mSettings->standards.cpp >= Standards::CPP11);
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {

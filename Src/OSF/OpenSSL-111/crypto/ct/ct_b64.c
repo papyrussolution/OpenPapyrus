@@ -146,7 +146,7 @@ int CTLOG_new_from_base64(CTLOG ** ct_log, const char * pkey_base64, const char 
 	p = pkey_der;
 	pkey = d2i_PUBKEY(NULL, &p, pkey_der_len);
 	OPENSSL_free(pkey_der);
-	if(pkey == NULL) {
+	if(!pkey) {
 		CTerr(CT_F_CTLOG_NEW_FROM_BASE64, CT_R_LOG_CONF_INVALID_KEY);
 		return 0;
 	}

@@ -508,17 +508,26 @@ public class CommonPrereqModule {
 			if(!Locker_CommitCurrentDocument) {
 				Locker_CommitCurrentDocument = true;
 				if(CurrentOrder != null && CurrentOrder.Finalize()) {
-					final int s = CurrentOrder.GetDocStatus();
-					if(s == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT)
-						CurrentOrder.SetAfterTransmitStatus(StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC);
-					// @todo Здесь еще долго со статусами разбираться придется!
-					StyloQApp.PostDocumentResult result = app_ctx.RunSvcPostDocumentCommand(SvcIdent, CurrentOrder, ActivityInstance);
-					ok = result.PostResult;
-					if(ok) {
-						;
+					boolean is_err = false;
+					if(GetAgentID() > 0) {
+						if(CurrentOrder.H.ClientID == 0) {
+							app_ctx.DisplayError(ActivityInstance, ppstr2.PPERR_STQ_BUYERNEEDED, 0);
+							is_err = true;
+						}
+					}
+					if(!is_err) {
+						final int s = CurrentOrder.GetDocStatus();
+						if(s == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT)
+							CurrentOrder.SetAfterTransmitStatus(StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC);
+						// @todo Здесь еще долго со статусами разбираться придется!
+						StyloQApp.PostDocumentResult result = app_ctx.RunSvcPostDocumentCommand(SvcIdent, CurrentOrder, ActivityInstance);
+						ok = result.PostResult;
+						if(ok) {
+							;
+						}
 					}
 				}
-				else
+				if(!ok)
 					Locker_CommitCurrentDocument = false;
 			}
 		}
@@ -939,10 +948,7 @@ public class CommonPrereqModule {
 			SvcIdent = intent.getByteArrayExtra("SvcIdent");
 			CmdName = intent.getStringExtra("CmdName");
 			CmdDescr = intent.getStringExtra("CmdDescr");
-			String cmd_uuid_text = intent.getStringExtra("CmdUuid");
-			if(SLib.GetLen(cmd_uuid_text) > 0) {
-				CmdUuid = UUID.fromString(cmd_uuid_text);
-			}
+			CmdUuid = SLib.strtouuid(intent.getStringExtra("CmdUuid"));
 		}
 	}
 	public void SetupActivity(StyloQDatabase db, int viewPagerResourceId, int tabLayoutResourceId) throws StyloQException

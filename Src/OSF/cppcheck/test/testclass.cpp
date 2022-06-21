@@ -9,13 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "check.h"
-#include "checkclass.h"
-#include "errortypes.h"
-#include "library.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
 
 class TestClass : public TestFixture {
 public:
@@ -3415,7 +3408,7 @@ private:
 		    "void *new_internal_data() const {\n"
 		    "  multilevel_data *d = (multilevel_data *) malloc(sizeof(multilevel_data));\n"
 		    "  memset(d, 0, sizeof(multilevel_data));\n"
-		    "  return (void*) d;\n"
+		    "  return (void *) d;\n"
 		    "}");
 		ASSERT_EQUALS("[test.cpp:8]: (portability) Using memset() on struct which contains a floating point number.\n",
 		    errout.str());

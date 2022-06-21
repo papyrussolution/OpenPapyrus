@@ -162,7 +162,7 @@ ReorderingBuffer::ReorderingBuffer(const Normalizer2Impl &ni, UnicodeString & de
 bool ReorderingBuffer::init(int32_t destCapacity, UErrorCode & errorCode) {
 	int32_t length = str.length();
 	start = str.getBuffer(destCapacity);
-	if(start==NULL) {
+	if(!start) {
 		// getBuffer() already did str.setToBogus()
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;
@@ -341,7 +341,8 @@ void ReorderingBuffer::removeSuffix(int32_t suffixLength) {
 	reorderStart = limit;
 }
 
-bool ReorderingBuffer::resize(int32_t appendLength, UErrorCode & errorCode) {
+bool ReorderingBuffer::resize(int32_t appendLength, UErrorCode & errorCode) 
+{
 	int32_t reorderStartIndex = (int32_t)(reorderStart-start);
 	int32_t length = (int32_t)(limit-start);
 	str.releaseBuffer(length);
@@ -354,7 +355,7 @@ bool ReorderingBuffer::resize(int32_t appendLength, UErrorCode & errorCode) {
 		newCapacity = 256;
 	}
 	start = str.getBuffer(newCapacity);
-	if(start==NULL) {
+	if(!start) {
 		// getBuffer() already did str.setToBogus()
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;
@@ -365,7 +366,8 @@ bool ReorderingBuffer::resize(int32_t appendLength, UErrorCode & errorCode) {
 	return TRUE;
 }
 
-void ReorderingBuffer::skipPrevious() {
+void ReorderingBuffer::skipPrevious() 
+{
 	codePointLimit = codePointStart;
 	UChar c = *--codePointStart;
 	if(U16_IS_TRAIL(c) && start<codePointStart && U16_IS_LEAD(*(codePointStart-1))) {

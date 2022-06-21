@@ -229,13 +229,13 @@ int SSL_use_RSAPrivateKey_ASN1(SSL * ssl, const uchar * d, long len)
 	return ret;
 }
 
-#endif                          /* !OPENSSL_NO_RSA */
+#endif /* !OPENSSL_NO_RSA */
 
 int SSL_use_PrivateKey(SSL * ssl, EVP_PKEY * pkey)
 {
 	int ret;
 
-	if(pkey == NULL) {
+	if(!pkey) {
 		SSLerr(SSL_F_SSL_USE_PRIVATEKEY, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -273,7 +273,7 @@ int SSL_use_PrivateKey_file(SSL * ssl, const char * file, int type)
 		SSLerr(SSL_F_SSL_USE_PRIVATEKEY_FILE, SSL_R_BAD_SSL_FILETYPE);
 		goto end;
 	}
-	if(pkey == NULL) {
+	if(!pkey) {
 		SSLerr(SSL_F_SSL_USE_PRIVATEKEY_FILE, j);
 		goto end;
 	}
@@ -323,7 +323,7 @@ static int ssl_set_cert(CERT * c, X509 * x)
 	size_t i;
 
 	pkey = X509_get0_pubkey(x);
-	if(pkey == NULL) {
+	if(!pkey) {
 		SSLerr(SSL_F_SSL_SET_CERT, SSL_R_X509_LIB);
 		return 0;
 	}
@@ -355,7 +355,7 @@ static int ssl_set_cert(CERT * c, X509 * x)
 		 && RSA_flags(EVP_PKEY_get0_RSA(c->pkeys[i].privatekey)) &
 		    RSA_METHOD_FLAG_NO_CHECK);
 		else
-#endif                          /* OPENSSL_NO_RSA */
+#endif /* OPENSSL_NO_RSA */
 		if(!X509_check_private_key(x, c->pkeys[i].privatekey)) {
 			/*
 			 * don't fail for a cert/key mismatch, just free current private
@@ -522,11 +522,11 @@ int SSL_CTX_use_RSAPrivateKey_ASN1(SSL_CTX * ctx, const uchar * d,
 	return ret;
 }
 
-#endif                          /* !OPENSSL_NO_RSA */
+#endif /* !OPENSSL_NO_RSA */
 
 int SSL_CTX_use_PrivateKey(SSL_CTX * ctx, EVP_PKEY * pkey)
 {
-	if(pkey == NULL) {
+	if(!pkey) {
 		SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -563,7 +563,7 @@ int SSL_CTX_use_PrivateKey_file(SSL_CTX * ctx, const char * file, int type)
 		SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, SSL_R_BAD_SSL_FILETYPE);
 		goto end;
 	}
-	if(pkey == NULL) {
+	if(!pkey) {
 		SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, j);
 		goto end;
 	}
@@ -872,7 +872,7 @@ int SSL_CTX_use_serverinfo_ex(SSL_CTX * ctx, uint version,
 {
 	uchar * new_serverinfo;
 
-	if(ctx == NULL || serverinfo == NULL || serverinfo_length == 0) {
+	if(!ctx || serverinfo == NULL || serverinfo_length == 0) {
 		SSLerr(SSL_F_SSL_CTX_USE_SERVERINFO_EX, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -928,7 +928,7 @@ int SSL_CTX_use_serverinfo_file(SSL_CTX * ctx, const char * file)
 	BIO * bin = NULL;
 	size_t num_extensions = 0, contextoff = 0;
 
-	if(ctx == NULL || file == NULL) {
+	if(!ctx || file == NULL) {
 		SSLerr(SSL_F_SSL_CTX_USE_SERVERINFO_FILE, ERR_R_PASSED_NULL_PARAMETER);
 		goto end;
 	}

@@ -9,16 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "forwardanalyzer.h"
-#include "analyzer.h"
-#include "astutils.h"
-#include "cppcheck-config.h"
-#include "errortypes.h"
-#include "mathlib.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "valueptr.h"
 
 struct OnExit {
 	std::function<void()> f;

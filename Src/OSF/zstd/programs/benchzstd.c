@@ -57,7 +57,7 @@ static const size_t maxMemory = (sizeof(size_t)==4)  ?
 /* *************************************
 *  console display
 ***************************************/
-#define DISPLAY(...)         { fprintf(stderr, __VA_ARGS__); fflush(NULL); }
+#define DISPLAY(...)         { slfprintf_stderr(__VA_ARGS__); fflush(NULL); }
 #define DISPLAYLEVEL(l, ...) if(displayLevel>=l) { DISPLAY(__VA_ARGS__); }
 /* 0 : no display;   1: errors;   2 : + result + interaction + warnings;   3 : + progression;   4 : + information */
 #define OUTPUT(...)          { fprintf(stdout, __VA_ARGS__); fflush(NULL); }
@@ -528,12 +528,12 @@ BMK_benchOutcome_t BMK_benchMemAdvanced(const void* srcBuffer, size_t srcSize, v
 	size_t const blockSize = ((adv->blockSize>=32 && (adv->mode != BMK_decodeOnly)) ? adv->blockSize : srcSize) + (!srcSize) /* avoid div by 0 */;
 	const uint32 maxNbBlocks = (uint32)((srcSize + (blockSize-1)) / blockSize) + nbFiles;
 	/* these are the blockTable parameters, just split up */
-	const void ** const srcPtrs = (const void**)SAlloc::M(maxNbBlocks * sizeof(void*));
+	const void ** const srcPtrs = (const void**)SAlloc::M(maxNbBlocks * sizeof(void *));
 	size_t* const srcSizes = (size_t*)SAlloc::M(maxNbBlocks * sizeof(size_t));
-	void ** const cPtrs = (void**)SAlloc::M(maxNbBlocks * sizeof(void*));
+	void ** const cPtrs = (void**)SAlloc::M(maxNbBlocks * sizeof(void *));
 	size_t* const cSizes = (size_t*)SAlloc::M(maxNbBlocks * sizeof(size_t));
 	size_t* const cCapacities = (size_t*)SAlloc::M(maxNbBlocks * sizeof(size_t));
-	void ** const resPtrs = (void**)SAlloc::M(maxNbBlocks * sizeof(void*));
+	void ** const resPtrs = (void**)SAlloc::M(maxNbBlocks * sizeof(void *));
 	size_t* const resSizes = (size_t*)SAlloc::M(maxNbBlocks * sizeof(size_t));
 	BMK_timedFnState_t* timeStateCompress = BMK_createTimedFnState(adv->nbSeconds * 1000, BMK_RUNTEST_DEFAULT_MS);
 	BMK_timedFnState_t* timeStateDecompress = BMK_createTimedFnState(adv->nbSeconds * 1000, BMK_RUNTEST_DEFAULT_MS);
@@ -571,7 +571,7 @@ BMK_benchOutcome_t BMK_benchMemAdvanced(const void* srcBuffer, size_t srcSize, v
 	ZSTD_freeDCtx(dctx);
 	SAlloc::F(internalDstBuffer);
 	SAlloc::F(resultBuffer);
-	SAlloc::F((void*)srcPtrs);
+	SAlloc::F((void *)srcPtrs);
 	SAlloc::F(srcSizes);
 	SAlloc::F(cPtrs);
 	SAlloc::F(cSizes);

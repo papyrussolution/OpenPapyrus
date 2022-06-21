@@ -21,7 +21,7 @@
 		#define _LARGEFILE_SOURCE       1
 		#define _FILE_OFFSET_BITS       64
 	#endif
-#endif                          /* } */
+#endif /* } */
 /*
 ** Windows stuff
 */

@@ -200,12 +200,8 @@ static INLINE int ss_isqrt(int x)
 static INLINE int ss_compare(const uchar * T, const int * p1, const int * p2, int depth) 
 {
 	const uchar * U1, * U2, * U1n, * U2n;
-	for(U1 = T + depth + *p1,
-	    U2 = T + depth + *p2,
-	    U1n = T + *(p1 + 1) + 2,
-	    U2n = T + *(p2 + 1) + 2;
-	    (U1 < U1n) && (U2 < U2n) && (*U1 == *U2);
-	    ++U1, ++U2) {
+	for(U1 = T + depth + *p1, U2 = T + depth + *p2, U1n = T + *(p1 + 1) + 2, U2n = T + *(p2 + 1) + 2; (U1 < U1n) && (U2 < U2n) && (*U1 == *U2); ++U1, ++U2) {
+		;
 	}
 	return U1 < U1n ? (U2 < U2n ? *U1 - *U2 : 1) : (U2 < U2n ? -1 : 0);
 }
@@ -327,10 +323,8 @@ static INLINE int * ss_median5(const uchar * Td, const int * PA, int * v1, int *
 /* Returns the pivot element. */
 static INLINE int * ss_pivot(const uchar * Td, const int * PA, int * first, int * last) 
 {
-	int * middle;
-	int t;
-	t = last - first;
-	middle = first + t / 2;
+	int t = last - first;
+	int * middle = first + t / 2;
 	if(t <= 512) {
 		if(t <= 32) {
 			return ss_median3(Td, PA, first, middle, last - 1);
@@ -598,7 +592,6 @@ static void ss_inplacemerge(const uchar * T, const int * PA, int * first, int * 
 	int len, half;
 	int q, r;
 	int x;
-
 	for(;;) {
 		if(*(last - 1) < 0) {
 			x = 1; p = PA + ~*(last - 1);

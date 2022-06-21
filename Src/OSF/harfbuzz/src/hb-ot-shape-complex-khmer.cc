@@ -269,32 +269,21 @@ static void reorder_consonant_syllable(const hb_ot_shape_plan_t * plan,
 	}
 }
 
-static void reorder_syllable_khmer(const hb_ot_shape_plan_t * plan,
-    hb_face_t * face,
-    hb_buffer_t * buffer,
-    uint start, uint end)
+static void reorder_syllable_khmer(const hb_ot_shape_plan_t * plan, hb_face_t * face, hb_buffer_t * buffer, uint start, uint end)
 {
 	khmer_syllable_type_t syllable_type = (khmer_syllable_type_t)(buffer->info[start].syllable() & 0x0F);
-	switch(syllable_type)
-	{
-		case khmer_broken_cluster: /* We already inserted dotted-circles, so just call the consonant_syllable.
-		                              */
-		case khmer_consonant_syllable:
-		    reorder_consonant_syllable(plan, face, buffer, start, end);
-		    break;
-
+	switch(syllable_type) {
+		case khmer_broken_cluster: /* We already inserted dotted-circles, so just call the consonant_syllable. */
+		case khmer_consonant_syllable: reorder_consonant_syllable(plan, face, buffer, start, end); break;
 		case khmer_non_khmer_cluster:
 		    break;
 	}
 }
 
-static inline void insert_dotted_circles_khmer(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM,
-    hb_font_t * font,
-    hb_buffer_t * buffer)
+static inline void insert_dotted_circles_khmer(const hb_ot_shape_plan_t * plan CXX_UNUSED_PARAM, hb_font_t * font, hb_buffer_t * buffer)
 {
 	if(UNLIKELY(buffer->flags & HB_BUFFER_FLAG_DO_NOT_INSERT_DOTTED_CIRCLE))
 		return;
-
 	/* Note: This loop is extra overhead, but should not be measurable.
 	 * TODO Use a buffer scratch flag to remove the loop. */
 	bool has_broken_syllables = false;

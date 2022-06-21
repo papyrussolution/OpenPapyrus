@@ -67,12 +67,9 @@ ASN1_ITEM_TEMPLATE(IPAddrBlocks) =
 static int length_from_afi(const unsigned afi)
 {
 	switch(afi) {
-		case IANA_AFI_IPV4:
-		    return 4;
-		case IANA_AFI_IPV6:
-		    return 16;
-		default:
-		    return 0;
+		case IANA_AFI_IPV4: return 4;
+		case IANA_AFI_IPV6: return 16;
+		default: return 0;
 	}
 }
 
@@ -81,10 +78,7 @@ static int length_from_afi(const unsigned afi)
  */
 uint X509v3_addr_get_afi(const IPAddressFamily * f)
 {
-	if(f == NULL
-	   || f->addressFamily == NULL
-	   || f->addressFamily->data == NULL
-	   || f->addressFamily->length < 2)
+	if(f == NULL || f->addressFamily == NULL || f->addressFamily->data == NULL || f->addressFamily->length < 2)
 		return 0;
 	return (f->addressFamily->data[0] << 8) | f->addressFamily->data[1];
 }
@@ -93,9 +87,7 @@ uint X509v3_addr_get_afi(const IPAddressFamily * f)
  * Expand the bitstring form of an address into a raw byte array.
  * At the moment this is coded for simplicity, not speed.
  */
-static int addr_expand(uchar * addr,
-    const ASN1_BIT_STRING * bs,
-    const int length, const uchar fill)
+static int addr_expand(uchar * addr, const ASN1_BIT_STRING * bs, const int length, const uchar fill)
 {
 	if(bs->length < 0 || bs->length > length)
 		return 0;
@@ -112,7 +104,6 @@ static int addr_expand(uchar * addr,
 	memset(addr + bs->length, fill, length - bs->length);
 	return 1;
 }
-
 /*
  * Extract the prefix length from a bitstring.
  */
@@ -1214,11 +1205,9 @@ static int addr_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 		for(j = 0; j < sk_IPAddressFamily_num(child); j++) {
 			IPAddressFamily * fc = sk_IPAddressFamily_value(child, j);
 			int k = sk_IPAddressFamily_find(x->rfc3779_addr, fc);
-			IPAddressFamily * fp =
-			    sk_IPAddressFamily_value(x->rfc3779_addr, k);
+			IPAddressFamily * fp = sk_IPAddressFamily_value(x->rfc3779_addr, k);
 			if(!fp) {
-				if(fc->ipAddressChoice->type ==
-				    IPAddressChoice_addressesOrRanges) {
+				if(fc->ipAddressChoice->type == IPAddressChoice_addressesOrRanges) {
 					validation_err(X509_V_ERR_UNNESTED_RESOURCE);
 					break;
 				}
@@ -1226,26 +1215,21 @@ static int addr_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 			}
 			if(fp->ipAddressChoice->type ==
 			    IPAddressChoice_addressesOrRanges) {
-				if(fc->ipAddressChoice->type == IPAddressChoice_inherit
-				   || addr_contains(fp->ipAddressChoice->u.addressesOrRanges,
-				    fc->ipAddressChoice->u.addressesOrRanges,
-				    length_from_afi(X509v3_addr_get_afi(fc))))
+				if(fc->ipAddressChoice->type == IPAddressChoice_inherit || addr_contains(fp->ipAddressChoice->u.addressesOrRanges,
+				    fc->ipAddressChoice->u.addressesOrRanges, length_from_afi(X509v3_addr_get_afi(fc))))
 					sk_IPAddressFamily_set(child, j, fp);
 				else
 					validation_err(X509_V_ERR_UNNESTED_RESOURCE);
 			}
 		}
 	}
-
 	/*
 	 * Trust anchor can't inherit.
 	 */
 	if(x->rfc3779_addr != NULL) {
 		for(j = 0; j < sk_IPAddressFamily_num(x->rfc3779_addr); j++) {
-			IPAddressFamily * fp =
-			    sk_IPAddressFamily_value(x->rfc3779_addr, j);
-			if(fp->ipAddressChoice->type == IPAddressChoice_inherit
-			 && sk_IPAddressFamily_find(child, fp) >= 0)
+			IPAddressFamily * fp = sk_IPAddressFamily_value(x->rfc3779_addr, j);
+			if(fp->ipAddressChoice->type == IPAddressChoice_inherit && sk_IPAddressFamily_find(child, fp) >= 0)
 				validation_err(X509_V_ERR_UNNESTED_RESOURCE);
 		}
 	}
@@ -1262,9 +1246,7 @@ done:
  */
 int X509v3_addr_validate_path(X509_STORE_CTX * ctx)
 {
-	if(ctx->chain == NULL
-	   || sk_X509_num(ctx->chain) == 0
-	   || ctx->verify_cb == NULL) {
+	if(ctx->chain == NULL || sk_X509_num(ctx->chain) == 0 || ctx->verify_cb == NULL) {
 		ctx->error = X509_V_ERR_UNSPECIFIED;
 		return 0;
 	}
@@ -1275,8 +1257,7 @@ int X509v3_addr_validate_path(X509_STORE_CTX * ctx)
  * RFC 3779 2.3 path validation of an extension.
  * Test whether chain covers extension.
  */
-int X509v3_addr_validate_resource_set(STACK_OF(X509) * chain,
-    IPAddrBlocks * ext, int allow_inheritance)
+int X509v3_addr_validate_resource_set(STACK_OF(X509) * chain, IPAddrBlocks * ext, int allow_inheritance)
 {
 	if(!ext)
 		return 1;
@@ -1287,4 +1268,4 @@ int X509v3_addr_validate_resource_set(STACK_OF(X509) * chain,
 	return addr_validate_path_internal(NULL, chain, ext);
 }
 
-#endif                          /* OPENSSL_NO_RFC3779 */
+#endif /* OPENSSL_NO_RFC3779 */

@@ -35,4 +35,4 @@ const char *OPENSSL_DIR_read(OPENSSL_DIR_CTX **ctx, const char *directory);
 /* returns 1 on success, 0 on error */
 int OPENSSL_DIR_end(OPENSSL_DIR_CTX **ctx);
 
-#endif                          /* LPDIR_H */
+#endif /* LPDIR_H */

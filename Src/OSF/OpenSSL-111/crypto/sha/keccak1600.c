@@ -8,9 +8,8 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 
-size_t SHA3_absorb(uint64_t A[5][5], const uchar * inp, size_t len,
-    size_t r);
-void SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r);
+extern "C" size_t SHA3_absorb(uint64_t A[5][5], const uchar * inp, size_t len, size_t r);
+extern "C" void   SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r);
 
 #if !defined(KECCAK1600_ASM) || !defined(SELFTEST)
 
@@ -1034,19 +1033,15 @@ static uint64_t BitDeinterleave(uint64_t Ai)
 		lo |= lo << 4;  lo &= 0x0f0f0f0f;
 		lo |= lo << 2;  lo &= 0x33333333;
 		lo |= lo << 1;  lo &= 0x55555555;
-
 		hi &= 0xffff0000;
 		hi |= hi >> 8;  hi &= 0xff00ff00;
 		hi |= hi >> 4;  hi &= 0xf0f0f0f0;
 		hi |= hi >> 2;  hi &= 0xcccccccc;
 		hi |= hi >> 1;  hi &= 0xaaaaaaaa;
-
 		Ai = ((uint64_t)(hi | lo) << 32) | (t1 | t0);
 	}
-
 	return Ai;
 }
-
 /*
  * SHA3_absorb can be called multiple times, but at each invocation
  * largest multiple of |r| out of |len| bytes are processed. Then
@@ -1057,14 +1052,11 @@ static uint64_t BitDeinterleave(uint64_t Ai)
  * padding and intermediate sub-block buffering, byte- or bitwise, is
  * caller's responsibility.
  */
-size_t SHA3_absorb(uint64_t A[5][5], const uchar * inp, size_t len,
-    size_t r)
+extern "C" size_t SHA3_absorb(uint64_t A[5][5], const uchar * inp, size_t len, size_t r)
 {
 	uint64_t * A_flat = (uint64_t*)A;
 	size_t i, w = r / 8;
-
 	assert(r < (25 * sizeof(A[0][0])) && (r % 8) == 0);
-
 	while(len >= r) {
 		for(i = 0; i < w; i++) {
 			uint64_t Ai = (uint64_t)inp[0]       | (uint64_t)inp[1] << 8  |
@@ -1081,22 +1073,18 @@ size_t SHA3_absorb(uint64_t A[5][5], const uchar * inp, size_t len,
 
 	return len;
 }
-
 /*
  * SHA3_squeeze is called once at the end to generate |out| hash value
  * of |len| bytes.
  */
-void SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r)
+extern "C" void SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r)
 {
 	uint64_t * A_flat = (uint64_t*)A;
 	size_t i, w = r / 8;
-
 	assert(r < (25 * sizeof(A[0][0])) && (r % 8) == 0);
-
 	while(len != 0) {
 		for(i = 0; i < w && len != 0; i++) {
 			uint64_t Ai = BitDeinterleave(A_flat[i]);
-
 			if(len < 8) {
 				for(i = 0; i < len; i++) {
 					*out++ = (uchar)Ai;

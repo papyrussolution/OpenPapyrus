@@ -216,16 +216,13 @@ MEM_STATIC int ZSTD_DCtx_get_bmi2(const struct ZSTD_DCtx_s * dctx) {
 	return 0;
 #endif
 }
-
-/*-*******************************************************
-*  Shared internal functions
-*********************************************************/
-
+// 
+// Shared internal functions
+// 
 /*! ZSTD_loadDEntropy() :
  *  dict : must point at beginning of a valid zstd dictionary.
  * @return : size of dictionary header (size of magic number + dict ID + entropy tables) */
-size_t ZSTD_loadDEntropy(ZSTD_entropyDTables_t* entropy,
-    const void* const dict, const size_t dictSize);
+size_t ZSTD_loadDEntropy(ZSTD_entropyDTables_t* entropy, const void* const dict, const size_t dictSize);
 
 /*! ZSTD_checkContinuity() :
  *  check if next `dst` follows previous position, where decompression ended.

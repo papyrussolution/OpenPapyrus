@@ -1818,48 +1818,48 @@ enum {
 	2, 2, 2, 2+IMM2_SIZE,    /* Possessive *+, ++, ?+, upto+           */ \
         /* Character class & ref repeats                                         */ \
 	1, 1, 1, 1, 1, 1,        /* *, *?, +, +?, ?, ??                    */ \
-	1+2*IMM2_SIZE, 1+2*IMM2_SIZE, /* CRRANGE, CRMINRANGE                    */ \
+	1+2*IMM2_SIZE, 1+2*IMM2_SIZE, /* CRRANGE, CRMINRANGE               */ \
 	1, 1, 1, 1+2*IMM2_SIZE,  /* Possessive *+, ++, ?+, CRPOSRANGE      */ \
 	1+(32/sizeof(pcre_uchar)), /* CLASS  */	\
 	1+(32/sizeof(pcre_uchar)), /* NCLASS */	\
-	0,                       /* XCLASS - variable length               */ \
-	1+IMM2_SIZE,             /* REF                                    */ \
-	1+IMM2_SIZE,             /* REFI                                   */ \
-	1+2*IMM2_SIZE,           /* DNREF                                  */ \
-	1+2*IMM2_SIZE,           /* DNREFI                                 */ \
-	1+LINK_SIZE,             /* RECURSE                                */ \
-	2+2*LINK_SIZE,           /* CALLOUT                                */ \
-	1+LINK_SIZE,             /* Alt                                    */ \
-	1+LINK_SIZE,             /* Ket                                    */ \
-	1+LINK_SIZE,             /* KetRmax                                */ \
-	1+LINK_SIZE,             /* KetRmin                                */ \
-	1+LINK_SIZE,             /* KetRpos                                */ \
-	1+LINK_SIZE,             /* Reverse                                */ \
-	1+LINK_SIZE,             /* Assert                                 */ \
-	1+LINK_SIZE,             /* Assert not                             */ \
-	1+LINK_SIZE,             /* Assert behind                          */ \
-	1+LINK_SIZE,             /* Assert behind not                      */ \
-	1+LINK_SIZE,             /* ONCE                                   */ \
-	1+LINK_SIZE,             /* ONCE_NC                                */ \
-	1+LINK_SIZE,             /* BRA                                    */ \
-	1+LINK_SIZE,             /* BRAPOS                                 */ \
-	1+LINK_SIZE+IMM2_SIZE,   /* CBRA                                   */ \
-	1+LINK_SIZE+IMM2_SIZE,   /* CBRAPOS                                */ \
-	1+LINK_SIZE,             /* COND                                   */ \
-	1+LINK_SIZE,             /* SBRA                                   */ \
-	1+LINK_SIZE,             /* SBRAPOS                                */ \
-	1+LINK_SIZE+IMM2_SIZE,   /* SCBRA                                  */ \
-	1+LINK_SIZE+IMM2_SIZE,   /* SCBRAPOS                               */ \
-	1+LINK_SIZE,             /* SCOND                                  */ \
-	1+IMM2_SIZE, 1+2*IMM2_SIZE, /* CREF, DNCREF                           */ \
-	1+IMM2_SIZE, 1+2*IMM2_SIZE, /* RREF, DNRREF                           */ \
-	1,                       /* DEF                                    */ \
-	1, 1, 1,                 /* BRAZERO, BRAMINZERO, BRAPOSZERO        */ \
-	3, 1, 3,                 /* MARK, PRUNE, PRUNE_ARG                 */ \
-	1, 3,                    /* SKIP, SKIP_ARG                         */ \
-	1, 3,                    /* THEN, THEN_ARG                         */ \
-	1, 1, 1, 1,              /* COMMIT, FAIL, ACCEPT, ASSERT_ACCEPT    */ \
-	1+IMM2_SIZE, 1           /* CLOSE, SKIPZERO                        */
+	0,                       /* XCLASS - variable length            */ \
+	1+IMM2_SIZE,             /* REF                                 */ \
+	1+IMM2_SIZE,             /* REFI                                */ \
+	1+2*IMM2_SIZE,           /* DNREF                               */ \
+	1+2*IMM2_SIZE,           /* DNREFI                              */ \
+	1+LINK_SIZE,             /* RECURSE                             */ \
+	2+2*LINK_SIZE,           /* CALLOUT                             */ \
+	1+LINK_SIZE,             /* Alt                                 */ \
+	1+LINK_SIZE,             /* Ket                                 */ \
+	1+LINK_SIZE,             /* KetRmax                             */ \
+	1+LINK_SIZE,             /* KetRmin                             */ \
+	1+LINK_SIZE,             /* KetRpos                             */ \
+	1+LINK_SIZE,             /* Reverse                             */ \
+	1+LINK_SIZE,             /* Assert                              */ \
+	1+LINK_SIZE,             /* Assert not                          */ \
+	1+LINK_SIZE,             /* Assert behind                       */ \
+	1+LINK_SIZE,             /* Assert behind not                   */ \
+	1+LINK_SIZE,             /* ONCE                                */ \
+	1+LINK_SIZE,             /* ONCE_NC                             */ \
+	1+LINK_SIZE,             /* BRA                                 */ \
+	1+LINK_SIZE,             /* BRAPOS                              */ \
+	1+LINK_SIZE+IMM2_SIZE,   /* CBRA                                */ \
+	1+LINK_SIZE+IMM2_SIZE,   /* CBRAPOS                             */ \
+	1+LINK_SIZE,             /* COND                                */ \
+	1+LINK_SIZE,             /* SBRA                                */ \
+	1+LINK_SIZE,             /* SBRAPOS                             */ \
+	1+LINK_SIZE+IMM2_SIZE,   /* SCBRA                               */ \
+	1+LINK_SIZE+IMM2_SIZE,   /* SCBRAPOS                            */ \
+	1+LINK_SIZE,             /* SCOND                               */ \
+	1+IMM2_SIZE, 1+2*IMM2_SIZE, /* CREF, DNCREF                     */ \
+	1+IMM2_SIZE, 1+2*IMM2_SIZE, /* RREF, DNRREF                     */ \
+	1,                       /* DEF                                 */ \
+	1, 1, 1,                 /* BRAZERO, BRAMINZERO, BRAPOSZERO     */ \
+	3, 1, 3,                 /* MARK, PRUNE, PRUNE_ARG              */ \
+	1, 3,                    /* SKIP, SKIP_ARG                      */ \
+	1, 3,                    /* THEN, THEN_ARG                      */ \
+	1, 1, 1, 1,              /* COMMIT, FAIL, ACCEPT, ASSERT_ACCEPT */ \
+	1+IMM2_SIZE, 1           /* CLOSE, SKIPZERO                     */
 
 #define RREF_ANY  0xffff // A magic value for OP_RREF to indicate the "any recursion" condition. 
 // 

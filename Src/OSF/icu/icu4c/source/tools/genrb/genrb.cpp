@@ -146,9 +146,7 @@ int main(int argc,
 			slfprintf_stderr("%s: unsupported --formatVersion %s\n", argv[0], s);
 			illegalArg = TRUE;
 		}
-		else if(s[0] == '1' &&
-		    (options[WRITE_POOL_BUNDLE].doesOccur || options[USE_POOL_BUNDLE].doesOccur)
-		    ) {
+		else if(s[0] == '1' && (options[WRITE_POOL_BUNDLE].doesOccur || options[USE_POOL_BUNDLE].doesOccur)) {
 			slfprintf_stderr("%s: cannot combine --formatVersion 1 with --writePoolBundle or --usePoolBundle\n", argv[0]);
 			illegalArg = TRUE;
 		}
@@ -156,82 +154,58 @@ int main(int argc,
 			setFormatVersion(s[0] - '0');
 		}
 	}
-
-	if((options[JAVA_PACKAGE].doesOccur || options[BUNDLE_NAME].doesOccur) &&
-	    !options[WRITE_JAVA].doesOccur) {
-		fprintf(stderr,
-		    "%s error: command line argument --java-package or --bundle-name "
-		    "without --write-java\n",
-		    argv[0]);
+	if((options[JAVA_PACKAGE].doesOccur || options[BUNDLE_NAME].doesOccur) && !options[WRITE_JAVA].doesOccur) {
+		slfprintf_stderr("%s error: command line argument --java-package or --bundle-name without --write-java\n", argv[0]);
 		illegalArg = TRUE;
 	}
-
 	if(options[VERSION].doesOccur) {
-		fprintf(stderr,
-		    "%s version %s (ICU version %s).\n"
-		    "%s\n",
-		    argv[0], GENRB_VERSION, U_ICU_VERSION, U_COPYRIGHT_STRING);
+		slfprintf_stderr("%s version %s (ICU version %s).\n%s\n", argv[0], GENRB_VERSION, U_ICU_VERSION, U_COPYRIGHT_STRING);
 		if(!illegalArg) {
 			return U_ZERO_ERROR;
 		}
 	}
-
 	if(illegalArg || options[HELP1].doesOccur || options[HELP2].doesOccur) {
 		/*
 		 * Broken into chunks because the C89 standard says the minimum
 		 * required supported string length is 509 bytes.
 		 */
-		fprintf(stderr,
-		    "Usage: %s [OPTIONS] [FILES]\n"
-		    "\tReads the list of resource bundle source files and creates\n"
-		    "\tbinary version of resource bundles (.res files)\n",
-		    argv[0]);
-		fprintf(stderr,
-		    "Options:\n"
+		slfprintf_stderr("Usage: %s [OPTIONS] [FILES]\n\tReads the list of resource bundle source files and creates\n\tbinary version of resource bundles (.res files)\n", argv[0]);
+		slfprintf_stderr("Options:\n"
 		    "\t-h or -? or --help       this usage text\n"
 		    "\t-q or --quiet            do not display warnings\n"
 		    "\t-v or --verbose          print extra information when processing files\n"
 		    "\t-V or --version          prints out version number and exits\n"
 		    "\t-c or --copyright        include copyright notice\n");
-		fprintf(stderr,
-		    "\t-e or --encoding         encoding of source files\n"
+		slfprintf_stderr("\t-e or --encoding         encoding of source files\n"
 		    "\t-d or --destdir          destination directory, followed by the path, defaults to '%s'\n"
 		    "\t-s or --sourcedir        source directory for files followed by path, defaults to '%s'\n"
 		    "\t-i or --icudatadir       directory for locating any needed intermediate data files,\n"
-		    "\t                         followed by path, defaults to '%s'\n",
-		    u_getDataDirectory(), u_getDataDirectory(), u_getDataDirectory());
-		fprintf(stderr,
-		    "\t-j or --write-java       write a Java ListResourceBundle for ICU4J, followed by optional encoding\n"
+		    "\t                         followed by path, defaults to '%s'\n", u_getDataDirectory(), u_getDataDirectory(), u_getDataDirectory());
+		slfprintf_stderr("\t-j or --write-java       write a Java ListResourceBundle for ICU4J, followed by optional encoding\n"
 		    "\t                         defaults to ASCII and \\uXXXX format.\n"
 		    "\t      --java-package     For --write-java: package name for writing the ListResourceBundle,\n"
 		    "\t                         defaults to com.ibm.icu.impl.data\n");
-		fprintf(stderr,
-		    "\t-b or --bundle-name      For --write-java: root resource bundle name for writing the ListResourceBundle,\n"
+		slfprintf_stderr("\t-b or --bundle-name      For --write-java: root resource bundle name for writing the ListResourceBundle,\n"
 		    "\t                         defaults to LocaleElements\n"
 		    "\t-x or --write-xliff      write an XLIFF file for the resource bundle. Followed by\n"
 		    "\t                         an optional output file name.\n"
 		    "\t-k or --strict           use pedantic parsing of syntax\n"
 		    /*added by Jing*/
 		    "\t-l or --language         for XLIFF: language code compliant with BCP 47.\n");
-		fprintf(stderr,
-		    "\t-C or --noBinaryCollation  do not generate binary collation image;\n"
+		slfprintf_stderr("\t-C or --noBinaryCollation  do not generate binary collation image;\n"
 		    "\t                           makes .res file smaller but collator instantiation much slower;\n"
 		    "\t                           maintains ability to get tailoring rules\n"
 		    "\t-R or --omitCollationRules do not include collation (tailoring) rules;\n"
 		    "\t                           makes .res file smaller and maintains collator instantiation speed\n"
 		    "\t                           but tailoring rules will not be available (they are rarely used)\n");
-		fprintf(stderr,
-		    "\t      --formatVersion      write a .res file compatible with the requested formatVersion (single digit);\n"
+		slfprintf_stderr("\t      --formatVersion      write a .res file compatible with the requested formatVersion (single digit);\n"
 		    "\t                           for example, --formatVersion 1\n");
-		fprintf(stderr,
-		    "\t      --writePoolBundle [directory]  write a pool.res file with all of the keys of all input bundles\n"
+		slfprintf_stderr("\t      --writePoolBundle [directory]  write a pool.res file with all of the keys of all input bundles\n"
 		    "\t      --usePoolBundle [directory]  point to keys from the pool.res keys pool bundle if they are available there;\n"
 		    "\t                           makes .res files smaller but dependent on the pool bundle\n"
 		    "\t                           (--writePoolBundle and --usePoolBundle cannot be combined)\n");
-		fprintf(stderr,
-		    "\t      --filterDir          Input directory where filter files are available.\n"
+		slfprintf_stderr("\t      --filterDir          Input directory where filter files are available.\n"
 		    "\t                           For more on filter files, see ICU Data Build Tool.\n");
-
 		return illegalArg ? U_ILLEGAL_ARGUMENT_ERROR : U_ZERO_ERROR;
 	}
 	if(options[VERBOSE].doesOccur) {
@@ -278,21 +252,17 @@ int main(int argc,
 		write_java = TRUE;
 		outputEnc = options[WRITE_JAVA].value;
 	}
-
 	if(options[WRITE_XLIFF].doesOccur) {
 		write_xliff = TRUE;
 		if(options[WRITE_XLIFF].value != NULL) {
 			xliffOutputFileName = options[WRITE_XLIFF].value;
 		}
 	}
-
 	initParser();
-
 	/*added by Jing*/
 	if(options[LANGUAGE].doesOccur) {
 		language = options[LANGUAGE].value;
 	}
-
 	LocalPointer<SRBRoot> newPoolBundle;
 	if(options[WRITE_POOL_BUNDLE].doesOccur) {
 		newPoolBundle.adoptInsteadAndCheckErrorCode(new SRBRoot(NULL, TRUE, status), status);

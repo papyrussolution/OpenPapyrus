@@ -84,12 +84,9 @@ U_CAPI void U_EXPORT2 uprv_free(void * buffer)
 
 U_CAPI void * U_EXPORT2 uprv_calloc(size_t num, size_t size) 
 {
-	void * mem = NULL;
 	size *= num;
-	mem = uprv_malloc(size);
-	if(mem) {
-		memzero(mem, size);
-	}
+	void * mem = uprv_malloc(size);
+	memzero(mem, size);
 	return mem;
 }
 

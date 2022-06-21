@@ -539,14 +539,10 @@ static bool MBCSAddToUnicode(MBCSData * mbcsData,
 				    break;
 				default:
 				    /* reserved, must never occur */
-				    fprintf(stderr,
-					"internal error: byte sequence reached reserved action code, entry 0x%02x: 0x%s (U+%x)\n",
-					(int)entry,
-					printBytes(buffer, bytes, length),
-					(int)c);
+				    slfprintf_stderr("internal error: byte sequence reached reserved action code, entry 0x%02x: 0x%s (U+%x)\n",
+						(int)entry, printBytes(buffer, bytes, length), (int)c);
 				    return FALSE;
 			}
-
 			return TRUE;
 		}
 	}
@@ -554,30 +550,24 @@ static bool MBCSAddToUnicode(MBCSData * mbcsData,
 
 U_CDECL_BEGIN
 /* is this byte sequence valid? (this is almost the same as MBCSAddToUnicode()) */
-static bool MBCSIsValid(NewConverter * cnvData,
-    const uint8_t * bytes, int32_t length) {
+static bool MBCSIsValid(NewConverter * cnvData, const uint8_t * bytes, int32_t length) 
+{
 	MBCSData * mbcsData = (MBCSData*)cnvData;
-
 	return (bool)(1==ucm_countChars(&mbcsData->ucm->states, bytes, length));
 }
 
 U_CDECL_END
-static bool MBCSSingleAddFromUnicode(MBCSData * mbcsData,
-    const uint8_t * bytes, int32_t /*length*/,
-    UChar32 c,
-    int8_t flag) {
+static bool MBCSSingleAddFromUnicode(MBCSData * mbcsData, const uint8_t * bytes, int32_t /*length*/, UChar32 c, int8_t flag) 
+{
 	uint16_t * stage3, * p;
 	uint32_t idx;
 	uint16_t old;
 	uint8_t b;
-
 	uint32_t blockSize, newTop, i, nextOffset, newBlock, min;
-
 	/* ignore |2 SUB mappings */
 	if(flag==2) {
 		return TRUE;
 	}
-
 	/*
 	 * Walk down the triple-stage compact array ("trie") and
 	 * allocate parts as necessary.
@@ -986,25 +976,19 @@ static bool MBCSAddTable(NewConverter * cnvData, UCMTable * table, UConverterSta
 	else {
 		mbcsData->utf8Max = 0;
 		if(SMALL && maxCharLength>1) {
-			fprintf(stderr,
-			    "makeconv warning: --small not available for .ucm files without |0 etc.\n");
+			slfprintf_stderr("makeconv warning: --small not available for .ucm files without |0 etc.\n");
 		}
 	}
-
 	if(!MBCSStartMappings(mbcsData)) {
 		return FALSE;
 	}
-
 	staticData->hasFromUnicodeFallback = FALSE;
 	staticData->hasToUnicodeFallback = FALSE;
-
 	isOK = TRUE;
-
 	m = table->mappings;
 	for(i = 0; i<table->mappingsLength; ++m, ++i) {
 		c = m->u;
 		f = m->f;
-
 		/*
 		 * Small optimization for --small .cnv files:
 		 *

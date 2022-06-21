@@ -52,7 +52,7 @@ void BUF_MEM_free(BUF_MEM * a)
 static char * sec_alloc_realloc(BUF_MEM * str, size_t len)
 {
 	char * ret = static_cast<char *>(OPENSSL_secure_malloc(len));
-	if(str->data != NULL) {
+	if(str->data) {
 		if(ret) {
 			memcpy(ret, str->data, str->length);
 			OPENSSL_secure_clear_free(str->data, str->length);
@@ -71,7 +71,7 @@ size_t BUF_MEM_grow(BUF_MEM * str, size_t len)
 		return len;
 	}
 	if(str->max >= len) {
-		if(str->data != NULL)
+		if(str->data)
 			memzero(&str->data[str->length], len - str->length);
 		str->length = len;
 		return len;
@@ -104,7 +104,7 @@ size_t BUF_MEM_grow_clean(BUF_MEM * str, size_t len)
 	char * ret;
 	size_t n;
 	if(str->length >= len) {
-		if(str->data != NULL)
+		if(str->data)
 			memzero(&str->data[len], str->length - len);
 		str->length = len;
 		return len;

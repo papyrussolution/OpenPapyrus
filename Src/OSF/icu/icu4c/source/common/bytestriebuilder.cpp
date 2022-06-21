@@ -38,8 +38,8 @@ public:
 		}
 		return StringPiece(strings.data()+offset, length);
 	}
-
-	int32_t getStringLength(const CharString &strings) const {
+	int32_t getStringLength(const CharString &strings) const 
+	{
 		int32_t offset = stringOffset;
 		if(offset>=0) {
 			return (uint8)strings[offset];
@@ -49,15 +49,8 @@ public:
 			return ((int32_t)(uint8)strings[offset]<<8)|(uint8)strings[offset+1];
 		}
 	}
-
-	char charAt(int32_t index, const CharString &strings) const {
-		return data(strings)[index];
-	}
-
-	int32_t getValue() const {
-		return value;
-	}
-
+	char charAt(int32_t index, const CharString &strings) const { return data(strings)[index]; }
+	int32_t getValue() const { return value; }
 	int32_t compareStringTo(const BytesTrieElement &o, const CharString &strings) const;
 
 private:
@@ -173,18 +166,17 @@ BytesTrieBuilder &BytesTrieBuilder::add(StringPiece s, int32_t value, UErrorCode
 }
 
 U_CDECL_BEGIN
-
-static int32_t U_CALLCONV compareElementStrings(const void * context, const void * left, const void * right) 
-{
-	const CharString * strings = static_cast<const CharString *>(context);
-	const BytesTrieElement * leftElement = static_cast<const BytesTrieElement *>(left);
-	const BytesTrieElement * rightElement = static_cast<const BytesTrieElement *>(right);
-	return leftElement->compareStringTo(*rightElement, *strings);
-}
-
+	static int32_t U_CALLCONV compareElementStrings(const void * context, const void * left, const void * right) 
+	{
+		const CharString * strings = static_cast<const CharString *>(context);
+		const BytesTrieElement * leftElement = static_cast<const BytesTrieElement *>(left);
+		const BytesTrieElement * rightElement = static_cast<const BytesTrieElement *>(right);
+		return leftElement->compareStringTo(*rightElement, *strings);
+	}
 U_CDECL_END
 
-BytesTrie * BytesTrieBuilder::build(UStringTrieBuildOption buildOption, UErrorCode & errorCode) {
+BytesTrie * BytesTrieBuilder::build(UStringTrieBuildOption buildOption, UErrorCode & errorCode) 
+{
 	buildBytes(buildOption, errorCode);
 	BytesTrie * newTrie = NULL;
 	if(U_SUCCESS(errorCode)) {
@@ -200,7 +192,8 @@ BytesTrie * BytesTrieBuilder::build(UStringTrieBuildOption buildOption, UErrorCo
 	return newTrie;
 }
 
-StringPiece BytesTrieBuilder::buildStringPiece(UStringTrieBuildOption buildOption, UErrorCode & errorCode) {
+StringPiece BytesTrieBuilder::buildStringPiece(UStringTrieBuildOption buildOption, UErrorCode & errorCode) 
+{
 	buildBytes(buildOption, errorCode);
 	StringPiece result;
 	if(U_SUCCESS(errorCode)) {
@@ -209,7 +202,8 @@ StringPiece BytesTrieBuilder::buildStringPiece(UStringTrieBuildOption buildOptio
 	return result;
 }
 
-void BytesTrieBuilder::buildBytes(UStringTrieBuildOption buildOption, UErrorCode & errorCode) {
+void BytesTrieBuilder::buildBytes(UStringTrieBuildOption buildOption, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -222,10 +216,7 @@ void BytesTrieBuilder::buildBytes(UStringTrieBuildOption buildOption, UErrorCode
 			errorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 			return;
 		}
-		uprv_sortArray(elements, elementsLength, (int32_t)sizeof(BytesTrieElement),
-		    compareElementStrings, strings,
-		    FALSE,    // need not be a stable sort
-		    &errorCode);
+		uprv_sortArray(elements, elementsLength, (int32_t)sizeof(BytesTrieElement), compareElementStrings, strings, FALSE/*need not be a stable sort*/, &errorCode);
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
@@ -249,7 +240,7 @@ void BytesTrieBuilder::buildBytes(UStringTrieBuildOption buildOption, UErrorCode
 	if(bytesCapacity<capacity) {
 		uprv_free(bytes);
 		bytes = static_cast<char *>(uprv_malloc(capacity));
-		if(bytes==NULL) {
+		if(!bytes) {
 			errorCode = U_MEMORY_ALLOCATION_ERROR;
 			bytesCapacity = 0;
 			return;
@@ -257,7 +248,7 @@ void BytesTrieBuilder::buildBytes(UStringTrieBuildOption buildOption, UErrorCode
 		bytesCapacity = capacity;
 	}
 	StringTrieBuilder::build(buildOption, elementsLength, errorCode);
-	if(bytes==NULL) {
+	if(!bytes) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 	}
 }
@@ -352,7 +343,7 @@ StringTrieBuilder::Node * BytesTrieBuilder::createLinearMatchNode(int32_t i, int
 
 bool BytesTrieBuilder::ensureCapacity(int32_t length) 
 {
-	if(bytes==NULL) {
+	if(!bytes) {
 		return FALSE; // previous memory allocation had failed
 	}
 	if(length>bytesCapacity) {

@@ -42,7 +42,7 @@ static int pki_openssh_import_privkey_blob(ssh_buffer key_blob_buffer, ssh_key *
 	char * type_s = NULL;
 	ssh_key key = NULL;
 	int rc;
-	if(pkey == NULL) {
+	if(!pkey) {
 		return SSH_ERROR;
 	}
 	rc = ssh_buffer_unpack(key_blob_buffer, "s", &type_s);
@@ -495,7 +495,7 @@ ssh_string ssh_pki_openssh_privkey_export(const ssh_key privkey, const char * pa
 		}
 
 		salt = ssh_string_new(16);
-		if(salt == NULL) {
+		if(!salt) {
 			SSH_BUFFER_FREE(kdf_buf);
 			goto error;
 		}

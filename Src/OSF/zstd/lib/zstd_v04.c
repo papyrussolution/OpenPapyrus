@@ -87,8 +87,8 @@ typedef unsigned char BYTE;
 #endif
 #endif
 
-MEM_STATIC uint MEM_32bits() { return sizeof(void*)==4; }
-MEM_STATIC uint MEM_64bits() { return sizeof(void*)==8; }
+MEM_STATIC uint MEM_32bits() { return sizeof(void *)==4; }
+MEM_STATIC uint MEM_64bits() { return sizeof(void *)==8; }
 
 MEM_STATIC uint MEM_isLittleEndian()
 {
@@ -2602,8 +2602,7 @@ static size_t ZSTD_execSequence(BYTE * op,
 	if(litEnd > litLimit) return ERROR(corruption_detected); /* risk read beyond lit buffer */
 
 	/* copy Literals */
-	ZSTD_wildcopy(op, *litPtr, sequence.litLength); /* note : oLitEnd <= oend-8 : no risk of overwrite beyond oend
-	                                                   */
+	ZSTD_wildcopy(op, *litPtr, sequence.litLength); /* note : oLitEnd <= oend-8 : no risk of overwrite beyond oend */
 	op = oLitEnd;
 	*litPtr = litEnd; /* update for next sequence */
 

@@ -847,4 +847,4 @@ int X509v3_asid_validate_resource_set(STACK_OF(X509) * chain,
 	return asid_validate_path_internal(NULL, chain, ext);
 }
 
-#endif                          /* OPENSSL_NO_RFC3779 */
+#endif /* OPENSSL_NO_RFC3779 */

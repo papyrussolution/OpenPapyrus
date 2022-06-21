@@ -15,21 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #ifndef forwardanalyzerH
 #define forwardanalyzerH
 
-#include "analyzer.h"
-
 class Settings;
 class Token;
-template<class T> class ValuePtr;
+template <class T> class ValuePtr;
 
-Analyzer::Result valueFlowGenericForward(Token* start,
-                                         const Token* end,
-                                         const ValuePtr<Analyzer>& a,
-                                         const Settings* settings);
-
+Analyzer::Result valueFlowGenericForward(Token* start, const Token* end, const ValuePtr<Analyzer>& a, const Settings* settings);
 Analyzer::Result valueFlowGenericForward(Token* start, const ValuePtr<Analyzer>& a, const Settings* settings);
 
 #endif

@@ -3,7 +3,7 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <..\OSF\oniguruma\src\oniguruma.h>
+#include <..\osf\oniguruma\src\oniguruma.h>
 
 static uint FASTCALL SRE2_FlagsToOnigurumaOptions(uint f)
 {

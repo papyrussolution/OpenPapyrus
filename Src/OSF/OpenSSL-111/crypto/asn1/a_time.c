@@ -169,15 +169,12 @@ int asn1_time_to_tm(struct tm * tm, const ASN1_TIME * d)
 			    break;
 		}
 	}
-
 	/*
-	 * Optional fractional seconds: decimal point followed by one or more
-	 * digits.
+	 * Optional fractional seconds: decimal point followed by one or more digits.
 	 */
 	if(d->type == V_ASN1_GENERALIZEDTIME && a[o] == period) {
 		if(strict)
-			/* RFC 5280 forbids fractional seconds */
-			goto err;
+			goto err; /* RFC 5280 forbids fractional seconds */
 		if(++o == l)
 			goto err;
 		i = o;
@@ -190,7 +187,6 @@ int asn1_time_to_tm(struct tm * tm, const ASN1_TIME * d)
 		if(o == l)
 			goto err;
 	}
-
 	/*
 	 * 'o' will never point to '\0' at this point, the only chance
 	 * 'o' can point to '\0' is either the subsequent if or the first

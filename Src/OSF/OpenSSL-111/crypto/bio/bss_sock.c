@@ -213,4 +213,4 @@ int BIO_sock_non_fatal_error(int err)
 	return 0;
 }
 
-#endif                          /* #ifndef OPENSSL_NO_SOCK */
+#endif /* #ifndef OPENSSL_NO_SOCK */

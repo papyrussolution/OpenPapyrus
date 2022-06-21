@@ -104,33 +104,27 @@ int main(int argc, const char * const argv[])
 #ifdef URES_DEBUG
 	slfprintf_stderr("After initial u_cleanup: RB cache %s empty.\n", ures_dumpCacheContents() ? "WAS NOT" : "was");
 #endif
-
-	while(getTestOption(REPEAT_TESTS_OPTION) > 0) { /* Loop runs once per complete execution of the tests
-		                                         *   used for -r  (repeat) test option.       */
+	while(getTestOption(REPEAT_TESTS_OPTION) > 0) { /* Loop runs once per complete execution of the tests used for -r  (repeat) test option.       */
 		if(!initArgs(argc, argv, NULL, NULL)) {
 			/* Error already displayed. */
 			return -1;
 		}
 		errorCode = U_ZERO_ERROR;
-
 		/* Initialize ICU */
 		if(!defaultDataFound) {
 			ctest_setICU_DATA(); /* u_setDataDirectory() must happen Before u_init() */
 		}
 		u_init(&errorCode);
 		if(U_FAILURE(errorCode)) {
-			fprintf(stderr,
-			    "#### ERROR! %s: u_init() failed with status = \"%s\".\n"
+			slfprintf_stderr("#### ERROR! %s: u_init() failed with status = \"%s\".\n"
 			    "*** Check the ICU_DATA environment variable and \n"
 			    "*** check that the data files are present.\n", argv[0], u_errorName(errorCode));
 			if(!getTestOption(WARN_ON_MISSING_DATA_OPTION)) {
-				fprintf(stderr,
-				    "*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
+				slfprintf_stderr("*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
 				u_cleanup();
 				return 1;
 			}
 		}
-
 		/* try more data */
 		cnv = ucnv_open(TRY_CNV_2, &errorCode);
 		if(cnv != 0) {
@@ -138,49 +132,41 @@ int main(int argc, const char * const argv[])
 			ucnv_close(cnv);
 		}
 		else {
-			fprintf(stderr,
-			    "*** %s! The converter for " TRY_CNV_2 " cannot be opened.\n"
+			slfprintf_stderr("*** %s! The converter for " TRY_CNV_2 " cannot be opened.\n"
 			    "*** Check the ICU_DATA environment variable and \n"
 			    "*** check that the data files are present.\n", warnOrErr);
 			if(!getTestOption(WARN_ON_MISSING_DATA_OPTION)) {
-				fprintf(stderr,
-				    "*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
+				slfprintf_stderr("*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
 				u_cleanup();
 				return 1;
 			}
 		}
-
 		rb = ures_open(NULL, "en", &errorCode);
 		if(U_SUCCESS(errorCode)) {
 			/* ok */
 			ures_close(rb);
 		}
 		else {
-			fprintf(stderr,
-			    "*** %s! The \"en\" locale resource bundle cannot be opened.\n"
+			slfprintf_stderr("*** %s! The \"en\" locale resource bundle cannot be opened.\n"
 			    "*** Check the ICU_DATA environment variable and \n"
 			    "*** check that the data files are present.\n", warnOrErr);
 			if(!getTestOption(WARN_ON_MISSING_DATA_OPTION)) {
-				fprintf(stderr,
-				    "*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
+				slfprintf_stderr("*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
 				u_cleanup();
 				return 1;
 			}
 		}
-
 		errorCode = U_ZERO_ERROR;
 		rb = ures_open(NULL, NULL, &errorCode);
 		if(U_SUCCESS(errorCode)) {
 			/* ok */
 			if(errorCode == U_USING_DEFAULT_WARNING || errorCode == U_USING_FALLBACK_WARNING) {
-				fprintf(stderr,
-				    "#### Note: The default locale %s is not available\n", uloc_getDefault());
+				slfprintf_stderr("#### Note: The default locale %s is not available\n", uloc_getDefault());
 			}
 			ures_close(rb);
 		}
 		else {
-			fprintf(stderr,
-			    "*** %s! Can not open a resource bundle for the default locale %s\n", warnOrErr, uloc_getDefault());
+			slfprintf_stderr("*** %s! Can not open a resource bundle for the default locale %s\n", warnOrErr, uloc_getDefault());
 			if(!getTestOption(WARN_ON_MISSING_DATA_OPTION)) {
 				slfprintf_stderr("*** Exiting.  Use the '-w' option if data files were\n"
 				    "*** purposely removed, to continue test anyway.\n");
@@ -198,7 +184,6 @@ int main(int argc, const char * const argv[])
 		/*  Tests actually run HERE.   TODO:  separate command line option parsing & setting from test
 		   execution!! */
 		nerrors = runTestRequest(root, argc, argv);
-
 		setTestOption(REPEAT_TESTS_OPTION, DECREMENT_OPTION_VALUE);
 		if(getTestOption(REPEAT_TESTS_OPTION) > 0) {
 			printf("Repeating tests %d more time(s)\n", getTestOption(REPEAT_TESTS_OPTION));
@@ -209,12 +194,8 @@ int main(int argc, const char * const argv[])
 		ctst_freeAll();
 		/* To check for leaks */
 		u_cleanup(); /* nuke the hashtable.. so that any still-open cnvs are leaked */
-
 		if(getTestOption(VERBOSITY_OPTION) && ctst_allocated_total>0) {
-			fprintf(stderr,
-			    "ctst_freeAll():  cleaned up after %d allocations (queue of %d)\n",
-			    ctst_allocated_total,
-			    CTST_MAX_ALLOC);
+			slfprintf_stderr("ctst_freeAll():  cleaned up after %d allocations (queue of %d)\n", ctst_allocated_total, CTST_MAX_ALLOC);
 		}
 #ifdef URES_DEBUG
 		if(ures_dumpCacheContents()) {

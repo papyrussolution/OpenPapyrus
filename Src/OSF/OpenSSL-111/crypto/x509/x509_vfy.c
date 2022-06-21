@@ -434,22 +434,19 @@ static int check_chain_extensions(X509_STORE_CTX * ctx)
 	for(i = 0; i < num; i++) {
 		int ret;
 		x = sk_X509_value(ctx->chain, i);
-		if(!(ctx->param->flags & X509_V_FLAG_IGNORE_CRITICAL)
-		 && (x->ex_flags & EXFLAG_CRITICAL)) {
+		if(!(ctx->param->flags & X509_V_FLAG_IGNORE_CRITICAL) && (x->ex_flags & EXFLAG_CRITICAL)) {
 			if(!verify_cb_cert(ctx, x, i,
 			    X509_V_ERR_UNHANDLED_CRITICAL_EXTENSION))
 				return 0;
 		}
 		if(!allow_proxy_certs && (x->ex_flags & EXFLAG_PROXY)) {
-			if(!verify_cb_cert(ctx, x, i,
-			    X509_V_ERR_PROXY_CERTIFICATES_NOT_ALLOWED))
+			if(!verify_cb_cert(ctx, x, i, X509_V_ERR_PROXY_CERTIFICATES_NOT_ALLOWED))
 				return 0;
 		}
 		ret = X509_check_ca(x);
 		switch(must_be_ca) {
 			case -1:
-			    if((ctx->param->flags & X509_V_FLAG_X509_STRICT)
-				&& (ret != 1) && (ret != 0)) {
+			    if((ctx->param->flags & X509_V_FLAG_X509_STRICT) && (ret != 1) && (ret != 0)) {
 				    ret = 0;
 				    ctx->error = X509_V_ERR_INVALID_CA;
 			    }
@@ -466,9 +463,7 @@ static int check_chain_extensions(X509_STORE_CTX * ctx)
 			    break;
 			default:
 			    /* X509_V_FLAG_X509_STRICT is implicit for intermediate CAs */
-			    if((ret == 0)
-				|| ((i + 1 < num || ctx->param->flags & X509_V_FLAG_X509_STRICT)
-				&& (ret != 1))) {
+			    if((ret == 0) || ((i + 1 < num || ctx->param->flags & X509_V_FLAG_X509_STRICT) && (ret != 1))) {
 				    ret = 0;
 				    ctx->error = X509_V_ERR_INVALID_CA;
 			    }
@@ -482,8 +477,7 @@ static int check_chain_extensions(X509_STORE_CTX * ctx)
 		if(purpose > 0 && !check_purpose(ctx, x, purpose, i, must_be_ca))
 			return 0;
 		/* Check pathlen */
-		if((i > 1) && (x->ex_pathlen != -1)
-		 && (plen > (x->ex_pathlen + proxy_path_length))) {
+		if((i > 1) && (x->ex_pathlen != -1) && (plen > (x->ex_pathlen + proxy_path_length))) {
 			if(!verify_cb_cert(ctx, x, i, X509_V_ERR_PATH_LENGTH_EXCEEDED))
 				return 0;
 		}
@@ -674,7 +668,6 @@ static int check_hosts(X509 * x, X509_VERIFY_PARAM * vpm)
 	int i;
 	int n = sk_OPENSSL_STRING_num(vpm->hosts);
 	char * name;
-
 	if(vpm->peername != NULL) {
 		OPENSSL_free(vpm->peername);
 		vpm->peername = NULL;
@@ -714,7 +707,6 @@ static int check_trust(X509_STORE_CTX * ctx, int num_untrusted)
 	SSL_DANE * dane = ctx->dane;
 	int num = sk_X509_num(ctx->chain);
 	int trust;
-
 	/*
 	 * Check for a DANE issuer at depth 1 or greater, if it is a DANE-TA(2)
 	 * match, we're done, otherwise we'll merely record the match depth.
@@ -726,7 +718,6 @@ static int check_trust(X509_STORE_CTX * ctx, int num_untrusted)
 			    return trust;
 		}
 	}
-
 	/*
 	 * Check trusted certificates in chain at depth num_untrusted and up.
 	 * Note, that depths 0..num_untrusted-1 may also contain trusted
@@ -1074,14 +1065,11 @@ static int check_delta_base(X509_CRL * delta, X509_CRL * base)
 		return 1;
 	return 0;
 }
-
 /*
  * For a given base CRL find a delta... maybe extend to delta scoring or
  * retrieve a chain of deltas...
  */
-
-static void get_delta_sk(X509_STORE_CTX * ctx, X509_CRL ** dcrl, int * pscore,
-    X509_CRL * base, STACK_OF(X509_CRL) * crls)
+static void get_delta_sk(X509_STORE_CTX * ctx, X509_CRL ** dcrl, int * pscore, X509_CRL * base, STACK_OF(X509_CRL) * crls)
 {
 	X509_CRL * delta;
 	int i;
@@ -3181,7 +3169,7 @@ static int check_key_level(X509_STORE_CTX * ctx, X509 * cert)
 		return 1;
 
 	/* Unsupported or malformed keys are not secure */
-	if(pkey == NULL)
+	if(!pkey)
 		return 0;
 
 	if(level > NUM_AUTH_LEVELS)

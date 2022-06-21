@@ -832,7 +832,7 @@ boolint cairo_region_equal(const cairo_region_t * a, const cairo_region_t * b)
 		return FALSE;
 	if(a == b)
 		return TRUE;
-	if(a == NULL || b == NULL)
+	if(!a || !b)
 		return FALSE;
 	return pixman_region32_equal(CONST_CAST &a->rgn, CONST_CAST &b->rgn);
 }

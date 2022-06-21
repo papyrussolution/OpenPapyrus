@@ -9,19 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "astutils.h"
-#include "cppcheck-config.h"
-#include "errortypes.h"
-#include "infer.h"
-#include "library.h"
-#include "mathlib.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "utils.h"
-#include "valueflow.h"
-#include "valueptr.h"
-#include "checkclass.h"
 
 const Token* findExpression(const nonneg int exprid, const Token* start, const Token* end, const std::function<bool(const Token*)>& pred)
 {

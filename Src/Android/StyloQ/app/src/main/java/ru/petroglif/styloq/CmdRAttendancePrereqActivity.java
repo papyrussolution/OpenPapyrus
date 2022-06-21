@@ -811,15 +811,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							final Document _doc = CPM.GetCurrentDocument();
 							if(SLib.GetLen(_doc.H.Code) > 0)
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, _doc.H.Code);
-							SLib.LDATE d = null;
-							if(_doc.H.Time > 0)
-								d = SLib.BuildDateByEpoch(_doc.H.Time);
-							else if(_doc.H.CreationTime > 0)
-								d = SLib.BuildDateByEpoch(_doc.H.CreationTime);
-							if(d != null) {
-								String ds = d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY);
-								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, ds);
-							}
+							SLib.LDATE d = _doc.GetNominalDate();
+							if(d != null)
+								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY));
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO, _doc.H.Memo);
 							if(_doc.BkList != null && _doc.BkList.size() > 0) {
 								String goods_name = "";
@@ -1187,11 +1181,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 														}
 														else if(ctl_view instanceof TextView) {
 															if(i == 1) { // date
-																SLib.LDATE d = null;
-																if(cur_entry.H.Time > 0)
-																	d = SLib.BuildDateByEpoch(cur_entry.H.Time);
-																else if(cur_entry.H.CreationTime > 0)
-																	d = SLib.BuildDateByEpoch(cur_entry.H.CreationTime);
+																SLib.LDATE d = cur_entry.GetNominalDate();
 																if(d != null)
 																	text = d.Format(SLib.DATF_DMY);
 															}
@@ -1412,14 +1402,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 																				; // По-моему, здесь ничего замерять не надо - мы и так зафиксировали размер элемента
 																			}
 																			else if(i == 1) { // date
-																				SLib.LDATE d = null;
-																				if(cur_entry.H.Time > 0)
-																					d = SLib.BuildDateByEpoch(cur_entry.H.Time);
-																				else if(cur_entry.H.CreationTime > 0)
-																					d = SLib.BuildDateByEpoch(cur_entry.H.CreationTime);
-																				if(d != null) {
+																				SLib.LDATE d = cur_entry.GetNominalDate();
+																				if(d != null)
 																					VdlDocs.DataPreprocessingIter(dpb, d.Format(SLib.DATF_DMY));
-																				}
 																			}
 																			else if(i == 2) { // code
 																				VdlDocs.DataPreprocessingIter(dpb, cur_entry.H.Code);

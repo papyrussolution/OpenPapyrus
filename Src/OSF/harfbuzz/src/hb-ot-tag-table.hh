@@ -1109,22 +1109,19 @@ static bool hb_ot_tags_from_complex_language(const char * lang_str,
 	}
 	if(subtag_matches(lang_str, limit, "-syre")) {
 		/* Undetermined; Syriac (Estrangelo variant) */
-		tags[0] = HB_TAG('S', 'Y', 'R', 'E'); /* Syriac, Estrangela script-variant (equivalent to ISO 15924
-		                                         'Syre') */
+		tags[0] = HB_TAG('S', 'Y', 'R', 'E'); /* Syriac, Estrangela script-variant (equivalent to ISO 15924 'Syre') */
 		*count = 1;
 		return true;
 	}
 	if(subtag_matches(lang_str, limit, "-syrj")) {
 		/* Undetermined; Syriac (Western variant) */
-		tags[0] = HB_TAG('S', 'Y', 'R', 'J'); /* Syriac, Western script-variant (equivalent to ISO 15924 'Syrj')
-		                                         */
+		tags[0] = HB_TAG('S', 'Y', 'R', 'J'); /* Syriac, Western script-variant (equivalent to ISO 15924 'Syrj') */
 		*count = 1;
 		return true;
 	}
 	if(subtag_matches(lang_str, limit, "-syrn")) {
 		/* Undetermined; Syriac (Eastern variant) */
-		tags[0] = HB_TAG('S', 'Y', 'R', 'N'); /* Syriac, Eastern script-variant (equivalent to ISO 15924 'Syrn')
-		                                         */
+		tags[0] = HB_TAG('S', 'Y', 'R', 'N'); /* Syriac, Eastern script-variant (equivalent to ISO 15924 'Syrn') */
 		*count = 1;
 		return true;
 	}
@@ -1927,13 +1924,11 @@ static bool hb_ot_tags_from_complex_language(const char * lang_str,
  **/
 static hb_language_t hb_ot_ambiguous_tag_to_language(hb_tag_t tag)
 {
-	switch(tag)
-	{
+	switch(tag) {
 		case HB_TAG('A', 'L', 'T', ' '): /* Altai */
 		    return hb_language_from_string("alt", -1); /* Southern Altai */
 		case HB_TAG('A', 'P', 'P', 'H'): /* Phonetic transcription—Americanist conventions */
-		    return hb_language_from_string("und-fonnapa", -1); /* Undetermined; North American Phonetic Alphabet
-		                                                          */
+		    return hb_language_from_string("und-fonnapa", -1); /* Undetermined; North American Phonetic Alphabet */
 		case HB_TAG('A', 'R', 'A', ' '): /* Arabic */
 		    return hb_language_from_string("ar", -1); /* Arabic */
 		case HB_TAG('A', 'R', 'K', ' '): /* Rakhine */
@@ -1967,8 +1962,7 @@ static hb_language_t hb_ot_ambiguous_tag_to_language(hb_tag_t tag)
 		case HB_TAG('I', 'P', 'K', ' '): /* Inupiat */
 		    return hb_language_from_string("ik", -1); /* Inupiaq */
 		case HB_TAG('I', 'P', 'P', 'H'): /* Phonetic transcription—IPA conventions */
-		    return hb_language_from_string("und-fonipa", -1); /* Undetermined; International Phonetic Alphabet
-		                                                         */
+		    return hb_language_from_string("und-fonipa", -1); /* Undetermined; International Phonetic Alphabet */
 		case HB_TAG('I', 'R', 'T', ' '): /* Irish Traditional */
 		    return hb_language_from_string("ga-Latg", -1); /* Irish; Latin (Gaelic variant) */
 		case HB_TAG('J', 'I', 'I', ' '): /* Yiddish */
@@ -1976,8 +1970,7 @@ static hb_language_t hb_ot_ambiguous_tag_to_language(hb_tag_t tag)
 		case HB_TAG('K', 'A', 'L', ' '): /* Kalenjin */
 		    return hb_language_from_string("kln", -1); /* Kalenjin */
 		case HB_TAG('K', 'G', 'E', ' '): /* Khutsuri Georgian */
-		    return hb_language_from_string("und-Geok", -1); /* Undetermined; Khutsuri (Asomtavruli and Nuskhuri)
-		                                                       */
+		    return hb_language_from_string("und-Geok", -1); /* Undetermined; Khutsuri (Asomtavruli and Nuskhuri) */
 		case HB_TAG('K', 'N', 'R', ' '): /* Kanuri */
 		    return hb_language_from_string("kr", -1); /* Kanuri */
 		case HB_TAG('K', 'O', 'K', ' '): /* Konkani */
@@ -2030,8 +2023,7 @@ static hb_language_t hb_ot_ambiguous_tag_to_language(hb_tag_t tag)
 		    return hb_language_from_string("sq", -1); /* Albanian */
 		case HB_TAG('S', 'Y', 'R', ' '): /* Syriac */
 		    return hb_language_from_string("syr", -1); /* Syriac */
-		case HB_TAG('S', 'Y', 'R', 'E'): /* Syriac, Estrangela script-variant (equivalent to ISO 15924 'Syre')
-		                                    */
+		case HB_TAG('S', 'Y', 'R', 'E'): /* Syriac, Estrangela script-variant (equivalent to ISO 15924 'Syre') */
 		    return hb_language_from_string("und-Syre", -1); /* Undetermined; Syriac (Estrangelo variant) */
 		case HB_TAG('S', 'Y', 'R', 'J'): /* Syriac, Western script-variant (equivalent to ISO 15924 'Syrj') */
 		    return hb_language_from_string("und-Syrj", -1); /* Undetermined; Syriac (Western variant) */

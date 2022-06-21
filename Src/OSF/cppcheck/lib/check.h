@@ -10,10 +10,7 @@
 #ifndef checkH
 #define checkH
 
-#include "cppcheck-config.h"
 #include "errortypes.h"
-#include <list>
-#include <string>
 
 namespace tinyxml2 {
 class XMLElement;
@@ -87,34 +84,29 @@ public:
 
 	/** Base class used for whole-program analysis */
 	class CPPCHECKLIB FileInfo {
-public:
-		FileInfo() {
+	public:
+		FileInfo() 
+		{
 		}
-
-		virtual ~FileInfo() {
+		virtual ~FileInfo() 
+		{
 		}
-
-		virtual std::string toString() const {
-			return std::string();
-		}
+		virtual std::string toString() const { return std::string(); }
 	};
-
-	virtual FileInfo * getFileInfo(const Tokenizer * tokenizer, const Settings * settings) const {
+	virtual FileInfo * getFileInfo(const Tokenizer * tokenizer, const Settings * settings) const 
+	{
 		(void)tokenizer;
 		(void)settings;
 		return nullptr;
 	}
-
-	virtual FileInfo * loadFileInfoFromXml(const tinyxml2::XMLElement * xmlElement) const {
+	virtual FileInfo * loadFileInfoFromXml(const tinyxml2::XMLElement * xmlElement) const 
+	{
 		(void)xmlElement;
 		return nullptr;
 	}
-
 	// Return true if an error is reported.
-	virtual bool analyseWholeProgram(const CTU::FileInfo * ctu,
-	    const std::list<FileInfo*> &fileInfo,
-	    const Settings& /*settings*/,
-	    ErrorLogger & /*errorLogger*/) {
+	virtual bool analyseWholeProgram(const CTU::FileInfo * ctu, const std::list<FileInfo*> &fileInfo, const Settings& /*settings*/, ErrorLogger & /*errorLogger*/) 
+	{
 		(void)ctu;
 		(void)fileInfo;
 		//(void)settings;
@@ -123,63 +115,43 @@ public:
 	}
 
 	static std::string getMessageId(const ValueFlow::Value &value, const char id[]);
-
 protected:
 	const Tokenizer * const mTokenizer;
 	const Settings * const mSettings;
 	ErrorLogger * const mErrorLogger;
 
 	/** report an error */
-	void reportError(const Token * tok, const Severity::SeverityType severity, const std::string &id, const std::string &msg) {
+	void reportError(const Token * tok, const Severity::SeverityType severity, const std::string &id, const std::string &msg) 
+	{
 		reportError(tok, severity, id, msg, CWE(0U), Certainty::normal);
 	}
-
 	/** report an error */
-	void reportError(const Token * tok,
-	    const Severity::SeverityType severity,
-	    const std::string &id,
-	    const std::string &msg,
-	    const CWE &cwe,
-	    Certainty::CertaintyLevel certainty) {
+	void reportError(const Token * tok, const Severity::SeverityType severity, const std::string &id, const std::string &msg,
+	    const CWE &cwe, Certainty::CertaintyLevel certainty) 
+	{
 		const std::list<const Token *> callstack(1, tok);
 		reportError(callstack, severity, id, msg, cwe, certainty);
 	}
 
 	/** report an error */
-	void reportError(const std::list<const Token *> &callstack,
-	    Severity::SeverityType severity,
-	    const std::string &id,
-	    const std::string &msg) {
+	void reportError(const std::list<const Token *> &callstack, Severity::SeverityType severity, const std::string &id, const std::string &msg) 
+	{
 		reportError(callstack, severity, id, msg, CWE(0U), Certainty::normal);
 	}
-
 	/** report an error */
-	void reportError(const std::list<const Token *> &callstack,
-	    Severity::SeverityType severity,
-	    const std::string &id,
-	    const std::string &msg,
-	    const CWE &cwe,
+	void reportError(const std::list<const Token *> &callstack, Severity::SeverityType severity, const std::string &id,
+	    const std::string &msg, const CWE &cwe, Certainty::CertaintyLevel certainty);
+	void reportError(const ErrorPath &errorPath, Severity::SeverityType severity, const char id[], const std::string &msg, const CWE &cwe,
 	    Certainty::CertaintyLevel certainty);
-
-	void reportError(const ErrorPath &errorPath,
-	    Severity::SeverityType severity,
-	    const char id[],
-	    const std::string &msg,
-	    const CWE &cwe,
-	    Certainty::CertaintyLevel certainty);
-
 	ErrorPath getErrorPath(const Token* errtok, const ValueFlow::Value* value, const std::string& bug) const;
-
 	/**
 	 * Use WRONG_DATA in checkers when you check for wrong data. That
 	 * will call this method
 	 */
 	bool wrongData(const Token * tok, const char * str);
-
 private:
 	const std::string mName;
 };
 
 /// @}
-//---------------------------------------------------------------------------
 #endif //  checkH

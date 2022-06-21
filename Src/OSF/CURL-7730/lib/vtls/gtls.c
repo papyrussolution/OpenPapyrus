@@ -784,7 +784,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
 	if(NULL != key)
 		gnutls_pubkey_deinit(key);
 
-	Curl_safefree(buff1);
+	ZFREE(buff1);
 
 	return result;
 }

@@ -156,7 +156,7 @@ static int bn_from_montgomery_word(BIGNUM * ret, BIGNUM * r, BN_MONT_CTX * mont)
 	return 1;
 }
 
-#endif                          /* MONT_WORD */
+#endif /* MONT_WORD */
 
 int BN_from_montgomery(BIGNUM * ret, const BIGNUM * a, BN_MONT_CTX * mont,
     BN_CTX * ctx)
@@ -214,7 +214,7 @@ int bn_from_mont_fixed_top(BIGNUM * ret, const BIGNUM * a, BN_MONT_CTX * mont,
 	bn_check_top(ret);
 err:
 	BN_CTX_end(ctx);
-#endif                          /* MONT_WORD */
+#endif /* MONT_WORD */
 	return retn;
 }
 

@@ -616,8 +616,7 @@ size_t EC_POINT_point2oct(const EC_GROUP * group, const EC_POINT * p,
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_POINT_oct2point(const EC_GROUP * group, EC_POINT * p,
-    const uchar * buf, size_t len, BN_CTX * ctx);
+int EC_POINT_oct2point(const EC_GROUP * group, EC_POINT * p, const uchar * buf, size_t len, BN_CTX * ctx);
 
 /** Encodes an EC_POINT object to an allocated octet string
  *  \param  group  underlying EC_GROUP object
@@ -627,19 +626,12 @@ int EC_POINT_oct2point(const EC_GROUP * group, EC_POINT * p,
  *  \param  ctx    BN_CTX object (optional)
  *  \return the length of the encoded octet string or 0 if an error occurred
  */
-size_t EC_POINT_point2buf(const EC_GROUP * group, const EC_POINT * point,
-    point_conversion_form_t form,
-    uchar ** pbuf, BN_CTX * ctx);
-
+size_t EC_POINT_point2buf(const EC_GROUP * group, const EC_POINT * point, point_conversion_form_t form, uchar ** pbuf, BN_CTX * ctx);
 /* other interfaces to point2oct/oct2point: */
-BIGNUM * EC_POINT_point2bn(const EC_GROUP *, const EC_POINT *,
-    point_conversion_form_t form, BIGNUM *, BN_CTX *);
-EC_POINT * EC_POINT_bn2point(const EC_GROUP *, const BIGNUM *,
-    EC_POINT *, BN_CTX *);
-char * EC_POINT_point2hex(const EC_GROUP *, const EC_POINT *,
-    point_conversion_form_t form, BN_CTX *);
-EC_POINT * EC_POINT_hex2point(const EC_GROUP *, const char *,
-    EC_POINT *, BN_CTX *);
+BIGNUM * EC_POINT_point2bn(const EC_GROUP *, const EC_POINT *, point_conversion_form_t form, BIGNUM *, BN_CTX *);
+EC_POINT * EC_POINT_bn2point(const EC_GROUP *, const BIGNUM *, EC_POINT *, BN_CTX *);
+char * EC_POINT_point2hex(const EC_GROUP *, const EC_POINT *, point_conversion_form_t form, BN_CTX *);
+EC_POINT * EC_POINT_hex2point(const EC_GROUP *, const char *, EC_POINT *, BN_CTX *);
 
 /********************************************************************/
 /* functions for doing EC_POINT arithmetic                  */
@@ -653,8 +645,7 @@ EC_POINT * EC_POINT_hex2point(const EC_GROUP *, const char *,
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_POINT_add(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a,
-    const EC_POINT * b, BN_CTX * ctx);
+int EC_POINT_add(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a, const EC_POINT * b, BN_CTX * ctx);
 
 /** Computes the double of a EC_POINT
  *  \param  group  underlying EC_GROUP object
@@ -663,8 +654,7 @@ int EC_POINT_add(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a,
  *  \param  ctx    BN_CTX object (optional)
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_POINT_dbl(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a,
-    BN_CTX * ctx);
+int EC_POINT_dbl(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a, BN_CTX * ctx);
 
 /** Computes the inverse of a EC_POINT
  *  \param  group  underlying EC_GROUP object

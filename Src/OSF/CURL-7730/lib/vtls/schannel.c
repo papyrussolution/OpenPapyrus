@@ -795,7 +795,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 			char buffer[STRERROR_LEN];
 			failf(data, "schannel: AcquireCredentialsHandle failed: %s",
 			    Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-			Curl_safefree(BACKEND->cred);
+			ZFREE(BACKEND->cred);
 			switch(sspi_status) {
 				case SEC_E_INSUFFICIENT_MEMORY:
 				    return CURLE_OUT_OF_MEMORY;
@@ -910,7 +910,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 
 	if(sspi_status != SEC_I_CONTINUE_NEEDED) {
 		char buffer[STRERROR_LEN];
-		Curl_safefree(BACKEND->ctxt);
+		ZFREE(BACKEND->ctxt);
 		switch(sspi_status) {
 			case SEC_E_INSUFFICIENT_MEMORY:
 			    failf(data, "schannel: initial InitializeSecurityContext failed: %s",
@@ -1106,7 +1106,7 @@ static CURLcode schannel_connect_step2(struct connectdata * conn, int sockindex)
 		curlx_unicodefree(host_name);
 
 		/* free buffer for received handshake data */
-		Curl_safefree(inbuf[0].pvBuffer);
+		ZFREE(inbuf[0].pvBuffer);
 
 		/* check if the handshake was incomplete */
 		if(sspi_status == SEC_E_INCOMPLETE_MESSAGE) {
@@ -1693,7 +1693,7 @@ static ssize_t schannel_send(struct connectdata * conn, int sockindex,
 		*err = CURLE_SEND_ERROR;
 	}
 
-	Curl_safefree(data);
+	ZFREE(data);
 
 	if(len == (size_t)written)
 		/* Encrypted message including header, data and trailer entirely sent.
@@ -2064,7 +2064,7 @@ static void Curl_schannel_session_free(void * ptr)
 	cred->refcount--;
 	if(cred->refcount == 0) {
 		s_pSecFn->FreeCredentialsHandle(&cred->cred_handle);
-		Curl_safefree(cred);
+		ZFREE(cred);
 	}
 }
 
@@ -2151,7 +2151,7 @@ static int Curl_schannel_shutdown(struct connectdata * conn, int sockindex)
 	if(BACKEND->ctxt) {
 		DEBUGF(infof(data, "schannel: clear security context handle\n"));
 		s_pSecFn->DeleteSecurityContext(&BACKEND->ctxt->ctxt_handle);
-		Curl_safefree(BACKEND->ctxt);
+		ZFREE(BACKEND->ctxt);
 	}
 
 	/* free SSPI Schannel API credential handle */
@@ -2168,14 +2168,14 @@ static int Curl_schannel_shutdown(struct connectdata * conn, int sockindex)
 	}
 	/* free internal buffer for received encrypted data */
 	if(BACKEND->encdata_buffer) {
-		Curl_safefree(BACKEND->encdata_buffer);
+		ZFREE(BACKEND->encdata_buffer);
 		BACKEND->encdata_length = 0;
 		BACKEND->encdata_offset = 0;
 		BACKEND->encdata_is_incomplete = false;
 	}
 	/* free internal buffer for received decrypted data */
 	if(BACKEND->decdata_buffer) {
-		Curl_safefree(BACKEND->decdata_buffer);
+		ZFREE(BACKEND->decdata_buffer);
 		BACKEND->decdata_length = 0;
 		BACKEND->decdata_offset = 0;
 	}

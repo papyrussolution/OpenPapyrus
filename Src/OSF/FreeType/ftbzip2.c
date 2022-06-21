@@ -38,7 +38,7 @@
 
 #define BZ_NO_STDIO /* Do not need FILE */
 // @sobolev #include <bzlib.h>
-#include <..\OSF\bzip2\bzlib.h> // @sobolev 
+#include <..\osf\bzip2\bzlib.h> // @sobolev 
 
 /***************************************************************************/
 /*****           B Z I P 2   M E M O R Y   M A N A G E M E N T         *****/

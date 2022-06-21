@@ -350,7 +350,7 @@ static int archive_read_format_tar_options(ArchiveRead * a, const char * key, co
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "tar: hdrcharset option needs a character-set name");
 		else {
 			tar->opt_sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
-			if(tar->opt_sconv != NULL)
+			if(tar->opt_sconv)
 				ret = ARCHIVE_OK;
 			else
 				ret = ARCHIVE_FATAL;
@@ -487,7 +487,7 @@ static int archive_read_format_tar_read_data(ArchiveRead * a, const void ** buff
 	struct tar * tar = (struct tar *)(a->format->data);
 	for(;;) {
 		/* Remove exhausted entries from sparse list. */
-		while(tar->sparse_list != NULL && tar->sparse_list->remaining == 0) {
+		while(tar->sparse_list && tar->sparse_list->remaining == 0) {
 			p = tar->sparse_list;
 			tar->sparse_list = p->next;
 			SAlloc::F(p);
@@ -539,7 +539,7 @@ static int archive_read_format_tar_skip(ArchiveRead * a)
 	struct tar* tar = (struct tar *)(a->format->data);
 	/* Do not consume the hole of a sparse file. */
 	int64 request = 0;
-	for(p = tar->sparse_list; p != NULL; p = p->next) {
+	for(p = tar->sparse_list; p; p = p->next) {
 		if(!p->hole) {
 			if(p->remaining >= INT64_MAX - request) {
 				return ARCHIVE_FATAL;
@@ -600,7 +600,7 @@ static int tar_read_header(ArchiveRead * a, struct tar * tar, ArchiveEntry * ent
 			/* Try to consume a second all-null record, as well. */
 			tar_flush_unconsumed(a, unconsumed);
 			h = static_cast<const char *>(__archive_read_ahead(a, 512, NULL));
-			if(h != NULL && h[0] == 0 && archive_block_is_null(h))
+			if(h && h[0] == 0 && archive_block_is_null(h))
 				__archive_read_consume(a, 512);
 			archive_clear_error(&a->archive);
 			return (ARCHIVE_EOF);
@@ -1470,7 +1470,7 @@ static int pax_header(ArchiveRead * a, struct tar * tar, ArchiveEntry * entry, a
 		as = &(tar->entry_pathname_override);
 	else if(archive_strlen(&(tar->entry_pathname)) > 0)
 		as = &(tar->entry_pathname);
-	if(as != NULL) {
+	if(as) {
 		if(archive_entry_copy_pathname_l(entry, as->s,
 		    archive_strlen(as), sconv) != 0) {
 			err = set_conversion_failed_error(a, sconv, "Pathname");
@@ -1975,7 +1975,7 @@ static int gnu_add_sparse_entry(ArchiveRead * a, struct tar * tar, int64 offset,
 		archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 		return ARCHIVE_FATAL;
 	}
-	if(tar->sparse_last != NULL)
+	if(tar->sparse_last)
 		tar->sparse_last->next = p;
 	else
 		tar->sparse_list = p;
@@ -1992,7 +1992,7 @@ static int gnu_add_sparse_entry(ArchiveRead * a, struct tar * tar, int64 offset,
 static void gnu_clear_sparse_list(struct tar * tar)
 {
 	struct sparse_block * p;
-	while(tar->sparse_list != NULL) {
+	while(tar->sparse_list) {
 		p = tar->sparse_list;
 		tar->sparse_list = p->next;
 		SAlloc::F(p);
@@ -2044,19 +2044,15 @@ static int gnu_sparse_old_read(ArchiveRead * a, struct tar * tar,
 		if(gnu_sparse_old_parse(a, tar, ext->sparse, 21) != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
 	} while(ext->isextended[0] != 0);
-	if(tar->sparse_list != NULL)
+	if(tar->sparse_list)
 		tar->entry_offset = tar->sparse_list->offset;
 	return ARCHIVE_OK;
 }
 
-static int gnu_sparse_old_parse(ArchiveRead * a, struct tar * tar,
-    const struct gnu_sparse * sparse, int length)
+static int gnu_sparse_old_parse(ArchiveRead * a, struct tar * tar, const struct gnu_sparse * sparse, int length)
 {
 	while(length > 0 && sparse->offset[0] != 0) {
-		if(gnu_add_sparse_entry(a, tar,
-		    tar_atol(sparse->offset, sizeof(sparse->offset)),
-		    tar_atol(sparse->numbytes, sizeof(sparse->numbytes)))
-		    != ARCHIVE_OK)
+		if(gnu_add_sparse_entry(a, tar, tar_atol(sparse->offset, sizeof(sparse->offset)), tar_atol(sparse->numbytes, sizeof(sparse->numbytes))) != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
 		sparse++;
 		length--;

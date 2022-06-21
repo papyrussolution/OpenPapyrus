@@ -56,7 +56,7 @@ int tls13_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending)
 	 * plaintext alerts at certain points in the handshake. If we've got this
 	 * far then we have already validated that a plaintext alert is ok here.
 	 */
-	if(ctx == NULL || rec->type == SSL3_RT_ALERT) {
+	if(!ctx || rec->type == SSL3_RT_ALERT) {
 		memmove(rec->data, rec->input, rec->length);
 		rec->input = rec->data;
 		return 1;

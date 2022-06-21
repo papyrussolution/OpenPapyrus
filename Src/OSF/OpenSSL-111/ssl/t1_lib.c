@@ -483,14 +483,11 @@ int tls1_check_group_id(SSL * s, uint16_t group_id, int check_own_groups)
 {
 	const uint16_t * groups;
 	size_t groups_len;
-
 	if(group_id == 0)
 		return 0;
-
 	/* Check for Suite B compliance */
-	if(tls1_suiteb(s) && s->s3->tmp.new_cipher != NULL) {
+	if(tls1_suiteb(s) && s->s3->tmp.new_cipher) {
 		ulong cid = s->s3->tmp.new_cipher->id;
-
 		if(cid == TLS1_CK_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256) {
 			if(group_id != TLSEXT_curve_P_256)
 				return 0;
@@ -504,7 +501,6 @@ int tls1_check_group_id(SSL * s, uint16_t group_id, int check_own_groups)
 			return 0;
 		}
 	}
-
 	if(check_own_groups) {
 		/* Check group is one of our preferences */
 		tls1_get_supported_groups(s, &groups, &groups_len);
@@ -562,7 +558,7 @@ static int tls1_check_cert_param(SSL * s, X509 * x, int check_ee_md)
 	uint16_t group_id;
 	EVP_PKEY * pkey;
 	pkey = X509_get0_pubkey(x);
-	if(pkey == NULL)
+	if(!pkey)
 		return 0;
 	/* If not EC nothing to do */
 	if(EVP_PKEY_id(pkey) != EVP_PKEY_EC)
@@ -635,7 +631,7 @@ static int tls1_check_cert_param(SSL * s, X509 * x, int set_ee_md)
 	return 1;
 }
 
-#endif                          /* OPENSSL_NO_EC */
+#endif /* OPENSSL_NO_EC */
 
 /* Default sigalg schemes */
 static const uint16_t tls12_sigalgs[] = {
@@ -867,22 +863,17 @@ static const SIGALG_LOOKUP * tls1_get_legacy_sigalg(const SSL * s, int idx)
 			/* Work out index corresponding to ciphersuite */
 			for(i = 0; i < SSL_PKEY_NUM; i++) {
 				const SSL_CERT_LOOKUP * clu = ssl_cert_lookup_by_idx(i);
-
 				if(clu->amask & s->s3->tmp.new_cipher->algorithm_auth) {
 					idx = i;
 					break;
 				}
 			}
-
 			/*
 			 * Some GOST ciphersuites allow more than one signature algorithms
 			 * */
 			if(idx == SSL_PKEY_GOST01 && s->s3->tmp.new_cipher->algorithm_auth != SSL_aGOST01) {
-				int real_idx;
-
-				for(real_idx = SSL_PKEY_GOST12_512; real_idx >= SSL_PKEY_GOST01;
-				    real_idx--) {
-					if(s->cert->pkeys[real_idx].privatekey != NULL) {
+				for(int real_idx = SSL_PKEY_GOST12_512; real_idx >= SSL_PKEY_GOST01; real_idx--) {
+					if(s->cert->pkeys[real_idx].privatekey) {
 						idx = real_idx;
 						break;
 					}
@@ -946,7 +937,7 @@ size_t tls12_get_psigalgs(SSL * s, int sent, const uint16_t ** psigs)
 	 *  and sending a certificate request or if we're a client and
 	 *  determining which shared algorithm to use.
 	 */
-	if((s->server == sent) && s->cert->client_sigalgs != NULL) {
+	if((s->server == sent) && s->cert->client_sigalgs) {
 		*psigs = s->cert->client_sigalgs;
 		return s->cert->client_sigalgslen;
 	}
@@ -1109,7 +1100,7 @@ int tls12_check_peer_sigalg(SSL * s, uint16_t sig, EVP_PKEY * pkey)
 		    SSL_R_UNKNOWN_DIGEST);
 		return 0;
 	}
-	if(md != NULL) {
+	if(md) {
 		/*
 		 * Make sure security callback allows algorithm. For historical
 		 * reasons we have to pass the sigalg as a two byte char array.
@@ -1169,7 +1160,7 @@ int ssl_set_client_disabled(SSL * s)
 		s->s3->tmp.mask_a |= SSL_aPSK;
 		s->s3->tmp.mask_k |= SSL_PSK;
 	}
-#endif                          /* OPENSSL_NO_PSK */
+#endif /* OPENSSL_NO_PSK */
 #ifndef OPENSSL_NO_SRP
 	if(!(s->srp_ctx.srp_Mask & SSL_kSRP)) {
 		s->s3->tmp.mask_a |= SSL_aSRP;
@@ -1259,18 +1250,14 @@ int tls1_set_server_sigalgs(SSL * s)
 		}
 		return 1;
 	}
-
 	if(!tls1_process_sigalgs(s)) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-		    SSL_F_TLS1_SET_SERVER_SIGALGS, ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_SET_SERVER_SIGALGS, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-	if(s->shared_sigalgs != NULL)
+	if(s->shared_sigalgs)
 		return 1;
-
 	/* Fatal error if no shared signature algorithms */
-	SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS1_SET_SERVER_SIGALGS,
-	    SSL_R_NO_SHARED_SIGNATURE_ALGORITHMS);
+	SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS1_SET_SERVER_SIGALGS, SSL_R_NO_SHARED_SIGNATURE_ALGORITHMS);
 	return 0;
 }
 
@@ -1493,30 +1480,21 @@ SSL_TICKET_STATUS tls_decrypt_ticket(SSL * s, const uchar * etick,
 end:
 	EVP_CIPHER_CTX_free(ctx);
 	HMAC_CTX_free(hctx);
-
 	/*
 	 * If set, the decrypt_ticket_cb() is called unless a fatal error was
 	 * detected above. The callback is responsible for checking |ret| before it
 	 * performs any action
 	 */
-	if(s->session_ctx->decrypt_ticket_cb != NULL
-	 && (ret == SSL_TICKET_EMPTY
-	   || ret == SSL_TICKET_NO_DECRYPT
-	   || ret == SSL_TICKET_SUCCESS
-	   || ret == SSL_TICKET_SUCCESS_RENEW)) {
+	if(s->session_ctx->decrypt_ticket_cb && (ret == SSL_TICKET_EMPTY || ret == SSL_TICKET_NO_DECRYPT || ret == SSL_TICKET_SUCCESS || ret == SSL_TICKET_SUCCESS_RENEW)) {
 		size_t keyname_len = eticklen;
 		int retcb;
-
 		if(keyname_len > TLSEXT_KEYNAME_LENGTH)
 			keyname_len = TLSEXT_KEYNAME_LENGTH;
-		retcb = s->session_ctx->decrypt_ticket_cb(s, sess, etick, keyname_len,
-			ret,
-			s->session_ctx->ticket_cb_data);
+		retcb = s->session_ctx->decrypt_ticket_cb(s, sess, etick, keyname_len, ret, s->session_ctx->ticket_cb_data);
 		switch(retcb) {
 			case SSL_TICKET_RETURN_ABORT:
 			    ret = SSL_TICKET_FATAL_ERR_OTHER;
 			    break;
-
 			case SSL_TICKET_RETURN_IGNORE:
 			    ret = SSL_TICKET_NONE;
 			    SSL_SESSION_free(sess);
@@ -1590,31 +1568,23 @@ static int tls12_sigalg_allowed(SSL * s, int op, const SIGALG_LOOKUP * lu)
 		/* We never allow GOST sig algs on the server with TLSv1.3 */
 		if(s->server && SSL_IS_TLS13(s))
 			return 0;
-		if(!s->server
-		 && s->method->version == TLS_ANY_VERSION
-		 && s->s3->tmp.max_ver >= TLS1_3_VERSION) {
+		if(!s->server && s->method->version == TLS_ANY_VERSION && s->s3->tmp.max_ver >= TLS1_3_VERSION) {
 			int i, num;
 			STACK_OF(SSL_CIPHER) *sk;
-
 			/*
 			 * We're a client that could negotiate TLSv1.3. We only allow GOST
 			 * sig algs if we could negotiate TLSv1.2 or below and we have GOST
 			 * ciphersuites enabled.
 			 */
-
 			if(s->s3->tmp.min_ver >= TLS1_3_VERSION)
 				return 0;
-
 			sk = SSL_get_ciphers(s);
-			num = sk != NULL ? sk_SSL_CIPHER_num(sk) : 0;
+			num = sk ? sk_SSL_CIPHER_num(sk) : 0;
 			for(i = 0; i < num; i++) {
-				const SSL_CIPHER * c;
-
-				c = sk_SSL_CIPHER_value(sk, i);
+				const SSL_CIPHER * c = sk_SSL_CIPHER_value(sk, i);
 				/* Skip disabled ciphers */
 				if(ssl_cipher_disabled(s, c, SSL_SECOP_CIPHER_SUPPORTED, 0))
 					continue;
-
 				if((c->algorithm_mkey & SSL_kGOST) != 0)
 					break;
 			}
@@ -1622,7 +1592,6 @@ static int tls12_sigalg_allowed(SSL * s, int op, const SIGALG_LOOKUP * lu)
 				return 0;
 		}
 	}
-
 	if(lu->hash == NID_undef)
 		return 1;
 	/* Security bits: half digest bits */
@@ -1850,9 +1819,7 @@ int tls1_process_sigalgs(SSL * s)
 	return 1;
 }
 
-int SSL_get_sigalgs(SSL * s, int idx,
-    int * psign, int * phash, int * psignhash,
-    uchar * rsig, uchar * rhash)
+int SSL_get_sigalgs(SSL * s, int idx, int * psign, int * phash, int * psignhash, uchar * rsig, uchar * rhash)
 {
 	uint16_t * psig = s->s3->tmp.peer_sigalgs;
 	size_t numsigalgs = s->s3->tmp.peer_sigalgslen;
@@ -1860,45 +1827,39 @@ int SSL_get_sigalgs(SSL * s, int idx,
 		return 0;
 	if(idx >= 0) {
 		const SIGALG_LOOKUP * lu;
-
 		if(idx >= (int)numsigalgs)
 			return 0;
 		psig += idx;
-		if(rhash != NULL)
+		if(rhash)
 			*rhash = (uchar)((*psig >> 8) & 0xff);
-		if(rsig != NULL)
+		if(rsig)
 			*rsig = (uchar)(*psig & 0xff);
 		lu = tls1_lookup_sigalg(*psig);
-		if(psign != NULL)
-			*psign = lu != NULL ? lu->sig : NID_undef;
-		if(phash != NULL)
-			*phash = lu != NULL ? lu->hash : NID_undef;
-		if(psignhash != NULL)
-			*psignhash = lu != NULL ? lu->sigandhash : NID_undef;
+		if(psign)
+			*psign = lu ? lu->sig : NID_undef;
+		if(phash)
+			*phash = lu ? lu->hash : NID_undef;
+		if(psignhash)
+			*psignhash = lu ? lu->sigandhash : NID_undef;
 	}
 	return (int)numsigalgs;
 }
 
-int SSL_get_shared_sigalgs(SSL * s, int idx,
-    int * psign, int * phash, int * psignhash,
-    uchar * rsig, uchar * rhash)
+int SSL_get_shared_sigalgs(SSL * s, int idx, int * psign, int * phash, int * psignhash, uchar * rsig, uchar * rhash)
 {
 	const SIGALG_LOOKUP * shsigalgs;
-	if(s->shared_sigalgs == NULL
-	   || idx < 0
-	   || idx >= (int)s->shared_sigalgslen
-	   || s->shared_sigalgslen > INT_MAX)
+	if(s->shared_sigalgs == NULL || idx < 0 || idx >= (int)s->shared_sigalgslen || s->shared_sigalgslen > INT_MAX)
 		return 0;
 	shsigalgs = s->shared_sigalgs[idx];
-	if(phash != NULL)
+	if(phash)
 		*phash = shsigalgs->hash;
-	if(psign != NULL)
+	if(psign)
 		*psign = shsigalgs->sig;
-	if(psignhash != NULL)
+	if(psignhash)
 		*psignhash = shsigalgs->sigandhash;
-	if(rsig != NULL)
+	if(rsig)
 		*rsig = (uchar)(shsigalgs->sigalg & 0xff);
-	if(rhash != NULL)
+	if(rhash)
 		*rhash = (uchar)((shsigalgs->sigalg >> 8) & 0xff);
 	return (int)s->shared_sigalgslen;
 }
@@ -1964,7 +1925,7 @@ static int sig_cb(const char * elem, int len, void * arg)
 	if(!p) {
 		for(i = 0, s = sigalg_lookup_tbl; i < OSSL_NELEM(sigalg_lookup_tbl);
 		    i++, s++) {
-			if(s->name != NULL && strcmp(etmp, s->name) == 0) {
+			if(s->name && strcmp(etmp, s->name) == 0) {
 				sarg->sigalgs[sarg->sigalgcnt++] = s->sigalg;
 				break;
 			}
@@ -2097,7 +2058,7 @@ static int tls1_check_sig_alg(SSL * s, X509 * x, int default_nid)
 	if(default_nid)
 		return sig_nid == default_nid ? 1 : 0;
 
-	if(SSL_IS_TLS13(s) && s->s3->tmp.peer_cert_sigalgs != NULL) {
+	if(SSL_IS_TLS13(s) && s->s3->tmp.peer_cert_sigalgs) {
 		/*
 		 * If we're in TLSv1.3 then we only get here if we're checking the
 		 * chain. If the peer has specified peer_cert_sigalgs then we use them
@@ -2212,7 +2173,7 @@ int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
 	if(TLS1_get_version(s) >= TLS1_2_VERSION && strict_mode) {
 		int default_nid;
 		int rsign = 0;
-		if(s->s3->tmp.peer_cert_sigalgs != NULL || s->s3->tmp.peer_sigalgs != NULL) {
+		if(s->s3->tmp.peer_cert_sigalgs || s->s3->tmp.peer_sigalgs) {
 			default_nid = 0;
 			/* If no sigalgs extension use defaults from RFC5246 */
 		}
@@ -2261,8 +2222,7 @@ int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
 			const uint16_t * p = c->conf_sigalgs;
 			for(j = 0; j < c->conf_sigalgslen; j++, p++) {
 				const SIGALG_LOOKUP * lu = tls1_lookup_sigalg(*p);
-
-				if(lu != NULL && lu->hash == NID_sha1 && lu->sig == rsign)
+				if(lu && lu->hash == NID_sha1 && lu->sig == rsign)
 					break;
 			}
 			if(j == c->conf_sigalgslen) {
@@ -2278,7 +2238,7 @@ int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
 			 * We only get here if the application has called SSL_check_chain(),
 			 * so check_flags is always set.
 			 */
-			if(find_sig_alg(s, x, pk) != NULL)
+			if(find_sig_alg(s, x, pk))
 				rv |= CERT_PKEY_EE_SIGNATURE;
 		}
 		else if(!tls1_check_sig_alg(s, x, default_nid)) {
@@ -2600,12 +2560,10 @@ static int check_cert_usable(SSL * s, const SIGALG_LOOKUP * sig, X509 * x,
 	/* If it didn't report a mandatory NID, for whatever reasons,
 	 * just clear the error and allow all hashes to be used. */
 	ERR_pop_to_mark();
-
-	if(s->s3->tmp.peer_cert_sigalgs != NULL) {
+	if(s->s3->tmp.peer_cert_sigalgs) {
 		for(i = 0; i < s->s3->tmp.peer_cert_sigalgslen; i++) {
 			lu = tls1_lookup_sigalg(s->s3->tmp.peer_cert_sigalgs[i]);
-			if(lu == NULL
-			   || !X509_get_signature_info(x, &mdnid, &pknid, NULL, NULL))
+			if(lu == NULL || !X509_get_signature_info(x, &mdnid, &pknid, NULL, NULL))
 				continue;
 			/*
 			 * TODO this does not differentiate between the
@@ -2672,27 +2630,18 @@ static const SIGALG_LOOKUP * find_sig_alg(SSL * s, X509 * x, EVP_PKEY * pkey)
 	int curve = -1;
 #endif
 	EVP_PKEY * tmppkey;
-
 	/* Look for a shared sigalgs matching possible certificates */
 	for(i = 0; i < s->shared_sigalgslen; i++) {
 		lu = s->shared_sigalgs[i];
-
 		/* Skip SHA1, SHA224, DSA and RSA if not PSS */
-		if(lu->hash == NID_sha1
-		   || lu->hash == NID_sha224
-		   || lu->sig == EVP_PKEY_DSA
-		   || lu->sig == EVP_PKEY_RSA)
+		if(lu->hash == NID_sha1 || lu->hash == NID_sha224 || lu->sig == EVP_PKEY_DSA || lu->sig == EVP_PKEY_RSA)
 			continue;
 		/* Check that we have a cert, and signature_algorithms_cert */
 		if(!tls1_lookup_md(lu, NULL))
 			continue;
-		if((pkey == NULL && !has_usable_cert(s, lu, -1))
-		   || (pkey != NULL && !is_cert_usable(s, lu, x, pkey)))
+		if((pkey == NULL && !has_usable_cert(s, lu, -1)) || (pkey && !is_cert_usable(s, lu, x, pkey)))
 			continue;
-
-		tmppkey = (pkey != NULL) ? pkey
-		    : s->cert->pkeys[lu->sig_idx].privatekey;
-
+		tmppkey = pkey ? pkey : s->cert->pkeys[lu->sig_idx].privatekey;
 		if(lu->sig == EVP_PKEY_EC) {
 #ifndef OPENSSL_NO_EC
 			if(curve == -1) {
@@ -2743,8 +2692,7 @@ int tls_choose_sigalg(SSL * s, int fatalerrs)
 		if(lu == NULL) {
 			if(!fatalerrs)
 				return 1;
-			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_CHOOSE_SIGALG,
-			    SSL_R_NO_SUITABLE_SIGNATURE_ALGORITHM);
+			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_CHOOSE_SIGALG, SSL_R_NO_SUITABLE_SIGNATURE_ALGORITHM);
 			return 0;
 		}
 	}
@@ -2754,13 +2702,11 @@ int tls_choose_sigalg(SSL * s, int fatalerrs)
 			return 1;
 		if(!s->server && !ssl_has_cert(s, s->cert->key - s->cert->pkeys))
 			return 1;
-
 		if(SSL_USE_SIGALGS(s)) {
 			size_t i;
-			if(s->s3->tmp.peer_sigalgs != NULL) {
+			if(s->s3->tmp.peer_sigalgs) {
 #ifndef OPENSSL_NO_EC
 				int curve;
-
 				/* For Suite B need to match signature algorithm to curve */
 				if(tls1_suiteb(s)) {
 					EC_KEY * ec = EVP_PKEY_get0_EC_KEY(s->cert->pkeys[SSL_PKEY_ECC].privatekey);

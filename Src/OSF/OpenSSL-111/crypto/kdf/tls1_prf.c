@@ -182,7 +182,7 @@ static int tls1_prf_P_hash(const EVP_MD * md,
 	ctx = EVP_MD_CTX_new();
 	ctx_tmp = EVP_MD_CTX_new();
 	ctx_init = EVP_MD_CTX_new();
-	if(ctx == NULL || ctx_tmp == NULL || ctx_init == NULL)
+	if(!ctx || ctx_tmp == NULL || ctx_init == NULL)
 		goto err;
 	EVP_MD_CTX_set_flags(ctx_init, EVP_MD_CTX_FLAG_NON_FIPS_ALLOW);
 	mac_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_HMAC, NULL, sec, sec_len);

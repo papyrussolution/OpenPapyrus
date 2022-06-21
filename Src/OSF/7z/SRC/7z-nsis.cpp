@@ -2710,19 +2710,14 @@ namespace NArchive {
 			}
 
 		  #endif
-
 			const Byte * p;
 			uint32 kkk;
-
 		  #ifdef NSIS_SCRIPT
-
 			p = _data + bh.Offset;
-
 			for(kkk = 0; kkk < bh.Num; kkk++, p += kCmdSize) {
 				uint32 commandId = GetCmd(Get32(p));
 				uint32 mask;
-				switch(commandId)
-				{
+				switch(commandId) {
 					case EW_NOP:          mask = 1 << 0; break;
 					case EW_IFFILEEXISTS: mask = 3 << 1; break;
 					case EW_IFFLAG:       mask = 3 << 0; break;

@@ -5,12 +5,10 @@
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution or at  https://www.openssl.org/source/license.html
  */
-
 #ifndef HEADER_DH_H
 #define HEADER_DH_H
 
 #include <openssl/opensslconf.h>
-
 #ifndef OPENSSL_NO_DH
 #include <openssl/e_os2.h>
 #include <openssl/bio.h>
@@ -86,208 +84,134 @@ DECLARE_ASN1_ITEM(DHparams)
  */
 #define DH_CHECK_P_NOT_STRONG_PRIME     DH_CHECK_P_NOT_SAFE_PRIME
 
-#define d2i_DHparams_fp(fp,x)  (DH *)ASN1_d2i_fp((char *(*)())DH_new, (char *(*)())d2i_DHparams, (fp), (uchar **)(x))
-#define i2d_DHparams_fp(fp,x)  ASN1_i2d_fp(i2d_DHparams,(fp), (uchar *)(x))
-#define d2i_DHparams_bio(bp,x) ASN1_d2i_bio_of(DH, DH_new, d2i_DHparams, bp, x)
-#define i2d_DHparams_bio(bp,x) ASN1_i2d_bio_of_const(DH,i2d_DHparams,bp,x)
+#define d2i_DHparams_fp(fp, x)  (DH*)ASN1_d2i_fp((char *(*)())DH_new, (char *(*)())d2i_DHparams, (fp), (uchar**)(x))
+#define i2d_DHparams_fp(fp, x)  ASN1_i2d_fp(i2d_DHparams, (fp), (uchar*)(x))
+#define d2i_DHparams_bio(bp, x) ASN1_d2i_bio_of(DH, DH_new, d2i_DHparams, bp, x)
+#define i2d_DHparams_bio(bp, x) ASN1_i2d_bio_of_const(DH, i2d_DHparams, bp, x)
 
-#define d2i_DHxparams_fp(fp,x) (DH *)ASN1_d2i_fp((char *(*)())DH_new, (char *(*)())d2i_DHxparams, (fp), (uchar **)(x))
-#define i2d_DHxparams_fp(fp,x) ASN1_i2d_fp(i2d_DHxparams,(fp), (uchar *)(x))
-#define d2i_DHxparams_bio(bp,x) ASN1_d2i_bio_of(DH, DH_new, d2i_DHxparams, bp, x)
-#define i2d_DHxparams_bio(bp,x) ASN1_i2d_bio_of_const(DH, i2d_DHxparams, bp, x)
+#define d2i_DHxparams_fp(fp, x) (DH*)ASN1_d2i_fp((char *(*)())DH_new, (char *(*)())d2i_DHxparams, (fp), (uchar**)(x))
+#define i2d_DHxparams_fp(fp, x) ASN1_i2d_fp(i2d_DHxparams, (fp), (uchar*)(x))
+#define d2i_DHxparams_bio(bp, x) ASN1_d2i_bio_of(DH, DH_new, d2i_DHxparams, bp, x)
+#define i2d_DHxparams_bio(bp, x) ASN1_i2d_bio_of_const(DH, i2d_DHxparams, bp, x)
 
 DH   * DHparams_dup(DH *);
-const  DH_METHOD *DH_OpenSSL(void);
-void   DH_set_default_method(const DH_METHOD *meth);
-const  DH_METHOD * DH_get_default_method(void);
-int    DH_set_method(DH *dh, const DH_METHOD *meth);
-DH   * DH_new_method(ENGINE *engine);
+const DH_METHOD * DH_OpenSSL(void);
+void   DH_set_default_method(const DH_METHOD * meth);
+const DH_METHOD * DH_get_default_method(void);
+int    DH_set_method(DH * dh, const DH_METHOD * meth);
+DH   * DH_new_method(ENGINE * engine);
 DH   * DH_new(void);
-void   FASTCALL DH_free(DH *dh);
-int    DH_up_ref(DH *dh);
-int    DH_bits(const DH *dh);
-int    DH_size(const DH *dh);
-int    DH_security_bits(const DH *dh);
+void FASTCALL DH_free(DH * dh);
+int    DH_up_ref(DH * dh);
+int    DH_bits(const DH * dh);
+int    DH_size(const DH * dh);
+int    DH_security_bits(const DH * dh);
 #define DH_get_ex_new_index(l, p, newf, dupf, freef) CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_DH, l, p, newf, dupf, freef)
-int    DH_set_ex_data(DH *d, int idx, void *arg);
-void * DH_get_ex_data(DH *d, int idx);
+int    DH_set_ex_data(DH * d, int idx, void * arg);
+void * DH_get_ex_data(DH * d, int idx);
 
 /* Deprecated version */
-DEPRECATEDIN_0_9_8(DH *DH_generate_parameters(int prime_len, int generator,
-                                              void (*callback) (int, int,
-                                                                void *),
-                                              void *cb_arg))
-
+DEPRECATEDIN_0_9_8(DH * DH_generate_parameters(int prime_len, int generator, void (* callback)(int, int, void *), void * cb_arg))
 /* New version */
-int DH_generate_parameters_ex(DH *dh, int prime_len, int generator,
-                              BN_GENCB *cb);
-
-int DH_check_params_ex(const DH *dh);
-int DH_check_ex(const DH *dh);
-int DH_check_pub_key_ex(const DH *dh, const BIGNUM *pub_key);
-int DH_check_params(const DH *dh, int *ret);
-int DH_check(const DH *dh, int *codes);
-int DH_check_pub_key(const DH *dh, const BIGNUM *pub_key, int *codes);
-int DH_generate_key(DH *dh);
-int DH_compute_key(uchar *key, const BIGNUM *pub_key, DH *dh);
-int DH_compute_key_padded(uchar *key, const BIGNUM *pub_key, DH *dh);
-DH *d2i_DHparams(DH **a, const uchar **pp, long length);
-int i2d_DHparams(const DH *a, uchar **pp);
-DH *d2i_DHxparams(DH **a, const uchar **pp, long length);
-int i2d_DHxparams(const DH *a, uchar **pp);
+int DH_generate_parameters_ex(DH * dh, int prime_len, int generator, BN_GENCB * cb);
+int DH_check_params_ex(const DH * dh);
+int DH_check_ex(const DH * dh);
+int DH_check_pub_key_ex(const DH * dh, const BIGNUM * pub_key);
+int DH_check_params(const DH * dh, int * ret);
+int DH_check(const DH * dh, int * codes);
+int DH_check_pub_key(const DH * dh, const BIGNUM * pub_key, int * codes);
+int DH_generate_key(DH * dh);
+int DH_compute_key(uchar * key, const BIGNUM * pub_key, DH * dh);
+int DH_compute_key_padded(uchar * key, const BIGNUM * pub_key, DH * dh);
+DH * d2i_DHparams(DH ** a, const uchar ** pp, long length);
+int i2d_DHparams(const DH * a, uchar ** pp);
+DH * d2i_DHxparams(DH ** a, const uchar ** pp, long length);
+int i2d_DHxparams(const DH * a, uchar ** pp);
 #ifndef OPENSSL_NO_STDIO
-int DHparams_print_fp(FILE *fp, const DH *x);
+int DHparams_print_fp(FILE * fp, const DH * x);
 #endif
-int DHparams_print(BIO *bp, const DH *x);
+int DHparams_print(BIO * bp, const DH * x);
 
 /* RFC 5114 parameters */
-DH *DH_get_1024_160(void);
-DH *DH_get_2048_224(void);
-DH *DH_get_2048_256(void);
+DH * DH_get_1024_160(void);
+DH * DH_get_2048_224(void);
+DH * DH_get_2048_256(void);
 
 /* Named parameters, currently RFC7919 */
-DH *DH_new_by_nid(int nid);
-int DH_get_nid(const DH *dh);
+DH * DH_new_by_nid(int nid);
+int DH_get_nid(const DH * dh);
 
 #ifndef OPENSSL_NO_CMS
 /* RFC2631 KDF */
-int DH_KDF_X9_42(uchar *out, size_t outlen,
-                 const uchar *Z, size_t Zlen,
-                 ASN1_OBJECT *key_oid,
-                 const uchar *ukm, size_t ukmlen, const EVP_MD *md);
+int DH_KDF_X9_42(uchar * out, size_t outlen,
+    const uchar * Z, size_t Zlen,
+    ASN1_OBJECT * key_oid,
+    const uchar * ukm, size_t ukmlen, const EVP_MD * md);
 #endif
 
-void DH_get0_pqg(const DH *dh,
-                 const BIGNUM **p, const BIGNUM **q, const BIGNUM **g);
-int DH_set0_pqg(DH *dh, BIGNUM *p, BIGNUM *q, BIGNUM *g);
-void DH_get0_key(const DH *dh,
-                 const BIGNUM **pub_key, const BIGNUM **priv_key);
-int DH_set0_key(DH *dh, BIGNUM *pub_key, BIGNUM *priv_key);
-const BIGNUM *DH_get0_p(const DH *dh);
-const BIGNUM *DH_get0_q(const DH *dh);
-const BIGNUM *DH_get0_g(const DH *dh);
-const BIGNUM *DH_get0_priv_key(const DH *dh);
-const BIGNUM *DH_get0_pub_key(const DH *dh);
-void DH_clear_flags(DH *dh, int flags);
-int DH_test_flags(const DH *dh, int flags);
-void DH_set_flags(DH *dh, int flags);
-ENGINE *DH_get0_engine(DH *d);
-long DH_get_length(const DH *dh);
-int DH_set_length(DH *dh, long length);
+void DH_get0_pqg(const DH * dh,
+    const BIGNUM ** p, const BIGNUM ** q, const BIGNUM ** g);
+int DH_set0_pqg(DH * dh, BIGNUM * p, BIGNUM * q, BIGNUM * g);
+void DH_get0_key(const DH * dh,
+    const BIGNUM ** pub_key, const BIGNUM ** priv_key);
+int DH_set0_key(DH * dh, BIGNUM * pub_key, BIGNUM * priv_key);
+const BIGNUM * DH_get0_p(const DH * dh);
+const BIGNUM * DH_get0_q(const DH * dh);
+const BIGNUM * DH_get0_g(const DH * dh);
+const BIGNUM * DH_get0_priv_key(const DH * dh);
+const BIGNUM * DH_get0_pub_key(const DH * dh);
+void DH_clear_flags(DH * dh, int flags);
+int DH_test_flags(const DH * dh, int flags);
+void DH_set_flags(DH * dh, int flags);
+ENGINE * DH_get0_engine(DH * d);
+long DH_get_length(const DH * dh);
+int DH_set_length(DH * dh, long length);
 
-DH_METHOD *DH_meth_new(const char *name, int flags);
-void DH_meth_free(DH_METHOD *dhm);
-DH_METHOD *DH_meth_dup(const DH_METHOD *dhm);
-const char *DH_meth_get0_name(const DH_METHOD *dhm);
-int DH_meth_set1_name(DH_METHOD *dhm, const char *name);
-int DH_meth_get_flags(const DH_METHOD *dhm);
-int DH_meth_set_flags(DH_METHOD *dhm, int flags);
-void *DH_meth_get0_app_data(const DH_METHOD *dhm);
-int DH_meth_set0_app_data(DH_METHOD *dhm, void *app_data);
-int (*DH_meth_get_generate_key(const DH_METHOD *dhm)) (DH *);
-int DH_meth_set_generate_key(DH_METHOD *dhm, int (*generate_key) (DH *));
+DH_METHOD * DH_meth_new(const char * name, int flags);
+void DH_meth_free(DH_METHOD * dhm);
+DH_METHOD * DH_meth_dup(const DH_METHOD * dhm);
+const char * DH_meth_get0_name(const DH_METHOD * dhm);
+int DH_meth_set1_name(DH_METHOD * dhm, const char * name);
+int DH_meth_get_flags(const DH_METHOD * dhm);
+int DH_meth_set_flags(DH_METHOD * dhm, int flags);
+void * DH_meth_get0_app_data(const DH_METHOD * dhm);
+int DH_meth_set0_app_data(DH_METHOD * dhm, void * app_data);
+int(*DH_meth_get_generate_key(const DH_METHOD *dhm)) (DH *);
+int DH_meth_set_generate_key(DH_METHOD * dhm, int (* generate_key)(DH *));
 int (*DH_meth_get_compute_key(const DH_METHOD *dhm))
-        (uchar *key, const BIGNUM *pub_key, DH *dh);
-int DH_meth_set_compute_key(DH_METHOD *dhm,
-        int (*compute_key) (uchar *key, const BIGNUM *pub_key, DH *dh));
+(uchar *key, const BIGNUM *pub_key, DH *dh);
+int DH_meth_set_compute_key(DH_METHOD * dhm,
+    int (* compute_key)(uchar * key, const BIGNUM * pub_key, DH * dh));
 int (*DH_meth_get_bn_mod_exp(const DH_METHOD *dhm))
-    (const DH *, BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *,
-     BN_CTX *, BN_MONT_CTX *);
-int DH_meth_set_bn_mod_exp(DH_METHOD *dhm,
-    int (*bn_mod_exp) (const DH *, BIGNUM *, const BIGNUM *, const BIGNUM *,
-                       const BIGNUM *, BN_CTX *, BN_MONT_CTX *));
-int (*DH_meth_get_init(const DH_METHOD *dhm))(DH *);
-int DH_meth_set_init(DH_METHOD *dhm, int (*init)(DH *));
-int (*DH_meth_get_finish(const DH_METHOD *dhm)) (DH *);
-int DH_meth_set_finish(DH_METHOD *dhm, int (*finish) (DH *));
+(const DH *, BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *,
+BN_CTX *, BN_MONT_CTX *);
+int DH_meth_set_bn_mod_exp(DH_METHOD * dhm, int (* bn_mod_exp)(const DH *, BIGNUM *, const BIGNUM *, const BIGNUM *, const BIGNUM *, BN_CTX *, BN_MONT_CTX *));
+int(*DH_meth_get_init(const DH_METHOD *dhm))(DH *);
+int DH_meth_set_init(DH_METHOD * dhm, int (* init)(DH *));
+int(*DH_meth_get_finish(const DH_METHOD *dhm)) (DH *);
+int DH_meth_set_finish(DH_METHOD * dhm, int (* finish)(DH *));
 int (*DH_meth_get_generate_params(const DH_METHOD *dhm))
-        (DH *, int, int, BN_GENCB *);
-int DH_meth_set_generate_params(DH_METHOD *dhm,
-        int (*generate_params) (DH *, int, int, BN_GENCB *));
+(DH *, int, int, BN_GENCB *);
+int DH_meth_set_generate_params(DH_METHOD * dhm, int (* generate_params)(DH *, int, int, BN_GENCB *));
 
-
-#define EVP_PKEY_CTX_set_dh_paramgen_prime_len(ctx, len) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, EVP_PKEY_OP_PARAMGEN, \
-                        EVP_PKEY_CTRL_DH_PARAMGEN_PRIME_LEN, len, NULL)
-
-#define EVP_PKEY_CTX_set_dh_paramgen_subprime_len(ctx, len) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, EVP_PKEY_OP_PARAMGEN, \
-                        EVP_PKEY_CTRL_DH_PARAMGEN_SUBPRIME_LEN, len, NULL)
-
-#define EVP_PKEY_CTX_set_dh_paramgen_type(ctx, typ) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, EVP_PKEY_OP_PARAMGEN, \
-                        EVP_PKEY_CTRL_DH_PARAMGEN_TYPE, typ, NULL)
-
-#define EVP_PKEY_CTX_set_dh_paramgen_generator(ctx, gen) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, EVP_PKEY_OP_PARAMGEN, \
-                        EVP_PKEY_CTRL_DH_PARAMGEN_GENERATOR, gen, NULL)
-
-#define EVP_PKEY_CTX_set_dh_rfc5114(ctx, gen) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_PARAMGEN, \
-                        EVP_PKEY_CTRL_DH_RFC5114, gen, NULL)
-
-#define EVP_PKEY_CTX_set_dhx_rfc5114(ctx, gen) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_PARAMGEN, \
-                        EVP_PKEY_CTRL_DH_RFC5114, gen, NULL)
-
-#define EVP_PKEY_CTX_set_dh_nid(ctx, nid) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, \
-                        EVP_PKEY_OP_PARAMGEN | EVP_PKEY_OP_KEYGEN, \
-                        EVP_PKEY_CTRL_DH_NID, nid, NULL)
-
-#define EVP_PKEY_CTX_set_dh_pad(ctx, pad) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, EVP_PKEY_OP_DERIVE, \
-                          EVP_PKEY_CTRL_DH_PAD, pad, NULL)
-
-#define EVP_PKEY_CTX_set_dh_kdf_type(ctx, kdf) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, \
-                                EVP_PKEY_OP_DERIVE, \
-                                EVP_PKEY_CTRL_DH_KDF_TYPE, kdf, NULL)
-
-#define EVP_PKEY_CTX_get_dh_kdf_type(ctx) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, \
-                                EVP_PKEY_OP_DERIVE, \
-                                EVP_PKEY_CTRL_DH_KDF_TYPE, -2, NULL)
-
-#define EVP_PKEY_CTX_set0_dh_kdf_oid(ctx, oid) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, \
-                                EVP_PKEY_OP_DERIVE, \
-                                EVP_PKEY_CTRL_DH_KDF_OID, 0, (void *)(oid))
-
-#define EVP_PKEY_CTX_get0_dh_kdf_oid(ctx, poid) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, \
-                                EVP_PKEY_OP_DERIVE, \
-                                EVP_PKEY_CTRL_GET_DH_KDF_OID, 0, (void *)(poid))
-
-#define EVP_PKEY_CTX_set_dh_kdf_md(ctx, md) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, \
-                                EVP_PKEY_OP_DERIVE, \
-                                EVP_PKEY_CTRL_DH_KDF_MD, 0, (void *)(md))
-
-#define EVP_PKEY_CTX_get_dh_kdf_md(ctx, pmd) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, \
-                                EVP_PKEY_OP_DERIVE, \
-                                EVP_PKEY_CTRL_GET_DH_KDF_MD, 0, (void *)(pmd))
-
-#define EVP_PKEY_CTX_set_dh_kdf_outlen(ctx, len) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, \
-                                EVP_PKEY_OP_DERIVE, \
-                                EVP_PKEY_CTRL_DH_KDF_OUTLEN, len, NULL)
-
-#define EVP_PKEY_CTX_get_dh_kdf_outlen(ctx, plen) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, \
-                                EVP_PKEY_OP_DERIVE, \
-                        EVP_PKEY_CTRL_GET_DH_KDF_OUTLEN, 0, (void *)(plen))
-
-#define EVP_PKEY_CTX_set0_dh_kdf_ukm(ctx, p, plen) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, \
-                                EVP_PKEY_OP_DERIVE, \
-                                EVP_PKEY_CTRL_DH_KDF_UKM, plen, (void *)(p))
-
-#define EVP_PKEY_CTX_get0_dh_kdf_ukm(ctx, p) \
-        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, \
-                                EVP_PKEY_OP_DERIVE, \
-                                EVP_PKEY_CTRL_GET_DH_KDF_UKM, 0, (void *)(p))
+#define EVP_PKEY_CTX_set_dh_paramgen_prime_len(ctx, len) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, EVP_PKEY_OP_PARAMGEN, EVP_PKEY_CTRL_DH_PARAMGEN_PRIME_LEN, len, NULL)
+#define EVP_PKEY_CTX_set_dh_paramgen_subprime_len(ctx, len) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, EVP_PKEY_OP_PARAMGEN, EVP_PKEY_CTRL_DH_PARAMGEN_SUBPRIME_LEN, len, NULL)
+#define EVP_PKEY_CTX_set_dh_paramgen_type(ctx, typ) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, EVP_PKEY_OP_PARAMGEN, EVP_PKEY_CTRL_DH_PARAMGEN_TYPE, typ, NULL)
+#define EVP_PKEY_CTX_set_dh_paramgen_generator(ctx, gen) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, EVP_PKEY_OP_PARAMGEN, EVP_PKEY_CTRL_DH_PARAMGEN_GENERATOR, gen, NULL)
+#define EVP_PKEY_CTX_set_dh_rfc5114(ctx, gen) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_PARAMGEN, EVP_PKEY_CTRL_DH_RFC5114, gen, NULL)
+#define EVP_PKEY_CTX_set_dhx_rfc5114(ctx, gen) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_PARAMGEN, EVP_PKEY_CTRL_DH_RFC5114, gen, NULL)
+#define EVP_PKEY_CTX_set_dh_nid(ctx, nid) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, EVP_PKEY_OP_PARAMGEN | EVP_PKEY_OP_KEYGEN, EVP_PKEY_CTRL_DH_NID, nid, NULL)
+#define EVP_PKEY_CTX_set_dh_pad(ctx, pad) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DH, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_DH_PAD, pad, NULL)
+#define EVP_PKEY_CTX_set_dh_kdf_type(ctx, kdf) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_DH_KDF_TYPE, kdf, NULL)
+#define EVP_PKEY_CTX_get_dh_kdf_type(ctx) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_DH_KDF_TYPE, -2, NULL)
+#define EVP_PKEY_CTX_set0_dh_kdf_oid(ctx, oid) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_DH_KDF_OID, 0, (void *)(oid))
+#define EVP_PKEY_CTX_get0_dh_kdf_oid(ctx, poid) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_GET_DH_KDF_OID, 0, (void *)(poid))
+#define EVP_PKEY_CTX_set_dh_kdf_md(ctx, md) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_DH_KDF_MD, 0, (void *)(md))
+#define EVP_PKEY_CTX_get_dh_kdf_md(ctx, pmd) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_GET_DH_KDF_MD, 0, (void *)(pmd))
+#define EVP_PKEY_CTX_set_dh_kdf_outlen(ctx, len) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_DH_KDF_OUTLEN, len, NULL)
+#define EVP_PKEY_CTX_get_dh_kdf_outlen(ctx, plen) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_GET_DH_KDF_OUTLEN, 0, (void *)(plen))
+#define EVP_PKEY_CTX_set0_dh_kdf_ukm(ctx, p, plen) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_DH_KDF_UKM, plen, (void *)(p))
+#define EVP_PKEY_CTX_get0_dh_kdf_ukm(ctx, p) EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DHX, EVP_PKEY_OP_DERIVE, EVP_PKEY_CTRL_GET_DH_KDF_UKM, 0, (void *)(p))
 
 #define EVP_PKEY_CTRL_DH_PARAMGEN_PRIME_LEN     (EVP_PKEY_ALG_CTRL + 1)
 #define EVP_PKEY_CTRL_DH_PARAMGEN_GENERATOR     (EVP_PKEY_ALG_CTRL + 2)
@@ -311,7 +235,6 @@ int DH_meth_set_generate_params(DH_METHOD *dhm,
 #ifndef OPENSSL_NO_CMS
 #define EVP_PKEY_DH_KDF_X9_42                           2
 #endif
-
 
 #ifdef  __cplusplus
 }

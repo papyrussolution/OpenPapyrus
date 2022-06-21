@@ -288,4 +288,4 @@ void DES_ede3_cbc_encrypt(const uchar * input, uchar * output, long length, DES_
 	tin[0] = tin[1] = 0;
 }
 
-#endif                          /* DES_DEFAULT_OPTIONS */
+#endif /* DES_DEFAULT_OPTIONS */

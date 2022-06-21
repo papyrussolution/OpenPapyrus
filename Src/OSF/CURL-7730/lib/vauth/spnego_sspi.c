@@ -245,35 +245,24 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 
 	/* Free the decoded challenge as it is not required anymore */
 	SAlloc::F(chlg);
-
 	if(GSS_ERROR(nego->status)) {
 		char buffer[STRERROR_LEN];
-		failf(data, "InitializeSecurityContext failed: %s",
-		    Curl_sspi_strerror(nego->status, buffer, sizeof(buffer)));
-
+		failf(data, "InitializeSecurityContext failed: %s", Curl_sspi_strerror(nego->status, buffer, sizeof(buffer)));
 		if(nego->status == (DWORD)SEC_E_INSUFFICIENT_MEMORY)
 			return CURLE_OUT_OF_MEMORY;
-
 		return CURLE_AUTH_ERROR;
 	}
-
-	if(nego->status == SEC_I_COMPLETE_NEEDED ||
-	    nego->status == SEC_I_COMPLETE_AND_CONTINUE) {
+	if(nego->status == SEC_I_COMPLETE_NEEDED || nego->status == SEC_I_COMPLETE_AND_CONTINUE) {
 		nego->status = s_pSecFn->CompleteAuthToken(nego->context, &resp_desc);
 		if(GSS_ERROR(nego->status)) {
 			char buffer[STRERROR_LEN];
-			failf(data, "CompleteAuthToken failed: %s",
-			    Curl_sspi_strerror(nego->status, buffer, sizeof(buffer)));
-
+			failf(data, "CompleteAuthToken failed: %s", Curl_sspi_strerror(nego->status, buffer, sizeof(buffer)));
 			if(nego->status == (DWORD)SEC_E_INSUFFICIENT_MEMORY)
 				return CURLE_OUT_OF_MEMORY;
-
 			return CURLE_AUTH_ERROR;
 		}
 	}
-
 	nego->output_token_length = resp_buf.cbBuffer;
-
 	return result;
 }
 
@@ -347,8 +336,8 @@ void Curl_auth_cleanup_spnego(struct negotiatedata * nego)
 	nego->p_identity = NULL;
 
 	/* Free the SPN and output token */
-	Curl_safefree(nego->spn);
-	Curl_safefree(nego->output_token);
+	ZFREE(nego->spn);
+	ZFREE(nego->output_token);
 
 	/* Reset any variables */
 	nego->status = 0;

@@ -1503,8 +1503,9 @@ int DoConstructionTest()
 #if(_MSC_VER >= 1900)
 	//Test_Fts();
 #endif
+	SDecimalFraction::Test();
 	Test_ReadUed("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
-	//ImportSpecial("d:\\DEV\\RESOURCE\\DATA\\ETC");
+	ImportSpecial("\\DEV\\RESOURCE\\DATA\\ETC");
 	//ImportYYE("/DEV/Resource/Data/yeda");
 	//TestGtinStruc();
 	//DoTest_PThr4w();

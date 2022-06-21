@@ -73,7 +73,7 @@
 	#ifndef ZSTD_DEPS_IO
 		#define ZSTD_DEPS_IO
 		#include <stdio.h>
-		#define ZSTD_DEBUG_PRINT(...) fprintf(stderr, __VA_ARGS__)
+		#define ZSTD_DEBUG_PRINT(...) slfprintf_stderr(__VA_ARGS__)
 	#endif /* ZSTD_DEPS_IO */
 #endif /* ZSTD_DEPS_NEED_IO */
 /* Only requested when <stdint.h> is known to be present.

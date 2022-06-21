@@ -1000,8 +1000,7 @@ inline bool safe_uint_internal(absl::string_view text, IntType* value_p,
 
 namespace numbers_internal {
 // Digit conversion.
-ABSL_CONST_INIT ABSL_DLL const char kHexChar[] =
-    "0123456789abcdef";
+ABSL_CONST_INIT ABSL_DLL const char kHexChar[] = "0123456789abcdef";
 
 ABSL_CONST_INIT ABSL_DLL const char kHexTable[513] =
     "000102030405060708090a0b0c0d0e0f"

@@ -9,16 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "check.h"
-#include "checknullpointer.h"
-#include "ctu.h"
-#include "errortypes.h"
-#include "library.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "token.h"
-#include "tokenize.h"
-#include <simplecpp.h>
 
 class TestNullPointer : public TestFixture {
 public:
@@ -2319,10 +2309,10 @@ private:
 
 	void nullpointer72() { // #10215
 		check("int test() {\n"
-		    "  int* p0 = nullptr, *p1 = nullptr;\n"
+		    "  int * p0 = nullptr, *p1 = nullptr;\n"
 		    "  getFoo(p0);\n"
 		    "  getBar(p1);\n"
-		    "  if (!(p0 != nullptr && p1 != nullptr))\n"
+		    "  if(!(p0 != nullptr && p1 != nullptr))\n"
 		    "    return {};\n"
 		    "  return *p0 + *p1;\n"
 		    "}\n", true /*inconclusive*/);
@@ -2330,7 +2320,7 @@ private:
 
 		check("int test2() {\n"
 		    "  int* p0 = nullptr;\n"
-		    "  if (!(getBaz(p0) && p0 != nullptr))\n"
+		    "  if(!(getBaz(p0) && p0 != nullptr))\n"
 		    "    return 0;\n"
 		    "  return *p0;\n"
 		    "}\n", true /*inconclusive*/);
@@ -2338,9 +2328,9 @@ private:
 
 		check("int test3() {\n"
 		    "  Obj* PObj = nullptr;\n"
-		    "  if (!(GetObj(PObj) && PObj != nullptr))\n"
+		    "  if(!(GetObj(PObj) && PObj != nullptr))\n"
 		    "    return 1;\n"
-		    "  if (!PObj->foo())\n"
+		    "  if(!PObj->foo())\n"
 		    "    test();\n"
 		    "  PObj->bar();\n"
 		    "}\n", true /*inconclusive*/);
@@ -2350,8 +2340,8 @@ private:
 	void nullpointer73() {
 		check("void f(bool flag2, int* ptr) {\n"
 		    "    bool flag1 = true;\n"
-		    "    if (flag2) {\n"
-		    "        if (ptr != nullptr)\n"
+		    "    if(flag2) {\n"
+		    "        if(ptr != nullptr)\n"
 		    "            (*ptr)++;\n"
 		    "        else\n"
 		    "            flag1 = false;\n"

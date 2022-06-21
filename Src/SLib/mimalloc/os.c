@@ -370,7 +370,7 @@ static void * mi_unix_mmapx(void * addr, size_t size, size_t try_alignment, int 
 	UNUSED(try_alignment);
 	UNUSED(mi_os_get_aligned_hint);
   #endif
-	if(p==NULL) {
+	if(!p) {
 		p = mmap(addr, size, protect_flags, flags, fd, 0);
 		if(p==MAP_FAILED) p = NULL;
 	}

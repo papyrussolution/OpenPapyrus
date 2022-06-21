@@ -309,7 +309,7 @@ void rand_cleanup_int(void)
 	if(!rand_inited)
 		return;
 
-	if(meth != NULL && meth->cleanup != NULL)
+	if(meth && meth->cleanup != NULL)
 		meth->cleanup();
 	RAND_set_rand_method(NULL);
 	rand_pool_cleanup();
@@ -825,7 +825,7 @@ int RAND_set_rand_engine(ENGINE * engine)
 	const RAND_METHOD * tmp_meth = NULL;
 	if(!RUN_ONCE(&rand_init, do_rand_init))
 		return 0;
-	if(engine != NULL) {
+	if(engine) {
 		if(!ENGINE_init(engine))
 			return 0;
 		tmp_meth = ENGINE_get_RAND(engine);

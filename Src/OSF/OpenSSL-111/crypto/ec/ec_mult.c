@@ -200,9 +200,7 @@ int ec_scalar_mul_ladder(const EC_GROUP * group, EC_POINT * r,
 		ECerr(EC_F_EC_SCALAR_MUL_LADDER, ERR_R_BN_LIB);
 		goto err;
 	}
-
 	BN_set_flags(k, BN_FLG_CONSTTIME);
-
 	if((BN_num_bits(k) > cardinality_bits) || (BN_is_negative(k))) {
 		/*-
 		 * this is an unusual input, and we don't guarantee
@@ -213,7 +211,6 @@ int ec_scalar_mul_ladder(const EC_GROUP * group, EC_POINT * r,
 			goto err;
 		}
 	}
-
 	if(!BN_add(lambda, k, cardinality)) {
 		ECerr(EC_F_EC_SCALAR_MUL_LADDER, ERR_R_BN_LIB);
 		goto err;
@@ -229,21 +226,13 @@ int ec_scalar_mul_ladder(const EC_GROUP * group, EC_POINT * r,
 	 */
 	kbit = BN_is_bit_set(lambda, cardinality_bits);
 	BN_consttime_swap(kbit, k, lambda, group_top + 2);
-
 	group_top = bn_get_top(group->field);
-	if((bn_wexpand(s->X, group_top) == NULL)
-	   || (bn_wexpand(s->Y, group_top) == NULL)
-	   || (bn_wexpand(s->Z, group_top) == NULL)
-	   || (bn_wexpand(r->X, group_top) == NULL)
-	   || (bn_wexpand(r->Y, group_top) == NULL)
-	   || (bn_wexpand(r->Z, group_top) == NULL)
-	   || (bn_wexpand(p->X, group_top) == NULL)
-	   || (bn_wexpand(p->Y, group_top) == NULL)
-	   || (bn_wexpand(p->Z, group_top) == NULL)) {
+	if((bn_wexpand(s->X, group_top) == NULL) || (bn_wexpand(s->Y, group_top) == NULL) || (bn_wexpand(s->Z, group_top) == NULL) || 
+		(bn_wexpand(r->X, group_top) == NULL) || (bn_wexpand(r->Y, group_top) == NULL) || (bn_wexpand(r->Z, group_top) == NULL) || 
+		(bn_wexpand(p->X, group_top) == NULL) || (bn_wexpand(p->Y, group_top) == NULL) || (bn_wexpand(p->Z, group_top) == NULL)) {
 		ECerr(EC_F_EC_SCALAR_MUL_LADDER, ERR_R_BN_LIB);
 		goto err;
 	}
-
 	/*-
 	 * Apply coordinate blinding for EC_POINT.
 	 *

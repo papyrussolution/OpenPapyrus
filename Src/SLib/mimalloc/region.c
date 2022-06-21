@@ -120,7 +120,7 @@ static size_t mi_region_block_count(size_t size) {
 
 // Return if a pointer points into a region reserved by us.
 bool mi_is_in_heap_region(const void * p) NOEXCEPT {
-	if(p==NULL) return false;
+	if(!p) return false;
 	size_t count = mi_atomic_load_relaxed(&regions_count);
 	for(size_t i = 0; i < count; i++) {
 		uint8_t* start = (uint8_t*)mi_atomic_load_ptr_relaxed(uint8_t, &regions[i].start);
@@ -412,7 +412,7 @@ void * _mi_mem_alloc_aligned(size_t size,
 void _mi_mem_free(void * p, size_t size, size_t id, bool full_commit, bool any_reset, mi_os_tld_t* tld) 
 {
 	mi_assert_internal(size > 0 && tld != NULL);
-	if(p==NULL) return;
+	if(!p) return;
 	if(size==0) return;
 	size = _mi_align_up(size, _mi_os_page_size());
 	size_t arena_memid = 0;

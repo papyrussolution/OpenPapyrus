@@ -1133,7 +1133,7 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 								goto out;
 							}
 							p_node->content = xmlBufDetach(buf);
-							if(last == NULL)
+							if(!last)
 								last = ret = p_node;
 							else
 								last = xmlAddNextSibling(last, p_node);
@@ -1157,7 +1157,7 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 								temp = temp->next;
 							}
 						}
-						if(last == NULL)
+						if(!last)
 							last = ret = p_node;
 						else
 							last = xmlAddNextSibling(last, p_node);
@@ -1191,7 +1191,7 @@ xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int
 		if(!p_node)
 			goto out;
 		p_node->content = xmlBufDetach(buf);
-		if(last == NULL)
+		if(!last)
 			last = ret = p_node;
 		else
 			last = xmlAddNextSibling(last, p_node);
@@ -1229,7 +1229,7 @@ xmlNode * xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value)
 		return 0;
 	xmlBufSetAllocationScheme(buf, XML_BUFFER_ALLOC_HYBRID);
 	q = cur;
-	while(*cur != 0) {
+	while(*cur) {
 		if(cur[0] == '&') {
 			int charval = 0;
 			xmlChar tmp;
@@ -6667,7 +6667,7 @@ void FASTCALL xmlBufferWriteQuotedString(xmlBuffer * buf, const xmlChar * string
 	#endif
 				xmlBufferCCat(buf, "\"");
 				base = cur = string;
-				while(*cur != 0) {
+				while(*cur) {
 					if(*cur == '"') {
 						if(base != cur)
 							xmlBufferAdd(buf, base, cur - base);

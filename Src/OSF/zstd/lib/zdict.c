@@ -57,7 +57,7 @@ static const uint32 g_selectivity_default = 9;
 // Console display
 //
 #undef  DISPLAY
-#define DISPLAY(...)         { fprintf(stderr, __VA_ARGS__); fflush(stderr); }
+#define DISPLAY(...)         { slfprintf_stderr(__VA_ARGS__); fflush(stderr); }
 #undef  DISPLAYLEVEL
 #define DISPLAYLEVEL(l, ...) if(notificationLevel>=l) { DISPLAY(__VA_ARGS__); } // 0 : no display;   1: errors;   2: default;  3: details;  4: debug
 

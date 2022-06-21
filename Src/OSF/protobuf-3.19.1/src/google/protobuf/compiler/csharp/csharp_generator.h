@@ -29,23 +29,17 @@ namespace google {
 namespace protobuf {
 namespace compiler {
 namespace csharp {
-
 // CodeGenerator implementation which generates a C# source file and
 // header.  If you create your own protocol compiler binary and you want
 // it to support C# output, you can do so by registering an instance of this
 // CodeGenerator with the CommandLineInterface in your main() function.
 class PROTOC_EXPORT Generator : public CodeGenerator {
- public:
-  Generator();
-  ~Generator();
-  bool Generate(
-    const FileDescriptor* file,
-    const std::string& parameter,
-    GeneratorContext* generator_context,
-    std::string* error) const override;
-  uint64_t GetSupportedFeatures() const override;
+public:
+	Generator();
+	~Generator();
+	bool Generate(const FileDescriptor* file, const std::string& parameter, GeneratorContext* generator_context, std::string* error) const override;
+	uint64_t GetSupportedFeatures() const override;
 };
-
 }  // namespace csharp
 }  // namespace compiler
 }  // namespace protobuf

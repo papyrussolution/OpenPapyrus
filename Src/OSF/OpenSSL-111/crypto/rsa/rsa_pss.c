@@ -183,7 +183,7 @@ int RSA_padding_add_PKCS1_PSS_mgf1(RSA * rsa, uchar * EM, const uchar * mHash, c
 	}
 	if(sLen > 0) {
 		salt = static_cast<uchar *>(OPENSSL_malloc(sLen));
-		if(salt == NULL) {
+		if(!salt) {
 			RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_PSS_MGF1, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}

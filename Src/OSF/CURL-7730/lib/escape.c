@@ -230,7 +230,7 @@ char * curl_easy_unescape(struct Curl_easy * data, const char * string,
 				*olen = curlx_uztosi(outputlen);
 			else
 				/* too large to return in an int, fail! */
-				Curl_safefree(str);
+				ZFREE(str);
 		}
 	}
 	return str;

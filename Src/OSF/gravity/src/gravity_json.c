@@ -849,18 +849,14 @@ whitespace:
 							    top->u.integer = (top->u.integer * 10) + (b - '0');
 							    continue;
 						    }
-
 						    num_fraction = (num_fraction * 10) + (b - '0');
 						    continue;
 					    }
-
 					    if(b == '+' || b == '-') {
 						    if((flags & flag_num_e) && !(flags & flag_num_e_got_sign)) {
 							    flags |= flag_num_e_got_sign;
-
 							    if(b == '-')
 								    flags |= flag_num_e_negative;
-
 							    continue;
 						    }
 					    }
@@ -869,24 +865,19 @@ whitespace:
 							    sprintf(error, "%d:%d: Expected digit before `.`", line_and_col);
 							    goto e_failed;
 						    }
-
 						    top->type = json_double;
 						    top->u.dbl = (double)top->u.integer;
-
 						    num_digits = 0;
 						    continue;
 					    }
-
 					    if(!(flags & flag_num_e)) {
 						    if(top->type == json_double) {
 							    if(!num_digits) {
 								    sprintf(error, "%d:%d: Expected digit after `.`", line_and_col);
 								    goto e_failed;
 							    }
-
 							    top->u.dbl += ((double)num_fraction) / (pow(10.0, (double)num_digits));
 						    }
-
 						    if(b == 'e' || b == 'E') {
 							    flags |= flag_num_e;
 							    if(top->type == json_integer) {
@@ -905,7 +896,6 @@ whitespace:
 						    }
 						    top->u.dbl *= pow(10.0, (double)(flags & flag_num_e_negative ? -num_e : num_e));
 					    }
-
 					    if(flags & flag_num_negative) {
 						    if(top->type == json_integer)
 							    top->u.integer = -top->u.integer;
@@ -940,16 +930,13 @@ whitespace:
 						case json_array:
 						    parent->u.array.values[parent->u.array.length] = top;
 						    break;
-
 						default:
 						    break;
 					};
 				}
 				if((++top->parent->u.array.length) > state.uint_max)
 					goto e_overflow;
-
 				top = top->parent;
-
 				continue;
 			}
 		}

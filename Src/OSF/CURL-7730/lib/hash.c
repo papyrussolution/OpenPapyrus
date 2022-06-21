@@ -200,7 +200,7 @@ void Curl_hash_destroy(struct Curl_hash * h)
 		Curl_llist_destroy(&h->table[i], (void *)h);
 	}
 
-	Curl_safefree(h->table);
+	ZFREE(h->table);
 	h->size = 0;
 	h->slots = 0;
 }

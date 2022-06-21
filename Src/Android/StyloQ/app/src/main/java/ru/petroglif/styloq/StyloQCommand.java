@@ -112,7 +112,7 @@ public class StyloQCommand {
 						JSONObject jsitem = ary.getJSONObject(i);
 						if(jsitem != null) {
 							Item item = new Item();
-							item.Uuid = UUID.fromString(jsitem.getString("uuid"));
+							item.Uuid = SLib.strtouuid(jsitem.optString("uuid", null));
 							item.BaseCmdId = jsitem.optInt("basecmdid", 0); // @v11.2.9
 							item.ResultExpiryTimeSec = jsitem.optInt("result_expir_time_sec", 0); // @v11.2.5
 							item.Name = jsitem.getString("name");

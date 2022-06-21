@@ -26,7 +26,7 @@
 		#define l_srand(x)      srand(x)
 		#define L_RANDMAX       RAND_MAX
 	#endif
-#endif                          /* } */
+#endif /* } */
 
 static int math_abs(lua_State * L) 
 {

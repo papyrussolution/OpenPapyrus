@@ -114,13 +114,8 @@ void Normalizer2DataBuilder::setUnicodeVersion(const char * v) {
 Norm * Normalizer2DataBuilder::checkNormForMapping(Norm * p, UChar32 c) {
 	if(p) {
 		if(p->mappingType!=Norm::NONE) {
-			if(overrideHandling==OVERRIDE_NONE ||
-			    (overrideHandling==OVERRIDE_PREVIOUS && p->mappingPhase==phase)
-			    ) {
-				fprintf(stderr,
-				    "error in gennorm2 phase %d: "
-				    "not permitted to override mapping for U+%04lX from phase %d\n",
-				    (int)phase, (long)c, (int)p->mappingPhase);
+			if(overrideHandling==OVERRIDE_NONE || (overrideHandling==OVERRIDE_PREVIOUS && p->mappingPhase==phase)) {
+				slfprintf_stderr("error in gennorm2 phase %d: not permitted to override mapping for U+%04lX from phase %d\n", (int)phase, (long)c, (int)p->mappingPhase);
 				exit(U_INVALID_FORMAT_ERROR);
 			}
 			delete p->mapping;
@@ -136,23 +131,23 @@ void Normalizer2DataBuilder::setOverrideHandling(OverrideHandling oh) {
 	++phase;
 }
 
-void Normalizer2DataBuilder::setCC(UChar32 c, uint8_t cc) {
+void Normalizer2DataBuilder::setCC(UChar32 c, uint8_t cc) 
+{
 	norms.createNorm(c)->cc = cc;
 	norms.ccSet.add(c);
 }
 
-static bool isWellFormed(const UnicodeString & s) {
+static bool isWellFormed(const UnicodeString & s) 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	u_strToUTF8(NULL, 0, NULL, toUCharPtr(s.getBuffer()), s.length(), &errorCode);
 	return U_SUCCESS(errorCode) || errorCode==U_BUFFER_OVERFLOW_ERROR;
 }
 
-void Normalizer2DataBuilder::setOneWayMapping(UChar32 c, const UnicodeString & m) {
+void Normalizer2DataBuilder::setOneWayMapping(UChar32 c, const UnicodeString & m) 
+{
 	if(!isWellFormed(m)) {
-		fprintf(stderr,
-		    "error in gennorm2 phase %d: "
-		    "illegal one-way mapping from U+%04lX to malformed string\n",
-		    (int)phase, (long)c);
+		slfprintf_stderr("error in gennorm2 phase %d: illegal one-way mapping from U+%04lX to malformed string\n", (int)phase, (long)c);
 		exit(U_INVALID_FORMAT_ERROR);
 	}
 	Norm * p = checkNormForMapping(norms.createNorm(c), c);
@@ -162,27 +157,19 @@ void Normalizer2DataBuilder::setOneWayMapping(UChar32 c, const UnicodeString & m
 	norms.mappingSet.add(c);
 }
 
-void Normalizer2DataBuilder::setRoundTripMapping(UChar32 c, const UnicodeString & m) {
+void Normalizer2DataBuilder::setRoundTripMapping(UChar32 c, const UnicodeString & m) 
+{
 	if(U_IS_SURROGATE(c)) {
-		fprintf(stderr,
-		    "error in gennorm2 phase %d: "
-		    "illegal round-trip mapping from surrogate code point U+%04lX\n",
-		    (int)phase, (long)c);
+		slfprintf_stderr("error in gennorm2 phase %d: illegal round-trip mapping from surrogate code point U+%04lX\n", (int)phase, (long)c);
 		exit(U_INVALID_FORMAT_ERROR);
 	}
 	if(!isWellFormed(m)) {
-		fprintf(stderr,
-		    "error in gennorm2 phase %d: "
-		    "illegal round-trip mapping from U+%04lX to malformed string\n",
-		    (int)phase, (long)c);
+		slfprintf_stderr("error in gennorm2 phase %d: illegal round-trip mapping from U+%04lX to malformed string\n", (int)phase, (long)c);
 		exit(U_INVALID_FORMAT_ERROR);
 	}
 	int32_t numCP = u_countChar32(toUCharPtr(m.getBuffer()), m.length());
 	if(numCP!=2) {
-		fprintf(stderr,
-		    "error in gennorm2 phase %d: "
-		    "illegal round-trip mapping from U+%04lX to %d!=2 code points\n",
-		    (int)phase, (long)c, (int)numCP);
+		slfprintf_stderr("error in gennorm2 phase %d: illegal round-trip mapping from U+%04lX to %d!=2 code points\n", (int)phase, (long)c, (int)numCP);
 		exit(U_INVALID_FORMAT_ERROR);
 	}
 	Norm * p = checkNormForMapping(norms.createNorm(c), c);
@@ -192,15 +179,16 @@ void Normalizer2DataBuilder::setRoundTripMapping(UChar32 c, const UnicodeString 
 	norms.mappingSet.add(c);
 }
 
-void Normalizer2DataBuilder::removeMapping(UChar32 c) {
+void Normalizer2DataBuilder::removeMapping(UChar32 c) 
+{
 	// createNorm(c), not getNorm(c), to record a non-mapping and detect conflicting data.
 	Norm * p = checkNormForMapping(norms.createNorm(c), c);
 	p->mappingType = Norm::REMOVED;
 	norms.mappingSet.add(c);
 }
 
-bool Normalizer2DataBuilder::mappingHasCompBoundaryAfter(const BuilderReorderingBuffer &buffer,
-    Norm::MappingType mappingType) const {
+bool Normalizer2DataBuilder::mappingHasCompBoundaryAfter(const BuilderReorderingBuffer &buffer, Norm::MappingType mappingType) const 
+{
 	if(buffer.isEmpty()) {
 		return FALSE; // Maps-to-empty-string is no boundary of any kind.
 	}
@@ -523,34 +511,25 @@ void Normalizer2DataBuilder::setHangulData(UMutableCPTrie * norm16Trie) {
 	while((range = hi.nextRange())!=NULL) {
 		for(UChar32 c = range->start; c<=range->end; ++c) {
 			if(umutablecptrie_get(norm16Trie, c)>Normalizer2Impl::INERT) {
-				fprintf(stderr,
-				    "gennorm2 error: "
-				    "illegal mapping/composition/ccc data for Hangul or Jamo U+%04lX\n",
-				    (long)c);
+				slfprintf_stderr("gennorm2 error: illegal mapping/composition/ccc data for Hangul or Jamo U+%04lX\n", (long)c);
 				exit(U_INVALID_FORMAT_ERROR);
 			}
 		}
 	}
 	// Set data for algorithmic runtime handling.
 	IcuToolErrorCode errorCode("gennorm2/setHangulData()");
-
 	// Jamo V/T are maybeYes
 	if(Hangul::JAMO_V_BASE<indexes[Normalizer2Impl::IX_MIN_COMP_NO_MAYBE_CP]) {
 		indexes[Normalizer2Impl::IX_MIN_COMP_NO_MAYBE_CP] = Hangul::JAMO_V_BASE;
 	}
-	umutablecptrie_setRange(norm16Trie, Hangul::JAMO_L_BASE, Hangul::JAMO_L_END,
-	    Normalizer2Impl::JAMO_L, errorCode);
-	umutablecptrie_setRange(norm16Trie, Hangul::JAMO_V_BASE, Hangul::JAMO_V_END,
-	    Normalizer2Impl::JAMO_VT, errorCode);
+	umutablecptrie_setRange(norm16Trie, Hangul::JAMO_L_BASE, Hangul::JAMO_L_END, Normalizer2Impl::JAMO_L, errorCode);
+	umutablecptrie_setRange(norm16Trie, Hangul::JAMO_V_BASE, Hangul::JAMO_V_END, Normalizer2Impl::JAMO_VT, errorCode);
 	// JAMO_T_BASE+1: not U+11A7
-	umutablecptrie_setRange(norm16Trie, Hangul::JAMO_T_BASE+1, Hangul::JAMO_T_END,
-	    Normalizer2Impl::JAMO_VT, errorCode);
-
+	umutablecptrie_setRange(norm16Trie, Hangul::JAMO_T_BASE+1, Hangul::JAMO_T_END, Normalizer2Impl::JAMO_VT, errorCode);
 	// Hangul LV encoded as minYesNo
 	uint32_t lv = indexes[Normalizer2Impl::IX_MIN_YES_NO];
 	// Hangul LVT encoded as minYesNoMappingsOnly|HAS_COMP_BOUNDARY_AFTER
-	uint32_t lvt = indexes[Normalizer2Impl::IX_MIN_YES_NO_MAPPINGS_ONLY]|
-	    Normalizer2Impl::HAS_COMP_BOUNDARY_AFTER;
+	uint32_t lvt = indexes[Normalizer2Impl::IX_MIN_YES_NO_MAPPINGS_ONLY]|Normalizer2Impl::HAS_COMP_BOUNDARY_AFTER;
 	if(Hangul::HANGUL_BASE<indexes[Normalizer2Impl::IX_MIN_DECOMP_NO_CP]) {
 		indexes[Normalizer2Impl::IX_MIN_DECOMP_NO_CP] = Hangul::HANGUL_BASE;
 	}
@@ -565,25 +544,23 @@ void Normalizer2DataBuilder::setHangulData(UMutableCPTrie * norm16Trie) {
 	errorCode.assertSuccess();
 }
 
-LocalUCPTriePointer Normalizer2DataBuilder::processData() {
+LocalUCPTriePointer Normalizer2DataBuilder::processData() 
+{
 	// Build composition lists before recursive decomposition,
 	// so that we still have the raw, pair-wise mappings.
 	CompositionBuilder compBuilder(norms);
 	norms.enumRanges(compBuilder);
-
 	// Recursively decompose all mappings.
 	Decomposer decomposer(norms);
 	do {
 		decomposer.didDecompose = FALSE;
 		norms.enumRanges(decomposer);
 	} while(decomposer.didDecompose);
-
 	// Set the Norm::Type and other properties.
 	int32_t normsLength = norms.length();
 	for(int32_t i = 1; i<normsLength; ++i) {
 		postProcess(norms.getNormRefByIndex(i));
 	}
-
 	// Write the properties, mappings and composition lists to
 	// appropriate parts of the "extra data" array.
 	ExtraData extra(norms, optimization==OPTIMIZE_FAST);
@@ -622,22 +599,16 @@ LocalUCPTriePointer Normalizer2DataBuilder::processData() {
 	int32_t minNoNoDelta = getMinNoNoDelta();
 	U_ASSERT((minNoNoDelta&7)==0);
 	if(indexes[Normalizer2Impl::IX_LIMIT_NO_NO]>minNoNoDelta) {
-		fprintf(stderr,
-		    "gennorm2 error: "
-		    "data structure overflow, too much mapping composition data\n");
+		slfprintf_stderr("gennorm2 error: data structure overflow, too much mapping composition data\n");
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
-
 	// writeNorm16() and setHangulData() reduce these as needed.
 	indexes[Normalizer2Impl::IX_MIN_DECOMP_NO_CP] = 0x110000;
 	indexes[Normalizer2Impl::IX_MIN_COMP_NO_MAYBE_CP] = 0x110000;
 	indexes[Normalizer2Impl::IX_MIN_LCCC_CP] = 0x110000;
-
 	IcuToolErrorCode errorCode("gennorm2/processData()");
-	UMutableCPTrie * norm16Trie = umutablecptrie_open(
-		Normalizer2Impl::INERT, Normalizer2Impl::INERT, errorCode);
+	UMutableCPTrie * norm16Trie = umutablecptrie_open(Normalizer2Impl::INERT, Normalizer2Impl::INERT, errorCode);
 	errorCode.assertSuccess();
-
 	// Map each code point to its norm16 value,
 	// including the properties that fit directly,
 	// and the offset to the "extra data" if necessary.
@@ -664,9 +635,7 @@ LocalUCPTriePointer Normalizer2DataBuilder::processData() {
 	UChar32 end = umutablecptrie_getRange(norm16Trie, 0xd800, UCPMAP_RANGE_NORMAL, 0,
 		nullptr, nullptr, &value);
 	if(value != Normalizer2Impl::INERT || end < 0xdfff) {
-		fprintf(stderr,
-		    "gennorm2 error: not all surrogate code points are inert: U+d800..U+%04x=%lx\n",
-		    (int)end, (long)value);
+		slfprintf_stderr("gennorm2 error: not all surrogate code points are inert: U+d800..U+%04x=%lx\n", (int)end, (long)value);
 		exit(U_INTERNAL_PROGRAM_ERROR);
 	}
 	uint32_t maxNorm16 = 0;

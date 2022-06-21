@@ -9,12 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "checkother.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
-#include <simplecpp.h>
 
 class TestIncompleteStatement : public TestFixture {
 public:
@@ -178,7 +172,7 @@ private:
 	}
 
 	void void0() { // #6327
-		check("void f() { (void*)0; }");
+		check("void f() { (void *)0; }");
 		ASSERT_EQUALS("", errout.str());
 
 		check("#define X  0\n"
@@ -438,7 +432,7 @@ private:
 		    "    static_cast<void>(x);\n"
 		    "    (void)x;\n"
 		    "    static_cast<void*>(p);\n"
-		    "    (void*)p;\n"
+		    "    (void *)p;\n"
 		    "}\n");
 		ASSERT_EQUALS("", errout.str());
 

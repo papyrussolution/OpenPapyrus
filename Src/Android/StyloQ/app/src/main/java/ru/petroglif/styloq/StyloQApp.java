@@ -517,11 +517,7 @@ public class StyloQApp extends SLib.App {
 							//
 							SecretTagPool doc_pool = new SecretTagPool();
 							JSONObject js_query = new JSONObject();
-							UUID doc_uuid = null;
-							String doc_uuid_text = jsobj.optString("uuid", null);
-							if(SLib.GetLen(doc_uuid_text) > 0) {
-								doc_uuid = UUID.fromString(doc_uuid_text);
-							}
+							UUID doc_uuid = SLib.strtouuid(jsobj.optString("uuid", null));
 							js_query.put("cmd", org_cmd_item.Name);
 							js_query.put("document", jsobj);
 

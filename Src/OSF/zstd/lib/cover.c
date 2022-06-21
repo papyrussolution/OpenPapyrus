@@ -7,16 +7,15 @@
  * in the COPYING file in the root directory of this source tree).
  * You may select, at your option, one of the above-listed licenses.
  */
-/* *****************************************************************************
- * Constructs a dictionary using a heuristic based on the following paper:
- *
- * Liao, Petri, Moffat, Wirth
- * Effective Construction of Relative Lempel-Ziv Dictionaries
- * Published in WWW 2016.
- *
- * Adapted from code originally written by @ot (Giuseppe Ottaviano).
- ******************************************************************************/
-
+// 
+// Constructs a dictionary using a heuristic based on the following paper:
+// 
+// Liao, Petri, Moffat, Wirth
+// Effective Construction of Relative Lempel-Ziv Dictionaries
+// Published in WWW 2016.
+// 
+// Adapted from code originally written by @ot (Giuseppe Ottaviano).
+// 
 #include <zstd-internal.h>
 #pragma hdrstop
 
@@ -50,11 +49,7 @@
 static int g_displayLevel = 0;
 #endif
 #undef  DISPLAY
-#define DISPLAY(...)                                                           \
-	{                                                                            \
-		fprintf(stderr, __VA_ARGS__);                                              \
-		fflush(stderr);                                                            \
-	}
+#define DISPLAY(...) { slfprintf_stderr(__VA_ARGS__); fflush(stderr); }
 #undef  LOCALDISPLAYLEVEL
 #define LOCALDISPLAYLEVEL(displayLevel, l, ...)                                \
 	if(displayLevel >= l) {                                                     \

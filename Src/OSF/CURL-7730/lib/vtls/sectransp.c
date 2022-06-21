@@ -1831,15 +1831,15 @@ static CURLcode sectransp_connect_step1(struct connectdata * conn,
 	}
 	allowed_ciphers = SAlloc::M(all_ciphers_count*sizeof(SSLCipherSuite));
 	if(!allowed_ciphers) {
-		Curl_safefree(all_ciphers);
+		ZFREE(all_ciphers);
 		failf(data, "SSL: Failed to allocate memory for allowed ciphers");
 		return CURLE_OUT_OF_MEMORY;
 	}
 	err = SSLGetSupportedCiphers(backend->ssl_ctx, all_ciphers,
 		&all_ciphers_count);
 	if(err != noErr) {
-		Curl_safefree(all_ciphers);
-		Curl_safefree(allowed_ciphers);
+		ZFREE(all_ciphers);
+		ZFREE(allowed_ciphers);
 		return CURLE_SSL_CIPHER;
 	}
 	for(i = 0UL; i < all_ciphers_count; i++) {
@@ -1924,8 +1924,8 @@ static CURLcode sectransp_connect_step1(struct connectdata * conn,
 	}
 	err = SSLSetEnabledCiphers(backend->ssl_ctx, allowed_ciphers,
 		allowed_ciphers_count);
-	Curl_safefree(all_ciphers);
-	Curl_safefree(allowed_ciphers);
+	ZFREE(all_ciphers);
+	ZFREE(allowed_ciphers);
 	if(err != noErr) {
 		failf(data, "SSL: SSLSetEnabledCiphers() failed: OSStatus %d", err);
 		return CURLE_SSL_CIPHER;
@@ -2363,7 +2363,7 @@ static CURLcode pkp_pin_peer_pubkey(struct Curl_easy * data,
 			realpubkeylen);
 	} while(0);
 
-	Curl_safefree(realpubkey);
+	ZFREE(realpubkey);
 	if(publicKeyBits != NULL)
 		CFRelease(publicKeyBits);
 
@@ -3045,7 +3045,7 @@ static void Curl_sectransp_session_free(void * ptr)
 	   got your application rejected from the App Store due to the use of a
 	   private API, so the best we can do is free up our own char array that we
 	   created way back in sectransp_connect_step1... */
-	Curl_safefree(ptr);
+	ZFREE(ptr);
 }
 
 static size_t Curl_sectransp_version(char * buffer, size_t size)

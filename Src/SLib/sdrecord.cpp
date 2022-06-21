@@ -45,7 +45,7 @@ void SdbField::GetFieldDataFromBuf(SString & rTextData, const void * pRecBuf, co
 {
 	size_t ns = T.GetBinSize();
 	const  TYPEID st = T.GetDbFieldType();
-	int    base_type = stbase(st);
+	const  int    base_type = stbase(st);
 	const  void * p_fld_data = PTR8C(pRecBuf)+InnerOffs;
 	long   fmt = 0;
 	if(OuterFormat) {

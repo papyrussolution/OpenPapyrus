@@ -412,7 +412,6 @@ int SMailClient::Auth(int authtype, const char * pName, const char * pPassword)
 				{
 					const size_t user_len = strlen(pName);
 					const size_t pw_len = strlen(pPassword);
-
 					uint   i;
 					size_t p = 0;
 					char   param[512];

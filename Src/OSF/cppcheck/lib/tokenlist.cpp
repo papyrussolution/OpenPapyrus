@@ -9,16 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "tokenlist.h"
-#include "astutils.h"
-#include "errorlogger.h"
-#include "errortypes.h"
-#include "library.h"
-#include "path.h"
-#include "settings.h"
-#include "standards.h"
-#include "token.h"
-#include <simplecpp.h>
 
 // How many compileExpression recursions are allowed?
 // For practical code this could be endless. But in some special torture test

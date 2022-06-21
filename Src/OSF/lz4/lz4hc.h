@@ -108,14 +108,13 @@ LZ4LIB_API int LZ4_saveDictHC(LZ4_streamHC_t* streamHCPtr, char * safeBuffer, in
 // 
 // STATIC LINKING ONLY
 // 
-/*-******************************************************************
-* PRIVATE DEFINITIONS :
-* Do not use these definitions directly.
-* They are merely exposed to allow static allocation of `LZ4_streamHC_t`.
-* Declare an `LZ4_streamHC_t` directly, rather than any type below.
-* Even then, only do so in the context of static linking, as definitions may change between versions.
-********************************************************************/
-
+// 
+// PRIVATE DEFINITIONS :
+// Do not use these definitions directly.
+// They are merely exposed to allow static allocation of `LZ4_streamHC_t`.
+// Declare an `LZ4_streamHC_t` directly, rather than any type below.
+// Even then, only do so in the context of static linking, as definitions may change between versions.
+// 
 #define LZ4HC_DICTIONARY_LOGSIZE 16
 #define LZ4HC_MAXD (1<<LZ4HC_DICTIONARY_LOGSIZE)
 #define LZ4HC_MAXD_MASK (LZ4HC_MAXD - 1)
@@ -215,15 +214,14 @@ LZ4_DEPRECATED("use LZ4_resetStreamHC() instead") LZ4LIB_API int   LZ4_resetStre
 #endif
 
 #endif /* LZ4_HC_H_19834876238432 */
-
-/*-**************************************************
- * !!!!!     STATIC LINKING ONLY     !!!!!
- * Following definitions are considered experimental.
- * They should not be linked from DLL,
- * as there is no guarantee of API stability yet.
- * Prototypes will be promoted to "stable" status
- * after successfull usage in real-life scenarios.
- ***************************************************/
+// 
+// !!!!!     STATIC LINKING ONLY     !!!!!
+// Following definitions are considered experimental.
+// They should not be linked from DLL,
+// as there is no guarantee of API stability yet.
+// Prototypes will be promoted to "stable" status
+// after successfull usage in real-life scenarios.
+// 
 #ifdef LZ4_HC_STATIC_LINKING_ONLY   /* protection macro */
 #ifndef LZ4_HC_SLO_098092834
 #define LZ4_HC_SLO_098092834

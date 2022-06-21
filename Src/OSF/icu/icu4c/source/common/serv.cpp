@@ -403,9 +403,7 @@ UObject* ICUService::getKey(ICUServiceKey& key, UnicodeString * actualReturn, co
 	if(isDefault()) {
 		return handleDefault(key, actualReturn, status);
 	}
-
 	ICUService* ncthis = (ICUService*)this; // cast away semantic const
-
 	CacheEntry* result = NULL;
 	{
 		// The factory list can't be modified until we're done,
@@ -418,7 +416,6 @@ UObject* ICUService::getKey(ICUServiceKey& key, UnicodeString * actualReturn, co
 		// and since some unix machines don't have reentrant mutexes we
 		// need to make sure not to try to lock it again.
 		XMutex mutex(&lock, factory != NULL);
-
 		if(serviceCache == NULL) {
 			ncthis->serviceCache = new Hashtable(status);
 			if(ncthis->serviceCache == NULL) {
@@ -439,8 +436,7 @@ UObject* ICUService::getKey(ICUServiceKey& key, UnicodeString * actualReturn, co
 		int32_t startIndex = 0;
 		int32_t limit = factories->size();
 		bool cacheResult = TRUE;
-
-		if(factory != NULL) {
+		if(factory) {
 			for(int32_t i = 0; i < limit; ++i) {
 				if(factory == (const ICUServiceFactory*)factories->elementAt(i)) {
 					startIndex = i + 1;
@@ -536,8 +532,7 @@ outerEnd:
 					}
 				}
 			}
-
-			if(actualReturn != NULL) {
+			if(actualReturn) {
 				// strip null prefix
 				if(result->actualDescriptor.indexOf((UChar)0x2f) == 0) { // U+002f=slash (/)
 					actualReturn->remove();
@@ -581,16 +576,14 @@ UVector&ICUService::getVisibleIDs(UVector& result, UErrorCode & status) const {
 UVector&ICUService::getVisibleIDs(UVector& result, const UnicodeString * matchID, UErrorCode & status) const
 {
 	result.removeAllElements();
-
 	if(U_FAILURE(status)) {
 		return result;
 	}
 	UObjectDeleter * savedDeleter = result.setDeleter(uprv_deleteUObject);
-
 	{
 		Mutex mutex(&lock);
 		const Hashtable* map = getVisibleIDMap(status);
-		if(map != NULL) {
+		if(map) {
 			ICUServiceKey* fallbackKey = createKey(matchID, status);
 
 			for(int32_t pos = UHASH_FIRST; U_SUCCESS(status);) {
@@ -598,14 +591,12 @@ UVector&ICUService::getVisibleIDs(UVector& result, const UnicodeString * matchID
 				if(!e) {
 					break;
 				}
-
 				const UnicodeString * id = (const UnicodeString *)e->key.pointer;
-				if(fallbackKey != NULL) {
+				if(fallbackKey) {
 					if(!fallbackKey->isFallbackOf(*id)) {
 						continue;
 					}
 				}
-
 				LocalPointer<UnicodeString> idClone(new UnicodeString(*id), status);
 				if(U_SUCCESS(status) && idClone->isBogus()) {
 					status = U_MEMORY_ALLOCATION_ERROR;
@@ -622,18 +613,18 @@ UVector&ICUService::getVisibleIDs(UVector& result, const UnicodeString * matchID
 	return result;
 }
 
-const Hashtable* ICUService::getVisibleIDMap(UErrorCode & status) const {
-	if(U_FAILURE(status)) return NULL;
-
+const Hashtable* ICUService::getVisibleIDMap(UErrorCode & status) const 
+{
+	if(U_FAILURE(status)) 
+		return NULL;
 	// must only be called when lock is already held
-
 	ICUService* ncthis = (ICUService*)this; // cast away semantic const
 	if(idCache == NULL) {
 		ncthis->idCache = new Hashtable(status);
 		if(idCache == NULL) {
 			status = U_MEMORY_ALLOCATION_ERROR;
 		}
-		else if(factories != NULL) {
+		else if(factories) {
 			for(int32_t pos = factories->size(); --pos >= 0;) {
 				ICUServiceFactory* f = (ICUServiceFactory*)factories->elementAt(pos);
 				f->updateVisibleIDs(*idCache, status);
@@ -659,7 +650,7 @@ UnicodeString &ICUService::getDisplayName(const UnicodeString & id, UnicodeStrin
 		UErrorCode status = U_ZERO_ERROR;
 		Mutex mutex(&lock);
 		const Hashtable* map = getVisibleIDMap(status);
-		if(map != NULL) {
+		if(map) {
 			ICUServiceFactory* f = (ICUServiceFactory*)map->get(id);
 			if(f) {
 				f->getDisplayName(id, locale, result);
@@ -669,7 +660,7 @@ UnicodeString &ICUService::getDisplayName(const UnicodeString & id, UnicodeStrin
 			// fallback
 			status = U_ZERO_ERROR;
 			ICUServiceKey* fallbackKey = createKey(&id, status);
-			while(fallbackKey != NULL && fallbackKey->fallback()) {
+			while(fallbackKey && fallbackKey->fallback()) {
 				UnicodeString us;
 				fallbackKey->currentID(us);
 				f = (ICUServiceFactory*)map->get(us);
@@ -706,12 +697,10 @@ UVector&ICUService::getDisplayNames(UVector& result,
 	if(U_SUCCESS(status)) {
 		ICUService* ncthis = (ICUService*)this; // cast away semantic const
 		Mutex mutex(&lock);
-
-		if(dnCache != NULL && dnCache->locale != locale) {
+		if(dnCache && dnCache->locale != locale) {
 			delete dnCache;
 			ncthis->dnCache = NULL;
 		}
-
 		if(dnCache == NULL) {
 			const Hashtable* m = getVisibleIDMap(status);
 			if(U_FAILURE(status)) {
@@ -755,7 +744,7 @@ UVector&ICUService::getDisplayNames(UVector& result,
 	const UHashElement * entry = NULL;
 	while((entry = dnCache->cache.nextElement(pos)) != NULL) {
 		const UnicodeString * id = (const UnicodeString *)entry->value.pointer;
-		if(matchKey != NULL && !matchKey->isFallbackOf(*id)) {
+		if(matchKey && !matchKey->isFallbackOf(*id)) {
 			continue;
 		}
 		const UnicodeString * dn = (const UnicodeString *)entry->key.pointer;
@@ -796,7 +785,7 @@ URegistryKey ICUService::registerInstance(UObject* objToAdopt, const UnicodeStri
 ICUServiceFactory* ICUService::createSimpleFactory(UObject* objToAdopt, const UnicodeString & id, bool visible, UErrorCode & status)
 {
 	if(U_SUCCESS(status)) {
-		if((objToAdopt != NULL) && (!id.isBogus())) {
+		if(objToAdopt && (!id.isBogus())) {
 			return new SimpleFactory(objToAdopt, id, visible);
 		}
 		status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -839,9 +828,8 @@ bool ICUService::unregister(URegistryKey rkey, UErrorCode & status)
 {
 	ICUServiceFactory * factory = (ICUServiceFactory*)rkey;
 	bool result = FALSE;
-	if(factory != NULL && factories != NULL) {
+	if(factory && factories) {
 		Mutex mutex(&lock);
-
 		if(factories->removeElement(factory)) {
 			clearCaches();
 			result = TRUE;
@@ -869,9 +857,8 @@ void ICUService::reset()
 
 void ICUService::reInitializeFactories()
 {
-	if(factories != NULL) {
+	if(factories)
 		factories->removeAllElements();
-	}
 }
 
 bool ICUService::isDefault() const

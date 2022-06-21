@@ -279,4 +279,4 @@ static void * dl_globallookup(const char * name)
 	return shl_findsym(&h, name, TYPE_UNDEFINED, &ret) ? NULL : ret;
 }
 
-#endif                          /* DSO_DL */
+#endif /* DSO_DL */

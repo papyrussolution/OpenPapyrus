@@ -331,7 +331,7 @@ const ListFormatInternal* ListFormatter::getListFormatInternal(const Locale & lo
 		}
 		result = static_cast<ListFormatInternal*>(listPatternHash->get(key));
 	}
-	if(result != nullptr) {
+	if(result) {
 		return result;
 	}
 	result = loadListFormatInternal(locale, style, errorCode);

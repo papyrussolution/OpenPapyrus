@@ -23,7 +23,7 @@
 #else  /* 16-bit ints */	/* }{ */
 	typedef unsigned long lu_mem;
 	typedef long l_mem;
-#endif                          /* } */
+#endif /* } */
 
 typedef uchar lu_byte; // chars used as small naturals (so that 'char' is reserved for characters) 
 #define MAX_SIZET ((size_t)(~(size_t)0)) // maximum value for size_t 

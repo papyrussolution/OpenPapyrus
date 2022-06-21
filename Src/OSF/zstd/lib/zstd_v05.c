@@ -103,8 +103,8 @@ typedef unsigned char BYTE;
 #endif
 #endif
 
-MEM_STATIC uint MEM_32bits() { return sizeof(void*)==4; }
-MEM_STATIC uint MEM_64bits() { return sizeof(void*)==8; }
+MEM_STATIC uint MEM_32bits() { return sizeof(void *)==4; }
+MEM_STATIC uint MEM_64bits() { return sizeof(void *)==8; }
 
 MEM_STATIC uint MEM_isLittleEndian()
 {
@@ -1633,12 +1633,9 @@ static size_t HUFv05_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankSt
 		huffWeight[oSize] = (BYTE)lastWeight;
 		rankStats[lastWeight]++;
 	}
-
 	/* check tree construction validity */
-	if((rankStats[1] < 2) || (rankStats[1] & 1)) return ERROR(corruption_detected); /* by construction : at least 2
-	                                                                                   elts of rank 1, must be even
-	                                                                                   */
-
+	if((rankStats[1] < 2) || (rankStats[1] & 1)) 
+		return ERROR(corruption_detected); /* by construction : at least 2 elts of rank 1, must be even */
 	/* results */
 	*nbSymbolsPtr = (uint32)(oSize+1);
 	*tableLogPtr = tableLog;

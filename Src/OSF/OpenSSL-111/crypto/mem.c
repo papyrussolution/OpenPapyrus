@@ -286,9 +286,9 @@ void CRYPTO_free(void * str, const char * file, int line)
 
 void CRYPTO_clear_free(void * str, size_t num, const char * file, int line)
 {
-	if(!str)
-		return;
-	if(num)
-		OPENSSL_cleanse(str, num);
-	CRYPTO_free(str, file, line);
+	if(str) {
+		if(num)
+			OPENSSL_cleanse(str, num);
+		CRYPTO_free(str, file, line);
+	}
 }

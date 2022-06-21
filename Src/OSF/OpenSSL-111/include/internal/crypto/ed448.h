@@ -191,4 +191,4 @@ c448_error_t c448_ed448_convert_private_key_to_x448(
                             uint8_t x[X448_PRIVATE_BYTES],
                             const uint8_t ed[EDDSA_448_PRIVATE_BYTES]);
 
-#endif                          /* HEADER_ED448_H */
+#endif /* HEADER_ED448_H */

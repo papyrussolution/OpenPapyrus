@@ -273,9 +273,9 @@ static xmlPatParserContextPtr xmlNewPatParserContext(const xmlChar * pattern, xm
 	cur->dict = dict;
 	cur->cur = pattern;
 	cur->base = pattern;
-	if(namespaces != NULL) {
+	if(namespaces) {
 		int i;
-		for(i = 0; namespaces[2 * i] != NULL; i++)
+		for(i = 0; namespaces[2 * i]; i++)
 			;
 		cur->nb_namespaces = i;
 	}
@@ -496,8 +496,8 @@ restart:
 				    (pNode->type != XML_HTML_DOCUMENT_NODE))
 				    goto rollback;
 			    lst = pNode->children;
-			    if(step->value != NULL) {
-				    while(lst != NULL) {
+			    if(step->value) {
+				    while(lst) {
 					    if((lst->type == XML_ELEMENT_NODE) && (step->value[0] == lst->name[0]) && (sstreq(step->value, lst->name)))
 						    break;
 					    lst = lst->next;
@@ -510,7 +510,7 @@ restart:
 			case XML_OP_ATTR:
 			    if(pNode->type != XML_ATTRIBUTE_NODE)
 				    goto rollback;
-			    if(step->value != NULL) {
+			    if(step->value) {
 				    if(step->value[0] != pNode->name[0])
 					    goto rollback;
 				    if(!sstreq(step->value, pNode->name))
@@ -603,7 +603,7 @@ restart:
 			    if(pNode->type != XML_ELEMENT_NODE)
 				    goto rollback;
 			    if(!pNode->ns) {
-				    if(step->value != NULL)
+				    if(step->value)
 					    goto rollback;
 			    }
 			    else if(pNode->ns->href) {
@@ -884,7 +884,7 @@ static void xmlCompileAttributeTest(xmlPatParserContextPtr ctxt)
 error:
 	if(URL)
 		XML_PAT_FREE_STRING(ctxt, URL)
-		if(token != NULL)
+		if(token)
 			XML_PAT_FREE_STRING(ctxt, token);
 }
 
@@ -1300,7 +1300,7 @@ error_unfinished:
 					else {
 						printf("Stream: %d steps\n", stream->nbStep);
 						for(int i = 0; i < stream->nbStep; i++) {
-							if(stream->steps[i].ns != NULL) {
+							if(stream->steps[i].ns) {
 								printf("{%s}", stream->steps[i].ns);
 							}
 							if(stream->steps[i].name == NULL) {
@@ -1432,7 +1432,7 @@ static int xmlStreamCompile(xmlPattern * comp)
 	stream = xmlNewStreamComp((comp->nbStep / 2) + 1);
 	if(stream == NULL)
 		return -1;
-	if(comp->dict != NULL) {
+	if(comp->dict) {
 		stream->dict = comp->dict;
 		xmlDictReference(stream->dict);
 	}
@@ -1942,7 +1942,7 @@ compare:
 			else if(ns)
 				match = sstreq(step.ns, ns);
 		}
-		else if(((step.ns != NULL) == (ns != NULL)) && (name != NULL) && (step.name[0] == name[0]) && sstreq(step.name, name) && ((step.ns == ns) || sstreq(step.ns, ns))) {
+		else if(((step.ns != NULL) == (ns != NULL)) && name && (step.name[0] == name[0]) && sstreq(step.name, name) && ((step.ns == ns) || sstreq(step.ns, ns))) {
 			match = 1;
 		}
 		final = step.flags & XML_STREAM_STEP_FINAL;
@@ -2045,7 +2045,7 @@ int xmlStreamPop(xmlStreamCtxtPtr stream)
 	int i, lev;
 	if(stream == NULL)
 		return -1;
-	while(stream != NULL) {
+	while(stream) {
 		/*
 			* Reset block-level.
 			*/
@@ -2089,18 +2089,16 @@ int xmlStreamWantsAnyNode(xmlStreamCtxtPtr streamCtxt)
 {
 	if(streamCtxt == NULL)
 		return -1;
-	while(streamCtxt != NULL) {
+	while(streamCtxt) {
 		if(streamCtxt->comp->flags & XML_STREAM_FINAL_IS_ANY_NODE)
 			return 1;
 		streamCtxt = streamCtxt->next;
 	}
 	return 0;
 }
-
-/************************************************************************
-*			The public interfaces				*
-************************************************************************/
-
+// 
+// The public interfaces
+// 
 /**
  * xmlPatterncompile:
  * @pattern: the pattern to compile
@@ -2238,7 +2236,7 @@ xmlStreamCtxtPtr xmlPatternGetStreamCtxt(xmlPattern * comp)
 	xmlStreamCtxtPtr ret = NULL, cur;
 	if((comp == NULL) || (comp->stream == NULL))
 		return 0;
-	while(comp != NULL) {
+	while(comp) {
 		if(comp->stream == NULL)
 			goto failed;
 		cur = xmlNewStreamCtxt(comp->stream);
@@ -2296,7 +2294,7 @@ int xmlPatternMaxDepth(xmlPattern * comp)
 	int ret = 0, i;
 	if(comp == NULL)
 		return -1;
-	while(comp != NULL) {
+	while(comp) {
 		if(comp->stream == NULL)
 			return -1;
 		for(i = 0; i < comp->stream->nbStep; i++)

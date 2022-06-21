@@ -9,9 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "pathmatch.h"
-#include "path.h"
-#include "utils.h"
 
 PathMatch::PathMatch(const std::vector<std::string> &excludedPaths, bool caseSensitive)
 	: mExcludedPaths(excludedPaths), mCaseSensitive(caseSensitive)

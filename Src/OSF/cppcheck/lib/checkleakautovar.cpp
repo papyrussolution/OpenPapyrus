@@ -12,24 +12,11 @@
 //
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkleakautovar.h"
-#include "astutils.h"
-#include "checkmemoryleak.h"  // <- CheckMemoryLeak::memoryLeak
-#include "checknullpointer.h" // <- CheckNullPointer::isPointerDeRef
-#include "mathlib.h"
-#include "settings.h"
-#include "errortypes.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
 
 // Register this check class (by creating a static instance of it)
 namespace {
 CheckLeakAutoVar instance;
 }
-
-static const CWE CWE672(672U);
-static const CWE CWE415(415U);
 
 // Hardcoded allocation types (not from library)
 static const int NEW_ARRAY = -2;

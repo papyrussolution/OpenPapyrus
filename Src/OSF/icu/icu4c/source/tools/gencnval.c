@@ -195,8 +195,7 @@ extern int main(int argc, char * argv[])
 		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
 	}
 	if(argc<0 || options[HELP1].doesOccur || options[HELP2].doesOccur) {
-		fprintf(stderr,
-		    "usage: %s [-options] [convrtrs.txt]\n"
+		slfprintf_stderr("usage: %s [-options] [convrtrs.txt]\n"
 		    "\tread convrtrs.txt and create " U_ICUDATA_NAME "_" DATA_NAME "." DATA_TYPE "\n"
 		    "options:\n"
 		    "\t-h or -? or --help  this usage text\n"
@@ -204,8 +203,7 @@ extern int main(int argc, char * argv[])
 		    "\t-q or --quiet       do not display warnings and progress\n"
 		    "\t-c or --copyright   include a copyright notice\n"
 		    "\t-d or --destdir     destination directory, followed by the path\n"
-		    "\t-s or --sourcedir   source directory, followed by the path\n",
-		    argv[0]);
+		    "\t-s or --sourcedir   source directory, followed by the path\n", argv[0]);
 		return argc<0 ? U_ILLEGAL_ARGUMENT_ERROR : U_ZERO_ERROR;
 	}
 	if(options[VERBOSE].doesOccur) {
@@ -240,7 +238,7 @@ extern int main(int argc, char * argv[])
 	memset(knownAliases, 0, sizeof(aliasLists));
 
 	in = T_FileStream_open(path, "r");
-	if(in==NULL) {
+	if(!in) {
 		slfprintf_stderr("gencnval: unable to open input file %s\n", path);
 		exit(U_FILE_ACCESS_ERROR);
 	}
@@ -505,27 +503,19 @@ static uint16_t getTagNumber(const char * tag, uint16_t tagLen) {
 		slfprintf_stderr("%s:%d: error: too many tags\n", path, lineNum);
 		exit(U_BUFFER_OVERFLOW_ERROR);
 	}
-
 	/* allocate a new entry in the tag table */
 	atag = allocString(&tagBlock, tag, tagLen);
-
 	if(standardTagsUsed) {
-		slfprintf_stderr("%s:%d: error: Tag \"%s\" is not declared at the beginning of the alias table.\n",
-		    path, lineNum, atag);
+		slfprintf_stderr("%s:%d: error: Tag \"%s\" is not declared at the beginning of the alias table.\n", path, lineNum, atag);
 		exit(1);
 	}
 	else if(tagLen > 0 && strcmp(tag, ALL_TAG_STR) != 0) {
-		fprintf(stderr,
-		    "%s:%d: warning: Tag \"%s\" was added to the list of standards because it was not declared at beginning of the alias table.\n",
-		    path,
-		    lineNum,
-		    atag);
+		slfprintf_stderr("%s:%d: warning: Tag \"%s\" was added to the list of standards because it was not declared at beginning of the alias table.\n",
+		    path, lineNum, atag);
 	}
-
 	/* add the tag to the tag table */
 	tags[tagCount].tag = GET_TAG_NUM(atag);
 	/* The aliasList should be set to 0's already */
-
 	return tagCount++;
 }
 
@@ -535,7 +525,8 @@ static uint16_t getTagNumber(const char * tag, uint16_t tagLen) {
    }
  */
 
-static void addOfficialTaggedStandards(char * line, int32_t lineLen) {
+static void addOfficialTaggedStandards(char * line, int32_t lineLen) 
+{
 	(void)lineLen; // suppress compiler warnings about unused variable
 	char * atag;
 	char * endTagExp;
@@ -702,7 +693,6 @@ static uint16_t addAlias(const char * alias, uint16_t standard, uint16_t convert
             }
         }*/
 	}
-
 	if(aliasList->aliasCount <= 0) {
 		aliasList->aliasCount++;
 		startEmptyWithoutDefault = TRUE;
@@ -713,14 +703,8 @@ static uint16_t addAlias(const char * alias, uint16_t standard, uint16_t convert
 	}
 	if(defaultName) {
 		if(aliasList->aliases[0] != 0) {
-			fprintf(stderr,
-			    "%s:%d: error: Alias %s and %s cannot both be the default alias for standard tag %s and converter %s\n",
-			    path,
-			    lineNum,
-			    alias,
-			    GET_ALIAS_STR(aliasList->aliases[0]),
-			    GET_TAG_STR(tags[standard].tag),
-			    GET_ALIAS_STR(converters[converter].converter));
+			slfprintf_stderr("%s:%d: error: Alias %s and %s cannot both be the default alias for standard tag %s and converter %s\n",
+			    path, lineNum, alias, GET_ALIAS_STR(aliasList->aliases[0]), GET_TAG_STR(tags[standard].tag), GET_ALIAS_STR(converters[converter].converter));
 			exit(U_PARSE_ERROR);
 		}
 		aliasList->aliases[0] = GET_ALIAS_NUM(alias);
@@ -728,8 +712,7 @@ static uint16_t addAlias(const char * alias, uint16_t standard, uint16_t convert
 	else {
 		aliasList->aliases[aliasList->aliasCount++] = GET_ALIAS_NUM(alias);
 	}
-/*    aliasList->converter = converter;*/
-
+	/*    aliasList->converter = converter;*/
 	converters[converter].totalAliasCount++; /* One more to the column */
 	tags[standard].totalAliasCount++; /* One more to the row */
 	return aliasList->aliasCount;

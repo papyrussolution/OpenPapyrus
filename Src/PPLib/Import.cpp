@@ -7031,8 +7031,9 @@ int ImportYYE(const char * pSrcPath) // яндекс еда
 	return ok;
 }
 
-int ImportSpecial(const char * pPath)
+int ImportSpecial(const char * pPath_)
 {
+	const char * p_worksubdir = "__PROCESSING__";
 	int    ok = 1;
 	SString filename;
 	SString line_buf;
@@ -7040,8 +7041,10 @@ int ImportSpecial(const char * pPath)
 	SString temp_buf;
 	// result:
 	// nm;eml;pw;phn;dob;id;cntry;cty;adr;src // id!
-	if(!isempty(pPath)) {
-		(filename = pPath).SetLastSlash().Cat("si.csv");
+	if(!isempty(pPath_)) {
+		SString _path;
+		(_path = pPath_).SetLastSlash().Cat(p_worksubdir);
+		(filename = _path).SetLastSlash().Cat("si.csv");
 		SFile f_out(filename, SFile::mWrite);
 		THROW(f_out.IsValid());
 		(out_buf = "nm;eml;pw;phn;dob;id;cntry;cty;adr;src").CR(); // id!
@@ -7049,7 +7052,7 @@ int ImportSpecial(const char * pPath)
 		{
 			// ФИО;ДР;phn;addr;inn;work
 			StringSet ss(";");
-			(filename = pPath).SetLastSlash().Cat("fbkdntr.txt");
+			(filename = _path).SetLastSlash().Cat("fbkdntr.txt");
 			SFile f_in(filename, SFile::mRead);
 			if(f_in.IsValid()) {
 				SString nm;
@@ -7103,7 +7106,7 @@ int ImportSpecial(const char * pPath)
 							}
 						}
 						// "nm;eml;pw;phn;dob;id;cntry;cty;adr;src"
-						out_buf.Z().Cat(nm).Semicol().Cat("").Semicol().Cat("").Semicol().Cat(phn).
+						out_buf.Z().Cat(nm).Semicol().Cat(""/*eml*/).Semicol().Cat(""/*pwd*/).Semicol().Cat(phn).
 							Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat(ident).Semicol().Cat("ru").Semicol().Cat("").
 							Semicol().Cat(addr).Semicol().Cat("fbk").CR();
 						f_out.WriteLine(out_buf);
@@ -7119,7 +7122,7 @@ int ImportSpecial(const char * pPath)
 				"mskphn10000-04.txt"
 			};
 			for(uint fsi = 0; fsi < SIZEOFARRAY(p_fileset01); fsi++) {
-				(filename = pPath).SetLastSlash().Cat(p_fileset01[fsi]);
+				(filename = _path).SetLastSlash().Cat(p_fileset01[fsi]);
 				SFile f_in(filename, SFile::mRead);
 				if(f_in.IsValid()) {
 					//
@@ -7158,11 +7161,136 @@ int ImportSpecial(const char * pPath)
 										break;
 								}
 							}
-							// nm;eml;pw;phn;dob;cntry;cty;adr;src
+							// nm;eml;pw;phn;dob;id;cntry;cty;adr;src
 							out_buf.Z().Cat(nm).Semicol().Cat(eml).Semicol().Cat("").Semicol().Cat(phn).
-								Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat("").Semicol().Cat("ru").Semicol().Cat("moscow").
-								Semicol().Cat("").Semicol().Cat("unkn").CR();
+								Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat(""/*id*/).Semicol().Cat("ru").Semicol().Cat("moscow").
+								Semicol().Cat(""/*adr*/).Semicol().Cat("unkn"/*src*/).CR();
 							f_out.WriteLine(out_buf);
+						}
+					}
+				}
+			}
+		}
+		{
+			const char * p_fileset02[] = {
+				"avito_part1.csv",
+				"avito_part2.csv",
+				"avito_part3.csv",
+			};
+			//"region","phone","address","section","name","time_zone","podm"
+			// with header
+			for(uint fsi = 0; fsi < SIZEOFARRAY(p_fileset02); fsi++) {
+				(filename = _path).SetLastSlash().Cat(p_fileset02[fsi]);
+				SFile f_in(filename, SFile::mRead);
+				if(f_in.IsValid()) {
+					SString nm;
+					SString phn;
+					SString eml;
+					SString addr;
+					for(uint line_no = 0; f_in.ReadLine(line_buf); line_no++) {
+						line_buf.Chomp().Strip();
+						if(line_no > 0 && line_buf.NotEmpty()) {
+							SStrScan scan(line_buf);
+							if(scan.Skip().GetQuotedString(temp_buf)) { // region
+								if(scan.Skip().IncrChr(',') && scan.Skip().GetQuotedString(phn)) { // phone
+									if(scan.Skip().IncrChr(',') && scan.Skip().GetQuotedString(addr)) { // address
+										if(scan.Skip().IncrChr(',') && scan.Skip().GetQuotedString(temp_buf)) { // section
+											if(scan.Skip().IncrChr(',') && scan.Skip().GetQuotedString(nm)) { // name
+												if(scan.Skip().IncrChr(',') && scan.Skip().GetQuotedString(temp_buf)) { // time_zone
+													if(scan.Skip().IncrChr(',') && scan.Skip().GetQuotedString(temp_buf)) { // podm
+														phn.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+														addr.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+														nm.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+														// nm;eml;pw;phn;dob;id;cntry;cty;adr;src
+														out_buf.Z().Cat("cn:").Cat(nm).Semicol().Cat(eml).Semicol().Cat(""/*pwd*/).Semicol().Cat(phn).
+															Semicol().Cat(""/*dob*/).Semicol().Cat(""/*id*/).Semicol().Cat("ru").Semicol().Cat(""/*cty*/).
+															Semicol().Cat(addr).Semicol().Cat("avito").CR();
+														f_out.WriteLine(out_buf);
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		{
+			//name;doc;sex;phn;Email;country;dob
+			//"cecilia ";"DNI 28559661";Femenino;;cecilic@hotmail.com;Argentina;1945-05-27
+			(filename = _path).SetLastSlash().Cat("pareto-pago.csv");
+			SFile f_in(filename, SFile::mRead);
+			if(f_in.IsValid()) {
+				SString nm;
+				SString phn;
+				SString eml;
+				SString addr;
+				SString ident;
+				SString sex;
+				SString country;
+				LDATE dob;
+				// ARG - argentina
+				for(uint line_no = 0; f_in.ReadLine(line_buf); line_no++) {
+					line_buf.Chomp().Strip();
+					if(line_no > 0 && line_buf.NotEmpty()) {
+						SStrScan scan(line_buf);
+						nm.Z();
+						phn.Z();
+						eml.Z();
+						addr.Z();
+						ident.Z();
+						sex.Z();
+						country.Z();
+						dob = ZERODATE;
+						if(scan.Skip().GetQuotedString(nm)) { // name
+							if(scan.Skip().IncrChr(';') && scan.Skip().GetQuotedString(ident)) { // ident
+								if(scan.Skip().IncrChr(';')) { // sex
+									scan.Skip().GetUntil(';', sex);
+									sex.StripQuotes();
+									if(scan.Skip().IncrChr(';')) { // phone
+										scan.Skip().GetUntil(';', phn);
+										phn.StripQuotes();
+										if(scan.Skip().IncrChr(';')) { // email
+											scan.Skip().GetUntil(';', eml);
+											eml.StripQuotes();
+											if(scan.Skip().IncrChr(';')) { // country
+												scan.Skip().GetUntil(';', country);
+												country.StripQuotes();
+												if(scan.Skip().IncrChr(';')) { // dob
+													scan.Skip().GetUntil(';', temp_buf);
+													temp_buf.StripQuotes();
+													dob = strtodate_(temp_buf, DATF_YMD);
+													phn.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+													addr.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+													nm.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+													eml.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+													country.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+													ident.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+													if(ident.HasPrefixIAscii("dni")) {
+														(temp_buf = "ardni").Colon().Cat(ident.ShiftLeft(3).Strip());
+														ident = temp_buf;
+													}
+													sex.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+													if(sex.IsEqiAscii("Femenino"))
+														sex = "femme";
+													else if(sex.IsEqiAscii("Masculino"))
+														sex = "homme";
+													if(country.IsEqiAscii("Argentina"))
+														country = "ar";
+													// nm;eml;pw;phn;dob;id;cntry;cty;adr;src
+													out_buf.Z().Cat("cn:").Cat(nm).Semicol().Cat(eml).Semicol().Cat(""/*pwd*/).Semicol().Cat(phn).
+														Semicol().Cat(dob, DATF_ISO8601CENT).Semicol().Cat(ident).Semicol().Cat(country).Semicol().Cat(""/*cty*/).
+														Semicol().Cat(addr).Semicol().Cat("pareto").CR();
+													f_out.WriteLine(out_buf);
+												}
+											}
+										}
+									}
+								}
+							}
 						}
 					}
 				}

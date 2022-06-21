@@ -800,7 +800,7 @@ char * mi_heap_realpath(mi_heap_t* heap, const char * fname, char * resolved_nam
 	else {
 		size_t n  = mi_path_max();
 		char * buf = (char *)mi_malloc(n+1);
-		if(buf==NULL) return NULL;
+		if(!buf) return NULL;
 		char * rname  = realpath(fname, buf);
 		char * result = mi_heap_strndup(heap, rname, n); // ok if `rname==NULL`
 		mi_free(buf);

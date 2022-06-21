@@ -199,25 +199,20 @@ int main(int argc, char * argv[])
 	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
 
 	if(options[OPT_VERSION].doesOccur) {
-		printf("makeconv version %u.%u, ICU tool to read .ucm codepage mapping files and write .cnv files\n",
-		    dataInfo.formatVersion[0], dataInfo.formatVersion[1]);
+		printf("makeconv version %u.%u, ICU tool to read .ucm codepage mapping files and write .cnv files\n", dataInfo.formatVersion[0], dataInfo.formatVersion[1]);
 		printf("%s\n", U_COPYRIGHT_STRING);
 		exit(0);
 	}
-
 	/* error handling, printing usage message */
 	if(argc<0) {
-		fprintf(stderr,
-		    "error in command line argument \"%s\"\n",
-		    argv[-argc]);
+		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
 	}
 	else if(argc<2) {
 		argc = -1;
 	}
 	if(argc<0 || options[OPT_HELP_H].doesOccur || options[OPT_HELP_QUESTION_MARK].doesOccur) {
 		FILE * stdfile = argc<0 ? stderr : stdout;
-		fprintf(stdfile,
-		    "usage: %s [-options] files...\n"
+		fprintf(stdfile, "usage: %s [-options] files...\n"
 		    "\tread .ucm codepage mapping files and write .cnv files\n"
 		    "options:\n"
 		    "\t-h or -? or --help  this usage text\n"
@@ -226,24 +221,20 @@ int main(int argc, char * argv[])
 		    "\t-d or --destdir     destination directory, followed by the path\n"
 		    "\t-v or --verbose     Turn on verbose output\n"
 		    "\t-q or --quiet       do not display warnings and progress\n"
-		    "\t-s or --sourcedir   source directory, followed by the path\n",
-		    argv[0]);
-		fprintf(stdfile,
-		    "\t      --small       Generate smaller .cnv files. They will be\n"
+		    "\t-s or --sourcedir   source directory, followed by the path\n", argv[0]);
+		fprintf(stdfile, "\t      --small       Generate smaller .cnv files. They will be\n"
 		    "\t                    significantly smaller but may not be compatible with\n"
 		    "\t                    older versions of ICU and will require heap memory\n"
 		    "\t                    allocation when loaded.\n"
 		    "\t      --ignore-siso-check         Use SI/SO other than 0xf/0xe.\n");
 		return argc<0 ? U_ILLEGAL_ARGUMENT_ERROR : U_ZERO_ERROR;
 	}
-
 	/* get the options values */
 	haveCopyright = options[OPT_COPYRIGHT].doesOccur;
 	const char * destdir = options[OPT_DESTDIR].value;
 	VERBOSE = options[OPT_VERBOSE].doesOccur;
 	QUIET = options[OPT_QUIET].doesOccur;
 	SMALL = options[OPT_SMALL].doesOccur;
-
 	if(options[OPT_IGNORE_SISO_CHECK].doesOccur) {
 		IGNORE_SISO_CHECK = TRUE;
 	}
@@ -349,30 +340,20 @@ int main(int argc, char * argv[])
 				p++; /* If found separator, don't include it in compare */
 			}
 			if(uprv_stricmp(p, data.staticData.name) && !QUIET) {
-				slfprintf_stderr("Warning: %s%s claims to be '%s'\n",
-				    cnvName,  CONVERTER_FILE_EXTENSION,
-				    data.staticData.name);
+				slfprintf_stderr("Warning: %s%s claims to be '%s'\n", cnvName,  CONVERTER_FILE_EXTENSION, data.staticData.name);
 			}
-
 			uprv_strcpy((char *)data.staticData.name, cnvName);
-
 			if(!uprv_isInvariantString((char *)data.staticData.name, -1)) {
-				fprintf(stderr,
-				    "Error: A converter name must contain only invariant characters.\n"
-				    "%s is not a valid converter name.\n",
-				    data.staticData.name);
+				slfprintf_stderr("Error: A converter name must contain only invariant characters.\n%s is not a valid converter name.\n", data.staticData.name);
 				if(U_SUCCESS(err)) {
 					err = U_INVALID_TABLE_FORMAT;
 				}
 			}
-
 			localError = U_ZERO_ERROR;
 			writeConverterData(&data, cnvName, destdir, &localError);
-
 			if(U_FAILURE(localError)) {
 				/* if an error is found, print out an error msg and keep going*/
-				slfprintf_stderr("Error writing \"%s\" file for \"%s\" (%s)\n", outFileName.data(), arg,
-				    u_errorName(localError));
+				slfprintf_stderr("Error writing \"%s\" file for \"%s\" (%s)\n", outFileName.data(), arg, u_errorName(localError));
 				if(U_SUCCESS(err)) {
 					err = localError;
 				}
@@ -383,18 +364,14 @@ int main(int argc, char * argv[])
 		}
 		fflush(stdout);
 		fflush(stderr);
-
 		cleanupConvData(&data);
 	}
-
 	return err;
 }
 
-static void getPlatformAndCCSIDFromName(const char * name, int8_t * pPlatform, int32_t * pCCSID) {
-	if((name[0]=='i' || name[0]=='I') &&
-	    (name[1]=='b' || name[1]=='B') &&
-	    (name[2]=='m' || name[2]=='M')
-	    ) {
+static void getPlatformAndCCSIDFromName(const char * name, int8_t * pPlatform, int32_t * pCCSID) 
+{
+	if((name[0]=='i' || name[0]=='I') && (name[1]=='b' || name[1]=='B') && (name[2]=='m' || name[2]=='M')) {
 		name += 3;
 		if(*name=='-') {
 			++name;
@@ -408,22 +385,18 @@ static void getPlatformAndCCSIDFromName(const char * name, int8_t * pPlatform, i
 	}
 }
 
-static void readHeader(ConvData * data,
-    FileStream* convFile,
-    UErrorCode * pErrorCode) {
+static void readHeader(ConvData * data, FileStream* convFile, * pErrorCode) 
+{
 	char line[1024];
 	char * s, * key, * value;
 	const UConverterStaticData * prototype;
 	UConverterStaticData * staticData;
-
 	if(U_FAILURE(*pErrorCode)) {
 		return;
 	}
-
 	staticData = &data->staticData;
 	staticData->platform = UCNV_IBM;
 	staticData->subCharLen = 0;
-
 	while(T_FileStream_readLine(convFile, line, sizeof(line))) {
 		/* basic parsing and handling of state-related items */
 		if(ucm_parseHeaderLine(data->ucm, line, &key, &value)) {

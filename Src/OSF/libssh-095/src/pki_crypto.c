@@ -675,7 +675,7 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 	switch(key->type) {
 		case SSH_KEYTYPE_DSS:
 		    pkey = EVP_PKEY_new();
-		    if(pkey == NULL) {
+		    if(!pkey) {
 			    goto err;
 		    }
 
@@ -684,7 +684,7 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 		case SSH_KEYTYPE_RSA:
 		case SSH_KEYTYPE_RSA1:
 		    pkey = EVP_PKEY_new();
-		    if(pkey == NULL) {
+		    if(!pkey) {
 			    goto err;
 		    }
 
@@ -695,7 +695,7 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 		case SSH_KEYTYPE_ECDSA_P384:
 		case SSH_KEYTYPE_ECDSA_P521:
 		    pkey = EVP_PKEY_new();
-		    if(pkey == NULL) {
+		    if(!pkey) {
 			    goto err;
 		    }
 
@@ -710,7 +710,7 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 		    pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
 			    (const uint8 *)key->ed25519_privkey,
 			    ED25519_KEY_LEN);
-		    if(pkey == NULL) {
+		    if(!pkey) {
 			    SSH_LOG(SSH_LOG_TRACE,
 				"Failed to create ed25519 EVP_PKEY: %s",
 				ERR_error_string(ERR_get_error(), NULL));
@@ -826,7 +826,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 
 	BIO_free(mem);
 
-	if(pkey == NULL) {
+	if(!pkey) {
 		SSH_LOG(SSH_LOG_WARN,
 		    "Parsing private key: %s",
 		    ERR_error_string(ERR_get_error(), NULL));
@@ -1164,7 +1164,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 
 		    DSA_get0_key(key->dsa, &bpub_key, NULL);
 		    n = ssh_make_bignum_string((BIGNUM*)bpub_key);
-		    if(n == NULL) {
+		    if(!n) {
 			    goto fail;
 		    }
 
@@ -1206,7 +1206,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 		    }
 
 		    n = ssh_make_bignum_string((BIGNUM*)bn);
-		    if(n == NULL) {
+		    if(!n) {
 			    goto fail;
 		    }
 
@@ -1900,7 +1900,7 @@ static EVP_PKEY * pki_key_to_pkey(ssh_key key)
 			    goto error;
 		    }
 		    pkey = EVP_PKEY_new();
-		    if(pkey == NULL) {
+		    if(!pkey) {
 			    SSH_LOG(SSH_LOG_TRACE, SlTxtOutOfMem);
 			    return NULL;
 		    }
@@ -1914,7 +1914,7 @@ static EVP_PKEY * pki_key_to_pkey(ssh_key key)
 			    goto error;
 		    }
 		    pkey = EVP_PKEY_new();
-		    if(pkey == NULL) {
+		    if(!pkey) {
 			    SSH_LOG(SSH_LOG_TRACE, SlTxtOutOfMem);
 			    return NULL;
 		    }
@@ -1932,7 +1932,7 @@ static EVP_PKEY * pki_key_to_pkey(ssh_key key)
 			    goto error;
 		    }
 		    pkey = EVP_PKEY_new();
-		    if(pkey == NULL) {
+		    if(!pkey) {
 			    SSH_LOG(SSH_LOG_TRACE, SlTxtOutOfMem);
 			    return NULL;
 		    }
@@ -1963,7 +1963,7 @@ static EVP_PKEY * pki_key_to_pkey(ssh_key key)
 				    (const uint8 *)key->ed25519_pubkey,
 				    ED25519_KEY_LEN);
 		    }
-		    if(pkey == NULL) {
+		    if(!pkey) {
 			    SSH_LOG(SSH_LOG_TRACE,
 				"Failed to create ed25519 EVP_PKEY: %s",
 				ERR_error_string(ERR_get_error(), NULL));
@@ -2043,7 +2043,7 @@ ssh_signature pki_sign_data(const ssh_key privkey,
 
 	/* Setup private key EVP_PKEY */
 	pkey = pki_key_to_pkey(privkey);
-	if(pkey == NULL) {
+	if(!pkey) {
 		return NULL;
 	}
 
@@ -2204,7 +2204,7 @@ int pki_verify_data_signature(ssh_signature signature,
 
 	/* Setup public key EVP_PKEY */
 	pkey = pki_key_to_pkey(pubkey);
-	if(pkey == NULL) {
+	if(!pkey) {
 		return SSH_ERROR;
 	}
 

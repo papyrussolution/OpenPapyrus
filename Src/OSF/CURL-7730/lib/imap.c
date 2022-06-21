@@ -646,8 +646,8 @@ static CURLcode imap_perform_select(struct connectdata * conn)
 	char * mailbox;
 
 	/* Invalidate old information as we are switching mailboxes */
-	Curl_safefree(imapc->mailbox);
-	Curl_safefree(imapc->mailbox_uidvalidity);
+	ZFREE(imapc->mailbox);
+	ZFREE(imapc->mailbox_uidvalidity);
 
 	/* Check we have a mailbox */
 	if(!imap->mailbox) {
@@ -1012,7 +1012,7 @@ static CURLcode imap_state_select_resp(struct connectdata * conn, int imapcode,
 		/* See if this is an UIDVALIDITY response */
 		char tmp[20];
 		if(sscanf(line + 2, "OK [UIDVALIDITY %19[0123456789]]", tmp) == 1) {
-			Curl_safefree(imapc->mailbox_uidvalidity);
+			ZFREE(imapc->mailbox_uidvalidity);
 			imapc->mailbox_uidvalidity = sstrdup(tmp);
 		}
 	}
@@ -1114,7 +1114,7 @@ static CURLcode imap_state_fetch_resp(struct connectdata * conn, int imapcode,
 			}
 			else {
 				/* Free the cache */
-				Curl_safefree(pp->cache);
+				ZFREE(pp->cache);
 
 				/* Reset the cache size */
 				pp->cache_size = 0;
@@ -1426,15 +1426,15 @@ static CURLcode imap_done(struct connectdata * conn, CURLcode status,
 	}
 
 	/* Cleanup our per-request based variables */
-	Curl_safefree(imap->mailbox);
-	Curl_safefree(imap->uidvalidity);
-	Curl_safefree(imap->uid);
-	Curl_safefree(imap->mindex);
-	Curl_safefree(imap->section);
-	Curl_safefree(imap->partial);
-	Curl_safefree(imap->query);
-	Curl_safefree(imap->custom);
-	Curl_safefree(imap->custom_params);
+	ZFREE(imap->mailbox);
+	ZFREE(imap->uidvalidity);
+	ZFREE(imap->uid);
+	ZFREE(imap->mindex);
+	ZFREE(imap->section);
+	ZFREE(imap->partial);
+	ZFREE(imap->query);
+	ZFREE(imap->custom);
+	ZFREE(imap->custom_params);
 	/* Clear the transfer mode for the next request */
 	imap->transfer = FTPTRANSFER_BODY;
 	return result;
@@ -1567,8 +1567,8 @@ static CURLcode imap_disconnect(struct connectdata * conn, bool dead_connection)
 	Curl_sasl_cleanup(conn, imapc->sasl.authused);
 
 	/* Cleanup our connection based variables */
-	Curl_safefree(imapc->mailbox);
-	Curl_safefree(imapc->mailbox_uidvalidity);
+	ZFREE(imapc->mailbox);
+	ZFREE(imapc->mailbox_uidvalidity);
 
 	return CURLE_OK;
 }

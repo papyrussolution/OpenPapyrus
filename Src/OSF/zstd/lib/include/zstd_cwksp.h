@@ -32,18 +32,15 @@ extern "C" {
 #define ZSTD_CWKSP_ASAN_REDZONE_SIZE 128
 #endif
 
-/* Set our tables and aligneds to align by 64 bytes */
-#define ZSTD_CWKSP_ALIGNMENT_BYTES 64
-
-/*-*************************************
-*  Structures
-***************************************/
+#define ZSTD_CWKSP_ALIGNMENT_BYTES 64 /* Set our tables and aligneds to align by 64 bytes */
+// 
+// Structures
+// 
 typedef enum {
 	ZSTD_cwksp_alloc_objects,
 	ZSTD_cwksp_alloc_buffers,
 	ZSTD_cwksp_alloc_aligned
 } ZSTD_cwksp_alloc_phase_e;
-
 /**
  * Used to describe whether the workspace is statically allocated (and will not
  * necessarily ever be freed), or if it's dynamically allocated and we can
@@ -151,11 +148,9 @@ typedef struct {
 	ZSTD_cwksp_alloc_phase_e phase;
 	ZSTD_cwksp_static_alloc_e isStatic;
 } ZSTD_cwksp;
-
-/*-*************************************
-*  Functions
-***************************************/
-
+// 
+// Functions
+// 
 MEM_STATIC size_t ZSTD_cwksp_available_space(ZSTD_cwksp* ws);
 
 MEM_STATIC void ZSTD_cwksp_assert_internal_consistency(ZSTD_cwksp* ws) 
@@ -404,12 +399,12 @@ MEM_STATIC void* ZSTD_cwksp_reserve_table(ZSTD_cwksp* ws, size_t bytes)
 }
 
 /**
- * Aligned on sizeof(void*).
+ * Aligned on sizeof(void *).
  * Note : should happen only once, at workspace first initialization
  */
 MEM_STATIC void * ZSTD_cwksp_reserve_object(ZSTD_cwksp* ws, size_t bytes)
 {
-	const size_t roundedBytes = ZSTD_cwksp_align(bytes, sizeof(void*));
+	const size_t roundedBytes = ZSTD_cwksp_align(bytes, sizeof(void *));
 	void* alloc = ws->objectEnd;
 	void* end = (BYTE *)alloc + roundedBytes;
 #if ZSTD_ADDRESS_SANITIZER && !defined (ZSTD_ASAN_DONT_POISON_WORKSPACE)
@@ -417,8 +412,8 @@ MEM_STATIC void * ZSTD_cwksp_reserve_object(ZSTD_cwksp* ws, size_t bytes)
 	end = (BYTE *)end + 2 * ZSTD_CWKSP_ASAN_REDZONE_SIZE;
 #endif
 	DEBUGLOG(4, "cwksp: reserving %p object %zd bytes (rounded to %zd), %zd bytes remaining", alloc, bytes, roundedBytes, ZSTD_cwksp_available_space(ws) - roundedBytes);
-	assert((size_t)alloc % ZSTD_ALIGNOF(void*) == 0);
-	assert(bytes % ZSTD_ALIGNOF(void*) == 0);
+	assert((size_t)alloc % ZSTD_ALIGNOF(void *) == 0);
+	assert(bytes % ZSTD_ALIGNOF(void *) == 0);
 	ZSTD_cwksp_assert_internal_consistency(ws);
 	/* we must be in the first phase, no advance is possible */
 	if(ws->phase != ZSTD_cwksp_alloc_objects || end > ws->workspaceEnd) {
@@ -554,7 +549,7 @@ MEM_STATIC void ZSTD_cwksp_clear(ZSTD_cwksp* ws) {
  */
 MEM_STATIC void ZSTD_cwksp_init(ZSTD_cwksp* ws, void* start, size_t size, ZSTD_cwksp_static_alloc_e isStatic) {
 	DEBUGLOG(4, "cwksp: init'ing workspace with %zd bytes", size);
-	assert(((size_t)start & (sizeof(void*)-1)) == 0); /* ensure correct alignment */
+	assert(((size_t)start & (sizeof(void *)-1)) == 0); /* ensure correct alignment */
 	ws->workspace = start;
 	ws->workspaceEnd = (BYTE *)start + size;
 	ws->objectEnd = ws->workspace;

@@ -2168,8 +2168,8 @@ TERM_TABLE_END(x11_driver)
 #undef LAST_TERM
 #define LAST_TERM x11_driver
 
-#endif                          /* TERM_TABLE */
-#endif                          /* TERM_PROTO_ONLY */
+#endif /* TERM_TABLE */
+#endif /* TERM_PROTO_ONLY */
 
 #ifdef TERM_HELP
 START_HELP(x11)
@@ -2680,4 +2680,4 @@ START_HELP(x11)
 "@end table"
 
 END_HELP(x11)
-#endif                          /* TERM_HELP */
+#endif /* TERM_HELP */

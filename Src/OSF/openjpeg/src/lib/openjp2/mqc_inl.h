@@ -82,16 +82,14 @@ static INLINE uint32_t opj_mqc_raw_decode(opj_mqc_t * mqc)
 	}
 	mqc->ct--;
 	d = ((uint32_t)mqc->c >> mqc->ct) & 0x01U;
-
 	return d;
 }
 
 #define opj_mqc_bytein_macro(mqc, c, ct) \
 	{ \
-		uint32_t l_c;  \
 		/* Given opj_mqc_init_dec() we know that at some point we will */ \
 		/* have a 0xFF 0xFF artificial marker */ \
-		l_c = *(mqc->bp + 1); \
+		uint32_t l_c = *(mqc->bp + 1); \
 		if(*mqc->bp == 0xff) { \
 			if(l_c > 0x8f) { \
 				c += 0xff00; \
@@ -144,10 +142,10 @@ static INLINE uint32_t opj_mqc_raw_decode(opj_mqc_t * mqc)
 	}
 
 #define DOWNLOAD_MQC_VARIABLES(mqc, curctx, a, c, ct) \
-	register const opj_mqc_state_t **curctx = mqc->curctx; \
-	register uint32_t c = mqc->c; \
-	register uint32_t a = mqc->a; \
-	register uint32_t ct = mqc->ct
+	const opj_mqc_state_t **curctx = mqc->curctx; \
+	uint32_t c = mqc->c; \
+	uint32_t a = mqc->a; \
+	uint32_t ct = mqc->ct
 
 #define UPLOAD_MQC_VARIABLES(mqc, curctx, a, c, ct) \
 	mqc->curctx = curctx; \
@@ -163,23 +161,18 @@ static INLINE void opj_mqc_bytein(opj_mqc_t * const mqc)
 {
 	opj_mqc_bytein_macro(mqc, mqc->c, mqc->ct);
 }
-
 /**
    Renormalize mqc->a and mqc->c while decoding
    @param mqc MQC handle
  */
-#define opj_mqc_renormd(mqc) \
-	opj_mqc_renormd_macro(mqc, mqc->a, mqc->c, mqc->ct)
-
+#define opj_mqc_renormd(mqc) opj_mqc_renormd_macro(mqc, mqc->a, mqc->c, mqc->ct)
 /**
    Decode a symbol
    @param d uint32_t value where to store the decoded symbol
    @param mqc MQC handle
    @return Returns the decoded symbol (0 or 1) in d
  */
-#define opj_mqc_decode(d, mqc) \
-	opj_mqc_decode_macro(d, mqc, mqc->curctx, mqc->a, mqc->c, mqc->ct)
-
+#define opj_mqc_decode(d, mqc) opj_mqc_decode_macro(d, mqc, mqc->curctx, mqc->a, mqc->c, mqc->ct)
 /**
    Output a byte, doing bit-stuffing if necessary.
    After a 0xff byte, the next byte must be smaller than 0x90.

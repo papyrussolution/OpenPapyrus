@@ -10,9 +10,7 @@
 #ifndef mathlibH
 #define mathlibH
 
-#include "cppcheck-config.h"
-#include <sstream>
-#include <string>
+//#include "cppcheck-config.h"
 
 /// @addtogroup Core
 /// @{

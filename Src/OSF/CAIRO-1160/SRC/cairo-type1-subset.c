@@ -169,8 +169,7 @@ static const char * find_token(const char * buffer, const char * end, const char
 	length = strlen(token);
 	for(i = 0; buffer + i < end - length + 1; i++)
 		if(memcmp(buffer + i, token, length) == 0)
-			if((i == 0 || token[0] == '/' || is_ps_delimiter(buffer[i - 1])) &&
-			    (buffer + i == end - length || is_ps_delimiter(buffer[i + length])))
+			if((i == 0 || token[0] == '/' || is_ps_delimiter(buffer[i - 1])) && (buffer + i == end - length || is_ps_delimiter(buffer[i + length])))
 				return buffer + i;
 
 	return NULL;

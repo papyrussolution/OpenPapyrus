@@ -313,9 +313,9 @@ static int copy_email(X509V3_CTX * ctx, GENERAL_NAMES * gens, int move_p)
 	X509_NAME_ENTRY * ne;
 	GENERAL_NAME * gen = NULL;
 	int i = -1;
-	if(ctx != NULL && ctx->flags == CTX_TEST)
+	if(ctx && ctx->flags == CTX_TEST)
 		return 1;
-	if(ctx == NULL || (ctx->subject_cert == NULL && ctx->subject_req == NULL)) {
+	if(!ctx || (ctx->subject_cert == NULL && ctx->subject_req == NULL)) {
 		X509V3err(X509V3_F_COPY_EMAIL, X509V3_R_NO_SUBJECT_DETAILS);
 		goto err;
 	}

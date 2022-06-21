@@ -1053,7 +1053,7 @@ typedef struct MDB_node {
 #define LEAF2KEY(p, i, ks) ((char *)(p) + PAGEHDRSZ + ((i)*(ks)))
 
 /** Set the \b node's key into \b keyptr, if requested. */
-#define MDB_GET_KEY(node, keyptr) { if((keyptr) != NULL) { (keyptr)->mv_size = NODEKSZ(node); (keyptr)->mv_data = NODEKEY(node); } }
+#define MDB_GET_KEY(node, keyptr) { if(keyptr) { (keyptr)->mv_size = NODEKSZ(node); (keyptr)->mv_data = NODEKEY(node); } }
 
 /** Set the \b node's key into \b key. */
 #define MDB_GET_KEY2(node, key) { key.mv_size = NODEKSZ(node); key.mv_data = NODEKEY(node); }

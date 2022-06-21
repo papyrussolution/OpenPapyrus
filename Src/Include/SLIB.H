@@ -3217,6 +3217,7 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 #define NTTF_NOZERO    0x0020  // Не выводить нулевое значение
 //
 // Date format flags
+// @persistent
 //
 #define DATF_AMERICAN       1  // mm/dd/yy
 #define DATF_ANSI           2  // yy.mm.dd
@@ -3242,6 +3243,7 @@ void FASTCALL RegisterSType(TYPEID, DataType *);
 	// цифры года (11).
 //
 // Time format flags
+// @persistent
 //
 #define TIMF_HMS            1  // 23:20:59
 #define TIMF_HM             2  // 23:20
@@ -6087,6 +6089,20 @@ public:
 	//
 	int    FromMime64(const char * pMimeString);
 	//
+	// Descr: Кодирует содержимое буфера в формате hex и результат вносит в строку rBuf.
+	//
+	SString & Hex(SString & rBuf) const;
+	//
+	// Descr: Заносит в буфер бинарные данные, закодированные как HEX в z-строке pHexString.
+	//   Буфер this предварительно очищается.
+	//   Нулевой указатель pHexString или нулевая длина строки считаются валидным случаем:
+	//   в результате функция просто очистит буфер this.
+	// Returns:
+	//   >0 - данные успешно извлечены из строки и помещены в буфер.
+	//   0  - ошибка (либо не удалось декодировать pHexString, либо не достаточно памяти, либо ошибка во внутреннем состоянии буфера).
+	//
+	int    FromHex(const char * pHexString);
+	//
 	// Descr: Гарантирует, что длина отрезка равна len не заботясь о содержимом отрезка.
 	//   То есть, если перед вызовом Len() > len, то укорачивает отрезок до len,
 	//   если перед вызовом Len() < len, то распределяет дополнительное пространство.
@@ -7100,6 +7116,9 @@ int    Base32_Encode(const uint8 * pData, size_t dataLen, SString & rBuf);
 //   Результат сбрасывается в буфер rResult. В прологе функции rResult очищается.
 //
 size_t Base32_Decode(const uchar * pCoded, SBinaryChunk & rResult);
+
+size_t Hex_Encode(uint flags, const uint8 * pData, size_t dataLen, SString & rBuf);
+size_t Hex_Decode(const uchar * pCoded, size_t srcLen, SBinaryChunk & rResult);
 //
 // Punycode
 //
@@ -11494,6 +11513,7 @@ struct SStrScan : public SRegExpSet {
 	//   0  - очередной символ является разделителем или мы уперлись в конец строки.
 	//
 	int    GetWord(const char * pDiv, SString & rBuf);
+	int    GetUntil(char divider, SString & rBuf);
 	//
 	// Descr: Если следующая последовательность равна: key = "value"
 	//   то копирует key в rKey, value в rVal и перемещает указатель в позицию, следующую за "value"
@@ -12090,6 +12110,28 @@ int    Factorize(ulong val, UlongArray * pList);
 int    MutualReducePrimeMultiplicators(UlongArray & rA1, UlongArray & rA2, UlongArray * pReduceList);
 long   GetTranspositionNumber(const long list[], long count);
 int    GetNthTransposition(long list[], long count, long n);
+//
+//
+//
+class SDecimalFraction {
+public:
+	SDecimalFraction();
+	SDecimalFraction(int64 n, uint16 denomDecPwr);
+	double GetReal() const;
+	bool   Normalize();
+	SDecimalFraction & Z();
+	bool   IsZero() const;
+	static SDecimalFraction Neg(const SDecimalFraction & rV);
+	int    Add(const SDecimalFraction & rA, const SDecimalFraction & rB);
+	int    Sub(const SDecimalFraction & rA, const SDecimalFraction & rB);
+	int    Mul(const SDecimalFraction & rA, const SDecimalFraction & rB);
+	int    Div(const SDecimalFraction & rA, const SDecimalFraction & rB);
+	static int Test();
+private:
+	int64  Num;
+	uint16 DenomDecPwr;
+	uint16 Flags;
+};
 
 #ifndef _WIN32_WCE // {
 //

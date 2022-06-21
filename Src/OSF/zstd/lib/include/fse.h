@@ -20,10 +20,9 @@ extern "C" {
 #define FSE_H
 
 #include "zstd_deps.h"    /* size_t, ptrdiff_t */
-
-/*-*****************************************
- *  FSE_PUBLIC_API : control library symbols visibility
- ******************************************/
+// 
+// FSE_PUBLIC_API : control library symbols visibility
+// 
 #if defined(FSE_DLL_EXPORT) && (FSE_DLL_EXPORT==1) && defined(__GNUC__) && (__GNUC__ >= 4)
 #define FSE_PUBLIC_API __attribute__ ((visibility("default")))
 #elif defined(FSE_DLL_EXPORT) && (FSE_DLL_EXPORT==1)   /* Visual expected */
@@ -47,10 +46,9 @@ extern "C" {
 
 #define FSE_VERSION_NUMBER  (FSE_VERSION_MAJOR *100*100 + FSE_VERSION_MINOR *100 + FSE_VERSION_RELEASE)
 FSE_PUBLIC_API uint FSE_versionNumber(void);   /**< library version number; to be used when checking dll version */
-
-/*-****************************************
-*  FSE simple functions
-******************************************/
+// 
+// FSE simple functions
+// 
 /*! FSE_compress() :
     Compress content of buffer 'src', of size 'srcSize', into destination buffer 'dst'.
     'dst' buffer must be already allocated. Compression runs faster is dstCapacity >= FSE_compressBound(srcSize).
@@ -82,9 +80,9 @@ FSE_PUBLIC_API size_t FSE_compressBound(size_t size);       /* maximum compresse
 //
 FSE_PUBLIC_API uint    FSE_isError(size_t code);        /* tells if a return value is an error code */
 FSE_PUBLIC_API const char* FSE_getErrorName(size_t code);   /* provides error code string (useful for debugging) */
-/*-*****************************************
- *  FSE advanced functions
- ******************************************/
+// 
+// FSE advanced functions
+// 
 /*! FSE_compress2() :
     Same as FSE_compress(), but allows the selection of 'maxSymbolValue' and 'tableLog'
     Both parameters can be defined as '0' to mean : use default value
@@ -94,10 +92,9 @@ FSE_PUBLIC_API const char* FSE_getErrorName(size_t code);   /* provides error co
                      if FSE_isError(return), it's an error code.
  */
 FSE_PUBLIC_API size_t FSE_compress2(void* dst, size_t dstSize, const void* src, size_t srcSize, uint maxSymbolValue, uint tableLog);
-
-/*-*****************************************
- *  FSE detailed API
- ******************************************/
+// 
+// FSE detailed API
+// 
 /*!
    FSE_compress() does the following:
    1. count symbol occurrence from source[] into table count[] (see hist.h)

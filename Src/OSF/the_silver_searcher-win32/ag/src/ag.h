@@ -39,7 +39,7 @@
 	#include <zlib.h>
 #endif
 #ifdef HAVE_LZMA_H
-	#include <..\OSF\liblzma\api\lzma.h>
+	#include <..\osf\liblzma\api\lzma.h>
 #endif
 #include <getopt.h>
 #include "uthash.h"

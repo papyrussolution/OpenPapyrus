@@ -34,19 +34,15 @@ namespace OT {
 		hb_vector_t<char> *cbdt_prime;
 		uint size; /* INOUT
 		 *  Input: old size of IndexSubtable
-		 *  Output: new size of IndexSubtable
-		                    */
+		 *  Output: new size of IndexSubtable */
 		uint num_tables; /* INOUT
 		  *  Input: old number of subtables.
-		  *  Output: new number of subtables.
-		                          */
+		  *  Output: new number of subtables. */
 		hb_codepoint_t start_glyph; /*OUT*/
 		hb_codepoint_t end_glyph; /*OUT*/
 	};
 
-	static inline bool _copy_data_to_cbdt(hb_vector_t<char> * cbdt_prime,
-	    const void * data,
-	    unsigned length)
+	static inline bool _copy_data_to_cbdt(hb_vector_t<char> * cbdt_prime, const void * data, unsigned length)
 	{
 		uint new_len = cbdt_prime->length + length;
 		if(UNLIKELY(!cbdt_prime->alloc(new_len))) return false;

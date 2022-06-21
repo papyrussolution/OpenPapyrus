@@ -9,8 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "platform.h"
-#include "path.h"
 
 cppcheck::Platform::Platform()
 {

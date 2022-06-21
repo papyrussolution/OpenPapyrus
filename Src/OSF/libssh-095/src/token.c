@@ -28,7 +28,7 @@
 void ssh_tokens_free(struct ssh_tokens_st * tokens)
 {
 	int i;
-	if(tokens == NULL) {
+	if(!tokens) {
 		return;
 	}
 	if(tokens->tokens != NULL) {
@@ -63,7 +63,7 @@ struct ssh_tokens_st * ssh_tokenize(const char * chain, char separator)
 		return NULL;
 	}
 	tokens = (struct ssh_tokens_st *)SAlloc::C(1, sizeof(struct ssh_tokens_st));
-	if(tokens == NULL) {
+	if(!tokens) {
 		return NULL;
 	}
 	tokens->buffer = sstrdup(chain);

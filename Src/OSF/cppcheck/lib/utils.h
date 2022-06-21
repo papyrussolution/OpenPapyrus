@@ -10,52 +10,34 @@
 #ifndef utilsH
 #define utilsH
 
-#include "cppcheck-config.h"
-#include <algorithm>
-#include <cstddef>
-#include <initializer_list>
-#include <string>
-#include <vector>
+//#include "cppcheck-config.h"
 
 struct SelectMapKeys {
-	template <class Pair>
-	typename Pair::first_type operator()(const Pair& p) const {
-		return p.first;
-	}
+	template <class Pair> typename Pair::first_type operator()(const Pair& p) const { return p.first; }
 };
 
 struct SelectMapValues {
-	template <class Pair>
-	typename Pair::second_type operator()(const Pair& p) const {
-		return p.second;
-	}
+	template <class Pair> typename Pair::second_type operator()(const Pair& p) const { return p.second; }
 };
 
-template <class Range, class T>
-bool contains(const Range& r, const T& x)
+template <class Range, class T> bool contains(const Range& r, const T& x)
 {
 	return std::find(r.begin(), r.end(), x) != r.end();
 }
 
-template <class T>
-bool contains(const std::initializer_list<T>& r, const T& x)
+template <class T> bool contains(const std::initializer_list<T>& r, const T& x)
 {
 	return std::find(r.begin(), r.end(), x) != r.end();
 }
 
-template <class T, class U>
-bool contains(const std::initializer_list<T>& r, const U& x)
+template <class T, class U> bool contains(const std::initializer_list<T>& r, const U& x)
 {
 	return std::find(r.begin(), r.end(), x) != r.end();
 }
 
 // Enum hash for C++11. This is not needed in C++14
 struct EnumClassHash {
-	template <typename T>
-	std::size_t operator()(T t) const
-	{
-		return static_cast<std::size_t>(t);
-	}
+	template <typename T> std::size_t operator()(T t) const { return static_cast<std::size_t>(t); }
 };
 
 inline bool endsWith(const std::string &str, char c)
@@ -68,8 +50,7 @@ inline bool endsWith(const std::string &str, const char end[], std::size_t endle
 	return (str.size() >= endlen) && (str.compare(str.size()-endlen, endlen, end)==0);
 }
 
-template <std::size_t N>
-bool endsWith(const std::string& str, const char (&end)[N])
+template <std::size_t N> bool endsWith(const std::string& str, const char (&end)[N])
 {
 	return endsWith(str, end, N - 1);
 }
@@ -135,13 +116,9 @@ inline static const char * getOrdinalText(int i)
 }
 
 CPPCHECKLIB int caseInsensitiveStringCompare(const std::string& lhs, const std::string& rhs);
-
 CPPCHECKLIB bool isValidGlobPattern(const std::string& pattern);
-
 CPPCHECKLIB bool matchglob(const std::string& pattern, const std::string& name);
-
 CPPCHECKLIB bool matchglobs(const std::vector<std::string> &patterns, const std::string &name);
-
 CPPCHECKLIB void strTolower(std::string& str);
 
 #endif

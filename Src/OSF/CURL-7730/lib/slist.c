@@ -116,7 +116,7 @@ void curl_slist_free_all(struct curl_slist * list)
 		struct curl_slist * next;
 		do {
 			next = item->next;
-			Curl_safefree(item->data);
+			ZFREE(item->data);
 			SAlloc::F(item);
 			item = next;
 		} while(next);

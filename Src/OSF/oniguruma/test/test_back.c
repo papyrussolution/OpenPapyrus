@@ -1360,9 +1360,7 @@ extern int OnigTestBack_main(FILE * fOut)
 	/* can't use \xfc00.. because compiler error: hex escape sequence out of range */
 	n("()0\\xfc00000\\xfc00000\\xfc00000\xfc", ""); /* https://bugs.php.net/bug.php?id=77371 */
 	x2("000||0\xfa", "0", 1, 1);
-	e("(?i)000000000000000000000\xf0", "", ONIGERR_INVALID_CODE_POINT_VALUE); /*
-	                                                                             https://bugs.php.net/bug.php?id=77382
-	                                                                             */
+	e("(?i)000000000000000000000\xf0", "", ONIGERR_INVALID_CODE_POINT_VALUE); /* https://bugs.php.net/bug.php?id=77382 */
 	n("0000\\\xf5", "0"); /* https://bugs.php.net/bug.php?id=77385 */
 	n("(?i)FFF00000000000000000\xfd", ""); /* https://bugs.php.net/bug.php?id=77394 */
 	e("x{55380}{77590}", "", ONIGERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE);

@@ -283,7 +283,7 @@ PROTOBUF_NOINLINE size_t SpaceUsedInTable(void** table, size_t num_buckets,
                                           size_t sizeof_node) {
   size_t size = 0;
   // The size of the table.
-  size += sizeof(void*) * num_buckets;
+  size += sizeof(void *) * num_buckets;
   // All the nodes.
   size += sizeof_node * num_elements;
   // For each tree, count the overhead of the those nodes.
@@ -295,7 +295,7 @@ PROTOBUF_NOINLINE size_t SpaceUsedInTable(void** table, size_t num_buckets,
       // Estimated cost of the red-black tree nodes, 3 pointers plus a
       // bool (plus alignment, so 4 pointers).
       size += tree->size() *
-              (sizeof(typename Tree::value_type) + sizeof(void*) * 4);
+              (sizeof(typename Tree::value_type) + sizeof(void *) * 4);
     }
   }
   return size;

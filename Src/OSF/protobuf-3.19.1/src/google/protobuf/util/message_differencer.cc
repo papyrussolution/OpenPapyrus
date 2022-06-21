@@ -734,7 +734,7 @@ bool MessageDifferencer::CompareWithFieldsInternal(const Message& message1, cons
 			if(IsIgnored(message1, message2, field1, *parent_fields)) {
 				// We are ignoring field1. Report the ignore and move on to
 				// the next field in message1_fields.
-				if(reporter_ != NULL) {
+				if(reporter_) {
 					SpecificField specific_field;
 					specific_field.field = field1;
 					parent_fields->push_back(specific_field);
@@ -746,13 +746,9 @@ bool MessageDifferencer::CompareWithFieldsInternal(const Message& message1, cons
 				++field_index1;
 				continue;
 			}
-
-			if(reporter_ != NULL) {
+			if(reporter_) {
 				assert(field1 != NULL);
-				int count = field1->is_repeated()
-				    ? reflection1->FieldSize(message1, field1)
-				    : 1;
-
+				int count = field1->is_repeated() ? reflection1->FieldSize(message1, field1) : 1;
 				for(int i = 0; i < count; ++i) {
 					SpecificField specific_field;
 					specific_field.field = field1;
@@ -782,7 +778,7 @@ bool MessageDifferencer::CompareWithFieldsInternal(const Message& message1, cons
 			if(IsIgnored(message1, message2, field2, *parent_fields)) {
 				// We are ignoring field2. Report the ignore and move on to
 				// the next field in message2_fields.
-				if(reporter_ != NULL) {
+				if(reporter_) {
 					SpecificField specific_field;
 					specific_field.field = field2;
 					parent_fields->push_back(specific_field);
@@ -794,12 +790,8 @@ bool MessageDifferencer::CompareWithFieldsInternal(const Message& message1, cons
 				++field_index2;
 				continue;
 			}
-
-			if(reporter_ != NULL) {
-				int count = field2->is_repeated()
-				    ? reflection2->FieldSize(message2, field2)
-				    : 1;
-
+			if(reporter_) {
+				int count = field2->is_repeated() ? reflection2->FieldSize(message2, field2) : 1;
 				for(int i = 0; i < count; ++i) {
 					SpecificField specific_field;
 					specific_field.field = field2;
@@ -831,7 +823,7 @@ bool MessageDifferencer::CompareWithFieldsInternal(const Message& message1, cons
 		// field, so we can now compare the values.
 		if(IsIgnored(message1, message2, field1, *parent_fields)) {
 			// Ignore this field. Report and move on.
-			if(reporter_ != NULL) {
+			if(reporter_) {
 				SpecificField specific_field;
 				specific_field.field = field1;
 				parent_fields->push_back(specific_field);
@@ -845,7 +837,6 @@ bool MessageDifferencer::CompareWithFieldsInternal(const Message& message1, cons
 			++field_index2;
 			continue;
 		}
-
 		bool fieldDifferent = false;
 		assert(field1 != NULL);
 		if(field1->is_map()) {
@@ -1178,12 +1169,12 @@ bool MessageDifferencer::CompareRepeatedRep(const Message& message1, const Messa
 			parent_fields->pop_back();
 			fieldDifferent = true;
 		}
-		else if(reporter_ != NULL && specific_field.index != specific_field.new_index && !specific_field.field->is_map() && report_moves_) {
+		else if(reporter_ && specific_field.index != specific_field.new_index && !specific_field.field->is_map() && report_moves_) {
 			parent_fields->push_back(specific_field);
 			reporter_->ReportMoved(message1, message2, *parent_fields);
 			parent_fields->pop_back();
 		}
-		else if(report_matches_ && reporter_ != NULL) {
+		else if(report_matches_ && reporter_) {
 			parent_fields->push_back(specific_field);
 			reporter_->ReportMatched(message1, message2, *parent_fields);
 			parent_fields->pop_back();
@@ -1197,15 +1188,14 @@ bool MessageDifferencer::CompareRepeatedRep(const Message& message1, const Messa
 		if(!treated_as_subset) {
 			fieldDifferent = true;
 		}
-
-		if(reporter_ == NULL) continue;
+		if(reporter_ == NULL) 
+			continue;
 		specific_field.index = i;
 		AddSpecificNewIndex(&specific_field, message2, repeated_field, i);
 		parent_fields->push_back(specific_field);
 		reporter_->ReportAdded(message1, message2, *parent_fields);
 		parent_fields->pop_back();
 	}
-
 	for(int i = 0; i < count1; ++i) {
 		if(!simple_list && match_list1[i] != -1) continue;
 		if(simple_list && i < count2) continue;
@@ -1250,7 +1240,7 @@ bool MessageDifferencer::CompareFieldValueUsingParentFields(const Message& messa
 		    : reflection2->GetMessage(message2, field);
 
 		// parent_fields is used in calls to Reporter methods.
-		if(parent_fields != NULL) {
+		if(parent_fields) {
 			// Append currently compared field to the end of parent_fields.
 			SpecificField specific_field;
 			specific_field.field = field;
@@ -1311,9 +1301,9 @@ bool MessageDifferencer::IsTreatedAsSmartList(const FieldDescriptor* field) {
 	       repeated_field_comparison_ == AS_SMART_LIST;
 }
 
-bool MessageDifferencer::IsTreatedAsSubset(const FieldDescriptor* field) {
-	return scope_ == PARTIAL &&
-	       (IsTreatedAsSet(field) || GetMapKeyComparator(field) != NULL);
+bool MessageDifferencer::IsTreatedAsSubset(const FieldDescriptor* field) 
+{
+	return scope_ == PARTIAL && (IsTreatedAsSet(field) || GetMapKeyComparator(field));
 }
 
 bool MessageDifferencer::IsIgnored(const Message& message1, const Message& message2,
@@ -1552,10 +1542,8 @@ bool MessageDifferencer::CompareUnknownFields(const Message& message1, const Mes
 			specific_field.index = index1 - current_repeated_start1;
 			specific_field.new_index = index2 - current_repeated_start2;
 		}
-
-		if(IsUnknownFieldIgnored(message1, message2, specific_field,
-		    *parent_field)) {
-			if(report_ignores_ && reporter_ != NULL) {
+		if(IsUnknownFieldIgnored(message1, message2, specific_field, *parent_field)) {
+			if(report_ignores_ && reporter_) {
 				parent_field->push_back(specific_field);
 				reporter_->ReportUnknownFieldIgnored(message1, message2, *parent_field);
 				parent_field->pop_back();
@@ -1943,7 +1931,7 @@ void MessageDifferencer::StreamReporter::PrintPath(const std::vector <SpecificFi
 		if(i > 0) {
 			printer_->Print(".");
 		}
-		if(specific_field.field != NULL) {
+		if(specific_field.field) {
 			if(specific_field.field->is_extension()) {
 				printer_->Print("($name$)", "name", specific_field.field->full_name());
 			}
@@ -1969,11 +1957,11 @@ void MessageDifferencer::StreamReporter::PrintPath(const std::vector <SpecificFi
 	}
 }
 
-void MessageDifferencer::StreamReporter::PrintValue(const Message& message, const std::vector <SpecificField>& field_path,
-    bool left_side) {
+void MessageDifferencer::StreamReporter::PrintValue(const Message& message, const std::vector <SpecificField>& field_path, bool left_side) 
+{
 	const SpecificField& specific_field = field_path.back();
 	const FieldDescriptor* field = specific_field.field;
-	if(field != NULL) {
+	if(field) {
 		std::string output;
 		int index = left_side ? specific_field.index : specific_field.new_index;
 		if(field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE) {
@@ -2027,9 +2015,9 @@ void MessageDifferencer::StreamReporter::PrintValue(const Message& message, cons
 	}
 }
 
-void MessageDifferencer::StreamReporter::PrintUnknownFieldValue(const UnknownField* unknown_field) {
+void MessageDifferencer::StreamReporter::PrintUnknownFieldValue(const UnknownField* unknown_field) 
+{
 	GOOGLE_CHECK(unknown_field != NULL) << " Cannot print NULL unknown_field.";
-
 	std::string output;
 	switch(unknown_field->type()) {
 		case UnknownField::TYPE_VARINT:

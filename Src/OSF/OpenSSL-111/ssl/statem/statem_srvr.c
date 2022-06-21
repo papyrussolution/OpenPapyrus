@@ -1331,7 +1331,7 @@ static void ssl_check_for_safari(SSL * s, const CLIENTHELLO_MSG * hello)
 		ext_len);
 }
 
-#endif                          /* !OPENSSL_NO_EC */
+#endif /* !OPENSSL_NO_EC */
 
 MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 {
@@ -1778,7 +1778,7 @@ static int tls_early_post_process_client_hello(SSL * s)
 #ifndef OPENSSL_NO_EC
 	if(s->options & SSL_OP_SAFARI_ECDHE_ECDSA_BUG)
 		ssl_check_for_safari(s, clienthello);
-#endif                          /* !OPENSSL_NO_EC */
+#endif /* !OPENSSL_NO_EC */
 
 	/* TLS extensions */
 	if(!tls_parse_all_extensions(s, SSL_EXT_CLIENT_HELLO,
@@ -2373,7 +2373,7 @@ int tls_construct_server_key_exchange(SSL * s, WPACKET * pkt)
 	if(type & (SSL_kPSK | SSL_kRSAPSK)) {
 	}
 	else
-#endif                          /* !OPENSSL_NO_PSK */
+#endif /* !OPENSSL_NO_PSK */
 #ifndef OPENSSL_NO_DH
 	if(type & (SSL_kDHE | SSL_kDHEPSK)) {
 		CERT * cert = s->cert;
@@ -2485,7 +2485,7 @@ int tls_construct_server_key_exchange(SSL * s, WPACKET * pkt)
 		r[3] = NULL;
 	}
 	else
-#endif                          /* !OPENSSL_NO_EC */
+#endif /* !OPENSSL_NO_EC */
 #ifndef OPENSSL_NO_SRP
 	if(type & SSL_kSRP) {
 		if((s->srp_ctx.N == NULL) ||
@@ -3540,7 +3540,7 @@ MSG_PROCESS_RETURN tls_process_client_certificate(SSL * s, PACKET * pkt)
 			goto err;
 		}
 		pkey = X509_get0_pubkey(sk_X509_value(sk, 0));
-		if(pkey == NULL) {
+		if(!pkey) {
 			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_PROCESS_CLIENT_CERTIFICATE, SSL_R_UNKNOWN_CERTIFICATE_TYPE);
 			goto err;
 		}
@@ -3708,7 +3708,7 @@ static int construct_stateless_ticket(SSL * s, WPACKET * pkt, uint32_t age_add,
 
 	ctx = EVP_CIPHER_CTX_new();
 	hctx = HMAC_CTX_new();
-	if(ctx == NULL || hctx == NULL) {
+	if(!ctx || hctx == NULL) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_CONSTRUCT_STATELESS_TICKET,
 		    ERR_R_MALLOC_FAILURE);
 		goto err;

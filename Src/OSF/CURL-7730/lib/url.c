@@ -298,22 +298,22 @@ void Curl_freeset(struct Curl_easy * data)
 	{
 		//enum dupstring i;
 		for(int i = 0; i < STRING_LAST; i++) {
-			Curl_safefree(data->set.str[i]);
+			ZFREE(data->set.str[i]);
 		}
 	}
 	{
 		//enum dupblob j;
 		for(int j = 0; j < BLOB_LAST; j++) {
-			Curl_safefree(data->set.blobs[j]);
+			ZFREE(data->set.blobs[j]);
 		}
 	}
 	if(data->change.referer_alloc) {
-		Curl_safefree(data->change.referer);
+		ZFREE(data->change.referer);
 		data->change.referer_alloc = FALSE;
 	}
 	data->change.referer = NULL;
 	if(data->change.url_alloc) {
-		Curl_safefree(data->change.url);
+		ZFREE(data->change.url);
 		data->change.url_alloc = FALSE;
 	}
 	data->change.url = NULL;
@@ -324,14 +324,14 @@ void Curl_freeset(struct Curl_easy * data)
 static void up_free(struct Curl_easy * data)
 {
 	struct urlpieces * up = &data->state.up;
-	Curl_safefree(up->scheme);
-	Curl_safefree(up->hostname);
-	Curl_safefree(up->port);
-	Curl_safefree(up->user);
-	Curl_safefree(up->password);
-	Curl_safefree(up->options);
-	Curl_safefree(up->path);
-	Curl_safefree(up->query);
+	ZFREE(up->scheme);
+	ZFREE(up->hostname);
+	ZFREE(up->port);
+	ZFREE(up->user);
+	ZFREE(up->password);
+	ZFREE(up->options);
+	ZFREE(up->path);
+	ZFREE(up->query);
 	curl_url_cleanup(data->state.uh);
 	data->state.uh = NULL;
 }
@@ -388,8 +388,8 @@ CURLcode Curl_close(struct Curl_easy ** datap)
 
 	/* Close down all open SSL info and sessions */
 	Curl_ssl_close_all(data);
-	Curl_safefree(data->state.first_host);
-	Curl_safefree(data->state.scratch);
+	ZFREE(data->state.first_host);
+	ZFREE(data->state.scratch);
 	Curl_ssl_free_certinfo(data);
 
 	/* Cleanup possible redirect junk */
@@ -397,23 +397,23 @@ CURLcode Curl_close(struct Curl_easy ** datap)
 	data->req.newurl = NULL;
 
 	if(data->change.referer_alloc) {
-		Curl_safefree(data->change.referer);
+		ZFREE(data->change.referer);
 		data->change.referer_alloc = FALSE;
 	}
 	data->change.referer = NULL;
 
 	up_free(data);
-	Curl_safefree(data->state.buffer);
+	ZFREE(data->state.buffer);
 	Curl_dyn_free(&data->state.headerb);
-	Curl_safefree(data->state.ulbuf);
+	ZFREE(data->state.ulbuf);
 	Curl_flush_cookies(data, TRUE);
 	Curl_altsvc_save(data, data->asi, data->set.str[STRING_ALTSVC]);
 	Curl_altsvc_cleanup(&data->asi);
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_CRYPTO_AUTH)
 	Curl_http_auth_cleanup_digest(data);
 #endif
-	Curl_safefree(data->info.contenttype);
-	Curl_safefree(data->info.wouldredirect);
+	ZFREE(data->info.contenttype);
+	ZFREE(data->info.wouldredirect);
 
 	/* this destroys the channel and we cannot use it anymore after this */
 	Curl_resolver_cleanup(data->state.resolver);
@@ -428,16 +428,16 @@ CURLcode Curl_close(struct Curl_easy ** datap)
 		Curl_share_unlock(data, CURL_LOCK_DATA_SHARE);
 	}
 
-	Curl_safefree(data->state.aptr.proxyuserpwd);
-	Curl_safefree(data->state.aptr.uagent);
-	Curl_safefree(data->state.aptr.userpwd);
-	Curl_safefree(data->state.aptr.accept_encoding);
-	Curl_safefree(data->state.aptr.te);
-	Curl_safefree(data->state.aptr.rangeline);
-	Curl_safefree(data->state.aptr.ref);
-	Curl_safefree(data->state.aptr.host);
-	Curl_safefree(data->state.aptr.cookiehost);
-	Curl_safefree(data->state.aptr.rtsp_transport);
+	ZFREE(data->state.aptr.proxyuserpwd);
+	ZFREE(data->state.aptr.uagent);
+	ZFREE(data->state.aptr.userpwd);
+	ZFREE(data->state.aptr.accept_encoding);
+	ZFREE(data->state.aptr.te);
+	ZFREE(data->state.aptr.rangeline);
+	ZFREE(data->state.aptr.ref);
+	ZFREE(data->state.aptr.host);
+	ZFREE(data->state.aptr.cookiehost);
+	ZFREE(data->state.aptr.rtsp_transport);
 
 #ifndef CURL_DISABLE_DOH
 	Curl_dyn_free(&data->req.doh.probe[0].serverdoh);
@@ -728,33 +728,33 @@ static void conn_free(struct connectdata * conn)
 #ifndef CURL_DISABLE_PROXY
 	Curl_free_idnconverted_hostname(&conn->http_proxy.host);
 	Curl_free_idnconverted_hostname(&conn->socks_proxy.host);
-	Curl_safefree(conn->http_proxy.user);
-	Curl_safefree(conn->socks_proxy.user);
-	Curl_safefree(conn->http_proxy.passwd);
-	Curl_safefree(conn->socks_proxy.passwd);
-	Curl_safefree(conn->http_proxy.host.rawalloc); /* http proxy name buffer */
-	Curl_safefree(conn->socks_proxy.host.rawalloc); /* socks proxy name buffer */
+	ZFREE(conn->http_proxy.user);
+	ZFREE(conn->socks_proxy.user);
+	ZFREE(conn->http_proxy.passwd);
+	ZFREE(conn->socks_proxy.passwd);
+	ZFREE(conn->http_proxy.host.rawalloc); /* http proxy name buffer */
+	ZFREE(conn->socks_proxy.host.rawalloc); /* socks proxy name buffer */
 	Curl_free_primary_ssl_config(&conn->proxy_ssl_config);
 #endif
-	Curl_safefree(conn->user);
-	Curl_safefree(conn->passwd);
-	Curl_safefree(conn->sasl_authzid);
-	Curl_safefree(conn->options);
+	ZFREE(conn->user);
+	ZFREE(conn->passwd);
+	ZFREE(conn->sasl_authzid);
+	ZFREE(conn->options);
 	Curl_dyn_free(&conn->trailer);
-	Curl_safefree(conn->host.rawalloc); /* host name buffer */
-	Curl_safefree(conn->conn_to_host.rawalloc); /* host name buffer */
-	Curl_safefree(conn->hostname_resolve);
-	Curl_safefree(conn->secondaryhostname);
-	Curl_safefree(conn->connect_state);
+	ZFREE(conn->host.rawalloc); /* host name buffer */
+	ZFREE(conn->conn_to_host.rawalloc); /* host name buffer */
+	ZFREE(conn->hostname_resolve);
+	ZFREE(conn->secondaryhostname);
+	ZFREE(conn->connect_state);
 	conn_reset_all_postponed_data(conn);
 	Curl_llist_destroy(&conn->easyq, NULL);
-	Curl_safefree(conn->localdev);
+	ZFREE(conn->localdev);
 	Curl_free_primary_ssl_config(&conn->ssl_config);
 #ifdef USE_UNIX_SOCKETS
-	Curl_safefree(conn->unix_domain_socket);
+	ZFREE(conn->unix_domain_socket);
 #endif
 #ifdef USE_SSL
-	Curl_safefree(conn->ssl_extra);
+	ZFREE(conn->ssl_extra);
 #endif
 	SAlloc::F(conn); /* free all the connection oriented data */
 }
@@ -2060,8 +2060,8 @@ static void zonefrom_url(CURLU * uh, struct connectdata * conn)
 
 	void Curl_free_request_state(struct Curl_easy * data)
 	{
-		Curl_safefree(data->req.protop);
-		Curl_safefree(data->req.newurl);
+		ZFREE(data->req.protop);
+		ZFREE(data->req.newurl);
 
 #ifndef CURL_DISABLE_DOH
 		Curl_close(&data->req.doh.probe[0].easy);
@@ -2311,9 +2311,9 @@ static void zonefrom_url(CURLU * uh, struct connectdata * conn)
 		curl_url_get(uhp, CURLUPART_USER, &proxyuser, CURLU_URLDECODE);
 		curl_url_get(uhp, CURLUPART_PASSWORD, &proxypasswd, CURLU_URLDECODE);
 		if(proxyuser || proxypasswd) {
-			Curl_safefree(proxyinfo->user);
+			ZFREE(proxyinfo->user);
 			proxyinfo->user = proxyuser;
-			Curl_safefree(proxyinfo->passwd);
+			ZFREE(proxyinfo->passwd);
 			if(!proxypasswd) {
 				proxypasswd = sstrdup("");
 				if(!proxypasswd) {
@@ -2355,7 +2355,7 @@ static void zonefrom_url(CURLU * uh, struct connectdata * conn)
 			result = CURLE_OUT_OF_MEMORY;
 			goto error;
 		}
-		Curl_safefree(proxyinfo->host.rawalloc);
+		ZFREE(proxyinfo->host.rawalloc);
 		proxyinfo->host.rawalloc = host;
 		if(host[0] == '[') {
 			/* this is a numerical IPv6, strip off the brackets */
@@ -2449,8 +2449,8 @@ error:
 
 		if(check_noproxy(conn->host.name, data->set.str[STRING_NOPROXY] ?
 		    data->set.str[STRING_NOPROXY] : no_proxy)) {
-			Curl_safefree(proxy);
-			Curl_safefree(socksproxy);
+			ZFREE(proxy);
+			ZFREE(socksproxy);
 		}
 #ifndef CURL_DISABLE_HTTP
 		else if(!proxy && !socksproxy)
@@ -2458,7 +2458,7 @@ error:
 			proxy = detect_proxy(conn);
 #endif /* CURL_DISABLE_HTTP */
 
-		Curl_safefree(no_proxy);
+		ZFREE(no_proxy);
 
 #ifdef USE_UNIX_SOCKETS
 		/* For the time being do not mix proxy and unix domain sockets. See #1274 */
@@ -2488,7 +2488,7 @@ error:
 		if(proxy || socksproxy) {
 			if(proxy) {
 				result = parse_proxy(data, conn, proxy, conn->http_proxy.proxytype);
-				Curl_safefree(proxy); /* parse_proxy copies the proxy string */
+				ZFREE(proxy); /* parse_proxy copies the proxy string */
 				if(result)
 					goto out;
 			}
@@ -2497,7 +2497,7 @@ error:
 				result = parse_proxy(data, conn, socksproxy,
 					conn->socks_proxy.proxytype);
 				/* parse_proxy copies the socks proxy string */
-				Curl_safefree(socksproxy);
+				ZFREE(socksproxy);
 				if(result)
 					goto out;
 			}
@@ -2531,7 +2531,7 @@ error:
 					if(!conn->socks_proxy.user) {
 						conn->socks_proxy.user = conn->http_proxy.user;
 						conn->http_proxy.user = NULL;
-						Curl_safefree(conn->socks_proxy.passwd);
+						ZFREE(conn->socks_proxy.passwd);
 						conn->socks_proxy.passwd = conn->http_proxy.passwd;
 						conn->http_proxy.passwd = NULL;
 					}
@@ -2677,7 +2677,7 @@ out:
 			if(ubuf) {
 				memcpy(ubuf, login, ulen);
 				ubuf[ulen] = '\0';
-				Curl_safefree(*userp);
+				ZFREE(*userp);
 				*userp = ubuf;
 			}
 
@@ -2685,7 +2685,7 @@ out:
 			if(pbuf) {
 				memcpy(pbuf, psep + 1, plen);
 				pbuf[plen] = '\0';
-				Curl_safefree(*passwdp);
+				ZFREE(*passwdp);
 				*passwdp = pbuf;
 			}
 
@@ -2693,7 +2693,7 @@ out:
 			if(obuf) {
 				memcpy(obuf, osep + 1, olen);
 				obuf[olen] = '\0';
-				Curl_safefree(*optionsp);
+				ZFREE(*optionsp);
 				*optionsp = obuf;
 			}
 		}
@@ -2741,11 +2741,11 @@ out:
 		if(data->set.use_netrc == CURL_NETRC_REQUIRED && conn->bits.user_passwd) {
 			/* ignore user+password in the URL */
 			if(*userp) {
-				Curl_safefree(*userp);
+				ZFREE(*userp);
 				user_changed = TRUE;
 			}
 			if(*passwdp) {
-				Curl_safefree(*passwdp);
+				ZFREE(*passwdp);
 				passwd_changed = TRUE;
 			}
 			conn->bits.user_passwd = FALSE; /* disable user+password */
@@ -3059,7 +3059,7 @@ out:
 			else {
 				/* no "connect to host" */
 				conn->bits.conn_to_host = FALSE;
-				Curl_safefree(host);
+				ZFREE(host);
 			}
 
 			if(port >= 0) {
@@ -3304,8 +3304,8 @@ out:
 		conn->bits.user_passwd = old_conn->bits.user_passwd;
 		if(conn->bits.user_passwd) {
 			/* use the new user name and password though */
-			Curl_safefree(conn->user);
-			Curl_safefree(conn->passwd);
+			ZFREE(conn->user);
+			ZFREE(conn->passwd);
 			conn->user = old_conn->user;
 			conn->passwd = old_conn->passwd;
 			old_conn->user = NULL;
@@ -3316,10 +3316,10 @@ out:
 		conn->bits.proxy_user_passwd = old_conn->bits.proxy_user_passwd;
 		if(conn->bits.proxy_user_passwd) {
 			/* use the new proxy user name and proxy password though */
-			Curl_safefree(conn->http_proxy.user);
-			Curl_safefree(conn->socks_proxy.user);
-			Curl_safefree(conn->http_proxy.passwd);
-			Curl_safefree(conn->socks_proxy.passwd);
+			ZFREE(conn->http_proxy.user);
+			ZFREE(conn->socks_proxy.user);
+			ZFREE(conn->http_proxy.passwd);
+			ZFREE(conn->socks_proxy.passwd);
 			conn->http_proxy.user = old_conn->http_proxy.user;
 			conn->socks_proxy.user = old_conn->socks_proxy.user;
 			conn->http_proxy.passwd = old_conn->http_proxy.passwd;
@@ -3329,43 +3329,38 @@ out:
 			old_conn->http_proxy.passwd = NULL;
 			old_conn->socks_proxy.passwd = NULL;
 		}
-		Curl_safefree(old_conn->http_proxy.user);
-		Curl_safefree(old_conn->socks_proxy.user);
-		Curl_safefree(old_conn->http_proxy.passwd);
-		Curl_safefree(old_conn->socks_proxy.passwd);
+		ZFREE(old_conn->http_proxy.user);
+		ZFREE(old_conn->socks_proxy.user);
+		ZFREE(old_conn->http_proxy.passwd);
+		ZFREE(old_conn->socks_proxy.passwd);
 #endif
 
 		/* host can change, when doing keepalive with a proxy or if the case is
 		   different this time etc */
 		Curl_free_idnconverted_hostname(&conn->host);
 		Curl_free_idnconverted_hostname(&conn->conn_to_host);
-		Curl_safefree(conn->host.rawalloc);
-		Curl_safefree(conn->conn_to_host.rawalloc);
+		ZFREE(conn->host.rawalloc);
+		ZFREE(conn->conn_to_host.rawalloc);
 		conn->host = old_conn->host;
 		conn->conn_to_host = old_conn->conn_to_host;
 		conn->conn_to_port = old_conn->conn_to_port;
 		conn->remote_port = old_conn->remote_port;
-		Curl_safefree(conn->hostname_resolve);
+		ZFREE(conn->hostname_resolve);
 
 		conn->hostname_resolve = old_conn->hostname_resolve;
 		old_conn->hostname_resolve = NULL;
-
 		/* persist connection info in session handle */
 		Curl_persistconninfo(conn);
-
 		conn_reset_all_postponed_data(old_conn); /* free buffers */
-
 		/* re-use init */
 		conn->bits.reuse = TRUE; /* yes, we're re-using here */
-
-		Curl_safefree(old_conn->user);
-		Curl_safefree(old_conn->passwd);
-		Curl_safefree(old_conn->options);
-		Curl_safefree(old_conn->localdev);
+		ZFREE(old_conn->user);
+		ZFREE(old_conn->passwd);
+		ZFREE(old_conn->options);
+		ZFREE(old_conn->localdev);
 		Curl_llist_destroy(&old_conn->easyq, NULL);
-
 #ifdef USE_UNIX_SOCKETS
-		Curl_safefree(old_conn->unix_domain_socket);
+		ZFREE(old_conn->unix_domain_socket);
 #endif
 	}
 
@@ -3385,9 +3380,7 @@ out:
  * *NOTE* this function assigns the conn->data pointer!
  */
 
-	static CURLcode create_conn(struct Curl_easy * data,
-	    struct connectdata ** in_connect,
-	    bool * async)
+	static CURLcode create_conn(struct Curl_easy * data, struct connectdata ** in_connect, bool * async)
 	{
 		CURLcode result = CURLE_OK;
 		struct connectdata * conn;
@@ -3897,7 +3890,7 @@ out:
 		 * protocol.
 		 */
 		if(data->set.str[STRING_USERAGENT]) {
-			Curl_safefree(data->state.aptr.uagent);
+			ZFREE(data->state.aptr.uagent);
 			data->state.aptr.uagent =
 			    aprintf("User-Agent: %s\r\n", data->set.str[STRING_USERAGENT]);
 			if(!data->state.aptr.uagent)

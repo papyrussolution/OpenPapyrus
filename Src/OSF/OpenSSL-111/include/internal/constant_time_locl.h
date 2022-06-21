@@ -8,8 +8,7 @@
 #ifndef HEADER_CONSTANT_TIME_LOCL_H
 #define HEADER_CONSTANT_TIME_LOCL_H
 
-#include <openssl/e_os2.h>              /* For 'ossl_inline' */
-
+#include <openssl/e_os2.h> /* For 'ossl_inline' */
 /*-
  * The boolean methods return a bitmask of all ones (0xff...f) for true
  * and 0 for false. This is useful for choosing a value based on the result
@@ -250,4 +249,4 @@ static ossl_inline void constant_time_lookup(void * out, const void * table, siz
  */
 void err_clear_last_constant_time(int clear);
 
-#endif                          /* HEADER_CONSTANT_TIME_LOCL_H */
+#endif /* HEADER_CONSTANT_TIME_LOCL_H */

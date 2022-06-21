@@ -9,11 +9,8 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "check.h"
 #include "color.h"
 #include "cppcheck.h"
-#include "errorlogger.h"
-#include "testsuite.h"
 
 class TestCppcheck : public TestFixture {
 public:

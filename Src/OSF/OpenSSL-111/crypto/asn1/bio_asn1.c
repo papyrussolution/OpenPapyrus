@@ -212,7 +212,7 @@ static int asn1_bio_write(BIO * b, const char * in, int inl)
 			    if(ctx->copylen == 0)
 				    ctx->state = ASN1_STATE_HEADER;
 
-			    if(inl == 0)
+			    if(!inl)
 				    goto done;
 
 			    break;

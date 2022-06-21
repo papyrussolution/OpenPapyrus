@@ -731,7 +731,7 @@ int tls13_export_keying_material(SSL * s, uchar * out, size_t olen, const char *
 	uint hashsize, datalen;
 	int ret = 0;
 
-	if(ctx == NULL || !ossl_statem_export_allowed(s))
+	if(!ctx || !ossl_statem_export_allowed(s))
 		goto err;
 
 	if(!use_context)
@@ -770,7 +770,7 @@ int tls13_export_keying_material_early(SSL * s, uchar * out, size_t olen, const 
 	uint hashsize, datalen;
 	int ret = 0;
 	const SSL_CIPHER * sslcipher;
-	if(ctx == NULL || !ossl_statem_export_early_allowed(s))
+	if(!ctx || !ossl_statem_export_early_allowed(s))
 		goto err;
 	if(!s->server && s->max_early_data > 0 && s->session->ext.max_early_data == 0)
 		sslcipher = SSL_SESSION_get0_cipher(s->psksession);

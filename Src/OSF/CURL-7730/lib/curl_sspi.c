@@ -220,9 +220,9 @@ CURLcode Curl_create_sspi_identity(const char * userp, const char * passwdp, SEC
 void Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY * identity)
 {
 	if(identity) {
-		Curl_safefree(identity->User);
-		Curl_safefree(identity->Password);
-		Curl_safefree(identity->Domain);
+		ZFREE(identity->User);
+		ZFREE(identity->Password);
+		ZFREE(identity->Domain);
 	}
 }
 

@@ -9,23 +9,11 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checknullpointer.h"
-#include "astutils.h"
-#include "errorlogger.h"
-#include "errortypes.h"
-#include "library.h"
-#include "mathlib.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
 
 // Register this check class (by creating a static instance of it)
 namespace {
 CheckNullPointer instance;
 }
-
-//---------------------------------------------------------------------------
 
 static bool checkNullpointerFunctionCallPlausibility(const Function* func, unsigned int arg)
 {

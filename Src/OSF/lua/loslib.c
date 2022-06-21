@@ -59,7 +59,7 @@ static time_t l_checktime(lua_State * L, int arg) {
 	return (time_t)t;
 }
 
-#endif                          /* } */
+#endif /* } */
 
 #if !defined(l_gmtime)          /* { */
 /*
@@ -78,9 +78,9 @@ static time_t l_checktime(lua_State * L, int arg) {
 #define l_gmtime(t, r)           ((void)(r)->tm_sec, gmtime(t))
 #define l_localtime(t, r)        ((void)(r)->tm_sec, localtime(t))
 
-#endif                          /* } */
+#endif /* } */
 
-#endif                          /* } */
+#endif /* } */
 
 /* }================================================================== */
 
@@ -115,9 +115,9 @@ static time_t l_checktime(lua_State * L, int arg) {
 #define LUA_TMPNAMBUFSIZE       L_tmpnam
 #define lua_tmpnam(b, e) { e = (tmpnam(b) == NULL); }
 
-#endif                          /* } */
+#endif /* } */
 
-#endif                          /* } */
+#endif /* } */
 /* }================================================================== */
 
 static int os_execute(lua_State * L) {

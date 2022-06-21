@@ -33,7 +33,7 @@
 	#define __COMPILE_CAPIENG
 #endif                        /* CERT_KEY_PROV_INFO_PROP_ID */
 #endif                         /* OPENSSL_NO_CAPIENG */
-#endif                          /* _WIN32 */
+#endif /* _WIN32 */
 
 #ifdef __COMPILE_CAPIENG
 

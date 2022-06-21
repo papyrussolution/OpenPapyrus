@@ -205,7 +205,7 @@ static int expand(OPENSSL_LHASH * lh)
 	if(p + 1 >= pmax) {
 		j = nni * 2;
 		n = static_cast<OPENSSL_LH_NODE **>(OPENSSL_realloc(lh->b, sizeof(OPENSSL_LH_NODE *) * j));
-		if(n == NULL) {
+		if(!n) {
 			lh->error++;
 			return 0;
 		}
@@ -246,7 +246,7 @@ static void contract(OPENSSL_LHASH * lh)
 	lh->b[lh->p + lh->pmax - 1] = NULL; /* 24/07-92 - eay - weird but :-( */
 	if(lh->p == 0) {
 		n = static_cast<OPENSSL_LH_NODE **>(OPENSSL_realloc(lh->b, (uint)(sizeof(OPENSSL_LH_NODE *) * lh->pmax)));
-		if(n == NULL) {
+		if(!n) {
 			/* fputs("realloc error in lhash",stderr); */
 			lh->error++;
 			return;

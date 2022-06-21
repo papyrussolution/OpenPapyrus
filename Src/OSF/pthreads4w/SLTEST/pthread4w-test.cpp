@@ -452,7 +452,7 @@ static int PThr4wTest_Delay2()
 		}
 	};
 	pthread_t t;
-	void * result = (void *)0;
+	void * result = 0;
 	PTHR4W_TEST_ASSERT(pthread_mutex_lock(&mx) == 0);
 	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::ThreadFunc, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_cancel(t) == 0);
@@ -983,7 +983,7 @@ static int PThr4wTest_Join0()
 		}
 	};
 	pthread_t id;
-	void * result = (void *)0;
+	void * result = 0;
 	// Create a single thread and wait for it to exit. 
 	PTHR4W_TEST_ASSERT(pthread_create(&id, NULL, InnerBlock::ThreadFunc, (void *)123) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(id, &result) == 0);
@@ -4230,7 +4230,7 @@ static int PThr4wTest_Mutex6e()
 		}
 	};
 	pthread_t t;
-	void * result = (void *)0;
+	void * result = 0;
 	int mxType = -1;
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_init(&mxAttr) == 0);
 	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
@@ -4276,7 +4276,7 @@ static int PThr4wTest_Mutex6es()
 		}
 	};
 	pthread_t t;
-	void * result = (void *)0;
+	void * result = 0;
 	PTHR4W_TEST_ASSERT(mutex == PTHREAD_ERRORCHECK_MUTEX_INITIALIZER);
 	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, &result) == 0);
@@ -4360,7 +4360,7 @@ static int PThr4wTest_Mutex6r()
 		}
 	};
 	pthread_t t;
-	void * result = (void *)0;
+	void * result = 0;
 	int mxType = -1;
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_init(&mxAttr) == 0);
 	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
@@ -4404,7 +4404,7 @@ static int PThr4wTest_Mutex6rs()
 		}
 	};
 	pthread_t t;
-	void * result = (void *)0;
+	void * result = 0;
 	PTHR4W_TEST_ASSERT(mutex == PTHREAD_RECURSIVE_MUTEX_INITIALIZER);
 	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::locker, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, &result) == 0);
@@ -4520,7 +4520,7 @@ static int PThr4wTest_Mutex7e()
 		}
 	};
 	pthread_t t;
-	void * result = (void *)0;
+	void * result = 0;
 	int mxType = -1;
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_init(&mxAttr) == 0);
 	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
@@ -4608,7 +4608,7 @@ static int PThr4wTest_Mutex7r()
 		}
 	};
 	pthread_t t;
-	void * result = (void *)0;
+	void * result = 0;
 	int mxType = -1;
 	PTHR4W_TEST_ASSERT(pthread_mutexattr_init(&mxAttr) == 0);
 	BEGIN_MUTEX_STALLED_ROBUST(mxAttr)
@@ -4880,7 +4880,7 @@ static int PThr4wTest_Spin4()
 			return (void *)(size_t)GetDurationMilliSecs(currSysTimeStart, currSysTimeStop);
 		}
 	};
-	void * result = (void *)0;
+	void * result = 0;
 	pthread_t t;
 	int CPUs;
 	__PTW32_STRUCT_TIMEB sysTime;
@@ -5627,7 +5627,7 @@ static int PThr4wTest_Cancel2()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void * result = (void *)0;
+		void * result = 0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = (result != PTHREAD_CANCELED);
 		if(fail) {
@@ -5717,7 +5717,7 @@ static int PThr4wTest_Cancel3()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void * result = (void *)0;
+		void * result = 0;
 		/*
 		 * The thread does not contain any cancellation points, so
 		 * a return value of PTHREAD_CANCELED confirms that async
@@ -5799,7 +5799,7 @@ static int PThr4wTest_Cancel4()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void * result = (void *)0;
+		void * result = 0;
 		/*
 		 * The thread does not contain any cancellation points, so
 		 * a return value of PTHREAD_CANCELED indicates that async
@@ -5970,7 +5970,7 @@ static int PThr4wTest_Cancel6a()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void * result = (void *)0;
+		void * result = 0;
 		/*
 		 * The thread does not contain any cancellation points, so
 		 * a return value of PTHREAD_CANCELED confirms that async
@@ -6060,7 +6060,7 @@ static int PThr4wTest_Cancel6d()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void * result = (void *)0;
+		void * result = 0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = (result != PTHREAD_CANCELED);
 		if(fail) {
@@ -6761,7 +6761,7 @@ static int PThr4wTest_CleanUp0()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void * result = (void *)0;
+		void * result = 0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = (result == PTHREAD_CANCELED);
 		if(fail) {
@@ -6869,7 +6869,7 @@ static int PThr4wTest_CleanUp1()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void * result = (void *)0;
+		void * result = 0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = (result != PTHREAD_CANCELED);
 		if(fail) {
@@ -6955,7 +6955,7 @@ static int PThr4wTest_CleanUp2()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void * result = (void *)0;
+		void * result = 0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = ((int)(size_t)result != 0);
 		if(fail) {
@@ -7044,7 +7044,7 @@ static int PThr4wTest_CleanUp3()
 	failed = 0;
 	for(i = 1; i <= NUMTHREADS; i++) {
 		int fail = 0;
-		void * result = (void *)0;
+		void * result = 0;
 		PTHR4W_TEST_ASSERT(pthread_join(t[i], &result) == 0);
 		fail = ((int)(size_t)result != 0);
 		if(fail) {
@@ -7256,7 +7256,7 @@ static int PThr4wTest_CondVar21()
 	};
 	int i;
 	pthread_t t[NUMTHREADS + 1];
-	void * result = (void *)0;
+	void * result = 0;
 	PTHR4W_TEST_ASSERT(pthread_cond_init(&cv, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex, NULL) == 0);
 	pthread_win32_getabstime_np(&abstime, &reltime);
@@ -7395,7 +7395,7 @@ static int PThr4wTest_CondVar31()
 	};
 	int i;
 	pthread_t t[NUMTHREADS + 1];
-	void * result = (void *)0;
+	void * result = 0;
 	PTHR4W_TEST_ASSERT(pthread_cond_init(&cv, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_cond_init(&cv1, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex, NULL) == 0);
@@ -7492,7 +7492,7 @@ static int PThr4wTest_CondVar32()
 	};
 	int i;
 	pthread_t t[NUMTHREADS + 1];
-	void * result = (void *)0;
+	void * result = 0;
 	PTHR4W_TEST_ASSERT(pthread_cond_init(&cv, NULL) == 0);
 	PTHR4W_TEST_ASSERT(pthread_mutex_init(&mutex, NULL) == 0);
 	(void)pthread_win32_getabstime_np(&abstime, &reltime);
@@ -8875,7 +8875,7 @@ static int PThr4wTest_Exception1()
 	failed = 0;
 	for(i = 0; i < NUMTHREADS; i++) {
 		int fail = 0;
-		void * result = (void *)0;
+		void * result = 0;
 		/* Canceled thread */
 		PTHR4W_TEST_ASSERT(pthread_join(ct[i], &result) == 0);
 		PTHR4W_TEST_ASSERT(!(fail = (result != PTHREAD_CANCELED)));

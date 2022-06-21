@@ -10,33 +10,19 @@
 #include "cppcheck-internal.h"
 #pragma hdrstop
 #include "checkvaarg.h"
-#include "astutils.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
 
 // Register this check class (by creating a static instance of it)
 namespace {
 CheckVaarg instance;
 }
-
-//---------------------------------------------------------------------------
+//
 // Ensure that correct parameter is passed to va_start()
-//---------------------------------------------------------------------------
-
-// CWE ids used:
-static const struct CWE CWE664(664U);   // Improper Control of a Resource Through its Lifetime
-static const struct CWE CWE688(688U);   // Function Call With Incorrect Variable or Reference as Argument
-static const struct CWE CWE758(758U);   // Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
-
+//
 void CheckVaarg::va_start_argument()
 {
 	const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
 	const std::size_t functions = symbolDatabase->functionScopes.size();
 	const bool printWarnings = mSettings->severity.isEnabled(Severity::warning);
-
 	for(std::size_t i = 0; i < functions; ++i) {
 		const Scope* scope = symbolDatabase->functionScopes[i];
 		const Function* function = scope->function;

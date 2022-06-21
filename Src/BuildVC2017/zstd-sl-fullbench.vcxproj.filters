@@ -5,37 +5,13 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\osf\zstd\lib\entropy_common.c" />
     <ClCompile Include="..\osf\zstd\lib\debug.c" />
-    <ClCompile Include="..\osf\zstd\lib\fse_decompress.c" />
     <ClCompile Include="..\osf\zstd\lib\zstd-pch.cpp" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_common.c" />
     <ClCompile Include="..\osf\zstd\lib\error_private.c" />
-    <ClCompile Include="..\osf\zstd\lib\pool.c" />
-    <ClCompile Include="..\osf\zstd\lib\threading.c" />
-    <ClCompile Include="..\osf\zstd\lib\hist.c" />
-    <ClCompile Include="..\osf\zstd\lib\fse_compress.c" />
-    <ClCompile Include="..\osf\zstd\lib\huf_compress.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_compress.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_compress_literals.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_compress_sequences.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_compress_superblock.c" />
     <ClCompile Include="..\osf\zstd\lib\zstdmt_compress.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_fast.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_double_fast.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_lazy.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_opt.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_ldm.c" />
-    <ClCompile Include="..\osf\zstd\lib\huf_decompress.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_decompress.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_decompress_block.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_ddict.c" />
     <ClCompile Include="..\osf\zstd\programs\util.c" />
     <ClCompile Include="..\osf\zstd\programs\timefn.c" />
     <ClCompile Include="..\osf\zstd\programs\datagen.c" />

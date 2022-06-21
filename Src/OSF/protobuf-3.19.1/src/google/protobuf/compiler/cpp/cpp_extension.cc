@@ -30,15 +30,13 @@ namespace google {
 namespace protobuf {
 namespace compiler {
 namespace cpp {
-ExtensionGenerator::ExtensionGenerator(const FieldDescriptor* descriptor,
-    const Options& options,
-    MessageSCCAnalyzer* scc_analyzer)
-	: descriptor_(descriptor), options_(options), scc_analyzer_(scc_analyzer) {
+ExtensionGenerator::ExtensionGenerator(const FieldDescriptor* descriptor, const Options& options, MessageSCCAnalyzer* scc_analyzer) : 
+	descriptor_(descriptor), options_(options), scc_analyzer_(scc_analyzer) 
+{
 	// Construct type_traits_.
 	if(descriptor_->is_repeated()) {
 		type_traits_ = "Repeated";
 	}
-
 	switch(descriptor_->cpp_type()) {
 		case FieldDescriptor::CPPTYPE_ENUM:
 		    type_traits_.append("EnumTypeTraits< ");
@@ -62,31 +60,27 @@ ExtensionGenerator::ExtensionGenerator(const FieldDescriptor* descriptor,
 		    break;
 	}
 	SetCommonVars(options, &variables_);
-	variables_["extendee"] =
-	    QualifiedClassName(descriptor_->containing_type(), options_);
+	variables_["extendee"] = QualifiedClassName(descriptor_->containing_type(), options_);
 	variables_["type_traits"] = type_traits_;
 	std::string name = descriptor_->name();
 	variables_["name"] = ResolveKeyword(name);
 	variables_["constant_name"] = FieldConstantName(descriptor_);
-	variables_["field_type"] =
-	    StrCat(static_cast<int>(descriptor_->type()));
+	variables_["field_type"] = StrCat(static_cast<int>(descriptor_->type()));
 	variables_["packed"] = descriptor_->is_packed() ? "true" : "false";
-
-	std::string scope =
-	    IsScoped() ? ClassName(descriptor_->extension_scope(), false) + "::" : "";
+	std::string scope = IsScoped() ? ClassName(descriptor_->extension_scope(), false) + "::" : "";
 	variables_["scope"] = scope;
 	variables_["scoped_name"] = ExtensionName(descriptor_);
 	variables_["number"] = StrCat(descriptor_->number());
 }
 
-ExtensionGenerator::~ExtensionGenerator() {
+ExtensionGenerator::~ExtensionGenerator() 
+{
 }
 
-bool ExtensionGenerator::IsScoped() const {
-	return descriptor_->extension_scope() != nullptr;
-}
+bool ExtensionGenerator::IsScoped() const { return descriptor_->extension_scope() != nullptr; }
 
-void ExtensionGenerator::GenerateDeclaration(io::Printer* printer) const {
+void ExtensionGenerator::GenerateDeclaration(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 
 	// If this is a class member, it needs to be declared "static".  Otherwise,
@@ -129,44 +123,32 @@ void ExtensionGenerator::GenerateDefinition(io::Printer* printer) {
 		// it in the header which would be annoying for other reasons.  So we
 		// replace :: with _ in the name and declare it as a global.
 		default_str = StringReplace(variables_["scoped_name"], "::", "_", true) + "_default";
-		format("const std::string $1$($2$);\n", default_str,
-		    DefaultValue(options_, descriptor_));
+		format("const std::string $1$($2$);\n", default_str, DefaultValue(options_, descriptor_));
 	}
 	else if(descriptor_->message_type()) {
 		// We have to initialize the default instance for extensions at registration
 		// time.
-		default_str =
-		    FieldMessageTypeName(descriptor_, options_) + "::default_instance()";
+		default_str = FieldMessageTypeName(descriptor_, options_) + "::default_instance()";
 	}
 	else {
 		default_str = DefaultValue(options_, descriptor_);
 	}
-
 	// Likewise, class members need to declare the field constant variable.
 	if(IsScoped()) {
-		format(
-			"#if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)\n"
-			"const int $scope$$constant_name$;\n"
+		format("#if !defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912)\n"
+			"\tconst int $scope$$constant_name$;\n"
 			"#endif\n");
 	}
-
-	format(
-		"PROTOBUF_ATTRIBUTE_INIT_PRIORITY "
-		"::$proto_ns$::internal::ExtensionIdentifier< $extendee$,\n"
+	format("PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::$proto_ns$::internal::ExtensionIdentifier< $extendee$,\n"
 		"    ::$proto_ns$::internal::$type_traits$, $field_type$, $packed$ >\n"
 		"  $scoped_name$($constant_name$, $1$);\n",
 		default_str);
 
 	// Register extension verify function if needed.
-	if(descriptor_->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE &&
-	    ShouldVerify(descriptor_->message_type(), options_, scc_analyzer_) &&
+	if(descriptor_->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE && ShouldVerify(descriptor_->message_type(), options_, scc_analyzer_) &&
 	    ShouldVerify(descriptor_->containing_type(), options_, scc_analyzer_)) {
-		format(
-			"PROTOBUF_ATTRIBUTE_INIT_PRIORITY "
-			"::$proto_ns$::internal::RegisterExtensionVerify< $extendee$,\n"
-			"    $1$, $number$> $2$_$name$_register;\n",
-			ClassName(descriptor_->message_type(), true),
-			IsScoped() ? ClassName(descriptor_->extension_scope(), false) : "");
+		format("PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::$proto_ns$::internal::RegisterExtensionVerify< $extendee$, $1$, $number$> $2$_$name$_register;\n",
+			ClassName(descriptor_->message_type(), true), IsScoped() ? ClassName(descriptor_->extension_scope(), false) : "");
 	}
 }
 }  // namespace cpp

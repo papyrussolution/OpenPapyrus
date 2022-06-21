@@ -11,12 +11,6 @@
 // the code for a known configuration, it generates the code for each configuration.
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "errortypes.h"
-#include "platform.h"
-#include "preprocessor.h"
-#include "settings.h"
-#include "testsuite.h"
-#include <simplecpp.h>
 
 class ErrorLogger;
 

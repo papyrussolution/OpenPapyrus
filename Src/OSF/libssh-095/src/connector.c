@@ -79,20 +79,20 @@ ssh_connector ssh_connector_new(ssh_session session)
 
 void ssh_connector_free(ssh_connector connector)
 {
-	if(connector->in_channel != NULL) {
+	if(connector->in_channel) {
 		ssh_remove_channel_callbacks(connector->in_channel, &connector->in_channel_cb);
 	}
 	if(connector->out_channel) {
 		ssh_remove_channel_callbacks(connector->out_channel, &connector->out_channel_cb);
 	}
-	if(connector->event != NULL) {
+	if(connector->event) {
 		ssh_connector_remove_event(connector);
 	}
-	if(connector->in_poll != NULL) {
+	if(connector->in_poll) {
 		ssh_poll_free(connector->in_poll);
 		connector->in_poll = NULL;
 	}
-	if(connector->out_poll != NULL) {
+	if(connector->out_poll) {
 		ssh_poll_free(connector->out_poll);
 		connector->out_poll = NULL;
 	}
@@ -281,7 +281,7 @@ static void ssh_connector_fd_out_cb(ssh_connector connector){
 	SSH_LOG(SSH_LOG_TRACE, "connector POLLOUT event for fd %d", connector->out_fd);
 
 	if(connector->in_available) {
-		if(connector->in_channel != NULL) {
+		if(connector->in_channel) {
 			r = ssh_channel_read_nonblocking(connector->in_channel, buffer, CHUNKSIZE, 0);
 			if(r == SSH_ERROR) {
 				ssh_connector_except_channel(connector, connector->in_channel);
@@ -469,12 +469,9 @@ static int ssh_connector_channel_write_wontblock_cb(ssh_session session, ssh_cha
 	(void)channel;
 	SSH_LOG(SSH_LOG_TRACE, "Channel write won't block");
 	if(connector->in_available) {
-		if(connector->in_channel != NULL) {
+		if(connector->in_channel) {
 			size_t len = MIN(CHUNKSIZE, bytes);
-			r = ssh_channel_read_nonblocking(connector->in_channel,
-				buffer,
-				len,
-				0);
+			r = ssh_channel_read_nonblocking(connector->in_channel, buffer, len, 0);
 			if(r == SSH_ERROR) {
 				ssh_connector_except_channel(connector, connector->in_channel);
 			}
@@ -552,9 +549,8 @@ int ssh_connector_set_event(ssh_connector connector, ssh_event event)
 			goto error;
 		}
 	}
-	if(connector->in_channel != NULL) {
-		rc = ssh_event_add_session(event,
-			ssh_channel_get_session(connector->in_channel));
+	if(connector->in_channel) {
+		rc = ssh_event_add_session(event, ssh_channel_get_session(connector->in_channel));
 		if(rc != SSH_OK)
 			goto error;
 		if(ssh_channel_poll_timeout(connector->in_channel, 0, 0) > 0) {
@@ -577,34 +573,28 @@ error:
 	return rc;
 }
 
-int ssh_connector_remove_event(ssh_connector connector) {
+int ssh_connector_remove_event(ssh_connector connector) 
+{
 	ssh_session session;
-
-	if(connector->in_poll != NULL) {
+	if(connector->in_poll) {
 		ssh_event_remove_poll(connector->event, connector->in_poll);
 		ssh_poll_free(connector->in_poll);
 		connector->in_poll = NULL;
 	}
-
-	if(connector->out_poll != NULL) {
+	if(connector->out_poll) {
 		ssh_event_remove_poll(connector->event, connector->out_poll);
 		ssh_poll_free(connector->out_poll);
 		connector->out_poll = NULL;
 	}
-
-	if(connector->in_channel != NULL) {
+	if(connector->in_channel) {
 		session = ssh_channel_get_session(connector->in_channel);
-
 		ssh_event_remove_session(connector->event, session);
 	}
-
 	if(connector->out_channel) {
 		session = ssh_channel_get_session(connector->out_channel);
-
 		ssh_event_remove_session(connector->event, session);
 	}
 	connector->event = NULL;
-
 	return SSH_OK;
 }
 

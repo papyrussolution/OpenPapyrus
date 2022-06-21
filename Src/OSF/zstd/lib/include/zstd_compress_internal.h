@@ -288,12 +288,8 @@ struct ZSTD_CCtx_params_s {
 	ZSTD_frameParameters fParams;
 	int compressionLevel;
 	int forceWindow;       /* force back-references to respect limit of 1<<wLog, even for dictionary */
-	size_t targetCBlockSize; /* Tries to fit compressed block size to be around targetCBlockSize.
-	                          * No target when targetCBlockSize == 0.
-	                          * There is no guarantee on compressed block size */
-	int srcSizeHint;       /* User's best guess of source size.
-	                        * Hint is not valid when srcSizeHint == 0.
-	                        * There is no guarantee that hint is close to actual source size */
+	size_t targetCBlockSize; /* Tries to fit compressed block size to be around targetCBlockSize. No target when targetCBlockSize == 0. There is no guarantee on compressed block size */
+	int srcSizeHint; /* User's best guess of source size. Hint is not valid when srcSizeHint == 0. There is no guarantee that hint is close to actual source size */
 	ZSTD_dictAttachPref_e attachDictPref;
 	ZSTD_paramSwitch_e literalCompressionMode;
 	/* Multithreading: used to pass parameters to mtctx */
@@ -301,24 +297,18 @@ struct ZSTD_CCtx_params_s {
 	size_t jobSize;
 	int overlapLog;
 	int rsyncable;
-	/* Long distance matching parameters */
-	ldmParams_t ldmParams;
-	/* Dedicated dict search algorithm trigger */
-	int enableDedicatedDictSearch;
+	ldmParams_t ldmParams; /* Long distance matching parameters */
+	int enableDedicatedDictSearch; /* Dedicated dict search algorithm trigger */
 	/* Input/output buffer modes */
 	ZSTD_bufferMode_e inBufferMode;
 	ZSTD_bufferMode_e outBufferMode;
 	/* Sequence compression API */
 	ZSTD_sequenceFormat_e blockDelimiters;
 	int validateSequences;
-	/* Block splitting */
-	ZSTD_paramSwitch_e useBlockSplitter;
-	/* Param for deciding whether to use row-based matchfinder */
-	ZSTD_paramSwitch_e useRowMatchFinder;
-	/* Always load a dictionary in ext-dict mode (not prefix mode)? */
-	int deterministicRefPrefix;
-	/* Internal use, for createCCtxParams() and freeCCtxParams() only */
-	ZSTD_customMem customMem;
+	ZSTD_paramSwitch_e useBlockSplitter; /* Block splitting */
+	ZSTD_paramSwitch_e useRowMatchFinder; /* Param for deciding whether to use row-based matchfinder */
+	int deterministicRefPrefix; /* Always load a dictionary in ext-dict mode (not prefix mode)? */
+	ZSTD_customMem customMem; /* Internal use, for createCCtxParams() and freeCCtxParams() only */
 };  /* typedef'd to ZSTD_CCtx_params within "zstd.h" */
 
 #define COMPRESS_SEQUENCES_WORKSPACE_SIZE (sizeof(uint) * (MaxSeq + 2))

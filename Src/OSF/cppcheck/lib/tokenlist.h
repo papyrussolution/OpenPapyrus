@@ -6,33 +6,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//---------------------------------------------------------------------------
 #ifndef tokenlistH
 #define tokenlistH
-//---------------------------------------------------------------------------
 
-#include "cppcheck-config.h"
+//#include "cppcheck-config.h"
 #include "token.h"
-
-#include <iosfwd>
-#include <string>
-#include <unordered_set>
-#include <vector>
 
 class Settings;
 
 namespace simplecpp {
-class TokenList;
+	class TokenList;
 }
 
 /// @addtogroup Core
@@ -49,40 +33,30 @@ public:
 	void setSettings(const Settings * settings) {
 		mSettings = settings;
 	}
-
 	const Settings * getSettings() const {
 		return mSettings;
 	}
-
 	/** @return the source file path. e.g. "file.cpp" */
 	const std::string& getSourceFilePath() const;
-
 	/** Is the code C. Used for bailouts */
 	bool isC() const {
 		return mIsC;
 	}
-
 	/** Is the code CPP. Used for bailouts */
 	bool isCPP() const {
 		return mIsCpp;
 	}
-
 	/**
 	 * Delete all tokens in given token list
 	 * @param tok token list to delete
 	 */
 	static void deleteTokens(Token * tok);
-
-	void addtoken(const std::string& str, const nonneg int lineno, const nonneg int column, const nonneg int fileno,
-	    bool split = false);
+	void addtoken(const std::string& str, const nonneg int lineno, const nonneg int column, const nonneg int fileno, bool split = false);
 	void addtoken(const std::string& str, const Token * locationTok);
-
 	void addtoken(const Token * tok, const nonneg int lineno, const nonneg int column, const nonneg int fileno);
 	void addtoken(const Token * tok, const Token * locationTok);
 	void addtoken(const Token * tok);
-
 	static void insertTokens(Token * dest, const Token * src, nonneg int n);
-
 	/**
 	 * Copy tokens.
 	 * @param dest destination token where copied tokens will be inserted after
@@ -93,7 +67,6 @@ public:
 	 * @return new location of last token copied
 	 */
 	static Token * copyTokens(Token * dest, const Token * first, const Token * last, bool one_line = true);
-
 	/**
 	 * Create tokens from code.
 	 * The code must be preprocessed first:
@@ -104,75 +77,50 @@ public:
 	 * @param file0 source file name
 	 */
 	bool createTokens(std::istream &code, const std::string& file0 = emptyString);
-
 	void createTokens(simplecpp::TokenList&& tokenList);
-
 	/** Deallocate list */
 	void deallocateTokens();
-
 	/** append file name if seen the first time; return its index in any case */
 	int appendFileIfNew(const std::string &fileName);
-
 	/** get first token of list */
-	const Token * front() const {
-		return mTokensFrontBack.front;
-	}
-
-	Token * front() {
-		return mTokensFrontBack.front;
-	}
-
+	const Token * front() const { return mTokensFrontBack.front; }
+	Token * front() { return mTokensFrontBack.front; }
 	/** get last token of list */
-	const Token * back() const {
-		return mTokensFrontBack.back;
-	}
-
-	Token * back() {
-		return mTokensFrontBack.back;
-	}
-
+	const Token * back() const { return mTokensFrontBack.back; }
+	Token * back() { return mTokensFrontBack.back; }
 	/**
 	 * Get filenames (the sourcefile + the files it include).
 	 * The first filename is the filename for the sourcefile
 	 * @return vector with filenames
 	 */
-	const std::vector<std::string>& getFiles() const {
-		return mFiles;
-	}
-
+	const std::vector<std::string>& getFiles() const { return mFiles; }
 	std::string getOrigFile(const Token * tok) const;
-
 	/**
 	 * get filename for given token
 	 * @param tok The given token
 	 * @return filename for the given token
 	 */
 	const std::string& file(const Token * tok) const;
-
 	/**
 	 * Get file:line for a given token
 	 * @param tok given token
 	 * @return location for given token
 	 */
 	std::string fileLine(const Token * tok) const;
-
 	/**
 	 * Calculates a 64-bit checksum of the token list used to compare
 	 * multiple token lists with each other as quickly as possible.
 	 */
 	uint64_t calculateChecksum() const;
-
 	/**
 	 * Create abstract syntax tree.
 	 */
 	void createAst() const;
-
 	/**
 	 * Check abstract syntax tree.
 	 * Throws InternalError on failure
 	 */
 	void validateAst() const;
-
 	/**
 	 * Verify that the given token is an element of the tokenlist.
 	 * That method is implemented for debugging purposes.
@@ -180,47 +128,34 @@ public:
 	 * \return true if token was found in tokenlist, false else. In case of nullptr true is returned.
 	 */
 	bool validateToken(const Token* tok) const;
-
 	/**
 	 * Convert platform dependent types to standard types.
 	 * 32 bits: size_t -> unsigned long
 	 * 64 bits: size_t -> unsigned long long
 	 */
 	void simplifyPlatformTypes();
-
 	/**
 	 * Collapse compound standard types into a single token.
 	 * unsigned long long int => long _isUnsigned=true,_isLong=true
 	 */
 	void simplifyStdType();
-
 	void clangSetOrigFiles();
-
 	bool isKeyword(const std::string &str) const;
-
 private:
 	void determineCppC();
-
 	/** Token list */
 	TokensFrontBack mTokensFrontBack;
-
 	/** filenames for the tokenized source code (source + included) */
 	std::vector<std::string> mFiles;
-
 	/** Original filenames for the tokenized source code (source + included) */
 	std::vector<std::string> mOrigFiles;
-
 	/** settings */
 	const Settings* mSettings;
-
 	std::unordered_set<std::string> mKeywords;
-
 	/** File is known to be C/C++ code */
 	bool mIsC;
 	bool mIsCpp;
 };
 
 /// @}
-
-//---------------------------------------------------------------------------
 #endif // tokenlistH

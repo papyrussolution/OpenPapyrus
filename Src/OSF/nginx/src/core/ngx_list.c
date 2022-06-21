@@ -41,7 +41,7 @@ void * FASTCALL ngx_list_push(ngx_list_t * l)
 	if(last->nelts == l->nalloc) {
 		/* the last part is full, allocate a new list part */
 		last = (ngx_list_part_t *)ngx_palloc(l->pool, sizeof(ngx_list_part_t));
-		if(last == NULL) {
+		if(!last) {
 			return NULL;
 		}
 		last->elts = ngx_palloc(l->pool, l->nalloc * l->size);

@@ -976,8 +976,8 @@ TERM_TABLE_END(mp_driver)
 #undef LAST_TERM
 #define LAST_TERM mp_driver
 
-#endif                          /* TERM_TABLE */
-#endif                          /* TERM_PROTO_ONLY */
+#endif /* TERM_TABLE */
+#endif /* TERM_PROTO_ONLY */
 
 #ifdef TERM_HELP
 START_HELP(mp)
@@ -1162,4 +1162,4 @@ START_HELP(mp)
 " to set the appropriate MP configuration variable to force Metapost to run",
 " LaTeX instead of plainTeX."
 END_HELP(mp)
-#endif                          /* TERM_HELP */
+#endif /* TERM_HELP */

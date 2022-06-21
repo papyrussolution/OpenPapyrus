@@ -7,11 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Locale;
 import java.util.UUID;
 
 public class Document {
@@ -29,9 +26,9 @@ public class Document {
 		Head()
 		{
 			ID = 0;
-			CreationTime = 0;
-			Time = 0;
-			DueTime = 0;
+			CreationTime = null;
+			Time = null;
+			DueTime = null;
 			OpID = 0;
 			ClientID = 0;
 			DlvrLocID = 0;
@@ -51,9 +48,9 @@ public class Document {
 				yes = false;
 			else if(ID != s.ID)
 				yes = false;
-			else if(CreationTime != s.CreationTime)
+			else if(!SLib.LDATETIME.ArEq(CreationTime, s.CreationTime))
 				yes = false;
-			else if(DueTime != s.DueTime)
+			else if(!SLib.LDATETIME.ArEq(DueTime, s.DueTime))
 				yes = false;
 			else if(ClientID != s.ClientID)
 				yes = false;
@@ -77,10 +74,19 @@ public class Document {
 				yes = false;
 			return yes;
 		}
+		public SLib.LDATE GetNominalDate()
+		{
+			SLib.LDATE d = null;
+			if(Time != null)
+				d = Time.d;
+			else if(CreationTime != null)
+				d = CreationTime.d;
+			return d;
+		}
 		long   ID;
-		long   CreationTime;
-		long   Time;
-		long   DueTime;
+		SLib.LDATETIME CreationTime;
+		SLib.LDATETIME Time;
+		SLib.LDATETIME DueTime;
 		int    OpID;
 		int    ClientID;  // service-domain-id
 		int    DlvrLocID; // service-domain-id
@@ -94,9 +100,130 @@ public class Document {
 		String BaseCurrencySymb;
 		String Memo;
 	}
+	//
+	// Descr: Возвращает true если статус документа status является завершающим.
+	//   По документу с таким статусом любые операции невозможны либо бессмысленны.
+	// @todo Потребуются уточнения спецификации!
+	//
+	public static boolean IsStatusFinished(int status)
+	{
+		return (status == StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED ||
+				status == StyloQDatabase.SecStoragePacket.styloqdocstREJECTED ||
+				status == StyloQDatabase.SecStoragePacket.styloqdocstEXECUTIONACCEPTED ||
+				status == StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_SUCC ||
+				status == StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_FAIL ||
+				status == StyloQDatabase.SecStoragePacket.styloqdocstCANCELLEDDRAFT);
+	}
+	public static boolean DoesStatusAllowModifications(int status)
+	{
+		return (status == StyloQDatabase.SecStoragePacket.styloqdocstUNDEF ||
+				status == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT ||
+				status == StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC);
+	}
+	public static final int editactionClose  = 1; // Просто закрыть сеанс редактирования документа (изменения и передача сервису не предполагаются)
+	public static final int editactionSubmit = 2; // Подтвердить изменения документа (передача сервису не предполагается)
+	public static final int editactionSubmitAndTransmit = 3; // Подтвердить изменения документа с передачей сервису
+	public static final int editactionCancelEdition  = 4; // Отменить изменения документа (передача сервису не предполагается)
+	public static final int editactionCancelDocument = 5; // Отменить документ с передачей сервису факта отмены
+	static class EditAction {
+		EditAction(int editaction)
+		{
+			Action = editaction;
+		}
+		String GetTitle(StyloQApp appCtx)
+		{
+			String result = null;
+			if(appCtx != null) {
+				switch(Action) {
+					case editactionClose: // Просто закрыть сеанс редактирования документа (изменения и передача сервису не предполагаются)
+						result = appCtx.GetString("but_close");
+						break;
+					case editactionSubmit: // Подтвердить изменения документа (передача сервису не предполагается)
+						result = appCtx.GetString("but_ok");
+						break;
+					case editactionSubmitAndTransmit: // Подтвердить изменения документа с передачей сервису
+						result = appCtx.GetString("but_stq_commitdocument");
+						break;
+					case editactionCancelEdition: // Отменить изменения документа (передача сервису не предполагается)
+						result = appCtx.GetString("but_cancel");
+						break;
+					case editactionCancelDocument: // Отменить документ с передачей сервису факта отмены
+						result = appCtx.GetString("but_stq_canceldocument");
+						break;
+				}
+			}
+			return result;
+		}
+		int    Action;
+	}
+	public static ArrayList <EditAction> GetEditActionsConnectedWithStatus(int status)
+	{
+		ArrayList <EditAction> result = new ArrayList<>();
+		switch(status) {
+			case StyloQDatabase.SecStoragePacket.styloqdocstUNDEF:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstDRAFT:
+				result.add(new EditAction(editactionSubmitAndTransmit));
+				result.add(new EditAction(editactionCancelDocument));
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC:
+				result.add(new EditAction(editactionSubmitAndTransmit));
+				result.add(new EditAction(editactionCancelDocument));
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstAPPROVED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCORRECTED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCORRECTIONACCEPTED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCORRECTIONREJECTED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstREJECTED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstMODIFIED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCANCELLED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstEXECUTED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstEXECUTIONACCEPTED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstEXECUTIONCORRECTED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstEXECORRECTIONACCEPTED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstEXECORRECTIONREJECTED:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_SUCC:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_FAIL:
+				result.add(new EditAction(editactionClose));
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCANCELLEDDRAFT:
+				result.add(new EditAction(editactionClose));
+				break;
+		}
+		return result;
+	}
 	public static boolean ValidateStatusTransition(int status, int newStatus)
 	{
-		boolean ok = true;
+		boolean ok = false;
 		switch(status) {
 			case StyloQDatabase.SecStoragePacket.styloqdocstUNDEF:
 				ok = (newStatus == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT);
@@ -143,6 +270,8 @@ public class Document {
 			case StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_SUCC:
 				break;
 			case StyloQDatabase.SecStoragePacket.styloqdocstFINISHED_FAIL:
+				break;
+			case StyloQDatabase.SecStoragePacket.styloqdocstCANCELLEDDRAFT:
 				break;
 		}
 		return ok;
@@ -192,18 +321,19 @@ public class Document {
 	//   отображать данные, находящиеся в детализирующих списках (TransferItem, BookingItem).
 	//
 	public static class DisplayEntry {
-		DisplayEntry()
+		public DisplayEntry()
 		{
 			H = null;
 			SingleBkItem = null;
 		}
-		DisplayEntry(Document doc)
+		public DisplayEntry(Document doc)
 		{
 			H = doc.H;
 			if(doc.BkList != null && doc.BkList.size() == 1) {
 				SingleBkItem = doc.BkList.get(0);
 			}
 		}
+		public SLib.LDATE GetNominalDate() { return (H != null) ? H.GetNominalDate() : null; }
 		Head   H;
 		BookingItem SingleBkItem;
 	}
@@ -406,7 +536,7 @@ public class Document {
 		VXcL = null;
 		if(opID > 0) {
 			H = new Document.Head();
-			H.CreationTime = System.currentTimeMillis();
+			H.CreationTime = new SLib.LDATETIME(System.currentTimeMillis());
 			H.OpID = opID;
 			H.SvcIdent = svcIdent; // @v11.4.1 @fix
 			SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstDRAFT); // Новый док автоматом является draft-документом
@@ -511,6 +641,7 @@ public class Document {
 		VXcL = null;
 		return this;
 	}
+	public SLib.LDATE GetNominalDate() { return (H != null) ? H.GetNominalDate() : null; }
 	int GetAfterTransmitStatus()
 	{
 		return AfterTransmitStatus;
@@ -576,18 +707,12 @@ public class Document {
 				if(SLib.GetLen(H.BaseCurrencySymb) > 0) {
 					result.put("basecurrency", H.BaseCurrencySymb);
 				}
-				if(H.CreationTime > 0) {
-					SLib.LDATETIME dtm = new SLib.LDATETIME(H.CreationTime);
-					result.put("crtm", SLib.datetimefmt(dtm, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
-				}
-				if(H.Time > 0) {
-					SLib.LDATETIME dtm = new SLib.LDATETIME(H.Time);
-					result.put("tm", SLib.datetimefmt(dtm, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
-				}
-				if(H.DueTime > 0) {
-					SLib.LDATETIME dtm = new SLib.LDATETIME(H.DueTime);
-					result.put("duetm", SLib.datetimefmt(dtm, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
-				}
+				if(H.CreationTime != null)
+					result.put("crtm", SLib.datetimefmt(H.CreationTime, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
+				if(H.Time != null)
+					result.put("tm", SLib.datetimefmt(H.Time, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
+				if(H.DueTime != null)
+					result.put("duetm", SLib.datetimefmt(H.DueTime, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
 				result.put("opid", H.OpID);
 				if(H.ClientID > 0) {
 					result.put("cliid", H.ClientID);
@@ -699,45 +824,13 @@ public class Document {
 				H = new Head();
 				H.ID = jsobj.optLong("id", 0);
 				// @v11.4.0 {
-				{
-					String uuid_txt = jsobj.optString("uuid", null);
-					if(SLib.GetLen(uuid_txt) > 0)
-						H.Uuid = UUID.fromString(uuid_txt);
-				}
-				{
-					String uuid_txt = jsobj.optString("orgcmduuid", null);
-					if(SLib.GetLen(uuid_txt) > 0)
-						H.OrgCmdUuid = UUID.fromString(uuid_txt);
-				}
+				H.Uuid = SLib.strtouuid(jsobj.optString("uuid", null));
+				H.OrgCmdUuid = SLib.strtouuid(jsobj.optString("orgcmduuid", null));
 				// } @v11.4.0
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss", Locale.getDefault());
-				{
-					String ts = jsobj.optString("crtm", "");
-					if(SLib.GetLen(ts) > 0) {
-						try {
-							java.util.Date jd = sdf.parse(ts);
-							H.CreationTime = jd.getTime();
-						} catch(ParseException exn) {}
-					}
-				}
-				{
-					String ts = jsobj.optString("tm", "");
-					if(SLib.GetLen(ts) > 0) {
-						try {
-							java.util.Date jd = sdf.parse(ts);
-							H.Time = jd.getTime();
-						} catch(ParseException exn) {}
-					}
-				}
-				{
-					String ts = jsobj.optString("duetm", "");
-					if(SLib.GetLen(ts) > 0) {
-						try {
-							java.util.Date jd = sdf.parse(ts);
-							H.DueTime = jd.getTime();
-						} catch(ParseException exn) {}
-					}
-				}
+				//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss", Locale.getDefault());
+				H.CreationTime = SLib.strtodatetime(jsobj.optString("crtm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
+				H.Time = SLib.strtodatetime(jsobj.optString("tm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
+				H.DueTime = SLib.strtodatetime(jsobj.optString("duetm", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
 				H.OpID = jsobj.optInt("opid", 0);
 				H.ClientID = jsobj.optInt("cliid", 0);
 				H.DlvrLocID = jsobj.optInt("dlvrlocid", 0);

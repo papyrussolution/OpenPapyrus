@@ -42,7 +42,7 @@
 static int g_displayLevel = 0;
 #endif
 #undef  DISPLAY
-#define DISPLAY(...) { fprintf(stderr, __VA_ARGS__); fflush(stderr); }
+#define DISPLAY(...) { slfprintf_stderr(__VA_ARGS__); fflush(stderr); }
 #undef  LOCALDISPLAYLEVEL
 #define LOCALDISPLAYLEVEL(displayLevel, l, ...)                                \
 	if(displayLevel >= l) {                                                     \

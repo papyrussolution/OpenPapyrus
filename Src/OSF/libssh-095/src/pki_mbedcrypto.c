@@ -661,7 +661,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 		    }
 
 		    n = ssh_make_bignum_string(&rsa->N);
-		    if(n == NULL) {
+		    if(!n) {
 			    goto fail;
 		    }
 

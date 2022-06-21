@@ -5,7 +5,7 @@ template <bool IS_STACK_FRAMES, bool IS_WITH_CONTEXT>
 static int UnwindImpl(void** /* result */, int* /* sizes */,
                       int /* max_depth */, int /* skip_count */,
                       const void* /* ucp */, int *min_dropped_frames) {
-  if (min_dropped_frames != nullptr) {
+  if(min_dropped_frames) {
     *min_dropped_frames = 0;
   }
   return 0;

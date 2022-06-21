@@ -9,17 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkuninitvar.h"
-#include "astutils.h"
-#include "errorlogger.h"
-#include "library.h"
-#include "mathlib.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-#include "valueflow.h"
-#include "checknullpointer.h"   // CheckNullPointer::isPointerDeref
 
 namespace tinyxml2 {
 class XMLElement;

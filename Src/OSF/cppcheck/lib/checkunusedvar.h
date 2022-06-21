@@ -6,27 +6,9 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//---------------------------------------------------------------------------
 #ifndef checkunusedvarH
 #define checkunusedvarH
-//---------------------------------------------------------------------------
-
-#include "check.h"
-#include "cppcheck-config.h"
-
-#include <list>
-#include <map>
-#include <string>
 
 class ErrorLogger;
 class Scope;
@@ -94,14 +76,10 @@ private:
 		c.unassignedVariableError(nullptr, "varname");
 		c.unusedStructMemberError(nullptr, "structname", "variable");
 	}
-
-	static std::string myName() {
-		return "UnusedVar";
-	}
-
-	std::string classInfo() const override {
+	static std::string myName() { return "UnusedVar"; }
+	std::string classInfo() const override 
+	{
 		return "UnusedVar checks\n"
-
 		       // style
 		       "- unused variable\n"
 		       "- allocated but unused variable\n"
@@ -109,12 +87,9 @@ private:
 		       "- unassigned variable\n"
 		       "- unused struct member\n";
 	}
-
 	std::map<const Type *, bool> mIsRecordTypeWithoutSideEffectsMap;
-
 	std::map<const Type *, bool> mIsEmptyTypeMap;
 };
 
 /// @}
-//---------------------------------------------------------------------------
 #endif // checkunusedvarH

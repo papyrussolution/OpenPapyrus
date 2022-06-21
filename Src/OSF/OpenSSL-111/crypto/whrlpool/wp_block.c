@@ -476,7 +476,7 @@ union {
 	}
 };
 
-void whirlpool_block(WHIRLPOOL_CTX * ctx, const void * inp, size_t n)
+extern "C" void whirlpool_block(WHIRLPOOL_CTX * ctx, const void * inp, size_t n)
 {
 	int r;
 	const u8 * p = static_cast<const u8 *>(inp);

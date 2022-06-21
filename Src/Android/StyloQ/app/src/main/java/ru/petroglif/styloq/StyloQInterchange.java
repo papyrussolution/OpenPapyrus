@@ -198,11 +198,10 @@ public class StyloQInterchange {
 				for(int lidx = 0; lidx < js_list.length(); lidx++) {
 					JSONObject js_item = js_list.optJSONObject(lidx);
 					if(js_item != null) {
-						String doc_uuid_text = js_item.optString("uuid", null);
 						long cid = js_item.optLong("cid", 0);
 						long sid = js_item.optLong("sid", 0);
 						int sst = js_item.optInt("sst", 0);
-						UUID doc_uuid = UUID.fromString(doc_uuid_text);
+						UUID doc_uuid = SLib.strtouuid(js_item.optString("uuid", null));
 						if(cid > 0 && doc_uuid != null) {
 							StyloQDatabase.SecStoragePacket pack = db.GetPeerEntry(cid);
 							if(pack != null && StyloQDatabase.SecStoragePacket.IsDocKind(pack.Rec.Kind)) {
@@ -1917,6 +1916,7 @@ public class StyloQInterchange {
 							byte[] raw_doc_data = rpool.Get(SecretTagPool.tagRawData);
 							byte[] raw_doc_decl = rpool.Get(SecretTagPool.tagDocDeclaration);
 							long new_doc_id = 0;
+							StyloQApp.SvcQueryResult local_rep_result = StyloQApp.SvcQueryResult.SUCCESS;
 							if(SLib.GetLen(raw_doc_data) > 0) {
 								if(org_cmd_text.equalsIgnoreCase("PostDocument")) {
 									if(param.DocReqList != null && param.DocReqList.size() > 0) {
@@ -1924,17 +1924,22 @@ public class StyloQInterchange {
 										if(SLib.GetLen(text_doc_data) > 0) {
 											JSONObject js_doc_data = new JSONObject(text_doc_data);
 											if(js_doc_data != null) {
-												String rep_txt_uuid = js_doc_data.optString("document-uuid", null);
-												long rep_id = js_doc_data.optLong("document-id", 0);
-												if(SLib.GetLen(rep_txt_uuid) > 0 && rep_id > 0) {
-													UUID remote_doc_uuid = UUID.fromString(rep_txt_uuid);
-													if(remote_doc_uuid != null) {
-														for(int drlidx = 0; drlidx < param.DocReqList.size(); drlidx++) {
-															DocumentRequestEntry dre = param.DocReqList.get(drlidx);
-															if(dre != null && dre.DocUUID.compareTo(remote_doc_uuid) == 0)
-																dre.RemoteDocID = rep_id;
+												String rep_result = js_doc_data.optString("result", "");
+												if(rep_result.equalsIgnoreCase("error")) {
+													local_rep_result = StyloQApp.SvcQueryResult.ERROR;
+												}
+												else {
+													long rep_id = js_doc_data.optLong("document-id", 0);
+													if(rep_id > 0) {
+														UUID remote_doc_uuid = SLib.strtouuid(js_doc_data.optString("document-uuid", null));
+														if(remote_doc_uuid != null) {
+															for(int drlidx = 0; drlidx < param.DocReqList.size(); drlidx++) {
+																DocumentRequestEntry dre = param.DocReqList.get(drlidx);
+																if(dre != null && dre.DocUUID.compareTo(remote_doc_uuid) == 0)
+																	dre.RemoteDocID = rep_id;
+															}
+															dbs.AcceptDocumentRequestList(param.DocReqList);
 														}
-														dbs.AcceptDocumentRequestList(param.DocReqList);
 													}
 												}
 											}
@@ -1961,10 +1966,10 @@ public class StyloQInterchange {
 								doc_ref.ID = new_doc_id;
 								doc_ref.Decl = new StyloQCommand.DocDeclaration();
 								doc_ref.Decl.FromJson(new String(raw_doc_decl));
-								result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param, doc_ref);
+								result = new StyloQApp.InterchangeResult(local_rep_result, param, doc_ref);
 							}
 							else
-								result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param, rpool);
+								result = new StyloQApp.InterchangeResult(local_rep_result, param, rpool);
 						}
 						else if(param.RetrActivity_ != null)
 							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param, /*doc_ref*/rpool);

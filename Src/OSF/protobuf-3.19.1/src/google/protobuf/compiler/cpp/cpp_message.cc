@@ -1234,7 +1234,7 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
 			}
 		}
 		else {
-			format("  static bool ValidateKey(void*) { return true; }\n");
+			format("  static bool ValidateKey(void *) { return true; }\n");
 		}
 		if(descriptor_->field(1)->type() == FieldDescriptor::TYPE_STRING &&
 		    utf8_check != Utf8CheckMode::kNone) {
@@ -1258,7 +1258,7 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
 			}
 		}
 		else {
-			format("  static bool ValidateValue(void*) { return true; }\n");
+			format("  static bool ValidateValue(void *) { return true; }\n");
 		}
 		if(HasDescriptorMethods(descriptor_->file(), options_)) {
 			format(

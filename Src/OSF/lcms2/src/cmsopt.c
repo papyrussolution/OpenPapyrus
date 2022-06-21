@@ -854,7 +854,7 @@ static boolint OptimizeByComputingLinearization(cmsPipeline ** Lut, uint32 Inten
 	{
 		cmsStage * last = cmsPipelineGetPtrToLastStage(OriginalLut);
 
-		if(last == NULL) goto Error;
+		if(!last) goto Error;
 		if(cmsStageType(last) == cmsSigCurveSetElemType) {
 			_cmsStageToneCurvesData* Data = (_cmsStageToneCurvesData*)cmsStageData(last);
 			for(i = 0; i < Data->nCurves; i++) {

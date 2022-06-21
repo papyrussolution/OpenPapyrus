@@ -9,16 +9,7 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "token.h"
-#include "astutils.h"
-#include "errortypes.h"
-#include "library.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "tokenlist.h"
-#include "utils.h"
 #include "tokenrange.h"
-#include "valueflow.h"
 
 const std::list<ValueFlow::Value> TokenImpl::mEmptyValueList;
 

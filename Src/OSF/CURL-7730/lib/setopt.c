@@ -52,7 +52,7 @@ CURLcode Curl_setstropt(char ** charp, const char * s)
 	/* Release the previous storage at `charp' and replace by a dynamic storage
 	   copy of `s'. Return CURLE_OK or CURLE_OUT_OF_MEMORY. */
 
-	Curl_safefree(*charp);
+	ZFREE(*charp);
 	if(s) {
 		char * str = sstrdup(s);
 		if(str) {
@@ -73,7 +73,7 @@ CURLcode Curl_setblobopt(struct curl_blob ** blobp, const struct curl_blob * blo
 {
 	/* free the previous storage at `blobp' and replace by a dynamic storage
 	   copy of blob. If CURL_BLOB_COPY is set, the data is copied. */
-	Curl_safefree(*blobp);
+	ZFREE(*blobp);
 	if(blob) {
 		struct curl_blob * nblob;
 		if(blob->len > CURL_MAX_INPUT_LENGTH)
@@ -118,13 +118,13 @@ static CURLcode setstropt_userpwd(char * option, char ** userp, char ** passwdp)
 					result = CURLE_OUT_OF_MEMORY;
 			}
 
-			Curl_safefree(*userp);
+			ZFREE(*userp);
 			*userp = user;
 		}
 
 		/* Store the password part of option if required */
 		if(passwdp) {
-			Curl_safefree(*passwdp);
+			ZFREE(*passwdp);
 			*passwdp = passwd;
 		}
 	}
@@ -618,7 +618,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		     * String to set in the HTTP Referer: field.
 		     */
 		    if(data->change.referer_alloc) {
-			    Curl_safefree(data->change.referer);
+			    ZFREE(data->change.referer);
 			    data->change.referer_alloc = FALSE;
 		    }
 		    result = Curl_setstropt(&data->set.str[STRING_SET_REFERER],
@@ -1283,7 +1283,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		     */
 		    if(data->change.url_alloc) {
 			    /* the already set URL is allocated, free it first! */
-			    Curl_safefree(data->change.url);
+			    ZFREE(data->change.url);
 			    data->change.url_alloc = FALSE;
 		    }
 		    result = Curl_setstropt(&data->set.str[STRING_SET_URL],
@@ -2069,7 +2069,7 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 			    arg = UPLOADBUFFER_MIN;
 
 		    data->set.upload_buffer_size = arg;
-		    Curl_safefree(data->state.ulbuf); /* force a realloc next opportunity */
+		    ZFREE(data->state.ulbuf); /* force a realloc next opportunity */
 		    break;
 
 		case CURLOPT_NOSIGNAL:

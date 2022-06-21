@@ -13,7 +13,6 @@
 #define SIMPLECPP_WINDOWS
 #define NOMINMAX
 #endif
-#include "simplecpp.h"
 #ifdef SIMPLECPP_WINDOWS
 //#include <windows.h>
 #undef ERROR

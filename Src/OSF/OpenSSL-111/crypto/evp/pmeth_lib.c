@@ -98,7 +98,7 @@ static EVP_PKEY_CTX * int_ctx_new(EVP_PKEY * pkey, ENGINE * e, int id)
 	EVP_PKEY_CTX * ret;
 	const EVP_PKEY_METHOD * pmeth;
 	if(id == -1) {
-		if(pkey == NULL)
+		if(!pkey)
 			return 0;
 		id = pkey->type;
 	}

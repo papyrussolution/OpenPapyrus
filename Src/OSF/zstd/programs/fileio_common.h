@@ -31,7 +31,7 @@ extern "C" {
 
 extern FIO_display_prefs_t g_display_prefs;
 
-#define DISPLAY(...)         fprintf(stderr, __VA_ARGS__)
+#define DISPLAY(...)         slfprintf_stderr(__VA_ARGS__)
 #define DISPLAYOUT(...)      fprintf(stdout, __VA_ARGS__)
 #define DISPLAYLEVEL(l, ...) { if(g_display_prefs.displayLevel>=l) { DISPLAY(__VA_ARGS__); } }
 

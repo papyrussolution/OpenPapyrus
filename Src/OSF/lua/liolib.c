@@ -61,9 +61,9 @@ static int l_checkmode(const char * mode) {
 	(FILE *)0)
 #define l_pclose(L, file)                ((void)L, (void)file, -1)
 
-#endif                          /* } */
+#endif /* } */
 
-#endif                          /* } */
+#endif /* } */
 
 /* }====================================================== */
 
@@ -79,7 +79,7 @@ static int l_checkmode(const char * mode) {
 #define l_unlockfile(f)         ((void)0)
 #endif
 
-#endif                          /* } */
+#endif /* } */
 
 /*
 ** {======================================================
@@ -112,9 +112,9 @@ static int l_checkmode(const char * mode) {
 #define l_ftell(f)              ftell(f)
 #define l_seeknum               long
 
-#endif                          /* } */
+#endif /* } */
 
-#endif                          /* } */
+#endif /* } */
 
 /* }====================================================== */
 

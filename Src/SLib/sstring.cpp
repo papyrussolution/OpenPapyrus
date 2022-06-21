@@ -549,6 +549,22 @@ int FASTCALL SStrScan::GetEMail(SString & rBuf)
 		return 0;
 }
 
+int SStrScan::GetUntil(char divider, SString & rBuf)
+{
+	rBuf.Z();
+	size_t p = Offs;
+	char   c = P_Buf[p];
+	while(c != 0 && c != divider) {
+		c = P_Buf[++p];
+	}
+	if(p > Offs) {
+        Len = p - Offs;
+		Get(rBuf);
+		IncrLen();
+	}
+	return 1;
+}
+
 int SStrScan::GetWord(const char * pDiv, SString & rBuf)
 {
 	const char * p_def_div = " \t\n\r.,;:()[]{}+=^&@!$%/"; // @v8.9.10 append '/'

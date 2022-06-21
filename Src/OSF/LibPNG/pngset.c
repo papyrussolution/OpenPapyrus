@@ -275,11 +275,11 @@ void PNGAPI png_set_sCAL_s(png_const_structrp png_ptr, png_inforp info_ptr, int 
 	/* Double check the unit (should never get here with an invalid
 	 * unit unless this is an API call.)
 	 */
-	if(unit != 1 && unit != 2)
+	if(!oneof2(unit, 1, 2))
 		png_error(png_ptr, "Invalid sCAL unit");
-	if(swidth == NULL || (lengthw = strlen(swidth)) == 0 || swidth[0] == 45 /* '-' */ || !png_check_fp_string(swidth, lengthw))
+	if((lengthw = sstrlen(swidth)) == 0 || swidth[0] == 45 /* '-' */ || !png_check_fp_string(swidth, lengthw))
 		png_error(png_ptr, "Invalid sCAL width");
-	if(sheight == NULL || (lengthh = strlen(sheight)) == 0 || sheight[0] == 45 /* '-' */ || !png_check_fp_string(sheight, lengthh))
+	if((lengthh = sstrlen(sheight)) == 0 || sheight[0] == 45 /* '-' */ || !png_check_fp_string(sheight, lengthh))
 		png_error(png_ptr, "Invalid sCAL height");
 	info_ptr->scal_unit = (uint8)unit;
 	++lengthw;
@@ -586,7 +586,6 @@ int /*PRIVATE*/ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr, 
 #endif
 			textp->compression = PNG_TEXT_COMPRESSION_NONE;
 		}
-
 		else {
 			text_length = strlen(text_ptr[i].text);
 			textp->compression = text_ptr[i].compression;

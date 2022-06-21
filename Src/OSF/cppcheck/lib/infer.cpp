@@ -11,8 +11,6 @@
 #pragma hdrstop
 #include "infer.h"
 #include "calculate.h"
-#include "errortypes.h"
-#include "valueptr.h"
 
 class Token;
 

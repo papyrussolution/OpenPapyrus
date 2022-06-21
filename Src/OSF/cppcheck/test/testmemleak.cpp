@@ -9,13 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "checkmemoryleak.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "testsuite.h"
-#include "token.h"
-#include "tokenize.h"
 
 class TestMemleakInClass;
 class TestMemleakNoVar;
@@ -346,7 +339,7 @@ private:
 		check("void foo()\n"
 		    "{\n"
 		    "    void *a = malloc(sizeof(a));\n"
-		    "    a = realloc((void*)a, sizeof(a) * 2);\n"
+		    "    a = realloc((void *)a, sizeof(a) * 2);\n"
 		    "}");
 		ASSERT_EQUALS("[test.cpp:4]: (error) Common realloc mistake: \'a\' nulled but not freed upon failure\n", errout.str());
 	}
@@ -355,7 +348,7 @@ private:
 		check("void foo()\n"
 		    "{\n"
 		    "    void *a = malloc(sizeof(a));\n"
-		    "    a = (realloc((void*)((a)), sizeof(a) * 2));\n"
+		    "    a = (realloc((void *)((a)), sizeof(a) * 2));\n"
 		    "}");
 		ASSERT_EQUALS("[test.cpp:4]: (error) Common realloc mistake: \'a\' nulled but not freed upon failure\n", errout.str());
 	}
@@ -2339,7 +2332,7 @@ private:
 		ASSERT_EQUALS("", errout.str());
 
 		check("void x() {\n"
-		    "    strcpy(a, (void*)strdup(p));\n"
+		    "    strcpy(a, (void *)strdup(p));\n"
 		    "}");
 		ASSERT_EQUALS("[test.cpp:2]: (error) Allocation with strdup, strcpy doesn't release it.\n", errout.str());
 
@@ -2367,7 +2360,7 @@ private:
 		    "[test.cpp:2]: (error) Allocation with strdup, memcmp doesn't release it.\n", errout.str());
 
 		check("void* f(int size) {\n"
-		    "    return (void*) malloc(size);\n"
+		    "    return (void *) malloc(size);\n"
 		    "}");
 		ASSERT_EQUALS("", errout.str());
 

@@ -554,7 +554,8 @@ static int SizeInHexChars(S number) {
 	return result;
 }
 
-static char HexCharOfValue(const int value) {
+static char HexCharOfValue(const int value) 
+{
 	DOUBLE_CONVERSION_ASSERT(0 <= value && value <= 16);
 	if(value < 10) {
 		return static_cast<char>(value + '0');
@@ -562,12 +563,12 @@ static char HexCharOfValue(const int value) {
 	return static_cast<char>(value - 10 + 'A');
 }
 
-bool Bignum::ToHexString(char * buffer, const int buffer_size) const {
+bool Bignum::ToHexString(char * buffer, const int buffer_size) const 
+{
 	DOUBLE_CONVERSION_ASSERT(IsClamped());
 	// Each bigit must be printable as separate hex-character.
 	DOUBLE_CONVERSION_ASSERT(kBigitSize % 4 == 0);
 	static const int kHexCharsPerBigit = kBigitSize / 4;
-
 	if(used_bigits_ == 0) {
 		if(buffer_size < 2) {
 			return false;
@@ -577,8 +578,7 @@ bool Bignum::ToHexString(char * buffer, const int buffer_size) const {
 		return true;
 	}
 	// We add 1 for the terminating '\0' character.
-	const int needed_chars = (BigitLength() - 1) * kHexCharsPerBigit +
-	    SizeInHexChars(RawBigit(used_bigits_ - 1)) + 1;
+	const int needed_chars = (BigitLength() - 1) * kHexCharsPerBigit + SizeInHexChars(RawBigit(used_bigits_ - 1)) + 1;
 	if(needed_chars > buffer_size) {
 		return false;
 	}

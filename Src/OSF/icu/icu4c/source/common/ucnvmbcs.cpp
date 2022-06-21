@@ -1191,7 +1191,7 @@ static bool _EBCDICSwapLFNL(UConverterSharedData * sharedData, UErrorCode * pErr
 	 */
 	size = mbcsTable->countStates*1024 + sizeofFromUBytes + UCNV_MAX_CONVERTER_NAME_LENGTH+20;
 	p = (uint8 *)uprv_malloc(size);
-	if(p==NULL) {
+	if(!p) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;
 	}
@@ -2306,7 +2306,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErr
 
 		if(byteIndex==0) {
 			/* optimized loop for 1/2-byte input and BMP output */
-			if(offsets==NULL) {
+			if(!offsets) {
 				do {
 					entry = stateTable[state][*source];
 					if(MBCS_ENTRY_IS_TRANSITION(entry)) {
@@ -4497,7 +4497,7 @@ unassigned:
 			/* write the output character bytes from value and length */
 			/* from the first if in the loop we know that targetCapacity>0 */
 			if(length<=targetCapacity) {
-				if(offsets==NULL) {
+				if(!offsets) {
 					switch(length) {
 						/* each branch falls through to the next one */
 						case 4:

@@ -324,11 +324,13 @@ public class MqbClient {
 			}
 			// } @v11.3.10
 			if(Chnnl != null) {
-				Chnnl.close();
+				if(Chnnl.isOpen()) // @v11.4.2
+					Chnnl.close();
 				Chnnl = null;
 			}
 			if(Conn != null) {
-				Conn.close();
+				if(Conn.isOpen()) // @v11.4.2
+					Conn.close();
 				Conn = null;
 			}
 		} catch(TimeoutException exn) {

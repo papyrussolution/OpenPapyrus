@@ -455,10 +455,10 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 	    (passwdp && digest->passwd && strcmp(passwdp, digest->passwd))) {
 		if(digest->http_context) {
 			s_pSecFn->DeleteSecurityContext(digest->http_context);
-			Curl_safefree(digest->http_context);
+			ZFREE(digest->http_context);
 		}
-		Curl_safefree(digest->user);
-		Curl_safefree(digest->passwd);
+		ZFREE(digest->user);
+		ZFREE(digest->passwd);
 	}
 
 	if(digest->http_context) {
@@ -488,7 +488,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 			infof(data, "digest_sspi: MakeSignature failed, error 0x%08lx\n",
 			    (long)status);
 			s_pSecFn->DeleteSecurityContext(digest->http_context);
-			Curl_safefree(digest->http_context);
+			ZFREE(digest->http_context);
 		}
 	}
 
@@ -503,8 +503,8 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		TCHAR * spn;
 
 		/* free the copy of user/passwd used to make the previous identity */
-		Curl_safefree(digest->user);
-		Curl_safefree(digest->passwd);
+		ZFREE(digest->user);
+		ZFREE(digest->passwd);
 
 		if(userp && *userp) {
 			/* Populate our identity structure */
@@ -541,7 +541,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 
 			if(!digest->passwd) {
 				SAlloc::F(output_token);
-				Curl_safefree(digest->user);
+				ZFREE(digest->user);
 				return CURLE_OUT_OF_MEMORY;
 			}
 		}
@@ -614,7 +614,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 			Curl_sspi_free_identity(p_identity);
 			SAlloc::F(output_token);
 
-			Curl_safefree(digest->http_context);
+			ZFREE(digest->http_context);
 
 			if(status == SEC_E_INSUFFICIENT_MEMORY)
 				return CURLE_OUT_OF_MEMORY;
@@ -662,7 +662,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 void Curl_auth_digest_cleanup(struct digestdata * digest)
 {
 	/* Free the input token */
-	Curl_safefree(digest->input_token);
+	ZFREE(digest->input_token);
 
 	/* Reset any variables */
 	digest->input_token_len = 0;
@@ -670,12 +670,12 @@ void Curl_auth_digest_cleanup(struct digestdata * digest)
 	/* Delete security context */
 	if(digest->http_context) {
 		s_pSecFn->DeleteSecurityContext(digest->http_context);
-		Curl_safefree(digest->http_context);
+		ZFREE(digest->http_context);
 	}
 
 	/* Free the copy of user/passwd used to make the identity for http_context */
-	Curl_safefree(digest->user);
-	Curl_safefree(digest->passwd);
+	ZFREE(digest->user);
+	ZFREE(digest->passwd);
 }
 
 #endif /* USE_WINDOWS_SSPI && !CURL_DISABLE_CRYPTO_AUTH */

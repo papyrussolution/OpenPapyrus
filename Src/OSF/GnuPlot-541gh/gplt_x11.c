@@ -948,7 +948,7 @@ static void mainloop()
 }
 #else /* !(DEFAULT_X11 || CRIPPLED_SELECT || VMS */
 	#error You lose. No mainloop.
-#endif                          /* !(DEFAULT_X11 || CRIPPLED_SELECT || VMS */
+#endif /* !(DEFAULT_X11 || CRIPPLED_SELECT || VMS */
 
 // delete a window / plot 
 static void delete_plot(plot_struct * plot)

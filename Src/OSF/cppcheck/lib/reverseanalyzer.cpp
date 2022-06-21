@@ -9,16 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "reverseanalyzer.h"
-#include "analyzer.h"
-#include "astutils.h"
-#include "errortypes.h"
-#include "forwardanalyzer.h"
-#include "mathlib.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "valueptr.h"
 
 struct ReverseTraversal {
 	ReverseTraversal(const ValuePtr<Analyzer>& analyzer, const Settings* settings)

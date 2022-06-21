@@ -9,12 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "checkunusedvar.h"
-#include "errortypes.h"
-#include "preprocessor.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
 
 class TestUnusedVar : public TestFixture {
 public:
@@ -6021,7 +6015,7 @@ private:
 		    "    std::string s4(nullptr);\n"
 		    "    std::string s5(NULL);\n"
 		    "}\n"
-		    "struct A { A(void*) {} };\n"
+		    "struct A { A(void *) {} };\n"
 		    "static void g() {\n"
 		    "    A a1{ nullptr };\n"
 		    "    A a2{ NULL };\n"

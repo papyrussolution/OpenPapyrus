@@ -364,13 +364,13 @@ static void xmlCtxtDumpAttrDecl(xmlDebugCtxt * ctxt, xmlAttribute * attr)
 		xmlDebugErr(ctxt, XML_CHECK_NOT_ATTR_DECL, "Node is not an attribute declaration");
 		return;
 	}
-	if(attr->name != NULL) {
+	if(attr->name) {
 		if(!ctxt->check)
 			fprintf(ctxt->output, "ATTRDECL(%s)", (char *)attr->name);
 	}
 	else
 		xmlDebugErr(ctxt, XML_CHECK_NO_NAME, "Node attribute declaration has no name");
-	if(attr->elem != NULL) {
+	if(attr->elem) {
 		if(!ctxt->check)
 			fprintf(ctxt->output, " for %s", (char *)attr->elem);
 	}
@@ -389,7 +389,7 @@ static void xmlCtxtDumpAttrDecl(xmlDebugCtxt * ctxt, xmlAttribute * attr)
 			case XML_ATTRIBUTE_ENUMERATION: fprintf(ctxt->output, " ENUMERATION"); break;
 			case XML_ATTRIBUTE_NOTATION: fprintf(ctxt->output, " NOTATION "); break;
 		}
-		if(attr->tree != NULL) {
+		if(attr->tree) {
 			int indx;
 			xmlEnumeration * cur = attr->tree;
 			for(indx = 0; indx < 5; indx++) {
@@ -436,7 +436,7 @@ static void xmlCtxtDumpElemDecl(xmlDebugCtxt * ctxt, xmlElement * elem)
 		xmlDebugErr(ctxt, XML_CHECK_NOT_ELEM_DECL, "Node is not an element declaration");
 	}
 	else {
-		if(elem->name != NULL) {
+		if(elem->name) {
 			if(!ctxt->check) {
 				fprintf(ctxt->output, "ELEMDECL(");
 				xmlCtxtDumpString(ctxt, elem->name);
@@ -480,7 +480,7 @@ static void xmlCtxtDumpEntityDecl(xmlDebugCtxt * ctxt, xmlEntity * ent)
 		xmlDebugErr(ctxt, XML_CHECK_NOT_ENTITY_DECL, "Node is not an entity declaration");
 	}
 	else {
-		if(ent->name != NULL) {
+		if(ent->name) {
 			if(!ctxt->check) {
 				fprintf(ctxt->output, "ENTITYDECL(");
 				xmlCtxtDumpString(ctxt, ent->name);
@@ -1664,7 +1664,7 @@ static int xmlShellRegisterRootNamespaces(xmlShellCtxtPtr ctxt, char * arg ATTRI
 	if(!root || (root->type != XML_ELEMENT_NODE) || !root->nsDef || !ctxt || !ctxt->pctxt)
 		return -1;
 	ns = root->nsDef;
-	while(ns != NULL) {
+	while(ns) {
 		if(ns->prefix == NULL)
 			xmlXPathRegisterNs(ctxt->pctxt, reinterpret_cast<const xmlChar *>("defaultns"), ns->href);
 		else
@@ -2581,7 +2581,7 @@ void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * 
 						    xmlGenericError(0, "%s: no such node\n", arg);
 						    break;
 						case XPATH_NODESET:
-						    if(list->nodesetval != NULL) {
+						    if(list->nodesetval) {
 							    if(list->nodesetval->nodeNr == 1) {
 								    ctxt->P_Node = list->nodesetval->PP_NodeTab[0];
 								    if(ctxt->P_Node && (ctxt->P_Node->type == XML_NAMESPACE_DECL)) {

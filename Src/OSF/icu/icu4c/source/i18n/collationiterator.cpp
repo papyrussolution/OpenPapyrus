@@ -196,14 +196,15 @@ bool CollationIterator::operator == (const CollationIterator &other) const {
 	return true;
 }
 
-void CollationIterator::reset() {
+void CollationIterator::reset() 
+{
 	cesIndex = ceBuffer.length = 0;
-	if(skipped != NULL) {
+	if(skipped)
 		skipped->clear();
-	}
 }
 
-int32_t CollationIterator::fetchCEs(UErrorCode & errorCode) {
+int32_t CollationIterator::fetchCEs(UErrorCode & errorCode) 
+{
 	while(U_SUCCESS(errorCode) && nextCE(errorCode) != Collation::NO_CE) {
 		// No need to loop for each expansion CE.
 		cesIndex = ceBuffer.length;
@@ -492,15 +493,16 @@ uint32_t CollationIterator::getCE32FromPrefix(const CollationData * d, uint32_t 
 	return ce32;
 }
 
-UChar32 CollationIterator::nextSkippedCodePoint(UErrorCode & errorCode) {
-	if(skipped != NULL && skipped->hasNext()) {
+UChar32 CollationIterator::nextSkippedCodePoint(UErrorCode & errorCode) 
+{
+	if(skipped && skipped->hasNext()) {
 		return skipped->next();
 	}
 	if(numCpFwd == 0) {
 		return U_SENTINEL;
 	}
 	UChar32 c = nextCodePoint(errorCode);
-	if(skipped != NULL && !skipped->isEmpty() && c >= 0) {
+	if(skipped && !skipped->isEmpty() && c >= 0) {
 		skipped->incBeyond();
 	}
 	if(numCpFwd > 0 && c >= 0) {
@@ -509,8 +511,9 @@ UChar32 CollationIterator::nextSkippedCodePoint(UErrorCode & errorCode) {
 	return c;
 }
 
-void CollationIterator::backwardNumSkipped(int32_t n, UErrorCode & errorCode) {
-	if(skipped != NULL && !skipped->isEmpty()) {
+void CollationIterator::backwardNumSkipped(int32_t n, UErrorCode & errorCode) 
+{
+	if(skipped && !skipped->isEmpty()) {
 		n = skipped->backwardNumCodePoints(n);
 	}
 	backwardNumCodePoints(n, errorCode);
@@ -533,7 +536,7 @@ uint32_t CollationIterator::nextCE32FromContraction(const CollationData * d, uin
 	// and therefore need not remember the suffixes state from before a mismatch for retrying.
 	// If we are already processing skipped combining marks, then we do track the state.
 	UCharsTrie suffixes(p);
-	if(skipped != NULL && !skipped->isEmpty()) {
+	if(skipped && !skipped->isEmpty()) {
 		skipped->saveTrieState(suffixes);
 	}
 	UStringTrieResult match = suffixes.firstForCodePoint(c);
@@ -544,7 +547,7 @@ uint32_t CollationIterator::nextCE32FromContraction(const CollationData * d, uin
 			if(!USTRINGTRIE_HAS_NEXT(match) || (c = nextSkippedCodePoint(errorCode)) < 0) {
 				return ce32;
 			}
-			if(skipped != NULL && !skipped->isEmpty()) {
+			if(skipped && !skipped->isEmpty()) {
 				skipped->saveTrieState(suffixes);
 			}
 			sinceMatch = 1;

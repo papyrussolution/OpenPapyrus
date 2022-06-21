@@ -51,7 +51,7 @@ struct ssh_gssapi_struct {
  */
 static int ssh_gssapi_init(ssh_session session)
 {
-	if(session->gssapi != NULL)
+	if(session->gssapi)
 		return SSH_OK;
 	session->gssapi = (struct ssh_gssapi_struct *)SAlloc::M(sizeof(struct ssh_gssapi_struct));
 	if(!session->gssapi) {
@@ -182,7 +182,7 @@ int ssh_gssapi_handle_userauth(ssh_session session, const char * user, uint32_t 
 		ssh_string oid_s = session->server_callbacks->gssapi_select_oid_function(session,
 			user, n_oid, oids,
 			session->server_callbacks->userdata);
-		if(oid_s != NULL) {
+		if(oid_s) {
 			if(ssh_gssapi_init(session) == SSH_ERROR)
 				return SSH_ERROR;
 			session->gssapi->state = SSH_GSSAPI_STATE_RCV_TOKEN;
@@ -518,13 +518,12 @@ error:
 
 end:
 	ssh_gssapi_free(session);
-	if(mic_buffer != NULL) {
+	if(mic_buffer) {
 		SSH_BUFFER_FREE(mic_buffer);
 	}
-	if(mic_token != NULL) {
+	if(mic_token) {
 		SSH_STRING_FREE(mic_token);
 	}
-
 	return SSH_PACKET_USED;
 }
 
@@ -596,7 +595,7 @@ static int ssh_gssapi_match(ssh_session session, gss_OID_set * valid_oids)
 	char * ptr;
 	int ret;
 	if(session->gssapi->client.client_deleg_creds == NULL) {
-		if(session->opts.gss_client_identity != NULL) {
+		if(session->opts.gss_client_identity) {
 			namebuf.value = (void *)session->opts.gss_client_identity;
 			namebuf.length = strlen(session->opts.gss_client_identity);
 			maj_stat = gss_import_name(&min_stat, &namebuf, GSS_C_NT_USER_NAME, &client_id);
@@ -669,13 +668,11 @@ int ssh_gssapi_auth_mic(ssh_session session){
 	char name_buf[256] = {0};
 	gss_buffer_desc hostname;
 	const char * gss_host = session->opts.host;
-
 	rc = ssh_gssapi_init(session);
 	if(rc == SSH_ERROR) {
 		return SSH_AUTH_ERROR;
 	}
-
-	if(session->opts.gss_server_identity != NULL) {
+	if(session->opts.gss_server_identity) {
 		gss_host = session->opts.gss_server_identity;
 	}
 	/* import target host name */

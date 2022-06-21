@@ -1434,22 +1434,17 @@ static char * iso8601_to_pdf_date_string(const char * iso)
 	/* Check that utf8 contains only the characters "0123456789-T:Z+" */
 	const char * p = iso;
 	while(*p) {
-		if(!_cairo_isdigit(*p) && *p != '-' && *p != 'T' &&
-		    *p != ':' && *p != 'Z' && *p != '+')
+		if(!_cairo_isdigit(*p) && *p != '-' && *p != 'T' && *p != ':' && *p != 'Z' && *p != '+')
 			return NULL;
 		p++;
 	}
-
 	p = iso;
 	strcpy(buf, "(");
-
 	/* YYYY (required) */
 	if(strlen(p) < 4)
 		return NULL;
-
 	strncat(buf, p, 4);
 	p += 4;
-
 	/* -MM, -DD, Thh, :mm, :ss */
 	for(i = 0; i < 5; i++) {
 		if(strlen(p) < 3)
@@ -1458,27 +1453,21 @@ static char * iso8601_to_pdf_date_string(const char * iso)
 		strncat(buf, p + 1, 2);
 		p += 3;
 	}
-
 	/* Z, +, - */
 	if(strlen(p) < 1)
 		goto finish;
 	strncat(buf, p, 1);
 	p += 1;
-
 	/* hh */
 	if(strlen(p) < 2)
 		goto finish;
-
 	strncat(buf, p, 2);
 	strcat(buf, "'");
 	p += 2;
-
 	/* :mm */
 	if(strlen(p) < 3)
 		goto finish;
-
 	strncat(buf, p + 1, 3);
-
 finish:
 	strcat(buf, ")");
 	return sstrdup(buf);

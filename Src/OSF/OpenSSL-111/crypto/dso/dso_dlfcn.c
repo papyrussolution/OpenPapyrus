@@ -460,4 +460,4 @@ static void * dlfcn_globallookup(const char * name)
 	return ret;
 }
 
-#endif                          /* DSO_DLFCN */
+#endif /* DSO_DLFCN */

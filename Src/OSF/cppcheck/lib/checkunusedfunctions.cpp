@@ -9,16 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkunusedfunctions.h"
-#include "astutils.h"
-#include "errorlogger.h"
-#include "errortypes.h"
-#include "library.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
 
 namespace CTU {
 class FileInfo;
@@ -26,13 +16,9 @@ class FileInfo;
 
 // Register this check class
 CheckUnusedFunctions CheckUnusedFunctions::instance;
-
-static const struct CWE CWE561(561U);   // Dead Code
-
-//---------------------------------------------------------------------------
+//
 // FUNCTION USAGE - Check for unused functions etc
-//---------------------------------------------------------------------------
-
+//
 void CheckUnusedFunctions::parseTokens(const Tokenizer &tokenizer, const char FileName[], const Settings * settings)
 {
 	const bool doMarkup = settings->library.markupFile(FileName);

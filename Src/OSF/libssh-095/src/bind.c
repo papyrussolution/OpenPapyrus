@@ -79,21 +79,14 @@ static int ssh_bind_import_keys(ssh_bind sshbind)
 		return SSH_ERROR;
 	}
 #ifdef HAVE_ECC
-	if(sshbind->ecdsa == NULL && sshbind->ecdsakey != NULL) {
-		rc = ssh_pki_import_privkey_file(sshbind->ecdsakey,
-			NULL,
-			NULL,
-			NULL,
-			&sshbind->ecdsa);
+	if(sshbind->ecdsa == NULL && sshbind->ecdsakey) {
+		rc = ssh_pki_import_privkey_file(sshbind->ecdsakey, NULL, NULL, NULL, &sshbind->ecdsa);
 		if(rc == SSH_ERROR || rc == SSH_EOF) {
-			ssh_set_error(sshbind, SSH_FATAL,
-			    "Failed to import private ECDSA host key");
+			ssh_set_error(sshbind, SSH_FATAL, "Failed to import private ECDSA host key");
 			return SSH_ERROR;
 		}
-
 		if(!is_ecdsa_key_type(ssh_key_type(sshbind->ecdsa))) {
-			ssh_set_error(sshbind, SSH_FATAL,
-			    "The ECDSA host key has the wrong type");
+			ssh_set_error(sshbind, SSH_FATAL, "The ECDSA host key has the wrong type");
 			ssh_key_free(sshbind->ecdsa);
 			sshbind->ecdsa = NULL;
 			return SSH_ERROR;
@@ -102,71 +95,46 @@ static int ssh_bind_import_keys(ssh_bind sshbind)
 #endif
 
 #ifdef HAVE_DSA
-	if(sshbind->dsa == NULL && sshbind->dsakey != NULL) {
-		rc = ssh_pki_import_privkey_file(sshbind->dsakey,
-			NULL,
-			NULL,
-			NULL,
-			&sshbind->dsa);
+	if(sshbind->dsa == NULL && sshbind->dsakey) {
+		rc = ssh_pki_import_privkey_file(sshbind->dsakey, NULL, NULL, NULL, &sshbind->dsa);
 		if(rc == SSH_ERROR || rc == SSH_EOF) {
-			ssh_set_error(sshbind, SSH_FATAL,
-			    "Failed to import private DSA host key");
+			ssh_set_error(sshbind, SSH_FATAL, "Failed to import private DSA host key");
 			return SSH_ERROR;
 		}
-
 		if(ssh_key_type(sshbind->dsa) != SSH_KEYTYPE_DSS) {
-			ssh_set_error(sshbind, SSH_FATAL,
-			    "The DSA host key has the wrong type: %d",
-			    ssh_key_type(sshbind->dsa));
+			ssh_set_error(sshbind, SSH_FATAL, "The DSA host key has the wrong type: %d", ssh_key_type(sshbind->dsa));
 			ssh_key_free(sshbind->dsa);
 			sshbind->dsa = NULL;
 			return SSH_ERROR;
 		}
 	}
 #endif
-
-	if(sshbind->rsa == NULL && sshbind->rsakey != NULL) {
-		rc = ssh_pki_import_privkey_file(sshbind->rsakey,
-			NULL,
-			NULL,
-			NULL,
-			&sshbind->rsa);
+	if(sshbind->rsa == NULL && sshbind->rsakey) {
+		rc = ssh_pki_import_privkey_file(sshbind->rsakey, NULL, NULL, NULL, &sshbind->rsa);
 		if(rc == SSH_ERROR || rc == SSH_EOF) {
-			ssh_set_error(sshbind, SSH_FATAL,
-			    "Failed to import private RSA host key");
+			ssh_set_error(sshbind, SSH_FATAL, "Failed to import private RSA host key");
 			return SSH_ERROR;
 		}
-
 		if(ssh_key_type(sshbind->rsa) != SSH_KEYTYPE_RSA) {
-			ssh_set_error(sshbind, SSH_FATAL,
-			    "The RSA host key has the wrong type");
+			ssh_set_error(sshbind, SSH_FATAL, "The RSA host key has the wrong type");
 			ssh_key_free(sshbind->rsa);
 			sshbind->rsa = NULL;
 			return SSH_ERROR;
 		}
 	}
-
-	if(sshbind->ed25519 == NULL && sshbind->ed25519key != NULL) {
-		rc = ssh_pki_import_privkey_file(sshbind->ed25519key,
-			NULL,
-			NULL,
-			NULL,
-			&sshbind->ed25519);
+	if(sshbind->ed25519 == NULL && sshbind->ed25519key) {
+		rc = ssh_pki_import_privkey_file(sshbind->ed25519key, NULL, NULL, NULL, &sshbind->ed25519);
 		if(rc == SSH_ERROR || rc == SSH_EOF) {
-			ssh_set_error(sshbind, SSH_FATAL,
-			    "Failed to import private ED25519 host key");
+			ssh_set_error(sshbind, SSH_FATAL, "Failed to import private ED25519 host key");
 			return SSH_ERROR;
 		}
-
 		if(ssh_key_type(sshbind->ed25519) != SSH_KEYTYPE_ED25519) {
-			ssh_set_error(sshbind, SSH_FATAL,
-			    "The ED25519 host key has the wrong type");
+			ssh_set_error(sshbind, SSH_FATAL, "The ED25519 host key has the wrong type");
 			ssh_key_free(sshbind->ed25519);
 			sshbind->ed25519 = NULL;
 			return SSH_ERROR;
 		}
 	}
-
 	return SSH_OK;
 }
 
@@ -361,7 +329,6 @@ int ssh_bind_accept_fd(ssh_bind sshbind, ssh_session session, socket_t fd)
 			}
 		}
 	}
-
 	if(sshbind->bindaddr == NULL)
 		session->opts.bindaddr = NULL;
 	else {
@@ -371,8 +338,7 @@ int ssh_bind_accept_fd(ssh_bind sshbind, ssh_session session, socket_t fd)
 			return SSH_ERROR;
 		}
 	}
-
-	if(sshbind->pubkey_accepted_key_types != NULL) {
+	if(sshbind->pubkey_accepted_key_types) {
 		if(session->opts.pubkey_accepted_types == NULL) {
 			session->opts.pubkey_accepted_types = sstrdup(sshbind->pubkey_accepted_key_types);
 			if(session->opts.pubkey_accepted_types == NULL) {
@@ -395,9 +361,8 @@ int ssh_bind_accept_fd(ssh_bind sshbind, ssh_session session, socket_t fd)
 			session->opts.pubkey_accepted_types = p;
 		}
 	}
-
 	session->common.log_verbosity = sshbind->common.log_verbosity;
-	if(sshbind->banner != NULL)
+	if(sshbind->banner)
 		session->opts.custombanner = sstrdup(sshbind->banner);
 	ssh_socket_free(session->socket);
 	session->socket = ssh_socket_new(session);
@@ -449,7 +414,7 @@ int ssh_bind_accept_fd(ssh_bind sshbind, ssh_session session, socket_t fd)
 			return SSH_ERROR;
 		}
 	}
-	if(sshbind->ed25519 != NULL) {
+	if(sshbind->ed25519) {
 		session->srv.ed25519_key = ssh_key_dup(sshbind->ed25519);
 		if(session->srv.ed25519_key == NULL) {
 			ssh_set_error_oom(sshbind);
@@ -462,29 +427,24 @@ int ssh_bind_accept_fd(ssh_bind sshbind, ssh_session session, socket_t fd)
 	return SSH_OK;
 }
 
-int ssh_bind_accept(ssh_bind sshbind, ssh_session session) {
+int ssh_bind_accept(ssh_bind sshbind, ssh_session session) 
+{
 	socket_t fd = SSH_INVALID_SOCKET;
 	int rc;
 	if(sshbind->bindfd == SSH_INVALID_SOCKET) {
-		ssh_set_error(sshbind, SSH_FATAL,
-		    "Can't accept new clients on a not bound socket.");
+		ssh_set_error(sshbind, SSH_FATAL, "Can't accept new clients on a not bound socket.");
 		return SSH_ERROR;
 	}
-
 	if(!session) {
 		ssh_set_error(sshbind, SSH_FATAL, "session is null");
 		return SSH_ERROR;
 	}
-
 	fd = accept(sshbind->bindfd, NULL, NULL);
 	if(fd == SSH_INVALID_SOCKET) {
-		ssh_set_error(sshbind, SSH_FATAL,
-		    "Accepting a new connection: %s",
-		    strerror(errno));
+		ssh_set_error(sshbind, SSH_FATAL, "Accepting a new connection: %s", strerror(errno));
 		return SSH_ERROR;
 	}
 	rc = ssh_bind_accept_fd(sshbind, session, fd);
-
 	if(rc == SSH_ERROR) {
 		CLOSE_SOCKET(fd);
 		ssh_socket_free(session->socket);

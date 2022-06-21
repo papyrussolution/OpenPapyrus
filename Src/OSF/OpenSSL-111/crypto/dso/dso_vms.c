@@ -460,4 +460,4 @@ static char * vms_name_converter(DSO * dso, const char * filename)
 	return not_translated;
 }
 
-#endif                          /* OPENSSL_SYS_VMS */
+#endif /* OPENSSL_SYS_VMS */

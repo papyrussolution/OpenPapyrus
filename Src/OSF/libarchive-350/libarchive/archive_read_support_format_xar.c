@@ -549,14 +549,14 @@ static int read_toc(ArchiveRead * a)
 	/*
 	 * Connect hardlinked files.
 	 */
-	for(file = xar->hdlink_orgs; file != NULL; file = file->hdnext) {
-		for(struct hdlink ** hdlink = &(xar->hdlink_list); *hdlink != NULL; hdlink = &((*hdlink)->next)) {
+	for(file = xar->hdlink_orgs; file; file = file->hdnext) {
+		for(struct hdlink ** hdlink = &(xar->hdlink_list); *hdlink; hdlink = &((*hdlink)->next)) {
 			if((*hdlink)->id == file->id) {
 				struct hdlink * hltmp;
 				struct xar_file * f2;
 				int nlink = (*hdlink)->cnt + 1;
 				file->nlink = nlink;
-				for(f2 = (*hdlink)->files; f2 != NULL; f2 = f2->hdnext) {
+				for(f2 = (*hdlink)->files; f2; f2 = f2->hdnext) {
 					f2->nlink = nlink;
 					archive_string_copy(&(f2->hardlink), &(file->pathname));
 				}
@@ -676,7 +676,6 @@ static int xar_read_header(ArchiveRead * a, ArchiveEntry * entry)
 		archive_entry_set_devminor(entry, file->devminor);
 	if(archive_strlen(&(file->fflags_text)) > 0)
 		archive_entry_copy_fflags_text(entry, file->fflags_text.s);
-
 	xar->entry_init = 1;
 	xar->entry_total = 0;
 	xar->entry_remaining = file->length;
@@ -688,11 +687,10 @@ static int xar_read_header(ArchiveRead * a, ArchiveEntry * entry)
 	 * Read extended attributes.
 	 */
 	xattr = file->xattr_list;
-	while(xattr != NULL) {
+	while(xattr) {
 		const void * d;
 		size_t outbytes = 0;
 		size_t used = 0;
-
 		r = move_reading_point(a, xattr->offset);
 		if(r != ARCHIVE_OK)
 			break;
@@ -827,23 +825,20 @@ static int xar_cleanup(ArchiveRead * a)
 	struct hdlink * hdlink;
 	int i;
 	int r;
-
 	xar = (struct xar *)(a->format->data);
 	checksum_cleanup(a);
 	r = decompression_cleanup(a);
 	hdlink = xar->hdlink_list;
-	while(hdlink != NULL) {
+	while(hdlink) {
 		struct hdlink * next = hdlink->next;
-
 		SAlloc::F(hdlink);
 		hdlink = next;
 	}
 	for(i = 0; i < xar->file_queue.used; i++)
 		file_free(xar->file_queue.files[i]);
 	SAlloc::F(xar->file_queue.files);
-	while(xar->unknowntags != NULL) {
+	while(xar->unknowntags) {
 		struct unknown_tag * tag;
-
 		tag = xar->unknowntags;
 		xar->unknowntags = tag->next;
 		archive_string_free(&(tag->name));
@@ -1185,7 +1180,7 @@ static struct xar_file * heap_get_entry(struct heap_queue * heap)               
 static int add_link(ArchiveRead * a, struct xar * xar, struct xar_file * file)
 {
 	struct hdlink * hdlink;
-	for(hdlink = xar->hdlink_list; hdlink != NULL; hdlink = hdlink->next) {
+	for(hdlink = xar->hdlink_list; hdlink; hdlink = hdlink->next) {
 		if(hdlink->id == file->link) {
 			file->hdnext = hdlink->files;
 			hdlink->cnt++;
@@ -1565,7 +1560,7 @@ static void checksum_cleanup(ArchiveRead * a)
 static void xmlattr_cleanup(struct xmlattr_list * list)
 {
 	struct xmlattr * attr = list->first;
-	while(attr != NULL) {
+	while(attr) {
 		struct xmlattr * next = attr->next;
 		SAlloc::F(attr->name);
 		SAlloc::F(attr->value);
@@ -1590,7 +1585,7 @@ static int file_new(ArchiveRead * a, struct xar * xar, struct xmlattr_list * lis
 	file->mtime = 0;
 	xar->file = file;
 	xar->xattr = NULL;
-	for(attr = list->first; attr != NULL; attr = attr->next) {
+	for(attr = list->first; attr; attr = attr->next) {
 		if(sstreq(attr->name, "id"))
 			file->id = atol10(attr->value, strlen(attr->value));
 	}
@@ -1609,7 +1604,7 @@ static void file_free(struct xar_file * file)
 	archive_string_free(&(file->gname));
 	archive_string_free(&(file->hardlink));
 	xattr = file->xattr_list;
-	while(xattr != NULL) {
+	while(xattr) {
 		struct xattr * next;
 		next = xattr->next;
 		xattr_free(xattr);
@@ -1628,12 +1623,12 @@ static int xattr_new(ArchiveRead *a, struct xar *xar, struct xmlattr_list *list)
 		return ARCHIVE_FATAL;
 	}
 	xar->xattr = xattr;
-	for(attr = list->first; attr != NULL; attr = attr->next) {
+	for(attr = list->first; attr; attr = attr->next) {
 		if(sstreq(attr->name, "id"))
 			xattr->id = atol10(attr->value, strlen(attr->value));
 	}
 	/* Chain to xattr list. */
-	for(nx = &(xar->file->xattr_list); *nx != NULL; nx = &((*nx)->next)) {
+	for(nx = &(xar->file->xattr_list); *nx; nx = &((*nx)->next)) {
 		if(xattr->id < (*nx)->id)
 			break;
 	}
@@ -1805,7 +1800,7 @@ static int xml_start(ArchiveRead * a, const char * name, struct xmlattr_list * l
 			    xar->xmlsts = FILE_LINK;
 		    else if(sstreq(name, "type")) {
 			    xar->xmlsts = FILE_TYPE;
-			    for(attr = list->first; attr != NULL; attr = attr->next) {
+			    for(attr = list->first; attr; attr = attr->next) {
 				    if(!sstreq(attr->name, "link"))
 					    continue;
 				    if(sstreq(attr->value, "original")) {
@@ -2431,12 +2426,10 @@ static void xml_data(void * userData, const char * s, int len)
 	}
 	if(xar->file == NULL)
 		return;
-
 	switch(xar->xmlsts) {
 		case FILE_NAME:
-		    if(xar->file->parent != NULL) {
-			    archive_string_concat(&(xar->file->pathname),
-				&(xar->file->parent->pathname));
+		    if(xar->file->parent) {
+			    archive_string_concat(&(xar->file->pathname), &(xar->file->parent->pathname));
 			    archive_strappend_char(&(xar->file->pathname), '/');
 		    }
 		    xar->file->has |= HAS_PATHNAME;
@@ -2915,7 +2908,7 @@ static int expat_xmlattr_setup(ArchiveRead * a, struct xmlattr_list * list, cons
 	list->last = &(list->first);
 	if(atts == NULL)
 		return ARCHIVE_OK;
-	while(atts[0] != NULL && atts[1] != NULL) {
+	while(atts[0] && atts[1]) {
 		attr = SAlloc::M(sizeof *(attr));
 		name = sstrdup(atts[0]);
 		value = sstrdup(atts[1]);

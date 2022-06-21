@@ -232,7 +232,7 @@ const Message* GeneratedMessageFactory::GetPrototype(const Descriptor* type) {
 	{
 		ReaderMutexLock lock(&mutex_);
 		const Message* result = FindPtrOrNull(type_map_, type);
-		if(result != nullptr) return result;
+		if(result) return result;
 	}
 
 	// If the type is not in the generated pool, then we can't possibly handle

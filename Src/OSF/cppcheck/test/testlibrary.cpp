@@ -9,14 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "errortypes.h"
-#include "library.h"
-#include "settings.h"
-#include "standards.h"
-#include "testsuite.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
 
 #define ASSERT_EQ(expected, actual)   ASSERT(expected == actual)
 

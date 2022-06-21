@@ -9,10 +9,7 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "settings.h"
-#include "path.h"
 #include "summaries.h"
-#include "valueflow.h"
 #define PICOJSON_USE_INT64
 #include <picojson.h>
 

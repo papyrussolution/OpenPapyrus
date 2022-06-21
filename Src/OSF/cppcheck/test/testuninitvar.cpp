@@ -9,14 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "check.h"
-#include "checkuninitvar.h"
-#include "ctu.h"
-#include "errortypes.h"
-#include "library.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
 
 class TestUninitVar : public TestFixture {
 public:
@@ -3784,7 +3776,7 @@ private:
 		    "void f() {\n"
 		    "    Cstring res;\n"
 		    "    if ( ! maybe() ) return;\n"     // <- fp goes away if this is removed
-		    "    ( ((res).text = (void*)0), ((res).size = (res).alloc = 0) );\n"     // <- fp goes away if
+		    "    ( ((res).text = (void *)0), ((res).size = (res).alloc = 0) );\n"     // <- fp goes away if
 		                                                                             // parentheses are removed
 		    "}");
 		ASSERT_EQUALS("", errout.str());
@@ -5688,7 +5680,7 @@ private:
 		valueFlowUninit("void f(void) {\n"
 		    "    struct AB ab;\n"
 		    "    int x;\n"
-		    "    ab.a = (void*)&x;\n"
+		    "    ab.a = (void *)&x;\n"
 		    "    dostuff(&ab,0);\n"
 		    "}\n",
 		    "test.c");
@@ -5772,7 +5764,7 @@ private:
 			"void f() {\n"
 			"    Cstring res;\n"
 			"    if ( ! maybe() ) return;\n"                         // <- fp goes away if this is removed
-			"    ( ((res).text = (void*)0), ((res).size = (res).alloc = 0) );\n" // <- fp goes away if
+			"    ( ((res).text = (void *)0), ((res).size = (res).alloc = 0) );\n" // <- fp goes away if
 		                                                                             // parentheses are removed
 			"}");
 		ASSERT_EQUALS("", errout.str());

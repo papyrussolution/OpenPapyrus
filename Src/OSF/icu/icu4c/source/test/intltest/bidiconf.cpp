@@ -453,7 +453,7 @@ void BiDiConformanceTest::TestBidiCharacterTest() {
         }
         inputString.releaseBuffer(length);
         start=strchr(start, ';');
-        if(start==NULL) {
+        if(!start) {
             errorCount++;
             errln("\nError on line %d: Missing ; separator on line: %s", (int)lineNumber, line);
             continue;

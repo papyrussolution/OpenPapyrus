@@ -370,7 +370,7 @@ int ssh_pcap_context_write(ssh_pcap_context ctx, enum ssh_pcap_direction directi
 {
 	ssh_buffer ip;
 	int rc;
-	if(ctx == NULL || ctx->file == NULL) {
+	if(!ctx || ctx->file == NULL) {
 		return SSH_ERROR;
 	}
 	if(ctx->connected == 0) {

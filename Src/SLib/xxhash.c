@@ -715,7 +715,7 @@ XXH_FORCE_INLINE uint64 XXH64_endian_align(const void * input, size_t len, uint6
 	const BYTE * bEnd = p + len;
 	uint64 h64;
 #if defined(XXH_ACCEPT_NULL_INPUT_POINTER) && (XXH_ACCEPT_NULL_INPUT_POINTER>=1)
-	if(p==NULL) {
+	if(!p) {
 		len = 0;
 		bEnd = p = (const BYTE *)(size_t)32;
 	}

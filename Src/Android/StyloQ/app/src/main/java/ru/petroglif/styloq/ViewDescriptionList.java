@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class ViewDescriptionList {
@@ -33,11 +34,15 @@ public class ViewDescriptionList {
 			Mrgn = null;
 			StyleRcId = 0;
 			DataTypeBTS = 0;
+			SlFormat = 0;
+			SlFormat2 = 0;
 		}
 		String Zone;
 		String FieldName;
 		String Title;
 		int   DataTypeBTS; // @v11.4.1 BTS_XXX (отображается в json как "FieldType"
+		int   SlFormat;    // @v11.4.2 Параметры форматирования, передаваемые сервисом
+		int   SlFormat2;   // @v11.4.2 Параметры форматирования, передаваемые сервисом
 		int   StyleRcId;
 		int   ForceAlignment; // >0 - left, <0 - right
 		int   TotalFunc;
@@ -158,6 +163,8 @@ public class ViewDescriptionList {
 							}
 							else
 								new_item.DataTypeBTS = 0;
+							new_item.SlFormat = _vdl_item.optInt("SlFormat", 0);
+							new_item.SlFormat2 = _vdl_item.optInt("SlFormat2", 0);
 							AddItem(new_item);
 							result = true;
 						}
@@ -225,8 +232,18 @@ public class ViewDescriptionList {
 					if(di.TotalFunc > 0)
 						if(di.TotalFunc == SLib.AGGRFUNC_COUNT)
 							tv.setText(Integer.toString(di.ITotalResult));
-						else
-							tv.setText(Double.toString(di.RTotalResult));
+						else {
+							int prec = 0;
+							if(di.SlFormat != 0)
+								prec = SLib.SFMTPRC(di.SlFormat);
+							else
+								prec = 2;
+							DecimalFormat df = new DecimalFormat();
+							df.setMaximumFractionDigits(prec);
+							df.setMinimumFractionDigits(prec);
+							String total_text = df.format(di.RTotalResult);
+							tv.setText(total_text);
+						}
 					else
 						tv.setText("");
 				}
@@ -351,6 +368,10 @@ public class ViewDescriptionList {
 						rv = (Double)value;
 						is_number = true;
 					}
+					else if(value != null && value instanceof Long) {
+						rv = (Double)value;
+						is_number = true;
+					}
 					else if(SLib.IsNumeric(text)) {
 						rv = Double.valueOf(text);
 						is_number = true;
@@ -382,6 +403,7 @@ public class ViewDescriptionList {
 		if(dpb != null && dpb.ColumnDescription != null) {
 			if(dpb.ColumnDescription.TotalFunc > 0) {
 				String total_text = null;
+				boolean is_total_real = false;
 				switch(dpb.ColumnDescription.TotalFunc) {
 					case SLib.AGGRFUNC_COUNT:
 						dpb.ColumnDescription.ITotalResult = dpb.Count;
@@ -390,7 +412,8 @@ public class ViewDescriptionList {
 					case SLib.AGGRFUNC_SUM:
 						{
 							dpb.ColumnDescription.RTotalResult = dpb.Sum;
-							total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
+							is_total_real = true;
+							//total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
 							//StringBuilder sb = new StringBuilder();
 							//Formatter f = new Formatter(sb, Locale.getDefault());
 							//total_text = String.format("%10.2f", dpb.ColumnDescription.RTotalResult);
@@ -398,16 +421,30 @@ public class ViewDescriptionList {
 						break;
 					case SLib.AGGRFUNC_AVG:
 						dpb.ColumnDescription.RTotalResult = (dpb.Count > 0) ? dpb.Sum / dpb.Count : 0.0;
-						total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
+						is_total_real = true;
+						//total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
 						break;
 					case SLib.AGGRFUNC_MAX:
 						dpb.ColumnDescription.RTotalResult = (dpb.Max > -Double.MAX_VALUE) ? dpb.Max : 0.0;
-						total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
+						is_total_real = true;
+						//total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
 						break;
 					case SLib.AGGRFUNC_MIN:
 						dpb.ColumnDescription.RTotalResult = (dpb.Min < Double.MAX_VALUE) ? dpb.Min : 0.0;
-						total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
+						is_total_real = true;
+						//total_text = Double.toString(dpb.ColumnDescription.RTotalResult);
 						break;
+				}
+				if(is_total_real) {
+					int prec = 0;
+					if(dpb.ColumnDescription.SlFormat != 0)
+						prec = SLib.SFMTPRC(dpb.ColumnDescription.SlFormat);
+					else
+						prec = 2;
+					DecimalFormat df = new DecimalFormat();
+					df.setMaximumFractionDigits(prec);
+					df.setMinimumFractionDigits(prec);
+					total_text = df.format(dpb.ColumnDescription.RTotalResult);
 				}
 				if(SLib.GetLen(total_text) > 0) {
 					float tw = dpb.Tp.measureText(total_text);

@@ -12,22 +12,6 @@
 //
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkcondition.h"
-#include "astutils.h"
-#include "library.h"
-#include "platform.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-#include "valueflow.h"
-#include "checkother.h" // comparisonNonZeroExpressionLessThanZero and testIfNonZeroExpressionIsPositive
-
-// CWE ids used
-static const struct CWE uncheckedErrorConditionCWE(391U);
-static const struct CWE CWE398(398U);   // Indicator of Poor Code Quality
-static const struct CWE CWE570(570U);   // Expression is Always False
-static const struct CWE CWE571(571U);   // Expression is Always True
 
 // Register this check class (by creating a static instance of it)
 namespace {
@@ -564,13 +548,11 @@ void CheckCondition::oppositeElseIfConditionError(const Token * ifCond, const To
 
 	reportError(errorPath, Severity::style, "multiCondition", errmsg.str(), CWE398, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // - Opposite inner conditions => always false
 // - (TODO) Same/Overlapping inner condition => always true
 // - same condition after early exit => always false
-//---------------------------------------------------------------------------
-
+//
 static bool isNonConstFunctionCall(const Token * ftok, const Library &library)
 {
 	if(library.isFunctionConst(ftok))
@@ -912,8 +894,7 @@ void CheckCondition::identicalConditionAfterEarlyExitError(const Token * cond1, 
 	    CWE398,
 	    Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 //    if ((x != 1) || (x != 3))            // expression always true
 //    if ((x == 1) && (x == 3))            // expression always false
 //    if ((x < 1)  && (x > 3))             // expression always false
@@ -928,8 +909,7 @@ void CheckCondition::identicalConditionAfterEarlyExitError(const Token * cond1, 
 //    the comparisons is probably wrong.
 //
 //    Inform that second comparison is always true when first comparison is true.
-//---------------------------------------------------------------------------
-
+//
 static std::string invertOperatorForOperandSwap(std::string s)
 {
 	if(s[0] == '<')
@@ -1356,10 +1336,9 @@ void CheckCondition::redundantConditionError(const Token * tok, const std::strin
 	    CWE398,
 	    inconclusive ? Certainty::inconclusive : Certainty::normal);
 }
-
-//-----------------------------------------------------------------------------
+//
 // Detect "(var % val1) > val2" where val2 is >= val1.
-//-----------------------------------------------------------------------------
+//
 void CheckCondition::checkModuloAlwaysTrueFalse()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
@@ -1409,18 +1388,15 @@ static int countPar(const Token * tok1, const Token * tok2)
 	}
 	return par;
 }
-
-//---------------------------------------------------------------------------
+//
 // Clarify condition '(x = a < 0)' into '((x = a) < 0)' or '(x = (a < 0))'
 // Clarify condition '(a & b == c)' into '((a & b) == c)' or '(a & (b == c))'
-//---------------------------------------------------------------------------
+//
 void CheckCondition::clarifyCondition()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	const bool isC = mTokenizer->isC();
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {

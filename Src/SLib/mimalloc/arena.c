@@ -202,7 +202,7 @@ void * _mi_arena_alloc(size_t size, bool* commit, bool* large, bool* is_pinned, 
 // 
 void _mi_arena_free(void * p, size_t size, size_t memid, bool all_committed, mi_stats_t* stats) {
 	mi_assert_internal(size > 0 && stats != NULL);
-	if(p==NULL) return;
+	if(!p) return;
 	if(size==0) return;
 	if(memid == MI_MEMID_OS) {
 		// was a direct OS allocation, pass through
@@ -304,7 +304,7 @@ int mi_reserve_os_memory(size_t size, bool commit, bool allow_large) NOEXCEPT
 	size = _mi_os_good_alloc_size(size);
 	bool large = allow_large;
 	void * start = _mi_os_alloc_aligned(size, MI_SEGMENT_ALIGN, commit, &large, &_mi_stats_main);
-	if(start==NULL) return ENOMEM;
+	if(!start) return ENOMEM;
 	if(!mi_manage_os_memory(start, size, (large || commit), large, true, -1)) {
 		_mi_os_free_ex(start, size, commit, &_mi_stats_main);
 		_mi_verbose_message("failed to reserve %zu k memory\n", _mi_divide_up(size, 1024));

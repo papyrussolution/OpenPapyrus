@@ -68,30 +68,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "valueflow.h"
-#include "analyzer.h"
-#include "astutils.h"
-#include "calculate.h"
-#include "checkuninitvar.h"
-#include "cppcheck-config.h"
-#include "errorlogger.h"
-#include "errortypes.h"
-#include "forwardanalyzer.h"
-#include "infer.h"
-#include "library.h"
-#include "mathlib.h"
-#include "path.h"
-#include "platform.h"
-#include "programmemory.h"
-#include "reverseanalyzer.h"
-#include "settings.h"
-#include "sourcelocation.h"
-#include "standards.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenlist.h"
-#include "utils.h"
-#include "valueptr.h"
 
 static void bailoutInternal(const std::string& type, TokenList * tokenlist, ErrorLogger * errorLogger, const Token * tok,
     const std::string &what, const std::string &file, int line, std::string function)

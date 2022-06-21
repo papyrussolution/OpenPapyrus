@@ -67,6 +67,7 @@
     <ClCompile Include="..\osf\cppcheck\lib\utils.cpp" />
     <ClCompile Include="..\osf\cppcheck\lib\valueflow.cpp" />
     <ClCompile Include="..\OSF\cppcheck\lib\cppcheck-pch.cpp" />
+    <ClCompile Include="..\OSF\cppcheck\lib\cwe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\cppcheck\lib\checkbufferoverrun.h">
@@ -100,9 +101,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\cppcheck\lib\checkunusedvar.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\cppcheck\lib\config.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\cppcheck\lib\cppcheck.h">
@@ -229,9 +227,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\cppcheck\lib\programmemory.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\cppcheck\lib\precompiled.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\cppcheck\lib\summaries.h">

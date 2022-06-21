@@ -3075,7 +3075,7 @@ struct plink * Plink_new()
 		int amt = 100;
 		plink_freelist = (struct plink *)SAlloc::C(amt, sizeof(struct plink) );
 		if(plink_freelist==0) {
-			fprintf(stderr, "Unable to allocate memory for a new follow-set propagation link.\n");
+			slfprintf_stderr("Unable to allocate memory for a new follow-set propagation link.\n");
 			exit(1);
 		}
 		for(int i = 0; i<amt-1; i++) 

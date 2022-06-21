@@ -857,10 +857,10 @@ fail:
 	if(outcurl) {
 		curl_slist_free_all(outcurl->change.cookielist);
 		outcurl->change.cookielist = NULL;
-		Curl_safefree(outcurl->state.buffer);
+		ZFREE(outcurl->state.buffer);
 		Curl_dyn_free(&outcurl->state.headerb);
-		Curl_safefree(outcurl->change.url);
-		Curl_safefree(outcurl->change.referer);
+		ZFREE(outcurl->change.url);
+		ZFREE(outcurl->change.referer);
 		Curl_altsvc_cleanup(&outcurl->asi);
 		Curl_freeset(outcurl);
 		SAlloc::F(outcurl);

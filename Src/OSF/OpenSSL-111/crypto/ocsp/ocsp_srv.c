@@ -178,7 +178,7 @@ int OCSP_basic_sign_ctx(OCSP_BASICRESP * brsp,
 	OCSP_RESPID * rid;
 	EVP_PKEY * pkey;
 
-	if(ctx == NULL || EVP_MD_CTX_pkey_ctx(ctx) == NULL) {
+	if(!ctx || EVP_MD_CTX_pkey_ctx(ctx) == NULL) {
 		OCSPerr(OCSP_F_OCSP_BASIC_SIGN_CTX, OCSP_R_NO_SIGNER_KEY);
 		goto err;
 	}

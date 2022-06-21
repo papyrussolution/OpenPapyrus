@@ -39,8 +39,8 @@ namespace {
 static const int kMaxVarintBytes = 10;
 static const int kMaxVarint32Bytes = 5;
 
-inline bool NextNonEmpty(ZeroCopyInputStream* input, const void** data,
-    int* size) {
+inline bool NextNonEmpty(ZeroCopyInputStream* input, const void** data, int* size) 
+{
 	bool success;
 	do {
 		success = input->Next(data, size);

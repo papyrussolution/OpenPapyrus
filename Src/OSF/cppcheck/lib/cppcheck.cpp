@@ -10,47 +10,26 @@
 #include "cppcheck-internal.h"
 #pragma hdrstop
 #include "cppcheck.h"
-#include "check.h"
-#include "checkunusedfunctions.h"
 #include "clangimport.h"
 #include "color.h"
-#include "ctu.h"
-#include "errortypes.h"
-#include "library.h"
-#include "mathlib.h"
-#include "path.h"
-#include "platform.h"
-#include "preprocessor.h" // Preprocessor
-#include "standards.h"
 #include "suppressions.h"
 #include "timer.h"
-#include "token.h"
-#include "tokenize.h" // Tokenizer
-#include "tokenlist.h"
-#include "utils.h"
-#include "valueflow.h"
 #include "version.h"
 #define PICOJSON_USE_INT64
 #include <picojson.h>
-#include <simplecpp.h>
 #ifdef HAVE_RULES
 #ifdef _WIN32
 #define PCRE_STATIC
 #endif
-#include <pcre.h>
+#include <..\osf\pcre-8.41\pcre.h>
 #endif
 
 class SymbolDatabase;
 
 static const char Version[] = CPPCHECK_VERSION_STRING;
 static const char ExtraVersion[] = "";
-
 static const char FILELIST[] = "cppcheck-addon-ctu-file-list";
-
 static TimerResults s_timerResults;
-
-// CWE ids used
-static const CWE CWE398(398U);  // Indicator of Poor Code Quality
 
 namespace {
 struct AddonInfo {
@@ -295,7 +274,6 @@ static std::string executeAddon(const AddonInfo &addonInfo,
 		}
 		throw InternalError(nullptr, message);
 	}
-
 	// Validate output..
 	std::istringstream istr(result);
 	std::string line;
@@ -305,7 +283,6 @@ static std::string executeAddon(const AddonInfo &addonInfo,
 			throw InternalError(nullptr, "Failed to execute '" + pythonExe + " " + args + "'. " + result);
 		}
 	}
-
 	// Valid results
 	return result;
 }
@@ -409,9 +386,7 @@ unsigned int CppCheck::check(const std::string &path)
 
 		const std::string lang = Path::isCPP(path) ? "-x c++" : "-x c";
 		const std::string analyzerInfo = mSettings.buildDir.empty() ? std::string() : AnalyzerInformation::getAnalyzerInfoFile(
-			mSettings.buildDir,
-			path,
-			"");
+			mSettings.buildDir, path, "");
 		const std::string clangcmd = analyzerInfo + ".clang-cmd";
 		const std::string clangStderr = analyzerInfo + ".clang-stderr";
 		const std::string clangAst = analyzerInfo + ".clang-ast";
@@ -422,16 +397,12 @@ unsigned int CppCheck::check(const std::string &path)
 			exe += ".exe";
 		}
 #endif
-
 		std::string flags(lang + " ");
 		if(Path::isCPP(path) && !mSettings.standards.stdValue.empty())
 			flags += "-std=" + mSettings.standards.stdValue + " ";
-
 		for(const std::string &i: mSettings.includePaths)
 			flags += "-I" + i + " ";
-
 		flags += getDefinesFlags(mSettings.userDefines);
-
 		const std::string args2 = "-fsyntax-only -Xclang -ast-dump -fno-color-diagnostics " + flags + path;
 		const std::string redirect2 = analyzerInfo.empty() ? std::string("2>&1") : ("2> " + clangStderr);
 		if(!mSettings.buildDir.empty()) {
@@ -441,13 +412,11 @@ unsigned int CppCheck::check(const std::string &path)
 		else if(mSettings.verbose && !mSettings.quiet) {
 			mErrorLogger.reportOut(exe + " " + args2);
 		}
-
 		std::string output2;
 		if(!mExecuteCommand(exe, split(args2), redirect2, &output2) || output2.find("TranslationUnitDecl") == std::string::npos) {
 			std::cerr << "Failed to execute '" << exe << " " << args2 << " " << redirect2 << "'" << std::endl;
 			return 0;
 		}
-
 		// Ensure there are not syntax errors...
 		std::vector<ErrorMessage> compilerWarnings;
 		if(!mSettings.buildDir.empty()) {
@@ -466,12 +435,10 @@ unsigned int CppCheck::check(const std::string &path)
 			if(reportClangErrors(istr, reportError, &compilerWarnings))
 				return 0;
 		}
-
 		if(!mSettings.buildDir.empty()) {
 			std::ofstream fout(clangAst);
 			fout << output2 << std::endl;
 		}
-
 		try {
 			std::istringstream ast(output2);
 			Tokenizer tokenizer(&mSettings, this);
@@ -502,7 +469,6 @@ unsigned int CppCheck::check(const std::string &path)
 				fdump << "</dumps>" << std::endl;
 				fdump.close();
 			}
-
 			// run addons
 			executeAddons(dumpFile);
 		} catch(const InternalError &e) {
@@ -511,7 +477,6 @@ unsigned int CppCheck::check(const std::string &path)
 		} catch(const std::exception &e) {
 			internalError(path, e.what());
 		}
-
 		return mExitCode;
 	}
 
@@ -874,14 +839,11 @@ unsigned int CppCheck::checkFile(const std::string& filename, const std::string 
 					}
 					checksums.insert(checksum);
 				}
-
 				// Check normal tokens
 				checkNormalTokens(tokenizer);
-
 				// Analyze info..
 				if(!mSettings.buildDir.empty())
 					checkUnusedFunctions.parseTokens(tokenizer, filename.c_str(), &mSettings);
-
 				// handling of "simple" rules has been removed.
 				if(mSimplify && hasRule("simple")) {
 					// FIXME Remove this function
@@ -1015,26 +977,20 @@ void CppCheck::checkNormalTokens(const Tokenizer &tokenizer)
 	for(Check * check : Check::instances()) {
 		if(Settings::terminated())
 			return;
-
 		if(Tokenizer::isMaxTime())
 			return;
-
 		Timer timerRunChecks(check->name() + "::runChecks", mSettings.showtime, &s_timerResults);
 		check->runChecks(&tokenizer, &mSettings, this);
 	}
-
 	if(mSettings.clang)
 		// TODO: Use CTU for Clang analysis
 		return;
-
 	// Analyse the tokens..
-
 	CTU::FileInfo * fi1 = CTU::getFileInfo(&tokenizer);
 	if(fi1) {
 		mFileInfo.push_back(fi1);
 		mAnalyzerInformation.setFileInfo("ctu", fi1->toString());
 	}
-
 	for(const Check * check : Check::instances()) {
 		Check::FileInfo * fi = check->getFileInfo(&tokenizer, &mSettings);
 		if(fi != nullptr) {
@@ -1042,7 +998,6 @@ void CppCheck::checkNormalTokens(const Tokenizer &tokenizer)
 			mAnalyzerInformation.setFileInfo(check->name(), fi->toString());
 		}
 	}
-
 	executeRules("normal", tokenizer);
 }
 

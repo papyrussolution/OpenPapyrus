@@ -9,12 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "checkunusedfunctions.h"
-#include "errortypes.h"
-#include "platform.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
 
 class TestUnusedFunctions : public TestFixture {
 public:

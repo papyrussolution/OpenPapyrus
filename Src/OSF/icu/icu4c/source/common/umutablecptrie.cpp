@@ -299,7 +299,7 @@ UChar32 MutableCodePointTrie::getRange(UChar32 start, UCPMapValueFilter * filter
 		return U_SENTINEL;
 	}
 	if(start >= highStart) {
-		if(pValue != nullptr) {
+		if(pValue) {
 			uint32_t value = highValue;
 			if(filter != nullptr) {
 				value = filter(context, value);
@@ -331,7 +331,7 @@ UChar32 MutableCodePointTrie::getRange(UChar32 start, UCPMapValueFilter * filter
 			else {
 				trieValue = trieValue2;
 				value = maybeFilterValue(trieValue2, initialValue, nullValue, filter, context);
-				if(pValue != nullptr) {
+				if(pValue) {
 					*pValue = value;
 				}
 				haveValue = true;
@@ -352,7 +352,7 @@ UChar32 MutableCodePointTrie::getRange(UChar32 start, UCPMapValueFilter * filter
 			else {
 				trieValue = trieValue2;
 				value = maybeFilterValue(trieValue2, initialValue, nullValue, filter, context);
-				if(pValue != nullptr) {
+				if(pValue) {
 					*pValue = value;
 				}
 				haveValue = true;

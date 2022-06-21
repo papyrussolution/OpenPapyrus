@@ -156,7 +156,7 @@ void ExtensionSet::RegisterEnumExtension(const MessageLite* extendee,
 	ExtensionInfo info(extendee, number, type, is_repeated, is_packed);
 	info.enum_validity_check.func = CallNoArgValidityFunc;
 	// See comment in CallNoArgValidityFunc() about why we use a c-style cast.
-	info.enum_validity_check.arg = (void*)is_valid;
+	info.enum_validity_check.arg = (void *)is_valid;
 	Register(info);
 }
 

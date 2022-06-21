@@ -1177,6 +1177,8 @@ public:
 		}
 		return result;
 	}
+	static uint64 ConvertGeoLoc(const SGeoPosLL & rGeoPos);
+	static uint64 StraightenGeoLoc(uint64 ued, SGeoPosLL & rGeoPos);
 };
 //
 //

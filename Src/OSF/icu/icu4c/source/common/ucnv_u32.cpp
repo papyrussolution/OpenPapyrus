@@ -1037,7 +1037,7 @@ static void U_CALLCONV _UTF32ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 			case 8:
 			    /* call UTF-32BE */
 			    pArgs->source = source;
-			    if(offsets==NULL) {
+			    if(!offsets) {
 				    T_UConverter_toUnicode_UTF32_BE(pArgs, pErrorCode);
 			    }
 			    else {
@@ -1048,7 +1048,7 @@ static void U_CALLCONV _UTF32ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 			case 9:
 			    /* call UTF-32LE */
 			    pArgs->source = source;
-			    if(offsets==NULL) {
+			    if(!offsets) {
 				    T_UConverter_toUnicode_UTF32_LE(pArgs, pErrorCode);
 			    }
 			    else {

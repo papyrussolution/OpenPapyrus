@@ -147,7 +147,7 @@ static CURLcode http2_disconnect(struct connectdata * conn,
 	H2BUGF(infof(conn->data, "HTTP/2 DISCONNECT starts now\n"));
 
 	nghttp2_session_del(c->h2);
-	Curl_safefree(c->inbuf);
+	ZFREE(c->inbuf);
 
 	H2BUGF(infof(conn->data, "HTTP/2 DISCONNECT done\n"));
 
@@ -2100,7 +2100,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 			    NULL, conn->data);
 	}
 
-	Curl_safefree(nva);
+	ZFREE(nva);
 
 	if(stream_id < 0) {
 		H2BUGF(infof(conn->data,

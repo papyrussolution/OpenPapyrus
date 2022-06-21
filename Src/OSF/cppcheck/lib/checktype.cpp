@@ -9,32 +9,14 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checktype.h"
-#include "errortypes.h"
-#include "mathlib.h"
-#include "platform.h"
-#include "settings.h"
-#include "standards.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
 
 // Register this check class (by creating a static instance of it)
 namespace {
 CheckType instance;
 }
-
-//---------------------------------------------------------------------------
-// Checking for shift by too many bits
-//---------------------------------------------------------------------------
 //
-
-// CWE ids used:
-static const struct CWE CWE195(195U);   // Signed to Unsigned Conversion Error
-static const struct CWE CWE197(197U);   // Numeric Truncation Error
-static const struct CWE CWE758(758U);   // Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
-static const struct CWE CWE190(190U);   // Integer Overflow or Wraparound
-
+// Checking for shift by too many bits
+//
 void CheckType::checkTooBigBitwiseShift()
 {
 	// unknown sizeof(int) => can't run this checker

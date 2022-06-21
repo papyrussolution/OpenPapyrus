@@ -10,11 +10,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "filelister.h"
-#include "cppcheck-config.h"
-#include "path.h"
-#include "pathmatch.h"
-#include "utils.h"
 #ifdef _WIN32
 //
 // This code is WIN32 systems

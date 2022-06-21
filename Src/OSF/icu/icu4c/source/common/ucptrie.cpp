@@ -248,7 +248,7 @@ UChar32 getRange(const void * t, UChar32 start,
 	const UCPTrie * trie = reinterpret_cast<const UCPTrie *>(t);
 	UCPTrieValueWidth valueWidth = (UCPTrieValueWidth)trie->valueWidth;
 	if(start >= trie->highStart) {
-		if(pValue != nullptr) {
+		if(pValue) {
 			int32_t di = trie->dataLength - UCPTRIE_HIGH_VALUE_NEG_DATA_OFFSET;
 			uint32_t value = getValue(trie->data, valueWidth, di);
 			if(filter != nullptr) {
@@ -312,7 +312,7 @@ UChar32 getRange(const void * t, UChar32 start,
 				else {
 					trieValue = trie->nullValue;
 					value = nullValue;
-					if(pValue != nullptr) {
+					if(pValue) {
 						*pValue = nullValue;
 					}
 					haveValue = true;
@@ -356,7 +356,7 @@ UChar32 getRange(const void * t, UChar32 start,
 					else {
 						trieValue = trie->nullValue;
 						value = nullValue;
-						if(pValue != nullptr) {
+						if(pValue) {
 							*pValue = nullValue;
 						}
 						haveValue = true;
@@ -380,7 +380,7 @@ UChar32 getRange(const void * t, UChar32 start,
 						trieValue = trieValue2;
 						value = maybeFilterValue(trieValue2, trie->nullValue, nullValue,
 							filter, context);
-						if(pValue != nullptr) {
+						if(pValue) {
 							*pValue = value;
 						}
 						haveValue = true;

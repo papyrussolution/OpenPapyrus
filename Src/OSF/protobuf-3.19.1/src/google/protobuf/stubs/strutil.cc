@@ -2171,11 +2171,8 @@ int Base64EscapeInternal(const unsigned char * src, int szsrc,
 	return (cur_dest - dest);
 }
 
-static const char kBase64Chars[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-static const char kWebSafeBase64Chars[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+static const char kBase64Chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char kWebSafeBase64Chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 int Base64Escape(const unsigned char * src, int szsrc, char * dest, int szdest) {
 	return Base64EscapeInternal(src, szsrc, dest, szdest, kBase64Chars, true);
@@ -2229,7 +2226,8 @@ void WebSafeBase64EscapeWithPadding(StringPiece src, std::string * dest) {
 
 // Helper to append a Unicode code point to a string as UTF8, without bringing
 // in any external dependencies.
-int EncodeAsUTF8Char(uint32 code_point, char* output) {
+int EncodeAsUTF8Char(uint32 code_point, char* output) 
+{
 	uint32 tmp = 0;
 	int len = 0;
 	if(code_point <= 0x7f) {
@@ -2237,26 +2235,17 @@ int EncodeAsUTF8Char(uint32 code_point, char* output) {
 		len = 1;
 	}
 	else if(code_point <= 0x07ff) {
-		tmp = 0x0000c080 |
-		    ((code_point & 0x07c0) << 2) |
-		    (code_point & 0x003f);
+		tmp = 0x0000c080 | ((code_point & 0x07c0) << 2) | (code_point & 0x003f);
 		len = 2;
 	}
 	else if(code_point <= 0xffff) {
-		tmp = 0x00e08080 |
-		    ((code_point & 0xf000) << 4) |
-		    ((code_point & 0x0fc0) << 2) |
-		    (code_point & 0x003f);
+		tmp = 0x00e08080 | ((code_point & 0xf000) << 4) | ((code_point & 0x0fc0) << 2) | (code_point & 0x003f);
 		len = 3;
 	}
 	else {
 		// UTF-16 is only defined for code points up to 0x10FFFF, and UTF-8 is
 		// normally only defined up to there as well.
-		tmp = 0xf0808080 |
-		    ((code_point & 0x1c0000) << 6) |
-		    ((code_point & 0x03f000) << 4) |
-		    ((code_point & 0x000fc0) << 2) |
-		    (code_point & 0x003f);
+		tmp = 0xf0808080 | ((code_point & 0x1c0000) << 6) | ((code_point & 0x03f000) << 4) | ((code_point & 0x000fc0) << 2) | (code_point & 0x003f);
 		len = 4;
 	}
 	tmp = ghtonl(tmp);
@@ -2272,7 +2261,6 @@ static const unsigned char kUTF8LenTbl[256] = {
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,

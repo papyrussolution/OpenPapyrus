@@ -9,10 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "settings.h"
-#include "testsuite.h"
-#include "token.h"
-#include "tokenlist.h"
 
 class TestTokenList : public TestFixture {
 public:

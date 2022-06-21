@@ -547,8 +547,8 @@ static CURLcode multi_done(struct Curl_easy * data, CURLcode status/* an error i
 	conn->data = data; /* ensure the connection uses this transfer now */
 	Curl_resolver_kill(conn); /* Stop the resolver and free its own resources (but not dns_entry yet). */
 	/* Cleanup possible redirect junk */
-	Curl_safefree(data->req.newurl);
-	Curl_safefree(data->req.location);
+	ZFREE(data->req.newurl);
+	ZFREE(data->req.location);
 	switch(status) {
 		case CURLE_ABORTED_BY_CALLBACK:
 		case CURLE_READ_ERROR:
@@ -599,7 +599,7 @@ static CURLcode multi_done(struct Curl_easy * data, CURLcode status/* an error i
 		conn->dns_entry = NULL;
 	}
 	Curl_hostcache_prune(data);
-	Curl_safefree(data->state.ulbuf);
+	ZFREE(data->state.ulbuf);
 
 	/* if the transfer was completed in a paused state there can be buffered
 	   data left to free */
@@ -670,7 +670,7 @@ static CURLcode multi_done(struct Curl_easy * data, CURLcode status/* an error i
 			data->state.lastconnect_id = -1;
 	}
 
-	Curl_safefree(data->state.buffer);
+	ZFREE(data->state.buffer);
 	Curl_free_request_state(data);
 	return result;
 }

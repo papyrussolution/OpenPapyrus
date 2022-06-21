@@ -319,7 +319,7 @@ private:
 		// Here we declare a huge array as a way of approximating C's "flexible
 		// array member" feature without relying on undefined behavior.
 		void* elements[(std::numeric_limits<int>::max() - 2 * sizeof(int)) /
-		sizeof(void*)];
+		sizeof(void *)];
 	};
 
 	static constexpr size_t kRepHeaderSize = offsetof(Rep, elements);
@@ -1042,7 +1042,7 @@ inline void RepeatedPtrFieldBase::SwapElements(int index1, int index2) {
 
 template <typename TypeHandler>
 inline size_t RepeatedPtrFieldBase::SpaceUsedExcludingSelfLong() const {
-	size_t allocated_bytes = static_cast<size_t>(total_size_) * sizeof(void*);
+	size_t allocated_bytes = static_cast<size_t>(total_size_) * sizeof(void *);
 	if(rep_ != nullptr) {
 		for(int i = 0; i < rep_->allocated_size; ++i) {
 			allocated_bytes +=

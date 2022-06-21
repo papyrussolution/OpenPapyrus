@@ -11,11 +11,6 @@
 #ifndef filelisterH
 #define filelisterH
 
-#include <cstddef>
-#include <map>
-#include <set>
-#include <string>
-
 class PathMatch;
 
 /// @addtogroup CLI

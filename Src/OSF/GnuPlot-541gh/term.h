@@ -46,7 +46,7 @@
 	#endif
 	#ifdef X11
 		#include "x11.trm"              /* X Window system */
-	#endif                          /* X11 */
+	#endif /* X11 */
 	#ifdef _WIN32
 		// @experimental #include "win.trm"              /* MS-Windows */
 	#endif

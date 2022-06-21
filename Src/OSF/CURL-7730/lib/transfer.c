@@ -1361,7 +1361,7 @@ CURLcode FASTCALL Curl_pretransfer(struct Curl_easy * data)
 	/* since the URL may have been redirected in a previous use of this handle */
 	if(data->change.url_alloc) {
 		/* the already set URL is allocated, free it first! */
-		Curl_safefree(data->change.url);
+		ZFREE(data->change.url);
 		data->change.url_alloc = FALSE;
 	}
 	if(!data->change.url && data->set.uh) {
@@ -1389,7 +1389,7 @@ CURLcode FASTCALL Curl_pretransfer(struct Curl_easy * data)
 	data->state.authproblem = FALSE;
 	data->state.authhost.want = data->set.httpauth;
 	data->state.authproxy.want = data->set.proxyauth;
-	Curl_safefree(data->info.wouldredirect);
+	ZFREE(data->info.wouldredirect);
 	if(data->state.httpreq == HTTPREQ_PUT)
 		data->state.infilesize = data->set.filesize;
 	else if((data->state.httpreq != HTTPREQ_GET) && (data->state.httpreq != HTTPREQ_HEAD)) {
@@ -1502,7 +1502,7 @@ CURLcode Curl_follow(struct Curl_easy * data,
 				   not be 100% correct */
 
 				if(data->change.referer_alloc) {
-					Curl_safefree(data->change.referer);
+					ZFREE(data->change.referer);
 					data->change.referer_alloc = FALSE;
 				}
 
@@ -1554,7 +1554,7 @@ CURLcode Curl_follow(struct Curl_easy * data,
 		data->state.allow_port = FALSE;
 
 	if(data->change.url_alloc)
-		Curl_safefree(data->change.url);
+		ZFREE(data->change.url);
 
 	data->change.url = newurl;
 	data->change.url_alloc = TRUE;
@@ -1736,7 +1736,7 @@ CURLcode Curl_retry_request(struct connectdata * conn,
 			if(data->req.writebytecount) {
 				CURLcode result = Curl_readrewind(conn);
 				if(result) {
-					Curl_safefree(*url);
+					ZFREE(*url);
 					return result;
 				}
 			}

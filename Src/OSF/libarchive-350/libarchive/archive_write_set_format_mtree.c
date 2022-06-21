@@ -367,7 +367,7 @@ static void mtree_indent(struct mtree_writer * mtree)
 		archive_strcat(&mtree->buf, s);
 		s += strlen(s);
 	}
-	if(x != NULL && pd + strlen(s) > MAXLINELEN - 3 - INDENTNAMELEN) {
+	if(x && pd + strlen(s) > MAXLINELEN - 3 - INDENTNAMELEN) {
 		/* Last keyword is longer. */
 		archive_strncat(&mtree->buf, s, x - s);
 		archive_strncat(&mtree->buf, " \\\n", 3);
@@ -505,7 +505,7 @@ static void write_global(struct mtree_writer * mtree)
 static struct attr_counter * attr_counter_new(struct mtree_entry * me, struct attr_counter * prev)                               
 {
 	struct attr_counter * ac = static_cast<struct attr_counter *>(SAlloc::M(sizeof(*ac)));
-	if(ac != NULL) {
+	if(ac) {
 		ac->prev = prev;
 		ac->next = NULL;
 		ac->count = 1;
@@ -520,7 +520,7 @@ static void attr_counter_free(struct attr_counter ** top)
 	if(*top == NULL)
 		return;
 	ac = *top;
-	while(ac != NULL) {
+	while(ac) {
 		tac = ac->next;
 		SAlloc::F(ac);
 		ac = tac;
@@ -531,7 +531,7 @@ static void attr_counter_free(struct attr_counter ** top)
 static int attr_counter_inc(struct attr_counter ** top, struct attr_counter * ac, struct attr_counter * last, struct mtree_entry * me)
 {
 	struct attr_counter * pac;
-	if(ac != NULL) {
+	if(ac) {
 		ac->count++;
 		if(*top == ac || ac->prev->count >= ac->count)
 			return 0;
@@ -540,13 +540,13 @@ static int attr_counter_inc(struct attr_counter ** top, struct attr_counter * ac
 				break;
 		}
 		ac->prev->next = ac->next;
-		if(ac->next != NULL)
+		if(ac->next)
 			ac->next->prev = ac->prev;
-		if(pac != NULL) {
+		if(pac) {
 			ac->prev = pac;
 			ac->next = pac->next;
 			pac->next = ac;
-			if(ac->next != NULL)
+			if(ac->next)
 				ac->next->prev = ac;
 		}
 		else {
@@ -1062,7 +1062,7 @@ static int write_mtree_entry_tree(struct archive_write * a)
 		}
 		mtree->depth--;
 
-		if(np->dir_info->children.first != NULL) {
+		if(np->dir_info->children.first) {
 			/*
 			 * Descend the tree.
 			 */
@@ -1130,26 +1130,21 @@ static int archive_write_mtree_close(struct archive_write * a)
 {
 	struct mtree_writer * mtree = static_cast<struct mtree_writer *>(a->format_data);
 	int ret;
-
-	if(mtree->root != NULL) {
+	if(mtree->root) {
 		ret = write_mtree_entry_tree(a);
 		if(ret != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
 	}
-
 	archive_write_set_bytes_in_last_block(&a->archive, 1);
-
 	return __archive_write_output(a, mtree->buf.s, mtree->buf.length);
 }
 
 static ssize_t archive_write_mtree_data(struct archive_write * a, const void * buff, size_t n)
 {
 	struct mtree_writer * mtree = static_cast<struct mtree_writer *>(a->format_data);
-
 	if(n > mtree->entry_bytes_remaining)
 		n = (size_t)mtree->entry_bytes_remaining;
 	mtree->entry_bytes_remaining -= n;
-
 	/* We don't need to compute a regular file sum */
 	if(mtree->mtree_entry == NULL)
 		return (n);
@@ -1270,7 +1265,7 @@ static int archive_write_mtree_options(struct archive_write * a, const char * ke
 		    break;
 	}
 	if(keybit != 0) {
-		if(value != NULL)
+		if(value)
 			mtree->keys |= keybit;
 		else
 			mtree->keys &= ~keybit;
@@ -1835,9 +1830,8 @@ static void mtree_entry_register_init(struct mtree_writer * mtree)
 static void mtree_entry_register_free(struct mtree_writer * mtree)
 {
 	struct mtree_entry * file, * file_next;
-
 	file = mtree->file_list.first;
-	while(file != NULL) {
+	while(file) {
 		file_next = file->next;
 		mtree_entry_free(file);
 		file = file_next;
@@ -1898,7 +1892,7 @@ static int mtree_entry_tree_add(struct archive_write * a, struct mtree_entry ** 
 	struct mtree_entry * file = *filep;
 	if(file->parentdir.length == 0 && file->basename.length == 1 && file->basename.s[0] == '.') {
 		file->parent = file;
-		if(mtree->root != NULL) {
+		if(mtree->root) {
 			np = mtree->root;
 			goto same_entry;
 		}
@@ -1937,7 +1931,7 @@ static int mtree_entry_tree_add(struct archive_write * a, struct mtree_entry ** 
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "A name buffer is too small");
 			return ARCHIVE_FATAL;
 		}
-		if(l == 1 && name[0] == '.' && dent != NULL && dent == mtree->root) {
+		if(l == 1 && name[0] == '.' && dent && dent == mtree->root) {
 			fn += l;
 			if(fn[0] == '/')
 				fn++;

@@ -1277,41 +1277,39 @@ FT_New_Memory_Face(FT_Library library,
 
 #ifdef FT_CONFIG_OPTION_MAC_FONTS
 
-/* The behavior here is very similar to that in base/ftmac.c, but it     */
-/* is designed to work on non-mac systems, so no mac specific calls.     */
-/*                                    */
-/* We look at the file and determine if it is a mac dfont file or a mac  */
-/* resource file, or a macbinary file containing a mac resource file.    */
-/*                                    */
-/* Unlike ftmac I'm not going to look at a `FOND'.  I don't really see   */
-/* the point, especially since there may be multiple `FOND' resources.   */
-/* Instead I'll just look for `sfnt' and `POST' resources, ordered as    */
-/* they occur in the file.                            */
-/*                                    */
-/* Note that multiple `POST' resources do not mean multiple postscript   */
-/* fonts; they all get jammed together to make what is essentially a     */
-/* pfb file.                                          */
-/*                                    */
-/* We aren't interested in `NFNT' or `FONT' bitmap resources.      */
-/*                                    */
-/* As soon as we get an `sfnt' load it into memory and pass it off to    */
-/* FT_Open_Face.                                      */
-/*                                    */
-/* If we have a (set of) `POST' resources, massage them into a (memory)  */
-/* pfb file and pass that to FT_Open_Face.  (As with ftmac.c I'm not     */
-/* going to try to save the kerning info.  After all that lives in the   */
-/* `FOND' which isn't in the file containing the `POST' resources so     */
-/* we don't really have access to it.                 */
-
-/* Finalizer for a memory stream; gets called by FT_Done_Face(). */
-/* It frees the memory it uses.               */
-/* From `ftmac.c'.                            */
+// The behavior here is very similar to that in base/ftmac.c, but it     
+// is designed to work on non-mac systems, so no mac specific calls.     
+//
+// We look at the file and determine if it is a mac dfont file or a mac  
+// resource file, or a macbinary file containing a mac resource file.    
+//
+// Unlike ftmac I'm not going to look at a `FOND'.  I don't really see   
+// the point, especially since there may be multiple `FOND' resources.   
+// Instead I'll just look for `sfnt' and `POST' resources, ordered as    
+// they occur in the file.                            
+//
+// Note that multiple `POST' resources do not mean multiple postscript   
+// fonts; they all get jammed together to make what is essentially a     
+// pfb file.                                          
+//
+// We aren't interested in `NFNT' or `FONT' bitmap resources.      
+//
+// As soon as we get an `sfnt' load it into memory and pass it off to    
+// FT_Open_Face.                                      
+//
+// If we have a (set of) `POST' resources, massage them into a (memory)  
+// pfb file and pass that to FT_Open_Face.  (As with ftmac.c I'm not     
+// going to try to save the kerning info.  After all that lives in the   
+// `FOND' which isn't in the file containing the `POST' resources so     
+// we don't really have access to it.                 
+//
+// Finalizer for a memory stream; gets called by FT_Done_Face(). 
+// It frees the memory it uses.               
+// From `ftmac.c'.                            
 static void memory_stream_close(FT_Stream stream)
 {
 	FT_Memory memory = stream->memory;
-
 	FT_FREE(stream->base);
-
 	stream->size  = 0;
 	stream->base  = NULL;
 	stream->close = NULL;
@@ -1328,24 +1326,17 @@ static FT_Error new_memory_stream(FT_Library library,
 	FT_Error error;
 	FT_Memory memory;
 	FT_Stream stream = NULL;
-
 	if(!library)
 		return FT_THROW(Invalid_Library_Handle);
-
 	if(!base)
 		return FT_THROW(Invalid_Argument);
-
 	*astream = NULL;
 	memory = library->memory;
 	if(FT_NEW(stream))
 		goto Exit;
-
 	FT_Stream_OpenMemory(stream, base, size);
-
 	stream->close = close;
-
 	*astream = stream;
-
 Exit:
 	return error;
 }

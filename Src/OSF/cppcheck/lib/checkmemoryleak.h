@@ -6,21 +6,9 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//---------------------------------------------------------------------------
 #ifndef checkmemoryleakH
 #define checkmemoryleakH
-//---------------------------------------------------------------------------
-
 /**
  * @file
  *
@@ -31,14 +19,6 @@
  * - CheckMemoryLeakInClass can detect when a class variable is allocated but not deallocated properly.
  * - CheckMemoryLeakStructMember checks allocation/deallocation of structs and struct members
  */
-
-#include "check.h"
-#include "cppcheck-config.h"
-#include "errortypes.h"
-#include "tokenize.h"
-#include <list>
-#include <string>
-
 class Function;
 class Scope;
 class Settings;
@@ -251,23 +231,18 @@ public:
 
 private:
 	void variable(const Scope * scope, const Token * tokVarname);
-
 	/** Public functions: possible double-allocation */
 	void checkPublicFunctions(const Scope * scope, const Token * classtok);
 	void publicAllocationError(const Token * tok, const std::string &varname);
-
 	void unsafeClassError(const Token * tok, const std::string &classname, const std::string &varname);
-
 	void getErrorMessages(ErrorLogger * e, const Settings * settings) const override {
 		CheckMemoryLeakInClass c(nullptr, settings, e);
 		c.publicAllocationError(nullptr, "varname");
 		c.unsafeClassError(nullptr, "class", "class::varname");
 	}
-
 	static std::string myName() {
 		return "Memory leaks (class variables)";
 	}
-
 	std::string classInfo() const override {
 		return "If the constructor allocate memory then the destructor must deallocate it.\n";
 	}
@@ -370,5 +345,4 @@ private:
 };
 
 /// @}
-//---------------------------------------------------------------------------
 #endif // checkmemoryleakH

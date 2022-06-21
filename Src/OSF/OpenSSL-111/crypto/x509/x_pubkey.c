@@ -105,7 +105,7 @@ error:
 static int x509_pubkey_decode(EVP_PKEY ** ppkey, X509_PUBKEY * key)
 {
 	EVP_PKEY * pkey = EVP_PKEY_new();
-	if(pkey == NULL) {
+	if(!pkey) {
 		X509err(X509_F_X509_PUBKEY_DECODE, ERR_R_MALLOC_FAILURE);
 		return -1;
 	}

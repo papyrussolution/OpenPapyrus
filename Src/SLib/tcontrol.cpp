@@ -623,11 +623,12 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				const uint prev_len = Data.Len();
 				Implement_GetText();
 				if(Data.Len() == (prev_len+1)) {
+					InlSt |= stSerialized; // @SevaSob @v11.4.02
 					if(InlSt & stSerialized)
 						Stat.CheckIn();
 					else if(prev_len == 0) {
-						InlSt |= stSerialized;
 						Stat.Z().CheckIn();
+						//InlSt |= stSerialized; @SevaSob @v11.4.02
 					}
 				}
 				else {

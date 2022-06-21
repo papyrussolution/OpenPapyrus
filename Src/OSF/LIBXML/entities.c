@@ -421,7 +421,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, 
 		return 0;
 	}
 	out = buffer;
-	while(*cur != '\0') {
+	while(*cur) {
 		size_t indx = out - buffer;
 		if(indx + 100 > buffer_size) {
 			growBufferReentrant();
@@ -644,7 +644,7 @@ xmlChar * xmlEncodeSpecialChars(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlCh
 		return 0;
 	}
 	out = buffer;
-	while(*cur != '\0') {
+	while(*cur) {
 		size_t indx = out - buffer;
 		if(indx + 10 > buffer_size) {
 			growBufferReentrant();
@@ -800,7 +800,7 @@ static void xmlDumpEntityContent(xmlBuffer * buf, const xmlChar * content)
 			const xmlChar * cur;
 			xmlBufferCCat(buf, "\"");
 			base = cur = content;
-			while(*cur != 0) {
+			while(*cur) {
 				if(*cur == '"') {
 					if(base != cur)
 						xmlBufferAdd(buf, base, cur - base);

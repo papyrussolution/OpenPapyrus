@@ -1927,7 +1927,7 @@
 #define cmPeriodReset            1189 // @v11.2.4 Кнопка сброса периода в календарях
 #define cmTree                   1190 // @v11.2.11 Кнопка для просмотра древовидной структуры объекта (пока для товарных структур)
 #define cmSelectProcessors       1191 // @v11.3.4  Кнопка выбора списка процессоров
-#define cmToggleAllOrOwnOnly     1192 // @v11.4.1  Переключение отображения все/только свои (пока для товарных корзин) 
+#define cmToggleAllOrOwnOnly     1192 // @v11.4.1  Переключение отображения все/только свои (пока для товарных корзин)
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -10985,11 +10985,15 @@
 #define DLG_MOBCLEDT              1366
 	#define cmSelectDlZone            101
 	#define cmSelectDlField           102
+	#define cmFormat                  103
 	#define CTL_MOBCLEDT_Z            (1 + WINDOWS_ID_BIAS)
 	#define CTL_MOBCLEDT_FN           (2 + WINDOWS_ID_BIAS)
 	#define CTL_MOBCLEDT_TXT          (3 + WINDOWS_ID_BIAS)
 	#define CTL_MOBCLEDT_AGGR         (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MOBCLEDT_AGGR      (5 + WINDOWS_ID_BIAS)
+	#define CTL_MOBCLEDT_TYPE         (6 + WINDOWS_ID_BIAS)
+	#define CTL_MOBCLEDT_FMT          (7 + WINDOWS_ID_BIAS)
+	#define CTL_MOBCLEDT_FMTBUT       (8 + WINDOWS_ID_BIAS)
 #define DLG_TESTVETIS             1367
 	#define CTL_TESTVETIS_INFO        (1 + WINDOWS_ID_BIAS)
 	#define CTL_TESTVETIS_FLAGS       (2 + WINDOWS_ID_BIAS)
@@ -11324,6 +11328,23 @@
 	#define CTL_STQIDXCPARAM_FLAGS           (5  + WINDOWS_ID_BIAS)
 	#define CTL_STQIDXCPARAM_PSNK            (6  + WINDOWS_ID_BIAS)
 	#define CTLSEL_STQIDXCPARAM_PSNK         (7  + WINDOWS_ID_BIAS)
+#define DLG_FMTREAL               1414
+	#define CTL_FMTREAL_PREC                 (1  + WINDOWS_ID_BIAS)
+	#define CTL_FMTREAL_FLAGS                (5  + WINDOWS_ID_BIAS)
+#define DLG_FMTDATE               1415
+	#define CTL_FMTDATE_F                    (1  + WINDOWS_ID_BIAS)
+	#define CTLSEL_FMTDATE_F                 (2  + WINDOWS_ID_BIAS)
+	#define CTLSEL_FMTDATE_FLAGS             (5  + WINDOWS_ID_BIAS)
+#define DLG_FMTTIME               1416
+	#define CTL_FMTTIME_F                    (1  + WINDOWS_ID_BIAS)
+	#define CTLSEL_FMTTIME_F                 (2  + WINDOWS_ID_BIAS)
+	#define CTLSEL_FMTTIME_FLAGS             (3  + WINDOWS_ID_BIAS)
+#define DLG_FMTTS                 1417 // timestamp
+	#define CTL_FMTTS_DF                     (1  + WINDOWS_ID_BIAS)
+	#define CTLSEL_FMTTS_DF                  (2  + WINDOWS_ID_BIAS)
+	#define CTL_FMTTS_TF                     (3  + WINDOWS_ID_BIAS)
+	#define CTLSEL_FMTTS_TF                  (4  + WINDOWS_ID_BIAS)
+	#define CTLSEL_FMTTS_FLAGS               (5  + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

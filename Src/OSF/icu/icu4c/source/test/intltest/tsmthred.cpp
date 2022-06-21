@@ -57,21 +57,20 @@ void MultithreadTest::runIndexedTest(int32_t index, bool exec,
 #endif /* #if !UCONFIG_NO_TRANSLITERATION */
 	TESTCASE_AUTO_END;
 }
-
-//-----------------------------------------------------------------------------------
+//
 //   TestThreads -- see if threads really work at all.
 //
 //   Set up N threads pointing at N chars. When they are started, they will
 //   set their chars. At the end we make sure they are all set.
-//-----------------------------------------------------------------------------------
-
+//
 class TestThreadsThread : public SimpleThread {
 public:
-	TestThreadsThread(char * whatToChange) {
+	TestThreadsThread(char * whatToChange) 
+	{
 		fWhatToChange = whatToChange;
 	}
-
-	virtual void run() override {
+	virtual void run() override 
+	{
 		Mutex m;
 		*fWhatToChange = '*';
 	}
@@ -116,16 +115,14 @@ void MultithreadTest::TestThreads()
 		delete threads[i];
 	}
 }
-
-//-----------------------------------------------------------------------------------
+//
 //   TestArabicShapeThreads -- see if calls to u_shapeArabic in many threads works successfully
 //
 //   Set up N threads pointing at N chars. When they are started, they will make calls to doTailTest which tests
 //   u_shapeArabic, if the calls are successful it will the set * chars.
 //   At the end we make sure all threads managed to run u_shapeArabic successfully.
 //   This is a unit test for ticket 9473
-//-----------------------------------------------------------------------------------
-
+//
 class TestArabicShapeThreads : public SimpleThread {
 public:
 	TestArabicShapeThreads() 
@@ -204,11 +201,9 @@ void MultithreadTest::TestArabicShapingThreads()
 	}
 	logln("->TestArabicShapingThreads <- Got all threads! cya");
 }
-
-//-------------------------------------------------------------------------------------------
+//
 //   TestMultithreadedIntl.  Test ICU Formatting in a multi-threaded environment
-//-------------------------------------------------------------------------------------------
-
+//
 // * Show exactly where the string's differences lie.
 UnicodeString showDifference(const UnicodeString & expected, const UnicodeString & result)
 {
@@ -232,11 +227,9 @@ UnicodeString showDifference(const UnicodeString & expected, const UnicodeString
 
 	return res;
 }
-
-//-------------------------------------------------------------------------------------------
+//
 //   FormatThreadTest - a thread that tests performing a number of numberformats.
-//-------------------------------------------------------------------------------------------
-
+//
 const int kFormatThreadIterations = 100;  // # of iterations per thread
 const int kFormatThreadThreads    = 10;  // # of threads to spawn
 
@@ -644,10 +637,9 @@ void MultithreadTest::TestThreadedIntl()
 }
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
-//-------------------------------------------------------------------------------------------
+//
 // Collation threading test
-//-------------------------------------------------------------------------------------------
+//
 #if !UCONFIG_NO_COLLATION
 
 #define kCollatorThreadThreads   10  // # of threads to spawn
@@ -871,16 +863,13 @@ void MultithreadTest::TestCollators()
 }
 
 #endif /* #if !UCONFIG_NO_COLLATION */
-
-//-------------------------------------------------------------------------------------------
+//
 //   StringThreadTest2
-//-------------------------------------------------------------------------------------------
-
+//
 const int kStringThreadIterations = 2500;// # of iterations per thread
 const int kStringThreadThreads    = 10;  // # of threads to spawn
 
-class StringThreadTest2 : public SimpleThread
-{
+class StringThreadTest2 : public SimpleThread {
 public:
 	int fNum;
 	int fTraceInfo;

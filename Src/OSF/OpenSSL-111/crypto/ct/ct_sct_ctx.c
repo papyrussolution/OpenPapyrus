@@ -236,7 +236,7 @@ int SCT_CTX_set1_pubkey(SCT_CTX * sctx, X509_PUBKEY * pubkey)
 {
 	EVP_PKEY * pkey = X509_PUBKEY_get(pubkey);
 
-	if(pkey == NULL)
+	if(!pkey)
 		return 0;
 
 	if(!ct_public_key_hash(pubkey, &sctx->pkeyhash, &sctx->pkeyhashlen)) {

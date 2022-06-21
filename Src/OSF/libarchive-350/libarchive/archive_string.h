@@ -19,16 +19,6 @@
 		#error This header is only to be used internally to libarchive.
 	#endif
 #endif
-//#include <stdarg.h>
-//#ifdef HAVE_STDLIB_H
-	//#include <stdlib.h>  /* required for wchar_t on some systems */
-//#endif
-//#ifdef HAVE_STRING_H
-	//#include <string.h>
-//#endif
-//#ifdef HAVE_WCHAR_H
-	//#include <wchar.h>
-//#endif
 #include "archive.h"
 /*
  * Basic resizable/reusable string support similar to Java's "StringBuffer."

@@ -601,7 +601,7 @@ static int SSL_CTX_use_PrivateKey_bio(SSL_CTX * ctx, BIO* in, int type,
 		ret = 0;
 		goto end;
 	}
-	if(pkey == NULL) {
+	if(!pkey) {
 		ret = 0;
 		goto end;
 	}

@@ -268,24 +268,18 @@ int main(int argc, char * argv[])
 	options[MODE].value = "common";
 	/* read command line options */
 	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
-
 	/* error handling, printing usage message */
 	/* I've decided to simply print an error and quit. This tool has too
 	   many options to just display them all of the time. */
-
 	if(options[HELP].doesOccur || options[HELP_QUESTION_MARK].doesOccur) {
 		needsHelp = TRUE;
 	}
 	else {
 		if(!needsHelp && argc<0) {
-			fprintf(stderr,
-			    "%s: error in command line argument \"%s\"\n",
-			    progname,
-			    argv[-argc]);
+			slfprintf_stderr("%s: error in command line argument \"%s\"\n", progname, argv[-argc]);
 			slfprintf_stderr("Run '%s --help' for help.\n", progname);
 			return 1;
 		}
-
 #if !defined(WINDOWS_WITH_MSVC) || defined(USING_CYGWIN)
 		if(!options[BLDOPT].doesOccur && uprv_strcmp(options[MODE].value, "common") != 0) {
 			if(pkg_getPkgDataPath(options[VERBOSE].doesOccur, &options[BLDOPT]) != 0) {
@@ -299,39 +293,25 @@ int main(int argc, char * argv[])
 			fprintf(stdout, "Warning: You are using the -O option which is not needed for MSVC build on Windows.\n");
 		}
 #endif
-
 		if(!options[NAME].doesOccur) { /* -O we already have - don't report it. */
 			slfprintf_stderr(" required parameter -p is missing \n");
 			slfprintf_stderr("Run '%s --help' for help.\n", progname);
 			return 1;
 		}
-
 		if(argc == 1) {
-			fprintf(stderr,
-			    "No input files specified.\n"
-			    "Run '%s --help' for help.\n", progname);
+			slfprintf_stderr("No input files specified.\nRun '%s --help' for help.\n", progname);
 			return 1;
 		}
 	} /* end !needsHelp */
 
 	if(argc<0 || needsHelp) {
-		fprintf(stderr,
-		    "usage: %s [-options] [-] [packageFile] \n"
-		    "\tProduce packaged ICU data from the given list(s) of files.\n"
-		    "\t'-' by itself means to read from stdin.\n"
-		    "\tpackageFile is a text file containing the list of files to package.\n",
-		    progname);
-
+		slfprintf_stderr("usage: %s [-options] [-] [packageFile] \n\tProduce packaged ICU data from the given list(s) of files.\n\t'-' by itself means to read from stdin.\n"
+		    "\tpackageFile is a text file containing the list of files to package.\n", progname);
 		slfprintf_stderr("\n options:\n");
 		for(i = 0; i<UPRV_LENGTHOF(options); i++) {
-			slfprintf_stderr("%-5s -%c %s%-10s  %s\n",
-			    (i<1 ? "[REQ]" : ""),
-			    options[i].shortName,
-			    options[i].longName ? "or --" : "     ",
-			    options[i].longName ? options[i].longName : "",
-			    options_help[i]);
+			slfprintf_stderr("%-5s -%c %s%-10s  %s\n", (i<1 ? "[REQ]" : ""), options[i].shortName, options[i].longName ? "or --" : "     ",
+			    options[i].longName ? options[i].longName : "", options_help[i]);
 		}
-
 		slfprintf_stderr("modes: (-m option)\n");
 		for(i = 0; i<UPRV_LENGTHOF(modes); i++) {
 			slfprintf_stderr("   %-9s ", modes[i].name);
@@ -746,12 +726,10 @@ static int32_t pkg_executeOptions(UPKGOptions * o)
 #elif defined(BUILD_DATA_WITHOUT_ASSEMBLY)
 					result = pkg_createWithoutAssemblyCode(o, targetDir, mode);
 #else
-					fprintf(stderr,
-					    "Error- neither CAN_WRITE_OBJ_CODE nor BUILD_DATA_WITHOUT_ASSEMBLY are defined. Internal error.\n");
+					slfprintf_stderr("Error- neither CAN_WRITE_OBJ_CODE nor BUILD_DATA_WITHOUT_ASSEMBLY are defined. Internal error.\n");
 					return 1;
 #endif
 				}
-
 				if(result != 0) {
 					slfprintf_stderr("Error generating package data.\n");
 					return result;
@@ -2042,12 +2020,8 @@ static void loadLists(UPKGOptions * o, UErrorCode * status)
 						lineNext++;
 						if(*lineNext) {
 							if(*lineNext != ' ') {
-								fprintf(stderr,
-								    "%s:%d - malformed quoted line at position %d, expected ' ' got '%c'\n",
-								    l->str,
-								    (int)ln,
-								    (int)(lineNext-line),
-								    (*lineNext) ? *lineNext : '0');
+								slfprintf_stderr("%s:%d - malformed quoted line at position %d, expected ' ' got '%c'\n", l->str, (int)ln,
+								    (int)(lineNext-line), (*lineNext) ? *lineNext : '0');
 								exit(1);
 							}
 							*lineNext = 0;
@@ -2062,21 +2036,16 @@ static void loadLists(UPKGOptions * o, UErrorCode * status)
 						lineNext++;
 					}
 				}
-
                                 /* add the file */
 				s = (char *)getLongPathname(linePtr);
-
                                 /* normal mode.. o->files is just the bare list without package names */
 				o->files = pkg_appendToList(o->files, &tail, uprv_strdup(linePtr));
 				if(uprv_pathIsAbsolute(s) || s[0] == '.') {
-					fprintf(stderr,
-					    "pkgdata: Error: absolute path encountered. Old style paths are not supported. Use relative paths such as 'fur.res' or 'translit%cfur.res'.\n\tBad path: '%s'\n",
-					    U_FILE_SEP_CHAR,
-					    s);
+					slfprintf_stderr("pkgdata: Error: absolute path encountered. Old style paths are not supported. Use relative paths such as 'fur.res' or 'translit%cfur.res'.\n\tBad path: '%s'\n",
+					    U_FILE_SEP_CHAR, s);
 					exit(U_ILLEGAL_ARGUMENT_ERROR);
 				}
-                                /* The +5 is to add a little extra space for, among other things,
-                                   PKGDATA_FILE_SEP_STRING */
+				/* The +5 is to add a little extra space for, among other things, PKGDATA_FILE_SEP_STRING */
 				tmpLength = static_cast<int32_t>(uprv_strlen(o->srcDir) + uprv_strlen(s) + 5);
 				if((tmp = (char *)uprv_malloc(tmpLength)) == NULL) {
 					slfprintf_stderr("pkgdata: Error: Unable to allocate tmp buffer size: %d\n", tmpLength);
@@ -2144,25 +2113,18 @@ static int32_t pkg_getPkgDataPath(bool verbose, UOption * option) {
 			break;
 		}
 	}
-
 	if(!*buf) {
-		fprintf(stderr,
-		    "%s: Unable to locate pkgdata.inc. Unable to parse the results of '%s'. Check paths or use the -O option to specify the path to pkgdata.inc.\n",
-		    progname,
-		    pkgconfigIsValid ? pkgconfigCmd : icuconfigCmd);
+		slfprintf_stderr("%s: Unable to locate pkgdata.inc. Unable to parse the results of '%s'. Check paths or use the -O option to specify the path to pkgdata.inc.\n",
+		    progname, pkgconfigIsValid ? pkgconfigCmd : icuconfigCmd);
 		return -1;
 	}
-
 	if(pkgconfigIsValid) {
 		uprv_strcat(buf, U_FILE_SEP_STRING);
 		uprv_strcat(buf, pkgdata);
 	}
-
 	buf[strlen(buf)] = 0;
-
 	option->value = buf;
 	option->doesOccur = TRUE;
-
 	return 0;
 #else
 	return -1;

@@ -257,7 +257,7 @@ int tls_parse_ctos_ec_pt_formats(SSL * s, PACKET * pkt, uint context,
 	return 1;
 }
 
-#endif                          /* OPENSSL_NO_EC */
+#endif /* OPENSSL_NO_EC */
 
 int tls_parse_ctos_session_ticket(SSL * s, PACKET * pkt, uint context,
     X509 * x, size_t chainidx)

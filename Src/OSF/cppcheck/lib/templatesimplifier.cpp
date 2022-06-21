@@ -10,14 +10,6 @@
 #include "cppcheck-internal.h"
 #pragma hdrstop
 #include "templatesimplifier.h"
-#include "errorlogger.h"
-#include "errortypes.h"
-#include "mathlib.h"
-#include "settings.h"
-#include "standards.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
 
 static Token * skipRequires(Token * tok)
 {

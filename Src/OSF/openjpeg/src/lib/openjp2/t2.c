@@ -657,33 +657,24 @@ static boolint opj_t2_encode_packet(uint32_t tileno,
 	opj_tcd_band_t * band = 0;
 	opj_tcd_cblk_enc_t* cblk = 0;
 	opj_tcd_pass_t * pass = 0;
-
 	opj_tcd_tilecomp_t * tilec = &tile->comps[compno];
 	opj_tcd_resolution_t * res = &tilec->resolutions[resno];
-
 	opj_bio_t * bio = 0; /* BIO component */
 #ifdef ENABLE_EMPTY_PACKET_OPTIMIZATION
 	boolint packet_empty = TRUE;
 #else
 	boolint packet_empty = FALSE;
 #endif
-
 #ifdef DEBUG_VERBOSE
 	if(p_t2_mode == FINAL_PASS) {
-		fprintf(stderr,
-		    "encode packet compono=%d, resno=%d, precno=%d, layno=%d\n",
-		    compno, resno, precno, layno);
+		fprintf(stderr, "encode packet compono=%d, resno=%d, precno=%d, layno=%d\n", compno, resno, precno, layno);
 	}
 #endif
-
 	/* <SOP 0xff91> */
 	if(tcp->csty & J2K_CP_CSTY_SOP) {
 		if(length < 6) {
 			if(p_t2_mode == FINAL_PASS) {
-				opj_event_msg(p_manager, EVT_ERROR,
-				    "opj_t2_encode_packet(): only %u bytes remaining in "
-				    "output buffer. %u needed.\n",
-				    length, 6);
+				opj_event_msg(p_manager, EVT_ERROR, "opj_t2_encode_packet(): only %u bytes remaining in output buffer. %u needed.\n", length, 6);
 			}
 			return FALSE;
 		}

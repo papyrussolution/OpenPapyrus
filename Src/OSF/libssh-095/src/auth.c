@@ -141,7 +141,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_banner)
 	}
 	else {
 		SSH_LOG(SSH_LOG_DEBUG, "Received SSH_USERAUTH_BANNER packet");
-		if(session->banner != NULL)
+		if(session->banner)
 			SSH_STRING_FREE(session->banner);
 		session->banner = banner;
 	}
@@ -179,19 +179,19 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_failure)
 		SSH_LOG(SSH_LOG_INFO, "%s", ssh_get_error(session));
 	}
 	session->auth.supported_methods = 0;
-	if(strstr(auth_methods, "password") != NULL) {
+	if(strstr(auth_methods, "password")) {
 		session->auth.supported_methods |= SSH_AUTH_METHOD_PASSWORD;
 	}
-	if(strstr(auth_methods, "keyboard-interactive") != NULL) {
+	if(strstr(auth_methods, "keyboard-interactive")) {
 		session->auth.supported_methods |= SSH_AUTH_METHOD_INTERACTIVE;
 	}
-	if(strstr(auth_methods, "publickey") != NULL) {
+	if(strstr(auth_methods, "publickey")) {
 		session->auth.supported_methods |= SSH_AUTH_METHOD_PUBLICKEY;
 	}
-	if(strstr(auth_methods, "hostbased") != NULL) {
+	if(strstr(auth_methods, "hostbased")) {
 		session->auth.supported_methods |= SSH_AUTH_METHOD_HOSTBASED;
 	}
-	if(strstr(auth_methods, "gssapi-with-mic") != NULL) {
+	if(strstr(auth_methods, "gssapi-with-mic")) {
 		session->auth.supported_methods |= SSH_AUTH_METHOD_GSSAPI_MIC;
 	}
 
@@ -221,13 +221,12 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_success)
 	session->session_state = SSH_SESSION_STATE_AUTHENTICATED;
 	session->flags |= SSH_SESSION_FLAG_AUTHENTICATED;
 	crypto = ssh_packet_get_current_crypto(session, SSH_DIRECTION_OUT);
-	if(crypto != NULL && crypto->delayed_compress_out) {
+	if(crypto && crypto->delayed_compress_out) {
 		SSH_LOG(SSH_LOG_DEBUG, "Enabling delayed compression OUT");
 		crypto->do_compress_out = 1;
 	}
-
 	crypto = ssh_packet_get_current_crypto(session, SSH_DIRECTION_IN);
-	if(crypto != NULL && crypto->delayed_compress_in) {
+	if(crypto && crypto->delayed_compress_in) {
 		SSH_LOG(SSH_LOG_DEBUG, "Enabling delayed compression IN");
 		crypto->do_compress_in = 1;
 	}
@@ -522,7 +521,7 @@ int ssh_userauth_publickey(ssh_session session, const char * username, const ssh
 			return SSH_AUTH_ERROR;
 	}
 	/* Cert auth requires presenting the cert type name (*-cert@openssh.com) */
-	key_type = privkey->cert != NULL ? privkey->cert_type : privkey->type;
+	key_type = privkey->cert ? privkey->cert_type : privkey->type;
 	/* Check if the given public key algorithm is allowed */
 	sig_type_c = ssh_key_get_signature_algorithm(session, key_type);
 	if(sig_type_c == NULL) {
@@ -755,7 +754,7 @@ int ssh_userauth_agent(ssh_session session,
 	if(state->pubkey == NULL) {
 		return SSH_AUTH_DENIED;
 	}
-	while(state->pubkey != NULL) {
+	while(state->pubkey) {
 		if(state->state == SSH_AGENT_STATE_NONE) {
 			SSH_LOG(SSH_LOG_DEBUG, "Trying identity %s", state->comment);
 		}
@@ -895,7 +894,7 @@ int ssh_userauth_publickey_auto(ssh_session session, const char * username, cons
 		state->state = SSH_AUTH_AUTO_STATE_PUBKEY;
 	}
 	SETIFZQ(state->it, ssh_list_get_iterator(session->opts.identity));
-	while(state->it != NULL) {
+	while(state->it) {
 		const char * privkey_file = (const char *)state->it->data;
 		char pubkey_file[1024] = {0};
 		if(state->state == SSH_AUTH_AUTO_STATE_PUBKEY) {
@@ -1135,7 +1134,7 @@ void ssh_kbdint_free(ssh_kbdint kbd)
 	n = kbd->nprompts;
 	if(kbd->prompts) {
 		for(i = 0; i < n; i++) {
-			if(kbd->prompts[i] != NULL) {
+			if(kbd->prompts[i]) {
 				memzero(kbd->prompts[i], strlen(kbd->prompts[i]));
 			}
 			ZFREE(kbd->prompts[i]);
@@ -1146,7 +1145,7 @@ void ssh_kbdint_free(ssh_kbdint kbd)
 	n = kbd->nanswers;
 	if(kbd->answers) {
 		for(i = 0; i < n; i++) {
-			if(kbd->answers[i] != NULL) {
+			if(kbd->answers[i]) {
 				memzero(kbd->answers[i], strlen(kbd->answers[i]));
 			}
 			ZFREE(kbd->answers[i]);
@@ -1401,19 +1400,15 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_request)
  * @see ssh_userauth_kbdint_getprompt()
  * @see ssh_userauth_kbdint_setanswer()
  */
-int ssh_userauth_kbdint(ssh_session session, const char * user,
-    const char * submethods) {
+int ssh_userauth_kbdint(ssh_session session, const char * user, const char * submethods) 
+{
 	int rc = SSH_AUTH_ERROR;
-
 	if(!session) {
 		return SSH_AUTH_ERROR;
 	}
-
-	if((session->pending_call_state == SSH_PENDING_CALL_NONE && session->kbdint == NULL) ||
-	    session->pending_call_state == SSH_PENDING_CALL_AUTH_KBDINT_INIT)
+	if((session->pending_call_state == SSH_PENDING_CALL_NONE && session->kbdint == NULL) || session->pending_call_state == SSH_PENDING_CALL_AUTH_KBDINT_INIT)
 		rc = ssh_userauth_kbdint_init(session, user, submethods);
-	else if(session->pending_call_state == SSH_PENDING_CALL_AUTH_KBDINT_SEND ||
-	    session->kbdint != NULL) {
+	else if(session->pending_call_state == SSH_PENDING_CALL_AUTH_KBDINT_SEND || session->kbdint) {
 		/*
 		 * If we are at this point, it is because session->kbdint exists.
 		 * It means the user has set some information there we need to send

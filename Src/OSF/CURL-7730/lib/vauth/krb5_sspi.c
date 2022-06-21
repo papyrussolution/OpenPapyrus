@@ -522,8 +522,8 @@ void Curl_auth_cleanup_gssapi(struct kerberos5data * krb5)
 	krb5->p_identity = NULL;
 
 	/* Free the SPN and output token */
-	Curl_safefree(krb5->spn);
-	Curl_safefree(krb5->output_token);
+	ZFREE(krb5->spn);
+	ZFREE(krb5->output_token);
 
 	/* Reset any variables */
 	krb5->token_max = 0;

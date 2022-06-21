@@ -12,7 +12,7 @@
 #include <openssl/bn.h>
 //#include <limits.h>
 
-BIGNUM * bn_wexpand(BIGNUM *a, int words);
+BIGNUM * FASTCALL bn_wexpand(BIGNUM *a, int words);
 BIGNUM * FASTCALL bn_expand2(BIGNUM *a, int words);
 void bn_correct_top(BIGNUM *a);
 /*

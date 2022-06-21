@@ -171,10 +171,10 @@ int i2d_SSL_SESSION(SSL_SESSION * in, uchar ** pp)
 	ssl_session_sinit(&as.psk_identity_hint, &psk_identity_hint,
 	    in->psk_identity_hint);
 	ssl_session_sinit(&as.psk_identity, &psk_identity, in->psk_identity);
-#endif                          /* OPENSSL_NO_PSK */
+#endif /* OPENSSL_NO_PSK */
 #ifndef OPENSSL_NO_SRP
 	ssl_session_sinit(&as.srp_username, &srp_username, in->srp_username);
-#endif                          /* OPENSSL_NO_SRP */
+#endif /* OPENSSL_NO_SRP */
 
 	as.flags = in->flags;
 	as.max_early_data = in->ext.max_early_data;
@@ -346,7 +346,7 @@ SSL_SESSION * d2i_SSL_SESSION(SSL_SESSION ** a, const uchar ** pp,
 #ifndef OPENSSL_NO_SRP
 	if(!ssl_session_strndup(&ret->srp_username, as->srp_username))
 		goto err;
-#endif                          /* OPENSSL_NO_SRP */
+#endif /* OPENSSL_NO_SRP */
 	/* Flags defaults to zero which is fine */
 	ret->flags = (int32_t)as->flags;
 	ret->ext.max_early_data = as->max_early_data;

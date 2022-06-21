@@ -6,42 +6,14 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//---------------------------------------------------------------------------
 #ifndef errorloggerH
 #define errorloggerH
-//---------------------------------------------------------------------------
 
-#include "cppcheck-config.h"
+//#include "cppcheck-config.h"
 #include "errortypes.h"
 #include "suppressions.h"
 #include "color.h"
-
-#include <cstddef>
-#include <fstream>
-#include <list>
-#include <string>
-#include <vector>
-
-/**
- * CWE id (Common Weakness Enumeration)
- * See https://cwe.mitre.org/ for further reference.
- * */
-// CWE list: https://cwe.mitre.org/data/published/cwe_v3.4.1.pdf
-static const struct CWE CWE_USE_OF_UNINITIALIZED_VARIABLE(457U);
-static const struct CWE CWE_NULL_POINTER_DEREFERENCE(476U);
-static const struct CWE CWE_USE_OF_POTENTIALLY_DANGEROUS_FUNCTION(676U);
-static const struct CWE CWE_INCORRECT_CALCULATION(682U);
-static const struct CWE CWE_EXPIRED_POINTER_DEREFERENCE(825U);
 
 class Token;
 class TokenList;

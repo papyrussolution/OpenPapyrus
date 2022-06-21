@@ -10,13 +10,8 @@
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
 #include "cmdlineparser.h"
-#include "errortypes.h"
-#include "platform.h"
 #include "redirect.h"
-#include "settings.h"
-#include "standards.h"
 #include "suppressions.h"
-#include "testsuite.h"
 #include "timer.h"
 
 class TestCmdlineParser : public TestFixture {

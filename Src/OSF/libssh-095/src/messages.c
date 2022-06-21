@@ -132,7 +132,7 @@ static int ssh_execute_server_request(ssh_session session, ssh_message msg)
 			ssh_callbacks_exists(session->server_callbacks, channel_open_request_session_function)) {
 			    channel = session->server_callbacks->channel_open_request_session_function(session,
 				    session->server_callbacks->userdata);
-			    if(channel != NULL) {
+			    if(channel) {
 				    rc = ssh_message_channel_request_open_reply_accept_channel(msg, channel);
 				    if(rc != SSH_OK) {
 					    SSH_LOG(SSH_LOG_WARNING,
@@ -317,7 +317,7 @@ static int ssh_execute_client_request(ssh_session session, ssh_message msg)
 			msg->channel_request_open.originator,
 			msg->channel_request_open.originator_port,
 			session->common.callbacks->userdata);
-		if(channel != NULL) {
+		if(channel) {
 			rc = ssh_message_channel_request_open_reply_accept_channel(msg, channel);
 
 			return rc;
@@ -333,19 +333,15 @@ static int ssh_execute_client_request(ssh_session session, ssh_message msg)
 	 && ssh_callbacks_exists(session->common.callbacks, channel_open_request_auth_agent_function)) {
 		channel = session->common.callbacks->channel_open_request_auth_agent_function(session,
 			session->common.callbacks->userdata);
-
-		if(channel != NULL) {
+		if(channel) {
 			rc = ssh_message_channel_request_open_reply_accept_channel(msg, channel);
-
 			return rc;
 		}
 		else {
 			ssh_message_reply_default(msg);
 		}
-
 		return SSH_OK;
 	}
-
 	return rc;
 }
 
@@ -354,27 +350,26 @@ static int ssh_execute_client_request(ssh_session session, ssh_message msg)
  * I don't like ssh_message interface but it works.
  * @returns SSH_OK if the message has been handled, or SSH_AGAIN otherwise.
  */
-static int ssh_execute_server_callbacks(ssh_session session, ssh_message msg){
+static int ssh_execute_server_callbacks(ssh_session session, ssh_message msg)
+{
 	int rc = SSH_AGAIN;
-
-	if(session->server_callbacks != NULL) {
+	if(session->server_callbacks) {
 		rc = ssh_execute_server_request(session, msg);
 	}
-	else if(session->common.callbacks != NULL) {
+	else if(session->common.callbacks) {
 		/* This one is in fact a client callback... */
 		rc = ssh_execute_client_request(session, msg);
 	}
-
 	return rc;
 }
 
 #endif /* WITH_SERVER */
 
-static int ssh_execute_message_callback(ssh_session session, ssh_message msg) {
+static int ssh_execute_message_callback(ssh_session session, ssh_message msg) 
+{
 	int ret;
-	if(session->ssh_message_callback != NULL) {
-		ret = session->ssh_message_callback(session, msg,
-			session->ssh_message_callback_data);
+	if(session->ssh_message_callback) {
+		ret = session->ssh_message_callback(session, msg, session->ssh_message_callback_data);
 		if(ret == 1) {
 			ret = ssh_message_reply_default(msg);
 			SSH_MESSAGE_FREE(msg);
@@ -426,14 +421,12 @@ static void ssh_message_queue(ssh_session session, ssh_message message)
 		return;
 	}
 #endif /* WITH_SERVER */
-
-	if(session->ssh_message_callback != NULL) {
+	if(session->ssh_message_callback) {
 		/* This will transfer the message, do not free. */
 		ssh_execute_message_callback(session, message);
 		return;
 	}
-
-	if(session->server_callbacks != NULL) {
+	if(session->server_callbacks) {
 		/* if we have server callbacks, but nothing was executed, it means we are
 		 * in non-synchronous mode, and we just don't care about the message we
 		 * received. Just send a default response. Do not queue it.
@@ -471,13 +464,14 @@ static void ssh_message_queue(ssh_session session, ssh_message message)
  *
  * @returns             The head message or NULL if it doesn't exist.
  */
-ssh_message ssh_message_pop_head(ssh_session session){
+ssh_message ssh_message_pop_head(ssh_session session)
+{
 	ssh_message msg = NULL;
 	struct ssh_iterator * i;
 	if(session->ssh_message_list == NULL)
 		return NULL;
 	i = ssh_list_get_iterator(session->ssh_message_list);
-	if(i != NULL) {
+	if(i) {
 		msg = ssh_iterator_value(ssh_message, i);
 		ssh_list_remove(session->ssh_message_list, i);
 	}
@@ -903,7 +897,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response)
 	ssh_message msg = NULL;
 	/* GSSAPI_TOKEN has same packed number. XXX fix this */
 #ifdef WITH_GSSAPI
-	if(session->gssapi != NULL) {
+	if(session->gssapi) {
 		return ssh_packet_userauth_gssapi_token(session, type, packet, user);
 	}
 #endif
@@ -935,7 +929,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response)
 			goto error;
 		}
 	}
-	else if(session->kbdint->answers != NULL) {
+	else if(session->kbdint->answers) {
 		for(uint32_t n = 0; n < session->kbdint->nanswers; n++) {
 			memzero(session->kbdint->answers[n], strlen(session->kbdint->answers[n]));
 			ZFREE(session->kbdint->answers[n]);

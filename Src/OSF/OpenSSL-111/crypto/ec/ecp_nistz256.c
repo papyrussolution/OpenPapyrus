@@ -1429,26 +1429,17 @@ static int ecp_nistz256_window_have_precompute_mult(const EC_GROUP * group)
 		/* There is a hard-coded table for the default generator. */
 		return 1;
 	}
-
 	return HAVEPRECOMP(group, nistz256);
 }
 
-#if defined(__x86_64) || defined(__x86_64__) || \
-	defined(_M_AMD64) || defined(_M_X64) || \
-	defined(__powerpc64__) || defined(_ARCH_PP64) || \
-	defined(__aarch64__)
+#if defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64) || defined(__powerpc64__) || defined(_ARCH_PP64) || defined(__aarch64__)
 /*
  * Montgomery mul modulo Order(P): res = a*b*2^-256 mod Order(P)
  */
-void ecp_nistz256_ord_mul_mont(BN_ULONG res[P256_LIMBS],
-    const BN_ULONG a[P256_LIMBS],
-    const BN_ULONG b[P256_LIMBS]);
-void ecp_nistz256_ord_sqr_mont(BN_ULONG res[P256_LIMBS],
-    const BN_ULONG a[P256_LIMBS],
-    int rep);
+extern "C" void ecp_nistz256_ord_mul_mont(BN_ULONG res[P256_LIMBS], const BN_ULONG a[P256_LIMBS], const BN_ULONG b[P256_LIMBS]);
+extern "C" void ecp_nistz256_ord_sqr_mont(BN_ULONG res[P256_LIMBS], const BN_ULONG a[P256_LIMBS], int rep);
 
-static int ecp_nistz256_inv_mod_ord(const EC_GROUP * group, BIGNUM * r,
-    const BIGNUM * x, BN_CTX * ctx)
+static int ecp_nistz256_inv_mod_ord(const EC_GROUP * group, BIGNUM * r, const BIGNUM * x, BN_CTX * ctx)
 {
 	/* RR = 2^512 mod ord(p256) */
 	static const BN_ULONG RR[P256_LIMBS]  = {

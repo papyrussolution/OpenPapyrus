@@ -727,7 +727,7 @@ static int parse_mechlist_file(const char * mechlistfile)
 	while(fgets(buf, sizeof(buf), f) != NULL) {
 		mechanism_t * n = (mechanism_t *)sasl_ALLOC(sizeof(mechanism_t));
 		sasl_server_plug_t * nplug;
-		if(n == NULL) {
+		if(!n) {
 			r = SASL_NOMEM; break;
 		}
 		n->m.version = SASL_SERVER_PLUG_VERSION;

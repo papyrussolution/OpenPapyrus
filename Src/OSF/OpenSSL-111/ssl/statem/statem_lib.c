@@ -297,7 +297,7 @@ MSG_PROCESS_RETURN tls_process_cert_verify(SSL * s, PACKET * pkt)
 
 	peer = s->session->peer;
 	pkey = X509_get0_pubkey(peer);
-	if(pkey == NULL) {
+	if(!pkey) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PROCESS_CERT_VERIFY, ERR_R_INTERNAL_ERROR);
 		goto err;
 	}
@@ -782,30 +782,24 @@ static int ssl_add_cert_chain(SSL * s, WPACKET * pkt, CERT_PKEY * cpk)
 	STACK_OF(X509) *extra_certs;
 	STACK_OF(X509) *chain = NULL;
 	X509_STORE * chain_store;
-
 	if(cpk == NULL || cpk->x509 == NULL)
 		return 1;
-
 	x = cpk->x509;
-
 	/*
 	 * If we have a certificate specific chain use it, else use parent ctx.
 	 */
-	if(cpk->chain != NULL)
+	if(cpk->chain)
 		extra_certs = cpk->chain;
 	else
 		extra_certs = s->ctx->extra_certs;
-
 	if((s->mode & SSL_MODE_NO_AUTO_CHAIN) || extra_certs)
 		chain_store = NULL;
 	else if(s->cert->chain_store)
 		chain_store = s->cert->chain_store;
 	else
 		chain_store = s->ctx->cert_store;
-
-	if(chain_store != NULL) {
+	if(chain_store) {
 		X509_STORE_CTX * xs_ctx = X509_STORE_CTX_new();
-
 		if(xs_ctx == NULL) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_ADD_CERT_CHAIN,
 			    ERR_R_MALLOC_FAILURE);
@@ -1375,15 +1369,12 @@ static int is_tls13_capable(const SSL * s)
 	int curve;
 	EC_KEY * eckey;
 #endif
-
 #ifndef OPENSSL_NO_PSK
-	if(s->psk_server_callback != NULL)
+	if(s->psk_server_callback)
 		return 1;
 #endif
-
-	if(s->psk_find_session_cb != NULL || s->cert->cert_cb != NULL)
+	if(s->psk_find_session_cb || s->cert->cert_cb)
 		return 1;
-
 	for(i = 0; i < SSL_PKEY_NUM; i++) {
 		/* Skip over certs disallowed for TLSv1.3 */
 		switch(i) {
@@ -1432,7 +1423,6 @@ int ssl_version_supported(const SSL * s, int version, const SSL_METHOD ** meth)
 {
 	const version_info * vent;
 	const version_info * table;
-
 	switch(s->method->version) {
 		default:
 		    /* Version should match method version for non-ANY method */
@@ -1444,17 +1434,10 @@ int ssl_version_supported(const SSL * s, int version, const SSL_METHOD ** meth)
 		    table = dtls_version_table;
 		    break;
 	}
-
-	for(vent = table;
-	    vent->version != 0 && version_cmp(s, version, vent->version) <= 0;
-	    ++vent) {
-		if(vent->cmeth != NULL
-		 && version_cmp(s, version, vent->version) == 0
-		 && ssl_method_error(s, vent->cmeth()) == 0
-		 && (!s->server
-		   || version != TLS1_3_VERSION
-		   || is_tls13_capable(s))) {
-			if(meth != NULL)
+	for(vent = table; vent->version != 0 && version_cmp(s, version, vent->version) <= 0; ++vent) {
+		if(vent->cmeth && version_cmp(s, version, vent->version) == 0 && ssl_method_error(s, vent->cmeth()) == 0 && (!s->server || 
+			version != TLS1_3_VERSION || is_tls13_capable(s))) {
+			if(meth)
 				*meth = vent->cmeth();
 			return 1;
 		}
@@ -1496,9 +1479,8 @@ int ssl_check_version_downgrade(SSL * s)
 		/* Unexpected state; fail closed. */
 		return 0;
 	}
-
 	for(vent = table; vent->version != 0; ++vent) {
-		if(vent->smeth != NULL && ssl_method_error(s, vent->smeth()) == 0)
+		if(vent->smeth && ssl_method_error(s, vent->smeth()) == 0)
 			return s->version == vent->version;
 	}
 	return 0;
@@ -1933,7 +1915,7 @@ int ssl_get_min_max_version(const SSL * s, int * min_version, int * max_version,
 	 */
 	*min_version = version = 0;
 	hole = 1;
-	if(real_max != NULL)
+	if(real_max)
 		*real_max = 0;
 	tmp_real_max = 0;
 	for(vent = table; vent->version != 0; ++vent) {
@@ -1947,7 +1929,6 @@ int ssl_get_min_max_version(const SSL * s, int * min_version, int * max_version,
 			continue;
 		}
 		method = vent->cmeth();
-
 		if(hole == 1 && tmp_real_max == 0)
 			tmp_real_max = vent->version;
 
@@ -1959,7 +1940,7 @@ int ssl_get_min_max_version(const SSL * s, int * min_version, int * max_version,
 			*min_version = method->version;
 		}
 		else {
-			if(real_max != NULL && tmp_real_max != 0)
+			if(real_max && tmp_real_max != 0)
 				*real_max = tmp_real_max;
 			version = (single = method)->version;
 			*min_version = version;
@@ -2067,26 +2048,19 @@ int create_synthetic_message_hash(SSL * s, const uchar * hashval, size_t hashlen
 	/* Inject the synthetic message_hash message */
 	msghdr[0] = SSL3_MT_MESSAGE_HASH;
 	msghdr[SSL3_HM_HEADER_LENGTH - 1] = (uchar)hashlen;
-	if(!ssl3_finish_mac(s, msghdr, SSL3_HM_HEADER_LENGTH)
-	   || !ssl3_finish_mac(s, hashval, hashlen)) {
+	if(!ssl3_finish_mac(s, msghdr, SSL3_HM_HEADER_LENGTH) || !ssl3_finish_mac(s, hashval, hashlen)) {
 		/* SSLfatal() already called */
 		return 0;
 	}
-
 	/*
 	 * Now re-inject the HRR and current message if appropriate (we just deleted
 	 * it when we reinitialised the transcript hash above). Only necessary after
 	 * receiving a ClientHello2 with a cookie.
 	 */
-	if(hrr != NULL
-	 && (!ssl3_finish_mac(s, hrr, hrrlen)
-	   || !ssl3_finish_mac(s, (uchar *)s->init_buf->data,
-	    s->s3->tmp.message_size
-	    + SSL3_HM_HEADER_LENGTH))) {
+	if(hrr && (!ssl3_finish_mac(s, hrr, hrrlen) || !ssl3_finish_mac(s, (uchar *)s->init_buf->data, s->s3->tmp.message_size + SSL3_HM_HEADER_LENGTH))) {
 		/* SSLfatal() already called */
 		return 0;
 	}
-
 	return 1;
 }
 
@@ -2158,16 +2132,13 @@ err:
 const STACK_OF(X509_NAME) *get_ca_names(SSL *s)
 {
 	const STACK_OF(X509_NAME) *ca_sk = NULL;;
-
 	if(s->server) {
 		ca_sk = SSL_get_client_CA_list(s);
-		if(ca_sk != NULL && sk_X509_NAME_num(ca_sk) == 0)
+		if(ca_sk && sk_X509_NAME_num(ca_sk) == 0)
 			ca_sk = NULL;
 	}
-
 	if(ca_sk == NULL)
 		ca_sk = SSL_get0_CA_list(s);
-
 	return ca_sk;
 }
 
@@ -2178,7 +2149,7 @@ int construct_ca_names(SSL * s, const STACK_OF(X509_NAME) * ca_sk, WPACKET * pkt
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_CONSTRUCT_CA_NAMES, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-	if(ca_sk != NULL) {
+	if(ca_sk) {
 		for(int i = 0; i < sk_X509_NAME_num(ca_sk); i++) {
 			uchar * namebytes;
 			X509_NAME * name = sk_X509_NAME_value(ca_sk, i);

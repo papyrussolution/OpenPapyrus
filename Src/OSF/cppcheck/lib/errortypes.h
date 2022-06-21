@@ -10,10 +10,7 @@
 #ifndef errortypesH
 #define errortypesH
 
-#include "cppcheck-config.h"
-#include <list>
-#include <string>
-#include <utility>
+//#include "cppcheck-config.h"
 
 /// @addtogroup Core
 /// @{

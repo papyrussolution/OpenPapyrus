@@ -1319,16 +1319,13 @@ static size_t kex_method_strlen(LIBSSH2_COMMON_METHOD ** method)
 /* kex_method_list
  * Generate formatted preference list in buf
  */
-static size_t kex_method_list(uchar * buf, size_t list_strlen,
-    LIBSSH2_COMMON_METHOD ** method)
+static size_t kex_method_list(uchar * buf, size_t list_strlen, LIBSSH2_COMMON_METHOD ** method)
 {
 	_libssh2_htonu32(buf, list_strlen);
 	buf += 4;
-
 	if(!method || !*method) {
 		return 4;
 	}
-
 	while(*method && (*method)->name) {
 		int mlen = strlen((*method)->name);
 		memcpy(buf, (*method)->name, mlen);
@@ -1340,9 +1337,7 @@ static size_t kex_method_list(uchar * buf, size_t list_strlen,
 	return list_strlen + 4;
 }
 
-#define LIBSSH2_METHOD_PREFS_LEN(prefvar, defaultvar)		\
-	((prefvar) ? strlen(prefvar) :				    \
-	    kex_method_strlen((LIBSSH2_COMMON_METHOD**)(defaultvar)))
+#define LIBSSH2_METHOD_PREFS_LEN(prefvar, defaultvar) ((prefvar) ? strlen(prefvar) : kex_method_strlen((LIBSSH2_COMMON_METHOD**)(defaultvar)))
 
 #define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)	\
 	if(prefvar) {							   \
@@ -1626,7 +1621,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION * session, libssh2_endpoint_data * en
 	(void)session;
 	if(endpoint->crypt_prefs) {
 		s = (uchar *)endpoint->crypt_prefs;
-		while(s && *s) {
+		while(!isempty(s)) {
 			uchar * p = (uchar *)sstrchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 			if(kex_agree_instr(crypt, cryptLen, s, method_len)) {

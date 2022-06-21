@@ -3671,49 +3671,33 @@ static boolint opj_j2k_get_sot_values(uint8 *  p_header_data, uint32_t p_header_
 	return TRUE;
 }
 
-static boolint opj_j2k_read_sot(opj_j2k_t * p_j2k,
-    uint8 * p_header_data,
-    uint32_t p_header_size,
-    opj_event_mgr_t * p_manager)
+static boolint opj_j2k_read_sot(opj_j2k_t * p_j2k, uint8 * p_header_data, uint32_t p_header_size, opj_event_mgr_t * p_manager)
 {
 	opj_cp_t * l_cp = 0;
 	opj_tcp_t * l_tcp = 0;
 	uint32_t l_tot_len, l_num_parts = 0;
 	uint32_t l_current_part;
 	uint32_t l_tile_x, l_tile_y;
-
 	/* preconditions */
-
 	assert(p_j2k != 0);
 	assert(p_manager != 0);
-
-	if(!opj_j2k_get_sot_values(p_header_data, p_header_size,
-	    &(p_j2k->m_current_tile_number), &l_tot_len, &l_current_part, &l_num_parts,
-	    p_manager)) {
+	if(!opj_j2k_get_sot_values(p_header_data, p_header_size, &(p_j2k->m_current_tile_number), &l_tot_len, &l_current_part, &l_num_parts, p_manager)) {
 		opj_event_msg(p_manager, EVT_ERROR, "Error reading SOT marker\n");
 		return FALSE;
 	}
 #ifdef DEBUG_VERBOSE
-	fprintf(stderr, "SOT %d %d %d %d\n",
-	    p_j2k->m_current_tile_number, l_tot_len, l_current_part, l_num_parts);
+	fprintf(stderr, "SOT %d %d %d %d\n", p_j2k->m_current_tile_number, l_tot_len, l_current_part, l_num_parts);
 #endif
-
 	l_cp = &(p_j2k->m_cp);
-
 	/* testcase 2.pdf.SIGFPE.706.1112 */
 	if(p_j2k->m_current_tile_number >= l_cp->tw * l_cp->th) {
-		opj_event_msg(p_manager, EVT_ERROR, "Invalid tile number %d\n",
-		    p_j2k->m_current_tile_number);
+		opj_event_msg(p_manager, EVT_ERROR, "Invalid tile number %d\n", p_j2k->m_current_tile_number);
 		return FALSE;
 	}
-
 	l_tcp = &l_cp->tcps[p_j2k->m_current_tile_number];
 	l_tile_x = p_j2k->m_current_tile_number % l_cp->tw;
 	l_tile_y = p_j2k->m_current_tile_number / l_cp->tw;
-
-	if(p_j2k->m_specific_param.m_decoder.m_tile_ind_to_dec < 0 ||
-	    p_j2k->m_current_tile_number == (uint32_t)
-	    p_j2k->m_specific_param.m_decoder.m_tile_ind_to_dec) {
+	if(p_j2k->m_specific_param.m_decoder.m_tile_ind_to_dec < 0 || p_j2k->m_current_tile_number == (uint32_t)p_j2k->m_specific_param.m_decoder.m_tile_ind_to_dec) {
 		/* Do only this check if we decode all tile part headers, or if */
 		/* we decode one precise tile. Otherwise the m_current_tile_part_number */
 		/* might not be valid */

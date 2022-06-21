@@ -3064,11 +3064,7 @@ static void opj_v8dwt_decode_step1(opj_v8_t* w,
 	}
 }
 
-static void opj_v8dwt_decode_step2(opj_v8_t* l, opj_v8_t* w,
-    uint32_t start,
-    uint32_t end,
-    uint32_t m,
-    float c)
+static void opj_v8dwt_decode_step2(opj_v8_t* l, opj_v8_t* w, uint32_t start, uint32_t end, uint32_t m, float c)
 {
 	float* fl = (float*)l;
 	float* fw = (float*)w;

@@ -646,7 +646,7 @@ void GnuPlot::ShowVersion(FILE * fp)
 		fprintf(fp, "#!%s/gnuplot -persist\n#\n", BINDIR);
 #else
 		fprintf(fp, "#!%s/gnuplot\n#\n", BINDIR);
-#endif                          /* not X11 */
+#endif /* not X11 */
 #endif /* BINDIR */
 	}
 

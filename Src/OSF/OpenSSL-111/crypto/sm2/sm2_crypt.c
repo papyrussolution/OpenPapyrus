@@ -345,7 +345,7 @@ int sm2_decrypt(const EC_KEY * key,
 		ptext_buf[i] = C2[i] ^ msg_mask[i];
 
 	hash = EVP_MD_CTX_new();
-	if(hash == NULL) {
+	if(!hash) {
 		SM2err(SM2_F_SM2_DECRYPT, ERR_R_MALLOC_FAILURE);
 		goto done;
 	}

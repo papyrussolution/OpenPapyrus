@@ -45,14 +45,14 @@ public:
 
 	// Print the signed or unsigned integer as decimal.
 	// Supports all integral types.
-	template <typename T>
-	void PrintAsDec(T v) {
+	template <typename T> void PrintAsDec(T v) 
+	{
 		static_assert(std::is_integral<T>::value, "");
 		start_ = storage_;
 		size_ = numbers_internal::FastIntToBuffer(v, storage_) - storage_;
 	}
-
-	void PrintAsDec(int128 v) {
+	void PrintAsDec(int128 v) 
+	{
 		auto u = static_cast<uint128>(v);
 		bool add_neg = false;
 		if(v < 0) {
@@ -61,8 +61,8 @@ public:
 		}
 		PrintAsDec(u, add_neg);
 	}
-
-	void PrintAsDec(uint128 v, bool add_neg = false) {
+	void PrintAsDec(uint128 v, bool add_neg = false) 
+	{
 		// This function can be sped up if needed. We can call FastIntToBuffer
 		// twice, or fix FastIntToBuffer to support uint128.
 		char * p = storage_ + sizeof(storage_);
@@ -84,11 +84,10 @@ public:
 
 	// Print the unsigned integer as hex using lowercase.
 	// Supports unsigned integral types and uint128.
-	template <typename T>
-	void PrintAsHexLower(T v) {
+	template <typename T> void PrintAsHexLower(T v) 
+	{
 		static_assert(!IsSigned<T>::value, "");
 		char * p = storage_ + sizeof(storage_);
-
 		do {
 			p -= 2;
 			constexpr const char* table = numbers_internal::kHexTable;
@@ -106,11 +105,10 @@ public:
 
 	// Print the unsigned integer as hex using uppercase.
 	// Supports unsigned integral types and uint128.
-	template <typename T>
-	void PrintAsHexUpper(T v) {
+	template <typename T> void PrintAsHexUpper(T v) 
+	{
 		static_assert(!IsSigned<T>::value, "");
 		char * p = storage_ + sizeof(storage_);
-
 		// kHexTable is only lowercase, so do it manually for uppercase.
 		do {
 			*--p = "0123456789ABCDEF"[static_cast<size_t>(v) & 15];

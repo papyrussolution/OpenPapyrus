@@ -10,11 +10,6 @@
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
 #include "options.h"
-#include "preprocessor.h"
-#include "testsuite.h"
-#ifdef NDEBUG
-	#include "errortypes.h"    // for InternalError
-#endif
 
 int main(int argc, char * argv[])
 {

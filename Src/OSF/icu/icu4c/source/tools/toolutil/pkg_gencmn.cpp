@@ -284,24 +284,16 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 			}
 			T_FileStream_close(file);
 			length = files[i].fileSize;
-
 			if(nread != files[i].fileSize) {
-				fprintf(stderr,
-				    "gencmn: unable to read %s properly (got %ld/%ld byte%s)\n",
-				    files[i].pathname,
-				    (long)nread,
-				    (long)files[i].fileSize,
-				    files[i].fileSize == 1 ? "" : "s");
+				slfprintf_stderr("gencmn: unable to read %s properly (got %ld/%ld byte%s)\n", files[i].pathname, (long)nread, (long)files[i].fileSize, files[i].fileSize == 1 ? "" : "s");
 				exit(U_FILE_ACCESS_ERROR);
 			}
 		}
-
 		/* pad to 16-align the last file (cleaner, avoids growing .dat files in icuswap) */
 		length &= 0xf;
 		if(length!=0) {
 			udata_writePadding(out, 16-length);
 		}
-
 		/* finish */
 		udata_finish(out, &errorCode);
 		if(U_FAILURE(errorCode)) {
@@ -335,7 +327,7 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir,
 		if(gencmnFileName != NULL) {
 			uprv_strcpy(gencmnFileName, filename);
 		}
-		if(out==NULL) {
+		if(!out) {
 			slfprintf_stderr("gencmn: unable to open .c output file %s\n", filename);
 			exit(U_FILE_ACCESS_ERROR);
 		}
@@ -411,25 +403,19 @@ static void addFile(const char * filename, const char * name, const char * sourc
 	char * s;
 	uint32_t length;
 	char * fullPath = NULL;
-
 	if(fileCount==fileMax) {
 		fileMax += CHUNK_FILE_COUNT;
 		files = (File*)uprv_realloc(files, fileMax*sizeof(files[0])); /* note: never freed. */
 		if(files==NULL) {
-			slfprintf_stderr("pkgdata/gencmn: Could not allocate %u bytes for %d files\n",
-			    (unsigned int)(fileMax*sizeof(files[0])), fileCount);
+			slfprintf_stderr("pkgdata/gencmn: Could not allocate %u bytes for %d files\n", (unsigned int)(fileMax*sizeof(files[0])), fileCount);
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 	}
-
 	if(!sourceTOC) {
 		FileStream * file;
-
 		if(uprv_pathIsAbsolute(filename)) {
-			fprintf(stderr,
-			    "gencmn: Error: absolute path encountered. Old style paths are not supported. Use relative paths such as 'fur.res' or 'translit%cfur.res'.\n\tBad path: '%s'\n",
-			    U_FILE_SEP_CHAR,
-			    filename);
+			slfprintf_stderr("gencmn: Error: absolute path encountered. Old style paths are not supported. Use relative paths such as 'fur.res' or 'translit%cfur.res'.\n\tBad path: '%s'\n",
+			    U_FILE_SEP_CHAR, filename);
 			exit(U_ILLEGAL_ARGUMENT_ERROR);
 		}
 		fullPath = pathToFullPath(filename, source);

@@ -65,7 +65,7 @@
 #include "strerror.h"
 //#include "connect.h"
 #include "select.h"
-#include "url.h" /* for Curl_safefree() */
+#include "url.h" /* for ZFREE() */
 #include "multiif.h"
 //#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "inet_ntop.h"

@@ -158,10 +158,10 @@ struct __ptw32_thread_t_ {
 	void * nextAssoc;
 #if defined(__PTW32_CLEANUP_C)
 	jmp_buf start_mark; /* Jump buffer follows void * so should be aligned */
-#endif                          /* __PTW32_CLEANUP_C */
+#endif /* __PTW32_CLEANUP_C */
 #if defined(HAVE_SIGSET_T)
 	sigset_t sigmask;
-#endif                          /* HAVE_SIGSET_T */
+#endif /* HAVE_SIGSET_T */
 	__ptw32_mcs_lock_t robustMxListLock; /* robustMxList lock */
 	__ptw32_robust_node_t* robustMxList; /* List of currenty held robust mutexes */
 	int ptErrno;
@@ -197,7 +197,7 @@ struct pthread_attr_t_ {
 	char * thrname;
 #if defined(HAVE_SIGSET_T)
 	sigset_t sigmask;
-#endif                          /* HAVE_SIGSET_T */
+#endif /* HAVE_SIGSET_T */
 };
 
 /*

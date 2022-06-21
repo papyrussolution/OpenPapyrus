@@ -12,17 +12,14 @@
 #if defined(__GNUC__) && (defined(_WIN32) || defined(__CYGWIN__))
 #undef __STRICT_ANSI__
 #endif
-#include "path.h"
-#include "utils.h"
 #ifndef _WIN32
-#include <unistd.h>
+	#include <unistd.h>
 #else
-#include <direct.h>
+	#include <direct.h>
 #endif
 #if defined(__CYGWIN__)
 #include <strings.h>
 #endif
-#include <simplecpp.h>
 
 /** Is the filesystem case insensitive? */
 static bool caseInsensitiveFilesystem()

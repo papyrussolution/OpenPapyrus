@@ -75,14 +75,13 @@ extern "C" int main(int argc, char * argv[])
 
 	/* error handling, printing usage message */
 	if(argc<0) {
-		fprintf(stderr, "error in command line argument \"%s\"\n", argv[-argc]);
+		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
 	}
 	if(!options[OUTPUT_FILENAME].doesOccur) {
 		argc = -1;
 	}
 	if(argc<2 || options[HELP_H].doesOccur || options[HELP_QUESTION_MARK].doesOccur) {
-		fprintf(stderr,
-		    "Usage: %s [-options] infiles+ -o outputfilename\n"
+		slfprintf_stderr("Usage: %s [-options] infiles+ -o outputfilename\n"
 		    "\n"
 		    "Reads the infiles with normalization data and\n"
 		    "creates a binary file, or a C source file (--csource), with the data,\n"
@@ -94,45 +93,34 @@ extern "C" int main(int argc, char * argv[])
 		    "Computes the difference of (a, b) minus (p, q) and writes the diff data\n"
 		    "in input-file syntax to the outputfilename.\n"
 		    "It is then possible to build (p, q, diff) to get the same data as (a, b).\n"
-		    "(Useful for computing minimal incremental mapping data files.)\n"
-		    "\n",
-		    argv[0], argv[0]);
-		fprintf(stderr,
-		    "Options:\n"
+		    "(Useful for computing minimal incremental mapping data files.)\n\n", argv[0], argv[0]);
+		slfprintf_stderr("Options:\n"
 		    "\t-h or -? or --help  this usage text\n"
 		    "\t-v or --verbose     verbose output\n"
 		    "\t-c or --copyright   include a copyright notice\n"
 		    "\t-u or --unicode     Unicode version, followed by the version like 5.2.0\n");
-		fprintf(stderr,
-		    "\t-s or --sourcedir   source directory, followed by the path\n"
+		slfprintf_stderr("\t-s or --sourcedir   source directory, followed by the path\n"
 		    "\t-o or --output      output filename\n"
 		    "\t      --csource     writes a C source file with initializers\n"
 		    "\t      --combined    writes a .txt file (input-file syntax) with the\n"
 		    "\t                    combined data from all of the input files\n");
-		fprintf(stderr,
-		    "\t      --fast        optimize the data for fast normalization,\n"
+		slfprintf_stderr("\t      --fast        optimize the data for fast normalization,\n"
 		    "\t                    which might increase its size  (Writes fully decomposed\n"
 		    "\t                    regular mappings instead of delta mappings.\n"
 		    "\t                    You should measure the runtime speed to make sure that\n"
 		    "\t                    this is a good trade-off.)\n");
 		return argc<0 ? U_ILLEGAL_ARGUMENT_ERROR : U_ZERO_ERROR;
 	}
-
 	beVerbose = options[VERBOSE].doesOccur;
 	haveCopyright = options[COPYRIGHT].doesOccur;
-
 	IcuToolErrorCode errorCode("gennorm2/main()");
-
 #if UCONFIG_NO_NORMALIZATION
-
-	fprintf(stderr, "gennorm2 writes a dummy binary data file because UCONFIG_NO_NORMALIZATION is set, \nsee icu/source/common/unicode/uconfig.h\n");
+	slfprintf_stderr("gennorm2 writes a dummy binary data file because UCONFIG_NO_NORMALIZATION is set, \nsee icu/source/common/unicode/uconfig.h\n");
 	udata_createDummy(NULL, NULL, options[OUTPUT_FILENAME].value, errorCode);
 	// Should not return an error since this is the expected behaviour if UCONFIG_NO_NORMALIZATION is on.
 	// return U_UNSUPPORTED_ERROR;
 	return 0;
-
 #else
-
 	LocalPointer<Normalizer2DataBuilder> b1(new Normalizer2DataBuilder(errorCode), errorCode);
 	LocalPointer<Normalizer2DataBuilder> b2;
 	LocalPointer<Normalizer2DataBuilder> diff;
@@ -283,7 +271,7 @@ void parseFile(std::ifstream &f, Normalizer2DataBuilder &builder) {
 			UnicodeString mapping(FALSE, uchars, length);
 			if(*delimiter=='=') {
 				if(rangeLength!=1) {
-					fprintf(stderr, "gennorm2 error: round-trip mapping for more than 1 code point on %s\n", line);
+					slfprintf_stderr("gennorm2 error: round-trip mapping for more than 1 code point on %s\n", line);
 					exit(U_PARSE_ERROR);
 				}
 				builder.setRoundTripMapping((UChar32)startCP, mapping);

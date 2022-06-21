@@ -89,7 +89,7 @@ static ngx_int_t ngx_http_random_index_handler(ngx_http_request_t * r)
 	len = NGX_HTTP_RANDOM_INDEX_PREALLOCATE;
 #endif
 	last = ngx_http_map_uri_to_path(r, &path, &root, len);
-	if(last == NULL) {
+	if(!last) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	allocated = path.len;

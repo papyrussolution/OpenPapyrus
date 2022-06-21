@@ -775,16 +775,13 @@ bool Notepad_plus::saveGUIParams()
 	nppGUI._appPos.right  = posInfo.rcNormalPosition.right - posInfo.rcNormalPosition.left;
 	nppGUI._appPos.bottom = posInfo.rcNormalPosition.bottom - posInfo.rcNormalPosition.top;
 	nppGUI._isMaximized = ((IsZoomed(_pPublicInterface->getHSelf()) != 0) || (posInfo.flags & WPF_RESTORETOMAXIMIZED));
-
-	if(_findReplaceDlg.getHSelf() != NULL) {
+	if(_findReplaceDlg.getHSelf()) {
 		::GetWindowPlacement(_findReplaceDlg.getHSelf(), &posInfo);
-
 		nppGUI._findWindowPos.left = posInfo.rcNormalPosition.left;
 		nppGUI._findWindowPos.top = posInfo.rcNormalPosition.top;
 		nppGUI._findWindowPos.right = posInfo.rcNormalPosition.right;
 		nppGUI._findWindowPos.bottom = posInfo.rcNormalPosition.bottom;
 	}
-
 	saveDockingParams();
 	nppParams.createXmlTreeFromGUIParams();
 	return true;
@@ -793,7 +790,6 @@ bool Notepad_plus::saveGUIParams()
 bool Notepad_plus::saveProjectPanelsParams()
 {
 	NppParameters& nppParams = NppParameters::getInstance();
-
 	if(_pProjectPanel_1) {
 		if(!_pProjectPanel_1->checkIfNeedSave()) return false;
 		nppParams.setWorkSpaceFilePath(0, _pProjectPanel_1->getWorkSpaceFilePath());
@@ -5524,19 +5520,15 @@ vector <generic_string> Notepad_plus::addNppComponents(const TCHAR * destDir, co
 	fDlg.setExtFilter(extFilterName, extFilter);
 
 	vector <generic_string> copiedFiles;
-
 	const auto& fns = fDlg.doOpenMultiFilesDlg();
 	if(!fns.empty()) {
 		// Get plugins dir
 		generic_string destDirName = (NppParameters::getInstance()).getNppPath();
 		PathAppend(destDirName, destDir);
-
 		if(!::PathFileExists(destDirName.c_str())) {
 			::CreateDirectory(destDirName.c_str(), NULL);
 		}
-
 		destDirName += TEXT("\\");
-
 		size_t sz = fns.size();
 		for(size_t i = 0; i < sz; ++i) {
 			if(::PathFileExists(fns.at(i).c_str())) {

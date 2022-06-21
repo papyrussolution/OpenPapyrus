@@ -2921,9 +2921,16 @@ public class SLib {
 	}
 	public static LDATE BuildDateByEpoch(long millis)
 	{
+		LDATETIME _dtm = new LDATETIME(millis);
+		return _dtm.d;
+		/*
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(millis);
-		return new LDATE(cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH)+1, cal.get(Calendar.YEAR));
+		int d = cal.get(Calendar.DAY_OF_MONTH);
+		int m = cal.get(Calendar.MONTH)+1;
+		int y = cal.get(Calendar.YEAR);
+		return new LDATE(d, m, y);
+		 */
 	}
 	public static LDATE GetCurDate()
 	{
@@ -3784,6 +3791,18 @@ public class SLib {
 		} catch(NumberFormatException e){
 			return false;
 		}
+	}
+	public static UUID strtouuid(String text)
+	{
+		UUID result = null;
+		if(GetLen(text) > 0) {
+			try {
+				result = UUID.fromString(text);
+			} catch(IllegalArgumentException exn) {
+				result = null;
+			}
+		}
+		return result;
 	}
 	//
 	public static class LAssoc {

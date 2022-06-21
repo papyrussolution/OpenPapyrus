@@ -9,12 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "check.h"
-#include "errorlogger.h"
-#include "settings.h"
-#include "token.h"
-#include "tokenize.h"
-#include "valueflow.h"
 
 Check::Check(const std::string &aname) : mTokenizer(nullptr), mSettings(nullptr), mErrorLogger(nullptr), mName(aname)
 {

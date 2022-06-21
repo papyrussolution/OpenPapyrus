@@ -1181,7 +1181,7 @@ U_CAPI int32_t U_EXPORT2 ureldatefmt_formatNumeric(const URelativeDateTimeFormat
 		return 0;
 	}
 	UnicodeString res;
-	if(result != nullptr) {
+	if(result) {
 		// nullptr destination for pure preflighting: empty dummy string
 		// otherwise, alias the destination buffer (copied from udat_format)
 		res.setTo(result, 0, resultCapacity);
@@ -1215,7 +1215,7 @@ U_CAPI int32_t U_EXPORT2 ureldatefmt_format(const URelativeDateTimeFormatter* re
 		return 0;
 	}
 	UnicodeString res;
-	if(result != nullptr) {
+	if(result) {
 		// nullptr destination for pure preflighting: empty dummy string
 		// otherwise, alias the destination buffer (copied from udat_format)
 		res.setTo(result, 0, resultCapacity);

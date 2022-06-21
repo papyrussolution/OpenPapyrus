@@ -203,7 +203,7 @@ static int UnwindImpl(void **result, int *sizes, int max_depth, int skip_count,
     prev_return_address = frame_pointer[-1];
     frame_pointer = next_frame_pointer;
   }
-  if (min_dropped_frames != nullptr) {
+  if(min_dropped_frames) {
     // Implementation detail: we clamp the max of frames we are willing to
     // count, so as not to spend too much time in the loop below.
     const int kMaxUnwind = 200;

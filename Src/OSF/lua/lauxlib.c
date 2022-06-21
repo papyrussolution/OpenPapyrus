@@ -242,7 +242,7 @@ LUALIB_API int luaL_fileresult(lua_State * L, int stat, const char * fname) {
 
 #endif
 
-#endif                          /* } */
+#endif /* } */
 
 LUALIB_API int luaL_execresult(lua_State * L, int stat) {
 	const char * what = "exit"; /* type of termination */
@@ -366,7 +366,7 @@ LUALIB_API const char * luaL_optlstring(lua_State * L, int arg, const char * def
 {
 	if(lua_isnoneornil(L, arg)) {
 		if(len)
-			*len = (def ? strlen(def) : 0);
+			*len = sstrlen(def);
 		return def;
 	}
 	else return luaL_checklstring(L, arg, len);

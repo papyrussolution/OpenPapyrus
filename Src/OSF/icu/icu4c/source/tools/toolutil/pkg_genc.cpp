@@ -253,13 +253,13 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 	FileStream * out;
 	size_t i, length, count;
 	FileStream * in = T_FileStream_open(filename, "rb");
-	if(in==NULL) {
+	if(!in) {
 		slfprintf_stderr("genccode: unable to open input file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
 	getOutFilename(filename, destdir, buffer.chars, sizeof(buffer.chars), entry, sizeof(entry), ".S", optFilename);
 	out = T_FileStream_open(buffer.chars, "w");
-	if(out==NULL) {
+	if(!out) {
 		slfprintf_stderr("genccode: unable to open output file %s\n", buffer.chars);
 		exit(U_FILE_ACCESS_ERROR);
 	}
@@ -335,23 +335,17 @@ U_CAPI void U_EXPORT2 writeAssemblyCode(const char * filename, const char * dest
 	T_FileStream_close(in);
 }
 
-U_CAPI void U_EXPORT2 writeCCode(const char * filename,
-    const char * destdir,
-    const char * optName,
-    const char * optFilename,
-    char * outFilePath,
-    size_t outFilePathCapacity) {
+U_CAPI void U_EXPORT2 writeCCode(const char * filename, const char * destdir, const char * optName, const char * optFilename, char * outFilePath, size_t outFilePathCapacity) 
+{
 	uint32_t column = MAX_COLUMN;
 	char buffer[4096], entry[96];
 	FileStream * in, * out;
 	size_t i, length, count;
-
 	in = T_FileStream_open(filename, "rb");
-	if(in==NULL) {
+	if(!in) {
 		slfprintf_stderr("genccode: unable to open input file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
-
 	if(optName != NULL) { /* prepend  'icudt28_' */
 		// +2 includes the _ and the NUL
 		if(uprv_strlen(optName) + 2 > sizeof(entry)) {
@@ -364,17 +358,8 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename,
 	else {
 		entry[0] = 0;
 	}
-
-	getOutFilename(
-		filename,
-		destdir,
-		buffer,
-		static_cast<int32_t>(sizeof(buffer)),
-		entry + uprv_strlen(entry),
-		static_cast<int32_t>(sizeof(entry) - uprv_strlen(entry)),
-		".c",
-		optFilename);
-
+	getOutFilename(filename, destdir, buffer, static_cast<int32_t>(sizeof(buffer)), entry + uprv_strlen(entry), 
+		static_cast<int32_t>(sizeof(entry) - uprv_strlen(entry)), ".c", optFilename);
 	if(outFilePath != NULL) {
 		if(uprv_strlen(buffer) >= outFilePathCapacity) {
 			slfprintf_stderr("genccode: filename too long\n");
@@ -382,13 +367,11 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename,
 		}
 		uprv_strcpy(outFilePath, buffer);
 	}
-
 	out = T_FileStream_open(buffer, "w");
-	if(out==NULL) {
+	if(!out) {
 		slfprintf_stderr("genccode: unable to open output file %s\n", buffer);
 		exit(U_FILE_ACCESS_ERROR);
 	}
-
 	/* turn dashes or dots in the entry name into underscores */
 	length = uprv_strlen(entry);
 	for(i = 0; i<length; ++i) {
@@ -471,7 +454,6 @@ U_CAPI void U_EXPORT2 writeCCode(const char * filename,
 
 	T_FileStream_writeLine(out, "\n}\n};\nU_CDECL_END\n");
 #endif
-
 	if(T_FileStream_error(in)) {
 		slfprintf_stderr("genccode: file read error while generating from file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
@@ -587,14 +569,13 @@ static uint32_t write8(FileStream * out, uint8_t byte, uint32_t column) {
 }
 
 #if U_PLATFORM == U_PF_OS400
-static uint32_t write8str(FileStream * out, uint8_t byte, uint32_t column) {
+static uint32_t write8str(FileStream * out, uint8_t byte, uint32_t column) 
+{
 	char s[8];
-
 	if(byte > 7)
 		sprintf(s, "\\x%X", byte);
 	else
 		sprintf(s, "\\%X", byte);
-
 	/* write the value, possibly with comma and newline */
 	if(column==MAX_COLUMN) {
 		/* first byte */
@@ -762,7 +743,7 @@ static void getArchitecture(uint16_t * pCPU, uint16_t * pBits, bool * pIsBigEndi
 	}
 
 	in = T_FileStream_open(filename, "rb");
-	if(in==NULL) {
+	if(!in) {
 		slfprintf_stderr("genccode: unable to open match-arch file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
@@ -1117,7 +1098,7 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 #endif
 
 	in = T_FileStream_open(filename, "rb");
-	if(in==NULL) {
+	if(!in) {
 		slfprintf_stderr("genccode: unable to open input file %s\n", filename);
 		exit(U_FILE_ACCESS_ERROR);
 	}
@@ -1155,7 +1136,7 @@ U_CAPI void U_EXPORT2 writeObjectCode(const char * filename,
 
 	/* open the output file */
 	out = T_FileStream_open(buffer, "wb");
-	if(out==NULL) {
+	if(!out) {
 		slfprintf_stderr("genccode: unable to open output file %s\n", buffer);
 		exit(U_FILE_ACCESS_ERROR);
 	}

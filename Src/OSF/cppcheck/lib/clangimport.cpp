@@ -10,15 +10,6 @@
 #include "cppcheck-internal.h"
 #pragma hdrstop
 #include "clangimport.h"
-#include "errortypes.h"
-#include "mathlib.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
-#include "utils.h"
-#include "valueflow.h"
 
 static const std::string AccessSpecDecl = "AccessSpecDecl";
 static const std::string ArraySubscriptExpr = "ArraySubscriptExpr";

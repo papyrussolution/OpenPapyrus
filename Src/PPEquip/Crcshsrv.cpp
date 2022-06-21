@@ -4041,7 +4041,11 @@ int ACS_CRCSHSRV::ConvertCheckHeads(const SVector * pZRepList, const char * pWai
 int ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 {
 	int     ok = 1;
-	SString file_name, save_file_name, barcode, goods_name, article;
+	SString file_name;
+	SString save_file_name;
+	SString barcode;
+	SString goods_name;
+	SString article;
 	PPObjGoods  goods_obj;
 	IterCounter cntr;
 	PPImpExp * p_ie_csl = 0;

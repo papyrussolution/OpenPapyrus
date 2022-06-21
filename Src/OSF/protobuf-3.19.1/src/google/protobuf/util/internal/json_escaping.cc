@@ -226,8 +226,10 @@ StringPiece ToSurrogateHex(uint32_t cp, char* buffer)
 //
 // If the given unicode code point does not need escaping, an empty
 // StringPiece is returned.
-StringPiece EscapeCodePoint(uint32_t cp, char* buffer) {
-	if(cp < 0xa0) return kCommonEscapes[cp];
+StringPiece EscapeCodePoint(uint32_t cp, char* buffer) 
+{
+	if(cp < 0xa0) 
+		return kCommonEscapes[cp];
 	switch(cp) {
 		// These are not required by json spec
 		// but used to prevent security bugs in javascript.

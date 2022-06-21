@@ -189,7 +189,7 @@ static int dsa_priv_encode(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pkey)
 
 	params = ASN1_STRING_new();
 
-	if(params == NULL) {
+	if(!params) {
 		DSAerr(DSA_F_DSA_PRIV_ENCODE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

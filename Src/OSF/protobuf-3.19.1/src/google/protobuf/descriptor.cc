@@ -2008,14 +2008,14 @@ const FileDescriptor* DescriptorPool::FindFileByName(ConstStringParam name) cons
 		tables_->known_bad_files_.clear();
 	}
 	const FileDescriptor* result = tables_->FindFile(name);
-	if(result != nullptr) return result;
-	if(underlay_ != nullptr) {
+	if(result) return result;
+	if(underlay_) {
 		result = underlay_->FindFileByName(name);
-		if(result != nullptr) return result;
+		if(result) return result;
 	}
 	if(TryFindFileInFallbackDatabase(name)) {
 		result = tables_->FindFile(name);
-		if(result != nullptr) return result;
+		if(result) return result;
 	}
 	return nullptr;
 }
@@ -2028,7 +2028,7 @@ const FileDescriptor* DescriptorPool::FindFileContainingSymbol(ConstStringParam 
 	}
 	Symbol result = tables_->FindSymbol(symbol_name);
 	if(!result.IsNull()) return result.GetFile();
-	if(underlay_ != nullptr) {
+	if(underlay_) {
 		const FileDescriptor* file_result =
 		    underlay_->FindFileContainingSymbol(symbol_name);
 		if(file_result != nullptr) return file_result;
@@ -2091,7 +2091,7 @@ const FieldDescriptor* DescriptorPool::FindExtensionByNumber(const Descriptor* e
 	if(mutex_ != nullptr) {
 		ReaderMutexLock lock(mutex_);
 		const FieldDescriptor* result = tables_->FindExtension(extendee, number);
-		if(result != nullptr) {
+		if(result) {
 			return result;
 		}
 	}
@@ -2101,16 +2101,16 @@ const FieldDescriptor* DescriptorPool::FindExtensionByNumber(const Descriptor* e
 		tables_->known_bad_files_.clear();
 	}
 	const FieldDescriptor* result = tables_->FindExtension(extendee, number);
-	if(result != nullptr) {
+	if(result) {
 		return result;
 	}
-	if(underlay_ != nullptr) {
+	if(underlay_) {
 		result = underlay_->FindExtensionByNumber(extendee, number);
-		if(result != nullptr) return result;
+		if(result) return result;
 	}
 	if(TryFindExtensionInFallbackDatabase(extendee, number)) {
 		result = tables_->FindExtension(extendee, number);
-		if(result != nullptr) {
+		if(result) {
 			return result;
 		}
 	}
@@ -2121,13 +2121,13 @@ const FieldDescriptor* DescriptorPool::InternalFindExtensionByNumberNoLock(const
 	if(extendee->extension_range_count() == 0) return nullptr;
 
 	const FieldDescriptor* result = tables_->FindExtension(extendee, number);
-	if(result != nullptr) {
+	if(result) {
 		return result;
 	}
 
-	if(underlay_ != nullptr) {
+	if(underlay_) {
 		result = underlay_->InternalFindExtensionByNumberNoLock(extendee, number);
-		if(result != nullptr) return result;
+		if(result) return result;
 	}
 
 	return nullptr;
@@ -2182,14 +2182,11 @@ void DescriptorPool::FindAllExtensions(const Descriptor* extendee,
 			tables_->extensions_loaded_from_db_.insert(extendee);
 		}
 	}
-
 	tables_->FindAllExtensions(extendee, out);
-	if(underlay_ != nullptr) {
+	if(underlay_) {
 		underlay_->FindAllExtensions(extendee, out);
 	}
 }
-
-// -------------------------------------------------------------------
 
 const FieldDescriptor* Descriptor::FindFieldByNumber(int key) const {
 	const FieldDescriptor* result = file()->tables_->FindFieldByNumber(this, key);
@@ -2416,7 +2413,7 @@ bool DescriptorPool::IsSubSymbolOfBuiltType(StringPiece name) const {
 			return true;
 		}
 	}
-	if(underlay_ != nullptr) {
+	if(underlay_) {
 		// Check to see if any prefix of this symbol exists in the underlay.
 		return underlay_->IsSubSymbolOfBuiltType(name);
 	}

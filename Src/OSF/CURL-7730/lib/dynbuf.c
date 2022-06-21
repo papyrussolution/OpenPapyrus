@@ -54,7 +54,7 @@ void FASTCALL Curl_dyn_init(struct dynbuf * s, size_t toobig)
 void FASTCALL Curl_dyn_free(struct dynbuf * s)
 {
 	DEBUGASSERT(s);
-	Curl_safefree(s->bufr);
+	ZFREE(s->bufr);
 	s->leng = s->allc = 0;
 }
 /*
@@ -91,7 +91,7 @@ static CURLcode dyn_nappend(struct dynbuf * s, const uchar * mem, size_t len)
 		   include that as well when it uses this code */
 		void * p = SAlloc::R(s->bufr, a);
 		if(!p) {
-			Curl_safefree(s->bufr);
+			ZFREE(s->bufr);
 			s->leng = s->allc = 0;
 			return CURLE_OUT_OF_MEMORY;
 		}

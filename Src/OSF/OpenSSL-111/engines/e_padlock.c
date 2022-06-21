@@ -717,7 +717,7 @@ static RAND_METHOD padlock_rand = {
 
 #endif                        /* COMPILE_HW_PADLOCK */
 #endif                         /* !OPENSSL_NO_HW_PADLOCK */
-#endif                          /* !OPENSSL_NO_HW */
+#endif /* !OPENSSL_NO_HW */
 
 #if defined(OPENSSL_NO_HW) || defined(OPENSSL_NO_HW_PADLOCK) \
 	|| !defined(COMPILE_HW_PADLOCK)

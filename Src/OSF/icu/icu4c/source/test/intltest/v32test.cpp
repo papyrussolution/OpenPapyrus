@@ -16,12 +16,9 @@
 #include "intltest.h"
 #include "v32test.h"
 #include "util.h"
-
-//---------------------------------------------------------------------------
 //
 //  Test class boilerplate
 //
-//---------------------------------------------------------------------------
 UVector32Test::UVector32Test()
 {
 }
@@ -41,12 +38,9 @@ void UVector32Test::runIndexedTest(int32_t index, bool exec, const char *& name,
 		    break; //needed to end loop
 	}
 }
-
-//---------------------------------------------------------------------------
 //
 //   Error Checking / Reporting macros used in all of the tests.
 //
-//---------------------------------------------------------------------------
 #define TEST_CHECK_STATUS(status) UPRV_BLOCK_MACRO_BEGIN { \
 		if(U_FAILURE(status)) { \
 			errln("UVector32Test failure at line %d.  status=%s\n", __LINE__, u_errorName(status)); \
@@ -59,17 +53,14 @@ void UVector32Test::runIndexedTest(int32_t index, bool exec, const char *& name,
 			errln("UVector32Test failure at line %d.\n", __LINE__); \
 		} \
 } UPRV_BLOCK_MACRO_END
-
-//---------------------------------------------------------------------------
 //
 //      UVector32_API      Check for basic functionality of UVector32.
 //
-//---------------------------------------------------------------------------
-void UVector32Test::UVector32_API() {
+void UVector32Test::UVector32_API() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	UVector32     * a;
 	UVector32     * b;
-
 	a = new UVector32(status);
 	TEST_CHECK_STATUS(status);
 	delete a;

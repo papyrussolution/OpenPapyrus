@@ -1807,7 +1807,7 @@ static xmlChar * xmlC11NNormalizeString(const xmlChar * input, xmlC14NNormalizat
 		return 0;
 	}
 	out = buffer;
-	while(*cur != '\0') {
+	while(*cur) {
 		if((out - buffer) > (buffer_size - 10)) {
 			int indx = out - buffer;
 			growBufferReentrant();

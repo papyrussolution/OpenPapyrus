@@ -488,9 +488,7 @@ static void storeMappingData()
 					return;
 				}
 				else {
-					fprintf(stderr,
-					    "trieWord cannot contain value greater than threshold 0x%04X.\n",
-					    _SPREP_TYPE_THRESHOLD);
+					slfprintf_stderr("trieWord cannot contain value greater than threshold 0x%04X.\n", _SPREP_TYPE_THRESHOLD);
 					exit(U_ILLEGAL_CHAR_FOUND);
 				}
 			}

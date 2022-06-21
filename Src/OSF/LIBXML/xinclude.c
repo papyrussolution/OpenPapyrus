@@ -998,7 +998,7 @@ static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDoc * targe
 							case XML_PI_NODE:
 							case XML_COMMENT_NODE:
 							    tmp = xmlXIncludeCopyNode(ctxt, target, source, cur);
-							    if(last == NULL) {
+							    if(!last) {
 								    list = last = tmp;
 							    }
 							    else {
@@ -1025,7 +1025,7 @@ static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDoc * targe
 				    case XML_ENTITY_DECL:
 					continue; /* for */
 			    }
-			    if(last == NULL)
+			    if(!last)
 				    list = last = xmlXIncludeCopyNode(ctxt, target, source, set->PP_NodeTab[i]);
 			    else {
 				    xmlAddNextSibling(last, xmlXIncludeCopyNode(ctxt, target, source, set->PP_NodeTab[i]));
@@ -1041,7 +1041,7 @@ static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDoc * targe
 		    if(set == NULL)
 			    return 0;
 		    for(i = 0; i < set->locNr; i++) {
-			    if(last == NULL)
+			    if(!last)
 				    list = last = xmlXIncludeCopyXPointer(ctxt, target, source, set->locTab[i]);
 			    else
 				    xmlAddNextSibling(last, xmlXIncludeCopyXPointer(ctxt, target, source, set->locTab[i]));

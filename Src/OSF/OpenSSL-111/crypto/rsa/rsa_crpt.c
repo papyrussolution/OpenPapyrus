@@ -141,7 +141,7 @@ BN_BLINDING * RSA_setup_blinding(RSA * rsa, BN_CTX * in_ctx)
 	{
 		BIGNUM * n = BN_new();
 
-		if(n == NULL) {
+		if(!n) {
 			RSAerr(RSA_F_RSA_SETUP_BLINDING, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}

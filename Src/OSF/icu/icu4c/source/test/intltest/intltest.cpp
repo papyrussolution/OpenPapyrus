@@ -1362,15 +1362,13 @@ int main(int argc, char * argv[])
 		ucnv_setDefaultName("utf-8");
 	}
 	errorCode = U_ZERO_ERROR;
-
 	/* Initialize ICU */
 	if(!defaultDataFound) {
 		IntlTest::setICU_DATA(); // Must set data directory before u_init() is called.
 	}
 	u_init(&errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr,
-		    "#### ERROR! %s: u_init() failed with status = \"%s\".\n"
+		slfprintf_stderr("#### ERROR! %s: u_init() failed with status = \"%s\".\n"
 		    "*** Check the ICU_DATA environment variable and \n"
 		    "*** check that the data files are present.\n", argv[0], u_errorName(errorCode));
 		if(warnOnMissingData == 0) {
@@ -1387,18 +1385,15 @@ int main(int argc, char * argv[])
 		ucnv_close(cnv);
 	}
 	else {
-		fprintf(stdout,
-		    "*** %s! The default converter [%s] cannot be opened.\n"
+		fprintf(stdout, "*** %s! The default converter [%s] cannot be opened.\n"
 		    "*** Check the ICU_DATA environment variable and\n"
 		    "*** check that the data files are present.\n",
 		    warnOrErr, ucnv_getDefaultName());
 		if(!warnOnMissingData) {
-			fprintf(stdout,
-			    "*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
+			fprintf(stdout, "*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
 			return 1;
 		}
 	}
-
 	// try more data
 	cnv = ucnv_open(TRY_CNV_2, &errorCode);
 	if(cnv != 0) {
@@ -1406,36 +1401,26 @@ int main(int argc, char * argv[])
 		ucnv_close(cnv);
 	}
 	else {
-		fprintf(stdout,
-		    "*** %s! The converter for " TRY_CNV_2 " cannot be opened.\n"
-		    "*** Check the ICU_DATA environment variable and \n"
+		fprintf(stdout, "*** %s! The converter for " TRY_CNV_2 " cannot be opened.\n*** Check the ICU_DATA environment variable and \n"
 		    "*** check that the data files are present.\n", warnOrErr);
 		if(!warnOnMissingData) {
-			fprintf(stdout,
-			    "*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
+			fprintf(stdout, "*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
 			return 1;
 		}
 	}
-
 	UResourceBundle * rb = ures_open(0, "en", &errorCode);
 	ures_close(rb);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stdout,
-		    "*** %s! The \"en\" locale resource bundle cannot be opened.\n"
-		    "*** Check the ICU_DATA environment variable and \n"
-		    "*** check that the data files are present.\n", warnOrErr);
+		fprintf(stdout, "*** %s! The \"en\" locale resource bundle cannot be opened.\n"
+		    "*** Check the ICU_DATA environment variable and \n" "*** check that the data files are present.\n", warnOrErr);
 		if(!warnOnMissingData) {
-			fprintf(stdout,
-			    "*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
+			fprintf(stdout, "*** Exiting.  Use the '-w' option if data files were\n*** purposely removed, to continue test anyway.\n");
 			return 1;
 		}
 	}
-
 	Locale originalLocale; // Save the default locale for comparison later on.
-
 	if(ctest_xml_init("intltest"))
 		return 1;
-
 	/* TODO: Add option to call u_cleanup and rerun tests. */
 	if(all) {
 		major.runTest();
@@ -1448,10 +1433,8 @@ int main(int argc, char * argv[])
 			if(argv[i][0] != '-') {
 				char * name = argv[i];
 				fprintf(stdout, "\n=== Handling test: %s: ===\n", name);
-
 				char baseName[1024];
 				sprintf(baseName, "/%s/", name);
-
 				char * parameter = strchr(name, '@');
 				if(parameter) {
 					*parameter = 0;

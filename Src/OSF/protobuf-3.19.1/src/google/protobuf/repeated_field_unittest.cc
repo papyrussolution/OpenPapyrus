@@ -845,7 +845,7 @@ template <typename X>
 auto ValidResolutionPointerRange(const std::string* p)
 ->decltype(X::f({p, p + 2}), std::true_type{});
 template <typename X>
-std::false_type ValidResolutionPointerRange(void*);
+std::false_type ValidResolutionPointerRange(void *);
 
 TEST(RepeatedPtrField, UnambiguousConstructor) {
 	struct X {

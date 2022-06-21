@@ -9,13 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "checkleakautovar.h"
-#include "errortypes.h"
-#include "library.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
-#include <simplecpp.h>
 
 class TestLeakAutoVarStrcpy;
 class TestLeakAutoVarWindows;
@@ -419,7 +412,7 @@ private:
 	void assign19() {
 		check("void f() {\n"
 		    "    char *p = malloc(10);\n"
-		    "    free((void*)p);\n"
+		    "    free((void *)p);\n"
 		    "}");
 		ASSERT_EQUALS("", errout.str());
 	}
@@ -1185,7 +1178,7 @@ private:
 	void doublefree2() { // #3891
 		check("void *f(int a) {\n"
 		    "    char *p = malloc(10);\n"
-		    "    if (a == 2) { free(p); return ((void*)1); }\n"
+		    "    if (a == 2) { free(p); return ((void *)1); }\n"
 		    "    free(p);\n"
 		    "    return 0;\n"
 		    "}");
@@ -1874,7 +1867,7 @@ private:
 
 		check("void f() {\n"
 		    "    FILE*f=fopen(fname,a);\n"
-		    "    free((void*)f);\n"
+		    "    free((void *)f);\n"
 		    "}");
 		ASSERT_EQUALS("[test.c:2] -> [test.c:3]: (error) Mismatching allocation and deallocation: f\n", errout.str());
 
@@ -2138,7 +2131,7 @@ private:
 
 		check("void* f() {\n"
 		    "    void *x = malloc(1);\n"
-		    "    return (void*)(short)x;\n"
+		    "    return (void *)(short)x;\n"
 		    "}", true);
 		ASSERT_EQUALS("[test.cpp:3]: (error) Memory leak: x\n", errout.str());
 

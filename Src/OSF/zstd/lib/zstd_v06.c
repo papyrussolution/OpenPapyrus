@@ -1668,12 +1668,9 @@ MEM_STATIC size_t HUFv06_readStats(BYTE * huffWeight, size_t hwSize, uint32 * ra
 		if(verif != rest) return ERROR(corruption_detected); /* last value must be a clean power of 2 */
 		huffWeight[oSize] = (BYTE)lastWeight;
 		rankStats[lastWeight]++;}   }
-
 	/* check tree construction validity */
-	if((rankStats[1] < 2) || (rankStats[1] & 1)) return ERROR(corruption_detected); /* by construction : at least 2
-	                                                                                   elts of rank 1, must be even
-	                                                                                   */
-
+	if((rankStats[1] < 2) || (rankStats[1] & 1)) 
+		return ERROR(corruption_detected); /* by construction : at least 2 elts of rank 1, must be even */
 	/* results */
 	*nbSymbolsPtr = (uint32)(oSize+1);
 	return iSize+1;
@@ -3184,7 +3181,7 @@ static size_t ZSTDv06_decompressSequences(ZSTDv06_DCtx* dctx,
 
 #if 0  /* debug */
 			static BYTE * start = NULL;
-			if(start==NULL) 
+			if(!start) 
 				start = op;
 			size_t pos = (size_t)(op-start);
 			if((pos >= 5810037) && (pos < 5810400))

@@ -15,10 +15,9 @@
 #if defined(_MSC_VER)
 	#pragma warning(disable : 4204)   /* disable: C4204: non-constant aggregate initializer */
 #endif
-/* ======   Constants   ====== */
+
 #define ZSTDMT_OVERLAPLOG_DEFAULT 0
 
-/* ======   Dependencies   ====== */
 #include <zstd_deps.h>   /* memcpy, memset, INT_MAX, UINT_MAX */
 #include <zstd_mem.h> // MEM_STATIC
 #include <pool.h>        /* threadpool */
@@ -202,7 +201,7 @@ static buffer_t ZSTDMT_getBuffer(ZSTDMT_bufferPool* bufPool)
 	    void * const start = ZSTD_customMalloc(bSize, bufPool->cMem);
 	    buffer.start = start; /* note : start can be NULL if malloc fails ! */
 	    buffer.capacity = (start==NULL) ? 0 : bSize;
-	    if(start==NULL) {
+	    if(!start) {
 		    DEBUGLOG(5, "ZSTDMT_getBuffer: buffer allocation failure !!");
 	    }
 	    else {
@@ -743,8 +742,7 @@ static void ZSTDMT_compressionJob(void * jobDescription)
 	    }
 		/* last block */
 	    assert(chunkSize > 0);
-	    assert((chunkSize & (chunkSize - 1)) == 0); /* chunkSize must be power of 2 for mask==(chunkSize-1) to work
-		                                           */
+	    assert((chunkSize & (chunkSize - 1)) == 0); /* chunkSize must be power of 2 for mask==(chunkSize-1) to work */
 	    if((nbChunks > 0) | job->lastJob /*must output a "last block" flag*/) {
 		    const size_t lastBlockSize1 = job->src.size & (chunkSize-1);
 		    const size_t lastBlockSize = ((lastBlockSize1==0) & (job->src.size>=chunkSize)) ? chunkSize : lastBlockSize1;
@@ -1525,7 +1523,6 @@ static range_t ZSTDMT_getInputDataInUse(ZSTDMT_CCtx* mtctx)
 	}
 	return kNullRange;
 }
-
 /**
  * Returns non-zero iff buffer and range overlap.
  */
@@ -1533,18 +1530,14 @@ static int ZSTDMT_isOverlapped(buffer_t buffer, range_t range)
 {
 	BYTE const* const bufferStart = (BYTE const*)buffer.start;
 	BYTE const* const rangeStart = (BYTE const*)range.start;
-
 	if(rangeStart == NULL || bufferStart == NULL)
 		return 0;
-
 	{
 		BYTE const* const bufferEnd = bufferStart + buffer.capacity;
 		BYTE const* const rangeEnd = rangeStart + range.size;
-
 		/* Empty ranges cannot overlap */
 		if(bufferStart == bufferEnd || rangeStart == rangeEnd)
 			return 0;
-
 		return bufferStart < rangeEnd && rangeStart < bufferEnd;
 	}
 }
@@ -1553,22 +1546,14 @@ static int ZSTDMT_doesOverlapWindow(buffer_t buffer, ZSTD_window_t window)
 {
 	range_t extDict;
 	range_t prefix;
-
 	DEBUGLOG(5, "ZSTDMT_doesOverlapWindow");
 	extDict.start = window.dictBase + window.lowLimit;
 	extDict.size = window.dictLimit - window.lowLimit;
-
 	prefix.start = window.base + window.dictLimit;
 	prefix.size = window.nextSrc - (window.base + window.dictLimit);
-	DEBUGLOG(5, "extDict [0x%zx, 0x%zx)",
-	    (size_t)extDict.start,
-	    (size_t)extDict.start + extDict.size);
-	DEBUGLOG(5, "prefix  [0x%zx, 0x%zx)",
-	    (size_t)prefix.start,
-	    (size_t)prefix.start + prefix.size);
-
-	return ZSTDMT_isOverlapped(buffer, extDict)
-	       || ZSTDMT_isOverlapped(buffer, prefix);
+	DEBUGLOG(5, "extDict [0x%zx, 0x%zx)", (size_t)extDict.start, (size_t)extDict.start + extDict.size);
+	DEBUGLOG(5, "prefix  [0x%zx, 0x%zx)", (size_t)prefix.start, (size_t)prefix.start + prefix.size);
+	return ZSTDMT_isOverlapped(buffer, extDict) || ZSTDMT_isOverlapped(buffer, prefix);
 }
 
 static void ZSTDMT_waitForLdmComplete(ZSTDMT_CCtx* mtctx, buffer_t buffer)
@@ -1576,9 +1561,7 @@ static void ZSTDMT_waitForLdmComplete(ZSTDMT_CCtx* mtctx, buffer_t buffer)
 	if(mtctx->params.ldmParams.enableLdm == ZSTD_ps_enable) {
 		ZSTD_pthread_mutex_t* mutex = &mtctx->serial.ldmWindowMutex;
 		DEBUGLOG(5, "ZSTDMT_waitForLdmComplete");
-		DEBUGLOG(5, "source  [0x%zx, 0x%zx)",
-		    (size_t)buffer.start,
-		    (size_t)buffer.start + buffer.capacity);
+		DEBUGLOG(5, "source  [0x%zx, 0x%zx)", (size_t)buffer.start, (size_t)buffer.start + buffer.capacity);
 		ZSTD_PTHREAD_MUTEX_LOCK(mutex);
 		while(ZSTDMT_doesOverlapWindow(buffer, mtctx->serial.ldmWindow)) {
 			DEBUGLOG(5, "Waiting for LDM to finish...");
@@ -1588,7 +1571,6 @@ static void ZSTDMT_waitForLdmComplete(ZSTDMT_CCtx* mtctx, buffer_t buffer)
 		ZSTD_pthread_mutex_unlock(mutex);
 	}
 }
-
 /**
  * Attempts to set the inBuff to the next section to fill.
  * If any part of the new section is still in use we give up.
@@ -1600,18 +1582,15 @@ static int ZSTDMT_tryGetInputRange(ZSTDMT_CCtx* mtctx)
 	const size_t spaceLeft = mtctx->roundBuff.capacity - mtctx->roundBuff.pos;
 	const size_t target = mtctx->targetSectionSize;
 	buffer_t buffer;
-
 	DEBUGLOG(5, "ZSTDMT_tryGetInputRange");
 	assert(mtctx->inBuff.buffer.start == NULL);
 	assert(mtctx->roundBuff.capacity >= target);
-
 	if(spaceLeft < target) {
 		/* ZSTD_invalidateRepCodes() doesn't work for extDict variants.
 		 * Simply copy the prefix to the beginning in that case.
 		 */
 		BYTE * const start = (BYTE *)mtctx->roundBuff.buffer;
 		const size_t prefixSize = mtctx->inBuff.prefix.size;
-
 		buffer.start = start;
 		buffer.capacity = prefixSize;
 		if(ZSTDMT_isOverlapped(buffer, inUse)) {
@@ -1625,22 +1604,14 @@ static int ZSTDMT_tryGetInputRange(ZSTDMT_CCtx* mtctx)
 	}
 	buffer.start = mtctx->roundBuff.buffer + mtctx->roundBuff.pos;
 	buffer.capacity = target;
-
 	if(ZSTDMT_isOverlapped(buffer, inUse)) {
 		DEBUGLOG(5, "Waiting for buffer...");
 		return 0;
 	}
 	assert(!ZSTDMT_isOverlapped(buffer, mtctx->inBuff.prefix));
-
 	ZSTDMT_waitForLdmComplete(mtctx, buffer);
-
-	DEBUGLOG(5, "Using prefix range [%zx, %zx)",
-	    (size_t)mtctx->inBuff.prefix.start,
-	    (size_t)mtctx->inBuff.prefix.start + mtctx->inBuff.prefix.size);
-	DEBUGLOG(5, "Using source range [%zx, %zx)",
-	    (size_t)buffer.start,
-	    (size_t)buffer.start + buffer.capacity);
-
+	DEBUGLOG(5, "Using prefix range [%zx, %zx)", (size_t)mtctx->inBuff.prefix.start, (size_t)mtctx->inBuff.prefix.start + mtctx->inBuff.prefix.size);
+	DEBUGLOG(5, "Using source range [%zx, %zx)", (size_t)buffer.start, (size_t)buffer.start + buffer.capacity);
 	mtctx->inBuff.buffer = buffer;
 	mtctx->inBuff.filled = 0;
 	assert(mtctx->roundBuff.pos + buffer.capacity <= mtctx->roundBuff.capacity);
@@ -1752,7 +1723,7 @@ static syncPoint_t findSynchronizationPoint(ZSTDMT_CCtx const* mtctx, ZSTD_inBuf
 size_t ZSTDMT_nextInputSizeHint(const ZSTDMT_CCtx* mtctx)
 {
 	size_t hintInSize = mtctx->targetSectionSize - mtctx->inBuff.filled;
-	if(hintInSize==0) hintInSize = mtctx->targetSectionSize;
+	SETIFZQ(hintInSize, mtctx->targetSectionSize);
 	return hintInSize;
 }
 
@@ -1782,9 +1753,7 @@ size_t ZSTDMT_compressStream_generic(ZSTDMT_CCtx* mtctx, ZSTD_outBuffer* output,
 				assert(mtctx->doneJobID != mtctx->nextJobID);
 			}
 			else
-				DEBUGLOG(5,
-				    "ZSTDMT_tryGetInputRange completed successfully : mtctx->inBuff.buffer.start = %p",
-				    mtctx->inBuff.buffer.start);
+				DEBUGLOG(5, "ZSTDMT_tryGetInputRange completed successfully : mtctx->inBuff.buffer.start = %p", mtctx->inBuff.buffer.start);
 		}
 		if(mtctx->inBuff.buffer.start != NULL) {
 			syncPoint_t const syncPoint = findSynchronizationPoint(mtctx, *input);
@@ -1794,9 +1763,7 @@ size_t ZSTDMT_compressStream_generic(ZSTDMT_CCtx* mtctx, ZSTD_outBuffer* output,
 			assert(mtctx->inBuff.buffer.capacity >= mtctx->targetSectionSize);
 			DEBUGLOG(5, "ZSTDMT_compressStream_generic: adding %u bytes on top of %u to buffer of size %u",
 			    (uint32)syncPoint.toLoad, (uint32)mtctx->inBuff.filled, (uint32)mtctx->targetSectionSize);
-			memcpy((char *)mtctx->inBuff.buffer.start + mtctx->inBuff.filled,
-			    (const char*)input->src + input->pos,
-			    syncPoint.toLoad);
+			memcpy((char *)mtctx->inBuff.buffer.start + mtctx->inBuff.filled, (const char*)input->src + input->pos, syncPoint.toLoad);
 			input->pos += syncPoint.toLoad;
 			mtctx->inBuff.filled += syncPoint.toLoad;
 			forwardInputProgress = syncPoint.toLoad>0;

@@ -896,7 +896,7 @@ static int zip_read_local_file_header(ArchiveRead * a, ArchiveEntry * entry,
 		}
 		sconv = zip->sconv_utf8;
 	}
-	else if(zip->sconv != NULL)
+	else if(zip->sconv)
 		sconv = zip->sconv;
 	else
 		sconv = zip->sconv_default;
@@ -934,9 +934,8 @@ static int zip_read_local_file_header(ArchiveRead * a, ArchiveEntry * entry,
 	}
 	/* Windows archivers sometimes use backslash as the directory
 	 * separator. Normalize to slash. */
-	if(zip_entry->system == 0 &&
-	    (wp = archive_entry_pathname_w(entry)) != NULL) {
-		if(wcschr(wp, L'/') == NULL && wcschr(wp, L'\\') != NULL) {
+	if(zip_entry->system == 0 && (wp = archive_entry_pathname_w(entry)) != NULL) {
+		if(wcschr(wp, L'/') == NULL && wcschr(wp, L'\\')) {
 			size_t i;
 			archive_wstring s;
 			archive_string_init(&s);
@@ -2556,15 +2555,12 @@ static int archive_read_format_zip_cleanup(ArchiveRead * a)
 		BZ2_bzDecompressEnd(&zip->bzstream);
 	}
 #endif
-
 	SAlloc::F(zip->uncompressed_buffer);
-
 	if(zip->ppmd8_valid)
 		__archive_ppmd8_functions.Ppmd8_Free(&zip->ppmd8);
-
 	if(zip->zip_entries) {
 		zip_entry = zip->zip_entries;
-		while(zip_entry != NULL) {
+		while(zip_entry) {
 			next_zip_entry = zip_entry->next;
 			archive_string_free(&zip_entry->rsrcname);
 			SAlloc::F(zip_entry);
@@ -2611,7 +2607,7 @@ static int archive_read_format_zip_options(ArchiveRead * a, const char * key, co
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "zip: hdrcharset option needs a character-set name");
 		else {
 			zip->sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
-			if(zip->sconv != NULL) {
+			if(zip->sconv) {
 				if(sstreq(val, "UTF-8"))
 					zip->sconv_utf8 = zip->sconv;
 				ret = ARCHIVE_OK;
@@ -3510,7 +3506,7 @@ static int archive_read_format_zip_seekable_read_header(ArchiveRead * a, Archive
 		 * other entries in the archive file. */
 		zip->entry = (struct zip_entry *)ARCHIVE_RB_TREE_MIN(&zip->tree);
 	}
-	else if(zip->entry != NULL) {
+	else if(zip->entry) {
 		/* Get next entry in local header offset order. */
 		zip->entry = (struct zip_entry *)__archive_rb_tree_iterate(&zip->tree, &zip->entry->node, ARCHIVE_RB_DIR_RIGHT);
 	}

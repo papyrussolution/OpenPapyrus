@@ -6,22 +6,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//---------------------------------------------------------------------------
 #ifndef settingsH
 #define settingsH
-//---------------------------------------------------------------------------
 
-#include "cppcheck-config.h"
+//#include "cppcheck-config.h"
 #include "errortypes.h"
 #include "importproject.h"
 #include "library.h"
@@ -30,14 +19,6 @@
 #include "suppressions.h"
 #include "timer.h"
 
-#include <algorithm>
-#include <atomic>
-#include <cstdint>
-#include <list>
-#include <set>
-#include <string>
-#include <vector>
-
 namespace ValueFlow {
 class Value;
 }
@@ -45,8 +26,7 @@ class Value;
 /// @addtogroup Core
 /// @{
 
-template <typename T>
-class SimpleEnableGroup {
+template <typename T> class SimpleEnableGroup {
 	uint32_t mFlags = 0;
 public:
 	uint32_t intValue() const { return mFlags; }

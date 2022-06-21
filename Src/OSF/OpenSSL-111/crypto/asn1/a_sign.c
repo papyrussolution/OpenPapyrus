@@ -137,7 +137,7 @@ int ASN1_item_sign_ctx(const ASN1_ITEM * it,
 	type = EVP_MD_CTX_md(ctx);
 	pkey = EVP_PKEY_CTX_get0_pkey(EVP_MD_CTX_pkey_ctx(ctx));
 
-	if(pkey == NULL) {
+	if(!pkey) {
 		ASN1err(ASN1_F_ASN1_ITEM_SIGN_CTX, ASN1_R_CONTEXT_NOT_INITIALISED);
 		goto err;
 	}

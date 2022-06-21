@@ -106,7 +106,7 @@
 	*/
 	#define LUA_INT_TYPE    LUA_INT_LONG
 	#define LUA_FLOAT_TYPE  LUA_FLOAT_DOUBLE
-#endif                          /* } */
+#endif /* } */
 /*
 ** default configuration for 64-bit Lua ('long long' and 'double')
 */
@@ -214,7 +214,7 @@
 
 #define LUA_API         extern
 
-#endif                          /* } */
+#endif /* } */
 
 /* more often than not the libs go together with the core */
 #define LUALIB_API      LUA_API
@@ -239,7 +239,7 @@
 #define LUAI_FUNC       __attribute__((visibility("hidden"))) extern
 #else                           /* }{ */
 #define LUAI_FUNC       extern
-#endif                          /* } */
+#endif /* } */
 
 #define LUAI_DDEC       LUAI_FUNC
 #define LUAI_DDEF       /* empty */
@@ -283,7 +283,7 @@
  */
 #define LUA_COMPAT_APIINTCASTS
 
-#endif                          /* } */
+#endif /* } */
 
 #if defined(LUA_COMPAT_5_1)     /* { */
 
@@ -347,7 +347,7 @@
  */
 #define LUA_COMPAT_MODULE
 
-#endif                          /* } */
+#endif /* } */
 
 /*
    @@ LUA_COMPAT_FLOATSTRING makes Lua format integral floats without a
@@ -479,10 +479,10 @@
 		#define LUA_MININTEGER          _I64_MIN
 	#else                           /* }{ */
 		#error "Compiler does not support 'long long'. Use option '-DLUA_32BITS' or '-DLUA_C89_NUMBERS' (see file 'luaconf.h' for details)"
-	#endif                          /* } */
+	#endif /* } */
 #else                           /* }{ */
 	#error "numeric integer type not defined"
-#endif                          /* } */
+#endif /* } */
 
 /* }================================================================== */
 

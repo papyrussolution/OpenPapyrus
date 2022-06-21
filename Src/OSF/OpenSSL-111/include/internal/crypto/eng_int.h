@@ -161,4 +161,4 @@ typedef struct st_engine_pile ENGINE_PILE;
 
 DEFINE_LHASH_OF(ENGINE_PILE);
 
-#endif                          /* HEADER_ENGINE_INT_H */
+#endif /* HEADER_ENGINE_INT_H */

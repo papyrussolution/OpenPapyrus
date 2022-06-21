@@ -238,10 +238,10 @@ static void freedirs(struct ftp_conn * ftpc)
 		ftpc->dirs = NULL;
 		ftpc->dirdepth = 0;
 	}
-	Curl_safefree(ftpc->file);
+	ZFREE(ftpc->file);
 
 	/* no longer of any use */
-	Curl_safefree(ftpc->newhost);
+	ZFREE(ftpc->newhost);
 }
 
 /***********************************************************************
@@ -1744,7 +1744,7 @@ static CURLcode ftp_state_pasv_resp(struct connectdata * conn,
 	char * str = &data->state.buffer[4]; /* start on the first letter */
 
 	/* if we come here again, make sure the former name is cleared */
-	Curl_safefree(ftpc->newhost);
+	ZFREE(ftpc->newhost);
 
 	if((ftpc->count1 == 0) &&
 	    (ftpcode == 229)) {
@@ -1908,7 +1908,7 @@ static CURLcode ftp_state_pasv_resp(struct connectdata * conn,
 
 	Curl_resolv_unlock(data, addr); /* we're done using this address */
 
-	Curl_safefree(conn->secondaryhostname);
+	ZFREE(conn->secondaryhostname);
 	conn->secondary_port = ftpc->newport;
 	conn->secondaryhostname = sstrdup(ftpc->newhost);
 	if(!conn->secondaryhostname)
@@ -2761,7 +2761,7 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 							    SAlloc::F(dir);
 							    return result;
 						    }
-						    Curl_safefree(ftpc->entrypath);
+						    ZFREE(ftpc->entrypath);
 						    ftpc->entrypath = dir; /* remember this */
 						    infof(data, "Entry path is '%s'\n", ftpc->entrypath);
 						    /* also save it where getinfo can access it: */
@@ -2770,7 +2770,7 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 						    break;
 					    }
 
-					    Curl_safefree(ftpc->entrypath);
+					    ZFREE(ftpc->entrypath);
 					    ftpc->entrypath = dir; /* remember this */
 					    infof(data, "Entry path is '%s'\n", ftpc->entrypath);
 					    /* also save it where getinfo can access it: */
@@ -2815,14 +2815,14 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 						    return result;
 					    }
 					    /* remember target server OS */
-					    Curl_safefree(ftpc->server_os);
+					    ZFREE(ftpc->server_os);
 					    ftpc->server_os = os;
 					    state(conn, FTP_NAMEFMT);
 					    break;
 				    }
 				    /* Nothing special for the target server. */
 				    /* remember target server OS */
-				    Curl_safefree(ftpc->server_os);
+				    ZFREE(ftpc->server_os);
 				    ftpc->server_os = os;
 			    }
 			    else {
@@ -3272,7 +3272,7 @@ static CURLcode ftp_done(struct connectdata * conn, CURLcode status,
 	/* Send any post-transfer QUOTE strings? */
 	if(!status && !result && !premature && data->set.postquote)
 		result = ftp_sendquote(conn, data->set.postquote);
-	Curl_safefree(ftp->pathalloc);
+	ZFREE(ftp->pathalloc);
 	return result;
 }
 
@@ -3700,7 +3700,7 @@ fail:
 		Curl_ftp_parselist_data_free(&ftpwc->parser);
 		SAlloc::F(ftpwc);
 	}
-	Curl_safefree(wildcard->pattern);
+	ZFREE(wildcard->pattern);
 	wildcard->dtor = ZERO_NULL;
 	wildcard->protdata = NULL;
 	return result;
@@ -3932,12 +3932,12 @@ static CURLcode ftp_disconnect(struct connectdata * conn, bool dead_connection)
 		if(data->state.most_recent_ftp_entrypath == ftpc->entrypath) {
 			data->state.most_recent_ftp_entrypath = NULL;
 		}
-		Curl_safefree(ftpc->entrypath);
+		ZFREE(ftpc->entrypath);
 	}
 
 	freedirs(ftpc);
-	Curl_safefree(ftpc->prevpath);
-	Curl_safefree(ftpc->server_os);
+	ZFREE(ftpc->prevpath);
+	ZFREE(ftpc->server_os);
 	Curl_pp_disconnect(pp);
 	Curl_sec_end(conn);
 	return CURLE_OK;

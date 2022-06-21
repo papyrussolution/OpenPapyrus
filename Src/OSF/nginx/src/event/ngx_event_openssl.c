@@ -369,7 +369,7 @@ ngx_int_t ngx_ssl_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * cert
 		EVP_PKEY  * pkey;
 		p = key->data + sizeof("engine:") - 1;
 		last = (u_char *)ngx_strchr(p, ':');
-		if(last == NULL) {
+		if(!last) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid syntax in \"%V\"", key);
 			return NGX_ERROR;
 		}
@@ -671,7 +671,7 @@ ngx_array_t * ngx_ssl_read_password_file(ngx_conf_t * cf, ngx_str_t * file)
 		p = buf;
 		for(;; ) {
 			last = ngx_strlchr(last, end, LF);
-			if(last == NULL) {
+			if(!last) {
 				break;
 			}
 			len = last++ - p;

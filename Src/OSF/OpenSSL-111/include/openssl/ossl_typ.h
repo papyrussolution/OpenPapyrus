@@ -165,4 +165,4 @@ typedef ulong ossl_uintmax_t;
 #ifdef  __cplusplus
 }
 #endif
-#endif                          /* def HEADER_OPENSSL_TYPES_H */
+#endif /* def HEADER_OPENSSL_TYPES_H */

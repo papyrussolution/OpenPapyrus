@@ -13,18 +13,16 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-
-//#include "cdjpeg.h"		/* Common decls for cjpeg/djpeg applications */
-#include "transupp.h"           /* Support routines for jpegtran */
-#include "jversion.h"           /* for version message */
-
-#ifdef USE_CCOMMAND             /* command-line reader for Macintosh */
+//#include "cdjpeg.h" /* Common decls for cjpeg/djpeg applications */
+#include "transupp.h" /* Support routines for jpegtran */
+#include "jversion.h" /* for version message */
+#ifdef USE_CCOMMAND /* command-line reader for Macintosh */
 #ifdef __MWERKS__
-#include <SIOUX.h>              /* Metrowerks needs this */
-#include <console.h>            /* ... and this */
+#include <SIOUX.h>   /* Metrowerks needs this */
+#include <console.h> /* ... and this */
 #endif
 #ifdef THINK_C
-#include <console.h>            /* Think declares it here */
+#include <console.h> /* Think declares it here */
 #endif
 #endif
 /*
@@ -180,10 +178,8 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv, int last
 #if TRANSFORMS_SUPPORTED
 			if(++argn >= argc) /* advance to next argument */
 				usage();
-			if(transformoption.crop /* reject multiple crop/wipe requests */ ||
-			    !jtransform_parse_crop_spec(&transformoption, argv[argn])) {
-				slfprintf_stderr("%s: bogus -crop argument '%s'\n",
-				    progname, argv[argn]);
+			if(transformoption.crop /* reject multiple crop/wipe requests */ || !jtransform_parse_crop_spec(&transformoption, argv[argn])) {
+				slfprintf_stderr("%s: bogus -crop argument '%s'\n", progname, argv[argn]);
 				exit(EXIT_FAILURE);
 			}
 #else
@@ -194,10 +190,8 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv, int last
 			/* Enable debug printouts. */
 			/* On first -d, print version identification */
 			static boolean printed_version = FALSE;
-
 			if(!printed_version) {
-				slfprintf_stderr("Independent JPEG Group's JPEGTRAN, version %s\n%s\n",
-				    JVERSION, JCOPYRIGHT);
+				slfprintf_stderr("Independent JPEG Group's JPEGTRAN, version %s\n%s\n", JVERSION, JCOPYRIGHT);
 				printed_version = TRUE;
 			}
 			cinfo->err->trace_level++;

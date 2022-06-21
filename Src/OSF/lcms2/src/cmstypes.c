@@ -2818,7 +2818,7 @@ static void * Type_UcrBg_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER
 	uint32 CountUcr, CountBg;
 	char * ASCIIString;
 	*nItems = 0;
-	if(n == NULL) return NULL;
+	if(!n) return NULL;
 	// First curve is Under color removal
 	if(!_cmsReadUInt32Number(io, &CountUcr)) return NULL;
 	if(SizeOfTag < sizeof(uint32)) return NULL;

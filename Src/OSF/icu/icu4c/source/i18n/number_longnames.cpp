@@ -406,11 +406,9 @@ public:
 			return;
 		}
 	}
-
 private:
 	UnicodeString * outArray;
 };
-
 /**
  * Populates outArray with `locale`-specific values for `unit` through use of
  * PluralTableSink. Only the set of basic units are supported!
@@ -426,23 +424,19 @@ private:
  *     (For any missing case-specific data, we fall back to nominative.)
  * @param outArray must be of fixed length ARRAY_LENGTH.
  */
-void getMeasureData(const Locale &locale,
-    const MeasureUnit &unit,
-    const UNumberUnitWidth &width,
-    const char * unitDisplayCase,
-    UnicodeString * outArray,
-    UErrorCode & status) {
+void getMeasureData(const Locale &locale, const MeasureUnit &unit, 
+	/*const UNumberUnitWidth & width*/UNumberUnitWidth width,
+    const char * unitDisplayCase, UnicodeString * outArray, UErrorCode & status) 
+{
 	PluralTableSink sink(outArray);
 	LocalUResourceBundlePointer unitsBundle(ures_open(U_ICUDATA_UNIT, locale.getName(), &status));
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	CharString subKey;
 	subKey.append("/", status);
 	subKey.append(unit.getType(), status);
 	subKey.append("/", status);
-
 	// Map duration-year-person, duration-week-person, etc. to duration-year, duration-week, ...
 	// TODO(ICU-20400): Get duration-*-person data properly with aliases.
 	int32_t subtypeLen = static_cast<int32_t>(uprv_strlen(unit.getSubtype()));
@@ -452,7 +446,6 @@ void getMeasureData(const Locale &locale,
 	else {
 		subKey.append({unit.getSubtype(), subtypeLen}, status);
 	}
-
 	if(width != UNUM_UNIT_WIDTH_FULL_NAME) {
 		UErrorCode localStatus = status;
 		CharString genderKey;
@@ -464,7 +457,6 @@ void getMeasureData(const Locale &locale,
 		    &localStatus);
 		outArray[GENDER_INDEX] = ures_getUnicodeString(fillIn.getAlias(), &localStatus);
 	}
-
 	CharString key;
 	key.append("units", status);
 	if(width == UNUM_UNIT_WIDTH_NARROW) {
@@ -474,7 +466,6 @@ void getMeasureData(const Locale &locale,
 		key.append("Short", status);
 	}
 	key.append(subKey, status);
-
 	// Grab desired case first, if available. Then grab no-case data to fill in
 	// the gaps.
 	if(width == UNUM_UNIT_WIDTH_FULL_NAME && unitDisplayCase[0] != 0) {
@@ -491,7 +482,6 @@ void getMeasureData(const Locale &locale,
 		// regional variant of an inflected language?)
 		ures_getAllChildrenWithFallback(unitsBundle.getAlias(), caseKey.data(), sink, localStatus);
 	}
-
 	// TODO(icu-units#138): our fallback logic is not spec-compliant: we
 	// check the given case, then go straight to the no-case data. The spec
 	// states we should first look for case="nominative". As part of #138,
@@ -508,8 +498,8 @@ void getMeasureData(const Locale &locale,
 }
 
 // NOTE: outArray MUST have a length of at least ARRAY_LENGTH.
-void getCurrencyLongNameData(const Locale &locale, const CurrencyUnit &currency, UnicodeString * outArray,
-    UErrorCode & status) {
+void getCurrencyLongNameData(const Locale &locale, const CurrencyUnit &currency, UnicodeString * outArray, UErrorCode & status) 
+{
 	// In ICU4J, this method gets a CurrencyData from CurrencyData.provider.
 	// TODO(ICU4J): Implement this without going through CurrencyData, like in ICU4C?
 	PluralTableSink sink(outArray);
@@ -527,23 +517,18 @@ void getCurrencyLongNameData(const Locale &locale, const CurrencyUnit &currency,
 			continue;
 		}
 		int32_t longNameLen = 0;
-		const char16_t * longName = ucurr_getPluralName(
-			currency.getISOCurrency(),
-			locale.getName(),
-			nullptr /* isChoiceFormat */,
-			StandardPlural::getKeyword(static_cast<StandardPlural::Form>(i)),
-			&longNameLen,
-			&status);
+		const char16_t * longName = ucurr_getPluralName(currency.getISOCurrency(), locale.getName(),
+			nullptr /* isChoiceFormat */, StandardPlural::getKeyword(static_cast<StandardPlural::Form>(i)),
+			&longNameLen, &status);
 		// Example pattern from data: "{0} {1}"
 		// Example output after find-and-replace: "{0} US dollars"
 		pattern.findAndReplace(UnicodeString(u"{1}"), UnicodeString(longName, longNameLen));
 	}
 }
 
-UnicodeString getCompoundValue(StringPiece compoundKey,
-    const Locale &locale,
-    const UNumberUnitWidth &width,
-    UErrorCode & status) {
+UnicodeString getCompoundValue(StringPiece compoundKey, const Locale &locale,
+    const UNumberUnitWidth &width, UErrorCode & status) 
+{
 	LocalUResourceBundlePointer unitsBundle(ures_open(U_ICUDATA_UNIT, locale.getName(), &status));
 	if(U_FAILURE(status)) {
 		return {};
@@ -738,11 +723,9 @@ UnicodeString getDeriveCompoundRule(Locale locale, const char * feature, const c
 //
 // Pass a nullptr to data1 if the structure has no concept of value="1" (e.g.
 // "prefix" doesn't).
-UnicodeString getDerivedGender(Locale locale,
-    const char * structure,
-    UnicodeString * data0,
-    UnicodeString * data1,
-    UErrorCode & status) {
+UnicodeString getDerivedGender(Locale locale, const char * structure, UnicodeString * data0,
+    UnicodeString * data1, UErrorCode & status) 
+{
 	UnicodeString val = getDeriveCompoundRule(locale, "gender", structure, status);
 	if(val.length() == 1) {
 		switch(val[0]) {
@@ -761,7 +744,8 @@ UnicodeString getDerivedGender(Locale locale,
 // END DATA LOADING ///
 //
 // TODO: promote this somewhere? It's based on patternprops.cpp' trimWhitespace
-const UChar * trimSpaceChars(const UChar * s, int32_t &length) {
+const UChar * trimSpaceChars(const UChar * s, int32_t &length) 
+{
 	if(length <= 0 || (!u_isJavaSpaceChar(s[0]) && !u_isJavaSpaceChar(s[length - 1]))) {
 		return s;
 	}
@@ -809,7 +793,8 @@ const UChar * trimSpaceChars(const UChar * s, int32_t &length) {
  * @return The gender string for the unit, or an empty string if unknown or
  *     ungendered.
  */
-UnicodeString calculateGenderForUnit(const Locale &locale, const MeasureUnit &unit, UErrorCode & status) {
+UnicodeString calculateGenderForUnit(const Locale &locale, const MeasureUnit &unit, UErrorCode & status) 
+{
 	MeasureUnitImpl impl;
 	const MeasureUnitImpl& mui = MeasureUnitImpl::forMeasureUnit(unit, impl, status);
 	int32_t singleUnitIndex = 0;
@@ -896,10 +881,9 @@ UnicodeString calculateGenderForUnit(const Locale &locale, const MeasureUnit &un
 		   status);
 }
 
-void maybeCalculateGender(const Locale &locale,
-    const MeasureUnit &unitRef,
-    UnicodeString * outArray,
-    UErrorCode & status) {
+void maybeCalculateGender(const Locale &locale, const MeasureUnit &unitRef, UnicodeString * outArray,
+    UErrorCode & status) 
+{
 	if(outArray[GENDER_INDEX].isBogus()) {
 		UnicodeString meterGender = getGenderForBuiltin(locale, MeasureUnit::getMeter(), status);
 		if(meterGender.isEmpty()) {

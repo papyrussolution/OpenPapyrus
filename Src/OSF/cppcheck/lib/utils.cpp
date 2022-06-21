@@ -9,7 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "utils.h"
 
 int caseInsensitiveStringCompare(const std::string &lhs, const std::string &rhs)
 {

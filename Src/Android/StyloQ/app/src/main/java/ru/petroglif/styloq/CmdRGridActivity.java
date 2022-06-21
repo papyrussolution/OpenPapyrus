@@ -12,6 +12,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
+
 public class CmdRGridActivity extends SLib.SlActivity {
 	public CmdRGridActivity()
 	{
@@ -112,9 +114,49 @@ public class CmdRGridActivity extends SLib.SlActivity {
 												ViewDescriptionList.DataPreprocessBlock dpb = Vdl.StartDataPreprocessing(this, i);
 												if(dpb != null && dpb.ColumnDescription != null) {
 													for(int j = 0; j < ListData.length(); j++) {
-														JSONObject cur_entry = (JSONObject) ListData.get(j);
-														if(cur_entry != null)
-															Vdl.DataPreprocessingIter(dpb, cur_entry.optString(dpb.ColumnDescription.FieldName, ""));
+														JSONObject cur_entry = (JSONObject)ListData.get(j);
+														if(cur_entry != null) {
+															if(vdl_item.DataTypeBTS == DataType.BTS_INT) {
+																long lv = cur_entry.optLong(dpb.ColumnDescription.FieldName, 0L);
+																Vdl.DataPreprocessingIter(dpb, new Long(lv), Long.toString(lv));
+															}
+															else if(vdl_item.DataTypeBTS == DataType.BTS_REAL) {
+																double rv = cur_entry.optDouble(dpb.ColumnDescription.FieldName, 0.0);
+																int prec = 2;
+																if(vdl_item.SlFormat != 0)
+																	prec = SLib.SFMTPRC(vdl_item.SlFormat);
+																DecimalFormat df = new DecimalFormat();
+																df.setMaximumFractionDigits(prec);
+																df.setMinimumFractionDigits(prec);
+																String vs = df.format(rv);
+																Vdl.DataPreprocessingIter(dpb, new Double(rv), vs);
+															}
+															else if(vdl_item.DataTypeBTS == DataType.BTS_DATE) {
+																String vs = cur_entry.optString(dpb.ColumnDescription.FieldName, "");
+																SLib.LDATE d = SLib.strtodate(vs, SLib.DATF_DMY);
+																if(d != null && vdl_item.SlFormat != 0)
+																	vs = d.Format(vdl_item.SlFormat);
+																Vdl.DataPreprocessingIter(dpb, vs);
+															}
+															else if(vdl_item.DataTypeBTS == DataType.BTS_TIME) {
+																String vs = cur_entry.optString(dpb.ColumnDescription.FieldName, "");
+																SLib.LTIME t = SLib.strtotime(vs, SLib.TIMF_HMS);
+																if(t != null && vdl_item.SlFormat != 0)
+																	vs = SLib.timefmt(t, vdl_item.SlFormat);
+																Vdl.DataPreprocessingIter(dpb, vs);
+															}
+															else if(vdl_item.DataTypeBTS == DataType.BTS_DATETIME) {
+																String vs = cur_entry.optString(dpb.ColumnDescription.FieldName, "");
+																SLib.LDATETIME dtm = SLib.strtodatetime(vs, SLib.DATF_DMY, SLib.TIMF_HMS);
+																if(dtm != null && vdl_item.SlFormat != 0 || vdl_item.SlFormat2 != 0)
+																	vs = SLib.datetimefmt(dtm, vdl_item.SlFormat, vdl_item.SlFormat2);
+																Vdl.DataPreprocessingIter(dpb, vs);
+															}
+															else {
+																String vs = cur_entry.optString(dpb.ColumnDescription.FieldName, "");
+																Vdl.DataPreprocessingIter(dpb, vs);
+															}
+														}
 													}
 													Vdl.FinishDataProcessing(dpb);
 													dpb = null;
@@ -143,32 +185,6 @@ public class CmdRGridActivity extends SLib.SlActivity {
 								}
 							}
 							SetupRecyclerListView(null, R.id.gridCommandView, null);
-							//RecyclerView lv = (RecyclerView)findViewById(R.id.gridCommandView);
-							//if(lv != null) {
-							//lv.add
-							//}
-							/*
-							ResultText = intent.getStringExtra("SvcReplyText");
-							if(SLib.GetLen(ResultText) > 0) {
-								try {
-									JSONObject jsobj = new JSONObject(ResultText);
-									if(jsobj != null) {
-										String reply_result = jsobj.optString("result");
-										String reply_msg = jsobj.optString("msg");
-										String reply_errmsg = jsobj.optString("errmsg");
-										if(SLib.GetLen(reply_msg) > 0) {
-											SetCtrlString(R.id.cmdResultText, reply_msg);
-										}
-										else if(SLib.GetLen(reply_errmsg) > 0) {
-											SetCtrlString(R.id.cmdResultText, reply_errmsg);
-										}
-									}
-								} catch(JSONException e) {
-									//e.printStackTrace();
-								}
-								//SetCtrlString()
-							}
-							 */
 						}
 					} catch(JSONException exn) {
 						//
@@ -216,8 +232,46 @@ public class CmdRGridActivity extends SLib.SlActivity {
 										if(ctl != null) {
 											ViewDescriptionList.Item di = Vdl.Get(i);
 											if(di != null) {
-												String val = cur_entry.optString(di.FieldName, "");
-												ctl.setText(val);
+												//String val = cur_entry.optString(di.FieldName, "");
+												String vs = "";
+												if(cur_entry != null) {
+													if(di.DataTypeBTS == DataType.BTS_INT) {
+														long lv = cur_entry.optLong(di.FieldName, 0L);
+														vs = Long.toString(lv);
+													}
+													else if(di.DataTypeBTS == DataType.BTS_REAL) {
+														double rv = cur_entry.optDouble(di.FieldName, 0.0);
+														int prec = 2;
+														if(di.SlFormat != 0)
+															prec = SLib.SFMTPRC(di.SlFormat);
+														DecimalFormat df = new DecimalFormat();
+														df.setMaximumFractionDigits(prec);
+														df.setMinimumFractionDigits(prec);
+														vs = df.format(rv);
+													}
+													else if(di.DataTypeBTS == DataType.BTS_DATE) {
+														vs = cur_entry.optString(di.FieldName, "");
+														SLib.LDATE d = SLib.strtodate(vs, SLib.DATF_DMY);
+														if(d != null && di.SlFormat != 0)
+															vs = d.Format(di.SlFormat);
+													}
+													else if(di.DataTypeBTS == DataType.BTS_TIME) {
+														vs = cur_entry.optString(di.FieldName, "");
+														SLib.LTIME t = SLib.strtotime(vs, SLib.TIMF_HMS);
+														if(t != null && di.SlFormat != 0)
+															vs = SLib.timefmt(t, di.SlFormat);
+													}
+													else if(di.DataTypeBTS == DataType.BTS_DATETIME) {
+														vs = cur_entry.optString(di.FieldName, "");
+														SLib.LDATETIME dtm = SLib.strtodatetime(vs, SLib.DATF_DMY, SLib.TIMF_HMS);
+														if(dtm != null && di.SlFormat != 0 || di.SlFormat2 != 0)
+															vs = SLib.datetimefmt(dtm, di.SlFormat, di.SlFormat2);
+													}
+													else {
+														vs = cur_entry.optString(di.FieldName, "");
+													}
+												}
+												ctl.setText(vs);
 											}
 										}
 									}

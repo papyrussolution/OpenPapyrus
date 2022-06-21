@@ -114,4 +114,4 @@
         mov     tmp, %o7;
 #endif
 
-#endif                          /* __SPARC_ARCH_H__ */
+#endif /* __SPARC_ARCH_H__ */

@@ -655,11 +655,12 @@ ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t * log)
 
 void FASTCALL ngx_free_connection(ngx_connection_t * c)
 {
-	c->data = ngx_cycle->free_connections;
-	ngx_cycle->free_connections = c;
-	ngx_cycle->free_connection_n++;
-	if(ngx_cycle->files && ngx_cycle->files[c->fd] == c) {
-		ngx_cycle->files[c->fd] = NULL;
+	if(c) {
+		c->data = ngx_cycle->free_connections;
+		ngx_cycle->free_connections = c;
+		ngx_cycle->free_connection_n++;
+		if(ngx_cycle->files && ngx_cycle->files[c->fd] == c)
+			ngx_cycle->files[c->fd] = NULL;
 	}
 }
 

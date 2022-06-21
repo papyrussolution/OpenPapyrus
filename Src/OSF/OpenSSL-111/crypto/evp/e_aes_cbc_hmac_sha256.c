@@ -35,10 +35,10 @@ typedef struct {
 extern uint OPENSSL_ia32cap_P[];
 #define AESNI_CAPABLE   (1<<(57-32))
 
-int aesni_set_encrypt_key(const uchar * userKey, int bits, AES_KEY * key);
-int aesni_set_decrypt_key(const uchar * userKey, int bits, AES_KEY * key);
-void aesni_cbc_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key, uchar * ivec, int enc);
-int aesni_cbc_sha256_enc(const void * inp, void * out, size_t blocks, const AES_KEY * key, uchar iv[16], SHA256_CTX * ctx, const void * in0);
+extern "C" int  aesni_set_encrypt_key(const uchar * userKey, int bits, AES_KEY * key);
+extern "C" int  aesni_set_decrypt_key(const uchar * userKey, int bits, AES_KEY * key);
+extern "C" void aesni_cbc_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key, uchar * ivec, int enc);
+extern "C" int  aesni_cbc_sha256_enc(const void * inp, void * out, size_t blocks, const AES_KEY * key, uchar iv[16], SHA256_CTX * ctx, const void * in0);
 
 #define data(ctx) ((EVP_AES_HMAC_SHA256*)EVP_CIPHER_CTX_get_cipher_data(ctx))
 
@@ -47,20 +47,13 @@ static int aesni_cbc_hmac_sha256_init_key(EVP_CIPHER_CTX * ctx, const uchar * in
 	EVP_AES_HMAC_SHA256 * key = data(ctx);
 	int ret;
 	if(enc)
-		ret = aesni_set_encrypt_key(inkey,
-			EVP_CIPHER_CTX_key_length(ctx) * 8,
-			&key->ks);
+		ret = aesni_set_encrypt_key(inkey, EVP_CIPHER_CTX_key_length(ctx) * 8, &key->ks);
 	else
-		ret = aesni_set_decrypt_key(inkey,
-			EVP_CIPHER_CTX_key_length(ctx) * 8,
-			&key->ks);
-
+		ret = aesni_set_decrypt_key(inkey, EVP_CIPHER_CTX_key_length(ctx) * 8, &key->ks);
 	SHA256_Init(&key->head); /* handy when benchmarking */
 	key->tail = key->head;
 	key->md = key->head;
-
 	key->payload_length = NO_PAYLOAD_LENGTH;
-
 	return ret < 0 ? 0 : 1;
 }
 
@@ -70,13 +63,12 @@ static int aesni_cbc_hmac_sha256_init_key(EVP_CIPHER_CTX * ctx, const uchar * in
 #define aes_off 0
 #endif
 
-void sha256_block_data_order(void * c, const void * p, size_t len);
+extern "C" void sha256_block_data_order(void * c, const void * p, size_t len);
 
 static void sha256_update(SHA256_CTX * c, const void * data, size_t len)
 {
-	const uchar * ptr = data;
+	const uchar * ptr = (const uchar *)data;
 	size_t res;
-
 	if((res = c->num)) {
 		res = SHA256_CBLOCK - res;
 		if(len < res)
@@ -85,7 +77,6 @@ static void sha256_update(SHA256_CTX * c, const void * data, size_t len)
 		ptr += res;
 		len -= res;
 	}
-
 	res = len % SHA256_CBLOCK;
 	len -= res;
 
@@ -127,7 +118,7 @@ typedef struct {
 	u64 iv[2];
 } CIPH_DESC;
 
-void aesni_multi_cbc_encrypt(CIPH_DESC *, void *, int);
+extern "C" void aesni_multi_cbc_encrypt(CIPH_DESC *, void *, int);
 
 static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
     uchar * out,

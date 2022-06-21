@@ -369,13 +369,13 @@ void Curl_auth_cleanup_ntlm(struct ntlmdata * ntlm)
 	ntlm->p_identity = NULL;
 
 	/* Free the input and output tokens */
-	Curl_safefree(ntlm->input_token);
-	Curl_safefree(ntlm->output_token);
+	ZFREE(ntlm->input_token);
+	ZFREE(ntlm->output_token);
 
 	/* Reset any variables */
 	ntlm->token_max = 0;
 
-	Curl_safefree(ntlm->spn);
+	ZFREE(ntlm->spn);
 }
 
 #endif /* USE_WINDOWS_SSPI && USE_NTLM */

@@ -1440,7 +1440,7 @@ xmlNode * xmlXPtrBuildNodeList(xmlXPathObject * obj)
 				    case XML_ENTITY_DECL:
 					continue; /* for */
 			    }
-			    if(last == NULL)
+			    if(!last)
 				    list = last = xmlCopyNode(set->PP_NodeTab[i], 1);
 			    else {
 				    xmlAddNextSibling(last, xmlCopyNode(set->PP_NodeTab[i], 1));
@@ -1455,7 +1455,7 @@ xmlNode * xmlXPtrBuildNodeList(xmlXPathObject * obj)
 		    if(set == NULL)
 			    return 0;
 		    for(i = 0; i < set->locNr; i++) {
-			    if(last == NULL)
+			    if(!last)
 				    list = last = xmlXPtrBuildNodeList(set->locTab[i]);
 			    else
 				    xmlAddNextSibling(last, xmlXPtrBuildNodeList(set->locTab[i]));

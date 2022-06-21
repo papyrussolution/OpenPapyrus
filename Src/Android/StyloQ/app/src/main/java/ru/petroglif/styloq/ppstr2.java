@@ -2162,6 +2162,10 @@ class ppstr2 {
 	public static final int PPERR_TSESSTAGUUIDABS = 12143;
 	public static final int PPERR_OBJTAGUUIDABS = 12144;
 	public static final int PPERR_MQBC_CHANNELNOTOPENED = 12145;
+	public static final int PPERR_STQ_POSTDOCUMENTFAULT = 12146;
+	public static final int PPERR_STQ_MAPCLI2PSN_FAIL_USER = 12147;
+	public static final int PPERR_STQ_MAPCLI2PSN_FAIL_UNMATCHED = 12148;
+	public static final int PPERR_STQ_BUYERNEEDED = 12149;
 	//
 	// .N.
 	//
@@ -4460,6 +4464,11 @@ class ppstr2 {
 	public static final int PPTXT_LOG_STQENTRYPOINTCREATED = 12042;
 	public static final int PPTXT_LOG_STQMQBSVRENTPTNOTFOUND = 12043;
 	public static final int PPINIPARAM_BLINDLOGINMODE = 12044;
+	public static final int PPTXT_LOG_WBS_WBTRANSMITERROR = 12045;
+	public static final int PPTXT_FORMATLIST_DATE = 12046;
+	public static final int PPTXT_FORMATLIST_TIME = 12047;
+	public static final int PPTXT_STQ_MAPCLI2PSN_DIRECT = 12048;
+	public static final int PPTXT_STQ_MAPCLI2PSN_USER = 12049;
 	//
 	// .N.
 	//

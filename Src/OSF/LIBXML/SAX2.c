@@ -1852,7 +1852,7 @@ void xmlSAX2StartElementNs(void * ctx, const xmlChar * localname, const xmlChar 
 		uri = namespaces[i++];
 		ns = xmlNewNs(NULL, uri, pref);
 		if(ns) {
-			if(last == NULL) {
+			if(!last) {
 				ret->nsDef = last = ns;
 			}
 			else {

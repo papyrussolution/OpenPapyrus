@@ -9,12 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "errortypes.h"
-#include "platform.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "token.h"
-#include "tokenize.h"
 
 class TestSimplifyUsing : public TestFixture {
 public:
@@ -371,7 +365,7 @@ private:
 	}
 
 	void simplifyUsing13() {
-		const char code[] = "using Func = std::pair<int(*)(void*), void*>;\n"
+		const char code[] = "using Func = std::pair<int(*)(void *), void*>;\n"
 		    "using CallQueue = std::vector<Func>;\n"
 		    "int main() {\n"
 		    " CallQueue q;\n"

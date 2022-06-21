@@ -138,32 +138,27 @@ static std::unordered_set<std::string>* MakeKeywordsMap() {
 
 static std::unordered_set<std::string>& kKeywords = *MakeKeywordsMap();
 
-std::string IntTypeName(const Options& options, const std::string& type) {
-	return type + "_t";
-}
+std::string IntTypeName(const Options& options, const std::string& type) { return type + "_t"; }
 
-void SetIntVar(const Options& options, const std::string& type,
-    std::map<std::string, std::string>* variables) {
+void SetIntVar(const Options& options, const std::string& type, std::map<std::string, std::string>* variables) 
+{
 	(*variables)[type] = IntTypeName(options, type);
 }
 
-bool IsEagerlyVerifiedLazyImpl(const FieldDescriptor* field,
-    const Options& options,
-    MessageSCCAnalyzer* scc_analyzer) {
+bool IsEagerlyVerifiedLazyImpl(const FieldDescriptor* field, const Options& options, MessageSCCAnalyzer* scc_analyzer) 
+{
 	return false;
 }
 }  // namespace
 
-bool IsLazy(const FieldDescriptor* field, const Options& options,
-    MessageSCCAnalyzer* scc_analyzer) {
-	return IsLazilyVerifiedLazy(field, options) ||
-	       IsEagerlyVerifiedLazyImpl(field, options, scc_analyzer);
+bool IsLazy(const FieldDescriptor* field, const Options& options, MessageSCCAnalyzer* scc_analyzer) 
+{
+	return IsLazilyVerifiedLazy(field, options) || IsEagerlyVerifiedLazyImpl(field, options, scc_analyzer);
 }
 
-void SetCommonVars(const Options& options,
-    std::map<std::string, std::string>* variables) {
+void SetCommonVars(const Options& options, std::map<std::string, std::string>* variables) 
+{
 	(*variables)["proto_ns"] = ProtobufNamespace(options);
-
 	// Warning: there is some clever naming/splitting here to avoid extract script
 	// rewrites.  The names of these variables must not be things that the extract
 	// script will rewrite.  That's why we use "CHK" (for example) instead of
@@ -476,112 +471,67 @@ std::string StripProto(const std::string& filename) {
 	return compiler::StripProto(filename);
 }
 
-const char* PrimitiveTypeName(FieldDescriptor::CppType type) {
+const char* PrimitiveTypeName(FieldDescriptor::CppType type) 
+{
 	switch(type) {
-		case FieldDescriptor::CPPTYPE_INT32:
-		    return "int32_t";
-		case FieldDescriptor::CPPTYPE_INT64:
-		    return "int64_t";
-		case FieldDescriptor::CPPTYPE_UINT32:
-		    return "uint32_t";
-		case FieldDescriptor::CPPTYPE_UINT64:
-		    return "uint64_t";
-		case FieldDescriptor::CPPTYPE_DOUBLE:
-		    return "double";
-		case FieldDescriptor::CPPTYPE_FLOAT:
-		    return "float";
-		case FieldDescriptor::CPPTYPE_BOOL:
-		    return "bool";
-		case FieldDescriptor::CPPTYPE_ENUM:
-		    return "int";
-		case FieldDescriptor::CPPTYPE_STRING:
-		    return "std::string";
-		case FieldDescriptor::CPPTYPE_MESSAGE:
-		    return nullptr;
-
-		    // No default because we want the compiler to complain if any new
-		    // CppTypes are added.
+		case FieldDescriptor::CPPTYPE_INT32: return "int32_t";
+		case FieldDescriptor::CPPTYPE_INT64: return "int64_t";
+		case FieldDescriptor::CPPTYPE_UINT32: return "uint32_t";
+		case FieldDescriptor::CPPTYPE_UINT64: return "uint64_t";
+		case FieldDescriptor::CPPTYPE_DOUBLE: return "double";
+		case FieldDescriptor::CPPTYPE_FLOAT: return "float";
+		case FieldDescriptor::CPPTYPE_BOOL: return "bool";
+		case FieldDescriptor::CPPTYPE_ENUM: return "int";
+		case FieldDescriptor::CPPTYPE_STRING: return "std::string";
+		case FieldDescriptor::CPPTYPE_MESSAGE: return nullptr;
+		    // No default because we want the compiler to complain if any new CppTypes are added.
 	}
 
 	GOOGLE_LOG(FATAL) << "Can't get here.";
 	return nullptr;
 }
 
-std::string PrimitiveTypeName(const Options& options,
-    FieldDescriptor::CppType type) {
+std::string PrimitiveTypeName(const Options& options, FieldDescriptor::CppType type) 
+{
 	switch(type) {
-		case FieldDescriptor::CPPTYPE_INT32:
-		    return IntTypeName(options, "int32");
-		case FieldDescriptor::CPPTYPE_INT64:
-		    return IntTypeName(options, "int64");
-		case FieldDescriptor::CPPTYPE_UINT32:
-		    return IntTypeName(options, "uint32");
-		case FieldDescriptor::CPPTYPE_UINT64:
-		    return IntTypeName(options, "uint64");
-		case FieldDescriptor::CPPTYPE_DOUBLE:
-		    return "double";
-		case FieldDescriptor::CPPTYPE_FLOAT:
-		    return "float";
-		case FieldDescriptor::CPPTYPE_BOOL:
-		    return "bool";
-		case FieldDescriptor::CPPTYPE_ENUM:
-		    return "int";
-		case FieldDescriptor::CPPTYPE_STRING:
-		    return "std::string";
-		case FieldDescriptor::CPPTYPE_MESSAGE:
-		    return "";
-
-		    // No default because we want the compiler to complain if any new
-		    // CppTypes are added.
+		case FieldDescriptor::CPPTYPE_INT32: return IntTypeName(options, "int32");
+		case FieldDescriptor::CPPTYPE_INT64: return IntTypeName(options, "int64");
+		case FieldDescriptor::CPPTYPE_UINT32: return IntTypeName(options, "uint32");
+		case FieldDescriptor::CPPTYPE_UINT64: return IntTypeName(options, "uint64");
+		case FieldDescriptor::CPPTYPE_DOUBLE: return "double";
+		case FieldDescriptor::CPPTYPE_FLOAT: return "float";
+		case FieldDescriptor::CPPTYPE_BOOL: return "bool";
+		case FieldDescriptor::CPPTYPE_ENUM: return "int";
+		case FieldDescriptor::CPPTYPE_STRING: return "std::string";
+		case FieldDescriptor::CPPTYPE_MESSAGE: return "";
+		    // No default because we want the compiler to complain if any new CppTypes are added.
 	}
-
 	GOOGLE_LOG(FATAL) << "Can't get here.";
 	return "";
 }
 
-const char* DeclaredTypeMethodName(FieldDescriptor::Type type) {
+const char* DeclaredTypeMethodName(FieldDescriptor::Type type) 
+{
 	switch(type) {
-		case FieldDescriptor::TYPE_INT32:
-		    return "Int32";
-		case FieldDescriptor::TYPE_INT64:
-		    return "Int64";
-		case FieldDescriptor::TYPE_UINT32:
-		    return "UInt32";
-		case FieldDescriptor::TYPE_UINT64:
-		    return "UInt64";
-		case FieldDescriptor::TYPE_SINT32:
-		    return "SInt32";
-		case FieldDescriptor::TYPE_SINT64:
-		    return "SInt64";
-		case FieldDescriptor::TYPE_FIXED32:
-		    return "Fixed32";
-		case FieldDescriptor::TYPE_FIXED64:
-		    return "Fixed64";
-		case FieldDescriptor::TYPE_SFIXED32:
-		    return "SFixed32";
-		case FieldDescriptor::TYPE_SFIXED64:
-		    return "SFixed64";
-		case FieldDescriptor::TYPE_FLOAT:
-		    return "Float";
-		case FieldDescriptor::TYPE_DOUBLE:
-		    return "Double";
-
-		case FieldDescriptor::TYPE_BOOL:
-		    return "Bool";
-		case FieldDescriptor::TYPE_ENUM:
-		    return "Enum";
-
-		case FieldDescriptor::TYPE_STRING:
-		    return "String";
-		case FieldDescriptor::TYPE_BYTES:
-		    return "Bytes";
-		case FieldDescriptor::TYPE_GROUP:
-		    return "Group";
-		case FieldDescriptor::TYPE_MESSAGE:
-		    return "Message";
-
-		    // No default because we want the compiler to complain if any new
-		    // types are added.
+		case FieldDescriptor::TYPE_INT32: return "Int32";
+		case FieldDescriptor::TYPE_INT64: return "Int64";
+		case FieldDescriptor::TYPE_UINT32: return "UInt32";
+		case FieldDescriptor::TYPE_UINT64: return "UInt64";
+		case FieldDescriptor::TYPE_SINT32: return "SInt32";
+		case FieldDescriptor::TYPE_SINT64: return "SInt64";
+		case FieldDescriptor::TYPE_FIXED32: return "Fixed32";
+		case FieldDescriptor::TYPE_FIXED64: return "Fixed64";
+		case FieldDescriptor::TYPE_SFIXED32: return "SFixed32";
+		case FieldDescriptor::TYPE_SFIXED64: return "SFixed64";
+		case FieldDescriptor::TYPE_FLOAT: return "Float";
+		case FieldDescriptor::TYPE_DOUBLE: return "Double";
+		case FieldDescriptor::TYPE_BOOL: return "Bool";
+		case FieldDescriptor::TYPE_ENUM: return "Enum";
+		case FieldDescriptor::TYPE_STRING: return "String";
+		case FieldDescriptor::TYPE_BYTES: return "Bytes";
+		case FieldDescriptor::TYPE_GROUP: return "Group";
+		case FieldDescriptor::TYPE_MESSAGE: return "Message";
+		    // No default because we want the compiler to complain if any new types are added.
 	}
 	GOOGLE_LOG(FATAL) << "Can't get here.";
 	return "";

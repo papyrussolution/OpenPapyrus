@@ -86,40 +86,29 @@ extern int main(int argc, char * argv[]) {
 	else {
 		++pname;
 	}
-
 	/* error handling, printing usage message */
 	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
-
 	/* error handling, printing usage message */
 	if(argc<0) {
-		fprintf(stderr,
-		    "%s: error in command line argument \"%s\"\n", pname,
-		    argv[-argc]);
+		slfprintf_stderr("%s: error in command line argument \"%s\"\n", pname, argv[-argc]);
 	}
 	if(argc<0 || options[0].doesOccur || options[1].doesOccur) {
-		fprintf(argc < 0 ? stderr : stdout,
-		    "%csage: %s [ -h, -?, --help ] [ -V, --version ]\n"
+		fprintf(argc < 0 ? stderr : stdout, "%csage: %s [ -h, -?, --help ] [ -V, --version ]\n"
 		    " [ -v, --verbose ] [ -e, --encoding encoding ] [ --bom ]\n"
 		    " [ -t, --truncate [ size ] ]\n"
 		    " [ -s, --sourcedir source ] [ -d, --destdir destination ]\n"
 		    " [ -i, --icudatadir directory ] [ -c, --to-stdout ]\n"
 		    " [ -A, --suppressAliases]\n"
-		    " bundle ...\n", argc < 0 ? 'u' : 'U',
-		    pname);
+		    " bundle ...\n", argc < 0 ? 'u' : 'U', pname);
 		return argc<0 ? U_ILLEGAL_ARGUMENT_ERROR : U_ZERO_ERROR;
 	}
-
 	if(options[10].doesOccur) {
-		fprintf(stderr,
-		    "%s version %s (ICU version %s).\n"
-		    "%s\n",
-		    pname, DERB_VERSION, U_ICU_VERSION, U_COPYRIGHT_STRING);
+		slfprintf_stderr("%s version %s (ICU version %s).\n%s\n", pname, DERB_VERSION, U_ICU_VERSION, U_COPYRIGHT_STRING);
 		return U_ZERO_ERROR;
 	}
 	if(options[2].doesOccur) {
 		encoding = options[2].value;
 	}
-
 	if(options[3].doesOccur) {
 		if(options[2].doesOccur) {
 			slfprintf_stderr("%s: Error: don't specify an encoding (-e) when writing to stdout (-c).\n", pname);
@@ -127,7 +116,6 @@ extern int main(int argc, char * argv[]) {
 		}
 		tostdout = 1;
 	}
-
 	if(options[4].doesOccur) {
 		opt_truncate = TRUE;
 		if(options[4].value != NULL) {

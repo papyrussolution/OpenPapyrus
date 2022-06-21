@@ -108,4 +108,4 @@ typedef uint seed_word;
         (X1) ^= (T0);                            \
         (X2) ^= (T1)
 
-#endif                          /* HEADER_SEED_LOCL_H */
+#endif /* HEADER_SEED_LOCL_H */

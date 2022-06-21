@@ -288,9 +288,9 @@ void PNGAPI png_destroy_info_struct(png_const_structrp png_ptr, png_infopp info_
 	png_inforp info_ptr = NULL;
 	png_debug(1, "in " __FUNCTION__);
 	if(png_ptr) {
-		if(info_ptr_ptr != NULL)
+		if(info_ptr_ptr)
 			info_ptr = *info_ptr_ptr;
-		if(info_ptr != NULL) {
+		if(info_ptr) {
 			/* Do this first in case of an error below; if the app implements its own
 			 * memory management this can lead to png_free calling png_error, which
 			 * will abort this routine and return control to the app error handler.
@@ -398,7 +398,7 @@ void PNGAPI png_free_data(png_const_structrp png_ptr, png_inforp info_ptr, uint3
 		png_free(png_ptr, info_ptr->pcal_units);
 		info_ptr->pcal_purpose = NULL;
 		info_ptr->pcal_units = NULL;
-		if(info_ptr->pcal_params != NULL) {
+		if(info_ptr->pcal_params) {
 			for(int i = 0; i < info_ptr->pcal_nparams; i++)
 				png_free(png_ptr, info_ptr->pcal_params[i]);
 			png_free(png_ptr, info_ptr->pcal_params);
@@ -1465,10 +1465,8 @@ static int png_icc_profile_error(png_const_structrp png_ptr, png_colorspacerp co
 {
 	size_t pos;
 	char message[196]; /* see below for calculation */
-
-	if(colorspace != NULL)
+	if(colorspace)
 		colorspace->flags |= PNG_COLORSPACE_INVALID;
-
 	pos = png_safecat(message, (sizeof message), 0, "profile '"); /* 9 chars */
 	pos = png_safecat(message, pos+79, pos, name); /* Truncate to 79 chars */
 	pos = png_safecat(message, (sizeof message), pos, "': "); /* +2 = 90 */
@@ -1497,7 +1495,7 @@ static int png_icc_profile_error(png_const_structrp png_ptr, png_colorspacerp co
 	 * on read, with a warning, but on write unless the app turns off
 	 * application errors the PNG won't be written.)
 	 */
-	png_chunk_report(png_ptr, message, (colorspace != NULL) ? PNG_CHUNK_ERROR : PNG_CHUNK_WRITE_ERROR);
+	png_chunk_report(png_ptr, message, colorspace ? PNG_CHUNK_ERROR : PNG_CHUNK_WRITE_ERROR);
 	return 0;
 }
 
@@ -3383,7 +3381,7 @@ void /*PRIVATE*/ png_destroy_gamma_table(png_structrp png_ptr)
 	png_free(png_ptr, png_ptr->gamma_table);
 	png_ptr->gamma_table = NULL;
 #ifdef PNG_16BIT_SUPPORTED
-	if(png_ptr->gamma_16_table != NULL) {
+	if(png_ptr->gamma_16_table) {
 		int i;
 		int istop = (1 << (8 - png_ptr->gamma_shift));
 		for(i = 0; i < istop; i++) {
@@ -3401,7 +3399,7 @@ void /*PRIVATE*/ png_destroy_gamma_table(png_structrp png_ptr)
 	png_ptr->gamma_to_1 = NULL;
 
 #ifdef PNG_16BIT_SUPPORTED
-	if(png_ptr->gamma_16_from_1 != NULL) {
+	if(png_ptr->gamma_16_from_1) {
 		const int istop = (1 << (8 - png_ptr->gamma_shift));
 		for(int i = 0; i < istop; i++) {
 			png_free(png_ptr, png_ptr->gamma_16_from_1[i]);
@@ -3409,7 +3407,7 @@ void /*PRIVATE*/ png_destroy_gamma_table(png_structrp png_ptr)
 		png_free(png_ptr, png_ptr->gamma_16_from_1);
 		png_ptr->gamma_16_from_1 = NULL;
 	}
-	if(png_ptr->gamma_16_to_1 != NULL) {
+	if(png_ptr->gamma_16_to_1) {
 		const int istop = (1 << (8 - png_ptr->gamma_shift));
 		for(int i = 0; i < istop; i++) {
 			png_free(png_ptr, png_ptr->gamma_16_to_1[i]);
@@ -3435,7 +3433,7 @@ void /*PRIVATE*/ png_build_gamma_table(png_structrp png_ptr, int bit_depth)
 	 * png_read_update_info() multiple times is new in 1.5.6 so it seems sensible
 	 * to warn if the app introduces such a hit.
 	 */
-	if(png_ptr->gamma_table != NULL || png_ptr->gamma_16_table != NULL) {
+	if(png_ptr->gamma_table || png_ptr->gamma_16_table) {
 		png_warning(png_ptr, "gamma table being rebuilt");
 		png_destroy_gamma_table(png_ptr);
 	}

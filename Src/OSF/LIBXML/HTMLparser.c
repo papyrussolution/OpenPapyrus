@@ -269,7 +269,7 @@ static htmlParserNodeInfo * htmlNodeInfoPop(htmlParserCtxt * ctxt)
 static xmlChar * htmlFindEncoding(xmlParserCtxt * ctxt)
 {
 	const xmlChar * start, * cur, * end;
-	if(!ctxt || (ctxt->input == NULL) || (ctxt->input->encoding != NULL) || (ctxt->input->buf == NULL) || (ctxt->input->buf->encoder != NULL))
+	if(!ctxt || (ctxt->input == NULL) || ctxt->input->encoding || (ctxt->input->buf == NULL) || ctxt->input->buf->encoder)
 		return NULL;
 	if((ctxt->input->cur == NULL) || (ctxt->input->end == NULL))
 		return NULL;
@@ -976,7 +976,7 @@ static int htmlCheckAutoClose(const xmlChar * newtag, const xmlChar * oldtag)
 	}
 	i = closed - htmlStartClose;
 	i++;
-	while(htmlStartClose[i] != NULL) {
+	while(htmlStartClose[i]) {
 		if(sstreq(BAD_CAST htmlStartClose[i], oldtag)) {
 			return 1;
 		}
@@ -1092,7 +1092,7 @@ int htmlAutoCloseTag(htmlDocPtr doc, const xmlChar * name, htmlNodePtr elem)
 	if(htmlCheckAutoClose(elem->name, name)) 
 		return 1;
 	child = elem->children;
-	while(child != NULL) {
+	while(child) {
 		if(htmlAutoCloseTag(doc, name, child)) 
 			return 1;
 		child = child->next;
@@ -1150,7 +1150,7 @@ static void htmlCheckImplied(htmlParserCtxt * ctxt, const xmlChar * newtag)
 				 * dropped OBJECT ... i you put it first BODY will be assumed !
 				 */
 				htmlnamePush(ctxt, reinterpret_cast<const xmlChar *>("head"));
-				if(ctxt->sax && (ctxt->sax->startElement != NULL))
+				if(ctxt->sax && ctxt->sax->startElement)
 					ctxt->sax->startElement(ctxt->userData, reinterpret_cast<const xmlChar *>("head"), 0);
 			}
 		}
@@ -1163,7 +1163,7 @@ static void htmlCheckImplied(htmlParserCtxt * ctxt, const xmlChar * newtag)
 						return;
 				}
 				htmlnamePush(ctxt, reinterpret_cast<const xmlChar *>("body"));
-				if(ctxt->sax && (ctxt->sax->startElement != NULL))
+				if(ctxt->sax && ctxt->sax->startElement)
 					ctxt->sax->startElement(ctxt->userData, reinterpret_cast<const xmlChar *>("body"), 0);
 			}
 		}
@@ -1195,7 +1195,7 @@ static int FASTCALL htmlCheckParagraph(htmlParserCtxt * ctxt)
 		}
 		else {
 			if(htmlOmittedDefaultValue) {
-				for(int i = 0; htmlNoContentElements[i] != NULL; i++) {
+				for(int i = 0; htmlNoContentElements[i]; i++) {
 					if(sstreq(tag, htmlNoContentElements[i])) {
 						htmlAutoClose(ctxt, reinterpret_cast<const xmlChar *>("p"));
 						htmlCheckImplied(ctxt, reinterpret_cast<const xmlChar *>("p"));
@@ -2170,7 +2170,7 @@ static xmlChar * FASTCALL htmlParseHTMLAttribute(htmlParserCtxt * ctxt, const xm
 				else if(ent == NULL) {
 					*out++ = '&';
 					cur = name;
-					while(*cur != 0) {
+					while(*cur) {
 						if(out - buffer > buffer_size - 100) {
 							int indx = out - buffer;
 							growBuffer(buffer);
@@ -2278,7 +2278,7 @@ const htmlEntityDesc * htmlParseEntityRef(htmlParserCtxt * ctxt, const xmlChar *
 				 * Lookup the entity in the table.
 				 */
 				ent = htmlEntityLookup(name);
-				if(ent != NULL) /* OK that's ugly !!! */
+				if(ent) /* OK that's ugly !!! */
 					xmlNextChar(ctxt);
 			}
 			else {
@@ -2691,13 +2691,13 @@ static void htmlParsePI(htmlParserCtxt * ctxt)
 		 * namespace.
 		 */
 		target = htmlParseName(ctxt);
-		if(target != NULL) {
+		if(target) {
 			if(RAW == '>') {
 				SKIP(1);
 				/*
 				 * SAX: PI detected.
 				 */
-				if(ctxt->sax && (!ctxt->disableSAX) && (ctxt->sax->processingInstruction != NULL))
+				if(ctxt->sax && (!ctxt->disableSAX) && ctxt->sax->processingInstruction)
 					ctxt->sax->processingInstruction(ctxt->userData, target, 0);
 				ctxt->instate = state;
 				return;
@@ -2751,7 +2751,7 @@ static void htmlParsePI(htmlParserCtxt * ctxt)
 				/*
 				 * SAX: PI detected.
 				 */
-				if(ctxt->sax && (!ctxt->disableSAX) && (ctxt->sax->processingInstruction != NULL))
+				if(ctxt->sax && (!ctxt->disableSAX) && ctxt->sax->processingInstruction)
 					ctxt->sax->processingInstruction(ctxt->userData, target, buf);
 			}
 			SAlloc::F(buf);
@@ -2839,7 +2839,7 @@ static void htmlParseComment(htmlParserCtxt * ctxt)
 	}
 	else {
 		xmlNextChar(ctxt);
-		if(ctxt->sax && (ctxt->sax->comment != NULL) && (!ctxt->disableSAX))
+		if(ctxt->sax && ctxt->sax->comment && (!ctxt->disableSAX))
 			ctxt->sax->comment(ctxt->userData, buf);
 		SAlloc::F(buf);
 	}
@@ -2959,11 +2959,10 @@ static void htmlParseDocTypeDecl(htmlParserCtxt * ctxt)
 		/* We shouldn't try to resynchronize ... */
 	}
 	xmlNextChar(ctxt);
-
 	/*
 	 * Create or update the document accordingly to the DOCTYPE
 	 */
-	if(ctxt->sax && (ctxt->sax->internalSubset != NULL) && (!ctxt->disableSAX))
+	if(ctxt->sax && ctxt->sax->internalSubset && (!ctxt->disableSAX))
 		ctxt->sax->internalSubset(ctxt->userData, name, ExternalID, URI);
 	/*
 	 * Cleanup, since we don't use all those identifiers
@@ -3032,7 +3031,7 @@ static void htmlCheckEncodingDirect(htmlParserCtxt * ctxt, const xmlChar * encod
 	if(!ctxt || (encoding == NULL) || (ctxt->options & HTML_PARSE_IGNORE_ENC))
 		return;
 	/* do not change encoding */
-	if(ctxt->input->encoding != NULL)
+	if(ctxt->input->encoding)
 		return;
 	if(encoding) {
 		xmlCharEncoding enc;
@@ -3068,7 +3067,7 @@ static void htmlCheckEncodingDirect(htmlParserCtxt * ctxt, const xmlChar * encod
 				htmlParseErr(ctxt, XML_ERR_UNSUPPORTED_ENCODING, "htmlCheckEncoding: unknown encoding %s\n", encoding, 0);
 			}
 		}
-		if((ctxt->input->buf != NULL) && (ctxt->input->buf->encoder != NULL) && (ctxt->input->buf->raw != NULL) && (ctxt->input->buf->buffer != NULL)) {
+		if(ctxt->input->buf && ctxt->input->buf->encoder && ctxt->input->buf->raw && ctxt->input->buf->buffer) {
 			int nbchars;
 			int processed;
 			/*
@@ -3242,7 +3241,7 @@ static int htmlParseStartTag(htmlParserCtxt * ctxt)
 		long cons = ctxt->nbChars;
 		GROW;
 		attname = htmlParseAttribute(ctxt, &attvalue);
-		if(attname != NULL) {
+		if(attname) {
 			/*
 			 * Well formedness requires at most one declaration of an attribute
 			 */
@@ -3270,7 +3269,7 @@ static int htmlParseStartTag(htmlParserCtxt * ctxt)
 			else if(nbatts + 4 > maxatts) {
 				maxatts *= 2;
 				const xmlChar ** n = (const xmlChar **)SAlloc::R((void *)atts, maxatts * sizeof(const xmlChar *));
-				if(n == NULL) {
+				if(!n) {
 					htmlErrMemory(ctxt, 0);
 					SAlloc::F(attvalue);
 					goto failed;
@@ -3308,14 +3307,14 @@ failed:
 	 */
 	if(!discardtag) {
 		htmlnamePush(ctxt, name);
-		if(ctxt->sax && (ctxt->sax->startElement != NULL)) {
+		if(ctxt->sax && ctxt->sax->startElement) {
 			if(nbatts != 0)
 				ctxt->sax->startElement(ctxt->userData, name, atts);
 			else
 				ctxt->sax->startElement(ctxt->userData, name, 0);
 		}
 	}
-	if(atts != NULL) {
+	if(atts) {
 		for(i = 1; i < nbatts; i += 2) {
 			SAlloc::F((xmlChar *)atts[i]);
 		}
@@ -3532,7 +3531,7 @@ static void htmlParseContent(htmlParserCtxt * ctxt)
 		 * Our tag or one of it's parent or children is ending.
 		 */
 		if((CUR == '<') && (NXT(1) == '/')) {
-			if(htmlParseEndTag(ctxt) && ((currentNode != NULL) || (ctxt->nameNr == 0))) {
+			if(htmlParseEndTag(ctxt) && (currentNode || (ctxt->nameNr == 0))) {
 				SAlloc::F(currentNode);
 				return;
 			}
@@ -3620,7 +3619,7 @@ static void htmlParseContent(htmlParserCtxt * ctxt)
 				htmlParseCharData(ctxt);
 			}
 			if(cons == ctxt->nbChars) {
-				if(ctxt->P_Node != NULL) {
+				if(ctxt->P_Node) {
 					htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "detected an error in element content\n", 0, 0);
 				}
 				break;
@@ -3713,7 +3712,7 @@ void htmlParseElement(htmlParserCtxt * ctxt)
 	/*
 	 * Check for an Empty Element from DTD definition
 	 */
-	if((info != NULL) && (info->empty)) {
+	if(info && (info->empty)) {
 		if(ctxt->sax && ctxt->sax->endElement)
 			ctxt->sax->endElement(ctxt->userData, name);
 		htmlnamePop(ctxt);
@@ -3735,7 +3734,7 @@ void htmlParseElement(htmlParserCtxt * ctxt)
 	/*
 	 * Capture end position and add node
 	 */
-	if(currentNode != NULL && ctxt->record_info) {
+	if(currentNode && ctxt->record_info) {
 		node_info.end_pos = ctxt->input->consumed + (CUR_PTR - ctxt->input->base);
 		node_info.end_line = ctxt->input->line;
 		node_info.P_Node = ctxt->P_Node;
@@ -3865,7 +3864,7 @@ static void htmlParseContentInternal(htmlParserCtxt * ctxt)
 		 * Our tag or one of it's parent or children is ending.
 		 */
 		if((CUR == '<') && (NXT(1) == '/')) {
-			if(htmlParseEndTag(ctxt) && ((currentNode != NULL) || (ctxt->nameNr == 0))) {
+			if(htmlParseEndTag(ctxt) && (currentNode || (ctxt->nameNr == 0))) {
 				SAlloc::F(currentNode);
 				currentNode = sstrdup(ctxt->name);
 				depth = ctxt->nameNr;
@@ -3885,7 +3884,7 @@ static void htmlParseContentInternal(htmlParserCtxt * ctxt)
 				depth = ctxt->nameNr;
 				continue;
 			}
-			if(ctxt->name != NULL) {
+			if(ctxt->name) {
 				if(htmlCheckAutoClose(name, ctxt->name) == 1) {
 					htmlAutoClose(ctxt, name);
 					continue;
@@ -4868,14 +4867,14 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 			    if((avail == 1) && (terminate)) {
 				    cur = in->cur[0];
 				    if((cur != '<') && (cur != '&')) {
-					    if(ctxt->sax != NULL) {
+					    if(ctxt->sax) {
 						    if(IS_BLANK_CH(cur)) {
 							    if(ctxt->keepBlanks) {
 								    if(ctxt->sax->characters)
 									    ctxt->sax->characters(ctxt->userData, &cur, 1);
 							    }
 							    else {
-								    if(ctxt->sax->ignorableWhitespace != NULL)
+								    if(ctxt->sax->ignorableWhitespace)
 									    ctxt->sax->ignorableWhitespace(ctxt->userData, &cur, 1);
 							    }
 						    }
@@ -4993,7 +4992,7 @@ static int htmlParseTryOrFinish(htmlParserCtxt * ctxt, int terminate)
 				    }
 			    }
 			    if(cons == ctxt->nbChars) {
-				    if(ctxt->P_Node != NULL) {
+				    if(ctxt->P_Node) {
 					    htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "detected an error in element content\n", 0, 0);
 				    }
 				    xmlNextChar(ctxt);

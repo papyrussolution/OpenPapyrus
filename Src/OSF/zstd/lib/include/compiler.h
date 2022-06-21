@@ -243,7 +243,7 @@
 
 #else
 /* No known support for alignof() - imperfect backup */
-#define ZSTD_ALIGNOF(T) (sizeof(void*) < sizeof(T) ? sizeof(void*) : sizeof(T))
+#define ZSTD_ALIGNOF(T) (sizeof(void *) < sizeof(T) ? sizeof(void *) : sizeof(T))
 
 #endif
 #endif /* ZSTD_ALIGNOF */

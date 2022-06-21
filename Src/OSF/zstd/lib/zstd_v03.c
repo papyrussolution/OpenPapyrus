@@ -107,8 +107,8 @@ typedef unsigned char BYTE;
 #endif
 #endif
 
-MEM_STATIC uint MEM_32bits() { return sizeof(void*)==4; }
-MEM_STATIC uint MEM_64bits() { return sizeof(void*)==8; }
+MEM_STATIC uint MEM_32bits() { return sizeof(void *)==4; }
+MEM_STATIC uint MEM_64bits() { return sizeof(void *)==8; }
 
 MEM_STATIC uint MEM_isLittleEndian()
 {
@@ -1348,12 +1348,9 @@ static size_t HUF_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats
 		huffWeight[oSize] = (BYTE)lastWeight;
 		rankStats[lastWeight]++;
 	}
-
 	/* check tree construction validity */
-	if((rankStats[1] < 2) || (rankStats[1] & 1)) return ERROR(corruption_detected); /* by construction : at least 2
-	                                                                                   elts of rank 1, must be even
-	                                                                                   */
-
+	if((rankStats[1] < 2) || (rankStats[1] & 1)) 
+		return ERROR(corruption_detected); /* by construction : at least 2 elts of rank 1, must be even */
 	/* results */
 	*nbSymbolsPtr = (uint32)(oSize+1);
 	*tableLogPtr = tableLog;
@@ -2377,10 +2374,8 @@ static void ZSTD_decodeSequence(seq_t* seq, seqState_t* seqState)
 			litLength = MEM_readLE24(dumps);
 			dumps += 3;
 		}
-		if(dumps >= de) dumps = de-1; /* late correction, to avoid read overflow (data is now corrupted anyway)
-		                                 */
+		if(dumps >= de) dumps = de-1; /* late correction, to avoid read overflow (data is now corrupted anyway) */
 	}
-
 	/* Offset */
 	{
 		static const size_t offsetPrefix[MaxOff+1] = { /* note : size_t faster than uint32 */
@@ -2389,8 +2384,7 @@ static void ZSTD_decodeSequence(seq_t* seq, seqState_t* seqState)
 			524288, 1048576, 2097152, 4194304, 8388608, 16777216, 33554432, /*fake*/ 1, 1, 1, 1, 1
 		};
 		uint32 offsetCode, nbBits;
-		offsetCode = FSE_decodeSymbol(&(seqState->stateOffb), &(seqState->DStream)); /* <= maxOff, by table
-		                                                                                construction */
+		offsetCode = FSE_decodeSymbol(&(seqState->stateOffb), &(seqState->DStream)); /* <= maxOff, by table construction */
 		if(MEM_32bits()) BIT_reloadDStream(&(seqState->DStream));
 		nbBits = offsetCode - 1;
 		if(offsetCode==0) nbBits = 0; /* cmove */
@@ -2408,8 +2402,7 @@ static void ZSTD_decodeSequence(seq_t* seq, seqState_t* seqState)
 			matchLength = MEM_readLE24(dumps);
 			dumps += 3;
 		}
-		if(dumps >= de) dumps = de-1; /* late correction, to avoid read overflow (data is now corrupted anyway)
-		                                 */
+		if(dumps >= de) dumps = de-1; /* late correction, to avoid read overflow (data is now corrupted anyway) */
 	}
 	matchLength += MINMATCH;
 
@@ -2441,8 +2434,7 @@ static size_t ZSTD_execSequence(BYTE * op,
 	if(litEnd > litLimit) return ERROR(corruption_detected); /* overRead beyond lit buffer */
 
 	/* copy Literals */
-	ZSTD_wildcopy(op, *litPtr, sequence.litLength); /* note : oLitEnd <= oend-8 : no risk of overwrite beyond oend
-	                                                   */
+	ZSTD_wildcopy(op, *litPtr, sequence.litLength); /* note : oLitEnd <= oend-8 : no risk of overwrite beyond oend */
 	op = oLitEnd;
 	*litPtr = litEnd; /* update for next sequence */
 
@@ -2780,7 +2772,7 @@ static size_t ZSTD_decompressContinue(ZSTD_DCtx* ctx, void* dst, size_t maxDstSi
 		}
 		ctx->phase = 1;
 		ctx->expected = ZSTD_blockHeaderSize;
-		ctx->previousDstEnd = (void*)( ((char *)dst) + rSize);
+		ctx->previousDstEnd = (void *)( ((char *)dst) + rSize);
 		return rSize;
 	}
 }

@@ -959,32 +959,24 @@ private:
 				if(this_lig_id && this_lig_comp && (this_lig_id != first_lig_id))
 					return_trace(false);
 			}
-
 			total_component_count += _hb_glyph_info_get_lig_num_comps(&buffer->info[skippy_iter.idx]);
 		}
-
 		*end_offset = skippy_iter.idx - buffer->idx + 1;
-
 		if(p_total_component_count)
 			*p_total_component_count = total_component_count;
-
 		return_trace(true);
 	}
 
 	static inline bool ligate_input(hb_ot_apply_context_t * c,
 	    uint count,                      /* Including the first glyph */
-	    const uint match_positions[HB_MAX_CONTEXT_LENGTH],                      /* Including the first glyph
-	                                                                                       */
+	    const uint match_positions[HB_MAX_CONTEXT_LENGTH], /* Including the first glyph */
 	    uint match_length,
 	    hb_codepoint_t lig_glyph,
 	    uint total_component_count)
 	{
 		TRACE_APPLY(nullptr);
-
 		hb_buffer_t * buffer = c->buffer;
-
 		buffer->merge_clusters(buffer->idx, buffer->idx + match_length);
-
 		/* - If a base and one or more marks ligate, consider that as a base, NOT
 		 *   ligature, such that all following marks can still attach to it.
 		 *   https://github.com/harfbuzz/harfbuzz/issues/1109
@@ -1317,36 +1309,29 @@ public:
 	}
 
 	static inline void context_collect_glyphs_lookup(hb_collect_glyphs_context_t * c,
-	    uint inputCount,                                       /* Including the first glyph (not matched) */
-	    const HBUINT16 input[],                                       /* Array of input values--start with second
-	                                                                     glyph */
+	    uint inputCount, /* Including the first glyph (not matched) */
+	    const HBUINT16 input[], /* Array of input values--start with second glyph */
 	    uint lookupCount,
 	    const LookupRecord lookupRecord[],
 	    ContextCollectGlyphsLookupContext &lookup_context)
 	{
-		collect_array(c, c->input,
-		    inputCount ? inputCount - 1 : 0, input,
-		    lookup_context.funcs.collect, lookup_context.collect_data);
-		recurse_lookups(c,
-		    lookupCount, lookupRecord);
+		collect_array(c, c->input, inputCount ? inputCount - 1 : 0, input, lookup_context.funcs.collect, lookup_context.collect_data);
+		recurse_lookups(c, lookupCount, lookupRecord);
 	}
 
 	static inline bool context_would_apply_lookup(hb_would_apply_context_t * c,
-	    uint inputCount,                                    /* Including the first glyph (not matched) */
-	    const HBUINT16 input[],                                    /* Array of input values--start with second glyph
-	                                                                  */
+	    uint inputCount, /* Including the first glyph (not matched) */
+	    const HBUINT16 input[], /* Array of input values--start with second glyph */
 	    uint lookupCount CXX_UNUSED_PARAM,
 	    const LookupRecord lookupRecord[] CXX_UNUSED_PARAM,
 	    ContextApplyLookupContext &lookup_context)
 	{
-		return would_match_input(c,
-			   inputCount, input,
-			   lookup_context.funcs.match, lookup_context.match_data);
+		return would_match_input(c, inputCount, input, lookup_context.funcs.match, lookup_context.match_data);
 	}
 
 	static inline bool context_apply_lookup(hb_ot_apply_context_t * c,
-	    uint inputCount,                              /* Including the first glyph (not matched) */
-	    const HBUINT16 input[],                              /* Array of input values--start with second glyph */
+	    uint inputCount, /* Including the first glyph (not matched) */
+	    const HBUINT16 input[], /* Array of input values--start with second glyph */
 	    uint lookupCount,
 	    const LookupRecord lookupRecord[],
 	    ContextApplyLookupContext &lookup_context)
@@ -2082,33 +2067,23 @@ protected:
 		const void * match_data[3];
 	};
 
-	static inline bool chain_context_intersects(const hb_set_t * glyphs,
-	    uint backtrackCount,
-	    const HBUINT16 backtrack[],
-	    uint inputCount,                                  /* Including the first glyph (not matched) */
-	    const HBUINT16 input[],                                  /* Array of input values--start with second glyph
-	                                                                */
+	static inline bool chain_context_intersects(const hb_set_t * glyphs, uint backtrackCount, const HBUINT16 backtrack[],
+	    uint inputCount, /* Including the first glyph (not matched) */
+	    const HBUINT16 input[], /* Array of input values--start with second glyph */
 	    uint lookaheadCount,
 	    const HBUINT16 lookahead[],
 	    ChainContextClosureLookupContext &lookup_context)
 	{
-		return array_is_subset_of(glyphs,
-			   backtrackCount, backtrack,
-			   lookup_context.funcs.intersects, lookup_context.intersects_data[0])
-		       && array_is_subset_of(glyphs,
-			   inputCount ? inputCount - 1 : 0, input,
-			   lookup_context.funcs.intersects, lookup_context.intersects_data[1])
-		       && array_is_subset_of(glyphs,
-			   lookaheadCount, lookahead,
-			   lookup_context.funcs.intersects, lookup_context.intersects_data[2]);
+		return array_is_subset_of(glyphs, backtrackCount, backtrack, lookup_context.funcs.intersects, lookup_context.intersects_data[0])
+		       && array_is_subset_of(glyphs, inputCount ? inputCount - 1 : 0, input, lookup_context.funcs.intersects, lookup_context.intersects_data[1])
+		       && array_is_subset_of(glyphs, lookaheadCount, lookahead, lookup_context.funcs.intersects, lookup_context.intersects_data[2]);
 	}
 
 	static inline void chain_context_closure_lookup(hb_closure_context_t * c,
 	    uint backtrackCount,
 	    const HBUINT16 backtrack[],
-	    uint inputCount,                                      /* Including the first glyph (not matched) */
-	    const HBUINT16 input[],                                      /* Array of input values--start with second
-	                                                                    glyph */
+	    uint inputCount, /* Including the first glyph (not matched) */
+	    const HBUINT16 input[], /* Array of input values--start with second glyph */
 	    uint lookaheadCount,
 	    const HBUINT16 lookahead[],
 	    uint lookupCount,
@@ -2120,61 +2095,45 @@ protected:
 		    inputCount, input,
 		    lookaheadCount, lookahead,
 		    lookup_context))
-			recurse_lookups(c,
-			    lookupCount, lookupRecord);
+			recurse_lookups(c, lookupCount, lookupRecord);
 	}
 
 	static inline void chain_context_collect_glyphs_lookup(hb_collect_glyphs_context_t * c,
 	    uint backtrackCount,
 	    const HBUINT16 backtrack[],
-	    uint inputCount,                                             /* Including the first glyph (not
-	                                                                            matched) */
-	    const HBUINT16 input[],                                             /* Array of input values--start with
-	                                                                           second glyph */
+	    uint inputCount, /* Including the first glyph (not matched) */
+	    const HBUINT16 input[], /* Array of input values--start with second glyph */
 	    uint lookaheadCount,
 	    const HBUINT16 lookahead[],
 	    uint lookupCount,
 	    const LookupRecord lookupRecord[],
 	    ChainContextCollectGlyphsLookupContext &lookup_context)
 	{
-		collect_array(c, c->before,
-		    backtrackCount, backtrack,
-		    lookup_context.funcs.collect, lookup_context.collect_data[0]);
-		collect_array(c, c->input,
-		    inputCount ? inputCount - 1 : 0, input,
-		    lookup_context.funcs.collect, lookup_context.collect_data[1]);
-		collect_array(c, c->after,
-		    lookaheadCount, lookahead,
-		    lookup_context.funcs.collect, lookup_context.collect_data[2]);
-		recurse_lookups(c,
-		    lookupCount, lookupRecord);
+		collect_array(c, c->before, backtrackCount, backtrack, lookup_context.funcs.collect, lookup_context.collect_data[0]);
+		collect_array(c, c->input, inputCount ? inputCount - 1 : 0, input, lookup_context.funcs.collect, lookup_context.collect_data[1]);
+		collect_array(c, c->after, lookaheadCount, lookahead, lookup_context.funcs.collect, lookup_context.collect_data[2]);
+		recurse_lookups(c, lookupCount, lookupRecord);
 	}
 
 	static inline bool chain_context_would_apply_lookup(hb_would_apply_context_t * c,
 	    uint backtrackCount,
 	    const HBUINT16 backtrack[] CXX_UNUSED_PARAM,
-	    uint inputCount,                                          /* Including the first glyph (not matched)
-	                                                                         */
-	    const HBUINT16 input[],                                          /* Array of input values--start with second
-	                                                                        glyph */
+	    uint inputCount, /* Including the first glyph (not matched) */
+	    const HBUINT16 input[], /* Array of input values--start with second glyph */
 	    uint lookaheadCount,
 	    const HBUINT16 lookahead[] CXX_UNUSED_PARAM,
 	    uint lookupCount CXX_UNUSED_PARAM,
 	    const LookupRecord lookupRecord[] CXX_UNUSED_PARAM,
 	    ChainContextApplyLookupContext &lookup_context)
 	{
-		return (c->zero_context ? !backtrackCount && !lookaheadCount : true)
-		       && would_match_input(c,
-			   inputCount, input,
-			   lookup_context.funcs.match, lookup_context.match_data[1]);
+		return (c->zero_context ? !backtrackCount && !lookaheadCount : true) && would_match_input(c, inputCount, input, lookup_context.funcs.match, lookup_context.match_data[1]);
 	}
 
 	static inline bool chain_context_apply_lookup(hb_ot_apply_context_t * c,
 	    uint backtrackCount,
 	    const HBUINT16 backtrack[],
-	    uint inputCount,                                    /* Including the first glyph (not matched) */
-	    const HBUINT16 input[],                                    /* Array of input values--start with second glyph
-	                                                                  */
+	    uint inputCount, /* Including the first glyph (not matched) */
+	    const HBUINT16 input[], /* Array of input values--start with second glyph */
 	    uint lookaheadCount,
 	    const HBUINT16 lookahead[],
 	    uint lookupCount,

@@ -9,41 +9,23 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "errorlogger.h"
 #include "color.h"
 #include "cppcheck.h"
-#include "mathlib.h"
-#include "path.h"
-#include "token.h"
-#include "tokenlist.h"
 
 InternalError::InternalError(const Token * tok, const std::string &errorMsg, Type type) :
 	token(tok), errorMessage(errorMsg), type(type)
 {
 	switch(type) {
-		case AST:
-		    id = "internalAstError";
-		    break;
-		case SYNTAX:
-		    id = "syntaxError";
-		    break;
-		case UNKNOWN_MACRO:
-		    id = "unknownMacro";
-		    break;
-		case INTERNAL:
-		    id = "cppcheckError";
-		    break;
-		case LIMIT:
-		    id = "cppcheckLimit";
-		    break;
-		case INSTANTIATION:
-		    id = "instantiationError";
-		    break;
+		case AST: id = "internalAstError"; break;
+		case SYNTAX: id = "syntaxError"; break;
+		case UNKNOWN_MACRO: id = "unknownMacro"; break;
+		case INTERNAL: id = "cppcheckError"; break;
+		case LIMIT: id = "cppcheckLimit"; break;
+		case INSTANTIATION: id = "instantiationError"; break;
 	}
 }
 
-ErrorMessage::ErrorMessage()
-	: incomplete(false), severity(Severity::none), cwe(0U), certainty(Certainty::normal), hash(0)
+ErrorMessage::ErrorMessage() : incomplete(false), severity(Severity::none), cwe(0U), certainty(Certainty::normal), hash(0)
 {
 }
 

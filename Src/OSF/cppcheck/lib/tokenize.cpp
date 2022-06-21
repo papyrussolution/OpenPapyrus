@@ -10,22 +10,9 @@
 #include "cppcheck-internal.h"
 #pragma hdrstop
 #include "tokenize.h"
-#include "check.h"
-#include "errorlogger.h"
-#include "library.h"
-#include "mathlib.h"
-#include "platform.h"
-#include "preprocessor.h"
-#include "settings.h"
-#include "standards.h"
 #include "summaries.h"
-#include "symboldatabase.h"
 #include "templatesimplifier.h"
 #include "timer.h"
-#include "token.h"
-#include "utils.h"
-#include "valueflow.h"
-#include <simplecpp.h>
 
 namespace {
 // local struct used in setVarId

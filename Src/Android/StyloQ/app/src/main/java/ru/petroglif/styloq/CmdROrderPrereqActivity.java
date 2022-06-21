@@ -40,10 +40,12 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	private JSONArray QuotKindListData;
 	private ArrayList <JSONObject> BrandListData;
 	private ViewDescriptionList VdlDocs; // Описание таблицы просмотра существующих заказов
+	private ArrayList <Document.EditAction> DocEditActionList;
 
 	public CmdROrderPrereqActivity()
 	{
 		CPM = new CommonPrereqModule(this);
+		DocEditActionList = null;
 	}
 	private void MakeSimpleSearchIndex()
 	{
@@ -565,6 +567,38 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			}
 		}
 	}
+	private void SetupCurrentDocument(boolean gotoTabIfNotEmpty, boolean removeTabIfEmpty)
+	{
+		//
+		// При попытке скрыть и потом показать табы они перерисовываются с искажениями.
+		// по этому не будем злоупотреблять такими фокусами.
+		//
+		if(!CPM.IsCurrentDocumentEmpty()) {
+			CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
+			if(Document.DoesStatusAllowModifications(CPM.GetCurrentDocument().GetDocStatus())) {
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.VISIBLE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.VISIBLE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.VISIBLE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.VISIBLE);
+			}
+			else {
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.GONE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.GONE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.GONE);
+				//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.GONE);
+			}
+			if(gotoTabIfNotEmpty)
+				GotoTab(CommonPrereqModule.Tab.tabCurrentOrder, R.id.orderPrereqOrdrListView, -1, -1);
+		}
+		else {
+			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoods, View.VISIBLE);
+			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabBrands, View.VISIBLE);
+			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabGoodsGroups, View.VISIBLE);
+			//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabClients, View.VISIBLE);
+			if(removeTabIfEmpty)
+				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+		}
+	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
 		Object result = null;
@@ -703,6 +737,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			case SLib.EV_SETVIEWDATA:
 				if(srcObj != null && srcObj instanceof ViewGroup) {
 					ViewGroup vg = (ViewGroup)srcObj;
+					StyloQApp app_ctx = GetAppCtx();
 					int vg_id = vg.getId();
 					if(vg_id == R.id.LAYOUT_ORDERPREPREQ_ORDR) {
 						int status_image_rc_id = 0;
@@ -713,20 +748,18 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DLVRLOC, "");
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_AMOUNT, "");
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO, "");
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON1, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON2, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON3, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON4, View.GONE);
 						}
 						else {
 							Document _doc = CPM.GetCurrentDocument();
 							if(SLib.GetLen(_doc.H.Code) > 0)
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, _doc.H.Code);
-							SLib.LDATE d = null;
-							if(_doc.H.Time > 0)
-								d = SLib.BuildDateByEpoch(_doc.H.Time);
-							else if(_doc.H.CreationTime > 0)
-								d = SLib.BuildDateByEpoch(_doc.H.CreationTime);
-							if(d != null) {
-								String ds = d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY);
-								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, ds);
-							}
+							SLib.LDATE d = _doc.GetNominalDate();
+							if(d != null)
+								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY));
 							{
 								String cli_name = "";
 								String addr = "";
@@ -750,6 +783,41 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							{
 								double amount = CPM.GetAmountOfCurrentDocument();
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_AMOUNT, CPM.FormatCurrency(amount));
+							}
+							{
+								DocEditActionList = Document.GetEditActionsConnectedWithStatus(_doc.GetDocStatus());
+								if(DocEditActionList != null && DocEditActionList.size() > 0) {
+									int acn_idx = 0;
+									for(; acn_idx < DocEditActionList.size(); acn_idx++) {
+										Document.EditAction acn = DocEditActionList.get(acn_idx);
+										switch(acn_idx) {
+											case 0:
+												SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON1, View.VISIBLE);
+												SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON1, acn.GetTitle(app_ctx));
+												break;
+											case 1:
+												SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON2, View.VISIBLE);
+												SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON2, acn.GetTitle(app_ctx));
+												break;
+											case 2:
+												SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON3, View.VISIBLE);
+												SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON3, acn.GetTitle(app_ctx));
+												break;
+											case 3:
+												SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON4, View.VISIBLE);
+												SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON4, acn.GetTitle(app_ctx));
+												break;
+										}
+									}
+									for(; acn_idx < 4; acn_idx++) {
+										switch(acn_idx) {
+											case 0: SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON1, View.GONE); break;
+											case 1: SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON2, View.GONE); break;
+											case 2: SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON3, View.GONE); break;
+											case 3: SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON4, View.GONE); break;
+										}
+									}
+								}
 							}
 							status_image_rc_id = Document.GetImageResourceByDocStatus(_doc.GetDocStatus());
 						}
@@ -899,11 +967,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 														}
 														else if(ctl_view instanceof TextView){
 															if(i == 1) { // date
-																SLib.LDATE d = null;
-																if(cur_entry.H.Time > 0)
-																	d = SLib.BuildDateByEpoch(cur_entry.H.Time);
-																else if(cur_entry.H.CreationTime > 0)
-																	d = SLib.BuildDateByEpoch(cur_entry.H.CreationTime);
+																SLib.LDATE d = cur_entry.GetNominalDate();
 																if(d != null)
 																	text = d.Format(SLib.DATF_DMY);
 															}
@@ -1068,14 +1132,9 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 															; // По-моему, здесь ничего замерять не надо - мы и так зафиксировали размер элемента
 														}
 														else if(i == 1) { // date
-															SLib.LDATE d = null;
-															if(cur_entry.H.Time > 0)
-																d = SLib.BuildDateByEpoch(cur_entry.H.Time);
-															else if(cur_entry.H.CreationTime > 0)
-																d = SLib.BuildDateByEpoch(cur_entry.H.CreationTime);
-															if(d != null) {
+															SLib.LDATE d = cur_entry.GetNominalDate();
+															if(d != null)
 																VdlDocs.DataPreprocessingIter(dpb, d.Format(SLib.DATF_DMY));
-															}
 														}
 														else if(i == 2) { // code
 															VdlDocs.DataPreprocessingIter(dpb, cur_entry.H.Code);
@@ -1150,7 +1209,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 											SetupRecyclerListView(fv, R.id.orderPrereqOrdrListView, R.layout.li_orderprereq_ordrti);
 											//
 											View back_cli_img_view = fv.findViewById(R.id.CTL_DOCUMENT_BACK_CLI);
-											if(CPM.GetAgentID() > 0) { // Агентские заказы - требуется указание клиента
+											// Агентские заказы - требуется указание клиента
+											if(CPM.GetAgentID() > 0 && CPM.GetCurrentDocument() != null && Document.DoesStatusAllowModifications(CPM.GetCurrentDocument().GetDocStatus())) {
 												if(back_cli_img_view != null) {
 													back_cli_img_view.setVisibility(ViewGroup.VISIBLE);
 													back_cli_img_view.setOnClickListener(new View.OnClickListener() {
@@ -1299,7 +1359,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								else if(((ListView)srcObj).getId() == R.id.dlvrLocListView) {
 									if(ev_subj.ItemObj != null && ev_subj.ItemObj instanceof JSONObject) {
 										if(SetCurrentOrderClient(null, (JSONObject)ev_subj.ItemObj)) {
-											;
+											GotoTab(CommonPrereqModule.Tab.tabCurrentOrder, R.id.orderPrereqOrdrListView, -1, -1);
 										}
 									}
 								}
@@ -1331,10 +1391,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 														dialog.show();
 													}
 												}
-											/*
-											if(AddItemToCurrentOrder(item.JsItem))
-												a.notifyItemChanged(ev_subj.ItemIdx);
-											 */
 											}
 										}
 										break;
@@ -1393,8 +1449,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 											Document.DisplayEntry entry = CPM.OrderHList.get(ev_subj.ItemIdx);
 											if(entry != null) {
 												if(CPM.LoadDocument(entry.H.ID)) {
-													CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
-													GotoTab(CommonPrereqModule.Tab.tabCurrentOrder, R.id.orderPrereqOrdrListView, -1, -1);
+													SetupCurrentDocument(true, false);
 												}
 											}
 										}
@@ -1409,37 +1464,88 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				}
 				break;
 			case SLib.EV_COMMAND:
-				int view_id = View.class.isInstance(srcObj) ? ((View)srcObj).getId() : 0;
-				if(view_id == R.id.tbButtonSearch) {
-					GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
-				}
-				else if(view_id == R.id.tbButtonClearFiter) {
-					CPM.ResetGoodsFiter();
-					SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
-					GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
-				}
-				else if(view_id == R.id.STDCTL_COMMITBUTTON) {
-					CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
-					if(te != null)
-						GetFragmentData(te.TabView);
-					CPM.CommitCurrentDocument();
-				}
-				else if(view_id == R.id.STDCTL_CANCELBUTTON) {
-					CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
-					if(te != null)
-						GetFragmentData(te.TabView);
-					CPM.CancelCurrentDocument();
-				}
-				else if(view_id == R.id.CTL_DOCUMENT_BACK_CLI) {
-					final Document cd = CPM.GetCurrentDocument();
-					if(cd != null && cd.H != null) {
-						if(cd.H.ClientID > 0) {
-							JSONObject cli_js_obj = CPM.FindClientEntry(cd.H.ClientID);
-							if(cli_js_obj != null) {
-								int _idx = FindClientItemIndexByID(cd.H.ClientID);
-								int _dlvr_loc_idx = (cd.H.DlvrLocID > 0) ? CPM.FindDlvrLocEntryIndexInCliEntry(cli_js_obj, cd.H.DlvrLocID) : 0;
-								GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, _dlvr_loc_idx);
+				{
+					Document.EditAction acn = null;
+					int view_id = View.class.isInstance(srcObj) ? ((View) srcObj).getId() : 0;
+					if(view_id == R.id.tbButtonSearch) {
+						GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
+					}
+					else if(view_id == R.id.tbButtonClearFiter) {
+						CPM.ResetGoodsFiter();
+						SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
+						GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
+					}
+					else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON1) {
+						if(DocEditActionList != null && DocEditActionList.size() > 0)
+							acn = DocEditActionList.get(0);
+					}
+					else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON2) {
+						if(DocEditActionList != null && DocEditActionList.size() > 1)
+							acn = DocEditActionList.get(1);
+					}
+					else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON3) {
+						if(DocEditActionList != null && DocEditActionList.size() > 2)
+							acn = DocEditActionList.get(2);
+					}
+					else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON4) {
+						if(DocEditActionList != null && DocEditActionList.size() > 3)
+							acn = DocEditActionList.get(3);
+					}
+					else if(view_id == R.id.CTL_DOCUMENT_BACK_CLI) {
+						final Document cd = CPM.GetCurrentDocument();
+						if(cd != null && cd.H != null) {
+							if(Document.DoesStatusAllowModifications(cd.GetDocStatus())) {
+								//cd.H.ClientID > 0 &&
+								JSONObject cli_js_obj = CPM.FindClientEntry(cd.H.ClientID);
+								if(cli_js_obj != null) {
+									int _idx = FindClientItemIndexByID(cd.H.ClientID);
+									int _dlvr_loc_idx = (cd.H.DlvrLocID > 0) ? CPM.FindDlvrLocEntryIndexInCliEntry(cli_js_obj, cd.H.DlvrLocID) : 0;
+									GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, _dlvr_loc_idx);
+								}
+								else
+									GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, -1, -1);
 							}
+						}
+					}
+					if(acn != null) {
+						switch(acn.Action) {
+							case Document.editactionClose:
+								// Просто закрыть сеанс редактирования документа (изменения и передача сервису не предполагаются)
+								CPM.ResetCurrentDocument();
+								NotifyCurrentOrderChanged();
+								GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
+								//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+								SetupCurrentDocument(false, true);
+								break;
+							case Document.editactionSubmit:
+								// store document; // Подтвердить изменения документа (передача сервису не предполагается)
+								break;
+							case Document.editactionSubmitAndTransmit:
+								{
+									// Подтвердить изменения документа с передачей сервису
+									CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
+									if(te != null)
+										GetFragmentData(te.TabView);
+									CPM.CommitCurrentDocument();
+								}
+								break;
+							case Document.editactionCancelEdition:
+								// Отменить изменения документа (передача сервису не предполагается)
+								CPM.ResetCurrentDocument();
+								NotifyCurrentOrderChanged();
+								GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
+								//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+								SetupCurrentDocument(false, true);
+								break;
+							case Document.editactionCancelDocument:
+								{
+									// Отменить документ с передачей сервису факта отмены
+									CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
+									if(te != null)
+										GetFragmentData(te.TabView);
+									CPM.CancelCurrentDocument();
+								}
+								break;
 						}
 					}
 				}
@@ -1495,7 +1601,28 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 							}
 							else {
-								; // @todo
+								StyloQApp app_ctx = GetAppCtx();
+								String err_msg = app_ctx.GetString(ppstr2.PPSTR_ERROR, ppstr2.PPERR_STQ_POSTDOCUMENTFAULT);
+								String reply_err_msg = null;
+								if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+									SecretTagPool rpool = (SecretTagPool)ir.InfoReply;
+									byte [] raw_reply_bytes = rpool.Get(SecretTagPool.tagRawData);
+									if(SLib.GetLen(raw_reply_bytes) > 0) {
+										String reply_js_text = new String(raw_reply_bytes);
+										if(SLib.GetLen(reply_js_text) > 0) {
+											try {
+												JSONObject sv_reply_js = new JSONObject(reply_js_text);
+												if(sv_reply_js != null)
+													reply_err_msg = sv_reply_js.optString("errmsg", null);
+											} catch(JSONException exn) {
+												;
+											}
+										}
+									}
+								}
+								if(SLib.GetLen(reply_err_msg) > 0)
+									err_msg += ": " + reply_err_msg;
+								app_ctx.DisplayError(this, err_msg, 0);
 							}
 						}
 						else if(ir.OriginalCmdItem.Name.equalsIgnoreCase("CancelDocument")) {

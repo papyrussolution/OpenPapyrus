@@ -368,7 +368,7 @@ static int archive_wstring_append_from_mbs_in_codepage(archive_wstring * dest, c
 			count++;
 		}
 	}
-	else if(sc != NULL && (sc->flag & (SCONV_NORMALIZATION_C | SCONV_NORMALIZATION_D))) {
+	else if(sc && (sc->flag & (SCONV_NORMALIZATION_C | SCONV_NORMALIZATION_D))) {
 		/*
 		 * Normalize UTF-8 and UTF-16BE and convert it directly
 		 * to UTF-16 as wchar_t.
@@ -406,7 +406,7 @@ static int archive_wstring_append_from_mbs_in_codepage(archive_wstring * dest, c
 		sc->flag = saved_flag; /* restore the saved flag. */
 		return ret;
 	}
-	else if(sc != NULL && (sc->flag & SCONV_FROM_UTF16)) {
+	else if(sc && (sc->flag & SCONV_FROM_UTF16)) {
 		count = (int)utf16nbytes(s, length);
 		count >>= 1; /* to be WCS length */
 		/* Allocate memory for WCS. */
@@ -584,11 +584,9 @@ static int archive_string_append_from_wcs_in_codepage(archive_string * as, const
 			count++;
 		}
 	}
-	else if(sc != NULL && (sc->flag & SCONV_TO_UTF16)) {
+	else if(sc && (sc->flag & SCONV_TO_UTF16)) {
 		uint16 * u16;
-
-		if(NULL ==
-		    archive_string_ensure(as, as->length + len * 2 + 2))
+		if(NULL == archive_string_ensure(as, as->length + len * 2 + 2))
 			return -1;
 		u16 = (uint16*)(as->s + as->length);
 		count = 0;
@@ -742,7 +740,7 @@ static archive_string_conv * find_sconv_object(Archive * a, const char * fc, con
 	archive_string_conv * sc;
 	if(!a)
 		return NULL;
-	for(sc = a->sconv; sc != NULL; sc = sc->next) {
+	for(sc = a->sconv; sc; sc = sc->next) {
 		if(sstreq(sc->from_charset, fc) && sstreq(sc->to_charset, tc))
 			break;
 	}
@@ -755,7 +753,7 @@ static void add_sconv_object(Archive * a, archive_string_conv * sc)
 {
 	// Add a new sconv to sconv list
 	archive_string_conv ** psc = &(a->sconv);
-	while(*psc != NULL)
+	while(*psc)
 		psc = &((*psc)->next);
 	*psc = sc;
 }
@@ -1534,7 +1532,7 @@ archive_string_conv * archive_string_default_conversion_for_read(Archive * a)
 	/* NOTE: a check of cur_charset is unneeded but we need
 	 * that get_current_charset() has been surely called at
 	 * this time whatever C compiler optimized. */
-	if(cur_charset != NULL && (a->current_codepage == CP_C_LOCALE || a->current_codepage == a->current_oemcp))
+	if(cur_charset && (a->current_codepage == CP_C_LOCALE || a->current_codepage == a->current_oemcp))
 		return NULL; /* no conversion. */
 	_snprintf(oemcp, sizeof(oemcp)-1, "CP%d", a->current_oemcp);
 	/* Make sure a null termination must be set. */
@@ -1549,7 +1547,7 @@ archive_string_conv * archive_string_default_conversion_for_write(Archive * a)
 	/* NOTE: a check of cur_charset is unneeded but we need
 	 * that get_current_charset() has been surely called at
 	 * this time whatever C compiler optimized. */
-	if(cur_charset != NULL && (a->current_codepage == CP_C_LOCALE || a->current_codepage == a->current_oemcp))
+	if(cur_charset && (a->current_codepage == CP_C_LOCALE || a->current_codepage == a->current_oemcp))
 		return NULL; /* no conversion. */
 	_snprintf(oemcp, sizeof(oemcp)-1, "CP%d", a->current_oemcp);
 	/* Make sure a null termination must be set. */
@@ -1702,8 +1700,8 @@ int archive_strncat_l(archive_string * as, const void * _p, size_t n, archive_st
 	const void * s;
 	size_t length = 0;
 	int i, r = 0, r2;
-	if(_p != NULL && n > 0) {
-		if(sc != NULL && (sc->flag & SCONV_FROM_UTF16))
+	if(_p && n > 0) {
+		if(sc && (sc->flag & SCONV_FROM_UTF16))
 			length = utf16nbytes(_p, n);
 		else
 			length = mbsnbytes(_p, n);
@@ -1712,7 +1710,7 @@ int archive_strncat_l(archive_string * as, const void * _p, size_t n, archive_st
 	 * or copy. This simulates archive_string_append behavior. */
 	if(length == 0) {
 		int tn = 1;
-		if(sc != NULL && (sc->flag & SCONV_TO_UTF16))
+		if(sc && (sc->flag & SCONV_TO_UTF16))
 			tn = 2;
 		if(archive_string_ensure(as, as->length + tn) == NULL)
 			return -1;
@@ -3594,7 +3592,7 @@ int archive_mstring_get_mbs_l(Archive * a, struct archive_mstring * aes, const c
 	 * Internationalization programming on Windows must use Wide
 	 * characters because Windows platform cannot make locale UTF-8.
 	 */
-	if(sc != NULL && (aes->aes_set & AES_SET_WCS) != 0) {
+	if(sc && (aes->aes_set & AES_SET_WCS) != 0) {
 		archive_string_empty(&(aes->aes_mbs_in_locale));
 		r = archive_string_append_from_wcs_in_codepage(&(aes->aes_mbs_in_locale), aes->aes_wcs.s, aes->aes_wcs.length, sc);
 		if(!r) {
@@ -3718,7 +3716,7 @@ int archive_mstring_copy_mbs_len_l(struct archive_mstring * aes, const char * mb
 		}
 #if defined(HAVE_ICONV)
 	}
-	else if(sc != NULL && sc->cd_w != (iconv_t)-1) {
+	else if(sc && sc->cd_w != (iconv_t)-1) {
 		/*
 		 * This case happens only when MultiByteToWideChar() cannot
 		 * handle sc->from_cp, and we have to iconv in order to

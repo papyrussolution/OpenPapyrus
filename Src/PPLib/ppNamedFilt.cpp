@@ -823,7 +823,7 @@ int FiltPoolDialog::delItem(long pos, long id)
 	return P_Data->PutNamedFilt(&id, 0);
 }
 
-PPNamedFilt::ViewDefinition::Entry::Entry() : TotalFunc(0)
+PPNamedFilt::ViewDefinition::Entry::Entry() : TotalFunc(0), DataType(0), Format(0), Format2(0)
 {
 }
 
@@ -833,6 +833,9 @@ PPNamedFilt::ViewDefinition::Entry & PPNamedFilt::ViewDefinition::Entry::Z()
 	FieldName.Z();
 	Text.Z();
 	TotalFunc = 0;
+	DataType = 0; // @v11.4.2
+	Format = 0; // @v11.4.2
+	Format2 = 0; // @v11.4.2
 	return *this;
 }
 
@@ -841,26 +844,10 @@ PPNamedFilt::ViewDefinition::ViewDefinition()
 }
 
 //@erik v10.5.0
-uint PPNamedFilt::ViewDefinition::GetCount() const
-{
-	return L.getCount();
-}
-
-const SString & PPNamedFilt::ViewDefinition::GetStrucSymb() const
-{
-	return StrucSymb;
-}
-
-int PPNamedFilt::ViewDefinition::SetStrucSymb(const char * pSymb)
-{
-	(StrucSymb = pSymb).Strip();
-	return 1;
-}
-
-int PPNamedFilt::ViewDefinition::Swap(uint p1, uint p2)
-{
-	return L.swap(p1, p2);
-}
+uint PPNamedFilt::ViewDefinition::GetCount() const { return L.getCount(); }
+const SString & PPNamedFilt::ViewDefinition::GetStrucSymb() const { return StrucSymb; }
+void PPNamedFilt::ViewDefinition::SetStrucSymb(const char * pSymb) { (StrucSymb = pSymb).Strip(); }
+int  PPNamedFilt::ViewDefinition::Swap(uint p1, uint p2) { return L.swap(p1, p2); }
 
 int PPNamedFilt::ViewDefinition::SearchEntry(const char * pZone, const char *pFieldName, uint * pPos, InnerEntry * pInnerEntry) const
 {
@@ -891,6 +878,9 @@ int PPNamedFilt::ViewDefinition::SetEntry(const Entry & rE)
 		AddS(rE.FieldName, &new_entry.FieldNameP);
 		AddS(rE.Text, &new_entry.TextP);
 		new_entry.TotalFunc = rE.TotalFunc;
+		new_entry.DataType = rE.DataType; // @v11.4.2
+		new_entry.Format   = rE.Format; // @v11.4.2
+		new_entry.Format2  = rE.Format2; // @v11.4.2
 		L.at(pos) = new_entry;
 		ok = 1;
 	}
@@ -899,6 +889,9 @@ int PPNamedFilt::ViewDefinition::SetEntry(const Entry & rE)
 		AddS(rE.FieldName, &new_entry.FieldNameP);
 		AddS(rE.Text, &new_entry.TextP);
 		new_entry.TotalFunc = rE.TotalFunc;
+		new_entry.DataType = rE.DataType; // @v11.4.2
+		new_entry.Format   = rE.Format; // @v11.4.2
+		new_entry.Format2  = rE.Format2; // @v11.4.2
 		L.insert(&new_entry);
 		ok = 2;
 	}
@@ -915,6 +908,9 @@ int PPNamedFilt::ViewDefinition::GetEntry(const uint pos, Entry & rE) const
 		GetS(r_entry.FieldNameP, rE.FieldName);
 		GetS(r_entry.TextP, rE.Text);
 		rE.TotalFunc = r_entry.TotalFunc;
+		rE.DataType = r_entry.DataType; // @v11.4.2
+		rE.Format   = r_entry.Format; // @v11.4.2
+		rE.Format2  = r_entry.Format2; // @v11.4.2
 	}
 	else
 		ok = 0;
@@ -959,6 +955,24 @@ int PPNamedFilt::ViewDefinition::XmlWrite(xmlTextWriter * pXmlWriter) const
 				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 				pp_entry_node.PutInner("Description", temp_buf);
 				pp_entry_node.PutInner("TotalFunc", temp_buf.Z().Cat(tmp_entry.TotalFunc));
+				// @v11.4.2 {
+				if(tmp_entry.DataType == BTS_INT)
+					pp_entry_node.PutInner("DataType", "int");
+				else if(tmp_entry.DataType == BTS_REAL)
+					pp_entry_node.PutInner("DataType", "real");
+				else if(tmp_entry.DataType == BTS_STRING)
+					pp_entry_node.PutInner("DataType", "string");
+				else if(tmp_entry.DataType == BTS_DATE)
+					pp_entry_node.PutInner("DataType", "date");
+				else if(tmp_entry.DataType == BTS_TIME)
+					pp_entry_node.PutInner("DataType", "time");
+				else if(tmp_entry.DataType == BTS_DATETIME)
+					pp_entry_node.PutInner("DataType", "timestamp");
+				if(tmp_entry.Format)
+					pp_entry_node.PutInner("Format", temp_buf.Z().Cat(tmp_entry.Format));
+				if(tmp_entry.Format2)
+					pp_entry_node.PutInner("Format2", temp_buf.Z().Cat(tmp_entry.Format2));
+				// } @v11.4.2 
 			}
 		}
 	} 
@@ -989,6 +1003,28 @@ int PPNamedFilt::ViewDefinition::XmlRead(const xmlNode * pParentNode)
 				else if(SXml::GetContentByName(p_entry_node, "TotalFunc", temp_buf)) {
 					tmp_entry.TotalFunc = temp_buf.ToLong();
 				}
+				// @v11.4.2 {
+				else if(SXml::GetContentByName(p_entry_node, "DataType", temp_buf)) {
+					if(temp_buf.IsEqiAscii("int"))
+						tmp_entry.DataType = BTS_INT;
+					else if(temp_buf.IsEqiAscii("real"))
+						tmp_entry.DataType = BTS_REAL;
+					else if(temp_buf.IsEqiAscii("string"))
+						tmp_entry.DataType = BTS_STRING;
+					else if(temp_buf.IsEqiAscii("date"))
+						tmp_entry.DataType = BTS_DATE;
+					else if(temp_buf.IsEqiAscii("time"))
+						tmp_entry.DataType = BTS_TIME;
+					else if(temp_buf.IsEqiAscii("timestamp"))
+						tmp_entry.DataType = BTS_DATETIME;
+				}
+				else if(SXml::GetContentByName(p_entry_node, "Format", temp_buf)) {
+					tmp_entry.Format = temp_buf.ToLong();
+				}
+				else if(SXml::GetContentByName(p_entry_node, "Format2", temp_buf)) {
+					tmp_entry.Format2 = temp_buf.ToLong();
+				}
+				// } @v11.4.2 
 			}	
 			SetEntry(tmp_entry);
 		}
@@ -1030,7 +1066,6 @@ public:
 		if(Data.GetStrucSymb().NotEmpty()) {
 			P_Dl600Scope = Dl600Ctx.GetScopeByName_Const(DlScope::kExpData, Data.GetStrucSymb());
 		}
-
 		for(uint i = 0; ok && i<Data.GetCount(); i++) {
 			const PPID id = static_cast<PPID>(i+1);
 			Data.GetEntry(i, mobTypeClmn);
@@ -1116,6 +1151,81 @@ int PPNamedFilt::EditRestrictedViewDefinitionList(PPNamedFilt::ViewDefinition & 
 	DIALOG_PROC_BODY(MobileClmnValListDialog, &rData);
 }
 
+struct _BtsFormatBlock {
+	_BtsFormatBlock(int bts) : Bts(bts), Fmt(0), Fmt2(0)
+	{
+	}
+	const  int    Bts;
+	long   Fmt;
+	long   Fmt2;
+};
+
+static int EditBtsFormat(_BtsFormatBlock & rBlk)
+{
+	int    ok = -1;
+	TDialog * dlg = 0;
+	switch(rBlk.Bts) {
+		case BTS_INT:
+			break;
+		case BTS_REAL:
+			{
+				dlg = new TDialog(DLG_FMTREAL);
+				if(CheckDialogPtrErr(&dlg)) {
+					dlg->setCtrlUInt16(CTL_FMTREAL_PREC, SFMTPRC(rBlk.Fmt));
+					if(ExecView(dlg) == cmOK) {
+						uint16 prec = dlg->getCtrlUInt16(CTL_FMTREAL_PREC);
+						SETSFMTPRC(rBlk.Fmt, prec);
+						ok = 1;
+					}
+				}
+			}
+			break;
+		case BTS_DATE:
+			{
+				dlg = new TDialog(DLG_FMTDATE);
+				if(CheckDialogPtrErr(&dlg)) {
+					SetupStringCombo(dlg, CTLSEL_FMTDATE_F, PPTXT_FORMATLIST_DATE, SFMTFLAG(rBlk.Fmt));
+					if(ExecView(dlg) == cmOK) {
+						long v = dlg->getCtrlLong(CTLSEL_FMTDATE_F);
+						SETSFMTFLAG(rBlk.Fmt, v);
+						ok = 1;
+					}
+				}
+			}
+			break;
+		case BTS_TIME:
+			{
+				dlg = new TDialog(DLG_FMTTIME);
+				if(CheckDialogPtrErr(&dlg)) {
+					SetupStringCombo(dlg, CTLSEL_FMTTIME_F, PPTXT_FORMATLIST_TIME, SFMTFLAG(rBlk.Fmt));
+					if(ExecView(dlg) == cmOK) {
+						long v = dlg->getCtrlLong(CTLSEL_FMTTIME_F);
+						SETSFMTFLAG(rBlk.Fmt, v);
+						ok = 1;
+					}
+				}
+			}
+			break;
+		case BTS_DATETIME:
+			{
+				dlg = new TDialog(DLG_FMTTS);
+				if(CheckDialogPtrErr(&dlg)) {
+					SetupStringCombo(dlg, CTLSEL_FMTTS_DF, PPTXT_FORMATLIST_DATE, SFMTFLAG(rBlk.Fmt));
+					SetupStringCombo(dlg, CTLSEL_FMTTS_TF, PPTXT_FORMATLIST_TIME, SFMTFLAG(rBlk.Fmt2));
+					if(ExecView(dlg) == cmOK) {
+						long v1 = dlg->getCtrlLong(CTLSEL_FMTTS_DF);
+						long v2 = dlg->getCtrlLong(CTLSEL_FMTTS_TF);
+						SETSFMTFLAG(rBlk.Fmt, v1);
+						SETSFMTFLAG(rBlk.Fmt2, v2);
+						ok = 1;
+					}
+				}
+			}
+			break;
+	}
+	delete dlg;
+	return ok;
+}
 //
 // Descr: Создает и отображает диалог "Список"
 //
@@ -1127,7 +1237,7 @@ class MobileClmnValItemDialog : public TDialog {
 	DECL_DIALOG_DATA(PPNamedFilt::ViewDefinition::Entry);
 	const DlScope * P_Dl600Scope;
 public:
-	MobileClmnValItemDialog(PPNamedFilt::ViewDefinition * pViewDef, const DlScope * pScope) : TDialog(DLG_MOBCLEDT), P_Dl600Scope(pScope)/*, P_Data(pViewDef)*/
+	MobileClmnValItemDialog(PPNamedFilt::ViewDefinition * pViewDef, const DlScope * pScope) : TDialog(DLG_MOBCLEDT), P_Dl600Scope(pScope)
 	{
 	}
 	DECL_DIALOG_SETDTS()
@@ -1139,6 +1249,7 @@ public:
 		setCtrlString(CTL_MOBCLEDT_FN, Data.FieldName); // Поле "FieldName"
 		setCtrlString(CTL_MOBCLEDT_TXT, Data.Text); // Поле "Text"
 		SetupStringCombo(this, CTLSEL_MOBCLEDT_AGGR, PPTXT_AGGRFUNCNAMELIST, Data.TotalFunc);
+		SetupField();
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -1177,6 +1288,17 @@ private:
 		else if(event.isCmd(cmSelectDlField)) {
 			SelectField();
 		}
+		else if(event.isCmd(cmFormat)) {
+			if(Data.DataType) {
+				_BtsFormatBlock blk(Data.DataType);
+				blk.Fmt = Data.Format;
+				blk.Fmt2 = Data.Format2;
+				if(EditBtsFormat(blk) > 0) {
+					Data.Format = blk.Fmt;
+					Data.Format2 = blk.Fmt2;
+				}
+			}
+		}
 		else
 			return;
 		clearEvent(event);
@@ -1188,6 +1310,41 @@ private:
 		else if(rBuf.IsEqiAscii("hdr"))
 			rBuf = "Head";
 		return rBuf;
+	}
+	const DlScope * FindZone(const char * pZoneSymb) const
+	{
+		const DlScope * p_result = 0;
+		if(P_Dl600Scope && !isempty(pZoneSymb)) {
+			const DlScopeList & r_cl = P_Dl600Scope->GetChildList();
+			SString temp_buf;
+			for(uint i = 0; !p_result && i < r_cl.getCount(); i++) {
+				const DlScope * p_scope = r_cl.at(i);
+				if(p_scope) {
+					TranslateDlZoneNameToXmlName(temp_buf = p_scope->GetName());
+					if(temp_buf.IsEqiAscii(pZoneSymb))
+						p_result = p_scope;
+				}
+			}
+		}
+		return p_result;
+	}
+	bool FindField(const DlScope * pZone, const char * pFieldName, SdbField & rFld, StrAssocArray * pFullList) const
+	{
+		bool   ok = false;
+		if(pZone && !isempty(pFieldName)) {
+			SdbField iter_fld;
+			for(uint i = 0; (!ok || pFullList) && i < pZone->GetCount(); i++) {
+				if(pZone->GetFieldByPos(i, &iter_fld)) {
+					if(iter_fld.Name.IsEqiAscii(pFieldName)) {
+						rFld = iter_fld;
+						ok = true;
+					}
+					if(pFullList)
+						pFullList->Add(iter_fld.ID, iter_fld.Name);
+				}
+			}
+		}
+		return ok;
 	}
 	void SelectZone()
 	{
@@ -1229,56 +1386,77 @@ private:
 	}
 	void SelectField()
 	{
-		if(P_Dl600Scope) {
+		SString zone_symb;
+		getCtrlString(CTL_MOBCLEDT_Z, zone_symb);
+		const DlScope * p_zone_scope = FindZone(zone_symb);
+		if(p_zone_scope) {
 			SString temp_buf;
 			SString cur_text;
-			SString zone_text;
-			const uint ctl_id = CTL_MOBCLEDT_FN;
 			const DlScopeList & r_cl = P_Dl600Scope->GetChildList();
-			getCtrlString(CTL_MOBCLEDT_Z, zone_text);
-			if(r_cl.getCount() && zone_text.NotEmpty()) {
+			if(r_cl.getCount()) {
 				getCtrlString(CTL_MOBCLEDT_FN, cur_text);
-				DLSYMBID zone_id = 0;
-				const DlScope * p_zone_scope = 0;
-				{
-					for(uint i = 0; !zone_id && i < r_cl.getCount(); i++) {
-						const DlScope * p_scope = r_cl.at(i);
-						if(p_scope) {
-							TranslateDlZoneNameToXmlName(temp_buf = p_scope->GetName());
-							if(temp_buf.IsEqiAscii(zone_text)) {
-								p_zone_scope = p_scope;
-								zone_id = static_cast<long>(p_scope->GetId());
-							}
-						}
-					}
-				}
-				if(p_zone_scope) {
-					StrAssocArray * p_list = new StrAssocArray;
-					if(p_list) {
-						long   id = 0;
-						SdbField fld;
-						{
-							for(uint i = 0; i < p_zone_scope->GetCount(); i++) {
-								if(p_zone_scope->GetFieldByPos(i, &fld)) {
-									p_list->Add(fld.ID, fld.Name);
-									if(fld.Name.IsEqiAscii(cur_text))
-										id = fld.ID;
-								}
-							}
-						}
-						p_list->SortByText();
-						if(ListBoxSelDialog(p_list, "@ttl_seldl600field", &id, 0) > 0 && id > 0) {
-							if(p_zone_scope->GetFieldByID(id, 0, &fld)) {
-								setCtrlString(CTL_MOBCLEDT_FN, fld.Name);
-								getCtrlString(CTL_MOBCLEDT_TXT, temp_buf);
-								if(temp_buf.IsEmpty())
-									setCtrlString(CTL_MOBCLEDT_TXT, fld.Name);
+				StrAssocArray * p_list = new StrAssocArray;
+				if(p_list) {
+					SdbField fld;
+					long   id = FindField(p_zone_scope, cur_text, fld, p_list) ? fld.ID : 0;
+					p_list->SortByText();
+					if(ListBoxSelDialog(p_list, "@ttl_seldl600field", &id, 0) > 0 && id > 0) {
+						if(p_zone_scope->GetFieldByID(id, 0, &fld)) {
+							setCtrlString(CTL_MOBCLEDT_FN, fld.Name);
+							getCtrlString(CTL_MOBCLEDT_TXT, temp_buf);
+							if(temp_buf.IsEmpty()) {
+								setCtrlString(CTL_MOBCLEDT_TXT, fld.Name);
+								SetupField();
 							}
 						}
 					}
 				}
 			}
 		}
+	}
+	void SetupField()
+	{
+		Data.DataType = 0;
+		SString zone_symb;
+		SString fld_symb;
+		SString fld_type_symb;
+		getCtrlString(CTL_MOBCLEDT_Z, zone_symb);
+		const DlScope * p_zone_scope = FindZone(zone_symb);
+		if(p_zone_scope) {
+			SdbField fld;
+			getCtrlString(CTL_MOBCLEDT_FN, fld_symb);
+			if(FindField(p_zone_scope, fld_symb, fld, 0)) {
+				if(fld.T.IsPure()) {
+					const int st = GETSTYPE(fld.T.Typ);
+					if(st == S_ZSTRING) {
+						fld_type_symb = "string";
+						Data.DataType = BTS_STRING;
+					}
+					else if(oneof3(st, S_INT, S_UINT, S_AUTOINC)) {
+						fld_type_symb = "int";
+						Data.DataType = BTS_INT;
+					}
+					else if(oneof4(st, S_FLOAT, S_DEC, S_MONEY, S_NUMERIC)) {
+						fld_type_symb = "real";
+						Data.DataType = BTS_REAL;
+					}
+					else if(st == S_DATE) {
+						fld_type_symb = "date";
+						Data.DataType = BTS_DATE;
+					}
+					else if(st == S_TIME) {
+						fld_type_symb = "time";
+						Data.DataType = BTS_TIME;
+					}
+					else if(st == S_DATETIME) {
+						fld_type_symb = "timestamp";
+						Data.DataType = BTS_DATETIME;
+					}
+				}
+			}
+		}
+		setCtrlString(CTL_MOBCLEDT_TYPE, fld_type_symb);
+		enableCommand(cmFormat, oneof4(Data.DataType, BTS_REAL, BTS_DATE, BTS_TIME, BTS_DATETIME));
 	}
 };
 //

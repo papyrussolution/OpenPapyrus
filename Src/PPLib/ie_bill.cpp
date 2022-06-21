@@ -4153,93 +4153,95 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 					}
 				}
 				bool skip_this_doc = false;
-				do {
-					PPTransferItem ti;
-					Goods2Tbl::Rec goods_rec;
-					ti.Init(&pack.Rec, 0, 0);
-					if(p_item->ProductCode.NotEmpty()) {
-						ArGoodsCodeTbl::Rec agc_rec;
-						if(GObj.P_Tbl->SearchByArCode(supplArID, p_item->ProductCode, &agc_rec, &goods_rec) > 0) {
-							ti.SetupGoods(goods_rec.ID);
-						}
-						else {
-							if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {
-								ResolveGoodsItem rgi;
-								rgi.ArID = supplArID;
-								STRNSCPY(rgi.ArCode, p_item->ProductCode);
-								(temp_buf = p_item->ProductName).Transf(CTRANSF_UTF8_TO_INNER);
-								STRNSCPY(rgi.GoodsName, temp_buf);
-								if(CreateAbsenceGoods(rgi, 1) > 0) {
-									assert(rgi.ResolvedGoodsID);
-									ti.SetupGoods(rgi.ResolvedGoodsID);
-								}
-							}
-						}
-					}
-					if(ti.GoodsID && GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
-						double unit_per_pack = 0.0;
-						double net_price_wo_vat = 0.0;
-						double discount_wo_vat = 0.0;
-						ti.Quantity_ = p_item->QtyBottle;
-						if(p_item->QtyCase > 0.0 && p_item->QtyBottle > 0) {
-							unit_per_pack = p_item->QtyBottle / p_item->QtyCase;
-						}
-						if(p_item->PriceEA > 0.0) {
-							net_price_wo_vat = p_item->PriceEA;
-						}
-						else if(p_item->PriceCase > 0.0 && unit_per_pack > 0.0) {
-							net_price_wo_vat = p_item->PriceCase / unit_per_pack;
-						}
-						if(p_item->Discount > 0.0 && unit_per_pack > 0.0) { // Скидка без НДС на упаковку
-							discount_wo_vat = p_item->Discount / unit_per_pack;
-						}
-						{
-							GTaxVect vect;
-							PPGoodsTaxEntry gtx;
-							if(GObj.GTxObj.FetchByID(goods_rec.TaxGrpID, &gtx) > 0) {
-								vect.Calc_(&gtx, net_price_wo_vat+discount_wo_vat, 1.0, GTAXVF_AFTERTAXES, 0);
-								ti.Price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
-								if(discount_wo_vat > 0.0) {
-									vect.Calc_(&gtx, discount_wo_vat, 1.0, GTAXVF_AFTERTAXES, 0);
-									ti.Discount = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
-								}
+				if(!Period.IsZero() && !Period.CheckDate(pack.Rec.Dt)) {
+					skip_this_doc = true;
+				}
+				else {
+					do {
+						PPTransferItem ti;
+						Goods2Tbl::Rec goods_rec;
+						ti.Init(&pack.Rec, 0, 0);
+						if(p_item->ProductCode.NotEmpty()) {
+							ArGoodsCodeTbl::Rec agc_rec;
+							if(GObj.P_Tbl->SearchByArCode(supplArID, p_item->ProductCode, &agc_rec, &goods_rec) > 0) {
+								ti.SetupGoods(goods_rec.ID);
 							}
 							else {
-								ti.Price = (net_price_wo_vat + discount_wo_vat);
-								ti.Discount = discount_wo_vat;
+								if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {
+									ResolveGoodsItem rgi;
+									rgi.ArID = supplArID;
+									STRNSCPY(rgi.ArCode, p_item->ProductCode);
+									(temp_buf = p_item->ProductName).Transf(CTRANSF_UTF8_TO_INNER);
+									STRNSCPY(rgi.GoodsName, temp_buf);
+									if(CreateAbsenceGoods(rgi, 1) > 0) {
+										assert(rgi.ResolvedGoodsID);
+										ti.SetupGoods(rgi.ResolvedGoodsID);
+									}
+								}
 							}
 						}
-						row_pos_list.Z();
-						pack.InsertRow(&ti, &row_pos_list);
-						if(promo_lot_tag_id && row_pos_list.getCount() == 1 && p_item->DiscountPromoIdent.NotEmpty()) {
-							const long row_pos = row_pos_list.get(0);
-							ObjTagList * p_lot_tag_list = pack.LTagL.Get(row_pos);
-							ObjTagList stub_lot_tag_list;
-							if(!p_lot_tag_list)
-								p_lot_tag_list = &stub_lot_tag_list;
-							p_lot_tag_list->PutItemStr(promo_lot_tag_id, p_item->DiscountPromoIdent);
-							pack.LTagL.Set(row_pos, p_lot_tag_list);
+						if(ti.GoodsID && GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
+							double unit_per_pack = 0.0;
+							double net_price_wo_vat = 0.0;
+							double discount_wo_vat = 0.0;
+							ti.Quantity_ = p_item->QtyBottle;
+							if(p_item->QtyCase > 0.0 && p_item->QtyBottle > 0) {
+								unit_per_pack = p_item->QtyBottle / p_item->QtyCase;
+							}
+							if(p_item->PriceEA > 0.0) {
+								net_price_wo_vat = p_item->PriceEA;
+							}
+							else if(p_item->PriceCase > 0.0 && unit_per_pack > 0.0) {
+								net_price_wo_vat = p_item->PriceCase / unit_per_pack;
+							}
+							if(p_item->Discount > 0.0 && unit_per_pack > 0.0) { // Скидка без НДС на упаковку
+								discount_wo_vat = p_item->Discount / unit_per_pack;
+							}
+							{
+								GTaxVect vect;
+								PPGoodsTaxEntry gtx;
+								if(GObj.GTxObj.FetchByID(goods_rec.TaxGrpID, &gtx) > 0) {
+									vect.Calc_(&gtx, net_price_wo_vat+discount_wo_vat, 1.0, GTAXVF_AFTERTAXES, 0);
+									ti.Price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
+									if(discount_wo_vat > 0.0) {
+										vect.Calc_(&gtx, discount_wo_vat, 1.0, GTAXVF_AFTERTAXES, 0);
+										ti.Discount = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
+									}
+								}
+								else {
+									ti.Price = (net_price_wo_vat + discount_wo_vat);
+									ti.Discount = discount_wo_vat;
+								}
+							}
+							row_pos_list.Z();
+							pack.InsertRow(&ti, &row_pos_list);
+							if(promo_lot_tag_id && row_pos_list.getCount() == 1 && p_item->DiscountPromoIdent.NotEmpty()) {
+								const long row_pos = row_pos_list.get(0);
+								ObjTagList * p_lot_tag_list = pack.LTagL.Get(row_pos);
+								ObjTagList stub_lot_tag_list;
+								SETIFZQ(p_lot_tag_list, &stub_lot_tag_list);
+								p_lot_tag_list->PutItemStr(promo_lot_tag_id, p_item->DiscountPromoIdent);
+								pack.LTagL.Set(row_pos, p_lot_tag_list);
+							}
 						}
-					}
-					else
-						skip_this_doc = false;
-					// Теперь инкрементируем индекс строки и после этого пытаемся получить следующую (если индекс не вышел за пределы списка).
-					rowidx++; 
-					p_item = (rowidx < pRowList->getCount()) ? static_cast<const PredefImportRecord_Coke *>(pRowList->at(rowidx)) : 0;
-				} while(p_item && p_item->OrderIdent == current_order_ident);
+						else
+							skip_this_doc = false;
+						// Теперь инкрементируем индекс строки и после этого пытаемся получить следующую (если индекс не вышел за пределы списка).
+						rowidx++; 
+						p_item = (rowidx < pRowList->getCount()) ? static_cast<const PredefImportRecord_Coke *>(pRowList->at(rowidx)) : 0;
+					} while(p_item && p_item->OrderIdent == current_order_ident);
+				}
 				if(!skip_this_doc) {
 					BillTbl::Rec ex_bill_rec;
 					PPID   ex_bill_id = 0;
-					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
+					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safIgnoreDate, &ex_bill_id, &ex_bill_rec) > 0) {
 						PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, msg_buf);
 						Logger.LogMsgCode(mfError, PPERR_DOC_ALREADY_EXISTS, msg_buf);
 					}
-					else {
-						if(P_BObj->__TurnPacket(&pack, 0, 1, 1))
-							Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
-						else
-							Logger.LogLastError();
-					}
+					else if(P_BObj->__TurnPacket(&pack, 0, 1, 1))
+						Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
+					else
+						Logger.LogLastError();
 				}
 			}
 			else {

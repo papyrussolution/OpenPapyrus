@@ -185,7 +185,7 @@ static CURLcode rtsp_connect(struct connectdata * conn, bool * done)
 static CURLcode rtsp_disconnect(struct connectdata * conn, bool dead)
 {
 	(void)dead;
-	Curl_safefree(conn->proto.rtspc.rtp_buf);
+	ZFREE(conn->proto.rtspc.rtp_buf);
 	return CURLE_OK;
 }
 
@@ -327,7 +327,7 @@ static CURLcode rtsp_do(struct connectdata * conn, bool * done)
 	if(rtspreq == RTSPREQ_SETUP && !p_transport) {
 		/* New Transport: setting? */
 		if(data->set.str[STRING_RTSP_TRANSPORT]) {
-			Curl_safefree(data->state.aptr.rtsp_transport);
+			ZFREE(data->state.aptr.rtsp_transport);
 
 			data->state.aptr.rtsp_transport =
 			    aprintf("Transport: %s\r\n",
@@ -353,7 +353,7 @@ static CURLcode rtsp_do(struct connectdata * conn, bool * done)
 		/* Accept-Encoding header */
 		if(!Curl_checkheaders(conn, "Accept-Encoding") &&
 		    data->set.str[STRING_ENCODING]) {
-			Curl_safefree(data->state.aptr.accept_encoding);
+			ZFREE(data->state.aptr.accept_encoding);
 			data->state.aptr.accept_encoding =
 			    aprintf("Accept-Encoding: %s\r\n", data->set.str[STRING_ENCODING]);
 
@@ -369,7 +369,7 @@ static CURLcode rtsp_do(struct connectdata * conn, bool * done)
 	   with the user-agent string specified, we erase the previously made string
 	   here. */
 	if(Curl_checkheaders(conn, "User-Agent") && data->state.aptr.uagent) {
-		Curl_safefree(data->state.aptr.uagent);
+		ZFREE(data->state.aptr.uagent);
 		data->state.aptr.uagent = NULL;
 	}
 	else if(!Curl_checkheaders(conn, "User-Agent") &&
@@ -386,7 +386,7 @@ static CURLcode rtsp_do(struct connectdata * conn, bool * done)
 	p_userpwd = data->state.aptr.userpwd;
 
 	/* Referrer */
-	Curl_safefree(data->state.aptr.ref);
+	ZFREE(data->state.aptr.ref);
 	if(data->change.referer && !Curl_checkheaders(conn, "Referer"))
 		data->state.aptr.ref = aprintf("Referer: %s\r\n", data->change.referer);
 	else
@@ -404,7 +404,7 @@ static CURLcode rtsp_do(struct connectdata * conn, bool * done)
 	    (rtspreq  & (RTSPREQ_PLAY | RTSPREQ_PAUSE | RTSPREQ_RECORD))) {
 		/* Check to see if there is a range set in the custom headers */
 		if(!Curl_checkheaders(conn, "Range") && data->state.range) {
-			Curl_safefree(data->state.aptr.rangeline);
+			ZFREE(data->state.aptr.rangeline);
 			data->state.aptr.rangeline = aprintf("Range: %s\r\n", data->state.range);
 			p_range = data->state.aptr.rangeline;
 		}
@@ -469,7 +469,7 @@ static CURLcode rtsp_do(struct connectdata * conn, bool * done)
 	 * Free userpwd now --- cannot reuse this for Negotiate and possibly NTLM
 	 * with basic and digest, it will be freed anyway by the next request
 	 */
-	Curl_safefree(data->state.aptr.userpwd);
+	ZFREE(data->state.aptr.userpwd);
 	data->state.aptr.userpwd = NULL;
 
 	if(result)
@@ -625,7 +625,7 @@ static CURLcode rtsp_rtp_readwrite(struct Curl_easy * data,
 			if(result) {
 				failf(data, "Got an error writing an RTP packet");
 				*readmore = FALSE;
-				Curl_safefree(rtspc->rtp_buf);
+				ZFREE(rtspc->rtp_buf);
 				rtspc->rtp_buf = NULL;
 				rtspc->rtp_bufsize = 0;
 				return result;
@@ -656,13 +656,13 @@ static CURLcode rtsp_rtp_readwrite(struct Curl_easy * data,
 		/* Store the incomplete RTP packet for a "rewind" */
 		scratch = (char *)SAlloc::M(rtp_dataleft);
 		if(!scratch) {
-			Curl_safefree(rtspc->rtp_buf);
+			ZFREE(rtspc->rtp_buf);
 			rtspc->rtp_buf = NULL;
 			rtspc->rtp_bufsize = 0;
 			return CURLE_OUT_OF_MEMORY;
 		}
 		memcpy(scratch, rtp, rtp_dataleft);
-		Curl_safefree(rtspc->rtp_buf);
+		ZFREE(rtspc->rtp_buf);
 		rtspc->rtp_buf = scratch;
 		rtspc->rtp_bufsize = rtp_dataleft;
 
@@ -684,7 +684,7 @@ static CURLcode rtsp_rtp_readwrite(struct Curl_easy * data,
 	*nread = rtp_dataleft;
 
 	/* If we get here, we have finished with the leftover/merge buffer */
-	Curl_safefree(rtspc->rtp_buf);
+	ZFREE(rtspc->rtp_buf);
 	rtspc->rtp_buf = NULL;
 	rtspc->rtp_bufsize = 0;
 

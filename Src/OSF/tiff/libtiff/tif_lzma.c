@@ -30,7 +30,7 @@
  *
  * The codec is derived from ZLIB codec (tif_zip.c).
  */
-#include <..\OSF\liblzma\api\lzma.h>
+#include <..\osf\liblzma\api\lzma.h>
 /*
  * State block for each open TIFF file using LZMA2 compression/decompression.
  */

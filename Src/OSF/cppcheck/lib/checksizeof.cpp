@@ -9,29 +9,16 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checksizeof.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
 
 // Register this check class (by creating a static instance of it)
 namespace {
 CheckSizeof instance;
 }
 
-// CWE IDs used:
-static const struct CWE CWE398(398U);   // Indicator of Poor Code Quality
-static const struct CWE CWE467(467U);   // Use of sizeof() on a Pointer Type
-static const struct CWE CWE682(682U);   // Incorrect Calculation
-//---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
 void CheckSizeof::checkSizeofForNumericParameter()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {

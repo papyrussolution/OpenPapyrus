@@ -91,7 +91,7 @@ EVP_PKEY * TS_CONF_load_key(const char * file, const char * pass)
 		goto end;
 	pkey = PEM_read_bio_PrivateKey(key, NULL, NULL, (char *)pass);
 end:
-	if(pkey == NULL)
+	if(!pkey)
 		TSerr(TS_F_TS_CONF_LOAD_KEY, TS_R_CANNOT_LOAD_KEY);
 	BIO_free(key);
 	return pkey;

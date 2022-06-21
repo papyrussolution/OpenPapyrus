@@ -186,11 +186,11 @@ int getc_wrapper(FILE * fp)
 		/* termio defines NCC instead of NCCS */
 		#define NCCS    NCC
 	#endif                  /* not SIGTSTP || TERMIOS */
-#endif                          /* SGTTY */
+#endif /* SGTTY */
 /* ULTRIX defines VRPRNT instead of VREPRINT */
 #if defined(VRPRNT) && !defined(VREPRINT)
 	#define VREPRINT VRPRNT
-#endif                          /* VRPRNT */
+#endif /* VRPRNT */
 static char term_chars[NCCS]; /* define characters to use with our input character handler */
 static int term_set = 0; /* =1 if rl_termio set */
 #define special_getc(t) ansi_getc(t)
@@ -215,7 +215,7 @@ static int ansi_getc(GpTermEntry * pTerm);
 		//static int msdos_getch();
 	#endif /* WGP_CONSOLE */
 	#define DEL_ERASES_CURRENT_CHAR
-#endif                          /* _WIN32 */
+#endif /* _WIN32 */
 #endif /* MSDOS or _WIN32 */
 
 // initial size and increment of input line length 

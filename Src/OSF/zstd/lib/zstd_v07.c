@@ -947,8 +947,7 @@ const char* HUFv07_getErrorName(size_t code);   /**< provides error code string 
 *  Static allocation
 ******************************************/
 /* HUF buffer bounds */
-#define HUFv07_BLOCKBOUND(size) (size + (size>>8) + 8)   /* only true if incompressible pre-filtered with fast heuristic
-	                                                    */
+#define HUFv07_BLOCKBOUND(size) (size + (size>>8) + 8)   /* only true if incompressible pre-filtered with fast heuristic */
 
 /* static allocation of HUF's DTable */
 typedef uint32 HUFv07_DTable;
@@ -1108,9 +1107,9 @@ size_t FSEv07_readNCount(short * normalizedCounter, uint * maxSVPtr, uint * tabl
 			else
 				bitStream >>= 2;
 		}
-		{   short const max = (short)((2*threshold-1)-remaining);
+		{   
+			short const max = (short)((2*threshold-1)-remaining);
 		    short count;
-
 		    if((bitStream & (threshold-1)) < (uint32)max) {
 			    count = (short)(bitStream & (threshold-1));
 			    bitCount   += nbBits-1;
@@ -1162,11 +1161,9 @@ size_t HUFv07_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats,
 	const BYTE * ip = (const BYTE *)src;
 	size_t iSize;
 	size_t oSize;
-
 	if(!srcSize) return ERROR(srcSize_wrong);
 	iSize = ip[0];
 	/* memset(huffWeight, 0, hwSize); */   /* is not necessary, even though some analyzer complain ... */
-
 	if(iSize >= 128) { /* special header */
 		if(iSize >= (242)) { /* RLE */
 			static uint32 l[14] = { 1, 2, 3, 4, 7, 8, 15, 16, 31, 32, 63, 64, 127, 128 };
@@ -1180,8 +1177,8 @@ size_t HUFv07_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats,
 			if(iSize+1 > srcSize) return ERROR(srcSize_wrong);
 			if(oSize >= hwSize) return ERROR(corruption_detected);
 			ip += 1;
-			{   uint32 n;
-			    for(n = 0; n<oSize; n += 2) {
+			{
+			    for(uint32 n = 0; n<oSize; n += 2) {
 				    huffWeight[n]   = ip[n/2] >> 4;
 				    huffWeight[n+1] = ip[n/2] & 15;
 			    }
@@ -1198,8 +1195,7 @@ size_t HUFv07_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats,
 	memzero(rankStats, (HUFv07_TABLELOG_ABSOLUTEMAX + 1) * sizeof(uint32));
 	weightTotal = 0;
 	{   
-		uint32 n; 
-		for(n = 0; n<oSize; n++) {
+		for(uint32 n = 0; n<oSize; n++) {
 		    if(huffWeight[n] >= HUFv07_TABLELOG_ABSOLUTEMAX) 
 				return ERROR(corruption_detected);
 		    rankStats[huffWeight[n]]++;
@@ -1214,19 +1210,20 @@ size_t HUFv07_readStats(BYTE * huffWeight, size_t hwSize, uint32 * rankStats,
 	    if(tableLog > HUFv07_TABLELOG_ABSOLUTEMAX) return ERROR(corruption_detected);
 	    *tableLogPtr = tableLog;
 		/* determine last weight */
-	    {   const uint32 total = 1 << tableLog;
-		const uint32 rest = total - weightTotal;
-		const uint32 verif = 1 << BITv07_highbit32(rest);
-		const uint32 lastWeight = BITv07_highbit32(rest) + 1;
-		if(verif != rest) return ERROR(corruption_detected); /* last value must be a clean power of 2 */
-		huffWeight[oSize] = (BYTE)lastWeight;
-		rankStats[lastWeight]++;}   }
-
+	    {   
+			const uint32 total = 1 << tableLog;
+			const uint32 rest = total - weightTotal;
+			const uint32 verif = 1 << BITv07_highbit32(rest);
+			const uint32 lastWeight = BITv07_highbit32(rest) + 1;
+			if(verif != rest) 
+				return ERROR(corruption_detected); /* last value must be a clean power of 2 */
+			huffWeight[oSize] = (BYTE)lastWeight;
+			rankStats[lastWeight]++;
+		}
+	}
 	/* check tree construction validity */
-	if((rankStats[1] < 2) || (rankStats[1] & 1)) return ERROR(corruption_detected); /* by construction : at least 2
-	                                                                                   elts of rank 1, must be even
-	                                                                                   */
-
+	if((rankStats[1] < 2) || (rankStats[1] & 1)) 
+		return ERROR(corruption_detected); /* by construction : at least 2 elts of rank 1, must be even */
 	/* results */
 	*nbSymbolsPtr = (uint32)(oSize+1);
 	return iSize+1;
@@ -3368,30 +3365,22 @@ static seq_t ZSTDv07_decodeSequence(seqState_t* seqState)
 	    }
 	    seq.offset = offset;}
 
-	seq.matchLength = ML_base[mlCode] + ((mlCode>31) ? BITv07_readBits(&(seqState->DStream), mlBits) : 0); /* <=  16
-	                                                                                                          bits
-	                                                                                                          */
-	if(MEM_32bits() && (mlBits+llBits>24)) BITv07_reloadDStream(&(seqState->DStream));
-
-	seq.litLength = LL_base[llCode] + ((llCode>15) ? BITv07_readBits(&(seqState->DStream), llBits) : 0); /* <=  16
-	                                                                                                        bits */
+	seq.matchLength = ML_base[mlCode] + ((mlCode>31) ? BITv07_readBits(&(seqState->DStream), mlBits) : 0); /* <=  16 bits */
+	if(MEM_32bits() && (mlBits+llBits>24)) 
+		BITv07_reloadDStream(&(seqState->DStream));
+	seq.litLength = LL_base[llCode] + ((llCode>15) ? BITv07_readBits(&(seqState->DStream), llBits) : 0); /* <=  16 bits */
 	if(MEM_32bits() ||
 	    (totalBits > 64 - 7 - (LLFSELog+MLFSELog+OffFSELog)) ) BITv07_reloadDStream(&(seqState->DStream));
-
 	/* ANS state update */
 	FSEv07_updateState(&(seqState->stateLL), &(seqState->DStream)); /* <=  9 bits */
 	FSEv07_updateState(&(seqState->stateML), &(seqState->DStream)); /* <=  9 bits */
 	if(MEM_32bits()) BITv07_reloadDStream(&(seqState->DStream));  /* <= 18 bits */
 	FSEv07_updateState(&(seqState->stateOffb), &(seqState->DStream)); /* <=  8 bits */
-
 	return seq;
 }
 
-static
-size_t ZSTDv07_execSequence(BYTE * op,
-    BYTE * const oend, seq_t sequence,
-    const BYTE ** litPtr, const BYTE * const litLimit,
-    const BYTE * const base, const BYTE * const vBase, const BYTE * const dictEnd)
+static size_t ZSTDv07_execSequence(BYTE * op, BYTE * const oend, seq_t sequence,
+    const BYTE ** litPtr, const BYTE * const litLimit, const BYTE * const base, const BYTE * const vBase, const BYTE * const dictEnd)
 {
 	BYTE * const oLitEnd = op + sequence.litLength;
 	const size_t sequenceLength = sequence.litLength + sequence.matchLength;

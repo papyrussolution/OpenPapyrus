@@ -9,18 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "check.h"
-#include "checkbufferoverrun.h"
-#include "ctu.h"
-#include "errortypes.h"
-#include "standards.h"
-#include "library.h"
-#include "preprocessor.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
-#include <simplecpp.h>
-#include <tinyxml2.h>
 
 class TestBufferOverrun : public TestFixture {
 public:

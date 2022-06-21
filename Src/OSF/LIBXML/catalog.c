@@ -2632,10 +2632,10 @@ void xmlInitializeCatalog()
 				// the XML_CATALOG_FILES envvar is allowed to contain a space-separated list of entries. 
 				cur = catalogs;
 				nextent = &catal->xml;
-				while(*cur != '\0') {
+				while(*cur) {
 					while(xmlIsBlank_ch(*cur))
 						cur++;
-					if(*cur != 0) {
+					if(*cur) {
 						paths = cur;
 						while((*cur != 0) && (!xmlIsBlank_ch(*cur)))
 							cur++;
@@ -2705,7 +2705,7 @@ void xmlLoadCatalogs(const char * pathss)
 		for(const char * cur = pathss; *cur != 0;) {
 			while(xmlIsBlank_ch(*cur)) 
 				cur++;
-			if(*cur != 0) {
+			if(*cur) {
 				const char * paths = cur;
 				while((*cur != 0) && (*cur != PATH_SEAPARATOR) && (!xmlIsBlank_ch(*cur)))
 					cur++;

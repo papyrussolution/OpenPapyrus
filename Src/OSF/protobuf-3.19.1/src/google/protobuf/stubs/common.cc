@@ -3,15 +3,12 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
-// * Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
+// * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 // * Redistributions in binary form must reproduce the above
 // copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
+// in the documentation and/or other materials provided with the distribution.
 // * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
@@ -63,19 +60,16 @@ void VerifyVersion(int headerVersion,
 	}
 }
 
-std::string VersionString(int version) {
+std::string VersionString(int version) 
+{
 	int major = version / 1000000;
 	int minor = (version / 1000) % 1000;
 	int micro = version % 1000;
-
 	// 128 bytes should always be enough, but we use snprintf() anyway to be
 	// safe.
 	char buffer[128];
 	snprintf(buffer, sizeof(buffer), "%d.%d.%d", major, minor, micro);
-
-	// Guard against broken MSVC snprintf().
-	buffer[sizeof(buffer)-1] = '\0';
-
+	buffer[sizeof(buffer)-1] = '\0'; // Guard against broken MSVC snprintf().
 	return buffer;
 }
 }  // namespace internal
@@ -91,13 +85,12 @@ std::string VersionString(int version) {
 
 namespace internal {
 #if defined(__ANDROID__)
-inline void DefaultLogHandler(LogLevel level, const char* filename, int line,
-    const std::string & message) {
+inline void DefaultLogHandler(LogLevel level, const char* filename, int line, const std::string & message) 
+{
 	if(level < GOOGLE_PROTOBUF_MIN_LOG_LEVEL) {
 		return;
 	}
 	static const char* level_names[] = {"INFO", "WARNING", "ERROR", "FATAL"};
-
 	static const int android_log_levels[] = {
 		ANDROID_LOG_INFO, // LOG(INFO),
 		ANDROID_LOG_WARN, // LOG(WARNING)
@@ -141,48 +134,48 @@ void NullLogHandler(LogLevel /* level */, const char* /* filename */,
 static LogHandler* log_handler_ = &DefaultLogHandler;
 static std::atomic<int> log_silencer_count_ = ATOMIC_VAR_INIT(0);
 
-LogMessage& LogMessage::operator<<(const std::string & value) {
+LogMessage& LogMessage::operator<<(const std::string & value) 
+{
 	message_ += value;
 	return *this;
 }
 
-LogMessage& LogMessage::operator<<(const char* value) {
+LogMessage& LogMessage::operator<<(const char* value) 
+{
 	message_ += value;
 	return *this;
 }
 
-LogMessage& LogMessage::operator<<(const StringPiece & value) {
+LogMessage& LogMessage::operator<<(const StringPiece & value) 
+{
 	message_ += value.ToString();
 	return *this;
 }
 
-LogMessage& LogMessage::operator<<(const util::Status& status) {
+LogMessage& LogMessage::operator<<(const util::Status& status) 
+{
 	message_ += status.ToString();
 	return *this;
 }
 
-LogMessage& LogMessage::operator<<(const uint128 & value) {
+LogMessage& LogMessage::operator<<(const uint128 & value) 
+{
 	std::ostringstream str;
 	str << value;
 	message_ += str.str();
 	return *this;
 }
 
-LogMessage& LogMessage::operator<<(char value) {
-	return *this << StringPiece(&value, 1);
-}
+LogMessage& LogMessage::operator<<(char value) { return *this << StringPiece(&value, 1); }
 
-LogMessage& LogMessage::operator<<(void* value) {
+LogMessage& LogMessage::operator<<(void* value) 
+{
 	StrAppend(&message_, strings::Hex(reinterpret_cast<uintptr_t>(value)));
 	return *this;
 }
 
 #undef DECLARE_STREAM_OPERATOR
-#define DECLARE_STREAM_OPERATOR(TYPE)              \
-	LogMessage& LogMessage::operator<<(TYPE value) { \
-		StrAppend(&message_, value);                   \
-		return *this;                                  \
-	}
+#define DECLARE_STREAM_OPERATOR(TYPE) LogMessage& LogMessage::operator<<(TYPE value) { StrAppend(&message_, value); return *this; }
 
 DECLARE_STREAM_OPERATOR(int)
 DECLARE_STREAM_OPERATOR(unsigned int)
@@ -193,24 +186,23 @@ DECLARE_STREAM_OPERATOR(long long)           // NOLINT(runtime/int)
 DECLARE_STREAM_OPERATOR(unsigned long long)  // NOLINT(runtime/int)
 #undef DECLARE_STREAM_OPERATOR
 
-LogMessage::LogMessage(LogLevel level, const char* filename, int line)
-	: level_(level), filename_(filename), line_(line) {
+LogMessage::LogMessage(LogLevel level, const char* filename, int line) : level_(level), filename_(filename), line_(line) 
+{
 }
 
-LogMessage::~LogMessage() {
+LogMessage::~LogMessage() 
+{
 }
 
-void LogMessage::Finish() {
+void LogMessage::Finish() 
+{
 	bool suppress = false;
-
 	if(level_ != LOGLEVEL_FATAL) {
 		suppress = log_silencer_count_ > 0;
 	}
-
 	if(!suppress) {
 		log_handler_(level_, filename_, line_, message_);
 	}
-
 	if(level_ == LOGLEVEL_FATAL) {
 #if PROTOBUF_USE_EXCEPTIONS
 		throw FatalException(filename_, line_, message_);
@@ -220,12 +212,11 @@ void LogMessage::Finish() {
 	}
 }
 
-void LogFinisher::operator = (LogMessage& other) {
-	other.Finish();
-}
+void LogFinisher::operator = (LogMessage& other) { other.Finish(); }
 }  // namespace internal
 
-LogHandler* SetLogHandler(LogHandler* new_func) {
+LogHandler* SetLogHandler(LogHandler* new_func) 
+{
 	LogHandler* old = internal::log_handler_;
 	if(old == &internal::NullLogHandler) {
 		old = nullptr;
@@ -239,39 +230,44 @@ LogHandler* SetLogHandler(LogHandler* new_func) {
 	return old;
 }
 
-LogSilencer::LogSilencer() {
-	++internal::log_silencer_count_;
-};
+LogSilencer::LogSilencer() 
+{ 
+	++internal::log_silencer_count_; 
+}
 
-LogSilencer::~LogSilencer() {
+LogSilencer::~LogSilencer() 
+{
 	--internal::log_silencer_count_;
-};
-
-// ===================================================================
+}
+//
 // emulates google3/base/callback.cc
-
-Closure::~Closure() {
+//
+Closure::~Closure() 
+{
 }
 
-namespace internal { FunctionClosure0::~FunctionClosure0() {
-		     }
+namespace internal { 
+	FunctionClosure0::~FunctionClosure0() 
+	{
+	}
 }
 
-void DoNothing() {
+void DoNothing() 
+{
 }
-
-// ===================================================================
+//
 // emulates google3/util/endian/endian.h
 //
 // TODO(xiaofeng): PROTOBUF_LITTLE_ENDIAN is unfortunately defined in
 // google/protobuf/io/coded_stream.h and therefore can not be used here.
 // Maybe move that macro definition here in the future.
-uint32 ghtonl(uint32 x) {
+//
+uint32 ghtonl(uint32 x) 
+{
 	union {
 		uint32 result;
 		uint8 result_array[4];
 	};
-
 	result_array[0] = static_cast<uint8>(x >> 24);
 	result_array[1] = static_cast<uint8>((x >> 16) & 0xFF);
 	result_array[2] = static_cast<uint8>((x >> 8) & 0xFF);
@@ -280,12 +276,11 @@ uint32 ghtonl(uint32 x) {
 }
 
 #if PROTOBUF_USE_EXCEPTIONS
-FatalException::~FatalException() throw() {
+FatalException::~FatalException() throw() 
+{
 }
 
-const char* FatalException::what() const throw() {
-	return message_.c_str();
-}
+const char* FatalException::what() const throw() { return message_.c_str(); }
 
 #endif
 }  // namespace protobuf

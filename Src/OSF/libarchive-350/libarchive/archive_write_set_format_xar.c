@@ -525,7 +525,7 @@ static int xar_write_header(struct archive_write * a, ArchiveEntry * entry)
 		r = file_register_hardlink(a, file);
 		if(r != ARCHIVE_OK)
 			return r;
-		if(archive_entry_hardlink(file->entry) != NULL) {
+		if(archive_entry_hardlink(file->entry)) {
 			archive_entry_unset_size(file->entry);
 			return (r2);
 		}
@@ -705,7 +705,7 @@ static int xmlwrite_string_attr(struct archive_write * a, xmlTextWriterPtr write
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 		return ARCHIVE_FATAL;
 	}
-	if(attrkey != NULL && attrvalue != NULL) {
+	if(attrkey && attrvalue) {
 		r = xmlTextWriterWriteAttribute(writer,
 			BAD_CAST_CONST(attrkey), BAD_CAST_CONST(attrvalue));
 		if(r < 0) {
@@ -713,7 +713,7 @@ static int xmlwrite_string_attr(struct archive_write * a, xmlTextWriterPtr write
 			return ARCHIVE_FATAL;
 		}
 	}
-	if(value != NULL) {
+	if(value) {
 		r = xmlTextWriterWriteString(writer, BAD_CAST_CONST(value));
 		if(r < 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteString() failed: %d", r);
@@ -738,7 +738,7 @@ static int xmlwrite_string(struct archive_write * a, xmlTextWriterPtr writer, co
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 		return ARCHIVE_FATAL;
 	}
-	if(value != NULL) {
+	if(value) {
 		r = xmlTextWriterWriteString(writer, BAD_CAST_CONST(value));
 		if(r < 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteString() failed: %d", r);
@@ -809,7 +809,7 @@ static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer, const
 	if(sum->len > 0) {
 		algname = getalgname(sum->alg);
 		algsize = getalgsize(sum->alg);
-		if(algname != NULL) {
+		if(algname) {
 			const char * hex = "0123456789abcdef";
 			p = buff;
 			s = sum->val;
@@ -943,7 +943,7 @@ static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer, 
 		const char * cp = strchr(p, ',');
 		if(cp == NULL)
 			cp = p + strlen(p);
-		for(fe = flagentry; fe->name != NULL; fe++) {
+		for(fe = flagentry; fe->name; fe++) {
 			if(fe->name[cp - p] != '\0' || p[0] != fe->name[0])
 				continue;
 			if(strncmp(p, fe->name, cp - p) == 0) {
@@ -1040,7 +1040,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 		case AE_IFIFO: filetype = "fifo"; break;
 		case AE_IFREG:
 		default:
-		    if(file->hardlink_target != NULL) {
+		    if(file->hardlink_target) {
 			    filetype = "hardlink";
 			    filelink = "link";
 			    if(file->hardlink_target == file)
@@ -1192,7 +1192,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 	 * Make fflags entries, "<flags>" and "<ext2>".
 	 */
 	fflags = archive_entry_fflags_text(file->entry);
-	if(fflags != NULL) {
+	if(fflags) {
 		r = make_fflags_entry(a, writer, "flags", fflags);
 		if(r < 0)
 			return r;
@@ -1204,7 +1204,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 	 * Make extended attribute entries, "<ea>".
 	 */
 	archive_entry_xattr_reset(file->entry);
-	for(heap = file->xattr.first; heap != NULL; heap = heap->next) {
+	for(heap = file->xattr.first; heap; heap = heap->next) {
 		const char * name;
 		const void * value;
 		size_t size;
@@ -1365,7 +1365,7 @@ static int make_toc(struct archive_write * a)
 			if(r != ARCHIVE_OK)
 				goto exit_toc;
 		}
-		if(np->dir && np->children.first != NULL) {
+		if(np->dir && np->children.first) {
 			/* Enter to sub directories. */
 			np = np->children.first;
 			r = xmlTextWriterStartElement(writer, BAD_CAST("file"));
@@ -1635,9 +1635,8 @@ static struct file * file_new(struct archive_write * a, ArchiveEntry * entry)
 	archive_string_init(&(file->basename));
 	archive_string_init(&(file->symlink));
 	archive_string_init(&(file->script));
-	if(entry != NULL && archive_entry_filetype(entry) == AE_IFDIR)
+	if(entry && archive_entry_filetype(entry) == AE_IFDIR)
 		file->dir = 1;
-
 	return (file);
 }
 
@@ -1645,7 +1644,7 @@ static void file_free(struct file * file)
 {
 	if(file) {
 		struct heap_data * heap = file->xattr.first;
-		while(heap != NULL) {
+		while(heap) {
 			struct heap_data * next_heap = heap->next;
 			SAlloc::F(heap);
 			heap = next_heap;
@@ -2085,7 +2084,7 @@ static int file_register_hardlink(struct archive_write * a, struct file * file)
 	}
 	else {
 		hl = (struct hardlink *)__archive_rb_tree_find_node(&(xar->hardlink_rbtree), pathname);
-		if(hl != NULL) {
+		if(hl) {
 			/* Insert `file` entry into the tail. */
 			file->hlnext = NULL;
 			*hl->file_list.last = file;
@@ -2094,7 +2093,6 @@ static int file_register_hardlink(struct archive_write * a, struct file * file)
 		}
 		archive_entry_unset_size(file->entry);
 	}
-
 	return ARCHIVE_OK;
 }
 
@@ -2108,10 +2106,8 @@ static void file_connect_hardlink_files(struct xar * xar)
 	struct archive_rb_node * n;
 	struct hardlink * hl;
 	struct file * target, * nf;
-
 	ARCHIVE_RB_TREE_FOREACH(n, &(xar->hardlink_rbtree)) {
 		hl = (struct hardlink *)n;
-
 		/* The first entry must be a hardlink target. */
 		target = hl->file_list.first;
 		archive_entry_set_nlink(target->entry, hl->nlink);
@@ -2119,7 +2115,7 @@ static void file_connect_hardlink_files(struct xar * xar)
 			/* It means this file is a hardlink
 			 * target itself. */
 			target->hardlink_target = target;
-		for(nf = target->hlnext; nf != NULL; nf = nf->hlnext) {
+		for(nf = target->hlnext; nf; nf = nf->hlnext) {
 			nf->hardlink_target = target;
 			archive_entry_set_nlink(nf->entry, hl->nlink);
 		}

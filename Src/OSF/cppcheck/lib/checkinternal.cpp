@@ -11,10 +11,6 @@
 #pragma hdrstop
 #ifdef CHECK_INTERNAL
 #include "checkinternal.h"
-#include "astutils.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
 
 // Register this check class (by creating a static instance of it).
 // Disabled in release builds
@@ -29,20 +25,16 @@ void CheckInternal::checkTokenMatchPatterns()
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
 			if(!Token::simpleMatch(tok, "Token :: Match (") && !Token::simpleMatch(tok, "Token :: findmatch ("))
 				continue;
-
 			const std::string& funcname = tok->strAt(2);
-
 			// Get pattern string
 			const Token * patternTok = tok->tokAt(4)->nextArgument();
 			if(!patternTok || patternTok->tokType() != Token::eString)
 				continue;
-
 			const std::string pattern = patternTok->strValue();
 			if(pattern.empty()) {
 				simplePatternError(tok, pattern, funcname);
 				continue;
 			}
-
 			if(pattern.find("||") != std::string::npos || pattern.find(" | ") != std::string::npos || pattern[0] == '|' ||
 			    (pattern[pattern.length() - 1] == '|' && pattern[pattern.length() - 2] == ' '))
 				orInComplexPattern(tok, pattern, funcname);
@@ -100,7 +92,6 @@ void CheckInternal::checkRedundantTokCheck()
 			if(Token::simpleMatch(negTok, "!")) {
 				const Token * astOp1 = negTok->astOperand1();
 				const Token * astOp2 = getArguments(tok->tokAt(4))[0];
-
 				if(astOp1->expressionString() == astOp2->expressionString()) {
 					checkRedundantTokCheckError(astOp2);
 				}
@@ -122,22 +113,18 @@ void CheckInternal::checkTokenSimpleMatchPatterns()
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
 			if(!Token::simpleMatch(tok, "Token :: simpleMatch (") && !Token::simpleMatch(tok, "Token :: findsimplematch ("))
 				continue;
-
 			const std::string& funcname = tok->strAt(2);
-
 			// Get pattern string
 			const Token * patternTok = tok->tokAt(4)->nextArgument();
 			if(!patternTok || patternTok->tokType() != Token::eString)
 				continue;
-
 			const std::string pattern = patternTok->strValue();
 			if(pattern.empty()) {
 				complexPatternError(tok, pattern, funcname);
 				continue;
 			}
-
 			// Check for [xyz] usage - but exclude standalone square brackets
-			unsigned int char_count = 0;
+			uint char_count = 0;
 			for(char c : pattern) {
 				if(c == ' ') {
 					char_count = 0;

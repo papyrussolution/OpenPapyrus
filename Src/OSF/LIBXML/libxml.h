@@ -75,7 +75,7 @@ struct xmlRMutex; // xmlRMutex are reentrant mutual exception locks.
 	#include <zlib.h>
 #endif
 #ifdef HAVE_LZMA_H
-	#include <..\OSF\liblzma\api\lzma.h>
+	#include <..\osf\liblzma\api\lzma.h>
 #endif
 // 
 // Internal variable indicating if a callback has been registered for

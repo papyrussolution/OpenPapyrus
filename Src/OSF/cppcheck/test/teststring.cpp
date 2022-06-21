@@ -9,11 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "checkstring.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "tokenize.h"
 
 class TestString : public TestFixture {
 public:
@@ -28,16 +23,13 @@ private:
 		settings.severity.enable(Severity::style);
 
 		TEST_CASE(stringLiteralWrite);
-
 		TEST_CASE(alwaysTrueFalseStringCompare);
 		TEST_CASE(suspiciousStringCompare);
 		TEST_CASE(suspiciousStringCompare_char);
-
 		TEST_CASE(strPlusChar1); // "/usr" + '/'
 		TEST_CASE(strPlusChar2); // "/usr" + ch
 		TEST_CASE(strPlusChar3); // ok: path + "/sub" + '/'
 		TEST_CASE(strPlusChar4); // L"/usr" + L'/'
-
 		TEST_CASE(snprintf1); // Dangerous usage of snprintf
 		TEST_CASE(sprintf1); // Dangerous usage of sprintf
 		TEST_CASE(sprintf2);
@@ -45,11 +37,9 @@ private:
 		TEST_CASE(sprintf4); // struct member
 		TEST_CASE(sprintf5); // another struct member
 		TEST_CASE(sprintf6); // (char*)
-		TEST_CASE(sprintf7); // (char*)(void*)
+		TEST_CASE(sprintf7); // (char*)(void *)
 		TEST_CASE(wsprintf1); // Dangerous usage of wsprintf
-
 		TEST_CASE(incorrectStringCompare);
-
 		TEST_CASE(deadStrcmp);
 	}
 
@@ -607,7 +597,7 @@ private:
 		check("void foo()\n"
 		    "{\n"
 		    "    char buf[100];\n"
-		    "    sprintf((char*)(void*)buf,\"%s\",(void*)(char*)buf);\n"
+		    "    sprintf((char*)(void *)buf,\"%s\",(void *)(char*)buf);\n"
 		    "}");
 		ASSERT_EQUALS(
 			"[test.cpp:4]: (error) Undefined behavior: Variable 'buf' is used as parameter and destination in sprintf().\n",

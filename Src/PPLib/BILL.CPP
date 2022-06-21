@@ -1,5 +1,5 @@
 // BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -179,7 +179,7 @@ int BillCore::GetAmount(PPID billID, PPID amtTypeID, PPID curID, double * pAmoun
 
 int BillCore::GetAmountList(PPID billID, AmtList * pList)
 {
-	const int use_ext_query = 0; // @v8.4.7 1-->0 (фактически, добавлен код, реализующий !use_ext_query)
+	const  bool use_ext_query = false;
 	int    ok = 1;
 	BillAmountTbl::Key0 k;
 	k.BillID    = billID;
@@ -1169,12 +1169,17 @@ int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID,
 		BillTbl::Key1 k1;
 		BillTbl::Key2 k2;
 		BillTbl::Key3 k3;
+		BillTbl::Key7 k7; // @v11.4.2
 	} k;
 	int    idx = 2;
 	STRNSCPY(scode, pSample->Code);
 	// @v11.1.12 GetCode(scode);
 	MEMSZERO(k);
-	if(pSample->Object) {
+	if(flags & safIgnoreDate) { // @v11.4.2
+		STRNSCPY(k.k7.Code, scode);
+		idx = 7;
+	}
+	else if(pSample->Object) {
 		k.k3.Object = pSample->Object;
 		k.k3.Dt     = pSample->Dt;
 		dbq = & (this->Object == pSample->Object && this->Dt == pSample->Dt);
@@ -1193,16 +1198,31 @@ int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID,
 		dbq = & (this->Dt == pSample->Dt);
 		idx = 1;
 	}
-	BExtQuery q(this, idx, 256);
-	q.select(this->ID, this->Dt, this->Code, this->EdiOp, 0L).where(*dbq);
-	for(q.initIteration(false, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
-		if(!(flags & safCheckEdiOp) || data.EdiOp == pSample->EdiOp) {
-			// @v11.1.12 GetCode(data.Code);
-			if(*strip(data.Code) && stricmp866(data.Code, scode) == 0) {
-				const PPID bill_id = data.ID;
-				if(!pRec || Search(bill_id, pRec) > 0) {
-					ASSIGN_PTR(pID, bill_id);
-					ok = 1;
+	if(idx == 7 && k.k7.Code[0]) { // @v11.4.2
+		if(search(idx, &k, spGe) && stricmp866(data.Code, scode) == 0) do {
+			if(((flags & safIgnoreOp) || data.OpID == pSample->OpID) && (!(flags & safCheckEdiOp) || data.EdiOp == pSample->EdiOp)) {
+				if(((flags & safIgnoreDate) || data.Dt == pSample->Dt) && (!pSample->Object || data.Object == pSample->Object)) {
+					const PPID bill_id = data.ID;
+					if(!pRec || Search(bill_id, pRec) > 0) {
+						ASSIGN_PTR(pID, bill_id);
+						ok = 1;
+					}
+				}
+			}
+		} while(ok < 0 && search(idx, &k, spNext) && stricmp866(data.Code, scode) == 0);
+	}
+	else {
+		BExtQuery q(this, idx, 256);
+		q.select(this->ID, this->Dt, this->Code, this->EdiOp, 0L).where(*dbq);
+		for(q.initIteration(false, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
+			if(!(flags & safCheckEdiOp) || data.EdiOp == pSample->EdiOp) {
+				// @v11.1.12 GetCode(data.Code);
+				if(*strip(data.Code) && stricmp866(data.Code, scode) == 0) {
+					const PPID bill_id = data.ID;
+					if(!pRec || Search(bill_id, pRec) > 0) {
+						ASSIGN_PTR(pID, bill_id);
+						ok = 1;
+					}
 				}
 			}
 		}

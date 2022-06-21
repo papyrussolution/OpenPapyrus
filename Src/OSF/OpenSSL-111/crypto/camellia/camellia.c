@@ -277,7 +277,7 @@ static const u32 SIGMA[] = {
 		_s3 = (_s3<<_n) | _t0; \
 } while(0)
 
-int Camellia_Ekeygen(int keyBitLength, const u8 * rawKey, KEY_TABLE_TYPE k)
+extern "C" int Camellia_Ekeygen(int keyBitLength, const u8 * rawKey, KEY_TABLE_TYPE k)
 {
 	u32 s0, s1, s2, s3;
 	k[0] = s0 = GETU32(rawKey);
@@ -394,7 +394,7 @@ int Camellia_Ekeygen(int keyBitLength, const u8 * rawKey, KEY_TABLE_TYPE k)
 	 */
 }
 
-void Camellia_EncryptBlock_Rounds(int grandRounds, const u8 plaintext[], const KEY_TABLE_TYPE keyTable, u8 ciphertext[])
+extern "C" void Camellia_EncryptBlock_Rounds(int grandRounds, const u8 plaintext[], const KEY_TABLE_TYPE keyTable, u8 ciphertext[])
 {
 	u32 s0, s1, s2, s3;
 	const u32 * k = keyTable, * kend = keyTable + grandRounds * 16;
@@ -437,25 +437,19 @@ void Camellia_EncryptBlock_Rounds(int grandRounds, const u8 plaintext[], const K
 	PUTU32(ciphertext + 12, s1);
 }
 
-void Camellia_EncryptBlock(int keyBitLength, const u8 plaintext[],
-    const KEY_TABLE_TYPE keyTable, u8 ciphertext[])
+extern "C" void Camellia_EncryptBlock(int keyBitLength, const u8 plaintext[], const KEY_TABLE_TYPE keyTable, u8 ciphertext[])
 {
-	Camellia_EncryptBlock_Rounds(keyBitLength == 128 ? 3 : 4,
-	    plaintext, keyTable, ciphertext);
+	Camellia_EncryptBlock_Rounds(keyBitLength == 128 ? 3 : 4, plaintext, keyTable, ciphertext);
 }
 
-void Camellia_DecryptBlock_Rounds(int grandRounds, const u8 ciphertext[],
-    const KEY_TABLE_TYPE keyTable,
-    u8 plaintext[])
+extern "C" void Camellia_DecryptBlock_Rounds(int grandRounds, const u8 ciphertext[], const KEY_TABLE_TYPE keyTable, u8 plaintext[])
 {
 	u32 s0, s1, s2, s3;
 	const u32 * k = keyTable + grandRounds * 16, * kend = keyTable + 4;
-
 	s0 = GETU32(ciphertext) ^ k[0];
 	s1 = GETU32(ciphertext + 4) ^ k[1];
 	s2 = GETU32(ciphertext + 8) ^ k[2];
 	s3 = GETU32(ciphertext + 12) ^ k[3];
-
 	while(1) {
 		/* Camellia makes 6 Feistel rounds */
 		k -= 12;
@@ -490,9 +484,7 @@ void Camellia_DecryptBlock_Rounds(int grandRounds, const u8 ciphertext[],
 	PUTU32(plaintext + 12, s1);
 }
 
-void Camellia_DecryptBlock(int keyBitLength, const u8 plaintext[],
-    const KEY_TABLE_TYPE keyTable, u8 ciphertext[])
+extern "C" void Camellia_DecryptBlock(int keyBitLength, const u8 plaintext[], const KEY_TABLE_TYPE keyTable, u8 ciphertext[])
 {
-	Camellia_DecryptBlock_Rounds(keyBitLength == 128 ? 3 : 4,
-	    plaintext, keyTable, ciphertext);
+	Camellia_DecryptBlock_Rounds(keyBitLength == 128 ? 3 : 4, plaintext, keyTable, ciphertext);
 }

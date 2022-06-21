@@ -419,18 +419,17 @@ void Notepad_plus::command(int id)
 		    if(!OpenClipboard(NULL))
 			    return;
 		    HGLOBAL hglb = GetClipboardData(CF_TEXT);
-		    if(hglb != NULL) {
+		    if(hglb) {
 			    char * lpchar = (char *)GlobalLock(hglb);
-			    if(lpchar != NULL) {
+			    if(lpchar) {
 				    UINT cf_nppTextLen = RegisterClipboardFormat(CF_NPPTEXTLEN);
 				    if(IsClipboardFormatAvailable(cf_nppTextLen)) {
 					    HGLOBAL hglbLen = GetClipboardData(cf_nppTextLen);
-					    if(hglbLen != NULL) {
+					    if(hglbLen) {
 						    ulong * lpLen = (ulong *)GlobalLock(hglbLen);
-						    if(lpLen != NULL) {
+						    if(lpLen) {
 							    _pEditView->execute(SCI_REPLACESEL, 0, reinterpret_cast<LPARAM>(""));
 							    _pEditView->execute(SCI_ADDTEXT, *lpLen, reinterpret_cast<LPARAM>(lpchar));
-
 							    GlobalUnlock(hglbLen);
 						    }
 					    }
@@ -544,14 +543,13 @@ void Notepad_plus::command(int id)
 		    if(!OpenClipboard(NULL))
 			    return;
 		    HGLOBAL hglb = GetClipboardData(f);
-		    if(hglb != NULL) {
+		    if(hglb) {
 			    LPSTR lptstr = (LPSTR)GlobalLock(hglb);
-			    if(lptstr != NULL) {
+			    if(lptstr) {
 				    // Call the application-defined ReplaceSelection
 				    // function to insert the text and repaint the
 				    // window.
 				    _pEditView->execute(SCI_REPLACESEL, 0, reinterpret_cast<LPARAM>(lptstr));
-
 				    GlobalUnlock(hglb);
 			    }
 		    }

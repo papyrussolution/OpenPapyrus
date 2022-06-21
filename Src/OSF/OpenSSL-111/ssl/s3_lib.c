@@ -2141,7 +2141,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		256,
 		256,
 	},
-#endif                          /* !defined(OPENSSL_NO_CHACHA) &&
+#endif /* !defined(OPENSSL_NO_CHACHA) &&
 	                         * !defined(OPENSSL_NO_POLY1305) */
 
 #ifndef OPENSSL_NO_CAMELLIA
@@ -2593,7 +2593,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		256,
 		256,
 	},
-#endif                          /* OPENSSL_NO_CAMELLIA */
+#endif /* OPENSSL_NO_CAMELLIA */
 
 #ifndef OPENSSL_NO_GOST
 	{
@@ -2660,7 +2660,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		0,
 		0,
 	},
-#endif                          /* OPENSSL_NO_GOST */
+#endif /* OPENSSL_NO_GOST */
 
 #ifndef OPENSSL_NO_IDEA
 	{
@@ -2746,7 +2746,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		128,
 		128,
 	},
-#endif                          /* OPENSSL_NO_SEED */
+#endif /* OPENSSL_NO_SEED */
 
 #ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
 	{
@@ -2909,7 +2909,7 @@ static SSL_CIPHER ssl3_ciphers[] = {
 		128,
 		128,
 	},
-#endif                          /* OPENSSL_NO_WEAK_SSL_CIPHERS */
+#endif /* OPENSSL_NO_WEAK_SSL_CIPHERS */
 
 #ifndef OPENSSL_NO_ARIA
 	{
@@ -3345,7 +3345,7 @@ int ssl3_clear(SSL * s)
 #if !defined(OPENSSL_NO_EC) || !defined(OPENSSL_NO_DH)
 	EVP_PKEY_free(s->s3->tmp.pkey);
 	EVP_PKEY_free(s->s3->peer_tmp);
-#endif                          /* !OPENSSL_NO_EC */
+#endif /* !OPENSSL_NO_EC */
 	ssl3_free_digest_list(s);
 	OPENSSL_free(s->s3->alpn_selected);
 	OPENSSL_free(s->s3->alpn_proposed);
@@ -3450,7 +3450,7 @@ long ssl3_ctrl(SSL * s, int cmd, long larg, void * parg)
 			       &nid, 1);
 	    }
 	    break;
-#endif                          /* !OPENSSL_NO_EC */
+#endif /* !OPENSSL_NO_EC */
 		case SSL_CTRL_SET_TLSEXT_HOSTNAME:
 		    /*
 		     * TODO(OpenSSL1.2)
@@ -3772,7 +3772,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 			    return 0;
 		    return tls1_set_groups(&ctx->ext.supportedgroups, &ctx->ext.supportedgroups_len, &nid, 1);
 	    }
-#endif                          /* !OPENSSL_NO_EC */
+#endif /* !OPENSSL_NO_EC */
 		case SSL_CTRL_SET_TLSEXT_SERVERNAME_ARG:
 		    ctx->ext.servername_arg = parg;
 		    break;
@@ -4173,7 +4173,7 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt, STAC
 			/* with PSK there must be server callback set */
 			if((alg_k & SSL_PSK) && s->psk_server_callback == NULL)
 				continue;
-#endif                          /* OPENSSL_NO_PSK */
+#endif /* OPENSSL_NO_PSK */
 
 			ok = (alg_k & mask_k) && (alg_a & mask_a);
 #ifdef CIPHER_DEBUG
@@ -4188,7 +4188,7 @@ const SSL_CIPHER * ssl3_choose_cipher(SSL * s, STACK_OF(SSL_CIPHER) * clnt, STAC
 			 */
 			if(alg_k & SSL_kECDHE)
 				ok = ok && tls1_check_ec_tmp_key(s, c->id);
-#endif                          /* OPENSSL_NO_EC */
+#endif /* OPENSSL_NO_EC */
 
 			if(!ok)
 				continue;
@@ -4257,7 +4257,7 @@ int ssl3_get_req_cert_type(SSL * s, WPACKET * pkt)
 		if(!WPACKET_put_bytes_u8(pkt, SSL3_CT_DSS_EPHEMERAL_DH))
 			return 0;
 #endif
-#endif                          /* !OPENSSL_NO_DH */
+#endif /* !OPENSSL_NO_DH */
 	}
 #ifndef OPENSSL_NO_RSA
 	if(!(alg_a & SSL_aRSA) && !WPACKET_put_bytes_u8(pkt, SSL3_CT_RSA_SIGN))

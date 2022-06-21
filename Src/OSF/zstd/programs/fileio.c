@@ -671,7 +671,7 @@ int FIO_checkFilenameCollisions(const char** filenameTable, unsigned nbFiles)
 			filenameTableSorted[u] = filename+1;
 		}
 	}
-	qsort((void*)filenameTableSorted, nbFiles, sizeof(char *), UTIL_compareStr);
+	qsort((void *)filenameTableSorted, nbFiles, sizeof(char *), UTIL_compareStr);
 	prevElem = filenameTableSorted[0];
 	for(u = 1; u < nbFiles; ++u) {
 		if(strcmp(prevElem, filenameTableSorted[u]) == 0) {
@@ -679,7 +679,7 @@ int FIO_checkFilenameCollisions(const char** filenameTable, unsigned nbFiles)
 		}
 		prevElem = filenameTableSorted[u];
 	}
-	SAlloc::F((void*)filenameTableSorted);
+	SAlloc::F((void *)filenameTableSorted);
 	return 0;
 }
 
@@ -768,10 +768,7 @@ static void FIO_adjustMemLimitForPatchFromMode(FIO_prefs_t* const prefs,
  * If --rm is not specified, then zstd will print a warning to the user (which can be silenced with -q).
  * However, if the output is stdout, we will always abort rather than displaying the warning prompt.
  */
-static int FIO_removeMultiFilesWarning(FIO_ctx_t* const fCtx,
-    const FIO_prefs_t* const prefs,
-    const char* outFileName,
-    int displayLevelCutoff)
+static int FIO_removeMultiFilesWarning(FIO_ctx_t* const fCtx, const FIO_prefs_t* const prefs, const char* outFileName, int displayLevelCutoff)
 {
 	int error = 0;
 	if(fCtx->nbFilesTotal > 1 && !prefs->overwrite) {
@@ -786,9 +783,7 @@ static int FIO_removeMultiFilesWarning(FIO_ctx_t* const fCtx,
 				DISPLAYLEVEL(2, "zstd: WARNING: all input files will be processed and concatenated into stdout. \n");
 			}
 			else {
-				DISPLAYLEVEL(2,
-				    "zstd: WARNING: all input files will be processed and concatenated into a single output file: %s \n",
-				    outFileName);
+				DISPLAYLEVEL(2, "zstd: WARNING: all input files will be processed and concatenated into a single output file: %s \n", outFileName);
 			}
 			DISPLAYLEVEL(2, "The concatenated output CANNOT regenerate the original directory tree. \n")
 			if(prefs->removeSrcFile) {
@@ -798,10 +793,7 @@ static int FIO_removeMultiFilesWarning(FIO_ctx_t* const fCtx,
 				}
 				else {
 					error = g_display_prefs.displayLevel > displayLevelCutoff && UTIL_requireUserConfirmation(
-						"This is a destructive operation. Proceed? (y/n): ",
-						"Aborting...",
-						"yY",
-						fCtx->hasStdinInput);
+						"This is a destructive operation. Proceed? (y/n): ", "Aborting...", "yY", fCtx->hasStdinInput);
 				}
 			}
 		}
@@ -810,10 +802,9 @@ static int FIO_removeMultiFilesWarning(FIO_ctx_t* const fCtx,
 }
 
 #ifndef ZSTD_NOCOMPRESS
-
-/* **********************************************************************
-*  Compression
-************************************************************************/
+// 
+// Compression
+// 
 typedef struct {
 	void* dictBuffer;
 	size_t dictBufferSize;
@@ -1915,10 +1906,9 @@ int FIO_compressMultipleFilenames(FIO_ctx_t* const fCtx,
 #endif /* #ifndef ZSTD_NOCOMPRESS */
 
 #ifndef ZSTD_NODECOMPRESS
-
-/* **************************************************************************
- *  Decompression
- ***************************************************************************/
+// 
+// Decompression
+// 
 typedef struct {
 	ZSTD_DStream* dctx;
 	WritePoolCtx_t * writeCtx;

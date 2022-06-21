@@ -386,7 +386,7 @@ std::pair<void*, SerialArena::CleanupNode*>ThreadSafeArena::AllocateAlignedWithC
 	}
 }
 
-void ThreadSafeArena::AddCleanup(void* elem, void (*cleanup)(void*)) {
+void ThreadSafeArena::AddCleanup(void* elem, void (*cleanup)(void *)) {
 	SerialArena* arena;
 	if(PROTOBUF_PREDICT_FALSE(!GetSerialArenaFast(&arena))) {
 		arena = GetSerialArenaFallback(&thread_cache());

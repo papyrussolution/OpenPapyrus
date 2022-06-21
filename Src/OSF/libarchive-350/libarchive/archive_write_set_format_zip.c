@@ -319,7 +319,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		}
 		else {
 			zip->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
-			if(zip->opt_sconv != NULL)
+			if(zip->opt_sconv)
 				ret = ARCHIVE_OK;
 			else
 				ret = ARCHIVE_FATAL;
@@ -333,7 +333,7 @@ static int archive_write_zip_options(struct archive_write * a, const char * key,
 		 * forbidden or avoid them in certain cases where they
 		 * are not strictly required.
 		 */
-		if(val != NULL && *val != '\0') {
+		if(val && *val != '\0') {
 			zip->flags |= ZIP_FLAG_FORCE_ZIP64;
 			zip->flags &= ~ZIP_FLAG_AVOID_ZIP64;
 		}
@@ -516,7 +516,7 @@ static int archive_write_zip_header(struct archive_write * a, ArchiveEntry * ent
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate zip header data");
 		return ARCHIVE_FATAL;
 	}
-	if(sconv != NULL) {
+	if(sconv) {
 		const char * p;
 		size_t len;
 		if(archive_entry_pathname_l(entry, &p, &len, sconv) != 0) {
@@ -548,7 +548,7 @@ static int archive_write_zip_header(struct archive_write * a, ArchiveEntry * ent
 	}
 	/* If filename isn't ASCII and we can use UTF-8, set the UTF-8 flag. */
 	if(!is_all_ascii(archive_entry_pathname(zip->entry))) {
-		if(zip->opt_sconv != NULL) {
+		if(zip->opt_sconv) {
 			if(sstreq(archive_string_conversion_charset_name(zip->opt_sconv), "UTF-8"))
 				zip->entry_flags |= ZIP_ENTRY_FLAG_UTF8_NAME;
 #if HAVE_NL_LANGINFO
@@ -874,7 +874,7 @@ static int archive_write_zip_header(struct archive_write * a, ArchiveEntry * ent
 	zip->written_bytes += e - local_extra;
 
 	/* For symlinks, write the body now. */
-	if(slink != NULL) {
+	if(slink) {
 		ret = __archive_write_output(a, slink, slink_size);
 		if(ret != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
@@ -1173,7 +1173,7 @@ static int archive_write_zip_close(struct archive_write * a)
 
 	offset_start = zip->written_bytes;
 	segment = zip->central_directory;
-	while(segment != NULL) {
+	while(segment) {
 		ret = __archive_write_output(a,
 			segment->buff, segment->p - segment->buff);
 		if(ret != ARCHIVE_OK)
@@ -1237,7 +1237,7 @@ static int archive_write_zip_free(struct archive_write * a)
 {
 	struct cd_segment * segment;
 	struct zip * zip = static_cast<struct zip *>(a->format_data);
-	while(zip->central_directory != NULL) {
+	while(zip->central_directory) {
 		segment = zip->central_directory;
 		zip->central_directory = segment->next;
 		SAlloc::F(segment->buff);
@@ -1352,7 +1352,7 @@ static void copy_path(ArchiveEntry * entry, uchar * p)
 
 static archive_string_conv * get_sconv(struct archive_write * a, struct zip * zip)                                      
 {
-	if(zip->opt_sconv != NULL)
+	if(zip->opt_sconv)
 		return (zip->opt_sconv);
 	if(!zip->init_default_conversion) {
 		zip->sconv_default = archive_string_default_conversion_for_write(&(a->archive));

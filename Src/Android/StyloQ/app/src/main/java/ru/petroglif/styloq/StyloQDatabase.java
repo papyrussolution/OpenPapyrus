@@ -943,13 +943,9 @@ public class StyloQDatabase extends Database {
 											try {
 												JSONObject js = new JSONObject(txt_raw_data);
 												if(js != null) {
-													String txt_orgcmduuid = js.optString("orgcmduuid", null);
-													if(SLib.GetLen(txt_orgcmduuid) > 0) {
-														UUID local_uuid = UUID.fromString(txt_orgcmduuid);
-														if(local_uuid != null && local_uuid.compareTo(orgCmdUuid) == 0) {
-															is_suitable = true;
-														}
-													}
+													UUID local_uuid = SLib.strtouuid(js.optString("orgcmduuid", null));
+													if(local_uuid != null && local_uuid.compareTo(orgCmdUuid) == 0)
+														is_suitable = true;
 												}
 											} catch(JSONException exn) {
 												;
@@ -1027,7 +1023,7 @@ public class StyloQDatabase extends Database {
 	public long GetNewCounter()
 	{
 		// {706FD772-DC3F-452C-93A1-579E01F3E8D1}
-		final UUID uid = UUID.fromString("706FD772-DC3F-452C-93A1-579E01F3E8D1");
+		final UUID uid = SLib.strtouuid("706FD772-DC3F-452C-93A1-579E01F3E8D1");
 		long result = 0;
 		try {
 			Database.Table tbl = CreateTable("SecTable");

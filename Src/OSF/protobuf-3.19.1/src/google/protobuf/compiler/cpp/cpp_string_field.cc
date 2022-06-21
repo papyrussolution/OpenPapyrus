@@ -42,24 +42,13 @@ void SetStringVariables(const FieldDescriptor* descriptor,
 	(*variables)["default_variable_name"] = default_variable_string;
 
 	if(!descriptor->default_value_string().empty()) {
-		(*variables)["lazy_variable"] =
-		    QualifiedClassName(descriptor->containing_type(), options) +
-		    "::" + default_variable_string;
+		(*variables)["lazy_variable"] = QualifiedClassName(descriptor->containing_type(), options) + "::" + default_variable_string;
 	}
-
-	(*variables)["default_string"] =
-	    descriptor->default_value_string().empty()
-	    ? "::" + (*variables)["proto_ns"] +
-	    "::internal::GetEmptyStringAlreadyInited()"
-	    : (*variables)["lazy_variable"] + ".get()";
-	(*variables)["init_value"] =
-	    descriptor->default_value_string().empty()
-	    ? "&::" + (*variables)["proto_ns"] +
-	    "::internal::GetEmptyStringAlreadyInited()"
-	    : "nullptr";
-	(*variables)["default_value_tag"] =
-	    "::" + (*variables)["proto_ns"] + "::internal::ArenaStringPtr::" +
-	    (descriptor->default_value_string().empty() ? "Empty" : "NonEmpty") +
+	(*variables)["default_string"] = descriptor->default_value_string().empty() ? "::" + (*variables)["proto_ns"] + 
+		"::internal::GetEmptyStringAlreadyInited()" : (*variables)["lazy_variable"] + ".get()";
+	(*variables)["init_value"] = descriptor->default_value_string().empty() ? "&::" + (*variables)["proto_ns"] + 
+		"::internal::GetEmptyStringAlreadyInited()" : "nullptr";
+	(*variables)["default_value_tag"] = "::" + (*variables)["proto_ns"] + "::internal::ArenaStringPtr::" + (descriptor->default_value_string().empty() ? "Empty" : "NonEmpty") +
 	    "Default{}";
 	(*variables)["default_variable_or_tag"] = (*variables)[descriptor->default_value_string().empty() ? "default_value_tag" : "lazy_variable"];
 	(*variables)["pointer_type"] = descriptor->type() == FieldDescriptor::TYPE_BYTES ? "void" : "char";

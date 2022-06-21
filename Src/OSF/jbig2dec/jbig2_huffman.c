@@ -511,7 +511,7 @@ int jbig2_table(Jbig2Ctx * ctx, Jbig2Segment * segment, const byte * segment_dat
 		}
 		/* allocate HuffmanParams & HuffmanLine */
 		params = jbig2_new(ctx, Jbig2HuffmanParams, 1);
-		if(params == NULL) {
+		if(!params) {
 			jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "failed to allocate Huffman Table Parameter");
 			goto error_exit;
 		}

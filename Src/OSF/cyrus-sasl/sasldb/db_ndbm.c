@@ -171,7 +171,7 @@ int _sasldb_putdata(const sasl_utils_t * utils,
 	dkey.dsize = key_len;
 	if(data) {
 		datum dvalue;
-		dvalue.dptr = (void*)data;
+		dvalue.dptr = (void *)data;
 		if(!data_len) data_len = strlen(data);
 		dvalue.dsize = data_len;
 		if(dbm_store(db, dkey, dvalue, DBM_REPLACE)) {

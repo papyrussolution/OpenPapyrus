@@ -153,16 +153,13 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName,
 		// ignore the returned value of function due to win64 redirection system
 		::GetLongPathName(longFileName, longFileName, longFileNameBufferSize);
 	}
-
 	bool isSnapshotMode = backupFileName != NULL && PathFileExists(backupFileName);
 	if(isSnapshotMode && !PathFileExists(longFileName)) { // UNTITLED
 		wcscpy_s(longFileName, targetFileName.c_str());
 	}
 	_lastRecentFileList.remove(longFileName);
-
 	generic_string fileName2Find;
 	generic_string gs_fileName{ targetFileName };
-
 	// "fileName" could be:
 	// 1. full file path to open or create
 	// 2. "new N" or whatever renamed from "new N" to switch to (if user double-clicks the found entries of untitled
@@ -171,7 +168,6 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName,
 
 	// Search case 1 & 2 firstly
 	BufferID foundBufID = MainFileManager.getBufferFromName(targetFileName.c_str());
-
 	if(foundBufID == BUFFER_INVALID)
 		fileName2Find = longFileName;
 
@@ -210,14 +206,11 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName,
 		nppParam.safeWow64EnableWow64FsRedirection(FALSE);
 		isWow64Off = true;
 	}
-
 	bool globbing = wcsrchr(longFileName, TCHAR('*')) || wcsrchr(longFileName, TCHAR('?'));
-
 	if(!isSnapshotMode) { // if not backup mode, or backupfile path is invalid
 		if(!PathFileExists(longFileName) && !globbing) {
 			generic_string longFileDir(longFileName);
 			PathRemoveFileSpec(longFileDir);
-
 			bool isCreateFileSuccessful = false;
 			if(PathFileExists(longFileDir.c_str())) {
 				int res = _nativeLangSpeaker.messageBox("CreateNewFileOrNot",
@@ -270,15 +263,12 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName,
 	scnN.nmhdr.hwndFrom = _pPublicInterface->getHSelf();
 	scnN.nmhdr.idFrom = 0;
 	_pluginsManager.notify(&scnN);
-
 	if(encoding == -1) {
 		encoding = getHtmlXmlEncoding(longFileName);
 	}
-
 	BufferID buffer;
 	if(isSnapshotMode) {
 		buffer = MainFileManager.loadFile(longFileName, NULL, encoding, backupFileName, fileNameTimestamp);
-
 		if(buffer != BUFFER_INVALID) {
 			isSnapshotMode = (backupFileName != NULL && ::PathFileExists(backupFileName));
 			if(isSnapshotMode) {

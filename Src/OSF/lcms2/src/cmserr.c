@@ -131,7 +131,7 @@ static void * _cmsDupDefaultFn(cmsContext ContextID, const void * Org, uint32 si
 	void * mem;
 	if(size > MAX_MEMORY_FOR_ALLOC) return NULL; // Never dup over 512Mb
 	mem = _cmsMalloc(ContextID, size);
-	if(mem != NULL && Org != NULL)
+	if(mem && Org)
 		memmove(mem, Org, size);
 	return mem;
 }
@@ -163,15 +163,13 @@ void _cmsInstallAllocFunctions(cmsPluginMemHandler* Plugin, _cmsMemPluginChunkTy
 		ptr->MallocPtr  = Plugin->MallocPtr;
 		ptr->FreePtr    = Plugin->FreePtr;
 		ptr->ReallocPtr = Plugin->ReallocPtr;
-
 		// Make sure we revert to defaults
 		ptr->MallocZeroPtr = _cmsMallocZeroDefaultFn;
 		ptr->CallocPtr    = _cmsCallocDefaultFn;
 		ptr->DupPtr       = _cmsDupDefaultFn;
-
-		if(Plugin->MallocZeroPtr != NULL) ptr->MallocZeroPtr = Plugin->MallocZeroPtr;
-		if(Plugin->CallocPtr != NULL) ptr->CallocPtr     = Plugin->CallocPtr;
-		if(Plugin->DupPtr != NULL) ptr->DupPtr        = Plugin->DupPtr;
+		if(Plugin->MallocZeroPtr) ptr->MallocZeroPtr = Plugin->MallocZeroPtr;
+		if(Plugin->CallocPtr) ptr->CallocPtr     = Plugin->CallocPtr;
+		if(Plugin->DupPtr) ptr->DupPtr        = Plugin->DupPtr;
 	}
 }
 
@@ -186,7 +184,7 @@ boolint _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase * Data)
 	if(!Data) {
 		struct _cmsContext_struct* ctx = (struct _cmsContext_struct*)ContextID;
 		// Return to the default allocators
-		if(ContextID != NULL) {
+		if(ContextID) {
 			ctx->chunks[MemPlugin] = (void *)&ctx->DefaultMemoryManager;
 		}
 		return TRUE;
@@ -333,7 +331,7 @@ void * _cmsSubAllocDup(_cmsSubAllocator* s, const void * ptr, uint32 size)
 	if(!ptr)
 		return NULL;
 	NewPtr = _cmsSubAlloc(s, size);
-	if(ptr != NULL && NewPtr != NULL) {
+	if(ptr && NewPtr) {
 		memcpy(NewPtr, ptr, size);
 	}
 	return NewPtr;

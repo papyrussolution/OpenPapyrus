@@ -54,7 +54,7 @@
 	#include <brotli/decode.h>
 #endif
 #ifdef HAVE_ZSTD
-	#include <..\OSF\zstd\lib\include\zstd.h>
+	#include <..\osf\zstd\lib\include\zstd.h>
 #endif
 
 #ifdef HAVE_BROTLI

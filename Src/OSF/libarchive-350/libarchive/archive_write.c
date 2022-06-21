@@ -192,7 +192,7 @@ int __archive_write_filter(struct archive_write_filter * f, const void * buff, s
 static int __archive_write_open_filter(struct archive_write_filter * f)
 {
 	int ret = ARCHIVE_OK;
-	if(f->next_filter != NULL)
+	if(f->next_filter)
 		ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
 		return ret;
@@ -388,7 +388,7 @@ static int archive_write_client_free(struct archive_write_filter * f)
 		(*a->client_freer)(&a->archive, a->client_data);
 	a->client_data = NULL;
 	/* Clear passphrase. */
-	if(a->passphrase != NULL) {
+	if(a->passphrase) {
 		memzero(a->passphrase, strlen(a->passphrase));
 		SAlloc::F(a->passphrase);
 		a->passphrase = NULL;
@@ -492,11 +492,11 @@ static int _archive_write_close(Archive * _a)
 		return ARCHIVE_OK; /* Okay to close() when not open. */
 	archive_clear_error(&a->archive);
 	/* Finish the last entry if a finish callback is specified */
-	if(a->archive.state == ARCHIVE_STATE_DATA && a->format_finish_entry != NULL)
+	if(a->archive.state == ARCHIVE_STATE_DATA && a->format_finish_entry)
 		r = ((a->format_finish_entry)(a));
 	/* Finish off the archive. */
 	/* TODO: have format closers invoke compression close. */
-	if(a->format_close != NULL) {
+	if(a->format_close) {
 		r1 = (a->format_close)(a);
 		if(r1 < r)
 			r = r1;
@@ -528,7 +528,7 @@ void __archive_write_filters_free(Archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r = ARCHIVE_OK, r1;
-	while(a->filter_first != NULL) {
+	while(a->filter_first) {
 		struct archive_write_filter * next = a->filter_first->next_filter;
 		if(a->filter_first->FnFree) {
 			r1 = (*a->filter_first->FnFree)(a->filter_first);
@@ -567,7 +567,7 @@ static int _archive_write_free(Archive * _a)
 	/* Release various dynamic buffers. */
 	SAlloc::F((void *)(uintptr_t)(const void*)a->nulls);
 	archive_string_free(&a->archive.error_string);
-	if(a->passphrase != NULL) {
+	if(a->passphrase) {
 		/* A passphrase should be cleaned. */
 		memzero(a->passphrase, strlen(a->passphrase));
 		SAlloc::F(a->passphrase);
@@ -625,7 +625,7 @@ static int _archive_write_finish_entry(Archive * _a)
 	struct archive_write * a = (struct archive_write *)_a;
 	int ret = ARCHIVE_OK;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
-	if(a->archive.state & ARCHIVE_STATE_DATA && a->format_finish_entry != NULL)
+	if(a->archive.state & ARCHIVE_STATE_DATA && a->format_finish_entry)
 		ret = (a->format_finish_entry)(a);
 	a->archive.state = ARCHIVE_STATE_HEADER;
 	return ret;
@@ -645,14 +645,15 @@ static ssize_t _archive_write_data(Archive * _a, const void * buff, size_t s)
 	return ((a->format_write_data)(a, buff, s));
 }
 
-static struct archive_write_filter * filter_lookup(Archive * _a, int n)                                      {
+static struct archive_write_filter * filter_lookup(Archive * _a, int n)
+{
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = a->filter_first;
 	if(n == -1)
 		return a->filter_last;
 	if(n < 0)
 		return NULL;
-	while(n > 0 && f != NULL) {
+	while(n > 0 && f) {
 		f = f->next_filter;
 		--n;
 	}
@@ -668,7 +669,7 @@ static int _archive_filter_code(Archive * _a, int n)
 static const char * _archive_filter_name(Archive * _a, int n)
 {
 	struct archive_write_filter * f = filter_lookup(_a, n);
-	return f != NULL ? f->name : NULL;
+	return f ? f->name : NULL;
 }
 
 static int64 _archive_filter_bytes(Archive * _a, int n)

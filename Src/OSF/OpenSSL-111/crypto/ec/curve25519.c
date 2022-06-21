@@ -11,14 +11,13 @@
 #include "ec_lcl.h"
 #include <openssl/sha.h>
 
-#if defined(X25519_ASM) && (defined(__x86_64) || defined(__x86_64__) || \
-	defined(_M_AMD64) || defined(_M_X64))
+#if defined(X25519_ASM) && (defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64))
 
 #define BASE_2_64_IMPLEMENTED
 
 typedef uint64_t fe64[4];
 
-int x25519_fe64_eligible(void);
+extern "C" int x25519_fe64_eligible(void);
 
 /*
  * Following subroutines perform corresponding operations modulo
@@ -29,12 +28,12 @@ int x25519_fe64_eligible(void);
  *
  * There are no reference C implementations for these.
  */
-void x25519_fe64_mul(fe64 h, const fe64 f, const fe64 g);
-void x25519_fe64_sqr(fe64 h, const fe64 f);
-void x25519_fe64_mul121666(fe64 h, fe64 f);
-void x25519_fe64_add(fe64 h, const fe64 f, const fe64 g);
-void x25519_fe64_sub(fe64 h, const fe64 f, const fe64 g);
-void x25519_fe64_tobytes(uint8_t * s, const fe64 f);
+extern "C" void x25519_fe64_mul(fe64 h, const fe64 f, const fe64 g);
+extern "C" void x25519_fe64_sqr(fe64 h, const fe64 f);
+extern "C" void x25519_fe64_mul121666(fe64 h, fe64 f);
+extern "C" void x25519_fe64_add(fe64 h, const fe64 f, const fe64 g);
+extern "C" void x25519_fe64_sub(fe64 h, const fe64 f, const fe64 g);
+extern "C" void x25519_fe64_tobytes(uint8_t * s, const fe64 f);
 #define fe64_mul x25519_fe64_mul
 #define fe64_sqr x25519_fe64_sqr
 #define fe64_mul121666 x25519_fe64_mul121666
@@ -45,7 +44,6 @@ void x25519_fe64_tobytes(uint8_t * s, const fe64 f);
 static uint64_t load_8(const uint8_t * in)
 {
 	uint64_t result;
-
 	result = in[0];
 	result |= ((uint64_t)in[1]) << 8;
 	result |= ((uint64_t)in[2]) << 16;
@@ -378,9 +376,9 @@ static void fe51_tobytes(uint8_t * s, const fe51 h)
 }
 
 #if defined(X25519_ASM)
-void x25519_fe51_mul(fe51 h, const fe51 f, const fe51 g);
-void x25519_fe51_sqr(fe51 h, const fe51 f);
-void x25519_fe51_mul121666(fe51 h, fe51 f);
+extern "C" void x25519_fe51_mul(fe51 h, const fe51 f, const fe51 g);
+extern "C" void x25519_fe51_sqr(fe51 h, const fe51 f);
+extern "C" void x25519_fe51_mul121666(fe51 h, fe51 f);
 #define fe51_mul x25519_fe51_mul
 #define fe51_sq  x25519_fe51_sqr
 #define fe51_mul121666 x25519_fe51_mul121666

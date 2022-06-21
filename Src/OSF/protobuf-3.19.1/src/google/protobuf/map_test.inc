@@ -1068,7 +1068,7 @@ namespace google {
 							capacity *= 2;
 						}
 						EXPECT_EQ(m.SpaceUsedExcludingSelfLong(),
-						    sizeof(void*) * capacity +
+						    sizeof(void *) * capacity +
 						    m.size() * sizeof(std::pair<std::pair<int32, int32>, void*>));
 					}
 
@@ -1077,7 +1077,7 @@ namespace google {
 					std::string str = "Some arbitrarily large string";
 					m2[str] = 1;
 					EXPECT_EQ(m2.SpaceUsedExcludingSelfLong(),
-					    sizeof(void*) * kMinCap +
+					    sizeof(void *) * kMinCap +
 					    sizeof(std::pair<std::pair<std::string, int32>, void*>) +
 					    internal::StringSpaceUsedExcludingSelfLong(str));
 
@@ -1085,7 +1085,7 @@ namespace google {
 					Map<int32, TestAllTypes> m3;
 					m3[0].set_optional_string(str);
 					EXPECT_EQ(m3.SpaceUsedExcludingSelfLong(),
-					    sizeof(void*) * kMinCap +
+					    sizeof(void *) * kMinCap +
 					    sizeof(std::pair<std::pair<int32, TestAllTypes>, void*>) +
 					    m3[0].SpaceUsedLong() - sizeof(m3[0]));
 				}
@@ -2088,11 +2088,11 @@ public:
 						std::abort();
 					}
 
-					static bool ValidateKey(void*) {
+					static bool ValidateKey(void *) {
 						return true;
 					}
 
-					static bool ValidateValue(void*) {
+					static bool ValidateValue(void *) {
 						return true;
 					}
 				};
@@ -2109,11 +2109,11 @@ public:
 						std::abort();
 					}
 
-					static bool ValidateKey(void*) {
+					static bool ValidateKey(void *) {
 						return true;
 					}
 
-					static bool ValidateValue(void*) {
+					static bool ValidateValue(void *) {
 						return true;
 					}
 				};
@@ -2721,8 +2721,8 @@ public:
 					// so we can't predict it. But we can predict a lower bound.
 					size_t lower_bound =
 					    initial + kNumValues * (space_used_message + sizeof(int32) +
-					    /* Node::next */ sizeof(void*) +
-					    /* table entry */ sizeof(void*));
+					    /* Node::next */ sizeof(void *) +
+					    /* table entry */ sizeof(void *));
 
 					EXPECT_LE(lower_bound, map_message.SpaceUsed());
 				}

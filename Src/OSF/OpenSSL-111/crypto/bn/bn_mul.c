@@ -488,7 +488,7 @@ void bn_mul_low_recursive(BN_ULONG * r, BN_ULONG * a, BN_ULONG * b, int n2,
 	}
 }
 
-#endif                          /* BN_RECURSION */
+#endif /* BN_RECURSION */
 
 int BN_mul(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx)
 {
@@ -556,7 +556,7 @@ int bn_mul_fixed_top(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_CTX * ct
 			goto end;
 		}
 	}
-#endif                          /* BN_MUL_COMBA */
+#endif /* BN_MUL_COMBA */
 #ifdef BN_RECURSION
 	if((al >= BN_MULL_SIZE_NORMAL) && (bl >= BN_MULL_SIZE_NORMAL)) {
 		if(i >= -1 && i <= 1) {
@@ -594,7 +594,7 @@ int bn_mul_fixed_top(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_CTX * ct
 			goto end;
 		}
 	}
-#endif                          /* BN_RECURSION */
+#endif /* BN_RECURSION */
 	if(bn_wexpand(rr, top) == NULL)
 		goto err;
 	rr->top = top;

@@ -426,41 +426,33 @@ static void _cairo_xcb_picture_set_matrix(cairo_xcb_picture_t * picture,
 	}
 }
 
-static void _cairo_xcb_picture_set_filter(cairo_xcb_picture_t * picture,
-    cairo_filter_t filter)
+static void _cairo_xcb_picture_set_filter(cairo_xcb_picture_t * picture, cairo_filter_t filter)
 {
 	const char * render_filter;
 	int len;
-
 	if(picture->filter == filter)
 		return;
-
 	switch(filter) {
 		case CAIRO_FILTER_FAST:
 		    render_filter = "fast";
 		    len = strlen("fast");
 		    break;
-
 		case CAIRO_FILTER_GOOD:
 		    render_filter = "good";
 		    len = strlen("good");
 		    break;
-
 		case CAIRO_FILTER_BEST:
 		    render_filter = "best";
 		    len = strlen("best");
 		    break;
-
 		case CAIRO_FILTER_NEAREST:
 		    render_filter = "nearest";
 		    len = strlen("nearest");
 		    break;
-
 		case CAIRO_FILTER_BILINEAR:
 		    render_filter = "bilinear";
 		    len = strlen("bilinear");
 		    break;
-
 		default:
 		    ASSERT_NOT_REACHED;
 		case CAIRO_FILTER_GAUSSIAN:
@@ -468,44 +460,32 @@ static void _cairo_xcb_picture_set_filter(cairo_xcb_picture_t * picture,
 		    len = strlen("best");
 		    break;
 	}
-
-	_cairo_xcb_connection_render_set_picture_filter(_picture_to_connection(picture),
-	    picture->picture,
-	    len, (char *)render_filter);
+	_cairo_xcb_connection_render_set_picture_filter(_picture_to_connection(picture), picture->picture, len, (char *)render_filter);
 	picture->filter = filter;
 }
 
-static void _cairo_xcb_picture_set_extend(cairo_xcb_picture_t * picture,
-    cairo_extend_t extend)
+static void _cairo_xcb_picture_set_extend(cairo_xcb_picture_t * picture, cairo_extend_t extend)
 {
 	uint32 pa[1];
-
 	if(picture->extend == extend)
 		return;
-
 	switch(extend) {
 		default:
 		    ASSERT_NOT_REACHED;
 		case CAIRO_EXTEND_NONE:
 		    pa[0] = XCB_RENDER_REPEAT_NONE;
 		    break;
-
 		case CAIRO_EXTEND_REPEAT:
 		    pa[0] = XCB_RENDER_REPEAT_NORMAL;
 		    break;
-
 		case CAIRO_EXTEND_REFLECT:
 		    pa[0] = XCB_RENDER_REPEAT_REFLECT;
 		    break;
-
 		case CAIRO_EXTEND_PAD:
 		    pa[0] = XCB_RENDER_REPEAT_PAD;
 		    break;
 	}
-
-	_cairo_xcb_connection_render_change_picture(_picture_to_connection(picture),
-	    picture->picture,
-	    XCB_RENDER_CP_REPEAT, pa);
+	_cairo_xcb_connection_render_change_picture(_picture_to_connection(picture), picture->picture, XCB_RENDER_CP_REPEAT, pa);
 	picture->extend = extend;
 }
 

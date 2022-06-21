@@ -697,7 +697,7 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 
 	/* get the converter implementation function */
 	sourceIndex = 0;
-	if(offsets==NULL) {
+	if(!offsets) {
 		fromUnicode = cnv->sharedData->impl->fromUnicode;
 	}
 	else {
@@ -1092,7 +1092,7 @@ static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode *
 	offsets = pArgs->offsets;
 	/* get the converter implementation function */
 	sourceIndex = 0;
-	if(offsets==NULL) {
+	if(!offsets) {
 		toUnicode = cnv->sharedData->impl->toUnicode;
 	}
 	else {
@@ -1507,27 +1507,19 @@ U_CAPI void U_EXPORT2 ucnv_toUnicode(UConverter * cnv,
 
 /* ucnv_to/fromUChars() ----------------------------------------------------- */
 
-U_CAPI int32_t U_EXPORT2 ucnv_fromUChars(UConverter * cnv,
-    char * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
-    UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 ucnv_fromUChars(UConverter * cnv, char * dest, int32_t destCapacity, const UChar * src, int32_t srcLength, UErrorCode * pErrorCode) 
+{
 	const UChar * srcLimit;
 	char * originalDest, * destLimit;
 	int32_t destLength;
-
 	/* check arguments */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
-	if(cnv==NULL ||
-	    destCapacity<0 || (destCapacity>0 && dest==NULL) ||
-	    srcLength<-1 || (srcLength!=0 && src==NULL)
-	    ) {
+	if(cnv==NULL || destCapacity<0 || (destCapacity>0 && dest==NULL) || srcLength<-1 || (srcLength!=0 && src==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* initialize */
 	ucnv_resetFromUnicode(cnv);
 	originalDest = dest;
@@ -1538,15 +1530,12 @@ U_CAPI int32_t U_EXPORT2 ucnv_fromUChars(UConverter * cnv,
 		srcLimit = src+srcLength;
 		destCapacity = pinCapacity(dest, destCapacity);
 		destLimit = dest+destCapacity;
-
 		/* perform the conversion */
 		ucnv_fromUnicode(cnv, &dest, destLimit, &src, srcLimit, 0, TRUE, pErrorCode);
 		destLength = (int32_t)(dest-originalDest);
-
 		/* if an overflow occurs, then get the preflighting length */
 		if(*pErrorCode==U_BUFFER_OVERFLOW_ERROR) {
 			char buffer[1024];
-
 			destLimit = buffer+sizeof(buffer);
 			do {
 				dest = buffer;
@@ -1559,30 +1548,22 @@ U_CAPI int32_t U_EXPORT2 ucnv_fromUChars(UConverter * cnv,
 	else {
 		destLength = 0;
 	}
-
 	return u_terminateChars(originalDest, destCapacity, destLength, pErrorCode);
 }
 
-U_CAPI int32_t U_EXPORT2 ucnv_toUChars(UConverter * cnv,
-    UChar * dest, int32_t destCapacity,
-    const char * src, int32_t srcLength,
-    UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 ucnv_toUChars(UConverter * cnv, UChar * dest, int32_t destCapacity, const char * src, int32_t srcLength, UErrorCode * pErrorCode) 
+{
 	const char * srcLimit;
 	UChar * originalDest, * destLimit;
 	int32_t destLength;
-
 	/* check arguments */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
-	if(cnv==NULL ||
-	    destCapacity<0 || (destCapacity>0 && dest==NULL) ||
-	    srcLength<-1 || (srcLength!=0 && src==NULL)) {
+	if(cnv==NULL || destCapacity<0 || (destCapacity>0 && dest==NULL) || srcLength<-1 || (srcLength!=0 && src==NULL)) { 
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* initialize */
 	ucnv_resetToUnicode(cnv);
 	originalDest = dest;
@@ -1593,15 +1574,12 @@ U_CAPI int32_t U_EXPORT2 ucnv_toUChars(UConverter * cnv,
 		srcLimit = src+srcLength;
 		destCapacity = pinCapacity(dest, destCapacity);
 		destLimit = dest+destCapacity;
-
 		/* perform the conversion */
 		ucnv_toUnicode(cnv, &dest, destLimit, &src, srcLimit, 0, TRUE, pErrorCode);
 		destLength = (int32_t)(dest-originalDest);
-
 		/* if an overflow occurs, then get the preflighting length */
 		if(*pErrorCode==U_BUFFER_OVERFLOW_ERROR) {
 			UChar buffer[1024];
-
 			destLimit = buffer+UPRV_LENGTHOF(buffer);
 			do {
 				dest = buffer;
@@ -1615,7 +1593,6 @@ U_CAPI int32_t U_EXPORT2 ucnv_toUChars(UConverter * cnv,
 	else {
 		destLength = 0;
 	}
-
 	return u_terminateUChars(originalDest, destCapacity, destLength, pErrorCode);
 }
 
@@ -2211,49 +2188,35 @@ static int32_t ucnv_internalConvert(UConverter * outConverter, UConverter * inCo
 }
 
 U_CAPI int32_t U_EXPORT2 ucnv_convert(const char * toConverterName, const char * fromConverterName,
-    char * target, int32_t targetCapacity,
-    const char * source, int32_t sourceLength,
-    UErrorCode * pErrorCode) {
+    char * target, int32_t targetCapacity, const char * source, int32_t sourceLength, UErrorCode * pErrorCode) 
+{
 	UConverter in, out; /* stack-allocated */
 	UConverter * inConverter, * outConverter;
 	int32_t targetLength;
-
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
-	if(source==NULL || sourceLength<-1 ||
-	    targetCapacity<0 || (targetCapacity>0 && target==NULL)
-	    ) {
+	if(source==NULL || sourceLength<-1 || targetCapacity<0 || (targetCapacity>0 && target==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* if there is no input data, we're done */
 	if(sourceLength==0 || (sourceLength<0 && *source==0)) {
 		return u_terminateChars(target, targetCapacity, 0, pErrorCode);
 	}
-
 	/* create the converters */
 	inConverter = ucnv_createConverter(&in, fromConverterName, pErrorCode);
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
 	outConverter = ucnv_createConverter(&out, toConverterName, pErrorCode);
 	if(U_FAILURE(*pErrorCode)) {
 		ucnv_close(inConverter);
 		return 0;
 	}
-
-	targetLength = ucnv_internalConvert(outConverter, inConverter,
-		target, targetCapacity,
-		source, sourceLength,
-		pErrorCode);
-
+	targetLength = ucnv_internalConvert(outConverter, inConverter, target, targetCapacity, source, sourceLength, pErrorCode);
 	ucnv_close(inConverter);
 	ucnv_close(outConverter);
-
 	return targetLength;
 }
 

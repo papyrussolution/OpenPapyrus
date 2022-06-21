@@ -186,12 +186,11 @@ public:
 	// Parses a TYPE_INTEGER token.  Returns false if the result would be
 	// greater than max_value.  Otherwise, returns true and sets *output to the
 	// result.  If the text is not from a Token of type TYPE_INTEGER originally
-	// parsed by a Tokenizer, the result is undefined (possibly an assert
-	// failure).
+	// parsed by a Tokenizer, the result is undefined (possibly an assert failure).
 	static bool ParseInteger(const std::string & text, uint64_t max_value, uint64_t* output);
-
-	// Options ---------------------------------------------------------
-
+	//
+	// Options
+	//
 	// Set true to allow floats to be suffixed with the letter 'f'.  Tokens
 	// which would otherwise be integers but which have the 'f' suffix will be
 	// forced to be interpreted as floats.  For all other purposes, the 'f' is

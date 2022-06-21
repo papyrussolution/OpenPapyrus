@@ -5468,7 +5468,7 @@ int sqlite3_ieee_init(sqlite3 * db,
 	for(i = 0; i<sizeof(aFunc)/sizeof(aFunc[0]) && rc==SQLITE_OK; i++) {
 		rc = sqlite3_create_function(db, aFunc[i].zFName, aFunc[i].nArg,
 			SQLITE_UTF8|SQLITE_INNOCUOUS,
-			(void*)&aFunc[i].iAux,
+			(void *)&aFunc[i].iAux,
 			aFunc[i].xFunc, 0, 0);
 	}
 	return rc;
@@ -6700,7 +6700,7 @@ static void re_sql_func(sqlite3_context * context,
 		sqlite3_result_int(context, re_match(pRe, zStr, -1));
 	}
 	if(setAux) {
-		sqlite3_set_auxdata(context, 0, pRe, (void (*)(void*))re_free);
+		sqlite3_set_auxdata(context, 0, pRe, (void (*)(void *))re_free);
 	}
 }
 
@@ -6724,7 +6724,7 @@ int sqlite3_regexp_init(sqlite3 * db,
 		/* The regexpi(PATTERN,STRING) function is a case-insensitive version
 		** of regexp(PATTERN,STRING). */
 		rc = sqlite3_create_function(db, "regexpi", 2, SQLITE_UTF8|SQLITE_INNOCUOUS,
-			(void*)db, re_sql_func, 0, 0);
+			(void *)db, re_sql_func, 0, 0);
 	}
 	return rc;
 }
@@ -8649,7 +8649,7 @@ static int zipfileFindFunction(sqlite3_vtab * pVtab,            /* Virtual table
     ){
 	if(sqlite3_stricmp("zipfile_cds", zName)==0) {
 		*pxFunc = zipfileFunctionCds;
-		*ppArg = (void*)pVtab;
+		*ppArg = (void *)pVtab;
 		return 1;
 	}
 	return 0;
@@ -9909,7 +9909,7 @@ static int idxRegisterVtab(sqlite3expert * p){
 		0,                /* xShadowName */
 	};
 
-	return sqlite3_create_module(p->dbv, "expert", &expertModule, (void*)p);
+	return sqlite3_create_module(p->dbv, "expert", &expertModule, (void *)p);
 }
 
 /*
@@ -10661,7 +10661,7 @@ static void idxSampleFunc(sqlite3_context * pCtx,
 		bRet = (p->nRet / p->nRow) <= p->target;
 		if(bRet==0) {
 			unsigned short rnd;
-			sqlite3_randomness(2, (void*)&rnd);
+			sqlite3_randomness(2, (void *)&rnd);
 			bRet = ((int)rnd % 100) <= p->iTarget;
 		}
 	}
@@ -10928,12 +10928,12 @@ static int idxPopulateStat1(sqlite3expert * p, char ** pzErr){
 	if(rc==SQLITE_OK) {
 		sqlite3 * dbrem = (p->iSample==100 ? p->db : p->dbv);
 		rc = sqlite3_create_function(
-			dbrem, "rem", 2, SQLITE_UTF8, (void*)pCtx, idxRemFunc, 0, 0
+			dbrem, "rem", 2, SQLITE_UTF8, (void *)pCtx, idxRemFunc, 0, 0
 			);
 	}
 	if(rc==SQLITE_OK) {
 		rc = sqlite3_create_function(
-			p->db, "sample", 0, SQLITE_UTF8, (void*)&samplectx, idxSampleFunc, 0, 0
+			p->db, "sample", 0, SQLITE_UTF8, (void *)&samplectx, idxSampleFunc, 0, 0
 			);
 	}
 
@@ -11036,7 +11036,7 @@ sqlite3expert * sqlite3_expert_new(sqlite3 * db, char ** pzErrmsg){
 
 	/* Register the auth callback with dbv */
 	if(rc==SQLITE_OK) {
-		sqlite3_set_authorizer(pNew->dbv, idxAuthCallback, (void*)pNew);
+		sqlite3_set_authorizer(pNew->dbv, idxAuthCallback, (void *)pNew);
 	}
 
 	/* If an error has occurred, free the new object and reutrn NULL. Otherwise,
@@ -12071,7 +12071,7 @@ static int sqlite3DbdataRegister(sqlite3 * db){
 
 	int rc = sqlite3_create_module(db, "sqlite_dbdata", &dbdata_module, 0);
 	if(rc==SQLITE_OK) {
-		rc = sqlite3_create_module(db, "sqlite_dbptr", &dbdata_module, (void*)1);
+		rc = sqlite3_create_module(db, "sqlite_dbptr", &dbdata_module, (void *)1);
 	}
 	return rc;
 }
@@ -13858,10 +13858,10 @@ static void display_scanstats(sqlite3 * db,                    /* Database to qu
 			double rEst;
 			int iSid;
 			const char * zExplain;
-			if(sqlite3_stmt_scanstatus(p, i, SQLITE_SCANSTAT_NLOOP, (void*)&nLoop)) {
+			if(sqlite3_stmt_scanstatus(p, i, SQLITE_SCANSTAT_NLOOP, (void *)&nLoop)) {
 				break;
 			}
-			sqlite3_stmt_scanstatus(p, i, SQLITE_SCANSTAT_SELECTID, (void*)&iSid);
+			sqlite3_stmt_scanstatus(p, i, SQLITE_SCANSTAT_SELECTID, (void *)&iSid);
 			if(iSid>mx) mx = iSid;
 			if(iSid!=k) continue;
 			if(n==0) {
@@ -13869,9 +13869,9 @@ static void display_scanstats(sqlite3 * db,                    /* Database to qu
 				if(k>0) raw_printf(pArg->out, "-------- subquery %d -------\n", k);
 			}
 			n++;
-			sqlite3_stmt_scanstatus(p, i, SQLITE_SCANSTAT_NVISIT, (void*)&nVisit);
-			sqlite3_stmt_scanstatus(p, i, SQLITE_SCANSTAT_EST, (void*)&rEst);
-			sqlite3_stmt_scanstatus(p, i, SQLITE_SCANSTAT_EXPLAIN, (void*)&zExplain);
+			sqlite3_stmt_scanstatus(p, i, SQLITE_SCANSTAT_NVISIT, (void *)&nVisit);
+			sqlite3_stmt_scanstatus(p, i, SQLITE_SCANSTAT_EST, (void *)&rEst);
+			sqlite3_stmt_scanstatus(p, i, SQLITE_SCANSTAT_EXPLAIN, (void *)&zExplain);
 			utf8_printf(pArg->out, "Loop %2d: %s\n", n, zExplain);
 			rEstLoop *= rEst;
 			raw_printf(pArg->out,
@@ -22277,9 +22277,7 @@ int SQLITE_CDECL wmain(int argc, wchar_t ** wargv){
 #if !defined(_WIN32_WCE)
 	if(getenv("SQLITE_DEBUG_BREAK")) {
 		if(isatty(0) && isatty(2)) {
-			fprintf(stderr,
-			    "attach debugger to process %d and press any key to continue.\n",
-			    GETPID());
+			fprintf(stderr, "attach debugger to process %d and press any key to continue.\n", GETPID());
 			fgetc(stdin);
 		}
 		else {

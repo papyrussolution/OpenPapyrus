@@ -1954,7 +1954,7 @@ int SSL_bytes_to_cipher_list(SSL * s,
     STACK_OF(SSL_CIPHER) **scsvs);
 
 /* TLS extensions functions */
-__owur int SSL_set_session_ticket_ext(SSL * s, void * ext_data, int ext_len);
+__owur int SSL_set_session_ticket_ext(SSL * s, const void * ext_data, int ext_len);
 __owur int SSL_set_session_ticket_ext_cb(SSL * s, tls_session_ticket_ext_cb_fn cb, void * arg);
 
 /* Pre-shared secret session resumption functions */

@@ -10,11 +10,7 @@
 #ifndef analyzerinfoH
 #define analyzerinfoH
 
-#include "cppcheck-config.h"
 #include "importproject.h"
-#include <fstream>
-#include <list>
-#include <string>
 
 class ErrorMessage;
 
@@ -59,5 +55,4 @@ private:
 };
 
 /// @}
-//---------------------------------------------------------------------------
 #endif // analyzerinfoH

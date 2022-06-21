@@ -9,8 +9,8 @@
 #pragma hdrstop
 #include "evp_locl.h"
 
-size_t SHA3_absorb(uint64_t A[5][5], const uchar * inp, size_t len, size_t r);
-void SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r);
+extern "C" size_t SHA3_absorb(uint64_t A[5][5], const uchar * inp, size_t len, size_t r);
+extern "C" void   SHA3_squeeze(uint64_t A[5][5], uchar * out, size_t len, size_t r);
 
 #define KECCAK1600_WIDTH 1600
 

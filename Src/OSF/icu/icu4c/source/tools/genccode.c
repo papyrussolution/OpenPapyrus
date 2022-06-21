@@ -84,26 +84,21 @@ static UOption options[] = {
 #define CALL_WRITECCODE     'c'
 #define CALL_WRITEASSEMBLY  'a'
 #define CALL_WRITEOBJECT    'o'
-extern int main(int argc, char * argv[]) {
+extern int main(int argc, char * argv[]) 
+{
 	bool verbose = TRUE;
 	char writeCode;
-
 	U_MAIN_INIT_ARGS(argc, argv);
-
 	options[kOptDestDir].value = ".";
-
 	/* read command line options */
 	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
 
 	/* error handling, printing usage message */
 	if(argc<0) {
-		fprintf(stderr,
-		    "error in command line argument \"%s\"\n",
-		    argv[-argc]);
+		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
 	}
 	if(argc<0 || options[kOptHelpH].doesOccur || options[kOptHelpQuestionMark].doesOccur) {
-		fprintf(stderr,
-		    "usage: %s [-options] filename1 filename2 ...\n"
+		slfprintf_stderr("usage: %s [-options] filename1 filename2 ...\n"
 		    "\tread each binary input file and \n"
 		    "\tcreate a .c file with a byte array that contains the input file's data\n"
 		    "options:\n"
@@ -112,33 +107,26 @@ extern int main(int argc, char * argv[]) {
 		    "\t-q or --quiet       do not display warnings and progress\n"
 		    "\t-n or --name        symbol prefix, followed by the prefix\n"
 		    "\t-e or --entrypoint  entry point name, followed by the name (_dat will be appended)\n"
-		    "\t-r or --revision    Specify a version\n"
-		    , argv[0]);
+		    "\t-r or --revision    Specify a version\n", argv[0]);
 #ifdef CAN_GENERATE_OBJECTS
-		fprintf(stderr,
-		    "\t-o or --object      write a .obj file instead of .c\n"
+		slfprintf_stderr("\t-o or --object      write a .obj file instead of .c\n"
 		    "\t-m or --match-arch file.o  match the architecture (CPU, 32/64 bits) of the specified .o\n"
 		    "\t                    ELF format defaults to i386. Windows defaults to the native platform.\n"
 		    "\t--skip-dll-export   Don't export the ICU data entry point symbol (for use when statically linking)\n");
 #endif
-		fprintf(stderr,
-		    "\t-f or --filename    Specify an alternate base filename. (default: symbolname_typ)\n"
+		slfprintf_stderr("\t-f or --filename    Specify an alternate base filename. (default: symbolname_typ)\n"
 		    "\t-a or --assembly    Create assembly file. (possible values are: ");
-
 		printAssemblyHeadersToStdErr();
 	}
 	else {
 		const char * message, * filename;
 		/* TODO: remove void (*writeCode)(const char *, const char *); */
-
 		if(options[kOptAssembly].doesOccur) {
 			message = "generating assembly code for %s\n";
 			writeCode = CALL_WRITEASSEMBLY;
 			/* TODO: remove writeCode=&writeAssemblyCode; */
-
 			if(!checkAssemblyHeaderName(options[kOptAssembly].value)) {
-				fprintf(stderr,
-				    "Assembly type \"%s\" is unknown.\n", options[kOptAssembly].value);
+				slfprintf_stderr("Assembly type \"%s\" is unknown.\n", options[kOptAssembly].value);
 				return -1;
 			}
 		}

@@ -2456,7 +2456,7 @@ uint32 _zip_string_crc32(const zip_string_t * s)
 
 int _zip_string_equal(const zip_string_t * a, const zip_string_t * b)
 {
-	if(a == NULL || b == NULL)
+	if(!a || !b)
 		return a == b;
 	if(a->length != b->length)
 		return 0;

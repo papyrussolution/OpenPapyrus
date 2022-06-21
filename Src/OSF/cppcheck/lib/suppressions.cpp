@@ -10,13 +10,6 @@
 #include "cppcheck-internal.h"
 #pragma hdrstop
 #include "suppressions.h"
-#include "errorlogger.h"
-#include "mathlib.h"
-#include "path.h"
-#include "utils.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
 
 static bool isAcceptedErrorIdChar(char c)
 {

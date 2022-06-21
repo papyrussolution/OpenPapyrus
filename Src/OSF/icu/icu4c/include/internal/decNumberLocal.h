@@ -29,8 +29,6 @@
 #define DECVERSION    "decNumber 3.61" /* Package Version [16 max.] */
 #define DECNLAUTHOR   "Mike Cowlishaw"              /* Who to blame */
 
-#include <stdlib.h>         /* for abs   */
-#include <string.h>         /* for memset, strcpy */
 #include "decContext.h"
 
 /* Conditional code flag -- set this to match hardware platform     */
@@ -113,14 +111,14 @@ typedef long int LI;   /* for printf arguments only   */
 /* level in an expression, e.g., UBTOUI(x)==UBTOUI(y) may fail].    */
 
 /* Return a uInt, etc., from bytes starting at a char * or uByte*    */
-  #define UBTOUS(b)  (memcpy((void*)&uswork, b, 2), uswork)
-  #define UBTOUI(b)  (memcpy((void*)&uiwork, b, 4), uiwork)
+  #define UBTOUS(b)  (memcpy((void *)&uswork, b, 2), uswork)
+  #define UBTOUI(b)  (memcpy((void *)&uiwork, b, 4), uiwork)
 
 /* Store a uInt, etc., into bytes starting at a char * or uByte*.    */
 /* Returns i, evaluated, for convenience; has to use uiwork because */
 /* i may be an expression.      */
-  #define UBFROMUS(b, i)  (uswork = (i), memcpy(b, (void*)&uswork, 2), uswork)
-  #define UBFROMUI(b, i)  (uiwork = (i), memcpy(b, (void*)&uiwork, 4), uiwork)
+  #define UBFROMUS(b, i)  (uswork = (i), memcpy(b, (void *)&uswork, 2), uswork)
+  #define UBFROMUI(b, i)  (uiwork = (i), memcpy(b, (void *)&uiwork, 4), uiwork)
 
 /* X10 and X100 -- multiply integer i by 10 or 100         */
 /* [shifts are usually faster than multiply; could be conditional]  */

@@ -171,11 +171,11 @@ CURLcode Curl_output_negotiate(struct connectdata * conn, bool proxy)
 			base64);
 
 		if(proxy) {
-			Curl_safefree(data->state.aptr.proxyuserpwd);
+			ZFREE(data->state.aptr.proxyuserpwd);
 			data->state.aptr.proxyuserpwd = userp;
 		}
 		else {
-			Curl_safefree(data->state.aptr.userpwd);
+			ZFREE(data->state.aptr.userpwd);
 			data->state.aptr.userpwd = userp;
 		}
 

@@ -95,7 +95,7 @@ static void TestBasic() {
 		    u_errorName(status), hash);
 		return;
 	}
-	if(hash == NULL) {
+	if(!hash) {
 		log_err("FAIL: uhash_open returned NULL\n");
 		return;
 	}
@@ -144,7 +144,7 @@ static void TestAllowZero() {
 		    u_errorName(status), hash);
 		return;
 	}
-	if(hash == NULL) {
+	if(!hash) {
 		log_err("FAIL: uhash_open returned NULL\n");
 		return;
 	}
@@ -204,7 +204,7 @@ static void TestOtherAPI() {
 		    u_errorName(status), hash);
 		return;
 	}
-	if(hash == NULL) {
+	if(!hash) {
 		log_err("FAIL: uhash_open returned NULL\n");
 		return;
 	}
@@ -327,7 +327,7 @@ static void hashIChars() {
 		    u_errorName(status), hash);
 		return;
 	}
-	if(hash == NULL) {
+	if(!hash) {
 		log_err("FAIL: uhash_open returned NULL\n");
 		return;
 	}

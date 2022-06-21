@@ -232,7 +232,7 @@ BIGNUM * BN_secure_new(void)
 
 /* This is used by bn_expand2() */
 /* The caller MUST check that words > b->dmax before calling this */
-static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
+static BN_ULONG * FASTCALL bn_expand_internal(const BIGNUM * b, int words)
 {
 	BN_ULONG * a = NULL;
 	if(words > (INT_MAX / (4 * BN_BITS2))) {
@@ -918,7 +918,7 @@ void BN_GENCB_set(BN_GENCB * gencb, int (*callback)(int, int, BN_GENCB *), void 
 }
 
 void * BN_GENCB_get_arg(BN_GENCB * cb) { return cb->arg; }
-BIGNUM * bn_wexpand(BIGNUM * a, int words) { return (words <= a->dmax) ? a : bn_expand2(a, words); }
+BIGNUM * FASTCALL bn_wexpand(BIGNUM * a, int words) { return (words <= a->dmax) ? a : bn_expand2(a, words); }
 
 void bn_correct_top(BIGNUM * a)
 {

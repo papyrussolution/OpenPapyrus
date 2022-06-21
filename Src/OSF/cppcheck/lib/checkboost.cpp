@@ -9,17 +9,11 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkboost.h"
-#include "errortypes.h"
-#include "symboldatabase.h"
-#include "token.h"
 
 // Register this check class (by creating a static instance of it)
 namespace {
 CheckBoost instance;
 }
-
-static const CWE CWE664(664);
 
 void CheckBoost::checkBoostForeachModification()
 {
@@ -28,11 +22,9 @@ void CheckBoost::checkBoostForeachModification()
 		for(const Token * tok = scope->bodyStart->next(); tok && tok != scope->bodyEnd; tok = tok->next()) {
 			if(!Token::simpleMatch(tok, "BOOST_FOREACH ("))
 				continue;
-
 			const Token * containerTok = tok->next()->link()->previous();
 			if(!Token::Match(containerTok, "%var% ) {"))
 				continue;
-
 			const Token * tok2 = containerTok->tokAt(2);
 			const Token * end = tok2->link();
 			for(; tok2 != end; tok2 = tok2->next()) {
@@ -51,11 +43,7 @@ void CheckBoost::checkBoostForeachModification()
 
 void CheckBoost::boostForeachError(const Token * tok)
 {
-	reportError(tok,
-	    Severity::error,
-	    "boostForeachError",
+	reportError(tok, Severity::error, "boostForeachError",
 	    "BOOST_FOREACH caches the end() iterator. It's undefined behavior if you modify the container inside.",
-	    CWE664,
-	    Certainty::normal
-	    );
+	    CWE664, Certainty::normal);
 }

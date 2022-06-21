@@ -9,9 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "settings.h"
-#include "testsuite.h"
-#include "testutils.h"
 #include "threadexecutor.h"
 
 class TestThreadExecutor : public TestFixture {

@@ -287,7 +287,7 @@ void DateFormatSymbols::createZoneStrings(const UnicodeString * const * otherStr
 	int32_t row, col;
 	bool failed = FALSE;
 	fZoneStrings = (UnicodeString **)uprv_malloc(fZoneStringsRowCount * sizeof(UnicodeString *));
-	if(fZoneStrings != NULL) {
+	if(fZoneStrings) {
 		for(row = 0; row<fZoneStringsRowCount; ++row) {
 			fZoneStrings[row] = newUnicodeStringArray(fZoneStringsColCount);
 			if(fZoneStrings[row] == NULL) {
@@ -350,29 +350,28 @@ void DateFormatSymbols::copyData(const DateFormatSymbols& other)
 	assignArray(fStandaloneWideDayPeriods, fStandaloneWideDayPeriodsCount, other.fStandaloneWideDayPeriods, other.fStandaloneWideDayPeriodsCount);
 	assignArray(fStandaloneNarrowDayPeriods, fStandaloneNarrowDayPeriodsCount, other.fStandaloneNarrowDayPeriods, other.fStandaloneNarrowDayPeriodsCount);
 	assignArray(fStandaloneAbbreviatedDayPeriods, fStandaloneAbbreviatedDayPeriodsCount, other.fStandaloneAbbreviatedDayPeriods, other.fStandaloneAbbreviatedDayPeriodsCount);
-	if(other.fLeapMonthPatterns != NULL) {
+	if(other.fLeapMonthPatterns) {
 		assignArray(fLeapMonthPatterns, fLeapMonthPatternsCount, other.fLeapMonthPatterns, other.fLeapMonthPatternsCount);
 	}
 	else {
 		fLeapMonthPatterns = NULL;
 		fLeapMonthPatternsCount = 0;
 	}
-	if(other.fShortYearNames != NULL) {
+	if(other.fShortYearNames) {
 		assignArray(fShortYearNames, fShortYearNamesCount, other.fShortYearNames, other.fShortYearNamesCount);
 	}
 	else {
 		fShortYearNames = NULL;
 		fShortYearNamesCount = 0;
 	}
-	if(other.fShortZodiacNames != NULL) {
+	if(other.fShortZodiacNames) {
 		assignArray(fShortZodiacNames, fShortZodiacNamesCount, other.fShortZodiacNames, other.fShortZodiacNamesCount);
 	}
 	else {
 		fShortZodiacNames = NULL;
 		fShortZodiacNamesCount = 0;
 	}
-
-	if(other.fZoneStrings != NULL) {
+	if(other.fZoneStrings) {
 		fZoneStringsColCount = other.fZoneStringsColCount;
 		fZoneStringsRowCount = other.fZoneStringsRowCount;
 		createZoneStrings((const UnicodeString **)other.fZoneStrings);
@@ -569,9 +568,8 @@ DateFormatSymbols::operator == (const DateFormatSymbols &other) const
 					return true;
 				}
 			}
-			else if(fZoneStrings != NULL && other.fZoneStrings != NULL) {
-				if(fZoneStringsRowCount == other.fZoneStringsRowCount
-				 && fZoneStringsColCount == other.fZoneStringsColCount) {
+			else if(fZoneStrings && other.fZoneStrings) {
+				if(fZoneStringsRowCount == other.fZoneStringsRowCount && fZoneStringsColCount == other.fZoneStringsColCount) {
 					bool cmpres = true;
 					for(int32_t i = 0; (i < fZoneStringsRowCount) && cmpres; i++) {
 						cmpres = arrayCompare(fZoneStrings[i], other.fZoneStrings[i], fZoneStringsColCount);
@@ -1181,18 +1179,16 @@ const UnicodeString ** DateFormatSymbols::getZoneStrings(int32_t& rowCount, int3
 #define ZONE_SET UCAL_ZONE_TYPE_ANY
 
 // This code must be called within a synchronized block
-void DateFormatSymbols::initZoneStringsArray() {
-	if(fZoneStrings != NULL || fLocaleZoneStrings != NULL) {
+void DateFormatSymbols::initZoneStringsArray() 
+{
+	if(fZoneStrings || fLocaleZoneStrings) {
 		return;
 	}
-
 	UErrorCode status = U_ZERO_ERROR;
-
 	StringEnumeration * tzids = NULL;
 	UnicodeString ** zarray = NULL;
 	TimeZoneNames * tzNames = NULL;
 	int32_t rows = 0;
-
 	static const UTimeZoneNameType TYPES[] = {
 		UTZNM_LONG_STANDARD, UTZNM_SHORT_STANDARD,
 		UTZNM_LONG_DAYLIGHT, UTZNM_SHORT_DAYLIGHT
@@ -1681,14 +1677,12 @@ struct CalendarDataSink : public ResourceSink {
 					continue;
 				}
 			}
-
 			// == Handle aliases ==
-			if(arrays.get(path) != NULL || maps.get(path) != NULL) {
+			if(arrays.get(path) || maps.get(path)) {
 				// Drop the latest key on the path and continue
 				path.retainBetween(0, pathLength);
 				continue;
 			}
-
 			AliasType aliasType = processAliasFromValue(path, value, errorCode);
 			if(U_FAILURE(errorCode)) {
 				return;
@@ -1831,12 +1825,12 @@ static void initField(UnicodeString ** field,
 	}
 }
 
-static void initField(UnicodeString ** field, int32_t& length, CalendarDataSink &sink, CharString &key, UErrorCode & status) {
+static void initField(UnicodeString ** field, int32_t& length, CalendarDataSink &sink, CharString &key, UErrorCode & status) 
+{
 	if(U_SUCCESS(status)) {
 		UnicodeString keyUString(key.data(), -1, US_INV);
 		UnicodeString * array = static_cast<UnicodeString *>(sink.arrays.get(keyUString));
-
-		if(array != NULL) {
+		if(array) {
 			length = sink.arraySizes.geti(keyUString);
 			*field = array;
 			// DateFormatSymbols takes ownership of the array:
@@ -1858,8 +1852,7 @@ static void initField(UnicodeString ** field,
 	if(U_SUCCESS(status)) {
 		UnicodeString keyUString(key.data(), -1, US_INV);
 		UnicodeString * array = static_cast<UnicodeString *>(sink.arrays.get(keyUString));
-
-		if(array != NULL) {
+		if(array) {
 			int32_t arrayLength = sink.arraySizes.geti(keyUString);
 			length = arrayLength + arrayOffset;
 			*field = new UnicodeString[length];
@@ -1881,10 +1874,10 @@ static void initLeapMonthPattern(UnicodeString * field, int32_t index, CalendarD
 	if(U_SUCCESS(status)) {
 		UnicodeString pathUString(path.data(), -1, US_INV);
 		Hashtable * leapMonthTable = static_cast<Hashtable*>(sink.maps.get(pathUString));
-		if(leapMonthTable != NULL) {
+		if(leapMonthTable) {
 			UnicodeString leapLabel(FALSE, kLeapTagUChar, UPRV_LENGTHOF(kLeapTagUChar));
 			UnicodeString * leapMonthPattern = static_cast<UnicodeString *>(leapMonthTable->get(leapLabel));
-			if(leapMonthPattern != NULL) {
+			if(leapMonthPattern) {
 				field[index].fastCopyFrom(*leapMonthPattern);
 			}
 			else {
@@ -2078,7 +2071,7 @@ void DateFormatSymbols::initializeData(const Locale & locale, const char * type,
 	if(U_FAILURE(status)) return;
 
 	// Iterate over the resource bundle data following the fallbacks through different calendar types
-	UnicodeString calendarType((type != NULL && *type != '\0') ? type : gGregorianTag, -1, US_INV);
+	UnicodeString calendarType((type && *type != '\0') ? type : gGregorianTag, -1, US_INV);
 	while(!calendarType.isBogus()) {
 		CharString calendarTypeBuffer;
 		calendarTypeBuffer.appendInvariantChars(calendarType, status);
@@ -2168,18 +2161,17 @@ void DateFormatSymbols::initializeData(const Locale & locale, const char * type,
 			UResourceBundle * contextTransformUsage;
 			while((contextTransformUsage = ures_getNextResource(contextTransforms, NULL, &tempStatus)) != NULL) {
 				const int32_t * intVector = ures_getIntVector(contextTransformUsage, &len, &status);
-				if(U_SUCCESS(tempStatus) && intVector != NULL && len >= 2) {
+				if(U_SUCCESS(tempStatus) && intVector && len >= 2) {
 					const char * usageType = ures_getKey(contextTransformUsage);
-					if(usageType != NULL) {
+					if(usageType) {
 						const ContextUsageTypeNameToEnumValue * typeMapPtr = contextUsageTypeMap;
 						int32_t compResult = 0;
 						// linear search; list is short and we cannot be sure that bsearch is
 						// available
-						while(typeMapPtr->usageTypeName != NULL &&
-						    (compResult = uprv_strcmp(usageType, typeMapPtr->usageTypeName)) > 0) {
+						while(typeMapPtr->usageTypeName && (compResult = uprv_strcmp(usageType, typeMapPtr->usageTypeName)) > 0) {
 							++typeMapPtr;
 						}
-						if(typeMapPtr->usageTypeName != NULL && compResult == 0) {
+						if(typeMapPtr->usageTypeName && compResult == 0) {
 							fCapitalization[typeMapPtr->usageTypeEnumValue][0] =
 							    static_cast<bool>(intVector[0]);
 							fCapitalization[typeMapPtr->usageTypeEnumValue][1] =

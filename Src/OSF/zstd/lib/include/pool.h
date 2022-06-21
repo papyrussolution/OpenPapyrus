@@ -62,7 +62,7 @@ size_t POOL_sizeof(const POOL_ctx* ctx);
 /*! POOL_function :
  *  The function type that can be added to a thread pool.
  */
-typedef void (* POOL_function)(void*);
+typedef void (* POOL_function)(void *);
 
 /*! POOL_add() :
  *  Add the job `function(opaque)` to the thread pool. `ctx` must be valid.

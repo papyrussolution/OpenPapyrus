@@ -92,12 +92,12 @@ void arena_destruct_object(void* object) {
 
 template <bool destructor_skippable, typename T>
 struct ObjectDestructor {
-  constexpr static void (*destructor)(void*) = &arena_destruct_object<T>;
+  constexpr static void (*destructor)(void *) = &arena_destruct_object<T>;
 };
 
 template <typename T>
 struct ObjectDestructor<true, T> {
-  constexpr static void (*destructor)(void*) = nullptr;
+  constexpr static void (*destructor)(void *) = nullptr;
 };
 
 template <typename T>
@@ -369,7 +369,7 @@ class PROTOBUF_EXPORT PROTOBUF_ALIGNAS(8) Arena final {
   // from OwnDestructor() in that any member function may be specified, not only
   // the class destructor.
   PROTOBUF_ALWAYS_INLINE void OwnCustomDestructor(void* object,
-                                                  void (*destruct)(void*)) {
+                                                  void (*destruct)(void *)) {
     impl_.AddCleanup(object, destruct);
   }
 
@@ -552,7 +552,7 @@ class PROTOBUF_EXPORT PROTOBUF_ALIGNAS(8) Arena final {
   // Allocate and also optionally call collector with the allocated type info
   // when allocation recording is enabled.
   PROTOBUF_NDEBUG_INLINE void* AllocateInternal(size_t size, size_t align,
-                                                void (*destructor)(void*),
+                                                void (*destructor)(void *),
                                                 const std::type_info* type) {
     // Monitor allocation if needed.
     if (destructor == nullptr) {

@@ -984,7 +984,7 @@ int SSL_set_session_ticket_ext_cb(SSL * s, tls_session_ticket_ext_cb_fn cb,
 	return 1;
 }
 
-int SSL_set_session_ticket_ext(SSL * s, void * ext_data, int ext_len)
+int SSL_set_session_ticket_ext(SSL * s, const void * ext_data, int ext_len)
 {
 	if(s->version >= TLS1_VERSION) {
 		OPENSSL_free(s->ext.session_ticket);
@@ -994,8 +994,7 @@ int SSL_set_session_ticket_ext(SSL * s, void * ext_data, int ext_len)
 			SSLerr(SSL_F_SSL_SET_SESSION_TICKET_EXT, ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
-
-		if(ext_data != NULL) {
+		if(ext_data) {
 			s->ext.session_ticket->length = ext_len;
 			s->ext.session_ticket->data = s->ext.session_ticket + 1;
 			memcpy(s->ext.session_ticket->data, ext_data, ext_len);
@@ -1004,7 +1003,6 @@ int SSL_set_session_ticket_ext(SSL * s, void * ext_data, int ext_len)
 			s->ext.session_ticket->length = 0;
 			s->ext.session_ticket->data = NULL;
 		}
-
 		return 1;
 	}
 

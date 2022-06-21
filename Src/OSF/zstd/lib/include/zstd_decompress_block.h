@@ -7,13 +7,9 @@
  * in the COPYING file in the root directory of this source tree).
  * You may select, at your option, one of the above-listed licenses.
  */
-
 #ifndef ZSTD_DEC_BLOCK_H
 #define ZSTD_DEC_BLOCK_H
 
-/*-*******************************************************
-*  Dependencies
-*********************************************************/
 #include <zstd_deps.h>   /* size_t */
 #include <zstd.h>    /* DCtx, and some public functions */
 #include <zstd_internal.h>  /* blockProperties_t, and some public functions */

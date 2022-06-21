@@ -107,8 +107,8 @@ static void ntlm_wb_cleanup(struct ntlmdata * ntlm)
 		ntlm->ntlm_auth_hlpr_pid = 0;
 	}
 
-	Curl_safefree(ntlm->challenge);
-	Curl_safefree(ntlm->response);
+	ZFREE(ntlm->challenge);
+	ZFREE(ntlm->response);
 }
 
 static CURLcode ntlm_wb_init(struct Curl_easy * data, struct ntlmdata * ntlm,
@@ -444,7 +444,7 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn, bool proxy)
 			    proxy ? "Proxy-" : "",
 			    ntlm->response);
 		    DEBUG_OUT(slfprintf_stderr("**** Header %s\n ", *allocuserpwd));
-		    Curl_safefree(ntlm->response);
+		    ZFREE(ntlm->response);
 		    if(!*allocuserpwd)
 			    return CURLE_OUT_OF_MEMORY;
 		    break;
@@ -476,7 +476,7 @@ CURLcode Curl_output_ntlm_wb(struct connectdata * conn, bool proxy)
 		    *state = NTLMSTATE_LAST;
 		// @fallthrough
 		case NTLMSTATE_LAST:
-		    Curl_safefree(*allocuserpwd);
+		    ZFREE(*allocuserpwd);
 		    authp->done = TRUE;
 		    break;
 	}

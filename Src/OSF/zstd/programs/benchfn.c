@@ -26,7 +26,7 @@
 ***************************************/
 #if defined(DEBUG) && (DEBUG >= 1)
 //#include <stdio.h>       /* fprintf */
-#define DISPLAY(...)       fprintf(stderr, __VA_ARGS__)
+#define DISPLAY(...)       slfprintf_stderr(__VA_ARGS__)
 #define DEBUGOUTPUT(...) { if(DEBUG) DISPLAY(__VA_ARGS__); }
 #else
 #define DEBUGOUTPUT(...)

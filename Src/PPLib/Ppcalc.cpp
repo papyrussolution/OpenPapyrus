@@ -1032,7 +1032,19 @@ int PosPaymentBlock::EditDialog2()
 		}
 	private:
 		DECL_HANDLE_EVENT
-		{
+		{  
+			//static bool isOK = false; // Проверка на повторное нажатие кнопки Enter, в случае ошибочного сканирования в поле ввода
+			TInputLine * p_il = static_cast<TInputLine*>(getCtrlView(CTL_CPPAYM_CASH)); 
+			if(p_il) {
+				TInputLine::Statistics stat;
+				p_il->GetStatistics(&stat);
+				if(event.isCmd(cmOK)/*&& isOK*/) {
+					if(stat.SymbCount && stat.IntervalMean < /*3.0*/20.0 && stat.Flags & stat.fSerialized) {
+						clearEvent(event);
+						//isOK = false; 
+					}
+				}
+			}	// @SevaSob @v11.4.02
 			if(!event.isCmd(cmOK) || SetupCrdCard(0) <= 0) {
 				if(event.isCmd(cmLBDblClk)) {
 					if(event.isCtlEvent(CTL_CPPAYM_CCRDLIST)) {
@@ -1136,6 +1148,7 @@ int PosPaymentBlock::EditDialog2()
 								*/
 							}
 							else if(event.isCtlEvent(CTL_CPPAYM_CASH)) {
+								//isOK = true; // @SevaSob @v11.4.02
 								double val = R2(getCtrlReal(CTL_CPPAYM_CASH));
 								Data.NoteAmt = val;
 								Data.DeliveryAmt = R2(val - Data.CcPl.Get(CCAMTTYP_CASH));

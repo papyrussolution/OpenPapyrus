@@ -217,7 +217,7 @@ static void MD4_Final(uchar * result, MD4_CTX * ctx)
 		(void)mbedtls_md4_ret(ctx->data, ctx->size, result);
 #endif
 
-		Curl_safefree(ctx->data);
+		ZFREE(ctx->data);
 		ctx->size = 0;
 	}
 }

@@ -411,4 +411,4 @@ const BIO_METHOD * BIO_s_log(void)
 	return NULL;
 }
 
-#endif                          /* NO_SYSLOG */
+#endif /* NO_SYSLOG */

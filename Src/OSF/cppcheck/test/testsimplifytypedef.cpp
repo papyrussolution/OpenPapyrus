@@ -9,14 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "errortypes.h"
-#include "platform.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
-#include <simplecpp.h>
 
 class TestSimplifyTypedef : public TestFixture {
 public:
@@ -517,7 +509,7 @@ private:
 
 	void simplifyTypedef13() {
 		// ticket # 1167
-		const char code[] = "typedef std::pair<int(*)(void*), void*> Func;"
+		const char code[] = "typedef std::pair<int(*)(void *), void*> Func;"
 		    "typedef std::vector<Func> CallQueue;"
 		    "int main() {}";
 

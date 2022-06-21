@@ -9,13 +9,8 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "cppcheck-config.h"
 #include "cppcheck.h"
-#include "errortypes.h"
-#include "settings.h"
 #include "suppressions.h"
-#include "testsuite.h"
-#include "testutils.h"
 #include "threadexecutor.h"
 
 class TestSuppressions : public TestFixture {

@@ -580,4 +580,4 @@ void SEED_decrypt(const uchar s[SEED_BLOCK_SIZE],
 	word2char(x2, d + 12);
 }
 
-#endif                          /* OPENSSL_NO_SEED */
+#endif /* OPENSSL_NO_SEED */

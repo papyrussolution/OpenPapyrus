@@ -112,7 +112,7 @@ CURLcode Curl_output_digest(struct connectdata * conn,
 		authp = &data->state.authhost;
 	}
 
-	Curl_safefree(*allocuserpwd);
+	ZFREE(*allocuserpwd);
 
 	/* not set means empty */
 	if(!userp)

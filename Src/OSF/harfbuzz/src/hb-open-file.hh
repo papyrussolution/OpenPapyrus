@@ -417,8 +417,7 @@ public:
 			TTCTag      = HB_TAG('t', 't', 'c', 'f'),/* TrueType Collection */
 			DFontTag    = HB_TAG(0, 0, 1, 0),/* DFont Mac Resource Fork */
 			TrueTag     = HB_TAG('t', 'r', 'u', 'e'),/* Obsolete Apple TrueType */
-			Typ1Tag     = HB_TAG('t', 'y', 'p', '1')/* Obsolete Apple Type1 font in SFNT container
-			                                        */
+			Typ1Tag     = HB_TAG('t', 'y', 'p', '1')/* Obsolete Apple Type1 font in SFNT container */
 		};
 
 		hb_tag_t get_tag() const {

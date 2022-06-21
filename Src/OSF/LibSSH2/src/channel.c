@@ -235,8 +235,7 @@ LIBSSH2_API LIBSSH2_CHANNEL * libssh2_channel_open_ex(LIBSSH2_SESSION * session,
  *
  * Tunnel TCP/IP connect through the SSH session to direct host/port
  */
-static LIBSSH2_CHANNEL * channel_direct_tcpip(LIBSSH2_SESSION * session, const char * host,
-    int port, const char * shost, int sport)
+static LIBSSH2_CHANNEL * channel_direct_tcpip(LIBSSH2_SESSION * session, const char * host, int port, const char * shost, int sport)
 {
 	LIBSSH2_CHANNEL * channel;
 	uchar * s;
@@ -256,13 +255,8 @@ static LIBSSH2_CHANNEL * channel_direct_tcpip(LIBSSH2_SESSION * session, const c
 		_libssh2_store_str(&s, shost, session->direct_shost_len);
 		_libssh2_store_u32(&s, sport);
 	}
-	channel = _libssh2_channel_open(session, "direct-tcpip",
-	    sizeof("direct-tcpip") - 1,
-	    LIBSSH2_CHANNEL_WINDOW_DEFAULT,
-	    LIBSSH2_CHANNEL_PACKET_DEFAULT,
-	    session->direct_message,
-	    session->direct_message_len);
-
+	channel = _libssh2_channel_open(session, "direct-tcpip", sizeof("direct-tcpip") - 1, LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT,
+	    session->direct_message, session->direct_message_len);
 	if(!channel && libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
 		// The error code is still set to LIBSSH2_ERROR_EAGAIN, set our state
 		// to created to avoid re-creating the package on next invoke 

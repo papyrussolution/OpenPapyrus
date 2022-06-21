@@ -2954,12 +2954,9 @@ private:
 			uint byte = deltaValueZ[s >> (4 - f)];
 			uint bits = (byte >> (16 - (((s & ((1 << (4 - f)) - 1)) + 1) << f)));
 			uint mask = (0xFFFFu >> (16 - (1 << f)));
-
 			int delta = bits & mask;
-
 			if((uint)delta >= ((mask + 1) >> 1))
 				delta -= mask + 1;
-
 			return delta;
 		}
 
@@ -2969,8 +2966,7 @@ protected:
 		HBUINT16 deltaFormat; /* Format of DeltaValue array data: 1, 2, or 3
 		 * 1	Signed 2-bit value, 8 values per uint16
 		 * 2	Signed 4-bit value, 4 values per uint16
-		 * 3	Signed 8-bit value, 2 values per uint16
-		                         */
+		 * 3	Signed 8-bit value, 2 values per uint16 */
 		UnsizedArrayOf<HBUINT16>
 		deltaValueZ; /* Array of compressed data */
 public:

@@ -10,18 +10,10 @@
 #ifndef libraryH
 #define libraryH
 
-#include "cppcheck-config.h"
+//#include "cppcheck-config.h"
 #include "mathlib.h"
 #include "errortypes.h"
 #include "standards.h"
-#include <cstddef>
-#include <map>
-#include <memory>
-#include <set>
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 
 class Token;
 class Settings;

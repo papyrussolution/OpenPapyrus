@@ -165,16 +165,16 @@ bool Curl_clone_primary_ssl_config(struct ssl_primary_config * source,
 
 void Curl_free_primary_ssl_config(struct ssl_primary_config * sslc)
 {
-	Curl_safefree(sslc->CApath);
-	Curl_safefree(sslc->CAfile);
-	Curl_safefree(sslc->clientcert);
-	Curl_safefree(sslc->random_file);
-	Curl_safefree(sslc->egdsocket);
-	Curl_safefree(sslc->cipher_list);
-	Curl_safefree(sslc->cipher_list13);
-	Curl_safefree(sslc->pinned_key);
-	Curl_safefree(sslc->cert_blob);
-	Curl_safefree(sslc->curves);
+	ZFREE(sslc->CApath);
+	ZFREE(sslc->CAfile);
+	ZFREE(sslc->clientcert);
+	ZFREE(sslc->random_file);
+	ZFREE(sslc->egdsocket);
+	ZFREE(sslc->cipher_list);
+	ZFREE(sslc->cipher_list13);
+	ZFREE(sslc->pinned_key);
+	ZFREE(sslc->cert_blob);
+	ZFREE(sslc->curves);
 }
 
 #ifdef USE_SSL
@@ -430,8 +430,8 @@ void Curl_ssl_kill_session(struct Curl_ssl_session * session)
 
 		Curl_free_primary_ssl_config(&session->ssl_config);
 
-		Curl_safefree(session->name);
-		Curl_safefree(session->conn_to_host);
+		ZFREE(session->name);
+		ZFREE(session->conn_to_host);
 	}
 }
 
@@ -567,7 +567,7 @@ void Curl_ssl_close_all(struct Curl_easy * data)
 			Curl_ssl_kill_session(&data->state.session[i]);
 
 		/* free the cache data */
-		Curl_safefree(data->state.session);
+		ZFREE(data->state.session);
 	}
 
 	Curl_ssl->close_all(data);
@@ -821,18 +821,14 @@ static CURLcode pubkey_pem_to_der(const char * pem,
 
 	/* 26 is length of "-----BEGIN PUBLIC KEY-----" */
 	pem_count += 26;
-
 	/* Invalid if not directly following \n */
 	end_pos = (char *)strstr(pem + pem_count, "\n-----END PUBLIC KEY-----");
 	if(!end_pos)
 		return CURLE_BAD_CONTENT_ENCODING;
-
 	pem_len = end_pos - pem;
-
 	stripped_pem = (char *)SAlloc::M(pem_len - pem_count + 1);
 	if(!stripped_pem)
 		return CURLE_OUT_OF_MEMORY;
-
 	/*
 	 * Here we loop through the pem array one character at a time between the
 	 * correct indices, and place each character that is not '\n' or '\r'
@@ -845,69 +841,52 @@ static CURLcode pubkey_pem_to_der(const char * pem,
 	}
 	/* Place the null terminator in the correct place */
 	stripped_pem[stripped_pem_count] = '\0';
-
 	result = Curl_base64_decode(stripped_pem, der, der_len);
-
-	Curl_safefree(stripped_pem);
-
+	ZFREE(stripped_pem);
 	return result;
 }
 
 /*
  * Generic pinned public key check.
  */
-
-CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
-    const char * pinnedpubkey,
-    const uchar * pubkey, size_t pubkeylen)
+CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data, const char * pinnedpubkey, const uchar * pubkey, size_t pubkeylen)
 {
 	FILE * fp;
 	uchar * buf = NULL, * pem_ptr = NULL;
 	CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
-
 	/* if a path wasn't specified, don't pin */
 	if(!pinnedpubkey)
 		return CURLE_OK;
 	if(!pubkey || !pubkeylen)
 		return result;
-
 	/* only do this if pinnedpubkey starts with "sha256//", length 8 */
 	if(strncmp(pinnedpubkey, "sha256//", 8) == 0) {
 		CURLcode encode;
 		size_t encodedlen, pinkeylen;
 		char * encoded, * pinkeycopy, * begin_pos, * end_pos;
 		uchar * sha256sumdigest;
-
 		if(!Curl_ssl->sha256sum) {
 			/* without sha256 support, this cannot match */
 			return result;
 		}
-
 		/* compute sha256sum of public key */
 		sha256sumdigest = (uchar *)SAlloc::M(CURL_SHA256_DIGEST_LENGTH);
 		if(!sha256sumdigest)
 			return CURLE_OUT_OF_MEMORY;
-		encode = Curl_ssl->sha256sum(pubkey, pubkeylen,
-			sha256sumdigest, CURL_SHA256_DIGEST_LENGTH);
-
+		encode = Curl_ssl->sha256sum(pubkey, pubkeylen, sha256sumdigest, CURL_SHA256_DIGEST_LENGTH);
 		if(encode != CURLE_OK)
 			return encode;
-
-		encode = Curl_base64_encode(data, (char *)sha256sumdigest,
-			CURL_SHA256_DIGEST_LENGTH, &encoded,
-			&encodedlen);
-		Curl_safefree(sha256sumdigest);
+		encode = Curl_base64_encode(data, (char *)sha256sumdigest, CURL_SHA256_DIGEST_LENGTH, &encoded, &encodedlen);
+		ZFREE(sha256sumdigest);
 
 		if(encode)
 			return encode;
-
 		infof(data, "\t public key hash: sha256//%s\n", encoded);
-
 		/* it starts with sha256//, copy so we can modify it */
 		pinkeylen = strlen(pinnedpubkey) + 1;
 		pinkeycopy = (char *)SAlloc::M(pinkeylen);
 		if(!pinkeycopy) {
-			Curl_safefree(encoded);
+			ZFREE(encoded);
 			return CURLE_OUT_OF_MEMORY;
 		}
 		memcpy(pinkeycopy, pinnedpubkey, pinkeylen);
@@ -921,14 +900,11 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 			 */
 			if(end_pos)
 				end_pos[0] = '\0';
-
 			/* compare base64 sha256 digests, 8 is the length of "sha256//" */
-			if(encodedlen == strlen(begin_pos + 8) &&
-			    !memcmp(encoded, begin_pos + 8, encodedlen)) {
+			if(encodedlen == strlen(begin_pos + 8) && !memcmp(encoded, begin_pos + 8, encodedlen)) {
 				result = CURLE_OK;
 				break;
 			}
-
 			/*
 			 * change back the null-terminator we changed earlier,
 			 * and look for next begin
@@ -938,8 +914,8 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 				begin_pos = strstr(end_pos, "sha256//");
 			}
 		} while(end_pos && begin_pos);
-		Curl_safefree(encoded);
-		Curl_safefree(pinkeycopy);
+		ZFREE(encoded);
+		ZFREE(pinkeycopy);
 		return result;
 	}
 
@@ -1006,8 +982,8 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data,
 			result = CURLE_OK;
 	} while(0);
 
-	Curl_safefree(buf);
-	Curl_safefree(pem_ptr);
+	ZFREE(buf);
+	ZFREE(pem_ptr);
 	fclose(fp);
 
 	return result;

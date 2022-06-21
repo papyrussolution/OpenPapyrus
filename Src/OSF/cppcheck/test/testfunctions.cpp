@@ -9,13 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "checkfunctions.h"
-#include "errortypes.h"
-#include "library.h"
-#include "settings.h"
-#include "standards.h"
-#include "testsuite.h"
-#include "tokenize.h"
 
 class TestFunctions : public TestFixture {
 public:

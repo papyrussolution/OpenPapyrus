@@ -12,39 +12,11 @@
 //
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkbufferoverrun.h"
-#include "astutils.h"
-#include "errorlogger.h"
-#include "library.h"
-#include "mathlib.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-#include "utils.h"
-#include "valueflow.h"
-#include <tinyxml2.h>
 
 // Register this check class (by creating a static instance of it)
 namespace {
 CheckBufferOverrun instance;
 }
-
-//---------------------------------------------------------------------------
-
-// CWE ids used:
-static const CWE CWE131(131U);  // Incorrect Calculation of Buffer Size
-static const CWE CWE170(170U);  // Improper Null Termination
-static const CWE CWE_ARGUMENT_SIZE(398U);  // Indicator of Poor Code Quality
-static const CWE CWE_ARRAY_INDEX_THEN_CHECK(398U);  // Indicator of Poor Code Quality
-static const CWE CWE682(682U);  // Incorrect Calculation
-static const CWE CWE758(758U);  // Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
-static const CWE CWE_POINTER_ARITHMETIC_OVERFLOW(758U); // Reliance on Undefined, Unspecified, or Implementation-Defined
-                                                        // Behavior
-static const CWE CWE_BUFFER_UNDERRUN(786U);  // Access of Memory Location Before Start of Buffer
-static const CWE CWE_BUFFER_OVERRUN(788U);   // Access of Memory Location After End of Buffer
-
-//---------------------------------------------------------------------------
 
 static const ValueFlow::Value * getBufferSizeValue(const Token * tok)
 {
@@ -164,8 +136,6 @@ static int getMinFormatStringOutputLength(const std::vector<const Token*> &param
 
 	return outputStringSize;
 }
-
-//---------------------------------------------------------------------------
 
 static bool getDimensionsEtc(const Token * const arrayToken,
     const Settings * settings,
@@ -287,10 +257,8 @@ void CheckBufferOverrun::arrayIndex()
 			if(!parent || parent == parent->astParent()->astOperand1())
 				continue;
 		}
-
 		if(astIsContainer(array))
 			continue;
-
 		std::vector<const Token *> indexTokens;
 		for(const Token * tok2 = tok; tok2 && tok2->str() == "["; tok2 = tok2->link()->next()) {
 			if(!tok2->astOperand2()) {
@@ -381,21 +349,12 @@ void CheckBufferOverrun::arrayIndexError(const Token* tok,
     const std::vector<ValueFlow::Value>& indexes)
 {
 	if(!tok) {
-		reportError(tok,
-		    Severity::error,
-		    "arrayIndexOutOfBounds",
-		    "Array 'arr[16]' accessed at index 16, which is out of bounds.",
-		    CWE_BUFFER_OVERRUN,
-		    Certainty::normal);
-		reportError(tok,
-		    Severity::warning,
-		    "arrayIndexOutOfBoundsCond",
-		    "Array 'arr[16]' accessed at index 16, which is out of bounds.",
-		    CWE_BUFFER_OVERRUN,
-		    Certainty::normal);
+		reportError(tok, Severity::error, "arrayIndexOutOfBounds",
+		    "Array 'arr[16]' accessed at index 16, which is out of bounds.", CWE_BUFFER_OVERRUN, Certainty::normal);
+		reportError(tok, Severity::warning, "arrayIndexOutOfBoundsCond",
+		    "Array 'arr[16]' accessed at index 16, which is out of bounds.", CWE_BUFFER_OVERRUN, Certainty::normal);
 		return;
 	}
-
 	const Token * condition = nullptr;
 	const ValueFlow::Value * index = nullptr;
 	for(const ValueFlow::Value& indexValue : indexes) {
@@ -406,7 +365,6 @@ void CheckBufferOverrun::arrayIndexError(const Token* tok,
 		if(!index || !indexValue.errorPath.empty())
 			index = &indexValue;
 	}
-
 	reportError(getErrorPath(tok, index, "Array index out of bounds"),
 	    index->errorSeverity() ? Severity::error : Severity::warning,
 	    index->condition ? "arrayIndexOutOfBoundsCond" : "arrayIndexOutOfBounds",
@@ -415,15 +373,12 @@ void CheckBufferOverrun::arrayIndexError(const Token* tok,
 	    index->isInconclusive() ? Certainty::inconclusive : Certainty::normal);
 }
 
-void CheckBufferOverrun::negativeIndexError(const Token* tok,
-    const std::vector<Dimension>& dimensions,
-    const std::vector<ValueFlow::Value>& indexes)
+void CheckBufferOverrun::negativeIndexError(const Token* tok, const std::vector<Dimension>& dimensions, const std::vector<ValueFlow::Value>& indexes)
 {
 	if(!tok) {
 		reportError(tok, Severity::error, "negativeIndex", "Negative array index", CWE_BUFFER_UNDERRUN, Certainty::normal);
 		return;
 	}
-
 	const Token * condition = nullptr;
 	const ValueFlow::Value * negativeValue = nullptr;
 	for(const ValueFlow::Value& indexValue : indexes) {
@@ -434,22 +389,16 @@ void CheckBufferOverrun::negativeIndexError(const Token* tok,
 		if(!negativeValue || !indexValue.errorPath.empty())
 			negativeValue = &indexValue;
 	}
-
 	reportError(getErrorPath(tok, negativeValue, "Negative array index"),
-	    negativeValue->errorSeverity() ? Severity::error : Severity::warning,
-	    "negativeIndex",
-	    arrayIndexMessage(tok, dimensions, indexes, condition),
-	    CWE_BUFFER_UNDERRUN,
+		negativeValue->errorSeverity() ? Severity::error : Severity::warning, "negativeIndex",
+	    arrayIndexMessage(tok, dimensions, indexes, condition), CWE_BUFFER_UNDERRUN,
 	    negativeValue->isInconclusive() ? Certainty::inconclusive : Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
 
 void CheckBufferOverrun::pointerArithmetic()
 {
 	if(!mSettings->severity.isEnabled(Severity::portability))
 		return;
-
 	for(const Token * tok = mTokenizer->tokens(); tok; tok = tok->next()) {
 		if(!Token::Match(tok, "+|-"))
 			continue;
@@ -543,8 +492,6 @@ void CheckBufferOverrun::pointerArithmeticError(const Token * tok, const Token *
 	    indexValue->isInconclusive() ? Certainty::inconclusive : Certainty::normal);
 }
 
-//---------------------------------------------------------------------------
-
 ValueFlow::Value CheckBufferOverrun::getBufferSize(const Token * bufTok) const
 {
 	if(!bufTok->valueType())
@@ -580,8 +527,6 @@ ValueFlow::Value CheckBufferOverrun::getBufferSize(const Token * bufTok) const
 
 	return v;
 }
-
-//---------------------------------------------------------------------------
 
 static bool checkBufferSize(const Token * ftok,
     const Library::ArgumentChecks::MinSize &minsize,
@@ -693,8 +638,6 @@ void CheckBufferOverrun::bufferOverflowError(const Token * tok, const ValueFlow:
 	    certainty);
 }
 
-//---------------------------------------------------------------------------
-
 void CheckBufferOverrun::arrayIndexThenCheck()
 {
 	if(!mSettings->severity.isEnabled(Severity::portability))
@@ -747,8 +690,6 @@ void CheckBufferOverrun::arrayIndexThenCheckError(const Token * tok, const std::
 	    "Reorder conditions such as '(a[i] && i < 10)' to '(i < 10 && a[i])'. That way the array will "
 	    "not be accessed if the index is out of limits.", CWE_ARRAY_INDEX_THEN_CHECK, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
 
 void CheckBufferOverrun::stringNotZeroTerminated()
 {
@@ -803,8 +744,6 @@ void CheckBufferOverrun::terminateStrncpyError(const Token * tok, const std::str
 	    "zero at the end of the buffer. This causes bugs later in the code if the code "
 	    "assumes buffer is null-terminated.", CWE170, Certainty::inconclusive);
 }
-
-//---------------------------------------------------------------------------
 
 void CheckBufferOverrun::argumentSize()
 {
@@ -873,20 +812,14 @@ void CheckBufferOverrun::argumentSizeError(const Token * tok,
 		errorPath.emplace_back(paramVar->nameToken(),
 		    "Passing buffer '" + paramVar->name() + "' to function that is declared here");
 	errorPath.emplace_back(tok, "");
-
-	reportError(errorPath,
-	    Severity::warning,
-	    "argumentSize",
+	reportError(errorPath, Severity::warning, "argumentSize",
 	    "$symbol:" + functionName + '\n' +
 	    "Buffer '" + paramExpression + "' is too small, the function '" + functionName + "' expects a bigger buffer in " + strParamNum + " argument",
-	    CWE_ARGUMENT_SIZE,
-	    Certainty::normal);
+	    CWE_ARGUMENT_SIZE, Certainty::normal);
 }
-
-//---------------------------------------------------------------------------
+//
 // CTU..
-//---------------------------------------------------------------------------
-
+//
 std::string CheckBufferOverrun::MyFileInfo::toString() const
 {
 	std::string xml;
@@ -1081,12 +1014,7 @@ void CheckBufferOverrun::objectIndex()
 						continue;
 				}
 				if(obj->valueType() && var->valueType() &&
-				    (obj->isCast() || (mTokenizer->isCPP() && isCPPCast(obj)) || obj->valueType()->pointer)) {                         // allow
-					                                                                                                               // cast
-					                                                                                                               // to
-					                                                                                                               // a
-					                                                                                                               // different
-					                                                                                                               // type
+				    (obj->isCast() || (mTokenizer->isCPP() && isCPPCast(obj)) || obj->valueType()->pointer)) { // allow cast to a different type
 					const auto varSize = var->valueType()->typeSize(*mSettings);
 					if(varSize == 0)
 						continue;
@@ -1132,12 +1060,9 @@ void CheckBufferOverrun::objectIndexError(const Token * tok, const ValueFlow::Va
 	}
 	errorPath.emplace_back(tok, "");
 	std::string verb = known ? "is" : "might be";
-	reportError(errorPath,
-	    known ? Severity::error : Severity::warning,
-	    "objectIndex",
+	reportError(errorPath, known ? Severity::error : Severity::warning, "objectIndex",
 	    "The address of local variable '" + name + "' " + verb + " accessed at non-zero index.",
-	    CWE758,
-	    Certainty::normal);
+	    CWE758, Certainty::normal);
 }
 
 static bool isVLAIndex(const Token* tok)
@@ -1148,10 +1073,7 @@ static bool isVLAIndex(const Token* tok)
 		return true;
 	if(tok->str() == "?") {
 		// this is a VLA index if both expressions around the ":" is VLA index
-		if(tok->astOperand2() &&
-		    tok->astOperand2()->str() == ":" &&
-		    isVLAIndex(tok->astOperand2()->astOperand1()) &&
-		    isVLAIndex(tok->astOperand2()->astOperand2()))
+		if(tok->astOperand2() && tok->astOperand2()->str() == ":" && isVLAIndex(tok->astOperand2()->astOperand1()) && isVLAIndex(tok->astOperand2()->astOperand2()))
 			return true;
 		return false;
 	}
@@ -1172,7 +1094,6 @@ void CheckBufferOverrun::negativeArraySize()
 		if(sz && isVLAIndex(nameToken->next()->astOperand2()))
 			negativeArraySizeError(nameToken);
 	}
-
 	for(const Scope* functionScope : symbolDatabase->functionScopes) {
 		for(const Token* tok = functionScope->bodyStart; tok != functionScope->bodyEnd; tok = tok->next()) {
 			if(!tok->isKeyword() || tok->str() != "new" || !tok->astOperand1() || tok->astOperand1()->str() != "[")
@@ -1192,12 +1113,10 @@ void CheckBufferOverrun::negativeArraySizeError(const Token* tok)
 	const std::string arrayName = tok ? tok->expressionString() : std::string();
 	const std::string line1 = arrayName.empty() ? std::string() : ("$symbol:" + arrayName + '\n');
 	reportError(tok, Severity::error, "negativeArraySize",
-	    line1 +
-	    "Declaration of array '" + arrayName + "' with negative size is undefined behaviour", CWE758, Certainty::safe);
+	    line1 + "Declaration of array '" + arrayName + "' with negative size is undefined behaviour", CWE758, Certainty::safe);
 }
 
 void CheckBufferOverrun::negativeMemoryAllocationSizeError(const Token* tok)
 {
-	reportError(tok, Severity::error, "negativeMemoryAllocationSize",
-	    "Memory allocation size is negative.", CWE131, Certainty::safe);
+	reportError(tok, Severity::error, "negativeMemoryAllocationSize", "Memory allocation size is negative.", CWE131, Certainty::safe);
 }

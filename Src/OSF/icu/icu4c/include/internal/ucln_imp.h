@@ -19,8 +19,6 @@
 #define __UCLN_IMP_H__
 
 #include "ucln.h"
-#include <stdlib.h>
-
 /**
  * Auto cleanup of ICU libraries
  * There are several methods in per library cleanup of icu libraries:

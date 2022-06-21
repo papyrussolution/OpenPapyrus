@@ -134,7 +134,7 @@ const LanguageBreakEngine * ICULanguageBreakFactory::loadEngineFor(UChar32 c)
 		// Try to use LSTM first
 		const LSTMData * data = CreateLSTMDataForScript(code, status);
 		if(U_SUCCESS(status)) {
-			if(data != nullptr) {
+			if(data) {
 				engine = CreateLSTMBreakEngine(code, data, status);
 				if(U_SUCCESS(status) && engine != nullptr) {
 					return engine;

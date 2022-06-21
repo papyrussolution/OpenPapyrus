@@ -189,84 +189,35 @@ extern uint OPENSSL_ia32cap_P[];
  */
 #define AESNI_CAPABLE   (OPENSSL_ia32cap_P[1]&(1<<(57-32)))
 
-int aesni_set_encrypt_key(const uchar * userKey, int bits,
-    AES_KEY * key);
-int aesni_set_decrypt_key(const uchar * userKey, int bits,
-    AES_KEY * key);
-
-void aesni_encrypt(const uchar * in, uchar * out,
-    const AES_KEY * key);
-void aesni_decrypt(const uchar * in, uchar * out,
-    const AES_KEY * key);
-
-void aesni_ecb_encrypt(const uchar * in,
-    uchar * out,
-    size_t length, const AES_KEY * key, int enc);
-void aesni_cbc_encrypt(const uchar * in,
-    uchar * out,
-    size_t length,
-    const AES_KEY * key, uchar * ivec, int enc);
-
-void aesni_ctr32_encrypt_blocks(const uchar * in,
-    uchar * out,
-    size_t blocks,
-    const void * key, const uchar * ivec);
-
-void aesni_xts_encrypt(const uchar * in,
-    uchar * out,
-    size_t length,
-    const AES_KEY * key1, const AES_KEY * key2,
-    const uchar iv[16]);
-
-void aesni_xts_decrypt(const uchar * in,
-    uchar * out,
-    size_t length,
-    const AES_KEY * key1, const AES_KEY * key2,
-    const uchar iv[16]);
-
-void aesni_ccm64_encrypt_blocks(const uchar * in,
-    uchar * out,
-    size_t blocks,
-    const void * key,
-    const uchar ivec[16],
-    uchar cmac[16]);
-
-void aesni_ccm64_decrypt_blocks(const uchar * in,
-    uchar * out,
-    size_t blocks,
-    const void * key,
-    const uchar ivec[16],
-    uchar cmac[16]);
+extern "C" int  aesni_set_encrypt_key(const uchar * userKey, int bits, AES_KEY * key);
+extern "C" int  aesni_set_decrypt_key(const uchar * userKey, int bits, AES_KEY * key);
+void aesni_encrypt(const uchar * in, uchar * out, const AES_KEY * key);
+void aesni_decrypt(const uchar * in, uchar * out, const AES_KEY * key);
+void aesni_ecb_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key, int enc);
+void aesni_cbc_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key, uchar * ivec, int enc);
+void aesni_ctr32_encrypt_blocks(const uchar * in, uchar * out, size_t blocks, const void * key, const uchar * ivec);
+void aesni_xts_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key1, const AES_KEY * key2, const uchar iv[16]);
+void aesni_xts_decrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key1, const AES_KEY * key2, const uchar iv[16]);
+void aesni_ccm64_encrypt_blocks(const uchar * in, uchar * out, size_t blocks, const void * key, const uchar ivec[16], uchar cmac[16]);
+void aesni_ccm64_decrypt_blocks(const uchar * in, uchar * out, size_t blocks, const void * key, const uchar ivec[16], uchar cmac[16]);
 
 #if defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64)
-size_t aesni_gcm_encrypt(const uchar * in,
-    uchar * out,
-    size_t len,
-    const void * key, uchar ivec[16], u64 * Xi);
+extern "C" size_t aesni_gcm_encrypt(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], u64 * Xi);
 #define AES_gcm_encrypt aesni_gcm_encrypt
-size_t aesni_gcm_decrypt(const uchar * in,
-    uchar * out,
-    size_t len,
-    const void * key, uchar ivec[16], u64 * Xi);
+extern "C" size_t aesni_gcm_decrypt(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], u64 * Xi);
 #define AES_gcm_decrypt aesni_gcm_decrypt
-void gcm_ghash_avx(u64 Xi[2], const u128 Htable[16], const u8 * in,
-    size_t len);
-#define AES_GCM_ASM(gctx)       (gctx->ctr==aesni_ctr32_encrypt_blocks && \
-	gctx->gcm.ghash==gcm_ghash_avx)
-#define AES_GCM_ASM2(gctx)      (gctx->gcm.block==(block128_f)aesni_encrypt && \
-	gctx->gcm.ghash==gcm_ghash_avx)
+extern "C" void gcm_ghash_avx(u64 Xi[2], const u128 Htable[16], const u8 * in, size_t len);
+#define AES_GCM_ASM(gctx)       (gctx->ctr==aesni_ctr32_encrypt_blocks && gctx->gcm.ghash==gcm_ghash_avx)
+#define AES_GCM_ASM2(gctx)      (gctx->gcm.block==(block128_f)aesni_encrypt && gctx->gcm.ghash==gcm_ghash_avx)
 #undef AES_GCM_ASM2          /* minor size optimization */
 #endif
 
-static int aesni_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
-    const uchar * iv, int enc)
+static int aesni_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
 {
 	int ret, mode;
 	EVP_AES_KEY * dat = EVP_C_DATA(EVP_AES_KEY, ctx);
-
 	mode = EVP_CIPHER_CTX_mode(ctx);
-	if((mode == EVP_CIPH_ECB_MODE || mode == EVP_CIPH_CBC_MODE)
-	 && !enc) {
+	if((mode == EVP_CIPH_ECB_MODE || mode == EVP_CIPH_CBC_MODE) && !enc) {
 		ret = aesni_set_decrypt_key(key, EVP_CIPHER_CTX_key_length(ctx) * 8,
 			&dat->ks.ks);
 		dat->block = (block128_f)aesni_decrypt;

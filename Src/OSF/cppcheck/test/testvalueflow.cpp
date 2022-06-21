@@ -9,15 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "library.h"
-#include "mathlib.h"
-#include "platform.h"
-#include "settings.h"
-#include "testsuite.h"
-#include "token.h"
-#include "tokenize.h"
-#include "valueflow.h"
-#include <simplecpp.h>
 
 class TestValueFlow : public TestFixture {
 public:
@@ -44,15 +35,11 @@ private:
 		TEST_CASE(valueFlowLifetime);
 		TEST_CASE(valueFlowArrayElement);
 		TEST_CASE(valueFlowMove);
-
 		TEST_CASE(valueFlowBitAnd);
 		TEST_CASE(valueFlowRightShift);
-
 		TEST_CASE(valueFlowCalculations);
 		TEST_CASE(valueFlowSizeof);
-
 		TEST_CASE(valueFlowErrorPath);
-
 		TEST_CASE(valueFlowBeforeCondition);
 		TEST_CASE(valueFlowBeforeConditionAndAndOrOrGuard);
 		TEST_CASE(valueFlowBeforeConditionAssignIncDec);
@@ -67,7 +54,6 @@ private:
 		TEST_CASE(valueFlowBeforeConditionTernaryOp);
 		TEST_CASE(valueFlowBeforeConditionForward);
 		TEST_CASE(valueFlowBeforeConditionConstructor);
-
 		TEST_CASE(valueFlowAfterAssign);
 		TEST_CASE(valueFlowAfterSwap);
 		TEST_CASE(valueFlowAfterCondition);
@@ -84,50 +70,30 @@ private:
 		TEST_CASE(valueFlowForwardInconclusiveImpossible);
 		TEST_CASE(valueFlowForwardConst);
 		TEST_CASE(valueFlowForwardAfterCondition);
-
 		TEST_CASE(valueFlowFwdAnalysis);
-
 		TEST_CASE(valueFlowSwitchVariable);
-
 		TEST_CASE(valueFlowForLoop);
 		TEST_CASE(valueFlowSubFunction);
 		TEST_CASE(valueFlowFunctionReturn);
-
 		TEST_CASE(valueFlowFunctionDefaultParameter);
-
 		TEST_CASE(knownValue);
-
 		TEST_CASE(valueFlowSizeofForwardDeclaredEnum);
-
 		TEST_CASE(valueFlowGlobalVar);
-
 		TEST_CASE(valueFlowGlobalConstVar);
-
 		TEST_CASE(valueFlowGlobalStaticVar);
-
 		TEST_CASE(valueFlowInlineAssembly);
-
 		TEST_CASE(valueFlowSameExpression);
-
 		TEST_CASE(valueFlowUninit);
-
 		TEST_CASE(valueFlowConditionExpressions);
-
 		TEST_CASE(valueFlowContainerSize);
-
 		TEST_CASE(valueFlowDynamicBufferSize);
-
 		TEST_CASE(valueFlowSafeFunctionParameterValues);
 		TEST_CASE(valueFlowUnknownFunctionReturn);
-
 		TEST_CASE(valueFlowPointerAliasDeref);
-
 		TEST_CASE(valueFlowCrashIncompleteCode);
-
 		TEST_CASE(valueFlowCrash);
 		TEST_CASE(valueFlowHang);
 		TEST_CASE(valueFlowCrashConstructorInitialization);
-
 		TEST_CASE(valueFlowUnknownMixedOperators);
 		TEST_CASE(valueFlowSolveExpr);
 		TEST_CASE(valueFlowIdempotent);
@@ -204,7 +170,6 @@ private:
 				}
 			}
 		}
-
 		return false;
 	}
 
@@ -688,7 +653,7 @@ private:
 
 		code  = "void f() {\n"
 		    "    int i = 0;\n"
-		    "    void* x = (void*)&i;\n"
+		    "    void* x = (void *)&i;\n"
 		    "}\n";
 		lifetimes = lifetimeValues(code, "( void * )");
 		ASSERT_EQUALS(true, lifetimes.size() == 1);
@@ -6653,7 +6618,7 @@ private:
 
 		code = "int* g();\n"
 		    "void f() {\n"
-		    "    std::cout << (void*)(std::shared_ptr<int>{ g() }.get());\n"
+		    "    std::cout << (void *)(std::shared_ptr<int>{ g() }.get());\n"
 		    "}\n";
 		valueOfTok(code, ".");
 

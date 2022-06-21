@@ -9,36 +9,21 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkbool.h"
-#include "astutils.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-#include "valueflow.h"
 
 // Register this check class (by creating a static instance of it)
 namespace {
 CheckBool instance;
 }
 
-static const CWE CWE398(398U);  // Indicator of Poor Code Quality
-static const CWE CWE571(571U);  // Expression is Always True
-static const CWE CWE587(587U);  // Assignment of a Fixed Address to a Pointer
-static const CWE CWE704(704U);  // Incorrect Type Conversion or Cast
-
 static bool isBool(const Variable* var)
 {
 	return (var && Token::Match(var->typeEndToken(), "bool|_Bool"));
 }
 
-//---------------------------------------------------------------------------
 void CheckBool::checkIncrementBoolean()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
@@ -51,15 +36,10 @@ void CheckBool::checkIncrementBoolean()
 
 void CheckBool::incrementBooleanError(const Token * tok)
 {
-	reportError(
-		tok,
-		Severity::style,
-		"incrementboolean",
+	reportError(tok, Severity::style, "incrementboolean",
 		"Incrementing a variable of type 'bool' with postfix operator++ is deprecated by the C++ Standard. You should assign it the value 'true' instead.\n"
 		"The operand of a postfix increment operator may be of type bool but it is deprecated by C++ Standard (Annex D-1) and the operand is always set to true. You should assign it the value 'true' instead.",
-		CWE398,
-		Certainty::normal
-		);
+		CWE398, Certainty::normal);
 }
 
 static bool isConvertedToBool(const Token* tok)
@@ -68,11 +48,10 @@ static bool isConvertedToBool(const Token* tok)
 		return false;
 	return astIsBool(tok->astParent()) || Token::Match(tok->astParent()->previous(), "if|while (");
 }
-
-//---------------------------------------------------------------------------
+//
 // if (bool & bool) -> if (bool && bool)
 // if (bool | bool) -> if (bool || bool)
-//---------------------------------------------------------------------------
+//
 void CheckBool::checkBitwiseOnBoolean()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
@@ -108,18 +87,13 @@ void CheckBool::checkBitwiseOnBoolean()
 
 void CheckBool::bitwiseOnBooleanError(const Token* tok, const std::string& expression, const std::string& op)
 {
-	reportError(tok,
-	    Severity::style,
-	    "bitwiseOnBoolean",
+	reportError(tok, Severity::style, "bitwiseOnBoolean",
 	    "Boolean expression '" + expression + "' is used in bitwise operation. Did you mean '" + op + "'?",
-	    CWE398,
-	    Certainty::inconclusive);
+	    CWE398, Certainty::inconclusive);
 }
-
-//---------------------------------------------------------------------------
+//
 //    if (!x==3) <- Probably meant to be "x!=3"
-//---------------------------------------------------------------------------
-
+//
 void CheckBool::checkComparisonOfBoolWithInt()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning) || !mTokenizer->isCPP())
@@ -154,11 +128,9 @@ void CheckBool::comparisonOfBoolWithInvalidComparator(const Token * tok, const s
 	    "Comparing 'bool' value using relational (<, >, <= or >=)"
 	    " operator could cause unexpected results.");
 }
-
-//-------------------------------------------------------------------------------
+//
 // Comparing functions which are returning value of type bool
-//-------------------------------------------------------------------------------
-
+//
 static bool tokenIsFunctionReturningBool(const Token* tok)
 {
 	const Function* func = tok ? tok->function() : nullptr;
@@ -231,21 +203,16 @@ void CheckBool::comparisonOfTwoFuncsReturningBoolError(const Token * tok, const 
 	    "and result is of type 'bool'. Comparing 'bool' value using relational (<, >, <= or >=)"
 	    " operator could cause unexpected results.", CWE398, Certainty::normal);
 }
-
-//-------------------------------------------------------------------------------
+//
 // Comparison of bool with bool
-//-------------------------------------------------------------------------------
-
+//
 void CheckBool::checkComparisonOfBoolWithBool()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	if(!mTokenizer->isCPP())
 		return;
-
 	const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
-
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
 			if(!tok->isComparisonOp() || tok->str() == "==" || tok->str() == "!=")
@@ -284,7 +251,6 @@ void CheckBool::comparisonOfBoolWithBoolError(const Token * tok, const std::stri
 	    " operator could cause unexpected results.", CWE398, Certainty::normal);
 }
 
-//-----------------------------------------------------------------------------
 void CheckBool::checkAssignBoolToPointer()
 {
 	const SymbolDatabase * symbolDatabase = mTokenizer->getSymbolDatabase();
@@ -303,15 +269,11 @@ void CheckBool::assignBoolToPointerError(const Token * tok)
 	    "Boolean value assigned to pointer.", CWE587, Certainty::normal);
 }
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 void CheckBool::checkComparisonOfBoolExpressionWithInt()
 {
 	if(!mSettings->severity.isEnabled(Severity::warning))
 		return;
-
 	const SymbolDatabase* symbolDatabase = mTokenizer->getSymbolDatabase();
-
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		for(const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
 			if(!tok->isComparisonOp())
@@ -408,24 +370,17 @@ void CheckBool::pointerArithBoolCond(const Token * tok)
 	}
 	if(tok->str() != "+" && tok->str() != "-")
 		return;
-
-	if(tok->isBinaryOp() &&
-	    tok->astOperand1()->isName() &&
-	    tok->astOperand1()->variable() &&
-	    tok->astOperand1()->variable()->isPointer() &&
-	    tok->astOperand2()->isNumber())
+	if(tok->isBinaryOp() && tok->astOperand1()->isName() && tok->astOperand1()->variable() &&
+	    tok->astOperand1()->variable()->isPointer() && tok->astOperand2()->isNumber())
 		pointerArithBoolError(tok);
 }
 
 void CheckBool::pointerArithBoolError(const Token * tok)
 {
-	reportError(tok,
-	    Severity::error,
-	    "pointerArithBool",
+	reportError(tok, Severity::error, "pointerArithBool",
 	    "Converting pointer arithmetic result to bool. The bool is always true unless there is undefined behaviour.\n"
 	    "Converting pointer arithmetic result to bool. The boolean result is always true unless there is pointer arithmetic overflow, and overflow is undefined behaviour. Probably a dereference is forgotten.",
-	    CWE571,
-	    Certainty::normal);
+	    CWE571, Certainty::normal);
 }
 
 void CheckBool::checkAssignBoolToFloat()
@@ -454,13 +409,10 @@ void CheckBool::returnValueOfFunctionReturningBool()
 {
 	if(!mSettings->severity.isEnabled(Severity::style))
 		return;
-
 	const SymbolDatabase * const symbolDatabase = mTokenizer->getSymbolDatabase();
-
 	for(const Scope * scope : symbolDatabase->functionScopes) {
 		if(!(scope->function && Token::Match(scope->function->retDef, "bool|_Bool")))
 			continue;
-
 		for(const Token* tok = scope->bodyStart->next(); tok && (tok != scope->bodyEnd); tok = tok->next()) {
 			// Skip lambdas
 			const Token* tok2 = findLambdaEndToken(tok);

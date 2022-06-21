@@ -38,7 +38,7 @@ void Curl_fileinfo_cleanup(struct fileinfo * finfo)
 {
 	if(!finfo)
 		return;
-	Curl_safefree(finfo->info.b_data);
+	ZFREE(finfo->info.b_data);
 	SAlloc::F(finfo);
 }
 

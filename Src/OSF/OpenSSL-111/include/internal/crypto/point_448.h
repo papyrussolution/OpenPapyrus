@@ -285,4 +285,4 @@ void curve448_scalar_destroy(curve448_scalar_t scalar);
 /* Overwrite point with zeros. */
 void curve448_point_destroy(curve448_point_t point);
 
-#endif                          /* HEADER_POINT_448_H */
+#endif /* HEADER_POINT_448_H */

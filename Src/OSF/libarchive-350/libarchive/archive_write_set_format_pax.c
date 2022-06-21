@@ -298,16 +298,13 @@ static void add_pax_attr_binary(archive_string * as, const char * key,
 	archive_strappend_char(as, '\n');
 }
 
-static void archive_write_pax_header_xattr(struct pax * pax, const char * encoded_name,
-    const void * value, size_t value_len)
+static void archive_write_pax_header_xattr(struct pax * pax, const char * encoded_name, const void * value, size_t value_len)
 {
 	archive_string s;
 	char * encoded_value;
-
 	if(pax->flags & WRITE_LIBARCHIVE_XATTR) {
 		encoded_value = base64_encode((const char *)value, value_len);
-
-		if(encoded_name != NULL && encoded_value != NULL) {
+		if(encoded_name && encoded_value) {
 			archive_string_init(&s);
 			archive_strcpy(&s, "LIBARCHIVE.xattr.");
 			archive_strcat(&s, encoded_name);
@@ -334,10 +331,9 @@ static int archive_write_pax_header_xattrs(struct archive_write * a, struct pax 
 		char * url_encoded_name = NULL, * encoded_name = NULL;
 		size_t size;
 		int r;
-
 		archive_entry_xattr_next(entry, &name, &value, &size);
 		url_encoded_name = url_encode(name);
-		if(url_encoded_name != NULL) {
+		if(url_encoded_name) {
 			/* Convert narrow-character to UTF-8. */
 			r = archive_strcpy_l(&(pax->l_url_encoded_name), url_encoded_name, pax->sconv_utf8);
 			SAlloc::F(url_encoded_name); /* Done with this. */
@@ -625,7 +621,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 		strcpy(name, oname);
 		/* Find last '/'; strip trailing '/' characters */
 		bname = strrchr(name, '/');
-		while(bname != NULL && bname[1] == '\0') {
+		while(bname && bname[1] == '\0') {
 			*bname = '\0';
 			bname = strrchr(name, '/');
 		}
@@ -771,7 +767,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 	}
 	// If any string conversions failed, get all attributes in binary-mode. 
 	if(sconv == NULL && !pax->opt_binary) {
-		if(hardlink != NULL) {
+		if(hardlink) {
 			r = get_entry_hardlink(a, entry_main, &hardlink, &hardlink_length, NULL);
 			if(r == ARCHIVE_FATAL) {
 				archive_entry_free(entry_main);
@@ -840,12 +836,12 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 			}
 		}
 	}
-	if(linkpath != NULL) {
+	if(linkpath) {
 		// If link name is too long or has non-ASCII characters, add 'linkpath' to pax extended attrs. 
 		if(linkpath_length > 100 || has_non_ASCII(linkpath)) {
 			add_pax_attr(&(pax->pax_header), "linkpath", linkpath);
 			if(linkpath_length > 100) {
-				if(hardlink != NULL)
+				if(hardlink)
 					archive_entry_set_hardlink(entry_main, "././@LongHardLink");
 				else
 					archive_entry_set_symlink(entry_main, "././@LongSymLink");
@@ -867,7 +863,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 		need_extension = 1;
 	}
 	// If group name is too large or has non-ASCII characters, add 'gname' to pax extended attrs. 
-	if(gname != NULL) {
+	if(gname) {
 		if(gname_length > 31 || has_non_ASCII(gname)) {
 			add_pax_attr(&(pax->pax_header), "gname", gname);
 			need_extension = 1;
@@ -879,7 +875,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 		need_extension = 1;
 	}
 	/* Add 'uname' to pax extended attrs if necessary. */
-	if(uname != NULL) {
+	if(uname) {
 		if(uname_length > 31 || has_non_ASCII(uname)) {
 			add_pax_attr(&(pax->pax_header), "uname", uname);
 			need_extension = 1;
@@ -950,7 +946,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 
 	/* I use a star-compatible file flag attribute. */
 	p = archive_entry_fflags_text(entry_main);
-	if(!need_extension && p != NULL && *p != '\0')
+	if(!need_extension && p && *p != '\0')
 		need_extension = 1;
 
 	/* If there are extended attributes, we need an extension */
@@ -1118,7 +1114,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 	 * Pax-restricted does not store data for hardlinks, in order
 	 * to improve compatibility with ustar.
 	 */
-	if(a->archive.archive_format != ARCHIVE_FORMAT_TAR_PAX_INTERCHANGE && hardlink != NULL)
+	if(a->archive.archive_format != ARCHIVE_FORMAT_TAR_PAX_INTERCHANGE && hardlink)
 		archive_entry_set_size(entry_main, 0);
 	/*
 	 * XXX Full pax interchange format does permit a hardlink
@@ -1130,7 +1126,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 	 * need to select this behavior, in which case the following
 	 * will need to be revisited. XXX
 	 */
-	if(hardlink != NULL)
+	if(hardlink)
 		archive_entry_set_size(entry_main, 0);
 	/* Save a real file size. */
 	real_size = archive_entry_size(entry_main);
@@ -1402,7 +1398,7 @@ static char * build_ustar_entry_name(char * dest, const char * src, size_t src_l
 		strncpy(p, suffix, suffix_end - suffix);
 		p += suffix_end - suffix;
 	}
-	if(insert != NULL) {
+	if(insert) {
 		/* Note: assume insert does not have leading or trailing '/' */
 		strcpy(p, insert);
 		p += strlen(insert);
@@ -1596,7 +1592,7 @@ static ssize_t archive_write_pax_data(struct archive_write * a, const void * buf
 	total = 0;
 	while(total < s) {
 		const uchar * p;
-		while(pax->sparse_list != NULL && pax->sparse_list->remaining == 0) {
+		while(pax->sparse_list && pax->sparse_list->remaining == 0) {
 			struct sparse_block * sb = pax->sparse_list->next;
 			SAlloc::F(pax->sparse_list);
 			pax->sparse_list = sb;

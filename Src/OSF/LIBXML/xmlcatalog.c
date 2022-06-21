@@ -119,7 +119,7 @@ static void usershell()
 		nbargs = 0;
 		cur = arg;
 		memzero(argv, sizeof(argv));
-		while(*cur != 0) {
+		while(*cur) {
 			while(oneof2(*cur, ' ', '\t')) 
 				cur++;
 			if(*cur == '\'') {

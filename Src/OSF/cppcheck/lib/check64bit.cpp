@@ -13,15 +13,6 @@
 #include "cppcheck-internal.h"
 #pragma hdrstop
 #include "check64bit.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-
-// CWE ids used
-static const struct CWE CWE398(398U);   // Indicator of Poor Code Quality
-static const struct CWE CWE758(758U);   // Reliance on Undefined, Unspecified, or Implementation-Defined Behavior
 
 // Register this check class (by creating a static instance of it)
 namespace {

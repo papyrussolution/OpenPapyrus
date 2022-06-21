@@ -1352,7 +1352,7 @@ static CURLcode smtp_done(struct connectdata * conn, CURLcode status,
 		return CURLE_OK;
 
 	/* Cleanup our per-request based variables */
-	Curl_safefree(smtp->custom);
+	ZFREE(smtp->custom);
 
 	if(status) {
 		connclose(conn, "SMTP done with bad status"); /* marked for closure */
@@ -1526,7 +1526,7 @@ static CURLcode smtp_disconnect(struct connectdata * conn, bool dead_connection)
 	Curl_sasl_cleanup(conn, smtpc->sasl.authused);
 
 	/* Cleanup our connection based variables */
-	Curl_safefree(smtpc->domain);
+	ZFREE(smtpc->domain);
 
 	return CURLE_OK;
 }

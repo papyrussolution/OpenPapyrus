@@ -31,12 +31,9 @@
 #include "regexcmp.h"
 
 #define SUPPORT_MUTATING_INPUT_STRING   0
-
-//---------------------------------------------------------------------------
 //
 //  Test class boilerplate
 //
-//---------------------------------------------------------------------------
 RegexTest::RegexTest()
 {
 }
@@ -94,13 +91,9 @@ void RegexTest::runIndexedTest(int32_t index, bool exec, const char *& name, cha
  * @see utext_openUTF8
  */
 static UText* regextst_openUTF8FromInvariant(UText* ut, const char * inv, int64_t length, UErrorCode * status);
-
-//---------------------------------------------------------------------------
 //
 //   Error Checking / Reporting macros used in all of the tests.
 //
-//---------------------------------------------------------------------------
-
 static void utextToPrintable(char * buf, int32_t bufLen, UText * text) {
 	int64_t oldIndex = utext_getNativeIndex(text);
 	utext_setNativeIndex(text, 0);
@@ -336,8 +329,6 @@ static UText* regextst_openUTF8FromInvariant(UText * ut, const char * inv, int64
 	return utext_openUTF8(ut, (const char *)buf, length, status);
 #endif
 }
-
-//---------------------------------------------------------------------------
 //
 //    REGEX_TESTLM       Macro + invocation function to simplify writing quick tests
 //                       for the LookingAt() and  Match() functions.
@@ -349,8 +340,6 @@ static UText* regextst_openUTF8FromInvariant(UText * ut, const char * inv, int64
 //          The input text is unescaped.  The pattern is not.
 //
 //
-//---------------------------------------------------------------------------
-
 #define REGEX_TESTLM(pat, text, looking, match) UPRV_BLOCK_MACRO_BEGIN { \
 		doRegexLMTest(pat, text, looking, match, __LINE__); \
 		doRegexLMTestUTF8(pat, text, looking, match, __LINE__); \
@@ -495,8 +484,6 @@ bool RegexTest::doRegexLMTestUTF8(const char * pat, const char * text, bool look
 	delete[] textChars;
 	return retVal;
 }
-
-//---------------------------------------------------------------------------
 //
 //    REGEX_ERR       Macro + invocation function to simplify writing tests
 //                       regex tests for incorrect patterns
@@ -504,7 +491,6 @@ bool RegexTest::doRegexLMTestUTF8(const char * pat, const char * text, bool look
 //       usage:
 //          REGEX_ERR("pattern",   expected error line, column, expected status);
 //
-//---------------------------------------------------------------------------
 #define REGEX_ERR(pat, line, col, status) regex_err(pat, line, col, status, __LINE__)
 
 void RegexTest::regex_err(const char * pat, int32_t errLine, int32_t errCol,
@@ -555,14 +541,11 @@ void RegexTest::regex_err(const char * pat, int32_t errLine, int32_t errCol,
 	delete callerPattern;
 	utext_close(&patternText);
 }
-
-//---------------------------------------------------------------------------
 //
 //      Basic      Check for basic functionality of regex pattern matching.
 //                 Avoid the use of REGEX_FIND test macro, which has
 //                 substantial dependencies on basic Regex functionality.
 //
-//---------------------------------------------------------------------------
 void RegexTest::Basic() {
 //
 // Debug - slide failing test cases early
@@ -704,13 +687,10 @@ void RegexTest::Basic() {
 	// Escape of special chars in patterns
 	REGEX_TESTLM("\\\\\\|\\(\\)\\[\\{\\~\\$\\*\\+\\?\\.", "\\\\|()[{~$*+?.", TRUE, TRUE);
 }
-
-//---------------------------------------------------------------------------
 //
 //    UTextBasic   Check for quirks that are specific to the UText
 //                 implementation.
 //
-//---------------------------------------------------------------------------
 void RegexTest::UTextBasic() {
 	const char str_abc[] = { 0x61, 0x62, 0x63, 0x00 }; /* abc */
 	UErrorCode status = U_ZERO_ERROR;
@@ -733,14 +713,11 @@ void RegexTest::UTextBasic() {
 	utext_close(&pattern);
 	utext_close(&input);
 }
-
-//---------------------------------------------------------------------------
 //
 //      API_Match   Test that the API for class RegexMatcher
 //                  is present and nominally working, but excluding functions
 //                  implementing replace operations.
 //
-//---------------------------------------------------------------------------
 void RegexTest::API_Match() 
 {
 	UParseError pe;
@@ -1222,13 +1199,10 @@ void RegexTest::API_Match()
 		REGEX_ASSERT(i==10);
 	}
 }
-
-//---------------------------------------------------------------------------
 //
 //      API_Replace        API test for class RegexMatcher, testing the
 //                         Replace family of functions.
 //
-//---------------------------------------------------------------------------
 void RegexTest::API_Replace() {
 	//
 	//  Replace
@@ -1695,15 +1669,13 @@ void RegexTest::API_Pattern()
 	delete m;
 	delete pat1;
 }
-
-//---------------------------------------------------------------------------
 //
 //      API_Match_UTF8   Test that the alternate engine for class RegexMatcher
 //                       is present and working, but excluding functions
 //                       implementing replace operations.
 //
-//---------------------------------------------------------------------------
-void RegexTest::API_Match_UTF8() {
+void RegexTest::API_Match_UTF8() 
+{
 	UParseError pe;
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t flags = 0;
@@ -2310,14 +2282,12 @@ void RegexTest::API_Match_UTF8() {
 		utext_close(&testPattern);
 	}
 }
-
-//---------------------------------------------------------------------------
 //
 //      API_Replace_UTF8   API test for class RegexMatcher, testing the
 //                         Replace family of functions.
 //
-//---------------------------------------------------------------------------
-void RegexTest::API_Replace_UTF8() {
+void RegexTest::API_Replace_UTF8() 
+{
 	//
 	//  Replace
 	//
@@ -2853,14 +2823,12 @@ void RegexTest::API_Replace_UTF8() {
 	utext_close(&destText);
 	utext_close(&re);
 }
-
-//---------------------------------------------------------------------------
 //
 //      API_Pattern_UTF8  Test that the API for class RegexPattern is
 //                        present and nominally working.
 //
-//---------------------------------------------------------------------------
-void RegexTest::API_Pattern_UTF8() {
+void RegexTest::API_Pattern_UTF8() 
+{
 	RegexPattern pata;       // Test default constructor to not crash.
 	RegexPattern patb;
 
@@ -3213,17 +3181,14 @@ void RegexTest::API_Pattern_UTF8() {
 
 	utext_close(&re1);
 }
-
-//---------------------------------------------------------------------------
 //
 //      Extended       A more thorough check for features of regex patterns
 //                     The test cases are in a separate data file,
 //                       source/tests/testdata/regextst.txt
 //                     A description of the test data format is included in that file.
 //
-//---------------------------------------------------------------------------
-
-const char * RegexTest::getPath(char buffer[2048], const char * filename) {
+const char * RegexTest::getPath(char buffer[2048], const char * filename) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	const char * testDataDirectory = IntlTest::getSourceTestData(status);
 	if(U_FAILURE(status)) {
@@ -3359,8 +3324,6 @@ void RegexTest::Extended() {
 
 	delete [] testData;
 }
-
-//---------------------------------------------------------------------------
 //
 //    regex_find(pattern, flags, inputString, lineNumber)
 //
@@ -3369,12 +3332,11 @@ void RegexTest::Extended() {
 //         pattern and inputString fields, and the allowed flags.
 //         lineNumber is the source line in regextst.txt of the test.
 //
-//---------------------------------------------------------------------------
-
 //  Set a value into a UVector at position specified by a decimal number in
 //   a UnicodeString.   This is a utility function needed by the actual test function,
 //   which follows.
-static void set(UVector &vec, int32_t val, UnicodeString index) {
+static void set(UVector &vec, int32_t val, UnicodeString index) 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t idx = 0;
 	for(int32_t i = 0; i<index.length(); i++) {
@@ -3895,13 +3857,11 @@ cleanupAndReturn:
 	delete[] patternChars;
 	ucnv_close(UTF8Converter);
 }
-
-//---------------------------------------------------------------------------
 //
 //      Errors     Check for error handling in patterns.
 //
-//---------------------------------------------------------------------------
-void RegexTest::Errors() {
+void RegexTest::Errors() 
+{
 	// \escape sequences that aren't implemented yet.
 	//REGEX_ERR("hex format \\x{abcd} not implemented", 1, 13, U_REGEX_UNIMPLEMENTED);
 
@@ -3956,8 +3916,6 @@ void RegexTest::Errors() {
 	//
 	REGEX_ERR("(ab)\\0", 1, 6, U_REGEX_BAD_ESCAPE_SEQUENCE);
 }
-
-//-------------------------------------------------------------------------------
 //
 //   PerlTests  - Run Perl's regular expression tests
 //                The input file for this test is re_tests, the standard regular
@@ -4000,8 +3958,8 @@ void RegexTest::Errors() {
 //        The test exposes is some known incompatibility between ICU and Perl regexps.
 //        (The i is in addition to whatever was there before.)
 //
-//-------------------------------------------------------------------------------
-void RegexTest::PerlTests() {
+void RegexTest::PerlTests() 
+{
 	char tdd[2048];
 	const char * srcPath;
 	UErrorCode status = U_ZERO_ERROR;
@@ -4320,33 +4278,24 @@ void RegexTest::PerlTests() {
 			err("Line %d: Incorrect perl expression results.", lineNum);
 			infoln((UnicodeString)"Expected \""+expectedS+(UnicodeString)"\"; got \""+resultString+(UnicodeString)"\"");
 		}
-
 		delete testMat;
 		delete testPat;
 	}
-
 	//
 	// All done.  Clean up allocated stuff.
 	//
 	delete cgMat;
 	delete cgPat;
-
 	delete groupsMat;
 	delete groupsPat;
-
 	delete flagMat;
 	delete flagPat;
-
 	delete lineMat;
 	delete linePat;
-
 	delete fieldPat;
 	delete [] testData;
-
 	logln("%d tests skipped because of unimplemented regexp features.", skippedUnimplementedCount);
 }
-
-//-------------------------------------------------------------------------------
 //
 //   PerlTestsUTF8  Run Perl's regular expression tests on UTF-8-based UTexts
 //                  (instead of using UnicodeStrings) to test the alternate engine.
@@ -4354,8 +4303,8 @@ void RegexTest::PerlTests() {
 //                  expression test data distributed with the Perl source code.
 //                  See PerlTests() for more information.
 //
-//-------------------------------------------------------------------------------
-void RegexTest::PerlTestsUTF8() {
+void RegexTest::PerlTestsUTF8() 
+{
 	char tdd[2048];
 	const char * srcPath;
 	UErrorCode status = U_ZERO_ERROR;
@@ -4736,8 +4685,6 @@ void RegexTest::PerlTestsUTF8() {
 
 	logln("%d tests skipped because of unimplemented regexp features.", skippedUnimplementedCount);
 }
-
-//--------------------------------------------------------------
 //
 //  Bug6149   Verify limits to heap expansion for backtrack stack.
 //             Use this pattern,
@@ -4746,8 +4693,8 @@ void RegexTest::PerlTestsUTF8() {
 //                   This test is likely to be fragile, as further optimizations stop
 //                   more cases of pointless looping in the match engine.
 //
-//---------------------------------------------------------------
-void RegexTest::Bug6149() {
+void RegexTest::Bug6149() 
+{
 	UnicodeString pattern("(a?) {1,8000000}");
 	UnicodeString s("xyz");
 	uint32_t flags = 0;
@@ -4972,16 +4919,14 @@ void RegexTest::FindProgressCallbacks() {
 		REGEX_CHECK_STATUS;
 	}
 }
-
-//---------------------------------------------------------------------------
 //
 //    PreAllocatedUTextCAPI    Check the C API with pre-allocated mutable
 //                             UTexts. The pure-C implementation of UText
 //                             has no mutable backing stores, but we can
 //                             use UnicodeString here to test the functionality.
 //
-//---------------------------------------------------------------------------
-void RegexTest::PreAllocatedUTextCAPI() {
+void RegexTest::PreAllocatedUTextCAPI() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	URegularExpression  * re;
 	UText patternText = UTEXT_INITIALIZER;
@@ -5180,13 +5125,11 @@ void RegexTest::PreAllocatedUTextCAPI() {
 	utext_close(&bufferText);
 	utext_close(&patternText);
 }
-
-//--------------------------------------------------------------
 //
 //  NamedCapture   Check basic named capture group functionality
 //
-//--------------------------------------------------------------
-void RegexTest::NamedCapture() {
+void RegexTest::NamedCapture() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	RegexPattern * pat = RegexPattern::compile(UnicodeString(
 			"abc()()(?<three>xyz)(de)(?<five>hmm)(?<six>oh)f\\k<five>"), 0, status);
@@ -5402,16 +5345,14 @@ void RegexTest::NamedCapture() {
 
 	uregex_close(re);
 }
-
-//--------------------------------------------------------------
 //
 //  NamedCaptureLimits   Patterns with huge numbers of named capture groups.
 //                       The point is not so much what the exact limit is,
 //                       but that a largish number doesn't hit bad non-linear performance,
 //                       and that exceeding the limit fails cleanly.
 //
-//--------------------------------------------------------------
-void RegexTest::NamedCaptureLimits() {
+void RegexTest::NamedCaptureLimits() 
+{
 	if(quick) {
 		logln("Skipping test. Runs in exhuastive mode only.");
 		return;
@@ -5449,13 +5390,11 @@ void RegexTest::NamedCaptureLimits() {
 	REGEX_ASSERT(status == U_REGEX_PATTERN_TOO_BIG);
 	delete pat;
 }
-
-//--------------------------------------------------------------
 //
 //  Bug7651   Regex pattern that exceeds default operator stack depth in matcher.
 //
-//---------------------------------------------------------------
-void RegexTest::Bug7651() {
+void RegexTest::Bug7651() 
+{
 	UnicodeString pattern1(
 		"((?<![A-Za-z0-9])[#\\uff03][A-Za-z0-9_][A-Za-z0-9_\\u00c0-\\u00d6\\u00c8-\\u00f6\\u00f8-\\u00ff]*|(?<![A-Za-z0-9_])[@\\uff20][A-Za-z0-9_]+(?:\\/[\\w-]+)?|(https?\\:\\/\\/|www\\.)\\S+(?<![\\!\\),\\.:;\\]\\u0080-\\uFFFF])|\\$[A-Za-z]+)");
 	//  The following should exceed the default operator stack depth in the matcher, i.e. force the matcher to

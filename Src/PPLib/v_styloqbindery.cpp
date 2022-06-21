@@ -930,7 +930,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 		{
 			if(objType == PPOBJ_PERSON) {
 				disableCtrl(CTLSEL_STQCMD_OGR, 0);
-				SetupPPObjCombo(this, CTLSEL_STQCMD_OGR, PPOBJ_PERSONKIND, 0, 0);
+				SetupPPObjCombo(this, CTLSEL_STQCMD_OGR, PPOBJ_PERSONKIND, Data.ObjGroupRestriction, 0);
 			}
 			else {
 				disableCtrl(CTLSEL_STQCMD_OGR, 1);

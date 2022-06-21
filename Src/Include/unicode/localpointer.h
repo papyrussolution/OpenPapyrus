@@ -318,11 +318,12 @@ public:
 	 *     if p==NULL and no other failure code had been set
 	 * @stable ICU 55
 	 */
-	void adoptInsteadAndCheckErrorCode(T * p, UErrorCode & errorCode) {
+	void adoptInsteadAndCheckErrorCode(T * p, UErrorCode & errorCode) 
+	{
 		if(U_SUCCESS(errorCode)) {
 			delete LocalPointerBase<T>::ptr;
 			LocalPointerBase<T>::ptr = p;
-			if(p==NULL) {
+			if(!p) {
 				errorCode = U_MEMORY_ALLOCATION_ERROR;
 			}
 		}
@@ -330,7 +331,6 @@ public:
 			delete p;
 		}
 	}
-
 	/**
 	 * Conversion operator to a C++11 std::unique_ptr.
 	 * Disowns the object and gives it to the returned std::unique_ptr.
@@ -503,7 +503,7 @@ public:
 		if(U_SUCCESS(errorCode)) {
 			delete[] LocalPointerBase<T>::ptr;
 			LocalPointerBase<T>::ptr = p;
-			if(p==NULL) {
+			if(!p) {
 				errorCode = U_MEMORY_ALLOCATION_ERROR;
 			}
 		}
@@ -572,9 +572,9 @@ public: \
 		/* TODO: Be agnostic of the deleter function signature from the user-provided std::unique_ptr? */ \
 		explicit LocalPointerClassName(std::unique_ptr<Type, decltype(&closeFunction)> &&p) \
 			: LocalPointerBase<Type>(p.release()) {} \
-		~LocalPointerClassName() { if(ptr != NULL) { closeFunction(ptr); } } \
+		~LocalPointerClassName() { if(ptr) { closeFunction(ptr); } } \
 		LocalPointerClassName & operator =(LocalPointerClassName && src) U_NOEXCEPT { \
-			if(ptr != NULL) { closeFunction(ptr); } \
+			if(ptr) { closeFunction(ptr); } \
 			LocalPointerBase<Type>::ptr = src.ptr; \
 			src.ptr = NULL; \
 			return *this; \
@@ -593,7 +593,7 @@ public: \
 			p1.swap(p2); \
 		} \
 		void adoptInstead(Type *p) { \
-			if(ptr != NULL) { closeFunction(ptr); } \
+			if(ptr) { closeFunction(ptr); } \
 			ptr = p; \
 		} \
 		operator std::unique_ptr<Type, decltype(&closeFunction)> () && { \

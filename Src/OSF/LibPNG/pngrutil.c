@@ -1851,7 +1851,7 @@ void /*PRIVATE*/ png_handle_pCAL(png_structrp png_ptr, png_inforp info_ptr, uint
 		/* Empty loop to move past the units string. */;
 	png_debug(3, "Allocating pCAL parameters array");
 	params = png_voidcast(png_charpp, png_malloc_warn(png_ptr, nparams * (sizeof(char *))));
-	if(params == NULL) {
+	if(!params) {
 		png_chunk_benign_error(png_ptr, SlTxtOutOfMem);
 		return;
 	}

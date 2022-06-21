@@ -6,32 +6,13 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//---------------------------------------------------------------------------
 #ifndef tokenizeH
 #define tokenizeH
-//---------------------------------------------------------------------------
 
-#include "cppcheck-config.h"
+//#include "cppcheck-config.h"
 #include "errortypes.h"
 #include "tokenlist.h"
-
-#include <iosfwd>
-#include <list>
-#include <map>
-#include <string>
-#include <stack>
-#include <utility>
-#include <vector>
 
 class Settings;
 class SymbolDatabase;
@@ -43,7 +24,7 @@ class Preprocessor;
 class VariableMap;
 
 namespace simplecpp {
-class TokenList;
+	class TokenList;
 }
 
 /// @addtogroup Core
@@ -58,26 +39,21 @@ class CPPCHECKLIB Tokenizer {
 	friend class SymbolDatabase;
 	friend class TestSimplifyTemplate;
 	friend class TemplateSimplifier;
-
 public:
 	Tokenizer();
 	Tokenizer(const Settings * settings, ErrorLogger * errorLogger);
 	~Tokenizer();
-
 	void setTimerResults(TimerResults * tr) {
 		mTimerResults = tr;
 	}
-
 	/** Is the code C. Used for bailouts */
 	bool isC() const {
 		return list.isC();
 	}
-
 	/** Is the code CPP. Used for bailouts */
 	bool isCPP() const {
 		return list.isCPP();
 	}
-
 	/**
 	 * Check if inner scope ends with a call to a noreturn function
 	 * \param endScopeToken The '}' token
@@ -85,10 +61,8 @@ public:
 	 * \return true if scope ends with a function call that might be 'noreturn'
 	 */
 	bool isScopeNoReturn(const Token * endScopeToken, bool * unknown = nullptr) const;
-
 	bool createTokens(std::istream &code, const std::string& FileName);
 	void createTokens(simplecpp::TokenList&& tokenList);
-
 	bool simplifyTokens1(const std::string &configuration);
 	/**
 	 * Tokenize code
@@ -111,15 +85,11 @@ public:
 	 * @param configuration E.g. "A" for code where "#ifdef A" is true
 	 * @return false if source code contains syntax errors
 	 */
-	bool tokenize(std::istream &code,
-	    const char FileName[],
-	    const std::string &configuration = emptyString);
-
+	bool tokenize(std::istream &code, const char FileName[], const std::string &configuration = emptyString);
 	/** Set variable id */
 	void setVarId();
 	void setVarIdPass1();
 	void setVarIdPass2();
-
 	/**
 	 * Basic simplification of tokenlist
 	 *
@@ -130,7 +100,6 @@ public:
 	 * the checking of this file.
 	 */
 	bool simplifyTokenList1(const char FileName[]);
-
 	/**
 	 * Most aggressive simplification of tokenlist
 	 *
@@ -138,24 +107,20 @@ public:
 	 * the checking of this file.
 	 */
 	bool simplifyTokenList2();
-
 	/**
 	 * If --check-headers=no has been given; then remove unneeded code in headers.
 	 * - All executable code.
 	 * - Unused types/variables/etc
 	 */
 	void simplifyHeadersAndUnusedTemplates();
-
 	/**
 	 * Remove extra "template" keywords that are not used by Cppcheck
 	 */
 	void removeExtraTemplateKeywords();
-
 	/** Split up template right angle brackets.
 	 * foo < bar < >> => foo < bar < > >
 	 */
 	void splitTemplateRightAngleBrackets(bool check);
-
 	/**
 	 * Deletes dead code between 'begin' and 'end'.
 	 * In general not everything can be erased, such as:
@@ -188,17 +153,14 @@ public:
 	 * @return true if the parameter is passed by value. if unsure, false is returned
 	 */
 	bool isFunctionParameterPassedByValue(const Token * fpar) const;
-
 	/** Simplify assignment where rhs is a block : "x=({123;});" => "{x=123;}" */
 	void simplifyAssignmentBlock();
-
 	/**
 	 * Simplify constant calculations such as "1+2" => "3"
 	 * @return true if modifications to token-list are done.
 	 *         false if no modifications are done.
 	 */
 	bool simplifyCalculations();
-
 	/**
 	 * Simplify dereferencing a pointer offset by a number:
 	 *     "*(ptr + num)" => "ptr[num]"
@@ -807,78 +769,55 @@ private:
 	 * strncat(temp,"a",1); return temp;
 	 */
 	void simplifyReturnStrncat();
-
 	/**
 	 * Output list of unknown types.
 	 */
 	void printUnknownTypes() const;
-
 	/** Find end of SQL (or PL/SQL) block */
 	static const Token * findSQLBlockEnd(const Token * tokSQLStart);
-
 	bool operatorEnd(const Token * tok) const;
-
 public:
-
 	/** Was there templates in the code? */
-	bool codeWithTemplates() const {
-		return mCodeWithTemplates;
-	}
-
-	void setSettings(const Settings * settings) {
+	bool codeWithTemplates() const { return mCodeWithTemplates; }
+	void setSettings(const Settings * settings) 
+	{
 		mSettings = settings;
 		list.setSettings(settings);
 	}
-
-	const SymbolDatabase * getSymbolDatabase() const {
-		return mSymbolDatabase;
-	}
-
+	const SymbolDatabase * getSymbolDatabase() const { return mSymbolDatabase; }
 	void createSymbolDatabase();
 	void deleteSymbolDatabase();
-
 	/** print --debug output if debug flags match the simplification:
 	 * 0=unknown/both simplifications
 	 * 1=1st simplifications
 	 * 2=2nd simplifications
 	 */
 	void printDebugOutput(int simplification) const;
-
 	void dump(std::ostream &out) const;
-
 	Token * deleteInvalidTypedef(Token * typeDef);
-
 	/**
 	 * Get variable count.
 	 * @return number of variables
 	 */
-	nonneg int varIdCount() const {
-		return mVarId;
-	}
-
+	nonneg int varIdCount() const { return mVarId; }
 	/**
 	 * Token list: stores all tokens.
 	 */
 	TokenList list;
 	// Implement tokens() as a wrapper for convenience when using the TokenList
-	const Token* tokens() const {
-		return list.front();
-	}
-
+	const Token* tokens() const { return list.front(); }
 	/**
 	 * Helper function to check whether number is one (1 or 0.1E+1 or 1E+0) or not?
 	 * @param s the string to check
 	 * @return true in case is is one and false otherwise.
 	 */
 	static bool isOneNumber(const std::string &s);
-
 	/**
 	 * Helper function to check whether number is two (2 or 0.2E+1 or 2E+0) or not?
 	 * @param s the string to check
 	 * @return true in case is is two and false otherwise.
 	 */
 	static bool isTwoNumber(const std::string &s);
-
 	/**
 	 * Helper function to check for start of function execution scope.
 	 * Do not use this in checks.  Use the symbol database.
@@ -886,57 +825,36 @@ public:
 	 * @return pointer to start brace of function scope or nullptr if not start.
 	 */
 	static const Token * startOfExecutableScope(const Token * tok);
-
 #ifdef MAXTIME
-	bool isMaxTime() const {
-		return (std::time(0) > mMaxTime);
+	bool isMaxTime() const { return (std::time(0) > mMaxTime); }
 #else
-	static bool isMaxTime() {
-		return false;
+	static bool isMaxTime() { return false; }
 #endif
-	}
-
-	const Settings * getSettings() const {
-		return mSettings;
-	}
-
+	const Settings * getSettings() const { return mSettings; }
 	void calculateScopes();
-
 	/** Disable copy constructor */
 	Tokenizer(const Tokenizer &) = delete;
-
 	/** Disable assignment operator */
 	Tokenizer &operator=(const Tokenizer &) = delete;
-
 private:
 	Token * processFunc(Token * tok2, bool inOperator) const;
-
 	/**
 	 * Get new variable id.
 	 * @return new variable id
 	 */
-	nonneg int newVarId() {
-		return ++mVarId;
-	}
-
+	nonneg int newVarId() { return ++mVarId; }
 	/** Set pod types */
 	void setPodTypes();
-
 	/** settings */
 	const Settings * mSettings;
-
 	/** errorlogger */
 	ErrorLogger* const mErrorLogger;
-
 	/** Symbol database that all checks etc can use */
 	SymbolDatabase * mSymbolDatabase;
-
 	TemplateSimplifier * mTemplateSimplifier;
-
 	/** E.g. "A" for code where "#ifdef A" is true. This is used to
 	    print additional information in error situations. */
 	std::string mConfiguration;
-
 	/** sizeof information for known types */
 	std::map<std::string, int> mTypeSize;
 
@@ -947,35 +865,26 @@ private:
 		int column;
 		bool used;
 	};
-
 	std::vector<TypedefInfo> mTypedefInfo;
-
 	/** variable count */
 	nonneg int mVarId;
-
 	/** unnamed count "Unnamed0", "Unnamed1", "Unnamed2", ... */
 	nonneg int mUnnamedCount;
-
 	/**
 	 * was there any templates? templates that are "unused" are
 	 * removed from the token list
 	 */
 	bool mCodeWithTemplates;
-
 	/**
 	 * TimerResults
 	 */
 	TimerResults * mTimerResults;
-
 #ifdef MAXTIME
 	/** Tokenizer maxtime */
 	const std::time_t mMaxTime;
 #endif
-
 	const Preprocessor * mPreprocessor;
 };
 
 /// @}
-
-//---------------------------------------------------------------------------
 #endif // tokenizeH

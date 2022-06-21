@@ -165,7 +165,7 @@ static int bind_fn(ENGINE * e, const char * id)
 
 IMPLEMENT_DYNAMIC_CHECK_FN()
 IMPLEMENT_DYNAMIC_BIND_FN(bind_fn)
-#endif                          /* ENGINE_DYNAMIC_SUPPORT */
+#endif /* ENGINE_DYNAMIC_SUPPORT */
 #ifdef TEST_ENG_OPENSSL_RC4
 /*-
  * This section of code compiles an "alternative implementation" of two modes of

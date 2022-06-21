@@ -1,15 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-******************************************************************************
-*   Copyright (C) 1997-2014, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-******************************************************************************
-*   Date        Name        Description
-*   03/28/00    aliu        Creation.
-******************************************************************************
-*/
-
+// Copyright (C) 1997-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 03/28/00    aliu        Creation.
+// 
 #ifndef HASH_H
 #define HASH_H
 
@@ -32,9 +26,7 @@ class U_COMMON_API Hashtable : public UMemory {
     UHashtable hashObj;
 
     inline void init(UHashFunction *keyHash, UKeyComparator *keyComp, UValueComparator *valueComp, UErrorCode & status);
-
     inline void initSize(UHashFunction *keyHash, UKeyComparator *keyComp, UValueComparator *valueComp, int32_t size, UErrorCode & status);
-
 public:
     /**
   * Construct a hashtable
@@ -94,11 +86,8 @@ public:
   * @see uhash_nextElement
      */
     inline const UHashElement* nextElement(int32_t& pos) const;
-
     inline UKeyComparator* setKeyComparator(UKeyComparator*keyComp);
-
     inline UValueComparator* setValueComparator(UValueComparator* valueComp);
-
     inline bool equals(const Hashtable& that) const;
 private:
     Hashtable(const Hashtable &other); // forbid copying of this class

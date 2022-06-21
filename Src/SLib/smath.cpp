@@ -1408,6 +1408,165 @@ int Factorize(ulong val, UlongArray * pList)
 //
 //
 //
+SDecimalFraction::SDecimalFraction() : Num(0), DenomDecPwr(0), Flags(0)
+{
+}
+	
+SDecimalFraction::SDecimalFraction(int64 n, uint16 denomDecPwr) : Num(n), DenomDecPwr(denomDecPwr), Flags(0)
+{
+}
+	
+double SDecimalFraction::GetReal() const
+{
+	assert(DenomDecPwr < 8);
+	return static_cast<double>(Num) / fpow10i(DenomDecPwr);
+}
+	
+bool SDecimalFraction::Normalize()
+{
+	bool ok = false;
+	if(Num == 0) {
+		DenomDecPwr = 0;
+		ok = true;
+	}
+	else if(DenomDecPwr > 0 && (Num % 10) == 0) {
+		do {
+			Num /= 10;
+			DenomDecPwr--;
+		} while(DenomDecPwr > 0 && (Num % 10) == 0);
+		ok = true;
+	}
+	return ok;
+}
+
+SDecimalFraction & SDecimalFraction::Z()
+{
+	Num = 0;
+	DenomDecPwr = 0;
+	Flags = 0;
+	return *this;
+}
+	
+bool SDecimalFraction::IsZero() const
+{
+	return (Num == 0);
+}
+
+/*static*/SDecimalFraction SDecimalFraction::Neg(const SDecimalFraction & rV)
+{
+	if(rV.IsZero())
+		return rV;
+	else
+		return SDecimalFraction(-rV.Num, rV.DenomDecPwr);
+}
+
+int SDecimalFraction::Add(const SDecimalFraction & rA, const SDecimalFraction & rB)
+{
+	int ok = 1;
+	if(rA.DenomDecPwr == rB.DenomDecPwr) {
+		Num = rA.Num + rB.Num;
+		DenomDecPwr = rA.DenomDecPwr;
+	}
+	else if(rA.DenomDecPwr < rB.DenomDecPwr) {
+		Num = rA.Num * ui64pow10(rB.DenomDecPwr - rA.DenomDecPwr) + rB.Num;
+		DenomDecPwr = rB.DenomDecPwr;
+	}
+	else {
+		assert(rB.DenomDecPwr < rA.DenomDecPwr);
+		Num = rB.Num * ui64pow10(rA.DenomDecPwr - rB.DenomDecPwr) + rA.Num;
+		DenomDecPwr = rA.DenomDecPwr;
+	}
+	Normalize();
+	return ok;
+}
+
+int SDecimalFraction::Sub(const SDecimalFraction & rA, const SDecimalFraction & rB)
+{
+	return Add(rA, Neg(rB));
+}
+	
+int SDecimalFraction::Mul(const SDecimalFraction & rA, const SDecimalFraction & rB)
+{
+	int    ok = 1;
+	if(rA.IsZero() || rB.IsZero())
+		Z();
+	else {
+		Num = rA.Num * rB.Num;
+		DenomDecPwr = rA.DenomDecPwr + rB.DenomDecPwr;
+		Normalize();
+	}
+	return ok;
+}
+
+int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & rB)
+{
+	int ok = 1;
+	if(rB.IsZero())
+		ok = 0;
+	else if(rA.IsZero())
+		Z();
+	else {
+		// !
+		Num = rA.Num / rB.Num;
+		int denom_dec_pwr = static_cast<int>(rA.DenomDecPwr) - static_cast<int>(rB.DenomDecPwr);
+		if(denom_dec_pwr < 0) {
+			Num *= ui64pow10(static_cast<uint>(-denom_dec_pwr));
+			DenomDecPwr = 0;
+		}
+		else {
+			DenomDecPwr = static_cast<uint16>(denom_dec_pwr);
+			Normalize();
+		}
+	}
+	return ok;
+}
+
+/*static*/int SDecimalFraction::Test()
+{
+	int    ok = 1;
+	{
+		struct TestEntry {
+			int64  N;
+			uint16 Dp;
+			double Rv;
+		};
+		const TestEntry entries[] = {
+			{ 0LL, 0, 0.0 },
+			{ 1LL, 0, 1.0 },
+			{ 3LL, 0, 3.0 },
+			{ 1LL, 1, 0.1 },
+			{ 1LL, 2, 0.01 },
+			{ 5LL, 1, 0.5 },
+		};
+		assert(SDecimalFraction().IsZero());
+		assert(!SDecimalFraction(1, 1).IsZero());
+		for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
+			const double tv = SDecimalFraction(entries[i].N, entries[i].Dp).GetReal();
+			assert(tv == entries[i].Rv);
+		}
+		//
+		SDecimalFraction r;
+		SDecimalFraction r2;
+		r.Add(SDecimalFraction(0, 0), SDecimalFraction(1, 0));
+		assert(r.GetReal() == 1.0);
+		r2.Sub(r, SDecimalFraction(1, 0));
+		assert(r2.GetReal() == 0.0);
+		assert(r2.IsZero());
+		//
+		r.Add(SDecimalFraction(0, 0), SDecimalFraction(1, 5));
+		assert(r.GetReal() == 0.00001);
+		r2.Sub(r, SDecimalFraction(1, 5));
+		assert(r2.GetReal() == 0.0);
+		assert(r2.IsZero());
+		//
+		r.Mul(SDecimalFraction(1, 0), SDecimalFraction(17, 3));
+		assert(r.GetReal() == 0.017);
+	}
+	return ok;
+}
+//
+//
+//
 #if SLTEST_RUNNING // {
 
 	SLTEST_R(smath)

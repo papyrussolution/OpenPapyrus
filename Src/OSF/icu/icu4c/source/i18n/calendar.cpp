@@ -409,31 +409,22 @@ protected:
 		const LocaleKey& lkey = (LocaleKey&)key;
 		Locale curLoc; // current locale
 		Locale canLoc; // Canonical locale
-
 		lkey.currentLocale(curLoc);
 		lkey.canonicalLocale(canLoc);
-
 		char keyword[ULOC_FULLNAME_CAPACITY];
 		UnicodeString str;
-
 		key.currentID(str);
 		getCalendarKeyword(str, keyword, (int32_t)sizeof(keyword));
 
 #ifdef U_DEBUG_CALSVC
-		fprintf(stderr,
-		    "BasicCalendarFactory::create() - cur %s, can %s\n",
-		    (const char *)curLoc.getName(),
-		    (const char *)canLoc.getName());
+		slfprintf_stderr("BasicCalendarFactory::create() - cur %s, can %s\n", (const char *)curLoc.getName(), (const char *)canLoc.getName());
 #endif
-
 		if(!isStandardSupportedKeyword(keyword, status)) { // Do we handle this type?
 #ifdef U_DEBUG_CALSVC
-
 			slfprintf_stderr("BasicCalendarFactory - not handling %s.[%s]\n", (const char *)curLoc.getName(), tmp);
 #endif
 			return NULL;
 		}
-
 		return createStandardCalendar(getCalendarType(keyword), canLoc, status);
 	}
 };
@@ -491,34 +482,27 @@ public:
 		else {
 #ifdef U_DEBUG_CALSVC_F
 			UErrorCode status2 = U_ZERO_ERROR;
-			slfprintf_stderr("Cloning a %s calendar with tz=%ld\n", ((Calendar*)instance)->getType(),
-			    ((Calendar*)instance)->get(UCAL_ZONE_OFFSET, status2));
+			slfprintf_stderr("Cloning a %s calendar with tz=%ld\n", ((Calendar*)instance)->getType(), ((Calendar*)instance)->get(UCAL_ZONE_OFFSET, status2));
 #endif
 			return ((Calendar*)instance)->clone();
 		}
 	}
-
-	virtual UObject* handleDefault(const ICUServiceKey& key, UnicodeString * /*actualID*/, UErrorCode & status) const override {
+	virtual UObject* handleDefault(const ICUServiceKey& key, UnicodeString * /*actualID*/, UErrorCode & status) const override 
+	{
 		LocaleKey& lkey = (LocaleKey&)key;
 		//int32_t kind = lkey.kind();
-
 		Locale loc;
 		lkey.canonicalLocale(loc);
-
 #ifdef U_DEBUG_CALSVC
 		Locale loc2;
 		lkey.currentLocale(loc2);
-		fprintf(stderr,
-		    "CalSvc:handleDefault for currentLoc %s, canloc %s\n",
-		    (const char *)loc.getName(),
-		    (const char *)loc2.getName());
+		slfprintf_stderr("CalSvc:handleDefault for currentLoc %s, canloc %s\n", (const char *)loc.getName(), (const char *)loc2.getName());
 #endif
 		Calendar * nc =  new GregorianCalendar(loc, status);
 		if(nc == nullptr) {
 			status = U_MEMORY_ALLOCATION_ERROR;
 			return nc;
 		}
-
 #ifdef U_DEBUG_CALSVC
 		UErrorCode status2 = U_ZERO_ERROR;
 		slfprintf_stderr("New default calendar has tz=%d\n", ((Calendar*)nc)->get(UCAL_ZONE_OFFSET, status2));
@@ -573,7 +557,8 @@ URegistryKey Calendar::registerFactory(ICUServiceFactory* toAdopt, UErrorCode & 
 	return getCalendarService(status)->registerFactory(toAdopt, status);
 }
 
-bool Calendar::unregister(URegistryKey key, UErrorCode & status) {
+bool Calendar::unregister(URegistryKey key, UErrorCode & status) 
+{
 	return getCalendarService(status)->unregister(key, status);
 }
 
@@ -3471,15 +3456,9 @@ int32_t Calendar::getActualHelper(UCalendarDateFields field, int32_t startValue,
 	// not unique.  For example, last several days in the previous month
 	// is week 5, and the rest of week is week 1.
 	int32_t result = startValue;
-	if((work->get(field, status) != startValue
-	 && field != UCAL_WEEK_OF_MONTH && delta > 0) || U_FAILURE(status)) {
+	if((work->get(field, status) != startValue && field != UCAL_WEEK_OF_MONTH && delta > 0) || U_FAILURE(status)) {
 #if defined (U_DEBUG_CAL)
-		fprintf(stderr,
-		    "getActualHelper(fld %d) - got  %d (not %d) - %s\n",
-		    field,
-		    work->get(field, status),
-		    startValue,
-		    u_errorName(status));
+		slfprintf_stderr("getActualHelper(fld %d) - got  %d (not %d) - %s\n", field, work->get(field, status), startValue, u_errorName(status));
 #endif
 	}
 	else {
@@ -3488,12 +3467,7 @@ int32_t Calendar::getActualHelper(UCalendarDateFields field, int32_t startValue,
 			work->add(field, delta, status);
 			if(work->get(field, status) != startValue || U_FAILURE(status)) {
 #if defined (U_DEBUG_CAL)
-				fprintf(stderr,
-				    "getActualHelper(fld %d) - got  %d (not %d), BREAK - %s\n",
-				    field,
-				    work->get(field, status),
-				    startValue,
-				    u_errorName(status));
+				slfprintf_stderr("getActualHelper(fld %d) - got  %d (not %d), BREAK - %s\n", field, work->get(field, status), startValue, u_errorName(status));
 #endif
 				break;
 			}

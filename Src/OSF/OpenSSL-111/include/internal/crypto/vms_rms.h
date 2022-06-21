@@ -54,4 +54,4 @@
 #define SET_NAMX_NO_SHORT_UPCASE( nam)
 #endif                         /* def NAM$M_NO_SHORT_UPCASE [else] */
 
-#endif                          /* def NAML$C_MAXRSS [else] */
+#endif /* def NAML$C_MAXRSS [else] */

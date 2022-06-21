@@ -72,9 +72,8 @@ std::string GenerateTemplateForSingleString(const FieldDescriptor* descriptor, S
 }
 }  // namespace
 
-void AddAccessorAnnotations(const FieldDescriptor* descriptor,
-    const Options& options,
-    std::map<std::string, std::string>* variables) {
+void AddAccessorAnnotations(const FieldDescriptor* descriptor, const Options& options, std::map<std::string, std::string>* variables) 
+{
 	// Can be expanded to include more specific calls, for example, for arena or
 	// clear calls.
 	static constexpr const char* kAccessorsAnnotations[] = {

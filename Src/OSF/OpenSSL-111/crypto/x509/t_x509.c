@@ -174,7 +174,7 @@ int X509_print_ex(BIO * bp, X509 * x, ulong nmflags,
 			goto err;
 
 		pkey = X509_get0_pubkey(x);
-		if(pkey == NULL) {
+		if(!pkey) {
 			BIO_printf(bp, "%12sUnable to load Public Key\n", "");
 			ERR_print_errors(bp);
 		}

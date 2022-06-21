@@ -6,36 +6,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//---------------------------------------------------------------------------
 #ifndef cppcheckH
 #define cppcheckH
-//---------------------------------------------------------------------------
 
 #include "analyzerinfo.h"
 #include "check.h"
 #include "color.h"
-#include "cppcheck-config.h"
+//#include "cppcheck-config.h"
 #include "errorlogger.h"
 #include "importproject.h"
 #include "settings.h"
-
-#include <cstddef>
-#include <functional>
-#include <istream>
-#include <list>
-#include <map>
-#include <string>
-#include <vector>
 
 class Tokenizer;
 

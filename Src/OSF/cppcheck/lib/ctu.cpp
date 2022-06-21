@@ -9,15 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "ctu.h"
-#include "astutils.h"
-#include "errortypes.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
-#include "utils.h"
 
 static const char ATTR_CALL_ID[] = "call-id";
 static const char ATTR_CALL_FUNCNAME[] = "call-funcname";

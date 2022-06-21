@@ -494,7 +494,7 @@ CURLcode Curl_pp_flushsend(struct pingpong * pp)
 CURLcode Curl_pp_disconnect(struct pingpong * pp)
 {
 	Curl_dyn_free(&pp->sendbuf);
-	Curl_safefree(pp->cache);
+	ZFREE(pp->cache);
 	return CURLE_OK;
 }
 

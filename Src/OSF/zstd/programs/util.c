@@ -35,26 +35,18 @@ extern "C" {
 #include <dirent.h>       /* opendir, readdir */
 #include <string.h>       /* strerror, memcpy */
 #endif /* #ifdef _WIN32 */
-
-/*-****************************************
-*  Internal Macros
-******************************************/
-
+// 
+// Internal Macros
+// 
 /* CONTROL is almost like an assert(), but is never disabled.
  * It's designed for failures that may happen rarely,
  * but we don't want to maintain a specific error code path for them,
  * such as a SAlloc::M() returning NULL for example.
  * Since it's always active, this macro can trigger side effects.
  */
-#define CONTROL(c)  {         \
-		if(!(c)) {               \
-			UTIL_DISPLAYLEVEL(1, "Error : %s, %i : %s",  \
-			    __FILE__, __LINE__, #c);   \
-			exit(1);              \
-		}   }
-
+#define CONTROL(c)  { if(!(c)) { UTIL_DISPLAYLEVEL(1, "Error : %s, %i : %s", __FILE__, __LINE__, #c); exit(1); } }
 /* console log */
-#define UTIL_DISPLAY(...)         fprintf(stderr, __VA_ARGS__)
+#define UTIL_DISPLAY(...)         slfprintf_stderr(__VA_ARGS__)
 #define UTIL_DISPLAYLEVEL(l, ...) { if(g_utilDisplayLevel>=l) { UTIL_DISPLAY(__VA_ARGS__); } }
 
 /* A modified version of realloc().
@@ -352,13 +344,13 @@ UTIL_HumanReadableSize_t UTIL_makeHumanReadableSize(uint64 size)
 	return hrs;
 }
 
-uint64 UTIL_getTotalFileSize(const char* const * fileNamesTable, unsigned nbFiles)
+uint64 UTIL_getTotalFileSize(const char* const * fileNamesTable, uint nbFiles)
 {
 	uint64 total = 0;
-	unsigned n;
-	for(n = 0; n<nbFiles; n++) {
+	for(uint n = 0; n<nbFiles; n++) {
 		uint64 const size = UTIL_getFileSize(fileNamesTable[n]);
-		if(size == UTIL_FILESIZE_UNKNOWN) return UTIL_FILESIZE_UNKNOWN;
+		if(size == UTIL_FILESIZE_UNKNOWN) 
+			return UTIL_FILESIZE_UNKNOWN;
 		total += size;
 	}
 	return total;
@@ -408,9 +400,7 @@ static int readLinesFromFile(void * dst, size_t dstCapacity, const char* inputFi
 		pos += lineLength;
 		++nbFiles;
 	}
-
 	CONTROL(fclose(inputFile) == 0);
-
 	return nbFiles;
 }
 
@@ -905,10 +895,9 @@ static int mirrorSrcDirRecursive(char* srcDirName, const char* outDirName)
 	return status;
 }
 
-static void makeMirroredDestDirsWithSameSrcDirMode(char** srcDirNames, unsigned nbFile, const char* outDirName)
+static void makeMirroredDestDirsWithSameSrcDirMode(char** srcDirNames, uint nbFile, const char* outDirName)
 {
-	unsigned int i = 0;
-	for(i = 0; i < nbFile; i++)
+	for(uint i = 0; i < nbFile; i++)
 		mirrorSrcDirRecursive(srcDirNames[i], outDirName);
 }
 
@@ -927,9 +916,10 @@ static int compareDir(const void * pathname1, const void * pathname2)
 	return strcmp(s1, s2);
 }
 
-static void makeUniqueMirroredDestDirs(char** srcDirNames, unsigned nbFile, const char* outDirName)
+static void makeUniqueMirroredDestDirs(char** srcDirNames, uint nbFile, const char* outDirName)
 {
-	unsigned int i = 0, uniqueDirNr = 0;
+	uint i = 0;
+	uint uniqueDirNr = 0;
 	char** uniqueDirNames = NULL;
 	if(nbFile == 0)
 		return;
@@ -956,17 +946,17 @@ static void makeUniqueMirroredDestDirs(char** srcDirNames, unsigned nbFile, cons
 	SAlloc::F(uniqueDirNames);
 }
 
-static void makeMirroredDestDirs(char** srcFileNames, unsigned nbFile, const char* outDirName)
+static void makeMirroredDestDirs(char** srcFileNames, uint nbFile, const char* outDirName)
 {
-	unsigned int i = 0;
-	for(i = 0; i < nbFile; ++i)
+	for(uint i = 0; i < nbFile; ++i)
 		convertPathnameToDirName(srcFileNames[i]);
 	makeUniqueMirroredDestDirs(srcFileNames, nbFile, outDirName);
 }
 
-void UTIL_mirrorSourceFilesDirectories(const char** inFileNames, unsigned int nbFile, const char* outDirName)
+void UTIL_mirrorSourceFilesDirectories(const char** inFileNames, uint nbFile, const char* outDirName)
 {
-	unsigned int i = 0, validFilenamesNr = 0;
+	uint i = 0;
+	uint validFilenamesNr = 0;
 	char** srcFileNames = (char**)SAlloc::M(nbFile * sizeof(char *));
 	CONTROL(srcFileNames != NULL);
 	/* check input filenames is valid */
@@ -989,7 +979,7 @@ void UTIL_mirrorSourceFilesDirectories(const char** inFileNames, unsigned int nb
 
 FileNamesTable* UTIL_createExpandedFNT(const char* const* inputNames, size_t nbIfns, int followLinks)
 {
-	unsigned nbFiles;
+	uint nbFiles;
 	char* buf = (char *)SAlloc::M(LIST_SIZE_INCREASE);
 	char* bufend = buf + LIST_SIZE_INCREASE;
 	if(!buf) 
@@ -1064,7 +1054,7 @@ FileNamesTable* UTIL_createFNT_fromROTable(const char** filenames, size_t nbFile
 
 #if defined(_WIN32) || defined(WIN32)
 
-#include <windows.h>
+//#include <windows.h>
 
 typedef BOOL (WINAPI* LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
 
@@ -1073,13 +1063,10 @@ DWORD CountSetBits(ULONG_PTR bitMask)
 	DWORD LSHIFT = sizeof(ULONG_PTR)*8 - 1;
 	DWORD bitSetCount = 0;
 	ULONG_PTR bitTest = (ULONG_PTR)1 << LSHIFT;
-	DWORD i;
-
-	for(i = 0; i <= LSHIFT; ++i) {
+	for(DWORD i = 0; i <= LSHIFT; ++i) {
 		bitSetCount += ((bitMask & bitTest) ? 1 : 0);
 		bitTest /= 2;
 	}
-
 	return bitSetCount;
 }
 
@@ -1269,7 +1256,6 @@ int UTIL_countCores(int logical)
 			    if(ret == 0)
 				    numCores *= perCore;
 		    }
-
 		    return numCores;
 	    }
 	    if(errno != ENOENT) {
@@ -1282,7 +1268,6 @@ int UTIL_countCores(int logical)
 	/* suppress unused parameter warning */
 	(void)logical;
 #endif
-
 	numCores = (int)sysconf(_SC_NPROCESSORS_ONLN);
 	if(numCores == -1) {
 		/* value not queryable, fall back on 1 */

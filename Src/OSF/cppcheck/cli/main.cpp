@@ -47,27 +47,18 @@
  *
  * When errors are found, they are reported back to the CppCheckExecutor through the ErrorLogger interface.
  */
-
+#include <cppcheck-internal.h>
+#pragma hdrstop
 #include "cppcheckexecutor.h"
-#ifdef NDEBUG
-#include "errortypes.h"
-#include <cstdlib>
-#include <exception>
-#include <iostream>
-#include <string>
-#endif
 
 #ifdef _WIN32
-#include <windows.h>
+//#include <windows.h>
 static char exename[1024] = {0};
 #endif
-
 #if defined(__APPLE__)
-#include <mach-o/dyld.h>
-
-static char exename[1024] = {0};
+	#include <mach-o/dyld.h>
+	static char exename[1024] = {0};
 #endif
-
 /**
  * Main function of cppcheck
  *

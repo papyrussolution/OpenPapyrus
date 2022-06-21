@@ -9,7 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "errortypes.h"
 
 std::string Severity::toString(Severity::SeverityType severity)
 {

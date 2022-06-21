@@ -9,14 +9,6 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "checkmemoryleak.h"
-#include "astutils.h"
-#include "errorlogger.h"
-#include "library.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "tokenize.h"
 
 // Register this check class (by creating a static instance of it)
 namespace {
@@ -25,12 +17,6 @@ CheckMemoryLeakInClass instance2;
 CheckMemoryLeakStructMember instance3;
 CheckMemoryLeakNoVar instance4;
 }
-
-// CWE ID used:
-static const CWE CWE398(398U);  // Indicator of Poor Code Quality
-static const CWE CWE401(401U);  // Improper Release of Memory Before Removing Last Reference ('Memory Leak')
-static const CWE CWE771(771U);  // Missing Reference to Active Allocated Resource
-static const CWE CWE772(772U);  // Missing Release of Resource after Effective Lifetime
 
 /** List of functions that can be ignored when searching for memory leaks.
  * These functions don't take the address of the given pointer

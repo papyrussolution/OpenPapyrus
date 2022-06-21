@@ -16,12 +16,12 @@ void DockingSplitter::init(HINSTANCE hInst, HWND hWnd, HWND hMessage, UINT flags
 	WNDCLASS wc;
 	if(flags & DMS_HORIZONTAL) {
 		//double sided arrow pointing north-south as cursor
-		wc.hCursor       = ::LoadCursor(NULL, IDC_SIZENS);
+		wc.hCursor = ::LoadCursor(NULL, IDC_SIZENS);
 		wc.lpszClassName = TEXT("nsdockspliter");
 	}
 	else {
 		// double sided arrow pointing east-west as cursor
-		wc.hCursor       = ::LoadCursor(NULL, IDC_SIZEWE);
+		wc.hCursor = ::LoadCursor(NULL, IDC_SIZEWE);
 		wc.lpszClassName = TEXT("wedockspliter");
 	}
 	if(((_isHoriReg == FALSE) && (flags & DMS_HORIZONTAL)) || ((_isVertReg == FALSE) && (flags & DMS_VERTICAL))) {
@@ -37,10 +37,10 @@ void DockingSplitter::init(HINSTANCE hInst, HWND hWnd, HWND hMessage, UINT flags
 			throw std::runtime_error("DockingSplitter::init : RegisterClass() function failed");
 		}
 		else if(flags & DMS_HORIZONTAL) {
-			_isHoriReg      = TRUE;
+			_isHoriReg = TRUE;
 		}
 		else {
-			_isVertReg      = TRUE;
+			_isVertReg = TRUE;
 		}
 	}
 	/* create splitter windows and initialize it */

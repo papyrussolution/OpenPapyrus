@@ -9,14 +9,7 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "errortypes.h"
-#include "platform.h"
-#include "settings.h"
 #include "templatesimplifier.h"
-#include "testsuite.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
 
 class TestSimplifyTemplate : public TestFixture {
 public:
@@ -6036,7 +6029,7 @@ private:
 
 	void simplifyTemplateArgs2() {
 		const char code[] = "template<bool T> struct a_t { static const bool t = T; };\n"
-		    "typedef a_t<sizeof(void*) == sizeof(char)> a;\n"
+		    "typedef a_t<sizeof(void *) == sizeof(char)> a;\n"
 		    "void foo() { bool b = a::t; }";
 		const char expected[] = "struct a_t<false> ; "
 		    "void foo ( ) { bool b ; b = a_t<false> :: t ; } "

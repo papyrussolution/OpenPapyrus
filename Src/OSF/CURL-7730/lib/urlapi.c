@@ -856,7 +856,7 @@ static CURLUcode seturl(const char * url, CURLU * u, unsigned int flags)
 			if(strcmp(newp, path)) {
 				/* if we got a new version */
 				if(path_alloced)
-					Curl_safefree(u->temppath);
+					ZFREE(u->temppath);
 				u->temppath = path = newp;
 				path_alloced = TRUE;
 			}
@@ -919,8 +919,8 @@ static CURLUcode seturl(const char * url, CURLU * u, unsigned int flags)
 				return CURLUE_OUT_OF_MEMORY;
 		}
 	}
-	Curl_safefree(u->scratch);
-	Curl_safefree(u->temppath);
+	ZFREE(u->scratch);
+	ZFREE(u->temppath);
 	return CURLUE_OK;
 }
 /*
@@ -1209,7 +1209,7 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 			    return CURLUE_UNKNOWN_PART;
 		}
 		if(storep && *storep) {
-			Curl_safefree(*storep);
+			ZFREE(*storep);
 		}
 		return CURLUE_OK;
 	}
@@ -1237,7 +1237,7 @@ CURLUcode curl_url_set(CURLU * u, CURLUPart what,
 		    break;
 		case CURLUPART_HOST:
 		    storep = &u->host;
-		    Curl_safefree(u->zoneid);
+		    ZFREE(u->zoneid);
 		    break;
 		case CURLUPART_ZONEID:
 		    storep = &u->zoneid;

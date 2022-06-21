@@ -198,40 +198,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\osf\zstd\lib\pool.c" />
-    <ClCompile Include="..\osf\zstd\lib\debug.c" />
-    <ClCompile Include="..\osf\zstd\lib\threading.c" />
-    <ClCompile Include="..\osf\zstd\lib\entropy_common.c" />
     <ClCompile Include="..\osf\zstd\lib\zstd-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\osf\zstd\lib\hist.c" />
-    <ClCompile Include="..\osf\zstd\lib\error_private.c" />
-    <ClCompile Include="..\osf\zstd\lib\fse_decompress.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_common.c" />
-    <ClCompile Include="..\osf\zstd\lib\fse_compress.c" />
-    <ClCompile Include="..\osf\zstd\lib\huf_compress.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_compress.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_compress_literals.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_compress_sequences.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_compress_superblock.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_fast.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_double_fast.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_lazy.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_opt.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_ldm.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstdmt_compress.c" />
-    <ClCompile Include="..\osf\zstd\lib\huf_decompress.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_decompress.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_decompress_block.c" />
-    <ClCompile Include="..\osf\zstd\lib\zstd_ddict.c" />
-    <ClCompile Include="..\osf\zstd\lib\cover.c" />
-    <ClCompile Include="..\osf\zstd\lib\fastcover.c" />
-    <ClCompile Include="..\osf\zstd\lib\divsufsort.c" />
-    <ClCompile Include="..\osf\zstd\lib\zdict.c" />
     <ClCompile Include="..\osf\zstd\programs\util.c" />
     <ClCompile Include="..\osf\zstd\programs\timefn.c" />
     <ClCompile Include="..\osf\zstd\programs\datagen.c" />

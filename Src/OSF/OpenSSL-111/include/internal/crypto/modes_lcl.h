@@ -185,4 +185,4 @@ struct ocb128_context {
         OCB_BLOCK checksum;
     } sess;
 };
-#endif                          /* OPENSSL_NO_OCB */
+#endif /* OPENSSL_NO_OCB */

@@ -76,19 +76,9 @@ __FBSDID("$FreeBSD$");
 #if defined(HAVE_EXT2FS_EXT2_FS_H) && !defined(__CYGWIN__)
 #include <ext2fs/ext2_fs.h>     /* Linux file flags, broken on Cygwin */
 #endif
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
 #ifdef HAVE_PWD_H
 #include <pwd.h>
 #endif
-//#include <stdio.h>
-//#ifdef HAVE_STDLIB_H
-//#include <stdlib.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -425,7 +415,7 @@ static int la_opendirat(int fd, const char * path)
 
 static int lazy_stat(struct archive_write_disk * a)
 {
-	if(a->pst != NULL) {
+	if(a->pst) {
 		/* Already have stat() data available. */
 		return ARCHIVE_OK;
 	}
@@ -539,7 +529,7 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 	 * Check if we have a hardlink that points to itself.
 	 */
 	linkname = archive_entry_hardlink(a->entry);
-	if(linkname != NULL && sstreq(a->name, linkname)) {
+	if(linkname && sstreq(a->name, linkname)) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Skipping hardlink pointing to itself: %s", a->name);
 		return ARCHIVE_WARN;
 	}
@@ -784,12 +774,12 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 	if(a->deferred & TODO_MAC_METADATA) {
 		size_t metadata_size;
 		const void * metadata = archive_entry_mac_metadata(a->entry, &metadata_size);
-		if(metadata != NULL && metadata_size > 0) {
+		if(metadata && metadata_size > 0) {
 			fe = current_fixup(a, archive_entry_pathname(entry));
 			if(fe == NULL)
 				return ARCHIVE_FATAL;
 			fe->mac_metadata = SAlloc::M(metadata_size);
-			if(fe->mac_metadata != NULL) {
+			if(fe->mac_metadata) {
 				memcpy(fe->mac_metadata, metadata, metadata_size);
 				fe->mac_metadata_size = metadata_size;
 				fe->fixup |= TODO_MAC_METADATA;
@@ -1691,7 +1681,7 @@ static int _archive_write_disk_finish_entry(Archive * _a)
 		const void * metadata;
 		size_t metadata_size;
 		metadata = archive_entry_mac_metadata(a->entry, &metadata_size);
-		if(metadata != NULL && metadata_size > 0) {
+		if(metadata && metadata_size > 0) {
 			int r2 = set_mac_metadata(a, archive_entry_pathname(
 					a->entry), metadata, metadata_size);
 			if(r2 < ret) ret = r2;
@@ -1737,7 +1727,7 @@ int archive_write_disk_set_group_lookup(Archive * _a, void * private_data,
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
-	if(a->cleanup_gid != NULL && a->lookup_gid_data != NULL)
+	if(a->cleanup_gid && a->lookup_gid_data)
 		(a->cleanup_gid)(a->lookup_gid_data);
 	a->lookup_gid = lookup_gid;
 	a->cleanup_gid = cleanup_gid;
@@ -1750,7 +1740,7 @@ int archive_write_disk_set_user_lookup(Archive * _a, void * private_data,
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
-	if(a->cleanup_uid != NULL && a->lookup_uid_data != NULL)
+	if(a->cleanup_uid && a->lookup_uid_data)
 		(a->cleanup_uid)(a->lookup_uid_data);
 	a->lookup_uid = lookup_uid;
 	a->cleanup_uid = cleanup_uid;
@@ -2375,7 +2365,7 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)               
 	/* Step 1: split the list. */
 	t = p;
 	a = p->next->next;
-	while(a != NULL) {
+	while(a) {
 		/* Step a twice, t once. */
 		a = a->next;
 		if(a)
@@ -2400,7 +2390,7 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)               
 		b = b->next;
 	}
 	/* Always put the later element on the list first. */
-	while(a != NULL && b != NULL) {
+	while(a && b) {
 		if(strcmp(a->name, b->name) > 0) {
 			t->next = a;
 			a = a->next;
@@ -2989,7 +2979,7 @@ static int create_dir(struct archive_write_disk * a, char * path)
 	    (base[0] == '.' && base[1] == '\0') ||
 	    (base[0] == '.' && base[1] == '.' && base[2] == '\0')) {
 		/* Don't bother trying to create null path, '.', or '..'. */
-		if(slash != NULL) {
+		if(slash) {
 			*slash = '\0';
 			r = create_dir(a, path);
 			*slash = '/';
@@ -3020,14 +3010,13 @@ static int create_dir(struct archive_write_disk * a, char * path)
 		archive_set_error(&a->archive, errno, "Can't test directory '%s'", path);
 		return ARCHIVE_FAILED;
 	}
-	else if(slash != NULL) {
+	else if(slash) {
 		*slash = '\0';
 		r = create_dir(a, path);
 		*slash = '/';
 		if(r != ARCHIVE_OK)
 			return r;
 	}
-
 	/*
 	 * Mode we want for the final restored directory.  Per POSIX,
 	 * implicitly-created dirs must be created obeying the umask.

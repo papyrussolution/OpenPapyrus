@@ -14,20 +14,10 @@
 #include "analyzerinfo.h"
 #include "cmdlineparser.h"
 #include "color.h"
-#include "cppcheck-config.h"
 #include "cppcheck.h"
-#include "errortypes.h"
-#include "filelister.h"
 #include "importproject.h"
-#include "library.h"
-#include "path.h"
-#include "pathmatch.h"
-#include "preprocessor.h"
-#include "settings.h"
 #include "suppressions.h"
 #include "threadexecutor.h"
-#include "utils.h"
-#include "checkunusedfunctions.h"
 
 #if !defined(NO_UNIX_SIGNAL_HANDLING) && defined(__GNUC__) && !defined(__MINGW32__) && !defined(__OS2__)
 #define USE_UNIX_SIGNAL_HANDLING
@@ -44,26 +34,24 @@
 #include <syscall.h>
 #endif
 #endif
-
 #if !defined(NO_UNIX_BACKTRACE_SUPPORT) && defined(USE_UNIX_SIGNAL_HANDLING) && defined(__GNUC__) && defined(__GLIBC__) && \
 	!defined(__CYGWIN__) && !defined(__MINGW32__) && !defined(__NetBSD__) && !defined(__SVR4) && !defined(__QNX__)
 #define USE_UNIX_BACKTRACE_SUPPORT
 #include <cxxabi.h>
 #include <execinfo.h>
 #endif
-
 #if defined(_WIN32)
 #if defined(_MSC_VER)
 #define USE_WINDOWS_SEH
 #endif
 #if defined (__MINGW32__)
-#   include <windows.h>
-#   include <dbghelp.h>
-#   include <tchar.h>
+	//#include <windows.h>
+	#include <dbghelp.h>
+	#include <tchar.h>
 #else
-#   include <Windows.h>
-#   include <DbgHelp.h>
-#   include <TCHAR.H>
+	//#include <Windows.h>
+	#include <DbgHelp.h>
+	#include <TCHAR.H>
 #endif
 #include <excpt.h>
 #endif
@@ -709,7 +697,7 @@ void writeMemoryErrorDetails(FILE* outputFile, PEXCEPTION_POINTERS ex, const cha
 	fprintf(outputFile, " (instruction: 0x%p) ", ex->ExceptionRecord->ExceptionAddress);
 	// Using %p for ULONG_PTR later on, so it must have size identical to size of pointer
 	// This is not the universally portable solution but good enough for Win32/64
-	C_ASSERT(sizeof(void*) == sizeof(ex->ExceptionRecord->ExceptionInformation[1]));
+	C_ASSERT(sizeof(void *) == sizeof(ex->ExceptionRecord->ExceptionInformation[1]));
 	switch(ex->ExceptionRecord->ExceptionInformation[0]) {
 		case 0:
 		    fprintf(outputFile, "reading from 0x%p",

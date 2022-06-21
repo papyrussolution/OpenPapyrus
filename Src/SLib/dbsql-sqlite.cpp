@@ -6,7 +6,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <snet.h>
-#include <..\OSF\SQLite\sqlite3.h>
+#include <..\osf\SQLite\sqlite3.h>
 
 #ifndef NDEBUG
 	#define DEBUG_LOG(msg) SLS.LogMessage("dbsqlite.log", msg, 0)

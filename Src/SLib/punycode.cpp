@@ -19,7 +19,7 @@ enum {
 #if 0 // {
 enum punycode_status {
 	punycode_success = 0,
-	punycode_bad_input = 1,	/* Input is invalid.                       */
+	punycode_bad_input = 1,	/* Input is invalid. */
 	punycode_big_output = 2,	/* Output would exceed the space provided. */
 	punycode_overflow = 3	/* Wider integers needed to process input. */
 };

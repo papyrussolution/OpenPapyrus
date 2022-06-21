@@ -451,10 +451,8 @@ TimeZone* U_EXPORT2 TimeZone::detectHostTimeZone()
 	// hostID points to a heap-allocated location on Windows.
 	uprv_free(const_cast<char *>(hostID));
 #endif
-
 	int32_t hostIDLen = hostStrID.length();
-	if(hostZone != NULL && rawOffset != hostZone->getRawOffset()
-	 && (3 <= hostIDLen && hostIDLen <= 4)) {
+	if(hostZone && rawOffset != hostZone->getRawOffset() && (3 <= hostIDLen && hostIDLen <= 4)) {
 		// Uh oh. This probably wasn't a good id.
 		// It was probably an ambiguous abbreviation
 		delete hostZone;
@@ -491,14 +489,12 @@ static UMutex gDefaultZoneMutex;
 static void U_CALLCONV initDefault()
 {
 	ucln_i18n_registerCleanup(UCLN_I18N_TIMEZONE, timeZone_cleanup);
-
 	Mutex lock(&gDefaultZoneMutex);
 	// If setDefault() has already been called we can skip getting the
 	// default zone information from the system.
-	if(DEFAULT_ZONE != NULL) {
+	if(DEFAULT_ZONE) {
 		return;
 	}
-
 	// NOTE:  this code is safely single threaded, being only
 	// run via umtx_initOnce().
 	//
@@ -511,11 +507,8 @@ static void U_CALLCONV initDefault()
 
 	// The code detecting the host time zone was separated from this
 	// and implemented as TimeZone::detectHostTimeZone()
-
 	TimeZone * default_zone = TimeZone::detectHostTimeZone();
-
 	U_ASSERT(DEFAULT_ZONE == NULL);
-
 	DEFAULT_ZONE = default_zone;
 }
 
@@ -524,7 +517,7 @@ TimeZone* U_EXPORT2 TimeZone::createDefault()
 	umtx_initOnce(gDefaultZoneInitOnce, initDefault);
 	{
 		Mutex lock(&gDefaultZoneMutex);
-		return (DEFAULT_ZONE != NULL) ? DEFAULT_ZONE->clone() : NULL;
+		return DEFAULT_ZONE ? DEFAULT_ZONE->clone() : NULL;
 	}
 }
 
@@ -545,7 +538,7 @@ TimeZone* U_EXPORT2 TimeZone::forLocaleOrDefault(const Locale & locale)
 
 void U_EXPORT2 TimeZone::adoptDefault(TimeZone* zone)
 {
-	if(zone != NULL) {
+	if(zone) {
 		{
 			Mutex lock(&gDefaultZoneMutex);
 			TimeZone * old = DEFAULT_ZONE;
@@ -766,21 +759,16 @@ public:
 		if(U_FAILURE(ec)) {
 			return NULL;
 		}
-
 		int32_t baseLen;
 		int32_t * baseMap = getMap(type, baseLen, ec);
-
 		if(U_FAILURE(ec)) {
 			return NULL;
 		}
-
 		// If any additional conditions are available,
 		// create instance local map filtered by the conditions.
-
 		int32_t * filteredMap = NULL;
 		int32_t numEntries = 0;
-
-		if(region != NULL || rawOffset != NULL) {
+		if(region || rawOffset) {
 			int32_t filteredMapSize = DEFAULT_FILTERED_MAP_SIZE;
 			filteredMap = (int32_t*)uprv_malloc(filteredMapSize * sizeof(int32_t));
 			if(filteredMap == NULL) {
@@ -797,7 +785,7 @@ public:
 				if(U_FAILURE(ec)) {
 					break;
 				}
-				if(region != NULL) {
+				if(region) {
 					// Filter by region
 					char tzregion[4]; // max 3 letters + null term
 					TimeZone::getRegion(id, tzregion, sizeof(tzregion), ec);
@@ -809,7 +797,7 @@ public:
 						continue;
 					}
 				}
-				if(rawOffset != NULL) {
+				if(rawOffset) {
 					// Filter by raw offset
 					// Note: This is VERY inefficient
 					TimeZone * z = createSystemTimeZone(id, ec);
@@ -861,18 +849,15 @@ public:
 				ec = U_MEMORY_ALLOCATION_ERROR;
 			}
 		}
-
-		if(filteredMap != NULL) {
+		if(filteredMap) {
 			uprv_free(filteredMap);
 		}
-
 		return result;
 	}
-
 	TZEnumeration(const TZEnumeration &other) : StringEnumeration(), map(NULL), localMap(NULL), len(0), pos(0) {
-		if(other.localMap != NULL) {
+		if(other.localMap) {
 			localMap = (int32_t*)uprv_malloc(other.len * sizeof(int32_t));
-			if(localMap != NULL) {
+			if(localMap) {
 				len = other.len;
 				uprv_memcpy(localMap, other.localMap, len * sizeof(int32_t));
 				pos = other.pos;
@@ -891,19 +876,16 @@ public:
 			pos = other.pos;
 		}
 	}
-
 	virtual ~TZEnumeration();
-
 	virtual StringEnumeration * clone() const override {
 		return new TZEnumeration(*this);
 	}
-
 	virtual int32_t count(UErrorCode & status) const override {
 		return U_FAILURE(status) ? 0 : len;
 	}
-
-	virtual const UnicodeString * snext(UErrorCode & status) override {
-		if(U_SUCCESS(status) && map != NULL && pos < len) {
+	virtual const UnicodeString * snext(UErrorCode & status) override 
+	{
+		if(U_SUCCESS(status) && map && pos < len) {
 			getID(map[pos], status);
 			++pos;
 			return &unistr;
@@ -920,30 +902,31 @@ public:
 	virtual UClassID getDynamicClassID() const override;
 };
 
-TZEnumeration::~TZEnumeration() {
-	if(localMap != NULL) {
+TZEnumeration::~TZEnumeration() 
+{
+	if(localMap)
 		uprv_free(localMap);
-	}
 }
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(TZEnumeration)
 
-StringEnumeration * U_EXPORT2 TimeZone::createTimeZoneIDEnumeration(USystemTimeZoneType zoneType,
-    const char * region,
-    const int32_t* rawOffset,
-    UErrorCode & ec) {
+StringEnumeration * U_EXPORT2 TimeZone::createTimeZoneIDEnumeration(USystemTimeZoneType zoneType, const char * region, const int32_t* rawOffset, UErrorCode & ec) 
+{
 	return TZEnumeration::create(zoneType, region, rawOffset, ec);
 }
 
-StringEnumeration * U_EXPORT2 TimeZone::createEnumeration(UErrorCode & status) {
+StringEnumeration * U_EXPORT2 TimeZone::createEnumeration(UErrorCode & status) 
+{
 	return TZEnumeration::create(UCAL_ZONE_TYPE_ANY, NULL, NULL, status);
 }
 
-StringEnumeration * U_EXPORT2 TimeZone::createEnumerationForRawOffset(int32_t rawOffset, UErrorCode & status) {
+StringEnumeration * U_EXPORT2 TimeZone::createEnumerationForRawOffset(int32_t rawOffset, UErrorCode & status) 
+{
 	return TZEnumeration::create(UCAL_ZONE_TYPE_ANY, NULL, &rawOffset, status);
 }
 
-StringEnumeration * U_EXPORT2 TimeZone::createEnumerationForRegion(const char * region, UErrorCode & status) {
+StringEnumeration * U_EXPORT2 TimeZone::createEnumerationForRegion(const char * region, UErrorCode & status) 
+{
 	return TZEnumeration::create(UCAL_ZONE_TYPE_ANY, region, NULL, status);
 }
 

@@ -5,10 +5,12 @@
 #include <pp.h>
 #pragma hdrstop
 #if(_MSC_VER >= 1900)
+	#include <cmath>
 	#include <unicode\uclean.h>
 	#include <unicode\brkiter.h>
 	#include <unicode\measunit.h>
 	#include <unicode\measfmt.h>
+	#include <unicode\unumberformatter.h>
 #endif
 #include <sartre.h>
 #include <locale.h>
@@ -1335,6 +1337,59 @@ void SrImportParam::SetField(int fld, const char * pVal) { StrItems.Add(fld, pVa
 int SrImportParam::GetField(int fld, SString & rVal) const { return StrItems.GetText(fld, rVal); }
 //
 //
+#if(_MSC_VER >= 1900) // {
+// @construction {
+#include <..\OSF\abseil\absl\numeric\int128.h>
+
+static const uint64 __ued_geoloc = 0x93ULL;
+
+/*static*/uint64 UED::ConvertGeoLoc(const SGeoPosLL & rGeoPos)
+{
+	uint64 result = 0;
+	if(rGeoPos.IsValid()) {
+		const uint64 ued_width = ((1 << 28) - 1); // 28 bits
+		uint64 _lat = static_cast<uint64>((rGeoPos.Lat + 90.0)  * 1000000.0);
+		uint64 _lon = static_cast<uint64>((rGeoPos.Lon + 180.0) * 1000000.0);
+		absl::uint128 _lat128 = (_lat * ued_width);
+		_lat128 /= absl::uint128(180ULL * 1000000ULL);
+		assert(_lat128 <= ued_width);
+		absl::uint128 _lon128 = (_lon * ued_width);
+		_lon128 /= absl::uint128(360ULL * 1000000ULL);
+		assert(_lon128 <= ued_width);
+		result = (__ued_geoloc << 56) | (static_cast<uint64>(_lat128) << 28) | (static_cast<uint64>(_lon128));
+		//
+		// test straighten
+		//
+		SGeoPosLL test_geopos;
+		absl::uint128 _lat128_ = ((result >> 28) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
+		absl::uint128 _lon128_ = (result & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
+		_lat128_ /= ued_width;
+		_lon128_ /= ued_width;
+		test_geopos.Lat = (static_cast<double>(_lat128_) / 1000000.0) - 90.0;
+		test_geopos.Lon = (static_cast<double>(_lon128_) / 1000000.0) - 180.0;
+	}
+	return result;
+}
+
+/*static*/uint64 UED::StraightenGeoLoc(uint64 ued, SGeoPosLL & rGeoPos)
+{
+	uint64 result = 0;
+	if((ued >> 56) == __ued_geoloc) {
+		const uint64 ued_width = ((1 << 28) - 1); // 28 bits
+		absl::uint128 _lat128 = ((ued >> 28) & 0xfffffffULL) * absl::uint128(180ULL * 1000000ULL);
+		absl::uint128 _lon128 = (ued & 0xfffffffULL) * absl::uint128(360ULL * 1000000ULL);
+		_lat128 /= ued_width;
+		_lon128 /= ued_width;
+		rGeoPos.Lat = (static_cast<double>(_lat128) / 1000000.0) - 90.0;
+		rGeoPos.Lon = (static_cast<double>(_lon128) / 1000000.0) - 180.0;
+		result = 1;
+	}
+	return result;
+}
+// } @construction
+#endif // } (_MSC_VER >= 1900)
+//
+//
 //
 static IMPL_CMPFUNC(SrUedContainer_TextEntry, p1, p2)
 {
@@ -1549,11 +1604,11 @@ int SrUedContainer::ReadSource(const char * pFileName)
 int SrUedContainer::WriteSource(const char * pFileName)
 {
 	int    ok = 1;
+	SString line_buf;
+	SString temp_buf;
 	THROW(!isempty(pFileName)); // @err
 	THROW(LinguaLocusMeta); // @err
 	{
-		SString line_buf;
-		SString temp_buf;
 		SFile f_out(pFileName, SFile::mWrite|SFile::mBinary);
 		THROW_SL(f_out.IsValid());
 		BL.sort(PTR_CMPFUNC(int64));
@@ -1576,14 +1631,27 @@ int SrUedContainer::WriteSource(const char * pFileName)
 				assert(ued_locus);
 				SearchBaseId(ued_locus, temp_buf);
 				assert(temp_buf.NotEmpty());
-				line_buf.CatQStr(temp_buf).Space();
+				line_buf.Cat(temp_buf).Space(); // locale without quotes!
 				GetS(r_e.TextP, temp_buf);
 				assert(temp_buf.NotEmpty());
-				line_buf.Cat(temp_buf);
+				line_buf.CatQStr(temp_buf);
 				line_buf.CRB();
 				f_out.WriteLine(line_buf);
 			}
 		}
+	}
+	{
+		SPathStruc ps(pFileName);
+		ps.Ext = "sha256";
+		ps.Merge(temp_buf);
+		SFile f_in(pFileName, SFile::mRead|SFile::mBinary);
+		SFile f_hash(temp_buf, SFile::mWrite);
+		SBinaryChunk bc_hash;
+		THROW_SL(f_in.IsValid());
+		THROW_SL(f_hash.IsValid());
+		THROW_SL(f_in.CalcHash(0, SHASHF_SHA256, bc_hash));
+		bc_hash.Hex(temp_buf);
+		f_hash.WriteLine(temp_buf);
 	}
 	CATCHZOK
 	return ok;
@@ -1606,21 +1674,33 @@ int Test_ReadUed(const char * pFileName)
 	SStringU temp_buf_u;
 #if(_MSC_VER >= 1900)
 	{
+		SGeoPosLL gp(40.67241045687091, -74.24130029528962);
+		uint64 ued_gp = UED::ConvertGeoLoc(gp);
+		SGeoPosLL gp_;
+		UED::StraightenGeoLoc(ued_gp, gp_);
+	}
+	{
 		UErrorCode icu_st = U_ZERO_ERROR;
-		{
+		/*{
 			PPGetPath(PPPATH_BIN, temp_buf);
 			u_setDataDirectory(temp_buf);
 			u_init(&icu_st);
-		}
+		}*/
 		//
 		MeasureUnit avl_units[2048];
 		icu_st = U_ZERO_ERROR;
 		Locale lcl("ru_RU");
 		MeasureFormat mf(lcl, UMEASFMT_WIDTH_WIDE, icu_st);
 		int avl_count = MeasureUnit::getAvailable(avl_units, SIZEOFARRAY(avl_units), icu_st);
+		//UnicodeString measure_data_buf_list[24]; // really 11 needed
+		//SStringU measure_text_list_u[24];
 		//MeasureUnit mu("kilogram");
 		for(int i = 0; i < avl_count; i++) {
 			UnicodeString udn = mf.getUnitDisplayName(avl_units[i], icu_st);
+			//getMeasureData(lcl, avl_units[i], UNUM_UNIT_WIDTH_FULL_NAME, ""/*unitDisplayCase*/, measure_data_buf_list, icu_st);
+			//for(uint j = 0; j < 11; j++) {
+			//	measure_text_list_u[j].Z().CatN(reinterpret_cast<const wchar_t *>(measure_data_buf_list[j].getBuffer()), measure_data_buf_list[j].length());
+			//}
 			temp_buf_u.Z().CatN(reinterpret_cast<const wchar_t *>(udn.getBuffer()), udn.length());
 		}
 	}

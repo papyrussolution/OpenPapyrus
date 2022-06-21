@@ -1609,15 +1609,43 @@ int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj, int c
 	THROW(pJsonObj);
 	for(uint j = 0; pScope->EnumInheritance(&j, &p_scope);) {
 		for(uint i = 0; p_scope->EnumFields(&i, &fld);) {
-			fld.GetFieldDataFromBuf(buf, p_scope->GetDataC(0), fp);
-			if(fld.T.IsZStr(0)) {
+			const void * p_rec_data = p_scope->GetDataC(0);
+			buf.Z();
+			if(fld.T.IsZStr(0))	{
+				fld.GetFieldDataFromBuf(buf, p_rec_data, fp);
 				if(cp == cpUTF8)
 					buf.Transf(CTRANSF_INNER_TO_UTF8);
 				else
 					buf.Transf(CTRANSF_INNER_TO_OUTER);
+				buf.Escape();
+				pJsonObj->InsertString(fld.Name.cptr(), buf);
 			}
-			buf.Escape();
-			pJsonObj->InsertString(fld.Name.cptr(), buf);
+			else {
+				char   temp_text_buf[8192];
+				const  TYPEID st = fld.T.GetDbFieldType();
+				const  int    base_type = stbase(st);
+				PTR32(temp_text_buf)[0] = 0;
+				if(adoptTypes && base_type == BTS_REAL) {
+					const void * p_fld_data = PTR8C(p_rec_data)+fld.InnerOffs;
+					// Мы здесь должны ради осторожности убрать дополнительные флаги форматирования дабы
+					// не получить в числовом значении запятой вместо точки или разделителей разрядов.
+					const int fmt_real = MKSTYPED(0, GETSSIZED(fp.FReal), GETSPRECD(fp.FReal));
+					sttostr(st, p_fld_data, fmt_real, temp_text_buf);
+					(buf = temp_text_buf).Escape();
+					pJsonObj->InsertNumber(fld.Name.cptr(), buf);
+				}
+				else if(adoptTypes && base_type == BTS_INT) {
+					const void * p_fld_data = PTR8C(p_rec_data)+fld.InnerOffs;
+					sttostr(st, p_fld_data, 0, temp_text_buf);
+					(buf = temp_text_buf).Escape();
+					pJsonObj->InsertNumber(fld.Name.cptr(), buf);
+				}
+				else {
+					fld.GetFieldDataFromBuf(buf, p_rec_data, fp);
+					buf.Escape();
+					pJsonObj->InsertString(fld.Name.cptr(), buf);
+				}
+			}
 		}
 	}
 	CATCHZOK
@@ -1714,7 +1742,13 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 							if(fld_type_symb.NotEmpty()) {
 								p_vd_item->InsertString("FieldType", fld_type_symb);
 							}
-							// } @v11.4.1 
+							// } @v11.4.1
+							// @v11.4.2 {
+							if(tmp_entry.Format)
+								p_vd_item->InsertInt("SlFormat", tmp_entry.Format);
+							if(tmp_entry.Format2)
+								p_vd_item->InsertInt("SlFormat2", tmp_entry.Format2);
+							// } @v11.4.2 
 							p_vd_item->InsertString("Text", tmp_entry.Text);
 							p_vd_item->InsertString("TotalFunc", temp_buf.Z().Cat(tmp_entry.TotalFunc));
 							p_vd_list->InsertChild(p_vd_item);
@@ -1732,7 +1766,7 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 					THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
 					{
 						SJson * p_ho = SJson::CreateObj();
-						Helper_PutScopeToJson(p_child, p_ho, rParam.Cp, false);
+						Helper_PutScopeToJson(p_child, p_ho, rParam.Cp, true);
 						pRoot->Insert("hdr", p_ho);
 					}
 				}
@@ -1750,7 +1784,7 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 					SJson * p_iter_ary = SJson::CreateArr();
 					while(NextIteration(iter_id) > 0) {
 						SJson * p_iter_obj = SJson::CreateObj();
-						Helper_PutScopeToJson(p_child, p_iter_obj, rParam.Cp, false);
+						Helper_PutScopeToJson(p_child, p_iter_obj, rParam.Cp, true);
 						THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
 					}
 					THROW_SL(pRoot->Insert(suffix.cptr(), p_iter_ary));

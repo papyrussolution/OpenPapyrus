@@ -780,6 +780,28 @@ int SBinaryChunk::FromMime64(const char * pMimeString)
 	return ok;
 }
 
+SString & SBinaryChunk::Hex(SString & rBuf) const
+{
+	Hex_Encode(0, reinterpret_cast<uint8 *>(P_Buf), Len(), rBuf);
+	return rBuf;
+}
+	
+int SBinaryChunk::FromHex(const char * pHexString)
+{
+	Z();
+	int    ok = 1;
+	const  size_t len = sstrlen(pHexString);
+	if(len) {
+		THROW((len & 1) == 0);
+		for(size_t i = 0; i < len; i++) {
+			THROW(ishex(pHexString[i]));
+		}
+		Hex_Decode(reinterpret_cast<uint8 *>(P_Buf), Len(), *this);
+	}
+	CATCHZOK
+	return ok;
+}
+
 bool SBinaryChunk::Ensure(size_t len)
 {
 	bool   ok = true;

@@ -1125,7 +1125,7 @@ bundle_write_xml(struct SRBRoot *bundle, const char *outputDir,const char * outp
 
     out= T_FileStream_open(xmlfileName,"w");
 
-    if(out==NULL) {
+    if(!out) {
         *status = U_FILE_ACCESS_ERROR;
         goto cleanup_bundle_write_xml;
     }
@@ -1144,7 +1144,7 @@ bundle_write_xml(struct SRBRoot *bundle, const char *outputDir,const char * outp
     write_utf8_file(out, UnicodeString(fileStart));
     /* check if lang and language are the same */
     if(language != NULL && uprv_strcmp(lang, srBundle->fLocale)!=0) {
-        fprintf(stderr,"Warning: The top level tag in the resource and language specified are not the same. Please check the input.\n");
+        slfprintf_stderr("Warning: The top level tag in the resource and language specified are not the same. Please check the input.\n");
     }
     write_utf8_file(out, UnicodeString(lang));
     write_utf8_file(out, UnicodeString(file1));

@@ -9,8 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "platform.h"
-#include "testsuite.h"
 
 class TestPlatform : public TestFixture {
 public:

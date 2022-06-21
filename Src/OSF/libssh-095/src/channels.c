@@ -128,7 +128,7 @@ SSH_PACKET_CALLBACK(ssh_packet_channel_open_conf)
 	if(rc != SSH_OK)
 		goto error;
 	channel = ssh_channel_from_local(session, channelid);
-	if(channel==NULL) {
+	if(!channel) {
 		ssh_set_error(session, SSH_FATAL, "Unknown channel id %" PRIu32, (uint32_t)channelid);
 		/* TODO: Set error marking in channel object */
 		return SSH_PACKET_USED;
@@ -166,7 +166,7 @@ SSH_PACKET_CALLBACK(ssh_packet_channel_open_fail)
 	(void)user;
 	(void)type;
 	channel = channel_from_msg(session, packet);
-	if(channel==NULL) {
+	if(!channel) {
 		SSH_LOG(SSH_LOG_RARE, "Invalid channel in packet");
 		return SSH_PACKET_USED;
 	}
@@ -241,7 +241,7 @@ static int channel_open(ssh_channel channel, const char * type, uint32_t window,
 		ssh_set_error_oom(session);
 		return err;
 	}
-	if(payload != NULL) {
+	if(payload) {
 		if(ssh_buffer_add_buffer(session->out_buffer, payload) < 0) {
 			ssh_set_error_oom(session);
 			return err;
@@ -276,7 +276,7 @@ ssh_channel ssh_channel_from_local(ssh_session session, uint32_t id)
 {
 	struct ssh_iterator * it;
 	ssh_channel channel;
-	for(it = ssh_list_get_iterator(session->channels); it != NULL; it = it->next) {
+	for(it = ssh_list_get_iterator(session->channels); it; it = it->next) {
 		channel = ssh_iterator_value(ssh_channel, it);
 		if(!channel) {
 			continue;
@@ -943,20 +943,16 @@ void ssh_channel_do_free(ssh_channel channel)
 {
 	struct ssh_iterator * it = NULL;
 	ssh_session session = channel->session;
-
 	it = ssh_list_find(session->channels, channel);
-	if(it != NULL) {
+	if(it) {
 		ssh_list_remove(session->channels, it);
 	}
-
 	SSH_BUFFER_FREE(channel->stdout_buffer);
 	SSH_BUFFER_FREE(channel->stderr_buffer);
-
-	if(channel->callbacks != NULL) {
+	if(channel->callbacks) {
 		ssh_list_free(channel->callbacks);
 		channel->callbacks = NULL;
 	}
-
 	channel->session = NULL;
 	ZFREE(channel);
 }
@@ -1202,38 +1198,29 @@ static int channel_write_common(ssh_channel channel,
 			ssh_set_error_oom(session);
 			goto error;
 		}
-
 		rc = ssh_packet_send(session);
 		if(rc == SSH_ERROR) {
 			return SSH_ERROR;
 		}
-
-		SSH_LOG(SSH_LOG_PACKET,
-		    "channel_write wrote %ld bytes", (long int)effectivelen);
-
+		SSH_LOG(SSH_LOG_PACKET, "channel_write wrote %ld bytes", (long int)effectivelen);
 		channel->remote_window -= effectivelen;
 		len -= effectivelen;
 		data = ((uint8 *)data + effectivelen);
-		if(channel->counter != NULL) {
+		if(channel->counter) {
 			channel->counter->out_bytes += effectivelen;
 		}
 	}
-
 	/* it's a good idea to flush the socket now */
 	rc = ssh_channel_flush(channel);
 	if(rc == SSH_ERROR) {
 		goto error;
 	}
-
 out:
 	return (int)(origlen - len);
-
 error:
 	ssh_buffer_reinit(session->out_buffer);
-
 	return SSH_ERROR;
 }
-
 /**
  * @brief Get the remote window size.
  *
@@ -2016,7 +2003,7 @@ int ssh_channel_listen_forward(ssh_session session, const char * address, int po
 pending:
 	rc = ssh_global_request(session, "tcpip-forward", buffer, 1);
 	// TODO: FIXME no guarantee the last packet we received contains that info 
-	if(rc == SSH_OK && port == 0 && bound_port != NULL) {
+	if(rc == SSH_OK && port == 0 && bound_port) {
 		rc = ssh_buffer_unpack(session->in_buffer, "d", bound_port);
 		if(rc != SSH_OK)
 			*bound_port = 0;
@@ -2519,7 +2506,7 @@ int ssh_channel_read_timeout(ssh_channel channel, void * dest, uint32_t count, i
 	len = (len > count ? count : len);
 	memcpy(dest, ssh_buffer_get(stdbuf), len);
 	ssh_buffer_pass_bytes(stdbuf, len);
-	if(channel->counter != NULL) {
+	if(channel->counter) {
 		channel->counter->in_bytes += len;
 	}
 	/* Authorize some buffering while userapp is busy */
@@ -2751,30 +2738,25 @@ int ssh_channel_get_exit_status(ssh_channel channel)
  * This is made in two parts: protocol select and network select. The protocol
  * select does not use the network functions at all
  */
-static int channel_protocol_select(ssh_channel * rchans, ssh_channel * wchans,
-    ssh_channel * echans, ssh_channel * rout, ssh_channel * wout, ssh_channel * eout) {
+static int channel_protocol_select(ssh_channel * rchans, ssh_channel * wchans, ssh_channel * echans, ssh_channel * rout, ssh_channel * wout, ssh_channel * eout) 
+{
 	ssh_channel chan;
 	int i;
 	int j = 0;
-
-	for(i = 0; rchans[i] != NULL; i++) {
+	for(i = 0; rchans[i]; i++) {
 		chan = rchans[i];
-
 		while(ssh_channel_is_open(chan) && ssh_socket_data_available(chan->session->socket)) {
 			ssh_handle_packets(chan->session, SSH_TIMEOUT_NONBLOCKING);
 		}
-
-		if((chan->stdout_buffer && ssh_buffer_get_len(chan->stdout_buffer) > 0) ||
-		    (chan->stderr_buffer && ssh_buffer_get_len(chan->stderr_buffer) > 0) ||
+		if((chan->stdout_buffer && ssh_buffer_get_len(chan->stdout_buffer) > 0) || (chan->stderr_buffer && ssh_buffer_get_len(chan->stderr_buffer) > 0) ||
 		    chan->remote_eof) {
 			rout[j] = chan;
 			j++;
 		}
 	}
 	rout[j] = NULL;
-
 	j = 0;
-	for(i = 0; wchans[i] != NULL; i++) {
+	for(i = 0; wchans[i]; i++) {
 		chan = wchans[i];
 		/* It's not our business to seek if the file descriptor is writable */
 		if(ssh_socket_data_writable(chan->session->socket) &&
@@ -2786,16 +2768,14 @@ static int channel_protocol_select(ssh_channel * rchans, ssh_channel * wchans,
 	wout[j] = NULL;
 
 	j = 0;
-	for(i = 0; echans[i] != NULL; i++) {
+	for(i = 0; echans[i]; i++) {
 		chan = echans[i];
-
 		if(!ssh_socket_is_open(chan->session->socket) || ssh_channel_is_closed(chan)) {
 			eout[j] = chan;
 			j++;
 		}
 	}
 	eout[j] = NULL;
-
 	return 0;
 }
 
@@ -2803,9 +2783,8 @@ static int channel_protocol_select(ssh_channel * rchans, ssh_channel * wchans,
 static size_t count_ptrs(ssh_channel * ptrs)
 {
 	size_t c;
-	for(c = 0; ptrs[c] != NULL; c++)
+	for(c = 0; ptrs[c]; c++)
 		;
-
 	return c;
 }
 
@@ -2831,8 +2810,8 @@ static size_t count_ptrs(ssh_channel * ptrs)
  *               select(2) syscall was interrupted, then relaunch the
  *               function, or SSH_ERROR on error.
  */
-int ssh_channel_select(ssh_channel * readchans, ssh_channel * writechans,
-    ssh_channel * exceptchans, struct timeval * timeout) {
+int ssh_channel_select(ssh_channel * readchans, ssh_channel * writechans, ssh_channel * exceptchans, struct timeval * timeout) 
+{
 	ssh_channel * rchans, * wchans, * echans;
 	ssh_channel dummy = NULL;
 	ssh_event event = NULL;
@@ -2841,8 +2820,7 @@ int ssh_channel_select(ssh_channel * readchans, ssh_channel * writechans,
 	int tm, tm_base;
 	int firstround = 1;
 	struct ssh_timestamp ts;
-
-	if(timeout != NULL)
+	if(timeout)
 		tm_base = timeout->tv_sec * 1000 + timeout->tv_usec/1000;
 	else
 		tm_base = SSH_TIMEOUT_INFINITE;
@@ -2884,7 +2862,7 @@ int ssh_channel_select(ssh_channel * readchans, ssh_channel * writechans,
 	 */
 	do {
 		channel_protocol_select(readchans, writechans, exceptchans, rchans, wchans, echans);
-		if(rchans[0] != NULL || wchans[0] != NULL || echans[0] != NULL) {
+		if(rchans[0] || wchans[0] || echans[0]) {
 			/* At least one channel has an event */
 			break;
 		}
@@ -2898,15 +2876,15 @@ int ssh_channel_select(ssh_channel * readchans, ssh_channel * writechans,
 
 				return SSH_ERROR;
 			}
-			for(i = 0; readchans[i] != NULL; i++) {
+			for(i = 0; readchans[i]; i++) {
 				ssh_poll_get_default_ctx(readchans[i]->session);
 				ssh_event_add_session(event, readchans[i]->session);
 			}
-			for(i = 0; writechans[i] != NULL; i++) {
+			for(i = 0; writechans[i]; i++) {
 				ssh_poll_get_default_ctx(writechans[i]->session);
 				ssh_event_add_session(event, writechans[i]->session);
 			}
-			for(i = 0; exceptchans[i] != NULL; i++) {
+			for(i = 0; exceptchans[i]; i++) {
 				ssh_poll_get_default_ctx(exceptchans[i]->session);
 				ssh_event_add_session(event, exceptchans[i]->session);
 			}
@@ -2957,13 +2935,11 @@ int ssh_channel_select(ssh_channel * readchans, ssh_channel * writechans,
  *
  * @param[in] counter Counter for bytes handled by the channel.
  */
-void ssh_channel_set_counter(ssh_channel channel,
-    ssh_counter counter) {
-	if(channel != NULL) {
+void ssh_channel_set_counter(ssh_channel channel, ssh_counter counter) 
+{
+	if(channel)
 		channel->counter = counter;
-	}
 }
-
 /**
  * @brief Blocking write on a channel stderr.
  *

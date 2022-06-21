@@ -32,7 +32,7 @@
 	#include <brotli/decode.h>
 #endif
 #ifdef HAVE_ZSTD
-	#include <..\OSF\zstd\lib\include\zstd.h>
+	#include <..\osf\zstd\lib\include\zstd.h>
 #endif
 //#include "sendf.h"
 #include "http.h"
@@ -108,7 +108,7 @@ static CURLcode process_zlib_error(struct connectdata * conn, z_stream * z)
 static CURLcode exit_zlib(struct connectdata * conn, z_stream * z, zlibInitState * zlib_init, CURLcode result)
 {
 	if(*zlib_init == ZLIB_GZIP_HEADER) {
-		//Curl_safefree(z->next_in);
+		//ZFREE(z->next_in);
 		SAlloc::F(const_cast<Bytef *>(z->next_in)); // @badcast
 		z->next_in = 0;
 	}

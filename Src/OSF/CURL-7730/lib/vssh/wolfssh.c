@@ -864,7 +864,7 @@ static CURLcode wssh_statemach_act(struct connectdata * conn, bool * block)
 			    return CURLE_SSH;
 
 			case SSH_SFTP_SHUTDOWN:
-			    Curl_safefree(sshc->homedir);
+			    ZFREE(sshc->homedir);
 			    wolfSSH_free(sshc->ssh_session);
 			    wolfSSH_CTX_free(sshc->ctx);
 			    state(conn, SSH_STOP);
@@ -1027,7 +1027,7 @@ static CURLcode wssh_done(struct connectdata * conn, CURLcode status)
 		result = status;
 
 	if(sftp_scp)
-		Curl_safefree(sftp_scp->path);
+		ZFREE(sftp_scp->path);
 	if(Curl_pgrsDone(conn))
 		return CURLE_ABORTED_BY_CALLBACK;
 

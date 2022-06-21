@@ -114,7 +114,7 @@ int mi_dupenv_s(char ** buf, size_t* size, const char * name) NOEXCEPT
 	if(buf==NULL || name==NULL) return EINVAL;
 	ASSIGN_PTR(size, 0);
 	char * p = getenv(name);  // mscver warning 4996
-	if(p==NULL) {
+	if(!p) {
 		*buf = NULL;
 	}
 	else {
@@ -135,7 +135,7 @@ int mi_wdupenv_s(unsigned short** buf, size_t* size, const unsigned short* name)
 	return EINVAL;
 #else
 	unsigned short* p = (unsigned short*)_wgetenv((const wchar_t *)name); // msvc warning 4996
-	if(p==NULL) {
+	if(!p) {
 		*buf = NULL;
 	}
 	else {

@@ -944,8 +944,8 @@ static CURLcode tftp_disconnect(struct connectdata * conn, bool dead_connection)
 
 	/* done, free dynamically allocated pkt buffers */
 	if(state) {
-		Curl_safefree(state->rpacket.data);
-		Curl_safefree(state->spacket.data);
+		ZFREE(state->rpacket.data);
+		ZFREE(state->spacket.data);
 		SAlloc::F(state);
 	}
 

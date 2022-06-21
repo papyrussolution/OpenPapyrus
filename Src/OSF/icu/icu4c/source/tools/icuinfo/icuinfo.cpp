@@ -220,18 +220,15 @@ void cmd_listplugins() {
 #endif
 }
 
-extern int main(int argc, char * argv[]) {
+extern int main(int argc, char * argv[]) 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	bool didSomething = FALSE;
-
 	/* preset then read command line options */
 	argc = u_parseArgs(argc, argv, UPRV_LENGTHOF(options), options);
-
 	/* error handling, printing usage message */
 	if(argc<0) {
-		fprintf(stderr,
-		    "error in command line argument \"%s\"\n",
-		    argv[-argc]);
+		slfprintf_stderr("error in command line argument \"%s\"\n", argv[-argc]);
 	}
 	if(options[0].doesOccur || options[1].doesOccur) {
 		slfprintf_stderr("%s: Output information about the current ICU\n", argv[0]);
@@ -269,7 +266,7 @@ extern int main(int argc, char * argv[]) {
 	}
 	if(options[7].doesOccur) { /* 2nd part of version: cleanup */
 		FILE * out = fopen(options[7].value, "w");
-		if(out==NULL) {
+		if(!out) {
 			slfprintf_stderr("ERR: can't write to XML file %s\n", options[7].value);
 			return 1;
 		}

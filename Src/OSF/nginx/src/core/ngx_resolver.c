@@ -1170,49 +1170,33 @@ static void ngx_resolver_tcp_read(ngx_event_t * rev)
 	size_t size;
 	ssize_t n;
 	u_short qlen;
-	ngx_buf_t  * b;
-	ngx_resolver_t   * r;
-	ngx_connection_t * c;
-	ngx_resolver_connection_t  * rec;
-
-	c = (ngx_connection_t *)rev->P_Data;
-	rec = (ngx_resolver_connection_t *)c->data;
-	b = rec->read_buf;
-	r = rec->resolver;
-
+	ngx_connection_t * c = (ngx_connection_t *)rev->P_Data;
+	ngx_resolver_connection_t  * rec = (ngx_resolver_connection_t *)c->data;
+	ngx_buf_t * b = rec->read_buf;
+	ngx_resolver_t * r = rec->resolver;
 	while(rev->ready) {
 		n = ngx_recv(c, b->last, b->end - b->last);
-
 		if(n == NGX_AGAIN) {
 			break;
 		}
-
 		if(n == NGX_ERROR || n == 0) {
 			goto failed;
 		}
-
 		b->last += n;
-
 		for(;; ) {
 			p = b->pos;
 			size = b->last - p;
-
 			if(size < 2) {
 				break;
 			}
-
 			qlen = (u_short) *p++ << 8;
 			qlen += *p++;
-
 			if(size < (size_t)(2 + qlen)) {
 				break;
 			}
-
 			ngx_resolver_process_response(r, p, qlen, 1);
-
 			b->pos += 2 + qlen;
 		}
-
 		if(b->pos != b->start) {
 			b->last = ngx_movemem(b->start, b->pos, b->last - b->pos);
 			b->pos = b->start;

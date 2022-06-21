@@ -3480,7 +3480,10 @@ public:
 		int    ok = -1;
 		size_t sav_offs = 0;
 		if(D.MenuCm && APPL) {
-			int    ok = -1, r = cmCancel;
+			int    ok = -1;
+			int    r = cmCancel;
+			PPObjBill * p_bobj = BillObj;
+			BillTbl::Rec bill_rec;
 			SString srch_str;
 			LongArray dt_list;
 			StrAssocArray codes_list;
@@ -3542,13 +3545,30 @@ public:
 				for(uint i = 0; i < dts_count; i++) {
 					LDATE dt = ZERODATE;
 					DateIter di;
-					BillTbl::Rec bill_rec;
 					dt.v = dt_list.at(i);
 					di.dt  = dt;
 					di.end = dt;
-					while(BillObj->P_Tbl->EnumByDate(&di, &bill_rec) > 0 && bill_rec.Dt == dt)
-						if(codes_list.SearchByText(bill_rec.Code, 0, 0) > 0)
+					while(p_bobj->P_Tbl->EnumByDate(&di, &bill_rec) > 0 && bill_rec.Dt == dt)
+						if(codes_list.getCount() == 0 || codes_list.SearchByText(bill_rec.Code, 0, 0) > 0)
 							filt.List.Add(bill_rec.ID);
+				}
+				if(filt.List.GetCount())
+					ok = PPView::Execute(PPVIEW_BILL, &filt, 1, 0);
+			}
+			else if(codes_list.getCount()) {
+				BillFilt   filt;
+				for(uint i = 0; i < codes_list.getCount(); i++) {
+					BillTbl::Key7 k7;
+					MEMSZERO(k7);
+					StrAssocArray::Item code_item = codes_list.Get(i);
+					const size_t code_pattern_len = sstrlen(code_item.Txt);
+					if(code_pattern_len) {
+						STRNSCPY(k7.Code, code_item.Txt);
+						if(p_bobj->P_Tbl->search(7, &k7, spGe) && strnicmp866(p_bobj->P_Tbl->data.Code, code_item.Txt, code_pattern_len) == 0) do {
+							p_bobj->P_Tbl->copyBufTo(&bill_rec);
+							filt.List.Add(bill_rec.ID);
+						} while(p_bobj->P_Tbl->search(7, &k7, spNext) && strnicmp866(p_bobj->P_Tbl->data.Code, code_item.Txt, code_pattern_len) == 0);
+					}
 				}
 				if(filt.List.GetCount())
 					ok = PPView::Execute(PPVIEW_BILL, &filt, 1, 0);

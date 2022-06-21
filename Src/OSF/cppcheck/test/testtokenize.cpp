@@ -9,16 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "cppcheck-config.h"
-#include "platform.h"
-#include "preprocessor.h" // usually tests here should not use preprocessor...
-#include "settings.h"
-#include "standards.h"
-#include "testsuite.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
-#include <simplecpp.h>
 
 struct InternalError;
 
@@ -1708,7 +1698,7 @@ private:
 	void removeParentheses1() {
 		const char code[] = "void foo()"
 		    "{"
-		    "    free(((void*)p));"
+		    "    free(((void *)p));"
 		    "}";
 
 		ASSERT_EQUALS("void foo ( ) { free ( ( void * ) p ) ; }", tokenizeAndStringify(code));
@@ -6399,7 +6389,7 @@ private:
 		ASSERT_EQUALS("charformat*...,", testAst("extern void f(const char *format, ...);"));
 		ASSERT_EQUALS("int((void,", testAst("extern int for_each_commit_graft(int (*)(int*), void *);"));
 		ASSERT_EQUALS("for;;(", testAst("for (;;) {}"));
-		ASSERT_EQUALS("xsizeofvoid(=", testAst("x=sizeof(void*)"));
+		ASSERT_EQUALS("xsizeofvoid(=", testAst("x=sizeof(void *)"));
 		ASSERT_EQUALS("abc{d{,{(=", testAst("a = b({ c{}, d{} });"));
 		ASSERT_EQUALS("abc;(", testAst("a(b;c)"));
 		ASSERT_EQUALS("x{( forbc;;(", testAst("x({ for(a;b;c){} });"));

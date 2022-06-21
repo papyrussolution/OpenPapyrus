@@ -175,7 +175,7 @@ void RBBITableBuilder::buildForwardTable()
 //
 void RBBITableBuilder::calcNullable(RBBINode * n) 
 {
-	if(n == NULL) {
+	if(!n) {
 		return;
 	}
 	if(n->fType == RBBINode::setRef || n->fType == RBBINode::endMark) {
@@ -214,7 +214,7 @@ void RBBITableBuilder::calcNullable(RBBINode * n)
 //
 void RBBITableBuilder::calcFirstPos(RBBINode * n) 
 {
-	if(n == NULL) {
+	if(!n) {
 		return;
 	}
 	if(n->fType == RBBINode::leafChar || n->fType == RBBINode::endMark || n->fType == RBBINode::lookAhead || n->fType == RBBINode::tag) {
@@ -251,7 +251,7 @@ void RBBITableBuilder::calcFirstPos(RBBINode * n)
 //
 void RBBITableBuilder::calcLastPos(RBBINode * n) 
 {
-	if(n == NULL) {
+	if(!n) {
 		return;
 	}
 	if(n->fType == RBBINode::leafChar || n->fType == RBBINode::endMark  || n->fType == RBBINode::lookAhead || n->fType == RBBINode::tag) {

@@ -9,7 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "testsuite.h"
 #include "color.h"
 #include "options.h"
 #include "redirect.h"

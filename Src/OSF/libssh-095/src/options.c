@@ -57,21 +57,21 @@ int ssh_options_copy(ssh_session src, ssh_session * dest)
 	if(p_new == NULL) {
 		return -1;
 	}
-	if(src->opts.username != NULL) {
+	if(src->opts.username) {
 		p_new->opts.username = sstrdup(src->opts.username);
 		if(p_new->opts.username == NULL) {
 			ssh_free(p_new);
 			return -1;
 		}
 	}
-	if(src->opts.host != NULL) {
+	if(src->opts.host) {
 		p_new->opts.host = sstrdup(src->opts.host);
 		if(p_new->opts.host == NULL) {
 			ssh_free(p_new);
 			return -1;
 		}
 	}
-	if(src->opts.bindaddr != NULL) {
+	if(src->opts.bindaddr) {
 		p_new->opts.bindaddr = sstrdup(src->opts.bindaddr);
 		if(p_new->opts.bindaddr == NULL) {
 			ssh_free(p_new);
@@ -79,13 +79,11 @@ int ssh_options_copy(ssh_session src, ssh_session * dest)
 		}
 	}
 	/* Remove the default identities */
-	for(id = ssh_list_pop_head(char *, p_new->opts.identity);
-	    id != NULL;
-	    id = ssh_list_pop_head(char *, p_new->opts.identity)) {
+	for(id = ssh_list_pop_head(char *, p_new->opts.identity); id; id = ssh_list_pop_head(char *, p_new->opts.identity)) {
 		ZFREE(id);
 	}
 	/* Copy the new identities from the source list */
-	if(src->opts.identity != NULL) {
+	if(src->opts.identity) {
 		it = ssh_list_get_iterator(src->opts.identity);
 		while(it) {
 			int rc;
@@ -103,21 +101,21 @@ int ssh_options_copy(ssh_session src, ssh_session * dest)
 			it = it->next;
 		}
 	}
-	if(src->opts.sshdir != NULL) {
+	if(src->opts.sshdir) {
 		p_new->opts.sshdir = sstrdup(src->opts.sshdir);
 		if(p_new->opts.sshdir == NULL) {
 			ssh_free(p_new);
 			return -1;
 		}
 	}
-	if(src->opts.knownhosts != NULL) {
+	if(src->opts.knownhosts) {
 		p_new->opts.knownhosts = sstrdup(src->opts.knownhosts);
 		if(p_new->opts.knownhosts == NULL) {
 			ssh_free(p_new);
 			return -1;
 		}
 	}
-	if(src->opts.global_knownhosts != NULL) {
+	if(src->opts.global_knownhosts) {
 		p_new->opts.global_knownhosts = sstrdup(src->opts.global_knownhosts);
 		if(p_new->opts.global_knownhosts == NULL) {
 			ssh_free(p_new);
@@ -125,7 +123,7 @@ int ssh_options_copy(ssh_session src, ssh_session * dest)
 		}
 	}
 	for(i = 0; i < SSH_KEX_METHODS; i++) {
-		if(src->opts.wanted_methods[i] != NULL) {
+		if(src->opts.wanted_methods[i]) {
 			p_new->opts.wanted_methods[i] = sstrdup(src->opts.wanted_methods[i]);
 			if(p_new->opts.wanted_methods[i] == NULL) {
 				ssh_free(p_new);
@@ -133,28 +131,28 @@ int ssh_options_copy(ssh_session src, ssh_session * dest)
 			}
 		}
 	}
-	if(src->opts.ProxyCommand != NULL) {
+	if(src->opts.ProxyCommand) {
 		p_new->opts.ProxyCommand = sstrdup(src->opts.ProxyCommand);
 		if(p_new->opts.ProxyCommand == NULL) {
 			ssh_free(p_new);
 			return -1;
 		}
 	}
-	if(src->opts.pubkey_accepted_types != NULL) {
+	if(src->opts.pubkey_accepted_types) {
 		p_new->opts.pubkey_accepted_types = sstrdup(src->opts.pubkey_accepted_types);
 		if(p_new->opts.pubkey_accepted_types == NULL) {
 			ssh_free(p_new);
 			return -1;
 		}
 	}
-	if(src->opts.gss_server_identity != NULL) {
+	if(src->opts.gss_server_identity) {
 		p_new->opts.gss_server_identity = sstrdup(src->opts.gss_server_identity);
 		if(p_new->opts.gss_server_identity == NULL) {
 			ssh_free(p_new);
 			return -1;
 		}
 	}
-	if(src->opts.gss_client_identity != NULL) {
+	if(src->opts.gss_client_identity) {
 		p_new->opts.gss_client_identity = sstrdup(src->opts.gss_client_identity);
 		if(p_new->opts.gss_client_identity == NULL) {
 			ssh_free(p_new);
@@ -1456,7 +1454,7 @@ int ssh_options_apply(ssh_session session) {
 	}
 	SAlloc::F(session->opts.global_knownhosts);
 	session->opts.global_knownhosts = tmp;
-	if(session->opts.ProxyCommand != NULL) {
+	if(session->opts.ProxyCommand) {
 		tmp = ssh_path_expand_escape(session, session->opts.ProxyCommand);
 		if(tmp == NULL) {
 			return -1;
@@ -1464,7 +1462,7 @@ int ssh_options_apply(ssh_session session) {
 		SAlloc::F(session->opts.ProxyCommand);
 		session->opts.ProxyCommand = tmp;
 	}
-	for(it = ssh_list_get_iterator(session->opts.identity); it != NULL; it = it->next) {
+	for(it = ssh_list_get_iterator(session->opts.identity); it; it = it->next) {
 		char * id = (char *)it->data;
 		if(strncmp(id, "pkcs11:", 6) == 0) {
 			/* PKCS#11 URIs are using percent-encoding so we can not mix
@@ -2109,20 +2107,17 @@ int ssh_bind_options_parse_config(ssh_bind sshbind, const char * filename)
 		sshbind->config_processed = true;
 	}
 
-	if(filename != NULL) {
+	if(filename) {
 		expanded_filename = ssh_bind_options_expand_escape(sshbind, filename);
 		if(expanded_filename == NULL) {
 			return -1;
 		}
-
 		/* Apply the user provided configuration */
 		rc = ssh_bind_config_parse_file(sshbind, expanded_filename);
 		SAlloc::F(expanded_filename);
 	}
-
 	return rc;
 }
 
 #endif
-
 /** @} */

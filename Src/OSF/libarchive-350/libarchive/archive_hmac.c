@@ -80,7 +80,7 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size
 		return -1;
 	}
 	hash = (PBYTE)HeapAlloc(GetProcessHeap(), 0, hash_len);
-	if(hash == NULL) {
+	if(!hash) {
 		BCryptCloseAlgorithmProvider(hAlg, 0);
 		return -1;
 	}

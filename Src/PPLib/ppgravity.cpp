@@ -7,7 +7,7 @@
 #include <pp.h>
 #pragma hdrstop
 #if _MSC_VER >= 1600 // {
-#include <..\OSF\gravity\include\gravity_.h>
+#include <..\osf\gravity\include\gravity_.h>
 
 #if 1 // {
 

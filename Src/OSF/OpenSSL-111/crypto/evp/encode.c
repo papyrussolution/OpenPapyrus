@@ -228,7 +228,7 @@ static int evp_encodeblock_int(EVP_ENCODE_CTX * ctx, uchar * t,
 	ulong l;
 	const uchar * table;
 
-	if(ctx != NULL && (ctx->flags & EVP_ENCODE_CTX_USE_SRP_ALPHABET) != 0)
+	if(ctx && (ctx->flags & EVP_ENCODE_CTX_USE_SRP_ALPHABET) != 0)
 		table = srpdata_bin2ascii;
 	else
 		table = data_bin2ascii;
@@ -311,7 +311,7 @@ int EVP_DecodeUpdate(EVP_ENCODE_CTX * ctx, uchar * out, int * outl,
 	}
 
 	/* Legacy behaviour: an empty input chunk signals end of input. */
-	if(inl == 0) {
+	if(!inl) {
 		rv = 0;
 		goto end;
 	}
@@ -413,7 +413,7 @@ static int evp_decodeblock_int(EVP_ENCODE_CTX * ctx, uchar * t,
 	ulong l;
 	const uchar * table;
 
-	if(ctx != NULL && (ctx->flags & EVP_ENCODE_CTX_USE_SRP_ALPHABET) != 0)
+	if(ctx && (ctx->flags & EVP_ENCODE_CTX_USE_SRP_ALPHABET) != 0)
 		table = srpdata_ascii2bin;
 	else
 		table = data_ascii2bin;

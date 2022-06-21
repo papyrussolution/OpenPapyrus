@@ -9,15 +9,10 @@
  */
 #include "cppcheck-internal.h"
 #pragma hdrstop
-#include "mathlib.h"
-#include "errortypes.h"
-#include "utils.h"
-#include <simplecpp.h>
 
 const int MathLib::bigint_bits = 64;
 
-MathLib::value::value(const std::string &s) :
-	mIntValue(0), mDoubleValue(0), mIsUnsigned(false)
+MathLib::value::value(const std::string &s) : mIntValue(0), mDoubleValue(0), mIsUnsigned(false)
 {
 	if(MathLib::isFloat(s)) {
 		mType = MathLib::value::Type::FLOAT;

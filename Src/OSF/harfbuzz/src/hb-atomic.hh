@@ -48,7 +48,7 @@
 static inline bool _hb_atomic_ptr_impl_cmplexch(const void ** P, const void * O_, const void * N)
 {
 	const void * O = O_; // Need lvalue
-	return __atomic_compare_exchange_n((void**)P, (void**)&O, (void*)N, true, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED);
+	return __atomic_compare_exchange_n((void**)P, (void**)&O, (void *)N, true, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED);
 }
 
 #define hb_atomic_ptr_impl_cmpexch(P, O, N)       _hb_atomic_ptr_impl_cmplexch((const void**)(P), (O), (N))
@@ -198,7 +198,7 @@ static_assert((sizeof(long) == sizeof(void *)), "");
 
 #define _hb_memory_barrier()                    do {} while(0)
 
-#define hb_atomic_ptr_impl_cmpexch(P, O, N)       (*(void**)(P) == (void*)(O) ? (*(void**)(P) = (void*)(N), true) : false)
+#define hb_atomic_ptr_impl_cmpexch(P, O, N)       (*(void**)(P) == (void *)(O) ? (*(void**)(P) = (void *)(N), true) : false)
 
 #else
 
@@ -296,7 +296,7 @@ struct hb_atomic_ptr_t {
 	}
 
 	bool cmpexch(const T * old, T * new_) const {
-		return hb_atomic_ptr_impl_cmpexch((void**)&v, (void*)old, (void*)new_);
+		return hb_atomic_ptr_impl_cmpexch((void**)&v, (void *)old, (void *)new_);
 	}
 
 	T * operator->() const { return get(); }

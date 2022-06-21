@@ -124,7 +124,7 @@ CURLcode Curl_proxy_connect(struct connectdata * conn, int sockindex)
 		conn->data->req.protop = prot_save;
 		if(CURLE_OK != result)
 			return result;
-		Curl_safefree(data->state.aptr.proxyuserpwd);
+		ZFREE(data->state.aptr.proxyuserpwd);
 #else
 		return CURLE_NOT_BUILT_IN;
 #endif
@@ -592,7 +592,7 @@ static CURLcode CONNECT(struct connectdata * conn,
 	/* If a proxy-authorization header was used for the proxy, then we should
 	   make sure that it isn't accidentally used for the document request
 	   after we've connected. So let's free and clear it here. */
-	Curl_safefree(data->state.aptr.proxyuserpwd);
+	ZFREE(data->state.aptr.proxyuserpwd);
 	data->state.aptr.proxyuserpwd = NULL;
 
 	data->state.authproxy.done = TRUE;

@@ -222,7 +222,7 @@ static int file_information(struct archive_write_disk * a, wchar_t * path, BY_HA
 	int r;
 	DWORD flag = FILE_FLAG_BACKUP_SEMANTICS;
 	WIN32_FIND_DATAW findData;
-	if(sim_lstat || mode != NULL) {
+	if(sim_lstat || mode) {
 		h = FindFirstFileW(path, &findData);
 		if(h == INVALID_HANDLE_VALUE && GetLastError() == ERROR_INVALID_NAME) {
 			wchar_t * full;
@@ -442,7 +442,7 @@ static int la_chmod(const wchar_t * path, mode_t mode)
 		attr &= ~FILE_ATTRIBUTE_READONLY;
 	else
 		attr |= FILE_ATTRIBUTE_READONLY;
-	if(fullname != NULL)
+	if(fullname)
 		r = SetFileAttributesW(fullname, attr);
 	else
 		r = SetFileAttributesW(path, attr);
@@ -642,7 +642,7 @@ static int la_ftruncate(HANDLE handle, int64 length)
 
 static int lazy_stat(struct archive_write_disk * a)
 {
-	if(a->pst != NULL) {
+	if(a->pst) {
 		/* Already have stat() data available. */
 		return ARCHIVE_OK;
 	}
@@ -1167,7 +1167,7 @@ int archive_write_disk_set_group_lookup(Archive * _a, void * private_data,
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
-	if(a->cleanup_gid != NULL && a->lookup_gid_data != NULL)
+	if(a->cleanup_gid && a->lookup_gid_data)
 		(a->cleanup_gid)(a->lookup_gid_data);
 	a->lookup_gid = lookup_gid;
 	a->cleanup_gid = cleanup_gid;
@@ -1180,7 +1180,7 @@ int archive_write_disk_set_user_lookup(Archive * _a, void * private_data,
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
-	if(a->cleanup_uid != NULL && a->lookup_uid_data != NULL)
+	if(a->cleanup_uid && a->lookup_uid_data)
 		(a->cleanup_uid)(a->lookup_uid_data);
 	a->lookup_uid = lookup_uid;
 	a->cleanup_uid = cleanup_uid;
@@ -1311,7 +1311,7 @@ static int restore_entry(struct archive_write_disk * a)
 			en = create_filesystem_object(a);
 		}
 	}
-	if((en == ENOENT) && (archive_entry_hardlink(a->entry) != NULL)) {
+	if((en == ENOENT) && archive_entry_hardlink(a->entry)) {
 		archive_set_error(&a->archive, en, "Hard-link target '%s' does not exist.", archive_entry_hardlink(a->entry));
 		return ARCHIVE_FAILED;
 	}
@@ -1776,7 +1776,7 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)
 	/* Step 1: split the list. */
 	t = p;
 	a = p->next->next;
-	while(a != NULL) {
+	while(a) {
 		/* Step a twice, t once. */
 		a = a->next;
 		if(a)
@@ -1803,7 +1803,7 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)
 		b = b->next;
 	}
 	/* Always put the later element on the list first. */
-	while(a != NULL && b != NULL) {
+	while(a && b) {
 		if(wcscmp(a->name, b->name) > 0) {
 			t->next = a;
 			a = a->next;
@@ -2182,7 +2182,7 @@ static int create_dir(struct archive_write_disk * a, wchar_t * path)
 	    (base[0] == L'.' && base[1] == L'\0') ||
 	    (base[0] == L'.' && base[1] == L'.' && base[2] == L'\0')) {
 		/* Don't bother trying to create null path, '.', or '..'. */
-		if(slash != NULL) {
+		if(slash) {
 			*slash = L'\0';
 			r = create_dir(a, path);
 			*slash = L'\\';
@@ -2213,14 +2213,13 @@ static int create_dir(struct archive_write_disk * a, wchar_t * path)
 		archive_set_error(&a->archive, errno, "Can't test directory '%ls'", path);
 		return ARCHIVE_FAILED;
 	}
-	else if(slash != NULL) {
+	else if(slash) {
 		*slash = '\0';
 		r = create_dir(a, path);
 		*slash = '\\';
 		if(r != ARCHIVE_OK)
 			return r;
 	}
-
 	/*
 	 * Mode we want for the final restored directory.  Per POSIX,
 	 * implicitly-created dirs must be created obeying the umask.

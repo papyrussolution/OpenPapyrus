@@ -660,7 +660,7 @@ static int mime_mem_seek(void * instream, curl_off_t offset, int whence)
 
 static void mime_mem_free(void * ptr)
 {
-	Curl_safefree(((curl_mimepart*)ptr)->data);
+	ZFREE(((curl_mimepart*)ptr)->data);
 }
 
 /* Named file callbacks. */
@@ -711,7 +711,7 @@ static void mime_file_free(void * ptr)
 		fclose(part->fp);
 		part->fp = NULL;
 	}
-	Curl_safefree(part->data);
+	ZFREE(part->data);
 	part->data = NULL;
 }
 
@@ -1174,9 +1174,9 @@ void Curl_mime_cleanpart(curl_mimepart * part)
 	curl_slist_free_all(part->curlheaders);
 	if(part->flags & MIME_USERHEADERS_OWNER)
 		curl_slist_free_all(part->userheaders);
-	Curl_safefree(part->mimetype);
-	Curl_safefree(part->name);
-	Curl_safefree(part->filename);
+	ZFREE(part->mimetype);
+	ZFREE(part->name);
+	ZFREE(part->filename);
 	Curl_mime_initpart(part, part->easy);
 }
 
@@ -1334,7 +1334,7 @@ CURLcode curl_mime_name(curl_mimepart * part, const char * name)
 	if(!part)
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 
-	Curl_safefree(part->name);
+	ZFREE(part->name);
 	part->name = NULL;
 
 	if(name) {
@@ -1352,7 +1352,7 @@ CURLcode curl_mime_filename(curl_mimepart * part, const char * filename)
 	if(!part)
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 
-	Curl_safefree(part->filename);
+	ZFREE(part->filename);
 	part->filename = NULL;
 
 	if(filename) {
@@ -1444,7 +1444,7 @@ CURLcode curl_mime_type(curl_mimepart * part, const char * mimetype)
 	if(!part)
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 
-	Curl_safefree(part->mimetype);
+	ZFREE(part->mimetype);
 	part->mimetype = NULL;
 
 	if(mimetype) {
@@ -1825,8 +1825,8 @@ CURLcode Curl_mime_prepare_headers(curl_mimepart * part,
 					filename ? "; filename=\"" : "",
 					filename ? filename : "",
 					filename ? "\"" : "");
-			Curl_safefree(name);
-			Curl_safefree(filename);
+			ZFREE(name);
+			ZFREE(filename);
 			if(ret)
 				return ret;
 		}

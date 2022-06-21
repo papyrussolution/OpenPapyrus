@@ -211,7 +211,6 @@ static void makeFullFilename(const char * path, const char * name,
 	else {
 		s = filename;
 	}
-
 	// turn the name into a filename, turn tree separators into file separators
 	if((int32_t)((s-filename)+strlen(name))>=capacity) {
 		slfprintf_stderr("path/filename too long: \"%s%s\"\n", filename, name);
@@ -511,25 +510,16 @@ void Package::readPackage(const char * filename) {
 			// Use the first entry's prefix. Must be a new-style package.
 			const char * prefixLimit = strchr(s, U_TREE_ENTRY_SEP_CHAR);
 			if(prefixLimit==NULL) {
-				fprintf(stderr,
-				    "icupkg: --auto_toc_prefix[_with_type] but "
-				    "the first entry \"%s\" does not contain a '%c'\n",
-				    s, U_TREE_ENTRY_SEP_CHAR);
+				slfprintf_stderr("icupkg: --auto_toc_prefix[_with_type] but the first entry \"%s\" does not contain a '%c'\n", s, U_TREE_ENTRY_SEP_CHAR);
 				exit(U_INVALID_FORMAT_ERROR);
 			}
 			prefixLength = (int32_t)(prefixLimit-s);
 			if(prefixLength==0 || prefixLength>=UPRV_LENGTHOF(pkgPrefix)) {
-				fprintf(stderr,
-				    "icupkg: --auto_toc_prefix[_with_type] but "
-				    "the prefix of the first entry \"%s\" is empty or too long\n",
-				    s);
+				slfprintf_stderr("icupkg: --auto_toc_prefix[_with_type] but the prefix of the first entry \"%s\" is empty or too long\n", s);
 				exit(U_INVALID_FORMAT_ERROR);
 			}
 			if(prefixEndsWithType && s[prefixLength-1]!=type) {
-				fprintf(stderr,
-				    "icupkg: --auto_toc_prefix_with_type but "
-				    "the prefix of the first entry \"%s\" does not end with '%c'\n",
-				    s, type);
+				slfprintf_stderr("icupkg: --auto_toc_prefix_with_type but the prefix of the first entry \"%s\" does not end with '%c'\n", s, type);
 				exit(U_INVALID_FORMAT_ERROR);
 			}
 			memcpy(pkgPrefix, s, prefixLength);
@@ -541,11 +531,7 @@ void Package::readPackage(const char * filename) {
 			int32_t inPkgNameLength = static_cast<int32_t>(strlen(inPkgName));
 			memcpy(prefix, inPkgName, inPkgNameLength);
 			prefixLength = inPkgNameLength;
-
-			if((int32_t)strlen(s)>=(inPkgNameLength+2) &&
-			    0==memcmp(s, inPkgName, inPkgNameLength) &&
-			    s[inPkgNameLength]=='_'
-			    ) {
+			if((int32_t)strlen(s)>=(inPkgNameLength+2) && 0==memcmp(s, inPkgName, inPkgNameLength) && s[inPkgNameLength]=='_') {
 				// old-style .dat package
 				prefix[prefixLength++] = '_';
 			}
@@ -557,7 +543,6 @@ void Package::readPackage(const char * filename) {
 			}
 		}
 		prefix[prefixLength] = 0;
-
 		/* read the ToC table */
 		for(i = 0; i < itemCount; ++i) {
 			// skip the package part of the item name, error if it does not match the actual package name
@@ -565,17 +550,14 @@ void Package::readPackage(const char * filename) {
 			offset = (int32_t)ds->readUInt32(inEntries[i].nameOffset)-stringsOffset;
 			s = inItemStrings+offset;
 			if(0!=strncmp(s, prefix, prefixLength) || s[prefixLength]==0) {
-				slfprintf_stderr("icupkg: input .dat item name \"%s\" does not start with \"%s\"\n",
-				    s, prefix);
+				slfprintf_stderr("icupkg: input .dat item name \"%s\" does not start with \"%s\"\n", s, prefix);
 				exit(U_INVALID_FORMAT_ERROR);
 			}
 			items[i].name = s+prefixLength;
-
 			// set the item's data
 			items[i].data = (uint8_t*)inBytes+ds->readUInt32(inEntries[i].dataOffset);
 			if(i>0) {
 				items[i-1].length = (int32_t)(items[i].data-items[i-1].data);
-
 				// set the previous item's platform type
 				typeEnum = getTypeEnumForInputData(items[i-1].data, items[i-1].length, &errorCode);
 				if(typeEnum<0 || U_FAILURE(errorCode)) {

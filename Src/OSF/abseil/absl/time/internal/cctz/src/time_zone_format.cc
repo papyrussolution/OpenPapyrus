@@ -741,11 +741,11 @@ bool parse(const std::string & format, const std::string & input,
 			    // tm.tm_year overflow problem.  However, tm.tm_year will still be
 			    // used by other specifiers like %D.
 			    data = ParseInt(data, 0, kyearmin, kyearmax, &year);
-			    if(data != nullptr) saw_year = true;
+			    if(data) saw_year = true;
 			    continue;
 			case 'm':
 			    data = ParseInt(data, 2, 1, 12, &tm.tm_mon);
-			    if(data != nullptr) tm.tm_mon -= 1;
+			    if(data) tm.tm_mon -= 1;
 			    week_num = -1;
 			    continue;
 			case 'd':
@@ -763,7 +763,7 @@ bool parse(const std::string & format, const std::string & input,
 			    continue;
 			case 'u':
 			    data = ParseInt(data, 0, 1, 7, &tm.tm_wday);
-			    if(data != nullptr) tm.tm_wday %= 7;
+			    if(data) tm.tm_wday %= 7;
 			    continue;
 			case 'w':
 			    data = ParseInt(data, 0, 0, 6, &tm.tm_wday);
@@ -791,23 +791,20 @@ bool parse(const std::string & format, const std::string & input,
 			    break;
 			case 'z':
 			    data = ParseOffset(data, "", &offset);
-			    if(data != nullptr) saw_offset = true;
+			    if(data) saw_offset = true;
 			    continue;
 			case 'Z': // ignored; zone abbreviations are ambiguous
 			    data = ParseZone(data, &zone);
 			    continue;
 			case 's':
-			    data =
-				ParseInt(data, 0, std::numeric_limits<std::int_fast64_t>::min(),
+			    data = ParseInt(data, 0, std::numeric_limits<std::int_fast64_t>::min(),
 				    std::numeric_limits<std::int_fast64_t>::max(), &percent_s);
-			    if(data != nullptr) saw_percent_s = true;
+			    if(data) saw_percent_s = true;
 			    continue;
 			case ':':
-			    if(fmt[0] == 'z' ||
-				(fmt[0] == ':' &&
-				(fmt[1] == 'z' || (fmt[1] == ':' && fmt[2] == 'z')))) {
+			    if(fmt[0] == 'z' || (fmt[0] == ':' && (fmt[1] == 'z' || (fmt[1] == ':' && fmt[2] == 'z')))) {
 				    data = ParseOffset(data, ":", &offset);
-				    if(data != nullptr) saw_offset = true;
+				    if(data) saw_offset = true;
 				    fmt += (fmt[0] == 'z') ? 1 : (fmt[1] == 'z') ? 2 : 3;
 				    continue;
 			    }
@@ -828,20 +825,20 @@ bool parse(const std::string & format, const std::string & input,
 			    }
 			    if(fmt[0] == 'z' || (fmt[0] == '*' && fmt[1] == 'z')) {
 				    data = ParseOffset(data, ":", &offset);
-				    if(data != nullptr) saw_offset = true;
+				    if(data) saw_offset = true;
 				    fmt += (fmt[0] == 'z') ? 1 : 2;
 				    continue;
 			    }
 			    if(fmt[0] == '*' && fmt[1] == 'S') {
 				    data = ParseInt(data, 2, 0, 60, &tm.tm_sec);
-				    if(data != nullptr && *data == '.') {
+				    if(data && *data == '.') {
 					    data = ParseSubSeconds(data + 1, &subseconds);
 				    }
 				    fmt += 2;
 				    continue;
 			    }
 			    if(fmt[0] == '*' && fmt[1] == 'f') {
-				    if(data != nullptr && std::isdigit(*data)) {
+				    if(data && std::isdigit(*data)) {
 					    data = ParseSubSeconds(data, &subseconds);
 				    }
 				    fmt += 2;
@@ -850,7 +847,7 @@ bool parse(const std::string & format, const std::string & input,
 			    if(fmt[0] == '4' && fmt[1] == 'Y') {
 				    const char* bp = data;
 				    data = ParseInt(data, 4, year_t{-999}, year_t{9999}, &year);
-				    if(data != nullptr) {
+				    if(data) {
 					    if(data - bp == 4) {
 						    saw_year = true;
 					    }
@@ -866,14 +863,14 @@ bool parse(const std::string & format, const std::string & input,
 				    if(const char* np = ParseInt(fmt, 0, 0, 1024, &n)) {
 					    if(*np == 'S') {
 						    data = ParseInt(data, 2, 0, 60, &tm.tm_sec);
-						    if(data != nullptr && *data == '.') {
+						    if(data && *data == '.') {
 							    data = ParseSubSeconds(data + 1, &subseconds);
 						    }
 						    fmt = ++np;
 						    continue;
 					    }
 					    if(*np == 'f') {
-						    if(data != nullptr && std::isdigit(*data)) {
+						    if(data && std::isdigit(*data)) {
 							    data = ParseSubSeconds(data, &subseconds);
 						    }
 						    fmt = ++np;
@@ -917,7 +914,7 @@ bool parse(const std::string & format, const std::string & input,
 	}
 
 	if(data == nullptr) {
-		if(err != nullptr) *err = "Failed to parse input";
+		if(err) *err = "Failed to parse input";
 		return false;
 	}
 
@@ -926,7 +923,7 @@ bool parse(const std::string & format, const std::string & input,
 
 	// parse() must consume the entire input string.
 	if(*data != '\0') {
-		if(err != nullptr) *err = "Illegal trailing data in input string";
+		if(err) *err = "Illegal trailing data in input string";
 		return false;
 	}
 
@@ -953,7 +950,7 @@ bool parse(const std::string & format, const std::string & input,
 		year = year_t{tm.tm_year};
 		if(year > kyearmax - 1900) {
 			// Platform-dependent, maybe unreachable.
-			if(err != nullptr) *err = "Out-of-range year";
+			if(err) *err = "Out-of-range year";
 			return false;
 		}
 		year += 1900;
@@ -962,7 +959,7 @@ bool parse(const std::string & format, const std::string & input,
 	// Compute year, tm.tm_mon and tm.tm_mday if we parsed a week number.
 	if(week_num != -1) {
 		if(!FromWeek(week_num, week_start, &year, &tm)) {
-			if(err != nullptr) *err = "Out-of-range field";
+			if(err) *err = "Out-of-range field";
 			return false;
 		}
 	}
@@ -974,14 +971,14 @@ bool parse(const std::string & format, const std::string & input,
 	// ranges above (see ParseInt()), the only possibility is for days to roll
 	// into months. That is, parsing "Sep 31" should not produce "Oct 1".
 	if(cs.month() != month || cs.day() != tm.tm_mday) {
-		if(err != nullptr) *err = "Out-of-range field";
+		if(err) *err = "Out-of-range field";
 		return false;
 	}
 
 	// Accounts for the offset adjustment before converting to absolute time.
 	if((offset < 0 && cs > civil_second::max() + offset) ||
 	    (offset > 0 && cs < civil_second::min() + offset)) {
-		if(err != nullptr) *err = "Out-of-range field";
+		if(err) *err = "Out-of-range field";
 		return false;
 	}
 	cs -= offset;
@@ -991,14 +988,14 @@ bool parse(const std::string & format, const std::string & input,
 	if(tp == time_point<seconds>::max()) {
 		const auto al = ptz.lookup(time_point<seconds>::max());
 		if(cs > al.cs) {
-			if(err != nullptr) *err = "Out-of-range field";
+			if(err) *err = "Out-of-range field";
 			return false;
 		}
 	}
 	if(tp == time_point<seconds>::min()) {
 		const auto al = ptz.lookup(time_point<seconds>::min());
 		if(cs < al.cs) {
-			if(err != nullptr) *err = "Out-of-range field";
+			if(err) *err = "Out-of-range field";
 			return false;
 		}
 	}

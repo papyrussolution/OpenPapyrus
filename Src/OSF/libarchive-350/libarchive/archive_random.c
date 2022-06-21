@@ -112,7 +112,7 @@ int archive_random(void * buf, size_t nbytes)
 #define inline __inline
 #else                           /* !__GNUC__ */
 #define inline
-#endif                          /* !__GNUC__ */
+#endif /* !__GNUC__ */
 
 struct arc4_stream {
 	uint8 i;

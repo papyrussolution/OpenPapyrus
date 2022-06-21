@@ -199,4 +199,4 @@ XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextWriterFlush(xmlTextWriter * writer);
 
 #endif /* LIBXML_WRITER_ENABLED */
 
-#endif                          /* __XML_XMLWRITER_H__ */
+#endif /* __XML_XMLWRITER_H__ */

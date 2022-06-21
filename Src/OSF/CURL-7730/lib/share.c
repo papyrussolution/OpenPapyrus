@@ -138,7 +138,7 @@ CURLSHcode curl_share_setopt(struct Curl_share * share, CURLSHoption option, ...
 
 			    case CURL_LOCK_DATA_SSL_SESSION:
 #ifdef USE_SSL
-				Curl_safefree(share->sslsession);
+				ZFREE(share->sslsession);
 #else
 				res = CURLSHE_NOT_BUILT_IN;
 #endif

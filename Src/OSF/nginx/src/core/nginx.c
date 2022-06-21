@@ -779,7 +779,7 @@ tz_found:
 		}
 	}
 	env[n] = NULL;
-	if(last == NULL) {
+	if(!last) {
 		ccf->environment = env;
 		environ = env;
 	}

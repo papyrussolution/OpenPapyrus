@@ -565,7 +565,7 @@ static int32_t allocDataBlock(UNewTrie2 * trie, int32_t copyBlock) {
 				return -1;
 			}
 			data = (uint32_t*)uprv_malloc(capacity*4);
-			if(data==NULL) {
+			if(!data) {
 				return -1;
 			}
 			uprv_memcpy(data, trie->data, (size_t)trie->dataLength*4);

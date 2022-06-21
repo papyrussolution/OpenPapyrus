@@ -6,25 +6,9 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//---------------------------------------------------------------------------
 #ifndef checksizeofH
 #define checksizeofH
-//---------------------------------------------------------------------------
-
-#include "check.h"
-#include "cppcheck-config.h"
-
-#include <string>
 
 class ErrorLogger;
 class Settings;
@@ -64,28 +48,20 @@ public:
 
 	/** @brief %Check for 'sizeof sizeof ..' */
 	void sizeofsizeof();
-
 	/** @brief %Check for calculations inside sizeof */
 	void sizeofCalculation();
-
 	/** @brief %Check for function call inside sizeof */
 	void sizeofFunction();
-
 	/** @brief %Check for suspicious calculations with sizeof results */
 	void suspiciousSizeofCalculation();
-
 	/** @brief %Check for using sizeof with array given as function argument */
 	void checkSizeofForArrayParameter();
-
 	/** @brief %Check for using sizeof of a variable when allocating it */
 	void checkSizeofForPointerSize();
-
 	/** @brief %Check for using sizeof with numeric given as function argument */
 	void checkSizeofForNumericParameter();
-
 	/** @brief %Check for using sizeof(void) */
 	void sizeofVoid();
-
 private:
 	// Error messages..
 	void sizeofsizeofError(const Token* tok);
@@ -118,11 +94,9 @@ private:
 		c.arithOperationsOnVoidPointerError(nullptr, "varname", "vartype");
 	}
 
-	static std::string myName() {
-		return "Sizeof";
-	}
-
-	std::string classInfo() const override {
+	static std::string myName() { return "Sizeof"; }
+	std::string classInfo() const override 
+	{
 		return "sizeof() usage checks\n"
 		       "- sizeof for array given as function argument\n"
 		       "- sizeof for numeric given as function argument\n"
@@ -136,5 +110,4 @@ private:
 };
 
 /// @}
-//---------------------------------------------------------------------------
 #endif // checksizeofH

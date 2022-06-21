@@ -1247,13 +1247,12 @@ static int xmlSchemaValidateDates(xmlSchemaValType type, const xmlChar * dateTim
 	if(IS_TZO_CHAR(*cur)) {					   \
 		ret = _xmlSchemaParseTimeZone(&(dt->value.date), &cur);	\
 		if(!ret) {					       \
-			if(*cur != 0)					   \
+			if(*cur)					   \
 				goto error;					\
 			dt->type = t;					    \
 			goto done;					    \
 		}							\
 	}
-
 	if(dateTime == NULL)
 		return -1;
 	if(collapse)
@@ -1437,7 +1436,7 @@ static int xmlSchemaValidateDuration(xmlSchemaType * type ATTRIBUTE_UNUSED, cons
 	dur = xmlSchemaNewValue(XML_SCHEMAS_DURATION);
 	if(dur == NULL)
 		return -1;
-	while(*cur != 0) {
+	while(*cur) {
 		/* input string should be empty or invalid date/time item */
 		if(seq >= sizeof(desig))
 			goto error;
@@ -1651,7 +1650,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaType * type, const xmlChar * valu
 	 * Split the list
 	 */
 	while(IS_BLANK_CH(*cur)) *cur++ = 0;
-	while(*cur != 0) {
+	while(*cur) {
 		if(IS_BLANK_CH(*cur)) {
 			*cur = 0;
 			cur++;
@@ -1674,7 +1673,7 @@ static int xmlSchemaValAtomicListNode(xmlSchemaType * type, const xmlChar * valu
 		tmp = xmlSchemaValPredefTypeNode(type, cur, NULL, pNode);
 		if(tmp != 0)
 			break;
-		while(*cur != 0) cur++;
+		while(*cur) cur++;
 		while((*cur == 0) && (cur != endval)) cur++;
 	}
 	/* @todo what return value ? c.f. bug #158628
@@ -1805,7 +1804,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    const xmlChar * cur = value;
 
 			    if(ws == XML_SCHEMA_WHITESPACE_REPLACE) {
-				    while(*cur != 0) {
+				    while(*cur) {
 					    if((*cur == 0xd) || (*cur == 0xa) || (*cur == 0x9)) {
 						    goto return1;
 					    }
@@ -1815,7 +1814,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 				    }
 			    }
 			    else if(ws == XML_SCHEMA_WHITESPACE_COLLAPSE) {
-				    while(*cur != 0) {
+				    while(*cur) {
 					    if((*cur == 0xd) || (*cur == 0xa) || (*cur == 0x9)) {
 						    goto return1;
 					    }
@@ -1859,7 +1858,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    }
 		    else {
 			    const xmlChar * cur = value;
-			    while(*cur != 0) {
+			    while(*cur) {
 				    if((*cur == 0xd) || (*cur == 0xa) || (*cur == 0x9)) {
 					    goto return1;
 				    }
@@ -1917,7 +1916,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    cur++;
 			    hasLeadingZeroes = 1;
 		    }
-		    if(*cur != 0) {
+		    if(*cur) {
 			    do {
 				    if((*cur >= '0') && (*cur <= '9')) {
 					    *cptr++ = *cur++;
@@ -1947,7 +1946,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    }
 		    if(normOnTheFly)
 			    while IS_WSP_BLANK_CH(*cur) cur++;
-		    if(*cur != 0)
+		    if(*cur)
 			    goto return1; /* error if any extraneous chars */
 		    if(val) {
 			    v = xmlSchemaNewValue(XML_SCHEMAS_DECIMAL);
@@ -2025,7 +2024,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 
 		    if((cur[0] == 'N') && (cur[1] == 'a') && (cur[2] == 'N')) {
 			    cur += 3;
-			    if(*cur != 0)
+			    if(*cur)
 				    goto return1;
 			    if(val) {
 				    if(type == xmlSchemaTypeFloatDef) {
@@ -2058,7 +2057,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    }
 		    if((cur[0] == 'I') && (cur[1] == 'N') && (cur[2] == 'F')) {
 			    cur += 3;
-			    if(*cur != 0)
+			    if(*cur)
 				    goto return1;
 			    if(val) {
 				    if(type == xmlSchemaTypeFloatDef) {
@@ -2112,7 +2111,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    if(normOnTheFly)
 			    while IS_WSP_BLANK_CH(*cur) cur++;
 
-		    if(*cur != 0)
+		    if(*cur)
 			    goto return1;
 		    if(val) {
 			    if(type == xmlSchemaTypeFloatDef) {
@@ -2189,9 +2188,9 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    }
 			    else
 				    goto return1;
-			    if(*cur != 0) {
+			    if(*cur) {
 				    while IS_WSP_BLANK_CH(*cur) cur++;
-				    if(*cur != 0)
+				    if(*cur)
 					    goto return1;
 			    }
 		    }
@@ -2222,7 +2221,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		case XML_SCHEMAS_TOKEN: {
 		    const xmlChar * cur = value;
 		    if(!normOnTheFly) {
-			    while(*cur != 0) {
+			    while(*cur) {
 				    if((*cur == 0xd) || (*cur == 0xa) || (*cur == 0x9)) {
 					    goto return1;
 				    }
@@ -2551,7 +2550,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    if(normOnTheFly)
 			    while IS_WSP_BLANK_CH(*cur) 
 					cur++;
-		    if(*cur != 0)
+		    if(*cur)
 			    goto return1;
 		    if((i % 2) != 0)
 			    goto return1;
@@ -2709,7 +2708,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 			    goto return1;
 		    if(normOnTheFly)
 			    while IS_WSP_BLANK_CH(*cur) cur++;
-		    if(*cur != 0)
+		    if(*cur)
 			    goto return1;
 		    if(type->builtInType == XML_SCHEMAS_NPINTEGER) {
 			    if((sign == 0) && ((hi != 0) || (mi != 0) || (lo != 0)))
@@ -2765,7 +2764,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    ret = xmlSchemaParseUInt(&cur, &lo, &mi, &hi);
 		    if(ret < 0)
 			    goto return1;
-		    if(*cur != 0)
+		    if(*cur)
 			    goto return1;
 		    if(type->builtInType == XML_SCHEMAS_LONG) {
 			    if(hi >= 922) {
@@ -2834,7 +2833,7 @@ static int xmlSchemaValAtomicType(xmlSchemaType * type, const xmlChar * value, x
 		    ret = xmlSchemaParseUInt(&cur, &lo, &mi, &hi);
 		    if(ret < 0)
 			    goto return1;
-		    if(*cur != 0)
+		    if(*cur)
 			    goto return1;
 		    if(type->builtInType == XML_SCHEMAS_ULONG) {
 			    if(hi >= 1844) {

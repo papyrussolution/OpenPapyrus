@@ -1343,7 +1343,7 @@ static void TestISOFunctions()
 		}
 		while(key != NULL && strchr(key, '_'));
 
-		if(key == NULL)
+		if(!key)
 			break;
 		/* TODO: Consider removing sh, which is deprecated */
 		if(strcmp(key, "root") == 0 || strcmp(key, "Fallback") == 0 || strcmp(key, "sh") == 0) {
@@ -1390,7 +1390,7 @@ static void TestISOFunctions()
 		}
 		while(key != NULL && strlen(key) != 2);
 
-		if(key == NULL)
+		if(!key)
 			break;
 		/* TODO: Consider removing CS, which is deprecated */
 		while(strcmp(key, "QO") == 0 || strcmp(key, "QU") == 0 || strcmp(key, "CS") == 0) {

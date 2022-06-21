@@ -516,19 +516,19 @@ CURLFORMcode FormAdd(struct curl_httppost ** httppost,
 		struct FormInfo * ptr;
 		for(ptr = first_form; ptr != NULL; ptr = ptr->more) {
 			if(ptr->name_alloc) {
-				Curl_safefree(ptr->name);
+				ZFREE(ptr->name);
 				ptr->name_alloc = FALSE;
 			}
 			if(ptr->value_alloc) {
-				Curl_safefree(ptr->value);
+				ZFREE(ptr->value);
 				ptr->value_alloc = FALSE;
 			}
 			if(ptr->contenttype_alloc) {
-				Curl_safefree(ptr->contenttype);
+				ZFREE(ptr->contenttype);
 				ptr->contenttype_alloc = FALSE;
 			}
 			if(ptr->showfilename_alloc) {
-				Curl_safefree(ptr->showfilename);
+				ZFREE(ptr->showfilename);
 				ptr->showfilename_alloc = FALSE;
 			}
 		}
@@ -641,19 +641,19 @@ CURLFORMcode FormAdd(struct curl_httppost ** httppost,
 			struct FormInfo * ptr;
 			for(ptr = form; ptr != NULL; ptr = ptr->more) {
 				if(ptr->name_alloc) {
-					Curl_safefree(ptr->name);
+					ZFREE(ptr->name);
 					ptr->name_alloc = FALSE;
 				}
 				if(ptr->value_alloc) {
-					Curl_safefree(ptr->value);
+					ZFREE(ptr->value);
 					ptr->value_alloc = FALSE;
 				}
 				if(ptr->contenttype_alloc) {
-					Curl_safefree(ptr->contenttype);
+					ZFREE(ptr->contenttype);
 					ptr->contenttype_alloc = FALSE;
 				}
 				if(ptr->showfilename_alloc) {
-					Curl_safefree(ptr->showfilename);
+					ZFREE(ptr->showfilename);
 					ptr->showfilename_alloc = FALSE;
 				}
 			}

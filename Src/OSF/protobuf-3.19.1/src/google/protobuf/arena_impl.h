@@ -210,7 +210,7 @@ public:
 	// cleanup function ptr.
 	struct CleanupNode {
 		void* elem;  // Pointer to the object to be cleaned up.
-		void (* cleanup)(void*); // Function pointer to the destructor or deleter.
+		void (* cleanup)(void *); // Function pointer to the destructor or deleter.
 	};
 
 	void CleanupList();
@@ -274,7 +274,7 @@ private:
 	}
 
 public:
-	void AddCleanup(void* elem, void (*cleanup)(void*),
+	void AddCleanup(void* elem, void (*cleanup)(void *),
 	    const AllocationPolicy* policy) {
 		auto res = AllocateAlignedWithCleanup(0, policy);
 		res.second->elem = elem;
@@ -420,7 +420,7 @@ public:
 	std::pair<void*, SerialArena::CleanupNode*> AllocateAlignedWithCleanup(size_t n, const std::type_info* type);
 
 	// Add object pointer and cleanup function pointer to the list.
-	void AddCleanup(void* elem, void (*cleanup)(void*));
+	void AddCleanup(void* elem, void (*cleanup)(void *));
 
 	// Checks whether this arena is message-owned.
 	PROTOBUF_ALWAYS_INLINE bool IsMessageOwned() const {

@@ -47,13 +47,13 @@ int32_t UCharsDictionaryMatcher::matches(UText * text, int32_t maxLength, int32_
 		codePointsMatched += 1;
 		if(USTRINGTRIE_HAS_VALUE(result)) {
 			if(wordCount < limit) {
-				if(values != NULL) {
+				if(values) {
 					values[wordCount] = uct.getValue();
 				}
-				if(lengths != NULL) {
+				if(lengths) {
 					lengths[wordCount] = lengthMatched;
 				}
-				if(cpLengths != NULL) {
+				if(cpLengths) {
 					cpLengths[wordCount] = codePointsMatched;
 				}
 				++wordCount;
@@ -113,13 +113,13 @@ int32_t BytesDictionaryMatcher::matches(UText * text, int32_t maxLength, int32_t
 		codePointsMatched += 1;
 		if(USTRINGTRIE_HAS_VALUE(result)) {
 			if(wordCount < limit) {
-				if(values != NULL) {
+				if(values) {
 					values[wordCount] = bt.getValue();
 				}
-				if(lengths != NULL) {
+				if(lengths) {
 					lengths[wordCount] = lengthMatched;
 				}
-				if(cpLengths != NULL) {
+				if(cpLengths) {
 					cpLengths[wordCount] = codePointsMatched;
 				}
 				++wordCount;

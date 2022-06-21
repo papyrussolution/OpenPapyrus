@@ -10,17 +10,8 @@
 #include "cppcheck-internal.h"
 #pragma hdrstop
 #include "programmemory.h"
-#include "astutils.h"
 #include "calculate.h"
 #include "infer.h"
-#include "library.h"
-#include "mathlib.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "token.h"
-#include "utils.h"
-#include "valueflow.h"
-#include "valueptr.h"
 
 nonneg int ExprIdToken::getExpressionId() const {
 	return tok ? tok->exprId() : exprid;

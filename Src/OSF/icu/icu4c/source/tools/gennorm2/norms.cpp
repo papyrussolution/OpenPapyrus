@@ -173,15 +173,11 @@ void CompositionBuilder::rangeHandler(UChar32 start, UChar32 end, Norm &norm)
 		return;
 	}
 	if(start!=end) {
-		fprintf(stderr, "gennorm2 error: same round-trip mapping for more than 1 code point U+%04lX..U+%04lX\n", (long)start, (long)end);
+		slfprintf_stderr("gennorm2 error: same round-trip mapping for more than 1 code point U+%04lX..U+%04lX\n", (long)start, (long)end);
 		exit(U_INVALID_FORMAT_ERROR);
 	}
 	if(norm.cc!=0) {
-		fprintf(stderr,
-		    "gennorm2 error: "
-		    "U+%04lX has a round-trip mapping and ccc!=0, "
-		    "not possible in Unicode normalization\n",
-		    (long)start);
+		slfprintf_stderr("gennorm2 error: U+%04lX has a round-trip mapping and ccc!=0, not possible in Unicode normalization\n", (long)start);
 		exit(U_INVALID_FORMAT_ERROR);
 	}
 	// setRoundTripMapping() ensured that there are exactly two code points.
@@ -189,11 +185,7 @@ void CompositionBuilder::rangeHandler(UChar32 start, UChar32 end, Norm &norm)
 	UChar32 lead = m.char32At(0);
 	UChar32 trail = m.char32At(m.length()-1);
 	if(norms.getCC(lead)!=0) {
-		fprintf(stderr,
-		    "gennorm2 error: "
-		    "U+%04lX's round-trip mapping's starter U+%04lX has ccc!=0, "
-		    "not possible in Unicode normalization\n",
-		    (long)start, (long)lead);
+		slfprintf_stderr("gennorm2 error: U+%04lX's round-trip mapping's starter U+%04lX has ccc!=0, not possible in Unicode normalization\n", (long)start, (long)lead);
 		exit(U_INVALID_FORMAT_ERROR);
 	}
 	// Flag for trailing character.
@@ -213,10 +205,7 @@ void CompositionBuilder::rangeHandler(UChar32 start, UChar32 end, Norm &norm)
 		const CompositionPair * pairs = leadNorm->getCompositionPairs(length);
 		for(i = 0; i<length; ++i) {
 			if(trail==pairs[i].trail) {
-				fprintf(stderr,
-				    "gennorm2 error: same round-trip mapping for "
-				    "more than 1 code point (e.g., U+%04lX) to U+%04lX + U+%04lX\n",
-				    (long)start, (long)lead, (long)trail);
+				slfprintf_stderr("gennorm2 error: same round-trip mapping for more than 1 code point (e.g., U+%04lX) to U+%04lX + U+%04lX\n", (long)start, (long)lead, (long)trail);
 				exit(U_INVALID_FORMAT_ERROR);
 			}
 			if(trail<pairs[i].trail) {
@@ -228,7 +217,8 @@ void CompositionBuilder::rangeHandler(UChar32 start, UChar32 end, Norm &norm)
 	compositions->insertElementAt(start, 2*i+1, errorCode);
 }
 
-void Decomposer::rangeHandler(UChar32 start, UChar32 end, Norm &norm) {
+void Decomposer::rangeHandler(UChar32 start, UChar32 end, Norm &norm) 
+{
 	if(!norm.hasMapping()) {
 		return;
 	}
@@ -242,9 +232,7 @@ void Decomposer::rangeHandler(UChar32 start, UChar32 end, Norm &norm) {
 		prev = i;
 		U16_NEXT(s, i, length, c);
 		if(start<=c && c<=end) {
-			fprintf(stderr,
-			    "gennorm2 error: U+%04lX maps to itself directly or indirectly\n",
-			    (long)c);
+			slfprintf_stderr("gennorm2 error: U+%04lX maps to itself directly or indirectly\n", (long)c);
 			exit(U_INVALID_FORMAT_ERROR);
 		}
 		const Norm &cNorm = norms.getNormRef(c);
@@ -252,36 +240,20 @@ void Decomposer::rangeHandler(UChar32 start, UChar32 end, Norm &norm) {
 			if(norm.mappingType==Norm::ROUND_TRIP) {
 				if(prev==0) {
 					if(cNorm.mappingType!=Norm::ROUND_TRIP) {
-						fprintf(stderr,
-						    "gennorm2 error: "
-						    "U+%04lX's round-trip mapping's starter "
-						    "U+%04lX one-way-decomposes, "
-						    "not possible in Unicode normalization\n",
-						    (long)start, (long)c);
+						slfprintf_stderr("gennorm2 error: U+%04lX's round-trip mapping's starter U+%04lX one-way-decomposes, not possible in Unicode normalization\n", (long)start, (long)c);
 						exit(U_INVALID_FORMAT_ERROR);
 					}
 					uint8_t myTrailCC = norms.getCC(m.char32At(i));
 					UChar32 cTrailChar = cNorm.mapping->char32At(cNorm.mapping->length()-1);
 					uint8_t cTrailCC = norms.getCC(cTrailChar);
 					if(cTrailCC>myTrailCC) {
-						fprintf(stderr,
-						    "gennorm2 error: "
-						    "U+%04lX's round-trip mapping's starter "
-						    "U+%04lX decomposes and the "
-						    "inner/earlier tccc=%hu > outer/following tccc=%hu, "
-						    "not possible in Unicode normalization\n",
-						    (long)start, (long)c,
-						    (short)cTrailCC, (short)myTrailCC);
+						slfprintf_stderr("gennorm2 error: U+%04lX's round-trip mapping's starter U+%04lX decomposes and the inner/earlier tccc=%hu > outer/following tccc=%hu, not possible in Unicode normalization\n",
+						    (long)start, (long)c, (short)cTrailCC, (short)myTrailCC);
 						exit(U_INVALID_FORMAT_ERROR);
 					}
 				}
 				else {
-					fprintf(stderr,
-					    "gennorm2 error: "
-					    "U+%04lX's round-trip mapping's non-starter "
-					    "U+%04lX decomposes, "
-					    "not possible in Unicode normalization\n",
-					    (long)start, (long)c);
+					slfprintf_stderr("gennorm2 error: U+%04lX's round-trip mapping's non-starter U+%04lX decomposes, not possible in Unicode normalization\n", (long)start, (long)c);
 					exit(U_INVALID_FORMAT_ERROR);
 				}
 			}
@@ -294,12 +266,7 @@ void Decomposer::rangeHandler(UChar32 start, UChar32 end, Norm &norm) {
 			UChar buffer[3];
 			int32_t hangulLength = Hangul::decompose(c, buffer);
 			if(norm.mappingType==Norm::ROUND_TRIP && prev!=0) {
-				fprintf(stderr,
-				    "gennorm2 error: "
-				    "U+%04lX's round-trip mapping's non-starter "
-				    "U+%04lX decomposes, "
-				    "not possible in Unicode normalization\n",
-				    (long)start, (long)c);
+				slfprintf_stderr("gennorm2 error: U+%04lX's round-trip mapping's non-starter U+%04lX decomposes, not possible in Unicode normalization\n", (long)start, (long)c);
 				exit(U_INVALID_FORMAT_ERROR);
 			}
 			if(decomposed==nullptr) {

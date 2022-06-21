@@ -903,7 +903,7 @@ static CURLcode smb_done(struct connectdata * conn, CURLcode status,
     bool premature)
 {
 	(void)premature;
-	Curl_safefree(conn->data->req.protop);
+	ZFREE(conn->data->req.protop);
 	return status;
 }
 
@@ -911,9 +911,9 @@ static CURLcode smb_disconnect(struct connectdata * conn, bool dead)
 {
 	struct smb_conn * smbc = &conn->proto.smbc;
 	(void)dead;
-	Curl_safefree(smbc->share);
-	Curl_safefree(smbc->domain);
-	Curl_safefree(smbc->recv_buf);
+	ZFREE(smbc->share);
+	ZFREE(smbc->domain);
+	ZFREE(smbc->recv_buf);
 	return CURLE_OK;
 }
 
@@ -960,7 +960,7 @@ static CURLcode smb_parse_url_path(struct connectdata * conn)
 
 	/* The share must be present */
 	if(!slash) {
-		Curl_safefree(smbc->share);
+		ZFREE(smbc->share);
 		return CURLE_URL_MALFORMAT;
 	}
 

@@ -2,11 +2,9 @@
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * modification, are permitted provided that the following conditions are met:
  * 
- *     * Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
  * copyright notice, this list of conditions and the following disclaimer
  * in the documentation and/or other materials provided with the
@@ -23,7 +21,6 @@
  * Several of these are taken from glib:
  *    http://developer.gnome.org/doc/API/glib/glib-windows-compatability-functions.html
  */
-
 #ifndef CTEMPLATE_WINDOWS_PORT_H_
 #define CTEMPLATE_WINDOWS_PORT_H_
 
@@ -34,12 +31,12 @@
 
 #define WIN32_LEAN_AND_MEAN  /* We always want minimal includes */
 #include <windows.h>
-#include <io.h>              /* because we so often use open/close/etc */
-#include <direct.h>          /* for _getcwd() */
-#include <sys/utime.h>       /* for _utime() */
-#include <stdio.h>           /* read in vsnprintf decl. before redifining it */
-#include <stdarg.h>          /* template_dictionary.cc uses va_copy */
-#include <string.h>          /* for _strnicmp */
+#include <io.h>        /* because we so often use open/close/etc */
+#include <direct.h>    /* for _getcwd() */
+#include <sys/utime.h> /* for _utime() */
+#include <stdio.h>     /* read in vsnprintf decl. before redifining it */
+#include <stdarg.h>    /* template_dictionary.cc uses va_copy */
+#include <string.h>    /* for _strnicmp */
 /* Note: the C++ #includes are all together at the bottom.  This file is
  * used by both C and C++ code, so we put all the C++ together.
  */

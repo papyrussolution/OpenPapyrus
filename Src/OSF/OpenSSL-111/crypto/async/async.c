@@ -220,7 +220,7 @@ int ASYNC_pause_job(void)
 {
 	ASYNC_JOB * job;
 	async_ctx * ctx = async_get_ctx();
-	if(ctx == NULL || ctx->currjob == NULL || ctx->blocked) {
+	if(!ctx || ctx->currjob == NULL || ctx->blocked) {
 		/*
 		 * Could be we've deliberately not been started within a job so this is
 		 * counted as success.
@@ -362,7 +362,7 @@ void ASYNC_block_pause(void)
 {
 	if(OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL)) {
 		async_ctx * ctx = async_get_ctx();
-		if(ctx == NULL || ctx->currjob == NULL) {
+		if(!ctx || ctx->currjob == NULL) {
 			return; // We're not in a job anyway so ignore this
 		}
 		ctx->blocked++;
@@ -375,7 +375,7 @@ void ASYNC_unblock_pause(void)
 	if(!OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL))
 		return;
 	ctx = async_get_ctx();
-	if(ctx == NULL || ctx->currjob == NULL) {
+	if(!ctx || ctx->currjob == NULL) {
 		/*
 		 * We're not in a job anyway so ignore this
 		 */

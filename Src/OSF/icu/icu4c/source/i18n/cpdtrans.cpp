@@ -125,7 +125,7 @@ void CompoundTransliterator::init(const UnicodeString & id, UTransDirection dire
 	}
 	TransliteratorIDParser::instantiateList(list, status);
 	init(list, direction, fixReverseID, status);
-	if(compoundFilter != NULL) {
+	if(compoundFilter) {
 		adoptFilter(compoundFilter);
 	}
 }
@@ -233,20 +233,20 @@ CompoundTransliterator& CompoundTransliterator::operator = (const CompoundTransl
 	Transliterator::operator = (t);
 	int32_t i = 0;
 	bool failed = FALSE;
-	if(trans != NULL) {
+	if(trans) {
 		for(i = 0; i<count; ++i) {
 			delete trans[i];
 			trans[i] = 0;
 		}
 	}
 	if(t.count > count) {
-		if(trans != NULL) {
+		if(trans) {
 			uprv_free(trans);
 		}
 		trans = (Transliterator**)uprv_malloc(t.count * sizeof(Transliterator *));
 	}
 	count = t.count;
-	if(trans != NULL) {
+	if(trans) {
 		for(i = 0; i<count; ++i) {
 			trans[i] = t.trans[i]->clone();
 			if(trans[i] == NULL) {
@@ -333,7 +333,7 @@ UnicodeString & CompoundTransliterator::toRules(UnicodeString & rulesSource, boo
 	// compoundRBTIndex >= 0.  For the transliterator at compoundRBTIndex,
 	// we do call toRules() recursively.
 	rulesSource.truncate(0);
-	if(numAnonymousRBTs >= 1 && getFilter() != NULL) {
+	if(numAnonymousRBTs >= 1 && getFilter()) {
 		// If we are a compound RBT and if we have a global
 		// filter, then emit it at the top.
 		UnicodeString pat;

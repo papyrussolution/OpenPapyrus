@@ -744,7 +744,7 @@ const UnicodeString * UXMLElement::getAttribute(const UnicodeString & name) cons
 	// search for the attribute name by comparing the interned pointer,
 	// not the string contents
 	const UnicodeString * p = fParser->findName(name);
-	if(p==NULL) {
+	if(!p) {
 		return NULL; // no such attribute seen by the parser at all
 	}
 
@@ -798,7 +798,7 @@ const UXMLElement * UXMLElement::getChildElement(const UnicodeString & name) con
 	// search for the element name by comparing the interned pointer,
 	// not the string contents
 	const UnicodeString * p = fParser->findName(name);
-	if(p==NULL) {
+	if(!p) {
 		return NULL; // no such element seen by the parser at all
 	}
 

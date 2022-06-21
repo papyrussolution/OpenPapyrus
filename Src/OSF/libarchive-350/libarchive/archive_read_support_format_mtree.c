@@ -713,7 +713,7 @@ static void remove_option(struct mtree_option ** global, const char * value, siz
 	}
 	if(iter == NULL)
 		return;
-	if(last == NULL)
+	if(!last)
 		*global = iter->next;
 	else
 		last->next = iter->next;

@@ -249,7 +249,7 @@ void l_rbtreeDelete(L_RBTREE  * t,
 	}
 
 	n = lookup_node(t, key);
-	if(n == NULL) return; /* Key not found, do nothing */
+	if(!n) return; /* Key not found, do nothing */
 	if(n->left != NULL && n->right != NULL) {
 		/* Copy key/value from predecessor and then delete it instead */
 		node * pred = maximum_node(n->left);
@@ -504,7 +504,7 @@ static void print_tree_helper(FILE * fp,
 {
 	l_int32 i;
 
-	if(n == NULL) {
+	if(!n) {
 		fprintf(fp, "<empty tree>");
 		return;
 	}
@@ -855,7 +855,7 @@ static void verify_property_1(node * n) {
 		L_ERROR("color neither RED nor BLACK\n", "verify_property_1");
 		return;
 	}
-	if(n == NULL) return;
+	if(!n) return;
 	verify_property_1(n->left);
 	verify_property_1(n->right);
 }
@@ -874,7 +874,7 @@ static void verify_property_4(node * n) {
 			return;
 		}
 	}
-	if(n == NULL) return;
+	if(!n) return;
 	verify_property_4(n->left);
 	verify_property_4(n->right);
 }
@@ -889,7 +889,7 @@ static void verify_property_5_helper(node * n, int black_count,
 	if(node_color(n) == L_BLACK_NODE) {
 		black_count++;
 	}
-	if(n == NULL) {
+	if(!n) {
 		if(*path_black_count == -1) {
 			*path_black_count = black_count;
 		}

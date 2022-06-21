@@ -125,7 +125,7 @@ static ngx_int_t ngx_http_autoindex_handler(ngx_http_request_t * r)
 	}
 	// NGX_DIR_MASK_LEN is lesser than NGX_HTTP_AUTOINDEX_PREALLOCATE 
 	last = ngx_http_map_uri_to_path(r, &path, &root, NGX_HTTP_AUTOINDEX_PREALLOCATE);
-	if(last == NULL) {
+	if(!last) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
 	allocated = path.len;

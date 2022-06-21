@@ -172,9 +172,8 @@ static int archive_write_shar_header(struct archive_write * a, ArchiveEntry * en
 		p = sstrdup(name);
 		pp = strrchr(p, '/');
 		/* If there is a / character, try to create the dir. */
-		if(pp != NULL) {
+		if(pp) {
 			*pp = '\0';
-
 			/* Try to avoid a lot of redundant mkdir commands. */
 			if(sstreq(p, ".")) {
 				/* Don't try to "mkdir ." */
@@ -261,7 +260,7 @@ static int archive_write_shar_header(struct archive_write * a, ArchiveEntry * en
 			    shar->last_dir = sstrdup(name);
 			    /* Trim a trailing '/'. */
 			    pp = strrchr(shar->last_dir, '/');
-			    if(pp != NULL && pp[1] == '\0')
+			    if(pp && pp[1] == '\0')
 				    *pp = '\0';
 			    /*
 			     * TODO: Put dir name/mode on a list to be fixed
@@ -483,11 +482,11 @@ static int archive_write_shar_finish_entry(struct archive_write * a)
 
 		u = archive_entry_uname(shar->entry);
 		g = archive_entry_gname(shar->entry);
-		if(u != NULL || g != NULL) {
+		if(u || g) {
 			archive_strcat(&shar->work, "chown ");
-			if(u != NULL)
+			if(u)
 				shar_quote(&shar->work, u, 1);
-			if(g != NULL) {
+			if(g) {
 				archive_strcat(&shar->work, ":");
 				shar_quote(&shar->work, g, 1);
 			}
@@ -499,11 +498,9 @@ static int archive_write_shar_finish_entry(struct archive_write * a)
 
 		if((p = archive_entry_fflags_text(shar->entry)) != NULL) {
 			archive_string_sprintf(&shar->work, "chflags %s ", p);
-			shar_quote(&shar->work,
-			    archive_entry_pathname(shar->entry), 1);
+			shar_quote(&shar->work, archive_entry_pathname(shar->entry), 1);
 			archive_strcat(&shar->work, "\n");
 		}
-
 		/* TODO: restore ACLs */
 	}
 	else {
@@ -514,7 +511,6 @@ static int archive_write_shar_finish_entry(struct archive_write * a)
 			archive_strcat(&shar->work, "SHAR_END\n");
 		}
 	}
-
 	archive_entry_free(shar->entry);
 	shar->entry = NULL;
 

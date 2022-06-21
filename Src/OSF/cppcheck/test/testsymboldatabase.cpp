@@ -9,15 +9,6 @@
  */
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
-#include "library.h"
-#include "platform.h"
-#include "settings.h"
-#include "symboldatabase.h"
-#include "testsuite.h"
-#include "testutils.h"
-#include "token.h"
-#include "tokenize.h"
-#include "tokenlist.h"
 
 struct InternalError;
 

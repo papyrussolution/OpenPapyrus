@@ -791,7 +791,7 @@ struct _LIBSSH2_SESSION {
 #if LIBSSH2_MD5
 	uchar server_hostkey_md5[MD5_DIGEST_LENGTH];
 	int server_hostkey_md5_valid;
-#endif                          /* ! LIBSSH2_MD5 */
+#endif /* ! LIBSSH2_MD5 */
 	uchar server_hostkey_sha1[SHA_DIGEST_LENGTH];
 	int server_hostkey_sha1_valid;
 	libssh2_endpoint_data remote; /* (remote as source of data -- packet_read ) */

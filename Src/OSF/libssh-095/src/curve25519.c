@@ -116,7 +116,7 @@ static int ssh_curve25519_build_k(ssh_session session)
 	size_t shared_key_len = sizeof(k);
 	int rc, ret = SSH_ERROR;
 	pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL, session->next_crypto->curve25519_privkey, CURVE25519_PRIVKEY_SIZE);
-	if(pkey == NULL) {
+	if(!pkey) {
 		SSH_LOG(SSH_LOG_TRACE, "Failed to create X25519 EVP_PKEY: %s", ERR_error_string(ERR_get_error(), NULL));
 		return SSH_ERROR;
 	}

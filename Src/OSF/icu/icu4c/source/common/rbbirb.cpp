@@ -73,7 +73,7 @@ RBBIRuleBuilder::~RBBIRuleBuilder()
 {
 	for(int i = 0;; i++) {
 		RBBINode * n = (RBBINode*)fUSetNodes->elementAt(i);
-		if(n == NULL) {
+		if(!n) {
 			break;
 		}
 		delete n;

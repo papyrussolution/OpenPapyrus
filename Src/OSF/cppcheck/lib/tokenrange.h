@@ -6,33 +6,22 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//---------------------------------------------------------------------------
 #ifndef tokenrangeH
 #define tokenrangeH
-//---------------------------------------------------------------------------
 
-#include "cppcheck-config.h"
+//#include "cppcheck-config.h"
 
 template <typename T, REQUIRES("T must be a Token class", std::is_convertible<T*, const Token*> )>
 class TokenRangeBase {
 	T* mFront;
 	T* mBack;
-
 public:
-	TokenRangeBase(T* front, T* back) : mFront(front), mBack(back) {
+	TokenRangeBase(T* front, T* back) : mFront(front), mBack(back) 
+	{
 	}
-
-	struct TokenIterator {
+	struct TokenIterator 
+	{
 		using iterator_category = std::forward_iterator_tag;
 		using value_type = T*;
 		using difference_type = std::ptrdiff_t;

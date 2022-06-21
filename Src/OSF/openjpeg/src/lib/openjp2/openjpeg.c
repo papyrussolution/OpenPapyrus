@@ -138,8 +138,8 @@ opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT p_format)
 	switch(p_format) {
 		case OPJ_CODEC_J2K:
 		    l_codec->opj_dump_codec = (void (*)(void*, int32_t, FILE*))j2k_dump;
-		    l_codec->opj_get_codec_info = (opj_codestream_info_v2_t* (*)(void*))j2k_get_cstr_info;
-		    l_codec->opj_get_codec_index = (opj_codestream_index_t* (*)(void*))j2k_get_cstr_index;
+		    l_codec->opj_get_codec_info = (opj_codestream_info_v2_t* (*)(void *))j2k_get_cstr_info;
+		    l_codec->opj_get_codec_index = (opj_codestream_index_t* (*)(void *))j2k_get_cstr_index;
 		    l_codec->m_codec_data.m_decompression.opj_decode = (boolint (*)(void *, struct opj_stream_private *, opj_image_t*, struct opj_event_mgr *))opj_j2k_decode;
 		    l_codec->m_codec_data.m_decompression.opj_end_decompress = (boolint (*)(void *, struct opj_stream_private *, struct opj_event_mgr *))opj_j2k_end_decompress;
 		    l_codec->m_codec_data.m_decompression.opj_read_header = (boolint (*)(struct opj_stream_private *, void *, opj_image_t **, struct opj_event_mgr *))opj_j2k_read_header;
@@ -168,8 +168,8 @@ opj_codec_t* OPJ_CALLCONV opj_create_decompress(OPJ_CODEC_FORMAT p_format)
 		case OPJ_CODEC_JP2:
 		    /* get a JP2 decoder handle */
 		    l_codec->opj_dump_codec = (void (*)(void*, int32_t, FILE*))jp2_dump;
-		    l_codec->opj_get_codec_info = (opj_codestream_info_v2_t* (*)(void*))jp2_get_cstr_info;
-		    l_codec->opj_get_codec_index = (opj_codestream_index_t* (*)(void*))jp2_get_cstr_index;
+		    l_codec->opj_get_codec_info = (opj_codestream_info_v2_t* (*)(void *))jp2_get_cstr_info;
+		    l_codec->opj_get_codec_index = (opj_codestream_index_t* (*)(void *))jp2_get_cstr_index;
 		    l_codec->m_codec_data.m_decompression.opj_decode = (boolint (*)(void *, struct opj_stream_private *, opj_image_t*, struct opj_event_mgr *))opj_jp2_decode;
 		    l_codec->m_codec_data.m_decompression.opj_end_decompress = (boolint (*)(void *, struct opj_stream_private *, struct opj_event_mgr *))opj_jp2_end_decompress;
 		    l_codec->m_codec_data.m_decompression.opj_read_header = (boolint (*)(struct opj_stream_private *, void *, opj_image_t **, struct opj_event_mgr *))opj_jp2_read_header;

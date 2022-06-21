@@ -403,7 +403,7 @@ static OSSL_STORE_INFO * try_decode_PrivateKey(const char * pem_name,
 			pkey = NULL;
 		}
 	}
-	if(pkey == NULL)
+	if(!pkey)
 		/* No match */
 		return NULL;
 

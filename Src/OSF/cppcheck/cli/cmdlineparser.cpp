@@ -11,27 +11,12 @@
 #include <cppcheck-test-internal.h>
 #pragma hdrstop
 #include "cmdlineparser.h"
-#include "check.h"
-#include "cppcheck-config.h"
 #include "cppcheckexecutor.h"
-#include "errortypes.h"
-#include "filelister.h"
 #include "importproject.h"
-#include "path.h"
-#include "platform.h"
-#include "settings.h"
-#include "standards.h"
 #include "suppressions.h"
 #include "timer.h"
-#include "utils.h"
-
-#ifdef HAVE_RULES
-// xml is used for rules
-#include <tinyxml2.h>
-#endif
-
 #ifdef __linux__
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 
 static void addFilesToList(const std::string& fileList, std::vector<std::string>& pathNames)
@@ -723,16 +708,13 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 							tinyxml2::XMLElement * severity = message->FirstChildElement("severity");
 							if(severity)
 								rule.severity = Severity::fromString(severity->GetText());
-
 							tinyxml2::XMLElement * id = message->FirstChildElement("id");
 							if(id)
 								rule.id = id->GetText();
-
 							tinyxml2::XMLElement * summary = message->FirstChildElement("summary");
 							if(summary)
 								rule.summary = summary->GetText() ? summary->GetText() : "";
 						}
-
 						if(!rule.pattern.empty())
 							mSettings->rules.emplace_back(rule);
 					}
@@ -743,7 +725,6 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 				}
 			}
 #endif
-
 			// show timing information..
 			else if(std::strncmp(argv[i], "--showtime=", 11) == 0) {
 				const std::string showtimeMode = argv[i] + 11;
@@ -756,13 +737,10 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 				else if(showtimeMode.empty())
 					mSettings->showtime = SHOWTIME_MODES::SHOWTIME_NONE;
 				else {
-					printError(
-						"unrecognized showtime mode: \"" + showtimeMode +
-						"\". Supported modes: file, summary, top5.");
+					printError("unrecognized showtime mode: \"" + showtimeMode + "\". Supported modes: file, summary, top5.");
 					return false;
 				}
 			}
-
 			// --std
 			else if(std::strncmp(argv[i], "--std=", 6) == 0) {
 				const std::string std = argv[i] + 6;
@@ -778,7 +756,6 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 					return false;
 				}
 			}
-
 			else if(std::strncmp(argv[i], "--suppress=", 11) == 0) {
 				const std::string suppression = argv[i]+11;
 				const std::string errmsg(mSettings->nomsg.addSuppressionLine(suppression));
@@ -787,7 +764,6 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 					return false;
 				}
 			}
-
 			// Filter errors
 			else if(std::strncmp(argv[i], "--suppressions-list=", 20) == 0) {
 				std::string filename = argv[i]+20;
@@ -805,7 +781,6 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 						message += "\nIf you want to pass two files, you can do it e.g. like this:";
 						message += "\n    cppcheck --suppressions-list=a.txt --suppressions-list=b.txt file.cpp";
 					}
-
 					printError(message);
 					return false;
 				}
@@ -815,7 +790,6 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 					return false;
 				}
 			}
-
 			else if(std::strncmp(argv[i], "--suppress-xml=", 15) == 0) {
 				const char * filename = argv[i] + 15;
 				const std::string errmsg(mSettings->nomsg.parseXmlFile(filename));
@@ -824,7 +798,6 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 					return false;
 				}
 			}
-
 			// Output formatter
 			else if(std::strcmp(argv[i], "--template") == 0 ||
 			    std::strncmp(argv[i], "--template=", 11) == 0) {
@@ -839,16 +812,13 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 					printError("argument to '--template' is missing.");
 					return false;
 				}
-
 				if(mSettings->templateFormat == "gcc") {
-					mSettings->templateFormat =
-					    "{bold}{file}:{line}:{column}: {magenta}warning:{default} {message} [{id}]{reset}\\n{code}";
+					mSettings->templateFormat = "{bold}{file}:{line}:{column}: {magenta}warning:{default} {message} [{id}]{reset}\\n{code}";
 					mSettings->templateLocation = "{bold}{file}:{line}:{column}: {dim}note:{reset} {info}\\n{code}";
 				}
 				else if(mSettings->templateFormat == "daca2") {
 					mSettings->daca = true;
-					mSettings->templateFormat =
-					    "{file}:{line}:{column}: {severity}:{inconclusive:inconclusive:} {message} [{id}]";
+					mSettings->templateFormat = "{file}:{line}:{column}: {severity}:{inconclusive:inconclusive:} {message} [{id}]";
 					mSettings->templateLocation = "{file}:{line}:{column}: note: {info}";
 				}
 				else if(mSettings->templateFormat == "vs")
@@ -858,13 +828,11 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 				else if(mSettings->templateFormat == "cppcheck1")
 					mSettings->templateFormat = "{callstack}: ({severity}{inconclusive:, inconclusive}) {message}";
 				else if(mSettings->templateFormat == "selfcheck") {
-					mSettings->templateFormat =
-					    "{file}:{line}:{column}: {severity}:{inconclusive:inconclusive:} {message} [{id}]\\n{code}";
+					mSettings->templateFormat = "{file}:{line}:{column}: {severity}:{inconclusive:inconclusive:} {message} [{id}]\\n{code}";
 					mSettings->templateLocation = "{file}:{line}:{column}: note: {info}\\n{code}";
 					mSettings->daca = true;
 				}
 			}
-
 			else if(std::strcmp(argv[i], "--template-location") == 0 ||
 			    std::strncmp(argv[i], "--template-location=", 20) == 0) {
 				// "--template-location format"
@@ -879,41 +847,33 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 					return false;
 				}
 			}
-
 			else if(std::strcmp(argv[i], "-v") == 0 || std::strcmp(argv[i], "--verbose") == 0)
 				mSettings->verbose = true;
-
 			else if(std::strcmp(argv[i], "--version") == 0) {
 				mShowVersion = true;
 				mExitAfterPrint = true;
 				mSettings->loadCppcheckCfg();
 				return true;
 			}
-
 			// Write results in results.xml
 			else if(std::strcmp(argv[i], "--xml") == 0)
 				mSettings->xml = true;
-
 			// Define the XML file version (and enable XML output)
 			else if(std::strncmp(argv[i], "--xml-version=", 14) == 0) {
 				const std::string numberString(argv[i]+14);
-
 				std::istringstream iss(numberString);
 				if(!(iss >> mSettings->xml_version)) {
 					printError("argument to '--xml-version' is not a number.");
 					return false;
 				}
-
 				if(mSettings->xml_version != 2) {
 					// We only have xml version 2
 					printError("'--xml-version' can only be 2.");
 					return false;
 				}
-
 				// Enable also XML if version is set
 				mSettings->xml = true;
 			}
-
 			else {
 				std::string message("unrecognized command line option: \"");
 				message += argv[i];
@@ -922,47 +882,35 @@ bool CmdLineParser::parseFromArgs(int argc, const char* const argv[])
 				return false;
 			}
 		}
-
 		else {
 			mPathNames.emplace_back(Path::fromNativeSeparators(Path::removeQuotationMarks(argv[i])));
 		}
 	}
-
 	mSettings->loadCppcheckCfg();
-
 	// Default template format..
 	if(mSettings->templateFormat.empty()) {
-		mSettings->templateFormat =
-		    "{bold}{file}:{line}:{column}: {red}{inconclusive:{magenta}}{severity}:{inconclusive: inconclusive:}{default} {message} [{id}]{reset}\\n{code}";
+		mSettings->templateFormat = "{bold}{file}:{line}:{column}: {red}{inconclusive:{magenta}}{severity}:{inconclusive: inconclusive:}{default} {message} [{id}]{reset}\\n{code}";
 		if(mSettings->templateLocation.empty())
 			mSettings->templateLocation = "{bold}{file}:{line}:{column}: {dim}note:{reset} {info}\\n{code}";
 	}
-
 	mSettings->project.ignorePaths(mIgnoredPaths);
-
 	if(mSettings->force || maxconfigs)
 		mSettings->checkAllConfigurations = true;
-
 	if(mSettings->force)
 		mSettings->maxConfigs = INT_MAX;
-
 	else if((def || mSettings->preprocessOnly) && !maxconfigs)
 		mSettings->maxConfigs = 1U;
-
 	if(mSettings->checks.isEnabled(Checks::unusedFunction) && mSettings->jobs > 1) {
 		printMessage("unusedFunction check can't be used with '-j' option. Disabling unusedFunction check.");
 	}
-
 	if(argc <= 1) {
 		mShowHelp = true;
 		mExitAfterPrint = true;
 	}
-
 	if(mShowHelp) {
 		printHelp();
 		return true;
 	}
-
 	// Print error only if we have "real" command and expect files
 	if(!mExitAfterPrint && mPathNames.empty() && mSettings->project.fileSettings.empty()) {
 		printError("no C or C++ source files found.");

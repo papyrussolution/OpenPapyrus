@@ -20,7 +20,7 @@ int X509_certificate_type(const X509 * x, const EVP_PKEY * pkey)
 	if(!x)
 		return 0;
 
-	if(pkey == NULL)
+	if(!pkey)
 		pk = X509_get0_pubkey(x);
 	else
 		pk = pkey;

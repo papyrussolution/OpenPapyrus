@@ -19,7 +19,7 @@
 #define KB *(1 <<10)
 //#define MIN(a, b)  ( (a) < (b) ? (a) : (b) )
 #define RDG_DEBUG 0
-#define TRACE(...)   if(RDG_DEBUG) fprintf(stderr, __VA_ARGS__)
+#define TRACE(...)   if(RDG_DEBUG) slfprintf_stderr(__VA_ARGS__)
 
 /*-************************************
 *  Local constants
@@ -131,7 +131,7 @@ static void RDG_genBlock(void * buffer, size_t buffSize, size_t prefixSize, doub
 	}
 }
 
-void RDG_genBuffer(void * buffer, size_t size, double matchProba, double litProba, unsigned seed)
+void RDG_genBuffer(void * buffer, size_t size, double matchProba, double litProba, uint seed)
 {
 	uint32 seed32 = seed;
 	BYTE ldt[LTSIZE];
@@ -141,7 +141,7 @@ void RDG_genBuffer(void * buffer, size_t size, double matchProba, double litProb
 	RDG_genBlock(buffer, size, 0, matchProba, ldt, &seed32);
 }
 
-void RDG_genStdout(unsigned long long size, double matchProba, double litProba, unsigned seed)
+void RDG_genStdout(unsigned long long size, double matchProba, double litProba, uint seed)
 {
 	uint32 seed32 = seed;
 	size_t const stdBlockSize = 128 KB;
@@ -153,7 +153,8 @@ void RDG_genStdout(unsigned long long size, double matchProba, double litProba, 
 	if(buff==NULL) {
 		perror("datagen"); exit(1);
 	}
-	if(litProba<=0.0) litProba = matchProba / 4.5;
+	if(litProba<=0.0) 
+		litProba = matchProba / 4.5;
 	memset(ldt, '0', sizeof(ldt)); /* yes, character '0', this is intentional */
 	RDG_fillLiteralDistrib(ldt, (fixedPoint_24_8)(litProba * 256 + 0.001));
 	SET_BINARY_MODE(stdout);

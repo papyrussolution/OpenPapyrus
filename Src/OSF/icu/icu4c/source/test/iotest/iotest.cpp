@@ -840,23 +840,18 @@ int main(int argc, char * argv[])
 		/* Error already displayed. */
 		return -1;
 	}
-
 	/* Initialize ICU */
 	ctest_setICU_DATA(); /* u_setDataDirectory() must happen Before u_init() */
 	u_init(&errorCode);
 	if(U_FAILURE(errorCode)) {
-		fprintf(stderr,
-		    "#### ERROR! %s: u_init() failed with status = \"%s\".\n"
+		slfprintf_stderr("#### ERROR! %s: u_init() failed with status = \"%s\".\n"
 		    "*** Check the ICU_DATA environment variable and \n"
 		    "*** check that the data files are present.\n", argv[0], u_errorName(errorCode));
 		return 1;
 	}
-
 	fprintf(stdout, "Default charset for this run is %s\n", ucnv_getDefaultName());
-
 	addAllTests(&root);
 	nerrors = runTestRequest(root, argc, argv);
-
 #if 1
 	static const char * filenamesToRemove[] = { STANDARD_TEST_FILE, MEDIUMNAME_TEST_FILE, LONGNAME_TEST_FILE, nullptr };
 	const char ** filenamesToRemovePtr = filenamesToRemove;

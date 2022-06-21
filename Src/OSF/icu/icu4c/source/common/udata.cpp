@@ -124,7 +124,6 @@ static bool setCommonICUData(UDataMemory * pData,     /* The new common data.  B
 	if(U_FAILURE(*pErr)) {
 		return FALSE;
 	}
-
 	/* For the assignment, other threads must cleanly see either the old   */
 	/* or the new, not some partially initialized new.  The old can not be        */
 	/* deleted - someone may still have a pointer to it lying around in  */
@@ -158,7 +157,8 @@ static bool setCommonICUData(UDataMemory * pData,     /* The new common data.  B
 
 #if !defined(ICU_DATA_DIR_WINDOWS)
 
-static bool setCommonICUDataPointer(const void * pData, bool /*warn*/, UErrorCode * pErrorCode) {
+static bool setCommonICUDataPointer(const void * pData, bool /*warn*/, UErrorCode * pErrorCode) 
+{
 	UDataMemory tData;
 	UDataMemory_init(&tData);
 	UDataMemory_setData(&tData, pData);
@@ -168,14 +168,10 @@ static bool setCommonICUDataPointer(const void * pData, bool /*warn*/, UErrorCod
 
 #endif
 
-static const char * findBasename(const char * path) {
+static const char * findBasename(const char * path) 
+{
 	const char * basename = uprv_strrchr(path, U_FILE_SEP_CHAR);
-	if(basename==NULL) {
-		return path;
-	}
-	else {
-		return basename+1;
-	}
+	return basename ? (basename+1) : path;
 }
 
 #ifdef UDATA_DEBUG
@@ -184,16 +180,12 @@ static const char * packageNameFromPath(const char * path)
 	if((path == NULL) || (*path == 0)) {
 		return U_ICUDATA_NAME;
 	}
-
 	path = findBasename(path);
-
 	if((path == NULL) || (*path == 0)) {
 		return U_ICUDATA_NAME;
 	}
-
 	return path;
 }
-
 #endif
 
 /*----------------------------------------------------------------------*
@@ -522,33 +514,23 @@ const char * UDataPathIterator::next(UErrorCode * pErrorCode)
 		}
 		else { /* regular dir path */
 			if(pathBuffer[pathLen-1] != U_FILE_SEP_CHAR) {
-				if((pathLen>=4) &&
-				    uprv_strncmp(pathBuffer.data()+(pathLen-4), ".dat", 4) == 0) {
+				if((pathLen>=4) && uprv_strncmp(pathBuffer.data()+(pathLen-4), ".dat", 4) == 0) {
 #ifdef UDATA_DEBUG
 					slfprintf_stderr("skipping non-directory .dat file %s\n", pathBuffer.data());
 #endif
 					continue;
 				}
-
 				/* Check if it is a directory with the same name as our package */
-				if(!packageStub.isEmpty() &&
-				    (pathLen > packageStub.length()) &&
-				    !uprv_strcmp(pathBuffer.data() + pathLen - packageStub.length(), packageStub.data())) {
+				if(!packageStub.isEmpty() && (pathLen > packageStub.length()) && !uprv_strcmp(pathBuffer.data() + pathLen - packageStub.length(), packageStub.data())) {
 #ifdef UDATA_DEBUG
-					fprintf(stderr,
-					    "Found stub %s (will add package %s of len %d)\n",
-					    packageStub.data(),
-					    basename,
-					    basenameLen);
+					slfprintf_stderr("Found stub %s (will add package %s of len %d)\n", packageStub.data(), basename, basenameLen);
 #endif
 					pathBuffer.truncate(pathLen - packageStub.length());
 				}
 				pathBuffer.append(U_FILE_SEP_CHAR, *pErrorCode);
 			}
-
 			/* + basename */
 			pathBuffer.append(packageStub.data()+1, packageStub.length()-1, *pErrorCode);
-
 			if(!suffix.empty()) { /* tack on suffix */
 				if(suffix.length() > 4) {
 					// If the suffix is actually an item ("ibm-5348_P100-1997.cnv") and not an
@@ -559,21 +541,16 @@ const char * UDataPathIterator::next(UErrorCode * pErrorCode)
 				pathBuffer.append(suffix, *pErrorCode);
 			}
 		}
-
 #ifdef UDATA_DEBUG
 		slfprintf_stderr(" -->  %s\n", pathBuffer.data());
 #endif
-
 		return pathBuffer.data();
 	} while(path);
-
 	/* fell way off the end */
 	return NULL;
 }
 
 U_NAMESPACE_END
-
-/* ==================================================================================*/
 
 /*----------------------------------------------------------------------*
 *                                                                      *
@@ -824,7 +801,7 @@ U_CAPI void U_EXPORT2 udata_setCommonData(const void * data, UErrorCode * pError
 		return;
 	}
 
-	if(data==NULL) {
+	if(!data) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
@@ -850,15 +827,13 @@ U_CAPI void U_EXPORT2 udata_setCommonData(const void * data, UErrorCode * pError
 U_CAPI void U_EXPORT2 udata_setAppData(const char * path, const void * data, UErrorCode * err)
 {
 	UDataMemory udm;
-
 	if(!err || U_FAILURE(*err)) {
 		return;
 	}
-	if(data==NULL) {
+	if(!data) {
 		*err = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-
 	UDataMemory_init(&udm);
 	UDataMemory_setData(&udm, data);
 	udata_checkCommonData(&udm, err);

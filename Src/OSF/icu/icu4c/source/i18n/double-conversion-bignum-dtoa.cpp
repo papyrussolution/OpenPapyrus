@@ -57,15 +57,11 @@ static void InitialScaledStartValues(uint64_t significand,
 //     where numerator' and denominator' are the values of numerator and
 //     denominator after the call to this function.
 static void FixupMultiply10(int estimated_power, bool is_even,
-    int* decimal_point,
-    Bignum* numerator, Bignum* denominator,
-    Bignum* delta_minus, Bignum* delta_plus);
+    int* decimal_point, Bignum* numerator, Bignum* denominator, Bignum* delta_minus, Bignum* delta_plus);
 // Generates digits from the left to the right and stops when the generated
 // digits yield the shortest decimal representation of v.
 static void GenerateShortestDigits(Bignum* numerator, Bignum* denominator,
-    Bignum* delta_minus, Bignum* delta_plus,
-    bool is_even,
-    Vector<char> buffer, int* length);
+    Bignum* delta_minus, Bignum* delta_plus, bool is_even, Vector<char> buffer, int* length);
 // Generates 'requested_digits' after the decimal point.
 static void BignumToFixed(int requested_digits, int* decimal_point,
     Bignum* numerator, Bignum* denominator,
@@ -97,9 +93,7 @@ void BignumDtoa(double v, BignumDtoaMode mode, int requested_digits, Vector<char
 		exponent = Double(v).Exponent();
 		lower_boundary_is_closer = Double(v).LowerBoundaryIsCloser();
 	}
-	bool need_boundary_deltas =
-	    (mode == BIGNUM_DTOA_SHORTEST || mode == BIGNUM_DTOA_SHORTEST_SINGLE);
-
+	bool need_boundary_deltas = (mode == BIGNUM_DTOA_SHORTEST || mode == BIGNUM_DTOA_SHORTEST_SINGLE);
 	bool is_even = (significand & 1) == 0;
 	int normalized_exponent = NormalizedExponent(significand, exponent);
 	// estimated_power might be too low by 1.
@@ -127,13 +121,10 @@ void BignumDtoa(double v, BignumDtoaMode mode, int requested_digits, Vector<char
 	// 308*4 binary digits.
 	DOUBLE_CONVERSION_ASSERT(Bignum::kMaxSignificantBits >= 324*4);
 	InitialScaledStartValues(significand, exponent, lower_boundary_is_closer,
-	    estimated_power, need_boundary_deltas,
-	    &numerator, &denominator,
-	    &delta_minus, &delta_plus);
+	    estimated_power, need_boundary_deltas, &numerator, &denominator, &delta_minus, &delta_plus);
 	// We now have v = (numerator / denominator) * 10^estimated_power.
 	FixupMultiply10(estimated_power, is_even, decimal_point,
-	    &numerator, &denominator,
-	    &delta_minus, &delta_plus);
+	    &numerator, &denominator, &delta_minus, &delta_plus);
 	// We now have v = (numerator / denominator) * 10^(decimal_point-1), and
 	//  1 <= (numerator + delta_plus) / denominator < 10
 	switch(mode) {
@@ -517,7 +508,7 @@ static void InitialScaledStartValuesNegativeExponentNegativePower(uint64_t signi
 		// The adjustments if f == 2^p-1 (lower boundary is closer) are done later.
 	}
 }
-
+//
 // Let v = significand * 2^exponent.
 // Computes v / 10^estimated_power exactly, as a ratio of two bignums, numerator
 // and denominator. The functions GenerateShortestDigits and
