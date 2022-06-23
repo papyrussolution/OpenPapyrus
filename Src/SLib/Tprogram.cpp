@@ -528,7 +528,7 @@ void TProgram::SizeMainWnd(HWND hw)
 	MEMSZERO(rc_client);
 	CALLPTRMEMB(P_Stw, Update());
 	GetClientRect(&rc_client);
-	const RECT org_rc_client(rc_client);
+	// @v11.4.2 const RECT org_rc_client(rc_client);
 	int _width  = rc_client.right - rc_client.left;
 	int _height = rc_client.bottom - rc_client.top;
 	if(IsWindowVisible(H_ShortcutsWnd)) {

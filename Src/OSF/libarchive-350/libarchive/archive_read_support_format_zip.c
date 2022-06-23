@@ -638,11 +638,9 @@ static int process_extra(ArchiveRead * a, ArchiveEntry * entry,
 				    uint32 comment_length;
 				    if(datasize < 2)
 					    break;
-				    comment_length
-					    = archive_le16dec(p + offset);
+				    comment_length = archive_le16dec(p + offset);
 				    offset += 2;
 				    datasize -= 2;
-
 				    if(datasize < comment_length)
 					    break;
 				    /* Comment is not supported by libarchive */
@@ -658,7 +656,6 @@ static int process_extra(ArchiveRead * a, ArchiveEntry * entry,
 				    break;
 			    offset += 5;
 			    datasize -= 5;
-
 			    /* The path name in this field is always encoded
 			     * in UTF-8. */
 			    if(zip->sconv_utf8 == NULL) {
@@ -669,7 +666,6 @@ static int process_extra(ArchiveRead * a, ArchiveEntry * entry,
 				    if(zip->sconv_utf8 == NULL)
 					    break;
 			    }
-
 			    /* Make sure the CRC32 of the filename matches. */
 			    if(!zip->ignore_crc32) {
 				    const char * cp = archive_entry_pathname(entry);
@@ -700,8 +696,7 @@ static int process_extra(ArchiveRead * a, ArchiveEntry * entry,
 			    if(datasize >= 2)
 				    zip_entry->uid = archive_le16dec(p + offset);
 			    if(datasize >= 4)
-				    zip_entry->gid =
-					archive_le16dec(p + offset + 2);
+				    zip_entry->gid = archive_le16dec(p + offset + 2);
 			    break;
 			case 0x7875:
 		    {
@@ -719,13 +714,11 @@ static int process_extra(ArchiveRead * a, ArchiveEntry * entry,
 				    }
 				    if(datasize >= (2 + uidsize + 3)) {
 					    /* get a gid size. */
-					    gidsize = 0xff &
-						(int)p[offset+2+uidsize];
+					    gidsize = 0xff & (int)p[offset+2+uidsize];
 					    if(gidsize == 2)
 						    zip_entry->gid = archive_le16dec(p+offset+2+uidsize+1);
-					    else if(gidsize == 4 &&
-						datasize >= (2 + uidsize + 5))
-						    zip_entry->gid = archive_le32dec(p+offset+2+uidsize+1);
+					    else if(gidsize == 4 && datasize >= (2 + uidsize + 5))
+							zip_entry->gid = archive_le32dec(p+offset+2+uidsize+1);
 				    }
 			    }
 			    break;
@@ -738,13 +731,11 @@ static int process_extra(ArchiveRead * a, ArchiveEntry * entry,
 			    }
 			    if(p[offset + 2] == 'A' && p[offset + 3] == 'E') {
 				    /* Vendor version. */
-				    zip_entry->aes_extra.vendor =
-					archive_le16dec(p + offset);
+				    zip_entry->aes_extra.vendor = archive_le16dec(p + offset);
 				    /* AES encryption strength. */
 				    zip_entry->aes_extra.strength = p[offset + 4];
 				    /* Actual compression method. */
-				    zip_entry->aes_extra.compression =
-					p[offset + 5];
+				    zip_entry->aes_extra.compression = p[offset + 5];
 			    }
 			    break;
 			default:
@@ -793,7 +784,6 @@ static int zipx_lzma_uncompress_buffer(const char * compressed_buffer, size_t co
 	memcpy(lzma_alone_compressed_buffer, (void *)&alone_header, sizeof(alone_header));
 	// copy compressed data into new buffer
 	memcpy(lzma_alone_compressed_buffer + sizeof(alone_header), compressed_buffer + lzma_params_end, compressed_buffer_size - lzma_params_end);
-
 	// create and fill in lzma_alone_decoder stream
 	lzma_stream stream = LZMA_STREAM_INIT;
 	lzma_ret ret = lzma_alone_decoder(&stream, UINT64_MAX);
@@ -812,27 +802,25 @@ static int zipx_lzma_uncompress_buffer(const char * compressed_buffer, size_t co
 	SAlloc::F(lzma_alone_compressed_buffer);
 	return status;
 }
-
 /*
  * Assumes file pointer is at beginning of local file header.
  */
-static int zip_read_local_file_header(ArchiveRead * a, ArchiveEntry * entry,
-    struct zip * zip)
+static int zip_read_local_file_header(ArchiveRead * a, ArchiveEntry * entry, struct zip * zip)
 {
 	const char * p;
 	const void * h;
 	const wchar_t * wp;
 	const char * cp;
-	size_t len, filename_length, extra_length;
+	size_t len;
+	size_t filename_length;
+	size_t extra_length;
 	archive_string_conv * sconv;
 	struct zip_entry * zip_entry = zip->entry;
 	struct zip_entry zip_entry_central_dir;
 	int ret = ARCHIVE_OK;
 	char version;
-
 	/* Save a copy of the original for consistency checks. */
 	zip_entry_central_dir = *zip_entry;
-
 	zip->decompress_init = 0;
 	zip->end_of_entry = 0;
 	zip->entry_uncompressed_bytes_read = 0;
@@ -876,9 +864,7 @@ static int zip_read_local_file_header(ArchiveRead * a, ArchiveEntry * entry,
 	zip_entry->uncompressed_size = archive_le32dec(p + 22);
 	filename_length = archive_le16dec(p + 26);
 	extra_length = archive_le16dec(p + 28);
-
 	__archive_read_consume(a, 30);
-
 	/* Read the filename. */
 	if((h = __archive_read_ahead(a, filename_length, NULL)) == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated ZIP file header");
@@ -1514,7 +1500,7 @@ static int zip_read_data_zipx_xz(ArchiveRead * a, const void ** buff, size_t * s
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated xz file body");
 		return ARCHIVE_FATAL;
 	}
-	in_bytes = zipmin(zip->entry_bytes_remaining, bytes_avail);
+	in_bytes = static_cast<ssize_t>(zipmin(zip->entry_bytes_remaining, bytes_avail));
 	zip->zipx_lzma_stream.next_in = (const uint8 *)compressed_buf;
 	zip->zipx_lzma_stream.avail_in = in_bytes;
 	zip->zipx_lzma_stream.total_in = 0;
@@ -1535,25 +1521,22 @@ static int zip_read_data_zipx_xz(ArchiveRead * a, const void ** buff, size_t * s
 		default:
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xz unknown error %d", (int)lz_ret);
 		    return ARCHIVE_FATAL;
-
 		case LZMA_STREAM_END:
 		    lzma_end(&zip->zipx_lzma_stream);
 		    zip->zipx_lzma_valid = 0;
-
-		    if((int64)zip->zipx_lzma_stream.total_in !=
-			zip->entry_bytes_remaining) {
+		    if((int64)zip->zipx_lzma_stream.total_in != zip->entry_bytes_remaining) {
 			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xz premature end of stream");
 			    return ARCHIVE_FATAL;
 		    }
 		    zip->end_of_entry = 1;
 		    break;
 	}
-	to_consume = zip->zipx_lzma_stream.total_in;
+	to_consume = static_cast<size_t>(zip->zipx_lzma_stream.total_in);
 	__archive_read_consume(a, to_consume);
 	zip->entry_bytes_remaining -= to_consume;
 	zip->entry_compressed_bytes_read += to_consume;
 	zip->entry_uncompressed_bytes_read += zip->zipx_lzma_stream.total_out;
-	*size = zip->zipx_lzma_stream.total_out;
+	*size = static_cast<size_t>(zip->zipx_lzma_stream.total_out);
 	*buff = zip->uncompressed_buffer;
 	ret = consume_optional_marker(a, zip);
 	if(ret != ARCHIVE_OK)
@@ -1589,7 +1572,7 @@ static int zip_read_data_zipx_lzma_alone(ArchiveRead * a, const void ** buff, si
 		return ARCHIVE_FATAL;
 	}
 	/* Set decompressor parameters. */
-	in_bytes = zipmin(zip->entry_bytes_remaining, bytes_avail);
+	in_bytes = static_cast<ssize_t>(zipmin(zip->entry_bytes_remaining, bytes_avail));
 	zip->zipx_lzma_stream.next_in = (const uint8 *)compressed_buf;
 	zip->zipx_lzma_stream.avail_in = in_bytes;
 	zip->zipx_lzma_stream.total_in = 0;
@@ -1598,9 +1581,7 @@ static int zip_read_data_zipx_lzma_alone(ArchiveRead * a, const void ** buff, si
 	    /* These lzma_alone streams lack end of stream marker, so let's
 	     * make sure the unpacker won't try to unpack more than it's
 	     * supposed to. */
-	    zipmin((int64)zip->uncompressed_buffer_size,
-		zip->entry->uncompressed_size -
-		zip->entry_uncompressed_bytes_read);
+	    static_cast<size_t>(zipmin((int64)zip->uncompressed_buffer_size, zip->entry->uncompressed_size - zip->entry_uncompressed_bytes_read));
 	zip->zipx_lzma_stream.total_out = 0;
 
 	/* Perform the decompression. */
@@ -1609,14 +1590,12 @@ static int zip_read_data_zipx_lzma_alone(ArchiveRead * a, const void ** buff, si
 		case LZMA_DATA_ERROR:
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "lzma data error (error %d)", (int)lz_ret);
 		    return ARCHIVE_FATAL;
-
 		/* This case is optional in lzma alone format. It can happen,
 		 * but most of the files don't have it. (GitHub #1257) */
 		case LZMA_STREAM_END:
 		    lzma_end(&zip->zipx_lzma_stream);
 		    zip->zipx_lzma_valid = 0;
-		    if((int64)zip->zipx_lzma_stream.total_in !=
-			zip->entry_bytes_remaining) {
+		    if((int64)zip->zipx_lzma_stream.total_in != zip->entry_bytes_remaining) {
 			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "lzma alone premature end of stream");
 			    return ARCHIVE_FATAL;
 		    }
@@ -1628,7 +1607,7 @@ static int zip_read_data_zipx_lzma_alone(ArchiveRead * a, const void ** buff, si
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "lzma unknown error %d", (int)lz_ret);
 		    return ARCHIVE_FATAL;
 	}
-	to_consume = zip->zipx_lzma_stream.total_in;
+	to_consume = static_cast<ssize_t>(zip->zipx_lzma_stream.total_in);
 	/* Update pointers. */
 	__archive_read_consume(a, to_consume);
 	zip->entry_bytes_remaining -= to_consume;
@@ -1638,7 +1617,7 @@ static int zip_read_data_zipx_lzma_alone(ArchiveRead * a, const void ** buff, si
 		zip->end_of_entry = 1;
 	}
 	/* Return values. */
-	*size = zip->zipx_lzma_stream.total_out;
+	*size = static_cast<size_t>(zip->zipx_lzma_stream.total_out);
 	*buff = zip->uncompressed_buffer;
 	/* Behave the same way as during deflate decompression. */
 	ret = consume_optional_marker(a, zip);

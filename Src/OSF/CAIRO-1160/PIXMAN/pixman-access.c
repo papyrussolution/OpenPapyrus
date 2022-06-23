@@ -556,10 +556,8 @@ static void fetch_scanline_yv12(bits_image_t * image, int x, int line, int width
 		int32 g = 0x012b27 * y - 0x00d0f2 * v - 0x00647e * u;
 		/* B = 1.164(Y - 16) + 2.018(U - 128) */
 		int32 b = 0x012b27 * y + 0x0206a2 * u;
-		*buffer++ = 0xff000000 |
-		    (r >= 0 ? r < 0x1000000 ? r         & 0xff0000 : 0xff0000 : 0) |
-		    (g >= 0 ? g < 0x1000000 ? (g >> 8)  & 0x00ff00 : 0x00ff00 : 0) |
-		    (b >= 0 ? b < 0x1000000 ? (b >> 16) & 0x0000ff : 0x0000ff : 0);
+		*buffer++ = 0xff000000 | (r >= 0 ? r < 0x1000000 ? r & 0xff0000 : 0xff0000 : 0) |
+		    (g >= 0 ? g < 0x1000000 ? (g >> 8)  & 0x00ff00 : 0x00ff00 : 0) | (b >= 0 ? b < 0x1000000 ? (b >> 16) & 0x0000ff : 0x0000ff : 0);
 	}
 }
 
@@ -825,10 +823,10 @@ static void fetch_scanline_a8r8g8b8_32_sRGB(bits_image_t * image, int x, int y, 
 	const uint32 * end = pixel + width;
 	while(pixel < end) {
 		uint32 tmp = READ(image, pixel++);
-		uint8 a = (tmp >> 24) & 0xff;
-		uint8 r = (tmp >> 16) & 0xff;
-		uint8 g = (tmp >> 8) & 0xff;
-		uint8 b = (tmp >> 0) & 0xff;
+		uint8 a = static_cast<uint8>((tmp >> 24) & 0xff);
+		uint8 r = static_cast<uint8>((tmp >> 16) & 0xff);
+		uint8 g = static_cast<uint8>((tmp >> 8) & 0xff);
+		uint8 b = static_cast<uint8>((tmp >> 0) & 0xff);
 		r = static_cast<uint8>(to_linear[r] * 255.0f + 0.5f);
 		g = static_cast<uint8>(to_linear[g] * 255.0f + 0.5f);
 		b = static_cast<uint8>(to_linear[b] * 255.0f + 0.5f);
@@ -840,10 +838,10 @@ static uint32 fetch_pixel_a8r8g8b8_32_sRGB(bits_image_t * image, int offset, int
 {
 	uint32 * bits = image->bits + line * image->rowstride;
 	uint32 tmp = READ(image, bits + offset);
-	uint8 a = (tmp >> 24) & 0xff;
-	uint8 r = (tmp >> 16) & 0xff;
-	uint8 g = (tmp >> 8) & 0xff;
-	uint8 b = (tmp >> 0) & 0xff;
+	uint8 a = static_cast<uint8>((tmp >> 24) & 0xff);
+	uint8 r = static_cast<uint8>((tmp >> 16) & 0xff);
+	uint8 g = static_cast<uint8>((tmp >> 8) & 0xff);
+	uint8 b = static_cast<uint8>((tmp >> 0) & 0xff);
 	r = static_cast<uint8>(to_linear[r] * 255.0f + 0.5f);
 	g = static_cast<uint8>(to_linear[g] * 255.0f + 0.5f);
 	b = static_cast<uint8>(to_linear[b] * 255.0f + 0.5f);
@@ -857,12 +855,11 @@ static void store_scanline_a8r8g8b8_32_sRGB(bits_image_t * image, int x, int y, 
 	uint32 * pixel = bits + x;
 	uint64 tmp;
 	for(int i = 0; i < width; ++i) {
-		uint8 a, r, g, b;
 		tmp = values[i];
-		a = (tmp >> 24) & 0xff;
-		r = (tmp >> 16) & 0xff;
-		g = (tmp >> 8) & 0xff;
-		b = (tmp >> 0) & 0xff;
+		uint8 a = static_cast<uint8>((tmp >> 24) & 0xff);
+		uint8 r = static_cast<uint8>((tmp >> 16) & 0xff);
+		uint8 g = static_cast<uint8>((tmp >> 8) & 0xff);
+		uint8 b = static_cast<uint8>((tmp >> 0) & 0xff);
 		r = to_srgb(r * (1/255.0f));
 		g = to_srgb(g * (1/255.0f));
 		b = to_srgb(b * (1/255.0f));

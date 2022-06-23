@@ -1429,7 +1429,7 @@ SDecimalFraction::SDecimalFraction(double v) : Num(0), DenomDecPwr(0), Flags(0)
 		else {
 			Num = mantissa;
 			if(exp < 0)
-				DenomDecPwr = -exp;
+				DenomDecPwr = static_cast<uint16>(-exp);
 		}
 		if(f & SIEEE754::fSIGN)
 			Num = -Num;

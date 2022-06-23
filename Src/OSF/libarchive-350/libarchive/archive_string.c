@@ -2292,8 +2292,7 @@ static size_t unicode_to_utf16be(char * p, size_t remaining, uint32 uc)
 {
 	char * utf16 = p;
 	if(uc > 0xffff) {
-		/* We have a code point that won't fit into a
-		* wchar_t; convert it to a surrogate pair. */
+		// We have a code point that won't fit into a wchar_t; convert it to a surrogate pair.
 		if(remaining < 4)
 			return 0;
 		uc -= 0x10000;
