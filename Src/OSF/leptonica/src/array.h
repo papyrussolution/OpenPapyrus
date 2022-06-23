@@ -49,20 +49,20 @@
 
 /*! Number array: an array of floats */
 struct Numa {
-	l_int32 nalloc; /*!< size of allocated number array      */
-	l_int32 n;              /*!< number of numbers saved             */
-	l_int32 refcount; /*!< reference count (1 if no clones)    */
+	int32 nalloc; /*!< size of allocated number array      */
+	int32 n;              /*!< number of numbers saved             */
+	int32 refcount; /*!< reference count (1 if no clones)    */
 	float startx; /*!< x value assigned to array[0]        */
 	float delx; /*!< change in x value as i --> i + 1    */
-	float       * array; /*!< number array                        */
+	float * array; /*!< number array */
 };
 
 typedef struct Numa NUMA;
 
 /*! Array of number arrays */
 struct Numaa {
-	l_int32 nalloc; /*!< size of allocated ptr array          */
-	l_int32 n;              /*!< number of Numa saved                 */
+	int32 nalloc; /*!< size of allocated ptr array          */
+	int32 n;              /*!< number of Numa saved                 */
 	struct Numa    ** numa; /*!< array of Numa                        */
 };
 
@@ -73,9 +73,9 @@ typedef struct Numaa NUMAA;
 
 /*! Double number array: an array of doubles */
 struct L_Dna {
-	l_int32 nalloc; /*!< size of allocated number array      */
-	l_int32 n;              /*!< number of numbers saved             */
-	l_int32 refcount; /*!< reference count (1 if no clones)    */
+	int32 nalloc; /*!< size of allocated number array      */
+	int32 n;              /*!< number of numbers saved             */
+	int32 refcount; /*!< reference count (1 if no clones)    */
 	double startx; /*!< x value assigned to array[0]        */
 	double delx; /*!< change in x value as i --> i + 1    */
 	double       * array; /*!< number array                        */
@@ -85,16 +85,16 @@ typedef struct L_Dna L_DNA;
 
 /*! Array of double number arrays */
 struct L_Dnaa {
-	l_int32 nalloc; /*!< size of allocated ptr array          */
-	l_int32 n;              /*!< number of L_Dna saved                */
+	int32 nalloc; /*!< size of allocated ptr array          */
+	int32 n;              /*!< number of L_Dna saved                */
 	struct L_Dna   ** dna;  /*!< array of L_Dna                       */
 };
 
 typedef struct L_Dnaa L_DNAA;
 
 struct L_DnaHash {
-	l_int32 nbuckets;
-	l_int32 initsize; /*!< initial size of each dna that is made  */
+	int32 nbuckets;
+	int32 initsize; /*!< initial size of each dna that is made  */
 	struct L_Dna   ** dna; /*!< array of L_Dna                       */
 };
 
@@ -105,10 +105,10 @@ typedef struct L_DnaHash L_DNAHASH;
 
 /*! String array: an array of C strings */
 struct Sarray {
-	l_int32 nalloc; /*!< size of allocated ptr array         */
-	l_int32 n;              /*!< number of strings allocated         */
-	l_int32 refcount; /*!< reference count (1 if no clones)    */
-	char           ** array; /*!< string array                        */
+	int32 nalloc; /*!< size of allocated ptr array         */
+	int32 n;              /*!< number of strings allocated         */
+	int32 refcount; /*!< reference count (1 if no clones)    */
+	char ** array; /*!< string array                        */
 };
 
 typedef struct Sarray SARRAY;
@@ -117,8 +117,8 @@ typedef struct Sarray SARRAY;
 struct L_Bytea {
 	size_t nalloc;          /*!< number of bytes allocated in data array  */
 	size_t size;            /*!< number of bytes presently used           */
-	l_int32 refcount; /*!< reference count (1 if no clones)         */
-	uint8         * data; /*!< data array                               */
+	int32 refcount; /*!< reference count (1 if no clones)         */
+	uint8 * data; /*!< data array                               */
 };
 
 typedef struct L_Bytea L_BYTEA;

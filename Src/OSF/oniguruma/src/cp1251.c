@@ -148,12 +148,12 @@ static const OnigPairCaseFoldCodes CaseFoldMap[] = {
 
 static int cp1251_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg)
 {
-	return onigenc_apply_all_case_fold_with_map(sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 0, flag, f, arg);
+	return onigenc_apply_all_case_fold_with_map(SIZEOFARRAY(CaseFoldMap), CaseFoldMap, 0, flag, f, arg);
 }
 
 static int cp1251_get_case_fold_codes_by_str(OnigCaseFoldType flag, const uchar * p, const uchar * end, OnigCaseFoldCodeItem items[])
 {
-	return onigenc_get_case_fold_codes_by_str_with_map(sizeof(CaseFoldMap)/sizeof(OnigPairCaseFoldCodes), CaseFoldMap, 0, flag, p, end, items);
+	return onigenc_get_case_fold_codes_by_str_with_map(SIZEOFARRAY(CaseFoldMap), CaseFoldMap, 0, flag, p, end, items);
 }
 
 OnigEncodingType OnigEncodingCP1251 = {

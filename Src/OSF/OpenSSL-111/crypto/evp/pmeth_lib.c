@@ -279,7 +279,7 @@ int EVP_PKEY_meth_remove(const EVP_PKEY_METHOD * pmeth)
 
 size_t EVP_PKEY_meth_get_count(void)
 {
-	size_t rv = OSSL_NELEM(standard_methods);
+	size_t rv = SIZEOFARRAY(standard_methods);
 	if(app_pkey_methods)
 		rv += sk_EVP_PKEY_METHOD_num(app_pkey_methods);
 	return rv;
@@ -287,11 +287,11 @@ size_t EVP_PKEY_meth_get_count(void)
 
 const EVP_PKEY_METHOD * EVP_PKEY_meth_get0(size_t idx)
 {
-	if(idx < OSSL_NELEM(standard_methods))
+	if(idx < SIZEOFARRAY(standard_methods))
 		return standard_methods[idx];
 	if(app_pkey_methods == NULL)
 		return NULL;
-	idx -= OSSL_NELEM(standard_methods);
+	idx -= SIZEOFARRAY(standard_methods);
 	if(idx >= (size_t)sk_EVP_PKEY_METHOD_num(app_pkey_methods))
 		return NULL;
 	return sk_EVP_PKEY_METHOD_value(app_pkey_methods, idx);

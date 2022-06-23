@@ -44,8 +44,8 @@
  * Note that array[n] is the first null ptr in the array
  */
 struct L_Stack {
-	l_int32 nalloc;      /*!< size of ptr array              */
-	l_int32 n;               /*!< number of stored elements      */
+	int32 nalloc;      /*!< size of ptr array              */
+	int32 n;               /*!< number of stored elements      */
 	void           ** array; /*!< ptr array                      */
 	struct L_Stack  * auxstack; /*!< auxiliary stack                */
 };

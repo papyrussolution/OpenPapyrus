@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file dewarp4.c
  * <pre>
@@ -33,38 +20,38 @@
  *    Reference model (book-level, dewarpa) operations and debugging output
  *
  *      Top-level single page dewarper
- *          l_int32            dewarpSinglePage()
- *          l_int32            dewarpSinglePageInit()
- *          l_int32            dewarpSinglePageRun()
+ *          int32            dewarpSinglePage()
+ *          int32            dewarpSinglePageInit()
+ *          int32            dewarpSinglePageRun()
  *
  *      Operations on dewarpa
- *          l_int32            dewarpaListPages()
- *          l_int32            dewarpaSetValidModels()
- *          l_int32            dewarpaInsertRefModels()
- *          l_int32            dewarpaStripRefModels()
- *          l_int32            dewarpaRestoreModels()
+ *          int32            dewarpaListPages()
+ *          int32            dewarpaSetValidModels()
+ *          int32            dewarpaInsertRefModels()
+ *          int32            dewarpaStripRefModels()
+ *          int32            dewarpaRestoreModels()
  *
  *      Dewarp debugging output
- *          l_int32            dewarpaInfo()
- *          l_int32            dewarpaModelStats()
- *          static l_int32     dewarpaTestForValidModel()
- *          l_int32            dewarpaShowArrays()
- *          l_int32            dewarpDebug()
- *          l_int32            dewarpShowResults()
+ *          int32            dewarpaInfo()
+ *          int32            dewarpaModelStats()
+ *          static int32     dewarpaTestForValidModel()
+ *          int32            dewarpaShowArrays()
+ *          int32            dewarpDebug()
+ *          int32            dewarpShowResults()
  * </pre>
  */
 #include "allheaders.h"
 #pragma hdrstop
 
-static l_int32 dewarpaTestForValidModel(L_DEWARPA * dewa, L_DEWARP * dew,
-    l_int32 notests);
+static int32 dewarpaTestForValidModel(L_DEWARPA * dewa, L_DEWARP * dew,
+    int32 notests);
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG_INVALID_MODELS      0   /* set this to 1 for debugging */
 #endif  /* !NO_CONSOLE_IO */
 
 /* Special parameter value */
-static const l_int32 GrayInValue = 200;
+static const int32 GrayInValue = 200;
 
 /*----------------------------------------------------------------------*
 *                   Top-level single page dewarper                     *
@@ -92,13 +79,13 @@ static const l_int32 GrayInValue = 200;
  * </pre>
  */
 l_ok dewarpSinglePage(PIX         * pixs,
-    l_int32 thresh,
-    l_int32 adaptive,
-    l_int32 useboth,
-    l_int32 check_columns,
+    int32 thresh,
+    int32 adaptive,
+    int32 useboth,
+    int32 check_columns,
     PIX        ** ppixd,
     L_DEWARPA  ** pdewa,
-    l_int32 debug)
+    int32 debug)
 {
 	L_DEWARPA * dewa;
 	PIX        * pixb;
@@ -158,10 +145,10 @@ l_ok dewarpSinglePage(PIX         * pixs,
  * </pre>
  */
 l_ok dewarpSinglePageInit(PIX         * pixs,
-    l_int32 thresh,
-    l_int32 adaptive,
-    l_int32 useboth,
-    l_int32 check_columns,
+    int32 thresh,
+    int32 adaptive,
+    int32 useboth,
+    int32 check_columns,
     PIX        ** ppixb,
     L_DEWARPA  ** pdewa)
 {
@@ -222,10 +209,10 @@ l_ok dewarpSinglePageRun(PIX        * pixs,
     PIX        * pixb,
     L_DEWARPA * dewa,
     PIX ** ppixd,
-    l_int32 debug)
+    int32 debug)
 {
 	const char * debugfile;
-	l_int32 vsuccess, ret;
+	int32 vsuccess, ret;
 	L_DEWARP * dew;
 
 	PROCNAME(__FUNCTION__);
@@ -284,7 +271,7 @@ l_ok dewarpSinglePageRun(PIX        * pixs,
  */
 l_ok dewarpaListPages(L_DEWARPA * dewa)
 {
-	l_int32 i;
+	int32 i;
 	L_DEWARP * dew;
 	NUMA * namodels, * napages;
 
@@ -333,10 +320,10 @@ l_ok dewarpaListPages(L_DEWARPA * dewa)
  * </pre>
  */
 l_ok dewarpaSetValidModels(L_DEWARPA * dewa,
-    l_int32 notests,
-    l_int32 debug)
+    int32 notests,
+    int32 debug)
 {
-	l_int32 i, n, maxcurv, diffcurv, diffedge;
+	int32 i, n, maxcurv, diffcurv, diffedge;
 	L_DEWARP * dew;
 
 	PROCNAME(__FUNCTION__);
@@ -439,10 +426,10 @@ l_ok dewarpaSetValidModels(L_DEWARPA * dewa,
  * </pre>
  */
 l_ok dewarpaInsertRefModels(L_DEWARPA * dewa,
-    l_int32 notests,
-    l_int32 debug)
+    int32 notests,
+    int32 debug)
 {
-	l_int32 i, j, n, val, min, distdown, distup;
+	int32 i, j, n, val, min, distdown, distup;
 	L_DEWARP * dew;
 	NUMA * na, * nah;
 
@@ -570,7 +557,7 @@ l_ok dewarpaInsertRefModels(L_DEWARPA * dewa,
  */
 l_ok dewarpaStripRefModels(L_DEWARPA * dewa)
 {
-	l_int32 i;
+	int32 i;
 	L_DEWARP * dew;
 
 	PROCNAME(__FUNCTION__);
@@ -609,7 +596,7 @@ l_ok dewarpaStripRefModels(L_DEWARPA * dewa)
  */
 l_ok dewarpaRestoreModels(L_DEWARPA * dewa)
 {
-	l_int32 i;
+	int32 i;
 	L_DEWARP * dew;
 
 	PROCNAME(__FUNCTION__);
@@ -654,7 +641,7 @@ l_ok dewarpaRestoreModels(L_DEWARPA * dewa)
 l_ok dewarpaInfo(FILE       * fp,
     L_DEWARPA * dewa)
 {
-	l_int32 i, n, pageno, nnone, nvsuccess, nvvalid, nhsuccess, nhvalid, nref;
+	int32 i, n, pageno, nnone, nvsuccess, nvvalid, nhsuccess, nhvalid, nref;
 	L_DEWARP * dew;
 
 	PROCNAME(__FUNCTION__);
@@ -742,14 +729,14 @@ l_ok dewarpaInfo(FILE       * fp,
  * </pre>
  */
 l_ok dewarpaModelStats(L_DEWARPA * dewa,
-    l_int32    * pnnone,
-    l_int32    * pnvsuccess,
-    l_int32    * pnvvalid,
-    l_int32    * pnhsuccess,
-    l_int32    * pnhvalid,
-    l_int32    * pnref)
+    int32    * pnnone,
+    int32    * pnvsuccess,
+    int32    * pnvvalid,
+    int32    * pnhsuccess,
+    int32    * pnhvalid,
+    int32    * pnref)
 {
-	l_int32 i, n, pageno, nnone, nvsuccess, nvvalid, nhsuccess, nhvalid, nref;
+	int32 i, n, pageno, nnone, nvsuccess, nvvalid, nhsuccess, nhvalid, nref;
 	L_DEWARP * dew;
 
 	PROCNAME(__FUNCTION__);
@@ -807,11 +794,11 @@ l_ok dewarpaModelStats(L_DEWARPA * dewa,
  *          so the value of useboth is not considered here.
  * </pre>
  */
-static l_int32 dewarpaTestForValidModel(L_DEWARPA * dewa,
+static int32 dewarpaTestForValidModel(L_DEWARPA * dewa,
     L_DEWARP   * dew,
-    l_int32 notests)
+    int32 notests)
 {
-	l_int32 maxcurv, diffcurv, diffedge;
+	int32 maxcurv, diffcurv, diffedge;
 
 	PROCNAME(__FUNCTION__);
 
@@ -897,11 +884,11 @@ static l_int32 dewarpaTestForValidModel(L_DEWARPA * dewa,
  */
 l_ok dewarpaShowArrays(L_DEWARPA   * dewa,
     float scalefact,
-    l_int32 first,
-    l_int32 last)
+    int32 first,
+    int32 last)
 {
 	char buf[256];
-	l_int32 i, svd, shd;
+	int32 i, svd, shd;
 	L_BMF     * bmf;
 	L_DEWARP * dew;
 	PIX * pixv, * pixvs, * pixh, * pixhs, * pixt, * pixd;
@@ -991,11 +978,11 @@ l_ok dewarpaShowArrays(L_DEWARPA   * dewa,
  */
 l_ok dewarpDebug(L_DEWARP * dew,
     const char * subdirs,
-    l_int32 index)
+    int32 index)
 {
 	char fname[256];
 	char * outdir;
-	l_int32 svd, shd;
+	int32 svd, shd;
 	PIX * pixv, * pixh;
 
 	PROCNAME(__FUNCTION__);
@@ -1077,12 +1064,12 @@ l_ok dewarpDebug(L_DEWARP * dew,
 l_ok dewarpShowResults(L_DEWARPA   * dewa,
     SARRAY * sa,
     BOXA        * boxa,
-    l_int32 firstpage,
-    l_int32 lastpage,
+    int32 firstpage,
+    int32 lastpage,
     const char * pdfout)
 {
 	char bufstr[256];
-	l_int32 i, modelpage;
+	int32 i, modelpage;
 	L_BMF     * bmf;
 	BOX       * box;
 	L_DEWARP * dew;

@@ -15,13 +15,13 @@
  *          PIX             *pixReadMemWebP()
  *
  *    Reading WebP header
- *          l_int32          readHeaderWebP()
- *          l_int32          readHeaderMemWebP()
+ *          int32          readHeaderWebP()
+ *          int32          readHeaderMemWebP()
  *
  *    Writing WebP
- *          l_int32          pixWriteWebP()  [ special top level ]
- *          l_int32          pixWriteStreamWebP()
- *          l_int32          pixWriteMemWebP()
+ *          int32          pixWriteWebP()  [ special top level ]
+ *          int32          pixWriteStreamWebP()
+ *          int32          pixWriteMemWebP()
  * </pre>
  */
 #include "allheaders.h"
@@ -79,8 +79,8 @@ PIX * pixReadStreamWebP(FILE * fp)
 PIX * pixReadMemWebP(const uint8  * filedata, size_t filesize)
 {
 	uint8   * out = NULL;
-	l_int32 w, h, has_alpha, wpl, stride;
-	l_uint32  * data;
+	int32 w, h, has_alpha, wpl, stride;
+	uint32  * data;
 	size_t size;
 	PIX * pix;
 	WebPBitstreamFeatures features;
@@ -127,12 +127,12 @@ PIX * pixReadMemWebP(const uint8  * filedata, size_t filesize)
  * \return  0 if OK, 1 on error
  */
 l_ok readHeaderWebP(const char * filename,
-    l_int32    * pw,
-    l_int32    * ph,
-    l_int32    * pspp)
+    int32    * pw,
+    int32    * ph,
+    int32    * pspp)
 {
 	uint8 data[100]; /* expect size info within the first 50 bytes or so */
-	l_int32 nbytes, bytesread;
+	int32 nbytes, bytesread;
 	size_t filesize;
 	FILE * fp;
 
@@ -172,9 +172,9 @@ l_ok readHeaderWebP(const char * filename,
  */
 l_ok readHeaderMemWebP(const uint8  * data,
     size_t size,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pspp)
+    int32 * pw,
+    int32 * ph,
+    int32 * pspp)
 {
 	WebPBitstreamFeatures features;
 
@@ -188,7 +188,7 @@ l_ok readHeaderMemWebP(const uint8  * data,
 	if(!pw || !ph || !pspp)
 		return ERROR_INT("input ptr(s) not defined", procName, 1);
 
-	if(WebPGetFeatures(data, (l_int32)size, &features))
+	if(WebPGetFeatures(data, (int32)size, &features))
 		return ERROR_INT("invalid WebP file", procName, 1);
 	*pw = features.width;
 	*ph = features.height;
@@ -215,10 +215,10 @@ l_ok readHeaderMemWebP(const uint8  * data,
  */
 l_ok pixWriteWebP(const char * filename,
     PIX         * pixs,
-    l_int32 quality,
-    l_int32 lossless)
+    int32 quality,
+    int32 lossless)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -255,8 +255,8 @@ l_ok pixWriteWebP(const char * filename,
  */
 l_ok pixWriteStreamWebP(FILE * fp,
     PIX * pixs,
-    l_int32 quality,
-    l_int32 lossless)
+    int32 quality,
+    int32 lossless)
 {
 	uint8  * filedata;
 	size_t filebytes, nbytes;
@@ -301,11 +301,11 @@ l_ok pixWriteStreamWebP(FILE * fp,
 l_ok pixWriteMemWebP(uint8  ** pencdata,
     size_t * pencsize,
     PIX * pixs,
-    l_int32 quality,
-    l_int32 lossless)
+    int32 quality,
+    int32 lossless)
 {
-	l_int32 w, h, d, wpl, stride;
-	l_uint32  * data;
+	int32 w, h, d, wpl, stride;
+	uint32  * data;
 	PIX * pix1, * pix2;
 
 	PROCNAME(__FUNCTION__);

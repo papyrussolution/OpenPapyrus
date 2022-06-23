@@ -146,7 +146,7 @@ static int dane_ctx_enable(struct dane_ctx_st * dctx)
 	}
 
 	/* Install default entries */
-	for(i = 0; i < OSSL_NELEM(dane_mds); ++i) {
+	for(i = 0; i < SIZEOFARRAY(dane_mds); ++i) {
 		const EVP_MD * md;
 
 		if(dane_mds[i].nid == NID_undef ||
@@ -2364,7 +2364,7 @@ const char * SSL_get_cipher_list(const SSL * s, int n)
 	if((sk == NULL) || (sk_SSL_CIPHER_num(sk) <= n))
 		return NULL;
 	c = sk_SSL_CIPHER_value(sk, n);
-	if(c == NULL)
+	if(!c)
 		return NULL;
 	return c->name;
 }
@@ -3077,7 +3077,7 @@ void ssl_set_masks(SSL * s)
 #ifndef OPENSSL_NO_EC
 	int have_ecc_cert, ecdsa_ok;
 #endif
-	if(c == NULL)
+	if(!c)
 		return;
 
 #ifndef OPENSSL_NO_DH

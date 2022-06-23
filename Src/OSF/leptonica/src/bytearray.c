@@ -26,20 +26,20 @@
  *           uint8      *l_byteaCopyData()
  *
  *      Appending
- *           l_int32       l_byteaAppendData()
- *           l_int32       l_byteaAppendString()
- *           static l_int32  l_byteaExtendArrayToSize()
+ *           int32       l_byteaAppendData()
+ *           int32       l_byteaAppendString()
+ *           static int32  l_byteaExtendArrayToSize()
  *
  *      Join/Split
- *           l_int32       l_byteaJoin()
- *           l_int32       l_byteaSplit()
+ *           int32       l_byteaJoin()
+ *           int32       l_byteaSplit()
  *
  *      Search
- *           l_int32       l_byteaFindEachSequence()
+ *           int32       l_byteaFindEachSequence()
  *
  *      Output to file
- *           l_int32       l_byteaWrite()
- *           l_int32       l_byteaWriteStream()
+ *           int32       l_byteaWrite()
+ *           int32       l_byteaWriteStream()
  *
  *   The internal data array is always null-terminated, for ease of use
  *   in the event that it is an ascii string without null bytes.
@@ -49,11 +49,11 @@
 #pragma hdrstop
 
 /* Bounds on array size */
-static const l_uint32 MaxArraySize = 1000000000; /* 10^9 bytes */
-static const l_int32 InitialArraySize = 200; /*!< n'importe quoi */
+static const uint32 MaxArraySize = 1000000000; /* 10^9 bytes */
+static const int32 InitialArraySize = 200; /*!< n'importe quoi */
 
 /* Static function */
-static l_int32 l_byteaExtendArrayToSize(L_BYTEA * ba, size_t size);
+static int32 l_byteaExtendArrayToSize(L_BYTEA * ba, size_t size);
 
 /*---------------------------------------------------------------------*
 *                  Creation, copy, clone, destruction                 *
@@ -184,7 +184,7 @@ L_BYTEA * l_byteaInitFromStream(FILE * fp)
  * </pre>
  */
 L_BYTEA * l_byteaCopy(L_BYTEA  * bas,
-    l_int32 copyflag)
+    int32 copyflag)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -393,7 +393,7 @@ l_ok l_byteaAppendString(L_BYTEA     * ba,
  *      (2) The max buffer size is 1 GB.
  * </pre>
  */
-static l_int32 l_byteaExtendArrayToSize(L_BYTEA  * ba,
+static int32 l_byteaExtendArrayToSize(L_BYTEA  * ba,
     size_t size)
 {
 	PROCNAME(__FUNCTION__);
@@ -540,7 +540,7 @@ l_ok l_byteaWrite(const char * fname,
     size_t startloc,
     size_t nbytes)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);

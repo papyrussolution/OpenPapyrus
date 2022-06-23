@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file conncomp.c
  * <pre>
@@ -37,11 +24,11 @@
  *            BOXA     *pixConnComp()
  *            BOXA     *pixConnCompPixa()
  *            BOXA     *pixConnCompBB()
- *            l_int32   pixCountConnComp()
+ *            int32   pixCountConnComp()
  *
  *      Identify the next c.c. to be erased:
- *            l_int32   nextOnPixelInRaster()
- *    static  l_int32   nextOnPixelInRasterLow()
+ *            int32   nextOnPixelInRaster()
+ *    static  int32   nextOnPixelInRasterLow()
  *
  *      Erase the c.c., saving the b.b.:
  *            BOX      *pixSeedfillBB()
@@ -49,9 +36,9 @@
  *            BOX      *pixSeedfill8BB()
  *
  *      Just erase the c.c.:
- *            l_int32   pixSeedfill()
- *            l_int32   pixSeedfill4()
- *            l_int32   pixSeedfill8()
+ *            int32   pixSeedfill()
+ *            int32   pixSeedfill4()
+ *            int32   pixSeedfill8()
  *
  *      Static stack helper functions for single raster line seedfill:
  *            static void    pushFillsegBB()
@@ -96,27 +83,27 @@
  *  and an auxiliary Stack as a reservoir to hold FillSegs for re-use.
  */
 struct FillSeg {
-	l_int32 xleft; /*!< left edge of run */
-	l_int32 xright; /*!< right edge of run */
-	l_int32 y; /*!< run y  */
-	l_int32 dy; /*!< parent segment direction: 1 above, -1 below) */
+	int32 xleft; /*!< left edge of run */
+	int32 xright; /*!< right edge of run */
+	int32 y; /*!< run y  */
+	int32 dy; /*!< parent segment direction: 1 above, -1 below) */
 };
 
 typedef struct FillSeg FILLSEG;
 
-static l_int32 nextOnPixelInRasterLow(l_uint32 * data, l_int32 w, l_int32 h,
-    l_int32 wpl, l_int32 xstart,
-    l_int32 ystart, l_int32 * px, l_int32 * py);
+static int32 nextOnPixelInRasterLow(uint32 * data, int32 w, int32 h,
+    int32 wpl, int32 xstart,
+    int32 ystart, int32 * px, int32 * py);
 
 /* Static accessors for FillSegs on a stack */
-static void pushFillsegBB(L_STACK * stack, l_int32 xleft, l_int32 xright,
-    l_int32 y, l_int32 dy, l_int32 ymax,
-    l_int32 * pminx, l_int32 * pmaxx,
-    l_int32 * pminy, l_int32 * pmaxy);
-static void pushFillseg(L_STACK * stack, l_int32 xleft, l_int32 xright,
-    l_int32 y, l_int32 dy, l_int32 ymax);
-static void popFillseg(L_STACK * stack, l_int32 * pxleft, l_int32 * pxright,
-    l_int32 * py, l_int32 * pdy);
+static void pushFillsegBB(L_STACK * stack, int32 xleft, int32 xright,
+    int32 y, int32 dy, int32 ymax,
+    int32 * pminx, int32 * pmaxx,
+    int32 * pminy, int32 * pmaxy);
+static void pushFillseg(L_STACK * stack, int32 xleft, int32 xright,
+    int32 y, int32 dy, int32 ymax);
+static void popFillseg(L_STACK * stack, int32 * pxleft, int32 * pxright,
+    int32 * py, int32 * pdy);
 
 #ifndef  NO_CONSOLE_IO
 #define   DEBUG    0
@@ -142,7 +129,7 @@ static void popFillseg(L_STACK * stack, l_int32 * pxleft, l_int32 * pxright,
  */
 BOXA * pixConnComp(PIX * pixs,
     PIXA   ** ppixa,
-    l_int32 connectivity)
+    int32 connectivity)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -183,10 +170,10 @@ BOXA * pixConnComp(PIX * pixs,
  */
 BOXA * pixConnCompPixa(PIX * pixs,
     PIXA   ** ppixa,
-    l_int32 connectivity)
+    int32 connectivity)
 {
-	l_int32 h, iszero;
-	l_int32 x, y, xstart, ystart;
+	int32 h, iszero;
+	int32 x, y, xstart, ystart;
 	PIX * pix1, * pix2, * pix3, * pix4;
 	PIXA * pixa;
 	BOX      * box;
@@ -295,10 +282,10 @@ cleanup:
  * </pre>
  */
 BOXA * pixConnCompBB(PIX * pixs,
-    l_int32 connectivity)
+    int32 connectivity)
 {
-	l_int32 h, iszero;
-	l_int32 x, y, xstart, ystart;
+	int32 h, iszero;
+	int32 x, y, xstart, ystart;
 	PIX * pix1;
 	BOX      * box;
 	BOXA     * boxa;
@@ -377,11 +364,11 @@ cleanup:
  *         in raster order and erased one at a time.
  */
 l_ok pixCountConnComp(PIX * pixs,
-    l_int32 connectivity,
-    l_int32 * pcount)
+    int32 connectivity,
+    int32 * pcount)
 {
-	l_int32 h, iszero;
-	l_int32 x, y, xstart, ystart;
+	int32 h, iszero;
+	int32 x, y, xstart, ystart;
 	PIX * pix1;
 	L_STACK  * stack, * auxstack;
 
@@ -437,14 +424,14 @@ l_ok pixCountConnComp(PIX * pixs,
  * \param[out]   px, py           coord value of next ON pixel
  * \return  1 if a pixel is found; 0 otherwise or on error
  */
-l_int32 nextOnPixelInRaster(PIX * pixs,
-    l_int32 xstart,
-    l_int32 ystart,
-    l_int32 * px,
-    l_int32 * py)
+int32 nextOnPixelInRaster(PIX * pixs,
+    int32 xstart,
+    int32 ystart,
+    int32 * px,
+    int32 * py)
 {
-	l_int32 w, h, d, wpl;
-	l_uint32 * data;
+	int32 w, h, d, wpl;
+	uint32 * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -469,17 +456,17 @@ l_int32 nextOnPixelInRaster(PIX * pixs,
  * \param[out]   px, py           coord value of next ON pixel
  * \return  1 if a pixel is found; 0 otherwise or on error
  */
-static l_int32 nextOnPixelInRasterLow(l_uint32 * data,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpl,
-    l_int32 xstart,
-    l_int32 ystart,
-    l_int32   * px,
-    l_int32   * py)
+static int32 nextOnPixelInRasterLow(uint32 * data,
+    int32 w,
+    int32 h,
+    int32 wpl,
+    int32 xstart,
+    int32 ystart,
+    int32   * px,
+    int32   * py)
 {
-	l_int32 i, x, y, xend, startword;
-	l_uint32 * line, * pword;
+	int32 i, x, y, xend, startword;
+	uint32 * line, * pword;
 
 	/* Look at the first word */
 	line = data + ystart * wpl;
@@ -546,9 +533,9 @@ static l_int32 nextOnPixelInRasterLow(l_uint32 * data,
  */
 BOX * pixSeedfillBB(PIX * pixs,
     L_STACK  * stack,
-    l_int32 x,
-    l_int32 y,
-    l_int32 connectivity)
+    int32 x,
+    int32 y,
+    int32 connectivity)
 {
 	BOX  * box;
 
@@ -609,13 +596,13 @@ BOX * pixSeedfillBB(PIX * pixs,
  */
 BOX * pixSeedfill4BB(PIX * pixs,
     L_STACK  * stack,
-    l_int32 x,
-    l_int32 y)
+    int32 x,
+    int32 y)
 {
-	l_int32 w, h, xstart, wpl, x1, x2, dy;
-	l_int32 xmax, ymax;
-	l_int32 minx, maxx, miny, maxy; /* for bounding box of this c.c. */
-	l_uint32 * data, * line;
+	int32 w, h, xstart, wpl, x1, x2, dy;
+	int32 xmax, ymax;
+	int32 minx, maxx, miny, maxy; /* for bounding box of this c.c. */
+	uint32 * data, * line;
 	BOX       * box;
 
 	PROCNAME(__FUNCTION__);
@@ -722,13 +709,13 @@ skip:                   for(x++; x <= x2 &&
  */
 BOX * pixSeedfill8BB(PIX * pixs,
     L_STACK  * stack,
-    l_int32 x,
-    l_int32 y)
+    int32 x,
+    int32 y)
 {
-	l_int32 w, h, xstart, wpl, x1, x2, dy;
-	l_int32 xmax, ymax;
-	l_int32 minx, maxx, miny, maxy; /* for bounding box of this c.c. */
-	l_uint32 * data, * line;
+	int32 w, h, xstart, wpl, x1, x2, dy;
+	int32 xmax, ymax;
+	int32 minx, maxx, miny, maxy; /* for bounding box of this c.c. */
+	uint32 * data, * line;
 	BOX       * box;
 
 	PROCNAME(__FUNCTION__);
@@ -826,11 +813,11 @@ skip:                   for(x++; x <= x2 + 1 &&
  */
 l_ok pixSeedfill(PIX * pixs,
     L_STACK  * stack,
-    l_int32 x,
-    l_int32 y,
-    l_int32 connectivity)
+    int32 x,
+    int32 y,
+    int32 connectivity)
 {
-	l_int32 retval;
+	int32 retval;
 
 	PROCNAME(__FUNCTION__);
 
@@ -868,12 +855,12 @@ l_ok pixSeedfill(PIX * pixs,
  */
 l_ok pixSeedfill4(PIX * pixs,
     L_STACK  * stack,
-    l_int32 x,
-    l_int32 y)
+    int32 x,
+    int32 y)
 {
-	l_int32 w, h, xstart, wpl, x1, x2, dy;
-	l_int32 xmax, ymax;
-	l_uint32 * data, * line;
+	int32 w, h, xstart, wpl, x1, x2, dy;
+	int32 xmax, ymax;
+	uint32 * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -960,12 +947,12 @@ skip:                   for(x++; x <= x2 &&
  */
 l_ok pixSeedfill8(PIX * pixs,
     L_STACK  * stack,
-    l_int32 x,
-    l_int32 y)
+    int32 x,
+    int32 y)
 {
-	l_int32 w, h, xstart, wpl, x1, x2, dy;
-	l_int32 xmax, ymax;
-	l_uint32 * data, * line;
+	int32 w, h, xstart, wpl, x1, x2, dy;
+	int32 xmax, ymax;
+	uint32 * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1059,15 +1046,15 @@ skip:                   for(x++; x <= x2 + 1 &&
  * </pre>
  */
 static void pushFillsegBB(L_STACK  * stack,
-    l_int32 xleft,
-    l_int32 xright,
-    l_int32 y,
-    l_int32 dy,
-    l_int32 ymax,
-    l_int32 * pminx,
-    l_int32 * pmaxx,
-    l_int32 * pminy,
-    l_int32 * pmaxy)
+    int32 xleft,
+    int32 xright,
+    int32 y,
+    int32 dy,
+    int32 ymax,
+    int32 * pminx,
+    int32 * pmaxx,
+    int32 * pminy,
+    int32 * pmaxy)
 {
 	FILLSEG  * fseg;
 	L_STACK  * auxstack;
@@ -1122,11 +1109,11 @@ static void pushFillsegBB(L_STACK  * stack,
  * </pre>
  */
 static void pushFillseg(L_STACK  * stack,
-    l_int32 xleft,
-    l_int32 xright,
-    l_int32 y,
-    l_int32 dy,
-    l_int32 ymax)
+    int32 xleft,
+    int32 xright,
+    int32 y,
+    int32 dy,
+    int32 ymax)
 {
 	FILLSEG  * fseg;
 	L_STACK  * auxstack;
@@ -1175,10 +1162,10 @@ static void pushFillseg(L_STACK  * stack,
  * </pre>
  */
 static void popFillseg(L_STACK  * stack,
-    l_int32 * pxleft,
-    l_int32 * pxright,
-    l_int32 * py,
-    l_int32 * pdy)
+    int32 * pxleft,
+    int32 * pxright,
+    int32 * py,
+    int32 * pdy)
 {
 	FILLSEG  * fseg;
 	L_STACK  * auxstack;

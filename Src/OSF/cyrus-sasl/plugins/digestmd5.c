@@ -909,7 +909,7 @@ static int init_3des(context_t * text,
 
 	/* allocate enc & dec context */
 	c = (des_context_t*)text->utils->FnMalloc(2 * sizeof(des_context_t));
-	if(c == NULL) return SASL_NOMEM;
+	if(!c) return SASL_NOMEM;
 
 	/* setup enc context */
 	slidebits(keybuf, enckey);
@@ -1023,34 +1023,24 @@ static int enc_des(context_t * text,
 	return SASL_OK;
 }
 
-static int init_des(context_t * text,
-    unsigned char enckey[16],
-    unsigned char deckey[16])
+static int init_des(context_t * text, unsigned char enckey[16], unsigned char deckey[16])
 {
 	des_context_t * c;
 	unsigned char keybuf[8];
-
 	/* allocate enc context */
 	c = (des_context_t*)text->utils->FnMalloc(2 * sizeof(des_context_t));
-	if(c == NULL) return SASL_NOMEM;
-
+	if(!c) return SASL_NOMEM;
 	/* setup enc context */
 	slidebits(keybuf, enckey);
 	des_key_sched((des_cblock*)keybuf, c->keysched);
-
 	memcpy(c->ivec, ((char *)enckey) + 8, 8);
-
 	text->cipher_enc_context = (cipher_context_t*)c;
-
 	/* setup dec context */
 	c++;
 	slidebits(keybuf, deckey);
 	des_key_sched((des_cblock*)keybuf, c->keysched);
-
 	memcpy(c->ivec, ((char *)deckey) + 8, 8);
-
 	text->cipher_dec_context = (cipher_context_t*)c;
-
 	return SASL_OK;
 }
 

@@ -328,18 +328,18 @@ static int FASTCALL sl_printf_implementation(SString & rBuf, const char * pForma
 								int     fout_buf_size = sizeof(fout_buf);
 								uint    dconvstr_flags = 0;
 								if(flags & FLAGS_UPPERCASE)
-									dconvstr_flags |= SRealConversion::fUppercase;
+									dconvstr_flags |= SIEEE754::fUppercase;
 								if(flags & FLAGS_PLUS)
-									dconvstr_flags |= SRealConversion::fPrintPlus;
+									dconvstr_flags |= SIEEE754::fPrintPlus;
 								if(flags & FLAGS_LEFT)
-									dconvstr_flags |= SRealConversion::fLeftJustify;
+									dconvstr_flags |= SIEEE754::fLeftJustify;
 								if(flags & FLAGS_ZEROPAD)
-									dconvstr_flags |= SRealConversion::fPadWithZero;
+									dconvstr_flags |= SIEEE754::fPadWithZero;
 								if(width != 0)
-									dconvstr_flags |= SRealConversion::fHaveWidth;
+									dconvstr_flags |= SIEEE754::fHaveWidth;
 								if(!(flags & FLAGS_PRECISION))
 									precision = PRINTF_DEFAULT_FLOAT_PRECISION;
-								SRealConversion::Print(&p_fout_buf, &fout_buf_size, value, 'f', dconvstr_flags, width, precision);
+								SIEEE754::Print(&p_fout_buf, &fout_buf_size, value, 'f', dconvstr_flags, width, precision);
 								rBuf.Cat_Unsafe(reinterpret_cast<const uint8 *>(fout_buf), (sizeof(fout_buf) - fout_buf_size));
 							}
 							pFormat++;
@@ -365,18 +365,18 @@ static int FASTCALL sl_printf_implementation(SString & rBuf, const char * pForma
 								int     fout_buf_size = sizeof(fout_buf);
 								uint    dconvstr_flags = 0;
 								if(flags & FLAGS_UPPERCASE)
-									dconvstr_flags |= SRealConversion::fUppercase;
+									dconvstr_flags |= SIEEE754::fUppercase;
 								if(flags & FLAGS_PLUS)
-									dconvstr_flags |= SRealConversion::fPrintPlus;
+									dconvstr_flags |= SIEEE754::fPrintPlus;
 								if(flags & FLAGS_LEFT)
-									dconvstr_flags |= SRealConversion::fLeftJustify;
+									dconvstr_flags |= SIEEE754::fLeftJustify;
 								if(flags & FLAGS_ZEROPAD)
-									dconvstr_flags |= SRealConversion::fPadWithZero;
+									dconvstr_flags |= SIEEE754::fPadWithZero;
 								if(width != 0)
-									dconvstr_flags |= SRealConversion::fHaveWidth;
+									dconvstr_flags |= SIEEE754::fHaveWidth;
 								if(!(flags & FLAGS_PRECISION))
 									precision = PRINTF_DEFAULT_FLOAT_PRECISION;
-								SRealConversion::Print(&p_fout_buf, &fout_buf_size, value, dconv_format_char, dconvstr_flags, width, precision);
+								SIEEE754::Print(&p_fout_buf, &fout_buf_size, value, dconv_format_char, dconvstr_flags, width, precision);
 								rBuf.Cat_Unsafe(reinterpret_cast<const uint8 *>(fout_buf), (sizeof(fout_buf) - fout_buf_size));
 							}
 							pFormat++;

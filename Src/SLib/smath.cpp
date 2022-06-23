@@ -1411,6 +1411,30 @@ int Factorize(ulong val, UlongArray * pList)
 SDecimalFraction::SDecimalFraction() : Num(0), DenomDecPwr(0), Flags(0)
 {
 }
+
+SDecimalFraction::SDecimalFraction(double v) : Num(0), DenomDecPwr(0), Flags(0)
+{
+	// @construction 
+	uint64 mantissa = 0;
+	int32  exp = 0;
+	uint   f = SIEEE754::UnpackDouble(&v, &mantissa, &exp);
+	// Знак exp, возвращаемый UnpackDouble противоположен знаку DenomDecPwr!
+	assert((f & ~(SIEEE754::fINF|SIEEE754::fNAN|SIEEE754::fSIGN)) == 0);
+	Flags = (static_cast<uint16>(f & ~SIEEE754::fSIGN)); // Флаг знака внутри класса не храним - знак числа определяется величиной Num
+	if(!(Flags & (SIEEE754::fINF|SIEEE754::fNAN))) {
+		if(exp > 0) {
+			Num = mantissa * fpow10i(exp);
+			DenomDecPwr = 0;
+		}
+		else {
+			Num = mantissa;
+			if(exp < 0)
+				DenomDecPwr = -exp;
+		}
+		if(f & SIEEE754::fSIGN)
+			Num = -Num;
+	}
+}
 	
 SDecimalFraction::SDecimalFraction(int64 n, uint16 denomDecPwr) : Num(n), DenomDecPwr(denomDecPwr), Flags(0)
 {
@@ -1541,26 +1565,30 @@ int SDecimalFraction::Div(const SDecimalFraction & rA, const SDecimalFraction & 
 		assert(SDecimalFraction().IsZero());
 		assert(!SDecimalFraction(1, 1).IsZero());
 		for(uint i = 0; i < SIZEOFARRAY(entries); i++) {
-			const double tv = SDecimalFraction(entries[i].N, entries[i].Dp).GetReal();
-			assert(tv == entries[i].Rv);
+			const TestEntry & r_te = entries[i];
+			const double tv = SDecimalFraction(r_te.N, r_te.Dp).GetReal();
+			assert(tv == r_te.Rv);
+			//SDecimalFraction r(r_te.Rv);
+			//assert(r.GetReal() == tv);
 		}
-		//
-		SDecimalFraction r;
-		SDecimalFraction r2;
-		r.Add(SDecimalFraction(0, 0), SDecimalFraction(1, 0));
-		assert(r.GetReal() == 1.0);
-		r2.Sub(r, SDecimalFraction(1, 0));
-		assert(r2.GetReal() == 0.0);
-		assert(r2.IsZero());
-		//
-		r.Add(SDecimalFraction(0, 0), SDecimalFraction(1, 5));
-		assert(r.GetReal() == 0.00001);
-		r2.Sub(r, SDecimalFraction(1, 5));
-		assert(r2.GetReal() == 0.0);
-		assert(r2.IsZero());
-		//
-		r.Mul(SDecimalFraction(1, 0), SDecimalFraction(17, 3));
-		assert(r.GetReal() == 0.017);
+		{
+			SDecimalFraction r;
+			SDecimalFraction r2;
+			r.Add(SDecimalFraction(0, 0), SDecimalFraction(1, 0));
+			assert(r.GetReal() == 1.0);
+			r2.Sub(r, SDecimalFraction(1, 0));
+			assert(r2.GetReal() == 0.0);
+			assert(r2.IsZero());
+			//
+			r.Add(SDecimalFraction(0, 0), SDecimalFraction(1, 5));
+			assert(r.GetReal() == 0.00001);
+			r2.Sub(r, SDecimalFraction(1, 5));
+			assert(r2.GetReal() == 0.0);
+			assert(r2.IsZero());
+			//
+			r.Mul(SDecimalFraction(1, 0), SDecimalFraction(17, 3));
+			assert(r.GetReal() == 0.017);
+		}
 	}
 	return ok;
 }

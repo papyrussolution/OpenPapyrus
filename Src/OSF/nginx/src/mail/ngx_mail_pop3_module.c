@@ -118,7 +118,7 @@ static char * ngx_mail_pop3_merge_srv_conf(ngx_conf_t * cf, void * parent, void 
 	if(conf->capabilities.nelts == 0) {
 		for(d = ngx_mail_pop3_default_capabilities; d->len; d++) {
 			c = (ngx_str_t *)ngx_array_push(&conf->capabilities);
-			if(c == NULL) {
+			if(!c) {
 				return NGX_CONF_ERROR;
 			}
 

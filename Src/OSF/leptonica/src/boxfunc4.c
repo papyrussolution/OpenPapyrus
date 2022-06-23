@@ -26,7 +26,7 @@
  *      Boxa permutation
  *           BOXA     *boxaPermutePseudorandom()
  *           BOXA     *boxaPermuteRandom()
- *           l_int32   boxaSwapBoxes()
+ *           int32   boxaSwapBoxes()
  *
  *      Boxa and box conversions
  *           PTA *boxaConvertToPta()
@@ -35,13 +35,13 @@
  *           BOX      *ptaConvertToBox()
  *
  *      Miscellaneous boxa functions
- *           l_int32   boxaGetExtent()
- *           l_int32   boxaGetCoverage()
- *           l_int32   boxaaSizeRange()
- *           l_int32   boxaSizeRange()
- *           l_int32   boxaLocationRange()
+ *           int32   boxaGetExtent()
+ *           int32   boxaGetCoverage()
+ *           int32   boxaaSizeRange()
+ *           int32   boxaSizeRange()
+ *           int32   boxaLocationRange()
  *           NUMA     *boxaGetSizes()
- *           l_int32   boxaGetArea()
+ *           int32   boxaGetArea()
  *           PIX *boxaDisplayTiled()
  * </pre>
  */
@@ -68,11 +68,11 @@
  * </pre>
  */
 BOXA * boxaSelectRange(BOXA * boxas,
-    l_int32 first,
-    l_int32 last,
-    l_int32 copyflag)
+    int32 first,
+    int32 last,
+    int32 copyflag)
 {
-	l_int32 n, nbox, i;
+	int32 n, nbox, i;
 	BOX * box;
 	BOXA * boxad;
 
@@ -124,11 +124,11 @@ BOXA * boxaSelectRange(BOXA * boxas,
  * </pre>
  */
 BOXAA * boxaaSelectRange(BOXAA   * baas,
-    l_int32 first,
-    l_int32 last,
-    l_int32 copyflag)
+    int32 first,
+    int32 last,
+    int32 copyflag)
 {
-	l_int32 n, nboxa, i;
+	int32 n, nboxa, i;
 	BOXA * boxa;
 	BOXAA   * baad;
 
@@ -190,11 +190,11 @@ BOXAA * boxaaSelectRange(BOXAA   * baas,
  * </pre>
  */
 BOXA * boxaSelectBySize(BOXA     * boxas,
-    l_int32 width,
-    l_int32 height,
-    l_int32 type,
-    l_int32 relation,
-    l_int32 * pchanged)
+    int32 width,
+    int32 height,
+    int32 type,
+    int32 relation,
+    int32 * pchanged)
 {
 	BOXA * boxad;
 	NUMA * na;
@@ -251,12 +251,12 @@ BOXA * boxaSelectBySize(BOXA     * boxas,
  * </pre>
  */
 NUMA * boxaMakeSizeIndicator(BOXA     * boxa,
-    l_int32 width,
-    l_int32 height,
-    l_int32 type,
-    l_int32 relation)
+    int32 width,
+    int32 height,
+    int32 type,
+    int32 relation)
 {
-	l_int32 i, n, w, h, ival;
+	int32 i, n, w, h, ival;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -336,9 +336,9 @@ NUMA * boxaMakeSizeIndicator(BOXA     * boxa,
  * </pre>
  */
 BOXA * boxaSelectByArea(BOXA     * boxas,
-    l_int32 area,
-    l_int32 relation,
-    l_int32 * pchanged)
+    int32 area,
+    int32 relation,
+    int32 * pchanged)
 {
 	BOXA * boxad;
 	NUMA * na;
@@ -384,10 +384,10 @@ BOXA * boxaSelectByArea(BOXA     * boxas,
  * </pre>
  */
 NUMA * boxaMakeAreaIndicator(BOXA     * boxa,
-    l_int32 area,
-    l_int32 relation)
+    int32 area,
+    int32 relation)
 {
-	l_int32 i, n, w, h, ival;
+	int32 i, n, w, h, ival;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -437,8 +437,8 @@ NUMA * boxaMakeAreaIndicator(BOXA     * boxa,
  */
 BOXA * boxaSelectByWHRatio(BOXA      * boxas,
     float ratio,
-    l_int32 relation,
-    l_int32   * pchanged)
+    int32 relation,
+    int32   * pchanged)
 {
 	BOXA * boxad;
 	NUMA * na;
@@ -485,9 +485,9 @@ BOXA * boxaSelectByWHRatio(BOXA      * boxas,
  */
 NUMA * boxaMakeWHRatioIndicator(BOXA      * boxa,
     float ratio,
-    l_int32 relation)
+    int32 relation)
 {
-	l_int32 i, n, w, h, ival;
+	int32 i, n, w, h, ival;
 	float whratio;
 	NUMA * na;
 
@@ -536,9 +536,9 @@ NUMA * boxaMakeWHRatioIndicator(BOXA      * boxa,
  */
 BOXA * boxaSelectWithIndicator(BOXA     * boxas,
     NUMA     * na,
-    l_int32 * pchanged)
+    int32 * pchanged)
 {
-	l_int32 i, n, ival, nsave;
+	int32 i, n, ival, nsave;
 	BOX * box;
 	BOXA * boxad;
 
@@ -592,7 +592,7 @@ BOXA * boxaSelectWithIndicator(BOXA     * boxas,
  */
 BOXA * boxaPermutePseudorandom(BOXA * boxas)
 {
-	l_int32 n;
+	int32 n;
 	NUMA * na;
 	BOXA * boxad;
 
@@ -632,7 +632,7 @@ BOXA * boxaPermutePseudorandom(BOXA * boxas)
 BOXA * boxaPermuteRandom(BOXA * boxad,
     BOXA * boxas)
 {
-	l_int32 i, n, index;
+	int32 i, n, index;
 
 	PROCNAME(__FUNCTION__);
 
@@ -645,11 +645,11 @@ BOXA * boxaPermuteRandom(BOXA * boxad,
 		boxad = boxaCopy(boxas, L_COPY);
 	if((n = boxaGetCount(boxad)) == 0)
 		return boxad;
-	index = (l_uint32)rand() % n;
+	index = (uint32)rand() % n;
 	index = MAX(1, index);
 	boxaSwapBoxes(boxad, 0, index);
 	for(i = 1; i < n; i++) {
-		index = (l_uint32)rand() % n;
+		index = (uint32)rand() % n;
 		if(index == i) index--;
 		boxaSwapBoxes(boxad, i, index);
 	}
@@ -665,10 +665,10 @@ BOXA * boxaPermuteRandom(BOXA * boxad,
  * \return  0 if OK, 1 on error
  */
 l_ok boxaSwapBoxes(BOXA * boxa,
-    l_int32 i,
-    l_int32 j)
+    int32 i,
+    int32 j)
 {
-	l_int32 n;
+	int32 n;
 	BOX * box;
 
 	PROCNAME(__FUNCTION__);
@@ -711,9 +711,9 @@ l_ok boxaSwapBoxes(BOXA * boxa,
  * </pre>
  */
 PTA * boxaConvertToPta(BOXA * boxa,
-    l_int32 ncorners)
+    int32 ncorners)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOX * box;
 	PTA * pta, * pta1;
 
@@ -754,9 +754,9 @@ PTA * boxaConvertToPta(BOXA * boxa,
  * </pre>
  */
 BOXA * ptaConvertToBoxa(PTA * pta,
-    l_int32 ncorners)
+    int32 ncorners)
 {
-	l_int32 i, n, nbox, x1, y1, x2, y2, x3, y3, x4, y4, x, y, xmax, ymax;
+	int32 i, n, nbox, x1, y1, x2, y2, x3, y3, x4, y4, x, y, xmax, ymax;
 	BOX * box;
 	BOXA * boxa;
 
@@ -807,9 +807,9 @@ BOXA * ptaConvertToBoxa(PTA * pta,
  * </pre>
  */
 PTA * boxConvertToPta(BOX * box,
-    l_int32 ncorners)
+    int32 ncorners)
 {
-	l_int32 x, y, w, h;
+	int32 x, y, w, h;
 	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
@@ -849,7 +849,7 @@ PTA * boxConvertToPta(BOX * box,
  */
 BOX * ptaConvertToBox(PTA * pta)
 {
-	l_int32 n, x1, y1, x2, y2, x3, y3, x4, y4, x, y, xmax, ymax;
+	int32 n, x1, y1, x2, y2, x3, y3, x4, y4, x, y, xmax, ymax;
 
 	PROCNAME(__FUNCTION__);
 
@@ -896,11 +896,11 @@ BOX * ptaConvertToBox(PTA * pta)
  * </pre>
  */
 l_ok boxaGetExtent(BOXA     * boxa,
-    l_int32 * pw,
-    l_int32 * ph,
+    int32 * pw,
+    int32 * ph,
     BOX ** pbox)
 {
-	l_int32 i, n, x, y, w, h, xmax, ymax, xmin, ymin, found;
+	int32 i, n, x, y, w, h, xmax, ymax, xmin, ymin, found;
 
 	PROCNAME(__FUNCTION__);
 
@@ -960,12 +960,12 @@ l_ok boxaGetExtent(BOXA     * boxa,
  * </pre>
  */
 l_ok boxaGetCoverage(BOXA       * boxa,
-    l_int32 wc,
-    l_int32 hc,
-    l_int32 exactflag,
+    int32 wc,
+    int32 hc,
+    int32 exactflag,
     float * pfract)
 {
-	l_int32 i, n, x, y, w, h, sum;
+	int32 i, n, x, y, w, h, sum;
 	BOX * box, * boxc;
 	PIX * pixt;
 
@@ -1020,12 +1020,12 @@ l_ok boxaGetCoverage(BOXA       * boxa,
  * \return  0 if OK, 1 on error
  */
 l_ok boxaaSizeRange(BOXAA    * baa,
-    l_int32 * pminw,
-    l_int32 * pminh,
-    l_int32 * pmaxw,
-    l_int32 * pmaxh)
+    int32 * pminw,
+    int32 * pminh,
+    int32 * pmaxw,
+    int32 * pmaxh)
 {
-	l_int32 minw, minh, maxw, maxh, minbw, minbh, maxbw, maxbh, i, n;
+	int32 minw, minh, maxw, maxh, minbw, minbh, maxbw, maxbh, i, n;
 	BOXA * boxa;
 
 	PROCNAME(__FUNCTION__);
@@ -1074,12 +1074,12 @@ l_ok boxaaSizeRange(BOXAA    * baa,
  * \return  0 if OK, 1 on error
  */
 l_ok boxaSizeRange(BOXA     * boxa,
-    l_int32 * pminw,
-    l_int32 * pminh,
-    l_int32 * pmaxw,
-    l_int32 * pmaxh)
+    int32 * pminw,
+    int32 * pminh,
+    int32 * pmaxw,
+    int32 * pmaxh)
 {
-	l_int32 minw, minh, maxw, maxh, i, n, w, h;
+	int32 minw, minh, maxw, maxh, i, n, w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1125,12 +1125,12 @@ l_ok boxaSizeRange(BOXA     * boxa,
  * \return  0 if OK, 1 on error
  */
 l_ok boxaLocationRange(BOXA     * boxa,
-    l_int32 * pminx,
-    l_int32 * pminy,
-    l_int32 * pmaxx,
-    l_int32 * pmaxy)
+    int32 * pminx,
+    int32 * pminy,
+    int32 * pmaxx,
+    int32 * pmaxy)
 {
-	l_int32 minx, miny, maxx, maxy, i, n, x, y;
+	int32 minx, miny, maxx, maxy, i, n, x, y;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1178,7 +1178,7 @@ l_ok boxaGetSizes(BOXA   * boxa,
     NUMA ** pnaw,
     NUMA ** pnah)
 {
-	l_int32 i, n, w, h;
+	int32 i, n, w, h;
 	BOX * box;
 
 	PROCNAME(__FUNCTION__);
@@ -1219,9 +1219,9 @@ l_ok boxaGetSizes(BOXA   * boxa,
  * </pre>
  */
 l_ok boxaGetArea(BOXA     * boxa,
-    l_int32 * parea)
+    int32 * parea)
 {
-	l_int32 i, n, w, h;
+	int32 i, n, w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1268,17 +1268,17 @@ l_ok boxaGetArea(BOXA     * boxa,
  */
 PIX * boxaDisplayTiled(BOXA        * boxas,
     PIXA        * pixa,
-    l_int32 first,
-    l_int32 last,
-    l_int32 maxwidth,
-    l_int32 linewidth,
+    int32 first,
+    int32 last,
+    int32 maxwidth,
+    int32 linewidth,
     float scalefactor,
-    l_int32 background,
-    l_int32 spacing,
-    l_int32 border)
+    int32 background,
+    int32 spacing,
+    int32 border)
 {
 	char buf[32];
-	l_int32 i, n, npix, w, h, fontsize;
+	int32 i, n, npix, w, h, fontsize;
 	L_BMF   * bmf;
 	BOX * box;
 	BOXA * boxa;

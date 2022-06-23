@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file  partition.c
  * <pre>
@@ -34,10 +21,10 @@
  *      Helpers
  *          static PARTEL   *partelCreate()
  *          static void      partelDestroy()
- *          static l_int32   partelSetSize()
+ *          static int32   partelSetSize()
  *          static BOXA     *boxaGenerateSubboxes()
  *          static BOX      *boxaSelectPivotBox()
- *          static l_int32   boxaCheckIfOverlapIsSmall()
+ *          static int32   boxaCheckIfOverlapIsSmall()
  *          BOXA            *boxaPruneSortedOnOverlap()
  * </pre>
  */
@@ -55,15 +42,15 @@ typedef struct PartitionElement PARTEL;
 
 static PARTEL * partelCreate(BOX * box);
 static void partelDestroy(PARTEL ** ppartel);
-static l_int32 partelSetSize(PARTEL * partel, l_int32 sortflag);
-static BOXA * boxaGenerateSubboxes(BOX * box, BOXA * boxa, l_int32 maxperim,
+static int32 partelSetSize(PARTEL * partel, int32 sortflag);
+static BOXA * boxaGenerateSubboxes(BOX * box, BOXA * boxa, int32 maxperim,
     float fract);
-static BOX * boxaSelectPivotBox(BOX * box, BOXA * boxa, l_int32 maxperim,
+static BOX * boxaSelectPivotBox(BOX * box, BOXA * boxa, int32 maxperim,
     float fract);
-static l_int32 boxCheckIfOverlapIsBig(BOX * box, BOXA * boxa,
+static int32 boxCheckIfOverlapIsBig(BOX * box, BOXA * boxa,
     float maxoverlap);
 
-static const l_int32 DefaultMaxPops = 20000;
+static const int32 DefaultMaxPops = 20000;
 
 #ifndef  NO_CONSOLE_IO
 #define  OUTPUT_HEAP_STATS   0
@@ -186,14 +173,14 @@ static const l_int32 DefaultMaxPops = 20000;
  */
 BOXA * boxaGetWhiteblocks(BOXA      * boxas,
     BOX       * box,
-    l_int32 sortflag,
-    l_int32 maxboxes,
+    int32 sortflag,
+    int32 maxboxes,
     float maxoverlap,
-    l_int32 maxperim,
+    int32 maxperim,
     float fract,
-    l_int32 maxpops)
+    int32 maxpops)
 {
-	l_int32 i, w, h, n, nsub, npush, npop;
+	int32 i, w, h, n, nsub, npush, npop;
 	BOX * boxsub;
 	BOXA * boxa, * boxa4, * boxasub, * boxad;
 	PARTEL  * partel;
@@ -350,10 +337,10 @@ static void partelDestroy(PARTEL  ** ppartel)
  *                          L_SORT_BY_PERIMETER, L_SORT_BY_AREA
  * \return  0 if OK, 1 on error
  */
-static l_int32 partelSetSize(PARTEL  * partel,
-    l_int32 sortflag)
+static int32 partelSetSize(PARTEL  * partel,
+    int32 sortflag)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -393,10 +380,10 @@ static l_int32 partelSetSize(PARTEL  * partel,
  */
 static BOXA * boxaGenerateSubboxes(BOX       * box,
     BOXA      * boxa,
-    l_int32 maxperim,
+    int32 maxperim,
     float fract)
 {
-	l_int32 x, y, w, h, xp, yp, wp, hp;
+	int32 x, y, w, h, xp, yp, wp, hp;
 	BOX * boxp; /* pivot box */
 	BOX * boxsub;
 	BOXA * boxa4;
@@ -469,11 +456,11 @@ static BOXA * boxaGenerateSubboxes(BOX       * box,
  */
 static BOX * boxaSelectPivotBox(BOX       * box,
     BOXA      * boxa,
-    l_int32 maxperim,
+    int32 maxperim,
     float fract)
 {
-	l_int32 i, n, bw, bh, w, h;
-	l_int32 smallfound, minindex, perim, minsize;
+	int32 i, n, bw, bh, w, h;
+	int32 smallfound, minindex, perim, minsize;
 	float delx, dely, mindist, threshdist, dist, x, y, cx, cy;
 	BOX       * boxt;
 
@@ -545,11 +532,11 @@ static BOX * boxaSelectPivotBox(BOX       * box,
  * \return      0 if box has small overlap with every box in boxa;
  *              1 otherwise or on error
  */
-static l_int32 boxCheckIfOverlapIsBig(BOX       * box,
+static int32 boxCheckIfOverlapIsBig(BOX       * box,
     BOXA      * boxa,
     float maxoverlap)
 {
-	l_int32 i, n, bigoverlap;
+	int32 i, n, bigoverlap;
 	float fract;
 	BOX       * boxt;
 
@@ -601,7 +588,7 @@ static l_int32 boxCheckIfOverlapIsBig(BOX       * box,
 BOXA * boxaPruneSortedOnOverlap(BOXA      * boxas,
     float maxoverlap)
 {
-	l_int32 i, j, n, remove;
+	int32 i, j, n, remove;
 	float fract;
 	BOX       * box1, * box2;
 	BOXA      * boxad;

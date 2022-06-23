@@ -159,7 +159,7 @@ int ASN1_BIT_STRING_set_bit(ASN1_BIT_STRING * a, int n, int value)
 		if(!value)
 			return 1; /* Don't need to set */
 		c = static_cast<uchar *>(OPENSSL_clear_realloc(a->data, a->length, w + 1));
-		if(c == NULL) {
+		if(!c) {
 			ASN1err(ASN1_F_ASN1_BIT_STRING_SET_BIT, ERR_R_MALLOC_FAILURE);
 			return 0;
 		}

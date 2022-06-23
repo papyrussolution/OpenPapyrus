@@ -565,7 +565,7 @@ static int asn1_str2tag(const char * tagstr, int len)
 		len = strlen(tagstr);
 
 	tntmp = tnst;
-	for(i = 0; i < OSSL_NELEM(tnst); i++, tntmp++) {
+	for(i = 0; i < SIZEOFARRAY(tnst); i++, tntmp++) {
 		if((len == tntmp->len) && (strncmp(tntmp->strnam, tagstr, len) == 0))
 			return tntmp->tag;
 	}

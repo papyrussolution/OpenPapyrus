@@ -28,8 +28,8 @@
  *           PIXA *pixaSelectByNumConnComp()
  *
  *           PIXA *pixaSelectWithIndicator()
- *           l_int32   pixRemoveWithIndicator()
- *           l_int32   pixAddWithIndicator()
+ *           int32   pixRemoveWithIndicator()
+ *           int32   pixAddWithIndicator()
  *           PIXA *pixaSelectWithString()
  *           PIX *pixaRenderComponent()
  *
@@ -59,18 +59,18 @@
  *      Miscellaneous
  *           PIXA *pixaAddBorderGeneral()
  *           PIXA *pixaaFlattenToPixa()
- *           l_int32   pixaaSizeRange()
- *           l_int32   pixaSizeRange()
+ *           int32   pixaaSizeRange()
+ *           int32   pixaSizeRange()
  *           PIXA *pixaClipToPix()
  *           PIXA *pixaClipToForeground()
- *           l_int32   pixaGetRenderingDepth()
- *           l_int32   pixaHasColor()
- *           l_int32   pixaAnyColormaps()
- *           l_int32   pixaGetDepthInfo()
+ *           int32   pixaGetRenderingDepth()
+ *           int32   pixaHasColor()
+ *           int32   pixaAnyColormaps()
+ *           int32   pixaGetDepthInfo()
  *           PIXA *pixaConvertToSameDepth()
  *           PIXA *pixaConvertToGivenDepth()
- *           l_int32   pixaEqual()
- *           l_int32   pixaSetFullSizeBoxa()
+ *           int32   pixaEqual()
+ *           int32   pixaSetFullSizeBoxa()
  * </pre>
  */
 #include "allheaders.h"
@@ -79,7 +79,7 @@
 /* For more than this number of c.c. in a binarized image of
  * semi-perimeter (w + h) about 5000 or less, the O(n) binsort
  * is faster than the O(nlogn) shellsort.  */
-static const l_int32 MinCompsForBinSort = 200;
+static const int32 MinCompsForBinSort = 200;
 
 /* Don't rotate any angle smaller than this */
 static const float MinAngleToRotate = 0.001; /* radians; ~0.06 deg */
@@ -192,14 +192,14 @@ static const float MinAngleToRotate = 0.001; /* radians; ~0.06 deg */
  * </pre>
  */
 PIX * pixSelectBySize(PIX * pixs,
-    l_int32 width,
-    l_int32 height,
-    l_int32 connectivity,
-    l_int32 type,
-    l_int32 relation,
-    l_int32 * pchanged)
+    int32 width,
+    int32 height,
+    int32 connectivity,
+    int32 type,
+    int32 relation,
+    int32 * pchanged)
 {
-	l_int32 w, h, empty, changed, count;
+	int32 w, h, empty, changed, count;
 	BOXA * boxa;
 	PIX * pixd;
 	PIXA    * pixas, * pixad;
@@ -278,11 +278,11 @@ PIX * pixSelectBySize(PIX * pixs,
  * </pre>
  */
 PIXA * pixaSelectBySize(PIXA * pixas,
-    l_int32 width,
-    l_int32 height,
-    l_int32 type,
-    l_int32 relation,
-    l_int32 * pchanged)
+    int32 width,
+    int32 height,
+    int32 type,
+    int32 relation,
+    int32 * pchanged)
 {
 	NUMA * na;
 	PIXA  * pixad;
@@ -332,12 +332,12 @@ PIXA * pixaSelectBySize(PIXA * pixas,
  * </pre>
  */
 NUMA * pixaMakeSizeIndicator(PIXA * pixa,
-    l_int32 width,
-    l_int32 height,
-    l_int32 type,
-    l_int32 relation)
+    int32 width,
+    int32 height,
+    int32 type,
+    int32 relation)
 {
-	l_int32 i, n, w, h, ival;
+	int32 i, n, w, h, ival;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -422,11 +422,11 @@ NUMA * pixaMakeSizeIndicator(PIXA * pixa,
  */
 PIX * pixSelectByPerimToAreaRatio(PIX * pixs,
     float thresh,
-    l_int32 connectivity,
-    l_int32 type,
-    l_int32   * pchanged)
+    int32 connectivity,
+    int32 type,
+    int32   * pchanged)
 {
-	l_int32 w, h, empty, changed, count;
+	int32 w, h, empty, changed, count;
 	BOXA * boxa;
 	PIX * pixd;
 	PIXA    * pixas, * pixad;
@@ -495,8 +495,8 @@ PIX * pixSelectByPerimToAreaRatio(PIX * pixs,
  */
 PIXA * pixaSelectByPerimToAreaRatio(PIXA      * pixas,
     float thresh,
-    l_int32 type,
-    l_int32   * pchanged)
+    int32 type,
+    int32   * pchanged)
 {
 	NUMA * na, * nai;
 	PIXA  * pixad;
@@ -550,11 +550,11 @@ PIXA * pixaSelectByPerimToAreaRatio(PIXA      * pixas,
  */
 PIX * pixSelectByPerimSizeRatio(PIX * pixs,
     float thresh,
-    l_int32 connectivity,
-    l_int32 type,
-    l_int32   * pchanged)
+    int32 connectivity,
+    int32 type,
+    int32   * pchanged)
 {
-	l_int32 w, h, empty, changed, count;
+	int32 w, h, empty, changed, count;
 	BOXA * boxa;
 	PIX * pixd;
 	PIXA    * pixas, * pixad;
@@ -623,8 +623,8 @@ PIX * pixSelectByPerimSizeRatio(PIX * pixs,
  */
 PIXA * pixaSelectByPerimSizeRatio(PIXA      * pixas,
     float thresh,
-    l_int32 type,
-    l_int32   * pchanged)
+    int32 type,
+    int32   * pchanged)
 {
 	NUMA * na, * nai;
 	PIXA  * pixad;
@@ -677,11 +677,11 @@ PIXA * pixaSelectByPerimSizeRatio(PIXA      * pixas,
  */
 PIX * pixSelectByAreaFraction(PIX * pixs,
     float thresh,
-    l_int32 connectivity,
-    l_int32 type,
-    l_int32   * pchanged)
+    int32 connectivity,
+    int32 type,
+    int32   * pchanged)
 {
-	l_int32 w, h, empty, changed, count;
+	int32 w, h, empty, changed, count;
 	BOXA * boxa;
 	PIX * pixd;
 	PIXA    * pixas, * pixad;
@@ -754,8 +754,8 @@ PIX * pixSelectByAreaFraction(PIX * pixs,
  */
 PIXA * pixaSelectByAreaFraction(PIXA      * pixas,
     float thresh,
-    l_int32 type,
-    l_int32   * pchanged)
+    int32 type,
+    int32   * pchanged)
 {
 	NUMA * na, * nai;
 	PIXA  * pixad;
@@ -808,11 +808,11 @@ PIXA * pixaSelectByAreaFraction(PIXA      * pixas,
  */
 PIX * pixSelectByArea(PIX * pixs,
     float thresh,
-    l_int32 connectivity,
-    l_int32 type,
-    l_int32   * pchanged)
+    int32 connectivity,
+    int32 type,
+    int32   * pchanged)
 {
-	l_int32 w, h, empty, changed, count;
+	int32 w, h, empty, changed, count;
 	BOXA * boxa;
 	PIX * pixd;
 	PIXA    * pixas, * pixad;
@@ -885,8 +885,8 @@ PIX * pixSelectByArea(PIX * pixs,
  */
 PIXA * pixaSelectByArea(PIXA      * pixas,
     float thresh,
-    l_int32 type,
-    l_int32   * pchanged)
+    int32 type,
+    int32   * pchanged)
 {
 	NUMA * na, * nai;
 	PIXA  * pixad;
@@ -938,11 +938,11 @@ PIXA * pixaSelectByArea(PIXA      * pixas,
  */
 PIX * pixSelectByWidthHeightRatio(PIX * pixs,
     float thresh,
-    l_int32 connectivity,
-    l_int32 type,
-    l_int32   * pchanged)
+    int32 connectivity,
+    int32 type,
+    int32   * pchanged)
 {
-	l_int32 w, h, empty, changed, count;
+	int32 w, h, empty, changed, count;
 	BOXA * boxa;
 	PIX * pixd;
 	PIXA    * pixas, * pixad;
@@ -1015,8 +1015,8 @@ PIX * pixSelectByWidthHeightRatio(PIX * pixs,
  */
 PIXA * pixaSelectByWidthHeightRatio(PIXA      * pixas,
     float thresh,
-    l_int32 type,
-    l_int32   * pchanged)
+    int32 type,
+    int32   * pchanged)
 {
 	NUMA * na, * nai;
 	PIXA  * pixad;
@@ -1062,12 +1062,12 @@ PIXA * pixaSelectByWidthHeightRatio(PIXA      * pixas,
  * </pre>
  */
 PIXA * pixaSelectByNumConnComp(PIXA      * pixas,
-    l_int32 nmin,
-    l_int32 nmax,
-    l_int32 connectivity,
-    l_int32   * pchanged)
+    int32 nmin,
+    int32 nmax,
+    int32 connectivity,
+    int32   * pchanged)
 {
-	l_int32 n, i, count;
+	int32 n, i, count;
 	NUMA * na;
 	PIX * pix;
 	PIXA    * pixad;
@@ -1120,9 +1120,9 @@ PIXA * pixaSelectByNumConnComp(PIXA      * pixas,
  */
 PIXA * pixaSelectWithIndicator(PIXA * pixas,
     NUMA     * na,
-    l_int32 * pchanged)
+    int32 * pchanged)
 {
-	l_int32 i, n, nbox, ival, nsave;
+	int32 i, n, nbox, ival, nsave;
 	BOX * box;
 	PIX * pix1;
 	PIXA    * pixad;
@@ -1180,7 +1180,7 @@ l_ok pixRemoveWithIndicator(PIX * pixs,
     PIXA  * pixa,
     NUMA * na)
 {
-	l_int32 i, n, ival, x, y, w, h;
+	int32 i, n, ival, x, y, w, h;
 	BOX * box;
 	PIX * pix;
 
@@ -1231,7 +1231,7 @@ l_ok pixAddWithIndicator(PIX * pixs,
     PIXA  * pixa,
     NUMA * na)
 {
-	l_int32 i, n, ival, x, y, w, h;
+	int32 i, n, ival, x, y, w, h;
 	BOX * box;
 	PIX * pix;
 
@@ -1280,9 +1280,9 @@ l_ok pixAddWithIndicator(PIX * pixs,
  */
 PIXA * pixaSelectWithString(PIXA        * pixas,
     const char * str,
-    l_int32     * perror)
+    int32     * perror)
 {
-	l_int32 i, nval, npix, nbox, val, imaxval;
+	int32 i, nval, npix, nbox, val, imaxval;
 	float maxval;
 	BOX       * box;
 	NUMA * na;
@@ -1304,7 +1304,7 @@ PIXA * pixaSelectWithString(PIXA        * pixas,
 		return (PIXA*)ERROR_PTR("no indices found", procName, NULL);
 	}
 	numaGetMax(na, &maxval, NULL);
-	imaxval = (l_int32)(maxval + 0.1);
+	imaxval = (int32)(maxval + 0.1);
 	nbox = pixaGetBoxaCount(pixas);
 	npix = pixaGetCount(pixas);
 	if(imaxval >= npix) {
@@ -1349,9 +1349,9 @@ PIXA * pixaSelectWithString(PIXA        * pixas,
  */
 PIX * pixaRenderComponent(PIX * pixs,
     PIXA    * pixa,
-    l_int32 index)
+    int32 index)
 {
-	l_int32 n, x, y, w, h, same, maxd;
+	int32 n, x, y, w, h, same, maxd;
 	BOX * box;
 	BOXA * boxa;
 	PIX * pix;
@@ -1416,12 +1416,12 @@ PIX * pixaRenderComponent(PIX * pixs,
  * </pre>
  */
 PIXA * pixaSort(PIXA    * pixas,
-    l_int32 sorttype,
-    l_int32 sortorder,
+    int32 sorttype,
+    int32 sortorder,
     NUMA   ** pnaindex,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 i, n, nb, x, y, w, h;
+	int32 i, n, nb, x, y, w, h;
 	BOXA * boxa;
 	NUMA * na, * naindex;
 	PIXA    * pixad;
@@ -1554,12 +1554,12 @@ PIXA * pixaSort(PIXA    * pixas,
  * </pre>
  */
 PIXA * pixaBinSort(PIXA    * pixas,
-    l_int32 sorttype,
-    l_int32 sortorder,
+    int32 sorttype,
+    int32 sortorder,
     NUMA   ** pnaindex,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 i, n, x, y, w, h;
+	int32 i, n, x, y, w, h;
 	BOXA * boxa;
 	NUMA * na, * naindex;
 	PIXA    * pixad;
@@ -1641,9 +1641,9 @@ PIXA * pixaBinSort(PIXA    * pixas,
  */
 PIXA * pixaSortByIndex(PIXA    * pixas,
     NUMA * naindex,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 i, n, index;
+	int32 i, n, index;
 	BOX * box;
 	PIX * pix;
 	PIXA    * pixad;
@@ -1680,9 +1680,9 @@ PIXA * pixaSortByIndex(PIXA    * pixas,
  */
 PIXAA * pixaSort2dByIndex(PIXA    * pixas,
     NUMAA   * naa,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 pixtot, ntot, i, j, n, nn, index;
+	int32 pixtot, ntot, i, j, n, nn, index;
 	BOX * box;
 	NUMA * na;
 	PIX * pix;
@@ -1742,11 +1742,11 @@ PIXAA * pixaSort2dByIndex(PIXA    * pixas,
  * </pre>
  */
 PIXA * pixaSelectRange(PIXA    * pixas,
-    l_int32 first,
-    l_int32 last,
-    l_int32 copyflag)
+    int32 first,
+    int32 last,
+    int32 copyflag)
 {
-	l_int32 n, npix, i;
+	int32 n, npix, i;
 	PIX * pix;
 	PIXA    * pixad;
 
@@ -1795,11 +1795,11 @@ PIXA * pixaSelectRange(PIXA    * pixas,
  * </pre>
  */
 PIXAA * pixaaSelectRange(PIXAA   * paas,
-    l_int32 first,
-    l_int32 last,
-    l_int32 copyflag)
+    int32 first,
+    int32 last,
+    int32 copyflag)
 {
-	l_int32 n, npixa, i;
+	int32 n, npixa, i;
 	PIXA    * pixa;
 	PIXAA   * paad;
 
@@ -1854,10 +1854,10 @@ PIXAA * pixaaSelectRange(PIXAA   * paas,
  * </pre>
  */
 PIXAA * pixaaScaleToSize(PIXAA   * paas,
-    l_int32 wd,
-    l_int32 hd)
+    int32 wd,
+    int32 hd)
 {
-	l_int32 n, i;
+	int32 n, i;
 	PIXA    * pixa1, * pixa2;
 	PIXAA   * paad;
 
@@ -1904,7 +1904,7 @@ PIXAA * pixaaScaleToSizeVar(PIXAA  * paas,
     NUMA   * nawd,
     NUMA   * nahd)
 {
-	l_int32 n, i, wd, hd;
+	int32 n, i, wd, hd;
 	PIXA    * pixa1, * pixa2;
 	PIXAA   * paad;
 
@@ -1947,10 +1947,10 @@ PIXAA * pixaaScaleToSizeVar(PIXAA  * paas,
  * </pre>
  */
 PIXA * pixaScaleToSize(PIXA    * pixas,
-    l_int32 wd,
-    l_int32 hd)
+    int32 wd,
+    int32 hd)
 {
-	l_int32 n, i;
+	int32 n, i;
 	PIX * pix1, * pix2;
 	PIXA    * pixad;
 
@@ -1990,10 +1990,10 @@ PIXA * pixaScaleToSize(PIXA    * pixas,
  * </pre>
  */
 PIXA * pixaScaleToSizeRel(PIXA    * pixas,
-    l_int32 delw,
-    l_int32 delh)
+    int32 delw,
+    int32 delh)
 {
-	l_int32 n, i;
+	int32 n, i;
 	PIX * pix1, * pix2;
 	PIXA    * pixad;
 
@@ -2036,7 +2036,7 @@ PIXA * pixaScale(PIXA      * pixas,
     float scalex,
     float scaley)
 {
-	l_int32 i, n, nb;
+	int32 i, n, nb;
 	BOXA * boxa1, * boxa2;
 	PIX * pix1, * pix2;
 	PIXA    * pixad;
@@ -2085,7 +2085,7 @@ PIXA * pixaScaleBySampling(PIXA      * pixas,
     float scalex,
     float scaley)
 {
-	l_int32 i, n, nb;
+	int32 i, n, nb;
 	BOXA * boxa1, * boxa2;
 	PIX * pix1, * pix2;
 	PIXA    * pixad;
@@ -2146,12 +2146,12 @@ PIXA * pixaScaleBySampling(PIXA      * pixas,
  */
 PIXA * pixaRotate(PIXA      * pixas,
     float angle,
-    l_int32 type,
-    l_int32 incolor,
-    l_int32 width,
-    l_int32 height)
+    int32 type,
+    int32 incolor,
+    int32 width,
+    int32 height)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOXA * boxa;
 	PIX * pixs, * pixd;
 	PIXA    * pixad;
@@ -2201,9 +2201,9 @@ PIXA * pixaRotate(PIXA      * pixas,
  * </pre>
  */
 PIXA * pixaRotateOrth(PIXA    * pixas,
-    l_int32 rotation)
+    int32 rotation)
 {
-	l_int32 i, n, nb, w, h;
+	int32 i, n, nb, w, h;
 	BOX * boxs, * boxd;
 	PIX * pixs, * pixd;
 	PIXA    * pixad;
@@ -2251,11 +2251,11 @@ PIXA * pixaRotateOrth(PIXA    * pixas,
  * \return  pixad, or NULL on error.
  */
 PIXA * pixaTranslate(PIXA    * pixas,
-    l_int32 hshift,
-    l_int32 vshift,
-    l_int32 incolor)
+    int32 hshift,
+    int32 vshift,
+    int32 incolor)
 {
-	l_int32 i, n, nb;
+	int32 i, n, nb;
 	BOXA * boxas, * boxad;
 	PIX * pixs, * pixd;
 	PIXA    * pixad;
@@ -2324,13 +2324,13 @@ PIXA * pixaTranslate(PIXA    * pixas,
  */
 PIXA * pixaAddBorderGeneral(PIXA * pixad,
     PIXA * pixas,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot,
-    l_uint32 val)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot,
+    uint32 val)
 {
-	l_int32 i, n, nbox;
+	int32 i, n, nbox;
 	BOX * box;
 	BOXA * boxad;
 	PIX * pixs, * pixd;
@@ -2393,9 +2393,9 @@ PIXA * pixaAddBorderGeneral(PIXA * pixad,
  */
 PIXA * pixaaFlattenToPixa(PIXAA   * paa,
     NUMA   ** pnaindex,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 i, j, m, mb, n;
+	int32 i, j, m, mb, n;
 	BOX * box;
 	NUMA * naindex;
 	PIX * pix;
@@ -2445,12 +2445,12 @@ PIXA * pixaaFlattenToPixa(PIXAA   * paa,
  * \return  0 if OK, 1 on error
  */
 l_ok pixaaSizeRange(PIXAA    * paa,
-    l_int32 * pminw,
-    l_int32 * pminh,
-    l_int32 * pmaxw,
-    l_int32 * pmaxh)
+    int32 * pminw,
+    int32 * pminh,
+    int32 * pmaxw,
+    int32 * pmaxh)
 {
-	l_int32 minw, minh, maxw, maxh, minpw, minph, maxpw, maxph, i, n;
+	int32 minw, minh, maxw, maxh, minpw, minph, maxpw, maxph, i, n;
 	PIXA    * pixa;
 
 	PROCNAME(__FUNCTION__);
@@ -2497,12 +2497,12 @@ l_ok pixaaSizeRange(PIXAA    * paa,
  * \return  0 if OK, 1 on error
  */
 l_ok pixaSizeRange(PIXA * pixa,
-    l_int32 * pminw,
-    l_int32 * pminh,
-    l_int32 * pmaxw,
-    l_int32 * pmaxh)
+    int32 * pminw,
+    int32 * pminh,
+    int32 * pmaxw,
+    int32 * pmaxh)
 {
-	l_int32 minw, minh, maxw, maxh, i, n, w, h;
+	int32 minw, minh, maxw, maxh, i, n, w, h;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -2567,7 +2567,7 @@ l_ok pixaSizeRange(PIXA * pixa,
 PIXA * pixaClipToPix(PIXA  * pixas,
     PIX * pixs)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOX * box;
 	PIX * pix, * pixc;
 	PIXA    * pixad;
@@ -2615,7 +2615,7 @@ l_ok pixaClipToForeground(PIXA   * pixas,
     PIXA  ** ppixad,
     BOXA ** pboxa)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOX * box1;
 	PIX * pix1, * pix2;
 
@@ -2667,9 +2667,9 @@ l_ok pixaClipToForeground(PIXA   * pixas,
  * </pre>
  */
 l_ok pixaGetRenderingDepth(PIXA * pixa,
-    l_int32 * pdepth)
+    int32 * pdepth)
 {
-	l_int32 hascolor, maxdepth;
+	int32 hascolor, maxdepth;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2702,9 +2702,9 @@ l_ok pixaGetRenderingDepth(PIXA * pixa,
  * \return  0 if OK; 1 on error
  */
 l_ok pixaHasColor(PIXA * pixa,
-    l_int32 * phascolor)
+    int32 * phascolor)
 {
-	l_int32 i, n, hascolor, d;
+	int32 i, n, hascolor, d;
 	PIX * pix;
 	PIXCMAP  * cmap;
 
@@ -2741,9 +2741,9 @@ l_ok pixaHasColor(PIXA * pixa,
  * \return  0 if OK; 1 on error
  */
 l_ok pixaAnyColormaps(PIXA * pixa,
-    l_int32 * phascmap)
+    int32 * phascmap)
 {
-	l_int32 i, n;
+	int32 i, n;
 	PIX * pix;
 	PIXCMAP  * cmap;
 
@@ -2778,11 +2778,11 @@ l_ok pixaAnyColormaps(PIXA * pixa,
  * \return  0 if OK; 1 on error
  */
 l_ok pixaGetDepthInfo(PIXA * pixa,
-    l_int32 * pmaxdepth,
-    l_int32 * psame)
+    int32 * pmaxdepth,
+    int32 * psame)
 {
-	l_int32 i, n, d, d0;
-	l_int32 maxd, same; /* depth info */
+	int32 i, n, d, d0;
+	int32 maxd, same; /* depth info */
 
 	PROCNAME(__FUNCTION__);
 
@@ -2830,7 +2830,7 @@ l_ok pixaGetDepthInfo(PIXA * pixa,
  */
 PIXA * pixaConvertToSameDepth(PIXA  * pixas)
 {
-	l_int32 i, n, depth, same, hascmap, maxdepth;
+	int32 i, n, depth, same, hascmap, maxdepth;
 	BOXA * boxa;
 	PIX * pix1, * pix2;
 	PIXA    * pixa1, * pixad;
@@ -2900,9 +2900,9 @@ PIXA * pixaConvertToSameDepth(PIXA  * pixas)
  * </pre>
  */
 PIXA * pixaConvertToGivenDepth(PIXA    * pixas,
-    l_int32 depth)
+    int32 depth)
 {
-	l_int32 i, n, maxd;
+	int32 i, n, maxd;
 	BOXA * boxa;
 	PIX * pix1, * pix2;
 	PIXA    * pixad;
@@ -2973,11 +2973,11 @@ PIXA * pixaConvertToGivenDepth(PIXA    * pixas,
  */
 l_ok pixaEqual(PIXA * pixa1,
     PIXA * pixa2,
-    l_int32 maxdist,
+    int32 maxdist,
     NUMA ** pnaindex,
-    l_int32 * psame)
+    int32 * psame)
 {
-	l_int32 i, j, n, empty1, empty2, same, sameboxa;
+	int32 i, j, n, empty1, empty2, same, sameboxa;
 	BOXA     * boxa1, * boxa2;
 	NUMA     * na;
 	PIX * pix1, * pix2;
@@ -3055,7 +3055,7 @@ l_ok pixaEqual(PIXA * pixa1,
  */
 l_ok pixaSetFullSizeBoxa(PIXA  * pixa)
 {
-	l_int32 i, n, w, h;
+	int32 i, n, w, h;
 	BOX * box;
 	BOXA * boxa;
 	PIX * pix;

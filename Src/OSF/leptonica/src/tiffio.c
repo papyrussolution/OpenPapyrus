@@ -23,34 +23,34 @@
  *      static PIX *pixReadFromTiffStream()
  *
  *     Writing tiff:
- *             l_int32    pixWriteTiff()            [ special top level ]
- *             l_int32    pixWriteTiffCustom()      [ special top level ]
- *             l_int32    pixWriteStreamTiff()
- *             l_int32    pixWriteStreamTiffWA()
- *      static l_int32    pixWriteToTiffStream()
- *      static l_int32    writeCustomTiffTags()
+ *             int32    pixWriteTiff()            [ special top level ]
+ *             int32    pixWriteTiffCustom()      [ special top level ]
+ *             int32    pixWriteStreamTiff()
+ *             int32    pixWriteStreamTiffWA()
+ *      static int32    pixWriteToTiffStream()
+ *      static int32    writeCustomTiffTags()
  *
  *     Reading and writing multipage tiff
  *             PIX *pixReadFromMultipageTiff()
  *             PIXA      *pixaReadMultipageTiff()   [ special top level ]
- *             l_int32    pixaWriteMultipageTiff()  [ special top level ]
- *             l_int32    writeMultipageTiff()      [ special top level ]
- *             l_int32    writeMultipageTiffSA()
+ *             int32    pixaWriteMultipageTiff()  [ special top level ]
+ *             int32    writeMultipageTiff()      [ special top level ]
+ *             int32    writeMultipageTiffSA()
  *
  *     Information about tiff file
- *             l_int32    fprintTiffInfo()
- *             l_int32    tiffGetCount()
- *             l_int32    getTiffResolution()
- *      static l_int32    getTiffStreamResolution()
- *             l_int32    readHeaderTiff()
- *             l_int32    freadHeaderTiff()
- *             l_int32    readHeaderMemTiff()
- *      static l_int32    tiffReadHeaderTiff()
- *             l_int32    findTiffCompression()
- *      static l_int32    getTiffCompressedFormat()
+ *             int32    fprintTiffInfo()
+ *             int32    tiffGetCount()
+ *             int32    getTiffResolution()
+ *      static int32    getTiffStreamResolution()
+ *             int32    readHeaderTiff()
+ *             int32    freadHeaderTiff()
+ *             int32    readHeaderMemTiff()
+ *      static int32    tiffReadHeaderTiff()
+ *             int32    findTiffCompression()
+ *      static int32    getTiffCompressedFormat()
  *
  *     Extraction of tiff g4 data:
- *             l_int32    extractG4DataFromFile()
+ *             int32    extractG4DataFromFile()
  *
  *     Open tiff stream from file stream
  *      static TIFF      *fopenTiff()
@@ -63,9 +63,9 @@
  *             PIX *pixReadMemTiff();
  *             PIX *pixReadMemFromMultipageTiff();
  *             PIXA      *pixaReadMemMultipageTiff()    [ special top level ]
- *             l_int32    pixaWriteMemMultipageTiff()   [ special top level ]
- *             l_int32    pixWriteMemTiff();
- *             l_int32    pixWriteMemTiffCustom();
+ *             int32    pixaWriteMemMultipageTiff()   [ special top level ]
+ *             int32    pixWriteMemTiff();
+ *             int32    pixWriteMemTiffCustom();
  *
  *  Note 1: To include all necessary functions, use libtiff version 3.7.4
  *          (from 2005) or later.
@@ -101,27 +101,27 @@
 #include "tiff.h"
 #include "tiffio.h"
 
-static const l_int32 DefaultResolution = 300;  /* ppi */
-static const l_int32 ManyPagesInTiffFile = 3000;   /* warn if big */
+static const int32 DefaultResolution = 300;  /* ppi */
+static const int32 ManyPagesInTiffFile = 3000;   /* warn if big */
 
 /* Verified that tiflib makes valid g4 files of this size */
-static const l_int32 MaxTiffWidth = 1 << 20;   /* 1M pixels */
-static const l_int32 MaxTiffHeight = 1 << 20;   /* 1M pixels */
+static const int32 MaxTiffWidth = 1 << 20;   /* 1M pixels */
+static const int32 MaxTiffHeight = 1 << 20;   /* 1M pixels */
 
 /* Check g4 data size */
 static const size_t MaxNumTiffBytes = (1 << 28) - 1;   /* 256 MB */
 
 /* All functions with TIFF interfaces are static. */
 static PIX * pixReadFromTiffStream(TIFF * tif);
-static l_int32   getTiffStreamResolution(TIFF * tif, l_int32 * pxres, l_int32 * pyres);
-static l_int32   tiffReadHeaderTiff(TIFF * tif, l_int32 * pwidth, l_int32 * pheight, l_int32 * pbps, l_int32 * pspp, l_int32 * pres, l_int32 * pcmap, l_int32 * pformat);
-static l_int32   writeCustomTiffTags(TIFF * tif, NUMA * natags, SARRAY * savals, SARRAY * satypes, NUMA * nasizes);
-static l_int32   pixWriteToTiffStream(TIFF * tif, PIX * pix, l_int32 comptype, NUMA * natags, SARRAY * savals, SARRAY * satypes, NUMA * nasizes);
+static int32   getTiffStreamResolution(TIFF * tif, int32 * pxres, int32 * pyres);
+static int32   tiffReadHeaderTiff(TIFF * tif, int32 * pwidth, int32 * pheight, int32 * pbps, int32 * pspp, int32 * pres, int32 * pcmap, int32 * pformat);
+static int32   writeCustomTiffTags(TIFF * tif, NUMA * natags, SARRAY * savals, SARRAY * satypes, NUMA * nasizes);
+static int32   pixWriteToTiffStream(TIFF * tif, PIX * pix, int32 comptype, NUMA * natags, SARRAY * savals, SARRAY * satypes, NUMA * nasizes);
 static TIFF     * fopenTiff(FILE * fp, const char * modestring);
 static TIFF     * openTiff(const char * filename, const char * modestring);
 
 /* Static helper for tiff compression type */
-static l_int32   getTiffCompressedFormat(uint16 tiffcomp);
+static int32   getTiffCompressedFormat(uint16 tiffcomp);
 
 /* Static function for memory I/O */
 static TIFF     * fopenTiffMemstream(const char * filename, const char * operation,
@@ -339,7 +339,7 @@ static toff_t lept_size_proc(thandle_t cookie)
  *          it stops working.
  * </pre>
  */
-PIX * pixReadTiff(const char * filename, l_int32 n)
+PIX * pixReadTiff(const char * filename, int32 n)
 {
 	FILE * fp;
 	PIX * pix;
@@ -371,7 +371,7 @@ PIX * pixReadTiff(const char * filename, l_int32 n)
  *          it stops working.
  * </pre>
  */
-PIX * pixReadStreamTiff(FILE * fp, l_int32 n)
+PIX * pixReadStreamTiff(FILE * fp, int32 n)
 {
 	PIX * pix;
 	TIFF  * tif;
@@ -435,10 +435,10 @@ static PIX * pixReadFromTiffStream(TIFF  * tif)
 	uint8   * linebuf, * data, * rowptr;
 	uint16 spp, bps, photometry, tiffcomp, orientation, sample_fmt;
 	uint16  * redmap, * greenmap, * bluemap;
-	l_int32 d, wpl, bpl, comptype, i, j, k, ncolors, rval, gval, bval, aval;
-	l_int32 xres, yres, tiffbpl, packedbpl, half_size, twothirds_size;
-	l_uint32 w, h, tiffword, read_oriented;
-	l_uint32  * line, * ppixel, * tiffdata, * pixdata;
+	int32 d, wpl, bpl, comptype, i, j, k, ncolors, rval, gval, bval, aval;
+	int32 xres, yres, tiffbpl, packedbpl, half_size, twothirds_size;
+	uint32 w, h, tiffword, read_oriented;
+	uint32  * line, * ppixel, * tiffdata, * pixdata;
 	PIX * pix, * pix1;
 	PIXCMAP   * cmap;
 
@@ -606,8 +606,8 @@ static PIX * pixReadFromTiffStream(TIFF  * tif)
 		SAlloc::F(linebuf);
 	}
 	else { /* rgb and rgba */
-		if((tiffdata = (l_uint32*)SAlloc::C((size_t)w * h,
-		    sizeof(l_uint32))) == NULL) {
+		if((tiffdata = (uint32*)SAlloc::C((size_t)w * h,
+		    sizeof(uint32))) == NULL) {
 			pixDestroy(&pix);
 			return (PIX *)ERROR_PTR("calloc fail for tiffdata", procName, NULL);
 		}
@@ -747,7 +747,7 @@ static PIX * pixReadFromTiffStream(TIFF  * tif)
  */
 l_ok pixWriteTiff(const char * filename,
     PIX         * pix,
-    l_int32 comptype,
+    int32 comptype,
     const char * modestr)
 {
 	return pixWriteTiffCustom(filename, pix, comptype, modestr,
@@ -785,8 +785,8 @@ l_ok pixWriteTiff(const char * filename,
  *                "char*"
  *                "uint8*"
  *                "uint16"
- *                "l_uint32"
- *                "l_int32"
+ *                "uint32"
+ *                "int32"
  *                "double"
  *                "uint16-uint16" note the dash; use it between the
  *                                    two uint16 vals in the val string
@@ -802,14 +802,14 @@ l_ok pixWriteTiff(const char * filename,
  */
 l_ok pixWriteTiffCustom(const char * filename,
     PIX         * pix,
-    l_int32 comptype,
+    int32 comptype,
     const char * modestr,
     NUMA        * natags,
     SARRAY * savals,
     SARRAY * satypes,
     NUMA        * nasizes)
 {
-	l_int32 ret;
+	int32 ret;
 	TIFF    * tif;
 
 	PROCNAME(__FUNCTION__);
@@ -859,7 +859,7 @@ l_ok pixWriteTiffCustom(const char * filename,
  */
 l_ok pixWriteStreamTiff(FILE * fp,
     PIX     * pix,
-    l_int32 comptype)
+    int32 comptype)
 {
 	return pixWriteStreamTiffWA(fp, pix, comptype, "w");
 }
@@ -882,7 +882,7 @@ l_ok pixWriteStreamTiff(FILE * fp,
  */
 l_ok pixWriteStreamTiffWA(FILE        * fp,
     PIX         * pix,
-    l_int32 comptype,
+    int32 comptype,
     const char * modestr)
 {
 	TIFF  * tif;
@@ -953,9 +953,9 @@ l_ok pixWriteStreamTiffWA(FILE        * fp,
  *          pixWriteStreamPng() for an example.
  * </pre>
  */
-static l_int32 pixWriteToTiffStream(TIFF    * tif,
+static int32 pixWriteToTiffStream(TIFF    * tif,
     PIX     * pix,
-    l_int32 comptype,
+    int32 comptype,
     NUMA * natags,
     SARRAY * savals,
     SARRAY * satypes,
@@ -963,10 +963,10 @@ static l_int32 pixWriteToTiffStream(TIFF    * tif,
 {
 	uint8   * linebuf, * data;
 	uint16 redmap[256], greenmap[256], bluemap[256];
-	l_int32 w, h, d, spp, i, j, k, wpl, bpl, tiffbpl, ncolors, cmapsize;
-	l_int32   * rmap, * gmap, * bmap;
-	l_int32 xres, yres;
-	l_uint32  * line, * ppixel;
+	int32 w, h, d, spp, i, j, k, wpl, bpl, tiffbpl, ncolors, cmapsize;
+	int32   * rmap, * gmap, * bmap;
+	int32 xres, yres;
+	uint32  * line, * ppixel;
 	PIX * pixt;
 	PIXCMAP   * cmap;
 	char      * text;
@@ -987,12 +987,12 @@ static l_int32 pixWriteToTiffStream(TIFF    * tif,
 	if(yres == 0) yres = DefaultResolution;
 
 	/* ------------------ Write out the header -------------  */
-	TIFFSetField(tif, TIFFTAG_RESOLUTIONUNIT, (l_uint32)RESUNIT_INCH);
+	TIFFSetField(tif, TIFFTAG_RESOLUTIONUNIT, (uint32)RESUNIT_INCH);
 	TIFFSetField(tif, TIFFTAG_XRESOLUTION, (double)xres);
 	TIFFSetField(tif, TIFFTAG_YRESOLUTION, (double)yres);
 
-	TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, (l_uint32)w);
-	TIFFSetField(tif, TIFFTAG_IMAGELENGTH, (l_uint32)h);
+	TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, (uint32)w);
+	TIFFSetField(tif, TIFFTAG_IMAGELENGTH, (uint32)h);
 	TIFFSetField(tif, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
 
 	if((text = pixGetText(pix)) != NULL)
@@ -1179,16 +1179,16 @@ static l_int32 pixWriteToTiffStream(TIFF    * tif,
  *          and can be extracted using tiffdump.
  * </pre>
  */
-static l_int32 writeCustomTiffTags(TIFF    * tif,
+static int32 writeCustomTiffTags(TIFF    * tif,
     NUMA * natags,
     SARRAY * savals,
     SARRAY * satypes,
     NUMA * nasizes)
 {
 	char      * sval, * type;
-	l_int32 i, n, ns, size, tagval, val;
+	int32 i, n, ns, size, tagval, val;
 	double dval;
-	l_uint32 uval, uval2;
+	uint32 uval, uval2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1239,7 +1239,7 @@ static l_int32 writeCustomTiffTags(TIFF    * tif,
 				return ERROR_INT("custom tag(s) not written", procName, 1);
 			}
 		}
-		else if(!strcmp(type, "l_uint32")) {
+		else if(!strcmp(type, "uint32")) {
 			if(sscanf(sval, "%u", &uval) == 1) {
 				TIFFSetField(tif, tagval, uval);
 			}
@@ -1248,7 +1248,7 @@ static l_int32 writeCustomTiffTags(TIFF    * tif,
 				return ERROR_INT("custom tag(s) not written", procName, 1);
 			}
 		}
-		else if(!strcmp(type, "l_int32")) {
+		else if(!strcmp(type, "int32")) {
 			if(sscanf(sval, "%d", &val) == 1) {
 				TIFFSetField(tif, tagval, val);
 			}
@@ -1320,7 +1320,7 @@ static l_int32 writeCustomTiffTags(TIFF    * tif,
 PIX * pixReadFromMultipageTiff(const char * fname,
     size_t      * poffset)
 {
-	l_int32 retval;
+	int32 retval;
 	size_t offset;
 	PIX     * pix;
 	TIFF    * tif;
@@ -1366,7 +1366,7 @@ PIX * pixReadFromMultipageTiff(const char * fname,
  */
 PIXA * pixaReadMultipageTiff(const char * filename)
 {
-	l_int32 i, npages;
+	int32 i, npages;
 	FILE * fp;
 	PIX     * pix;
 	PIXA    * pixa;
@@ -1428,7 +1428,7 @@ l_ok pixaWriteMultipageTiff(const char * fname,
     PIXA        * pixa)
 {
 	const char * modestr;
-	l_int32 i, n;
+	int32 i, n;
 	PIX         * pix1;
 
 	PROCNAME(__FUNCTION__);
@@ -1515,7 +1515,7 @@ l_ok writeMultipageTiffSA(SARRAY * sa,
 {
 	char * fname;
 	const char * op;
-	l_int32 i, nfiles, firstfile, format;
+	int32 i, nfiles, firstfile, format;
 	PIX         * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -1593,9 +1593,9 @@ l_ok fprintTiffInfo(FILE        * fpout,
  * \return  0 if OK; 1 on error
  */
 l_ok tiffGetCount(FILE * fp,
-    l_int32 * pn)
+    int32 * pn)
 {
-	l_int32 i;
+	int32 i;
 	TIFF    * tif;
 
 	PROCNAME(__FUNCTION__);
@@ -1639,8 +1639,8 @@ l_ok tiffGetCount(FILE * fp,
  * </pre>
  */
 l_ok getTiffResolution(FILE * fp,
-    l_int32 * pxres,
-    l_int32 * pyres)
+    int32 * pxres,
+    int32 * pyres)
 {
 	TIFF  * tif;
 
@@ -1672,12 +1672,12 @@ l_ok getTiffResolution(FILE * fp,
  *          the returned resolution values are 0 (designating 'unknown').
  * </pre>
  */
-static l_int32 getTiffStreamResolution(TIFF     * tif,
-    l_int32 * pxres,
-    l_int32 * pyres)
+static int32 getTiffStreamResolution(TIFF     * tif,
+    int32 * pxres,
+    int32 * pyres)
 {
 	uint16 resunit;
-	l_int32 foundxres, foundyres;
+	int32 foundxres, foundyres;
 	float fxres, fyres;
 
 	PROCNAME(__FUNCTION__);
@@ -1703,12 +1703,12 @@ static l_int32 getTiffStreamResolution(TIFF     * tif,
 		return ERROR_INT("fxres and/or fyres values are invalid", procName, 1);
 
 	if(resunit == RESUNIT_CENTIMETER) { /* convert to ppi */
-		*pxres = (l_int32)(2.54 * fxres + 0.5);
-		*pyres = (l_int32)(2.54 * fyres + 0.5);
+		*pxres = (int32)(2.54 * fxres + 0.5);
+		*pyres = (int32)(2.54 * fyres + 0.5);
 	}
 	else {
-		*pxres = (l_int32)fxres;
-		*pyres = (l_int32)fyres;
+		*pxres = (int32)fxres;
+		*pyres = (int32)fyres;
 	}
 
 	return 0;
@@ -1738,16 +1738,16 @@ static l_int32 getTiffStreamResolution(TIFF     * tif,
  * </pre>
  */
 l_ok readHeaderTiff(const char * filename,
-    l_int32 n,
-    l_int32    * pw,
-    l_int32    * ph,
-    l_int32    * pbps,
-    l_int32    * pspp,
-    l_int32    * pres,
-    l_int32    * pcmap,
-    l_int32    * pformat)
+    int32 n,
+    int32    * pw,
+    int32    * ph,
+    int32    * pbps,
+    int32    * pspp,
+    int32    * pres,
+    int32    * pcmap,
+    int32    * pformat)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1792,16 +1792,16 @@ l_ok readHeaderTiff(const char * filename,
  * </pre>
  */
 l_ok freadHeaderTiff(FILE * fp,
-    l_int32 n,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pbps,
-    l_int32 * pspp,
-    l_int32 * pres,
-    l_int32 * pcmap,
-    l_int32 * pformat)
+    int32 n,
+    int32 * pw,
+    int32 * ph,
+    int32 * pbps,
+    int32 * pspp,
+    int32 * pres,
+    int32 * pcmap,
+    int32 * pformat)
 {
-	l_int32 i, ret, format;
+	int32 i, ret, format;
 	TIFF    * tif;
 
 	PROCNAME(__FUNCTION__);
@@ -1859,17 +1859,17 @@ l_ok freadHeaderTiff(FILE * fp,
  */
 l_ok readHeaderMemTiff(const uint8  * cdata,
     size_t size,
-    l_int32 n,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pbps,
-    l_int32 * pspp,
-    l_int32 * pres,
-    l_int32 * pcmap,
-    l_int32 * pformat)
+    int32 n,
+    int32 * pw,
+    int32 * ph,
+    int32 * pbps,
+    int32 * pspp,
+    int32 * pres,
+    int32 * pcmap,
+    int32 * pformat)
 {
 	uint8  * data;
-	l_int32 i, ret;
+	int32 i, ret;
 	TIFF     * tif;
 
 	PROCNAME(__FUNCTION__);
@@ -1916,20 +1916,20 @@ l_ok readHeaderMemTiff(const uint8  * cdata,
  * \param[out]   pformat   [optional] tiff format; input NULL to ignore
  * \return  0 if OK, 1 on error
  */
-static l_int32 tiffReadHeaderTiff(TIFF     * tif,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pbps,
-    l_int32 * pspp,
-    l_int32 * pres,
-    l_int32 * pcmap,
-    l_int32 * pformat)
+static int32 tiffReadHeaderTiff(TIFF     * tif,
+    int32 * pw,
+    int32 * ph,
+    int32 * pbps,
+    int32 * pspp,
+    int32 * pres,
+    int32 * pcmap,
+    int32 * pformat)
 {
 	uint16 tiffcomp;
 	uint16 bps, spp;
 	uint16  * rmap, * gmap, * bmap;
-	l_int32 xres, yres;
-	l_uint32 w, h;
+	int32 xres, yres;
+	uint32 w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1953,7 +1953,7 @@ static l_int32 tiffReadHeaderTiff(TIFF     * tif,
 	if(pres) {
 		*pres = 300; /* default ppi */
 		if(getTiffStreamResolution(tif, &xres, &yres) == 0)
-			*pres = (l_int32)xres;
+			*pres = (int32)xres;
 	}
 	if(pcmap) {
 		*pcmap = 0;
@@ -1987,7 +1987,7 @@ static l_int32 tiffReadHeaderTiff(TIFF     * tif,
  * </pre>
  */
 l_ok findTiffCompression(FILE * fp,
-    l_int32 * pcomptype)
+    int32 * pcomptype)
 {
 	uint16 tiffcomp;
 	TIFF     * tif;
@@ -2022,9 +2022,9 @@ l_ok findTiffCompression(FILE * fp,
  *      (2) The return type is defined in the enum in imageio.h.
  * </pre>
  */
-static l_int32 getTiffCompressedFormat(uint16 tiffcomp)
+static int32 getTiffCompressedFormat(uint16 tiffcomp)
 {
-	l_int32 comptype;
+	int32 comptype;
 
 	switch(tiffcomp)
 	{
@@ -2073,15 +2073,15 @@ static l_int32 getTiffCompressedFormat(uint16 tiffcomp)
 l_ok extractG4DataFromFile(const char * filein,
     uint8    ** pdata,
     size_t      * pnbytes,
-    l_int32     * pw,
-    l_int32     * ph,
-    l_int32     * pminisblack)
+    int32     * pw,
+    int32     * ph,
+    int32     * pminisblack)
 {
 	uint8  * inarray, * data;
 	uint16 minisblack, comptype; /* accessors require uint16 */
-	l_int32 istiff;
-	l_uint32 w, h, rowsperstrip; /* accessors require l_uint32 */
-	l_uint32 diroff;
+	int32 istiff;
+	uint32 w, h, rowsperstrip; /* accessors require uint32 */
+	uint32 diroff;
 	size_t fbytes, nbytes;
 	FILE * fpin;
 	TIFF     * tif;
@@ -2127,9 +2127,9 @@ l_ok extractG4DataFromFile(const char * filein,
 	TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &minisblack); /* for 1 bpp */
 /*    TIFFPrintDirectory(tif, stderr, 0); */
 	TIFFClose(tif);
-	if(pw) *pw = (l_int32)w;
-	if(ph) *ph = (l_int32)h;
-	if(pminisblack) *pminisblack = (l_int32)minisblack;
+	if(pw) *pw = (int32)w;
+	if(ph) *ph = (int32)h;
+	if(pminisblack) *pminisblack = (int32)minisblack;
 
 	/* The header has 8 bytes: the first 2 are the magic number,
 	* the next 2 are the version, and the last 4 are the
@@ -2295,23 +2295,18 @@ typedef struct L_Memstream L_MEMSTREAM;
 
 /* These are static functions for memory I/O */
 static L_MEMSTREAM * memstreamCreateForRead(uint8 * indata, size_t pinsize);
-static L_MEMSTREAM * memstreamCreateForWrite(uint8 ** poutdata,
-    size_t * poutsize);
+static L_MEMSTREAM * memstreamCreateForWrite(uint8 ** poutdata, size_t * poutsize);
 static tsize_t tiffReadCallback(thandle_t handle, tdata_t data, tsize_t length);
-static tsize_t tiffWriteCallback(thandle_t handle, tdata_t data,
-    tsize_t length);
-static toff_t tiffSeekCallback(thandle_t handle, toff_t offset, l_int32 whence);
-static l_int32 tiffCloseCallback(thandle_t handle);
+static tsize_t tiffWriteCallback(thandle_t handle, tdata_t data, tsize_t length);
+static toff_t tiffSeekCallback(thandle_t handle, toff_t offset, int whence);
+static int  tiffCloseCallback(thandle_t handle);
 static toff_t tiffSizeCallback(thandle_t handle);
-static l_int32 tiffMapCallback(thandle_t handle, tdata_t * data, toff_t * length);
+static int  tiffMapCallback(thandle_t handle, tdata_t * data, toff_t * length);
 static void tiffUnmapCallback(thandle_t handle, tdata_t data, toff_t length);
 
-static L_MEMSTREAM * memstreamCreateForRead(uint8  * indata,
-    size_t insize)
+static L_MEMSTREAM * memstreamCreateForRead(uint8  * indata, size_t insize)
 {
-	L_MEMSTREAM  * mstream;
-
-	mstream = (L_MEMSTREAM*)SAlloc::C(1, sizeof(L_MEMSTREAM));
+	L_MEMSTREAM  * mstream = (L_MEMSTREAM*)SAlloc::C(1, sizeof(L_MEMSTREAM));
 	mstream->buffer = indata; /* handle to input data array */
 	mstream->bufsize = insize; /* amount of input data */
 	mstream->hw = insize; /* high-water mark fixed at input data size */
@@ -2319,12 +2314,9 @@ static L_MEMSTREAM * memstreamCreateForRead(uint8  * indata,
 	return mstream;
 }
 
-static L_MEMSTREAM * memstreamCreateForWrite(uint8  ** poutdata,
-    size_t * poutsize)
+static L_MEMSTREAM * memstreamCreateForWrite(uint8  ** poutdata, size_t * poutsize)
 {
-	L_MEMSTREAM  * mstream;
-
-	mstream = (L_MEMSTREAM*)SAlloc::C(1, sizeof(L_MEMSTREAM));
+	L_MEMSTREAM  * mstream = (L_MEMSTREAM*)SAlloc::C(1, sizeof(L_MEMSTREAM));
 	mstream->buffer = (uint8 *)SAlloc::C(8 * 1024, 1);
 	mstream->bufsize = 8 * 1024;
 	mstream->poutdata = poutdata; /* used only at end of write */
@@ -2380,12 +2372,9 @@ static tsize_t tiffWriteCallback(thandle_t handle,
 	return length;
 }
 
-static toff_t tiffSeekCallback(thandle_t handle,
-    toff_t offset,
-    l_int32 whence)
+static toff_t tiffSeekCallback(thandle_t handle, toff_t offset, int whence)
 {
 	L_MEMSTREAM  * mstream;
-
 	PROCNAME(__FUNCTION__);
 	mstream = (L_MEMSTREAM*)handle;
 	switch(whence) {
@@ -2413,11 +2402,9 @@ static toff_t tiffSeekCallback(thandle_t handle,
 	return mstream->offset;
 }
 
-static l_int32 tiffCloseCallback(thandle_t handle)
+static int tiffCloseCallback(thandle_t handle)
 {
-	L_MEMSTREAM  * mstream;
-
-	mstream = (L_MEMSTREAM*)handle;
+	L_MEMSTREAM  * mstream = (L_MEMSTREAM*)handle;
 	if(mstream->poutdata) { /* writing: save the output data */
 		*mstream->poutdata = mstream->buffer;
 		*mstream->poutsize = mstream->hw;
@@ -2428,31 +2415,22 @@ static l_int32 tiffCloseCallback(thandle_t handle)
 
 static toff_t tiffSizeCallback(thandle_t handle)
 {
-	L_MEMSTREAM  * mstream;
-
-	mstream = (L_MEMSTREAM*)handle;
+	L_MEMSTREAM  * mstream = (L_MEMSTREAM*)handle;
 	return mstream->hw;
 }
 
-static l_int32 tiffMapCallback(thandle_t handle,
-    tdata_t   * data,
-    toff_t    * length)
+static int tiffMapCallback(thandle_t handle, tdata_t * data, toff_t * length)
 {
-	L_MEMSTREAM  * mstream;
-
-	mstream = (L_MEMSTREAM*)handle;
+	L_MEMSTREAM  * mstream = (L_MEMSTREAM*)handle;
 	*data = mstream->buffer;
 	*length = mstream->hw;
 	return 0;
 }
 
-static void tiffUnmapCallback(thandle_t handle,
-    tdata_t data,
-    toff_t length)
+static void tiffUnmapCallback(thandle_t handle, tdata_t data, toff_t length)
 {
 	return;
 }
-
 /*!
  * \brief   fopenTiffMemstream()
  *
@@ -2473,16 +2451,11 @@ static void tiffUnmapCallback(thandle_t handle,
  *          does not append.
  * </pre>
  */
-static TIFF * fopenTiffMemstream(const char * filename,
-    const char * operation,
-    uint8    ** pdata,
-    size_t      * pdatasize)
+static TIFF * fopenTiffMemstream(const char * filename, const char * operation, uint8    ** pdata, size_t      * pdatasize)
 {
+	PROCNAME(__FUNCTION__);
 	L_MEMSTREAM  * mstream;
 	TIFF         * tif;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!filename)
 		return (TIFF*)ERROR_PTR("filename not defined", procName, NULL);
 	if(!operation)
@@ -2493,25 +2466,17 @@ static TIFF * fopenTiffMemstream(const char * filename,
 		return (TIFF*)ERROR_PTR("&datasize not defined", procName, NULL);
 	if(strcmp(operation, "r") && strcmp(operation, "w"))
 		return (TIFF*)ERROR_PTR("op not 'r' or 'w'", procName, NULL);
-
 	if(!strcmp(operation, "r"))
 		mstream = memstreamCreateForRead(*pdata, *pdatasize);
 	else
 		mstream = memstreamCreateForWrite(pdata, pdatasize);
-
 	TIFFSetWarningHandler(NULL); /* disable warnings */
 	TIFFSetErrorHandler(NULL); /* disable error messages */
-
-	tif = TIFFClientOpen(filename, operation, (thandle_t)mstream,
-		tiffReadCallback, tiffWriteCallback,
-		tiffSeekCallback, tiffCloseCallback,
-		tiffSizeCallback, tiffMapCallback,
-		tiffUnmapCallback);
+	tif = TIFFClientOpen(filename, operation, (thandle_t)mstream, tiffReadCallback, tiffWriteCallback, tiffSeekCallback, tiffCloseCallback, tiffSizeCallback, tiffMapCallback, tiffUnmapCallback);
 	if(!tif)
 		SAlloc::F(mstream);
 	return tif;
 }
-
 /*!
  * \brief   pixReadMemTiff()
  *
@@ -2534,10 +2499,10 @@ static TIFF * fopenTiffMemstream(const char * filename,
  */
 PIX * pixReadMemTiff(const uint8  * cdata,
     size_t size,
-    l_int32 n)
+    int32 n)
 {
 	uint8  * data;
-	l_int32 i;
+	int32 i;
 	PIX * pix;
 	TIFF     * tif;
 
@@ -2600,7 +2565,7 @@ PIX * pixReadMemFromMultipageTiff(const uint8  * cdata,
     size_t         * poffset)
 {
 	uint8  * data;
-	l_int32 retval;
+	int32 retval;
 	size_t offset;
 	PIX * pix;
 	TIFF     * tif;
@@ -2692,7 +2657,7 @@ l_ok pixaWriteMemMultipageTiff(uint8  ** pdata,
     PIXA      * pixa)
 {
 	const char * modestr;
-	l_int32 i, n;
+	int32 i, n;
 	FILE        * fp;
 	PIX         * pix1;
 
@@ -2747,7 +2712,7 @@ l_ok pixaWriteMemMultipageTiff(uint8  ** pdata,
 l_ok pixWriteMemTiff(uint8  ** pdata,
     size_t * psize,
     PIX * pix,
-    l_int32 comptype)
+    int32 comptype)
 {
 	return pixWriteMemTiffCustom(pdata, psize, pix, comptype,
 		   NULL, NULL, NULL, NULL);
@@ -2776,13 +2741,13 @@ l_ok pixWriteMemTiff(uint8  ** pdata,
 l_ok pixWriteMemTiffCustom(uint8  ** pdata,
     size_t * psize,
     PIX * pix,
-    l_int32 comptype,
+    int32 comptype,
     NUMA * natags,
     SARRAY    * savals,
     SARRAY    * satypes,
     NUMA * nasizes)
 {
-	l_int32 ret;
+	int32 ret;
 	TIFF    * tif;
 
 	PROCNAME(__FUNCTION__);

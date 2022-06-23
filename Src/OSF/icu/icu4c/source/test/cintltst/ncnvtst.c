@@ -683,9 +683,7 @@ static void TestRegressionUTF8() {
 	while(currCh <= UNICODE_LIMIT) {
 		offset16 = 0;
 		offset8 = 0;
-		while(currCh <= UNICODE_LIMIT
-		 && offset16 < ((int32_t)(MAX_LENGTH/sizeof(UChar) - MAX_UTF16_LEN))
-		 && offset8 < (MAX_LENGTH - MAX_UTF8_LEN)) {
+		while(currCh <= UNICODE_LIMIT && offset16 < ((int32_t)(MAX_LENGTH/sizeof(UChar) - MAX_UTF16_LEN)) && offset8 < (MAX_LENGTH - MAX_UTF8_LEN)) {
 			if(currCh == SURROGATE_HIGH_START) {
 				currCh = SURROGATE_LOW_END + 1; /* Skip surrogate range */
 			}
@@ -742,20 +740,18 @@ static void TestRegressionUTF8() {
 
 #define MAX_UTF32_LEN 1
 
-static void TestRegressionUTF32() {
+static void TestRegressionUTF32() 
+{
 #if !UCONFIG_ONLY_HTML_CONVERSION
 	UChar32 currCh = 0;
 	int32_t offset32;
 	int32_t offset16;
 	UChar * standardForm = (UChar *)SAlloc::M(MAX_LENGTH*sizeof(UChar));
 	UChar32 * utf32 = (UChar32*)SAlloc::M(MAX_LENGTH*sizeof(UChar32));
-
 	while(currCh <= UNICODE_LIMIT) {
 		offset16 = 0;
 		offset32 = 0;
-		while(currCh <= UNICODE_LIMIT
-		 && offset16 < ((int32_t)(MAX_LENGTH/sizeof(UChar) - MAX_UTF16_LEN))
-		 && offset32 < ((int32_t)(MAX_LENGTH/sizeof(UChar32) - MAX_UTF32_LEN))) {
+		while(currCh <= UNICODE_LIMIT && offset16 < ((int32_t)(MAX_LENGTH/sizeof(UChar) - MAX_UTF16_LEN)) && offset32 < ((int32_t)(MAX_LENGTH/sizeof(UChar32) - MAX_UTF32_LEN))) {
 			if(currCh == SURROGATE_HIGH_START) {
 				currCh = SURROGATE_LOW_END + 1; /* Skip surrogate range */
 			}

@@ -10,26 +10,13 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file convertfiles.c
  * <pre>
  *
  *      Conversion to 1 bpp
- *          l_int32    convertFilesTo1bpp()
+ *          int32    convertFilesTo1bpp()
  *
  *  These are utility functions that will perform depth conversion
  *  on selected files, writing the results to a specified directory.
@@ -64,14 +51,14 @@
  */
 l_ok convertFilesTo1bpp(const char * dirin,
     const char * substr,
-    l_int32 upscaling,
-    l_int32 thresh,
-    l_int32 firstpage,
-    l_int32 npages,
+    int32 upscaling,
+    int32 thresh,
+    int32 firstpage,
+    int32 npages,
     const char * dirout,
-    l_int32 outformat)
+    int32 outformat)
 {
-	l_int32 i, nfiles;
+	int32 i, nfiles;
 	char buf[512];
 	char * fname, * tail, * basename;
 	PIX * pixs, * pixg1, * pixg2, * pixb;

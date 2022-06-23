@@ -22,12 +22,12 @@
 
 PIX * pixHMTDwa_1(PIX * pixd, PIX * pixs, const char * selname);
 PIX * pixFHMTGen_1(PIX * pixd, PIX * pixs, const char * selname);
-l_int32 fhmtgen_low_1(l_uint32 * datad, l_int32 w,
-    l_int32 h, l_int32 wpld,
-    l_uint32 * datas, l_int32 wpls,
-    l_int32 index);
+int32 fhmtgen_low_1(uint32 * datad, int32 w,
+    int32 h, int32 wpld,
+    uint32 * datas, int32 wpls,
+    int32 index);
 
-static l_int32 NUM_SELS_GENERATED = 10;
+static int32 NUM_SELS_GENERATED = 10;
 static char SEL_NAMES[][80] = {
 	"sel_3hm",
 	"sel_3de",
@@ -106,8 +106,8 @@ PIX * pixFHMTGen_1(PIX         * pixd,
     PIX         * pixs,
     const char * selname)
 {
-	l_int32 i, index, found, w, h, wpls, wpld;
-	l_uint32  * datad, * datas, * datat;
+	int32 i, index, found, w, h, wpls, wpld;
+	uint32  * datad, * datas, * datat;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);

@@ -25,7 +25,7 @@
  *          static MAZEEL   *mazeelCreate()
  *
  *          PIX             *pixSearchBinaryMaze()
- *          static l_int32   localSearchForBackground()
+ *          static int32   localSearchForBackground()
  *
  *      Generalizing a maze to a grayscale image, the search is
  *      now for the "shortest" or least cost path, for some given
@@ -37,8 +37,8 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static const l_int32 MinMazeWidth = 50;
-static const l_int32 MinMazeHeight = 50;
+static const int32 MinMazeWidth = 50;
+static const int32 MinMazeHeight = 50;
 
 static const float DefaultWallProbability = 0.65;
 static const float DefaultAnisotropyRatio = 0.25;
@@ -53,17 +53,17 @@ enum {  /* direction from parent to newly created element */
 
 struct MazeElement {
 	float distance;
-	l_int32 x;
-	l_int32 y;
-	l_uint32 val; /* value of maze pixel at this location */
-	l_int32 dir; /* direction from parent to child */
+	int32 x;
+	int32 y;
+	uint32 val; /* value of maze pixel at this location */
+	int32 dir; /* direction from parent to child */
 };
 
 typedef struct MazeElement MAZEEL;
 
-static MAZEEL * mazeelCreate(l_int32 x, l_int32 y, l_int32 dir);
-static l_int32 localSearchForBackground(PIX  * pix, l_int32 * px,
-    l_int32 * py, l_int32 maxrad);
+static MAZEEL * mazeelCreate(int32 x, int32 y, int32 dir);
+static int32 localSearchForBackground(PIX  * pix, int32 * px,
+    int32 * py, int32 maxrad);
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG_PATH    0
@@ -115,15 +115,15 @@ static l_int32 localSearchForBackground(PIX  * pix, l_int32 * px,
  *          GET_DATA* and SET_DATA* macros.
  * </pre>
  */
-PIX * generateBinaryMaze(l_int32 w,
-    l_int32 h,
-    l_int32 xi,
-    l_int32 yi,
+PIX * generateBinaryMaze(int32 w,
+    int32 h,
+    int32 xi,
+    int32 yi,
     float wallps,
     float ranis)
 {
-	l_int32 x, y, dir;
-	l_uint32 val;
+	int32 x, y, dir;
+	uint32 val;
 	float frand, wallpf, testp;
 	MAZEEL    * el, * elp;
 	PIX * pixd; /* the destination maze */
@@ -247,9 +247,9 @@ PIX * generateBinaryMaze(l_int32 w,
 	return pixd;
 }
 
-static MAZEEL * mazeelCreate(l_int32 x,
-    l_int32 y,
-    l_int32 dir)
+static MAZEEL * mazeelCreate(int32 x,
+    int32 y,
+    int32 dir)
 {
 	MAZEEL * el;
 
@@ -309,14 +309,14 @@ static MAZEEL * mazeelCreate(l_int32 x,
  * </pre>
  */
 PTA * pixSearchBinaryMaze(PIX     * pixs,
-    l_int32 xi,
-    l_int32 yi,
-    l_int32 xf,
-    l_int32 yf,
+    int32 xi,
+    int32 yi,
+    int32 xf,
+    int32 yf,
     PIX    ** ppixd)
 {
-	l_int32 i, j, x, y, w, h, d, found;
-	l_uint32 val, rpixel, gpixel, bpixel;
+	int32 i, j, x, y, w, h, d, found;
+	uint32 val, rpixel, gpixel, bpixel;
 	void     ** lines1, ** linem1, ** linep8, ** lined32;
 	MAZEEL    * el, * elp;
 	PIX * pixd; /* the shortest path written on the maze image */
@@ -494,13 +494,13 @@ PTA * pixSearchBinaryMaze(PIX     * pixs,
  * \param[in]    maxrad max distance to search from starting location
  * \return  0 if bg pixel found; 1 if not found
  */
-static l_int32 localSearchForBackground(PIX  * pix,
-    l_int32 * px,
-    l_int32 * py,
-    l_int32 maxrad)
+static int32 localSearchForBackground(PIX  * pix,
+    int32 * px,
+    int32 * py,
+    int32 maxrad)
 {
-	l_int32 x, y, w, h, r, i, j;
-	l_uint32 val;
+	int32 x, y, w, h, r, i, j;
+	uint32 val;
 
 	x = *px;
 	y = *py;
@@ -690,16 +690,16 @@ static l_int32 localSearchForBackground(PIX  * pix,
  * </pre>
  */
 PTA * pixSearchGrayMaze(PIX     * pixs,
-    l_int32 xi,
-    l_int32 yi,
-    l_int32 xf,
-    l_int32 yf,
+    int32 xi,
+    int32 yi,
+    int32 xf,
+    int32 yf,
     PIX    ** ppixd)
 {
-	l_int32 x, y, w, h, d;
-	l_uint32 val, valr, vals, rpixel, gpixel, bpixel;
+	int32 x, y, w, h, d;
+	uint32 val, valr, vals, rpixel, gpixel, bpixel;
 	void    ** lines8, ** liner32, ** linep8;
-	l_int32 cost, dist, distparent, sival, sivals;
+	int32 cost, dist, distparent, sival, sivals;
 	MAZEEL   * el, * elp;
 	PIX * pixd; /* optionally plot the path on this RGB version of pixs */
 	PIX * pixr; /* for bookkeeping, to indicate the minimum distance */
@@ -759,14 +759,14 @@ PTA * pixSearchGrayMaze(PIX     * pixs,
 			SAlloc::F(elp);
 			break;
 		}
-		distparent = (l_int32)elp->distance;
+		distparent = (int32)elp->distance;
 		val = elp->val;
 		sival = val;
 
 		if(x > 0) { /* check to west */
 			vals = GET_DATA_BYTE(lines8[y], x - 1);
 			valr = GET_DATA_FOUR_BYTES(liner32[y], x - 1);
-			sivals = (l_int32)vals;
+			sivals = (int32)vals;
 			cost = 1 + L_ABS(sivals - sival); /* cost to move to this pixel */
 			dist = distparent + cost;
 			if(dist < valr) { /* shortest path so far to this pixel */
@@ -781,7 +781,7 @@ PTA * pixSearchGrayMaze(PIX     * pixs,
 		if(y > 0) { /* check north */
 			vals = GET_DATA_BYTE(lines8[y - 1], x);
 			valr = GET_DATA_FOUR_BYTES(liner32[y - 1], x);
-			sivals = (l_int32)vals;
+			sivals = (int32)vals;
 			cost = 1 + L_ABS(sivals - sival); /* cost to move to this pixel */
 			dist = distparent + cost;
 			if(dist < valr) { /* shortest path so far to this pixel */
@@ -796,7 +796,7 @@ PTA * pixSearchGrayMaze(PIX     * pixs,
 		if(x < w - 1) { /* check east */
 			vals = GET_DATA_BYTE(lines8[y], x + 1);
 			valr = GET_DATA_FOUR_BYTES(liner32[y], x + 1);
-			sivals = (l_int32)vals;
+			sivals = (int32)vals;
 			cost = 1 + L_ABS(sivals - sival); /* cost to move to this pixel */
 			dist = distparent + cost;
 			if(dist < valr) { /* shortest path so far to this pixel */
@@ -811,7 +811,7 @@ PTA * pixSearchGrayMaze(PIX     * pixs,
 		if(y < h - 1) { /* check south */
 			vals = GET_DATA_BYTE(lines8[y + 1], x);
 			valr = GET_DATA_FOUR_BYTES(liner32[y + 1], x);
-			sivals = (l_int32)vals;
+			sivals = (int32)vals;
 			cost = 1 + L_ABS(sivals - sival); /* cost to move to this pixel */
 			dist = distparent + cost;
 			if(dist < valr) { /* shortest path so far to this pixel */

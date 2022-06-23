@@ -12,13 +12,13 @@
  *
  *      Custom memory storage with allocator and deallocator
  *
- *          l_int32       pmsCreate()
+ *          int32       pmsCreate()
  *          void          pmsDestroy()
  *          void *pmsCustomAlloc()
  *          void          pmsCustomDealloc()
  *          void *pmsGetAlloc()
- *          l_int32       pmsGetLevelForAlloc()
- *          l_int32       pmsGetLevelForDealloc()
+ *          int32       pmsGetLevelForAlloc()
+ *          int32       pmsGetLevelForDealloc()
  *          void          pmsLogInfo()
  * </pre>
  */
@@ -99,16 +99,16 @@ struct PixMemoryStore {
 	size_t smallest; /*!< Smallest mem (in bytes) alloc'd       */
 	size_t largest;          /*!< Larest mem (in bytes) alloc'd         */
 	size_t nbytes;           /*!< Size of allocated block w/ all chunks */
-	l_int32 nlevels; /*!< Num of power-of-2 sizes pre-alloc'd   */
+	int32 nlevels; /*!< Num of power-of-2 sizes pre-alloc'd   */
 	size_t          * sizes; /*!< Mem sizes at each power-of-2 level    */
-	l_int32         * allocarray; /*!< Number of mem alloc'd at each size    */
-	l_uint32        * baseptr; /*!< ptr to allocated array                */
-	l_uint32        * maxptr; /*!< ptr just beyond allocated memory      */
-	l_uint32       ** firstptr; /*!< array of ptrs to first chunk in size  */
-	l_int32         * memused; /*!< log: total # of pix used (by level)   */
-	l_int32         * meminuse; /*!< log: # of pix in use (by level)       */
-	l_int32         * memmax; /*!< log: max # of pix in use (by level)   */
-	l_int32         * memempty; /*!< log: # of pix alloc'd because         */
+	int32         * allocarray; /*!< Number of mem alloc'd at each size    */
+	uint32        * baseptr; /*!< ptr to allocated array                */
+	uint32        * maxptr; /*!< ptr just beyond allocated memory      */
+	uint32       ** firstptr; /*!< array of ptrs to first chunk in size  */
+	int32         * memused; /*!< log: total # of pix used (by level)   */
+	int32         * meminuse; /*!< log: # of pix in use (by level)       */
+	int32         * memmax; /*!< log: max # of pix in use (by level)   */
+	int32         * memempty; /*!< log: # of pix alloc'd because         */
 	/*!<      the store was empty (by level)   */
 	char            * logfile; /*!< log: set to null if no logging        */
 };
@@ -150,11 +150,11 @@ l_ok pmsCreate(size_t minsize,
     NUMA        * numalloc,
     const char * logfile)
 {
-	l_int32 nlevels, i, j, nbytes;
-	l_int32          * alloca;
+	int32 nlevels, i, j, nbytes;
+	int32          * alloca;
 	float nchunks;
-	l_uint32         * baseptr, * data;
-	l_uint32        ** firstptr;
+	uint32         * baseptr, * data;
+	uint32        ** firstptr;
 	size_t           * sizes;
 	L_PIX_MEM_STORE  * pms;
 	L_PTRA           * pa;
@@ -198,12 +198,12 @@ l_ok pmsCreate(size_t minsize,
 		nbytes += alloca[i] * sizes[i];
 	pms->nbytes = nbytes;
 
-	if((baseptr = (l_uint32*)SAlloc::C(nbytes / 4, sizeof(l_uint32)))
+	if((baseptr = (uint32*)SAlloc::C(nbytes / 4, sizeof(uint32)))
 	    == NULL)
 		return ERROR_INT("calloc fail for baseptr", procName, 1);
 	pms->baseptr = baseptr;
 	pms->maxptr = baseptr + nbytes / 4; /* just beyond the memory store */
-	if((firstptr = (l_uint32**)SAlloc::C(nlevels, sizeof(l_uint32 *)))
+	if((firstptr = (uint32**)SAlloc::C(nlevels, sizeof(uint32 *)))
 	    == NULL)
 		return ERROR_INT("calloc fail for firstptr", procName, 1);
 	pms->firstptr = firstptr;
@@ -221,10 +221,10 @@ l_ok pmsCreate(size_t minsize,
 	}
 
 	if(logfile) {
-		pms->memused = (l_int32*)SAlloc::C(nlevels, sizeof(l_int32));
-		pms->meminuse = (l_int32*)SAlloc::C(nlevels, sizeof(l_int32));
-		pms->memmax = (l_int32*)SAlloc::C(nlevels, sizeof(l_int32));
-		pms->memempty = (l_int32*)SAlloc::C(nlevels, sizeof(l_int32));
+		pms->memused = (int32*)SAlloc::C(nlevels, sizeof(int32));
+		pms->meminuse = (int32*)SAlloc::C(nlevels, sizeof(int32));
+		pms->memmax = (int32*)SAlloc::C(nlevels, sizeof(int32));
+		pms->memempty = (int32*)SAlloc::C(nlevels, sizeof(int32));
 		pms->logfile = stringNew(logfile);
 	}
 
@@ -283,7 +283,7 @@ void pmsDestroy(void)
  */
 void * pmsCustomAlloc(size_t nbytes)
 {
-	l_int32 level;
+	int32 level;
 	void             * data;
 	L_PIX_MEM_STORE  * pms;
 	L_PTRA           * pa;
@@ -326,7 +326,7 @@ void * pmsCustomAlloc(size_t nbytes)
  */
 void pmsCustomDealloc(void  * data)
 {
-	l_int32 level;
+	int32 level;
 	L_PIX_MEM_STORE  * pms;
 	L_PTRA           * pa;
 
@@ -403,9 +403,9 @@ void * pmsGetAlloc(size_t nbytes)
  * \return  0 if OK, 1 on error
  */
 l_ok pmsGetLevelForAlloc(size_t nbytes,
-    l_int32 * plevel)
+    int32 * plevel)
 {
-	l_int32 i;
+	int32 i;
 	double ratio;
 	L_PIX_MEM_STORE  * pms;
 
@@ -440,10 +440,10 @@ l_ok pmsGetLevelForAlloc(size_t nbytes,
  * \return  0 if OK, 1 on error
  */
 l_ok pmsGetLevelForDealloc(void     * data,
-    l_int32 * plevel)
+    int32 * plevel)
 {
-	l_int32 i;
-	l_uint32         * first;
+	int32 i;
+	uint32         * first;
 	L_PIX_MEM_STORE  * pms;
 
 	PROCNAME(__FUNCTION__);
@@ -474,7 +474,7 @@ l_ok pmsGetLevelForDealloc(void     * data,
  */
 void pmsLogInfo(void)
 {
-	l_int32 i;
+	int32 i;
 	L_PIX_MEM_STORE  * pms;
 	if((pms = CustomPMS) == NULL)
 		return;

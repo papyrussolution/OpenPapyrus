@@ -10458,6 +10458,7 @@
 	#define CTL_IMPEXPQUOT_LOC         (7  + IMPEXP_CTL_BIAS)
 	#define CTLSEL_IMPEXPQUOT_LOC      (8  + IMPEXP_CTL_BIAS)
 	#define CTL_IMPEXPQUOT_FLAGS       (9  + IMPEXP_CTL_BIAS)
+	#define CTL_IMPEXPQUOT_QKCLS       (10 + IMPEXP_CTL_BIAS)
 #define DLG_AEQSTAT               1278
 	#define CTL_AEQSTAT_LIVING         (1  + IMPEXP_CTL_BIAS)
 	#define CTL_AEQSTAT_GETCOUNT       (2  + IMPEXP_CTL_BIAS)
@@ -11903,6 +11904,7 @@
 	#define PPQUOTPAR_ARTICLE                 2
 	#define PPQUOTPAR_LOC                     3
 	#define PPQUOTPAR_FLAGS                   4
+	#define PPQUOTPAR_QUOTCAT                 5 // @v11.4.2
 // LastText
 //
 // Intrinsic calculator functions

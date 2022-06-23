@@ -736,8 +736,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				break;
 			case SLib.EV_SETVIEWDATA:
 				if(srcObj != null && srcObj instanceof ViewGroup) {
-					ViewGroup vg = (ViewGroup)srcObj;
 					StyloQApp app_ctx = GetAppCtx();
+					ViewGroup vg = (ViewGroup)srcObj;
 					int vg_id = vg.getId();
 					if(vg_id == R.id.LAYOUT_ORDERPREPREQ_ORDR) {
 						int status_image_rc_id = 0;

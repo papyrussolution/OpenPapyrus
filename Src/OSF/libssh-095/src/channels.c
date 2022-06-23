@@ -1726,7 +1726,7 @@ int ssh_channel_request_x11(ssh_channel channel, int single_connection, const ch
 	}
 	if(cookie == NULL) {
 		c = generate_cookie();
-		if(c == NULL) {
+		if(!c) {
 			ssh_set_error_oom(channel->session);
 			goto error;
 		}

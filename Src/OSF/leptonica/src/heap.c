@@ -20,24 +20,24 @@
  *          void            lheapDestroy()
  *
  *      Operations to add/remove to/from the heap
- *          l_int32         lheapAdd()
- *          static l_int32  lheapExtendArray()
+ *          int32         lheapAdd()
+ *          static int32  lheapExtendArray()
  *          void           *lheapRemove()
  *
  *      Other accessors
- *          l_int32         lheapGetCount()
+ *          int32         lheapGetCount()
  *          void           *lheapGetElement()
  *
  *      Heap sort
- *          l_int32         lheapSort()
- *          l_int32         lheapSortStrictOrder()
+ *          int32         lheapSort()
+ *          int32         lheapSortStrictOrder()
  *
  *      Low-level heap operations
- *          static l_int32  lheapSwapUp()
- *          static l_int32  lheapSwapDown()
+ *          static int32  lheapSwapUp()
+ *          static int32  lheapSwapDown()
  *
  *      Debug output
- *          l_int32         lheapPrint()
+ *          int32         lheapPrint()
  *
  *    The L_Heap is useful to implement a priority queue, that is sorted
  *    on a key in each element of the heap.  The heap is an array
@@ -67,16 +67,16 @@
 #pragma hdrstop
 
 /* Bounds on initial array size */
-static const l_uint32 MaxPtrArraySize = 100000;
-static const l_int32 InitialPtrArraySize = 20; /*!< n'importe quoi */
+static const uint32 MaxPtrArraySize = 100000;
+static const int32 InitialPtrArraySize = 20; /*!< n'importe quoi */
 
 #define SWAP_ITEMS(i, j)       { void * tempitem = lh->array[(i)]; \
 				 lh->array[(i)] = lh->array[(j)]; \
 				 lh->array[(j)] = tempitem; }
 
 /* Static functions */
-static l_int32 lheapExtendArray(L_HEAP * lh);
-static l_ok lheapSwapUp(L_HEAP * lh, l_int32 index);
+static int32 lheapExtendArray(L_HEAP * lh);
+static l_ok lheapSwapUp(L_HEAP * lh, int32 index);
 static l_ok lheapSwapDown(L_HEAP * lh);
 
 /*--------------------------------------------------------------------------*
@@ -89,8 +89,8 @@ static l_ok lheapSwapDown(L_HEAP * lh);
  * \param[in]    direction   L_SORT_INCREASING, L_SORT_DECREASING
  * \return  lheap, or NULL on error
  */
-L_HEAP * lheapCreate(l_int32 n,
-    l_int32 direction)
+L_HEAP * lheapCreate(int32 n,
+    int32 direction)
 {
 	L_HEAP  * lh;
 
@@ -130,9 +130,9 @@ L_HEAP * lheapCreate(l_int32 n,
  * </pre>
  */
 void lheapDestroy(L_HEAP  ** plh,
-    l_int32 freeflag)
+    int32 freeflag)
 {
-	l_int32 i;
+	int32 i;
 	L_HEAP  * lh;
 
 	PROCNAME(__FUNCTION__);
@@ -199,7 +199,7 @@ l_ok lheapAdd(L_HEAP  * lh,
  * \param[in]    lh    heap
  * \return  0 if OK, 1 on error
  */
-static l_int32 lheapExtendArray(L_HEAP  * lh)
+static int32 lheapExtendArray(L_HEAP  * lh)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -252,7 +252,7 @@ void * lheapRemove(L_HEAP  * lh)
  * \param[in]    lh    heap
  * \return  count, or 0 on error
  */
-l_int32 lheapGetCount(L_HEAP  * lh)
+int32 lheapGetCount(L_HEAP  * lh)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -279,7 +279,7 @@ l_int32 lheapGetCount(L_HEAP  * lh)
  * </pre>
  */
 void * lheapGetElement(L_HEAP  * lh,
-    l_int32 index)
+    int32 index)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -308,7 +308,7 @@ void * lheapGetElement(L_HEAP  * lh,
  */
 l_ok lheapSort(L_HEAP  * lh)
 {
-	l_int32 i;
+	int32 i;
 
 	PROCNAME(__FUNCTION__);
 
@@ -340,7 +340,7 @@ l_ok lheapSort(L_HEAP  * lh)
  */
 l_ok lheapSortStrictOrder(L_HEAP  * lh)
 {
-	l_int32 i, index, size;
+	int32 i, index, size;
 
 	PROCNAME(__FUNCTION__);
 
@@ -386,10 +386,10 @@ l_ok lheapSortStrictOrder(L_HEAP  * lh)
  * </pre>
  */
 static l_ok lheapSwapUp(L_HEAP  * lh,
-    l_int32 index)
+    int32 index)
 {
-	l_int32 ip; /* index to heap for parent; 1 larger than array index */
-	l_int32 ic; /* index into heap for child */
+	int32 ip; /* index to heap for parent; 1 larger than array index */
+	int32 ic; /* index into heap for child */
 	float valp, valc;
 
 	PROCNAME(__FUNCTION__);
@@ -452,8 +452,8 @@ static l_ok lheapSwapUp(L_HEAP  * lh,
  */
 static l_ok lheapSwapDown(L_HEAP  * lh)
 {
-	l_int32 ip; /* index to heap for parent; 1 larger than array index */
-	l_int32 icr, icl; /* index into heap for left/right children */
+	int32 ip; /* index to heap for parent; 1 larger than array index */
+	int32 icr, icl; /* index into heap for left/right children */
 	float valp, valcl, valcr;
 
 	PROCNAME(__FUNCTION__);
@@ -537,7 +537,7 @@ static l_ok lheapSwapDown(L_HEAP  * lh)
 l_ok lheapPrint(FILE * fp,
     L_HEAP  * lh)
 {
-	l_int32 i;
+	int32 i;
 
 	PROCNAME(__FUNCTION__);
 

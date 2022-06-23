@@ -10,39 +10,26 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file quadtree.c
  * <pre>
  *
  *      Top level quadtree linear statistics
- *          l_int32   pixQuadtreeMean()
- *          l_int32   pixQuadtreeVariance()
+ *          int32   pixQuadtreeMean()
+ *          int32   pixQuadtreeVariance()
  *
  *      Statistics in an arbitrary rectangle
- *          l_int32   pixMeanInRectangle()
- *          l_int32   pixVarianceInRectangle()
+ *          int32   pixMeanInRectangle()
+ *          int32   pixVarianceInRectangle()
  *
  *      Quadtree regions
  *          BOXAA    *boxaaQuadtreeRegions()
  *
  *      Quadtree access
- *          l_int32   quadtreeGetParent()
- *          l_int32   quadtreeGetChildren()
- *          l_int32   quadtreeMaxLevels()
+ *          int32   quadtreeGetParent()
+ *          int32   quadtreeGetChildren()
+ *          int32   quadtreeMaxLevels()
  *
  *      Display quadtree
  *          PIX *fpixaDisplayQuadtree()
@@ -87,11 +74,11 @@
  * </pre>
  */
 l_ok pixQuadtreeMean(PIX * pixs,
-    l_int32 nlevels,
+    int32 nlevels,
     PIX * pix_ma,
     FPIXA  ** pfpixa)
 {
-	l_int32 i, j, w, h, size, n;
+	int32 i, j, w, h, size, n;
 	float val;
 	BOX       * box;
 	BOXA      * boxa;
@@ -162,13 +149,13 @@ l_ok pixQuadtreeMean(PIX * pixs,
  * </pre>
  */
 l_ok pixQuadtreeVariance(PIX * pixs,
-    l_int32 nlevels,
+    int32 nlevels,
     PIX * pix_ma,
     DPIX    * dpix_msa,
     FPIXA  ** pfpixa_v,
     FPIXA  ** pfpixa_rv)
 {
-	l_int32 i, j, w, h, size, n;
+	int32 i, j, w, h, size, n;
 	float var, rvar;
 	BOX       * box;
 	BOXA      * boxa;
@@ -260,8 +247,8 @@ l_ok pixMeanInRectangle(PIX        * pixs,
     PIX        * pixma,
     float * pval)
 {
-	l_int32 w, h, bx, by, bw, bh;
-	l_uint32 val00, val01, val10, val11;
+	int32 w, h, bx, by, bw, bh;
+	uint32 val00, val01, val10, val11;
 	float norm;
 	BOX       * boxc;
 
@@ -339,8 +326,8 @@ l_ok pixVarianceInRectangle(PIX        * pixs,
     float * pvar,
     float * prvar)
 {
-	l_int32 w, h, bx, by, bw, bh;
-	l_uint32 val00, val01, val10, val11;
+	int32 w, h, bx, by, bw, bh;
+	uint32 val00, val01, val10, val11;
 	double dval00, dval01, dval10, dval11, mval, msval, var, norm;
 	BOX       * boxc;
 
@@ -441,12 +428,12 @@ l_ok pixVarianceInRectangle(PIX        * pixs,
  *          order, with LR (fast scan) and TB (slow scan).
  * </pre>
  */
-BOXAA * boxaaQuadtreeRegions(l_int32 w,
-    l_int32 h,
-    l_int32 nlevels)
+BOXAA * boxaaQuadtreeRegions(int32 w,
+    int32 h,
+    int32 nlevels)
 {
-	l_int32 i, j, k, maxpts, nside, nbox, bw, bh;
-	l_int32 * xstart, * xend, * ystart, * yend;
+	int32 i, j, k, maxpts, nside, nbox, bw, bh;
+	int32 * xstart, * xend, * ystart, * yend;
 	BOX      * box;
 	BOXA     * boxa;
 	BOXAA    * baa;
@@ -462,10 +449,10 @@ BOXAA * boxaaQuadtreeRegions(l_int32 w,
 
 	baa = boxaaCreate(nlevels);
 	maxpts = 1 << (nlevels - 1);
-	xstart = (l_int32*)SAlloc::C(maxpts, sizeof(l_int32));
-	xend = (l_int32*)SAlloc::C(maxpts, sizeof(l_int32));
-	ystart = (l_int32*)SAlloc::C(maxpts, sizeof(l_int32));
-	yend = (l_int32*)SAlloc::C(maxpts, sizeof(l_int32));
+	xstart = (int32*)SAlloc::C(maxpts, sizeof(int32));
+	xend = (int32*)SAlloc::C(maxpts, sizeof(int32));
+	ystart = (int32*)SAlloc::C(maxpts, sizeof(int32));
+	yend = (int32*)SAlloc::C(maxpts, sizeof(int32));
 	for(k = 0; k < nlevels; k++) {
 		nside = 1 << k; /* number of boxes in each direction */
 		for(i = 0; i < nside; i++) {
@@ -521,12 +508,12 @@ BOXAA * boxaaQuadtreeRegions(l_int32 w,
  * </pre>
  */
 l_ok quadtreeGetParent(FPIXA      * fpixa,
-    l_int32 level,
-    l_int32 x,
-    l_int32 y,
+    int32 level,
+    int32 x,
+    int32 y,
     float * pval)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -562,15 +549,15 @@ l_ok quadtreeGetParent(FPIXA      * fpixa,
  * </pre>
  */
 l_ok quadtreeGetChildren(FPIXA      * fpixa,
-    l_int32 level,
-    l_int32 x,
-    l_int32 y,
+    int32 level,
+    int32 x,
+    int32 y,
     float * pval00,
     float * pval10,
     float * pval01,
     float * pval11)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -605,10 +592,10 @@ l_ok quadtreeGetChildren(FPIXA      * fpixa,
  *          having zero dimension due to integer truncation.
  * </pre>
  */
-l_int32 quadtreeMaxLevels(l_int32 w,
-    l_int32 h)
+int32 quadtreeMaxLevels(int32 w,
+    int32 h)
 {
-	l_int32 i, minside;
+	int32 i, minside;
 
 	minside = MIN(w, h);
 	for(i = 0; i < 20; i++) { /* 2^10 = one million */
@@ -639,11 +626,11 @@ l_int32 quadtreeMaxLevels(l_int32 w,
  * </pre>
  */
 PIX * fpixaDisplayQuadtree(FPIXA   * fpixa,
-    l_int32 factor,
-    l_int32 fontsize)
+    int32 factor,
+    int32 fontsize)
 {
 	char buf[256];
-	l_int32 nlevels, i, mag, w;
+	int32 nlevels, i, mag, w;
 	L_BMF     * bmf;
 	FPIX      * fpix;
 	PIX * pixt1, * pixt2, * pixt3, * pixt4, * pixd;

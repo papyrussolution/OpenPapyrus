@@ -269,8 +269,8 @@ int BN_nist_mod_192(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 	PTR_SIZE_INT mask;
 	static const BIGNUM _bignum_nist_p_192_sqr = {
 		(BN_ULONG*)_nist_p_192_sqr,
-		OSSL_NELEM(_nist_p_192_sqr),
-		OSSL_NELEM(_nist_p_192_sqr),
+		SIZEOFARRAY(_nist_p_192_sqr),
+		SIZEOFARRAY(_nist_p_192_sqr),
 		0, BN_FLG_STATIC_DATA
 	};
 	field = &_bignum_nist_p_192; /* just to make sure */
@@ -410,7 +410,7 @@ int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		PTR_SIZE_INT p;
 	} u;
 
-	static const BIGNUM _bignum_nist_p_224_sqr = { (BN_ULONG*)_nist_p_224_sqr, OSSL_NELEM(_nist_p_224_sqr), OSSL_NELEM(_nist_p_224_sqr), 0, BN_FLG_STATIC_DATA };
+	static const BIGNUM _bignum_nist_p_224_sqr = { (BN_ULONG*)_nist_p_224_sqr, SIZEOFARRAY(_nist_p_224_sqr), SIZEOFARRAY(_nist_p_224_sqr), 0, BN_FLG_STATIC_DATA };
 
 	field = &_bignum_nist_p_224; /* just to make sure */
 	if(BN_is_negative(a) || BN_ucmp(a, &_bignum_nist_p_224_sqr) >= 0)
@@ -591,8 +591,8 @@ int BN_nist_mod_256(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 
 	static const BIGNUM _bignum_nist_p_256_sqr = {
 		(BN_ULONG*)_nist_p_256_sqr,
-		OSSL_NELEM(_nist_p_256_sqr),
-		OSSL_NELEM(_nist_p_256_sqr),
+		SIZEOFARRAY(_nist_p_256_sqr),
+		SIZEOFARRAY(_nist_p_256_sqr),
 		0, BN_FLG_STATIC_DATA
 	};
 
@@ -837,7 +837,7 @@ int BN_nist_mod_384(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX *
 		PTR_SIZE_INT p;
 	} u;
 
-	static const BIGNUM _bignum_nist_p_384_sqr = { (BN_ULONG*)_nist_p_384_sqr, OSSL_NELEM(_nist_p_384_sqr), OSSL_NELEM(_nist_p_384_sqr), 0, BN_FLG_STATIC_DATA };
+	static const BIGNUM _bignum_nist_p_384_sqr = { (BN_ULONG*)_nist_p_384_sqr, SIZEOFARRAY(_nist_p_384_sqr), SIZEOFARRAY(_nist_p_384_sqr), 0, BN_FLG_STATIC_DATA };
 
 	field = &_bignum_nist_p_384; /* just to make sure */
 
@@ -1094,8 +1094,8 @@ int BN_nist_mod_521(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 	PTR_SIZE_INT mask;
 	static const BIGNUM _bignum_nist_p_521_sqr = {
 		(BN_ULONG*)_nist_p_521_sqr,
-		OSSL_NELEM(_nist_p_521_sqr),
-		OSSL_NELEM(_nist_p_521_sqr),
+		SIZEOFARRAY(_nist_p_521_sqr),
+		SIZEOFARRAY(_nist_p_521_sqr),
 		0, BN_FLG_STATIC_DATA
 	};
 

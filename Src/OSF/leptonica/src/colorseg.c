@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file colorseg.c
  * <pre>
@@ -32,30 +19,25 @@
  *
  *               PIX     *pixColorSegment()
  *               PIX     *pixColorSegmentCluster()
- *       static  l_int32  pixColorSegmentTryCluster()
- *               l_int32  pixAssignToNearestColor()
- *               l_int32  pixColorSegmentClean()
- *               l_int32  pixColorSegmentRemoveColors()
+ *       static  int32  pixColorSegmentTryCluster()
+ *               int32  pixAssignToNearestColor()
+ *               int32  pixColorSegmentClean()
+ *               int32  pixColorSegmentRemoveColors()
  * </pre>
  */
 #include "allheaders.h"
 #pragma hdrstop
 
 /* Maximum allowed iterations in Phase 1. */
-static const l_int32 MAX_ALLOWED_ITERATIONS = 20;
-
+static const int32 MAX_ALLOWED_ITERATIONS = 20;
 /* Factor by which max dist is increased on each iteration */
 static const float DIST_EXPAND_FACT = 1.3;
-
 /* Octcube division level for computing nearest colormap color using LUT.
  * Using 4 should suffice for up to 50 - 100 colors, and it is
  * very fast.  Using 5 takes 8 times as long to set up the LUT
  * for little perceptual gain, even with 100 colors. */
-static const l_int32 LEVEL_IN_OCTCUBE = 4;
-
-static l_int32 pixColorSegmentTryCluster(PIX * pixd, PIX * pixs,
-    l_int32 maxdist, l_int32 maxcolors,
-    l_int32 debugflag);
+static const int32 LEVEL_IN_OCTCUBE = 4;
+static int32 pixColorSegmentTryCluster(PIX * pixd, PIX * pixs, int32 maxdist, int32 maxcolors, int32 debugflag);
 
 /*------------------------------------------------------------------*
 *                 Unsupervised color segmentation                  *
@@ -125,13 +107,13 @@ static l_int32 pixColorSegmentTryCluster(PIX * pixd, PIX * pixs,
  * </pre>
  */
 PIX * pixColorSegment(PIX * pixs,
-    l_int32 maxdist,
-    l_int32 maxcolors,
-    l_int32 selsize,
-    l_int32 finalcolors,
-    l_int32 debugflag)
+    int32 maxdist,
+    int32 maxcolors,
+    int32 selsize,
+    int32 finalcolors,
+    int32 debugflag)
 {
-	l_int32   * countarray;
+	int32   * countarray;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -151,7 +133,7 @@ PIX * pixColorSegment(PIX * pixs,
 	}
 
 	/* Phase 2; refinement in pixel assignment */
-	countarray = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	countarray = (int32*)SAlloc::C(256, sizeof(int32));
 	pixAssignToNearestColor(pixd, pixs, NULL, LEVEL_IN_OCTCUBE, countarray);
 	if(debugflag)
 		pixWriteDebug("/tmp/lept/segment/colorseg2.png", pixd, IFF_PNG);
@@ -191,11 +173,11 @@ PIX * pixColorSegment(PIX * pixs,
  * </pre>
  */
 PIX * pixColorSegmentCluster(PIX * pixs,
-    l_int32 maxdist,
-    l_int32 maxcolors,
-    l_int32 debugflag)
+    int32 maxdist,
+    int32 maxcolors,
+    int32 debugflag)
 {
-	l_int32 w, h, newmaxdist, ret, niters, ncolors, success;
+	int32 w, h, newmaxdist, ret, niters, ncolors, success;
 	PIX * pixd;
 	PIXCMAP  * cmap;
 
@@ -233,7 +215,7 @@ PIX * pixColorSegmentCluster(PIX * pixs,
 			success = FALSE;
 			break;
 		}
-		newmaxdist = (l_int32)(DIST_EXPAND_FACT * (float)newmaxdist);
+		newmaxdist = (int32)(DIST_EXPAND_FACT * (float)newmaxdist);
 	}
 
 	if(!success) {
@@ -259,19 +241,19 @@ PIX * pixColorSegmentCluster(PIX * pixs,
  *      This function should only be called from pixColorSegCluster()
  * </pre>
  */
-static l_int32 pixColorSegmentTryCluster(PIX * pixd,
+static int32 pixColorSegmentTryCluster(PIX * pixd,
     PIX * pixs,
-    l_int32 maxdist,
-    l_int32 maxcolors,
-    l_int32 debugflag)
+    int32 maxdist,
+    int32 maxcolors,
+    int32 debugflag)
 {
-	l_int32 rmap[256], gmap[256], bmap[256];
-	l_int32 w, h, wpls, wpld, i, j, k, found, ret, index, ncolors;
-	l_int32 rval, gval, bval, dist2, maxdist2;
-	l_int32 countarray[256];
-	l_int32 rsum[256], gsum[256], bsum[256];
-	l_uint32 * ppixel;
-	l_uint32 * datas, * datad, * lines, * lined;
+	int32 rmap[256], gmap[256], bmap[256];
+	int32 w, h, wpls, wpld, i, j, k, found, ret, index, ncolors;
+	int32 rval, gval, bval, dist2, maxdist2;
+	int32 countarray[256];
+	int32 rsum[256], gsum[256], bsum[256];
+	uint32 * ppixel;
+	uint32 * datas, * datad, * lines, * lined;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -402,16 +384,16 @@ static l_int32 pixColorSegmentTryCluster(PIX * pixd,
 l_ok pixAssignToNearestColor(PIX * pixd,
     PIX * pixs,
     PIX * pixm,
-    l_int32 level,
-    l_int32 * countarray)
+    int32 level,
+    int32 * countarray)
 {
-	l_int32 w, h, wpls, wpld, wplm, i, j, success;
-	l_int32 rval, gval, bval, index;
-	l_int32   * cmaptab;
-	l_uint32 octindex;
-	l_uint32 * rtab, * gtab, * btab;
-	l_uint32 * ppixel;
-	l_uint32 * datas, * datad, * datam, * lines, * lined, * linem;
+	int32 w, h, wpls, wpld, wplm, i, j, success;
+	int32 rval, gval, bval, index;
+	int32   * cmaptab;
+	uint32 octindex;
+	uint32 * rtab, * gtab, * btab;
+	uint32 * ppixel;
+	uint32 * datas, * datad, * datam, * lines, * lined, * linem;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -498,11 +480,11 @@ cleanup_arrays:
  * </pre>
  */
 l_ok pixColorSegmentClean(PIX * pixs,
-    l_int32 selsize,
-    l_int32 * countarray)
+    int32 selsize,
+    int32 * countarray)
 {
-	l_int32 i, ncolors, val;
-	l_uint32 val32;
+	int32 i, ncolors, val;
+	uint32 val32;
 	NUMA * na, * nasi;
 	PIX * pixt1, * pixt2;
 	PIXCMAP   * cmap;
@@ -567,19 +549,15 @@ l_ok pixColorSegmentClean(PIX * pixs,
  *          we find the nearest colormap color  to the original rgb color.
  * </pre>
  */
-l_ok pixColorSegmentRemoveColors(PIX * pixd,
-    PIX * pixs,
-    l_int32 finalcolors)
+l_ok pixColorSegmentRemoveColors(PIX * pixd, PIX * pixs, int32 finalcolors)
 {
-	l_int32 i, ncolors, index, tempindex;
-	l_int32   * tab;
-	l_uint32 tempcolor;
+	PROCNAME(__FUNCTION__);
+	int32 i, ncolors, index, tempindex;
+	int32   * tab;
+	uint32 tempcolor;
 	NUMA * na, * nasi;
 	PIX * pixm;
 	PIXCMAP   * cmap;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixd)
 		return ERROR_INT("pixd not defined", procName, 1);
 	if(pixGetDepth(pixd) != 8)
@@ -605,15 +583,13 @@ l_ok pixColorSegmentRemoveColors(PIX * pixd,
 	}
 	numaGetIValue(nasi, finalcolors - 1, &tempindex); /* retain down to this */
 	pixcmapGetColor32(cmap, tempindex, &tempcolor); /* use this color */
-	tab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	tab = (int32*)SAlloc::C(256, sizeof(int32));
 	for(i = finalcolors; i < ncolors; i++) {
 		numaGetIValue(nasi, i, &index);
 		tab[index] = 1;
 	}
-
 	pixm = pixMakeMaskFromLUT(pixd, tab);
 	SAlloc::F(tab);
-
 	/* Reassign the masked pixels temporarily to the saved index
 	 * (tempindex).  This guarantees that no pixels are labeled by
 	 * a colormap index of any colors that will be removed.
@@ -622,17 +598,14 @@ l_ok pixColorSegmentRemoveColors(PIX * pixd,
 	 * be reassigned based on the full set of colors retained
 	 * in the colormap. */
 	pixSetMasked(pixd, pixm, tempcolor);
-
 	/* Now remove unused colors from the colormap.  This reassigns
 	 * image pixels as required. */
 	pixRemoveUnusedColors(pixd);
-
 	/* Finally, reassign the pixels under the mask (those that were
 	 * given a 'tempindex' value) to the nearest color in the colormap.
 	 * This is the function used in phase 2 on all image pixels; here
 	 * it is only used on the masked pixels given by pixm. */
 	pixAssignToNearestColor(pixd, pixs, pixm, LEVEL_IN_OCTCUBE, NULL);
-
 	pixDestroy(&pixm);
 	numaDestroy(&na);
 	numaDestroy(&nasi);

@@ -18,17 +18,17 @@
  *     Basic plotting functions
  *          GPLOT      *gplotCreate()
  *          void        gplotDestroy()
- *          l_int32     gplotAddPlot()
- *          l_int32     gplotSetScaling()
+ *          int32     gplotAddPlot()
+ *          int32     gplotSetScaling()
  *          PIX        *gplotMakeOutputPix()
- *          l_int32     gplotMakeOutput()
- *          l_int32     gplotGenCommandFile()
- *          l_int32     gplotGenDataFiles()
+ *          int32     gplotMakeOutput()
+ *          int32     gplotGenCommandFile()
+ *          int32     gplotGenDataFiles()
  *
  *     Quick, one-line plots
- *          l_int32     gplotSimple1()
- *          l_int32     gplotSimple2()
- *          l_int32     gplotSimpleN()
+ *          int32     gplotSimple1()
+ *          int32     gplotSimple2()
+ *          int32     gplotSimpleN()
  *          PIX        *gplotSimplePix1()
  *          PIX        *gplotSimplePix2()
  *          PIX        *gplotSimplePixN()
@@ -41,7 +41,7 @@
  *
  *     Serialize for I/O
  *          GPLOT      *gplotRead()
- *          l_int32     gplotWrite()
+ *          int32     gplotWrite()
  *
  *
  *     Utility for programmatic plotting using gnuplot 4.6 or later
@@ -165,14 +165,14 @@ const char * gplotfileoutputs[] = {"",
  * </pre>
  */
 GPLOT  * gplotCreate(const char * rootname,
-    l_int32 outformat,
+    int32 outformat,
     const char * title,
     const char * xlabel,
     const char * ylabel)
 {
 	char * newroot;
 	char buf[Bufsize];
-	l_int32 badchar;
+	int32 badchar;
 	GPLOT   * gplot;
 
 	PROCNAME(__FUNCTION__);
@@ -296,13 +296,13 @@ void gplotDestroy(GPLOT  ** pgplot)
 l_ok gplotAddPlot(GPLOT       * gplot,
     NUMA        * nax,
     NUMA        * nay,
-    l_int32 plotstyle,
+    int32 plotstyle,
     const char * plotlabel)
 {
 	char buf[Bufsize];
 	char emptystring[] = "";
 	char      * datastr, * title;
-	l_int32 n, i;
+	int32 n, i;
 	float valx, valy, startx, delx;
 	SARRAY    * sa;
 
@@ -373,7 +373,7 @@ l_ok gplotAddPlot(GPLOT       * gplot,
  * </pre>
  */
 l_ok gplotSetScaling(GPLOT   * gplot,
-    l_int32 scaling)
+    int32 scaling)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -479,7 +479,7 @@ l_ok gplotGenCommandFile(GPLOT  * gplot)
 {
 	char buf[Bufsize];
 	char * cmdstr, * plotlabel, * dataname;
-	l_int32 i, plotstyle, nplots;
+	int32 i, plotstyle, nplots;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -589,7 +589,7 @@ l_ok gplotGenCommandFile(GPLOT  * gplot)
 l_ok gplotGenDataFiles(GPLOT  * gplot)
 {
 	char * plotdata, * dataname;
-	l_int32 i, nplots;
+	int32 i, nplots;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -633,7 +633,7 @@ l_ok gplotGenDataFiles(GPLOT  * gplot)
  * </pre>
  */
 l_ok gplotSimple1(NUMA        * na,
-    l_int32 outformat,
+    int32 outformat,
     const char * outroot,
     const char * title)
 {
@@ -670,7 +670,7 @@ l_ok gplotSimple1(NUMA        * na,
  */
 l_ok gplotSimple2(NUMA        * na1,
     NUMA        * na2,
-    l_int32 outformat,
+    int32 outformat,
     const char * outroot,
     const char * title)
 {
@@ -707,7 +707,7 @@ l_ok gplotSimple2(NUMA        * na1,
  * </pre>
  */
 l_ok gplotSimpleN(NUMAA       * naa,
-    l_int32 outformat,
+    int32 outformat,
     const char * outroot,
     const char * title)
 {
@@ -741,7 +741,7 @@ PIX * gplotSimplePix1(NUMA        * na,
     const char * title)
 {
 	char buf[64];
-	static l_int32 index;
+	static int32 index;
 	GPLOT          * gplot;
 	PIX            * pix;
 
@@ -783,7 +783,7 @@ PIX * gplotSimplePix2(NUMA        * na1,
     const char * title)
 {
 	char buf[64];
-	static l_int32 index;
+	static int32 index;
 	GPLOT          * gplot;
 	PIX            * pix;
 
@@ -824,7 +824,7 @@ PIX * gplotSimplePixN(NUMAA       * naa,
     const char * title)
 {
 	char buf[64];
-	static l_int32 index;
+	static int32 index;
 	GPLOT          * gplot;
 	PIX            * pix;
 
@@ -872,8 +872,8 @@ PIX * gplotSimplePixN(NUMAA       * naa,
  */
 GPLOT * gplotSimpleXY1(NUMA        * nax,
     NUMA        * nay,
-    l_int32 plotstyle,
-    l_int32 outformat,
+    int32 plotstyle,
+    int32 outformat,
     const char * outroot,
     const char * title)
 {
@@ -928,8 +928,8 @@ GPLOT * gplotSimpleXY1(NUMA        * nax,
 GPLOT * gplotSimpleXY2(NUMA        * nax,
     NUMA        * nay1,
     NUMA        * nay2,
-    l_int32 plotstyle,
-    l_int32 outformat,
+    int32 plotstyle,
+    int32 outformat,
     const char * outroot,
     const char * title)
 {
@@ -984,12 +984,12 @@ GPLOT * gplotSimpleXY2(NUMA        * nax,
  */
 GPLOT * gplotSimpleXYN(NUMA        * nax,
     NUMAA       * naay,
-    l_int32 plotstyle,
-    l_int32 outformat,
+    int32 plotstyle,
+    int32 outformat,
     const char * outroot,
     const char * title)
 {
-	l_int32 i, n;
+	int32 i, n;
 	GPLOT   * gplot;
 	NUMA * nay;
 
@@ -1038,7 +1038,7 @@ GPLOT * gplotSimpleXYN(NUMA        * nax,
  * </pre>
  */
 PIX * gplotGeneralPix1(NUMA        * na,
-    l_int32 plotstyle,
+    int32 plotstyle,
     const char * rootname,
     const char * title,
     const char * xlabel,
@@ -1086,7 +1086,7 @@ PIX * gplotGeneralPix1(NUMA        * na,
  */
 PIX * gplotGeneralPix2(NUMA        * na1,
     NUMA        * na2,
-    l_int32 plotstyle,
+    int32 plotstyle,
     const char * rootname,
     const char * title,
     const char * xlabel,
@@ -1136,13 +1136,13 @@ PIX * gplotGeneralPix2(NUMA        * na1,
  */
 PIX * gplotGeneralPixN(NUMA        * nax,
     NUMAA       * naay,
-    l_int32 plotstyle,
+    int32 plotstyle,
     const char * rootname,
     const char * title,
     const char * xlabel,
     const char * ylabel)
 {
-	l_int32 i, n;
+	int32 i, n;
 	GPLOT   * gplot;
 	NUMA * nay;
 	PIX * pix;
@@ -1186,7 +1186,7 @@ GPLOT * gplotRead(const char * filename)
 {
 	char buf[Bufsize];
 	char * rootname, * title, * xlabel, * ylabel, * ignores;
-	l_int32 outformat, ret, version, ignore;
+	int32 outformat, ret, version, ignore;
 	FILE * fp;
 	GPLOT   * gplot;
 

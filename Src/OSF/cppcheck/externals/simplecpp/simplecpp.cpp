@@ -117,18 +117,13 @@ static bool sameline(const simplecpp::Token * tok1, const simplecpp::Token * tok
 
 static bool isAlternativeBinaryOp(const simplecpp::Token * tok, const std::string &alt)
 {
-	return (tok->name &&
-	       tok->str() == alt &&
-	       tok->previous &&
-	       tok->next &&
-	       (tok->previous->number || tok->previous->name || tok->previous->op == ')') &&
-	       (tok->next->number || tok->next->name || tok->next->op == '('));
+	return (tok->name && tok->str() == alt && tok->previous && tok->next &&
+	       (tok->previous->number || tok->previous->name || tok->previous->op == ')') && (tok->next->number || tok->next->name || tok->next->op == '('));
 }
 
 static bool isAlternativeUnaryOp(const simplecpp::Token * tok, const std::string &alt)
 {
-	return ((tok->name && tok->str() == alt) &&
-	       (!tok->previous || tok->previous->op == '(') &&
+	return ((tok->name && tok->str() == alt) && (!tok->previous || tok->previous->op == '(') &&
 	       (tok->next && (tok->next->name || tok->next->number)));
 }
 
@@ -147,7 +142,6 @@ void simplecpp::Location::adjust(const std::string &str)
 		col += str.size();
 		return;
 	}
-
 	for(std::size_t i = 0U; i < str.size(); ++i) {
 		col++;
 		if(str[i] == '\n' || str[i] == '\r') {
@@ -202,11 +196,8 @@ void simplecpp::Token::printOut() const
 simplecpp::TokenList::TokenList(std::vector<std::string> &filenames) : frontToken(nullptr), backToken(nullptr), files(filenames) {
 }
 
-simplecpp::TokenList::TokenList(std::istream &istr,
-    std::vector<std::string> &filenames,
-    const std::string &filename,
-    OutputList * outputList)
-	: frontToken(nullptr), backToken(nullptr), files(filenames)
+simplecpp::TokenList::TokenList(std::istream &istr, std::vector<std::string> &filenames, const std::string &filename, OutputList * outputList) : 
+	frontToken(nullptr), backToken(nullptr), files(filenames)
 {
 	readfile(istr, filename, outputList);
 }
@@ -221,7 +212,6 @@ simplecpp::TokenList::TokenList(TokenList &&other) : TokenList(other)
 {
 	*this = std::move(other);
 }
-
 #endif
 
 simplecpp::TokenList::~TokenList()
@@ -293,35 +283,28 @@ std::string simplecpp::TokenList::stringify() const
 			ret << "\n#line " << tok->location.line << " \"" << tok->location.file() << "\"\n";
 			loc = tok->location;
 		}
-
 		while(tok->location.line > loc.line) {
 			ret << '\n';
 			loc.line++;
 		}
-
 		if(sameline(tok->previous, tok))
 			ret << ' ';
-
 		ret << tok->str();
-
 		loc.adjust(tok->str());
 	}
-
 	return ret.str();
 }
 
-static unsigned char readChar(std::istream &istr, unsigned int bom)
+static uchar readChar(std::istream &istr, uint bom)
 {
-	unsigned char ch = static_cast<unsigned char>(istr.get());
-
+	uchar ch = static_cast<uchar>(istr.get());
 	// For UTF-16 encoded files the BOM is 0xfeff/0xfffe. If the
 	// character is non-ASCII character then replace it with 0xff
 	if(bom == 0xfeff || bom == 0xfffe) {
-		const unsigned char ch2 = static_cast<unsigned char>(istr.get());
+		const uchar ch2 = static_cast<uchar>(istr.get());
 		const int ch16 = (bom == 0xfeff) ? (ch<<8 | ch2) : (ch2<<8 | ch);
-		ch = static_cast<unsigned char>(((ch16 >= 0x80) ? 0xff : ch16));
+		ch = static_cast<uchar>(((ch16 >= 0x80) ? 0xff : ch16));
 	}
-
 	// Handling of newlines..
 	if(ch == '\r') {
 		ch = '\n';
@@ -341,18 +324,18 @@ static unsigned char readChar(std::istream &istr, unsigned int bom)
 	return ch;
 }
 
-static unsigned char peekChar(std::istream &istr, unsigned int bom)
+static uchar peekChar(std::istream &istr, uint bom)
 {
-	unsigned char ch = static_cast<unsigned char>(istr.peek());
+	uchar ch = static_cast<uchar>(istr.peek());
 
 	// For UTF-16 encoded files the BOM is 0xfeff/0xfffe. If the
 	// character is non-ASCII character then replace it with 0xff
 	if(bom == 0xfeff || bom == 0xfffe) {
 		(void)istr.get();
-		const unsigned char ch2 = static_cast<unsigned char>(istr.peek());
+		const uchar ch2 = static_cast<uchar>(istr.peek());
 		istr.unget();
 		const int ch16 = (bom == 0xfeff) ? (ch<<8 | ch2) : (ch2<<8 | ch);
-		ch = static_cast<unsigned char>(((ch16 >= 0x80) ? 0xff : ch16));
+		ch = static_cast<uchar>(((ch16 >= 0x80) ? 0xff : ch16));
 	}
 
 	// Handling of newlines..
@@ -362,7 +345,7 @@ static unsigned char peekChar(std::istream &istr, unsigned int bom)
 	return ch;
 }
 
-static void ungetChar(std::istream &istr, unsigned int bom)
+static void ungetChar(std::istream &istr, uint bom)
 {
 	istr.unget();
 	if(bom == 0xfeff || bom == 0xfffe)
@@ -375,9 +358,9 @@ static unsigned short getAndSkipBOM(std::istream &istr)
 
 	// The UTF-16 BOM is 0xfffe or 0xfeff.
 	if(ch1 >= 0xfe) {
-		unsigned short bom = (static_cast<unsigned char>(istr.get()) << 8);
+		unsigned short bom = (static_cast<uchar>(istr.get()) << 8);
 		if(istr.peek() >= 0xfe)
-			return bom | static_cast<unsigned char>(istr.get());
+			return bom | static_cast<uchar>(istr.get());
 		istr.unget();
 		return 0;
 	}
@@ -397,7 +380,7 @@ static unsigned short getAndSkipBOM(std::istream &istr)
 	return 0;
 }
 
-static bool isNameChar(unsigned char ch)
+static bool isNameChar(uchar ch)
 {
 	return std::isalnum(ch) || ch == '_' || ch == '$';
 }
@@ -431,18 +414,16 @@ static void portabilityBackslash(simplecpp::OutputList * outputList,
 
 static bool isStringLiteralPrefix(const std::string &str)
 {
-	return str == "u" || str == "U" || str == "L" || str == "u8" ||
-	       str == "R" || str == "uR" || str == "UR" || str == "LR" || str == "u8R";
+	return str == "u" || str == "U" || str == "L" || str == "u8" || str == "R" || str == "uR" || str == "UR" || str == "LR" || str == "u8R";
 }
 
-void simplecpp::TokenList::lineDirective(unsigned int fileIndex, unsigned int line, Location * location)
+void simplecpp::TokenList::lineDirective(uint fileIndex, uint line, Location * location)
 {
 	if(fileIndex != location->fileIndex || line >= location->line) {
 		location->fileIndex = fileIndex;
 		location->line = line;
 		return;
 	}
-
 	if(line + 2 >= location->line) {
 		location->line = line;
 		while(cback()->op != '#')
@@ -457,24 +438,19 @@ static const std::string COMMENT_END("*/");
 void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filename, OutputList * outputList)
 {
 	std::stack<simplecpp::Location> loc;
-
-	unsigned int multiline = 0U;
-
+	uint multiline = 0U;
 	const Token * oldLastToken = nullptr;
-
-	const unsigned short bom = getAndSkipBOM(istr);
-
+	const ushort bom = getAndSkipBOM(istr);
 	Location location(files);
 	location.fileIndex = fileIndex(filename);
 	location.line = 1U;
 	location.col  = 1U;
 	while(istr.good()) {
-		unsigned char ch = readChar(istr, bom);
+		uchar ch = readChar(istr, bom);
 		if(!istr.good())
 			break;
 		if(ch < ' ' && ch != '\t' && ch != '\n' && ch != '\r')
 			ch = ' ';
-
 		if(ch >= 0x80) {
 			if(outputList) {
 				simplecpp::Output err(files);
@@ -482,14 +458,12 @@ void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filen
 				err.location = location;
 				std::ostringstream s;
 				s << static_cast<int>(ch);
-				err.msg = "The code contains unhandled character(s) (character code=" + s.str() +
-				    "). Neither unicode nor extended ascii is supported.";
+				err.msg = "The code contains unhandled character(s) (character code=" + s.str() + "). Neither unicode nor extended ascii is supported.";
 				outputList->push_back(err);
 			}
 			clear();
 			return;
 		}
-
 		if(ch == '\n') {
 			if(cback() && cback()->op == '\\') {
 				if(location.col > cback()->location.col + 1U)
@@ -503,7 +477,6 @@ void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filen
 			}
 			if(!multiline)
 				location.col = 1;
-
 			if(oldLastToken != cback()) {
 				oldLastToken = cback();
 				if(!isLastLinePreprocessor())
@@ -530,9 +503,7 @@ void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filen
 					const Token * numtok = strtok->previous;
 					while(numtok->comment)
 						numtok = numtok->previous;
-					lineDirective(fileIndex(replaceAll(strtok->str().substr(1U, strtok->str().size() - 2U), "\\\\",
-					    "\\")),
-					    std::atol(numtok->str().c_str()), &location);
+					lineDirective(fileIndex(replaceAll(strtok->str().substr(1U, strtok->str().size() - 2U), "\\\\", "\\")), std::atol(numtok->str().c_str()), &location);
 				}
 				// #endfile
 				else if(lastline == "# endfile" && !loc.empty()) {
@@ -540,19 +511,14 @@ void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filen
 					loc.pop();
 				}
 			}
-
 			continue;
 		}
-
 		if(std::isspace(ch)) {
 			location.col++;
 			continue;
 		}
-
 		TokenString currentToken;
-
-		if(cback() && cback()->location.line == location.line && cback()->previous && cback()->previous->op == '#' &&
-		    (lastLine() == "# error" || lastLine() == "# warning")) {
+		if(cback() && cback()->location.line == location.line && cback()->previous && cback()->previous->op == '#' && (lastLine() == "# error" || lastLine() == "# warning")) {
 			char prev = ' ';
 			while(istr.good() && (prev == '\\' || (ch != '\r' && ch != '\n'))) {
 				currentToken += ch;
@@ -564,7 +530,6 @@ void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filen
 			location.adjust(currentToken);
 			continue;
 		}
-
 		// number or name
 		if(isNameChar(ch)) {
 			const bool num = std::isdigit(ch);
@@ -577,7 +542,6 @@ void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filen
 
 			ungetChar(istr, bom);
 		}
-
 		// comment
 		else if(ch == '/' && peekChar(istr, bom) == '/') {
 			while(istr.good() && ch != '\r' && ch != '\n') {
@@ -595,7 +559,6 @@ void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filen
 				ungetChar(istr, bom);
 			}
 		}
-
 		// comment
 		else if(ch == '/' && peekChar(istr, bom) == '*') {
 			currentToken = "/*";
@@ -1164,16 +1127,10 @@ void simplecpp::TokenList::removeComments()
 	}
 }
 
-std::string simplecpp::TokenList::readUntil(std::istream &istr,
-    const Location &location,
-    const char start,
-    const char end,
-    OutputList * outputList,
-    unsigned int bom)
+std::string simplecpp::TokenList::readUntil(std::istream &istr, const Location &location, const char start, const char end, OutputList * outputList, uint bom)
 {
 	std::string ret;
 	ret += start;
-
 	bool backslash = false;
 	char ch = 0;
 	while(ch != end && ch != '\r' && ch != '\n' && istr.good()) {
@@ -1260,9 +1217,9 @@ bool simplecpp::TokenList::isLastLinePreprocessor(int maxsize) const
 	return prevTok && prevTok->str()[0] == '#';
 }
 
-unsigned int simplecpp::TokenList::fileIndex(const std::string &filename)
+uint simplecpp::TokenList::fileIndex(const std::string &filename)
 {
-	for(unsigned int i = 0; i < files.size(); ++i) {
+	for(uint i = 0; i < files.size(); ++i) {
 		if(files[i] == filename)
 			return i;
 	}
@@ -1379,7 +1336,7 @@ public:
 			rawtok = expand(&output2, rawtok->location, rawtok, macros, expandedmacros);
 		}
 		while(output2.cback() && rawtok) {
-			unsigned int par = 0;
+			uint par = 0;
 			Token* macro2tok = output2.back();
 			while(macro2tok) {
 				if(macro2tok->op == '(') {
@@ -1558,8 +1515,8 @@ private:
 		return true;
 	}
 
-	unsigned int getArgNum(const TokenString &str) const {
-		unsigned int par = 0;
+	uint getArgNum(const TokenString &str) const {
+		uint par = 0;
 		while(par < args.size()) {
 			if(str == args[par])
 				return par;
@@ -1574,7 +1531,7 @@ private:
 
 		std::vector<const Token *> parametertokens;
 		parametertokens.push_back(nameTokInst->next);
-		unsigned int par = 0U;
+		uint par = 0U;
 		for(const Token * tok = nameTokInst->next->next;
 		    calledInDefine ? sameline(tok, nameTokInst) : (tok != nullptr);
 		    tok = tok->next) {
@@ -1601,7 +1558,7 @@ private:
 	    const std::vector<const Token*> &parametertokens) const {
 		if(!lpar || lpar->op != '(')
 			return nullptr;
-		unsigned int par = 0;
+		uint par = 0;
 		const Token * tok = lpar;
 		while(sameline(lpar, tok)) {
 			if(tok->op == '#' && sameline(tok, tok->next) && tok->next->op == '#' && sameline(tok, tok->next->next)) {
@@ -1710,7 +1667,7 @@ private:
 				parametertokens2.swap(parametertokens1);
 			else {
 				const Macro &counterMacro = m->second;
-				unsigned int par = 0;
+				uint par = 0;
 				for(const Token * tok = parametertokens1[0]; tok && par < parametertokens1.size(); tok = tok->next) {
 					if(tok->str() == "__COUNTER__") {
 						tokensparams.push_back(new Token(toString(counterMacro.usageList.size()), tok->location));
@@ -1930,7 +1887,7 @@ private:
 		if(!tok->name)
 			return false;
 
-		const unsigned int argnr = getArgNum(tok->str());
+		const uint argnr = getArgNum(tok->str());
 		if(argnr >= args.size())
 			return false;
 
@@ -1952,7 +1909,7 @@ private:
 	    const std::vector<const Token*> &parametertokens) const {
 		if(!tok->name)
 			return false;
-		const unsigned int argnr = getArgNum(tok->str());
+		const uint argnr = getArgNum(tok->str());
 		if(argnr >= args.size())
 			return false;
 		if(variadic && argnr + 1U >= parametertokens.size()) // empty variadic parameter
@@ -2157,7 +2114,7 @@ std::string convertCygwinToWindowsPath(const std::string &cygwinPath)
 
 	std::string::size_type pos = 0;
 	if(cygwinPath.size() >= 11 && startsWith(cygwinPath, "/cygdrive/")) {
-		unsigned char driveLetter = cygwinPath[10];
+		uchar driveLetter = cygwinPath[10];
 		if(std::isalpha(driveLetter)) {
 			if(cygwinPath.size() == 11) {
 				windowsPath = toupper(driveLetter);
@@ -2173,7 +2130,7 @@ std::string convertCygwinToWindowsPath(const std::string &cygwinPath)
 	}
 
 	for(; pos < cygwinPath.size(); ++pos) {
-		unsigned char c = cygwinPath[pos];
+		uchar c = cygwinPath[pos];
 		if(c == '/')
 			c = '\\';
 		windowsPath += c;
@@ -2241,7 +2198,7 @@ static bool realFileName(const std::string &f, std::string * result)
 	// are there alpha characters in last subpath?
 	bool alpha = false;
 	for(std::string::size_type pos = 1; pos <= f.size(); ++pos) {
-		unsigned char c = f[f.size() - pos];
+		uchar c = f[f.size() - pos];
 		if(c == '/' || c == '\\')
 			break;
 		if(std::isalpha(c)) {
@@ -2265,7 +2222,6 @@ static bool realFileName(const std::string &f, std::string * result)
 #else
 		HANDLE hFind = FindFirstFileExA(f.c_str(), FindExInfoBasic, &FindFileData, FindExSearchNameMatch, NULL, 0);
 #endif
-
 		if(INVALID_HANDLE_VALUE == hFind)
 			return false;
 		*result = FindFileData.cFileName;
@@ -2284,13 +2240,10 @@ static std::string realFilename(const std::string &f)
 	ret.reserve(f.size()); // this will be the final size
 	if(realFilePathMap.getCacheEntry(f, &ret))
 		return ret;
-
 	// Current subpath
 	std::string subpath;
-
 	for(std::string::size_type pos = 0; pos < f.size(); ++pos) {
-		unsigned char c = f[pos];
-
+		uchar c = f[pos];
 		// Separator.. add subpath and separator
 		if(c == '/' || c == '\\') {
 			// if subpath is empty just add separator
@@ -2298,19 +2251,14 @@ static std::string realFilename(const std::string &f)
 				ret += c;
 				continue;
 			}
-
-			bool isDriveSpecification =
-			    (pos == 2 && subpath.size() == 2 && std::isalpha(subpath[0]) && subpath[1] == ':');
-
+			bool isDriveSpecification = (pos == 2 && subpath.size() == 2 && std::isalpha(subpath[0]) && subpath[1] == ':');
 			// Append real filename (proper case)
 			std::string f2;
 			if(!isDriveSpecification && realFileName(f.substr(0, pos), &f2))
 				ret += f2;
 			else
 				ret += subpath;
-
 			subpath.clear();
-
 			// Append separator
 			ret += c;
 		}
@@ -2318,7 +2266,6 @@ static std::string realFilename(const std::string &f)
 			subpath += c;
 		}
 	}
-
 	if(!subpath.empty()) {
 		std::string f2;
 		if(realFileName(f, &f2))
@@ -2326,7 +2273,6 @@ static std::string realFilename(const std::string &f)
 		else
 			ret += subpath;
 	}
-
 	realFilePathMap.addToCache(f, ret);
 	return ret;
 }
@@ -2345,7 +2291,6 @@ static bool isAbsolutePath(const std::string &path)
 {
 	return path.length() > 1U && path[0] == '/';
 }
-
 #endif
 
 namespace simplecpp {
@@ -2417,10 +2362,8 @@ std::string simplifyPath(std::string path)
 	// Remove trailing '/'?
 	//if (path.size() > 1 && endsWith(path, "/"))
 	//    path.erase(path.size()-1);
-
 	if(unc)
 		path = '/' + path;
-
 	return path.find_first_of("*?") == std::string::npos ? realFilename(path) : path;
 }
 }
@@ -2448,7 +2391,6 @@ static void simplifySizeof(simplecpp::TokenList &expr, const std::map<std::strin
 				}
 			}
 		}
-
 		std::string type;
 		for(simplecpp::Token * typeToken = tok1; typeToken != tok2; typeToken = typeToken->next) {
 			if((typeToken->str() == "unsigned" || typeToken->str() == "signed") && typeToken->next->name)
@@ -2502,12 +2444,7 @@ static void simplifyName(simplecpp::TokenList &expr)
  * Returns ULLONG_MAX if the result is not representable and
  * throws if the above requirements were not possible to satisfy.
  */
-static unsigned long long stringToULLbounded(const std::string& s,
-    std::size_t& pos,
-    int base = 0,
-    std::ptrdiff_t minlen = 1,
-    std::size_t maxlen = std::string::npos
-    )
+static unsigned long long stringToULLbounded(const std::string& s, std::size_t& pos, int base = 0, std::ptrdiff_t minlen = 1, std::size_t maxlen = std::string::npos)
 {
 	std::string sub = s.substr(pos, maxlen);
 	const char* start = sub.c_str();
@@ -2553,9 +2490,7 @@ long long simplecpp::characterLiteralToLL(const std::string& str)
 	bool narrow = false;
 	bool utf8 = false;
 	bool utf16 = false;
-
 	std::size_t pos;
-
 	if(str.size() >= 1 && str[0] == '\'') {
 		narrow = true;
 		pos = 1;
@@ -2573,27 +2508,19 @@ long long simplecpp::characterLiteralToLL(const std::string& str)
 	}
 	else
 		throw std::runtime_error("expected a character literal");
-
 	unsigned long long multivalue = 0;
-
 	std::size_t nbytes = 0;
-
 	while(pos + 1 < str.size()) {
 		if(str[pos] == '\'' || str[pos] == '\n')
 			throw std::runtime_error("raw single quotes and newlines not allowed in character literals");
-
 		if(nbytes >= 1 && !narrow)
 			throw std::runtime_error("multiple characters only supported in narrow character literals");
-
 		unsigned long long value;
-
 		if(str[pos] == '\\') {
 			pos++;
 			char escape = str[pos++];
-
 			if(pos >= str.size())
 				throw std::runtime_error("unexpected end of character literal");
-
 			switch(escape) {
 				// obscure GCC extensions
 				case '%':
@@ -2605,37 +2532,34 @@ long long simplecpp::characterLiteralToLL(const std::string& str)
 				case '"':
 				case '?':
 				case '\\':
-				    value = static_cast<unsigned char>(escape);
+				    value = static_cast<uchar>(escape);
 				    break;
-
 				case 'a':
-				    value = static_cast<unsigned char>('\a');
+				    value = static_cast<uchar>('\a');
 				    break;
 				case 'b':
-				    value = static_cast<unsigned char>('\b');
+				    value = static_cast<uchar>('\b');
 				    break;
 				case 'f':
-				    value = static_cast<unsigned char>('\f');
+				    value = static_cast<uchar>('\f');
 				    break;
 				case 'n':
-				    value = static_cast<unsigned char>('\n');
+				    value = static_cast<uchar>('\n');
 				    break;
 				case 'r':
-				    value = static_cast<unsigned char>('\r');
+				    value = static_cast<uchar>('\r');
 				    break;
 				case 't':
-				    value = static_cast<unsigned char>('\t');
+				    value = static_cast<uchar>('\t');
 				    break;
 				case 'v':
-				    value = static_cast<unsigned char>('\v');
+				    value = static_cast<uchar>('\v');
 				    break;
-
 				// GCC extension for ESC character
 				case 'e':
 				case 'E':
-				    value = static_cast<unsigned char>('\x1b');
+				    value = static_cast<uchar>('\x1b');
 				    break;
-
 				case '0':
 				case '1':
 				case '2':
@@ -2647,41 +2571,33 @@ long long simplecpp::characterLiteralToLL(const std::string& str)
 				    // octal escape sequences consist of 1 to 3 digits
 				    value = stringToULLbounded(str, --pos, 8, 1, 3);
 				    break;
-
 				case 'x':
 				    // hexadecimal escape sequences consist of at least 1 digit
 				    value = stringToULLbounded(str, pos, 16);
 				    break;
-
 				case 'u':
 				case 'U': {
 				    // universal character names have exactly 4 or 8 digits
 				    std::size_t ndigits = (escape == 'u' ? 4 : 8);
 				    value = stringToULLbounded(str, pos, 16, ndigits, ndigits);
-
 				    // UTF-8 encodes code points above 0x7f in multiple code units
 				    // code points above 0x10ffff are not allowed
 				    if(((narrow || utf8) && value > 0x7f) || (utf16 && value > 0xffff) || value > 0x10ffff)
 					    throw std::runtime_error("code point too large");
-
 				    if(value >= 0xd800 && value <= 0xdfff)
 					    throw std::runtime_error("surrogate code points not allowed in universal character names");
-
 				    break;
 			    }
-
 				default:
 				    throw std::runtime_error("invalid escape sequence");
 			}
 		}
 		else {
-			value = static_cast<unsigned char>(str[pos++]);
-
+			value = static_cast<uchar>(str[pos++]);
 			if(!narrow && value >= 0x80) {
 				// Assuming this is a UTF-8 encoded code point.
 				// This decoder may not completely validate the input.
 				// Noncharacters are neither rejected nor replaced.
-
 				int additional_bytes;
 				if(value >= 0xf5) // higher values would result in code points above 0x10ffff
 					throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid");
@@ -2693,56 +2609,39 @@ long long simplecpp::characterLiteralToLL(const std::string& str)
 					additional_bytes = 1;
 				else
 					throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid");
-
 				value &= (1 << (6 - additional_bytes)) - 1;
-
 				while(additional_bytes--) {
 					if(pos + 1 >= str.size())
-						throw std::runtime_error(
-							      "assumed UTF-8 encoded source, but character literal ends unexpectedly");
-
-					unsigned char c = str[pos++];
-
+						throw std::runtime_error("assumed UTF-8 encoded source, but character literal ends unexpectedly");
+					uchar c = str[pos++];
 					if(((c >> 6) != 2) // ensure c has form 0xb10xxxxxx
-					    || (!value && additional_bytes == 1 && c < 0xa0) // overlong 3-bytes
-					                                                     // encoding
-					    || (!value && additional_bytes == 2 && c < 0x90)) // overlong 4-bytes
-						                                              // encoding
+					    || (!value && additional_bytes == 1 && c < 0xa0) // overlong 3-bytes encoding
+					    || (!value && additional_bytes == 2 && c < 0x90)) // overlong 4-bytes encoding
 						throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid");
-
 					value = (value << 6) | (c & ((1 << 7) - 1));
 				}
-
 				if(value >= 0xd800 && value <= 0xdfff)
 					throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid");
-
 				if((utf8 && value > 0x7f) || (utf16 && value > 0xffff) || value > 0x10ffff)
 					throw std::runtime_error("code point too large");
 			}
 		}
-
-		if(((narrow || utf8) && value > std::numeric_limits<unsigned char>::max()) || (utf16 && value >> 16) || value >> 32)
+		if(((narrow || utf8) && value > std::numeric_limits<uchar>::max()) || (utf16 && value >> 16) || value >> 32)
 			throw std::runtime_error("numeric escape sequence too large");
-
 		multivalue <<= CHAR_BIT;
 		multivalue |= value;
 		nbytes++;
 	}
-
 	if(pos + 1 != str.size() || str[pos] != '\'')
 		throw std::runtime_error("missing closing quote in character literal");
-
 	if(!nbytes)
 		throw std::runtime_error("empty character literal");
-
 	// ordinary narrow character literal's value is determined by (possibly signed) char
 	if(narrow && nbytes == 1)
 		return static_cast<char>(multivalue);
-
 	// while multi-character literal's value is determined by (signed) int
 	if(narrow)
 		return static_cast<int>(multivalue);
-
 	// All other cases are unsigned. Since long long is at least 64bit wide,
 	// while the literals at most 32bit wide, the conversion preserves all values.
 	return multivalue;
@@ -2772,8 +2671,8 @@ static long long evaluate(simplecpp::TokenList &expr, const std::map<std::string
 
 static const simplecpp::Token * gotoNextLine(const simplecpp::Token * tok)
 {
-	const unsigned int line = tok->location.line;
-	const unsigned int file = tok->location.fileIndex;
+	const uint line = tok->location.line;
+	const uint file = tok->location.fileIndex;
 	while(tok && tok->location.line == line && tok->location.fileIndex == file)
 		tok = tok->next;
 	return tok;
@@ -2783,24 +2682,24 @@ static const simplecpp::Token * gotoNextLine(const simplecpp::Token * tok)
 
 class NonExistingFilesCache {
 public:
-	NonExistingFilesCache() {
+	NonExistingFilesCache() 
+	{
 		InitializeCriticalSection(&m_criticalSection);
 	}
-
-	~NonExistingFilesCache() {
+	~NonExistingFilesCache() 
+	{
 		DeleteCriticalSection(&m_criticalSection);
 	}
-
-	bool contains(const std::string& path) {
+	bool contains(const std::string& path) 
+	{
 		ScopedLock lock(m_criticalSection);
 		return (m_pathSet.find(path) != m_pathSet.end());
 	}
-
-	void add(const std::string& path) {
+	void add(const std::string& path) 
+	{
 		ScopedLock lock(m_criticalSection);
 		m_pathSet.insert(path);
 	}
-
 private:
 	std::set<std::string> m_pathSet;
 	CRITICAL_SECTION m_criticalSection;
@@ -3234,7 +3133,6 @@ void simplecpp::preprocess(simplecpp::TokenList &output,
 					inc2.push_back(new Token(hdr, inc1.cfront()->location));
 					inc2.front()->op = '<';
 				}
-
 				if(inc2.empty() || inc2.cfront()->str().size() <= 2U) {
 					if(outputList) {
 						simplecpp::Output err(files);
@@ -3246,9 +3144,7 @@ void simplecpp::preprocess(simplecpp::TokenList &output,
 					output.clear();
 					return;
 				}
-
 				const Token * inctok = inc2.cfront();
-
 				const bool systemheader = (inctok->op == '<');
 				const std::string header(realFilename(inctok->str().substr(1U, inctok->str().size() - 2U)));
 				std::string header2 = getFileName(filedata, rawtok->location.file(), header, dui, systemheader);
@@ -3298,14 +3194,11 @@ void simplecpp::preprocess(simplecpp::TokenList &output,
 					output.clear();
 					return;
 				}
-
 				bool conditionIsTrue;
 				if(ifstates.top() == _ALWAYS_FALSE || (ifstates.top() == _ELSE_IS_TRUE && rawtok->str() != ELIF))
 					conditionIsTrue = false;
 				else if(rawtok->str() == IFDEF) {
-					conditionIsTrue =
-					    (macros.find(rawtok->next->str()) != macros.end() ||
-					    (hasInclude && rawtok->next->str() == HAS_INCLUDE));
+					conditionIsTrue = (macros.find(rawtok->next->str()) != macros.end() || (hasInclude && rawtok->next->str() == HAS_INCLUDE));
 					maybeUsedMacros[rawtok->next->str()].push_back(rawtok->next->location);
 				}
 				else if(rawtok->str() == IFNDEF) {
@@ -3320,7 +3213,6 @@ void simplecpp::preprocess(simplecpp::TokenList &output,
 							expr.push_back(new Token(*tok));
 							continue;
 						}
-
 						if(tok->str() == DEFINED) {
 							tok = tok->next;
 							const bool par = (tok && tok->op == '(');
@@ -3351,7 +3243,6 @@ void simplecpp::preprocess(simplecpp::TokenList &output,
 							}
 							continue;
 						}
-
 						if(hasInclude && tok->str() == HAS_INCLUDE) {
 							tok = tok->next;
 							const bool par = (tok && tok->op == '(');
@@ -3360,14 +3251,9 @@ void simplecpp::preprocess(simplecpp::TokenList &output,
 							if(tok) {
 								const std::string &sourcefile = rawtok->location.file();
 								const bool systemheader = (tok->str()[0] == '<');
-								const std::string header(realFilename(tok->str().substr(1U,
-								    tok->str().size() - 2U)));
+								const std::string header(realFilename(tok->str().substr(1U, tok->str().size() - 2U)));
 								std::ifstream f;
-								const std::string header2 = openHeader(f,
-									dui,
-									sourcefile,
-									header,
-									systemheader);
+								const std::string header2 = openHeader(f, dui, sourcefile, header, systemheader);
 								expr.push_back(new Token(header2.empty() ? "0" : "1", tok->location));
 							}
 							if(par)

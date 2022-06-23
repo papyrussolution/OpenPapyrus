@@ -17,7 +17,7 @@
  *           PIX *pixDeskewLocal()
  *
  *      Determine local skew
- *           l_int32   pixGetLocalSkewTransform()
+ *           int32   pixGetLocalSkewTransform()
  *           NUMA     *pixGetLocalSkewAngles()
  *
  *  We have two apparently different functions here:
@@ -32,16 +32,16 @@
 #pragma hdrstop
 
 /* Min to travel after finding max before abandoning peak */
-static const l_int32 MinDistInPeak = 35;
+static const int32 MinDistInPeak = 35;
 
 /* Thresholds for peaks and zeros, relative to the max peak */
-static const l_int32 PeakThresholdRatio = 20;
-static const l_int32 ZeroThresholdRatio = 100;
+static const int32 PeakThresholdRatio = 20;
+static const int32 ZeroThresholdRatio = 100;
 
 /* Default values for determining local skew */
-static const l_int32 DefaultSlices = 10;
-static const l_int32 DefaultSweepReduction = 2;
-static const l_int32 DefaultBsReduction = 1;
+static const int32 DefaultSlices = 10;
+static const int32 DefaultSweepReduction = 2;
+static const int32 DefaultBsReduction = 1;
 static const float DefaultSweepRange = 5.; /* degrees */
 static const float DefaultSweepDelta = 1.; /* degrees */
 static const float DefaultMinbsDelta = 0.01; /* degrees */
@@ -89,23 +89,19 @@ static const float MinAllowedConfidence = 3.0;
  *          by the inverse of the width of the text line found there.
  * </pre>
  */
-NUMA * pixFindBaselines(PIX * pixs,
-    PTA ** ppta,
-    PIXA  * pixadb)
+NUMA * pixFindBaselines(PIX * pixs, PTA ** ppta, PIXA  * pixadb)
 {
-	l_int32 h, i, j, nbox, val1, val2, ndiff, bx, by, bw, bh;
-	l_int32 imaxloc, peakthresh, zerothresh, inpeak;
-	l_int32 mintosearch, max, maxloc, nloc, locval;
-	l_int32   * array;
+	PROCNAME(__FUNCTION__);
+	int32 h, i, j, nbox, val1, val2, ndiff, bx, by, bw, bh;
+	int32 imaxloc, peakthresh, zerothresh, inpeak;
+	int32 mintosearch, max, maxloc, nloc, locval;
+	int32   * array;
 	float maxval;
 	BOXA      * boxa1, * boxa2, * boxa3;
 	GPLOT     * gplot;
 	NUMA * nasum, * nadiff, * naloc, * naval;
 	PIX * pix1, * pix2;
 	PTA       * pta;
-
-	PROCNAME(__FUNCTION__);
-
 	if(ppta) *ppta = NULL;
 	if(!pixs || pixGetDepth(pixs) != 1)
 		return (NUMA*)ERROR_PTR("pixs undefined or not 1 bpp", procName, NULL);
@@ -146,9 +142,9 @@ NUMA * pixFindBaselines(PIX * pixs,
 	numaDestroy(&nadiff);
 
 	/* Use this to begin locating a new peak: */
-	peakthresh = (l_int32)maxval / PeakThresholdRatio;
+	peakthresh = (int32)maxval / PeakThresholdRatio;
 	/* Use this to begin a region between peaks: */
-	zerothresh = (l_int32)maxval / ZeroThresholdRatio;
+	zerothresh = (int32)maxval / ZeroThresholdRatio;
 
 	naloc = numaCreate(0);
 	naval = numaCreate(0);
@@ -238,7 +234,7 @@ NUMA * pixFindBaselines(PIX * pixs,
 	boxaDestroy(&boxa3);
 
 	if(pixadb && pta) { /* display baselines */
-		l_int32 npts, x1, y1, x2, y2;
+		int32 npts, x1, y1, x2, y2;
 		pix1 = pixConvertTo32(pixs);
 		npts = ptaGetCount(pta);
 		for(i = 0; i < npts; i += 2) {
@@ -297,19 +293,17 @@ NUMA * pixFindBaselines(PIX * pixs,
  * </pre>
  */
 PIX * pixDeskewLocal(PIX * pixs,
-    l_int32 nslices,
-    l_int32 redsweep,
-    l_int32 redsearch,
+    int32 nslices,
+    int32 redsweep,
+    int32 redsearch,
     float sweeprange,
     float sweepdelta,
     float minbsdelta)
 {
-	l_int32 ret;
+	PROCNAME(__FUNCTION__);
+	int32 ret;
 	PIX * pixd;
 	PTA       * ptas, * ptad;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs || pixGetDepth(pixs) != 1)
 		return (PIX *)ERROR_PTR("pixs undefined or not 1 bpp", procName, NULL);
 
@@ -363,23 +357,13 @@ PIX * pixDeskewLocal(PIX * pixs,
  *          to remove keystoning in the src.
  * </pre>
  */
-l_ok pixGetLocalSkewTransform(PIX * pixs,
-    l_int32 nslices,
-    l_int32 redsweep,
-    l_int32 redsearch,
-    float sweeprange,
-    float sweepdelta,
-    float minbsdelta,
-    PTA ** pptas,
-    PTA ** pptad)
+l_ok pixGetLocalSkewTransform(PIX * pixs, int32 nslices, int32 redsweep, int32 redsearch, float sweeprange, float sweepdelta, float minbsdelta, PTA ** pptas, PTA ** pptad)
 {
-	l_int32 w, h, i;
+	PROCNAME(__FUNCTION__);
+	int32 w, h, i;
 	float deg2rad, angr, angd, dely;
 	NUMA * naskew;
 	PTA       * ptas, * ptad;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pptas || !pptad)
 		return ERROR_INT("&ptas and &ptad not defined", procName, 1);
 	*pptas = *pptad = NULL;
@@ -397,14 +381,10 @@ l_ok pixGetLocalSkewTransform(PIX * pixs,
 		sweepdelta = DefaultSweepDelta;
 	if(minbsdelta == 0.0)
 		minbsdelta = DefaultMinbsDelta;
-
-	naskew = pixGetLocalSkewAngles(pixs, nslices, redsweep, redsearch,
-		sweeprange, sweepdelta, minbsdelta,
-		NULL, NULL, 0);
+	naskew = pixGetLocalSkewAngles(pixs, nslices, redsweep, redsearch, sweeprange, sweepdelta, minbsdelta, NULL, NULL, 0);
 	if(!naskew)
 		return ERROR_INT("naskew not made", procName, 1);
-
-	deg2rad = 3.14159265 / 180.;
+	deg2rad = SMathConst::Pi_f / 180.0f;
 	w = pixGetWidth(pixs);
 	h = pixGetHeight(pixs);
 	ptas = ptaCreate(4);
@@ -483,26 +463,24 @@ l_ok pixGetLocalSkewTransform(PIX * pixs,
  * </pre>
  */
 NUMA * pixGetLocalSkewAngles(PIX        * pixs,
-    l_int32 nslices,
-    l_int32 redsweep,
-    l_int32 redsearch,
+    int32 nslices,
+    int32 redsweep,
+    int32 redsearch,
     float sweeprange,
     float sweepdelta,
     float minbsdelta,
     float * pa,
     float * pb,
-    l_int32 debug)
+    int32 debug)
 {
-	l_int32 w, h, hs, i, ystart, yend, ovlap, npts;
+	PROCNAME(__FUNCTION__);
+	int32 w, h, hs, i, ystart, yend, ovlap, npts;
 	float angle, conf, ycenter, a, b;
 	BOX       * box;
 	GPLOT     * gplot;
 	NUMA * naskew, * nax, * nay;
 	PIX * pix;
 	PTA       * pta;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs || pixGetDepth(pixs) != 1)
 		return (NUMA*)ERROR_PTR("pixs undefined or not 1 bpp", procName, NULL);
 	if(nslices < 2 || nslices > 20)
@@ -517,10 +495,9 @@ NUMA * pixGetLocalSkewAngles(PIX        * pixs,
 		sweepdelta = DefaultSweepDelta;
 	if(minbsdelta == 0.0)
 		minbsdelta = DefaultMinbsDelta;
-
 	pixGetDimensions(pixs, &w, &h, NULL);
 	hs = h / nslices;
-	ovlap = (l_int32)(OverlapFraction * hs);
+	ovlap = (int32)(OverlapFraction * hs);
 	pta = ptaCreate(nslices);
 	for(i = 0; i < nslices; i++) {
 		ystart = MAX(0, hs * i - ovlap);

@@ -19,28 +19,28 @@
  *      (5) Rank row and column transforms
  *
  *    Measurement of properties
- *           l_int32     pixaFindDimensions()
- *           l_int32     pixFindAreaPerimRatio()
+ *           int32     pixaFindDimensions()
+ *           int32     pixFindAreaPerimRatio()
  *           NUMA       *pixaFindPerimToAreaRatio()
- *           l_int32     pixFindPerimToAreaRatio()
+ *           int32     pixFindPerimToAreaRatio()
  *           NUMA       *pixaFindPerimSizeRatio()
- *           l_int32     pixFindPerimSizeRatio()
+ *           int32     pixFindPerimSizeRatio()
  *           NUMA       *pixaFindAreaFraction()
- *           l_int32     pixFindAreaFraction()
+ *           int32     pixFindAreaFraction()
  *           NUMA       *pixaFindAreaFractionMasked()
- *           l_int32     pixFindAreaFractionMasked()
+ *           int32     pixFindAreaFractionMasked()
  *           NUMA       *pixaFindWidthHeightRatio()
  *           NUMA       *pixaFindWidthHeightProduct()
- *           l_int32     pixFindOverlapFraction()
+ *           int32     pixFindOverlapFraction()
  *           BOXA       *pixFindRectangleComps()
- *           l_int32     pixConformsToRectangle()
+ *           int32     pixConformsToRectangle()
  *
  *    Extract rectangular region
  *           PIXA       *pixClipRectangles()
  *           PIX        *pixClipRectangle()
  *           PIX        *pixClipRectangleWithBorder()
  *           PIX        *pixClipMasked()
- *           l_int32     pixCropToMatch()
+ *           int32     pixCropToMatch()
  *           PIX        *pixCropToSize()
  *           PIX        *pixResizeToMatch()
  *
@@ -56,15 +56,15 @@
  *           PIX        * pixMakeCoveringOfRectangles()
  *
  *    Fraction of Fg pixels under a mask
- *           l_int32     pixFractionFgInMask()
+ *           int32     pixFractionFgInMask()
  *
  *    Clip to foreground
  *           PIX        *pixClipToForeground()
- *           l_int32     pixTestClipToForeground()
- *           l_int32     pixClipBoxToForeground()
- *           l_int32     pixScanForForeground()
- *           l_int32     pixClipBoxToEdges()
- *           l_int32     pixScanForEdge()
+ *           int32     pixTestClipToForeground()
+ *           int32     pixClipBoxToForeground()
+ *           int32     pixScanForForeground()
+ *           int32     pixClipBoxToEdges()
+ *           int32     pixScanForEdge()
  *
  *    Extract pixel averages and reversals along lines
  *           NUMA       *pixExtractOnLine()
@@ -76,7 +76,7 @@
  *           NUMA       *pixWindowedVarianceOnLine()
  *
  *    Extract min/max of pixel values near lines
- *           l_int32     pixMinMaxNearLine()
+ *           int32     pixMinMaxNearLine()
  *
  *    Rank row and column transforms
  *           PIX        *pixRankRowTransform()
@@ -86,7 +86,7 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static const l_uint32 rmask32[] = {0x0,
+static const uint32 rmask32[] = {0x0,
 				   0x00000001, 0x00000003, 0x00000007, 0x0000000f,
 				   0x0000001f, 0x0000003f, 0x0000007f, 0x000000ff,
 				   0x000001ff, 0x000003ff, 0x000007ff, 0x00000fff,
@@ -115,7 +115,7 @@ l_ok pixaFindDimensions(PIXA   * pixa,
     NUMA ** pnaw,
     NUMA ** pnah)
 {
-	l_int32 i, n, w, h;
+	int32 i, n, w, h;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -160,11 +160,11 @@ l_ok pixaFindDimensions(PIXA   * pixa,
  * </pre>
  */
 l_ok pixFindAreaPerimRatio(PIX        * pixs,
-    l_int32    * tab,
+    int32    * tab,
     float * pfract)
 {
-	l_int32 * tab8;
-	l_int32 nfg, nbound;
+	int32 * tab8;
+	int32 nfg, nbound;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -210,8 +210,8 @@ l_ok pixFindAreaPerimRatio(PIX        * pixs,
  */
 NUMA * pixaFindPerimToAreaRatio(PIXA  * pixa)
 {
-	l_int32 i, n;
-	l_int32   * tab;
+	int32 i, n;
+	int32   * tab;
 	float fract;
 	NUMA * na;
 	PIX * pixt;
@@ -257,11 +257,11 @@ NUMA * pixaFindPerimToAreaRatio(PIXA  * pixa)
  * </pre>
  */
 l_ok pixFindPerimToAreaRatio(PIX        * pixs,
-    l_int32    * tab,
+    int32    * tab,
     float * pfract)
 {
-	l_int32 * tab8;
-	l_int32 nfg, nbound;
+	int32 * tab8;
+	int32 nfg, nbound;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -310,8 +310,8 @@ l_ok pixFindPerimToAreaRatio(PIX        * pixs,
  */
 NUMA * pixaFindPerimSizeRatio(PIXA  * pixa)
 {
-	l_int32 i, n;
-	l_int32   * tab;
+	int32 i, n;
+	int32   * tab;
 	float ratio;
 	NUMA * na;
 	PIX * pixt;
@@ -357,11 +357,11 @@ NUMA * pixaFindPerimSizeRatio(PIXA  * pixa)
  * </pre>
  */
 l_ok pixFindPerimSizeRatio(PIX        * pixs,
-    l_int32    * tab,
+    int32    * tab,
     float * pratio)
 {
-	l_int32 * tab8;
-	l_int32 w, h, nbound;
+	int32 * tab8;
+	int32 w, h, nbound;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -402,8 +402,8 @@ l_ok pixFindPerimSizeRatio(PIX        * pixs,
  */
 NUMA * pixaFindAreaFraction(PIXA  * pixa)
 {
-	l_int32 i, n;
-	l_int32   * tab;
+	int32 i, n;
+	int32   * tab;
 	float fract;
 	NUMA * na;
 	PIX * pixt;
@@ -442,11 +442,11 @@ NUMA * pixaFindAreaFraction(PIXA  * pixa)
  * </pre>
  */
 l_ok pixFindAreaFraction(PIX        * pixs,
-    l_int32    * tab,
+    int32    * tab,
     float * pfract)
 {
-	l_int32 w, h, sum;
-	l_int32 * tab8;
+	int32 w, h, sum;
+	int32 * tab8;
 
 	PROCNAME(__FUNCTION__);
 
@@ -489,10 +489,10 @@ l_ok pixFindAreaFraction(PIX        * pixs,
  */
 NUMA * pixaFindAreaFractionMasked(PIXA    * pixa,
     PIX * pixm,
-    l_int32 debug)
+    int32 debug)
 {
-	l_int32 i, n, full;
-	l_int32   * tab;
+	int32 i, n, full;
+	int32   * tab;
 	float fract;
 	BOX       * box;
 	NUMA * na;
@@ -522,7 +522,7 @@ NUMA * pixaFindAreaFractionMasked(PIXA    * pixa,
 	SAlloc::F(tab);
 
 	if(debug) {
-		l_int32 w, h;
+		int32 w, h;
 		PIX * pix1, * pix2;
 		pixGetDimensions(pixm, &w, &h, NULL);
 		pix1 = pixaDisplay(pixa, w, h); /* recover original image */
@@ -567,11 +567,11 @@ NUMA * pixaFindAreaFractionMasked(PIXA    * pixa,
 l_ok pixFindAreaFractionMasked(PIX        * pixs,
     BOX        * box,
     PIX        * pixm,
-    l_int32    * tab,
+    int32    * tab,
     float * pfract)
 {
-	l_int32 x, y, w, h, sum, masksum;
-	l_int32 * tab8;
+	int32 x, y, w, h, sum, masksum;
+	int32 * tab8;
 	PIX * pix1;
 
 	PROCNAME(__FUNCTION__);
@@ -623,7 +623,7 @@ l_ok pixFindAreaFractionMasked(PIX        * pixs,
  */
 NUMA * pixaFindWidthHeightRatio(PIXA  * pixa)
 {
-	l_int32 i, n, w, h;
+	int32 i, n, w, h;
 	NUMA * na;
 	PIX * pixt;
 
@@ -657,7 +657,7 @@ NUMA * pixaFindWidthHeightRatio(PIXA  * pixa)
  */
 NUMA * pixaFindWidthHeightProduct(PIXA  * pixa)
 {
-	l_int32 i, n, w, h;
+	int32 i, n, w, h;
 	NUMA * na;
 	PIX * pixt;
 
@@ -695,14 +695,14 @@ NUMA * pixaFindWidthHeightProduct(PIXA  * pixa)
  */
 l_ok pixFindOverlapFraction(PIX        * pixs1,
     PIX        * pixs2,
-    l_int32 x2,
-    l_int32 y2,
-    l_int32    * tab,
+    int32 x2,
+    int32 y2,
+    int32    * tab,
     float * pratio,
-    l_int32    * pnoverlap)
+    int32    * pnoverlap)
 {
-	l_int32 * tab8;
-	l_int32 w, h, nintersect, nunion;
+	int32 * tab8;
+	int32 w, h, nintersect, nunion;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -759,11 +759,11 @@ l_ok pixFindOverlapFraction(PIX        * pixs1,
  * </pre>
  */
 BOXA * pixFindRectangleComps(PIX * pixs,
-    l_int32 dist,
-    l_int32 minw,
-    l_int32 minh)
+    int32 dist,
+    int32 minw,
+    int32 minh)
 {
-	l_int32 w, h, i, n, conforms;
+	int32 w, h, i, n, conforms;
 	BOX * box;
 	BOXA * boxa, * boxad;
 	PIX * pix;
@@ -838,10 +838,10 @@ BOXA * pixFindRectangleComps(PIX * pixs,
  */
 l_ok pixConformsToRectangle(PIX * pixs,
     BOX      * box,
-    l_int32 dist,
-    l_int32 * pconforms)
+    int32 dist,
+    int32 * pconforms)
 {
-	l_int32 w, h, empty;
+	int32 w, h, empty;
 	PIX * pix1, * pix2;
 
 	PROCNAME(__FUNCTION__);
@@ -904,7 +904,7 @@ l_ok pixConformsToRectangle(PIX * pixs,
 PIXA * pixClipRectangles(PIX * pixs,
     BOXA * boxa)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOX * box, * boxc;
 	PIX * pix;
 	PIXA    * pixa;
@@ -969,7 +969,7 @@ PIX * pixClipRectangle(PIX * pixs,
     BOX   * box,
     BOX  ** pboxc)
 {
-	l_int32 w, h, d, bx, by, bw, bh;
+	int32 w, h, d, bx, by, bw, bh;
 	BOX * boxc;
 	PIX * pixd;
 
@@ -1028,10 +1028,10 @@ PIX * pixClipRectangle(PIX * pixs,
  */
 PIX * pixClipRectangleWithBorder(PIX * pixs,
     BOX * box,
-    l_int32 maxbord,
+    int32 maxbord,
     BOX    ** pboxn)
 {
-	l_int32 w, h, bx, by, bw, bh, bord;
+	int32 w, h, bx, by, bw, bh, bord;
 	BOX * box1;
 	PIX * pix1;
 
@@ -1099,12 +1099,12 @@ PIX * pixClipRectangleWithBorder(PIX * pixs,
  */
 PIX * pixClipMasked(PIX * pixs,
     PIX * pixm,
-    l_int32 x,
-    l_int32 y,
-    l_uint32 outval)
+    int32 x,
+    int32 y,
+    uint32 outval)
 {
-	l_int32 wm, hm, index, rval, gval, bval;
-	l_uint32 pixel;
+	int32 wm, hm, index, rval, gval, bval;
+	uint32 pixel;
 	BOX      * box;
 	PIX * pixmi, * pixd;
 	PIXCMAP  * cmap;
@@ -1163,7 +1163,7 @@ l_ok pixCropToMatch(PIX * pixs1,
     PIX ** ppixd1,
     PIX ** ppixd2)
 {
-	l_int32 w1, h1, w2, h2, w, h;
+	int32 w1, h1, w2, h2, w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1200,10 +1200,10 @@ l_ok pixCropToMatch(PIX * pixs1,
  * </pre>
  */
 PIX * pixCropToSize(PIX * pixs,
-    l_int32 w,
-    l_int32 h)
+    int32 w,
+    int32 h)
 {
-	l_int32 ws, hs, wd, hd, d;
+	int32 ws, hs, wd, hd, d;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1253,10 +1253,10 @@ PIX * pixCropToSize(PIX * pixs,
  */
 PIX * pixResizeToMatch(PIX * pixs,
     PIX * pixt,
-    l_int32 w,
-    l_int32 h)
+    int32 w,
+    int32 h)
 {
-	l_int32 i, j, ws, hs, d;
+	int32 i, j, ws, hs, d;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1319,12 +1319,12 @@ PIX * pixResizeToMatch(PIX * pixs,
  *          If %rankorder >= number of components, select the smallest.
  */
 PIX * pixSelectComponentBySize(PIX * pixs,
-    l_int32 rankorder,
-    l_int32 type,
-    l_int32 connectivity,
+    int32 rankorder,
+    int32 type,
+    int32 connectivity,
     BOX    ** pbox)
 {
-	l_int32 n, empty, sorttype, index;
+	int32 n, empty, sorttype, index;
 	BOXA * boxa1;
 	NUMA * naindex;
 	PIX * pixd;
@@ -1390,12 +1390,12 @@ PIX * pixSelectComponentBySize(PIX * pixs,
  *          except for the selected one.
  */
 PIX * pixFilterComponentBySize(PIX * pixs,
-    l_int32 rankorder,
-    l_int32 type,
-    l_int32 connectivity,
+    int32 rankorder,
+    int32 type,
+    int32 connectivity,
     BOX    ** pbox)
 {
-	l_int32 x, y, w, h;
+	int32 x, y, w, h;
 	BOX * box;
 	PIX * pix1, * pix2;
 
@@ -1456,11 +1456,11 @@ PIX * pixFilterComponentBySize(PIX * pixs,
  *           * frame covering the outer 30%: hf = vf = 0.3, type = L_USE_OUTER
  * </pre>
  */
-PIX * pixMakeSymmetricMask(l_int32 w,
-    l_int32 h,
+PIX * pixMakeSymmetricMask(int32 w,
+    int32 h,
     float hf,
     float vf,
-    l_int32 type)
+    int32 type)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1511,14 +1511,14 @@ PIX * pixMakeSymmetricMask(l_int32 w,
  *          vertical mask parts is 0.5 * (hf2 - hf1) * w.
  * </pre>
  */
-PIX * pixMakeFrameMask(l_int32 w,
-    l_int32 h,
+PIX * pixMakeFrameMask(int32 w,
+    int32 h,
     float hf1,
     float hf2,
     float vf1,
     float vf2)
 {
-	l_int32 h1, h2, v1, v2;
+	int32 h1, h2, v1, v2;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1576,9 +1576,9 @@ PIX * pixMakeFrameMask(l_int32 w,
  * </pre>
  */
 PIX * pixMakeCoveringOfRectangles(PIX * pixs,
-    l_int32 maxiters)
+    int32 maxiters)
 {
-	l_int32 empty, same, niters;
+	int32 empty, same, niters;
 	BOXA * boxa;
 	PIX * pix1, * pix2;
 
@@ -1650,7 +1650,7 @@ l_ok pixFractionFgInMask(PIX        * pix1,
     PIX        * pix2,
     float * pfract)
 {
-	l_int32 w1, h1, w2, h2, empty, count1, count3;
+	int32 w1, h1, w2, h2, empty, count1, count3;
 	PIX * pix3;
 
 	PROCNAME(__FUNCTION__);
@@ -1704,10 +1704,10 @@ l_ok pixClipToForeground(PIX * pixs,
     PIX ** ppixd,
     BOX  ** pbox)
 {
-	l_int32 w, h, wpl, nfullwords, extra, i, j;
-	l_int32 minx, miny, maxx, maxy;
-	l_uint32 result, mask;
-	l_uint32  * data, * line;
+	int32 w, h, wpl, nfullwords, extra, i, j;
+	int32 minx, miny, maxx, maxy;
+	uint32 result, mask;
+	uint32  * data, * line;
 	BOX       * box;
 
 	PROCNAME(__FUNCTION__);
@@ -1799,10 +1799,10 @@ maxx_found:
  * </pre>
  */
 l_ok pixTestClipToForeground(PIX * pixs,
-    l_int32 * pcanclip)
+    int32 * pcanclip)
 {
-	l_int32 i, j, w, h, wpl, found;
-	l_uint32  * data, * line;
+	int32 i, j, w, h, wpl, found;
+	uint32  * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1873,7 +1873,7 @@ l_ok pixClipBoxToForeground(PIX * pixs,
     PIX ** ppixd,
     BOX  ** pboxd)
 {
-	l_int32 w, h, bx, by, bw, bh, cbw, cbh, left, right, top, bottom;
+	int32 w, h, bx, by, bw, bh, cbw, cbh, left, right, top, bottom;
 	BOX * boxt, * boxd;
 
 	PROCNAME(__FUNCTION__);
@@ -1934,11 +1934,11 @@ l_ok pixClipBoxToForeground(PIX * pixs,
  */
 l_ok pixScanForForeground(PIX * pixs,
     BOX      * box,
-    l_int32 scanflag,
-    l_int32 * ploc)
+    int32 scanflag,
+    int32 * ploc)
 {
-	l_int32 bx, by, bw, bh, x, xstart, xend, y, ystart, yend, wpl;
-	l_uint32  * data, * line;
+	int32 bx, by, bw, bh, x, xstart, xend, y, ystart, yend, wpl;
+	uint32  * data, * line;
 	BOX       * boxt;
 
 	PROCNAME(__FUNCTION__);
@@ -2053,15 +2053,15 @@ l_ok pixScanForForeground(PIX * pixs,
  */
 l_ok pixClipBoxToEdges(PIX * pixs,
     BOX * boxs,
-    l_int32 lowthresh,
-    l_int32 highthresh,
-    l_int32 maxwidth,
-    l_int32 factor,
+    int32 lowthresh,
+    int32 highthresh,
+    int32 maxwidth,
+    int32 factor,
     PIX    ** ppixd,
     BOX    ** pboxd)
 {
-	l_int32 w, h, bx, by, bw, bh, cbw, cbh, left, right, top, bottom;
-	l_int32 lfound, rfound, tfound, bfound, change;
+	int32 w, h, bx, by, bw, bh, cbw, cbh, left, right, top, bottom;
+	int32 lfound, rfound, tfound, bfound, change;
 	BOX * boxt, * boxd;
 
 	PROCNAME(__FUNCTION__);
@@ -2182,16 +2182,16 @@ l_ok pixClipBoxToEdges(PIX * pixs,
  */
 l_ok pixScanForEdge(PIX * pixs,
     BOX      * box,
-    l_int32 lowthresh,
-    l_int32 highthresh,
-    l_int32 maxwidth,
-    l_int32 factor,
-    l_int32 scanflag,
-    l_int32 * ploc)
+    int32 lowthresh,
+    int32 highthresh,
+    int32 maxwidth,
+    int32 factor,
+    int32 scanflag,
+    int32 * ploc)
 {
-	l_int32 bx, by, bw, bh, foundmin, loc, sum, wpl;
-	l_int32 x, xstart, xend, y, ystart, yend;
-	l_uint32  * data, * line;
+	int32 bx, by, bw, bh, foundmin, loc, sum, wpl;
+	int32 x, xstart, xend, y, ystart, yend;
+	uint32  * data, * line;
 	BOX       * boxt;
 
 	PROCNAME(__FUNCTION__);
@@ -2369,14 +2369,14 @@ l_ok pixScanForEdge(PIX * pixs,
  * </pre>
  */
 NUMA * pixExtractOnLine(PIX * pixs,
-    l_int32 x1,
-    l_int32 y1,
-    l_int32 x2,
-    l_int32 y2,
-    l_int32 factor)
+    int32 x1,
+    int32 y1,
+    int32 x2,
+    int32 y2,
+    int32 factor)
 {
-	l_int32 i, w, h, d, xmin, ymin, xmax, ymax, npts, direction;
-	l_uint32 val;
+	int32 i, w, h, d, xmin, ymin, xmax, ymax, npts, direction;
+	uint32 val;
 	float x, y;
 	double slope;
 	NUMA * na;
@@ -2456,7 +2456,7 @@ NUMA * pixExtractOnLine(PIX * pixs,
 		npts = ptaGetCount(pta);
 		for(i = 0; i < npts; i += factor) {
 			ptaGetPt(pta, i, &x, &y);
-			pixGetPixel(pixs, (l_int32)x, (l_int32)y, &val);
+			pixGetPixel(pixs, (int32)x, (int32)y, &val);
 			numaAddNumber(na, val);
 		}
 
@@ -2490,14 +2490,14 @@ NUMA * pixExtractOnLine(PIX * pixs,
  * </pre>
  */
 float pixAverageOnLine(PIX * pixs,
-    l_int32 x1,
-    l_int32 y1,
-    l_int32 x2,
-    l_int32 y2,
-    l_int32 factor)
+    int32 x1,
+    int32 y1,
+    int32 x2,
+    int32 y2,
+    int32 factor)
 {
-	l_int32 i, j, w, h, d, direction, count, wpl;
-	l_uint32  * data, * line;
+	int32 i, j, w, h, d, direction, count, wpl;
+	uint32  * data, * line;
 	float sum;
 
 	PROCNAME(__FUNCTION__);
@@ -2591,13 +2591,13 @@ float pixAverageOnLine(PIX * pixs,
  */
 NUMA * pixAverageIntensityProfile(PIX * pixs,
     float fract,
-    l_int32 dir,
-    l_int32 first,
-    l_int32 last,
-    l_int32 factor1,
-    l_int32 factor2)
+    int32 dir,
+    int32 first,
+    int32 last,
+    int32 factor1,
+    int32 factor2)
 {
-	l_int32 i, j, w, h, d, start, end;
+	int32 i, j, w, h, d, start, end;
 	float ave;
 	NUMA * nad;
 	PIX * pixr, * pixg;
@@ -2636,7 +2636,7 @@ NUMA * pixAverageIntensityProfile(PIX * pixs,
 	nad = numaCreate(0); /* output: samples in slow scan direction */
 	numaSetParameters(nad, 0, factor2);
 	if(dir == L_HORIZONTAL_LINE) {
-		start = (l_int32)(0.5 * (1.0 - fract) * (float)w);
+		start = (int32)(0.5 * (1.0 - fract) * (float)w);
 		end = w - start;
 		if(last > h - 1) {
 			L_WARNING("last > h - 1; clipping\n", procName);
@@ -2648,7 +2648,7 @@ NUMA * pixAverageIntensityProfile(PIX * pixs,
 		}
 	}
 	else if(dir == L_VERTICAL_LINE) {
-		start = (l_int32)(0.5 * (1.0 - fract) * (float)h);
+		start = (int32)(0.5 * (1.0 - fract) * (float)h);
 		end = h - start;
 		if(last > w - 1) {
 			L_WARNING("last > w - 1; clipping\n", procName);
@@ -2705,14 +2705,14 @@ NUMA * pixAverageIntensityProfile(PIX * pixs,
  */
 NUMA * pixReversalProfile(PIX * pixs,
     float fract,
-    l_int32 dir,
-    l_int32 first,
-    l_int32 last,
-    l_int32 minreversal,
-    l_int32 factor1,
-    l_int32 factor2)
+    int32 dir,
+    int32 first,
+    int32 last,
+    int32 minreversal,
+    int32 factor1,
+    int32 factor2)
 {
-	l_int32 i, j, w, h, d, start, end, nr;
+	int32 i, j, w, h, d, start, end, nr;
 	NUMA     * naline, * nad;
 	PIX * pixr, * pixg;
 
@@ -2753,7 +2753,7 @@ NUMA * pixReversalProfile(PIX * pixs,
 	nad = numaCreate(0); /* output: samples in slow scan direction */
 	numaSetParameters(nad, 0, factor2);
 	if(dir == L_HORIZONTAL_LINE) {
-		start = (l_int32)(0.5 * (1.0 - fract) * (float)w);
+		start = (int32)(0.5 * (1.0 - fract) * (float)w);
 		end = w - start;
 		if(last > h - 1) {
 			L_WARNING("last > h - 1; clipping\n", procName);
@@ -2767,7 +2767,7 @@ NUMA * pixReversalProfile(PIX * pixs,
 		}
 	}
 	else if(dir == L_VERTICAL_LINE) {
-		start = (l_int32)(0.5 * (1.0 - fract) * (float)h);
+		start = (int32)(0.5 * (1.0 - fract) * (float)h);
 		end = h - start;
 		if(last > w - 1) {
 			L_WARNING("last > w - 1; clipping\n", procName);
@@ -2813,15 +2813,15 @@ NUMA * pixReversalProfile(PIX * pixs,
  * </pre>
  */
 l_ok pixWindowedVarianceOnLine(PIX * pixs,
-    l_int32 dir,
-    l_int32 loc,
-    l_int32 c1,
-    l_int32 c2,
-    l_int32 size,
+    int32 dir,
+    int32 loc,
+    int32 c1,
+    int32 c2,
+    int32 size,
     NUMA   ** pnad)
 {
-	l_int32 i, j, w, h, cmin, cmax, maxloc, n, x, y;
-	l_uint32 val;
+	int32 i, j, w, h, cmin, cmax, maxloc, n, x, y;
+	uint32 val;
 	float norm, rootvar;
 	float * array;
 	double sum1, sum2, ave, var;
@@ -2930,19 +2930,19 @@ l_ok pixWindowedVarianceOnLine(PIX * pixs,
  * </pre>
  */
 l_ok pixMinMaxNearLine(PIX        * pixs,
-    l_int32 x1,
-    l_int32 y1,
-    l_int32 x2,
-    l_int32 y2,
-    l_int32 dist,
-    l_int32 direction,
+    int32 x1,
+    int32 y1,
+    int32 x2,
+    int32 y2,
+    int32 dist,
+    int32 direction,
     NUMA ** pnamin,
     NUMA ** pnamax,
     float * pminave,
     float * pmaxave)
 {
-	l_int32 i, j, w, h, d, x, y, n, dir, found, minval, maxval, negloc, posloc;
-	l_uint32 val;
+	int32 i, j, w, h, d, x, y, n, dir, found, minval, maxval, negloc, posloc;
+	uint32 val;
 	float sum;
 	NUMA * namin, * namax;
 	PTA       * pta;
@@ -3053,9 +3053,9 @@ l_ok pixMinMaxNearLine(PIX        * pixs,
  */
 PIX * pixRankRowTransform(PIX  * pixs)
 {
-	l_int32 i, j, k, m, w, h, wpl, val;
-	l_int32 histo[256];
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 i, j, k, m, w, h, wpl, val;
+	int32 histo[256];
+	uint32  * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -3104,8 +3104,8 @@ PIX * pixRankRowTransform(PIX  * pixs)
  */
 PIX * pixRankColumnTransform(PIX  * pixs)
 {
-	l_int32 i, j, k, m, w, h, val;
-	l_int32 histo[256];
+	int32 i, j, k, m, w, h, val;
+	int32 histo[256];
 	void     ** lines8, ** lined8;
 	PIX * pixd;
 	PROCNAME(__FUNCTION__);

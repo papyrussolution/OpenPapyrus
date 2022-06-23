@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file dewarp2.c
  * <pre>
@@ -31,52 +18,52 @@
  *    Build the page disparity model
  *
  *      Build basic page disparity model
- *          l_int32            dewarpBuildPageModel()
- *          l_int32            dewarpFindVertDisparity()
- *          l_int32            dewarpFindHorizDisparity()
+ *          int32            dewarpBuildPageModel()
+ *          int32            dewarpFindVertDisparity()
+ *          int32            dewarpFindHorizDisparity()
  *          PTAA              *dewarpGetTextlineCenters()
  *          static PTA        *dewarpGetMeanVerticals()
  *          PTAA              *dewarpRemoveShortLines()
- *          static l_int32     dewarpGetLineEndPoints()
- *          static l_int32     dewarpFilterLineEndPoints()
+ *          static int32     dewarpGetLineEndPoints()
+ *          static int32     dewarpFilterLineEndPoints()
  *          static PTA        *dewarpRemoveBadEndPoints()
- *          static l_int32     dewarpIsLineCoverageValid()
- *          static l_int32     dewarpLinearLSF()
- *          static l_int32     dewarpQuadraticLSF()
+ *          static int32     dewarpIsLineCoverageValid()
+ *          static int32     dewarpLinearLSF()
+ *          static int32     dewarpQuadraticLSF()
  *
  *      Build disparity model for slope near binding
- *          l_int32            dewarpFindHorizSlopeDisparity()
+ *          int32            dewarpFindHorizSlopeDisparity()
  *
  *      Build the line disparity model
- *          l_int32            dewarpBuildLineModel()
+ *          int32            dewarpBuildLineModel()
  *
  *      Query model status
- *          l_int32            dewarpaModelStatus()
+ *          int32            dewarpaModelStatus()
  *
  *      Rendering helpers
- *          static l_int32     pixRenderMidYs()
- *          static l_int32     pixRenderHorizEndPoints
+ *          static int32     pixRenderMidYs()
+ *          static int32     pixRenderHorizEndPoints
  * </pre>
  */
 #include "allheaders.h"
 #pragma hdrstop
 
-static PTA * dewarpGetMeanVerticals(PIX * pixs, l_int32 x, l_int32 y);
-static l_int32 dewarpGetLineEndPoints(l_int32 h, PTAA * ptaa, PTA ** pptal,
+static PTA * dewarpGetMeanVerticals(PIX * pixs, int32 x, int32 y);
+static int32 dewarpGetLineEndPoints(int32 h, PTAA * ptaa, PTA ** pptal,
     PTA ** pptar);
-static l_int32 dewarpFilterLineEndPoints(L_DEWARP * dew, PTA * ptal1, PTA * ptar1,
+static int32 dewarpFilterLineEndPoints(L_DEWARP * dew, PTA * ptal1, PTA * ptar1,
     PTA ** pptal2, PTA ** pptar2);
-static PTA * dewarpRemoveBadEndPoints(l_int32 w, PTA * ptas);
-static l_int32 dewarpIsLineCoverageValid(PTAA * ptaa2, l_int32 h,
-    l_int32 * pntop, l_int32 * pnbot,
-    l_int32 * pytop, l_int32 * pybot);
-static l_int32 dewarpLinearLSF(PTA * ptad, float * pa, float * pb,
+static PTA * dewarpRemoveBadEndPoints(int32 w, PTA * ptas);
+static int32 dewarpIsLineCoverageValid(PTAA * ptaa2, int32 h,
+    int32 * pntop, int32 * pnbot,
+    int32 * pytop, int32 * pybot);
+static int32 dewarpLinearLSF(PTA * ptad, float * pa, float * pb,
     float * pmederr);
-static l_int32 dewarpQuadraticLSF(PTA * ptad, float * pa, float * pb,
+static int32 dewarpQuadraticLSF(PTA * ptad, float * pa, float * pb,
     float * pc, float * pmederr);
-static l_int32 pixRenderMidYs(PIX * pixs, NUMA * namidys, l_int32 linew);
-static l_int32 pixRenderHorizEndPoints(PIX * pixs, PTA * ptal, PTA * ptar,
-    l_uint32 color);
+static int32 pixRenderMidYs(PIX * pixs, NUMA * namidys, int32 linew);
+static int32 pixRenderHorizEndPoints(PIX * pixs, PTA * ptal, PTA * ptar,
+    uint32 color);
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG_TEXTLINE_CENTERS    0   /* set this to 1 for debugging */
@@ -88,8 +75,8 @@ static l_int32 pixRenderHorizEndPoints(PIX * pixs, PTA * ptal, PTA * ptar,
 
 /* Special parameter values for reducing horizontal disparity */
 static const float MinRatioLinesToHeight = 0.45;
-static const l_int32 MinLinesForHoriz1 = 10; /* initially */
-static const l_int32 MinLinesForHoriz2 = 3; /* after, in each half */
+static const int32 MinLinesForHoriz1 = 10; /* initially */
+static const int32 MinLinesForHoriz2 = 3; /* after, in each half */
 static const float AllowedWidthFract = 0.05; /* no bigger */
 
 /*----------------------------------------------------------------------*
@@ -148,7 +135,7 @@ static const float AllowedWidthFract = 0.05; /* no bigger */
 l_ok dewarpBuildPageModel(L_DEWARP * dew,
     const char * debugfile)
 {
-	l_int32 linecount, ntop, nbot, ytop, ybot, ret;
+	int32 linecount, ntop, nbot, ytop, ybot, ret;
 	PIX * pixs, * pix1, * pix2, * pix3;
 	PTA * pta;
 	PTAA    * ptaa1, * ptaa2;
@@ -292,9 +279,9 @@ l_ok dewarpBuildPageModel(L_DEWARP * dew,
  */
 l_ok dewarpFindVertDisparity(L_DEWARP * dew,
     PTAA      * ptaa,
-    l_int32 rotflag)
+    int32 rotflag)
 {
-	l_int32 i, j, nlines, npts, nx, ny, sampling;
+	int32 i, j, nlines, npts, nx, ny, sampling;
 	float c0, c1, c2, x, y, midy, val, medval, meddev, minval, maxval;
 	float * famidys;
 	NUMA       * nax, * nafit, * nacurve0, * nacurve1, * nacurves;
@@ -555,7 +542,7 @@ l_ok dewarpFindVertDisparity(L_DEWARP * dew,
 l_ok dewarpFindHorizDisparity(L_DEWARP * dew,
     PTAA      * ptaa)
 {
-	l_int32 i, j, h, nx, ny, sampling, ret, linear_edgefit;
+	int32 i, j, h, nx, ny, sampling, ret, linear_edgefit;
 	float c0, c1, cl0, cl1, cl2, cr0, cr1, cr2;
 	float x, y, refl, refr;
 	float val, mederr;
@@ -800,10 +787,10 @@ l_ok dewarpFindHorizDisparity(L_DEWARP * dew,
  * </pre>
  */
 PTAA * dewarpGetTextlineCenters(PIX * pixs,
-    l_int32 debugflag)
+    int32 debugflag)
 {
 	char buf[64];
-	l_int32 i, w, h, bx, by, nsegs, csize1, csize2;
+	int32 i, w, h, bx, by, nsegs, csize1, csize2;
 	BOXA     * boxa;
 	PIX * pix1, * pix2;
 	PIXA * pixa1, * pixa2;
@@ -906,11 +893,11 @@ PTAA * dewarpGetTextlineCenters(PIX * pixs,
  *                   both translated by (x,y
  */
 static PTA * dewarpGetMeanVerticals(PIX * pixs,
-    l_int32 x,
-    l_int32 y)
+    int32 x,
+    int32 y)
 {
-	l_int32 w, h, i, j, wpl, sum, count;
-	l_uint32 * line, * data;
+	int32 w, h, i, j, wpl, sum, count;
+	uint32 * line, * data;
 	PTA       * pta;
 
 	PROCNAME(__FUNCTION__);
@@ -952,9 +939,9 @@ static PTA * dewarpGetMeanVerticals(PIX * pixs,
 PTAA * dewarpRemoveShortLines(PIX * pixs,
     PTAA      * ptaas,
     float fract,
-    l_int32 debugflag)
+    int32 debugflag)
 {
-	l_int32 w, n, i, index, maxlen, len;
+	int32 w, n, i, index, maxlen, len;
 	float minx, maxx;
 	NUMA * na, * naindex;
 	PIX * pix1, * pix2;
@@ -1030,12 +1017,12 @@ PTAA * dewarpRemoveShortLines(PIX * pixs,
  *          Thus all these ptas have x and y swapped!
  * </pre>
  */
-static l_int32 dewarpGetLineEndPoints(l_int32 h,
+static int32 dewarpGetLineEndPoints(int32 h,
     PTAA    * ptaa,
     PTA    ** pptal,
     PTA    ** pptar)
 {
-	l_int32 i, n, npt, x, y;
+	int32 i, n, npt, x, y;
 	float miny, maxy, ratio;
 	PTA       * pta, * ptal1, * ptar1;
 
@@ -1107,13 +1094,13 @@ static l_int32 dewarpGetLineEndPoints(l_int32 h,
  *      (3) Reminder: x and y in the pta are transposed; think x = f(y).
  * </pre>
  */
-static l_int32 dewarpFilterLineEndPoints(L_DEWARP * dew,
+static int32 dewarpFilterLineEndPoints(L_DEWARP * dew,
     PTA       * ptal,
     PTA       * ptar,
     PTA ** pptalf,
     PTA ** pptarf)
 {
-	l_int32 w, i, n;
+	int32 w, i, n;
 	float ymin, ymax, xvall, xvalr, yvall, yvalr;
 	PTA       * ptal1, * ptar1, * ptal2, * ptar2;
 
@@ -1191,10 +1178,10 @@ static l_int32 dewarpFilterLineEndPoints(L_DEWARP * dew,
  *      (2) Reminder: x and y in the pta are transposed; think x = f(y).
  * </pre>
  */
-static PTA * dewarpRemoveBadEndPoints(l_int32 w,
+static PTA * dewarpRemoveBadEndPoints(int32 w,
     PTA * ptas)
 {
-	l_int32 i, n, nu, nd;
+	int32 i, n, nu, nd;
 	float rval, xval, yval, delta;
 	PTA       * ptau1, * ptau2, * ptad1, * ptad2;
 
@@ -1267,14 +1254,14 @@ static PTA * dewarpRemoveBadEndPoints(l_int32 w,
  *          (b) the coverage must be at least 50% of the image height
  * </pre>
  */
-static l_int32 dewarpIsLineCoverageValid(PTAA     * ptaa,
-    l_int32 h,
-    l_int32 * pntop,
-    l_int32 * pnbot,
-    l_int32 * pytop,
-    l_int32 * pybot)
+static int32 dewarpIsLineCoverageValid(PTAA     * ptaa,
+    int32 h,
+    int32 * pntop,
+    int32 * pnbot,
+    int32 * pytop,
+    int32 * pybot)
 {
-	l_int32 i, n, iy, both_halves, ntop, nbot, ytop, ybot, nmin;
+	int32 i, n, iy, both_halves, ntop, nbot, ytop, ybot, nmin;
 	float y, fraction;
 	NUMA * na;
 
@@ -1335,12 +1322,12 @@ static l_int32 dewarpIsLineCoverageValid(PTAA     * ptaa,
  *      (2) The ptas for the end points all have x and y swapped.
  * </pre>
  */
-static l_int32 dewarpLinearLSF(PTA        * ptad,
+static int32 dewarpLinearLSF(PTA        * ptad,
     float * pa,
     float * pb,
     float * pmederr)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float x, y, xp, c0, c1;
 	NUMA * naerr;
 
@@ -1391,13 +1378,13 @@ static l_int32 dewarpLinearLSF(PTA        * ptad,
  *      (2) The ptas for the end points all have x and y swapped.
  * </pre>
  */
-static l_int32 dewarpQuadraticLSF(PTA        * ptad,
+static int32 dewarpQuadraticLSF(PTA        * ptad,
     float * pa,
     float * pb,
     float * pc,
     float * pmederr)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float x, y, xp, c0, c1, c2;
 	NUMA * naerr;
 
@@ -1475,10 +1462,10 @@ static l_int32 dewarpQuadraticLSF(PTA        * ptad,
 l_ok dewarpFindHorizSlopeDisparity(L_DEWARP * dew,
     PIX * pixb,
     float fractthresh,
-    l_int32 parity)
+    int32 parity)
 {
-	l_int32 i, j, x, n1, n2, nb, ne, count, w, h, ival, prev;
-	l_int32 istart, iend, first, last, x0, x1, nx, ny;
+	int32 i, j, x, n1, n2, nb, ne, count, w, h, ival, prev;
+	int32 istart, iend, first, last, x0, x1, nx, ny;
 	float fract, delta, sum, aveval, fval, del, denom;
 	float ca, cb, cc, cd, ce, y;
 	BOX       * box;
@@ -1703,10 +1690,10 @@ l_ok dewarpFindHorizSlopeDisparity(L_DEWARP * dew,
  *          See notes there.
  * </pre>
  */
-l_ok dewarpBuildLineModel(L_DEWARP * dew, l_int32 opensize, const char * debugfile)
+l_ok dewarpBuildLineModel(L_DEWARP * dew, int32 opensize, const char * debugfile)
 {
 	char buf[64];
-	l_int32 i, j, bx, by, ret, nlines;
+	int32 i, j, bx, by, ret, nlines;
 	BOXA * boxa;
 	PIX * pixs, * pixh, * pixv, * pix, * pix1, * pix2;
 	PIXA    * pixa1, * pixa2;
@@ -1882,9 +1869,9 @@ l_ok dewarpBuildLineModel(L_DEWARP * dew, l_int32 opensize, const char * debugfi
  * </pre>
  */
 l_ok dewarpaModelStatus(L_DEWARPA * dewa,
-    l_int32 pageno,
-    l_int32    * pvsuccess,
-    l_int32    * phsuccess)
+    int32 pageno,
+    int32    * pvsuccess,
+    int32    * phsuccess)
 {
 	L_DEWARP * dew;
 
@@ -1913,11 +1900,11 @@ l_ok dewarpaModelStatus(L_DEWARPA * dewa,
  * \param[in]    linew     width of rendered line; typ 2
  * \return  0 if OK, 1 on error
  */
-static l_int32 pixRenderMidYs(PIX * pixs,
+static int32 pixRenderMidYs(PIX * pixs,
     NUMA * namidys,
-    l_int32 linew)
+    int32 linew)
 {
-	l_int32 i, n, w, yval, rval, gval, bval;
+	int32 i, n, w, yval, rval, gval, bval;
 	PIXCMAP  * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -1948,7 +1935,7 @@ static l_int32 pixRenderMidYs(PIX * pixs,
  * \param[in]    color    0xrrggbb00
  * \return  0 if OK, 1 on error
  */
-static l_int32 pixRenderHorizEndPoints(PIX * pixs, PTA * ptal, PTA * ptar, l_uint32 color)
+static int32 pixRenderHorizEndPoints(PIX * pixs, PTA * ptal, PTA * ptar, uint32 color)
 {
 	PIX * pixcirc;
 	PTA * ptalt, * ptart, * ptacirc;

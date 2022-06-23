@@ -1642,7 +1642,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 				//
 				double price_by_serial = 0.0;
 				lot_list.clear();
-				if(p_item->Serial[0] && p_bobj->SearchLotsBySerial(p_item->Serial, &lot_list) > 0) {
+				if(p_item->Serial[0] && p_bobj->SearchLotsBySerialExactly(p_item->Serial, &lot_list) > 0) { // @v11.4.2 SearchLotsBySerial-->SearchLotsBySerialExactly
 					ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 					LDATE  last_date = ZERODATE;
 					ReceiptTbl::Rec lot_rec;
@@ -4084,7 +4084,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						PPID   lot_id = 0;
 						ReceiptTbl::Rec lot_rec;
 						PPIDArray  lot_list;
-						if(p_bobj->SearchLotsBySerial(code, &lot_list) > 0) {
+						if(p_bobj->SearchLotsBySerialExactly(code, &lot_list) > 0) { // @v11.4.2 SearchLotsBySerial-->SearchLotsBySerialExactly
 							if(CnFlags & CASHF_DISABLEZEROAGENT && !P.GetAgentID()) {
 								r = 1000;
 								MessageError(PPERR_CHKPAN_SALERNEEDED, 0, eomBeep|eomStatusLine);

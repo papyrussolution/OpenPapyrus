@@ -10,43 +10,30 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file pnmio.c
  * <pre>
  *
  *      Stream interface
  *          PIX             *pixReadStreamPnm()
- *          l_int32          readHeaderPnm()
- *          l_int32          freadHeaderPnm()
- *          l_int32          pixWriteStreamPnm()
- *          l_int32          pixWriteStreamAsciiPnm()
- *          l_int32          pixWriteStreamPam()
+ *          int32          readHeaderPnm()
+ *          int32          freadHeaderPnm()
+ *          int32          pixWriteStreamPnm()
+ *          int32          pixWriteStreamAsciiPnm()
+ *          int32          pixWriteStreamPam()
  *
  *      Read/write to memory
  *          PIX             *pixReadMemPnm()
- *          l_int32          readHeaderMemPnm()
- *          l_int32          pixWriteMemPnm()
- *          l_int32          pixWriteMemPam()
+ *          int32          readHeaderMemPnm()
+ *          int32          pixWriteMemPnm()
+ *          int32          pixWriteMemPam()
  *
  *      Local helpers
- *          static l_int32   pnmReadNextAsciiValue();
- *          static l_int32   pnmReadNextNumber();
- *          static l_int32   pnmReadNextString();
- *          static l_int32   pnmSkipCommentLines();
+ *          static int32   pnmReadNextAsciiValue();
+ *          static int32   pnmReadNextNumber();
+ *          static int32   pnmReadNextString();
+ *          static int32   pnmSkipCommentLines();
  *
  *      These are here by popular demand, with the help of Mattias
  *      Kregert (mattias@kregert.se), who provided the first implementation.
@@ -121,14 +108,14 @@
 #if  USE_PNMIO   /* defined in environ.h */
 /* --------------------------------------------*/
 
-static l_int32 pnmReadNextAsciiValue(FILE * fp, l_int32 * pval);
-static l_int32 pnmReadNextNumber(FILE * fp, l_int32 * pval);
-static l_int32 pnmReadNextString(FILE * fp, char * buff, l_int32 size);
-static l_int32 pnmSkipCommentLines(FILE * fp);
+static int32 pnmReadNextAsciiValue(FILE * fp, int32 * pval);
+static int32 pnmReadNextNumber(FILE * fp, int32 * pval);
+static int32 pnmReadNextString(FILE * fp, char * buff, int32 size);
+static int32 pnmSkipCommentLines(FILE * fp);
 
 /* a sanity check on the size read from file */
-static const l_int32 MAX_PNM_WIDTH = 100000;
-static const l_int32 MAX_PNM_HEIGHT = 100000;
+static const int32 MAX_PNM_WIDTH = 100000;
+static const int32 MAX_PNM_HEIGHT = 100000;
 
 /*--------------------------------------------------------------------*
 *                          Stream interface                          *
@@ -143,10 +130,10 @@ PIX * pixReadStreamPnm(FILE * fp)
 {
 	uint8 val8, rval8, gval8, bval8, aval8, mask8;
 	uint16 val16, rval16, gval16, bval16, aval16;
-	l_int32 w, h, d, bps, spp, bpl, wpl, i, j, type;
-	l_int32 val, rval, gval, bval;
-	l_uint32 rgbval;
-	l_uint32  * line, * data;
+	int32 w, h, d, bps, spp, bpl, wpl, i, j, type;
+	int32 val, rval, gval, bval;
+	uint32 rgbval;
+	uint32  * line, * data;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -510,14 +497,14 @@ PIX * pixReadStreamPnm(FILE * fp)
  * \return  0 if OK, 1 on error
  */
 l_ok readHeaderPnm(const char * filename,
-    l_int32    * pw,
-    l_int32    * ph,
-    l_int32    * pd,
-    l_int32    * ptype,
-    l_int32    * pbps,
-    l_int32    * pspp)
+    int32    * pw,
+    int32    * ph,
+    int32    * pd,
+    int32    * ptype,
+    int32    * pbps,
+    int32    * pspp)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -551,17 +538,17 @@ l_ok readHeaderPnm(const char * filename,
  * \return  0 if OK, 1 on error
  */
 l_ok freadHeaderPnm(FILE * fp,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pd,
-    l_int32 * ptype,
-    l_int32 * pbps,
-    l_int32 * pspp)
+    int32 * pw,
+    int32 * ph,
+    int32 * pd,
+    int32 * ptype,
+    int32 * pbps,
+    int32 * pspp)
 {
 	char tag[16], tupltype[32];
-	l_int32 i, w, h, d, bps, spp, type;
-	l_int32 maxval;
-	l_int32 ch;
+	int32 i, w, h, d, bps, spp, type;
+	int32 maxval;
+	int32 ch;
 
 	PROCNAME(__FUNCTION__);
 
@@ -744,8 +731,8 @@ l_ok pixWriteStreamPnm(FILE * fp,
 	uint8 val8;
 	uint8 pel[4];
 	uint16 val16;
-	l_int32 h, w, d, ds, i, j, wpls, bpl, filebpl, writeerror, maxval;
-	l_uint32  * pword, * datas, * lines;
+	int32 h, w, d, ds, i, j, wpls, bpl, filebpl, writeerror, maxval;
+	uint32  * pword, * datas, * lines;
 	PIX * pixs;
 
 	PROCNAME(__FUNCTION__);
@@ -864,8 +851,8 @@ l_ok pixWriteStreamAsciiPnm(FILE * fp,
 {
 	char buffer[256];
 	uint8 cval[3];
-	l_int32 h, w, d, ds, i, j, k, maxval, count;
-	l_uint32 val;
+	int32 h, w, d, ds, i, j, k, maxval, count;
+	uint32 val;
 	PIX * pixs;
 
 	PROCNAME(__FUNCTION__);
@@ -990,9 +977,9 @@ l_ok pixWriteStreamPam(FILE * fp,
 	uint8 val8;
 	uint8 pel[8];
 	uint16 val16;
-	l_int32 h, w, d, ds, i, j;
-	l_int32 wpls, spps, filebpl, writeerror, maxval;
-	l_uint32  * pword, * datas, * lines;
+	int32 h, w, d, ds, i, j;
+	int32 wpls, spps, filebpl, writeerror, maxval;
+	uint32  * pword, * datas, * lines;
 	PIX * pixs;
 
 	PROCNAME(__FUNCTION__);
@@ -1191,14 +1178,14 @@ PIX * pixReadMemPnm(const uint8  * data,
  */
 l_ok readHeaderMemPnm(const uint8  * data,
     size_t size,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pd,
-    l_int32 * ptype,
-    l_int32 * pbps,
-    l_int32 * pspp)
+    int32 * pw,
+    int32 * ph,
+    int32 * pd,
+    int32 * ptype,
+    int32 * pbps,
+    int32 * pspp)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1233,7 +1220,7 @@ l_ok pixWriteMemPnm(uint8  ** pdata,
     size_t * psize,
     PIX * pix)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1289,7 +1276,7 @@ l_ok pixWriteMemPam(uint8  ** pdata,
     size_t * psize,
     PIX * pix)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1338,10 +1325,10 @@ l_ok pixWriteMemPam(uint8  ** pdata,
  *  Notes:
  *      (1) This reads the next sample value in ASCII from the file.
  */
-static l_int32 pnmReadNextAsciiValue(FILE * fp,
-    l_int32 * pval)
+static int32 pnmReadNextAsciiValue(FILE * fp,
+    int32 * pval)
 {
-	l_int32 c, ignore;
+	int32 c, ignore;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1374,11 +1361,11 @@ static l_int32 pnmReadNextAsciiValue(FILE * fp,
  *          the maxval in the header, which precedes the binary data.
  * </pre>
  */
-static l_int32 pnmReadNextNumber(FILE * fp,
-    l_int32 * pval)
+static int32 pnmReadNextNumber(FILE * fp,
+    int32 * pval)
 {
 	char buf[8];
-	l_int32 i, c, foundws;
+	int32 i, c, foundws;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1431,11 +1418,11 @@ static l_int32 pnmReadNextNumber(FILE * fp,
  *          format binary data.
  * </pre>
  */
-static l_int32 pnmReadNextString(FILE * fp,
+static int32 pnmReadNextString(FILE * fp,
     char * buff,
-    l_int32 size)
+    int32 size)
 {
-	l_int32 i, c;
+	int32 i, c;
 	char fmtString[6]; /* must contain "%9999s" [*] */
 
 	PROCNAME(__FUNCTION__);
@@ -1476,9 +1463,9 @@ static l_int32 pnmReadNextString(FILE * fp,
  *      (3) The previous implementation used fseek(fp, -1L, SEEK_CUR)
  *          to back up one character, which doesn't work with stdin.
  */
-static l_int32 pnmSkipCommentLines(FILE * fp)
+static int32 pnmSkipCommentLines(FILE * fp)
 {
-	l_int32 i;
+	int32 i;
 	char c;
 
 	PROCNAME(__FUNCTION__);

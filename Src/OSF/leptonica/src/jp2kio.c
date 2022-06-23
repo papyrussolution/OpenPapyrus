@@ -15,13 +15,13 @@
  *          PIX                *pixReadStreamJp2k()
  *
  *    Write jp2k to file
- *          l_int32             pixWriteJp2k()  [special top level]
- *          l_int32             pixWriteStreamJp2k()
+ *          int32             pixWriteJp2k()  [special top level]
+ *          int32             pixWriteStreamJp2k()
  *          static opj_image_t *pixConvertToOpjImage()
  *
  *    Read/write to memory
  *          PIX                *pixReadMemJp2k()
- *          l_int32             pixWriteMemJp2k()
+ *          int32             pixWriteMemJp2k()
  *
  *    Static functions from opj 2.0 to retain file stream interface
  *          static opj_stream_t  *opjCreateStream()
@@ -105,7 +105,7 @@
  * but it was removed in 2.1.0. Because we must have either
  * a file stream or a memory interface to the compressed data,
  * it is necessary to recreate the stream interface here.  */
-static opj_stream_t * opjCreateStream(FILE * fp, l_int32 is_read);
+static opj_stream_t * opjCreateStream(FILE * fp, int32 is_read);
 
 /* Static converter pix --> opj_image.  Used for compressing pix,
  * because the codec works on data stored in their raster format. */
@@ -172,10 +172,10 @@ static void info_callback(const char * msg, void * client_data) {
  * </pre>
  */
 PIX * pixReadJp2k(const char * filename,
-    l_uint32 reduction,
+    uint32 reduction,
     BOX         * box,
-    l_int32 hint,
-    l_int32 debug)
+    int32 hint,
+    int32 debug)
 {
 	FILE * fp;
 	PIX * pix;
@@ -211,17 +211,17 @@ PIX * pixReadJp2k(const char * filename,
  * </pre>
  */
 PIX * pixReadStreamJp2k(FILE * fp,
-    l_uint32 reduction,
+    uint32 reduction,
     BOX      * box,
-    l_int32 hint,
-    l_int32 debug)
+    int32 hint,
+    int32 debug)
 {
 	const char * opjVersion;
-	l_int32 i, j, index, bx, by, bw, bh, val, rval, gval, bval, aval;
-	l_int32 w, h, wpl, bps, spp, xres, yres, reduce, prec, colorspace;
-	l_int32 codec; /* L_J2K_CODEC or L_JP2_CODEC */
-	l_uint32 pixel;
-	l_uint32          * data, * line;
+	int32 i, j, index, bx, by, bw, bh, val, rval, gval, bval, aval;
+	int32 w, h, wpl, bps, spp, xres, yres, reduce, prec, colorspace;
+	int32 codec; /* L_J2K_CODEC or L_JP2_CODEC */
+	uint32 pixel;
+	uint32          * data, * line;
 	opj_dparameters_t parameters; /* decompression parameters */
 	opj_image_t       * image = NULL;
 	opj_codec_t       * l_codec = NULL; /* handle to decompressor */
@@ -456,10 +456,10 @@ PIX * pixReadStreamJp2k(FILE * fp,
  */
 l_ok pixWriteJp2k(const char * filename,
     PIX         * pix,
-    l_int32 quality,
-    l_int32 nlevels,
-    l_int32 hint,
-    l_int32 debug)
+    int32 quality,
+    int32 nlevels,
+    int32 hint,
+    int32 debug)
 {
 	FILE * fp;
 
@@ -501,13 +501,13 @@ l_ok pixWriteJp2k(const char * filename,
  */
 l_ok pixWriteStreamJp2k(FILE * fp,
     PIX * pix,
-    l_int32 quality,
-    l_int32 nlevels,
-    l_int32 codec,
-    l_int32 hint,
-    l_int32 debug)
+    int32 quality,
+    int32 nlevels,
+    int32 codec,
+    int32 hint,
+    int32 debug)
 {
-	l_int32 w, h, d, success;
+	int32 w, h, d, success;
 	float snr;
 	const char * opjVersion;
 	PIX               * pixs;
@@ -526,7 +526,7 @@ l_ok pixWriteStreamJp2k(FILE * fp,
 	snr = (float)quality;
 	if(snr <= 0) snr = 34.0; /* default */
 	if(snr < 27)
-		L_WARNING("SNR = %d < 27; very low\n", procName, (l_int32)snr);
+		L_WARNING("SNR = %d < 27; very low\n", procName, (int32)snr);
 	if(snr == 100) snr = 0; /* for lossless */
 	if(snr > 45) {
 		L_WARNING("SNR > 45; using lossless encoding\n", procName);
@@ -680,18 +680,23 @@ l_ok pixWriteStreamJp2k(FILE * fp,
  */
 static opj_image_t * pixConvertToOpjImage(PIX  * pix)
 {
-	l_int32 i, j, k, w, h, d, spp, wpl;
-	OPJ_COLOR_SPACE colorspace;
-	l_int32              * ir = NULL;
-	l_int32              * ig = NULL;
-	l_int32              * ib = NULL;
-	l_int32              * ia = NULL;
-	l_uint32             * line, * data;
-	opj_image_t          * image;
-	opj_image_cmptparm_t cmptparm[4];
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i;
+	int32 j;
+	int32 k;
+	int32 w;
+	int32 h;
+	int32 d;
+	int32 spp;
+	int32 wpl;
+	OPJ_COLOR_SPACE colorspace;
+	int32_t * ir = NULL;
+	int32_t * ig = NULL;
+	int32_t * ib = NULL;
+	int32_t * ia = NULL;
+	uint32 * line, * data;
+	opj_image_t * image;
+	opj_image_cmptparm_t cmptparm[4];
 	if(!pix)
 		return (opj_image_t*)ERROR_PTR("pix not defined", procName, NULL);
 	pixGetDimensions(pix, &w, &h, &d);
@@ -775,10 +780,10 @@ static opj_image_t * pixConvertToOpjImage(PIX  * pix)
  */
 PIX * pixReadMemJp2k(const uint8  * data,
     size_t size,
-    l_uint32 reduction,
+    uint32 reduction,
     BOX            * box,
-    l_int32 hint,
-    l_int32 debug)
+    int32 hint,
+    int32 debug)
 {
 	FILE * fp;
 	PIX * pix;
@@ -817,12 +822,12 @@ PIX * pixReadMemJp2k(const uint8  * data,
 l_ok pixWriteMemJp2k(uint8  ** pdata,
     size_t * psize,
     PIX * pix,
-    l_int32 quality,
-    l_int32 nlevels,
-    l_int32 hint,
-    l_int32 debug)
+    int32 quality,
+    int32 nlevels,
+    int32 hint,
+    int32 debug)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -890,7 +895,7 @@ static OPJ_OFF_T opj_skip_from_file(OPJ_OFF_T offset, FILE * fp) {
 	return offset;
 }
 
-static l_int32 opj_seek_from_file(OPJ_OFF_T offset, FILE * fp) {
+static int32 opj_seek_from_file(OPJ_OFF_T offset, FILE * fp) {
 	if(fseek(fp, offset, SEEK_SET)) {
 		return 0;
 	}
@@ -899,7 +904,7 @@ static l_int32 opj_seek_from_file(OPJ_OFF_T offset, FILE * fp) {
 
 /* Static generator of opj_stream from file stream */
 static opj_stream_t * opjCreateStream(FILE * fp,
-    l_int32 is_read_stream)
+    int32 is_read_stream)
 {
 	opj_stream_t  * l_stream;
 

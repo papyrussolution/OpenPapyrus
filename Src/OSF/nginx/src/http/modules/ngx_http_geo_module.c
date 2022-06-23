@@ -943,7 +943,7 @@ static char * ngx_http_geo_add_proxy(ngx_conf_t * cf, ngx_http_geo_conf_ctx_t * 
 		}
 	}
 	c = (ngx_cidr_t *)ngx_array_push(ctx->proxies);
-	if(c == NULL) {
+	if(!c) {
 		return NGX_CONF_ERROR;
 	}
 	*c = *cidr;

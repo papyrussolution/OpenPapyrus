@@ -212,7 +212,7 @@ int EVP_PBE_find(int type, int pbe_nid,
 		pbetmp = sk_EVP_PBE_CTL_value(pbe_algs, i);
 	}
 	if(pbetmp == NULL) {
-		pbetmp = OBJ_bsearch_pbe2(&pbelu, builtin_pbe, OSSL_NELEM(builtin_pbe));
+		pbetmp = OBJ_bsearch_pbe2(&pbelu, builtin_pbe, SIZEOFARRAY(builtin_pbe));
 	}
 	if(pbetmp == NULL)
 		return 0;
@@ -240,7 +240,7 @@ int EVP_PBE_get(int * ptype, int * ppbe_nid, size_t num)
 {
 	const EVP_PBE_CTL * tpbe;
 
-	if(num >= OSSL_NELEM(builtin_pbe))
+	if(num >= SIZEOFARRAY(builtin_pbe))
 		return 0;
 
 	tpbe = builtin_pbe + num;

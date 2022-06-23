@@ -10,28 +10,15 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file fhmtauto.c
  * <pre>
  *
  *    Main function calls:
- *       l_int32             fhmtautogen()
- *       l_int32             fhmtautogen1()
- *       l_int32             fhmtautogen2()
+ *       int32             fhmtautogen()
+ *       int32             fhmtautogen1()
+ *       int32             fhmtautogen2()
  *
  *    Static helpers:
  *       static SARRAY *sarrayMakeWplsCode()
@@ -97,45 +84,45 @@
 #define   TEMPLATE1       "hmttemplate1.txt"
 #define   TEMPLATE2       "hmttemplate2.txt"
 
-#define   PROTOARGS   "(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32);"
+#define   PROTOARGS   "(uint32 *, int32, int32, int32, uint32 *, int32);"
 
 #define L_BUF_SIZE 512
 
-static char * makeBarrelshiftString(l_int32 delx, l_int32 dely, l_int32 type);
-static SARRAY * sarrayMakeInnerLoopDWACode(SEL * sel, l_int32 nhits, l_int32 nmisses);
+static char * makeBarrelshiftString(int32 delx, int32 dely, int32 type);
+static SARRAY * sarrayMakeInnerLoopDWACode(SEL * sel, int32 nhits, int32 nmisses);
 static SARRAY * sarrayMakeWplsCode(SEL * sel);
 
 static char wpldecls[][60] = {
-	"l_int32             wpls2;",
-	"l_int32             wpls2, wpls3;",
-	"l_int32             wpls2, wpls3, wpls4;",
-	"l_int32             wpls5;",
-	"l_int32             wpls5, wpls6;",
-	"l_int32             wpls5, wpls6, wpls7;",
-	"l_int32             wpls5, wpls6, wpls7, wpls8;",
-	"l_int32             wpls9;",
-	"l_int32             wpls9, wpls10;",
-	"l_int32             wpls9, wpls10, wpls11;",
-	"l_int32             wpls9, wpls10, wpls11, wpls12;",
-	"l_int32             wpls13;",
-	"l_int32             wpls13, wpls14;",
-	"l_int32             wpls13, wpls14, wpls15;",
-	"l_int32             wpls13, wpls14, wpls15, wpls16;",
-	"l_int32             wpls17;",
-	"l_int32             wpls17, wpls18;",
-	"l_int32             wpls17, wpls18, wpls19;",
-	"l_int32             wpls17, wpls18, wpls19, wpls20;",
-	"l_int32             wpls21;",
-	"l_int32             wpls21, wpls22;",
-	"l_int32             wpls21, wpls22, wpls23;",
-	"l_int32             wpls21, wpls22, wpls23, wpls24;",
-	"l_int32             wpls25;",
-	"l_int32             wpls25, wpls26;",
-	"l_int32             wpls25, wpls26, wpls27;",
-	"l_int32             wpls25, wpls26, wpls27, wpls28;",
-	"l_int32             wpls29;",
-	"l_int32             wpls29, wpls30;",
-	"l_int32             wpls29, wpls30, wpls31;"
+	"int32             wpls2;",
+	"int32             wpls2, wpls3;",
+	"int32             wpls2, wpls3, wpls4;",
+	"int32             wpls5;",
+	"int32             wpls5, wpls6;",
+	"int32             wpls5, wpls6, wpls7;",
+	"int32             wpls5, wpls6, wpls7, wpls8;",
+	"int32             wpls9;",
+	"int32             wpls9, wpls10;",
+	"int32             wpls9, wpls10, wpls11;",
+	"int32             wpls9, wpls10, wpls11, wpls12;",
+	"int32             wpls13;",
+	"int32             wpls13, wpls14;",
+	"int32             wpls13, wpls14, wpls15;",
+	"int32             wpls13, wpls14, wpls15, wpls16;",
+	"int32             wpls17;",
+	"int32             wpls17, wpls18;",
+	"int32             wpls17, wpls18, wpls19;",
+	"int32             wpls17, wpls18, wpls19, wpls20;",
+	"int32             wpls21;",
+	"int32             wpls21, wpls22;",
+	"int32             wpls21, wpls22, wpls23;",
+	"int32             wpls21, wpls22, wpls23, wpls24;",
+	"int32             wpls25;",
+	"int32             wpls25, wpls26;",
+	"int32             wpls25, wpls26, wpls27;",
+	"int32             wpls25, wpls26, wpls27, wpls28;",
+	"int32             wpls29;",
+	"int32             wpls29, wpls30;",
+	"int32             wpls29, wpls30, wpls31;"
 };
 
 static char wpldefs[][24] = {
@@ -205,10 +192,10 @@ static char wplstrm[][10] = {"- wpls", "- wpls2", "- wpls3", "- wpls4",
  * </pre>
  */
 l_ok fhmtautogen(SELA        * sela,
-    l_int32 fileindex,
+    int32 fileindex,
     const char * filename)
 {
-	l_int32 ret1, ret2;
+	int32 ret1, ret2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -245,7 +232,7 @@ l_ok fhmtautogen(SELA        * sela,
  * </pre>
  */
 l_ok fhmtautogen1(SELA        * sela,
-    l_int32 fileindex,
+    int32 fileindex,
     const char * filename)
 {
 	char * filestr;
@@ -254,7 +241,7 @@ l_ok fhmtautogen1(SELA        * sela,
 	char * str_def1, * str_def2, * str_proc1, * str_proc2;
 	char * str_dwa1, * str_low_dt, * str_low_ds;
 	char bigbuf[L_BUF_SIZE];
-	l_int32 i, nsels, nbytes, actstart, end, newstart;
+	int32 i, nsels, nbytes, actstart, end, newstart;
 	size_t size;
 	SARRAY * sa1, * sa2, * sa3;
 
@@ -285,10 +272,10 @@ l_ok fhmtautogen1(SELA        * sela,
 	sprintf(bigbuf, "PIX *pixFHMTGen_%d(PIX *pixd, PIX *pixs, "
 	    "const char *selname);", fileindex);
 	str_proto2 = stringNew(bigbuf);
-	sprintf(bigbuf, "l_int32 fhmtgen_low_%d(l_uint32 *datad, l_int32 w,\n"
-	    "                      l_int32 h, l_int32 wpld,\n"
-	    "                      l_uint32 *datas, l_int32 wpls,\n"
-	    "                      l_int32 index);", fileindex);
+	sprintf(bigbuf, "int32 fhmtgen_low_%d(uint32 *datad, int32 w,\n"
+	    "                      int32 h, int32 wpld,\n"
+	    "                      uint32 *datas, int32 wpls,\n"
+	    "                      int32 index);", fileindex);
 	str_proto3 = stringNew(bigbuf);
 	sprintf(bigbuf, " *             PIX     *pixHMTDwa_%d()", fileindex);
 	str_doc1 = stringNew(bigbuf);
@@ -339,7 +326,7 @@ l_ok fhmtautogen1(SELA        * sela,
 	sarrayAddString(sa3, str_proto3, L_INSERT);
 
 	/* Add static globals */
-	sprintf(bigbuf, "\nstatic l_int32   NUM_SELS_GENERATED = %d;", nsels);
+	sprintf(bigbuf, "\nstatic int32   NUM_SELS_GENERATED = %d;", nsels);
 	sarrayAddString(sa3, bigbuf, L_COPY);
 	sprintf(bigbuf, "static char  SEL_NAMES[][80] = {");
 	sarrayAddString(sa3, bigbuf, L_COPY);
@@ -425,7 +412,7 @@ l_ok fhmtautogen1(SELA        * sela,
  * </pre>
  */
 l_ok fhmtautogen2(SELA        * sela,
-    l_int32 fileindex,
+    int32 fileindex,
     const char * filename)
 {
 	char * filestr, * fname, * linestr;
@@ -433,9 +420,9 @@ l_ok fhmtautogen2(SELA        * sela,
 	char bigbuf[L_BUF_SIZE];
 	char breakstring[] = "        break;";
 	char staticstring[] = "static void";
-	l_int32 i, k, l, nsels, nbytes, nhits, nmisses;
-	l_int32 actstart, end, newstart;
-	l_int32 argstart, argend, loopstart, loopend, finalstart, finalend;
+	int32 i, k, l, nsels, nbytes, nhits, nmisses;
+	int32 actstart, end, newstart;
+	int32 argstart, argend, loopstart, loopend, finalstart, finalend;
 	size_t size;
 	SARRAY * sa1, * sa2, * sa3, * sa4, * sa5, * sa6;
 	SEL     * sel;
@@ -476,7 +463,7 @@ l_ok fhmtautogen2(SELA        * sela,
 	}
 
 	/* Make strings containing function names */
-	sprintf(bigbuf, " *             l_int32    fhmtgen_low_%d()",
+	sprintf(bigbuf, " *             int32    fhmtgen_low_%d()",
 	    fileindex);
 	str_doc1 = stringNew(bigbuf);
 	sprintf(bigbuf, " *             void       fhmt_%d_*()", fileindex);
@@ -512,7 +499,7 @@ l_ok fhmtautogen2(SELA        * sela,
 	/* Make more strings containing function names */
 	sprintf(bigbuf, " *  fhmtgen_low_%d()", fileindex);
 	str_doc3 = stringNew(bigbuf);
-	sprintf(bigbuf, "fhmtgen_low_%d(l_uint32  *datad,", fileindex);
+	sprintf(bigbuf, "fhmtgen_low_%d(uint32  *datad,", fileindex);
 	str_def1 = stringNew(bigbuf);
 
 	/* Insert function header */
@@ -553,7 +540,7 @@ l_ok fhmtautogen2(SELA        * sela,
 		/* Generate the function header and add the common args */
 		sarrayAddString(sa4, staticstring, L_COPY);
 		fname = sarrayGetString(sa2, i, L_NOCOPY);
-		sprintf(bigbuf, "%s(l_uint32  *datad,", fname);
+		sprintf(bigbuf, "%s(uint32  *datad,", fname);
 		sarrayAddString(sa4, bigbuf, L_COPY);
 		sarrayAppendRange(sa4, sa1, argstart, argend);
 
@@ -630,7 +617,7 @@ l_ok fhmtautogen2(SELA        * sela,
 static SARRAY * sarrayMakeWplsCode(SEL  * sel)
 {
 	char emptystring[] = "";
-	l_int32 i, j, ymax, dely;
+	int32 i, j, ymax, dely;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -685,13 +672,13 @@ static SARRAY * sarrayMakeWplsCode(SEL  * sel)
  * \brief   sarrayMakeInnerLoopDWACode()
  */
 static SARRAY * sarrayMakeInnerLoopDWACode(SEL     * sel,
-    l_int32 nhits,
-    l_int32 nmisses)
+    int32 nhits,
+    int32 nmisses)
 {
 	char * string;
 	char land[] = "&";
 	char bigbuf[L_BUF_SIZE];
-	l_int32 i, j, ntot, nfound, type, delx, dely;
+	int32 i, j, ntot, nfound, type, delx, dely;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -734,11 +721,11 @@ static SARRAY * sarrayMakeInnerLoopDWACode(SEL     * sel,
 /*!
  * \brief   makeBarrelshiftString()
  */
-static char * makeBarrelshiftString(l_int32 delx,    /* j - cx */
-    l_int32 dely,                       /* i - cy */
-    l_int32 type)                       /* SEL_HIT or SEL_MISS */
+static char * makeBarrelshiftString(int32 delx,    /* j - cx */
+    int32 dely,                       /* i - cy */
+    int32 type)                       /* SEL_HIT or SEL_MISS */
 {
-	l_int32 absx, absy;
+	int32 absx, absy;
 	char bigbuf[L_BUF_SIZE];
 
 	PROCNAME(__FUNCTION__);

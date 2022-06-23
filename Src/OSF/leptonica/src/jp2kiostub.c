@@ -18,32 +18,32 @@
 
 #if  !HAVE_LIBJP2K   /* defined in environ.h */
 
-PIX * pixReadJp2k(const char * filename, l_uint32 reduction, BOX * box, l_int32 hint, l_int32 debug)
+PIX * pixReadJp2k(const char * filename, uint32 reduction, BOX * box, int32 hint, int32 debug)
 {
 	return (PIX *)ERROR_PTR("function not present", "pixReadJp2k", NULL);
 }
 
-PIX * pixReadStreamJp2k(FILE * fp, l_uint32 reduction, BOX * box, l_int32 hint, l_int32 debug)
+PIX * pixReadStreamJp2k(FILE * fp, uint32 reduction, BOX * box, int32 hint, int32 debug)
 {
 	return (PIX *)ERROR_PTR("function not present", "pixReadStreamJp2k", NULL);
 }
 
-l_ok pixWriteJp2k(const char * filename, PIX * pix, l_int32 quality, l_int32 nlevels, l_int32 hint, l_int32 debug)
+l_ok pixWriteJp2k(const char * filename, PIX * pix, int32 quality, int32 nlevels, int32 hint, int32 debug)
 {
 	return ERROR_INT("function not present", "pixWriteJp2k", 1);
 }
 
-l_ok pixWriteStreamJp2k(FILE * fp, PIX * pix, l_int32 quality, l_int32 nlevels, l_int32 codec, l_int32 hint, l_int32 debug)
+l_ok pixWriteStreamJp2k(FILE * fp, PIX * pix, int32 quality, int32 nlevels, int32 codec, int32 hint, int32 debug)
 {
 	return ERROR_INT("function not present", "pixWriteStreamJp2k", 1);
 }
 
-PIX * pixReadMemJp2k(const uint8 * data, size_t size, l_uint32 reduction, BOX * box, l_int32 hint, l_int32 debug)
+PIX * pixReadMemJp2k(const uint8 * data, size_t size, uint32 reduction, BOX * box, int32 hint, int32 debug)
 {
 	return (PIX *)ERROR_PTR("function not present", "pixReadMemJp2k", NULL);
 }
 
-l_ok pixWriteMemJp2k(uint8 ** pdata, size_t * psize, PIX * pix, l_int32 quality, l_int32 nlevels, l_int32 hint, l_int32 debug)
+l_ok pixWriteMemJp2k(uint8 ** pdata, size_t * psize, PIX * pix, int32 quality, int32 nlevels, int32 hint, int32 debug)
 {
 	return ERROR_INT("function not present", "pixWriteMemJp2k", 1);
 }

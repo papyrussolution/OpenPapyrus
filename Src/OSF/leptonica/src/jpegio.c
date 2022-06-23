@@ -15,29 +15,29 @@
  *          PIX             *pixReadStreamJpeg()
  *
  *    Read jpeg metadata from file
- *          l_int32          readHeaderJpeg()
- *          l_int32          freadHeaderJpeg()
- *          l_int32          fgetJpegResolution()
- *          l_int32          fgetJpegComment()
+ *          int32          readHeaderJpeg()
+ *          int32          freadHeaderJpeg()
+ *          int32          fgetJpegResolution()
+ *          int32          fgetJpegComment()
  *
  *    Write jpeg to file
- *          l_int32          pixWriteJpeg()  [special top level]
- *          l_int32          pixWriteStreamJpeg()
+ *          int32          pixWriteJpeg()  [special top level]
+ *          int32          pixWriteStreamJpeg()
  *
  *    Read/write to memory
  *          PIX             *pixReadMemJpeg()
- *          l_int32          readHeaderMemJpeg()
- *          l_int32          readResolutionMemJpeg()
- *          l_int32          pixWriteMemJpeg()
+ *          int32          readHeaderMemJpeg()
+ *          int32          readResolutionMemJpeg()
+ *          int32          pixWriteMemJpeg()
  *
  *    Setting special flag for chroma sampling on write
- *          l_int32          pixSetChromaSampling()
+ *          int32          pixSetChromaSampling()
  *
  *    Static system helpers
  *          static void      jpeg_error_catch_all_1()
  *          static void      jpeg_error_catch_all_2()
  *          static uint8   jpeg_getc()
- *          static l_int32   jpeg_comment_callback()
+ *          static int32   jpeg_comment_callback()
  *
  *    Documentation: libjpeg.doc can be found, along with all
  *    source code, at ftp://ftp.uu.net/graphics/jpeg
@@ -179,12 +179,12 @@ struct callback_data {
  * </pre>
  */
 PIX * pixReadJpeg(const char * filename,
-    l_int32 cmapflag,
-    l_int32 reduction,
-    l_int32     * pnwarn,
-    l_int32 hint)
+    int32 cmapflag,
+    int32 reduction,
+    int32     * pnwarn,
+    int32 hint)
 {
-	l_int32 ret;
+	int32 ret;
 	uint8  * comment;
 	FILE * fp;
 	PIX * pix;
@@ -233,17 +233,17 @@ PIX * pixReadJpeg(const char * filename,
  * </pre>
  */
 PIX * pixReadStreamJpeg(FILE * fp,
-    l_int32 cmapflag,
-    l_int32 reduction,
-    l_int32 * pnwarn,
-    l_int32 hint)
+    int32 cmapflag,
+    int32 reduction,
+    int32 * pnwarn,
+    int32 hint)
 {
-	l_int32 cyan, yellow, magenta, black, nwarn;
-	l_int32 i, j, k, rval, gval, bval;
-	l_int32 nlinesread, abort_on_warning;
-	l_int32 w, h, wpl, spp, ncolors, cindex, ycck, cmyk;
-	l_uint32                      * data;
-	l_uint32                      * line, * ppixel;
+	int32 cyan, yellow, magenta, black, nwarn;
+	int32 i, j, k, rval, gval, bval;
+	int32 nlinesread, abort_on_warning;
+	int32 w, h, wpl, spp, ncolors, cindex, ycck, cmyk;
+	uint32                      * data;
+	uint32                      * line, * ppixel;
 	JSAMPROW rowbuffer;
 	PIX                           * pix;
 	PIXCMAP                       * cmap;
@@ -451,8 +451,8 @@ PIX * pixReadStreamJpeg(FILE * fp,
 		pixSetYRes(pix, cinfo.Y_density);
 	}
 	else if(cinfo.density_unit == 2) { /* pixels per centimeter */
-		pixSetXRes(pix, (l_int32)((float)cinfo.X_density * 2.54 + 0.5));
-		pixSetYRes(pix, (l_int32)((float)cinfo.Y_density * 2.54 + 0.5));
+		pixSetXRes(pix, (int32)((float)cinfo.X_density * 2.54 + 0.5));
+		pixSetYRes(pix, (int32)((float)cinfo.Y_density * 2.54 + 0.5));
 	}
 
 	if(cinfo.output_components != spp)
@@ -484,13 +484,13 @@ PIX * pixReadStreamJpeg(FILE * fp,
  * \return  0 if OK, 1 on error
  */
 l_ok readHeaderJpeg(const char * filename,
-    l_int32     * pw,
-    l_int32     * ph,
-    l_int32     * pspp,
-    l_int32     * pycck,
-    l_int32     * pcmyk)
+    int32     * pw,
+    int32     * ph,
+    int32     * pspp,
+    int32     * pycck,
+    int32     * pcmyk)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -524,13 +524,13 @@ l_ok readHeaderJpeg(const char * filename,
  * \return  0 if OK, 1 on error
  */
 l_ok freadHeaderJpeg(FILE * fp,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pspp,
-    l_int32 * pycck,
-    l_int32 * pcmyk)
+    int32 * pw,
+    int32 * ph,
+    int32 * pspp,
+    int32 * pycck,
+    int32 * pcmyk)
 {
-	l_int32 spp, w, h;
+	int32 spp, w, h;
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	jmp_buf jmpbuf;                 /* must be local to the function */
@@ -597,9 +597,9 @@ l_ok freadHeaderJpeg(FILE * fp,
  *      (2) Side-effect: this rewinds the stream.
  * </pre>
  */
-l_int32 fgetJpegResolution(FILE * fp,
-    l_int32 * pxres,
-    l_int32 * pyres)
+int32 fgetJpegResolution(FILE * fp,
+    int32 * pxres,
+    int32 * pyres)
 {
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
@@ -635,8 +635,8 @@ l_int32 fgetJpegResolution(FILE * fp,
 		*pyres = cinfo.Y_density;
 	}
 	else if(cinfo.density_unit == 2) { /* pixels/cm */
-		*pxres = (l_int32)((float)cinfo.X_density * 2.54 + 0.5);
-		*pyres = (l_int32)((float)cinfo.Y_density * 2.54 + 0.5);
+		*pxres = (int32)((float)cinfo.X_density * 2.54 + 0.5);
+		*pyres = (int32)((float)cinfo.Y_density * 2.54 + 0.5);
 	}
 
 	jpeg_destroy_decompress(&cinfo);
@@ -656,7 +656,7 @@ l_int32 fgetJpegResolution(FILE * fp,
  *      (1) Side-effect: this rewinds the stream.
  * </pre>
  */
-l_int32 fgetJpegComment(FILE * fp,
+int32 fgetJpegComment(FILE * fp,
     uint8  ** pcomment)
 {
 	struct jpeg_decompress_struct cinfo;
@@ -710,8 +710,8 @@ l_int32 fgetJpegComment(FILE * fp,
  */
 l_ok pixWriteJpeg(const char * filename,
     PIX         * pix,
-    l_int32 quality,
-    l_int32 progressive)
+    int32 quality,
+    int32 progressive)
 {
 	FILE * fp;
 
@@ -769,13 +769,13 @@ l_ok pixWriteJpeg(const char * filename,
  */
 l_ok pixWriteStreamJpeg(FILE * fp,
     PIX * pixs,
-    l_int32 quality,
-    l_int32 progressive)
+    int32 quality,
+    int32 progressive)
 {
-	l_int32 xres, yres;
-	l_int32 i, j, k;
-	l_int32 w, h, d, wpl, spp, colorflag, rowsamples;
-	l_uint32                    * ppixel, * line, * data;
+	int32 xres, yres;
+	int32 i, j, k;
+	int32 w, h, d, wpl, spp, colorflag, rowsamples;
+	uint32                    * ppixel, * line, * data;
 	JSAMPROW rowbuffer;
 	PIX                         * pix;
 	struct jpeg_compress_struct cinfo;
@@ -972,12 +972,12 @@ l_ok pixWriteStreamJpeg(FILE * fp,
  */
 PIX * pixReadMemJpeg(const uint8  * data,
     size_t size,
-    l_int32 cmflag,
-    l_int32 reduction,
-    l_int32 * pnwarn,
-    l_int32 hint)
+    int32 cmflag,
+    int32 reduction,
+    int32 * pnwarn,
+    int32 hint)
 {
-	l_int32 ret;
+	int32 ret;
 	uint8  * comment;
 	FILE * fp;
 	PIX * pix;
@@ -1017,13 +1017,13 @@ PIX * pixReadMemJpeg(const uint8  * data,
  */
 l_ok readHeaderMemJpeg(const uint8  * data,
     size_t size,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pspp,
-    l_int32 * pycck,
-    l_int32 * pcmyk)
+    int32 * pw,
+    int32 * ph,
+    int32 * pspp,
+    int32 * pycck,
+    int32 * pcmyk)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1056,10 +1056,10 @@ l_ok readHeaderMemJpeg(const uint8  * data,
  */
 l_ok readResolutionMemJpeg(const uint8  * data,
     size_t size,
-    l_int32 * pxres,
-    l_int32 * pyres)
+    int32 * pxres,
+    int32 * pyres)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1097,10 +1097,10 @@ l_ok readResolutionMemJpeg(const uint8  * data,
 l_ok pixWriteMemJpeg(uint8  ** pdata,
     size_t * psize,
     PIX * pix,
-    l_int32 quality,
-    l_int32 progressive)
+    int32 quality,
+    int32 progressive)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1157,7 +1157,7 @@ l_ok pixWriteMemJpeg(uint8  ** pdata,
  * </pre>
  */
 l_ok pixSetChromaSampling(PIX * pix,
-    l_int32 sampling)
+    int32 sampling)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1231,7 +1231,7 @@ static uint8 jpeg_getc(j_decompress_ptr cinfo)
  */
 static boolean jpeg_comment_callback(j_decompress_ptr cinfo)
 {
-	l_int32 length, i;
+	int32 length, i;
 	uint8               * comment;
 	struct callback_data  * pcb_data;
 	/* Get the size of the comment */

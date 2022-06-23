@@ -422,7 +422,7 @@ static char * make_output_filename(const char * input_filename, const char * ext
 	else {
 		/* strip any leading path */
 		c = strrchr(input_filename, '/'); /* *nix */
-		if(c == NULL)
+		if(!c)
 			c = strrchr(input_filename, '\\'); /* win32/dos */
 		if(c)
 			c++; /* skip the path separator */

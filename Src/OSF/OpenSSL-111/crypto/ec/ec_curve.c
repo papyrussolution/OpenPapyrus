@@ -13,7 +13,7 @@
 #include <openssl/err.h>
 #include <openssl/obj_mac.h>
 #include <openssl/opensslconf.h>
-#include "internal/nelem.h"
+//#include "internal/nelem.h"
 
 typedef struct {
 	int field_type,         /* either NID_X9_62_prime_field or NID_X9_62_characteristic_two_field */
@@ -2919,7 +2919,7 @@ static const ec_list_element curve_list[] = {
 #endif
 };
 
-#define curve_list_length OSSL_NELEM(curve_list)
+#define curve_list_length SIZEOFARRAY(curve_list)
 
 static EC_GROUP * ec_group_new_from_data(const ec_list_element curve)
 {
@@ -3086,7 +3086,7 @@ static EC_NIST_NAME nist_curves[] = {
 
 const char * EC_curve_nid2nist(int nid)
 {
-	for(size_t i = 0; i < OSSL_NELEM(nist_curves); i++) {
+	for(size_t i = 0; i < SIZEOFARRAY(nist_curves); i++) {
 		if(nist_curves[i].nid == nid)
 			return nist_curves[i].name;
 	}
@@ -3095,7 +3095,7 @@ const char * EC_curve_nid2nist(int nid)
 
 int EC_curve_nist2nid(const char * name)
 {
-	for(size_t i = 0; i < OSSL_NELEM(nist_curves); i++) {
+	for(size_t i = 0; i < SIZEOFARRAY(nist_curves); i++) {
 		if(strcmp(nist_curves[i].name, name) == 0)
 			return nist_curves[i].nid;
 	}

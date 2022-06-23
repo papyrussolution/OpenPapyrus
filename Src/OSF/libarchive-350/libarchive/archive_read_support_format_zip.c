@@ -346,8 +346,7 @@ static const struct {
 	{7, "reserved"},  /* Reserved for Tokenizing compression algorithm */
 	{8, "deflation"}, /* The file is Deflated */
 	{9, "deflation-64-bit"}, /* Enhanced Deflating using Deflate64(tm) */
-	{10, "ibm-terse"},/* PKWARE Data Compression Library Imploding
-	                   * (old IBM TERSE) */
+	{10, "ibm-terse"},/* PKWARE Data Compression Library Imploding (old IBM TERSE) */
 	{11, "reserved"}, /* Reserved by PKWARE */
 	{12, "bzip"},     /* File is compressed using BZIP2 algorithm */
 	{13, "reserved"}, /* Reserved by PKWARE */
@@ -366,10 +365,8 @@ static const struct {
 
 static const char * compression_name(const int compression)
 {
-	static const int num_compression_methods =
-	    sizeof(compression_methods)/sizeof(compression_methods[0]);
+	static const int num_compression_methods = SIZEOFARRAY(compression_methods);
 	int i = 0;
-
 	while(compression >= 0 && i < num_compression_methods) {
 		if(compression_methods[i].id == compression)
 			return compression_methods[i].name;

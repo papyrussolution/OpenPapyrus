@@ -2283,7 +2283,7 @@ static int64 expand(ArchiveRead * a, int64 end)
 	static const uchar lengthbases[] = {   0,   1,   2,   3,   4,   5,   6, 
 		7,   8,  10,  12,  14,  16,  20, 24,  28,  32,  40,  48,  56,  64, 80,  96, 112, 128, 160, 192, 224 };
 	static const uchar lengthbits[] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5 };
-	static const int lengthb_min = MIN((int)(sizeof(lengthbases)/sizeof(lengthbases[0])), (int)(sizeof(lengthbits)/sizeof(lengthbits[0])));
+	static const int lengthb_min = MIN((int)SIZEOFARRAY(lengthbases), (int)SIZEOFARRAY(lengthbits));
 	static const uint offsetbases[] = {       0,       1,       2,       3,       4,       6,
 		8,      12,      16,      24,      32,      48,
 		64,      96,     128,     192,     256,     384,
@@ -2300,7 +2300,7 @@ static int64 expand(ArchiveRead * a, int64 end)
 	   11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16,
 	   16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
 	   18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18 };
-	static const int offsetb_min = MIN((int)(sizeof(offsetbases)/sizeof(offsetbases[0])), (int)(sizeof(offsetbits)/sizeof(offsetbits[0])));
+	static const int offsetb_min = MIN((int)SIZEOFARRAY(offsetbases), (int)SIZEOFARRAY(offsetbits));
 	static const uchar shortbases[] = { 0, 4, 8, 16, 32, 64, 128, 192 };
 	static const uchar shortbits[] = { 2, 2, 3, 4, 5, 6, 6, 6 };
 	int symbol, offs, len, offsindex, lensymbol, i, offssymbol, lowoffsetsymbol;

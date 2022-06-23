@@ -47,11 +47,11 @@
 
 /*! Selection */
 struct Sel {
-	l_int32 sy;   /*!< sel height                               */
-	l_int32 sx;   /*!< sel width                                */
-	l_int32 cy;   /*!< y location of sel origin                 */
-	l_int32 cx;   /*!< x location of sel origin                 */
-	l_int32     ** data; /*!< {0,1,2}; data[i][j] in [row][col] order  */
+	int32 sy;   /*!< sel height                               */
+	int32 sx;   /*!< sel width                                */
+	int32 cy;   /*!< y location of sel origin                 */
+	int32 cx;   /*!< x location of sel origin                 */
+	int32     ** data; /*!< {0,1,2}; data[i][j] in [row][col] order  */
 	char * name; /*!< used to find sel by name                 */
 };
 
@@ -59,8 +59,8 @@ typedef struct Sel SEL;
 
 /*! Array of Sel */
 struct Sela {
-	l_int32 n;      /*!< number of sel actually stored           */
-	l_int32 nalloc;       /*!< size of allocated ptr array             */
+	int32 n;      /*!< number of sel actually stored           */
+	int32 nalloc;       /*!< size of allocated ptr array             */
 	struct Sel     ** sel; /*!< sel ptr array                           */
 };
 
@@ -73,10 +73,10 @@ typedef struct Sela SELA;
 
 /*! Kernel */
 struct L_Kernel {
-	l_int32 sy;   /*!< kernel height                            */
-	l_int32 sx;   /*!< kernel width                             */
-	l_int32 cy;   /*!< y location of kernel origin              */
-	l_int32 cx;   /*!< x location of kernel origin              */
+	int32 sy;   /*!< kernel height                            */
+	int32 sx;   /*!< kernel width                             */
+	int32 cy;   /*!< y location of kernel origin              */
+	int32 cx;   /*!< x location of kernel origin              */
 	float   ** data; /*!< data[i][j] in [row][col] order           */
 };
 
@@ -205,6 +205,6 @@ enum {
 /*-------------------------------------------------------------------------*
 *    Standard size of border added around images for special processing   *
 *-------------------------------------------------------------------------*/
-static const l_int32 ADDED_BORDER = 32;  /*!< pixels, not bits */
+static const int32 ADDED_BORDER = 32;  /*!< pixels, not bits */
 
 #endif  /* LEPTONICA_MORPH_H */

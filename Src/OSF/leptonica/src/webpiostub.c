@@ -30,32 +30,32 @@ PIX * pixReadMemWebP(const uint8 * filedata, size_t filesize)
 	return (PIX *)ERROR_PTR("function not present", "pixReadMemWebP", NULL);
 }
 
-l_ok readHeaderWebP(const char * filename, l_int32 * pw, l_int32 * ph,
-    l_int32 * pspp)
+l_ok readHeaderWebP(const char * filename, int32 * pw, int32 * ph,
+    int32 * pspp)
 {
 	return ERROR_INT("function not present", "readHeaderWebP", 1);
 }
 
 l_ok readHeaderMemWebP(const uint8 * data, size_t size,
-    l_int32 * pw, l_int32 * ph, l_int32 * pspp)
+    int32 * pw, int32 * ph, int32 * pspp)
 {
 	return ERROR_INT("function not present", "readHeaderMemWebP", 1);
 }
 
-l_ok pixWriteWebP(const char * filename, PIX * pixs, l_int32 quality,
-    l_int32 lossless)
+l_ok pixWriteWebP(const char * filename, PIX * pixs, int32 quality,
+    int32 lossless)
 {
 	return ERROR_INT("function not present", "pixWriteWebP", 1);
 }
 
-l_ok pixWriteStreamWebP(FILE * fp, PIX * pixs, l_int32 quality,
-    l_int32 lossless)
+l_ok pixWriteStreamWebP(FILE * fp, PIX * pixs, int32 quality,
+    int32 lossless)
 {
 	return ERROR_INT("function not present", "pixWriteStreamWebP", 1);
 }
 
 l_ok pixWriteMemWebP(uint8 ** pencdata, size_t * pencsize, PIX * pixs,
-    l_int32 quality, l_int32 lossless)
+    int32 quality, int32 lossless)
 {
 	return ERROR_INT("function not present", "pixWriteMemWebP", 1);
 }

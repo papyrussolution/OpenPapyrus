@@ -27,15 +27,15 @@
  *               PIX         *pixFillHolesToBoundingRect()
  *
  *      Gray seedfill (source: Luc Vincent:fast-hybrid-grayscale-reconstruction)
- *               l_int32      pixSeedfillGray()
- *               l_int32      pixSeedfillGrayInv()
+ *               int32      pixSeedfillGray()
+ *               int32      pixSeedfillGrayInv()
  *               static void  seedfillGrayLow()
  *               static void  seedfillGrayInvLow()
 
  *
  *      Gray seedfill (source: Luc Vincent: sequential-reconstruction algorithm)
- *               l_int32      pixSeedfillGraySimple()
- *               l_int32      pixSeedfillGrayInvSimple()
+ *               int32      pixSeedfillGraySimple()
+ *               int32      pixSeedfillGrayInvSimple()
  *               static void  seedfillGrayLowSimple()
  *               static void  seedfillGrayInvLowSimple()
  *
@@ -51,9 +51,9 @@
  *               static void  seedspreadLow()
  *
  *      Local extrema:
- *               l_int32      pixLocalExtrema()
- *            static l_int32  pixQualifyLocalMinima()
- *               l_int32      pixSelectedLocalExtrema()
+ *               int32      pixLocalExtrema()
+ *            static int32  pixQualifyLocalMinima()
+ *               int32      pixSelectedLocalExtrema()
  *               PIX         *pixFindEqualValues()
  *
  *      Selection of minima in mask of connected components
@@ -149,40 +149,40 @@
 #pragma hdrstop
 
 struct L_Pixel {
-	l_int32 x;
-	l_int32 y;
+	int32 x;
+	int32 y;
 };
 
 typedef struct L_Pixel L_PIXEL;
 
-static void seedfillBinaryLow(l_uint32 * datas, l_int32 hs, l_int32 wpls,
-    l_uint32 * datam, l_int32 hm, l_int32 wplm,
-    l_int32 connectivity);
-static void seedfillGrayLow(l_uint32 * datas, l_int32 w, l_int32 h,
-    l_int32 wpls, l_uint32 * datam, l_int32 wplm,
-    l_int32 connectivity);
-static void seedfillGrayInvLow(l_uint32 * datas, l_int32 w, l_int32 h,
-    l_int32 wpls, l_uint32 * datam, l_int32 wplm,
-    l_int32 connectivity);
-static void seedfillGrayLowSimple(l_uint32 * datas, l_int32 w, l_int32 h,
-    l_int32 wpls, l_uint32 * datam, l_int32 wplm,
-    l_int32 connectivity);
-static void seedfillGrayInvLowSimple(l_uint32 * datas, l_int32 w, l_int32 h,
-    l_int32 wpls, l_uint32 * datam,
-    l_int32 wplm, l_int32 connectivity);
-static void distanceFunctionLow(l_uint32 * datad, l_int32 w, l_int32 h,
-    l_int32 d, l_int32 wpld, l_int32 connectivity);
-static void seedspreadLow(l_uint32 * datad, l_int32 w, l_int32 h, l_int32 wpld,
-    l_uint32 * datat, l_int32 wplt, l_int32 connectivity);
+static void seedfillBinaryLow(uint32 * datas, int32 hs, int32 wpls,
+    uint32 * datam, int32 hm, int32 wplm,
+    int32 connectivity);
+static void seedfillGrayLow(uint32 * datas, int32 w, int32 h,
+    int32 wpls, uint32 * datam, int32 wplm,
+    int32 connectivity);
+static void seedfillGrayInvLow(uint32 * datas, int32 w, int32 h,
+    int32 wpls, uint32 * datam, int32 wplm,
+    int32 connectivity);
+static void seedfillGrayLowSimple(uint32 * datas, int32 w, int32 h,
+    int32 wpls, uint32 * datam, int32 wplm,
+    int32 connectivity);
+static void seedfillGrayInvLowSimple(uint32 * datas, int32 w, int32 h,
+    int32 wpls, uint32 * datam,
+    int32 wplm, int32 connectivity);
+static void distanceFunctionLow(uint32 * datad, int32 w, int32 h,
+    int32 d, int32 wpld, int32 connectivity);
+static void seedspreadLow(uint32 * datad, int32 w, int32 h, int32 wpld,
+    uint32 * datat, int32 wplt, int32 connectivity);
 
-static l_int32 pixQualifyLocalMinima(PIX * pixs, PIX * pixm, l_int32 maxval);
+static int32 pixQualifyLocalMinima(PIX * pixs, PIX * pixm, int32 maxval);
 
 #ifndef  NO_CONSOLE_IO
 #define   DEBUG_PRINT_ITERS    0
 #endif  /* ~NO_CONSOLE_IO */
 
 /* Two-way (UL --> LR, LR --> UL) sweep iterations; typically need only 4 */
-static const l_int32 MaxIters = 40;
+static const int32 MaxIters = 40;
 
 /*-----------------------------------------------------------------------*
 *              Vincent's Iterative Binary Seedfill method               *
@@ -221,11 +221,11 @@ static const l_int32 MaxIters = 40;
 PIX * pixSeedfillBinary(PIX * pixd,
     PIX * pixs,
     PIX * pixm,
-    l_int32 connectivity)
+    int32 connectivity)
 {
-	l_int32 i, boolval;
-	l_int32 hd, hm, wpld, wplm;
-	l_uint32  * datad, * datam;
+	int32 i, boolval;
+	int32 hd, hm, wpld, wplm;
+	uint32  * datad, * datam;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -306,11 +306,11 @@ PIX * pixSeedfillBinary(PIX * pixd,
 PIX * pixSeedfillBinaryRestricted(PIX * pixd,
     PIX * pixs,
     PIX * pixm,
-    l_int32 connectivity,
-    l_int32 xmax,
-    l_int32 ymax)
+    int32 connectivity,
+    int32 xmax,
+    int32 ymax)
 {
-	l_int32 w, h;
+	int32 w, h;
 	PIX * pix1, * pix2;
 
 	PROCNAME(__FUNCTION__);
@@ -369,19 +369,19 @@ PIX * pixSeedfillBinaryRestricted(PIX * pixd,
  *          are properly set to 0.
  *      (4) Clip to the smallest dimensions to avoid invalid reads.
  */
-static void seedfillBinaryLow(l_uint32  * datas,
-    l_int32 hs,
-    l_int32 wpls,
-    l_uint32  * datam,
-    l_int32 hm,
-    l_int32 wplm,
-    l_int32 connectivity)
+static void seedfillBinaryLow(uint32  * datas,
+    int32 hs,
+    int32 wpls,
+    uint32  * datam,
+    int32 hm,
+    int32 wplm,
+    int32 connectivity)
 {
-	l_int32 i, j, h, wpl;
-	l_uint32 word, mask;
-	l_uint32 wordabove, wordleft, wordbelow, wordright;
-	l_uint32 wordprev; /* test against this in previous iteration */
-	l_uint32  * lines, * linem;
+	int32 i, j, h, wpl;
+	uint32 word, mask;
+	uint32 wordabove, wordleft, wordbelow, wordright;
+	uint32 wordprev; /* test against this in previous iteration */
+	uint32  * lines, * linem;
 
 	PROCNAME(__FUNCTION__);
 
@@ -574,7 +574,7 @@ static void seedfillBinaryLow(l_uint32  * datas,
  * </pre>
  */
 PIX * pixHolesByFilling(PIX * pixs,
-    l_int32 connectivity)
+    int32 connectivity)
 {
 	PIX  * pixsi, * pixd;
 
@@ -623,7 +623,7 @@ PIX * pixHolesByFilling(PIX * pixs,
  * </pre>
  */
 PIX * pixFillClosedBorders(PIX * pixs,
-    l_int32 connectivity)
+    int32 connectivity)
 {
 	PIX  * pixsi, * pixd;
 
@@ -659,7 +659,7 @@ PIX * pixFillClosedBorders(PIX * pixs,
  *                components touching the border, or NULL on error
  */
 PIX * pixExtractBorderConnComps(PIX * pixs,
-    l_int32 connectivity)
+    int32 connectivity)
 {
 	PIX  * pixd;
 
@@ -696,7 +696,7 @@ PIX * pixExtractBorderConnComps(PIX * pixs,
  * </pre>
  */
 PIX * pixRemoveBorderConnComps(PIX * pixs,
-    l_int32 connectivity)
+    int32 connectivity)
 {
 	PIX  * pixd;
 
@@ -744,7 +744,7 @@ PIX * pixRemoveBorderConnComps(PIX * pixs,
  * </pre>
  */
 PIX * pixFillBgFromBorder(PIX * pixs,
-    l_int32 connectivity)
+    int32 connectivity)
 {
 	PIX  * pixd;
 
@@ -801,10 +801,10 @@ PIX * pixFillBgFromBorder(PIX * pixs,
  *          and %minfgfract around 0.5 are reasonable.
  * </pre>
  */
-PIX * pixFillHolesToBoundingRect(PIX * pixs, l_int32 minsize, float maxhfract, float minfgfract)
+PIX * pixFillHolesToBoundingRect(PIX * pixs, int32 minsize, float maxhfract, float minfgfract)
 {
-	l_int32 i, x, y, w, h, n, nfg, nh, ntot, area;
-	l_int32   * tab;
+	int32 i, x, y, w, h, n, nfg, nh, ntot, area;
+	int32   * tab;
 	float hfract; /* measured hole fraction */
 	float fgfract; /* measured fg fraction */
 	BOXA      * boxa;
@@ -880,10 +880,10 @@ PIX * pixFillHolesToBoundingRect(PIX * pixs, l_int32 minsize, float maxhfract, f
  */
 l_ok pixSeedfillGray(PIX * pixs,
     PIX * pixm,
-    l_int32 connectivity)
+    int32 connectivity)
 {
-	l_int32 h, w, wpls, wplm;
-	l_uint32  * datas, * datam;
+	int32 h, w, wpls, wplm;
+	uint32  * datas, * datam;
 
 	PROCNAME(__FUNCTION__);
 
@@ -937,10 +937,10 @@ l_ok pixSeedfillGray(PIX * pixs,
  */
 l_ok pixSeedfillGrayInv(PIX * pixs,
     PIX * pixm,
-    l_int32 connectivity)
+    int32 connectivity)
 {
-	l_int32 h, w, wpls, wplm;
-	l_uint32  * datas, * datam;
+	int32 h, w, wpls, wplm;
+	uint32  * datas, * datam;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1010,18 +1010,18 @@ l_ok pixSeedfillGrayInv(PIX * pixs,
  *            analysis: applications and efficient algorithms, IEEE Transactions
  *            on  Image Processing, vol. 2, no. 2, pp. 176-201, 1993.
  */
-static void seedfillGrayLow(l_uint32  * datas,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpls,
-    l_uint32  * datam,
-    l_int32 wplm,
-    l_int32 connectivity)
+static void seedfillGrayLow(uint32  * datas,
+    int32 w,
+    int32 h,
+    int32 wpls,
+    uint32  * datam,
+    int32 wplm,
+    int32 connectivity)
 {
 	uint8 val1, val2, val3, val4, val5, val6, val7, val8;
 	uint8 val, maxval, maskval, boolval;
-	l_int32 i, j, imax, jmax, queue_size;
-	l_uint32  * lines, * linem;
+	int32 i, j, imax, jmax, queue_size;
+	uint32  * lines, * linem;
 	L_PIXEL * pixel;
 	L_QUEUE  * lq_pixel;
 
@@ -1457,18 +1457,18 @@ static void seedfillGrayLow(l_uint32  * datas,
  *            analysis: applications and efficient algorithms, IEEE Transactions
  *            on  Image Processing, vol. 2, no. 2, pp. 176-201, 1993.
  */
-static void seedfillGrayInvLow(l_uint32  * datas,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpls,
-    l_uint32  * datam,
-    l_int32 wplm,
-    l_int32 connectivity)
+static void seedfillGrayInvLow(uint32  * datas,
+    int32 w,
+    int32 h,
+    int32 wpls,
+    uint32  * datam,
+    int32 wplm,
+    int32 connectivity)
 {
 	uint8 val1, val2, val3, val4, val5, val6, val7, val8;
 	uint8 val, maxval, maskval, boolval;
-	l_int32 i, j, imax, jmax, queue_size;
-	l_uint32  * lines, * linem;
+	int32 i, j, imax, jmax, queue_size;
+	uint32  * lines, * linem;
 	L_PIXEL * pixel;
 	L_QUEUE  * lq_pixel;
 
@@ -1910,10 +1910,10 @@ static void seedfillGrayInvLow(l_uint32  * datas,
  */
 l_ok pixSeedfillGraySimple(PIX * pixs,
     PIX * pixm,
-    l_int32 connectivity)
+    int32 connectivity)
 {
-	l_int32 i, h, w, wpls, wplm, boolval;
-	l_uint32  * datas, * datam;
+	int32 i, h, w, wpls, wplm, boolval;
+	uint32  * datas, * datam;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -1979,10 +1979,10 @@ l_ok pixSeedfillGraySimple(PIX * pixs,
  */
 l_ok pixSeedfillGrayInvSimple(PIX * pixs,
     PIX * pixm,
-    l_int32 connectivity)
+    int32 connectivity)
 {
-	l_int32 i, h, w, wpls, wplm, boolval;
-	l_uint32  * datas, * datam;
+	int32 i, h, w, wpls, wplm, boolval;
+	uint32  * datas, * datam;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -2056,18 +2056,18 @@ l_ok pixSeedfillGrayInvSimple(PIX * pixs,
  *          filled seed outside the rim will be at the highest
  *          point on the rim, which is a saddle point on the rim.
  */
-static void seedfillGrayLowSimple(l_uint32  * datas,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpls,
-    l_uint32  * datam,
-    l_int32 wplm,
-    l_int32 connectivity)
+static void seedfillGrayLowSimple(uint32  * datas,
+    int32 w,
+    int32 h,
+    int32 wpls,
+    uint32  * datam,
+    int32 wplm,
+    int32 connectivity)
 {
 	uint8 val2, val3, val4, val5, val7, val8;
 	uint8 val, maxval, maskval;
-	l_int32 i, j, imax, jmax;
-	l_uint32  * lines, * linem;
+	int32 i, j, imax, jmax;
+	uint32  * lines, * linem;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2210,18 +2210,18 @@ static void seedfillGrayLowSimple(l_uint32  * datas,
  *          propagating seed pixels in pixs are larger than the
  *          corresponding mask values in pixm.
  */
-static void seedfillGrayInvLowSimple(l_uint32  * datas,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpls,
-    l_uint32  * datam,
-    l_int32 wplm,
-    l_int32 connectivity)
+static void seedfillGrayInvLowSimple(uint32  * datas,
+    int32 w,
+    int32 h,
+    int32 wpls,
+    uint32  * datam,
+    int32 wplm,
+    int32 connectivity)
 {
 	uint8 val1, val2, val3, val4, val5, val6, val7, val8;
 	uint8 maxval, maskval;
-	l_int32 i, j, imax, jmax;
-	l_uint32  * lines, * linem;
+	int32 i, j, imax, jmax;
+	uint32  * lines, * linem;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2375,8 +2375,8 @@ static void seedfillGrayInvLowSimple(l_uint32  * datas,
  */
 PIX * pixSeedfillGrayBasin(PIX * pixb,
     PIX * pixm,
-    l_int32 delta,
-    l_int32 connectivity)
+    int32 delta,
+    int32 connectivity)
 {
 	PIX  * pixbi, * pixmi, * pixsd;
 
@@ -2463,12 +2463,12 @@ PIX * pixSeedfillGrayBasin(PIX * pixb,
  * </pre>
  */
 PIX * pixDistanceFunction(PIX * pixs,
-    l_int32 connectivity,
-    l_int32 outdepth,
-    l_int32 boundcond)
+    int32 connectivity,
+    int32 outdepth,
+    int32 boundcond)
 {
-	l_int32 w, h, wpld;
-	l_uint32  * datad;
+	int32 w, h, wpld;
+	uint32  * datad;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2512,16 +2512,16 @@ PIX * pixDistanceFunction(PIX * pixs,
 /*!
  * \brief   distanceFunctionLow()
  */
-static void distanceFunctionLow(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 d,
-    l_int32 wpld,
-    l_int32 connectivity)
+static void distanceFunctionLow(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 d,
+    int32 wpld,
+    int32 connectivity)
 {
-	l_int32 val1, val2, val3, val4, val5, val6, val7, val8, minval, val;
-	l_int32 i, j, imax, jmax;
-	l_uint32  * lined;
+	int32 val1, val2, val3, val4, val5, val6, val7, val8, minval, val;
+	int32 i, j, imax, jmax;
+	uint32  * lined;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2719,10 +2719,10 @@ static void distanceFunctionLow(l_uint32  * datad,
  * </pre>
  */
 PIX * pixSeedspread(PIX * pixs,
-    l_int32 connectivity)
+    int32 connectivity)
 {
-	l_int32 w, h, wplt, wplg;
-	l_uint32  * datat, * datag;
+	int32 w, h, wplt, wplg;
+	uint32  * datat, * datag;
 	PIX * pixm, * pixt, * pixg, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2770,17 +2770,17 @@ PIX * pixSeedspread(PIX * pixs,
  *
  *    See pixSeedspread() for a brief description of the algorithm here.
  */
-static void seedspreadLow(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datat,
-    l_int32 wplt,
-    l_int32 connectivity)
+static void seedspreadLow(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datat,
+    int32 wplt,
+    int32 connectivity)
 {
-	l_int32 val1t, val2t, val3t, val4t, val5t, val6t, val7t, val8t;
-	l_int32 i, j, imax, jmax, minval, valt, vald;
-	l_uint32  * linet, * lined;
+	int32 val1t, val2t, val3t, val4t, val5t, val6t, val7t, val8t;
+	int32 i, j, imax, jmax, minval, valt, vald;
+	uint32  * linet, * lined;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2942,8 +2942,8 @@ static void seedspreadLow(l_uint32  * datad,
  * </pre>
  */
 l_ok pixLocalExtrema(PIX * pixs,
-    l_int32 maxmin,
-    l_int32 minmax,
+    int32 maxmin,
+    int32 minmax,
     PIX    ** ppixmin,
     PIX    ** ppixmax)
 {
@@ -3003,12 +3003,12 @@ l_ok pixLocalExtrema(PIX * pixs,
  *          no upper bound (equivalent to maxval == 254).
  * </pre>
  */
-static l_int32 pixQualifyLocalMinima(PIX * pixs, PIX * pixm, l_int32 maxval)
+static int32 pixQualifyLocalMinima(PIX * pixs, PIX * pixm, int32 maxval)
 {
-	l_int32 n, i, j, k, x, y, w, h, xc, yc, wc, hc, xon, yon;
-	l_int32 vals, wpls, wplc, ismin;
-	l_uint32 val;
-	l_uint32  * datas, * datac, * lines, * linec;
+	int32 n, i, j, k, x, y, w, h, xc, yc, wc, hc, xon, yon;
+	int32 vals, wpls, wplc, ismin;
+	uint32 val;
+	uint32  * datas, * datac, * lines, * linec;
 	BOXA      * boxa;
 	PIX * pix1, * pix2, * pix3;
 	PIXA      * pixa;
@@ -3106,7 +3106,7 @@ static l_int32 pixQualifyLocalMinima(PIX * pixs, PIX * pixm, l_int32 maxval)
  * </pre>
  */
 l_ok pixSelectedLocalExtrema(PIX * pixs,
-    l_int32 mindist,
+    int32 mindist,
     PIX    ** ppixmin,
     PIX    ** ppixmax)
 {
@@ -3168,9 +3168,9 @@ l_ok pixSelectedLocalExtrema(PIX * pixs,
 PIX * pixFindEqualValues(PIX  * pixs1,
     PIX  * pixs2)
 {
-	l_int32 w1, h1, w2, h2, w, h;
-	l_int32 i, j, val1, val2, wpls1, wpls2, wpld;
-	l_uint32  * datas1, * datas2, * datad, * lines1, * lines2, * lined;
+	int32 w1, h1, w2, h2, w, h;
+	int32 i, j, val1, val2, wpls1, wpls2, wpld;
+	uint32  * datas1, * datas2, * datad, * lines1, * lines2, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -3235,9 +3235,9 @@ l_ok pixSelectMinInConnComp(PIX    * pixs,
     PTA   ** ppta,
     NUMA ** pnav)
 {
-	l_int32 bx, by, bw, bh, i, j, c, n;
-	l_int32 xs, ys, minx, miny, wpls, wplt, val, minval;
-	l_uint32  * datas, * datat, * lines, * linet;
+	int32 bx, by, bw, bh, i, j, c, n;
+	int32 xs, ys, minx, miny, wpls, wplt, val, minval;
+	uint32  * datas, * datat, * lines, * linet;
 	BOXA      * boxa;
 	NUMA * nav;
 	PIX * pixt, * pixs2, * pixm2;
@@ -3344,8 +3344,8 @@ l_ok pixSelectMinInConnComp(PIX    * pixs,
 PIX * pixRemoveSeededComponents(PIX * pixd,
     PIX * pixs,
     PIX * pixm,
-    l_int32 connectivity,
-    l_int32 bordersize)
+    int32 connectivity,
+    int32 bordersize)
 {
 	PIX  * pixt;
 

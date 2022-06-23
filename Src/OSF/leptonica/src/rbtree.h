@@ -58,7 +58,7 @@ typedef union Rb_Type RB_TYPE;
 
 struct L_Rbtree {
 	struct L_Rbtree_Node  * root;
-	l_int32 keytype;
+	int32 keytype;
 };
 
 typedef struct L_Rbtree L_RBTREE;
@@ -71,7 +71,7 @@ struct L_Rbtree_Node {
 	struct L_Rbtree_Node  * left;
 	struct L_Rbtree_Node  * right;
 	struct L_Rbtree_Node  * parent;
-	l_int32 color;
+	int32 color;
 };
 
 typedef struct L_Rbtree_Node L_RBTREE_NODE;

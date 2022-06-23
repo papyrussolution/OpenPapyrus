@@ -3146,7 +3146,7 @@ static int build_chain(X509_STORE_CTX * ctx)
 }
 
 static const int minbits_table[] = { 80, 112, 128, 192, 256 };
-static const int NUM_AUTH_LEVELS = OSSL_NELEM(minbits_table);
+static const int NUM_AUTH_LEVELS = SIZEOFARRAY(minbits_table);
 
 /*
  * Check whether the public key of ``cert`` meets the security level of

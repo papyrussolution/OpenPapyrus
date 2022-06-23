@@ -10,7 +10,7 @@
 #pragma hdrstop
 #include <openssl/objects.h>
 #include "obj_xref.h"
-#include "internal/nelem.h"
+//#include "internal/nelem.h"
 #include <openssl/err.h>
 
 static STACK_OF(nid_triple) *sig_app, *sigx_app;
@@ -53,7 +53,7 @@ int OBJ_find_sigid_algs(int signid, int * pdig_nid, int * ppkey_nid)
 	}
 #ifndef OBJ_XREF_TEST2
 	if(rv == NULL) {
-		rv = OBJ_bsearch_sig(&tmp, sigoid_srt, OSSL_NELEM(sigoid_srt));
+		rv = OBJ_bsearch_sig(&tmp, sigoid_srt, SIZEOFARRAY(sigoid_srt));
 	}
 #endif
 	if(rv == NULL)
@@ -83,7 +83,7 @@ int OBJ_find_sigid_by_algs(int * psignid, int dig_nid, int pkey_nid)
 	}
 #ifndef OBJ_XREF_TEST2
 	if(rv == NULL) {
-		rv = OBJ_bsearch_sigx(&t, sigoid_srt_xref, OSSL_NELEM(sigoid_srt_xref));
+		rv = OBJ_bsearch_sigx(&t, sigoid_srt_xref, SIZEOFARRAY(sigoid_srt_xref));
 	}
 #endif
 	if(rv == NULL)

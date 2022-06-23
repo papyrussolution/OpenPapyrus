@@ -1465,7 +1465,7 @@ int ObjTagCore::SearchObjectsByStr(PPID objType, PPID tagID, const char * pStr, 
 	PPIDArray list;
 	if(!isempty(pStr)) {
 	 	// AHTOXA {
-		int    substr_srch  = (pStr && pStr[0] == '*');
+		const  bool substr_srch = (pStr && pStr[0] == '*');
 		int    sp_type      = substr_srch ? spGe : spEq;
 		const  char * p_str = substr_srch ? (pStr + 1) : pStr;
 		int    srch_str_not_empty = (p_str && sstrlen(p_str) > 0);

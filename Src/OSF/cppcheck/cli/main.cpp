@@ -72,7 +72,6 @@ int main(int argc, char* argv[])
 #if defined(_MSC_VER) && defined(_DEBUG)
 	_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
 #endif
-
 	CppCheckExecutor exec;
 #ifdef _WIN32
 	GetModuleFileNameA(nullptr, exename, sizeof(exename)/sizeof(exename[0])-1);

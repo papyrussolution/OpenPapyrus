@@ -9,7 +9,7 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-#include "internal/nelem.h"
+//#include "internal/nelem.h"
 #include "internal/o_dir.h"
 #include <openssl/bio.h>
 #include <openssl/pem.h>
@@ -188,7 +188,7 @@ err:
 void ssl_cert_clear_certs(CERT * c)
 {
 	int i;
-	if(c == NULL)
+	if(!c)
 		return;
 	for(i = 0; i < SSL_PKEY_NUM; i++) {
 		CERT_PKEY * cpk = c->pkeys + i;
@@ -208,7 +208,7 @@ void ssl_cert_free(CERT * c)
 {
 	int i;
 
-	if(c == NULL)
+	if(!c)
 		return;
 	CRYPTO_DOWN_REF(&c->references, &i, c->lock);
 	REF_PRINT_COUNT("CERT", c);
@@ -966,7 +966,7 @@ int ssl_ctx_security(const SSL_CTX * ctx, int op, int bits, int nid, void * othe
 
 int ssl_cert_lookup_by_nid(int nid, size_t * pidx)
 {
-	for(size_t i = 0; i < OSSL_NELEM(ssl_cert_info); i++) {
+	for(size_t i = 0; i < SIZEOFARRAY(ssl_cert_info); i++) {
 		if(ssl_cert_info[i].nid == nid) {
 			*pidx = i;
 			return 1;
@@ -990,7 +990,7 @@ const SSL_CERT_LOOKUP * ssl_cert_lookup_by_pkey(const EVP_PKEY * pk, size_t * pi
 
 const SSL_CERT_LOOKUP * ssl_cert_lookup_by_idx(size_t idx)
 {
-	if(idx >= OSSL_NELEM(ssl_cert_info))
+	if(idx >= SIZEOFARRAY(ssl_cert_info))
 		return NULL;
 	return &ssl_cert_info[idx];
 }

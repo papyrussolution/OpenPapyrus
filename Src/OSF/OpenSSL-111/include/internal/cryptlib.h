@@ -124,7 +124,7 @@ union bio_addr_st {
 #include <openssl/modes.h>
 #include <openssl/ct.h>
 #include <openssl/asyncerr.h>
-#include "internal/nelem.h"
+////#include "internal/nelem.h"
 #include <asn1_int.h>
 #include <evp_int.h>
 #include <ssl-crypto-ctype.h>

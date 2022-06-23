@@ -270,7 +270,7 @@ static const char * l_bootnum1 =
 PIXA * l_bootnum_gen1(void)
 {
 	uint8  * data1, * data2;
-	l_int32 size1;
+	int32 size1;
 	size_t size2;
 	PIXA * pixa;
 	/* Unencode selected string, write to file, and read it */

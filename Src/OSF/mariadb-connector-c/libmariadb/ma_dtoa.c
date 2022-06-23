@@ -195,22 +195,17 @@ size_t ma_fcvt(double x, int precision, char * to, bool * error)
    - choosing the proper format to preserve the most number of significant
      digits.
  */
-
-size_t ma_gcvt(double x, my_gcvt_arg_type type, int width, char * to,
-    bool * error)
+size_t ma_gcvt(double x, my_gcvt_arg_type type, int width, char * to, bool * error)
 {
 	int decpt, sign, len, exp_len;
 	char * res, * src, * end, * dst = to, * dend = dst + width;
 	char buf[DTOA_BUFF_SIZE];
 	bool have_space, force_e_format;
 	DBUG_ASSERT(width > 0 && to != NULL);
-
 	/* We want to remove '-' from equations early */
 	if(x < 0.)
 		width--;
-
-	res = dtoa(x, 4, type == MY_GCVT_ARG_DOUBLE ? width : MIN(width, FLT_DIG),
-		&decpt, &sign, &end, buf, sizeof(buf));
+	res = dtoa(x, 4, type == MY_GCVT_ARG_DOUBLE ? width : MIN(width, FLT_DIG), &decpt, &sign, &end, buf, sizeof(buf));
 	if(decpt == DTOA_OVERFLOW) {
 		dtoa_free(res, buf, sizeof(buf));
 		*to++ = '0';
@@ -474,7 +469,6 @@ end:
 
    TODO: check if we can get rid of the above two
  */
-
 typedef int32 Long;
 typedef uint32 ULong;
 typedef int64 LLong;
@@ -482,15 +476,13 @@ typedef uint64 ULLong;
 
 typedef union { double d; ULong L[2]; } U;
 
-#if defined(HAVE_BIGENDIAN) || defined(WORDS_BIGENDIAN) || \
-	(defined(__FLOAT_WORD_ORDER) && (__FLOAT_WORD_ORDER == __BIG_ENDIAN))
-#define word0(x) ((x)->L[0])
-#define word1(x) ((x)->L[1])
+#if defined(HAVE_BIGENDIAN) || defined(WORDS_BIGENDIAN) || (defined(__FLOAT_WORD_ORDER) && (__FLOAT_WORD_ORDER == __BIG_ENDIAN))
+	#define word0(x) ((x)->L[0])
+	#define word1(x) ((x)->L[1])
 #else
-#define word0(x) ((x)->L[1])
-#define word1(x) ((x)->L[0])
+	#define word0(x) ((x)->L[1])
+	#define word1(x) ((x)->L[0])
 #endif
-
 #define dval(x) ((x)->d)
 
 /* #define P DBL_MANT_DIG */

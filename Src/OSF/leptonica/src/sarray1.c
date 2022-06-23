@@ -20,18 +20,18 @@
  *          SARRAY    *sarrayClone()
  *
  *      Add/Remove string
- *          l_int32    sarrayAddString()
- *          static l_int32  sarrayExtendArray()
+ *          int32    sarrayAddString()
+ *          static int32  sarrayExtendArray()
  *          char      *sarrayRemoveString()
- *          l_int32    sarrayReplaceString()
- *          l_int32    sarrayClear()
+ *          int32    sarrayReplaceString()
+ *          int32    sarrayClear()
  *
  *      Accessors
- *          l_int32    sarrayGetCount()
+ *          int32    sarrayGetCount()
  *          char     **sarrayGetArray()
  *          char      *sarrayGetString()
- *          l_int32    sarrayGetRefcount()
- *          l_int32    sarrayChangeRefcount()
+ *          int32    sarrayGetRefcount()
+ *          int32    sarrayChangeRefcount()
  *
  *      Conversion back to string
  *          char      *sarrayToString()
@@ -41,11 +41,11 @@
  *          SARRAY    *sarrayConcatUniformly()
  *
  *      Join 2 sarrays
- *          l_int32    sarrayJoin()
- *          l_int32    sarrayAppendRange()
+ *          int32    sarrayJoin()
+ *          int32    sarrayAppendRange()
  *
  *      Pad an sarray to be the same size as another sarray
- *          l_int32    sarrayPadToSameSize()
+ *          int32    sarrayPadToSameSize()
  *
  *      Convert word sarray to (formatted) line sarray
  *          SARRAY    *sarrayConvertWordsToLines()
@@ -56,17 +56,17 @@
  *      Filter sarray
  *          SARRAY    *sarraySelectBySubstring()
  *          SARRAY    *sarraySelectRange()
- *          l_int32    sarrayParseRange()
+ *          int32    sarrayParseRange()
  *
  *      Serialize for I/O
  *          SARRAY    *sarrayRead()
  *          SARRAY    *sarrayReadStream()
  *          SARRAY    *sarrayReadMem()
- *          l_int32    sarrayWrite()
- *          l_int32    sarrayWriteStream()
- *          l_int32    sarrayWriteStderr()
- *          l_int32    sarrayWriteMem()
- *          l_int32    sarrayAppend()
+ *          int32    sarrayWrite()
+ *          int32    sarrayWriteStream()
+ *          int32    sarrayWriteStderr()
+ *          int32    sarrayWriteMem()
+ *          int32    sarrayAppend()
  *
  *      Directory filenames
  *          SARRAY    *getNumberedPathnamesInDirectory()
@@ -125,11 +125,11 @@
 #include <sys/stat.h>
 #endif  /* ! _WIN32 */
 
-static const l_uint32 MaxPtrArraySize = 50000000; /* 50 million */
-static const l_int32 InitialPtrArraySize = 50; /*!< n'importe quoi */
+static const uint32 MaxPtrArraySize = 50000000; /* 50 million */
+static const int32 InitialPtrArraySize = 50; /*!< n'importe quoi */
 
 /* Static functions */
-static l_int32 sarrayExtendArray(SARRAY * sa);
+static int32 sarrayExtendArray(SARRAY * sa);
 
 /*--------------------------------------------------------------------------*
 *                   String array create/destroy/copy/extend                *
@@ -140,7 +140,7 @@ static l_int32 sarrayExtendArray(SARRAY * sa);
  * \param[in]    n    size of string ptr array to be alloc'd; use 0 for default
  * \return  sarray, or NULL on error
  */
-SARRAY * sarrayCreate(l_int32 n)
+SARRAY * sarrayCreate(int32 n)
 {
 	SARRAY * sa;
 
@@ -168,10 +168,10 @@ SARRAY * sarrayCreate(l_int32 n)
  * \param[in]    initstr   string to be initialized on the full array
  * \return  sarray, or NULL on error
  */
-SARRAY * sarrayCreateInitialized(l_int32 n,
+SARRAY * sarrayCreateInitialized(int32 n,
     const char * initstr)
 {
-	l_int32 i;
+	int32 i;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -202,7 +202,7 @@ SARRAY * sarrayCreateInitialized(l_int32 n,
 SARRAY * sarrayCreateWordsFromString(const char * string)
 {
 	char separators[] = " \n\t";
-	l_int32 i, nsub, size, inword;
+	int32 i, nsub, size, inword;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -249,9 +249,9 @@ SARRAY * sarrayCreateWordsFromString(const char * string)
  * </pre>
  */
 SARRAY * sarrayCreateLinesFromString(const char * string,
-    l_int32 blankflag)
+    int32 blankflag)
 {
-	l_int32 i, nsub, size, startptr;
+	int32 i, nsub, size, startptr;
 	char * cstring, * substring;
 	SARRAY * sa;
 
@@ -328,7 +328,7 @@ SARRAY * sarrayCreateLinesFromString(const char * string,
  */
 void sarrayDestroy(SARRAY ** psa)
 {
-	l_int32 i;
+	int32 i;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -362,7 +362,7 @@ void sarrayDestroy(SARRAY ** psa)
  */
 SARRAY * sarrayCopy(SARRAY * sa)
 {
-	l_int32 i;
+	int32 i;
 	SARRAY * csa;
 
 	PROCNAME(__FUNCTION__);
@@ -411,9 +411,9 @@ SARRAY * sarrayClone(SARRAY * sa)
  */
 l_ok sarrayAddString(SARRAY * sa,
     const char * string,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -450,7 +450,7 @@ l_ok sarrayAddString(SARRAY * sa,
  *      (2) The max number of strings is 50M.
  * </pre>
  */
-static l_int32 sarrayExtendArray(SARRAY * sa)
+static int32 sarrayExtendArray(SARRAY * sa)
 {
 	size_t oldsize, newsize;
 
@@ -484,11 +484,11 @@ static l_int32 sarrayExtendArray(SARRAY * sa)
  * \return  removed string, or NULL on error
  */
 char * sarrayRemoveString(SARRAY * sa,
-    l_int32 index)
+    int32 index)
 {
 	char * string;
 	char ** array;
-	l_int32 i, n, nalloc;
+	int32 i, n, nalloc;
 
 	PROCNAME(__FUNCTION__);
 
@@ -533,12 +533,12 @@ char * sarrayRemoveString(SARRAY * sa,
  * </pre>
  */
 l_ok sarrayReplaceString(SARRAY * sa,
-    l_int32 index,
+    int32 index,
     char * newstr,
-    l_int32 copyflag)
+    int32 copyflag)
 {
 	char * str;
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -569,7 +569,7 @@ l_ok sarrayReplaceString(SARRAY * sa,
  */
 l_ok sarrayClear(SARRAY * sa)
 {
-	l_int32 i;
+	int32 i;
 
 	PROCNAME(__FUNCTION__);
 
@@ -592,7 +592,7 @@ l_ok sarrayClear(SARRAY * sa)
  * \param[in]    sa    string array
  * \return  count, or 0 if no strings or on error
  */
-l_int32 sarrayGetCount(SARRAY * sa)
+int32 sarrayGetCount(SARRAY * sa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -616,8 +616,8 @@ l_int32 sarrayGetCount(SARRAY * sa)
  * </pre>
  */
 char ** sarrayGetArray(SARRAY * sa,
-    l_int32 * pnalloc,
-    l_int32 * pn)
+    int32 * pnalloc,
+    int32 * pn)
 {
 	char ** array;
 
@@ -649,8 +649,8 @@ char ** sarrayGetArray(SARRAY * sa,
  * </pre>
  */
 char * sarrayGetString(SARRAY * sa,
-    l_int32 index,
-    l_int32 copyflag)
+    int32 index,
+    int32 copyflag)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -673,7 +673,7 @@ char * sarrayGetString(SARRAY * sa,
  * \param[in]    sa     string array
  * \return  refcount, or UNDEF on error
  */
-l_int32 sarrayGetRefcount(SARRAY * sa)
+int32 sarrayGetRefcount(SARRAY * sa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -690,7 +690,7 @@ l_int32 sarrayGetRefcount(SARRAY * sa)
  * \return  0 if OK, 1 on error
  */
 l_ok sarrayChangeRefcount(SARRAY * sa,
-    l_int32 delta)
+    int32 delta)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -725,7 +725,7 @@ l_ok sarrayChangeRefcount(SARRAY * sa,
  * </pre>
  */
 char * sarrayToString(SARRAY * sa,
-    l_int32 addnlflag)
+    int32 addnlflag)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -758,12 +758,12 @@ char * sarrayToString(SARRAY * sa,
  * </pre>
  */
 char * sarrayToStringRange(SARRAY * sa,
-    l_int32 first,
-    l_int32 nstrings,
-    l_int32 addnlflag)
+    int32 first,
+    int32 nstrings,
+    int32 addnlflag)
 {
 	char * dest, * src, * str;
-	l_int32 n, i, last, size, index, len;
+	int32 n, i, last, size, index, len;
 
 	PROCNAME(__FUNCTION__);
 
@@ -856,10 +856,10 @@ char * sarrayToStringRange(SARRAY * sa,
  * </pre>
  */
 SARRAY * sarrayConcatUniformly(SARRAY * sa,
-    l_int32 n,
-    l_int32 addnlflag)
+    int32 n,
+    int32 addnlflag)
 {
-	l_int32 i, first, ntot, nstr;
+	int32 i, first, ntot, nstr;
 	char * str;
 	NUMA * na;
 	SARRAY * saout;
@@ -909,7 +909,7 @@ l_ok sarrayJoin(SARRAY * sa1,
     SARRAY * sa2)
 {
 	char * str;
-	l_int32 n, i;
+	int32 n, i;
 
 	PROCNAME(__FUNCTION__);
 
@@ -948,11 +948,11 @@ l_ok sarrayJoin(SARRAY * sa1,
  */
 l_ok sarrayAppendRange(SARRAY * sa1,
     SARRAY * sa2,
-    l_int32 start,
-    l_int32 end)
+    int32 start,
+    int32 end)
 {
 	char * str;
-	l_int32 n, i;
+	int32 n, i;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1000,7 +1000,7 @@ l_ok sarrayPadToSameSize(SARRAY * sa1,
     SARRAY * sa2,
     const char * padstring)
 {
-	l_int32 i, n1, n2;
+	int32 i, n1, n2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1055,11 +1055,11 @@ l_ok sarrayPadToSameSize(SARRAY * sa1,
  * </pre>
  */
 SARRAY * sarrayConvertWordsToLines(SARRAY * sa,
-    l_int32 linesize)
+    int32 linesize)
 {
 	char * wd, * strl;
 	char emptystring[] = "";
-	l_int32 n, i, len, totlen;
+	int32 n, i, len, totlen;
 	SARRAY * sal, * saout;
 
 	PROCNAME(__FUNCTION__);
@@ -1126,7 +1126,7 @@ SARRAY * sarrayConvertWordsToLines(SARRAY * sa,
  *      (1) This uses strtokSafe().  See the notes there in utils.c.
  * </pre>
  */
-l_int32 sarraySplitString(SARRAY * sa,
+int32 sarraySplitString(SARRAY * sa,
     const char * str,
     const char * separators)
 {
@@ -1175,7 +1175,7 @@ SARRAY * sarraySelectBySubstring(SARRAY * sain,
     const char * substr)
 {
 	char * str;
-	l_int32 n, i, offset, found;
+	int32 n, i, offset, found;
 	SARRAY * saout;
 
 	PROCNAME(__FUNCTION__);
@@ -1216,11 +1216,11 @@ SARRAY * sarraySelectBySubstring(SARRAY * sain,
  * </pre>
  */
 SARRAY * sarraySelectRange(SARRAY * sain,
-    l_int32 first,
-    l_int32 last)
+    int32 first,
+    int32 last)
 {
 	char * str;
-	l_int32 n, i;
+	int32 n, i;
 	SARRAY * saout;
 
 	PROCNAME(__FUNCTION__);
@@ -1282,16 +1282,16 @@ SARRAY * sarraySelectRange(SARRAY * sain,
  *                 lept_stderr("start = %d, end = %d\n", actstart, end);
  * </pre>
  */
-l_int32 sarrayParseRange(SARRAY * sa,
-    l_int32 start,
-    l_int32     * pactualstart,
-    l_int32     * pend,
-    l_int32     * pnewstart,
+int32 sarrayParseRange(SARRAY * sa,
+    int32 start,
+    int32     * pactualstart,
+    int32     * pend,
+    int32     * pnewstart,
     const char * substr,
-    l_int32 loc)
+    int32 loc)
 {
 	char * str;
-	l_int32 n, i, offset, found;
+	int32 n, i, offset, found;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1407,7 +1407,7 @@ SARRAY * sarrayRead(const char * filename)
 SARRAY * sarrayReadStream(FILE * fp)
 {
 	char * stringbuf;
-	l_int32 i, n, size, index, bufsize, version, ignore, success;
+	int32 i, n, size, index, bufsize, version, ignore, success;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -1443,7 +1443,7 @@ SARRAY * sarrayReadStream(FILE * fp)
 		/* Expand the string buffer if necessary */
 		if(size > bufsize - 5) {
 			SAlloc::F(stringbuf);
-			bufsize = (l_int32)(1.5 * size);
+			bufsize = (int32)(1.5 * size);
 			stringbuf = (char *)SAlloc::C(bufsize, sizeof(char));
 		}
 		/* Read the stored string, plus leading spaces and trailing \n */
@@ -1501,7 +1501,7 @@ SARRAY * sarrayReadMem(const uint8  * data,
 l_ok sarrayWrite(const char * filename,
     SARRAY * sa)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1536,7 +1536,7 @@ l_ok sarrayWrite(const char * filename,
 l_ok sarrayWriteStream(FILE * fp,
     SARRAY * sa)
 {
-	l_int32 i, n, len;
+	int32 i, n, len;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1565,7 +1565,7 @@ l_ok sarrayWriteStream(FILE * fp,
  */
 l_ok sarrayWriteStderr(SARRAY * sa)
 {
-	l_int32 i, n, len;
+	int32 i, n, len;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1600,7 +1600,7 @@ l_ok sarrayWriteMem(uint8  ** pdata,
     size_t * psize,
     SARRAY    * sa)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1713,11 +1713,11 @@ l_ok sarrayAppend(const char * filename,
  */
 SARRAY * getNumberedPathnamesInDirectory(const char * dirname,
     const char * substr,
-    l_int32 numpre,
-    l_int32 numpost,
-    l_int32 maxnum)
+    int32 numpre,
+    int32 numpost,
+    int32 maxnum)
 {
-	l_int32 nfiles;
+	int32 nfiles;
 	SARRAY * sa, * saout;
 
 	PROCNAME(__FUNCTION__);
@@ -1759,11 +1759,11 @@ SARRAY * getNumberedPathnamesInDirectory(const char * dirname,
  */
 SARRAY * getSortedPathnamesInDirectory(const char * dirname,
     const char * substr,
-    l_int32 first,
-    l_int32 nfiles)
+    int32 first,
+    int32 nfiles)
 {
 	char * fname, * fullname;
-	l_int32 i, n, last;
+	int32 i, n, last;
 	SARRAY * sa, * safiles, * saout;
 
 	PROCNAME(__FUNCTION__);
@@ -1816,12 +1816,12 @@ SARRAY * getSortedPathnamesInDirectory(const char * dirname,
  * </pre>
  */
 SARRAY * convertSortedToNumberedPathnames(SARRAY * sa,
-    l_int32 numpre,
-    l_int32 numpost,
-    l_int32 maxnum)
+    int32 numpre,
+    int32 numpost,
+    int32 maxnum)
 {
 	char * fname, * str;
-	l_int32 i, nfiles, num, index;
+	int32 i, nfiles, num, index;
 	SARRAY * saout;
 
 	PROCNAME(__FUNCTION__);

@@ -12,7 +12,7 @@
  *
  *      Coloring "gray" pixels
  *           PIX             *pixColorGrayRegions()
- *           l_int32          pixColorGray()
+ *           int32          pixColorGray()
  *           PIX             *pixColorGrayMasked()
  *
  *      Adjusting one or more colors to a target color
@@ -21,12 +21,12 @@
  *
  *      Piecewise linear color mapping based on a source/target pair
  *           PIX             *pixLinearMapToTargetColor()
- *           l_int32          pixelLinearMapToTargetColor()
+ *           int32          pixelLinearMapToTargetColor()
  *
  *      Fractional shift of RGB towards black or white
  *           PIX             *pixShiftByComponent()
- *           l_int32          pixelShiftByComponent()
- *           l_int32          pixelFractionalShift()
+ *           int32          pixelShiftByComponent()
+ *           int32          pixelFractionalShift()
  *           PIX             *pixShiftWithInvariantHue()
  *
  *  There are quite a few "coloring" functions in leptonica.
@@ -107,13 +107,13 @@
  */
 PIX * pixColorGrayRegions(PIX * pixs,
     BOXA * boxa,
-    l_int32 type,
-    l_int32 thresh,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval)
+    int32 type,
+    int32 thresh,
+    int32 rval,
+    int32 gval,
+    int32 bval)
 {
-	l_int32 i, n, ncolors, ngray;
+	int32 i, n, ncolors, ngray;
 	BOX      * box;
 	PIX * pixd;
 	PIXCMAP  * cmap;
@@ -207,17 +207,17 @@ PIX * pixColorGrayRegions(PIX * pixs,
  */
 l_ok pixColorGray(PIX * pixs,
     BOX * box,
-    l_int32 type,
-    l_int32 thresh,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval)
+    int32 type,
+    int32 thresh,
+    int32 rval,
+    int32 gval,
+    int32 bval)
 {
-	l_int32 i, j, w, h, d, wpl, x1, x2, y1, y2, bw, bh;
-	l_int32 nrval, ngval, nbval, aveval;
+	int32 i, j, w, h, d, wpl, x1, x2, y1, y2, bw, bh;
+	int32 nrval, ngval, nbval, aveval;
 	float factor;
-	l_uint32 val32;
-	l_uint32 * line, * data;
+	uint32 val32;
+	uint32 * line, * data;
 	PIX * pixt;
 	PIXCMAP   * cmap;
 
@@ -284,16 +284,16 @@ l_ok pixColorGray(PIX * pixs,
 			if(type == L_PAINT_LIGHT) {
 				if(aveval < thresh) /* skip sufficiently dark pixels */
 					continue;
-				nrval = (l_int32)(rval * aveval * factor);
-				ngval = (l_int32)(gval * aveval * factor);
-				nbval = (l_int32)(bval * aveval * factor);
+				nrval = (int32)(rval * aveval * factor);
+				ngval = (int32)(gval * aveval * factor);
+				nbval = (int32)(bval * aveval * factor);
 			}
 			else { /* type == L_PAINT_DARK */
 				if(aveval > thresh) /* skip sufficiently light pixels */
 					continue;
-				nrval = rval + (l_int32)((255. - rval) * aveval * factor);
-				ngval = gval + (l_int32)((255. - gval) * aveval * factor);
-				nbval = bval + (l_int32)((255. - bval) * aveval * factor);
+				nrval = rval + (int32)((255. - rval) * aveval * factor);
+				ngval = gval + (int32)((255. - gval) * aveval * factor);
+				nbval = bval + (int32)((255. - bval) * aveval * factor);
 			}
 			composeRGBPixel(nrval, ngval, nbval, &val32);
 			*(line + j) = val32;
@@ -334,17 +334,17 @@ l_ok pixColorGray(PIX * pixs,
  */
 PIX * pixColorGrayMasked(PIX * pixs,
     PIX * pixm,
-    l_int32 type,
-    l_int32 thresh,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval)
+    int32 type,
+    int32 thresh,
+    int32 rval,
+    int32 gval,
+    int32 bval)
 {
-	l_int32 i, j, w, h, d, wm, hm, wmin, hmin, wpl, wplm;
-	l_int32 nrval, ngval, nbval, aveval;
+	int32 i, j, w, h, d, wm, hm, wmin, hmin, wpl, wplm;
+	int32 nrval, ngval, nbval, aveval;
 	float factor;
-	l_uint32 val32;
-	l_uint32 * line, * data, * linem, * datam;
+	uint32 val32;
+	uint32 * line, * data, * linem, * datam;
 	PIX * pixd;
 	PIXCMAP   * cmap;
 
@@ -413,16 +413,16 @@ PIX * pixColorGrayMasked(PIX * pixs,
 			if(type == L_PAINT_LIGHT) {
 				if(aveval < thresh) /* skip sufficiently dark pixels */
 					continue;
-				nrval = (l_int32)(rval * aveval * factor);
-				ngval = (l_int32)(gval * aveval * factor);
-				nbval = (l_int32)(bval * aveval * factor);
+				nrval = (int32)(rval * aveval * factor);
+				ngval = (int32)(gval * aveval * factor);
+				nbval = (int32)(bval * aveval * factor);
 			}
 			else { /* type == L_PAINT_DARK */
 				if(aveval > thresh) /* skip sufficiently light pixels */
 					continue;
-				nrval = rval + (l_int32)((255. - rval) * aveval * factor);
-				ngval = gval + (l_int32)((255. - gval) * aveval * factor);
-				nbval = bval + (l_int32)((255. - bval) * aveval * factor);
+				nrval = rval + (int32)((255. - rval) * aveval * factor);
+				ngval = gval + (int32)((255. - gval) * aveval * factor);
+				nbval = bval + (int32)((255. - bval) * aveval * factor);
 			}
 			composeRGBPixel(nrval, ngval, nbval, &val32);
 			*(line + j) = val32;
@@ -459,15 +459,15 @@ PIX * pixColorGrayMasked(PIX * pixs,
  */
 PIX * pixSnapColor(PIX * pixd,
     PIX * pixs,
-    l_uint32 srcval,
-    l_uint32 dstval,
-    l_int32 diff)
+    uint32 srcval,
+    uint32 dstval,
+    int32 diff)
 {
-	l_int32 val, sval, dval;
-	l_int32 rval, gval, bval, rsval, gsval, bsval;
-	l_int32 i, j, w, h, d, wpl;
-	l_uint32 pixel;
-	l_uint32 * line, * data;
+	int32 val, sval, dval;
+	int32 rval, gval, bval, rsval, gsval, bsval;
+	int32 i, j, w, h, d, wpl;
+	uint32 pixel;
+	uint32 * line, * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -545,13 +545,13 @@ PIX * pixSnapColor(PIX * pixd,
  */
 PIX * pixSnapColorCmap(PIX * pixd,
     PIX * pixs,
-    l_uint32 srcval,
-    l_uint32 dstval,
-    l_int32 diff)
+    uint32 srcval,
+    uint32 dstval,
+    int32 diff)
 {
-	l_int32 i, ncolors, index, found;
-	l_int32 rval, gval, bval, rsval, gsval, bsval, rdval, gdval, bdval;
-	l_int32   * tab;
+	int32 i, ncolors, index, found;
+	int32 rval, gval, bval, rsval, gsval, bsval, rdval, gdval, bdval;
+	int32   * tab;
 	PIX * pixm;
 	PIXCMAP   * cmap;
 
@@ -603,7 +603,7 @@ PIX * pixSnapColorCmap(PIX * pixd,
 	 * set the tab value to 1.  Then generate a 1 bpp mask with
 	 * fg pixels for every pixel in pixd that is close enough
 	 * to srcval (i.e., has value 1 in tab). */
-	tab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	tab = (int32*)SAlloc::C(256, sizeof(int32));
 	for(i = 0; i < ncolors; i++) {
 		pixcmapGetColor(cmap, i, &rval, &gval, &bval);
 		if((L_ABS(rval - rsval) <= diff) &&
@@ -661,14 +661,14 @@ PIX * pixSnapColorCmap(PIX * pixd,
  */
 PIX * pixLinearMapToTargetColor(PIX * pixd,
     PIX * pixs,
-    l_uint32 srcval,
-    l_uint32 dstval)
+    uint32 srcval,
+    uint32 dstval)
 {
-	l_int32 i, j, w, h, wpl;
-	l_int32 rval, gval, bval, rsval, gsval, bsval, rdval, gdval, bdval;
-	l_int32   * rtab, * gtab, * btab;
-	l_uint32 pixel;
-	l_uint32 * line, * data;
+	int32 i, j, w, h, wpl;
+	int32 rval, gval, bval, rsval, gsval, bsval, rdval, gdval, bdval;
+	int32   * rtab, * gtab, * btab;
+	uint32 pixel;
+	uint32 * line, * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -686,9 +686,9 @@ PIX * pixLinearMapToTargetColor(PIX * pixd,
 	rsval = MIN(254, MAX(1, rsval));
 	gsval = MIN(254, MAX(1, gsval));
 	bsval = MIN(254, MAX(1, bsval));
-	rtab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
-	gtab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
-	btab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	rtab = (int32*)SAlloc::C(256, sizeof(int32));
+	gtab = (int32*)SAlloc::C(256, sizeof(int32));
+	btab = (int32*)SAlloc::C(256, sizeof(int32));
 	if(!rtab || !gtab || !btab)
 		return (PIX *)ERROR_PTR("calloc fail for tab", procName, pixd);
 	for(i = 0; i < 256; i++) {
@@ -752,10 +752,10 @@ PIX * pixLinearMapToTargetColor(PIX * pixd,
  *          will be invariant.
  * </pre>
  */
-l_ok pixelLinearMapToTargetColor(l_uint32 scolor, l_uint32 srcmap, l_uint32 dstmap, l_uint32 * pdcolor)
+l_ok pixelLinearMapToTargetColor(uint32 scolor, uint32 srcmap, uint32 dstmap, uint32 * pdcolor)
 {
-	l_int32 srval, sgval, sbval, drval, dgval, dbval;
-	l_int32 srmap, sgmap, sbmap, drmap, dgmap, dbmap;
+	int32 srval, sgval, sbval, drval, dgval, dbval;
+	int32 srmap, sgmap, sbmap, drmap, dgmap, dbmap;
 	PROCNAME(__FUNCTION__);
 	if(!pdcolor)
 		return ERROR_INT("&dcolor not defined", procName, 1);
@@ -827,13 +827,13 @@ l_ok pixelLinearMapToTargetColor(l_uint32 scolor, l_uint32 srcmap, l_uint32 dstm
  *          and choosing a target foreground color for dstval.
  * </pre>
  */
-PIX * pixShiftByComponent(PIX * pixd, PIX * pixs, l_uint32 srcval, l_uint32 dstval)
+PIX * pixShiftByComponent(PIX * pixd, PIX * pixs, uint32 srcval, uint32 dstval)
 {
-	l_int32 i, j, w, h, wpl;
-	l_int32 rval, gval, bval, rsval, gsval, bsval, rdval, gdval, bdval;
-	l_int32   * rtab, * gtab, * btab;
-	l_uint32 pixel;
-	l_uint32 * line, * data;
+	int32 i, j, w, h, wpl;
+	int32 rval, gval, bval, rsval, gsval, bsval, rdval, gdval, bdval;
+	int32   * rtab, * gtab, * btab;
+	uint32 pixel;
+	uint32 * line, * data;
 	PIXCMAP   * cmap;
 	PROCNAME(__FUNCTION__);
 	if(!pixs)
@@ -855,9 +855,9 @@ PIX * pixShiftByComponent(PIX * pixd, PIX * pixs, l_uint32 srcval, l_uint32 dstv
 
 	extractRGBValues(srcval, &rsval, &gsval, &bsval);
 	extractRGBValues(dstval, &rdval, &gdval, &bdval);
-	rtab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
-	gtab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
-	btab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	rtab = (int32*)SAlloc::C(256, sizeof(int32));
+	gtab = (int32*)SAlloc::C(256, sizeof(int32));
+	btab = (int32*)SAlloc::C(256, sizeof(int32));
 	if(!rtab || !gtab || !btab) {
 		L_ERROR("calloc fail for tab\n", procName);
 		goto cleanup;
@@ -920,9 +920,9 @@ cleanup:
  *          the src --> dest shift.
  * </pre>
  */
-l_ok pixelShiftByComponent(l_int32 rval, l_int32 gval, l_int32 bval, l_uint32 srcval, l_uint32 dstval, l_uint32 * ppixel)
+l_ok pixelShiftByComponent(int32 rval, int32 gval, int32 bval, uint32 srcval, uint32 dstval, uint32 * ppixel)
 {
-	l_int32 rsval, rdval, gsval, gdval, bsval, bdval, rs, gs, bs;
+	int32 rsval, rdval, gsval, gdval, bsval, bdval, rs, gs, bs;
 	PROCNAME(__FUNCTION__);
 	if(!ppixel)
 		return ERROR_INT("&pixel defined", procName, 1);
@@ -973,17 +973,17 @@ l_ok pixelShiftByComponent(l_int32 rval, l_int32 gval, l_int32 bval, l_uint32 sr
  *          the resulting pixel is black; %fract == 1 results in white.
  * </pre>
  */
-l_ok pixelFractionalShift(l_int32 rval, l_int32 gval, l_int32 bval, float fract, l_uint32 * ppixel)
+l_ok pixelFractionalShift(int32 rval, int32 gval, int32 bval, float fract, uint32 * ppixel)
 {
-	l_int32 nrval, ngval, nbval;
+	int32 nrval, ngval, nbval;
 	PROCNAME(__FUNCTION__);
 	if(!ppixel)
 		return ERROR_INT("&pixel defined", procName, 1);
 	if(fract < -1.0 || fract > 1.0)
 		return ERROR_INT("fraction not in [-1 ... +1]", procName, 1);
-	nrval = (fract < 0) ? (l_int32)((1.0 + fract) * rval + 0.5) : rval + (l_int32)(fract * (255 - rval) + 0.5);
-	ngval = (fract < 0) ? (l_int32)((1.0 + fract) * gval + 0.5) : gval + (l_int32)(fract * (255 - gval) + 0.5);
-	nbval = (fract < 0) ? (l_int32)((1.0 + fract) * bval + 0.5) : bval + (l_int32)(fract * (255 - bval) + 0.5);
+	nrval = (fract < 0) ? (int32)((1.0 + fract) * rval + 0.5) : rval + (int32)(fract * (255 - rval) + 0.5);
+	ngval = (fract < 0) ? (int32)((1.0 + fract) * gval + 0.5) : gval + (int32)(fract * (255 - gval) + 0.5);
+	nbval = (fract < 0) ? (int32)((1.0 + fract) * bval + 0.5) : bval + (int32)(fract * (255 - bval) + 0.5);
 	composeRGBPixel(nrval, ngval, nbval, ppixel);
 	return 0;
 }
@@ -1011,10 +1011,10 @@ l_ok pixelFractionalShift(l_int32 rval, l_int32 gval, l_int32 bval, float fract,
  *            pixd = pixMapWithInvariantHue(NULL, pixs, ...);
  * </pre>
  */
-PIX * pixMapWithInvariantHue(PIX * pixd, PIX * pixs, l_uint32 srcval, float fract)
+PIX * pixMapWithInvariantHue(PIX * pixd, PIX * pixs, uint32 srcval, float fract)
 {
-	l_int32 rval, gval, bval;
-	l_uint32 dstval;
+	int32 rval, gval, bval;
+	uint32 dstval;
 	PROCNAME(__FUNCTION__);
 	if(!pixs || pixGetDepth(pixs) != 32)
 		return (PIX *)ERROR_PTR("pixs undefined or not 32 bpp", procName, pixd);

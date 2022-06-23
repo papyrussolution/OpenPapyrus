@@ -114,13 +114,13 @@ static PIX * pixDilateGray3h(PIX * pixs);
 static PIX * pixDilateGray3v(PIX * pixs);
 
 /*  Low-level gray morphological operations */
-static void dilateGrayLow(l_uint32 * datad, l_int32 w, l_int32 h,
-    l_int32 wpld, l_uint32 * datas, l_int32 wpls,
-    l_int32 size, l_int32 direction, uint8 * buffer,
+static void dilateGrayLow(uint32 * datad, int32 w, int32 h,
+    int32 wpld, uint32 * datas, int32 wpls,
+    int32 size, int32 direction, uint8 * buffer,
     uint8 * maxarray);
-static void erodeGrayLow(l_uint32 * datad, l_int32 w, l_int32 h,
-    l_int32 wpld, l_uint32 * datas, l_int32 wpls,
-    l_int32 size, l_int32 direction, uint8 * buffer,
+static void erodeGrayLow(uint32 * datad, int32 w, int32 h,
+    int32 wpld, uint32 * datas, int32 wpls,
+    int32 size, int32 direction, uint8 * buffer,
     uint8 * minarray);
 
 /*-----------------------------------------------------------------*
@@ -141,13 +141,13 @@ static void erodeGrayLow(l_uint32 * datad, l_int32 w, l_int32 h,
  * </pre>
  */
 PIX * pixErodeGray(PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	uint8   * buffer, * minarray;
-	l_int32 w, h, wplb, wplt;
-	l_int32 leftpix, rightpix, toppix, bottompix, maxsize;
-	l_uint32  * datab, * datat;
+	int32 w, h, wplb, wplt;
+	int32 leftpix, rightpix, toppix, bottompix, maxsize;
+	uint32  * datab, * datat;
 	PIX * pixb, * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -259,13 +259,13 @@ cleanup:
  * </pre>
  */
 PIX * pixDilateGray(PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	uint8   * buffer, * maxarray;
-	l_int32 w, h, wplb, wplt;
-	l_int32 leftpix, rightpix, toppix, bottompix, maxsize;
-	l_uint32  * datab, * datat;
+	int32 w, h, wplb, wplt;
+	int32 leftpix, rightpix, toppix, bottompix, maxsize;
+	uint32  * datab, * datat;
 	PIX * pixb, * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -377,14 +377,14 @@ cleanup:
  * </pre>
  */
 PIX * pixOpenGray(PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	uint8   * buffer;
 	uint8   * array; /* used to find either min or max in interval */
-	l_int32 w, h, wplb, wplt;
-	l_int32 leftpix, rightpix, toppix, bottompix, maxsize;
-	l_uint32  * datab, * datat;
+	int32 w, h, wplb, wplt;
+	int32 leftpix, rightpix, toppix, bottompix, maxsize;
+	uint32  * datab, * datat;
 	PIX * pixb, * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -510,14 +510,14 @@ cleanup:
  * </pre>
  */
 PIX * pixCloseGray(PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	uint8   * buffer;
 	uint8   * array; /* used to find either min or max in interval */
-	l_int32 w, h, wplb, wplt;
-	l_int32 leftpix, rightpix, toppix, bottompix, maxsize;
-	l_uint32  * datab, * datat;
+	int32 w, h, wplb, wplt;
+	int32 leftpix, rightpix, toppix, bottompix, maxsize;
+	uint32  * datab, * datat;
 	PIX * pixb, * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -651,8 +651,8 @@ cleanup:
  * </pre>
  */
 PIX * pixErodeGray3(PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	PIX  * pixt, * pixb, * pixbd, * pixd;
 
@@ -703,9 +703,9 @@ PIX * pixErodeGray3(PIX * pixs,
  */
 static PIX * pixErodeGray3h(PIX  * pixs)
 {
-	l_uint32  * datas, * datad, * lines, * lined;
-	l_int32 w, h, wpl, i, j;
-	l_int32 val0, val1, val2, val3, val4, val5, val6, val7, val8, val9, minval;
+	uint32  * datas, * datad, * lines, * lined;
+	int32 w, h, wpl, i, j;
+	int32 val0, val1, val2, val3, val4, val5, val6, val7, val8, val9, minval;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -768,9 +768,9 @@ static PIX * pixErodeGray3h(PIX  * pixs)
  */
 static PIX * pixErodeGray3v(PIX  * pixs)
 {
-	l_uint32  * datas, * datad, * linesi, * linedi;
-	l_int32 w, h, wpl, i, j;
-	l_int32 val0, val1, val2, val3, val4, val5, val6, val7, val8, val9, minval;
+	uint32  * datas, * datad, * linesi, * linedi;
+	int32 w, h, wpl, i, j;
+	int32 val0, val1, val2, val3, val4, val5, val6, val7, val8, val9, minval;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -831,8 +831,8 @@ static PIX * pixErodeGray3v(PIX  * pixs)
  * </pre>
  */
 PIX * pixDilateGray3(PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	PIX  * pixt, * pixb, * pixbd, * pixd;
 
@@ -883,9 +883,9 @@ PIX * pixDilateGray3(PIX * pixs,
  */
 static PIX * pixDilateGray3h(PIX  * pixs)
 {
-	l_uint32  * datas, * datad, * lines, * lined;
-	l_int32 w, h, wpl, i, j;
-	l_int32 val0, val1, val2, val3, val4, val5, val6, val7, val8, val9, maxval;
+	uint32  * datas, * datad, * lines, * lined;
+	int32 w, h, wpl, i, j;
+	int32 val0, val1, val2, val3, val4, val5, val6, val7, val8, val9, maxval;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -945,9 +945,9 @@ static PIX * pixDilateGray3h(PIX  * pixs)
  */
 static PIX * pixDilateGray3v(PIX  * pixs)
 {
-	l_uint32  * datas, * datad, * linesi, * linedi;
-	l_int32 w, h, wpl, i, j;
-	l_int32 val0, val1, val2, val3, val4, val5, val6, val7, val8, val9, maxval;
+	uint32  * datas, * datad, * linesi, * linedi;
+	int32 w, h, wpl, i, j;
+	int32 val0, val1, val2, val3, val4, val5, val6, val7, val8, val9, maxval;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1010,8 +1010,8 @@ static PIX * pixDilateGray3v(PIX  * pixs)
  * </pre>
  */
 PIX * pixOpenGray3(PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	PIX  * pixt, * pixb, * pixbd, * pixd;
 
@@ -1076,8 +1076,8 @@ PIX * pixOpenGray3(PIX * pixs,
  * </pre>
  */
 PIX * pixCloseGray3(PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	PIX  * pixt, * pixb, * pixbd, * pixd;
 
@@ -1158,21 +1158,21 @@ PIX * pixCloseGray3(PIX * pixs,
  *        (2) Uses algorithm of van Herk, Gil and Werman
  * </pre>
  */
-static void dilateGrayLow(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls,
-    l_int32 size,
-    l_int32 direction,
+static void dilateGrayLow(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls,
+    int32 size,
+    int32 direction,
     uint8   * buffer,
     uint8   * maxarray)
 {
-	l_int32 i, j, k;
-	l_int32 hsize, nsteps, startmax, startx, starty;
+	int32 i, j, k;
+	int32 hsize, nsteps, startmax, startx, starty;
 	uint8 maxval;
-	l_uint32  * lines, * lined;
+	uint32  * lines, * lined;
 
 	if(direction == L_HORIZ) {
 		hsize = size / 2;
@@ -1264,21 +1264,21 @@ static void dilateGrayLow(l_uint32  * datad,
  *        (1) See notes in dilateGrayLow()
  * </pre>
  */
-static void erodeGrayLow(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls,
-    l_int32 size,
-    l_int32 direction,
+static void erodeGrayLow(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls,
+    int32 size,
+    int32 direction,
     uint8   * buffer,
     uint8   * minarray)
 {
-	l_int32 i, j, k;
-	l_int32 hsize, nsteps, startmin, startx, starty;
+	int32 i, j, k;
+	int32 hsize, nsteps, startmin, startx, starty;
 	uint8 minval;
-	l_uint32  * lines, * lined;
+	uint32  * lines, * lined;
 
 	if(direction == L_HORIZ) {
 		hsize = size / 2;

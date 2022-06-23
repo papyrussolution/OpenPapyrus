@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file psio1.c
  * <pre>
@@ -51,23 +38,23 @@
  *     using gs (ps2pdf).
  *
  *     Convert specified files to PS
- *          l_int32          convertFilesToPS()
- *          l_int32          sarrayConvertFilesToPS()
- *          l_int32          convertFilesFittedToPS()
- *          l_int32          sarrayConvertFilesFittedToPS()
- *          l_int32          writeImageCompressedToPSFile()
+ *          int32          convertFilesToPS()
+ *          int32          sarrayConvertFilesToPS()
+ *          int32          convertFilesFittedToPS()
+ *          int32          sarrayConvertFilesFittedToPS()
+ *          int32          writeImageCompressedToPSFile()
  *
  *     Convert mixed text/image files to PS
- *          l_int32          convertSegmentedPagesToPS()
- *          l_int32          pixWriteSegmentedPageToPS()
- *          l_int32          pixWriteMixedToPS()
+ *          int32          convertSegmentedPagesToPS()
+ *          int32          pixWriteSegmentedPageToPS()
+ *          int32          pixWriteMixedToPS()
  *
  *     Convert any image file to PS for embedding
- *          l_int32          convertToPSEmbed()
+ *          int32          convertToPSEmbed()
  *
  *     Write all images in a pixa out to PS
- *          l_int32          pixaWriteCompressedToPS()
- *          l_int32          pixWriteCompressedToPS()
+ *          int32          pixaWriteCompressedToPS()
+ *          int32          pixWriteCompressedToPS()
  *
  *  These PostScript converters are used in three different ways.
  *
@@ -156,7 +143,7 @@
  */
 l_ok convertFilesToPS(const char * dirin,
     const char * substr,
-    l_int32 res,
+    int32 res,
     const char * fileout)
 {
 	SARRAY * sa;
@@ -200,11 +187,11 @@ l_ok convertFilesToPS(const char * dirin,
  * </pre>
  */
 l_ok sarrayConvertFilesToPS(SARRAY * sa,
-    l_int32 res,
+    int32 res,
     const char * fileout)
 {
 	char * fname;
-	l_int32 i, nfiles, index, ret, format;
+	int32 i, nfiles, index, ret, format;
 
 	PROCNAME(__FUNCTION__);
 
@@ -320,7 +307,7 @@ l_ok sarrayConvertFilesFittedToPS(SARRAY * sa,
     const char * fileout)
 {
 	char * fname;
-	l_int32 ret, i, w, h, nfiles, index, format, res;
+	int32 ret, i, w, h, nfiles, index, format, res;
 
 	PROCNAME(__FUNCTION__);
 
@@ -349,9 +336,9 @@ l_ok sarrayConvertFilesFittedToPS(SARRAY * sa,
 
 		/* Be sure the entire image is wrapped */
 		if(xpts * h < ypts * w)
-			res = (l_int32)((float)w * 72.0 / xpts);
+			res = (int32)((float)w * 72.0 / xpts);
 		else
-			res = (l_int32)((float)h * 72.0 / ypts);
+			res = (int32)((float)h * 72.0 / ypts);
 
 		writeImageCompressedToPSFile(fname, fileout, res, &index);
 	}
@@ -382,11 +369,11 @@ l_ok sarrayConvertFilesFittedToPS(SARRAY * sa,
  */
 l_ok writeImageCompressedToPSFile(const char * filein,
     const char * fileout,
-    l_int32 res,
-    l_int32     * pindex)
+    int32 res,
+    int32     * pindex)
 {
 	const char * op;
-	l_int32 format, retval;
+	int32 format, retval;
 
 	PROCNAME(__FUNCTION__);
 
@@ -477,18 +464,18 @@ l_ok writeImageCompressedToPSFile(const char * filein,
  */
 l_ok convertSegmentedPagesToPS(const char * pagedir,
     const char * pagestr,
-    l_int32 page_numpre,
+    int32 page_numpre,
     const char * maskdir,
     const char * maskstr,
-    l_int32 mask_numpre,
-    l_int32 numpost,
-    l_int32 maxnum,
+    int32 mask_numpre,
+    int32 numpost,
+    int32 maxnum,
     float textscale,
     float imagescale,
-    l_int32 threshold,
+    int32 threshold,
     const char * fileout)
 {
-	l_int32 pageno, i, npages;
+	int32 pageno, i, npages;
 	PIX * pixs, * pixm;
 	SARRAY * sapage, * samask;
 
@@ -575,12 +562,12 @@ l_ok pixWriteSegmentedPageToPS(PIX         * pixs,
     PIX         * pixm,
     float textscale,
     float imagescale,
-    l_int32 threshold,
-    l_int32 pageno,
+    int32 threshold,
+    int32 pageno,
     const char * fileout)
 {
-	l_int32 alltext, notext, d, ret;
-	l_uint32 val;
+	int32 alltext, notext, d, ret;
+	uint32 val;
 	float scaleratio;
 	PIX * pixmi, * pixmis, * pixt, * pixg, * pixsc, * pixb, * pixc;
 
@@ -726,12 +713,12 @@ l_ok pixWriteSegmentedPageToPS(PIX         * pixs,
 l_ok pixWriteMixedToPS(PIX         * pixb,
     PIX         * pixc,
     float scale,
-    l_int32 pageno,
+    int32 pageno,
     const char * fileout)
 {
 	char * tname;
 	const char * op;
-	l_int32 resb, resc, endpage, maskop, ret;
+	int32 resb, resc, endpage, maskop, ret;
 
 	PROCNAME(__FUNCTION__);
 
@@ -747,7 +734,7 @@ l_ok pixWriteMixedToPS(PIX         * pixb,
 	else {
 		resc = getResLetterPage(pixGetWidth(pixc), pixGetHeight(pixc), 0);
 		if(pixb)
-			resb = (l_int32)(scale * resc);
+			resb = (int32)(scale * resc);
 	}
 
 	/* Write the jpeg image first */
@@ -811,10 +798,10 @@ l_ok pixWriteMixedToPS(PIX         * pixb,
  */
 l_ok convertToPSEmbed(const char * filein,
     const char * fileout,
-    l_int32 level)
+    int32 level)
 {
 	char * tname;
-	l_int32 d, format;
+	int32 d, format;
 	PIX * pix, * pixs;
 
 	PROCNAME(__FUNCTION__);
@@ -916,10 +903,10 @@ l_ok convertToPSEmbed(const char * filein,
  */
 l_ok pixaWriteCompressedToPS(PIXA        * pixa,
     const char * fileout,
-    l_int32 res,
-    l_int32 level)
+    int32 res,
+    int32 level)
 {
-	l_int32 i, n, index, ret;
+	int32 i, n, index, ret;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -988,12 +975,12 @@ l_ok pixaWriteCompressedToPS(PIXA        * pixa,
  */
 l_ok pixWriteCompressedToPS(PIX         * pix,
     const char * fileout,
-    l_int32 res,
-    l_int32 level,
-    l_int32     * pindex)
+    int32 res,
+    int32 level,
+    int32     * pindex)
 {
 	char     * tname;
-	l_int32 writeout, d;
+	int32 writeout, d;
 	PIX * pixt;
 	PIXCMAP  * cmap;
 

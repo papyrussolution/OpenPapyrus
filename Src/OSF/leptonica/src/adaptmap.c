@@ -29,22 +29,22 @@
  *          PIX *pixBackgroundNormMorph()      8 and 32 bpp
  *
  *      Arrays of inverted background values for normalization (16 bpp)
- *          l_int32    pixBackgroundNormGrayArray()   8 bpp input
- *          l_int32    pixBackgroundNormRGBArrays()   32 bpp input
- *          l_int32    pixBackgroundNormGrayArrayMorph()   8 bpp input
- *          l_int32    pixBackgroundNormRGBArraysMorph()   32 bpp input
+ *          int32    pixBackgroundNormGrayArray()   8 bpp input
+ *          int32    pixBackgroundNormRGBArrays()   32 bpp input
+ *          int32    pixBackgroundNormGrayArrayMorph()   8 bpp input
+ *          int32    pixBackgroundNormRGBArraysMorph()   32 bpp input
  *
  *      Measurement of local background
- *          l_int32    pixGetBackgroundGrayMap()        8 bpp
- *          l_int32    pixGetBackgroundRGBMap()         32 bpp
- *          l_int32    pixGetBackgroundGrayMapMorph()   8 bpp
- *          l_int32    pixGetBackgroundRGBMapMorph()    32 bpp
- *          l_int32    pixFillMapHoles()
+ *          int32    pixGetBackgroundGrayMap()        8 bpp
+ *          int32    pixGetBackgroundRGBMap()         32 bpp
+ *          int32    pixGetBackgroundGrayMapMorph()   8 bpp
+ *          int32    pixGetBackgroundRGBMapMorph()    32 bpp
+ *          int32    pixFillMapHoles()
  *          PIX *pixExtendByReplication()         8 bpp
- *          l_int32    pixSmoothConnectedRegions()      8 bpp
+ *          int32    pixSmoothConnectedRegions()      8 bpp
  *
  *      Measurement of local foreground
- *          l_int32    pixGetForegroundGrayMap()        8 bpp
+ *          int32    pixGetForegroundGrayMap()        8 bpp
  *
  *      Generate inverted background map for each component
  *          PIX *pixGetInvBackgroundMap()   16 bpp
@@ -61,17 +61,17 @@
  *          PIX *pixGlobalNormNoSatRGB()          32 bpp
  *
  *      Adaptive threshold spread normalization
- *          l_int32    pixThresholdSpreadNorm()         8 bpp
+ *          int32    pixThresholdSpreadNorm()         8 bpp
  *
  *      Adaptive background normalization (flexible adaptaption)
  *          PIX *pixBackgroundNormFlex()          8 bpp
  *
  *      Adaptive contrast normalization
  *          PIX             *pixContrastNorm()          8 bpp
- *          static l_int32   pixMinMaxTiles()
- *          static l_int32   pixSetLowContrast()
+ *          static int32   pixMinMaxTiles()
+ *          static int32   pixSetLowContrast()
  *          static PIX *pixLinearTRCTiled()
- *          static l_int32 *iaaGetLinearTRC()
+ *          static int32 *iaaGetLinearTRC()
  *
  *  Background normalization is done by generating a reduced map (or set
  *  of maps) representing the estimated background value of the
@@ -123,21 +123,17 @@
  *        shrinking the dynamic range
  *    (3) results should otherwise not be sensitive to these values
  */
-static const l_int32 DefaultTileWidth = 10; /*!< default tile width    */
-static const l_int32 DefaultTileHeight = 15; /*!< default tile height   */
-static const l_int32 DefaultFgThreshold = 60; /*!< default fg threshold  */
-static const l_int32 DefaultMinCount = 40; /*!< default minimum count */
-static const l_int32 DefaultBgVal = 200; /*!< default bg value      */
-static const l_int32 DefaultXSmoothSize = 2; /*!< default x smooth size */
-static const l_int32 DefaultYSmoothSize = 1; /*!< default y smooth size */
-
-static l_int32 pixMinMaxTiles(PIX * pixs, l_int32 sx, l_int32 sy,
-    l_int32 mindiff, l_int32 smoothx, l_int32 smoothy,
-    PIX ** ppixmin, PIX ** ppixmax);
-static l_int32 pixSetLowContrast(PIX * pixs1, PIX * pixs2, l_int32 mindiff);
-static PIX * pixLinearTRCTiled(PIX * pixd, PIX * pixs, l_int32 sx, l_int32 sy,
-    PIX * pixmin, PIX * pixmax);
-static l_int32 * iaaGetLinearTRC(l_int32 ** iaa, l_int32 diff);
+static const int32 DefaultTileWidth = 10; /*!< default tile width    */
+static const int32 DefaultTileHeight = 15; /*!< default tile height   */
+static const int32 DefaultFgThreshold = 60; /*!< default fg threshold  */
+static const int32 DefaultMinCount = 40; /*!< default minimum count */
+static const int32 DefaultBgVal = 200; /*!< default bg value      */
+static const int32 DefaultXSmoothSize = 2; /*!< default x smooth size */
+static const int32 DefaultYSmoothSize = 1; /*!< default y smooth size */
+static int32 pixMinMaxTiles(PIX * pixs, int32 sx, int32 sy, int32 mindiff, int32 smoothx, int32 smoothy, PIX ** ppixmin, PIX ** ppixmax);
+static int32 pixSetLowContrast(PIX * pixs1, PIX * pixs2, int32 mindiff);
+static PIX * pixLinearTRCTiled(PIX * pixd, PIX * pixs, int32 sx, int32 sy, PIX * pixmin, PIX * pixmax);
+static int32 * iaaGetLinearTRC(int32 ** iaa, int32 diff);
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG_GLOBAL    0    /*!< set to 1 to debug pixGlobalNormNoSatRGB() */
@@ -170,29 +166,20 @@ static l_int32 * iaaGetLinearTRC(l_int32 ** iaa, l_int32 diff);
  *        that the background is set to in pixBackgroundNormSimple().
  * </pre>
  */
-PIX * pixCleanBackgroundToWhite(PIX * pixs,
-    PIX * pixim,
-    PIX * pixg,
-    float gamma,
-    l_int32 blackval,
-    l_int32 whiteval)
+PIX * pixCleanBackgroundToWhite(PIX * pixs, PIX * pixim, PIX * pixg, float gamma, int32 blackval, int32 whiteval)
 {
-	l_int32 d;
-	PIX * pixd;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 d;
+	PIX * pixd;
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	d = pixGetDepth(pixs);
 	if(d != 8 && d != 32)
 		return (PIX *)ERROR_PTR("depth not 8 or 32", procName, NULL);
 	if(whiteval > 200) {
-		L_WARNING("white value %d must not exceed 200; reset to 190",
-		    procName, whiteval);
+		L_WARNING("white value %d must not exceed 200; reset to 190", procName, whiteval);
 		whiteval = 190;
 	}
-
 	pixd = pixBackgroundNormSimple(pixs, pixim, pixg);
 	if(!pixd)
 		return (PIX *)ERROR_PTR("background norm failedd", procName, NULL);
@@ -292,23 +279,12 @@ PIX * pixBackgroundNormSimple(PIX  * pixs,
  *         by pixGammaTRC(), where the maxval must not not exceed %bgval.
  * </pre>
  */
-PIX * pixBackgroundNorm(PIX * pixs,
-    PIX * pixim,
-    PIX * pixg,
-    l_int32 sx,
-    l_int32 sy,
-    l_int32 thresh,
-    l_int32 mincount,
-    l_int32 bgval,
-    l_int32 smoothx,
-    l_int32 smoothy)
+PIX * pixBackgroundNorm(PIX * pixs, PIX * pixim, PIX * pixg, int32 sx, int32 sy, int32 thresh, int32 mincount, int32 bgval, int32 smoothx, int32 smoothy)
 {
-	l_int32 d, allfg;
+	PROCNAME(__FUNCTION__);
+	int32 d, allfg;
 	PIX * pixm, * pixmi, * pixd;
 	PIX * pixmr, * pixmg, * pixmb, * pixmri, * pixmgi, * pixmbi;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	d = pixGetDepth(pixs);
@@ -320,7 +296,6 @@ PIX * pixBackgroundNorm(PIX * pixs,
 		L_WARNING("mincount too large for tile size\n", procName);
 		mincount = (sx * sy) / 3;
 	}
-
 	/* If pixim exists, verify that it is not all foreground. */
 	if(pixim) {
 		pixInvert(pixim, pixim);
@@ -329,7 +304,6 @@ PIX * pixBackgroundNorm(PIX * pixs,
 		if(allfg)
 			return (PIX *)ERROR_PTR("pixim all foreground", procName, NULL);
 	}
-
 	pixd = NULL;
 	if(d == 8) {
 		pixm = NULL;
@@ -338,7 +312,6 @@ PIX * pixBackgroundNorm(PIX * pixs,
 			L_WARNING("map not made; return a copy of the source\n", procName);
 			return pixCopy(NULL, pixs);
 		}
-
 		pixmi = pixGetInvBackgroundMap(pixm, bgval, smoothx, smoothy);
 		if(!pixmi) {
 			L_WARNING("pixmi not made; return a copy of source\n", procName);
@@ -429,18 +402,12 @@ PIX * pixBackgroundNorm(PIX * pixs,
  *        clipping will occur in the result.
  * </pre>
  */
-PIX * pixBackgroundNormMorph(PIX * pixs,
-    PIX * pixim,
-    l_int32 reduction,
-    l_int32 size,
-    l_int32 bgval)
+PIX * pixBackgroundNormMorph(PIX * pixs, PIX * pixim, int32 reduction, int32 size, int32 bgval)
 {
-	l_int32 d, allfg;
+	PROCNAME(__FUNCTION__);
+	int32 d, allfg;
 	PIX * pixm, * pixmi, * pixd;
 	PIX * pixmr, * pixmg, * pixmb, * pixmri, * pixmgi, * pixmbi;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	d = pixGetDepth(pixs);
@@ -538,22 +505,11 @@ PIX * pixBackgroundNormMorph(PIX * pixs,
  *        of the input pixs.
  * </pre>
  */
-l_ok pixBackgroundNormGrayArray(PIX * pixs,
-    PIX * pixim,
-    l_int32 sx,
-    l_int32 sy,
-    l_int32 thresh,
-    l_int32 mincount,
-    l_int32 bgval,
-    l_int32 smoothx,
-    l_int32 smoothy,
-    PIX    ** ppixd)
+l_ok pixBackgroundNormGrayArray(PIX * pixs, PIX * pixim, int32 sx, int32 sy, int32 thresh, int32 mincount, int32 bgval, int32 smoothx, int32 smoothy, PIX    ** ppixd)
 {
-	l_int32 allfg;
-	PIX * pixm;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 allfg;
+	PIX * pixm;
 	if(!ppixd)
 		return ERROR_INT("&pixd not defined", procName, 1);
 	*ppixd = NULL;
@@ -569,7 +525,6 @@ l_ok pixBackgroundNormGrayArray(PIX * pixs,
 		L_WARNING("mincount too large for tile size\n", procName);
 		mincount = (sx * sy) / 3;
 	}
-
 	/* If pixim exists, verify that it is not all foreground. */
 	if(pixim) {
 		pixInvert(pixim, pixim);
@@ -613,11 +568,11 @@ l_ok pixBackgroundNormGrayArray(PIX * pixs,
  *        of each component of the input pixs.
  * </pre>
  */
-l_ok pixBackgroundNormRGBArrays(PIX * pixs, PIX * pixim, PIX * pixg, l_int32 sx, l_int32 sy, l_int32 thresh, l_int32 mincount,
-    l_int32 bgval, l_int32 smoothx, l_int32 smoothy, PIX    ** ppixr, PIX    ** ppixg, PIX    ** ppixb)
+l_ok pixBackgroundNormRGBArrays(PIX * pixs, PIX * pixim, PIX * pixg, int32 sx, int32 sy, int32 thresh, int32 mincount,
+    int32 bgval, int32 smoothx, int32 smoothy, PIX    ** ppixr, PIX    ** ppixg, PIX    ** ppixb)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 allfg;
+	int32 allfg;
 	PIX * pixmr, * pixmg, * pixmb;
 	if(!ppixr || !ppixg || !ppixb)
 		return ERROR_INT("&pixr, &pixg, &pixb not all defined", procName, 1);
@@ -680,10 +635,10 @@ l_ok pixBackgroundNormRGBArrays(PIX * pixs, PIX * pixim, PIX * pixg, l_int32 sx,
  *        of the input pixs.
  * </pre>
  */
-l_ok pixBackgroundNormGrayArrayMorph(PIX * pixs, PIX * pixim, l_int32 reduction, l_int32 size, l_int32 bgval, PIX    ** ppixd)
+l_ok pixBackgroundNormGrayArrayMorph(PIX * pixs, PIX * pixim, int32 reduction, int32 size, int32 bgval, PIX    ** ppixd)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 allfg;
+	int32 allfg;
 	PIX * pixm;
 	if(!ppixd)
 		return ERROR_INT("&pixd not defined", procName, 1);
@@ -734,10 +689,10 @@ l_ok pixBackgroundNormGrayArrayMorph(PIX * pixs, PIX * pixim, l_int32 reduction,
  *        of each component of the input pixs.
  * </pre>
  */
-l_ok pixBackgroundNormRGBArraysMorph(PIX * pixs, PIX * pixim, l_int32 reduction, l_int32 size, l_int32 bgval, PIX    ** ppixr, PIX    ** ppixg, PIX    ** ppixb)
+l_ok pixBackgroundNormRGBArraysMorph(PIX * pixs, PIX * pixim, int32 reduction, int32 size, int32 bgval, PIX    ** ppixr, PIX    ** ppixg, PIX    ** ppixb)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 allfg;
+	int32 allfg;
 	PIX * pixmr, * pixmg, * pixmb;
 	if(!ppixr || !ppixg || !ppixb)
 		return ERROR_INT("&pixr, &pixg, &pixb not all defined", procName, 1);
@@ -798,14 +753,14 @@ l_ok pixBackgroundNormRGBArraysMorph(PIX * pixs, PIX * pixim, l_int32 reduction,
  *          and finally smoothed in each image region.
  * </pre>
  */
-l_ok pixGetBackgroundGrayMap(PIX * pixs, PIX * pixim, l_int32 sx, l_int32 sy, l_int32 thresh, l_int32 mincount, PIX    ** ppixd)
+l_ok pixGetBackgroundGrayMap(PIX * pixs, PIX * pixim, int32 sx, int32 sy, int32 thresh, int32 mincount, PIX    ** ppixd)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 w, h, wd, hd, wim, him, wpls, wplim, wpld, wplf;
-	l_int32 xim, yim, delx, nx, ny, i, j, k, m;
-	l_int32 count, sum, val8;
-	l_int32 empty, fgpixels;
-	l_uint32 * datas, * dataim, * datad, * dataf, * lines, * lineim, * lined, * linef;
+	int32 w, h, wd, hd, wim, him, wpls, wplim, wpld, wplf;
+	int32 xim, yim, delx, nx, ny, i, j, k, m;
+	int32 count, sum, val8;
+	int32 empty, fgpixels;
+	uint32 * datas, * dataim, * datad, * dataf, * lines, * lineim, * lined, * linef;
 	float scalex, scaley;
 	PIX * pixd, * piximi, * pixb, * pixf, * pixims;
 	if(!ppixd)
@@ -969,15 +924,15 @@ l_ok pixGetBackgroundGrayMap(PIX * pixs, PIX * pixim, l_int32 sx, l_int32 sy, l_
  *          from the green component only, used, and destroyed.
  * </pre>
  */
-l_ok pixGetBackgroundRGBMap(PIX * pixs, PIX * pixim, PIX * pixg, l_int32 sx, l_int32 sy, l_int32 thresh, l_int32 mincount, PIX    ** ppixmr, PIX    ** ppixmg, PIX    ** ppixmb)
+l_ok pixGetBackgroundRGBMap(PIX * pixs, PIX * pixim, PIX * pixg, int32 sx, int32 sy, int32 thresh, int32 mincount, PIX    ** ppixmr, PIX    ** ppixmg, PIX    ** ppixmb)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 w, h, wm, hm, wim, him, wpls, wplim, wplf;
-	l_int32 xim, yim, delx, nx, ny, i, j, k, m;
-	l_int32 count, rsum, gsum, bsum, rval, gval, bval;
-	l_int32 empty, fgpixels;
-	l_uint32 pixel;
-	l_uint32 * datas, * dataim, * dataf, * lines, * lineim, * linef;
+	int32 w, h, wm, hm, wim, him, wpls, wplim, wplf;
+	int32 xim, yim, delx, nx, ny, i, j, k, m;
+	int32 count, rsum, gsum, bsum, rval, gval, bval;
+	int32 empty, fgpixels;
+	uint32 pixel;
+	uint32 * datas, * dataim, * dataf, * lines, * lineim, * linef;
 	float scalex, scaley;
 	PIX * piximi, * pixgc, * pixb, * pixf, * pixims;
 	PIX * pixmr, * pixmg, * pixmb;
@@ -1141,10 +1096,10 @@ l_ok pixGetBackgroundRGBMap(PIX * pixs, PIX * pixim, PIX * pixg, l_int32 sx, l_i
  * \param[out]   ppixm       grayscale map
  * \return  0 if OK, 1 on error
  */
-l_ok pixGetBackgroundGrayMapMorph(PIX * pixs, PIX * pixim, l_int32 reduction, l_int32 size, PIX    ** ppixm)
+l_ok pixGetBackgroundGrayMapMorph(PIX * pixs, PIX * pixim, int32 reduction, int32 size, PIX    ** ppixm)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 nx, ny, empty, fgpixels;
+	int32 nx, ny, empty, fgpixels;
 	float scale;
 	PIX * pixm, * pix1, * pix2, * pix3, * pixims;
 	if(!ppixm)
@@ -1223,10 +1178,10 @@ l_ok pixGetBackgroundGrayMapMorph(PIX * pixs, PIX * pixim, l_int32 reduction, l_
  * \param[out]   ppixmb      blue component map
  * \return  0 if OK, 1 on error
  */
-l_ok pixGetBackgroundRGBMapMorph(PIX * pixs, PIX * pixim, l_int32 reduction, l_int32 size, PIX    ** ppixmr, PIX    ** ppixmg, PIX    ** ppixmb)
+l_ok pixGetBackgroundRGBMapMorph(PIX * pixs, PIX * pixim, int32 reduction, int32 size, PIX    ** ppixmr, PIX    ** ppixmg, PIX    ** ppixmb)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 nx, ny, empty, fgpixels;
+	int32 nx, ny, empty, fgpixels;
 	float scale;
 	PIX * pixm, * pixmr, * pixmg, * pixmb, * pix1, * pix2, * pix3, * pixims;
 	if(!ppixmr || !ppixmg || !ppixmb)
@@ -1365,11 +1320,11 @@ l_ok pixGetBackgroundRGBMapMorph(PIX * pixs, PIX * pixim, l_int32 reduction, l_i
  *      (4) If w is the map width, nx = w or nx = w - 1; ditto for h and ny.
  * </pre>
  */
-l_ok pixFillMapHoles(PIX * pix, l_int32 nx, l_int32 ny, l_int32 filltype)
+l_ok pixFillMapHoles(PIX * pix, int32 nx, int32 ny, int32 filltype)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 w, h, y, nmiss, goodcol, i, j, found, ival, valtest;
-	l_uint32 val, lastval;
+	int32 w, h, y, nmiss, goodcol, i, j, found, ival, valtest;
+	uint32 val, lastval;
 	NUMA     * na; /* indicates if there is any data in the column */
 	if(!pix || pixGetDepth(pix) != 8)
 		return ERROR_INT("pix not defined or not 8 bpp", procName, 1);
@@ -1460,11 +1415,11 @@ l_ok pixFillMapHoles(PIX * pix, l_int32 nx, l_int32 ny, l_int32 filltype)
  *      (1) The pixel values are extended to the left and down, as required.
  * </pre>
  */
-PIX * pixExtendByReplication(PIX * pixs, l_int32 addw, l_int32 addh)
+PIX * pixExtendByReplication(PIX * pixs, int32 addw, int32 addh)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 w, h, i, j;
-	l_uint32 val;
+	int32 w, h, i, j;
+	uint32 val;
 	PIX * pixd;
 	if(!pixs || pixGetDepth(pixs) != 8)
 		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
@@ -1517,10 +1472,10 @@ PIX * pixExtendByReplication(PIX * pixs, l_int32 addw, l_int32 addh)
  *          be inefficient if used where there are many small components.
  * </pre>
  */
-l_ok pixSmoothConnectedRegions(PIX * pixs, PIX * pixm, l_int32 factor)
+l_ok pixSmoothConnectedRegions(PIX * pixs, PIX * pixm, int32 factor)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 empty, i, n, x, y;
+	int32 empty, i, n, x, y;
 	float aveval;
 	BOXA      * boxa;
 	PIX * pixmc;
@@ -1550,7 +1505,7 @@ l_ok pixSmoothConnectedRegions(PIX * pixs, PIX * pixm, l_int32 factor)
 		}
 		boxaGetBoxGeometry(boxa, i, &x, &y, NULL, NULL);
 		pixGetAverageMasked(pixs, pixmc, x, y, factor, L_MEAN_ABSVAL, &aveval);
-		pixPaintThroughMask(pixs, pixmc, x, y, (l_int32)aveval);
+		pixPaintThroughMask(pixs, pixmc, x, y, (int32)aveval);
 		pixDestroy(&pixmc);
 	}
 
@@ -1600,11 +1555,11 @@ l_ok pixSmoothConnectedRegions(PIX * pixs, PIX * pixm, l_int32 factor)
  *            ~ paint the 'image' regions black
  * </pre>
  */
-l_ok pixGetForegroundGrayMap(PIX * pixs, PIX * pixim, l_int32 sx, l_int32 sy, l_int32 thresh, PIX    ** ppixd)
+l_ok pixGetForegroundGrayMap(PIX * pixs, PIX * pixim, int32 sx, int32 sy, int32 thresh, PIX    ** ppixd)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 w, h, d, wd, hd;
-	l_int32 empty, fgpixels;
+	int32 w, h, d, wd, hd;
+	int32 empty, fgpixels;
 	PIX * pixd, * piximi, * pixim2, * pixims, * pixs2, * pixb, * pixt1, * pixt2, * pixt3;
 	if(!ppixd)
 		return ERROR_INT("&pixd not defined", procName, 1);
@@ -1704,12 +1659,12 @@ l_ok pixGetForegroundGrayMap(PIX * pixs, PIX * pixim, l_int32 sx, l_int32 sy, l_
  *       multiplied by pixd and the result is divided by 256.
  * </pre>
  */
-PIX * pixGetInvBackgroundMap(PIX * pixs, l_int32 bgval, l_int32 smoothx, l_int32 smoothy)
+PIX * pixGetInvBackgroundMap(PIX * pixs, int32 bgval, int32 smoothx, int32 smoothy)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 w, h, wplsm, wpld, i, j;
-	l_int32 val, val16;
-	l_uint32 * datasm, * datad, * linesm, * lined;
+	int32 w, h, wplsm, wpld, i, j;
+	int32 val, val16;
+	uint32 * datasm, * datad, * linesm, * lined;
 	PIX * pixsm, * pixd;
 	if(!pixs || pixGetDepth(pixs) != 8)
 		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
@@ -1760,13 +1715,13 @@ PIX * pixGetInvBackgroundMap(PIX * pixs, l_int32 bgval, l_int32 smoothx, l_int32
  * \param[in]    sy      tile height in pixels
  * \return  pixd 8 bpp, or NULL on error
  */
-PIX * pixApplyInvBackgroundGrayMap(PIX * pixs, PIX * pixm, l_int32 sx, l_int32 sy)
+PIX * pixApplyInvBackgroundGrayMap(PIX * pixs, PIX * pixm, int32 sx, int32 sy)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 w, h, wm, hm, wpls, wpld, i, j, k, m, xoff, yoff;
-	l_int32 vals, vald;
-	l_uint32 val16;
-	l_uint32 * datas, * datad, * lines, * lined, * flines, * flined;
+	int32 w, h, wm, hm, wpls, wpld, i, j, k, m, xoff, yoff;
+	int32 vals, vald;
+	uint32 val16;
+	uint32 * datas, * datad, * lines, * lined, * flines, * flined;
 	PIX * pixd;
 	if(!pixs || pixGetDepth(pixs) != 8)
 		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
@@ -1819,14 +1774,14 @@ PIX * pixApplyInvBackgroundGrayMap(PIX * pixs, PIX * pixm, l_int32 sx, l_int32 s
  * \param[in]    sy      tile height in pixels
  * \return  pixd 32 bpp rbg, or NULL on error
  */
-PIX * pixApplyInvBackgroundRGBMap(PIX * pixs, PIX * pixmr, PIX * pixmg, PIX * pixmb, l_int32 sx, l_int32 sy)
+PIX * pixApplyInvBackgroundRGBMap(PIX * pixs, PIX * pixmr, PIX * pixmg, PIX * pixmb, int32 sx, int32 sy)
 {
 	PROCNAME(__FUNCTION__);
-	l_int32 w, h, wm, hm, wpls, wpld, i, j, k, m, xoff, yoff;
-	l_int32 rvald, gvald, bvald;
-	l_uint32 vals;
-	l_uint32 rval16, gval16, bval16;
-	l_uint32 * datas, * datad, * lines, * lined, * flines, * flined;
+	int32 w, h, wm, hm, wpls, wpld, i, j, k, m, xoff, yoff;
+	int32 rvald, gvald, bvald;
+	uint32 vals;
+	uint32 rval16, gval16, bval16;
+	uint32 * datas, * datad, * lines, * lined, * flines, * flined;
 	PIX * pixd;
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
@@ -1908,18 +1863,14 @@ PIX * pixApplyInvBackgroundRGBMap(PIX * pixs, PIX * pixmr, PIX * pixmg, PIX * pi
  *      (2) The sizes of pixs and pixg must be equal.
  * </pre>
  */
-PIX * pixApplyVariableGrayMap(PIX * pixs,
-    PIX * pixg,
-    l_int32 target)
+PIX * pixApplyVariableGrayMap(PIX * pixs, PIX * pixg, int32 target)
 {
-	l_int32 i, j, w, h, d, wpls, wplg, wpld, vals, valg, vald;
+	PROCNAME(__FUNCTION__);
+	int32 i, j, w, h, d, wpls, wplg, wpld, vals, valg, vald;
 	uint8   * lut;
-	l_uint32 * datas, * datag, * datad, * lines, * lineg, * lined;
+	uint32 * datas, * datag, * datad, * lines, * lineg, * lined;
 	float fval;
 	PIX * pixd;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(!pixg)
@@ -1929,7 +1880,6 @@ PIX * pixApplyVariableGrayMap(PIX * pixs,
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 8)
 		return (PIX *)ERROR_PTR("depth not 8 bpp", procName, NULL);
-
 	/* Generate a LUT for the mapping if the image is large enough
 	 * to warrant the overhead.  The LUT is of size 2^16.  For the
 	 * index to the table, get the MSB from pixs and the LSB from pixg.
@@ -1943,7 +1893,7 @@ PIX * pixApplyVariableGrayMap(PIX * pixs,
 		for(i = 0; i < 256; i++) {
 			for(j = 0; j < 256; j++) {
 				fval = (float)(i * target) / (j + 0.5f);
-				lut[(i << 8) + j] = MIN(255, (l_int32)(fval + 0.5f));
+				lut[(i << 8) + j] = MIN(255, (int32)(fval + 0.5f));
 			}
 		}
 	}
@@ -1976,7 +1926,7 @@ PIX * pixApplyVariableGrayMap(PIX * pixs,
 				vals = GET_DATA_BYTE(lines, j);
 				valg = GET_DATA_BYTE(lineg, j);
 				fval = (float)(vals * target) / (valg + 0.5f);
-				vald = MIN(255, (l_int32)(fval + 0.5));
+				vald = MIN(255, (int32)(fval + 0.5));
 				SET_DATA_BYTE(lined, j, vald);
 			}
 		}
@@ -2023,21 +1973,14 @@ PIX * pixApplyVariableGrayMap(PIX * pixs,
  *            pixGammaTRC(pixd, pixs, 1.0, 0, 255 * bgval / mapval);
  * </pre>
  */
-PIX * pixGlobalNormRGB(PIX * pixd,
-    PIX * pixs,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval,
-    l_int32 mapval)
+PIX * pixGlobalNormRGB(PIX * pixd, PIX * pixs, int32 rval, int32 gval, int32 bval, int32 mapval)
 {
-	l_int32 w, h, d, i, j, ncolors, rv, gv, bv, wpl;
-	l_int32   * rarray, * garray, * barray;
-	l_uint32 * data, * line;
+	PROCNAME(__FUNCTION__);
+	int32 w, h, d, i, j, ncolors, rv, gv, bv, wpl;
+	int32   * rarray, * garray, * barray;
+	uint32 * data, * line;
 	NUMA * nar, * nag, * nab;
 	PIXCMAP   * cmap;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	cmap = pixGetColormap(pixs);
@@ -2048,11 +1991,9 @@ PIX * pixGlobalNormRGB(PIX * pixd,
 		L_WARNING("mapval must be > 0; setting to 255\n", procName);
 		mapval = 255;
 	}
-
 	/* Prepare pixd to be a copy of pixs */
 	if((pixd = pixCopy(pixd, pixs)) == NULL)
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
-
 	/* Generate the TRC maps for each component.  Make sure the
 	 * upper range for each color is greater than zero. */
 	nar = numaGammaTRC(1.0, 0, MAX(1, 255 * rval / mapval));
@@ -2130,20 +2071,12 @@ cleanup_arrays:
  *        fraction of the pixels given by the input rank value).
  * </pre>
  */
-PIX * pixGlobalNormNoSatRGB(PIX * pixd,
-    PIX * pixs,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval,
-    l_int32 factor,
-    float rank)
+PIX * pixGlobalNormNoSatRGB(PIX * pixd, PIX * pixs, int32 rval, int32 gval, int32 bval, int32 factor, float rank)
 {
-	l_int32 mapval;
+	PROCNAME(__FUNCTION__);
+	int32 mapval;
 	float rankrval, rankgval, rankbval;
 	float rfract, gfract, bfract, maxfract;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(pixGetDepth(pixs) != 32)
@@ -2179,7 +2112,7 @@ PIX * pixGlobalNormNoSatRGB(PIX * pixd,
 	    rfract, gfract, bfract);
 #endif  /* DEBUG_GLOBAL */
 
-	mapval = (l_int32)(255. / maxfract);
+	mapval = (int32)(255. / maxfract);
 	pixd = pixGlobalNormRGB(pixd, pixs, rval, gval, bval, mapval);
 	return pixd;
 }
@@ -2230,23 +2163,11 @@ PIX * pixGlobalNormNoSatRGB(PIX * pixd,
  *          an example of this.
  * </pre>
  */
-l_ok pixThresholdSpreadNorm(PIX * pixs,
-    l_int32 filtertype,
-    l_int32 edgethresh,
-    l_int32 smoothx,
-    l_int32 smoothy,
-    float gamma,
-    l_int32 minval,
-    l_int32 maxval,
-    l_int32 targetthresh,
-    PIX ** ppixth,
-    PIX ** ppixb,
-    PIX ** ppixd)
+l_ok pixThresholdSpreadNorm(PIX * pixs, int32 filtertype, int32 edgethresh, int32 smoothx, int32 smoothy, float gamma, int32 minval,
+    int32 maxval, int32 targetthresh, PIX ** ppixth, PIX ** ppixb, PIX ** ppixd)
 {
-	PIX  * pixe, * pixet, * pixsd, * pixg1, * pixg2, * pixth;
-
 	PROCNAME(__FUNCTION__);
-
+	PIX  * pixe, * pixet, * pixsd, * pixg1, * pixg2, * pixth;
 	if(ppixth) *ppixth = NULL;
 	if(ppixb) *ppixb = NULL;
 	if(ppixd) *ppixd = NULL;
@@ -2334,18 +2255,11 @@ l_ok pixThresholdSpreadNorm(PIX * pixs,
  *          the fg regions.  Use 0 to skip.
  * </pre>
  */
-PIX * pixBackgroundNormFlex(PIX * pixs,
-    l_int32 sx,
-    l_int32 sy,
-    l_int32 smoothx,
-    l_int32 smoothy,
-    l_int32 delta)
+PIX * pixBackgroundNormFlex(PIX * pixs, int32 sx, int32 sy, int32 smoothx, int32 smoothy, int32 delta)
 {
+	PROCNAME(__FUNCTION__);
 	float scalex, scaley;
 	PIX * pixt, * pixsd, * pixmin, * pixbg, * pixbgi, * pixd;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs || pixGetDepth(pixs) != 8)
 		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, NULL);
 	if(pixGetColormap(pixs))
@@ -2427,18 +2341,10 @@ PIX * pixBackgroundNormFlex(PIX * pixs,
  *          and the 0 and 255 points of the mapping.
  * </pre>
  */
-PIX * pixContrastNorm(PIX * pixd,
-    PIX * pixs,
-    l_int32 sx,
-    l_int32 sy,
-    l_int32 mindiff,
-    l_int32 smoothx,
-    l_int32 smoothy)
+PIX * pixContrastNorm(PIX * pixd, PIX * pixs, int32 sx, int32 sy, int32 mindiff, int32 smoothx, int32 smoothy)
 {
-	PIX  * pixmin, * pixmax;
-
 	PROCNAME(__FUNCTION__);
-
+	PIX  * pixmin, * pixmax;
 	if(!pixs || pixGetDepth(pixs) != 8)
 		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, pixd);
 	if(pixd && pixd != pixs)
@@ -2451,21 +2357,17 @@ PIX * pixContrastNorm(PIX * pixd,
 		return (PIX *)ERROR_PTR("smooth params less than 0", procName, pixd);
 	if(smoothx > 8 || smoothy > 8)
 		return (PIX *)ERROR_PTR("smooth params exceed 8", procName, pixd);
-
 	/* Get the min and max pixel values in each tile, and represent
 	 * each value as a pixel in pixmin and pixmax, respectively. */
 	pixMinMaxTiles(pixs, sx, sy, mindiff, smoothx, smoothy, &pixmin, &pixmax);
-
 	/* For each tile, do a linear expansion of the dynamic range
 	 * of pixels so that the min value is mapped to 0 and the
 	 * max value is mapped to 255.  */
 	pixd = pixLinearTRCTiled(pixd, pixs, sx, sy, pixmin, pixmax);
-
 	pixDestroy(&pixmin);
 	pixDestroy(&pixmax);
 	return pixd;
 }
-
 /*!
  * \brief   pixMinMaxTiles()
  *
@@ -2485,20 +2387,11 @@ PIX * pixContrastNorm(PIX * pixd,
  *      (2) See pixContrastNorm() for usage.
  * </pre>
  */
-static l_ok pixMinMaxTiles(PIX * pixs,
-    l_int32 sx,
-    l_int32 sy,
-    l_int32 mindiff,
-    l_int32 smoothx,
-    l_int32 smoothy,
-    PIX    ** ppixmin,
-    PIX    ** ppixmax)
+static int32 pixMinMaxTiles(PIX * pixs, int32 sx, int32 sy, int32 mindiff, int32 smoothx, int32 smoothy, PIX ** ppixmin, PIX ** ppixmax)
 {
-	l_int32 w, h;
-	PIX * pixmin1, * pixmax1, * pixmin2, * pixmax2;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 w, h;
+	PIX * pixmin1, * pixmax1, * pixmin2, * pixmax2;
 	if(ppixmin) *ppixmin = NULL;
 	if(ppixmax) *ppixmax = NULL;
 	if(!ppixmin || !ppixmax)
@@ -2574,15 +2467,11 @@ static l_ok pixMinMaxTiles(PIX * pixs,
  *          caller should check return value.
  * </pre>
  */
-static l_ok pixSetLowContrast(PIX * pixs1,
-    PIX * pixs2,
-    l_int32 mindiff)
+static int32 pixSetLowContrast(PIX * pixs1, PIX * pixs2, int32 mindiff)
 {
-	l_int32 i, j, w, h, d, wpl, val1, val2, found;
-	l_uint32 * data1, * data2, * line1, * line2;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i, j, w, h, d, wpl, val1, val2, found;
+	uint32 * data1, * data2, * line1, * line2;
 	if(!pixs1 || !pixs2)
 		return ERROR_INT("pixs1 and pixs2 not both defined", procName, 1);
 	if(pixSizesEqual(pixs1, pixs2) == 0)
@@ -2590,8 +2479,8 @@ static l_ok pixSetLowContrast(PIX * pixs1,
 	pixGetDimensions(pixs1, &w, &h, &d);
 	if(d != 8)
 		return ERROR_INT("depth not 8 bpp", procName, 1);
-	if(mindiff > 254) return 0;
-
+	if(mindiff > 254) 
+		return 0;
 	data1 = pixGetData(pixs1);
 	data2 = pixGetData(pixs2);
 	wpl = pixGetWpl(pixs1);
@@ -2655,21 +2544,14 @@ static l_ok pixSetLowContrast(PIX * pixs1,
  *          and stored for reuse in an integer array within the ptr array iaa[].
  * </pre>
  */
-static PIX * pixLinearTRCTiled(PIX * pixd,
-    PIX * pixs,
-    l_int32 sx,
-    l_int32 sy,
-    PIX * pixmin,
-    PIX * pixmax)
+static PIX * pixLinearTRCTiled(PIX * pixd, PIX * pixs, int32 sx, int32 sy, PIX * pixmin, PIX * pixmax)
 {
-	l_int32 i, j, k, m, w, h, wt, ht, wpl, wplt, xoff, yoff;
-	l_int32 minval, maxval, val, sval;
-	l_int32   * ia;
-	l_int32 ** iaa;
-	l_uint32 * data, * datamin, * datamax, * line, * tline, * linemin, * linemax;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i, j, k, m, w, h, wt, ht, wpl, wplt, xoff, yoff;
+	int32 minval, maxval, val, sval;
+	int32   * ia;
+	int32 ** iaa;
+	uint32 * data, * datamin, * datamax, * line, * tline, * linemin, * linemax;
 	if(!pixs || pixGetDepth(pixs) != 8)
 		return (PIX *)ERROR_PTR("pixs undefined or not 8 bpp", procName, pixd);
 	if(pixd && pixd != pixs)
@@ -2681,7 +2563,7 @@ static PIX * pixLinearTRCTiled(PIX * pixd,
 	if(sx < 5 || sy < 5)
 		return (PIX *)ERROR_PTR("sx and/or sy less than 5", procName, pixd);
 
-	iaa = (l_int32**)SAlloc::C(256, sizeof(l_int32 *));
+	iaa = (int32**)SAlloc::C(256, sizeof(int32 *));
 	if((pixd = pixCopy(pixd, pixs)) == NULL) {
 		SAlloc::F(iaa);
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
@@ -2733,23 +2615,23 @@ static PIX * pixLinearTRCTiled(PIX * pixd,
 /*!
  * \brief   iaaGetLinearTRC()
  *
- * \param[in]    iaa     bare array of ptrs to l_int32
+ * \param[in]    iaa     bare array of ptrs to int32
  * \param[in]    diff    between min and max pixel values that are
  *                       to be mapped to 0 and 255
  * \return  ia LUT with input (val - minval) and output a
  *                  value between 0 and 255)
  */
-static l_int32 * iaaGetLinearTRC(l_int32 ** iaa, l_int32 diff)
+static int32 * iaaGetLinearTRC(int32 ** iaa, int32 diff)
 {
-	l_int32 i;
-	l_int32   * ia;
-	float factor;
 	PROCNAME(__FUNCTION__);
+	int32 i;
+	int32   * ia;
+	float factor;
 	if(!iaa)
-		return (l_int32*)ERROR_PTR("iaa not defined", procName, NULL);
+		return (int32*)ERROR_PTR("iaa not defined", procName, NULL);
 	if(iaa[diff] != NULL) /* already have it */
 		return iaa[diff];
-	ia = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	ia = (int32*)SAlloc::C(256, sizeof(int32));
 	iaa[diff] = ia;
 	if(diff == 0) { /* shouldn't happen */
 		for(i = 0; i < 256; i++)
@@ -2758,7 +2640,7 @@ static l_int32 * iaaGetLinearTRC(l_int32 ** iaa, l_int32 diff)
 	else {
 		factor = 255.0f / (float)diff;
 		for(i = 0; i < diff + 1; i++)
-			ia[i] = (l_int32)(factor * i + 0.5f);
+			ia[i] = (int32)(factor * i + 0.5f);
 		for(i = diff + 1; i < 256; i++)
 			ia[i] = 255;
 	}

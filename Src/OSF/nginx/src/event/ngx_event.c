@@ -518,7 +518,7 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t * cycle)
 		}
 #endif
 		c = ngx_get_connection(ls[i].fd, cycle->log);
-		if(c == NULL) {
+		if(!c) {
 			return NGX_ERROR;
 		}
 		c->type = ls[i].type;

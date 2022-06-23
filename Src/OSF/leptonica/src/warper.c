@@ -24,12 +24,12 @@
  *
  *      Helper functions
  *          static double  *generateRandomNumberArray()
- *          static l_int32     applyWarpTransform()
+ *          static int32     applyWarpTransform()
  *
  *      Version using a LUT for sin
  *          PIX               *pixRandomHarmonicWarpLUT()
- *          static l_int32     applyWarpTransformLUT()
- *          static l_int32     makeSinLUT()
+ *          static int32     applyWarpTransformLUT()
+ *          static int32     makeSinLUT()
  *          static float   getSinFromLUT()
  *
  *      Stereoscopic warping
@@ -52,11 +52,11 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static double * generateRandomNumberArray(l_int32 size);
-static l_int32 applyWarpTransform(float xmag, float ymag,
+static double * generateRandomNumberArray(int32 size);
+static int32 applyWarpTransform(float xmag, float ymag,
     float xfreq, float yfreq,
-    double * randa, l_int32 nx, l_int32 ny,
-    l_int32 xp, l_int32 yp,
+    double * randa, int32 nx, int32 ny,
+    int32 xp, int32 yp,
     float * px, float * py);
 
 #define  USE_SIN_TABLE    0
@@ -90,13 +90,13 @@ static const float DefaultBlueWeight  = 0.3;
  * </pre>
  */
 PIX * pixSimpleCaptcha(PIX * pixs,
-    l_int32 border,
-    l_int32 nterms,
-    l_uint32 seed,
-    l_uint32 color,
-    l_int32 cmapflag)
+    int32 border,
+    int32 nterms,
+    uint32 seed,
+    uint32 color,
+    int32 cmapflag)
 {
-	l_int32 k;
+	int32 k;
 	float xmag[] = {7.0f, 5.0f, 4.0f, 3.0f};
 	float ymag[] = {10.0f, 8.0f, 6.0f, 5.0f};
 	float xfreq[] = {0.12f, 0.10f, 0.10f, 0.11f};
@@ -166,13 +166,13 @@ PIX * pixRandomHarmonicWarp(PIX * pixs,
     float ymag,
     float xfreq,
     float yfreq,
-    l_int32 nx,
-    l_int32 ny,
-    l_uint32 seed,
-    l_int32 grayval)
+    int32 nx,
+    int32 ny,
+    uint32 seed,
+    int32 grayval)
 {
-	l_int32 w, h, d, i, j, wpls, wpld, val;
-	l_uint32   * datas, * datad, * lined;
+	int32 w, h, d, i, j, wpls, wpld, val;
+	uint32   * datas, * datad, * lined;
 	float x, y;
 	double  * randa;
 	PIX        * pixd;
@@ -215,9 +215,9 @@ PIX * pixRandomHarmonicWarp(PIX * pixs,
 /*----------------------------------------------------------------------*
 *                         Static helper functions                      *
 *----------------------------------------------------------------------*/
-static double * generateRandomNumberArray(l_int32 size)
+static double * generateRandomNumberArray(int32 size)
 {
-	l_int32 i;
+	int32 i;
 	double  * randa;
 
 	PROCNAME(__FUNCTION__);
@@ -237,19 +237,19 @@ static double * generateRandomNumberArray(l_int32 size)
  *  Notes:
  *      (1) Uses the internal sin function.
  */
-static l_int32 applyWarpTransform(float xmag,
+static int32 applyWarpTransform(float xmag,
     float ymag,
     float xfreq,
     float yfreq,
     double  * randa,
-    l_int32 nx,
-    l_int32 ny,
-    l_int32 xp,
-    l_int32 yp,
+    int32 nx,
+    int32 ny,
+    int32 xp,
+    int32 yp,
     float * px,
     float * py)
 {
-	l_int32 i;
+	int32 i;
 	double twopi, x, y, anglex, angley;
 
 	twopi = 6.283185;
@@ -273,13 +273,13 @@ static l_int32 applyWarpTransform(float xmag,
 /*----------------------------------------------------------------------*
 *                       Version using a LUT for sin                    *
 *----------------------------------------------------------------------*/
-static l_int32 applyWarpTransformLUT(float xmag, float ymag,
+static int32 applyWarpTransformLUT(float xmag, float ymag,
     float xfreq, float yfreq,
-    double * randa, l_int32 nx, l_int32 ny,
-    l_int32 xp, l_int32 yp, float * lut,
-    l_int32 npts, float * px, float * py);
-static l_int32 makeSinLUT(l_int32 npts, NUMA ** pna);
-static float getSinFromLUT(float * tab, l_int32 npts,
+    double * randa, int32 nx, int32 ny,
+    int32 xp, int32 yp, float * lut,
+    int32 npts, float * px, float * py);
+static int32 makeSinLUT(int32 npts, NUMA ** pna);
+static float getSinFromLUT(float * tab, int32 npts,
     float radang);
 
 /*!
@@ -307,13 +307,13 @@ PIX * pixRandomHarmonicWarpLUT(PIX * pixs,
     float ymag,
     float xfreq,
     float yfreq,
-    l_int32 nx,
-    l_int32 ny,
-    l_uint32 seed,
-    l_int32 grayval)
+    int32 nx,
+    int32 ny,
+    uint32 seed,
+    int32 grayval)
 {
-	l_int32 w, h, d, i, j, wpls, wpld, val, npts;
-	l_uint32   * datas, * datad, * lined;
+	int32 w, h, d, i, j, wpls, wpld, val, npts;
+	uint32   * datas, * datad, * lined;
 	float x, y;
 	float * lut;
 	double  * randa;
@@ -366,21 +366,21 @@ PIX * pixRandomHarmonicWarpLUT(PIX * pixs,
  *      (1) Uses an LUT for computing sin(theta).  There is little speed
  *          advantage to using the LUT.
  */
-static l_int32 applyWarpTransformLUT(float xmag,
+static int32 applyWarpTransformLUT(float xmag,
     float ymag,
     float xfreq,
     float yfreq,
     double  * randa,
-    l_int32 nx,
-    l_int32 ny,
-    l_int32 xp,
-    l_int32 yp,
+    int32 nx,
+    int32 ny,
+    int32 xp,
+    int32 yp,
     float * lut,
-    l_int32 npts,
+    int32 npts,
     float * px,
     float * py)
 {
-	l_int32 i;
+	int32 i;
 	double twopi, x, y, anglex, angley, sanglex, sangley;
 
 	twopi = 6.283185;
@@ -404,15 +404,12 @@ static l_int32 applyWarpTransformLUT(float xmag,
 	return 0;
 }
 
-static l_int32 makeSinLUT(l_int32 npts,
-    NUMA   ** pna)
+static int32 makeSinLUT(int32 npts, NUMA   ** pna)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float delx, fval;
 	NUMA * na;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pna)
 		return ERROR_INT("&na not defined", procName, 1);
 	*pna = NULL;
@@ -421,7 +418,7 @@ static l_int32 makeSinLUT(l_int32 npts,
 	n = 2 * npts + 1;
 	na = numaCreate(n);
 	*pna = na;
-	delx = 3.14159265 / (float)npts;
+	delx = SMathConst::Pi_f / (float)npts;
 	numaSetParameters(na, 0.0, delx);
 	for(i = 0; i < n / 2; i++)
 		numaAddNumber(na, (float)sin((double)i * delx));
@@ -430,28 +427,24 @@ static l_int32 makeSinLUT(l_int32 npts,
 		numaAddNumber(na, -fval);
 	}
 	numaAddNumber(na, 0);
-
 	return 0;
 }
 
-static float getSinFromLUT(float * tab,
-    l_int32 npts,
-    float radang)
+static float getSinFromLUT(float * tab, int32 npts, float radang)
 {
-	l_int32 index;
+	int32 index;
 	float twopi, invtwopi, findex, diff;
-
 	/* Restrict radang to [0, 2pi] */
 	twopi = 6.283185;
 	invtwopi = 0.1591549;
 	if(radang < 0.0)
-		radang += twopi * (1.0 - (l_int32)(-radang * invtwopi));
+		radang += twopi * (1.0 - (int32)(-radang * invtwopi));
 	else if(radang > 0.0)
-		radang -= twopi * (l_int32)(radang * invtwopi);
+		radang -= twopi * (int32)(radang * invtwopi);
 
 	/* Interpolate */
 	findex = (2.0 * (float)npts) * (radang * invtwopi);
-	index = (l_int32)findex;
+	index = (int32)findex;
 	if(index == 2 * npts)
 		return tab[index];
 	diff = findex - index;
@@ -538,7 +531,7 @@ static float getSinFromLUT(float * tab,
  *                                                  L_BRING_IN_WHITE);
  *               // Colorize two versions, toward red and cyan
  *            Pix *pixc = pixCopy(NULL, pixr);
- *            l_int32 thresh = 150;  // if higher, get less original color
+ *            int32 thresh = 150;  // if higher, get less original color
  *            pixColorGray(pixr, NULL, L_PAINT_DARK, thresh, 255, 0, 0);
  *            pixColorGray(pixc, NULL, L_PAINT_DARK, thresh, 0, 255, 255);
  *               // Shift the red pixels; e.g., by stretching
@@ -553,14 +546,14 @@ static float getSinFromLUT(float * tab,
  * </pre>
  */
 PIX * pixWarpStereoscopic(PIX * pixs,
-    l_int32 zbend,
-    l_int32 zshiftt,
-    l_int32 zshiftb,
-    l_int32 ybendt,
-    l_int32 ybendb,
-    l_int32 redleft)
+    int32 zbend,
+    int32 zshiftt,
+    int32 zshiftb,
+    int32 ybendt,
+    int32 ybendb,
+    int32 redleft)
 {
-	l_int32 w, h, zshift;
+	int32 w, h, zshift;
 	float angle;
 	BOX       * boxleft, * boxright;
 	PIX * pix1, * pix2, * pix3, * pix4, * pixr, * pixg, * pixb;
@@ -701,13 +694,13 @@ PIX * pixWarpStereoscopic(PIX * pixs,
  * </pre>
  */
 PIX * pixStretchHorizontal(PIX * pixs,
-    l_int32 dir,
-    l_int32 type,
-    l_int32 hmax,
-    l_int32 operation,
-    l_int32 incolor)
+    int32 dir,
+    int32 type,
+    int32 hmax,
+    int32 operation,
+    int32 incolor)
 {
-	l_int32 d;
+	int32 d;
 
 	PROCNAME(__FUNCTION__);
 
@@ -751,13 +744,13 @@ PIX * pixStretchHorizontal(PIX * pixs,
  * </pre>
  */
 PIX * pixStretchHorizontalSampled(PIX * pixs,
-    l_int32 dir,
-    l_int32 type,
-    l_int32 hmax,
-    l_int32 incolor)
+    int32 dir,
+    int32 type,
+    int32 hmax,
+    int32 incolor)
 {
-	l_int32 i, j, jd, w, wm, h, d, wpls, wpld, val;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 i, j, jd, w, wm, h, d, wpls, wpld, val;
+	uint32  * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -848,14 +841,14 @@ PIX * pixStretchHorizontalSampled(PIX * pixs,
  * </pre>
  */
 PIX * pixStretchHorizontalLI(PIX * pixs,
-    l_int32 dir,
-    l_int32 type,
-    l_int32 hmax,
-    l_int32 incolor)
+    int32 dir,
+    int32 type,
+    int32 hmax,
+    int32 incolor)
 {
-	l_int32 i, j, jd, jp, jf, w, wm, h, d, wpls, wpld, val, rval, gval, bval;
-	l_uint32 word0, word1;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 i, j, jd, jp, jf, w, wm, h, d, wpls, wpld, val, rval, gval, bval;
+	uint32 word0, word1;
+	uint32  * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -985,13 +978,13 @@ PIX * pixStretchHorizontalLI(PIX * pixs,
  * </pre>
  */
 PIX * pixQuadraticVShear(PIX * pixs,
-    l_int32 dir,
-    l_int32 vmaxt,
-    l_int32 vmaxb,
-    l_int32 operation,
-    l_int32 incolor)
+    int32 dir,
+    int32 vmaxt,
+    int32 vmaxb,
+    int32 operation,
+    int32 incolor)
 {
-	l_int32 w, h, d;
+	int32 w, h, d;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1037,13 +1030,13 @@ PIX * pixQuadraticVShear(PIX * pixs,
  * </pre>
  */
 PIX * pixQuadraticVShearSampled(PIX * pixs,
-    l_int32 dir,
-    l_int32 vmaxt,
-    l_int32 vmaxb,
-    l_int32 incolor)
+    int32 dir,
+    int32 vmaxt,
+    int32 vmaxb,
+    int32 incolor)
 {
-	l_int32 i, j, id, w, h, d, wm, hm, wpls, wpld, val;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 i, j, id, w, h, d, wm, hm, wpls, wpld, val;
+	uint32  * datas, * datad, * lines, * lined;
 	float delrowt, delrowb, denom1, denom2, dely;
 	PIX * pixd;
 
@@ -1086,7 +1079,7 @@ PIX * pixQuadraticVShearSampled(PIX * pixs,
 			case 1:
 			    for(id = 0; id < h; id++) {
 				    dely = (delrowt * (hm - id) + delrowb * id) * denom1;
-				    i = id - (l_int32)(dely + 0.5);
+				    i = id - (int32)(dely + 0.5);
 				    if(i < 0 || i > hm) continue;
 				    lines = datas + i * wpls;
 				    lined = datad + id * wpld;
@@ -1098,7 +1091,7 @@ PIX * pixQuadraticVShearSampled(PIX * pixs,
 			case 8:
 			    for(id = 0; id < h; id++) {
 				    dely = (delrowt * (hm - id) + delrowb * id) * denom1;
-				    i = id - (l_int32)(dely + 0.5);
+				    i = id - (int32)(dely + 0.5);
 				    if(i < 0 || i > hm) continue;
 				    lines = datas + i * wpls;
 				    lined = datad + id * wpld;
@@ -1109,7 +1102,7 @@ PIX * pixQuadraticVShearSampled(PIX * pixs,
 			case 32:
 			    for(id = 0; id < h; id++) {
 				    dely = (delrowt * (hm - id) + delrowb * id) * denom1;
-				    i = id - (l_int32)(dely + 0.5);
+				    i = id - (int32)(dely + 0.5);
 				    if(i < 0 || i > hm) continue;
 				    lines = datas + i * wpls;
 				    lined = datad + id * wpld;
@@ -1142,15 +1135,15 @@ PIX * pixQuadraticVShearSampled(PIX * pixs,
  * </pre>
  */
 PIX * pixQuadraticVShearLI(PIX * pixs,
-    l_int32 dir,
-    l_int32 vmaxt,
-    l_int32 vmaxb,
-    l_int32 incolor)
+    int32 dir,
+    int32 vmaxt,
+    int32 vmaxb,
+    int32 incolor)
 {
-	l_int32 i, j, id, yp, yf, w, h, d, wm, hm, wpls, wpld;
-	l_int32 val, rval, gval, bval;
-	l_uint32 word0, word1;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 i, j, id, yp, yf, w, h, d, wm, hm, wpls, wpld;
+	int32 val, rval, gval, bval;
+	uint32 word0, word1;
+	uint32  * datas, * datad, * lines, * lined;
 	float delrowt, delrowb, denom1, denom2, dely;
 	PIX * pix, * pixd;
 	PIXCMAP   * cmap;
@@ -1209,7 +1202,7 @@ PIX * pixQuadraticVShearLI(PIX * pixs,
 			case 8:
 			    for(id = 0; id < h; id++) {
 				    dely = (delrowt * (hm - id) + delrowb * id) * denom1;
-				    i = 64 * id - (l_int32)(64.0 * dely);
+				    i = 64 * id - (int32)(64.0 * dely);
 				    yp = i / 64;
 				    yf = i & 63;
 				    if(yp < 0 || yp > hm) continue;
@@ -1228,7 +1221,7 @@ PIX * pixQuadraticVShearLI(PIX * pixs,
 			case 32:
 			    for(id = 0; id < h; id++) {
 				    dely = (delrowt * (hm - id) + delrowb * id) * denom1;
-				    i = 64 * id - (l_int32)(64.0 * dely);
+				    i = 64 * id - (int32)(64.0 * dely);
 				    yp = i / 64;
 				    yf = i & 63;
 				    if(yp < 0 || yp > hm) continue;
@@ -1301,9 +1294,9 @@ PIX * pixStereoFromPair(PIX * pix1,
     float gwt,
     float bwt)
 {
-	l_int32 i, j, w, h, wpl1, wpl2, rval, gval, bval;
-	l_uint32 word1, word2;
-	l_uint32  * data1, * data2, * datad, * line1, * line2, * lined;
+	int32 i, j, w, h, wpl1, wpl2, rval, gval, bval;
+	uint32 word1, word2;
+	uint32  * data1, * data2, * datad, * line1, * line2, * lined;
 	float sum;
 	PIX * pixd;
 
@@ -1343,7 +1336,7 @@ PIX * pixStereoFromPair(PIX * pix1,
 		for(j = 0; j < w; j++) {
 			word1 = *(line1 + j);
 			word2 = *(line2 + j);
-			rval = (l_int32)(rwt * ((word1 >> L_RED_SHIFT) & 0xff) +
+			rval = (int32)(rwt * ((word1 >> L_RED_SHIFT) & 0xff) +
 			    gwt * ((word1 >> L_GREEN_SHIFT) & 0xff) +
 			    bwt * ((word1 >> L_BLUE_SHIFT) & 0xff) + 0.5);
 			gval = (word2 >> L_GREEN_SHIFT) & 0xff;

@@ -28,25 +28,25 @@
  *
  *     Classify the pages
  *
- *         l_int32     jbAddPages()
- *         l_int32     jbAddPage()
- *         l_int32     jbAddPageComponents()
+ *         int32     jbAddPages()
+ *         int32     jbAddPage()
+ *         int32     jbAddPageComponents()
  *
  *     Rank hausdorff classifier
  *
- *         l_int32     jbClassifyRankHaus()
- *         l_int32     pixHaustest()
- *         l_int32     pixRankHaustest()
+ *         int32     jbClassifyRankHaus()
+ *         int32     pixHaustest()
+ *         int32     pixRankHaustest()
  *
  *     Binary correlation classifier
  *
- *         l_int32     jbClassifyCorrelation()
+ *         int32     jbClassifyCorrelation()
  *
  *     Determine the image components we start with
  *
- *         l_int32     jbGetComponents()
- *         l_int32     pixWordMaskByDilation()
- *         l_int32     pixWordBoxesByDilation()
+ *         int32     jbGetComponents()
+ *         int32     pixWordMaskByDilation()
+ *         int32     pixWordBoxesByDilation()
  *
  *     Build grayscale composites (templates)
  *
@@ -62,18 +62,18 @@
  *
  *         JBDATA     *jbDataSave()
  *         void        jbDataDestroy()
- *         l_int32     jbDataWrite()
+ *         int32     jbDataWrite()
  *         JBDATA     *jbDataRead()
  *         PIXA       *jbDataRender()
- *         l_int32     jbGetULCorners()
- *         l_int32     jbGetLLCorners()
+ *         int32     jbGetULCorners()
+ *         int32     jbGetLLCorners()
  *
  *     Static helpers
  *
  *         static JBFINDCTX *findSimilarSizedTemplatesInit()
- *         static l_int32    findSimilarSizedTemplatesNext()
+ *         static int32    findSimilarSizedTemplatesNext()
  *         static void       findSimilarSizedTemplatesDestroy()
- *         static l_int32    finalPositioningForAlignment()
+ *         static int32    finalPositioningForAlignment()
  *
  *     Note: this is NOT an implementation of the JPEG jbig2
  *     proposed standard encoder, the specifications for which
@@ -197,12 +197,12 @@
  * pix of each c.c., to allow further processing.  This
  * should be at least the sum of the MAX_DIFF_HEIGHT
  * (or MAX_DIFF_WIDTH) and one-half the size of the Sel  */
-static const l_int32 JB_ADDED_PIXELS = 6;
+static const int32 JB_ADDED_PIXELS = 6;
 
 /* For pixHaustest(), pixRankHaustest() and pixCorrelationScore():
  * choose these to be 2 or greater */
-static const l_int32 MAX_DIFF_WIDTH = 2; /* use at least 2 */
-static const l_int32 MAX_DIFF_HEIGHT = 2; /* use at least 2 */
+static const int32 MAX_DIFF_WIDTH = 2; /* use at least 2 */
+static const int32 MAX_DIFF_HEIGHT = 2; /* use at least 2 */
 
 /* In initialization, you have the option to discard components
  * (cc, characters or words) that have either width or height larger
@@ -211,36 +211,36 @@ static const l_int32 MAX_DIFF_HEIGHT = 2; /* use at least 2 */
  * dimension equal to the maximum component size.  The default
  * values are given here.  If you want to save all components,
  * use a sufficiently large set of dimensions. */
-static const l_int32 MAX_CONN_COMP_WIDTH = 350; /* default max cc width */
-static const l_int32 MAX_CHAR_COMP_WIDTH = 350; /* default max char width */
-static const l_int32 MAX_WORD_COMP_WIDTH = 1000; /* default max word width */
-static const l_int32 MAX_COMP_HEIGHT = 120; /* default max component height */
+static const int32 MAX_CONN_COMP_WIDTH = 350; /* default max cc width */
+static const int32 MAX_CHAR_COMP_WIDTH = 350; /* default max char width */
+static const int32 MAX_WORD_COMP_WIDTH = 1000; /* default max word width */
+static const int32 MAX_COMP_HEIGHT = 120; /* default max component height */
 
 /* This stores the state of a state machine which fetches
  * similar sized templates */
 struct JbFindTemplatesState {
 	JBCLASSER       * classer; /* classer                               */
-	l_int32 w;               /* desired width                         */
-	l_int32 h;               /* desired height                        */
-	l_int32 i;               /* index into two_by_two step array      */
+	int32 w;               /* desired width                         */
+	int32 h;               /* desired height                        */
+	int32 i;               /* index into two_by_two step array      */
 	L_DNA           * dna; /* current number array                  */
-	l_int32 n;               /* current element of dna                */
+	int32 n;               /* current element of dna                */
 };
 
 typedef struct JbFindTemplatesState JBFINDCTX;
 
 /* Static initialization function */
-static JBCLASSER * jbCorrelationInitInternal(l_int32 components,
-    l_int32 maxwidth, l_int32 maxheight, float thresh,
-    float weightfactor, l_int32 keep_components);
+static JBCLASSER * jbCorrelationInitInternal(int32 components,
+    int32 maxwidth, int32 maxheight, float thresh,
+    float weightfactor, int32 keep_components);
 
 /* Static helper functions */
 static JBFINDCTX * findSimilarSizedTemplatesInit(JBCLASSER * classer, PIX * pixs);
-static l_int32 findSimilarSizedTemplatesNext(JBFINDCTX * context);
+static int32 findSimilarSizedTemplatesNext(JBFINDCTX * context);
 static void findSimilarSizedTemplatesDestroy(JBFINDCTX ** pcontext);
-static l_int32 finalPositioningForAlignment(PIX * pixs, l_int32 x, l_int32 y,
-    l_int32 idelx, l_int32 idely, PIX * pixt,
-    l_int32 * sumtab, l_int32 * pdx, l_int32 * pdy);
+static int32 finalPositioningForAlignment(PIX * pixs, int32 x, int32 y,
+    int32 idelx, int32 idely, PIX * pixt,
+    int32 * sumtab, int32 * pdx, int32 * pdy);
 
 #ifndef NO_CONSOLE_IO
 #define  DEBUG_CORRELATION_SCORE   0
@@ -263,10 +263,10 @@ static l_int32 finalPositioningForAlignment(PIX * pixs, l_int32 x, l_int32 y,
  *                         when using size = 2, 0.97 is a reasonable value
  * \return  jbclasser if OK; NULL on error
  */
-JBCLASSER * jbRankHausInit(l_int32 components,
-    l_int32 maxwidth,
-    l_int32 maxheight,
-    l_int32 size,
+JBCLASSER * jbRankHausInit(int32 components,
+    int32 maxwidth,
+    int32 maxheight,
+    int32 size,
     float rank)
 {
 	JBCLASSER  * classer;
@@ -322,9 +322,9 @@ JBCLASSER * jbRankHausInit(l_int32 components,
  *          increase in the number of classes.
  * </pre>
  */
-JBCLASSER * jbCorrelationInit(l_int32 components,
-    l_int32 maxwidth,
-    l_int32 maxheight,
+JBCLASSER * jbCorrelationInit(int32 components,
+    int32 maxwidth,
+    int32 maxheight,
     float thresh,
     float weightfactor)
 {
@@ -348,9 +348,9 @@ JBCLASSER * jbCorrelationInit(l_int32 components,
  *      object doesn't keep a list of all the components.
  * </pre>
  */
-JBCLASSER * jbCorrelationInitWithoutComponents(l_int32 components,
-    l_int32 maxwidth,
-    l_int32 maxheight,
+JBCLASSER * jbCorrelationInitWithoutComponents(int32 components,
+    int32 maxwidth,
+    int32 maxheight,
     float thresh,
     float weightfactor)
 {
@@ -358,12 +358,12 @@ JBCLASSER * jbCorrelationInitWithoutComponents(l_int32 components,
 		   weightfactor, 0);
 }
 
-static JBCLASSER * jbCorrelationInitInternal(l_int32 components,
-    l_int32 maxwidth,
-    l_int32 maxheight,
+static JBCLASSER * jbCorrelationInitInternal(int32 components,
+    int32 maxwidth,
+    int32 maxheight,
     float thresh,
     float weightfactor,
-    l_int32 keep_components)
+    int32 keep_components)
 {
 	JBCLASSER  * classer;
 
@@ -419,7 +419,7 @@ static JBCLASSER * jbCorrelationInitInternal(l_int32 components,
 l_ok jbAddPages(JBCLASSER  * classer,
     SARRAY * safiles)
 {
-	l_int32 i, nfiles;
+	int32 i, nfiles;
 	char * fname;
 	PIX * pix;
 
@@ -504,7 +504,7 @@ l_ok jbAddPageComponents(JBCLASSER  * classer,
     BOXA       * boxas,
     PIXA       * pixas)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -562,9 +562,9 @@ l_ok jbClassifyRankHaus(JBCLASSER  * classer,
     BOXA       * boxa,
     PIXA       * pixas)
 {
-	l_int32 n, nt, i, wt, ht, iclass, size, found, testval;
-	l_int32 npages, area1, area3;
-	l_int32    * tab8;
+	int32 n, nt, i, wt, ht, iclass, size, found, testval;
+	int32 npages, area1, area3;
+	int32    * tab8;
 	float rank, x1, y1, x2, y2;
 	BOX        * box;
 	NUMA       * naclass, * napage;
@@ -814,16 +814,16 @@ l_ok jbClassifyRankHaus(JBCLASSER  * classer,
  *  contained in either direction results in failure of the test.
  * </pre>
  */
-l_int32 pixHaustest(PIX * pix1,
+int32 pixHaustest(PIX * pix1,
     PIX * pix2,
     PIX * pix3,
     PIX * pix4,
     float delx,            /* x(1) - x(3) */
     float dely,            /* y(1) - y(3) */
-    l_int32 maxdiffw,
-    l_int32 maxdiffh)
+    int32 maxdiffw,
+    int32 maxdiffh)
 {
-	l_int32 wi, hi, wt, ht, delw, delh, idelx, idely, boolmatch;
+	int32 wi, hi, wt, ht, delw, delh, idelx, idely, boolmatch;
 	PIX * pixt;
 
 	/* Eliminate possible matches based on size difference */
@@ -841,13 +841,13 @@ l_int32 pixHaustest(PIX * pix1,
 	/* Round difference in centroid location to nearest integer;
 	 * use this as a shift when doing the matching. */
 	if(delx >= 0)
-		idelx = (l_int32)(delx + 0.5);
+		idelx = (int32)(delx + 0.5);
 	else
-		idelx = (l_int32)(delx - 0.5);
+		idelx = (int32)(delx - 0.5);
 	if(dely >= 0)
-		idely = (l_int32)(dely + 0.5);
+		idely = (int32)(dely + 0.5);
 	else
-		idely = (l_int32)(dely - 0.5);
+		idely = (int32)(dely - 0.5);
 
 	/*  Do 1-direction hausdorff, checking that every pixel in pix1
 	 *  is within a dilation distance of some pixel in pix3.  Namely,
@@ -910,21 +910,21 @@ l_int32 pixHaustest(PIX * pix1,
  *  of the test.
  * </pre>
  */
-l_int32 pixRankHaustest(PIX * pix1,
+int32 pixRankHaustest(PIX * pix1,
     PIX * pix2,
     PIX * pix3,
     PIX * pix4,
     float delx,                /* x(1) - x(3) */
     float dely,                /* y(1) - y(3) */
-    l_int32 maxdiffw,
-    l_int32 maxdiffh,
-    l_int32 area1,
-    l_int32 area3,
+    int32 maxdiffw,
+    int32 maxdiffh,
+    int32 area1,
+    int32 area3,
     float rank,
-    l_int32   * tab8)
+    int32   * tab8)
 {
-	l_int32 wi, hi, wt, ht, delw, delh, idelx, idely, boolmatch;
-	l_int32 thresh1, thresh3;
+	int32 wi, hi, wt, ht, delw, delh, idelx, idely, boolmatch;
+	int32 thresh1, thresh3;
 	PIX * pixt;
 
 	/* Eliminate possible matches based on size difference */
@@ -940,19 +940,19 @@ l_int32 pixRankHaustest(PIX * pix1,
 		return FALSE;
 
 	/* Upper bounds in remaining pixels for allowable match */
-	thresh1 = (l_int32)(area1 * (1. - rank) + 0.5);
-	thresh3 = (l_int32)(area3 * (1. - rank) + 0.5);
+	thresh1 = (int32)(area1 * (1. - rank) + 0.5);
+	thresh3 = (int32)(area3 * (1. - rank) + 0.5);
 
 	/* Round difference in centroid location to nearest integer;
 	 * use this as a shift when doing the matching. */
 	if(delx >= 0)
-		idelx = (l_int32)(delx + 0.5);
+		idelx = (int32)(delx + 0.5);
 	else
-		idelx = (l_int32)(delx - 0.5);
+		idelx = (int32)(delx - 0.5);
 	if(dely >= 0)
-		idely = (l_int32)(dely + 0.5);
+		idely = (int32)(dely + 0.5);
 	else
-		idely = (l_int32)(dely - 0.5);
+		idely = (int32)(dely - 0.5);
 
 	/*  Do 1-direction hausdorff, checking that every pixel in pix1
 	 *  is within a dilation distance of some pixel in pix3.  Namely,
@@ -999,10 +999,10 @@ l_ok jbClassifyCorrelation(JBCLASSER  * classer,
     BOXA       * boxa,
     PIXA       * pixas)
 {
-	l_int32 n, nt, i, iclass, wt, ht, found, area, area1, area2, npages,
+	int32 n, nt, i, iclass, wt, ht, found, area, area1, area2, npages,
 	    overthreshold;
-	l_int32    * sumtab, * centtab;
-	l_uint32   * row, word;
+	int32    * sumtab, * centtab;
+	uint32   * row, word;
 	float x1, y1, x2, y2, xsum, ysum;
 	float thresh, weight, threshold;
 	BOX        * box;
@@ -1015,9 +1015,9 @@ l_ok jbClassifyCorrelation(JBCLASSER  * classer,
 	PIXA       * pixa, * pixa1, * pixat;
 	PIXAA      * pixaa;
 	PTA        * pta, * ptac, * ptact;
-	l_int32    * pixcts; /* pixel counts of each pixa */
-	l_int32   ** pixrowcts; /* row-by-row pixel counts of each pixa */
-	l_int32 x, y, rowcount, downcount, wpl;
+	int32    * pixcts; /* pixel counts of each pixa */
+	int32   ** pixrowcts; /* row-by-row pixel counts of each pixa */
+	int32 x, y, rowcount, downcount, wpl;
 	uint8 byte;
 
 	PROCNAME(__FUNCTION__);
@@ -1054,8 +1054,8 @@ l_ok jbClassifyCorrelation(JBCLASSER  * classer,
 	nafgt = classer->nafgt; /* holds fg areas of the templates */
 	sumtab = makePixelSumTab8();
 
-	pixcts = (l_int32*)SAlloc::C(n, sizeof(*pixcts));
-	pixrowcts = (l_int32**)SAlloc::C(n, sizeof(*pixrowcts));
+	pixcts = (int32*)SAlloc::C(n, sizeof(*pixcts));
+	pixrowcts = (int32**)SAlloc::C(n, sizeof(*pixrowcts));
 	centtab = makePixelCentroidTab8();
 
 	/* Count the "1" pixels in each row of the pix in pixa1; this
@@ -1068,7 +1068,7 @@ l_ok jbClassifyCorrelation(JBCLASSER  * classer,
 	pta = ptaCreate(n);
 	for(i = 0; i < n; i++) {
 		pix = pixaGetPix(pixa1, i, L_CLONE);
-		pixrowcts[i] = (l_int32*)SAlloc::C(pixGetHeight(pix),
+		pixrowcts[i] = (int32*)SAlloc::C(pixGetHeight(pix),
 			sizeof(**pixrowcts));
 		xsum = 0;
 		ysum = 0;
@@ -1180,7 +1180,7 @@ l_ok jbClassifyCorrelation(JBCLASSER  * classer,
 #if DEBUG_CORRELATION_SCORE
 			{
 				float score, testscore;
-				l_int32 count, testcount;
+				int32 count, testcount;
 				pixCorrelationScore(pix1, pix2, area1, area2, x1 - x2, y1 - y2,
 				    MAX_DIFF_WIDTH, MAX_DIFF_HEIGHT,
 				    sumtab, &score);
@@ -1188,8 +1188,8 @@ l_ok jbClassifyCorrelation(JBCLASSER  * classer,
 				pixCorrelationScoreSimple(pix1, pix2, area1, area2,
 				    x1 - x2, y1 - y2, MAX_DIFF_WIDTH,
 				    MAX_DIFF_HEIGHT, sumtab, &testscore);
-				count = (l_int32)rint(sqrt(score * area1 * area2));
-				testcount = (l_int32)rint(sqrt(testscore * area1 * area2));
+				count = (int32)rint(sqrt(score * area1 * area2));
+				testcount = (int32)rint(sqrt(testscore * area1 * area2));
 				if((score >= threshold) != (testscore >= threshold)) {
 					lept_stderr("Correlation score mismatch: "
 					    "%d(%g,%d) vs %d(%g,%d) (%g)\n",
@@ -1279,13 +1279,13 @@ l_ok jbClassifyCorrelation(JBCLASSER  * classer,
  * \return  0 if OK, 1 on error
  */
 l_ok jbGetComponents(PIX * pixs,
-    l_int32 components,
-    l_int32 maxwidth,
-    l_int32 maxheight,
+    int32 components,
+    int32 maxwidth,
+    int32 maxheight,
     BOXA   ** pboxad,
     PIXA   ** ppixad)
 {
-	l_int32 empty, res, redfactor;
+	int32 empty, res, redfactor;
 	BOXA      * boxa;
 	PIX * pix1, * pix2, * pix3;
 	PIXA      * pixa, * pixat;
@@ -1423,13 +1423,13 @@ l_ok jbGetComponents(PIX * pixs,
  */
 l_ok pixWordMaskByDilation(PIX * pixs,
     PIX ** ppixm,
-    l_int32 * psize,
+    int32 * psize,
     PIXA * pixadb)
 {
-	l_int32 i, n, ndil, maxdiff, diff, ibest;
-	l_int32 check, count, total, xres;
-	l_int32 ncc[13]; /* max dilation + 1 */
-	l_int32 * diffa;
+	int32 i, n, ndil, maxdiff, diff, ibest;
+	int32 check, count, total, xres;
+	int32 ncc[13]; /* max dilation + 1 */
+	int32 * diffa;
 	BOXA     * boxa;
 	NUMA     * nacc, * nadiff;
 	PIX * pix1, * pix2;
@@ -1551,12 +1551,12 @@ l_ok pixWordMaskByDilation(PIX * pixs,
  * </pre>
  */
 l_ok pixWordBoxesByDilation(PIX * pixs,
-    l_int32 minwidth,
-    l_int32 minheight,
-    l_int32 maxwidth,
-    l_int32 maxheight,
+    int32 minwidth,
+    int32 minheight,
+    int32 maxwidth,
+    int32 maxheight,
     BOXA ** pboxa,
-    l_int32 * psize,
+    int32 * psize,
     PIXA * pixadb)
 {
 	BOXA * boxa1, * boxa2;
@@ -1614,7 +1614,7 @@ PIXA * jbAccumulateComposites(PIXAA  * pixaa,
     NUMA ** pna,
     PTA   ** pptat)
 {
-	l_int32 n, nt, i, j, d, minw, maxw, minh, maxh, xdiff, ydiff;
+	int32 n, nt, i, j, d, minw, maxw, minh, maxh, xdiff, ydiff;
 	float x, y, xave, yave;
 	NUMA * na;
 	PIX * pix, * pixt1, * pixt2, * pixsum;
@@ -1671,8 +1671,8 @@ PIXA * jbAccumulateComposites(PIXAA  * pixaa,
 		for(j = 0; j < nt; j++) {
 			pixt2 = pixaGetPix(pixa, j, L_CLONE);
 			ptaGetPt(pta, j, &x, &y);
-			xdiff = (l_int32)(x - xave);
-			ydiff = (l_int32)(y - yave);
+			xdiff = (int32)(x - xave);
+			ydiff = (int32)(y - yave);
 			pixClearAll(pixt1);
 			pixRasterop(pixt1, xdiff, ydiff, maxw, maxh, PIX_SRC,
 			    pixt2, 0, 0);
@@ -1701,7 +1701,7 @@ PIXA * jbAccumulateComposites(PIXAA  * pixaa,
 PIXA * jbTemplatesFromComposites(PIXA  * pixac,
     NUMA * na)
 {
-	l_int32 n, i;
+	int32 n, i;
 	float nt; /* number of samples in the composite; always an integer */
 	float factor;
 	PIX * pixsum; /* accumulated composite */
@@ -1740,8 +1740,8 @@ PIXA * jbTemplatesFromComposites(PIXA  * pixac,
  * \param[in]    components  JB_CONN_COMPS, JB_CHARACTERS, JB_WORDS
  * \return  jbclasser, or NULL on error
  */
-JBCLASSER * jbClasserCreate(l_int32 method,
-    l_int32 components)
+JBCLASSER * jbClasserCreate(int32 method,
+    int32 components)
 {
 	JBCLASSER  * classer;
 
@@ -1825,7 +1825,7 @@ void jbClasserDestroy(JBCLASSER  ** pclasser)
  */
 JBDATA * jbDataSave(JBCLASSER  * classer)
 {
-	l_int32 maxw, maxh;
+	int32 maxw, maxh;
 	JBDATA  * data;
 	PIX * pix;
 
@@ -1894,7 +1894,7 @@ l_ok jbDataWrite(const char * rootout,
     JBDATA      * jbdata)
 {
 	char buf[L_BUF_SIZE];
-	l_int32 w, h, nclass, npages, cellw, cellh, ncomp, i, x, y, iclass, ipage;
+	int32 w, h, nclass, npages, cellw, cellh, ncomp, i, x, y, iclass, ipage;
 	NUMA * naclass, * napage;
 	PTA * ptaul;
 	PIX * pixt;
@@ -1953,8 +1953,8 @@ JBDATA * jbDataRead(const char * rootname)
 	char fname[L_BUF_SIZE];
 	char     * linestr;
 	uint8  * data;
-	l_int32 nsa, i, w, h, cellw, cellh, x, y, iclass, ipage;
-	l_int32 npages, nclass, ncomp, ninit;
+	int32 nsa, i, w, h, cellw, cellh, x, y, iclass, ipage;
+	int32 npages, nclass, ncomp, ninit;
 	size_t size;
 	JBDATA   * jbdata;
 	NUMA     * naclass, * napage;
@@ -2052,10 +2052,10 @@ JBDATA * jbDataRead(const char * rootname)
  *              NULL on error
  */
 PIXA * jbDataRender(JBDATA  * data,
-    l_int32 debugflag)
+    int32 debugflag)
 {
-	l_int32 i, w, h, cellw, cellh, x, y, iclass, ipage;
-	l_int32 npages, nclass, ncomp, wp, hp;
+	int32 i, w, h, cellw, cellh, x, y, iclass, ipage;
+	int32 npages, nclass, ncomp, wp, hp;
 	BOX      * box;
 	NUMA     * naclass, * napage;
 	PIX * pixt, * pixt2, * pix, * pixd;
@@ -2164,8 +2164,8 @@ l_ok jbGetULCorners(JBCLASSER  * classer,
     PIX        * pixs,
     BOXA       * boxa)
 {
-	l_int32 i, baseindex, index, n, iclass, idelx, idely, x, y, dx, dy;
-	l_int32   * sumtab;
+	int32 i, baseindex, index, n, iclass, idelx, idely, x, y, dx, dy;
+	int32   * sumtab;
 	float x1, x2, y1, y2, delx, dely;
 	BOX       * box;
 	NUMA * naclass;
@@ -2196,13 +2196,13 @@ l_ok jbGetULCorners(JBCLASSER  * classer,
 		delx = x2 - x1;
 		dely = y2 - y1;
 		if(delx >= 0)
-			idelx = (l_int32)(delx + 0.5);
+			idelx = (int32)(delx + 0.5);
 		else
-			idelx = (l_int32)(delx - 0.5);
+			idelx = (int32)(delx - 0.5);
 		if(dely >= 0)
-			idely = (l_int32)(dely + 0.5);
+			idely = (int32)(dely + 0.5);
 		else
-			idely = (l_int32)(dely - 0.5);
+			idely = (int32)(dely - 0.5);
 		if((box = boxaGetBox(boxa, i, L_CLONE)) == NULL) {
 			SAlloc::F(sumtab);
 			return ERROR_INT("box not found", procName, 1);
@@ -2252,7 +2252,7 @@ l_ok jbGetULCorners(JBCLASSER  * classer,
  */
 l_ok jbGetLLCorners(JBCLASSER  * classer)
 {
-	l_int32 i, iclass, n, x1, y1, h;
+	int32 i, iclass, n, x1, y1, h;
 	NUMA * naclass;
 	PIX * pix;
 	PIXA      * pixat;
@@ -2379,9 +2379,9 @@ static void findSimilarSizedTemplatesDestroy(JBFINDCTX  ** pstate)
  *  keep the context for this walk in an explictit state structure,
  *  and this function acts like a generator.
  */
-static l_int32 findSimilarSizedTemplatesNext(JBFINDCTX  * state)
+static int32 findSimilarSizedTemplatesNext(JBFINDCTX  * state)
 {
-	l_int32 desiredh, desiredw, size, templ;
+	int32 desiredh, desiredw, size, templ;
 	PIX * pixt;
 
 	while(1) { /* Continue the walk over step 'i' */
@@ -2411,7 +2411,7 @@ static l_int32 findSimilarSizedTemplatesNext(JBFINDCTX  * state)
 		/* Continue working on this dna */
 		size = l_dnaGetCount(state->dna);
 		for(; state->n < size;) {
-			templ = (l_int32)(state->dna->array[state->n++] + 0.5);
+			templ = (int32)(state->dna->array[state->n++] + 0.5);
 			pixt = pixaGetPix(state->classer->pixat, templ, L_CLONE);
 			if(pixGetWidth(pixt) - 2 * JB_ADDED_PIXELS == desiredw &&
 			    pixGetHeight(pixt) - 2 * JB_ADDED_PIXELS == desiredh) {
@@ -2444,17 +2444,17 @@ static l_int32 findSimilarSizedTemplatesNext(JBFINDCTX  * state)
  * \return  0 if OK, 1 on error
  *
  */
-static l_int32 finalPositioningForAlignment(PIX * pixs,
-    l_int32 x,
-    l_int32 y,
-    l_int32 idelx,
-    l_int32 idely,
+static int32 finalPositioningForAlignment(PIX * pixs,
+    int32 x,
+    int32 y,
+    int32 idelx,
+    int32 idely,
     PIX * pixt,
-    l_int32 * sumtab,
-    l_int32 * pdx,
-    l_int32 * pdy)
+    int32 * sumtab,
+    int32 * pdx,
+    int32 * pdy)
 {
-	l_int32 w, h, i, j, minx, miny, count, mincount;
+	int32 w, h, i, j, minx, miny, count, mincount;
 	PIX * pixi; /* clipped from source pixs */
 	PIX * pixr; /* temporary storage */
 	BOX * box;

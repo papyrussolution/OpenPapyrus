@@ -72,7 +72,7 @@ int TS_STATUS_INFO_print_bio(BIO * bio, TS_STATUS_INFO * a)
 
 	BIO_printf(bio, "Status: ");
 	status = ASN1_INTEGER_get(a->status);
-	if(0 <= status && status < (long)OSSL_NELEM(status_map))
+	if(0 <= status && status < (long)SIZEOFARRAY(status_map))
 		BIO_printf(bio, "%s\n", status_map[status]);
 	else
 		BIO_printf(bio, "out of bounds\n");

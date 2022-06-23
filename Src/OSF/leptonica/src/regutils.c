@@ -11,16 +11,16 @@
  * <pre>
  *
  *       Regression test utilities
- *           l_int32    regTestSetup()
- *           l_int32    regTestCleanup()
- *           l_int32    regTestCompareValues()
- *           l_int32    regTestCompareStrings()
- *           l_int32    regTestComparePix()
- *           l_int32    regTestCompareSimilarPix()
- *           l_int32    regTestCheckFile()
- *           l_int32    regTestCompareFiles()
- *           l_int32    regTestWritePixAndCheck()
- *           l_int32    regTestWriteDataAndCheck()
+ *           int32    regTestSetup()
+ *           int32    regTestCleanup()
+ *           int32    regTestCompareValues()
+ *           int32    regTestCompareStrings()
+ *           int32    regTestComparePix()
+ *           int32    regTestCompareSimilarPix()
+ *           int32    regTestCheckFile()
+ *           int32    regTestCompareFiles()
+ *           int32    regTestWritePixAndCheck()
+ *           int32    regTestWriteDataAndCheck()
  *           char      *regTestGenLocalFilename()
  *
  *       Static function
@@ -48,7 +48,7 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-extern l_int32 NumImageFileFormatExtensions;
+extern int32 NumImageFileFormatExtensions;
 extern const char * ImageFileFormatExtensions[];
 
 static char * getRootNameFromArgv0(const char * argv0);
@@ -94,7 +94,7 @@ static char * getRootNameFromArgv0(const char * argv0);
  *      (2) See regutils.h for examples of usage.
  * </pre>
  */
-l_ok regTestSetup(l_int32 argc,
+l_ok regTestSetup(int32 argc,
     char ** argv,
     L_REGPARAMS  ** prp)
 {
@@ -186,7 +186,7 @@ l_ok regTestCleanup(L_REGPARAMS  * rp)
 	char result[512];
 	char * results_file; /* success/failure output in 'compare' mode */
 	char * text, * message;
-	l_int32 retval;
+	int32 retval;
 	size_t nbytes;
 
 	PROCNAME(__FUNCTION__);
@@ -291,7 +291,7 @@ l_ok regTestCompareStrings(L_REGPARAMS  * rp,
     uint8      * string2,
     size_t bytes2)
 {
-	l_int32 same;
+	int32 same;
 	char buf[256];
 
 	PROCNAME(__FUNCTION__);
@@ -344,7 +344,7 @@ l_ok regTestComparePix(L_REGPARAMS  * rp,
     PIX          * pix1,
     PIX          * pix2)
 {
-	l_int32 same;
+	int32 same;
 
 	PROCNAME(__FUNCTION__);
 
@@ -401,11 +401,11 @@ l_ok regTestComparePix(L_REGPARAMS  * rp,
 l_ok regTestCompareSimilarPix(L_REGPARAMS  * rp,
     PIX          * pix1,
     PIX          * pix2,
-    l_int32 mindiff,
+    int32 mindiff,
     float maxfract,
-    l_int32 printstats)
+    int32 printstats)
 {
-	l_int32 w, h, factor, similar;
+	int32 w, h, factor, similar;
 
 	PROCNAME(__FUNCTION__);
 
@@ -468,7 +468,7 @@ l_ok regTestCheckFile(L_REGPARAMS  * rp,
 {
 	char * ext;
 	char namebuf[256];
-	l_int32 ret, same, format;
+	int32 ret, same, format;
 	PIX * pix1, * pix2;
 
 	PROCNAME(__FUNCTION__);
@@ -571,12 +571,12 @@ l_ok regTestCheckFile(L_REGPARAMS  * rp,
  * </pre>
  */
 l_ok regTestCompareFiles(L_REGPARAMS  * rp,
-    l_int32 index1,
-    l_int32 index2)
+    int32 index1,
+    int32 index2)
 {
 	char * name1, * name2;
 	char namebuf[256];
-	l_int32 same;
+	int32 same;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -663,7 +663,7 @@ l_ok regTestCompareFiles(L_REGPARAMS  * rp,
  */
 l_ok regTestWritePixAndCheck(L_REGPARAMS  * rp,
     PIX          * pix,
-    l_int32 format)
+    int32 format)
 {
 	char namebuf[256];
 
@@ -780,11 +780,11 @@ l_ok regTestWriteDataAndCheck(L_REGPARAMS  * rp,
  * </pre>
  */
 char * regTestGenLocalFilename(L_REGPARAMS  * rp,
-    l_int32 index,
-    l_int32 format)
+    int32 index,
+    int32 format)
 {
 	char buf[64];
-	l_int32 ind;
+	int32 ind;
 
 	PROCNAME(__FUNCTION__);
 
@@ -815,7 +815,7 @@ char * regTestGenLocalFilename(L_REGPARAMS  * rp,
  */
 static char * getRootNameFromArgv0(const char * argv0)
 {
-	l_int32 len;
+	int32 len;
 	char * root;
 
 	PROCNAME(__FUNCTION__);
@@ -829,7 +829,7 @@ static char * getRootNameFromArgv0(const char * argv0)
 #ifndef _WIN32
 	{
 		char * newroot;
-		l_int32 loc;
+		int32 loc;
 		if(stringFindSubstr(root, "-", &loc)) {
 			newroot = stringNew(root + loc + 1); /* strip out "lt-" */
 			SAlloc::F(root);

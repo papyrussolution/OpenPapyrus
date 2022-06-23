@@ -82,6 +82,7 @@ public:
 			xmlNode * p_root = 0;
 			SString extra_key;
 			SString extra_val;
+			SString norm_barcode; // @v11.4.2 нормализованное представление штрихкода (только как параметр-заглушка дл€ DiagBarcode)
 			THROW(p_ctx = xmlNewParserCtxt());
 			{
 				SFile f_in(pFileName, SFile::mRead);
@@ -234,10 +235,27 @@ public:
 											else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_AMTTAX))) {
 											}
 											else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_WAREEXTRAINFO))) {
+												// PPHSC_RU_WAREEXTRAINFO
+												// PPHSC_RU_WARECODE
+												//
 												if(SXml::GetAttrib(p_n4, GetToken_Utf8(PPHSC_RU_WARETYPE), temp_buf)) {
 												}
 												if(SXml::GetAttrib(p_n4, GetToken_Utf8(PPHSC_RU_UNITNAME), temp_buf)) {
 													p_item->UOM = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+												}
+												if(SXml::GetAttrib(p_n4, GetToken_Utf8(PPHSC_RU_WARECODE), temp_buf)) { // @v11.4.2
+													// @v11.4.2 {
+													temp_buf.Strip();
+													int   bc_diag = 0;
+													int   bc_std = 0;
+													int   dbcr = PPObjGoods::DiagBarcode(temp_buf, &bc_diag, &bc_std, &norm_barcode);
+													if(oneof4(bc_std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
+														// ¬алидные коды с '2' в префиксе принимаем
+														if(dbcr > 0 || (dbcr < 0 && bc_diag == PPObjGoods::cddFreePrefixEan13)) {
+															p_item->GTIN = temp_buf;
+														}
+													}
+													// } @v11.4.2 
 												}
 												for(const xmlNode * p_n5 = p_n4->children; p_n5; p_n5 = p_n5->next) {
 													if(SXml::IsName(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENTBLOCK))) {
@@ -255,7 +273,22 @@ public:
 											else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_EXTRA2))) {
 												if(ReadExtraValue(p_n4, extra_key, extra_val) > 0) {
 													if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_BARCODE))) { // @v11.1.12 CmpNC-->IsEqiUtf8
-														p_item->GTIN = extra_val.Transf(CTRANSF_UTF8_TO_INNER);
+														// @v11.4.2 {
+														extra_val.Strip().Transf(CTRANSF_UTF8_TO_INNER);
+														/*  од под вопросом: в целом, он правильнее, чем безусловное присваивание (p_item->GTIN = extra_val)
+														однако то уже работает давно, а это может привести к проблемам.
+														if(p_item->GTIN.IsEmpty()) {
+															int   bc_diag = 0;
+															int   bc_std = 0;
+															int   dbcr = PPObjGoods::DiagBarcode(extra_val, &bc_diag, &bc_std, &norm_barcode);
+															if(oneof4(bc_std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
+																if(dbcr > 0 || (dbcr < 0 && bc_diag == PPObjGoods::cddFreePrefixEan13)) {
+																	p_item->GTIN = extra_val;
+																}
+															}
+														}*/
+														// @v11.4.2 {
+														p_item->GTIN = extra_val; // @v11.4.2 see comment above
 													}
 												}
 											}

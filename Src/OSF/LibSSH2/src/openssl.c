@@ -213,7 +213,7 @@ static int aes_ctr_init(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * i
 		default: return 0;
 	}
 	c = static_cast<aes_ctr_ctx *>(SAlloc::M(sizeof(*c)));
-	if(c == NULL)
+	if(!c)
 		return 0;
 #ifdef HAVE_OPAQUE_STRUCTS
 	c->aes_ctx = EVP_CIPHER_CTX_new();
@@ -247,7 +247,7 @@ static int aes_ctr_do_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in
 	int outlen = 0;
 	if(inl != 16) /* libssh2 only ever encrypt one block */
 		return 0;
-	if(c == NULL) {
+	if(!c) {
 		return 0;
 	}
 	/*
@@ -273,7 +273,7 @@ static int aes_ctr_do_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in
 static int aes_ctr_cleanup(EVP_CIPHER_CTX * ctx) /* cleanup ctx */
 {
 	aes_ctr_ctx * c = static_cast<aes_ctr_ctx *>(EVP_CIPHER_CTX_get_app_data(ctx));
-	if(c == NULL) {
+	if(!c) {
 		return 1;
 	}
 	if(c->aes_ctx != NULL) {

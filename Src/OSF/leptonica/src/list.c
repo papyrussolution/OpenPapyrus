@@ -14,9 +14,9 @@
  *
  *           void      listDestroy()
  *           DLLIST   *listAddToHead()
- *           l_int32   listAddToTail()
- *           l_int32   listInsertBefore()
- *           l_int32   listInsertAfter()
+ *           int32   listAddToTail()
+ *           int32   listInsertBefore()
+ *           int32   listInsertAfter()
  *           void     *listRemoveElement()
  *           void     *listRemoveFromHead()
  *           void     *listRemoveFromTail()
@@ -25,8 +25,8 @@
  *
  *           DLLIST   *listFindElement()
  *           DLLIST   *listFindTail()
- *           l_int32   listGetCount()
- *           l_int32   listReverse()
+ *           int32   listGetCount()
+ *           int32   listReverse()
  *           DLLIST   *listJoin()
  *
  *      Lists are much harder to handle than arrays.  There is
@@ -678,9 +678,9 @@ DLLIST * listFindTail(DLLIST  * head)
  * \param[in]    head     of list
  * \return  number of elements; 0 if no list or on error
  */
-l_int32 listGetCount(DLLIST  * head)
+int32 listGetCount(DLLIST  * head)
 {
-	l_int32 count;
+	int32 count;
 	DLLIST  * elem;
 
 	PROCNAME(__FUNCTION__);

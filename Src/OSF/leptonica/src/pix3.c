@@ -20,19 +20,19 @@
  *
  *
  *    Masked operations
- *           l_int32     pixSetMasked()
- *           l_int32     pixSetMaskedGeneral()
- *           l_int32     pixCombineMasked()
- *           l_int32     pixCombineMaskedGeneral()
- *           l_int32     pixPaintThroughMask()
- *           l_int32     pixCopyWithBoxa()  -- this is boxa-directed
+ *           int32     pixSetMasked()
+ *           int32     pixSetMaskedGeneral()
+ *           int32     pixCombineMasked()
+ *           int32     pixCombineMaskedGeneral()
+ *           int32     pixPaintThroughMask()
+ *           int32     pixCopyWithBoxa()  -- this is boxa-directed
  *           PIX        *pixPaintSelfThroughMask()
  *           PIX        *pixMakeMaskFromVal()
  *           PIX        *pixMakeMaskFromLUT()
  *           PIX        *pixMakeArbMaskFromRGB()
  *           PIX        *pixSetUnderTransparency()
  *           PIX        *pixMakeAlphaFromMask()
- *           l_int32     pixGetColorNearMaskBoundary()
+ *           int32     pixGetColorNearMaskBoundary()
  *           PIX        *pixDisplaySelectedPixels()  -- for debugging
  *
  *    One and two-image boolean operations on arbitrary depth images
@@ -43,48 +43,48 @@
  *           PIX        *pixSubtract()
  *
  *    Foreground pixel counting in 1 bpp images
- *           l_int32     pixZero()
- *           l_int32     pixForegroundFraction()
+ *           int32     pixZero()
+ *           int32     pixForegroundFraction()
  *           NUMA       *pixaCountPixels()
- *           l_int32     pixCountPixels()
- *           l_int32     pixCountPixelsInRect()
+ *           int32     pixCountPixels()
+ *           int32     pixCountPixelsInRect()
  *           NUMA       *pixCountByRow()
  *           NUMA       *pixCountByColumn()
  *           NUMA       *pixCountPixelsByRow()
  *           NUMA       *pixCountPixelsByColumn()
- *           l_int32     pixCountPixelsInRow()
+ *           int32     pixCountPixelsInRow()
  *           NUMA       *pixGetMomentByColumn()
- *           l_int32     pixThresholdPixelSum()
- *           l_int32    *makePixelSumTab8()
- *           l_int32    *makePixelCentroidTab8()
+ *           int32     pixThresholdPixelSum()
+ *           int32    *makePixelSumTab8()
+ *           int32    *makePixelCentroidTab8()
  *
  *    Average of pixel values in gray images
  *           NUMA       *pixAverageByRow()
  *           NUMA       *pixAverageByColumn()
- *           l_int32     pixAverageInRect()
+ *           int32     pixAverageInRect()
  *
  *    Average of pixel values in RGB images
- *           l_int32     pixAverageInRectRGB()
+ *           int32     pixAverageInRectRGB()
  *
  *    Variance of pixel values in gray images
  *           NUMA       *pixVarianceByRow()
  *           NUMA       *pixVarianceByColumn()
- *           l_int32     pixVarianceInRect()
+ *           int32     pixVarianceInRect()
  *
  *    Average of absolute value of pixel differences in gray images
  *           NUMA       *pixAbsDiffByRow()
  *           NUMA       *pixAbsDiffByColumn()
- *           l_int32     pixAbsDiffInRect()
- *           l_int32     pixAbsDiffOnLine()
+ *           int32     pixAbsDiffInRect()
+ *           int32     pixAbsDiffOnLine()
  *
  *    Count of pixels with specific value
- *           l_int32     pixCountArbInRect()
+ *           int32     pixCountArbInRect()
  *
  *    Mirrored tiling
  *           PIX        *pixMirroredTiling()
  *
  *    Representative tile near but outside region
- *           l_int32     pixFindRepCloseTile()
+ *           int32     pixFindRepCloseTile()
  *
  *    Static helper function
  *           static BOXA *findTileRegionsForSearch()
@@ -93,9 +93,9 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static BOXA * findTileRegionsForSearch(BOX * box, l_int32 w, l_int32 h,
-    l_int32 searchdir, l_int32 mindist,
-    l_int32 tsize, l_int32 ntiles);
+static BOXA * findTileRegionsForSearch(BOX * box, int32 w, int32 h,
+    int32 searchdir, int32 mindist,
+    int32 tsize, int32 ntiles);
 
 #ifndef  NO_CONSOLE_IO
 #define   EQUAL_SIZE_WARNING      0
@@ -137,11 +137,11 @@ static BOXA * findTileRegionsForSearch(BOX * box, l_int32 w, l_int32 h,
  */
 l_ok pixSetMasked(PIX * pixd,
     PIX * pixm,
-    l_uint32 val)
+    uint32 val)
 {
-	l_int32 wd, hd, wm, hm, w, h, d, wpld, wplm;
-	l_int32 i, j, rval, gval, bval;
-	l_uint32  * datad, * datam, * lined, * linem;
+	int32 wd, hd, wm, hm, w, h, d, wpld, wplm;
+	int32 i, j, rval, gval, bval;
+	uint32  * datad, * datam, * lined, * linem;
 
 	PROCNAME(__FUNCTION__);
 
@@ -275,11 +275,11 @@ l_ok pixSetMasked(PIX * pixd,
  */
 l_ok pixSetMaskedGeneral(PIX * pixd,
     PIX * pixm,
-    l_uint32 val,
-    l_int32 x,
-    l_int32 y)
+    uint32 val,
+    int32 x,
+    int32 y)
 {
-	l_int32 wm, hm, d;
+	int32 wm, hm, d;
 	PIX * pixmu, * pixc;
 
 	PROCNAME(__FUNCTION__);
@@ -355,9 +355,9 @@ l_ok pixCombineMasked(PIX  * pixd,
     PIX  * pixs,
     PIX  * pixm)
 {
-	l_int32 w, h, d, ws, hs, ds, wm, hm, dm, wmin, hmin;
-	l_int32 wpl, wpls, wplm, i, j, val;
-	l_uint32  * data, * datas, * datam, * line, * lines, * linem;
+	int32 w, h, d, ws, hs, ds, wm, hm, dm, wmin, hmin;
+	int32 wpl, wpls, wplm, i, j, val;
+	uint32  * data, * datas, * datam, * line, * lines, * linem;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -472,12 +472,12 @@ l_ok pixCombineMasked(PIX  * pixd,
 l_ok pixCombineMaskedGeneral(PIX * pixd,
     PIX * pixs,
     PIX * pixm,
-    l_int32 x,
-    l_int32 y)
+    int32 x,
+    int32 y)
 {
-	l_int32 d, w, h, ws, hs, ds, wm, hm, dm, wmin, hmin;
-	l_int32 wpl, wpls, wplm, i, j, val;
-	l_uint32  * data, * datas, * datam, * line, * lines, * linem;
+	int32 d, w, h, ws, hs, ds, wm, hm, dm, wmin, hmin;
+	int32 wpl, wpls, wplm, i, j, val;
+	uint32  * data, * datas, * datam, * line, * lines, * linem;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -594,12 +594,12 @@ l_ok pixCombineMaskedGeneral(PIX * pixd,
  */
 l_ok pixPaintThroughMask(PIX * pixd,
     PIX * pixm,
-    l_int32 x,
-    l_int32 y,
-    l_uint32 val)
+    int32 x,
+    int32 y,
+    uint32 val)
 {
-	l_int32 d, w, h, wm, hm, wpl, wplm, i, j, rval, gval, bval;
-	l_uint32  * data, * datam, * line, * linem;
+	int32 d, w, h, wm, hm, wpl, wplm, i, j, rval, gval, bval;
+	uint32  * data, * datam, * line, * linem;
 
 	PROCNAME(__FUNCTION__);
 
@@ -726,9 +726,9 @@ l_ok pixPaintThroughMask(PIX * pixd,
  */
 PIX * pixCopyWithBoxa(PIX * pixs,
     BOXA * boxa,
-    l_int32 background)
+    int32 background)
 {
-	l_int32 i, n, x, y, w, h;
+	int32 i, n, x, y, w, h;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -813,16 +813,16 @@ PIX * pixCopyWithBoxa(PIX * pixs,
  */
 l_ok pixPaintSelfThroughMask(PIX * pixd,
     PIX * pixm,
-    l_int32 x,
-    l_int32 y,
-    l_int32 searchdir,
-    l_int32 mindist,
-    l_int32 tilesize,
-    l_int32 ntiles,
-    l_int32 distblend)
+    int32 x,
+    int32 y,
+    int32 searchdir,
+    int32 mindist,
+    int32 tilesize,
+    int32 ntiles,
+    int32 distblend)
 {
-	l_int32 w, h, d, wm, hm, dm, i, n, bx, by, bw, bh, edgeblend, retval, minside;
-	l_uint32 pixval;
+	int32 w, h, d, wm, hm, dm, i, n, bx, by, bw, bh, edgeblend, retval, minside;
+	uint32 pixval;
 	BOX      * box, * boxv, * boxh;
 	BOXA     * boxa;
 	PIX * pixf, * pixv, * pixh, * pix1, * pix2, * pix3, * pix4, * pix5;
@@ -970,10 +970,10 @@ l_ok pixPaintSelfThroughMask(PIX * pixd,
  * </pre>
  */
 PIX * pixMakeMaskFromVal(PIX * pixs,
-    l_int32 val)
+    int32 val)
 {
-	l_int32 w, h, d, i, j, sval, wpls, wpld;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 w, h, d, i, j, sval, wpls, wpld;
+	uint32  * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1025,10 +1025,10 @@ PIX * pixMakeMaskFromVal(PIX * pixs,
  * </pre>
  */
 PIX * pixMakeMaskFromLUT(PIX * pixs,
-    l_int32 * tab)
+    int32 * tab)
 {
-	l_int32 w, h, d, i, j, val, wpls, wpld;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 w, h, d, i, j, val, wpls, wpld;
+	uint32  * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1167,8 +1167,8 @@ PIX * pixMakeArbMaskFromRGB(PIX * pixs,
  * </pre>
  */
 PIX * pixSetUnderTransparency(PIX * pixs,
-    l_uint32 val,
-    l_int32 debug)
+    uint32 val,
+    int32 debug)
 {
 	PIX  * pixg, * pixm, * pixt, * pixd;
 
@@ -1186,7 +1186,7 @@ PIX * pixSetUnderTransparency(PIX * pixs,
 	/* Make a mask from the alpha component with ON pixels
 	 * wherever the alpha component is fully transparent (0).
 	 * The hard way:
-	 *     l_int32 *lut = (l_int32 *)SAlloc::C(256, sizeof(l_int32));
+	 *     int32 *lut = (int32 *)SAlloc::C(256, sizeof(int32));
 	 *     lut[0] = 1;
 	 *     pixg = pixGetRGBComponent(pixs, L_ALPHA_CHANNEL);
 	 *     pixm = pixMakeMaskFromLUT(pixg, lut);
@@ -1241,10 +1241,10 @@ PIX * pixSetUnderTransparency(PIX * pixs,
  * </pre>
  */
 PIX * pixMakeAlphaFromMask(PIX * pixs,
-    l_int32 dist,
+    int32 dist,
     BOX    ** pbox)
 {
-	l_int32 w, h;
+	int32 w, h;
 	BOX * box1, * box2;
 	PIX * pix1, * pixd;
 
@@ -1311,12 +1311,12 @@ PIX * pixMakeAlphaFromMask(PIX * pixs,
 l_ok pixGetColorNearMaskBoundary(PIX * pixs,
     PIX * pixm,
     BOX       * box,
-    l_int32 dist,
-    l_uint32  * pval,
-    l_int32 debug)
+    int32 dist,
+    uint32  * pval,
+    int32 debug)
 {
 	char op[64];
-	l_int32 empty, bx, by;
+	int32 empty, bx, by;
 	float rval, gval, bval;
 	BOX       * box1, * box2;
 	PIX * pix1, * pix2, * pix3;
@@ -1361,8 +1361,8 @@ l_ok pixGetColorNearMaskBoundary(PIX * pixs,
 		boxGetGeometry(box2, &bx, &by, NULL, NULL);
 		pixGetAverageMaskedRGB(pixs, pix3, bx, by, 1, L_MEAN_ABSVAL,
 		    &rval, &gval, &bval);
-		composeRGBPixel((l_int32)(rval + 0.5), (l_int32)(gval + 0.5),
-		    (l_int32)(bval + 0.5), pval);
+		composeRGBPixel((int32)(rval + 0.5), (int32)(gval + 0.5),
+		    (int32)(bval + 0.5), pval);
 	}
 	else {
 		L_WARNING("no pixels found\n", procName);
@@ -1411,9 +1411,9 @@ l_ok pixGetColorNearMaskBoundary(PIX * pixs,
 PIX * pixDisplaySelectedPixels(PIX * pixs,
     PIX * pixm,
     SEL      * sel,
-    l_uint32 val)
+    uint32 val)
 {
-	l_int32 w, h;
+	int32 w, h;
 	PIX * pix1, * pix2;
 
 	PROCNAME(__FUNCTION__);
@@ -1703,7 +1703,7 @@ PIX * pixSubtract(PIX  * pixd,
     PIX  * pixs1,
     PIX  * pixs2)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1763,11 +1763,11 @@ PIX * pixSubtract(PIX  * pixd,
  * </pre>
  */
 l_ok pixZero(PIX * pix,
-    l_int32 * pempty)
+    int32 * pempty)
 {
-	l_int32 w, h, wpl, i, j, fullwords, endbits;
-	l_uint32 endmask;
-	l_uint32  * data, * line;
+	int32 w, h, wpl, i, j, fullwords, endbits;
+	uint32 endmask;
+	uint32  * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1813,7 +1813,7 @@ l_ok pixZero(PIX * pix,
 l_ok pixForegroundFraction(PIX        * pix,
     float * pfract)
 {
-	l_int32 w, h, count;
+	int32 w, h, count;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1837,8 +1837,8 @@ l_ok pixForegroundFraction(PIX        * pix,
  */
 NUMA * pixaCountPixels(PIXA  * pixa)
 {
-	l_int32 d, i, n, count;
-	l_int32 * tab;
+	int32 d, i, n, count;
+	int32 * tab;
 	NUMA     * na;
 	PIX * pix;
 
@@ -1879,14 +1879,14 @@ NUMA * pixaCountPixels(PIXA  * pixa)
  * \return  0 if OK; 1 on error
  */
 l_ok pixCountPixels(PIX * pixs,
-    l_int32 * pcount,
-    l_int32 * tab8)
+    int32 * pcount,
+    int32 * tab8)
 {
-	l_uint32 endmask;
-	l_int32 w, h, wpl, i, j;
-	l_int32 fullwords, endbits, sum;
-	l_int32   * tab;
-	l_uint32  * data;
+	uint32 endmask;
+	int32 w, h, wpl, i, j;
+	int32 fullwords, endbits, sum;
+	int32   * tab;
+	uint32  * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1907,7 +1907,7 @@ l_ok pixCountPixels(PIX * pixs,
 	sum = 0;
 	for(i = 0; i < h; i++, data += wpl) {
 		for(j = 0; j < fullwords; j++) {
-			l_uint32 word = data[j];
+			uint32 word = data[j];
 			if(word) {
 				sum += tab[word & 0xff] +
 				    tab[(word >> 8) & 0xff] +
@@ -1916,7 +1916,7 @@ l_ok pixCountPixels(PIX * pixs,
 			}
 		}
 		if(endbits) {
-			l_uint32 word = data[j] & endmask;
+			uint32 word = data[j] & endmask;
 			if(word) {
 				sum += tab[word & 0xff] +
 				    tab[(word >> 8) & 0xff] +
@@ -1942,10 +1942,10 @@ l_ok pixCountPixels(PIX * pixs,
  */
 l_ok pixCountPixelsInRect(PIX * pixs,
     BOX      * box,
-    l_int32 * pcount,
-    l_int32 * tab8)
+    int32 * pcount,
+    int32 * tab8)
 {
-	l_int32 bx, by, bw, bh;
+	int32 bx, by, bw, bh;
 	PIX * pix1;
 
 	PROCNAME(__FUNCTION__);
@@ -1986,8 +1986,8 @@ l_ok pixCountPixelsInRect(PIX * pixs,
 NUMA * pixCountByRow(PIX * pix,
     BOX      * box)
 {
-	l_int32 i, j, w, h, wpl, count, xstart, xend, ystart, yend, bw, bh;
-	l_uint32  * line, * data;
+	int32 i, j, w, h, wpl, count, xstart, xend, ystart, yend, bw, bh;
+	uint32  * line, * data;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -2036,8 +2036,8 @@ NUMA * pixCountByRow(PIX * pix,
 NUMA * pixCountByColumn(PIX * pix,
     BOX      * box)
 {
-	l_int32 i, j, w, h, wpl, count, xstart, xend, ystart, yend, bw, bh;
-	l_uint32  * line, * data;
+	int32 i, j, w, h, wpl, count, xstart, xend, ystart, yend, bw, bh;
+	uint32  * line, * data;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -2078,10 +2078,10 @@ NUMA * pixCountByColumn(PIX * pix,
  * \return  na of counts, or NULL on error
  */
 NUMA * pixCountPixelsByRow(PIX * pix,
-    l_int32 * tab8)
+    int32 * tab8)
 {
-	l_int32 h, i, count;
-	l_int32 * tab;
+	int32 h, i, count;
+	int32 * tab;
 	NUMA     * na;
 
 	PROCNAME(__FUNCTION__);
@@ -2111,8 +2111,8 @@ NUMA * pixCountPixelsByRow(PIX * pix,
  */
 NUMA * pixCountPixelsByColumn(PIX  * pix)
 {
-	l_int32 i, j, w, h, wpl;
-	l_uint32   * line, * data;
+	int32 i, j, w, h, wpl;
+	uint32   * line, * data;
 	float * array;
 	NUMA       * na;
 
@@ -2149,15 +2149,15 @@ NUMA * pixCountPixelsByColumn(PIX  * pix)
  * \return  0 if OK; 1 on error
  */
 l_ok pixCountPixelsInRow(PIX * pix,
-    l_int32 row,
-    l_int32 * pcount,
-    l_int32 * tab8)
+    int32 row,
+    int32 * pcount,
+    int32 * tab8)
 {
-	l_uint32 word, endmask;
-	l_int32 j, w, h, wpl;
-	l_int32 fullwords, endbits, sum;
-	l_int32   * tab;
-	l_uint32  * line;
+	uint32 word, endmask;
+	int32 j, w, h, wpl;
+	int32 fullwords, endbits, sum;
+	int32   * tab;
+	uint32  * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2210,10 +2210,10 @@ l_ok pixCountPixelsInRow(PIX * pix,
  * \return  na of first moment of fg pixels, by column, or NULL on error
  */
 NUMA * pixGetMomentByColumn(PIX * pix,
-    l_int32 order)
+    int32 order)
 {
-	l_int32 i, j, w, h, wpl;
-	l_uint32   * line, * data;
+	int32 i, j, w, h, wpl;
+	uint32   * line, * data;
 	float * array;
 	NUMA       * na;
 
@@ -2266,15 +2266,15 @@ NUMA * pixGetMomentByColumn(PIX * pix,
  * </pre>
  */
 l_ok pixThresholdPixelSum(PIX * pix,
-    l_int32 thresh,
-    l_int32 * pabove,
-    l_int32 * tab8)
+    int32 thresh,
+    int32 * pabove,
+    int32 * tab8)
 {
-	l_uint32 word, endmask;
-	l_int32   * tab;
-	l_int32 w, h, wpl, i, j;
-	l_int32 fullwords, endbits, sum;
-	l_uint32  * line, * data;
+	uint32 word, endmask;
+	int32   * tab;
+	int32 w, h, wpl, i, j;
+	int32 fullwords, endbits, sum;
+	uint32  * line, * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2327,7 +2327,7 @@ l_ok pixThresholdPixelSum(PIX * pix,
 /*!
  * \brief   makePixelSumTab8()
  *
- * \return  table of 256 l_int32.
+ * \return  table of 256 int32.
  *
  * <pre>
  * Notes:
@@ -2335,13 +2335,13 @@ l_ok pixThresholdPixelSum(PIX * pix,
  *          in the 8 bit index.
  * </pre>
  */
-l_int32 * makePixelSumTab8(void)
+int32 * makePixelSumTab8(void)
 {
 	uint8 byte;
-	l_int32 i;
-	l_int32 * tab;
+	int32 i;
+	int32 * tab;
 
-	tab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	tab = (int32*)SAlloc::C(256, sizeof(int32));
 	for(i = 0; i < 256; i++) {
 		byte = (uint8)i;
 		tab[i] = (byte & 0x1) +
@@ -2359,7 +2359,7 @@ l_int32 * makePixelSumTab8(void)
 /*!
  * \brief   makePixelCentroidTab8()
  *
- * \return  table of 256 l_int32.
+ * \return  table of 256 int32.
  *
  * <pre>
  * Notes:
@@ -2373,12 +2373,12 @@ l_int32 * makePixelSumTab8(void)
  *          to have position 7.
  * </pre>
  */
-l_int32 * makePixelCentroidTab8(void)
+int32 * makePixelCentroidTab8(void)
 {
-	l_int32 i;
-	l_int32 * tab;
+	int32 i;
+	int32 * tab;
 
-	tab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	tab = (int32*)SAlloc::C(256, sizeof(int32));
 	tab[0] = 0;
 	tab[1] = 7;
 	for(i = 2; i < 4; i++) {
@@ -2426,10 +2426,10 @@ l_int32 * makePixelCentroidTab8(void)
  */
 NUMA * pixAverageByRow(PIX * pix,
     BOX * box,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh;
-	l_uint32  * line, * data;
+	int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh;
+	uint32  * line, * data;
 	double norm, sum;
 	NUMA * na;
 
@@ -2494,10 +2494,10 @@ NUMA * pixAverageByRow(PIX * pix,
  */
 NUMA * pixAverageByColumn(PIX * pix,
     BOX * box,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh;
-	l_uint32   * line, * data;
+	int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh;
+	uint32   * line, * data;
 	float norm, sum;
 	NUMA       * na;
 
@@ -2581,14 +2581,14 @@ NUMA * pixAverageByColumn(PIX * pix,
 l_ok pixAverageInRect(PIX        * pixs,
     PIX        * pixm,
     BOX        * box,
-    l_int32 minval,
-    l_int32 maxval,
-    l_int32 subsamp,
+    int32 minval,
+    int32 maxval,
+    int32 subsamp,
     float * pave)
 {
-	l_int32 w, h, d, wpls, wm, hm, dm, wplm, val, count;
-	l_int32 i, j, xstart, xend, ystart, yend;
-	l_uint32  * datas, * datam, * lines, * linem;
+	int32 w, h, d, wpls, wm, hm, dm, wplm, val, count;
+	int32 i, j, xstart, xend, ystart, yend;
+	uint32  * datas, * datam, * lines, * linem;
 	double sum;
 
 	PROCNAME(__FUNCTION__);
@@ -2686,13 +2686,13 @@ l_ok pixAverageInRect(PIX        * pixs,
 l_ok pixAverageInRectRGB(PIX * pixs,
     PIX * pixm,
     BOX       * box,
-    l_int32 subsamp,
-    l_uint32  * pave)
+    int32 subsamp,
+    uint32  * pave)
 {
-	l_int32 w, h, wpls, wm, hm, dm, wplm, i, j, xstart, xend, ystart, yend;
-	l_int32 rval, gval, bval, rave, gave, bave, count;
-	l_uint32  * datas, * datam, * lines, * linem;
-	l_uint32 pixel;
+	int32 w, h, wpls, wm, hm, dm, wplm, i, j, xstart, xend, ystart, yend;
+	int32 rval, gval, bval, rave, gave, bave, count;
+	uint32  * datas, * datam, * lines, * linem;
+	uint32 pixel;
 	double rsum, gsum, bsum;
 
 	PROCNAME(__FUNCTION__);
@@ -2743,9 +2743,9 @@ l_ok pixAverageInRectRGB(PIX * pixs,
 
 	if(count == 0)
 		return 2; /* not an error */
-	rave = (l_uint32)(rsum / (double)count);
-	gave = (l_uint32)(gsum / (double)count);
-	bave = (l_uint32)(bsum / (double)count);
+	rave = (uint32)(rsum / (double)count);
+	gave = (uint32)(gsum / (double)count);
+	bave = (uint32)(bsum / (double)count);
 	composeRGBPixel(rave, gave, bave, pave);
 	return 0;
 }
@@ -2771,8 +2771,8 @@ l_ok pixAverageInRectRGB(PIX * pixs,
 NUMA * pixVarianceByRow(PIX * pix,
     BOX * box)
 {
-	l_int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh, val;
-	l_uint32   * line, * data;
+	int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh, val;
+	uint32   * line, * data;
 	double sum1, sum2, norm, ave, var, rootvar;
 	NUMA       * na;
 
@@ -2834,8 +2834,8 @@ NUMA * pixVarianceByRow(PIX * pix,
 NUMA * pixVarianceByColumn(PIX * pix,
     BOX * box)
 {
-	l_int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh, val;
-	l_uint32   * line, * data;
+	int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh, val;
+	uint32   * line, * data;
 	double sum1, sum2, norm, ave, var, rootvar;
 	NUMA       * na;
 
@@ -2891,8 +2891,8 @@ l_ok pixVarianceInRect(PIX        * pix,
     BOX        * box,
     float * prootvar)
 {
-	l_int32 w, h, d, wpl, i, j, xstart, xend, ystart, yend, bw, bh, val;
-	l_uint32  * data, * line;
+	int32 w, h, d, wpl, i, j, xstart, xend, ystart, yend, bw, bh, val;
+	uint32  * data, * line;
 	double sum1, sum2, norm, ave, var;
 
 	PROCNAME(__FUNCTION__);
@@ -2968,8 +2968,8 @@ l_ok pixVarianceInRect(PIX        * pix,
 NUMA * pixAbsDiffByRow(PIX  * pix,
     BOX  * box)
 {
-	l_int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh, val0, val1;
-	l_uint32  * line, * data;
+	int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh, val0, val1;
+	uint32  * line, * data;
 	double norm, sum;
 	NUMA * na;
 
@@ -3027,8 +3027,8 @@ NUMA * pixAbsDiffByRow(PIX  * pix,
 NUMA * pixAbsDiffByColumn(PIX  * pix,
     BOX  * box)
 {
-	l_int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh, val0, val1;
-	l_uint32  * line, * data;
+	int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh, val0, val1;
+	uint32  * line, * data;
 	double norm, sum;
 	NUMA * na;
 
@@ -3087,11 +3087,11 @@ NUMA * pixAbsDiffByColumn(PIX  * pix,
  */
 l_ok pixAbsDiffInRect(PIX        * pix,
     BOX        * box,
-    l_int32 dir,
+    int32 dir,
     float * pabsdiff)
 {
-	l_int32 w, h, wpl, i, j, xstart, xend, ystart, yend, bw, bh, val0, val1;
-	l_uint32  * data, * line;
+	int32 w, h, wpl, i, j, xstart, xend, ystart, yend, bw, bh, val0, val1;
+	uint32  * data, * line;
 	double norm, sum;
 
 	PROCNAME(__FUNCTION__);
@@ -3162,14 +3162,14 @@ l_ok pixAbsDiffInRect(PIX        * pix,
  * </pre>
  */
 l_ok pixAbsDiffOnLine(PIX        * pix,
-    l_int32 x1,
-    l_int32 y1,
-    l_int32 x2,
-    l_int32 y2,
+    int32 x1,
+    int32 y1,
+    int32 x2,
+    int32 y2,
     float * pabsdiff)
 {
-	l_int32 w, h, i, j, dir, size, sum;
-	l_uint32 val0, val1;
+	int32 w, h, i, j, dir, size, sum;
+	uint32 val0, val1;
 
 	PROCNAME(__FUNCTION__);
 
@@ -3201,7 +3201,7 @@ l_ok pixAbsDiffOnLine(PIX        * pix,
 		pixGetPixel(pix, x1, y1, &val0);
 		for(j = x1 + 1; j <= x2; j++) {
 			pixGetPixel(pix, j, y1, &val1);
-			sum += L_ABS((l_int32)val1 - (l_int32)val0);
+			sum += L_ABS((int32)val1 - (int32)val0);
 			val0 = val1;
 		}
 	}
@@ -3214,7 +3214,7 @@ l_ok pixAbsDiffOnLine(PIX        * pix,
 		pixGetPixel(pix, x1, y1, &val0);
 		for(i = y1 + 1; i <= y2; i++) {
 			pixGetPixel(pix, x1, i, &val1);
-			sum += L_ABS((l_int32)val1 - (l_int32)val0);
+			sum += L_ABS((int32)val1 - (int32)val0);
 			val0 = val1;
 		}
 	}
@@ -3244,14 +3244,14 @@ l_ok pixAbsDiffOnLine(PIX        * pix,
  *          If %factor > 1, multiply the count by %factor * %factor.
  * </pre>
  */
-l_int32 pixCountArbInRect(PIX * pixs,
+int32 pixCountArbInRect(PIX * pixs,
     BOX      * box,
-    l_int32 val,
-    l_int32 factor,
-    l_int32 * pcount)
+    int32 val,
+    int32 factor,
+    int32 * pcount)
 {
-	l_int32 i, j, bx, by, bw, bh, w, h, wpl, pixval;
-	l_uint32  * data, * line;
+	int32 i, j, bx, by, bw, bh, w, h, wpl, pixval;
+	uint32  * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -3322,10 +3322,10 @@ l_int32 pixCountArbInRect(PIX * pixs,
  * </pre>
  */
 PIX * pixMirroredTiling(PIX * pixs,
-    l_int32 w,
-    l_int32 h)
+    int32 w,
+    int32 h)
 {
-	l_int32 wt, ht, d, i, j, nx, ny;
+	int32 wt, ht, d, i, j, nx, ny;
 	PIX * pixd, * pixsfx, * pixsfy, * pixsfxy, * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -3396,14 +3396,14 @@ PIX * pixMirroredTiling(PIX * pixs,
  */
 l_ok pixFindRepCloseTile(PIX * pixs,
     BOX * box,
-    l_int32 searchdir,
-    l_int32 mindist,
-    l_int32 tsize,
-    l_int32 ntiles,
+    int32 searchdir,
+    int32 mindist,
+    int32 tsize,
+    int32 ntiles,
     BOX    ** pboxtile,
-    l_int32 debug)
+    int32 debug)
 {
-	l_int32 w, h, i, n, bestindex;
+	int32 w, h, i, n, bestindex;
 	float var_of_mean, median_of_mean, median_of_stdev, mean_val, stdev_val;
 	float mindels, bestdelm, delm, dels, mean, stdev;
 	BOXA      * boxa;
@@ -3529,15 +3529,15 @@ l_ok pixFindRepCloseTile(PIX * pixs,
  * </pre>
  */
 static BOXA * findTileRegionsForSearch(BOX * box,
-    l_int32 w,
-    l_int32 h,
-    l_int32 searchdir,
-    l_int32 mindist,
-    l_int32 tsize,
-    l_int32 ntiles)
+    int32 w,
+    int32 h,
+    int32 searchdir,
+    int32 mindist,
+    int32 tsize,
+    int32 ntiles)
 {
-	l_int32 bx, by, bw, bh, left, right, top, bot, i, j, nrows, ncols;
-	l_int32 x0, y0, x, y, w_avail, w_needed, h_avail, h_needed, t_avail;
+	int32 bx, by, bw, bh, left, right, top, bot, i, j, nrows, ncols;
+	int32 x0, y0, x, y, w_avail, w_needed, h_avail, h_needed, t_avail;
 	BOX * box1;
 	BOXA * boxa;
 

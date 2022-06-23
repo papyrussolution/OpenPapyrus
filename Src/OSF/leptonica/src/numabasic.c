@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file  numabasic.c
  * <pre>
@@ -36,29 +23,29 @@
  *          void        *numaDestroy()
  *          NUMA        *numaCopy()
  *          NUMA        *numaClone()
- *          l_int32      numaEmpty()
+ *          int32      numaEmpty()
  *
  *      Add/remove number (float or integer)
- *          l_int32      numaAddNumber()
- *          static l_int32  numaExtendArray()
- *          l_int32      numaInsertNumber()
- *          l_int32      numaRemoveNumber()
- *          l_int32      numaReplaceNumber()
+ *          int32      numaAddNumber()
+ *          static int32  numaExtendArray()
+ *          int32      numaInsertNumber()
+ *          int32      numaRemoveNumber()
+ *          int32      numaReplaceNumber()
  *
  *      Numa accessors
- *          l_int32      numaGetCount()
- *          l_int32      numaSetCount()
- *          l_int32      numaGetIValue()
- *          l_int32      numaGetFValue()
- *          l_int32      numaSetValue()
- *          l_int32      numaShiftValue()
- *          l_int32     *numaGetIArray()
+ *          int32      numaGetCount()
+ *          int32      numaSetCount()
+ *          int32      numaGetIValue()
+ *          int32      numaGetFValue()
+ *          int32      numaSetValue()
+ *          int32      numaShiftValue()
+ *          int32     *numaGetIArray()
  *          float   *numaGetFArray()
- *          l_int32      numaGetRefcount()
- *          l_int32      numaChangeRefcount()
- *          l_int32      numaGetParameters()
- *          l_int32      numaSetParameters()
- *          l_int32      numaCopyParameters()
+ *          int32      numaGetRefcount()
+ *          int32      numaChangeRefcount()
+ *          int32      numaGetParameters()
+ *          int32      numaSetParameters()
+ *          int32      numaCopyParameters()
  *
  *      Convert to string array
  *          SARRAY *numaConvertToSarray()
@@ -67,11 +54,11 @@
  *          NUMA        *numaRead()
  *          NUMA        *numaReadStream()
  *          NUMA        *numaReadMem()
- *          l_int32      numaWriteDebug()
- *          l_int32      numaWrite()
- *          l_int32      numaWriteStream()
- *          l_int32      numaWriteStderr()
- *          l_int32      numaWriteMem()
+ *          int32      numaWriteDebug()
+ *          int32      numaWrite()
+ *          int32      numaWriteStream()
+ *          int32      numaWriteStderr()
+ *          int32      numaWriteMem()
  *
  *      Numaa creation, destruction, truncation
  *          NUMAA       *numaaCreate()
@@ -80,29 +67,29 @@
  *          void        *numaaDestroy()
  *
  *      Add Numa to Numaa
- *          l_int32      numaaAddNuma()
- *          static l_int32   numaaExtendArray()
+ *          int32      numaaAddNuma()
+ *          static int32   numaaExtendArray()
  *
  *      Numaa accessors
- *          l_int32      numaaGetCount()
- *          l_int32      numaaGetNumaCount()
- *          l_int32      numaaGetNumberCount()
+ *          int32      numaaGetCount()
+ *          int32      numaaGetNumaCount()
+ *          int32      numaaGetNumberCount()
  *          NUMA       **numaaGetPtrArray()
  *          NUMA        *numaaGetNuma()
  *          NUMA        *numaaReplaceNuma()
- *          l_int32      numaaGetValue()
- *          l_int32      numaaAddNumber()
+ *          int32      numaaGetValue()
+ *          int32      numaaAddNumber()
  *
  *      Serialize numaa for I/O
  *          NUMAA       *numaaRead()
  *          NUMAA       *numaaReadStream()
  *          NUMAA       *numaaReadMem()
- *          l_int32      numaaWrite()
- *          l_int32      numaaWriteStream()
- *          l_int32      numaaWriteMem()
+ *          int32      numaaWrite()
+ *          int32      numaaWriteStream()
+ *          int32      numaaWriteMem()
  *
  *    (1) The Numa is a struct holding an array of floats.  It can also
- *        be used to store l_int32 values, with some loss of precision
+ *        be used to store int32 values, with some loss of precision
  *        for floats larger than about 10 million.  Use the L_Dna instead
  *        if integers larger than a few million need to be stored.
  *
@@ -123,7 +110,7 @@
  *         or numaGetFValue(), depending on whether you are retrieving
  *         an integer or a float.  This avoids doing an explicit cast,
  *         such as
- *           (a) return a float and cast it to an l_int32
+ *           (a) return a float and cast it to an int32
  *           (b) cast the return directly to (float *) to
  *               satisfy the function prototype, as in
  *                 numaGetFValue(na, index, (float *)&ival);   [ugly!]
@@ -131,9 +118,9 @@
  *    (4) int <--> float conversions:
  *
  *        Tradition dictates that type conversions go automatically from
- *        l_int32 --> float, even though it is possible to lose
- *        precision for large integers, whereas you must cast (l_int32)
- *        to go from float --> l_int32 because you're truncating
+ *        int32 --> float, even though it is possible to lose
+ *        precision for large integers, whereas you must cast (int32)
+ *        to go from float --> int32 because you're truncating
  *        to the integer value.
  *
  *    (5) As with other arrays in leptonica, the numa has both an allocated
@@ -167,13 +154,13 @@
 #pragma hdrstop
 
 /* Bounds on initial array size */
-static const l_uint32 MaxFloatArraySize = 100000000; /* for numa */
-static const l_uint32 MaxPtrArraySize = 1000000; /* for numaa */
-static const l_int32 InitialArraySize = 50; /*!< n'importe quoi */
+static const uint32 MaxFloatArraySize = 100000000; /* for numa */
+static const uint32 MaxPtrArraySize = 1000000; /* for numaa */
+static const int32 InitialArraySize = 50; /*!< n'importe quoi */
 
 /* Static functions */
-static l_int32 numaExtendArray(NUMA * na);
-static l_int32 numaaExtendArray(NUMAA  * naa);
+static int32 numaExtendArray(NUMA * na);
+static int32 numaaExtendArray(NUMAA  * naa);
 
 /*--------------------------------------------------------------------------*
 *               Numa creation, destruction, copy, clone, etc.              *
@@ -184,7 +171,7 @@ static l_int32 numaaExtendArray(NUMAA  * naa);
  * \param[in]    n    size of number array to be alloc'd 0 for default
  * \return  na, or NULL on error
  */
-NUMA * numaCreate(l_int32 n)
+NUMA * numaCreate(int32 n)
 {
 	NUMA * na;
 
@@ -222,10 +209,10 @@ NUMA * numaCreate(l_int32 n)
  *          owned by the caller.
  * </pre>
  */
-NUMA * numaCreateFromIArray(l_int32 * iarray,
-    l_int32 size)
+NUMA * numaCreateFromIArray(int32 * iarray,
+    int32 size)
 {
-	l_int32 i;
+	int32 i;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -258,10 +245,10 @@ NUMA * numaCreateFromIArray(l_int32 * iarray,
  * </pre>
  */
 NUMA * numaCreateFromFArray(float * farray,
-    l_int32 size,
-    l_int32 copyflag)
+    int32 size,
+    int32 copyflag)
 {
-	l_int32 i;
+	int32 i;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -303,7 +290,7 @@ NUMA * numaCreateFromFArray(float * farray,
 NUMA * numaCreateFromString(const char * str)
 {
 	char      * substr;
-	l_int32 i, n, nerrors;
+	int32 i, n, nerrors;
 	float val;
 	NUMA * na;
 	SARRAY    * sa;
@@ -383,7 +370,7 @@ void numaDestroy(NUMA ** pna)
  */
 NUMA * numaCopy(NUMA * na)
 {
-	l_int32 i;
+	int32 i;
 	NUMA * cna;
 
 	PROCNAME(__FUNCTION__);
@@ -456,7 +443,7 @@ l_ok numaEmpty(NUMA * na)
 l_ok numaAddNumber(NUMA * na,
     float val)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -484,7 +471,7 @@ l_ok numaAddNumber(NUMA * na,
  *      (1) The max number of floats is 100M.
  * </pre>
  */
-static l_int32 numaExtendArray(NUMA * na)
+static int32 numaExtendArray(NUMA * na)
 {
 	size_t oldsize, newsize;
 
@@ -525,10 +512,10 @@ static l_int32 numaExtendArray(NUMA * na)
  * </pre>
  */
 l_ok numaInsertNumber(NUMA * na,
-    l_int32 index,
+    int32 index,
     float val)
 {
-	l_int32 i, n;
+	int32 i, n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -566,9 +553,9 @@ l_ok numaInsertNumber(NUMA * na,
  * </pre>
  */
 l_ok numaRemoveNumber(NUMA * na,
-    l_int32 index)
+    int32 index)
 {
-	l_int32 i, n;
+	int32 i, n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -595,10 +582,10 @@ l_ok numaRemoveNumber(NUMA * na,
  * \return  0 if OK, 1 on error
  */
 l_ok numaReplaceNumber(NUMA * na,
-    l_int32 index,
+    int32 index,
     float val)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -623,7 +610,7 @@ l_ok numaReplaceNumber(NUMA * na,
  * \param[in]    na
  * \return  count, or 0 if no numbers or on error
  */
-l_int32 numaGetCount(NUMA * na)
+int32 numaGetCount(NUMA * na)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -649,7 +636,7 @@ l_int32 numaGetCount(NUMA * na)
  * </pre>
  */
 l_ok numaSetCount(NUMA * na,
-    l_int32 newcount)
+    int32 newcount)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -681,7 +668,7 @@ l_ok numaSetCount(NUMA * na,
  * </pre>
  */
 l_ok numaGetFValue(NUMA       * na,
-    l_int32 index,
+    int32 index,
     float * pval)
 {
 	PROCNAME(__FUNCTION__);
@@ -714,8 +701,8 @@ l_ok numaGetFValue(NUMA       * na,
  * </pre>
  */
 l_ok numaGetIValue(NUMA     * na,
-    l_int32 index,
-    l_int32 * pival)
+    int32 index,
+    int32 * pival)
 {
 	float val;
 
@@ -731,7 +718,7 @@ l_ok numaGetIValue(NUMA     * na,
 		return ERROR_INT("index not valid", procName, 1);
 
 	val = na->array[index];
-	*pival = (l_int32)(val + L_SIGN(val) * 0.5);
+	*pival = (int32)(val + L_SIGN(val) * 0.5);
 	return 0;
 }
 
@@ -744,7 +731,7 @@ l_ok numaGetIValue(NUMA     * na,
  * \return  0 if OK; 1 on error
  */
 l_ok numaSetValue(NUMA * na,
-    l_int32 index,
+    int32 index,
     float val)
 {
 	PROCNAME(__FUNCTION__);
@@ -767,7 +754,7 @@ l_ok numaSetValue(NUMA * na,
  * \return  0 if OK; 1 on error
  */
 l_ok numaShiftValue(NUMA * na,
-    l_int32 index,
+    int32 index,
     float diff)
 {
 	PROCNAME(__FUNCTION__);
@@ -800,19 +787,19 @@ l_ok numaShiftValue(NUMA * na,
  *          on an array of size 256.
  * </pre>
  */
-l_int32 * numaGetIArray(NUMA * na)
+int32 * numaGetIArray(NUMA * na)
 {
-	l_int32 i, n, ival;
-	l_int32 * array;
+	int32 i, n, ival;
+	int32 * array;
 
 	PROCNAME(__FUNCTION__);
 
 	if(!na)
-		return (l_int32*)ERROR_PTR("na not defined", procName, NULL);
+		return (int32*)ERROR_PTR("na not defined", procName, NULL);
 
 	n = numaGetCount(na);
-	if((array = (l_int32*)SAlloc::C(n, sizeof(l_int32))) == NULL)
-		return (l_int32*)ERROR_PTR("array not made", procName, NULL);
+	if((array = (int32*)SAlloc::C(n, sizeof(int32))) == NULL)
+		return (int32*)ERROR_PTR("array not made", procName, NULL);
 	for(i = 0; i < n; i++) {
 		numaGetIValue(na, i, &ival);
 		array[i] = ival;
@@ -844,9 +831,9 @@ l_int32 * numaGetIArray(NUMA * na)
  * </pre>
  */
 float * numaGetFArray(NUMA * na,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float * array;
 
 	PROCNAME(__FUNCTION__);
@@ -874,7 +861,7 @@ float * numaGetFArray(NUMA * na,
  * \param[in]    na
  * \return  refcount, or UNDEF on error
  */
-l_int32 numaGetRefcount(NUMA * na)
+int32 numaGetRefcount(NUMA * na)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -891,7 +878,7 @@ l_int32 numaGetRefcount(NUMA * na)
  * \return  0 if OK, 1 on error
  */
 l_ok numaChangeRefcount(NUMA * na,
-    l_int32 delta)
+    int32 delta)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -995,13 +982,13 @@ l_ok numaCopyParameters(NUMA * nad,
  * </pre>
  */
 SARRAY * numaConvertToSarray(NUMA * na,
-    l_int32 size1,
-    l_int32 size2,
-    l_int32 addzeros,
-    l_int32 type)
+    int32 size1,
+    int32 size2,
+    int32 addzeros,
+    int32 type)
 {
 	char fmt[32], strbuf[64];
-	l_int32 i, n, ival;
+	int32 i, n, ival;
 	float fval;
 	SARRAY    * sa;
 
@@ -1077,7 +1064,7 @@ NUMA * numaRead(const char * filename)
  */
 NUMA * numaReadStream(FILE * fp)
 {
-	l_int32 i, n, index, ret, version;
+	int32 i, n, index, ret, version;
 	float val, startx, delx;
 	NUMA * na;
 
@@ -1182,7 +1169,7 @@ l_ok numaWriteDebug(const char * filename,
 l_ok numaWrite(const char * filename,
     NUMA        * na)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1211,7 +1198,7 @@ l_ok numaWrite(const char * filename,
 l_ok numaWriteStream(FILE * fp,
     NUMA * na)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float startx, delx;
 
 	PROCNAME(__FUNCTION__);
@@ -1244,7 +1231,7 @@ l_ok numaWriteStream(FILE * fp,
  */
 l_ok numaWriteStderr(NUMA * na)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float startx, delx;
 
 	PROCNAME(__FUNCTION__);
@@ -1284,7 +1271,7 @@ l_ok numaWriteMem(uint8  ** pdata,
     size_t * psize,
     NUMA * na)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1332,7 +1319,7 @@ l_ok numaWriteMem(uint8  ** pdata,
  * \return  naa, or NULL on error
  *
  */
-NUMAA * numaaCreate(l_int32 n)
+NUMAA * numaaCreate(int32 n)
 {
 	NUMAA  * naa;
 
@@ -1368,10 +1355,10 @@ NUMAA * numaaCreate(l_int32 n)
  *          to add val to the index-th numa in naa.
  * </pre>
  */
-NUMAA * numaaCreateFull(l_int32 nptr,
-    l_int32 n)
+NUMAA * numaaCreateFull(int32 nptr,
+    int32 n)
 {
-	l_int32 i;
+	int32 i;
 	NUMAA   * naa;
 	NUMA * na;
 
@@ -1399,7 +1386,7 @@ NUMAA * numaaCreateFull(l_int32 nptr,
  */
 l_ok numaaTruncate(NUMAA  * naa)
 {
-	l_int32 i, n, nn;
+	int32 i, n, nn;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -1431,7 +1418,7 @@ l_ok numaaTruncate(NUMAA  * naa)
  */
 void numaaDestroy(NUMAA  ** pnaa)
 {
-	l_int32 i;
+	int32 i;
 	NUMAA   * naa;
 
 	PROCNAME(__FUNCTION__);
@@ -1464,9 +1451,9 @@ void numaaDestroy(NUMAA  ** pnaa)
  */
 l_ok numaaAddNuma(NUMAA   * naa,
     NUMA * na,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 n;
+	int32 n;
 	NUMA * nac;
 
 	PROCNAME(__FUNCTION__);
@@ -1514,7 +1501,7 @@ l_ok numaaAddNuma(NUMAA   * naa,
  *      (1) The max number of numa ptrs is 1M.
  * </pre>
  */
-static l_int32 numaaExtendArray(NUMAA  * naa)
+static int32 numaaExtendArray(NUMAA  * naa)
 {
 	size_t oldsize, newsize;
 
@@ -1546,7 +1533,7 @@ static l_int32 numaaExtendArray(NUMAA  * naa)
  * \param[in]    naa
  * \return  count number of numa, or 0 if no numa or on error
  */
-l_int32 numaaGetCount(NUMAA  * naa)
+int32 numaaGetCount(NUMAA  * naa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1562,8 +1549,8 @@ l_int32 numaaGetCount(NUMAA  * naa)
  * \param[in]    index     of numa in naa
  * \return  count of numbers in the referenced numa, or 0 on error.
  */
-l_int32 numaaGetNumaCount(NUMAA   * naa,
-    l_int32 index)
+int32 numaaGetNumaCount(NUMAA   * naa,
+    int32 index)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1581,10 +1568,10 @@ l_int32 numaaGetNumaCount(NUMAA   * naa,
  * \return  count total number of numbers in the numaa,
  *          or 0 if no numbers or on error
  */
-l_int32 numaaGetNumberCount(NUMAA  * naa)
+int32 numaaGetNumberCount(NUMAA  * naa)
 {
 	NUMA * na;
-	l_int32 n, sum, i;
+	int32 n, sum, i;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1648,8 +1635,8 @@ NUMA ** numaaGetPtrArray(NUMAA  * naa)
  * \return  numa, or NULL on error
  */
 NUMA * numaaGetNuma(NUMAA   * naa,
-    l_int32 index,
-    l_int32 accessflag)
+    int32 index,
+    int32 accessflag)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1682,10 +1669,10 @@ NUMA * numaaGetNuma(NUMAA   * naa,
  * </pre>
  */
 l_ok numaaReplaceNuma(NUMAA   * naa,
-    l_int32 index,
+    int32 index,
     NUMA * na)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1713,12 +1700,12 @@ l_ok numaaReplaceNuma(NUMAA   * naa,
  * \return  0 if OK, 1 on error
  */
 l_ok numaaGetValue(NUMAA      * naa,
-    l_int32 i,
-    l_int32 j,
+    int32 i,
+    int32 j,
     float * pfval,
-    l_int32    * pival)
+    int32    * pival)
 {
-	l_int32 n;
+	int32 n;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -1736,7 +1723,7 @@ l_ok numaaGetValue(NUMAA      * naa,
 	if(j < 0 || j >= na->n)
 		return ERROR_INT("invalid index into na", procName, 1);
 	if(pfval) *pfval = na->array[j];
-	if(pival) *pival = (l_int32)(na->array[j]);
+	if(pival) *pival = (int32)(na->array[j]);
 	return 0;
 }
 
@@ -1754,10 +1741,10 @@ l_ok numaaGetValue(NUMAA      * naa,
  * </pre>
  */
 l_ok numaaAddNumber(NUMAA     * naa,
-    l_int32 index,
+    int32 index,
     float val)
 {
-	l_int32 n;
+	int32 n;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -1810,7 +1797,7 @@ NUMAA * numaaRead(const char * filename)
  */
 NUMAA * numaaReadStream(FILE * fp)
 {
-	l_int32 i, n, index, ret, version;
+	int32 i, n, index, ret, version;
 	NUMA * na;
 	NUMAA     * naa;
 
@@ -1885,7 +1872,7 @@ NUMAA * numaaReadMem(const uint8  * data,
 l_ok numaaWrite(const char * filename,
     NUMAA       * naa)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1914,7 +1901,7 @@ l_ok numaaWrite(const char * filename,
 l_ok numaaWriteStream(FILE   * fp,
     NUMAA  * naa)
 {
-	l_int32 i, n;
+	int32 i, n;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -1955,7 +1942,7 @@ l_ok numaaWriteMem(uint8  ** pdata,
     size_t * psize,
     NUMAA     * naa)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);

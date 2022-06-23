@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file pixlabel.c
  * <pre>
@@ -35,9 +22,9 @@
  *           PIX         *pixConnCompAreaTransform()
  *
  *     Label pixels to allow incremental computation of connected components
- *           l_int32      pixConnCompIncrInit()
- *           l_int32      pixConnCompIncrAdd()
- *           l_int32      pixGetSortedNeighborValues()
+ *           int32      pixConnCompIncrInit()
+ *           int32      pixConnCompIncrAdd()
+ *           int32      pixGetSortedNeighborValues()
  *
  *     Label pixels with spatially-dependent color coding
  *           PIX         *pixLocToColorTransform()
@@ -107,10 +94,10 @@
  * </pre>
  */
 PIX * pixConnCompTransform(PIX * pixs,
-    l_int32 connect,
-    l_int32 depth)
+    int32 connect,
+    int32 depth)
 {
-	l_int32 i, n, index, w, h, xb, yb, wb, hb;
+	int32 i, n, index, w, h, xb, yb, wb, hb;
 	BOXA * boxa;
 	PIX * pix1, * pix2, * pixd;
 	PIXA    * pixa;
@@ -187,10 +174,10 @@ PIX * pixConnCompTransform(PIX * pixs,
  * </pre>
  */
 PIX * pixConnCompAreaTransform(PIX * pixs,
-    l_int32 connect)
+    int32 connect)
 {
-	l_int32 i, n, npix, w, h, xb, yb, wb, hb;
-	l_int32 * tab8;
+	int32 i, n, npix, w, h, xb, yb, wb, hb;
+	int32 * tab8;
 	BOXA     * boxa;
 	PIX * pix1, * pix2, * pixd;
 	PIXA * pixa;
@@ -258,12 +245,12 @@ PIX * pixConnCompAreaTransform(PIX * pixs,
  * </pre>
  */
 l_ok pixConnCompIncrInit(PIX * pixs,
-    l_int32 conn,
+    int32 conn,
     PIX    ** ppixd,
     PTAA   ** pptaa,
-    l_int32 * pncc)
+    int32 * pncc)
 {
-	l_int32 empty, w, h, ncc;
+	int32 empty, w, h, ncc;
 	PIX * pixd;
 	PTA * pta;
 	PTAA    * ptaa;
@@ -339,16 +326,16 @@ l_ok pixConnCompIncrInit(PIX * pixs,
  *          per second.
  * </pre>
  */
-l_int32 pixConnCompIncrAdd(PIX * pixs,
+int32 pixConnCompIncrAdd(PIX * pixs,
     PTAA      * ptaa,
-    l_int32   * pncc,
+    int32   * pncc,
     float x,
     float y,
-    l_int32 debug)
+    int32 debug)
 {
-	l_int32 conn, i, j, w, h, count, nvals, ns, firstindex;
-	l_uint32 val;
-	l_int32 * neigh;
+	int32 conn, i, j, w, h, count, nvals, ns, firstindex;
+	uint32 val;
+	int32 * neigh;
 	PTA * ptas, * ptad;
 
 	PROCNAME(__FUNCTION__);
@@ -470,15 +457,15 @@ l_int32 pixConnCompIncrAdd(PIX * pixs,
  * </pre>
  */
 l_ok pixGetSortedNeighborValues(PIX * pixs,
-    l_int32 x,
-    l_int32 y,
-    l_int32 conn,
-    l_int32 ** pneigh,
-    l_int32   * pnvals)
+    int32 x,
+    int32 y,
+    int32 conn,
+    int32 ** pneigh,
+    int32   * pnvals)
 {
-	l_int32 i, npt, index;
-	l_int32 neigh[4];
-	l_uint32 val;
+	int32 i, npt, index;
+	int32 neigh[4];
+	uint32 val;
 	float fx, fy;
 	L_ASET       * aset;
 	L_ASET_NODE  * node;
@@ -503,7 +490,7 @@ l_ok pixGetSortedNeighborValues(PIX * pixs,
 	npt = ptaGetCount(pta);
 	for(i = 0; i < npt; i++) {
 		ptaGetPt(pta, i, &fx, &fy);
-		pixGetPixel(pixs, (l_int32)fx, (l_int32)fy, &val);
+		pixGetPixel(pixs, (int32)fx, (int32)fy, &val);
 		key.utype = val;
 		l_asetInsert(aset, key);
 	}
@@ -516,12 +503,12 @@ l_ok pixGetSortedNeighborValues(PIX * pixs,
 	while(node) {
 		val = node->key.utype;
 		if(val > 0)
-			neigh[index++] = (l_int32)val;
+			neigh[index++] = (int32)val;
 		node = l_asetGetNext(node);
 	}
 	*pnvals = index;
 	if(index > 0) {
-		*pneigh = (l_int32*)SAlloc::C(index, sizeof(l_int32));
+		*pneigh = (int32*)SAlloc::C(index, sizeof(int32));
 		for(i = 0; i < index; i++)
 			(*pneigh)[i] = neigh[i];
 	}
@@ -555,10 +542,10 @@ l_ok pixGetSortedNeighborValues(PIX * pixs,
  */
 PIX * pixLocToColorTransform(PIX  * pixs)
 {
-	l_int32 w, h, w2, h2, wpls, wplr, wplg, wplb, wplcc, i, j, rval, gval, bval;
+	int32 w, h, w2, h2, wpls, wplr, wplg, wplb, wplcc, i, j, rval, gval, bval;
 	float invw2, invh2;
-	l_uint32  * datas, * datar, * datag, * datab, * datacc;
-	l_uint32  * lines, * liner, * lineg, * lineb, * linecc;
+	uint32  * datas, * datar, * datag, * datab, * datacc;
+	uint32  * lines, * liner, * lineg, * lineb, * linecc;
 	PIX * pix1, * pixcc, * pixr, * pixg, * pixb, * pixd;
 
 	PROCNAME(__FUNCTION__);

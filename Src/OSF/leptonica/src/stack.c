@@ -28,24 +28,24 @@
  *           void            lstackDestroy()
  *
  *      Accessors
- *           l_int32         lstackAdd()
+ *           int32         lstackAdd()
  *           void           *lstackRemove()
- *           static l_int32  lstackExtendArray()
- *           l_int32         lstackGetCount()
+ *           static int32  lstackExtendArray()
+ *           int32         lstackGetCount()
  *
  *      Text description
- *           l_int32         lstackPrint()
+ *           int32         lstackPrint()
  * </pre>
  */
 #include "allheaders.h"
 #pragma hdrstop
 
 /* Bounds on initial array size */
-static const l_uint32 MaxPtrArraySize = 100000;
-static const l_int32 InitialPtrArraySize = 20; /*!< n'importe quoi */
+static const uint32 MaxPtrArraySize = 100000;
+static const int32 InitialPtrArraySize = 20; /*!< n'importe quoi */
 
 /* Static function */
-static l_int32 lstackExtendArray(L_STACK * lstack);
+static int32 lstackExtendArray(L_STACK * lstack);
 
 /*---------------------------------------------------------------------*
 *                          Create/Destroy                             *
@@ -56,7 +56,7 @@ static l_int32 lstackExtendArray(L_STACK * lstack);
  * \param[in]    n   initial ptr array size; use 0 for default
  * \return  lstack, or NULL on error
  */
-L_STACK * lstackCreate(l_int32 n)
+L_STACK * lstackCreate(int32 n)
 {
 	L_STACK  * lstack;
 
@@ -97,7 +97,7 @@ L_STACK * lstackCreate(l_int32 n)
  * </pre>
  */
 void lstackDestroy(L_STACK  ** plstack,
-    l_int32 freeflag)
+    int32 freeflag)
 {
 	void     * item;
 	L_STACK  * lstack;
@@ -194,7 +194,7 @@ void * lstackRemove(L_STACK  * lstack)
  * \param[in]    lstack
  * \return  0 if OK; 1 on error
  */
-static l_int32 lstackExtendArray(L_STACK  * lstack)
+static int32 lstackExtendArray(L_STACK  * lstack)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -216,7 +216,7 @@ static l_int32 lstackExtendArray(L_STACK  * lstack)
  * \param[in]    lstack
  * \return  count, or 0 on error
  */
-l_int32 lstackGetCount(L_STACK  * lstack)
+int32 lstackGetCount(L_STACK  * lstack)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -239,7 +239,7 @@ l_int32 lstackGetCount(L_STACK  * lstack)
 l_ok lstackPrint(FILE * fp,
     L_STACK  * lstack)
 {
-	l_int32 i;
+	int32 i;
 
 	PROCNAME(__FUNCTION__);
 

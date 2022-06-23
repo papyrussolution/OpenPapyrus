@@ -853,7 +853,7 @@ Calendar* U_EXPORT2 Calendar::createInstance(TimeZone* zone, const Locale & aLoc
 	}
 	Calendar * c = (*shared)->clone();
 	shared->removeRef();
-	if(c == NULL) {
+	if(!c) {
 		success = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}

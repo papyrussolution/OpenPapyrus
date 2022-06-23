@@ -505,7 +505,7 @@ int SUiLayoutParam::ParseSizeStr(const SString & rStr, float & rS) const
 				const char * p_end = 0;
 				int   erange = 0;
 				double val = 0.0;
-				if(SRealConversion::Scan(temp_buf.cptr(), &p_end, &val, &erange) && !fisnan(val)) {
+				if(SIEEE754::Scan(temp_buf.cptr(), &p_end, &val, &erange) && !fisnan(val)) {
 					result = szFixed;
 					rS = static_cast<float>(val);
 					if(p_end) {

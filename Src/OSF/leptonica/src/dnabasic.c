@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file  dnabasic.c
  * <pre>
@@ -36,68 +23,68 @@
  *          void        *l_dnaDestroy()
  *          L_DNA       *l_dnaCopy()
  *          L_DNA       *l_dnaClone()
- *          l_int32      l_dnaEmpty()
+ *          int32      l_dnaEmpty()
  *
  *      Dna: add/remove number and extend array
- *          l_int32      l_dnaAddNumber()
- *          static l_int32  l_dnaExtendArray()
- *          l_int32      l_dnaInsertNumber()
- *          l_int32      l_dnaRemoveNumber()
- *          l_int32      l_dnaReplaceNumber()
+ *          int32      l_dnaAddNumber()
+ *          static int32  l_dnaExtendArray()
+ *          int32      l_dnaInsertNumber()
+ *          int32      l_dnaRemoveNumber()
+ *          int32      l_dnaReplaceNumber()
  *
  *      Dna accessors
- *          l_int32      l_dnaGetCount()
- *          l_int32      l_dnaSetCount()
- *          l_int32      l_dnaGetIValue()
- *          l_int32      l_dnaGetDValue()
- *          l_int32      l_dnaSetValue()
- *          l_int32      l_dnaShiftValue()
- *          l_int32     *l_dnaGetIArray()
+ *          int32      l_dnaGetCount()
+ *          int32      l_dnaSetCount()
+ *          int32      l_dnaGetIValue()
+ *          int32      l_dnaGetDValue()
+ *          int32      l_dnaSetValue()
+ *          int32      l_dnaShiftValue()
+ *          int32     *l_dnaGetIArray()
  *          double   *l_dnaGetDArray()
- *          l_int32      l_dnaGetRefcount()
- *          l_int32      l_dnaChangeRefcount()
- *          l_int32      l_dnaGetParameters()
- *          l_int32      l_dnaSetParameters()
- *          l_int32      l_dnaCopyParameters()
+ *          int32      l_dnaGetRefcount()
+ *          int32      l_dnaChangeRefcount()
+ *          int32      l_dnaGetParameters()
+ *          int32      l_dnaSetParameters()
+ *          int32      l_dnaCopyParameters()
  *
  *      Serialize Dna for I/O
  *          L_DNA       *l_dnaRead()
  *          L_DNA       *l_dnaReadStream()
  *          L_DNA       *l_dnaReadMem()
- *          l_int32      l_dnaWrite()
- *          l_int32      l_dnaWriteStream()
- *          l_int32      l_dnaWriteStderr()
- *          l_int32      l_dnaWriteMem()
+ *          int32      l_dnaWrite()
+ *          int32      l_dnaWriteStream()
+ *          int32      l_dnaWriteStderr()
+ *          int32      l_dnaWriteMem()
  *
  *      Dnaa creation, destruction
  *          L_DNAA      *l_dnaaCreate()
  *          L_DNAA      *l_dnaaCreateFull()
- *          l_int32      l_dnaaTruncate()
+ *          int32      l_dnaaTruncate()
  *          void        *l_dnaaDestroy()
  *
  *      Add Dna to Dnaa
- *          l_int32      l_dnaaAddDna()
- *          static l_int32  l_dnaaExtendArray()
+ *          int32      l_dnaaAddDna()
+ *          static int32  l_dnaaExtendArray()
  *
  *      Dnaa accessors
- *          l_int32      l_dnaaGetCount()
- *          l_int32      l_dnaaGetDnaCount()
- *          l_int32      l_dnaaGetNumberCount()
+ *          int32      l_dnaaGetCount()
+ *          int32      l_dnaaGetDnaCount()
+ *          int32      l_dnaaGetNumberCount()
  *          L_DNA       *l_dnaaGetDna()
  *          L_DNA       *l_dnaaReplaceDna()
- *          l_int32      l_dnaaGetValue()
- *          l_int32      l_dnaaAddNumber()
+ *          int32      l_dnaaGetValue()
+ *          int32      l_dnaaAddNumber()
  *
  *      Serialize Dnaa for I/O
  *          L_DNAA      *l_dnaaRead()
  *          L_DNAA      *l_dnaaReadStream()
  *          L_DNAA      *l_dnaaReadMem()
- *          l_int32      l_dnaaWrite()
- *          l_int32      l_dnaaWriteStream()
- *          l_int32      l_dnaaWriteMem()
+ *          int32      l_dnaaWrite()
+ *          int32      l_dnaaWriteStream()
+ *          int32      l_dnaaWriteMem()
  *
  *    (1) The Dna is a struct holding an array of doubles.  It can also
- *        be used to store l_int32 values, up to the full precision
+ *        be used to store int32 values, up to the full precision
  *        of int32.  Always use it whenever integers larger than a
  *        few million need to be stored.
  *
@@ -118,16 +105,16 @@
  *         or l_dnaGetDValue(), depending on whether you are retrieving
  *         an integer or a float64.  This avoids doing an explicit cast,
  *         such as
- *           (a) return a double and cast it to an l_int32
+ *           (a) return a double and cast it to an int32
  *           (b) cast the return directly to (double *) to
  *               satisfy the function prototype, as in
  *                 l_dnaGetDValue(da, index, (double *)&ival);   [ugly!]
  *
  *    (4) int <--> double conversions:
  *
- *        Conversions go automatically from l_int32 --> double,
- *        without loss of precision.  You must cast (l_int32)
- *        to go from double --> l_int32 because you're truncating
+ *        Conversions go automatically from int32 --> double,
+ *        without loss of precision.  You must cast (int32)
+ *        to go from double --> int32 because you're truncating
  *        to the integer value.
  *
  *    (5) As with other arrays in leptonica, the l_dna has both an allocated
@@ -153,13 +140,13 @@
 #pragma hdrstop
 
 /* Bounds on initial array size */
-static const l_uint32 MaxDoubleArraySize = 100000000; /* for dna */
-static const l_uint32 MaxPtrArraySize = 1000000; /* for dnaa */
-static const l_int32 InitialArraySize = 50; /*!< n'importe quoi */
+static const uint32 MaxDoubleArraySize = 100000000; /* for dna */
+static const uint32 MaxPtrArraySize = 1000000; /* for dnaa */
+static const int32 InitialArraySize = 50; /*!< n'importe quoi */
 
 /* Static functions */
-static l_int32 l_dnaExtendArray(L_DNA * da);
-static l_int32 l_dnaaExtendArray(L_DNAA * daa);
+static int32 l_dnaExtendArray(L_DNA * da);
+static int32 l_dnaaExtendArray(L_DNAA * daa);
 
 /*--------------------------------------------------------------------------*
 *                 Dna creation, destruction, copy, clone, etc.             *
@@ -170,7 +157,7 @@ static l_int32 l_dnaaExtendArray(L_DNAA * daa);
  * \param[in]    n   size of number array to be alloc'd; 0 for default
  * \return  da, or NULL on error
  */
-L_DNA * l_dnaCreate(l_int32 n)
+L_DNA * l_dnaCreate(int32 n)
 {
 	L_DNA  * da;
 
@@ -209,10 +196,10 @@ L_DNA * l_dnaCreate(l_int32 n)
  *          owned by the caller.
  * </pre>
  */
-L_DNA * l_dnaCreateFromIArray(l_int32 * iarray,
-    l_int32 size)
+L_DNA * l_dnaCreateFromIArray(int32 * iarray,
+    int32 size)
 {
-	l_int32 i;
+	int32 i;
 	L_DNA   * da;
 
 	PROCNAME(__FUNCTION__);
@@ -245,10 +232,10 @@ L_DNA * l_dnaCreateFromIArray(l_int32 * iarray,
  * </pre>
  */
 L_DNA * l_dnaCreateFromDArray(double  * darray,
-    l_int32 size,
-    l_int32 copyflag)
+    int32 size,
+    int32 copyflag)
 {
-	l_int32 i;
+	int32 i;
 	L_DNA   * da;
 
 	PROCNAME(__FUNCTION__);
@@ -284,9 +271,9 @@ L_DNA * l_dnaCreateFromDArray(double  * darray,
  */
 L_DNA * l_dnaMakeSequence(double startval,
     double increment,
-    l_int32 size)
+    int32 size)
 {
-	l_int32 i;
+	int32 i;
 	double val;
 	L_DNA     * da;
 
@@ -352,7 +339,7 @@ void l_dnaDestroy(L_DNA  ** pda)
  */
 L_DNA * l_dnaCopy(L_DNA  * da)
 {
-	l_int32 i;
+	int32 i;
 	L_DNA   * dac;
 
 	PROCNAME(__FUNCTION__);
@@ -425,7 +412,7 @@ l_ok l_dnaEmpty(L_DNA  * da)
 l_ok l_dnaAddNumber(L_DNA     * da,
     double val)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -454,7 +441,7 @@ l_ok l_dnaAddNumber(L_DNA     * da,
  *      (2) The max number of doubles is 100M.
  * </pre>
  */
-static l_int32 l_dnaExtendArray(L_DNA  * da)
+static int32 l_dnaExtendArray(L_DNA  * da)
 {
 	size_t oldsize, newsize;
 
@@ -498,10 +485,10 @@ static l_int32 l_dnaExtendArray(L_DNA  * da)
  * </pre>
  */
 l_ok l_dnaInsertNumber(L_DNA      * da,
-    l_int32 index,
+    int32 index,
     double val)
 {
-	l_int32 i, n;
+	int32 i, n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -539,9 +526,9 @@ l_ok l_dnaInsertNumber(L_DNA      * da,
  * </pre>
  */
 l_ok l_dnaRemoveNumber(L_DNA   * da,
-    l_int32 index)
+    int32 index)
 {
-	l_int32 i, n;
+	int32 i, n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -568,10 +555,10 @@ l_ok l_dnaRemoveNumber(L_DNA   * da,
  * \return  0 if OK, 1 on error
  */
 l_ok l_dnaReplaceNumber(L_DNA     * da,
-    l_int32 index,
+    int32 index,
     double val)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -596,7 +583,7 @@ l_ok l_dnaReplaceNumber(L_DNA     * da,
  * \param[in]    da
  * \return  count, or 0 if no numbers or on error
  */
-l_int32 l_dnaGetCount(L_DNA  * da)
+int32 l_dnaGetCount(L_DNA  * da)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -622,7 +609,7 @@ l_int32 l_dnaGetCount(L_DNA  * da)
  * </pre>
  */
 l_ok l_dnaSetCount(L_DNA   * da,
-    l_int32 newcount)
+    int32 newcount)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -654,7 +641,7 @@ l_ok l_dnaSetCount(L_DNA   * da,
  * </pre>
  */
 l_ok l_dnaGetDValue(L_DNA      * da,
-    l_int32 index,
+    int32 index,
     double  * pval)
 {
 	PROCNAME(__FUNCTION__);
@@ -687,8 +674,8 @@ l_ok l_dnaGetDValue(L_DNA      * da,
  * </pre>
  */
 l_ok l_dnaGetIValue(L_DNA    * da,
-    l_int32 index,
-    l_int32 * pival)
+    int32 index,
+    int32 * pival)
 {
 	double val;
 
@@ -704,7 +691,7 @@ l_ok l_dnaGetIValue(L_DNA    * da,
 		return ERROR_INT("index not valid", procName, 1);
 
 	val = da->array[index];
-	*pival = (l_int32)(val + L_SIGN(val) * 0.5);
+	*pival = (int32)(val + L_SIGN(val) * 0.5);
 	return 0;
 }
 
@@ -717,7 +704,7 @@ l_ok l_dnaGetIValue(L_DNA    * da,
  * \return  0 if OK; 1 on error
  */
 l_ok l_dnaSetValue(L_DNA     * da,
-    l_int32 index,
+    int32 index,
     double val)
 {
 	PROCNAME(__FUNCTION__);
@@ -740,7 +727,7 @@ l_ok l_dnaSetValue(L_DNA     * da,
  * \return  0 if OK; 1 on error
  */
 l_ok l_dnaShiftValue(L_DNA     * da,
-    l_int32 index,
+    int32 index,
     double diff)
 {
 	PROCNAME(__FUNCTION__);
@@ -773,19 +760,19 @@ l_ok l_dnaShiftValue(L_DNA     * da,
  *          on an array of size 256.
  * </pre>
  */
-l_int32 * l_dnaGetIArray(L_DNA  * da)
+int32 * l_dnaGetIArray(L_DNA  * da)
 {
-	l_int32 i, n, ival;
-	l_int32 * array;
+	int32 i, n, ival;
+	int32 * array;
 
 	PROCNAME(__FUNCTION__);
 
 	if(!da)
-		return (l_int32*)ERROR_PTR("da not defined", procName, NULL);
+		return (int32*)ERROR_PTR("da not defined", procName, NULL);
 
 	n = l_dnaGetCount(da);
-	if((array = (l_int32*)SAlloc::C(n, sizeof(l_int32))) == NULL)
-		return (l_int32*)ERROR_PTR("array not made", procName, NULL);
+	if((array = (int32*)SAlloc::C(n, sizeof(int32))) == NULL)
+		return (int32*)ERROR_PTR("array not made", procName, NULL);
 	for(i = 0; i < n; i++) {
 		l_dnaGetIValue(da, i, &ival);
 		array[i] = ival;
@@ -816,9 +803,9 @@ l_int32 * l_dnaGetIArray(L_DNA  * da)
  * </pre>
  */
 double * l_dnaGetDArray(L_DNA   * da,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 i, n;
+	int32 i, n;
 	double  * array;
 
 	PROCNAME(__FUNCTION__);
@@ -846,7 +833,7 @@ double * l_dnaGetDArray(L_DNA   * da,
  * \param[in]    da
  * \return  refcount, or UNDEF on error
  */
-l_int32 l_dnaGetRefcount(L_DNA  * da)
+int32 l_dnaGetRefcount(L_DNA  * da)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -863,7 +850,7 @@ l_int32 l_dnaGetRefcount(L_DNA  * da)
  * \return  0 if OK, 1 on error
  */
 l_ok l_dnaChangeRefcount(L_DNA   * da,
-    l_int32 delta)
+    int32 delta)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -987,7 +974,7 @@ L_DNA * l_dnaRead(const char * filename)
  */
 L_DNA * l_dnaReadStream(FILE * fp)
 {
-	l_int32 i, n, index, ret, version;
+	int32 i, n, index, ret, version;
 	double val, startx, delx;
 	L_DNA     * da;
 
@@ -1061,7 +1048,7 @@ L_DNA * l_dnaReadMem(const uint8  * data,
 l_ok l_dnaWrite(const char * filename,
     L_DNA       * da)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1090,7 +1077,7 @@ l_ok l_dnaWrite(const char * filename,
 l_ok l_dnaWriteStream(FILE   * fp,
     L_DNA  * da)
 {
-	l_int32 i, n;
+	int32 i, n;
 	double startx, delx;
 
 	PROCNAME(__FUNCTION__);
@@ -1123,7 +1110,7 @@ l_ok l_dnaWriteStream(FILE   * fp,
  */
 l_ok l_dnaWriteStderr(L_DNA  * da)
 {
-	l_int32 i, n;
+	int32 i, n;
 	double startx, delx;
 
 	PROCNAME(__FUNCTION__);
@@ -1163,7 +1150,7 @@ l_ok l_dnaWriteMem(uint8  ** pdata,
     size_t * psize,
     L_DNA     * da)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1211,7 +1198,7 @@ l_ok l_dnaWriteMem(uint8  ** pdata,
  * \return  daa, or NULL on error
  *
  */
-L_DNAA * l_dnaaCreate(l_int32 n)
+L_DNAA * l_dnaaCreate(int32 n)
 {
 	L_DNAA  * daa;
 
@@ -1245,10 +1232,10 @@ L_DNAA * l_dnaaCreate(l_int32 n)
  *          to add val to the index-th dna in dnaa.
  * </pre>
  */
-L_DNAA * l_dnaaCreateFull(l_int32 nptr,
-    l_int32 n)
+L_DNAA * l_dnaaCreateFull(int32 nptr,
+    int32 n)
 {
-	l_int32 i;
+	int32 i;
 	L_DNAA  * daa;
 	L_DNA   * da;
 
@@ -1276,7 +1263,7 @@ L_DNAA * l_dnaaCreateFull(l_int32 nptr,
  */
 l_ok l_dnaaTruncate(L_DNAA  * daa)
 {
-	l_int32 i, n, nn;
+	int32 i, n, nn;
 	L_DNA   * da;
 
 	PROCNAME(__FUNCTION__);
@@ -1308,7 +1295,7 @@ l_ok l_dnaaTruncate(L_DNAA  * daa)
  */
 void l_dnaaDestroy(L_DNAA  ** pdaa)
 {
-	l_int32 i;
+	int32 i;
 	L_DNAA  * daa;
 
 	PROCNAME(__FUNCTION__);
@@ -1341,9 +1328,9 @@ void l_dnaaDestroy(L_DNAA  ** pdaa)
  */
 l_ok l_dnaaAddDna(L_DNAA  * daa,
     L_DNA   * da,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 n;
+	int32 n;
 	L_DNA   * dac;
 
 	PROCNAME(__FUNCTION__);
@@ -1392,7 +1379,7 @@ l_ok l_dnaaAddDna(L_DNAA  * daa,
  *      (2) The max size of the dna array is 1M ptrs.
  * </pre>
  */
-static l_int32 l_dnaaExtendArray(L_DNAA  * daa)
+static int32 l_dnaaExtendArray(L_DNAA  * daa)
 {
 	size_t oldsize, newsize;
 
@@ -1424,7 +1411,7 @@ static l_int32 l_dnaaExtendArray(L_DNAA  * daa)
  * \param[in]    daa
  * \return  count   number of l_dna, or 0 if no l_dna or on error
  */
-l_int32 l_dnaaGetCount(L_DNAA  * daa)
+int32 l_dnaaGetCount(L_DNAA  * daa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1440,8 +1427,8 @@ l_int32 l_dnaaGetCount(L_DNAA  * daa)
  * \param[in]    index   of l_dna in daa
  * \return  count   of numbers in the referenced l_dna, or 0 on error.
  */
-l_int32 l_dnaaGetDnaCount(L_DNAA   * daa,
-    l_int32 index)
+int32 l_dnaaGetDnaCount(L_DNAA   * daa,
+    int32 index)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1459,10 +1446,10 @@ l_int32 l_dnaaGetDnaCount(L_DNAA   * daa,
  * \return  count   total number of numbers in the l_dnaa,
  *                  or 0 if no numbers or on error
  */
-l_int32 l_dnaaGetNumberCount(L_DNAA  * daa)
+int32 l_dnaaGetNumberCount(L_DNAA  * daa)
 {
 	L_DNA   * da;
-	l_int32 n, sum, i;
+	int32 n, sum, i;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1488,8 +1475,8 @@ l_int32 l_dnaaGetNumberCount(L_DNAA  * daa)
  * \return  l_dna, or NULL on error
  */
 L_DNA * l_dnaaGetDna(L_DNAA  * daa,
-    l_int32 index,
-    l_int32 accessflag)
+    int32 index,
+    int32 accessflag)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1522,10 +1509,10 @@ L_DNA * l_dnaaGetDna(L_DNAA  * daa,
  * </pre>
  */
 l_ok l_dnaaReplaceDna(L_DNAA  * daa,
-    l_int32 index,
+    int32 index,
     L_DNA   * da)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1552,11 +1539,11 @@ l_ok l_dnaaReplaceDna(L_DNAA  * daa,
  * \return  0 if OK, 1 on error
  */
 l_ok l_dnaaGetValue(L_DNAA     * daa,
-    l_int32 i,
-    l_int32 j,
+    int32 i,
+    int32 j,
     double  * pval)
 {
-	l_int32 n;
+	int32 n;
 	L_DNA   * da;
 
 	PROCNAME(__FUNCTION__);
@@ -1590,10 +1577,10 @@ l_ok l_dnaaGetValue(L_DNAA     * daa,
  * </pre>
  */
 l_ok l_dnaaAddNumber(L_DNAA    * daa,
-    l_int32 index,
+    int32 index,
     double val)
 {
-	l_int32 n;
+	int32 n;
 	L_DNA   * da;
 
 	PROCNAME(__FUNCTION__);
@@ -1651,7 +1638,7 @@ L_DNAA * l_dnaaRead(const char * filename)
  */
 L_DNAA * l_dnaaReadStream(FILE * fp)
 {
-	l_int32 i, n, index, ret, version;
+	int32 i, n, index, ret, version;
 	L_DNA     * da;
 	L_DNAA    * daa;
 
@@ -1726,7 +1713,7 @@ L_DNAA * l_dnaaReadMem(const uint8  * data,
 l_ok l_dnaaWrite(const char * filename,
     L_DNAA      * daa)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1755,7 +1742,7 @@ l_ok l_dnaaWrite(const char * filename,
 l_ok l_dnaaWriteStream(FILE * fp,
     L_DNAA  * daa)
 {
-	l_int32 i, n;
+	int32 i, n;
 	L_DNA   * da;
 
 	PROCNAME(__FUNCTION__);
@@ -1796,7 +1783,7 @@ l_ok l_dnaaWriteMem(uint8  ** pdata,
     size_t * psize,
     L_DNAA    * daa)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);

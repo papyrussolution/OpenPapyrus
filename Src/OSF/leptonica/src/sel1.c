@@ -22,31 +22,31 @@
  *            SEL       *selCreateComb()
  *
  *         Helper proc:
- *            l_int32 **create2dIntArray()
+ *            int32 **create2dIntArray()
  *
  *         Extension of sela:
  *            SELA      *selaAddSel()
- *            static l_int32  selaExtendArray()
+ *            static int32  selaExtendArray()
  *
  *         Accessors:
- *            l_int32    selaGetCount()
+ *            int32    selaGetCount()
  *            SEL       *selaGetSel()
  *            char      *selGetName()
- *            l_int32    selSetName()
- *            l_int32    selaFindSelByName()
- *            l_int32    selGetElement()
- *            l_int32    selSetElement()
- *            l_int32    selGetParameters()
- *            l_int32    selSetOrigin()
- *            l_int32    selGetTypeAtOrigin()
+ *            int32    selSetName()
+ *            int32    selaFindSelByName()
+ *            int32    selGetElement()
+ *            int32    selSetElement()
+ *            int32    selGetParameters()
+ *            int32    selSetOrigin()
+ *            int32    selGetTypeAtOrigin()
  *            char      *selaGetBrickName()
  *            char      *selaGetCombName()
  *     static char      *selaComputeCompositeParameters()
- *            l_int32    getCompositeParameters()
+ *            int32    getCompositeParameters()
  *            SARRAY    *selaGetSelnames()
  *
  *         Max translations for erosion and hmt
- *            l_int32    selFindMaxTranslations()
+ *            int32    selFindMaxTranslations()
  *
  *         Rotation by multiples of 90 degrees
  *            SEL       *selRotateOrth()
@@ -56,10 +56,10 @@
  *            SELA      *selaReadStream()
  *            SEL       *selRead()
  *            SEL       *selReadStream()
- *            l_int32    selaWrite()
- *            l_int32    selaWriteStream()
- *            l_int32    selWrite()
- *            l_int32    selWriteStream()
+ *            int32    selaWrite()
+ *            int32    selaWriteStream()
+ *            int32    selWrite()
+ *            int32    selWriteStream()
  *
  *         Building custom hit-miss sels from compiled strings
  *            SEL       *selCreateFromString()
@@ -123,24 +123,24 @@
 #pragma hdrstop
 
 /* Bounds on sel ptr array size */
-static const l_uint32 MaxPtrArraySize = 10000;
-static const l_int32 InitialPtrArraySize = 50; /*!< n'importe quoi */
+static const uint32 MaxPtrArraySize = 10000;
+static const int32 InitialPtrArraySize = 50; /*!< n'importe quoi */
 
 /* Bounds on kernel size */
-static const l_uint32 MaxKernelSize = 10000;
+static const uint32 MaxKernelSize = 10000;
 
 /* Bounds on pix template size */
-static const l_uint32 MaxPixTemplateSize = 100;
-static const l_uint32 MaxPixTemplateHits = 1000;
+static const uint32 MaxPixTemplateSize = 100;
+static const uint32 MaxPixTemplateHits = 1000;
 
 /* Static functions */
-static l_int32 selaExtendArray(SELA * sela);
-static SEL * selCreateFromSArray(SARRAY * sa, l_int32 first, l_int32 last);
+static int32 selaExtendArray(SELA * sela);
+static SEL * selCreateFromSArray(SARRAY * sa, int32 first, int32 last);
 
 struct CompParameterMap {
-	l_int32 size;
-	l_int32 size1;
-	l_int32 size2;
+	int32 size;
+	int32 size1;
+	int32 size2;
 	char selnameh1[20];
 	char selnameh2[20];
 	char selnamev1[20];
@@ -220,15 +220,12 @@ static const struct CompParameterMap comp_parameter_map[] =
  * \param[in]    n    initial number of sel ptrs; use 0 for default
  * \return  sela, or NULL on error
  */
-SELA * selaCreate(l_int32 n)
+SELA * selaCreate(int32 n)
 {
-	SELA  * sela;
-
 	PROCNAME(__FUNCTION__);
-
+	SELA  * sela;
 	if(n <= 0 || n > MaxPtrArraySize)
 		n = InitialPtrArraySize;
-
 	/* Make array of sel ptrs */
 	sela = (SELA*)SAlloc::C(1, sizeof(SELA));
 	sela->nalloc = n;
@@ -236,7 +233,6 @@ SELA * selaCreate(l_int32 n)
 	sela->sel = (SEL**)SAlloc::C(n, sizeof(SEL *));
 	return sela;
 }
-
 /*!
  * \brief   selaDestroy()
  *
@@ -246,7 +242,7 @@ SELA * selaCreate(l_int32 n)
 void selaDestroy(SELA  ** psela)
 {
 	SELA    * sela;
-	l_int32 i;
+	int32 i;
 
 	if(!psela) return;
 	if((sela = *psela) == NULL)
@@ -275,14 +271,10 @@ void selaDestroy(SELA  ** psela)
  *          be needed later when the sel is put into a sela.
  * </pre>
  */
-SEL * selCreate(l_int32 height,
-    l_int32 width,
-    const char * name)
+SEL * selCreate(int32 height, int32 width, const char * name)
 {
-	SEL  * sel;
-
 	PROCNAME(__FUNCTION__);
-
+	SEL  * sel;
 	sel = (SEL*)SAlloc::C(1, sizeof(SEL));
 	if(name)
 		sel->name = stringNew(name);
@@ -293,10 +285,8 @@ SEL * selCreate(l_int32 height,
 		SAlloc::F(sel);
 		return (SEL*)ERROR_PTR("data not allocated", procName, NULL);
 	}
-
 	return sel;
 }
-
 /*!
  * \brief   selDestroy()
  *
@@ -305,27 +295,22 @@ SEL * selCreate(l_int32 height,
  */
 void selDestroy(SEL  ** psel)
 {
-	l_int32 i;
-	SEL     * sel;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i;
+	SEL     * sel;
 	if(psel == NULL) {
 		L_WARNING("ptr address is NULL!\n", procName);
 		return;
 	}
 	if((sel = *psel) == NULL)
 		return;
-
 	for(i = 0; i < sel->sy; i++)
 		SAlloc::F(sel->data[i]);
 	SAlloc::F(sel->data);
-	if(sel->name)
-		SAlloc::F(sel->name);
+	SAlloc::F(sel->name);
 	SAlloc::F(sel);
 	*psel = NULL;
 }
-
 /*!
  * \brief   selCopy()
  *
@@ -334,36 +319,28 @@ void selDestroy(SEL  ** psel)
  */
 SEL * selCopy(SEL  * sel)
 {
-	l_int32 sx, sy, cx, cy, i, j;
-	SEL     * csel;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 sx, sy, cx, cy, i, j;
+	SEL     * csel;
 	if(!sel)
 		return (SEL*)ERROR_PTR("sel not defined", procName, NULL);
-
 	csel = (SEL*)SAlloc::C(1, sizeof(SEL));
 	selGetParameters(sel, &sy, &sx, &cy, &cx);
 	csel->sy = sy;
 	csel->sx = sx;
 	csel->cy = cy;
 	csel->cx = cx;
-
 	if((csel->data = create2dIntArray(sy, sx)) == NULL) {
 		SAlloc::F(csel);
 		return (SEL*)ERROR_PTR("sel data not made", procName, NULL);
 	}
-
 	for(i = 0; i < sy; i++)
 		for(j = 0; j < sx; j++)
 			csel->data[i][j] = sel->data[i][j];
-
 	if(sel->name)
 		csel->name = stringNew(sel->name);
-
 	return csel;
 }
-
 /*!
  * \brief   selCreateBrick()
  *
@@ -377,32 +354,23 @@ SEL * selCopy(SEL  * sel)
  *      (1) This is a rectangular sel of all hits, misses or don't cares.
  * </pre>
  */
-SEL * selCreateBrick(l_int32 h,
-    l_int32 w,
-    l_int32 cy,
-    l_int32 cx,
-    l_int32 type)
+SEL * selCreateBrick(int32 h, int32 w, int32 cy, int32 cx, int32 type)
 {
-	l_int32 i, j;
-	SEL     * sel;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i, j;
+	SEL     * sel;
 	if(h <= 0 || w <= 0)
 		return (SEL*)ERROR_PTR("h and w must both be > 0", procName, NULL);
 	if(type != SEL_HIT && type != SEL_MISS && type != SEL_DONT_CARE)
 		return (SEL*)ERROR_PTR("invalid sel element type", procName, NULL);
-
 	if((sel = selCreate(h, w, NULL)) == NULL)
 		return (SEL*)ERROR_PTR("sel not made", procName, NULL);
 	selSetOrigin(sel, cy, cx);
 	for(i = 0; i < h; i++)
 		for(j = 0; j < w; j++)
 			sel->data[i][j] = type;
-
 	return sel;
 }
-
 /*!
  * \brief   selCreateComb()
  *
@@ -419,20 +387,15 @@ SEL * selCreateBrick(l_int32 h,
  *          Both brick and comb sels are made by selectComposableSels().
  * </pre>
  */
-SEL * selCreateComb(l_int32 factor1,
-    l_int32 factor2,
-    l_int32 direction)
+SEL * selCreateComb(int32 factor1, int32 factor2, int32 direction)
 {
-	l_int32 i, size, z;
-	SEL     * sel;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i, size, z;
+	SEL     * sel;
 	if(factor1 < 1 || factor2 < 1)
 		return (SEL*)ERROR_PTR("factors must be >= 1", procName, NULL);
 	if(direction != L_HORIZ && direction != L_VERT)
 		return (SEL*)ERROR_PTR("invalid direction", procName, NULL);
-
 	size = factor1 * factor2;
 	if(direction == L_HORIZ) {
 		if((sel = selCreate(1, size, NULL)) == NULL)
@@ -444,7 +407,6 @@ SEL * selCreateComb(l_int32 factor1,
 			return (SEL*)ERROR_PTR("vert sel not made", procName, NULL);
 		selSetOrigin(sel, size / 2, 0);
 	}
-
 	/* Lay down the elements of the comb */
 	for(i = 0; i < factor2; i++) {
 		z = factor1 / 2 + i * factor1;
@@ -455,10 +417,8 @@ SEL * selCreateComb(l_int32 factor1,
 		else
 			selSetElement(sel, z, 0, SEL_HIT);
 	}
-
 	return sel;
 }
-
 /*!
  * \brief   create2dIntArray()
  *
@@ -473,25 +433,20 @@ SEL * selCreateComb(l_int32 factor1,
  *          with the row index first.
  * </pre>
  */
-l_int32 ** create2dIntArray(l_int32 sy,
-    l_int32 sx)
+int32 ** create2dIntArray(int32 sy, int32 sx)
 {
-	l_int32 i;
-	l_int32 ** array;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i;
+	int32 ** array;
 	if(sx <= 0 || sx > MaxKernelSize)
-		return (l_int32**)ERROR_PTR("sx out of bounds", procName, NULL);
+		return (int32**)ERROR_PTR("sx out of bounds", procName, NULL);
 	if(sy <= 0 || sy > MaxKernelSize)
-		return (l_int32**)ERROR_PTR("sy out of bounds", procName, NULL);
-
-	array = (l_int32**)SAlloc::C(sy, sizeof(l_int32 *));
+		return (int32**)ERROR_PTR("sy out of bounds", procName, NULL);
+	array = (int32**)SAlloc::C(sy, sizeof(int32 *));
 	for(i = 0; i < sy; i++)
-		array[i] = (l_int32*)SAlloc::C(sx, sizeof(l_int32));
+		array[i] = (int32*)SAlloc::C(sx, sizeof(int32));
 	return array;
 }
-
 /*------------------------------------------------------------------------*
 *                           Extension of sela                            *
 *------------------------------------------------------------------------*/
@@ -513,16 +468,11 @@ l_int32 ** create2dIntArray(l_int32 sy,
  *          selname if the sel already has a name.
  * </pre>
  */
-l_ok selaAddSel(SELA        * sela,
-    SEL         * sel,
-    const char * selname,
-    l_int32 copyflag)
+l_ok selaAddSel(SELA        * sela, SEL         * sel, const char * selname, int32 copyflag)
 {
-	l_int32 n;
-	SEL     * csel;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 n;
+	SEL     * csel;
 	if(!sela)
 		return ERROR_INT("sela not defined", procName, 1);
 	if(!sel)
@@ -531,7 +481,6 @@ l_ok selaAddSel(SELA        * sela,
 		return ERROR_INT("added sel must have name", procName, 1);
 	if(copyflag != L_INSERT && copyflag != L_COPY)
 		return ERROR_INT("invalid copyflag", procName, 1);
-
 	if(copyflag == L_COPY) {
 		if((csel = selCopy(sel)) == NULL)
 			return ERROR_INT("csel not made", procName, 1);
@@ -541,7 +490,6 @@ l_ok selaAddSel(SELA        * sela,
 	}
 	if(!csel->name)
 		csel->name = stringNew(selname);
-
 	n = selaGetCount(sela);
 	if(n >= sela->nalloc) {
 		if(selaExtendArray(sela)) {
@@ -550,34 +498,26 @@ l_ok selaAddSel(SELA        * sela,
 			return ERROR_INT("extension failed", procName, 1);
 		}
 	}
-
 	sela->sel[n] = csel;
 	sela->n++;
 	return 0;
 }
-
 /*!
  * \brief   selaExtendArray()
  *
  * \param[in]    sela
  * \return  0 if OK; 1 on error
  */
-static l_int32 selaExtendArray(SELA  * sela)
+static int32 selaExtendArray(SELA  * sela)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!sela)
 		return ERROR_INT("sela not defined", procName, 1);
-
-	if((sela->sel = (SEL**)reallocNew((void**)&sela->sel,
-	    sizeof(SEL *) * sela->nalloc,
-	    2 * sizeof(SEL *) * sela->nalloc)) == NULL)
+	if((sela->sel = (SEL**)reallocNew((void**)&sela->sel, sizeof(SEL *) * sela->nalloc, 2 * sizeof(SEL *) * sela->nalloc)) == NULL)
 		return ERROR_INT("new ptr array not returned", procName, 1);
-
 	sela->nalloc = 2 * sela->nalloc;
 	return 0;
 }
-
 /*----------------------------------------------------------------------*
 *                               Accessors                              *
 *----------------------------------------------------------------------*/
@@ -587,16 +527,13 @@ static l_int32 selaExtendArray(SELA  * sela)
  * \param[in]    sela
  * \return  count, or 0 on error
  */
-l_int32 selaGetCount(SELA  * sela)
+int32 selaGetCount(SELA  * sela)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!sela)
 		return ERROR_INT("sela not defined", procName, 0);
-
 	return sela->n;
 }
-
 /*!
  * \brief   selaGetSel()
  *
@@ -610,19 +547,15 @@ l_int32 selaGetCount(SELA  * sela)
  *          must not destroy it!
  * </pre>
  */
-SEL * selaGetSel(SELA    * sela,
-    l_int32 i)
+SEL * selaGetSel(SELA    * sela, int32 i)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!sela)
 		return (SEL*)ERROR_PTR("sela not defined", procName, NULL);
-
 	if(i < 0 || i >= sela->n)
 		return (SEL*)ERROR_PTR("invalid index", procName, NULL);
 	return sela->sel[i];
 }
-
 /*!
  * \brief   selGetName()
  *
@@ -632,13 +565,10 @@ SEL * selaGetSel(SELA    * sela,
 char * selGetName(SEL  * sel)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!sel)
 		return (char *)ERROR_PTR("sel not defined", procName, NULL);
-
 	return sel->name;
 }
-
 /*!
  * \brief   selSetName()
  *
@@ -652,17 +582,13 @@ char * selGetName(SEL  * sel)
  *      (2) If name is not defined, just clears any existing sel name.
  * </pre>
  */
-l_ok selSetName(SEL         * sel,
-    const char * name)
+l_ok selSetName(SEL         * sel, const char * name)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!sel)
 		return ERROR_INT("sel not defined", procName, 1);
-
 	return stringReplace(&sel->name, name);
 }
-
 /*!
  * \brief   selaFindSelByName()
  *
@@ -672,30 +598,22 @@ l_ok selSetName(SEL         * sel,
  * \param[in]    psel      [optional] sel (not a copy)
  * \return  0 if OK; 1 on error
  */
-l_ok selaFindSelByName(SELA        * sela,
-    const char * name,
-    l_int32     * pindex,
-    SEL        ** psel)
+l_ok selaFindSelByName(SELA        * sela, const char * name, int32     * pindex, SEL        ** psel)
 {
-	l_int32 i, n;
+	PROCNAME(__FUNCTION__);
+	int32 i, n;
 	char * sname;
 	SEL     * sel;
-
-	PROCNAME(__FUNCTION__);
-
 	if(pindex) *pindex = -1;
 	if(psel) *psel = NULL;
-
 	if(!sela)
 		return ERROR_INT("sela not defined", procName, 1);
-
 	n = selaGetCount(sela);
 	for(i = 0; i < n; i++) {
 		if((sel = selaGetSel(sela, i)) == NULL) {
 			L_WARNING("missing sel\n", procName);
 			continue;
 		}
-
 		sname = selGetName(sel);
 		if(sname && (!strcmp(name, sname))) {
 			if(pindex)
@@ -705,10 +623,8 @@ l_ok selaFindSelByName(SELA        * sela,
 			return 0;
 		}
 	}
-
 	return 1;
 }
-
 /*!
  * \brief   selGetElement()
  *
@@ -718,13 +634,9 @@ l_ok selaFindSelByName(SELA        * sela,
  * \param[out]   ptype    SEL_HIT, SEL_MISS, SEL_DONT_CARE
  * \return  0 if OK; 1 on error
  */
-l_ok selGetElement(SEL      * sel,
-    l_int32 row,
-    l_int32 col,
-    l_int32 * ptype)
+l_ok selGetElement(SEL      * sel, int32 row, int32 col, int32 * ptype)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!ptype)
 		return ERROR_INT("&type not defined", procName, 1);
 	*ptype = SEL_DONT_CARE;
@@ -734,11 +646,9 @@ l_ok selGetElement(SEL      * sel,
 		return ERROR_INT("sel row out of bounds", procName, 1);
 	if(col < 0 || col >= sel->sx)
 		return ERROR_INT("sel col out of bounds", procName, 1);
-
 	*ptype = sel->data[row][col];
 	return 0;
 }
-
 /*!
  * \brief   selSetElement()
  *
@@ -756,13 +666,9 @@ l_ok selGetElement(SEL      * sel,
  *          direction of the rasterop.
  * </pre>
  */
-l_ok selSetElement(SEL     * sel,
-    l_int32 row,
-    l_int32 col,
-    l_int32 type)
+l_ok selSetElement(SEL     * sel, int32 row, int32 col, int32 type)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!sel)
 		return ERROR_INT("sel not defined", procName, 1);
 	if(type != SEL_HIT && type != SEL_MISS && type != SEL_DONT_CARE)
@@ -771,11 +677,9 @@ l_ok selSetElement(SEL     * sel,
 		return ERROR_INT("sel row out of bounds", procName, 1);
 	if(col < 0 || col >= sel->sx)
 		return ERROR_INT("sel col out of bounds", procName, 1);
-
 	sel->data[row][col] = type;
 	return 0;
 }
-
 /*!
  * \brief   selGetParameters()
  *
@@ -783,14 +687,9 @@ l_ok selSetElement(SEL     * sel,
  * \param[out]   psy, psx, pcy, pcx    [optional] each can be null
  * \return  0 if OK, 1 on error
  */
-l_ok selGetParameters(SEL      * sel,
-    l_int32 * psy,
-    l_int32 * psx,
-    l_int32 * pcy,
-    l_int32 * pcx)
+l_ok selGetParameters(SEL      * sel, int32 * psy, int32 * psx, int32 * pcy, int32 * pcx)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(psy) *psy = 0;
 	if(psx) *psx = 0;
 	if(pcy) *pcy = 0;
@@ -803,7 +702,6 @@ l_ok selGetParameters(SEL      * sel,
 	if(pcx) *pcx = sel->cx;
 	return 0;
 }
-
 /*!
  * \brief   selSetOrigin()
  *
@@ -811,12 +709,9 @@ l_ok selGetParameters(SEL      * sel,
  * \param[in]    cy, cx
  * \return  0 if OK; 1 on error
  */
-l_ok selSetOrigin(SEL     * sel,
-    l_int32 cy,
-    l_int32 cx)
+l_ok selSetOrigin(SEL     * sel, int32 cy, int32 cx)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!sel)
 		return ERROR_INT("sel not defined", procName, 1);
 	sel->cy = cy;
@@ -831,19 +726,15 @@ l_ok selSetOrigin(SEL     * sel,
  * \param[out]   ptype    SEL_HIT, SEL_MISS, SEL_DONT_CARE
  * \return  0 if OK; 1 on error or if origin is not found
  */
-l_ok selGetTypeAtOrigin(SEL      * sel,
-    l_int32 * ptype)
+l_ok selGetTypeAtOrigin(SEL      * sel, int32 * ptype)
 {
-	l_int32 sx, sy, cx, cy, i, j;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 sx, sy, cx, cy, i, j;
 	if(!ptype)
 		return ERROR_INT("&type not defined", procName, 1);
 	*ptype = SEL_DONT_CARE; /* init */
 	if(!sel)
 		return ERROR_INT("sel not defined", procName, 1);
-
 	selGetParameters(sel, &sy, &sx, &cy, &cx);
 	for(i = 0; i < sy; i++) {
 		for(j = 0; j < sx; j++) {
@@ -853,10 +744,8 @@ l_ok selGetTypeAtOrigin(SEL      * sel,
 			}
 		}
 	}
-
 	return ERROR_INT("sel origin not found", procName, 1);
 }
-
 /*!
  * \brief   selaGetBrickName()
  *
@@ -864,18 +753,13 @@ l_ok selGetTypeAtOrigin(SEL      * sel,
  * \param[in]    hsize, vsize    of brick sel
  * \return  sel name new string, or NULL if no name or on error
  */
-char * selaGetBrickName(SELA    * sela,
-    l_int32 hsize,
-    l_int32 vsize)
+char * selaGetBrickName(SELA    * sela, int32 hsize, int32 vsize)
 {
-	l_int32 i, nsels, sx, sy;
-	SEL     * sel;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i, nsels, sx, sy;
+	SEL     * sel;
 	if(!sela)
 		return (char *)ERROR_PTR("sela not defined", procName, NULL);
-
 	nsels = selaGetCount(sela);
 	for(i = 0; i < nsels; i++) {
 		sel = selaGetSel(sela, i);
@@ -883,10 +767,8 @@ char * selaGetBrickName(SELA    * sela,
 		if(hsize == sx && vsize == sy)
 			return stringNew(selGetName(sel));
 	}
-
 	return (char *)ERROR_PTR("sel not found", procName, NULL);
 }
-
 /*!
  * \brief   selaGetCombName()
  *
@@ -901,28 +783,22 @@ char * selaGetBrickName(SELA    * sela,
  *      (2) Use this with comb Sels; e.g., from selaAddDwaCombs().
  * </pre>
  */
-char * selaGetCombName(SELA    * sela,
-    l_int32 size,
-    l_int32 direction)
+char * selaGetCombName(SELA    * sela, int32 size, int32 direction)
 {
+	PROCNAME(__FUNCTION__);
 	char * selname;
 	char combname[256];
-	l_int32 i, nsels, sx, sy, found;
+	int32 i, nsels, sx, sy, found;
 	SEL     * sel;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!sela)
 		return (char *)ERROR_PTR("sela not defined", procName, NULL);
 	if(direction != L_HORIZ && direction != L_VERT)
 		return (char *)ERROR_PTR("invalid direction", procName, NULL);
-
 	/* Derive the comb name we're looking for */
 	if(direction == L_HORIZ)
 		snprintf(combname, sizeof(combname), "sel_comb_%dh", size);
 	else /* direction == L_VERT */
 		snprintf(combname, sizeof(combname), "sel_comb_%dv", size);
-
 	found = FALSE;
 	nsels = selaGetCount(sela);
 	for(i = 0; i < nsels; i++) {
@@ -936,7 +812,6 @@ char * selaGetCombName(SELA    * sela,
 			break;
 		}
 	}
-
 	if(found)
 		return stringNew(selname);
 	else
@@ -968,10 +843,9 @@ static void selaComputeCompositeParameters(const char * fileout)
 {
 	char * str, * nameh1, * nameh2, * namev1, * namev2;
 	char buf[256];
-	l_int32 size, size1, size2, len;
+	int32 size, size1, size2, len;
 	SARRAY * sa;
 	SELA    * selabasic, * selacomb;
-
 	selabasic = selaAddBasic(NULL);
 	selacomb = selaAddDwaCombs(NULL);
 	sa = sarrayCreate(64);
@@ -1026,18 +900,10 @@ static void selaComputeCompositeParameters(const char * fileout)
  *      (2) All returned strings are copies that must be freed.
  * </pre>
  */
-l_ok getCompositeParameters(l_int32 size,
-    l_int32 * psize1,
-    l_int32 * psize2,
-    char ** pnameh1,
-    char ** pnameh2,
-    char ** pnamev1,
-    char ** pnamev2)
+l_ok getCompositeParameters(int32 size, int32 * psize1, int32 * psize2, char ** pnameh1, char ** pnameh2, char ** pnamev1, char ** pnamev2)
 {
-	l_int32 index;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 index;
 	if(psize1) *psize1 = 0;
 	if(psize2) *psize2 = 0;
 	if(pnameh1) *pnameh1 = NULL;
@@ -1061,7 +927,6 @@ l_ok getCompositeParameters(l_int32 size,
 		*pnamev2 = stringNew(comp_parameter_map[index].selnamev2);
 	return 0;
 }
-
 /*!
  * \brief   selaGetSelnames()
  *
@@ -1070,13 +935,11 @@ l_ok getCompositeParameters(l_int32 size,
  */
 SARRAY * selaGetSelnames(SELA  * sela)
 {
+	PROCNAME(__FUNCTION__);
 	char * selname;
-	l_int32 i, n;
+	int32 i, n;
 	SEL     * sel;
 	SARRAY * sa;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!sela)
 		return (SARRAY *)ERROR_PTR("sela not defined", procName, NULL);
 	if((n = selaGetCount(sela)) == 0)
@@ -1089,10 +952,8 @@ SARRAY * selaGetSelnames(SELA  * sela)
 		selname = selGetName(sel);
 		sarrayAddString(sa, selname, L_COPY);
 	}
-
 	return sa;
 }
-
 /*----------------------------------------------------------------------*
 *                Max translations for erosion and hmt                  *
 *----------------------------------------------------------------------*/
@@ -1110,24 +971,17 @@ SARRAY * selaGetSelnames(SELA  * sela)
  *        is +x to the cx.  This is a positive xp shift.
  * </pre>
  */
-l_ok selFindMaxTranslations(SEL      * sel,
-    l_int32 * pxp,
-    l_int32 * pyp,
-    l_int32 * pxn,
-    l_int32 * pyn)
+l_ok selFindMaxTranslations(SEL      * sel, int32 * pxp, int32 * pyp, int32 * pxn, int32 * pyn)
 {
-	l_int32 sx, sy, cx, cy, i, j;
-	l_int32 maxxp, maxyp, maxxn, maxyn;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 sx, sy, cx, cy, i, j;
+	int32 maxxp, maxyp, maxxn, maxyn;
 	if(!pxp || !pyp || !pxn || !pyn)
 		return ERROR_INT("&xp (etc) defined", procName, 1);
 	*pxp = *pyp = *pxn = *pyn = 0;
 	if(!sel)
 		return ERROR_INT("sel not defined", procName, 1);
 	selGetParameters(sel, &sy, &sx, &cy, &cx);
-
 	maxxp = maxyp = maxxn = maxyn = 0;
 	for(i = 0; i < sy; i++) {
 		for(j = 0; j < sx; j++) {
@@ -1139,15 +993,12 @@ l_ok selFindMaxTranslations(SEL      * sel,
 			}
 		}
 	}
-
 	*pxp = maxxp;
 	*pyp = maxyp;
 	*pxn = maxxn;
 	*pyn = maxyn;
-
 	return 0;
 }
-
 /*----------------------------------------------------------------------*
 *                   Rotation by multiples of 90 degrees                *
 *----------------------------------------------------------------------*/
@@ -1158,21 +1009,17 @@ l_ok selFindMaxTranslations(SEL      * sel,
  * \param[in]    quads    0 - 4; number of 90 degree cw rotations
  * \return  seld, or NULL on error
  */
-SEL  * selRotateOrth(SEL     * sel,
-    l_int32 quads)
+SEL  * selRotateOrth(SEL     * sel, int32 quads)
 {
-	l_int32 i, j, ni, nj, sx, sy, cx, cy, nsx, nsy, ncx, ncy, type;
-	SEL     * seld;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i, j, ni, nj, sx, sy, cx, cy, nsx, nsy, ncx, ncy, type;
+	SEL     * seld;
 	if(!sel)
 		return (SEL*)ERROR_PTR("sel not defined", procName, NULL);
 	if(quads < 0 || quads > 4)
 		return (SEL*)ERROR_PTR("quads not in {0,1,2,3,4}", procName, NULL);
 	if(quads == 0 || quads == 4)
 		return selCopy(sel);
-
 	selGetParameters(sel, &sy, &sx, &cy, &cx);
 	if(quads == 1) { /* 90 degrees cw */
 		nsx = sy;
@@ -1229,14 +1076,11 @@ SEL  * selRotateOrth(SEL     * sel,
  */
 SELA * selaRead(const char * fname)
 {
+	PROCNAME(__FUNCTION__);
 	FILE * fp;
 	SELA  * sela;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!fname)
 		return (SELA*)ERROR_PTR("fname not defined", procName, NULL);
-
 	if((fp = fopenReadStream(fname)) == NULL)
 		return (SELA*)ERROR_PTR("stream not opened", procName, NULL);
 	if((sela = selaReadStream(fp)) == NULL) {
@@ -1244,10 +1088,8 @@ SELA * selaRead(const char * fname)
 		return (SELA*)ERROR_PTR("sela not returned", procName, NULL);
 	}
 	fclose(fp);
-
 	return sela;
 }
-
 /*!
  * \brief   selaReadStream()
  *
@@ -1256,26 +1098,21 @@ SELA * selaRead(const char * fname)
  */
 SELA  * selaReadStream(FILE * fp)
 {
-	l_int32 i, n, version;
+	PROCNAME(__FUNCTION__);
+	int32 i, n, version;
 	SEL     * sel;
 	SELA    * sela;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!fp)
 		return (SELA*)ERROR_PTR("stream not defined", procName, NULL);
-
 	if(fscanf(fp, "\nSela Version %d\n", &version) != 1)
 		return (SELA*)ERROR_PTR("not a sela file", procName, NULL);
 	if(version != SEL_VERSION_NUMBER)
 		return (SELA*)ERROR_PTR("invalid sel version", procName, NULL);
 	if(fscanf(fp, "Number of Sels = %d\n\n", &n) != 1)
 		return (SELA*)ERROR_PTR("not a sela file", procName, NULL);
-
 	if((sela = selaCreate(n)) == NULL)
 		return (SELA*)ERROR_PTR("sela not made", procName, NULL);
 	sela->nalloc = n;
-
 	for(i = 0; i < n; i++) {
 		if((sel = selReadStream(fp)) == NULL) {
 			selaDestroy(&sela);
@@ -1286,7 +1123,6 @@ SELA  * selaReadStream(FILE * fp)
 
 	return sela;
 }
-
 /*!
  * \brief   selRead()
  *
@@ -1295,14 +1131,11 @@ SELA  * selaReadStream(FILE * fp)
  */
 SEL  * selRead(const char * fname)
 {
+	PROCNAME(__FUNCTION__);
 	FILE * fp;
 	SEL   * sel;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!fname)
 		return (SEL*)ERROR_PTR("fname not defined", procName, NULL);
-
 	if((fp = fopenReadStream(fname)) == NULL)
 		return (SEL*)ERROR_PTR("stream not opened", procName, NULL);
 	if((sel = selReadStream(fp)) == NULL) {
@@ -1310,10 +1143,8 @@ SEL  * selRead(const char * fname)
 		return (SEL*)ERROR_PTR("sela not returned", procName, NULL);
 	}
 	fclose(fp);
-
 	return sel;
 }
-
 /*!
  * \brief   selReadStream()
  *
@@ -1322,33 +1153,25 @@ SEL  * selRead(const char * fname)
  */
 SEL  * selReadStream(FILE * fp)
 {
+	PROCNAME(__FUNCTION__);
 	char selname[256];
 	char linebuf[256];
-	l_int32 sy, sx, cy, cx, i, j, version, ignore;
+	int32 sy, sx, cy, cx, i, j, version, ignore;
 	SEL     * sel;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!fp)
 		return (SEL*)ERROR_PTR("stream not defined", procName, NULL);
-
 	if(fscanf(fp, "  Sel Version %d\n", &version) != 1)
 		return (SEL*)ERROR_PTR("not a sel file", procName, NULL);
 	if(version != SEL_VERSION_NUMBER)
 		return (SEL*)ERROR_PTR("invalid sel version", procName, NULL);
-
 	if(fgets(linebuf, sizeof(linebuf), fp) == NULL)
 		return (SEL*)ERROR_PTR("error reading into linebuf", procName, NULL);
 	sscanf(linebuf, "  ------  %200s  ------", selname);
-
-	if(fscanf(fp, "  sy = %d, sx = %d, cy = %d, cx = %d\n",
-	    &sy, &sx, &cy, &cx) != 4)
+	if(fscanf(fp, "  sy = %d, sx = %d, cy = %d, cx = %d\n", &sy, &sx, &cy, &cx) != 4)
 		return (SEL*)ERROR_PTR("dimensions not read", procName, NULL);
-
 	if((sel = selCreate(sy, sx, selname)) == NULL)
 		return (SEL*)ERROR_PTR("sel not made", procName, NULL);
 	selSetOrigin(sel, cy, cx);
-
 	for(i = 0; i < sy; i++) {
 		ignore = fscanf(fp, "    ");
 		for(j = 0; j < sx; j++)
@@ -1356,10 +1179,8 @@ SEL  * selReadStream(FILE * fp)
 		ignore = fscanf(fp, "\n");
 	}
 	ignore = fscanf(fp, "\n");
-
 	return sel;
 }
-
 /*!
  * \brief   selaWrite()
  *
@@ -1367,26 +1188,20 @@ SEL  * selReadStream(FILE * fp)
  * \param[in]    sela
  * \return  0 if OK, 1 on error
  */
-l_ok selaWrite(const char * fname,
-    SELA        * sela)
+l_ok selaWrite(const char * fname, SELA        * sela)
 {
-	FILE * fp;
-
 	PROCNAME(__FUNCTION__);
-
+	FILE * fp;
 	if(!fname)
 		return ERROR_INT("fname not defined", procName, 1);
 	if(!sela)
 		return ERROR_INT("sela not defined", procName, 1);
-
 	if((fp = fopenWriteStream(fname, "wb")) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
 	selaWriteStream(fp, sela);
 	fclose(fp);
-
 	return 0;
 }
-
 /*!
  * \brief   selaWriteStream()
  *
@@ -1394,19 +1209,15 @@ l_ok selaWrite(const char * fname,
  * \param[in]    sela
  * \return  0 if OK, 1 on error
  */
-l_ok selaWriteStream(FILE * fp,
-    SELA  * sela)
+l_ok selaWriteStream(FILE * fp, SELA  * sela)
 {
-	l_int32 i, n;
-	SEL     * sel;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i, n;
+	SEL     * sel;
 	if(!fp)
 		return ERROR_INT("stream not defined", procName, 1);
 	if(!sela)
 		return ERROR_INT("sela not defined", procName, 1);
-
 	n = selaGetCount(sela);
 	fprintf(fp, "\nSela Version %d\n", SEL_VERSION_NUMBER);
 	fprintf(fp, "Number of Sels = %d\n\n", n);
@@ -1417,7 +1228,6 @@ l_ok selaWriteStream(FILE * fp,
 	}
 	return 0;
 }
-
 /*!
  * \brief   selWrite()
  *
@@ -1455,7 +1265,7 @@ l_ok selWrite(const char * fname,
 l_ok selWriteStream(FILE * fp,
     SEL   * sel)
 {
-	l_int32 sx, sy, cx, cy, i, j;
+	int32 sx, sy, cx, cy, i, j;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1511,17 +1321,12 @@ l_ok selWriteStream(FILE * fp,
  * \endcode
  * </pre>
  */
-SEL * selCreateFromString(const char * text,
-    l_int32 h,
-    l_int32 w,
-    const char * name)
+SEL * selCreateFromString(const char * text, int32 h, int32 w, const char * name)
 {
-	SEL     * sel;
-	l_int32 y, x, norig;
-	char ch;
-
 	PROCNAME(__FUNCTION__);
-
+	SEL     * sel;
+	int32 y, x, norig;
+	char ch;
 	if(!text || text[0] == '\0')
 		return (SEL*)ERROR_PTR("text undefined or empty", procName, NULL);
 	if(h < 1)
@@ -1530,14 +1335,12 @@ SEL * selCreateFromString(const char * text,
 		return (SEL*)ERROR_PTR("width must be > 0", procName, NULL);
 	if(strlen(text) != (size_t)w * h)
 		return (SEL*)ERROR_PTR("text size != w * h", procName, NULL);
-
 	sel = selCreate(h, w, name);
 	norig = 0;
 	for(y = 0; y < h; ++y) {
 		for(x = 0; x < w; ++x) {
 			ch = *(text++);
-			switch(ch)
-			{
+			switch(ch) {
 				case 'X':
 				    norig++;
 				    selSetOrigin(sel, y, x);
@@ -1602,21 +1405,17 @@ SEL * selCreateFromString(const char * text,
  */
 char * selPrintToString(SEL  * sel)
 {
+	PROCNAME(__FUNCTION__);
 	char is_center;
 	char * str, * strptr;
-	l_int32 type;
-	l_int32 sx, sy, cx, cy, x, y;
-
-	PROCNAME(__FUNCTION__);
-
+	int32 type;
+	int32 sx, sy, cx, cy, x, y;
 	if(!sel)
 		return (char *)ERROR_PTR("sel not defined", procName, NULL);
-
 	selGetParameters(sel, &sy, &sx, &cy, &cx);
 	if((str = (char *)SAlloc::C(1, sy * (sx + 1) + 1)) == NULL)
 		return (char *)ERROR_PTR("calloc fail for str", procName, NULL);
 	strptr = str;
-
 	for(y = 0; y < sy; ++y) {
 		for(x = 0; x < sx; ++x) {
 			selGetElement(sel, y, x, &type);
@@ -1675,25 +1474,21 @@ char * selPrintToString(SEL  * sel)
  */
 SELA * selaCreateFromFile(const char * filename)
 {
+	PROCNAME(__FUNCTION__);
 	char * filestr, * line;
-	l_int32 i, n, first, last, nsel, insel;
+	int32 i, n, first, last, nsel, insel;
 	size_t nbytes;
 	NUMA * nafirst, * nalast;
 	SARRAY * sa;
 	SEL     * sel;
 	SELA    * sela;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!filename)
 		return (SELA*)ERROR_PTR("filename not defined", procName, NULL);
-
 	filestr = (char *)l_binaryRead(filename, &nbytes);
 	sa = sarrayCreateLinesFromString(filestr, 1);
 	SAlloc::F(filestr);
 	n = sarrayGetCount(sa);
 	sela = selaCreate(0);
-
 	/* Find the start and end lines for each Sel.
 	 * We allow the "blank" lines to be null strings or
 	 * to have standard whitespace (' ','\t',\'n') or be '#'. */
@@ -1772,23 +1567,18 @@ SELA * selaCreateFromFile(const char * filename)
  *                    "    x"
  * </pre>
  */
-static SEL * selCreateFromSArray(SARRAY * sa,
-    l_int32 first,
-    l_int32 last)
+static SEL * selCreateFromSArray(SARRAY * sa, int32 first, int32 last)
 {
+	PROCNAME(__FUNCTION__);
 	char ch;
 	char * name, * line;
-	l_int32 n, len, i, w, h, y, x;
+	int32 n, len, i, w, h, y, x;
 	SEL     * sel;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!sa)
 		return (SEL*)ERROR_PTR("sa not defined", procName, NULL);
 	n = sarrayGetCount(sa);
 	if(first < 0 || first >= n || last <= first || last >= n)
 		return (SEL*)ERROR_PTR("invalid range", procName, NULL);
-
 	name = sarrayGetString(sa, first, L_NOCOPY);
 	h = last - first;
 	line = sarrayGetString(sa, first + 1, L_NOCOPY);
@@ -1852,17 +1642,12 @@ static SEL * selCreateFromSArray(SARRAY * sa,
  *      (1) The origin and all points in the pta must be positive.
  * </pre>
  */
-SEL * selCreateFromPta(PTA         * pta,
-    l_int32 cy,
-    l_int32 cx,
-    const char * name)
+SEL * selCreateFromPta(PTA         * pta, int32 cy, int32 cx, const char * name)
 {
-	l_int32 i, n, x, y, w, h;
+	PROCNAME(__FUNCTION__);
+	int32 i, n, x, y, w, h;
 	BOX * box;
 	SEL     * sel;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pta)
 		return (SEL*)ERROR_PTR("pta not defined", procName, NULL);
 	if(cy < 0 || cx < 0)
@@ -1902,17 +1687,12 @@ SEL * selCreateFromPta(PTA         * pta,
  *          and the total number of hits must not exceed MaxPixTemplateHits.
  * </pre>
  */
-SEL * selCreateFromPix(PIX         * pix,
-    l_int32 cy,
-    l_int32 cx,
-    const char * name)
+SEL * selCreateFromPix(PIX         * pix, int32 cy, int32 cx, const char * name)
 {
-	SEL      * sel;
-	l_int32 i, j, w, h, d, nhits;
-	l_uint32 val;
-
 	PROCNAME(__FUNCTION__);
-
+	SEL      * sel;
+	int32 i, j, w, h, d, nhits;
+	uint32 val;
 	if(!pix)
 		return (SEL*)ERROR_PTR("pix not defined", procName, NULL);
 	if(cy < 0 || cx < 0)
@@ -1962,28 +1742,23 @@ SEL * selCreateFromPix(PIX         * pix,
  */
 SEL * selReadFromColorImage(const char * pathname)
 {
+	PROCNAME(__FUNCTION__);
 	PIX * pix;
 	SEL   * sel;
 	char * basename, * selname;
-
-	PROCNAME(__FUNCTION__);
-
 	splitPathAtExtension(pathname, &basename, NULL);
 	splitPathAtDirectory(basename, NULL, &selname);
 	SAlloc::F(basename);
-
 	if((pix = pixRead(pathname)) == NULL) {
 		SAlloc::F(selname);
 		return (SEL*)ERROR_PTR("pix not returned", procName, NULL);
 	}
 	if((sel = selCreateFromColorPix(pix, selname)) == NULL)
 		L_ERROR("sel not made\n", procName);
-
 	SAlloc::F(selname);
 	pixDestroy(&pix);
 	return sel;
 }
-
 /*!
  *
  *  selCreateFromColorPix()
@@ -2007,20 +1782,16 @@ SEL * selReadFromColorImage(const char * pathname)
  *          center of the sel.
  * </pre>
  */
-SEL * selCreateFromColorPix(PIX         * pixs,
-    const char * selname)
+SEL * selCreateFromColorPix(PIX         * pixs, const char * selname)
 {
+	PROCNAME(__FUNCTION__);
 	PIXCMAP  * cmap;
 	SEL      * sel;
-	l_int32 hascolor, num_origins, nohits;
-	l_int32 w, h, d, i, j, red, green, blue;
-	l_uint32 pixval;
-
-	PROCNAME(__FUNCTION__);
-
+	int32 hascolor, num_origins, nohits;
+	int32 w, h, d, i, j, red, green, blue;
+	uint32 pixval;
 	if(!pixs)
 		return (SEL*)ERROR_PTR("pixs not defined", procName, NULL);
-
 	hascolor = FALSE;
 	cmap = pixGetColormap(pixs);
 	if(cmap)
@@ -2028,12 +1799,10 @@ SEL * selCreateFromColorPix(PIX         * pixs,
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(hascolor == FALSE && d != 32)
 		return (SEL*)ERROR_PTR("pixs has no color", procName, NULL);
-
 	if((sel = selCreate(h, w, NULL)) == NULL)
 		return (SEL*)ERROR_PTR("sel not made", procName, NULL);
 	selSetOrigin(sel, h / 2, w / 2); /* default */
 	selSetName(sel, selname);
-
 	num_origins = 0;
 	nohits = TRUE;
 	for(i = 0; i < h; i++) {
@@ -2095,22 +1864,18 @@ SEL * selCreateFromColorPix(PIX         * pixs,
  *          must have a name.
  * </pre>
  */
-SELA * selaCreateFromColorPixa(PIXA    * pixa,
-    SARRAY * sa)
+SELA * selaCreateFromColorPixa(PIXA    * pixa, SARRAY * sa)
 {
+	PROCNAME(__FUNCTION__);
 	char * str;
-	l_int32 i, n;
+	int32 i, n;
 	PIX * pix;
 	SEL     * sel;
 	SELA    * sela;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixa)
 		return (SELA*)ERROR_PTR("pixa not defined", procName, NULL);
 	if(!sa)
 		return (SELA*)ERROR_PTR("sa of sel names not defined", procName, NULL);
-
 	n = pixaGetCount(pixa);
 	if((sela = selaCreate(n)) == NULL)
 		return (SELA*)ERROR_PTR("sela not allocated", procName, NULL);
@@ -2123,7 +1888,6 @@ SELA * selaCreateFromColorPixa(PIXA    * pixa,
 	}
 	return sela;
 }
-
 /*----------------------------------------------------------------------*
 *                     Printable display of sel                         *
 *----------------------------------------------------------------------*/
@@ -2145,17 +1909,13 @@ SELA * selaCreateFromColorPixa(PIXA    * pixa,
  *          ~ origin (cross, XORed with whatever is there)
  * </pre>
  */
-PIX * selDisplayInPix(SEL     * sel,
-    l_int32 size,
-    l_int32 gthick)
+PIX * selDisplayInPix(SEL     * sel, int32 size, int32 gthick)
 {
-	l_int32 i, j, w, h, sx, sy, cx, cy, type, width;
-	l_int32 radius1, radius2, shift1, shift2, x0, y0;
+	PROCNAME(__FUNCTION__);
+	int32 i, j, w, h, sx, sy, cx, cy, type, width;
+	int32 radius1, radius2, shift1, shift2, x0, y0;
 	PIX * pixd, * pix2, * pixh, * pixm, * pixorig;
 	PTA * pta1, * pta2, * pta1t, * pta2t;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!sel)
 		return (PIX *)ERROR_PTR("sel not defined", procName, NULL);
 	if(size < 13) {
@@ -2184,8 +1944,8 @@ PIX * selDisplayInPix(SEL     * sel,
 		    gthick, L_SET_PIXELS);
 
 	/* Generate hit and miss patterns */
-	radius1 = (l_int32)(0.85 * ((size - 1) / 2.0) + 0.5); /* of hit */
-	radius2 = (l_int32)(0.65 * ((size - 1) / 2.0) + 0.5); /* of inner miss */
+	radius1 = (int32)(0.85 * ((size - 1) / 2.0) + 0.5); /* of hit */
+	radius2 = (int32)(0.65 * ((size - 1) / 2.0) + 0.5); /* of inner miss */
 	pta1 = generatePtaFilledCircle(radius1);
 	pta2 = generatePtaFilledCircle(radius2);
 	shift1 = (size - 1) / 2 - radius1; /* center circle in square */
@@ -2199,11 +1959,11 @@ PIX * selDisplayInPix(SEL     * sel,
 	/* Generate crossed lines for origin pattern */
 	pixorig = pixCreate(size, size, 1);
 	width = size / 8;
-	pixRenderLine(pixorig, size / 2, (l_int32)(0.12 * size),
-	    size / 2, (l_int32)(0.88 * size),
+	pixRenderLine(pixorig, size / 2, (int32)(0.12 * size),
+	    size / 2, (int32)(0.88 * size),
 	    width, L_SET_PIXELS);
-	pixRenderLine(pixorig, (l_int32)(0.15 * size), size / 2,
-	    (l_int32)(0.85 * size), size / 2,
+	pixRenderLine(pixorig, (int32)(0.15 * size), size / 2,
+	    (int32)(0.85 * size), size / 2,
 	    width, L_FLIP_PIXELS);
 	pixRasterop(pixorig, size / 2 - width, size / 2 - width,
 	    2 * width, 2 * width, PIX_NOT(PIX_DST), NULL, 0, 0);
@@ -2231,7 +1991,6 @@ PIX * selDisplayInPix(SEL     * sel,
 		}
 		y0 += size + gthick;
 	}
-
 	pixDestroy(&pix2);
 	pixDestroy(&pixh);
 	pixDestroy(&pixm);
@@ -2261,19 +2020,13 @@ PIX * selDisplayInPix(SEL     * sel,
  *          are the same size.
  * </pre>
  */
-PIX * selaDisplayInPix(SELA    * sela,
-    l_int32 size,
-    l_int32 gthick,
-    l_int32 spacing,
-    l_int32 ncols)
+PIX * selaDisplayInPix(SELA    * sela, int32 size, int32 gthick, int32 spacing, int32 ncols)
 {
-	l_int32 nsels, i, w, width;
+	PROCNAME(__FUNCTION__);
+	int32 nsels, i, w, width;
 	PIX * pixt, * pixd;
 	PIXA    * pixa;
 	SEL     * sel;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!sela)
 		return (PIX *)ERROR_PTR("sela not defined", procName, NULL);
 	if(size < 13) {
@@ -2299,7 +2052,6 @@ PIX * selaDisplayInPix(SELA    * sela,
 		pixt = selDisplayInPix(sel, size, gthick);
 		pixaAddPix(pixa, pixt, L_INSERT);
 	}
-
 	/* Find the tiled output width, using just the first
 	 * ncols pix in the pixa.   If all pix have the same width,
 	 * they will align properly in columns. */
@@ -2312,7 +2064,6 @@ PIX * selaDisplayInPix(SELA    * sela,
 		pixDestroy(&pixt);
 	}
 	width += (ncols + 1) * spacing; /* add spacing all around as well */
-
 	pixd = pixaDisplayTiledInRows(pixa, 1, width, 1.0, 0, spacing, 0);
 	pixaDestroy(&pixa);
 	return pixd;

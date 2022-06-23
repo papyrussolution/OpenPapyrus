@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file projective.c
  * <pre>
@@ -47,9 +34,9 @@
  *           PIX *pixProjectivePtaWithAlpha()
  *
  *      Projective coordinate transformation
- *           l_int32   getProjectiveXformCoeffs()
- *           l_int32   projectiveXformSampledPt()
- *           l_int32   projectiveXformPt()
+ *           int32   getProjectiveXformCoeffs()
+ *           int32   projectiveXformSampledPt()
+ *           int32   projectiveXformPt()
  *
  *      A projective transform can be specified as a specific functional
  *      mapping between 4 points in the source and 4 points in the dest.
@@ -137,7 +124,7 @@ extern float AlphaMaskBorderVals[2];
 PIX * pixProjectiveSampledPta(PIX * pixs,
     PTA * ptad,
     PTA * ptas,
-    l_int32 incolor)
+    int32 incolor)
 {
 	float * vc;
 	PIX        * pixd;
@@ -184,11 +171,11 @@ PIX * pixProjectiveSampledPta(PIX * pixs,
  */
 PIX * pixProjectiveSampled(PIX        * pixs,
     float * vc,
-    l_int32 incolor)
+    int32 incolor)
 {
-	l_int32 i, j, w, h, d, x, y, wpls, wpld, color, cmapindex;
-	l_uint32 val;
-	l_uint32   * datas, * datad, * lines, * lined;
+	int32 i, j, w, h, d, x, y, wpls, wpld, color, cmapindex;
+	uint32 val;
+	uint32   * datas, * datad, * lines, * lined;
 	PIX        * pixd;
 	PIXCMAP    * cmap;
 
@@ -282,10 +269,10 @@ PIX * pixProjectiveSampled(PIX        * pixs,
 PIX * pixProjectivePta(PIX * pixs,
     PTA * ptad,
     PTA * ptas,
-    l_int32 incolor)
+    int32 incolor)
 {
-	l_int32 d;
-	l_uint32 colorval;
+	int32 d;
+	uint32 colorval;
 	PIX * pixt1, * pixt2, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -349,10 +336,10 @@ PIX * pixProjectivePta(PIX * pixs,
  */
 PIX * pixProjective(PIX        * pixs,
     float * vc,
-    l_int32 incolor)
+    int32 incolor)
 {
-	l_int32 d;
-	l_uint32 colorval;
+	int32 d;
+	uint32 colorval;
 	PIX * pixt1, * pixt2, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -404,7 +391,7 @@ PIX * pixProjective(PIX        * pixs,
 PIX * pixProjectivePtaColor(PIX * pixs,
     PTA * ptad,
     PTA * ptas,
-    l_uint32 colorval)
+    uint32 colorval)
 {
 	float * vc;
 	PIX        * pixd;
@@ -442,11 +429,11 @@ PIX * pixProjectivePtaColor(PIX * pixs,
  */
 PIX * pixProjectiveColor(PIX        * pixs,
     float * vc,
-    l_uint32 colorval)
+    uint32 colorval)
 {
-	l_int32 i, j, w, h, d, wpls, wpld;
-	l_uint32 val;
-	l_uint32  * datas, * datad, * lined;
+	int32 i, j, w, h, d, wpls, wpld;
+	uint32 val;
+	uint32  * datas, * datad, * lined;
 	float x, y;
 	PIX * pix1, * pix2, * pixd;
 
@@ -543,8 +530,8 @@ PIX * pixProjectiveGray(PIX        * pixs,
     float * vc,
     uint8 grayval)
 {
-	l_int32 i, j, w, h, wpls, wpld, val;
-	l_uint32  * datas, * datad, * lined;
+	int32 i, j, w, h, wpls, wpld, val;
+	uint32  * datas, * datad, * lined;
 	float x, y;
 	PIX * pixd;
 
@@ -631,9 +618,9 @@ PIX * pixProjectivePtaWithAlpha(PIX * pixs,
     PTA       * ptas,
     PIX * pixg,
     float fract,
-    l_int32 border)
+    int32 border)
 {
-	l_int32 ws, hs, d;
+	int32 ws, hs, d;
 	PIX * pixd, * pixb1, * pixb2, * pixg2, * pixga;
 	PTA * ptad2, * ptas2;
 
@@ -675,16 +662,16 @@ PIX * pixProjectivePtaWithAlpha(PIX * pixs,
 		if(fract == 1.0)
 			pixSetAll(pixg2);
 		else
-			pixSetAllArbitrary(pixg2, (l_int32)(255.0 * fract));
+			pixSetAllArbitrary(pixg2, (int32)(255.0 * fract));
 	}
 	else {
 		pixg2 = pixResizeToMatch(pixg, NULL, ws, hs);
 	}
 	if(ws > 10 && hs > 10) { /* see note 7 */
 		pixSetBorderRingVal(pixg2, 1,
-		    (l_int32)(255.0 * fract * AlphaMaskBorderVals[0]));
+		    (int32)(255.0 * fract * AlphaMaskBorderVals[0]));
 		pixSetBorderRingVal(pixg2, 2,
-		    (l_int32)(255.0 * fract * AlphaMaskBorderVals[1]));
+		    (int32)(255.0 * fract * AlphaMaskBorderVals[1]));
 	}
 	pixb2 = pixAddBorder(pixg2, border, 0); /* must be black border */
 	pixga = pixProjectivePtaGray(pixb2, ptad2, ptas2, 0);
@@ -759,7 +746,7 @@ l_ok getProjectiveXformCoeffs(PTA         * ptas,
     PTA         * ptad,
     float ** pvc)
 {
-	l_int32 i;
+	int32 i;
 	float x1, y1, x2, y2, x3, y3, x4, y4;
 	float * b; /* rhs vector of primed coords X'; coeffs returned in *pvc */
 	float * a[8]; /* 8x8 matrix A  */
@@ -850,10 +837,10 @@ l_ok getProjectiveXformCoeffs(PTA         * ptas,
  * </pre>
  */
 l_ok projectiveXformSampledPt(float * vc,
-    l_int32 x,
-    l_int32 y,
-    l_int32    * pxp,
-    l_int32    * pyp)
+    int32 x,
+    int32 y,
+    int32    * pxp,
+    int32    * pyp)
 {
 	float factor;
 	double denom;
@@ -866,8 +853,8 @@ l_ok projectiveXformSampledPt(float * vc,
 	if((denom = vc[6] * x + vc[7] * y + 1.0) == 0.0)
 		return ERROR_INT("denom = 0.0", procName, 1);
 	factor = 1.0 / denom;
-	*pxp = (l_int32)(factor * (vc[0] * x + vc[1] * y + vc[2]) + 0.5);
-	*pyp = (l_int32)(factor * (vc[3] * x + vc[4] * y + vc[5]) + 0.5);
+	*pxp = (int32)(factor * (vc[0] * x + vc[1] * y + vc[2]) + 0.5);
+	*pyp = (int32)(factor * (vc[3] * x + vc[4] * y + vc[5]) + 0.5);
 	return 0;
 }
 
@@ -886,8 +873,8 @@ l_ok projectiveXformSampledPt(float * vc,
  * </pre>
  */
 l_ok projectiveXformPt(float * vc,
-    l_int32 x,
-    l_int32 y,
+    int32 x,
+    int32 y,
     float * pxp,
     float * pyp)
 {

@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*
  * \file  parseprotos.c
  * <pre>
@@ -31,17 +18,17 @@
  *       char             *parseForProtos()
  *
  *    Static helpers
- *       static l_int32    getNextNonCommentLine()
- *       static l_int32    getNextNonBlankLine()
- *       static l_int32    getNextNonDoubleSlashLine()
- *       static l_int32    searchForProtoSignature()
+ *       static int32    getNextNonCommentLine()
+ *       static int32    getNextNonBlankLine()
+ *       static int32    getNextNonDoubleSlashLine()
+ *       static int32    searchForProtoSignature()
  *       static char      *captureProtoSignature()
  *       static char      *cleanProtoSignature()
- *       static l_int32    skipToEndOfFunction()
- *       static l_int32    skipToMatchingBrace()
- *       static l_int32    skipToSemicolon()
- *       static l_int32    getOffsetForCharacter()
- *       static l_int32    getOffsetForMatchingRP()
+ *       static int32    skipToEndOfFunction()
+ *       static int32    skipToMatchingBrace()
+ *       static int32    skipToSemicolon()
+ *       static int32    getOffsetForCharacter()
+ *       static int32    getOffsetForMatchingRP()
  * </pre>
  */
 #include "allheaders.h"
@@ -49,27 +36,27 @@
 
 #define L_BUF_SIZE 2048    /* max token size */
 
-static l_int32 getNextNonCommentLine(SARRAY * sa, l_int32 start, l_int32 * pnext);
-static l_int32 getNextNonBlankLine(SARRAY * sa, l_int32 start, l_int32 * pnext);
-static l_int32 getNextNonDoubleSlashLine(SARRAY * sa, l_int32 start,
-    l_int32 * pnext);
-static l_int32 searchForProtoSignature(SARRAY * sa, l_int32 begin,
-    l_int32 * pstart, l_int32 * pstop, l_int32 * pcharindex,
-    l_int32 * pfound);
-static char * captureProtoSignature(SARRAY * sa, l_int32 start, l_int32 stop,
-    l_int32 charindex);
+static int32 getNextNonCommentLine(SARRAY * sa, int32 start, int32 * pnext);
+static int32 getNextNonBlankLine(SARRAY * sa, int32 start, int32 * pnext);
+static int32 getNextNonDoubleSlashLine(SARRAY * sa, int32 start,
+    int32 * pnext);
+static int32 searchForProtoSignature(SARRAY * sa, int32 begin,
+    int32 * pstart, int32 * pstop, int32 * pcharindex,
+    int32 * pfound);
+static char * captureProtoSignature(SARRAY * sa, int32 start, int32 stop,
+    int32 charindex);
 static char * cleanProtoSignature(char * str);
-static l_int32 skipToEndOfFunction(SARRAY * sa, l_int32 start,
-    l_int32 charindex, l_int32 * pnext);
-static l_int32 skipToMatchingBrace(SARRAY * sa, l_int32 start,
-    l_int32 lbindex, l_int32 * prbline, l_int32 * prbindex);
-static l_int32 skipToSemicolon(SARRAY * sa, l_int32 start,
-    l_int32 charindex, l_int32 * pnext);
-static l_int32 getOffsetForCharacter(SARRAY * sa, l_int32 start, char tchar,
-    l_int32 * psoffset, l_int32 * pboffset, l_int32 * ptoffset);
-static l_int32 getOffsetForMatchingRP(SARRAY * sa, l_int32 start,
-    l_int32 soffsetlp, l_int32 boffsetlp, l_int32 toffsetlp,
-    l_int32 * psoffset, l_int32 * pboffset, l_int32 * ptoffset);
+static int32 skipToEndOfFunction(SARRAY * sa, int32 start,
+    int32 charindex, int32 * pnext);
+static int32 skipToMatchingBrace(SARRAY * sa, int32 start,
+    int32 lbindex, int32 * prbline, int32 * prbindex);
+static int32 skipToSemicolon(SARRAY * sa, int32 start,
+    int32 charindex, int32 * pnext);
+static int32 getOffsetForCharacter(SARRAY * sa, int32 start, char tchar,
+    int32 * psoffset, int32 * pboffset, int32 * ptoffset);
+static int32 getOffsetForMatchingRP(SARRAY * sa, int32 start,
+    int32 soffsetlp, int32 boffsetlp, int32 toffsetlp,
+    int32 * psoffset, int32 * pboffset, int32 * ptoffset);
 
 /*
  * \brief  parseForProtos()
@@ -144,7 +131,7 @@ char * parseForProtos(const char * filein,
     const char * prestring)
 {
 	char * strdata, * str, * newstr, * parsestr, * secondword;
-	l_int32 start, next, stop, charindex, found;
+	int32 start, next, stop, charindex, found;
 	size_t nbytes;
 	SARRAY * sa, * saout, * satest;
 
@@ -230,12 +217,12 @@ char * parseForProtos(const char * filein,
  *      (2) If all lines to the end are '#' comments, return next = -1
  * </pre>
  */
-static l_int32 getNextNonCommentLine(SARRAY * sa,
-    l_int32 start,
-    l_int32 * pnext)
+static int32 getNextNonCommentLine(SARRAY * sa,
+    int32 start,
+    int32 * pnext)
 {
 	char * str;
-	l_int32 i, n;
+	int32 i, n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -275,12 +262,12 @@ static l_int32 getNextNonCommentLine(SARRAY * sa,
  *      (3) If all lines to the end are blank, return next = -1
  * </pre>
  */
-static l_int32 getNextNonBlankLine(SARRAY * sa,
-    l_int32 start,
-    l_int32 * pnext)
+static int32 getNextNonBlankLine(SARRAY * sa,
+    int32 start,
+    int32 * pnext)
 {
 	char * str;
-	l_int32 i, j, n, len;
+	int32 i, j, n, len;
 
 	PROCNAME(__FUNCTION__);
 
@@ -323,12 +310,12 @@ static l_int32 getNextNonBlankLine(SARRAY * sa,
  *      (2) If all lines to the end start with '//', return next = -1
  * </pre>
  */
-static l_int32 getNextNonDoubleSlashLine(SARRAY * sa,
-    l_int32 start,
-    l_int32 * pnext)
+static int32 getNextNonDoubleSlashLine(SARRAY * sa,
+    int32 start,
+    int32 * pnext)
 {
 	char * str;
-	l_int32 i, n, len;
+	int32 i, n, len;
 
 	PROCNAME(__FUNCTION__);
 
@@ -387,17 +374,17 @@ static l_int32 getNextNonDoubleSlashLine(SARRAY * sa,
  *          at the end of the arg list.
  * </pre>
  */
-static l_int32 searchForProtoSignature(SARRAY * sa,
-    l_int32 begin,
-    l_int32 * pstart,
-    l_int32 * pstop,
-    l_int32 * pcharindex,
-    l_int32 * pfound)
+static int32 searchForProtoSignature(SARRAY * sa,
+    int32 begin,
+    int32 * pstart,
+    int32 * pstop,
+    int32 * pcharindex,
+    int32 * pfound)
 {
-	l_int32 next, rbline, rbindex, scline;
-	l_int32 soffsetlp, soffsetrp, soffsetlb, soffsetsc;
-	l_int32 boffsetlp, boffsetrp, boffsetlb, boffsetsc;
-	l_int32 toffsetlp, toffsetrp, toffsetlb, toffsetsc;
+	int32 next, rbline, rbindex, scline;
+	int32 soffsetlp, soffsetrp, soffsetlb, soffsetsc;
+	int32 boffsetlp, boffsetrp, boffsetlb, boffsetsc;
+	int32 toffsetlp, toffsetrp, toffsetlb, toffsetsc;
 
 	PROCNAME(__FUNCTION__);
 
@@ -507,13 +494,13 @@ static l_int32 searchForProtoSignature(SARRAY * sa,
  * </pre>
  */
 static char * captureProtoSignature(SARRAY * sa,
-    l_int32 start,
-    l_int32 stop,
-    l_int32 charindex)
+    int32 start,
+    int32 stop,
+    int32 charindex)
 {
 	char * str, * newstr, * protostr, * cleanstr;
 	SARRAY * sap;
-	l_int32 i;
+	int32 i;
 
 	PROCNAME(__FUNCTION__);
 
@@ -555,7 +542,7 @@ static char * cleanProtoSignature(char * instr)
 	char * str, * cleanstr;
 	char buf[L_BUF_SIZE];
 	char externstring[] = "extern";
-	l_int32 i, j, nwords, nchars, index, len;
+	int32 i, j, nwords, nchars, index, len;
 	SARRAY * sa, * saout;
 
 	PROCNAME(__FUNCTION__);
@@ -614,13 +601,13 @@ static char * cleanProtoSignature(char * instr)
  * \param[out]   pnext     index of line following the ending '}' for function
  * \return  0 if OK, 1 on error
  */
-static l_int32 skipToEndOfFunction(SARRAY * sa,
-    l_int32 start,
-    l_int32 lbindex,
-    l_int32 * pnext)
+static int32 skipToEndOfFunction(SARRAY * sa,
+    int32 start,
+    int32 lbindex,
+    int32 * pnext)
 {
-	l_int32 end, rbindex;
-	l_int32 soffsetlb, boffsetlb, toffsetlb;
+	int32 end, rbindex;
+	int32 soffsetlb, boffsetlb, toffsetlb;
 
 	PROCNAME(__FUNCTION__);
 
@@ -657,14 +644,14 @@ static l_int32 skipToEndOfFunction(SARRAY * sa,
  *          stop = -1.  This shouldn't happen.
  * </pre>
  */
-static l_int32 skipToMatchingBrace(SARRAY * sa,
-    l_int32 start,
-    l_int32 lbindex,
-    l_int32 * pstop,
-    l_int32 * prbindex)
+static int32 skipToMatchingBrace(SARRAY * sa,
+    int32 start,
+    int32 lbindex,
+    int32 * pstop,
+    int32 * prbindex)
 {
 	char * str;
-	l_int32 i, j, jstart, n, sumbrace, found, instring, nchars;
+	int32 i, j, jstart, n, sumbrace, found, instring, nchars;
 
 	PROCNAME(__FUNCTION__);
 
@@ -733,13 +720,13 @@ static l_int32 skipToMatchingBrace(SARRAY * sa,
  *          not within a string.
  * </pre>
  */
-static l_int32 skipToSemicolon(SARRAY * sa,
-    l_int32 start,
-    l_int32 charindex,
-    l_int32 * pnext)
+static int32 skipToSemicolon(SARRAY * sa,
+    int32 start,
+    int32 charindex,
+    int32 * pnext)
 {
 	char * str;
-	l_int32 i, j, n, jstart, nchars, found;
+	int32 i, j, n, jstart, nchars, found;
 
 	PROCNAME(__FUNCTION__);
 
@@ -798,15 +785,15 @@ static l_int32 skipToSemicolon(SARRAY * sa,
  *          consider if the character is inside a string.
  * </pre>
  */
-static l_int32 getOffsetForCharacter(SARRAY * sa,
-    l_int32 start,
+static int32 getOffsetForCharacter(SARRAY * sa,
+    int32 start,
     char tchar,
-    l_int32 * psoffset,
-    l_int32 * pboffset,
-    l_int32 * ptoffset)
+    int32 * psoffset,
+    int32 * pboffset,
+    int32 * ptoffset)
 {
 	char * str;
-	l_int32 i, j, n, nchars, totchars, found;
+	int32 i, j, n, nchars, totchars, found;
 
 	PROCNAME(__FUNCTION__);
 
@@ -886,17 +873,17 @@ static l_int32 getOffsetForCharacter(SARRAY * sa,
  *          as its arg list, thus incurring two extra levels of parentheses.
  * </pre>
  */
-static l_int32 getOffsetForMatchingRP(SARRAY * sa,
-    l_int32 start,
-    l_int32 soffsetlp,
-    l_int32 boffsetlp,
-    l_int32 toffsetlp,
-    l_int32 * psoffset,
-    l_int32 * pboffset,
-    l_int32 * ptoffset)
+static int32 getOffsetForMatchingRP(SARRAY * sa,
+    int32 start,
+    int32 soffsetlp,
+    int32 boffsetlp,
+    int32 toffsetlp,
+    int32 * psoffset,
+    int32 * pboffset,
+    int32 * ptoffset)
 {
 	char * str;
-	l_int32 i, j, n, nchars, totchars, leftmatch, firstline, jstart, found;
+	int32 i, j, n, nchars, totchars, leftmatch, firstline, jstart, found;
 
 	PROCNAME(__FUNCTION__);
 

@@ -58,14 +58,14 @@
  *       L_STRCODE       *strcodeCreate()
  *       static void      strcodeDestroy()    (called as part of finalize)
  *       void             strcodeCreateFromFile()
- *       l_int32          strcodeGenerate()
- *       l_int32          strcodeFinalize()
- *       l_int32          l_getStructStrFromFile()   (useful externally)
+ *       int32          strcodeGenerate()
+ *       int32          strcodeFinalize()
+ *       int32          l_getStructStrFromFile()   (useful externally)
  *
  *   Static helpers
- *       static l_int32   l_getIndexFromType()
- *       static l_int32   l_getIndexFromStructname()
- *       static l_int32   l_getIndexFromFile()
+ *       static int32   l_getIndexFromType()
+ *       static int32   l_getIndexFromStructname()
+ *       static int32   l_getIndexFromFile()
  *       static char     *l_genDataString()
  *       static char     *l_genCaseString()
  *       static char     *l_genDescrString()
@@ -80,7 +80,7 @@
 
 /*! Associations between names and functions */
 struct L_GenAssoc {
-	l_int32 index;
+	int32 index;
 	char type[16]; /* e.g., "PIXA" */
 	char structname[16];  /* e.g., "Pixa" */
 	char reader[16]; /* e.g., "pixaRead" */
@@ -88,7 +88,7 @@ struct L_GenAssoc {
 };
 
 /*! Number of serializable data types */
-static const l_int32 l_ntypes = 19;
+static const int32 l_ntypes = 19;
 /*! Serializable data types */
 static const struct L_GenAssoc l_assoc[] = {
 	{0,  "INVALID",     "invalid",     "invalid",        "invalid"         },
@@ -113,12 +113,12 @@ static const struct L_GenAssoc l_assoc[] = {
 	{19, "SARRAY",      "Sarray",      "sarrayRead",     "sarrayReadMem"   }
 };
 
-static l_int32 l_getIndexFromType(const char * type, l_int32 * pindex);
-static l_int32 l_getIndexFromStructname(const char * sn, l_int32 * pindex);
-static l_int32 l_getIndexFromFile(const char * file, l_int32 * pindex);
-static char * l_genDataString(const char * filein, l_int32 ifunc);
-static char * l_genCaseString(l_int32 ifunc, l_int32 itype);
-static char * l_genDescrString(const char * filein, l_int32 ifunc, l_int32 itype);
+static int32 l_getIndexFromType(const char * type, int32 * pindex);
+static int32 l_getIndexFromStructname(const char * sn, int32 * pindex);
+static int32 l_getIndexFromFile(const char * file, int32 * pindex);
+static char * l_genDataString(const char * filein, int32 ifunc);
+static char * l_genCaseString(int32 ifunc, int32 itype);
+static char * l_genDescrString(const char * filein, int32 ifunc, int32 itype);
 
 /*---------------------------------------------------------------------*/
 /*                         Stringcode functions                        */
@@ -137,7 +137,7 @@ static char * l_genDescrString(const char * filein, l_int32 ifunc, l_int32 itype
  *             autogen.[fileno].h
  * </pre>
  */
-L_STRCODE * strcodeCreate(l_int32 fileno)
+L_STRCODE * strcodeCreate(int32 fileno)
 {
 	L_STRCODE  * strcode;
 
@@ -200,14 +200,14 @@ static void strcodeDestroy(L_STRCODE  ** pstrcode)
  * </pre>
  */
 l_ok strcodeCreateFromFile(const char * filein,
-    l_int32 fileno,
+    int32 fileno,
     const char * outdir)
 {
 	char * fname;
 	const char * type;
 	uint8     * data;
 	size_t nbytes;
-	l_int32 i, n, index;
+	int32 i, n, index;
 	SARRAY * sa;
 	L_STRCODE   * strcode;
 
@@ -269,7 +269,7 @@ l_ok strcodeGenerate(L_STRCODE   * strcode,
     const char * type)
 {
 	char * strdata, * strfunc, * strdescr;
-	l_int32 itype;
+	int32 itype;
 
 	PROCNAME(__FUNCTION__);
 
@@ -310,12 +310,12 @@ l_ok strcodeGenerate(L_STRCODE   * strcode,
  * \param[in]      outdir     [optional] if NULL, make files in /tmp/lept/auto
  * \return     0 if OK; 1 on error
  */
-l_int32 strcodeFinalize(L_STRCODE  ** pstrcode,
+int32 strcodeFinalize(L_STRCODE  ** pstrcode,
     const char * outdir)
 {
 	char buf[256];
 	char * filestr, * casestr, * descr, * datastr, * realoutdir;
-	l_int32 actstart, end, newstart, fileno, nbytes;
+	int32 actstart, end, newstart, fileno, nbytes;
 	size_t size;
 	L_STRCODE  * strcode;
 	SARRAY * sa1, * sa2, * sa3;
@@ -382,7 +382,7 @@ l_int32 strcodeFinalize(L_STRCODE  ** pstrcode,
 	sarrayAppendRange(sa3, sa1, actstart, end);
 
 	/* Function name */
-	snprintf(buf, sizeof(buf), "l_autodecode_%d(l_int32 index)", fileno);
+	snprintf(buf, sizeof(buf), "l_autodecode_%d(int32 index)", fileno);
 	sarrayAddString(sa3, buf, L_COPY);
 
 	/* Stack vars */
@@ -390,7 +390,7 @@ l_int32 strcodeFinalize(L_STRCODE  ** pstrcode,
 	sarrayAppendRange(sa3, sa1, actstart, end);
 
 	/* Declaration of nfunc on stack */
-	snprintf(buf, sizeof(buf), "l_int32   nfunc = %d;\n", strcode->n);
+	snprintf(buf, sizeof(buf), "int32   nfunc = %d;\n", strcode->n);
 	sarrayAddString(sa3, buf, L_COPY);
 
 	/* Declaration of PROCNAME */
@@ -452,7 +452,7 @@ l_int32 strcodeFinalize(L_STRCODE  ** pstrcode,
 	sarrayAppendRange(sa3, sa2, actstart, end);
 
 	/* Prototype declaration */
-	snprintf(buf, sizeof(buf), "void *l_autodecode_%d(l_int32 index);", fileno);
+	snprintf(buf, sizeof(buf), "void *l_autodecode_%d(int32 index);", fileno);
 	sarrayAddString(sa3, buf, L_COPY);
 
 	/* Prototype trailer text */
@@ -498,11 +498,11 @@ l_int32 strcodeFinalize(L_STRCODE  ** pstrcode,
  *      (2) Caller must free the returned string.
  * </pre>
  */
-l_int32 l_getStructStrFromFile(const char * filename,
-    l_int32 field,
+int32 l_getStructStrFromFile(const char * filename,
+    int32 field,
     char ** pstr)
 {
-	l_int32 index;
+	int32 index;
 
 	PROCNAME(__FUNCTION__);
 
@@ -543,10 +543,10 @@ l_int32 l_getStructStrFromFile(const char * filename,
  *      (1) For valid type, %found == true and %index > 0.
  * </pre>
  */
-static l_int32 l_getIndexFromType(const char * type,
-    l_int32     * pindex)
+static int32 l_getIndexFromType(const char * type,
+    int32     * pindex)
 {
-	l_int32 i, found;
+	int32 i, found;
 
 	PROCNAME(__FUNCTION__);
 
@@ -581,10 +581,10 @@ static l_int32 l_getIndexFromType(const char * type,
  *      (2) For valid structname, %found == true and %index > 0.
  * </pre>
  */
-static l_int32 l_getIndexFromStructname(const char * sn,
-    l_int32     * pindex)
+static int32 l_getIndexFromStructname(const char * sn,
+    int32     * pindex)
 {
-	l_int32 i, found;
+	int32 i, found;
 
 	PROCNAME(__FUNCTION__);
 
@@ -612,13 +612,13 @@ static l_int32 l_getIndexFromStructname(const char * sn,
  * \param[out]   pindex     found index
  * \return  0 if found, 1 on error.
  */
-static l_int32 l_getIndexFromFile(const char * filename,
-    l_int32     * pindex)
+static int32 l_getIndexFromFile(const char * filename,
+    int32     * pindex)
 {
 	char buf[256];
 	char * word;
 	FILE * fp;
-	l_int32 notfound, format;
+	int32 notfound, format;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -667,12 +667,12 @@ static l_int32 l_getIndexFromFile(const char * filename,
  * \return  encoded ascii data string, or NULL on error reading from file
  */
 static char * l_genDataString(const char * filein,
-    l_int32 ifunc)
+    int32 ifunc)
 {
 	char buf[80];
 	char     * cdata1, * cdata2, * cdata3;
 	uint8  * data1, * data2;
-	l_int32 csize1, csize2;
+	int32 csize1, csize2;
 	size_t size1, size2;
 	SARRAY * sa;
 
@@ -715,8 +715,8 @@ static char * l_genDataString(const char * filein,
  *      (1) %ifunc and %itype have been validated, so no error can occur
  * </pre>
  */
-static char * l_genCaseString(l_int32 ifunc,
-    l_int32 itype)
+static char * l_genCaseString(int32 ifunc,
+    int32 itype)
 {
 	char buf[256];
 	char * code = NULL;
@@ -748,8 +748,8 @@ static char * l_genCaseString(l_int32 ifunc,
  * \return  description string for this decoding function
  */
 static char * l_genDescrString(const char * filein,
-    l_int32 ifunc,
-    l_int32 itype)
+    int32 ifunc,
+    int32 itype)
 {
 	char buf[256];
 	char * tail;

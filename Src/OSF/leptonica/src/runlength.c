@@ -16,19 +16,19 @@
  *           PIX         *pixRunlengthTransform()
  *
  *     Find runs along horizontal and vertical lines
- *           l_int32      pixFindHorizontalRuns()
- *           l_int32      pixFindVerticalRuns()
+ *           int32      pixFindHorizontalRuns()
+ *           int32      pixFindVerticalRuns()
  *
  *     Find max runs along horizontal and vertical lines
- *           l_int32      pixFindMaxRuns()
- *           l_int32      pixFindMaxHorizontalRunOnLine()
- *           l_int32      pixFindMaxVerticalRunOnLine()
+ *           int32      pixFindMaxRuns()
+ *           int32      pixFindMaxHorizontalRunOnLine()
+ *           int32      pixFindMaxVerticalRunOnLine()
  *
  *     Compute runlength-to-membership transform on a line
- *           l_int32      runlengthMembershipOnLine()
+ *           int32      runlengthMembershipOnLine()
  *
  *     Make byte position LUT
- *           l_int32      makeMSBitLocTab()
+ *           int32      makeMSBitLocTab()
  *
  *  Here we're handling runs of either black or white pixels on 1 bpp
  *  images.  The directions of the runs in the stroke width transform
@@ -40,7 +40,7 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static PIX * pixFindMinRunsOrthogonal(PIX * pixs, float angle, l_int32 depth);
+static PIX * pixFindMinRunsOrthogonal(PIX * pixs, float angle, int32 depth);
 
 /*-----------------------------------------------------------------------*
 *                   Label pixels by membership in runs                  *
@@ -74,7 +74,7 @@ static PIX * pixFindMinRunsOrthogonal(PIX * pixs, float angle, l_int32 depth);
  *      (5) Runtime scales linearly with (%nangles - 2).
  * </pre>
  */
-PIX * pixStrokeWidthTransform(PIX * pixs, l_int32 color, l_int32 depth, l_int32 nangles)
+PIX * pixStrokeWidthTransform(PIX * pixs, int32 color, int32 depth, int32 nangles)
 {
 	float angle, pi;
 	PIX * pixh, * pixv, * pixt, * pixg1, * pixg2, * pixg3, * pixg4;
@@ -159,9 +159,9 @@ PIX * pixStrokeWidthTransform(PIX * pixs, l_int32 color, l_int32 depth, l_int32 
  */
 static PIX * pixFindMinRunsOrthogonal(PIX * pixs,
     float angle,
-    l_int32 depth)
+    int32 depth)
 {
-	l_int32 w, h, diag, xoff, yoff;
+	int32 w, h, diag, xoff, yoff;
 	PIX * pixb, * pixr, * pixh, * pixv, * pixg1, * pixg2, * pixd;
 	BOX * box;
 
@@ -173,7 +173,7 @@ static PIX * pixFindMinRunsOrthogonal(PIX * pixs,
 	/* Rasterop into the center of a sufficiently large image
 	 * so we don't lose pixels for any rotation angle. */
 	pixGetDimensions(pixs, &w, &h, NULL);
-	diag = (l_int32)(sqrt((double)(w * w + h * h)) + 2.5);
+	diag = (int32)(sqrt((double)(w * w + h * h)) + 2.5);
 	xoff = (diag - w) / 2;
 	yoff = (diag - h) / 2;
 	pixb = pixCreate(diag, diag, 1);
@@ -222,13 +222,13 @@ static PIX * pixFindMinRunsOrthogonal(PIX * pixs,
  * </pre>
  */
 PIX * pixRunlengthTransform(PIX * pixs,
-    l_int32 color,
-    l_int32 direction,
-    l_int32 depth)
+    int32 color,
+    int32 direction,
+    int32 depth)
 {
-	l_int32 i, j, w, h, wpld, bufsize, maxsize, n;
-	l_int32   * start, * end, * buffer;
-	l_uint32  * datad, * lined;
+	int32 i, j, w, h, wpld, bufsize, maxsize, n;
+	int32   * start, * end, * buffer;
+	uint32  * datad, * lined;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -258,9 +258,9 @@ PIX * pixRunlengthTransform(PIX * pixs,
 	datad = pixGetData(pixd);
 	wpld = pixGetWpl(pixd);
 
-	start = (l_int32*)SAlloc::C(maxsize, sizeof(l_int32));
-	end = (l_int32*)SAlloc::C(maxsize, sizeof(l_int32));
-	buffer = (l_int32*)SAlloc::C(bufsize, sizeof(l_int32));
+	start = (int32*)SAlloc::C(maxsize, sizeof(int32));
+	end = (int32*)SAlloc::C(maxsize, sizeof(int32));
+	buffer = (int32*)SAlloc::C(bufsize, sizeof(int32));
 
 	/* Use fg runs for evaluation */
 	if(color == 0)
@@ -333,14 +333,14 @@ PIX * pixRunlengthTransform(PIX * pixs,
  * </pre>
  */
 l_ok pixFindHorizontalRuns(PIX * pix,
-    l_int32 y,
-    l_int32 * xstart,
-    l_int32 * xend,
-    l_int32 * pn)
+    int32 y,
+    int32 * xstart,
+    int32 * xend,
+    int32 * pn)
 {
-	l_int32 inrun; /* boolean */
-	l_int32 index, w, h, d, j, wpl, val;
-	l_uint32  * line;
+	int32 inrun; /* boolean */
+	int32 index, w, h, d, j, wpl, val;
+	uint32  * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -409,14 +409,14 @@ l_ok pixFindHorizontalRuns(PIX * pix,
  * </pre>
  */
 l_ok pixFindVerticalRuns(PIX * pix,
-    l_int32 x,
-    l_int32 * ystart,
-    l_int32 * yend,
-    l_int32 * pn)
+    int32 x,
+    int32 * ystart,
+    int32 * yend,
+    int32 * pn)
 {
-	l_int32 inrun; /* boolean */
-	l_int32 index, w, h, d, i, wpl, val;
-	l_uint32  * data, * line;
+	int32 inrun; /* boolean */
+	int32 index, w, h, d, i, wpl, val;
+	uint32  * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -483,9 +483,9 @@ l_ok pixFindVerticalRuns(PIX * pix,
  *          this function.
  * </pre>
  */
-NUMA * pixFindMaxRuns(PIX * pix, l_int32 direction, NUMA   ** pnastart)
+NUMA * pixFindMaxRuns(PIX * pix, int32 direction, NUMA   ** pnastart)
 {
-	l_int32 w, h, i, start, size;
+	int32 w, h, i, start, size;
 	NUMA * nasize;
 	PROCNAME(__FUNCTION__);
 	ASSIGN_PTR(pnastart, NULL);
@@ -528,11 +528,11 @@ NUMA * pixFindMaxRuns(PIX * pix, l_int32 direction, NUMA   ** pnastart)
  *          this function.
  * </pre>
  */
-l_ok pixFindMaxHorizontalRunOnLine(PIX * pix, l_int32 y, l_int32 * pxstart, l_int32 * psize)
+l_ok pixFindMaxHorizontalRunOnLine(PIX * pix, int32 y, int32 * pxstart, int32 * psize)
 {
-	l_int32 inrun; /* boolean */
-	l_int32 w, h, j, wpl, val, maxstart, maxsize, length, start;
-	l_uint32  * line;
+	int32 inrun; /* boolean */
+	int32 w, h, j, wpl, val, maxstart, maxsize, length, start;
+	uint32  * line;
 	PROCNAME(__FUNCTION__);
 	ASSIGN_PTR(pxstart, 0);
 	if(!psize)
@@ -595,13 +595,13 @@ l_ok pixFindMaxHorizontalRunOnLine(PIX * pix, l_int32 y, l_int32 * pxstart, l_in
  * </pre>
  */
 l_ok pixFindMaxVerticalRunOnLine(PIX * pix,
-    l_int32 x,
-    l_int32 * pystart,
-    l_int32 * psize)
+    int32 x,
+    int32 * pystart,
+    int32 * psize)
 {
-	l_int32 inrun; /* boolean */
-	l_int32 w, h, i, wpl, val, maxstart, maxsize, length, start;
-	l_uint32  * data, * line;
+	int32 inrun; /* boolean */
+	int32 w, h, i, wpl, val, maxstart, maxsize, length, start;
+	uint32  * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -674,9 +674,9 @@ l_ok pixFindMaxVerticalRunOnLine(PIX * pix,
  *          not within a run the value 0.
  * </pre>
  */
-l_ok runlengthMembershipOnLine(l_int32 * buffer, l_int32 size, l_int32 depth, l_int32 * start, l_int32 * end, l_int32 n)
+l_ok runlengthMembershipOnLine(int32 * buffer, int32 size, int32 depth, int32 * start, int32 * end, int32 n)
 {
-	l_int32 i, j, first, last, diff, max;
+	int32 i, j, first, last, diff, max;
 	PROCNAME(__FUNCTION__);
 	if(!buffer)
 		return ERROR_INT("buffer not defined", procName, 1);
@@ -719,11 +719,11 @@ l_ok runlengthMembershipOnLine(l_int32 * buffer, l_int32 size, l_int32 depth, l_
  *          this returns 8.
  * </pre>
  */
-l_int32 * makeMSBitLocTab(l_int32 bitval)
+int32 * makeMSBitLocTab(int32 bitval)
 {
-	l_int32 i, j;
+	int32 i, j;
 	uint8 byte, mask;
-	l_int32 * tab = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	int32 * tab = (int32*)SAlloc::C(256, sizeof(int32));
 	for(i = 0; i < 256; i++) {
 		byte = (uint8)i;
 		if(bitval == 0)

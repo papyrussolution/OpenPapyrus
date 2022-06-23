@@ -10,31 +10,18 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file  pixtiling.c
  * <pre>
  *
  *        PIXTILING       *pixTilingCreate()
  *        void            *pixTilingDestroy()
- *        l_int32          pixTilingGetCount()
- *        l_int32          pixTilingGetSize()
+ *        int32          pixTilingGetCount()
+ *        int32          pixTilingGetSize()
  *        PIX             *pixTilingGetTile()
- *        l_int32          pixTilingNoStripOnPaint()
- *        l_int32          pixTilingPaintTile()
+ *        int32          pixTilingNoStripOnPaint()
+ *        int32          pixTilingPaintTile()
  *
  *   This provides a simple way to split an image into tiles
  *   and to perform operations independently on each tile.
@@ -115,14 +102,14 @@
  * </pre>
  */
 PIXTILING * pixTilingCreate(PIX * pixs,
-    l_int32 nx,
-    l_int32 ny,
-    l_int32 w,
-    l_int32 h,
-    l_int32 xoverlap,
-    l_int32 yoverlap)
+    int32 nx,
+    int32 ny,
+    int32 w,
+    int32 h,
+    int32 xoverlap,
+    int32 yoverlap)
 {
-	l_int32 width, height;
+	int32 width, height;
 	PIXTILING  * pt;
 
 	PROCNAME(__FUNCTION__);
@@ -196,8 +183,8 @@ void pixTilingDestroy(PIXTILING  ** ppt)
  * \return  0 if OK, 1 on error
  */
 l_ok pixTilingGetCount(PIXTILING  * pt,
-    l_int32    * pnx,
-    l_int32    * pny)
+    int32    * pnx,
+    int32    * pny)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -217,8 +204,8 @@ l_ok pixTilingGetCount(PIXTILING  * pt,
  * \return  0 if OK, 1 on error
  */
 l_ok pixTilingGetSize(PIXTILING  * pt,
-    l_int32    * pw,
-    l_int32    * ph)
+    int32    * pw,
+    int32    * ph)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -239,12 +226,12 @@ l_ok pixTilingGetSize(PIXTILING  * pt,
  *                    or NULL on error
  */
 PIX * pixTilingGetTile(PIXTILING  * pt,
-    l_int32 i,
-    l_int32 j)
+    int32 i,
+    int32 j)
 {
-	l_int32 wpix, hpix, wt, ht, nx, ny;
-	l_int32 xoverlap, yoverlap, wtlast, htlast;
-	l_int32 left, top, xtraleft, xtraright, xtratop, xtrabot, width, height;
+	int32 wpix, hpix, wt, ht, nx, ny;
+	int32 xoverlap, yoverlap, wtlast, htlast;
+	int32 left, top, xtraleft, xtraright, xtratop, xtrabot, width, height;
 	BOX * box;
 	PIX * pixs, * pixt, * pixd;
 
@@ -370,12 +357,12 @@ l_ok pixTilingNoStripOnPaint(PIXTILING  * pt)
  * \return  0 if OK, 1 on error
  */
 l_ok pixTilingPaintTile(PIX        * pixd,
-    l_int32 i,
-    l_int32 j,
+    int32 i,
+    int32 j,
     PIX        * pixs,
     PIXTILING  * pt)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 

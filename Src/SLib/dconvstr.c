@@ -13,7 +13,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-const int SRealConversion::DefaultPrecision = 6; // DCONVSTR_DEFAULT_PRECISION
+const int SIEEE754::DefaultPrecision = 6; // DCONVSTR_DEFAULT_PRECISION
 //
 // TYPES AND CONSTANTS
 //
@@ -1723,51 +1723,54 @@ static bool FASTCALL convert_binary_to_extended_decimal(uint64 a, int32 b, uint6
 // 
 // Descr: Unpack floating-point double precision binary value according to IEEE 754
 // 
-static void FASTCALL unpack_ieee754_double(const double * input, int * out_is_nan, int * out_sign, uint64 * out_binary_mantissa, int32 * out_binary_exponent, int * out_is_infinity)
+/*static*/uint STDCALL SIEEE754::UnpackDouble(const double * pInput, uint64 * pOutBinaryMantissa, int32 * pOutBinaryExponent)
 {
+	uint   flags = 0;
 	// 1. Unpack bits
-	const uint64 input_bits     = *(const uint64 *)input;
-	const uint64 input_sign     = (input_bits >> 63);
-	const uint64 input_exponent = (input_bits >> 52) & 0x7FFULL;
-	const uint64 input_mantissa = (input_bits & ((1ULL << 52) - 1ULL));
+	const  uint64 input_bits     = *(const uint64 *)pInput;
+	const  uint64 input_sign     = (input_bits >> 63);
+	const  uint64 input_exponent = (input_bits >> 52) & 0x7FFULL;
+	const  uint64 input_mantissa = (input_bits & ((1ULL << 52) - 1ULL));
 	// 2. Handle special case: NaN
 	if(input_exponent == 0x7FFULL && input_mantissa != 0) {
-		*out_is_nan  = 1;
-		*out_sign    = 0;
-		*out_is_infinity     = 0;
-		*out_binary_exponent = 0;
-		*out_binary_mantissa = 0;
+		flags |= fNAN;
+		//*out_is_nan  = 1;
+		//*out_sign    = 0;
+		//*out_is_infinity     = 0;
+		*pOutBinaryExponent = 0;
+		*pOutBinaryMantissa = 0;
 	}
 	else {
-		*out_is_nan = 0;
+		//*out_is_nan = 0;
 		// 3. Handle special case: +INF/-INF
-		*out_sign = (input_sign != 0);
+		//*out_sign = (input_sign != 0);
+		if(input_sign != 0)
+			flags |= fSIGN;
 		if(input_exponent == 0x7FFULL) {
-			*out_is_infinity     = 1;
-			*out_binary_exponent = 0;
-			*out_binary_mantissa = 0;
+			//*out_is_infinity     = 1;
+			flags |= fINF;
+			*pOutBinaryExponent = 0;
+			*pOutBinaryMantissa = 0;
 		}
 		else {
-			*out_is_infinity = 0;
-			// 4. Handle special case: +0/-0
-			if(input_exponent == 0 && input_mantissa == 0) {
-				*out_binary_exponent = 0;
-				*out_binary_mantissa = 0;
+			//*out_is_infinity = 0;
+			if(input_exponent == 0 && input_mantissa == 0) { // 4. Handle special case: +0/-0
+				*pOutBinaryExponent = 0;
+				*pOutBinaryMantissa = 0;
 			}
 			else {
-				// 5. Handle denormalized numbers
-				if(input_exponent == 0) {
-					*out_binary_exponent = -1022;
-					*out_binary_mantissa = (input_mantissa << 11); // most significant 53rd bit of mantissa is always 0
+				if(input_exponent == 0) { // 5. Handle denormalized numbers
+					*pOutBinaryExponent = -1022;
+					*pOutBinaryMantissa = (input_mantissa << 11); // most significant 53rd bit of mantissa is always 0
 				}
-				else {
-					// 6. Handle normalized numbers
-					*out_binary_exponent = ((int32)input_exponent) - 1023;
-					*out_binary_mantissa = (1ULL << 63) | (input_mantissa << 11); // 53rd bit of mantissa is always 1
+				else { // 6. Handle normalized numbers
+					*pOutBinaryExponent = ((int32)input_exponent) - 1023;
+					*pOutBinaryMantissa = (1ULL << 63) | (input_mantissa << 11); // 53rd bit of mantissa is always 1
 				}
 			}
 		}
 	}
+	return flags;
 }
 // 
 // Descr: Pack floating-point double precision binary value according to IEEE 754
@@ -2033,25 +2036,26 @@ static void FASTCALL format_exponent(char * pBuffer, int32 exponent, int isUpper
 // @returns  1  if value was successfully converted to string.
 //   0  if there is not enough room in buffer or internal error happened during conversion.
 // 
-int STDCALL SRealConversion::Print(char ** ppOutBuf, int * pOutBufSize, double value, int formatChar, uint formatFlags, int formatWidth, int formatPrecision)
+int STDCALL SIEEE754::Print(char ** ppOutBuf, int * pOutBufSize, double value, int formatChar, uint formatFlags, int formatWidth, int formatPrecision)
 {
 	// 1. Unpack double precision value
-	int    is_nan      = 0;
-	int    is_negative = 0;
-	int    is_infinity = 0;
+	//int    is_nan      = 0;
+	//int    is_negative = 0;
+	//int    is_infinity = 0;
 	uint64 mantissa    = 0;
 	int32  exponent    = 0;
-	unpack_ieee754_double(&value, &is_nan, &is_negative, &mantissa, &exponent, &is_infinity);
+	const  uint   ieee754flags = UnpackDouble(&value, /*&is_nan, &is_negative,*/&mantissa, &exponent/*, &is_infinity*/);
 	// 2. Handle special cases
-	if(is_nan || is_infinity) {
+	//if(is_nan || is_infinity) {
+	if(ieee754flags & (fNAN|fINF)) {
 		const  char * p_spc = 0;
 		int    spc_len = 0;
-		if(is_nan) {
+		if(/*is_nan*/ieee754flags & fNAN) {
 			p_spc = (formatFlags & fUppercase) ? "NAN" : "nan";
 			spc_len = 3;
 		}
-		else if(is_infinity) {
-			if(!is_negative) {
+		else if(/*is_infinity*/ieee754flags & fINF) {
+			if(/*!is_negative*/!(ieee754flags & fSIGN)) {
 				if(formatFlags & fPrintPlus) {
 					p_spc = (formatFlags & fUppercase) ? "+INF" : "+inf";
 					spc_len = 4;
@@ -2062,10 +2066,10 @@ int STDCALL SRealConversion::Print(char ** ppOutBuf, int * pOutBufSize, double v
 				}
 			}
 			else {
-				assert(is_negative);
+				//assert(is_negative);
+				assert(ieee754flags & fSIGN);
 				p_spc = (formatFlags & fUppercase) ? "-INF" : "-inf";
 				spc_len = 4;
-				
 			}
 		}
 		assert(p_spc && spc_len > 0);
@@ -2088,7 +2092,7 @@ int STDCALL SRealConversion::Print(char ** ppOutBuf, int * pOutBufSize, double v
 			exponent = -18;
 		}
 		else {
-			if(!convert_binary_to_extended_decimal(mantissa, exponent, &mantissa, &exponent) )
+			if(!convert_binary_to_extended_decimal(mantissa, exponent, &mantissa, &exponent)) // !
 				return 0; // internal error during conversion
 			bcd_decompress(mantissa, decimal_mantissa);
 			if(decimal_mantissa[0] != 0 || decimal_mantissa[1] == 0)
@@ -2149,10 +2153,10 @@ int STDCALL SRealConversion::Print(char ** ppOutBuf, int * pOutBufSize, double v
 			if(original_format_char == 'g')
 				formatPrecision += (z1 - point);
 			// compute trailing zero padding or truncate digits
-			if(point + formatPrecision >= z1 + ndigits)
+			if((point + formatPrecision) >= (z1 + ndigits))
 				z2 = point + formatPrecision - (z1 + ndigits);
 			else {
-				int new_ndigits = point + formatPrecision - z1;
+				const int new_ndigits = point + formatPrecision - z1;
 				if(new_ndigits < 0) {
 					z1 += new_ndigits;
 					ndigits = 0;
@@ -2208,7 +2212,7 @@ int STDCALL SRealConversion::Print(char ** ppOutBuf, int * pOutBufSize, double v
 		total_width += suffix_width;
 		// 7. Determine sign
 		int sign = 0;
-		if(is_negative)
+		if(/*is_negative*/ieee754flags & fSIGN)
 			sign = '-';
 		else {
 			if(formatFlags & fPrintPlus)
@@ -2273,7 +2277,7 @@ int STDCALL SRealConversion::Print(char ** ppOutBuf, int * pOutBufSize, double v
 // error checking, then set input_end != NULL and use ( ret_value != 0)&&( **input_end == 0)
 // condition as an indication of successful conversion.
 // 
-int STDCALL SRealConversion::Scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange)
+int STDCALL SIEEE754::Scan(const char * pInput, const char ** ppInputEnd, double * pOutput, int * pOutputERange)
 {
 	int    ok = 1;
 	int    output_erange = 0;

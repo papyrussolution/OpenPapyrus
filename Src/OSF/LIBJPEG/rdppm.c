@@ -70,7 +70,7 @@ typedef struct {
 	JSAMPROW pixrow; /* FAR pointer to same */
 	size_t buffer_width; /* width of I/O buffer */
 	JSAMPLE * rescale; /* => maxval-remapping array, or NULL */
-	unsigned int maxval; // @v9c
+	uint maxval; // @v9c
 } ppm_source_struct;
 
 typedef ppm_source_struct * ppm_source_ptr;
@@ -141,11 +141,11 @@ METHODDEF(JDIMENSION) get_text_gray_row (j_compress_ptr cinfo, cjpeg_source_ptr 
 	ppm_source_ptr source = (ppm_source_ptr) sinfo;
 	FILE * infile = source->pub.input_file;
 	JSAMPLE *rescale = source->rescale;
-	unsigned int maxval = source->maxval;
+	uint maxval = source->maxval;
 	JDIMENSION col;
 	JSAMPROW ptr = source->pub.buffer[0];
 	for(col = cinfo->image_width; col > 0; col--) {
-		unsigned int temp = read_pbm_integer(cinfo, infile);
+		uint temp = read_pbm_integer(cinfo, infile);
 		if(temp > maxval)
 			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
 		*ptr++ = rescale[temp];
@@ -176,11 +176,11 @@ METHODDEF(JDIMENSION) get_text_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr si
 	ppm_source_ptr source = (ppm_source_ptr) sinfo;
 	FILE * infile = source->pub.input_file;
 	JSAMPLE *rescale = source->rescale;
-	unsigned int maxval = source->maxval;
+	uint maxval = source->maxval;
 	JDIMENSION col;
 	JSAMPROW ptr = source->pub.buffer[0];
 	for(col = cinfo->image_width; col > 0; col--) {
-		unsigned int temp = read_pbm_integer(cinfo, infile);
+		uint temp = read_pbm_integer(cinfo, infile);
 		if(temp > maxval)
 			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
 		*ptr++ = rescale[temp];
@@ -223,14 +223,14 @@ METHODDEF(JDIMENSION) get_scaled_gray_row (j_compress_ptr cinfo, cjpeg_source_pt
 	JSAMPROW ptr;
 	U_CHAR * bufferptr;
 	JSAMPLE *rescale = source->rescale;
-	unsigned int maxval = source->maxval;
+	uint maxval = source->maxval;
 	JDIMENSION col;
 	if(!ReadOK(source->pub.input_file, source->iobuffer, source->buffer_width))
 		ERREXIT(cinfo, JERR_INPUT_EOF);
 	ptr = source->pub.buffer[0];
 	bufferptr = source->iobuffer;
 	for(col = cinfo->image_width; col > 0; col--) {
-		unsigned int temp = (uint)UCH(*bufferptr++);
+		uint temp = (uint)UCH(*bufferptr++);
 		if(temp > maxval)
 			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
 		*ptr++ = rescale[temp];
@@ -266,14 +266,14 @@ METHODDEF(JDIMENSION) get_scaled_rgb_row (j_compress_ptr cinfo, cjpeg_source_ptr
 	JSAMPROW ptr;
 	U_CHAR * bufferptr;
 	JSAMPLE *rescale = source->rescale;
-	unsigned int maxval = source->maxval;
+	uint maxval = source->maxval;
 	JDIMENSION col;
 	if(!ReadOK(source->pub.input_file, source->iobuffer, source->buffer_width))
 		ERREXIT(cinfo, JERR_INPUT_EOF);
 	ptr = source->pub.buffer[0];
 	bufferptr = source->iobuffer;
 	for(col = cinfo->image_width; col > 0; col--) {
-		unsigned int temp = (uint) UCH(*bufferptr++);
+		uint temp = (uint) UCH(*bufferptr++);
 		if(temp > maxval)
 			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
 		*ptr++ = rescale[temp];
@@ -330,14 +330,14 @@ METHODDEF(JDIMENSION) get_word_gray_row (j_compress_ptr cinfo, cjpeg_source_ptr 
 	JSAMPROW ptr;
 	U_CHAR * bufferptr;
 	JSAMPLE *rescale = source->rescale;
-	unsigned int maxval = source->maxval;
+	uint maxval = source->maxval;
 	JDIMENSION col;
 	if(!ReadOK(source->pub.input_file, source->iobuffer, source->buffer_width))
 		ERREXIT(cinfo, JERR_INPUT_EOF);
 	ptr = source->pub.buffer[0];
 	bufferptr = source->iobuffer;
 	for(col = cinfo->image_width; col > 0; col--) {
-		unsigned int temp = ((uint) UCH(*bufferptr++)) << 8;
+		uint temp = ((uint) UCH(*bufferptr++)) << 8;
 		temp |= (uint) UCH(*bufferptr++);
 		if(temp > maxval)
 			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
@@ -381,14 +381,14 @@ METHODDEF(JDIMENSION) get_word_rgb_row (j_compress_ptr cinfo, cjpeg_source_ptr s
 	JSAMPROW ptr;
 	U_CHAR * bufferptr;
 	JSAMPLE *rescale = source->rescale;
-	unsigned int maxval = source->maxval;
+	uint maxval = source->maxval;
 	JDIMENSION col;
 	if(! ReadOK(source->pub.input_file, source->iobuffer, source->buffer_width))
 		ERREXIT(cinfo, JERR_INPUT_EOF);
 	ptr = source->pub.buffer[0];
 	bufferptr = source->iobuffer;
 	for(col = cinfo->image_width; col > 0; col--) {
-		unsigned int temp = ((uint) UCH(*bufferptr++)) << 8;
+		uint temp = ((uint) UCH(*bufferptr++)) << 8;
 		temp |= (uint) UCH(*bufferptr++);
 		if(temp > maxval)
 			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);

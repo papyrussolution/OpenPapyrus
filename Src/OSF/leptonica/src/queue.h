@@ -50,10 +50,10 @@
 
 /*! Expandable pointer queue for arbitrary void* data */
 struct L_Queue {
-	l_int32 nalloc;      /*!< size of allocated ptr array            */
-	l_int32 nhead;      /*!< location of head (in ptrs) from the    */
+	int32 nalloc;      /*!< size of allocated ptr array            */
+	int32 nhead;      /*!< location of head (in ptrs) from the    */
 	/*!< beginning of the array                 */
-	l_int32 nelem;      /*!< number of elements stored in the queue */
+	int32 nelem;      /*!< number of elements stored in the queue */
 	void           ** array; /*!< ptr array                              */
 	struct L_Stack  * stack; /*!< auxiliary stack                        */
 };

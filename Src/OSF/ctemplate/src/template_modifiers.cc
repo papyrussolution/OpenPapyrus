@@ -2,8 +2,7 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are // met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -118,9 +117,8 @@ void HtmlEscape::Modify(const char* in, size_t inlen,
 
 HtmlEscape html_escape;
 
-void PreEscape::Modify(const char* in, size_t inlen,
-    const PerExpandData*,
-    ExpandEmitter* out, const string& arg) const {
+void PreEscape::Modify(const char* in, size_t inlen, const PerExpandData*, ExpandEmitter* out, const string& arg) const 
+{
 	const char* pos = in;
 	const char* start = pos;
 	const char* const limit = in + inlen;
@@ -198,30 +196,24 @@ public:
 			return false;
 		}
 	}
-
-	inline void PrintClosingTags(ExpandEmitter* out) {
+	inline void PrintClosingTags(ExpandEmitter* out) 
+	{
 		for(int i = tag_length; i >= 0; --i) {
 			switch(tags[i]) {
-				case TAG_B:
-				    out->Emit("</b>"); break;
-				case TAG_I:
-				    out->Emit("</i>"); break;
-				case TAG_EM:
-				    out->Emit("</em>"); break;
-				case TAG_SPAN:
-				    out->Emit("</span>"); break;
+				case TAG_B: out->Emit("</b>"); break;
+				case TAG_I: out->Emit("</i>"); break;
+				case TAG_EM: out->Emit("</em>"); break;
+				case TAG_SPAN: out->Emit("</span>"); break;
 			}
 		}
 	}
-
 private:
 	char tags[5];
 	int tag_length;
 };
 
-void SnippetEscape::Modify(const char* in, size_t inlen,
-    const PerExpandData*,
-    ExpandEmitter* out, const string& arg) const {
+void SnippetEscape::Modify(const char* in, size_t inlen, const PerExpandData*, ExpandEmitter* out, const string& arg) const 
+{
 	UnclosedSnippetTags unclosed;
 	const char* pos = in;
 	const char* start = pos;
@@ -232,52 +224,41 @@ void SnippetEscape::Modify(const char* in, size_t inlen,
 			    // Increment our counter and look at the next character.
 			    ++pos;
 			    continue;
-
 			case '<': {
 			    // If there is a permissible tag, just advance pos past it to
 			    // make it part of the current run.  Notice the use of
 			    // "continue" below.
 			    const char* const next_pos = pos + 1;
 			    const int chars_left = limit - next_pos;
-			    if((chars_left >= 2) && !memcmp(next_pos, "b>", 2)
-				&& unclosed.MaybeAdd(UnclosedSnippetTags::TAG_B)) {
+			    if((chars_left >= 2) && !memcmp(next_pos, "b>", 2) && unclosed.MaybeAdd(UnclosedSnippetTags::TAG_B)) {
 				    pos += strliterallen("<b>");
 				    continue;
 			    }
-			    else if((chars_left >= 2) && !memcmp(next_pos, "i>", 2)
-				&& unclosed.MaybeAdd(UnclosedSnippetTags::TAG_I)) {
+			    else if((chars_left >= 2) && !memcmp(next_pos, "i>", 2) && unclosed.MaybeAdd(UnclosedSnippetTags::TAG_I)) {
 				    pos += strliterallen("<i>");
 				    continue;
 			    }
-			    else if((chars_left >= 3) && !memcmp(next_pos, "em>", 3)
-				&& unclosed.MaybeAdd(UnclosedSnippetTags::TAG_EM)) {
+			    else if((chars_left >= 3) && !memcmp(next_pos, "em>", 3) && unclosed.MaybeAdd(UnclosedSnippetTags::TAG_EM)) {
 				    pos += strliterallen("<em>");
 				    continue;
 			    }
-			    else if((chars_left >= 13) && !memcmp(next_pos, "span dir=", 9)
-				&& (!memcmp(next_pos + 9, "ltr>", 4) ||
-				!memcmp(next_pos + 9, "rtl>", 4))
-				&& unclosed.MaybeAdd(UnclosedSnippetTags::TAG_SPAN)) {
+			    else if((chars_left >= 13) && !memcmp(next_pos, "span dir=", 9) && (!memcmp(next_pos + 9, "ltr>", 4) || !memcmp(next_pos + 9, "rtl>", 4)) && unclosed.MaybeAdd(UnclosedSnippetTags::TAG_SPAN)) {
 				    pos += strliterallen("<span dir=ltr>");
 				    continue;
 			    }
-			    else if((chars_left >= 3) && !memcmp(next_pos, "/b>", 3)
-				&& unclosed.MaybeRemove(UnclosedSnippetTags::TAG_B)) {
+			    else if((chars_left >= 3) && !memcmp(next_pos, "/b>", 3) && unclosed.MaybeRemove(UnclosedSnippetTags::TAG_B)) {
 				    pos += strliterallen("</b>");
 				    continue;
 			    }
-			    else if((chars_left >= 3) && !memcmp(next_pos, "/i>", 3)
-				&& unclosed.MaybeRemove(UnclosedSnippetTags::TAG_I)) {
+			    else if((chars_left >= 3) && !memcmp(next_pos, "/i>", 3) && unclosed.MaybeRemove(UnclosedSnippetTags::TAG_I)) {
 				    pos += strliterallen("</i>");
 				    continue;
 			    }
-			    else if((chars_left >= 4) && !memcmp(next_pos, "/em>", 4)
-				&& unclosed.MaybeRemove(UnclosedSnippetTags::TAG_EM)) {
+			    else if((chars_left >= 4) && !memcmp(next_pos, "/em>", 4) && unclosed.MaybeRemove(UnclosedSnippetTags::TAG_EM)) {
 				    pos += strliterallen("</em>");
 				    continue;
 			    }
-			    else if((chars_left >= 6) && !memcmp(next_pos, "/span>", 6)
-				&& unclosed.MaybeRemove(UnclosedSnippetTags::TAG_SPAN)) {
+			    else if((chars_left >= 6) && !memcmp(next_pos, "/span>", 6) && unclosed.MaybeRemove(UnclosedSnippetTags::TAG_SPAN)) {
 				    pos += strliterallen("</span>");
 				    continue;
 			    }
@@ -289,13 +270,11 @@ void SnippetEscape::Modify(const char* in, size_t inlen,
 				    pos += strliterallen("<wbr>");
 				    continue;
 			    }
-
 			    // Emit the entity and break out of the switch.
 			    EmitRun(start, pos, out);
 			    APPEND("&lt;");
 			    break;
 		    }
-
 			case '&':
 			    EmitRun(start, pos, out);
 			    if(pos + 1 < limit && pos[1] == '{') {
@@ -311,7 +290,6 @@ void SnippetEscape::Modify(const char* in, size_t inlen,
 			case '"':  EmitRun(start, pos, out); APPEND("&quot;"); break;
 			case '\'': EmitRun(start, pos, out); APPEND("&#39;");  break;
 			case '>':  EmitRun(start, pos, out); APPEND("&gt;");   break;
-
 			case '\r': case '\n': case '\v': case '\f': case '\t':
 			    // non-space whitespace
 			    EmitRun(start, pos, out); APPEND(" "); break;
@@ -324,9 +302,8 @@ void SnippetEscape::Modify(const char* in, size_t inlen,
 
 SnippetEscape snippet_escape;
 
-void CleanseAttribute::Modify(const char* in, size_t inlen,
-    const PerExpandData*,
-    ExpandEmitter* out, const string& arg) const {
+void CleanseAttribute::Modify(const char* in, size_t inlen, const PerExpandData*, ExpandEmitter* out, const string& arg) const 
+{
 	for(size_t i = 0; i < inlen; ++i) {
 		char c = in[i];
 		switch(c) {
@@ -361,9 +338,8 @@ void CleanseAttribute::Modify(const char* in, size_t inlen,
 
 CleanseAttribute cleanse_attribute;
 
-void CleanseCss::Modify(const char* in, size_t inlen,
-    const PerExpandData*,
-    ExpandEmitter* out, const string& arg) const {
+void CleanseCss::Modify(const char* in, size_t inlen, const PerExpandData*, ExpandEmitter* out, const string& arg) const 
+{
 	for(size_t i = 0; i < inlen; ++i) {
 		char c = in[i];
 		switch(c) {
@@ -379,9 +355,7 @@ void CleanseCss::Modify(const char* in, size_t inlen,
 			    break;
 		    }
 			default: {
-			    if((c >= 'a' && c <= 'z') ||
-				(c >= 'A' && c <= 'Z') ||
-				(c >= '0' && c <= '9')) {
+			    if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
 				    out->Emit(c);
 			    }
 			    break;
@@ -396,9 +370,7 @@ CleanseCss cleanse_css;
 // (validate_url_and_css_escape) and is not directly exposed.
 class CssUrlEscape : public TemplateModifier {
 public:
-	virtual void Modify(const char* in, size_t inlen,
-	    const PerExpandData*, ExpandEmitter* outbuf,
-	    const string& arg) const;
+	virtual void Modify(const char* in, size_t inlen, const PerExpandData*, ExpandEmitter* outbuf, const string& arg) const;
 };
 
 // URL-encodes the characters [\n\r\\'"()<>*] to ensure the URL can be safely
@@ -412,9 +384,8 @@ public:
 // References:
 // . CSS 2.1 URLs: http://www.w3.org/TR/CSS21/syndata.html#url
 // . CSS 1 URLs: http://www.w3.org/TR/REC-CSS1/#url
-void CssUrlEscape::Modify(const char* in, size_t inlen,
-    const PerExpandData*,
-    ExpandEmitter* out, const string& arg) const {
+void CssUrlEscape::Modify(const char* in, size_t inlen, const PerExpandData*, ExpandEmitter* out, const string& arg) const 
+{
 	for(size_t i = 0; i < inlen; ++i) {
 		char c = in[i];
 		switch(c) {
@@ -445,13 +416,9 @@ void ValidateUrl::Modify(const char* in, size_t inlen, const PerExpandData* per_
 	SETIFZQ(slashpos, in + inlen);
 	const void * colonpos = memchr(in, ':', slashpos - in);
 	// colon before first slash, could be a protocol
-	if(colonpos != NULL && URL::HasInsecureProtocol(in, inlen)) {
+	if(colonpos && URL::HasInsecureProtocol(in, inlen)) {
 		// It's a bad protocol, so return something safe
-		chained_modifier_.Modify(unsafe_url_replacement_,
-		    unsafe_url_replacement_length_,
-		    per_expand_data,
-		    out,
-		    "");
+		chained_modifier_.Modify(unsafe_url_replacement_, unsafe_url_replacement_length_, per_expand_data, out, "");
 		return;
 	}
 	// If we get here, it's a valid url, so just escape it
@@ -692,9 +659,8 @@ static inline bool IsUrlQueryEscapeSafeChar(unsigned char c) {
 	return (_safe_characters[(c)>>5] & (1 << ((c) & 31)));
 }
 
-void UrlQueryEscape::Modify(const char* in, size_t inlen,
-    const PerExpandData*,
-    ExpandEmitter* out, const string& arg) const {
+void UrlQueryEscape::Modify(const char* in, size_t inlen, const PerExpandData*, ExpandEmitter* out, const string& arg) const 
+{
 	const char* pos = in;
 	const char* const limit = in + inlen;
 	while(true) {
@@ -932,19 +898,15 @@ static vector<const ModifierInfo*> g_unknown_modifiers;
 //
 // Note that this function is not commutative therefore
 // IsSafeXSSAlternative(a, b) may not be equal to IsSafeXSSAlternative(b, a).
-bool IsSafeXSSAlternative(const ModifierInfo& our,
-    const ModifierInfo& candidate) {
+bool IsSafeXSSAlternative(const ModifierInfo& our, const ModifierInfo& candidate) 
+{
 	// Succeeds even for non built-in modifiers but no harm.
 	if(our.modifier == candidate.modifier)
 		return true;
-
-	for(const ModifierWithAlternatives* mod_with_alts = g_modifiers;
-	    mod_with_alts < g_modifiers + sizeof(g_modifiers)/sizeof(*g_modifiers);
-	    ++mod_with_alts) {
+	for(const ModifierWithAlternatives* mod_with_alts = g_modifiers; mod_with_alts < g_modifiers + SIZEOFARRAY(g_modifiers); ++mod_with_alts) {
 		if(mod_with_alts->modifier_info.long_name == our.long_name)
 			// We found our Modifier in the built-in array g_modifiers.
-			for(int i = 0; mod_with_alts->safe_alt_mods[i] != NULL &&
-			    i < MAX_SAFE_ALTERNATIVES; ++i)
+			for(int i = 0; mod_with_alts->safe_alt_mods[i] && i < MAX_SAFE_ALTERNATIVES; ++i)
 				if(mod_with_alts->safe_alt_mods[i]->long_name == candidate.long_name)
 					// We found candidate in our Modifier's list of safe alternatives.
 					return true;
@@ -953,20 +915,17 @@ bool IsSafeXSSAlternative(const ModifierInfo& our,
 	return false;
 }
 
-static inline bool IsExtensionModifier(const char* long_name) {
+static inline bool IsExtensionModifier(const char* long_name) 
+{
 	return memcmp(long_name, "x-", 2) == 0;
 }
 
-static bool AddModifierCommon(const char* long_name,
-    const TemplateModifier* modifier, bool xss_safe) {
+static bool AddModifierCommon(const char* long_name, const TemplateModifier* modifier, bool xss_safe) 
+{
 	if(!IsExtensionModifier(long_name))
 		return false;
-
 	// TODO(csilvers): store in a map or multimap, rather than a vector
-	for(vector<const ModifierInfo*>::const_iterator mod =
-	    g_extension_modifiers.begin();
-	    mod != g_extension_modifiers.end();
-	    ++mod) {
+	for(vector<const ModifierInfo*>::const_iterator mod = g_extension_modifiers.begin(); mod != g_extension_modifiers.end(); ++mod) {
 		// Check if mod has the same name as us.  For modifiers that also take
 		// values, this is everything before the =.  The only time it's ok to
 		// have the same name is when we have different modval specializations:
@@ -988,23 +947,19 @@ static bool AddModifierCommon(const char* long_name,
 			}
 		}
 	}
-
-	g_extension_modifiers.push_back(
-		new ModifierInfo(long_name, '\0',
-		xss_safe ? XSS_SAFE : XSS_UNIQUE,
-		modifier));
+	g_extension_modifiers.push_back(new ModifierInfo(long_name, '\0', xss_safe ? XSS_SAFE : XSS_UNIQUE, modifier));
 	return true;
 }
 
 // Modifier added with XSS_UNIQUE XssClass.
-bool AddModifier(const char* long_name,
-    const TemplateModifier* modifier) {
+bool AddModifier(const char* long_name, const TemplateModifier* modifier) 
+{
 	return AddModifierCommon(long_name, modifier, false);
 }
 
 // Modifier added with XSS_SAFE XssClass.
-bool AddXssSafeModifier(const char* long_name,
-    const TemplateModifier* modifier) {
+bool AddXssSafeModifier(const char* long_name, const TemplateModifier* modifier) 
+{
 	return AddModifierCommon(long_name, modifier, true);
 }
 
@@ -1018,10 +973,8 @@ bool AddXssSafeModifier(const char* long_name,
 // Condition (3) makes sure that if we match the ModifierInfo with name
 // "foo=bar", we don't claim the ModifierInfo "foo=" is a better match.
 // Recall that by definition, modval will always start with a '=' if present.
-static void UpdateBestMatch(const char* modname, size_t modname_len,
-    const char* modval, size_t modval_len,
-    const ModifierInfo* candidate_match,
-    const ModifierInfo** best_match) {
+static void UpdateBestMatch(const char* modname, size_t modname_len, const char* modval, size_t modval_len, const ModifierInfo* candidate_match, const ModifierInfo** best_match) 
+{
 	// It's easiest to handle the two case differently: (1) candidate_match
 	// refers to a modifier that expects a modifier-value; (2) it doesn't.
 	if(candidate_match->modval_required) {
@@ -1032,28 +985,21 @@ static void UpdateBestMatch(const char* modname, size_t modname_len,
 		const char* const longname_start = candidate_match->long_name.c_str();
 		const char* const equals = strchr(longname_start, '=');
 		assert(equals != NULL);
-		if(modval_len > 0 &&
-		    ((modname_len == 1 && *modname == candidate_match->short_name) ||
-		    (modname_len == equals - longname_start &&
-		    memcmp(modname, longname_start, modname_len) == 0)) &&
+		if(modval_len > 0 && ((modname_len == 1 && *modname == candidate_match->short_name) ||
+		    (modname_len == equals - longname_start && memcmp(modname, longname_start, modname_len) == 0)) &&
 		    ((equals[1] == '\0') || // name is "foo=" (not a specialization)
-		    (modval_len
-		    == longname_start + candidate_match->long_name.size() - equals &&
-		    memcmp(modval, equals, modval_len) == 0))) {
+		    (modval_len == longname_start + candidate_match->long_name.size() - equals && memcmp(modval, equals, modval_len) == 0))) {
 			// Condition (3) above is satisfied iff our longname is longer than
 			// best-match's longname (so we prefer "foo=bar" to "foo=").
-			if(*best_match == NULL ||
-			    candidate_match->long_name.size() > (*best_match)->long_name.size())
+			if(*best_match == NULL || candidate_match->long_name.size() > (*best_match)->long_name.size())
 				*best_match = candidate_match;
 		}
 	}
 	else {
 		// In this case, to be a match: we must *not* have a modval.  Our
 		// modname still must match modinfo's modname (either short or long).
-		if(modval_len == 0 &&
-		    ((modname_len == 1 && *modname == candidate_match->short_name) ||
-		    (modname_len == candidate_match->long_name.size() &&
-		    !memcmp(modname, candidate_match->long_name.data(), modname_len)))) {
+		if(modval_len == 0 && ((modname_len == 1 && *modname == candidate_match->short_name) || 
+			(modname_len == candidate_match->long_name.size() && !memcmp(modname, candidate_match->long_name.data(), modname_len)))) {
 			// In the no-modval case, only one match should exist.
 			assert(*best_match == NULL);
 			*best_match = candidate_match;
@@ -1061,32 +1007,23 @@ static void UpdateBestMatch(const char* modname, size_t modname_len,
 	}
 }
 
-const ModifierInfo* FindModifier(const char* modname, size_t modname_len,
-    const char* modval, size_t modval_len) {
+const ModifierInfo* FindModifier(const char* modname, size_t modname_len, const char* modval, size_t modval_len) 
+{
 	// More than one modifier can match, in the case of modval specializations
 	// (e.g., the modifier "foo=" and "foo=bar" will both match on input of
 	// modname="foo", modval="bar").  In that case, we take the ModifierInfo
 	// with the longest longname, since that's the most specialized match.
 	const ModifierInfo* best_match = NULL;
 	if(modname_len >= 2 && IsExtensionModifier(modname)) {
-		for(vector<const ModifierInfo*>::const_iterator mod =
-		    g_extension_modifiers.begin();
-		    mod != g_extension_modifiers.end();
-		    ++mod) {
-			UpdateBestMatch(modname, modname_len, modval, modval_len,
-			    *mod, &best_match);
+		for(vector<const ModifierInfo*>::const_iterator mod = g_extension_modifiers.begin(); mod != g_extension_modifiers.end(); ++mod) {
+			UpdateBestMatch(modname, modname_len, modval, modval_len, *mod, &best_match);
 		}
-		if(best_match != NULL)
+		if(best_match)
 			return best_match;
-
-		for(vector<const ModifierInfo*>::const_iterator mod =
-		    g_unknown_modifiers.begin();
-		    mod != g_unknown_modifiers.end();
-		    ++mod) {
-			UpdateBestMatch(modname, modname_len, modval, modval_len,
-			    *mod, &best_match);
+		for(vector<const ModifierInfo*>::const_iterator mod = g_unknown_modifiers.begin(); mod != g_unknown_modifiers.end(); ++mod) {
+			UpdateBestMatch(modname, modname_len, modval, modval_len, *mod, &best_match);
 		}
-		if(best_match != NULL)
+		if(best_match)
 			return best_match;
 		// This is the only situation where we can pass in a modifier of NULL.
 		// It means "we don't know about this modifier-name."
@@ -1095,16 +1032,12 @@ const ModifierInfo* FindModifier(const char* modname, size_t modname_len,
 			fullname.append(modval, modval_len);
 		}
 		// TODO(csilvers): store in a map or multimap, rather than a vector
-		g_unknown_modifiers.push_back(new ModifierInfo(fullname, '\0',
-		    XSS_UNIQUE, NULL));
+		g_unknown_modifiers.push_back(new ModifierInfo(fullname, '\0', XSS_UNIQUE, NULL));
 		return g_unknown_modifiers.back();
 	}
 	else {
-		for(const ModifierWithAlternatives* mod_with_alts = g_modifiers;
-		    mod_with_alts < g_modifiers + sizeof(g_modifiers)/sizeof(*g_modifiers);
-		    ++mod_with_alts) {
-			UpdateBestMatch(modname, modname_len, modval, modval_len,
-			    &mod_with_alts->modifier_info, &best_match);
+		for(const ModifierWithAlternatives* mod_with_alts = g_modifiers; mod_with_alts < g_modifiers + SIZEOFARRAY(g_modifiers); ++mod_with_alts) {
+			UpdateBestMatch(modname, modname_len, modval, modval_len, &mod_with_alts->modifier_info, &best_match);
 		}
 		return best_match;
 	}
@@ -1136,41 +1069,15 @@ enum AutoModifyDirective {
 // Note: We allow for more than one ModifierAndValue in the array hence
 // the need to terminate with a Null marker. However currently all the
 // escaping directives have exactly one ModifierAndValue.
-static const ModifierAndValue g_am_empty[] = {
-	ModifierAndValue(NULL, "", 0)
-};
-static const ModifierAndValue g_am_html[] = {
-	ModifierAndValue(&g_modifiers[1].modifier_info, "", 0),
-	ModifierAndValue(NULL, "", 0)
-};
-static const ModifierAndValue g_am_html_unquoted[] = {
-	ModifierAndValue(&g_modifiers[4].modifier_info, "=attribute", 10),
-	ModifierAndValue(NULL, "", 0)
-};
-static const ModifierAndValue g_am_js[] = {
-	ModifierAndValue(&g_modifiers[6].modifier_info, "", 0),
-	ModifierAndValue(NULL, "", 0)
-};
-static const ModifierAndValue g_am_js_number[] = {
-	ModifierAndValue(&g_modifiers[15].modifier_info, "=number", 7),
-	ModifierAndValue(NULL, "", 0)
-};
-static const ModifierAndValue g_am_url_html[] = {
-	ModifierAndValue(&g_modifiers[11].modifier_info, "=html", 5),
-	ModifierAndValue(NULL, "", 0)
-};
-static const ModifierAndValue g_am_url_query[] = {
-	ModifierAndValue(&g_modifiers[9].modifier_info, "", 0),
-	ModifierAndValue(NULL, "", 0)
-};
-static const ModifierAndValue g_am_style[] = {
-	ModifierAndValue(&g_modifiers[0].modifier_info, "", 0),
-	ModifierAndValue(NULL, "", 0)
-};
-static const ModifierAndValue g_am_xml[] = {
-	ModifierAndValue(&g_modifiers[14].modifier_info, "", 0),
-	ModifierAndValue(NULL, "", 0)
-};
+static const ModifierAndValue g_am_empty[] = { ModifierAndValue(NULL, "", 0) };
+static const ModifierAndValue g_am_html[] = { ModifierAndValue(&g_modifiers[1].modifier_info, "", 0), ModifierAndValue(NULL, "", 0) };
+static const ModifierAndValue g_am_html_unquoted[] = { ModifierAndValue(&g_modifiers[4].modifier_info, "=attribute", 10), ModifierAndValue(NULL, "", 0) };
+static const ModifierAndValue g_am_js[] = { ModifierAndValue(&g_modifiers[6].modifier_info, "", 0), ModifierAndValue(NULL, "", 0) };
+static const ModifierAndValue g_am_js_number[] = { ModifierAndValue(&g_modifiers[15].modifier_info, "=number", 7), ModifierAndValue(NULL, "", 0) };
+static const ModifierAndValue g_am_url_html[] = { ModifierAndValue(&g_modifiers[11].modifier_info, "=html", 5), ModifierAndValue(NULL, "", 0) };
+static const ModifierAndValue g_am_url_query[] = { ModifierAndValue(&g_modifiers[9].modifier_info, "", 0), ModifierAndValue(NULL, "", 0) };
+static const ModifierAndValue g_am_style[] = { ModifierAndValue(&g_modifiers[0].modifier_info, "", 0), ModifierAndValue(NULL, "", 0) };
+static const ModifierAndValue g_am_xml[] = { ModifierAndValue(&g_modifiers[14].modifier_info, "", 0), ModifierAndValue(NULL, "", 0) };
 
 static const ModifierAndValue* g_am_dirs[NUM_ENTRIES_AM] = {
 	g_am_empty,            /* AM_EMPTY */
@@ -1196,8 +1103,8 @@ string PrettyPrintOneModifier(const ModifierAndValue& modval) {
 	return out;
 }
 
-string PrettyPrintModifiers(const vector<const ModifierAndValue*>& modvals,
-    const string& separator) {
+string PrettyPrintModifiers(const vector<const ModifierAndValue*>& modvals, const string& separator) 
+{
 	string out;
 	for(vector<const ModifierAndValue*>::const_iterator it =
 	    modvals.begin(); it != modvals.end(); ++it) {
@@ -1212,7 +1119,8 @@ string PrettyPrintModifiers(const vector<const ModifierAndValue*>& modvals,
 // An empty vector indicates an error occurred. Currently we never need
 // to chain escaping directives hence on success, the vector is always of
 // size 1. This may change in the future.
-vector<const ModifierAndValue*> GetModifierForHtmlJs(HtmlParser* htmlparser, string* error_msg) {
+vector<const ModifierAndValue*> GetModifierForHtmlJs(HtmlParser* htmlparser, string* error_msg) 
+{
 	assert(htmlparser);
 	assert(error_msg);
 	vector<const ModifierAndValue*> modvals;
@@ -1366,48 +1274,42 @@ vector<const ModifierAndValue*> GetModifierForHtmlJs(HtmlParser* htmlparser, str
 
 // TODO(jad): Memoize all GetModifierForXXX functions below.
 //            They don't depend on parser context (from csilvers).
-vector<const ModifierAndValue*> GetModifierForCss(HtmlParser* htmlparser,
-    string* error_msg) {
+vector<const ModifierAndValue*> GetModifierForCss(HtmlParser* htmlparser, string* error_msg) 
+{
 	vector<const ModifierAndValue*> modvals;
 	modvals.push_back(g_am_dirs[AM_STYLE]);
 	return modvals;
 }
 
-vector<const ModifierAndValue*> GetModifierForXml(HtmlParser* htmlparser,
-    string* error_msg) {
+vector<const ModifierAndValue*> GetModifierForXml(HtmlParser* htmlparser, string* error_msg) 
+{
 	vector<const ModifierAndValue*> modvals;
 	modvals.push_back(g_am_dirs[AM_XML]);
 	return modvals;
 }
 
-vector<const ModifierAndValue*> GetModifierForJson(HtmlParser* htmlparser,
-    string* error_msg) {
+vector<const ModifierAndValue*> GetModifierForJson(HtmlParser* htmlparser, string* error_msg) 
+{
 	vector<const ModifierAndValue*> modvals;
 	modvals.push_back(g_am_dirs[AM_JS]);
 	return modvals;
 }
 
-vector<const ModifierAndValue*> GetDefaultModifierForHtml() {
+vector<const ModifierAndValue*> GetDefaultModifierForHtml() 
+{
 	vector<const ModifierAndValue*> modvals;
 	modvals.push_back(g_am_dirs[AM_HTML]);
 	return modvals;
 }
 
-vector<const ModifierAndValue*> GetDefaultModifierForJs() {
+vector<const ModifierAndValue*> GetDefaultModifierForJs() 
+{
 	vector<const ModifierAndValue*> modvals;
 	modvals.push_back(g_am_dirs[AM_JS]);
 	return modvals;
 }
 
-vector<const ModifierAndValue*> GetDefaultModifierForCss() {
-	return GetModifierForCss(NULL, NULL);
-}
-
-vector<const ModifierAndValue*> GetDefaultModifierForXml() {
-	return GetModifierForXml(NULL, NULL);
-}
-
-vector<const ModifierAndValue*> GetDefaultModifierForJson() {
-	return GetModifierForJson(NULL, NULL);
-}
+vector<const ModifierAndValue*> GetDefaultModifierForCss() { return GetModifierForCss(NULL, NULL); }
+vector<const ModifierAndValue*> GetDefaultModifierForXml() { return GetModifierForXml(NULL, NULL); }
+vector<const ModifierAndValue*> GetDefaultModifierForJson() { return GetModifierForJson(NULL, NULL); }
 }

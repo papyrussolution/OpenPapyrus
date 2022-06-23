@@ -22,43 +22,43 @@ const char* emscripten_pc_get_function(const void* pc);
 
 // clang-format off
 EM_JS(bool, HaveOffsetConverter, (),
-      { return typeof wasmOffsetConverter !== 'undefined'; });
+    { return typeof wasmOffsetConverter != = 'undefined'; });
 // clang-format on
 
 namespace absl {
-ABSL_NAMESPACE_BEGIN
+	ABSL_NAMESPACE_BEGIN
 
-void InitializeSymbolizer(const char*) {
-  if (!HaveOffsetConverter()) {
-    ABSL_RAW_LOG(INFO,
-                 "Symbolization unavailable. Rebuild with -sWASM=1 "
-                 "and -sUSE_OFFSET_CONVERTER=1.");
-  }
-}
+	void InitializeSymbolizer(const char*) {
+		if(!HaveOffsetConverter()) {
+			ABSL_RAW_LOG(INFO,
+			    "Symbolization unavailable. Rebuild with -sWASM=1 "
+			    "and -sUSE_OFFSET_CONVERTER=1.");
+		}
+	}
 
-bool Symbolize(const void* pc, char* out, int out_size) {
-  // Check if we have the offset converter necessary for pc_get_function.
-  // Without it, the program will abort().
-  if (!HaveOffsetConverter()) {
-    return false;
-  }
-  const char* func_name = emscripten_pc_get_function(pc);
-  if (func_name == nullptr) {
-    return false;
-  }
+	bool Symbolize(const void* pc, char* out, int out_size) {
+		// Check if we have the offset converter necessary for pc_get_function.
+		// Without it, the program will abort().
+		if(!HaveOffsetConverter()) {
+			return false;
+		}
+		const char* func_name = emscripten_pc_get_function(pc);
+		if(func_name == nullptr) {
+			return false;
+		}
 
-  strncpy(out, func_name, out_size);
+		strncpy(out, func_name, out_size);
 
-  if (out[out_size - 1] != '\0') {
-    // strncpy() does not '\0' terminate when it truncates.
-    static constexpr char kEllipsis[] = "...";
-    int ellipsis_size = std::min<int>(sizeof(kEllipsis) - 1, out_size - 1);
-    memcpy(out + out_size - ellipsis_size - 1, kEllipsis, ellipsis_size);
-    out[out_size - 1] = '\0';
-  }
+		if(out[out_size - 1] != '\0') {
+			// strncpy() does not '\0' terminate when it truncates.
+			static constexpr char kEllipsis[] = "...";
+			int ellipsis_size = std::min<int>(sizeof(kEllipsis) - 1, out_size - 1);
+			memcpy(out + out_size - ellipsis_size - 1, kEllipsis, ellipsis_size);
+			out[out_size - 1] = '\0';
+		}
 
-  return true;
-}
+		return true;
+	}
 
-ABSL_NAMESPACE_END
+	ABSL_NAMESPACE_END
 }  // namespace absl

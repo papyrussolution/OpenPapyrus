@@ -277,7 +277,7 @@ int PKCS1_MGF1(uchar * mask, long len,
 	int mdlen;
 	int rv = -1;
 
-	if(c == NULL)
+	if(!c)
 		goto err;
 	mdlen = EVP_MD_size(dgst);
 	if(mdlen < 0)

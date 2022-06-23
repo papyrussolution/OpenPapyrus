@@ -419,11 +419,9 @@ XXH_FORCE_INLINE void XXH3_accumulate_512(void * XXH_RESTRICT acc, const void * 
 #if(XXH_VECTOR == XXH_AVX2)
 	assert((((size_t)acc) & 31) == 0);
 	{   
-		XXH_ALIGN(32) __m256i* const xacc  =       (__m256i*)acc;
-	    const __m256i* const xdata = (const __m256i*)data; /* not really aligned, just for ptr arithmetic,
-			and because _mm256_loadu_si256() requires this type */
-	    const __m256i* const xkey  = (const __m256i*)key; /* not really aligned, just for ptr arithmetic,
-			and because _mm256_loadu_si256() requires this type */
+		XXH_ALIGN(32) __m256i* const xacc  = (__m256i*)acc;
+	    const __m256i* const xdata = (const __m256i*)data; /* not really aligned, just for ptr arithmetic, and because _mm256_loadu_si256() requires this type */
+	    const __m256i* const xkey  = (const __m256i*)key; /* not really aligned, just for ptr arithmetic, and because _mm256_loadu_si256() requires this type */
 	    size_t i;
 	    for(i = 0; i < STRIPE_LEN/sizeof(__m256i); i++) {
 		    __m256i const d   = _mm256_loadu_si256(xdata+i);

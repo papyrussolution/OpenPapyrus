@@ -49,8 +49,8 @@
 
 /* Linear brick sel sizes, including all those that are required
  * for decomposable sels up to size 63. */
-static const l_int32 num_linear = 25;
-static const l_int32 basic_linear[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+static const int32 num_linear = 25;
+static const int32 basic_linear[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 				       12, 13, 14, 15, 20, 21, 25, 30, 31, 35, 40, 41, 45, 50, 51};
 
 /* ------------------------------------------------------------------- *
@@ -74,7 +74,7 @@ static const l_int32 basic_linear[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 SELA * selaAddBasic(SELA  * sela)
 {
 	char name[L_BUF_SIZE];
-	l_int32 i, size;
+	int32 i, size;
 	SEL     * sel;
 
 	PROCNAME(__FUNCTION__);
@@ -296,7 +296,7 @@ SELA * selaAddHitMiss(SELA  * sela)
 SELA * selaAddDwaLinear(SELA  * sela)
 {
 	char name[L_BUF_SIZE];
-	l_int32 i;
+	int32 i;
 	SEL     * sel;
 
 	PROCNAME(__FUNCTION__);
@@ -336,7 +336,7 @@ SELA * selaAddDwaLinear(SELA  * sela)
 SELA * selaAddDwaCombs(SELA  * sela)
 {
 	char name[L_BUF_SIZE];
-	l_int32 i, f1, f2, prevsize, size;
+	int32 i, f1, f2, prevsize, size;
 	SEL     * selh, * selv;
 
 	PROCNAME(__FUNCTION__);
@@ -403,37 +403,30 @@ SELA * selaAddDwaCombs(SELA  * sela)
  *          (6,5), (7,6), (8,7), (9,7), etc.
  * </pre>
  */
-SELA * selaAddCrossJunctions(SELA      * sela,
-    float hlsize,
-    float mdist,
-    l_int32 norient,
-    l_int32 debugflag)
+SELA * selaAddCrossJunctions(SELA      * sela, float hlsize, float mdist, int32 norient, int32 debugflag)
 {
 	char name[L_BUF_SIZE];
-	l_int32 i, j, w, xc, yc;
-	double pi, halfpi, radincr, radang;
+	int32 i, j, w, xc, yc;
+	//double pi;
+	double halfpi, radincr, radang;
 	double angle;
 	PIX * pixc, * pixm, * pixt;
 	PIXA      * pixa;
 	PTA       * pta1, * pta2, * pta3, * pta4;
 	SEL       * sel;
-
 	PROCNAME(__FUNCTION__);
-
 	if(hlsize <= 0)
 		return (SELA*)ERROR_PTR("hlsize not > 0", procName, NULL);
 	if(norient < 1 || norient > 8)
 		return (SELA*)ERROR_PTR("norient not in [1, ... 8]", procName, NULL);
-
 	if(!sela) {
 		if((sela = selaCreate(0)) == NULL)
 			return (SELA*)ERROR_PTR("sela not made", procName, NULL);
 	}
-
-	pi = 3.1415926535;
-	halfpi = 3.1415926535 / 2.0;
+	//pi = 3.1415926535;
+	halfpi = SMathConst::Pi / 2.0;
 	radincr = halfpi / (double)norient;
-	w = (l_int32)(2.2 * (MAX(hlsize, mdist) + 0.5));
+	w = (int32)(2.2 * (MAX(hlsize, mdist) + 0.5));
 	if(w % 2 == 0)
 		w++;
 	xc = w / 2;
@@ -450,8 +443,8 @@ SELA * selaAddCrossJunctions(SELA      * sela,
 		radang = (float)i * radincr;
 		pta1 = generatePtaLineFromPt(xc, yc, hlsize + 1, radang);
 		pta2 = generatePtaLineFromPt(xc, yc, hlsize + 1, radang + halfpi);
-		pta3 = generatePtaLineFromPt(xc, yc, hlsize + 1, radang + pi);
-		pta4 = generatePtaLineFromPt(xc, yc, hlsize + 1, radang + pi + halfpi);
+		pta3 = generatePtaLineFromPt(xc, yc, hlsize + 1, radang + SMathConst::Pi);
+		pta4 = generatePtaLineFromPt(xc, yc, hlsize + 1, radang + SMathConst::Pi + halfpi);
 		ptaJoin(pta1, pta2, 0, -1);
 		ptaJoin(pta1, pta3, 0, -1);
 		ptaJoin(pta1, pta4, 0, -1);
@@ -465,8 +458,8 @@ SELA * selaAddCrossJunctions(SELA      * sela,
 		/* Add red misses between the lines */
 		for(j = 0; j < 4; j++) {
 			angle = radang + (j - 0.5) * halfpi;
-			pixSetPixel(pixc, xc + (l_int32)(mdist * cos(angle)),
-			    yc + (l_int32)(mdist * sin(angle)), 0xff000000);
+			pixSetPixel(pixc, xc + (int32)(mdist * cos(angle)),
+			    yc + (int32)(mdist * sin(angle)), 0xff000000);
 		}
 
 		/* Add dark green for origin */
@@ -486,7 +479,7 @@ SELA * selaAddCrossJunctions(SELA      * sela,
 	}
 
 	if(debugflag) {
-		l_int32 w;
+		int32 w;
 		lept_mkdir("lept/sel");
 		pixaGetPixDimensions(pixa, 0, &w, NULL, NULL);
 		pixt = pixaDisplayTiledAndScaled(pixa, 32, w, 1, 0, 10, 2);
@@ -525,23 +518,18 @@ SELA * selaAddCrossJunctions(SELA      * sela,
  *          (6,5), (7,6), (8,7), (9,7), etc.
  * </pre>
  */
-SELA * selaAddTJunctions(SELA      * sela,
-    float hlsize,
-    float mdist,
-    l_int32 norient,
-    l_int32 debugflag)
+SELA * selaAddTJunctions(SELA      * sela, float hlsize, float mdist, int32 norient, int32 debugflag)
 {
 	char name[L_BUF_SIZE];
-	l_int32 i, j, k, w, xc, yc;
-	double pi, halfpi, radincr, jang, radang;
+	int32 i, j, k, w, xc, yc;
+	//double pi;
+	double halfpi, radincr, jang, radang;
 	double angle[3], dist[3];
 	PIX * pixc, * pixm, * pixt;
 	PIXA      * pixa;
 	PTA       * pta1, * pta2, * pta3;
 	SEL       * sel;
-
 	PROCNAME(__FUNCTION__);
-
 	if(hlsize <= 2)
 		return (SELA*)ERROR_PTR("hlsizel not > 1", procName, NULL);
 	if(norient < 1 || norient > 8)
@@ -551,11 +539,10 @@ SELA * selaAddTJunctions(SELA      * sela,
 		if((sela = selaCreate(0)) == NULL)
 			return (SELA*)ERROR_PTR("sela not made", procName, NULL);
 	}
-
-	pi = 3.1415926535;
-	halfpi = 3.1415926535 / 2.0;
+	//pi = 3.1415926535;
+	halfpi = SMathConst::Pi / 2.0;
 	radincr = halfpi / (float)norient;
-	w = (l_int32)(2.4 * (MAX(hlsize, mdist) + 0.5));
+	w = (int32)(2.4 * (MAX(hlsize, mdist) + 0.5));
 	if(w % 2 == 0)
 		w++;
 	xc = w / 2;
@@ -574,10 +561,8 @@ SELA * selaAddTJunctions(SELA      * sela,
 			pixm = pixCreate(w, w, 1);
 			radang = (float)i * radincr;
 			pta1 = generatePtaLineFromPt(xc, yc, hlsize + 1, jang + radang);
-			pta2 = generatePtaLineFromPt(xc, yc, hlsize + 1,
-				jang + radang + halfpi);
-			pta3 = generatePtaLineFromPt(xc, yc, hlsize + 1,
-				jang + radang + pi);
+			pta2 = generatePtaLineFromPt(xc, yc, hlsize + 1, jang + radang + halfpi);
+			pta3 = generatePtaLineFromPt(xc, yc, hlsize + 1, jang + radang + SMathConst::Pi);
 			ptaJoin(pta1, pta2, 0, -1);
 			ptaJoin(pta1, pta3, 0, -1);
 			pixRenderPta(pixm, pta1, L_SET_PIXELS);
@@ -593,8 +578,8 @@ SELA * selaAddTJunctions(SELA      * sela,
 			dist[0] = 0.8 * mdist;
 			dist[1] = dist[2] = mdist;
 			for(k = 0; k < 3; k++) {
-				pixSetPixel(pixc, xc + (l_int32)(dist[k] * cos(angle[k])),
-				    yc + (l_int32)(dist[k] * sin(angle[k])),
+				pixSetPixel(pixc, xc + (int32)(dist[k] * cos(angle[k])),
+				    yc + (int32)(dist[k] * sin(angle[k])),
 				    0xff000000);
 			}
 
@@ -616,7 +601,7 @@ SELA * selaAddTJunctions(SELA      * sela,
 	}
 
 	if(debugflag) {
-		l_int32 w;
+		int32 w;
 		lept_mkdir("lept/sel");
 		pixaGetPixDimensions(pixa, 0, &w, NULL, NULL);
 		pixt = pixaDisplayTiledAndScaled(pixa, 32, w, 4, 0, 10, 2);
@@ -831,8 +816,8 @@ SELA * sela4and8ccThin(SELA  * sela)
  *      (2) See displaySelectedPixels() for an example of use.
  * </pre>
  */
-SEL * selMakePlusSign(l_int32 size,
-    l_int32 linewidth)
+SEL * selMakePlusSign(int32 size,
+    int32 linewidth)
 {
 	PIX  * pix;
 	SEL  * sel;

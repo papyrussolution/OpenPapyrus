@@ -10,27 +10,14 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file  dnafunc1.c
  * <pre>
  *
  *      Rearrangements
- *          l_int32     *l_dnaJoin()
- *          l_int32     *l_dnaaFlattenToDna()
+ *          int32     *l_dnaJoin()
+ *          int32     *l_dnaaFlattenToDna()
  *          L_DNA       *l_dnaSelectRange()
  *
  *      Conversion between numa and dna
@@ -48,10 +35,10 @@
  *
  *      Hashmap operations
  *          L_HASHMAP   *l_hmapCreateFromDna()
- *          l_int32      l_dnaRemoveDupsByHmap()
- *          l_int32      l_dnaUnionByHmap()
- *          l_int32      l_dnaIntersectionByHmap()
- *          l_int32      l_dnaMakeHistoByHmap()
+ *          int32      l_dnaRemoveDupsByHmap()
+ *          int32      l_dnaUnionByHmap()
+ *          int32      l_dnaIntersectionByHmap()
+ *          int32      l_dnaMakeHistoByHmap()
  *
  *      Miscellaneous operations
  *          L_DNA       *l_dnaDiffAdjValues()
@@ -97,10 +84,10 @@
  */
 l_ok l_dnaJoin(L_DNA   * dad,
     L_DNA   * das,
-    l_int32 istart,
-    l_int32 iend)
+    int32 istart,
+    int32 iend)
 {
-	l_int32 n, i;
+	int32 n, i;
 	double val;
 
 	PROCNAME(__FUNCTION__);
@@ -143,7 +130,7 @@ l_ok l_dnaJoin(L_DNA   * dad,
  */
 L_DNA * l_dnaaFlattenToDna(L_DNAA  * daa)
 {
-	l_int32 i, nalloc;
+	int32 i, nalloc;
 	L_DNA   * da, * dad;
 	L_DNA  ** array;
 
@@ -173,10 +160,10 @@ L_DNA * l_dnaaFlattenToDna(L_DNAA  * daa)
  * \return  dad, or NULL on error
  */
 L_DNA * l_dnaSelectRange(L_DNA   * das,
-    l_int32 first,
-    l_int32 last)
+    int32 first,
+    int32 last)
 {
-	l_int32 n, i;
+	int32 n, i;
 	double dval;
 	L_DNA     * dad;
 
@@ -219,7 +206,7 @@ L_DNA * l_dnaSelectRange(L_DNA   * das,
  */
 NUMA * l_dnaConvertToNuma(L_DNA  * da)
 {
-	l_int32 i, n;
+	int32 i, n;
 	double val;
 	NUMA * na;
 
@@ -245,7 +232,7 @@ NUMA * l_dnaConvertToNuma(L_DNA  * da)
  */
 L_DNA * numaConvertToDna(NUMA * na)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float val;
 	L_DNA     * da;
 
@@ -279,8 +266,8 @@ L_DNA * numaConvertToDna(NUMA * na)
  */
 L_DNA * pixConvertDataToDna(PIX  * pix)
 {
-	l_int32 i, j, w, h, wpl;
-	l_uint32 * data, * line;
+	int32 i, j, w, h, wpl;
+	uint32 * data, * line;
 	L_DNA     * da;
 
 	PROCNAME(__FUNCTION__);
@@ -313,7 +300,7 @@ L_DNA * pixConvertDataToDna(PIX  * pix)
  */
 L_ASET * l_asetCreateFromDna(L_DNA  * da)
 {
-	l_int32 i, n;
+	int32 i, n;
 	double val;
 	L_ASET    * set;
 	RB_TYPE key;
@@ -344,7 +331,7 @@ L_ASET * l_asetCreateFromDna(L_DNA  * da)
 l_ok l_dnaRemoveDupsByAset(L_DNA   * das,
     L_DNA  ** pdad)
 {
-	l_int32 i, n;
+	int32 i, n;
 	double val;
 	L_DNA     * dad;
 	L_ASET    * set;
@@ -439,7 +426,7 @@ l_ok l_dnaIntersectionByAset(L_DNA   * da1,
     L_DNA   * da2,
     L_DNA  ** pdad)
 {
-	l_int32 n1, n2, i, n;
+	int32 n1, n2, i, n;
 	double val;
 	L_ASET    * set1, * set2;
 	RB_TYPE key;
@@ -499,7 +486,7 @@ l_ok l_dnaIntersectionByAset(L_DNA   * da1,
  */
 L_HASHMAP * l_hmapCreateFromDna(L_DNA  * da)
 {
-	l_int32 i, n;
+	int32 i, n;
 	l_uint64 key;
 	double dval;
 	L_HASHITEM  * hitem;
@@ -538,7 +525,7 @@ l_ok l_dnaRemoveDupsByHmap(L_DNA       * das,
     L_DNA      ** pdad,
     L_HASHMAP  ** phmap)
 {
-	l_int32 i, tabsize;
+	int32 i, tabsize;
 	l_uint64 key;
 	double dval;
 	L_DNA       * dad;
@@ -633,7 +620,7 @@ l_ok l_dnaIntersectionByHmap(L_DNA   * da1,
     L_DNA   * da2,
     L_DNA  ** pdad)
 {
-	l_int32 i, n1, n2, n;
+	int32 i, n1, n2, n;
 	l_uint64 key;
 	double dval;
 	L_DNA       * da_small, * da_big, * dad;
@@ -697,7 +684,7 @@ l_ok l_dnaMakeHistoByHmap(L_DNA   * das,
     L_DNA  ** pdav,
     L_DNA  ** pdac)
 {
-	l_int32 i, tabsize;
+	int32 i, tabsize;
 	double dval;
 	L_DNA       * dac, * dav;
 	L_HASHITEM  * hitem;
@@ -748,7 +735,7 @@ l_ok l_dnaMakeHistoByHmap(L_DNA   * das,
  */
 L_DNA * l_dnaDiffAdjValues(L_DNA  * das)
 {
-	l_int32 i, n, prev, cur;
+	int32 i, n, prev, cur;
 	L_DNA   * dad;
 
 	PROCNAME(__FUNCTION__);

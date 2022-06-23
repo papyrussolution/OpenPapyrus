@@ -4,9 +4,6 @@
 #ifndef ABSL_RANDOM_BERNOULLI_DISTRIBUTION_H_
 #define ABSL_RANDOM_BERNOULLI_DISTRIBUTION_H_
 
-//#include <cstdint>
-//#include <istream>
-//#include <limits>
 #include "absl/base/optimization.h"
 #include "absl/random/internal/fast_uniform_bits.h"
 #include "absl/random/internal/iostream_state_saver.h"
@@ -24,13 +21,13 @@ class bernoulli_distribution {
 public:
 	using result_type = bool;
 	class param_type {
-public:
+	public:
 		using distribution_type = bernoulli_distribution;
 		explicit param_type(double p = 0.5) : prob_(p) { assert(p >= 0.0 && p <= 1.0); }
 		double p() const { return prob_; }
 		friend bool operator == (const param_type& p1, const param_type& p2) { return p1.p() == p2.p(); }
 		friend bool operator != (const param_type& p1, const param_type& p2) { return p1.p() != p2.p(); }
-private:
+	private:
 		double prob_;
 	};
 	bernoulli_distribution() : bernoulli_distribution(0.5) 
@@ -63,18 +60,18 @@ private:
 	param_type param_;
 };
 
-template <typename CharT, typename Traits>
-std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os,  // NOLINT(runtime/references)
-    const bernoulli_distribution& x) {
+template <typename CharT, typename Traits> std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os,  // NOLINT(runtime/references)
+    const bernoulli_distribution& x) 
+{
 	auto saver = random_internal::make_ostream_state_saver(os);
 	os.precision(random_internal::stream_precision_helper<double>::kPrecision);
 	os << x.p();
 	return os;
 }
 
-template <typename CharT, typename Traits>
-std::basic_istream<CharT, Traits>& operator>>(std::basic_istream<CharT, Traits>& is,  // NOLINT(runtime/references)
-    bernoulli_distribution& x) {            // NOLINT(runtime/references)
+template <typename CharT, typename Traits> std::basic_istream<CharT, Traits>& operator>>(std::basic_istream<CharT, Traits>& is,  // NOLINT(runtime/references)
+    bernoulli_distribution& x) // NOLINT(runtime/references)
+{
 	auto saver = random_internal::make_istream_state_saver(is);
 	auto p = random_internal::read_floating_point<double>(is);
 	if(!is.fail()) {
@@ -84,10 +81,9 @@ std::basic_istream<CharT, Traits>& operator>>(std::basic_istream<CharT, Traits>&
 }
 
 template <typename URBG>
-bool bernoulli_distribution::Generate(double p,
-    URBG& g) {                                    // NOLINT(runtime/references)
+bool bernoulli_distribution::Generate(double p, URBG& g) // NOLINT(runtime/references)
+{
 	random_internal::FastUniformBits<uint32_t> fast_u32;
-
 	while(true) {
 		// There are two aspects of the definition of `c` below that are worth
 		// commenting on.  First, because `p` is in the range [0, 1], `c` is in the

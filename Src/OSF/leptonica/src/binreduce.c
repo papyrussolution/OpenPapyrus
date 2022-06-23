@@ -53,9 +53,9 @@ PIX * pixReduceBinary2(PIX * pixs,
 	uint8 byte0, byte1;
 	uint8   * tab;
 	uint16 shortd;
-	l_int32 i, id, j, ws, hs, wpls, wpld, wplsi;
-	l_uint32 word;
-	l_uint32 * datas, * datad, * lines, * lined;
+	int32 i, id, j, ws, hs, wpls, wpld, wplsi;
+	uint32 word;
+	uint32 * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -124,10 +124,10 @@ PIX * pixReduceBinary2(PIX * pixs,
  * </pre>
  */
 PIX * pixReduceRankBinaryCascade(PIX * pixs,
-    l_int32 level1,
-    l_int32 level2,
-    l_int32 level3,
-    l_int32 level4)
+    int32 level1,
+    int32 level2,
+    int32 level3,
+    int32 level4)
 {
 	PIX * pix1, * pix2, * pix3, * pix4;
 	uint8  * tab;
@@ -197,15 +197,15 @@ PIX * pixReduceRankBinaryCascade(PIX * pixs,
  * </pre>
  */
 PIX * pixReduceRankBinary2(PIX * pixs,
-    l_int32 level,
+    int32 level,
     uint8  * intab)
 {
 	uint8 byte0, byte1;
 	uint8   * tab;
 	uint16 shortd;
-	l_int32 i, id, j, ws, hs, wpls, wpld, wplsi;
-	l_uint32 word1, word2, word3, word4;
-	l_uint32 * datas, * datad, * lines, * lined;
+	int32 i, id, j, ws, hs, wpls, wpld, wplsi;
+	uint32 word1, word2, word3, word4;
+	uint32 * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -360,7 +360,7 @@ PIX * pixReduceRankBinary2(PIX * pixs,
 uint8 * makeSubsampleTab2x(void)
 {
 	uint8  * tab;
-	l_int32 i;
+	int32 i;
 
 	PROCNAME(__FUNCTION__);
 

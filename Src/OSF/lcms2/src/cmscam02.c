@@ -116,7 +116,7 @@ static CAM02COLOR ComputeCorrelates(CAM02COLOR clr, cmsCIECAM02* pMod)
 	double temp, e, t, d2r;
 	double a = clr.RGBpa[0] - (12.0 * clr.RGBpa[1] / 11.0) + (clr.RGBpa[2] / 11.0);
 	double b = (clr.RGBpa[0] + clr.RGBpa[1] - (2.0 * clr.RGBpa[2])) / 9.0;
-	double r2d = (180.0 / 3.141592654);
+	double r2d = (180.0 / SMathConst::Pi);
 	if(!a) {
 		if(b == 0) clr.h = 0;
 		else if(b > 0) clr.h = 90;

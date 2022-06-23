@@ -19,12 +19,12 @@
  *          PIX         *pixOrientCorrect()
  *
  *      Page orientation detection (pure rotation by 90 degree increments):
- *          l_int32      pixOrientDetect()
- *          l_int32      makeOrientDecision()
- *          l_int32      pixUpDownDetect()
+ *          int32      pixOrientDetect()
+ *          int32      makeOrientDecision()
+ *          int32      pixUpDownDetect()
  *
  *      Page mirror detection (flip 180 degrees about line in plane of image):
- *          l_int32      pixMirrorDetect()
+ *          int32      pixMirrorDetect()
  *
  *      Static debug helper
  *          static void  pixDebugFlipDetect()
@@ -213,17 +213,17 @@ static const char * textsel4 = "xxxxxx"
     " oo  x";
 
 /* Parameters for determining orientation */
-static const l_int32 DefaultMinUpDownCount = 70;
+static const int32 DefaultMinUpDownCount = 70;
 static const float DefaultMinUpDownConf = 8.0;
 static const float DefaultMinUpDownRatio = 2.5;
 
 /* Parameters for determining mirror flip */
-static const l_int32 DefaultMinMirrorFlipCount = 100;
+static const int32 DefaultMinMirrorFlipCount = 100;
 static const float DefaultMinMirrorFlipConf = 5.0;
 
 /* Static debug function */
 static void pixDebugFlipDetect(const char * filename, PIX * pixs,
-    PIX * pixhm, l_int32 enable);
+    PIX * pixhm, int32 enable);
 
 /*----------------------------------------------------------------*
 *        High-level interface for detection and correction       *
@@ -256,10 +256,10 @@ PIX * pixOrientCorrect(PIX        * pixs,
     float minratio,
     float * pupconf,
     float * pleftconf,
-    l_int32    * protation,
-    l_int32 debug)
+    int32    * protation,
+    int32 debug)
 {
-	l_int32 orient;
+	int32 orient;
 	float upconf, leftconf;
 	PIX * pix1;
 
@@ -383,8 +383,8 @@ PIX * pixOrientCorrect(PIX        * pixs,
 l_ok pixOrientDetect(PIX        * pixs,
     float * pupconf,
     float * pleftconf,
-    l_int32 mincount,
-    l_int32 debug)
+    int32 mincount,
+    int32 debug)
 {
 	PIX  * pix1;
 
@@ -441,8 +441,8 @@ l_ok makeOrientDecision(float upconf,
     float leftconf,
     float minupconf,
     float minratio,
-    l_int32   * porient,
-    l_int32 debug)
+    int32   * porient,
+    int32 debug)
 {
 	float absupconf, absleftconf;
 
@@ -531,11 +531,11 @@ l_ok makeOrientDecision(float upconf,
  */
 l_ok pixUpDownDetect(PIX        * pixs,
     float * pconf,
-    l_int32 mincount,
-    l_int32 npixels,
-    l_int32 debug)
+    int32 mincount,
+    int32 npixels,
+    int32 debug)
 {
-	l_int32 countup, countdown, nmax;
+	int32 countup, countdown, nmax;
 	float nup, ndown;
 	PIX * pix0, * pix1, * pix2, * pix3, * pixm;
 	SEL       * sel1, * sel2, * sel3, * sel4;
@@ -571,7 +571,7 @@ l_ok pixUpDownDetect(PIX        * pixs,
 	 * each of them by a fixed amount at each end. */
 	pixm = NULL;
 	if(npixels > 0) {
-		l_int32 i, nbox, x, y, w, h;
+		int32 i, nbox, x, y, w, h;
 		BOX   * box;
 		BOXA * boxa;
 		pix1 = pixMorphSequence(pix0, "o10.1", 0);
@@ -689,10 +689,10 @@ l_ok pixUpDownDetect(PIX        * pixs,
  */
 l_ok pixMirrorDetect(PIX        * pixs,
     float * pconf,
-    l_int32 mincount,
-    l_int32 debug)
+    int32 mincount,
+    int32 debug)
 {
-	l_int32 count1, count2, nmax;
+	int32 count1, count2, nmax;
 	float nleft, nright;
 	PIX * pix0, * pix1, * pix2, * pix3;
 	SEL       * sel1, * sel2;
@@ -775,7 +775,7 @@ l_ok pixMirrorDetect(PIX        * pixs,
 static void pixDebugFlipDetect(const char * filename,
     PIX        * pixs,
     PIX        * pixhm,
-    l_int32 enable)
+    int32 enable)
 {
 	PIX  * pixt, * pixthm;
 

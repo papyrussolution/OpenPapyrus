@@ -146,7 +146,7 @@ static int shouldfail(void)
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
 		if(shoulditfail) {
 			void * addrs[30];
-			int num = backtrace(addrs, OSSL_NELEM(addrs));
+			int num = backtrace(addrs, SIZEOFARRAY(addrs));
 			backtrace_symbols_fd(addrs, num, md_tracefd);
 		}
 #endif

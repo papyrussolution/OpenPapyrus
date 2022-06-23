@@ -11,7 +11,7 @@
 
 #include "absl/base/config.h"
 #ifdef _WIN32
-	//#include <windows.h>
+//#include <windows.h>
 #else
 	#include <sys/time.h>
 	#include <unistd.h>
@@ -44,7 +44,6 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace synchronization_internal {
-
 // Some Android headers are missing these definitions even though they
 // support these futex operations.
 #ifdef __BIONIC__
@@ -74,71 +73,70 @@ namespace synchronization_internal {
 #endif
 
 class FutexImpl {
- public:
-  static int WaitUntil(std::atomic<int32_t> *v, int32_t val,
-                       KernelTimeout t) {
-    int err = 0;
-    if (t.has_timeout()) {
-      // https://locklessinc.com/articles/futex_cheat_sheet/
-      // Unlike FUTEX_WAIT, FUTEX_WAIT_BITSET uses absolute time.
-      struct timespec abs_timeout = t.MakeAbsTimespec();
-      // Atomically check that the futex value is still 0, and if it
-      // is, sleep until abs_timeout or until woken by FUTEX_WAKE.
-      err = syscall(
-          SYS_futex, reinterpret_cast<int32_t *>(v),
-          FUTEX_WAIT_BITSET | FUTEX_PRIVATE_FLAG | FUTEX_CLOCK_REALTIME, val,
-          &abs_timeout, nullptr, FUTEX_BITSET_MATCH_ANY);
-    } else {
-      // Atomically check that the futex value is still 0, and if it
-      // is, sleep until woken by FUTEX_WAKE.
-      err = syscall(SYS_futex, reinterpret_cast<int32_t *>(v),
-                    FUTEX_WAIT | FUTEX_PRIVATE_FLAG, val, nullptr);
-    }
-    if (ABSL_PREDICT_FALSE(err != 0)) {
-      err = -errno;
-    }
-    return err;
-  }
+public:
+	static int WaitUntil(std::atomic<int32_t> * v, int32_t val,
+	    KernelTimeout t) {
+		int err = 0;
+		if(t.has_timeout()) {
+			// https://locklessinc.com/articles/futex_cheat_sheet/
+			// Unlike FUTEX_WAIT, FUTEX_WAIT_BITSET uses absolute time.
+			struct timespec abs_timeout = t.MakeAbsTimespec();
+			// Atomically check that the futex value is still 0, and if it
+			// is, sleep until abs_timeout or until woken by FUTEX_WAKE.
+			err = syscall(
+				SYS_futex, reinterpret_cast<int32_t *>(v),
+				FUTEX_WAIT_BITSET | FUTEX_PRIVATE_FLAG | FUTEX_CLOCK_REALTIME, val,
+				&abs_timeout, nullptr, FUTEX_BITSET_MATCH_ANY);
+		}
+		else {
+			// Atomically check that the futex value is still 0, and if it
+			// is, sleep until woken by FUTEX_WAKE.
+			err = syscall(SYS_futex, reinterpret_cast<int32_t *>(v),
+				FUTEX_WAIT | FUTEX_PRIVATE_FLAG, val, nullptr);
+		}
+		if(ABSL_PREDICT_FALSE(err != 0)) {
+			err = -errno;
+		}
+		return err;
+	}
 
-  static int WaitBitsetAbsoluteTimeout(std::atomic<int32_t> *v, int32_t val,
-                                       int32_t bits,
-                                       const struct timespec *abstime) {
-    int err = syscall(SYS_futex, reinterpret_cast<int32_t *>(v),
-                      FUTEX_WAIT_BITSET | FUTEX_PRIVATE_FLAG, val, abstime,
-                      nullptr, bits);
-    if (ABSL_PREDICT_FALSE(err != 0)) {
-      err = -errno;
-    }
-    return err;
-  }
+	static int WaitBitsetAbsoluteTimeout(std::atomic<int32_t> * v, int32_t val,
+	    int32_t bits,
+	    const struct timespec * abstime) {
+		int err = syscall(SYS_futex, reinterpret_cast<int32_t *>(v),
+			FUTEX_WAIT_BITSET | FUTEX_PRIVATE_FLAG, val, abstime,
+			nullptr, bits);
+		if(ABSL_PREDICT_FALSE(err != 0)) {
+			err = -errno;
+		}
+		return err;
+	}
 
-  static int Wake(std::atomic<int32_t> *v, int32_t count) {
-    int err = syscall(SYS_futex, reinterpret_cast<int32_t *>(v),
-                      FUTEX_WAKE | FUTEX_PRIVATE_FLAG, count);
-    if (ABSL_PREDICT_FALSE(err < 0)) {
-      err = -errno;
-    }
-    return err;
-  }
+	static int Wake(std::atomic<int32_t> * v, int32_t count) {
+		int err = syscall(SYS_futex, reinterpret_cast<int32_t *>(v),
+			FUTEX_WAKE | FUTEX_PRIVATE_FLAG, count);
+		if(ABSL_PREDICT_FALSE(err < 0)) {
+			err = -errno;
+		}
+		return err;
+	}
 
-  // FUTEX_WAKE_BITSET
-  static int WakeBitset(std::atomic<int32_t> *v, int32_t count, int32_t bits) {
-    int err = syscall(SYS_futex, reinterpret_cast<int32_t *>(v),
-                      FUTEX_WAKE_BITSET | FUTEX_PRIVATE_FLAG, count, nullptr,
-                      nullptr, bits);
-    if (ABSL_PREDICT_FALSE(err < 0)) {
-      err = -errno;
-    }
-    return err;
-  }
+	// FUTEX_WAKE_BITSET
+	static int WakeBitset(std::atomic<int32_t> * v, int32_t count, int32_t bits) {
+		int err = syscall(SYS_futex, reinterpret_cast<int32_t *>(v),
+			FUTEX_WAKE_BITSET | FUTEX_PRIVATE_FLAG, count, nullptr,
+			nullptr, bits);
+		if(ABSL_PREDICT_FALSE(err < 0)) {
+			err = -errno;
+		}
+		return err;
+	}
 };
 
 class Futex : public FutexImpl {};
-
 }  // namespace synchronization_internal
 ABSL_NAMESPACE_END
 }  // namespace absl
 
 #endif  // ABSL_INTERNAL_HAVE_FUTEX
-
 #endif  // ABSL_SYNCHRONIZATION_INTERNAL_FUTEX_H_

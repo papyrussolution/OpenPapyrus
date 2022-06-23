@@ -18,11 +18,11 @@
  *           PIXC *pixcompCopy()
 
  *      Pixcomp accessors
- *           l_int32   pixcompGetDimensions()
- *           l_int32   pixcompGetParameters()
+ *           int32   pixcompGetDimensions()
+ *           int32   pixcompGetParameters()
  *
  *      Pixcomp compression selection
- *           l_int32   pixcompDetermineFormat()
+ *           int32   pixcompDetermineFormat()
  *
  *      Pixcomp conversion to Pix
  *           PIX *pixCreateFromPixcomp()
@@ -36,51 +36,51 @@
  *           void      pixacompDestroy()
  *
  *      Pixacomp addition/replacement
- *           l_int32   pixacompAddPix()
- *           l_int32   pixacompAddPixcomp()
- *           static l_int32  pixacompExtendArray()
- *           l_int32   pixacompReplacePix()
- *           l_int32   pixacompReplacePixcomp()
- *           l_int32   pixacompAddBox()
+ *           int32   pixacompAddPix()
+ *           int32   pixacompAddPixcomp()
+ *           static int32  pixacompExtendArray()
+ *           int32   pixacompReplacePix()
+ *           int32   pixacompReplacePixcomp()
+ *           int32   pixacompAddBox()
  *
  *      Pixacomp accessors
- *           l_int32   pixacompGetCount()
+ *           int32   pixacompGetCount()
  *           PIXC *pixacompGetPixcomp()
  *           PIX *pixacompGetPix()
- *           l_int32   pixacompGetPixDimensions()
+ *           int32   pixacompGetPixDimensions()
  *           BOXA     *pixacompGetBoxa()
- *           l_int32   pixacompGetBoxaCount()
+ *           int32   pixacompGetBoxaCount()
  *           BOX      *pixacompGetBox()
- *           l_int32   pixacompGetBoxGeometry()
- *           l_int32   pixacompGetOffset()
- *           l_int32   pixacompSetOffset()
+ *           int32   pixacompGetBoxGeometry()
+ *           int32   pixacompGetOffset()
+ *           int32   pixacompSetOffset()
  *
  *      Pixacomp conversion to Pixa
  *           PIXA *pixaCreateFromPixacomp()
  *
  *      Combining pixacomp
- *           l_int32   pixacompJoin()
+ *           int32   pixacompJoin()
  *           PIXAC    *pixacompInterleave()
  *
  *      Pixacomp serialized I/O
  *           PIXAC    *pixacompRead()
  *           PIXAC    *pixacompReadStream()
  *           PIXAC    *pixacompReadMem()
- *           l_int32   pixacompWrite()
- *           l_int32   pixacompWriteStream()
- *           l_int32   pixacompWriteMem()
+ *           int32   pixacompWrite()
+ *           int32   pixacompWriteStream()
+ *           int32   pixacompWriteMem()
  *
  *      Conversion to pdf
- *           l_int32   pixacompConvertToPdf()
- *           l_int32   pixacompConvertToPdfData()
- *           l_int32   pixacompFastConvertToPdfData()
+ *           int32   pixacompConvertToPdf()
+ *           int32   pixacompConvertToPdfData()
+ *           int32   pixacompFastConvertToPdfData()
  *
  *      Output for debugging
- *           l_int32   pixacompWriteStreamInfo()
- *           l_int32   pixcompWriteStreamInfo()
+ *           int32   pixacompWriteStreamInfo()
+ *           int32   pixcompWriteStreamInfo()
  *           PIX *pixacompDisplayTiledAndScaled()
- *           l_int32   pixacompWriteFiles()
- *           l_int32   pixcompWriteFile()
+ *           int32   pixacompWriteFiles()
+ *           int32   pixcompWriteFile()
  *
  *   The Pixacomp is an array of Pixcomp, where each Pixcomp is a compressed
  *   string of the image.  We don't use reference counting here.
@@ -133,19 +133,19 @@
 #pragma hdrstop
 
 /* Bounds on pixacomp array size */
-static const l_uint32 MaxPtrArraySize = 1000000;
-static const l_int32 InitialPtrArraySize = 20; /*!< n'importe quoi */
+static const uint32 MaxPtrArraySize = 1000000;
+static const int32 InitialPtrArraySize = 20; /*!< n'importe quoi */
 
 /* Bound on size for a compressed data string */
 static const size_t MaxDataSize = 1000000000; /* 1 GB */
 
 /* These two globals are defined in writefile.c */
-extern l_int32 NumImageFileFormatExtensions;
+extern int32 NumImageFileFormatExtensions;
 extern const char * ImageFileFormatExtensions[];
 
 /* Static functions */
-static l_int32 pixacompExtendArray(PIXAC * pixac);
-static l_int32 pixcompFastConvertToPdfData(PIXC * pixc, const char * title,
+static int32 pixacompExtendArray(PIXAC * pixac);
+static int32 pixcompFastConvertToPdfData(PIXC * pixc, const char * title,
     uint8 ** pdata, size_t * pnbytes);
 
 /*---------------------------------------------------------------------*
@@ -167,11 +167,11 @@ static l_int32 pixcompFastConvertToPdfData(PIXC * pixc, const char * title,
  * </pre>
  */
 PIXC * pixcompCreateFromPix(PIX * pix,
-    l_int32 comptype)
+    int32 comptype)
 {
 	size_t size;
 	char     * text;
-	l_int32 ret, format;
+	int32 ret, format;
 	uint8  * data;
 	PIXC * pixc;
 
@@ -222,9 +222,9 @@ PIXC * pixcompCreateFromPix(PIX * pix,
  */
 PIXC * pixcompCreateFromString(uint8  * data,
     size_t size,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 format, w, h, d, bps, spp, iscmap;
+	int32 format, w, h, d, bps, spp, iscmap;
 	PIXC    * pixc;
 
 	PROCNAME(__FUNCTION__);
@@ -267,9 +267,9 @@ PIXC * pixcompCreateFromString(uint8  * data,
  * </pre>
  */
 PIXC * pixcompCreateFromFile(const char * filename,
-    l_int32 comptype)
+    int32 comptype)
 {
-	l_int32 format;
+	int32 format;
 	size_t nbytes;
 	uint8  * data;
 	PIX * pix;
@@ -403,7 +403,7 @@ PIXC * pixcompCopy(PIXC * pixcs)
  * \param[out]   pw, ph, pd    [optional]
  * \return  0 if OK, 1 on error
  */
-l_ok pixcompGetDimensions(PIXC * pixc, l_int32 * pw, l_int32 * ph, l_int32 * pd)
+l_ok pixcompGetDimensions(PIXC * pixc, int32 * pw, int32 * ph, int32 * pd)
 {
 	PROCNAME(__FUNCTION__);
 	if(!pixc)
@@ -420,7 +420,7 @@ l_ok pixcompGetDimensions(PIXC * pixc, l_int32 * pw, l_int32 * ph, l_int32 * pd)
  * \param[out]   pxres, pyres, pcomptype, pcmapflag   [optional]
  * \return  0 if OK, 1 on error
  */
-l_ok pixcompGetParameters(PIXC * pixc, l_int32 * pxres, l_int32 * pyres, l_int32 * pcomptype, l_int32 * pcmapflag)
+l_ok pixcompGetParameters(PIXC * pixc, int32 * pxres, int32 * pyres, int32 * pcomptype, int32 * pcmapflag)
 {
 	PROCNAME(__FUNCTION__);
 	if(!pixc)
@@ -459,7 +459,7 @@ l_ok pixcompGetParameters(PIXC * pixc, l_int32 * pxres, l_int32 * pyres, l_int32
  *          %comptype, this selects IFF_PNG, which can compress all pix.
  * </pre>
  */
-l_ok pixcompDetermineFormat(l_int32 comptype, l_int32 d, l_int32 cmapflag, l_int32 * pformat)
+l_ok pixcompDetermineFormat(int32 comptype, int32 d, int32 cmapflag, int32 * pformat)
 {
 	PROCNAME(__FUNCTION__);
 	if(!pformat)
@@ -495,7 +495,7 @@ l_ok pixcompDetermineFormat(l_int32 comptype, l_int32 d, l_int32 cmapflag, l_int
  */
 PIX * pixCreateFromPixcomp(PIXC * pixc)
 {
-	l_int32 w, h, d, cmapinpix, format;
+	int32 w, h, d, cmapinpix, format;
 	PIX * pix;
 	PROCNAME(__FUNCTION__);
 	if(!pixc)
@@ -537,7 +537,7 @@ PIX * pixCreateFromPixcomp(PIXC * pixc)
  * \param[in]    n    initial number of ptrs
  * \return  pixac, or NULL on error
  */
-PIXAC * pixacompCreate(l_int32 n)
+PIXAC * pixacompCreate(int32 n)
 {
 	PIXAC  * pixac;
 	PROCNAME(__FUNCTION__);
@@ -596,12 +596,12 @@ PIXAC * pixacompCreate(l_int32 n)
  *            pixt = pixacompGetPix(pixac, 38);
  * </pre>
  */
-PIXAC * pixacompCreateWithInit(l_int32 n,
-    l_int32 offset,
+PIXAC * pixacompCreateWithInit(int32 n,
+    int32 offset,
     PIX * pix,
-    l_int32 comptype)
+    int32 comptype)
 {
-	l_int32 i;
+	int32 i;
 	PIX * pixt;
 	PIXC    * pixc;
 	PIXAC   * pixac;
@@ -660,10 +660,10 @@ PIXAC * pixacompCreateWithInit(l_int32 n,
  * </pre>
  */
 PIXAC * pixacompCreateFromPixa(PIXA    * pixa,
-    l_int32 comptype,
-    l_int32 accesstype)
+    int32 comptype,
+    int32 accesstype)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOXA * boxa;
 	PIX * pix;
 	PIXAC   * pixac;
@@ -718,7 +718,7 @@ PIXAC * pixacompCreateFromPixa(PIXA    * pixa,
  */
 PIXAC * pixacompCreateFromFiles(const char * dirname,
     const char * substr,
-    l_int32 comptype)
+    int32 comptype)
 {
 	PIXAC    * pixac;
 	SARRAY * sa;
@@ -754,10 +754,10 @@ PIXAC * pixacompCreateFromFiles(const char * dirname,
  * </pre>
  */
 PIXAC * pixacompCreateFromSA(SARRAY * sa,
-    l_int32 comptype)
+    int32 comptype)
 {
 	char * str;
-	l_int32 i, n;
+	int32 i, n;
 	PIXC    * pixc;
 	PIXAC   * pixac;
 
@@ -795,7 +795,7 @@ PIXAC * pixacompCreateFromSA(SARRAY * sa,
  */
 void pixacompDestroy(PIXAC  ** ppixac)
 {
-	l_int32 i;
+	int32 i;
 	PIXAC   * pixac;
 
 	PROCNAME(__FUNCTION__);
@@ -838,9 +838,9 @@ void pixacompDestroy(PIXAC  ** ppixac)
  */
 l_ok pixacompAddPix(PIXAC   * pixac,
     PIX * pix,
-    l_int32 comptype)
+    int32 comptype)
 {
-	l_int32 cmapflag, format;
+	int32 cmapflag, format;
 	PIXC    * pixc;
 
 	PROCNAME(__FUNCTION__);
@@ -878,9 +878,9 @@ l_ok pixacompAddPix(PIXAC   * pixac,
  */
 l_ok pixacompAddPixcomp(PIXAC   * pixac,
     PIXC    * pixc,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -921,7 +921,7 @@ l_ok pixacompAddPixcomp(PIXAC   * pixac,
  *      (2) The max number of pixcomp ptrs is 1M.
  * </pre>
  */
-static l_int32 pixacompExtendArray(PIXAC  * pixac)
+static int32 pixacompExtendArray(PIXAC  * pixac)
 {
 	size_t oldsize, newsize;
 
@@ -962,11 +962,11 @@ static l_int32 pixacompExtendArray(PIXAC  * pixac)
  * </pre>
  */
 l_ok pixacompReplacePix(PIXAC   * pixac,
-    l_int32 index,
+    int32 index,
     PIX * pix,
-    l_int32 comptype)
+    int32 comptype)
 {
-	l_int32 n, aindex;
+	int32 n, aindex;
 	PIXC    * pixc;
 
 	PROCNAME(__FUNCTION__);
@@ -1005,10 +1005,10 @@ l_ok pixacompReplacePix(PIXAC   * pixac,
  * </pre>
  */
 l_ok pixacompReplacePixcomp(PIXAC   * pixac,
-    l_int32 index,
+    int32 index,
     PIXC    * pixc)
 {
-	l_int32 n, aindex;
+	int32 n, aindex;
 	PIXC    * pixct;
 
 	PROCNAME(__FUNCTION__);
@@ -1039,7 +1039,7 @@ l_ok pixacompReplacePixcomp(PIXAC   * pixac,
  */
 l_ok pixacompAddBox(PIXAC   * pixac,
     BOX * box,
-    l_int32 copyflag)
+    int32 copyflag)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1063,7 +1063,7 @@ l_ok pixacompAddBox(PIXAC   * pixac,
  * \param[in]    pixac
  * \return  count, or 0 if no pixa
  */
-l_int32 pixacompGetCount(PIXAC  * pixac)
+int32 pixacompGetCount(PIXAC  * pixac)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1090,10 +1090,10 @@ l_int32 pixacompGetCount(PIXAC  * pixac)
  * </pre>
  */
 PIXC * pixacompGetPixcomp(PIXAC   * pixac,
-    l_int32 index,
-    l_int32 copyflag)
+    int32 index,
+    int32 copyflag)
 {
-	l_int32 aindex;
+	int32 aindex;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1125,9 +1125,9 @@ PIXC * pixacompGetPixcomp(PIXAC   * pixac,
  * </pre>
  */
 PIX * pixacompGetPix(PIXAC   * pixac,
-    l_int32 index)
+    int32 index)
 {
-	l_int32 aindex;
+	int32 aindex;
 	PIXC    * pixc;
 
 	PROCNAME(__FUNCTION__);
@@ -1158,12 +1158,12 @@ PIX * pixacompGetPix(PIXAC   * pixac,
  * </pre>
  */
 l_ok pixacompGetPixDimensions(PIXAC    * pixac,
-    l_int32 index,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pd)
+    int32 index,
+    int32 * pw,
+    int32 * ph,
+    int32 * pd)
 {
-	l_int32 aindex;
+	int32 aindex;
 	PIXC    * pixc;
 
 	PROCNAME(__FUNCTION__);
@@ -1188,7 +1188,7 @@ l_ok pixacompGetPixDimensions(PIXAC    * pixac,
  * \return  boxa, or NULL on error
  */
 BOXA * pixacompGetBoxa(PIXAC   * pixac,
-    l_int32 accesstype)
+    int32 accesstype)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1209,7 +1209,7 @@ BOXA * pixacompGetBoxa(PIXAC   * pixac,
  * \param[in]    pixac
  * \return  count, or 0 on error
  */
-l_int32 pixacompGetBoxaCount(PIXAC  * pixac)
+int32 pixacompGetBoxaCount(PIXAC  * pixac)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1243,10 +1243,10 @@ l_int32 pixacompGetBoxaCount(PIXAC  * pixac)
  * </pre>
  */
 BOX * pixacompGetBox(PIXAC    * pixac,
-    l_int32 index,
-    l_int32 accesstype)
+    int32 index,
+    int32 accesstype)
 {
-	l_int32 aindex;
+	int32 aindex;
 	BOX * box;
 
 	PROCNAME(__FUNCTION__);
@@ -1289,13 +1289,13 @@ BOX * pixacompGetBox(PIXAC    * pixac,
  * </pre>
  */
 l_ok pixacompGetBoxGeometry(PIXAC    * pixac,
-    l_int32 index,
-    l_int32 * px,
-    l_int32 * py,
-    l_int32 * pw,
-    l_int32 * ph)
+    int32 index,
+    int32 * px,
+    int32 * py,
+    int32 * pw,
+    int32 * ph)
 {
-	l_int32 aindex;
+	int32 aindex;
 	BOX * box;
 
 	PROCNAME(__FUNCTION__);
@@ -1326,7 +1326,7 @@ l_ok pixacompGetBoxGeometry(PIXAC    * pixac,
  *          By default it is 0.
  * </pre>
  */
-l_int32 pixacompGetOffset(PIXAC   * pixac)
+int32 pixacompGetOffset(PIXAC   * pixac)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1350,7 +1350,7 @@ l_int32 pixacompGetOffset(PIXAC   * pixac)
  * </pre>
  */
 l_ok pixacompSetOffset(PIXAC   * pixac,
-    l_int32 offset)
+    int32 offset)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1378,9 +1378,9 @@ l_ok pixacompSetOffset(PIXAC   * pixac,
  * </pre>
  */
 PIXA * pixaCreateFromPixacomp(PIXAC   * pixac,
-    l_int32 accesstype)
+    int32 accesstype)
 {
-	l_int32 i, n, offset;
+	int32 i, n, offset;
 	PIX * pix;
 	PIXA    * pixa;
 
@@ -1435,10 +1435,10 @@ PIXA * pixaCreateFromPixacomp(PIXAC   * pixac,
  */
 l_ok pixacompJoin(PIXAC   * pixacd,
     PIXAC   * pixacs,
-    l_int32 istart,
-    l_int32 iend)
+    int32 istart,
+    int32 iend)
 {
-	l_int32 i, n, nb;
+	int32 i, n, nb;
 	BOXA * boxas, * boxad;
 	PIXC    * pixc;
 
@@ -1487,7 +1487,7 @@ l_ok pixacompJoin(PIXAC   * pixacd,
 PIXAC * pixacompInterleave(PIXAC   * pixac1,
     PIXAC   * pixac2)
 {
-	l_int32 i, n1, n2, n, nb1, nb2;
+	int32 i, n1, n2, n, nb1, nb2;
 	BOX * box;
 	PIXC    * pixc1, * pixc2;
 	PIXAC   * pixacd;
@@ -1578,8 +1578,8 @@ PIXAC * pixacompReadStream(FILE * fp)
 {
 	char buf[256];
 	uint8  * data;
-	l_int32 n, offset, i, w, h, d, ignore;
-	l_int32 comptype, cmapflag, version, xres, yres;
+	int32 n, offset, i, w, h, d, ignore;
+	int32 comptype, cmapflag, version, xres, yres;
 	size_t size;
 	BOXA     * boxa;
 	PIXC * pixc;
@@ -1717,7 +1717,7 @@ PIXAC * pixacompReadMem(const uint8  * data,
 l_ok pixacompWrite(const char * filename,
     PIXAC       * pixac)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1746,7 +1746,7 @@ l_ok pixacompWrite(const char * filename,
 l_ok pixacompWriteStream(FILE   * fp,
     PIXAC  * pixac)
 {
-	l_int32 n, i;
+	int32 n, i;
 	PIXC    * pixc;
 
 	PROCNAME(__FUNCTION__);
@@ -1793,7 +1793,7 @@ l_ok pixacompWriteMem(uint8  ** pdata,
     size_t * psize,
     PIXAC     * pixac)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1867,15 +1867,15 @@ l_ok pixacompWriteMem(uint8  ** pdata,
  * </pre>
  */
 l_ok pixacompConvertToPdf(PIXAC       * pixac,
-    l_int32 res,
+    int32 res,
     float scalefactor,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     const char * title,
     const char * fileout)
 {
 	uint8  * data;
-	l_int32 ret;
+	int32 ret;
 	size_t nbytes;
 
 	PROCNAME(__FUNCTION__);
@@ -1918,16 +1918,16 @@ l_ok pixacompConvertToPdf(PIXAC       * pixac,
  * </pre>
  */
 l_ok pixacompConvertToPdfData(PIXAC       * pixac,
-    l_int32 res,
+    int32 res,
     float scalefactor,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     const char * title,
     uint8    ** pdata,
     size_t      * pnbytes)
 {
 	uint8  * imdata;
-	l_int32 i, n, ret, scaledres, pagetype;
+	int32 i, n, ret, scaledres, pagetype;
 	size_t imbytes;
 	L_BYTEA  * ba;
 	PIX * pixs, * pix;
@@ -1971,7 +1971,7 @@ l_ok pixacompConvertToPdfData(PIXAC       * pixac,
 		else
 			pix = pixClone(pixs);
 		pixDestroy(&pixs);
-		scaledres = (l_int32)(res * scalefactor);
+		scaledres = (int32)(res * scalefactor);
 
 		/* Select the encoding type */
 		if(type != L_DEFAULT_ENCODE) {
@@ -2038,7 +2038,7 @@ l_ok pixacompFastConvertToPdfData(PIXAC       * pixac,
     size_t      * pnbytes)
 {
 	uint8  * imdata;
-	l_int32 i, n, ret, comptype;
+	int32 i, n, ret, comptype;
 	size_t imbytes;
 	L_BYTEA  * ba;
 	PIXC * pixc;
@@ -2115,7 +2115,7 @@ l_ok pixacompFastConvertToPdfData(PIXAC       * pixac,
  *          via the cid.)
  * </pre>
  */
-static l_int32 pixcompFastConvertToPdfData(PIXC        * pixc,
+static int32 pixcompFastConvertToPdfData(PIXC        * pixc,
     const char * title,
     uint8    ** pdata,
     size_t      * pnbytes)
@@ -2157,7 +2157,7 @@ l_ok pixacompWriteStreamInfo(FILE        * fp,
     PIXAC       * pixac,
     const char * text)
 {
-	l_int32 i, n, nboxes;
+	int32 i, n, nboxes;
 	PIXC    * pixc;
 
 	PROCNAME(__FUNCTION__);
@@ -2251,12 +2251,12 @@ l_ok pixcompWriteStreamInfo(FILE        * fp,
  * </pre>
  */
 PIX * pixacompDisplayTiledAndScaled(PIXAC   * pixac,
-    l_int32 outdepth,
-    l_int32 tilewidth,
-    l_int32 ncols,
-    l_int32 background,
-    l_int32 spacing,
-    l_int32 border)
+    int32 outdepth,
+    int32 tilewidth,
+    int32 ncols,
+    int32 background,
+    int32 spacing,
+    int32 border)
 {
 	PIX * pixd;
 	PIXA  * pixa;
@@ -2286,7 +2286,7 @@ l_ok pixacompWriteFiles(PIXAC       * pixac,
     const char * subdir)
 {
 	char buf[128];
-	l_int32 i, n;
+	int32 i, n;
 	PIXC    * pixc;
 
 	PROCNAME(__FUNCTION__);

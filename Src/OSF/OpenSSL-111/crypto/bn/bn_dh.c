@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "bn_lcl.h"
-#include "internal/nelem.h"
+//#include "internal/nelem.h"
 #ifndef OPENSSL_NO_DH
 #include <openssl/dh.h>
 #include <bn_dh.h>
@@ -481,7 +481,7 @@ static const BN_ULONG ffdhe8192_p[] = {
 
 /* Macro to make a BIGNUM from static data */
 
-#define make_dh_bn(x) extern const BIGNUM _bignum_ ## x; const BIGNUM _bignum_ ## x = { (BN_ULONG*)x, OSSL_NELEM(x), OSSL_NELEM(x), 0, BN_FLG_STATIC_DATA };
+#define make_dh_bn(x) extern const BIGNUM _bignum_ ## x; const BIGNUM _bignum_ ## x = { (BN_ULONG*)x, SIZEOFARRAY(x), SIZEOFARRAY(x), 0, BN_FLG_STATIC_DATA };
 
 static const BN_ULONG value_2 = 2;
 

@@ -328,7 +328,7 @@ static const char * l_strdata_0 =
 PIXA * l_bootnum_gen3(void)
 {
 	uint8  * data1, * data2;
-	l_int32 size1;
+	int32 size1;
 	size_t size2;
 	PIXA * pixa;
 

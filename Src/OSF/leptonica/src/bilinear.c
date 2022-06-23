@@ -29,9 +29,9 @@
  *           PIX *pixBilinearPtaWithAlpha()
  *
  *      Bilinear coordinate transformation
- *           l_int32   getBilinearXformCoeffs()
- *           l_int32   bilinearXformSampledPt()
- *           l_int32   bilinearXformPt()
+ *           int32   getBilinearXformCoeffs()
+ *           int32   bilinearXformSampledPt()
+ *           int32   bilinearXformPt()
  *
  *      A bilinear transform can be specified as a specific functional
  *      mapping between 4 points in the source and 4 points in the dest.
@@ -120,7 +120,7 @@ extern float AlphaMaskBorderVals[2];
 PIX * pixBilinearSampledPta(PIX * pixs,
     PTA * ptad,
     PTA * ptas,
-    l_int32 incolor)
+    int32 incolor)
 {
 	float * vc;
 	PIX        * pixd;
@@ -167,11 +167,11 @@ PIX * pixBilinearSampledPta(PIX * pixs,
  */
 PIX * pixBilinearSampled(PIX        * pixs,
     float * vc,
-    l_int32 incolor)
+    int32 incolor)
 {
-	l_int32 i, j, w, h, d, x, y, wpls, wpld, color, cmapindex;
-	l_uint32 val;
-	l_uint32   * datas, * datad, * lines, * lined;
+	int32 i, j, w, h, d, x, y, wpls, wpld, color, cmapindex;
+	uint32 val;
+	uint32   * datas, * datad, * lines, * lined;
 	PIX        * pixd;
 	PIXCMAP    * cmap;
 
@@ -262,17 +262,12 @@ PIX * pixBilinearSampled(PIX        * pixs,
  *      (2) Removes any existing colormap, if necessary, before transforming
  * </pre>
  */
-PIX * pixBilinearPta(PIX * pixs,
-    PTA * ptad,
-    PTA * ptas,
-    l_int32 incolor)
+PIX * pixBilinearPta(PIX * pixs, PTA * ptad, PTA * ptas, int32 incolor)
 {
-	l_int32 d;
-	l_uint32 colorval;
-	PIX * pixt1, * pixt2, * pixd;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 d;
+	uint32 colorval;
+	PIX * pixt1, * pixt2, * pixd;
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(!ptas)
@@ -285,10 +280,8 @@ PIX * pixBilinearPta(PIX * pixs,
 		return (PIX *)ERROR_PTR("ptas count not 4", procName, NULL);
 	if(ptaGetCount(ptad) != 4)
 		return (PIX *)ERROR_PTR("ptad count not 4", procName, NULL);
-
 	if(pixGetDepth(pixs) == 1)
 		return pixBilinearSampledPta(pixs, ptad, ptas, incolor);
-
 	/* Remove cmap if it exists, and unpack to 8 bpp if necessary */
 	pixt1 = pixRemoveColormap(pixs, REMOVE_CMAP_BASED_ON_SRC);
 	d = pixGetDepth(pixt1);
@@ -297,7 +290,6 @@ PIX * pixBilinearPta(PIX * pixs,
 	else
 		pixt2 = pixClone(pixt1);
 	d = pixGetDepth(pixt2);
-
 	/* Compute actual color to bring in from edges */
 	colorval = 0;
 	if(incolor == L_BRING_IN_WHITE) {
@@ -306,7 +298,6 @@ PIX * pixBilinearPta(PIX * pixs,
 		else /* d == 32 */
 			colorval = 0xffffff00;
 	}
-
 	if(d == 8)
 		pixd = pixBilinearPtaGray(pixt2, ptad, ptas, colorval);
 	else /* d == 32 */
@@ -315,7 +306,6 @@ PIX * pixBilinearPta(PIX * pixs,
 	pixDestroy(&pixt2);
 	return pixd;
 }
-
 /*!
  * \brief   pixBilinear()
  *
@@ -330,24 +320,18 @@ PIX * pixBilinearPta(PIX * pixs,
  *      (2) Removes any existing colormap, if necessary, before transforming
  * </pre>
  */
-PIX * pixBilinear(PIX        * pixs,
-    float * vc,
-    l_int32 incolor)
+PIX * pixBilinear(PIX        * pixs, float * vc, int32 incolor)
 {
-	l_int32 d;
-	l_uint32 colorval;
-	PIX * pixt1, * pixt2, * pixd;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 d;
+	uint32 colorval;
+	PIX * pixt1, * pixt2, * pixd;
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(!vc)
 		return (PIX *)ERROR_PTR("vc not defined", procName, NULL);
-
 	if(pixGetDepth(pixs) == 1)
 		return pixBilinearSampled(pixs, vc, incolor);
-
 	/* Remove cmap if it exists, and unpack to 8 bpp if necessary */
 	pixt1 = pixRemoveColormap(pixs, REMOVE_CMAP_BASED_ON_SRC);
 	d = pixGetDepth(pixt1);
@@ -356,7 +340,6 @@ PIX * pixBilinear(PIX        * pixs,
 	else
 		pixt2 = pixClone(pixt1);
 	d = pixGetDepth(pixt2);
-
 	/* Compute actual color to bring in from edges */
 	colorval = 0;
 	if(incolor == L_BRING_IN_WHITE) {
@@ -365,7 +348,6 @@ PIX * pixBilinear(PIX        * pixs,
 		else /* d == 32 */
 			colorval = 0xffffff00;
 	}
-
 	if(d == 8)
 		pixd = pixBilinearGray(pixt2, vc, colorval);
 	else /* d == 32 */
@@ -374,7 +356,6 @@ PIX * pixBilinear(PIX        * pixs,
 	pixDestroy(&pixt2);
 	return pixd;
 }
-
 /*!
  * \brief   pixBilinearPtaColor()
  *
@@ -384,16 +365,11 @@ PIX * pixBilinear(PIX        * pixs,
  * \param[in]    colorval    e.g., 0 to bring in BLACK, 0xffffff00 for WHITE
  * \return  pixd, or NULL on error
  */
-PIX * pixBilinearPtaColor(PIX * pixs,
-    PTA * ptad,
-    PTA * ptas,
-    l_uint32 colorval)
+PIX * pixBilinearPtaColor(PIX * pixs, PTA * ptad, PTA * ptas, uint32 colorval)
 {
+	PROCNAME(__FUNCTION__);
 	float * vc;
 	PIX        * pixd;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(!ptas)
@@ -406,15 +382,12 @@ PIX * pixBilinearPtaColor(PIX * pixs,
 		return (PIX *)ERROR_PTR("ptas count not 4", procName, NULL);
 	if(ptaGetCount(ptad) != 4)
 		return (PIX *)ERROR_PTR("ptad count not 4", procName, NULL);
-
 	/* Get backwards transform from dest to src, and apply it */
 	getBilinearXformCoeffs(ptad, ptas, &vc);
 	pixd = pixBilinearColor(pixs, vc, colorval);
 	SAlloc::F(vc);
-
 	return pixd;
 }
-
 /*!
  * \brief   pixBilinearColor()
  *
@@ -423,18 +396,14 @@ PIX * pixBilinearPtaColor(PIX * pixs,
  * \param[in]    colorval   e.g., 0 to bring in BLACK, 0xffffff00 for WHITE
  * \return  pixd, or NULL on error
  */
-PIX * pixBilinearColor(PIX        * pixs,
-    float * vc,
-    l_uint32 colorval)
+PIX * pixBilinearColor(PIX        * pixs, float * vc, uint32 colorval)
 {
-	l_int32 i, j, w, h, d, wpls, wpld;
-	l_uint32 val;
-	l_uint32 * datas, * datad, * lined;
+	PROCNAME(__FUNCTION__);
+	int32 i, j, w, h, d, wpls, wpld;
+	uint32 val;
+	uint32 * datas, * datad, * lined;
 	float x, y;
 	PIX * pix1, * pix2, * pixd;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
@@ -442,14 +411,12 @@ PIX * pixBilinearColor(PIX        * pixs,
 		return (PIX *)ERROR_PTR("pixs must be 32 bpp", procName, NULL);
 	if(!vc)
 		return (PIX *)ERROR_PTR("vc not defined", procName, NULL);
-
 	datas = pixGetData(pixs);
 	wpls = pixGetWpl(pixs);
 	pixd = pixCreateTemplate(pixs);
 	pixSetAllArbitrary(pixd, colorval);
 	datad = pixGetData(pixd);
 	wpld = pixGetWpl(pixd);
-
 	/* Iterate over destination pixels */
 	for(i = 0; i < h; i++) {
 		lined = datad + i * wpld;
@@ -526,8 +493,8 @@ PIX * pixBilinearGray(PIX        * pixs,
     float * vc,
     uint8 grayval)
 {
-	l_int32 i, j, w, h, wpls, wpld, val;
-	l_uint32 * datas, * datad, * lined;
+	int32 i, j, w, h, wpls, wpld, val;
+	uint32 * datas, * datad, * lined;
 	float x, y;
 	PIX * pixd;
 
@@ -613,9 +580,9 @@ PIX * pixBilinearPtaWithAlpha(PIX * pixs,
     PTA       * ptas,
     PIX * pixg,
     float fract,
-    l_int32 border)
+    int32 border)
 {
-	l_int32 ws, hs, d;
+	int32 ws, hs, d;
 	PIX * pixd, * pixb1, * pixb2, * pixg2, * pixga;
 	PTA * ptad2, * ptas2;
 
@@ -656,16 +623,16 @@ PIX * pixBilinearPtaWithAlpha(PIX * pixs,
 		if(fract == 1.0)
 			pixSetAll(pixg2);
 		else
-			pixSetAllArbitrary(pixg2, (l_int32)(255.0 * fract));
+			pixSetAllArbitrary(pixg2, (int32)(255.0 * fract));
 	}
 	else {
 		pixg2 = pixResizeToMatch(pixg, NULL, ws, hs);
 	}
 	if(ws > 10 && hs > 10) { /* see note 7 */
 		pixSetBorderRingVal(pixg2, 1,
-		    (l_int32)(255.0 * fract * AlphaMaskBorderVals[0]));
+		    (int32)(255.0 * fract * AlphaMaskBorderVals[0]));
 		pixSetBorderRingVal(pixg2, 2,
-		    (l_int32)(255.0 * fract * AlphaMaskBorderVals[1]));
+		    (int32)(255.0 * fract * AlphaMaskBorderVals[1]));
 	}
 	pixb2 = pixAddBorder(pixg2, border, 0); /* must be black border */
 	pixga = pixBilinearPtaGray(pixb2, ptad2, ptas2, 0);
@@ -742,7 +709,7 @@ l_ok getBilinearXformCoeffs(PTA         * ptas,
     PTA         * ptad,
     float ** pvc)
 {
-	l_int32 i;
+	int32 i;
 	float x1, y1, x2, y2, x3, y3, x4, y4;
 	float * b; /* rhs vector of primed coords X'; coeffs returned in *pvc */
 	float * a[8]; /* 8x8 matrix A  */
@@ -824,18 +791,18 @@ l_ok getBilinearXformCoeffs(PTA         * ptas,
  * </pre>
  */
 l_ok bilinearXformSampledPt(float * vc,
-    l_int32 x,
-    l_int32 y,
-    l_int32    * pxp,
-    l_int32    * pyp)
+    int32 x,
+    int32 y,
+    int32    * pxp,
+    int32    * pyp)
 {
 	PROCNAME(__FUNCTION__);
 
 	if(!vc)
 		return ERROR_INT("vc not defined", procName, 1);
 
-	*pxp = (l_int32)(vc[0] * x + vc[1] * y + vc[2] * x * y + vc[3] + 0.5);
-	*pyp = (l_int32)(vc[4] * x + vc[5] * y + vc[6] * x * y + vc[7] + 0.5);
+	*pxp = (int32)(vc[0] * x + vc[1] * y + vc[2] * x * y + vc[3] + 0.5);
+	*pyp = (int32)(vc[4] * x + vc[5] * y + vc[6] * x * y + vc[7] + 0.5);
 	return 0;
 }
 
@@ -854,8 +821,8 @@ l_ok bilinearXformSampledPt(float * vc,
  * </pre>
  */
 l_ok bilinearXformPt(float * vc,
-    l_int32 x,
-    l_int32 y,
+    int32 x,
+    int32 y,
     float * pxp,
     float * pyp)
 {

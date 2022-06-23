@@ -192,6 +192,43 @@ int FASTCALL PPObjQuotKind::Special::GetCategory(PPID qkID) const
 		return PPQC_PRICE;
 }
 
+void PPObjQuotKind::Special::GetDefaults(int quotCls, PPID qkID, PPID * pAcsID, PPID * pDefQkID, long * pQkSelExtra) const
+{
+	PPID   acc_sheet_id = 0;
+	long   qk_sel_extra = 1;
+	PPID   new_qk_id = qkID;
+	switch(quotCls) {
+		case PPQuot::clsSupplDeal:
+			acc_sheet_id = GetSupplAccSheet();
+			qk_sel_extra = QuotKindFilt::fSupplDeal;
+			if(!oneof3(new_qk_id, SupplDealID, SupplDevDnID, SupplDevUpID))
+				new_qk_id = SupplDealID;
+			break;
+		case PPQuot::clsMtx:
+			qk_sel_extra = QuotKindFilt::fGoodsMatrix;
+			new_qk_id = MtxID;
+			break;
+		case PPQuot::clsPredictCoeff:
+			qk_sel_extra = QuotKindFilt::fPredictCoeff;
+			new_qk_id = PredictCoeffID;
+			break;
+		default:
+			{
+				PPObjQuotKind qk_obj;
+				PPQuotKind qk_rec;
+				if(new_qk_id && qk_obj.Fetch(new_qk_id, &qk_rec) > 0 && qk_rec.AccSheetID)
+					acc_sheet_id = qk_rec.AccSheetID;
+				else
+					acc_sheet_id = GetSellAccSheet();
+				qk_sel_extra = 1;
+			}
+			break;
+	}
+	ASSIGN_PTR(pAcsID, acc_sheet_id);
+	ASSIGN_PTR(pDefQkID, new_qk_id);
+	ASSIGN_PTR(pQkSelExtra, qk_sel_extra);
+}
+
 /*static*/PPID PPObjQuotKind::GetDefaultAccSheetID(int cls)
 {
 	return (cls == PPQuot::clsSupplDeal) ? GetSupplAccSheet() : ((cls == PPQuot::clsGeneral) ? GetSellAccSheet() : 0);

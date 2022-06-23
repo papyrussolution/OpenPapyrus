@@ -80,7 +80,7 @@ public:
 		SString temp_buf;
 		RVALUEPTR(Data, pData);
 		QkObj.Classify(Data.QuotKindID, &QuotCls);
-		GetQuotKindDefaults(QuotCls, Data.QuotKindID, &acc_sheet_id, &new_qk_id, &qk_sel_extra);
+		QkSpc.GetDefaults(QuotCls, Data.QuotKindID, &acc_sheet_id, &new_qk_id, &qk_sel_extra);
 		SETIFZ(Data.QuotKindID, new_qk_id);
 		AddClusterAssocDef(CTL_QUOTUPD_WHAT, 0, PPQuot::clsGeneral);
 		AddClusterAssoc(CTL_QUOTUPD_WHAT, 1, PPQuot::clsSupplDeal);
@@ -240,7 +240,7 @@ private:
 	DECL_HANDLE_EVENT;
 	int    editAdvOptions();
 	void   setupQuot();
-	void   GetQuotKindDefaults(int quotCls, PPID qkID, PPID * pAcsID, PPID * pDefQkID, long * pQkSelExtra);
+	//void   GetQuotKindDefaults(int quotCls, PPID qkID, PPID * pAcsID, PPID * pDefQkID, long * pQkSelExtra);
 	int    QuotCls; // PPQuot::clsXXX  (obsolete: 1 - котировки, 2 - контрактные цены, 3 - матрица)
 	const  PPObjQuotKind::Special QkSpc;
 	PPObjQuotKind QkObj;
@@ -265,12 +265,13 @@ void QuotUpdDialog::setupQuot()
 	}
 }
 
+#if 0 // @v11.4.2 {
 void QuotUpdDialog::GetQuotKindDefaults(int quotCls, PPID qkID, PPID * pAcsID, PPID * pDefQkID, long * pQkSelExtra)
 {
 	PPID   acc_sheet_id = 0;
 	long   qk_sel_extra = 1;
 	PPID   new_qk_id = qkID;
-	switch(QuotCls) {
+	switch(/*QuotCls*/quotCls) { // @v11.4.1 @fix QuotCls-->quotCls
 		case PPQuot::clsSupplDeal:
 			acc_sheet_id = GetSupplAccSheet();
 			qk_sel_extra = QuotKindFilt::fSupplDeal;
@@ -300,6 +301,7 @@ void QuotUpdDialog::GetQuotKindDefaults(int quotCls, PPID qkID, PPID * pAcsID, P
 	ASSIGN_PTR(pDefQkID, new_qk_id);
 	ASSIGN_PTR(pQkSelExtra, qk_sel_extra);
 }
+#endif // } 0
 
 IMPL_HANDLE_EVENT(QuotUpdDialog)
 {
@@ -316,10 +318,10 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 		const long   prev_cls = QuotCls;
 		QuotCls = GetClusterData(CTL_QUOTUPD_WHAT);
 		if(QuotCls != prev_cls) {
-			PPID   acc_sheet_id = 0;
+			PPID   acs_id = 0;
 			long   qk_sel_extra = 1;
 			PPID   new_qk_id = 0;
-			GetQuotKindDefaults(QuotCls, 0, &acc_sheet_id, &new_qk_id, &qk_sel_extra);
+			QkSpc.GetDefaults(QuotCls, 0, &acs_id, &new_qk_id, &qk_sel_extra);
 			Data.ArticleID = 0;
 			Data.ArList.Set(0);
 			Data.QuotKindID = new_qk_id;
@@ -327,7 +329,7 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 			{
 				ArticleCtrlGroup::Rec ar_grp_rec(0, 0, &Data.ArList);
 				ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(GRP_ARTICLE));
-				p_ar_grp->SetAccSheet(acc_sheet_id);
+				p_ar_grp->SetAccSheet(acs_id);
 				setGroupData(GRP_ARTICLE, &ar_grp_rec);
 			}
 		}
@@ -342,14 +344,14 @@ IMPL_HANDLE_EVENT(QuotUpdDialog)
 		PPID   qk_id = getCtrlLong(CTLSEL_QUOTUPD_KIND);
 		if(qk_id != Data.QuotKindID) {
 			Data.QuotKindID = qk_id;
-			PPID   acc_sheet_id = 0;
+			PPID   acs_id = 0;
 			long   qk_sel_extra = 1;
 			PPID   new_qk_id = 0;
-			GetQuotKindDefaults(QuotCls, qk_id, &acc_sheet_id, &new_qk_id, &qk_sel_extra);
+			QkSpc.GetDefaults(QuotCls, qk_id, &acs_id, &new_qk_id, &qk_sel_extra);
 			if(new_qk_id == qk_id) {
 				ArticleCtrlGroup::Rec ar_grp_rec(0, 0, &Data.ArList);
 				ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(GRP_ARTICLE));
-				p_ar_grp->SetAccSheet(acc_sheet_id);
+				p_ar_grp->SetAccSheet(acs_id);
 				setGroupData(GRP_ARTICLE, &ar_grp_rec);
 			}
 		}

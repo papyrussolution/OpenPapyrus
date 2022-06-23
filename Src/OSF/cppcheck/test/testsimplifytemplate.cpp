@@ -6114,62 +6114,46 @@ private:
 			ASSERT_EQUALS(expected, tok(code));
 		}
 		{
-			const char code[] = "template<class> constexpr float pi = float(3.1415926535897932385L);\n"
-			    "float x = pi<float>;";
-			const char expected[] = "constexpr float pi<float> = float ( 3.1415926535897932385L ) ; "
-			    "float x ; x = pi<float> ;";
+			const char code[] = "template<class> constexpr float pi = float(3.1415926535897932385L);\nfloat x = pi<float>;";
+			const char expected[] = "constexpr float pi<float> = float ( 3.1415926535897932385L ) ; float x ; x = pi<float> ;";
 			ASSERT_EQUALS(expected, tok(code));
 		}
 		{
-			const char code[] = "template<class T = float> constexpr T pi = T(3.1415926535897932385L);\n"
-			    "float x = pi<float>;";
-			const char expected[] = "constexpr float pi<float> = float ( 3.1415926535897932385L ) ; "
-			    "float x ; x = pi<float> ;";
+			const char code[] = "template<class T = float> constexpr T pi = T(3.1415926535897932385L);\nfloat x = pi<float>;";
+			const char expected[] = "constexpr float pi<float> = float ( 3.1415926535897932385L ) ; float x ; x = pi<float> ;";
 			ASSERT_EQUALS(expected, tok(code));
 		}
 		{
-			const char code[] = "template<class T = float> constexpr T pi = T(3.1415926535897932385L);\n"
-			    "float x = pi<>;";
-			const char expected[] = "constexpr float pi<float> = float ( 3.1415926535897932385L ) ; "
-			    "float x ; x = pi<float> ;";
+			const char code[] = "template<class T = float> constexpr T pi = T(3.1415926535897932385L);\nfloat x = pi<>;";
+			const char expected[] = "constexpr float pi<float> = float ( 3.1415926535897932385L ) ; float x ; x = pi<float> ;";
 			ASSERT_EQUALS(expected, tok(code));
 		}
 	}
 
 	void template_variable_3() {
 		{
-			const char code[] = "template<class T, int N> constexpr T foo = T(N*N);\n"
-			    "float x = foo<float,7>;";
-			const char expected[] = "constexpr float foo<float,7> = float ( 49 ) ; "
-			    "float x ; x = foo<float,7> ;";
+			const char code[] = "template<class T, int N> constexpr T foo = T(N*N);\nfloat x = foo<float,7>;";
+			const char expected[] = "constexpr float foo<float,7> = float ( 49 ) ; float x ; x = foo<float,7> ;";
 			ASSERT_EQUALS(expected, tok(code));
 		}
 		{
-			const char code[] = "template<class,int> constexpr float foo = float(7);\n"
-			    "float x = foo<float,7>;";
-			const char expected[] = "constexpr float foo<float,7> = float ( 7 ) ; "
-			    "float x ; x = foo<float,7> ;";
+			const char code[] = "template<class,int> constexpr float foo = float(7);\nfloat x = foo<float,7>;";
+			const char expected[] = "constexpr float foo<float,7> = float ( 7 ) ; float x ; x = foo<float,7> ;";
 			ASSERT_EQUALS(expected, tok(code));
 		}
 		{
-			const char code[] = "template<class T = float, int N = 7> constexpr T foo = T(7);\n"
-			    "double x = foo<double, 14>;";
-			const char expected[] = "constexpr double foo<double,14> = double ( 7 ) ; "
-			    "double x ; x = foo<double,14> ;";
+			const char code[] = "template<class T = float, int N = 7> constexpr T foo = T(7);\ndouble x = foo<double, 14>;";
+			const char expected[] = "constexpr double foo<double,14> = double ( 7 ) ; double x ; x = foo<double,14> ;";
 			ASSERT_EQUALS(expected, tok(code));
 		}
 		{
-			const char code[] = "template<class T = float, int N = 7> constexpr T foo = T(7);\n"
-			    "float x = foo<>;";
-			const char expected[] = "constexpr float foo<float,7> = float ( 7 ) ; "
-			    "float x ; x = foo<float,7> ;";
+			const char code[] = "template<class T = float, int N = 7> constexpr T foo = T(7);\nfloat x = foo<>;";
+			const char expected[] = "constexpr float foo<float,7> = float ( 7 ) ; float x ; x = foo<float,7> ;";
 			ASSERT_EQUALS(expected, tok(code));
 		}
 		{
-			const char code[] = "template<class T = float, int N = 7> constexpr T foo = T(7);\n"
-			    "double x = foo<double>;";
-			const char expected[] = "constexpr double foo<double,7> = double ( 7 ) ; "
-			    "double x ; x = foo<double,7> ;";
+			const char code[] = "template<class T = float, int N = 7> constexpr T foo = T(7);\ndouble x = foo<double>;";
+			const char expected[] = "constexpr double foo<double,7> = double ( 7 ) ; double x ; x = foo<double,7> ;";
 			ASSERT_EQUALS(expected, tok(code));
 		}
 	}

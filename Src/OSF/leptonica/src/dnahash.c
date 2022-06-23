@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file dnahash.c
  * <pre>
@@ -33,7 +20,7 @@
  *
  *      Dnahash accessor and modifier
  *          L_DNA       *l_dnaHashGetDna()
- *          l_int32      l_dnaHashAdd()
+ *          int32      l_dnaHashAdd()
  *
  *    (1) The DnaHash is an array of Dna.  It is a simple method used for
  *        fast lookup of templates in the jbig2 classifier (jbclass.c).
@@ -59,11 +46,11 @@
  *      (2) In use, stored dna are created by l_dnaHashAdd().
  * </pre>
  */
-L_DNAHASH * l_dnaHashCreate(l_int32 nbuckets,
-    l_int32 initsize)
+L_DNAHASH * l_dnaHashCreate(int32 nbuckets,
+    int32 initsize)
 {
-	l_int32 is_prime;
-	l_uint32 newsize;
+	int32 is_prime;
+	uint32 newsize;
 	L_DNAHASH  * dahash;
 
 	PROCNAME(__FUNCTION__);
@@ -97,7 +84,7 @@ L_DNAHASH * l_dnaHashCreate(l_int32 nbuckets,
 void l_dnaHashDestroy(L_DNAHASH ** pdahash)
 {
 	L_DNAHASH  * dahash;
-	l_int32 i;
+	int32 i;
 
 	PROCNAME(__FUNCTION__);
 
@@ -129,9 +116,9 @@ void l_dnaHashDestroy(L_DNAHASH ** pdahash)
  */
 L_DNA * l_dnaHashGetDna(L_DNAHASH  * dahash,
     l_uint64 key,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 bucket;
+	int32 bucket;
 	L_DNA   * da;
 
 	PROCNAME(__FUNCTION__);
@@ -164,7 +151,7 @@ l_ok l_dnaHashAdd(L_DNAHASH  * dahash,
     l_uint64 key,
     double value)
 {
-	l_int32 bucket;
+	int32 bucket;
 	L_DNA   * da;
 
 	PROCNAME(__FUNCTION__);

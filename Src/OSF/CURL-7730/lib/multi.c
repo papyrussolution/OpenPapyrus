@@ -22,18 +22,12 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
 #include "urldata.h"
-//#include "transfer.h"
 #include "url.h"
-//#include "connect.h"
-//#include "progress.h"
 #include "easyif.h"
 #include "share.h"
 #include "psl.h"
 #include "multiif.h"
-//#include "sendf.h"
-//#include "timeval.h"
 #include "http.h"
 #include "select.h"
 #include "warnless.h"
@@ -42,41 +36,30 @@
 #include "multihandle.h"
 #include "sigpipe.h"
 #include "vtls/vtls.h"
-//#include "connect.h"
 #include "http_proxy.h"
 #include "http2.h"
 #include "socketpair.h"
 #include "socks.h"
-/* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
-
 /*
    CURL_SOCKET_HASH_TABLE_SIZE should be a prime number. Increasing it from 97
    to 911 takes on a 32-bit machine 4 x 804 = 3211 more bytes.  Still, every
    CURL handle takes 45-50 K memory, therefore this 3K are not significant.
  */
 #ifndef CURL_SOCKET_HASH_TABLE_SIZE
-#define CURL_SOCKET_HASH_TABLE_SIZE 911
+	#define CURL_SOCKET_HASH_TABLE_SIZE 911
 #endif
-
 #ifndef CURL_CONNECTION_HASH_SIZE
-#define CURL_CONNECTION_HASH_SIZE 97
+	#define CURL_CONNECTION_HASH_SIZE 97
 #endif
-
 #define CURL_MULTI_HANDLE 0x000bab1e
+#define GOOD_MULTI_HANDLE(x) ((x) && (x)->type == CURL_MULTI_HANDLE)
 
-#define GOOD_MULTI_HANDLE(x) \
-	((x) && (x)->type == CURL_MULTI_HANDLE)
-
-static CURLMcode singlesocket(struct Curl_multi * multi,
-    struct Curl_easy * data);
-static CURLMcode add_next_timeout(struct curltime now,
-    struct Curl_multi * multi,
-    struct Curl_easy * d);
-static CURLMcode multi_timeout(struct Curl_multi * multi,
-    long * timeout_ms);
+static CURLMcode singlesocket(struct Curl_multi * multi, struct Curl_easy * data);
+static CURLMcode add_next_timeout(struct curltime now, struct Curl_multi * multi, struct Curl_easy * d);
+static CURLMcode multi_timeout(struct Curl_multi * multi, long * timeout_ms);
 static void process_pending_handles(struct Curl_multi * multi);
 
 #ifdef DEBUGBUILD
@@ -107,9 +90,7 @@ typedef void (* init_multistate_func)(struct Curl_easy * data);
 static void Curl_init_completed(struct Curl_easy * data)
 {
 	/* this is a completed transfer */
-
-	/* Important: reset the conn pointer so that we don't point to memory
-	   that could be freed anytime */
+	/* Important: reset the conn pointer so that we don't point to memory that could be freed anytime */
 	Curl_detach_connnection(data);
 	Curl_expire_clear(data); /* stop all timers */
 }
@@ -149,30 +130,20 @@ static void mstate(struct Curl_easy * data, CURLMstate state
 	if(oldstate == state)
 		/* don't bother when the new state is the same as the old state */
 		return;
-
 	data->mstate = state;
-
 #if defined(DEBUGBUILD) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
-	if(data->mstate >= CURLM_STATE_CONNECT_PEND &&
-	    data->mstate < CURLM_STATE_COMPLETED) {
+	if(data->mstate >= CURLM_STATE_CONNECT_PEND && data->mstate < CURLM_STATE_COMPLETED) {
 		long connection_id = -5000;
-
 		if(data->conn)
 			connection_id = data->conn->connection_id;
-
-		infof(data,
-		    "STATE: %s => %s handle %p; line %d (connection #%ld)\n",
-		    statename[oldstate], statename[data->mstate],
-		    (void *)data, lineno, connection_id);
+		infof(data, "STATE: %s => %s handle %p; line %d (connection #%ld)\n", statename[oldstate], statename[data->mstate], (void *)data, lineno, connection_id);
 	}
 #endif
-
 	if(state == CURLM_STATE_COMPLETED) {
 		/* changing to COMPLETED means there's one less easy handle 'alive' */
 		DEBUGASSERT(data->multi->num_alive > 0);
 		data->multi->num_alive--;
 	}
-
 	/* if this state has an init-function, run it */
 	if(finit[state])
 		finit[state](data);
@@ -190,12 +161,11 @@ static void mstate(struct Curl_easy * data, CURLMstate state
 
 struct Curl_sh_entry {
 	struct Curl_hash transfers; /* hash of transfers using this socket */
-	unsigned int action; /* what combined action READ/WRITE this socket waits
-	                        for */
+	uint action; /* what combined action READ/WRITE this socket waits for */
 	void * socketp; /* settable by users with curl_multi_assign() */
-	unsigned int users; /* number of transfers using this */
-	unsigned int readers; /* this many transfers want to read */
-	unsigned int writers; /* this many transfers want to write */
+	uint users; /* number of transfers using this */
+	uint readers; /* this many transfers want to read */
+	uint writers; /* this many transfers want to write */
 };
 
 /* bits for 'action' having no bits means this socket is not expecting any
@@ -218,7 +188,6 @@ static size_t trhash(void * key, size_t key_length, size_t slots_num)
 {
 	size_t keyval = (size_t)*(struct Curl_easy **)key;
 	(void)key_length;
-
 	return (keyval % slots_num);
 }
 
@@ -226,7 +195,6 @@ static size_t trhash_compare(void * k1, size_t k1_len, void * k2, size_t k2_len)
 {
 	(void)k1_len;
 	(void)k2_len;
-
 	return *(struct Curl_easy **)k1 == *(struct Curl_easy **)k2;
 }
 
@@ -236,11 +204,10 @@ static void trhash_dtor(void * nada)
 }
 
 /* make sure this socket is present in the hash for this handle */
-static struct Curl_sh_entry * sh_addentry(struct Curl_hash * sh,
-    curl_socket_t s){
+static struct Curl_sh_entry * sh_addentry(struct Curl_hash * sh, curl_socket_t s)
+{
 	struct Curl_sh_entry * there = sh_getentry(sh, s);
 	struct Curl_sh_entry * check;
-
 	if(there) {
 		/* it is present, return fine */
 		return there;
@@ -263,18 +230,14 @@ static struct Curl_sh_entry * sh_addentry(struct Curl_hash * sh,
 		SAlloc::F(check);
 		return NULL; /* major failure */
 	}
-
 	return check; /* things are good in sockhash land */
 }
 
 /* delete the given socket + handle from the hash */
-static void sh_delentry(struct Curl_sh_entry * entry,
-    struct Curl_hash * sh, curl_socket_t s)
+static void sh_delentry(struct Curl_sh_entry * entry, struct Curl_hash * sh, curl_socket_t s)
 {
 	Curl_hash_destroy(&entry->transfers);
-
-	/* We remove the hash entry. This will end up in a call to
-	   sh_freeentry(). */
+	/* We remove the hash entry. This will end up in a call to sh_freeentry(). */
 	Curl_hash_delete(sh, (char *)&s, sizeof(curl_socket_t));
 }
 
@@ -284,14 +247,12 @@ static void sh_delentry(struct Curl_sh_entry * entry,
 static void sh_freeentry(void * freethis)
 {
 	struct Curl_sh_entry * p = (struct Curl_sh_entry *)freethis;
-
 	SAlloc::F(p);
 }
 
 static size_t fd_key_compare(void * k1, size_t k1_len, void * k2, size_t k2_len)
 {
 	(void)k1_len; (void)k2_len;
-
 	return (*((curl_socket_t*)k1)) == (*((curl_socket_t*)k2));
 }
 
@@ -299,7 +260,6 @@ static size_t hash_fd(void * key, size_t key_length, size_t slots_num)
 {
 	curl_socket_t fd = *((curl_socket_t*)key);
 	(void)key_length;
-
 	return (fd % slots_num);
 }
 
@@ -323,8 +283,7 @@ static size_t hash_fd(void * key, size_t key_length, size_t slots_num)
  */
 static int sh_init(struct Curl_hash * hash, int hashsize)
 {
-	return Curl_hash_init(hash, hashsize, hash_fd, fd_key_compare,
-		   sh_freeentry);
+	return Curl_hash_init(hash, hashsize, hash_fd, fd_key_compare, sh_freeentry);
 }
 
 /*
@@ -333,16 +292,13 @@ static int sh_init(struct Curl_hash * hash, int hashsize)
  * Called when a transfer is completed. Adds the given msg pointer to
  * the list kept in the multi handle.
  */
-static CURLMcode multi_addmsg(struct Curl_multi * multi,
-    struct Curl_message * msg)
+static CURLMcode multi_addmsg(struct Curl_multi * multi, struct Curl_message * msg)
 {
-	Curl_llist_insert_next(&multi->msglist, multi->msglist.tail, msg,
-	    &msg->list);
+	Curl_llist_insert_next(&multi->msglist, multi->msglist.tail, msg, &msg->list);
 	return CURLM_OK;
 }
 
-struct Curl_multi * Curl_multi_handle(int hashsize, /* socket hash */
-    int chashsize)
+struct Curl_multi * Curl_multi_handle(int hashsize/* socket hash */, int chashsize)
 {                                 /* connection hash */
 	struct Curl_multi * multi = (struct Curl_multi *)SAlloc::C(1, sizeof(struct Curl_multi));
 	if(!multi)
@@ -377,8 +333,7 @@ struct Curl_multi * Curl_multi_handle(int hashsize, /* socket hash */
 		multi->wakeup_pair[0] = CURL_SOCKET_BAD;
 		multi->wakeup_pair[1] = CURL_SOCKET_BAD;
 	}
-	else if(curlx_nonblock(multi->wakeup_pair[0], TRUE) < 0 ||
-	    curlx_nonblock(multi->wakeup_pair[1], TRUE) < 0) {
+	else if(curlx_nonblock(multi->wakeup_pair[0], TRUE) < 0 || curlx_nonblock(multi->wakeup_pair[1], TRUE) < 0) {
 		sclose(multi->wakeup_pair[0]);
 		sclose(multi->wakeup_pair[1]);
 		multi->wakeup_pair[0] = CURL_SOCKET_BAD;
@@ -386,48 +341,37 @@ struct Curl_multi * Curl_multi_handle(int hashsize, /* socket hash */
 	}
 #endif
 #endif
-
 	return multi;
-
 error:
-
 	Curl_hash_destroy(&multi->sockhash);
 	Curl_hash_destroy(&multi->hostcache);
 	Curl_conncache_destroy(&multi->conn_cache);
 	Curl_llist_destroy(&multi->msglist, NULL);
 	Curl_llist_destroy(&multi->pending, NULL);
-
 	SAlloc::F(multi);
 	return NULL;
 }
 
-struct Curl_multi * curl_multi_init(void){
-	return Curl_multi_handle(CURL_SOCKET_HASH_TABLE_SIZE,
-		   CURL_CONNECTION_HASH_SIZE);
+struct Curl_multi * curl_multi_init(void)
+{
+	return Curl_multi_handle(CURL_SOCKET_HASH_TABLE_SIZE, CURL_CONNECTION_HASH_SIZE);
 }
 
-CURLMcode curl_multi_add_handle(struct Curl_multi * multi,
-    struct Curl_easy * data)
+CURLMcode curl_multi_add_handle(struct Curl_multi * multi, struct Curl_easy * data)
 {
 	/* First, make some basic checks that the CURLM handle is a good handle */
 	if(!GOOD_MULTI_HANDLE(multi))
 		return CURLM_BAD_HANDLE;
-
 	/* Verify that we got a somewhat good easy handle too */
 	if(!GOOD_EASY_HANDLE(data))
 		return CURLM_BAD_EASY_HANDLE;
-
-	/* Prevent users from adding same easy handle more than once and prevent
-	   adding to more than one multi stack */
+	/* Prevent users from adding same easy handle more than once and prevent adding to more than one multi stack */
 	if(data->multi)
 		return CURLM_ADDED_ALREADY;
-
 	if(multi->in_callback)
 		return CURLM_RECURSIVE_API_CALL;
-
 	/* Initialize timeout list for this handle */
 	Curl_llist_init(&data->state.timeoutlist, NULL);
-
 	/*
 	 * No failure allowed in this function beyond this point. And no
 	 * modification of easy nor multi handle allowed before this except for
@@ -436,25 +380,20 @@ CURLMcode curl_multi_add_handle(struct Curl_multi * multi,
 	 */
 	if(data->set.errorbuffer)
 		data->set.errorbuffer[0] = 0;
-
 	/* set the easy handle */
 	multistate(data, CURLM_STATE_INIT);
-
 	/* for multi interface connections, we share DNS cache automatically if the
 	   easy handle's one is currently not set. */
-	if(!data->dns.hostcache ||
-	    (data->dns.hostcachetype == Names::HCACHE_NONE)) {
+	if(!data->dns.hostcache || (data->dns.hostcachetype == Names::HCACHE_NONE)) {
 		data->dns.hostcache = &multi->hostcache;
 		data->dns.hostcachetype = Names::HCACHE_MULTI;
 	}
-
 	/* Point to the shared or multi handle connection cache */
 	if(data->share && (data->share->specifier & (1<< CURL_LOCK_DATA_CONNECT)))
 		data->state.conn_cache = &data->share->conn_cache;
 	else
 		data->state.conn_cache = &multi->conn_cache;
 	data->state.lastconnect_id = -1;
-
 #ifdef USE_LIBPSL
 	/* Do the same for PSL. */
 	if(data->share && (data->share->specifier & (1 << CURL_LOCK_DATA_PSL)))
@@ -462,7 +401,6 @@ CURLMcode curl_multi_add_handle(struct Curl_multi * multi,
 	else
 		data->psl = &multi->psl;
 #endif
-
 	/* We add the new entry last in the list. */
 	data->next = NULL; /* end of the line */
 	if(multi->easyp) {
@@ -476,24 +414,15 @@ CURLMcode curl_multi_add_handle(struct Curl_multi * multi,
 		data->prev = NULL;
 		multi->easylp = multi->easyp = data; /* both first and last */
 	}
-
-	/* make the Curl_easy refer back to this multi handle */
-	data->multi = multi;
-
+	data->multi = multi; /* make the Curl_easy refer back to this multi handle */
 	/* Set the timeout for this handle to expire really soon so that it will
 	   be taken care of even when this handle is added in the midst of operation
 	   when only the curl_multi_socket() API is used. During that flow, only
 	   sockets that time-out or have actions will be dealt with. Since this
-	   handle has no action yet, we make sure it times out to get things to
-	   happen. */
+	   handle has no action yet, we make sure it times out to get things to happen. */
 	Curl_expire(data, 0, EXPIRE_RUN_NOW);
-
-	/* increase the node-counter */
-	multi->num_easy++;
-
-	/* increase the alive-counter */
-	multi->num_alive++;
-
+	multi->num_easy++; /* increase the node-counter */
+	multi->num_alive++; /* increase the alive-counter */
 	/* A somewhat crude work-around for a little glitch in Curl_update_timer()
 	   that happens if the lastcall time is set to the same time when the handle
 	   is removed as when the next handle is added, as then the check in
@@ -533,7 +462,6 @@ static void debug_print_sock_hash(void * p)
 	struct Curl_sh_entry * sh = (struct Curl_sh_entry *)p;
 	slfprintf_stderr(" [easy %p/magic %x/socket %d]", (void *)sh->data, sh->data->magic, (int)sh->socket);
 }
-
 #endif
 
 static CURLcode multi_done(struct Curl_easy * data, CURLcode status/* an error if this is called after an error was detected */, bool premature)
@@ -561,13 +489,11 @@ static CURLcode multi_done(struct Curl_easy * data, CURLcode status/* an error i
 		default:
 		    break;
 	}
-
 	/* this calls the protocol-specific function pointer previously set */
 	if(conn->handler->done)
 		result = conn->handler->done(conn, status, premature);
 	else
 		result = status;
-
 	if(CURLE_ABORTED_BY_CALLBACK != result) {
 		/* avoid this if we already aborted by callback to avoid this calling
 		   another callback */
@@ -575,9 +501,7 @@ static CURLcode multi_done(struct Curl_easy * data, CURLcode status/* an error i
 		if(!result && rc)
 			result = CURLE_ABORTED_BY_CALLBACK;
 	}
-
 	process_pending_handles(data->multi); /* connection / multiplex */
-
 	CONNCACHE_LOCK(data);
 	Curl_detach_connnection(data);
 	if(CONN_INUSE(conn)) {
@@ -586,14 +510,11 @@ static CURLcode multi_done(struct Curl_easy * data, CURLcode status/* an error i
 		   away! Find another to own it! */
 		conn->data = (Curl_easy *)conn->easyq.head->ptr;
 		CONNCACHE_UNLOCK(data);
-		DEBUGF(infof(data, "Connection still in use %zu, "
-		    "no more multi_done now!\n",
-		    conn->easyq.size));
+		DEBUGF(infof(data, "Connection still in use %zu, no more multi_done now!\n", conn->easyq.size));
 		return CURLE_OK;
 	}
 	conn->data = NULL; /* the connection now has no owner */
 	data->state.done = TRUE; /* called just now! */
-
 	if(conn->dns_entry) {
 		Curl_resolv_unlock(data, conn->dns_entry); /* done with this */
 		conn->dns_entry = NULL;
@@ -656,9 +577,7 @@ static CURLcode multi_done(struct Curl_easy * data, CURLcode status/* an error i
 		    conn->bits.conn_to_host ? conn->conn_to_host.dispname :
 		    conn->host.dispname;
 		/* create string before returning the connection */
-		msnprintf(buffer, sizeof(buffer),
-		    "Connection #%ld to host %s left intact",
-		    conn->connection_id, host);
+		msnprintf(buffer, sizeof(buffer), "Connection #%ld to host %s left intact", conn->connection_id, host);
 		/* the connection is no longer in use by this transfer */
 		CONNCACHE_UNLOCK(data);
 		if(Curl_conncache_return_conn(data, conn)) {
@@ -669,7 +588,6 @@ static CURLcode multi_done(struct Curl_easy * data, CURLcode status/* an error i
 		else
 			data->state.lastconnect_id = -1;
 	}
-
 	ZFREE(data->state.buffer);
 	Curl_free_request_state(data);
 	return result;
@@ -690,37 +608,28 @@ static int close_connect_only(struct connectdata * conn, void * param)
 	return 1;
 }
 
-CURLMcode curl_multi_remove_handle(struct Curl_multi * multi,
-    struct Curl_easy * data)
+CURLMcode curl_multi_remove_handle(struct Curl_multi * multi, struct Curl_easy * data)
 {
 	struct Curl_easy * easy = data;
 	bool premature;
 	bool easy_owns_conn;
 	struct Curl_llist_element * e;
-
 	/* First, make some basic checks that the CURLM handle is a good handle */
 	if(!GOOD_MULTI_HANDLE(multi))
 		return CURLM_BAD_HANDLE;
-
 	/* Verify that we got a somewhat good easy handle too */
 	if(!GOOD_EASY_HANDLE(data))
 		return CURLM_BAD_EASY_HANDLE;
-
 	/* Prevent users from trying to remove same easy handle more than once */
 	if(!data->multi)
 		return CURLM_OK; /* it is already removed so let's say it is fine! */
-
 	/* Prevent users from trying to remove an easy handle from the wrong multi */
 	if(data->multi != multi)
 		return CURLM_BAD_EASY_HANDLE;
-
 	if(multi->in_callback)
 		return CURLM_RECURSIVE_API_CALL;
-
 	premature = (data->mstate < CURLM_STATE_COMPLETED) ? TRUE : FALSE;
-	easy_owns_conn = (data->conn && (data->conn->data == easy)) ?
-	    TRUE : FALSE;
-
+	easy_owns_conn = (data->conn && (data->conn->data == easy)) ? TRUE : FALSE;
 	/* If the 'state' is not INIT or COMPLETED, we might need to do something
 	   nice to put the easy_handle in a good known state when this returns. */
 	if(premature) {
@@ -728,17 +637,13 @@ CURLMcode curl_multi_remove_handle(struct Curl_multi * multi,
 		   alive connections when this is removed */
 		multi->num_alive--;
 	}
-
-	if(data->conn &&
-	    data->mstate > CURLM_STATE_DO &&
-	    data->mstate < CURLM_STATE_COMPLETED) {
+	if(data->conn && data->mstate > CURLM_STATE_DO && data->mstate < CURLM_STATE_COMPLETED) {
 		/* Set connection owner so that the DONE function closes it.  We can
 		   safely do this here since connection is killed. */
 		data->conn->data = easy;
 		streamclose(data->conn, "Removed with partial response");
 		easy_owns_conn = TRUE;
 	}
-
 	if(data->conn) {
 		/* we must call multi_done() here (if we still own the connection) so that
 		   we don't leave a half-baked one around */
@@ -751,60 +656,41 @@ CURLMcode curl_multi_remove_handle(struct Curl_multi * multi,
 			(void)multi_done(data, data->result, premature);
 		}
 	}
-
 	/* The timer must be shut down before data->multi is set to NULL, else the
 	   timenode will remain in the splay tree after curl_easy_cleanup is
 	   called. Do it after multi_done() in case that sets another time! */
 	Curl_expire_clear(data);
-
 	if(data->connect_queue.ptr)
-		/* the handle was in the pending list waiting for an available connection,
-		   so go ahead and remove it */
+		/* the handle was in the pending list waiting for an available connection, so go ahead and remove it */
 		Curl_llist_remove(&multi->pending, &data->connect_queue, NULL);
-
 	if(data->dns.hostcachetype == Names::HCACHE_MULTI) {
 		/* stop using the multi handle's DNS cache, *after* the possible
 		   multi_done() call above */
 		data->dns.hostcache = NULL;
 		data->dns.hostcachetype = Names::HCACHE_NONE;
 	}
-
 	Curl_wildcard_dtor(&data->wildcard);
-
-	/* destroy the timeout list that is held in the easy handle, do this *after*
-	   multi_done() as that may actually call Curl_expire that uses this */
+	/* destroy the timeout list that is held in the easy handle, do this *after* multi_done() as that may actually call Curl_expire that uses this */
 	Curl_llist_destroy(&data->state.timeoutlist, NULL);
-
-	/* change state without using multistate(), only to make singlesocket() do
-	   what we want */
+	/* change state without using multistate(), only to make singlesocket() do what we want */
 	data->mstate = CURLM_STATE_COMPLETED;
-	singlesocket(multi, easy); /* to let the application know what sockets that
-	                              vanish with this handle */
-
+	singlesocket(multi, easy); /* to let the application know what sockets that vanish with this handle */
 	/* Remove the association between the connection and the handle */
 	Curl_detach_connnection(data);
-
 	if(data->state.lastconnect_id != -1) {
 		/* Mark any connect-only connection for closure */
-		Curl_conncache_foreach(data, data->state.conn_cache,
-		    data, &close_connect_only);
+		Curl_conncache_foreach(data, data->state.conn_cache, data, &close_connect_only);
 	}
-
 #ifdef USE_LIBPSL
 	/* Remove the PSL association. */
 	if(data->psl == &multi->psl)
 		data->psl = NULL;
 #endif
-
 	/* as this was using a shared connection cache we clear the pointer to that
 	   since we're not part of that multi handle anymore */
 	data->state.conn_cache = NULL;
-
 	data->multi = NULL; /* clear the association to this multi handle */
-
-	/* make sure there's no pending message in the queue sent from this easy
-	   handle */
-
+	/* make sure there's no pending message in the queue sent from this easy handle */
 	for(e = multi->msglist.head; e; e = e->next) {
 		struct Curl_message * msg = (struct Curl_message *)e->ptr;
 		if(msg->extmsg.easy_handle == easy) {
@@ -813,23 +699,19 @@ CURLMcode curl_multi_remove_handle(struct Curl_multi * multi,
 			break;
 		}
 	}
-
 	/* make the previous node point to our next */
 	if(data->prev)
 		data->prev->next = data->next;
 	else
 		multi->easyp = data->next; /* point to first node */
-
 	/* make our next point to our previous node */
 	if(data->next)
 		data->next->prev = data->prev;
 	else
 		multi->easylp = data->prev; /* point to last node */
-
 	/* NOTE NOTE NOTE
 	   We do not touch the easy handle here! */
 	multi->num_easy--; /* one less to care about now */
-
 	Curl_update_timer(multi);
 	return CURLM_OK;
 }
@@ -839,7 +721,6 @@ bool Curl_multiplex_wanted(const struct Curl_multi * multi)
 {
 	return (multi && (multi->multiplexing));
 }
-
 /*
  * Curl_detach_connnection() removes the given transfer from the connection.
  *
@@ -853,39 +734,32 @@ void Curl_detach_connnection(struct Curl_easy * data)
 		Curl_llist_remove(&conn->easyq, &data->conn_queue, NULL);
 	data->conn = NULL;
 }
-
 /*
  * Curl_attach_connnection() attaches this transfer to this connection.
  *
  * This is the only function that should assign data->conn
  */
-void Curl_attach_connnection(struct Curl_easy * data,
-    struct connectdata * conn)
+void Curl_attach_connnection(struct Curl_easy * data, struct connectdata * conn)
 {
 	DEBUGASSERT(!data->conn);
 	DEBUGASSERT(conn);
 	data->conn = conn;
-	Curl_llist_insert_next(&conn->easyq, conn->easyq.tail, data,
-	    &data->conn_queue);
+	Curl_llist_insert_next(&conn->easyq, conn->easyq.tail, data, &data->conn_queue);
 }
 
-static int waitconnect_getsock(struct connectdata * conn,
-    curl_socket_t * sock)
+static int waitconnect_getsock(struct connectdata * conn, curl_socket_t * sock)
 {
 	int i;
 	int s = 0;
 	int rc = 0;
-
 #ifdef USE_SSL
 #ifndef CURL_DISABLE_PROXY
 	if(CONNECT_FIRSTSOCKET_PROXY_SSL())
 		return Curl_ssl_getsock(conn, sock);
 #endif
 #endif
-
 	if(SOCKS_STATE(conn->cnnct.state))
 		return Curl_SOCKS_getsock(conn, sock, FIRSTSOCKET);
-
 	for(i = 0; i<2; i++) {
 		if(conn->tempsock[i] != CURL_SOCKET_BAD) {
 			sock[s] = conn->tempsock[i];
@@ -898,41 +772,34 @@ static int waitconnect_getsock(struct connectdata * conn,
 			s++;
 		}
 	}
-
 	return rc;
 }
 
-static int waitproxyconnect_getsock(struct connectdata * conn,
-    curl_socket_t * sock)
+static int waitproxyconnect_getsock(struct connectdata * conn, curl_socket_t * sock)
 {
 	sock[0] = conn->sock[FIRSTSOCKET];
-
 	/* when we've sent a CONNECT to a proxy, we should rather wait for the
 	   socket to become readable to be able to get the response headers */
 	if(conn->connect_state)
 		return GETSOCK_READSOCK(0);
-
 	return GETSOCK_WRITESOCK(0);
 }
 
-static int domore_getsock(struct connectdata * conn,
-    curl_socket_t * socks)
+static int domore_getsock(struct connectdata * conn, curl_socket_t * socks)
 {
 	if(conn && conn->handler->domore_getsock)
 		return conn->handler->domore_getsock(conn, socks);
 	return GETSOCK_BLANK;
 }
 
-static int doing_getsock(struct connectdata * conn,
-    curl_socket_t * socks)
+static int doing_getsock(struct connectdata * conn, curl_socket_t * socks)
 {
 	if(conn && conn->handler->doing_getsock)
 		return conn->handler->doing_getsock(conn, socks);
 	return GETSOCK_BLANK;
 }
 
-static int protocol_getsock(struct connectdata * conn,
-    curl_socket_t * socks)
+static int protocol_getsock(struct connectdata * conn, curl_socket_t * socks)
 {
 	if(conn->handler->proto_getsock)
 		return conn->handler->proto_getsock(conn, socks);
@@ -953,48 +820,26 @@ static int multi_getsock(struct Curl_easy * data,
 	 */
 	if(!data->conn)
 		return 0;
-
-	if(data->mstate > CURLM_STATE_CONNECT &&
-	    data->mstate < CURLM_STATE_COMPLETED) {
+	if(data->mstate > CURLM_STATE_CONNECT && data->mstate < CURLM_STATE_COMPLETED) {
 		/* Set up ownership correctly */
 		data->conn->data = data;
 	}
-
 	switch(data->mstate) {
-		default:
-		    return 0;
-
-		case CURLM_STATE_WAITRESOLVE:
-		    return Curl_resolv_getsock(data->conn, socks);
-
+		default: return 0;
+		case CURLM_STATE_WAITRESOLVE: return Curl_resolv_getsock(data->conn, socks);
 		case CURLM_STATE_PROTOCONNECT:
-		case CURLM_STATE_SENDPROTOCONNECT:
-		    return protocol_getsock(data->conn, socks);
-
+		case CURLM_STATE_SENDPROTOCONNECT: return protocol_getsock(data->conn, socks);
 		case CURLM_STATE_DO:
-		case CURLM_STATE_DOING:
-		    return doing_getsock(data->conn, socks);
-
-		case CURLM_STATE_WAITPROXYCONNECT:
-		    return waitproxyconnect_getsock(data->conn, socks);
-
-		case CURLM_STATE_WAITCONNECT:
-		    return waitconnect_getsock(data->conn, socks);
-
-		case CURLM_STATE_DO_MORE:
-		    return domore_getsock(data->conn, socks);
-
-		case CURLM_STATE_DO_DONE: /* since is set after DO is completed, we switch
-		                             to waiting for the same as the *PERFORM
-		                             states */
-		case CURLM_STATE_PERFORM:
-		    return Curl_single_getsock(data->conn, socks);
+		case CURLM_STATE_DOING: return doing_getsock(data->conn, socks);
+		case CURLM_STATE_WAITPROXYCONNECT: return waitproxyconnect_getsock(data->conn, socks);
+		case CURLM_STATE_WAITCONNECT: return waitconnect_getsock(data->conn, socks);
+		case CURLM_STATE_DO_MORE: return domore_getsock(data->conn, socks);
+		case CURLM_STATE_DO_DONE: /* since is set after DO is completed, we switch to waiting for the same as the *PERFORM states */
+		case CURLM_STATE_PERFORM: return Curl_single_getsock(data->conn, socks);
 	}
 }
 
-CURLMcode curl_multi_fdset(struct Curl_multi * multi,
-    fd_set * read_fd_set, fd_set * write_fd_set,
-    fd_set * exc_fd_set, int * max_fd)
+CURLMcode curl_multi_fdset(struct Curl_multi * multi, fd_set * read_fd_set, fd_set * write_fd_set, fd_set * exc_fd_set, int * max_fd)
 {
 	/* Scan through all the easy handles to get the file descriptors set.
 	   Some easy handles may not have connected to the remote host yet,
@@ -1004,20 +849,15 @@ CURLMcode curl_multi_fdset(struct Curl_multi * multi,
 	curl_socket_t sockbunch[MAX_SOCKSPEREASYHANDLE];
 	int i;
 	(void)exc_fd_set; /* not used */
-
 	if(!GOOD_MULTI_HANDLE(multi))
 		return CURLM_BAD_HANDLE;
-
 	if(multi->in_callback)
 		return CURLM_RECURSIVE_API_CALL;
-
 	data = multi->easyp;
 	while(data) {
 		int bitmap = multi_getsock(data, sockbunch);
-
 		for(i = 0; i< MAX_SOCKSPEREASYHANDLE; i++) {
 			curl_socket_t s = CURL_SOCKET_BAD;
-
 			if((bitmap & GETSOCK_READSOCK(i)) && VALID_SOCK((sockbunch[i]))) {
 				FD_SET(sockbunch[i], read_fd_set);
 				s = sockbunch[i];
@@ -1027,31 +867,26 @@ CURLMcode curl_multi_fdset(struct Curl_multi * multi,
 				s = sockbunch[i];
 			}
 			if(s == CURL_SOCKET_BAD)
-				/* this socket is unused, break out of loop */
-				break;
+				break; /* this socket is unused, break out of loop */
 			if((int)s > this_max_fd)
 				this_max_fd = (int)s;
 		}
-
 		data = data->next; /* check next handle */
 	}
-
 	*max_fd = this_max_fd;
-
 	return CURLM_OK;
 }
 
 #define NUM_POLLS_ON_STACK 10
 
-static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd extra_fds[], unsigned int extra_nfds,
-    int timeout_ms, int * ret, bool extrawait/* when no socket, wait */, bool use_wakeup)
+static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd extra_fds[], uint extra_nfds, int timeout_ms, int * ret, bool extrawait/* when no socket, wait */, bool use_wakeup)
 {
 	struct Curl_easy * data;
 	curl_socket_t sockbunch[MAX_SOCKSPEREASYHANDLE];
 	int bitmap;
 	uint i;
-	unsigned int nfds = 0;
-	unsigned int curlfds;
+	uint nfds = 0;
+	uint curlfds;
 	long timeout_internal;
 	int retcode = 0;
 #ifndef USE_WINSOCK
@@ -1069,15 +904,12 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 		return CURLM_RECURSIVE_API_CALL;
 	if(timeout_ms < 0)
 		return CURLM_BAD_FUNCTION_ARGUMENT;
-
 	/* Count up how many fds we have from the multi handle */
 	data = multi->easyp;
 	while(data) {
 		bitmap = multi_getsock(data, sockbunch);
-
 		for(i = 0; i< MAX_SOCKSPEREASYHANDLE; i++) {
 			curl_socket_t s = CURL_SOCKET_BAD;
-
 			if(bitmap & GETSOCK_READSOCK(i)) {
 				++nfds;
 				s = sockbunch[i];
@@ -1090,20 +922,16 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 				break;
 			}
 		}
-
 		data = data->next; /* check next handle */
 	}
-
 	/* If the internally desired timeout is actually shorter than requested from
 	   the outside, then use the shorter time! But only if the internal timer
 	   is actually larger than -1! */
 	(void)multi_timeout(multi, &timeout_internal);
 	if((timeout_internal >= 0) && (timeout_internal < (long)timeout_ms))
 		timeout_ms = (int)timeout_internal;
-
 	curlfds = nfds; /* number of internal file descriptors */
 	nfds += extra_nfds; /* add the externally provided ones */
-
 #ifdef ENABLE_WAKEUP
 #ifdef USE_WINSOCK
 	if(use_wakeup) {
@@ -1113,7 +941,6 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 		++nfds;
 	}
 #endif
-
 #ifndef USE_WINSOCK
 	if(nfds > NUM_POLLS_ON_STACK) {
 		/* 'nfds' is a 32 bit value and 'struct pollfd' is typically 8 bytes
@@ -1125,19 +952,14 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 			return CURLM_OUT_OF_MEMORY;
 		ufds_malloc = TRUE;
 	}
-
 	nfds = 0;
 #endif
-
-	/* only do the second loop if we found descriptors in the first stage run
-	   above */
-
+	/* only do the second loop if we found descriptors in the first stage run above */
 	if(curlfds) {
 		/* Add the curl handles to our pollfds first */
 		data = multi->easyp;
 		while(data) {
 			bitmap = multi_getsock(data, sockbunch);
-
 			for(i = 0; i < MAX_SOCKSPEREASYHANDLE; i++) {
 				curl_socket_t s = CURL_SOCKET_BAD;
 #ifdef USE_WINSOCK
@@ -1175,11 +997,9 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 					return CURLM_INTERNAL_ERROR;
 #endif
 			}
-
 			data = data->next; /* check next handle */
 		}
 	}
-
 	/* Add external file descriptions from poll-like struct curl_waitfd */
 	for(i = 0; i < extra_nfds; i++) {
 #ifdef USE_WINSOCK
@@ -1260,8 +1080,7 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 #ifdef USE_WINSOCK
 				wsa_events.lNetworkEvents = 0;
 				mask = extra_fds[i].revents;
-				if(WSAEnumNetworkEvents(extra_fds[i].fd, multi->wsa_event,
-				    &wsa_events) == 0) {
+				if(WSAEnumNetworkEvents(extra_fds[i].fd, multi->wsa_event, &wsa_events) == 0) {
 					if(wsa_events.lNetworkEvents & (FD_READ|FD_ACCEPT|FD_CLOSE))
 						mask |= CURL_WAIT_POLLIN;
 					if(wsa_events.lNetworkEvents & (FD_WRITE|FD_CONNECT|FD_CLOSE))
@@ -1273,8 +1092,7 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 				}
 				WSAEventSelect(extra_fds[i].fd, multi->wsa_event, 0);
 #else
-				unsigned r = ufds[curlfds + i].revents;
-
+				uint r = ufds[curlfds + i].revents;
 				if(r & POLLIN)
 					mask |= CURL_WAIT_POLLIN;
 				if(r & POLLOUT)
@@ -1292,21 +1110,17 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 				data = multi->easyp;
 				while(data) {
 					bitmap = multi_getsock(data, sockbunch);
-
 					for(i = 0; i < MAX_SOCKSPEREASYHANDLE; i++) {
 						if(bitmap & (GETSOCK_READSOCK(i) | GETSOCK_WRITESOCK(i))) {
 							wsa_events.lNetworkEvents = 0;
-							if(WSAEnumNetworkEvents(sockbunch[i], multi->wsa_event,
-							    &wsa_events) == 0) {
+							if(WSAEnumNetworkEvents(sockbunch[i], multi->wsa_event, &wsa_events) == 0) {
 								if(ret && wsa_events.lNetworkEvents != 0)
 									retcode++;
 							}
 							if(ret && !timeout_ms && wsa_events.lNetworkEvents == 0) {
-								if((bitmap & GETSOCK_READSOCK(i)) &&
-								    SOCKET_READABLE(sockbunch[i], 0) > 0)
+								if((bitmap & GETSOCK_READSOCK(i)) && SOCKET_READABLE(sockbunch[i], 0) > 0)
 									retcode++;
-								else if((bitmap & GETSOCK_WRITESOCK(i)) &&
-								    SOCKET_WRITABLE(sockbunch[i], 0) > 0)
+								else if((bitmap & GETSOCK_WRITESOCK(i)) && SOCKET_WRITABLE(sockbunch[i], 0) > 0)
 									retcode++;
 							}
 							WSAEventSelect(sockbunch[i], multi->wsa_event, 0);
@@ -1314,11 +1128,9 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 						else
 							break;
 					}
-
 					data = data->next;
 				}
 			}
-
 			WSAResetEvent(multi->wsa_event);
 #else
 #ifdef ENABLE_WAKEUP
@@ -1346,7 +1158,6 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 #endif
 		}
 	}
-
 #ifndef USE_WINSOCK
 	if(ufds_malloc)
 		SAlloc::F(ufds);
@@ -1358,7 +1169,6 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 		;
 	else {
 		long sleep_ms = 0;
-
 		/* Avoid busy-looping when there's nothing particular to wait for */
 		if(!curl_multi_timeout(multi, &sleep_ms) && sleep_ms) {
 			if(sleep_ms > timeout_ms)
@@ -1370,28 +1180,17 @@ static CURLMcode Curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd e
 			Curl_wait_ms(sleep_ms);
 		}
 	}
-
 	return CURLM_OK;
 }
 
-CURLMcode curl_multi_wait(struct Curl_multi * multi,
-    struct curl_waitfd extra_fds[],
-    unsigned int extra_nfds,
-    int timeout_ms,
-    int * ret)
+CURLMcode curl_multi_wait(struct Curl_multi * multi, struct curl_waitfd extra_fds[], uint extra_nfds, int timeout_ms, int * ret)
 {
-	return Curl_multi_wait(multi, extra_fds, extra_nfds, timeout_ms, ret, FALSE,
-		   FALSE);
+	return Curl_multi_wait(multi, extra_fds, extra_nfds, timeout_ms, ret, FALSE, FALSE);
 }
 
-CURLMcode curl_multi_poll(struct Curl_multi * multi,
-    struct curl_waitfd extra_fds[],
-    unsigned int extra_nfds,
-    int timeout_ms,
-    int * ret)
+CURLMcode curl_multi_poll(struct Curl_multi * multi, struct curl_waitfd extra_fds[], uint extra_nfds, int timeout_ms, int * ret)
 {
-	return Curl_multi_wait(multi, extra_fds, extra_nfds, timeout_ms, ret, TRUE,
-		   TRUE);
+	return Curl_multi_wait(multi, extra_fds, extra_nfds, timeout_ms, ret, TRUE, TRUE);
 }
 
 CURLMcode curl_multi_wakeup(struct Curl_multi * multi)
@@ -2600,80 +2399,59 @@ CURLMcode curl_multi_cleanup(struct Curl_multi * multi)
  * here to figure out things. We must scale fine to thousands of handles and
  * beyond. The current design is fully O(1).
  */
-
 CURLMsg * curl_multi_info_read(struct Curl_multi * multi, int * msgs_in_queue)
 {
 	struct Curl_message * msg;
-
 	*msgs_in_queue = 0; /* default to none */
-
-	if(GOOD_MULTI_HANDLE(multi) &&
-	    !multi->in_callback &&
-	    Curl_llist_count(&multi->msglist)) {
+	if(GOOD_MULTI_HANDLE(multi) && !multi->in_callback && Curl_llist_count(&multi->msglist)) {
 		/* there is one or more messages in the list */
 		struct Curl_llist_element * e;
-
 		/* extract the head of the list to return */
 		e = multi->msglist.head;
-
 		msg = (struct Curl_message *)e->ptr;
-
 		/* remove the extracted entry */
 		Curl_llist_remove(&multi->msglist, e, NULL);
-
 		*msgs_in_queue = curlx_uztosi(Curl_llist_count(&multi->msglist));
-
 		return &msg->extmsg;
 	}
 	return NULL;
 }
-
 /*
  * singlesocket() checks what sockets we deal with and their "action state"
  * and if we have a different state in any of those sockets from last time we
  * call the callback accordingly.
  */
-static CURLMcode singlesocket(struct Curl_multi * multi,
-    struct Curl_easy * data)
+static CURLMcode singlesocket(struct Curl_multi * multi, struct Curl_easy * data)
 {
 	curl_socket_t socks[MAX_SOCKSPEREASYHANDLE];
 	int i;
 	struct Curl_sh_entry * entry;
 	curl_socket_t s;
 	int num;
-	unsigned int curraction;
+	uint curraction;
 	int actions[MAX_SOCKSPEREASYHANDLE];
-
 	for(i = 0; i< MAX_SOCKSPEREASYHANDLE; i++)
 		socks[i] = CURL_SOCKET_BAD;
-
 	/* Fill in the 'current' struct with the state as it is now: what sockets to
 	   supervise and for what actions */
 	curraction = multi_getsock(data, socks);
-
 	/* We have 0 .. N sockets already and we get to know about the 0 .. M
 	   sockets we should have from now on. Detect the differences, remove no
 	   longer supervised ones and add new ones */
-
 	/* walk over the sockets we got right now */
-	for(i = 0; (i< MAX_SOCKSPEREASYHANDLE) &&
-	    (curraction & (GETSOCK_READSOCK(i) | GETSOCK_WRITESOCK(i)));
+	for(i = 0; (i< MAX_SOCKSPEREASYHANDLE) && (curraction & (GETSOCK_READSOCK(i) | GETSOCK_WRITESOCK(i)));
 	    i++) {
-		unsigned int action = CURL_POLL_NONE;
-		unsigned int prevaction = 0;
-		unsigned int comboaction;
+		uint action = CURL_POLL_NONE;
+		uint prevaction = 0;
+		uint comboaction;
 		bool sincebefore = FALSE;
-
 		s = socks[i];
-
 		/* get it from the hash */
 		entry = sh_getentry(&multi->sockhash, s);
-
 		if(curraction & GETSOCK_READSOCK(i))
 			action |= CURL_POLL_IN;
 		if(curraction & GETSOCK_WRITESOCK(i))
 			action |= CURL_POLL_OUT;
-
 		actions[i] = action;
 		if(entry) {
 			/* check if new for this transfer */
@@ -2711,30 +2489,20 @@ static CURLMcode singlesocket(struct Curl_multi * multi,
 				entry->readers++;
 			if(action & CURL_POLL_OUT)
 				entry->writers++;
-
 			/* add 'data' to the transfer hash on this socket! */
-			if(!Curl_hash_add(&entry->transfers, (char *)&data, /* hash key */
-			    sizeof(struct Curl_easy *), data))
+			if(!Curl_hash_add(&entry->transfers, (char *)&data, /* hash key */ sizeof(struct Curl_easy *), data))
 				return CURLM_OUT_OF_MEMORY;
 		}
-
-		comboaction = (entry->writers ? CURL_POLL_OUT : 0) |
-		    (entry->readers ? CURL_POLL_IN : 0);
-
+		comboaction = (entry->writers ? CURL_POLL_OUT : 0) | (entry->readers ? CURL_POLL_IN : 0);
 		/* socket existed before and has the same action set as before */
 		if(sincebefore && (entry->action == comboaction))
 			/* same, continue */
 			continue;
-
 		if(multi->socket_cb)
-			multi->socket_cb(data, s, comboaction, multi->socket_userp,
-			    entry->socketp);
-
+			multi->socket_cb(data, s, comboaction, multi->socket_userp, entry->socketp);
 		entry->action = comboaction; /* store the current action state */
 	}
-
 	num = i; /* number of sockets */
-
 	/* when we've walked over all the sockets we should have right now, we must
 	   make sure to detect sockets that are removed */
 	for(i = 0; i< data->numsocks; i++) {
@@ -2764,21 +2532,17 @@ static CURLMcode singlesocket(struct Curl_multi * multi,
 				entry->readers--;
 			if(!entry->users) {
 				if(multi->socket_cb)
-					multi->socket_cb(data, s, CURL_POLL_REMOVE,
-					    multi->socket_userp,
-					    entry->socketp);
+					multi->socket_cb(data, s, CURL_POLL_REMOVE, multi->socket_userp, entry->socketp);
 				sh_delentry(entry, &multi->sockhash, s);
 			}
 			else {
 				/* still users, but remove this handle as a user of this socket */
-				if(Curl_hash_delete(&entry->transfers, (char *)&data,
-				    sizeof(struct Curl_easy *))) {
+				if(Curl_hash_delete(&entry->transfers, (char *)&data, sizeof(struct Curl_easy *))) {
 					DEBUGASSERT(NULL);
 				}
 			}
 		}
 	} /* for loop over numsocks */
-
 	memcpy(data->sockets, socks, num*sizeof(curl_socket_t));
 	memcpy(data->actions, actions, num*sizeof(int));
 	data->numsocks = num;
@@ -2789,7 +2553,6 @@ void Curl_updatesocket(struct Curl_easy * data)
 {
 	singlesocket(data->multi, data);
 }
-
 /*
  * Curl_multi_closed()
  *
@@ -2799,7 +2562,6 @@ void Curl_updatesocket(struct Curl_easy * data)
  * behave properly, especially for the case when libcurl will create another
  * socket again and it gets the same file descriptor number.
  */
-
 void Curl_multi_closed(struct Curl_easy * data, curl_socket_t s)
 {
 	if(data) {
@@ -2809,20 +2571,15 @@ void Curl_multi_closed(struct Curl_easy * data, curl_socket_t s)
 			/* this is set if this connection is part of a handle that is added to
 			   a multi handle, and only then this is necessary */
 			struct Curl_sh_entry * entry = sh_getentry(&multi->sockhash, s);
-
 			if(entry) {
 				if(multi->socket_cb)
-					multi->socket_cb(data, s, CURL_POLL_REMOVE,
-					    multi->socket_userp,
-					    entry->socketp);
-
+					multi->socket_cb(data, s, CURL_POLL_REMOVE, multi->socket_userp, entry->socketp);
 				/* now remove it from the socket hash */
 				sh_delentry(entry, &multi->sockhash, s);
 			}
 		}
 	}
 }
-
 /*
  * add_next_timeout()
  *
@@ -2835,15 +2592,12 @@ void Curl_multi_closed(struct Curl_easy * data, curl_socket_t s)
  * The splay tree only has each sessionhandle as a single node and the nearest
  * timeout is used to sort it on.
  */
-static CURLMcode add_next_timeout(struct curltime now,
-    struct Curl_multi * multi,
-    struct Curl_easy * d)
+static CURLMcode add_next_timeout(struct curltime now, struct Curl_multi * multi, struct Curl_easy * d)
 {
 	struct curltime * tv = &d->state.expiretime;
 	struct Curl_llist * list = &d->state.timeoutlist;
 	struct Curl_llist_element * e;
 	struct time_node * node = NULL;
-
 	/* move over the timeout list for this specific handle and remove all
 	   timeouts that are now passed tense and store the next pending
 	   timeout in *tv */
@@ -2853,11 +2607,9 @@ static CURLMcode add_next_timeout(struct curltime now,
 		node = (struct time_node *)e->ptr;
 		diff = Curl_timediff(node->time, now);
 		if(diff <= 0)
-			/* remove outdated entry */
-			Curl_llist_remove(list, e, NULL);
+			Curl_llist_remove(list, e, NULL); /* remove outdated entry */
 		else
-			/* the list is sorted so get out on the first mismatch */
-			break;
+			break; /* the list is sorted so get out on the first mismatch */
 		e = n;
 	}
 	e = list->head;
@@ -2870,32 +2622,23 @@ static CURLMcode add_next_timeout(struct curltime now,
 	else {
 		/* copy the first entry to 'tv' */
 		memcpy(tv, &node->time, sizeof(*tv));
-
 		/* Insert this node again into the splay.  Keep the timer in the list in
 		   case we need to recompute future timers. */
-		multi->timetree = Curl_splayinsert(*tv, multi->timetree,
-			&d->state.timenode);
+		multi->timetree = Curl_splayinsert(*tv, multi->timetree, &d->state.timenode);
 	}
 	return CURLM_OK;
 }
 
-static CURLMcode multi_socket(struct Curl_multi * multi,
-    bool checkall,
-    curl_socket_t s,
-    int ev_bitmask,
-    int * running_handles)
+static CURLMcode multi_socket(struct Curl_multi * multi, bool checkall, curl_socket_t s, int ev_bitmask, int * running_handles)
 {
 	CURLMcode result = CURLM_OK;
 	struct Curl_easy * data = NULL;
 	struct Curl_tree * t;
 	struct curltime now = Curl_now();
-
 	if(checkall) {
 		/* *perform() deals with running_handles on its own */
 		result = curl_multi_perform(multi, running_handles);
-
-		/* walk through each easy handle and do the socket state change magic
-		   and callbacks */
+		/* walk through each easy handle and do the socket state change magic and callbacks */
 		if(result != CURLM_BAD_HANDLE) {
 			data = multi->easyp;
 			while(data && !result) {
@@ -2903,13 +2646,11 @@ static CURLMcode multi_socket(struct Curl_multi * multi,
 				data = data->next;
 			}
 		}
-
 		/* or should we fall-through and do the timer-based stuff? */
 		return result;
 	}
 	if(s != CURL_SOCKET_TIMEOUT) {
 		struct Curl_sh_entry * entry = sh_getentry(&multi->sockhash, s);
-
 		if(!entry)
 			/* Unmatched socket, we can't act on it but we ignore this fact.  In
 			   real-world tests it has been proved that libevent can in fact give
@@ -2920,30 +2661,22 @@ static CURLMcode multi_socket(struct Curl_multi * multi,
 		else {
 			struct Curl_hash_iterator iter;
 			struct Curl_hash_element * he;
-
 			/* the socket can be shared by many transfers, iterate */
 			Curl_hash_start_iterate(&entry->transfers, &iter);
-			for(he = Curl_hash_next_element(&iter); he;
-			    he = Curl_hash_next_element(&iter)) {
+			for(he = Curl_hash_next_element(&iter); he; he = Curl_hash_next_element(&iter)) {
 				data = (struct Curl_easy *)he->ptr;
 				DEBUGASSERT(data);
 				DEBUGASSERT(data->magic == CURLEASY_MAGIC_NUMBER);
-
 				if(data->conn && !(data->conn->handler->flags & PROTOPT_DIRLOCK))
 					/* set socket event bitmask if they're not locked */
 					data->conn->cselect_bits = ev_bitmask;
-
 				Curl_expire(data, 0, EXPIRE_RUN_NOW);
 			}
-
 			/* Now we fall-through and do the timer-based stuff, since we don't want
 			   to force the user to have to deal with timeouts as long as at least
 			   one connection in fact has traffic. */
-
-			data = NULL; /* set data to NULL again to avoid calling
-			                multi_runsingle() in case there's no need to */
-			now = Curl_now(); /* get a newer time since the multi_runsingle() loop
-			                     may have taken some time */
+			data = NULL; /* set data to NULL again to avoid calling multi_runsingle() in case there's no need to */
+			now = Curl_now(); /* get a newer time since the multi_runsingle() loop may have taken some time */
 		}
 	}
 	else {
@@ -2966,45 +2699,35 @@ static CURLMcode multi_socket(struct Curl_multi * multi,
 			sigpipe_ignore(data, &pipe_st);
 			result = multi_runsingle(multi, &now, data);
 			sigpipe_restore(&pipe_st);
-
 			if(CURLM_OK >= result) {
-				/* get the socket(s) and check if the state has been changed since
-				   last */
+				/* get the socket(s) and check if the state has been changed since last */
 				result = singlesocket(multi, data);
 				if(result)
 					return result;
 			}
 		}
-
 		/* Check if there's one (more) expired timer to deal with! This function
 		   extracts a matching node if there is one */
-
 		multi->timetree = Curl_splaygetbest(now, multi->timetree, &t);
 		if(t) {
 			data = (Curl_easy *)t->payload; /* assign this for next loop */
 			(void)add_next_timeout(now, multi, (Curl_easy *)t->payload);
 		}
 	} while(t);
-
 	*running_handles = multi->num_alive;
 	return result;
 }
 
 #undef curl_multi_setopt
-CURLMcode curl_multi_setopt(struct Curl_multi * multi,
-    CURLMoption option, ...)
+CURLMcode curl_multi_setopt(struct Curl_multi * multi, CURLMoption option, ...)
 {
 	CURLMcode res = CURLM_OK;
 	va_list param;
-
 	if(!GOOD_MULTI_HANDLE(multi))
 		return CURLM_BAD_HANDLE;
-
 	if(multi->in_callback)
 		return CURLM_RECURSIVE_API_CALL;
-
 	va_start(param, option);
-
 	switch(option) {
 		case CURLMOPT_SOCKETFUNCTION:
 		    multi->socket_cb = va_arg(param, curl_socket_callback);
@@ -3066,8 +2789,7 @@ CURLMcode curl_multi_setopt(struct Curl_multi * multi,
 /* we define curl_multi_socket() in the public multi.h header */
 #undef curl_multi_socket
 
-CURLMcode curl_multi_socket(struct Curl_multi * multi, curl_socket_t s,
-    int * running_handles)
+CURLMcode curl_multi_socket(struct Curl_multi * multi, curl_socket_t s, int * running_handles)
 {
 	CURLMcode result;
 	if(multi->in_callback)
@@ -3078,8 +2800,7 @@ CURLMcode curl_multi_socket(struct Curl_multi * multi, curl_socket_t s,
 	return result;
 }
 
-CURLMcode curl_multi_socket_action(struct Curl_multi * multi, curl_socket_t s,
-    int ev_bitmask, int * running_handles)
+CURLMcode curl_multi_socket_action(struct Curl_multi * multi, curl_socket_t s, int ev_bitmask, int * running_handles)
 {
 	CURLMcode result;
 	if(multi->in_callback)
@@ -3091,7 +2812,6 @@ CURLMcode curl_multi_socket_action(struct Curl_multi * multi, curl_socket_t s,
 }
 
 CURLMcode curl_multi_socket_all(struct Curl_multi * multi, int * running_handles)
-
 {
 	CURLMcode result;
 	if(multi->in_callback)
@@ -3102,18 +2822,14 @@ CURLMcode curl_multi_socket_all(struct Curl_multi * multi, int * running_handles
 	return result;
 }
 
-static CURLMcode multi_timeout(struct Curl_multi * multi,
-    long * timeout_ms)
+static CURLMcode multi_timeout(struct Curl_multi * multi, long * timeout_ms)
 {
 	static struct curltime tv_zero = {0, 0};
-
 	if(multi->timetree) {
 		/* we have a tree of expire times */
 		struct curltime now = Curl_now();
-
 		/* splay the lowest to the bottom */
 		multi->timetree = Curl_splay(tv_zero, multi->timetree);
-
 		if(Curl_splaycomparekeys(multi->timetree->key, now) > 0) {
 			/* some time left before expiration */
 			timediff_t diff = Curl_timediff(multi->timetree->key, now);
@@ -3127,33 +2843,26 @@ static CURLMcode multi_timeout(struct Curl_multi * multi,
 				 */
 				*timeout_ms = 1;
 			else
-				/* this should be safe even on 64 bit archs, as we don't use that
-				   overly long timeouts */
+				/* this should be safe even on 64 bit archs, as we don't use that overly long timeouts */
 				*timeout_ms = (long)diff;
 		}
 		else
-			/* 0 means immediately */
-			*timeout_ms = 0;
+			*timeout_ms = 0; /* 0 means immediately */
 	}
 	else
 		*timeout_ms = -1;
-
 	return CURLM_OK;
 }
 
-CURLMcode curl_multi_timeout(struct Curl_multi * multi,
-    long * timeout_ms)
+CURLMcode curl_multi_timeout(struct Curl_multi * multi, long * timeout_ms)
 {
 	/* First, make some basic checks that the CURLM handle is a good handle */
 	if(!GOOD_MULTI_HANDLE(multi))
 		return CURLM_BAD_HANDLE;
-
 	if(multi->in_callback)
 		return CURLM_RECURSIVE_API_CALL;
-
 	return multi_timeout(multi, timeout_ms);
 }
-
 /*
  * Tell the application it should update its timers, if it subscribes to the
  * update timer callback.
@@ -3161,7 +2870,6 @@ CURLMcode curl_multi_timeout(struct Curl_multi * multi,
 void Curl_update_timer(struct Curl_multi * multi)
 {
 	long timeout_ms;
-
 	if(!multi->timer_cb)
 		return;
 	if(multi_timeout(multi, &timeout_ms)) {
@@ -3178,19 +2886,15 @@ void Curl_update_timer(struct Curl_multi * multi)
 		}
 		return;
 	}
-
 	/* When multi_timeout() is done, multi->timetree points to the node with the
 	 * timeout we got the (relative) time-out time for. We can thus easily check
 	 * if this is the same (fixed) time as we got in a previous call and then
 	 * avoid calling the callback again. */
 	if(Curl_splaycomparekeys(multi->timetree->key, multi->timer_lastcall) == 0)
 		return;
-
 	multi->timer_lastcall = multi->timetree->key;
-
 	multi->timer_cb(multi, timeout_ms, multi->timer_userp);
 }
-
 /*
  * multi_deltimeout()
  *
@@ -3198,10 +2902,9 @@ void Curl_update_timer(struct Curl_multi * multi)
  */
 static void multi_deltimeout(struct Curl_easy * data, expire_id eid)
 {
-	struct Curl_llist_element * e;
 	struct Curl_llist * timeoutlist = &data->state.timeoutlist;
 	/* find and remove the specific node from the list */
-	for(e = timeoutlist->head; e; e = e->next) {
+	for(struct Curl_llist_element * e = timeoutlist->head; e; e = e->next) {
 		struct time_node * n = (struct time_node *)e->ptr;
 		if(n->eid == eid) {
 			Curl_llist_remove(timeoutlist, e, NULL);
@@ -3217,22 +2920,16 @@ static void multi_deltimeout(struct Curl_easy * data, expire_id eid)
  * of list is always the timeout nearest in time.
  *
  */
-static CURLMcode multi_addtimeout(struct Curl_easy * data,
-    struct curltime * stamp,
-    expire_id eid)
+static CURLMcode multi_addtimeout(struct Curl_easy * data, struct curltime * stamp, expire_id eid)
 {
 	struct Curl_llist_element * e;
-	struct time_node * node;
 	struct Curl_llist_element * prev = NULL;
 	size_t n;
 	struct Curl_llist * timeoutlist = &data->state.timeoutlist;
-
-	node = &data->state.expires[eid];
-
+	struct time_node * node = &data->state.expires[eid];
 	/* copy the timestamp and id */
 	memcpy(&node->time, stamp, sizeof(*stamp));
 	node->eid = eid; /* also marks it as in use */
-
 	n = Curl_llist_count(timeoutlist);
 	if(n) {
 		/* find the correct spot in the list */
@@ -3246,11 +2943,9 @@ static CURLMcode multi_addtimeout(struct Curl_easy * data,
 	}
 	/* else
 	   this is the first timeout on the list */
-
 	Curl_llist_insert_next(timeoutlist, prev, node, &node->list);
 	return CURLM_OK;
 }
-
 /*
  * Curl_expire()
  *
@@ -3267,60 +2962,46 @@ void Curl_expire(struct Curl_easy * data, timediff_t milli, expire_id id)
 	struct Curl_multi * multi = data->multi;
 	struct curltime * nowp = &data->state.expiretime;
 	struct curltime set;
-
 	/* this is only interesting while there is still an associated multi struct
 	   remaining! */
 	if(!multi)
 		return;
-
 	DEBUGASSERT(id < EXPIRE_LAST);
-
 	set = Curl_now();
 	set.tv_sec += (time_t)(milli/1000); /* might be a 64 to 32 bit conversion */
 	set.tv_usec += (uint)(milli%1000)*1000;
-
 	if(set.tv_usec >= 1000000) {
 		set.tv_sec++;
 		set.tv_usec -= 1000000;
 	}
-
 	/* Remove any timer with the same id just in case. */
 	multi_deltimeout(data, id);
-
 	/* Add it to the timer list.  It must stay in the list until it has expired
 	   in case we need to recompute the minimum timer later. */
 	multi_addtimeout(data, &set, id);
-
 	if(nowp->tv_sec || nowp->tv_usec) {
 		/* This means that the struct is added as a node in the splay tree.
 		   Compare if the new time is earlier, and only remove-old/add-new if it
 		   is. */
 		timediff_t diff = Curl_timediff(set, *nowp);
 		int rc;
-
 		if(diff > 0) {
 			/* The current splay tree entry is sooner than this new expiry time.
 			   We don't need to update our splay tree entry. */
 			return;
 		}
-
 		/* Since this is an updated time, we must remove the previous entry from
 		   the splay tree first and then re-add the new value */
-		rc = Curl_splayremovebyaddr(multi->timetree,
-			&data->state.timenode,
-			&multi->timetree);
+		rc = Curl_splayremovebyaddr(multi->timetree, &data->state.timenode, &multi->timetree);
 		if(rc)
 			infof(data, "Internal error removing splay node = %d\n", rc);
 	}
-
 	/* Indicate that we are in the splay tree and insert the new timer expiry
 	   value since it is our local minimum. */
 	*nowp = set;
 	data->state.timenode.payload = data;
-	multi->timetree = Curl_splayinsert(*nowp, multi->timetree,
-		&data->state.timenode);
+	multi->timetree = Curl_splayinsert(*nowp, multi->timetree, &data->state.timenode);
 }
-
 /*
  * Curl_expire_done()
  *
@@ -3332,7 +3013,6 @@ void Curl_expire_done(struct Curl_easy * data, expire_id id)
 	/* remove the timer, if there */
 	multi_deltimeout(data, id);
 }
-
 /*
  * Curl_expire_clear()
  *
@@ -3342,29 +3022,21 @@ void Curl_expire_clear(struct Curl_easy * data)
 {
 	struct Curl_multi * multi = data->multi;
 	struct curltime * nowp = &data->state.expiretime;
-
 	/* this is only interesting while there is still an associated multi struct
 	   remaining! */
 	if(!multi)
 		return;
-
 	if(nowp->tv_sec || nowp->tv_usec) {
 		/* Since this is an cleared time, we must remove the previous entry from
 		   the splay tree */
 		struct Curl_llist * list = &data->state.timeoutlist;
-		int rc;
-
-		rc = Curl_splayremovebyaddr(multi->timetree,
-			&data->state.timenode,
-			&multi->timetree);
+		int rc = Curl_splayremovebyaddr(multi->timetree, &data->state.timenode, &multi->timetree);
 		if(rc)
 			infof(data, "Internal error clearing splay node = %d\n", rc);
-
 		/* flush the timeout list too */
 		while(list->size > 0) {
 			Curl_llist_remove(list, list->tail, NULL);
 		}
-
 #ifdef DEBUGBUILD
 		infof(data, "Expire cleared (transfer %p)\n", data);
 #endif
@@ -3373,21 +3045,15 @@ void Curl_expire_clear(struct Curl_easy * data)
 	}
 }
 
-CURLMcode curl_multi_assign(struct Curl_multi * multi, curl_socket_t s,
-    void * hashp)
+CURLMcode curl_multi_assign(struct Curl_multi * multi, curl_socket_t s, void * hashp)
 {
 	struct Curl_sh_entry * there = NULL;
-
 	if(multi->in_callback)
 		return CURLM_RECURSIVE_API_CALL;
-
 	there = sh_getentry(&multi->sockhash, s);
-
 	if(!there)
 		return CURLM_BAD_SOCKET;
-
 	there->socketp = hashp;
-
 	return CURLM_OK;
 }
 
@@ -3400,13 +3066,10 @@ size_t Curl_multi_max_total_connections(struct Curl_multi * multi)
 {
 	return multi ? multi->max_total_connections : 0;
 }
-
 /*
  * When information about a connection has appeared, call this!
  */
-
-void Curl_multiuse_state(struct connectdata * conn,
-    int bundlestate)                      /* use BUNDLE_* defines */
+void Curl_multiuse_state(struct connectdata * conn, int bundlestate/* use BUNDLE_* defines */)
 {
 	DEBUGASSERT(conn);
 	DEBUGASSERT(conn->bundle);
@@ -3446,8 +3109,7 @@ void Curl_set_in_callback(struct Curl_easy * data, bool value)
 
 bool Curl_is_in_callback(struct Curl_easy * easy)
 {
-	return ((easy->multi && easy->multi->in_callback) ||
-	       (easy->multi_easy && easy->multi_easy->in_callback));
+	return ((easy->multi && easy->multi->in_callback) || (easy->multi_easy && easy->multi_easy->in_callback));
 }
 
 #ifdef DEBUGBUILD

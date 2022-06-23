@@ -918,7 +918,7 @@ again:
 	{
 		size_t i = 0;
 		void * handler_ctx = NULL;
-		const FILE_HANDLER ** matching_handlers = static_cast<const FILE_HANDLER **>(OPENSSL_zalloc(sizeof(*matching_handlers) * OSSL_NELEM(file_handlers)));
+		const FILE_HANDLER ** matching_handlers = static_cast<const FILE_HANDLER **>(OPENSSL_zalloc(sizeof(*matching_handlers) * SIZEOFARRAY(file_handlers)));
 		if(matching_handlers == NULL) {
 			OSSL_STOREerr(OSSL_STORE_F_FILE_LOAD_TRY_DECODE,
 			    ERR_R_MALLOC_FAILURE);
@@ -926,7 +926,7 @@ again:
 		}
 
 		*matchcount = 0;
-		for(i = 0; i < OSSL_NELEM(file_handlers); i++) {
+		for(i = 0; i < SIZEOFARRAY(file_handlers); i++) {
 			const FILE_HANDLER * handler = file_handlers[i];
 			int try_matchcount = 0;
 			void * tmp_handler_ctx = NULL;

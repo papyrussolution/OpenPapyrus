@@ -15,7 +15,7 @@
  * \file  finditalic.c
  * <pre>
  *
- *      l_int32   pixItalicWords()
+ *      int32   pixItalicWords()
  *
  *    Locate italic words.  This is an example of the use of
  *    hit-miss binary morphology with binary reconstruction
@@ -99,10 +99,10 @@ l_ok pixItalicWords(PIX * pixs,
     BOXA * boxaw,
     PIX * pixw,
     BOXA   ** pboxa,
-    l_int32 debugflag)
+    int32 debugflag)
 {
 	char opstring[32];
-	l_int32 size;
+	int32 size;
 	BOXA * boxa;
 	PIX * pixsd, * pixm, * pixd;
 	SEL     * sel_ital1, * sel_ital2, * sel_ital3;
@@ -153,7 +153,7 @@ l_ok pixItalicWords(PIX * pixs,
 
 	if(debugflag) {
 		/* Save results at at 2x reduction */
-		l_int32 res, upper;
+		int32 res, upper;
 		lept_mkdir("lept/ital");
 		BOXA * boxat;
 		GPLOT * gplot;

@@ -21,14 +21,14 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-PIX * pixMorphDwa_1(PIX * pixd, PIX * pixs, l_int32 operation, char * selname);
-PIX * pixFMorphopGen_1(PIX * pixd, PIX * pixs, l_int32 operation, char * selname);
-l_int32 fmorphopgen_low_1(l_uint32 * datad, l_int32 w,
-    l_int32 h, l_int32 wpld,
-    l_uint32 * datas, l_int32 wpls,
-    l_int32 index);
+PIX * pixMorphDwa_1(PIX * pixd, PIX * pixs, int32 operation, char * selname);
+PIX * pixFMorphopGen_1(PIX * pixd, PIX * pixs, int32 operation, char * selname);
+int32 fmorphopgen_low_1(uint32 * datad, int32 w,
+    int32 h, int32 wpld,
+    uint32 * datas, int32 wpls,
+    int32 index);
 
-static l_int32 NUM_SELS_GENERATED = 58;
+static int32 NUM_SELS_GENERATED = 58;
 static char SEL_NAMES[][80] = {
 	"sel_2h",
 	"sel_3h",
@@ -111,10 +111,10 @@ static char SEL_NAMES[][80] = {
  */
 PIX * pixMorphDwa_1(PIX * pixd,
     PIX * pixs,
-    l_int32 operation,
+    int32 operation,
     char * selname)
 {
-	l_int32 bordercolor, bordersize;
+	int32 bordercolor, bordersize;
 	PIX * pixt1, * pixt2, * pixt3;
 
 	PROCNAME(__FUNCTION__);
@@ -169,11 +169,11 @@ PIX * pixMorphDwa_1(PIX * pixd,
  */
 PIX * pixFMorphopGen_1(PIX * pixd,
     PIX * pixs,
-    l_int32 operation,
+    int32 operation,
     char * selname)
 {
-	l_int32 i, index, found, w, h, wpls, wpld, bordercolor, erodeop, borderop;
-	l_uint32  * datad, * datas, * datat;
+	int32 i, index, found, w, h, wpls, wpld, bordercolor, erodeop, borderop;
+	uint32  * datad, * datas, * datat;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);

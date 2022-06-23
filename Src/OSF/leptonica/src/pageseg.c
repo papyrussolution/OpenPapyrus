@@ -10,26 +10,13 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file  pageseg.c
  * <pre>
  *
  *      Top level page segmentation
- *          l_int32   pixGetRegionsBinary()
+ *          int32   pixGetRegionsBinary()
  *
  *      Halftone region extraction
  *          PIX *pixGenHalftoneMask()    **Deprecated wrapper**
@@ -46,7 +33,7 @@
  *          PIX *pixFindPageForeground()
  *
  *      Extraction of characters from image with only text
- *          l_int32   pixSplitIntoCharacters()
+ *          int32   pixSplitIntoCharacters()
  *          BOXA     *pixSplitComponentWithProfile()
  *
  *      Extraction of lines of text
@@ -54,22 +41,22 @@
  *          PIXA *pixExtractRawTextlines()
  *
  *      How many text columns
- *          l_int32   pixCountTextColumns()
+ *          int32   pixCountTextColumns()
  *
  *      Decision: text vs photo
- *          l_int32   pixDecideIfText()
- *          l_int32   pixFindThreshFgExtent()
+ *          int32   pixDecideIfText()
+ *          int32   pixFindThreshFgExtent()
  *
  *      Decision: table vs text
- *          l_int32   pixDecideIfTable()
+ *          int32   pixDecideIfTable()
  *          Pix      *pixPrepare1bpp()
  *
  *      Estimate the grayscale background value
- *          l_int32   pixEstimateBackground()
+ *          int32   pixEstimateBackground()
  *
  *      Largest white or black rectangles in an image
- *          l_int32   pixFindLargeRectangles()
- *          l_int32   pixFindLargestRectangle()
+ *          int32   pixFindLargeRectangles()
+ *          int32   pixFindLargestRectangle()
  *
  *      Generate rectangle inside connected component
  *          BOX      *pixFindRectangleInCC()
@@ -82,8 +69,8 @@
 #pragma hdrstop
 
 /* These functions are not intended to work on very low-res images */
-static const l_int32 MinWidth = 100;
-static const l_int32 MinHeight = 100;
+static const int32 MinWidth = 100;
+static const int32 MinHeight = 100;
 
 /*------------------------------------------------------------------*
 *                     Top level page segmentation                  *
@@ -110,7 +97,7 @@ l_ok pixGetRegionsBinary(PIX * pixs,
     PIX ** ppixtb,
     PIXA  * pixadb)
 {
-	l_int32 w, h, htfound, tlfound;
+	int32 w, h, htfound, tlfound;
 	PIX * pixr, * pix1, * pix2;
 	PIX * pixtext; /* text pixels only */
 	PIX * pixhm2; /* halftone mask; 2x reduction */
@@ -197,7 +184,7 @@ l_ok pixGetRegionsBinary(PIX * pixs,
 
 	/* Debug: display textline components with random colors */
 	if(pixadb) {
-		l_int32 w, h;
+		int32 w, h;
 		BOXA * boxa;
 		PIXA    * pixa;
 		boxa = pixConnComp(pixtm, &pixa, 8);
@@ -273,8 +260,8 @@ l_ok pixGetRegionsBinary(PIX * pixs,
  */
 PIX * pixGenHalftoneMask(PIX * pixs,
     PIX ** ppixtext,
-    l_int32 * phtfound,
-    l_int32 debug)
+    int32 * phtfound,
+    int32 debug)
 {
 	return pixGenerateHalftoneMask(pixs, ppixtext, phtfound, NULL);
 }
@@ -296,10 +283,10 @@ PIX * pixGenHalftoneMask(PIX * pixs,
  */
 PIX * pixGenerateHalftoneMask(PIX * pixs,
     PIX ** ppixtext,
-    l_int32 * phtfound,
+    int32 * phtfound,
     PIXA * pixadb)
 {
-	l_int32 w, h, empty;
+	int32 w, h, empty;
 	PIX * pix1, * pix2, * pixhs, * pixhm, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -377,10 +364,10 @@ PIX * pixGenerateHalftoneMask(PIX * pixs,
  */
 PIX * pixGenTextlineMask(PIX * pixs,
     PIX ** ppixvws,
-    l_int32 * ptlfound,
+    int32 * ptlfound,
     PIXA * pixadb)
 {
-	l_int32 w, h, empty;
+	int32 w, h, empty;
 	PIX * pix1, * pix2, * pixvws, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -469,7 +456,7 @@ PIX * pixGenTextblockMask(PIX * pixs,
     PIX * pixvws,
     PIXA  * pixadb)
 {
-	l_int32 w, h, empty;
+	int32 w, h, empty;
 	PIX * pix1, * pix2, * pix3, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -554,14 +541,14 @@ PIX * pixGenTextblockMask(PIX * pixs,
  * </pre>
  */
 BOX * pixFindPageForeground(PIX * pixs,
-    l_int32 threshold,
-    l_int32 mindist,
-    l_int32 erasedist,
-    l_int32 showmorph,
+    int32 threshold,
+    int32 mindist,
+    int32 erasedist,
+    int32 showmorph,
     PIXAC   * pixac)
 {
-	l_int32 flag, nbox, intersects;
-	l_int32 w, h, bx, by, bw, bh, left, right, top, bottom;
+	int32 flag, nbox, intersects;
+	int32 w, h, bx, by, bw, bh, left, right, top, bottom;
 	PIX * pixb, * pixb2, * pixseed, * pixsf, * pixm, * pix1, * pixg2;
 	BOX * box, * boxfg, * boxin, * boxd;
 	BOXA * ba1, * ba2;
@@ -682,13 +669,13 @@ BOX * pixFindPageForeground(PIX * pixs,
  * </pre>
  */
 l_ok pixSplitIntoCharacters(PIX * pixs,
-    l_int32 minw,
-    l_int32 minh,
+    int32 minw,
+    int32 minh,
     BOXA   ** pboxa,
     PIXA   ** ppixa,
     PIX    ** ppixdebug)
 {
-	l_int32 ncomp, i, xoff, yoff;
+	int32 ncomp, i, xoff, yoff;
 	BOXA   * boxa1, * boxa2, * boxat1, * boxat2, * boxad;
 	BOXAA  * baa;
 	PIX    * pix, * pix1, * pix2, * pixdb;
@@ -782,13 +769,13 @@ l_ok pixSplitIntoCharacters(PIX * pixs,
  * </pre>
  */
 BOXA * pixSplitComponentWithProfile(PIX * pixs,
-    l_int32 delta,
-    l_int32 mindel,
+    int32 delta,
+    int32 mindel,
     PIX    ** ppixdebug)
 {
-	l_int32 w, h, n2, i, firstmin, xmin, xshift;
-	l_int32 nmin, nleft, nright, nsplit, isplit, ncomp;
-	l_int32 * array1, * array2;
+	int32 w, h, n2, i, firstmin, xmin, xshift;
+	int32 nmin, nleft, nright, nsplit, isplit, ncomp;
+	int32 * array1, * array2;
 	BOX      * box;
 	BOXA     * boxad;
 	NUMA     * na1, * na2, * nasplit;
@@ -936,16 +923,16 @@ BOXA * pixSplitComponentWithProfile(PIX * pixs,
  * </pre>
  */
 PIXA * pixExtractTextlines(PIX * pixs,
-    l_int32 maxw,
-    l_int32 maxh,
-    l_int32 minw,
-    l_int32 minh,
-    l_int32 adjw,
-    l_int32 adjh,
+    int32 maxw,
+    int32 maxh,
+    int32 minw,
+    int32 minh,
+    int32 adjw,
+    int32 adjh,
     PIXA    * pixadb)
 {
 	char buf[64];
-	l_int32 res, csize, empty;
+	int32 res, csize, empty;
 	BOXA * boxa1, * boxa2, * boxa3;
 	PIX * pix1, * pix2, * pix3;
 	PIXA    * pixa1, * pixa2, * pixa3;
@@ -1001,8 +988,8 @@ PIXA * pixExtractTextlines(PIX * pixs,
 	}
 
 	/* Set minw, minh if default is requested */
-	minw = (minw != 0) ? minw : (l_int32)(0.12 * res);
-	minh = (minh != 0) ? minh : (l_int32)(0.07 * res);
+	minw = (minw != 0) ? minw : (int32)(0.12 * res);
+	minh = (minh != 0) ? minh : (int32)(0.07 * res);
 
 	/* Remove line components that are too small */
 	pixa2 = pixaSelectBySize(pixa1, minw, minh, L_SELECT_IF_BOTH,
@@ -1075,14 +1062,14 @@ PIXA * pixExtractTextlines(PIX * pixs,
  * </pre>
  */
 PIXA * pixExtractRawTextlines(PIX * pixs,
-    l_int32 maxw,
-    l_int32 maxh,
-    l_int32 adjw,
-    l_int32 adjh,
+    int32 maxw,
+    int32 maxh,
+    int32 adjw,
+    int32 adjh,
     PIXA    * pixadb)
 {
 	char buf[64];
-	l_int32 res, csize, empty;
+	int32 res, csize, empty;
 	BOXA * boxa1, * boxa2, * boxa3;
 	BOXAA   * baa1;
 	PIX * pix1, * pix2, * pix3;
@@ -1098,8 +1085,8 @@ PIXA * pixExtractRawTextlines(PIX * pixs,
 		L_INFO("Resolution is not set: setting to 300 ppi\n", procName);
 		res = 300;
 	}
-	maxw = (maxw != 0) ? maxw : (l_int32)(0.5 * res);
-	maxh = (maxh != 0) ? maxh : (l_int32)(0.5 * res);
+	maxw = (maxw != 0) ? maxw : (int32)(0.5 * res);
+	maxh = (maxh != 0) ? maxh : (int32)(0.5 * res);
 
 	/* Binarize carefully, if necessary */
 	if(pixGetDepth(pixs) > 1) {
@@ -1205,10 +1192,10 @@ l_ok pixCountTextColumns(PIX * pixs,
     float deltafract,
     float peakfract,
     float clipfract,
-    l_int32   * pncols,
+    int32   * pncols,
     PIXA      * pixadb)
 {
-	l_int32 w, h, res, i, n, npeak;
+	int32 w, h, res, i, n, npeak;
 	float scalefact, redfact, minval, maxval, val4, val5, fract;
 	BOX       * box;
 	NUMA * na1, * na2, * na3, * na4, * na5;
@@ -1351,10 +1338,10 @@ l_ok pixCountTextColumns(PIX * pixs,
  */
 l_ok pixDecideIfText(PIX * pixs,
     BOX      * box,
-    l_int32 * pistext,
+    int32 * pistext,
     PIXA * pixadb)
 {
-	l_int32 i, empty, maxw, w, h, n1, n2, n3, minlines, big_comp;
+	int32 i, empty, maxw, w, h, n1, n2, n3, minlines, big_comp;
 	float ratio1, ratio2;
 	L_BMF     * bmf;
 	BOXA      * boxa1, * boxa2, * boxa3, * boxa4, * boxa5;
@@ -1517,12 +1504,12 @@ l_ok pixDecideIfText(PIX * pixs,
  * \return  0 if OK, 1 on error
  */
 l_ok pixFindThreshFgExtent(PIX * pixs,
-    l_int32 thresh,
-    l_int32 * ptop,
-    l_int32 * pbot)
+    int32 thresh,
+    int32 * ptop,
+    int32 * pbot)
 {
-	l_int32 i, n;
-	l_int32 * array;
+	int32 i, n;
+	int32 * array;
 	NUMA     * na;
 
 	PROCNAME(__FUNCTION__);
@@ -1606,11 +1593,11 @@ l_ok pixFindThreshFgExtent(PIX * pixs,
  */
 l_ok pixDecideIfTable(PIX * pixs,
     BOX      * box,
-    l_int32 orient,
-    l_int32 * pscore,
+    int32 orient,
+    int32 * pscore,
     PIXA * pixadb)
 {
-	l_int32 empty, nhb, nvb, nvw, score, htfound;
+	int32 empty, nhb, nvb, nvw, score, htfound;
 	PIX * pix1, * pix2, * pix3, * pix4, * pix5, * pix6, * pix7, * pix8, * pix9;
 
 	PROCNAME(__FUNCTION__);
@@ -1755,9 +1742,9 @@ l_ok pixDecideIfTable(PIX * pixs,
 PIX * pixPrepare1bpp(PIX * pixs,
     BOX       * box,
     float cropfract,
-    l_int32 outres)
+    int32 outres)
 {
-	l_int32 w, h, res;
+	int32 w, h, res;
 	float factor;
 	BOX       * box1;
 	PIX * pix1, * pix2, * pix3, * pix4, * pix5;
@@ -1775,9 +1762,9 @@ PIX * pixPrepare1bpp(PIX * pixs,
 	}
 	else {
 		pixGetDimensions(pixs, &w, &h, NULL);
-		box1 = boxCreate((l_int32)(cropfract * w), (l_int32)(cropfract * h),
-			(l_int32)((1.0 - 2 * cropfract) * w),
-			(l_int32)((1.0 - 2 * cropfract) * h));
+		box1 = boxCreate((int32)(cropfract * w), (int32)(cropfract * h),
+			(int32)((1.0 - 2 * cropfract) * w),
+			(int32)((1.0 - 2 * cropfract) * h));
 		pix1 = pixClipRectangle(pixs, box1, NULL);
 		boxDestroy(&box1);
 	}
@@ -1839,11 +1826,11 @@ PIX * pixPrepare1bpp(PIX * pixs,
  * </pre>
  */
 l_ok pixEstimateBackground(PIX * pixs,
-    l_int32 darkthresh,
+    int32 darkthresh,
     float edgecrop,
-    l_int32   * pbg)
+    int32   * pbg)
 {
-	l_int32 w, h, sampling;
+	int32 w, h, sampling;
 	float fbg;
 	BOX       * box;
 	PIX * pix1, * pix2, * pixm;
@@ -1875,7 +1862,7 @@ l_ok pixEstimateBackground(PIX * pixs,
 	}
 
 	/* We will use no more than 50K samples */
-	sampling = MAX(1, (l_int32)sqrt((double)(w * h) / 50000. + 0.5));
+	sampling = MAX(1, (int32)sqrt((double)(w * h) / 50000. + 0.5));
 
 	/* Optionally make a mask over all pixels lighter than %darkthresh */
 	pixm = NULL;
@@ -1885,7 +1872,7 @@ l_ok pixEstimateBackground(PIX * pixs,
 	}
 
 	pixGetRankValueMasked(pix2, pixm, 0, 0, sampling, 0.5, &fbg, NULL);
-	*pbg = (l_int32)(fbg + 0.5);
+	*pbg = (int32)(fbg + 0.5);
 	pixDestroy(&pix1);
 	pixDestroy(&pix2);
 	pixDestroy(&pixm);
@@ -1922,12 +1909,12 @@ l_ok pixEstimateBackground(PIX * pixs,
  * </pre>
  */
 l_ok pixFindLargeRectangles(PIX          * pixs,
-    l_int32 polarity,
-    l_int32 nrect,
+    int32 polarity,
+    int32 nrect,
     BOXA        ** pboxa,
     PIX         ** ppixdb)
 {
-	l_int32 i, op, bx, by, bw, bh;
+	int32 i, op, bx, by, bw, bh;
 	BOX * box;
 	BOXA * boxa;
 	PIX * pix;
@@ -2023,17 +2010,17 @@ l_ok pixFindLargeRectangles(PIX          * pixs,
  * </pre>
  */
 l_ok pixFindLargestRectangle(PIX         * pixs,
-    l_int32 polarity,
+    int32 polarity,
     BOX        ** pbox,
     PIX        ** ppixdb)
 {
-	l_int32 i, j, w, h, d, wpls, val;
-	l_int32 wp, hp, w1, w2, h1, h2, wmin, hmin, area1, area2;
-	l_int32 xmax, ymax; /* LR corner of the largest rectangle */
-	l_int32 maxarea, wmax, hmax, vertdist, horizdist, prevfg;
-	l_int32   * lowestfg;
-	l_uint32  * datas, * lines;
-	l_uint32 ** linew, ** lineh;
+	int32 i, j, w, h, d, wpls, val;
+	int32 wp, hp, w1, w2, h1, h2, wmin, hmin, area1, area2;
+	int32 xmax, ymax; /* LR corner of the largest rectangle */
+	int32 maxarea, wmax, hmax, vertdist, horizdist, prevfg;
+	int32   * lowestfg;
+	uint32  * datas, * lines;
+	uint32 ** linew, ** lineh;
 	BOX       * box;
 	PIX * pixw, * pixh; /* keeps the width and height for the largest */
 	                    /* rectangles whose LR corner is located there. */
@@ -2053,7 +2040,7 @@ l_ok pixFindLargestRectangle(PIX         * pixs,
 		return ERROR_INT("invalid polarity", procName, 1);
 
 	/* Initialize lowest "fg" seen so far for each column */
-	lowestfg = (l_int32*)SAlloc::C(w, sizeof(l_int32));
+	lowestfg = (int32*)SAlloc::C(w, sizeof(int32));
 	for(i = 0; i < w; i++)
 		lowestfg[i] = -1;
 
@@ -2062,8 +2049,8 @@ l_ok pixFindLargestRectangle(PIX         * pixs,
 	 * we search in the bg (white). */
 	pixw = pixCreate(w, h, 32); /* stores width */
 	pixh = pixCreate(w, h, 32); /* stores height */
-	linew = (l_uint32**)pixGetLinePtrs(pixw, NULL);
-	lineh = (l_uint32**)pixGetLinePtrs(pixh, NULL);
+	linew = (uint32**)pixGetLinePtrs(pixw, NULL);
+	lineh = (uint32**)pixGetLinePtrs(pixh, NULL);
 	datas = pixGetData(pixs);
 	wpls = pixGetWpl(pixs);
 	maxarea = xmax = ymax = wmax = hmax = 0;
@@ -2180,12 +2167,12 @@ l_ok pixFindLargestRectangle(PIX         * pixs,
 BOX * pixFindRectangleInCC(PIX * pixs,
     BOX       * boxs,
     float fract,
-    l_int32 dir,
-    l_int32 select,
-    l_int32 debug)
+    int32 dir,
+    int32 select,
+    int32 debug)
 {
-	l_int32 x, y, i, w, h, w1, h1, w2, h2, found, res;
-	l_int32 xfirst, xlast, xstart, yfirst, ylast, length;
+	int32 x, y, i, w, h, w1, h1, w2, h2, found, res;
+	int32 xfirst, xlast, xstart, yfirst, ylast, length;
 	BOX * box1, * box2, * box3, * box4, * box5;
 	PIX * pix1, * pix2, * pixdb1, * pixdb2;
 	PIXA    * pixadb;
@@ -2233,7 +2220,7 @@ BOX * pixFindRectangleInCC(PIX * pixs,
 	found = FALSE;
 	for(i = 0; i < h; i++) {
 		pixFindMaxHorizontalRunOnLine(pix2, i, &xstart, &length);
-		if(length >= (l_int32)(fract * w + 0.5)) {
+		if(length >= (int32)(fract * w + 0.5)) {
 			yfirst = i;
 			xfirst = xstart;
 			xlast = xfirst + length - 1;
@@ -2268,7 +2255,7 @@ BOX * pixFindRectangleInCC(PIX * pixs,
 	 * That run goes from (xfirst, ylast) to (xlast, ylast).  */
 	for(i = h - 1; i >= 0; i--) {
 		pixFindMaxHorizontalRunOnLine(pix2, i, &xstart, &length);
-		if(length >= (l_int32)(fract * w + 0.5)) {
+		if(length >= (int32)(fract * w + 0.5)) {
 			ylast = i;
 			xfirst = xstart;
 			xlast = xfirst + length - 1;
@@ -2367,11 +2354,11 @@ BOX * pixFindRectangleInCC(PIX * pixs,
  * </pre>
  */
 PIX * pixAutoPhotoinvert(PIX * pixs,
-    l_int32 thresh,
+    int32 thresh,
     PIX ** ppixm,
     PIXA      * pixadb)
 {
-	l_int32 i, n, empty, x, y, w, h;
+	int32 i, n, empty, x, y, w, h;
 	float fgfract;
 	BOX       * box1;
 	BOXA      * boxa1;

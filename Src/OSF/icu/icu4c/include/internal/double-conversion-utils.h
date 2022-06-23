@@ -198,59 +198,43 @@ inline int StrLength(const char * string) {
 }
 
 // This is a simplified version of V8's Vector class.
-template <typename T>
-class Vector {
+template <typename T> class Vector {
 public:
-	Vector() : start_(NULL), length_(0) {
+	Vector() : start_(NULL), length_(0) 
+	{
 	}
-
-	Vector(T* data, int len) : start_(data), length_(len) {
+	Vector(T* data, int len) : start_(data), length_(len) 
+	{
 		DOUBLE_CONVERSION_ASSERT(len == 0 || (len > 0 && data != NULL));
 	}
-
 	// Returns a vector using the same backing storage as this one,
 	// spanning from and including 'from', to but not including 'to'.
-	Vector<T> SubVector(int from, int to) {
+	Vector<T> SubVector(int from, int to) 
+	{
 		DOUBLE_CONVERSION_ASSERT(to <= length_);
 		DOUBLE_CONVERSION_ASSERT(from < to);
 		DOUBLE_CONVERSION_ASSERT(0 <= from);
 		return Vector<T>(start() + from, to - from);
 	}
-
 	// Returns the length of the vector.
-	int length() const {
-		return length_;
-	}
-
+	int length() const { return length_; }
 	// Returns whether or not the vector is empty.
-	bool is_empty() const {
-		return length_ == 0;
-	}
-
+	bool is_empty() const { return length_ == 0; }
 	// Returns the pointer to the start of the data in the vector.
-	T* start() const {
-		return start_;
-	}
-
+	T* start() const { return start_; }
 	// Access individual vector elements - checks bounds in debug mode.
-	T& operator[](int index) const {
+	T& operator[](int index) const 
+	{
 		DOUBLE_CONVERSION_ASSERT(0 <= index && index < length_);
 		return start_[index];
 	}
-
-	T& first() {
-		return start_[0];
-	}
-
-	T& last() {
-		return start_[length_ - 1];
-	}
-
-	void pop_back() {
+	T& first() { return start_[0]; }
+	T& last() { return start_[length_ - 1]; }
+	void pop_back() 
+	{
 		DOUBLE_CONVERSION_ASSERT(!is_empty());
 		--length_;
 	}
-
 private:
 	T* start_;
 	int length_;
@@ -261,63 +245,60 @@ private:
 // buffer bounds on all operations in debug mode.
 class StringBuilder {
 public:
-	StringBuilder(char * buffer, int buffer_size)
-		: buffer_(buffer, buffer_size), position_(0) {
+	StringBuilder(char * buffer, int buffer_size) : buffer_(buffer, buffer_size), position_(0) 
+	{
 	}
-
-	~StringBuilder() {
+	~StringBuilder() 
+	{
 		if(!is_finalized()) Finalize();
 	}
-
-	int size() const {
-		return buffer_.length();
-	}
-
+	int size() const { return buffer_.length(); }
 	// Get the current position in the builder.
-	int position() const {
+	int position() const 
+	{
 		DOUBLE_CONVERSION_ASSERT(!is_finalized());
 		return position_;
 	}
-
 	// Reset the position.
-	void Reset() {
+	void Reset() 
+	{
 		position_ = 0;
 	}
-
 	// Add a single character to the builder. It is not allowed to add
 	// 0-characters; use the Finalize() method to terminate the string
 	// instead.
-	void AddCharacter(char c) {
+	void AddCharacter(char c) 
+	{
 		DOUBLE_CONVERSION_ASSERT(c != '\0');
 		DOUBLE_CONVERSION_ASSERT(!is_finalized() && position_ < buffer_.length());
 		buffer_[position_++] = c;
 	}
-
 	// Add an entire string to the builder. Uses strlen() internally to
 	// compute the length of the input string.
-	void AddString(const char * s) {
+	void AddString(const char * s) 
+	{
 		AddSubstring(s, StrLength(s));
 	}
-
 	// Add the first 'n' characters of the given string 's' to the
 	// builder. The input string must have enough characters.
-	void AddSubstring(const char * s, int n) {
+	void AddSubstring(const char * s, int n) 
+	{
 		DOUBLE_CONVERSION_ASSERT(!is_finalized() && position_ + n < buffer_.length());
 		DOUBLE_CONVERSION_ASSERT(static_cast<size_t>(n) <= strlen(s));
 		memmove(&buffer_[position_], s, n);
 		position_ += n;
 	}
-
 	// Add character padding to the builder. If count is non-positive,
 	// nothing is added to the builder.
-	void AddPadding(char c, int count) {
+	void AddPadding(char c, int count) 
+	{
 		for(int i = 0; i < count; i++) {
 			AddCharacter(c);
 		}
 	}
-
 	// Finalize the string by 0-terminating it and returning the buffer.
-	char * Finalize() {
+	char * Finalize() 
+	{
 		DOUBLE_CONVERSION_ASSERT(!is_finalized() && position_ < buffer_.length());
 		buffer_[position_] = '\0';
 		// Make sure nobody managed to add a 0-character to the
@@ -327,15 +308,10 @@ public:
 		DOUBLE_CONVERSION_ASSERT(is_finalized());
 		return buffer_.start();
 	}
-
 private:
 	Vector<char> buffer_;
 	int position_;
-
-	bool is_finalized() const {
-		return position_ < 0;
-	}
-
+	bool is_finalized() const { return position_ < 0; }
 	DOUBLE_CONVERSION_DISALLOW_IMPLICIT_CONSTRUCTORS(StringBuilder);
 };
 

@@ -144,18 +144,12 @@ void ngx_mail_init_connection(ngx_connection_t * c)
 
 void ngx_mail_starttls_handler(ngx_event_t * rev)
 {
-	ngx_connection_t   * c;
-	ngx_mail_session_t * s;
 	ngx_mail_ssl_conf_t  * sslcf;
-
-	c = (ngx_connection_t *)rev->P_Data;
-	s = (ngx_mail_session_t *)c->data;
+	ngx_connection_t   * c = (ngx_connection_t *)rev->P_Data;
+	ngx_mail_session_t * s = (ngx_mail_session_t *)c->data;
 	s->starttls = 1;
-
 	c->log->action = "in starttls state";
-
 	sslcf = (ngx_mail_ssl_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
-
 	ngx_mail_ssl_init_connection(&sslcf->ssl, c);
 }
 
@@ -163,24 +157,17 @@ static void ngx_mail_ssl_init_connection(ngx_ssl_t * ssl, ngx_connection_t * c)
 {
 	ngx_mail_session_t * s;
 	ngx_mail_core_srv_conf_t  * cscf;
-
 	if(ngx_ssl_create_connection(ssl, c, 0) != NGX_OK) {
 		ngx_mail_close_connection(c);
 		return;
 	}
-
 	if(ngx_ssl_handshake(c) == NGX_AGAIN) {
 		s = (ngx_mail_session_t *)c->data;
-
 		cscf = (ngx_mail_core_srv_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
-
 		ngx_add_timer(c->P_EvRd, cscf->timeout);
-
 		c->ssl->handler = ngx_mail_ssl_handshake_handler;
-
 		return;
 	}
-
 	ngx_mail_ssl_handshake_handler(c);
 }
 
@@ -250,10 +237,8 @@ static ngx_int_t ngx_mail_verify_cert(ngx_mail_session_t * s, ngx_connection_t *
 
 static void ngx_mail_init_session(ngx_connection_t * c)
 {
-	ngx_mail_session_t * s;
-	ngx_mail_core_srv_conf_t  * cscf;
-	s = (ngx_mail_session_t *)c->data;
-	cscf = (ngx_mail_core_srv_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
+	ngx_mail_session_t * s = (ngx_mail_session_t *)c->data;
+	ngx_mail_core_srv_conf_t  * cscf = (ngx_mail_core_srv_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_core_module);
 	s->protocol = cscf->protocol->type;
 	s->ctx = (void **)ngx_pcalloc(c->pool, sizeof(void *) * ngx_mail_max_module);
 	if(s->ctx == NULL) {
@@ -275,20 +260,18 @@ ngx_int_t ngx_mail_salt(ngx_mail_session_t * s, ngx_connection_t * c, ngx_mail_c
 }
 
 #if (NGX_MAIL_SSL)
-
-ngx_int_t ngx_mail_starttls_only(ngx_mail_session_t * s, ngx_connection_t * c)
-{
-	ngx_mail_ssl_conf_t  * sslcf;
-	if(c->ssl) {
+	ngx_int_t ngx_mail_starttls_only(ngx_mail_session_t * s, ngx_connection_t * c)
+	{
+		ngx_mail_ssl_conf_t  * sslcf;
+		if(c->ssl) {
+			return 0;
+		}
+		sslcf = (ngx_mail_ssl_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
+		if(sslcf->starttls == NGX_MAIL_STARTTLS_ONLY) {
+			return 1;
+		}
 		return 0;
 	}
-	sslcf = (ngx_mail_ssl_conf_t *)ngx_mail_get_module_srv_conf(s, ngx_mail_ssl_module);
-	if(sslcf->starttls == NGX_MAIL_STARTTLS_ONLY) {
-		return 1;
-	}
-	return 0;
-}
-
 #endif
 
 ngx_int_t ngx_mail_auth_plain(ngx_mail_session_t * s, ngx_connection_t * c, ngx_uint_t n)
@@ -362,7 +345,6 @@ ngx_int_t ngx_mail_auth_login_password(ngx_mail_session_t * s, ngx_connection_t 
 		ngx_log_error(NGX_LOG_INFO, c->log, 0, "client sent invalid base64 encoding in AUTH LOGIN command");
 		return NGX_MAIL_PARSE_INVALID_COMMAND;
 	}
-
 #if (NGX_DEBUG_MAIL_PASSWD)
 	ngx_log_debug1(NGX_LOG_DEBUG_MAIL, c->log, 0, "mail auth login password: \"%V\"", &s->passwd);
 #endif

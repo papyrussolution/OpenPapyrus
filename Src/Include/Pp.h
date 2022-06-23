@@ -3900,7 +3900,7 @@ public:
 	//   <0 - Не найдено ни одного соответствия //
 	//   0  - Ошибка
 	//
-	int    SearchObjectsByStr(PPID objType, PPID tagID, const char * pStr, PPIDArray *);
+	int    SearchObjectsByStr(PPID objType, PPID tagID, const char * pStr, PPIDArray * pResult);
 	//
 	// Descr: Находит все идентификаторы объектов типа objType, удовлетворяющие условию:
 	//   тип тега равен tagID, тип значения тега - строка, строковое содержимое тега В ТОЧНОСТИ равно pStr (нечувствительное к регистру сравнение).
@@ -24772,6 +24772,7 @@ public:
 		//   Одно из значений PPQC_XXX. Если qkID == 0, то возвращает PPQC_UNKN.
 		//
 		int    FASTCALL GetCategory(PPID qkID) const;
+		void   GetDefaults(int quotCls, PPID qkID, PPID * pAcsID, PPID * pDefQkID, long * pQkSelExtra) const;
 
 		enum {
 			fInited = 0x0001 // Запись инициализирована
@@ -29324,7 +29325,7 @@ public:
 		cddExtraDigitEan13,         // Лишняя цифра в конце EAN13
 		cddExtraDigitEan8,          // Лишняя цифра в конце EAN8
 		cddEan14,                   // EAN14
-		cddUnknownFormat,           // Не известный формат
+		cddUnknownFormat,           // Неизвестный формат
 		cddUpcaAsEan13,             // Код UPCA в формате EAN13
 		cdd_ExtraDigitUpca,         // Возможно, лишняя цифра в конце UPCA
 		cdd_UpcaWoCheckDig,         // Возможно, UPCA без контрольной цифры
@@ -31627,6 +31628,7 @@ public:
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 
+	int32   QuotCls;    // @v11.4.2 Категория котировок
 	int32   QuotKindID;
 	int32   CurrID;
 	int32   ArID;
@@ -54154,6 +54156,8 @@ private:
 	void   SetupCtrls(long direction);
 
 	PPQuotImpExpParam Data;
+	const PPObjQuotKind::Special QkSpc; // @v11.4.2
+	PPObjQuotKind QkObj; // @v11.4.2
 };
 //
 //

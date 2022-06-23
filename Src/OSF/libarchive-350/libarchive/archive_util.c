@@ -202,13 +202,12 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 		HANDLE h;
 		// Generate a random file name through CryptGenRandom()
 		wchar_t * p = xp;
-		if(!CryptGenRandom(hProv, (DWORD)(ep - p)*sizeof(wchar_t),
-		    (BYTE*)p)) {
+		if(!CryptGenRandom(hProv, (DWORD)(ep - p)*sizeof(wchar_t), (BYTE*)p)) {
 			la_dosmaperr(GetLastError());
 			goto exit_tmpfile;
 		}
 		for(; p < ep; p++)
-			*p = num[((DWORD)*p) % (sizeof(num)/sizeof(num[0]))];
+			*p = num[((DWORD)*p) % SIZEOFARRAY(num)];
 		SAlloc::F(ws);
 		ws = __la_win_permissive_name_w(pTemplate);
 		if(ws == NULL) {
@@ -222,13 +221,7 @@ static int __archive_mktempx(const char * tmpdir, wchar_t * pTemplate)
 			/* mkstemp */
 			attr = FILE_ATTRIBUTE_NORMAL;
 		}
-		h = CreateFileW(ws,
-			GENERIC_READ | GENERIC_WRITE | DELETE,
-			0,/* Not share */
-			NULL,
-			CREATE_NEW,/* Create a new file only */
-			attr,
-			NULL);
+		h = CreateFileW(ws, GENERIC_READ|GENERIC_WRITE|DELETE, 0/* Not share */, NULL, CREATE_NEW/* Create a new file only */, attr, NULL);
 		if(h == INVALID_HANDLE_VALUE) {
 			// The same file already exists. retry with a new filename. 
 			if(GetLastError() == ERROR_FILE_EXISTS)

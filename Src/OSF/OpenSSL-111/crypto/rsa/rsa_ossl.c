@@ -693,7 +693,7 @@ static int rsa_ossl_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CTX * c
 	/* compute I mod q */
 	{
 		BIGNUM * c = BN_new();
-		if(c == NULL)
+		if(!c)
 			goto err;
 		BN_with_flags(c, I, BN_FLG_CONSTTIME);
 

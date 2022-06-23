@@ -351,7 +351,7 @@ void CRYPTO_mem_debug_malloc(void * addr, size_t num, int before_p,
 			    }
 			    m->order = order++;
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
-			    m->array_siz = backtrace(m->array, OSSL_NELEM(m->array));
+			    m->array_siz = backtrace(m->array, SIZEOFARRAY(m->array));
 #endif
 			    m->time = time(NULL);
 
@@ -429,7 +429,7 @@ void CRYPTO_mem_debug_realloc(void * addr1, void * addr2, size_t num,
 				    mp->addr = addr2;
 				    mp->num = num;
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
-				    mp->array_siz = backtrace(mp->array, OSSL_NELEM(mp->array));
+				    mp->array_siz = backtrace(mp->array, SIZEOFARRAY(mp->array));
 #endif
 				    (void)lh_MEM_insert(mh, mp);
 			    }

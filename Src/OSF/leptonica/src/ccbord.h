@@ -81,7 +81,7 @@ struct CCBord {
 	struct Pix          * pix; /*!< component bitmap (min size)      */
 	struct Boxa         * boxa; /*!< regions of each closed curve     */
 	struct Pta          * start; /*!< initial border pixel locations   */
-	l_int32 refcount;              /*!< number of handles; start at 1    */
+	int32 refcount;              /*!< number of handles; start at 1    */
 	struct Ptaa         * local; /*!< ptaa of chain pixels (local)     */
 	struct Ptaa         * global;  /*!< ptaa of chain pixels (global)    */
 	struct Numaa        * step; /*!< numaa of chain code (step dir)   */
@@ -94,10 +94,10 @@ typedef struct CCBord CCBORD;
 /*! Array of CCBord */
 struct CCBorda {
 	struct Pix          * pix; /*!< input pix (may be null)          */
-	l_int32 w;                     /*!< width of pix                     */
-	l_int32 h;                     /*!< height of pix                    */
-	l_int32 n;                     /*!< number of ccbord in ptr array    */
-	l_int32 nalloc;                /*!< number of ccbord ptrs allocated  */
+	int32 w;                     /*!< width of pix                     */
+	int32 h;                     /*!< height of pix                    */
+	int32 n;                     /*!< number of ccbord in ptr array    */
+	int32 nalloc;                /*!< number of ccbord ptrs allocated  */
 	struct CCBord      ** ccb; /*!< ccb ptr array                    */
 };
 

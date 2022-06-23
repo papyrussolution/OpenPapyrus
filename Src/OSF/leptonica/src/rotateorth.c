@@ -49,7 +49,7 @@ static uint8 * makeReverseByteTab4(void);
  * \return  pixd, or NULL on error
  */
 PIX * pixRotateOrth(PIX * pixs,
-    l_int32 quads)
+    int32 quads)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -98,7 +98,7 @@ PIX * pixRotateOrth(PIX * pixs,
 PIX * pixRotate180(PIX  * pixd,
     PIX  * pixs)
 {
-	l_int32 d;
+	int32 d;
 
 	PROCNAME(__FUNCTION__);
 
@@ -136,12 +136,12 @@ PIX * pixRotate180(PIX  * pixd,
  * </pre>
  */
 PIX * pixRotate90(PIX * pixs,
-    l_int32 direction)
+    int32 direction)
 {
-	l_int32 wd, hd, d, wpls, wpld;
-	l_int32 i, j, k, m, iend, nswords;
-	l_uint32 val, word;
-	l_uint32  * lines, * datas, * lined, * datad;
+	int32 wd, hd, d, wpls, wpld;
+	int32 i, j, k, m, iend, nswords;
+	uint32 val, word;
+	uint32  * lines, * datas, * lined, * datad;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -401,10 +401,10 @@ PIX * pixFlipLR(PIX  * pixd,
     PIX  * pixs)
 {
 	uint8   * tab;
-	l_int32 w, h, d, wpl;
-	l_int32 extra, shift, databpl, bpl, i, j;
-	l_uint32 val;
-	l_uint32  * line, * data, * buffer;
+	int32 w, h, d, wpl;
+	int32 extra, shift, databpl, bpl, i, j;
+	uint32 val;
+	uint32  * line, * data, * buffer;
 
 	PROCNAME(__FUNCTION__);
 
@@ -438,7 +438,7 @@ PIX * pixFlipLR(PIX  * pixd,
 	}
 
 	/* Possibly inplace assigning return val, so on failure return pixd */
-	if((buffer = (l_uint32*)SAlloc::C(wpl, sizeof(l_uint32))) == NULL) {
+	if((buffer = (uint32*)SAlloc::C(wpl, sizeof(uint32))) == NULL) {
 		if(tab) SAlloc::F(tab);
 		return (PIX *)ERROR_PTR("buffer not made", procName, pixd);
 	}
@@ -576,9 +576,9 @@ PIX * pixFlipLR(PIX  * pixd,
 PIX * pixFlipTB(PIX  * pixd,
     PIX  * pixs)
 {
-	l_int32 h, d, wpl, i, k, h2, bpl;
-	l_uint32  * linet, * lineb;
-	l_uint32  * data, * buffer;
+	int32 h, d, wpl, i, k, h2, bpl;
+	uint32  * linet, * lineb;
+	uint32  * data, * buffer;
 
 	PROCNAME(__FUNCTION__);
 
@@ -595,7 +595,7 @@ PIX * pixFlipTB(PIX  * pixd,
 
 	data = pixGetData(pixd);
 	wpl = pixGetWpl(pixd);
-	if((buffer = (l_uint32*)SAlloc::C(wpl, sizeof(l_uint32))) == NULL)
+	if((buffer = (uint32*)SAlloc::C(wpl, sizeof(uint32))) == NULL)
 		return (PIX *)ERROR_PTR("buffer not made", procName, pixd);
 
 	h2 = h / 2;
@@ -624,7 +624,7 @@ PIX * pixFlipTB(PIX  * pixd,
  */
 static uint8 * makeReverseByteTab1(void)
 {
-	l_int32 i;
+	int32 i;
 	uint8  * tab;
 
 	tab = (uint8 *)SAlloc::C(256, sizeof(uint8));
@@ -649,7 +649,7 @@ static uint8 * makeReverseByteTab1(void)
  */
 static uint8 * makeReverseByteTab2(void)
 {
-	l_int32 i;
+	int32 i;
 	uint8  * tab;
 
 	tab = (uint8 *)SAlloc::C(256, sizeof(uint8));
@@ -670,7 +670,7 @@ static uint8 * makeReverseByteTab2(void)
  */
 static uint8 * makeReverseByteTab4(void)
 {
-	l_int32 i;
+	int32 i;
 	uint8  * tab;
 
 	tab = (uint8 *)SAlloc::C(256, sizeof(uint8));

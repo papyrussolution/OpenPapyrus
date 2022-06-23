@@ -13,23 +13,23 @@
  *      Sort
  *          SARRAY *sarraySort()
  *          SARRAY *sarraySortByIndex()
- *          l_int32     stringCompareLexical()
+ *          int32     stringCompareLexical()
  *
  *      Set operations using aset (rbtree)
  *          L_ASET     *l_asetCreateFromSarray()
- *          l_int32     sarrayRemoveDupsByAset()
- *          l_int32     sarrayUnionByAset()
- *          l_int32     sarrayIntersectionByAset()
+ *          int32     sarrayRemoveDupsByAset()
+ *          int32     sarrayUnionByAset()
+ *          int32     sarrayIntersectionByAset()
  *
  *      Hashmap operations
  *          L_HASHMAP  *l_hmapCreateFromSarray()
- *          l_int32     sarrayRemoveDupsByHmap()
- *          l_int32     sarrayUnionByHmap()
- *          l_int32     sarrayIntersectionByHmap()
+ *          int32     sarrayRemoveDupsByHmap()
+ *          int32     sarrayUnionByHmap()
+ *          int32     sarrayIntersectionByHmap()
  *
  *      Miscellaneous operations
  *          SARRAY *sarrayGenerateIntegers()
- *          l_int32     sarrayLookupCSKV()
+ *          int32     sarrayLookupCSKV()
  *
  *
  * We have two implementations of set operations on an array of strings:
@@ -70,11 +70,11 @@
  *          Slow but simple O(n logn) sort.
  * </pre>
  */
-SARRAY * sarraySort(SARRAY * saout, SARRAY * sain, l_int32 sortorder)
+SARRAY * sarraySort(SARRAY * saout, SARRAY * sain, int32 sortorder)
 {
 	char ** array;
 	char * tmp;
-	l_int32 n, i, j, gap;
+	int32 n, i, j, gap;
 	PROCNAME(__FUNCTION__);
 	if(!sain)
 		return (SARRAY *)ERROR_PTR("sain not defined", procName, NULL);
@@ -110,7 +110,7 @@ SARRAY * sarraySort(SARRAY * saout, SARRAY * sain, l_int32 sortorder)
 SARRAY * sarraySortByIndex(SARRAY * sain, NUMA * naindex)
 {
 	char * str;
-	l_int32 i, n, index;
+	int32 i, n, index;
 	SARRAY * saout;
 	PROCNAME(__FUNCTION__);
 	if(!sain)
@@ -139,9 +139,9 @@ SARRAY * sarraySortByIndex(SARRAY * sain, NUMA * naindex)
  *          indicate that no swapping is required to sort the strings.
  * </pre>
  */
-l_int32 stringCompareLexical(const char * str1, const char * str2)
+int32 stringCompareLexical(const char * str1, const char * str2)
 {
-	l_int32 i, len1, len2, len;
+	int32 i, len1, len2, len;
 	PROCNAME(__FUNCTION__);
 	if(!str1)
 		return ERROR_INT("str1 not defined", procName, 1);
@@ -176,7 +176,7 @@ l_int32 stringCompareLexical(const char * str1, const char * str2)
 L_ASET * l_asetCreateFromSarray(SARRAY * sa)
 {
 	char     * str;
-	l_int32 i, n;
+	int32 i, n;
 	l_uint64 hash;
 	L_ASET   * set;
 	RB_TYPE key;
@@ -218,7 +218,7 @@ L_ASET * l_asetCreateFromSarray(SARRAY * sa)
 l_ok sarrayRemoveDupsByAset(SARRAY * sas, SARRAY ** psad)
 {
 	char     * str;
-	l_int32 i, n;
+	int32 i, n;
 	l_uint64 hash;
 	L_ASET   * set;
 	RB_TYPE key;
@@ -314,7 +314,7 @@ l_ok sarrayIntersectionByAset(SARRAY * sa1,
     SARRAY ** psad)
 {
 	char     * str;
-	l_int32 n1, n2, i, n;
+	int32 n1, n2, i, n;
 	l_uint64 hash;
 	L_ASET   * set1, * set2;
 	RB_TYPE key;
@@ -368,7 +368,7 @@ l_ok sarrayIntersectionByAset(SARRAY * sa1,
  */
 L_HASHMAP * l_hmapCreateFromSarray(SARRAY * sa)
 {
-	l_int32 i, n;
+	int32 i, n;
 	l_uint64 key;
 	char * str;
 	L_HASHITEM  * hitem;
@@ -400,7 +400,7 @@ L_HASHMAP * l_hmapCreateFromSarray(SARRAY * sa)
  */
 l_ok sarrayRemoveDupsByHmap(SARRAY * sas, SARRAY ** psad, L_HASHMAP  ** phmap)
 {
-	l_int32 i, tabsize;
+	int32 i, tabsize;
 	l_uint64 key;
 	char * str;
 	SARRAY * sad;
@@ -477,7 +477,7 @@ l_ok sarrayIntersectionByHmap(SARRAY * sa1,
     SARRAY * sa2,
     SARRAY ** psad)
 {
-	l_int32 i, n1, n2, n;
+	int32 i, n1, n2, n;
 	l_uint64 key;
 	char * str;
 	SARRAY * sa_small, * sa_big, * sa3, * sad;
@@ -535,10 +535,10 @@ l_ok sarrayIntersectionByHmap(SARRAY * sa1,
  * \param[in]   n
  * \return  sa  of printed numbers, 1 - n, or NULL on error
  */
-SARRAY * sarrayGenerateIntegers(l_int32 n)
+SARRAY * sarrayGenerateIntegers(int32 n)
 {
 	char buf[32];
-	l_int32 i;
+	int32 i;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -577,7 +577,7 @@ SARRAY * sarrayGenerateIntegers(l_int32 n)
 l_ok sarrayLookupCSKV(SARRAY * sa, const char * keystring, char ** pvalstring)
 {
 	char * key, * val, * str;
-	l_int32 i, n;
+	int32 i, n;
 	SARRAY * sa1;
 	PROCNAME(__FUNCTION__);
 	if(!pvalstring)

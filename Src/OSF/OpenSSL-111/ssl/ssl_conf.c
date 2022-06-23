@@ -11,7 +11,7 @@
 #include <openssl/conf.h>
 #include <openssl/objects.h>
 #include <openssl/dh.h>
-#include "internal/nelem.h"
+//#include "internal/nelem.h"
 /*
  * structure holding name tables. This is used for permitted elements in lists
  * such as TLSv1.
@@ -284,7 +284,7 @@ static int cmd_Protocol(SSL_CONF_CTX * cctx, const char * value)
 		SSL_FLAG_TBL_INV("DTLSv1.2", SSL_OP_NO_DTLSv1_2)
 	};
 	cctx->tbl = ssl_protocol_list;
-	cctx->ntbl = OSSL_NELEM(ssl_protocol_list);
+	cctx->ntbl = SIZEOFARRAY(ssl_protocol_list);
 	return CONF_parse_list(value, ',', 1, ssl_set_option_list, cctx);
 }
 
@@ -311,7 +311,7 @@ static int protocol_from_string(const char * value)
 		{"DTLSv1.2", DTLS1_2_VERSION}
 	};
 	size_t i;
-	size_t n = OSSL_NELEM(versions);
+	size_t n = SIZEOFARRAY(versions);
 
 	for(i = 0; i < n; i++)
 		if(strcmp(versions[i].name, value) == 0)
@@ -384,7 +384,7 @@ static int cmd_Options(SSL_CONF_CTX * cctx, const char * value)
 	if(value == NULL)
 		return -3;
 	cctx->tbl = ssl_option_list;
-	cctx->ntbl = OSSL_NELEM(ssl_option_list);
+	cctx->ntbl = SIZEOFARRAY(ssl_option_list);
 	return CONF_parse_list(value, ',', 1, ssl_set_option_list, cctx);
 }
 
@@ -405,7 +405,7 @@ static int cmd_VerifyMode(SSL_CONF_CTX * cctx, const char * value)
 	if(value == NULL)
 		return -3;
 	cctx->tbl = ssl_vfy_list;
-	cctx->ntbl = OSSL_NELEM(ssl_vfy_list);
+	cctx->ntbl = SIZEOFARRAY(ssl_vfy_list);
 	return CONF_parse_list(value, ',', 1, ssl_set_option_list, cctx);
 }
 
@@ -753,7 +753,7 @@ static const ssl_conf_cmd_tbl * ssl_conf_cmd_lookup(SSL_CONF_CTX * cctx, const c
 	if(cmd == NULL)
 		return NULL;
 	/* Look for matching parameter name in table */
-	for(i = 0, t = ssl_conf_cmds; i < OSSL_NELEM(ssl_conf_cmds); i++, t++) {
+	for(i = 0, t = ssl_conf_cmds; i < SIZEOFARRAY(ssl_conf_cmds); i++, t++) {
 		if(ssl_conf_cmd_allowed(cctx, t)) {
 			if(cctx->flags & SSL_CONF_FLAG_CMDLINE) {
 				if(t->str_cmdline && strcmp(t->str_cmdline, cmd) == 0)
@@ -774,7 +774,7 @@ static int ctrl_switch_option(SSL_CONF_CTX * cctx, const ssl_conf_cmd_tbl * cmd)
 	size_t idx = cmd - ssl_conf_cmds;
 	const ssl_switch_tbl * scmd;
 	/* Sanity check index */
-	if(idx >= OSSL_NELEM(ssl_cmd_switches))
+	if(idx >= SIZEOFARRAY(ssl_cmd_switches))
 		return 0;
 	/* Obtain switches entry with same index */
 	scmd = ssl_cmd_switches + idx;

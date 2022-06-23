@@ -1004,7 +1004,7 @@ static ngx_int_t ngx_http_add_charset(ngx_array_t * charsets, ngx_str_t * name)
 		return i;
 	}
 	c = (ngx_http_charset_t *)ngx_array_push(charsets);
-	if(c == NULL) {
+	if(!c) {
 		return NGX_ERROR;
 	}
 	c->tables = NULL;

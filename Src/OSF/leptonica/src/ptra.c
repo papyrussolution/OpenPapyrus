@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file  ptra.c
  * <pre>
@@ -33,22 +20,22 @@
  *          void        *ptraDestroy()
  *
  *      Add/insert/remove/replace generic ptr object
- *          l_int32      ptraAdd()
- *          static l_int32  ptraExtendArray()
- *          l_int32      ptraInsert()
+ *          int32      ptraAdd()
+ *          static int32  ptraExtendArray()
+ *          int32      ptraInsert()
  *          void        *ptraRemove()
  *          void        *ptraRemoveLast()
  *          void        *ptraReplace()
- *          l_int32      ptraSwap()
- *          l_int32      ptraCompactArray()
+ *          int32      ptraSwap()
+ *          int32      ptraCompactArray()
  *
  *      Other array operations
- *          l_int32      ptraReverse()
- *          l_int32      ptraJoin()
+ *          int32      ptraReverse()
+ *          int32      ptraJoin()
  *
  *      Simple Ptra accessors
- *          l_int32      ptraGetMaxIndex()
- *          l_int32      ptraGetActualCount()
+ *          int32      ptraGetMaxIndex()
+ *          int32      ptraGetActualCount()
  *          void        *ptraGetPtrToItem()
  *
  *      Ptraa creation and destruction
@@ -56,8 +43,8 @@
  *          void        *ptraaDestroy()
  *
  *      Ptraa accessors
- *          l_int32      ptraaGetSize()
- *          l_int32      ptraaInsertPtra()
+ *          int32      ptraaGetSize()
+ *          int32      ptraaInsertPtra()
  *          L_PTRA      *ptraaGetPtra()
  *
  *      Ptraa conversion
@@ -121,11 +108,11 @@
 #pragma hdrstop
 
 /* Bounds on initial array size */
-LEPT_DLL const l_uint32 MaxInitPtraSize = 1000001;
-static const l_int32 DefaultInitPtraSize = 20; /*!< n'importe quoi */
+LEPT_DLL const uint32 MaxInitPtraSize = 1000001;
+static const int32 DefaultInitPtraSize = 20; /*!< n'importe quoi */
 
 /* Static function */
-static l_int32 ptraExtendArray(L_PTRA * pa);
+static int32 ptraExtendArray(L_PTRA * pa);
 
 /*--------------------------------------------------------------------------*
 *                       Ptra creation and destruction                      *
@@ -136,7 +123,7 @@ static l_int32 ptraExtendArray(L_PTRA * pa);
  * \param[in]    n     size of ptr array to be alloc'd; use 0 for default
  * \return  pa, or NULL on error
  */
-L_PTRA * ptraCreate(l_int32 n)
+L_PTRA * ptraCreate(int32 n)
 {
 	L_PTRA  * pa;
 	PROCNAME(__FUNCTION__);
@@ -182,10 +169,10 @@ L_PTRA * ptraCreate(l_int32 n)
  * </pre>
  */
 void ptraDestroy(L_PTRA  ** ppa,
-    l_int32 freeflag,
-    l_int32 warnflag)
+    int32 freeflag,
+    int32 warnflag)
 {
-	l_int32 i, nactual;
+	int32 i, nactual;
 	void    * item;
 	L_PTRA  * pa;
 
@@ -239,7 +226,7 @@ void ptraDestroy(L_PTRA  ** ppa,
 l_ok ptraAdd(L_PTRA  * pa,
     void    * item)
 {
-	l_int32 imax;
+	int32 imax;
 
 	PROCNAME(__FUNCTION__);
 
@@ -263,7 +250,7 @@ l_ok ptraAdd(L_PTRA  * pa,
  * \param[in]    pa
  * \return  0 if OK, 1 on error
  */
-static l_int32 ptraExtendArray(L_PTRA  * pa)
+static int32 ptraExtendArray(L_PTRA  * pa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -327,11 +314,11 @@ static l_int32 ptraExtendArray(L_PTRA  * pa)
  * </pre>
  */
 l_ok ptraInsert(L_PTRA  * pa,
-    l_int32 index,
+    int32 index,
     void    * item,
-    l_int32 shiftflag)
+    int32 shiftflag)
 {
-	l_int32 i, ihole, imax;
+	int32 i, ihole, imax;
 	float nexpected;
 
 	PROCNAME(__FUNCTION__);
@@ -426,10 +413,10 @@ l_ok ptraInsert(L_PTRA  * pa,
  * </pre>
  */
 void * ptraRemove(L_PTRA  * pa,
-    l_int32 index,
-    l_int32 flag)
+    int32 index,
+    int32 flag)
 {
-	l_int32 i, imax, fromend, icurrent;
+	int32 i, imax, fromend, icurrent;
 	void    * item;
 
 	PROCNAME(__FUNCTION__);
@@ -474,7 +461,7 @@ void * ptraRemove(L_PTRA  * pa,
  */
 void * ptraRemoveLast(L_PTRA  * pa)
 {
-	l_int32 imax;
+	int32 imax;
 
 	PROCNAME(__FUNCTION__);
 
@@ -500,11 +487,11 @@ void * ptraRemoveLast(L_PTRA  * pa)
  *                     or NULL on error
  */
 void * ptraReplace(L_PTRA  * pa,
-    l_int32 index,
+    int32 index,
     void    * item,
-    l_int32 freeflag)
+    int32 freeflag)
 {
-	l_int32 imax;
+	int32 imax;
 	void    * olditem;
 
 	PROCNAME(__FUNCTION__);
@@ -539,10 +526,10 @@ void * ptraReplace(L_PTRA  * pa,
  * \return  0 if OK, 1 on error
  */
 l_ok ptraSwap(L_PTRA  * pa,
-    l_int32 index1,
-    l_int32 index2)
+    int32 index1,
+    int32 index2)
 {
-	l_int32 imax;
+	int32 imax;
 	void    * item;
 
 	PROCNAME(__FUNCTION__);
@@ -575,7 +562,7 @@ l_ok ptraSwap(L_PTRA  * pa,
  */
 l_ok ptraCompactArray(L_PTRA  * pa)
 {
-	l_int32 i, imax, nactual, index;
+	int32 i, imax, nactual, index;
 
 	PROCNAME(__FUNCTION__);
 
@@ -608,7 +595,7 @@ l_ok ptraCompactArray(L_PTRA  * pa)
  */
 l_ok ptraReverse(L_PTRA  * pa)
 {
-	l_int32 i, imax;
+	int32 i, imax;
 
 	PROCNAME(__FUNCTION__);
 
@@ -631,7 +618,7 @@ l_ok ptraReverse(L_PTRA  * pa)
 l_ok ptraJoin(L_PTRA  * pa1,
     L_PTRA  * pa2)
 {
-	l_int32 i, imax;
+	int32 i, imax;
 	void    * item;
 
 	PROCNAME(__FUNCTION__);
@@ -676,7 +663,7 @@ l_ok ptraJoin(L_PTRA  * pa1,
  * </pre>
  */
 l_ok ptraGetMaxIndex(L_PTRA   * pa,
-    l_int32 * pmaxindex)
+    int32 * pmaxindex)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -702,7 +689,7 @@ l_ok ptraGetMaxIndex(L_PTRA   * pa,
  * </pre>
  */
 l_ok ptraGetActualCount(L_PTRA   * pa,
-    l_int32 * pcount)
+    int32 * pcount)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -732,7 +719,7 @@ l_ok ptraGetActualCount(L_PTRA   * pa,
  * </pre>
  */
 void * ptraGetPtrToItem(L_PTRA  * pa,
-    l_int32 index)
+    int32 index)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -760,7 +747,7 @@ void * ptraGetPtrToItem(L_PTRA  * pa,
  *          The ptra can be generated and inserted randomly into this array.
  * </pre>
  */
-L_PTRAA * ptraaCreate(l_int32 n)
+L_PTRAA * ptraaCreate(int32 n)
 {
 	L_PTRAA  * paa;
 
@@ -795,10 +782,10 @@ L_PTRAA * ptraaCreate(l_int32 n)
  * </pre>
  */
 void ptraaDestroy(L_PTRAA  ** ppaa,
-    l_int32 freeflag,
-    l_int32 warnflag)
+    int32 freeflag,
+    int32 warnflag)
 {
-	l_int32 i, n;
+	int32 i, n;
 	L_PTRA   * pa;
 	L_PTRAA  * paa;
 
@@ -833,7 +820,7 @@ void ptraaDestroy(L_PTRAA  ** ppaa,
  * \return  0 if OK; 1 on error
  */
 l_ok ptraaGetSize(L_PTRAA  * paa,
-    l_int32 * psize)
+    int32 * psize)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -862,10 +849,10 @@ l_ok ptraaGetSize(L_PTRAA  * paa,
  * </pre>
  */
 l_ok ptraaInsertPtra(L_PTRAA  * paa,
-    l_int32 index,
+    int32 index,
     L_PTRA   * pa)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -903,10 +890,10 @@ l_ok ptraaInsertPtra(L_PTRAA  * paa,
  * </pre>
  */
 L_PTRA * ptraaGetPtra(L_PTRAA  * paa,
-    l_int32 index,
-    l_int32 accessflag)
+    int32 index,
+    int32 accessflag)
 {
-	l_int32 n;
+	int32 n;
 	L_PTRA  * pa;
 
 	PROCNAME(__FUNCTION__);
@@ -944,7 +931,7 @@ L_PTRA * ptraaGetPtra(L_PTRAA  * paa,
  */
 L_PTRA * ptraaFlattenToPtra(L_PTRAA  * paa)
 {
-	l_int32 i, n;
+	int32 i, n;
 	L_PTRA    * pat, * pad;
 
 	PROCNAME(__FUNCTION__);

@@ -16,16 +16,16 @@
  *       L_BMF           *bmfDestroy()
  *
  *       PIX             *bmfGetPix()
- *       l_int32          bmfGetWidth()
- *       l_int32          bmfGetBaseline()
+ *       int32          bmfGetWidth()
+ *       int32          bmfGetBaseline()
  *
  *       PIXA            *pixaGetFont()
- *       l_int32          pixaSaveFont()
+ *       int32          pixaSaveFont()
  *       static PIXA *pixaGenerateFontFromFile()
  *       static PIXA *pixaGenerateFontFromString()
  *       static PIXA *pixaGenerateFont()
- *       static l_int32   pixGetTextBaseline()
- *       static l_int32   bmfMakeAsciiTables()
+ *       static int32   pixGetTextBaseline()
+ *       static int32   bmfMakeAsciiTables()
  *
  *   This is not a very general utility, because it only uses bitmap
  *   representations of a single font, Palatino-Roman, with the
@@ -59,15 +59,15 @@ static const float VertFractSep = 0.3;
 #define  DEBUG_FONT_GEN     0
 #endif  /* ~NO_CONSOLE_IO */
 
-static PIXA * pixaGenerateFontFromFile(const char * dir, l_int32 fontsize,
-    l_int32 * pbl0, l_int32 * pbl1,
-    l_int32 * pbl2);
-static PIXA * pixaGenerateFontFromString(l_int32 fontsize, l_int32 * pbl0,
-    l_int32 * pbl1, l_int32 * pbl2);
-static PIXA * pixaGenerateFont(PIX * pixs, l_int32 fontsize, l_int32 * pbl0,
-    l_int32 * pbl1, l_int32 * pbl2);
-static l_int32 pixGetTextBaseline(PIX * pixs, l_int32 * tab8, l_int32 * py);
-static l_int32 bmfMakeAsciiTables(L_BMF * bmf);
+static PIXA * pixaGenerateFontFromFile(const char * dir, int32 fontsize,
+    int32 * pbl0, int32 * pbl1,
+    int32 * pbl2);
+static PIXA * pixaGenerateFontFromString(int32 fontsize, int32 * pbl0,
+    int32 * pbl1, int32 * pbl2);
+static PIXA * pixaGenerateFont(PIX * pixs, int32 fontsize, int32 * pbl0,
+    int32 * pbl1, int32 * pbl2);
+static int32 pixGetTextBaseline(PIX * pixs, int32 * tab8, int32 * py);
+static int32 bmfMakeAsciiTables(L_BMF * bmf);
 
 /*---------------------------------------------------------------------*/
 /*                           Bmf create/destroy                        */
@@ -91,7 +91,7 @@ static l_int32 bmfMakeAsciiTables(L_BMF * bmf);
  * </pre>
  */
 L_BMF * bmfCreate(const char * dir,
-    l_int32 fontsize)
+    int32 fontsize)
 {
 	L_BMF   * bmf;
 	PIXA  * pixa;
@@ -177,12 +177,12 @@ void bmfDestroy(L_BMF  ** pbmf)
 PIX * bmfGetPix(L_BMF  * bmf,
     char chr)
 {
-	l_int32 i, index;
+	int32 i, index;
 	PIXA    * pixa;
 
 	PROCNAME(__FUNCTION__);
 
-	if((index = (l_int32)chr) == 10) /* NL */
+	if((index = (int32)chr) == 10) /* NL */
 		return NULL;
 	if(!bmf)
 		return (PIX *)ERROR_PTR("bmf not defined", procName, NULL);
@@ -209,9 +209,9 @@ PIX * bmfGetPix(L_BMF  * bmf,
  */
 l_ok bmfGetWidth(L_BMF    * bmf,
     char chr,
-    l_int32 * pw)
+    int32 * pw)
 {
-	l_int32 i, index;
+	int32 i, index;
 	PIXA    * pixa;
 
 	PROCNAME(__FUNCTION__);
@@ -221,7 +221,7 @@ l_ok bmfGetWidth(L_BMF    * bmf,
 	*pw = -1;
 	if(!bmf)
 		return ERROR_INT("bmf not defined", procName, 1);
-	if((index = (l_int32)chr) == 10) /* NL */
+	if((index = (int32)chr) == 10) /* NL */
 		return 0;
 
 	i = bmf->fonttab[index];
@@ -246,9 +246,9 @@ l_ok bmfGetWidth(L_BMF    * bmf,
  */
 l_ok bmfGetBaseline(L_BMF    * bmf,
     char chr,
-    l_int32 * pbaseline)
+    int32 * pbaseline)
 {
-	l_int32 bl, index;
+	int32 bl, index;
 
 	PROCNAME(__FUNCTION__);
 
@@ -257,7 +257,7 @@ l_ok bmfGetBaseline(L_BMF    * bmf,
 	*pbaseline = 0;
 	if(!bmf)
 		return ERROR_INT("bmf not defined", procName, 1);
-	if((index = (l_int32)chr) == 10) /* NL */
+	if((index = (int32)chr) == 10) /* NL */
 		return 0;
 
 	bl = bmf->baselinetab[index];
@@ -289,13 +289,13 @@ l_ok bmfGetBaseline(L_BMF    * bmf,
  * </pre>
  */
 PIXA * pixaGetFont(const char * dir,
-    l_int32 fontsize,
-    l_int32     * pbl0,
-    l_int32     * pbl1,
-    l_int32     * pbl2)
+    int32 fontsize,
+    int32     * pbl0,
+    int32     * pbl1,
+    int32     * pbl2)
 {
 	char     * pathname;
-	l_int32 fileno;
+	int32 fileno;
 	PIXA * pixa;
 
 	PROCNAME(__FUNCTION__);
@@ -338,10 +338,10 @@ PIXA * pixaGetFont(const char * dir,
  */
 l_ok pixaSaveFont(const char * indir,
     const char * outdir,
-    l_int32 fontsize)
+    int32 fontsize)
 {
 	char * pathname;
-	l_int32 bl1, bl2, bl3;
+	int32 bl1, bl2, bl3;
 	PIXA    * pixa;
 
 	PROCNAME(__FUNCTION__);
@@ -397,13 +397,13 @@ l_ok pixaSaveFont(const char * indir,
  *  this function.
  */
 static PIXA * pixaGenerateFontFromFile(const char * dir,
-    l_int32 fontsize,
-    l_int32     * pbl0,
-    l_int32     * pbl1,
-    l_int32     * pbl2)
+    int32 fontsize,
+    int32     * pbl0,
+    int32     * pbl1,
+    int32     * pbl2)
 {
 	char * pathname;
-	l_int32 fileno;
+	int32 fileno;
 	PIX * pix;
 	PIXA    * pixa;
 
@@ -445,13 +445,13 @@ static PIXA * pixaGenerateFontFromFile(const char * dir,
  *      (1) See pixaGenerateFontFromFile() for details.
  * </pre>
  */
-static PIXA * pixaGenerateFontFromString(l_int32 fontsize,
-    l_int32 * pbl0,
-    l_int32 * pbl1,
-    l_int32 * pbl2)
+static PIXA * pixaGenerateFontFromString(int32 fontsize,
+    int32 * pbl0,
+    int32 * pbl1,
+    int32 * pbl2)
 {
 	uint8  * data;
-	l_int32 redsize, nbytes;
+	int32 redsize, nbytes;
 	PIX * pix;
 	PIXA * pixa;
 
@@ -523,21 +523,21 @@ static PIXA * pixaGenerateFontFromString(l_int32 fontsize,
  * </pre>
  */
 static PIXA * pixaGenerateFont(PIX * pixs,
-    l_int32 fontsize,
-    l_int32 * pbl0,
-    l_int32 * pbl1,
-    l_int32 * pbl2)
+    int32 fontsize,
+    int32 * pbl0,
+    int32 * pbl1,
+    int32 * pbl2)
 {
-	l_int32 i, j, nrows, nrowchars, nchars, h, yval;
-	l_int32 width, height;
-	l_int32 baseline[3];
-	l_int32 * tab = NULL;
+	int32 i, j, nrows, nrowchars, nchars, h, yval;
+	int32 width, height;
+	int32 baseline[3];
+	int32 * tab = NULL;
 	BOX      * box, * box1, * box2;
 	BOXA     * boxar, * boxac, * boxacs;
 	PIX * pix1, * pix2, * pixr, * pixrc, * pixc;
 	PIXA * pixa;
-	l_int32 n, w, inrow, top;
-	l_int32 * ia;
+	int32 n, w, inrow, top;
+	int32 * ia;
 	NUMA     * na;
 
 	PROCNAME(__FUNCTION__);
@@ -692,12 +692,12 @@ static PIXA * pixaGenerateFont(PIX * pixs,
  *          maximizes this function.
  * </pre>
  */
-static l_int32 pixGetTextBaseline(PIX * pixs,
-    l_int32 * tab8,
-    l_int32 * py)
+static int32 pixGetTextBaseline(PIX * pixs,
+    int32 * tab8,
+    int32 * py)
 {
-	l_int32 i, h, val1, val2, diff, diffmax, ymax;
-	l_int32 * tab;
+	int32 i, h, val1, val2, diff, diffmax, ymax;
+	int32 * tab;
 	NUMA     * na;
 
 	PROCNAME(__FUNCTION__);
@@ -765,10 +765,10 @@ static l_int32 pixGetTextBaseline(PIX * pixs,
  *         array of bitmaps in the pixa, which starts at ascii 32.
  * </pre>
  */
-static l_int32 bmfMakeAsciiTables(L_BMF  * bmf)
+static int32 bmfMakeAsciiTables(L_BMF  * bmf)
 {
-	l_int32 i, maxh, height, charwidth, xwidth, kernwidth;
-	l_int32 * fonttab, * baselinetab, * widthtab;
+	int32 i, maxh, height, charwidth, xwidth, kernwidth;
+	int32 * fonttab, * baselinetab, * widthtab;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -777,14 +777,14 @@ static l_int32 bmfMakeAsciiTables(L_BMF  * bmf)
 		return ERROR_INT("bmf not defined", procName, 1);
 
 	/* First get the fonttab; we use this later for the char widths */
-	fonttab = (l_int32*)SAlloc::C(128, sizeof(l_int32));
+	fonttab = (int32*)SAlloc::C(128, sizeof(int32));
 	bmf->fonttab = fonttab;
 	for(i = 0; i < 128; i++)
 		fonttab[i] = UNDEF;
 	for(i = 32; i < 127; i++)
 		fonttab[i] = i - 32;
 
-	baselinetab = (l_int32*)SAlloc::C(128, sizeof(l_int32));
+	baselinetab = (int32*)SAlloc::C(128, sizeof(int32));
 	bmf->baselinetab = baselinetab;
 	for(i = 0; i < 128; i++)
 		baselinetab[i] = UNDEF;
@@ -797,7 +797,7 @@ static l_int32 bmfMakeAsciiTables(L_BMF  * bmf)
 		baselinetab[i] = bmf->baseline3;
 
 	/* Generate array of character widths; req's fonttab to exist */
-	widthtab = (l_int32*)SAlloc::C(128, sizeof(l_int32));
+	widthtab = (int32*)SAlloc::C(128, sizeof(int32));
 	bmf->widthtab = widthtab;
 	for(i = 0; i < 128; i++)
 		widthtab[i] = UNDEF;
@@ -826,7 +826,7 @@ static l_int32 bmfMakeAsciiTables(L_BMF  * bmf)
 	 * font size, and scale it linearly with the size;
 	 * req's fonttab to be built first. */
 	bmfGetWidth(bmf, 120, &xwidth);
-	kernwidth = (l_int32)(0.08 * (float)xwidth + 0.5);
+	kernwidth = (int32)(0.08 * (float)xwidth + 0.5);
 	bmf->kernwidth = MAX(1, kernwidth);
 
 	/* Save the space width (between words) */
@@ -834,7 +834,7 @@ static l_int32 bmfMakeAsciiTables(L_BMF  * bmf)
 	bmf->spacewidth = charwidth;
 
 	/* Save the extra vertical space between lines */
-	bmf->vertlinesep = (l_int32)(VertFractSep * bmf->lineheight + 0.5);
+	bmf->vertlinesep = (int32)(VertFractSep * bmf->lineheight + 0.5);
 
 	return 0;
 }

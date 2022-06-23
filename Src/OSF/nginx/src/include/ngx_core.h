@@ -614,7 +614,7 @@ struct /*ngx_output_chain_ctx_s*/ngx_output_chain_ctx_t {
 struct ngx_chain_writer_ctx_t {
 	ngx_chain_t * out;
 	ngx_chain_t ** last;
-	ngx_connection_t  * connection;
+	ngx_connection_t * connection;
 	ngx_pool_t  * pool;
 	nginx_off_t limit;
 };

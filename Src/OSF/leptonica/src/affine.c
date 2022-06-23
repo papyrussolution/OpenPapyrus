@@ -29,17 +29,17 @@
  *           PIX        *pixAffinePtaWithAlpha()
  *
  *      Affine coordinate transformation
- *           l_int32     getAffineXformCoeffs()
- *           l_int32     affineInvertXform()
- *           l_int32     affineXformSampledPt()
- *           l_int32     affineXformPt()
+ *           int32     getAffineXformCoeffs()
+ *           int32     affineInvertXform()
+ *           int32     affineXformSampledPt()
+ *           int32     affineXformPt()
  *
  *      Interpolation helper functions
- *           l_int32     linearInterpolatePixelGray()
- *           l_int32     linearInterpolatePixelColor()
+ *           int32     linearInterpolatePixelGray()
+ *           int32     linearInterpolatePixelColor()
  *
  *      Gauss-jordan linear equation solver
- *           l_int32     gaussjordan()
+ *           int32     gaussjordan()
  *
  *      Affine image transformation using a sequence of
  *      shear/scale/translation operations
@@ -256,7 +256,7 @@ extern float AlphaMaskBorderVals[2];
 PIX * pixAffineSampledPta(PIX * pixs,
     PTA * ptad,
     PTA * ptas,
-    l_int32 incolor)
+    int32 incolor)
 {
 	float * vc;
 	PIX        * pixd;
@@ -303,11 +303,11 @@ PIX * pixAffineSampledPta(PIX * pixs,
  */
 PIX * pixAffineSampled(PIX        * pixs,
     float * vc,
-    l_int32 incolor)
+    int32 incolor)
 {
-	l_int32 i, j, w, h, d, x, y, wpls, wpld, color, cmapindex;
-	l_uint32 val;
-	l_uint32   * datas, * datad, * lines, * lined;
+	int32 i, j, w, h, d, x, y, wpls, wpld, color, cmapindex;
+	uint32 val;
+	uint32   * datas, * datad, * lines, * lined;
 	PIX        * pixd;
 	PIXCMAP    * cmap;
 
@@ -401,10 +401,10 @@ PIX * pixAffineSampled(PIX        * pixs,
 PIX * pixAffinePta(PIX * pixs,
     PTA * ptad,
     PTA * ptas,
-    l_int32 incolor)
+    int32 incolor)
 {
-	l_int32 d;
-	l_uint32 colorval;
+	int32 d;
+	uint32 colorval;
 	PIX * pixt1, * pixt2, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -468,10 +468,10 @@ PIX * pixAffinePta(PIX * pixs,
  */
 PIX * pixAffine(PIX        * pixs,
     float * vc,
-    l_int32 incolor)
+    int32 incolor)
 {
-	l_int32 d;
-	l_uint32 colorval;
+	int32 d;
+	uint32 colorval;
 	PIX * pixt1, * pixt2, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -523,7 +523,7 @@ PIX * pixAffine(PIX        * pixs,
 PIX * pixAffinePtaColor(PIX * pixs,
     PTA * ptad,
     PTA * ptas,
-    l_uint32 colorval)
+    uint32 colorval)
 {
 	float * vc;
 	PIX        * pixd;
@@ -561,11 +561,11 @@ PIX * pixAffinePtaColor(PIX * pixs,
  */
 PIX * pixAffineColor(PIX        * pixs,
     float * vc,
-    l_uint32 colorval)
+    uint32 colorval)
 {
-	l_int32 i, j, w, h, d, wpls, wpld;
-	l_uint32 val;
-	l_uint32 * datas, * datad, * lined;
+	int32 i, j, w, h, d, wpls, wpld;
+	uint32 val;
+	uint32 * datas, * datad, * lined;
 	float x, y;
 	PIX * pix1, * pix2, * pixd;
 
@@ -662,8 +662,8 @@ PIX * pixAffineGray(PIX        * pixs,
     float * vc,
     uint8 grayval)
 {
-	l_int32 i, j, w, h, wpls, wpld, val;
-	l_uint32 * datas, * datad, * lined;
+	int32 i, j, w, h, wpls, wpld, val;
+	uint32 * datas, * datad, * lined;
 	float x, y;
 	PIX * pixd;
 
@@ -749,9 +749,9 @@ PIX * pixAffinePtaWithAlpha(PIX * pixs,
     PTA       * ptas,
     PIX * pixg,
     float fract,
-    l_int32 border)
+    int32 border)
 {
-	l_int32 ws, hs, d;
+	int32 ws, hs, d;
 	PIX * pixd, * pixb1, * pixb2, * pixg2, * pixga;
 	PTA * ptad2, * ptas2;
 
@@ -792,16 +792,16 @@ PIX * pixAffinePtaWithAlpha(PIX * pixs,
 		if(fract == 1.0)
 			pixSetAll(pixg2);
 		else
-			pixSetAllArbitrary(pixg2, (l_int32)(255.0 * fract));
+			pixSetAllArbitrary(pixg2, (int32)(255.0 * fract));
 	}
 	else {
 		pixg2 = pixResizeToMatch(pixg, NULL, ws, hs);
 	}
 	if(ws > 10 && hs > 10) { /* see note 7 */
 		pixSetBorderRingVal(pixg2, 1,
-		    (l_int32)(255.0 * fract * AlphaMaskBorderVals[0]));
+		    (int32)(255.0 * fract * AlphaMaskBorderVals[0]));
 		pixSetBorderRingVal(pixg2, 2,
-		    (l_int32)(255.0 * fract * AlphaMaskBorderVals[1]));
+		    (int32)(255.0 * fract * AlphaMaskBorderVals[1]));
 	}
 	pixb2 = pixAddBorder(pixg2, border, 0); /* must be black border */
 	pixga = pixAffinePtaGray(pixb2, ptad2, ptas2, 0);
@@ -895,7 +895,7 @@ l_ok getAffineXformCoeffs(PTA         * ptas,
     PTA         * ptad,
     float ** pvc)
 {
-	l_int32 i;
+	int32 i;
 	float x1, y1, x2, y2, x3, y3;
 	float * b; /* rhs vector of primed coords X'; coeffs returned in *pvc */
 	float * a[6]; /* 6x6 matrix A  */
@@ -981,7 +981,7 @@ l_ok getAffineXformCoeffs(PTA         * ptas,
  */
 l_ok affineInvertXform(float   * vc, float ** pvci)
 {
-	l_int32 i;
+	int32 i;
 	float * vci;
 	float * a[3];
 	float b[3] = {1.0, 1.0, 1.0}; /* anything; results ignored */
@@ -1054,18 +1054,18 @@ l_ok affineInvertXform(float   * vc, float ** pvci)
  * </pre>
  */
 l_ok affineXformSampledPt(float * vc,
-    l_int32 x,
-    l_int32 y,
-    l_int32    * pxp,
-    l_int32    * pyp)
+    int32 x,
+    int32 y,
+    int32    * pxp,
+    int32    * pyp)
 {
 	PROCNAME(__FUNCTION__);
 
 	if(!vc)
 		return ERROR_INT("vc not defined", procName, 1);
 
-	*pxp = (l_int32)(vc[0] * x + vc[1] * y + vc[2] + 0.5);
-	*pyp = (l_int32)(vc[3] * x + vc[4] * y + vc[5] + 0.5);
+	*pxp = (int32)(vc[0] * x + vc[1] * y + vc[2] + 0.5);
+	*pyp = (int32)(vc[3] * x + vc[4] * y + vc[5] + 0.5);
 	return 0;
 }
 
@@ -1084,8 +1084,8 @@ l_ok affineXformSampledPt(float * vc,
  * </pre>
  */
 l_ok affineXformPt(float * vc,
-    l_int32 x,
-    l_int32 y,
+    int32 x,
+    int32 y,
     float * pxp,
     float * pyp)
 {
@@ -1122,19 +1122,19 @@ l_ok affineXformPt(float * vc,
  *          avoids "jaggies" when rendering sharp edges.
  * </pre>
  */
-l_ok linearInterpolatePixelColor(l_uint32 * datas,
-    l_int32 wpls,
-    l_int32 w,
-    l_int32 h,
+l_ok linearInterpolatePixelColor(uint32 * datas,
+    int32 wpls,
+    int32 w,
+    int32 h,
     float x,
     float y,
-    l_uint32 colorval,
-    l_uint32 * pval)
+    uint32 colorval,
+    uint32 * pval)
 {
-	l_int32 valid, xpm, ypm, xp, xp2, yp, xf, yf;
-	l_int32 rval, gval, bval;
-	l_uint32 word00, word01, word10, word11;
-	l_uint32 * lines;
+	int32 valid, xpm, ypm, xp, xp2, yp, xf, yf;
+	int32 rval, gval, bval;
+	uint32 word00, word01, word10, word11;
+	uint32 * lines;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1151,8 +1151,8 @@ l_ok linearInterpolatePixelColor(l_uint32 * datas,
 	valid = (x >= 0.0 && y >= 0.0 && x < w && y < h);
 	if(!valid) return 0;
 
-	xpm = (l_int32)(16.0 * x);
-	ypm = (l_int32)(16.0 * y);
+	xpm = (int32)(16.0 * x);
+	ypm = (int32)(16.0 * y);
 	xp = xpm >> 4;
 	xp2 = xp + 1 < w ? xp + 1 : xp;
 	yp = ypm >> 4;
@@ -1206,17 +1206,17 @@ l_ok linearInterpolatePixelColor(l_uint32 * datas,
  *          avoids "jaggies" when rendering sharp edges.
  * </pre>
  */
-l_ok linearInterpolatePixelGray(l_uint32 * datas,
-    l_int32 wpls,
-    l_int32 w,
-    l_int32 h,
+l_ok linearInterpolatePixelGray(uint32 * datas,
+    int32 wpls,
+    int32 w,
+    int32 h,
     float x,
     float y,
-    l_int32 grayval,
-    l_int32   * pval)
+    int32 grayval,
+    int32   * pval)
 {
-	l_int32 valid, xpm, ypm, xp, xp2, yp, xf, yf, v00, v10, v01, v11;
-	l_uint32 * lines;
+	int32 valid, xpm, ypm, xp, xp2, yp, xf, yf, v00, v10, v01, v11;
+	uint32 * lines;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1233,8 +1233,8 @@ l_ok linearInterpolatePixelGray(l_uint32 * datas,
 	valid = (x >= 0.0 && y >= 0.0 && x < w && y < h);
 	if(!valid) return 0;
 
-	xpm = (l_int32)(16.0 * x);
-	ypm = (l_int32)(16.0 * y);
+	xpm = (int32)(16.0 * x);
+	ypm = (int32)(16.0 * y);
 	xp = xpm >> 4;
 	xp2 = xp + 1 < w ? xp + 1 : xp;
 	yp = ypm >> 4;
@@ -1282,12 +1282,12 @@ l_ok linearInterpolatePixelGray(l_uint32 * datas,
  *          pp. 36-41 (gauss-jordan elimination)
  * </pre>
  */
-l_int32 gaussjordan(float ** a,
+int32 gaussjordan(float ** a,
     float   * b,
-    l_int32 n)
+    int32 n)
 {
-	l_int32 i, icol, irow, j, k, col, row, success;
-	l_int32   * indexc, * indexr, * ipiv;
+	int32 i, icol, irow, j, k, col, row, success;
+	int32   * indexc, * indexr, * ipiv;
 	float maxval, val, pivinv, temp;
 
 	PROCNAME(__FUNCTION__);
@@ -1298,9 +1298,9 @@ l_int32 gaussjordan(float ** a,
 		return ERROR_INT("b not defined", procName, 1);
 
 	success = TRUE;
-	indexc = (l_int32*)SAlloc::C(n, sizeof(l_int32));
-	indexr = (l_int32*)SAlloc::C(n, sizeof(l_int32));
-	ipiv = (l_int32*)SAlloc::C(n, sizeof(l_int32));
+	indexc = (int32*)SAlloc::C(n, sizeof(int32));
+	indexr = (int32*)SAlloc::C(n, sizeof(int32));
+	ipiv = (int32*)SAlloc::C(n, sizeof(int32));
 	if(!indexc || !indexr || !ipiv) {
 		L_ERROR("array not made\n", procName);
 		success = FALSE;
@@ -1405,11 +1405,11 @@ cleanup_arrays:
  *          on text are much inferior.
  * </pre>
  */
-PIX * pixAffineSequential(PIX * pixs, PTA * ptad, PTA * ptas, l_int32 bw, l_int32 bh)
+PIX * pixAffineSequential(PIX * pixs, PTA * ptad, PTA * ptas, int32 bw, int32 bh)
 {
-	l_int32 x1, y1, x2, y2, x3, y3; /* ptas */
-	l_int32 x1p, y1p, x2p, y2p, x3p, y3p; /* ptad */
-	l_int32 x1sc, y1sc; /* scaled origin */
+	int32 x1, y1, x2, y2, x3, y3; /* ptas */
+	int32 x1p, y1p, x2p, y2p, x3p, y3p; /* ptad */
+	int32 x1sc, y1sc; /* scaled origin */
 	float x2s, x2sp, scalex, scaley;
 	float th3, th3p, ph2, ph2p;
 #if  DEBUG
@@ -1511,7 +1511,7 @@ PIX * pixAffineSequential(PIX * pixs, PTA * ptad, PTA * ptas, l_int32 bw, l_int3
 		goto cleanup_pix;
 	}
 #if  DEBUG
-	rad2deg = 180. / 3.1415926535;
+	rad2deg = 180.0f / SMathConst::Pi_f;
 	lept_stderr("th3 = %5.1f deg, ph2 = %5.1f deg\n", rad2deg * th3, rad2deg * ph2);
 	lept_stderr("th3' = %5.1f deg, ph2' = %5.1f deg\n", rad2deg * th3p, rad2deg * ph2p);
 	lept_stderr("scalex = %6.3f, scaley = %6.3f\n", scalex, scaley);
@@ -1527,8 +1527,8 @@ PIX * pixAffineSequential(PIX * pixs, PTA * ptad, PTA * ptas, l_int32 bw, l_int3
 	    axes, and take the shears in reverse order as well.
 	*-------------------------------------------------------------*/
 	/* Shift image to match dest origin. */
-	x1sc = (l_int32)(scalex * x1 + 0.5); /* x comp of origin after scaling */
-	y1sc = (l_int32)(scaley * y1 + 0.5); /* y comp of origin after scaling */
+	x1sc = (int32)(scalex * x1 + 0.5); /* x comp of origin after scaling */
+	y1sc = (int32)(scaley * y1 + 0.5); /* y comp of origin after scaling */
 	pixRasteropIP(pix2, x1p - x1sc, y1p - y1sc, L_BRING_IN_WHITE);
 
 	/* Shear image to take points 2 and 3 off the axis and

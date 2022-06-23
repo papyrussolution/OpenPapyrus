@@ -42,63 +42,63 @@
  *
  *    Pix copy
  *          PIX          *pixCopy()
- *          l_int32       pixResizeImageData()
- *          l_int32       pixCopyColormap()
- *          l_int32       pixTransferAllData()
- *          l_int32       pixSwapAndDestroy()
+ *          int32       pixResizeImageData()
+ *          int32       pixCopyColormap()
+ *          int32       pixTransferAllData()
+ *          int32       pixSwapAndDestroy()
  *
  *    Pix accessors
- *          l_int32       pixGetWidth()
- *          l_int32       pixSetWidth()
- *          l_int32       pixGetHeight()
- *          l_int32       pixSetHeight()
- *          l_int32       pixGetDepth()
- *          l_int32       pixSetDepth()
- *          l_int32       pixGetDimensions()
- *          l_int32       pixSetDimensions()
- *          l_int32       pixCopyDimensions()
- *          l_int32       pixGetSpp()
- *          l_int32       pixSetSpp()
- *          l_int32       pixCopySpp()
- *          l_int32       pixGetWpl()
- *          l_int32       pixSetWpl()
- *          l_int32       pixGetRefcount()
- *          l_int32       pixChangeRefcount()
- *          l_uint32      pixGetXRes()
- *          l_int32       pixSetXRes()
- *          l_uint32      pixGetYRes()
- *          l_int32       pixSetYRes()
- *          l_int32       pixGetResolution()
- *          l_int32       pixSetResolution()
- *          l_int32       pixCopyResolution()
- *          l_int32       pixScaleResolution()
- *          l_int32       pixGetInputFormat()
- *          l_int32       pixSetInputFormat()
- *          l_int32       pixCopyInputFormat()
- *          l_int32       pixSetSpecial()
+ *          int32       pixGetWidth()
+ *          int32       pixSetWidth()
+ *          int32       pixGetHeight()
+ *          int32       pixSetHeight()
+ *          int32       pixGetDepth()
+ *          int32       pixSetDepth()
+ *          int32       pixGetDimensions()
+ *          int32       pixSetDimensions()
+ *          int32       pixCopyDimensions()
+ *          int32       pixGetSpp()
+ *          int32       pixSetSpp()
+ *          int32       pixCopySpp()
+ *          int32       pixGetWpl()
+ *          int32       pixSetWpl()
+ *          int32       pixGetRefcount()
+ *          int32       pixChangeRefcount()
+ *          uint32      pixGetXRes()
+ *          int32       pixSetXRes()
+ *          uint32      pixGetYRes()
+ *          int32       pixSetYRes()
+ *          int32       pixGetResolution()
+ *          int32       pixSetResolution()
+ *          int32       pixCopyResolution()
+ *          int32       pixScaleResolution()
+ *          int32       pixGetInputFormat()
+ *          int32       pixSetInputFormat()
+ *          int32       pixCopyInputFormat()
+ *          int32       pixSetSpecial()
  *          char *pixGetText()
- *          l_int32       pixSetText()
- *          l_int32       pixAddText()
- *          l_int32       pixCopyText()
+ *          int32       pixSetText()
+ *          int32       pixAddText()
+ *          int32       pixCopyText()
  *          uint8      *pixGetTextCompNew()
- *          l_int32 *pixSetTextCompNew()
+ *          int32 *pixSetTextCompNew()
  *          PIXCMAP      *pixGetColormap()
- *          l_int32       pixSetColormap()
- *          l_int32       pixDestroyColormap()
- *          l_uint32     *pixGetData()
- *          l_int32       pixSetData()
- *          l_uint32     *pixExtractData()
- *          l_int32       pixFreeData()
+ *          int32       pixSetColormap()
+ *          int32       pixDestroyColormap()
+ *          uint32     *pixGetData()
+ *          int32       pixSetData()
+ *          uint32     *pixExtractData()
+ *          int32       pixFreeData()
  *
  *    Pix line ptrs
  *          void        **pixGetLinePtrs()
  *
  *    Pix size comparisons
- *          l_int32       pixSizesEqual()
- *          l_int32       pixMaxAspectRatio()
+ *          int32       pixSizesEqual()
+ *          int32       pixMaxAspectRatio()
  *
  *    Pix debug
- *          l_int32       pixPrintStreamInfo()
+ *          int32       pixPrintStreamInfo()
  *
  *
  *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -283,7 +283,7 @@ void setPixMemoryManager(alloc_fn allocator,
  * \return  pixd with data allocated and initialized to 0,
  *                    or NULL on error
  */
-PIX * pixCreate(l_int32 width, l_int32 height, l_int32 depth)
+PIX * pixCreate(int32 width, int32 height, int32 depth)
 {
 	PIX  * pixd;
 	PROCNAME(__FUNCTION__);
@@ -308,19 +308,19 @@ PIX * pixCreate(l_int32 width, l_int32 height, l_int32 depth)
  *          not used in the library.
  * </pre>
  */
-PIX * pixCreateNoInit(l_int32 width,
-    l_int32 height,
-    l_int32 depth)
+PIX * pixCreateNoInit(int32 width,
+    int32 height,
+    int32 depth)
 {
-	l_int32 wpl;
+	int32 wpl;
 	PIX * pixd;
-	l_uint32  * data;
+	uint32  * data;
 
 	PROCNAME(__FUNCTION__);
 	if((pixd = pixCreateHeader(width, height, depth)) == NULL)
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	wpl = pixGetWpl(pixd);
-	if((data = (l_uint32*)pixdata_malloc(4LL * wpl * height)) == NULL) {
+	if((data = (uint32*)pixdata_malloc(4LL * wpl * height)) == NULL) {
 		pixDestroy(&pixd);
 		return (PIX *)ERROR_PTR("pixdata_malloc fail for data",
 			   procName, NULL);
@@ -374,7 +374,7 @@ PIX * pixCreateTemplate(const PIX  * pixs)
  */
 PIX * pixCreateTemplateNoInit(const PIX  * pixs)
 {
-	l_int32 w, h, d;
+	int32 w, h, d;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -411,10 +411,10 @@ PIX * pixCreateTemplateNoInit(const PIX  * pixs)
  *          to the cmap at index 0.
  * </pre>
  */
-PIX * pixCreateWithCmap(l_int32 width,
-    l_int32 height,
-    l_int32 depth,
-    l_int32 initcolor)
+PIX * pixCreateWithCmap(int32 width,
+    int32 height,
+    int32 depth,
+    int32 initcolor)
 {
 	PIX * pix;
 	PIXCMAP   * cmap;
@@ -455,11 +455,11 @@ PIX * pixCreateWithCmap(l_int32 width,
  *          allocation of image data in a typesafe way.
  * </pre>
  */
-PIX * pixCreateHeader(l_int32 width,
-    l_int32 height,
-    l_int32 depth)
+PIX * pixCreateHeader(int32 width,
+    int32 height,
+    int32 depth)
 {
-	l_int32 wpl;
+	int32 wpl;
 	l_uint64 wpl64, bignum;
 	PIX * pixd;
 
@@ -481,7 +481,7 @@ PIX * pixCreateHeader(l_int32 width,
 		    procName, width, height, depth);
 		return (PIX *)ERROR_PTR("wpl >= 2^24", procName, NULL);
 	}
-	wpl = (l_int32)wpl64;
+	wpl = (int32)wpl64;
 	bignum = 4LL * wpl * height; /* number of bytes to be requested */
 	if(bignum > ((1LL << 31) - 1)) {
 		L_ERROR("requested w = %d, h = %d, d = %d\n",
@@ -598,7 +598,7 @@ void pixDestroy(PIX ** ppix)
  */
 static void pixFree(PIX  * pix)
 {
-	l_uint32  * data;
+	uint32  * data;
 	char      * text;
 
 	if(!pix) return;
@@ -651,7 +651,7 @@ static void pixFree(PIX  * pix)
 PIX * pixCopy(PIX        * pixd,   /* can be null */
     const PIX  * pixs)
 {
-	l_int32 bytes;
+	int32 bytes;
 
 	PROCNAME(__FUNCTION__);
 
@@ -712,8 +712,8 @@ PIX * pixCopy(PIX        * pixd,   /* can be null */
 l_ok pixResizeImageData(PIX        * pixd,
     const PIX  * pixs)
 {
-	l_int32 w, h, d, wpl, bytes;
-	l_uint32  * data;
+	int32 w, h, d, wpl, bytes;
+	uint32  * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -729,7 +729,7 @@ l_ok pixResizeImageData(PIX        * pixd,
 	pixGetDimensions(pixs, &w, &h, &d);
 	wpl = pixGetWpl(pixs);
 	bytes = 4 * wpl * h;
-	if((data = (l_uint32*)pixdata_malloc(bytes)) == NULL)
+	if((data = (uint32*)pixdata_malloc(bytes)) == NULL)
 		return ERROR_INT("pixdata_malloc fail for data", procName, 1);
 
 	/* OK, do it */
@@ -758,7 +758,7 @@ l_ok pixResizeImageData(PIX        * pixd,
 l_ok pixCopyColormap(PIX        * pixd,
     const PIX  * pixs)
 {
-	l_int32 valid;
+	int32 valid;
 	const PIXCMAP  * cmaps;
 	PIXCMAP        * cmapd;
 
@@ -841,10 +841,10 @@ l_ok pixCopyColormap(PIX        * pixd,
  */
 l_ok pixTransferAllData(PIX * pixd,
     PIX    ** ppixs,
-    l_int32 copytext,
-    l_int32 copyformat)
+    int32 copytext,
+    int32 copyformat)
 {
-	l_int32 nbytes;
+	int32 nbytes;
 	PIX * pixs;
 
 	PROCNAME(__FUNCTION__);
@@ -952,7 +952,7 @@ l_ok pixSwapAndDestroy(PIX ** ppixd,
 /*--------------------------------------------------------------------*
 *                              Pix Accessors                         *
 *--------------------------------------------------------------------*/
-l_int32 pixGetWidth(const PIX  * pix)
+int32 pixGetWidth(const PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -962,8 +962,8 @@ l_int32 pixGetWidth(const PIX  * pix)
 	return pix->w;
 }
 
-l_int32 pixSetWidth(PIX * pix,
-    l_int32 width)
+int32 pixSetWidth(PIX * pix,
+    int32 width)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -978,7 +978,7 @@ l_int32 pixSetWidth(PIX * pix,
 	return 0;
 }
 
-l_int32 pixGetHeight(const PIX  * pix)
+int32 pixGetHeight(const PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -988,8 +988,8 @@ l_int32 pixGetHeight(const PIX  * pix)
 	return pix->h;
 }
 
-l_int32 pixSetHeight(PIX * pix,
-    l_int32 height)
+int32 pixSetHeight(PIX * pix,
+    int32 height)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1004,7 +1004,7 @@ l_int32 pixSetHeight(PIX * pix,
 	return 0;
 }
 
-l_int32 pixGetDepth(const PIX  * pix)
+int32 pixGetDepth(const PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1014,8 +1014,8 @@ l_int32 pixGetDepth(const PIX  * pix)
 	return pix->d;
 }
 
-l_int32 pixSetDepth(PIX * pix,
-    l_int32 depth)
+int32 pixSetDepth(PIX * pix,
+    int32 depth)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1036,9 +1036,9 @@ l_int32 pixSetDepth(PIX * pix,
  * \return  0 if OK, 1 on error
  */
 l_ok pixGetDimensions(const PIX  * pix,
-    l_int32    * pw,
-    l_int32    * ph,
-    l_int32    * pd)
+    int32    * pw,
+    int32    * ph,
+    int32    * pd)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1061,9 +1061,9 @@ l_ok pixGetDimensions(const PIX  * pix,
  * \return  0 if OK, 1 on error
  */
 l_ok pixSetDimensions(PIX * pix,
-    l_int32 w,
-    l_int32 h,
-    l_int32 d)
+    int32 w,
+    int32 h,
+    int32 d)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1101,7 +1101,7 @@ l_ok pixCopyDimensions(PIX        * pixd,
 	return 0;
 }
 
-l_int32 pixGetSpp(const PIX  * pix)
+int32 pixGetSpp(const PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1127,8 +1127,8 @@ l_int32 pixGetSpp(const PIX  * pix)
  *          then write it out as a png.
  * </pre>
  */
-l_int32 pixSetSpp(PIX * pix,
-    l_int32 spp)
+int32 pixSetSpp(PIX * pix,
+    int32 spp)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1164,7 +1164,7 @@ l_ok pixCopySpp(PIX        * pixd,
 	return 0;
 }
 
-l_int32 pixGetWpl(const PIX  * pix)
+int32 pixGetWpl(const PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1173,8 +1173,8 @@ l_int32 pixGetWpl(const PIX  * pix)
 	return pix->wpl;
 }
 
-l_int32 pixSetWpl(PIX * pix,
-    l_int32 wpl)
+int32 pixSetWpl(PIX * pix,
+    int32 wpl)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1185,7 +1185,7 @@ l_int32 pixSetWpl(PIX * pix,
 	return 0;
 }
 
-l_int32 pixGetRefcount(const PIX  * pix)
+int32 pixGetRefcount(const PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1194,8 +1194,8 @@ l_int32 pixGetRefcount(const PIX  * pix)
 	return pix->refcount;
 }
 
-l_int32 pixChangeRefcount(PIX * pix,
-    l_int32 delta)
+int32 pixChangeRefcount(PIX * pix,
+    int32 delta)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1206,7 +1206,7 @@ l_int32 pixChangeRefcount(PIX * pix,
 	return 0;
 }
 
-l_int32 pixGetXRes(const PIX  * pix)
+int32 pixGetXRes(const PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1215,8 +1215,8 @@ l_int32 pixGetXRes(const PIX  * pix)
 	return pix->xres;
 }
 
-l_int32 pixSetXRes(PIX * pix,
-    l_int32 res)
+int32 pixSetXRes(PIX * pix,
+    int32 res)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1227,7 +1227,7 @@ l_int32 pixSetXRes(PIX * pix,
 	return 0;
 }
 
-l_int32 pixGetYRes(const PIX  * pix)
+int32 pixGetYRes(const PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1236,8 +1236,8 @@ l_int32 pixGetYRes(const PIX  * pix)
 	return pix->yres;
 }
 
-l_int32 pixSetYRes(PIX * pix,
-    l_int32 res)
+int32 pixSetYRes(PIX * pix,
+    int32 res)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1256,8 +1256,8 @@ l_int32 pixSetYRes(PIX * pix,
  * \return  0 if OK, 1 on error
  */
 l_ok pixGetResolution(const PIX  * pix,
-    l_int32    * pxres,
-    l_int32    * pyres)
+    int32    * pxres,
+    int32    * pyres)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1280,8 +1280,8 @@ l_ok pixGetResolution(const PIX  * pix,
  * \return  0 if OK, 1 on error
  */
 l_ok pixSetResolution(PIX * pix,
-    l_int32 xres,
-    l_int32 yres)
+    int32 xres,
+    int32 yres)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1292,7 +1292,7 @@ l_ok pixSetResolution(PIX * pix,
 	return 0;
 }
 
-l_int32 pixCopyResolution(PIX        * pixd,
+int32 pixCopyResolution(PIX        * pixd,
     const PIX  * pixs)
 {
 	PROCNAME(__FUNCTION__);
@@ -1309,7 +1309,7 @@ l_int32 pixCopyResolution(PIX        * pixd,
 	return 0;
 }
 
-l_int32 pixScaleResolution(PIX * pix,
+int32 pixScaleResolution(PIX * pix,
     float xscale,
     float yscale)
 {
@@ -1325,12 +1325,12 @@ l_int32 pixScaleResolution(PIX * pix,
 
 	xres = (double)xscale * (float)(pix->xres) + 0.5;
 	yres = (double)yscale * (float)(pix->yres) + 0.5;
-	pix->xres = (l_uint32)MIN(xres, maxres);
-	pix->yres = (l_uint32)MIN(yres, maxres);
+	pix->xres = (uint32)MIN(xres, maxres);
+	pix->yres = (uint32)MIN(yres, maxres);
 	return 0;
 }
 
-l_int32 pixGetInputFormat(const PIX  * pix)
+int32 pixGetInputFormat(const PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1339,8 +1339,8 @@ l_int32 pixGetInputFormat(const PIX  * pix)
 	return pix->informat;
 }
 
-l_int32 pixSetInputFormat(PIX * pix,
-    l_int32 informat)
+int32 pixSetInputFormat(PIX * pix,
+    int32 informat)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1350,7 +1350,7 @@ l_int32 pixSetInputFormat(PIX * pix,
 	return 0;
 }
 
-l_int32 pixCopyInputFormat(PIX        * pixd,
+int32 pixCopyInputFormat(PIX        * pixd,
     const PIX  * pixs)
 {
 	PROCNAME(__FUNCTION__);
@@ -1366,8 +1366,8 @@ l_int32 pixCopyInputFormat(PIX        * pixd,
 	return 0;
 }
 
-l_int32 pixSetSpecial(PIX * pix,
-    l_int32 special)
+int32 pixSetSpecial(PIX * pix,
+    int32 special)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1454,7 +1454,7 @@ l_ok pixAddText(PIX         * pix,
 	return 0;
 }
 
-l_int32 pixCopyText(PIX        * pixd,
+int32 pixCopyText(PIX        * pixd,
     const PIX  * pixs)
 {
 	PROCNAME(__FUNCTION__);
@@ -1566,7 +1566,7 @@ PIXCMAP * pixGetColormap(PIX  * pix)
 l_ok pixSetColormap(PIX * pix,
     PIXCMAP  * colormap)
 {
-	l_int32 valid;
+	int32 valid;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1623,15 +1623,13 @@ l_ok pixDestroyColormap(PIX  * pix)
  *          they only use the data for inspection.
  * </pre>
  */
-l_uint32 * pixGetData(PIX  * pix)
+uint32 * pixGetData(PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pix)
-		return (l_uint32*)ERROR_PTR("pix not defined", procName, NULL);
+		return (uint32*)ERROR_PTR("pix not defined", procName, NULL);
 	return pix->data;
 }
-
 /*!
  * \brief   pixSetData()
  *
@@ -1645,8 +1643,8 @@ l_uint32 * pixGetData(PIX  * pix)
  *          data, use pixFreeData() before pixSetData().
  * </pre>
  */
-l_int32 pixSetData(PIX * pix,
-    l_uint32  * data)
+int32 pixSetData(PIX * pix,
+    uint32  * data)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1673,15 +1671,15 @@ l_int32 pixSetData(PIX * pix,
  *          using the pix allocator, and leaving the input pix unchanged.
  * </pre>
  */
-l_uint32 * pixExtractData(PIX  * pixs)
+uint32 * pixExtractData(PIX  * pixs)
 {
-	l_int32 count, bytes;
-	l_uint32  * data, * datas;
+	int32 count, bytes;
+	uint32  * data, * datas;
 
 	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (l_uint32*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (uint32*)ERROR_PTR("pixs not defined", procName, NULL);
 
 	count = pixGetRefcount(pixs);
 	if(count == 1) { /* extract */
@@ -1691,8 +1689,8 @@ l_uint32 * pixExtractData(PIX  * pixs)
 	else { /* refcount > 1; copy */
 		bytes = 4 * pixGetWpl(pixs) * pixGetHeight(pixs);
 		datas = pixGetData(pixs);
-		if((data = (l_uint32*)pixdata_malloc(bytes)) == NULL)
-			return (l_uint32*)ERROR_PTR("data not made", procName, NULL);
+		if((data = (uint32*)pixdata_malloc(bytes)) == NULL)
+			return (uint32*)ERROR_PTR("data not made", procName, NULL);
 		memcpy(data, datas, bytes);
 	}
 
@@ -1713,9 +1711,9 @@ l_uint32 * pixExtractData(PIX  * pixs)
  *          a subsequent assignment with pixSetData().
  * </pre>
  */
-l_int32 pixFreeData(PIX  * pix)
+int32 pixFreeData(PIX  * pix)
 {
-	l_uint32  * data;
+	uint32  * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1803,10 +1801,10 @@ l_int32 pixFreeData(PIX  * pix)
  * </pre>
  */
 void ** pixGetLinePtrs(PIX * pix,
-    l_int32 * psize)
+    int32 * psize)
 {
-	l_int32 i, h, wpl;
-	l_uint32  * data;
+	int32 i, h, wpl;
+	uint32  * data;
 	void     ** lines;
 
 	PROCNAME(__FUNCTION__);
@@ -1836,7 +1834,7 @@ void ** pixGetLinePtrs(PIX * pix,
  * \param[in]    pix1, pix2
  * \return  1 if the two pix have same {h, w, d}; 0 otherwise.
  */
-l_int32 pixSizesEqual(const PIX  * pix1,
+int32 pixSizesEqual(const PIX  * pix1,
     const PIX  * pix2)
 {
 	PROCNAME(__FUNCTION__);
@@ -1865,7 +1863,7 @@ l_int32 pixSizesEqual(const PIX  * pix1,
 l_ok pixMaxAspectRatio(PIX        * pixs,
     float * pratio)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1901,7 +1899,7 @@ l_ok pixPrintStreamInfo(FILE        * fp,
     const PIX * pix,
     const char * text)
 {
-	l_int32 informat;
+	int32 informat;
 	const PIXCMAP  * cmap;
 
 	PROCNAME(__FUNCTION__);

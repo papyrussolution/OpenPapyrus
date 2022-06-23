@@ -1269,7 +1269,7 @@ static unsigned make_codepage_from_charset(const char * charset)
 	/* Look it up in the table first, so that we can easily
 	 * override CP367, which we map to 1252 instead of 367. */
 	a = 0;
-	b = sizeof(charsets)/sizeof(charsets[0]);
+	b = SIZEOFARRAY(charsets);
 	while(b > a) {
 		int c = (b + a) / 2;
 		int r = strcmp(charsets[c].name, cs);
@@ -2503,7 +2503,7 @@ static int archive_string_append_unicode(archive_string * as, const void * _p, s
 static uint32 get_nfc(uint32 uc, uint32 uc2)
 {
 	int t = 0;
-	int b = sizeof(u_composition_table)/sizeof(u_composition_table[0]) -1;
+	int b = SIZEOFARRAY(u_composition_table) - 1;
 	while(b >= t) {
 		int m = (t + b) / 2;
 		if(u_composition_table[m].cp1 < uc)
@@ -2874,7 +2874,7 @@ static int get_nfd(uint32 * cp1, uint32 * cp2, uint32 uc)
 		return 0;
 
 	t = 0;
-	b = sizeof(u_decomposition_table)/sizeof(u_decomposition_table[0]) -1;
+	b = SIZEOFARRAY(u_decomposition_table) - 1;
 	while(b >= t) {
 		int m = (t + b) / 2;
 		if(u_decomposition_table[m].nfc < uc)

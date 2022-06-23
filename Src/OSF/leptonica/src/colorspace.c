@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file colorspace.c
  * <pre>
@@ -31,10 +18,10 @@
  *      Colorspace conversion between RGB and HSV
  *           PIX        *pixConvertRGBToHSV()
  *           PIX        *pixConvertHSVToRGB()
- *           l_int32     convertRGBToHSV()
- *           l_int32     convertHSVToRGB()
- *           l_int32     pixcmapConvertRGBToHSV()
- *           l_int32     pixcmapConvertHSVToRGB()
+ *           int32     convertRGBToHSV()
+ *           int32     convertHSVToRGB()
+ *           int32     pixcmapConvertRGBToHSV()
+ *           int32     pixcmapConvertHSVToRGB()
  *           PIX        *pixConvertRGBToHue()
  *           PIX        *pixConvertRGBToSaturation()
  *           PIX        *pixConvertRGBToValue()
@@ -52,30 +39,30 @@
  *      Colorspace conversion between RGB and YUV
  *           PIX        *pixConvertRGBToYUV()
  *           PIX        *pixConvertYUVToRGB()
- *           l_int32     convertRGBToYUV()
- *           l_int32     convertYUVToRGB()
- *           l_int32     pixcmapConvertRGBToYUV()
- *           l_int32     pixcmapConvertYUVToRGB()
+ *           int32     convertRGBToYUV()
+ *           int32     convertYUVToRGB()
+ *           int32     pixcmapConvertRGBToYUV()
+ *           int32     pixcmapConvertYUVToRGB()
  *
  *      Colorspace conversion between RGB and XYZ
  *           FPIXA      *pixConvertRGBToXYZ()
  *           PIX        *fpixaConvertXYZToRGB()
- *           l_int32     convertRGBToXYZ()
- *           l_int32     convertXYZToRGB()
+ *           int32     convertRGBToXYZ()
+ *           int32     convertXYZToRGB()
  *
  *      Colorspace conversion between XYZ and LAB
  *           FPIXA      *fpixaConvertXYZToLAB()
  *           PIX        *fpixaConvertLABToXYZ()
- *           l_int32     convertXYZToLAB()
- *           l_int32     convertLABToXYZ()
+ *           int32     convertXYZToLAB()
+ *           int32     convertLABToXYZ()
  *           static float  lab_forward()
  *           static float  lab_reverse()
  *
  *      Colorspace conversion between RGB and LAB
  *           FPIXA      *pixConvertRGBToLAB()
  *           PIX        *fpixaConvertLABToRGB()
- *           l_int32     convertRGBToLAB()
- *           l_int32     convertLABToRGB()
+ *           int32     convertRGBToLAB()
+ *           int32     convertLABToRGB()
  *
  *      Gamut display of RGB color space
  *           PIX        *pixMakeGamutRGB()
@@ -135,8 +122,8 @@ static float lab_reverse(float v);
 PIX * pixConvertRGBToHSV(PIX  * pixd,
     PIX  * pixs)
 {
-	l_int32 w, h, d, wpl, i, j, rval, gval, bval, hval, sval, vval;
-	l_uint32 * line, * data;
+	int32 w, h, d, wpl, i, j, rval, gval, bval, hval, sval, vval;
+	uint32 * line, * data;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -197,9 +184,9 @@ PIX * pixConvertRGBToHSV(PIX  * pixd,
 PIX * pixConvertHSVToRGB(PIX  * pixd,
     PIX  * pixs)
 {
-	l_int32 w, h, d, wpl, i, j, rval, gval, bval, hval, sval, vval;
-	l_uint32 pixel;
-	l_uint32 * line, * data;
+	int32 w, h, d, wpl, i, j, rval, gval, bval, hval, sval, vval;
+	uint32 pixel;
+	uint32 * line, * data;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -267,14 +254,14 @@ PIX * pixConvertHSVToRGB(PIX  * pixd,
  *            h = 200       blue
  * </pre>
  */
-l_ok convertRGBToHSV(l_int32 rval,
-    l_int32 gval,
-    l_int32 bval,
-    l_int32 * phval,
-    l_int32 * psval,
-    l_int32 * pvval)
+l_ok convertRGBToHSV(int32 rval,
+    int32 gval,
+    int32 bval,
+    int32 * phval,
+    int32 * psval,
+    int32 * pvval)
 {
-	l_int32 minrg, maxrg, min, max, delta;
+	int32 minrg, maxrg, min, max, delta;
 	float h;
 
 	PROCNAME(__FUNCTION__);
@@ -297,7 +284,7 @@ l_ok convertRGBToHSV(l_int32 rval,
 		*psval = 0;
 	}
 	else {
-		*psval = (l_int32)(255. * (float)delta / (float)max + 0.5);
+		*psval = (int32)(255. * (float)delta / (float)max + 0.5);
 		if(rval == max) /* between magenta and yellow */
 			h = (float)(gval - bval) / (float)delta;
 		else if(gval == max) /* between yellow and cyan */
@@ -309,7 +296,7 @@ l_ok convertRGBToHSV(l_int32 rval,
 			h += 240.0;
 		if(h >= 239.5)
 			h = 0.0;
-		*phval = (l_int32)(h + 0.5);
+		*phval = (int32)(h + 0.5);
 	}
 
 	return 0;
@@ -328,14 +315,14 @@ l_ok convertRGBToHSV(l_int32 rval,
  *          and their interpretation in color space.
  * </pre>
  */
-l_ok convertHSVToRGB(l_int32 hval,
-    l_int32 sval,
-    l_int32 vval,
-    l_int32 * prval,
-    l_int32 * pgval,
-    l_int32 * pbval)
+l_ok convertHSVToRGB(int32 hval,
+    int32 sval,
+    int32 vval,
+    int32 * prval,
+    int32 * pgval,
+    int32 * pbval)
 {
-	l_int32 i, x, y, z;
+	int32 i, x, y, z;
 	float h, f, s;
 
 	PROCNAME(__FUNCTION__);
@@ -357,12 +344,12 @@ l_ok convertHSVToRGB(l_int32 hval,
 		if(hval == 240)
 			hval = 0;
 		h = (float)hval / 40.;
-		i = (l_int32)h;
+		i = (int32)h;
 		f = h - i;
 		s = (float)sval / 255.;
-		x = (l_int32)(vval * (1. - s) + 0.5);
-		y = (l_int32)(vval * (1. - s * f) + 0.5);
-		z = (l_int32)(vval * (1. - s * (1. - f)) + 0.5);
+		x = (int32)(vval * (1. - s) + 0.5);
+		y = (int32)(vval * (1. - s * f) + 0.5);
+		z = (int32)(vval * (1. - s * (1. - f)) + 0.5);
 		switch(i)
 		{
 			case 0:
@@ -418,7 +405,7 @@ l_ok convertHSVToRGB(l_int32 hval,
  */
 l_ok pixcmapConvertRGBToHSV(PIXCMAP  * cmap)
 {
-	l_int32 i, ncolors, rval, gval, bval, hval, sval, vval;
+	int32 i, ncolors, rval, gval, bval, hval, sval, vval;
 
 	PROCNAME(__FUNCTION__);
 
@@ -449,7 +436,7 @@ l_ok pixcmapConvertRGBToHSV(PIXCMAP  * cmap)
  */
 l_ok pixcmapConvertHSVToRGB(PIXCMAP  * cmap)
 {
-	l_int32 i, ncolors, rval, gval, bval, hval, sval, vval;
+	int32 i, ncolors, rval, gval, bval, hval, sval, vval;
 
 	PROCNAME(__FUNCTION__);
 
@@ -482,11 +469,11 @@ l_ok pixcmapConvertHSVToRGB(PIXCMAP  * cmap)
  */
 PIX * pixConvertRGBToHue(PIX  * pixs)
 {
-	l_int32 w, h, d, wplt, wpld;
-	l_int32 i, j, rval, gval, bval, hval, minrg, min, maxrg, max, delta;
+	int32 w, h, d, wplt, wpld;
+	int32 i, j, rval, gval, bval, hval, minrg, min, maxrg, max, delta;
 	float fh;
-	l_uint32 pixel;
-	l_uint32 * linet, * lined, * datat, * datad;
+	uint32 pixel;
+	uint32 * linet, * lined, * datat, * datad;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -530,7 +517,7 @@ PIX * pixConvertRGBToHue(PIX  * pixs)
 				fh *= 40.0;
 				if(fh < 0.0)
 					fh += 240.0;
-				hval = (l_int32)(fh + 0.5);
+				hval = (int32)(fh + 0.5);
 			}
 			SET_DATA_BYTE(lined, j, hval);
 		}
@@ -556,10 +543,10 @@ PIX * pixConvertRGBToHue(PIX  * pixs)
  */
 PIX * pixConvertRGBToSaturation(PIX  * pixs)
 {
-	l_int32 w, h, d, wplt, wpld;
-	l_int32 i, j, rval, gval, bval, sval, minrg, min, maxrg, max, delta;
-	l_uint32 pixel;
-	l_uint32 * linet, * lined, * datat, * datad;
+	int32 w, h, d, wplt, wpld;
+	int32 i, j, rval, gval, bval, sval, minrg, min, maxrg, max, delta;
+	uint32 pixel;
+	uint32 * linet, * lined, * datat, * datad;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -593,7 +580,7 @@ PIX * pixConvertRGBToSaturation(PIX  * pixs)
 			if(delta == 0) /* gray; no chroma */
 				sval = 0;
 			else
-				sval = (l_int32)(255. *
+				sval = (int32)(255. *
 				    (float)delta / (float)max + 0.5);
 			SET_DATA_BYTE(lined, j, sval);
 		}
@@ -619,10 +606,10 @@ PIX * pixConvertRGBToSaturation(PIX  * pixs)
  */
 PIX * pixConvertRGBToValue(PIX  * pixs)
 {
-	l_int32 w, h, d, wplt, wpld;
-	l_int32 i, j, rval, gval, bval, maxrg, max;
-	l_uint32 pixel;
-	l_uint32 * linet, * lined, * datat, * datad;
+	int32 w, h, d, wplt, wpld;
+	int32 i, j, rval, gval, bval, maxrg, max;
+	uint32 pixel;
+	uint32 * linet, * lined, * datat, * datad;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -685,16 +672,16 @@ PIX * pixConvertRGBToValue(PIX  * pixs)
  * </pre>
  */
 PIX * pixMakeRangeMaskHS(PIX * pixs,
-    l_int32 huecenter,
-    l_int32 huehw,
-    l_int32 satcenter,
-    l_int32 sathw,
-    l_int32 regionflag)
+    int32 huecenter,
+    int32 huehw,
+    int32 satcenter,
+    int32 sathw,
+    int32 regionflag)
 {
-	l_int32 i, j, w, h, wplt, wpld, hstart, hend, sstart, send, hval, sval;
-	l_int32   * hlut, * slut;
-	l_uint32 pixel;
-	l_uint32 * datat, * datad, * linet, * lined;
+	int32 i, j, w, h, wplt, wpld, hstart, hend, sstart, send, hval, sval;
+	int32   * hlut, * slut;
+	uint32 pixel;
+	uint32 * datat, * datad, * linet, * lined;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -706,8 +693,8 @@ PIX * pixMakeRangeMaskHS(PIX * pixs,
 
 	/* Set up LUTs for hue and saturation.  These have the value 1
 	 * within the specified intervals of hue and saturation. */
-	hlut = (l_int32*)SAlloc::C(240, sizeof(l_int32));
-	slut = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	hlut = (int32*)SAlloc::C(240, sizeof(int32));
+	slut = (int32*)SAlloc::C(256, sizeof(int32));
 	sstart = MAX(0, satcenter - sathw);
 	send = MIN(255, satcenter + sathw);
 	for(i = sstart; i <= send; i++)
@@ -783,16 +770,16 @@ PIX * pixMakeRangeMaskHS(PIX * pixs,
  * </pre>
  */
 PIX * pixMakeRangeMaskHV(PIX * pixs,
-    l_int32 huecenter,
-    l_int32 huehw,
-    l_int32 valcenter,
-    l_int32 valhw,
-    l_int32 regionflag)
+    int32 huecenter,
+    int32 huehw,
+    int32 valcenter,
+    int32 valhw,
+    int32 regionflag)
 {
-	l_int32 i, j, w, h, wplt, wpld, hstart, hend, vstart, vend, hval, vval;
-	l_int32   * hlut, * vlut;
-	l_uint32 pixel;
-	l_uint32 * datat, * datad, * linet, * lined;
+	int32 i, j, w, h, wplt, wpld, hstart, hend, vstart, vend, hval, vval;
+	int32   * hlut, * vlut;
+	uint32 pixel;
+	uint32 * datat, * datad, * linet, * lined;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -804,8 +791,8 @@ PIX * pixMakeRangeMaskHV(PIX * pixs,
 
 	/* Set up LUTs for hue and maximum intensity (val).  These have
 	 * the value 1 within the specified intervals of hue and value. */
-	hlut = (l_int32*)SAlloc::C(240, sizeof(l_int32));
-	vlut = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	hlut = (int32*)SAlloc::C(240, sizeof(int32));
+	vlut = (int32*)SAlloc::C(256, sizeof(int32));
 	vstart = MAX(0, valcenter - valhw);
 	vend = MIN(255, valcenter + valhw);
 	for(i = vstart; i <= vend; i++)
@@ -880,16 +867,16 @@ PIX * pixMakeRangeMaskHV(PIX * pixs,
  * </pre>
  */
 PIX * pixMakeRangeMaskSV(PIX * pixs,
-    l_int32 satcenter,
-    l_int32 sathw,
-    l_int32 valcenter,
-    l_int32 valhw,
-    l_int32 regionflag)
+    int32 satcenter,
+    int32 sathw,
+    int32 valcenter,
+    int32 valhw,
+    int32 regionflag)
 {
-	l_int32 i, j, w, h, wplt, wpld, sval, vval, sstart, send, vstart, vend;
-	l_int32   * slut, * vlut;
-	l_uint32 pixel;
-	l_uint32 * datat, * datad, * linet, * lined;
+	int32 i, j, w, h, wplt, wpld, sval, vval, sstart, send, vstart, vend;
+	int32   * slut, * vlut;
+	uint32 pixel;
+	uint32 * datat, * datad, * linet, * lined;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -902,8 +889,8 @@ PIX * pixMakeRangeMaskSV(PIX * pixs,
 	/* Set up LUTs for saturation and max intensity (val).
 	 * These have the value 1 within the specified intervals of
 	 * saturation and max intensity. */
-	slut = (l_int32*)SAlloc::C(256, sizeof(l_int32));
-	vlut = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	slut = (int32*)SAlloc::C(256, sizeof(int32));
+	vlut = (int32*)SAlloc::C(256, sizeof(int32));
 	sstart = MAX(0, satcenter - sathw);
 	send = MIN(255, satcenter + sathw);
 	vstart = MAX(0, valcenter - valhw);
@@ -967,13 +954,13 @@ PIX * pixMakeRangeMaskSV(PIX * pixs,
  * </pre>
  */
 PIX * pixMakeHistoHS(PIX * pixs,
-    l_int32 factor,
+    int32 factor,
     NUMA   ** pnahue,
     NUMA   ** pnasat)
 {
-	l_int32 i, j, w, h, wplt, hval, sval, nd;
-	l_uint32 pixel;
-	l_uint32 * datat, * linet;
+	int32 i, j, w, h, wplt, hval, sval, nd;
+	uint32 pixel;
+	uint32 * datat, * linet;
 	void     ** lined32;
 	NUMA * nahue, * nasat;
 	PIX * pixt, * pixd;
@@ -1056,13 +1043,13 @@ PIX * pixMakeHistoHS(PIX * pixs,
  * </pre>
  */
 PIX * pixMakeHistoHV(PIX * pixs,
-    l_int32 factor,
+    int32 factor,
     NUMA   ** pnahue,
     NUMA   ** pnaval)
 {
-	l_int32 i, j, w, h, wplt, hval, vval, nd;
-	l_uint32 pixel;
-	l_uint32 * datat, * linet;
+	int32 i, j, w, h, wplt, hval, vval, nd;
+	uint32 pixel;
+	uint32 * datat, * linet;
 	void     ** lined32;
 	NUMA * nahue, * naval;
 	PIX * pixt, * pixd;
@@ -1137,13 +1124,13 @@ PIX * pixMakeHistoHV(PIX * pixs,
  * </pre>
  */
 PIX * pixMakeHistoSV(PIX * pixs,
-    l_int32 factor,
+    int32 factor,
     NUMA   ** pnasat,
     NUMA   ** pnaval)
 {
-	l_int32 i, j, w, h, wplt, sval, vval, nd;
-	l_uint32 pixel;
-	l_uint32 * datat, * linet;
+	int32 i, j, w, h, wplt, sval, vval, nd;
+	uint32 pixel;
+	uint32 * datat, * linet;
 	void     ** lined32;
 	NUMA * nasat, * naval;
 	PIX * pixt, * pixd;
@@ -1226,17 +1213,17 @@ PIX * pixMakeHistoSV(PIX * pixs,
  * </pre>
  */
 l_ok pixFindHistoPeaksHSV(PIX * pixs,
-    l_int32 type,
-    l_int32 width,
-    l_int32 height,
-    l_int32 npeaks,
+    int32 type,
+    int32 width,
+    int32 height,
+    int32 npeaks,
     float erasefactor,
     PTA ** ppta,
     NUMA     ** pnatot,
     PIXA ** ppixa)
 {
-	l_int32 i, xmax, ymax, ewidth, eheight;
-	l_uint32 maxval;
+	int32 i, xmax, ymax, ewidth, eheight;
+	uint32 maxval;
 	BOX      * box;
 	NUMA     * natot;
 	PIX * pixh, * pixw, * pix1, * pix2, * pix3;
@@ -1285,8 +1272,8 @@ l_ok pixFindHistoPeaksHSV(PIX * pixs,
 		if(maxval == 0) break;
 		numaAddNumber(natot, maxval);
 		ptaAddPt(pta, xmax, ymax);
-		ewidth = (l_int32)(width * erasefactor);
-		eheight = (l_int32)(height * erasefactor);
+		ewidth = (int32)(width * erasefactor);
+		eheight = (int32)(height * erasefactor);
 		box = boxCreate(xmax - ewidth, ymax - eheight, 2 * ewidth + 1,
 			2 * eheight + 1);
 
@@ -1349,15 +1336,15 @@ l_ok pixFindHistoPeaksHSV(PIX * pixs,
  *          and saturation directions is 2 * nsamp + 1.
  * </pre>
  */
-PIX * displayHSVColorRange(l_int32 hval,
-    l_int32 sval,
-    l_int32 vval,
-    l_int32 huehw,
-    l_int32 sathw,
-    l_int32 nsamp,
-    l_int32 factor)
+PIX * displayHSVColorRange(int32 hval,
+    int32 sval,
+    int32 vval,
+    int32 huehw,
+    int32 sathw,
+    int32 nsamp,
+    int32 factor)
 {
-	l_int32 i, j, w, huedelta, satdelta, hue, sat, rval, gval, bval;
+	int32 i, j, w, huedelta, satdelta, hue, sat, rval, gval, bval;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1374,8 +1361,8 @@ PIX * displayHSVColorRange(l_int32 hval,
 		return (PIX *)ERROR_PTR("invalid vval", procName, NULL);
 
 	w = (2 * nsamp + 1);
-	huedelta = (l_int32)((float)huehw / (float)nsamp);
-	satdelta = (l_int32)((float)sathw / (float)nsamp);
+	huedelta = (int32)((float)huehw / (float)nsamp);
+	satdelta = (int32)((float)sathw / (float)nsamp);
 	pixt = pixCreate(w, w, 32);
 	for(i = 0; i < w; i++) {
 		hue = hval + huedelta * (i - nsamp);
@@ -1426,8 +1413,8 @@ PIX * displayHSVColorRange(l_int32 hval,
 PIX * pixConvertRGBToYUV(PIX  * pixd,
     PIX  * pixs)
 {
-	l_int32 w, h, d, wpl, i, j, rval, gval, bval, yval, uval, vval;
-	l_uint32 * line, * data;
+	int32 w, h, d, wpl, i, j, rval, gval, bval, yval, uval, vval;
+	uint32 * line, * data;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -1487,9 +1474,9 @@ PIX * pixConvertRGBToYUV(PIX  * pixd,
 PIX * pixConvertYUVToRGB(PIX  * pixd,
     PIX  * pixs)
 {
-	l_int32 w, h, d, wpl, i, j, rval, gval, bval, yval, uval, vval;
-	l_uint32 pixel;
-	l_uint32 * line, * data;
+	int32 w, h, d, wpl, i, j, rval, gval, bval, yval, uval, vval;
+	uint32 pixel;
+	uint32 * line, * data;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -1547,12 +1534,12 @@ PIX * pixConvertYUVToRGB(PIX  * pixd,
  *            V [16 ... 240]
  * </pre>
  */
-l_ok convertRGBToYUV(l_int32 rval,
-    l_int32 gval,
-    l_int32 bval,
-    l_int32 * pyval,
-    l_int32 * puval,
-    l_int32 * pvval)
+l_ok convertRGBToYUV(int32 rval,
+    int32 gval,
+    int32 bval,
+    int32 * pyval,
+    int32 * puval,
+    int32 * pvval)
 {
 	float norm;
 
@@ -1565,11 +1552,11 @@ l_ok convertRGBToYUV(l_int32 rval,
 		return ERROR_INT("&yval, &uval, &vval not all defined", procName, 1);
 
 	norm = 1.0 / 256.;
-	*pyval = (l_int32)(16.0 +
+	*pyval = (int32)(16.0 +
 	    norm * (65.738 * rval + 129.057 * gval + 25.064 * bval) + 0.5);
-	*puval = (l_int32)(128.0 +
+	*puval = (int32)(128.0 +
 	    norm * (-37.945 * rval -74.494 * gval + 112.439 * bval) + 0.5);
-	*pvval = (l_int32)(128.0 +
+	*pvval = (int32)(128.0 +
 	    norm * (112.439 * rval - 94.154 * gval - 18.285 * bval) + 0.5);
 	return 0;
 }
@@ -1593,14 +1580,14 @@ l_ok convertRGBToYUV(l_int32 rval,
  *          r,g,b components to the range [0, 255], and do not test input.
  * </pre>
  */
-l_ok convertYUVToRGB(l_int32 yval,
-    l_int32 uval,
-    l_int32 vval,
-    l_int32 * prval,
-    l_int32 * pgval,
-    l_int32 * pbval)
+l_ok convertYUVToRGB(int32 yval,
+    int32 uval,
+    int32 vval,
+    int32 * prval,
+    int32 * pgval,
+    int32 * pbval)
 {
-	l_int32 rval, gval, bval;
+	int32 rval, gval, bval;
 	float norm, ym, um, vm;
 
 	PROCNAME(__FUNCTION__);
@@ -1615,10 +1602,10 @@ l_ok convertYUVToRGB(l_int32 yval,
 	ym = yval - 16.0;
 	um = uval - 128.0;
 	vm = vval - 128.0;
-	rval =  (l_int32)(norm * (298.082 * ym + 408.583 * vm) + 0.5);
-	gval = (l_int32)(norm * (298.082 * ym - 100.291 * um - 208.120 * vm) +
+	rval =  (int32)(norm * (298.082 * ym + 408.583 * vm) + 0.5);
+	gval = (int32)(norm * (298.082 * ym - 100.291 * um - 208.120 * vm) +
 	    0.5);
-	bval = (l_int32)(norm * (298.082 * ym + 516.411 * um) + 0.5);
+	bval = (int32)(norm * (298.082 * ym + 516.411 * um) + 0.5);
 	*prval = MIN(255, MAX(0, rval));
 	*pgval = MIN(255, MAX(0, gval));
 	*pbval = MIN(255, MAX(0, bval));
@@ -1641,7 +1628,7 @@ l_ok convertYUVToRGB(l_int32 yval,
  */
 l_ok pixcmapConvertRGBToYUV(PIXCMAP  * cmap)
 {
-	l_int32 i, ncolors, rval, gval, bval, yval, uval, vval;
+	int32 i, ncolors, rval, gval, bval, yval, uval, vval;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1672,7 +1659,7 @@ l_ok pixcmapConvertRGBToYUV(PIXCMAP  * cmap)
  */
 l_ok pixcmapConvertYUVToRGB(PIXCMAP  * cmap)
 {
-	l_int32 i, ncolors, rval, gval, bval, yval, uval, vval;
+	int32 i, ncolors, rval, gval, bval, yval, uval, vval;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1721,8 +1708,8 @@ l_ok pixcmapConvertYUVToRGB(PIXCMAP  * cmap)
  */
 FPIXA * pixConvertRGBToXYZ(PIX  * pixs)
 {
-	l_int32 w, h, wpls, wpld, i, j, rval, gval, bval;
-	l_uint32   * lines, * datas;
+	int32 w, h, wpls, wpld, i, j, rval, gval, bval;
+	uint32   * lines, * datas;
 	float fxval, fyval, fzval;
 	float * linex, * liney, * linez, * datax, * datay, * dataz;
 	FPIX       * fpix;
@@ -1778,10 +1765,10 @@ FPIXA * pixConvertRGBToXYZ(PIX  * pixs)
  */
 PIX * fpixaConvertXYZToRGB(FPIXA  * fpixa)
 {
-	l_int32 w, h, wpls, wpld, i, j, rval, gval, bval;
+	int32 w, h, wpls, wpld, i, j, rval, gval, bval;
 	float fxval, fyval, fzval;
 	float * linex, * liney, * linez, * datax, * datay, * dataz;
-	l_uint32   * lined, * datad;
+	uint32   * lined, * datad;
 	PIX        * pixd;
 	FPIX       * fpix;
 
@@ -1832,9 +1819,9 @@ PIX * fpixaConvertXYZToRGB(FPIXA  * fpixa)
  *          values.
  * </pre>
  */
-l_ok convertRGBToXYZ(l_int32 rval,
-    l_int32 gval,
-    l_int32 bval,
+l_ok convertRGBToXYZ(int32 rval,
+    int32 gval,
+    int32 bval,
     float * pfxval,
     float * pfyval,
     float * pfzval)
@@ -1875,12 +1862,12 @@ l_ok convertRGBToXYZ(l_int32 rval,
 l_ok convertXYZToRGB(float fxval,
     float fyval,
     float fzval,
-    l_int32 blackout,
-    l_int32   * prval,
-    l_int32   * pgval,
-    l_int32   * pbval)
+    int32 blackout,
+    int32   * prval,
+    int32   * pgval,
+    int32   * pbval)
 {
-	l_int32 rval, gval, bval;
+	int32 rval, gval, bval;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1891,9 +1878,9 @@ l_ok convertXYZToRGB(float fxval,
 		return ERROR_INT("&rval, &gval, &bval not all defined", procName, 1);
 	*prval = *pgval = *pbval = 0;
 
-	rval = (l_int32)(3.2405 * fxval - 1.5372 * fyval - 0.4985 * fzval + 0.5);
-	gval = (l_int32)(-0.9693 * fxval + 1.8760 * fyval + 0.0416 * fzval + 0.5);
-	bval = (l_int32)(0.0556 * fxval - 0.2040 * fyval + 1.0573 * fzval + 0.5);
+	rval = (int32)(3.2405 * fxval - 1.5372 * fyval - 0.4985 * fzval + 0.5);
+	gval = (int32)(-0.9693 * fxval + 1.8760 * fyval + 0.0416 * fzval + 0.5);
+	bval = (int32)(0.0556 * fxval - 0.2040 * fyval + 1.0573 * fzval + 0.5);
 	if(blackout == 0) { /* the usual situation; use nearest rgb color */
 		*prval = MAX(0, MIN(rval, 255));
 		*pgval = MAX(0, MIN(gval, 255));
@@ -1934,7 +1921,7 @@ l_ok convertXYZToRGB(float fxval,
  */
 FPIXA * fpixaConvertXYZToLAB(FPIXA  * fpixas)
 {
-	l_int32 w, h, wpl, i, j;
+	int32 w, h, wpl, i, j;
 	float fxval, fyval, fzval, flval, faval, fbval;
 	float * linex, * liney, * linez, * datax, * datay, * dataz;
 	float * linel, * linea, * lineb, * datal, * dataa, * datab;
@@ -1998,7 +1985,7 @@ FPIXA * fpixaConvertXYZToLAB(FPIXA  * fpixas)
  */
 FPIXA * fpixaConvertLABToXYZ(FPIXA  * fpixas)
 {
-	l_int32 w, h, wpl, i, j;
+	int32 w, h, wpl, i, j;
 	float fxval, fyval, fzval, flval, faval, fbval;
 	float * linel, * linea, * lineb, * datal, * dataa, * datab;
 	float * linex, * liney, * linez, * datax, * datay, * dataz;
@@ -2185,8 +2172,8 @@ static float lab_reverse(float v)
  */
 FPIXA * pixConvertRGBToLAB(PIX  * pixs)
 {
-	l_int32 w, h, wpls, wpld, i, j, rval, gval, bval;
-	l_uint32   * lines, * datas;
+	int32 w, h, wpls, wpld, i, j, rval, gval, bval;
+	uint32   * lines, * datas;
 	float flval, faval, fbval;
 	float * linel, * linea, * lineb, * datal, * dataa, * datab;
 	FPIX       * fpix;
@@ -2240,10 +2227,10 @@ FPIXA * pixConvertRGBToLAB(PIX  * pixs)
  */
 PIX * fpixaConvertLABToRGB(FPIXA  * fpixa)
 {
-	l_int32 w, h, wpls, wpld, i, j, rval, gval, bval;
+	int32 w, h, wpls, wpld, i, j, rval, gval, bval;
 	float flval, faval, fbval;
 	float * linel, * linea, * lineb, * datal, * dataa, * datab;
-	l_uint32   * lined, * datad;
+	uint32   * lined, * datad;
 	PIX        * pixd;
 	FPIX       * fpix;
 
@@ -2294,9 +2281,9 @@ PIX * fpixaConvertLABToRGB(FPIXA  * fpixa)
  *          values.
  * </pre>
  */
-l_ok convertRGBToLAB(l_int32 rval,
-    l_int32 gval,
-    l_int32 bval,
+l_ok convertRGBToLAB(int32 rval,
+    int32 gval,
+    int32 bval,
     float * pflval,
     float * pfaval,
     float * pfbval)
@@ -2332,9 +2319,9 @@ l_ok convertRGBToLAB(l_int32 rval,
 l_ok convertLABToRGB(float flval,
     float faval,
     float fbval,
-    l_int32   * prval,
-    l_int32   * pgval,
-    l_int32   * pbval)
+    int32   * prval,
+    int32   * pgval,
+    int32   * pbval)
 {
 	float fxval, fyval, fzval;
 
@@ -2373,10 +2360,10 @@ l_ok convertLABToRGB(float flval,
  *          pixMakeArbMaskFromRGB(), separate colors into sets.
  * </pre>
  */
-PIX * pixMakeGamutRGB(l_int32 scale)
+PIX * pixMakeGamutRGB(int32 scale)
 {
-	l_int32 i, j, k;
-	l_uint32 val32;
+	int32 i, j, k;
+	uint32 val32;
 	PIX * pix1, * pix2;
 	PIXA * pixa;
 

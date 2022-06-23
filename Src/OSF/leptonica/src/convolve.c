@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file convolve.c
  * <pre>
@@ -48,10 +35,10 @@
  *
  *      Convolution for mean, mean square, variance and rms deviation
  *      in specified window
- *          l_int32       pixWindowedStats()
+ *          int32       pixWindowedStats()
  *          PIX          *pixWindowedMean()
  *          PIX          *pixWindowedMeanSquare()
- *          l_int32       pixWindowedVariance()
+ *          int32       pixWindowedVariance()
  *          DPIX         *pixMeanSquareAccum()
  *
  *      Binary block sum and rank filter
@@ -89,18 +76,18 @@
 /* These globals determine the subsampling factors for
  * generic convolution of pix and fpix.  Declare extern to use.
  * To change the values, use l_setConvolveSampling(). */
-LEPT_DLL l_int32 ConvolveSamplingFactX = 1;
-LEPT_DLL l_int32 ConvolveSamplingFactY = 1;
+LEPT_DLL int32 ConvolveSamplingFactX = 1;
+LEPT_DLL int32 ConvolveSamplingFactY = 1;
 
 /* Low-level static functions */
-static void blockconvLow(l_uint32 * data, l_int32 w, l_int32 h, l_int32 wpl,
-    l_uint32 * dataa, l_int32 wpla, l_int32 wc,
-    l_int32 hc);
-static void blockconvAccumLow(l_uint32 * datad, l_int32 w, l_int32 h,
-    l_int32 wpld, l_uint32 * datas, l_int32 d,
-    l_int32 wpls);
-static void blocksumLow(l_uint32 * datad, l_int32 w, l_int32 h, l_int32 wpl,
-    l_uint32 * dataa, l_int32 wpla, l_int32 wc, l_int32 hc);
+static void blockconvLow(uint32 * data, int32 w, int32 h, int32 wpl,
+    uint32 * dataa, int32 wpla, int32 wc,
+    int32 hc);
+static void blockconvAccumLow(uint32 * datad, int32 w, int32 h,
+    int32 wpld, uint32 * datas, int32 d,
+    int32 wpls);
+static void blocksumLow(uint32 * datad, int32 w, int32 h, int32 wpl,
+    uint32 * dataa, int32 wpla, int32 wc, int32 hc);
 
 /*----------------------------------------------------------------------*
 *             Top-level grayscale or color block convolution           *
@@ -123,10 +110,10 @@ static void blocksumLow(l_uint32 * datad, l_int32 w, l_int32 h, l_int32 wpl,
  * </pre>
  */
 PIX  * pixBlockconv(PIX * pix,
-    l_int32 wc,
-    l_int32 hc)
+    int32 wc,
+    int32 hc)
 {
-	l_int32 w, h, d;
+	int32 w, h, d;
 	PIX * pixs, * pixd, * pixr, * pixrc, * pixg, * pixgc, * pixb, * pixbc;
 
 	PROCNAME(__FUNCTION__);
@@ -208,11 +195,11 @@ PIX  * pixBlockconv(PIX * pix,
  */
 PIX * pixBlockconvGray(PIX * pixs,
     PIX * pixacc,
-    l_int32 wc,
-    l_int32 hc)
+    int32 wc,
+    int32 hc)
 {
-	l_int32 w, h, d, wpl, wpla;
-	l_uint32 * datad, * dataa;
+	int32 w, h, d, wpl, wpla;
+	uint32 * datad, * dataa;
 	PIX * pixd, * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -311,20 +298,20 @@ PIX * pixBlockconvGray(PIX * pixs,
  *          computed value and 255 to avoid overflow during normalization.
  * </pre>
  */
-static void blockconvLow(l_uint32 * data,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpl,
-    l_uint32 * dataa,
-    l_int32 wpla,
-    l_int32 wc,
-    l_int32 hc)
+static void blockconvLow(uint32 * data,
+    int32 w,
+    int32 h,
+    int32 wpl,
+    uint32 * dataa,
+    int32 wpla,
+    int32 wc,
+    int32 hc)
 {
-	l_int32 i, j, imax, imin, jmax, jmin;
-	l_int32 wn, hn, fwc, fhc, wmwc, hmhc;
+	int32 i, j, imax, imin, jmax, jmin;
+	int32 wn, hn, fwc, fhc, wmwc, hmhc;
 	float norm, normh, normw;
-	l_uint32 val;
-	l_uint32 * linemina, * linemaxa, * line;
+	uint32 val;
+	uint32 * linemina, * linemaxa, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -450,8 +437,8 @@ static void blockconvLow(l_uint32 * data,
  */
 PIX * pixBlockconvAccum(PIX  * pixs)
 {
-	l_int32 w, h, d, wpls, wpld;
-	l_uint32 * datas, * datad;
+	int32 w, h, d, wpls, wpld;
+	uint32 * datas, * datad;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -494,18 +481,18 @@ PIX * pixBlockconvAccum(PIX  * pixs)
  *             a(i,0) = v(i,0) + a(i-1, 0), i > 0
  * </pre>
  */
-static void blockconvAccumLow(l_uint32 * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32 * datas,
-    l_int32 d,
-    l_int32 wpls)
+static void blockconvAccumLow(uint32 * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32 * datas,
+    int32 d,
+    int32 wpls)
 {
 	uint8 val;
-	l_int32 i, j;
-	l_uint32 val32;
-	l_uint32 * lines, * lined, * linedp;
+	int32 i, j;
+	uint32 val32;
+	uint32 * lines, * lined, * linedp;
 
 	PROCNAME(__FUNCTION__);
 
@@ -630,11 +617,11 @@ static void blockconvAccumLow(l_uint32 * datad,
  * </pre>
  */
 PIX * pixBlockconvGrayUnnormalized(PIX * pixs,
-    l_int32 wc,
-    l_int32 hc)
+    int32 wc,
+    int32 hc)
 {
-	l_int32 i, j, w, h, d, wpla, wpld, jmax;
-	l_uint32 * linemina, * linemaxa, * lined, * dataa, * datad;
+	int32 i, j, w, h, d, wpla, wpld, jmax;
+	uint32 * linemina, * linemaxa, * lined, * dataa, * datad;
 	PIX * pixsb, * pixacc, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -720,12 +707,12 @@ PIX * pixBlockconvGrayUnnormalized(PIX * pixs,
  * </pre>
  */
 PIX * pixBlockconvTiled(PIX * pix,
-    l_int32 wc,
-    l_int32 hc,
-    l_int32 nx,
-    l_int32 ny)
+    int32 wc,
+    int32 hc,
+    int32 nx,
+    int32 ny)
 {
-	l_int32 i, j, w, h, d, xrat, yrat;
+	int32 i, j, w, h, d, xrat, yrat;
 	PIX        * pixs, * pixd, * pixc, * pixt;
 	PIX        * pixr, * pixrc, * pixg, * pixgc, * pixb, * pixbc;
 	PIXTILING  * pt;
@@ -848,13 +835,13 @@ PIX * pixBlockconvTiled(PIX * pix,
  */
 PIX * pixBlockconvGrayTile(PIX * pixs,
     PIX * pixacc,
-    l_int32 wc,
-    l_int32 hc)
+    int32 wc,
+    int32 hc)
 {
-	l_int32 w, h, d, wd, hd, i, j, imin, imax, jmin, jmax, wplt, wpld;
+	int32 w, h, d, wd, hd, i, j, imin, imax, jmin, jmax, wplt, wpld;
 	float norm;
-	l_uint32 val;
-	l_uint32 * datat, * datad, * lined, * linemint, * linemaxt;
+	uint32 val;
+	uint32 * datat, * datad, * lined, * linemint, * linemaxt;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -974,9 +961,9 @@ PIX * pixBlockconvGrayTile(PIX * pixs,
  * </pre>
  */
 l_ok pixWindowedStats(PIX * pixs,
-    l_int32 wc,
-    l_int32 hc,
-    l_int32 hasborder,
+    int32 wc,
+    int32 hc,
+    int32 hasborder,
     PIX    ** ppixm,
     PIX    ** ppixms,
     FPIX   ** pfpixv,
@@ -1057,14 +1044,14 @@ l_ok pixWindowedStats(PIX * pixs,
  * </pre>
  */
 PIX * pixWindowedMean(PIX * pixs,
-    l_int32 wc,
-    l_int32 hc,
-    l_int32 hasborder,
-    l_int32 normflag)
+    int32 wc,
+    int32 hc,
+    int32 hasborder,
+    int32 normflag)
 {
-	l_int32 i, j, w, h, d, wd, hd, wplc, wpld, wincr, hincr;
-	l_uint32 val;
-	l_uint32 * datac, * datad, * linec1, * linec2, * lined;
+	int32 i, j, w, h, d, wd, hd, wplc, wpld, wincr, hincr;
+	uint32 val;
+	uint32 * datac, * datad, * linec1, * linec2, * lined;
 	float norm;
 	PIX * pixb, * pixc, * pixd;
 
@@ -1126,7 +1113,7 @@ PIX * pixWindowedMean(PIX * pixs,
 				SET_DATA_BYTE(lined, j, val);
 			}
 			else { /* d == 32 */
-				val = (l_uint32)(norm * val);
+				val = (uint32)(norm * val);
 				lined[j] = val;
 			}
 		}
@@ -1173,13 +1160,13 @@ cleanup:
  * </pre>
  */
 PIX * pixWindowedMeanSquare(PIX * pixs,
-    l_int32 wc,
-    l_int32 hc,
-    l_int32 hasborder)
+    int32 wc,
+    int32 hc,
+    int32 hasborder)
 {
-	l_int32 i, j, w, h, wd, hd, wpl, wpld, wincr, hincr;
-	l_uint32 ival;
-	l_uint32   * datad, * lined;
+	int32 i, j, w, h, wd, hd, wpl, wpld, wincr, hincr;
+	uint32 ival;
+	uint32   * datad, * lined;
 	double norm;
 	double val;
 	double  * data, * line1, * line2;
@@ -1233,7 +1220,7 @@ PIX * pixWindowedMeanSquare(PIX * pixs,
 		lined = datad + i * wpld;
 		for(j = 0; j < wd; j++) {
 			val = line2[j + wincr] - line2[j] - line1[j + wincr] + line1[j];
-			ival = (l_uint32)(norm * val + 0.5); /* to round up */
+			ival = (uint32)(norm * val + 0.5); /* to round up */
 			lined[j] = ival;
 		}
 	}
@@ -1273,9 +1260,9 @@ l_ok pixWindowedVariance(PIX    * pixm,
     FPIX  ** pfpixv,
     FPIX  ** pfpixrv)
 {
-	l_int32 i, j, w, h, ws, hs, ds, wplm, wplms, wplv, wplrv, valm, valms;
+	int32 i, j, w, h, ws, hs, ds, wplm, wplms, wplv, wplrv, valm, valms;
 	float var;
-	l_uint32   * linem, * linems, * datam, * datams;
+	uint32   * linem, * linems, * datam, * datams;
 	float * linev, * linerv, * datav, * datarv;
 	FPIX       * fpixv, * fpixrv; /* variance and square root of variance */
 
@@ -1323,7 +1310,7 @@ l_ok pixWindowedVariance(PIX    * pixm,
 			if(ds == 8)
 				valms = GET_DATA_BYTE(linems, j);
 			else /* ds == 32 */
-				valms = (l_int32)linems[j];
+				valms = (int32)linems[j];
 			var = (float)valms - (float)valm * valm;
 			if(pfpixv)
 				linev[j] = var;
@@ -1357,8 +1344,8 @@ l_ok pixWindowedVariance(PIX    * pixm,
  */
 DPIX * pixMeanSquareAccum(PIX  * pixs)
 {
-	l_int32 i, j, w, h, wpl, wpls, val;
-	l_uint32   * datas, * lines;
+	int32 i, j, w, h, wpl, wpls, val;
+	uint32   * datas, * lines;
 	double  * data, * line, * linep;
 	DPIX       * dpix;
 
@@ -1436,11 +1423,11 @@ DPIX * pixMeanSquareAccum(PIX  * pixs)
  */
 PIX * pixBlockrank(PIX * pixs,
     PIX * pixacc,
-    l_int32 wc,
-    l_int32 hc,
+    int32 wc,
+    int32 hc,
     float rank)
 {
-	l_int32 w, h, d, thresh;
+	int32 w, h, d, thresh;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1476,7 +1463,7 @@ PIX * pixBlockrank(PIX * pixs,
 	/* 1 bpp block rank filter output.
 	 * Must invert because threshold gives 1 for values < thresh,
 	 * but we need a 1 if the value is >= thresh. */
-	thresh = (l_int32)(255. * rank);
+	thresh = (int32)(255. * rank);
 	pixd = pixThresholdToBinary(pixt, thresh);
 	pixInvert(pixd, pixd);
 	pixDestroy(&pixt);
@@ -1517,11 +1504,11 @@ PIX * pixBlockrank(PIX * pixs,
  */
 PIX * pixBlocksum(PIX * pixs,
     PIX * pixacc,
-    l_int32 wc,
-    l_int32 hc)
+    int32 wc,
+    int32 hc)
 {
-	l_int32 w, h, d, wplt, wpld;
-	l_uint32 * datat, * datad;
+	int32 w, h, d, wplt, wpld;
+	uint32 * datat, * datad;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1601,20 +1588,20 @@ PIX * pixBlocksum(PIX * pixs,
  *      (5) Required constraints are: wc < w and hc < h.
  * </pre>
  */
-static void blocksumLow(l_uint32 * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpl,
-    l_uint32 * dataa,
-    l_int32 wpla,
-    l_int32 wc,
-    l_int32 hc)
+static void blocksumLow(uint32 * datad,
+    int32 w,
+    int32 h,
+    int32 wpl,
+    uint32 * dataa,
+    int32 wpla,
+    int32 wc,
+    int32 hc)
 {
-	l_int32 i, j, imax, imin, jmax, jmin;
-	l_int32 wn, hn, fwc, fhc, wmwc, hmhc;
+	int32 i, j, imax, imin, jmax, jmin;
+	int32 wn, hn, fwc, fhc, wmwc, hmhc;
 	float norm, normh, normw;
-	l_uint32 val;
-	l_uint32 * linemina, * linemaxa, * lined;
+	uint32 val;
+	uint32 * linemina, * linemaxa, * lined;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1751,12 +1738,12 @@ static void blocksumLow(l_uint32 * datad,
  * </pre>
  */
 PIX * pixCensusTransform(PIX * pixs,
-    l_int32 halfsize,
+    int32 halfsize,
     PIX * pixacc)
 {
-	l_int32 i, j, w, h, wpls, wplv, wpld;
-	l_int32 vals, valv;
-	l_uint32 * datas, * datav, * datad, * lines, * linev, * lined;
+	int32 i, j, w, h, wpls, wplv, wpld;
+	int32 vals, valv;
+	uint32 * datas, * datav, * datad, * lines, * linev, * lined;
 	PIX * pixav, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1850,12 +1837,12 @@ PIX * pixCensusTransform(PIX * pixs,
  */
 PIX * pixConvolve(PIX * pixs,
     L_KERNEL  * kel,
-    l_int32 outdepth,
-    l_int32 normflag)
+    int32 outdepth,
+    int32 normflag)
 {
-	l_int32 i, j, id, jd, k, m, w, h, d, wd, hd, sx, sy, cx, cy, wplt, wpld;
-	l_int32 val;
-	l_uint32 * datat, * datad, * linet, * lined;
+	int32 i, j, id, jd, k, m, w, h, d, wd, hd, sx, sy, cx, cy, wplt, wpld;
+	int32 val;
+	uint32 * datat, * datad, * linet, * lined;
 	float sum;
 	L_KERNEL  * keli, * keln;
 	PIX * pixt, * pixd;
@@ -1920,11 +1907,11 @@ PIX * pixConvolve(PIX * pixs,
 			}
 			if(sum < 0.0) sum = -sum; /* make it non-negative */
 			if(outdepth == 8)
-				SET_DATA_BYTE(lined, jd, (l_int32)(sum + 0.5));
+				SET_DATA_BYTE(lined, jd, (int32)(sum + 0.5));
 			else if(outdepth == 16)
-				SET_DATA_TWO_BYTES(lined, jd, (l_int32)(sum + 0.5));
+				SET_DATA_TWO_BYTES(lined, jd, (int32)(sum + 0.5));
 			else /* outdepth == 32 */
-				*(lined + jd) = (l_uint32)(sum + 0.5);
+				*(lined + jd) = (uint32)(sum + 0.5);
 		}
 	}
 
@@ -1981,10 +1968,10 @@ cleanup:
 PIX * pixConvolveSep(PIX * pixs,
     L_KERNEL  * kelx,
     L_KERNEL  * kely,
-    l_int32 outdepth,
-    l_int32 normflag)
+    int32 outdepth,
+    int32 normflag)
 {
-	l_int32 d, xfact, yfact;
+	int32 d, xfact, yfact;
 	L_KERNEL  * kelxn, * kelyn;
 	PIX * pixt, * pixd;
 
@@ -2168,9 +2155,9 @@ PIX * pixConvolveRGBSep(PIX * pixs,
  */
 FPIX * fpixConvolve(FPIX      * fpixs,
     L_KERNEL  * kel,
-    l_int32 normflag)
+    int32 normflag)
 {
-	l_int32 i, j, id, jd, k, m, w, h, wd, hd, sx, sy, cx, cy, wplt, wpld;
+	int32 i, j, id, jd, k, m, w, h, wd, hd, sx, sy, cx, cy, wplt, wpld;
 	float val;
 	float * datat, * datad, * linet, * lined;
 	float sum;
@@ -2261,9 +2248,9 @@ cleanup:
 FPIX * fpixConvolveSep(FPIX      * fpixs,
     L_KERNEL  * kelx,
     L_KERNEL  * kely,
-    l_int32 normflag)
+    int32 normflag)
 {
-	l_int32 xfact, yfact;
+	int32 xfact, yfact;
 	L_KERNEL  * kelxn, * kelyn;
 	FPIX      * fpixt, * fpixd;
 
@@ -2338,10 +2325,10 @@ FPIX * fpixConvolveSep(FPIX      * fpixs,
 PIX * pixConvolveWithBias(PIX * pixs,
     L_KERNEL  * kel1,
     L_KERNEL  * kel2,
-    l_int32 force8,
-    l_int32   * pbias)
+    int32 force8,
+    int32   * pbias)
 {
-	l_int32 outdepth;
+	int32 outdepth;
 	float min1, min2, min, minval, maxval, range;
 	FPIX      * fpix1, * fpix2;
 	PIX * pixd;
@@ -2424,8 +2411,8 @@ PIX * pixConvolveWithBias(PIX * pixs,
  *          and fpix convolution.  The default values are 1 (no subsampling).
  * </pre>
  */
-void l_setConvolveSampling(l_int32 xfact,
-    l_int32 yfact)
+void l_setConvolveSampling(int32 xfact,
+    int32 yfact)
 {
 	if(xfact < 1) xfact = 1;
 	if(yfact < 1) yfact = 1;
@@ -2452,9 +2439,9 @@ void l_setConvolveSampling(l_int32 xfact,
 PIX * pixAddGaussianNoise(PIX * pixs,
     float stdev)
 {
-	l_int32 i, j, w, h, d, wpls, wpld, val, rval, gval, bval;
-	l_uint32 pixel;
-	l_uint32 * datas, * datad, * lines, * lined;
+	int32 i, j, w, h, d, wpls, wpld, val, rval, gval, bval;
+	uint32 pixel;
+	uint32 * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2478,18 +2465,18 @@ PIX * pixAddGaussianNoise(PIX * pixs,
 		for(j = 0; j < w; j++) {
 			if(d == 8) {
 				val = GET_DATA_BYTE(lines, j);
-				val += (l_int32)(stdev * gaussDistribSampling() + 0.5);
+				val += (int32)(stdev * gaussDistribSampling() + 0.5);
 				val = MIN(255, MAX(0, val));
 				SET_DATA_BYTE(lined, j, val);
 			}
 			else { /* d = 32 */
 				pixel = *(lines + j);
 				extractRGBValues(pixel, &rval, &gval, &bval);
-				rval += (l_int32)(stdev * gaussDistribSampling() + 0.5);
+				rval += (int32)(stdev * gaussDistribSampling() + 0.5);
 				rval = MIN(255, MAX(0, rval));
-				gval += (l_int32)(stdev * gaussDistribSampling() + 0.5);
+				gval += (int32)(stdev * gaussDistribSampling() + 0.5);
 				gval = MIN(255, MAX(0, gval));
-				bval += (l_int32)(stdev * gaussDistribSampling() + 0.5);
+				bval += (int32)(stdev * gaussDistribSampling() + 0.5);
 				bval = MIN(255, MAX(0, bval));
 				composeRGBPixel(rval, gval, bval, lined + j);
 			}
@@ -2515,7 +2502,7 @@ PIX * pixAddGaussianNoise(PIX * pixs,
  */
 float gaussDistribSampling(void)
 {
-	static l_int32 select = 0; /* flips between 0 and 1 on successive calls */
+	static int32 select = 0; /* flips between 0 and 1 on successive calls */
 	static float saveval;
 	float frand, xval, yval, rsq, factor;
 

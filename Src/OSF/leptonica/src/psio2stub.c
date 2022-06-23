@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file psio2stub.c
  * <pre>
@@ -43,21 +30,21 @@ l_ok pixWritePSEmbed(const char * filein, const char * fileout)
 	return ERROR_INT("function not present", "pixWritePSEmbed", 1);
 }
 
-l_ok pixWriteStreamPS(FILE * fp, PIX * pix, BOX * box, l_int32 res,
+l_ok pixWriteStreamPS(FILE * fp, PIX * pix, BOX * box, int32 res,
     float scale)
 {
 	return ERROR_INT("function not present", "pixWriteStreamPS", 1);
 }
 
-char * pixWriteStringPS(PIX * pixs, BOX * box, l_int32 res, float scale)
+char * pixWriteStringPS(PIX * pixs, BOX * box, int32 res, float scale)
 {
 	return (char *)ERROR_PTR("function not present", "pixWriteStringPS", NULL);
 }
 
-char * generateUncompressedPS(char * hexdata, l_int32 w, l_int32 h, l_int32 d,
-    l_int32 psbpl, l_int32 bps, float xpt,
+char * generateUncompressedPS(char * hexdata, int32 w, int32 h, int32 d,
+    int32 psbpl, int32 bps, float xpt,
     float ypt, float wpt, float hpt,
-    l_int32 boxflag)
+    int32 boxflag)
 {
 	return (char *)ERROR_PTR("function not present",
 		   "generateUncompressedPS", NULL);
@@ -69,9 +56,9 @@ l_ok convertJpegToPSEmbed(const char * filein, const char * fileout)
 }
 
 l_ok convertJpegToPS(const char * filein, const char * fileout,
-    const char * operation, l_int32 x, l_int32 y,
-    l_int32 res, float scale, l_int32 pageno,
-    l_int32 endpage)
+    const char * operation, int32 x, int32 y,
+    int32 res, float scale, int32 pageno,
+    int32 endpage)
 {
 	return ERROR_INT("function not present", "convertJpegToPS", 1);
 }
@@ -82,9 +69,9 @@ l_ok convertG4ToPSEmbed(const char * filein, const char * fileout)
 }
 
 l_ok convertG4ToPS(const char * filein, const char * fileout,
-    const char * operation, l_int32 x, l_int32 y,
-    l_int32 res, float scale, l_int32 pageno,
-    l_int32 maskflag, l_int32 endpage)
+    const char * operation, int32 x, int32 y,
+    int32 res, float scale, int32 pageno,
+    int32 maskflag, int32 endpage)
 {
 	return ERROR_INT("function not present", "convertG4ToPS", 1);
 }
@@ -101,25 +88,25 @@ l_ok convertFlateToPSEmbed(const char * filein, const char * fileout)
 }
 
 l_ok convertFlateToPS(const char * filein, const char * fileout,
-    const char * operation, l_int32 x, l_int32 y,
-    l_int32 res, float scale, l_int32 pageno,
-    l_int32 endpage)
+    const char * operation, int32 x, int32 y,
+    int32 res, float scale, int32 pageno,
+    int32 endpage)
 {
 	return ERROR_INT("function not present", "convertFlateToPS", 1);
 }
 
 l_ok pixWriteMemPS(uint8 ** pdata, size_t * psize, PIX * pix, BOX * box,
-    l_int32 res, float scale)
+    int32 res, float scale)
 {
 	return ERROR_INT("function not present", "pixWriteMemPS", 1);
 }
 
-l_int32 getResLetterPage(l_int32 w, l_int32 h, float fillfract)
+int32 getResLetterPage(int32 w, int32 h, float fillfract)
 {
 	return ERROR_INT("function not present", "getResLetterPage", 1);
 }
 
-void l_psWriteBoundingBox(l_int32 flag)
+void l_psWriteBoundingBox(int32 flag)
 {
 	L_ERROR("function not present\n", "l_psWriteBoundingBox");
 	return;

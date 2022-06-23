@@ -13,10 +13,10 @@
  * <pre>
  *
  *      Read header
- *          l_int32          readHeaderJp2k()
- *          l_int32          freadHeaderJp2k()
- *          l_int32          readHeaderMemJp2k()
- *          l_int32          fgetJp2kResolution()
+ *          int32          readHeaderJp2k()
+ *          int32          freadHeaderJp2k()
+ *          int32          readHeaderMemJp2k()
+ *          int32          fgetJp2kResolution()
  *
  *  Note: these function read image metadata from a jp2k file, without
  *  using any jp2k libraries.
@@ -37,8 +37,8 @@
 /* --------------------------------------------*/
 
 /* a sanity check on the size read from file */
-static const l_int32 MAX_JP2K_WIDTH = 100000;
-static const l_int32 MAX_JP2K_HEIGHT = 100000;
+static const int32 MAX_JP2K_WIDTH = 100000;
+static const int32 MAX_JP2K_HEIGHT = 100000;
 
 /*--------------------------------------------------------------------*
 *                          Stream interface                          *
@@ -55,13 +55,13 @@ static const l_int32 MAX_JP2K_HEIGHT = 100000;
  * \return  0 if OK, 1 on error
  */
 l_ok readHeaderJp2k(const char * filename,
-    l_int32    * pw,
-    l_int32    * ph,
-    l_int32    * pbps,
-    l_int32    * pspp,
-    l_int32    * pcodec)
+    int32    * pw,
+    int32    * ph,
+    int32    * pbps,
+    int32    * pspp,
+    int32    * pcodec)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -88,14 +88,14 @@ l_ok readHeaderJp2k(const char * filename,
  * \return  0 if OK, 1 on error
  */
 l_ok freadHeaderJp2k(FILE * fp,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pbps,
-    l_int32 * pspp,
-    l_int32 * pcodec)
+    int32 * pw,
+    int32 * ph,
+    int32 * pbps,
+    int32 * pspp,
+    int32 * pcodec)
 {
 	uint8 buf[80]; /* just need the first 80 bytes */
-	l_int32 nread, ret;
+	int32 nread, ret;
 
 	PROCNAME(__FUNCTION__);
 
@@ -144,13 +144,13 @@ l_ok freadHeaderJp2k(FILE * fp,
  */
 l_ok readHeaderMemJp2k(const uint8  * data,
     size_t size,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pbps,
-    l_int32 * pspp,
-    l_int32 * pcodec)
+    int32 * pw,
+    int32 * ph,
+    int32 * pbps,
+    int32 * pspp,
+    int32 * pcodec)
 {
-	l_int32 format, val, w, h, bps, spp, loc, found, windex, codec;
+	int32 format, val, w, h, bps, spp, loc, found, windex, codec;
 	uint8 ihdr[4] = {0x69, 0x68, 0x64, 0x72}; /* 'ihdr' */
 
 	PROCNAME(__FUNCTION__);
@@ -189,9 +189,9 @@ l_ok readHeaderMemJp2k(const uint8  * data,
 	if(codec == L_JP2_CODEC) {
 		if(size < 4 * (windex + 3))
 			return ERROR_INT("header size is too small", procName, 1);
-		val = *((l_uint32*)data + windex);
+		val = *((uint32*)data + windex);
 		h = convertOnLittleEnd32(val);
-		val = *((l_uint32*)data + windex + 1);
+		val = *((uint32*)data + windex + 1);
 		w = convertOnLittleEnd32(val);
 		val = *((uint16*)data + 2 * (windex + 2));
 		spp = convertOnLittleEnd16(val);
@@ -200,9 +200,9 @@ l_ok readHeaderMemJp2k(const uint8  * data,
 	else { /* codec == L_J2K_CODEC */
 		if(size < 4 * (windex + 9))
 			return ERROR_INT("header size is too small", procName, 1);
-		val = *((l_uint32*)data + windex);
+		val = *((uint32*)data + windex);
 		w = convertOnLittleEnd32(val);
-		val = *((l_uint32*)data + windex + 1);
+		val = *((uint32*)data + windex + 1);
 		h = convertOnLittleEnd32(val);
 		val = *((uint16*)data + 2 * (windex + 8));
 		spp = convertOnLittleEnd16(val);
@@ -249,14 +249,14 @@ l_ok readHeaderMemJp2k(const uint8  * data,
  *             yexp:    1 byte
  *             xexp:    1 byte
  */
-l_int32 fgetJp2kResolution(FILE * fp,
-    l_int32 * pxres,
-    l_int32 * pyres)
+int32 fgetJp2kResolution(FILE * fp,
+    int32 * pxres,
+    int32 * pyres)
 {
 	uint8 xexp, yexp;
 	uint8   * data;
 	uint16 xnum, ynum, xdenom, ydenom; /* these jp2k fields are 2-byte */
-	l_int32 loc, found;
+	int32 loc, found;
 	uint8 resc[4] = {0x72, 0x65, 0x73, 0x63}; /* 'resc' */
 	size_t nbytes;
 	double xres, yres, maxres;
@@ -316,8 +316,8 @@ l_int32 fgetJp2kResolution(FILE * fp,
 		L_WARNING("ridiculously large resolution\n", procName);
 	}
 	else {
-		*pyres = (l_int32)(yres + 0.5);
-		*pxres = (l_int32)(xres + 0.5);
+		*pyres = (int32)(yres + 0.5);
+		*pxres = (int32)(xres + 0.5);
 	}
 
 	SAlloc::F(data);

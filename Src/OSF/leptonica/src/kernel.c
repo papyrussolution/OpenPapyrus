@@ -18,12 +18,12 @@
  *            L_KERNEL   *kernelCopy()
  *
  *         Accessors:
- *            l_int32     kernelGetElement()
- *            l_int32     kernelSetElement()
- *            l_int32     kernelGetParameters()
- *            l_int32     kernelSetOrigin()
- *            l_int32     kernelGetSum()
- *            l_int32     kernelGetMinMax()
+ *            int32     kernelGetElement()
+ *            int32     kernelSetElement()
+ *            int32     kernelGetParameters()
+ *            int32     kernelSetOrigin()
+ *            int32     kernelGetSum()
+ *            int32     kernelGetMinMax()
  *
  *         Normalize/invert
  *            L_KERNEL   *kernelNormalize()
@@ -35,8 +35,8 @@
  *         Serialized I/O
  *            L_KERNEL   *kernelRead()
  *            L_KERNEL   *kernelReadStream()
- *            l_int32     kernelWrite()
- *            l_int32     kernelWriteStream()
+ *            int32     kernelWrite()
+ *            int32     kernelWriteStream()
  *
  *         Making a kernel from a compiled string
  *            L_KERNEL   *kernelCreateFromString()
@@ -64,7 +64,7 @@
 #pragma hdrstop
 
 /* Array size must be > 0 and not larger than this */
-static const l_uint32 MaxArraySize = 100000;
+static const uint32 MaxArraySize = 100000;
 
 /*------------------------------------------------------------------------*
 *                           Create / Destroy                             *
@@ -83,8 +83,8 @@ static const l_uint32 MaxArraySize = 100000;
  *      (2) The number of kernel elements must be less than 2^29.
  * </pre>
  */
-L_KERNEL * kernelCreate(l_int32 height,
-    l_int32 width)
+L_KERNEL * kernelCreate(int32 height,
+    int32 width)
 {
 	l_uint64 size64;
 	L_KERNEL  * kel;
@@ -121,7 +121,7 @@ L_KERNEL * kernelCreate(l_int32 height,
  */
 void kernelDestroy(L_KERNEL  ** pkel)
 {
-	l_int32 i;
+	int32 i;
 	L_KERNEL  * kel;
 
 	PROCNAME(__FUNCTION__);
@@ -148,7 +148,7 @@ void kernelDestroy(L_KERNEL  ** pkel)
  */
 L_KERNEL * kernelCopy(L_KERNEL  * kels)
 {
-	l_int32 i, j, sx, sy, cx, cy;
+	int32 i, j, sx, sy, cx, cy;
 	L_KERNEL  * keld;
 
 	PROCNAME(__FUNCTION__);
@@ -181,8 +181,8 @@ L_KERNEL * kernelCopy(L_KERNEL  * kels)
  * \return  0 if OK; 1 on error
  */
 l_ok kernelGetElement(L_KERNEL   * kel,
-    l_int32 row,
-    l_int32 col,
+    int32 row,
+    int32 col,
     float * pval)
 {
 	PROCNAME(__FUNCTION__);
@@ -211,8 +211,8 @@ l_ok kernelGetElement(L_KERNEL   * kel,
  * \return  0 if OK; 1 on error
  */
 l_ok kernelSetElement(L_KERNEL  * kel,
-    l_int32 row,
-    l_int32 col,
+    int32 row,
+    int32 col,
     float val)
 {
 	PROCNAME(__FUNCTION__);
@@ -236,10 +236,10 @@ l_ok kernelSetElement(L_KERNEL  * kel,
  * \return  0 if OK, 1 on error
  */
 l_ok kernelGetParameters(L_KERNEL  * kel,
-    l_int32   * psy,
-    l_int32   * psx,
-    l_int32   * pcy,
-    l_int32   * pcx)
+    int32   * psy,
+    int32   * psx,
+    int32   * pcy,
+    int32   * pcx)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -264,8 +264,8 @@ l_ok kernelGetParameters(L_KERNEL  * kel,
  * \return  0 if OK; 1 on error
  */
 l_ok kernelSetOrigin(L_KERNEL  * kel,
-    l_int32 cy,
-    l_int32 cx)
+    int32 cy,
+    int32 cx)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -286,7 +286,7 @@ l_ok kernelSetOrigin(L_KERNEL  * kel,
 l_ok kernelGetSum(L_KERNEL   * kel,
     float * psum)
 {
-	l_int32 sx, sy, i, j;
+	int32 sx, sy, i, j;
 
 	PROCNAME(__FUNCTION__);
 
@@ -317,7 +317,7 @@ l_ok kernelGetMinMax(L_KERNEL   * kel,
     float * pmin,
     float * pmax)
 {
-	l_int32 sx, sy, i, j;
+	int32 sx, sy, i, j;
 	float val, minval, maxval;
 
 	PROCNAME(__FUNCTION__);
@@ -370,7 +370,7 @@ l_ok kernelGetMinMax(L_KERNEL   * kel,
 L_KERNEL * kernelNormalize(L_KERNEL  * kels,
     float normsum)
 {
-	l_int32 i, j, sx, sy, cx, cy;
+	int32 i, j, sx, sy, cx, cy;
 	float sum, factor;
 	L_KERNEL  * keld;
 
@@ -413,7 +413,7 @@ L_KERNEL * kernelNormalize(L_KERNEL  * kels,
  */
 L_KERNEL * kernelInvert(L_KERNEL  * kels)
 {
-	l_int32 i, j, sx, sy, cx, cy;
+	int32 i, j, sx, sy, cx, cy;
 	L_KERNEL  * keld;
 
 	PROCNAME(__FUNCTION__);
@@ -452,10 +452,10 @@ L_KERNEL * kernelInvert(L_KERNEL  * kels)
  *      (2) The caller kernelCreate() limits the size to < 2^29 pixels.
  * </pre>
  */
-float ** create2dFloatArray(l_int32 sy,
-    l_int32 sx)
+float ** create2dFloatArray(int32 sy,
+    int32 sx)
 {
-	l_int32 i;
+	int32 i;
 	float ** array;
 
 	PROCNAME(__FUNCTION__);
@@ -509,7 +509,7 @@ L_KERNEL * kernelRead(const char * fname)
  */
 L_KERNEL * kernelReadStream(FILE * fp)
 {
-	l_int32 sy, sx, cy, cx, i, j, ret, version, ignore;
+	int32 sy, sx, cy, cx, i, j, ret, version, ignore;
 	L_KERNEL  * kel;
 
 	PROCNAME(__FUNCTION__);
@@ -581,7 +581,7 @@ l_ok kernelWrite(const char * fname,
 l_ok kernelWriteStream(FILE * fp,
     L_KERNEL  * kel)
 {
-	l_int32 sx, sy, cx, cy, i, j;
+	int32 sx, sy, cx, cy, i, j;
 
 	PROCNAME(__FUNCTION__);
 
@@ -628,13 +628,13 @@ l_ok kernelWriteStream(FILE * fp,
  *                  " 20   50   20 ";
  * </pre>
  */
-L_KERNEL * kernelCreateFromString(l_int32 h,
-    l_int32 w,
-    l_int32 cy,
-    l_int32 cx,
+L_KERNEL * kernelCreateFromString(int32 h,
+    int32 w,
+    int32 cy,
+    int32 cx,
     const char * kdata)
 {
-	l_int32 n, i, j, index;
+	int32 n, i, j, index;
 	float val;
 	L_KERNEL  * kel;
 	NUMA * na;
@@ -715,7 +715,7 @@ L_KERNEL * kernelCreateFromString(l_int32 h,
 L_KERNEL * kernelCreateFromFile(const char * filename)
 {
 	char      * filestr, * line;
-	l_int32 nlines, i, j, first, index, w, h, cx, cy, n;
+	int32 nlines, i, j, first, index, w, h, cx, cy, n;
 	float val;
 	size_t size;
 	NUMA * na, * nat;
@@ -816,11 +816,11 @@ L_KERNEL * kernelCreateFromFile(const char * filename)
  * </pre>
  */
 L_KERNEL * kernelCreateFromPix(PIX         * pix,
-    l_int32 cy,
-    l_int32 cx)
+    int32 cy,
+    int32 cx)
 {
-	l_int32 i, j, w, h, d;
-	l_uint32 val;
+	int32 i, j, w, h, d;
+	uint32 val;
 	L_KERNEL  * kel;
 
 	PROCNAME(__FUNCTION__);
@@ -875,11 +875,11 @@ L_KERNEL * kernelCreateFromPix(PIX         * pix,
  * </pre>
  */
 PIX * kernelDisplayInPix(L_KERNEL     * kel,
-    l_int32 size,
-    l_int32 gthick)
+    int32 size,
+    int32 gthick)
 {
-	l_int32 i, j, w, h, sx, sy, cx, cy, width, x0, y0;
-	l_int32 normval;
+	int32 i, j, w, h, sx, sy, cx, cy, width, x0, y0;
+	int32 normval;
 	float minval, maxval, max, val, norm;
 	PIX * pixd, * pixt0, * pixt1;
 
@@ -894,15 +894,14 @@ PIX * kernelDisplayInPix(L_KERNEL     * kel,
 	max = MAX(maxval, -minval);
 	if(max == 0.0)
 		return (PIX *)ERROR_PTR("kernel elements all 0.0", procName, NULL);
-	norm = 255. / (float)max;
-
+	norm = 255.0f / (float)max;
 	/* Handle the 1 element/pixel case; typically with large kernels */
 	if(size == 1 && gthick == 0) {
 		pixd = pixCreate(sx, sy, 8);
 		for(i = 0; i < sy; i++) {
 			for(j = 0; j < sx; j++) {
 				kernelGetElement(kel, i, j, &val);
-				normval = (l_int32)(norm * L_ABS(val));
+				normval = (int32)(norm * L_ABS(val));
 				pixSetPixel(pixd, j, i, normval);
 			}
 		}
@@ -942,11 +941,11 @@ PIX * kernelDisplayInPix(L_KERNEL     * kel,
 	/* Generate crossed lines for origin pattern */
 	pixt1 = pixCreate(size, size, 1);
 	width = size / 8;
-	pixRenderLine(pixt1, size / 2, (l_int32)(0.12 * size),
-	    size / 2, (l_int32)(0.88 * size),
+	pixRenderLine(pixt1, size / 2, (int32)(0.12 * size),
+	    size / 2, (int32)(0.88 * size),
 	    width, L_SET_PIXELS);
-	pixRenderLine(pixt1, (l_int32)(0.15 * size), size / 2,
-	    (l_int32)(0.85 * size), size / 2,
+	pixRenderLine(pixt1, (int32)(0.15 * size), size / 2,
+	    (int32)(0.85 * size), size / 2,
 	    width, L_FLIP_PIXELS);
 	pixRasterop(pixt1, size / 2 - width, size / 2 - width,
 	    2 * width, 2 * width, PIX_NOT(PIX_DST), NULL, 0, 0);
@@ -957,7 +956,7 @@ PIX * kernelDisplayInPix(L_KERNEL     * kel,
 		x0 = gthick;
 		for(j = 0; j < sx; j++) {
 			kernelGetElement(kel, i, j, &val);
-			normval = (l_int32)(norm * L_ABS(val));
+			normval = (int32)(norm * L_ABS(val));
 			pixSetMaskedGeneral(pixd, pixt0, normval, x0, y0);
 			if(i == cy && j == cx)
 				pixPaintThroughMask(pixd, pixt1, x0, y0, 255 - normval);
@@ -1030,16 +1029,16 @@ NUMA * parseStringForNumbers(const char * str, const char * seps)
  *      (3) This returns a normalized kernel.
  * </pre>
  */
-L_KERNEL * makeFlatKernel(l_int32 height, l_int32 width, l_int32 cy, l_int32 cx)
+L_KERNEL * makeFlatKernel(int32 height, int32 width, int32 cy, int32 cx)
 {
-	l_int32 i, j;
+	int32 i, j;
 	float normval;
 	L_KERNEL  * kel;
 	PROCNAME(__FUNCTION__);
 	if((kel = kernelCreate(height, width)) == NULL)
 		return (L_KERNEL*)ERROR_PTR("kel not made", procName, NULL);
 	kernelSetOrigin(kel, cy, cx);
-	normval = 1.0 / (float)(height * width);
+	normval = 1.0f / (float)(height * width);
 	for(i = 0; i < height; i++) {
 		for(j = 0; j < width; j++) {
 			kernelSetElement(kel, i, j, normval);
@@ -1068,9 +1067,9 @@ L_KERNEL * makeFlatKernel(l_int32 height, l_int32 width, l_int32 cy, l_int32 cx)
  *          not too small or too large).
  * </pre>
  */
-L_KERNEL * makeGaussianKernel(l_int32 halfh, l_int32 halfw, float stdev, float max)
+L_KERNEL * makeGaussianKernel(int32 halfh, int32 halfw, float stdev, float max)
 {
-	l_int32 sx, sy, i, j;
+	int32 sx, sy, i, j;
 	float val;
 	L_KERNEL  * kel;
 	PROCNAME(__FUNCTION__);
@@ -1081,9 +1080,7 @@ L_KERNEL * makeGaussianKernel(l_int32 halfh, l_int32 halfw, float stdev, float m
 	kernelSetOrigin(kel, halfh, halfw);
 	for(i = 0; i < sy; i++) {
 		for(j = 0; j < sx; j++) {
-			val = expf(-(float)((i - halfh) * (i - halfh) +
-				(j - halfw) * (j - halfw)) /
-				(2. * stdev * stdev));
+			val = expf(-(float)((i - halfh) * (i - halfh) + (j - halfw) * (j - halfw)) / (2.0f * stdev * stdev));
 			kernelSetElement(kel, i, j, max * val);
 		}
 	}
@@ -1114,7 +1111,7 @@ L_KERNEL * makeGaussianKernel(l_int32 halfh, l_int32 halfw, float stdev, float m
  *          makeGaussianKernel().
  * </pre>
  */
-l_ok makeGaussianKernelSep(l_int32 halfh, l_int32 halfw, float stdev, float max, L_KERNEL ** pkelx, L_KERNEL ** pkely)
+l_ok makeGaussianKernelSep(int32 halfh, int32 halfw, float stdev, float max, L_KERNEL ** pkelx, L_KERNEL ** pkely)
 {
 	PROCNAME(__FUNCTION__);
 	if(!pkelx || !pkely)
@@ -1151,10 +1148,10 @@ l_ok makeGaussianKernelSep(l_int32 halfh, l_int32 halfw, float stdev, float max,
  *          normalization in pixConvolve().
  * </pre>
  */
-L_KERNEL * makeDoGKernel(l_int32 halfh, l_int32 halfw, float stdev, float ratio)
+L_KERNEL * makeDoGKernel(int32 halfh, int32 halfw, float stdev, float ratio)
 {
-	l_int32 sx, sy, i, j;
-	float pi, squaredist, highnorm, lownorm, val;
+	int32 sx, sy, i, j;
+	float /*pi,*/squaredist, highnorm, lownorm, val;
 	L_KERNEL  * kel;
 	PROCNAME(__FUNCTION__);
 	sx = 2 * halfw + 1;
@@ -1162,13 +1159,13 @@ L_KERNEL * makeDoGKernel(l_int32 halfh, l_int32 halfw, float stdev, float ratio)
 	if((kel = kernelCreate(sy, sx)) == NULL)
 		return (L_KERNEL*)ERROR_PTR("kel not made", procName, NULL);
 	kernelSetOrigin(kel, halfh, halfw);
-	pi = 3.1415926535;
+	//pi = 3.1415926535;
 	for(i = 0; i < sy; i++) {
 		for(j = 0; j < sx; j++) {
 			squaredist = (float)((i - halfh) * (i - halfh) + (j - halfw) * (j - halfw));
-			highnorm = 1. / (2 * stdev * stdev);
+			highnorm = 1.0f / (2 * stdev * stdev);
 			lownorm = highnorm / (ratio * ratio);
-			val = (highnorm / pi) * expf(-(highnorm * squaredist)) - (lownorm / pi) * expf(-(lownorm * squaredist));
+			val = (highnorm / SMathConst::Pi_f) * expf(-(highnorm * squaredist)) - (lownorm / SMathConst::Pi_f) * expf(-(lownorm * squaredist));
 			kernelSetElement(kel, i, j, val);
 		}
 	}

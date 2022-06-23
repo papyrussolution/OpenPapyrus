@@ -20,13 +20,13 @@
  *
  *      Pixacc accessors
  *           PIX *pixaccGetPix()
- *           l_int32   pixaccGetOffset()
+ *           int32   pixaccGetOffset()
  *
  *      Pixacc accumulators
- *           l_int32   pixaccAdd()
- *           l_int32   pixaccSubtract()
- *           l_int32   pixaccMultConst()
- *           l_int32   pixaccMultConstAccumulate()
+ *           int32   pixaccAdd()
+ *           int32   pixaccSubtract()
+ *           int32   pixaccMultConst()
+ *           int32   pixaccMultConstAccumulate()
  *
  *  This is a simple interface for some of the pixel arithmetic operations
  *  in pixarith.c.  These are easy to code up, but not as fast as
@@ -66,7 +66,7 @@
  *          initialization in pixInitAccumulate().
  * </pre>
  */
-PIXACC * pixaccCreate(l_int32 w, l_int32 h, l_int32 negflag)
+PIXACC * pixaccCreate(int32 w, int32 h, int32 negflag)
 {
 	PIXACC  * pixacc;
 	PROCNAME(__FUNCTION__);
@@ -97,9 +97,9 @@ PIXACC * pixaccCreate(l_int32 w, l_int32 h, l_int32 negflag)
  *      (1) See pixaccCreate()
  * </pre>
  */
-PIXACC * pixaccCreateFromPix(PIX * pix, l_int32 negflag)
+PIXACC * pixaccCreateFromPix(PIX * pix, int32 negflag)
 {
-	l_int32 w, h;
+	int32 w, h;
 	PIXACC  * pixacc;
 	PROCNAME(__FUNCTION__);
 	if(!pix)
@@ -151,7 +151,7 @@ void pixaccDestroy(PIXACC  ** ppixacc)
  * \return  pixd 8, 16 or 32 bpp, or NULL on error
  */
 PIX * pixaccFinal(PIXACC  * pixacc,
-    l_int32 outdepth)
+    int32 outdepth)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -186,7 +186,7 @@ PIX * pixaccGetPix(PIXACC  * pixacc)
  * \param[in]    pixacc
  * \return  offset, or -1 on error
  */
-l_int32 pixaccGetOffset(PIXACC  * pixacc)
+int32 pixaccGetOffset(PIXACC  * pixacc)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -275,7 +275,7 @@ l_ok pixaccMultConstAccumulate(PIXACC    * pixacc,
     PIX * pix,
     float factor)
 {
-	l_int32 w, h, d, negflag;
+	int32 w, h, d, negflag;
 	PIX * pixt;
 	PIXACC  * pacct;
 

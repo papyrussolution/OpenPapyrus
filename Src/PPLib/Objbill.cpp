@@ -6404,7 +6404,7 @@ int PPObjBill::SelectLotBySerial(const char * pSerial, PPID goodsID, PPID locID,
 		PPIDArray lot_list;
 		PPID   lot_id = 0;
 		ReceiptTbl::Rec lot_rec;
-		if(SearchLotsBySerialExactly(pSerial, &lot_list) > 0) { // @v9.1.1 SearchLotsBySerial-->SearchLotsBySerialExactly
+		if(SearchLotsBySerialExactly(pSerial, &lot_list) > 0) {
 			while(ok < 0 && (r = SelectLotFromSerialList(&lot_list, locID, &lot_id, &lot_rec)) > 0) {
 				if(!goodsID || lot_rec.GoodsID == goodsID) {
 					ASSIGN_PTR(pRec, lot_rec);
@@ -6663,21 +6663,20 @@ int PPObjBill::AdjustSerialForUniq(PPID goodsID, PPID lotID, int checkOnly, SStr
 		const int    nd = Cfg.UniqSerialSfx[fmt_len-1] - '0';
 		if(checkOnly || (nd >= 1 && nd <= 9)) {
 			long   c = 0;
-			int    found = 0;
+			bool   found = false;
 			adjusted_serial = rSerial;
 			PPIDArray lot_list;
 			do {
 				ReceiptTbl::Rec lot_rec;
 				lot_list.clear();
-				// @v9.5.6 SearchLotsBySerial(adjusted_serial, &lot_list);
-				SearchLotsBySerialExactly(adjusted_serial, &lot_list); // @v9.5.6
-				found = 0;
+				SearchLotsBySerialExactly(adjusted_serial, &lot_list);
+				found = false;
 				for(uint i = 0; !found && i < lot_list.getCount(); i++) {
 					const PPID lot_id = lot_list.get(i);
 					if(lot_id != lotID && trfr->Rcpt.Search(lot_id, &lot_rec) > 0 && labs(lot_rec.GoodsID) == labs(goodsID)) {
 						if(!checkOnly) {
 							(adjusted_serial = rSerial).CatN(Cfg.UniqSerialSfx, fmt_len-1).CatLongZ(++c, nd);
-							found = 1;
+							found = true;
 						}
 						ok = 1;
 					}

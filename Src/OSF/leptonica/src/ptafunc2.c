@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file  ptafunc2.c
  * <pre>
@@ -37,12 +24,12 @@
  *
  *      Sorting
  *           PTA        *ptaSort()
- *           l_int32     ptaGetSortIndex()
+ *           int32     ptaGetSortIndex()
  *           PTA        *ptaSortByIndex()
  *           PTAA       *ptaaSortByIndex()
- *           l_int32     ptaGetRankValue()
+ *           int32     ptaGetRankValue()
  *           PTA        *ptaSort2d()
- *           l_int32     ptaEqual()
+ *           int32     ptaEqual()
  *
  *      Set operations using aset (rbtree)
  *           L_ASET     *l_asetCreateFromPta()
@@ -52,9 +39,9 @@
  *
  *      Hashmap operations
  *          L_HASHMAP   *l_hmapCreateFromPta()
- *          l_int32      ptaRemoveDupsByHmap()
- *          l_int32      ptaUnionByHmap()
- *          l_int32      ptaIntersectionByHmap()
+ *          int32      ptaRemoveDupsByHmap()
+ *          int32      ptaUnionByHmap()
+ *          int32      ptaIntersectionByHmap()
  *
  * We have two implementations of set operations on an array of points:
  *
@@ -90,8 +77,8 @@
  * \return  ptad sorted version of ptas, or NULL on error
  */
 PTA * ptaSort(PTA * ptas,
-    l_int32 sorttype,
-    l_int32 sortorder,
+    int32 sorttype,
+    int32 sortorder,
     NUMA   ** pnaindex)
 {
 	PTA   * ptad;
@@ -130,11 +117,11 @@ PTA * ptaSort(PTA * ptas,
  * \return  0 if OK, 1 on error
  */
 l_ok ptaGetSortIndex(PTA * ptas,
-    l_int32 sorttype,
-    l_int32 sortorder,
+    int32 sorttype,
+    int32 sortorder,
     NUMA   ** pnaindex)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float x, y;
 	NUMA * na, * nai;
 
@@ -181,7 +168,7 @@ l_ok ptaGetSortIndex(PTA * ptas,
 PTA * ptaSortByIndex(PTA   * ptas,
     NUMA * naindex)
 {
-	l_int32 i, index, n;
+	int32 i, index, n;
 	float x, y;
 	PTA       * ptad;
 
@@ -215,7 +202,7 @@ PTA * ptaSortByIndex(PTA   * ptas,
 PTAA * ptaaSortByIndex(PTAA  * ptaas,
     NUMA * naindex)
 {
-	l_int32 i, n, index;
+	int32 i, n, index;
 	PTA * pta;
 	PTAA    * ptaad;
 
@@ -252,10 +239,10 @@ PTAA * ptaaSortByIndex(PTAA  * ptaas,
 l_ok ptaGetRankValue(PTA        * pta,
     float fract,
     PTA        * ptasort,
-    l_int32 sorttype,
+    int32 sorttype,
     float * pval)
 {
-	l_int32 index, n;
+	int32 index, n;
 	PTA * ptas;
 
 	PROCNAME(__FUNCTION__);
@@ -277,7 +264,7 @@ l_ok ptaGetRankValue(PTA        * pta,
 	else
 		ptas = ptaSort(pta, sorttype, L_SORT_INCREASING, NULL);
 
-	index = (l_int32)(fract * (float)(n - 1) + 0.5);
+	index = (int32)(fract * (float)(n - 1) + 0.5);
 	if(sorttype == L_SORT_BY_X)
 		ptaGetPt(ptas, index, pval, NULL);
 	else /* sort by y */
@@ -301,7 +288,7 @@ l_ok ptaGetRankValue(PTA        * pta,
  */
 PTA * ptaSort2d(PTA * pta)
 {
-	l_int32 index, i, j, n, nx, ny, start, end;
+	int32 index, i, j, n, nx, ny, start, end;
 	float x, y, yp, val;
 	NUMA * na1, * na2, * nas, * nax;
 	PTA       * pta1, * ptad;
@@ -382,9 +369,9 @@ PTA * ptaSort2d(PTA * pta)
  */
 l_ok ptaEqual(PTA * pta1,
     PTA * pta2,
-    l_int32 * psame)
+    int32 * psame)
 {
-	l_int32 i, n1, n2;
+	int32 i, n1, n2;
 	float x1, y1, x2, y2;
 	PTA       * ptas1, * ptas2;
 
@@ -430,7 +417,7 @@ l_ok ptaEqual(PTA * pta1,
  */
 L_ASET * l_asetCreateFromPta(PTA * pta)
 {
-	l_int32 i, n, x, y;
+	int32 i, n, x, y;
 	l_uint64 hash;
 	L_ASET   * set;
 	RB_TYPE key;
@@ -469,7 +456,7 @@ L_ASET * l_asetCreateFromPta(PTA * pta)
 l_ok ptaRemoveDupsByAset(PTA   * ptas,
     PTA ** pptad)
 {
-	l_int32 i, n, x, y;
+	int32 i, n, x, y;
 	PTA * ptad;
 	l_uint64 hash;
 	L_ASET   * set;
@@ -567,7 +554,7 @@ l_ok ptaIntersectionByAset(PTA   * pta1,
     PTA   * pta2,
     PTA ** pptad)
 {
-	l_int32 n1, n2, i, n, x, y;
+	int32 n1, n2, i, n, x, y;
 	l_uint64 hash;
 	L_ASET   * set1, * set2;
 	RB_TYPE key;
@@ -627,7 +614,7 @@ l_ok ptaIntersectionByAset(PTA   * pta1,
  */
 L_HASHMAP * l_hmapCreateFromPta(PTA * pta)
 {
-	l_int32 i, n, x, y;
+	int32 i, n, x, y;
 	l_uint64 key;
 	L_HASHITEM  * hitem;
 	L_HASHMAP   * hmap;
@@ -665,7 +652,7 @@ l_ok ptaRemoveDupsByHmap(PTA         * ptas,
     PTA        ** pptad,
     L_HASHMAP  ** phmap)
 {
-	l_int32 i, x, y, tabsize;
+	int32 i, x, y, tabsize;
 	l_uint64 key;
 	PTA         * ptad;
 	L_HASHITEM  * hitem;
@@ -758,7 +745,7 @@ l_ok ptaIntersectionByHmap(PTA   * pta1,
     PTA   * pta2,
     PTA ** pptad)
 {
-	l_int32 i, n1, n2, n, x, y;
+	int32 i, n1, n2, n, x, y;
 	l_uint64 key;
 	PTA         * pta_small, * pta_big, * ptad;
 	L_HASHITEM  * hitem;

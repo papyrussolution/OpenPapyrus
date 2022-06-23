@@ -32,7 +32,7 @@
  *      [add elements to the map ...]
  *      L_AMAP_NODE  *n = l_amapGetFirst(m);
  *      while (n) {
- *          l_int32 val = n->value.itype;
+ *          int32 val = n->value.itype;
  *          // do something ...
  *          n = l_amapGetNext(n);
  *      }
@@ -45,8 +45,8 @@
  *      L_AMAP_NODE  *nn;
  *      while (n) {
  *          nn = l_amapGetNext(n);
- *          l_int32 val = n->value.itype;
- *          l_uint32 key = n->key.utype;
+ *          int32 val = n->value.itype;
+ *          uint32 key = n->key.utype;
  *          // do something ...
  *          l_amapDelete(m, n->key);
  *          n = nn;
@@ -64,7 +64,7 @@
  *           L_AMAP_NODE   *l_amapGetNext()
  *           L_AMAP_NODE   *l_amapGetLast()
  *           L_AMAP_NODE   *l_amapGetPrev()
- *           l_int32        l_amapSize()
+ *           int32        l_amapSize()
  *
  *  Interface to (a) set using a general key
  *           L_ASET        *l_asetCreate()
@@ -76,7 +76,7 @@
  *           L_ASET_NODE   *l_asetGetNext()
  *           L_ASET_NODE   *l_asetGetLast()
  *           L_ASET_NODE   *l_asetGetPrev()
- *           l_int32        l_asetSize()
+ *           int32        l_asetSize()
  * </pre>
  */
 #include "allheaders.h"
@@ -85,7 +85,7 @@
 /* ------------------------------------------------------------- *
 *                         Interface to Map                      *
 * ------------------------------------------------------------- */
-L_AMAP * l_amapCreate(l_int32 keytype)
+L_AMAP * l_amapCreate(int32 keytype)
 {
 	L_AMAP  * m;
 	PROCNAME(__FUNCTION__);
@@ -137,7 +137,7 @@ L_AMAP_NODE * l_amapGetPrev(L_AMAP_NODE  * n)
 	return l_rbtreeGetPrev(n);
 }
 
-l_int32 l_amapSize(L_AMAP  * m)
+int32 l_amapSize(L_AMAP  * m)
 {
 	return l_rbtreeGetCount(m);
 }
@@ -145,7 +145,7 @@ l_int32 l_amapSize(L_AMAP  * m)
 /* ------------------------------------------------------------- *
 *                         Interface to Set                      *
 * ------------------------------------------------------------- */
-L_ASET * l_asetCreate(l_int32 keytype)
+L_ASET * l_asetCreate(int32 keytype)
 {
 	L_ASET  * s;
 	PROCNAME(__FUNCTION__);
@@ -205,7 +205,7 @@ L_ASET_NODE * l_asetGetPrev(L_ASET_NODE  * n)
 	return l_rbtreeGetPrev(n);
 }
 
-l_int32 l_asetSize(L_ASET  * s)
+int32 l_asetSize(L_ASET  * s)
 {
 	return l_rbtreeGetCount(s);
 }

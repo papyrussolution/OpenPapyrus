@@ -30,19 +30,19 @@
  *          void           fpixDestroy()
  *
  *    FPix accessors
- *          l_int32        fpixGetDimensions()
- *          l_int32        fpixSetDimensions()
- *          l_int32        fpixGetWpl()
- *          l_int32        fpixSetWpl()
- *          l_int32        fpixGetRefcount()
- *          l_int32        fpixChangeRefcount()
- *          l_int32        fpixGetResolution()
- *          l_int32        fpixSetResolution()
- *          l_int32        fpixCopyResolution()
+ *          int32        fpixGetDimensions()
+ *          int32        fpixSetDimensions()
+ *          int32        fpixGetWpl()
+ *          int32        fpixSetWpl()
+ *          int32        fpixGetRefcount()
+ *          int32        fpixChangeRefcount()
+ *          int32        fpixGetResolution()
+ *          int32        fpixSetResolution()
+ *          int32        fpixCopyResolution()
  *          float     *fpixGetData()
- *          l_int32        fpixSetData()
- *          l_int32        fpixGetPixel()
- *          l_int32        fpixSetPixel()
+ *          int32        fpixSetData()
+ *          int32        fpixGetPixel()
+ *          int32        fpixSetPixel()
  *
  *    FPixa Create/copy/destroy
  *          FPIXA         *fpixaCreate()
@@ -50,18 +50,18 @@
  *          void           fpixaDestroy()
  *
  *    FPixa addition
- *          l_int32        fpixaAddFPix()
- *          static l_int32 fpixaExtendArray()
- *          static l_int32 fpixaExtendArrayToSize()
+ *          int32        fpixaAddFPix()
+ *          static int32 fpixaExtendArray()
+ *          static int32 fpixaExtendArrayToSize()
  *
  *    FPixa accessors
- *          l_int32        fpixaGetCount()
- *          l_int32        fpixaChangeRefcount()
+ *          int32        fpixaGetCount()
+ *          int32        fpixaChangeRefcount()
  *          FPIX          *fpixaGetFPix()
- *          l_int32        fpixaGetFPixDimensions()
+ *          int32        fpixaGetFPixDimensions()
  *          float     *fpixaGetData()
- *          l_int32        fpixaGetPixel()
- *          l_int32        fpixaSetPixel()
+ *          int32        fpixaGetPixel()
+ *          int32        fpixaSetPixel()
  *
  *    DPix Create/copy/destroy
  *          DPIX          *dpixCreate()
@@ -71,40 +71,40 @@
  *          void           dpixDestroy()
  *
  *    DPix accessors
- *          l_int32        dpixGetDimensions()
- *          l_int32        dpixSetDimensions()
- *          l_int32        dpixGetWpl()
- *          l_int32        dpixSetWpl()
- *          l_int32        dpixGetRefcount()
- *          l_int32        dpixChangeRefcount()
- *          l_int32        dpixGetResolution()
- *          l_int32        dpixSetResolution()
- *          l_int32        dpixCopyResolution()
+ *          int32        dpixGetDimensions()
+ *          int32        dpixSetDimensions()
+ *          int32        dpixGetWpl()
+ *          int32        dpixSetWpl()
+ *          int32        dpixGetRefcount()
+ *          int32        dpixChangeRefcount()
+ *          int32        dpixGetResolution()
+ *          int32        dpixSetResolution()
+ *          int32        dpixCopyResolution()
  *          double     *dpixGetData()
- *          l_int32        dpixSetData()
- *          l_int32        dpixGetPixel()
- *          l_int32        dpixSetPixel()
+ *          int32        dpixSetData()
+ *          int32        dpixGetPixel()
+ *          int32        dpixSetPixel()
  *
  *    FPix serialized I/O
  *          FPIX          *fpixRead()
  *          FPIX          *fpixReadStream()
  *          FPIX          *fpixReadMem()
- *          l_int32        fpixWrite()
- *          l_int32        fpixWriteStream()
- *          l_int32        fpixWriteMem()
+ *          int32        fpixWrite()
+ *          int32        fpixWriteStream()
+ *          int32        fpixWriteMem()
  *          FPIX          *fpixEndianByteSwap()
  *
  *    DPix serialized I/O
  *          DPIX          *dpixRead()
  *          DPIX          *dpixReadStream()
  *          DPIX          *dpixReadMem()
- *          l_int32        dpixWrite()
- *          l_int32        dpixWriteStream()
- *          l_int32        dpixWriteMem()
+ *          int32        dpixWrite()
+ *          int32        dpixWriteStream()
+ *          int32        dpixWriteMem()
  *          DPIX          *dpixEndianByteSwap()
  *
  *    Print FPix (subsampled, for debugging)
- *          l_int32        fpixPrintStream()
+ *          int32        fpixPrintStream()
  * </pre>
  */
 #include "allheaders.h"
@@ -115,8 +115,8 @@ static const size_t MaxPtrArraySize = 100000;
 static const size_t InitialPtrArraySize = 20; /*!< n'importe quoi */
 
 /* Static functions */
-static l_int32 fpixaExtendArray(FPIXA * fpixa);
-static l_int32 fpixaExtendArrayToSize(FPIXA * fpixa, l_int32 size);
+static int32 fpixaExtendArray(FPIXA * fpixa);
+static int32 fpixaExtendArrayToSize(FPIXA * fpixa, int32 size);
 
 /*--------------------------------------------------------------------*
 *                     FPix Create/copy/destroy                       *
@@ -134,8 +134,8 @@ static l_int32 fpixaExtendArrayToSize(FPIXA * fpixa, l_int32 size);
  *      (2) The number of pixels must be less than 2^29.
  * </pre>
  */
-FPIX * fpixCreate(l_int32 width,
-    l_int32 height)
+FPIX * fpixCreate(int32 width,
+    int32 height)
 {
 	float * data;
 	l_uint64 npix64;
@@ -184,7 +184,7 @@ FPIX * fpixCreate(l_int32 width,
  */
 FPIX * fpixCreateTemplate(FPIX  * fpixs)
 {
-	l_int32 w, h;
+	int32 w, h;
 	FPIX    * fpixd;
 
 	PROCNAME(__FUNCTION__);
@@ -229,7 +229,7 @@ FPIX * fpixClone(FPIX  * fpix)
  */
 FPIX * fpixCopy(FPIX  * fpixs)
 {
-	l_int32 w, h, bytes;
+	int32 w, h, bytes;
 	float * datas, * datad;
 	FPIX       * fpixd;
 
@@ -298,8 +298,8 @@ void fpixDestroy(FPIX  ** pfpix)
  * \return  0 if OK, 1 on error
  */
 l_ok fpixGetDimensions(FPIX     * fpix,
-    l_int32 * pw,
-    l_int32 * ph)
+    int32 * pw,
+    int32 * ph)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -322,8 +322,8 @@ l_ok fpixGetDimensions(FPIX     * fpix,
  * \return  0 if OK, 1 on error
  */
 l_ok fpixSetDimensions(FPIX     * fpix,
-    l_int32 w,
-    l_int32 h)
+    int32 w,
+    int32 h)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -340,7 +340,7 @@ l_ok fpixSetDimensions(FPIX     * fpix,
  * \param[in]    fpix
  * \return  wpl, or 0 on error
  */
-l_int32 fpixGetWpl(FPIX  * fpix)
+int32 fpixGetWpl(FPIX  * fpix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -357,7 +357,7 @@ l_int32 fpixGetWpl(FPIX  * fpix)
  * \return  0 if OK, 1 on error
  */
 l_ok fpixSetWpl(FPIX    * fpix,
-    l_int32 wpl)
+    int32 wpl)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -374,7 +374,7 @@ l_ok fpixSetWpl(FPIX    * fpix,
  * \param[in]    fpix
  * \return  refcount, or UNDEF on error
  */
-l_int32 fpixGetRefcount(FPIX  * fpix)
+int32 fpixGetRefcount(FPIX  * fpix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -391,7 +391,7 @@ l_int32 fpixGetRefcount(FPIX  * fpix)
  * \return  0 if OK, 1 on error
  */
 l_ok fpixChangeRefcount(FPIX    * fpix,
-    l_int32 delta)
+    int32 delta)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -410,8 +410,8 @@ l_ok fpixChangeRefcount(FPIX    * fpix,
  * \return  0 if OK, 1 on error
  */
 l_ok fpixGetResolution(FPIX     * fpix,
-    l_int32 * pxres,
-    l_int32 * pyres)
+    int32 * pxres,
+    int32 * pyres)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -430,8 +430,8 @@ l_ok fpixGetResolution(FPIX     * fpix,
  * \return  0 if OK, 1 on error
  */
 l_ok fpixSetResolution(FPIX    * fpix,
-    l_int32 xres,
-    l_int32 yres)
+    int32 xres,
+    int32 yres)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -452,7 +452,7 @@ l_ok fpixSetResolution(FPIX    * fpix,
 l_ok fpixCopyResolution(FPIX  * fpixd,
     FPIX  * fpixs)
 {
-	l_int32 xres, yres;
+	int32 xres, yres;
 	PROCNAME(__FUNCTION__);
 
 	if(!fpixs || !fpixd)
@@ -510,11 +510,11 @@ l_ok fpixSetData(FPIX       * fpix,
  *          with 0.0 in %pval.  To avoid spamming output, it fails silently.
  */
 l_ok fpixGetPixel(FPIX       * fpix,
-    l_int32 x,
-    l_int32 y,
+    int32 x,
+    int32 y,
     float * pval)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -545,11 +545,11 @@ l_ok fpixGetPixel(FPIX       * fpix,
  *          with 0.0 in %pval.  To avoid spamming output, it fails silently.
  */
 l_ok fpixSetPixel(FPIX      * fpix,
-    l_int32 x,
-    l_int32 y,
+    int32 x,
+    int32 y,
     float val)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -573,7 +573,7 @@ l_ok fpixSetPixel(FPIX      * fpix,
  * \param[in]    n     initial number of ptrs
  * \return  fpixa, or NULL on error
  */
-FPIXA * fpixaCreate(l_int32 n)
+FPIXA * fpixaCreate(int32 n)
 {
 	FPIXA  * fpixa;
 
@@ -606,9 +606,9 @@ FPIXA * fpixaCreate(l_int32 n)
  * </pre>
  */
 FPIXA * fpixaCopy(FPIXA   * fpixa,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 i;
+	int32 i;
 	FPIX    * fpixc;
 	FPIXA   * fpixac;
 
@@ -652,7 +652,7 @@ FPIXA * fpixaCopy(FPIXA   * fpixa,
  */
 void fpixaDestroy(FPIXA  ** pfpixa)
 {
-	l_int32 i;
+	int32 i;
 	FPIXA   * fpixa;
 
 	PROCNAME(__FUNCTION__);
@@ -689,9 +689,9 @@ void fpixaDestroy(FPIXA  ** pfpixa)
  */
 l_ok fpixaAddFPix(FPIXA   * fpixa,
     FPIX    * fpix,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 n;
+	int32 n;
 	FPIX    * fpixc;
 
 	PROCNAME(__FUNCTION__);
@@ -737,7 +737,7 @@ l_ok fpixaAddFPix(FPIXA   * fpixa,
  *      (2) The max number of fpix ptrs is 100000.
  * </pre>
  */
-static l_int32 fpixaExtendArray(FPIXA  * fpixa)
+static int32 fpixaExtendArray(FPIXA  * fpixa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -760,8 +760,8 @@ static l_int32 fpixaExtendArray(FPIXA  * fpixa)
  *      (2) The max number of fpix ptrs is 100K.
  * </pre>
  */
-static l_int32 fpixaExtendArrayToSize(FPIXA   * fpixa,
-    l_int32 size)
+static int32 fpixaExtendArrayToSize(FPIXA   * fpixa,
+    int32 size)
 {
 	size_t oldsize, newsize;
 
@@ -796,7 +796,7 @@ static l_int32 fpixaExtendArrayToSize(FPIXA   * fpixa,
  * \param[in]    fpixa
  * \return  count, or 0 if no pixa
  */
-l_int32 fpixaGetCount(FPIXA  * fpixa)
+int32 fpixaGetCount(FPIXA  * fpixa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -814,7 +814,7 @@ l_int32 fpixaGetCount(FPIXA  * fpixa)
  * \return  0 if OK, 1 on error
  */
 l_ok fpixaChangeRefcount(FPIXA   * fpixa,
-    l_int32 delta)
+    int32 delta)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -834,8 +834,8 @@ l_ok fpixaChangeRefcount(FPIXA   * fpixa,
  * \return  fpix, or NULL on error
  */
 FPIX * fpixaGetFPix(FPIXA   * fpixa,
-    l_int32 index,
-    l_int32 accesstype)
+    int32 index,
+    int32 accesstype)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -861,9 +861,9 @@ FPIX * fpixaGetFPix(FPIXA   * fpixa,
  * \return  0 if OK, 1 on error
  */
 l_ok fpixaGetFPixDimensions(FPIXA    * fpixa,
-    l_int32 index,
-    l_int32 * pw,
-    l_int32 * ph)
+    int32 index,
+    int32 * pw,
+    int32 * ph)
 {
 	FPIX  * fpix;
 
@@ -893,9 +893,9 @@ l_ok fpixaGetFPixDimensions(FPIXA    * fpixa,
  * \return  data not a copy, or NULL on error
  */
 float * fpixaGetData(FPIXA      * fpixa,
-    l_int32 index)
+    int32 index)
 {
-	l_int32 n;
+	int32 n;
 	float * data;
 	FPIX       * fpix;
 
@@ -923,12 +923,12 @@ float * fpixaGetData(FPIXA      * fpixa,
  * \return  0 if OK; 1 on error
  */
 l_ok fpixaGetPixel(FPIXA      * fpixa,
-    l_int32 index,
-    l_int32 x,
-    l_int32 y,
+    int32 index,
+    int32 x,
+    int32 y,
     float * pval)
 {
-	l_int32 n, ret;
+	int32 n, ret;
 	FPIX    * fpix;
 
 	PROCNAME(__FUNCTION__);
@@ -958,12 +958,12 @@ l_ok fpixaGetPixel(FPIXA      * fpixa,
  * \return  0 if OK; 1 on error
  */
 l_ok fpixaSetPixel(FPIXA     * fpixa,
-    l_int32 index,
-    l_int32 x,
-    l_int32 y,
+    int32 index,
+    int32 x,
+    int32 y,
     float val)
 {
-	l_int32 n, ret;
+	int32 n, ret;
 	FPIX    * fpix;
 
 	PROCNAME(__FUNCTION__);
@@ -996,8 +996,8 @@ l_ok fpixaSetPixel(FPIXA     * fpixa,
  *      (2) The number of pixels must be less than 2^28.
  * </pre>
  */
-DPIX * dpixCreate(l_int32 width,
-    l_int32 height)
+DPIX * dpixCreate(int32 width,
+    int32 height)
 {
 	double  * data;
 	l_uint64 npix64;
@@ -1046,7 +1046,7 @@ DPIX * dpixCreate(l_int32 width,
  */
 DPIX * dpixCreateTemplate(DPIX  * dpixs)
 {
-	l_int32 w, h;
+	int32 w, h;
 	DPIX    * dpixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1089,7 +1089,7 @@ DPIX * dpixClone(DPIX  * dpix)
  */
 DPIX * dpixCopy(DPIX  * dpixs)
 {
-	l_int32 w, h, bytes;
+	int32 w, h, bytes;
 	double  * datas, * datad;
 	DPIX       * dpixd;
 
@@ -1158,8 +1158,8 @@ void dpixDestroy(DPIX  ** pdpix)
  * \return  0 if OK, 1 on error
  */
 l_ok dpixGetDimensions(DPIX     * dpix,
-    l_int32 * pw,
-    l_int32 * ph)
+    int32 * pw,
+    int32 * ph)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1182,8 +1182,8 @@ l_ok dpixGetDimensions(DPIX     * dpix,
  * \return  0 if OK, 1 on error
  */
 l_ok dpixSetDimensions(DPIX     * dpix,
-    l_int32 w,
-    l_int32 h)
+    int32 w,
+    int32 h)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1200,7 +1200,7 @@ l_ok dpixSetDimensions(DPIX     * dpix,
  * \param[in]    dpix
  * \return  wpl, or 0 on error
  */
-l_int32 dpixGetWpl(DPIX  * dpix)
+int32 dpixGetWpl(DPIX  * dpix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1217,7 +1217,7 @@ l_int32 dpixGetWpl(DPIX  * dpix)
  * \return  0 if OK, 1 on error
  */
 l_ok dpixSetWpl(DPIX    * dpix,
-    l_int32 wpl)
+    int32 wpl)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1234,7 +1234,7 @@ l_ok dpixSetWpl(DPIX    * dpix,
  * \param[in]    dpix
  * \return  refcount, or UNDEF on error
  */
-l_int32 dpixGetRefcount(DPIX  * dpix)
+int32 dpixGetRefcount(DPIX  * dpix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1251,7 +1251,7 @@ l_int32 dpixGetRefcount(DPIX  * dpix)
  * \return  0 if OK, 1 on error
  */
 l_ok dpixChangeRefcount(DPIX    * dpix,
-    l_int32 delta)
+    int32 delta)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1270,8 +1270,8 @@ l_ok dpixChangeRefcount(DPIX    * dpix,
  * \return  0 if OK, 1 on error
  */
 l_ok dpixGetResolution(DPIX     * dpix,
-    l_int32 * pxres,
-    l_int32 * pyres)
+    int32 * pxres,
+    int32 * pyres)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1290,8 +1290,8 @@ l_ok dpixGetResolution(DPIX     * dpix,
  * \return  0 if OK, 1 on error
  */
 l_ok dpixSetResolution(DPIX    * dpix,
-    l_int32 xres,
-    l_int32 yres)
+    int32 xres,
+    int32 yres)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1312,7 +1312,7 @@ l_ok dpixSetResolution(DPIX    * dpix,
 l_ok dpixCopyResolution(DPIX  * dpixd,
     DPIX  * dpixs)
 {
-	l_int32 xres, yres;
+	int32 xres, yres;
 	PROCNAME(__FUNCTION__);
 
 	if(!dpixs || !dpixd)
@@ -1370,11 +1370,11 @@ l_ok dpixSetData(DPIX       * dpix,
  *          with 0.0 in %pval.  To avoid spamming output, it fails silently.
  */
 l_ok dpixGetPixel(DPIX       * dpix,
-    l_int32 x,
-    l_int32 y,
+    int32 x,
+    int32 y,
     double  * pval)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1405,11 +1405,11 @@ l_ok dpixGetPixel(DPIX       * dpix,
  *          with 0.0 in %pval.  To avoid spamming output, it fails silently.
  */
 l_ok dpixSetPixel(DPIX      * dpix,
-    l_int32 x,
-    l_int32 y,
+    int32 x,
+    int32 y,
     double val)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1461,7 +1461,7 @@ FPIX * fpixRead(const char * filename)
 FPIX * fpixReadStream(FILE * fp)
 {
 	char buf[256];
-	l_int32 w, h, nbytes, xres, yres, version;
+	int32 w, h, nbytes, xres, yres, version;
 	float * data;
 	FPIX       * fpix;
 
@@ -1538,7 +1538,7 @@ FPIX * fpixReadMem(const uint8  * data,
 l_ok fpixWrite(const char * filename,
     FPIX        * fpix)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1567,8 +1567,8 @@ l_ok fpixWrite(const char * filename,
 l_ok fpixWriteStream(FILE * fp,
     FPIX  * fpix)
 {
-	l_int32 w, h, xres, yres;
-	l_uint32 nbytes;
+	int32 w, h, xres, yres;
+	uint32 nbytes;
 	float * data;
 	FPIX       * fpixt;
 
@@ -1613,7 +1613,7 @@ l_ok fpixWriteMem(uint8  ** pdata,
     size_t * psize,
     FPIX      * fpix)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1682,15 +1682,15 @@ FPIX * fpixEndianByteSwap(FPIX  * fpixd,
 
 #ifdef L_BIG_ENDIAN
 	{
-		l_uint32  * data;
-		l_int32 i, j, w, h;
-		l_uint32 word;
+		uint32  * data;
+		int32 i, j, w, h;
+		uint32 word;
 
 		fpixGetDimensions(fpixs, &w, &h);
 		if(!fpixd)
 			fpixd = fpixCopy(fpixs);
 
-		data = (l_uint32*)fpixGetData(fpixd);
+		data = (uint32*)fpixGetData(fpixd);
 		for(i = 0; i < h; i++) {
 			for(j = 0; j < w; j++, data++) {
 				word = *data;
@@ -1749,7 +1749,7 @@ DPIX * dpixRead(const char * filename)
 DPIX * dpixReadStream(FILE * fp)
 {
 	char buf[256];
-	l_int32 w, h, nbytes, version, xres, yres;
+	int32 w, h, nbytes, version, xres, yres;
 	double  * data;
 	DPIX       * dpix;
 
@@ -1826,7 +1826,7 @@ DPIX * dpixReadMem(const uint8  * data,
 l_ok dpixWrite(const char * filename,
     DPIX        * dpix)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1855,8 +1855,8 @@ l_ok dpixWrite(const char * filename,
 l_ok dpixWriteStream(FILE * fp,
     DPIX  * dpix)
 {
-	l_int32 w, h, xres, yres;
-	l_uint32 nbytes;
+	int32 w, h, xres, yres;
+	uint32 nbytes;
 	double  * data;
 	DPIX       * dpixt;
 
@@ -1901,7 +1901,7 @@ l_ok dpixWriteMem(uint8  ** pdata,
     size_t * psize,
     DPIX      * dpix)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1970,15 +1970,15 @@ DPIX * dpixEndianByteSwap(DPIX  * dpixd,
 
 #ifdef L_BIG_ENDIAN
 	{
-		l_uint32  * data;
-		l_int32 i, j, w, h;
-		l_uint32 word;
+		uint32  * data;
+		int32 i, j, w, h;
+		uint32 word;
 
 		dpixGetDimensions(dpixs, &w, &h);
 		if(!dpixd)
 			dpixd = dpixCopy(dpixs);
 
-		data = (l_uint32*)dpixGetData(dpixd);
+		data = (uint32*)dpixGetData(dpixd);
 		for(i = 0; i < h; i++) {
 			for(j = 0; j < 2 * w; j++, data++) {
 				word = *data;
@@ -2018,9 +2018,9 @@ DPIX * dpixEndianByteSwap(DPIX  * dpixd,
  */
 l_ok fpixPrintStream(FILE * fp,
     FPIX    * fpix,
-    l_int32 factor)
+    int32 factor)
 {
-	l_int32 i, j, w, h, count;
+	int32 i, j, w, h, count;
 	float val;
 
 	PROCNAME(__FUNCTION__);

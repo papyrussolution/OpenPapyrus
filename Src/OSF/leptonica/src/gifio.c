@@ -18,14 +18,14 @@
  *    Reading gif
  *          PIX            *pixReadStreamGif()
  *          PIX            *pixReadMemGif()
- *          static l_int32  gifReadFunc()
+ *          static int32  gifReadFunc()
  *          static PIX     *gifToPix()
  *
  *    Writing gif
- *          l_int32         pixWriteStreamGif()
- *          l_int32         pixWriteMemGif()
- *          static l_int32  gifWriteFunc()
- *          static l_int32  pixToGif()
+ *          int32         pixWriteStreamGif()
+ *          int32         pixWriteMemGif()
+ *          static int32  gifWriteFunc()
+ *          static int32  pixToGif()
  *
  *    The initial version of this module was generously contribued by
  *    Antony Dovgal.
@@ -64,7 +64,7 @@
 /* Interface that enables low-level GIF support for reading from memory */
 static PIX * gifToPix(GifFileType * gif);
 /* Interface that enables low-level GIF support for writing to memory */
-static l_int32 pixToGif(PIX * pix, GifFileType * gif);
+static int32 pixToGif(PIX * pix, GifFileType * gif);
 
 /*! For in-memory decoding of GIF; 5.1+ */
 typedef struct GifReadBuffer {
@@ -74,9 +74,9 @@ typedef struct GifReadBuffer {
 } GifReadBuffer;
 
 /*! Low-level callback for in-memory decoding */
-static l_int32  gifReadFunc(GifFileType * gif, uint8 * dest, l_int32 bytesToRead);
+static int   gifReadFunc(GifFileType * gif, uint8 * dest, int bytesToRead);
 /*! Low-level callback for in-memory encoding */
-static l_int32  gifWriteFunc(GifFileType * gif, const uint8 * src, l_int32 bytesToWrite);
+static int   gifWriteFunc(GifFileType * gif, const uint8 * src, int bytesToWrite);
 
 /*---------------------------------------------------------------------*
 *                            Reading gif                              *
@@ -153,16 +153,15 @@ PIX * pixReadMemGif(const uint8  * cdata,
 	buffer.size = size;
 	buffer.pos = 0;
 	if((gif = DGifOpen((void*)&buffer, gifReadFunc, NULL)) == NULL)
-		return (PIX *)ERROR_PTR("could not open gif stream from memory",
-			   procName, NULL);
+		return (PIX *)ERROR_PTR("could not open gif stream from memory", procName, NULL);
 
 	return gifToPix(gif);
 }
 
-static l_int32 gifReadFunc(GifFileType  * gif, uint8 * dest, l_int32 bytesToRead)
+static int gifReadFunc(GifFileType  * gif, uint8 * dest, int bytesToRead)
 {
 	GifReadBuffer  * buffer;
-	l_int32 bytesRead;
+	int32 bytesRead;
 	PROCNAME(__FUNCTION__);
 	if((buffer = (GifReadBuffer*)gif->UserData) == NULL)
 		return ERROR_INT("UserData not set", procName, -1);
@@ -189,9 +188,9 @@ static l_int32 gifReadFunc(GifFileType  * gif, uint8 * dest, l_int32 bytesToRead
  */
 static PIX * gifToPix(GifFileType  * gif)
 {
-	l_int32 wpl, i, j, w, h, d, cindex, ncolors, valid, nimages;
-	l_int32 rval, gval, bval;
-	l_uint32        * data, * line;
+	int32 wpl, i, j, w, h, d, cindex, ncolors, valid, nimages;
+	int32 rval, gval, bval;
+	uint32        * data, * line;
 	PIX             * pixd;
 	PIXCMAP         * cmap;
 	ColorMapObject  * gif_cmap;
@@ -366,7 +365,7 @@ l_ok pixWriteStreamGif(FILE * fp,
 l_ok pixWriteMemGif(uint8  ** pdata, size_t * psize, PIX * pix)
 {
 	int giferr;
-	l_int32 result;
+	int32 result;
 	GifFileType  * gif;
 	L_BBUFFER    * buffer;
 	PROCNAME(__FUNCTION__);
@@ -404,17 +403,16 @@ l_ok pixWriteMemGif(uint8  ** pdata, size_t * psize, PIX * pix)
 	return result;
 }
 
-static l_int32 gifWriteFunc(GifFileType * gif, const uint8 * src, l_int32 bytesToWrite)
+static int gifWriteFunc(GifFileType * gif, const uint8 * src, int bytesToWrite)
 {
-	L_BBUFFER  * buffer;
 	PROCNAME(__FUNCTION__);
+	L_BBUFFER  * buffer;
 	if((buffer = (L_BBUFFER*)gif->UserData) == NULL)
 		return ERROR_INT("UserData not set", procName, -1);
 	if(bbufferRead(buffer, (uint8 *)src, bytesToWrite) == 0)
 		return bytesToWrite;
 	return 0;
 }
-
 /*!
  * \brief   pixToGif()
  *
@@ -429,12 +427,12 @@ static l_int32 gifWriteFunc(GifFileType * gif, const uint8 * src, l_int32 bytesT
  *      (2) It is static to make this function private.
  * </pre>
  */
-static l_int32 pixToGif(PIX * pix, GifFileType  * gif)
+static int32 pixToGif(PIX * pix, GifFileType  * gif)
 {
 	char * text;
-	l_int32 wpl, i, j, w, h, d, ncolor, rval, gval, bval, valid;
-	l_int32 gif_ncolor = 0;
-	l_uint32 * data, * line;
+	int32 wpl, i, j, w, h, d, ncolor, rval, gval, bval, valid;
+	int32 gif_ncolor = 0;
+	uint32 * data, * line;
 	PIX * pixd;
 	PIXCMAP * cmap;
 	ColorMapObject  * gif_cmap;
@@ -582,13 +580,13 @@ static l_int32 pixToGif(PIX * pix, GifFileType  * gif)
  * data to normal raster order when reading to a pix. With 5.0,
  * the de-interlacing is done by the library read function.
  * It is here only as a reference. */
-static const l_int32 InterlacedOffset[] = {0, 4, 2, 1};
-static const l_int32 InterlacedJumps[] = {8, 8, 4, 2};
+static const int32 InterlacedOffset[] = {0, 4, 2, 1};
+static const int32 InterlacedJumps[] = {8, 8, 4, 2};
 
 static PIX * pixUninterlaceGIF(PIX  * pixs)
 {
-	l_int32 w, h, d, wpl, j, k, srow, drow;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 w, h, d, wpl, j, k, srow, drow;
+	uint32  * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);

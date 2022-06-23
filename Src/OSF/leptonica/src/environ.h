@@ -185,8 +185,8 @@ typedef int l_ok;                     /*!< return type 0 if OK, 1 on error */
 //typedef unsigned char l_uint8_Removed; /*!< unsigned 8-bit value */
 //typedef short l_int16_Removed; /*!< signed 16-bit value */
 //typedef unsigned short l_uint16_Removed; /*!< unsigned 16-bit value */
-typedef int l_int32;                     /*!< signed 32-bit value */
-typedef unsigned int l_uint32;            /*!< unsigned 32-bit value */
+//typedef int l_int32_Removed;                     /*!< signed 32-bit value */
+//typedef unsigned int l_uint32_Removed;            /*!< unsigned 32-bit value */
 //typedef float l_float32_Removed; /*!< 32-bit floating point value */
 //typedef double l_float64_Removed; /*!< 64-bit floating point value */
 #ifdef COMPILER_MSVC
@@ -208,7 +208,7 @@ typedef unsigned long long l_uint64;      /*!< unsigned 64-bit value */
 * of LeptDebugOK is 0, and it is set in writefile.c.  This value can be   *
 * over-ridden, for development and debugging, by setLeptDebugOK().        *
 *-------------------------------------------------------------------------*/
-LEPT_DLL extern l_int32 LeptDebugOK;   /* default is 0 */
+LEPT_DLL extern int32 LeptDebugOK;   /* default is 0 */
 
 /*------------------------------------------------------------------------*
 *                            Standard macros                             *
@@ -283,10 +283,10 @@ typedef void * L_TIMER;
 
 /*! Timing struct */
 struct L_WallTimer {
-	l_int32 start_sec;
-	l_int32 start_usec;
-	l_int32 stop_sec;
-	l_int32 stop_usec;
+	int32 start_sec;
+	int32 start_usec;
+	int32 stop_sec;
+	int32 stop_usec;
 };
 
 typedef struct L_WallTimer L_WALLTIMER;
@@ -431,7 +431,7 @@ enum {
 #endif
 
 /*!  The run-time message severity threshold is defined in utils1.c.  */
-LEPT_DLL extern l_int32 LeptMsgSeverity;
+LEPT_DLL extern int32 LeptMsgSeverity;
 
 /*
  * <pre>
@@ -440,7 +440,7 @@ LEPT_DLL extern l_int32 LeptMsgSeverity;
  *  Messages are of two types.
  *
  *  (1) The messages
- *      ERROR_INT(a,b,c)       : returns l_int32
+ *      ERROR_INT(a,b,c)       : returns int32
  *      ERROR_FLOAT(a,b,c)     : returns float
  *      ERROR_PTR(a,b,c)       : returns void*
  *  are used to return from functions and take a fixed set of parameters:
@@ -487,7 +487,7 @@ LEPT_DLL extern l_int32 LeptMsgSeverity;
 
 #ifdef  NO_CONSOLE_IO
   #define PROCNAME(name)
-  #define ERROR_INT(a, b, c)            ((l_int32)(c))
+  #define ERROR_INT(a, b, c)            ((int32)(c))
   #define ERROR_FLOAT(a, b, c)          ((float)(c))
   #define ERROR_PTR(a, b, c)            ((void*)(c))
   #define L_ERROR(a, ...)
@@ -496,7 +496,7 @@ LEPT_DLL extern l_int32 LeptMsgSeverity;
 #else
   #define PROCNAME(name)              static const char procName[] = name
   #define IF_SEV(l, t, f) ((l) >= MINIMUM_SEVERITY && (l) >= LeptMsgSeverity ? (t) : (f))
-  #define ERROR_INT(a, b, c) IF_SEV(L_SEVERITY_ERROR, returnErrorInt((a), (b), (c)), (l_int32)(c))
+  #define ERROR_INT(a, b, c) IF_SEV(L_SEVERITY_ERROR, returnErrorInt((a), (b), (c)), (int32)(c))
   #define ERROR_FLOAT(a, b, c) IF_SEV(L_SEVERITY_ERROR, returnErrorFloat((a), (b), (c)), (float)(c))
   #define ERROR_PTR(a, b, c) IF_SEV(L_SEVERITY_ERROR, returnErrorPtr((a), (b), (c)), (void*)(c))
   #define L_ERROR(a, ...) IF_SEV(L_SEVERITY_ERROR, (void)lept_stderr("Error in %s: " a, __VA_ARGS__), (void)0)

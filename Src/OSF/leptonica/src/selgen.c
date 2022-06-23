@@ -53,17 +53,17 @@
 
 /* Default minimum distance of a hit-miss pixel element to
  * a boundary pixel of its color. */
-static const l_int32 DefaultDistanceToBoundary = 1;
-static const l_int32 MaxDistanceToBoundary = 4;
+static const int32 DefaultDistanceToBoundary = 1;
+static const int32 MaxDistanceToBoundary = 4;
 
 /* Default min runlength to accept a hit or miss element located
  * at its center */
-static const l_int32 DefaultMinRunlength = 3;
+static const int32 DefaultMinRunlength = 3;
 
 /* Default scalefactor for displaying image and hit-miss sel
  * that is derived from it */
-static const l_int32 DefaultSelScalefactor = 7;
-static const l_int32 MaxSelScalefactor = 31; /* should be big enough */
+static const int32 DefaultSelScalefactor = 7;
+static const int32 MaxSelScalefactor = 31; /* should be big enough */
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG_DISPLAY_HM_SEL   0
@@ -122,17 +122,17 @@ static const l_int32 MaxSelScalefactor = 31; /* should be big enough */
  * </pre>
  */
 SEL * pixGenerateSelWithRuns(PIX * pixs,
-    l_int32 nhlines,
-    l_int32 nvlines,
-    l_int32 distance,
-    l_int32 minlength,
-    l_int32 toppix,
-    l_int32 botpix,
-    l_int32 leftpix,
-    l_int32 rightpix,
+    int32 nhlines,
+    int32 nvlines,
+    int32 distance,
+    int32 minlength,
+    int32 toppix,
+    int32 botpix,
+    int32 leftpix,
+    int32 rightpix,
     PIX    ** ppixe)
 {
-	l_int32 ws, hs, w, h, x, y, xval, yval, i, j, nh, nm;
+	int32 ws, hs, w, h, x, y, xval, yval, i, j, nh, nm;
 	float delh, delw;
 	NUMA * nah, * nam;
 	PIX * pixt1, * pixt2, * pixfg, * pixbg;
@@ -219,7 +219,7 @@ SEL * pixGenerateSelWithRuns(PIX * pixs,
 	if(nhlines >= 1) {
 		delh = (float)h / (float)(nhlines + 1);
 		for(i = 0, y = 0; i < nhlines; i++) {
-			y += (l_int32)(delh + 0.5);
+			y += (int32)(delh + 0.5);
 			nah = pixGetRunCentersOnLine(pixfg, -1, y, minlength);
 			nam = pixGetRunCentersOnLine(pixbg, -1, y, minlength);
 			nh = numaGetCount(nah);
@@ -239,7 +239,7 @@ SEL * pixGenerateSelWithRuns(PIX * pixs,
 	if(nvlines >= 1) {
 		delw = (float)w / (float)(nvlines + 1);
 		for(i = 0, x = 0; i < nvlines; i++) {
-			x += (l_int32)(delw + 0.5);
+			x += (int32)(delw + 0.5);
 			nah = pixGetRunCentersOnLine(pixfg, x, -1, minlength);
 			nam = pixGetRunCentersOnLine(pixbg, x, -1, minlength);
 			nh = numaGetCount(nah);
@@ -313,15 +313,15 @@ SEL * pixGenerateSelWithRuns(PIX * pixs,
 SEL * pixGenerateSelRandom(PIX * pixs,
     float hitfract,
     float missfract,
-    l_int32 distance,
-    l_int32 toppix,
-    l_int32 botpix,
-    l_int32 leftpix,
-    l_int32 rightpix,
+    int32 distance,
+    int32 toppix,
+    int32 botpix,
+    int32 leftpix,
+    int32 rightpix,
     PIX ** ppixe)
 {
-	l_int32 ws, hs, w, h, x, y, i, j, thresh;
-	l_uint32 val;
+	int32 ws, hs, w, h, x, y, i, j, thresh;
+	uint32 val;
 	PIX * pixt1, * pixt2, * pixfg, * pixbg;
 	SEL       * seld, * sel;
 
@@ -392,7 +392,7 @@ SEL * pixGenerateSelRandom(PIX * pixs,
 	/* Generate the sel from a random selection of these points */
 	sel = selCreateBrick(h, w, h / 2, w / 2, SEL_DONT_CARE);
 	if(hitfract > 0.0) {
-		thresh = (l_int32)(hitfract * (double)RAND_MAX);
+		thresh = (int32)(hitfract * (double)RAND_MAX);
 		for(i = 0; i < h; i++) {
 			for(j = 0; j < w; j++) {
 				pixGetPixel(pixfg, j, i, &val);
@@ -404,7 +404,7 @@ SEL * pixGenerateSelRandom(PIX * pixs,
 		}
 	}
 	if(missfract > 0.0) {
-		thresh = (l_int32)(missfract * (double)RAND_MAX);
+		thresh = (int32)(missfract * (double)RAND_MAX);
 		for(i = 0; i < h; i++) {
 			for(j = 0; j < w; j++) {
 				pixGetPixel(pixbg, j, i, &val);
@@ -463,17 +463,17 @@ SEL * pixGenerateSelRandom(PIX * pixs,
  * </pre>
  */
 SEL * pixGenerateSelBoundary(PIX * pixs,
-    l_int32 hitdist,
-    l_int32 missdist,
-    l_int32 hitskip,
-    l_int32 missskip,
-    l_int32 topflag,
-    l_int32 botflag,
-    l_int32 leftflag,
-    l_int32 rightflag,
+    int32 hitdist,
+    int32 missdist,
+    int32 hitskip,
+    int32 missskip,
+    int32 topflag,
+    int32 botflag,
+    int32 leftflag,
+    int32 rightflag,
     PIX ** ppixe)
 {
-	l_int32 ws, hs, w, h, x, y, ix, iy, i, npt;
+	int32 ws, hs, w, h, x, y, ix, iy, i, npt;
 	PIX * pixt1, * pixt2, * pixt3, * pixfg, * pixbg;
 	SEL     * selh, * selm, * sel_3, * sel;
 	PTA * ptah, * ptam;
@@ -609,11 +609,11 @@ SEL * pixGenerateSelBoundary(PIX * pixs,
  * </pre>
  */
 NUMA * pixGetRunCentersOnLine(PIX * pixs,
-    l_int32 x,
-    l_int32 y,
-    l_int32 minlength)
+    int32 x,
+    int32 y,
+    int32 minlength)
 {
-	l_int32 w, h, i, r, nruns, len;
+	int32 w, h, i, r, nruns, len;
 	NUMA     * naruns, * nad;
 
 	PROCNAME(__FUNCTION__);
@@ -681,14 +681,14 @@ NUMA * pixGetRunCentersOnLine(PIX * pixs,
  * </pre>
  */
 NUMA * pixGetRunsOnLine(PIX * pixs,
-    l_int32 x1,
-    l_int32 y1,
-    l_int32 x2,
-    l_int32 y2)
+    int32 x1,
+    int32 y1,
+    int32 x2,
+    int32 y2)
 {
-	l_int32 w, h, x, y, npts;
-	l_int32 i, runlen, preval;
-	l_uint32 val;
+	int32 w, h, x, y, npts;
+	int32 i, runlen, preval;
+	uint32 val;
 	NUMA     * numa;
 	PTA * pta;
 
@@ -775,9 +775,9 @@ NUMA * pixGetRunsOnLine(PIX * pixs,
  * </pre>
  */
 PTA * pixSubsampleBoundaryPixels(PIX * pixs,
-    l_int32 skip)
+    int32 skip)
 {
-	l_int32 x, y, xn, yn, xs, ys, xa, ya, count;
+	int32 x, y, xn, yn, xs, ys, xa, ya, count;
 	PIX * pixt;
 	PTA * pta;
 
@@ -840,16 +840,16 @@ PTA * pixSubsampleBoundaryPixels(PIX * pixs,
  *          This allows traversal along a 4-connected boundary.
  * </pre>
  */
-l_int32 adjacentOnPixelInRaster(PIX * pixs,
-    l_int32 x,
-    l_int32 y,
-    l_int32 * pxa,
-    l_int32 * pya)
+int32 adjacentOnPixelInRaster(PIX * pixs,
+    int32 x,
+    int32 y,
+    int32 * pxa,
+    int32 * pya)
 {
-	l_int32 w, h, i, xa, ya, found;
-	l_int32 xdel[] = {-1, 0, 1, 0, -1, 1, 1, -1};
-	l_int32 ydel[] = {0, 1, 0, -1, 1, 1, -1, -1};
-	l_uint32 val;
+	int32 w, h, i, xa, ya, found;
+	int32 xdel[] = {-1, 0, 1, 0, -1, 1, 1, -1};
+	int32 ydel[] = {0, 1, 0, -1, 1, 1, -1, -1};
+	uint32 val;
 
 	PROCNAME(__FUNCTION__);
 
@@ -897,11 +897,11 @@ l_int32 adjacentOnPixelInRaster(PIX * pixs,
  */
 PIX * pixDisplayHitMissSel(PIX * pixs,
     SEL      * sel,
-    l_int32 scalefactor,
-    l_uint32 hitcolor,
-    l_uint32 misscolor)
+    int32 scalefactor,
+    uint32 hitcolor,
+    uint32 misscolor)
 {
-	l_int32 i, j, type;
+	int32 i, j, type;
 	float fscale;
 	PIX * pixt, * pixd;
 	PIXCMAP   * cmap;

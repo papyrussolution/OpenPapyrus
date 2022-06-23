@@ -76,17 +76,17 @@ typedef struct BMP_FileHeader BMP_FH;
 
 /*! BMP info header */
 struct BMP_InfoHeader {
-	l_int32 biSize;             /*!< size of the BMP_InfoHeader struct   */
-	l_int32 biWidth;            /*!< bitmap width in pixels              */
-	l_int32 biHeight;           /*!< bitmap height in pixels             */
+	int32 biSize;             /*!< size of the BMP_InfoHeader struct   */
+	int32 biWidth;            /*!< bitmap width in pixels              */
+	int32 biHeight;           /*!< bitmap height in pixels             */
 	int16 biPlanes;           /*!< number of bitmap planes             */
 	int16 biBitCount; /*!< number of bits per pixel            */
-	l_int32 biCompression; /*!< compress format (0 == uncompressed) */
-	l_int32 biSizeImage; /*!< size of image in bytes              */
-	l_int32 biXPelsPerMeter; /*!< pixels per meter in x direction     */
-	l_int32 biYPelsPerMeter; /*!< pixels per meter in y direction     */
-	l_int32 biClrUsed;          /*!< number of colors used               */
-	l_int32 biClrImportant; /*!< number of important colors used     */
+	int32 biCompression; /*!< compress format (0 == uncompressed) */
+	int32 biSizeImage; /*!< size of image in bytes              */
+	int32 biXPelsPerMeter; /*!< pixels per meter in x direction     */
+	int32 biYPelsPerMeter; /*!< pixels per meter in y direction     */
+	int32 biClrUsed;          /*!< number of colors used               */
+	int32 biClrImportant; /*!< number of important colors used     */
 };
 
 typedef struct BMP_InfoHeader BMP_IH;

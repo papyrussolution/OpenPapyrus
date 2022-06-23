@@ -15,8 +15,8 @@
  *           PIX          *pixReadMemBmp()
  *
  *      Write bmp
- *           l_int32       pixWriteStreamBmp()
- *           l_int32       pixWriteMemBmp()
+ *           int32       pixWriteStreamBmp()
+ *           int32       pixWriteMemBmp()
  *
  * </pre>
  */
@@ -33,10 +33,10 @@
 RGBA_QUAD bwmap[2] = { {255, 255, 255, 255}, {0, 0, 0, 255} };
 
 /* Image dimension limits */
-static const l_int32 L_MAX_ALLOWED_WIDTH = 1000000;
-static const l_int32 L_MAX_ALLOWED_HEIGHT = 1000000;
+static const int32 L_MAX_ALLOWED_WIDTH = 1000000;
+static const int32 L_MAX_ALLOWED_HEIGHT = 1000000;
 static const l_int64 L_MAX_ALLOWED_PIXELS = 400000000LL;
-static const l_int32 L_MAX_ALLOWED_RES = 10000000; /* pixels/meter */
+static const int32 L_MAX_ALLOWED_RES = 10000000; /* pixels/meter */
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG     0
@@ -99,10 +99,10 @@ PIX * pixReadMemBmp(const uint8  * cdata, size_t size)
 	uint8 pel[4];
 	uint8   * cmapBuf, * fdata, * data;
 	int16 bftype, depth, d;
-	l_int32 offset, ihbytes, width, height, height_neg, xres, yres;
-	l_int32 compression, imagebytes, fdatabytes, cmapbytes, ncolors, maxcolors;
-	l_int32 fdatabpl, extrabytes, pixWpl, pixBpl, i, j, k;
-	l_uint32 * line, * pixdata, * pword;
+	int32 offset, ihbytes, width, height, height_neg, xres, yres;
+	int32 compression, imagebytes, fdatabytes, cmapbytes, ncolors, maxcolors;
+	int32 fdatabpl, extrabytes, pixWpl, pixBpl, i, j, k;
+	uint32 * line, * pixdata, * pword;
 	l_int64 npixels;
 	BMP_FH    * bmpfh;
 #if defined(__GNUC__)
@@ -123,7 +123,7 @@ PIX * pixReadMemBmp(const uint8  * cdata, size_t size)
 
 	/* Verify this is an uncompressed bmp */
 	bmpfh = (BMP_FH*)cdata;
-	bftype = bmpfh->bfType[0] + ((l_int32)bmpfh->bfType[1] << 8);
+	bftype = bmpfh->bfType[0] + ((int32)bmpfh->bfType[1] << 8);
 	if(bftype != BMP_ID)
 		return (PIX *)ERROR_PTR("not bmf format", procName, NULL);
 #if defined(__GNUC__)
@@ -138,13 +138,13 @@ PIX * pixReadMemBmp(const uint8  * cdata, size_t size)
 
 	/* Find the offset from the beginning of the file to the image data */
 	offset = bmpfh->bfOffBits[0];
-	offset += (l_int32)bmpfh->bfOffBits[1] << 8;
-	offset += (l_int32)bmpfh->bfOffBits[2] << 16;
-	offset += (l_uint32)bmpfh->bfOffBits[3] << 24;
+	offset += (int32)bmpfh->bfOffBits[1] << 8;
+	offset += (int32)bmpfh->bfOffBits[2] << 16;
+	offset += (uint32)bmpfh->bfOffBits[3] << 24;
 
 	/* Read the remaining useful data in the infoheader.
 	 * Note that the first 4 bytes give the infoheader size. */
-	ihbytes = convertOnBigEnd32(*(l_uint32*)(bmpih));
+	ihbytes = convertOnBigEnd32(*(uint32*)(bmpih));
 	width = convertOnBigEnd32(bmpih->biWidth);
 	height = convertOnBigEnd32(bmpih->biHeight);
 	depth = convertOnBigEnd16(bmpih->biBitCount);
@@ -239,8 +239,8 @@ PIX * pixReadMemBmp(const uint8  * cdata, size_t size)
 		SAlloc::F(cmapBuf);
 		return (PIX *)ERROR_PTR("pix not made", procName, NULL);
 	}
-	pixSetXRes(pix, (l_int32)((float)xres / 39.37 + 0.5)); /* to ppi */
-	pixSetYRes(pix, (l_int32)((float)yres / 39.37 + 0.5)); /* to ppi */
+	pixSetXRes(pix, (int32)((float)xres / 39.37 + 0.5)); /* to ppi */
+	pixSetYRes(pix, (int32)((float)yres / 39.37 + 0.5)); /* to ppi */
 	pixSetInputFormat(pix, IFF_BMP);
 	pixWpl = pixGetWpl(pix);
 	pixBpl = 4 * pixWpl;
@@ -411,12 +411,12 @@ l_ok pixWriteMemBmp(uint8  ** pfdata, size_t * pfsize, PIX * pixs)
 	uint8 pel[4];
 	uint8    * cta = NULL; /* address of the bmp color table array */
 	uint8    * fdata, * data, * fmdata;
-	l_int32 cmaplen;  /* number of bytes in the bmp colormap */
-	l_int32 ncolors, val, stepsize, w, h, d, fdepth, xres, yres, valid;
-	l_int32 pixWpl, pixBpl, extrabytes, fBpl, fWpl, i, j, k;
-	l_int32 heapcm; /* extra copy of cta on the heap ? 1 : 0 */
-	l_uint32 offbytes, fimagebytes;
-	l_uint32   * line, * pword;
+	int32 cmaplen;  /* number of bytes in the bmp colormap */
+	int32 ncolors, val, stepsize, w, h, d, fdepth, xres, yres, valid;
+	int32 pixWpl, pixBpl, extrabytes, fBpl, fWpl, i, j, k;
+	int32 heapcm; /* extra copy of cta on the heap ? 1 : 0 */
+	uint32 offbytes, fimagebytes;
+	uint32   * line, * pword;
 	size_t fsize;
 	BMP_FH     * bmpfh;
 #if defined(__GNUC__)
@@ -459,8 +459,8 @@ l_ok pixWriteMemBmp(uint8  ** pfdata, size_t * pfsize, PIX * pixs)
 	fdepth = (d == 32) ? 24 : d;
 
 	/* Resolution is given in pixels/meter */
-	xres = (l_int32)(39.37 * (float)pixGetXRes(pix) + 0.5);
-	yres = (l_int32)(39.37 * (float)pixGetYRes(pix) + 0.5);
+	xres = (int32)(39.37 * (float)pixGetXRes(pix) + 0.5);
+	yres = (int32)(39.37 * (float)pixGetYRes(pix) + 0.5);
 
 	pixWpl = pixGetWpl(pix);
 	pixBpl = 4 * pixWpl;

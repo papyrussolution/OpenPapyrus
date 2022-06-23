@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file morphseq.c
  * <pre>
@@ -41,7 +28,7 @@
  *            PIX     *pixMorphCompSequenceDwa()
  *
  *      Parser verifier for binary morphological operations
- *            l_int32  morphSequenceVerify()
+ *            int32  morphSequenceVerify()
  *
  *      Run a sequence of grayscale morphological operations
  *            PIX     *pixGrayMorphSequence()
@@ -130,12 +117,12 @@
  */
 PIX * pixMorphSequence(PIX         * pixs,
     const char * sequence,
-    l_int32 dispsep)
+    int32 dispsep)
 {
 	char * rawop, * op;
 	char fname[256];
-	l_int32 nops, i, j, nred, fact, w, h, x, border, pdfout;
-	l_int32 level[4];
+	int32 nops, i, j, nred, fact, w, h, x, border, pdfout;
+	int32 level[4];
 	PIX * pix1, * pix2;
 	PIXA    * pixa;
 	SARRAY * sa;
@@ -295,12 +282,12 @@ PIX * pixMorphSequence(PIX         * pixs,
  */
 PIX * pixMorphCompSequence(PIX         * pixs,
     const char * sequence,
-    l_int32 dispsep)
+    int32 dispsep)
 {
 	char * rawop, * op;
 	char fname[256];
-	l_int32 nops, i, j, nred, fact, w, h, x, border, pdfout;
-	l_int32 level[4];
+	int32 nops, i, j, nred, fact, w, h, x, border, pdfout;
+	int32 level[4];
 	PIX * pix1, * pix2;
 	PIXA    * pixa;
 	SARRAY * sa;
@@ -442,12 +429,12 @@ PIX * pixMorphCompSequence(PIX         * pixs,
  */
 PIX * pixMorphSequenceDwa(PIX         * pixs,
     const char * sequence,
-    l_int32 dispsep)
+    int32 dispsep)
 {
 	char * rawop, * op;
 	char fname[256];
-	l_int32 nops, i, j, nred, fact, w, h, x, border, pdfout;
-	l_int32 level[4];
+	int32 nops, i, j, nred, fact, w, h, x, border, pdfout;
+	int32 level[4];
 	PIX * pix1, * pix2;
 	PIXA    * pixa;
 	SARRAY * sa;
@@ -589,12 +576,12 @@ PIX * pixMorphSequenceDwa(PIX         * pixs,
  */
 PIX * pixMorphCompSequenceDwa(PIX         * pixs,
     const char * sequence,
-    l_int32 dispsep)
+    int32 dispsep)
 {
 	char * rawop, * op;
 	char fname[256];
-	l_int32 nops, i, j, nred, fact, w, h, x, border, pdfout;
-	l_int32 level[4];
+	int32 nops, i, j, nred, fact, w, h, x, border, pdfout;
+	int32 level[4];
 	PIX * pix1, * pix2;
 	PIXA    * pixa;
 	SARRAY * sa;
@@ -724,12 +711,12 @@ PIX * pixMorphCompSequenceDwa(PIX         * pixs,
  *          in the sequence.
  * </pre>
  */
-l_int32 morphSequenceVerify(SARRAY * sa)
+int32 morphSequenceVerify(SARRAY * sa)
 {
 	char * rawop, * op;
-	l_int32 nops, i, j, nred, fact, valid, w, h, netred, border;
-	l_int32 level[4];
-	l_int32 intlogbase2[5] = {1, 2, 3, 0, 4}; /* of arg/4 */
+	int32 nops, i, j, nred, fact, valid, w, h, netred, border;
+	int32 level[4];
+	int32 intlogbase2[5] = {1, 2, 3, 0, 4}; /* of arg/4 */
 
 	PROCNAME(__FUNCTION__);
 
@@ -897,12 +884,12 @@ l_int32 morphSequenceVerify(SARRAY * sa)
  */
 PIX * pixGrayMorphSequence(PIX         * pixs,
     const char * sequence,
-    l_int32 dispsep,
-    l_int32 dispy)
+    int32 dispsep,
+    int32 dispy)
 {
 	char * rawop, * op;
 	char fname[256];
-	l_int32 nops, i, valid, w, h, x, pdfout;
+	int32 nops, i, valid, w, h, x, pdfout;
 	PIX * pix1, * pix2;
 	PIXA    * pixa;
 	SARRAY * sa;
@@ -1098,12 +1085,12 @@ PIX * pixGrayMorphSequence(PIX         * pixs,
  */
 PIX * pixColorMorphSequence(PIX         * pixs,
     const char * sequence,
-    l_int32 dispsep,
-    l_int32 dispy)
+    int32 dispsep,
+    int32 dispy)
 {
 	char * rawop, * op;
 	char fname[256];
-	l_int32 nops, i, valid, w, h, x, pdfout;
+	int32 nops, i, valid, w, h, x, pdfout;
 	PIX * pix1, * pix2;
 	PIXA    * pixa;
 	SARRAY * sa;

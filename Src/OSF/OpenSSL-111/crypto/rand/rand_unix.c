@@ -354,7 +354,7 @@ static struct random_device {
 	ino_t ino;
 	mode_t mode;
 	dev_t rdev;
-} random_devices[OSSL_NELEM(random_device_paths)];
+} random_devices[SIZEOFARRAY(random_device_paths)];
 
 static int keep_random_devices_open = 1;
 
@@ -510,7 +510,7 @@ static void close_random_device(size_t n)
 int rand_pool_init(void)
 {
 	size_t i;
-	for(i = 0; i < OSSL_NELEM(random_devices); i++)
+	for(i = 0; i < SIZEOFARRAY(random_devices); i++)
 		random_devices[i].fd = -1;
 	return 1;
 }
@@ -518,7 +518,7 @@ int rand_pool_init(void)
 void rand_pool_cleanup(void)
 {
 	size_t i;
-	for(i = 0; i < OSSL_NELEM(random_devices); i++)
+	for(i = 0; i < SIZEOFARRAY(random_devices); i++)
 		close_random_device(i);
 }
 
@@ -610,7 +610,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 		size_t i;
 
 		bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
-		for(i = 0; bytes_needed > 0 && i < OSSL_NELEM(random_device_paths);
+		for(i = 0; bytes_needed > 0 && i < SIZEOFARRAY(random_device_paths);
 		    i++) {
 			ssize_t bytes = 0;
 			/* Maximum number of consecutive unsuccessful attempts */

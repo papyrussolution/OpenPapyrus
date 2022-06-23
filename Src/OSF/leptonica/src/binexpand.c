@@ -18,8 +18,8 @@
  *
  *      Expansion tables for power of 2 expansion
  *         static uint16    *makeExpandTab2x()
- *         static l_uint32    *makeExpandTab4x()
- *         static l_uint32    *makeExpandTab8x()
+ *         static uint32    *makeExpandTab4x()
+ *         static uint32    *makeExpandTab8x()
  * </pre>
  */
 #include "allheaders.h"
@@ -27,9 +27,9 @@
 
 /* Static table functions and tables */
 static uint16 * makeExpandTab2x(void);
-static l_uint32 * makeExpandTab4x(void);
-static l_uint32 * makeExpandTab8x(void);
-static l_uint32 expandtab16[] = {
+static uint32 * makeExpandTab4x(void);
+static uint32 * makeExpandTab8x(void);
+static uint32 expandtab16[] = {
 	0x00000000, 0x0000ffff, 0xffff0000, 0xffffffff
 };
 
@@ -45,11 +45,11 @@ static l_uint32 expandtab16[] = {
  * \return  pixd scaled up, or NULL on error
  */
 PIX * pixExpandBinaryReplicate(PIX * pixs,
-    l_int32 xfact,
-    l_int32 yfact)
+    int32 xfact,
+    int32 yfact)
 {
-	l_int32 w, h, d, wd, hd, wpls, wpld, i, j, k, start;
-	l_uint32 * datas, * datad, * lines, * lined;
+	int32 w, h, d, wd, hd, wpls, wpld, i, j, k, start;
+	uint32 * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -108,12 +108,12 @@ PIX * pixExpandBinaryReplicate(PIX * pixs,
  * \return  pixd expanded 1 bpp by replication, or NULL on error
  */
 PIX * pixExpandBinaryPower2(PIX * pixs,
-    l_int32 factor)
+    int32 factor)
 {
 	uint8 sval;
 	uint16  * tab2;
-	l_int32 i, j, k, w, h, d, wd, hd, wpls, wpld, sdibits, sqbits, sbytes;
-	l_uint32 * datas, * datad, * lines, * lined, * tab4, * tab8;
+	int32 i, j, k, w, h, d, wd, hd, wpls, wpld, sdibits, sqbits, sbytes;
+	uint32 * datas, * datad, * lines, * lined, * tab4, * tab8;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -205,7 +205,7 @@ PIX * pixExpandBinaryPower2(PIX * pixs,
 static uint16 * makeExpandTab2x(void)
 {
 	uint16  * tab;
-	l_int32 i;
+	int32 i;
 
 	tab = (uint16 *)SAlloc::C(256, sizeof(uint16));
 	for(i = 0; i < 256; i++) {
@@ -229,12 +229,12 @@ static uint16 * makeExpandTab2x(void)
 	return tab;
 }
 
-static l_uint32 * makeExpandTab4x(void)
+static uint32 * makeExpandTab4x(void)
 {
-	l_uint32 * tab;
-	l_int32 i;
+	uint32 * tab;
+	int32 i;
 
-	tab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
+	tab = (uint32*)SAlloc::C(256, sizeof(uint32));
 	for(i = 0; i < 256; i++) {
 		if(i & 0x01)
 			tab[i] = 0xf;
@@ -256,12 +256,12 @@ static l_uint32 * makeExpandTab4x(void)
 	return tab;
 }
 
-static l_uint32 * makeExpandTab8x(void)
+static uint32 * makeExpandTab8x(void)
 {
-	l_uint32 * tab;
-	l_int32 i;
+	uint32 * tab;
+	int32 i;
 
-	tab = (l_uint32*)SAlloc::C(16, sizeof(l_uint32));
+	tab = (uint32*)SAlloc::C(16, sizeof(uint32));
 	for(i = 0; i < 16; i++) {
 		if(i & 0x01)
 			tab[i] = 0xff;

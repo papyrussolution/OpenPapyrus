@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*
  * Modified from the excellent code here:
  *     http://en.literateprograms.org/Red-black_tree_(C)?oldid=19567
@@ -63,11 +50,11 @@
  *           L_RBTREE_NODE  *l_rbtreeGetNext()
  *           L_RBTREE_NODE  *l_rbtreeGetLast()
  *           L_RBTREE_NODE  *l_rbtreeGetPrev()
- *           l_int32         l_rbtreeGetCount()
+ *           int32         l_rbtreeGetCount()
  *           void            l_rbtreePrint()
  *
  *  General comparison function
- *           static l_int32  compareKeys()
+ *           static int32  compareKeys()
  * </pre>
  */
 #include "allheaders.h"
@@ -84,17 +71,17 @@ typedef L_RBTREE_NODE node;
 
 /* Lots of static helper functions */
 static void destroy_helper(node * n);
-static void count_helper(node * n, l_int32 * pcount);
-static void print_tree_helper(FILE * fp, node * n, l_int32 keytype,
-    l_int32 indent);
+static void count_helper(node * n, int32 * pcount);
+static void print_tree_helper(FILE * fp, node * n, int32 keytype,
+    int32 indent);
 
-static l_int32 compareKeys(l_int32 keytype, RB_TYPE left, RB_TYPE right);
+static int32 compareKeys(int32 keytype, RB_TYPE left, RB_TYPE right);
 
 static node * grandparent(node * n);
 static node * sibling(node * n);
 static node * uncle(node * n);
-static l_int32 node_color(node * n);
-static node * new_node(RB_TYPE key, RB_TYPE value, l_int32 node_color,
+static int32 node_color(node * n);
+static node * new_node(RB_TYPE key, RB_TYPE value, int32 node_color,
     node * left, node * right);
 static node * lookup_node(L_RBTREE * t, RB_TYPE key);
 static void rotate_left(L_RBTREE * t, node * n);
@@ -127,7 +114,7 @@ static void verify_properties(L_RBTREE * t);
  * \param[in]   keytype   defined by an enum for an RB_TYPE union
  * \return      rbtree    container with empty ptr to the root
  */
-L_RBTREE * l_rbtreeCreate(l_int32 keytype)
+L_RBTREE * l_rbtreeCreate(int32 keytype)
 {
 	L_RBTREE  * t;
 
@@ -448,9 +435,9 @@ L_RBTREE_NODE * l_rbtreeGetPrev(L_RBTREE_NODE  * n)
  * \param[in]  t      rbtree
  * \return     count  the number of nodes in the tree, or 0 on error
  */
-l_int32 l_rbtreeGetCount(L_RBTREE  * t)
+int32 l_rbtreeGetCount(L_RBTREE  * t)
 {
-	l_int32 count = 0;
+	int32 count = 0;
 	node    * n;
 
 	if(!t) return 0;
@@ -460,7 +447,7 @@ l_int32 l_rbtreeGetCount(L_RBTREE  * t)
 }
 
 /* preorder DFS */
-static void count_helper(node  * n, l_int32 * pcount)
+static void count_helper(node  * n, int32 * pcount)
 {
 	if(n)
 		(*pcount)++;
@@ -499,10 +486,10 @@ void l_rbtreePrint(FILE * fp,
 
 static void print_tree_helper(FILE * fp,
     node    * n,
-    l_int32 keytype,
-    l_int32 indent)
+    int32 keytype,
+    int32 indent)
 {
-	l_int32 i;
+	int32 i;
 
 	if(!n) {
 		fprintf(fp, "<empty tree>");
@@ -537,7 +524,7 @@ static void print_tree_helper(FILE * fp,
 /* ------------------------------------------------------------- *
 *                Static key comparison function                 *
 * ------------------------------------------------------------- */
-static l_int32 compareKeys(l_int32 keytype,
+static int32 compareKeys(int32 keytype,
     RB_TYPE left,
     RB_TYPE right)
 {
@@ -606,11 +593,11 @@ static node * uncle(node * n) {
 	return sibling(n->parent);
 }
 
-static l_int32 node_color(node * n) {
+static int32 node_color(node * n) {
 	return n == NULL ? L_BLACK_NODE : n->color;
 }
 
-static node * new_node(RB_TYPE key, RB_TYPE value, l_int32 node_color,
+static node * new_node(RB_TYPE key, RB_TYPE value, int32 node_color,
     node * left, node * right) {
 	node * result = (node*)SAlloc::C(1, sizeof(node));
 	result->key = key;

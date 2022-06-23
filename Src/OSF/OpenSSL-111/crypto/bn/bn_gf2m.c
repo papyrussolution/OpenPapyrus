@@ -385,8 +385,8 @@ int BN_GF2m_mod(BIGNUM * r, const BIGNUM * a, const BIGNUM * p)
 	int arr[6];
 	bn_check_top(a);
 	bn_check_top(p);
-	ret = BN_GF2m_poly2arr(p, arr, OSSL_NELEM(arr));
-	if(!ret || ret > (int)OSSL_NELEM(arr)) {
+	ret = BN_GF2m_poly2arr(p, arr, SIZEOFARRAY(arr));
+	if(!ret || ret > (int)SIZEOFARRAY(arr)) {
 		BNerr(BN_F_BN_GF2M_MOD, BN_R_INVALID_LENGTH);
 		return 0;
 	}

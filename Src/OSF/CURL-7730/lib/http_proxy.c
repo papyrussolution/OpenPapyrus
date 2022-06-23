@@ -53,12 +53,9 @@ static CURLcode https_proxy_connect(struct connectdata * conn, int sockindex)
 	DEBUGASSERT(conn->http_proxy.proxytype == CURLPROXY_HTTPS);
 	if(!conn->bits.proxy_ssl_connected[sockindex]) {
 		/* perform SSL initialization for this socket */
-		result =
-		    Curl_ssl_connect_nonblocking(conn, sockindex,
-			&conn->bits.proxy_ssl_connected[sockindex]);
+		result = Curl_ssl_connect_nonblocking(conn, sockindex, &conn->bits.proxy_ssl_connected[sockindex]);
 		if(result)
-			/* a failed connection is marked for closure to prevent (bad) re-use or
-			   similar */
+			/* a failed connection is marked for closure to prevent (bad) re-use or similar */
 			connclose(conn, "TLS handshake failed");
 	}
 	return result;
@@ -135,14 +132,12 @@ CURLcode Curl_proxy_connect(struct connectdata * conn, int sockindex)
 
 bool Curl_connect_complete(struct connectdata * conn)
 {
-	return !conn->connect_state ||
-	       (conn->connect_state->tunnel_state == http_connect_state::TUNNEL_COMPLETE);
+	return !conn->connect_state || (conn->connect_state->tunnel_state == http_connect_state::TUNNEL_COMPLETE);
 }
 
 bool Curl_connect_ongoing(struct connectdata * conn)
 {
-	return conn->connect_state &&
-	       (conn->connect_state->tunnel_state != http_connect_state::TUNNEL_COMPLETE);
+	return conn->connect_state && (conn->connect_state->tunnel_state != http_connect_state::TUNNEL_COMPLETE);
 }
 
 static CURLcode connect_init(struct connectdata * conn, bool reinit)
@@ -177,10 +172,7 @@ static void connect_done(struct connectdata * conn)
 	infof(conn->data, "CONNECT phase completed!\n");
 }
 
-static CURLcode CONNECT(struct connectdata * conn,
-    int sockindex,
-    const char * hostname,
-    int remote_port)
+static CURLcode CONNECT(struct connectdata * conn, int sockindex, const char * hostname, int remote_port)
 {
 	int subversion = 0;
 	struct Curl_easy * data = conn->data;
@@ -635,10 +627,8 @@ CURLcode Curl_proxyCONNECT(struct connectdata * conn,
 			return result;
 	}
 	result = CONNECT(conn, sockindex, hostname, remote_port);
-
 	if(result || Curl_connect_complete(conn))
 		connect_done(conn);
-
 	return result;
 }
 

@@ -4827,7 +4827,7 @@ PPTXT_PREDEFIMPEXPBILLFMT           "1,Nalog.ru @{invoice} (ON_SFAKT);\
 	4,Экспорт документов с марками;\
 	5,Nalog.ru (только импорт);\
 	6,Nalog.ru R_ON_NSCHFDOPPRMARK (счет-фактура с марками);\
-	8,Nalog.ru R_ON_NSCHFDOPPR (счет-фактура)";\
+	8,Nalog.ru R_ON_NSCHFDOPPR (счет-фактура);\
 	9,Coca-Cola ORDER (только импорт)"
 PPTXT_NALOGRU_WORKSWERETRANSFERED   "Результаты работ переданы (услуги оказаны)"
 PPTXT_NALOGRU_SHIPPINGBILL          "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"

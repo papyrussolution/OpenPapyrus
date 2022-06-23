@@ -45,7 +45,7 @@ static const char * outputfonts[] = {"chars-4.pa", "chars-6.pa",
 				      "chars-12.pa", "chars-14.pa",
 				      "chars-16.pa", "chars-18.pa",
 				      "chars-20.pa"};
-static const l_int32 baselines[NUM_FONTS][3] = {{11, 12, 12}, {18, 18, 18},
+static const int32 baselines[NUM_FONTS][3] = {{11, 12, 12}, {18, 18, 18},
 						{24, 24, 24}, {30, 30, 30},
 						{36, 36, 36}, {42, 42, 42},
 						{48, 48, 48}, {54, 54, 54},

@@ -99,36 +99,36 @@
 
 /*! Data structure to hold a number of Dewarp */
 struct L_Dewarpa {
-	l_int32 nalloc;        /*!< size of dewarp ptr array          */
-	l_int32 maxpage;        /*!< maximum page number in array      */
+	int32 nalloc;        /*!< size of dewarp ptr array          */
+	int32 maxpage;        /*!< maximum page number in array      */
 	struct L_Dewarp  ** dewarp; /*!< array of ptrs to page dewarp      */
 	struct L_Dewarp  ** dewarpcache; /*!< array of ptrs to cached dewarps   */
 	struct Numa       * namodels; /*!< list of page numbers for pages    */
 	/*!< with page models                  */
 	struct Numa       * napages; /*!< list of page numbers with either  */
 	/*!< page models or ref page models    */
-	l_int32 redfactor;        /*!< reduction factor of input: 1 or 2 */
-	l_int32 sampling;        /*!< disparity arrays sampling factor  */
-	l_int32 minlines;        /*!< min number of long lines required */
-	l_int32 maxdist;        /*!< max distance for getting ref page */
-	l_int32 max_linecurv;        /*!< maximum abs line curvature,       */
+	int32 redfactor;        /*!< reduction factor of input: 1 or 2 */
+	int32 sampling;        /*!< disparity arrays sampling factor  */
+	int32 minlines;        /*!< min number of long lines required */
+	int32 maxdist;        /*!< max distance for getting ref page */
+	int32 max_linecurv;        /*!< maximum abs line curvature,       */
 	/*!< in micro-units                    */
-	l_int32 min_diff_linecurv;        /*!< minimum abs diff line         */
+	int32 min_diff_linecurv;        /*!< minimum abs diff line         */
 	/*!< curvature in micro-units      */
-	l_int32 max_diff_linecurv;        /*!< maximum abs diff line         */
+	int32 max_diff_linecurv;        /*!< maximum abs diff line         */
 	/*!< curvature in micro-units      */
-	l_int32 max_edgeslope;        /*!< maximum abs left or right edge    */
+	int32 max_edgeslope;        /*!< maximum abs left or right edge    */
 	/*!< slope, in milli-units             */
-	l_int32 max_edgecurv;         /*!< maximum abs left or right edge    */
+	int32 max_edgecurv;         /*!< maximum abs left or right edge    */
 	/*!< curvature, in micro-units         */
-	l_int32 max_diff_edgecurv;        /*!< maximum abs diff left-right   */
+	int32 max_diff_edgecurv;        /*!< maximum abs diff left-right   */
 	/*!< edge curvature, in micro-units    */
-	l_int32 useboth;        /*!< use both disparity arrays if      */
+	int32 useboth;        /*!< use both disparity arrays if      */
 	/*!< available; only vertical otherwise */
-	l_int32 check_columns;        /*!< if there are multiple columns,    */
+	int32 check_columns;        /*!< if there are multiple columns,    */
 	/*!< only use the vertical disparity   */
 	/*!< array                             */
-	l_int32 modelsready;        /*!< invalid models have been removed  */
+	int32 modelsready;        /*!< invalid models have been removed  */
 	/*!< and refs built against valid set  */
 };
 
@@ -146,31 +146,31 @@ struct L_Dewarp {
 	struct FPix       * fullydispar; /*!< full slope h-disparity array       */
 	struct Numa       * namidys; /*!< sorted y val of midpoint each line */
 	struct Numa       * nacurves; /*!< sorted curvature of each line      */
-	l_int32 w;                   /*!< width of source image              */
-	l_int32 h;                   /*!< height of source image             */
-	l_int32 pageno;        /*!< page number; important for reuse   */
-	l_int32 sampling;        /*!< sampling factor of disparity arrays */
-	l_int32 redfactor;        /*!< reduction factor of pixs: 1 or 2   */
-	l_int32 minlines;        /*!< min number of long lines required  */
-	l_int32 nlines;        /*!< number of long lines found         */
-	l_int32 mincurv;        /*!< min line curvature in micro-units  */
-	l_int32 maxcurv;        /*!< max line curvature in micro-units  */
-	l_int32 leftslope;        /*!< left edge slope in milli-units     */
-	l_int32 rightslope;        /*!< right edge slope in milli-units    */
-	l_int32 leftcurv;        /*!< left edge curvature in micro-units */
-	l_int32 rightcurv;        /*!< right edge curvature in micro-units*/
-	l_int32 nx;                  /*!< number of sampling pts in x-dir    */
-	l_int32 ny;                  /*!< number of sampling pts in y-dir    */
-	l_int32 hasref;        /*!< 0 if normal; 1 if has a refpage    */
-	l_int32 refpage;        /*!< page with disparity model to use   */
-	l_int32 vsuccess;        /*!< sets to 1 if vert disparity builds */
-	l_int32 hsuccess;        /*!< sets to 1 if horiz disparity builds */
-	l_int32 ysuccess;        /*!< sets to 1 if slope disparity builds */
-	l_int32 vvalid;        /*!< sets to 1 if valid vert disparity  */
-	l_int32 hvalid;        /*!< sets to 1 if valid horiz disparity */
-	l_int32 skip_horiz;        /*!< if 1, skip horiz disparity         */
+	int32 w;                   /*!< width of source image              */
+	int32 h;                   /*!< height of source image             */
+	int32 pageno;        /*!< page number; important for reuse   */
+	int32 sampling;        /*!< sampling factor of disparity arrays */
+	int32 redfactor;        /*!< reduction factor of pixs: 1 or 2   */
+	int32 minlines;        /*!< min number of long lines required  */
+	int32 nlines;        /*!< number of long lines found         */
+	int32 mincurv;        /*!< min line curvature in micro-units  */
+	int32 maxcurv;        /*!< max line curvature in micro-units  */
+	int32 leftslope;        /*!< left edge slope in milli-units     */
+	int32 rightslope;        /*!< right edge slope in milli-units    */
+	int32 leftcurv;        /*!< left edge curvature in micro-units */
+	int32 rightcurv;        /*!< right edge curvature in micro-units*/
+	int32 nx;                  /*!< number of sampling pts in x-dir    */
+	int32 ny;                  /*!< number of sampling pts in y-dir    */
+	int32 hasref;        /*!< 0 if normal; 1 if has a refpage    */
+	int32 refpage;        /*!< page with disparity model to use   */
+	int32 vsuccess;        /*!< sets to 1 if vert disparity builds */
+	int32 hsuccess;        /*!< sets to 1 if horiz disparity builds */
+	int32 ysuccess;        /*!< sets to 1 if slope disparity builds */
+	int32 vvalid;        /*!< sets to 1 if valid vert disparity  */
+	int32 hvalid;        /*!< sets to 1 if valid horiz disparity */
+	int32 skip_horiz;        /*!< if 1, skip horiz disparity         */
 	/*!< correction                         */
-	l_int32 debug;        /*!< set to 1 if debug output requested */
+	int32 debug;        /*!< set to 1 if debug output requested */
 };
 
 typedef struct L_Dewarp L_DEWARP;

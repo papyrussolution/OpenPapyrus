@@ -13,14 +13,14 @@
  *      Build an image of the color content, on a per-pixel basis,
  *      as a measure of the amount of divergence of each color
  *      component (R,G,B) from gray.
- *         l_int32    pixColorContent()
+ *         int32    pixColorContent()
  *
  *      Find the 'amount' of color in an image, on a per-pixel basis,
  *      as a measure of the difference of the pixel color from gray.
  *         PIX *pixColorMagnitude()
  *
  *      Find the fraction of pixels with "color" that are not close to black
- *         l_int32    pixColorFraction()
+ *         int32    pixColorFraction()
  *
  *      Do a linear TRC to map colors so that the three input reference
  *      values go to white.  These three numbers are typically the median
@@ -39,33 +39,33 @@
  *
  *      Determine if there are significant color regions that are
  *      not background in a page image
- *         l_int32    pixFindColorRegions()
+ *         int32    pixFindColorRegions()
  *
  *      Find the number of perceptually significant gray intensities
  *      in a grayscale image.
- *         l_int32    pixNumSignificantGrayColors()
+ *         int32    pixNumSignificantGrayColors()
  *
  *      Identify images where color quantization will cause posterization
  *      due to the existence of many colors in low-gradient regions.
- *         l_int32    pixColorsForQuantization()
+ *         int32    pixColorsForQuantization()
  *
  *      Find the number of unique colors in an image
- *         l_int32    pixNumColors()
+ *         int32    pixNumColors()
  *
  *      Lossless conversion of RGB image to colormapped
  *         PIX *pixConvertRGBToCmapLossless()
  *
  *      Find the most "populated" colors in the image (and quantize)
- *         l_int32    pixGetMostPopulatedColors()
+ *         int32    pixGetMostPopulatedColors()
  *         PIX *pixSimpleColorQuantize()
  *
  *      Construct a color histogram based on rgb indices
  *         NUMA *pixGetRGBHistogram()
- *         l_int32    makeRGBIndexTables()
- *         l_int32    getRGBFromIndex()
+ *         int32    makeRGBIndexTables()
+ *         int32    getRGBFromIndex()
  *
  *      Identify images that have highlight (red) color
- *         l_int32    pixHasHighlightRed()
+ *         int32    pixHasHighlightRed()
  *
  *  Color is tricky.  If we consider gray (r = g = b) to have no color
  *  content, how should we define the color content in each component
@@ -177,18 +177,18 @@
  * </pre>
  */
 l_ok pixColorContent(PIX * pixs,
-    l_int32 rref,
-    l_int32 gref,
-    l_int32 bref,
-    l_int32 mingray,
+    int32 rref,
+    int32 gref,
+    int32 bref,
+    int32 mingray,
     PIX    ** ppixr,
     PIX    ** ppixg,
     PIX    ** ppixb)
 {
-	l_int32 w, h, i, j, wpl1, wplr, wplg, wplb;
-	l_int32 rval, gval, bval, rgdiff, rbdiff, gbdiff, maxval, colorval;
-	l_uint32 pixel;
-	l_uint32 * data1, * datar, * datag, * datab, * line1, * liner, * lineg, * lineb;
+	int32 w, h, i, j, wpl1, wplr, wplg, wplb;
+	int32 rval, gval, bval, rgdiff, rbdiff, gbdiff, maxval, colorval;
+	uint32 pixel;
+	uint32 * data1, * datar, * datag, * datab, * line1, * liner, * lineg, * lineb;
 	PIX * pix1, * pixr, * pixg, * pixb;
 
 	PROCNAME(__FUNCTION__);
@@ -335,16 +335,16 @@ l_ok pixColorContent(PIX * pixs,
  * </pre>
  */
 PIX * pixColorMagnitude(PIX * pixs,
-    l_int32 rref,
-    l_int32 gref,
-    l_int32 bref,
-    l_int32 type)
+    int32 rref,
+    int32 gref,
+    int32 bref,
+    int32 type)
 {
-	l_int32 w, h, i, j, wpl1, wpld;
-	l_int32 rval, gval, bval, rdist, gdist, bdist, colorval;
-	l_int32 rgdist, rbdist, gbdist, mindist, maxdist, minval, maxval;
-	l_uint32 pixel;
-	l_uint32 * data1, * datad, * line1, * lined;
+	int32 w, h, i, j, wpl1, wpld;
+	int32 rval, gval, bval, rdist, gdist, bdist, colorval;
+	int32 rgdist, rbdist, gbdist, mindist, maxdist, minval, maxval;
+	uint32 pixel;
+	uint32 * data1, * datad, * line1, * lined;
 	PIX * pix1, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -468,17 +468,17 @@ PIX * pixColorMagnitude(PIX * pixs,
  * </pre>
  */
 l_ok pixColorFraction(PIX        * pixs,
-    l_int32 darkthresh,
-    l_int32 lightthresh,
-    l_int32 diffthresh,
-    l_int32 factor,
+    int32 darkthresh,
+    int32 lightthresh,
+    int32 diffthresh,
+    int32 factor,
     float * ppixfract,
     float * pcolorfract)
 {
-	l_int32 i, j, w, h, wpl, rval, gval, bval, minval, maxval;
-	l_int32 total, npix, ncolor;
-	l_uint32 pixel;
-	l_uint32 * data, * line;
+	int32 i, j, w, h, wpl, rval, gval, bval, minval, maxval;
+	int32 total, npix, ncolor;
+	uint32 pixel;
+	uint32 * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -555,14 +555,14 @@ l_ok pixColorFraction(PIX        * pixs,
  * </pre>
  */
 PIX * pixColorShiftWhitePoint(PIX * pixs,
-    l_int32 rref,
-    l_int32 gref,
-    l_int32 bref)
+    int32 rref,
+    int32 gref,
+    int32 bref)
 {
-	l_int32 w, h, i, j, wpl1, wpl2, rval, gval, bval;
-	l_int32   * rtab, * gtab, * btab;
-	l_uint32 pixel;
-	l_uint32 * data1, * data2, * line1, * line2;
+	int32 w, h, i, j, wpl1, wpl2, rval, gval, bval;
+	int32   * rtab, * gtab, * btab;
+	uint32 pixel;
+	uint32 * data1, * data2, * line1, * line2;
 	NUMA * nar, * nag, * nab;
 	PIX * pix1, * pix2;
 	PIXCMAP   * cmap;
@@ -658,12 +658,12 @@ PIX * pixColorShiftWhitePoint(PIX * pixs,
  * </pre>
  */
 PIX * pixMaskOverColorPixels(PIX * pixs,
-    l_int32 threshdiff,
-    l_int32 mindist)
+    int32 threshdiff,
+    int32 mindist)
 {
-	l_int32 w, h, d, i, j, wpls, wpld, size;
-	l_int32 rval, gval, bval, minval, maxval;
-	l_uint32 * datas, * datad, * lines, * lined;
+	int32 w, h, d, i, j, wpls, wpld, size;
+	int32 rval, gval, bval, minval, maxval;
+	uint32 * datas, * datad, * lines, * lined;
 	PIX * pixc, * pixd;
 	PIXCMAP   * cmap;
 
@@ -738,12 +738,12 @@ PIX * pixMaskOverColorPixels(PIX * pixs,
  * </pre>
  */
 PIX * pixMaskOverGrayPixels(PIX * pixs,
-    l_int32 maxlimit,
-    l_int32 satlimit)
+    int32 maxlimit,
+    int32 satlimit)
 {
-	l_int32 w, h, i, j, wpls, wpld;
-	l_int32 rval, gval, bval, minrg, min, maxrg, max, sat;
-	l_uint32 * datas, * datad, * lines, * lined;
+	int32 w, h, i, j, wpls, wpld;
+	int32 rval, gval, bval, minrg, min, maxrg, max, sat;
+	uint32 * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -794,16 +794,16 @@ PIX * pixMaskOverGrayPixels(PIX * pixs,
  * \return  pixd 1 bpp, mask over color pixels, or NULL on error
  */
 PIX * pixMaskOverColorRange(PIX * pixs,
-    l_int32 rmin,
-    l_int32 rmax,
-    l_int32 gmin,
-    l_int32 gmax,
-    l_int32 bmin,
-    l_int32 bmax)
+    int32 rmin,
+    int32 rmax,
+    int32 gmin,
+    int32 gmax,
+    int32 bmin,
+    int32 bmax)
 {
-	l_int32 w, h, d, i, j, wpls, wpld;
-	l_int32 rval, gval, bval;
-	l_uint32 * datas, * datad, * lines, * lined;
+	int32 w, h, d, i, j, wpls, wpld;
+	int32 rval, gval, bval;
+	uint32 * datas, * datad, * lines, * lined;
 	PIX * pixc, * pixd;
 	PIXCMAP   * cmap;
 
@@ -912,20 +912,20 @@ PIX * pixMaskOverColorRange(PIX * pixs,
  */
 l_ok pixFindColorRegions(PIX        * pixs,
     PIX        * pixm,
-    l_int32 factor,
-    l_int32 lightthresh,
-    l_int32 darkthresh,
-    l_int32 mindiff,
-    l_int32 colordiff,
+    int32 factor,
+    int32 lightthresh,
+    int32 darkthresh,
+    int32 mindiff,
+    int32 colordiff,
     float edgefract,
     float * pcolorfract,
     PIX ** pcolormask1,
     PIX ** pcolormask2,
     PIXA       * pixadb)
 {
-	l_int32 w, h, count, rval, gval, bval, aveval, proceed;
+	int32 w, h, count, rval, gval, bval, aveval, proceed;
 	float ratio;
-	l_uint32 * carray;
+	uint32 * carray;
 	BOXA      * boxa1, * boxa2;
 	PIX * pix1, * pix2, * pix3, * pix4, * pix5, * pixm1, * pixm2, * pixm3;
 
@@ -1125,13 +1125,13 @@ l_ok pixFindColorRegions(PIX        * pixs,
  * </pre>
  */
 l_ok pixNumSignificantGrayColors(PIX * pixs,
-    l_int32 darkthresh,
-    l_int32 lightthresh,
+    int32 darkthresh,
+    int32 lightthresh,
     float minfract,
-    l_int32 factor,
-    l_int32   * pncolors)
+    int32 factor,
+    int32   * pncolors)
 {
-	l_int32 i, w, h, count, mincount, ncolors;
+	int32 i, w, h, count, mincount, ncolors;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -1153,7 +1153,7 @@ l_ok pixNumSignificantGrayColors(PIX * pixs,
 	if(factor < 1) factor = 1;
 
 	pixGetDimensions(pixs, &w, &h, NULL);
-	mincount = (l_int32)(minfract * w * h * factor * factor);
+	mincount = (int32)(minfract * w * h * factor * factor);
 	if((na = pixGetGrayHistogram(pixs, factor)) == NULL)
 		return ERROR_INT("na not made", procName, 1);
 	ncolors = 2; /* add in black and white */
@@ -1245,12 +1245,12 @@ l_ok pixNumSignificantGrayColors(PIX * pixs,
  * </pre>
  */
 l_ok pixColorsForQuantization(PIX * pixs,
-    l_int32 thresh,
-    l_int32 * pncolors,
-    l_int32 * piscolor,
-    l_int32 debug)
+    int32 thresh,
+    int32 * pncolors,
+    int32 * piscolor,
+    int32 debug)
 {
-	l_int32 w, h, d, minside, factor;
+	int32 w, h, d, minside, factor;
 	float pixfract, colorfract;
 	PIX * pixt, * pixsc, * pixg, * pixe, * pixb, * pixm;
 	PIXCMAP   * cmap;
@@ -1388,14 +1388,14 @@ l_ok pixColorsForQuantization(PIX * pixs,
  * </pre>
  */
 l_ok pixNumColors(PIX * pixs,
-    l_int32 factor,
-    l_int32 * pncolors)
+    int32 factor,
+    int32 * pncolors)
 {
-	l_int32 w, h, d, i, j, wpl, hashsize, sum, count, manycolors;
-	l_int32 rval, gval, bval, val;
-	l_int32   * inta;
-	l_uint32 pixel;
-	l_uint32 * data, * line;
+	int32 w, h, d, i, j, wpl, hashsize, sum, count, manycolors;
+	int32 rval, gval, bval, val;
+	int32   * inta;
+	uint32 pixel;
+	uint32 * data, * line;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -1414,7 +1414,7 @@ l_ok pixNumColors(PIX * pixs,
 	wpl = pixGetWpl(pixs);
 	sum = 0;
 	if(d != 32) { /* grayscale */
-		inta = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+		inta = (int32*)SAlloc::C(256, sizeof(int32));
 		for(i = 0; i < h; i += factor) {
 			line = data + i * wpl;
 			for(j = 0; j < w; j += factor) {
@@ -1444,7 +1444,7 @@ l_ok pixNumColors(PIX * pixs,
 
 	/* 32 bpp rgb; quit if we get above 256 colors */
 	hashsize = 5507; /* big and prime; collisions are not likely */
-	inta = (l_int32*)SAlloc::C(hashsize, sizeof(l_int32));
+	inta = (int32*)SAlloc::C(hashsize, sizeof(int32));
 	manycolors = 0;
 	for(i = 0; i < h && manycolors == 0; i += factor) {
 		line = data + i * wpl;
@@ -1490,11 +1490,11 @@ l_ok pixNumColors(PIX * pixs,
  */
 PIX * pixConvertRGBToCmapLossless(PIX  * pixs)
 {
-	l_int32 w, h, d, i, j, wpls, wpld, hashsize, hashval, ncolors, index;
-	l_int32 rval, gval, bval, val;
-	l_int32   * hasha1, * hasha2;
-	l_uint32 pixel;
-	l_uint32 * datas, * lines, * datad, * lined;
+	int32 w, h, d, i, j, wpls, wpld, hashsize, hashval, ncolors, index;
+	int32 rval, gval, bval, val;
+	int32   * hasha1, * hasha2;
+	uint32 pixel;
+	uint32 * datas, * lines, * datad, * lined;
 	PIX * pixd;
 	PIXCMAP   * cmap;
 
@@ -1532,8 +1532,8 @@ PIX * pixConvertRGBToCmapLossless(PIX  * pixs)
 	   generated from the colors in the order seen. This is
 	   the value inserted into pixd.  */
 	hashsize = 5507; /* big and prime; collisions are not likely */
-	hasha1 = (l_int32*)SAlloc::C(hashsize, sizeof(l_int32));
-	hasha2 = (l_int32*)SAlloc::C(hashsize, sizeof(l_int32));
+	hasha1 = (int32*)SAlloc::C(hashsize, sizeof(int32));
+	hasha2 = (int32*)SAlloc::C(hashsize, sizeof(int32));
 	index = -1;
 	for(i = 0; i < h; i++) {
 		lines = datas + i * wpls;
@@ -1584,13 +1584,13 @@ PIX * pixConvertRGBToCmapLossless(PIX  * pixs)
  * </pre>
  */
 l_ok pixGetMostPopulatedColors(PIX        * pixs,
-    l_int32 sigbits,
-    l_int32 factor,
-    l_int32 ncolors,
-    l_uint32  ** parray,
+    int32 sigbits,
+    int32 factor,
+    int32 ncolors,
+    uint32  ** parray,
     PIXCMAP   ** pcmap)
 {
-	l_int32 n, i, rgbindex, rval, gval, bval;
+	int32 n, i, rgbindex, rval, gval, bval;
 	NUMA * nahisto, * naindex;
 
 	PROCNAME(__FUNCTION__);
@@ -1617,7 +1617,7 @@ l_ok pixGetMostPopulatedColors(PIX        * pixs,
 
 	n = numaGetCount(naindex);
 	ncolors = MIN(n, ncolors);
-	if(parray) *parray = (l_uint32*)SAlloc::C(ncolors, sizeof(l_uint32));
+	if(parray) *parray = (uint32*)SAlloc::C(ncolors, sizeof(uint32));
 	if(pcmap) *pcmap = pixcmapCreate(8);
 	for(i = 0; i < ncolors; i++) {
 		numaGetIValue(naindex, i, &rgbindex); /* rgb index */
@@ -1659,11 +1659,11 @@ l_ok pixGetMostPopulatedColors(PIX        * pixs,
  * </pre>
  */
 PIX * pixSimpleColorQuantize(PIX        * pixs,
-    l_int32 sigbits,
-    l_int32 factor,
-    l_int32 ncolors)
+    int32 sigbits,
+    int32 factor,
+    int32 ncolors)
 {
-	l_int32 w, h;
+	int32 w, h;
 	PIX * pixd;
 	PIXCMAP  * cmap;
 
@@ -1703,13 +1703,13 @@ PIX * pixSimpleColorQuantize(PIX        * pixs,
  * </pre>
  */
 NUMA * pixGetRGBHistogram(PIX * pixs,
-    l_int32 sigbits,
-    l_int32 factor)
+    int32 sigbits,
+    int32 factor)
 {
-	l_int32 w, h, i, j, size, wpl, rval, gval, bval, npts;
-	l_uint32 val32, rgbindex;
+	int32 w, h, i, j, size, wpl, rval, gval, bval, npts;
+	uint32 val32, rgbindex;
 	float * array;
-	l_uint32   * data, * line, * rtab, * gtab, * btab;
+	uint32   * data, * line, * rtab, * gtab, * btab;
 	NUMA       * na;
 
 	PROCNAME(__FUNCTION__);
@@ -1768,13 +1768,13 @@ NUMA * pixGetRGBHistogram(PIX * pixs,
  *             r7 r6 r5 g7 g6 g5 b7 b6 b5
  * </pre>
  */
-l_ok makeRGBIndexTables(l_uint32  ** prtab,
-    l_uint32  ** pgtab,
-    l_uint32  ** pbtab,
-    l_int32 sigbits)
+l_ok makeRGBIndexTables(uint32  ** prtab,
+    uint32  ** pgtab,
+    uint32  ** pbtab,
+    int32 sigbits)
 {
-	l_int32 i;
-	l_uint32 * rtab, * gtab, * btab;
+	int32 i;
+	uint32 * rtab, * gtab, * btab;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1786,9 +1786,9 @@ l_ok makeRGBIndexTables(l_uint32  ** prtab,
 	if(sigbits < 2 || sigbits > 6)
 		return ERROR_INT("sigbits not in [2 ... 6]", procName, 1);
 
-	rtab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
-	gtab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
-	btab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
+	rtab = (uint32*)SAlloc::C(256, sizeof(uint32));
+	gtab = (uint32*)SAlloc::C(256, sizeof(uint32));
+	btab = (uint32*)SAlloc::C(256, sizeof(uint32));
 	if(!rtab || !gtab || !btab)
 		return ERROR_INT("calloc fail for tab", procName, 1);
 	*prtab = rtab;
@@ -1856,11 +1856,11 @@ l_ok makeRGBIndexTables(l_uint32  ** prtab,
  *          The extra bit that is OR'd accomplishes this.
  * </pre>
  */
-l_ok getRGBFromIndex(l_uint32 index,
-    l_int32 sigbits,
-    l_int32 * prval,
-    l_int32 * pgval,
-    l_int32 * pbval)
+l_ok getRGBFromIndex(uint32 index,
+    int32 sigbits,
+    int32 * prval,
+    int32 * pgval,
+    int32 * pbval)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1938,10 +1938,10 @@ l_ok getRGBFromIndex(l_uint32 index,
  * </pre>
  */
 l_ok pixHasHighlightRed(PIX        * pixs,
-    l_int32 factor,
+    int32 factor,
     float minfract,
     float fthresh,
-    l_int32    * phasred,
+    int32    * phasred,
     float * pratio,
     PIX ** ppixdb)
 {

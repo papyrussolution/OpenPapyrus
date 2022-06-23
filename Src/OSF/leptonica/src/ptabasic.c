@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file  ptabasic.c
  * <pre>
@@ -35,72 +22,72 @@
  *           PTA            *ptaCopy()
  *           PTA            *ptaCopyRange()
  *           PTA            *ptaClone()
- *           l_int32         ptaEmpty()
+ *           int32         ptaEmpty()
  *
  *      Pta array extension
- *           l_int32         ptaAddPt()
- *           static l_int32  ptaExtendArrays()
+ *           int32         ptaAddPt()
+ *           static int32  ptaExtendArrays()
  *
  *      Pta insertion and removal
- *           l_int32         ptaInsertPt()
- *           l_int32         ptaRemovePt()
+ *           int32         ptaInsertPt()
+ *           int32         ptaRemovePt()
  *
  *      Pta accessors
- *           l_int32         ptaGetRefcount()
- *           l_int32         ptaChangeRefcount()
- *           l_int32         ptaGetCount()
- *           l_int32         ptaGetPt()
- *           l_int32         ptaGetIPt()
- *           l_int32         ptaSetPt()
- *           l_int32         ptaGetArrays()
+ *           int32         ptaGetRefcount()
+ *           int32         ptaChangeRefcount()
+ *           int32         ptaGetCount()
+ *           int32         ptaGetPt()
+ *           int32         ptaGetIPt()
+ *           int32         ptaSetPt()
+ *           int32         ptaGetArrays()
  *
  *      Pta serialized for I/O
  *           PTA            *ptaRead()
  *           PTA            *ptaReadStream()
  *           PTA            *ptaReadMem()
- *           l_int32         ptaWriteDebug()
- *           l_int32         ptaWrite()
- *           l_int32         ptaWriteStream()
- *           l_int32         ptaWriteMem()
+ *           int32         ptaWriteDebug()
+ *           int32         ptaWrite()
+ *           int32         ptaWriteStream()
+ *           int32         ptaWriteMem()
  *
  *      Ptaa creation, destruction
  *           PTAA           *ptaaCreate()
  *           void            ptaaDestroy()
  *
  *      Ptaa array extension
- *           l_int32         ptaaAddPta()
- *           static l_int32  ptaaExtendArray()
+ *           int32         ptaaAddPta()
+ *           static int32  ptaaExtendArray()
  *
  *      Ptaa accessors
- *           l_int32         ptaaGetCount()
- *           l_int32         ptaaGetPta()
- *           l_int32         ptaaGetPt()
+ *           int32         ptaaGetCount()
+ *           int32         ptaaGetPta()
+ *           int32         ptaaGetPt()
  *
  *      Ptaa array modifiers
- *           l_int32         ptaaInitFull()
- *           l_int32         ptaaReplacePta()
- *           l_int32         ptaaAddPt()
- *           l_int32         ptaaTruncate()
+ *           int32         ptaaInitFull()
+ *           int32         ptaaReplacePta()
+ *           int32         ptaaAddPt()
+ *           int32         ptaaTruncate()
  *
  *      Ptaa serialized for I/O
  *           PTAA           *ptaaRead()
  *           PTAA           *ptaaReadStream()
  *           PTAA           *ptaaReadMem()
- *           l_int32         ptaaWrite()
- *           l_int32         ptaaWriteStream()
- *           l_int32         ptaaWriteMem()
+ *           int32         ptaaWrite()
+ *           int32         ptaaWriteStream()
+ *           int32         ptaaWriteMem()
  * </pre>
  */
 #include "allheaders.h"
 #pragma hdrstop
 
-static const l_uint32 MaxArraySize = 100000000; /* 100 million */
-static const l_uint32 MaxPtrArraySize = 10000000; /* 10 million */
-static const l_int32 InitialArraySize = 50; /*!< n'importe quoi */
+static const uint32 MaxArraySize = 100000000; /* 100 million */
+static const uint32 MaxPtrArraySize = 10000000; /* 10 million */
+static const int32 InitialArraySize = 50; /*!< n'importe quoi */
 
 /* Static functions */
-static l_int32 ptaExtendArrays(PTA * pta);
-static l_int32 ptaaExtendArray(PTAA * ptaa);
+static int32 ptaExtendArrays(PTA * pta);
+static int32 ptaaExtendArray(PTAA * ptaa);
 
 /*---------------------------------------------------------------------*
 *                Pta creation, destruction, copy, clone               *
@@ -111,7 +98,7 @@ static l_int32 ptaaExtendArray(PTAA * ptaa);
  * \param[in]    n    initial array sizes
  * \return  pta, or NULL on error.
  */
-PTA * ptaCreate(l_int32 n)
+PTA * ptaCreate(int32 n)
 {
 	PTA * pta;
 
@@ -144,7 +131,7 @@ PTA * ptaCreate(l_int32 n)
 PTA * ptaCreateFromNuma(NUMA * nax,
     NUMA * nay)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float startx, delx, xval, yval;
 	PTA       * pta;
 
@@ -213,7 +200,7 @@ void ptaDestroy(PTA ** ppta)
  */
 PTA * ptaCopy(PTA * pta)
 {
-	l_int32 i;
+	int32 i;
 	float x, y;
 	PTA       * npta;
 
@@ -242,10 +229,10 @@ PTA * ptaCopy(PTA * pta)
  * \return  0 if OK, 1 on error
  */
 PTA * ptaCopyRange(PTA * ptas,
-    l_int32 istart,
-    l_int32 iend)
+    int32 istart,
+    int32 iend)
 {
-	l_int32 n, i, x, y;
+	int32 n, i, x, y;
 	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
@@ -324,7 +311,7 @@ l_ok ptaAddPt(PTA       * pta,
     float x,
     float y)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -355,7 +342,7 @@ l_ok ptaAddPt(PTA       * pta,
  *      (2) The max number of points is 100M.
  * </pre>
  */
-static l_int32 ptaExtendArrays(PTA * pta)
+static int32 ptaExtendArrays(PTA * pta)
 {
 	size_t oldsize, newsize;
 
@@ -396,11 +383,11 @@ static l_int32 ptaExtendArrays(PTA * pta)
  * \return  0 if OK; 1 on error
  */
 l_ok ptaInsertPt(PTA * pta,
-    l_int32 index,
-    l_int32 x,
-    l_int32 y)
+    int32 index,
+    int32 x,
+    int32 y)
 {
-	l_int32 i, n;
+	int32 i, n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -441,9 +428,9 @@ l_ok ptaInsertPt(PTA * pta,
  * </pre>
  */
 l_ok ptaRemovePt(PTA * pta,
-    l_int32 index)
+    int32 index)
 {
-	l_int32 i, n;
+	int32 i, n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -467,7 +454,7 @@ l_ok ptaRemovePt(PTA * pta,
 /*---------------------------------------------------------------------*
 *                           Pta accessors                             *
 *---------------------------------------------------------------------*/
-l_int32 ptaGetRefcount(PTA * pta)
+int32 ptaGetRefcount(PTA * pta)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -476,8 +463,8 @@ l_int32 ptaGetRefcount(PTA * pta)
 	return pta->refcount;
 }
 
-l_int32 ptaChangeRefcount(PTA * pta,
-    l_int32 delta)
+int32 ptaChangeRefcount(PTA * pta,
+    int32 delta)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -493,7 +480,7 @@ l_int32 ptaChangeRefcount(PTA * pta,
  * \param[in]    pta
  * \return  count, or 0 if no pta
  */
-l_int32 ptaGetCount(PTA * pta)
+int32 ptaGetCount(PTA * pta)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -513,7 +500,7 @@ l_int32 ptaGetCount(PTA * pta)
  * \return  0 if OK; 1 on error
  */
 l_ok ptaGetPt(PTA        * pta,
-    l_int32 index,
+    int32 index,
     float * px,
     float * py)
 {
@@ -541,9 +528,9 @@ l_ok ptaGetPt(PTA        * pta,
  * \return  0 if OK; 1 on error
  */
 l_ok ptaGetIPt(PTA * pta,
-    l_int32 index,
-    l_int32 * px,
-    l_int32 * py)
+    int32 index,
+    int32 * px,
+    int32 * py)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -554,8 +541,8 @@ l_ok ptaGetIPt(PTA * pta,
 	if(index < 0 || index >= pta->n)
 		return ERROR_INT("invalid index", procName, 1);
 
-	if(px) *px = (l_int32)(pta->x[index] + 0.5);
-	if(py) *py = (l_int32)(pta->y[index] + 0.5);
+	if(px) *px = (int32)(pta->x[index] + 0.5);
+	if(py) *py = (int32)(pta->y[index] + 0.5);
 	return 0;
 }
 
@@ -568,7 +555,7 @@ l_ok ptaGetIPt(PTA * pta,
  * \return  0 if OK; 1 on error
  */
 l_ok ptaSetPt(PTA       * pta,
-    l_int32 index,
+    int32 index,
     float x,
     float y)
 {
@@ -601,7 +588,7 @@ l_ok ptaGetArrays(PTA    * pta,
     NUMA ** pnax,
     NUMA ** pnay)
 {
-	l_int32 i, n;
+	int32 i, n;
 	NUMA * nax, * nay;
 
 	PROCNAME(__FUNCTION__);
@@ -677,7 +664,7 @@ PTA * ptaRead(const char * filename)
 PTA * ptaReadStream(FILE * fp)
 {
 	char typestr[128]; /* hardcoded below in fscanf */
-	l_int32 i, n, ix, iy, type, version;
+	int32 i, n, ix, iy, type, version;
 	float x, y;
 	PTA       * pta;
 
@@ -769,7 +756,7 @@ PTA * ptaReadMem(const uint8  * data,
  */
 l_ok ptaWriteDebug(const char * filename,
     PTA         * pta,
-    l_int32 type)
+    int32 type)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -792,9 +779,9 @@ l_ok ptaWriteDebug(const char * filename,
  */
 l_ok ptaWrite(const char * filename,
     PTA         * pta,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -823,9 +810,9 @@ l_ok ptaWrite(const char * filename,
  */
 l_ok ptaWriteStream(FILE * fp,
     PTA * pta,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 i, n, ix, iy;
+	int32 i, n, ix, iy;
 	float x, y;
 
 	PROCNAME(__FUNCTION__);
@@ -872,9 +859,9 @@ l_ok ptaWriteStream(FILE * fp,
 l_ok ptaWriteMem(uint8  ** pdata,
     size_t * psize,
     PTA       * pta,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -921,7 +908,7 @@ l_ok ptaWriteMem(uint8  ** pdata,
  * \param[in]    n    initial number of ptrs
  * \return  ptaa, or NULL on error
  */
-PTAA * ptaaCreate(l_int32 n)
+PTAA * ptaaCreate(int32 n)
 {
 	PTAA  * ptaa;
 
@@ -948,7 +935,7 @@ PTAA * ptaaCreate(l_int32 n)
  */
 void ptaaDestroy(PTAA  ** pptaa)
 {
-	l_int32 i;
+	int32 i;
 	PTAA    * ptaa;
 
 	PROCNAME(__FUNCTION__);
@@ -981,9 +968,9 @@ void ptaaDestroy(PTAA  ** pptaa)
  */
 l_ok ptaaAddPta(PTAA    * ptaa,
     PTA * pta,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 n;
+	int32 n;
 	PTA * ptac;
 
 	PROCNAME(__FUNCTION__);
@@ -1035,7 +1022,7 @@ l_ok ptaaAddPta(PTAA    * ptaa,
  * </pre>
  *
  */
-static l_int32 ptaaExtendArray(PTAA  * ptaa)
+static int32 ptaaExtendArray(PTAA  * ptaa)
 {
 	size_t oldsize, newsize;
 
@@ -1065,7 +1052,7 @@ static l_int32 ptaaExtendArray(PTAA  * ptaa)
  * \param[in]    ptaa
  * \return  count, or 0 if no ptaa
  */
-l_int32 ptaaGetCount(PTAA  * ptaa)
+int32 ptaaGetCount(PTAA  * ptaa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1084,8 +1071,8 @@ l_int32 ptaaGetCount(PTAA  * ptaa)
  * \return  pta, or NULL on error
  */
 PTA * ptaaGetPta(PTAA    * ptaa,
-    l_int32 index,
-    l_int32 accessflag)
+    int32 index,
+    int32 accessflag)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1113,8 +1100,8 @@ PTA * ptaaGetPta(PTAA    * ptaa,
  * \return  0 if OK; 1 on error
  */
 l_ok ptaaGetPt(PTAA       * ptaa,
-    l_int32 ipta,
-    l_int32 jpt,
+    int32 ipta,
+    int32 jpt,
     float * px,
     float * py)
 {
@@ -1153,7 +1140,7 @@ l_ok ptaaGetPt(PTAA       * ptaa,
 l_ok ptaaInitFull(PTAA  * ptaa,
     PTA   * pta)
 {
-	l_int32 n, i;
+	int32 n, i;
 	PTA * ptat;
 
 	PROCNAME(__FUNCTION__);
@@ -1188,10 +1175,10 @@ l_ok ptaaInitFull(PTAA  * ptaa,
  * </pre>
  */
 l_ok ptaaReplacePta(PTAA    * ptaa,
-    l_int32 index,
+    int32 index,
     PTA * pta)
 {
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1217,7 +1204,7 @@ l_ok ptaaReplacePta(PTAA    * ptaa,
  * \return  0 if OK; 1 on error
  */
 l_ok ptaaAddPt(PTAA      * ptaa,
-    l_int32 ipta,
+    int32 ipta,
     float x,
     float y)
 {
@@ -1251,7 +1238,7 @@ l_ok ptaaAddPt(PTAA      * ptaa,
  */
 l_ok ptaaTruncate(PTAA  * ptaa)
 {
-	l_int32 i, n, np;
+	int32 i, n, np;
 	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
@@ -1320,7 +1307,7 @@ PTAA * ptaaRead(const char * filename)
  */
 PTAA * ptaaReadStream(FILE * fp)
 {
-	l_int32 i, n, version;
+	int32 i, n, version;
 	PTA * pta;
 	PTAA    * ptaa;
 
@@ -1399,7 +1386,7 @@ PTAA * ptaaReadMem(const uint8  * data,
  */
 l_ok ptaaWriteDebug(const char * filename,
     PTAA        * ptaa,
-    l_int32 type)
+    int32 type)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1422,9 +1409,9 @@ l_ok ptaaWriteDebug(const char * filename,
  */
 l_ok ptaaWrite(const char * filename,
     PTAA        * ptaa,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -1453,9 +1440,9 @@ l_ok ptaaWrite(const char * filename,
  */
 l_ok ptaaWriteStream(FILE * fp,
     PTAA    * ptaa,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 i, n;
+	int32 i, n;
 	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
@@ -1494,9 +1481,9 @@ l_ok ptaaWriteStream(FILE * fp,
 l_ok ptaaWriteMem(uint8  ** pdata,
     size_t * psize,
     PTAA      * ptaa,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);

@@ -448,7 +448,7 @@ static ngx_int_t ngx_http_upstream_cache(ngx_http_request_t * r, ngx_http_upstre
 	ngx_int_t rc;
 	ngx_http_file_cache_t  * cache;
 	ngx_http_cache_t  * c = r->cache;
-	if(c == NULL) {
+	if(!c) {
 		if(!(r->method & u->conf->cache_methods)) {
 			return NGX_DECLINED;
 		}

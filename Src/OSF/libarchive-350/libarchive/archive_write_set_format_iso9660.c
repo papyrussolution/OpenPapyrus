@@ -5423,7 +5423,7 @@ static void idr_set_num_beutf16(uchar * p, int num)
 		0x0053, 0x0054, 0x0055, 0x0056, 0x0057, 0x0058,
 		0x0059, 0x005A
 	};
-#define XDIG_CNT        (sizeof(xdig)/sizeof(xdig[0]))
+#define XDIG_CNT SIZEOFARRAY(xdig)
 
 	num %= XDIG_CNT * XDIG_CNT * XDIG_CNT;
 	archive_be16enc(p, xdig[(num / (XDIG_CNT * XDIG_CNT))]);
@@ -5432,12 +5432,10 @@ static void idr_set_num_beutf16(uchar * p, int num)
 	num %= XDIG_CNT;
 	archive_be16enc(p+4, xdig[num]);
 }
-
 /*
  * Generate ISO9660 Identifier.
  */
-static int isoent_gen_iso9660_identifier(struct archive_write * a, struct isoent * isoent,
-    struct idr * idr)
+static int isoent_gen_iso9660_identifier(struct archive_write * a, struct isoent * isoent, struct idr * idr)
 {
 	struct iso9660 * iso9660;
 	struct isoent * np;

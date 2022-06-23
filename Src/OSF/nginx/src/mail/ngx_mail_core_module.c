@@ -487,7 +487,7 @@ const char * ngx_mail_capabilities(ngx_conf_t * cf, const ngx_command_t * cmd, v
 	ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
 	for(i = 1; i < cf->args->nelts; i++) {
 		c = (ngx_str_t *)ngx_array_push(a);
-		if(c == NULL) {
+		if(!c) {
 			return NGX_CONF_ERROR;
 		}
 		*c = value[i];

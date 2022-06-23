@@ -9,12 +9,13 @@
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(QUOTVAL, PPQuotImpExpParam);
 
-PPQuotImpExpParam::PPQuotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), QuotKindID(0), CurrID(0), ArID(0), LocID(0)
+PPQuotImpExpParam::PPQuotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), QuotCls(PPQC_PRICE), QuotKindID(0), CurrID(0), ArID(0), LocID(0)
 {
 }
 
 PPQuotImpExpParam & PPQuotImpExpParam::Z()
 {
+	QuotCls = PPQC_PRICE; // @v11.4.2
 	QuotKindID = 0;
 	CurrID = 0;
 	ArID = 0;
@@ -39,6 +40,8 @@ PPQuotImpExpParam & PPQuotImpExpParam::Z()
 			param_list.Add(PPQUOTPAR_LOC, temp_buf.Z().Cat(LocID));
 		if(Flags)
 			param_list.Add(PPQUOTPAR_FLAGS, temp_buf.Z().Cat(Flags));
+		if(QuotCls) // @v11.4.2
+			param_list.Add(PPQUOTPAR_QUOTCAT, temp_buf.Z().Cat(QuotCls));
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
@@ -53,6 +56,12 @@ PPQuotImpExpParam & PPQuotImpExpParam::Z()
 				case PPQUOTPAR_ARTICLE:  ArID = id_to_assign; break;
 				case PPQUOTPAR_LOC:      LocID = id_to_assign; break;
 				case PPQUOTPAR_FLAGS:    Flags = id_to_assign; break;
+				case PPQUOTPAR_QUOTCAT: // @v11.4.2
+					if(oneof5(id_to_assign, PPQC_PRICE, PPQC_SUPPLDEAL, PPQC_MATRIX, PPQC_MATRIXRESTR, PPQC_PREDICTCOEFF))
+						QuotCls = id_to_assign; 
+					else
+						QuotCls = PPQC_PRICE;
+					break;
 			}
 		}
 	}
@@ -75,7 +84,8 @@ int PPQuotImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		{PPQUOTPAR_CURRENCY, CurrID},
 		{PPQUOTPAR_ARTICLE, ArID},
 		{PPQUOTPAR_LOC, LocID},
-		{PPQUOTPAR_FLAGS, Flags}
+		{PPQUOTPAR_FLAGS, Flags},
+		{PPQUOTPAR_QUOTCAT, QuotCls} // @v11.4.2
 	};
 	for(uint i = 0; i < SIZEOFARRAY(int_items); i++) {
 		PPGetSubStr(params, int_items[i].ID, fld_name);
@@ -101,7 +111,8 @@ int PPQuotImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 			{PPQUOTPAR_CURRENCY, &CurrID},
 			{PPQUOTPAR_ARTICLE, &ArID},
 			{PPQUOTPAR_LOC, &LocID},
-			{PPQUOTPAR_FLAGS, &Flags}
+			{PPQUOTPAR_FLAGS, &Flags},
+			{PPQUOTPAR_QUOTCAT, &QuotCls} // @v11.4.2
 		};
 		for(uint i = 0; i < SIZEOFARRAY(int_items); i++) {
 			*(int_items[i].P_Val) = 0;
@@ -117,7 +128,7 @@ int PPQuotImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 	return ok;
 }
 
-QuotImpExpDialog::QuotImpExpDialog() : ImpExpParamDialog(DLG_IMPEXPQUOT)
+QuotImpExpDialog::QuotImpExpDialog() : ImpExpParamDialog(DLG_IMPEXPQUOT), QkSpc(QkSpc.ctrInitializeWithCache)
 {
 }
 
@@ -126,7 +137,20 @@ int QuotImpExpDialog::setDTS(const PPQuotImpExpParam * pData)
 	RVALUEPTR(Data, pData);
 	ImpExpParamDialog::setDTS(&Data);
 	{
-		SetupPPObjCombo(this, CTLSEL_IMPEXPQUOT_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0, 0);
+		// @v11.4.2 {
+		long   qk_sel_extra = 1;
+		PPID   acs_id = 0;
+		PPID   new_qk_id = 0;
+		if(Data.QuotKindID)
+			QkObj.Classify(Data.QuotKindID, reinterpret_cast<int *>(&Data.QuotCls));
+		QkSpc.GetDefaults(Data.QuotCls, Data.QuotKindID, &acs_id, &new_qk_id, &qk_sel_extra);
+		AddClusterAssocDef(CTL_IMPEXPQUOT_QKCLS, 0, PPQuot::clsGeneral);
+		AddClusterAssoc(CTL_IMPEXPQUOT_QKCLS, 1, PPQuot::clsSupplDeal);
+		AddClusterAssoc(CTL_IMPEXPQUOT_QKCLS, 2, PPQuot::clsMtx);
+		AddClusterAssoc(CTL_IMPEXPQUOT_QKCLS, 3, PPQuot::clsPredictCoeff);
+		SetClusterData(CTL_IMPEXPQUOT_QKCLS, Data.QuotCls);
+		// } @v11.4.2 
+		SetupPPObjCombo(this, CTLSEL_IMPEXPQUOT_QK, PPOBJ_QUOTKIND, new_qk_id, 0, reinterpret_cast<void *>(qk_sel_extra));
 		SetupArCombo(this, CTLSEL_IMPEXPQUOT_AR, Data.ArID, 0, GetSellAccSheet(), sacfDisableIfZeroSheet);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPQUOT_CURR,  PPOBJ_CURRENCY, Data.CurrID, 0);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPQUOT_LOC,   PPOBJ_LOCATION,   Data.LocID, 0);
@@ -141,6 +165,7 @@ int QuotImpExpDialog::getDTS(PPQuotImpExpParam * pData)
 	uint   sel = 0;
 	THROW(ImpExpParamDialog::getDTS(&Data));
 	if(Data.Direction != 0) {
+		Data.QuotCls = GetClusterData(CTL_IMPEXPQUOT_QKCLS); // @v11.4.2
 		getCtrlData(CTLSEL_IMPEXPQUOT_QK,     &Data.QuotKindID);
 		getCtrlData(CTLSEL_IMPEXPQUOT_AR,     &Data.ArID);
 		getCtrlData(CTLSEL_IMPEXPQUOT_CURR,   &Data.CurrID);
@@ -163,6 +188,18 @@ IMPL_HANDLE_EVENT(QuotImpExpDialog)
 	if(event.isClusterClk(CTL_IMPEXP_DIR)) {
 		GetClusterData(CTL_IMPEXP_DIR, &Data.Direction);
 		SetupCtrls(Data.Direction);
+	}
+	else if(event.isClusterClk(CTL_IMPEXPQUOT_QKCLS)) {
+		const long   prev_cls = Data.QuotCls;
+		Data.QuotCls = GetClusterData(CTL_IMPEXPQUOT_QKCLS);
+		if(Data.QuotCls != prev_cls) {
+			PPID   acs_id = 0;
+			long   qk_sel_extra = 1;
+			PPID   new_qk_id = 0;
+			QkSpc.GetDefaults(Data.QuotCls, 0, &acs_id, &new_qk_id, &qk_sel_extra);
+			Data.QuotKindID = new_qk_id;
+			SetupPPObjCombo(this, CTLSEL_IMPEXPQUOT_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0, reinterpret_cast<void *>(qk_sel_extra));
+		}		
 	}
 	else
 		return;

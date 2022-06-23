@@ -19,45 +19,45 @@
  *           PIXA *pixaCopy()
  *
  *      Pixa addition
- *           l_int32   pixaAddPix()
- *           l_int32   pixaAddBox()
- *           static l_int32   pixaExtendArray()
- *           l_int32   pixaExtendArrayToSize()
+ *           int32   pixaAddPix()
+ *           int32   pixaAddBox()
+ *           static int32   pixaExtendArray()
+ *           int32   pixaExtendArrayToSize()
  *
  *      Pixa accessors
- *           l_int32   pixaGetCount()
- *           l_int32   pixaChangeRefcount()
+ *           int32   pixaGetCount()
+ *           int32   pixaChangeRefcount()
  *           PIX *pixaGetPix()
- *           l_int32   pixaGetPixDimensions()
+ *           int32   pixaGetPixDimensions()
  *           BOXA     *pixaGetBoxa()
- *           l_int32   pixaGetBoxaCount()
+ *           int32   pixaGetBoxaCount()
  *           BOX      *pixaGetBox()
- *           l_int32   pixaGetBoxGeometry()
- *           l_int32   pixaSetBoxa()
+ *           int32   pixaGetBoxGeometry()
+ *           int32   pixaSetBoxa()
  *           PIX **pixaGetPixArray()
- *           l_int32   pixaVerifyDepth()
- *           l_int32   pixaVerifyDimensions()
- *           l_int32   pixaIsFull()
- *           l_int32   pixaCountText()
- *           l_int32   pixaSetText()
+ *           int32   pixaVerifyDepth()
+ *           int32   pixaVerifyDimensions()
+ *           int32   pixaIsFull()
+ *           int32   pixaCountText()
+ *           int32   pixaSetText()
  *           void   ***pixaGetLinePtrs()
  *
  *      Pixa output info
- *           l_int32   pixaWriteStreamInfo()
+ *           int32   pixaWriteStreamInfo()
  *
  *      Pixa array modifiers
- *           l_int32   pixaReplacePix()
- *           l_int32   pixaInsertPix()
- *           l_int32   pixaRemovePix()
- *           l_int32   pixaRemovePixAndSave()
- *           l_int32   pixaRemoveSelected()
- *           l_int32   pixaInitFull()
- *           l_int32   pixaClear()
+ *           int32   pixaReplacePix()
+ *           int32   pixaInsertPix()
+ *           int32   pixaRemovePix()
+ *           int32   pixaRemovePixAndSave()
+ *           int32   pixaRemoveSelected()
+ *           int32   pixaInitFull()
+ *           int32   pixaClear()
  *
  *      Pixa and Pixaa combination
- *           l_int32   pixaJoin()
+ *           int32   pixaJoin()
  *           PIXA *pixaInterleave()
- *           l_int32   pixaaJoin()
+ *           int32   pixaaJoin()
  *
  *      Pixaa creation, destruction
  *           PIXAA    *pixaaCreate()
@@ -65,34 +65,34 @@
  *           void      pixaaDestroy()
  *
  *      Pixaa addition
- *           l_int32   pixaaAddPixa()
- *           static l_int32   pixaaExtendArray()
- *           l_int32   pixaaAddPix()
- *           l_int32   pixaaAddBox()
+ *           int32   pixaaAddPixa()
+ *           static int32   pixaaExtendArray()
+ *           int32   pixaaAddPix()
+ *           int32   pixaaAddBox()
  *
  *      Pixaa accessors
- *           l_int32   pixaaGetCount()
+ *           int32   pixaaGetCount()
  *           PIXA *pixaaGetPixa()
  *           BOXA     *pixaaGetBoxa()
  *           PIX *pixaaGetPix()
- *           l_int32   pixaaVerifyDepth()
- *           l_int32   pixaaVerifyDimensions()
- *           l_int32   pixaaIsFull()
+ *           int32   pixaaVerifyDepth()
+ *           int32   pixaaVerifyDimensions()
+ *           int32   pixaaIsFull()
  *
  *      Pixaa array modifiers
- *           l_int32   pixaaInitFull()
- *           l_int32   pixaaReplacePixa()
- *           l_int32   pixaaClear()
- *           l_int32   pixaaTruncate()
+ *           int32   pixaaInitFull()
+ *           int32   pixaaReplacePixa()
+ *           int32   pixaaClear()
+ *           int32   pixaaTruncate()
  *
  *      Pixa serialized I/O  (requires png support)
  *           PIXA *pixaRead()
  *           PIXA *pixaReadStream()
  *           PIXA *pixaReadMem()
- *           l_int32   pixaWriteDebug()
- *           l_int32   pixaWrite()
- *           l_int32   pixaWriteStream()
- *           l_int32   pixaWriteMem()
+ *           int32   pixaWriteDebug()
+ *           int32   pixaWrite()
+ *           int32   pixaWriteStream()
+ *           int32   pixaWriteMem()
  *           PIXA *pixaReadBoth()
  *
  *      Pixaa serialized I/O  (requires png support)
@@ -100,9 +100,9 @@
  *           PIXAA    *pixaaRead()
  *           PIXAA    *pixaaReadStream()
  *           PIXAA    *pixaaReadMem()
- *           l_int32   pixaaWrite()
- *           l_int32   pixaaWriteStream()
- *           l_int32   pixaaWriteMem()
+ *           int32   pixaaWrite()
+ *           int32   pixaaWriteStream()
+ *           int32   pixaaWriteMem()
  *
  *
  *   Important note on reference counting:
@@ -123,8 +123,8 @@ static const size_t MaxPixaaPtrArraySize = 1000000;
 static const size_t InitialPtrArraySize = 20; /*!< n'importe quoi */
 
 /* Static functions */
-static l_int32 pixaExtendArray(PIXA  * pixa);
-static l_int32 pixaaExtendArray(PIXAA * paa);
+static int32 pixaExtendArray(PIXA  * pixa);
+static int32 pixaaExtendArray(PIXAA * paa);
 
 /*---------------------------------------------------------------------*
 *                    Pixa creation, destruction, copy                 *
@@ -140,7 +140,7 @@ static l_int32 pixaaExtendArray(PIXAA * paa);
  *      (1) This creates an empty boxa.
  * </pre>
  */
-PIXA * pixaCreate(l_int32 n)
+PIXA * pixaCreate(int32 n)
 {
 	PIXA  * pixa;
 
@@ -178,11 +178,11 @@ PIXA * pixaCreate(l_int32 n)
  * </pre>
  */
 PIXA * pixaCreateFromPix(PIX * pixs,
-    l_int32 n,
-    l_int32 cellw,
-    l_int32 cellh)
+    int32 n,
+    int32 cellw,
+    int32 cellh)
 {
-	l_int32 w, h, d, nw, nh, i, j, index;
+	int32 w, h, d, nw, nh, i, j, index;
 	PIX * pix1, * pix2;
 	PIXA    * pixa;
 
@@ -243,11 +243,11 @@ PIXA * pixaCreateFromPix(PIX * pixs,
  */
 PIXA * pixaCreateFromBoxa(PIX * pixs,
     BOXA     * boxa,
-    l_int32 start,
-    l_int32 num,
-    l_int32 * pcropwarn)
+    int32 start,
+    int32 num,
+    int32 * pcropwarn)
 {
-	l_int32 i, n, end, w, h, wbox, hbox, cropwarn;
+	int32 i, n, end, w, h, wbox, hbox, cropwarn;
 	BOX * box, * boxc;
 	PIX * pixd;
 	PIXA    * pixad;
@@ -319,12 +319,12 @@ PIXA * pixaCreateFromBoxa(PIX * pixs,
  * </pre>
  */
 PIXA * pixaSplitPix(PIX * pixs,
-    l_int32 nx,
-    l_int32 ny,
-    l_int32 borderwidth,
-    l_uint32 bordercolor)
+    int32 nx,
+    int32 ny,
+    int32 borderwidth,
+    uint32 bordercolor)
 {
-	l_int32 w, h, d, cellw, cellh, i, j;
+	int32 w, h, d, cellw, cellh, i, j;
 	PIX * pix1;
 	PIXA    * pixa;
 
@@ -381,7 +381,7 @@ PIXA * pixaSplitPix(PIX * pixs,
  */
 void pixaDestroy(PIXA  ** ppixa)
 {
-	l_int32 i;
+	int32 i;
 	PIXA    * pixa;
 
 	PROCNAME(__FUNCTION__);
@@ -419,9 +419,9 @@ void pixaDestroy(PIXA  ** ppixa)
  * \return  new pixa, or NULL on error
  */
 PIXA * pixaCopy(PIXA    * pixa,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 i, nb;
+	int32 i, nb;
 	BOX * boxc;
 	PIX * pixc;
 	PIXA    * pixac;
@@ -471,9 +471,9 @@ PIXA * pixaCopy(PIXA    * pixa,
  */
 l_ok pixaAddPix(PIXA    * pixa,
     PIX * pix,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 n;
+	int32 n;
 	PIX * pixc;
 
 	PROCNAME(__FUNCTION__);
@@ -518,7 +518,7 @@ l_ok pixaAddPix(PIXA    * pixa,
  */
 l_ok pixaAddBox(PIXA    * pixa,
     BOX * box,
-    l_int32 copyflag)
+    int32 copyflag)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -545,7 +545,7 @@ l_ok pixaAddBox(PIXA    * pixa,
  *      (2) The max number of pix in the array is 5 million.
  * </pre>
  */
-static l_int32 pixaExtendArray(PIXA  * pixa)
+static int32 pixaExtendArray(PIXA  * pixa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -605,7 +605,7 @@ l_ok pixaExtendArrayToSize(PIXA   * pixa,
  * \param[in]    pixa
  * \return  count, or 0 if no pixa
  */
-l_int32 pixaGetCount(PIXA  * pixa)
+int32 pixaGetCount(PIXA  * pixa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -623,7 +623,7 @@ l_int32 pixaGetCount(PIXA  * pixa)
  * \return  0 if OK, 1 on error
  */
 l_ok pixaChangeRefcount(PIXA    * pixa,
-    l_int32 delta)
+    int32 delta)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -643,8 +643,8 @@ l_ok pixaChangeRefcount(PIXA    * pixa,
  * \return  pix, or NULL on error
  */
 PIX * pixaGetPix(PIXA    * pixa,
-    l_int32 index,
-    l_int32 accesstype)
+    int32 index,
+    int32 accesstype)
 {
 	PIX  * pix;
 
@@ -676,10 +676,10 @@ PIX * pixaGetPix(PIXA    * pixa,
  * \return  0 if OK, 1 on error
  */
 l_ok pixaGetPixDimensions(PIXA * pixa,
-    l_int32 index,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pd)
+    int32 index,
+    int32 * pw,
+    int32 * ph,
+    int32 * pd)
 {
 	PIX  * pix;
 
@@ -708,7 +708,7 @@ l_ok pixaGetPixDimensions(PIXA * pixa,
  * \return  boxa, or NULL on error
  */
 BOXA * pixaGetBoxa(PIXA    * pixa,
-    l_int32 accesstype)
+    int32 accesstype)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -729,7 +729,7 @@ BOXA * pixaGetBoxa(PIXA    * pixa,
  * \param[in]    pixa
  * \return  count, or 0 on error
  */
-l_int32 pixaGetBoxaCount(PIXA  * pixa)
+int32 pixaGetBoxaCount(PIXA  * pixa)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -760,8 +760,8 @@ l_int32 pixaGetBoxaCount(PIXA  * pixa)
  * </pre>
  */
 BOX * pixaGetBox(PIXA    * pixa,
-    l_int32 index,
-    l_int32 accesstype)
+    int32 index,
+    int32 accesstype)
 {
 	BOX  * box;
 
@@ -797,11 +797,11 @@ BOX * pixaGetBox(PIXA    * pixa,
  * \return  0 if OK, 1 on error
  */
 l_ok pixaGetBoxGeometry(PIXA * pixa,
-    l_int32 index,
-    l_int32 * px,
-    l_int32 * py,
-    l_int32 * pw,
-    l_int32 * ph)
+    int32 index,
+    int32 * px,
+    int32 * py,
+    int32 * pw,
+    int32 * ph)
 {
 	BOX  * box;
 
@@ -838,7 +838,7 @@ l_ok pixaGetBoxGeometry(PIXA * pixa,
  */
 l_ok pixaSetBoxa(PIXA    * pixa,
     BOXA * boxa,
-    l_int32 accesstype)
+    int32 accesstype)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -897,10 +897,10 @@ PIX ** pixaGetPixArray(PIXA  * pixa)
  * </pre>
  */
 l_ok pixaVerifyDepth(PIXA * pixa,
-    l_int32 * psame,
-    l_int32 * pmaxd)
+    int32 * psame,
+    int32 * pmaxd)
 {
-	l_int32 i, n, d, maxd, same;
+	int32 i, n, d, maxd, same;
 
 	PROCNAME(__FUNCTION__);
 
@@ -941,11 +941,11 @@ l_ok pixaVerifyDepth(PIXA * pixa,
  * </pre>
  */
 l_ok pixaVerifyDimensions(PIXA * pixa,
-    l_int32 * psame,
-    l_int32 * pmaxw,
-    l_int32 * pmaxh)
+    int32 * psame,
+    int32 * pmaxw,
+    int32 * pmaxh)
 {
-	l_int32 i, n, w, h, maxw, maxh, same;
+	int32 i, n, w, h, maxw, maxh, same;
 
 	PROCNAME(__FUNCTION__);
 
@@ -990,10 +990,10 @@ l_ok pixaVerifyDimensions(PIXA * pixa,
  * </pre>
  */
 l_ok pixaIsFull(PIXA * pixa,
-    l_int32 * pfullpa,
-    l_int32 * pfullba)
+    int32 * pfullpa,
+    int32 * pfullba)
 {
-	l_int32 i, n, full;
+	int32 i, n, full;
 	BOXA * boxa;
 	PIX * pix;
 
@@ -1038,10 +1038,10 @@ l_ok pixaIsFull(PIXA * pixa,
  * </pre>
  */
 l_ok pixaCountText(PIXA * pixa,
-    l_int32 * pntext)
+    int32 * pntext)
 {
 	char * text;
-	l_int32 i, n;
+	int32 i, n;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -1088,7 +1088,7 @@ l_ok pixaSetText(PIXA        * pixa,
     SARRAY * sa)
 {
 	char * str;
-	l_int32 i, n;
+	int32 i, n;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -1141,9 +1141,9 @@ l_ok pixaSetText(PIXA        * pixa,
  * </pre>
  */
 void *** pixaGetLinePtrs(PIXA * pixa,
-    l_int32 * psize)
+    int32 * psize)
 {
-	l_int32 i, n, same;
+	int32 i, n, same;
 	void   ** lineptrs;
 	void  *** lineset;
 	PIX * pix;
@@ -1190,7 +1190,7 @@ l_ok pixaWriteStreamInfo(FILE * fp,
     PIXA  * pixa)
 {
 	char     * text;
-	l_int32 i, n, w, h, d, spp, count, hastext;
+	int32 i, n, w, h, d, spp, count, hastext;
 	PIX * pix;
 	PIXCMAP  * cmap;
 
@@ -1243,7 +1243,7 @@ l_ok pixaWriteStreamInfo(FILE * fp,
  * </pre>
  */
 l_ok pixaReplacePix(PIXA    * pixa,
-    l_int32 index,
+    int32 index,
     PIX * pix,
     BOX * box)
 {
@@ -1291,11 +1291,11 @@ l_ok pixaReplacePix(PIXA    * pixa,
  * </pre>
  */
 l_ok pixaInsertPix(PIXA    * pixa,
-    l_int32 index,
+    int32 index,
     PIX * pixs,
     BOX * box)
 {
-	l_int32 i, n;
+	int32 i, n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1342,9 +1342,9 @@ l_ok pixaInsertPix(PIXA    * pixa,
  * </pre>
  */
 l_ok pixaRemovePix(PIXA    * pixa,
-    l_int32 index)
+    int32 index)
 {
-	l_int32 i, n, nbox;
+	int32 i, n, nbox;
 	BOXA * boxa;
 	PIX    ** array;
 
@@ -1394,11 +1394,11 @@ l_ok pixaRemovePix(PIXA    * pixa,
  * </pre>
  */
 l_ok pixaRemovePixAndSave(PIXA    * pixa,
-    l_int32 index,
+    int32 index,
     PIX    ** ppix,
     BOX    ** pbox)
 {
-	l_int32 i, n, nbox;
+	int32 i, n, nbox;
 	BOXA * boxa;
 	PIX    ** array;
 
@@ -1448,7 +1448,7 @@ l_ok pixaRemovePixAndSave(PIXA    * pixa,
 l_ok pixaRemoveSelected(PIXA  * pixa,
     NUMA * naindex)
 {
-	l_int32 i, n, index;
+	int32 i, n, index;
 	NUMA * na1;
 
 	PROCNAME(__FUNCTION__);
@@ -1509,7 +1509,7 @@ l_ok pixaInitFull(PIXA  * pixa,
     PIX * pix,
     BOX   * box)
 {
-	l_int32 i, n;
+	int32 i, n;
 	PIX * pix1;
 
 	PROCNAME(__FUNCTION__);
@@ -1547,7 +1547,7 @@ l_ok pixaInitFull(PIXA  * pixa,
  */
 l_ok pixaClear(PIXA  * pixa)
 {
-	l_int32 i, n;
+	int32 i, n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1583,10 +1583,10 @@ l_ok pixaClear(PIXA  * pixa)
  */
 l_ok pixaJoin(PIXA    * pixad,
     PIXA    * pixas,
-    l_int32 istart,
-    l_int32 iend)
+    int32 istart,
+    int32 iend)
 {
-	l_int32 i, n, nb;
+	int32 i, n, nb;
 	BOXA * boxas, * boxad;
 	PIX * pix;
 
@@ -1637,9 +1637,9 @@ l_ok pixaJoin(PIXA    * pixad,
  */
 PIXA * pixaInterleave(PIXA    * pixa1,
     PIXA    * pixa2,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 i, n1, n2, n, nb1, nb2;
+	int32 i, n1, n2, n, nb1, nb2;
 	BOX * box;
 	PIX * pix;
 	PIXA    * pixad;
@@ -1700,10 +1700,10 @@ PIXA * pixaInterleave(PIXA    * pixa1,
  */
 l_ok pixaaJoin(PIXAA   * paad,
     PIXAA   * paas,
-    l_int32 istart,
-    l_int32 iend)
+    int32 istart,
+    int32 iend)
 {
-	l_int32 i, n;
+	int32 i, n;
 	PIXA    * pixa;
 
 	PROCNAME(__FUNCTION__);
@@ -1754,7 +1754,7 @@ l_ok pixaaJoin(PIXAA   * paad,
  *          the page.
  * </pre>
  */
-PIXAA * pixaaCreate(l_int32 n)
+PIXAA * pixaaCreate(int32 n)
 {
 	PIXAA  * paa;
 
@@ -1796,11 +1796,11 @@ PIXAA * pixaaCreate(l_int32 n)
  * </pre>
  */
 PIXAA * pixaaCreateFromPixa(PIXA    * pixa,
-    l_int32 n,
-    l_int32 type,
-    l_int32 copyflag)
+    int32 n,
+    int32 type,
+    int32 copyflag)
 {
-	l_int32 count, i, j, npixa;
+	int32 count, i, j, npixa;
 	PIX * pix;
 	PIXA    * pixat;
 	PIXAA   * paa;
@@ -1858,7 +1858,7 @@ PIXAA * pixaaCreateFromPixa(PIXA    * pixa,
  */
 void pixaaDestroy(PIXAA  ** ppaa)
 {
-	l_int32 i;
+	int32 i;
 	PIXAA   * paa;
 
 	PROCNAME(__FUNCTION__);
@@ -1897,9 +1897,9 @@ void pixaaDestroy(PIXAA  ** ppaa)
  */
 l_ok pixaaAddPixa(PIXAA   * paa,
     PIXA    * pixa,
-    l_int32 copyflag)
+    int32 copyflag)
 {
-	l_int32 n;
+	int32 n;
 	PIXA    * pixac;
 
 	PROCNAME(__FUNCTION__);
@@ -1944,7 +1944,7 @@ l_ok pixaaAddPixa(PIXAA   * paa,
  *      (1) The max number of pixa ptrs is 1M.
  * </pre>
  */
-static l_int32 pixaaExtendArray(PIXAA  * paa)
+static int32 pixaaExtendArray(PIXAA  * paa)
 {
 	size_t oldsize, newsize;
 
@@ -1978,10 +1978,10 @@ static l_int32 pixaaExtendArray(PIXAA  * paa)
  * \return  0 if OK; 1 on error
  */
 l_ok pixaaAddPix(PIXAA   * paa,
-    l_int32 index,
+    int32 index,
     PIX * pix,
     BOX * box,
-    l_int32 copyflag)
+    int32 copyflag)
 {
 	PIXA  * pixa;
 
@@ -2016,7 +2016,7 @@ l_ok pixaaAddPix(PIXAA   * paa,
  */
 l_ok pixaaAddBox(PIXAA   * paa,
     BOX * box,
-    l_int32 copyflag)
+    int32 copyflag)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -2046,10 +2046,10 @@ l_ok pixaaAddBox(PIXAA   * paa,
  *      (1) If paa is empty, a returned na will also be empty.
  * </pre>
  */
-l_int32 pixaaGetCount(PIXAA  * paa,
+int32 pixaaGetCount(PIXAA  * paa,
     NUMA ** pna)
 {
-	l_int32 i, n;
+	int32 i, n;
 	NUMA * na;
 	PIXA    * pixa;
 
@@ -2094,8 +2094,8 @@ l_int32 pixaaGetCount(PIXAA  * paa,
  * </pre>
  */
 PIXA * pixaaGetPixa(PIXAA   * paa,
-    l_int32 index,
-    l_int32 accesstype)
+    int32 index,
+    int32 accesstype)
 {
 	PIXA  * pixa;
 
@@ -2130,7 +2130,7 @@ PIXA * pixaaGetPixa(PIXAA   * paa,
  * </pre>
  */
 BOXA * pixaaGetBoxa(PIXAA   * paa,
-    l_int32 accesstype)
+    int32 accesstype)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -2152,9 +2152,9 @@ BOXA * pixaaGetBoxa(PIXAA   * paa,
  * \return  pix, or NULL on error
  */
 PIX * pixaaGetPix(PIXAA   * paa,
-    l_int32 index,
-    l_int32 ipix,
-    l_int32 accessflag)
+    int32 index,
+    int32 ipix,
+    int32 accessflag)
 {
 	PIX * pix;
 	PIXA  * pixa;
@@ -2183,10 +2183,10 @@ PIX * pixaaGetPix(PIXAA   * paa,
  * </pre>
  */
 l_ok pixaaVerifyDepth(PIXAA    * paa,
-    l_int32 * psame,
-    l_int32 * pmaxd)
+    int32 * psame,
+    int32 * pmaxd)
 {
-	l_int32 i, n, d, maxd, same, samed;
+	int32 i, n, d, maxd, same, samed;
 	PIXA    * pixa;
 
 	PROCNAME(__FUNCTION__);
@@ -2231,11 +2231,11 @@ l_ok pixaaVerifyDepth(PIXAA    * paa,
  * </pre>
  */
 l_ok pixaaVerifyDimensions(PIXAA    * paa,
-    l_int32 * psame,
-    l_int32 * pmaxw,
-    l_int32 * pmaxh)
+    int32 * psame,
+    int32 * pmaxw,
+    int32 * pmaxh)
 {
-	l_int32 i, n, w, h, maxw, maxh, same, same2;
+	int32 i, n, w, h, maxw, maxh, same, same2;
 	PIXA    * pixa;
 
 	PROCNAME(__FUNCTION__);
@@ -2282,10 +2282,10 @@ l_ok pixaaVerifyDimensions(PIXAA    * paa,
  *      (1) Does not require boxa associated with each pixa to be full.
  * </pre>
  */
-l_int32 pixaaIsFull(PIXAA    * paa,
-    l_int32 * pfull)
+int32 pixaaIsFull(PIXAA    * paa,
+    int32 * pfull)
 {
-	l_int32 i, n, full;
+	int32 i, n, full;
 	PIXA    * pixa;
 
 	PROCNAME(__FUNCTION__);
@@ -2335,7 +2335,7 @@ l_int32 pixaaIsFull(PIXAA    * paa,
 l_ok pixaaInitFull(PIXAA  * paa,
     PIXA   * pixa)
 {
-	l_int32 i, n;
+	int32 i, n;
 	PIXA    * pixat;
 
 	PROCNAME(__FUNCTION__);
@@ -2373,7 +2373,7 @@ l_ok pixaaInitFull(PIXAA  * paa,
  * </pre>
  */
 l_ok pixaaReplacePixa(PIXAA   * paa,
-    l_int32 index,
+    int32 index,
     PIXA    * pixa)
 {
 	PROCNAME(__FUNCTION__);
@@ -2404,7 +2404,7 @@ l_ok pixaaReplacePixa(PIXAA   * paa,
  */
 l_ok pixaaClear(PIXAA  * paa)
 {
-	l_int32 i, n;
+	int32 i, n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2433,7 +2433,7 @@ l_ok pixaaClear(PIXAA  * paa)
  */
 l_ok pixaaTruncate(PIXAA  * paa)
 {
-	l_int32 i, n, np;
+	int32 i, n, np;
 	PIXA    * pixa;
 
 	PROCNAME(__FUNCTION__);
@@ -2514,8 +2514,8 @@ PIXA * pixaRead(const char * filename)
  */
 PIXA * pixaReadStream(FILE * fp)
 {
-	l_int32 n, i, xres, yres, version;
-	l_int32 ignore;
+	int32 n, i, xres, yres, version;
+	int32 ignore;
 	BOXA * boxa;
 	PIX * pix;
 	PIXA    * pixa;
@@ -2639,7 +2639,7 @@ l_ok pixaWriteDebug(const char * fname,
 l_ok pixaWrite(const char * filename,
     PIXA        * pixa)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -2678,7 +2678,7 @@ l_ok pixaWrite(const char * filename,
 l_ok pixaWriteStream(FILE * fp,
     PIXA  * pixa)
 {
-	l_int32 n, i;
+	int32 n, i;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -2724,7 +2724,7 @@ l_ok pixaWriteMem(uint8  ** pdata,
     size_t * psize,
     PIXA      * pixa)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -2833,11 +2833,11 @@ PIXA * pixaReadBoth(const char * filename)
  */
 PIXAA * pixaaReadFromFiles(const char * dirname,
     const char * substr,
-    l_int32 first,
-    l_int32 nfiles)
+    int32 first,
+    int32 nfiles)
 {
 	char * fname;
-	l_int32 i, n;
+	int32 i, n;
 	PIXA    * pixa;
 	PIXAA   * paa;
 	SARRAY * sa;
@@ -2917,8 +2917,8 @@ PIXAA * pixaaRead(const char * filename)
  */
 PIXAA * pixaaReadStream(FILE * fp)
 {
-	l_int32 n, i, version;
-	l_int32 ignore;
+	int32 n, i, version;
+	int32 ignore;
 	BOXA * boxa;
 	PIXA    * pixa;
 	PIXAA   * paa;
@@ -3011,7 +3011,7 @@ PIXAA * pixaaReadMem(const uint8  * data,
 l_ok pixaaWrite(const char * filename,
     PIXAA       * paa)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -3050,7 +3050,7 @@ l_ok pixaaWrite(const char * filename,
 l_ok pixaaWriteStream(FILE   * fp,
     PIXAA  * paa)
 {
-	l_int32 n, i;
+	int32 n, i;
 	PIXA    * pixa;
 
 	PROCNAME(__FUNCTION__);
@@ -3095,7 +3095,7 @@ l_ok pixaaWriteMem(uint8  ** pdata,
     size_t * psize,
     PIXAA     * paa)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);

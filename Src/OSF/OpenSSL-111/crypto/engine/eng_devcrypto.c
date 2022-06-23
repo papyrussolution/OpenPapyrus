@@ -111,7 +111,7 @@ static size_t get_cipher_data_index(int nid)
 {
 	size_t i;
 
-	for(i = 0; i < OSSL_NELEM(cipher_data); i++)
+	for(i = 0; i < SIZEOFARRAY(cipher_data); i++)
 		if(nid == cipher_data[i].nid)
 			return i;
 
@@ -323,9 +323,9 @@ static int cipher_cleanup(EVP_CIPHER_CTX * ctx)
  * Note that known_cipher_nids[] isn't necessarily indexed the same way as
  * cipher_data[] above, which known_cipher_methods[] is.
  */
-static int known_cipher_nids[OSSL_NELEM(cipher_data)];
+static int known_cipher_nids[SIZEOFARRAY(cipher_data)];
 static int known_cipher_nids_amount = -1; /* -1 indicates not yet initialised */
-static EVP_CIPHER * known_cipher_methods[OSSL_NELEM(cipher_data)] = { NULL, };
+static EVP_CIPHER * known_cipher_methods[SIZEOFARRAY(cipher_data)] = { NULL, };
 
 static void prepare_cipher_methods(void)
 {
@@ -336,7 +336,7 @@ static void prepare_cipher_methods(void)
 	sess.key = (void *)"01234567890123456789012345678901234567890123456789";
 
 	for(i = 0, known_cipher_nids_amount = 0;
-	    i < OSSL_NELEM(cipher_data); i++) {
+	    i < SIZEOFARRAY(cipher_data); i++) {
 		/*
 		 * Check that the algo is really availably by trying to open and close
 		 * a session.
@@ -407,7 +407,7 @@ static void destroy_cipher_method(int nid)
 static void destroy_all_cipher_methods(void)
 {
 	size_t i;
-	for(i = 0; i < OSSL_NELEM(cipher_data); i++)
+	for(i = 0; i < SIZEOFARRAY(cipher_data); i++)
 		destroy_cipher_method(cipher_data[i].nid);
 }
 
@@ -477,7 +477,7 @@ static size_t get_digest_data_index(int nid)
 {
 	size_t i;
 
-	for(i = 0; i < OSSL_NELEM(digest_data); i++)
+	for(i = 0; i < SIZEOFARRAY(digest_data); i++)
 		if(nid == digest_data[i].nid)
 			return i;
 
@@ -614,15 +614,15 @@ static int devcrypto_test_digest(size_t digest_data_index)
  * Note that known_digest_nids[] isn't necessarily indexed the same way as
  * digest_data[] above, which known_digest_methods[] is.
  */
-static int known_digest_nids[OSSL_NELEM(digest_data)];
+static int known_digest_nids[SIZEOFARRAY(digest_data)];
 static int known_digest_nids_amount = -1; /* -1 indicates not yet initialised */
-static EVP_MD * known_digest_methods[OSSL_NELEM(digest_data)] = { NULL, };
+static EVP_MD * known_digest_methods[SIZEOFARRAY(digest_data)] = { NULL, };
 
 static void prepare_digest_methods(void)
 {
 	size_t i;
 
-	for(i = 0, known_digest_nids_amount = 0; i < OSSL_NELEM(digest_data);
+	for(i = 0, known_digest_nids_amount = 0; i < SIZEOFARRAY(digest_data);
 	    i++) {
 		/*
 		 * Check that the algo is usable
@@ -676,7 +676,7 @@ static void destroy_digest_method(int nid)
 
 static void destroy_all_digest_methods(void)
 {
-	for(size_t i = 0; i < OSSL_NELEM(digest_data); i++)
+	for(size_t i = 0; i < SIZEOFARRAY(digest_data); i++)
 		destroy_digest_method(digest_data[i].nid);
 }
 

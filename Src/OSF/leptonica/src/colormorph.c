@@ -44,9 +44,9 @@
  * </pre>
  */
 PIX * pixColorMorph(PIX * pixs,
-    l_int32 type,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 type,
+    int32 hsize,
+    int32 vsize)
 {
 	PIX  * pixr, * pixg, * pixb, * pixrm, * pixgm, * pixbm, * pixd;
 

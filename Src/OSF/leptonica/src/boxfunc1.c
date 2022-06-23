@@ -11,60 +11,60 @@
  * <pre>
  *
  *      Box geometry
- *           l_int32   boxContains()
- *           l_int32   boxIntersects()
+ *           int32   boxContains()
+ *           int32   boxIntersects()
  *           BOXA     *boxaContainedInBox()
- *           l_int32   boxaContainedInBoxCount()
- *           l_int32   boxaContainedInBoxa()
+ *           int32   boxaContainedInBoxCount()
+ *           int32   boxaContainedInBoxa()
  *           BOXA     *boxaIntersectsBox()
- *           l_int32   boxaIntersectsBoxCount()
+ *           int32   boxaIntersectsBoxCount()
  *           BOXA     *boxaClipToBox()
  *           BOXA     *boxaCombineOverlaps()
- *           l_int32   boxaCombineOverlapsInPair()
+ *           int32   boxaCombineOverlapsInPair()
  *           BOX      *boxOverlapRegion()
  *           BOX      *boxBoundingRegion()
- *           l_int32   boxOverlapFraction()
- *           l_int32   boxOverlapArea()
+ *           int32   boxOverlapFraction()
+ *           int32   boxOverlapArea()
  *           BOXA     *boxaHandleOverlaps()
- *           l_int32   boxOverlapDistance()
- *           l_int32   boxSeparationDistance()
- *           l_int32   boxCompareSize()
- *           l_int32   boxContainsPt()
+ *           int32   boxOverlapDistance()
+ *           int32   boxSeparationDistance()
+ *           int32   boxCompareSize()
+ *           int32   boxContainsPt()
  *           BOX      *boxaGetNearestToPt()
  *           BOX      *boxaGetNearestToLine()
- *           l_int32   boxaFindNearestBoxes()
- *           l_int32   boxaGetNearestByDirection()
- *    static l_int32   boxHasOverlapInXorY()
- *    static l_int32   boxGetDistanceInXorY()
- *           l_int32   boxIntersectByLine()
- *           l_int32   boxGetCenter()
+ *           int32   boxaFindNearestBoxes()
+ *           int32   boxaGetNearestByDirection()
+ *    static int32   boxHasOverlapInXorY()
+ *    static int32   boxGetDistanceInXorY()
+ *           int32   boxIntersectByLine()
+ *           int32   boxGetCenter()
  *           BOX      *boxClipToRectangle()
- *           l_int32   boxClipToRectangleParams()
+ *           int32   boxClipToRectangleParams()
  *           BOX      *boxRelocateOneSide()
  *           BOXA     *boxaAdjustSides()
  *           BOXA     *boxaAdjustBoxSides()
  *           BOX      *boxAdjustSides()
  *           BOXA     *boxaSetSide()
- *           l_int32   boxSetSide()
+ *           int32   boxSetSide()
  *           BOXA     *boxaAdjustWidthToTarget()
  *           BOXA     *boxaAdjustHeightToTarget()
- *           l_int32   boxEqual()
- *           l_int32   boxaEqual()
- *           l_int32   boxSimilar()
- *           l_int32   boxaSimilar()
+ *           int32   boxEqual()
+ *           int32   boxaEqual()
+ *           int32   boxSimilar()
+ *           int32   boxaSimilar()
  *
  *      Boxa combine and split
- *           l_int32   boxaJoin()
- *           l_int32   boxaaJoin()
- *           l_int32   boxaSplitEvenOdd()
+ *           int32   boxaJoin()
+ *           int32   boxaaJoin()
+ *           int32   boxaSplitEvenOdd()
  *           BOXA     *boxaMergeEvenOdd()
  * </pre>
  */
 #include "allheaders.h"
 #pragma hdrstop
 
-static l_int32 boxHasOverlapInXorY(l_int32 c1, l_int32 s1, l_int32 c2, l_int32 s2);
-static l_int32 boxGetDistanceInXorY(l_int32 c1, l_int32 s1, l_int32 c2, l_int32 s2);
+static int32 boxHasOverlapInXorY(int32 c1, int32 s1, int32 c2, int32 s2);
+static int32 boxGetDistanceInXorY(int32 c1, int32 s1, int32 c2, int32 s2);
 
 /*---------------------------------------------------------------------*
 *                             Box geometry                            *
@@ -77,9 +77,9 @@ static l_int32 boxGetDistanceInXorY(l_int32 c1, l_int32 s1, l_int32 c2, l_int32 
  *                           0 otherwise
  * \return  0 if OK, 1 on error
  */
-l_ok boxContains(BOX * box1, BOX * box2, l_int32 * presult)
+l_ok boxContains(BOX * box1, BOX * box2, int32 * presult)
 {
-	l_int32 x1, y1, w1, h1, x2, y2, w2, h2, valid1, valid2;
+	int32 x1, y1, w1, h1, x2, y2, w2, h2, valid1, valid2;
 	PROCNAME(__FUNCTION__);
 	if(!presult)
 		return ERROR_INT("&result not defined", procName, 1);
@@ -108,9 +108,9 @@ l_ok boxContains(BOX * box1, BOX * box2, l_int32 * presult)
  */
 l_ok boxIntersects(BOX      * box1,
     BOX      * box2,
-    l_int32 * presult)
+    int32 * presult)
 {
-	l_int32 l1, l2, r1, r2, t1, t2, b1, b2, w1, h1, w2, h2, valid1, valid2;
+	int32 l1, l2, r1, r2, t1, t2, b1, b2, w1, h1, w2, h2, valid1, valid2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -153,7 +153,7 @@ l_ok boxIntersects(BOX      * box1,
  */
 BOXA * boxaContainedInBox(BOXA * boxas, BOX   * box)
 {
-	l_int32 i, n, val, valid;
+	int32 i, n, val, valid;
 	BOX * box1;
 	BOXA * boxad;
 	PROCNAME(__FUNCTION__);
@@ -190,9 +190,9 @@ BOXA * boxaContainedInBox(BOXA * boxas, BOX   * box)
  *      (1) If %box is not valid, returns a zero count.
  * </pre>
  */
-l_ok boxaContainedInBoxCount(BOXA     * boxa, BOX      * box, l_int32 * pcount)
+l_ok boxaContainedInBoxCount(BOXA     * boxa, BOX      * box, int32 * pcount)
 {
-	l_int32 i, n, val, valid;
+	int32 i, n, val, valid;
 	BOX * box1;
 	PROCNAME(__FUNCTION__);
 	if(!pcount)
@@ -225,9 +225,9 @@ l_ok boxaContainedInBoxCount(BOXA     * boxa, BOX      * box, l_int32 * pcount)
  *                              some box in boxa1; 0 otherwise
  * \return  0 if OK, 1 on error
  */
-l_ok boxaContainedInBoxa(BOXA     * boxa1, BOXA     * boxa2, l_int32 * pcontained)
+l_ok boxaContainedInBoxa(BOXA     * boxa1, BOXA     * boxa2, int32 * pcontained)
 {
-	l_int32 i, j, n1, n2, cont, result;
+	int32 i, j, n1, n2, cont, result;
 	BOX * box1, * box2;
 
 	PROCNAME(__FUNCTION__);
@@ -279,7 +279,7 @@ l_ok boxaContainedInBoxa(BOXA     * boxa1, BOXA     * boxa2, l_int32 * pcontaine
 BOXA * boxaIntersectsBox(BOXA * boxas,
     BOX   * box)
 {
-	l_int32 i, n, val, valid;
+	int32 i, n, val, valid;
 	BOX * box1;
 	BOXA * boxad;
 
@@ -317,9 +317,9 @@ BOXA * boxaIntersectsBox(BOXA * boxas,
  */
 l_ok boxaIntersectsBoxCount(BOXA     * boxa,
     BOX      * box,
-    l_int32 * pcount)
+    int32 * pcount)
 {
-	l_int32 i, n, val, valid;
+	int32 i, n, val, valid;
 	BOX * box1;
 
 	PROCNAME(__FUNCTION__);
@@ -362,7 +362,7 @@ l_ok boxaIntersectsBoxCount(BOXA     * boxa,
  */
 BOXA * boxaClipToBox(BOXA * boxas, BOX   * box)
 {
-	l_int32 i, n, valid;
+	int32 i, n, valid;
 	BOX * box1, * boxo;
 	BOXA * boxad;
 	PROCNAME(__FUNCTION__);
@@ -414,7 +414,7 @@ BOXA * boxaClipToBox(BOXA * boxas, BOX   * box)
  */
 BOXA * boxaCombineOverlaps(BOXA * boxas, PIXA  * pixadb)
 {
-	l_int32 i, j, w, h, n1, n2, overlap, niters;
+	int32 i, j, w, h, n1, n2, overlap, niters;
 	BOX * box1, * box2, * box3;
 	BOXA * boxa1, * boxa2;
 	PIX * pix1;
@@ -505,8 +505,8 @@ l_ok boxaCombineOverlapsInPair(BOXA   * boxas1,
     BOXA ** pboxad2,
     PIXA   * pixadb)
 {
-	l_int32 i, j, w, h, w2, h2, n1, n2, n1i, n2i, niters;
-	l_int32 overlap, bigger, area1, area2;
+	int32 i, j, w, h, w2, h2, n1, n2, n1i, n2i, niters;
+	int32 overlap, bigger, area1, area2;
 	BOX * box1, * box2, * box3;
 	BOXA * boxa1, * boxa2, * boxac1, * boxac2;
 	PIX * pix1;
@@ -639,8 +639,8 @@ l_ok boxaCombineOverlapsInPair(BOXA   * boxas1,
 BOX * boxOverlapRegion(BOX  * box1,
     BOX  * box2)
 {
-	l_int32 l1, l2, r1, r2, t1, t2, b1, b2, w1, h1, w2, h2, ld, td, rd, bd;
-	l_int32 valid1, valid2;
+	int32 l1, l2, r1, r2, t1, t2, b1, b2, w1, h1, w2, h2, ld, td, rd, bd;
+	int32 valid1, valid2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -687,8 +687,8 @@ BOX * boxOverlapRegion(BOX  * box1,
 BOX * boxBoundingRegion(BOX  * box1,
     BOX  * box2)
 {
-	l_int32 l1, l2, r1, r2, t1, t2, b1, b2, w1, h1, w2, h2, ld, td, rd, bd;
-	l_int32 valid1, valid2;
+	int32 l1, l2, r1, r2, t1, t2, b1, b2, w1, h1, w2, h2, ld, td, rd, bd;
+	int32 valid1, valid2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -736,7 +736,7 @@ l_ok boxOverlapFraction(BOX        * box1,
     BOX        * box2,
     float * pfract)
 {
-	l_int32 w2, h2, w, h, valid1, valid2;
+	int32 w2, h2, w, h, valid1, valid2;
 	BOX * boxo;
 
 	PROCNAME(__FUNCTION__);
@@ -772,9 +772,9 @@ l_ok boxOverlapFraction(BOX        * box1,
  */
 l_ok boxOverlapArea(BOX      * box1,
     BOX      * box2,
-    l_int32 * parea)
+    int32 * parea)
 {
-	l_int32 w, h, valid1, valid2;
+	int32 w, h, valid1, valid2;
 	BOX * box;
 
 	PROCNAME(__FUNCTION__);
@@ -833,14 +833,14 @@ l_ok boxOverlapArea(BOX      * box1,
  * </pre>
  */
 BOXA * boxaHandleOverlaps(BOXA * boxas,
-    l_int32 op,
-    l_int32 range,
+    int32 op,
+    int32 range,
     float min_overlap,
     float max_ratio,
     NUMA   ** pnamap)
 {
-	l_int32 i, j, n, w, h, area1, area2, val;
-	l_int32 overlap_area;
+	int32 i, j, n, w, h, area1, area2, val;
+	int32 overlap_area;
 	float overlap_ratio, area_ratio;
 	BOX       * box1, * box2, * box3;
 	BOXA      * boxat, * boxad;
@@ -964,10 +964,10 @@ BOXA * boxaHandleOverlaps(BOXA * boxas,
  */
 l_ok boxOverlapDistance(BOX      * box1,
     BOX      * box2,
-    l_int32 * ph_ovl,
-    l_int32 * pv_ovl)
+    int32 * ph_ovl,
+    int32 * pv_ovl)
 {
-	l_int32 l1, t1, w1, h1, r1, b1, l2, t2, w2, h2, r2, b2, valid1, valid2;
+	int32 l1, t1, w1, h1, r1, b1, l2, t2, w2, h2, r2, b2, valid1, valid2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1035,10 +1035,10 @@ l_ok boxOverlapDistance(BOX      * box1,
  */
 l_ok boxSeparationDistance(BOX      * box1,
     BOX      * box2,
-    l_int32 * ph_sep,
-    l_int32 * pv_sep)
+    int32 * ph_sep,
+    int32 * pv_sep)
 {
-	l_int32 h_ovl, v_ovl, valid1, valid2;
+	int32 h_ovl, v_ovl, valid1, valid2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1078,10 +1078,10 @@ l_ok boxSeparationDistance(BOX      * box1,
  */
 l_ok boxCompareSize(BOX      * box1,
     BOX      * box2,
-    l_int32 type,
-    l_int32 * prel)
+    int32 type,
+    int32 * prel)
 {
-	l_int32 w1, h1, w2, h2, size1, size2, valid1, valid2;
+	int32 w1, h1, w2, h2, size1, size2, valid1, valid2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1136,9 +1136,9 @@ l_ok boxCompareSize(BOX      * box1,
 l_ok boxContainsPt(BOX       * box,
     float x,
     float y,
-    l_int32   * pcontains)
+    int32   * pcontains)
 {
-	l_int32 bx, by, bw, bh;
+	int32 bx, by, bw, bh;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1167,10 +1167,10 @@ l_ok boxContainsPt(BOX       * box,
  * </pre>
  */
 BOX * boxaGetNearestToPt(BOXA * boxa,
-    l_int32 x,
-    l_int32 y)
+    int32 x,
+    int32 y)
 {
-	l_int32 i, n, minindex;
+	int32 i, n, minindex;
 	float delx, dely, dist, mindist, cx, cy;
 	BOX       * box;
 
@@ -1218,10 +1218,10 @@ BOX * boxaGetNearestToPt(BOXA * boxa,
  * </pre>
  */
 BOX * boxaGetNearestToLine(BOXA * boxa,
-    l_int32 x,
-    l_int32 y)
+    int32 x,
+    int32 y)
 {
-	l_int32 i, n, minindex;
+	int32 i, n, minindex;
 	float dist, mindist, cx, cy;
 	BOX       * box;
 
@@ -1274,12 +1274,12 @@ BOX * boxaGetNearestToLine(BOXA * boxa,
  * </pre>
  */
 l_ok boxaFindNearestBoxes(BOXA     * boxa,
-    l_int32 dist_select,
-    l_int32 range,
+    int32 dist_select,
+    int32 range,
     NUMAA   ** pnaaindex,
     NUMAA   ** pnaadist)
 {
-	l_int32 i, n, index, dist;
+	int32 i, n, index, dist;
 	NUMA * nai, * nad;
 	NUMAA   * naai, * naad;
 
@@ -1353,15 +1353,15 @@ l_ok boxaFindNearestBoxes(BOXA     * boxa,
  * </pre>
  */
 l_ok boxaGetNearestByDirection(BOXA     * boxa,
-    l_int32 i,
-    l_int32 dir,
-    l_int32 dist_select,
-    l_int32 range,
-    l_int32 * pindex,
-    l_int32 * pdist)
+    int32 i,
+    int32 dir,
+    int32 dist_select,
+    int32 range,
+    int32 * pindex,
+    int32 * pdist)
 {
-	l_int32 j, jmin, jmax, n, mindist, dist, index;
-	l_int32 x, y, w, h, bx, by, bw, bh;
+	int32 j, jmin, jmax, n, mindist, dist, index;
+	int32 x, y, w, h, bx, by, bw, bh;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1441,12 +1441,12 @@ l_ok boxaGetNearestByDirection(BOXA     * boxa,
  *          x (which projected vertically) and in y (projected horizontally)
  * </pre>
  */
-static l_int32 boxHasOverlapInXorY(l_int32 c1,
-    l_int32 s1,
-    l_int32 c2,
-    l_int32 s2)
+static int32 boxHasOverlapInXorY(int32 c1,
+    int32 s1,
+    int32 c2,
+    int32 s2)
 {
-	l_int32 ovlp;
+	int32 ovlp;
 
 	if(c1 > c2)
 		ovlp = c2 + s2 - 1 - c1;
@@ -1465,12 +1465,12 @@ static l_int32 boxHasOverlapInXorY(l_int32 c1,
  * \return  distance between them (if < 0, box2 overlaps box1 in the
  *                                 dimension considered)
  */
-static l_int32 boxGetDistanceInXorY(l_int32 c1,
-    l_int32 s1,
-    l_int32 c2,
-    l_int32 s2)
+static int32 boxGetDistanceInXorY(int32 c1,
+    int32 s1,
+    int32 c2,
+    int32 s2)
 {
-	l_int32 dist;
+	int32 dist;
 
 	if(c1 > c2)
 		dist = c1 - (c2 + s2 - 1);
@@ -1490,7 +1490,7 @@ l_ok boxGetCenter(BOX        * box,
     float * pcx,
     float * pcy)
 {
-	l_int32 x, y, w, h;
+	int32 x, y, w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1527,16 +1527,16 @@ l_ok boxGetCenter(BOX        * box,
  * </pre>
  */
 l_ok boxIntersectByLine(BOX       * box,
-    l_int32 x,
-    l_int32 y,
+    int32 x,
+    int32 y,
     float slope,
-    l_int32   * px1,
-    l_int32   * py1,
-    l_int32   * px2,
-    l_int32   * py2,
-    l_int32   * pn)
+    int32   * px1,
+    int32   * py1,
+    int32   * px2,
+    int32   * py2,
+    int32   * pn)
 {
-	l_int32 bx, by, bw, bh, xp, yp, xt, yt, i, n;
+	int32 bx, by, bw, bh, xp, yp, xt, yt, i, n;
 	float invslope;
 	PTA       * pta;
 
@@ -1577,18 +1577,18 @@ l_ok boxIntersectByLine(BOX       * box,
 	/* Intersection with top and bottom lines of box */
 	pta = ptaCreate(2);
 	invslope = 1.0 / slope;
-	xp = (l_int32)(x + invslope * (y - by));
+	xp = (int32)(x + invslope * (y - by));
 	if(xp >= bx && xp < bx + bw)
 		ptaAddPt(pta, xp, by);
-	xp = (l_int32)(x + invslope * (y - by - bh + 1));
+	xp = (int32)(x + invslope * (y - by - bh + 1));
 	if(xp >= bx && xp < bx + bw)
 		ptaAddPt(pta, xp, by + bh - 1);
 
 	/* Intersection with left and right lines of box */
-	yp = (l_int32)(y + slope * (x - bx));
+	yp = (int32)(y + slope * (x - bx));
 	if(yp >= by && yp < by + bh)
 		ptaAddPt(pta, bx, yp);
-	yp = (l_int32)(y + slope * (x - bx - bw + 1));
+	yp = (int32)(y + slope * (x - bx - bw + 1));
 	if(yp >= by && yp < by + bh)
 		ptaAddPt(pta, bx + bw - 1, yp);
 
@@ -1628,8 +1628,8 @@ l_ok boxIntersectByLine(BOX       * box,
  * </pre>
  */
 BOX * boxClipToRectangle(BOX * box,
-    l_int32 wi,
-    l_int32 hi)
+    int32 wi,
+    int32 hi)
 {
 	BOX  * boxd;
 
@@ -1683,16 +1683,16 @@ BOX * boxClipToRectangle(BOX * box,
  * </pre>
  */
 l_ok boxClipToRectangleParams(BOX      * box,
-    l_int32 w,
-    l_int32 h,
-    l_int32 * pxstart,
-    l_int32 * pystart,
-    l_int32 * pxend,
-    l_int32 * pyend,
-    l_int32 * pbw,
-    l_int32 * pbh)
+    int32 w,
+    int32 h,
+    int32 * pxstart,
+    int32 * pystart,
+    int32 * pxend,
+    int32 * pyend,
+    int32 * pbw,
+    int32 * pbh)
 {
-	l_int32 bw, bh;
+	int32 bw, bh;
 	BOX * boxc;
 
 	PROCNAME(__FUNCTION__);
@@ -1744,10 +1744,10 @@ l_ok boxClipToRectangleParams(BOX      * box,
  */
 BOX * boxRelocateOneSide(BOX * boxd,
     BOX * boxs,
-    l_int32 loc,
-    l_int32 sideflag)
+    int32 loc,
+    int32 sideflag)
 {
-	l_int32 x, y, w, h;
+	int32 x, y, w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1787,12 +1787,12 @@ BOX * boxRelocateOneSide(BOX * boxd,
  * </pre>
  */
 BOXA * boxaAdjustSides(BOXA * boxas,
-    l_int32 delleft,
-    l_int32 delright,
-    l_int32 deltop,
-    l_int32 delbot)
+    int32 delleft,
+    int32 delright,
+    int32 deltop,
+    int32 delbot)
 {
-	l_int32 n, i, x, y;
+	int32 n, i, x, y;
 	BOX * box1, * box2;
 	BOXA * boxad;
 
@@ -1835,11 +1835,11 @@ BOXA * boxaAdjustSides(BOXA * boxas,
  * </pre>
  */
 l_ok boxaAdjustBoxSides(BOXA * boxa,
-    l_int32 index,
-    l_int32 delleft,
-    l_int32 delright,
-    l_int32 deltop,
-    l_int32 delbot)
+    int32 index,
+    int32 delleft,
+    int32 delright,
+    int32 deltop,
+    int32 delbot)
 {
 	BOX  * box;
 
@@ -1882,12 +1882,12 @@ l_ok boxaAdjustBoxSides(BOXA * boxa,
  */
 BOX * boxAdjustSides(BOX * boxd,
     BOX * boxs,
-    l_int32 delleft,
-    l_int32 delright,
-    l_int32 deltop,
-    l_int32 delbot)
+    int32 delleft,
+    int32 delright,
+    int32 deltop,
+    int32 delbot)
 {
-	l_int32 x, y, w, h, xl, xr, yt, yb, wnew, hnew;
+	int32 x, y, w, h, xl, xr, yt, yb, wnew, hnew;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1932,11 +1932,11 @@ BOX * boxAdjustSides(BOX * boxd,
  */
 BOXA * boxaSetSide(BOXA * boxad,
     BOXA * boxas,
-    l_int32 side,
-    l_int32 val,
-    l_int32 thresh)
+    int32 side,
+    int32 val,
+    int32 thresh)
 {
-	l_int32 n, i;
+	int32 n, i;
 	BOX * box;
 
 	PROCNAME(__FUNCTION__);
@@ -1979,11 +1979,11 @@ BOXA * boxaSetSide(BOXA * boxad,
  * </pre>
  */
 l_ok boxSetSide(BOX * boxs,
-    l_int32 side,
-    l_int32 val,
-    l_int32 thresh)
+    int32 side,
+    int32 val,
+    int32 thresh)
 {
-	l_int32 x, y, w, h, diff;
+	int32 x, y, w, h, diff;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2043,11 +2043,11 @@ l_ok boxSetSide(BOX * boxs,
  */
 BOXA * boxaAdjustWidthToTarget(BOXA * boxad,
     BOXA * boxas,
-    l_int32 sides,
-    l_int32 target,
-    l_int32 thresh)
+    int32 sides,
+    int32 target,
+    int32 thresh)
 {
-	l_int32 x, y, w, h, n, i, diff;
+	int32 x, y, w, h, n, i, diff;
 	BOX * box;
 
 	PROCNAME(__FUNCTION__);
@@ -2111,11 +2111,11 @@ BOXA * boxaAdjustWidthToTarget(BOXA * boxad,
  */
 BOXA * boxaAdjustHeightToTarget(BOXA * boxad,
     BOXA * boxas,
-    l_int32 sides,
-    l_int32 target,
-    l_int32 thresh)
+    int32 sides,
+    int32 target,
+    int32 thresh)
 {
-	l_int32 x, y, w, h, n, i, diff;
+	int32 x, y, w, h, n, i, diff;
 	BOX * box;
 
 	PROCNAME(__FUNCTION__);
@@ -2166,7 +2166,7 @@ BOXA * boxaAdjustHeightToTarget(BOXA * boxad,
  */
 l_ok boxEqual(BOX      * box1,
     BOX      * box2,
-    l_int32 * psame)
+    int32 * psame)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -2211,12 +2211,12 @@ l_ok boxEqual(BOX      * box1,
  */
 l_ok boxaEqual(BOXA     * boxa1,
     BOXA     * boxa2,
-    l_int32 maxdist,
+    int32 maxdist,
     NUMA ** pnaindex,
-    l_int32 * psame)
+    int32 * psame)
 {
-	l_int32 i, j, n, jstart, jend, found, samebox;
-	l_int32 * countarray;
+	int32 i, j, n, jstart, jend, found, samebox;
+	int32 * countarray;
 	BOX      * box1, * box2;
 	NUMA     * na;
 
@@ -2232,7 +2232,7 @@ l_ok boxaEqual(BOXA     * boxa1,
 	if(n != boxaGetCount(boxa2))
 		return 0;
 
-	if((countarray = (l_int32*)SAlloc::C(n, sizeof(l_int32))) == NULL)
+	if((countarray = (int32*)SAlloc::C(n, sizeof(int32))) == NULL)
 		return ERROR_INT("calloc fail for countarray", procName, 1);
 	na = numaMakeConstant(0.0, n);
 
@@ -2288,13 +2288,13 @@ l_ok boxaEqual(BOXA     * boxa1,
  */
 l_ok boxSimilar(BOX      * box1,
     BOX      * box2,
-    l_int32 leftdiff,
-    l_int32 rightdiff,
-    l_int32 topdiff,
-    l_int32 botdiff,
-    l_int32 * psimilar)
+    int32 leftdiff,
+    int32 rightdiff,
+    int32 topdiff,
+    int32 botdiff,
+    int32 * psimilar)
 {
-	l_int32 l1, l2, r1, r2, t1, t2, b1, b2, valid1, valid2;
+	int32 l1, l2, r1, r2, t1, t2, b1, b2, valid1, valid2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2345,15 +2345,15 @@ l_ok boxSimilar(BOX      * box1,
  */
 l_ok boxaSimilar(BOXA     * boxa1,
     BOXA     * boxa2,
-    l_int32 leftdiff,
-    l_int32 rightdiff,
-    l_int32 topdiff,
-    l_int32 botdiff,
-    l_int32 debug,
-    l_int32 * psimilar,
+    int32 leftdiff,
+    int32 rightdiff,
+    int32 topdiff,
+    int32 botdiff,
+    int32 debug,
+    int32 * psimilar,
     NUMA ** pnasim)
 {
-	l_int32 i, n1, n2, match, mismatch;
+	int32 i, n1, n2, match, mismatch;
 	BOX * box1, * box2;
 
 	PROCNAME(__FUNCTION__);
@@ -2417,10 +2417,10 @@ l_ok boxaSimilar(BOXA     * boxa1,
  */
 l_ok boxaJoin(BOXA * boxad,
     BOXA * boxas,
-    l_int32 istart,
-    l_int32 iend)
+    int32 istart,
+    int32 iend)
 {
-	l_int32 n, i;
+	int32 n, i;
 	BOX * box;
 
 	PROCNAME(__FUNCTION__);
@@ -2464,10 +2464,10 @@ l_ok boxaJoin(BOXA * boxad,
  */
 l_ok boxaaJoin(BOXAA   * baad,
     BOXAA   * baas,
-    l_int32 istart,
-    l_int32 iend)
+    int32 istart,
+    int32 iend)
 {
-	l_int32 n, i;
+	int32 n, i;
 	BOXA * boxa;
 
 	PROCNAME(__FUNCTION__);
@@ -2511,11 +2511,11 @@ l_ok boxaaJoin(BOXAA   * baad,
  * </pre>
  */
 l_ok boxaSplitEvenOdd(BOXA * boxa,
-    l_int32 fillflag,
+    int32 fillflag,
     BOXA   ** pboxae,
     BOXA   ** pboxao)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOX * box, * box1;
 
 	PROCNAME(__FUNCTION__);
@@ -2576,9 +2576,9 @@ l_ok boxaSplitEvenOdd(BOXA * boxa,
  */
 BOXA * boxaMergeEvenOdd(BOXA * boxae,
     BOXA * boxao,
-    l_int32 fillflag)
+    int32 fillflag)
 {
-	l_int32 i, n, ne, no;
+	int32 i, n, ne, no;
 	BOX * box;
 	BOXA * boxad;
 

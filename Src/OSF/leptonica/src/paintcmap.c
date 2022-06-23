@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file paintcmap.c
  * <pre>
@@ -31,19 +18,19 @@
  *      These in-place functions paint onto colormap images.
  *
  *      Repaint selected pixels in region
- *           l_int32     pixSetSelectCmap()
+ *           int32     pixSetSelectCmap()
  *
  *      Repaint non-white pixels in region
- *           l_int32     pixColorGrayRegionsCmap()
- *           l_int32     pixColorGrayCmap()
- *           l_int32     pixColorGrayMaskedCmap()
- *           l_int32     addColorizedGrayToCmap()
+ *           int32     pixColorGrayRegionsCmap()
+ *           int32     pixColorGrayCmap()
+ *           int32     pixColorGrayMaskedCmap()
+ *           int32     addColorizedGrayToCmap()
  *
  *      Repaint selected pixels through mask
- *           l_int32     pixSetSelectMaskedCmap()
+ *           int32     pixSetSelectMaskedCmap()
  *
  *      Repaint all pixels through mask
- *           l_int32     pixSetMaskedCmap()
+ *           int32     pixSetMaskedCmap()
  *
  *
  *  The 'set select' functions condition the setting on a specific
@@ -95,14 +82,14 @@
  */
 l_ok pixSetSelectCmap(PIX * pixs,
     BOX * box,
-    l_int32 sindex,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval)
+    int32 sindex,
+    int32 rval,
+    int32 gval,
+    int32 bval)
 {
-	l_int32 i, j, w, h, d, n, x1, y1, x2, y2, bw, bh, val, wpls;
-	l_int32 index; /* of new color to be set */
-	l_uint32  * lines, * datas;
+	int32 i, j, w, h, d, n, x1, y1, x2, y2, bw, bh, val, wpls;
+	int32 index; /* of new color to be set */
+	uint32  * lines, * datas;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -215,15 +202,15 @@ l_ok pixSetSelectCmap(PIX * pixs,
  */
 l_ok pixColorGrayRegionsCmap(PIX * pixs,
     BOXA * boxa,
-    l_int32 type,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval)
+    int32 type,
+    int32 rval,
+    int32 gval,
+    int32 bval)
 {
-	l_int32 i, j, k, w, h, n, nc, x1, y1, x2, y2, bw, bh, wpl;
-	l_int32 val, nval;
-	l_int32   * map;
-	l_uint32  * line, * data;
+	int32 i, j, k, w, h, n, nc, x1, y1, x2, y2, bw, bh, wpl;
+	int32 val, nval;
+	int32   * map;
+	uint32  * line, * data;
 	BOX       * box;
 	NUMA * na;
 	PIXCMAP   * cmap;
@@ -321,12 +308,12 @@ l_ok pixColorGrayRegionsCmap(PIX * pixs,
  */
 l_ok pixColorGrayCmap(PIX * pixs,
     BOX * box,
-    l_int32 type,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval)
+    int32 type,
+    int32 rval,
+    int32 gval,
+    int32 bval)
 {
-	l_int32 w, h, d, ret;
+	int32 w, h, d, ret;
 	PIX * pixt;
 	BOXA     * boxa;
 	PIXCMAP  * cmap;
@@ -388,15 +375,15 @@ l_ok pixColorGrayCmap(PIX * pixs,
  */
 l_ok pixColorGrayMaskedCmap(PIX * pixs,
     PIX * pixm,
-    l_int32 type,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval)
+    int32 type,
+    int32 rval,
+    int32 gval,
+    int32 bval)
 {
-	l_int32 i, j, w, h, wm, hm, wmin, hmin, wpl, wplm;
-	l_int32 val, nval;
-	l_int32   * map;
-	l_uint32  * line, * data, * linem, * datam;
+	int32 i, j, w, h, wm, hm, wmin, hmin, wpl, wplm;
+	int32 val, nval;
+	int32   * map;
+	uint32  * line, * data, * linem, * datam;
 	NUMA * na;
 	PIXCMAP   * cmap;
 
@@ -482,13 +469,13 @@ l_ok pixColorGrayMaskedCmap(PIX * pixs,
  * </pre>
  */
 l_ok addColorizedGrayToCmap(PIXCMAP  * cmap,
-    l_int32 type,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval,
+    int32 type,
+    int32 rval,
+    int32 gval,
+    int32 bval,
     NUMA ** pna)
 {
-	l_int32 i, n, erval, egval, ebval, nrval, ngval, nbval, newindex;
+	int32 i, n, erval, egval, ebval, nrval, ngval, nbval, newindex;
 	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
@@ -505,9 +492,9 @@ l_ok addColorizedGrayToCmap(PIXCMAP  * cmap,
 		pixcmapGetColor(cmap, i, &erval, &egval, &ebval);
 		if(type == L_PAINT_LIGHT) {
 			if(erval == egval && erval == ebval && erval != 0) {
-				nrval = (l_int32)(rval * (float)erval / 255.);
-				ngval = (l_int32)(gval * (float)egval / 255.);
-				nbval = (l_int32)(bval * (float)ebval / 255.);
+				nrval = (int32)(rval * (float)erval / 255.);
+				ngval = (int32)(gval * (float)egval / 255.);
+				nbval = (int32)(bval * (float)ebval / 255.);
 				if(pixcmapAddNewColor(cmap, nrval, ngval, nbval, &newindex)) {
 					numaDestroy(&na);
 					L_WARNING("no room; colormap full\n", procName);
@@ -522,11 +509,11 @@ l_ok addColorizedGrayToCmap(PIXCMAP  * cmap,
 		else { /* L_PAINT_DARK */
 			if(erval == egval && erval == ebval && erval != 255) {
 				nrval = rval +
-				    (l_int32)((255. - rval) * (float)erval / 255.);
+				    (int32)((255. - rval) * (float)erval / 255.);
 				ngval = gval +
-				    (l_int32)((255. - gval) * (float)egval / 255.);
+				    (int32)((255. - gval) * (float)egval / 255.);
 				nbval = bval +
-				    (l_int32)((255. - bval) * (float)ebval / 255.);
+				    (int32)((255. - bval) * (float)ebval / 255.);
 				if(pixcmapAddNewColor(cmap, nrval, ngval, nbval, &newindex)) {
 					numaDestroy(&na);
 					L_WARNING("no room; colormap full\n", procName);
@@ -575,16 +562,16 @@ l_ok addColorizedGrayToCmap(PIXCMAP  * cmap,
  */
 l_ok pixSetSelectMaskedCmap(PIX * pixs,
     PIX * pixm,
-    l_int32 x,
-    l_int32 y,
-    l_int32 sindex,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval)
+    int32 x,
+    int32 y,
+    int32 sindex,
+    int32 rval,
+    int32 gval,
+    int32 bval)
 {
-	l_int32 i, j, w, h, d, n, wm, hm, wpls, wplm, val;
-	l_int32 index; /* of new color to be set */
-	l_uint32  * lines, * linem, * datas, * datam;
+	int32 i, j, w, h, d, n, wm, hm, wpls, wplm, val;
+	int32 index; /* of new color to be set */
+	uint32  * lines, * linem, * datas, * datam;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -684,15 +671,15 @@ l_ok pixSetSelectMaskedCmap(PIX * pixs,
  */
 l_ok pixSetMaskedCmap(PIX * pixs,
     PIX * pixm,
-    l_int32 x,
-    l_int32 y,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval)
+    int32 x,
+    int32 y,
+    int32 rval,
+    int32 gval,
+    int32 bval)
 {
-	l_int32 w, h, d, wpl, wm, hm, wplm;
-	l_int32 i, j, index;
-	l_uint32  * data, * datam, * line, * linem;
+	int32 w, h, d, wpl, wm, hm, wplm;
+	int32 i, j, index;
+	uint32  * data, * datam, * line, * linem;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);

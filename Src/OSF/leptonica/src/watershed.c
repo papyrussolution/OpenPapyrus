@@ -19,12 +19,12 @@
  *      Top-level
  *            L_WSHED         *wshedCreate()
  *            void             wshedDestroy()
- *            l_int32          wshedApply()
+ *            int32          wshedApply()
  *
  *      Helpers
- *            static l_int32   identifyWatershedBasin()
- *            static l_int32   mergeLookup()
- *            static l_int32   wshedGetHeight()
+ *            static int32   identifyWatershedBasin()
+ *            static int32   mergeLookup()
+ *            static int32   wshedGetHeight()
  *            static void      pushNewPixel()
  *            static void      popNewPixel()
  *            static void      pushWSPixel()
@@ -33,7 +33,7 @@
  *            static void      debugWshedMerge()
  *
  *      Output
- *            l_int32          wshedBasins()
+ *            int32          wshedBasins()
  *            PIX             *wshedRenderFill()
  *            PIX             *wshedRenderColors()
  *
@@ -106,12 +106,12 @@
 	#define   DEBUG_WATERSHED     0
 #endif  /* ~NO_CONSOLE_IO */
 
-static const l_uint32 MAX_LABEL_VALUE = 0x7fffffff; /* largest l_int32 */
+static const uint32 MAX_LABEL_VALUE = 0x7fffffff; /* largest int32 */
 
 /*! New pixel coordinates */
 struct L_NewPixel {
-	l_int32 x; /*!< x coordinate */
-	l_int32 y; /*!< y coordinate */
+	int32 x; /*!< x coordinate */
+	int32 y; /*!< y coordinate */
 };
 
 typedef struct L_NewPixel L_NEWPIXEL;
@@ -119,45 +119,45 @@ typedef struct L_NewPixel L_NEWPIXEL;
 /*! Wartshed pixel */
 struct L_WSPixel {
 	float val; /*!< pixel value */
-	l_int32 x; /*!< x coordinate */
-	l_int32 y; /*!< y coordinate */
-	l_int32 index; /*!< label for set to which pixel belongs */
+	int32 x; /*!< x coordinate */
+	int32 y; /*!< y coordinate */
+	int32 index; /*!< label for set to which pixel belongs */
 };
 
 typedef struct L_WSPixel L_WSPIXEL;
 
 /* Static functions for obtaining bitmap of watersheds  */
-static void wshedSaveBasin(L_WSHED * wshed, l_int32 index, l_int32 level);
+static void wshedSaveBasin(L_WSHED * wshed, int32 index, int32 level);
 
-static l_int32 identifyWatershedBasin(L_WSHED * wshed,
-    l_int32 index, l_int32 level,
+static int32 identifyWatershedBasin(L_WSHED * wshed,
+    int32 index, int32 level,
     BOX ** pbox, PIX ** ppixd);
 
 /* Static function for merging lut and backlink arrays */
-static l_int32 mergeLookup(L_WSHED * wshed, l_int32 sindex, l_int32 dindex);
+static int32 mergeLookup(L_WSHED * wshed, int32 sindex, int32 dindex);
 
 /* Static function for finding the height of the current pixel
    above its seed or minima in the watershed.  */
-static l_int32 wshedGetHeight(L_WSHED * wshed, l_int32 val, l_int32 label,
-    l_int32 * pheight);
+static int32 wshedGetHeight(L_WSHED * wshed, int32 val, int32 label,
+    int32 * pheight);
 
 /* Static accessors for NewPixel on a queue */
-static void pushNewPixel(L_QUEUE * lq, l_int32 x, l_int32 y,
-    l_int32 * pminx, l_int32 * pmaxx,
-    l_int32 * pminy, l_int32 * pmaxy);
-static void popNewPixel(L_QUEUE * lq, l_int32 * px, l_int32 * py);
+static void pushNewPixel(L_QUEUE * lq, int32 x, int32 y,
+    int32 * pminx, int32 * pmaxx,
+    int32 * pminy, int32 * pmaxy);
+static void popNewPixel(L_QUEUE * lq, int32 * px, int32 * py);
 
 /* Static accessors for WSPixel on a heap */
-static void pushWSPixel(L_HEAP * lh, L_STACK * stack, l_int32 val,
-    l_int32 x, l_int32 y, l_int32 index);
-static void popWSPixel(L_HEAP * lh, L_STACK * stack, l_int32 * pval,
-    l_int32 * px, l_int32 * py, l_int32 * pindex);
+static void pushWSPixel(L_HEAP * lh, L_STACK * stack, int32 val,
+    int32 x, int32 y, int32 index);
+static void popWSPixel(L_HEAP * lh, L_STACK * stack, int32 * pval,
+    int32 * px, int32 * py, int32 * pindex);
 
 /* Static debug print output */
-static void debugPrintLUT(l_int32 * lut, l_int32 size, l_int32 debug);
+static void debugPrintLUT(int32 * lut, int32 size, int32 debug);
 
-static void debugWshedMerge(L_WSHED * wshed, char * descr, l_int32 x,
-    l_int32 y, l_int32 label, l_int32 index);
+static void debugWshedMerge(L_WSHED * wshed, char * descr, int32 x,
+    int32 y, int32 label, int32 index);
 
 /*-----------------------------------------------------------------------*
 *                        Top-level watershed                            *
@@ -187,10 +187,10 @@ static void debugWshedMerge(L_WSHED * wshed, char * descr, l_int32 x,
  */
 L_WSHED * wshedCreate(PIX * pixs,
     PIX * pixm,
-    l_int32 mindepth,
-    l_int32 debugflag)
+    int32 mindepth,
+    int32 debugflag)
 {
-	l_int32 w, h;
+	int32 w, h;
 	L_WSHED  * wshed;
 
 	PROCNAME(__FUNCTION__);
@@ -232,7 +232,7 @@ L_WSHED * wshedCreate(PIX * pixs,
  */
 void wshedDestroy(L_WSHED  ** pwshed)
 {
-	l_int32 i;
+	int32 i;
 	L_WSHED  * wshed;
 
 	PROCNAME(__FUNCTION__);
@@ -294,12 +294,12 @@ l_ok wshedApply(L_WSHED  * wshed)
 	    "Minima absorbed into seeded basin";
 	char minima_absorbed_by_filler_or_another[] =
 	    "Minima absorbed by filler or another";
-	l_int32 nseeds, nother, nboth, arraysize;
-	l_int32 i, j, val, x, y, w, h, index, mindepth;
-	l_int32 imin, imax, jmin, jmax, cindex, clabel, nindex;
-	l_int32 hindex, hlabel, hmin, hmax, minhindex, maxhindex;
-	l_int32 * lut;
-	l_uint32 ulabel, uval;
+	int32 nseeds, nother, nboth, arraysize;
+	int32 i, j, val, x, y, w, h, index, mindepth;
+	int32 imin, imax, jmin, jmax, cindex, clabel, nindex;
+	int32 hindex, hlabel, hmin, hmax, minhindex, maxhindex;
+	int32 * lut;
+	uint32 ulabel, uval;
 	void    ** lines8, ** linelab32;
 	NUMA     * nalut, * nalevels, * nash, * namh, * nasi;
 	NUMA ** links;
@@ -331,7 +331,7 @@ l_ok wshedApply(L_WSHED  * wshed)
 	for(i = 0; i < nseeds; i++) {
 		ptaGetIPt(ptas, i, &x, &y);
 		uval = GET_DATA_BYTE(lines8[y], x);
-		pushWSPixel(lh, rstack, (l_int32)uval, x, y, i);
+		pushWSPixel(lh, rstack, (int32)uval, x, y, i);
 	}
 	wshed->ptas = ptas;
 	nasi = numaMakeConstant(1, nseeds); /* indicator array */
@@ -353,7 +353,7 @@ l_ok wshedApply(L_WSHED  * wshed)
 	for(i = 0; i < nother; i++) {
 		ptaGetIPt(ptao, i, &x, &y);
 		uval = GET_DATA_BYTE(lines8[y], x);
-		pushWSPixel(lh, rstack, (l_int32)uval, x, y, nseeds + i);
+		pushWSPixel(lh, rstack, (int32)uval, x, y, nseeds + i);
 	}
 	wshed->namh = namh;
 
@@ -405,7 +405,7 @@ l_ok wshedApply(L_WSHED  * wshed)
 				for(j = jmin; j <= jmax; j++) {
 					if(i == y && j == x) continue;
 					uval = GET_DATA_BYTE(lines8[i], j);
-					pushWSPixel(lh, rstack, (l_int32)uval, j, i, cindex);
+					pushWSPixel(lh, rstack, (int32)uval, j, i, cindex);
 				}
 			}
 		}
@@ -538,8 +538,8 @@ l_ok wshedApply(L_WSHED  * wshed)
  * </pre>
  */
 static void wshedSaveBasin(L_WSHED  * wshed,
-    l_int32 index,
-    l_int32 level)
+    int32 index,
+    int32 level)
 {
 	BOX  * box;
 	PIX  * pix;
@@ -579,16 +579,16 @@ static void wshedSaveBasin(L_WSHED  * wshed,
  *          basins are saved as a watershed.
  * </pre>
  */
-static l_int32 identifyWatershedBasin(L_WSHED  * wshed,
-    l_int32 index,
-    l_int32 level,
+static int32 identifyWatershedBasin(L_WSHED  * wshed,
+    int32 index,
+    int32 level,
     BOX ** pbox,
     PIX ** ppixd)
 {
-	l_int32 imin, imax, jmin, jmax, minx, miny, maxx, maxy;
-	l_int32 bw, bh, i, j, w, h, x, y;
-	l_int32 * lut;
-	l_uint32 label, bval, lval;
+	int32 imin, imax, jmin, jmax, minx, miny, maxx, maxy;
+	int32 bw, bh, i, j, w, h, x, y;
+	int32 * lut;
+	uint32 label, bval, lval;
 	void    ** lines8, ** linelab32, ** linet1;
 	BOX      * box;
 	PIX * pixs, * pixt, * pixd;
@@ -690,12 +690,12 @@ static l_int32 identifyWatershedBasin(L_WSHED  * wshed,
  *          the current owner.
  * </pre>
  */
-static l_int32 mergeLookup(L_WSHED  * wshed,
-    l_int32 sindex,
-    l_int32 dindex)
+static int32 mergeLookup(L_WSHED  * wshed,
+    int32 sindex,
+    int32 dindex)
 {
-	l_int32 i, n, size, index;
-	l_int32 * lut;
+	int32 i, n, size, index;
+	int32 * lut;
 	NUMA     * na;
 	NUMA ** links;
 
@@ -752,12 +752,12 @@ static l_int32 mergeLookup(L_WSHED  * wshed,
  *          not be called on a finished watershed (that continues to fill).
  * </pre>
  */
-static l_int32 wshedGetHeight(L_WSHED  * wshed,
-    l_int32 val,
-    l_int32 label,
-    l_int32 * pheight)
+static int32 wshedGetHeight(L_WSHED  * wshed,
+    int32 val,
+    int32 label,
+    int32 * pheight)
 {
-	l_int32 minval;
+	int32 minval;
 
 	PROCNAME(__FUNCTION__);
 
@@ -794,12 +794,12 @@ static l_int32 wshedGetHeight(L_WSHED  * wshed,
  * </pre>
  */
 static void pushNewPixel(L_QUEUE  * lq,
-    l_int32 x,
-    l_int32 y,
-    l_int32 * pminx,
-    l_int32 * pmaxx,
-    l_int32 * pminy,
-    l_int32 * pmaxy)
+    int32 x,
+    int32 y,
+    int32 * pminx,
+    int32 * pmaxx,
+    int32 * pminy,
+    int32 * pmaxy)
 {
 	L_NEWPIXEL  * np;
 
@@ -842,8 +842,8 @@ static void pushNewPixel(L_QUEUE  * lq,
  * </pre>
  */
 static void popNewPixel(L_QUEUE  * lq,
-    l_int32 * px,
-    l_int32 * py)
+    int32 * px,
+    int32 * py)
 {
 	L_NEWPIXEL  * np;
 
@@ -879,10 +879,10 @@ static void popNewPixel(L_QUEUE  * lq,
  */
 static void pushWSPixel(L_HEAP   * lh,
     L_STACK  * stack,
-    l_int32 val,
-    l_int32 x,
-    l_int32 y,
-    l_int32 index)
+    int32 val,
+    int32 x,
+    int32 y,
+    int32 index)
 {
 	L_WSPIXEL  * wsp;
 
@@ -929,10 +929,10 @@ static void pushWSPixel(L_HEAP   * lh,
  */
 static void popWSPixel(L_HEAP   * lh,
     L_STACK  * stack,
-    l_int32 * pval,
-    l_int32 * px,
-    l_int32 * py,
-    l_int32 * pindex)
+    int32 * pval,
+    int32 * px,
+    int32 * py,
+    int32 * pindex)
 {
 	L_WSPIXEL  * wsp;
 
@@ -953,18 +953,18 @@ static void popWSPixel(L_HEAP   * lh,
 
 	if((wsp = (L_WSPIXEL*)lheapRemove(lh)) == NULL)
 		return;
-	*pval = (l_int32)wsp->val;
+	*pval = (int32)wsp->val;
 	*px = wsp->x;
 	*py = wsp->y;
 	*pindex = wsp->index;
 	lstackAdd(stack, wsp); /* save for re-use */
 }
 
-static void debugPrintLUT(l_int32 * lut,
-    l_int32 size,
-    l_int32 debug)
+static void debugPrintLUT(int32 * lut,
+    int32 size,
+    int32 debug)
 {
-	l_int32 i;
+	int32 i;
 
 	if(!debug) return;
 	lept_stderr("lut: ");
@@ -975,10 +975,10 @@ static void debugPrintLUT(l_int32 * lut,
 
 static void debugWshedMerge(L_WSHED * wshed,
     char * descr,
-    l_int32 x,
-    l_int32 y,
-    l_int32 label,
-    l_int32 index)
+    int32 x,
+    int32 y,
+    int32 label,
+    int32 index)
 {
 	if(!wshed || (wshed->debug == 0))
 		return;
@@ -1022,7 +1022,7 @@ l_ok wshedBasins(L_WSHED  * wshed,
  */
 PIX * wshedRenderFill(L_WSHED  * wshed)
 {
-	l_int32 i, n, level, bx, by;
+	int32 i, n, level, bx, by;
 	NUMA * na;
 	PIX * pix, * pixd;
 	PIXA    * pixa;
@@ -1056,7 +1056,7 @@ PIX * wshedRenderFill(L_WSHED  * wshed)
  */
 PIX * wshedRenderColors(L_WSHED  * wshed)
 {
-	l_int32 w, h;
+	int32 w, h;
 	PIX * pixg, * pixt, * pixc, * pixm, * pixd;
 	PIXA    * pixa;
 

@@ -68,7 +68,7 @@ ngx_int_t ngx_event_post_acceptex(ngx_listening_t * ls, ngx_uint_t n)
 		}
 		else {
 			ngx_connection_t * c = ngx_get_connection(s, &ls->log);
-			if(c == NULL) {
+			if(!c) {
 				return NGX_ERROR;
 			}
 			c->pool = ngx_create_pool(ls->pool_size, &ls->log);

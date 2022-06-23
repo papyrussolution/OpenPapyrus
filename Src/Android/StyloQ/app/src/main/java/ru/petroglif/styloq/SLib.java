@@ -3076,234 +3076,249 @@ public class SLib {
 			buf = "";
 			ret_flags |= strtodatefZero;
 		}
-		while(_idx < _len && (buf.charAt(_idx) == ' ' || buf.charAt(_idx) == '\t'))
-			_idx++;
-		if(buf.substring(_idx, 4).equalsIgnoreCase("date")) {
-			_idx += 4;
+		else {
 			while(_idx < _len && (buf.charAt(_idx) == ' ' || buf.charAt(_idx) == '\t'))
 				_idx++;
-			if(buf.charAt(_idx) == '\'')
-				_idx++;
-		}
-		if(_idx < _len && buf.charAt(_idx) != 0) {
-			if(buf.charAt(_idx) == '^') {
-				_idx++;
-				i = 0;
-				String tmp = "";
-				if(_idx < _len && isdec(buf.charAt(_idx))) {
-					tmp += buf.charAt(_idx);
+			if((_idx + 4) <= buf.length() && buf.substring(_idx, 4).equalsIgnoreCase("date")) {
+				_idx += 4;
+				while(_idx < _len && (buf.charAt(_idx) == ' ' || buf.charAt(_idx) == '\t'))
 					_idx++;
+				if(buf.charAt(_idx) == '\'')
+					_idx++;
+			}
+			if(_idx < _len && buf.charAt(_idx) != 0) {
+				if(buf.charAt(_idx) == '^') {
+					_idx++;
+					i = 0;
+					String tmp = "";
 					if(_idx < _len && isdec(buf.charAt(_idx))) {
 						tmp += buf.charAt(_idx);
 						_idx++;
+						if(_idx < _len && isdec(buf.charAt(_idx))) {
+							tmp += buf.charAt(_idx);
+							_idx++;
+						}
 					}
-				}
-				i = Integer.getInteger(tmp);
-				if(i >= 1 && i <= 31) {
-					d = MakeInt(i, 0x2000);
-					m = -1;
-					y = -1;
-					ret_flags |= strtodatefThrsMDay;
-				}
-			}
-			else {
-				//
-				// Препроцессинг с целью выяснить не является ли строка датой без разделителей.
-				// Такая дата представляет из себя строку из шести символов
-				// без всяких пробелов и разделителей.
-				//
-				int    dig_count = 0;
-				int    year_start = 0;
-				int    year_end = 0;
-				while(dig_count < _len && isdec(buf.charAt(dig_count)))
-					dig_count++;
-				if(dig_count == 6)
-					not_empty_year = true;
-				else if(dig_count == 8) {
-					not_empty_year = true;
-					year_start = (buf.charAt(0) - '0') * 1000;
-					year_start += (buf.charAt(1) - '0') * 100;
-					year_start += (buf.charAt(2) - '0') * 10;
-					year_start += (buf.charAt(3) - '0');
-					year_end = (buf.charAt(4) - '0') * 1000;
-					year_end += (buf.charAt(5) - '0') * 100;
-					year_end += (buf.charAt(6) - '0') * 10;
-					year_end += (buf.charAt(7) - '0');
-					if(year_start < 1900 || year_start > 2100)
-						year_start = 0;
-					if(year_end < 1900 || year_end > 2100)
-						year_end = 0;
+					i = Integer.getInteger(tmp);
+					if(i >= 1 && i <= 31) {
+						d = MakeInt(i, 0x2000);
+						m = -1;
+						y = -1;
+						ret_flags |= strtodatefThrsMDay;
+					}
 				}
 				else {
 					//
-					// Попытка с ходу засечь дату в формате DATF_ISO8601 (yyyy-mm-dd).
-					// Так как по счастливой случайности этот формат не перекрывается никакими иными DATF_XXX
-					// форматами, мы может рассмотреть этот вариант отдельно.
-					// За одно воспользуемся тем, что количество лидирующих цифр уже подсчитано (dig_count == 4)
+					// Препроцессинг с целью выяснить не является ли строка датой без разделителей.
+					// Такая дата представляет из себя строку из шести символов
+					// без всяких пробелов и разделителей.
 					//
-					if(dig_count == 4 && style != DATF_ISO8601 && _len > 9) {
-						if(buf.charAt(4) == '-' && isdec(buf.charAt(5)) && isdec(buf.charAt(6)) && buf.charAt(7) == '-' && isdec(buf.charAt(8)) && isdec(buf.charAt(9))) {
-							style = DATF_ISO8601;
-						}
+					int dig_count = 0;
+					int year_start = 0;
+					int year_end = 0;
+					while(dig_count < _len && isdec(buf.charAt(dig_count)))
+						dig_count++;
+					if(dig_count == 6)
+						not_empty_year = true;
+					else if(dig_count == 8) {
+						not_empty_year = true;
+						year_start = (buf.charAt(0) - '0') * 1000;
+						year_start += (buf.charAt(1) - '0') * 100;
+						year_start += (buf.charAt(2) - '0') * 10;
+						year_start += (buf.charAt(3) - '0');
+						year_end = (buf.charAt(4) - '0') * 1000;
+						year_end += (buf.charAt(5) - '0') * 100;
+						year_end += (buf.charAt(6) - '0') * 10;
+						year_end += (buf.charAt(7) - '0');
+						if(year_start < 1900 || year_start > 2100)
+							year_start = 0;
+						if(year_end < 1900 || year_end > 2100)
+							year_end = 0;
 					}
-					dig_count = 0;
-				}
-				//
-				//ord = _decode_date_fmt(style, &div);
-				DateFmtDescr dfd = DecodeDateFormat(style);
-				if(year_start != 0) {
-					if(year_end == 0)
-						dfd.Ord = 2; // YMD
 					else {
 						//
-						// Если и префикс и суффикс строки может быть трактован как год, то
-						// считаем годом то, что ближе к текущей дате.
+						// Попытка с ходу засечь дату в формате DATF_ISO8601 (yyyy-mm-dd).
+						// Так как по счастливой случайности этот формат не перекрывается никакими иными DATF_XXX
+						// форматами, мы может рассмотреть этот вариант отдельно.
+						// За одно воспользуемся тем, что количество лидирующих цифр уже подсчитано (dig_count == 4)
 						//
-						int  _cy = cdate.year();
-						if(Math.abs(_cy - year_start) < Math.abs(_cy - year_end)) // @v10.3.1 @fix (abs(_cy - year_end) < abs(_cy - year_end))-->(abs(_cy - year_start) < abs(_cy - year_end))
+						if(dig_count == 4 && style != DATF_ISO8601 && _len > 9) {
+							if(buf.charAt(4) == '-' && isdec(buf.charAt(5)) && isdec(buf.charAt(6)) && buf.charAt(7) == '-' && isdec(buf.charAt(8)) && isdec(buf.charAt(9))) {
+								style = DATF_ISO8601;
+							}
+						}
+						dig_count = 0;
+					}
+					//
+					//ord = _decode_date_fmt(style, &div);
+					DateFmtDescr dfd = DecodeDateFormat(style);
+					if(year_start != 0) {
+						if(year_end == 0)
 							dfd.Ord = 2; // YMD
-					}
-				}
-				for(cnt = 0; cnt < 3; cnt++) {
-					//int * p_cur_pos = getnmb(cnt, dfd.Ord, &d, &m, &y);
-					int dtok = GetDateToken(cnt, dfd.Ord);
-					int cur_value = 0;
-					int cur_value_plus = 0;
-					if(dig_count > 0) {
-						if(dig_count == 8 && dtok == timeconstYear) {
-							cur_value = (buf.charAt(_idx)-'0') * 1000; _idx++;
-							cur_value += (buf.charAt(_idx)-'0') * 100; _idx++;
-							cur_value += (buf.charAt(_idx)-'0') * 10; _idx++;
-							cur_value += (buf.charAt(_idx)-'0'); _idx++;
-							//*p_cur_pos = ((*c++) - '0') * 1000;
-							//*p_cur_pos += ((*c++) - '0') * 100;
-							//*p_cur_pos += ((*c++) - '0') * 10;
-							//*p_cur_pos += ((*c++) - '0');
-						}
-						else if(dig_count >= 2) {
-							cur_value = (buf.charAt(_idx)-'0') * 10; _idx++;
-							cur_value += (buf.charAt(_idx)-'0'); _idx++;
-							//*p_cur_pos = ((*c++) - '0') * 10;
-							//*p_cur_pos += ((*c++) - '0');
-						}
-						else if(dig_count >= 1) {
-							cur_value = (buf.charAt(_idx)-'0'); _idx++;
+						else {
+							//
+							// Если и префикс и суффикс строки может быть трактован как год, то
+							// считаем годом то, что ближе к текущей дате.
+							//
+							int _cy = cdate.year();
+							if(Math.abs(_cy - year_start) < Math.abs(_cy - year_end)) // @v10.3.1 @fix (abs(_cy - year_end) < abs(_cy - year_end))-->(abs(_cy - year_start) < abs(_cy - year_end))
+								dfd.Ord = 2; // YMD
 						}
 					}
-					else {
-						while(_idx < _len && (buf.charAt(_idx) == ' ' || buf.charAt(_idx) == '\t'))
-							_idx++;
-						if(_idx < _len && buf.charAt(_idx) == '@') {
-							is_first_subst = (cnt == 0);
-							_idx++;
-							int dtok_plus = GetDateToken(cnt, dfd.Ord);
-							//int * p_cur_pos_plus = getnmb(cnt, dfd.Ord, &plus_d, &plus_m, &plus_y);
-							//*p_cur_pos = -1;
-							cur_value_plus = -1;
-							if(_idx < _len && (buf.charAt(_idx) == '+' || buf.charAt(_idx) == '-')) {
-								int  sign = (buf.charAt(_idx) == '-') ? -1 : +1;
+					for(cnt = 0; cnt < 3; cnt++) {
+						//int * p_cur_pos = getnmb(cnt, dfd.Ord, &d, &m, &y);
+						int dtok = GetDateToken(cnt, dfd.Ord);
+						int cur_value = 0;
+						int cur_value_plus = 0;
+						if(dig_count > 0) {
+							if(dig_count == 8 && dtok == timeconstYear) {
+								cur_value = (buf.charAt(_idx) - '0') * 1000;
 								_idx++;
+								cur_value += (buf.charAt(_idx) - '0') * 100;
+								_idx++;
+								cur_value += (buf.charAt(_idx) - '0') * 10;
+								_idx++;
+								cur_value += (buf.charAt(_idx) - '0');
+								_idx++;
+								//*p_cur_pos = ((*c++) - '0') * 1000;
+								//*p_cur_pos += ((*c++) - '0') * 100;
+								//*p_cur_pos += ((*c++) - '0') * 10;
+								//*p_cur_pos += ((*c++) - '0');
+							}
+							else if(dig_count >= 2) {
+								cur_value = (buf.charAt(_idx) - '0') * 10;
+								_idx++;
+								cur_value += (buf.charAt(_idx) - '0');
+								_idx++;
+								//*p_cur_pos = ((*c++) - '0') * 10;
+								//*p_cur_pos += ((*c++) - '0');
+							}
+							else if(dig_count >= 1) {
+								cur_value = (buf.charAt(_idx) - '0');
+								_idx++;
+							}
+						}
+						else {
+							while(_idx < _len && (buf.charAt(_idx) == ' ' || buf.charAt(_idx) == '\t'))
+								_idx++;
+							if(_idx < _len && buf.charAt(_idx) == '@') {
+								is_first_subst = (cnt == 0);
+								_idx++;
+								int dtok_plus = GetDateToken(cnt, dfd.Ord);
+								//int * p_cur_pos_plus = getnmb(cnt, dfd.Ord, &plus_d, &plus_m, &plus_y);
+								//*p_cur_pos = -1;
+								cur_value_plus = -1;
+								if(_idx < _len && (buf.charAt(_idx) == '+' || buf.charAt(_idx) == '-')) {
+									int sign = (buf.charAt(_idx) == '-') ? -1 : +1;
+									_idx++;
+									String tmp = "";
+									while(_idx < _len && isdec(buf.charAt(_idx))) {
+										tmp = tmp + buf.charAt(_idx);
+										_idx++;
+									}
+									cur_value_plus = Integer.valueOf(tmp) * sign;
+								}
+								cur_value = -1;
+							}
+							else if(_idx < _len && buf.charAt(_idx) == '?') {
+								_idx++;
+								cur_value = ANY_DATE_VALUE;
+								if(dtok == timeconstYear)
+									not_empty_year = true;
+							}
+							else {
 								String tmp = "";
 								while(_idx < _len && isdec(buf.charAt(_idx))) {
 									tmp = tmp + buf.charAt(_idx);
 									_idx++;
 								}
-								cur_value_plus = Integer.valueOf(tmp) * sign;
+								cur_value = Integer.valueOf(tmp);
+								if(dtok == timeconstYear && tmp.length() > 0)
+									not_empty_year = true;
 							}
-							cur_value = -1;
-						}
-						else if(_idx < _len && buf.charAt(_idx) == '?') {
+							//
+							switch(dtok) {
+								case timeconstDayOfMonth:
+									d = cur_value;
+									break;
+								case timeconstMonth:
+									m = cur_value;
+									break;
+								case timeconstYear:
+									y = cur_value;
+									break;
+							}
+							//
+							while(_idx < _len && (buf.charAt(_idx) == ' ' || buf.charAt(_idx) == '\t'))
+								_idx++;
+							char _c = (_idx < _len) ? buf.charAt(_idx) : 0;
+							char _c2 = ((_idx + 1) < _len) ? buf.charAt(_idx + 1) : 0;
+							if(!(_c == '.' && _c2 != '.') && !(_c == '/' || _c == '-' || _c == '\\'))
+								break;
 							_idx++;
-							cur_value = ANY_DATE_VALUE;
-							if(dtok == timeconstYear)
-								not_empty_year = true;
+						}
+					}
+					if(y != 0 || m != 0 || d != 0) {
+						if(is_first_subst) {
+							d = MakeInt(plus_d, 0x8000);
+							y = -1;
+							m = -1;
+							ret_flags |= strtodatefRel;
 						}
 						else {
-							String tmp = "";
-							while(_idx < _len && isdec(buf.charAt(_idx))) {
-								tmp = tmp + buf.charAt(_idx);
-								_idx++;
+							if(y == -1) {
+								y = MakeInt(plus_y, 0x8000);
+								ret_flags |= strtodatefRelYear;
 							}
-							cur_value = Integer.valueOf(tmp);
-							if(dtok == timeconstYear && tmp.length() > 0)
-								not_empty_year = true;
+							else if(y == ANY_DATE_VALUE) {
+								ret_flags |= strtodatefAnyYear;
+							}
+							if(m == -1) {
+								m = MakeInt(plus_m, 0x8000);
+								ret_flags |= strtodatefRelMon;
+							}
+							else if(m == ANY_DATE_VALUE) {
+								ret_flags |= strtodatefAnyMon;
+							}
+							if(d == -1) {
+								d = MakeInt(plus_d, 0x8000);
+								ret_flags |= strtodatefRelDay;
+							}
+							else if(d == ANY_DATE_VALUE) {
+								ret_flags |= strtodatefAnyDay;
+							}
 						}
-						//
-						switch(dtok) {
-							case timeconstDayOfMonth: d = cur_value; break;
-							case timeconstMonth: m = cur_value; break;
-							case timeconstYear: y = cur_value; break;
+						if(y == 0) {
+							if(!not_empty_year) {
+								y = cdate.year();
+								ret_flags |= strtodatefDefYear;
+							}
+							else
+								y = 2000;
 						}
-						//
-						while(_idx < _len && (buf.charAt(_idx) == ' ' || buf.charAt(_idx) == '\t'))
-							_idx++;
-						char _c = (_idx < _len) ? buf.charAt(_idx) : 0;
-						char _c2 = ((_idx+1) < _len) ? buf.charAt(_idx+1) : 0;
-						if(!(_c == '.' && _c2 != '.') && !(_c == '/' || _c == '-' || _c == '\\'))
-							break;
-						_idx++;
+						if(m == 0) {
+							m = cdate.month();
+							ret_flags |= strtodatefDefMon;
+						}
+						if(d == 0)
+							d = 1;
+						if(y > 0 && y < 100) {
+							if(y >= 70) // @v10.8.5 50-->70
+								y += 1900;
+							else
+								y += 2000;
+						}
+						else if(y >= 200 && y <= 299)
+							y = 2000 + (y - 200);
 					}
-				}
-				if(y != 0 || m != 0 || d != 0) {
-					if(is_first_subst) {
-						d = MakeInt(plus_d, 0x8000);
-						y = -1;
-						m = -1;
-						ret_flags |= strtodatefRel;
-					}
-					else {
-						if(y == -1) {
-							y = MakeInt(plus_y, 0x8000);
-							ret_flags |= strtodatefRelYear;
-						}
-						else if(y == ANY_DATE_VALUE) {
-							ret_flags |= strtodatefAnyYear;
-						}
-						if(m == -1) {
-							m = MakeInt(plus_m, 0x8000);
-							ret_flags |= strtodatefRelMon;
-						}
-						else if(m == ANY_DATE_VALUE) {
-							ret_flags |= strtodatefAnyMon;
-						}
-						if(d == -1) {
-							d = MakeInt(plus_d, 0x8000);
-							ret_flags |= strtodatefRelDay;
-						}
-						else if(d == ANY_DATE_VALUE) {
-							ret_flags |= strtodatefAnyDay;
-						}
-					}
-					if(y == 0) {
-						if(!not_empty_year) {
-							y = cdate.year();
-							ret_flags |= strtodatefDefYear;
-						}
-						else
-							y = 2000;
-					}
-					if(m == 0) {
-						m = cdate.month();
-						ret_flags |= strtodatefDefMon;
-					}
-					if(d == 0)
-						d = 1;
-					if(y > 0 && y < 100) {
-						if(y >= 70) // @v10.8.5 50-->70
-							y += 1900;
-						else
-							y += 2000;
-					}
-					else if(y >= 200 && y <= 299)
-						y = 2000 + (y - 200);
 				}
 			}
-		}
-		if(!CheckDate(d, m, y)) {
-			d = 0;
-			m = 0;
-			y = 0;
-			ret_flags |= strtodatefInvalid;
+			if(!CheckDate(d, m, y)) {
+				d = 0;
+				m = 0;
+				y = 0;
+				ret_flags |= strtodatefInvalid;
+			}
 		}
 		return new LDATE(d, m, y);
 	}

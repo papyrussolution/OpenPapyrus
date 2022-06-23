@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  *      Top-level fast binary morphology with auto-generated sels
  *
@@ -33,14 +20,11 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-PIX * pixMorphDwa_2(PIX * pixd, PIX * pixs, l_int32 operation, char * selname);
-PIX * pixFMorphopGen_2(PIX * pixd, PIX * pixs, l_int32 operation, char * selname);
-l_int32 fmorphopgen_low_2(l_uint32 * datad, l_int32 w,
-    l_int32 h, l_int32 wpld,
-    l_uint32 * datas, l_int32 wpls,
-    l_int32 index);
+PIX * pixMorphDwa_2(PIX * pixd, PIX * pixs, int32 operation, char * selname);
+PIX * pixFMorphopGen_2(PIX * pixd, PIX * pixs, int32 operation, char * selname);
+int32 fmorphopgen_low_2(uint32 * datad, int32 w, int32 h, int32 wpld, uint32 * datas, int32 wpls, int32 index);
 
-static l_int32 NUM_SELS_GENERATED = 76;
+static int32 NUM_SELS_GENERATED = 76;
 static char SEL_NAMES[][80] = {
 	"sel_comb_4h",
 	"sel_comb_4v",
@@ -141,10 +125,10 @@ static char SEL_NAMES[][80] = {
  */
 PIX * pixMorphDwa_2(PIX * pixd,
     PIX * pixs,
-    l_int32 operation,
+    int32 operation,
     char * selname)
 {
-	l_int32 bordercolor, bordersize;
+	int32 bordercolor, bordersize;
 	PIX * pixt1, * pixt2, * pixt3;
 
 	PROCNAME(__FUNCTION__);
@@ -199,11 +183,11 @@ PIX * pixMorphDwa_2(PIX * pixd,
  */
 PIX * pixFMorphopGen_2(PIX * pixd,
     PIX * pixs,
-    l_int32 operation,
+    int32 operation,
     char * selname)
 {
-	l_int32 i, index, found, w, h, wpls, wpld, bordercolor, erodeop, borderop;
-	l_uint32 * datad, * datas, * datat;
+	int32 i, index, found, w, h, wpls, wpld, bordercolor, erodeop, borderop;
+	uint32 * datad, * datas, * datat;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);

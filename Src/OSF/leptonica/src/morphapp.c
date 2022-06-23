@@ -60,7 +60,7 @@
  *
  *      Centroid of component
  *            PTA       *pixaCentroids()
- *            l_int32    pixCentroid()
+ *            int32    pixCentroid()
  * </pre>
  */
 #include "allheaders.h"
@@ -85,7 +85,7 @@
  * </pre>
  */
 PIX * pixExtractBoundary(PIX * pixs,
-    l_int32 type)
+    int32 type)
 {
 	PIX  * pixd;
 
@@ -125,7 +125,7 @@ PIX * pixExtractBoundary(PIX * pixs,
 PIX * pixMorphSequenceMasked(PIX         * pixs,
     PIX         * pixm,
     const char * sequence,
-    l_int32 dispsep)
+    int32 dispsep)
 {
 	PIX  * pixd;
 
@@ -169,12 +169,12 @@ PIX * pixMorphSequenceMasked(PIX         * pixs,
  */
 PIX * pixMorphSequenceByComponent(PIX         * pixs,
     const char * sequence,
-    l_int32 connectivity,
-    l_int32 minw,
-    l_int32 minh,
+    int32 connectivity,
+    int32 minw,
+    int32 minh,
     BOXA       ** pboxa)
 {
-	l_int32 n, i, x, y, w, h;
+	int32 n, i, x, y, w, h;
 	BOXA * boxa;
 	PIX * pix, * pixd;
 	PIXA    * pixas, * pixad;
@@ -237,10 +237,10 @@ PIX * pixMorphSequenceByComponent(PIX         * pixs,
  */
 PIXA * pixaMorphSequenceByComponent(PIXA        * pixas,
     const char * sequence,
-    l_int32 minw,
-    l_int32 minh)
+    int32 minw,
+    int32 minh)
 {
-	l_int32 n, i, w, h, d;
+	int32 n, i, w, h, d;
 	BOX * box;
 	PIX * pix1, * pix2;
 	PIXA    * pixad;
@@ -319,12 +319,12 @@ PIXA * pixaMorphSequenceByComponent(PIXA        * pixas,
 PIX * pixMorphSequenceByRegion(PIX         * pixs,
     PIX         * pixm,
     const char * sequence,
-    l_int32 connectivity,
-    l_int32 minw,
-    l_int32 minh,
+    int32 connectivity,
+    int32 minw,
+    int32 minh,
     BOXA       ** pboxa)
 {
-	l_int32 n, i, x, y, w, h;
+	int32 n, i, x, y, w, h;
 	BOXA * boxa;
 	PIX * pix, * pixd;
 	PIXA    * pixam, * pixad;
@@ -396,10 +396,10 @@ PIX * pixMorphSequenceByRegion(PIX         * pixs,
 PIXA * pixaMorphSequenceByRegion(PIX         * pixs,
     PIXA        * pixam,
     const char * sequence,
-    l_int32 minw,
-    l_int32 minh)
+    int32 minw,
+    int32 minh)
 {
-	l_int32 n, i, w, h, same, maxd, fullpa, fullba;
+	int32 n, i, w, h, same, maxd, fullpa, fullba;
 	BOX * box;
 	PIX * pix1, * pix2, * pix3;
 	PIXA    * pixad;
@@ -468,9 +468,9 @@ PIXA * pixaMorphSequenceByRegion(PIX         * pixs,
  */
 PIX * pixUnionOfMorphOps(PIX * pixs,
     SELA    * sela,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 n, i;
+	int32 n, i;
 	PIX * pixt, * pixd;
 	SEL     * sel;
 
@@ -519,9 +519,9 @@ PIX * pixUnionOfMorphOps(PIX * pixs,
  */
 PIX * pixIntersectionOfMorphOps(PIX * pixs,
     SELA    * sela,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 n, i;
+	int32 n, i;
 	PIX * pixt, * pixd;
 	SEL     * sel;
 
@@ -573,11 +573,11 @@ PIX * pixIntersectionOfMorphOps(PIX * pixs,
  * \return  pix with holes filled in selected c.c., or NULL on error
  */
 PIX * pixSelectiveConnCompFill(PIX * pixs,
-    l_int32 connectivity,
-    l_int32 minw,
-    l_int32 minh)
+    int32 connectivity,
+    int32 minw,
+    int32 minh)
 {
-	l_int32 n, i, x, y, w, h;
+	int32 n, i, x, y, w, h;
 	BOXA * boxa;
 	PIX * pix1, * pix2, * pixd;
 	PIXA    * pixa;
@@ -644,11 +644,11 @@ PIX * pixSelectiveConnCompFill(PIX * pixs,
 l_ok pixRemoveMatchedPattern(PIX * pixs,
     PIX * pixp,
     PIX * pixe,
-    l_int32 x0,
-    l_int32 y0,
-    l_int32 dsize)
+    int32 x0,
+    int32 y0,
+    int32 dsize)
 {
-	l_int32 i, nc, x, y, w, h, xb, yb;
+	int32 i, nc, x, y, w, h, xb, yb;
 	BOXA * boxa;
 	PIX * pix1, * pix2;
 	PIXA    * pixa;
@@ -748,13 +748,13 @@ l_ok pixRemoveMatchedPattern(PIX * pixs,
 PIX * pixDisplayMatchedPattern(PIX * pixs,
     PIX * pixp,
     PIX * pixe,
-    l_int32 x0,
-    l_int32 y0,
-    l_uint32 color,
+    int32 x0,
+    int32 y0,
+    uint32 color,
     float scale,
-    l_int32 nlevels)
+    int32 nlevels)
 {
-	l_int32 i, nc, xb, yb, x, y, xi, yi, rval, gval, bval;
+	int32 i, nc, xb, yb, x, y, xi, yi, rval, gval, bval;
 	BOXA     * boxa;
 	PIX * pixd, * pixt, * pixps;
 	PIXA * pixa;
@@ -817,8 +817,8 @@ PIX * pixDisplayMatchedPattern(PIX * pixs,
 		for(i = 0; i < nc; i++) {
 			ptaGetIPt(pta, i, &x, &y);
 			boxaGetBoxGeometry(boxa, i, &xb, &yb, NULL, NULL);
-			xi = (l_int32)(scale * (xb + x - x0));
-			yi = (l_int32)(scale * (yb + y - y0));
+			xi = (int32)(scale * (xb + x - x0));
+			yi = (int32)(scale * (yb + y - y0));
 			pixSetMaskedCmap(pixd, pixps, xi, yi, rval, gval, bval);
 		}
 		pixDestroy(&pixt);
@@ -857,12 +857,12 @@ PIX * pixDisplayMatchedPattern(PIX * pixs,
  * </pre>
  */
 PIXA * pixaExtendByMorph(PIXA    * pixas,
-    l_int32 type,
-    l_int32 niters,
+    int32 type,
+    int32 niters,
     SEL     * sel,
-    l_int32 include)
+    int32 include)
 {
-	l_int32 maxdepth, i, j, n;
+	int32 maxdepth, i, j, n;
 	PIX * pix0, * pix1, * pix2;
 	SEL     * selt;
 	PIXA    * pixad;
@@ -929,10 +929,10 @@ PIXA * pixaExtendByMorph(PIXA    * pixas,
  */
 PIXA * pixaExtendByScaling(PIXA    * pixas,
     NUMA * nasc,
-    l_int32 type,
-    l_int32 include)
+    int32 type,
+    int32 include)
 {
-	l_int32 i, j, n, nsc, w, h, scalew, scaleh;
+	int32 i, j, n, nsc, w, h, scalew, scaleh;
 	float scalefact;
 	PIX * pix1, * pix2;
 	PIXA      * pixad;
@@ -995,10 +995,10 @@ PIXA * pixaExtendByScaling(PIXA    * pixas,
  */
 PIX * pixSeedfillMorph(PIX * pixs,
     PIX * pixm,
-    l_int32 maxiters,
-    l_int32 connectivity)
+    int32 maxiters,
+    int32 connectivity)
 {
-	l_int32 same, i;
+	int32 same, i;
 	PIX * pixt, * pixd, * temp;
 	SEL     * sel_3;
 
@@ -1054,11 +1054,11 @@ PIX * pixSeedfillMorph(PIX * pixs,
  * \return  numa of run-lengths
  */
 NUMA * pixRunHistogramMorph(PIX * pixs,
-    l_int32 runtype,
-    l_int32 direction,
-    l_int32 maxsize)
+    int32 runtype,
+    int32 direction,
+    int32 maxsize)
 {
-	l_int32 count, i, size;
+	int32 count, i, size;
 	float val;
 	NUMA * na, * nah;
 	PIX * pix1, * pix2, * pix3;
@@ -1153,9 +1153,9 @@ NUMA * pixRunHistogramMorph(PIX * pixs,
  * </pre>
  */
 PIX * pixTophat(PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize,
-    l_int32 type)
+    int32 hsize,
+    int32 vsize,
+    int32 type)
 {
 	PIX  * pixt, * pixd;
 
@@ -1251,8 +1251,8 @@ PIX * pixTophat(PIX * pixs,
  * </pre>
  */
 PIX * pixHDome(PIX * pixs,
-    l_int32 height,
-    l_int32 connectivity)
+    int32 height,
+    int32 connectivity)
 {
 	PIX  * pixsd, * pixd;
 
@@ -1305,9 +1305,9 @@ PIX * pixHDome(PIX * pixs,
  * </pre>
  */
 PIX * pixFastTophat(PIX * pixs,
-    l_int32 xsize,
-    l_int32 ysize,
-    l_int32 type)
+    int32 xsize,
+    int32 ysize,
+    int32 type)
 {
 	PIX  * pix1, * pix2, * pix3, * pixd;
 
@@ -1365,9 +1365,9 @@ PIX * pixFastTophat(PIX * pixs,
  * \return  pixd, or NULL on error
  */
 PIX * pixMorphGradient(PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize,
-    l_int32 smoothing)
+    int32 hsize,
+    int32 vsize,
+    int32 smoothing)
 {
 	PIX  * pixg, * pixd;
 
@@ -1418,9 +1418,9 @@ PIX * pixMorphGradient(PIX * pixs,
  */
 PTA * pixaCentroids(PIXA  * pixa)
 {
-	l_int32 i, n;
-	l_int32   * centtab = NULL;
-	l_int32   * sumtab = NULL;
+	int32 i, n;
+	int32   * centtab = NULL;
+	int32   * sumtab = NULL;
 	float x, y;
 	PIX * pix;
 	PTA       * pta;
@@ -1470,17 +1470,17 @@ PTA * pixaCentroids(PIXA  * pixa)
  * </pre>
  */
 l_ok pixCentroid(PIX        * pix,
-    l_int32    * centtab,
-    l_int32    * sumtab,
+    int32    * centtab,
+    int32    * sumtab,
     float * pxave,
     float * pyave)
 {
-	l_int32 w, h, d, i, j, wpl, pixsum, rowsum, val;
+	int32 w, h, d, i, j, wpl, pixsum, rowsum, val;
 	float xsum, ysum;
-	l_uint32  * data, * line;
-	l_uint32 word;
+	uint32  * data, * line;
+	uint32 word;
 	uint8 byte;
-	l_int32   * ctab, * stab;
+	int32   * ctab, * stab;
 
 	PROCNAME(__FUNCTION__);
 

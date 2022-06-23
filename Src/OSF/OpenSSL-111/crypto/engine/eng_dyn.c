@@ -155,7 +155,7 @@ static int dynamic_set_data_ctx(ENGINE * e, dynamic_data_ctx ** ctx)
 {
 	dynamic_data_ctx * c = static_cast<dynamic_data_ctx *>(OPENSSL_zalloc(sizeof(*c)));
 	int ret = 1;
-	if(c == NULL) {
+	if(!c) {
 		ENGINEerr(ENGINE_F_DYNAMIC_SET_DATA_CTX, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

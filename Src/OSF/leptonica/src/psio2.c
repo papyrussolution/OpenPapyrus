@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file psio2.c
  * <pre>
@@ -51,40 +38,40 @@
  *     And they can be converted to a pdf using gs (ps2pdf).
  *
  *     For uncompressed images
- *          l_int32              pixWritePSEmbed()
- *          l_int32              pixWriteStreamPS()
+ *          int32              pixWritePSEmbed()
+ *          int32              pixWriteStreamPS()
  *          char                *pixWriteStringPS()
  *          char                *generateUncompressedPS()
  *          static void          getScaledParametersPS()
- *          static l_int32       convertByteToHexAscii()
+ *          static int32       convertByteToHexAscii()
  *
  *     For jpeg compressed images (use dct compression)
- *          l_int32              convertJpegToPSEmbed()
- *          l_int32              convertJpegToPS()
- *          static l_int32       convertJpegToPSString()
+ *          int32              convertJpegToPSEmbed()
+ *          int32              convertJpegToPS()
+ *          static int32       convertJpegToPSString()
  *          static char *generateJpegPS()
  *
  *     For g4 fax compressed images (use ccitt g4 compression)
- *          l_int32              convertG4ToPSEmbed()
- *          l_int32              convertG4ToPS()
- *          static l_int32       convertG4ToPSString()
+ *          int32              convertG4ToPSEmbed()
+ *          int32              convertG4ToPS()
+ *          static int32       convertG4ToPSString()
  *          static char *generateG4PS()
  *
  *     For multipage tiff images
- *          l_int32              convertTiffMultipageToPS()
+ *          int32              convertTiffMultipageToPS()
  *
  *     For flate (gzip) compressed images (e.g., png)
- *          l_int32              convertFlateToPSEmbed()
- *          l_int32              convertFlateToPS()
- *          static l_int32       convertFlateToPSString()
+ *          int32              convertFlateToPSEmbed()
+ *          int32              convertFlateToPS()
+ *          static int32       convertFlateToPSString()
  *          static char *generateFlatePS()
  *
  *     Write to memory
- *          l_int32              pixWriteMemPS()
+ *          int32              pixWriteMemPS()
  *
  *     Converting resolution
- *          l_int32              getResLetterPage()
- *          static l_int32       getResA4Page()
+ *          int32              getResLetterPage()
+ *          static int32       getResA4Page()
  *
  *     Setting flag for writing bounding box hint
  *          void                 l_psWriteBoundingBox()
@@ -100,18 +87,18 @@
 /* --------------------------------------------*/
 
 /* Set default for writing bounding box hint */
-static l_int32 var_PS_WRITE_BOUNDING_BOX = 1;
+static int32 var_PS_WRITE_BOUNDING_BOX = 1;
 
 #define Bufsize 512
-static const l_int32 DefaultInputRes = 300; /* typical scan res, ppi */
-static const l_int32 MinRes          = 5;
-static const l_int32 MaxRes          = 3000;
+static const int32 DefaultInputRes = 300; /* typical scan res, ppi */
+static const int32 MinRes          = 5;
+static const int32 MaxRes          = 3000;
 
 /* For computing resolution that fills page to desired amount */
-static const l_int32 LetterWidth  = 612; /* points */
-static const l_int32 LetterHeight = 792; /* points */
-static const l_int32 A4Width      = 595; /* points */
-static const l_int32 A4Height     = 842; /* points */
+static const int32 LetterWidth  = 612; /* points */
+static const int32 LetterHeight = 792; /* points */
+static const int32 A4Width      = 595; /* points */
+static const int32 A4Height     = 842; /* points */
 static const float DefaultFillFraction = 0.95;
 
 #ifndef  NO_CONSOLE_IO
@@ -131,32 +118,32 @@ static const float DefaultFillFraction = 0.95;
  * on a page.  */
 
 /* Static helper functions */
-static void getScaledParametersPS(BOX * box, l_int32 wpix, l_int32 hpix,
-    l_int32 res, float scale,
+static void getScaledParametersPS(BOX * box, int32 wpix, int32 hpix,
+    int32 res, float scale,
     float * pxpt, float * pypt,
     float * pwpt, float * phpt);
 static void convertByteToHexAscii(uint8 byteval, char * pnib1, char * pnib2);
 static l_ok convertJpegToPSString(const char * filein, char ** poutstr,
-    l_int32 * pnbytes, l_int32 x, l_int32 y,
-    l_int32 res, float scale,
-    l_int32 pageno, l_int32 endpage);
+    int32 * pnbytes, int32 x, int32 y,
+    int32 res, float scale,
+    int32 pageno, int32 endpage);
 static char * generateJpegPS(const char * filein, L_COMP_DATA * cid,
     float xpt, float ypt, float wpt,
-    float hpt, l_int32 pageno, l_int32 endpage);
+    float hpt, int32 pageno, int32 endpage);
 static l_ok convertG4ToPSString(const char * filein, char ** poutstr,
-    l_int32 * pnbytes, l_int32 x, l_int32 y,
-    l_int32 res, float scale, l_int32 pageno,
-    l_int32 maskflag, l_int32 endpage);
+    int32 * pnbytes, int32 x, int32 y,
+    int32 res, float scale, int32 pageno,
+    int32 maskflag, int32 endpage);
 static char * generateG4PS(const char * filein, L_COMP_DATA * cid, float xpt,
     float ypt, float wpt, float hpt,
-    l_int32 maskflag, l_int32 pageno, l_int32 endpage);
+    int32 maskflag, int32 pageno, int32 endpage);
 static l_ok convertFlateToPSString(const char * filein, char ** poutstr,
-    l_int32 * pnbytes, l_int32 x, l_int32 y,
-    l_int32 res, float scale,
-    l_int32 pageno, l_int32 endpage);
+    int32 * pnbytes, int32 x, int32 y,
+    int32 res, float scale,
+    int32 pageno, int32 endpage);
 static char * generateFlatePS(const char * filein, L_COMP_DATA * cid,
     float xpt, float ypt, float wpt,
-    float hpt, l_int32 pageno, l_int32 endpage);
+    float hpt, int32 pageno, int32 endpage);
 
 /*-------------------------------------------------------------*
 *                  For uncompressed images                    *
@@ -181,7 +168,7 @@ static char * generateFlatePS(const char * filein, L_COMP_DATA * cid,
 l_ok pixWritePSEmbed(const char * filein,
     const char * fileout)
 {
-	l_int32 w, h, ret;
+	int32 w, h, ret;
 	float scale;
 	FILE * fp;
 	PIX * pix;
@@ -232,26 +219,26 @@ l_ok pixWritePSEmbed(const char * filein,
 l_ok pixWriteStreamPS(FILE * fp,
     PIX * pix,
     BOX       * box,
-    l_int32 res,
+    int32 res,
     float scale)
 {
 	char * outstr;
-	l_int32 length;
+	int32 length;
 	PIX * pixc;
 
 	PROCNAME(__FUNCTION__);
 
 	if(!fp)
-		return (l_int32)ERROR_INT("stream not open", procName, 1);
+		return (int32)ERROR_INT("stream not open", procName, 1);
 	if(!pix)
-		return (l_int32)ERROR_INT("pix not defined", procName, 1);
+		return (int32)ERROR_INT("pix not defined", procName, 1);
 
 	if((pixc = pixConvertForPSWrap(pix)) == NULL)
-		return (l_int32)ERROR_INT("pixc not made", procName, 1);
+		return (int32)ERROR_INT("pixc not made", procName, 1);
 
 	if((outstr = pixWriteStringPS(pixc, box, res, scale)) == NULL) {
 		pixDestroy(&pixc);
-		return (l_int32)ERROR_INT("outstr not made", procName, 1);
+		return (int32)ERROR_INT("outstr not made", procName, 1);
 	}
 	length = strlen(outstr);
 	fwrite(outstr, 1, length, fp);
@@ -329,16 +316,16 @@ l_ok pixWriteStreamPS(FILE * fp,
  */
 char * pixWriteStringPS(PIX * pixs,
     BOX       * box,
-    l_int32 res,
+    int32 res,
     float scale)
 {
 	char nib1, nib2;
 	char      * hexdata, * outstr;
 	uint8 byteval;
-	l_int32 i, j, k, w, h, d;
+	int32 i, j, k, w, h, d;
 	float wpt, hpt, xpt, ypt;
-	l_int32 wpl, psbpl, hexbytes, boxflag, bps;
-	l_uint32  * line, * data;
+	int32 wpl, psbpl, hexbytes, boxflag, bps;
+	uint32  * line, * data;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -437,16 +424,16 @@ char * pixWriteStringPS(PIX * pixs,
  * </pre>
  */
 char * generateUncompressedPS(char      * hexdata,
-    l_int32 w,
-    l_int32 h,
-    l_int32 d,
-    l_int32 psbpl,
-    l_int32 bps,
+    int32 w,
+    int32 h,
+    int32 d,
+    int32 psbpl,
+    int32 bps,
     float xpt,
     float ypt,
     float wpt,
     float hpt,
-    l_int32 boxflag)
+    int32 boxflag)
 {
 	char * outstr;
 	char bigbuf[Bufsize];
@@ -544,16 +531,16 @@ char * generateUncompressedPS(char      * hexdata,
  * </pre>
  */
 static void getScaledParametersPS(BOX        * box,
-    l_int32 wpix,
-    l_int32 hpix,
-    l_int32 res,
+    int32 wpix,
+    int32 hpix,
+    int32 res,
     float scale,
     float * pxpt,
     float * pypt,
     float * pwpt,
     float * phpt)
 {
-	l_int32 bx, by, bw, bh;
+	int32 bx, by, bw, bh;
 	float winch, hinch, xinch, yinch, fres;
 
 	PROCNAME(__FUNCTION__);
@@ -567,7 +554,7 @@ static void getScaledParametersPS(BOX        * box,
 		scale = 1.0;
 	if(scale != 1.0) {
 		fres = (float)res / scale;
-		res = (l_int32)fres;
+		res = (int32)fres;
 	}
 
 	/* Limit valid resolution interval */
@@ -664,7 +651,7 @@ l_ok convertJpegToPSEmbed(const char * filein,
     const char * fileout)
 {
 	char * outstr;
-	l_int32 w, h, nbytes, ret;
+	int32 w, h, nbytes, ret;
 	float xpt, ypt, wpt, hpt;
 	L_COMP_DATA  * cid;
 
@@ -778,15 +765,15 @@ l_ok convertJpegToPSEmbed(const char * filein,
 l_ok convertJpegToPS(const char * filein,
     const char * fileout,
     const char * operation,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32 x,
+    int32 y,
+    int32 res,
     float scale,
-    l_int32 pageno,
-    l_int32 endpage)
+    int32 pageno,
+    int32 endpage)
 {
 	char * outstr;
-	l_int32 nbytes;
+	int32 nbytes;
 
 	PROCNAME(__FUNCTION__);
 
@@ -837,13 +824,13 @@ l_ok convertJpegToPS(const char * filein,
  */
 static l_ok convertJpegToPSString(const char * filein,
     char ** poutstr,
-    l_int32     * pnbytes,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32     * pnbytes,
+    int32 x,
+    int32 y,
+    int32 res,
     float scale,
-    l_int32 pageno,
-    l_int32 endpage)
+    int32 pageno,
+    int32 endpage)
 {
 	char * outstr;
 	float xpt, ypt, wpt, hpt;
@@ -933,10 +920,10 @@ static char * generateJpegPS(const char * filein,
     float ypt,
     float wpt,
     float hpt,
-    l_int32 pageno,
-    l_int32 endpage)
+    int32 pageno,
+    int32 endpage)
 {
-	l_int32 w, h, bps, spp;
+	int32 w, h, bps, spp;
 	char * outstr;
 	char bigbuf[Bufsize];
 	SARRAY * sa;
@@ -1055,7 +1042,7 @@ l_ok convertG4ToPSEmbed(const char * filein,
     const char * fileout)
 {
 	char * outstr;
-	l_int32 w, h, nbytes, ret;
+	int32 w, h, nbytes, ret;
 	float xpt, ypt, wpt, hpt;
 	L_COMP_DATA  * cid;
 
@@ -1159,16 +1146,16 @@ l_ok convertG4ToPSEmbed(const char * filein,
 l_ok convertG4ToPS(const char * filein,
     const char * fileout,
     const char * operation,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32 x,
+    int32 y,
+    int32 res,
     float scale,
-    l_int32 pageno,
-    l_int32 maskflag,
-    l_int32 endpage)
+    int32 pageno,
+    int32 maskflag,
+    int32 endpage)
 {
 	char * outstr;
-	l_int32 nbytes, ret;
+	int32 nbytes, ret;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1219,14 +1206,14 @@ l_ok convertG4ToPS(const char * filein,
  */
 static l_ok convertG4ToPSString(const char * filein,
     char ** poutstr,
-    l_int32     * pnbytes,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32     * pnbytes,
+    int32 x,
+    int32 y,
+    int32 res,
     float scale,
-    l_int32 pageno,
-    l_int32 maskflag,
-    l_int32 endpage)
+    int32 pageno,
+    int32 maskflag,
+    int32 endpage)
 {
 	char * outstr;
 	float xpt, ypt, wpt, hpt;
@@ -1318,11 +1305,11 @@ static char * generateG4PS(const char * filein,
     float ypt,
     float wpt,
     float hpt,
-    l_int32 maskflag,
-    l_int32 pageno,
-    l_int32 endpage)
+    int32 maskflag,
+    int32 pageno,
+    int32 endpage)
 {
-	l_int32 w, h;
+	int32 w, h;
 	char * outstr;
 	char bigbuf[Bufsize];
 	SARRAY * sa;
@@ -1447,7 +1434,7 @@ l_ok convertTiffMultipageToPS(const char * filein,
     float fillfract)
 {
 	char      * tempfile;
-	l_int32 i, npages, w, h, istiff;
+	int32 i, npages, w, h, istiff;
 	float scale;
 	PIX * pix, * pixs;
 	FILE * fp;
@@ -1524,7 +1511,7 @@ l_ok convertFlateToPSEmbed(const char * filein,
     const char * fileout)
 {
 	char * outstr;
-	l_int32 w, h, nbytes, ret;
+	int32 w, h, nbytes, ret;
 	float xpt, ypt, wpt, hpt;
 	L_COMP_DATA  * cid;
 
@@ -1636,15 +1623,15 @@ l_ok convertFlateToPSEmbed(const char * filein,
 l_ok convertFlateToPS(const char * filein,
     const char * fileout,
     const char * operation,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32 x,
+    int32 y,
+    int32 res,
     float scale,
-    l_int32 pageno,
-    l_int32 endpage)
+    int32 pageno,
+    int32 endpage)
 {
 	char * outstr;
-	l_int32 nbytes, ret;
+	int32 nbytes, ret;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1700,13 +1687,13 @@ l_ok convertFlateToPS(const char * filein,
  */
 static l_ok convertFlateToPSString(const char * filein,
     char ** poutstr,
-    l_int32     * pnbytes,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32     * pnbytes,
+    int32 x,
+    int32 y,
+    int32 res,
     float scale,
-    l_int32 pageno,
-    l_int32 endpage)
+    int32 pageno,
+    int32 endpage)
 {
 	char * outstr;
 	float xpt, ypt, wpt, hpt;
@@ -1786,10 +1773,10 @@ static char * generateFlatePS(const char * filein,
     float ypt,
     float wpt,
     float hpt,
-    l_int32 pageno,
-    l_int32 endpage)
+    int32 pageno,
+    int32 endpage)
 {
-	l_int32 w, h, bps, spp;
+	int32 w, h, bps, spp;
 	char * outstr;
 	char bigbuf[Bufsize];
 	SARRAY * sa;
@@ -1925,7 +1912,7 @@ l_ok pixWriteMemPS(uint8  ** pdata,
     size_t * psize,
     PIX * pix,
     BOX       * box,
-    l_int32 res,
+    int32 res,
     float scale)
 {
 	PROCNAME(__FUNCTION__);
@@ -1954,16 +1941,16 @@ l_ok pixWriteMemPS(uint8  ** pdata,
  *                           not to be exceeded; use 0 for default
  * \return  resolution
  */
-l_int32 getResLetterPage(l_int32 w,
-    l_int32 h,
+int32 getResLetterPage(int32 w,
+    int32 h,
     float fillfract)
 {
-	l_int32 resw, resh, res;
+	int32 resw, resh, res;
 
 	if(fillfract == 0.0)
 		fillfract = DefaultFillFraction;
-	resw = (l_int32)((w * 72.) / (LetterWidth * fillfract));
-	resh = (l_int32)((h * 72.) / (LetterHeight * fillfract));
+	resw = (int32)((w * 72.) / (LetterWidth * fillfract));
+	resh = (int32)((h * 72.) / (LetterHeight * fillfract));
 	res = MAX(resw, resh);
 	return res;
 }
@@ -1977,16 +1964,16 @@ l_int32 getResLetterPage(l_int32 w,
  *                           not to be exceeded; use 0 for default
  * \return  resolution
  */
-l_int32 getResA4Page(l_int32 w,
-    l_int32 h,
+int32 getResA4Page(int32 w,
+    int32 h,
     float fillfract)
 {
-	l_int32 resw, resh, res;
+	int32 resw, resh, res;
 
 	if(fillfract == 0.0)
 		fillfract = DefaultFillFraction;
-	resw = (l_int32)((w * 72.) / (A4Width * fillfract));
-	resh = (l_int32)((h * 72.) / (A4Height * fillfract));
+	resw = (int32)((w * 72.) / (A4Width * fillfract));
+	resh = (int32)((h * 72.) / (A4Height * fillfract));
 	res = MAX(resw, resh);
 	return res;
 }
@@ -1994,7 +1981,7 @@ l_int32 getResA4Page(l_int32 w,
 /*-------------------------------------------------------------*
 *           Setting flag for writing bounding box hint        *
 *-------------------------------------------------------------*/
-void l_psWriteBoundingBox(l_int32 flag)
+void l_psWriteBoundingBox(int32 flag)
 {
 	var_PS_WRITE_BOUNDING_BOX = flag;
 }

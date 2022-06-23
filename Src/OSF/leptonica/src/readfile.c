@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file readfile.c:  reads image on file into memory
  * <pre>
@@ -37,23 +24,23 @@
  *           PIX *pixReadStream()
  *
  *      Read header information from file
- *           l_int32    pixReadHeader()
+ *           int32    pixReadHeader()
  *
  *      Format finders
- *           l_int32    findFileFormat()
- *           l_int32    findFileFormatStream()
- *           l_int32    findFileFormatBuffer()
- *           l_int32    fileFormatIsTiff()
+ *           int32    findFileFormat()
+ *           int32    findFileFormatStream()
+ *           int32    findFileFormatBuffer()
+ *           int32    fileFormatIsTiff()
  *
  *      Read from memory
  *           PIX *pixReadMem()
- *           l_int32    pixReadHeaderMem()
+ *           int32    pixReadHeaderMem()
  *
  *      Output image file information
  *           void       writeImageFileInfo()
  *
  *      Test function for I/O with different formats
- *           l_int32    ioFormatTest()
+ *           int32    ioFormatTest()
  *
  *  Supported file formats:
  *  (1) Reading is supported without any external libraries:
@@ -145,7 +132,7 @@ PIXA * pixaReadFiles(const char * dirname,
 PIXA * pixaReadFilesSA(SARRAY * sa)
 {
 	char * str;
-	l_int32 i, n;
+	int32 i, n;
 	PIX * pix;
 	PIXA    * pixa;
 
@@ -215,7 +202,7 @@ PIX * pixRead(const char * filename)
  * </pre>
  */
 PIX * pixReadWithHint(const char * filename,
-    l_int32 hint)
+    int32 hint)
 {
 	FILE * fp;
 	PIX * pix;
@@ -264,10 +251,10 @@ PIX * pixReadWithHint(const char * filename,
  * </pre>
  */
 PIX * pixReadIndexed(SARRAY * sa,
-    l_int32 index)
+    int32 index)
 {
 	char * fname;
-	l_int32 n;
+	int32 n;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -303,9 +290,9 @@ PIX * pixReadIndexed(SARRAY * sa,
  * </pre>
  */
 PIX * pixReadStream(FILE * fp,
-    l_int32 hint)
+    int32 hint)
 {
-	l_int32 format, ret, valid;
+	int32 format, ret, valid;
 	uint8  * comment;
 	PIX * pix;
 	PIXCMAP  * cmap;
@@ -424,15 +411,15 @@ PIX * pixReadStream(FILE * fp,
  * </pre>
  */
 l_ok pixReadHeader(const char * filename,
-    l_int32     * pformat,
-    l_int32     * pw,
-    l_int32     * ph,
-    l_int32     * pbps,
-    l_int32     * pspp,
-    l_int32     * piscmap)
+    int32     * pformat,
+    int32     * pw,
+    int32     * ph,
+    int32     * pbps,
+    int32     * pspp,
+    int32     * piscmap)
 {
-	l_int32 format, ret, w, h, d, bps, spp, iscmap;
-	l_int32 type; /* ignored */
+	int32 format, ret, w, h, d, bps, spp, iscmap;
+	int32 type; /* ignored */
 	FILE * fp;
 	PIX * pix;
 
@@ -560,9 +547,9 @@ l_ok pixReadHeader(const char * filename,
  * \return  0 if OK, 1 on error or if format is not recognized
  */
 l_ok findFileFormat(const char * filename,
-    l_int32     * pformat)
+    int32     * pformat)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -593,10 +580,10 @@ l_ok findFileFormat(const char * filename,
  * </pre>
  */
 l_ok findFileFormatStream(FILE * fp,
-    l_int32 * pformat)
+    int32 * pformat)
 {
 	uint8 firstbytes[13];
-	l_int32 format;
+	int32 format;
 
 	PROCNAME(__FUNCTION__);
 
@@ -643,7 +630,7 @@ l_ok findFileFormatStream(FILE * fp,
  * </pre>
  */
 l_ok findFileFormatBuffer(const uint8  * buf,
-    l_int32 * pformat)
+    int32 * pformat)
 {
 	uint16 twobytepw;
 
@@ -769,9 +756,9 @@ l_ok findFileFormatBuffer(const uint8  * buf,
  * \param[in]    fp    file stream
  * \return  1 if file is tiff; 0 otherwise or on error
  */
-l_int32 fileFormatIsTiff(FILE * fp)
+int32 fileFormatIsTiff(FILE * fp)
 {
-	l_int32 format;
+	int32 format;
 
 	PROCNAME(__FUNCTION__);
 
@@ -814,7 +801,7 @@ l_int32 fileFormatIsTiff(FILE * fp)
 PIX * pixReadMem(const uint8  * data,
     size_t size)
 {
-	l_int32 format, valid;
+	int32 format, valid;
 	PIX * pix;
 	PIXCMAP  * cmap;
 
@@ -941,15 +928,15 @@ PIX * pixReadMem(const uint8  * data,
  */
 l_ok pixReadHeaderMem(const uint8  * data,
     size_t size,
-    l_int32 * pformat,
-    l_int32 * pw,
-    l_int32 * ph,
-    l_int32 * pbps,
-    l_int32 * pspp,
-    l_int32 * piscmap)
+    int32 * pformat,
+    int32 * pw,
+    int32 * ph,
+    int32 * pbps,
+    int32 * pspp,
+    int32 * piscmap)
 {
-	l_int32 format, ret, w, h, d, bps, spp, iscmap;
-	l_int32 type; /* not used */
+	int32 format, ret, w, h, d, bps, spp, iscmap;
+	int32 type; /* not used */
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -1041,7 +1028,7 @@ l_ok pixReadHeaderMem(const uint8  * data,
 		    return ERROR_INT("Pdf reading is not supported\n", procName, 1);
 
 		case IFF_SPIX:
-		    ret = sreadHeaderSpix((l_uint32*)data, size, &w, &h, &bps,
+		    ret = sreadHeaderSpix((uint32*)data, size, &w, &h, &bps,
 			    &spp, &iscmap);
 		    if(ret)
 			    return ERROR_INT("pnm: no header info returned", procName, 1);
@@ -1086,11 +1073,11 @@ extern const char * ImageFileFormatExtensions[];
  */
 l_ok writeImageFileInfo(const char * filename,
     FILE        * fpout,
-    l_int32 headeronly)
+    int32 headeronly)
 {
 	char     * text;
-	l_int32 w, h, d, wpl, count, npages, color;
-	l_int32 format, bps, spp, iscmap, xres, yres, transparency;
+	int32 w, h, d, wpl, count, npages, color;
+	int32 format, bps, spp, iscmap, xres, yres, transparency;
 	FILE * fpin;
 	PIX * pix, * pixt;
 	PIXCMAP  * cmap;
@@ -1254,7 +1241,7 @@ l_ok writeImageFileInfo(const char * filename,
  */
 l_ok ioFormatTest(const char * filename)
 {
-	l_int32 w, h, d, depth, equal, problems;
+	int32 w, h, d, depth, equal, problems;
 	float diff;
 	BOX       * box;
 	PIX * pixs, * pixc, * pix1, * pix2;

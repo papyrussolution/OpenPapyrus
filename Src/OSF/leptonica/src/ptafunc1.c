@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file  ptafunc1.c
  * <pre>
@@ -40,8 +27,8 @@
  *
  *      Simple rearrangements
  *           PTA *ptaSubsample()
- *           l_int32   ptaJoin()
- *           l_int32   ptaaJoin()
+ *           int32   ptaJoin()
+ *           int32   ptaaJoin()
  *           PTA *ptaReverse()
  *           PTA *ptaTranspose()
  *           PTA *ptaCyclicPerm()
@@ -49,35 +36,35 @@
  *
  *      Geometric
  *           BOX      *ptaGetBoundingRegion()
- *           l_int32 *ptaGetRange()
+ *           int32 *ptaGetRange()
  *           PTA *ptaGetInsideBox()
  *           PTA *pixFindCornerPixels()
- *           l_int32   ptaContainsPt()
- *           l_int32   ptaTestIntersection()
+ *           int32   ptaContainsPt()
+ *           int32   ptaTestIntersection()
  *           PTA *ptaTransform()
- *           l_int32   ptaPtInsidePolygon()
+ *           int32   ptaPtInsidePolygon()
  *           float l_angleBetweenVectors()
- *           l_int32   ptaPolygonIsConvex()
+ *           int32   ptaPolygonIsConvex()
  *
  *      Min/max and filtering
- *           l_int32   ptaGetMinMax()
+ *           int32   ptaGetMinMax()
  *           PTA *ptaSelectByValue()
  *           PTA *ptaCropToMask()
  *
  *      Least Squares Fit
- *           l_int32   ptaGetLinearLSF()
- *           l_int32   ptaGetQuadraticLSF()
- *           l_int32   ptaGetCubicLSF()
- *           l_int32   ptaGetQuarticLSF()
- *           l_int32   ptaNoisyLinearLSF()
- *           l_int32   ptaNoisyQuadraticLSF()
- *           l_int32   applyLinearFit()
- *           l_int32   applyQuadraticFit()
- *           l_int32   applyCubicFit()
- *           l_int32   applyQuarticFit()
+ *           int32   ptaGetLinearLSF()
+ *           int32   ptaGetQuadraticLSF()
+ *           int32   ptaGetCubicLSF()
+ *           int32   ptaGetQuarticLSF()
+ *           int32   ptaNoisyLinearLSF()
+ *           int32   ptaNoisyQuadraticLSF()
+ *           int32   applyLinearFit()
+ *           int32   applyQuadraticFit()
+ *           int32   applyCubicFit()
+ *           int32   applyQuarticFit()
  *
  *      Interconversions with Pix
- *           l_int32   pixPlotAlongPta()
+ *           int32   pixPlotAlongPta()
  *           PTA *ptaGetPixelsFromPix()
  *           PIX *pixGenerateFromPta()
  *           PTA *ptaGetBoundaryPixels()
@@ -88,7 +75,7 @@
  *      Interconversion with Numa
  *           PTA *numaConvertToPta1()
  *           PTA *numaConvertToPta2()
- *           l_int32   ptaConvertToNuma()
+ *           int32   ptaConvertToNuma()
  *
  *      Display Pta and Ptaa
  *           PIX *pixDisplayPta()
@@ -101,10 +88,9 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif  /* M_PI */
-
+//#ifndef M_PI
+//#define M_PI 3.14159265358979323846
+//#endif  /* M_PI */
 /*---------------------------------------------------------------------*
 *                        Simple rearrangements                        *
 *---------------------------------------------------------------------*/
@@ -116,9 +102,9 @@
  * \return  ptad evenly sampled pt values from ptas, or NULL on error
  */
 PTA * ptaSubsample(PTA * ptas,
-    l_int32 subfactor)
+    int32 subfactor)
 {
-	l_int32 n, i;
+	int32 n, i;
 	float x, y;
 	PTA       * ptad;
 
@@ -158,10 +144,10 @@ PTA * ptaSubsample(PTA * ptas,
  */
 l_ok ptaJoin(PTA * ptad,
     PTA * ptas,
-    l_int32 istart,
-    l_int32 iend)
+    int32 istart,
+    int32 iend)
 {
-	l_int32 n, i, x, y;
+	int32 n, i, x, y;
 
 	PROCNAME(__FUNCTION__);
 
@@ -206,10 +192,10 @@ l_ok ptaJoin(PTA * ptad,
  */
 l_ok ptaaJoin(PTAA    * ptaad,
     PTAA    * ptaas,
-    l_int32 istart,
-    l_int32 iend)
+    int32 istart,
+    int32 iend)
 {
-	l_int32 n, i;
+	int32 n, i;
 	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
@@ -243,9 +229,9 @@ l_ok ptaaJoin(PTAA    * ptaad,
  * \return  ptad reversed pta, or NULL on error
  */
 PTA * ptaReverse(PTA * ptas,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 n, i, ix, iy;
+	int32 n, i, ix, iy;
 	float x, y;
 	PTA       * ptad;
 
@@ -279,7 +265,7 @@ PTA * ptaReverse(PTA * ptas,
  */
 PTA * ptaTranspose(PTA * ptas)
 {
-	l_int32 n, i;
+	int32 n, i;
 	float x, y;
 	PTA       * ptad;
 
@@ -316,11 +302,11 @@ PTA * ptaTranspose(PTA * ptas)
  * </pre>
  */
 PTA * ptaCyclicPerm(PTA * ptas,
-    l_int32 xs,
-    l_int32 ys)
+    int32 xs,
+    int32 ys)
 {
-	l_int32 n, i, x, y, j, index, state;
-	l_int32 x1, y1, x2, y2;
+	int32 n, i, x, y, j, index, state;
+	int32 x1, y1, x2, y2;
 	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
@@ -370,10 +356,10 @@ PTA * ptaCyclicPerm(PTA * ptas,
  * \return  ptad, or NULL on error
  */
 PTA * ptaSelectRange(PTA * ptas,
-    l_int32 first,
-    l_int32 last)
+    int32 first,
+    int32 last)
 {
-	l_int32 n, npt, i;
+	int32 n, npt, i;
 	float x, y;
 	PTA       * ptad;
 
@@ -424,7 +410,7 @@ PTA * ptaSelectRange(PTA * ptas,
  */
 BOX * ptaGetBoundingRegion(PTA * pta)
 {
-	l_int32 n, i, x, y, minx, maxx, miny, maxy;
+	int32 n, i, x, y, minx, maxx, miny, maxy;
 
 	PROCNAME(__FUNCTION__);
 
@@ -470,7 +456,7 @@ l_ok ptaGetRange(PTA        * pta,
     float * pminy,
     float * pmaxy)
 {
-	l_int32 n, i;
+	int32 n, i;
 	float x, y, minx, maxx, miny, maxy;
 
 	PROCNAME(__FUNCTION__);
@@ -516,7 +502,7 @@ PTA * ptaGetInsideBox(PTA * ptas,
     BOX  * box)
 {
 	PTA       * ptad;
-	l_int32 n, i, contains;
+	int32 n, i, contains;
 	float x, y;
 
 	PROCNAME(__FUNCTION__);
@@ -552,8 +538,8 @@ PTA * ptaGetInsideBox(PTA * ptas,
  */
 PTA * pixFindCornerPixels(PIX  * pixs)
 {
-	l_int32 i, j, x, y, w, h, wpl, mindim, found;
-	l_uint32  * data, * line;
+	int32 i, j, x, y, w, h, wpl, mindim, found;
+	uint32  * data, * line;
 	PTA       * pta;
 
 	PROCNAME(__FUNCTION__);
@@ -640,11 +626,11 @@ PTA * pixFindCornerPixels(PIX  * pixs)
  * \param[in]    x, y     point
  * \return  1 if contained, 0 otherwise or on error
  */
-l_int32 ptaContainsPt(PTA * pta,
-    l_int32 x,
-    l_int32 y)
+int32 ptaContainsPt(PTA * pta,
+    int32 x,
+    int32 y)
 {
-	l_int32 i, n, ix, iy;
+	int32 i, n, ix, iy;
 
 	PROCNAME(__FUNCTION__);
 
@@ -667,10 +653,10 @@ l_int32 ptaContainsPt(PTA * pta,
  * \return  bval which is 1 if they have any elements in common;
  *              0 otherwise or on error.
  */
-l_int32 ptaTestIntersection(PTA * pta1,
+int32 ptaTestIntersection(PTA * pta1,
     PTA * pta2)
 {
-	l_int32 i, j, n1, n2, x1, y1, x2, y2;
+	int32 i, j, n1, n2, x1, y1, x2, y2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -707,12 +693,12 @@ l_int32 ptaTestIntersection(PTA * pta1,
  * </pre>
  */
 PTA * ptaTransform(PTA       * ptas,
-    l_int32 shiftx,
-    l_int32 shifty,
+    int32 shiftx,
+    int32 shifty,
     float scalex,
     float scaley)
 {
-	l_int32 n, i, x, y;
+	int32 n, i, x, y;
 	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
@@ -723,8 +709,8 @@ PTA * ptaTransform(PTA       * ptas,
 	ptad = ptaCreate(n);
 	for(i = 0; i < n; i++) {
 		ptaGetIPt(ptas, i, &x, &y);
-		x = (l_int32)(scalex * (x + shiftx) + 0.5);
-		y = (l_int32)(scaley * (y + shifty) + 0.5);
+		x = (int32)(scalex * (x + shiftx) + 0.5);
+		y = (int32)(scaley * (y + shifty) + 0.5);
 		ptaAddPt(ptad, x, y);
 	}
 
@@ -744,12 +730,12 @@ PTA * ptaTransform(PTA       * ptas,
  *  is 0 if the point is outside the polygon and 2*pi if inside.
  *  The sign will be positive if traversed cw and negative if ccw.
  */
-l_int32 ptaPtInsidePolygon(PTA       * pta,
+int32 ptaPtInsidePolygon(PTA       * pta,
     float x,
     float y,
-    l_int32   * pinside)
+    int32   * pinside)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float sum, x1, y1, x2, y2, xp1, yp1, xp2, yp2;
 
 	PROCNAME(__FUNCTION__);
@@ -773,8 +759,7 @@ l_int32 ptaPtInsidePolygon(PTA       * pta,
 		y2 = yp2 - y;
 		sum += l_angleBetweenVectors(x1, y1, x2, y2);
 	}
-
-	if(L_ABS(sum) > M_PI)
+	if(L_ABS(sum) > SMathConst::Pi_f)
 		*pinside = 1;
 	return 0;
 }
@@ -794,16 +779,11 @@ l_int32 ptaPtInsidePolygon(PTA       * pta,
  *          positive, but the result is folded into the interval [-pi, pi].
  * </pre>
  */
-float l_angleBetweenVectors(float x1,
-    float y1,
-    float x2,
-    float y2)
+float l_angleBetweenVectors(float x1, float y1, float x2, float y2)
 {
-	double ang;
-
-	ang = atan2(y2, x2) - atan2(y1, x1);
-	if(ang > M_PI) ang -= 2.0 * M_PI;
-	if(ang < -M_PI) ang += 2.0 * M_PI;
+	double ang = atan2(y2, x2) - atan2(y1, x1);
+	if(ang > SMathConst::Pi) ang -= 2.0 * SMathConst::Pi_f;
+	if(ang < -SMathConst::Pi) ang += 2.0 * SMathConst::Pi_f;
 	return ang;
 }
 
@@ -827,10 +807,10 @@ float l_angleBetweenVectors(float x1,
  *          the second point, or to the right of it.
  * </pre>
  */
-l_int32 ptaPolygonIsConvex(PTA * pta,
-    l_int32 * pisconvex)
+int32 ptaPolygonIsConvex(PTA * pta,
+    int32 * pisconvex)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float x0, y0, x1, y1, x2, y2;
 	double cprod;
 
@@ -882,7 +862,7 @@ l_ok ptaGetMinMax(PTA        * pta,
     float * pxmax,
     float * pymax)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float x, y, xmin, ymin, xmax, ymax;
 
 	PROCNAME(__FUNCTION__);
@@ -930,10 +910,10 @@ l_ok ptaGetMinMax(PTA        * pta,
 PTA * ptaSelectByValue(PTA       * ptas,
     float xth,
     float yth,
-    l_int32 type,
-    l_int32 relation)
+    int32 type,
+    int32 relation)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float x, y;
 	PTA       * ptad;
 
@@ -999,8 +979,8 @@ PTA * ptaSelectByValue(PTA       * ptas,
 PTA * ptaCropToMask(PTA * ptas,
     PIX  * pixm)
 {
-	l_int32 i, n, x, y;
-	l_uint32 val;
+	int32 i, n, x, y;
+	uint32 val;
 	PTA * ptad;
 
 	PROCNAME(__FUNCTION__);
@@ -1066,7 +1046,7 @@ l_ok ptaGetLinearLSF(PTA        * pta,
     float * pb,
     NUMA ** pnafit)
 {
-	l_int32 n, i;
+	int32 n, i;
 	float a, b, factor, sx, sy, sxx, sxy, val;
 	float * xa, * ya;
 
@@ -1168,7 +1148,7 @@ l_ok ptaGetQuadraticLSF(PTA        * pta,
     float * pc,
     NUMA ** pnafit)
 {
-	l_int32 n, i, ret;
+	int32 n, i, ret;
 	float x, y, sx, sy, sx2, sx3, sx4, sxy, sx2y;
 	float * xa, * ya;
 	float * f[3];
@@ -1280,7 +1260,7 @@ l_ok ptaGetCubicLSF(PTA        * pta,
     float * pd,
     NUMA ** pnafit)
 {
-	l_int32 n, i, ret;
+	int32 n, i, ret;
 	float x, y, sx, sy, sx2, sx3, sx4, sx5, sx6, sxy, sx2y, sx3y;
 	float * xa, * ya;
 	float * f[4];
@@ -1409,7 +1389,7 @@ l_ok ptaGetQuarticLSF(PTA        * pta,
     float * pe,
     NUMA ** pnafit)
 {
-	l_int32 n, i, ret;
+	int32 n, i, ret;
 	float x, y, sx, sy, sx2, sx3, sx4, sx5, sx6, sx7, sx8;
 	float sxy, sx2y, sx3y, sx4y;
 	float * xa, * ya;
@@ -1543,7 +1523,7 @@ l_ok ptaNoisyLinearLSF(PTA        * pta,
     float * pmederr,
     NUMA ** pnafit)
 {
-	l_int32 n, i, ret;
+	int32 n, i, ret;
 	float x, y, yf, val, mederr;
 	NUMA * nafit, * naerror;
 	PTA       * ptad;
@@ -1629,7 +1609,7 @@ l_ok ptaNoisyQuadraticLSF(PTA        * pta,
     float * pmederr,
     NUMA ** pnafit)
 {
-	l_int32 n, i, ret;
+	int32 n, i, ret;
 	float x, y, yf, val, mederr;
 	NUMA * nafit, * naerror;
 	PTA       * ptad;
@@ -1808,14 +1788,14 @@ l_ok applyQuarticFit(float a,
  */
 l_ok pixPlotAlongPta(PIX         * pixs,
     PTA         * pta,
-    l_int32 outformat,
+    int32 outformat,
     const char * title)
 {
 	char buffer[128];
 	char           * rtitle, * gtitle, * btitle;
-	static l_int32 count = 0; /* require separate temp files for each call */
-	l_int32 i, x, y, d, w, h, npts, rval, gval, bval;
-	l_uint32 val;
+	static int32 count = 0; /* require separate temp files for each call */
+	int32 i, x, y, d, w, h, npts, rval, gval, bval;
+	uint32 val;
 	NUMA           * na, * nar, * nag, * nab;
 	PIX            * pixt;
 
@@ -1909,8 +1889,8 @@ l_ok pixPlotAlongPta(PIX         * pixs,
 PTA * ptaGetPixelsFromPix(PIX  * pixs,
     BOX  * box)
 {
-	l_int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh;
-	l_uint32  * data, * line;
+	int32 i, j, w, h, wpl, xstart, xend, ystart, yend, bw, bh;
+	uint32  * data, * line;
 	PTA       * pta;
 
 	PROCNAME(__FUNCTION__);
@@ -1958,10 +1938,10 @@ PTA * ptaGetPixelsFromPix(PIX  * pixs,
  * </pre>
  */
 PIX * pixGenerateFromPta(PTA * pta,
-    l_int32 w,
-    l_int32 h)
+    int32 w,
+    int32 h)
 {
-	l_int32 n, i, x, y;
+	int32 n, i, x, y;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -1997,7 +1977,7 @@ PIX * pixGenerateFromPta(PTA * pta,
  * </pre>
  */
 PTA * ptaGetBoundaryPixels(PIX * pixs,
-    l_int32 type)
+    int32 type)
 {
 	PIX  * pixt;
 	PTA * pta;
@@ -2044,12 +2024,12 @@ PTA * ptaGetBoundaryPixels(PIX * pixs,
  * </pre>
  */
 PTAA * ptaaGetBoundaryPixels(PIX * pixs,
-    l_int32 type,
-    l_int32 connectivity,
+    int32 type,
+    int32 connectivity,
     BOXA   ** pboxa,
     PIXA   ** ppixa)
 {
-	l_int32 i, n, w, h, x, y, bw, bh, left, right, top, bot;
+	int32 i, n, w, h, x, y, bw, bh, left, right, top, bot;
 	BOXA * boxa;
 	PIX * pixt1, * pixt2;
 	PIXA    * pixa;
@@ -2126,11 +2106,11 @@ PTAA * ptaaGetBoundaryPixels(PIX * pixs,
  * </pre>
  */
 PTAA * ptaaIndexLabeledPixels(PIX * pixs,
-    l_int32 * pncc)
+    int32 * pncc)
 {
-	l_int32 wpl, index, i, j, w, h;
-	l_uint32 maxval;
-	l_uint32  * data, * line;
+	int32 wpl, index, i, j, w, h;
+	uint32 maxval;
+	uint32  * data, * line;
 	PTA       * pta;
 	PTAA      * ptaa;
 
@@ -2181,11 +2161,11 @@ PTAA * ptaaIndexLabeledPixels(PIX * pixs,
  * </pre>
  */
 PTA * ptaGetNeighborPixLocs(PIX  * pixs,
-    l_int32 x,
-    l_int32 y,
-    l_int32 conn)
+    int32 x,
+    int32 y,
+    int32 conn)
 {
-	l_int32 w, h;
+	int32 w, h;
 	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
@@ -2236,7 +2216,7 @@ PTA * ptaGetNeighborPixLocs(PIX  * pixs,
  */
 PTA * numaConvertToPta1(NUMA * na)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float startx, delx, val;
 	PTA       * pta;
 
@@ -2265,7 +2245,7 @@ PTA * numaConvertToPta1(NUMA * na)
 PTA * numaConvertToPta2(NUMA * nax,
     NUMA * nay)
 {
-	l_int32 i, n, nx, ny;
+	int32 i, n, nx, ny;
 	float valx, valy;
 	PTA       * pta;
 
@@ -2300,7 +2280,7 @@ l_ok ptaConvertToNuma(PTA    * pta,
     NUMA ** pnax,
     NUMA ** pnay)
 {
-	l_int32 i, n;
+	int32 i, n;
 	float valx, valy;
 
 	PROCNAME(__FUNCTION__);
@@ -2349,8 +2329,8 @@ PIX * pixDisplayPta(PIX  * pixd,
     PIX  * pixs,
     PTA * pta)
 {
-	l_int32 i, n, w, h, x, y;
-	l_uint32 rpixel, gpixel, bpixel;
+	int32 i, n, w, h, x, y;
+	uint32 rpixel, gpixel, bpixel;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2413,11 +2393,11 @@ PIX * pixDisplayPtaaPattern(PIX * pixd,
     PIX * pixs,
     PTAA     * ptaa,
     PIX * pixp,
-    l_int32 cx,
-    l_int32 cy)
+    int32 cx,
+    int32 cy)
 {
-	l_int32 i, n;
-	l_uint32 color;
+	int32 i, n;
+	uint32 color;
 	PIXCMAP  * cmap;
 	PTA * pta;
 
@@ -2478,11 +2458,11 @@ PIX * pixDisplayPtaPattern(PIX * pixd,
     PIX * pixs,
     PTA * pta,
     PIX * pixp,
-    l_int32 cx,
-    l_int32 cy,
-    l_uint32 color)
+    int32 cx,
+    int32 cy,
+    uint32 color)
 {
-	l_int32 i, n, w, h, x, y;
+	int32 i, n, w, h, x, y;
 	PTA * ptat;
 
 	PROCNAME(__FUNCTION__);
@@ -2536,12 +2516,12 @@ PIX * pixDisplayPtaPattern(PIX * pixd,
 PTA * ptaReplicatePattern(PTA * ptas,
     PIX * pixp,
     PTA * ptap,
-    l_int32 cx,
-    l_int32 cy,
-    l_int32 w,
-    l_int32 h)
+    int32 cx,
+    int32 cy,
+    int32 w,
+    int32 h)
 {
-	l_int32 i, j, n, np, x, y, xp, yp, xf, yf;
+	int32 i, j, n, np, x, y, xp, yp, xf, yf;
 	PTA * ptat, * ptad;
 
 	PROCNAME(__FUNCTION__);
@@ -2586,8 +2566,8 @@ PTA * ptaReplicatePattern(PTA * ptas,
 PIX * pixDisplayPtaa(PIX * pixs,
     PTAA  * ptaa)
 {
-	l_int32 i, j, w, h, npta, npt, x, y, rv, gv, bv;
-	l_uint32  * pixela;
+	int32 i, j, w, h, npta, npt, x, y, rv, gv, bv;
+	uint32  * pixela;
 	NUMA * na1, * na2, * na3;
 	PIX * pixd;
 	PTA       * pta;
@@ -2607,7 +2587,7 @@ PIX * pixDisplayPtaa(PIX * pixs,
 	pixGetDimensions(pixd, &w, &h, NULL);
 
 	/* Make a colormap for the paths */
-	if((pixela = (l_uint32*)SAlloc::C(npta, sizeof(l_uint32))) == NULL) {
+	if((pixela = (uint32*)SAlloc::C(npta, sizeof(uint32))) == NULL) {
 		pixDestroy(&pixd);
 		return (PIX *)ERROR_PTR("calloc fail for pixela", procName, NULL);
 	}

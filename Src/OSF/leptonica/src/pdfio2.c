@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file pdfio2.c
  * <pre>
@@ -31,17 +18,17 @@
  *    Lower-level operations for generating pdf.
  *
  *     Intermediate function for single page, multi-image conversion
- *          l_int32              pixConvertToPdfData()
+ *          int32              pixConvertToPdfData()
  *
  *     Intermediate function for generating multipage pdf output
- *          l_int32              ptraConcatenatePdfToData()
+ *          int32              ptraConcatenatePdfToData()
  *
  *     Convert tiff multipage to pdf file
- *          l_int32              convertTiffMultipageToPdf()
+ *          int32              convertTiffMultipageToPdf()
  *
  *     Generates the CID, transcoding under some conditions
- *          l_int32              l_generateCIDataForPdf()
- *          l_int32              l_generateCIData()
+ *          int32              l_generateCIDataForPdf()
+ *          int32              l_generateCIData()
  *
  *       Lower-level CID generation without transcoding
  *          L_COMP_DATA         *l_generateFlateDataPdf()
@@ -51,7 +38,7 @@
  *          L_COMP_DATA         *l_generateG4Data()
  *
  *       Lower-level CID generation with transcoding
- *          l_int32              pixGenerateCIData()
+ *          int32              pixGenerateCIData()
  *          L_COMP_DATA         *l_generateFlateData()
  *          static L_COMP_DATA  *pixGenerateFlateData()
  *          static L_COMP_DATA  *pixGenerateJpegData()
@@ -59,24 +46,24 @@
  *          static L_COMP_DATA  *pixGenerateG4Data()
  *
  *       Other CID operations
- *          l_int32              cidConvertToPdfData()
+ *          int32              cidConvertToPdfData()
  *          void                 l_CIDataDestroy()
  *
  *     Helper functions for generating the output pdf string
- *          static l_int32       l_generatePdf()
+ *          static int32       l_generatePdf()
  *          static void          generateFixedStringsPdf()
  *          static char *generateEscapeString()
  *          static void          generateMediaboxPdf()
- *          static l_int32       generatePageStringPdf()
- *          static l_int32       generateContentStringPdf()
- *          static l_int32       generatePreXStringsPdf()
- *          static l_int32       generateColormapStringsPdf()
+ *          static int32       generatePageStringPdf()
+ *          static int32       generateContentStringPdf()
+ *          static int32       generatePreXStringsPdf()
+ *          static int32       generateColormapStringsPdf()
  *          static void          generateTrailerPdf()
- *          static l_int32       makeTrailerStringPdf()
- *          static l_int32       generateOutputDataPdf()
+ *          static int32       makeTrailerStringPdf()
+ *          static int32       generateOutputDataPdf()
  *
  *     Helper functions for generating multipage pdf output
- *          static l_int32       parseTrailerPdf()
+ *          static int32       parseTrailerPdf()
  *          static char *generatePagesObjStringPdf()
  *          static L_BYTEA      *substituteObjectNumbers()
  *
@@ -98,43 +85,43 @@
 /* --------------------------------------------*/
 
 /* Typical scan resolution in ppi (pixels/inch) */
-static const l_int32 DefaultInputRes = 300;
+static const int32 DefaultInputRes = 300;
 
 /* Static helpers */
 static L_COMP_DATA  * l_generateJp2kData(const char * fname);
-static L_COMP_DATA  * pixGenerateFlateData(PIX * pixs, l_int32 ascii85flag);
-static L_COMP_DATA  * pixGenerateJpegData(PIX * pixs, l_int32 ascii85flag,
-    l_int32 quality);
-static L_COMP_DATA  * pixGenerateJp2kData(PIX * pixs, l_int32 quality);
-static L_COMP_DATA  * pixGenerateG4Data(PIX * pixs, l_int32 ascii85flag);
+static L_COMP_DATA  * pixGenerateFlateData(PIX * pixs, int32 ascii85flag);
+static L_COMP_DATA  * pixGenerateJpegData(PIX * pixs, int32 ascii85flag,
+    int32 quality);
+static L_COMP_DATA  * pixGenerateJp2kData(PIX * pixs, int32 quality);
+static L_COMP_DATA  * pixGenerateG4Data(PIX * pixs, int32 ascii85flag);
 
-static l_int32       l_generatePdf(uint8 ** pdata, size_t * pnbytes,
+static int32       l_generatePdf(uint8 ** pdata, size_t * pnbytes,
     L_PDF_DATA  * lpd);
 static void          generateFixedStringsPdf(L_PDF_DATA * lpd);
 static char * generateEscapeString(const char * str);
 static void          generateMediaboxPdf(L_PDF_DATA * lpd);
-static l_int32       generatePageStringPdf(L_PDF_DATA * lpd);
-static l_int32       generateContentStringPdf(L_PDF_DATA * lpd);
-static l_int32       generatePreXStringsPdf(L_PDF_DATA * lpd);
-static l_int32       generateColormapStringsPdf(L_PDF_DATA * lpd);
+static int32       generatePageStringPdf(L_PDF_DATA * lpd);
+static int32       generateContentStringPdf(L_PDF_DATA * lpd);
+static int32       generatePreXStringsPdf(L_PDF_DATA * lpd);
+static int32       generateColormapStringsPdf(L_PDF_DATA * lpd);
 static void          generateTrailerPdf(L_PDF_DATA * lpd);
 static char * makeTrailerStringPdf(L_DNA * daloc);
-static l_int32       generateOutputDataPdf(uint8 ** pdata, size_t * pnbytes,
+static int32       generateOutputDataPdf(uint8 ** pdata, size_t * pnbytes,
     L_PDF_DATA * lpd);
 
-static l_int32       parseTrailerPdf(L_BYTEA * bas, L_DNA ** pda);
+static int32       parseTrailerPdf(L_BYTEA * bas, L_DNA ** pda);
 static char * generatePagesObjStringPdf(NUMA * napage);
 static L_BYTEA      * substituteObjectNumbers(L_BYTEA * bas, NUMA * na_objs);
 
 static L_PDF_DATA   * pdfdataCreate(const char * title);
 static void          pdfdataDestroy(L_PDF_DATA ** plpd);
-static L_COMP_DATA  * pdfdataGetCid(L_PDF_DATA * lpd, l_int32 index);
+static L_COMP_DATA  * pdfdataGetCid(L_PDF_DATA * lpd, int32 index);
 
 /* ---------------- Defaults for rendering options ----------------- */
 /* Output G4 as writing through image mask; this is the default */
-static l_int32 var_WRITE_G4_IMAGE_MASK = 1;
+static int32 var_WRITE_G4_IMAGE_MASK = 1;
 /* Write date/time and lib version into pdf; this is the default */
-static l_int32 var_WRITE_DATE_AND_VERSION = 1;
+static int32 var_WRITE_DATE_AND_VERSION = 1;
 
 #define L_SMALLBUF   256
 #define L_BIGBUF    2048   /* must be able to hold hex colormap */
@@ -178,18 +165,18 @@ static l_int32 var_WRITE_DATE_AND_VERSION = 1;
  * </pre>
  */
 l_ok pixConvertToPdfData(PIX          * pix,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     uint8     ** pdata,
     size_t       * pnbytes,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32 x,
+    int32 y,
+    int32 res,
     const char * title,
     L_PDF_DATA  ** plpd,
-    l_int32 position)
+    int32 position)
 {
-	l_int32 pixres, w, h, ret;
+	int32 pixres, w, h, ret;
 	float xpt, ypt, wpt, hpt;
 	L_COMP_DATA  * cid = NULL;
 	L_PDF_DATA   * lpd = NULL;
@@ -315,8 +302,8 @@ l_ok ptraConcatenatePdfToData(L_PTRA    * pa_data,
 {
 	char     * fname, * str_pages, * str_trailer;
 	uint8  * pdfdata, * data;
-	l_int32 i, j, index, nobj, npages;
-	l_int32 * sizes, * locs;
+	int32 i, j, index, nobj, npages;
+	int32 * sizes, * locs;
 	size_t size;
 	L_BYTEA  * bas, * bad, * bat1, * bat2;
 	L_DNA    * da_locs, * da_sizes, * da_outlocs, * da;
@@ -476,7 +463,7 @@ l_ok ptraConcatenatePdfToData(L_PTRA    * pa_data,
 l_ok convertTiffMultipageToPdf(const char * filein,
     const char * fileout)
 {
-	l_int32 istiff;
+	int32 istiff;
 	PIXA    * pixa;
 	FILE * fp;
 
@@ -527,10 +514,10 @@ l_ok convertTiffMultipageToPdf(const char * filein,
  */
 l_ok l_generateCIDataForPdf(const char * fname,
     PIX           * pix,
-    l_int32 quality,
+    int32 quality,
     L_COMP_DATA  ** pcid)
 {
-	l_int32 format, type;
+	int32 format, type;
 	L_COMP_DATA  * cid;
 	PIX          * pixt;
 
@@ -612,12 +599,12 @@ l_ok l_generateCIDataForPdf(const char * fname,
  * </pre>
  */
 l_ok l_generateCIData(const char * fname,
-    l_int32 type,
-    l_int32 quality,
-    l_int32 ascii85,
+    int32 type,
+    int32 quality,
+    int32 ascii85,
     L_COMP_DATA  ** pcid)
 {
-	l_int32 format, d, bps, spp, iscmap;
+	int32 format, d, bps, spp, iscmap;
 	L_COMP_DATA  * cid;
 	PIX          * pix;
 
@@ -729,13 +716,13 @@ L_COMP_DATA * l_generateFlateDataPdf(const char * fname,
 	uint8      * datacomp = NULL; /* gzipped raster data */
 	uint8      * cmapdata = NULL; /* uncompressed colormap */
 	char * cmapdatahex = NULL; /* hex ascii uncompressed colormap */
-	l_uint32 i, j, n;
-	l_int32 format, interlaced;
-	l_int32 ncolors; /* in colormap */
-	l_int32 bps; /* bits/sample: usually 8 */
-	l_int32 spp; /* samples/pixel: 1-grayscale/cmap); 3-rgb; 4-rgba */
-	l_int32 w, h, cmapflag;
-	l_int32 xres, yres;
+	uint32 i, j, n;
+	int32 format, interlaced;
+	int32 ncolors; /* in colormap */
+	int32 bps; /* bits/sample: usually 8 */
+	int32 spp; /* samples/pixel: 1-grayscale/cmap); 3-rgb; 4-rgba */
+	int32 w, h, cmapflag;
+	int32 xres, yres;
 	size_t nbytescomp = 0, nbytespng = 0;
 	FILE         * fp;
 	L_COMP_DATA  * cid;
@@ -920,11 +907,11 @@ L_COMP_DATA * l_generateFlateDataPdf(const char * fname,
  * </pre>
  */
 L_COMP_DATA * l_generateJpegData(const char * fname,
-    l_int32 ascii85flag)
+    int32 ascii85flag)
 {
 	char * data85 = NULL; /* ascii85 encoded jpeg compressed file */
 	uint8      * data = NULL;
-	l_int32 w, h, xres, yres, bps, spp;
+	int32 w, h, xres, yres, bps, spp;
 	size_t nbytes, nbytes85;
 	L_COMP_DATA  * cid;
 	FILE         * fp;
@@ -993,10 +980,10 @@ L_COMP_DATA * l_generateJpegData(const char * fname,
  */
 L_COMP_DATA * l_generateJpegDataMem(uint8  * data,
     size_t nbytes,
-    l_int32 ascii85flag)
+    int32 ascii85flag)
 {
 	char * data85 = NULL; /* ascii85 encoded jpeg compressed file */
-	l_int32 w, h, xres, yres, bps, spp;
+	int32 w, h, xres, yres, bps, spp;
 	size_t nbytes85;
 	L_COMP_DATA  * cid;
 
@@ -1054,7 +1041,7 @@ L_COMP_DATA * l_generateJpegDataMem(uint8  * data,
  */
 static L_COMP_DATA * l_generateJp2kData(const char * fname)
 {
-	l_int32 w, h, bps, spp, xres, yres;
+	int32 w, h, bps, spp, xres, yres;
 	size_t nbytes;
 	L_COMP_DATA  * cid;
 	FILE         * fp;
@@ -1105,12 +1092,12 @@ static L_COMP_DATA * l_generateJp2kData(const char * fname)
  * </pre>
  */
 L_COMP_DATA * l_generateG4Data(const char * fname,
-    l_int32 ascii85flag)
+    int32 ascii85flag)
 {
 	uint8      * datacomp = NULL; /* g4 compressed raster data */
 	char * data85 = NULL; /* ascii85 encoded g4 compressed data */
-	l_int32 w, h, xres, yres, npages;
-	l_int32 minisblack; /* TRUE or FALSE */
+	int32 w, h, xres, yres, npages;
+	int32 minisblack; /* TRUE or FALSE */
 	size_t nbytes85, nbytescomp;
 	L_COMP_DATA  * cid;
 	FILE         * fp;
@@ -1193,12 +1180,12 @@ L_COMP_DATA * l_generateG4Data(const char * fname,
  * </pre>
  */
 l_ok pixGenerateCIData(PIX           * pixs,
-    l_int32 type,
-    l_int32 quality,
-    l_int32 ascii85,
+    int32 type,
+    int32 quality,
+    int32 ascii85,
     L_COMP_DATA  ** pcid)
 {
-	l_int32 d;
+	int32 d;
 	PIXCMAP  * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -1294,7 +1281,7 @@ l_ok pixGenerateCIData(PIX           * pixs,
  * </pre>
  */
 L_COMP_DATA * l_generateFlateData(const char * fname,
-    l_int32 ascii85flag)
+    int32 ascii85flag)
 {
 	L_COMP_DATA  * cid;
 	PIX          * pixs;
@@ -1329,7 +1316,7 @@ L_COMP_DATA * l_generateFlateData(const char * fname,
  * </pre>
  */
 static L_COMP_DATA * pixGenerateFlateData(PIX * pixs,
-    l_int32 ascii85flag)
+    int32 ascii85flag)
 {
 	uint8      * data = NULL; /* uncompressed raster data in required format */
 	uint8      * datacomp = NULL; /* gzipped raster data */
@@ -1337,10 +1324,10 @@ static L_COMP_DATA * pixGenerateFlateData(PIX * pixs,
 	uint8      * cmapdata = NULL; /* uncompressed colormap */
 	char * cmapdata85 = NULL; /* ascii85 encoded uncompressed colormap */
 	char * cmapdatahex = NULL; /* hex ascii uncompressed colormap */
-	l_int32 ncolors; /* in colormap; not used if cmapdata85 is null */
-	l_int32 bps; /* bits/sample: usually 8 */
-	l_int32 spp; /* samples/pixel: 1-grayscale/cmap); 3-rgb */
-	l_int32 w, h, d, cmapflag;
+	int32 ncolors; /* in colormap; not used if cmapdata85 is null */
+	int32 bps; /* bits/sample: usually 8 */
+	int32 spp; /* samples/pixel: 1-grayscale/cmap); 3-rgb */
+	int32 w, h, d, cmapflag;
 	size_t ncmapbytes85 = 0;
 	size_t nbytes85 = 0;
 	size_t nbytes, nbytescomp;
@@ -1453,10 +1440,10 @@ static L_COMP_DATA * pixGenerateFlateData(PIX * pixs,
  * </pre>
  */
 static L_COMP_DATA * pixGenerateJpegData(PIX * pixs,
-    l_int32 ascii85flag,
-    l_int32 quality)
+    int32 ascii85flag,
+    int32 quality)
 {
-	l_int32 d;
+	int32 d;
 	char * fname;
 	L_COMP_DATA  * cid;
 
@@ -1500,9 +1487,9 @@ static L_COMP_DATA * pixGenerateJpegData(PIX * pixs,
  * </pre>
  */
 static L_COMP_DATA * pixGenerateJp2kData(PIX * pixs,
-    l_int32 quality)
+    int32 quality)
 {
-	l_int32 d;
+	int32 d;
 	char * fname;
 	L_COMP_DATA  * cid;
 
@@ -1546,7 +1533,7 @@ static L_COMP_DATA * pixGenerateJp2kData(PIX * pixs,
  * </pre>
  */
 static L_COMP_DATA * pixGenerateG4Data(PIX * pixs,
-    l_int32 ascii85flag)
+    int32 ascii85flag)
 {
 	char * fname;
 	L_COMP_DATA  * cid;
@@ -1594,7 +1581,7 @@ l_ok cidConvertToPdfData(L_COMP_DATA  * cid,
     uint8     ** pdata,
     size_t       * pnbytes)
 {
-	l_int32 res, ret;
+	int32 res, ret;
 	float wpt, hpt;
 	L_PDF_DATA  * lpd = NULL;
 
@@ -1681,7 +1668,7 @@ void l_CIDataDestroy(L_COMP_DATA  ** pcid)
  *            6+n to 6+n+m-1: m colormaps
  * </pre>
  */
-static l_int32 l_generatePdf(uint8    ** pdata,
+static int32 l_generatePdf(uint8    ** pdata,
     size_t      * pnbytes,
     L_PDF_DATA  * lpd)
 {
@@ -1795,7 +1782,7 @@ static char * generateEscapeString(const char * str)
 {
 	char smallbuf[8];
 	char * buffer;
-	l_int32 i, nchar, buflen;
+	int32 i, nchar, buflen;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1820,7 +1807,7 @@ static char * generateEscapeString(const char * str)
 
 static void generateMediaboxPdf(L_PDF_DATA  * lpd)
 {
-	l_int32 i;
+	int32 i;
 	float xpt, ypt, wpt, hpt, maxx, maxy;
 
 	/* First get the full extent of all the images.
@@ -1833,8 +1820,8 @@ static void generateMediaboxPdf(L_PDF_DATA  * lpd)
 		maxy = MAX(maxy, ypt + hpt);
 	}
 
-	lpd->mediabox = boxCreate(0, 0, (l_int32)(maxx + 0.5),
-		(l_int32)(maxy + 0.5));
+	lpd->mediabox = boxCreate(0, 0, (int32)(maxx + 0.5),
+		(int32)(maxy + 0.5));
 
 	/* ypt is in standard image coordinates: the location of
 	 * the UL image corner with respect to the UL media box corner.
@@ -1847,11 +1834,11 @@ static void generateMediaboxPdf(L_PDF_DATA  * lpd)
 	}
 }
 
-static l_int32 generatePageStringPdf(L_PDF_DATA  * lpd)
+static int32 generatePageStringPdf(L_PDF_DATA  * lpd)
 {
 	char * buf;
 	char * xstr;
-	l_int32 bufsize, i, wpt, hpt;
+	int32 bufsize, i, wpt, hpt;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -1899,11 +1886,11 @@ static l_int32 generatePageStringPdf(L_PDF_DATA  * lpd)
 	return 0;
 }
 
-static l_int32 generateContentStringPdf(L_PDF_DATA  * lpd)
+static int32 generateContentStringPdf(L_PDF_DATA  * lpd)
 {
 	char      * buf;
 	char      * cstr;
-	l_int32 i, bufsize;
+	int32 i, bufsize;
 	float xpt, ypt, wpt, hpt;
 	SARRAY    * sa;
 
@@ -1935,7 +1922,7 @@ static l_int32 generateContentStringPdf(L_PDF_DATA  * lpd)
 	    "%s"
 	    "endstream\n"
 	    "endobj\n",
-	    (l_int32)strlen(cstr), cstr);
+	    (int32)strlen(cstr), cstr);
 
 	lpd->obj5 = stringNew(buf);
 	l_dnaAddNumber(lpd->objsize, strlen(lpd->obj5));
@@ -1945,12 +1932,12 @@ static l_int32 generateContentStringPdf(L_PDF_DATA  * lpd)
 	return 0;
 }
 
-static l_int32 generatePreXStringsPdf(L_PDF_DATA  * lpd)
+static int32 generatePreXStringsPdf(L_PDF_DATA  * lpd)
 {
 	char buff[256];
 	char buf[L_BIGBUF];
 	char * cstr, * bstr, * fstr, * pstr, * xstr, * photometry;
-	l_int32 i, cmindex;
+	int32 i, cmindex;
 	L_COMP_DATA  * cid;
 	SARRAY       * sa;
 
@@ -2072,11 +2059,11 @@ static l_int32 generatePreXStringsPdf(L_PDF_DATA  * lpd)
 	return 0;
 }
 
-static l_int32 generateColormapStringsPdf(L_PDF_DATA  * lpd)
+static int32 generateColormapStringsPdf(L_PDF_DATA  * lpd)
 {
 	char buf[L_BIGBUF];
 	char * cmstr;
-	l_int32 i, cmindex, ncmap;
+	int32 i, cmindex, ncmap;
 	L_COMP_DATA  * cid;
 	SARRAY       * sa;
 
@@ -2113,7 +2100,7 @@ static l_int32 generateColormapStringsPdf(L_PDF_DATA  * lpd)
 
 static void generateTrailerPdf(L_PDF_DATA  * lpd)
 {
-	l_int32 i, n, size, linestart;
+	int32 i, n, size, linestart;
 	L_DNA   * daloc, * dasize;
 
 	/* Let nobj be the number of numbered objects.  These numbered
@@ -2154,7 +2141,7 @@ static char * makeTrailerStringPdf(L_DNA  * daloc)
 {
 	char * outstr;
 	char buf[L_BIGBUF];
-	l_int32 i, n, linestart, xrefloc;
+	int32 i, n, linestart, xrefloc;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -2203,14 +2190,14 @@ static char * makeTrailerStringPdf(L_DNA  * daloc)
  *      (1) Only called from l_generatePdf().  On error, no data is returned.
  * </pre>
  */
-static l_int32 generateOutputDataPdf(uint8    ** pdata,
+static int32 generateOutputDataPdf(uint8    ** pdata,
     size_t      * pnbytes,
     L_PDF_DATA  * lpd)
 {
 	char * str;
 	uint8      * data;
-	l_int32 nimages, i, len;
-	l_int32 * sizes, * locs;
+	int32 nimages, i, len;
+	int32 * sizes, * locs;
 	size_t nbytes;
 	L_COMP_DATA  * cid;
 
@@ -2277,13 +2264,13 @@ static l_int32 generateOutputDataPdf(uint8    ** pdata,
  * \param[out]   pda     byte locations of the beginning of each object
  * \return  0 if OK, 1 on error
  */
-static l_int32 parseTrailerPdf(L_BYTEA  * bas,
+static int32 parseTrailerPdf(L_BYTEA  * bas,
     L_DNA   ** pda)
 {
 	char     * str;
 	uint8 nl = '\n';
 	uint8  * data;
-	l_int32 i, j, start, startloc, xrefloc, found, loc, nobj, objno, trailer_ok;
+	int32 i, j, start, startloc, xrefloc, found, loc, nobj, objno, trailer_ok;
 	size_t size;
 	L_DNA    * da, * daobj, * daxref;
 	SARRAY * sa;
@@ -2379,7 +2366,7 @@ static char * generatePagesObjStringPdf(NUMA * napage)
 {
 	char * str;
 	char * buf;
-	l_int32 i, n, index, bufsize;
+	int32 i, n, index, bufsize;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -2432,8 +2419,8 @@ static L_BYTEA * substituteObjectNumbers(L_BYTEA  * bas,
 	uint8 space = ' ';
 	uint8  * datas;
 	uint8 buf[32]; /* only needs to hold one integer in ascii format */
-	l_int32 start, nrepl, i, j, nobjs, objin, objout, found;
-	l_int32 * objs, * matches;
+	int32 start, nrepl, i, j, nobjs, objin, objout, found;
+	int32 * objs, * matches;
 	size_t size;
 	L_BYTEA  * bad;
 	L_DNA    * da_match;
@@ -2522,7 +2509,7 @@ static L_PDF_DATA * pdfdataCreate(const char * title)
 
 static void pdfdataDestroy(L_PDF_DATA  ** plpd)
 {
-	l_int32 i;
+	int32 i;
 	L_COMP_DATA  * cid;
 	L_PDF_DATA   * lpd;
 
@@ -2562,7 +2549,7 @@ static void pdfdataDestroy(L_PDF_DATA  ** plpd)
 }
 
 static L_COMP_DATA * pdfdataGetCid(L_PDF_DATA  * lpd,
-    l_int32 index)
+    int32 index)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -2591,7 +2578,7 @@ static L_COMP_DATA * pdfdataGetCid(L_PDF_DATA  * lpd,
  *          so any previously written image remains visible behind it.
  * </pre>
  */
-void l_pdfSetG4ImageMask(l_int32 flag)
+void l_pdfSetG4ImageMask(int32 flag)
 {
 	var_WRITE_G4_IMAGE_MASK = flag;
 }
@@ -2609,7 +2596,7 @@ void l_pdfSetG4ImageMask(l_int32 flag)
  *          that compare output against golden files, it is useful to omit.
  * </pre>
  */
-void l_pdfSetDateAndVersion(l_int32 flag)
+void l_pdfSetDateAndVersion(int32 flag)
 {
 	var_WRITE_DATE_AND_VERSION = flag;
 }

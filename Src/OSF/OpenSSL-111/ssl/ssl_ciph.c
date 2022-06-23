@@ -10,7 +10,7 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-#include "internal/nelem.h"
+//#include "internal/nelem.h"
 #include "internal/thread_once.h"
 
 #define SSL_ENC_DES_IDX         0
@@ -148,7 +148,7 @@ static int ssl_cipher_info_find(const ssl_cipher_table * table,
 	return -1;
 }
 
-#define ssl_cipher_info_lookup(table, x) ssl_cipher_info_find(table, OSSL_NELEM(table), x)
+#define ssl_cipher_info_lookup(table, x) ssl_cipher_info_find(table, SIZEOFARRAY(table), x)
 /*
  * PKEY_TYPE for GOST89MAC is known in advance, but, because implementation
  * is engine-provided, we'll fill it only if corresponding EVP_PKEY_METHOD is found
@@ -462,7 +462,7 @@ int ssl_cipher_get_evp(const SSL_SESSION * s, const EVP_CIPHER ** enc, const EVP
 {
 	int i;
 	const SSL_CIPHER * c = s->cipher;
-	if(c == NULL)
+	if(!c)
 		return 0;
 	if(comp) {
 		SSL_COMP ctmp;
@@ -1493,7 +1493,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method,
 	 * groups of cipher_aliases added together in one list (otherwise
 	 * we would be happy with just the cipher_aliases table).
 	 */
-	num_of_group_aliases = OSSL_NELEM(cipher_aliases);
+	num_of_group_aliases = SIZEOFARRAY(cipher_aliases);
 	num_of_alias_max = num_of_ciphers + num_of_group_aliases + 1;
 	ca_list = static_cast<const SSL_CIPHER **>(OPENSSL_malloc(sizeof(*ca_list) * num_of_alias_max));
 	if(ca_list == NULL) {
@@ -1665,7 +1665,7 @@ char * SSL_CIPHER_description(const SSL_CIPHER * cipher, char * buf, int len)
 
 const char * SSL_CIPHER_get_version(const SSL_CIPHER * c)
 {
-	if(c == NULL)
+	if(!c)
 		return "(NONE)";
 	/*
 	 * Backwards-compatibility crutch.  In almost all contexts we report TLS
@@ -1840,7 +1840,7 @@ const SSL_CIPHER * SSL_CIPHER_find(SSL * ssl, const uchar * ptr)
 int SSL_CIPHER_get_cipher_nid(const SSL_CIPHER * c)
 {
 	int i;
-	if(c == NULL)
+	if(!c)
 		return NID_undef;
 	i = ssl_cipher_info_lookup(ssl_cipher_table_cipher, c->algorithm_enc);
 	if(i == -1)

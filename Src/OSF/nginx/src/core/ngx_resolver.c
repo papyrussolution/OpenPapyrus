@@ -3167,7 +3167,7 @@ static ngx_int_t ngx_udp_connect(ngx_resolver_connection_t * rec)
 		return NGX_ERROR;
 	}
 	c = ngx_get_connection(s, &rec->log);
-	if(c == NULL) {
+	if(!c) {
 		if(ngx_close_socket(s) == -1) {
 			ngx_log_error(NGX_LOG_ALERT, &rec->log, ngx_socket_errno, ngx_close_socket_n "failed");
 		}
@@ -3220,7 +3220,7 @@ static ngx_int_t ngx_tcp_connect(ngx_resolver_connection_t * rec)
 		return NGX_ERROR;
 	}
 	c = ngx_get_connection(s, &rec->log);
-	if(c == NULL) {
+	if(!c) {
 		if(ngx_close_socket(s) == -1) {
 			ngx_log_error(NGX_LOG_ALERT, &rec->log, ngx_socket_errno, ngx_close_socket_n "failed");
 		}

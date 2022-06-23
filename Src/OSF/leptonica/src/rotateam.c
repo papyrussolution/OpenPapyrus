@@ -104,11 +104,11 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static void rotateAMColorLow(l_uint32 * datad, l_int32 w, l_int32 h, l_int32 wpld, l_uint32 * datas, l_int32 wpls, float angle, l_uint32 colorval);
-static void rotateAMGrayLow(l_uint32 * datad, l_int32 w, l_int32 h, l_int32 wpld, l_uint32 * datas, l_int32 wpls, float angle, uint8 grayval);
-static void rotateAMColorCornerLow(l_uint32 * datad, l_int32 w, l_int32 h, l_int32 wpld, l_uint32 * datas, l_int32 wpls, float angle, l_uint32 colorval);
-static void rotateAMGrayCornerLow(l_uint32 * datad, l_int32 w, l_int32 h, l_int32 wpld, l_uint32 * datas, l_int32 wpls, float angle, uint8 grayval);
-static void rotateAMColorFastLow(l_uint32 * datad, l_int32 w, l_int32 h, l_int32 wpld, l_uint32 * datas, l_int32 wpls, float angle, l_uint32 colorval);
+static void rotateAMColorLow(uint32 * datad, int32 w, int32 h, int32 wpld, uint32 * datas, int32 wpls, float angle, uint32 colorval);
+static void rotateAMGrayLow(uint32 * datad, int32 w, int32 h, int32 wpld, uint32 * datas, int32 wpls, float angle, uint8 grayval);
+static void rotateAMColorCornerLow(uint32 * datad, int32 w, int32 h, int32 wpld, uint32 * datas, int32 wpls, float angle, uint32 colorval);
+static void rotateAMGrayCornerLow(uint32 * datad, int32 w, int32 h, int32 wpld, uint32 * datas, int32 wpls, float angle, uint8 grayval);
+static void rotateAMColorFastLow(uint32 * datad, int32 w, int32 h, int32 wpld, uint32 * datas, int32 wpls, float angle, uint32 colorval);
 
 static const float MinAngleToRotate = 0.001f; /* radians; ~0.06 deg */
 
@@ -130,10 +130,10 @@ static const float MinAngleToRotate = 0.001f; /* radians; ~0.06 deg */
  *      (3) Brings in either black or white pixels from the boundary.
  * </pre>
  */
-PIX * pixRotateAM(PIX * pixs, float angle, l_int32 incolor)
+PIX * pixRotateAM(PIX * pixs, float angle, int32 incolor)
 {
-	l_int32 d;
-	l_uint32 fillval;
+	int32 d;
+	uint32 fillval;
 	PIX * pixt1, * pixt2, * pixd;
 	PROCNAME(__FUNCTION__);
 	if(!pixs)
@@ -184,10 +184,10 @@ PIX * pixRotateAM(PIX * pixs, float angle, l_int32 incolor)
  */
 PIX * pixRotateAMColor(PIX * pixs,
     float angle,
-    l_uint32 colorval)
+    uint32 colorval)
 {
-	l_int32 w, h, wpls, wpld;
-	l_uint32  * datas, * datad;
+	int32 w, h, wpls, wpld;
+	uint32  * datas, * datad;
 	PIX * pix1, * pix2, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -238,8 +238,8 @@ PIX * pixRotateAMGray(PIX * pixs,
     float angle,
     uint8 grayval)
 {
-	l_int32 w, h, wpls, wpld;
-	l_uint32  * datas, * datad;
+	int32 w, h, wpls, wpld;
+	uint32  * datas, * datad;
 	PIX        * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -264,14 +264,14 @@ PIX * pixRotateAMGray(PIX * pixs,
 	return pixd;
 }
 
-static void rotateAMColorLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int32 wpld,
-    l_uint32  * datas, l_int32 wpls, float angle, l_uint32 colorval)
+static void rotateAMColorLow(uint32  * datad, int32 w, int32 h, int32 wpld,
+    uint32  * datas, int32 wpls, float angle, uint32 colorval)
 {
-	l_int32 i, j, xcen, ycen, wm2, hm2;
-	l_int32 xdif, ydif, xpm, ypm, xp, yp, xf, yf;
-	l_int32 rval, gval, bval;
-	l_uint32 word00, word01, word10, word11;
-	l_uint32  * lines, * lined;
+	int32 i, j, xcen, ycen, wm2, hm2;
+	int32 xdif, ydif, xpm, ypm, xp, yp, xf, yf;
+	int32 rval, gval, bval;
+	uint32 word00, word01, word10, word11;
+	uint32  * lines, * lined;
 	float sina, cosa;
 	xcen = w / 2;
 	wm2 = w - 2;
@@ -284,8 +284,8 @@ static void rotateAMColorLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int32 wp
 		lined = datad + i * wpld;
 		for(j = 0; j < w; j++) {
 			xdif = xcen - j;
-			xpm = (l_int32)(-xdif * cosa - ydif * sina);
-			ypm = (l_int32)(-ydif * cosa + xdif * sina);
+			xpm = (int32)(-xdif * cosa - ydif * sina);
+			ypm = (int32)(-ydif * cosa + xdif * sina);
 			xp = xcen + (xpm >> 4);
 			yp = ycen + (ypm >> 4);
 			xf = xpm & 0x0f;
@@ -325,13 +325,13 @@ static void rotateAMColorLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int32 wp
 	}
 }
 
-static void rotateAMGrayLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int32 wpld, l_uint32  * datas, l_int32 wpls, float angle, uint8 grayval)
+static void rotateAMGrayLow(uint32  * datad, int32 w, int32 h, int32 wpld, uint32  * datas, int32 wpls, float angle, uint8 grayval)
 {
-	l_int32 i, j, xcen, ycen, wm2, hm2;
-	l_int32 xdif, ydif, xpm, ypm, xp, yp, xf, yf;
-	l_int32 v00, v01, v10, v11;
+	int32 i, j, xcen, ycen, wm2, hm2;
+	int32 xdif, ydif, xpm, ypm, xp, yp, xf, yf;
+	int32 v00, v01, v10, v11;
 	uint8 val;
-	l_uint32  * lines, * lined;
+	uint32  * lines, * lined;
 	float sina, cosa;
 	xcen = w / 2;
 	wm2 = w - 2;
@@ -345,8 +345,8 @@ static void rotateAMGrayLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int32 wpl
 		lined = datad + i * wpld;
 		for(j = 0; j < w; j++) {
 			xdif = xcen - j;
-			xpm = (l_int32)(-xdif * cosa - ydif * sina);
-			ypm = (l_int32)(-ydif * cosa + xdif * sina);
+			xpm = (int32)(-xdif * cosa - ydif * sina);
+			ypm = (int32)(-ydif * cosa + xdif * sina);
 			xp = xcen + (xpm >> 4);
 			yp = ycen + (ypm >> 4);
 			xf = xpm & 0x0f;
@@ -395,10 +395,10 @@ static void rotateAMGrayLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int32 wpl
  */
 PIX * pixRotateAMCorner(PIX * pixs,
     float angle,
-    l_int32 incolor)
+    int32 incolor)
 {
-	l_int32 d;
-	l_uint32 fillval;
+	int32 d;
+	uint32 fillval;
 	PIX * pixt1, * pixt2, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -454,10 +454,10 @@ PIX * pixRotateAMCorner(PIX * pixs,
  */
 PIX * pixRotateAMColorCorner(PIX * pixs,
     float angle,
-    l_uint32 fillval)
+    uint32 fillval)
 {
-	l_int32 w, h, wpls, wpld;
-	l_uint32  * datas, * datad;
+	int32 w, h, wpls, wpld;
+	uint32  * datas, * datad;
 	PIX * pix1, * pix2, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -508,8 +508,8 @@ PIX * pixRotateAMGrayCorner(PIX * pixs,
     float angle,
     uint8 grayval)
 {
-	l_int32 w, h, wpls, wpld;
-	l_uint32  * datas, * datad;
+	int32 w, h, wpls, wpld;
+	uint32  * datas, * datad;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -534,13 +534,13 @@ PIX * pixRotateAMGrayCorner(PIX * pixs,
 	return pixd;
 }
 
-static void rotateAMColorCornerLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int32 wpld, l_uint32  * datas, l_int32 wpls, float angle, l_uint32 colorval)
+static void rotateAMColorCornerLow(uint32  * datad, int32 w, int32 h, int32 wpld, uint32  * datas, int32 wpls, float angle, uint32 colorval)
 {
-	l_int32 i, j, wm2, hm2;
-	l_int32 xpm, ypm, xp, yp, xf, yf;
-	l_int32 rval, gval, bval;
-	l_uint32 word00, word01, word10, word11;
-	l_uint32  * lines, * lined;
+	int32 i, j, wm2, hm2;
+	int32 xpm, ypm, xp, yp, xf, yf;
+	int32 rval, gval, bval;
+	uint32 word00, word01, word10, word11;
+	uint32  * lines, * lined;
 	float sina, cosa;
 	wm2 = w - 2;
 	hm2 = h - 2;
@@ -549,8 +549,8 @@ static void rotateAMColorCornerLow(l_uint32  * datad, l_int32 w, l_int32 h, l_in
 	for(i = 0; i < h; i++) {
 		lined = datad + i * wpld;
 		for(j = 0; j < w; j++) {
-			xpm = (l_int32)(j * cosa + i * sina);
-			ypm = (l_int32)(i * cosa - j * sina);
+			xpm = (int32)(j * cosa + i * sina);
+			ypm = (int32)(i * cosa - j * sina);
 			xp = xpm >> 4;
 			yp = ypm >> 4;
 			xf = xpm & 0x0f;
@@ -590,13 +590,13 @@ static void rotateAMColorCornerLow(l_uint32  * datad, l_int32 w, l_int32 h, l_in
 	}
 }
 
-static void rotateAMGrayCornerLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int32 wpld, l_uint32  * datas, l_int32 wpls, float angle, uint8 grayval)
+static void rotateAMGrayCornerLow(uint32  * datad, int32 w, int32 h, int32 wpld, uint32  * datas, int32 wpls, float angle, uint8 grayval)
 {
-	l_int32 i, j, wm2, hm2;
-	l_int32 xpm, ypm, xp, yp, xf, yf;
-	l_int32 v00, v01, v10, v11;
+	int32 i, j, wm2, hm2;
+	int32 xpm, ypm, xp, yp, xf, yf;
+	int32 v00, v01, v10, v11;
 	uint8 val;
-	l_uint32  * lines, * lined;
+	uint32  * lines, * lined;
 	float sina, cosa;
 	wm2 = w - 2;
 	hm2 = h - 2;
@@ -605,8 +605,8 @@ static void rotateAMGrayCornerLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int
 	for(i = 0; i < h; i++) {
 		lined = datad + i * wpld;
 		for(j = 0; j < w; j++) {
-			xpm = (l_int32)(j * cosa + i * sina);
-			ypm = (l_int32)(i * cosa - j * sina);
+			xpm = (int32)(j * cosa + i * sina);
+			ypm = (int32)(i * cosa - j * sina);
 			xp = xpm >> 4;
 			yp = ypm >> 4;
 			xf = xpm & 0x0f;
@@ -659,10 +659,10 @@ static void rotateAMGrayCornerLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int
  */
 PIX * pixRotateAMColorFast(PIX * pixs,
     float angle,
-    l_uint32 colorval)
+    uint32 colorval)
 {
-	l_int32 w, h, wpls, wpld;
-	l_uint32  * datas, * datad;
+	int32 w, h, wpls, wpld;
+	uint32  * datas, * datad;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -754,12 +754,12 @@ PIX * pixRotateAMColorFast(PIX * pixs,
  *     in the rotated image.  The code for the inferior method
  *     can be found in prog/rotatefastalt.c, for reference.
  */
-static void rotateAMColorFastLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int32 wpld, l_uint32  * datas, l_int32 wpls, float angle, l_uint32 colorval)
+static void rotateAMColorFastLow(uint32  * datad, int32 w, int32 h, int32 wpld, uint32  * datas, int32 wpls, float angle, uint32 colorval)
 {
-	l_int32 i, j, xcen, ycen, wm2, hm2;
-	l_int32 xdif, ydif, xpm, ypm, xp, yp, xf, yf;
-	l_uint32 word1, word2, word3, word4, red, blue, green;
-	l_uint32  * pword, * lines, * lined;
+	int32 i, j, xcen, ycen, wm2, hm2;
+	int32 xdif, ydif, xpm, ypm, xp, yp, xf, yf;
+	uint32 word1, word2, word3, word4, red, blue, green;
+	uint32  * pword, * lines, * lined;
 	float sina, cosa;
 	xcen = w / 2;
 	wm2 = w - 2;
@@ -772,8 +772,8 @@ static void rotateAMColorFastLow(l_uint32  * datad, l_int32 w, l_int32 h, l_int3
 		lined = datad + i * wpld;
 		for(j = 0; j < w; j++) {
 			xdif = xcen - j;
-			xpm = (l_int32)(-xdif * cosa - ydif * sina);
-			ypm = (l_int32)(-ydif * cosa + xdif * sina);
+			xpm = (int32)(-xdif * cosa - ydif * sina);
+			ypm = (int32)(-ydif * cosa + xdif * sina);
 			xp = xcen + (xpm >> 2);
 			yp = ycen + (ypm >> 2);
 			xf = xpm & 0x03;

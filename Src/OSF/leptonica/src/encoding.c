@@ -19,15 +19,15 @@
  *    Base64
  *        char           *encodeBase64()
  *        uint8        *decodeBase64()
- *        static l_int32  isBase64()
- *        static l_int32 *genReverseTab64()
+ *        static int32  isBase64()
+ *        static int32 *genReverseTab64()
  *        static void     byteConvert3to4()
  *        static void     byteConvert4to3()
  *
  *    Ascii85
  *        char           *encodeAscii85()
  *        uint8        *decodeAscii85()
- *        static l_int32  convertChunkToAscii85()
+ *        static int32  convertChunkToAscii85()
  *
  *        char           *encodeAscii85WithComp()
  *        uint8        *decodeAscii85WithComp()
@@ -56,28 +56,28 @@
 #pragma hdrstop
 
 /* Base64 encoding table in string representation */
-static const l_int32 MAX_BASE64_LINE   = 72; /* max line length base64 */
+static const int32 MAX_BASE64_LINE   = 72; /* max line length base64 */
 static const char * tablechar64 =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/";
 
-static l_int32 isBase64(char);
-static l_int32 * genReverseTab64(void);
+static int32 isBase64(char);
+static int32 * genReverseTab64(void);
 static void byteConvert3to4(uint8 * in3, uint8 * out4);
 static void byteConvert4to3(uint8 * in4, uint8 * out3);
 
 /* Ascii85 encoding */
-static const l_int32 MAX_ASCII85_LINE   = 64; /* max line length ascii85 */
-static const l_uint32 power85[5] = {1,
+static const int32 MAX_ASCII85_LINE   = 64; /* max line length ascii85 */
+static const uint32 power85[5] = {1,
 				    85,
 				    85 * 85,
 				    85 * 85 * 85,
 				    85 * 85 * 85 * 85};
 
-static l_int32 convertChunkToAscii85(const uint8 * inarray, size_t insize,
-    l_int32 * pindex, char * outbuf,
-    l_int32 * pnbout);
+static int32 convertChunkToAscii85(const uint8 * inarray, size_t insize,
+    int32 * pindex, char * outbuf,
+    int32 * pnbout);
 
 /*-------------------------------------------------------------*
 *      Utility for encoding and decoding data with base64     *
@@ -98,13 +98,13 @@ static l_int32 convertChunkToAscii85(const uint8 * inarray, size_t insize,
  * </pre>
  */
 char * encodeBase64(const uint8 * inarray,
-    l_int32 insize,
-    l_int32       * poutsize)
+    int32 insize,
+    int32       * poutsize)
 {
 	char          * chara;
 	const uint8 * bytea;
 	uint8 array3[3], array4[4];
-	l_int32 outsize, i, j, index, linecount;
+	int32 outsize, i, j, index, linecount;
 
 	PROCNAME(__FUNCTION__);
 
@@ -184,14 +184,14 @@ char * encodeBase64(const uint8 * inarray,
  * </pre>
  */
 uint8 * decodeBase64(const char * inarray,
-    l_int32 insize,
-    l_int32     * poutsize)
+    int32 insize,
+    int32     * poutsize)
 {
 	char inchar;
 	uint8  * bytea;
 	uint8 array3[3], array4[4];
-	l_int32 * rtable64;
-	l_int32 i, j, outsize, in_index, out_index;
+	int32 * rtable64;
+	int32 i, j, outsize, in_index, out_index;
 
 	PROCNAME(__FUNCTION__);
 
@@ -265,7 +265,7 @@ uint8 * decodeBase64(const char * inarray,
 /*!
  * \brief   isBase64()
  */
-static l_int32 isBase64(char c)
+static int32 isBase64(char c)
 {
 	return (isalnum(((int)c)) || ((c) == '+') || ((c) == '/')) ? 1 : 0;
 }
@@ -273,12 +273,12 @@ static l_int32 isBase64(char c)
 /*!
  * \brief   genReverseTab64()
  */
-static l_int32 * genReverseTab64()
+static int32 * genReverseTab64()
 {
-	l_int32 i;
-	l_int32 * rtable64;
+	int32 i;
+	int32 * rtable64;
 
-	rtable64 = (l_int32*)SAlloc::C(128, sizeof(l_int32));
+	rtable64 = (int32*)SAlloc::C(128, sizeof(int32));
 	for(i = 0; i < 64; i++) {
 		rtable64[(unsigned char)tablechar64[i]] = i;
 	}
@@ -334,7 +334,7 @@ char * encodeAscii85(const uint8  * inarray,
 {
 	char * chara;
 	char outbuf[8];
-	l_int32 maxsize, i, index, linecount, nbout, eof;
+	int32 maxsize, i, index, linecount, nbout, eof;
 	size_t outindex;
 
 	PROCNAME(__FUNCTION__);
@@ -348,7 +348,7 @@ char * encodeAscii85(const uint8  * inarray,
 		return (char *)ERROR_PTR("insize not > 0", procName, NULL);
 
 	/* Accumulate results in char array */
-	maxsize = (l_int32)(80. + (insize * 5. / 4.) *
+	maxsize = (int32)(80. + (insize * 5. / 4.) *
 	    (1. + 2. / MAX_ASCII85_LINE));
 	if((chara = (char *)SAlloc::C(maxsize, sizeof(char))) == NULL)
 		return (char *)ERROR_PTR("chara not made", procName, NULL);
@@ -396,15 +396,15 @@ char * encodeAscii85(const uint8  * inarray,
  *      (2) Writes 1 byte if the value is 0.
  * </pre>
  */
-static l_int32 convertChunkToAscii85(const uint8 * inarray,
+static int32 convertChunkToAscii85(const uint8 * inarray,
     size_t insize,
-    l_int32       * pindex,
+    int32       * pindex,
     char          * outbuf,
-    l_int32       * pnbout)
+    int32       * pnbout)
 {
 	uint8 inbyte;
-	l_uint32 inword, val;
-	l_int32 eof, index, nread, nbout, i;
+	uint32 inword, val;
+	int32 eof, index, nread, nbout, i;
 
 	eof = FALSE;
 	index = *pindex;
@@ -413,11 +413,11 @@ static l_int32 convertChunkToAscii85(const uint8 * inarray,
 		eof = TRUE;
 	*pindex += nread; /* save new index */
 
-	/* Read input data and save in l_uint32 */
+	/* Read input data and save in uint32 */
 	inword = 0;
 	for(i = 0; i < nread; i++) {
 		inbyte = inarray[index + i];
-		inword += (l_uint32)inbyte << (8 * (3 - i));
+		inword += (uint32)inbyte << (8 * (3 - i));
 	}
 
 #if 0
@@ -468,8 +468,8 @@ uint8 * decodeAscii85(const char * inarray,
 	const char * pin;
 	uint8 val;
 	uint8    * outa;
-	l_int32 maxsize, ocount, bytecount, index;
-	l_uint32 oword;
+	int32 maxsize, ocount, bytecount, index;
+	uint32 oword;
 
 	PROCNAME(__FUNCTION__);
 
@@ -482,7 +482,7 @@ uint8 * decodeAscii85(const char * inarray,
 		return (uint8 *)ERROR_PTR("insize not > 0", procName, NULL);
 
 	/* Accumulate results in outa */
-	maxsize = (l_int32)(80. + (insize * 4. / 5.)); /* plenty big */
+	maxsize = (int32)(80. + (insize * 4. / 5.)); /* plenty big */
 	if((outa = (uint8 *)SAlloc::C(maxsize, sizeof(uint8))) == NULL)
 		return (uint8 *)ERROR_PTR("outa not made", procName, NULL);
 
@@ -653,14 +653,14 @@ uint8 * decodeAscii85WithComp(const char * instr,
  * </pre>
  */
 char * reformatPacked64(const char * inarray,
-    l_int32 insize,
-    l_int32 leadspace,
-    l_int32 linechars,
-    l_int32 addquotes,
-    l_int32    * poutsize)
+    int32 insize,
+    int32 leadspace,
+    int32 linechars,
+    int32 addquotes,
+    int32    * poutsize)
 {
 	char * flata, * outa;
-	l_int32 i, j, flatindex, flatsize, outindex, nlines, linewithpad, linecount;
+	int32 i, j, flatindex, flatsize, outindex, nlines, linewithpad, linecount;
 
 	PROCNAME(__FUNCTION__);
 

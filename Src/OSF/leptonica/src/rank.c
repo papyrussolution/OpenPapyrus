@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file rank.c
  * <pre>
@@ -144,11 +131,11 @@
  * </pre>
  */
 PIX  * pixRankFilter(PIX * pixs,
-    l_int32 wf,
-    l_int32 hf,
+    int32 wf,
+    int32 hf,
     float rank)
 {
-	l_int32 d;
+	int32 d;
 
 	PROCNAME(__FUNCTION__);
 
@@ -194,8 +181,8 @@ PIX  * pixRankFilter(PIX * pixs,
  * </pre>
  */
 PIX  * pixRankFilterRGB(PIX * pixs,
-    l_int32 wf,
-    l_int32 hf,
+    int32 wf,
+    int32 hf,
     float rank)
 {
 	PIX  * pixr, * pixg, * pixb, * pixrf, * pixgf, * pixbf, * pixd;
@@ -260,13 +247,13 @@ PIX  * pixRankFilterRGB(PIX * pixs,
  * </pre>
  */
 PIX  * pixRankFilterGray(PIX * pixs,
-    l_int32 wf,
-    l_int32 hf,
+    int32 wf,
+    int32 hf,
     float rank)
 {
-	l_int32 w, h, d, i, j, k, m, n, rankloc, wplt, wpld, val, sum;
-	l_int32   * histo, * histo16;
-	l_uint32  * datat, * linet, * datad, * lined;
+	int32 w, h, d, i, j, k, m, n, rankloc, wplt, wpld, val, sum;
+	int32   * histo, * histo16;
+	uint32  * datat, * linet, * datad, * lined;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -308,9 +295,9 @@ PIX  * pixRankFilterGray(PIX * pixs,
 		return (PIX *)ERROR_PTR("pixt not made", procName, NULL);
 
 	/* Set up the two histogram arrays. */
-	histo = (l_int32*)SAlloc::C(256, sizeof(l_int32));
-	histo16 = (l_int32*)SAlloc::C(16, sizeof(l_int32));
-	rankloc = (l_int32)(rank * wf * hf);
+	histo = (int32*)SAlloc::C(256, sizeof(int32));
+	histo16 = (int32*)SAlloc::C(16, sizeof(int32));
+	rankloc = (int32)(rank * wf * hf);
 
 	/* Place the filter center at (0, 0).  This is just a
 	 * convenient location, because it allows us to perform
@@ -461,8 +448,8 @@ PIX  * pixRankFilterGray(PIX * pixs,
  * \return  pixd of median values, or NULL on error
  */
 PIX  * pixMedianFilter(PIX * pixs,
-    l_int32 wf,
-    l_int32 hf)
+    int32 wf,
+    int32 hf)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -494,12 +481,12 @@ PIX  * pixMedianFilter(PIX * pixs,
  * </pre>
  */
 PIX  * pixRankFilterWithScaling(PIX * pixs,
-    l_int32 wf,
-    l_int32 hf,
+    int32 wf,
+    int32 hf,
     float rank,
     float scalefactor)
 {
-	l_int32 w, h, d, wfs, hfs;
+	int32 w, h, d, wfs, hfs;
 	PIX * pix1, * pix2, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -523,8 +510,8 @@ PIX  * pixRankFilterWithScaling(PIX * pixs,
 	}
 
 	pix1 = pixScaleAreaMap(pixs, scalefactor, scalefactor);
-	wfs = MAX(1, (l_int32)(scalefactor * wf + 0.5));
-	hfs = MAX(1, (l_int32)(scalefactor * hf + 0.5));
+	wfs = MAX(1, (int32)(scalefactor * wf + 0.5));
+	hfs = MAX(1, (int32)(scalefactor * hf + 0.5));
 	pix2 = pixRankFilter(pix1, wfs, hfs, rank);
 	pixGetDimensions(pixs, &w, &h, NULL);
 	pixd = pixScaleToSize(pix2, w, h);

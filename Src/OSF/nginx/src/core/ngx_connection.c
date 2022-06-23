@@ -614,11 +614,11 @@ ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t * log)
 	}
 	else {
 		c = ngx_cycle->free_connections;
-		if(c == NULL) {
+		if(!c) {
 			ngx_drain_connections((ngx_cycle_t*)ngx_cycle);
 			c = ngx_cycle->free_connections;
 		}
-		if(c == NULL) {
+		if(!c) {
 			ngx_log_error(NGX_LOG_ALERT, log, 0, "%ui worker_connections are not enough", ngx_cycle->connection_n);
 		}
 		else {

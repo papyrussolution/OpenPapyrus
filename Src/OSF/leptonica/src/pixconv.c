@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file pixconv.c
  * <pre>
@@ -39,7 +26,7 @@
  *           PIX        *pixRemoveColormap()
  *
  *      Add colormap losslessly (8 to 8)
- *           l_int32     pixAddGrayColormap8()
+ *           int32     pixAddGrayColormap8()
  *           PIX        *pixAddMinimalGrayColormap8()
  *
  *      Conversion from RGB color to 8 bit gray
@@ -66,7 +53,7 @@
  *           PIX        *pixConvertCmapTo1()
  *
  *      Quantization for relatively small number of colors in source
- *           l_int32     pixQuantizeIfFewColors()
+ *           int32     pixQuantizeIfFewColors()
  *
  *      Conversion from 16 bpp to 8 bpp
  *           PIX        *pixConvert16To8()
@@ -158,7 +145,7 @@
 
 /* ------- Set neutral point for min/max boost conversion to gray ------ */
 /* Call l_setNeutralBoostVal() to change this */
-static l_int32 var_NEUTRAL_BOOST_VAL = 180;
+static int32 var_NEUTRAL_BOOST_VAL = 180;
 
 #ifndef  NO_CONSOLE_IO
 #define DEBUG_CONVERT_TO_COLORMAP  0
@@ -199,9 +186,9 @@ static l_int32 var_NEUTRAL_BOOST_VAL = 180;
  * </pre>
  */
 PIX * pixThreshold8(PIX * pixs,
-    l_int32 d,
-    l_int32 nlevels,
-    l_int32 cmapflag)
+    int32 d,
+    int32 nlevels,
+    int32 cmapflag)
 {
 	PIX * pixd;
 	PIXCMAP   * cmap;
@@ -265,8 +252,8 @@ PIX * pixThreshold8(PIX * pixs,
  * </pre>
  */
 PIX * pixRemoveColormapGeneral(PIX * pixs,
-    l_int32 type,
-    l_int32 ifnocmap)
+    int32 type,
+    int32 ifnocmap)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -313,14 +300,14 @@ PIX * pixRemoveColormapGeneral(PIX * pixs,
  * </pre>
  */
 PIX * pixRemoveColormap(PIX * pixs,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 sval, rval, gval, bval, val0, val1;
-	l_int32 i, j, k, w, h, d, wpls, wpld, ncolors, nalloc, count;
-	l_int32 opaque, colorfound, blackwhite;
-	l_int32   * rmap, * gmap, * bmap, * amap;
-	l_uint32  * datas, * lines, * datad, * lined, * lut, * graymap;
-	l_uint32 sword, dword;
+	int32 sval, rval, gval, bval, val0, val1;
+	int32 i, j, k, w, h, d, wpls, wpld, ncolors, nalloc, count;
+	int32 opaque, colorfound, blackwhite;
+	int32   * rmap, * gmap, * bmap, * amap;
+	uint32  * datas, * lines, * datad, * lined, * lut, * graymap;
+	uint32 sword, dword;
 	PIXCMAP   * cmap;
 	PIX * pixd;
 
@@ -399,9 +386,9 @@ PIX * pixRemoveColormap(PIX * pixs,
 		pixCopyInputFormat(pixd, pixs);
 		datad = pixGetData(pixd);
 		wpld = pixGetWpl(pixd);
-		graymap = (l_uint32*)SAlloc::C(nalloc, sizeof(l_uint32));
+		graymap = (uint32*)SAlloc::C(nalloc, sizeof(uint32));
 		for(i = 0; i < ncolors; i++) {
-			graymap[i] = (l_uint32)(L_RED_WEIGHT * rmap[i] +
+			graymap[i] = (uint32)(L_RED_WEIGHT * rmap[i] +
 			    L_GREEN_WEIGHT * gmap[i] +
 			    L_BLUE_WEIGHT * bmap[i] + 0.5);
 		}
@@ -558,7 +545,7 @@ PIX * pixRemoveColormap(PIX * pixs,
 			pixSetSpp(pixd, 4);
 		datad = pixGetData(pixd);
 		wpld = pixGetWpl(pixd);
-		lut = (l_uint32*)SAlloc::C(nalloc, sizeof(l_uint32));
+		lut = (uint32*)SAlloc::C(nalloc, sizeof(uint32));
 		for(i = 0; i < ncolors; i++) {
 			if(type == REMOVE_CMAP_TO_FULL_COLOR)
 				composeRGBPixel(rmap[i], gmap[i], bmap[i], lut + i);
@@ -640,9 +627,9 @@ l_ok pixAddGrayColormap8(PIX  * pixs)
  */
 PIX * pixAddMinimalGrayColormap8(PIX  * pixs)
 {
-	l_int32 ncolors, w, h, i, j, wpl1, wpld, index, val;
-	l_int32   * inta, * revmap;
-	l_uint32  * data1, * datad, * line1, * lined;
+	int32 ncolors, w, h, i, j, wpl1, wpld, index, val;
+	int32   * inta, * revmap;
+	uint32  * data1, * datad, * line1, * lined;
 	PIX * pix1, * pixd;
 	PIXCMAP   * cmap;
 
@@ -673,7 +660,7 @@ PIX * pixAddMinimalGrayColormap8(PIX  * pixs)
 	pixGetDimensions(pix1, &w, &h, NULL);
 	data1 = pixGetData(pix1);
 	wpl1 = pixGetWpl(pix1);
-	inta = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	inta = (int32*)SAlloc::C(256, sizeof(int32));
 	for(i = 0; i < h; i++) {
 		line1 = data1 + i * wpl1;
 		for(j = 0; j < w; j++) {
@@ -682,7 +669,7 @@ PIX * pixAddMinimalGrayColormap8(PIX  * pixs)
 		}
 	}
 	cmap = pixcmapCreate(8);
-	revmap = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	revmap = (int32*)SAlloc::C(256, sizeof(int32));
 	for(i = 0, index = 0; i < 256; i++) {
 		if(inta[i]) {
 			pixcmapAddColor(cmap, i, i, i);
@@ -749,7 +736,7 @@ PIX * pixConvertRGBToLuminance(PIX * pixs)
  * </pre>
  */
 PIX * pixConvertRGBToGrayGeneral(PIX * pixs,
-    l_int32 type,
+    int32 type,
     float rwt,
     float gwt,
     float bwt)
@@ -820,9 +807,9 @@ PIX * pixConvertRGBToGray(PIX * pixs,
     float gwt,
     float bwt)
 {
-	l_int32 i, j, w, h, wpls, wpld, val;
-	l_uint32 word;
-	l_uint32  * datas, * lines, * datad, * lined;
+	int32 i, j, w, h, wpls, wpld, val;
+	uint32 word;
+	uint32  * datas, * lines, * datad, * lined;
 	float sum;
 	PIX * pixd;
 
@@ -865,7 +852,7 @@ PIX * pixConvertRGBToGray(PIX * pixs,
 		lined = datad + i * wpld;
 		for(j = 0; j < w; j++) {
 			word = *(lines + j);
-			val = (l_int32)(rwt * ((word >> L_RED_SHIFT) & 0xff) +
+			val = (int32)(rwt * ((word >> L_RED_SHIFT) & 0xff) +
 			    gwt * ((word >> L_GREEN_SHIFT) & 0xff) +
 			    bwt * ((word >> L_BLUE_SHIFT) & 0xff) + 0.5);
 			SET_DATA_BYTE(lined, j, val);
@@ -893,8 +880,8 @@ PIX * pixConvertRGBToGray(PIX * pixs,
  */
 PIX * pixConvertRGBToGrayFast(PIX  * pixs)
 {
-	l_int32 i, j, w, h, wpls, wpld, val;
-	l_uint32  * datas, * lines, * datad, * lined;
+	int32 i, j, w, h, wpls, wpld, val;
+	uint32  * datas, * lines, * datad, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -948,10 +935,10 @@ PIX * pixConvertRGBToGrayFast(PIX  * pixs)
  * </pre>
  */
 PIX * pixConvertRGBToGrayMinMax(PIX * pixs,
-    l_int32 type)
+    int32 type)
 {
-	l_int32 i, j, w, h, wpls, wpld, rval, gval, bval, val, minval, maxval;
-	l_uint32  * datas, * lines, * datad, * lined;
+	int32 i, j, w, h, wpls, wpld, rval, gval, bval, val, minval, maxval;
+	uint32  * datas, * lines, * datad, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1035,13 +1022,13 @@ PIX * pixConvertRGBToGrayMinMax(PIX * pixs,
  * </pre>
  */
 PIX  * pixConvertRGBToGraySatBoost(PIX * pixs,
-    l_int32 refval)
+    int32 refval)
 {
-	l_int32 w, h, d, i, j, wplt, wpld;
-	l_int32 rval, gval, bval, sval, minrg, maxrg, min, max, delta;
-	l_int32 fullsat, newval;
+	int32 w, h, d, i, j, wplt, wpld;
+	int32 rval, gval, bval, sval, minrg, maxrg, min, max, delta;
+	int32 fullsat, newval;
 	float * invmax, * ratio;
-	l_uint32   * linet, * lined, * datat, * datad;
+	uint32   * linet, * lined, * datat, * datad;
 	PIX        * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1081,7 +1068,7 @@ PIX  * pixConvertRGBToGraySatBoost(PIX * pixs,
 			if(delta == 0) /* gray; no chroma */
 				sval = 0;
 			else
-				sval = (l_int32)(255. * (float)delta * invmax[max] + 0.5);
+				sval = (int32)(255. * (float)delta * invmax[max] + 0.5);
 
 			fullsat = MIN(255, 255 * ratio[max]);
 			newval = (sval * fullsat + (255 - sval) * max) / 255;
@@ -1115,8 +1102,8 @@ PIX * pixConvertRGBToGrayArb(PIX * pixs,
     float gc,
     float bc)
 {
-	l_int32 i, j, w, h, wpls, wpld, rval, gval, bval, val;
-	l_uint32  * datas, * lines, * datad, * lined;
+	int32 i, j, w, h, wpls, wpld, rval, gval, bval, val;
+	uint32  * datas, * lines, * datad, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1143,7 +1130,7 @@ PIX * pixConvertRGBToGrayArb(PIX * pixs,
 		lined = datad + i * wpld;
 		for(j = 0; j < w; j++) {
 			extractRGBValues(lines[j], &rval, &gval, &bval);
-			val = (l_int32)(rc * rval + gc * gval + bc * bval);
+			val = (int32)(rc * rval + gc * gval + bc * bval);
 			val = MIN(255, MAX(0, val));
 			SET_DATA_BYTE(lined, j, val);
 		}
@@ -1174,10 +1161,10 @@ PIX * pixConvertRGBToBinaryArb(PIX * pixs,
     float rc,
     float gc,
     float bc,
-    l_int32 thresh,
-    l_int32 relation)
+    int32 thresh,
+    int32 relation)
 {
-	l_int32 threshold;
+	int32 threshold;
 	PIX * pix1, * pix2;
 
 	PROCNAME(__FUNCTION__);
@@ -1227,7 +1214,7 @@ PIX * pixConvertRGBToBinaryArb(PIX * pixs,
  */
 PIX * pixConvertGrayToColormap(PIX  * pixs)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pixd;
 	PIXCMAP   * cmap;
 
@@ -1279,12 +1266,12 @@ PIX * pixConvertGrayToColormap(PIX  * pixs)
  * </pre>
  */
 PIX * pixConvertGrayToColormap8(PIX * pixs,
-    l_int32 mindepth)
+    int32 mindepth)
 {
-	l_int32 ncolors, w, h, depth, i, j, wpls, wpld;
-	l_int32 index, num, val, newval;
-	l_int32 array[256];
-	l_uint32  * lines, * lined, * datas, * datad;
+	int32 ncolors, w, h, depth, i, j, wpls, wpld;
+	int32 index, num, val, newval;
+	int32 array[256];
+	uint32  * lines, * lined, * datas, * datad;
 	NUMA * na;
 	PIX * pixd;
 	PIXCMAP   * cmap;
@@ -1374,11 +1361,11 @@ PIX * pixConvertGrayToColormap8(PIX * pixs,
  * </pre>
  */
 PIX * pixColorizeGray(PIX * pixs,
-    l_uint32 color,
-    l_int32 cmapflag)
+    uint32 color,
+    int32 cmapflag)
 {
-	l_int32 i, j, w, h, wplt, wpld, val8;
-	l_uint32  * datad, * datat, * lined, * linet, * tab;
+	int32 i, j, w, h, wplt, wpld, val8;
+	uint32  * datad, * datat, * lined, * linet, * tab;
 	PIX * pixt, * pixd;
 	PIXCMAP   * cmap;
 
@@ -1459,9 +1446,9 @@ PIX * pixColorizeGray(PIX * pixs,
  * </pre>
  */
 PIX * pixConvertRGBToColormap(PIX * pixs,
-    l_int32 ditherflag)
+    int32 ditherflag)
 {
-	l_int32 ncolors;
+	int32 ncolors;
 	NUMA * na;
 	PIX * pixd;
 
@@ -1522,11 +1509,11 @@ PIX * pixConvertRGBToColormap(PIX * pixs,
  */
 PIX * pixConvertCmapTo1(PIX  * pixs)
 {
-	l_int32 i, j, nc, w, h, imin, imax, factor, wpl1, wpld;
-	l_int32 index, rmin, gmin, bmin, rmax, gmax, bmax, dmin, dmax;
+	int32 i, j, nc, w, h, imin, imax, factor, wpl1, wpld;
+	int32 index, rmin, gmin, bmin, rmax, gmax, bmax, dmin, dmax;
 	float minfract, ifract;
-	l_int32   * lut;
-	l_uint32  * line1, * lined, * data1, * datad;
+	int32   * lut;
+	uint32  * line1, * lined, * data1, * datad;
 	NUMA * na1, * na2; /* histograms */
 	PIX * pix1, * pixd;
 	PIXCMAP   * cmap;
@@ -1549,10 +1536,10 @@ PIX * pixConvertCmapTo1(PIX  * pixs)
 	/* Assign colors to the two classes.  The histogram is
 	 * initialized to 0, so any colors not found when computing
 	 * the sampled histogram will get zero weight in minfract. */
-	if((lut = (l_int32*)SAlloc::C(nc, sizeof(l_int32))) == NULL)
+	if((lut = (int32*)SAlloc::C(nc, sizeof(int32))) == NULL)
 		return (PIX *)ERROR_PTR("calloc fail for lut", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, NULL);
-	factor = MAX(1, (l_int32)sqrt((double)(w * h) / 50000. + 0.5));
+	factor = MAX(1, (int32)sqrt((double)(w * h) / 50000. + 0.5));
 	na1 = pixGetCmapHistogram(pixs, factor);
 	na2 = numaNormalizeHistogram(na1, 1.0);
 	minfract = 0.0;
@@ -1630,12 +1617,12 @@ PIX * pixConvertCmapTo1(PIX  * pixs)
  * </pre>
  */
 l_ok pixQuantizeIfFewColors(PIX * pixs,
-    l_int32 maxcolors,
-    l_int32 mingraycolors,
-    l_int32 octlevel,
+    int32 maxcolors,
+    int32 mingraycolors,
+    int32 octlevel,
     PIX    ** ppixd)
 {
-	l_int32 d, ncolors, iscolor, graycolors;
+	int32 d, ncolors, iscolor, graycolors;
 	PIX * pixg, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1694,7 +1681,7 @@ l_ok pixQuantizeIfFewColors(PIX * pixs,
 			pixg = pixConvertRGBToLuminance(pixs);
 		else
 			pixg = pixClone(pixs);
-		graycolors = MAX(mingraycolors, (l_int32)(1.5 * ncolors));
+		graycolors = MAX(mingraycolors, (int32)(1.5 * ncolors));
 		graycolors = MIN(graycolors, 256);
 		if(graycolors < 16)
 			pixd = pixThresholdTo4bpp(pixg, graycolors, 1);
@@ -1729,12 +1716,12 @@ l_ok pixQuantizeIfFewColors(PIX * pixs,
  * </pre>
  */
 PIX * pixConvert16To8(PIX * pixs,
-    l_int32 type)
+    int32 type)
 {
 	uint16 dword;
-	l_int32 w, h, wpls, wpld, i, j, val, use_lsb;
-	l_uint32 sword, first, second;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 w, h, wpls, wpld, i, j, val, use_lsb;
+	uint32 sword, first, second;
+	uint32  * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1827,7 +1814,7 @@ PIX * pixConvert16To8(PIX * pixs,
 PIX * pixConvertGrayToFalseColor(PIX * pixs,
     float gamma)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pixd;
 	PIXCMAP  * cmap;
 
@@ -1879,8 +1866,8 @@ PIX * pixConvertGrayToFalseColor(PIX * pixs,
  * </pre>
  */
 PIX * pixUnpackBinary(PIX * pixs,
-    l_int32 depth,
-    l_int32 invert)
+    int32 depth,
+    int32 invert)
 {
 	PIX  * pixd;
 
@@ -1950,10 +1937,10 @@ PIX * pixConvert1To16(PIX * pixd,
     uint16 val0,
     uint16 val1)
 {
-	l_int32 w, h, i, j, dibit, ndibits, wpls, wpld;
+	int32 w, h, i, j, dibit, ndibits, wpls, wpld;
 	uint16 val[2];
-	l_uint32 index;
-	l_uint32  * tab, * datas, * datad, * lines, * lined;
+	uint32 index;
+	uint32  * tab, * datas, * datad, * lines, * lined;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1977,7 +1964,7 @@ PIX * pixConvert1To16(PIX * pixd,
 	pixCopyInputFormat(pixd, pixs);
 
 	/* Use a table to convert 2 src bits at a time */
-	tab = (l_uint32*)SAlloc::C(4, sizeof(l_uint32));
+	tab = (uint32*)SAlloc::C(4, sizeof(uint32));
 	val[0] = val0;
 	val[1] = val1;
 	for(index = 0; index < 4; index++) {
@@ -2020,12 +2007,12 @@ PIX * pixConvert1To16(PIX * pixd,
  */
 PIX * pixConvert1To32(PIX * pixd,
     PIX * pixs,
-    l_uint32 val0,
-    l_uint32 val1)
+    uint32 val0,
+    uint32 val1)
 {
-	l_int32 w, h, i, j, wpls, wpld, bit;
-	l_uint32 val[2];
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 w, h, i, j, wpls, wpld, bit;
+	uint32 val[2];
+	uint32  * datas, * datad, * lines, * lined;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2123,14 +2110,14 @@ PIX * pixConvert1To2Cmap(PIX  * pixs)
  */
 PIX * pixConvert1To2(PIX * pixd,
     PIX * pixs,
-    l_int32 val0,
-    l_int32 val1)
+    int32 val0,
+    int32 val1)
 {
-	l_int32 w, h, i, j, byteval, nbytes, wpls, wpld;
+	int32 w, h, i, j, byteval, nbytes, wpls, wpld;
 	uint8 val[2];
-	l_uint32 index;
+	uint32 index;
 	uint16  * tab;
-	l_uint32  * datas, * datad, * lines, * lined;
+	uint32  * datas, * datad, * lines, * lined;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2242,13 +2229,13 @@ PIX * pixConvert1To4Cmap(PIX  * pixs)
  */
 PIX * pixConvert1To4(PIX * pixd,
     PIX * pixs,
-    l_int32 val0,
-    l_int32 val1)
+    int32 val0,
+    int32 val1)
 {
-	l_int32 w, h, i, j, byteval, nbytes, wpls, wpld;
+	int32 w, h, i, j, byteval, nbytes, wpls, wpld;
 	uint8 val[2];
-	l_uint32 index;
-	l_uint32  * tab, * datas, * datad, * lines, * lined;
+	uint32 index;
+	uint32  * tab, * datas, * datad, * lines, * lined;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2272,7 +2259,7 @@ PIX * pixConvert1To4(PIX * pixd,
 	pixCopyInputFormat(pixd, pixs);
 
 	/* Use a table to convert 8 src bits to 32 bit dest word */
-	tab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
+	tab = (uint32*)SAlloc::C(256, sizeof(uint32));
 	val[0] = val0;
 	val[1] = val1;
 	for(index = 0; index < 256; index++) {
@@ -2363,10 +2350,10 @@ PIX * pixConvert1To8(PIX * pixd,
     uint8 val0,
     uint8 val1)
 {
-	l_int32 w, h, i, j, qbit, nqbits, wpls, wpld;
+	int32 w, h, i, j, qbit, nqbits, wpls, wpld;
 	uint8 val[2];
-	l_uint32 index;
-	l_uint32  * tab, * datas, * datad, * lines, * lined;
+	uint32 index;
+	uint32  * tab, * datas, * datad, * lines, * lined;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2391,11 +2378,11 @@ PIX * pixConvert1To8(PIX * pixd,
 	pixSetPadBits(pixs, 0);
 
 	/* Use a table to convert 4 src bits at a time */
-	tab = (l_uint32*)SAlloc::C(16, sizeof(l_uint32));
+	tab = (uint32*)SAlloc::C(16, sizeof(uint32));
 	val[0] = val0;
 	val[1] = val1;
 	for(index = 0; index < 16; index++) {
-		tab[index] = ((l_uint32)val[(index >> 3) & 1] << 24) |
+		tab[index] = ((uint32)val[(index >> 3) & 1] << 24) |
 		    (val[(index >> 2) & 1] << 16) |
 		    (val[(index >> 1) & 1] << 8) | val[index & 1];
 	}
@@ -2453,12 +2440,12 @@ PIX * pixConvert2To8(PIX * pixs,
     uint8 val1,
     uint8 val2,
     uint8 val3,
-    l_int32 cmapflag)
+    int32 cmapflag)
 {
-	l_int32 w, h, i, j, nbytes, wpls, wpld, dibit, byte;
-	l_uint32 val[4];
-	l_uint32 index;
-	l_uint32  * tab, * datas, * datad, * lines, * lined;
+	int32 w, h, i, j, nbytes, wpls, wpld, dibit, byte;
+	uint32 val[4];
+	uint32 index;
+	uint32  * tab, * datas, * datad, * lines, * lined;
 	PIX * pixd;
 	PIXCMAP   * cmaps, * cmapd;
 
@@ -2510,7 +2497,7 @@ PIX * pixConvert2To8(PIX * pixs,
 	/* Last case: no colormap in either pixs or pixd.
 	 * Use input values and build a table to convert 1 src byte
 	 * (4 src pixels) at a time */
-	tab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
+	tab = (uint32*)SAlloc::C(256, sizeof(uint32));
 	val[0] = val0;
 	val[1] = val1;
 	val[2] = val2;
@@ -2560,10 +2547,10 @@ PIX * pixConvert2To8(PIX * pixs,
  * </pre>
  */
 PIX * pixConvert4To8(PIX * pixs,
-    l_int32 cmapflag)
+    int32 cmapflag)
 {
-	l_int32 w, h, i, j, wpls, wpld, byte, qbit;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 w, h, i, j, wpls, wpld, byte, qbit;
+	uint32  * datas, * datad, * lines, * lined;
 	PIX * pixd;
 	PIXCMAP   * cmaps, * cmapd;
 
@@ -2643,10 +2630,10 @@ PIX * pixConvert4To8(PIX * pixs,
  * </pre>
  */
 PIX * pixConvert8To16(PIX * pixs,
-    l_int32 leftshift)
+    int32 leftshift)
 {
-	l_int32 i, j, w, h, d, wplt, wpld, val;
-	l_uint32  * datat, * datad, * linet, * lined;
+	int32 i, j, w, h, d, wplt, wpld, val;
+	uint32  * datat, * datad, * linet, * lined;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2708,7 +2695,7 @@ PIX * pixConvert8To16(PIX * pixs,
  */
 PIX * pixConvertTo2(PIX  * pixs)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pix1, * pix2, * pix3, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2762,9 +2749,9 @@ PIX * pixConvertTo2(PIX  * pixs)
  */
 PIX * pixConvert8To2(PIX  * pix)
 {
-	l_int32 i, j, w, h, wpls, wpld;
-	l_uint32 word;
-	l_uint32  * datas, * lines, * datad, * lined;
+	int32 i, j, w, h, wpls, wpld;
+	uint32 word;
+	uint32  * datas, * lines, * datad, * lined;
 	PIX * pixs, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2816,7 +2803,7 @@ PIX * pixConvert8To2(PIX  * pix)
  */
 PIX * pixConvertTo4(PIX  * pixs)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pix1, * pix2, * pix3, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2870,8 +2857,8 @@ PIX * pixConvertTo4(PIX  * pixs)
  */
 PIX * pixConvert8To4(PIX  * pix)
 {
-	l_int32 i, j, w, h, wpls, wpld, val;
-	l_uint32  * datas, * lines, * datad, * lined;
+	int32 i, j, w, h, wpls, wpld, val;
+	uint32  * datas, * lines, * datad, * lined;
 	PIX * pixs, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2920,7 +2907,7 @@ PIX * pixConvert8To4(PIX  * pix)
  */
 PIX * pixConvertTo1Adaptive(PIX * pixs)
 {
-	l_int32 d, color0, color1, rval, gval, bval;
+	int32 d, color0, color1, rval, gval, bval;
 	PIX * pix1, * pix2, * pixd;
 	PIXCMAP  * cmap;
 
@@ -2977,9 +2964,9 @@ PIX * pixConvertTo1Adaptive(PIX * pixs)
  * </pre>
  */
 PIX * pixConvertTo1(PIX * pixs,
-    l_int32 threshold)
+    int32 threshold)
 {
-	l_int32 d, color0, color1, rval, gval, bval;
+	int32 d, color0, color1, rval, gval, bval;
 	PIX * pixg, * pixd;
 	PIXCMAP  * cmap;
 
@@ -3032,8 +3019,8 @@ PIX * pixConvertTo1(PIX * pixs,
  * </pre>
  */
 PIX * pixConvertTo1BySampling(PIX * pixs,
-    l_int32 factor,
-    l_int32 threshold)
+    int32 factor,
+    int32 threshold)
 {
 	float scalefactor;
 	PIX * pixt, * pixd;
@@ -3081,9 +3068,9 @@ PIX * pixConvertTo1BySampling(PIX * pixs,
  * </pre>
  */
 PIX * pixConvertTo8(PIX * pixs,
-    l_int32 cmapflag)
+    int32 cmapflag)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pix1, * pixd;
 	PIXCMAP  * cmap;
 
@@ -3158,8 +3145,8 @@ PIX * pixConvertTo8(PIX * pixs,
  * </pre>
  */
 PIX * pixConvertTo8BySampling(PIX * pixs,
-    l_int32 factor,
-    l_int32 cmapflag)
+    int32 factor,
+    int32 cmapflag)
 {
 	float scalefactor;
 	PIX * pixt, * pixd;
@@ -3200,9 +3187,9 @@ PIX * pixConvertTo8BySampling(PIX * pixs,
  * </pre>
  */
 PIX * pixConvertTo8Colormap(PIX * pixs,
-    l_int32 dither)
+    int32 dither)
 {
-	l_int32 d;
+	int32 d;
 
 	PROCNAME(__FUNCTION__);
 
@@ -3234,7 +3221,7 @@ PIX * pixConvertTo8Colormap(PIX * pixs,
  */
 PIX * pixConvertTo16(PIX  * pixs)
 {
-	l_int32 d;
+	int32 d;
 
 	PROCNAME(__FUNCTION__);
 
@@ -3280,7 +3267,7 @@ PIX * pixConvertTo16(PIX  * pixs)
  */
 PIX * pixConvertTo32(PIX  * pixs)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pix1, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -3339,7 +3326,7 @@ PIX * pixConvertTo32(PIX  * pixs)
  * </pre>
  */
 PIX * pixConvertTo32BySampling(PIX * pixs,
-    l_int32 factor)
+    int32 factor)
 {
 	float scalefactor;
 	PIX * pix1, * pixd;
@@ -3373,9 +3360,9 @@ PIX * pixConvertTo32BySampling(PIX * pixs,
  */
 PIX * pixConvert8To32(PIX  * pixs)
 {
-	l_int32 i, j, w, h, wpls, wpld, val;
-	l_uint32  * datas, * datad, * lines, * lined;
-	l_uint32  * tab;
+	int32 i, j, w, h, wpls, wpld, val;
+	uint32  * datas, * datad, * lines, * lined;
+	uint32  * tab;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -3399,9 +3386,9 @@ PIX * pixConvert8To32(PIX  * pixs)
 	wpld = pixGetWpl(pixd);
 
 	/* Replication table gray --> rgb */
-	tab = (l_uint32*)SAlloc::C(256, sizeof(l_uint32));
+	tab = (uint32*)SAlloc::C(256, sizeof(uint32));
 	for(i = 0; i < 256; i++)
-		tab[i] = ((l_uint32)i << 24) | (i << 16) | (i << 8);
+		tab[i] = ((uint32)i << 24) | (i << 16) | (i << 8);
 
 	/* Replicate 1 --> 4 bytes (alpha byte not set) */
 	for(i = 0; i < h; i++) {
@@ -3440,10 +3427,10 @@ PIX * pixConvert8To32(PIX  * pixs)
  * </pre>
  */
 PIX * pixConvertTo8Or32(PIX * pixs,
-    l_int32 copyflag,
-    l_int32 warnflag)
+    int32 copyflag,
+    int32 warnflag)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -3505,9 +3492,9 @@ PIX * pixConvertTo8Or32(PIX * pixs,
 PIX * pixConvert24To32(PIX  * pixs)
 {
 	uint8   * lines;
-	l_int32 w, h, d, i, j, wpls, wpld, rval, gval, bval;
-	l_uint32 pixel;
-	l_uint32  * datas, * datad, * lined;
+	int32 w, h, d, i, j, wpls, wpld, rval, gval, bval;
+	uint32 pixel;
+	uint32  * datas, * datad, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -3552,13 +3539,11 @@ PIX * pixConvert24To32(PIX  * pixs)
  */
 PIX * pixConvert32To24(PIX  * pixs)
 {
-	uint8   * rgbdata8;
-	l_int32 w, h, d, i, j, wpls, wpld, rval, gval, bval;
-	l_uint32  * datas, * lines, * rgbdata;
-	PIX * pixd;
-
 	PROCNAME(__FUNCTION__);
-
+	uint8   * rgbdata8;
+	int32 w, h, d, i, j, wpls, wpld, rval, gval, bval;
+	uint32  * datas, * lines, * rgbdata;
+	PIX * pixd;
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	pixGetDimensions(pixs, &w, &h, &d);
@@ -3598,26 +3583,21 @@ PIX * pixConvert32To24(PIX  * pixs)
  * <pre>
  * Notes:
  *      (1) The data in pixs is typically used for labelling.
- *          It is an array of l_uint32 values, not rgb or rgba.
+ *          It is an array of uint32 values, not rgb or rgba.
  * </pre>
  */
-PIX * pixConvert32To16(PIX * pixs,
-    l_int32 type)
+PIX * pixConvert32To16(PIX * pixs, int32 type)
 {
-	uint16 dword;
-	l_int32 w, h, i, j, wpls, wpld;
-	l_uint32 sword;
-	l_uint32  * datas, * lines, * datad, * lined;
-	PIX * pixd;
-
 	PROCNAME(__FUNCTION__);
-
+	uint16 dword;
+	int32 w, h, i, j, wpls, wpld;
+	uint32 sword;
+	uint32  * datas, * lines, * datad, * lined;
+	PIX * pixd;
 	if(!pixs || pixGetDepth(pixs) != 32)
 		return (PIX *)ERROR_PTR("pixs undefined or not 32 bpp", procName, NULL);
-	if(type != L_LS_TWO_BYTES && type != L_MS_TWO_BYTES &&
-	    type != L_CLIP_TO_FFFF)
+	if(type != L_LS_TWO_BYTES && type != L_MS_TWO_BYTES && type != L_CLIP_TO_FFFF)
 		return (PIX *)ERROR_PTR("invalid type", procName, NULL);
-
 	pixGetDimensions(pixs, &w, &h, NULL);
 	if((pixd = pixCreate(w, h, 16)) == NULL)
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
@@ -3665,14 +3645,10 @@ PIX * pixConvert32To16(PIX * pixs,
  * \param[in]    type8   L_LS_BYTE, L_MS_BYTE, L_CLIP_TO_FF
  * \return  pixd 8 bpp, or NULL on error
  */
-PIX * pixConvert32To8(PIX * pixs,
-    l_int32 type16,
-    l_int32 type8)
+PIX * pixConvert32To8(PIX * pixs, int32 type16, int32 type8)
 {
-	PIX  * pix1, * pixd;
-
 	PROCNAME(__FUNCTION__);
-
+	PIX  * pix1, * pixd;
 	if(!pixs || pixGetDepth(pixs) != 32)
 		return (PIX *)ERROR_PTR("pixs undefined or not 32 bpp", procName, NULL);
 	if(type16 != L_LS_TWO_BYTES && type16 != L_MS_TWO_BYTES &&
@@ -3680,13 +3656,11 @@ PIX * pixConvert32To8(PIX * pixs,
 		return (PIX *)ERROR_PTR("invalid type16", procName, NULL);
 	if(type8 != L_LS_BYTE && type8 != L_MS_BYTE && type8 != L_CLIP_TO_FF)
 		return (PIX *)ERROR_PTR("invalid type8", procName, NULL);
-
 	pix1 = pixConvert32To16(pixs, type16);
 	pixd = pixConvert16To8(pix1, type8);
 	pixDestroy(&pix1);
 	return pixd;
 }
-
 /*---------------------------------------------------------------------------*
 *        Removal of alpha component by blending with white background       *
 *---------------------------------------------------------------------------*/
@@ -3705,16 +3679,13 @@ PIX * pixConvert32To8(PIX * pixs,
 PIX * pixRemoveAlpha(PIX * pixs)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
-
 	if(pixGetDepth(pixs) == 32 && pixGetSpp(pixs) == 4)
 		return pixAlphaBlendUniform(pixs, 0xffffff00);
 	else
 		return pixClone(pixs);
 }
-
 /*---------------------------------------------------------------------------*
 *                  Addition of alpha component to 1 bpp                     *
 *---------------------------------------------------------------------------*/
@@ -3778,10 +3749,10 @@ PIX * pixAddAlphaTo1bpp(PIX  * pixd,
  * </pre>
  */
 PIX * pixConvertLossless(PIX * pixs,
-    l_int32 d)
+    int32 d)
 {
-	l_int32 w, h, ds, wpls, wpld, i, j, val;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 w, h, ds, wpls, wpld, i, j, val;
+	uint32  * datas, * datad, * lines, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -3868,7 +3839,7 @@ PIX * pixConvertLossless(PIX * pixs,
  */
 PIX * pixConvertForPSWrap(PIX  * pixs)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pixd;
 	PIXCMAP  * cmap;
 
@@ -3946,9 +3917,9 @@ PIX * pixConvertForPSWrap(PIX  * pixs)
 PIX * pixConvertToSubpixelRGB(PIX * pixs,
     float scalex,
     float scaley,
-    l_int32 order)
+    int32 order)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pix1, * pixd;
 	PIXCMAP   * cmap;
 
@@ -4014,10 +3985,10 @@ PIX * pixConvertToSubpixelRGB(PIX * pixs,
 PIX * pixConvertGrayToSubpixelRGB(PIX * pixs,
     float scalex,
     float scaley,
-    l_int32 order)
+    int32 order)
 {
-	l_int32 w, h, d, wd, hd, wplt, wpld, i, j, rval, gval, bval, direction;
-	l_uint32  * datat, * datad, * linet, * lined;
+	int32 w, h, d, wd, hd, wplt, wpld, i, j, rval, gval, bval, direction;
+	uint32  * datat, * datad, * linet, * lined;
 	PIX * pix1, * pix2, * pixd;
 	PIXCMAP   * cmap;
 
@@ -4118,10 +4089,10 @@ PIX * pixConvertGrayToSubpixelRGB(PIX * pixs,
 PIX * pixConvertColorToSubpixelRGB(PIX * pixs,
     float scalex,
     float scaley,
-    l_int32 order)
+    int32 order)
 {
-	l_int32 w, h, d, wd, hd, wplt, wpld, i, j, rval, gval, bval, direction;
-	l_uint32  * datat, * datad, * linet, * lined;
+	int32 w, h, d, wd, hd, wplt, wpld, i, j, rval, gval, bval, direction;
+	uint32  * datat, * datad, * linet, * lined;
 	PIX * pix1, * pix2, * pixd;
 	PIXCMAP   * cmap;
 
@@ -4219,7 +4190,7 @@ PIX * pixConvertColorToSubpixelRGB(PIX * pixs,
  *          depending on if that component is above or below this value.
  * </pre>
  */
-void l_setNeutralBoostVal(l_int32 val)
+void l_setNeutralBoostVal(int32 val)
 {
 	PROCNAME(__FUNCTION__);
 	if(val <= 0) {

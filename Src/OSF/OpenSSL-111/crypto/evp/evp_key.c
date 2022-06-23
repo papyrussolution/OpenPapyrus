@@ -89,7 +89,7 @@ int EVP_BytesToKey(const EVP_CIPHER * type, const EVP_MD * md,
 		return nkey;
 
 	c = EVP_MD_CTX_new();
-	if(c == NULL)
+	if(!c)
 		goto err;
 	for(;;) {
 		if(!EVP_DigestInit_ex(c, md, NULL))

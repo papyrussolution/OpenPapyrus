@@ -71,7 +71,7 @@
 char * getImagelibVersions(void)
 {
 	char buf[128];
-	l_int32 first = TRUE;
+	int32 first = TRUE;
 	char * versionNumP;
 	char * nextTokenP;
 	char * versionStrP = NULL;
@@ -145,7 +145,7 @@ char * getImagelibVersions(void)
 
 #if HAVE_LIBWEBP
 	{
-		l_int32 val;
+		int32 val;
 		char buf[32];
 		if(!first) stringJoinIP(&versionStrP, " : ");
 		first = FALSE;

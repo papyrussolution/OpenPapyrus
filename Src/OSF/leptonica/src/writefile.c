@@ -10,32 +10,32 @@
  * writefile.c
  *
  *     Set jpeg quality for pixWrite() and pixWriteMem()
- *        l_int32     l_jpegSetQuality()
+ *        int32     l_jpegSetQuality()
  *
  *     Set global variable LeptDebugOK for writing to named temp files
- *        l_int32     setLeptDebugOK()
+ *        int32     setLeptDebugOK()
  *
  *     High-level procedures for writing images to file:
- *        l_int32     pixaWriteFiles()
- *        l_int32     pixWriteDebug()
- *        l_int32     pixWrite()
- *        l_int32     pixWriteAutoFormat()
- *        l_int32     pixWriteStream()
- *        l_int32     pixWriteImpliedFormat()
+ *        int32     pixaWriteFiles()
+ *        int32     pixWriteDebug()
+ *        int32     pixWrite()
+ *        int32     pixWriteAutoFormat()
+ *        int32     pixWriteStream()
+ *        int32     pixWriteImpliedFormat()
  *
  *     Selection of output format if default is requested
- *        l_int32     pixChooseOutputFormat()
- *        l_int32     getImpliedFileFormat()
- *        l_int32     pixGetAutoFormat()
+ *        int32     pixChooseOutputFormat()
+ *        int32     getImpliedFileFormat()
+ *        int32     pixGetAutoFormat()
  *        const char *getFormatExtension()
  *
  *     Write to memory
- *        l_int32     pixWriteMem()
+ *        int32     pixWriteMem()
  *
  *     Image display for debugging
- *        l_int32     l_fileDisplay()
- *        l_int32     pixDisplay()
- *        l_int32     pixDisplayWithTitle()
+ *        int32     l_fileDisplay()
+ *        int32     pixDisplay()
+ *        int32     pixDisplayWithTitle()
  *        PIX        *pixMakeColorSquare()
  *        void        l_chooseDisplayProg()
  *
@@ -43,7 +43,7 @@
  *        void        changeFormatForMissingLib()
  *
  *     Nonfunctional stub of pix output for debugging
- *        l_int32     pixDisplayWrite()
+ *        int32     pixDisplayWrite()
  *
  *  Supported file formats:
  *  (1) Writing is supported without any external libraries:
@@ -71,17 +71,17 @@
 
 /* Display program (xv, xli, xzgv, open) to be invoked by pixDisplay()  */
 #ifdef _WIN32
-static l_int32 var_DISPLAY_PROG = L_DISPLAY_WITH_IV; /* default */
+static int32 var_DISPLAY_PROG = L_DISPLAY_WITH_IV; /* default */
 #elif  defined(__APPLE__)
-static l_int32 var_DISPLAY_PROG = L_DISPLAY_WITH_OPEN; /* default */
+static int32 var_DISPLAY_PROG = L_DISPLAY_WITH_OPEN; /* default */
 #else
-static l_int32 var_DISPLAY_PROG = L_DISPLAY_WITH_XZGV; /* default */
+static int32 var_DISPLAY_PROG = L_DISPLAY_WITH_XZGV; /* default */
 #endif  /* _WIN32 */
 
 #define Bufsize 512
-static const l_int32 MaxDisplayWidth = 1000;
-static const l_int32 MaxDisplayHeight = 800;
-static const l_int32 MaxSizeForPng = 200;
+static const int32 MaxDisplayWidth = 1000;
+static const int32 MaxDisplayHeight = 800;
+static const int32 MaxSizeForPng = 200;
 
 /* PostScript output for printing */
 static const float DefaultScaling = 1.0;
@@ -95,7 +95,7 @@ static const float DefaultScaling = 1.0;
 /* because that makes it static.  The 'const' in the definition of   */
 /* the array refers to the strings in the array; the ptr to the      */
 /* array is not const and can be used 'extern' in other files.)      */
-LEPT_DLL l_int32 NumImageFileFormatExtensions = 20; /* array size */
+LEPT_DLL int32 NumImageFileFormatExtensions = 20; /* array size */
 LEPT_DLL const char * ImageFileFormatExtensions[] =
 {"unknown",
  "bmp",
@@ -121,7 +121,7 @@ LEPT_DLL const char * ImageFileFormatExtensions[] =
 /* Local map of image file name extension to output format */
 struct ExtensionMap {
 	char extension[8];
-	l_int32 format;
+	int32 format;
 };
 
 static const struct ExtensionMap extension_map[] =
@@ -142,7 +142,7 @@ static const struct ExtensionMap extension_map[] =
 *           Set jpeg quality for pixWrite() and pixWriteMem()         *
 *---------------------------------------------------------------------*/
 /* Parameter that controls jpeg quality for high-level calls. */
-static l_int32 var_JPEG_QUALITY = 75; /* default */
+static int32 var_JPEG_QUALITY = 75; /* default */
 
 /*!
  * \brief   l_jpegSetQuality()
@@ -155,14 +155,14 @@ static l_int32 var_JPEG_QUALITY = 75; /* default */
  *      (1) This variable is used in pixWriteStream() and pixWriteMem(),
  *          to control the jpeg quality.  The default is 75.
  *      (2) It returns the previous quality, so for example:
- *           l_int32  prev = l_jpegSetQuality(85);  //sets to 85
+ *           int32  prev = l_jpegSetQuality(85);  //sets to 85
  *           pixWriteStream(...);
  *           l_jpegSetQuality(prev);   // resets to previous value
  *      (3) On error, logs a message and does not change the variable.
  */
-l_int32 l_jpegSetQuality(l_int32 new_quality)
+int32 l_jpegSetQuality(int32 new_quality)
 {
-	l_int32 prevq, newq;
+	int32 prevq, newq;
 
 	PROCNAME(__FUNCTION__);
 
@@ -178,7 +178,7 @@ l_int32 l_jpegSetQuality(l_int32 new_quality)
 /*----------------------------------------------------------------------*
 *    Set global variable LeptDebugOK for writing to named temp files   *
 *----------------------------------------------------------------------*/
-LEPT_DLL l_int32 LeptDebugOK = 0;  /* default value */
+LEPT_DLL int32 LeptDebugOK = 0;  /* default value */
 /*!
  * \brief   setLeptDebugOK()
  *
@@ -193,7 +193,7 @@ LEPT_DLL l_int32 LeptDebugOK = 0;  /* default value */
  *      (2) The default in the library distribution is 0.  Call with
  *          %allow = 1 for development and debugging.
  */
-void setLeptDebugOK(l_int32 allow)
+void setLeptDebugOK(int32 allow)
 {
 	if(allow != 0) allow = 1;
 	LeptDebugOK = allow;
@@ -218,10 +218,10 @@ void setLeptDebugOK(l_int32 allow)
  */
 l_ok pixaWriteFiles(const char * rootname,
     PIXA        * pixa,
-    l_int32 format)
+    int32 format)
 {
 	char bigbuf[Bufsize];
-	l_int32 i, n, pixformat;
+	int32 i, n, pixformat;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -269,7 +269,7 @@ l_ok pixaWriteFiles(const char * rootname,
  */
 l_ok pixWriteDebug(const char * fname,
     PIX         * pix,
-    l_int32 format)
+    int32 format)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -305,9 +305,9 @@ l_ok pixWriteDebug(const char * fname,
  */
 l_ok pixWrite(const char * fname,
     PIX         * pix,
-    l_int32 format)
+    int32 format)
 {
-	l_int32 ret;
+	int32 ret;
 	FILE * fp;
 
 	PROCNAME(__FUNCTION__);
@@ -337,7 +337,7 @@ l_ok pixWrite(const char * fname,
 l_ok pixWriteAutoFormat(const char * filename,
     PIX         * pix)
 {
-	l_int32 format;
+	int32 format;
 
 	PROCNAME(__FUNCTION__);
 
@@ -361,7 +361,7 @@ l_ok pixWriteAutoFormat(const char * filename,
  */
 l_ok pixWriteStream(FILE * fp,
     PIX * pix,
-    l_int32 format)
+    int32 format)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -445,10 +445,10 @@ l_ok pixWriteStream(FILE * fp,
  */
 l_ok pixWriteImpliedFormat(const char * filename,
     PIX         * pix,
-    l_int32 quality,
-    l_int32 progressive)
+    int32 quality,
+    int32 progressive)
 {
-	l_int32 format;
+	int32 format;
 
 	PROCNAME(__FUNCTION__);
 
@@ -508,9 +508,9 @@ l_ok pixWriteImpliedFormat(const char * filename,
  *          in a compressed but lossless format.
  * </pre>
  */
-l_int32 pixChooseOutputFormat(PIX  * pix)
+int32 pixChooseOutputFormat(PIX  * pix)
 {
-	l_int32 d, format;
+	int32 d, format;
 
 	PROCNAME(__FUNCTION__);
 
@@ -541,11 +541,11 @@ l_int32 pixChooseOutputFormat(PIX  * pix)
  *          of the input filename.
  * </pre>
  */
-l_int32 getImpliedFileFormat(const char * filename)
+int32 getImpliedFileFormat(const char * filename)
 {
 	char * extension;
 	int i, numext;
-	l_int32 format = IFF_UNKNOWN;
+	int32 format = IFF_UNKNOWN;
 
 	if(splitPathAtExtension(filename, NULL, &extension))
 		return IFF_UNKNOWN;
@@ -581,9 +581,9 @@ l_int32 getImpliedFileFormat(const char * filename)
  * </pre>
  */
 l_ok pixGetAutoFormat(PIX * pix,
-    l_int32 * pformat)
+    int32 * pformat)
 {
-	l_int32 d;
+	int32 d;
 	PIXCMAP  * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -621,7 +621,7 @@ l_ok pixGetAutoFormat(PIX * pix,
  *          to a global string.  Do not free it.
  * </pre>
  */
-const char * getFormatExtension(l_int32 format)
+const char * getFormatExtension(int32 format)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -657,9 +657,9 @@ const char * getFormatExtension(l_int32 format)
 l_ok pixWriteMem(uint8  ** pdata,
     size_t * psize,
     PIX * pix,
-    l_int32 format)
+    int32 format)
 {
-	l_int32 ret;
+	int32 ret;
 
 	PROCNAME(__FUNCTION__);
 
@@ -757,8 +757,8 @@ l_ok pixWriteMem(uint8  ** pdata,
  * </pre>
  */
 l_ok l_fileDisplay(const char * fname,
-    l_int32 x,
-    l_int32 y,
+    int32 x,
+    int32 y,
     float scale)
 {
 	PIX  * pixs, * pixd;
@@ -832,8 +832,8 @@ l_ok l_fileDisplay(const char * fname,
  * </pre>
  */
 l_ok pixDisplay(PIX * pixs,
-    l_int32 x,
-    l_int32 y)
+    int32 x,
+    int32 y)
 {
 	return pixDisplayWithTitle(pixs, x, y, NULL, 1);
 }
@@ -854,20 +854,20 @@ l_ok pixDisplay(PIX * pixs,
  * </pre>
  */
 l_ok pixDisplayWithTitle(PIX         * pixs,
-    l_int32 x,
-    l_int32 y,
+    int32 x,
+    int32 y,
     const char * title,
-    l_int32 dispflag)
+    int32 dispflag)
 {
 	char           * tempname;
 	char buffer[Bufsize];
-	static l_int32 index = 0; /* caution: not .so or thread safe */
-	l_int32 w, h, d, spp, maxheight, opaque, threeviews;
+	static int32 index = 0; /* caution: not .so or thread safe */
+	int32 w, h, d, spp, maxheight, opaque, threeviews;
 	float ratw, rath, ratmin;
 	PIX            * pix0, * pix1, * pix2;
 	PIXCMAP        * cmap;
 #ifndef _WIN32
-	l_int32 wt, ht;
+	int32 wt, ht;
 #else
 	char           * pathname;
 	char fullpath[_MAX_PATH];
@@ -1040,10 +1040,10 @@ l_ok pixDisplayWithTitle(PIX         * pixs,
  *      (2) To make an array of color squares, use pixDisplayColorArray().
  * </pre>
  */
-PIX * pixMakeColorSquare(l_uint32 color, l_int32 size, l_int32 addlabel, l_int32 location, l_uint32 textcolor)
+PIX * pixMakeColorSquare(uint32 color, int32 size, int32 addlabel, int32 location, uint32 textcolor)
 {
 	char buf[32];
-	l_int32 w, rval, gval, bval;
+	int32 w, rval, gval, bval;
 	L_BMF   * bmf;
 	PIX * pix1, * pix2;
 	PROCNAME(__FUNCTION__);
@@ -1071,7 +1071,7 @@ PIX * pixMakeColorSquare(l_uint32 color, l_int32 size, l_int32 addlabel, l_int32
 	return pix2;
 }
 
-void l_chooseDisplayProg(l_int32 selection)
+void l_chooseDisplayProg(int32 selection)
 {
 	if(selection == L_DISPLAY_WITH_XLI ||
 	    selection == L_DISPLAY_WITH_XZGV ||
@@ -1101,7 +1101,7 @@ void l_chooseDisplayProg(l_int32 selection)
  *          In that case, the output format is changed to bmp.
  * </pre>
  */
-void changeFormatForMissingLib(l_int32 * pformat)
+void changeFormatForMissingLib(int32 * pformat)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1141,7 +1141,7 @@ void changeFormatForMissingLib(l_int32 * pformat)
  * </pre>
  */
 l_ok pixDisplayWrite(PIX * pixs,
-    l_int32 reduction)
+    int32 reduction)
 {
 	lept_stderr("\n########################################################\n"
 	    "  pixDisplayWrite() was last used in tesseract 3.04,"

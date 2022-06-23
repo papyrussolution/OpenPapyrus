@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file pdfio1.c
  * <pre>
@@ -100,46 +87,46 @@
  *         http://www.adobe.com/devnet/pdf/pdf_reference_archive.html
  *
  *     1. Convert specified image files to pdf (one image file per page)
- *          l_int32             convertFilesToPdf()
- *          l_int32             saConvertFilesToPdf()
- *          l_int32             saConvertFilesToPdfData()
- *          l_int32             selectDefaultPdfEncoding()
+ *          int32             convertFilesToPdf()
+ *          int32             saConvertFilesToPdf()
+ *          int32             saConvertFilesToPdfData()
+ *          int32             selectDefaultPdfEncoding()
  *
  *     2. Convert specified image files to pdf without scaling
- *          l_int32             convertUnscaledFilesToPdf()
- *          l_int32             saConvertUnscaledFilesToPdf()
- *          l_int32             saConvertUnscaledFilesToPdfData()
- *          l_int32             convertUnscaledToPdfData()
+ *          int32             convertUnscaledFilesToPdf()
+ *          int32             saConvertUnscaledFilesToPdf()
+ *          int32             saConvertUnscaledFilesToPdfData()
+ *          int32             convertUnscaledToPdfData()
  *
  *     3. Convert multiple images to pdf (one image per page)
- *          l_int32             pixaConvertToPdf()
- *          l_int32             pixaConvertToPdfData()
+ *          int32             pixaConvertToPdf()
+ *          int32             pixaConvertToPdfData()
  *
  *     4. Single page, multi-image converters
- *          l_int32             convertToPdf()
- *          l_int32             convertImageDataToPdf()
- *          l_int32             convertToPdfData()
- *          l_int32             convertImageDataToPdfData()
- *          l_int32             pixConvertToPdf()
- *          l_int32             pixWriteStreamPdf()
- *          l_int32             pixWriteMemPdf()
+ *          int32             convertToPdf()
+ *          int32             convertImageDataToPdf()
+ *          int32             convertToPdfData()
+ *          int32             convertImageDataToPdfData()
+ *          int32             pixConvertToPdf()
+ *          int32             pixWriteStreamPdf()
+ *          int32             pixWriteMemPdf()
  *
  *     5. Segmented multi-page, multi-image converter
- *          l_int32             convertSegmentedFilesToPdf()
+ *          int32             convertSegmentedFilesToPdf()
  *          BOXAA              *convertNumberedMasksToBoxaa()
  *
  *     6. Segmented single page, multi-image converters
- *          l_int32             convertToPdfSegmented()
- *          l_int32             pixConvertToPdfSegmented()
- *          l_int32             convertToPdfDataSegmented()
- *          l_int32             pixConvertToPdfDataSegmented()
+ *          int32             convertToPdfSegmented()
+ *          int32             pixConvertToPdfSegmented()
+ *          int32             convertToPdfDataSegmented()
+ *          int32             pixConvertToPdfDataSegmented()
  *
  *     7. Multipage concatenation
- *          l_int32             concatenatePdf()
- *          l_int32             saConcatenatePdf()
- *          l_int32             ptraConcatenatePdf()
- *          l_int32             concatenatePdfToData()
- *          l_int32             saConcatenatePdfToData()
+ *          int32             concatenatePdf()
+ *          int32             saConcatenatePdf()
+ *          int32             ptraConcatenatePdf()
+ *          int32             concatenatePdfToData()
+ *          int32             saConcatenatePdfToData()
  *
  *     The top-level multi-image functions can be visualized as follows:
  *          Output pdf data to file:
@@ -204,7 +191,7 @@
 /* --------------------------------------------*/
 
 /* Typical scan resolution in ppi (pixels/inch) */
-static const l_int32 DefaultInputRes = 300;
+static const int32 DefaultInputRes = 300;
 
 /*---------------------------------------------------------------------*
 *    Convert specified image files to pdf (one image file per page)   *
@@ -245,14 +232,14 @@ static const l_int32 DefaultInputRes = 300;
  */
 l_ok convertFilesToPdf(const char * dirname,
     const char * substr,
-    l_int32 res,
+    int32 res,
     float scalefactor,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     const char * title,
     const char * fileout)
 {
-	l_int32 ret;
+	int32 ret;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -292,15 +279,15 @@ l_ok convertFilesToPdf(const char * dirname,
  * </pre>
  */
 l_ok saConvertFilesToPdf(SARRAY * sa,
-    l_int32 res,
+    int32 res,
     float scalefactor,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     const char * title,
     const char * fileout)
 {
 	uint8  * data;
-	l_int32 ret;
+	int32 ret;
 	size_t nbytes;
 
 	PROCNAME(__FUNCTION__);
@@ -345,10 +332,10 @@ l_ok saConvertFilesToPdf(SARRAY * sa,
  * </pre>
  */
 l_ok saConvertFilesToPdfData(SARRAY * sa,
-    l_int32 res,
+    int32 res,
     float scalefactor,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     const char * title,
     uint8    ** pdata,
     size_t      * pnbytes)
@@ -356,7 +343,7 @@ l_ok saConvertFilesToPdfData(SARRAY * sa,
 	char * fname;
 	const char * pdftitle;
 	uint8     * imdata;
-	l_int32 i, n, ret, pagetype, npages, scaledres;
+	int32 i, n, ret, pagetype, npages, scaledres;
 	size_t imbytes;
 	L_BYTEA     * ba;
 	PIX         * pixs, * pix;
@@ -396,7 +383,7 @@ l_ok saConvertFilesToPdfData(SARRAY * sa,
 		else
 			pix = pixClone(pixs);
 		pixDestroy(&pixs);
-		scaledres = (l_int32)(res * scalefactor);
+		scaledres = (int32)(res * scalefactor);
 
 		/* Select the encoding type */
 		if(type != L_DEFAULT_ENCODE) {
@@ -463,9 +450,9 @@ l_ok saConvertFilesToPdfData(SARRAY * sa,
  * </pre>
  */
 l_ok selectDefaultPdfEncoding(PIX * pix,
-    l_int32 * ptype)
+    int32 * ptype)
 {
-	l_int32 w, h, d, factor, ncolors;
+	int32 w, h, d, factor, ncolors;
 	PIXCMAP  * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -478,7 +465,7 @@ l_ok selectDefaultPdfEncoding(PIX * pix,
 	pixGetDimensions(pix, &w, &h, &d);
 	cmap = pixGetColormap(pix);
 	if(d == 8 && !cmap) {
-		factor = MAX(1, (l_int32)sqrt((double)(w * h) / 20000.));
+		factor = MAX(1, (int32)sqrt((double)(w * h) / 20000.));
 		pixNumColors(pix, factor, &ncolors);
 		if(ncolors < 20)
 			*ptype = L_FLATE_ENCODE;
@@ -532,7 +519,7 @@ l_ok convertUnscaledFilesToPdf(const char * dirname,
     const char * title,
     const char * fileout)
 {
-	l_int32 ret;
+	int32 ret;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -568,7 +555,7 @@ l_ok saConvertUnscaledFilesToPdf(SARRAY * sa,
     const char * fileout)
 {
 	uint8  * data;
-	l_int32 ret;
+	int32 ret;
 	size_t nbytes;
 
 	PROCNAME(__FUNCTION__);
@@ -613,7 +600,7 @@ l_ok saConvertUnscaledFilesToPdfData(SARRAY * sa,
 {
 	char * fname;
 	uint8      * imdata;
-	l_int32 i, n, ret, npages;
+	int32 i, n, ret, npages;
 	size_t imbytes;
 	L_BYTEA      * ba;
 	L_PTRA       * pa_data;
@@ -690,7 +677,7 @@ l_ok convertUnscaledToPdfData(const char * fname,
 {
 	const char * pdftitle = NULL;
 	char * tail = NULL;
-	l_int32 format;
+	int32 format;
 	L_COMP_DATA  * cid;
 
 	PROCNAME(__FUNCTION__);
@@ -771,15 +758,15 @@ l_ok convertUnscaledToPdfData(const char * fname,
  * </pre>
  */
 l_ok pixaConvertToPdf(PIXA        * pixa,
-    l_int32 res,
+    int32 res,
     float scalefactor,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     const char * title,
     const char * fileout)
 {
 	uint8  * data;
-	l_int32 ret;
+	int32 ret;
 	size_t nbytes;
 
 	PROCNAME(__FUNCTION__);
@@ -823,16 +810,16 @@ l_ok pixaConvertToPdf(PIXA        * pixa,
  * </pre>
  */
 l_ok pixaConvertToPdfData(PIXA        * pixa,
-    l_int32 res,
+    int32 res,
     float scalefactor,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     const char * title,
     uint8    ** pdata,
     size_t      * pnbytes)
 {
 	uint8  * imdata;
-	l_int32 i, n, ret, scaledres, pagetype;
+	int32 i, n, ret, scaledres, pagetype;
 	size_t imbytes;
 	L_BYTEA  * ba;
 	PIX * pixs, * pix;
@@ -870,7 +857,7 @@ l_ok pixaConvertToPdfData(PIXA        * pixa,
 		else
 			pix = pixClone(pixs);
 		pixDestroy(&pixs);
-		scaledres = (l_int32)(res * scalefactor);
+		scaledres = (int32)(res * scalefactor);
 
 		/* Select the encoding type */
 		if(type != L_DEFAULT_ENCODE) {
@@ -977,18 +964,18 @@ l_ok pixaConvertToPdfData(PIXA        * pixa,
  * </pre>
  */
 l_ok convertToPdf(const char * filein,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     const char * fileout,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32 x,
+    int32 y,
+    int32 res,
     const char * title,
     L_PDF_DATA  ** plpd,
-    l_int32 position)
+    int32 position)
 {
 	uint8  * data;
-	l_int32 ret;
+	int32 ret;
 	size_t nbytes;
 
 	PROCNAME(__FUNCTION__);
@@ -1048,17 +1035,17 @@ l_ok convertToPdf(const char * filein,
  */
 l_ok convertImageDataToPdf(uint8      * imdata,
     size_t size,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     const char * fileout,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32 x,
+    int32 y,
+    int32 res,
     const char * title,
     L_PDF_DATA  ** plpd,
-    l_int32 position)
+    int32 position)
 {
-	l_int32 ret;
+	int32 ret;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -1114,16 +1101,16 @@ l_ok convertImageDataToPdf(uint8      * imdata,
  * </pre>
  */
 l_ok convertToPdfData(const char * filein,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     uint8     ** pdata,
     size_t       * pnbytes,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32 x,
+    int32 y,
+    int32 res,
     const char * title,
     L_PDF_DATA  ** plpd,
-    l_int32 position)
+    int32 position)
 {
 	PIX  * pix;
 
@@ -1181,18 +1168,18 @@ l_ok convertToPdfData(const char * filein,
  */
 l_ok convertImageDataToPdfData(uint8      * imdata,
     size_t size,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     uint8     ** pdata,
     size_t       * pnbytes,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32 x,
+    int32 y,
+    int32 res,
     const char * title,
     L_PDF_DATA  ** plpd,
-    l_int32 position)
+    int32 position)
 {
-	l_int32 ret;
+	int32 ret;
 	PIX * pix;
 
 	PROCNAME(__FUNCTION__);
@@ -1256,18 +1243,18 @@ l_ok convertImageDataToPdfData(uint8      * imdata,
  * </pre>
  */
 l_ok pixConvertToPdf(PIX          * pix,
-    l_int32 type,
-    l_int32 quality,
+    int32 type,
+    int32 quality,
     const char * fileout,
-    l_int32 x,
-    l_int32 y,
-    l_int32 res,
+    int32 x,
+    int32 y,
+    int32 res,
     const char * title,
     L_PDF_DATA  ** plpd,
-    l_int32 position)
+    int32 position)
 {
 	uint8  * data;
-	l_int32 ret;
+	int32 ret;
 	size_t nbytes;
 
 	PROCNAME(__FUNCTION__);
@@ -1315,7 +1302,7 @@ l_ok pixConvertToPdf(PIX          * pix,
  */
 l_ok pixWriteStreamPdf(FILE        * fp,
     PIX         * pix,
-    l_int32 res,
+    int32 res,
     const char * title)
 {
 	uint8  * data;
@@ -1363,10 +1350,10 @@ l_ok pixWriteStreamPdf(FILE        * fp,
 l_ok pixWriteMemPdf(uint8    ** pdata,
     size_t      * pnbytes,
     PIX         * pix,
-    l_int32 res,
+    int32 res,
     const char * title)
 {
-	l_int32 ret, type;
+	int32 ret, type;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1434,18 +1421,18 @@ l_ok pixWriteMemPdf(uint8    ** pdata,
  */
 l_ok convertSegmentedFilesToPdf(const char * dirname,
     const char * substr,
-    l_int32 res,
-    l_int32 type,
-    l_int32 thresh,
+    int32 res,
+    int32 type,
+    int32 thresh,
     BOXAA       * baa,
-    l_int32 quality,
+    int32 quality,
     float scalefactor,
     const char * title,
     const char * fileout)
 {
 	char     * fname;
 	uint8  * imdata, * data;
-	l_int32 i, npages, nboxa, nboxes, ret;
+	int32 i, npages, nboxa, nboxes, ret;
 	size_t imbytes, databytes;
 	BOXA     * boxa;
 	L_BYTEA  * ba;
@@ -1551,11 +1538,11 @@ l_ok convertSegmentedFilesToPdf(const char * dirname,
  */
 BOXAA * convertNumberedMasksToBoxaa(const char * dirname,
     const char * substr,
-    l_int32 numpre,
-    l_int32 numpost)
+    int32 numpre,
+    int32 numpost)
 {
 	char * fname;
-	l_int32 i, n;
+	int32 i, n;
 	BOXA * boxa;
 	BOXAA   * baa;
 	PIX * pix;
@@ -1658,16 +1645,16 @@ BOXAA * convertNumberedMasksToBoxaa(const char * dirname,
  * </pre>
  */
 l_ok convertToPdfSegmented(const char * filein,
-    l_int32 res,
-    l_int32 type,
-    l_int32 thresh,
+    int32 res,
+    int32 type,
+    int32 thresh,
     BOXA        * boxa,
-    l_int32 quality,
+    int32 quality,
     float scalefactor,
     const char * title,
     const char * fileout)
 {
-	l_int32 ret;
+	int32 ret;
 	PIX * pixs;
 
 	PROCNAME(__FUNCTION__);
@@ -1717,17 +1704,17 @@ l_ok convertToPdfSegmented(const char * filein,
  * </pre>
  */
 l_ok pixConvertToPdfSegmented(PIX         * pixs,
-    l_int32 res,
-    l_int32 type,
-    l_int32 thresh,
+    int32 res,
+    int32 type,
+    int32 thresh,
     BOXA        * boxa,
-    l_int32 quality,
+    int32 quality,
     float scalefactor,
     const char * title,
     const char * fileout)
 {
 	uint8  * data;
-	l_int32 ret;
+	int32 ret;
 	size_t nbytes;
 
 	PROCNAME(__FUNCTION__);
@@ -1779,17 +1766,17 @@ l_ok pixConvertToPdfSegmented(PIX         * pixs,
  * </pre>
  */
 l_ok convertToPdfDataSegmented(const char * filein,
-    l_int32 res,
-    l_int32 type,
-    l_int32 thresh,
+    int32 res,
+    int32 type,
+    int32 thresh,
     BOXA        * boxa,
-    l_int32 quality,
+    int32 quality,
     float scalefactor,
     const char * title,
     uint8    ** pdata,
     size_t      * pnbytes)
 {
-	l_int32 ret;
+	int32 ret;
 	PIX * pixs;
 
 	PROCNAME(__FUNCTION__);
@@ -1845,17 +1832,17 @@ l_ok convertToPdfDataSegmented(const char * filein,
  * </pre>
  */
 l_ok pixConvertToPdfDataSegmented(PIX         * pixs,
-    l_int32 res,
-    l_int32 type,
-    l_int32 thresh,
+    int32 res,
+    int32 type,
+    int32 thresh,
     BOXA        * boxa,
-    l_int32 quality,
+    int32 quality,
     float scalefactor,
     const char * title,
     uint8    ** pdata,
     size_t      * pnbytes)
 {
-	l_int32 i, nbox, seq, bx, by, bw, bh, upscale;
+	int32 i, nbox, seq, bx, by, bw, bh, upscale;
 	float scale;
 	BOX         * box, * boxc, * box2;
 	PIX         * pix, * pixt1, * pixt2, * pixt3, * pixt4, * pixt5, * pixt6;
@@ -1883,7 +1870,7 @@ l_ok pixConvertToPdfDataSegmented(PIX         * pixs,
 	/* Adjust scalefactor so that the product with res gives an integer */
 	if(res <= 0)
 		res = DefaultInputRes;
-	scale = (float)((l_int32)(scalefactor * res + 0.5)) / (float)res;
+	scale = (float)((int32)(scalefactor * res + 0.5)) / (float)res;
 	cmap = pixGetColormap(pixs);
 
 	/* Simple case: single image to be encoded */
@@ -1932,7 +1919,7 @@ l_ok pixConvertToPdfDataSegmented(PIX         * pixs,
 		else
 			pixt4 = pixScale(pixt3, scale, scale);
 		pixConvertToPdfData(pixt4, L_JPEG_ENCODE, quality, pdata, pnbytes,
-		    0, 0, (l_int32)(scale * res), title,
+		    0, 0, (int32)(scale * res), title,
 		    &lpd, L_FIRST_IMAGE);
 
 		if(pixGetDepth(pixt1) == 1) {
@@ -1972,7 +1959,7 @@ l_ok pixConvertToPdfDataSegmented(PIX         * pixs,
 			boxGetGeometry(box2, &bx, &by, NULL, &bh);
 			seq = (i == nbox - 1) ? L_LAST_IMAGE : L_NEXT_IMAGE;
 			pixConvertToPdfData(pixt4, L_JPEG_ENCODE, quality, pdata, pnbytes,
-			    bx, by, (l_int32)(scale * res), title,
+			    bx, by, (int32)(scale * res), title,
 			    &lpd, seq);
 			pixDestroy(&pixt2);
 			pixDestroy(&pixt3);
@@ -2013,7 +2000,7 @@ l_ok concatenatePdf(const char * dirname,
     const char * substr,
     const char * fileout)
 {
-	l_int32 ret;
+	int32 ret;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -2046,7 +2033,7 @@ l_ok saConcatenatePdf(SARRAY * sa,
     const char * fileout)
 {
 	uint8  * data;
-	l_int32 ret;
+	int32 ret;
 	size_t nbytes;
 
 	PROCNAME(__FUNCTION__);
@@ -2080,7 +2067,7 @@ l_ok ptraConcatenatePdf(L_PTRA      * pa,
     const char * fileout)
 {
 	uint8  * data;
-	l_int32 ret;
+	int32 ret;
 	size_t nbytes;
 
 	PROCNAME(__FUNCTION__);
@@ -2123,7 +2110,7 @@ l_ok concatenatePdfToData(const char * dirname,
     uint8    ** pdata,
     size_t      * pnbytes)
 {
-	l_int32 ret;
+	int32 ret;
 	SARRAY * sa;
 
 	PROCNAME(__FUNCTION__);
@@ -2162,7 +2149,7 @@ l_ok saConcatenatePdfToData(SARRAY    * sa,
     size_t * pnbytes)
 {
 	char     * fname;
-	l_int32 i, npages, ret;
+	int32 i, npages, ret;
 	L_BYTEA  * bas;
 	L_PTRA   * pa_data; /* input pdf data for each page */
 

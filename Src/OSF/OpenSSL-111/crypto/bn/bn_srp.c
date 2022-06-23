@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "bn_lcl.h"
-#include "internal/nelem.h"
+//#include "internal/nelem.h"
 
 #ifndef OPENSSL_NO_SRP
 
@@ -49,7 +49,7 @@ static const BN_ULONG bn_group_1024_value[] = {
 	bn_pack4(0xEEAF, 0x0AB9, 0xADB3, 0x8DD6)
 };
 
-const BIGNUM bn_group_1024 = { (BN_ULONG*)bn_group_1024_value, OSSL_NELEM(bn_group_1024_value), OSSL_NELEM(bn_group_1024_value), 0, BN_FLG_STATIC_DATA };
+const BIGNUM bn_group_1024 = { (BN_ULONG*)bn_group_1024_value, SIZEOFARRAY(bn_group_1024_value), SIZEOFARRAY(bn_group_1024_value), 0, BN_FLG_STATIC_DATA };
 
 static const BN_ULONG bn_group_1536_value[] = {
 	bn_pack4(0xCF76, 0xE3FE, 0xD135, 0xF9BB),
@@ -78,7 +78,7 @@ static const BN_ULONG bn_group_1536_value[] = {
 	bn_pack4(0x9DEF, 0x3CAF, 0xB939, 0x277A)
 };
 
-const BIGNUM bn_group_1536 = { (BN_ULONG*)bn_group_1536_value, OSSL_NELEM(bn_group_1536_value), OSSL_NELEM(bn_group_1536_value), 0, BN_FLG_STATIC_DATA };
+const BIGNUM bn_group_1536 = { (BN_ULONG*)bn_group_1536_value, SIZEOFARRAY(bn_group_1536_value), SIZEOFARRAY(bn_group_1536_value), 0, BN_FLG_STATIC_DATA };
 
 static const BN_ULONG bn_group_2048_value[] = {
 	bn_pack4(0x0FA7, 0x111F, 0x9E4A, 0xFF73),
@@ -115,7 +115,7 @@ static const BN_ULONG bn_group_2048_value[] = {
 	bn_pack4(0xAC6B, 0xDB41, 0x324A, 0x9A9B)
 };
 
-const BIGNUM bn_group_2048 = { (BN_ULONG*)bn_group_2048_value, OSSL_NELEM(bn_group_2048_value), OSSL_NELEM(bn_group_2048_value), 0, BN_FLG_STATIC_DATA };
+const BIGNUM bn_group_2048 = { (BN_ULONG*)bn_group_2048_value, SIZEOFARRAY(bn_group_2048_value), SIZEOFARRAY(bn_group_2048_value), 0, BN_FLG_STATIC_DATA };
 
 static const BN_ULONG bn_group_3072_value[] = {
 	bn_pack4(0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF),
@@ -168,7 +168,7 @@ static const BN_ULONG bn_group_3072_value[] = {
 	bn_pack4(0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF)
 };
 
-const BIGNUM bn_group_3072 = { (BN_ULONG*)bn_group_3072_value, OSSL_NELEM(bn_group_3072_value), OSSL_NELEM(bn_group_3072_value), 0, BN_FLG_STATIC_DATA };
+const BIGNUM bn_group_3072 = { (BN_ULONG*)bn_group_3072_value, SIZEOFARRAY(bn_group_3072_value), SIZEOFARRAY(bn_group_3072_value), 0, BN_FLG_STATIC_DATA };
 
 static const BN_ULONG bn_group_4096_value[] = {
 	bn_pack4(0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF),
@@ -237,7 +237,7 @@ static const BN_ULONG bn_group_4096_value[] = {
 	bn_pack4(0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF)
 };
 
-const BIGNUM bn_group_4096 = { (BN_ULONG*)bn_group_4096_value, OSSL_NELEM(bn_group_4096_value), OSSL_NELEM(bn_group_4096_value), 0, BN_FLG_STATIC_DATA };
+const BIGNUM bn_group_4096 = { (BN_ULONG*)bn_group_4096_value, SIZEOFARRAY(bn_group_4096_value), SIZEOFARRAY(bn_group_4096_value), 0, BN_FLG_STATIC_DATA };
 
 static const BN_ULONG bn_group_6144_value[] = {
 	bn_pack4(0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF),
@@ -338,7 +338,7 @@ static const BN_ULONG bn_group_6144_value[] = {
 	bn_pack4(0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF)
 };
 
-const BIGNUM bn_group_6144 = { (BN_ULONG*)bn_group_6144_value, OSSL_NELEM(bn_group_6144_value), OSSL_NELEM(bn_group_6144_value), 0, BN_FLG_STATIC_DATA };
+const BIGNUM bn_group_6144 = { (BN_ULONG*)bn_group_6144_value, SIZEOFARRAY(bn_group_6144_value), SIZEOFARRAY(bn_group_6144_value), 0, BN_FLG_STATIC_DATA };
 
 static const BN_ULONG bn_group_8192_value[] = {
 	bn_pack4(0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF),
@@ -471,7 +471,7 @@ static const BN_ULONG bn_group_8192_value[] = {
 	bn_pack4(0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF)
 };
 
-const BIGNUM bn_group_8192 = { (BN_ULONG*)bn_group_8192_value, OSSL_NELEM(bn_group_8192_value), OSSL_NELEM(bn_group_8192_value), 0, BN_FLG_STATIC_DATA };
+const BIGNUM bn_group_8192 = { (BN_ULONG*)bn_group_8192_value, SIZEOFARRAY(bn_group_8192_value), SIZEOFARRAY(bn_group_8192_value), 0, BN_FLG_STATIC_DATA };
 
 static const BN_ULONG bn_generator_19_value[] = { 19 };
 const BIGNUM bn_generator_19 = { (BN_ULONG*)bn_generator_19_value, 1, 1, 0, BN_FLG_STATIC_DATA };

@@ -1331,7 +1331,7 @@ static int set_client_ciphersuite(SSL * s, const uchar * cipherchars)
 	int i;
 
 	c = ssl_get_cipher_by_char(s, cipherchars, 0);
-	if(c == NULL) {
+	if(!c) {
 		/* unknown cipher */
 		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_SET_CLIENT_CIPHERSUITE,
 		    SSL_R_UNKNOWN_CIPHER_RETURNED);

@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file enhance.c
  * <pre>
@@ -44,8 +31,8 @@
  *           NUMA *numaEqualizeTRC()
  *
  *      Generic TRC mapper
- *           l_int32  pixTRCMap()
- *           l_int32  pixTRCMapGeneral()
+ *           int32  pixTRCMap()
+ *           int32  pixTRCMapGeneral()
  *
  *      Unsharp-masking
  *           PIX     *pixUnsharpMasking()
@@ -58,7 +45,7 @@
  *      Hue and saturation modification
  *           PIX     *pixModifyHue()
  *           PIX     *pixModifySaturation()
- *           l_int32  pixMeasureSaturation()
+ *           int32  pixMeasureSaturation()
  *           PIX     *pixModifyBrightness()
  *
  *      Color shifting
@@ -170,10 +157,10 @@ static const float EnhanceScaleFactor = 5.0;
 PIX * pixGammaTRC(PIX * pixd,
     PIX * pixs,
     float gamma,
-    l_int32 minval,
-    l_int32 maxval)
+    int32 minval,
+    int32 maxval)
 {
-	l_int32 d;
+	int32 d;
 	NUMA     * nag;
 	PIXCMAP  * cmap;
 
@@ -237,10 +224,10 @@ PIX * pixGammaTRCMasked(PIX * pixd,
     PIX * pixs,
     PIX * pixm,
     float gamma,
-    l_int32 minval,
-    l_int32 maxval)
+    int32 minval,
+    int32 maxval)
 {
-	l_int32 d;
+	int32 d;
 	NUMA * nag;
 
 	PROCNAME(__FUNCTION__);
@@ -298,8 +285,8 @@ PIX * pixGammaTRCMasked(PIX * pixd,
 PIX * pixGammaTRCWithAlpha(PIX * pixd,
     PIX * pixs,
     float gamma,
-    l_int32 minval,
-    l_int32 maxval)
+    int32 minval,
+    int32 maxval)
 {
 	NUMA * nag;
 	PIX * pixalpha;
@@ -355,10 +342,10 @@ PIX * pixGammaTRCWithAlpha(PIX * pixd,
  * </pre>
  */
 NUMA * numaGammaTRC(float gamma,
-    l_int32 minval,
-    l_int32 maxval)
+    int32 minval,
+    int32 maxval)
 {
-	l_int32 i, val;
+	int32 i, val;
 	float x, invgamma;
 	NUMA * na;
 
@@ -379,7 +366,7 @@ NUMA * numaGammaTRC(float gamma,
 		if(i < 0) continue;
 		if(i > 255) continue;
 		x = (float)(i - minval) / (float)(maxval - minval);
-		val = (l_int32)(255. * powf(x, invgamma) + 0.5);
+		val = (int32)(255. * powf(x, invgamma) + 0.5);
 		val = MAX(val, 0);
 		val = MIN(val, 255);
 		numaAddNumber(na, val);
@@ -426,7 +413,7 @@ PIX * pixContrastTRC(PIX * pixd,
     PIX * pixs,
     float factor)
 {
-	l_int32 d;
+	int32 d;
 	NUMA     * nac;
 	PIXCMAP  * cmap;
 
@@ -487,7 +474,7 @@ PIX * pixContrastTRCMasked(PIX * pixd,
     PIX * pixm,
     float factor)
 {
-	l_int32 d;
+	int32 d;
 	NUMA * nac;
 
 	PROCNAME(__FUNCTION__);
@@ -541,7 +528,7 @@ PIX * pixContrastTRCMasked(PIX * pixd,
  */
 NUMA * numaContrastTRC(float factor)
 {
-	l_int32 i, val;
+	int32 i, val;
 	double x, ymax, ymin, dely, scale;
 	NUMA * na;
 
@@ -562,7 +549,7 @@ NUMA * numaContrastTRC(float factor)
 	na = numaCreate(256);
 	for(i = 0; i < 256; i++) {
 		x = (double)i;
-		val = (l_int32)((255. / dely) *
+		val = (int32)((255. / dely) *
 		    (-ymin + atan((double)(factor * scale * (x - 127.) / 128.))) +
 		    0.5);
 		numaAddNumber(na, val);
@@ -610,9 +597,9 @@ NUMA * numaContrastTRC(float factor)
 PIX * pixEqualizeTRC(PIX * pixd,
     PIX * pixs,
     float fract,
-    l_int32 factor)
+    int32 factor)
 {
-	l_int32 d;
+	int32 d;
 	NUMA     * na;
 	PIX * pixt, * pix8;
 	PIXCMAP  * cmap;
@@ -695,9 +682,9 @@ PIX * pixEqualizeTRC(PIX * pixd,
  */
 NUMA * numaEqualizeTRC(PIX * pix,
     float fract,
-    l_int32 factor)
+    int32 factor)
 {
-	l_int32 iin, iout, itarg;
+	int32 iin, iout, itarg;
 	float val, sum;
 	NUMA * nah, * nasum, * nad;
 
@@ -723,8 +710,8 @@ NUMA * numaEqualizeTRC(PIX * pix,
 	nad = numaCreate(256);
 	for(iin = 0; iin < 256; iin++) {
 		numaGetFValue(nasum, iin, &val);
-		itarg = (l_int32)(255. * val / sum + 0.5);
-		iout = iin + (l_int32)(fract * (itarg - iin));
+		itarg = (int32)(255. * val / sum + 0.5);
+		iout = iin + (int32)(fract * (itarg - iin));
 		iout = MIN(iout, 255); /* to be safe */
 		numaAddNumber(nad, iout);
 	}
@@ -758,13 +745,13 @@ NUMA * numaEqualizeTRC(PIX * pix,
  *      (5) For 32 bpp, this does not save the alpha channel.
  * </pre>
  */
-l_int32 pixTRCMap(PIX * pixs,
+int32 pixTRCMap(PIX * pixs,
     PIX * pixm,
     NUMA * na)
 {
-	l_int32 w, h, d, wm, hm, wpl, wplm, i, j, sval8, dval8;
-	l_uint32 sval32, dval32;
-	l_uint32  * data, * datam, * line, * linem, * tab;
+	int32 w, h, d, wm, hm, wpl, wplm, i, j, sval8, dval8;
+	uint32 sval32, dval32;
+	uint32  * data, * datam, * line, * linem, * tab;
 
 	PROCNAME(__FUNCTION__);
 
@@ -784,7 +771,7 @@ l_int32 pixTRCMap(PIX * pixs,
 			return ERROR_INT("pixm not 1 bpp", procName, 1);
 	}
 
-	tab = (l_uint32*)numaGetIArray(na); /* get the array for efficiency */
+	tab = (uint32*)numaGetIArray(na); /* get the array for efficiency */
 	wpl = pixGetWpl(pixs);
 	data = pixGetData(pixs);
 	if(!pixm) {
@@ -881,15 +868,15 @@ l_int32 pixTRCMap(PIX * pixs,
  *      (5) The alpha channel is not saved.
  * </pre>
  */
-l_int32 pixTRCMapGeneral(PIX * pixs,
+int32 pixTRCMapGeneral(PIX * pixs,
     PIX * pixm,
     NUMA * nar,
     NUMA * nag,
     NUMA * nab)
 {
-	l_int32 w, h, wm, hm, wpl, wplm, i, j;
-	l_uint32 sval32, dval32;
-	l_uint32  * data, * datam, * line, * linem, * tabr, * tabg, * tabb;
+	int32 w, h, wm, hm, wpl, wplm, i, j;
+	uint32 sval32, dval32;
+	uint32  * data, * datam, * line, * linem, * tabr, * tabg, * tabb;
 
 	PROCNAME(__FUNCTION__);
 
@@ -904,9 +891,9 @@ l_int32 pixTRCMapGeneral(PIX * pixs,
 		return ERROR_INT("na{r,g,b} not all of size 256", procName, 1);
 
 	/* Get the arrays for efficiency */
-	tabr = (l_uint32*)numaGetIArray(nar);
-	tabg = (l_uint32*)numaGetIArray(nag);
-	tabb = (l_uint32*)numaGetIArray(nab);
+	tabr = (uint32*)numaGetIArray(nar);
+	tabg = (uint32*)numaGetIArray(nag);
+	tabb = (uint32*)numaGetIArray(nab);
 	pixGetDimensions(pixs, &w, &h, NULL);
 	wpl = pixGetWpl(pixs);
 	data = pixGetData(pixs);
@@ -975,10 +962,10 @@ l_int32 pixTRCMapGeneral(PIX * pixs,
  * </pre>
  */
 PIX * pixUnsharpMasking(PIX * pixs,
-    l_int32 halfwidth,
+    int32 halfwidth,
     float fract)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pix1, * pixd, * pixr, * pixrs, * pixg, * pixgs, * pixb, * pixbs;
 
 	PROCNAME(__FUNCTION__);
@@ -1043,10 +1030,10 @@ PIX * pixUnsharpMasking(PIX * pixs,
  * </pre>
  */
 PIX * pixUnsharpMaskingGray(PIX * pixs,
-    l_int32 halfwidth,
+    int32 halfwidth,
     float fract)
 {
-	l_int32 w, h, d;
+	int32 w, h, d;
 	PIX * pixc, * pixd;
 	PIXACC  * pixacc;
 
@@ -1138,11 +1125,11 @@ PIX * pixUnsharpMaskingGray(PIX * pixs,
  * </pre>
  */
 PIX * pixUnsharpMaskingFast(PIX * pixs,
-    l_int32 halfwidth,
+    int32 halfwidth,
     float fract,
-    l_int32 direction)
+    int32 direction)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pixt, * pixd, * pixr, * pixrs, * pixg, * pixgs, * pixb, * pixbs;
 
 	PROCNAME(__FUNCTION__);
@@ -1207,9 +1194,9 @@ PIX * pixUnsharpMaskingFast(PIX * pixs,
  * </pre>
  */
 PIX * pixUnsharpMaskingGrayFast(PIX * pixs,
-    l_int32 halfwidth,
+    int32 halfwidth,
     float fract,
-    l_int32 direction)
+    int32 direction)
 {
 	PIX  * pixd;
 
@@ -1254,13 +1241,13 @@ PIX * pixUnsharpMaskingGrayFast(PIX * pixs,
  * </pre>
  */
 PIX * pixUnsharpMaskingGray1D(PIX * pixs,
-    l_int32 halfwidth,
+    int32 halfwidth,
     float fract,
-    l_int32 direction)
+    int32 direction)
 {
-	l_int32 w, h, d, wpls, wpld, i, j, ival;
-	l_uint32  * datas, * datad;
-	l_uint32  * lines, * lines0, * lines1, * lines2, * lines3, * lines4, * lined;
+	int32 w, h, d, wpls, wpld, i, j, ival;
+	uint32  * datas, * datad;
+	uint32  * lines, * lines0, * lines1, * lines2, * lines3, * lines4, * lined;
 	float val, a[5];
 	PIX * pixd;
 
@@ -1309,7 +1296,7 @@ PIX * pixUnsharpMaskingGray1D(PIX * pixs,
 					val = a[0] * GET_DATA_BYTE(lines, j - 1) +
 					    a[1] * GET_DATA_BYTE(lines, j) +
 					    a[2] * GET_DATA_BYTE(lines, j + 1);
-					ival = (l_int32)val;
+					ival = (int32)val;
 					ival = MAX(0, ival);
 					ival = MIN(255, ival);
 					SET_DATA_BYTE(lined, j, ival);
@@ -1322,7 +1309,7 @@ PIX * pixUnsharpMaskingGray1D(PIX * pixs,
 					    a[2] * GET_DATA_BYTE(lines, j) +
 					    a[3] * GET_DATA_BYTE(lines, j + 1) +
 					    a[4] * GET_DATA_BYTE(lines, j + 2);
-					ival = (l_int32)val;
+					ival = (int32)val;
 					ival = MAX(0, ival);
 					ival = MIN(255, ival);
 					SET_DATA_BYTE(lined, j, ival);
@@ -1341,7 +1328,7 @@ PIX * pixUnsharpMaskingGray1D(PIX * pixs,
 					val = a[0] * GET_DATA_BYTE(lines0, j) +
 					    a[1] * GET_DATA_BYTE(lines1, j) +
 					    a[2] * GET_DATA_BYTE(lines2, j);
-					ival = (l_int32)val;
+					ival = (int32)val;
 					ival = MAX(0, ival);
 					ival = MIN(255, ival);
 					SET_DATA_BYTE(lined, j, ival);
@@ -1362,7 +1349,7 @@ PIX * pixUnsharpMaskingGray1D(PIX * pixs,
 					    a[2] * GET_DATA_BYTE(lines2, j) +
 					    a[3] * GET_DATA_BYTE(lines3, j) +
 					    a[4] * GET_DATA_BYTE(lines4, j);
-					ival = (l_int32)val;
+					ival = (int32)val;
 					ival = MAX(0, ival);
 					ival = MIN(255, ival);
 					SET_DATA_BYTE(lined, j, ival);
@@ -1390,11 +1377,11 @@ PIX * pixUnsharpMaskingGray1D(PIX * pixs,
  * </pre>
  */
 PIX * pixUnsharpMaskingGray2D(PIX * pixs,
-    l_int32 halfwidth,
+    int32 halfwidth,
     float fract)
 {
-	l_int32 w, h, d, wpls, wpld, wplf, i, j, ival, sval;
-	l_uint32   * datas, * datad, * lines, * lined;
+	int32 w, h, d, wpls, wpld, wplf, i, j, ival, sval;
+	uint32   * datas, * datad, * lines, * lined;
 	float val, norm;
 	float * dataf, * linef, * linef0, * linef1, * linef2, * linef3, * linef4;
 	PIX        * pixd;
@@ -1476,7 +1463,7 @@ PIX * pixUnsharpMaskingGray2D(PIX * pixs,
 				val = norm * (linef0[j] + linef1[j] +
 				    linef2[j]); /* L: lowpass filter value */
 				sval = GET_DATA_BYTE(lines, j); /* I: source pixel */
-				ival = (l_int32)(sval + fract * (sval - val) + 0.5);
+				ival = (int32)(sval + fract * (sval - val) + 0.5);
 				ival = MAX(0, ival);
 				ival = MIN(255, ival);
 				SET_DATA_BYTE(lined, j, ival);
@@ -1497,7 +1484,7 @@ PIX * pixUnsharpMaskingGray2D(PIX * pixs,
 				val = norm * (linef0[j] + linef1[j] + linef2[j] + linef3[j] +
 				    linef4[j]); /* L: lowpass filter value */
 				sval = GET_DATA_BYTE(lines, j); /* I: source pixel */
-				ival = (l_int32)(sval + fract * (sval - val) + 0.5);
+				ival = (int32)(sval + fract * (sval - val) + 0.5);
 				ival = MAX(0, ival);
 				ival = MIN(255, ival);
 				SET_DATA_BYTE(lined, j, ival);
@@ -1539,9 +1526,9 @@ PIX  * pixModifyHue(PIX * pixd,
     PIX * pixs,
     float fract)
 {
-	l_int32 w, h, d, i, j, wpl, delhue;
-	l_int32 rval, gval, bval, hval, sval, vval;
-	l_uint32  * data, * line;
+	int32 w, h, d, i, j, wpl, delhue;
+	int32 rval, gval, bval, hval, sval, vval;
+	uint32  * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1559,7 +1546,7 @@ PIX  * pixModifyHue(PIX * pixd,
 
 	pixd = pixCopy(pixd, pixs);
 
-	delhue = (l_int32)(240 * fract);
+	delhue = (int32)(240 * fract);
 	if(delhue == 0 || delhue == 240 || delhue == -240) {
 		L_WARNING("no change requested in hue\n", procName);
 		return pixd;
@@ -1611,9 +1598,9 @@ PIX  * pixModifySaturation(PIX * pixd,
     PIX * pixs,
     float fract)
 {
-	l_int32 w, h, d, i, j, wpl;
-	l_int32 rval, gval, bval, hval, sval, vval;
-	l_uint32  * data, * line;
+	int32 w, h, d, i, j, wpl;
+	int32 rval, gval, bval, hval, sval, vval;
+	uint32  * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1639,9 +1626,9 @@ PIX  * pixModifySaturation(PIX * pixd,
 			extractRGBValues(line[j], &rval, &gval, &bval);
 			convertRGBToHSV(rval, gval, bval, &hval, &sval, &vval);
 			if(fract < 0.0)
-				sval = (l_int32)(sval * (1.0 + fract));
+				sval = (int32)(sval * (1.0 + fract));
 			else
-				sval = (l_int32)(sval + fract * (255 - sval));
+				sval = (int32)(sval + fract * (255 - sval));
 			convertHSVToRGB(hval, sval, vval, &rval, &gval, &bval);
 			composeRGBPixel(rval, gval, bval, line + j);
 		}
@@ -1660,13 +1647,13 @@ PIX  * pixModifySaturation(PIX * pixd,
  * \param[out]   psat     average saturation
  * \return  0 if OK, 1 on error
  */
-l_int32 pixMeasureSaturation(PIX        * pixs,
-    l_int32 factor,
+int32 pixMeasureSaturation(PIX        * pixs,
+    int32 factor,
     float * psat)
 {
-	l_int32 w, h, d, i, j, wpl, sum, count;
-	l_int32 rval, gval, bval, hval, sval, vval;
-	l_uint32  * data, * line;
+	int32 w, h, d, i, j, wpl, sum, count;
+	int32 rval, gval, bval, hval, sval, vval;
+	uint32  * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1724,9 +1711,9 @@ PIX  * pixModifyBrightness(PIX * pixd,
     PIX * pixs,
     float fract)
 {
-	l_int32 w, h, d, i, j, wpl;
-	l_int32 rval, gval, bval, hval, sval, vval;
-	l_uint32  * data, * line;
+	int32 w, h, d, i, j, wpl;
+	int32 rval, gval, bval, hval, sval, vval;
+	uint32  * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1752,9 +1739,9 @@ PIX  * pixModifyBrightness(PIX * pixd,
 			extractRGBValues(line[j], &rval, &gval, &bval);
 			convertRGBToHSV(rval, gval, bval, &hval, &sval, &vval);
 			if(fract > 0.0)
-				vval = (l_int32)(vval + fract * (255.0 - vval));
+				vval = (int32)(vval + fract * (255.0 - vval));
 			else
-				vval = (l_int32)(vval * (1.0 + fract));
+				vval = (int32)(vval * (1.0 + fract));
 			convertHSVToRGB(hval, sval, vval, &rval, &gval, &bval);
 			composeRGBPixel(rval, gval, bval, line + j);
 		}
@@ -1804,10 +1791,10 @@ PIX * pixMosaicColorShiftRGB(PIX * pixs,
     float goff,
     float boff,
     float delta,
-    l_int32 nincr)
+    int32 nincr)
 {
 	char buf[64];
-	l_int32 i, w, h;
+	int32 i, w, h;
 	float del, ratio;
 	L_BMF     * bmf;
 	PIX * pix1, * pix2, * pix3;
@@ -1908,9 +1895,9 @@ PIX * pixColorShiftRGB(PIX * pixs,
     float gfract,
     float bfract)
 {
-	l_int32 w, h, i, j, wpls, wpld, rval, gval, bval;
-	l_int32   * rlut, * glut, * blut;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 w, h, i, j, wpls, wpld, rval, gval, bval;
+	int32   * rlut, * glut, * blut;
+	uint32  * datas, * datad, * lines, * lined;
 	float fi;
 	PIX * pixd;
 
@@ -1929,28 +1916,28 @@ PIX * pixColorShiftRGB(PIX * pixs,
 	if(rfract == 0.0 && gfract == 0.0 && bfract == 0.0)
 		return pixCopy(NULL, pixs);
 
-	rlut = (l_int32*)SAlloc::C(256, sizeof(l_int32));
-	glut = (l_int32*)SAlloc::C(256, sizeof(l_int32));
-	blut = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	rlut = (int32*)SAlloc::C(256, sizeof(int32));
+	glut = (int32*)SAlloc::C(256, sizeof(int32));
+	blut = (int32*)SAlloc::C(256, sizeof(int32));
 	for(i = 0; i < 256; i++) {
 		fi = i;
 		if(rfract >= 0) {
-			rlut[i] = (l_int32)(fi + (255.0 - fi) * rfract);
+			rlut[i] = (int32)(fi + (255.0 - fi) * rfract);
 		}
 		else {
-			rlut[i] = (l_int32)(fi * (1.0 + rfract));
+			rlut[i] = (int32)(fi * (1.0 + rfract));
 		}
 		if(gfract >= 0) {
-			glut[i] = (l_int32)(fi + (255.0 - fi) * gfract);
+			glut[i] = (int32)(fi + (255.0 - fi) * gfract);
 		}
 		else {
-			glut[i] = (l_int32)(fi * (1.0 + gfract));
+			glut[i] = (int32)(fi * (1.0 + gfract));
 		}
 		if(bfract >= 0) {
-			blut[i] = (l_int32)(fi + (255.0 - fi) * bfract);
+			blut[i] = (int32)(fi + (255.0 - fi) * bfract);
 		}
 		else {
-			blut[i] = (l_int32)(fi * (1.0 + bfract));
+			blut[i] = (int32)(fi * (1.0 + bfract));
 		}
 	}
 
@@ -2006,12 +1993,12 @@ PIX * pixColorShiftRGB(PIX * pixs,
  */
 PIX * pixDarkenGray(PIX * pixd,
     PIX * pixs,
-    l_int32 thresh,
-    l_int32 satlimit)
+    int32 thresh,
+    int32 satlimit)
 {
-	l_int32 w, h, i, j, wpls, wpld;
-	l_int32 rval, gval, bval, minrg, min, maxrg, max, sat;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 w, h, i, j, wpls, wpld;
+	int32 rval, gval, bval, minrg, min, maxrg, max, sat;
+	uint32  * datas, * datad, * lines, * lined;
 	float ratio;
 
 	PROCNAME(__FUNCTION__);
@@ -2046,8 +2033,8 @@ PIX * pixDarkenGray(PIX * pixd,
 			if(max >= thresh || sat >= satlimit)
 				continue;
 			ratio = (float)sat / (float)satlimit;
-			composeRGBPixel((l_int32)(ratio * rval), (l_int32)(ratio * gval),
-			    (l_int32)(ratio * bval), &lined[j]);
+			composeRGBPixel((int32)(ratio * rval), (int32)(ratio * gval),
+			    (int32)(ratio * bval), &lined[j]);
 		}
 	}
 	return pixd;
@@ -2079,10 +2066,10 @@ PIX * pixMultConstantColor(PIX * pixs,
     float gfact,
     float bfact)
 {
-	l_int32 i, j, w, h, d, wpls, wpld;
-	l_int32 ncolors, rval, gval, bval, nrval, ngval, nbval;
-	l_uint32 nval;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 i, j, w, h, d, wpls, wpld;
+	int32 ncolors, rval, gval, bval, nrval, ngval, nbval;
+	uint32 nval;
+	uint32  * datas, * datad, * lines, * lined;
 	PIX * pixd;
 	PIXCMAP   * cmap;
 
@@ -2105,9 +2092,9 @@ PIX * pixMultConstantColor(PIX * pixs,
 		ncolors = pixcmapGetCount(cmap);
 		for(i = 0; i < ncolors; i++) {
 			pixcmapGetColor(cmap, i, &rval, &gval, &bval);
-			nrval = (l_int32)(rfact * rval);
-			ngval = (l_int32)(gfact * gval);
-			nbval = (l_int32)(bfact * bval);
+			nrval = (int32)(rfact * rval);
+			ngval = (int32)(gfact * gval);
+			nbval = (int32)(bfact * bval);
 			nrval = MIN(255, nrval);
 			ngval = MIN(255, ngval);
 			nbval = MIN(255, nbval);
@@ -2127,9 +2114,9 @@ PIX * pixMultConstantColor(PIX * pixs,
 		lined = datad + i * wpld;
 		for(j = 0; j < w; j++) {
 			extractRGBValues(lines[j], &rval, &gval, &bval);
-			nrval = (l_int32)(rfact * rval);
-			ngval = (l_int32)(gfact * gval);
-			nbval = (l_int32)(bfact * bval);
+			nrval = (int32)(rfact * rval);
+			ngval = (int32)(gfact * gval);
+			nbval = (int32)(bfact * bval);
 			nrval = MIN(255, nrval);
 			ngval = MIN(255, ngval);
 			nbval = MIN(255, nbval);
@@ -2177,10 +2164,10 @@ PIX * pixMultConstantColor(PIX * pixs,
 PIX * pixMultMatrixColor(PIX * pixs,
     L_KERNEL  * kel)
 {
-	l_int32 i, j, index, kw, kh, w, h, d, wpls, wpld;
-	l_int32 ncolors, rval, gval, bval, nrval, ngval, nbval;
-	l_uint32 nval;
-	l_uint32  * datas, * datad, * lines, * lined;
+	int32 i, j, index, kw, kh, w, h, d, wpls, wpld;
+	int32 ncolors, rval, gval, bval, nrval, ngval, nbval;
+	uint32 nval;
+	uint32  * datas, * datad, * lines, * lined;
 	float v[9]; /* use linear array for convenience */
 	PIX * pixd;
 	PIXCMAP   * cmap;
@@ -2210,9 +2197,9 @@ PIX * pixMultMatrixColor(PIX * pixs,
 		ncolors = pixcmapGetCount(cmap);
 		for(i = 0; i < ncolors; i++) {
 			pixcmapGetColor(cmap, i, &rval, &gval, &bval);
-			nrval = (l_int32)(v[0] * rval + v[1] * gval + v[2] * bval);
-			ngval = (l_int32)(v[3] * rval + v[4] * gval + v[5] * bval);
-			nbval = (l_int32)(v[6] * rval + v[7] * gval + v[8] * bval);
+			nrval = (int32)(v[0] * rval + v[1] * gval + v[2] * bval);
+			ngval = (int32)(v[3] * rval + v[4] * gval + v[5] * bval);
+			nbval = (int32)(v[6] * rval + v[7] * gval + v[8] * bval);
 			nrval = MAX(0, MIN(255, nrval));
 			ngval = MAX(0, MIN(255, ngval));
 			nbval = MAX(0, MIN(255, nbval));
@@ -2232,9 +2219,9 @@ PIX * pixMultMatrixColor(PIX * pixs,
 		lined = datad + i * wpld;
 		for(j = 0; j < w; j++) {
 			extractRGBValues(lines[j], &rval, &gval, &bval);
-			nrval = (l_int32)(v[0] * rval + v[1] * gval + v[2] * bval);
-			ngval = (l_int32)(v[3] * rval + v[4] * gval + v[5] * bval);
-			nbval = (l_int32)(v[6] * rval + v[7] * gval + v[8] * bval);
+			nrval = (int32)(v[0] * rval + v[1] * gval + v[2] * bval);
+			ngval = (int32)(v[3] * rval + v[4] * gval + v[5] * bval);
+			nbval = (int32)(v[6] * rval + v[7] * gval + v[8] * bval);
 			nrval = MAX(0, MIN(255, nrval));
 			ngval = MAX(0, MIN(255, ngval));
 			nbval = MAX(0, MIN(255, nbval));
@@ -2282,12 +2269,12 @@ PIX * pixMultMatrixColor(PIX * pixs,
  * </pre>
  */
 PIX * pixHalfEdgeByBandpass(PIX * pixs,
-    l_int32 sm1h,
-    l_int32 sm1v,
-    l_int32 sm2h,
-    l_int32 sm2v)
+    int32 sm1h,
+    int32 sm1v,
+    int32 sm2h,
+    int32 sm2v)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pixg, * pixacc, * pixc1, * pixc2;
 
 	PROCNAME(__FUNCTION__);

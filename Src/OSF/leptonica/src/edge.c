@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file edge.c
  * <pre>
@@ -35,10 +22,10 @@
  *          PIX *pixTwoSidedEdgeFilter()
  *
  *      Measurement of edge smoothness
- *          l_int32   pixMeasureEdgeSmoothness()
+ *          int32   pixMeasureEdgeSmoothness()
  *          NUMA     *pixGetEdgeProfile()
- *          l_int32   pixGetLastOffPixelInRun()
- *          l_int32   pixGetLastOnPixelInRun()
+ *          int32   pixGetLastOffPixelInRun()
+ *          int32   pixGetLastOnPixelInRun()
  *
  *
  *  The Sobel edge detector uses these two simple gradient filters.
@@ -87,11 +74,11 @@
  * </pre>
  */
 PIX * pixSobelEdgeFilter(PIX * pixs,
-    l_int32 orientflag)
+    int32 orientflag)
 {
-	l_int32 w, h, d, i, j, wplt, wpld, gx, gy, vald;
-	l_int32 val1, val2, val3, val4, val5, val6, val7, val8, val9;
-	l_uint32  * datat, * linet, * datad, * lined;
+	int32 w, h, d, i, j, wplt, wpld, gx, gy, vald;
+	int32 val1, val2, val3, val4, val5, val6, val7, val8, val9;
+	uint32  * datat, * linet, * datad, * lined;
 	PIX * pixt, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -194,11 +181,11 @@ PIX * pixSobelEdgeFilter(PIX * pixs,
  * </pre>
  */
 PIX * pixTwoSidedEdgeFilter(PIX * pixs,
-    l_int32 orientflag)
+    int32 orientflag)
 {
-	l_int32 w, h, d, i, j, wpls, wpld;
-	l_int32 cval, rval, bval, val, lgrad, rgrad, tgrad, bgrad;
-	l_uint32  * datas, * lines, * datad, * lined;
+	int32 w, h, d, i, j, wpls, wpld;
+	int32 cval, rval, bval, val, lgrad, rgrad, tgrad, bgrad;
+	uint32  * datas, * lines, * datad, * lined;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -302,15 +289,15 @@ PIX * pixTwoSidedEdgeFilter(PIX * pixs,
  * </pre>
  */
 l_ok pixMeasureEdgeSmoothness(PIX         * pixs,
-    l_int32 side,
-    l_int32 minjump,
-    l_int32 minreversal,
+    int32 side,
+    int32 minjump,
+    int32 minreversal,
     float   * pjpl,
     float   * pjspl,
     float   * prpl,
     const char * debugfile)
 {
-	l_int32 i, n, val, nval, diff, njumps, jumpsum, nreversal;
+	int32 i, n, val, nval, diff, njumps, jumpsum, nreversal;
 	NUMA * na, * nae;
 
 	PROCNAME(__FUNCTION__);
@@ -377,11 +364,11 @@ l_ok pixMeasureEdgeSmoothness(PIX         * pixs,
  * \return  na   of fg edge pixel locations, or NULL on error
  */
 NUMA * pixGetEdgeProfile(PIX         * pixs,
-    l_int32 side,
+    int32 side,
     const char * debugfile)
 {
-	l_int32 x, y, w, h, loc, index, ival;
-	l_uint32 val;
+	int32 x, y, w, h, loc, index, ival;
+	uint32 val;
 	NUMA     * na;
 	PIX * pixt;
 	PIXCMAP  * cmap;
@@ -511,13 +498,13 @@ NUMA * pixGetEdgeProfile(PIX         * pixs,
  * </pre>
  */
 l_ok pixGetLastOffPixelInRun(PIX * pixs,
-    l_int32 x,
-    l_int32 y,
-    l_int32 direction,
-    l_int32 * ploc)
+    int32 x,
+    int32 y,
+    int32 direction,
+    int32 * ploc)
 {
-	l_int32 loc, w, h;
-	l_uint32 val;
+	int32 loc, w, h;
+	uint32 val;
 
 	PROCNAME(__FUNCTION__);
 
@@ -583,14 +570,14 @@ l_ok pixGetLastOffPixelInRun(PIX * pixs,
  *          pixel in the current run that is ON.
  * </pre>
  */
-l_int32 pixGetLastOnPixelInRun(PIX * pixs,
-    l_int32 x,
-    l_int32 y,
-    l_int32 direction,
-    l_int32 * ploc)
+int32 pixGetLastOnPixelInRun(PIX * pixs,
+    int32 x,
+    int32 y,
+    int32 direction,
+    int32 * ploc)
 {
-	l_int32 loc, w, h;
-	l_uint32 val;
+	int32 loc, w, h;
+	uint32 val;
 
 	PROCNAME(__FUNCTION__);
 

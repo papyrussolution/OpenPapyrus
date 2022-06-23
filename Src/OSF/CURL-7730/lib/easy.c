@@ -541,15 +541,11 @@ static CURLcode easy_transfer(struct Curl_multi * multi)
 	bool done = FALSE;
 	CURLMcode mcode = CURLM_OK;
 	CURLcode result = CURLE_OK;
-
 	while(!done && !mcode) {
 		int still_running = 0;
-
 		mcode = curl_multi_poll(multi, NULL, 0, 1000, NULL);
-
 		if(!mcode)
 			mcode = curl_multi_perform(multi, &still_running);
-
 		/* only read 'still_running' if curl_multi_perform() return OK */
 		if(!mcode && !still_running) {
 			int rc;
@@ -560,18 +556,12 @@ static CURLcode easy_transfer(struct Curl_multi * multi)
 			}
 		}
 	}
-
 	/* Make sure to return some kind of error if there was a multi problem */
 	if(mcode) {
-		result = (mcode == CURLM_OUT_OF_MEMORY) ? CURLE_OUT_OF_MEMORY :
-		    /* The other multi errors should never happen, so return
-		       something suitably generic */
-		    CURLE_BAD_FUNCTION_ARGUMENT;
+		result = (mcode == CURLM_OUT_OF_MEMORY) ? CURLE_OUT_OF_MEMORY : /* The other multi errors should never happen, so return something suitably generic */CURLE_BAD_FUNCTION_ARGUMENT;
 	}
-
 	return result;
 }
-
 /*
  * easy_perform() is the external interface that performs a blocking
  * transfer as previously setup.

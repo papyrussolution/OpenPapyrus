@@ -17,11 +17,11 @@
  *              PIX *pixRotate3Shear()
  *
  *      Shear rotation in-place about arbitrary point using 3 shears
- *              l_int32   pixRotateShearIP()
+ *              int32   pixRotateShearIP()
  *
  *      Shear rotation around the image center
  *              PIX *pixRotateShearCenter()    (2 or 3 shears)
- *              l_int32   pixRotateShearCenterIP()  (3 shears)
+ *              int32   pixRotateShearCenterIP()  (3 shears)
  *
  *  Rotation is measured in radians; clockwise rotations are positive.
  *
@@ -180,7 +180,7 @@ static const float MaxShearAngle = 0.50f; /* radians; ~29 deg   */
  *          (either sampling or area mapping)
  * </pre>
  */
-PIX * pixRotateShear(PIX * pixs, l_int32 xcen, l_int32 ycen, float angle, l_int32 incolor)
+PIX * pixRotateShear(PIX * pixs, int32 xcen, int32 ycen, float angle, int32 incolor)
 {
 	PROCNAME(__FUNCTION__);
 	if(!pixs)
@@ -228,10 +228,10 @@ PIX * pixRotateShear(PIX * pixs, l_int32 xcen, l_int32 ycen, float angle, l_int3
  * </pre>
  */
 PIX * pixRotate2Shear(PIX * pixs,
-    l_int32 xcen,
-    l_int32 ycen,
+    int32 xcen,
+    int32 ycen,
     float angle,
-    l_int32 incolor)
+    int32 incolor)
 {
 	PIX  * pix1, * pix2, * pixd;
 
@@ -302,7 +302,7 @@ PIX * pixRotate2Shear(PIX * pixs,
  *          edited by Andrew Glassner, published by Academic Press, 1990.
  * </pre>
  */
-PIX * pixRotate3Shear(PIX * pixs, l_int32 xcen, l_int32 ycen, float angle, l_int32 incolor)
+PIX * pixRotate3Shear(PIX * pixs, int32 xcen, int32 ycen, float angle, int32 incolor)
 {
 	float hangle;
 	PIX * pix1, * pix2, * pixd;
@@ -371,7 +371,7 @@ PIX * pixRotate3Shear(PIX * pixs, l_int32 xcen, l_int32 ycen, float angle, l_int
  *          only blits in 0 or 1 bits, not an arbitrary colormap index.
  * </pre>
  */
-l_ok pixRotateShearIP(PIX * pixs, l_int32 xcen, l_int32 ycen, float angle, l_int32 incolor)
+l_ok pixRotateShearIP(PIX * pixs, int32 xcen, int32 ycen, float angle, int32 incolor)
 {
 	float hangle;
 	PROCNAME(__FUNCTION__);
@@ -406,7 +406,7 @@ l_ok pixRotateShearIP(PIX * pixs, l_int32 xcen, l_int32 ycen, float angle, l_int
  * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK
  * \return  pixd, or NULL on error
  */
-PIX * pixRotateShearCenter(PIX * pixs, float angle, l_int32 incolor)
+PIX * pixRotateShearCenter(PIX * pixs, float angle, int32 incolor)
 {
 	PROCNAME(__FUNCTION__);
 	if(!pixs)
@@ -422,7 +422,7 @@ PIX * pixRotateShearCenter(PIX * pixs, float angle, l_int32 incolor)
  * \param[in]    incolor   L_BRING_IN_WHITE, L_BRING_IN_BLACK
  * \return  0 if OK, 1 on error
  */
-l_ok pixRotateShearCenterIP(PIX * pixs, float angle, l_int32 incolor)
+l_ok pixRotateShearCenterIP(PIX * pixs, float angle, int32 incolor)
 {
 	PROCNAME(__FUNCTION__);
 	if(!pixs)

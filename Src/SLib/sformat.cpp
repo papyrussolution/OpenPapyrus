@@ -759,7 +759,7 @@ int FASTCALL satof(const char * pBuf, double * pVal)
 	else {
 		const char * p_end = 0;
 		int   erange = 0;
-		return SRealConversion::Scan(pBuf, &p_end, pVal, &erange);
+		return SIEEE754::Scan(pBuf, &p_end, pVal, &erange);
 	}
 }
 
@@ -771,7 +771,7 @@ double FASTCALL satof(const char * pBuf)
 		const char * p_end = 0;
 		int   erange = 0;
 		double val = 0.0;
-		return SRealConversion::Scan(pBuf, &p_end, &val, &erange) ? val : 0.0;
+		return SIEEE754::Scan(pBuf, &p_end, &val, &erange) ? val : 0.0;
 	}
 }
 

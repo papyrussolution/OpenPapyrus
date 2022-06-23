@@ -25,36 +25,36 @@ PIX * pixReadStreamPng(FILE * fp)
 	return (PIX *)ERROR_PTR("function not present", "pixReadStreamPng", NULL);
 }
 
-l_ok readHeaderPng(const char * filename, l_int32 * pwidth, l_int32 * pheight,
-    l_int32 * pbps, l_int32 * pspp, l_int32 * piscmap)
+l_ok readHeaderPng(const char * filename, int32 * pwidth, int32 * pheight,
+    int32 * pbps, int32 * pspp, int32 * piscmap)
 {
 	return ERROR_INT("function not present", "readHeaderPng", 1);
 }
 
-l_ok freadHeaderPng(FILE * fp, l_int32 * pwidth, l_int32 * pheight,
-    l_int32 * pbps, l_int32 * pspp, l_int32 * piscmap)
+l_ok freadHeaderPng(FILE * fp, int32 * pwidth, int32 * pheight,
+    int32 * pbps, int32 * pspp, int32 * piscmap)
 {
 	return ERROR_INT("function not present", "freadHeaderPng", 1);
 }
 
-l_ok readHeaderMemPng(const uint8 * data, size_t size, l_int32 * pwidth,
-    l_int32 * pheight, l_int32 * pbps, l_int32 * pspp,
-    l_int32 * piscmap)
+l_ok readHeaderMemPng(const uint8 * data, size_t size, int32 * pwidth,
+    int32 * pheight, int32 * pbps, int32 * pspp,
+    int32 * piscmap)
 {
 	return ERROR_INT("function not present", "readHeaderMemPng", 1);
 }
 
-l_int32 fgetPngResolution(FILE * fp, l_int32 * pxres, l_int32 * pyres)
+int32 fgetPngResolution(FILE * fp, int32 * pxres, int32 * pyres)
 {
 	return ERROR_INT("function not present", "fgetPngResolution", 1);
 }
 
-l_ok isPngInterlaced(const char * filename, l_int32 * pinterlaced)
+l_ok isPngInterlaced(const char * filename, int32 * pinterlaced)
 {
 	return ERROR_INT("function not present", "isPngInterlaced", 1);
 }
 
-l_ok fgetPngColormapInfo(FILE * fp, PIXCMAP ** pcmap, l_int32 * ptransparency)
+l_ok fgetPngColormapInfo(FILE * fp, PIXCMAP ** pcmap, int32 * ptransparency)
 {
 	return ERROR_INT("function not present", "fgetPngColormapInfo", 1);
 }
@@ -69,13 +69,13 @@ l_ok pixWriteStreamPng(FILE * fp, PIX * pix, float gamma)
 	return ERROR_INT("function not present", "pixWriteStreamPng", 1);
 }
 
-l_ok pixSetZlibCompression(PIX * pix, l_int32 compval)
+l_ok pixSetZlibCompression(PIX * pix, int32 compval)
 
 {
 	return ERROR_INT("function not present", "pixSetZlibCompression", 1);
 }
 
-void l_pngSetReadStrip16To8(l_int32 flag)
+void l_pngSetReadStrip16To8(int32 flag)
 {
 	L_ERROR("function not present\n", "l_pngSetReadStrip16To8");
 	return;

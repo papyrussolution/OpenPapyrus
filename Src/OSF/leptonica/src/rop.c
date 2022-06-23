@@ -10,28 +10,28 @@
  * \file rop.c
  * <pre>
  *      General rasterop
- *           l_int32    pixRasterop()
+ *           int32    pixRasterop()
  *
  *      In-place full band translation
- *           l_int32    pixRasteropVip()
- *           l_int32    pixRasteropHip()
+ *           int32    pixRasteropVip()
+ *           int32    pixRasteropHip()
  *
  *      Full image translation (general and in-place)
- *           l_int32    pixTranslate()
- *           l_int32    pixRasteropIP()
+ *           int32    pixTranslate()
+ *           int32    pixRasteropIP()
  *
  *      Full image rasterop with no translation
- *           l_int32    pixRasteropFullImage()
+ *           int32    pixRasteropFullImage()
  *
  *      Checking for invalid crop box
- *           static l_int32   checkRasteropCrop()
+ *           static int32   checkRasteropCrop()
  * </pre>
  */
 #include "allheaders.h"
 #pragma hdrstop
 
-static l_int32 checkRasteropCrop(l_int32 pixw, l_int32 pixh, l_int32 dx,
-    l_int32 dy, l_int32 dw, l_int32 dh);
+static int32 checkRasteropCrop(int32 pixw, int32 pixh, int32 dx,
+    int32 dy, int32 dw, int32 dh);
 
 /*--------------------------------------------------------------------*
 *                General rasterop (basic pix interface)              *
@@ -177,16 +177,16 @@ static l_int32 checkRasteropCrop(l_int32 pixw, l_int32 pixh, l_int32 dx,
  * </pre>
  */
 l_ok pixRasterop(PIX * pixd,
-    l_int32 dx,
-    l_int32 dy,
-    l_int32 dw,
-    l_int32 dh,
-    l_int32 op,
+    int32 dx,
+    int32 dy,
+    int32 dw,
+    int32 dh,
+    int32 op,
     PIX * pixs,
-    l_int32 sx,
-    l_int32 sy)
+    int32 sx,
+    int32 sy)
 {
-	l_int32 dpw, dph, dpd, spw, sph, spd;
+	int32 dpw, dph, dpd, spw, sph, spd;
 
 	PROCNAME(__FUNCTION__);
 
@@ -254,12 +254,12 @@ l_ok pixRasterop(PIX * pixd,
  * </pre>
  */
 l_ok pixRasteropVip(PIX * pixd,
-    l_int32 bx,
-    l_int32 bw,
-    l_int32 vshift,
-    l_int32 incolor)
+    int32 bx,
+    int32 bw,
+    int32 vshift,
+    int32 incolor)
 {
-	l_int32 w, h, d, index, op;
+	int32 w, h, d, index, op;
 	PIX * pixt;
 	PIXCMAP  * cmap;
 
@@ -330,12 +330,12 @@ l_ok pixRasteropVip(PIX * pixd,
  * </pre>
  */
 l_ok pixRasteropHip(PIX * pixd,
-    l_int32 by,
-    l_int32 bh,
-    l_int32 hshift,
-    l_int32 incolor)
+    int32 by,
+    int32 bh,
+    int32 hshift,
+    int32 incolor)
 {
-	l_int32 w, h, d, index, op;
+	int32 w, h, d, index, op;
 	PIX * pixt;
 	PIXCMAP  * cmap;
 
@@ -413,9 +413,9 @@ l_ok pixRasteropHip(PIX * pixd,
  */
 PIX * pixTranslate(PIX * pixd,
     PIX * pixs,
-    l_int32 hshift,
-    l_int32 vshift,
-    l_int32 incolor)
+    int32 hshift,
+    int32 vshift,
+    int32 incolor)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -440,11 +440,11 @@ PIX * pixTranslate(PIX * pixd,
  * \return  0 if OK; 1 on error
  */
 l_ok pixRasteropIP(PIX * pixd,
-    l_int32 hshift,
-    l_int32 vshift,
-    l_int32 incolor)
+    int32 hshift,
+    int32 vshift,
+    int32 incolor)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -480,7 +480,7 @@ l_ok pixRasteropIP(PIX * pixd,
  */
 l_ok pixRasteropFullImage(PIX * pixd,
     PIX * pixs,
-    l_int32 op)
+    int32 op)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -513,12 +513,12 @@ l_ok pixRasteropFullImage(PIX * pixd,
  *          It is not needed for pre-filtering in pixRasterop().
  * </pre>
  */
-static l_int32 checkRasteropCrop(l_int32 pixw,
-    l_int32 pixh,
-    l_int32 x,
-    l_int32 y,
-    l_int32 w,
-    l_int32 h)
+static int32 checkRasteropCrop(int32 pixw,
+    int32 pixh,
+    int32 x,
+    int32 y,
+    int32 w,
+    int32 h)
 {
 	PROCNAME(__FUNCTION__);
 

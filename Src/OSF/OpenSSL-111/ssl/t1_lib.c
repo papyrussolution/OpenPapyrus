@@ -16,7 +16,7 @@
 #include <openssl/x509v3.h>
 #include <openssl/dh.h>
 #include <openssl/bn.h>
-#include "internal/nelem.h"
+//#include "internal/nelem.h"
 #include <openssl/ct.h>
 
 static const SIGALG_LOOKUP * find_sig_alg(SSL * s, X509 * x, EVP_PKEY * pkey);
@@ -191,7 +191,7 @@ static const uint16_t suiteb_curves[] = {
 const TLS_GROUP_INFO * tls1_group_id_lookup(uint16_t group_id)
 {
 	/* ECC curves from RFC 4492 and RFC 7027 */
-	if(group_id < 1 || group_id > OSSL_NELEM(nid_list))
+	if(group_id < 1 || group_id > SIZEOFARRAY(nid_list))
 		return NULL;
 	return &nid_list[group_id - 1];
 }
@@ -199,7 +199,7 @@ const TLS_GROUP_INFO * tls1_group_id_lookup(uint16_t group_id)
 static uint16_t tls1_nid2group_id(int nid)
 {
 	size_t i;
-	for(i = 0; i < OSSL_NELEM(nid_list); i++) {
+	for(i = 0; i < SIZEOFARRAY(nid_list); i++) {
 		if(nid_list[i].nid == nid)
 			return (uint16_t)(i + 1);
 	}
@@ -217,7 +217,7 @@ void tls1_get_supported_groups(SSL * s, const uint16_t ** pgroups,
 	switch(tls1_suiteb(s)) {
 		case SSL_CERT_FLAG_SUITEB_128_LOS:
 		    *pgroups = suiteb_curves;
-		    *pgroupslen = OSSL_NELEM(suiteb_curves);
+		    *pgroupslen = SIZEOFARRAY(suiteb_curves);
 		    break;
 
 		case SSL_CERT_FLAG_SUITEB_128_LOS_ONLY:
@@ -233,7 +233,7 @@ void tls1_get_supported_groups(SSL * s, const uint16_t ** pgroups,
 		default:
 		    if(s->ext.supportedgroups == NULL) {
 			    *pgroups = eccurves_default;
-			    *pgroupslen = OSSL_NELEM(eccurves_default);
+			    *pgroupslen = SIZEOFARRAY(eccurves_default);
 		    }
 		    else {
 			    *pgroups = s->ext.supportedgroups;
@@ -371,7 +371,7 @@ int tls1_set_groups(uint16_t ** pext, size_t * pextlen,
 	return 1;
 }
 
-#define MAX_CURVELIST   OSSL_NELEM(nid_list)
+#define MAX_CURVELIST   SIZEOFARRAY(nid_list)
 
 typedef struct {
 	size_t nidcnt;
@@ -801,7 +801,7 @@ static const SIGALG_LOOKUP * tls1_lookup_sigalg(uint16_t sigalg)
 	size_t i;
 	const SIGALG_LOOKUP * s;
 
-	for(i = 0, s = sigalg_lookup_tbl; i < OSSL_NELEM(sigalg_lookup_tbl);
+	for(i = 0, s = sigalg_lookup_tbl; i < SIZEOFARRAY(sigalg_lookup_tbl);
 	    i++, s++) {
 		if(s->sigalg == sigalg)
 			return s;
@@ -884,7 +884,7 @@ static const SIGALG_LOOKUP * tls1_get_legacy_sigalg(const SSL * s, int idx)
 			idx = s->cert->key - s->cert->pkeys;
 		}
 	}
-	if(idx < 0 || idx >= (int)OSSL_NELEM(tls_default_sigalg))
+	if(idx < 0 || idx >= (int)SIZEOFARRAY(tls_default_sigalg))
 		return NULL;
 	if(SSL_USE_SIGALGS(s) || idx != SSL_PKEY_RSA) {
 		const SIGALG_LOOKUP * lu = tls1_lookup_sigalg(tls_default_sigalg[idx]);
@@ -921,7 +921,7 @@ size_t tls12_get_psigalgs(SSL * s, int sent, const uint16_t ** psigs)
 	switch(tls1_suiteb(s)) {
 		case SSL_CERT_FLAG_SUITEB_128_LOS:
 		    *psigs = suiteb_sigalgs;
-		    return OSSL_NELEM(suiteb_sigalgs);
+		    return SIZEOFARRAY(suiteb_sigalgs);
 
 		case SSL_CERT_FLAG_SUITEB_128_LOS_ONLY:
 		    *psigs = suiteb_sigalgs;
@@ -947,7 +947,7 @@ size_t tls12_get_psigalgs(SSL * s, int sent, const uint16_t ** psigs)
 	}
 	else {
 		*psigs = tls12_sigalgs;
-		return OSSL_NELEM(tls12_sigalgs);
+		return SIZEOFARRAY(tls12_sigalgs);
 	}
 }
 
@@ -967,7 +967,7 @@ int tls_check_sigalg_curve(const SSL * s, int curve)
 	}
 	else {
 		sigs = tls12_sigalgs;
-		siglen = OSSL_NELEM(tls12_sigalgs);
+		siglen = SIZEOFARRAY(tls12_sigalgs);
 	}
 
 	for(i = 0; i < siglen; i++) {
@@ -1865,7 +1865,7 @@ int SSL_get_shared_sigalgs(SSL * s, int idx, int * psign, int * phash, int * psi
 }
 
 /* Maximum possible number of unique entries in sigalgs array */
-#define TLS_MAX_SIGALGCNT (OSSL_NELEM(sigalg_lookup_tbl) * 2)
+#define TLS_MAX_SIGALGCNT (SIZEOFARRAY(sigalg_lookup_tbl) * 2)
 
 typedef struct {
 	size_t sigalgcnt;
@@ -1923,14 +1923,14 @@ static int sig_cb(const char * elem, int len, void * arg)
 	 * in the table.
 	 */
 	if(!p) {
-		for(i = 0, s = sigalg_lookup_tbl; i < OSSL_NELEM(sigalg_lookup_tbl);
+		for(i = 0, s = sigalg_lookup_tbl; i < SIZEOFARRAY(sigalg_lookup_tbl);
 		    i++, s++) {
 			if(s->name && strcmp(etmp, s->name) == 0) {
 				sarg->sigalgs[sarg->sigalgcnt++] = s->sigalg;
 				break;
 			}
 		}
-		if(i == OSSL_NELEM(sigalg_lookup_tbl))
+		if(i == SIZEOFARRAY(sigalg_lookup_tbl))
 			return 0;
 	}
 	else {
@@ -1942,14 +1942,14 @@ static int sig_cb(const char * elem, int len, void * arg)
 		get_sigorhash(&sig_alg, &hash_alg, p);
 		if(sig_alg == NID_undef || hash_alg == NID_undef)
 			return 0;
-		for(i = 0, s = sigalg_lookup_tbl; i < OSSL_NELEM(sigalg_lookup_tbl);
+		for(i = 0, s = sigalg_lookup_tbl; i < SIZEOFARRAY(sigalg_lookup_tbl);
 		    i++, s++) {
 			if(s->hash == hash_alg && s->sig == sig_alg) {
 				sarg->sigalgs[sarg->sigalgcnt++] = s->sigalg;
 				break;
 			}
 		}
-		if(i == OSSL_NELEM(sigalg_lookup_tbl))
+		if(i == SIZEOFARRAY(sigalg_lookup_tbl))
 			return 0;
 	}
 
@@ -1973,7 +1973,7 @@ int tls1_set_sigalgs_list(CERT * c, const char * str, int client)
 	sig.sigalgcnt = 0;
 	if(!CONF_parse_list(str, ':', 1, sig_cb, &sig))
 		return 0;
-	if(c == NULL)
+	if(!c)
 		return 1;
 	return tls1_set_raw_sigalgs(c, sig.sigalgs, sig.sigalgcnt, client);
 }
@@ -2016,7 +2016,7 @@ int tls1_set_sigalgs(CERT * c, const int * psig_nids, size_t salglen, int client
 		int md_id = *psig_nids++;
 		int sig_id = *psig_nids++;
 
-		for(j = 0, curr = sigalg_lookup_tbl; j < OSSL_NELEM(sigalg_lookup_tbl);
+		for(j = 0, curr = sigalg_lookup_tbl; j < SIZEOFARRAY(sigalg_lookup_tbl);
 		    j++, curr++) {
 			if(curr->hash == md_id && curr->sig == sig_id) {
 				*sptr++ = curr->sigalg;
@@ -2024,7 +2024,7 @@ int tls1_set_sigalgs(CERT * c, const int * psig_nids, size_t salglen, int client
 			}
 		}
 
-		if(j == OSSL_NELEM(sigalg_lookup_tbl))
+		if(j == SIZEOFARRAY(sigalg_lookup_tbl))
 			goto err;
 	}
 

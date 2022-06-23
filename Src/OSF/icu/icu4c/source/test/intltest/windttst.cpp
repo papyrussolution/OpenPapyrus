@@ -120,10 +120,8 @@ void Win32DateTimeTest::testLocales(DateFormatTest * log)
 		GetLocaleInfoW(lcidRecords[i].lcid, LOCALE_SLONGDATE,   longDateFormat, 81);
 		GetLocaleInfoW(lcidRecords[i].lcid, LOCALE_STIMEFORMAT, longTimeFormat, 81);
 		GetLocaleInfoW(lcidRecords[i].lcid, LOCALE_RETURN_NUMBER|LOCALE_ICALENDARTYPE, (LPWSTR)&value, sizeof(value)/sizeof(WCHAR));
-
 		calType = value;
 		char localeID[64];
-
 		uprv_strcpy(localeID, lcidRecords[i].localeID);
 		uprv_strcat(localeID, getCalendarType(calType));
 

@@ -30,10 +30,10 @@
  *           BOXA        *boxaAffineTransform()
  *
  *      Matrix operations
- *           l_int32      l_productMatVec()
- *           l_int32      l_productMat2()
- *           l_int32      l_productMat3()
- *           l_int32      l_productMat4()
+ *           int32      l_productMatVec()
+ *           int32      l_productMat2()
+ *           int32      l_productMat3()
+ *           int32      l_productMat4()
  * </pre>
  */
 #include "allheaders.h"
@@ -180,7 +180,7 @@ PTA * ptaTranslate(PTA       * ptas,
     float transx,
     float transy)
 {
-	l_int32 i, npts;
+	int32 i, npts;
 	float x, y;
 	PTA       * ptad;
 
@@ -217,7 +217,7 @@ PTA * ptaScale(PTA       * ptas,
     float scalex,
     float scaley)
 {
-	l_int32 i, npts;
+	int32 i, npts;
 	float x, y;
 	PTA       * ptad;
 
@@ -264,7 +264,7 @@ PTA * ptaScale(PTA       * ptas,
  */
 PTA * ptaRotate(PTA       * ptas, float xc, float yc, float angle)
 {
-	l_int32 i, npts;
+	int32 i, npts;
 	float x, y, xp, yp, sina, cosa;
 	PTA       * ptad;
 	PROCNAME(__FUNCTION__);
@@ -394,7 +394,7 @@ BOXA * boxaRotate(BOXA      * boxas,
 PTA * ptaAffineTransform(PTA        * ptas,
     float * mat)
 {
-	l_int32 i, npts;
+	int32 i, npts;
 	float vecs[3], vecd[3];
 	PTA       * ptad;
 
@@ -461,9 +461,9 @@ BOXA * boxaAffineTransform(BOXA       * boxas,
 l_ok l_productMatVec(float * mat,
     float * vecs,
     float * vecd,
-    l_int32 size)
+    int32 size)
 {
-	l_int32 i, j;
+	int32 i, j;
 
 	PROCNAME(__FUNCTION__);
 
@@ -495,9 +495,9 @@ l_ok l_productMatVec(float * mat,
 l_ok l_productMat2(float * mat1,
     float * mat2,
     float * matd,
-    l_int32 size)
+    int32 size)
 {
-	l_int32 i, j, k, index;
+	int32 i, j, k, index;
 
 	PROCNAME(__FUNCTION__);
 
@@ -533,7 +533,7 @@ l_ok l_productMat3(float * mat1,
     float * mat2,
     float * mat3,
     float * matd,
-    l_int32 size)
+    int32 size)
 {
 	float * matt;
 
@@ -573,7 +573,7 @@ l_ok l_productMat4(float * mat1,
     float * mat3,
     float * mat4,
     float * matd,
-    l_int32 size)
+    int32 size)
 {
 	float * matt;
 

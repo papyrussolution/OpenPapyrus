@@ -102,41 +102,41 @@
 #define  RECOG_VERSION_NUMBER      2
 
 struct L_Recog {
-	l_int32 scalew;    /*!< scale all examples to this width;      */
+	int32 scalew;    /*!< scale all examples to this width;      */
 	/*!< use 0 prevent horizontal scaling       */
-	l_int32 scaleh;    /*!< scale all examples to this height;     */
+	int32 scaleh;    /*!< scale all examples to this height;     */
 	/*!< use 0 prevent vertical scaling         */
-	l_int32 linew;    /*!< use a value > 0 to convert the bitmap  */
+	int32 linew;    /*!< use a value > 0 to convert the bitmap  */
 	/*!< to lines of fixed width; 0 to skip     */
-	l_int32 templ_use;    /*!< template use: use either the average   */
+	int32 templ_use;    /*!< template use: use either the average   */
 	/*!< or all temmplates (L_USE_AVERAGE or    */
 	/*!< L_USE_ALL)                             */
-	l_int32 maxarraysize;    /*!< initialize container arrays to this    */
-	l_int32 setsize;    /*!< size of character set                  */
-	l_int32 threshold;    /*!< for binarizing if depth > 1            */
-	l_int32 maxyshift;    /*!< vertical jiggle on nominal centroid    */
+	int32 maxarraysize;    /*!< initialize container arrays to this    */
+	int32 setsize;    /*!< size of character set                  */
+	int32 threshold;    /*!< for binarizing if depth > 1            */
+	int32 maxyshift;    /*!< vertical jiggle on nominal centroid    */
 	/*!< alignment; typically 0 or 1            */
-	l_int32 charset_type;    /*!< one of L_ARABIC_NUMERALS, etc.         */
-	l_int32 charset_size;    /*!< expected number of classes in charset  */
-	l_int32 min_nopad;    /*!< min number of samples without padding  */
-	l_int32 num_samples;     /*!< number of training samples             */
-	l_int32 minwidth_u;    /*!< min width averaged unscaled templates  */
-	l_int32 maxwidth_u;    /*!< max width averaged unscaled templates  */
-	l_int32 minheight_u;     /*!< min height averaged unscaled templates */
-	l_int32 maxheight_u;     /*!< max height averaged unscaled templates */
-	l_int32 minwidth;    /*!< min width averaged scaled templates    */
-	l_int32 maxwidth;    /*!< max width averaged scaled templates    */
-	l_int32 ave_done;    /*!< set to 1 when averaged bitmaps are made */
-	l_int32 train_done;    /*!< set to 1 when training is complete or  */
+	int32 charset_type;    /*!< one of L_ARABIC_NUMERALS, etc.         */
+	int32 charset_size;    /*!< expected number of classes in charset  */
+	int32 min_nopad;    /*!< min number of samples without padding  */
+	int32 num_samples;     /*!< number of training samples             */
+	int32 minwidth_u;    /*!< min width averaged unscaled templates  */
+	int32 maxwidth_u;    /*!< max width averaged unscaled templates  */
+	int32 minheight_u;     /*!< min height averaged unscaled templates */
+	int32 maxheight_u;     /*!< max height averaged unscaled templates */
+	int32 minwidth;    /*!< min width averaged scaled templates    */
+	int32 maxwidth;    /*!< max width averaged scaled templates    */
+	int32 ave_done;    /*!< set to 1 when averaged bitmaps are made */
+	int32 train_done;    /*!< set to 1 when training is complete or  */
 	/*!< identification has started             */
 	float max_wh_ratio;  /*!< max width/height ratio to split        */
 	float max_ht_ratio;  /*!< max of max/min template height ratio   */
-	l_int32 min_splitw;    /*!< min component width kept in splitting  */
-	l_int32 max_splith;    /*!< max component height kept in splitting */
+	int32 min_splitw;    /*!< min component width kept in splitting  */
+	int32 max_splith;    /*!< max component height kept in splitting */
 	struct Sarray * sa_text; /*!< text array for arbitrary char set      */
 	struct L_Dna  * dna_tochar; /*!< index-to-char lut for arbitrary charset */
-	l_int32       * centtab; /*!< table for finding centroids            */
-	l_int32       * sumtab; /*!< table for finding pixel sums           */
+	int32       * centtab; /*!< table for finding centroids            */
+	int32       * sumtab; /*!< table for finding pixel sums           */
 	struct Pixaa  * pixaa_u; /*!< all unscaled templates for each class  */
 	struct Ptaa   * ptaa_u; /*!< centroids of all unscaled templates    */
 	struct Numaa  * naasum_u; /*!< area of all unscaled templates         */
@@ -157,7 +157,7 @@ struct L_Recog {
 	struct Pixa * pixadb_boot; /*!< debug: bootstrap training results      */
 	struct Pixa * pixadb_split; /*!< debug: splitting results               */
 	struct L_Bmf  * bmf;     /*!< bmf fonts                              */
-	l_int32 bmf_size;    /*!< font size of bmf; default is 6 pt      */
+	int32 bmf_size;    /*!< font size of bmf; default is 6 pt      */
 	struct L_Rdid * did;     /*!< temp data used for image decoding      */
 	struct L_Rch  * rch;     /*!< temp data used for holding best char */
 	struct L_Rcha * rcha; /*!< temp data used for array of best chars */
@@ -169,14 +169,14 @@ typedef struct L_Recog L_RECOG;
  *  Data returned from correlation matching on a single character
  */
 struct L_Rch {
-	l_int32 index;    /*!< index of best template                   */
+	int32 index;    /*!< index of best template                   */
 	float score;  /*!< correlation score of best template       */
 	char          * text; /*!< character string of best template        */
-	l_int32 sample;    /*!< index of best sample (within the best    */
+	int32 sample;    /*!< index of best sample (within the best    */
 	/*!< template class, if all samples are used) */
-	l_int32 xloc;    /*!< x-location of template (delx + shiftx)   */
-	l_int32 yloc;    /*!< y-location of template (dely + shifty)   */
-	l_int32 width;    /*!< width of best template                   */
+	int32 xloc;    /*!< x-location of template (delx + shiftx)   */
+	int32 yloc;    /*!< y-location of template (dely + shifty)   */
+	int32 width;    /*!< width of best template                   */
 };
 
 typedef struct L_Rch L_RCH;
@@ -201,18 +201,18 @@ typedef struct L_Rcha L_RCHA;
  */
 struct L_Rdid {
 	struct Pix * pixs; /*!< clone of pix to be decoded             */
-	l_int32 ** counta; /*!< count array for each averaged template */
-	l_int32 ** delya; /*!< best y-shift array per average template */
-	l_int32 narray;    /*!< number of averaged templates           */
-	l_int32 size;    /*!< size of count array (width of pixs)    */
-	l_int32       * setwidth; /*!< setwidths for each template            */
+	int32 ** counta; /*!< count array for each averaged template */
+	int32 ** delya; /*!< best y-shift array per average template */
+	int32 narray;    /*!< number of averaged templates           */
+	int32 size;    /*!< size of count array (width of pixs)    */
+	int32       * setwidth; /*!< setwidths for each template            */
 	struct Numa   * nasum; /*!< pixel count in pixs by column          */
 	struct Numa   * namoment; /*!< first moment of pixels in pixs by cols */
-	l_int32 fullarrays;    /*!< 1 if full arrays are made; 0 otherwise */
+	int32 fullarrays;    /*!< 1 if full arrays are made; 0 otherwise */
 	float     * beta; /*!< channel coeffs for template fg term    */
 	float     * gamma; /*!< channel coeffs for bit-and term        */
 	float     * trellisscore; /*!< score on trellis                       */
-	l_int32       * trellistempl; /*!< template on trellis (for backtrack)    */
+	int32       * trellistempl; /*!< template on trellis (for backtrack)    */
 	struct Numa   * natempl; /*!< indices of best path templates         */
 	struct Numa   * naxloc; /*!< x locations of best path templates     */
 	struct Numa   * nadely; /*!< y locations of best path templates     */

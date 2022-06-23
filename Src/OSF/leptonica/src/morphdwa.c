@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file morphdwa.c
  * <pre>
@@ -45,7 +32,7 @@
  *         PIX     *pixErodeCompBrickExtendDwa()
  *         PIX     *pixOpenCompBrickExtendDwa()
  *         PIX     *pixCloseCompBrickExtendDwa()
- *         l_int32  getExtendedCompositeParameters()
+ *         int32  getExtendedCompositeParameters()
  *
  *    These are higher-level interfaces for dwa morphology with brick Sels.
  *    Because many morphological operations are performed using
@@ -172,10 +159,10 @@
  */
 PIX * pixDilateBrickDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
-	l_int32 found;
+	int32 found;
 	char * selnameh, * selnamev;
 	SELA    * sela;
 	PIX * pixt1, * pixt2, * pixt3;
@@ -274,10 +261,10 @@ PIX * pixDilateBrickDwa(PIX * pixd,
  */
 PIX * pixErodeBrickDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
-	l_int32 found;
+	int32 found;
 	char * selnameh, * selnamev;
 	SELA    * sela;
 	PIX * pixt1, * pixt2, * pixt3;
@@ -376,10 +363,10 @@ PIX * pixErodeBrickDwa(PIX * pixd,
  */
 PIX * pixOpenBrickDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
-	l_int32 found;
+	int32 found;
 	char * selnameh, * selnamev;
 	SELA    * sela;
 	PIX * pixt1, * pixt2, * pixt3;
@@ -483,10 +470,10 @@ PIX * pixOpenBrickDwa(PIX * pixd,
  */
 PIX * pixCloseBrickDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
-	l_int32 bordercolor, bordersize, found;
+	int32 bordercolor, bordersize, found;
 	char * selnameh, * selnamev;
 	SELA    * sela;
 	PIX * pixt1, * pixt2, * pixt3;
@@ -610,11 +597,11 @@ PIX * pixCloseBrickDwa(PIX * pixd,
  */
 PIX * pixDilateCompBrickDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	char * selnameh1, * selnameh2, * selnamev1, * selnamev2;
-	l_int32 hsize1, hsize2, vsize1, vsize2;
+	int32 hsize1, hsize2, vsize1, vsize2;
 	PIX * pixt1, * pixt2, * pixt3;
 
 	PROCNAME(__FUNCTION__);
@@ -747,11 +734,11 @@ PIX * pixDilateCompBrickDwa(PIX * pixd,
  */
 PIX * pixErodeCompBrickDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	char * selnameh1, * selnameh2, * selnamev1, * selnamev2;
-	l_int32 hsize1, hsize2, vsize1, vsize2, bordercolor;
+	int32 hsize1, hsize2, vsize1, vsize2, bordercolor;
 	PIX * pixt1, * pixt2, * pixt3;
 
 	PROCNAME(__FUNCTION__);
@@ -880,11 +867,11 @@ PIX * pixErodeCompBrickDwa(PIX * pixd,
  */
 PIX * pixOpenCompBrickDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	char * selnameh1, * selnameh2, * selnamev1, * selnamev2;
-	l_int32 hsize1, hsize2, vsize1, vsize2, bordercolor;
+	int32 hsize1, hsize2, vsize1, vsize2, bordercolor;
 	PIX * pixt1, * pixt2, * pixt3;
 
 	PROCNAME(__FUNCTION__);
@@ -1052,11 +1039,11 @@ PIX * pixOpenCompBrickDwa(PIX * pixd,
  */
 PIX * pixCloseCompBrickDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	char * selnameh1, * selnameh2, * selnamev1, * selnamev2;
-	l_int32 hsize1, hsize2, vsize1, vsize2, setborder;
+	int32 hsize1, hsize2, vsize1, vsize2, setborder;
 	PIX * pixt1, * pixt2, * pixt3;
 
 	PROCNAME(__FUNCTION__);
@@ -1207,10 +1194,10 @@ PIX * pixCloseCompBrickDwa(PIX * pixd,
  */
 PIX * pixDilateCompBrickExtendDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
-	l_int32 i, nops, nh, extrah, nv, extrav;
+	int32 i, nops, nh, extrah, nv, extrav;
 	PIX * pixt1, * pixt2, * pixt3;
 
 	PROCNAME(__FUNCTION__);
@@ -1335,10 +1322,10 @@ PIX * pixDilateCompBrickExtendDwa(PIX * pixd,
  */
 PIX * pixErodeCompBrickExtendDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
-	l_int32 i, nops, nh, extrah, nv, extrav;
+	int32 i, nops, nh, extrah, nv, extrav;
 	PIX * pixt1, * pixt2, * pixt3;
 
 	PROCNAME(__FUNCTION__);
@@ -1466,8 +1453,8 @@ PIX * pixErodeCompBrickExtendDwa(PIX * pixd,
  */
 PIX * pixOpenCompBrickExtendDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
 	PIX * pixt;
 
@@ -1508,10 +1495,10 @@ PIX * pixOpenCompBrickExtendDwa(PIX * pixd,
  */
 PIX * pixCloseCompBrickExtendDwa(PIX * pixd,
     PIX * pixs,
-    l_int32 hsize,
-    l_int32 vsize)
+    int32 hsize,
+    int32 vsize)
 {
-	l_int32 bordercolor, borderx, bordery;
+	int32 bordercolor, borderx, bordery;
 	PIX * pixt1, * pixt2, * pixt3;
 
 	PROCNAME(__FUNCTION__);
@@ -1594,12 +1581,12 @@ PIX * pixCloseCompBrickExtendDwa(PIX * pixd,
  *             w' = 63 + (n - 1) * 62 + f1 * f2 - 1
  * </pre>
  */
-l_ok getExtendedCompositeParameters(l_int32 size,
-    l_int32 * pn,
-    l_int32 * pextra,
-    l_int32 * pactualsize)
+l_ok getExtendedCompositeParameters(int32 size,
+    int32 * pn,
+    int32 * pextra,
+    int32 * pactualsize)
 {
-	l_int32 n, extra, fact1, fact2;
+	int32 n, extra, fact1, fact2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1611,7 +1598,7 @@ l_ok getExtendedCompositeParameters(l_int32 size,
 		extra = MIN(1, size);
 	}
 	else { /* size > 63 */
-		n = 1 + (l_int32)((size - 63) / 62);
+		n = 1 + (int32)((size - 63) / 62);
 		extra = size - 63 - (n - 1) * 62 + 1;
 	}
 

@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*
  * correlscore.c
  *
@@ -31,12 +18,12 @@
  *     pairs of 1 bpp images.
  *
  *     Optimized 2 pix correlators (for jbig2 clustering)
- *         l_int32     pixCorrelationScore()
- *         l_int32     pixCorrelationScoreThresholded()
+ *         int32     pixCorrelationScore()
+ *         int32     pixCorrelationScoreThresholded()
  *
  *     Simple 2 pix correlators
- *         l_int32     pixCorrelationScoreSimple()
- *         l_int32     pixCorrelationScoreShifted()
+ *         int32     pixCorrelationScoreSimple()
+ *         int32     pixCorrelationScoreShifted()
  *
  *     There are other, more application-oriented functions, that
  *     compute the correlation between two binary images, taking into
@@ -121,20 +108,20 @@
  */
 l_ok pixCorrelationScore(PIX        * pix1,
     PIX        * pix2,
-    l_int32 area1,
-    l_int32 area2,
+    int32 area1,
+    int32 area2,
     float delx,                     /* x(1) - x(3) */
     float dely,                     /* y(1) - y(3) */
-    l_int32 maxdiffw,
-    l_int32 maxdiffh,
-    l_int32    * tab,
+    int32 maxdiffw,
+    int32 maxdiffh,
+    int32    * tab,
     float * pscore)
 {
-	l_int32 wi, hi, wt, ht, delw, delh, idelx, idely, count;
-	l_int32 wpl1, wpl2, lorow, hirow, locol, hicol;
-	l_int32 x, y, pix1lskip, pix2lskip, rowwords1, rowwords2;
-	l_uint32 word1, word2, andw;
-	l_uint32 * row1, * row2;
+	int32 wi, hi, wt, ht, delw, delh, idelx, idely, count;
+	int32 wpl1, wpl2, lorow, hirow, locol, hicol;
+	int32 x, y, pix1lskip, pix2lskip, rowwords1, rowwords2;
+	uint32 word1, word2, andw;
+	uint32 * row1, * row2;
 
 	PROCNAME(__FUNCTION__);
 
@@ -162,13 +149,13 @@ l_ok pixCorrelationScore(PIX        * pix1,
 
 	/* Round difference to nearest integer */
 	if(delx >= 0)
-		idelx = (l_int32)(delx + 0.5);
+		idelx = (int32)(delx + 0.5);
 	else
-		idelx = (l_int32)(delx - 0.5);
+		idelx = (int32)(delx - 0.5);
 	if(dely >= 0)
-		idely = (l_int32)(dely + 0.5);
+		idely = (int32)(dely + 0.5);
 	else
-		idely = (l_int32)(dely - 0.5);
+		idely = (int32)(dely - 0.5);
 
 	count = 0;
 	wpl1 = pixGetWpl(pix1);
@@ -421,25 +408,25 @@ l_ok pixCorrelationScore(PIX        * pix1,
  *  This very fast correlation matcher was contributed by William Rucklidge.
  * </pre>
  */
-l_int32 pixCorrelationScoreThresholded(PIX * pix1,
+int32 pixCorrelationScoreThresholded(PIX * pix1,
     PIX * pix2,
-    l_int32 area1,
-    l_int32 area2,
+    int32 area1,
+    int32 area2,
     float delx,                               /* x(1) - x(3) */
     float dely,                               /* y(1) - y(3) */
-    l_int32 maxdiffw,
-    l_int32 maxdiffh,
-    l_int32   * tab,
-    l_int32   * downcount,
+    int32 maxdiffw,
+    int32 maxdiffh,
+    int32   * tab,
+    int32   * downcount,
     float score_threshold)
 {
-	l_int32 wi, hi, wt, ht, delw, delh, idelx, idely, count;
-	l_int32 wpl1, wpl2, lorow, hirow, locol, hicol, untouchable;
-	l_int32 x, y, pix1lskip, pix2lskip, rowwords1, rowwords2;
-	l_uint32 word1, word2, andw;
-	l_uint32 * row1, * row2;
+	int32 wi, hi, wt, ht, delw, delh, idelx, idely, count;
+	int32 wpl1, wpl2, lorow, hirow, locol, hicol, untouchable;
+	int32 x, y, pix1lskip, pix2lskip, rowwords1, rowwords2;
+	uint32 word1, word2, andw;
+	uint32 * row1, * row2;
 	float score;
-	l_int32 threshold;
+	int32 threshold;
 
 	PROCNAME(__FUNCTION__);
 
@@ -464,17 +451,17 @@ l_int32 pixCorrelationScoreThresholded(PIX * pix1,
 
 	/* Round difference to nearest integer */
 	if(delx >= 0)
-		idelx = (l_int32)(delx + 0.5);
+		idelx = (int32)(delx + 0.5);
 	else
-		idelx = (l_int32)(delx - 0.5);
+		idelx = (int32)(delx - 0.5);
 	if(dely >= 0)
-		idely = (l_int32)(dely + 0.5);
+		idely = (int32)(dely + 0.5);
 	else
-		idely = (l_int32)(dely - 0.5);
+		idely = (int32)(dely - 0.5);
 
 	/* Compute the correlation count that is needed so that
 	* count * count / (area1 * area2) >= score_threshold */
-	threshold = (l_int32)ceil(sqrt((double)score_threshold * area1 * area2));
+	threshold = (int32)ceil(sqrt((double)score_threshold * area1 * area2));
 
 	count = 0;
 	wpl1 = pixGetWpl(pix1);
@@ -737,16 +724,16 @@ l_int32 pixCorrelationScoreThresholded(PIX * pix1,
  */
 l_ok pixCorrelationScoreSimple(PIX        * pix1,
     PIX        * pix2,
-    l_int32 area1,
-    l_int32 area2,
+    int32 area1,
+    int32 area2,
     float delx,                           /* x(1) - x(3) */
     float dely,                           /* y(1) - y(3) */
-    l_int32 maxdiffw,
-    l_int32 maxdiffh,
-    l_int32    * tab,
+    int32 maxdiffw,
+    int32 maxdiffh,
+    int32    * tab,
     float * pscore)
 {
-	l_int32 wi, hi, wt, ht, delw, delh, idelx, idely, count;
+	int32 wi, hi, wt, ht, delw, delh, idelx, idely, count;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);
@@ -775,13 +762,13 @@ l_ok pixCorrelationScoreSimple(PIX        * pix1,
 
 	/* Round difference to nearest integer */
 	if(delx >= 0)
-		idelx = (l_int32)(delx + 0.5);
+		idelx = (int32)(delx + 0.5);
 	else
-		idelx = (l_int32)(delx - 0.5);
+		idelx = (int32)(delx - 0.5);
 	if(dely >= 0)
-		idely = (l_int32)(dely + 0.5);
+		idely = (int32)(dely + 0.5);
 	else
-		idely = (l_int32)(dely - 0.5);
+		idely = (int32)(dely - 0.5);
 
 	/*  pixt = pixAnd(NULL, pix1, pix2), including shift.
 	 *  To insure that pixels are ON only within the
@@ -838,14 +825,14 @@ l_ok pixCorrelationScoreSimple(PIX        * pix1,
  */
 l_ok pixCorrelationScoreShifted(PIX        * pix1,
     PIX        * pix2,
-    l_int32 area1,
-    l_int32 area2,
-    l_int32 delx,
-    l_int32 dely,
-    l_int32    * tab,
+    int32 area1,
+    int32 area2,
+    int32 delx,
+    int32 dely,
+    int32    * tab,
     float * pscore)
 {
-	l_int32 w1, h1, w2, h2, count;
+	int32 w1, h1, w2, h2, count;
 	PIX * pixt;
 
 	PROCNAME(__FUNCTION__);

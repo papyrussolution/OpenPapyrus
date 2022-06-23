@@ -51,33 +51,32 @@ public:
 	static const int kExponentBias = 0x3FF + kPhysicalSignificandSize;
 	static const int kMaxExponent = 0x7FF - kExponentBias;
 
-	Double() : d64_(0) {
+	Double() : d64_(0) 
+	{
 	}
-
-	explicit Double(double d) : d64_(double_to_uint64(d)) {
+	explicit Double(double d) : d64_(double_to_uint64(d)) 
+	{
 	}
-
-	explicit Double(uint64_t d64) : d64_(d64) {
+	explicit Double(uint64_t d64) : d64_(d64) 
+	{
 	}
-
-	explicit Double(DiyFp diy_fp)
-		: d64_(DiyFpToUint64(diy_fp)) {
+	explicit Double(DiyFp diy_fp) : d64_(DiyFpToUint64(diy_fp)) 
+	{
 	}
-
 	// The value encoded by this Double must be greater or equal to +0.0.
 	// It must not be special (infinity, or NaN).
-	DiyFp AsDiyFp() const {
+	DiyFp AsDiyFp() const 
+	{
 		DOUBLE_CONVERSION_ASSERT(Sign() > 0);
 		DOUBLE_CONVERSION_ASSERT(!IsSpecial());
 		return DiyFp(Significand(), Exponent());
 	}
-
 	// The value encoded by this Double must be strictly greater than 0.
-	DiyFp AsNormalizedDiyFp() const {
+	DiyFp AsNormalizedDiyFp() const 
+	{
 		DOUBLE_CONVERSION_ASSERT(value() > 0.0);
 		uint64_t f = Significand();
 		int e = Exponent();
-
 		// The current double could be a denormal.
 		while((f & kHiddenBit) == 0) {
 			f <<= 1;
@@ -88,14 +87,11 @@ public:
 		e -= DiyFp::kSignificandSize - kSignificandSize;
 		return DiyFp(f, e);
 	}
-
 	// Returns the double's bit as uint64.
-	uint64_t AsUint64() const {
-		return d64_;
-	}
-
+	uint64_t AsUint64() const { return d64_; }
 	// Returns the next greater double. Returns +infinity on input +infinity.
-	double NextDouble() const {
+	double NextDouble() const 
+	{
 		if(d64_ == kInfinity) return Double(kInfinity).value();
 		if(Sign() < 0 && Significand() == 0) {
 			// -0.0
@@ -108,8 +104,8 @@ public:
 			return Double(d64_ + 1).value();
 		}
 	}
-
-	double PreviousDouble() const {
+	double PreviousDouble() const 
+	{
 		if(d64_ == (kInfinity | kSignMask)) return -Infinity();
 		if(Sign() < 0) {
 			return Double(d64_ + 1).value();
@@ -119,17 +115,16 @@ public:
 			return Double(d64_ - 1).value();
 		}
 	}
-
-	int Exponent() const {
-		if(IsDenormal()) return kDenormalExponent;
-
+	int Exponent() const 
+	{
+		if(IsDenormal()) 
+			return kDenormalExponent;
 		uint64_t d64 = AsUint64();
-		int biased_e =
-		    static_cast<int>((d64 & kExponentMask) >> kPhysicalSignificandSize);
+		int biased_e = static_cast<int>((d64 & kExponentMask) >> kPhysicalSignificandSize);
 		return biased_e - kExponentBias;
 	}
-
-	uint64_t Significand() const {
+	uint64_t Significand() const 
+	{
 		uint64_t d64 = AsUint64();
 		uint64_t significand = d64 & kSignificandMask;
 		if(!IsDenormal()) {
@@ -139,57 +134,49 @@ public:
 			return significand;
 		}
 	}
-
 	// Returns true if the double is a denormal.
-	bool IsDenormal() const {
+	bool IsDenormal() const 
+	{
 		uint64_t d64 = AsUint64();
 		return (d64 & kExponentMask) == 0;
 	}
-
 	// We consider denormals not to be special.
 	// Hence only Infinity and NaN are special.
-	bool IsSpecial() const {
+	bool IsSpecial() const 
+	{
 		uint64_t d64 = AsUint64();
 		return (d64 & kExponentMask) == kExponentMask;
 	}
-
-	bool IsNan() const {
+	bool IsNan() const 
+	{
 		uint64_t d64 = AsUint64();
-		return ((d64 & kExponentMask) == kExponentMask) &&
-		       ((d64 & kSignificandMask) != 0);
+		return ((d64 & kExponentMask) == kExponentMask) && ((d64 & kSignificandMask) != 0);
 	}
-
-	bool IsQuietNan() const {
-		return IsNan() && ((AsUint64() & kQuietNanBit) != 0);
-	}
-
-	bool IsSignalingNan() const {
-		return IsNan() && ((AsUint64() & kQuietNanBit) == 0);
-	}
-
-	bool IsInfinite() const {
+	bool IsQuietNan() const { return IsNan() && ((AsUint64() & kQuietNanBit) != 0); }
+	bool IsSignalingNan() const { return IsNan() && ((AsUint64() & kQuietNanBit) == 0); }
+	bool IsInfinite() const 
+	{
 		uint64_t d64 = AsUint64();
-		return ((d64 & kExponentMask) == kExponentMask) &&
-		       ((d64 & kSignificandMask) == 0);
+		return ((d64 & kExponentMask) == kExponentMask) && ((d64 & kSignificandMask) == 0);
 	}
-
-	int Sign() const {
+	int Sign() const 
+	{
 		uint64_t d64 = AsUint64();
 		return (d64 & kSignMask) == 0 ? 1 : -1;
 	}
-
 	// Precondition: the value encoded by this Double must be greater or equal
 	// than +0.0.
-	DiyFp UpperBoundary() const {
+	DiyFp UpperBoundary() const 
+	{
 		DOUBLE_CONVERSION_ASSERT(Sign() > 0);
 		return DiyFp(Significand() * 2 + 1, Exponent() - 1);
 	}
-
 	// Computes the two boundaries of this.
 	// The bigger boundary (m_plus) is normalized. The lower boundary has the same
 	// exponent as m_plus.
 	// Precondition: the value encoded by this Double must be greater than 0.
-	void NormalizedBoundaries(DiyFp* out_m_minus, DiyFp* out_m_plus) const {
+	void NormalizedBoundaries(DiyFp* out_m_minus, DiyFp* out_m_plus) const 
+	{
 		DOUBLE_CONVERSION_ASSERT(value() > 0.0);
 		DiyFp v = this->AsDiyFp();
 		DiyFp m_plus = DiyFp::Normalize(DiyFp((v.f() << 1) + 1, v.e() - 1));
@@ -205,8 +192,8 @@ public:
 		*out_m_plus = m_plus;
 		*out_m_minus = m_minus;
 	}
-
-	bool LowerBoundaryIsCloser() const {
+	bool LowerBoundaryIsCloser() const 
+	{
 		// The boundary is closer if the significand is of the form f == 2^p-1 then
 		// the lower boundary is closer.
 		// Think of v = 1000e10 and v- = 9999e9.
@@ -218,33 +205,23 @@ public:
 		bool physical_significand_is_zero = ((AsUint64() & kSignificandMask) == 0);
 		return physical_significand_is_zero && (Exponent() != kDenormalExponent);
 	}
-
-	double value() const {
-		return uint64_to_double(d64_);
-	}
-
+	double value() const { return uint64_to_double(d64_); }
 	// Returns the significand size for a given order of magnitude.
 	// If v = f*2^e with 2^p-1 <= f <= 2^p then p+e is v's order of magnitude.
 	// This function returns the number of significant binary digits v will have
 	// once it's encoded into a double. In almost all cases this is equal to
 	// kSignificandSize. The only exceptions are denormals. They start with
 	// leading zeroes and their effective significand-size is hence smaller.
-	static int SignificandSizeForOrderOfMagnitude(int order) {
+	static int SignificandSizeForOrderOfMagnitude(int order) 
+	{
 		if(order >= (kDenormalExponent + kSignificandSize)) {
 			return kSignificandSize;
 		}
 		if(order <= kDenormalExponent) return 0;
 		return order - kDenormalExponent;
 	}
-
-	static double Infinity() {
-		return Double(kInfinity).value();
-	}
-
-	static double NaN() {
-		return Double(kNaN).value();
-	}
-
+	static double Infinity() { return Double(kInfinity).value(); }
+	static double NaN() { return Double(kNaN).value(); }
 private:
 	static const int kDenormalExponent = -kExponentBias + 1;
 	static const uint64_t kInfinity = DOUBLE_CONVERSION_UINT64_2PART_C(0x7FF00000, 00000000);
@@ -252,7 +229,8 @@ private:
 
 	const uint64_t d64_;
 
-	static uint64_t DiyFpToUint64(DiyFp diy_fp) {
+	static uint64_t DiyFpToUint64(DiyFp diy_fp) 
+	{
 		uint64_t significand = diy_fp.f();
 		int exponent = diy_fp.e();
 		while(significand > kHiddenBit + kSignificandMask) {
@@ -276,10 +254,8 @@ private:
 		else {
 			biased_exponent = static_cast<uint64_t>(exponent + kExponentBias);
 		}
-		return (significand & kSignificandMask) |
-		       (biased_exponent << kPhysicalSignificandSize);
+		return (significand & kSignificandMask) | (biased_exponent << kPhysicalSignificandSize);
 	}
-
 	DOUBLE_CONVERSION_DISALLOW_COPY_AND_ASSIGN(Double);
 };
 
@@ -293,38 +269,35 @@ public:
 	static const int kPhysicalSignificandSize = 23; // Excludes the hidden bit.
 	static const int kSignificandSize = 24;
 
-	Single() : d32_(0) {
+	Single() : d32_(0) 
+	{
 	}
-
-	explicit Single(float f) : d32_(float_to_uint32(f)) {
+	explicit Single(float f) : d32_(float_to_uint32(f)) 
+	{
 	}
-
-	explicit Single(uint32_t d32) : d32_(d32) {
+	explicit Single(uint32_t d32) : d32_(d32) 
+	{
 	}
-
 	// The value encoded by this Single must be greater or equal to +0.0.
 	// It must not be special (infinity, or NaN).
-	DiyFp AsDiyFp() const {
+	DiyFp AsDiyFp() const 
+	{
 		DOUBLE_CONVERSION_ASSERT(Sign() > 0);
 		DOUBLE_CONVERSION_ASSERT(!IsSpecial());
 		return DiyFp(Significand(), Exponent());
 	}
-
 	// Returns the single's bit as uint64.
-	uint32_t AsUint32() const {
-		return d32_;
-	}
-
-	int Exponent() const {
-		if(IsDenormal()) return kDenormalExponent;
-
+	uint32_t AsUint32() const { return d32_; }
+	int Exponent() const 
+	{
+		if(IsDenormal()) 
+			return kDenormalExponent;
 		uint32_t d32 = AsUint32();
-		int biased_e =
-		    static_cast<int>((d32 & kExponentMask) >> kPhysicalSignificandSize);
+		int biased_e = static_cast<int>((d32 & kExponentMask) >> kPhysicalSignificandSize);
 		return biased_e - kExponentBias;
 	}
-
-	uint32_t Significand() const {
+	uint32_t Significand() const 
+	{
 		uint32_t d32 = AsUint32();
 		uint32_t significand = d32 & kSignificandMask;
 		if(!IsDenormal()) {
@@ -334,45 +307,36 @@ public:
 			return significand;
 		}
 	}
-
 	// Returns true if the single is a denormal.
-	bool IsDenormal() const {
+	bool IsDenormal() const 
+	{
 		uint32_t d32 = AsUint32();
 		return (d32 & kExponentMask) == 0;
 	}
-
 	// We consider denormals not to be special.
 	// Hence only Infinity and NaN are special.
-	bool IsSpecial() const {
+	bool IsSpecial() const 
+	{
 		uint32_t d32 = AsUint32();
 		return (d32 & kExponentMask) == kExponentMask;
 	}
-
-	bool IsNan() const {
+	bool IsNan() const 
+	{
 		uint32_t d32 = AsUint32();
-		return ((d32 & kExponentMask) == kExponentMask) &&
-		       ((d32 & kSignificandMask) != 0);
+		return ((d32 & kExponentMask) == kExponentMask) && ((d32 & kSignificandMask) != 0);
 	}
-
-	bool IsQuietNan() const {
-		return IsNan() && ((AsUint32() & kQuietNanBit) != 0);
-	}
-
-	bool IsSignalingNan() const {
-		return IsNan() && ((AsUint32() & kQuietNanBit) == 0);
-	}
-
-	bool IsInfinite() const {
+	bool IsQuietNan() const { return IsNan() && ((AsUint32() & kQuietNanBit) != 0); }
+	bool IsSignalingNan() const { return IsNan() && ((AsUint32() & kQuietNanBit) == 0); }
+	bool IsInfinite() const 
+	{
 		uint32_t d32 = AsUint32();
-		return ((d32 & kExponentMask) == kExponentMask) &&
-		       ((d32 & kSignificandMask) == 0);
+		return ((d32 & kExponentMask) == kExponentMask) && ((d32 & kSignificandMask) == 0);
 	}
-
-	int Sign() const {
+	int Sign() const 
+	{
 		uint32_t d32 = AsUint32();
 		return (d32 & kSignMask) == 0 ? 1 : -1;
 	}
-
 	// Computes the two boundaries of this.
 	// The bigger boundary (m_plus) is normalized. The lower boundary has the same
 	// exponent as m_plus.
@@ -393,15 +357,14 @@ public:
 		*out_m_plus = m_plus;
 		*out_m_minus = m_minus;
 	}
-
-	// Precondition: the value encoded by this Single must be greater or equal
-	// than +0.0.
-	DiyFp UpperBoundary() const {
+	// Precondition: the value encoded by this Single must be greater or equal than +0.0.
+	DiyFp UpperBoundary() const 
+	{
 		DOUBLE_CONVERSION_ASSERT(Sign() > 0);
 		return DiyFp(Significand() * 2 + 1, Exponent() - 1);
 	}
-
-	bool LowerBoundaryIsCloser() const {
+	bool LowerBoundaryIsCloser() const 
+	{
 		// The boundary is closer if the significand is of the form f == 2^p-1 then
 		// the lower boundary is closer.
 		// Think of v = 1000e10 and v- = 9999e9.

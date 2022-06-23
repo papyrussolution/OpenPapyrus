@@ -47,7 +47,7 @@ static const char * ts_status_text[] = {
 	"revocationNotification"
 };
 
-#define TS_STATUS_TEXT_SIZE     OSSL_NELEM(ts_status_text)
+#define TS_STATUS_TEXT_SIZE     SIZEOFARRAY(ts_status_text)
 
 static struct {
 	int code;
@@ -440,7 +440,7 @@ static int ts_check_status_info(TS_RESP * response)
 		return 1;
 
 	/* There was an error, get the description in status_text. */
-	if(0 <= status && status < (long)OSSL_NELEM(ts_status_text))
+	if(0 <= status && status < (long)SIZEOFARRAY(ts_status_text))
 		status_text = ts_status_text[status];
 	else
 		status_text = "unknown code";
@@ -453,7 +453,7 @@ static int ts_check_status_info(TS_RESP * response)
 	if(info->failure_info) {
 		int i;
 		int first = 1;
-		for(i = 0; i < (int)OSSL_NELEM(ts_failure_info); ++i) {
+		for(i = 0; i < (int)SIZEOFARRAY(ts_failure_info); ++i) {
 			if(ASN1_BIT_STRING_get_bit(info->failure_info,
 			    ts_failure_info[i].code)) {
 				if(!first)

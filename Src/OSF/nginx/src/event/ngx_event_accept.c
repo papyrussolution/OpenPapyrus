@@ -110,7 +110,7 @@ void ngx_event_accept(ngx_event_t * ev)
 #endif
 		ngx_accept_disabled = ngx_cycle->connection_n / 8 - ngx_cycle->free_connection_n;
 		c = ngx_get_connection(s, ev->log);
-		if(c == NULL) {
+		if(!c) {
 			if(ngx_close_socket(s) == -1) {
 				ngx_log_error(NGX_LOG_ALERT, ev->log, ngx_socket_errno, ngx_close_socket_n " failed");
 			}
@@ -325,7 +325,7 @@ void ngx_event_recvmsg(ngx_event_t * ev)
 #endif
 		ngx_accept_disabled = ngx_cycle->connection_n / 8 - ngx_cycle->free_connection_n;
 		c = ngx_get_connection(lc->fd, ev->log);
-		if(c == NULL) {
+		if(!c) {
 			return;
 		}
 		c->shared = 1;

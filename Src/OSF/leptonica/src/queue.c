@@ -10,20 +10,7 @@
    -     copyright notice, this list of conditions and the following
    -     disclaimer in the documentation and/or other materials
    -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *====================================================================*/
-
 /*!
  * \file  queue.c
  * <pre>
@@ -33,15 +20,15 @@
  *          void           *lqueueDestroy()
  *
  *      Operations to add/remove to/from a L_Queue
- *          l_int32         lqueueAdd()
- *          static l_int32  lqueueExtendArray()
+ *          int32         lqueueAdd()
+ *          static int32  lqueueExtendArray()
  *          void           *lqueueRemove()
  *
  *      Accessors
- *          l_int32         lqueueGetCount()
+ *          int32         lqueueGetCount()
  *
  *      Debug output
- *          l_int32         lqueuePrint()
+ *          int32         lqueuePrint()
  *
  *    The lqueue is a fifo that implements a queue of void* pointers.
  *    It can be used to hold a queue of any type of struct.
@@ -64,11 +51,11 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static const l_int32 MIN_BUFFER_SIZE = 20;              /* n'importe quoi */
-static const l_int32 INITIAL_BUFFER_ARRAYSIZE = 1024; /* n'importe quoi */
+static const int32 MIN_BUFFER_SIZE = 20;              /* n'importe quoi */
+static const int32 INITIAL_BUFFER_ARRAYSIZE = 1024; /* n'importe quoi */
 
 /* Static function */
-static l_int32 lqueueExtendArray(L_QUEUE * lq);
+static int32 lqueueExtendArray(L_QUEUE * lq);
 
 /*--------------------------------------------------------------------------*
 *                         L_Queue create/destroy                           *
@@ -84,7 +71,7 @@ static l_int32 lqueueExtendArray(L_QUEUE * lq);
  *      (1) Allocates a ptr array of given size, and initializes counters.
  * </pre>
  */
-L_QUEUE * lqueueCreate(l_int32 nalloc)
+L_QUEUE * lqueueCreate(int32 nalloc)
 {
 	L_QUEUE  * lq;
 
@@ -124,7 +111,7 @@ L_QUEUE * lqueueCreate(l_int32 nalloc)
  * </pre>
  */
 void lqueueDestroy(L_QUEUE  ** plq,
-    l_int32 freeflag)
+    int32 freeflag)
 {
 	void     * item;
 	L_QUEUE  * lq;
@@ -212,7 +199,7 @@ l_ok lqueueAdd(L_QUEUE  * lq,
  * \param[in]    lq    lqueue
  * \return  0 if OK, 1 on error
  */
-static l_int32 lqueueExtendArray(L_QUEUE  * lq)
+static int32 lqueueExtendArray(L_QUEUE  * lq)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -268,7 +255,7 @@ void * lqueueRemove(L_QUEUE  * lq)
  * \param[in]    lq   lqueue
  * \return  count, or 0 on error
  */
-l_int32 lqueueGetCount(L_QUEUE  * lq)
+int32 lqueueGetCount(L_QUEUE  * lq)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -291,7 +278,7 @@ l_int32 lqueueGetCount(L_QUEUE  * lq)
 l_ok lqueuePrint(FILE * fp,
     L_QUEUE  * lq)
 {
-	l_int32 i;
+	int32 i;
 
 	PROCNAME(__FUNCTION__);
 

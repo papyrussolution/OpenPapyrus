@@ -916,7 +916,8 @@ static void addliteral(lua_State * L, luaL_Buffer * b, int arg) {
 	}
 }
 
-static const char * scanformat(lua_State * L, const char * strfrmt, char * form) {
+static const char * scanformat(lua_State * L, const char * strfrmt, char * form) 
+{
 	const char * p = strfrmt;
 	while(*p != '\0' && sstrchr(FLAGS, *p) != NULL) p++; /* skip flags */
 	if((size_t)(p - strfrmt) >= sizeof(FLAGS)/sizeof(char))

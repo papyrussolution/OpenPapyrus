@@ -111,7 +111,7 @@ static ngx_int_t ngx_http_file_cache_init(ngx_shm_zone_t * shm_zone, void * data
 ngx_int_t ngx_http_file_cache_new(ngx_http_request_t * r)
 {
 	ngx_http_cache_t  * c = (ngx_http_cache_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_cache_t));
-	if(c == NULL) {
+	if(!c) {
 		return NGX_ERROR;
 	}
 	if(ngx_array_init(&c->keys, r->pool, 4, sizeof(ngx_str_t)) != NGX_OK) {

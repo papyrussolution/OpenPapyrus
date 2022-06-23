@@ -7759,11 +7759,10 @@ void Tokenizer::simplifyStaticConst()
 	// move 'static' before all other qualifiers and types, ...
 	for(Token * tok = list.front(); tok; tok = tok->next()) {
 		bool continue2 = false;
-		for(int i = 0; i < sizeof(qualifiers)/sizeof(qualifiers[0]); i++) {
+		for(int i = 0; i < SIZEOFARRAY(qualifiers); i++) {
 			// Keep searching for a qualifier
 			if(!tok->next() || tok->next()->str() != qualifiers[i])
 				continue;
-
 			// Look backwards to find the beginning of the declaration
 			Token* leftTok = tok;
 			bool behindOther = false;

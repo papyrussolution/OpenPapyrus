@@ -20,7 +20,7 @@
 struct L_WShed {
 	struct Pix * pixs; /*!< clone of input 8 bpp pixs                */
 	struct Pix * pixm; /*!< clone of input 1 bpp seed (marker) pixm  */
-	l_int32 mindepth;     /*!< minimum depth allowed for a watershed    */
+	int32 mindepth;     /*!< minimum depth allowed for a watershed    */
 	struct Pix * pixlab; /*!< 16 bpp label pix                         */
 	struct Pix * pixt; /*!< scratch pix for computing wshed regions  */
 	void ** lines8; /*!< line ptrs for pixs                       */
@@ -33,12 +33,12 @@ struct L_WShed {
 	struct Numa   * nash; /*!< numa of initial seed heights             */
 	struct Numa   * namh; /*!< numa of initial minima heights           */
 	struct Numa   * nalevels; /*!< result: numa of watershed levels         */
-	l_int32 nseeds;    /*!< number of seeds (markers)                */
-	l_int32 nother;    /*!< number of minima different from seeds    */
-	l_int32       * lut; /*!< lut for pixel indices                    */
+	int32 nseeds;    /*!< number of seeds (markers)                */
+	int32 nother;    /*!< number of minima different from seeds    */
+	int32       * lut; /*!< lut for pixel indices                    */
 	struct Numa  ** links; /*!< back-links into lut, for updates         */
-	l_int32 arraysize;    /*!< size of links array                      */
-	l_int32 debug;    /*!< set to 1 for debug output                */
+	int32 arraysize;    /*!< size of links array                      */
+	int32 debug;    /*!< set to 1 for debug output                */
 };
 
 typedef struct L_WShed L_WSHED;

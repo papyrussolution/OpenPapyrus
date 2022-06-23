@@ -50,27 +50,20 @@ public:
 
 	/** increment this location by string */
 	void adjust(const std::string &str);
-
-	bool operator<(const Location &rhs) const {
+	bool operator<(const Location &rhs) const 
+	{
 		if(fileIndex != rhs.fileIndex)
 			return fileIndex < rhs.fileIndex;
 		if(line != rhs.line)
 			return line < rhs.line;
 		return col < rhs.col;
 	}
-
-	bool sameline(const Location &other) const {
-		return fileIndex == other.fileIndex && line == other.line;
-	}
-
-	const std::string& file() const {
-		return fileIndex < files.size() ? files[fileIndex] : emptyFileName;
-	}
-
+	bool sameline(const Location &other) const { return fileIndex == other.fileIndex && line == other.line; }
+	const std::string& file() const { return fileIndex < files.size() ? files[fileIndex] : emptyFileName; }
 	const std::vector<std::string> &files;
-	unsigned int fileIndex;
-	unsigned int line;
-	unsigned int col;
+	uint fileIndex;
+	uint line;
+	uint col;
 private:
 	static const std::string emptyFileName;
 };
@@ -81,22 +74,21 @@ private:
  */
 class SIMPLECPP_LIB Token {
 public:
-	Token(const TokenString &s, const Location &loc) :
-		location(loc), previous(nullptr), next(nullptr), string(s) {
+	Token(const TokenString &s, const Location &loc) : location(loc), previous(nullptr), next(nullptr), string(s) 
+	{
 		flags();
 	}
-
 	Token(const Token &tok) :
 		macro(tok.macro), op(tok.op), comment(tok.comment), name(tok.name), number(tok.number), location(tok.location), previous(
 			nullptr), next(nullptr), string(tok.string), mExpandedFrom(tok.mExpandedFrom) {
 	}
 
 	void flags() {
-		name = (std::isalpha(static_cast<unsigned char>(string[0])) || string[0] == '_' || string[0] == '$')
+		name = (std::isalpha(static_cast<uchar>(string[0])) || string[0] == '_' || string[0] == '$')
 		    && (std::memchr(string.c_str(), '\'', string.size()) == nullptr);
 		comment = string.size() > 1U && string[0] == '/' && (string[1] == '/' || string[1] == '*');
-		number = std::isdigit(static_cast<unsigned char>(string[0])) ||
-		    (string.size() > 1U && string[0] == '-' && std::isdigit(static_cast<unsigned char>(string[1])));
+		number = std::isdigit(static_cast<uchar>(string[0])) ||
+		    (string.size() > 1U && string[0] == '-' && std::isdigit(static_cast<uchar>(string[1])));
 		op = (string.size() == 1U) ? string[0] : '\0';
 	}
 
@@ -271,15 +263,11 @@ private:
 	void constFoldBitwise(Token * tok);
 	void constFoldLogicalOp(Token * tok);
 	void constFoldQuestionOp(Token ** tok1);
-
-	std::string readUntil(std::istream &istr, const Location &location, char start, char end, OutputList * outputList,
-	    unsigned int bom);
-	void lineDirective(unsigned int fileIndex, unsigned int line, Location * location);
-
+	std::string readUntil(std::istream &istr, const Location &location, char start, char end, OutputList * outputList, uint bom);
+	void lineDirective(uint fileIndex, uint line, Location * location);
 	std::string lastLine(int maxsize = 100000) const;
 	bool isLastLinePreprocessor(int maxsize = 100000) const;
-
-	unsigned int fileIndex(const std::string &filename);
+	uint fileIndex(const std::string &filename);
 
 	Token * frontToken;
 	Token * backToken;
@@ -324,12 +312,8 @@ struct SIMPLECPP_LIB DUI {
 };
 
 SIMPLECPP_LIB long long characterLiteralToLL(const std::string& str);
-
-SIMPLECPP_LIB std::map<std::string, TokenList*> load(const TokenList &rawtokens,
-    std::vector<std::string> &filenames,
-    const DUI &dui,
-    OutputList * outputList = nullptr);
-
+SIMPLECPP_LIB std::map<std::string, TokenList*> load(const TokenList &rawtokens, std::vector<std::string> &filenames,
+    const DUI &dui, OutputList * outputList = nullptr);
 /**
  * Preprocess
  * @todo simplify interface
@@ -342,16 +326,8 @@ SIMPLECPP_LIB std::map<std::string, TokenList*> load(const TokenList &rawtokens,
  * @param macroUsage output: macro usage
  * @param ifCond output: #if/#elif expressions
  */
-SIMPLECPP_LIB void preprocess(TokenList &output,
-    const TokenList &rawtokens,
-    std::vector<std::string> &files,
-    std::map<std::string,
-    TokenList*> &filedata,
-    const DUI &dui,
-    OutputList * outputList = nullptr,
-    std::list<MacroUsage> * macroUsage = nullptr,
-    std::list<IfCond> * ifCond = nullptr);
-
+SIMPLECPP_LIB void preprocess(TokenList &output, const TokenList &rawtokens, std::vector<std::string> &files, std::map<std::string,
+    TokenList*> &filedata, const DUI &dui, OutputList * outputList = nullptr, std::list<MacroUsage> * macroUsage = nullptr, std::list<IfCond> * ifCond = nullptr);
 /**
  * Deallocate data
  */
@@ -359,13 +335,10 @@ SIMPLECPP_LIB void cleanup(std::map<std::string, TokenList*> &filedata);
 
 /** Simplify path */
 SIMPLECPP_LIB std::string simplifyPath(std::string path);
-
 /** Convert Cygwin path to Windows path */
 SIMPLECPP_LIB std::string convertCygwinToWindowsPath(const std::string &cygwinPath);
-
 /** Returns the __STDC_VERSION__ value for a given standard */
 SIMPLECPP_LIB std::string getCStdString(const std::string &std);
-
 /** Returns the __cplusplus value for a given standard */
 SIMPLECPP_LIB std::string getCppStdString(const std::string &std);
 }

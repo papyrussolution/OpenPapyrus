@@ -15,7 +15,7 @@
  *     Low-level fast hit-miss transform with auto-generated sels
  *
  *      Dispatcher:
- *             l_int32    fhmtgen_low_1()
+ *             int32    fhmtgen_low_1()
  *
  *      Static Low-level:
  *             void       fhmt_1_*()
@@ -23,16 +23,16 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static void  fhmt_1_0(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32);
-static void  fhmt_1_1(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32);
-static void  fhmt_1_2(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32);
-static void  fhmt_1_3(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32);
-static void  fhmt_1_4(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32);
-static void  fhmt_1_5(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32);
-static void  fhmt_1_6(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32);
-static void  fhmt_1_7(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32);
-static void  fhmt_1_8(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32);
-static void  fhmt_1_9(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32);
+static void  fhmt_1_0(uint32 *, int32, int32, int32, uint32 *, int32);
+static void  fhmt_1_1(uint32 *, int32, int32, int32, uint32 *, int32);
+static void  fhmt_1_2(uint32 *, int32, int32, int32, uint32 *, int32);
+static void  fhmt_1_3(uint32 *, int32, int32, int32, uint32 *, int32);
+static void  fhmt_1_4(uint32 *, int32, int32, int32, uint32 *, int32);
+static void  fhmt_1_5(uint32 *, int32, int32, int32, uint32 *, int32);
+static void  fhmt_1_6(uint32 *, int32, int32, int32, uint32 *, int32);
+static void  fhmt_1_7(uint32 *, int32, int32, int32, uint32 *, int32);
+static void  fhmt_1_8(uint32 *, int32, int32, int32, uint32 *, int32);
+static void  fhmt_1_9(uint32 *, int32, int32, int32, uint32 *, int32);
 
 /*---------------------------------------------------------------------*
 *                           Fast hmt dispatcher                       *
@@ -42,13 +42,13 @@ static void  fhmt_1_9(l_uint32 *, l_int32, l_int32, l_int32, l_uint32 *, l_int32
  *
  *       a dispatcher to appropriate low-level code
  */
-l_int32 fhmtgen_low_1(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls,
-    l_int32 index)
+int32 fhmtgen_low_1(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls,
+    int32 index)
 {
 	switch(index)
 	{
@@ -98,18 +98,18 @@ l_int32 fhmtgen_low_1(l_uint32  * datad,
  *        start-of-image pointers up to the beginning of this
  *        interior rectangle.
  */
-static void fhmt_1_0(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls)
+static void fhmt_1_0(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls)
 {
-	l_int32 i;
-	l_int32 j, pwpls;
-	l_uint32  * sptr, * dptr;
+	int32 i;
+	int32 j, pwpls;
+	uint32  * sptr, * dptr;
 
-	pwpls = (l_uint32)(w + 31) / 32; /* proper wpl of src */
+	pwpls = (uint32)(w + 31) / 32; /* proper wpl of src */
 
 	for(i = 0; i < h; i++) {
 		sptr = datas + i * wpls;
@@ -128,18 +128,18 @@ static void fhmt_1_0(l_uint32  * datad,
 	}
 }
 
-static void fhmt_1_1(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls)
+static void fhmt_1_1(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls)
 {
-	l_int32 i;
-	l_int32 j, pwpls;
-	l_uint32  * sptr, * dptr;
+	int32 i;
+	int32 j, pwpls;
+	uint32  * sptr, * dptr;
 
-	pwpls = (l_uint32)(w + 31) / 32; /* proper wpl of src */
+	pwpls = (uint32)(w + 31) / 32; /* proper wpl of src */
 
 	for(i = 0; i < h; i++) {
 		sptr = datas + i * wpls;
@@ -155,18 +155,18 @@ static void fhmt_1_1(l_uint32  * datad,
 	}
 }
 
-static void fhmt_1_2(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls)
+static void fhmt_1_2(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls)
 {
-	l_int32 i;
-	l_int32 j, pwpls;
-	l_uint32  * sptr, * dptr;
+	int32 i;
+	int32 j, pwpls;
+	uint32  * sptr, * dptr;
 
-	pwpls = (l_uint32)(w + 31) / 32; /* proper wpl of src */
+	pwpls = (uint32)(w + 31) / 32; /* proper wpl of src */
 
 	for(i = 0; i < h; i++) {
 		sptr = datas + i * wpls;
@@ -182,18 +182,18 @@ static void fhmt_1_2(l_uint32  * datad,
 	}
 }
 
-static void fhmt_1_3(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls)
+static void fhmt_1_3(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls)
 {
-	l_int32 i;
-	l_int32 j, pwpls;
-	l_uint32  * sptr, * dptr;
+	int32 i;
+	int32 j, pwpls;
+	uint32  * sptr, * dptr;
 
-	pwpls = (l_uint32)(w + 31) / 32; /* proper wpl of src */
+	pwpls = (uint32)(w + 31) / 32; /* proper wpl of src */
 
 	for(i = 0; i < h; i++) {
 		sptr = datas + i * wpls;
@@ -209,18 +209,18 @@ static void fhmt_1_3(l_uint32  * datad,
 	}
 }
 
-static void fhmt_1_4(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls)
+static void fhmt_1_4(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls)
 {
-	l_int32 i;
-	l_int32 j, pwpls;
-	l_uint32  * sptr, * dptr;
+	int32 i;
+	int32 j, pwpls;
+	uint32  * sptr, * dptr;
 
-	pwpls = (l_uint32)(w + 31) / 32; /* proper wpl of src */
+	pwpls = (uint32)(w + 31) / 32; /* proper wpl of src */
 
 	for(i = 0; i < h; i++) {
 		sptr = datas + i * wpls;
@@ -236,25 +236,25 @@ static void fhmt_1_4(l_uint32  * datad,
 	}
 }
 
-static void fhmt_1_5(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls)
+static void fhmt_1_5(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls)
 {
-	l_int32 i;
-	l_int32 j, pwpls;
-	l_uint32  * sptr, * dptr;
-	l_int32 wpls2, wpls3, wpls4;
-	l_int32 wpls5, wpls6;
+	int32 i;
+	int32 j, pwpls;
+	uint32  * sptr, * dptr;
+	int32 wpls2, wpls3, wpls4;
+	int32 wpls5, wpls6;
 
 	wpls2 = 2 * wpls;
 	wpls3 = 3 * wpls;
 	wpls4 = 4 * wpls;
 	wpls5 = 5 * wpls;
 	wpls6 = 6 * wpls;
-	pwpls = (l_uint32)(w + 31) / 32; /* proper wpl of src */
+	pwpls = (uint32)(w + 31) / 32; /* proper wpl of src */
 
 	for(i = 0; i < h; i++) {
 		sptr = datas + i * wpls;
@@ -272,20 +272,20 @@ static void fhmt_1_5(l_uint32  * datad,
 	}
 }
 
-static void fhmt_1_6(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls)
+static void fhmt_1_6(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls)
 {
-	l_int32 i;
-	l_int32 j, pwpls;
-	l_uint32  * sptr, * dptr;
-	l_int32 wpls2;
+	int32 i;
+	int32 j, pwpls;
+	uint32  * sptr, * dptr;
+	int32 wpls2;
 
 	wpls2 = 2 * wpls;
-	pwpls = (l_uint32)(w + 31) / 32; /* proper wpl of src */
+	pwpls = (uint32)(w + 31) / 32; /* proper wpl of src */
 
 	for(i = 0; i < h; i++) {
 		sptr = datas + i * wpls;
@@ -308,20 +308,20 @@ static void fhmt_1_6(l_uint32  * datad,
 	}
 }
 
-static void fhmt_1_7(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls)
+static void fhmt_1_7(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls)
 {
-	l_int32 i;
-	l_int32 j, pwpls;
-	l_uint32  * sptr, * dptr;
-	l_int32 wpls2;
+	int32 i;
+	int32 j, pwpls;
+	uint32  * sptr, * dptr;
+	int32 wpls2;
 
 	wpls2 = 2 * wpls;
-	pwpls = (l_uint32)(w + 31) / 32; /* proper wpl of src */
+	pwpls = (uint32)(w + 31) / 32; /* proper wpl of src */
 
 	for(i = 0; i < h; i++) {
 		sptr = datas + i * wpls;
@@ -344,20 +344,20 @@ static void fhmt_1_7(l_uint32  * datad,
 	}
 }
 
-static void fhmt_1_8(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls)
+static void fhmt_1_8(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls)
 {
-	l_int32 i;
-	l_int32 j, pwpls;
-	l_uint32  * sptr, * dptr;
-	l_int32 wpls2;
+	int32 i;
+	int32 j, pwpls;
+	uint32  * sptr, * dptr;
+	int32 wpls2;
 
 	wpls2 = 2 * wpls;
-	pwpls = (l_uint32)(w + 31) / 32; /* proper wpl of src */
+	pwpls = (uint32)(w + 31) / 32; /* proper wpl of src */
 
 	for(i = 0; i < h; i++) {
 		sptr = datas + i * wpls;
@@ -380,20 +380,20 @@ static void fhmt_1_8(l_uint32  * datad,
 	}
 }
 
-static void fhmt_1_9(l_uint32  * datad,
-    l_int32 w,
-    l_int32 h,
-    l_int32 wpld,
-    l_uint32  * datas,
-    l_int32 wpls)
+static void fhmt_1_9(uint32  * datad,
+    int32 w,
+    int32 h,
+    int32 wpld,
+    uint32  * datas,
+    int32 wpls)
 {
-	l_int32 i;
-	l_int32 j, pwpls;
-	l_uint32  * sptr, * dptr;
-	l_int32 wpls2;
+	int32 i;
+	int32 j, pwpls;
+	uint32  * sptr, * dptr;
+	int32 wpls2;
 
 	wpls2 = 2 * wpls;
-	pwpls = (l_uint32)(w + 31) / 32; /* proper wpl of src */
+	pwpls = (uint32)(w + 31) / 32; /* proper wpl of src */
 
 	for(i = 0; i < h; i++) {
 		sptr = datas + i * wpls;

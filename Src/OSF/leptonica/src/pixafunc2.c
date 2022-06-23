@@ -39,26 +39,26 @@
  *
  *      Pixa constrained selection and pdf generation
  *           PIXA *pixaConstrainedSelect()
- *           l_int32   pixaSelectToPdf()
+ *           int32   pixaSelectToPdf()
  *
  *      Generate pixa from tiled images
  *           PIXA *pixaMakeFromTiledPixa()
  *           PIXA *pixaMakeFromTiledPix()
- *           l_int32   pixGetTileCount()
+ *           int32   pixGetTileCount()
  *
  *      Pixa display into multiple tiles
  *           PIXA *pixaDisplayMultiTiled()
  *
  *      Split pixa into files
- *           l_int32   pixaSplitIntoFiles()
+ *           int32   pixaSplitIntoFiles()
  *
  *      Tile N-Up
- *           l_int32   convertToNUpFiles()
+ *           int32   convertToNUpFiles()
  *           PIXA *convertToNUpPixa()
  *           PIXA *pixaConvertToNUpPixa()
  *
  *      Render two pixa side-by-side for comparison                   *
- *           l_int32   pixaCompareInPdf()
+ *           int32   pixaCompareInPdf()
  *
  *  We give twelve pixaDisplay*() methods for tiling a pixa in a pix.
  *  Some work for 1 bpp input; others for any input depth.
@@ -164,10 +164,10 @@
  * </pre>
  */
 PIX * pixaDisplay(PIXA    * pixa,
-    l_int32 w,
-    l_int32 h)
+    int32 w,
+    int32 h)
 {
-	l_int32 i, n, d, xb, yb, wb, hb, res;
+	int32 i, n, d, xb, yb, wb, hb, res;
 	BOXA * boxa;
 	PIX * pix1, * pixd;
 
@@ -240,10 +240,10 @@ PIX * pixaDisplay(PIXA    * pixa,
  * </pre>
  */
 PIX * pixaDisplayRandomCmap(PIXA    * pixa,
-    l_int32 w,
-    l_int32 h)
+    int32 w,
+    int32 h)
 {
-	l_int32 i, n, same, maxd, index, xb, yb, wb, hb, res;
+	int32 i, n, same, maxd, index, xb, yb, wb, hb, res;
 	BOXA     * boxa;
 	PIX * pixs, * pix1, * pixd;
 	PIXCMAP  * cmap;
@@ -312,14 +312,14 @@ PIX * pixaDisplayRandomCmap(PIXA    * pixa,
  * </pre>
  */
 PIX * pixaDisplayLinearly(PIXA      * pixas,
-    l_int32 direction,
+    int32 direction,
     float scalefactor,
-    l_int32 background,                     /* not used */
-    l_int32 spacing,
-    l_int32 border,
+    int32 background,                     /* not used */
+    int32 spacing,
+    int32 border,
     BOXA     ** pboxa)
 {
-	l_int32 i, n, x, y, w, h, size, depth, bordval;
+	int32 i, n, x, y, w, h, size, depth, bordval;
 	BOX * box;
 	PIX * pix1, * pix2, * pix3, * pixd;
 	PIXA    * pixa1, * pixa2;
@@ -408,14 +408,14 @@ PIX * pixaDisplayLinearly(PIXA      * pixas,
  * </pre>
  */
 PIX * pixaDisplayOnLattice(PIXA * pixa,
-    l_int32 cellw,
-    l_int32 cellh,
-    l_int32 * pncols,
+    int32 cellw,
+    int32 cellh,
+    int32 * pncols,
     BOXA ** pboxa)
 {
 	char buf[16];
-	l_int32 n, nw, nh, w, h, d, wt, ht, res, samedepth;
-	l_int32 index, i, j, hascmap;
+	int32 n, nw, nh, w, h, d, wt, ht, res, samedepth;
+	int32 index, i, j, hascmap;
 	BOX * box;
 	BOXA * boxa;
 	PIX * pix1, * pix2, * pixd;
@@ -447,7 +447,7 @@ PIX * pixaDisplayOnLattice(PIXA * pixa,
 	}
 
 	/* Have number of rows and columns approximately equal */
-	nw = (l_int32)sqrt((double)n);
+	nw = (int32)sqrt((double)n);
 	nh = (n + nw - 1) / nw;
 	w = cellw * nw;
 	h = cellh * nh;
@@ -524,13 +524,13 @@ PIX * pixaDisplayOnLattice(PIXA * pixa,
  * </pre>
  */
 PIX * pixaDisplayUnsplit(PIXA * pixa,
-    l_int32 nx,
-    l_int32 ny,
-    l_int32 borderwidth,
-    l_uint32 bordercolor)
+    int32 nx,
+    int32 ny,
+    int32 borderwidth,
+    uint32 bordercolor)
 {
-	l_int32 w, h, d, wt, ht;
-	l_int32 i, j, k, x, y, n;
+	int32 w, h, d, wt, ht;
+	int32 i, j, k, x, y, n;
 	PIX * pix1, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -597,13 +597,13 @@ PIX * pixaDisplayUnsplit(PIXA * pixa,
  * </pre>
  */
 PIX * pixaDisplayTiled(PIXA    * pixa,
-    l_int32 maxwidth,
-    l_int32 background,
-    l_int32 spacing)
+    int32 maxwidth,
+    int32 background,
+    int32 spacing)
 {
-	l_int32 wmax, hmax, wd, hd, d, hascmap, res, same;
-	l_int32 i, j, n, ni, ncols, nrows;
-	l_int32 ystart, xstart, wt, ht;
+	int32 wmax, hmax, wd, hd, d, hascmap, res, same;
+	int32 i, j, n, ni, ncols, nrows;
+	int32 ystart, xstart, wt, ht;
 	PIX * pix1, * pix2, * pixd;
 	PIXA    * pixa1;
 
@@ -639,7 +639,7 @@ PIX * pixaDisplayTiled(PIXA    * pixa,
 	pixaSizeRange(pixa1, NULL, NULL, &wmax, &hmax);
 
 	/* Get the number of rows and columns and the output image size */
-	ncols = (l_int32)((float)(maxwidth - spacing) /
+	ncols = (int32)((float)(maxwidth - spacing) /
 	    (float)(wmax + spacing));
 	ncols = MAX(ncols, 1);
 	nrows = (n + ncols - 1) / ncols;
@@ -710,20 +710,20 @@ PIX * pixaDisplayTiled(PIXA    * pixa,
  * </pre>
  */
 PIX * pixaDisplayTiledInRows(PIXA      * pixa,
-    l_int32 outdepth,
-    l_int32 maxwidth,
+    int32 outdepth,
+    int32 maxwidth,
     float scalefactor,
-    l_int32 background,
-    l_int32 spacing,
-    l_int32 border)
+    int32 background,
+    int32 spacing,
+    int32 border)
 {
-	l_int32 h; /* cumulative height over all the rows */
-	l_int32 w; /* cumulative height in the current row */
-	l_int32 bordval, wtry, wt, ht;
-	l_int32 irow; /* index of current pix in current row */
-	l_int32 wmaxrow; /* width of the largest row */
-	l_int32 maxh; /* max height in row */
-	l_int32 i, j, index, n, x, y, nrows, ninrow, res;
+	int32 h; /* cumulative height over all the rows */
+	int32 w; /* cumulative height in the current row */
+	int32 bordval, wtry, wt, ht;
+	int32 irow; /* index of current pix in current row */
+	int32 wmaxrow; /* width of the largest row */
+	int32 maxh; /* max height in row */
+	int32 i, j, index, n, x, y, nrows, ninrow, res;
 	size_t size;
 	uint8  * data;
 	BOXA     * boxa;
@@ -893,12 +893,12 @@ PIX * pixaDisplayTiledInRows(PIXA      * pixa,
  * </pre>
  */
 PIX * pixaDisplayTiledInColumns(PIXA      * pixas,
-    l_int32 nx,
+    int32 nx,
     float scalefactor,
-    l_int32 spacing,
-    l_int32 border)
+    int32 spacing,
+    int32 border)
 {
-	l_int32 i, j, index, n, x, y, nrows, wb, hb, w, h, maxd, maxh, bordval, res;
+	int32 i, j, index, n, x, y, nrows, wb, hb, w, h, maxd, maxh, bordval, res;
 	size_t size;
 	uint8  * data;
 	BOX      * box;
@@ -1006,16 +1006,16 @@ PIX * pixaDisplayTiledInColumns(PIXA      * pixas,
  * </pre>
  */
 PIX * pixaDisplayTiledAndScaled(PIXA    * pixa,
-    l_int32 outdepth,
-    l_int32 tilewidth,
-    l_int32 ncols,
-    l_int32 background,
-    l_int32 spacing,
-    l_int32 border)
+    int32 outdepth,
+    int32 tilewidth,
+    int32 ncols,
+    int32 background,
+    int32 spacing,
+    int32 border)
 {
-	l_int32 x, y, w, h, wd, hd, d, res;
-	l_int32 i, n, nrows, maxht, ninrow, irow, bordval;
-	l_int32   * rowht;
+	int32 x, y, w, h, wd, hd, d, res;
+	int32 i, n, nrows, maxht, ninrow, irow, bordval;
+	int32   * rowht;
 	float scalefact;
 	PIX * pix, * pixn, * pix1, * pixb, * pixd;
 	PIXA      * pixan;
@@ -1073,7 +1073,7 @@ PIX * pixaDisplayTiledAndScaled(PIXA    * pixa,
 	/* Determine the size of each row and of pixd */
 	wd = tilewidth * ncols + spacing * (ncols + 1);
 	nrows = (n + ncols - 1) / ncols;
-	if((rowht = (l_int32*)SAlloc::C(nrows, sizeof(l_int32))) == NULL) {
+	if((rowht = (int32*)SAlloc::C(nrows, sizeof(int32))) == NULL) {
 		pixaDestroy(&pixan);
 		return (PIX *)ERROR_PTR("rowht array not made", procName, NULL);
 	}
@@ -1159,16 +1159,16 @@ PIX * pixaDisplayTiledAndScaled(PIXA    * pixa,
  * </pre>
  */
 PIX * pixaDisplayTiledWithText(PIXA      * pixa,
-    l_int32 maxwidth,
+    int32 maxwidth,
     float scalefactor,
-    l_int32 spacing,
-    l_int32 border,
-    l_int32 fontsize,
-    l_uint32 textcolor)
+    int32 spacing,
+    int32 border,
+    int32 fontsize,
+    uint32 textcolor)
 {
 	char buf[128];
 	char     * textstr;
-	l_int32 i, n, maxw;
+	int32 i, n, maxw;
 	L_BMF    * bmf;
 	PIX * pix1, * pix2, * pix3, * pix4, * pixd;
 	PIXA * pixad;
@@ -1185,7 +1185,7 @@ PIX * pixaDisplayTiledWithText(PIXA      * pixa,
 	border = MAX(border, 0);
 	if(scalefactor <= 0.0) scalefactor = 1.0;
 	if(fontsize < 4 || fontsize > 20 || (fontsize & 1)) {
-		l_int32 fsize = MAX(MIN(fontsize, 20), 4);
+		int32 fsize = MAX(MIN(fontsize, 20), 4);
 		if(fsize & 1) fsize--;
 		L_WARNING("changed fontsize from %d to %d\n", procName,
 		    fontsize, fsize);
@@ -1255,15 +1255,15 @@ PIX * pixaDisplayTiledWithText(PIXA      * pixa,
  */
 PIX * pixaDisplayTiledByIndex(PIXA * pixa,
     NUMA     * na,
-    l_int32 width,
-    l_int32 spacing,
-    l_int32 border,
-    l_int32 fontsize,
-    l_uint32 textcolor)
+    int32 width,
+    int32 spacing,
+    int32 border,
+    int32 fontsize,
+    uint32 textcolor)
 {
 	char buf[128];
 	char     * textstr;
-	l_int32 i, n, x, y, w, h, yval, index;
+	int32 i, n, x, y, w, h, yval, index;
 	float maxindex;
 	L_BMF     * bmf;
 	BOX       * box;
@@ -1288,7 +1288,7 @@ PIX * pixaDisplayTiledByIndex(PIXA * pixa,
 	spacing = MAX(spacing, 0);
 	border = MAX(border, 0);
 	if(fontsize < 4 || fontsize > 20 || (fontsize & 1)) {
-		l_int32 fsize = MAX(MIN(fontsize, 20), 4);
+		int32 fsize = MAX(MIN(fontsize, 20), 4);
 		if(fsize & 1) fsize--;
 		L_WARNING("changed fontsize from %d to %d\n", procName,
 		    fontsize, fsize);
@@ -1378,17 +1378,17 @@ PIX * pixaDisplayTiledByIndex(PIXA * pixa,
  */
 PIX * pixaDisplayPairTiledInColumns(PIXA      * pixas1,
     PIXA      * pixas2,
-    l_int32 nx,
+    int32 nx,
     float scalefactor,
-    l_int32 spacing1,
-    l_int32 spacing2,
-    l_int32 border1,
-    l_int32 border2,
-    l_int32 fontsize,
-    l_int32 startindex,
+    int32 spacing1,
+    int32 spacing2,
+    int32 border1,
+    int32 border2,
+    int32 fontsize,
+    int32 startindex,
     SARRAY    * sa)
 {
-	l_int32 i, n, w, maxd, maxd1, maxd2, res, text;
+	int32 i, n, w, maxd, maxd1, maxd2, res, text;
 	NUMA * na;
 	PIX * pixs1, * pixs2, * pix1, * pix2, * pix3, * pix4;
 	PIX * pix5, * pix6, * pix7, * pix8, * pix9;
@@ -1412,7 +1412,7 @@ PIX * pixaDisplayPairTiledInColumns(PIXA      * pixas1,
 		return (PIX *)ERROR_PTR("pixa sizes differ", procName, NULL);
 	text = (fontsize <= 0) ? 0 : 1;
 	if(text && (fontsize < 4 || fontsize > 20 || (fontsize & 1))) {
-		l_int32 fsize = MAX(MIN(fontsize, 20), 4);
+		int32 fsize = MAX(MIN(fontsize, 20), 4);
 		if(fsize & 1) fsize--;
 		L_WARNING("changed fontsize from %d to %d\n", procName,
 		    fontsize, fsize);
@@ -1535,10 +1535,10 @@ PIX * pixaDisplayPairTiledInColumns(PIXA      * pixas1,
  * </pre>
  */
 PIX * pixaaDisplay(PIXAA   * paa,
-    l_int32 w,
-    l_int32 h)
+    int32 w,
+    int32 h)
 {
-	l_int32 i, j, n, nbox, na, d, wmax, hmax, x, y, xb, yb, wb, hb;
+	int32 i, j, n, nbox, na, d, wmax, hmax, x, y, xb, yb, wb, hb;
 	BOXA * boxa1; /* top-level boxa */
 	BOXA * boxa;
 	PIX * pix1, * pixd;
@@ -1637,13 +1637,13 @@ PIX * pixaaDisplay(PIXAA   * paa,
  * </pre>
  */
 PIX * pixaaDisplayByPixa(PIXAA     * paa,
-    l_int32 maxnx,
+    int32 maxnx,
     float scalefactor,
-    l_int32 hspacing,
-    l_int32 vspacing,
-    l_int32 border)
+    int32 hspacing,
+    int32 vspacing,
+    int32 border)
 {
-	l_int32 i, n, vs;
+	int32 i, n, vs;
 	PIX * pix1, * pix2;
 	PIXA    * pixa1, * pixa2;
 
@@ -1698,14 +1698,14 @@ PIX * pixaaDisplayByPixa(PIXAA     * paa,
  * </pre>
  */
 PIXA * pixaaDisplayTiledAndScaled(PIXAA   * paa,
-    l_int32 outdepth,
-    l_int32 tilewidth,
-    l_int32 ncols,
-    l_int32 background,
-    l_int32 spacing,
-    l_int32 border)
+    int32 outdepth,
+    int32 tilewidth,
+    int32 ncols,
+    int32 background,
+    int32 spacing,
+    int32 border)
 {
-	l_int32 i, n;
+	int32 i, n;
 	PIX * pix;
 	PIXA    * pixa, * pixad;
 
@@ -1746,9 +1746,9 @@ PIXA * pixaaDisplayTiledAndScaled(PIXAA   * paa,
  * \return  pixad, or NULL on error
  */
 PIXA * pixaConvertTo1(PIXA    * pixas,
-    l_int32 thresh)
+    int32 thresh)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOXA * boxa;
 	PIX * pix1, * pix2;
 	PIXA    * pixad;
@@ -1785,9 +1785,9 @@ PIXA * pixaConvertTo1(PIXA    * pixas,
  * </pre>
  */
 PIXA * pixaConvertTo8(PIXA    * pixas,
-    l_int32 cmapflag)
+    int32 cmapflag)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOXA * boxa;
 	PIX * pix1, * pix2;
 	PIXA    * pixad;
@@ -1824,9 +1824,9 @@ PIXA * pixaConvertTo8(PIXA    * pixas,
  * </pre>
  */
 PIXA * pixaConvertTo8Colormap(PIXA    * pixas,
-    l_int32 dither)
+    int32 dither)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOXA * boxa;
 	PIX * pix1, * pix2;
 	PIXA    * pixad;
@@ -1865,7 +1865,7 @@ PIXA * pixaConvertTo8Colormap(PIXA    * pixas,
  */
 PIXA * pixaConvertTo32(PIXA  * pixas)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOXA * boxa;
 	PIX * pix1, * pix2;
 	PIXA    * pixad;
@@ -1915,13 +1915,13 @@ PIXA * pixaConvertTo32(PIXA  * pixas)
  * </pre>
  */
 PIXA * pixaConstrainedSelect(PIXA    * pixas,
-    l_int32 first,
-    l_int32 last,
-    l_int32 nmax,
-    l_int32 use_pairs,
-    l_int32 copyflag)
+    int32 first,
+    int32 last,
+    int32 nmax,
+    int32 use_pairs,
+    int32 copyflag)
 {
-	l_int32 i, n, nselect, index;
+	int32 i, n, nselect, index;
 	NUMA * na;
 	PIX * pix1;
 	PIXA    * pixad;
@@ -1981,17 +1981,17 @@ PIXA * pixaConstrainedSelect(PIXA    * pixas,
  * </pre>
  */
 l_ok pixaSelectToPdf(PIXA        * pixas,
-    l_int32 first,
-    l_int32 last,
-    l_int32 res,
+    int32 first,
+    int32 last,
+    int32 res,
     float scalefactor,
-    l_int32 type,
-    l_int32 quality,
-    l_uint32 color,
-    l_int32 fontsize,
+    int32 type,
+    int32 quality,
+    uint32 color,
+    int32 fontsize,
     const char * fileout)
 {
-	l_int32 n;
+	int32 n;
 	L_BMF   * bmf;
 	NUMA * na;
 	PIXA    * pixa1, * pixa2;
@@ -2059,12 +2059,12 @@ l_ok pixaSelectToPdf(PIXA        * pixas,
  * </pre>
  */
 PIXA * pixaMakeFromTiledPixa(PIXA    * pixas,
-    l_int32 w,
-    l_int32 h,
-    l_int32 nsamp)
+    int32 w,
+    int32 h,
+    int32 nsamp)
 {
 	char buf[8];
-	l_int32 ntiles, i;
+	int32 ntiles, i;
 	PIX * pix1;
 	PIXA    * pixad, * pixa1;
 
@@ -2137,13 +2137,13 @@ PIXA * pixaMakeFromTiledPixa(PIXA    * pixas,
  * </pre>
  */
 PIXA * pixaMakeFromTiledPix(PIX * pixs,
-    l_int32 w,
-    l_int32 h,
-    l_int32 start,
-    l_int32 num,
+    int32 w,
+    int32 h,
+    int32 start,
+    int32 num,
     BOXA * boxa)
 {
-	l_int32 i, j, k, ws, hs, d, nx, ny, n, n_isvalid, ntiles, nmax;
+	int32 i, j, k, ws, hs, d, nx, ny, n, n_isvalid, ntiles, nmax;
 	PIX * pix1;
 	PIXA * pixa1;
 	PIXCMAP  * cmap;
@@ -2210,10 +2210,10 @@ PIXA * pixaMakeFromTiledPix(PIX * pixs,
  * </pre>
  */
 l_ok pixGetTileCount(PIX * pix,
-    l_int32 * pn)
+    int32 * pn)
 {
 	char * text;
-	l_int32 n;
+	int32 n;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2256,15 +2256,15 @@ l_ok pixGetTileCount(PIX * pix,
  * </pre>
  */
 PIXA * pixaDisplayMultiTiled(PIXA      * pixas,
-    l_int32 nx,
-    l_int32 ny,
-    l_int32 maxw,
-    l_int32 maxh,
+    int32 nx,
+    int32 ny,
+    int32 maxw,
+    int32 maxh,
     float scalefactor,
-    l_int32 spacing,
-    l_int32 border)
+    int32 spacing,
+    int32 border)
 {
-	l_int32 n, i, j, ntile, nout, index;
+	int32 n, i, j, ntile, nout, index;
 	PIX * pix1, * pix2;
 	PIXA    * pixa1, * pixa2, * pixad;
 
@@ -2334,15 +2334,15 @@ PIXA * pixaDisplayMultiTiled(PIXA      * pixas,
  * </pre>
  */
 l_ok pixaSplitIntoFiles(PIXA      * pixas,
-    l_int32 nsplit,
+    int32 nsplit,
     float scale,
-    l_int32 outwidth,
-    l_int32 write_pixa,
-    l_int32 write_pix,
-    l_int32 write_pdf)
+    int32 outwidth,
+    int32 write_pixa,
+    int32 write_pix,
+    int32 write_pdf)
 {
 	char buf[64];
-	l_int32 i, j, index, n, nt;
+	int32 i, j, index, n, nt;
 	PIX * pix1, * pix2;
 	PIXA    * pixa1;
 
@@ -2422,15 +2422,15 @@ l_ok pixaSplitIntoFiles(PIXA      * pixas,
  */
 l_ok convertToNUpFiles(const char * dir,
     const char * substr,
-    l_int32 nx,
-    l_int32 ny,
-    l_int32 tw,
-    l_int32 spacing,
-    l_int32 border,
-    l_int32 fontsize,
+    int32 nx,
+    int32 ny,
+    int32 tw,
+    int32 spacing,
+    int32 border,
+    int32 fontsize,
     const char * outdir)
 {
-	l_int32 d, format;
+	int32 d, format;
 	char rootpath[256];
 	PIXA    * pixa;
 
@@ -2482,14 +2482,14 @@ l_ok convertToNUpFiles(const char * dir,
  */
 PIXA * convertToNUpPixa(const char * dir,
     const char * substr,
-    l_int32 nx,
-    l_int32 ny,
-    l_int32 tw,
-    l_int32 spacing,
-    l_int32 border,
-    l_int32 fontsize)
+    int32 nx,
+    int32 ny,
+    int32 tw,
+    int32 spacing,
+    int32 border,
+    int32 fontsize)
 {
-	l_int32 i, n;
+	int32 i, n;
 	char * fname, * tail;
 	PIXA    * pixa1, * pixa2;
 	SARRAY * sa1, * sa2;
@@ -2546,14 +2546,14 @@ PIXA * convertToNUpPixa(const char * dir,
  */
 PIXA * pixaConvertToNUpPixa(PIXA    * pixas,
     SARRAY * sa,
-    l_int32 nx,
-    l_int32 ny,
-    l_int32 tw,
-    l_int32 spacing,
-    l_int32 border,
-    l_int32 fontsize)
+    int32 nx,
+    int32 ny,
+    int32 tw,
+    int32 spacing,
+    int32 border,
+    int32 fontsize)
 {
-	l_int32 i, j, k, nt, n2, nout, d;
+	int32 i, j, k, nt, n2, nout, d;
 	char      * str;
 	L_BMF     * bmf;
 	PIX * pix1, * pix2, * pix3, * pix4;
@@ -2658,15 +2658,15 @@ PIXA * pixaConvertToNUpPixa(PIXA    * pixas,
  */
 l_ok pixaCompareInPdf(PIXA        * pixa1,
     PIXA        * pixa2,
-    l_int32 nx,
-    l_int32 ny,
-    l_int32 tw,
-    l_int32 spacing,
-    l_int32 border,
-    l_int32 fontsize,
+    int32 nx,
+    int32 ny,
+    int32 tw,
+    int32 spacing,
+    int32 border,
+    int32 fontsize,
     const char * fileout)
 {
-	l_int32 n1, n2, npairs;
+	int32 n1, n2, npairs;
 	PIXA    * pixa3, * pixa4, * pixa5;
 	SARRAY * sa;
 

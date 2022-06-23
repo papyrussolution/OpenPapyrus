@@ -19,42 +19,42 @@
  *      (4) Simple method for byte-processing images (instead of words)
  *
  *      Pixel poking
- *           l_int32     pixGetPixel()
- *           l_int32     pixSetPixel()
- *           l_int32     pixGetRGBPixel()
- *           l_int32     pixSetRGBPixel()
- *           l_int32     pixSetCmapPixel()
- *           l_int32     pixGetRandomPixel()
- *           l_int32     pixClearPixel()
- *           l_int32     pixFlipPixel()
+ *           int32     pixGetPixel()
+ *           int32     pixSetPixel()
+ *           int32     pixGetRGBPixel()
+ *           int32     pixSetRGBPixel()
+ *           int32     pixSetCmapPixel()
+ *           int32     pixGetRandomPixel()
+ *           int32     pixClearPixel()
+ *           int32     pixFlipPixel()
  *           void        setPixelLow()
  *
  *      Find black or white value
- *           l_int32     pixGetBlackOrWhiteVal()
+ *           int32     pixGetBlackOrWhiteVal()
  *
  *      Full image clear/set/set-to-arbitrary-value
- *           l_int32     pixClearAll()
- *           l_int32     pixSetAll()
- *           l_int32     pixSetAllGray()
- *           l_int32     pixSetAllArbitrary()
- *           l_int32     pixSetBlackOrWhite()
- *           l_int32     pixSetComponentArbitrary()
+ *           int32     pixClearAll()
+ *           int32     pixSetAll()
+ *           int32     pixSetAllGray()
+ *           int32     pixSetAllArbitrary()
+ *           int32     pixSetBlackOrWhite()
+ *           int32     pixSetComponentArbitrary()
  *
  *      Rectangular region clear/set/set-to-arbitrary-value/blend
- *           l_int32     pixClearInRect()
- *           l_int32     pixSetInRect()
- *           l_int32     pixSetInRectArbitrary()
- *           l_int32     pixBlendInRect()
+ *           int32     pixClearInRect()
+ *           int32     pixSetInRect()
+ *           int32     pixSetInRectArbitrary()
+ *           int32     pixBlendInRect()
  *
  *      Set pad bits
- *           l_int32     pixSetPadBits()
- *           l_int32     pixSetPadBitsBand()
+ *           int32     pixSetPadBits()
+ *           int32     pixSetPadBitsBand()
  *
  *      Assign border pixels
- *           l_int32     pixSetOrClearBorder()
- *           l_int32     pixSetBorderVal()
- *           l_int32     pixSetBorderRingVal()
- *           l_int32     pixSetMirroredBorder()
+ *           int32     pixSetOrClearBorder()
+ *           int32     pixSetBorderVal()
+ *           int32     pixSetBorderRingVal()
+ *           int32     pixSetMirroredBorder()
  *           PIX        *pixCopyBorder()
  *
  *      Add and remove border
@@ -70,44 +70,44 @@
  *           PIX        *pixAddContinuedBorder()
  *
  *      Helper functions using alpha
- *           l_int32     pixShiftAndTransferAlpha()
+ *           int32     pixShiftAndTransferAlpha()
  *           PIX        *pixDisplayLayersRGBA()
  *
  *      Color sample setting and extraction
  *           PIX        *pixCreateRGBImage()
  *           PIX        *pixGetRGBComponent()
- *           l_int32     pixSetRGBComponent()
+ *           int32     pixSetRGBComponent()
  *           PIX        *pixGetRGBComponentCmap()
- *           l_int32     pixCopyRGBComponent()
- *           l_int32     composeRGBPixel()
- *           l_int32     composeRGBAPixel()
+ *           int32     pixCopyRGBComponent()
+ *           int32     composeRGBPixel()
+ *           int32     composeRGBAPixel()
  *           void        extractRGBValues()
  *           void        extractRGBAValues()
- *           l_int32     extractMinMaxComponent()
- *           l_int32     pixGetRGBLine()
+ *           int32     extractMinMaxComponent()
+ *           int32     pixGetRGBLine()
  *
  *      Raster line pixel setter
- *           l_int32     setLineDataVal()
+ *           int32     setLineDataVal()
  *
  *      Conversion between big and little endians
  *           PIX        *pixEndianByteSwapNew()
- *           l_int32     pixEndianByteSwap()
- *           l_int32     lineEndianByteSwap()
+ *           int32     pixEndianByteSwap()
+ *           int32     lineEndianByteSwap()
  *           PIX        *pixEndianTwoByteSwapNew()
- *           l_int32     pixEndianTwoByteSwap()
+ *           int32     pixEndianTwoByteSwap()
  *
  *      Extract raster data as binary string
- *           l_int32     pixGetRasterData()
+ *           int32     pixGetRasterData()
  *
  *      Test alpha component opaqueness
- *           l_int32     pixAlphaIsOpaque()
+ *           int32     pixAlphaIsOpaque()
  *
  *      Infer resolution from image size
- *           l_int32     pixInferResolution()
+ *           int32     pixInferResolution()
  *
  *      Setup helpers for 8 bpp byte processing
  *           uint8   **pixSetupByteProcessing()
- *           l_int32     pixCleanupByteProcessing()
+ *           int32     pixCleanupByteProcessing()
  *
  *      Setting parameters for antialias masking with alpha transforms
  *           void        l_setAlphaMaskBorder()
@@ -116,7 +116,7 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static const l_uint32 rmask32[] = {0x0,
+static const uint32 rmask32[] = {0x0,
 				   0x00000001, 0x00000003, 0x00000007, 0x0000000f,
 				   0x0000001f, 0x0000003f, 0x0000007f, 0x000000ff,
 				   0x000001ff, 0x000003ff, 0x000007ff, 0x00000fff,
@@ -162,12 +162,12 @@ LEPT_DLL float AlphaMaskBorderVals[2] = {0.0, 0.5};
  * </pre>
  */
 l_ok pixGetPixel(PIX * pix,
-    l_int32 x,
-    l_int32 y,
-    l_uint32  * pval)
+    int32 x,
+    int32 y,
+    uint32  * pval)
 {
-	l_int32 w, h, d, wpl, val;
-	l_uint32  * line, * data;
+	int32 w, h, d, wpl, val;
+	uint32  * line, * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -233,12 +233,12 @@ l_ok pixGetPixel(PIX * pix,
  * </pre>
  */
 l_ok pixSetPixel(PIX * pix,
-    l_int32 x,
-    l_int32 y,
-    l_uint32 val)
+    int32 x,
+    int32 y,
+    uint32 val)
 {
-	l_int32 w, h, d, wpl;
-	l_uint32  * line, * data;
+	int32 w, h, d, wpl;
+	uint32  * line, * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -298,14 +298,14 @@ l_ok pixSetPixel(PIX * pix,
  * </pre>
  */
 l_ok pixGetRGBPixel(PIX * pix,
-    l_int32 x,
-    l_int32 y,
-    l_int32 * prval,
-    l_int32 * pgval,
-    l_int32 * pbval)
+    int32 x,
+    int32 y,
+    int32 * prval,
+    int32 * pgval,
+    int32 * pbval)
 {
-	l_int32 w, h, d, wpl;
-	l_uint32  * data, * ppixel;
+	int32 w, h, d, wpl;
+	uint32  * data, * ppixel;
 
 	PROCNAME(__FUNCTION__);
 
@@ -348,15 +348,15 @@ l_ok pixGetRGBPixel(PIX * pix,
  * </pre>
  */
 l_ok pixSetRGBPixel(PIX * pix,
-    l_int32 x,
-    l_int32 y,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval)
+    int32 x,
+    int32 y,
+    int32 rval,
+    int32 gval,
+    int32 bval)
 {
-	l_int32 w, h, d, wpl;
-	l_uint32 pixel;
-	l_uint32  * data, * line;
+	int32 w, h, d, wpl;
+	uint32 pixel;
+	uint32  * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -404,13 +404,13 @@ l_ok pixSetRGBPixel(PIX * pix,
  * </pre>
  */
 l_ok pixSetCmapPixel(PIX * pix,
-    l_int32 x,
-    l_int32 y,
-    l_int32 rval,
-    l_int32 gval,
-    l_int32 bval)
+    int32 x,
+    int32 y,
+    int32 rval,
+    int32 gval,
+    int32 bval)
 {
-	l_int32 w, h, d, index;
+	int32 w, h, d, index;
 	PIXCMAP  * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -451,12 +451,12 @@ l_ok pixSetCmapPixel(PIX * pix,
  * </pre>
  */
 l_ok pixGetRandomPixel(PIX * pix,
-    l_uint32  * pval,
-    l_int32   * px,
-    l_int32   * py)
+    uint32  * pval,
+    int32   * px,
+    int32   * py)
 {
-	l_int32 w, h, x, y, rval, gval, bval;
-	l_uint32 val;
+	int32 w, h, x, y, rval, gval, bval;
+	uint32 val;
 	PIXCMAP  * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -502,11 +502,11 @@ l_ok pixGetRandomPixel(PIX * pix,
  * </pre>
  */
 l_ok pixClearPixel(PIX * pix,
-    l_int32 x,
-    l_int32 y)
+    int32 x,
+    int32 y)
 {
-	l_int32 w, h, d, wpl;
-	l_uint32  * line, * data;
+	int32 w, h, d, wpl;
+	uint32  * line, * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -562,12 +562,12 @@ l_ok pixClearPixel(PIX * pix,
  * </pre>
  */
 l_ok pixFlipPixel(PIX * pix,
-    l_int32 x,
-    l_int32 y)
+    int32 x,
+    int32 y)
 {
-	l_int32 w, h, d, wpl;
-	l_uint32 val;
-	l_uint32  * line, * data;
+	int32 w, h, d, wpl;
+	uint32 val;
+	uint32  * line, * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -636,10 +636,10 @@ l_ok pixFlipPixel(PIX * pix,
  *      (1) Caution: input variables are not checked!
  * </pre>
  */
-void setPixelLow(l_uint32  * line,
-    l_int32 x,
-    l_int32 depth,
-    l_uint32 val)
+void setPixelLow(uint32  * line,
+    int32 x,
+    int32 depth,
+    uint32 val)
 {
 	switch(depth)
 	{
@@ -689,10 +689,10 @@ void setPixelLow(l_uint32  * line,
  * </pre>
  */
 l_ok pixGetBlackOrWhiteVal(PIX * pixs,
-    l_int32 op,
-    l_uint32  * pval)
+    int32 op,
+    uint32  * pval)
 {
-	l_int32 d, val;
+	int32 d, val;
 	PIXCMAP  * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -769,7 +769,7 @@ l_ok pixClearAll(PIX  * pix)
  */
 l_ok pixSetAll(PIX  * pix)
 {
-	l_int32 n;
+	int32 n;
 	PIXCMAP  * cmap;
 	PROCNAME(__FUNCTION__);
 	if(!pix)
@@ -805,10 +805,10 @@ l_ok pixSetAll(PIX  * pix)
  * </pre>
  */
 l_ok pixSetAllGray(PIX * pix,
-    l_int32 grayval)
+    int32 grayval)
 {
-	l_int32 d, spp, index;
-	l_uint32 val32;
+	int32 d, spp, index;
+	uint32 val32;
 	PIX * alpha;
 	PIXCMAP  * cmap;
 
@@ -902,11 +902,11 @@ l_ok pixSetAllGray(PIX * pix,
  * </pre>
  */
 l_ok pixSetAllArbitrary(PIX * pix,
-    l_uint32 val)
+    uint32 val)
 {
-	l_int32 n, i, j, w, h, d, wpl, npix;
-	l_uint32 maxval, wordval;
-	l_uint32  * data, * line;
+	int32 n, i, j, w, h, d, wpl, npix;
+	uint32 maxval, wordval;
+	uint32  * data, * line;
 	PIXCMAP   * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -970,9 +970,9 @@ l_ok pixSetAllArbitrary(PIX * pix,
  * </pre>
  */
 l_ok pixSetBlackOrWhite(PIX * pixs,
-    l_int32 op)
+    int32 op)
 {
-	l_int32 d, index;
+	int32 d, index;
 	PIXCMAP  * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -1016,12 +1016,12 @@ l_ok pixSetBlackOrWhite(PIX * pixs,
  * </pre>
  */
 l_ok pixSetComponentArbitrary(PIX * pix,
-    l_int32 comp,
-    l_int32 val)
+    int32 comp,
+    int32 val)
 {
-	l_int32 i, nwords;
-	l_uint32 mask1, mask2;
-	l_uint32  * data;
+	int32 i, nwords;
+	uint32 mask1, mask2;
+	uint32  * data;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1066,7 +1066,7 @@ l_ok pixSetComponentArbitrary(PIX * pix,
 l_ok pixClearInRect(PIX  * pix,
     BOX  * box)
 {
-	l_int32 x, y, w, h;
+	int32 x, y, w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1099,7 +1099,7 @@ l_ok pixClearInRect(PIX  * pix,
 l_ok pixSetInRect(PIX  * pix,
     BOX  * box)
 {
-	l_int32 n, x, y, w, h;
+	int32 n, x, y, w, h;
 	PIXCMAP  * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -1138,10 +1138,10 @@ l_ok pixSetInRect(PIX  * pix,
  */
 l_ok pixSetInRectArbitrary(PIX * pix,
     BOX      * box,
-    l_uint32 val)
+    uint32 val)
 {
-	l_int32 n, x, y, xstart, xend, ystart, yend, bw, bh, w, h, d, wpl, maxval;
-	l_uint32  * data, * line;
+	int32 n, x, y, xstart, xend, ystart, yend, bw, bh, w, h, d, wpl, maxval;
+	uint32  * data, * line;
 	BOX       * boxc;
 	PIXCMAP   * cmap;
 
@@ -1237,13 +1237,13 @@ l_ok pixSetInRectArbitrary(PIX * pix,
  */
 l_ok pixBlendInRect(PIX * pixs,
     BOX       * box,
-    l_uint32 val,
+    uint32 val,
     float fract)
 {
-	l_int32 i, j, bx, by, bw, bh, w, h, wpls;
-	l_int32 prval, pgval, pbval, rval, gval, bval;
-	l_uint32 val32;
-	l_uint32  * datas, * lines;
+	int32 i, j, bx, by, bw, bh, w, h, wpls;
+	int32 prval, pgval, pbval, rval, gval, bval;
+	uint32 val32;
+	uint32  * datas, * lines;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1260,9 +1260,9 @@ l_ok pixBlendInRect(PIX * pixs,
 			for(j = 0; j < w; j++) {
 				val32 = *(lines + j);
 				extractRGBValues(val32, &prval, &pgval, &pbval);
-				prval = (l_int32)((1. - fract) * prval + fract * rval);
-				pgval = (l_int32)((1. - fract) * pgval + fract * gval);
-				pbval = (l_int32)((1. - fract) * pbval + fract * bval);
+				prval = (int32)((1. - fract) * prval + fract * rval);
+				pgval = (int32)((1. - fract) * pgval + fract * gval);
+				pbval = (int32)((1. - fract) * pbval + fract * bval);
 				composeRGBPixel(prval, pgval, pbval, &val32);
 				*(lines + j) = val32;
 			}
@@ -1278,9 +1278,9 @@ l_ok pixBlendInRect(PIX * pixs,
 			if(bx + j < 0 || bx + j >= w) continue;
 			val32 = *(lines + bx + j);
 			extractRGBValues(val32, &prval, &pgval, &pbval);
-			prval = (l_int32)((1. - fract) * prval + fract * rval);
-			pgval = (l_int32)((1. - fract) * pgval + fract * gval);
-			pbval = (l_int32)((1. - fract) * pbval + fract * bval);
+			prval = (int32)((1. - fract) * prval + fract * rval);
+			pgval = (int32)((1. - fract) * pgval + fract * gval);
+			pbval = (int32)((1. - fract) * pbval + fract * bval);
 			composeRGBPixel(prval, pgval, pbval, &val32);
 			*(lines + bx + j) = val32;
 		}
@@ -1320,11 +1320,11 @@ l_ok pixBlendInRect(PIX * pixs,
  * </pre>
  */
 l_ok pixSetPadBits(PIX * pix,
-    l_int32 val)
+    int32 val)
 {
-	l_int32 i, w, h, d, wpl, endbits, fullwords;
-	l_uint32 mask;
-	l_uint32  * data, * pword;
+	int32 i, w, h, d, wpl, endbits, fullwords;
+	uint32 mask;
+	uint32  * data, * pword;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1378,13 +1378,13 @@ l_ok pixSetPadBits(PIX * pix,
  * </pre>
  */
 l_ok pixSetPadBitsBand(PIX * pix,
-    l_int32 by,
-    l_int32 bh,
-    l_int32 val)
+    int32 by,
+    int32 bh,
+    int32 val)
 {
-	l_int32 i, w, h, d, wpl, endbits, fullwords;
-	l_uint32 mask;
-	l_uint32  * data, * pword;
+	int32 i, w, h, d, wpl, endbits, fullwords;
+	uint32 mask;
+	uint32  * data, * pword;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1448,13 +1448,13 @@ l_ok pixSetPadBitsBand(PIX * pix,
  * </pre>
  */
 l_ok pixSetOrClearBorder(PIX * pixs,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot,
-    l_int32 op)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot,
+    int32 op)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1495,14 +1495,14 @@ l_ok pixSetOrClearBorder(PIX * pixs,
  * </pre>
  */
 l_ok pixSetBorderVal(PIX * pixs,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot,
-    l_uint32 val)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot,
+    uint32 val)
 {
-	l_int32 w, h, d, wpls, i, j, bstart, rstart;
-	l_uint32  * datas, * lines;
+	int32 w, h, d, wpls, i, j, bstart, rstart;
+	uint32  * datas, * lines;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1599,10 +1599,10 @@ l_ok pixSetBorderVal(PIX * pixs,
  * </pre>
  */
 l_ok pixSetBorderRingVal(PIX * pixs,
-    l_int32 dist,
-    l_uint32 val)
+    int32 dist,
+    uint32 val)
 {
-	l_int32 w, h, d, i, j, xend, yend;
+	int32 w, h, d, i, j, xend, yend;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1648,12 +1648,12 @@ l_ok pixSetBorderRingVal(PIX * pixs,
  * </pre>
  */
 l_ok pixSetMirroredBorder(PIX * pixs,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot)
 {
-	l_int32 i, j, w, h;
+	int32 i, j, w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1698,12 +1698,12 @@ l_ok pixSetMirroredBorder(PIX * pixs,
  */
 PIX * pixCopyBorder(PIX * pixd,
     PIX * pixs,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1750,8 +1750,8 @@ PIX * pixCopyBorder(PIX * pixd,
  * </pre>
  */
 PIX * pixAddBorder(PIX * pixs,
-    l_int32 npix,
-    l_uint32 val)
+    int32 npix,
+    uint32 val)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1777,7 +1777,7 @@ PIX * pixAddBorder(PIX * pixs,
  *      (2) The only complication is that pixs may have a colormap.
  *          There are two ways to add the black or white border:
  *          (a) As done here (simplest, most efficient)
- *          (b) l_int32 ws, hs, d;
+ *          (b) int32 ws, hs, d;
  *              pixGetDimensions(pixs, &ws, &hs, &d);
  *              Pix *pixd = pixCreate(ws + left + right, hs + top + bot, d);
  *              PixColormap *cmap = pixGetColormap(pixs);
@@ -1788,13 +1788,13 @@ PIX * pixAddBorder(PIX * pixs,
  * </pre>
  */
 PIX * pixAddBlackOrWhiteBorder(PIX * pixs,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot,
-    l_int32 op)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot,
+    int32 op)
 {
-	l_uint32 val;
+	uint32 val;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1840,13 +1840,13 @@ PIX * pixAddBlackOrWhiteBorder(PIX * pixs,
  * </pre>
  */
 PIX * pixAddBorderGeneral(PIX * pixs,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot,
-    l_uint32 val)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot,
+    uint32 val)
 {
-	l_int32 ws, hs, wd, hd, d, maxval, op;
+	int32 ws, hs, wd, hd, d, maxval, op;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1894,7 +1894,7 @@ PIX * pixAddBorderGeneral(PIX * pixs,
  * \return  pixd with pixels removed around border, or NULL on error
  */
 PIX * pixRemoveBorder(PIX * pixs,
-    l_int32 npix)
+    int32 npix)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -1913,12 +1913,12 @@ PIX * pixRemoveBorder(PIX * pixs,
  * \return  pixd with pixels removed around border, or NULL on error
  */
 PIX * pixRemoveBorderGeneral(PIX * pixs,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot)
 {
-	l_int32 ws, hs, wd, hd, d;
+	int32 ws, hs, wd, hd, d;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -1964,10 +1964,10 @@ PIX * pixRemoveBorderGeneral(PIX * pixs,
  * </pre>
  */
 PIX * pixRemoveBorderToSize(PIX * pixs,
-    l_int32 wd,
-    l_int32 hd)
+    int32 wd,
+    int32 hd)
 {
-	l_int32 w, h, top, bot, left, right, delta;
+	int32 w, h, top, bot, left, right, delta;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2017,12 +2017,12 @@ PIX * pixRemoveBorderToSize(PIX * pixs,
  * </pre>
  */
 PIX  * pixAddMirroredBorder(PIX * pixs,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot)
 {
-	l_int32 i, j, w, h;
+	int32 i, j, w, h;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2068,12 +2068,12 @@ PIX  * pixAddMirroredBorder(PIX * pixs,
  * </pre>
  */
 PIX  * pixAddRepeatedBorder(PIX * pixs,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot)
 {
-	l_int32 w, h;
+	int32 w, h;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2122,12 +2122,12 @@ PIX  * pixAddRepeatedBorder(PIX * pixs,
  * </pre>
  */
 PIX  * pixAddMixedBorder(PIX * pixs,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot)
 {
-	l_int32 j, w, h;
+	int32 j, w, h;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2167,12 +2167,12 @@ PIX  * pixAddMixedBorder(PIX * pixs,
  * </pre>
  */
 PIX * pixAddContinuedBorder(PIX * pixs,
-    l_int32 left,
-    l_int32 right,
-    l_int32 top,
-    l_int32 bot)
+    int32 left,
+    int32 right,
+    int32 top,
+    int32 bot)
 {
-	l_int32 i, j, w, h;
+	int32 i, j, w, h;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2212,7 +2212,7 @@ l_ok pixShiftAndTransferAlpha(PIX * pixd,
     float shiftx,
     float shifty)
 {
-	l_int32 w, h;
+	int32 w, h;
 	PIX * pix1, * pix2;
 
 	PROCNAME(__FUNCTION__);
@@ -2257,10 +2257,10 @@ l_ok pixShiftAndTransferAlpha(PIX * pixd,
  * </pre>
  */
 PIX * pixDisplayLayersRGBA(PIX * pixs,
-    l_uint32 val,
-    l_int32 maxw)
+    uint32 val,
+    int32 maxw)
 {
-	l_int32 w, width;
+	int32 w, width;
 	float scalefact;
 	PIX * pix1, * pix2, * pixd;
 	PIXA      * pixa;
@@ -2284,7 +2284,7 @@ PIX * pixDisplayLayersRGBA(PIX * pixs,
 
 	/* Scale if necessary so the output width is not larger than maxw */
 	scalefact = (maxw == 0) ? 1.0 : MIN(1.0, (float)(maxw) / w);
-	width = (l_int32)(scalefact * w);
+	width = (int32)(scalefact * w);
 
 	pixa = pixaCreate(3);
 	pixSetSpp(pix1, 3);
@@ -2330,7 +2330,7 @@ PIX * pixCreateRGBImage(PIX  * pixr,
     PIX  * pixg,
     PIX  * pixb)
 {
-	l_int32 wr, wg, wb, hr, hg, hb, dr, dg, db;
+	int32 wr, wg, wb, hr, hg, hb, dr, dg, db;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2381,11 +2381,11 @@ PIX * pixCreateRGBImage(PIX  * pixr,
  * </pre>
  */
 PIX * pixGetRGBComponent(PIX * pixs,
-    l_int32 comp)
+    int32 comp)
 {
-	l_int32 i, j, w, h, wpls, wpld, val;
-	l_uint32  * lines, * lined;
-	l_uint32  * datas, * datad;
+	int32 i, j, w, h, wpls, wpld, val;
+	uint32  * lines, * lined;
+	uint32  * datas, * datad;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2439,13 +2439,13 @@ PIX * pixGetRGBComponent(PIX * pixs,
  */
 l_ok pixSetRGBComponent(PIX * pixd,
     PIX * pixs,
-    l_int32 comp)
+    int32 comp)
 {
 	uint8 srcbyte;
-	l_int32 i, j, w, h, ws, hs, wd, hd;
-	l_int32 wpls, wpld;
-	l_uint32  * lines, * lined;
-	l_uint32  * datas, * datad;
+	int32 i, j, w, h, ws, hs, wd, hd;
+	int32 wpls, wpld;
+	uint32  * lines, * lined;
+	uint32  * datas, * datad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2498,12 +2498,12 @@ l_ok pixSetRGBComponent(PIX * pixd,
  * </pre>
  */
 PIX * pixGetRGBComponentCmap(PIX * pixs,
-    l_int32 comp)
+    int32 comp)
 {
-	l_int32 i, j, w, h, val, index, valid;
-	l_int32 wplc, wpld;
-	l_uint32   * linec, * lined;
-	l_uint32   * datac, * datad;
+	int32 i, j, w, h, val, index, valid;
+	int32 wplc, wpld;
+	uint32   * linec, * lined;
+	uint32   * datac, * datad;
 	PIX        * pixc, * pixd;
 	PIXCMAP    * cmap;
 	RGBA_QUAD  * cta;
@@ -2589,12 +2589,12 @@ PIX * pixGetRGBComponentCmap(PIX * pixs,
  */
 l_ok pixCopyRGBComponent(PIX * pixd,
     PIX * pixs,
-    l_int32 comp)
+    int32 comp)
 {
-	l_int32 i, j, w, h, ws, hs, wd, hd, val;
-	l_int32 wpls, wpld;
-	l_uint32  * lines, * lined;
-	l_uint32  * datas, * datad;
+	int32 i, j, w, h, ws, hs, wd, hd, val;
+	int32 wpls, wpld;
+	uint32  * lines, * lined;
+	uint32  * datas, * datad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2646,19 +2646,19 @@ l_ok pixCopyRGBComponent(PIX * pixd,
  *            SET_DATA_BYTE(ppixel, COLOR_BLUE, bval);
  * </pre>
  */
-l_ok composeRGBPixel(l_int32 rval,
-    l_int32 gval,
-    l_int32 bval,
-    l_uint32  * ppixel)
+l_ok composeRGBPixel(int32 rval,
+    int32 gval,
+    int32 bval,
+    uint32  * ppixel)
 {
 	PROCNAME(__FUNCTION__);
 
 	if(!ppixel)
 		return ERROR_INT("&pixel not defined", procName, 1);
 
-	*ppixel = ((l_uint32)rval << L_RED_SHIFT) |
-	    ((l_uint32)gval << L_GREEN_SHIFT) |
-	    ((l_uint32)bval << L_BLUE_SHIFT);
+	*ppixel = ((uint32)rval << L_RED_SHIFT) |
+	    ((uint32)gval << L_GREEN_SHIFT) |
+	    ((uint32)bval << L_BLUE_SHIFT);
 	return 0;
 }
 
@@ -2676,20 +2676,20 @@ l_ok composeRGBPixel(l_int32 rval,
  *          with 0xff before shifting.
  * </pre>
  */
-l_ok composeRGBAPixel(l_int32 rval,
-    l_int32 gval,
-    l_int32 bval,
-    l_int32 aval,
-    l_uint32  * ppixel)
+l_ok composeRGBAPixel(int32 rval,
+    int32 gval,
+    int32 bval,
+    int32 aval,
+    uint32  * ppixel)
 {
 	PROCNAME(__FUNCTION__);
 
 	if(!ppixel)
 		return ERROR_INT("&pixel not defined", procName, 1);
 
-	*ppixel = ((l_uint32)rval << L_RED_SHIFT) |
-	    ((l_uint32)gval << L_GREEN_SHIFT) |
-	    ((l_uint32)bval << L_BLUE_SHIFT) |
+	*ppixel = ((uint32)rval << L_RED_SHIFT) |
+	    ((uint32)gval << L_GREEN_SHIFT) |
+	    ((uint32)bval << L_BLUE_SHIFT) |
 	    aval;
 	return 0;
 }
@@ -2711,10 +2711,10 @@ l_ok composeRGBAPixel(l_int32 rval,
  *             *pbval = GET_DATA_BYTE(&pixel, COLOR_BLUE);
  * </pre>
  */
-void extractRGBValues(l_uint32 pixel,
-    l_int32 * prval,
-    l_int32 * pgval,
-    l_int32 * pbval)
+void extractRGBValues(uint32 pixel,
+    int32 * prval,
+    int32 * pgval,
+    int32 * pbval)
 {
 	if(prval) *prval = (pixel >> L_RED_SHIFT) & 0xff;
 	if(pgval) *pgval = (pixel >> L_GREEN_SHIFT) & 0xff;
@@ -2731,11 +2731,11 @@ void extractRGBValues(l_uint32 pixel,
  * \param[out]   paval   [optional] alpha component
  * \return  void
  */
-void extractRGBAValues(l_uint32 pixel,
-    l_int32 * prval,
-    l_int32 * pgval,
-    l_int32 * pbval,
-    l_int32 * paval)
+void extractRGBAValues(uint32 pixel,
+    int32 * prval,
+    int32 * pgval,
+    int32 * pbval,
+    int32 * paval)
 {
 	if(prval) *prval = (pixel >> L_RED_SHIFT) & 0xff;
 	if(pgval) *pgval = (pixel >> L_GREEN_SHIFT) & 0xff;
@@ -2750,10 +2750,10 @@ void extractRGBAValues(l_uint32 pixel,
  * \param[in]   type    L_CHOOSE_MIN or L_CHOOSE_MAX
  * \return  component in range [0 ... 255], or NULL on error
  */
-l_int32 extractMinMaxComponent(l_uint32 pixel,
-    l_int32 type)
+int32 extractMinMaxComponent(uint32 pixel,
+    int32 type)
 {
-	l_int32 rval, gval, bval, val;
+	int32 rval, gval, bval, val;
 
 	extractRGBValues(pixel, &rval, &gval, &bval);
 	if(type == L_CHOOSE_MIN) {
@@ -2784,14 +2784,14 @@ l_int32 extractMinMaxComponent(l_uint32 pixel,
  * </pre>
  */
 l_ok pixGetRGBLine(PIX * pixs,
-    l_int32 row,
+    int32 row,
     uint8  * bufr,
     uint8  * bufg,
     uint8  * bufb)
 {
-	l_uint32  * lines;
-	l_int32 j, w, h;
-	l_int32 wpls;
+	uint32  * lines;
+	int32 j, w, h;
+	int32 wpls;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2836,10 +2836,10 @@ l_ok pixGetRGBLine(PIX * pixs,
  *          values (1, 2, 4, 8, 16 or 32).
  * </pre>
  */
-l_ok setLineDataVal(l_uint32  * line,
-    l_int32 j,
-    l_int32 d,
-    l_uint32 val)
+l_ok setLineDataVal(uint32  * line,
+    int32 j,
+    int32 d,
+    uint32 val)
 {
 	PROCNAME(__FUNCTION__);
 
@@ -2894,9 +2894,9 @@ l_ok setLineDataVal(l_uint32  * line,
  */
 PIX * pixEndianByteSwapNew(PIX  * pixs)
 {
-	l_uint32  * datas, * datad;
-	l_int32 i, j, h, wpl;
-	l_uint32 word;
+	uint32  * datas, * datad;
+	int32 i, j, h, wpl;
+	uint32 word;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -2955,9 +2955,9 @@ PIX * pixEndianByteSwapNew(PIX  * pixs)
  */
 l_ok pixEndianByteSwap(PIX  * pixs)
 {
-	l_uint32  * data;
-	l_int32 i, j, h, wpl;
-	l_uint32 word;
+	uint32  * data;
+	int32 i, j, h, wpl;
+	uint32 word;
 
 	PROCNAME(__FUNCTION__);
 
@@ -3008,12 +3008,12 @@ l_ok pixEndianByteSwap(PIX  * pixs)
  *          from left to right in the image.
  * </pre>
  */
-l_int32 lineEndianByteSwap(l_uint32  * datad,
-    l_uint32  * datas,
-    l_int32 wpl)
+int32 lineEndianByteSwap(uint32  * datad,
+    uint32  * datas,
+    int32 wpl)
 {
-	l_int32 j;
-	l_uint32 word;
+	int32 j;
+	uint32 word;
 
 	PROCNAME(__FUNCTION__);
 
@@ -3060,9 +3060,9 @@ l_int32 lineEndianByteSwap(l_uint32  * datad,
  */
 PIX * pixEndianTwoByteSwapNew(PIX  * pixs)
 {
-	l_uint32  * datas, * datad;
-	l_int32 i, j, h, wpl;
-	l_uint32 word;
+	uint32  * datas, * datad;
+	int32 i, j, h, wpl;
+	uint32 word;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -3111,9 +3111,9 @@ PIX * pixEndianTwoByteSwapNew(PIX  * pixs)
  */
 l_ok pixEndianTwoByteSwap(PIX  * pixs)
 {
-	l_uint32  * data;
-	l_int32 i, j, h, wpl;
-	l_uint32 word;
+	uint32  * data;
+	int32 i, j, h, wpl;
+	uint32 word;
 
 	PROCNAME(__FUNCTION__);
 
@@ -3164,10 +3164,10 @@ l_ok pixGetRasterData(PIX * pixs,
     uint8  ** pdata,
     size_t * pnbytes)
 {
-	l_int32 w, h, d, wpl, i, j, rval, gval, bval;
-	l_int32 databpl; /* bytes for each raster line in returned data */
+	int32 w, h, d, wpl, i, j, rval, gval, bval;
+	int32 databpl; /* bytes for each raster line in returned data */
 	uint8   * line, * data; /* packed data in returned array */
-	l_uint32  * rline, * rdata; /* data in pix raster */
+	uint32  * rline, * rdata; /* data in pix raster */
 
 	PROCNAME(__FUNCTION__);
 
@@ -3246,9 +3246,9 @@ l_ok pixGetRasterData(PIX * pixs,
  */
 l_ok pixInferResolution(PIX * pix,
     float longside,
-    l_int32   * pres)
+    int32   * pres)
 {
-	l_int32 w, h, maxdim, res;
+	int32 w, h, maxdim, res;
 
 	PROCNAME(__FUNCTION__);
 
@@ -3262,7 +3262,7 @@ l_ok pixInferResolution(PIX * pix,
 
 	pixGetDimensions(pix, &w, &h, NULL);
 	maxdim = MAX(w, h);
-	res = (l_int32)(maxdim / longside + 0.5);
+	res = (int32)(maxdim / longside + 0.5);
 	res = MAX(res, 1); /* don't let it be 0 */
 	if(res < 10)
 		L_WARNING("low inferred resolution: %d ppi\n", procName, res);
@@ -3289,10 +3289,10 @@ l_ok pixInferResolution(PIX * pix,
  * </pre>
  */
 l_ok pixAlphaIsOpaque(PIX * pix,
-    l_int32 * popaque)
+    int32 * popaque)
 {
-	l_int32 w, h, wpl, i, j, alpha;
-	l_uint32  * data, * line;
+	int32 w, h, wpl, i, j, alpha;
+	uint32  * data, * line;
 
 	PROCNAME(__FUNCTION__);
 
@@ -3352,10 +3352,10 @@ l_ok pixAlphaIsOpaque(PIX * pix,
  * </pre>
  */
 uint8 ** pixSetupByteProcessing(PIX * pix,
-    l_int32 * pw,
-    l_int32 * ph)
+    int32 * pw,
+    int32 * ph)
 {
-	l_int32 w, h;
+	int32 w, h;
 
 	PROCNAME(__FUNCTION__);
 

@@ -11,22 +11,22 @@
  * <pre>
  *
  *      Top-level jb2 correlation and rank-hausdorff
- *         l_int32         jbCorrelation()
- *         l_int32         jbRankHaus()
+ *         int32         jbCorrelation()
+ *         int32         jbRankHaus()
  *
  *      Extract and classify words in textline order
  *         JBCLASSER      *jbWordsInTextlines()
- *         l_int32         pixGetWordsInTextlines()
- *         l_int32         pixGetWordBoxesInTextlines()
+ *         int32         pixGetWordsInTextlines()
+ *         int32         pixGetWordBoxesInTextlines()
  *
  *      Extract word and character bounding boxes
- *         l_int32         pixFindWordAndCharacterBoxes()
+ *         int32         pixFindWordAndCharacterBoxes()
  *
  *      Use word bounding boxes to compare page images
  *         NUMAA          *boxaExtractSortedPattern()
- *         l_int32         numaaCompareImagesByBoxes()
- *         static l_int32  testLineAlignmentX()
- *         static l_int32  countAlignedMatches()
+ *         int32         numaaCompareImagesByBoxes()
+ *         static int32  testLineAlignmentX()
+ *         static int32  countAlignedMatches()
  *         static void     printRowIndices()
  * </pre>
  */
@@ -34,19 +34,14 @@
 #pragma hdrstop
 
 #define L_BUF_SIZE 512                        /*!< size of filename buffer    */
-static const l_int32 JB_WORDS_MIN_WIDTH = 5;  /*!< min. word width in pixels  */
-static const l_int32 JB_WORDS_MIN_HEIGHT = 3; /*!< min. word height in pixels */
+static const int32 JB_WORDS_MIN_WIDTH = 5;  /*!< min. word width in pixels  */
+static const int32 JB_WORDS_MIN_HEIGHT = 3; /*!< min. word height in pixels */
 
 /* Static comparison functions */
-static l_int32 testLineAlignmentX(NUMA * na1, NUMA * na2, l_int32 shiftx,
-    l_int32 delx, l_int32 nperline);
-static l_int32 countAlignedMatches(NUMA * nai1, NUMA * nai2, NUMA * nasx,
-    NUMA * nasy, l_int32 n1, l_int32 n2,
-    l_int32 delx, l_int32 dely,
-    l_int32 nreq, l_int32 * psame,
-    l_int32 debugflag);
-static void printRowIndices(l_int32 * index1, l_int32 n1,
-    l_int32 * index2, l_int32 n2);
+static int32 testLineAlignmentX(NUMA * na1, NUMA * na2, int32 shiftx, int32 delx, int32 nperline);
+static int32 countAlignedMatches(NUMA * nai1, NUMA * nai2, NUMA * nasx, NUMA * nasy, int32 n1, int32 n2, int32 delx, int32 dely,
+    int32 nreq, int32 * psame, int32 debugflag);
+static void printRowIndices(int32 * index1, int32 n1, int32 * index2, int32 n2);
 
 /*------------------------------------------------------------------*
 *          Top-level jb2 correlation and rank-hausdorff            *
@@ -75,14 +70,14 @@ static void printRowIndices(l_int32 * index1, l_int32 n1,
 l_ok jbCorrelation(const char * dirin,
     float thresh,
     float weight,
-    l_int32 components,
+    int32 components,
     const char * rootname,
-    l_int32 firstpage,
-    l_int32 npages,
-    l_int32 renderflag)
+    int32 firstpage,
+    int32 npages,
+    int32 renderflag)
 {
 	char filename[L_BUF_SIZE];
-	l_int32 nfiles, i, numpages;
+	int32 nfiles, i, numpages;
 	JBDATA     * data;
 	JBCLASSER  * classer;
 	PIX        * pix;
@@ -153,16 +148,16 @@ l_ok jbCorrelation(const char * dirin,
  * </pre>
  */
 l_ok jbRankHaus(const char * dirin,
-    l_int32 size,
+    int32 size,
     float rank,
-    l_int32 components,
+    int32 components,
     const char * rootname,
-    l_int32 firstpage,
-    l_int32 npages,
-    l_int32 renderflag)
+    int32 firstpage,
+    int32 npages,
+    int32 renderflag)
 {
 	char filename[L_BUF_SIZE];
-	l_int32 nfiles, i, numpages;
+	int32 nfiles, i, numpages;
 	JBDATA     * data;
 	JBCLASSER  * classer;
 	PIX        * pix;
@@ -238,17 +233,17 @@ l_ok jbRankHaus(const char * dirin,
  * </pre>
  */
 JBCLASSER * jbWordsInTextlines(const char * dirin,
-    l_int32 reduction,
-    l_int32 maxwidth,
-    l_int32 maxheight,
+    int32 reduction,
+    int32 maxwidth,
+    int32 maxheight,
     float thresh,
     float weight,
     NUMA       ** pnatl,
-    l_int32 firstpage,
-    l_int32 npages)
+    int32 firstpage,
+    int32 npages)
 {
 	char * fname;
-	l_int32 nfiles, i, w, h;
+	int32 nfiles, i, w, h;
 	BOXA       * boxa;
 	JBCLASSER  * classer;
 	NUMA       * nai, * natl;
@@ -350,10 +345,10 @@ JBCLASSER * jbWordsInTextlines(const char * dirin,
  * </pre>
  */
 l_ok pixGetWordsInTextlines(PIX * pixs,
-    l_int32 minwidth,
-    l_int32 minheight,
-    l_int32 maxwidth,
-    l_int32 maxheight,
+    int32 minwidth,
+    int32 minheight,
+    int32 maxwidth,
+    int32 maxheight,
     BOXA   ** pboxad,
     PIXA   ** ppixad,
     NUMA   ** pnai)
@@ -425,10 +420,10 @@ l_ok pixGetWordsInTextlines(PIX * pixs,
  * </pre>
  */
 l_ok pixGetWordBoxesInTextlines(PIX * pixs,
-    l_int32 minwidth,
-    l_int32 minheight,
-    l_int32 maxwidth,
-    l_int32 maxheight,
+    int32 minwidth,
+    int32 minheight,
+    int32 maxwidth,
+    int32 maxheight,
     BOXA   ** pboxad,
     NUMA   ** pnai)
 {
@@ -490,13 +485,13 @@ l_ok pixGetWordBoxesInTextlines(PIX * pixs,
  */
 l_ok pixFindWordAndCharacterBoxes(PIX         * pixs,
     BOX         * boxs,
-    l_int32 thresh,
+    int32 thresh,
     BOXA       ** pboxaw,
     BOXAA      ** pboxaac,
     const char * debugdir)
 {
 	char      * debugfile, * subdir;
-	l_int32 i, xs, ys, xb, yb, nb, loc;
+	int32 i, xs, ys, xb, yb, nb, loc;
 	float scalefact;
 	BOX       * box1, * box2;
 	BOXA      * boxa1, * boxa1a, * boxa2, * boxa3, * boxa4, * boxa5, * boxaw;
@@ -631,7 +626,7 @@ l_ok pixFindWordAndCharacterBoxes(PIX         * pixs,
 NUMAA * boxaExtractSortedPattern(BOXA * boxa,
     NUMA * na)
 {
-	l_int32 index, nbox, row, prevrow, x, y, w, h;
+	int32 index, nbox, row, prevrow, x, y, w, h;
 	BOX * box;
 	NUMA * nad;
 	NUMAA   * naa;
@@ -716,20 +711,20 @@ NUMAA * boxaExtractSortedPattern(BOXA * boxa,
  */
 l_ok numaaCompareImagesByBoxes(NUMAA    * naa1,
     NUMAA    * naa2,
-    l_int32 nperline,
-    l_int32 nreq,
-    l_int32 maxshiftx,
-    l_int32 maxshifty,
-    l_int32 delx,
-    l_int32 dely,
-    l_int32 * psame,
-    l_int32 debugflag)
+    int32 nperline,
+    int32 nreq,
+    int32 maxshiftx,
+    int32 maxshifty,
+    int32 delx,
+    int32 dely,
+    int32 * psame,
+    int32 debugflag)
 {
-	l_int32 n1, n2, i, j, nbox, y1, y2, xl1, xl2;
-	l_int32 shiftx, shifty, match;
-	l_int32 * line1, * line2; /* indicator for sufficient boxes in a line */
-	l_int32 * yloc1, * yloc2; /* arrays of y value for first box in a line */
-	l_int32 * xleft1, * xleft2; /* arrays of x value for left side of first box */
+	int32 n1, n2, i, j, nbox, y1, y2, xl1, xl2;
+	int32 shiftx, shifty, match;
+	int32 * line1, * line2; /* indicator for sufficient boxes in a line */
+	int32 * yloc1, * yloc2; /* arrays of y value for first box in a line */
+	int32 * xleft1, * xleft2; /* arrays of x value for left side of first box */
 	NUMA     * na1, * na2, * nai1, * nai2, * nasx, * nasy;
 
 	PROCNAME(__FUNCTION__);
@@ -754,12 +749,12 @@ l_ok numaaCompareImagesByBoxes(NUMAA    * naa1,
 	/* Find the lines in naa1 and naa2 with sufficient boxes.
 	 * Also, find the y-values for each of the lines, and the
 	 * LH x-values of the first box in each line. */
-	line1 = (l_int32*)SAlloc::C(n1, sizeof(l_int32));
-	line2 = (l_int32*)SAlloc::C(n2, sizeof(l_int32));
-	yloc1 = (l_int32*)SAlloc::C(n1, sizeof(l_int32));
-	yloc2 = (l_int32*)SAlloc::C(n2, sizeof(l_int32));
-	xleft1 = (l_int32*)SAlloc::C(n1, sizeof(l_int32));
-	xleft2 = (l_int32*)SAlloc::C(n2, sizeof(l_int32));
+	line1 = (int32*)SAlloc::C(n1, sizeof(int32));
+	line2 = (int32*)SAlloc::C(n2, sizeof(int32));
+	yloc1 = (int32*)SAlloc::C(n1, sizeof(int32));
+	yloc2 = (int32*)SAlloc::C(n2, sizeof(int32));
+	xleft1 = (int32*)SAlloc::C(n1, sizeof(int32));
+	xleft2 = (int32*)SAlloc::C(n2, sizeof(int32));
 	if(!line1 || !line2 || !yloc1 || !yloc2 || !xleft1 || !xleft2)
 		return ERROR_INT("callof failure for an array", procName, 1);
 	for(i = 0; i < n1; i++) {
@@ -819,14 +814,11 @@ l_ok numaaCompareImagesByBoxes(NUMAA    * naa1,
 		}
 		numaDestroy(&na1);
 	}
-
 	/* Determine if there are a sufficient number of mutually
 	 * aligned matches.  Mutually aligned matches place an additional
 	 * constraint on the 'possible' matches, where the relative
 	 * shifts must not exceed the (delx, dely) distances. */
-	countAlignedMatches(nai1, nai2, nasx, nasy, n1, n2, delx, dely,
-	    nreq, psame, debugflag);
-
+	countAlignedMatches(nai1, nai2, nasx, nasy, n1, n2, delx, dely, nreq, psame, debugflag);
 	SAlloc::F(line1);
 	SAlloc::F(line2);
 	SAlloc::F(yloc1);
@@ -840,13 +832,13 @@ l_ok numaaCompareImagesByBoxes(NUMAA    * naa1,
 	return 0;
 }
 
-static l_int32 testLineAlignmentX(NUMA * na1,
+static int32 testLineAlignmentX(NUMA * na1,
     NUMA * na2,
-    l_int32 shiftx,
-    l_int32 delx,
-    l_int32 nperline)
+    int32 shiftx,
+    int32 delx,
+    int32 nperline)
 {
-	l_int32 i, xl1, xr1, xl2, xr2, diffl, diffr;
+	int32 i, xl1, xr1, xl2, xr2, diffl, diffr;
 
 	PROCNAME(__FUNCTION__);
 
@@ -890,29 +882,17 @@ static l_int32 testLineAlignmentX(NUMA * na1,
  *          that do not use rows from either image more than once.
  * </pre>
  */
-static l_ok countAlignedMatches(NUMA     * nai1,
-    NUMA     * nai2,
-    NUMA     * nasx,
-    NUMA     * nasy,
-    l_int32 n1,
-    l_int32 n2,
-    l_int32 delx,
-    l_int32 dely,
-    l_int32 nreq,
-    l_int32 * psame,
-    l_int32 debugflag)
+static int32 countAlignedMatches(NUMA * nai1, NUMA * nai2, NUMA * nasx, NUMA * nasy, int32 n1, int32 n2, int32 delx, int32 dely,
+    int32 nreq, int32 * psame, int32 debugflag)
 {
-	l_int32 i, j, nm, shiftx, shifty, nmatch, diffx, diffy;
-	l_int32 * ia1, * ia2, * iasx, * iasy, * index1, * index2;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i, j, nm, shiftx, shifty, nmatch, diffx, diffy;
+	int32 * ia1, * ia2, * iasx, * iasy, * index1, * index2;
 	if(!nai1 || !nai2 || !nasx || !nasy)
 		return ERROR_INT("4 input numas not defined", procName, 1);
 	if(!psame)
 		return ERROR_INT("&same not defined", procName, 1);
 	*psame = 0;
-
 	/* Check for sufficient aligned matches, doing a double iteration
 	 * over the set of raw matches.  The row index arrays
 	 * are used to verify that the same rows in either image
@@ -922,13 +902,12 @@ static l_ok countAlignedMatches(NUMA     * nai1,
 	nm = numaGetCount(nai1); /* number of matches */
 	if(nm < nreq)
 		return 0;
-
 	ia1 = numaGetIArray(nai1);
 	ia2 = numaGetIArray(nai2);
 	iasx = numaGetIArray(nasx);
 	iasy = numaGetIArray(nasy);
-	index1 = (l_int32*)SAlloc::C(n1, sizeof(l_int32)); /* watch rows */
-	index2 = (l_int32*)SAlloc::C(n2, sizeof(l_int32));
+	index1 = (int32*)SAlloc::C(n1, sizeof(int32)); /* watch rows */
+	index2 = (int32*)SAlloc::C(n2, sizeof(int32));
 	if(!index1 || !index2)
 		return ERROR_INT("calloc fail for array", procName, 1);
 	for(i = 0; i < nm; i++) {
@@ -966,7 +945,6 @@ static l_ok countAlignedMatches(NUMA     * nai1,
 			}
 		}
 	}
-
 	SAlloc::F(ia1);
 	SAlloc::F(ia2);
 	SAlloc::F(iasx);
@@ -976,12 +954,12 @@ static l_ok countAlignedMatches(NUMA     * nai1,
 	return 0;
 }
 
-static void printRowIndices(l_int32 * index1,
-    l_int32 n1,
-    l_int32 * index2,
-    l_int32 n2)
+static void printRowIndices(int32 * index1,
+    int32 n1,
+    int32 * index2,
+    int32 n2)
 {
-	l_int32 i;
+	int32 i;
 
 	lept_stderr("Index1: ");
 	for(i = 0; i < n1; i++) {

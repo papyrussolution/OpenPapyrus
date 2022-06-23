@@ -5285,8 +5285,18 @@ SString & FASTCALL _commfmt(long fmt, SString & rBuf);
 // Descr: Реализация преобразования double-->string и string-->double.
 // Позаимствована с модификациями у Mikhail Kupchik <Mikhail.Kupchik@prime-expert.com>. See copyright notice at dconvstr.c
 //
-class SRealConversion {
+class SIEEE754 {
 public:
+	//
+	// Descr: Флаги состояний числа с плавающей точкой.
+	// Attention: Мнемоника и значения флагов не соответствуют каким-либо фактическим 
+	// или формальным стандартам и применимы только в рамках данной библиотеки.
+	//
+	enum {
+		fSIGN = 0x0001,
+		fNAN  = 0x0002,
+		fINF  = 0x0004,
+	};
 	enum {
 		fHaveWidth   = 0x0001, // DCONVSTR_FLAG_HAVE_WIDTH
 		fLeftJustify = 0x0002, // DCONVSTR_FLAG_LEFT_JUSTIFY
@@ -5297,6 +5307,10 @@ public:
 		fUppercase   = 0x0040  // DCONVSTR_FLAG_UPPERCASE
 	};
 	static const int DefaultPrecision; // DCONVSTR_DEFAULT_PRECISION
+	// 
+	// Descr: Unpack floating-point double precision binary value according to IEEE 754
+	// 
+	static uint STDCALL UnpackDouble(const double * pInput, uint64 * pOutBinaryMantissa, int32 * pOutBinaryExponent);
 	//
 	// Descr: Print IEEE 754 floating-point double precision value to string
 	// @param  outbuf            Address of variable with a pointer to output buffer filled by the function.
@@ -12116,6 +12130,7 @@ int    GetNthTransposition(long list[], long count, long n);
 class SDecimalFraction {
 public:
 	SDecimalFraction();
+	explicit SDecimalFraction(double v);
 	SDecimalFraction(int64 n, uint16 denomDecPwr);
 	double GetReal() const;
 	bool   Normalize();
@@ -12130,7 +12145,7 @@ public:
 private:
 	int64  Num;
 	uint16 DenomDecPwr;
-	uint16 Flags;
+	uint16 Flags; // SIEEE754::fXXX
 };
 
 #ifndef _WIN32_WCE // {

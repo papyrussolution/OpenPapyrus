@@ -126,10 +126,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-                <Button style="@style/PushButton" android:id="@+id/STDCTL_COMMITBUTTON"
-                    android:text="@{but_ok}" />
-                <Button style="@style/PushButton" android:id="@+id/STDCTL_CANCELBUTTON"
-                    android:text="@{but_cancel}" />
                 <View style="@style/FakeView"/>
                 <TextView
                     android:id="@+id/CTL_DOCUMENT_AMOUNT"
@@ -140,6 +136,19 @@
                     android:textAlignment="viewEnd"
                     android:textColor="@color/Accent"
                     />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <Button style="@style/PushButton" android:id="@+id/CTL_DOCUMENT_ACTIONBUTTON1"
+                    android:text="@{but_ok}" />
+                <Button style="@style/PushButton" android:id="@+id/CTL_DOCUMENT_ACTIONBUTTON2"
+                    android:text="@{but_cancel}" />
+                <Button style="@style/PushButton" android:id="@+id/CTL_DOCUMENT_ACTIONBUTTON3"
+                    android:text="@{but_cancel}" />
+                <Button style="@style/PushButton" android:id="@+id/CTL_DOCUMENT_ACTIONBUTTON4"
+                    android:text="@{but_cancel}" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

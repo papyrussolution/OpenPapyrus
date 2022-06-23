@@ -56,7 +56,7 @@ FILE * openssl_fopen(const char * filename, const char * mode)
 		WCHAR wmode[8];
 		WCHAR * wfilename = static_cast<WCHAR *>(_alloca(sz * sizeof(WCHAR)));
 		if(MultiByteToWideChar(CP_UTF8, flags, filename, len_0, wfilename, sz) && MultiByteToWideChar(CP_UTF8, 0, mode, strlen(mode) + 1,
-		    wmode, OSSL_NELEM(wmode)) && (file = _wfopen(wfilename, wmode)) == NULL && (errno == ENOENT || errno == EBADF)) {
+		    wmode, SIZEOFARRAY(wmode)) && (file = _wfopen(wfilename, wmode)) == NULL && (errno == ENOENT || errno == EBADF)) {
 			/*
 			 * UTF-8 decode succeeded, but no file, filename could still have been locale-ized...
 			 */

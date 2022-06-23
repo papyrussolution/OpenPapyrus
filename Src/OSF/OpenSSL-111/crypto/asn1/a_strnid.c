@@ -125,7 +125,7 @@ ASN1_STRING_TABLE * ASN1_STRING_TABLE_get(int nid)
 		if(idx >= 0)
 			return sk_ASN1_STRING_TABLE_value(stable, idx);
 	}
-	return OBJ_bsearch_table(&fnd, tbl_standard, OSSL_NELEM(tbl_standard));
+	return OBJ_bsearch_table(&fnd, tbl_standard, SIZEOFARRAY(tbl_standard));
 }
 
 /*

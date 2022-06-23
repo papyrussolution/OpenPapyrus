@@ -7,7 +7,7 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-#include <internal/nelem.h>
+//#include <internal/nelem.h>
 #include <statem_locl.h>
 
 static int final_renegotiate(SSL * s, uint context, int sent);
@@ -393,7 +393,6 @@ static int validate_context(SSL * s, uint extctx, uint thisctx)
 	/* Check we're allowed to use this extension in this context */
 	if((thisctx & extctx) == 0)
 		return 0;
-
 	if(SSL_IS_DTLS(s)) {
 		if((extctx & SSL_EXT_TLS_ONLY) != 0)
 			return 0;
@@ -401,13 +400,15 @@ static int validate_context(SSL * s, uint extctx, uint thisctx)
 	else if((extctx & SSL_EXT_DTLS_ONLY) != 0) {
 		return 0;
 	}
-
 	return 1;
 }
 
 int tls_validate_all_contexts(SSL * s, uint thisctx, RAW_EXTENSION * exts)
 {
-	size_t i, num_exts, builtin_num = OSSL_NELEM(ext_defs), offset;
+	size_t i;
+	size_t num_exts;
+	size_t builtin_num = SIZEOFARRAY(ext_defs);
+	size_t offset;
 	RAW_EXTENSION * thisext;
 	uint context;
 	ENDPOINT role = ENDPOINT_BOTH;
@@ -440,19 +441,15 @@ int tls_validate_all_contexts(SSL * s, uint thisctx, RAW_EXTENSION * exts)
  * indicate the extension is not allowed. If returning 1 then |*found| is set to
  * the definition for the extension we found.
  */
-static int verify_extension(SSL * s, uint context, uint type,
-    custom_ext_methods * meths, RAW_EXTENSION * rawexlist,
-    RAW_EXTENSION ** found)
+static int verify_extension(SSL * s, uint context, uint type, custom_ext_methods * meths, RAW_EXTENSION * rawexlist, RAW_EXTENSION ** found)
 {
 	size_t i;
-	size_t builtin_num = OSSL_NELEM(ext_defs);
+	size_t builtin_num = SIZEOFARRAY(ext_defs);
 	const EXTENSION_DEFINITION * thisext;
-
 	for(i = 0, thisext = ext_defs; i < builtin_num; i++, thisext++) {
 		if(type == thisext->type) {
 			if(!validate_context(s, thisext->context, context))
 				return 0;
-
 			*found = &rawexlist[i];
 			return 1;
 		}
@@ -551,7 +548,7 @@ int tls_collect_extensions(SSL * s, PACKET * packet, uint context,
 	 */
 	if((context & SSL_EXT_CLIENT_HELLO) != 0)
 		custom_ext_init(&s->cert->custext);
-	num_exts = OSSL_NELEM(ext_defs) + (exts ? exts->meths_count : 0);
+	num_exts = SIZEOFARRAY(ext_defs) + (exts ? exts->meths_count : 0);
 	raw_extensions = static_cast<RAW_EXTENSION *>(OPENSSL_zalloc(num_exts * sizeof(*raw_extensions)));
 	if(raw_extensions == NULL) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_COLLECT_EXTENSIONS, ERR_R_MALLOC_FAILURE);
@@ -591,7 +588,7 @@ int tls_collect_extensions(SSL * s, PACKET * packet, uint context,
 		 * custom extension or by the built-in version. We let the extension
 		 * itself handle unsolicited response checks.
 		 */
-		if(idx < OSSL_NELEM(ext_defs)
+		if(idx < SIZEOFARRAY(ext_defs)
 		 && (context & (SSL_EXT_CLIENT_HELLO
 		    | SSL_EXT_TLS1_3_CERTIFICATE_REQUEST
 		    | SSL_EXT_TLS1_3_NEW_SESSION_TICKET)) == 0
@@ -625,7 +622,7 @@ int tls_collect_extensions(SSL * s, PACKET * packet, uint context,
 		 * Initialise all known extensions relevant to this context,
 		 * whether we have found them or not
 		 */
-		for(thisexd = ext_defs, i = 0; i < OSSL_NELEM(ext_defs);
+		for(thisexd = ext_defs, i = 0; i < SIZEOFARRAY(ext_defs);
 		    i++, thisexd++) {
 			if(thisexd->init && (thisexd->context & context) != 0 && extension_is_relevant(s, thisexd->context, context) && !thisexd->init(s, context)) {
 				/* SSLfatal() already called */
@@ -661,7 +658,7 @@ int tls_parse_extension(SSL * s, TLSEXT_INDEX idx, int context, RAW_EXTENSION * 
 	if(currext->parsed)
 		return 1;
 	currext->parsed = 1;
-	if(idx < OSSL_NELEM(ext_defs)) {
+	if(idx < SIZEOFARRAY(ext_defs)) {
 		/* We are handling a built-in extension */
 		const EXTENSION_DEFINITION * extdef = &ext_defs[idx];
 		/* Check if extension is defined for our protocol. If not, skip */
@@ -689,7 +686,7 @@ int tls_parse_extension(SSL * s, TLSEXT_INDEX idx, int context, RAW_EXTENSION * 
 int tls_parse_all_extensions(SSL * s, int context, RAW_EXTENSION * exts, X509 * x,
     size_t chainidx, int fin)
 {
-	size_t i, numexts = OSSL_NELEM(ext_defs);
+	size_t i, numexts = SIZEOFARRAY(ext_defs);
 	const EXTENSION_DEFINITION * thisexd;
 
 	/* Calculate the number of extensions in the extensions list */
@@ -706,7 +703,7 @@ int tls_parse_all_extensions(SSL * s, int context, RAW_EXTENSION * exts, X509 * 
 		 * Finalise all known extensions relevant to this context,
 		 * whether we have found them or not
 		 */
-		for(i = 0, thisexd = ext_defs; i < OSSL_NELEM(ext_defs); i++, thisexd++) {
+		for(i = 0, thisexd = ext_defs; i < SIZEOFARRAY(ext_defs); i++, thisexd++) {
 			if(thisexd->final && (thisexd->context & context) != 0 && !thisexd->final(s, context, exts[i].present)) {
 				/* SSLfatal() already called */
 				return 0;
@@ -772,7 +769,7 @@ int tls_construct_extensions(SSL * s, WPACKET * pkt, uint context,
 		/* SSLfatal() already called */
 		return 0;
 	}
-	for(i = 0, thisexd = ext_defs; i < OSSL_NELEM(ext_defs); i++, thisexd++) {
+	for(i = 0, thisexd = ext_defs; i < SIZEOFARRAY(ext_defs); i++, thisexd++) {
 		EXT_RETURN (* construct)(SSL * s, WPACKET * pkt, uint context, X509 * x, size_t chainidx);
 		EXT_RETURN ret;
 		/* Skip if not relevant for our context */

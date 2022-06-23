@@ -11,15 +11,15 @@
 #include "ssl_locl.h"
 #pragma hdrstop
 #include <openssl/objects.h>
-#include "internal/nelem.h"
+//#include "internal/nelem.h"
 #include <openssl/md5.h>
 #include <openssl/dh.h>
 #include <openssl/rand.h>
 //#include "internal/cryptlib.h"
 
-#define TLS13_NUM_CIPHERS       OSSL_NELEM(tls13_ciphers)
-#define SSL3_NUM_CIPHERS        OSSL_NELEM(ssl3_ciphers)
-#define SSL3_NUM_SCSVS          OSSL_NELEM(ssl3_scsvs)
+#define TLS13_NUM_CIPHERS       SIZEOFARRAY(tls13_ciphers)
+#define SSL3_NUM_CIPHERS        SIZEOFARRAY(ssl3_ciphers)
+#define SSL3_NUM_SCSVS          SIZEOFARRAY(ssl3_scsvs)
 
 /* TLSv1.3 downgrade protection sentinel values */
 const uchar tls11downgrade[] = { 0x44, 0x4f, 0x57, 0x4e, 0x47, 0x52, 0x44, 0x00 };
@@ -3975,7 +3975,7 @@ const SSL_CIPHER * ssl3_get_cipher_by_std_name(const char * stdname)
 	SSL_CIPHER * alltabs[] = {tls13_ciphers, ssl3_ciphers};
 	size_t i, j, tblsize[] = {TLS13_NUM_CIPHERS, SSL3_NUM_CIPHERS};
 	/* this is not efficient, necessary to optimize this? */
-	for(j = 0; j < OSSL_NELEM(alltabs); j++) {
+	for(j = 0; j < SIZEOFARRAY(alltabs); j++) {
 		for(i = 0, tbl = alltabs[j]; i < tblsize[j]; i++, tbl++) {
 			if(tbl->stdname == NULL)
 				continue;
@@ -3985,7 +3985,7 @@ const SSL_CIPHER * ssl3_get_cipher_by_std_name(const char * stdname)
 			}
 		}
 	}
-	if(c == NULL) {
+	if(!c) {
 		tbl = ssl3_scsvs;
 		for(i = 0; i < SSL3_NUM_SCSVS; i++, tbl++) {
 			if(strcmp(stdname, tbl->stdname) == 0) {

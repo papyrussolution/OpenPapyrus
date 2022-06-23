@@ -16,13 +16,13 @@
  *          uint8        *bbufferDestroyAndSaveData()
  *
  *      Operations to read data TO a BBuffer
- *          l_int32         bbufferRead()
- *          l_int32         bbufferReadStream()
- *          l_int32         bbufferExtendArray()
+ *          int32         bbufferRead()
+ *          int32         bbufferReadStream()
+ *          int32         bbufferExtendArray()
  *
  *      Operations to write data FROM a BBuffer
- *          l_int32         bbufferWrite()
- *          l_int32         bbufferWriteStream()
+ *          int32         bbufferWrite()
+ *          int32         bbufferWriteStream()
  *
  *    The bbuffer is an implementation of a byte queue.
  *    The bbuffer holds a byte array from which bytes are
@@ -82,8 +82,8 @@
 #pragma hdrstop
 
 /* Bounds on array size */
-static const l_uint32 MaxArraySize = 1000000000; /* 10^9 bytes */
-static const l_int32 InitialArraySize = 1024; /*!< n'importe quoi */
+static const uint32 MaxArraySize = 1000000000; /* 10^9 bytes */
+static const int32 InitialArraySize = 1024; /*!< n'importe quoi */
 
 /*--------------------------------------------------------------------------*
 *                         BBuffer create/destroy                           *
@@ -104,7 +104,7 @@ static const l_int32 InitialArraySize = 1024; /*!< n'importe quoi */
  * </pre>
  */
 L_BBUFFER * bbufferCreate(const uint8  * indata,
-    l_int32 nalloc)
+    int32 nalloc)
 {
 	L_BBUFFER  * bb;
 
@@ -235,9 +235,9 @@ uint8 * bbufferDestroyAndSaveData(L_BBUFFER  ** pbb,
  */
 l_ok bbufferRead(L_BBUFFER  * bb,
     uint8    * src,
-    l_int32 nbytes)
+    int32 nbytes)
 {
-	l_int32 navail, nadd, nwritten;
+	int32 navail, nadd, nwritten;
 
 	PROCNAME(__FUNCTION__);
 
@@ -279,9 +279,9 @@ l_ok bbufferRead(L_BBUFFER  * bb,
  */
 l_ok bbufferReadStream(L_BBUFFER  * bb,
     FILE       * fp,
-    l_int32 nbytes)
+    int32 nbytes)
 {
-	l_int32 navail, nadd, nread, nwritten;
+	int32 navail, nadd, nread, nwritten;
 
 	PROCNAME(__FUNCTION__);
 
@@ -328,7 +328,7 @@ l_ok bbufferReadStream(L_BBUFFER  * bb,
  * </pre>
  */
 l_ok bbufferExtendArray(L_BBUFFER  * bb,
-    l_int32 nbytes)
+    int32 nbytes)
 {
 	PROCNAME(__FUNCTION__);
 

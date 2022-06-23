@@ -36,8 +36,8 @@
 
 #include "zlib.h"
 
-static const l_int32 L_BUF_SIZE = 32768;
-static const l_int32 ZLIB_COMPRESSION_LEVEL = 6;
+static const int32 L_BUF_SIZE = 32768;
+static const int32 ZLIB_COMPRESSION_LEVEL = 6;
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG     0
@@ -68,8 +68,8 @@ uint8 * zlibCompress(const uint8  * datain, size_t nin, size_t         * pnout)
 {
 	PROCNAME(__FUNCTION__);
 	uint8    * dataout;
-	l_int32 status, success;
-	l_int32 flush;
+	int32 status, success;
+	int32 flush;
 	size_t nbytes;
 	uint8    * bufferin, * bufferout;
 	L_BBUFFER  * bbin, * bbout;
@@ -164,7 +164,7 @@ uint8 * zlibUncompress(const uint8  * datain, size_t nin, size_t         * pnout
 	PROCNAME(__FUNCTION__);
 	uint8    * dataout;
 	uint8    * bufferin, * bufferout;
-	l_int32 status, success;
+	int32 status, success;
 	size_t nbytes;
 	L_BBUFFER  * bbin, * bbout;
 	z_stream z;

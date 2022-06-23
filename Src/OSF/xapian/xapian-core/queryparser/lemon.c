@@ -1635,7 +1635,7 @@ static struct rule * Rule_sort(struct rule * rp)
 	while(rp) {
 		pNext = rp->next;
 		rp->next = 0;
-		for(i = 0; i<sizeof(x)/sizeof(x[0]) && x[i]; i++) {
+		for(i = 0; i < SIZEOFARRAY(x) && x[i]; i++) {
 			rp = Rule_merge(x[i], rp);
 			x[i] = 0;
 		}
@@ -1643,7 +1643,7 @@ static struct rule * Rule_sort(struct rule * rp)
 		rp = pNext;
 	}
 	rp = 0;
-	for(i = 0; i<sizeof(x)/sizeof(x[0]); i++) {
+	for(i = 0; i < SIZEOFARRAY(x); i++) {
 		rp = Rule_merge(x[i], rp);
 	}
 	return rp;

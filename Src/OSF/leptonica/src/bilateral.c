@@ -59,8 +59,8 @@
 #include "bilateral.h"
 
 static L_BILATERAL * bilateralCreate(PIX * pixs, float spatial_stdev,
-    float range_stdev, l_int32 ncomps,
-    l_int32 reduction);
+    float range_stdev, int32 ncomps,
+    int32 reduction);
 static PIX * bilateralApply(L_BILATERAL * bil);
 static void bilateralDestroy(L_BILATERAL ** pbil);
 
@@ -132,10 +132,10 @@ static void bilateralDestroy(L_BILATERAL ** pbil);
 PIX * pixBilateral(PIX * pixs,
     float spatial_stdev,
     float range_stdev,
-    l_int32 ncomps,
-    l_int32 reduction)
+    int32 ncomps,
+    int32 reduction)
 {
-	l_int32 w, h, d, filtersize;
+	int32 w, h, d, filtersize;
 	float sstdev; /* scaled spatial stdev */
 	PIX          * pixt, * pixr, * pixg, * pixb, * pixd;
 
@@ -148,7 +148,7 @@ PIX * pixBilateral(PIX * pixs,
 		return (PIX *)ERROR_PTR("pixs not 8 or 32 bpp", procName, NULL);
 	if(reduction != 1 && reduction != 2 && reduction != 4)
 		return (PIX *)ERROR_PTR("reduction invalid", procName, NULL);
-	filtersize = (l_int32)(2.0 * spatial_stdev + 1.0 + 0.5);
+	filtersize = (int32)(2.0 * spatial_stdev + 1.0 + 0.5);
 	if(w < 2 * filtersize || h < 2 * filtersize) {
 		L_WARNING("w = %d, h = %d; w or h < 2 * filtersize = %d; "
 		    "returning copy\n", procName, w, h, 2 * filtersize);
@@ -207,8 +207,8 @@ PIX * pixBilateral(PIX * pixs,
 PIX * pixBilateralGray(PIX * pixs,
     float spatial_stdev,
     float range_stdev,
-    l_int32 ncomps,
-    l_int32 reduction)
+    int32 ncomps,
+    int32 reduction)
 {
 	float sstdev; /* scaled spatial stdev */
 	PIX          * pixd;
@@ -266,16 +266,16 @@ PIX * pixBilateralGray(PIX * pixs,
 static L_BILATERAL * bilateralCreate(PIX * pixs,
     float spatial_stdev,
     float range_stdev,
-    l_int32 ncomps,
-    l_int32 reduction)
+    int32 ncomps,
+    int32 reduction)
 {
-	l_int32 w, ws, wd, h, hs, hd, i, j, k, index;
-	l_int32 border, minval, maxval, spatial_size;
-	l_int32 halfwidth, wpls, wplt, wpld, kval, nval, dval;
+	int32 w, ws, wd, h, hs, hd, i, j, k, index;
+	int32 border, minval, maxval, spatial_size;
+	int32 halfwidth, wpls, wplt, wpld, kval, nval, dval;
 	float sstdev, fval1, fval2, denom, sum, norm, kern;
-	l_int32 * nc, * kindex;
+	int32 * nc, * kindex;
 	float    * kfract, * range, * spatial;
-	l_uint32     * datas, * datat, * datad, * lines, * linet, * lined;
+	uint32     * datas, * datat, * datad, * lines, * linet, * lined;
 	L_BILATERAL  * bil;
 	PIX          * pix1, * pix2, * pixt, * pixsc, * pixd;
 	PIXA         * pixac;
@@ -297,7 +297,7 @@ static L_BILATERAL * bilateralCreate(PIX * pixs,
 		return (L_BILATERAL*)ERROR_PTR("pix1 not made", procName, NULL);
 
 	sstdev = spatial_stdev / (float)reduction; /* reduced spat. stdev */
-	border = (l_int32)(2 * sstdev + 1);
+	border = (int32)(2 * sstdev + 1);
 	pixsc = pixAddMirroredBorder(pix1, border, border, border, border);
 	pixGetExtremeValue(pix1, 1, L_SELECT_MIN, NULL, NULL, NULL, &minval);
 	pixGetExtremeValue(pix1, 1, L_SELECT_MAX, NULL, NULL, NULL, &maxval);
@@ -322,13 +322,13 @@ static L_BILATERAL * bilateralCreate(PIX * pixs,
 	* and x is an index into the 2D image array.
 	* -------------------------------------------------------------------- */
 	/* nc is the set of k values to be used in J(k,x) */
-	nc = (l_int32*)SAlloc::C(ncomps, sizeof(l_int32));
+	nc = (int32*)SAlloc::C(ncomps, sizeof(int32));
 	for(i = 0; i < ncomps; i++)
 		nc[i] = minval + i * (maxval - minval) / (ncomps - 1);
 	bil->nc = nc;
 
 	/* kindex maps from intensity I(x) to the lower k index for J(k,x) */
-	kindex = (l_int32*)SAlloc::C(256, sizeof(l_int32));
+	kindex = (int32*)SAlloc::C(256, sizeof(int32));
 	for(i = minval, k = 0; i <= maxval && k < ncomps - 1; k++) {
 		fval2 = nc[k + 1];
 		while(i < fval2) {
@@ -386,7 +386,7 @@ static L_BILATERAL * bilateralCreate(PIX * pixs,
 	pixGetDimensions(pixs, &w, &h, NULL);
 	wd = (w + reduction - 1) / reduction;
 	hd = (h + reduction - 1) / reduction;
-	halfwidth = (l_int32)(2.0 * sstdev);
+	halfwidth = (int32)(2.0 * sstdev);
 	for(index = 0; index < ncomps; index++) {
 		pixt = pixCopy(NULL, pixsc);
 		datat = pixGetData(pixt);
@@ -406,7 +406,7 @@ static L_BILATERAL * bilateralCreate(PIX * pixs,
 					norm += kern;
 				}
 				if(norm > 0.0) {
-					dval = (l_int32)((sum / norm) + 0.5);
+					dval = (int32)((sum / norm) + 0.5);
 					SET_DATA_BYTE(linet, border + j, dval);
 				}
 			}
@@ -428,7 +428,7 @@ static L_BILATERAL * bilateralCreate(PIX * pixs,
 					norm += kern;
 				}
 				if(norm > 0.0)
-					dval = (l_int32)((sum / norm) + 0.5);
+					dval = (int32)((sum / norm) + 0.5);
 				else
 					dval = GET_DATA_BYTE(linet, border + j);
 				SET_DATA_BYTE(lined, j, dval);
@@ -438,7 +438,7 @@ static L_BILATERAL * bilateralCreate(PIX * pixs,
 		pixaAddPix(pixac, pixd, L_INSERT);
 	}
 	bil->pixac = pixac;
-	bil->lineset = (l_uint32***)pixaGetLinePtrs(pixac, NULL);
+	bil->lineset = (uint32***)pixaGetLinePtrs(pixac, NULL);
 	return bil;
 }
 
@@ -450,13 +450,13 @@ static L_BILATERAL * bilateralCreate(PIX * pixs,
  */
 static PIX * bilateralApply(L_BILATERAL  * bil)
 {
-	l_int32 i, j, k, ired, jred, w, h, wpls, wpld, ncomps, reduction;
-	l_int32 vals, vald, lowval, hival;
-	l_int32     * kindex;
+	int32 i, j, k, ired, jred, w, h, wpls, wpld, ncomps, reduction;
+	int32 vals, vald, lowval, hival;
+	int32     * kindex;
 	float fract;
 	float   * kfract;
-	l_uint32    * lines, * lined, * datas, * datad;
-	l_uint32  *** lineset = NULL; /* for set of PBC */
+	uint32    * lines, * lined, * datas, * datad;
+	uint32  *** lineset = NULL; /* for set of PBC */
 	PIX         * pixs, * pixd;
 	PIXA        * pixac;
 
@@ -492,7 +492,7 @@ static PIX * bilateralApply(L_BILATERAL  * bil)
 			lowval = GET_DATA_BYTE(lineset[k][ired], jred);
 			hival = GET_DATA_BYTE(lineset[k + 1][ired], jred);
 			fract = kfract[vals];
-			vald = (l_int32)((1.0 - fract) * lowval + fract * hival + 0.5);
+			vald = (int32)((1.0 - fract) * lowval + fract * hival + 0.5);
 			SET_DATA_BYTE(lined, j, vald);
 		}
 	}
@@ -507,7 +507,7 @@ static PIX * bilateralApply(L_BILATERAL  * bil)
  */
 static void bilateralDestroy(L_BILATERAL  ** pbil)
 {
-	l_int32 i;
+	int32 i;
 	L_BILATERAL  * bil;
 
 	PROCNAME(__FUNCTION__);
@@ -565,7 +565,7 @@ PIX * pixBilateralExact(PIX * pixs,
     L_KERNEL  * spatial_kel,
     L_KERNEL  * range_kel)
 {
-	l_int32 d;
+	int32 d;
 	PIX * pixt, * pixr, * pixg, * pixb, * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -618,9 +618,9 @@ PIX * pixBilateralGrayExact(PIX * pixs,
     L_KERNEL  * spatial_kel,
     L_KERNEL  * range_kel)
 {
-	l_int32 i, j, id, jd, k, m, w, h, d, sx, sy, cx, cy, wplt, wpld;
-	l_int32 val, center_val;
-	l_uint32 * datat, * datad, * linet, * lined;
+	int32 i, j, id, jd, k, m, w, h, d, sx, sy, cx, cy, wplt, wpld;
+	int32 val, center_val;
+	uint32 * datat, * datad, * linet, * lined;
 	float sum, weight_sum, weight;
 	L_KERNEL  * keli;
 	PIX * pixt, * pixd;
@@ -673,7 +673,7 @@ PIX * pixBilateralGrayExact(PIX * pixs,
 					sum += val * weight;
 				}
 			}
-			SET_DATA_BYTE(lined, jd, (l_int32)(sum / weight_sum + 0.5));
+			SET_DATA_BYTE(lined, jd, (int32)(sum / weight_sum + 0.5));
 		}
 	}
 
@@ -722,7 +722,7 @@ PIX* pixBlockBilateralExact(PIX * pixs,
     float spatial_stdev,
     float range_stdev)
 {
-	l_int32 d, halfwidth;
+	int32 d, halfwidth;
 	L_KERNEL  * spatial_kel, * range_kel;
 	PIX * pixd;
 
@@ -770,7 +770,7 @@ PIX* pixBlockBilateralExact(PIX * pixs,
  */
 L_KERNEL * makeRangeKernel(float range_stdev)
 {
-	l_int32 x;
+	int32 x;
 	float val, denom;
 	L_KERNEL  * kel;
 	PROCNAME(__FUNCTION__);

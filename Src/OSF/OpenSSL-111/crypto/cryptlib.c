@@ -296,8 +296,8 @@ void OPENSSL_showfatal(const char * fmta, ...)
 			fmt = (const TCHAR*)fmtw;
 		} while(0);
 	va_start(ap, fmta);
-	_vsntprintf(buf, OSSL_NELEM(buf) - 1, fmt, ap);
-	buf[OSSL_NELEM(buf) - 1] = _T('\0');
+	_vsntprintf(buf, SIZEOFARRAY(buf) - 1, fmt, ap);
+	buf[SIZEOFARRAY(buf) - 1] = _T('\0');
 	va_end(ap);
 #if defined(_WIN32_WINNT) && _WIN32_WINNT>=0x0333
 #ifdef OPENSSL_SYS_WIN_CORE

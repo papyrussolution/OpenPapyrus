@@ -28,8 +28,8 @@ namespace google {
 namespace protobuf {
 namespace compiler {
 namespace csharp {
-MessageFieldGenerator::MessageFieldGenerator(const FieldDescriptor* descriptor, int presenceIndex, const Options * options) : 
-	FieldGeneratorBase(descriptor, presenceIndex, options) 
+MessageFieldGenerator::MessageFieldGenerator(const FieldDescriptor* descriptor, int presenceIndex, const Options * options) :
+	FieldGeneratorBase(descriptor, presenceIndex, options)
 {
 	if(!SupportsPresenceApi(descriptor_)) {
 		variables_["has_property_check"] = name() + "_ != null";

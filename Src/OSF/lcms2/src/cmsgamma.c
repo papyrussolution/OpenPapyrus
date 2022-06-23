@@ -701,7 +701,7 @@ cmsToneCurve * CMSEXPORT cmsBuildParametricToneCurve(cmsContext ContextID, int32
 	uint32 size;
 	_cmsParametricCurvesCollection* c = GetParametricCurveByType(ContextID, Type, &Pos);
 	assert(Params != NULL);
-	if(c == NULL) {
+	if(!c) {
 		cmsSignalError(ContextID, cmsERROR_UNKNOWN_EXTENSION, "Invalid parametric curve type %d", Type);
 		return NULL;
 	}

@@ -25,13 +25,13 @@
  *      Split mask components into Boxa
  *           BOXA            *pixSplitIntoBoxa()
  *           BOXA            *pixSplitComponentIntoBoxa()
- *           static l_int32   pixSearchForRectangle()
+ *           static int32   pixSearchForRectangle()
  *
  *      Represent horizontal or vertical mosaic strips
  *           BOXA            *makeMosaicStrips()
  *
  *      Comparison between boxa
- *           l_int32          boxaCompareRegions()
+ *           int32          boxaCompareRegions()
  *
  *      Reliable selection of a single large box
  *           BOX             *pixSelectLargeULComp()
@@ -44,9 +44,9 @@
 #include "allheaders.h"
 #pragma hdrstop
 
-static l_int32 pixSearchForRectangle(PIX * pixs, BOX * boxs, l_int32 minsum,
-    l_int32 skipdist, l_int32 delta,
-    l_int32 maxbg, l_int32 sideflag,
+static int32 pixSearchForRectangle(PIX * pixs, BOX * boxs, int32 minsum,
+    int32 skipdist, int32 delta,
+    int32 maxbg, int32 sideflag,
     BOXA * boxat, NUMA * nascore);
 
 #ifndef NO_CONSOLE_IO
@@ -72,7 +72,7 @@ static l_int32 pixSearchForRectangle(PIX * pixs, BOX * boxs, l_int32 minsum,
  * </pre>
  */
 PIX * pixMaskConnComp(PIX * pixs,
-    l_int32 connectivity,
+    int32 connectivity,
     BOXA   ** pboxa)
 {
 	BOXA * boxa;
@@ -126,9 +126,9 @@ PIX * pixMaskConnComp(PIX * pixs,
 PIX * pixMaskBoxa(PIX * pixd,
     PIX * pixs,
     BOXA * boxa,
-    l_int32 op)
+    int32 op)
 {
-	l_int32 i, n, x, y, w, h;
+	int32 i, n, x, y, w, h;
 	BOX * box;
 
 	PROCNAME(__FUNCTION__);
@@ -192,10 +192,10 @@ PIX * pixMaskBoxa(PIX * pixd,
  */
 PIX * pixPaintBoxa(PIX * pixs,
     BOXA     * boxa,
-    l_uint32 val)
+    uint32 val)
 {
-	l_int32 i, n, d, rval, gval, bval, newindex;
-	l_int32 mapvacancy; /* true only if cmap and not full */
+	int32 i, n, d, rval, gval, bval, newindex;
+	int32 mapvacancy; /* true only if cmap and not full */
 	BOX      * box;
 	PIX * pixd;
 	PIXCMAP  * cmap;
@@ -256,10 +256,10 @@ PIX * pixPaintBoxa(PIX * pixs,
  */
 PIX * pixSetBlackOrWhiteBoxa(PIX * pixs,
     BOXA * boxa,
-    l_int32 op)
+    int32 op)
 {
-	l_int32 i, n, d, index;
-	l_uint32 color;
+	int32 i, n, d, index;
+	uint32 color;
 	BOX      * box;
 	PIX * pixd;
 	PIXCMAP  * cmap;
@@ -342,8 +342,8 @@ PIX * pixSetBlackOrWhiteBoxa(PIX * pixs,
 PIX * pixPaintBoxaRandom(PIX * pixs,
     BOXA * boxa)
 {
-	l_int32 i, n, d, rval, gval, bval, index;
-	l_uint32 val;
+	int32 i, n, d, rval, gval, bval, index;
+	uint32 val;
 	BOX      * box;
 	PIX * pixd;
 	PIXCMAP  * cmap;
@@ -413,8 +413,8 @@ PIX * pixBlendBoxaRandom(PIX * pixs,
     BOXA      * boxa,
     float fract)
 {
-	l_int32 i, n, rval, gval, bval, index;
-	l_uint32 val;
+	int32 i, n, rval, gval, bval, index;
+	uint32 val;
 	BOX      * box;
 	PIX * pixd;
 	PIXCMAP  * cmap;
@@ -470,11 +470,11 @@ PIX * pixBlendBoxaRandom(PIX * pixs,
  */
 PIX * pixDrawBoxa(PIX * pixs,
     BOXA     * boxa,
-    l_int32 width,
-    l_uint32 val)
+    int32 width,
+    uint32 val)
 {
-	l_int32 rval, gval, bval, newindex;
-	l_int32 mapvacancy; /* true only if cmap and not full */
+	int32 rval, gval, bval, newindex;
+	int32 mapvacancy; /* true only if cmap and not full */
 	PIX * pixd;
 	PIXCMAP  * cmap;
 
@@ -532,9 +532,9 @@ PIX * pixDrawBoxa(PIX * pixs,
  */
 PIX * pixDrawBoxaRandom(PIX * pixs,
     BOXA * boxa,
-    l_int32 width)
+    int32 width)
 {
-	l_int32 i, n, rval, gval, bval, index;
+	int32 i, n, rval, gval, bval, index;
 	BOX      * box;
 	PIX * pixd;
 	PIXCMAP  * cmap;
@@ -604,14 +604,14 @@ PIX * pixDrawBoxaRandom(PIX * pixs,
  */
 PIX * boxaaDisplay(PIX * pixs,
     BOXAA    * baa,
-    l_int32 linewba,
-    l_int32 linewb,
-    l_uint32 colorba,
-    l_uint32 colorb,
-    l_int32 w,
-    l_int32 h)
+    int32 linewba,
+    int32 linewb,
+    uint32 colorba,
+    uint32 colorb,
+    int32 w,
+    int32 h)
 {
-	l_int32 i, j, n, m, rbox, gbox, bbox, rboxa, gboxa, bboxa;
+	int32 i, j, n, m, rbox, gbox, bbox, rboxa, gboxa, bboxa;
 	BOX      * box;
 	BOXA     * boxa;
 	PIX * pixd;
@@ -685,12 +685,12 @@ PIX * boxaaDisplay(PIX * pixs,
  */
 PIXA * pixaDisplayBoxaa(PIXA    * pixas,
     BOXAA   * baa,
-    l_int32 colorflag,
-    l_int32 width)
+    int32 colorflag,
+    int32 width)
 {
-	l_int32 i, j, nba, n, nbox, rval, gval, bval;
-	l_uint32 color;
-	l_uint32 colors[255];
+	int32 i, j, nba, n, nbox, rval, gval, bval;
+	uint32 color;
+	uint32 colors[255];
 	BOXA      * boxa;
 	BOX       * box;
 	PIX * pix;
@@ -740,9 +740,9 @@ PIXA * pixaDisplayBoxaa(PIXA    * pixas,
 	}
 	else if(colorflag == L_DRAW_RANDOM) {
 		for(i = 0; i < 255; i++) {
-			rval = (l_uint32)rand() & 0xff;
-			gval = (l_uint32)rand() & 0xff;
-			bval = (l_uint32)rand() & 0xff;
+			rval = (uint32)rand() & 0xff;
+			gval = (uint32)rand() & 0xff;
+			bval = (uint32)rand() & 0xff;
 			composeRGBPixel(rval, gval, bval, &colors[i]);
 		}
 	}
@@ -803,14 +803,14 @@ PIXA * pixaDisplayBoxaa(PIXA    * pixas,
  * </pre>
  */
 BOXA * pixSplitIntoBoxa(PIX * pixs,
-    l_int32 minsum,
-    l_int32 skipdist,
-    l_int32 delta,
-    l_int32 maxbg,
-    l_int32 maxcomps,
-    l_int32 remainder)
+    int32 minsum,
+    int32 skipdist,
+    int32 delta,
+    int32 maxbg,
+    int32 maxcomps,
+    int32 remainder)
 {
-	l_int32 i, n;
+	int32 i, n;
 	BOX * box;
 	BOXA * boxa, * boxas, * boxad;
 	PIX * pix;
@@ -911,15 +911,15 @@ BOXA * pixSplitIntoBoxa(PIX * pixs,
  */
 BOXA * pixSplitComponentIntoBoxa(PIX * pix,
     BOX * box,
-    l_int32 minsum,
-    l_int32 skipdist,
-    l_int32 delta,
-    l_int32 maxbg,
-    l_int32 maxcomps,
-    l_int32 remainder)
+    int32 minsum,
+    int32 skipdist,
+    int32 delta,
+    int32 maxbg,
+    int32 maxcomps,
+    int32 remainder)
 {
-	l_int32 i, w, h, boxx, boxy, bx, by, bw, bh, maxdir, maxscore;
-	l_int32 iter;
+	int32 i, w, h, boxx, boxy, bx, by, bw, bh, maxdir, maxscore;
+	int32 iter;
 	BOX * boxs; /* shrinks as rectangular regions are removed */
 	BOX * boxt1, * boxt2, * boxt3;
 	BOXA * boxat; /* stores rectangle data for each side in an iteration */
@@ -1023,19 +1023,19 @@ BOXA * pixSplitComponentIntoBoxa(PIX * pix,
  *          input a minimum box.
  * </pre>
  */
-static l_int32 pixSearchForRectangle(PIX * pixs,
+static int32 pixSearchForRectangle(PIX * pixs,
     BOX * boxs,
-    l_int32 minsum,
-    l_int32 skipdist,
-    l_int32 delta,
-    l_int32 maxbg,
-    l_int32 sideflag,
+    int32 minsum,
+    int32 skipdist,
+    int32 delta,
+    int32 maxbg,
+    int32 sideflag,
     BOXA * boxat,
     NUMA * nascore)
 {
-	l_int32 bx, by, bw, bh, width, height, setref, atref;
-	l_int32 minincol, maxincol, mininrow, maxinrow, minval, maxval, bgref;
-	l_int32 x, y, x0, y0, xref, yref, colsum, rowsum, score, countref, diff;
+	int32 bx, by, bw, bh, width, height, setref, atref;
+	int32 minincol, maxincol, mininrow, maxinrow, minval, maxval, bgref;
+	int32 x, y, x0, y0, xref, yref, colsum, rowsum, score, countref, diff;
 	void   ** lines1;
 	BOX * boxr;
 
@@ -1273,12 +1273,12 @@ success:
  *          last strip will have width w % 10.
  * </pre>
  */
-BOXA * makeMosaicStrips(l_int32 w,
-    l_int32 h,
-    l_int32 direction,
-    l_int32 size)
+BOXA * makeMosaicStrips(int32 w,
+    int32 h,
+    int32 direction,
+    int32 size)
 {
-	l_int32 i, nstrips, extra;
+	int32 i, nstrips, extra;
 	BOX * box;
 	BOXA * boxa;
 
@@ -1353,15 +1353,15 @@ BOXA * makeMosaicStrips(l_int32 w,
  */
 l_ok boxaCompareRegions(BOXA       * boxa1,
     BOXA       * boxa2,
-    l_int32 areathresh,
-    l_int32    * pnsame,
+    int32 areathresh,
+    int32    * pnsame,
     float * pdiffarea,
     float * pdiffxor,
     PIX ** ppixdb)
 {
-	l_int32 w, h, x3, y3, w3, h3, x4, y4, w4, h4, n3, n4, area1, area2;
-	l_int32 count3, count4, countxor;
-	l_int32 * tab;
+	int32 w, h, x3, y3, w3, h3, x4, y4, w4, h4, n3, n4, area1, area2;
+	int32 count3, count4, countxor;
+	int32 * tab;
 	BOX      * box3, * box4;
 	BOXA     * boxa3, * boxa4, * boxa3t, * boxa4t;
 	PIX * pix1, * pix2, * pix3, * pix4, * pix5;
@@ -1495,8 +1495,8 @@ l_ok boxaCompareRegions(BOXA       * boxa1,
  */
 BOX * pixSelectLargeULComp(PIX * pixs,
     float areaslop,
-    l_int32 yslop,
-    l_int32 connectivity)
+    int32 yslop,
+    int32 connectivity)
 {
 	BOX   * box;
 	BOXA * boxa1;
@@ -1534,9 +1534,9 @@ BOX * pixSelectLargeULComp(PIX * pixs,
  */
 BOX * boxaSelectLargeULBox(BOXA      * boxas,
     float areaslop,
-    l_int32 yslop)
+    int32 yslop)
 {
-	l_int32 w, h, i, n, x1, y1, x2, y2, select;
+	int32 w, h, i, n, x1, y1, x2, y2, select;
 	float area, max_area;
 	BOX       * box;
 	BOXA      * boxa1, * boxa2, * boxa3;

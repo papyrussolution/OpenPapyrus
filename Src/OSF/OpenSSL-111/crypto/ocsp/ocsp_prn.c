@@ -40,7 +40,7 @@ static const char * do_table2string(long s, const OCSP_TBLSTR * ts, size_t len)
 	return "(UNKNOWN)";
 }
 
-#define table2string(s, tbl) do_table2string(s, tbl, OSSL_NELEM(tbl))
+#define table2string(s, tbl) do_table2string(s, tbl, SIZEOFARRAY(tbl))
 
 const char * OCSP_response_status_str(long s)
 {

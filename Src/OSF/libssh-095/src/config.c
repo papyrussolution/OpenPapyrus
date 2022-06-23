@@ -276,7 +276,7 @@ static int ssh_config_parse_proxy_jump(ssh_session session, const char * s, bool
 	}
 	// This is comma-separated list of [user@]host[:port] entries 
 	c = sstrdup(s);
-	if(c == NULL) {
+	if(!c) {
 		ssh_set_error_oom(session);
 		return SSH_ERROR;
 	}
