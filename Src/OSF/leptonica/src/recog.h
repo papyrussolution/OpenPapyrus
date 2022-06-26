@@ -135,8 +135,8 @@ struct L_Recog {
 	int32 max_splith;    /*!< max component height kept in splitting */
 	struct Sarray * sa_text; /*!< text array for arbitrary char set      */
 	struct L_Dna  * dna_tochar; /*!< index-to-char lut for arbitrary charset */
-	int32       * centtab; /*!< table for finding centroids            */
-	int32       * sumtab; /*!< table for finding pixel sums           */
+	int32 * centtab; /*!< table for finding centroids            */
+	int32 * sumtab; /*!< table for finding pixel sums           */
 	struct Pixaa  * pixaa_u; /*!< all unscaled templates for each class  */
 	struct Ptaa   * ptaa_u; /*!< centroids of all unscaled templates    */
 	struct Numaa  * naasum_u; /*!< area of all unscaled templates         */
@@ -145,10 +145,10 @@ struct L_Recog {
 	struct Numaa  * naasum; /*!< area of all (scaled) templates         */
 	struct Pixa * pixa_u; /*!< averaged unscaled templates per class  */
 	struct Pta    * pta_u; /*!< centroids of unscaled ave. templates   */
-	struct Numa   * nasum_u; /*!< area of unscaled averaged templates    */
+	struct Numa * nasum_u; /*!< area of unscaled averaged templates    */
 	struct Pixa * pixa; /*!< averaged (scaled) templates per class  */
 	struct Pta    * pta;     /*!< centroids of (scaled) ave. templates   */
-	struct Numa   * nasum; /*!< area of (scaled) averaged templates    */
+	struct Numa * nasum; /*!< area of (scaled) averaged templates    */
 	struct Pixa * pixa_tr; /*!< all input training images              */
 	struct Pixa * pixadb_ave; /*!< unscaled and scaled averaged bitmaps   */
 	struct Pixa * pixa_id; /*!< input images for identifying           */
@@ -171,7 +171,7 @@ typedef struct L_Recog L_RECOG;
 struct L_Rch {
 	int32 index;    /*!< index of best template                   */
 	float score;  /*!< correlation score of best template       */
-	char          * text; /*!< character string of best template        */
+	char * text; /*!< character string of best template        */
 	int32 sample;    /*!< index of best sample (within the best    */
 	/*!< template class, if all samples are used) */
 	int32 xloc;    /*!< x-location of template (delx + shiftx)   */
@@ -185,13 +185,13 @@ typedef struct L_Rch L_RCH;
  *  Data returned from correlation matching on an array of characters
  */
 struct L_Rcha {
-	struct Numa   * naindex; /*!< indices of best templates                */
-	struct Numa   * nascore; /*!< correlation scores of best templates     */
+	struct Numa * naindex; /*!< indices of best templates                */
+	struct Numa * nascore; /*!< correlation scores of best templates     */
 	struct Sarray * satext; /*!< character strings of best templates      */
-	struct Numa   * nasample; /*!< indices of best samples                  */
-	struct Numa   * naxloc; /*!< x-locations of templates (delx + shiftx) */
-	struct Numa   * nayloc; /*!< y-locations of templates (dely + shifty) */
-	struct Numa   * nawidth; /*!< widths of best templates                 */
+	struct Numa * nasample; /*!< indices of best samples                  */
+	struct Numa * naxloc; /*!< x-locations of templates (delx + shiftx) */
+	struct Numa * nayloc; /*!< y-locations of templates (dely + shifty) */
+	struct Numa * nawidth; /*!< widths of best templates                 */
 };
 
 typedef struct L_Rcha L_RCHA;
@@ -205,26 +205,26 @@ struct L_Rdid {
 	int32 ** delya; /*!< best y-shift array per average template */
 	int32 narray;    /*!< number of averaged templates           */
 	int32 size;    /*!< size of count array (width of pixs)    */
-	int32       * setwidth; /*!< setwidths for each template            */
-	struct Numa   * nasum; /*!< pixel count in pixs by column          */
-	struct Numa   * namoment; /*!< first moment of pixels in pixs by cols */
+	int32 * setwidth; /*!< setwidths for each template            */
+	struct Numa * nasum; /*!< pixel count in pixs by column          */
+	struct Numa * namoment; /*!< first moment of pixels in pixs by cols */
 	int32 fullarrays;    /*!< 1 if full arrays are made; 0 otherwise */
-	float     * beta; /*!< channel coeffs for template fg term    */
-	float     * gamma; /*!< channel coeffs for bit-and term        */
-	float     * trellisscore; /*!< score on trellis                       */
-	int32       * trellistempl; /*!< template on trellis (for backtrack)    */
-	struct Numa   * natempl; /*!< indices of best path templates         */
-	struct Numa   * naxloc; /*!< x locations of best path templates     */
-	struct Numa   * nadely; /*!< y locations of best path templates     */
-	struct Numa   * nawidth; /*!< widths of best path templates          */
+	float * beta; /*!< channel coeffs for template fg term    */
+	float * gamma; /*!< channel coeffs for bit-and term        */
+	float * trellisscore; /*!< score on trellis                       */
+	int32 * trellistempl; /*!< template on trellis (for backtrack)    */
+	struct Numa * natempl; /*!< indices of best path templates         */
+	struct Numa * naxloc; /*!< x locations of best path templates     */
+	struct Numa * nadely; /*!< y locations of best path templates     */
+	struct Numa * nawidth; /*!< widths of best path templates          */
 	struct Boxa   * boxa; /*!< Viterbi result for splitting input pixs */
-	struct Numa   * nascore; /*!< correlation scores: best path templates */
-	struct Numa   * natempl_r; /*!< indices of best rescored templates     */
-	struct Numa   * nasample_r; /*!< samples of best scored templates       */
-	struct Numa   * naxloc_r; /*!< x locations of best rescoredtemplates  */
-	struct Numa   * nadely_r; /*!< y locations of best rescoredtemplates  */
-	struct Numa   * nawidth_r; /*!< widths of best rescoredtemplates       */
-	struct Numa   * nascore_r; /*!< correlation scores: rescored templates */
+	struct Numa * nascore; /*!< correlation scores: best path templates */
+	struct Numa * natempl_r; /*!< indices of best rescored templates     */
+	struct Numa * nasample_r; /*!< samples of best scored templates       */
+	struct Numa * naxloc_r; /*!< x locations of best rescoredtemplates  */
+	struct Numa * nadely_r; /*!< y locations of best rescoredtemplates  */
+	struct Numa * nawidth_r; /*!< widths of best rescoredtemplates       */
+	struct Numa * nascore_r; /*!< correlation scores: rescored templates */
 };
 
 typedef struct L_Rdid L_RDID;

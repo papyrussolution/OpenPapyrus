@@ -870,12 +870,12 @@ l_ok pixWriteMemJp2k(uint8  ** pdata,
 /*---------------------------------------------------------------------*
 *    Static functions from opj 2.0 to retain file stream interface    *
 *---------------------------------------------------------------------*/
-static l_uint64 opj_get_user_data_length(FILE * fp) {
+static uint64 opj_get_user_data_length(FILE * fp) {
 	OPJ_OFF_T length = 0;
 	fseek(fp, 0, SEEK_END);
 	length = (OPJ_OFF_T)ftell(fp);
 	fseek(fp, 0, SEEK_SET);
-	return (l_uint64)length;
+	return (uint64)length;
 }
 
 static size_t opj_read_from_file(void * p_buffer, size_t p_nb_bytes, FILE * fp) {

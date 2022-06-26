@@ -28,7 +28,7 @@ U_NAMESPACE_BEGIN
 
 // Useful constants
 
-#define DEFAULT_DIGITS UNICODE_STRING_SIMPLE("0123456789")
+//#define DEFAULT_DIGITS UNICODE_STRING_SIMPLE("0123456789")
 static const char gNumberingSystems[] = "numberingSystems";
 static const char gNumberElements[] = "NumberElements";
 static const char gDefault[] = "default";
@@ -48,33 +48,29 @@ UOBJECT_DEFINE_RTTI_IMPLEMENTATION(NumsysNameEnumeration)
  *
  * @draft ICU 4.2
  */
-
-NumberingSystem::NumberingSystem() {
+NumberingSystem::NumberingSystem() 
+{
 	radix = 10;
 	algorithmic = FALSE;
-	UnicodeString defaultDigits = DEFAULT_DIGITS;
+	//UnicodeString defaultDigits = DEFAULT_DIGITS;
+	UnicodeString defaultDigits(STextConst::P_DigitsW);
 	desc.setTo(defaultDigits);
 	uprv_strcpy(name, gLatn);
 }
-
 /**
  * Copy constructor.
  * @draft ICU 4.2
  */
-
-NumberingSystem::NumberingSystem(const NumberingSystem& other)
-	:  UObject(other) {
+NumberingSystem::NumberingSystem(const NumberingSystem& other) :  UObject(other) 
+{
 	*this = other;
 }
 
-NumberingSystem* U_EXPORT2 NumberingSystem::createInstance(int32_t radix_in,
-    bool isAlgorithmic_in,
-    const UnicodeString & desc_in,
-    UErrorCode & status) {
+NumberingSystem* U_EXPORT2 NumberingSystem::createInstance(int32_t radix_in, bool isAlgorithmic_in, const UnicodeString & desc_in, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}
-
 	if(radix_in < 2) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return nullptr;

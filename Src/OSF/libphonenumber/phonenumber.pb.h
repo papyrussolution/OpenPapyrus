@@ -198,14 +198,14 @@ class PhoneNumber final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kExtensionFieldNumber = 3,
-    kRawInputFieldNumber = 5,
-    kPreferredDomesticCarrierCodeFieldNumber = 7,
-    kNationalNumberFieldNumber = 2,
-    kCountryCodeFieldNumber = 1,
-    kItalianLeadingZeroFieldNumber = 4,
-    kCountryCodeSourceFieldNumber = 6,
-    kNumberOfLeadingZerosFieldNumber = 8,
+  	kExtensionFieldNumber = 3,
+  	kRawInputFieldNumber = 5,
+  	kPreferredDomesticCarrierCodeFieldNumber = 7,
+  	kNationalNumberFieldNumber = 2,
+  	kCountryCodeFieldNumber = 1,
+  	kItalianLeadingZeroFieldNumber = 4,
+  	kCountryCodeSourceFieldNumber = 6,
+  	kNumberOfLeadingZerosFieldNumber = 8,
   };
   // optional string extension = 3;
   bool has_extension() const;
@@ -361,10 +361,10 @@ class PhoneNumber final :
 // required int32 country_code = 1;
 inline bool PhoneNumber::_internal_has_country_code() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneNumber::has_country_code() const {
-  return _internal_has_country_code();
+	return _internal_has_country_code();
 }
 inline void PhoneNumber::clear_country_code() {
   country_code_ = 0;
@@ -387,10 +387,10 @@ inline void PhoneNumber::set_country_code(int32_t value) {
 // required uint64 national_number = 2;
 inline bool PhoneNumber::_internal_has_national_number() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneNumber::has_national_number() const {
-  return _internal_has_national_number();
+	return _internal_has_national_number();
 }
 inline void PhoneNumber::clear_national_number() {
   national_number_ = uint64_t{0u};
@@ -413,10 +413,10 @@ inline void PhoneNumber::set_national_number(uint64_t value) {
 // optional string extension = 3;
 inline bool PhoneNumber::_internal_has_extension() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneNumber::has_extension() const {
-  return _internal_has_extension();
+	return _internal_has_extension();
 }
 inline void PhoneNumber::clear_extension() {
   extension_.ClearToEmpty();
@@ -477,10 +477,10 @@ inline void PhoneNumber::set_allocated_extension(std::string* extension) {
 // optional bool italian_leading_zero = 4;
 inline bool PhoneNumber::_internal_has_italian_leading_zero() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneNumber::has_italian_leading_zero() const {
-  return _internal_has_italian_leading_zero();
+	return _internal_has_italian_leading_zero();
 }
 inline void PhoneNumber::clear_italian_leading_zero() {
   italian_leading_zero_ = false;
@@ -503,10 +503,10 @@ inline void PhoneNumber::set_italian_leading_zero(bool value) {
 // optional int32 number_of_leading_zeros = 8 [default = 1];
 inline bool PhoneNumber::_internal_has_number_of_leading_zeros() const {
   bool value = (_has_bits_[0] & 0x00000080u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneNumber::has_number_of_leading_zeros() const {
-  return _internal_has_number_of_leading_zeros();
+	return _internal_has_number_of_leading_zeros();
 }
 inline void PhoneNumber::clear_number_of_leading_zeros() {
   number_of_leading_zeros_ = 1;
@@ -529,10 +529,10 @@ inline void PhoneNumber::set_number_of_leading_zeros(int32_t value) {
 // optional string raw_input = 5;
 inline bool PhoneNumber::_internal_has_raw_input() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneNumber::has_raw_input() const {
-  return _internal_has_raw_input();
+	return _internal_has_raw_input();
 }
 inline void PhoneNumber::clear_raw_input() {
   raw_input_.ClearToEmpty();
@@ -593,10 +593,10 @@ inline void PhoneNumber::set_allocated_raw_input(std::string* raw_input) {
 // optional .i18n.phonenumbers.PhoneNumber.CountryCodeSource country_code_source = 6;
 inline bool PhoneNumber::_internal_has_country_code_source() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneNumber::has_country_code_source() const {
-  return _internal_has_country_code_source();
+	return _internal_has_country_code_source();
 }
 inline void PhoneNumber::clear_country_code_source() {
   country_code_source_ = 0;
@@ -620,10 +620,10 @@ inline void PhoneNumber::set_country_code_source(::i18n::phonenumbers::PhoneNumb
 // optional string preferred_domestic_carrier_code = 7;
 inline bool PhoneNumber::_internal_has_preferred_domestic_carrier_code() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneNumber::has_preferred_domestic_carrier_code() const {
-  return _internal_has_preferred_domestic_carrier_code();
+	return _internal_has_preferred_domestic_carrier_code();
 }
 inline void PhoneNumber::clear_preferred_domestic_carrier_code() {
   preferred_domestic_carrier_code_.ClearToEmpty();

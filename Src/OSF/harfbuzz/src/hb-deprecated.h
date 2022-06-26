@@ -109,11 +109,7 @@ HB_EXTERN HB_DEPRECATED uint hb_unicode_eastasian_width(hb_unicode_funcs_t * ufu
  *
  * Deprecated: 2.0.0
  */
-typedef uint (* hb_unicode_decompose_compatibility_func_t)    (hb_unicode_funcs_t * ufuncs,
-    hb_codepoint_t u,
-    hb_codepoint_t * decomposed,
-    void * user_data);
-
+typedef uint (* hb_unicode_decompose_compatibility_func_t)    (hb_unicode_funcs_t * ufuncs, hb_codepoint_t u, hb_codepoint_t * decomposed, void * user_data);
 /**
  * HB_UNICODE_MAX_DECOMPOSITION_LEN:
  *

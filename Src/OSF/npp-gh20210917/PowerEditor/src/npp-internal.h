@@ -5311,7 +5311,10 @@ struct NMWINMGR : public NMHDR {
 	};
 	BOOL processed;
 	// ctor: initialize to zeroes
-	NMWINMGR() { memzero(this, sizeof(NMWINMGR)); }
+	NMWINMGR() 
+	{ 
+		THISZERO(); 
+	}
 };
 //
 // Window manager. This class calculates all the sizes and positions of the
@@ -5405,7 +5408,7 @@ struct NMWINDLG : public NMHDR {
 	// ctor: initialize to zeroes
 	NMWINDLG() 
 	{
-		memzero(this, sizeof(NMWINDLG));
+		THISZERO();
 	}
 };
 

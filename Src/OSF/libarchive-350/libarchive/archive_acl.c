@@ -614,7 +614,7 @@ static void append_id_w(wchar_t ** wp, int id)
 		id = 0;
 	if(id > 9)
 		append_id_w(wp, id / 10);
-	*(*wp)++ = L"0123456789"[id % 10];
+	*(*wp)++ = STextConst::P_DigitsW[id % 10];
 }
 
 static void append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type, int tag, int flags, const wchar_t * wname, int perm, int id)
@@ -802,7 +802,7 @@ static void append_id(char ** p, int id)
 		id = 0;
 	if(id > 9)
 		append_id(p, id / 10);
-	*(*p)++ = "0123456789"[id % 10];
+	*(*p)++ = STextConst::P_Digits[id % 10];
 }
 
 static void append_entry(char ** p, const char * prefix, int type, int tag, int flags, const char * name, int perm, int id)

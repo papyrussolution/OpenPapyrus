@@ -907,7 +907,7 @@ static int read_children(ArchiveRead * a, struct file_info * parent)
 				__archive_read_consume(a, skip_size);
 				return ARCHIVE_FATAL;
 			}
-			if(child->cl_offset == 0 && (child->multi_extent || multi != NULL)) {
+			if(child->cl_offset == 0 && (child->multi_extent || multi)) {
 				struct content * con;
 				if(multi == NULL) {
 					multi = child;
@@ -1131,20 +1131,15 @@ static int archive_read_format_iso9660_read_header(ArchiveRead * a, ArchiveEntry
 	/* N.B.: Rock Ridge supports 64-bit device numbers. */
 	archive_entry_set_rdev(entry, (dev_t)file->rdev);
 	archive_entry_set_size(entry, iso9660->entry_bytes_remaining);
-	if(file->symlink.s != NULL)
+	if(file->symlink.s)
 		archive_entry_copy_symlink(entry, file->symlink.s);
-
 	/* Note: If the input isn't seekable, we can't rewind to
 	 * return the same body again, so if the next entry refers to
 	 * the same data, we have to return it as a hardlink to the
 	 * original entry. */
-	if(file->number != -1 &&
-	    file->number == iso9660->previous_number) {
+	if(file->number != -1 && file->number == iso9660->previous_number) {
 		if(iso9660->seenJoliet) {
-			r = archive_entry_copy_hardlink_l(entry,
-				(const char *)iso9660->utf16be_previous_path,
-				iso9660->utf16be_previous_path_len,
-				iso9660->sconv_utf16be);
+			r = archive_entry_copy_hardlink_l(entry, (const char *)iso9660->utf16be_previous_path, iso9660->utf16be_previous_path_len, iso9660->sconv_utf16be);
 			if(r) {
 				if(errno == ENOMEM) {
 					archive_set_error(&a->archive, ENOMEM, "No memory for Linkname"); 
@@ -1196,22 +1191,17 @@ static int archive_read_format_iso9660_read_header(ArchiveRead * a, ArchiveEntry
 #endif
 		archive_entry_set_size(entry, file->pz_uncompressed_size);
 	}
-
 	iso9660->previous_number = file->number;
 	if(iso9660->seenJoliet) {
-		memcpy(iso9660->utf16be_previous_path, iso9660->utf16be_path,
-		    iso9660->utf16be_path_len);
+		memcpy(iso9660->utf16be_previous_path, iso9660->utf16be_path, iso9660->utf16be_path_len);
 		iso9660->utf16be_previous_path_len = iso9660->utf16be_path_len;
 	}
 	else
-		archive_strcpy(
-			&iso9660->previous_pathname, iso9660->pathname.s);
-
+		archive_strcpy(&iso9660->previous_pathname, iso9660->pathname.s);
 	/* Reset entry_bytes_remaining if the file is multi extent. */
 	iso9660->entry_content = file->contents.first;
-	if(iso9660->entry_content != NULL)
+	if(iso9660->entry_content)
 		iso9660->entry_bytes_remaining = iso9660->entry_content->size;
-
 	if(archive_entry_filetype(entry) == AE_IFDIR) {
 		/* Overwrite nlinks by proper link number which is
 		 * calculated from number of sub directories. */
@@ -1259,17 +1249,12 @@ static int zisofs_read_data(ArchiveRead * a,
 
 	if(!zisofs->initialized) {
 		size_t ceil, xsize;
-
 		/* Allocate block pointers buffer. */
-		ceil = (size_t)((zisofs->pz_uncompressed_size +
-		    (((int64)1) << zisofs->pz_log2_bs) - 1)
-		    >> zisofs->pz_log2_bs);
+		ceil = (size_t)((zisofs->pz_uncompressed_size + (((int64)1) << zisofs->pz_log2_bs) - 1) >> zisofs->pz_log2_bs);
 		xsize = (ceil + 1) * 4;
 		if(zisofs->block_pointers_alloc < xsize) {
 			size_t alloc;
-
-			if(zisofs->block_pointers != NULL)
-				SAlloc::F(zisofs->block_pointers);
+			SAlloc::F(zisofs->block_pointers);
 			alloc = ((xsize >> 10) + 1) << 10;
 			zisofs->block_pointers = static_cast<uchar *>(SAlloc::M(alloc));
 			if(zisofs->block_pointers == NULL) {
@@ -1279,12 +1264,10 @@ static int zisofs_read_data(ArchiveRead * a,
 			zisofs->block_pointers_alloc = alloc;
 		}
 		zisofs->block_pointers_size = xsize;
-
 		/* Allocate uncompressed data buffer. */
 		xsize = (size_t)1UL << zisofs->pz_log2_bs;
 		if(zisofs->uncompressed_buffer_size < xsize) {
-			if(zisofs->uncompressed_buffer != NULL)
-				SAlloc::F(zisofs->uncompressed_buffer);
+			SAlloc::F(zisofs->uncompressed_buffer);
 			zisofs->uncompressed_buffer = static_cast<uchar *>(SAlloc::M(xsize));
 			if(zisofs->uncompressed_buffer == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "No memory for zisofs decompression");
@@ -1460,7 +1443,7 @@ static int archive_read_format_iso9660_read_data(ArchiveRead * a, const void ** 
 		iso9660->entry_bytes_unconsumed = 0;
 	}
 	if(iso9660->entry_bytes_remaining <= 0) {
-		if(iso9660->entry_content != NULL)
+		if(iso9660->entry_content)
 			iso9660->entry_content = iso9660->entry_content->next;
 		if(iso9660->entry_content == NULL) {
 			*buff = NULL;
@@ -1589,10 +1572,9 @@ static struct file_info * parse_file_info(ArchiveRead * a, struct file_info * pa
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid location of extent of file");
 		return NULL;
 	}
-
 	/* Sanity check that this entry does not create a cycle. */
 	offset = iso9660->logical_block_size * (uint64)location;
-	for(filep = parent; filep != NULL; filep = filep->parent) {
+	for(filep = parent; filep; filep = filep->parent) {
 		if(filep->offset == offset) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Directory structure contains loop");
 			return NULL;
@@ -1784,9 +1766,9 @@ static struct file_info * parse_file_info(ArchiveRead * a, struct file_info * pa
 				goto fail;
 			}
 		}
-		else if(parent != NULL && parent->rr_moved)
+		else if(parent && parent->rr_moved)
 			file->rr_moved_has_re_only = 0;
-		else if(parent != NULL && (flags & 0x02) && (parent->re || parent->re_descendant))
+		else if(parent && (flags & 0x02) && (parent->re || parent->re_descendant))
 			file->re_descendant = 1;
 		if(file->cl_offset) {
 			struct file_info * r;
@@ -2064,7 +2046,7 @@ static int register_CE(ArchiveRead * a, int32_t location, struct file_info * fil
 			archive_set_error(&a->archive, ENOMEM, SlTxtOutOfMem);
 			return ARCHIVE_FATAL;
 		}
-		if(heap->reqs != NULL) {
+		if(heap->reqs) {
 			memcpy(p, heap->reqs, heap->cnt * sizeof(*p));
 			SAlloc::F(heap->reqs);
 		}
@@ -2390,19 +2372,16 @@ static void register_file(struct iso9660 * iso9660, struct file_info * file)
 
 static void release_files(struct iso9660 * iso9660)
 {
-	struct content * con, * connext;
-	struct file_info * file;
-
-	file = iso9660->use_files;
-	while(file != NULL) {
+	struct content * con;
+	struct file_info * file = iso9660->use_files;
+	while(file) {
 		struct file_info * next = file->use_next;
-
 		archive_string_free(&file->name);
 		archive_string_free(&file->symlink);
 		SAlloc::F(file->utf16be_name);
 		con = file->contents.first;
-		while(con != NULL) {
-			connext = con->next;
+		while(con) {
+			struct content * connext = con->next;
 			SAlloc::F(con);
 			con = connext;
 		}
@@ -2448,8 +2427,7 @@ static int next_entry_seek(ArchiveRead * a, struct iso9660 * iso9660,
 	return ARCHIVE_OK;
 }
 
-static int next_cache_entry(ArchiveRead * a, struct iso9660 * iso9660,
-    struct file_info ** pfile)
+static int next_cache_entry(ArchiveRead * a, struct iso9660 * iso9660, struct file_info ** pfile)
 {
 	struct file_info * file;
 	struct {
@@ -2459,30 +2437,27 @@ static int next_cache_entry(ArchiveRead * a, struct iso9660 * iso9660,
 
 	int64 number;
 	int count;
-
 	file = cache_get_entry(iso9660);
-	if(file != NULL) {
+	if(file) {
 		*pfile = file;
 		return ARCHIVE_OK;
 	}
-
 	for(;;) {
 		struct file_info * re, * d;
-
 		*pfile = file = next_entry(iso9660);
 		if(file == NULL) {
 			/*
 			 * If directory entries all which are descendant of
 			 * rr_moved are still remaining, expose their.
 			 */
-			if(iso9660->re_files.first != NULL && iso9660->rr_moved != NULL && iso9660->rr_moved->rr_moved_has_re_only)
+			if(iso9660->re_files.first && iso9660->rr_moved && iso9660->rr_moved->rr_moved_has_re_only)
 				cache_add_entry(iso9660, iso9660->rr_moved); /* Expose "rr_moved" entry. */
 			while((re = re_get_entry(iso9660)) != NULL) {
 				/* Expose its descendant dirs. */
 				while((d = rede_get_entry(re)) != NULL)
 					cache_add_entry(iso9660, d);
 			}
-			if(iso9660->cache_files.first != NULL)
+			if(iso9660->cache_files.first)
 				return (next_cache_entry(a, iso9660, pfile));
 			return (ARCHIVE_EOF);
 		}
@@ -2622,12 +2597,12 @@ static int next_cache_entry(ArchiveRead * a, struct iso9660 * iso9660,
 		 * so much so that each nlinks of files in cache_file
 		 * is overwritten by value of the count.
 		 */
-		for(file = iso9660->cache_files.first; file != NULL; file = file->next)
+		for(file = iso9660->cache_files.first; file; file = file->next)
 			file->nlinks = count;
 	}
 	/* If there are empty files, that files are added
 	 * to the tail of the cache_files. */
-	if(empty_files.first != NULL) {
+	if(empty_files.first) {
 		*iso9660->cache_files.last = empty_files.first;
 		iso9660->cache_files.last = empty_files.last;
 	}
@@ -2664,7 +2639,7 @@ static inline int rede_add_entry(struct file_info * file)
 	 * Find "RE" entry.
 	 */
 	struct file_info * re = file->parent;
-	while(re != NULL && !re->re)
+	while(re && !re->re)
 		re = re->parent;
 	if(re == NULL)
 		return -1;
@@ -2875,7 +2850,7 @@ static const char * build_pathname(archive_string * as, struct file_info * file,
 	if(depth > 1000) {
 		return NULL;
 	}
-	if(file->parent != NULL && archive_strlen(&file->parent->name) > 0) {
+	if(file->parent && archive_strlen(&file->parent->name) > 0) {
 		if(build_pathname(as, file->parent, depth + 1) == NULL) {
 			return NULL;
 		}
@@ -2890,7 +2865,7 @@ static const char * build_pathname(archive_string * as, struct file_info * file,
 
 static int build_pathname_utf16be(uchar * p, size_t max, size_t * len, struct file_info * file)
 {
-	if(file->parent != NULL && file->parent->utf16be_bytes > 0) {
+	if(file->parent && file->parent->utf16be_bytes > 0) {
 		if(build_pathname_utf16be(p, max, len, file->parent) != 0)
 			return -1;
 		p[*len] = 0;

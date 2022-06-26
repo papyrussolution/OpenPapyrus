@@ -222,10 +222,10 @@ Formattable& Formattable::operator = (const Formattable &source)
 		}
 
 		UErrorCode status = U_ZERO_ERROR;
-		if(source.fDecimalQuantity != NULL) {
+		if(source.fDecimalQuantity) {
 			fDecimalQuantity = new DecimalQuantity(*source.fDecimalQuantity);
 		}
-		if(source.fDecimalStr != NULL) {
+		if(source.fDecimalStr) {
 			fDecimalStr = new CharString(*source.fDecimalStr, status);
 			if(U_FAILURE(status)) {
 				delete fDecimalStr;
@@ -405,7 +405,7 @@ int64_t Formattable::getInt64(UErrorCode & status) const
 			    status = U_INVALID_FORMAT_ERROR;
 			    return U_INT64_MIN;
 		    }
-		    else if(fabs(fValue.fDouble) > U_DOUBLE_MAX_EXACT_INT && fDecimalQuantity != NULL) {
+		    else if(fabs(fValue.fDouble) > U_DOUBLE_MAX_EXACT_INT && fDecimalQuantity) {
 			    if(fDecimalQuantity->fitsInLong(true)) {
 				    return fDecimalQuantity->toLong();
 			    }
@@ -611,7 +611,7 @@ StringPiece Formattable::getDecimalNumber(UErrorCode & status)
 	if(U_FAILURE(status)) {
 		return "";
 	}
-	if(fDecimalStr != NULL) {
+	if(fDecimalStr) {
 		return fDecimalStr->toStringPiece();
 	}
 	CharString * decimalStr = internalGetCharString(status);
@@ -885,7 +885,7 @@ U_CAPI const UChar * U_EXPORT2 ufmt_getUChars(UFormattable * fmt, int32_t * len,
 
 	// This should return a valid string
 	UnicodeString & str = obj->getString(*status);
-	if(U_SUCCESS(*status) && len != NULL) {
+	if(U_SUCCESS(*status) && len) {
 		*len = str.length();
 	}
 	return str.getTerminatedBuffer();
@@ -929,7 +929,7 @@ U_CAPI const char * U_EXPORT2 ufmt_getDecNumChars(UFormattable * fmt, int32_t * 
 		return "";
 	}
 	else {
-		if(len != NULL) {
+		if(len) {
 			*len = charString->length();
 		}
 		return charString->data();

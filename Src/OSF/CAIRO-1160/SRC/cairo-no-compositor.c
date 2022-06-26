@@ -24,21 +24,15 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
  * Contributor(s):
  *	Carl D. Worth <cworth@cworth.org>
  * Joonas Pihlaja <jpihlaja@cc.helsinki.fi>
  *	Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #include "cairoint.h"
 #pragma hdrstop
 
@@ -54,36 +48,22 @@ static cairo_int_status_t _cairo_no_compositor_mask(const cairo_compositor_t * c
 	return CAIRO_INT_STATUS_NOTHING_TO_DO;
 }
 
-static cairo_int_status_t _cairo_no_compositor_stroke(const cairo_compositor_t * _compositor,
-    cairo_composite_rectangles_t * extents,
-    const cairo_path_fixed_t * path,
-    const cairo_stroke_style_t * style,
-    const cairo_matrix_t * ctm,
-    const cairo_matrix_t * ctm_inverse,
-    double tolerance,
-    cairo_antialias_t antialias)
+static cairo_int_status_t _cairo_no_compositor_stroke(const cairo_compositor_t * _compositor, cairo_composite_rectangles_t * extents,
+    const cairo_path_fixed_t * path, const cairo_stroke_style_t * style, const cairo_matrix_t * ctm, const cairo_matrix_t * ctm_inverse, double tolerance, cairo_antialias_t antialias)
 {
 	ASSERT_NOT_REACHED;
 	return CAIRO_INT_STATUS_NOTHING_TO_DO;
 }
 
-static cairo_int_status_t _cairo_no_compositor_fill(const cairo_compositor_t * _compositor,
-    cairo_composite_rectangles_t * extents,
-    const cairo_path_fixed_t * path,
-    cairo_fill_rule_t fill_rule,
-    double tolerance,
-    cairo_antialias_t antialias)
+static cairo_int_status_t _cairo_no_compositor_fill(const cairo_compositor_t * _compositor, cairo_composite_rectangles_t * extents,
+    const cairo_path_fixed_t * path, cairo_fill_rule_t fill_rule, double tolerance, cairo_antialias_t antialias)
 {
 	ASSERT_NOT_REACHED;
 	return CAIRO_INT_STATUS_NOTHING_TO_DO;
 }
 
-static cairo_int_status_t _cairo_no_compositor_glyphs(const cairo_compositor_t * compositor,
-    cairo_composite_rectangles_t * extents,
-    cairo_scaled_font_t * scaled_font,
-    cairo_glyph_t * glyphs,
-    int num_glyphs,
-    boolint overlap)
+static cairo_int_status_t _cairo_no_compositor_glyphs(const cairo_compositor_t * compositor, cairo_composite_rectangles_t * extents,
+    cairo_scaled_font_t * scaled_font, cairo_glyph_t * glyphs, int num_glyphs, boolint overlap)
 {
 	ASSERT_NOT_REACHED;
 	return CAIRO_INT_STATUS_NOTHING_TO_DO;

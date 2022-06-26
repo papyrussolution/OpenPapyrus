@@ -2955,7 +2955,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 	return ok;
 }
 
-/*static*/int CheckPaneDialog::SetLbxItemHight(TDialog *, void * extraPtr)
+/*static*/int CheckPaneDialog::SetLbxItemHight(TDialog *, void * extraPtr) // DialogPreProcFunc
 {
 	int    ok = -1;
 	PPSyncCashNode  scn;
@@ -12875,7 +12875,7 @@ int ViewGoodsInfo(const InfoKioskPaneFilt * pFilt)
 		PPObjGoodsInfo gi_obj;
 		goods_info_id = gi_obj.GetSingle();
 		if(!goods_info_id)
-			ListBoxSelDialog(PPOBJ_GOODSINFO, &goods_info_id, 0);
+			ListBoxSelDialog::Run(PPOBJ_GOODSINFO, &goods_info_id, 0);
 	}
 	if(goods_info_id) {
 		int    r = 0;

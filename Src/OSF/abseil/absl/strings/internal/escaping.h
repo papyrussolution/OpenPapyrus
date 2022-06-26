@@ -9,9 +9,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_ESCAPING_H_
 #define ABSL_STRINGS_INTERNAL_ESCAPING_H_
 
-//#include <cassert>
-#include "absl/strings/internal/resize_uninitialized.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace strings_internal {
@@ -30,15 +27,12 @@ size_t Base64EscapeInternal(const unsigned char* src, size_t szsrc, char* dest,
 // Base64-encodes `src` using the alphabet provided in `base64` and writes the
 // result to `dest`. If `do_padding` is true, `dest` is padded with '=' chars
 // until its length is a multiple of 3.
-template <typename String>
-void Base64EscapeInternal(const unsigned char* src, size_t szsrc, String* dest,
-    bool do_padding, const char* base64_chars) {
-	const size_t calc_escaped_size =
-	    CalculateBase64EscapedLenInternal(szsrc, do_padding);
+template <typename String> void Base64EscapeInternal(const unsigned char* src, size_t szsrc, String* dest,
+    bool do_padding, const char* base64_chars) 
+{
+	const size_t calc_escaped_size = CalculateBase64EscapedLenInternal(szsrc, do_padding);
 	STLStringResizeUninitialized(dest, calc_escaped_size);
-
-	const size_t escaped_len = Base64EscapeInternal(
-		src, szsrc, &(*dest)[0], dest->size(), base64_chars, do_padding);
+	const size_t escaped_len = Base64EscapeInternal(src, szsrc, &(*dest)[0], dest->size(), base64_chars, do_padding);
 	assert(calc_escaped_size == escaped_len);
 	dest->erase(escaped_len);
 }

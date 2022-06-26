@@ -9,7 +9,7 @@
 // See "Retrieving Symbol Information by Address":
 // https://msdn.microsoft.com/en-us/library/windows/desktop/ms680578(v=vs.85).aspx
 
-#include <windows.h>
+//#include <windows.h>
 // MSVC header dbghelp.h has a warning for an ignored typedef.
 #pragma warning(push)
 #pragma warning(disable:4091)
@@ -18,8 +18,8 @@
 
 #pragma comment(lib, "dbghelp.lib")
 
-#include <algorithm>
-#include <cstring>
+//#include <algorithm>
+//#include <cstring>
 #include "absl/base/internal/raw_logging.h"
 
 namespace absl {

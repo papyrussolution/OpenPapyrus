@@ -128,7 +128,7 @@ template <> struct FloatTraits<float> {
 		// Support ldexpf no matter which namespace it's in.  Some platforms
 		// incorrectly don't put it in namespace std.
 		using namespace std; // NOLINT
-		return sign ? -ldexpf(mantissa, exponent) : ldexpf(mantissa, exponent);
+		return sign ? -ldexpf(static_cast<float>(mantissa), exponent) : ldexpf(static_cast<float>(mantissa), exponent);
 #else
 		constexpr uint32_t kMantissaMask = (uint32_t{1} << (kTargetMantissaBits - 1)) - 1;
 		uint32_t flt = static_cast<uint32_t>(sign) << 31;

@@ -219,7 +219,7 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 			set(v.first, v.second); return *this;
 		}
 
-		protected:
+	protected:
 
 		void set_with_hash(K key, uint32_t hash, V value)
 			{
@@ -265,7 +265,6 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 			}
 			return tombstone == (uint)-1 ? i : tombstone;
 		}
-
 		static uint prime_for(uint shift)
 			{
 		        /* Following comment and table copied from glib. */
@@ -310,10 +309,8 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 				1073741789,
 				2147483647 /* For 1 << 31 */
 			};
-
 			if(UNLIKELY(shift >= ARRAY_LENGTH(prime_mod)))
 				return prime_mod[ARRAY_LENGTH(prime_mod) - 1];
-
 			return prime_mod[shift];
 		}
 };
@@ -321,10 +318,6 @@ V vINVALID = hb_is_pointer(V) ? 0 : hb_is_signed(V) ? hb_int_min(V) : (V)-1>
 /*
  * hb_map_t
  */
-
-struct hb_map_t : hb_hashmap_t<hb_codepoint_t,
-    hb_codepoint_t,
-    HB_MAP_VALUE_INVALID,
-    HB_MAP_VALUE_INVALID> {};
+struct hb_map_t : hb_hashmap_t<hb_codepoint_t, hb_codepoint_t, HB_MAP_VALUE_INVALID, HB_MAP_VALUE_INVALID> {};
 
 #endif /* HB_MAP_HH */

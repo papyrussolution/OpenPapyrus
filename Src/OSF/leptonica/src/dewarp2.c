@@ -22,11 +22,11 @@
  *          int32            dewarpFindVertDisparity()
  *          int32            dewarpFindHorizDisparity()
  *          PTAA              *dewarpGetTextlineCenters()
- *          static PTA        *dewarpGetMeanVerticals()
+ *          static PTA *dewarpGetMeanVerticals()
  *          PTAA              *dewarpRemoveShortLines()
  *          static int32     dewarpGetLineEndPoints()
  *          static int32     dewarpFilterLineEndPoints()
- *          static PTA        *dewarpRemoveBadEndPoints()
+ *          static PTA *dewarpRemoveBadEndPoints()
  *          static int32     dewarpIsLineCoverageValid()
  *          static int32     dewarpLinearLSF()
  *          static int32     dewarpQuadraticLSF()
@@ -74,10 +74,10 @@ static int32 pixRenderHorizEndPoints(PIX * pixs, PTA * ptal, PTA * ptar,
 #endif  /* !NO_CONSOLE_IO */
 
 /* Special parameter values for reducing horizontal disparity */
-static const float MinRatioLinesToHeight = 0.45;
+static const float MinRatioLinesToHeight = 0.45f;
 static const int32 MinLinesForHoriz1 = 10; /* initially */
 static const int32 MinLinesForHoriz2 = 3; /* after, in each half */
-static const float AllowedWidthFract = 0.05; /* no bigger */
+static const float AllowedWidthFract = 0.05f; /* no bigger */
 
 /*----------------------------------------------------------------------*
 *                   Build basic page disparity model                   *
@@ -284,10 +284,10 @@ l_ok dewarpFindVertDisparity(L_DEWARP * dew,
 	int32 i, j, nlines, npts, nx, ny, sampling;
 	float c0, c1, c2, x, y, midy, val, medval, meddev, minval, maxval;
 	float * famidys;
-	NUMA       * nax, * nafit, * nacurve0, * nacurve1, * nacurves;
-	NUMA       * namidy, * namidys, * namidysi;
+	NUMA * nax, * nafit, * nacurve0, * nacurve1, * nacurves;
+	NUMA * namidy, * namidys, * namidysi;
 	PIX        * pix1, * pix2, * pixcirc, * pixdb;
-	PTA        * pta, * ptad, * ptacirc;
+	PTA * pta, * ptad, * ptacirc;
 	PTAA       * ptaa0, * ptaa1, * ptaa2, * ptaa3, * ptaa4, * ptaa5, * ptaat;
 	FPIX       * fpix;
 
@@ -1322,7 +1322,7 @@ static int32 dewarpIsLineCoverageValid(PTAA     * ptaa,
  *      (2) The ptas for the end points all have x and y swapped.
  * </pre>
  */
-static int32 dewarpLinearLSF(PTA        * ptad,
+static int32 dewarpLinearLSF(PTA * ptad,
     float * pa,
     float * pb,
     float * pmederr)
@@ -1378,7 +1378,7 @@ static int32 dewarpLinearLSF(PTA        * ptad,
  *      (2) The ptas for the end points all have x and y swapped.
  * </pre>
  */
-static int32 dewarpQuadraticLSF(PTA        * ptad,
+static int32 dewarpQuadraticLSF(PTA * ptad,
     float * pa,
     float * pb,
     float * pc,

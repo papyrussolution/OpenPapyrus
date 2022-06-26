@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">StyloQ</string>
+    <string name="app_name">Stylo-Q</string>
     <string name="sqerr_db_insertfault">Ошибка вставки записи в таблицу %s</string>
     <string name="sqerr_db_updatefault">Ошибка изменения записи в таблице %s</string>
     <string name="sqerr_db_deletefault">Ошибка удаления записи из таблицы %s</string>

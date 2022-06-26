@@ -638,7 +638,7 @@ l_ok dewarpaRestoreModels(L_DEWARPA * dewa)
  * \param[in]    dewa
  * \return  0 if OK, 1 on error
  */
-l_ok dewarpaInfo(FILE       * fp,
+l_ok dewarpaInfo(FILE * fp,
     L_DEWARPA * dewa)
 {
 	int32 i, n, pageno, nnone, nvsuccess, nvvalid, nhsuccess, nhvalid, nref;

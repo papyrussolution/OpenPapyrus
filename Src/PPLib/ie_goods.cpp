@@ -316,7 +316,7 @@ static int SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 				}
 			}
 		#endif
-		while(ok < 0 && ListBoxSelDialog(&list, PPTXT_TITLE_QUOTIMPCFG, &id, 0) > 0) {
+		while(ok < 0 && ListBoxSelDialog::Run(&list, PPTXT_TITLE_QUOTIMPCFG, &id) > 0) {
 			if(id) {
 				list.GetText(id, sect);
 				pParam->ProcessName(1, sect);
@@ -3196,10 +3196,10 @@ int ReformatIceCat(const char * pFileName)
 		SString compose_buf;
 		uint   line_no = 0;
 		SFile f_out(temp_buf, SFile::mWrite);
-		while(f_in.ReadLine(line_buf)) {
+		while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 			line_no++;
 			if(line_no > 1) {
-				ss.setBuf(line_buf.Chomp().Strip());
+				ss.setBuf(line_buf);
 				// PartNumber; Brand; Quality; Category; ModelName; EAN; MarketPresence; Family; Title; 
 				line_buf.Z();
 				for(uint ssp = 0, fld_no = 0; ss.get(&ssp, temp_buf); fld_no++) {

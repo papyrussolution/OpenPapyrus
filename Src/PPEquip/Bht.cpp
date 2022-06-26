@@ -1367,7 +1367,7 @@ private:
 				_list.Add(item.Id, item.Txt);
 		}
 		GetObjectTitle(PPOBJ_OPRKIND, obj_title);
-		if(ListBoxSelDialog(&_list, obj_title, &op_id, 0) > 0) {
+		if(ListBoxSelDialog::Run(&_list, obj_title, &op_id) > 0) {
 			long   pos = 0;
 			SBIIOpInfo op_info;
 			MEMSZERO(op_info);

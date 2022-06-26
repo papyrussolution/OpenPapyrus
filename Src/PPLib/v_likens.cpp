@@ -1,5 +1,5 @@
 // V_LIKENS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2018, 2019
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2018, 2019, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -232,7 +232,7 @@ int PPViewObjLikeness::CreateLikenessTable()
 	rate = (rate > 0 && rate <= 1) ? rate : 0.5;
 	obj_list.Add(PPOBJ_GOODS, GetObjectTitle(PPOBJ_GOODS, buf));
 	// obj_list.Add(PPOBJ_PERSON, GetObjectTitle(PPOBJ_PERSON, buf));
-	if(ListBoxSelDialog(&obj_list, "@objtype", &obj_type, 0) > 0 && obj_type > 0) {
+	if(ListBoxSelDialog::Run(&obj_list, "@objtype", &obj_type) > 0 && obj_type > 0) {
 		int    swap = 0;
 		long   count = 0;
 		ObjLikenessTbl tbl;

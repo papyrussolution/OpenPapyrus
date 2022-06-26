@@ -460,7 +460,7 @@ PIX * pixCreateHeader(int32 width,
     int32 depth)
 {
 	int32 wpl;
-	l_uint64 wpl64, bignum;
+	uint64 wpl64, bignum;
 	PIX * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -475,7 +475,7 @@ PIX * pixCreateHeader(int32 width,
 		return (PIX *)ERROR_PTR("height must be > 0", procName, NULL);
 
 	/* Avoid overflow in malloc, malicious or otherwise */
-	wpl64 = ((l_uint64)width * (l_uint64)depth + 31) / 32;
+	wpl64 = ((uint64)width * (uint64)depth + 31) / 32;
 	if(wpl64 > ((1LL << 24) - 1)) {
 		L_ERROR("requested w = %d, h = %d, d = %d\n",
 		    procName, width, height, depth);
@@ -1004,13 +1004,11 @@ int32 pixSetHeight(PIX * pix,
 	return 0;
 }
 
-int32 pixGetDepth(const PIX  * pix)
+int32 FASTCALL pixGetDepth(const PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pix)
 		return ERROR_INT("pix not defined", procName, 0);
-
 	return pix->d;
 }
 
@@ -1526,20 +1524,17 @@ l_ok pixSetTextCompNew(PIX            * pix,
 
 	if(!pix)
 		return ERROR_INT("pix not defined", procName, 1);
-
 	stringReplace(&pix->text, encodeAscii85WithComp(data, size, &encodesize));
 	return 0;
 }
 
-PIXCMAP * pixGetColormap(PIX  * pix)
+PIXCMAP * FASTCALL pixGetColormap(PIX  * pix)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pix)
 		return (PIXCMAP*)ERROR_PTR("pix not defined", procName, NULL);
 	return pix->colormap;
 }
-
 /*!
  * \brief   pixSetColormap()
  *

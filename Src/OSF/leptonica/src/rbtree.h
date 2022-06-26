@@ -48,8 +48,8 @@ enum {
  * </pre>
  */
 union Rb_Type {
-	l_int64 itype;
-	l_uint64 utype;
+	int64 itype;
+	uint64 utype;
 	double ftype;
 	void      * ptype;
 };

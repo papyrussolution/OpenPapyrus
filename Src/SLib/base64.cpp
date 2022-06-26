@@ -443,7 +443,7 @@ size_t Hex_Encode(uint flags, const uint8 * pData, size_t dataLen, SString & rBu
 size_t Hex_Decode(const uchar * pCoded, size_t srcLen, SBinaryChunk & rResult)
 {
 	rResult.Z();
-	for(size_t i = 0; i < srcLen; i++) {
+	for(size_t i = 0; i < srcLen/2; i++) {
 		rResult.Cat((kHexValueLenient[pCoded[i * 2] & 0xFF] << 4) + (kHexValueLenient[pCoded[i * 2 + 1] & 0xFF]));
 	}
 	return rResult.Len();

@@ -313,6 +313,9 @@ Section "Файлы приложения" SEC01
 	!ifdef XPCOMPAT
 		File "${SRC_TARGET}\ppw-xp.exe" ; @v10.6.1
 		File "${SRC_TARGET}\ppwmt-xp.dll" ; @v10.6.1
+	!else
+		Delete "${DIR_BIN}\ppw-xp.exe"   ; @v11.4.3 
+		Delete "${DIR_BIN}\ppwmt-xp.dll" ; @v11.4.3
 	!endif
 	File "${SRC_TARGET}\ppShuttleSG15_20.exe" ; @v7.4.10
 	File "${SRC_TARGET}\PPSoapUhtt.dll"       ; @v7.3.0
@@ -341,7 +344,11 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\icudt70.dll" ; @v11.3.1 Данные ICU
 	File "${SRC_TARGET}\icudt70l.dat" ; @v11.4.1 Данные ICU
 	File "${SRC_TOOLS}\dl600c.exe"
-	File "${SRC_TOOLS}\dl600c-xp.exe" ; @v10.9.3
+	!ifdef XPCOMPAT
+		File "${SRC_TOOLS}\dl600c-xp.exe" ; @v10.9.3
+	!else
+		Delete "${DIR_BIN}\dl600c-xp.exe" ; @v11.4.3
+	!endif
 	; @v8.9.8 File "${SRC_REDIST}\stdrpt.ini"	
 	File "${SRC_ROOT}\src\rsrc\rpt\stdrpt.ini" ; @v8.9.8
 	File "${SRC_REDIST}\mkmenu.bat"

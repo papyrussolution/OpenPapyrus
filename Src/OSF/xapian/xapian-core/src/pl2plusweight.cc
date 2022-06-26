@@ -99,15 +99,8 @@ void PL2PlusWeight::init(double factor_)
 		upper_bound = 0;
 }
 
-string PL2PlusWeight::name() const
-{
-	return "Xapian::PL2PlusWeight";
-}
-
-string PL2PlusWeight::short_name() const
-{
-	return "pl2plus";
-}
+string PL2PlusWeight::name() const { return "Xapian::PL2PlusWeight"; }
+string PL2PlusWeight::short_name() const { return "pl2plus"; }
 
 string PL2PlusWeight::serialise() const
 {

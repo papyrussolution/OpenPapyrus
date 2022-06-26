@@ -64,8 +64,8 @@ static bool vet_dm(int d, int m)
 // NB Assumes the length has been checked to be 10 already.
 static bool is_yyyy_mm_dd(const string &s)
 {
-	return (s.find_first_not_of("0123456789") == 4 && s.find_first_not_of("0123456789", 5) == 7 &&
-	       s.find_first_not_of("0123456789", 8) == string::npos && s[4] == s[7] && (s[4] == '-' || s[4] == '.' || s[4] == '/'));
+	return (s.find_first_not_of(STextConst::P_Digits) == 4 && s.find_first_not_of(STextConst::P_Digits, 5) == 7 &&
+	       s.find_first_not_of(STextConst::P_Digits, 8) == string::npos && s[4] == s[7] && (s[4] == '-' || s[4] == '.' || s[4] == '/'));
 }
 
 // Write exactly w chars to buffer p representing integer v.
@@ -137,7 +137,8 @@ Xapian::Query RangeProcessor::operator()(const string &b, const string &e)
 
 Xapian::Query DateRangeProcessor::operator()(const string &b, const string &e)
 {
-	if((b.size() == 8 || b.size() == 0) && (e.size() == 8 || e.size() == 0) && b.find_first_not_of("0123456789") == string::npos && e.find_first_not_of("0123456789") == string::npos) {
+	if((b.size() == 8 || b.size() == 0) && (e.size() == 8 || e.size() == 0) && 
+		b.find_first_not_of(STextConst::P_Digits) == string::npos && e.find_first_not_of(STextConst::P_Digits) == string::npos) {
 		// YYYYMMDD
 		return RangeProcessor::operator()(b, e);
 	}

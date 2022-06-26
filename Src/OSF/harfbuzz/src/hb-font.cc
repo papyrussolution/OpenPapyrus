@@ -815,11 +815,9 @@ void hb_font_get_glyph_kerning_for_direction(hb_font_t * font, hb_codepoint_t fi
  * @direction:
  * @extents: (out):
  * Return value:
- *
  * Since: 0.9.2
  **/
-hb_bool_t hb_font_get_glyph_extents_for_origin(hb_font_t * font, hb_codepoint_t glyph,
-    hb_direction_t direction, hb_glyph_extents_t * extents)
+hb_bool_t hb_font_get_glyph_extents_for_origin(hb_font_t * font, hb_codepoint_t glyph, hb_direction_t direction, hb_glyph_extents_t * extents)
 {
 	return font->get_glyph_extents_for_origin(glyph, direction, extents);
 }
@@ -832,7 +830,6 @@ hb_bool_t hb_font_get_glyph_extents_for_origin(hb_font_t * font, hb_codepoint_t 
  * @x: (out):
  * @y: (out):
  * Return value:
- *
  * Since: 0.9.2
  **/
 hb_bool_t hb_font_get_glyph_contour_point_for_origin(hb_font_t * font, hb_codepoint_t glyph, uint point_index,
@@ -861,7 +858,6 @@ void hb_font_glyph_to_string(hb_font_t * font, hb_codepoint_t glyph, char * s, u
  * @len:
  * @glyph: (out):
  * Return value:
- *
  * Since: 0.9.2
  **/
 hb_bool_t hb_font_glyph_from_string(hb_font_t * font, const char * s, int len/* -1 means nul-terminated */, hb_codepoint_t * glyph)
@@ -901,7 +897,6 @@ static hb_font_t * _hb_font_create(hb_face_t * face)
 		face = hb_face_get_empty();
 	if(!(font = hb_object_create<hb_font_t> ()))
 		return hb_font_get_empty();
-
 	hb_face_make_immutable(face);
 	font->parent = hb_font_get_empty();
 	font->face = hb_face_reference(face);
@@ -909,15 +904,12 @@ static hb_font_t * _hb_font_create(hb_face_t * face)
 	font->data.init0(font);
 	font->x_scale = font->y_scale = hb_face_get_upem(face);
 	font->x_mult = font->y_mult = 1 << 16;
-
 	return font;
 }
-
 /**
  * hb_font_create: (Xconstructor)
  * @face: a face.
  * Return value: (transfer full):
- *
  * Since: 0.9.2
  **/
 hb_font_t * hb_font_create(hb_face_t * face)
@@ -937,12 +929,10 @@ static void _hb_font_adopt_var_coords(hb_font_t * font, int * coords/* 2.14 norm
 	font->design_coords = design_coords;
 	font->num_coords = coords_length;
 }
-
 /**
  * hb_font_create_sub_font:
  * @parent: parent font.
  * Return value: (transfer full):
- *
  * Since: 0.9.2
  **/
 hb_font_t * hb_font_create_sub_font(hb_font_t * parent)
@@ -978,7 +968,6 @@ hb_font_t * hb_font_create_sub_font(hb_font_t * parent)
 /**
  * hb_font_get_empty:
  * Return value: (transfer full)
- *
  * Since: 0.9.2
  **/
 hb_font_t * hb_font_get_empty()
@@ -989,7 +978,6 @@ hb_font_t * hb_font_get_empty()
  * hb_font_reference: (skip)
  * @font: a font.
  * Return value: (transfer full):
- *
  * Since: 0.9.2
  **/
 hb_font_t * hb_font_reference(hb_font_t * font)
@@ -1023,24 +1011,17 @@ void hb_font_destroy(hb_font_t * font)
  * @destroy:
  * @replace:
  * Return value:
- *
  * Since: 0.9.2
  **/
-hb_bool_t hb_font_set_user_data(hb_font_t * font,
-    hb_user_data_key_t * key,
-    void * data,
-    hb_destroy_func_t destroy,
-    hb_bool_t replace)
+hb_bool_t hb_font_set_user_data(hb_font_t * font, hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace)
 {
 	return hb_object_set_user_data(font, key, data, destroy, replace);
 }
-
 /**
  * hb_font_get_user_data: (skip)
  * @font: a font.
  * @key:
  * Return value: (transfer none):
- *
  * Since: 0.9.2
  **/
 void * hb_font_get_user_data(hb_font_t * font, hb_user_data_key_t * key)
@@ -1064,7 +1045,6 @@ void hb_font_make_immutable(hb_font_t * font)
  * hb_font_is_immutable:
  * @font: a font.
  * Return value:
- *
  * Since: 0.9.2
  **/
 hb_bool_t hb_font_is_immutable(hb_font_t * font)
@@ -1121,7 +1101,6 @@ void hb_font_set_face(hb_font_t * font, hb_face_t * face)
 	font->mults_changed();
 	hb_face_destroy(old);
 }
-
 /**
  * hb_font_get_face:
  * @font: a font.
@@ -1179,7 +1158,6 @@ void hb_font_set_funcs_data(hb_font_t * font, void * font_data, hb_destroy_func_
 	font->user_data = font_data;
 	font->destroy = destroy;
 }
-
 /**
  * hb_font_set_scale:
  * @font: a font.

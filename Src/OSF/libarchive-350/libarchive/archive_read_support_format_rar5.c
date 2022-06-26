@@ -443,25 +443,10 @@ static void cdeque_free(struct cdeque* d)
 	}
 }
 
-static inline uint8 bf_bit_size(const struct compressed_block_header* hdr) 
-{
-	return hdr->block_flags_u8 & 7;
-}
-
-static inline uint8 bf_byte_count(const struct compressed_block_header* hdr) 
-{
-	return (hdr->block_flags_u8 >> 3) & 7;
-}
-
-static inline uint8 bf_is_table_present(const struct compressed_block_header* hdr) 
-{
-	return (hdr->block_flags_u8 >> 7) & 1;
-}
-
-static inline struct rar5* get_context(ArchiveRead* a) 
-{
-	return (struct rar5*)a->format->data;
-}
+static inline uint8 bf_bit_size(const struct compressed_block_header* hdr) { return hdr->block_flags_u8 & 7; }
+static inline uint8 bf_byte_count(const struct compressed_block_header* hdr) { return (hdr->block_flags_u8 >> 3) & 7; }
+static inline uint8 bf_is_table_present(const struct compressed_block_header* hdr) { return (hdr->block_flags_u8 >> 7) & 1; }
+static inline struct rar5* get_context(ArchiveRead* a) { return (struct rar5*)a->format->data; }
 
 /* Convenience functions used by filter implementations. */
 static void circular_memcpy(uint8 * dst, uint8 * window, const uint64 mask, int64 start, int64 end)
@@ -502,15 +487,11 @@ static struct filter_info* add_new_filter(struct rar5* rar)
 
 static int run_delta_filter(struct rar5* rar, struct filter_info* flt) 
 {
-	int i;
-	ssize_t dest_pos, src_pos = 0;
-	for(i = 0; i < flt->channels; i++) {
+	ssize_t src_pos = 0;
+	for(int i = 0; i < flt->channels; i++) {
 		uint8 prev_byte = 0;
-		for(dest_pos = i;
-		    dest_pos < flt->block_length;
-		    dest_pos += flt->channels) {
-			uint8 byte;
-			byte = rar->cstate.window_buf[(rar->cstate.solid_offset + flt->block_start + src_pos) & rar->cstate.window_mask];
+		for(ssize_t dest_pos = i; dest_pos < flt->block_length; dest_pos += flt->channels) {
+			uint8 byte = rar->cstate.window_buf[(rar->cstate.solid_offset + flt->block_start + src_pos) & rar->cstate.window_mask];
 			prev_byte -= byte;
 			rar->cstate.filtered_buf[dest_pos] = prev_byte;
 			src_pos++;
@@ -711,9 +692,9 @@ static int dist_cache_touch(struct rar5* rar, int idx)
 	return dist;
 }
 
-static void free_filters(struct rar5* rar) {
+static void free_filters(struct rar5* rar) 
+{
 	struct cdeque* d = &rar->cstate.filters;
-
 	/* Free any remaining filters. All filters should be naturally
 	 * consumed by the unpacking function, so remaining filters after
 	 * unpacking normally mean that unpacking wasn't successful.
@@ -723,14 +704,11 @@ static void free_filters(struct rar5* rar) {
 	 * expression. */
 	while(cdeque_size(d) > 0) {
 		struct filter_info* f = NULL;
-
 		/* Pop_front will also decrease the collection's size. */
 		if(CDE_OK == cdeque_pop_front(d, cdeque_filter_p(&f)))
 			SAlloc::F(f);
 	}
-
 	cdeque_clear(d);
-
 	/* Also clear out the variables needed for sanity checking. */
 	rar->cstate.last_block_start = 0;
 	rar->cstate.last_block_length = 0;
@@ -761,7 +739,7 @@ static inline int get_archive_read(Archive* a, ArchiveRead** ar)
 	return ARCHIVE_OK;
 }
 
-static int read_ahead(ArchiveRead* a, size_t how_many, const uint8 ** ptr)
+static int STDCALL read_ahead(ArchiveRead * a, size_t how_many, const uint8 ** ptr)
 {
 	ssize_t avail = -1;
 	if(!ptr)
@@ -773,9 +751,9 @@ static int read_ahead(ArchiveRead* a, size_t how_many, const uint8 ** ptr)
 	return 1;
 }
 
-static int consume(ArchiveRead* a, int64 how_many) 
+static int FASTCALL consume(ArchiveRead * a, int64 how_many) 
 {
-	int ret = how_many == __archive_read_consume(a, how_many) ? ARCHIVE_OK : ARCHIVE_FATAL;
+	int ret = (how_many == __archive_read_consume(a, how_many)) ? ARCHIVE_OK : ARCHIVE_FATAL;
 	return ret;
 }
 /**
@@ -794,28 +772,22 @@ static int consume(ArchiveRead* a, int64 how_many)
  * Returns 0 if there was an error. In this case, *pvalue contains an
  *     invalid value.
  */
-
-static int read_var(ArchiveRead* a, uint64* pvalue,
-    uint64* pvalue_len)
+static int STDCALL read_var(ArchiveRead* a, uint64* pvalue, uint64* pvalue_len)
 {
 	uint64 result = 0;
 	size_t shift, i;
 	const uint8 * p;
 	uint8 b;
-
 	/* We will read maximum of 8 bytes. We don't have to handle the
 	 * situation to read the RAR5 variable-sized value stored at the end of
 	 * the file, because such situation will never happen. */
 	if(!read_ahead(a, 8, &p))
 		return 0;
-
 	for(shift = 0, i = 0; i < 8; i++, shift += 7) {
 		b = p[i];
-
 		/* Strip the MSB from the input byte and add the resulting
 		 * number to the `result`. */
 		result += (b & (uint64)0x7F) << shift;
-
 		/* MSB set to 1 means we need to continue decoding process.
 		 * MSB set to 0 means we're done.
 		 *
@@ -824,7 +796,6 @@ static int read_var(ArchiveRead* a, uint64* pvalue,
 			if(pvalue) {
 				*pvalue = result;
 			}
-
 			/* If the caller has passed the `pvalue_len` pointer,
 			 * store the number of consumed bytes in it and do NOT
 			 * consume those bytes, since the caller has all the
@@ -843,19 +814,15 @@ static int read_var(ArchiveRead* a, uint64* pvalue,
 					return 0;
 				}
 			}
-
-			/* End of decoding process, return success. */
-			return 1;
+			return 1; /* End of decoding process, return success. */
 		}
 	}
-
 	/* The decoded value takes the maximum number of 8 bytes.
 	 * It's a maximum number of bytes, so end decoding process here
 	 * even if the first bit of last byte is 1. */
 	if(pvalue) {
 		*pvalue = result;
 	}
-
 	if(pvalue_len) {
 		*pvalue_len = 9;
 	}
@@ -864,11 +831,10 @@ static int read_var(ArchiveRead* a, uint64* pvalue,
 			return 0;
 		}
 	}
-
 	return 1;
 }
 
-static int read_var_sized(ArchiveRead* a, size_t* pvalue, size_t* pvalue_len)
+static int STDCALL read_var_sized(ArchiveRead* a, size_t* pvalue, size_t* pvalue_len)
 {
 	uint64 v;
 	uint64 v_size = 0;
@@ -876,8 +842,7 @@ static int read_var_sized(ArchiveRead* a, size_t* pvalue, size_t* pvalue_len)
 	if(ret == 1 && pvalue) {
 		*pvalue = (size_t)v;
 	}
-	if(pvalue_len) {
-		/* Possible data truncation should be safe. */
+	if(pvalue_len) { // Possible data truncation should be safe
 		*pvalue_len = (size_t)v_size;
 	}
 	return ret;
@@ -1377,19 +1342,25 @@ static int process_head_file(ArchiveRead* a, struct rar5* rar, ArchiveEntry* ent
 	size_t compression_info = 0;
 	size_t host_os = 0;
 	size_t name_size = 0;
-	uint64 unpacked_size, window_size;
-	uint32 mtime = 0, crc = 0;
-	int c_method = 0, c_version = 0;
+	uint64 unpacked_size;
+	uint64 window_size;
+	uint32 mtime = 0;
+	uint32 crc = 0;
+	int c_method = 0;
+	int c_version = 0;
 	char name_utf8_buf[MAX_NAME_IN_BYTES];
 	const uint8 * p;
-
 	enum FILE_FLAGS {
-		DIRECTORY = 0x0001, UTIME = 0x0002, CRC32 = 0x0004,
+		DIRECTORY = 0x0001, 
+		UTIME = 0x0002, 
+		CRC32 = 0x0004,
 		UNKNOWN_UNPACKED_SIZE = 0x0008,
 	};
 
 	enum FILE_ATTRS {
-		ATTR_READONLY = 0x1, ATTR_HIDDEN = 0x2, ATTR_SYSTEM = 0x4,
+		ATTR_READONLY = 0x1, 
+		ATTR_HIDDEN = 0x2, 
+		ATTR_SYSTEM = 0x4,
 		ATTR_DIRECTORY = 0x10,
 	};
 
@@ -1508,7 +1479,7 @@ static int process_head_file(ArchiveRead* a, struct rar5* rar, ArchiveEntry* ent
 			char * ptr;
 			/* allocate for "rdonly,hidden,system," */
 			char * fflags_text = static_cast<char *>(SAlloc::M(22 * sizeof(char)));
-			if(fflags_text != NULL) {
+			if(fflags_text) {
 				ptr = fflags_text;
 				if(file_attr & ATTR_READONLY) {
 					strcpy(ptr, "rdonly,");

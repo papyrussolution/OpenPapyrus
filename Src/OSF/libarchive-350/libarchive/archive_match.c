@@ -63,19 +63,13 @@ struct id_array {
 
 struct archive_match {
 	Archive archive;
-
-	/* exclusion/inclusion set flag. */
-	int setflag;
-
-	/* Recursively include directory content? */
-	int recursive_include;
-
+	int setflag; /* exclusion/inclusion set flag. */
+	int recursive_include; /* Recursively include directory content? */
 	/*
 	 * Matching filename patterns.
 	 */
 	struct match_list exclusions;
 	struct match_list inclusions;
-
 	/*
 	 * Matching time stamps.
 	 */
@@ -97,7 +91,6 @@ struct archive_match {
 	 */
 	struct archive_rb_tree exclusion_tree;
 	struct entry_list exclusion_entry_list;
-
 	/*
 	 * Matching file owners.
 	 */
@@ -107,25 +100,24 @@ struct archive_match {
 	struct match_list inclusion_gnames;
 };
 
-static int add_pattern_from_file(struct archive_match *, struct match_list *, int, const void *, int);
-static int add_entry(struct archive_match *, int, ArchiveEntry *);
-static int add_owner_id(struct archive_match *, struct id_array *, int64);
-static int add_owner_name(struct archive_match *, struct match_list *, int, const void *);
-static int add_pattern_mbs(struct archive_match *, struct match_list *, const char *);
-static int add_pattern_wcs(struct archive_match *, struct match_list *, const wchar_t *);
-static int cmp_key_mbs(const struct archive_rb_node *, const void *);
-static int cmp_key_wcs(const struct archive_rb_node *, const void *);
-static int cmp_node_mbs(const struct archive_rb_node *, const struct archive_rb_node *);
-static int cmp_node_wcs(const struct archive_rb_node *, const struct archive_rb_node *);
-static void     entry_list_add(struct entry_list *, struct match_file *);
-static void     entry_list_free(struct entry_list *);
-static void     entry_list_init(struct entry_list *);
-static int error_nomem(struct archive_match *);
-static void     match_list_add(struct match_list *, struct match *);
-static void     match_list_free(struct match_list *);
-static void     match_list_init(struct match_list *);
-static int match_list_unmatched_inclusions_next(struct archive_match *, struct match_list *, int, const void **);
-static int match_owner_id(struct id_array *, int64);
+static int    add_pattern_from_file(struct archive_match *, struct match_list *, int, const void *, int);
+static int    add_entry(struct archive_match *, int, ArchiveEntry *);
+static int    add_owner_id(struct archive_match *, struct id_array *, int64);
+static int    add_owner_name(struct archive_match *, struct match_list *, int, const void *);
+static int    add_pattern_mbs(struct archive_match *, struct match_list *, const char *);
+static int    add_pattern_wcs(struct archive_match *, struct match_list *, const wchar_t *);
+static int    cmp_key_mbs(const struct archive_rb_node *, const void *);
+static int    cmp_key_wcs(const struct archive_rb_node *, const void *);
+static int    cmp_node_mbs(const struct archive_rb_node *, const struct archive_rb_node *);
+static int    cmp_node_wcs(const struct archive_rb_node *, const struct archive_rb_node *);
+static void   entry_list_add(struct entry_list *, struct match_file *);
+static void   entry_list_free(struct entry_list *);
+static void   entry_list_init(struct entry_list *);
+static int    error_nomem(struct archive_match *);
+static void   match_list_add(struct match_list *, struct match *);
+static void   match_list_free(struct match_list *);
+static void   FASTCALL match_list_init(struct match_list *);
+static int    match_list_unmatched_inclusions_next(struct archive_match *, struct match_list *, int, const void **);
 #if !defined(_WIN32) || defined(__CYGWIN__)
 static int match_owner_name_mbs(struct archive_match *, struct match_list *, const char *);
 #else
@@ -570,7 +562,7 @@ static int path_excluded(struct archive_match * a, int mbs, const void * pathnam
 	 * it as missing even though we don't extract it.
 	 */
 	matched = NULL;
-	for(match = a->inclusions.first; match != NULL; match = match->next) {
+	for(match = a->inclusions.first; match; match = match->next) {
 		if(match->matches == 0 && (r = match_path_inclusion(a, match, mbs, pathname)) != 0) {
 			if(r < 0)
 				return r;
@@ -580,17 +572,17 @@ static int path_excluded(struct archive_match * a, int mbs, const void * pathnam
 		}
 	}
 	/* Exclusions take priority */
-	for(match = a->exclusions.first; match != NULL; match = match->next) {
+	for(match = a->exclusions.first; match; match = match->next) {
 		r = match_path_exclusion(a, match, mbs, pathname);
 		if(r)
 			return r;
 	}
 	/* It's not excluded and we found an inclusion above, so it's
 	 * included. */
-	if(matched != NULL)
+	if(matched)
 		return 0;
 	/* We didn't find an unmatched inclusion, check the remaining ones. */
-	for(match = a->inclusions.first; match != NULL; match = match->next) {
+	for(match = a->inclusions.first; match; match = match->next) {
 		/* We looked at previously-unmatched inclusions already. */
 		if(match->matches > 0 && (r = match_path_inclusion(a, match, mbs, pathname)) != 0) {
 			if(r < 0)
@@ -600,7 +592,7 @@ static int path_excluded(struct archive_match * a, int mbs, const void * pathnam
 		}
 	}
 	/* If there were inclusions, default is to exclude. */
-	if(a->inclusions.first != NULL)
+	if(a->inclusions.first)
 		return 1;
 	/* No explicit inclusions, default is to match. */
 	return 0;
@@ -660,7 +652,7 @@ static int match_path_inclusion(struct archive_match * a, struct match * m,
 	return 0;
 }
 
-static void match_list_init(struct match_list * list)
+static void FASTCALL match_list_init(struct match_list * list)
 {
 	list->first = NULL;
 	list->last = &(list->first);
@@ -669,9 +661,8 @@ static void match_list_init(struct match_list * list)
 
 static void match_list_free(struct match_list * list)
 {
-	struct match * p, * q;
-	for(p = list->first; p != NULL;) {
-		q = p;
+	for(struct match * p = list->first; p;) {
+		struct match * q = p;
 		p = p->next;
 		archive_mstring_clean(&(q->pattern));
 		SAlloc::F(q);
@@ -699,7 +690,7 @@ static int match_list_unmatched_inclusions_next(struct archive_match * a, struct
 			return (ARCHIVE_EOF);
 		list->unmatched_next = list->first;
 	}
-	for(m = list->unmatched_next; m != NULL; m = m->next) {
+	for(m = list->unmatched_next; m; m = m->next) {
 		int r;
 		if(m->matches)
 			continue;
@@ -1108,9 +1099,8 @@ static void entry_list_init(struct entry_list * list)
 
 static void entry_list_free(struct entry_list * list)
 {
-	struct match_file * p, * q;
-	for(p = list->first; p != NULL;) {
-		q = p;
+	for(struct match_file * p = list->first; p;) {
+		struct match_file * q = p;
 		p = p->next;
 		archive_mstring_clean(&(q->pathname));
 		SAlloc::F(q);
@@ -1158,12 +1148,8 @@ static int add_entry(struct archive_match * a, int flag, ArchiveEntry * entry)
 	f->ctime_nsec = archive_entry_ctime_nsec(entry);
 	r = __archive_rb_tree_insert_node(&(a->exclusion_tree), &(f->node));
 	if(!r) {
-		struct match_file * f2;
-
 		/* Get the duplicated file. */
-		f2 = (struct match_file *)__archive_rb_tree_find_node(
-			&(a->exclusion_tree), pathname);
-
+		struct match_file * f2 = (struct match_file *)__archive_rb_tree_find_node(&(a->exclusion_tree), pathname);
 		/*
 		 * We always overwrite comparison condition.
 		 * If you do not want to overwrite it, you should not
@@ -1171,7 +1157,7 @@ static int add_entry(struct archive_match * a, int flag, ArchiveEntry * entry)
 		 * what behavior you really expect since overwriting
 		 * condition might be different with the flag.
 		 */
-		if(f2 != NULL) {
+		if(f2) {
 			f2->flag = f->flag;
 			f2->mtime_sec = f->mtime_sec;
 			f2->mtime_nsec = f->mtime_nsec;
@@ -1187,7 +1173,6 @@ static int add_entry(struct archive_match * a, int flag, ArchiveEntry * entry)
 	a->setflag |= TIME_IS_SET;
 	return ARCHIVE_OK;
 }
-
 /*
  * Test if entry is excluded by its timestamp.
  */
@@ -1197,7 +1182,6 @@ static int time_excluded(struct archive_match * a, ArchiveEntry * entry)
 	const void * pathname;
 	time_t sec;
 	long nsec;
-
 	/*
 	 * If this file/dir is excluded by a time comparison, skip it.
 	 */
@@ -1216,9 +1200,7 @@ static int time_excluded(struct archive_match * a, ArchiveEntry * entry)
 				nsec = archive_entry_mtime_nsec(entry);
 			if(nsec < a->newer_ctime_nsec)
 				return 1; /* Too old, skip it. */
-			if(nsec == a->newer_ctime_nsec &&
-			    (a->newer_ctime_filter & ARCHIVE_MATCH_EQUAL)
-			    == 0)
+			if(nsec == a->newer_ctime_nsec && (a->newer_ctime_filter & ARCHIVE_MATCH_EQUAL) == 0)
 				return 1; /* Equal, skip it. */
 		}
 	}
@@ -1452,12 +1434,11 @@ static int add_owner_id(struct archive_match * a, struct id_array * ids, int64 i
 	return ARCHIVE_OK;
 }
 
-static int match_owner_id(struct id_array * ids, int64 id)
+static int match_owner_id(const struct id_array * ids, int64 id)
 {
-	unsigned b, m, t;
-
-	t = 0;
-	b = (uint)ids->count;
+	uint m;
+	uint t = 0;
+	uint b = (uint)ids->count;
 	while(t < b) {
 		m = (t + b)>>1;
 		if(ids->ids[m] == id)

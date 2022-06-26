@@ -1596,9 +1596,9 @@ float getLogBase2(int32 val, float * logtab)
 	if(val < 0x100)
 		return logtab[val];
 	else if(val < 0x10000)
-		return 8.0 + logtab[val >> 8];
+		return 8.0f + logtab[val >> 8];
 	else if(val < 0x1000000)
-		return 16.0 + logtab[val >> 16];
+		return 16.0f + logtab[val >> 16];
 	else
-		return 24.0 + logtab[val >> 24];
+		return 24.0f + logtab[val >> 24];
 }

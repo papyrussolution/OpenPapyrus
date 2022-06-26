@@ -80,33 +80,27 @@
 #pragma hdrstop
 
 /* Default sweep angle parameters for pixFindSkew() */
-static const float DefaultSweepRange = 7.0; /* degrees */
-static const float DefaultSweepDelta = 1.0; /* degrees */
-
+static const float DefaultSweepRange = 7.0f; /* degrees */
+static const float DefaultSweepDelta = 1.0f; /* degrees */
 /* Default final angle difference parameter for binary
  * search in pixFindSkew().  The expected accuracy is
  * not better than the inverse image width in pixels,
  * say, 1/2000 radians, or about 0.03 degrees. */
-static const float DefaultMinbsDelta = 0.01; /* degrees */
-
+static const float DefaultMinbsDelta = 0.01f; /* degrees */
 /* Default scale factors for pixFindSkew() */
 static const int32 DefaultSweepReduction = 4; /* sweep part; 4 is good */
 static const int32 DefaultBsReduction = 2; /* binary search part */
 
 /* Minimum angle for deskewing in pixDeskew() */
-static const float MinDeskewAngle = 0.1; /* degree */
-
+static const float MinDeskewAngle = 0.1f; /* degree */
 /* Minimum allowed confidence (ratio) for deskewing in pixDeskew() */
-static const float MinAllowedConfidence = 3.0;
-
+static const float MinAllowedConfidence = 3.0f;
 /* Minimum allowed maxscore to give nonzero confidence */
 static const int32 MinValidMaxscore = 10000;
-
 /* Constant setting threshold for minimum allowed minscore
  * to give nonzero confidence; multiply this constant by
  *  (height * width^2) */
-static const float MinscoreThreshFactor = 0.000002;
-
+static const float MinscoreThreshFactor = 0.000002f;
 /* Default binarization threshold value */
 static const int32 DefaultBinaryThreshold = 130;
 

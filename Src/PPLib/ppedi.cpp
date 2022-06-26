@@ -691,8 +691,7 @@ int TestGtinStruc()
 		temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("chzn-marks-result.txt");
 		SFile f_out(temp_buf, SFile::mWrite);
 		if(f_out.IsValid()) {
-			while(f_in.ReadLine(temp_buf)) {
-				temp_buf.Chomp().Strip();
+			while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				GtinStruc gts;
 				gts.AddOnlyToken(GtinStruc::fldGTIN14);
 				gts.AddOnlyToken(GtinStruc::fldSerial);

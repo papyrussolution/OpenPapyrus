@@ -431,8 +431,7 @@ SLTEST_R(CreatePapyrusLic)
 	SFile in_file(MakeInputFilePath("shortstrings"), SFile::mRead);
 	SString line_buf;
 	THROW(SLTEST_CHECK_NZ(in_file.IsValid()));
-	while(in_file.ReadLine(line_buf) > 0) {
-		line_buf.Chomp();
+	while(in_file.ReadLine(line_buf, SFile::rlfChomp) > 0) {
 		PPLicData data;
 		PPCreateLicParam param;
 		param.RegName = line_buf;

@@ -177,7 +177,7 @@ struct ArchiveEntry;
 __LA_DECL ArchiveEntry * archive_entry_clear(ArchiveEntry *);
 /* The 'clone' function does a deep copy; all of the strings are copied too. */
 __LA_DECL ArchiveEntry * archive_entry_clone(ArchiveEntry *);
-__LA_DECL void archive_entry_free(ArchiveEntry *);
+__LA_DECL void FASTCALL archive_entry_free(ArchiveEntry *);
 __LA_DECL ArchiveEntry * archive_entry_new(void);
 
 /*
@@ -187,8 +187,7 @@ __LA_DECL ArchiveEntry * archive_entry_new(void);
  * archive_entry_new2(NULL) and will result in the use of an internal
  * default character-set conversion.
  */
-__LA_DECL ArchiveEntry	*archive_entry_new2(Archive *);
-
+__LA_DECL ArchiveEntry * archive_entry_new2(Archive *);
 /*
  * Retrieve fields from an archive_entry.
  *
@@ -208,61 +207,60 @@ __LA_DECL ArchiveEntry	*archive_entry_new2(Archive *);
  * also return NULL when implicit character set conversions fail.
  * This is usually what you want.
  */
-__LA_DECL time_t	 archive_entry_atime(const ArchiveEntry *);
-__LA_DECL long		 archive_entry_atime_nsec(const ArchiveEntry *);
-__LA_DECL int		 archive_entry_atime_is_set(const ArchiveEntry *);
-__LA_DECL time_t	 archive_entry_birthtime(const ArchiveEntry *);
-__LA_DECL long		 archive_entry_birthtime_nsec(const ArchiveEntry *);
-__LA_DECL int		 archive_entry_birthtime_is_set(const ArchiveEntry *);
-__LA_DECL time_t	 archive_entry_ctime(const ArchiveEntry *);
-__LA_DECL long		 archive_entry_ctime_nsec(const ArchiveEntry *);
-__LA_DECL int		 archive_entry_ctime_is_set(const ArchiveEntry *);
-__LA_DECL dev_t		 archive_entry_dev(const ArchiveEntry *);
-__LA_DECL int		 archive_entry_dev_is_set(const ArchiveEntry *);
-__LA_DECL dev_t		 archive_entry_devmajor(const ArchiveEntry *);
-__LA_DECL dev_t		 archive_entry_devminor(const ArchiveEntry *);
+__LA_DECL time_t	 FASTCALL archive_entry_atime(const ArchiveEntry *);
+__LA_DECL long		 FASTCALL archive_entry_atime_nsec(const ArchiveEntry *);
+__LA_DECL int		 FASTCALL archive_entry_atime_is_set(const ArchiveEntry *);
+__LA_DECL time_t	 FASTCALL archive_entry_birthtime(const ArchiveEntry *);
+__LA_DECL long		 FASTCALL archive_entry_birthtime_nsec(const ArchiveEntry *);
+__LA_DECL int		 FASTCALL archive_entry_birthtime_is_set(const ArchiveEntry *);
+__LA_DECL time_t	 FASTCALL archive_entry_ctime(const ArchiveEntry *);
+__LA_DECL long		 FASTCALL archive_entry_ctime_nsec(const ArchiveEntry *);
+__LA_DECL int		 FASTCALL archive_entry_ctime_is_set(const ArchiveEntry *);
+__LA_DECL dev_t		 FASTCALL archive_entry_dev(const ArchiveEntry *);
+__LA_DECL int		 FASTCALL archive_entry_dev_is_set(const ArchiveEntry *);
+__LA_DECL dev_t		 FASTCALL archive_entry_devmajor(const ArchiveEntry *);
+__LA_DECL dev_t		 FASTCALL archive_entry_devminor(const ArchiveEntry *);
 __LA_DECL __LA_MODE_T FASTCALL archive_entry_filetype(const ArchiveEntry *);
 __LA_DECL void		 archive_entry_fflags(const ArchiveEntry *, ulong * /* set */, ulong * /* clear */);
-__LA_DECL const char	*archive_entry_fflags_text(ArchiveEntry *);
-__LA_DECL la_int64_t	 archive_entry_gid(ArchiveEntry *);
-__LA_DECL const char	*archive_entry_gname(ArchiveEntry *);
-__LA_DECL const char	*archive_entry_gname_utf8(ArchiveEntry *);
-__LA_DECL const wchar_t	*archive_entry_gname_w(ArchiveEntry *);
-__LA_DECL const char	*archive_entry_hardlink(ArchiveEntry *);
-__LA_DECL const char	*archive_entry_hardlink_utf8(ArchiveEntry *);
-__LA_DECL const wchar_t	*archive_entry_hardlink_w(ArchiveEntry *);
-__LA_DECL la_int64_t	 archive_entry_ino(const ArchiveEntry *);
-__LA_DECL la_int64_t	 archive_entry_ino64(const ArchiveEntry *);
-__LA_DECL int		 archive_entry_ino_is_set(const ArchiveEntry *);
-__LA_DECL __LA_MODE_T	 archive_entry_mode(const ArchiveEntry *);
-__LA_DECL time_t	 archive_entry_mtime(const ArchiveEntry *);
-__LA_DECL long		 archive_entry_mtime_nsec(const ArchiveEntry *);
-__LA_DECL int		 archive_entry_mtime_is_set(const ArchiveEntry *);
-__LA_DECL uint	 archive_entry_nlink(const ArchiveEntry *);
-__LA_DECL const char * archive_entry_pathname(ArchiveEntry *);
-__LA_DECL const char * archive_entry_pathname_utf8(ArchiveEntry *);
-__LA_DECL const wchar_t	*archive_entry_pathname_w(ArchiveEntry *);
-__LA_DECL __LA_MODE_T	 archive_entry_perm(ArchiveEntry *);
-__LA_DECL dev_t		 archive_entry_rdev(ArchiveEntry *);
-__LA_DECL dev_t		 archive_entry_rdevmajor(ArchiveEntry *);
-__LA_DECL dev_t		 archive_entry_rdevminor(ArchiveEntry *);
-__LA_DECL const char	*archive_entry_sourcepath(ArchiveEntry *);
-__LA_DECL const wchar_t	*archive_entry_sourcepath_w(ArchiveEntry *);
-__LA_DECL la_int64_t	 archive_entry_size(ArchiveEntry *);
-__LA_DECL int		 archive_entry_size_is_set(ArchiveEntry *);
-__LA_DECL const char	*archive_entry_strmode(ArchiveEntry *);
-__LA_DECL const char	*archive_entry_symlink(ArchiveEntry *);
-__LA_DECL const char	*archive_entry_symlink_utf8(ArchiveEntry *);
-__LA_DECL int		 archive_entry_symlink_type(ArchiveEntry *);
-__LA_DECL const wchar_t	*archive_entry_symlink_w(ArchiveEntry *);
-__LA_DECL la_int64_t	 archive_entry_uid(ArchiveEntry *);
-__LA_DECL const char	*archive_entry_uname(ArchiveEntry *);
-__LA_DECL const char	*archive_entry_uname_utf8(ArchiveEntry *);
-__LA_DECL const wchar_t	*archive_entry_uname_w(ArchiveEntry *);
-__LA_DECL int archive_entry_is_data_encrypted(ArchiveEntry *);
-__LA_DECL int archive_entry_is_metadata_encrypted(ArchiveEntry *);
-__LA_DECL int archive_entry_is_encrypted(ArchiveEntry *);
-
+__LA_DECL const char	* FASTCALL archive_entry_fflags_text(ArchiveEntry *);
+__LA_DECL la_int64_t	  FASTCALL archive_entry_gid(ArchiveEntry *);
+__LA_DECL const char	* FASTCALL archive_entry_gname(ArchiveEntry *);
+__LA_DECL const char	* FASTCALL archive_entry_gname_utf8(ArchiveEntry *);
+__LA_DECL const wchar_t	* FASTCALL archive_entry_gname_w(ArchiveEntry *);
+__LA_DECL const char	* FASTCALL archive_entry_hardlink(ArchiveEntry *);
+__LA_DECL const char	* FASTCALL archive_entry_hardlink_utf8(ArchiveEntry *);
+__LA_DECL const wchar_t	* FASTCALL archive_entry_hardlink_w(ArchiveEntry *);
+__LA_DECL la_int64_t FASTCALL archive_entry_ino(const ArchiveEntry *);
+__LA_DECL la_int64_t FASTCALL archive_entry_ino64(const ArchiveEntry *);
+__LA_DECL int FASTCALL archive_entry_ino_is_set(const ArchiveEntry *);
+__LA_DECL __LA_MODE_T  FASTCALL archive_entry_mode(const ArchiveEntry *);
+__LA_DECL time_t FASTCALL archive_entry_mtime(const ArchiveEntry *);
+__LA_DECL long   FASTCALL archive_entry_mtime_nsec(const ArchiveEntry *);
+__LA_DECL int    FASTCALL archive_entry_mtime_is_set(const ArchiveEntry *);
+__LA_DECL uint   FASTCALL archive_entry_nlink(const ArchiveEntry *);
+__LA_DECL const char * FASTCALL archive_entry_pathname(ArchiveEntry *);
+__LA_DECL const char * FASTCALL archive_entry_pathname_utf8(ArchiveEntry *);
+__LA_DECL const wchar_t	* FASTCALL archive_entry_pathname_w(ArchiveEntry *);
+__LA_DECL __LA_MODE_T FASTCALL archive_entry_perm(ArchiveEntry *);
+__LA_DECL dev_t FASTCALL archive_entry_rdev(ArchiveEntry *);
+__LA_DECL dev_t FASTCALL archive_entry_rdevmajor(ArchiveEntry *);
+__LA_DECL dev_t FASTCALL archive_entry_rdevminor(ArchiveEntry *);
+__LA_DECL const char	* FASTCALL archive_entry_sourcepath(ArchiveEntry *);
+__LA_DECL const wchar_t	* FASTCALL archive_entry_sourcepath_w(ArchiveEntry *);
+__LA_DECL la_int64_t FASTCALL archive_entry_size(ArchiveEntry *);
+__LA_DECL int FASTCALL archive_entry_size_is_set(ArchiveEntry *);
+__LA_DECL const char * FASTCALL archive_entry_strmode(ArchiveEntry *);
+__LA_DECL const char * FASTCALL archive_entry_symlink(ArchiveEntry *);
+__LA_DECL const char * FASTCALL archive_entry_symlink_utf8(ArchiveEntry *);
+__LA_DECL int FASTCALL archive_entry_symlink_type(ArchiveEntry *);
+__LA_DECL const wchar_t	* FASTCALL archive_entry_symlink_w(ArchiveEntry *);
+__LA_DECL la_int64_t FASTCALL archive_entry_uid(const ArchiveEntry *);
+__LA_DECL const char * FASTCALL archive_entry_uname(ArchiveEntry *);
+__LA_DECL const char * FASTCALL archive_entry_uname_utf8(ArchiveEntry *);
+__LA_DECL const wchar_t	* FASTCALL archive_entry_uname_w(ArchiveEntry *);
+__LA_DECL int FASTCALL archive_entry_is_data_encrypted(ArchiveEntry *);
+__LA_DECL int FASTCALL archive_entry_is_metadata_encrypted(ArchiveEntry *);
+__LA_DECL int FASTCALL archive_entry_is_encrypted(ArchiveEntry *);
 /*
  * Set fields in an archive_entry.
  *
@@ -284,14 +282,12 @@ __LA_DECL void  archive_entry_unset_ctime(ArchiveEntry *);
 __LA_DECL void	archive_entry_set_dev(ArchiveEntry *, dev_t);
 __LA_DECL void	archive_entry_set_devmajor(ArchiveEntry *, dev_t);
 __LA_DECL void	archive_entry_set_devminor(ArchiveEntry *, dev_t);
-__LA_DECL void	archive_entry_set_filetype(ArchiveEntry *, uint);
+__LA_DECL void	FASTCALL archive_entry_set_filetype(ArchiveEntry *, uint);
 __LA_DECL void	archive_entry_set_fflags(ArchiveEntry *, ulong /* set */, ulong /* clear */);
 /* Returns pointer to start of first invalid token, or NULL if none. */
 /* Note that all recognized tokens are processed, regardless. */
-__LA_DECL const char *archive_entry_copy_fflags_text(ArchiveEntry *,
-	    const char *);
-__LA_DECL const wchar_t *archive_entry_copy_fflags_text_w(ArchiveEntry *,
-	    const wchar_t *);
+__LA_DECL const char *archive_entry_copy_fflags_text(ArchiveEntry *, const char *);
+__LA_DECL const wchar_t *archive_entry_copy_fflags_text_w(ArchiveEntry *, const wchar_t *);
 __LA_DECL void	archive_entry_set_gid(ArchiveEntry *, la_int64_t);
 __LA_DECL void	archive_entry_set_gname(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_set_gname_utf8(ArchiveEntry *, const char *);
@@ -310,11 +306,11 @@ __LA_DECL void	archive_entry_set_link_utf8(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_link(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_link_w(ArchiveEntry *, const wchar_t *);
 __LA_DECL int	archive_entry_update_link_utf8(ArchiveEntry *, const char *);
-__LA_DECL void	archive_entry_set_mode(ArchiveEntry *, __LA_MODE_T);
+__LA_DECL void	FASTCALL archive_entry_set_mode(ArchiveEntry *, __LA_MODE_T);
 __LA_DECL void	archive_entry_set_mtime(ArchiveEntry *, time_t, long);
 __LA_DECL void  archive_entry_unset_mtime(ArchiveEntry *);
-__LA_DECL void	archive_entry_set_nlink(ArchiveEntry *, uint);
-__LA_DECL void	archive_entry_set_pathname(ArchiveEntry *, const char *);
+__LA_DECL void	FASTCALL archive_entry_set_nlink(ArchiveEntry *, uint);
+__LA_DECL void	FASTCALL archive_entry_set_pathname(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_set_pathname_utf8(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_pathname(ArchiveEntry *, const char *);
 __LA_DECL void	archive_entry_copy_pathname_w(ArchiveEntry *, const wchar_t *);

@@ -825,7 +825,7 @@ static void visit_variable_decl(gvisitor_t * self, gnode_variable_decl_t * node)
 //            // struct gnode_var_t was modified with
 //            // // untagged union, if no type is declared then this union is NULL otherwise
 //            // union {
-//            //     const char          *annotation_type;   // optional annotation type
+//            //     const char *annotation_type;   // optional annotation type
 //            //     gnode_class_decl_t  *class_type;        // class type (set in semacheck2 if annotation_type is not
 // NULL)
 //            // };

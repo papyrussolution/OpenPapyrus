@@ -60,10 +60,6 @@
 #ifndef ABSL_STRINGS_SUBSTITUTE_H_
 #define ABSL_STRINGS_SUBSTITUTE_H_
 
-//#include <cstring>
-//#include <string>
-//#include <type_traits>
-//#include <vector>
 #include "absl/base/macros.h"
 #include "absl/base/port.h"
 #include "absl/strings/ascii.h"

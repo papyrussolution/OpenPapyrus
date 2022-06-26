@@ -357,7 +357,7 @@ typedef struct st_mysql {
 	const struct  st_mariadb_methods * methods;
 	void          * thd;
 	bool       * unbuffered_fetch_owner;
-	char          * info_buffer;
+	char * info_buffer;
 	struct st_mariadb_extension * extension;
 } MYSQL;
 

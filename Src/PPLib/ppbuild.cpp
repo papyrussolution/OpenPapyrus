@@ -843,8 +843,7 @@ int ParseWinRcForNativeText()
 			ps.Merge(temp_buf);
 			SFile  f_out(temp_buf, SFile::mWrite);
 			uint   line_no = 0;
-			while(f_in.ReadLine(line_buf)) {
-				line_buf.Chomp();
+			while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
 				line_no++;
 				SStrScan scan(line_buf);
 				while(scan.SearchChar('\"')) {

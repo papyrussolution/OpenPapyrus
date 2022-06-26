@@ -3897,7 +3897,7 @@ int PPUhttClient::GetVersionList(const char * pKey, TSCollection <UhttDCFileVers
 				StrAssocArray list;
 				for(uint i = 0; i < ver_list.getCount(); i++)
 					list.Add(i + 1, 0, ver_list.at(i)->Label);
-				ListBoxSelDialog(&list, PPTXT_TITLE_NEWVERLIST, 0, 0);
+				ListBoxSelDialog::Run(&list, PPTXT_TITLE_NEWVERLIST, 0);
 			}
 			ok = 1;
 		}

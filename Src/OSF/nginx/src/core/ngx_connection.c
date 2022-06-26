@@ -609,6 +609,8 @@ ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t * log)
 {
 	ngx_connection_t * c = 0;
 	// disable warning: Win32 SOCKET is u_int while UNIX socket is int 
+	ngx_log_error(NGX_LOG_INFO, log, 0, __FUNCTION__ " - connection-count: free=%d, reusable=%d, total=%d", 
+		ngx_cycle->free_connection_n, ngx_cycle->reusable_connections_n, ngx_cycle->connection_n); // @v11.4.3
 	if(ngx_cycle->files && (ngx_uint_t)s >= ngx_cycle->files_n) {
 		ngx_log_error(NGX_LOG_ALERT, log, 0, "the new socket has number %d, but only %ui files are available", s, ngx_cycle->files_n);
 	}

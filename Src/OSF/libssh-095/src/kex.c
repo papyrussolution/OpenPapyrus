@@ -644,15 +644,12 @@ int ssh_set_client_kex(ssh_session session)
 	int ok;
 	int i;
 	size_t kex_len, len;
-
 	ok = ssh_get_random(client->cookie, 16, 0);
 	if(!ok) {
 		ssh_set_error(session, SSH_FATAL, "PRNG error");
 		return SSH_ERROR;
 	}
-
-	memset(client->methods, 0, SSH_KEX_METHODS * sizeof(char **));
-
+	memzero(client->methods, SSH_KEX_METHODS * sizeof(char **));
 	/* Set the list of allowed algorithms in order of preference, if it hadn't
 	 * been set yet. */
 	for(i = 0; i < SSH_KEX_METHODS; i++) {

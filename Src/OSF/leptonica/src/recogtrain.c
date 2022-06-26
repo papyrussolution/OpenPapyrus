@@ -149,29 +149,23 @@
 #pragma hdrstop
 
 /* Static functions */
-static int32 recogTemplatesAreOK(L_RECOG * recog, int32 minsize,
-    float minfract, int32 * pok);
+static int32 recogTemplatesAreOK(L_RECOG * recog, int32 minsize, float minfract, int32 * pok);
 static SARRAY * recogAddMissingClassStrings(L_RECOG  * recog);
 static int32 recogCharsetAvailable(int32 type);
 static PIX * pixDisplayOutliers(PIXA * pixas, NUMA * nas);
-static PIX * recogDisplayOutlier(L_RECOG * recog, int32 iclass, int32 jsamp,
-    int32 maxclass, float maxscore);
+static PIX * recogDisplayOutlier(L_RECOG * recog, int32 iclass, int32 jsamp, int32 maxclass, float maxscore);
 
 /* Default parameters that are used in recogTemplatesAreOK() and
  * in outlier removal functions, and that use template set size
  * to decide if the set of templates (before outliers are removed)
  * is valid.  Values are set to accept most sets of sample templates. */
-static const int32 DefaultMinSetSize = 1; /* minimum number of
-                                                   samples for a valid class */
-static const float DefaultMinSetFract = 0.4; /* minimum fraction
-                                                      of classes required for a valid recog */
+static const int32 DefaultMinSetSize = 1; /* minimum number of samples for a valid class */
+static const float DefaultMinSetFract = 0.4f; /* minimum fraction of classes required for a valid recog */
 
 /* Defaults in pixaRemoveOutliers1() and pixaRemoveOutliers2() */
-static const float DefaultMinScore = 0.75;  /* keep everything above */
+static const float DefaultMinScore = 0.75f;  /* keep everything above */
 static const int32 DefaultMinTarget = 3; /* to be kept if possible */
-static const float LowerScoreThreshold = 0.5; /* templates can be
-                                                     * kept down to this score to if needed to retain the
-                                                     * desired minimum number of templates */
+static const float LowerScoreThreshold = 0.5f; /* templates can be kept down to this score to if needed to retain the desired minimum number of templates */
 
 /*------------------------------------------------------------------------*
 *                                Training                                *
@@ -194,32 +188,23 @@ static const float LowerScoreThreshold = 0.5; /* templates can be
  *          of the character image.
  * </pre>
  */
-l_ok recogTrainLabeled(L_RECOG  * recog,
-    PIX * pixs,
-    BOX      * box,
-    char     * text,
-    int32 debug)
+l_ok recogTrainLabeled(L_RECOG  * recog, PIX * pixs, BOX      * box, char     * text, int32 debug)
 {
+	PROCNAME(__FUNCTION__);
 	int32 ret;
 	PIX * pix;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!recog)
 		return ERROR_INT("recog not defined", procName, 1);
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
-
 	/* Prepare the sample to be added. This step also acts
 	 * as a filter, and can invalidate pixs as a template. */
 	ret = recogProcessLabeled(recog, pixs, box, text, &pix);
 	if(ret) {
 		pixDestroy(&pix);
-		L_WARNING("failure to get sample '%s' for training\n", procName,
-		    text);
+		L_WARNING("failure to get sample '%s' for training\n", procName, text);
 		return 1;
 	}
-
 	recogAddSample(recog, pix, debug);
 	pixDestroy(&pix);
 	return 0;
@@ -642,7 +627,7 @@ int32 recogAverageSamples(L_RECOG  ** precog,
  * </pre>
  */
 int32 pixaAccumulateSamples(PIXA       * pixa,
-    PTA        * pta,
+    PTA * pta,
     PIX ** ppixd,
     float * px,
     float * py)
@@ -1148,7 +1133,7 @@ PIXA * pixaRemoveOutliers1(PIXA      * pixas,
 	if(ppixrem) *ppixrem = NULL;
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
-	minscore = MIN(minscore, 1.0);
+	minscore = MIN(minscore, 1.0f);
 	if(minscore <= 0.0)
 		minscore = DefaultMinScore;
 	mintarget = MIN(mintarget, 3);
@@ -1348,7 +1333,7 @@ PIXA * pixaRemoveOutliers2(PIXA      * pixas,
 	if(ppixrem) *ppixrem = NULL;
 	if(!pixas)
 		return (PIXA*)ERROR_PTR("pixas not defined", procName, NULL);
-	minscore = MIN(minscore, 1.0);
+	minscore = MIN(minscore, 1.0f);
 	if(minscore <= 0.0)
 		minscore = DefaultMinScore;
 	if(minsize < 0)
@@ -1698,12 +1683,11 @@ static SARRAY * recogAddMissingClassStrings(L_RECOG  * recog)
 		index = text[0] - '0';
 		numaSetValue(na, index, 0);
 	}
-
 	/* Convert to string and add to output */
 	for(i = 0; i < nclass; i++) {
 		numaGetIValue(na, i, &ival);
 		if(ival == 1) {
-			str[0] = '0' + i;
+			str[0] = static_cast<char>('0' + i);
 			str[1] = '\0';
 			sarrayAddString(sa, str, L_COPY);
 		}
@@ -1711,7 +1695,6 @@ static SARRAY * recogAddMissingClassStrings(L_RECOG  * recog)
 	numaDestroy(&na);
 	return sa;
 }
-
 /*!
  * \brief   recogAddDigitPadTemplates()
  *
@@ -1727,30 +1710,24 @@ static SARRAY * recogAddMissingClassStrings(L_RECOG  * recog)
  *          are needed.
  * </pre>
  */
-PIXA  * recogAddDigitPadTemplates(L_RECOG  * recog,
-    SARRAY * sa)
+PIXA  * recogAddDigitPadTemplates(L_RECOG  * recog, SARRAY * sa)
 {
+	PROCNAME(__FUNCTION__);
 	char * str, * text;
 	int32 i, j, n, nt;
 	PIX * pix;
 	PIXA    * pixa1, * pixa2;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!recog)
 		return (PIXA*)ERROR_PTR("recog not defined", procName, NULL);
 	if(!sa)
 		return (PIXA*)ERROR_PTR("sa not defined", procName, NULL);
 	if(recogCharsetAvailable(recog->charset_type) == FALSE)
 		return (PIXA*)ERROR_PTR("boot charset not available", procName, NULL);
-
 	/* Make boot recog templates */
 	pixa1 = recogMakeBootDigitTemplates(0, 0);
 	n = pixaGetCount(pixa1);
-
 	/* Extract the unscaled templates from %recog */
 	pixa2 = recogExtractPixa(recog);
-
 	/* Add selected boot recog templates based on the text strings in sa */
 	nt = sarrayGetCount(sa);
 	for(i = 0; i < n; i++) {
@@ -1765,7 +1742,6 @@ PIXA  * recogAddDigitPadTemplates(L_RECOG  * recog,
 		}
 		pixDestroy(&pix);
 	}
-
 	pixaDestroy(&pixa1);
 	return pixa2;
 }
@@ -1910,11 +1886,10 @@ PIXA  * recogMakeBootDigitTemplates(int32 nsamp,
 
 	/* Extend by horizontal scaling */
 	na1 = numaCreate(4);
-	numaAddNumber(na1, 0.9);
-	numaAddNumber(na1, 1.1);
-	numaAddNumber(na1, 1.2);
+	numaAddNumber(na1, 0.9f);
+	numaAddNumber(na1, 1.1f);
+	numaAddNumber(na1, 1.2f);
 	pixa2 = pixaExtendByScaling(pixa1, na1, L_HORIZ, 1);
-
 	pixaDestroy(&pixa1);
 	numaDestroy(&na1);
 	return pixa2;

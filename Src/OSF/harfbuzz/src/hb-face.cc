@@ -18,7 +18,6 @@
  * Font faces are typically built from a binary blob and a face index.
  * Font faces are used to create fonts.
  **/
-
 /**
  * hb_face_count:
  * @blob: a blob.
@@ -61,11 +60,7 @@ DEFINE_NULL_INSTANCE(hb_face_t) =
  * @reference_table_func: (closure user_data) (destroy destroy) (scope notified):
  * @user_data:
  * @destroy:
- *
- *
- *
  * Return value: (transfer full)
- *
  * Since: 0.9.2
  **/
 hb_face_t * hb_face_create_for_tables(hb_reference_table_func_t reference_table_func, void * user_data, hb_destroy_func_t destroy)
@@ -123,11 +118,7 @@ static hb_blob_t * _hb_face_for_data_reference_table(hb_face_t * face CXX_UNUSED
  * hb_face_create: (Xconstructor)
  * @blob:
  * @index:
- *
- *
- *
  * Return value: (transfer full):
- *
  * Since: 0.9.2
  **/
 hb_face_t * hb_face_create(hb_blob_t * blob, uint index)
@@ -147,26 +138,17 @@ hb_face_t * hb_face_create(hb_blob_t * blob, uint index)
 }
 /**
  * hb_face_get_empty:
- *
- *
- *
  * Return value: (transfer full)
- *
  * Since: 0.9.2
  **/
 hb_face_t * hb_face_get_empty()
 {
 	return const_cast<hb_face_t *> (&Null(hb_face_t));
 }
-
 /**
  * hb_face_reference: (skip)
  * @face: a face.
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
 hb_face_t * hb_face_reference(hb_face_t * face)
@@ -176,9 +158,6 @@ hb_face_t * hb_face_reference(hb_face_t * face)
 /**
  * hb_face_destroy: (skip)
  * @face: a face.
- *
- *
- *
  * Since: 0.9.2
  **/
 void hb_face_destroy(hb_face_t * face)
@@ -197,7 +176,6 @@ void hb_face_destroy(hb_face_t * face)
 		face->destroy(face->user_data);
 	SAlloc::F(face);
 }
-
 /**
  * hb_face_set_user_data: (skip)
  * @face: a face.
@@ -205,11 +183,7 @@ void hb_face_destroy(hb_face_t * face)
  * @data:
  * @destroy:
  * @replace:
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
 hb_bool_t hb_face_set_user_data(hb_face_t * face, hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace)
@@ -220,24 +194,16 @@ hb_bool_t hb_face_set_user_data(hb_face_t * face, hb_user_data_key_t * key, void
  * hb_face_get_user_data: (skip)
  * @face: a face.
  * @key:
- *
- *
- *
  * Return value: (transfer none):
- *
  * Since: 0.9.2
  **/
 void * hb_face_get_user_data(const hb_face_t * face, hb_user_data_key_t * key)
 {
 	return hb_object_get_user_data(face, key);
 }
-
 /**
  * hb_face_make_immutable:
  * @face: a face.
- *
- *
- *
  * Since: 0.9.2
  **/
 void hb_face_make_immutable(hb_face_t * face)
@@ -249,11 +215,7 @@ void hb_face_make_immutable(hb_face_t * face)
 /**
  * hb_face_is_immutable:
  * @face: a face.
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
 hb_bool_t hb_face_is_immutable(const hb_face_t * face)
@@ -264,11 +226,7 @@ hb_bool_t hb_face_is_immutable(const hb_face_t * face)
  * hb_face_reference_table:
  * @face: a face.
  * @tag:
- *
- *
- *
  * Return value: (transfer full):
- *
  * Since: 0.9.2
  **/
 hb_blob_t * hb_face_reference_table(const hb_face_t * face, hb_tag_t tag)
@@ -280,11 +238,7 @@ hb_blob_t * hb_face_reference_table(const hb_face_t * face, hb_tag_t tag)
 /**
  * hb_face_reference_blob:
  * @face: a face.
- *
- *
- *
  * Return value: (transfer full):
- *
  * Since: 0.9.2
  **/
 hb_blob_t * hb_face_reference_blob(hb_face_t * face)
@@ -295,9 +249,6 @@ hb_blob_t * hb_face_reference_blob(hb_face_t * face)
  * hb_face_set_index:
  * @face: a face.
  * @index:
- *
- *
- *
  * Since: 0.9.2
  **/
 void hb_face_set_index(hb_face_t * face, uint index)
@@ -309,11 +260,7 @@ void hb_face_set_index(hb_face_t * face, uint index)
 /**
  * hb_face_get_index:
  * @face: a face.
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
 uint hb_face_get_index(const hb_face_t * face)
@@ -324,9 +271,6 @@ uint hb_face_get_index(const hb_face_t * face)
  * hb_face_set_upem:
  * @face: a face.
  * @upem:
- *
- *
- *
  * Since: 0.9.2
  **/
 void hb_face_set_upem(hb_face_t * face, uint upem)
@@ -338,11 +282,7 @@ void hb_face_set_upem(hb_face_t * face, uint upem)
 /**
  * hb_face_get_upem:
  * @face: a face.
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
 uint hb_face_get_upem(const hb_face_t * face)
@@ -353,9 +293,6 @@ uint hb_face_get_upem(const hb_face_t * face)
  * hb_face_set_glyph_count:
  * @face: a face.
  * @glyph_count:
- *
- *
- *
  * Since: 0.9.7
  **/
 void hb_face_set_glyph_count(hb_face_t * face, uint glyph_count)
@@ -367,11 +304,7 @@ void hb_face_set_glyph_count(hb_face_t * face, uint glyph_count)
 /**
  * hb_face_get_glyph_count:
  * @face: a face.
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.7
  **/
 uint hb_face_get_glyph_count(const hb_face_t * face)
@@ -419,28 +352,20 @@ void hb_face_collect_unicodes(hb_face_t * face, hb_set_t * out)
 {
 	face->table.cmap->collect_unicodes(out, face->get_num_glyphs());
 }
-
 /**
  * hb_face_collect_variation_selectors:
  * @face: font face.
  * @out: set to add Variation Selector characters covered by @face to.
- *
- *
- *
  * Since: 1.9.0
  */
 void hb_face_collect_variation_selectors(hb_face_t * face, hb_set_t * out)
 {
 	face->table.cmap->collect_variation_selectors(out);
 }
-
 /**
  * hb_face_collect_variation_unicodes:
  * @face: font face.
  * @out: set to add Unicode characters for @variation_selector covered by @face to.
- *
- *
- *
  * Since: 1.9.0
  */
 void hb_face_collect_variation_unicodes(hb_face_t * face, hb_codepoint_t variation_selector, hb_set_t * out)
@@ -519,7 +444,6 @@ static hb_blob_t * _hb_face_builder_reference_table(hb_face_t * face CXX_UNUSED_
 		return hb_blob_reference(entry->blob);
 	return nullptr;
 }
-
 /**
  * hb_face_builder_create:
  *

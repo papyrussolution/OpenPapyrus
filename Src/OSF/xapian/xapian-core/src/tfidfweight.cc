@@ -117,8 +117,7 @@ TfIdfWeight::TfIdfWeight(wdf_norm wdf_normalization,
 
 TfIdfWeight * TfIdfWeight::clone() const
 {
-	return new TfIdfWeight(wdf_norm_, idf_norm_, wt_norm_,
-		   param_slope, param_delta);
+	return new TfIdfWeight(wdf_norm_, idf_norm_, wt_norm_, param_slope, param_delta);
 }
 
 void TfIdfWeight::init(double factor_)
@@ -128,20 +127,12 @@ void TfIdfWeight::init(double factor_)
 		// always zero for this scheme.
 		return;
 	}
-
 	wqf_factor = get_wqf() * factor_;
 	idfn = get_idfn(idf_norm_);
 }
 
-string TfIdfWeight::name() const
-{
-	return "Xapian::TfIdfWeight";
-}
-
-string TfIdfWeight::short_name() const
-{
-	return "tfidf";
-}
+string TfIdfWeight::name() const { return "Xapian::TfIdfWeight"; }
+string TfIdfWeight::short_name() const { return "tfidf"; }
 
 string TfIdfWeight::serialise() const
 {
@@ -165,14 +156,10 @@ TfIdfWeight * TfIdfWeight::unserialise(const string & s) const
 	wdf_norm wdf_normalization = static_cast<wdf_norm>(*(ptr)++);
 	idf_norm idf_normalization = static_cast<idf_norm>(*(ptr)++);
 	wt_norm wt_normalization = static_cast<wt_norm>(*(ptr)++);
-	return new TfIdfWeight(wdf_normalization, idf_normalization,
-		   wt_normalization, slope, delta);
+	return new TfIdfWeight(wdf_normalization, idf_normalization, wt_normalization, slope, delta);
 }
 
-double TfIdfWeight::get_sumpart(Xapian::termcount wdf,
-    Xapian::termcount doclen,
-    Xapian::termcount uniqterms,
-    Xapian::termcount wdfdocmax) const
+double TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen, Xapian::termcount uniqterms, Xapian::termcount wdfdocmax) const
 {
 	double wdfn = get_wdfn(wdf, doclen, uniqterms, wdfdocmax, wdf_norm_);
 	return get_wtn(wdfn * idfn, wt_norm_) * wqf_factor;

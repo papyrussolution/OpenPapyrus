@@ -175,8 +175,7 @@
 	*((uint8 *)(pdata) + (n)) = (val)
 #else  /* L_LITTLE_ENDIAN */
 /*! 8 bit access - set value (0 ... 255) */
-#define  SET_DATA_BYTE(pdata, n, val) \
-	*(uint8 *)((l_uintptr_t)((uint8 *)(pdata) + (n)) ^ 3) = (val)
+#define  SET_DATA_BYTE(pdata, n, val) *(uint8 *)((l_uintptr_t)((uint8 *)(pdata) + (n)) ^ 3) = static_cast<uint8>(val)
 #endif  /* L_BIG_ENDIAN */
 
 /*--------------------------------------------------*
@@ -198,8 +197,7 @@
 	*((uint16 *)(pdata) + (n)) = (val)
 #else  /* L_LITTLE_ENDIAN */
 /*! 16 bit access - set value (0 ... 65535) */
-#define  SET_DATA_TWO_BYTES(pdata, n, val) \
-	*(uint16 *)((l_uintptr_t)((uint16 *)(pdata) + (n)) ^ 2) = (val)
+#define  SET_DATA_TWO_BYTES(pdata, n, val) *(uint16 *)((l_uintptr_t)((uint16 *)(pdata) + (n)) ^ 2) = static_cast<uint16>(val)
 #endif  /* L_BIG_ENDIAN */
 
 /*--------------------------------------------------*

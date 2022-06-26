@@ -259,9 +259,8 @@ int ReadBdtTestData(const char * pFileName, const char * pSetSymb, TSCollection 
     	SString set_name;
     	BdtTestItem * p_current_item = 0;
     	SFile f_in(pFileName, SFile::mRead);
-		while(f_in.ReadLine(line_buf)) {
-			line_buf.Chomp();
-			if(line_buf.NotEmptyS()) {
+		while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			if(line_buf.NotEmpty()) {
                 if(line_buf.C(0) == '#') { // comment
 				}
 				else if(line_buf.C(0) == '[') {
@@ -4995,8 +4994,7 @@ SLTEST_R(CalcCheckDigit)
 	SString line_buf, left, right;
 	SFile f_inp;
 	THROW(SLTEST_CHECK_NZ(f_inp.Open(in_file_name, SFile::mRead)));
-	while(f_inp.ReadLine(line_buf)) {
-		line_buf.Chomp();
+	while(f_inp.ReadLine(line_buf, SFile::rlfChomp)) {
 		if(line_buf.Divide(':', left, right) > 0) {
 			right.Strip();
 			if(left.IsEqiAscii("upc") || left.IsEqiAscii("ean")) {

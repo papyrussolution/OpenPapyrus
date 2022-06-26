@@ -338,10 +338,10 @@ void cairo_svg_surface_restrict_to_version(cairo_surface_t * abstract_surface,
 void cairo_svg_get_versions(cairo_svg_version_t const ** versions,
     int * num_versions)
 {
-	if(versions != NULL)
+	if(versions)
 		*versions = _cairo_svg_versions;
 
-	if(num_versions != NULL)
+	if(num_versions)
 		*num_versions = CAIRO_SVG_VERSION_LAST;
 }
 
@@ -682,7 +682,7 @@ static void FASTCALL _cairo_svg_surface_emit_transform(cairo_output_stream_t * o
     char const * attribute_str, const cairo_matrix_t * object_matrix, const cairo_matrix_t * parent_matrix)
 {
 	cairo_matrix_t matrix = *object_matrix;
-	if(parent_matrix != NULL)
+	if(parent_matrix)
 		cairo_matrix_multiply(&matrix, &matrix, parent_matrix);
 	if(!_cairo_matrix_is_identity(&matrix))
 		_cairo_output_stream_printf(output, "%s=\"matrix(%f,%f,%f,%f,%f,%f)\"",
@@ -927,7 +927,7 @@ static cairo_status_t _cairo_svg_surface_finish(void * abstract_surface)
 		status = _cairo_svg_document_finish(document);
 	else
 		status = CAIRO_STATUS_SUCCESS;
-	if(surface->xml_node != NULL) {
+	if(surface->xml_node) {
 		status2 = _cairo_output_stream_destroy(surface->xml_node);
 		if(status == CAIRO_STATUS_SUCCESS)
 			status = status2;
@@ -1185,7 +1185,7 @@ static cairo_status_t _cairo_svg_surface_emit_surface(cairo_svg_document_t * doc
 
 	cairo_surface_get_mime_data(surface, CAIRO_MIME_TYPE_URI,
 	    &uri, &uri_len);
-	if(uri != NULL) {
+	if(uri) {
 		_cairo_svg_surface_emit_attr_value(document->xml_node_defs,
 		    uri, uri_len);
 	}
@@ -2445,11 +2445,11 @@ static cairo_status_t _cairo_svg_document_finish(cairo_svg_document_t * document
 		_cairo_output_stream_printf(output, "</defs>\n");
 	}
 
-	if(document->owner != NULL) {
+	if(document->owner) {
 		cairo_svg_surface_t * surface;
 
 		surface = (cairo_svg_surface_t*)_cairo_paginated_surface_get_target(document->owner);
-		if(surface->xml_node != NULL &&
+		if(surface->xml_node &&
 		    _cairo_memory_stream_length(surface->xml_node) > 0) {
 			if(UNLIKELY(_cairo_svg_surface_store_page(surface) == NULL)) {
 				if(status == CAIRO_STATUS_SUCCESS)

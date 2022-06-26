@@ -3385,8 +3385,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 	//SString img_path;
 	(input_file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("barcode.txt");
     SFile f_in(input_file_path, SFile::mRead);
-    while(f_in.ReadLine(line_buf)) {
-		line_buf.Chomp().Strip();
+    while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 		if(line_buf.Divide(':', temp_buf, code_buf) > 0) {
 			PPBarcode::BarcodeImageParam bip;
 			bip.Std = PPBarcode::RecognizeStdName(temp_buf.Strip());

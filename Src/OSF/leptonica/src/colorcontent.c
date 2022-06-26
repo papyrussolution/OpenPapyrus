@@ -1710,7 +1710,7 @@ NUMA * pixGetRGBHistogram(PIX * pixs,
 	uint32 val32, rgbindex;
 	float * array;
 	uint32   * data, * line, * rtab, * gtab, * btab;
-	NUMA       * na;
+	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
 

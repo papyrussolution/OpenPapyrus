@@ -548,8 +548,8 @@ int Test_Alg_SS_Z(const char * pInputFileName)
 	SFile out_file(out_file_name, SFile::mWrite);
 	if(file.IsValid()) {
 		SString word_buf;
-		while(ok && file.ReadLine(word_buf)) {
-			word_buf.Chomp().ToLower();
+		while(ok && file.ReadLine(word_buf, SFile::rlfChomp)) {
+			word_buf.ToLower();
 			Alg_SS_Z((const uint8 *)(const char *)word_buf, &out_file);
 		}
 	}

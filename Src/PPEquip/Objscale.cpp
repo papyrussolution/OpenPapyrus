@@ -5127,13 +5127,12 @@ int PPObjScale::SendPlu(PPScalePacket * pScaleData, const char * pFileName, int 
 		SString line_buf;
 		SFile in_stream(pFileName, SFile::mRead);
 		THROW_PP(in_stream.IsValid(), PPERR_SCALE_FOPEN);
-		if(in_stream.ReadLine(line_buf)) {
-			line_buf.Chomp();
+		if(in_stream.ReadLine(line_buf, SFile::rlfChomp)) {
 			if(line_buf.HasPrefix(P_ScalePrepareFormatSignature)) {
 				StringSet ss_rec("\t");
 				SString fld_buf;
-				while(in_stream.ReadLine(line_buf)) {
-					if(line_buf.Chomp().Strip().Len()) {
+				while(in_stream.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+					if(line_buf.NotEmpty()) {
 						int    to_load = 1;
 						THROW_MEM(p_plu = new ScalePLU);
 						ss_rec.clear();
@@ -5277,8 +5276,7 @@ int PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 					//
 					SFile in_stream(fname, SFile::mRead);
 					THROW_PP(in_stream.IsValid(), PPERR_SCALE_FOPEN);
-					if(in_stream.ReadLine(line_buf)) {
-						line_buf.Chomp();
+					if(in_stream.ReadLine(line_buf, SFile::rlfChomp)) {
 						if(line_buf.HasPrefix(P_ScalePrepareFormatSignature)) {
 							line_buf.Excise(0, sstrlen(P_ScalePrepareFormatSignature));
 							line_buf.Strip();

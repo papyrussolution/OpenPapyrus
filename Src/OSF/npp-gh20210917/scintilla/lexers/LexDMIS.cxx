@@ -109,11 +109,9 @@ void SCI_METHOD LexerDMIS::InitWordListSets(void)
 		totalLen++;
 	}
 	;
-
 	totalLen++;
 	this->m_wordListSets = new char[totalLen];
-	memset(this->m_wordListSets, 0, totalLen);
-
+	memzero(this->m_wordListSets, totalLen);
 	for(int i = 0; DMISWordListDesc[i]; i++) {
 		strcat(this->m_wordListSets, DMISWordListDesc[i]);
 		strcat(this->m_wordListSets, "\n");
@@ -121,9 +119,9 @@ void SCI_METHOD LexerDMIS::InitWordListSets(void)
 	;
 }
 
-LexerDMIS::LexerDMIS(void) : DefaultLexer("DMIS", SCLEX_DMIS) {
+LexerDMIS::LexerDMIS(void) : DefaultLexer("DMIS", SCLEX_DMIS) 
+{
 	this->InitWordListSets();
-
 	this->m_majorWords.Clear();
 	this->m_minorWords.Clear();
 	this->m_unsupportedMajor.Clear();
@@ -132,7 +130,8 @@ LexerDMIS::LexerDMIS(void) : DefaultLexer("DMIS", SCLEX_DMIS) {
 	this->m_codeFoldingEnd.Clear();
 }
 
-LexerDMIS::~LexerDMIS(void) {
+LexerDMIS::~LexerDMIS(void) 
+{
 	delete[] this->m_wordListSets;
 }
 

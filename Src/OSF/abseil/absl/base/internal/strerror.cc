@@ -3,8 +3,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/base/internal/strerror.h"
-#include "absl/base/internal/errno_saver.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

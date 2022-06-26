@@ -3,7 +3,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/substitute.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

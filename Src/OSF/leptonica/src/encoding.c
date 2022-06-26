@@ -99,9 +99,9 @@ static int32 convertChunkToAscii85(const uint8 * inarray, size_t insize,
  */
 char * encodeBase64(const uint8 * inarray,
     int32 insize,
-    int32       * poutsize)
+    int32 * poutsize)
 {
-	char          * chara;
+	char * chara;
 	const uint8 * bytea;
 	uint8 array3[3], array4[4];
 	int32 outsize, i, j, index, linecount;
@@ -398,9 +398,9 @@ char * encodeAscii85(const uint8  * inarray,
  */
 static int32 convertChunkToAscii85(const uint8 * inarray,
     size_t insize,
-    int32       * pindex,
-    char          * outbuf,
-    int32       * pnbout)
+    int32 * pindex,
+    char * outbuf,
+    int32 * pnbout)
 {
 	uint8 inbyte;
 	uint32 inword, val;
@@ -467,7 +467,7 @@ uint8 * decodeAscii85(const char * inarray,
 	char inc;
 	const char * pin;
 	uint8 val;
-	uint8    * outa;
+	uint8 * outa;
 	int32 maxsize, ocount, bytecount, index;
 	uint32 oword;
 
@@ -607,7 +607,7 @@ char * encodeAscii85WithComp(const uint8  * indata,
  */
 uint8 * decodeAscii85WithComp(const char * instr,
     size_t insize,
-    size_t      * poutsize)
+    size_t * poutsize)
 {
 	size_t size1;
 	uint8  * data1, * outdata;

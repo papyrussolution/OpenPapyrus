@@ -12,7 +12,6 @@
 #include <sys/ucontext.h>
 #endif
 #include "absl/debugging/stacktrace.h"
-#include "absl/debugging/symbolize.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

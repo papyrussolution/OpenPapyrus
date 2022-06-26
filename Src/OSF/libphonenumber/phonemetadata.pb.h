@@ -170,12 +170,12 @@ class NumberFormat final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kLeadingDigitsPatternFieldNumber = 3,
-    kPatternFieldNumber = 1,
-    kFormatFieldNumber = 2,
-    kNationalPrefixFormattingRuleFieldNumber = 4,
-    kDomesticCarrierCodeFormattingRuleFieldNumber = 5,
-    kNationalPrefixOptionalWhenFormattingFieldNumber = 6,
+  	kLeadingDigitsPatternFieldNumber = 3,
+  	kPatternFieldNumber = 1,
+  	kFormatFieldNumber = 2,
+  	kNationalPrefixFormattingRuleFieldNumber = 4,
+  	kDomesticCarrierCodeFormattingRuleFieldNumber = 5,
+  	kNationalPrefixOptionalWhenFormattingFieldNumber = 6,
   };
   // repeated string leading_digits_pattern = 3;
   int leading_digits_pattern_size() const;
@@ -403,10 +403,10 @@ class PhoneNumberDesc final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kPossibleLengthFieldNumber = 9,
-    kPossibleLengthLocalOnlyFieldNumber = 10,
-    kNationalNumberPatternFieldNumber = 2,
-    kExampleNumberFieldNumber = 6,
+  	kPossibleLengthFieldNumber = 9,
+  	kPossibleLengthLocalOnlyFieldNumber = 10,
+  	kNationalNumberPatternFieldNumber = 2,
+  	kExampleNumberFieldNumber = 6,
   };
   // repeated int32 possible_length = 9;
   int possible_length_size() const;
@@ -595,38 +595,38 @@ class PhoneMetadata final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kNumberFormatFieldNumber = 19,
-    kIntlNumberFormatFieldNumber = 20,
-    kIdFieldNumber = 9,
-    kInternationalPrefixFieldNumber = 11,
-    kNationalPrefixFieldNumber = 12,
-    kPreferredExtnPrefixFieldNumber = 13,
-    kNationalPrefixForParsingFieldNumber = 15,
-    kNationalPrefixTransformRuleFieldNumber = 16,
-    kPreferredInternationalPrefixFieldNumber = 17,
-    kLeadingDigitsFieldNumber = 23,
-    kGeneralDescFieldNumber = 1,
-    kFixedLineFieldNumber = 2,
-    kMobileFieldNumber = 3,
-    kTollFreeFieldNumber = 4,
-    kPremiumRateFieldNumber = 5,
-    kSharedCostFieldNumber = 6,
-    kPersonalNumberFieldNumber = 7,
-    kVoipFieldNumber = 8,
-    kPagerFieldNumber = 21,
-    kNoInternationalDiallingFieldNumber = 24,
-    kUanFieldNumber = 25,
-    kEmergencyFieldNumber = 27,
-    kVoicemailFieldNumber = 28,
-    kShortCodeFieldNumber = 29,
-    kStandardRateFieldNumber = 30,
-    kCarrierSpecificFieldNumber = 31,
-    kSmsServicesFieldNumber = 33,
-    kCountryCodeFieldNumber = 10,
-    kSameMobileAndFixedLinePatternFieldNumber = 18,
-    kMainCountryForCodeFieldNumber = 22,
-    kLeadingZeroPossibleFieldNumber = 26,
-    kMobileNumberPortableRegionFieldNumber = 32,
+  	kNumberFormatFieldNumber = 19,
+  	kIntlNumberFormatFieldNumber = 20,
+  	kIdFieldNumber = 9,
+  	kInternationalPrefixFieldNumber = 11,
+  	kNationalPrefixFieldNumber = 12,
+  	kPreferredExtnPrefixFieldNumber = 13,
+  	kNationalPrefixForParsingFieldNumber = 15,
+  	kNationalPrefixTransformRuleFieldNumber = 16,
+  	kPreferredInternationalPrefixFieldNumber = 17,
+  	kLeadingDigitsFieldNumber = 23,
+  	kGeneralDescFieldNumber = 1,
+  	kFixedLineFieldNumber = 2,
+  	kMobileFieldNumber = 3,
+  	kTollFreeFieldNumber = 4,
+  	kPremiumRateFieldNumber = 5,
+  	kSharedCostFieldNumber = 6,
+  	kPersonalNumberFieldNumber = 7,
+  	kVoipFieldNumber = 8,
+  	kPagerFieldNumber = 21,
+  	kNoInternationalDiallingFieldNumber = 24,
+  	kUanFieldNumber = 25,
+  	kEmergencyFieldNumber = 27,
+  	kVoicemailFieldNumber = 28,
+  	kShortCodeFieldNumber = 29,
+  	kStandardRateFieldNumber = 30,
+  	kCarrierSpecificFieldNumber = 31,
+  	kSmsServicesFieldNumber = 33,
+  	kCountryCodeFieldNumber = 10,
+  	kSameMobileAndFixedLinePatternFieldNumber = 18,
+  	kMainCountryForCodeFieldNumber = 22,
+  	kLeadingZeroPossibleFieldNumber = 26,
+  	kMobileNumberPortableRegionFieldNumber = 32,
   };
   // repeated .i18n.phonenumbers.NumberFormat number_format = 19;
   int number_format_size() const;
@@ -1316,7 +1316,7 @@ class PhoneMetadataCollection final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMetadataFieldNumber = 1,
+  	kMetadataFieldNumber = 1,
   };
   // repeated .i18n.phonenumbers.PhoneMetadata metadata = 1;
   int metadata_size() const;
@@ -1359,10 +1359,10 @@ class PhoneMetadataCollection final :
 // required string pattern = 1;
 inline bool NumberFormat::_internal_has_pattern() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool NumberFormat::has_pattern() const {
-  return _internal_has_pattern();
+	return _internal_has_pattern();
 }
 inline void NumberFormat::clear_pattern() {
   pattern_.ClearToEmpty();
@@ -1423,10 +1423,10 @@ inline void NumberFormat::set_allocated_pattern(std::string* pattern) {
 // required string format = 2;
 inline bool NumberFormat::_internal_has_format() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool NumberFormat::has_format() const {
-  return _internal_has_format();
+	return _internal_has_format();
 }
 inline void NumberFormat::clear_format() {
   format_.ClearToEmpty();
@@ -1486,8 +1486,9 @@ inline void NumberFormat::set_allocated_format(std::string* format) {
 
 // repeated string leading_digits_pattern = 3;
 inline int NumberFormat::_internal_leading_digits_pattern_size() const { return leading_digits_pattern_.size(); }
-inline int NumberFormat::leading_digits_pattern_size() const {
-  return _internal_leading_digits_pattern_size();
+inline int NumberFormat::leading_digits_pattern_size() const
+{
+	return _internal_leading_digits_pattern_size();
 }
 inline void NumberFormat::clear_leading_digits_pattern() {
   leading_digits_pattern_.Clear();
@@ -1555,10 +1556,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * NumberFormat::mu
 // optional string national_prefix_formatting_rule = 4;
 inline bool NumberFormat::_internal_has_national_prefix_formatting_rule() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool NumberFormat::has_national_prefix_formatting_rule() const {
-  return _internal_has_national_prefix_formatting_rule();
+	return _internal_has_national_prefix_formatting_rule();
 }
 inline void NumberFormat::clear_national_prefix_formatting_rule() {
   national_prefix_formatting_rule_.ClearToEmpty();
@@ -1619,10 +1620,10 @@ inline void NumberFormat::set_allocated_national_prefix_formatting_rule(std::str
 // optional bool national_prefix_optional_when_formatting = 6 [default = false];
 inline bool NumberFormat::_internal_has_national_prefix_optional_when_formatting() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool NumberFormat::has_national_prefix_optional_when_formatting() const {
-  return _internal_has_national_prefix_optional_when_formatting();
+	return _internal_has_national_prefix_optional_when_formatting();
 }
 inline void NumberFormat::clear_national_prefix_optional_when_formatting() {
   national_prefix_optional_when_formatting_ = false;
@@ -1645,10 +1646,10 @@ inline void NumberFormat::set_national_prefix_optional_when_formatting(bool valu
 // optional string domestic_carrier_code_formatting_rule = 5;
 inline bool NumberFormat::_internal_has_domestic_carrier_code_formatting_rule() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool NumberFormat::has_domestic_carrier_code_formatting_rule() const {
-  return _internal_has_domestic_carrier_code_formatting_rule();
+	return _internal_has_domestic_carrier_code_formatting_rule();
 }
 inline void NumberFormat::clear_domestic_carrier_code_formatting_rule() {
   domestic_carrier_code_formatting_rule_.ClearToEmpty();
@@ -1713,10 +1714,10 @@ inline void NumberFormat::set_allocated_domestic_carrier_code_formatting_rule(st
 // optional string national_number_pattern = 2;
 inline bool PhoneNumberDesc::_internal_has_national_number_pattern() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneNumberDesc::has_national_number_pattern() const {
-  return _internal_has_national_number_pattern();
+	return _internal_has_national_number_pattern();
 }
 inline void PhoneNumberDesc::clear_national_number_pattern() {
   national_number_pattern_.ClearToEmpty();
@@ -1776,8 +1777,9 @@ inline void PhoneNumberDesc::set_allocated_national_number_pattern(std::string* 
 
 // repeated int32 possible_length = 9;
 inline int PhoneNumberDesc::_internal_possible_length_size() const { return possible_length_.size(); }
-inline int PhoneNumberDesc::possible_length_size() const {
-  return _internal_possible_length_size();
+inline int PhoneNumberDesc::possible_length_size() const
+{
+	return _internal_possible_length_size();
 }
 inline void PhoneNumberDesc::clear_possible_length() {
   possible_length_.Clear();
@@ -1815,8 +1817,9 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PhoneNumberDesc::muta
 
 // repeated int32 possible_length_local_only = 10;
 inline int PhoneNumberDesc::_internal_possible_length_local_only_size() const { return possible_length_local_only_.size(); }
-inline int PhoneNumberDesc::possible_length_local_only_size() const {
-  return _internal_possible_length_local_only_size();
+inline int PhoneNumberDesc::possible_length_local_only_size() const
+{
+	return _internal_possible_length_local_only_size();
 }
 inline void PhoneNumberDesc::clear_possible_length_local_only() {
   possible_length_local_only_.Clear();
@@ -1855,10 +1858,10 @@ inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PhoneNumberDesc::muta
 // optional string example_number = 6;
 inline bool PhoneNumberDesc::_internal_has_example_number() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneNumberDesc::has_example_number() const {
-  return _internal_has_example_number();
+	return _internal_has_example_number();
 }
 inline void PhoneNumberDesc::clear_example_number() {
   example_number_.ClearToEmpty();
@@ -1924,10 +1927,10 @@ inline void PhoneNumberDesc::set_allocated_example_number(std::string* example_n
 inline bool PhoneMetadata::_internal_has_general_desc() const {
   bool value = (_has_bits_[0] & 0x00000100u) != 0;
   PROTOBUF_ASSUME(!value || general_desc_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_general_desc() const {
-  return _internal_has_general_desc();
+	return _internal_has_general_desc();
 }
 inline void PhoneMetadata::clear_general_desc() {
   if(general_desc_ != nullptr) general_desc_->Clear();
@@ -2013,10 +2016,10 @@ inline void PhoneMetadata::set_allocated_general_desc(::i18n::phonenumbers::Phon
 inline bool PhoneMetadata::_internal_has_fixed_line() const {
   bool value = (_has_bits_[0] & 0x00000200u) != 0;
   PROTOBUF_ASSUME(!value || fixed_line_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_fixed_line() const {
-  return _internal_has_fixed_line();
+	return _internal_has_fixed_line();
 }
 inline void PhoneMetadata::clear_fixed_line() {
   if(fixed_line_ != nullptr) fixed_line_->Clear();
@@ -2102,10 +2105,10 @@ inline void PhoneMetadata::set_allocated_fixed_line(::i18n::phonenumbers::PhoneN
 inline bool PhoneMetadata::_internal_has_mobile() const {
   bool value = (_has_bits_[0] & 0x00000400u) != 0;
   PROTOBUF_ASSUME(!value || mobile_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_mobile() const {
-  return _internal_has_mobile();
+	return _internal_has_mobile();
 }
 inline void PhoneMetadata::clear_mobile() {
   if(mobile_ != nullptr) mobile_->Clear();
@@ -2191,10 +2194,10 @@ inline void PhoneMetadata::set_allocated_mobile(::i18n::phonenumbers::PhoneNumbe
 inline bool PhoneMetadata::_internal_has_toll_free() const {
   bool value = (_has_bits_[0] & 0x00000800u) != 0;
   PROTOBUF_ASSUME(!value || toll_free_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_toll_free() const {
-  return _internal_has_toll_free();
+	return _internal_has_toll_free();
 }
 inline void PhoneMetadata::clear_toll_free() {
   if(toll_free_ != nullptr) toll_free_->Clear();
@@ -2280,10 +2283,10 @@ inline void PhoneMetadata::set_allocated_toll_free(::i18n::phonenumbers::PhoneNu
 inline bool PhoneMetadata::_internal_has_premium_rate() const {
   bool value = (_has_bits_[0] & 0x00001000u) != 0;
   PROTOBUF_ASSUME(!value || premium_rate_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_premium_rate() const {
-  return _internal_has_premium_rate();
+	return _internal_has_premium_rate();
 }
 inline void PhoneMetadata::clear_premium_rate() {
   if(premium_rate_ != nullptr) premium_rate_->Clear();
@@ -2369,10 +2372,10 @@ inline void PhoneMetadata::set_allocated_premium_rate(::i18n::phonenumbers::Phon
 inline bool PhoneMetadata::_internal_has_shared_cost() const {
   bool value = (_has_bits_[0] & 0x00002000u) != 0;
   PROTOBUF_ASSUME(!value || shared_cost_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_shared_cost() const {
-  return _internal_has_shared_cost();
+	return _internal_has_shared_cost();
 }
 inline void PhoneMetadata::clear_shared_cost() {
   if(shared_cost_ != nullptr) shared_cost_->Clear();
@@ -2458,10 +2461,10 @@ inline void PhoneMetadata::set_allocated_shared_cost(::i18n::phonenumbers::Phone
 inline bool PhoneMetadata::_internal_has_personal_number() const {
   bool value = (_has_bits_[0] & 0x00004000u) != 0;
   PROTOBUF_ASSUME(!value || personal_number_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_personal_number() const {
-  return _internal_has_personal_number();
+	return _internal_has_personal_number();
 }
 inline void PhoneMetadata::clear_personal_number() {
   if(personal_number_ != nullptr) personal_number_->Clear();
@@ -2547,10 +2550,10 @@ inline void PhoneMetadata::set_allocated_personal_number(::i18n::phonenumbers::P
 inline bool PhoneMetadata::_internal_has_voip() const {
   bool value = (_has_bits_[0] & 0x00008000u) != 0;
   PROTOBUF_ASSUME(!value || voip_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_voip() const {
-  return _internal_has_voip();
+	return _internal_has_voip();
 }
 inline void PhoneMetadata::clear_voip() {
   if(voip_ != nullptr) voip_->Clear();
@@ -2636,10 +2639,10 @@ inline void PhoneMetadata::set_allocated_voip(::i18n::phonenumbers::PhoneNumberD
 inline bool PhoneMetadata::_internal_has_pager() const {
   bool value = (_has_bits_[0] & 0x00010000u) != 0;
   PROTOBUF_ASSUME(!value || pager_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_pager() const {
-  return _internal_has_pager();
+	return _internal_has_pager();
 }
 inline void PhoneMetadata::clear_pager() {
   if(pager_ != nullptr) pager_->Clear();
@@ -2725,10 +2728,10 @@ inline void PhoneMetadata::set_allocated_pager(::i18n::phonenumbers::PhoneNumber
 inline bool PhoneMetadata::_internal_has_uan() const {
   bool value = (_has_bits_[0] & 0x00040000u) != 0;
   PROTOBUF_ASSUME(!value || uan_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_uan() const {
-  return _internal_has_uan();
+	return _internal_has_uan();
 }
 inline void PhoneMetadata::clear_uan() {
   if(uan_ != nullptr) uan_->Clear();
@@ -2814,10 +2817,10 @@ inline void PhoneMetadata::set_allocated_uan(::i18n::phonenumbers::PhoneNumberDe
 inline bool PhoneMetadata::_internal_has_emergency() const {
   bool value = (_has_bits_[0] & 0x00080000u) != 0;
   PROTOBUF_ASSUME(!value || emergency_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_emergency() const {
-  return _internal_has_emergency();
+	return _internal_has_emergency();
 }
 inline void PhoneMetadata::clear_emergency() {
   if(emergency_ != nullptr) emergency_->Clear();
@@ -2903,10 +2906,10 @@ inline void PhoneMetadata::set_allocated_emergency(::i18n::phonenumbers::PhoneNu
 inline bool PhoneMetadata::_internal_has_voicemail() const {
   bool value = (_has_bits_[0] & 0x00100000u) != 0;
   PROTOBUF_ASSUME(!value || voicemail_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_voicemail() const {
-  return _internal_has_voicemail();
+	return _internal_has_voicemail();
 }
 inline void PhoneMetadata::clear_voicemail() {
   if(voicemail_ != nullptr) voicemail_->Clear();
@@ -2992,10 +2995,10 @@ inline void PhoneMetadata::set_allocated_voicemail(::i18n::phonenumbers::PhoneNu
 inline bool PhoneMetadata::_internal_has_short_code() const {
   bool value = (_has_bits_[0] & 0x00200000u) != 0;
   PROTOBUF_ASSUME(!value || short_code_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_short_code() const {
-  return _internal_has_short_code();
+	return _internal_has_short_code();
 }
 inline void PhoneMetadata::clear_short_code() {
   if(short_code_ != nullptr) short_code_->Clear();
@@ -3081,10 +3084,10 @@ inline void PhoneMetadata::set_allocated_short_code(::i18n::phonenumbers::PhoneN
 inline bool PhoneMetadata::_internal_has_standard_rate() const {
   bool value = (_has_bits_[0] & 0x00400000u) != 0;
   PROTOBUF_ASSUME(!value || standard_rate_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_standard_rate() const {
-  return _internal_has_standard_rate();
+	return _internal_has_standard_rate();
 }
 inline void PhoneMetadata::clear_standard_rate() {
   if(standard_rate_ != nullptr) standard_rate_->Clear();
@@ -3170,10 +3173,10 @@ inline void PhoneMetadata::set_allocated_standard_rate(::i18n::phonenumbers::Pho
 inline bool PhoneMetadata::_internal_has_carrier_specific() const {
   bool value = (_has_bits_[0] & 0x00800000u) != 0;
   PROTOBUF_ASSUME(!value || carrier_specific_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_carrier_specific() const {
-  return _internal_has_carrier_specific();
+	return _internal_has_carrier_specific();
 }
 inline void PhoneMetadata::clear_carrier_specific() {
   if(carrier_specific_ != nullptr) carrier_specific_->Clear();
@@ -3259,10 +3262,10 @@ inline void PhoneMetadata::set_allocated_carrier_specific(::i18n::phonenumbers::
 inline bool PhoneMetadata::_internal_has_sms_services() const {
   bool value = (_has_bits_[0] & 0x01000000u) != 0;
   PROTOBUF_ASSUME(!value || sms_services_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_sms_services() const {
-  return _internal_has_sms_services();
+	return _internal_has_sms_services();
 }
 inline void PhoneMetadata::clear_sms_services() {
   if(sms_services_ != nullptr) sms_services_->Clear();
@@ -3348,10 +3351,10 @@ inline void PhoneMetadata::set_allocated_sms_services(::i18n::phonenumbers::Phon
 inline bool PhoneMetadata::_internal_has_no_international_dialling() const {
   bool value = (_has_bits_[0] & 0x00020000u) != 0;
   PROTOBUF_ASSUME(!value || no_international_dialling_ != nullptr);
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_no_international_dialling() const {
-  return _internal_has_no_international_dialling();
+	return _internal_has_no_international_dialling();
 }
 inline void PhoneMetadata::clear_no_international_dialling() {
   if(no_international_dialling_ != nullptr) no_international_dialling_->Clear();
@@ -3436,10 +3439,10 @@ inline void PhoneMetadata::set_allocated_no_international_dialling(::i18n::phone
 // required string id = 9;
 inline bool PhoneMetadata::_internal_has_id() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_id() const {
-  return _internal_has_id();
+	return _internal_has_id();
 }
 inline void PhoneMetadata::clear_id() {
   id_.ClearToEmpty();
@@ -3500,10 +3503,10 @@ inline void PhoneMetadata::set_allocated_id(std::string* id) {
 // optional int32 country_code = 10;
 inline bool PhoneMetadata::_internal_has_country_code() const {
   bool value = (_has_bits_[0] & 0x02000000u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_country_code() const {
-  return _internal_has_country_code();
+	return _internal_has_country_code();
 }
 inline void PhoneMetadata::clear_country_code() {
   country_code_ = 0;
@@ -3526,10 +3529,10 @@ inline void PhoneMetadata::set_country_code(int32_t value) {
 // optional string international_prefix = 11;
 inline bool PhoneMetadata::_internal_has_international_prefix() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_international_prefix() const {
-  return _internal_has_international_prefix();
+	return _internal_has_international_prefix();
 }
 inline void PhoneMetadata::clear_international_prefix() {
   international_prefix_.ClearToEmpty();
@@ -3590,10 +3593,10 @@ inline void PhoneMetadata::set_allocated_international_prefix(std::string* inter
 // optional string preferred_international_prefix = 17;
 inline bool PhoneMetadata::_internal_has_preferred_international_prefix() const {
   bool value = (_has_bits_[0] & 0x00000040u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_preferred_international_prefix() const {
-  return _internal_has_preferred_international_prefix();
+	return _internal_has_preferred_international_prefix();
 }
 inline void PhoneMetadata::clear_preferred_international_prefix() {
   preferred_international_prefix_.ClearToEmpty();
@@ -3654,10 +3657,10 @@ inline void PhoneMetadata::set_allocated_preferred_international_prefix(std::str
 // optional string national_prefix = 12;
 inline bool PhoneMetadata::_internal_has_national_prefix() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_national_prefix() const {
-  return _internal_has_national_prefix();
+	return _internal_has_national_prefix();
 }
 inline void PhoneMetadata::clear_national_prefix() {
   national_prefix_.ClearToEmpty();
@@ -3718,10 +3721,10 @@ inline void PhoneMetadata::set_allocated_national_prefix(std::string* national_p
 // optional string preferred_extn_prefix = 13;
 inline bool PhoneMetadata::_internal_has_preferred_extn_prefix() const {
   bool value = (_has_bits_[0] & 0x00000008u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_preferred_extn_prefix() const {
-  return _internal_has_preferred_extn_prefix();
+	return _internal_has_preferred_extn_prefix();
 }
 inline void PhoneMetadata::clear_preferred_extn_prefix() {
   preferred_extn_prefix_.ClearToEmpty();
@@ -3782,10 +3785,10 @@ inline void PhoneMetadata::set_allocated_preferred_extn_prefix(std::string* pref
 // optional string national_prefix_for_parsing = 15;
 inline bool PhoneMetadata::_internal_has_national_prefix_for_parsing() const {
   bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_national_prefix_for_parsing() const {
-  return _internal_has_national_prefix_for_parsing();
+	return _internal_has_national_prefix_for_parsing();
 }
 inline void PhoneMetadata::clear_national_prefix_for_parsing() {
   national_prefix_for_parsing_.ClearToEmpty();
@@ -3846,10 +3849,10 @@ inline void PhoneMetadata::set_allocated_national_prefix_for_parsing(std::string
 // optional string national_prefix_transform_rule = 16;
 inline bool PhoneMetadata::_internal_has_national_prefix_transform_rule() const {
   bool value = (_has_bits_[0] & 0x00000020u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_national_prefix_transform_rule() const {
-  return _internal_has_national_prefix_transform_rule();
+	return _internal_has_national_prefix_transform_rule();
 }
 inline void PhoneMetadata::clear_national_prefix_transform_rule() {
   national_prefix_transform_rule_.ClearToEmpty();
@@ -3910,10 +3913,10 @@ inline void PhoneMetadata::set_allocated_national_prefix_transform_rule(std::str
 // optional bool same_mobile_and_fixed_line_pattern = 18 [default = false];
 inline bool PhoneMetadata::_internal_has_same_mobile_and_fixed_line_pattern() const {
   bool value = (_has_bits_[0] & 0x04000000u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_same_mobile_and_fixed_line_pattern() const {
-  return _internal_has_same_mobile_and_fixed_line_pattern();
+	return _internal_has_same_mobile_and_fixed_line_pattern();
 }
 inline void PhoneMetadata::clear_same_mobile_and_fixed_line_pattern() {
   same_mobile_and_fixed_line_pattern_ = false;
@@ -3935,8 +3938,9 @@ inline void PhoneMetadata::set_same_mobile_and_fixed_line_pattern(bool value) {
 
 // repeated .i18n.phonenumbers.NumberFormat number_format = 19;
 inline int PhoneMetadata::_internal_number_format_size() const { return number_format_.size(); }
-inline int PhoneMetadata::number_format_size() const {
-  return _internal_number_format_size();
+inline int PhoneMetadata::number_format_size() const
+{
+	return _internal_number_format_size();
 }
 inline void PhoneMetadata::clear_number_format() {
   number_format_.Clear();
@@ -3971,8 +3975,9 @@ PhoneMetadata::number_format() const {
 
 // repeated .i18n.phonenumbers.NumberFormat intl_number_format = 20;
 inline int PhoneMetadata::_internal_intl_number_format_size() const { return intl_number_format_.size(); }
-inline int PhoneMetadata::intl_number_format_size() const {
-  return _internal_intl_number_format_size();
+inline int PhoneMetadata::intl_number_format_size() const
+{
+	return _internal_intl_number_format_size();
 }
 inline void PhoneMetadata::clear_intl_number_format() {
   intl_number_format_.Clear();
@@ -4008,10 +4013,10 @@ PhoneMetadata::intl_number_format() const {
 // optional bool main_country_for_code = 22 [default = false];
 inline bool PhoneMetadata::_internal_has_main_country_for_code() const {
   bool value = (_has_bits_[0] & 0x08000000u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_main_country_for_code() const {
-  return _internal_has_main_country_for_code();
+	return _internal_has_main_country_for_code();
 }
 inline void PhoneMetadata::clear_main_country_for_code() {
   main_country_for_code_ = false;
@@ -4034,10 +4039,10 @@ inline void PhoneMetadata::set_main_country_for_code(bool value) {
 // optional string leading_digits = 23;
 inline bool PhoneMetadata::_internal_has_leading_digits() const {
   bool value = (_has_bits_[0] & 0x00000080u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_leading_digits() const {
-  return _internal_has_leading_digits();
+	return _internal_has_leading_digits();
 }
 inline void PhoneMetadata::clear_leading_digits() {
   leading_digits_.ClearToEmpty();
@@ -4098,10 +4103,10 @@ inline void PhoneMetadata::set_allocated_leading_digits(std::string* leading_dig
 // optional bool leading_zero_possible = 26 [default = false];
 inline bool PhoneMetadata::_internal_has_leading_zero_possible() const {
   bool value = (_has_bits_[0] & 0x10000000u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_leading_zero_possible() const {
-  return _internal_has_leading_zero_possible();
+	return _internal_has_leading_zero_possible();
 }
 inline void PhoneMetadata::clear_leading_zero_possible() {
   leading_zero_possible_ = false;
@@ -4124,10 +4129,10 @@ inline void PhoneMetadata::set_leading_zero_possible(bool value) {
 // optional bool mobile_number_portable_region = 32 [default = false];
 inline bool PhoneMetadata::_internal_has_mobile_number_portable_region() const {
   bool value = (_has_bits_[0] & 0x20000000u) != 0;
-  return value;
+	return value;
 }
 inline bool PhoneMetadata::has_mobile_number_portable_region() const {
-  return _internal_has_mobile_number_portable_region();
+	return _internal_has_mobile_number_portable_region();
 }
 inline void PhoneMetadata::clear_mobile_number_portable_region() {
   mobile_number_portable_region_ = false;
@@ -4153,8 +4158,9 @@ inline void PhoneMetadata::set_mobile_number_portable_region(bool value) {
 
 // repeated .i18n.phonenumbers.PhoneMetadata metadata = 1;
 inline int PhoneMetadataCollection::_internal_metadata_size() const { return metadata_.size(); }
-inline int PhoneMetadataCollection::metadata_size() const {
-  return _internal_metadata_size();
+inline int PhoneMetadataCollection::metadata_size() const
+{
+	return _internal_metadata_size();
 }
 inline void PhoneMetadataCollection::clear_metadata() {
   metadata_.Clear();

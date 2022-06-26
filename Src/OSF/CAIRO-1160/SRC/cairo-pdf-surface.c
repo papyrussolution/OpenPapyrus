@@ -24,14 +24,9 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
  * Contributor(s):
  *	Kristian Høgsberg <krh@redhat.com>
@@ -377,7 +372,7 @@ static cairo_surface_t * _cairo_pdf_surface_create_for_stream_internal(cairo_out
 	surface->thumbnail_width = 0;
 	surface->thumbnail_height = 0;
 	surface->thumbnail_image = NULL;
-	if(getenv("CAIRO_DEBUG_PDF") != NULL)
+	if(getenv("CAIRO_DEBUG_PDF"))
 		surface->compress_content = FALSE;
 	surface->paginated_surface =  _cairo_paginated_surface_create(&surface->base, CAIRO_CONTENT_COLOR_ALPHA, &cairo_pdf_surface_paginated_backend);
 	status = surface->paginated_surface->status;
@@ -535,9 +530,9 @@ void cairo_pdf_surface_restrict_to_version(cairo_surface_t * abstract_surface, c
  **/
 void cairo_pdf_get_versions(cairo_pdf_version_t const ** versions, int * num_versions)
 {
-	if(versions != NULL)
+	if(versions)
 		*versions = _cairo_pdf_versions;
-	if(num_versions != NULL)
+	if(num_versions)
 		*num_versions = CAIRO_PDF_VERSION_LAST;
 }
 
@@ -968,7 +963,7 @@ static cairo_pdf_smask_group_t * _cairo_pdf_surface_create_smask_group(cairo_pdf
 	}
 	group->width = surface->width;
 	group->height = surface->height;
-	if(extents != NULL) {
+	if(extents) {
 		group->extents = *extents;
 	}
 	else {
@@ -1401,7 +1396,7 @@ static cairo_int_status_t _cairo_pdf_surface_add_pdf_pattern_or_shading(cairo_pd
 
 	pdf_pattern.width  = surface->width;
 	pdf_pattern.height = surface->height;
-	if(extents != NULL) {
+	if(extents) {
 		pdf_pattern.extents = *extents;
 	}
 	else {
@@ -1866,12 +1861,12 @@ static cairo_status_t _cairo_pdf_surface_finish(void * abstract_surface)
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
 
-	if(surface->group_stream.stream != NULL) {
+	if(surface->group_stream.stream) {
 		status2 = _cairo_output_stream_destroy(surface->group_stream.stream);
 		if(status == CAIRO_STATUS_SUCCESS)
 			status = status2;
 	}
-	if(surface->group_stream.mem_stream != NULL) {
+	if(surface->group_stream.mem_stream) {
 		status2 = _cairo_output_stream_destroy(surface->group_stream.mem_stream);
 		if(status == CAIRO_STATUS_SUCCESS)
 			status = status2;
@@ -4311,7 +4306,7 @@ static cairo_int_status_t _cairo_pdf_surface_select_pattern(cairo_pdf_surface_t 
 		solid_color = &solid->color;
 	}
 
-	if(solid_color != NULL) {
+	if(solid_color) {
 		if(surface->current_pattern_is_solid_color == FALSE ||
 		    surface->current_color_red != solid_color->red ||
 		    surface->current_color_green != solid_color->green ||

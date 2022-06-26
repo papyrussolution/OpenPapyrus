@@ -53,26 +53,26 @@ bool PhoneNumber_CountryCodeSource_IsValid(int value)
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> PhoneNumber_CountryCodeSource_strings[5] = {};
 
 static const char PhoneNumber_CountryCodeSource_names[] =
-  "FROM_DEFAULT_COUNTRY"
-  "FROM_NUMBER_WITHOUT_PLUS_SIGN"
-  "FROM_NUMBER_WITH_IDD"
-  "FROM_NUMBER_WITH_PLUS_SIGN"
-  "UNSPECIFIED";
+	"FROM_DEFAULT_COUNTRY"
+	"FROM_NUMBER_WITHOUT_PLUS_SIGN"
+	"FROM_NUMBER_WITH_IDD"
+	"FROM_NUMBER_WITH_PLUS_SIGN"
+	"UNSPECIFIED";
 
 static const ::PROTOBUF_NAMESPACE_ID::internal::EnumEntry PhoneNumber_CountryCodeSource_entries[] = {
-  { {PhoneNumber_CountryCodeSource_names + 0, 20}, 20 },
-  { {PhoneNumber_CountryCodeSource_names + 20, 29}, 10 },
-  { {PhoneNumber_CountryCodeSource_names + 49, 20}, 5 },
-  { {PhoneNumber_CountryCodeSource_names + 69, 26}, 1 },
-  { {PhoneNumber_CountryCodeSource_names + 95, 11}, 0 },
+	{ {PhoneNumber_CountryCodeSource_names + 0, 20}, 20 },
+	{ {PhoneNumber_CountryCodeSource_names + 20, 29}, 10 },
+	{ {PhoneNumber_CountryCodeSource_names + 49, 20}, 5 },
+	{ {PhoneNumber_CountryCodeSource_names + 69, 26}, 1 },
+	{ {PhoneNumber_CountryCodeSource_names + 95, 11}, 0 },
 };
 
 static const int PhoneNumber_CountryCodeSource_entries_by_number[] = {
-  4, // 0 -> UNSPECIFIED
-  3, // 1 -> FROM_NUMBER_WITH_PLUS_SIGN
-  2, // 5 -> FROM_NUMBER_WITH_IDD
-  1, // 10 -> FROM_NUMBER_WITHOUT_PLUS_SIGN
-  0, // 20 -> FROM_DEFAULT_COUNTRY
+	4, // 0 -> UNSPECIFIED
+	3, // 1 -> FROM_NUMBER_WITH_PLUS_SIGN
+	2, // 5 -> FROM_NUMBER_WITH_IDD
+	1, // 10 -> FROM_NUMBER_WITHOUT_PLUS_SIGN
+	0, // 20 -> FROM_DEFAULT_COUNTRY
 };
 
 const std::string& PhoneNumber_CountryCodeSource_Name(PhoneNumber_CountryCodeSource value)

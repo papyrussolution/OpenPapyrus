@@ -37,6 +37,9 @@ static const char * p_alphabet_eng_u = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	}
 }
 
+/*static*/const char * STextConst::P_Digits = "0123456789";
+/*static*/const wchar_t * STextConst::P_DigitsW = L"0123456789";
+
 /*static*/const char * FASTCALL STextConst::GetBool(int b) { return b ? "true" : "false"; }
 
 /*static*/int FASTCALL STextConst::GetIdx(int c, const char * pText)

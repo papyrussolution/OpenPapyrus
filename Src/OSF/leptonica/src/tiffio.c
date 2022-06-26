@@ -1318,7 +1318,7 @@ static int32 writeCustomTiffTags(TIFF    * tif,
  * </pre>
  */
 PIX * pixReadFromMultipageTiff(const char * fname,
-    size_t      * poffset)
+    size_t * poffset)
 {
 	int32 retval;
 	size_t offset;
@@ -2071,8 +2071,8 @@ static int32 getTiffCompressedFormat(uint16 tiffcomp)
  * \return  0 if OK, 1 on error
  */
 l_ok extractG4DataFromFile(const char * filein,
-    uint8    ** pdata,
-    size_t      * pnbytes,
+    uint8 ** pdata,
+    size_t * pnbytes,
     int32     * pw,
     int32     * ph,
     int32     * pminisblack)
@@ -2451,7 +2451,7 @@ static void tiffUnmapCallback(thandle_t handle, tdata_t data, toff_t length)
  *          does not append.
  * </pre>
  */
-static TIFF * fopenTiffMemstream(const char * filename, const char * operation, uint8    ** pdata, size_t      * pdatasize)
+static TIFF * fopenTiffMemstream(const char * filename, const char * operation, uint8 ** pdata, size_t * pdatasize)
 {
 	PROCNAME(__FUNCTION__);
 	L_MEMSTREAM  * mstream;

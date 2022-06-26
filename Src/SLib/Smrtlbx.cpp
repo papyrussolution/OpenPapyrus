@@ -317,10 +317,70 @@ void SmartListBox::RemoveColumns()
 int    FASTCALL SmartListBox::getCurID(long * pId) { return def ? def->getCurID(pId) : 0; }
 int    FASTCALL SmartListBox::getCurData(void * pData) { return def ? def->getCurData(pData) : 0; }
 int    FASTCALL SmartListBox::getCurString(SString & rBuf) { return def ? def->getCurString(rBuf) : (rBuf.Z(), 0); }
-int    SmartListBox::isTreeList() const { return BIN(def && def->_isTreeList()); }
+bool   SmartListBox::isTreeList() const { return (def && def->_isTreeList()); }
 void   SmartListBox::setHorzRange(int) {}
 
-int SmartListBox::getText(long itemN  /* 0.. */, SString & rBuf)
+uint SmartListBox::GetSelectionList(LongArray * pList)
+{
+	uint   result = 0;
+	CALLPTRMEMB(pList, Z());
+	if(def) {
+		if(isTreeList()) {
+			long   cur_id = 0;
+			if(getCurID(&cur_id)) {
+				CALLPTRMEMB(pList, add(cur_id));
+				result = 1;
+			}
+		}
+		else {
+			HWND hw = getHandle();
+			if(hw) {
+				const long s = GetWindowStyle(hw);
+				if(s & LBS_EXTENDEDSEL) {
+					LRESULT c = ::SendMessage(hw, LB_GETSELCOUNT, 0, 0);
+					if(c > 0) {
+						if(pList) {
+							int32 * p_buffer = 0;
+							int32   stbuf[128];
+							bool is_buf_allocated = false;
+							if(c > SIZEOFARRAY(stbuf)) {
+								p_buffer = new int32[c+8];
+								is_buf_allocated = true;
+							}
+							else {
+								p_buffer = stbuf;
+							}
+							LRESULT c2 = ::SendMessage(hw, LB_GETSELITEMS, c, reinterpret_cast<LPARAM>(p_buffer));
+							for(uint i = 0; i < c2; i++) {
+								int32 idx = p_buffer[i];
+								if(idx >= 0 && idx < def->getRecsCount()) {
+									const void * p_row = def->getRow_(idx);
+									if(p_row)
+										pList->add(*static_cast<const long *>(p_row));
+								}
+							}
+							if(is_buf_allocated) {
+								delete [] p_buffer;
+							}
+							p_buffer = 0;
+						}
+					}
+					result = static_cast<uint>(c);
+				}
+				else {
+					long   cur_id = 0;
+					if(getCurID(&cur_id)) {
+						CALLPTRMEMB(pList, add(cur_id));
+						result = 1;
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
+int  SmartListBox::getText(long itemN  /* 0.. */, SString & rBuf)
 {
 	int    ok = 0;
 	rBuf.Z();
@@ -331,7 +391,7 @@ int SmartListBox::getText(long itemN  /* 0.. */, SString & rBuf)
 	return ok;
 }
 
-int SmartListBox::getID(long itemN, long * pID)
+int  SmartListBox::getID(long itemN, long * pID)
 {
 	int    ok = 0;
 	if(def) {
@@ -420,7 +480,7 @@ void SmartListBox::SetScrollBarPos(long pos, LPARAM lParam)
 		::SendMessage(h_wnd, SBM_SETPOS, pos, lParam);
 }
 
-int SmartListBox::GetMaxListHeight()
+int  SmartListBox::GetMaxListHeight()
 {
 	const  HWND h_lb = getHandle();
 	RECT   list_rect;
@@ -511,7 +571,7 @@ void SmartListBox::Helper_ClearTreeWnd()
 		TreeView_DeleteAllItems(h_lb);
 }
 
-int SmartListBox::SetupTreeWnd2(void * pParent)
+int  SmartListBox::SetupTreeWnd2(void * pParent)
 {
 	int    ok = -1;
 	HWND   h_lb = getHandle();
@@ -666,7 +726,7 @@ int SmartListBox::SetupTreeWnd2(void * pParent)
 	return ok;
 }
 
-int SmartListBox::GetStringByID(long id, SString & rBuf)
+int  SmartListBox::GetStringByID(long id, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -683,7 +743,7 @@ int SmartListBox::GetStringByID(long id, SString & rBuf)
 	return ok;
 }
 
-int SmartListBox::GetImageIdxByID(long id, long * pIdx) 
+int  SmartListBox::GetImageIdxByID(long id, long * pIdx) 
 {
 	int    ok = 0;
 	if(def) {
@@ -704,7 +764,7 @@ int SmartListBox::GetImageIdxByID(long id, long * pIdx)
 	//return def ? static_cast<StdListBoxDef *>(def)->GetImageIdxByID(id, pIdx) : 0; 
 }
 
-int FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
+int  FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
 {
 	int    nScrollCode;
 	int    sf = 0;
@@ -748,7 +808,7 @@ int FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
 	return -1;
 }
 
-int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg) {
 		case WM_INITDIALOG:

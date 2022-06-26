@@ -98,12 +98,10 @@ const char * __archive_read_next_passphrase(ArchiveRead * a)
 {
 	struct archive_read_passphrase * p;
 	const char * passphrase;
-
 	if(a->passphrases.candidate < 0) {
 		/* Count out how many passphrases we have. */
 		int cnt = 0;
-
-		for(p = a->passphrases.first; p != NULL; p = p->next)
+		for(p = a->passphrases.first; p; p = p->next)
 			cnt++;
 		a->passphrases.candidate = cnt;
 		p = a->passphrases.first;
@@ -119,7 +117,7 @@ const char * __archive_read_next_passphrase(ArchiveRead * a)
 	else if(a->passphrases.candidate == 1) {
 		/* This case is that all candidates failed to decrypt. */
 		a->passphrases.candidate = 0;
-		if(a->passphrases.first->next != NULL) {
+		if(a->passphrases.first->next) {
 			/* Rotate a passphrase list. */
 			p = remove_passphrases_from_head(a);
 			add_passphrase_to_tail(a, p);
@@ -131,13 +129,12 @@ const char * __archive_read_next_passphrase(ArchiveRead * a)
 
 	if(p)
 		passphrase = p->passphrase;
-	else if(a->passphrases.callback != NULL) {
+	else if(a->passphrases.callback) {
 		/* Get a passphrase through a call-back function
 		 * since we tried all passphrases out or we don't
 		 * have it. */
-		passphrase = a->passphrases.callback(&a->archive,
-			a->passphrases.client_data);
-		if(passphrase != NULL) {
+		passphrase = a->passphrases.callback(&a->archive, a->passphrases.client_data);
+		if(passphrase) {
 			p = new_read_passphrase(a, passphrase);
 			if(!p)
 				return NULL;

@@ -20,12 +20,6 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
@@ -38,17 +32,11 @@
  * Applications can use the win32 handle to set
  * win32 specific attributes of the thread.
  */
-HANDLE pthread_getw32threadhandle_np(pthread_t thread)
-{
-	return (static_cast<__ptw32_thread_t *>(thread.p))->threadH;
-}
+HANDLE pthread_getw32threadhandle_np(pthread_t thread) { return (static_cast<__ptw32_thread_t *>(thread.p))->threadH; }
 /*
  * pthread_getw32threadid_np()
  *
  * Returns the win32 thread id that the POSIX
  * thread "thread" is running as.
  */
-DWORD pthread_getw32threadid_np(pthread_t thread)
-{
-	return (static_cast<__ptw32_thread_t *>(thread.p))->thread;
-}
+DWORD pthread_getw32threadid_np(pthread_t thread) { return (static_cast<__ptw32_thread_t *>(thread.p))->thread; }

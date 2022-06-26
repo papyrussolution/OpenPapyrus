@@ -323,7 +323,7 @@ static int archive_read_format_lha_options(ArchiveRead * a, const char * key, co
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "lha: hdrcharset option needs a character-set name");
 		else {
 			lha->opt_sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
-			if(lha->opt_sconv != NULL)
+			if(lha->opt_sconv)
 				ret = ARCHIVE_OK;
 			else
 				ret = ARCHIVE_FATAL;
@@ -469,7 +469,7 @@ static int archive_read_format_lha_read_header(ArchiveRead * a, ArchiveEntry * e
 	archive_string_empty(&lha->dirname);
 	archive_string_empty(&lha->filename);
 	lha->dos_attr = 0;
-	if(lha->opt_sconv != NULL) {
+	if(lha->opt_sconv) {
 		lha->sconv_dir = lha->opt_sconv;
 		lha->sconv_fname = lha->opt_sconv;
 	}
@@ -477,7 +477,6 @@ static int archive_read_format_lha_read_header(ArchiveRead * a, ArchiveEntry * e
 		lha->sconv_dir = NULL;
 		lha->sconv_fname = NULL;
 	}
-
 	switch(p[H_LEVEL_OFFSET]) {
 		case 0: err = lha_read_file_header_0(a, lha); break;
 		case 1: err = lha_read_file_header_1(a, lha); break;
@@ -599,7 +598,7 @@ static int archive_read_format_lha_read_header(ArchiveRead * a, ArchiveEntry * e
 		archive_entry_set_atime(entry, lha->atime, lha->atime_tv_nsec);
 	else
 		archive_entry_unset_atime(entry);
-	if(lha->directory || archive_entry_symlink(entry) != NULL)
+	if(lha->directory || archive_entry_symlink(entry))
 		archive_entry_unset_size(entry);
 	else
 		archive_entry_set_size(entry, lha->origsize);
@@ -630,7 +629,6 @@ static void lha_replace_path_separator(struct lha * lha, ArchiveEntry * entry)
 {
 	const wchar_t * wp;
 	size_t i;
-
 	if((wp = archive_entry_pathname_w(entry)) != NULL) {
 		archive_wstrcpy(&(lha->ws), wp);
 		for(i = 0; i < archive_strlen(&(lha->ws)); i++) {
@@ -1019,7 +1017,7 @@ static int lha_read_file_extended_header(ArchiveRead * a, struct lha * lha,
 			extdsize = archive_le32dec(h);
 		if(extdsize == 0) {
 			/* End of extended header */
-			if(crc != NULL)
+			if(crc)
 				*crc = lha_crc16(*crc, h, sizefield_length);
 			__archive_read_consume(a, sizefield_length);
 			return ARCHIVE_OK;
@@ -1044,7 +1042,7 @@ static int lha_read_file_extended_header(ArchiveRead * a, struct lha * lha,
 		/* Skip an extended header size field and type field. */
 		extdheader += sizefield_length + 1;
 
-		if(crc != NULL && extdtype != EXT_HEADER_CRC)
+		if(crc && extdtype != EXT_HEADER_CRC)
 			*crc = lha_crc16(*crc, h, extdsize);
 		switch(extdtype) {
 			case EXT_HEADER_CRC:
@@ -1052,7 +1050,7 @@ static int lha_read_file_extended_header(ArchiveRead * a, struct lha * lha,
 			     * be used. */
 			    if(datasize >= 2) {
 				    lha->header_crc = archive_le16dec(extdheader);
-				    if(crc != NULL) {
+				    if(crc) {
 					    static const char zeros[2] = {0, 0};
 					    *crc = lha_crc16(*crc, h,
 						    extdsize - datasize);
@@ -1493,7 +1491,7 @@ static int lha_parse_linkname(archive_wstring * linkname, archive_wstring * path
 {
 	size_t symlen;
 	wchar_t * linkptr = wcschr(pathname->s, L'|');
-	if(linkptr != NULL) {
+	if(linkptr) {
 		symlen = wcslen(linkptr + 1);
 		archive_wstrncpy(linkname, linkptr+1, symlen);
 		*linkptr = 0;

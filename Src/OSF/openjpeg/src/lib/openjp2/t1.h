@@ -186,7 +186,7 @@ typedef struct opj_t1 {
 	/* set to TRUE in multithreaded context */
 	boolint mustuse_cblkdatabuffer;
 	/* Temporary buffer to concatenate all chunks of a codebock */
-	uint8    * cblkdatabuffer;
+	uint8 * cblkdatabuffer;
 	/* Maximum size available in cblkdatabuffer */
 	uint32_t cblkdatabuffersize;
 } opj_t1_t;

@@ -4781,7 +4781,7 @@ int PPObjPerson::CheckDuplicateName(const char * pName, PPID * pID)
 			}
 		}
 		if(items_list.getCount() > 0) {
-			if(ListBoxSelDialog(DLG_DUPNAMES, &items_list, pID, 0) > 0)
+			if(ListBoxSelDialog::Run(DLG_DUPNAMES, &items_list, pID) > 0)
 				ok = 2;
 			else
 				ok = 1;

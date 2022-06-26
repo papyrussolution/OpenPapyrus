@@ -1743,7 +1743,7 @@ void gp_cairo_set_termvar(plot_struct * plot, unsigned int * v_char, unsigned in
 	extern int debug;
 	// Create a PangoLayout, set the font and text 
 	layout = gp_cairo_create_layout(plot->cr);
-	pango_layout_set_text(layout, "0123456789", -1);
+	pango_layout_set_text(layout, STextConst::P_Digits, -1);
 	desc = pango_font_description_new();
 	pango_font_description_set_family(desc, plot->fontname);
 	pango_font_description_set_size(desc, (int)(plot->fontsize*PANGO_SCALE*plot->oversampling_scale));

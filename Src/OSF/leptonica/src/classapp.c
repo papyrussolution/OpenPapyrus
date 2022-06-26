@@ -238,7 +238,7 @@ JBCLASSER * jbWordsInTextlines(const char * dirin,
     int32 maxheight,
     float thresh,
     float weight,
-    NUMA       ** pnatl,
+    NUMA ** pnatl,
     int32 firstpage,
     int32 npages)
 {
@@ -246,7 +246,7 @@ JBCLASSER * jbWordsInTextlines(const char * dirin,
 	int32 nfiles, i, w, h;
 	BOXA       * boxa;
 	JBCLASSER  * classer;
-	NUMA       * nai, * natl;
+	NUMA * nai, * natl;
 	PIX        * pix1, * pix2;
 	PIXA       * pixa;
 	SARRAY * safiles;
@@ -351,7 +351,7 @@ l_ok pixGetWordsInTextlines(PIX * pixs,
     int32 maxheight,
     BOXA   ** pboxad,
     PIXA   ** ppixad,
-    NUMA   ** pnai)
+    NUMA ** pnai)
 {
 	BOXA * boxa1, * boxad;
 	BOXAA   * baa;
@@ -425,7 +425,7 @@ l_ok pixGetWordBoxesInTextlines(PIX * pixs,
     int32 maxwidth,
     int32 maxheight,
     BOXA   ** pboxad,
-    NUMA   ** pnai)
+    NUMA ** pnai)
 {
 	BOXA * boxa1;
 	BOXAA   * baa;

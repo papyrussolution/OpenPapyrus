@@ -327,16 +327,16 @@ TermIterator ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
 	return Xapian::TermIterator(termlist.release());
 }
 
-MatchSpy * ValueCountMatchSpy::clone() const {
+MatchSpy * ValueCountMatchSpy::clone() const 
+{
 	Assert(internal.get());
 	return new ValueCountMatchSpy(internal->slot);
 }
 
-string ValueCountMatchSpy::name() const {
-	return "Xapian::ValueCountMatchSpy";
-}
+string ValueCountMatchSpy::name() const { return "Xapian::ValueCountMatchSpy"; }
 
-string ValueCountMatchSpy::serialise() const {
+string ValueCountMatchSpy::serialise() const 
+{
 	Assert(internal.get());
 	string result;
 	pack_uint_last(result, internal->slot);
@@ -347,7 +347,6 @@ MatchSpy * ValueCountMatchSpy::unserialise(const string & s, const Registry &) c
 {
 	const char * p = s.data();
 	const char * end = p + s.size();
-
 	valueno new_slot;
 	if(!unpack_uint_last(&p, end, &new_slot)) {
 		unpack_throw_serialisation_error(p);

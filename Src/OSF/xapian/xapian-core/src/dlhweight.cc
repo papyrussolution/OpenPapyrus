@@ -123,20 +123,9 @@ void DLHWeight::init(double factor)
 		upper_bound *= wqf_product_factor;
 }
 
-string DLHWeight::name() const
-{
-	return "Xapian::DLHWeight";
-}
-
-string DLHWeight::short_name() const
-{
-	return "dlh";
-}
-
-string DLHWeight::serialise() const
-{
-	return string();
-}
+string DLHWeight::name() const { return "Xapian::DLHWeight"; }
+string DLHWeight::short_name() const { return "dlh"; }
+string DLHWeight::serialise() const { return string(); }
 
 DLHWeight * DLHWeight::unserialise(const string & s) const
 {

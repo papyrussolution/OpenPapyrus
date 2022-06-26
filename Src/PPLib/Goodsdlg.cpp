@@ -3028,9 +3028,10 @@ int GoodsAsscDialog::editItem(long pos, long /*id*/)
 
 int GoodsAsscDialog::addItem(long * pPos, long * pID)
 {
-	int    r = -1, valid_data = 0;
+	int    r = -1;
+	int    valid_data = 0;
 	PPID   alt_grp = 0;
-	while(!valid_data && ListBoxSelDialog(PPOBJ_GOODSGROUP, &alt_grp, reinterpret_cast<void *>(GGRTYP_SEL_ALT)) > 0)
+	while(!valid_data && ListBoxSelDialog::Run(PPOBJ_GOODSGROUP, &alt_grp, reinterpret_cast<void *>(GGRTYP_SEL_ALT)) > 0)
 		if(P_GObj && P_GObj->IsAltGroup(alt_grp) > 0) {
 			r = P_GObj->AssignGoodsToAltGrp(GoodsID, alt_grp, 0, 1);
 			valid_data = 1;

@@ -759,7 +759,7 @@ static NUMA * pixAverageRasterScans(PIX * pixs,
 	int32 w, h, first, last, i, j, wpl, val;
 	uint32   * line, * data;
 	float * array;
-	NUMA       * nad;
+	NUMA * nad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -820,7 +820,7 @@ static NUMA * pixAverageRasterScans(PIX * pixs,
  *          the width of the narrowest bar.
  * </pre>
  */
-NUMA * numaQuantizeCrossingsByWidth(NUMA       * nas,
+NUMA * numaQuantizeCrossingsByWidth(NUMA * nas,
     float binfract,
     NUMA ** pnaehist,
     NUMA ** pnaohist,
@@ -973,7 +973,7 @@ NUMA * numaQuantizeCrossingsByWidth(NUMA       * nas,
  * \param[out]   pmaxdist   [optional] max distance between crossings
  * \return  0 if OK, 1 on error
  */
-static int32 numaGetCrossingDistances(NUMA       * nas,
+static int32 numaGetCrossingDistances(NUMA * nas,
     NUMA ** pnaedist,
     NUMA ** pnaodist,
     float * pmindist,
@@ -1171,7 +1171,7 @@ static NUMA * numaGetPeakWidthLUT(NUMA * narange,
 	int32 assign[4];
 	float * warray;
 	float max, rat21, rat32, rat42;
-	NUMA       * nalut;
+	NUMA * nalut;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1254,7 +1254,7 @@ static NUMA * numaGetPeakWidthLUT(NUMA * narange,
  *          ending two runs: the previous one and another one that has length 1.
  * </pre>
  */
-NUMA * numaQuantizeCrossingsByWindow(NUMA       * nas,
+NUMA * numaQuantizeCrossingsByWindow(NUMA * nas,
     float ratio,
     float * pwidth,
     float * pfirstloc,
@@ -1275,19 +1275,12 @@ NUMA * numaQuantizeCrossingsByWindow(NUMA       * nas,
 	/* Get the minsize, which is needed for the search for
 	* the window width (ultimately found as 'minwidth') */
 	numaGetCrossingDistances(nas, NULL, NULL, &minsize, NULL);
-
 	/* Compute the width and shift increments; start at minsize
 	 * and go up to ratio * minsize  */
-	numaEvalBestWidthAndShift(nas, 100, 10, minsize, ratio * minsize,
-	    &minwidth, &minshift, NULL);
-
+	numaEvalBestWidthAndShift(nas, 100, 10, minsize, ratio * minsize, &minwidth, &minshift, NULL);
 	/* Refine width and shift calculation */
-	numaEvalBestWidthAndShift(nas, 100, 10, 0.98 * minwidth, 1.02 * minwidth,
-	    &minwidth, &minshift, NULL);
-
-	L_INFO("best width = %7.3f, best shift = %7.3f\n",
-	    procName, minwidth, minshift);
-
+	numaEvalBestWidthAndShift(nas, 100, 10, 0.98 * minwidth, 1.02 * minwidth, &minwidth, &minshift, NULL);
+	L_INFO("best width = %7.3f, best shift = %7.3f\n", procName, minwidth, minshift);
 	/* Get the crossing array (0,1,2) for the best window width and shift */
 	numaEvalSyncError(nas, 0, 0, minwidth, minshift, NULL, &nac);
 	if(pwidth) *pwidth = minwidth;
@@ -1295,7 +1288,6 @@ NUMA * numaQuantizeCrossingsByWindow(NUMA       * nas,
 		numaGetFValue(nas, 0, &xfirst);
 		*pfirstloc = xfirst + minshift;
 	}
-
 	/* Get the array of bar widths, starting with a black bar  */
 	nad = numaCreate(0);
 	nw = numaGetCount(nac); /* number of window measurements */
@@ -1355,7 +1347,7 @@ NUMA * numaQuantizeCrossingsByWindow(NUMA       * nas,
  *          gives the minimum score.
  * </pre>
  */
-static int32 numaEvalBestWidthAndShift(NUMA       * nas,
+static int32 numaEvalBestWidthAndShift(NUMA * nas,
     int32 nwidth,
     int32 nshift,
     float minwidth,
@@ -1427,7 +1419,7 @@ static int32 numaEvalBestWidthAndShift(NUMA       * nas,
  *          indicates a crossing in the window.
  * </pre>
  */
-static int32 numaEvalSyncError(NUMA       * nas,
+static int32 numaEvalSyncError(NUMA * nas,
     int32 ifirst,
     int32 ilast,
     float width,

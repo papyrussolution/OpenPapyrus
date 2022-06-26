@@ -633,7 +633,7 @@ static BOXA * boxaApplyDisparity(L_DEWARP * dew,
 	BOX        * boxs, * boxd;
 	BOXA       * boxad;
 	FPIX       * fpix;
-	PTA        * ptas, * ptad;
+	PTA * ptas, * ptad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -939,7 +939,7 @@ static FPIX * fpixExtraHorizDisparity(FPIX      * fpixv,
 	int32 w, h, i, j, fw, wpl, maxloc;
 	float val1, val2, vdisp, vdisp0, maxval;
 	float * data, * line, * fadiff;
-	NUMA       * nadiff;
+	NUMA * nadiff;
 	FPIX       * fpixh;
 
 	PROCNAME(__FUNCTION__);

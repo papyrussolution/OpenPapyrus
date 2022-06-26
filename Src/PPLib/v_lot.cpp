@@ -3134,7 +3134,7 @@ int SelectLotImpExpCfgs(PPLotImpExpParam * pParam, int import)
 			}
 		#endif
 		// конец
-		while(!valid_data && ListBoxSelDialog(&list, import ? PPTXT_TITLE_LOTIMPCFG : PPTXT_TITLE_LOTEXPCFG, &id, 0) > 0) {
+		while(!valid_data && ListBoxSelDialog::Run(&list, import ? PPTXT_TITLE_LOTIMPCFG : PPTXT_TITLE_LOTEXPCFG, &id) > 0) {
 			SString sect;
 			if(id) {
 				list.GetText(id, sect);

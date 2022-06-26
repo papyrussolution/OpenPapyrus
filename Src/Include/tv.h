@@ -3769,7 +3769,7 @@ public:
 	virtual int    bottom();
 	virtual long   getRecsCount();
 	virtual int    getIdList(LongArray &);
-	virtual void * FASTCALL getRow_(long);
+	virtual void * FASTCALL getRow_(long idx);
 	//
 	// Descr:
 	//   (dir > 0): В зависимости от флагов options по адресу pData возвращает либо ID либо данные.
@@ -3788,7 +3788,7 @@ public:
 	const  char * getText(long item, SString & rBuf);
 	long   _topItem() const;
 	long   _curItem() const;
-	int    _isTreeList() const;
+	bool   _isTreeList() const;
 	void   SetOption(uint option, int set = 1);
 	int    SetUserData(const void * pData, size_t size);
 	int    GetUserData(void * pData, size_t * pSize) const;
@@ -4082,9 +4082,10 @@ public:
 	int    FASTCALL getCurID(long * pId);
 	int    FASTCALL getCurData(void * pData);
 	int    FASTCALL getCurString(SString & rBuf);
+	uint   GetSelectionList(LongArray * pList);
 	int    getText(long itemN  /* 0.. */, SString & rBuf);
 	int    getID(long itemN, long * pID);
-	int    isTreeList() const;
+	bool   isTreeList() const;
 	DECL_HANDLE_EVENT;
 	virtual void   selectItem(long item);
 	virtual int    TransmitData(int dir, void * pData);
@@ -4211,7 +4212,7 @@ public:
 	int    FASTCALL getResult(long *);
 	int    getString(SString & rBuf);
 	int    getListData(void *);
-	int    isTreeList() const;
+	bool   isTreeList() const;
 	void   FASTCALL setDef(ListBoxDef * pDef);
 	void   setCompFunc(CompFunc f);
 	ListWindowSmartListBox * listBox() const;

@@ -1248,9 +1248,8 @@ private:
 				StringSet ss;
 				line_no = 0;
 				THROW(tra);
-				while(f_in.ReadLine(line_buf)) {
+				while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 					line_no++;
-					line_buf.Chomp().Strip();
 					if(line_buf.NotEmpty()) {
 						if(line_buf.Divide(';', name_en, name_ru) > 0) {
 							name_ru.Strip().Transf(CTRANSF_OUTER_TO_UTF8);
@@ -1303,9 +1302,8 @@ SLTEST_R(PPFtsIterface)
 					StringSet ss;
 					line_no = 0;
 					THROW(SLTEST_CHECK_NZ(tra));
-					while(f_in.ReadLine(line_buf)) {
+					while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 						line_no++;
-						line_buf.Chomp().Strip();
 						if(line_buf.NotEmpty()) {
 							line_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 							if(line_buf.Divide(';', name_en, name_ru) > 0) {

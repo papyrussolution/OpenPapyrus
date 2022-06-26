@@ -3214,7 +3214,7 @@ public:
 								GetObjectName(PPOBJ_PROCESSOR, child_list.at(i), name = 0);
 								prcssr_list.Add(child_list.at(i), 0, name);
 							}
-							for(int valid_data = 0; !valid_data && ListBoxSelDialog(&prcssr_list, title, &filt.PrcID, 0) > 0;) {
+							for(int valid_data = 0; !valid_data && ListBoxSelDialog::Run(&prcssr_list, title, &filt.PrcID) > 0;) {
 								if(filt.PrcID > 0)
 									valid_data = r = 1;
 								else

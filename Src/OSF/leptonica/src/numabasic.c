@@ -74,7 +74,7 @@
  *          int32      numaaGetCount()
  *          int32      numaaGetNumaCount()
  *          int32      numaaGetNumberCount()
- *          NUMA       **numaaGetPtrArray()
+ *          NUMA **numaaGetPtrArray()
  *          NUMA        *numaaGetNuma()
  *          NUMA        *numaaReplaceNuma()
  *          int32      numaaGetValue()
@@ -440,16 +440,12 @@ l_ok numaEmpty(NUMA * na)
  * \param[in]    val    float or int to be added; stored as a float
  * \return  0 if OK, 1 on error
  */
-l_ok numaAddNumber(NUMA * na,
-    float val)
+l_ok numaAddNumber(NUMA * na, float val)
 {
-	int32 n;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 n;
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
-
 	n = numaGetCount(na);
 	if(n >= na->nalloc) {
 		if(numaExtendArray(na))
@@ -459,7 +455,6 @@ l_ok numaAddNumber(NUMA * na,
 	na->n++;
 	return 0;
 }
-
 /*!
  * \brief   numaExtendArray()
  *
@@ -473,10 +468,8 @@ l_ok numaAddNumber(NUMA * na,
  */
 static int32 numaExtendArray(NUMA * na)
 {
-	size_t oldsize, newsize;
-
 	PROCNAME(__FUNCTION__);
-
+	size_t oldsize, newsize;
 	if(!na)
 		return ERROR_INT("na not defined", procName, 1);
 	if(na->nalloc > MaxFloatArraySize) /* belt & suspenders */
@@ -667,7 +660,7 @@ l_ok numaSetCount(NUMA * na,
  *          decide if a 0.0 in the returned ival is valid.
  * </pre>
  */
-l_ok numaGetFValue(NUMA       * na,
+l_ok numaGetFValue(NUMA * na,
     int32 index,
     float * pval)
 {
@@ -896,7 +889,7 @@ l_ok numaChangeRefcount(NUMA * na,
  * \param[out]   pdelx      [optional] delx
  * \return  0 if OK, 1 on error
  */
-l_ok numaGetParameters(NUMA       * na,
+l_ok numaGetParameters(NUMA * na,
     float * pstartx,
     float * pdelx)
 {

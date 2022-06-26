@@ -37,9 +37,9 @@
 #pragma hdrstop
 
 extern float AlphaMaskBorderVals[2];
-static const float MinAngleToRotate = 0.001; /* radians; ~0.06 deg */
-static const float Max1BppShearAngle = 0.06; /* radians; ~3 deg    */
-static const float LimitShearAngle = 0.35; /* radians; ~20 deg   */
+static const float MinAngleToRotate = 0.001f; /* radians; ~0.06 deg */
+static const float Max1BppShearAngle = 0.06f; /* radians; ~3 deg    */
+static const float LimitShearAngle = 0.35f; /* radians; ~20 deg   */
 
 /*------------------------------------------------------------------*
 *                  General rotation about the center               *
@@ -297,21 +297,15 @@ PIX * pixEmbedForRotation(PIX * pixs,
  *      (3) Colormaps are retained.
  * </pre>
  */
-PIX * pixRotateBySampling(PIX * pixs,
-    int32 xcen,
-    int32 ycen,
-    float angle,
-    int32 incolor)
+PIX * pixRotateBySampling(PIX * pixs, int32 xcen, int32 ycen, float angle, int32 incolor)
 {
+	PROCNAME(__FUNCTION__);
 	int32 w, h, d, i, j, x, y, xdif, ydif, wm1, hm1, wpld;
 	uint32 val;
 	float sina, cosa;
 	uint32  * datad, * lined;
 	void     ** lines;
 	PIX * pixd;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
 	if(incolor != L_BRING_IN_WHITE && incolor != L_BRING_IN_BLACK)
@@ -319,16 +313,13 @@ PIX * pixRotateBySampling(PIX * pixs,
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 1 && d != 2 && d != 4 && d != 8 && d != 16 && d != 32)
 		return (PIX *)ERROR_PTR("invalid depth", procName, NULL);
-
 	if(L_ABS(angle) < MinAngleToRotate)
 		return pixClone(pixs);
-
 	if((pixd = pixCreateTemplate(pixs)) == NULL)
 		return (PIX *)ERROR_PTR("pixd not made", procName, NULL);
 	pixSetBlackOrWhite(pixd, incolor);
-
-	sina = sin(angle);
-	cosa = cos(angle);
+	sina = sinf(angle);
+	cosa = cosf(angle);
 	datad = pixGetData(pixd);
 	wpld = pixGetWpl(pixd);
 	wm1 = w - 1;

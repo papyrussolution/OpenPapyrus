@@ -312,12 +312,22 @@ PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialog(rezI
 	if(!SetupStrListBox(P_Box))
 		PPError();
 	else {
+		/* Это не сработает :( стили  LBS_NOSEL,LBS_MULTIPLESEL,LBS_EXTENDEDSEL должны устанавливаться при создании экземпляра
+		// @v11.4.3 {
+		long   fl = 0;
+		if(flags & fMultiselect) {
+			HWND   hw = P_Box->getHandle();
+			fl = TView::GetWindowStyle(hw);
+			fl |= LBS_EXTENDEDSEL;
+			TView::SetWindowProp(hw, GWL_STYLE, fl);
+			fl = TView::GetWindowStyle(hw); // @debug
+		}
+		// } @v11.4.3 
+		*/
 		if(flags & fOmitSearchByFirstChar)
 			P_Box->SetOmitSearchByFirstChar();
-		// @v10.3.0 {
 		if(flags & fOwnerDraw)
 			P_Box->SetOwnerDrawState();
-		// } @v10.3.0 
 	}
 	if(isCurrCtlID(CtlList) && (Options & oHasOkButton) && (Options & oHasEditButton)) {
 		SetDefaultButton(STDCTL_OKBUTTON,   0);

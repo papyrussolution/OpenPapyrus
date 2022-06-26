@@ -402,12 +402,12 @@ int SIniFile::InitIniBuf2()
 		SString line_buf;
 		SString val;
 		SIniSectBuffer * p_current_sect_buf = 0;
-		for(File.Seek(0); File.ReadLine(line_buf);) {
+		for(File.Seek(0); File.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip);) {
 			if(IsSection(line_buf, 0, &temp_buf) > 0) {
 				p_current_sect_buf = P_IniBuf->AddSect(temp_buf);
 			}
 			else if(p_current_sect_buf) {
-				Scan.Set(line_buf.Chomp().Strip(), 0);
+				Scan.Set(line_buf, 0);
 				Scan.Skip();
 				if(*Scan && *Scan != ';') {
 					if(line_buf.Divide('=', temp_buf, val) <= 0)
@@ -565,12 +565,12 @@ int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int storeAllS
 		const  int opnr = Open(FileName);
 		THROW(opnr);
 		do_close = BIN(opnr > 0);
-		for(File.Seek(0); File.ReadLine(line_buf);) {
+		for(File.Seek(0); File.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip);) {
 			int    r = IsSection(line_buf, pSect, 0);
 			if(r > 0)
 				this_sect = BIN(r == 2);
 			else if(this_sect) {
-				Scan.Set(line_buf.Chomp().Strip(), 0);
+				Scan.Set(line_buf, 0);
 				Scan.Skip();
 				if(*Scan && *Scan != ';') {
 					if(storeAllString)
@@ -613,12 +613,12 @@ int SIniFile::SearchParam(const char * pSect, const char * pParam, SString & rVa
 		}*/
 		DecodeText(sect);
 		DecodeText(key);
-		for(File.Seek(0); ok < 0 && File.ReadLine(line_buf);) {
+		for(File.Seek(0); ok < 0 && File.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip);) {
 			int    r = IsSection(line_buf, sect, 0);
 			if(r > 0)
 				this_sect = BIN(r == 2);
 			else if(this_sect || isempty(pSect)) {
-				Scan.Set(line_buf.Chomp().Strip(), 0);
+				Scan.Set(line_buf, 0);
 				Scan.Skip();
 				if(*Scan != ';') {
 					line_buf.Divide('=', temp_buf, val);

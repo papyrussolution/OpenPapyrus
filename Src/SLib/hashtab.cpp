@@ -1406,8 +1406,7 @@ SLTEST_R(HASHTAB)
 			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
 			SFile inf(in_buf, SFile::mRead);
 			THROW(SLTEST_CHECK_NZ(inf.IsValid()));
-			while(inf.ReadLine(line_buf)) {
-				line_buf.Chomp();
+			while(inf.ReadLine(line_buf, SFile::rlfChomp)) {
 				char * p_str = newStr(line_buf);
 				THROW(SLTEST_CHECK_NZ(ptr_collection.insert(p_str)));
 				//
@@ -1457,8 +1456,7 @@ SLTEST_R(HASHTAB)
 			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
 			SFile inf(in_buf, SFile::mRead);
 			THROW(SLTEST_CHECK_NZ(inf.IsValid()));
-			while(inf.ReadLine(line_buf)) {
-				line_buf.Chomp();
+			while(inf.ReadLine(line_buf, SFile::rlfChomp)) {
 				char * p_str = newStr(line_buf);
 				THROW(SLTEST_CHECK_NZ(ptr_collection.insert(p_str)));
 				_count++;

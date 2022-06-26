@@ -1318,6 +1318,7 @@ int ssh_match_group(const char * group, const char * object)
 	return 0;
 }
 
+/* @sobolev
 #if !defined(HAVE_EXPLICIT_BZERO)
 void memzero(void * s, size_t n)
 {
@@ -1328,13 +1329,13 @@ void memzero(void * s, size_t n)
 #else
 	memset(s, '\0', n);
 #if defined(HAVE_GCC_VOLATILE_MEMORY_PROTECTION)
-	/* See http://llvm.org/bugs/show_bug.cgi?id=15495 */
+	// See http://llvm.org/bugs/show_bug.cgi?id=15495 
 	__asm__ volatile ("" : : "g" (s) : "memory");
-#endif /* HAVE_GCC_VOLATILE_MEMORY_PROTECTION */
+#endif // HAVE_GCC_VOLATILE_MEMORY_PROTECTION
 #endif
 }
-
-#endif /* !HAVE_EXPLICIT_BZERO */
+#endif // !HAVE_EXPLICIT_BZERO 
+*/
 
 #if !defined(HAVE_STRNDUP)
 char * strndup(const char * s, size_t n)

@@ -911,6 +911,18 @@ int    Lst2LstDialogUI::removeAll() { return -1; }
 SmartListBox * Lst2LstDialogUI::GetLeftList() { return static_cast<SmartListBox *>(getCtrlView(Data.LeftCtlId)); }
 SmartListBox * Lst2LstDialogUI::GetRightList() { return static_cast<SmartListBox *>(getCtrlView(Data.RightCtlId)); }
 
+uint Lst2LstDialogUI::GetLeftSelectionList(LongArray * pList)
+{
+	SmartListBox * p_lv = GetLeftList();
+	return p_lv ? p_lv->GetSelectionList(pList) : 0;
+}
+
+uint Lst2LstDialogUI::GetRightSelectionList(LongArray * pList)
+{
+	SmartListBox * p_lv = GetRightList();
+	return p_lv ? p_lv->GetSelectionList(pList) : 0;
+}
+
 int Lst2LstDialogUI::setup()
 {
 	if(Data.TitleStrID) {
@@ -936,7 +948,9 @@ IMPL_HANDLE_EVENT(Lst2LstDialogUI)
 	if(TVCOMMAND)
 		switch(TVCMD) {
 			case cmaInsert:     addNewItem(); break;
-			case cmForward:     addItem();    break;
+			case cmForward:     
+				addItem();    
+				break;
 			case cmAllForward:  addAll();     break;
 			case cmBackward:    removeItem(); break;
 			case cmAllBackward: removeAll();  break;
@@ -1400,14 +1414,22 @@ int FASTCALL Lst2LstObjDialog::Helper_AddItemRecursive(PPID id, StdTreeListBoxDe
 int Lst2LstObjDialog::addItem()
 {
 	int    ok = 1;
-	PPID   id = 0;
 	SmartListBox * p_view = GetLeftList();
-	if(p_view && p_view->getCurID(&id) && id && !Data.P_List->lsearch(id)) {
-		if(Data.Flags & ListToListData::fIsTreeList) {
-			THROW(Helper_AddItemRecursive(id, (StdTreeListBoxDef*)p_view->def));
-		}
-		else {
-			THROW(Data.P_List->add(id));
+	LongArray sel_list;
+	uint sc = GetLeftSelectionList(&sel_list);
+	//
+	//if(p_view && p_view->getCurID(&id) && id && !Data.P_List->lsearch(id)) {
+	if(p_view && sel_list.getCount()) {
+		for(uint i = 0; i < sel_list.getCount(); i++) {
+			PPID id = sel_list.get(i);
+			if(id > 0) {
+				if(Data.Flags & ListToListData::fIsTreeList) {
+					THROW(Helper_AddItemRecursive(id, (StdTreeListBoxDef *)p_view->def));
+				}
+				else {
+					THROW(Data.P_List->add(id));
+				}
+			}
 		}
 		THROW(setupRightList());
 	}
@@ -1439,11 +1461,17 @@ int FASTCALL Lst2LstObjDialog::Helper_RemoveItemRecursive(PPID id, StdTreeListBo
 int Lst2LstObjDialog::removeItem()
 {
 	int    ok = 1;
-	PPID   id;
-	SmartListBox * p_list = GetRightList();
-	if(p_list && p_list->getCurID(&id)) {
-		if(Data.P_List->freeByKey(id, 0) > 0)
-			THROW(setupRightList());
+	SmartListBox * p_view = GetRightList();
+	LongArray sel_list;
+	uint sc = GetRightSelectionList(&sel_list);
+	if(p_view && sel_list.getCount()) {
+		for(uint i = 0; i < sel_list.getCount(); i++) {
+			PPID id = sel_list.get(i);
+			if(id > 0) {
+				Data.P_List->freeByKey(id, 0);
+			}
+		}
+		THROW(setupRightList());
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -2796,8 +2824,8 @@ int STDCALL SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, con
 //
 //
 //
-ListBoxSelDlg::ListBoxSelDlg(ListBoxDef * pDef, uint dlgID /*=0*/) :
-	PPListDialog((dlgID) ? dlgID : ((pDef && pDef->_isTreeList()) ? DLG_LBXSELT : DLG_LBXSEL), CTL_LBXSEL_LIST), P_Def(pDef)
+ListBoxSelDialog::ListBoxSelDialog(ListBoxDef * pDef, uint dlgID, uint flags/*PPListDialog::fXXX*/) :
+	PPListDialog((dlgID) ? dlgID : ((pDef && pDef->_isTreeList()) ? DLG_LBXSELT : DLG_LBXSEL), CTL_LBXSEL_LIST, flags), P_Def(pDef)
 {
 	showCtrl(STDCTL_INSBUTTON,  0);
 	showCtrl(STDCTL_EDITBUTTON, 0);
@@ -2808,20 +2836,20 @@ ListBoxSelDlg::ListBoxSelDlg(ListBoxDef * pDef, uint dlgID /*=0*/) :
 }
 
 // AHTOXA {
-int ListBoxSelDlg::setupList()
+int ListBoxSelDialog::setupList()
 {
 	CALLPTRMEMB(P_Box, setDef(P_Def));
 	return 1;
 }
 
-int ListBoxSelDlg::editItem(long pos, long id)
+int ListBoxSelDialog::editItem(long pos, long id)
 {
 	if(pos >= 0 && IsInState(sfModal))
 		endModal(cmOK);
 	return -1;
 }
 
-int ListBoxSelDlg::getDTS(PPID * pID)
+int ListBoxSelDialog::getDTS(PPID * pID)
 {
 	long   pos = 0, id = 0;
 	getCurItem(&pos, &id);
@@ -2829,20 +2857,20 @@ int ListBoxSelDlg::getDTS(PPID * pID)
 	return 1;
 }
 
-int ListBoxSelDlg::setDTS(PPID id)
+int ListBoxSelDialog::setDTS(PPID id)
 {
 	CALLPTRMEMB(P_Box, TransmitData(+1, &id));
 	return 1;
 }
 
-int STDCALL ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr)
+/*static*/int STDCALL ListBoxSelDialog::Run(PPID objID, PPID * pID, void * extraPtr)
 {
 	int    ok = -1;
 	PPObject * ppobj = GetPPObject(objID, extraPtr);
 	ListBoxDef * p_def = ppobj ? ppobj->Selector(0, 0, extraPtr) : 0;
-	ListBoxSelDlg * p_dlg = 0;
+	ListBoxSelDialog * p_dlg = 0;
 	if(p_def) {
-		p_dlg = new ListBoxSelDlg(p_def);
+		p_dlg = new ListBoxSelDialog(p_def, 0, 0);
 		if(CheckDialogPtrErr(&p_dlg)) {
 			PPID id = DEREFPTRORZ(pID);
 			SString obj_title;
@@ -2864,12 +2892,12 @@ int STDCALL ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int STDCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint flags)
+/*static*/int STDCALL ListBoxSelDialog::Run(uint dlgID, StrAssocArray * pAry, PPID * pID/*, uint flags*/)
 {
 	int    ok = -1;
-	ListBoxSelDlg * p_dlg = 0;
+	ListBoxSelDialog * p_dlg = 0;
 	ListBoxDef * p_def = pAry ? new StrAssocListBoxDef(pAry, lbtDblClkNotify|lbtFocNotify) : 0;
-	if(p_def && CheckDialogPtrErr(&(p_dlg = new ListBoxSelDlg(p_def, dlgID)))) {
+	if(p_def && CheckDialogPtrErr(&(p_dlg = new ListBoxSelDialog(p_def, dlgID, 0)))) {
 		PPID id = DEREFPTRORZ(pID);
 		p_dlg->setDTS(id);
 		if(ExecView(p_dlg) == cmOK) {
@@ -2943,20 +2971,57 @@ int  AdvComboBoxSelDialog(const StrAssocArray & rAry, SString & rTitle, SString 
 	return ok;
 }
 
-int STDCALL ListBoxSelDialog(StrAssocArray * pAry, uint titleStrId, PPID * pID, uint flags)
+/*static*/int STDCALL ListBoxSelDialog::Run(StrAssocArray * pAry, uint titleStrId, PPID * pID/*, uint flags*/)
 {
 	SString title;
 	if(titleStrId)
 		PPLoadText(titleStrId, title);
-	return ListBoxSelDialog(pAry, title, pID, flags);
+	return ListBoxSelDialog::Run(pAry, title, pID/*, flags*/);
 }
 
-int STDCALL ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * pID, uint flags)
+/*static*/int STDCALL ListBoxSelDialog::Run(StrAssocArray * pAry, const char * pTitle, PPIDArray * pIdList) // @construction
 {
 	int    ok = -1;
-	ListBoxSelDlg * p_dlg = 0;
+	ListBoxSelDialog * p_dlg = 0;
 	ListBoxDef * p_def = pAry ? new StrAssocListBoxDef(pAry, lbtDblClkNotify|lbtFocNotify) : 0;
-	if(p_def && CheckDialogPtrErr(&(p_dlg = new ListBoxSelDlg(p_def)))) {
+	if(p_def && CheckDialogPtrErr(&(p_dlg = new ListBoxSelDialog(p_def, 0, PPListDialog::fMultiselect)))) {
+		{
+			SString title_buf;
+			if(pTitle && pTitle[0] == '@') {
+				if(PPLoadString(pTitle+1, title_buf) <= 0)
+					title_buf = pTitle;
+			}
+			else
+				title_buf = pTitle;
+			p_dlg->setTitle(title_buf);
+		}
+		PPID   id = 0;//DEREFPTRORZ(pID);
+		// @stub {
+		if(pIdList)
+			id = pIdList->getSingle();
+		// } @stub 
+		p_dlg->setDTS(id);
+		if(ExecView(p_dlg) == cmOK) {
+			p_dlg->getDTS(&id);
+			if(pIdList)
+				pIdList->add(id);
+			ok = 1;
+		}
+		else
+			ok = 0;
+	}
+	else
+		ok = 0;
+	delete p_dlg;
+	return ok;
+}
+
+/*static*/int STDCALL ListBoxSelDialog::Run(StrAssocArray * pAry, const char * pTitle, PPID * pID/*, uint flags*/)
+{
+	int    ok = -1;
+	ListBoxSelDialog * p_dlg = 0;
+	ListBoxDef * p_def = pAry ? new StrAssocListBoxDef(pAry, lbtDblClkNotify|lbtFocNotify) : 0;
+	if(p_def && CheckDialogPtrErr(&(p_dlg = new ListBoxSelDialog(p_def, 0, 0)))) {
 		{
 			SString title_buf;
 			if(pTitle && pTitle[0] == '@') {
@@ -5480,7 +5545,7 @@ int ResolveGoodsDialog::CreateAllGoods()
 {
 	int    ok = 1;
 	PPID   goods_grp_id = 0;
-	if(ListBoxSelDialog(PPOBJ_GOODSGROUP, &goods_grp_id, (void *)GGRTYP_SEL_NORMAL) > 0)
+	if(ListBoxSelDialog::Run(PPOBJ_GOODSGROUP, &goods_grp_id, (void *)GGRTYP_SEL_NORMAL) > 0)
 		for(uint i = 0; ok > 0 && i < Data.getCount(); i++)
 			if(Data.at(i).ResolvedGoodsID == 0)
 				ok = CreateGoods(i, goods_grp_id, 0);

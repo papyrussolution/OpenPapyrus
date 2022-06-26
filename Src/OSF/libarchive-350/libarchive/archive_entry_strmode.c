@@ -17,17 +17,14 @@ __FBSDID("$FreeBSD: src/lib/libarchive/archive_entry_strmode.c,v 1.4 2008/06/15 
 
 #include "archive_entry_private.h"
 
-const char * archive_entry_strmode(ArchiveEntry * entry)
+const char * FASTCALL archive_entry_strmode(ArchiveEntry * entry)
 {
-	static const mode_t permbits[] =
-	{ 0400, 0200, 0100, 0040, 0020, 0010, 0004, 0002, 0001 };
+	static const mode_t permbits[] = { 0400, 0200, 0100, 0040, 0020, 0010, 0004, 0002, 0001 };
 	char * bp = entry->strmode;
 	mode_t mode;
 	int i;
-
 	/* Fill in a default string, then selectively override. */
 	strcpy(bp, "?rwxrwxrwx ");
-
 	mode = archive_entry_mode(entry);
 	switch(archive_entry_filetype(entry)) {
 		case AE_IFREG:  bp[0] = '-'; break;
@@ -43,25 +40,28 @@ const char * archive_entry_strmode(ArchiveEntry * entry)
 			    break;
 		    }
 	}
-
 	for(i = 0; i < 9; i++)
 		if(!(mode & permbits[i]))
 			bp[i+1] = '-';
-
 	if(mode & S_ISUID) {
-		if(mode & 0100) bp[3] = 's';
-		else bp[3] = 'S';
+		if(mode & 0100) 
+			bp[3] = 's';
+		else 
+			bp[3] = 'S';
 	}
 	if(mode & S_ISGID) {
-		if(mode & 0010) bp[6] = 's';
-		else bp[6] = 'S';
+		if(mode & 0010) 
+			bp[6] = 's';
+		else 
+			bp[6] = 'S';
 	}
 	if(mode & S_ISVTX) {
-		if(mode & 0001) bp[9] = 't';
-		else bp[9] = 'T';
+		if(mode & 0001) 
+			bp[9] = 't';
+		else 
+			bp[9] = 'T';
 	}
 	if(archive_entry_acl_types(entry) != 0)
 		bp[10] = '+';
-
 	return (bp);
 }

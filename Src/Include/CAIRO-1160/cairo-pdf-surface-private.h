@@ -326,7 +326,7 @@ cairo_private cairo_int_status_t _cairo_pdf_interchange_fini(cairo_pdf_surface_t
 cairo_private cairo_int_status_t _cairo_pdf_interchange_begin_page_content(cairo_pdf_surface_t * surface);
 cairo_private cairo_int_status_t _cairo_pdf_interchange_end_page_content(cairo_pdf_surface_t * surface);
 cairo_private cairo_int_status_t _cairo_pdf_interchange_tag_begin(cairo_pdf_surface_t    * surface, const char * name, const char * attributes);
-cairo_private cairo_int_status_t _cairo_pdf_interchange_tag_end(cairo_pdf_surface_t * surface, const char          * name);
+cairo_private cairo_int_status_t _cairo_pdf_interchange_tag_end(cairo_pdf_surface_t * surface, const char * name);
 cairo_private cairo_int_status_t _cairo_pdf_interchange_add_operation_extents(cairo_pdf_surface_t         * surface, const cairo_rectangle_int_t * extents);
 cairo_private cairo_int_status_t _cairo_pdf_interchange_write_page_objects(cairo_pdf_surface_t * surface);
 cairo_private cairo_int_status_t _cairo_pdf_interchange_write_document_objects(cairo_pdf_surface_t * surface);

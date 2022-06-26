@@ -1480,8 +1480,7 @@ int SrUedContainer::ReadSource(const char * pFileName)
 	SStrScan scan;
 	SFile f_in(pFileName, SFile::mRead);
 	THROW(f_in.IsValid());
-	while(f_in.ReadLine(line_buf)) {
-		line_buf.Chomp().Strip();
+	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 		if(line_buf.HasPrefix("//")) {
 			; // comment
 		}
@@ -1600,6 +1599,62 @@ int SrUedContainer::ReadSource(const char * pFileName)
 	CATCHZOK
 	return ok;
 }
+
+/*static*/void SrUedContainer::MakeUedCanonicalName(SString & rResult, long ver)
+{
+	rResult.Z();
+	rResult.Cat("ued-id").CatChar('-');
+	if(ver > 0)
+		rResult.CatLongZ(ver, 4);
+	else if(ver == 0)
+		rResult.Cat("????");
+}
+
+/*static*/long SrUedContainer::SearchLastCanonicalFile(const char * pPath, SString & rFileName)
+{
+	long   result = 0; // version
+	long   max_ver = 0;
+	SString max_ver_filename;
+	SString temp_buf;
+	SString fn_dat;
+	SString fn_hash;
+	SString fn_wc;
+	StringSet ss;
+	SDirEntry de;
+	SPathStruc ps;
+	MakeUedCanonicalName(fn_wc, 0);
+	(temp_buf = pPath).Strip().SetLastSlash().Cat(fn_wc).Dot().Cat("dat");
+	for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
+		if(de.IsFile()) {
+			ss.Z();
+			ps.Split(de.FileName);
+			ps.Nam.Tokenize("-", ss);
+			if(ss.getCount() == 3 && ss.getByIdx(2, temp_buf)) { // ued;id;version ("ued-id-0004")
+				long iter_ver = temp_buf.ToLong();
+				if(iter_ver > 0 && iter_ver > max_ver) {
+					//
+					// Необходимо убедиться что рядом с основным файлом присутствует файл с контрольной суммой (ext .sha256)
+					//
+					(temp_buf = pPath).Strip().SetLastSlash().Cat(de.FileName);
+					ps.Split(temp_buf);
+					ps.Ext = "sha256";
+					ps.Merge(temp_buf);
+					if(fileExists(temp_buf)) {
+						max_ver = iter_ver;
+						(max_ver_filename = pPath).Strip().SetLastSlash().Cat(de.FileName);
+					}
+				}
+			}
+		}
+	}
+	if(max_ver > 0) {
+		assert(max_ver_filename.NotEmpty());
+		assert(fileExists(max_ver_filename));
+		rFileName = max_ver_filename;
+		result = max_ver;
+	}
+	return result;
+}
 	
 int SrUedContainer::WriteSource(const char * pFileName)
 {
@@ -1656,10 +1711,68 @@ int SrUedContainer::WriteSource(const char * pFileName)
 	CATCHZOK
 	return ok;
 }
+
+bool SrUedContainer::GenerateSorceDecl_C()
+{
+	bool   ok = true;
+	SString temp_buf;
+	SString file_path;
+	SString def_symb;
+	SString def_value;
+	Generator_CPP gen(file_path);
+	{
+		for(uint i = 0; i < BL.getCount(); i++) {
+			const BaseEntry & r_be = BL.at(i);
+			if(UED::IsMetaId(r_be.Id)) {
+				GetS(r_be.SymbHashId, temp_buf);
+				assert(temp_buf.NotEmpty());
+				temp_buf.ToUpper();
+				(def_symb = "UED_META_").Cat(temp_buf);
+				def_value.Z().Cat("0x").CatHex(r_be.Id);
+				gen.Wr_Define(def_symb, def_value);
+			}
+		}
+	}
+	{
+		
+	}
+	return ok;
+}
+
+bool SrUedContainer::GenerateSorceDecl_Java()
+{
+	bool   ok = true;
+	return ok;
+}
 	
-int SrUedContainer::Verify()
+int SrUedContainer::Verify(const char * pPath, long ver)
 {
 	int    ok = 1;
+	SString temp_buf;
+	THROW(ver > 0);
+	MakeUedCanonicalName(temp_buf, ver);
+	{
+		SString file_path;
+		SString hash_file_path;
+		binary256 hash;
+		(file_path = pPath).SetLastSlash().Cat(temp_buf).Dot().Cat("dat");
+		THROW_SL(fileExists(file_path));
+		(hash_file_path = pPath).SetLastSlash().Cat(temp_buf).Dot().Cat("sha256");
+		THROW_SL(fileExists(hash_file_path));
+		{
+			SFile f_in(file_path, SFile::mRead|SFile::mBinary);
+			SFile f_hash(hash_file_path, SFile::mRead);
+			SBinaryChunk bc_hash_stored;
+			SBinaryChunk bc_hash_evaluated;
+			THROW_SL(f_in.IsValid());
+			THROW_SL(f_hash.IsValid());
+			THROW_SL(f_in.CalcHash(0, SHASHF_SHA256, bc_hash_evaluated));
+			THROW_SL(f_hash.ReadLine(temp_buf));
+			THROW_SL(bc_hash_stored.FromHex(temp_buf.Chomp().Strip()));
+			THROW(bc_hash_stored == bc_hash_evaluated);
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -1706,12 +1819,18 @@ int Test_ReadUed(const char * pFileName)
 	}
 #endif
 	SrUedContainer uedc;
+	long   new_version = 0;
+	SPathStruc ps(pFileName);
 	THROW(uedc.ReadSource(pFileName));
 	{
-		SPathStruc ps(pFileName);
-		ps.Nam.CatChar('-').Cat("out");
+		SETIFZQ(new_version, 1);
+		SrUedContainer::MakeUedCanonicalName(ps.Nam, new_version);
+		ps.Ext = "dat";
 		ps.Merge(temp_buf);
 		THROW(uedc.WriteSource(temp_buf));
+		//
+		ps.Merge(SPathStruc::fDir|SPathStruc::fDrv, temp_buf);
+		THROW(uedc.Verify(temp_buf, new_version));
 	}
 	CATCHZOK
 	return ok;

@@ -125,7 +125,6 @@ Status GetNanosFromStringPiece(StringPiece s_nanos,
 	if(s_nanos.find_first_not_of("0123456789") != StringPiece::npos) {
 		return util::InvalidArgumentError(parse_failure_message);
 	}
-
 	if(i_nanos > 0) {
 		// 'scale' is the number of digits to the right of the decimal
 		// point in "0." + s_nanos.ToString()

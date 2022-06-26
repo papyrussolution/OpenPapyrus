@@ -11314,6 +11314,7 @@
 	#define CTLSEL_STQATTCPARAM_QK           (5  + WINDOWS_ID_BIAS)
 	#define CTL_STQATTCPARAM_LOC             (6  + WINDOWS_ID_BIAS)
 	#define CTLSEL_STQATTCPARAM_LOC          (7  + WINDOWS_ID_BIAS)
+	#define CTL_STQATTCPARAM_TSD             (8  + WINDOWS_ID_BIAS) // TimeSheetDiscreteness
 #define DLG_STQCLITEST            1412 // @v11.3.3
 	#define CTL_STQCLITEST_SVC               (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQCLITEST_FUNC              (2  + WINDOWS_ID_BIAS)

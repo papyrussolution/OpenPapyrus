@@ -17,7 +17,7 @@
 
 #define SET_LOWER "abcdefghijklmnopqrstuvwxyz"
 #define SET_UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-#define SET_DIGITS "0123456789"
+//#define SET_DIGITS "0123456789"
 
 using namespace Scintilla;
 

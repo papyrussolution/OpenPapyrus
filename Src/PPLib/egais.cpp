@@ -8212,8 +8212,8 @@ int PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP,
 				PPGetFilePath(PPPATH_IN, "egais-exclude-chargeon-marks.txt", file_name);
 				if(fileExists(file_name)) {
 					SFile f_in(file_name, SFile::mRead);
-					while(f_in.ReadLine(temp_buf)) {
-						if(PrcssrAlcReport::IsEgaisMark(temp_buf.Chomp(), 0))
+					while(f_in.ReadLine(temp_buf, SFile::rlfChomp)) {
+						if(PrcssrAlcReport::IsEgaisMark(temp_buf, 0))
 							ExclChrgOnMarks.add(temp_buf);
 					}
 				}
@@ -9015,8 +9015,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 					if(fileExists(temp_buf)) {
 						SFile f_in(temp_buf, SFile::mRead);
 						if(f_in.IsValid()) {
-							while(f_in.ReadLine(temp_buf)) {
-								temp_buf.Chomp();
+							while(f_in.ReadLine(temp_buf, SFile::rlfChomp)) {
 								ss.setBuf(temp_buf);
 								if(ss.getCount() == 3) {
 									QueryBarcode qb;

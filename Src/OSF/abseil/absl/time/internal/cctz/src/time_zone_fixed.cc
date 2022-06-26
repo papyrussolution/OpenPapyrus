@@ -13,31 +13,33 @@ namespace {
 // The prefix used for the internal names of fixed-offset zones.
 const char kFixedZonePrefix[] = "Fixed/UTC";
 
-const char kDigits[] = "0123456789";
+//const char kDigits[] = "0123456789";
 
-char* Format02d(char* p, int v) {
-	*p++ = kDigits[(v / 10) % 10];
-	*p++ = kDigits[v % 10];
+char * Format02d(char* p, int v) 
+{
+	*p++ = STextConst::P_Digits[(v / 10) % 10];
+	*p++ = STextConst::P_Digits[v % 10];
 	return p;
 }
 
-int Parse02d(const char* p) {
-	if(const char* ap = std::strchr(kDigits, *p)) {
-		int v = static_cast<int>(ap - kDigits);
-		if(const char* bp = std::strchr(kDigits, *++p)) {
-			return (v * 10) + static_cast<int>(bp - kDigits);
+int Parse02d(const char* p) 
+{
+	if(const char* ap = std::strchr(STextConst::P_Digits, *p)) {
+		int v = static_cast<int>(ap - STextConst::P_Digits);
+		if(const char* bp = std::strchr(STextConst::P_Digits, *++p)) {
+			return (v * 10) + static_cast<int>(bp - STextConst::P_Digits);
 		}
 	}
 	return -1;
 }
 }  // namespace
 
-bool FixedOffsetFromName(const std::string & name, seconds* offset) {
+bool FixedOffsetFromName(const std::string & name, seconds* offset) 
+{
 	if(name == "UTC" || name == "UTC0") {
 		*offset = seconds::zero();
 		return true;
 	}
-
 	const std::size_t prefix_len = sizeof(kFixedZonePrefix) - 1;
 	const char* const ep = kFixedZonePrefix + prefix_len;
 	if(name.size() != prefix_len + 9) // <prefix>+99:99:99

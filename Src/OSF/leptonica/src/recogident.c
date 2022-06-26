@@ -87,7 +87,7 @@
 static const int32 LeftRightPadding = 32;
 
 /* Parameters for filtering and sorting connected components in splitter */
-static const float MinFillFactor = 0.10;
+static const float MinFillFactor = 0.10f;
 static const int32 DefaultMinHeight = 15; /* min unscaled height */
 static const int32 MinOverlap1 = 6; /* in pass 1 of boxaSort2d() */
 static const int32 MinOverlap2 = 6; /* in pass 2 of boxaSort2d() */
@@ -684,8 +684,8 @@ l_ok recogCorrelationBestChar(L_RECOG    * recog,
  */
 static int32 pixCorrelationBestShift(PIX        * pix1,
     PIX        * pix2,
-    NUMA       * nasum1,
-    NUMA       * namoment1,
+    NUMA * nasum1,
+    NUMA * namoment1,
     int32 area2,
     int32 ycent2,
     int32 maxyshift,

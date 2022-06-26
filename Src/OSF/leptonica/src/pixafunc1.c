@@ -80,9 +80,8 @@
  * semi-perimeter (w + h) about 5000 or less, the O(n) binsort
  * is faster than the O(nlogn) shellsort.  */
 static const int32 MinCompsForBinSort = 200;
-
 /* Don't rotate any angle smaller than this */
-static const float MinAngleToRotate = 0.001; /* radians; ~0.06 deg */
+static const float MinAngleToRotate = 0.001f; /* radians; ~0.06 deg */
 
 /*---------------------------------------------------------------------*
 *                                Filters                              *
@@ -1418,7 +1417,7 @@ PIX * pixaRenderComponent(PIX * pixs,
 PIXA * pixaSort(PIXA    * pixas,
     int32 sorttype,
     int32 sortorder,
-    NUMA   ** pnaindex,
+    NUMA ** pnaindex,
     int32 copyflag)
 {
 	int32 i, n, nb, x, y, w, h;
@@ -1556,7 +1555,7 @@ PIXA * pixaSort(PIXA    * pixas,
 PIXA * pixaBinSort(PIXA    * pixas,
     int32 sorttype,
     int32 sortorder,
-    NUMA   ** pnaindex,
+    NUMA ** pnaindex,
     int32 copyflag)
 {
 	int32 i, n, x, y, w, h;
@@ -1900,21 +1899,16 @@ PIXAA * pixaaScaleToSize(PIXAA   * paas,
  *          count as the number of pixa in paas.
  * </pre>
  */
-PIXAA * pixaaScaleToSizeVar(PIXAA  * paas,
-    NUMA   * nawd,
-    NUMA   * nahd)
+PIXAA * pixaaScaleToSizeVar(PIXAA  * paas, NUMA * nawd, NUMA * nahd)
 {
+	PROCNAME(__FUNCTION__);
 	int32 n, i, wd, hd;
 	PIXA    * pixa1, * pixa2;
 	PIXAA   * paad;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!paas)
 		return (PIXAA*)ERROR_PTR("paas not defined", procName, NULL);
 	if(!nawd && !nahd)
 		return (PIXAA*)ERROR_PTR("!nawd && !nahd", procName, NULL);
-
 	n = pixaaGetCount(paas, NULL);
 	if(nawd && (n != numaGetCount(nawd)))
 		return (PIXAA*)ERROR_PTR("nawd wrong size", procName, NULL);
@@ -2392,7 +2386,7 @@ PIXA * pixaAddBorderGeneral(PIXA * pixad,
  * </pre>
  */
 PIXA * pixaaFlattenToPixa(PIXAA   * paa,
-    NUMA   ** pnaindex,
+    NUMA ** pnaindex,
     int32 copyflag)
 {
 	int32 i, j, m, mb, n;

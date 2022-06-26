@@ -21,7 +21,7 @@ struct hb_aat_map_t {
 public:
 	void init()
 	{
-		memzero(this, sizeof(*this));
+		THISZERO();
 		chain_flags.init();
 	}
 	void fini() 

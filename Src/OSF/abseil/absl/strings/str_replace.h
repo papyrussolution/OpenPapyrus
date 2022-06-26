@@ -28,9 +28,6 @@
 #ifndef ABSL_STRINGS_STR_REPLACE_H_
 #define ABSL_STRINGS_STR_REPLACE_H_
 
-//#include <string>
-//#include <utility>
-//#include <vector>
 #include "absl/base/attributes.h"
 #include "absl/strings/string_view.h"
 

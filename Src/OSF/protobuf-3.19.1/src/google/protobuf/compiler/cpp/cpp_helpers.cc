@@ -38,9 +38,7 @@ namespace {
 static const char kAnyMessageName[] = "Any";
 static const char kAnyProtoFile[] = "google/protobuf/any.proto";
 
-std::string DotsToColons(const std::string& name) {
-	return StringReplace(name, ".", "::", true);
-}
+std::string DotsToColons(const std::string& name) { return StringReplace(name, ".", "::", true); }
 
 static const char* const kKeywordList[] = {  //
 	"NULL",
@@ -199,9 +197,7 @@ void SetUnknownFieldsVariable(const Descriptor* descriptor, const Options& optio
 	std::string unknown_fields_type;
 	if(UseUnknownFieldSet(descriptor->file(), options)) {
 		unknown_fields_type = "::" + proto_ns + "::UnknownFieldSet";
-		(*variables)["unknown_fields"] =
-		    "_internal_metadata_.unknown_fields<" + unknown_fields_type + ">(" +
-		    unknown_fields_type + "::default_instance)";
+		(*variables)["unknown_fields"] = "_internal_metadata_.unknown_fields<" + unknown_fields_type + ">(" + unknown_fields_type + "::default_instance)";
 	}
 	else {
 		unknown_fields_type = PrimitiveTypeName(options, FieldDescriptor::CPPTYPE_STRING);
@@ -212,8 +208,8 @@ void SetUnknownFieldsVariable(const Descriptor* descriptor, const Options& optio
 	(*variables)["mutable_unknown_fields"] = "_internal_metadata_.mutable_unknown_fields<" + unknown_fields_type + ">()";
 }
 
-std::string UnderscoresToCamelCase(const std::string& input,
-    bool cap_next_letter) {
+std::string UnderscoresToCamelCase(const std::string& input, bool cap_next_letter) 
+{
 	std::string result;
 	// Note:  I distrust ctype.h due to locales.
 	for(int i = 0; i < input.size(); i++) {
@@ -249,24 +245,15 @@ bool CanInitializeByZeroing(const FieldDescriptor* field)
 {
 	if(field->is_repeated() || field->is_extension()) return false;
 	switch(field->cpp_type()) {
-		case FieldDescriptor::CPPTYPE_ENUM:
-		    return field->default_value_enum()->number() == 0;
-		case FieldDescriptor::CPPTYPE_INT32:
-		    return field->default_value_int32() == 0;
-		case FieldDescriptor::CPPTYPE_INT64:
-		    return field->default_value_int64() == 0;
-		case FieldDescriptor::CPPTYPE_UINT32:
-		    return field->default_value_uint32() == 0;
-		case FieldDescriptor::CPPTYPE_UINT64:
-		    return field->default_value_uint64() == 0;
-		case FieldDescriptor::CPPTYPE_FLOAT:
-		    return field->default_value_float() == 0;
-		case FieldDescriptor::CPPTYPE_DOUBLE:
-		    return field->default_value_double() == 0;
-		case FieldDescriptor::CPPTYPE_BOOL:
-		    return field->default_value_bool() == false;
-		default:
-		    return false;
+		case FieldDescriptor::CPPTYPE_ENUM: return field->default_value_enum()->number() == 0;
+		case FieldDescriptor::CPPTYPE_INT32: return field->default_value_int32() == 0;
+		case FieldDescriptor::CPPTYPE_INT64: return field->default_value_int64() == 0;
+		case FieldDescriptor::CPPTYPE_UINT32: return field->default_value_uint32() == 0;
+		case FieldDescriptor::CPPTYPE_UINT64: return field->default_value_uint64() == 0;
+		case FieldDescriptor::CPPTYPE_FLOAT: return field->default_value_float() == 0;
+		case FieldDescriptor::CPPTYPE_DOUBLE: return field->default_value_double() == 0;
+		case FieldDescriptor::CPPTYPE_BOOL: return field->default_value_bool() == false;
+		default: return false;
 	}
 }
 

@@ -813,10 +813,8 @@ TERM_PUBLIC int DJSVGA_set_font(GpTermEntry_Static * pThis, const char * fontspe
 	// handle fontscale for the GRX/MGRX default font 
 	if(font == grx_default_font() && dj_fontscale != 1.0) {
 		GrFont * scaled;
-		int w, h;
-
-		w = font->h.width * dj_fontscale;
-		h = font->h.height * dj_fontscale;
+		int w = font->h.width * dj_fontscale;
+		int h = font->h.height * dj_fontscale;
 		scaled = GrBuildConvertedFont(font, GR_FONTCVT_RESIZE, w, h, 0, 0);
 		font = scaled;
 		if(DJSVGA_default_font == grx_default_font())
@@ -825,11 +823,11 @@ TERM_PUBLIC int DJSVGA_set_font(GpTermEntry_Static * pThis, const char * fontspe
 
 	DJSVGA_TextOption.txo_font = font;
 	{ /* update hchar / vchar */
-		const char text[] = "0123456789";
-		int len = strlen(text);
+		//const char text[] = "0123456789";
+		int len = strlen(STextConst::P_Digits);
 		/* Note: ASCII test string, no need to convert encoding */
-		pThis->CH() = GrFontStringWidth(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT) / len;
-		pThis->CV() = GrFontStringHeight(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT);
+		pThis->CH() = GrFontStringWidth(DJSVGA_TextOption.txo_font, STextConst::P_Digits, len, GR_BYTE_TEXT) / len;
+		pThis->CV() = GrFontStringHeight(DJSVGA_TextOption.txo_font, STextConst::P_Digits, len, GR_BYTE_TEXT);
 	}
 	return res;
 }
@@ -837,7 +835,6 @@ TERM_PUBLIC int DJSVGA_set_font(GpTermEntry_Static * pThis, const char * fontspe
 TERM_PUBLIC void DJSVGA_put_text(uint x, uint y, const char * str)
 {
 	DJSVGA_flush_line();
-
 	// Use the library's text output for multiples of 90 degrees,
 	// otherwise do slow bit-by-bit rotation.
 	if((dj_angle % 90) == 0) {
@@ -1026,11 +1023,11 @@ TERM_PUBLIC void DJSVGA_enhanced_open(GpTermEntry_Static * pThis, char * fontnam
 		}
 		DJSVGA_TextOption.txo_font = font;
 		{ /* update hchar / vchar */
-			const char text[] = "0123456789";
-			int len = strlen(text);
+			//const char text[] = "0123456789";
+			int len = strlen(STextConst::P_Digits);
 			/* Note: ASCII test string, no need to convert encoding */
-			pThis->CH() = GrFontStringWidth(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT) / len;
-			pThis->CV() = GrFontStringHeight(DJSVGA_TextOption.txo_font, text, len, GR_BYTE_TEXT);
+			pThis->CH() = GrFontStringWidth(DJSVGA_TextOption.txo_font, STextConst::P_Digits, len, GR_BYTE_TEXT) / len;
+			pThis->CV() = GrFontStringHeight(DJSVGA_TextOption.txo_font, STextConst::P_Digits, len, GR_BYTE_TEXT);
 		}
 	}
 }

@@ -254,51 +254,41 @@ PIX * pixConvertHSVToRGB(PIX  * pixd,
  *            h = 200       blue
  * </pre>
  */
-l_ok convertRGBToHSV(int32 rval,
-    int32 gval,
-    int32 bval,
-    int32 * phval,
-    int32 * psval,
-    int32 * pvval)
+l_ok convertRGBToHSV(int32 rval, int32 gval, int32 bval, int32 * phval, int32 * psval, int32 * pvval)
 {
+	PROCNAME(__FUNCTION__);
 	int32 minrg, maxrg, min, max, delta;
 	float h;
-
-	PROCNAME(__FUNCTION__);
-
 	if(phval) *phval = 0;
 	if(psval) *psval = 0;
 	if(pvval) *pvval = 0;
 	if(!phval || !psval || !pvval)
 		return ERROR_INT("&hval, &sval, &vval not all defined", procName, 1);
-
 	minrg = MIN(rval, gval);
 	min = MIN(minrg, bval);
 	maxrg = MAX(rval, gval);
 	max = MAX(maxrg, bval);
 	delta = max - min;
-
 	*pvval = max;
 	if(delta == 0) { /* gray; no chroma */
 		*phval = 0;
 		*psval = 0;
 	}
 	else {
-		*psval = (int32)(255. * (float)delta / (float)max + 0.5);
+		*psval = (int32)(255.0f * (float)delta / (float)max + 0.5f);
 		if(rval == max) /* between magenta and yellow */
 			h = (float)(gval - bval) / (float)delta;
 		else if(gval == max) /* between yellow and cyan */
-			h = 2. + (float)(bval - rval) / (float)delta;
+			h = 2.0f + (float)(bval - rval) / (float)delta;
 		else /* between cyan and magenta */
-			h = 4. + (float)(rval - gval) / (float)delta;
-		h *= 40.0;
-		if(h < 0.0)
-			h += 240.0;
-		if(h >= 239.5)
-			h = 0.0;
-		*phval = (int32)(h + 0.5);
+			h = 4.0f + (float)(rval - gval) / (float)delta;
+		h *= 40.0f;
+		if(h < 0.0f)
+			h += 240.0f;
+		if(h >= 239.5f)
+			h = 0.0f;
+		*phval = (int32)(h + 0.5f);
 	}
-
 	return 0;
 }
 
@@ -315,24 +305,16 @@ l_ok convertRGBToHSV(int32 rval,
  *          and their interpretation in color space.
  * </pre>
  */
-l_ok convertHSVToRGB(int32 hval,
-    int32 sval,
-    int32 vval,
-    int32 * prval,
-    int32 * pgval,
-    int32 * pbval)
+l_ok convertHSVToRGB(int32 hval, int32 sval, int32 vval, int32 * prval, int32 * pgval, int32 * pbval)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, x, y, z;
 	float h, f, s;
-
-	PROCNAME(__FUNCTION__);
-
 	if(prval) *prval = 0;
 	if(pgval) *pgval = 0;
 	if(pbval) *pbval = 0;
 	if(!prval || !pgval || !pbval)
 		return ERROR_INT("&rval, &gval, &bval not all defined", procName, 1);
-
 	if(sval == 0) { /* gray */
 		*prval = vval;
 		*pgval = vval;
@@ -343,15 +325,14 @@ l_ok convertHSVToRGB(int32 hval,
 			return ERROR_INT("invalid hval", procName, 1);
 		if(hval == 240)
 			hval = 0;
-		h = (float)hval / 40.;
+		h = (float)hval / 40.0f;
 		i = (int32)h;
 		f = h - i;
-		s = (float)sval / 255.;
-		x = (int32)(vval * (1. - s) + 0.5);
-		y = (int32)(vval * (1. - s * f) + 0.5);
-		z = (int32)(vval * (1. - s * (1. - f)) + 0.5);
-		switch(i)
-		{
+		s = (float)sval / 255.0f;
+		x = (int32)(vval * (1.0f - s) + 0.5f);
+		y = (int32)(vval * (1.0f - s * f) + 0.5f);
+		z = (int32)(vval * (1.0f - s * (1.0f - f)) + 0.5f);
+		switch(i) {
 			case 0:
 			    *prval = vval;
 			    *pgval = z;
@@ -386,7 +367,6 @@ l_ok convertHSVToRGB(int32 hval,
 			    return 1;
 		}
 	}
-
 	return 0;
 }
 
@@ -469,18 +449,15 @@ l_ok pixcmapConvertHSVToRGB(PIXCMAP  * cmap)
  */
 PIX * pixConvertRGBToHue(PIX  * pixs)
 {
+	PROCNAME(__FUNCTION__);
 	int32 w, h, d, wplt, wpld;
 	int32 i, j, rval, gval, bval, hval, minrg, min, maxrg, max, delta;
 	float fh;
 	uint32 pixel;
 	uint32 * linet, * lined, * datat, * datad;
 	PIX * pixt, * pixd;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, NULL);
-
 	pixGetDimensions(pixs, &w, &h, &d);
 	if(d != 32 && !pixGetColormap(pixs))
 		return (PIX *)ERROR_PTR("not cmapped or rgb", procName, NULL);
@@ -511,13 +488,13 @@ PIX * pixConvertRGBToHue(PIX  * pixs)
 				if(rval == max) /* between magenta and yellow */
 					fh = (float)(gval - bval) / (float)delta;
 				else if(gval == max) /* between yellow and cyan */
-					fh = 2. + (float)(bval - rval) / (float)delta;
+					fh = 2.0f + (float)(bval - rval) / (float)delta;
 				else /* between cyan and magenta */
-					fh = 4. + (float)(rval - gval) / (float)delta;
-				fh *= 40.0;
-				if(fh < 0.0)
-					fh += 240.0;
-				hval = (int32)(fh + 0.5);
+					fh = 4.0f + (float)(rval - gval) / (float)delta;
+				fh *= 40.0f;
+				if(fh < 0.0f)
+					fh += 240.0f;
+				hval = (int32)(fh + 0.5f);
 			}
 			SET_DATA_BYTE(lined, j, hval);
 		}
@@ -955,8 +932,8 @@ PIX * pixMakeRangeMaskSV(PIX * pixs,
  */
 PIX * pixMakeHistoHS(PIX * pixs,
     int32 factor,
-    NUMA   ** pnahue,
-    NUMA   ** pnasat)
+    NUMA ** pnahue,
+    NUMA ** pnasat)
 {
 	int32 i, j, w, h, wplt, hval, sval, nd;
 	uint32 pixel;
@@ -982,13 +959,10 @@ PIX * pixMakeHistoHS(PIX * pixs,
 		numaSetCount(nasat, 256);
 		*pnasat = nasat;
 	}
-
 	if(factor <= 1)
 		pixt = pixClone(pixs);
 	else
-		pixt = pixScaleBySampling(pixs, 1.0 / (float)factor,
-			1.0 / (float)factor);
-
+		pixt = pixScaleBySampling(pixs, 1.0f / (float)factor, 1.0f / (float)factor);
 	/* Create the hue-saturation histogram */
 	pixd = pixCreate(256, 240, 32);
 	lined32 = pixGetLinePtrs(pixd, NULL);
@@ -1044,8 +1018,8 @@ PIX * pixMakeHistoHS(PIX * pixs,
  */
 PIX * pixMakeHistoHV(PIX * pixs,
     int32 factor,
-    NUMA   ** pnahue,
-    NUMA   ** pnaval)
+    NUMA ** pnahue,
+    NUMA ** pnaval)
 {
 	int32 i, j, w, h, wplt, hval, vval, nd;
 	uint32 pixel;
@@ -1071,13 +1045,10 @@ PIX * pixMakeHistoHV(PIX * pixs,
 		numaSetCount(naval, 256);
 		*pnaval = naval;
 	}
-
 	if(factor <= 1)
 		pixt = pixClone(pixs);
 	else
-		pixt = pixScaleBySampling(pixs, 1.0 / (float)factor,
-			1.0 / (float)factor);
-
+		pixt = pixScaleBySampling(pixs, 1.0f / (float)factor, 1.0f / (float)factor);
 	/* Create the hue-value histogram */
 	pixd = pixCreate(256, 240, 32);
 	lined32 = pixGetLinePtrs(pixd, NULL);
@@ -1123,20 +1094,15 @@ PIX * pixMakeHistoHV(PIX * pixs,
  *          of pixels found at that value of saturation and intensity.
  * </pre>
  */
-PIX * pixMakeHistoSV(PIX * pixs,
-    int32 factor,
-    NUMA   ** pnasat,
-    NUMA   ** pnaval)
+PIX * pixMakeHistoSV(PIX * pixs, int32 factor, NUMA ** pnasat, NUMA ** pnaval)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, j, w, h, wplt, sval, vval, nd;
 	uint32 pixel;
 	uint32 * datat, * linet;
 	void     ** lined32;
 	NUMA * nasat, * naval;
 	PIX * pixt, * pixd;
-
-	PROCNAME(__FUNCTION__);
-
 	if(pnasat) *pnasat = NULL;
 	if(pnaval) *pnaval = NULL;
 	if(!pixs || pixGetDepth(pixs) != 32)
@@ -1152,13 +1118,10 @@ PIX * pixMakeHistoSV(PIX * pixs,
 		numaSetCount(naval, 256);
 		*pnaval = naval;
 	}
-
 	if(factor <= 1)
 		pixt = pixClone(pixs);
 	else
-		pixt = pixScaleBySampling(pixs, 1.0 / (float)factor,
-			1.0 / (float)factor);
-
+		pixt = pixScaleBySampling(pixs, 1.0f / (float)factor, 1.0f / (float)factor);
 	/* Create the hue-value histogram */
 	pixd = pixCreate(256, 256, 32);
 	lined32 = pixGetLinePtrs(pixd, NULL);
@@ -1212,25 +1175,15 @@ PIX * pixMakeHistoSV(PIX * pixs,
  *          pixd = pixaDisplayTiledInRows(pixa, 32, 1000, 1.0, 0, 30, 2);
  * </pre>
  */
-l_ok pixFindHistoPeaksHSV(PIX * pixs,
-    int32 type,
-    int32 width,
-    int32 height,
-    int32 npeaks,
-    float erasefactor,
-    PTA ** ppta,
-    NUMA     ** pnatot,
-    PIXA ** ppixa)
+l_ok pixFindHistoPeaksHSV(PIX * pixs, int32 type, int32 width, int32 height, int32 npeaks, float erasefactor, PTA ** ppta, NUMA ** pnatot, PIXA ** ppixa)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, xmax, ymax, ewidth, eheight;
 	uint32 maxval;
 	BOX      * box;
 	NUMA     * natot;
 	PIX * pixh, * pixw, * pix1, * pix2, * pix3;
 	PTA * pta;
-
-	PROCNAME(__FUNCTION__);
-
 	if(ppixa) *ppixa = NULL;
 	if(ppta) *ppta = NULL;
 	if(pnatot) *pnatot = NULL;
@@ -1240,21 +1193,17 @@ l_ok pixFindHistoPeaksHSV(PIX * pixs,
 		return ERROR_INT("&pta and &natot not both defined", procName, 1);
 	if(type != L_HS_HISTO && type != L_HV_HISTO && type != L_SV_HISTO)
 		return ERROR_INT("invalid HSV histo type", procName, 1);
-
 	if((pta = ptaCreate(npeaks)) == NULL)
 		return ERROR_INT("pta not made", procName, 1);
 	*ppta = pta;
 	if((natot = numaCreate(npeaks)) == NULL)
 		return ERROR_INT("natot not made", procName, 1);
 	*pnatot = natot;
-
 	*ppta = pta;
 	if(type == L_SV_HISTO)
-		pixh = pixAddMirroredBorder(pixs, width + 1, width + 1, height + 1,
-			height + 1);
+		pixh = pixAddMirroredBorder(pixs, width + 1, width + 1, height + 1, height + 1);
 	else /* type == L_HS_HISTO or type == L_HV_HISTO */
-		pixh = pixAddMixedBorder(pixs, width + 1, width + 1, height + 1,
-			height + 1);
+		pixh = pixAddMixedBorder(pixs, width + 1, width + 1, height + 1, height + 1);
 
 	/* Get the total count in the sliding window.  If the window
 	 * fully covers the peak, this will be the integrated
@@ -1274,35 +1223,29 @@ l_ok pixFindHistoPeaksHSV(PIX * pixs,
 		ptaAddPt(pta, xmax, ymax);
 		ewidth = (int32)(width * erasefactor);
 		eheight = (int32)(height * erasefactor);
-		box = boxCreate(xmax - ewidth, ymax - eheight, 2 * ewidth + 1,
-			2 * eheight + 1);
-
+		box = boxCreate(xmax - ewidth, ymax - eheight, 2 * ewidth + 1, 2 * eheight + 1);
 		if(ppixa) {
 			pix1 = pixMaxDynamicRange(pixw, L_LINEAR_SCALE);
 			pixaAddPix(*ppixa, pix1, L_INSERT);
-			pix2 = pixConvertGrayToFalseColor(pix1, 1.0);
+			pix2 = pixConvertGrayToFalseColor(pix1, 1.0f);
 			pixaAddPix(*ppixa, pix2, L_INSERT);
 			pix1 = pixMaxDynamicRange(pixw, L_LOG_SCALE);
-			pix2 = pixConvertGrayToFalseColor(pix1, 1.0);
+			pix2 = pixConvertGrayToFalseColor(pix1, 1.0f);
 			pixaAddPix(*ppixa, pix2, L_INSERT);
 			pix3 = pixConvertTo32(pix1);
-			pixRenderHashBoxArb(pix3, box, 6, 2, L_NEG_SLOPE_LINE,
-			    1, 255, 100, 100);
+			pixRenderHashBoxArb(pix3, box, 6, 2, L_NEG_SLOPE_LINE, 1, 255, 100, 100);
 			pixaAddPix(*ppixa, pix3, L_INSERT);
 			pixDestroy(&pix1);
 		}
-
 		pixClearInRect(pixw, box);
 		boxDestroy(&box);
 		if(type == L_HS_HISTO || type == L_HV_HISTO) {
 			/* clear wraps at bottom and top */
 			if(ymax - eheight < 0) { /* overlap to bottom */
-				box = boxCreate(xmax - ewidth, 240 + ymax - eheight,
-					2 * ewidth + 1, eheight - ymax);
+				box = boxCreate(xmax - ewidth, 240 + ymax - eheight, 2 * ewidth + 1, eheight - ymax);
 			}
 			else if(ymax + eheight > 239) { /* overlap to top */
-				box = boxCreate(xmax - ewidth, 0, 2 * ewidth + 1,
-					ymax + eheight - 239);
+				box = boxCreate(xmax - ewidth, 0, 2 * ewidth + 1, ymax + eheight - 239);
 			}
 			else {
 				box = NULL;
@@ -1587,29 +1530,24 @@ l_ok convertYUVToRGB(int32 yval,
     int32 * pgval,
     int32 * pbval)
 {
+	PROCNAME(__FUNCTION__);
 	int32 rval, gval, bval;
 	float norm, ym, um, vm;
-
-	PROCNAME(__FUNCTION__);
-
 	if(prval) *prval = 0;
 	if(pgval) *pgval = 0;
 	if(pbval) *pbval = 0;
 	if(!prval || !pgval || !pbval)
 		return ERROR_INT("&rval, &gval, &bval not all defined", procName, 1);
-
-	norm = 1.0 / 256.;
-	ym = yval - 16.0;
-	um = uval - 128.0;
-	vm = vval - 128.0;
-	rval =  (int32)(norm * (298.082 * ym + 408.583 * vm) + 0.5);
-	gval = (int32)(norm * (298.082 * ym - 100.291 * um - 208.120 * vm) +
-	    0.5);
-	bval = (int32)(norm * (298.082 * ym + 516.411 * um) + 0.5);
+	norm = 1.0f / 256.0f;
+	ym = yval - 16.0f;
+	um = uval - 128.0f;
+	vm = vval - 128.0f;
+	rval =  (int32)(norm * (298.082f * ym + 408.583f * vm) + 0.5f);
+	gval = (int32)(norm * (298.082f * ym - 100.291f * um - 208.120f * vm) + 0.5f);
+	bval = (int32)(norm * (298.082f * ym + 516.411f * um) + 0.5f);
 	*prval = MIN(255, MAX(0, rval));
 	*pgval = MIN(255, MAX(0, gval));
 	*pbval = MIN(255, MAX(0, bval));
-
 	return 0;
 }
 
@@ -1819,27 +1757,19 @@ PIX * fpixaConvertXYZToRGB(FPIXA  * fpixa)
  *          values.
  * </pre>
  */
-l_ok convertRGBToXYZ(int32 rval,
-    int32 gval,
-    int32 bval,
-    float * pfxval,
-    float * pfyval,
-    float * pfzval)
+l_ok convertRGBToXYZ(int32 rval, int32 gval, int32 bval, float * pfxval, float * pfyval, float * pfzval)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(pfxval) *pfxval = 0.0;
 	if(pfyval) *pfyval = 0.0;
 	if(pfzval) *pfzval = 0.0;
 	if(!pfxval || !pfyval || !pfzval)
 		return ERROR_INT("&xval, &yval, &zval not all defined", procName, 1);
-
-	*pfxval = 0.4125 * rval + 0.3576 * gval + 0.1804 * bval;
-	*pfyval = 0.2127 * rval + 0.7152 * gval + 0.0722 * bval;
-	*pfzval = 0.0193 * rval + 0.1192 * gval + 0.9502 * bval;
+	*pfxval = 0.4125f * rval + 0.3576f * gval + 0.1804f * bval;
+	*pfyval = 0.2127f * rval + 0.7152f * gval + 0.0722f * bval;
+	*pfzval = 0.0193f * rval + 0.1192f * gval + 0.9502f * bval;
 	return 0;
 }
-
 /*!
  * \brief   convertXYZToRGB()
  *
@@ -2042,34 +1972,26 @@ FPIXA * fpixaConvertLABToXYZ(FPIXA  * fpixas)
  * \param[out]   plval, paval, pbval   equivalent lab values
  * \return  0 if OK, 1 on error
  */
-l_ok convertXYZToLAB(float xval,
-    float yval,
-    float zval,
-    float * plval,
-    float * paval,
-    float * pbval)
+l_ok convertXYZToLAB(float xval, float yval, float zval, float * plval, float * paval, float * pbval)
 {
-	float xn, yn, zn, fx, fy, fz;
-
 	PROCNAME(__FUNCTION__);
-
-	if(plval) *plval = 0.0;
-	if(paval) *paval = 0.0;
-	if(pbval) *pbval = 0.0;
+	float xn, yn, zn, fx, fy, fz;
+	if(plval) *plval = 0.0f;
+	if(paval) *paval = 0.0f;
+	if(pbval) *pbval = 0.0f;
 	if(!plval || !paval || !pbval)
 		return ERROR_INT("&lval, &aval, &bval not all defined", procName, 1);
-
 	/* First normalize to the corresponding white values */
-	xn = 0.0041259 * xval;
-	yn = 0.0039216 * yval;
-	zn = 0.0036012 * zval;
+	xn = 0.0041259f * xval;
+	yn = 0.0039216f * yval;
+	zn = 0.0036012f * zval;
 	/* Then apply the lab_forward function */
 	fx = lab_forward(xn);
 	fy = lab_forward(yn);
 	fz = lab_forward(zn);
-	*plval = 116.0 * fy - 16.0;
-	*paval = 500.0 * (fx - fy);
-	*pbval = 200.0 * (fy - fz);
+	*plval = 116.0f * fy - 16.0f;
+	*paval = 500.0f * (fx - fy);
+	*pbval = 200.0f * (fy - fz);
 	return 0;
 }
 
@@ -2080,29 +2002,21 @@ l_ok convertXYZToLAB(float xval,
  * \param[out]   pxval, pyval, pzval   equivalent xyz values
  * \return  0 if OK, 1 on error
  */
-l_ok convertLABToXYZ(float lval,
-    float aval,
-    float bval,
-    float * pxval,
-    float * pyval,
-    float * pzval)
+l_ok convertLABToXYZ(float lval, float aval, float bval, float * pxval, float * pyval, float * pzval)
 {
-	float fx, fy, fz;
-	float xw = 242.37; /* x component corresponding to rgb white */
-	float yw = 255.0; /* y component corresponding to rgb white */
-	float zw = 277.69; /* z component corresponding to rgb white */
-
 	PROCNAME(__FUNCTION__);
-
-	if(pxval) *pxval = 0.0;
-	if(pyval) *pyval = 0.0;
-	if(pzval) *pzval = 0.0;
+	float fx, fy, fz;
+	float xw = 242.37f; /* x component corresponding to rgb white */
+	float yw = 255.0f; /* y component corresponding to rgb white */
+	float zw = 277.69f; /* z component corresponding to rgb white */
+	if(pxval) *pxval = 0.0f;
+	if(pyval) *pyval = 0.0f;
+	if(pzval) *pzval = 0.0f;
 	if(!pxval || !pyval || !pzval)
 		return ERROR_INT("&xval, &yval, &zval not all defined", procName, 1);
-
-	fy = 0.0086207 * (16.0 + lval);
-	fx = fy + 0.002 * aval;
-	fz = fy - 0.005 * bval;
+	fy = 0.0086207f * (16.0f + lval);
+	fx = fy + 0.002f * aval;
+	fz = fy - 0.005f * bval;
 	*pxval = xw * lab_reverse(fx);
 	*pyval = yw * lab_reverse(fy);
 	*pzval = zw * lab_reverse(fz);
@@ -2118,17 +2032,16 @@ l_ok convertLABToXYZ(float lval,
  */
 static float lab_forward(float v)
 {
-	const float f_thresh = 0.008856; /* (6/29)^3  */
-	const float f_factor = 7.787; /* (1/3) * (29/6)^2)  */
-	const float f_offset = 0.13793; /* 4/29 */
-
+	const float f_thresh = 0.008856f; /* (6/29)^3  */
+	const float f_factor = 7.787f; /* (1/3) * (29/6)^2)  */
+	const float f_offset = 0.13793f; /* 4/29 */
 	if(v > f_thresh) {
 #if  SLOW_CUBE_ROOT
 		return powf(v, 0.333333);
 #else
 		float num, den;
-		num = 4.37089e-04 + v * (9.52695e-02 + v * (1.25201 + v * 1.30273));
-		den = 3.91236e-03 + v * (2.95408e-01 + v * (1.71714 + v * 6.34341e-01));
+		num = 4.37089e-04f + v * (9.52695e-02f + v * (1.25201f + v * 1.30273f));
+		den = 3.91236e-03f + v * (2.95408e-01f + v * (1.71714f + v * 6.34341e-01f));
 		return num / den;
 #endif
 	}
@@ -2136,17 +2049,15 @@ static float lab_forward(float v)
 		return f_factor * v + f_offset;
 	}
 }
-
 /*
  * See http://en.wikipedia.org/wiki/Lab_color_space for formulas.
  * This is the reverse (inverse) function: from lab to xyz.
  */
 static float lab_reverse(float v)
 {
-	const float r_thresh = 0.20690; /* 6/29  */
-	const float r_factor = 0.12842; /* 3 * (6/29)^2   */
-	const float r_offset = 0.13793; /* 4/29 */
-
+	const float r_thresh = 0.20690f; /* 6/29  */
+	const float r_factor = 0.12842f; /* 3 * (6/29)^2   */
+	const float r_offset = 0.13793f; /* 4/29 */
 	if(v > r_thresh) {
 		return v * v * v;
 	}
@@ -2154,7 +2065,6 @@ static float lab_reverse(float v)
 		return r_factor * (v - r_offset);
 	}
 }
-
 /*---------------------------------------------------------------------------*
 *               Colorspace conversion between RGB and LAB                   *
 *---------------------------------------------------------------------------*/

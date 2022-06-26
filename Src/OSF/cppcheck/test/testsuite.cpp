@@ -147,11 +147,7 @@ void TestFixture::assertEqualsFailed(const char* const filename,
 	errmsg << "_____" << std::endl;
 }
 
-bool TestFixture::assertEquals(const char * const filename,
-    const unsigned int linenr,
-    const std::string &expected,
-    const std::string &actual,
-    const std::string &msg) const
+bool TestFixture::assertEquals(const char * const filename, const unsigned int linenr, const std::string &expected, const std::string &actual, const std::string &msg) const
 {
 	if(expected != actual) {
 		assertEqualsFailed(filename, linenr, expected, actual, msg);
@@ -166,10 +162,9 @@ std::string TestFixture::deleteLineNumber(const std::string &message)
 	std::string::size_type pos = 0;
 	while((pos = result.find(':', pos)) != std::string::npos) {
 		// get number
-		if(pos + 1 == result.find_first_of("0123456789", pos + 1)) {
+		if(pos + 1 == result.find_first_of(STextConst::P_Digits, pos + 1)) {
 			std::string::size_type after;
-			if((after = result.find_first_not_of("0123456789", pos + 1)) != std::string::npos
-			    && result.at(after) == ':') {
+			if((after = result.find_first_not_of(STextConst::P_Digits, pos + 1)) != std::string::npos && result.at(after) == ':') {
 				// erase NUMBER
 				result.erase(pos + 1, after - pos - 1);
 				pos = after;

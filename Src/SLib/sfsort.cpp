@@ -184,8 +184,7 @@ int SFSortChunkInfo::ChargeForMerging()
 	THROW(fileExists(FileName));
 	THROW_S(P_RdStream = new SFile(FileName, SFile::mRead|SFile::mBinary|SFile::mNoStd|SFile::mBuffRd), SLERR_NOMEM);
 	THROW(P_RdStream->IsValid());
-	P_RdStream->ReadLine(temp_buf);
-	temp_buf.Chomp();
+	P_RdStream->ReadLine(temp_buf, SFile::rlfChomp);
 	THROW(temp_buf == First);
 	CurrentFlushIdx_ = 1;
 	CATCHZOK
@@ -197,8 +196,7 @@ int SFSortChunkInfo::ShiftNext()
 	int    ok = 1;
 	if(CurrentFlushIdx_ < LineCount_) {
 		assert(P_RdStream && P_RdStream->IsValid());
-		P_RdStream->ReadLine(First);
-		First.Chomp();
+		P_RdStream->ReadLine(First, SFile::rlfChomp);
 	}
 	else {
 		THROW(CurrentFlushIdx_ <= LineCount_);
@@ -521,8 +519,7 @@ SFile::SortParam::SortParam() : MaxChunkSize(8*1024*1024), MaxChunkCount(8), Max
 				f_src.CalcSize(&cb_info.TotalFileSize);
 				volatile int thread_result = 1;
 				thread_counter.Incr();
-				while(f_src.ReadLine(line_buf)) {
-					line_buf.Chomp();
+				while(f_src.ReadLine(line_buf, SFile::rlfChomp)) {
 					total_line_count++;
 					if(chunk_.GetPoolDataLen() >= max_chunk_size) {
 						SFSortChunkInfo * p_new_ci = p_header_list->CreateItem();
@@ -684,8 +681,7 @@ SLTEST_R(FileSort)
 		{
             SFile f_result(dest_file_name, SFile::mRead|SFile::mNoStd|SFile::mBinary|SFile::mBuffRd);
             uint   test_count = 0;
-            while(f_result.ReadLine(line_buf)) {
-				line_buf.Chomp();
+            while(f_result.ReadLine(line_buf, SFile::rlfChomp)) {
 				const long value = line_buf.ToLong();
 				THROW(SLTEST_CHECK_LT(static_cast<long>(test_count), test_list.getCountI()));
 				THROW(SLTEST_CHECK_EQ(value, test_list.get(test_count)));

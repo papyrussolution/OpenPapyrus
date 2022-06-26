@@ -5,9 +5,6 @@
  * This translation unit implements routines associated
  * with cleaning up threads.
  *
- *
- * --------------------------------------------------------------------------
- *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom
  *   Copyright 1999-2018, Pthreads4w contributors
@@ -22,14 +19,6 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * --------------------------------------------------------------------------
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
@@ -65,8 +54,8 @@
 __ptw32_cleanup_t * __ptw32_pop_cleanup(int execute)
 {
 	__ptw32_cleanup_t * cleanup = (__ptw32_cleanup_t*)pthread_getspecific(__ptw32_cleanupKey);
-	if(cleanup != NULL) {
-		if(execute && (cleanup->routine != NULL)) {
+	if(cleanup) {
+		if(execute && cleanup->routine) {
 			(*cleanup->routine)(cleanup->arg);
 		}
 		pthread_setspecific(__ptw32_cleanupKey, (void *)cleanup->prev);
@@ -74,7 +63,6 @@ __ptw32_cleanup_t * __ptw32_pop_cleanup(int execute)
 	return (cleanup);
 }
 /*
- * ------------------------------------------------------
  * DOCPUBLIC
  *   This function pushes a new cleanup handler onto the thread's stack
  *   of cleanup handlers. Each cleanup handler pushed onto the stack is
@@ -107,10 +95,7 @@ __ptw32_cleanup_t * __ptw32_pop_cleanup(int execute)
  *       in the same lexical scope.
  *
  * RESULTS
- *     pthread_cleanup_t *
- *                     pointer to the previous cleanup
- *
- * ------------------------------------------------------
+ *     pthread_cleanup_t * pointer to the previous cleanup
  */
 void __ptw32_push_cleanup(__ptw32_cleanup_t * cleanup, __ptw32_cleanup_callback_t routine, void * arg)
 {

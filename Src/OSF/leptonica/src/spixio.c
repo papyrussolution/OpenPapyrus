@@ -43,7 +43,7 @@
 /* Image dimension limits */
 static const int32 MaxAllowedWidth = 1000000;
 static const int32 MaxAllowedHeight = 1000000;
-static const l_int64 MaxAllowedArea = 400000000LL;
+static const int64 MaxAllowedArea = 400000000LL;
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG_SERIALIZE      0

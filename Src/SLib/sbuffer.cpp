@@ -796,7 +796,7 @@ int SBinaryChunk::FromHex(const char * pHexString)
 		for(size_t i = 0; i < len; i++) {
 			THROW(ishex(pHexString[i]));
 		}
-		Hex_Decode(reinterpret_cast<uint8 *>(P_Buf), Len(), *this);
+		Hex_Decode(reinterpret_cast<const uint8 *>(pHexString), len, *this);
 	}
 	CATCHZOK
 	return ok;

@@ -157,7 +157,7 @@ int SalChargeDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
-	if(ListBoxSelDialog(PPOBJ_SALCHARGE, &id, reinterpret_cast<void *>(-10000)) > 0 && Data.GrpList.lsearch(id) <= 0) {
+	if(ListBoxSelDialog::Run(PPOBJ_SALCHARGE, &id, reinterpret_cast<void *>(-10000)) > 0 && Data.GrpList.lsearch(id) <= 0) {
 		Data.GrpList.addUnique(id);
 		ASSIGN_PTR(pPos, Data.GrpList.getCount()-1);
 		ASSIGN_PTR(pID, id);

@@ -1,5 +1,5 @@
 // BDB.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1724,9 +1724,8 @@ SLTEST_R(BerkeleyDB)
 					//
 					StrAssocArray test_list;
 					THROW(SLTEST_CHECK_NZ(bdb.StartTransaction()));
-					while(f_in.ReadLine(line_buf) && count < test_ta_count) {
+					while(f_in.ReadLine(line_buf, SFile::rlfChomp) && count < test_ta_count) {
 						count++;
-						line_buf.Chomp();
 						test_list.Add(count, line_buf);
 						line_buf.Divide(';', en_buf, ru_buf);
 
@@ -1771,9 +1770,8 @@ SLTEST_R(BerkeleyDB)
 					//
 					StrAssocArray test_list;
 					THROW(SLTEST_CHECK_NZ(bdb.StartTransaction()));
-					while(f_in.ReadLine(line_buf) && count < 2*test_ta_count) {
+					while(f_in.ReadLine(line_buf, SFile::rlfChomp) && count < 2*test_ta_count) {
 						count++;
-						line_buf.Chomp();
 						test_list.Add(count, line_buf);
 						line_buf.Divide(';', en_buf, ru_buf);
 
@@ -1807,9 +1805,8 @@ SLTEST_R(BerkeleyDB)
 					count = 0;
 					f_in.Seek(0, SEEK_SET);
 					THROW(SLTEST_CHECK_NZ(bdb.StartTransaction()));
-					while(f_in.ReadLine(line_buf)) {
+					while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
 						count++;
-						line_buf.Chomp();
 						test_list.Add(count, line_buf);
 						line_buf.Divide(';', en_buf, ru_buf);
 

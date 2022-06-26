@@ -1,5 +1,5 @@
 // V_STAFF.CPP
-// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1394,7 +1394,7 @@ int FastEditDivBySumDlg::EditAmount(PPID divID, PPID amtID)
 		if(sel_amt_list.getCount() > 1) {
 			SString title;
 			PPLoadText(PPTXT_SELSTAFFAMTTITLE, title);
-			if(ListBoxSelDialog(&sel_amt_list, title, &pos, 0) <= 0)
+			if(ListBoxSelDialog::Run(&sel_amt_list, title, &pos) <= 0)
 				pos = -1;
 		}
 		else
@@ -1431,7 +1431,7 @@ int FastEditDivBySumDlg::EditCalendar(PPID divID, PPID parentCalID)
 			if(p_div_cal_list->getCount() > 1) {
 				SString title;
 				PPLoadText(PPTXT_SELSTAFFCALLTITLE, title);
-				ListBoxSelDialog(p_div_cal_list, title, &cal_id, 0);
+				ListBoxSelDialog::Run(p_div_cal_list, title, &cal_id);
 			}
 			else
 				cal_id = p_div_cal_list->Get(0).Id;

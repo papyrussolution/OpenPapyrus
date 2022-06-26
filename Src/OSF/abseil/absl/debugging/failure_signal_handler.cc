@@ -17,7 +17,6 @@
 #ifdef ABSL_HAVE_MMAP
 #include <sys/mman.h>
 #endif
-#include "absl/base/internal/errno_saver.h"
 #include "absl/debugging/internal/examine_stack.h"
 #include "absl/debugging/stacktrace.h"
 

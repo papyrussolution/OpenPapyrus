@@ -193,9 +193,7 @@ bool ArgsList::ReadFromFlagfile(const std::string & flag_file_name) {
 
 	return success;
 }
-
-// --------------------------------------------------------------------
-
+//
 // Reads the environment variable with name `name` and stores results in
 // `value`. If variable is not present in environment returns false, otherwise
 // returns true.
@@ -223,9 +221,7 @@ bool GetEnvVar(const char* var_name, std::string & var_value) {
 
 	return true;
 }
-
-// --------------------------------------------------------------------
-
+//
 // Returns:
 //  Flag name or empty if arg= --
 //  Flag value after = in --flag=value (empty if --foo)
@@ -258,26 +254,20 @@ std::tuple<absl::string_view, absl::string_view, bool> SplitNameAndValue(absl::s
 
 	return std::make_tuple(flag_name, value, is_empty_value);
 }
-
-// --------------------------------------------------------------------
-
+//
 // Returns:
 //  found flag or nullptr
 //  is negative in case of --nofoo
 std::tuple<CommandLineFlag*, bool> LocateFlag(absl::string_view flag_name) {
 	CommandLineFlag* flag = absl::FindCommandLineFlag(flag_name);
 	bool is_negative = false;
-
 	if(!flag && absl::ConsumePrefix(&flag_name, "no")) {
 		flag = absl::FindCommandLineFlag(flag_name);
 		is_negative = true;
 	}
-
 	return std::make_tuple(flag, is_negative);
 }
-
-// --------------------------------------------------------------------
-
+//
 // Verify that default values of typed flags must be convertible to string and
 // back.
 void CheckDefaultValuesParsingRoundtrip() {
@@ -296,9 +286,7 @@ void CheckDefaultValuesParsingRoundtrip() {
 				});
 #endif
 }
-
-// --------------------------------------------------------------------
-
+//
 // Returns success status, which is true if we successfully read all flag files,
 // in which case new ArgLists are appended to the input_args in a reverse order
 // of file names in the input flagfiles list. This order ensures that flags from
@@ -368,9 +356,7 @@ bool ReadFlagsFromEnv(const std::vector <std::string>& flag_names,
 
 	return success;
 }
-
-// --------------------------------------------------------------------
-
+//
 // Returns success status, which is true if were able to handle all generator
 // flags (flagfile, fromenv, tryfromemv) successfully.
 bool HandleGeneratorFlags(std::vector <ArgsList>& input_args,
@@ -431,9 +417,8 @@ bool HandleGeneratorFlags(std::vector <ArgsList>& input_args,
 	return success;
 }
 
-// --------------------------------------------------------------------
-
-void ResetGeneratorFlags(const std::vector <std::string>& flagfile_value) {
+void ResetGeneratorFlags(const std::vector <std::string>& flagfile_value) 
+{
 	// Setting flagfile to the value which collates all the values set on a
 	// command line and programmatically. So if command line looked like
 	// --flagfile=f1 --flagfile=f2 the final value of the FLAGS_flagfile flag is
@@ -456,9 +441,7 @@ void ResetGeneratorFlags(const std::vector <std::string>& flagfile_value) {
 	flags_internal::fromenv_needs_processing = false;
 	flags_internal::tryfromenv_needs_processing = false;
 }
-
-// --------------------------------------------------------------------
-
+//
 // Returns:
 //  success status
 //  deduced value
@@ -553,42 +536,31 @@ std::tuple<bool, absl::string_view> DeduceFlagValue(const CommandLineFlag& flag,
 	return std::make_tuple(true, value);
 }
 
-// --------------------------------------------------------------------
-
-bool CanIgnoreUndefinedFlag(absl::string_view flag_name) {
+bool CanIgnoreUndefinedFlag(absl::string_view flag_name) 
+{
 	auto undefok = absl::GetFlag(FLAGS_undefok);
 	if(std::find(undefok.begin(), undefok.end(), flag_name) != undefok.end()) {
 		return true;
 	}
-
 	if(absl::ConsumePrefix(&flag_name, "no") &&
 	    std::find(undefok.begin(), undefok.end(), flag_name) != undefok.end()) {
 		return true;
 	}
-
 	return false;
 }
 }  // namespace
 
-// --------------------------------------------------------------------
-
-bool WasPresentOnCommandLine(absl::string_view flag_name) {
+bool WasPresentOnCommandLine(absl::string_view flag_name) 
+{
 	absl::MutexLock l(&specified_flags_guard);
-	ABSL_INTERNAL_CHECK(specified_flags != nullptr,
-	    "ParseCommandLine is not invoked yet");
-
+	ABSL_INTERNAL_CHECK(specified_flags != nullptr, "ParseCommandLine is not invoked yet");
 	return std::binary_search(specified_flags->begin(), specified_flags->end(),
 		   flag_name, SpecifiedFlagsCompare{});
 }
 
-// --------------------------------------------------------------------
-
-std::vector <char*> ParseCommandLineImpl(int argc, char* argv[],
-    ArgvListAction arg_list_act,
-    UsageFlagsAction usage_flag_act,
-    OnUndefinedFlag on_undef_flag) {
+std::vector <char*> ParseCommandLineImpl(int argc, char* argv[], ArgvListAction arg_list_act, UsageFlagsAction usage_flag_act, OnUndefinedFlag on_undef_flag) 
+{
 	ABSL_INTERNAL_CHECK(argc > 0, "Missing argv[0]");
-
 	// Once parsing has started we will not have more flag registrations.
 	// If we did, they would be missing during parsing, which is a problem on
 	// itself.
@@ -789,13 +761,10 @@ std::vector <char*> ParseCommandLineImpl(int argc, char* argv[],
 }
 }  // namespace flags_internal
 
-// --------------------------------------------------------------------
-
-std::vector <char*> ParseCommandLine(int argc, char* argv[]) {
-	return flags_internal::ParseCommandLineImpl(
-		argc, argv, flags_internal::ArgvListAction::kRemoveParsedArgs,
-		flags_internal::UsageFlagsAction::kHandleUsage,
-		flags_internal::OnUndefinedFlag::kAbortIfUndefined);
+std::vector <char*> ParseCommandLine(int argc, char* argv[]) 
+{
+	return flags_internal::ParseCommandLineImpl(argc, argv, flags_internal::ArgvListAction::kRemoveParsedArgs,
+		flags_internal::UsageFlagsAction::kHandleUsage, flags_internal::OnUndefinedFlag::kAbortIfUndefined);
 }
 
 ABSL_NAMESPACE_END

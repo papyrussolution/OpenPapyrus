@@ -2534,7 +2534,7 @@ int ImportStyloScannerEntries(const char * pFileName, StyloScannerEntryPool & rR
 				const  char * p_divider = (ff == SFileFormat::Tsv) ? "\t" : ";"; // Разделители полей
 				StringSet ss(p_divider); 
 				StringSet fnss(";"); // сет для разбора потенциальных наименований полей
-				while(f_in.ReadLine(line_buf)) {
+				while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 					enum {
 						fldidUnkn = 0,
 						fldidDocN,
@@ -2546,7 +2546,6 @@ int ImportStyloScannerEntries(const char * pFileName, StyloScannerEntryPool & rR
 						fldid__Last // @anchor
 					};
 					line_no++;
-					line_buf.Chomp().Strip();
 					ss.setBuf(line_buf);
 					if(line_no == 1) { // header line
 						static const char * p_fld_names[] = {

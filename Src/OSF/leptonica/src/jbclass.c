@@ -567,15 +567,15 @@ l_ok jbClassifyRankHaus(JBCLASSER  * classer,
 	int32    * tab8;
 	float rank, x1, y1, x2, y2;
 	BOX        * box;
-	NUMA       * naclass, * napage;
-	NUMA       * nafg; /* fg area of all instances */
-	NUMA       * nafgt; /* fg area of all templates */
+	NUMA * naclass, * napage;
+	NUMA * nafg; /* fg area of all instances */
+	NUMA * nafgt; /* fg area of all templates */
 	JBFINDCTX  * findcontext;
 	L_DNAHASH  * dahash;
 	PIX        * pix, * pix1, * pix2, * pix3, * pix4;
 	PIXA       * pixa, * pixa1, * pixa2, * pixat, * pixatd;
 	PIXAA      * pixaa;
-	PTA        * pta, * ptac, * ptact;
+	PTA * pta, * ptac, * ptact;
 	SEL        * sel;
 
 	PROCNAME(__FUNCTION__);
@@ -700,7 +700,7 @@ l_ok jbClassifyRankHaus(JBCLASSER  * classer,
 				pixaAddPix(pixa, pix, L_INSERT);
 				wt = pixGetWidth(pix);
 				ht = pixGetHeight(pix);
-				l_dnaHashAdd(dahash, (l_uint64)ht * wt, nt);
+				l_dnaHashAdd(dahash, (uint64)ht * wt, nt);
 				box = boxaGetBox(boxa, i, L_CLONE);
 				pixaAddBox(pixa, box, L_INSERT);
 				pixaaAddPixa(pixaa, pixa, L_INSERT); /* unbordered instance */
@@ -761,7 +761,7 @@ l_ok jbClassifyRankHaus(JBCLASSER  * classer,
 				pixaAddPix(pixa, pix, L_INSERT);
 				wt = pixGetWidth(pix);
 				ht = pixGetHeight(pix);
-				l_dnaHashAdd(dahash, (l_uint64)ht * wt, nt);
+				l_dnaHashAdd(dahash, (uint64)ht * wt, nt);
 				box = boxaGetBox(boxa, i, L_CLONE);
 				pixaAddBox(pixa, box, L_INSERT);
 				pixaaAddPixa(pixaa, pixa, L_INSERT); /* unbordered instance */
@@ -1006,15 +1006,15 @@ l_ok jbClassifyCorrelation(JBCLASSER  * classer,
 	float x1, y1, x2, y2, xsum, ysum;
 	float thresh, weight, threshold;
 	BOX        * box;
-	NUMA       * naclass, * napage;
-	NUMA       * nafgt; /* fg area of all templates */
-	NUMA       * naarea; /* w * h area of all templates */
+	NUMA * naclass, * napage;
+	NUMA * nafgt; /* fg area of all templates */
+	NUMA * naarea; /* w * h area of all templates */
 	JBFINDCTX  * findcontext;
 	L_DNAHASH  * dahash;
 	PIX        * pix, * pix1, * pix2;
 	PIXA       * pixa, * pixa1, * pixat;
 	PIXAA      * pixaa;
-	PTA        * pta, * ptac, * ptact;
+	PTA * pta, * ptac, * ptact;
 	int32    * pixcts; /* pixel counts of each pixa */
 	int32   ** pixrowcts; /* row-by-row pixel counts of each pixa */
 	int32 x, y, rowcount, downcount, wpl;
@@ -1234,7 +1234,7 @@ l_ok jbClassifyCorrelation(JBCLASSER  * classer,
 			pixaAddPix(pixa, pix, L_INSERT);
 			wt = pixGetWidth(pix);
 			ht = pixGetHeight(pix);
-			l_dnaHashAdd(dahash, (l_uint64)ht * wt, nt);
+			l_dnaHashAdd(dahash, (uint64)ht * wt, nt);
 			box = boxaGetBox(boxa, i, L_CLONE);
 			pixaAddBox(pixa, box, L_INSERT);
 			pixaaAddPixa(pixaa, pixa, L_INSERT); /* unbordered instance */
@@ -2399,7 +2399,7 @@ static int32 findSimilarSizedTemplatesNext(JBFINDCTX  * state)
 		if(!state->dna) {
 			/* We have yet to start walking the array for the step 'i' */
 			state->dna = l_dnaHashGetDna(state->classer->dahash,
-				(l_uint64)desiredh * desiredw, L_CLONE);
+				(uint64)desiredh * desiredw, L_CLONE);
 			if(!state->dna) { /* nothing there */
 				state->i++;
 				continue;

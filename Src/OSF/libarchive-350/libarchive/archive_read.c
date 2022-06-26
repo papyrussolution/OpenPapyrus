@@ -126,7 +126,7 @@ static int64 client_skip_proxy(ArchiveReadFilter * self, int64 request)
 		__archive_errx(1, "Negative skip requested.");
 	if(request == 0)
 		return 0;
-	if(self->archive->client.skipper != NULL) {
+	if(self->archive->client.skipper) {
 		/* Seek requests over 1GiB are broken down into
 		 * multiple seeks.  This avoids overflows when the
 		 * requests get passed through 32-bit arguments. */
@@ -145,7 +145,7 @@ static int64 client_skip_proxy(ArchiveReadFilter * self, int64 request)
 			request -= get;
 		}
 	}
-	else if(self->archive->client.seeker != NULL && request > 64 * 1024) {
+	else if(self->archive->client.seeker && request > 64 * 1024) {
 		/* If the client provided a seeker but not a skipper,
 		 * we can use the seeker to skip forward.
 		 *
@@ -197,7 +197,7 @@ static int client_close_proxy(ArchiveReadFilter * self)
 static int client_open_proxy(ArchiveReadFilter * self)
 {
 	int r = ARCHIVE_OK;
-	if(self->archive->client.opener != NULL)
+	if(self->archive->client.opener)
 		r = (self->archive->client.opener)((Archive *)self->archive, self->data);
 	return r;
 }
@@ -211,16 +211,16 @@ static int client_switch_proxy(ArchiveReadFilter * self, uint iindex)
 		return ARCHIVE_OK;
 	self->archive->client.cursor = iindex;
 	data2 = self->archive->client.dataset[self->archive->client.cursor].data;
-	if(self->archive->client.switcher != NULL) {
+	if(self->archive->client.switcher) {
 		r1 = r2 = (self->archive->client.switcher)((Archive *)self->archive, self->data, data2);
 		self->data = data2;
 	}
 	else {
 		/* Attempt to call close and open instead */
-		if(self->archive->client.closer != NULL)
+		if(self->archive->client.closer)
 			r1 = (self->archive->client.closer)((Archive *)self->archive, self->data);
 		self->data = data2;
-		if(self->archive->client.opener != NULL)
+		if(self->archive->client.opener)
 			r2 = (self->archive->client.opener)((Archive *)self->archive, self->data);
 	}
 	return (r1 < r2) ? r1 : r2;
@@ -355,7 +355,7 @@ int archive_read_open1(Archive * _a)
 		return ARCHIVE_FATAL;
 	}
 	// Open data source
-	if(a->client.opener != NULL) {
+	if(a->client.opener) {
 		e = (a->client.opener)(&a->archive, a->client.dataset[0].data);
 		if(e != 0) {
 			// If the open failed, call the closer to clean up
@@ -739,7 +739,7 @@ int archive_read_data_skip(Archive * _a)
 	size_t size;
 	int64 offset;
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
-	if(a->format->read_data_skip != NULL)
+	if(a->format->read_data_skip)
 		r = (a->format->read_data_skip)(a);
 	else {
 		while((r = archive_read_data_block(&a->archive, &buff, &size, &offset)) == ARCHIVE_OK)
@@ -787,7 +787,7 @@ static int close_filters(ArchiveRead * a)
 	// Close each filter in the pipeline
 	while(f) {
 		ArchiveReadFilter * t = f->upstream;
-		if(!f->closed && f->FnClose != NULL) {
+		if(!f->closed && f->FnClose) {
 			int r1 = (f->FnClose)(f);
 			f->closed = 1;
 			if(r1 < r)
@@ -926,7 +926,7 @@ static int _archive_filter_code(Archive * _a, int n)
 static const char * _archive_filter_name(Archive * _a, int n)
 {
 	ArchiveReadFilter * f = get_filter(_a, n);
-	return f != NULL ? f->name : NULL;
+	return f ? f->name : NULL;
 }
 
 static int64 _archive_filter_bytes(Archive * _a, int n)

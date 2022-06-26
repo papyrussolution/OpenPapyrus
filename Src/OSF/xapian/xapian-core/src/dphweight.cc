@@ -83,20 +83,9 @@ void DPHWeight::init(double factor)
 	if(UNLIKELY(upper_bound < 0.0)) upper_bound = 0.0;
 }
 
-string DPHWeight::name() const
-{
-	return "Xapian::DPHWeight";
-}
-
-string DPHWeight::short_name() const
-{
-	return "dph";
-}
-
-string DPHWeight::serialise() const
-{
-	return string();
-}
+string DPHWeight::name() const { return "Xapian::DPHWeight"; }
+string DPHWeight::short_name() const { return "dph"; }
+string DPHWeight::serialise() const { return string(); }
 
 DPHWeight * DPHWeight::unserialise(const string & s) const
 {

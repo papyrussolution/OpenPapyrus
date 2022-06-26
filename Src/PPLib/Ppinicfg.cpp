@@ -950,9 +950,8 @@ int TestConfigDatabase_StringHistory()
 		SStrGroup ssg;
 		LongArray ssg_pos_list;
 		uint   line_no = 0;
-		while(f_inp.ReadLine(temp_buf)) {
+		while(f_inp.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 			line_no++;
-			temp_buf.Chomp().Strip();
 			temp_buf.ToUtf8();
 			if(DS.AddStringHistory(p_key, temp_buf)) {
 				uint sp = 0;

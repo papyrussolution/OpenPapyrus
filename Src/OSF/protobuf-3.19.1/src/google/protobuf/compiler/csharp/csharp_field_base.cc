@@ -161,32 +161,20 @@ void FieldGeneratorBase::AddDeprecatedFlag(io::Printer* printer) {
 	}
 }
 
-void FieldGeneratorBase::AddPublicMemberAttributes(io::Printer* printer) {
+void FieldGeneratorBase::AddPublicMemberAttributes(io::Printer* printer) 
+{
 	AddDeprecatedFlag(printer);
 	WriteGeneratedCodeAttributes(printer);
 }
 
-std::string FieldGeneratorBase::oneof_property_name() {
-	return UnderscoresToCamelCase(descriptor_->containing_oneof()->name(), true);
-}
+std::string FieldGeneratorBase::oneof_property_name() { return UnderscoresToCamelCase(descriptor_->containing_oneof()->name(), true); }
+std::string FieldGeneratorBase::oneof_name() { return UnderscoresToCamelCase(descriptor_->containing_oneof()->name(), false); }
+std::string FieldGeneratorBase::property_name() { return GetPropertyName(descriptor_); }
+std::string FieldGeneratorBase::name() { return UnderscoresToCamelCase(GetFieldName(descriptor_), false); }
+std::string FieldGeneratorBase::type_name() { return type_name(descriptor_); }
 
-std::string FieldGeneratorBase::oneof_name() {
-	return UnderscoresToCamelCase(descriptor_->containing_oneof()->name(), false);
-}
-
-std::string FieldGeneratorBase::property_name() {
-	return GetPropertyName(descriptor_);
-}
-
-std::string FieldGeneratorBase::name() {
-	return UnderscoresToCamelCase(GetFieldName(descriptor_), false);
-}
-
-std::string FieldGeneratorBase::type_name() {
-	return type_name(descriptor_);
-}
-
-std::string FieldGeneratorBase::type_name(const FieldDescriptor* descriptor) {
+std::string FieldGeneratorBase::type_name(const FieldDescriptor* descriptor) 
+{
 	switch(descriptor->type()) {
 		case FieldDescriptor::TYPE_ENUM:
 		    return GetClassName(descriptor->enum_type());
@@ -207,85 +195,52 @@ std::string FieldGeneratorBase::type_name(const FieldDescriptor* descriptor) {
 			    }
 		    }
 		    return GetClassName(descriptor->message_type());
-		case FieldDescriptor::TYPE_DOUBLE:
-		    return "double";
-		case FieldDescriptor::TYPE_FLOAT:
-		    return "float";
-		case FieldDescriptor::TYPE_INT64:
-		    return "long";
-		case FieldDescriptor::TYPE_UINT64:
-		    return "ulong";
-		case FieldDescriptor::TYPE_INT32:
-		    return "int";
-		case FieldDescriptor::TYPE_FIXED64:
-		    return "ulong";
-		case FieldDescriptor::TYPE_FIXED32:
-		    return "uint";
-		case FieldDescriptor::TYPE_BOOL:
-		    return "bool";
-		case FieldDescriptor::TYPE_STRING:
-		    return "string";
-		case FieldDescriptor::TYPE_BYTES:
-		    return "pb::ByteString";
-		case FieldDescriptor::TYPE_UINT32:
-		    return "uint";
-		case FieldDescriptor::TYPE_SFIXED32:
-		    return "int";
-		case FieldDescriptor::TYPE_SFIXED64:
-		    return "long";
-		case FieldDescriptor::TYPE_SINT32:
-		    return "int";
-		case FieldDescriptor::TYPE_SINT64:
-		    return "long";
-		default:
-		    GOOGLE_LOG(FATAL)<< "Unknown field type.";
-		    return "";
+		case FieldDescriptor::TYPE_DOUBLE: return "double";
+		case FieldDescriptor::TYPE_FLOAT: return "float";
+		case FieldDescriptor::TYPE_INT64: return "long";
+		case FieldDescriptor::TYPE_UINT64: return "ulong";
+		case FieldDescriptor::TYPE_INT32: return "int";
+		case FieldDescriptor::TYPE_FIXED64: return "ulong";
+		case FieldDescriptor::TYPE_FIXED32: return "uint";
+		case FieldDescriptor::TYPE_BOOL: return "bool";
+		case FieldDescriptor::TYPE_STRING: return "string";
+		case FieldDescriptor::TYPE_BYTES: return "pb::ByteString";
+		case FieldDescriptor::TYPE_UINT32: return "uint";
+		case FieldDescriptor::TYPE_SFIXED32: return "int";
+		case FieldDescriptor::TYPE_SFIXED64: return "long";
+		case FieldDescriptor::TYPE_SINT32: return "int";
+		case FieldDescriptor::TYPE_SINT64: return "long";
+		default: GOOGLE_LOG(FATAL)<< "Unknown field type."; return "";
 	}
 }
 
-bool FieldGeneratorBase::has_default_value() {
+bool FieldGeneratorBase::has_default_value() 
+{
 	switch(descriptor_->type()) {
 		case FieldDescriptor::TYPE_ENUM:
 		case FieldDescriptor::TYPE_MESSAGE:
-		case FieldDescriptor::TYPE_GROUP:
-		    return true;
-		case FieldDescriptor::TYPE_DOUBLE:
-		    return descriptor_->default_value_double() != 0.0;
-		case FieldDescriptor::TYPE_FLOAT:
-		    return descriptor_->default_value_float() != 0.0;
-		case FieldDescriptor::TYPE_INT64:
-		    return descriptor_->default_value_int64() != 0L;
-		case FieldDescriptor::TYPE_UINT64:
-		    return descriptor_->default_value_uint64() != 0L;
-		case FieldDescriptor::TYPE_INT32:
-		    return descriptor_->default_value_int32() != 0;
-		case FieldDescriptor::TYPE_FIXED64:
-		    return descriptor_->default_value_uint64() != 0L;
-		case FieldDescriptor::TYPE_FIXED32:
-		    return descriptor_->default_value_uint32() != 0;
-		case FieldDescriptor::TYPE_BOOL:
-		    return descriptor_->default_value_bool();
-		case FieldDescriptor::TYPE_STRING:
-		    return true;
-		case FieldDescriptor::TYPE_BYTES:
-		    return true;
-		case FieldDescriptor::TYPE_UINT32:
-		    return descriptor_->default_value_uint32() != 0;
-		case FieldDescriptor::TYPE_SFIXED32:
-		    return descriptor_->default_value_int32() != 0;
-		case FieldDescriptor::TYPE_SFIXED64:
-		    return descriptor_->default_value_int64() != 0L;
-		case FieldDescriptor::TYPE_SINT32:
-		    return descriptor_->default_value_int32() != 0;
-		case FieldDescriptor::TYPE_SINT64:
-		    return descriptor_->default_value_int64() != 0L;
-		default:
-		    GOOGLE_LOG(FATAL)<< "Unknown field type.";
-		    return true;
+		case FieldDescriptor::TYPE_GROUP: return true;
+		case FieldDescriptor::TYPE_DOUBLE: return descriptor_->default_value_double() != 0.0;
+		case FieldDescriptor::TYPE_FLOAT: return descriptor_->default_value_float() != 0.0;
+		case FieldDescriptor::TYPE_INT64: return descriptor_->default_value_int64() != 0L;
+		case FieldDescriptor::TYPE_UINT64: return descriptor_->default_value_uint64() != 0L;
+		case FieldDescriptor::TYPE_INT32: return descriptor_->default_value_int32() != 0;
+		case FieldDescriptor::TYPE_FIXED64: return descriptor_->default_value_uint64() != 0L;
+		case FieldDescriptor::TYPE_FIXED32: return descriptor_->default_value_uint32() != 0;
+		case FieldDescriptor::TYPE_BOOL: return descriptor_->default_value_bool();
+		case FieldDescriptor::TYPE_STRING: return true;
+		case FieldDescriptor::TYPE_BYTES: return true;
+		case FieldDescriptor::TYPE_UINT32: return descriptor_->default_value_uint32() != 0;
+		case FieldDescriptor::TYPE_SFIXED32: return descriptor_->default_value_int32() != 0;
+		case FieldDescriptor::TYPE_SFIXED64: return descriptor_->default_value_int64() != 0L;
+		case FieldDescriptor::TYPE_SINT32: return descriptor_->default_value_int32() != 0;
+		case FieldDescriptor::TYPE_SINT64: return descriptor_->default_value_int64() != 0L;
+		default: GOOGLE_LOG(FATAL)<< "Unknown field type."; return true;
 	}
 }
 
-bool AllPrintableAscii(const std::string& text) {
+bool AllPrintableAscii(const std::string& text) 
+{
 	for(int i = 0; i < text.size(); i++) {
 		if(text[i] < 0x20 || text[i] > 0x7e) {
 			return false;
@@ -392,51 +347,30 @@ std::string FieldGeneratorBase::default_value(const FieldDescriptor* descriptor)
 	}
 }
 
-std::string FieldGeneratorBase::number() {
-	return StrCat(descriptor_->number());
-}
+std::string FieldGeneratorBase::number() { return StrCat(descriptor_->number()); }
 
-std::string FieldGeneratorBase::capitalized_type_name() {
+std::string FieldGeneratorBase::capitalized_type_name() 
+{
 	switch(descriptor_->type()) {
-		case FieldDescriptor::TYPE_ENUM:
-		    return "Enum";
-		case FieldDescriptor::TYPE_MESSAGE:
-		    return "Message";
-		case FieldDescriptor::TYPE_GROUP:
-		    return "Group";
-		case FieldDescriptor::TYPE_DOUBLE:
-		    return "Double";
-		case FieldDescriptor::TYPE_FLOAT:
-		    return "Float";
-		case FieldDescriptor::TYPE_INT64:
-		    return "Int64";
-		case FieldDescriptor::TYPE_UINT64:
-		    return "UInt64";
-		case FieldDescriptor::TYPE_INT32:
-		    return "Int32";
-		case FieldDescriptor::TYPE_FIXED64:
-		    return "Fixed64";
-		case FieldDescriptor::TYPE_FIXED32:
-		    return "Fixed32";
-		case FieldDescriptor::TYPE_BOOL:
-		    return "Bool";
-		case FieldDescriptor::TYPE_STRING:
-		    return "String";
-		case FieldDescriptor::TYPE_BYTES:
-		    return "Bytes";
-		case FieldDescriptor::TYPE_UINT32:
-		    return "UInt32";
-		case FieldDescriptor::TYPE_SFIXED32:
-		    return "SFixed32";
-		case FieldDescriptor::TYPE_SFIXED64:
-		    return "SFixed64";
-		case FieldDescriptor::TYPE_SINT32:
-		    return "SInt32";
-		case FieldDescriptor::TYPE_SINT64:
-		    return "SInt64";
-		default:
-		    GOOGLE_LOG(FATAL)<< "Unknown field type.";
-		    return "";
+		case FieldDescriptor::TYPE_ENUM: return "Enum";
+		case FieldDescriptor::TYPE_MESSAGE: return "Message";
+		case FieldDescriptor::TYPE_GROUP: return "Group";
+		case FieldDescriptor::TYPE_DOUBLE: return "Double";
+		case FieldDescriptor::TYPE_FLOAT: return "Float";
+		case FieldDescriptor::TYPE_INT64: return "Int64";
+		case FieldDescriptor::TYPE_UINT64: return "UInt64";
+		case FieldDescriptor::TYPE_INT32: return "Int32";
+		case FieldDescriptor::TYPE_FIXED64: return "Fixed64";
+		case FieldDescriptor::TYPE_FIXED32: return "Fixed32";
+		case FieldDescriptor::TYPE_BOOL: return "Bool";
+		case FieldDescriptor::TYPE_STRING: return "String";
+		case FieldDescriptor::TYPE_BYTES: return "Bytes";
+		case FieldDescriptor::TYPE_UINT32: return "UInt32";
+		case FieldDescriptor::TYPE_SFIXED32: return "SFixed32";
+		case FieldDescriptor::TYPE_SFIXED64: return "SFixed64";
+		case FieldDescriptor::TYPE_SINT32: return "SInt32";
+		case FieldDescriptor::TYPE_SINT64: return "SInt64";
+		default: GOOGLE_LOG(FATAL)<< "Unknown field type."; return "";
 	}
 }
 }  // namespace csharp

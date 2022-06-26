@@ -421,7 +421,7 @@ l_ok numaAddToNumber(NUMA * na,
  * \param[out]   piminloc  [optional] index of min location
  * \return  0 if OK; 1 on error
  */
-l_ok numaGetMin(NUMA       * na,
+l_ok numaGetMin(NUMA * na,
     float * pminval,
     int32    * piminloc)
 {
@@ -462,7 +462,7 @@ l_ok numaGetMin(NUMA       * na,
  * \param[out]   pimaxloc  [optional] index of max location
  * \return  0 if OK; 1 on error
  */
-l_ok numaGetMax(NUMA       * na,
+l_ok numaGetMax(NUMA * na,
     float * pmaxval,
     int32    * pimaxloc)
 {
@@ -502,7 +502,7 @@ l_ok numaGetMax(NUMA       * na,
  * \param[out]   psum   sum of values
  * \return  0 if OK, 1 on error
  */
-l_ok numaGetSum(NUMA       * na,
+l_ok numaGetSum(NUMA * na,
     float * psum)
 {
 	int32 i, n;
@@ -573,7 +573,7 @@ NUMA * numaGetPartialSums(NUMA * na)
  * \param[out]   psum    sum of values in the index interval range
  * \return  0 if OK, 1 on error
  */
-l_ok numaGetSumOnInterval(NUMA       * na,
+l_ok numaGetSumOnInterval(NUMA * na,
     int32 first,
     int32 last,
     float * psum)
@@ -647,7 +647,7 @@ l_ok numaHasOnlyIntegers(NUMA     * na,
  * \param[out]   pave   average of values
  * \return  0 if OK, 1 on error
  */
-l_ok numaGetMean(NUMA       * na,
+l_ok numaGetMean(NUMA * na,
     float * pave)
 {
 	int32 n;
@@ -675,7 +675,7 @@ l_ok numaGetMean(NUMA       * na,
  * \param[out]   paveabs    average of absolute values
  * \return  0 if OK, 1 on error
  */
-l_ok numaGetMeanAbsval(NUMA       * na,
+l_ok numaGetMeanAbsval(NUMA * na,
     float * paveabs)
 {
 	int32 n;
@@ -853,7 +853,7 @@ NUMA * numaAddBorder(NUMA * nas,
 	int32 i, n, len;
 	float startx, delx;
 	float * fas, * fad;
-	NUMA       * nad;
+	NUMA * nad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -893,7 +893,7 @@ NUMA * numaAddSpecifiedBorder(NUMA * nas,
 {
 	int32 i, n;
 	float * fa;
-	NUMA       * nad;
+	NUMA * nad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -943,7 +943,7 @@ NUMA * numaRemoveBorder(NUMA * nas,
 	int32 i, n, len;
 	float startx, delx;
 	float * fas, * fad;
-	NUMA       * nad;
+	NUMA * nad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1218,23 +1218,19 @@ NUMA * numaMakeThresholdIndicator(NUMA * nas,
  *          equal divisions.
  * </pre>
  */
-NUMA * numaUniformSampling(NUMA * nas,
-    int32 nsamp)
+NUMA * numaUniformSampling(NUMA * nas, int32 nsamp)
 {
+	PROCNAME(__FUNCTION__);
 	int32 n, i, j, ileft, iright;
 	float left, right, binsize, lfract, rfract, sum, startx, delx;
 	float * array;
-	NUMA       * nad;
-
-	PROCNAME(__FUNCTION__);
-
+	NUMA * nad;
 	if(!nas)
 		return (NUMA*)ERROR_PTR("nas not defined", procName, NULL);
 	if((n = numaGetCount(nas)) == 0)
 		return (NUMA*)ERROR_PTR("nas is empty", procName, NULL);
 	if(nsamp <= 0)
 		return (NUMA*)ERROR_PTR("nsamp must be > 0", procName, NULL);
-
 	nad = numaCreate(nsamp);
 	array = numaGetFArray(nas, L_NOCOPY);
 	binsize = (float)n / (float)nsamp;
@@ -1245,14 +1241,14 @@ NUMA * numaUniformSampling(NUMA * nas,
 		sum = 0.0;
 		right = left + binsize;
 		ileft = (int32)left;
-		lfract = 1.0 - left + ileft;
+		lfract = 1.0f - left + ileft;
 		if(lfract >= 1.0) /* on left bin boundary */
 			lfract = 0.0;
 		iright = (int32)right;
 		rfract = right - iright;
 		iright = MIN(iright, n - 1);
 		if(ileft == iright) { /* both are within the same original sample */
-			sum += (lfract + rfract - 1.0) * array[ileft];
+			sum += (lfract + rfract - 1.0f) * array[ileft];
 		}
 		else {
 			if(lfract > 0.0001) /* left fraction */
@@ -1632,7 +1628,7 @@ int32 numaGetEdgeValues(NUMA * na,
  */
 l_ok numaInterpolateEqxVal(float startx,
     float deltax,
-    NUMA       * nay,
+    NUMA * nay,
     int32 type,
     float xval,
     float * pyval)
@@ -1670,15 +1666,13 @@ l_ok numaInterpolateEqxVal(float startx,
 		*pyval = fa[i];
 		return 0;
 	}
-
 	if(type == L_LINEAR_INTERP) {
 		*pyval = fa[i] + del * (fa[i + 1] - fa[i]);
 		return 0;
 	}
-
-	/* Quadratic interpolation */
-	d1 = d3 = 0.5 / (deltax * deltax);
-	d2 = -2. * d1;
+	// Quadratic interpolation 
+	d1 = d3 = 0.5f / (deltax * deltax);
+	d2 = -2.0f * d1;
 	if(i == 0) {
 		i1 = i;
 		i2 = i + 1;
@@ -1721,8 +1715,8 @@ l_ok numaInterpolateEqxVal(float startx,
  *          for formulas.
  * </pre>
  */
-l_ok numaInterpolateArbxVal(NUMA       * nax,
-    NUMA       * nay,
+l_ok numaInterpolateArbxVal(NUMA * nax,
+    NUMA * nay,
     int32 type,
     float xval,
     float * pyval)
@@ -1849,7 +1843,7 @@ l_ok numaInterpolateEqxInterval(float startx,
 {
 	int32 i, n;
 	float x, yval, maxx, delx;
-	NUMA       * nax, * nay;
+	NUMA * nax, * nay;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1924,23 +1918,14 @@ l_ok numaInterpolateEqxInterval(float startx,
  *          for formulas.
  * </pre>
  */
-l_ok numaInterpolateArbxInterval(NUMA       * nax,
-    NUMA       * nay,
-    int32 type,
-    float x0,
-    float x1,
-    int32 npts,
-    NUMA ** pnadx,
-    NUMA ** pnady)
+l_ok numaInterpolateArbxInterval(NUMA * nax, NUMA * nay, int32 type, float x0, float x1, int32 npts, NUMA ** pnadx, NUMA ** pnady)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, im, j, nx, ny, i1, i2, i3, sorted;
 	int32    * index;
 	float del, xval, yval, excess, fract, minx, maxx, d1, d2, d3;
 	float * fax, * fay;
-	NUMA       * nasx, * nasy, * nadx, * nady;
-
-	PROCNAME(__FUNCTION__);
-
+	NUMA * nasx, * nasy, * nadx, * nady;
 	if(pnadx) *pnadx = NULL;
 	if(!pnady)
 		return ERROR_INT("&nady not defined", procName, 1);
@@ -1967,7 +1952,6 @@ l_ok numaInterpolateArbxInterval(NUMA       * nax,
 	numaGetMax(nax, &maxx, NULL);
 	if(x0 < minx || x1 > maxx)
 		return ERROR_INT("xval is out of bounds", procName, 1);
-
 	/* Make sure that nax is sorted in increasing order */
 	numaIsSorted(nax, L_SORT_INCREASING, &sorted);
 	if(!sorted) {
@@ -1978,28 +1962,25 @@ l_ok numaInterpolateArbxInterval(NUMA       * nax,
 		nasx = numaClone(nax);
 		nasy = numaClone(nay);
 	}
-
 	fax = numaGetFArray(nasx, L_NOCOPY);
 	fay = numaGetFArray(nasy, L_NOCOPY);
-
 	/* Get array of indices into fax for interpolated locations */
 	if((index = (int32*)SAlloc::C(npts, sizeof(int32))) == NULL) {
 		numaDestroy(&nasx);
 		numaDestroy(&nasy);
 		return ERROR_INT("ind not made", procName, 1);
 	}
-	del = (x1 - x0) / (npts - 1.0);
+	del = (x1 - x0) / (npts - 1);
 	for(i = 0, j = 0; j < nx && i < npts; i++) {
 		xval = x0 + i * del;
 		while(j < nx - 1 && xval > fax[j])
 			j++;
 		if(xval == fax[j])
 			index[i] = MIN(j, nx - 1);
-		else /* the index of fax[] is just below xval */
+		else // the index of fax[] is just below xval
 			index[i] = MAX(j - 1, 0);
 	}
-
-	/* For each point to be interpolated, get the y value */
+	// For each point to be interpolated, get the y value 
 	nady = numaCreate(npts);
 	*pnady = nady;
 	if(pnadx) {
@@ -2085,18 +2066,13 @@ l_ok numaInterpolateArbxInterval(NUMA       * nax,
  *       y'(x) = 2x(c1+c2+c3) - c1(x2+x3) - c2(x1+x3) - c3(x1+x2) = 0
  * </pre>
  */
-l_ok numaFitMax(NUMA       * na,
-    float * pmaxval,
-    NUMA       * naloc,
-    float * pmaxloc)
+l_ok numaFitMax(NUMA * na, float * pmaxval, NUMA * naloc, float * pmaxloc)
 {
+	PROCNAME(__FUNCTION__);
 	float val;
 	float smaxval; /* start value of maximum sample, before interpolating */
 	int32 n, imaxloc;
 	float x1, x2, x3, y1, y2, y3, c1, c2, c3, a, b, xmax, ymax;
-
-	PROCNAME(__FUNCTION__);
-
 	if(pmaxval) *pmaxval = 0.0;
 	if(pmaxloc) *pmaxloc = 0.0;
 	if(!na)
@@ -2111,9 +2087,7 @@ l_ok numaFitMax(NUMA       * na,
 		if(n != numaGetCount(naloc))
 			return ERROR_INT("na and naloc of unequal size", procName, 1);
 	}
-
 	numaGetMax(na, &smaxval, &imaxloc);
-
 	/* Simple case: max is at end point */
 	if(imaxloc == 0 || imaxloc == n - 1) {
 		*pmaxval = smaxval;
@@ -2126,7 +2100,6 @@ l_ok numaFitMax(NUMA       * na,
 		}
 		return 0;
 	}
-
 	/* Interior point; use quadratic interpolation */
 	y2 = smaxval;
 	numaGetFValue(na, imaxloc - 1, &val);
@@ -2146,15 +2119,12 @@ l_ok numaFitMax(NUMA       * na,
 		x2 = imaxloc;
 		x3 = imaxloc + 1;
 	}
-
-	/* Can't interpolate; just use the max val in na
-	 * and the corresponding one in naloc */
+	// Can't interpolate; just use the max val in na and the corresponding one in naloc 
 	if(x1 == x2 || x1 == x3 || x2 == x3) {
 		*pmaxval = y2;
 		*pmaxloc = x2;
 		return 0;
 	}
-
 	/* Use lagrangian interpolation; set dy/dx = 0 */
 	c1 = y1 / ((x1 - x2) * (x1 - x3));
 	c2 = y2 / ((x2 - x1) * (x2 - x3));
@@ -2162,15 +2132,11 @@ l_ok numaFitMax(NUMA       * na,
 	a = c1 + c2 + c3;
 	b = c1 * (x2 + x3) + c2 * (x1 + x3) + c3 * (x1 + x2);
 	xmax = b / (2 * a);
-	ymax = c1 * (xmax - x2) * (xmax - x3) +
-	    c2 * (xmax - x1) * (xmax - x3) +
-	    c3 * (xmax - x1) * (xmax - x2);
+	ymax = c1 * (xmax - x2) * (xmax - x3) + c2 * (xmax - x1) * (xmax - x3) + c3 * (xmax - x1) * (xmax - x2);
 	*pmaxval = ymax;
 	*pmaxloc = xmax;
-
 	return 0;
 }
-
 /*!
  * \brief   numaDifferentiateInterval()
  *
@@ -2191,22 +2157,15 @@ l_ok numaFitMax(NUMA       * na,
  *      (2) Caller should check for valid return.
  * </pre>
  */
-l_ok numaDifferentiateInterval(NUMA       * nax,
-    NUMA       * nay,
-    float x0,
-    float x1,
-    int32 npts,
-    NUMA ** pnadx,
-    NUMA ** pnady)
+l_ok numaDifferentiateInterval(NUMA * nax, NUMA * nay, float x0, float x1, int32 npts, NUMA ** pnadx, NUMA ** pnady)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, nx, ny;
 	float minx, maxx, der, invdel;
 	float * fay;
-	NUMA       * nady, * naiy;
-
-	PROCNAME(__FUNCTION__);
-
-	if(pnadx) *pnadx = NULL;
+	NUMA * nady, * naiy;
+	if(pnadx) 
+		*pnadx = NULL;
 	if(!pnady)
 		return ERROR_INT("&nady not defined", procName, 1);
 	*pnady = NULL;
@@ -2228,31 +2187,25 @@ l_ok numaDifferentiateInterval(NUMA       * nax,
 		return ERROR_INT("xval is out of bounds", procName, 1);
 	if(npts < 2)
 		return ERROR_INT("npts < 2", procName, 1);
-
 	/* Generate interpolated array over specified interval */
-	if(numaInterpolateArbxInterval(nax, nay, L_LINEAR_INTERP, x0, x1,
-	    npts, pnadx, &naiy))
+	if(numaInterpolateArbxInterval(nax, nay, L_LINEAR_INTERP, x0, x1, npts, pnadx, &naiy))
 		return ERROR_INT("interpolation failed", procName, 1);
-
 	nady = numaCreate(npts);
 	*pnady = nady;
-	invdel = 0.5 * ((float)npts - 1.0) / (x1 - x0);
+	invdel = 0.5f * ((float)npts - 1.0f) / (x1 - x0);
 	fay = numaGetFArray(naiy, L_NOCOPY);
-
-	/* Compute and save derivatives */
-	der = 0.5 * invdel * (fay[1] - fay[0]);
+	// Compute and save derivatives 
+	der = 0.5f * invdel * (fay[1] - fay[0]);
 	numaAddNumber(nady, der);
 	for(i = 1; i < npts - 1; i++) {
 		der = invdel * (fay[i + 1] - fay[i - 1]);
 		numaAddNumber(nady, der);
 	}
-	der = 0.5 * invdel * (fay[npts - 1] - fay[npts - 2]);
+	der = 0.5f * invdel * (fay[npts - 1] - fay[npts - 2]);
 	numaAddNumber(nady, der);
-
 	numaDestroy(&naiy);
 	return 0;
 }
-
 /*!
  * \brief   numaIntegrateInterval()
  *
@@ -2272,20 +2225,13 @@ l_ok numaDifferentiateInterval(NUMA       * nax,
  *      (2) Caller should check for valid return.
  * </pre>
  */
-l_ok numaIntegrateInterval(NUMA       * nax,
-    NUMA       * nay,
-    float x0,
-    float x1,
-    int32 npts,
-    float * psum)
+l_ok numaIntegrateInterval(NUMA * nax, NUMA * nay, float x0, float x1, int32 npts, float * psum)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, nx, ny;
 	float minx, maxx, sum, del;
 	float * fay;
-	NUMA       * naiy;
-
-	PROCNAME(__FUNCTION__);
-
+	NUMA * naiy;
 	if(!psum)
 		return ERROR_INT("&sum not defined", procName, 1);
 	*psum = 0.0;
@@ -2307,25 +2253,19 @@ l_ok numaIntegrateInterval(NUMA       * nax,
 	numaGetMax(nax, &maxx, NULL);
 	if(x0 < minx || x1 > maxx)
 		return ERROR_INT("xval is out of bounds", procName, 1);
-
-	/* Generate interpolated array over specified interval */
-	if(numaInterpolateArbxInterval(nax, nay, L_LINEAR_INTERP, x0, x1,
-	    npts, NULL, &naiy))
+	// Generate interpolated array over specified interval 
+	if(numaInterpolateArbxInterval(nax, nay, L_LINEAR_INTERP, x0, x1, npts, NULL, &naiy))
 		return ERROR_INT("interpolation failed", procName, 1);
-
-	del = (x1 - x0) / ((float)npts - 1.0);
+	del = (x1 - x0) / ((float)npts - 1.0f);
 	fay = numaGetFArray(naiy, L_NOCOPY);
-
-	/* Compute integral (simple trapezoid) */
-	sum = 0.5 * (fay[0] + fay[npts - 1]);
+	// Compute integral (simple trapezoid) 
+	sum = 0.5f * (fay[0] + fay[npts - 1]);
 	for(i = 1; i < npts - 1; i++)
 		sum += fay[i];
 	*psum = del * sum;
-
 	numaDestroy(&naiy);
 	return 0;
 }
-
 /*----------------------------------------------------------------------*
 *                                Sorting                               *
 *----------------------------------------------------------------------*/
@@ -2375,19 +2315,12 @@ l_ok numaIntegrateInterval(NUMA       * nax,
  *              na[i] = nasort[nainvert[i]]
  * </pre>
  */
-l_ok numaSortGeneral(NUMA * na,
-    NUMA   ** pnasort,
-    NUMA   ** pnaindex,
-    NUMA   ** pnainvert,
-    int32 sortorder,
-    int32 sorttype)
+l_ok numaSortGeneral(NUMA * na, NUMA ** pnasort, NUMA ** pnaindex, NUMA ** pnainvert, int32 sortorder, int32 sorttype)
 {
+	PROCNAME(__FUNCTION__);
 	int32 isize;
 	float size;
 	NUMA * naindex = NULL;
-
-	PROCNAME(__FUNCTION__);
-
 	if(pnasort) *pnasort = NULL;
 	if(pnaindex) *pnaindex = NULL;
 	if(pnainvert) *pnainvert = NULL;
@@ -2399,7 +2332,6 @@ l_ok numaSortGeneral(NUMA * na,
 		return ERROR_INT("invalid sort type", procName, 1);
 	if(!pnasort && !pnaindex && !pnainvert)
 		return ERROR_INT("nothing to do", procName, 1);
-
 	if(sorttype == L_BIN_SORT) {
 		numaGetMax(na, &size, NULL);
 		isize = (int32)size;
@@ -2411,10 +2343,8 @@ l_ok numaSortGeneral(NUMA * na,
 			naindex = numaGetBinSortIndex(na, sortorder);
 		}
 	}
-
 	if(sorttype == L_SHELL_SORT)
 		naindex = numaGetSortIndex(na, sortorder);
-
 	if(pnasort)
 		*pnasort = numaSortByIndex(na, naindex);
 	if(pnainvert)
@@ -2665,7 +2595,7 @@ NUMA * numaGetSortIndex(NUMA * na,
 	float tmp;
 	float * array; /* copy of input array */
 	float * iarray; /* array of indices */
-	NUMA       * naisort;
+	NUMA * naisort;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2919,8 +2849,8 @@ int32 numaIsSorted(NUMA     * nas,
 l_ok numaSortPair(NUMA * nax,
     NUMA * nay,
     int32 sortorder,
-    NUMA   ** pnasx,
-    NUMA   ** pnasy)
+    NUMA ** pnasx,
+    NUMA ** pnasy)
 {
 	int32 sorted;
 	NUMA * naindex;
@@ -3246,9 +3176,9 @@ NUMA * numaRandomPermutation(NUMA * nas,
  *          instead of O(nlogn) for general sort routines.
  * </pre>
  */
-l_ok numaGetRankValue(NUMA       * na,
+l_ok numaGetRankValue(NUMA * na,
     float fract,
-    NUMA       * nasort,
+    NUMA * nasort,
     int32 usebins,
     float * pval)
 {
@@ -3298,7 +3228,7 @@ l_ok numaGetRankValue(NUMA       * na,
  *          sorting and finding the middle value in the sorted array.
  * </pre>
  */
-l_ok numaGetMedian(NUMA       * na,
+l_ok numaGetMedian(NUMA * na,
     float * pval)
 {
 	PROCNAME(__FUNCTION__);
@@ -3354,7 +3284,7 @@ l_ok numaGetBinnedMedian(NUMA     * na,
  * \param[out]     pdev   average absolute value deviation from median value
  * \return  0 if OK; 1 on error
  */
-l_ok numaGetMeanDevFromMedian(NUMA       * na,
+l_ok numaGetMeanDevFromMedian(NUMA * na,
     float med,
     float * pdev)
 {
@@ -3398,7 +3328,7 @@ l_ok numaGetMeanDevFromMedian(NUMA       * na,
  *          and this is not useful.
  * </pre>
  */
-l_ok numaGetMedianDevFromMedian(NUMA       * na,
+l_ok numaGetMedianDevFromMedian(NUMA * na,
     float * pmed,
     float * pdev)
 {
@@ -3445,14 +3375,14 @@ l_ok numaGetMedianDevFromMedian(NUMA       * na,
  *      (2) Optionally, also returns that count.
  * </pre>
  */
-l_ok numaGetMode(NUMA       * na,
+l_ok numaGetMode(NUMA * na,
     float * pval,
     int32    * pcount)
 {
 	int32 i, n, maxcount, prevcount;
 	float val, maxval, prevval;
 	float * array;
-	NUMA       * nasort;
+	NUMA * nasort;
 
 	PROCNAME(__FUNCTION__);
 
@@ -3619,15 +3549,12 @@ l_ok numaaJoin(NUMAA   * naad,
  */
 NUMA * numaaFlattenToNuma(NUMAA  * naa)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, nalloc;
 	NUMA * na, * nad;
-	NUMA   ** array;
-
-	PROCNAME(__FUNCTION__);
-
+	NUMA ** array;
 	if(!naa)
 		return (NUMA*)ERROR_PTR("naa not defined", procName, NULL);
-
 	nalloc = naa->nalloc;
 	array = numaaGetPtrArray(naa);
 	nad = numaCreate(0);
@@ -3636,6 +3563,5 @@ NUMA * numaaFlattenToNuma(NUMAA  * naa)
 		if(!na) continue;
 		numaJoin(nad, na, 0, -1);
 	}
-
 	return nad;
 }

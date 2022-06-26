@@ -21,16 +21,16 @@
  *    Measurement of properties
  *           int32     pixaFindDimensions()
  *           int32     pixFindAreaPerimRatio()
- *           NUMA       *pixaFindPerimToAreaRatio()
+ *           NUMA *pixaFindPerimToAreaRatio()
  *           int32     pixFindPerimToAreaRatio()
- *           NUMA       *pixaFindPerimSizeRatio()
+ *           NUMA *pixaFindPerimSizeRatio()
  *           int32     pixFindPerimSizeRatio()
- *           NUMA       *pixaFindAreaFraction()
+ *           NUMA *pixaFindAreaFraction()
  *           int32     pixFindAreaFraction()
- *           NUMA       *pixaFindAreaFractionMasked()
+ *           NUMA *pixaFindAreaFractionMasked()
  *           int32     pixFindAreaFractionMasked()
- *           NUMA       *pixaFindWidthHeightRatio()
- *           NUMA       *pixaFindWidthHeightProduct()
+ *           NUMA *pixaFindWidthHeightRatio()
+ *           NUMA *pixaFindWidthHeightProduct()
  *           int32     pixFindOverlapFraction()
  *           BOXA       *pixFindRectangleComps()
  *           int32     pixConformsToRectangle()
@@ -67,13 +67,13 @@
  *           int32     pixScanForEdge()
  *
  *    Extract pixel averages and reversals along lines
- *           NUMA       *pixExtractOnLine()
+ *           NUMA *pixExtractOnLine()
  *           float   pixAverageOnLine()
- *           NUMA       *pixAverageIntensityProfile()
- *           NUMA       *pixReversalProfile()
+ *           NUMA *pixAverageIntensityProfile()
+ *           NUMA *pixReversalProfile()
  *
  *    Extract windowed variance along a line
- *           NUMA       *pixWindowedVarianceOnLine()
+ *           NUMA *pixWindowedVarianceOnLine()
  *
  *    Extract min/max of pixel values near lines
  *           int32     pixMinMaxNearLine()
@@ -2489,19 +2489,12 @@ NUMA * pixExtractOnLine(PIX * pixs,
  *      (3) Input end points are clipped to the pix.
  * </pre>
  */
-float pixAverageOnLine(PIX * pixs,
-    int32 x1,
-    int32 y1,
-    int32 x2,
-    int32 y2,
-    int32 factor)
+float pixAverageOnLine(PIX * pixs, int32 x1, int32 y1, int32 x2, int32 y2, int32 factor)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, j, w, h, d, direction, count, wpl;
 	uint32  * data, * line;
 	float sum;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return ERROR_INT("pixs not defined", procName, 1);
 	pixGetDimensions(pixs, &w, &h, &d);
@@ -2511,7 +2504,6 @@ float pixAverageOnLine(PIX * pixs,
 		return ERROR_INT("pixs has a colormap", procName, 1);
 	if(x1 > x2 || y1 > y2)
 		return ERROR_INT("x1 > x2 or y1 > y2", procName, 1);
-
 	if(y1 == y2) {
 		x1 = MAX(0, x1);
 		x2 = MIN(w - 1, x2);
@@ -2527,12 +2519,10 @@ float pixAverageOnLine(PIX * pixs,
 	else {
 		return ERROR_INT("line neither horiz nor vert", procName, 1);
 	}
-
 	if(factor < 1) {
 		L_WARNING("factor must be >= 1; setting to 1\n", procName);
 		factor = 1;
 	}
-
 	data = pixGetData(pixs);
 	wpl = pixGetWpl(pixs);
 	sum = 0;
@@ -2812,24 +2802,16 @@ NUMA * pixReversalProfile(PIX * pixs,
  *      (4) The square root of the variance is the RMS deviation from the mean.
  * </pre>
  */
-l_ok pixWindowedVarianceOnLine(PIX * pixs,
-    int32 dir,
-    int32 loc,
-    int32 c1,
-    int32 c2,
-    int32 size,
-    NUMA   ** pnad)
+l_ok pixWindowedVarianceOnLine(PIX * pixs, int32 dir, int32 loc, int32 c1, int32 c2, int32 size, NUMA ** pnad)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, j, w, h, cmin, cmax, maxloc, n, x, y;
 	uint32 val;
 	float norm, rootvar;
 	float * array;
 	double sum1, sum2, ave, var;
-	NUMA       * na1, * nad;
-	PTA        * pta;
-
-	PROCNAME(__FUNCTION__);
-
+	NUMA * na1, * nad;
+	PTA * pta;
 	if(!pnad)
 		return ERROR_INT("&nad not defined", procName, 1);
 	*pnad = NULL;

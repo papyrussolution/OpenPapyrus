@@ -1337,7 +1337,7 @@ l_ok pixSetPadBits(PIX * pix,
 
 	data = pixGetData(pix);
 	wpl = pixGetWpl(pix);
-	endbits = 32 - (((l_int64)w * d) % 32);
+	endbits = 32 - (((int64)w * d) % 32);
 	if(endbits == 32) /* no partial word */
 		return 0;
 	fullwords = (1LL * w * d) / 32;
@@ -1404,10 +1404,10 @@ l_ok pixSetPadBitsBand(PIX * pix,
 
 	data = pixGetData(pix);
 	wpl = pixGetWpl(pix);
-	endbits = 32 - (((l_int64)w * d) % 32);
+	endbits = 32 - (((int64)w * d) % 32);
 	if(endbits == 32) /* no partial word */
 		return 0;
-	fullwords = (l_int64)w * d / 32;
+	fullwords = (int64)w * d / 32;
 
 	mask = rmask32[endbits];
 	if(val == 0)

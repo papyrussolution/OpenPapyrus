@@ -172,7 +172,7 @@ static cairo_status_t clip_and_composite_with_mask(const cairo_mask_compositor_t
 	cairo_surface_t * mask = create_composite_mask(compositor, dst, draw_closure, draw_func, mask_func, extents);
 	if(UNLIKELY(mask->status))
 		return mask->status;
-	if(pattern != NULL || dst->content != CAIRO_CONTENT_ALPHA) {
+	if(pattern || dst->content != CAIRO_CONTENT_ALPHA) {
 		src = compositor->pattern_to_surface(dst, &extents->source_pattern.base, FALSE, &extents->bounded, &extents->source_sample_area, &src_x, &src_y);
 		if(UNLIKELY(src->status)) {
 			cairo_surface_destroy(mask);
@@ -715,7 +715,7 @@ static cairo_int_status_t composite_opacity_boxes(const cairo_mask_compositor_t 
 	info.compositor = compositor;
 	info.op = op;
 	info.dst = dst;
-	if(src_pattern != NULL) {
+	if(src_pattern) {
 		info.src = compositor->pattern_to_surface(dst, src_pattern, FALSE, extents, src_sample, &info.src_x, &info.src_y);
 		if(UNLIKELY(info.src->status))
 			return info.src->status;
@@ -815,7 +815,7 @@ static cairo_int_status_t composite_mask(const cairo_mask_compositor_t * composi
 	cairo_surface_t * src, * mask;
 	int src_x, src_y;
 	int mask_x, mask_y;
-	if(src_pattern != NULL) {
+	if(src_pattern) {
 		src = compositor->pattern_to_surface(dst, src_pattern, FALSE, extents, src_sample, &src_x, &src_y);
 		if(UNLIKELY(src->status))
 			return src->status;

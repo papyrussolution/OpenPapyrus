@@ -56,22 +56,16 @@ void _hb_options_init()
 			c = *p ? p + 1 : p;
 		}
 	}
-
 	/* This is idempotent and threadsafe. */
 	_hb_options.set_relaxed(u.i);
 }
 
 /* hb_tag_t */
-
 /**
  * hb_tag_from_string:
  * @str: (array length=len) (element-type uint8_t):
  * @len:
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
 hb_tag_t hb_tag_from_string(const char * str, int len)
@@ -113,18 +107,13 @@ const char direction_strings[][4] = { "ltr", "rtl", "ttb", "btt" };
  * hb_direction_from_string:
  * @str: (array length=len) (element-type uint8_t):
  * @len:
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
 hb_direction_t hb_direction_from_string(const char * str, int len)
 {
 	if(UNLIKELY(!str || !len || !*str))
 		return HB_DIRECTION_INVALID;
-
 	/* Lets match loosely: just match the first letter, such that
 	 * all of "ltr", "left-to-right", etc work!
 	 */
@@ -132,18 +121,12 @@ hb_direction_t hb_direction_from_string(const char * str, int len)
 	for(uint i = 0; i < ARRAY_LENGTH(direction_strings); i++)
 		if(c == direction_strings[i][0])
 			return (hb_direction_t)(HB_DIRECTION_LTR + i);
-
 	return HB_DIRECTION_INVALID;
 }
-
 /**
  * hb_direction_to_string:
  * @direction:
- *
- *
- *
  * Return value: (transfer none):
- *
  * Since: 0.9.2
  **/
 const char * hb_direction_to_string(hb_direction_t direction)
@@ -340,26 +323,21 @@ const char * hb_language_to_string(hb_language_t language)
 hb_language_t hb_language_get_default()
 {
 	static hb_atomic_ptr_t <hb_language_t> default_language;
-
 	hb_language_t language = default_language;
 	if(UNLIKELY(language == HB_LANGUAGE_INVALID)) {
 		language = hb_language_from_string(setlocale(LC_CTYPE, nullptr), -1);
 		(void)default_language.cmpexch(HB_LANGUAGE_INVALID, language);
 	}
-
 	return language;
 }
-
 /* hb_script_t */
-
 /**
  * hb_script_from_iso15924_tag:
  * @tag: an #hb_tag_t representing an ISO 15924 tag.
  *
  * Converts an ISO 15924 script tag to a corresponding #hb_script_t.
  *
- * Return value:
- * An #hb_script_t corresponding to the ISO 15924 tag.
+ * Return value: An #hb_script_t corresponding to the ISO 15924 tag.
  *
  * Since: 0.9.2
  **/
@@ -367,10 +345,8 @@ hb_script_t hb_script_from_iso15924_tag(hb_tag_t tag)
 {
 	if(UNLIKELY(tag == HB_TAG_NONE))
 		return HB_SCRIPT_INVALID;
-
 	/* Be lenient, adjust case (one capital letter followed by three small letters) */
 	tag = (tag & 0xDFDFDFDFu) | 0x00202020u;
-
 	switch(tag) {
 		/* These graduated from the 'Q' private-area codes, but
 		 * the old code is still aliased by Unicode, and the Qaai
@@ -390,11 +366,9 @@ hb_script_t hb_script_from_iso15924_tag(hb_tag_t tag)
 	/* If it looks right, just use the tag as a script */
 	if(((uint32_t)tag & 0xE0E0E0E0u) == 0x40606060u)
 		return (hb_script_t)tag;
-
 	/* Otherwise, return unknown */
 	return HB_SCRIPT_UNKNOWN;
 }
-
 /**
  * hb_script_from_string:
  * @str: (array length=len) (element-type uint8_t): a string representing an
@@ -405,8 +379,7 @@ hb_script_t hb_script_from_iso15924_tag(hb_tag_t tag)
  * corresponding #hb_script_t. Shorthand for hb_tag_from_string() then
  * hb_script_from_iso15924_tag().
  *
- * Return value:
- * An #hb_script_t corresponding to the ISO 15924 tag.
+ * Return value: An #hb_script_t corresponding to the ISO 15924 tag.
  *
  * Since: 0.9.2
  **/
@@ -414,15 +387,13 @@ hb_script_t hb_script_from_string(const char * str, int len)
 {
 	return hb_script_from_iso15924_tag(hb_tag_from_string(str, len));
 }
-
 /**
  * hb_script_to_iso15924_tag:
  * @script: an #hb_script_t to convert.
  *
  * See hb_script_from_iso15924_tag().
  *
- * Return value:
- * An #hb_tag_t representing an ISO 15924 script tag.
+ * Return value: An #hb_tag_t representing an ISO 15924 script tag.
  *
  * Since: 0.9.2
  **/
@@ -430,43 +401,31 @@ hb_tag_t hb_script_to_iso15924_tag(hb_script_t script)
 {
 	return (hb_tag_t)script;
 }
-
 /**
  * hb_script_get_horizontal_direction:
  * @script:
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
 hb_direction_t hb_script_get_horizontal_direction(hb_script_t script)
 {
 	/* https://docs.google.com/spreadsheets/d/1Y90M0Ie3MUJ6UVCRDOypOtijlMDLNNyyLk36T6iMu0o */
-	switch((hb_tag_t)script)
-	{
+	switch((hb_tag_t)script) {
 		/* Unicode-1.1 additions */
 		case HB_SCRIPT_ARABIC:
 		case HB_SCRIPT_HEBREW:
-
 		/* Unicode-3.0 additions */
 		case HB_SCRIPT_SYRIAC:
 		case HB_SCRIPT_THAANA:
-
 		/* Unicode-4.0 additions */
 		case HB_SCRIPT_CYPRIOT:
-
 		/* Unicode-4.1 additions */
 		case HB_SCRIPT_KHAROSHTHI:
-
 		/* Unicode-5.0 additions */
 		case HB_SCRIPT_PHOENICIAN:
 		case HB_SCRIPT_NKO:
-
 		/* Unicode-5.1 additions */
 		case HB_SCRIPT_LYDIAN:
-
 		/* Unicode-5.2 additions */
 		case HB_SCRIPT_AVESTAN:
 		case HB_SCRIPT_IMPERIAL_ARAMAIC:
@@ -475,14 +434,11 @@ hb_direction_t hb_script_get_horizontal_direction(hb_script_t script)
 		case HB_SCRIPT_OLD_SOUTH_ARABIAN:
 		case HB_SCRIPT_OLD_TURKIC:
 		case HB_SCRIPT_SAMARITAN:
-
 		/* Unicode-6.0 additions */
 		case HB_SCRIPT_MANDAIC:
-
 		/* Unicode-6.1 additions */
 		case HB_SCRIPT_MEROITIC_CURSIVE:
 		case HB_SCRIPT_MEROITIC_HIEROGLYPHS:
-
 		/* Unicode-7.0 additions */
 		case HB_SCRIPT_MANICHAEAN:
 		case HB_SCRIPT_MENDE_KIKAKUI:
@@ -490,38 +446,28 @@ hb_direction_t hb_script_get_horizontal_direction(hb_script_t script)
 		case HB_SCRIPT_OLD_NORTH_ARABIAN:
 		case HB_SCRIPT_PALMYRENE:
 		case HB_SCRIPT_PSALTER_PAHLAVI:
-
 		/* Unicode-8.0 additions */
 		case HB_SCRIPT_HATRAN:
-
 		/* Unicode-9.0 additions */
 		case HB_SCRIPT_ADLAM:
-
 		/* Unicode-11.0 additions */
 		case HB_SCRIPT_HANIFI_ROHINGYA:
 		case HB_SCRIPT_OLD_SOGDIAN:
 		case HB_SCRIPT_SOGDIAN:
-
 		/* Unicode-12.0 additions */
 		case HB_SCRIPT_ELYMAIC:
-
 		/* Unicode-13.0 additions */
 		case HB_SCRIPT_CHORASMIAN:
 		case HB_SCRIPT_YEZIDI:
-
 		    return HB_DIRECTION_RTL;
-
 		/* https://github.com/harfbuzz/harfbuzz/issues/1000 */
 		case HB_SCRIPT_OLD_HUNGARIAN:
 		case HB_SCRIPT_OLD_ITALIC:
 		case HB_SCRIPT_RUNIC:
-
 		    return HB_DIRECTION_INVALID;
 	}
-
 	return HB_DIRECTION_LTR;
 }
-
 /* hb_version */
 
 /**
@@ -534,7 +480,6 @@ hb_direction_t hb_script_get_horizontal_direction(hb_script_t script)
  * library used at compile- as well as run-time, and to direct code
  * conditionally based on those versions, again, at compile- or run-time.
  **/
-
 /**
  * hb_version:
  * @major: (out): Library major version component.
@@ -545,50 +490,36 @@ hb_direction_t hb_script_get_horizontal_direction(hb_script_t script)
  *
  * Since: 0.9.2
  **/
-void hb_version(uint * major,
-    uint * minor,
-    uint * micro)
+void hb_version(uint * major, uint * minor, uint * micro)
 {
 	*major = HB_VERSION_MAJOR;
 	*minor = HB_VERSION_MINOR;
 	*micro = HB_VERSION_MICRO;
 }
-
 /**
  * hb_version_string:
- *
  * Returns library version as a string with three components.
- *
  * Return value: library version string.
- *
  * Since: 0.9.2
  **/
 const char * hb_version_string()
 {
 	return HB_VERSION_STRING;
 }
-
 /**
  * hb_version_atleast:
  * @major:
  * @minor:
  * @micro:
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.30
  **/
-hb_bool_t hb_version_atleast(uint major,
-    uint minor,
-    uint micro)
+hb_bool_t hb_version_atleast(uint major, uint minor, uint micro)
 {
 	return HB_VERSION_ATLEAST(major, minor, micro);
 }
 
 /* hb_feature_t and hb_variation_t */
-
 static bool parse_space(const char ** pp, const char * end)
 {
 	while(*pp < end && ISSPACE(**pp))
@@ -599,10 +530,8 @@ static bool parse_space(const char ** pp, const char * end)
 static bool parse_char(const char ** pp, const char * end, char c)
 {
 	parse_space(pp, end);
-
 	if(*pp == end || **pp != c)
 		return false;
-
 	(*pp)++;
 	return true;
 }
@@ -803,8 +732,7 @@ static bool parse_one_feature(const char ** pp, const char * end, hb_feature_t *
  * </tgroup>
  * </informaltable>
  *
- * Return value:
- * %true if @str is successfully parsed, %false otherwise.
+ * Return value: %true if @str is successfully parsed, %false otherwise.
  *
  * Since: 0.9.5
  **/
@@ -920,7 +848,6 @@ void hb_variation_to_string(hb_variation_t * variation, char * buf, uint size)
 	memcpy(buf, s, len);
 	buf[len] = '\0';
 }
-
 /**
  * hb_color_get_alpha:
  * color: a #hb_color_t we are interested in its channels.
@@ -958,7 +885,6 @@ uint8_t (hb_color_get_green) (hb_color_t color)
 {
 	return hb_color_get_green(color);
 }
-
 /**
  * hb_color_get_blue:
  * color: a #hb_color_t we are interested in its channels.

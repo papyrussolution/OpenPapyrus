@@ -142,13 +142,13 @@ SSL_SESSION * ssl_session_dup(SSL_SESSION * src, int ticket)
 	if(!CRYPTO_new_ex_data(CRYPTO_EX_INDEX_SSL_SESSION, dest, &dest->ex_data))
 		goto err;
 
-	if(src->peer != NULL) {
+	if(src->peer) {
 		if(!X509_up_ref(src->peer))
 			goto err;
 		dest->peer = src->peer;
 	}
 
-	if(src->peer_chain != NULL) {
+	if(src->peer_chain) {
 		dest->peer_chain = X509_chain_up_ref(src->peer_chain);
 		if(dest->peer_chain == NULL)
 			goto err;
@@ -180,7 +180,7 @@ SSL_SESSION * ssl_session_dup(SSL_SESSION * src, int ticket)
 		}
 	}
 
-	if(ticket != 0 && src->ext.tick != NULL) {
+	if(ticket != 0 && src->ext.tick) {
 		dest->ext.tick = static_cast<uchar *>(OPENSSL_memdup(src->ext.tick, src->ext.ticklen));
 		if(dest->ext.tick == NULL)
 			goto err;
@@ -190,7 +190,7 @@ SSL_SESSION * ssl_session_dup(SSL_SESSION * src, int ticket)
 		dest->ext.ticklen = 0;
 	}
 
-	if(src->ext.alpn_selected != NULL) {
+	if(src->ext.alpn_selected) {
 		dest->ext.alpn_selected = static_cast<uchar *>(OPENSSL_memdup(src->ext.alpn_selected, src->ext.alpn_selected_len));
 		if(dest->ext.alpn_selected == NULL)
 			goto err;
@@ -205,7 +205,7 @@ SSL_SESSION * ssl_session_dup(SSL_SESSION * src, int ticket)
 	}
 #endif
 
-	if(src->ticket_appdata != NULL) {
+	if(src->ticket_appdata) {
 		dest->ticket_appdata = static_cast<uchar *>(OPENSSL_memdup(src->ticket_appdata, src->ticket_appdata_len));
 		if(dest->ticket_appdata == NULL)
 			goto err;
@@ -228,7 +228,7 @@ const uchar * SSL_SESSION_get_id(const SSL_SESSION * s, uint * len)
 const uchar * SSL_SESSION_get0_id_context(const SSL_SESSION * s,
     uint * len)
 {
-	if(len != NULL)
+	if(len)
 		*len = (uint)s->sid_ctx_length;
 	return s->sid_ctx;
 }
@@ -432,7 +432,7 @@ SSL_SESSION * lookup_sess_in_cache(SSL * s, const uchar * sess_id, size_t sess_i
 		if(ret == NULL)
 			tsan_counter(&s->session_ctx->stats.sess_miss);
 	}
-	if(ret == NULL && s->session_ctx->get_session_cb != NULL) {
+	if(ret == NULL && s->session_ctx->get_session_cb) {
 		int copy = 1;
 		ret = s->session_ctx->get_session_cb(s, sess_id, sess_id_len, &copy);
 		if(ret) {
@@ -639,7 +639,7 @@ int SSL_CTX_add_session(SSL_CTX * ctx, SSL_SESSION * c)
 	 * case, s == c should hold (then we did not really modify
 	 * ctx->sessions), or we're in trouble.
 	 */
-	if(s != NULL && s != c) {
+	if(s && s != c) {
 		/* We *are* in trouble ... */
 		SSL_SESSION_list_remove(ctx, s);
 		SSL_SESSION_free(s);
@@ -704,7 +704,7 @@ static int remove_session_lock(SSL_CTX * ctx, SSL_SESSION * c, int lck)
 {
 	SSL_SESSION * r;
 	int ret = 0;
-	if((c != NULL) && (c->session_id_length != 0)) {
+	if((c) && (c->session_id_length != 0)) {
 		if(lck)
 			CRYPTO_THREAD_write_lock(ctx->lock);
 		if((r = lh_SSL_SESSION_retrieve(ctx->sessions, c)) != NULL) {
@@ -715,7 +715,7 @@ static int remove_session_lock(SSL_CTX * ctx, SSL_SESSION * c, int lck)
 		c->not_resumable = 1;
 		if(lck)
 			CRYPTO_THREAD_unlock(ctx->lock);
-		if(ctx->remove_session_cb != NULL)
+		if(ctx->remove_session_cb)
 			ctx->remove_session_cb(ctx, c);
 		if(ret)
 			SSL_SESSION_free(r);
@@ -876,7 +876,7 @@ void SSL_SESSION_get0_ticket(const SSL_SESSION * s, const uchar ** tick,
     size_t * len)
 {
 	*len = s->ext.ticklen;
-	if(tick != NULL)
+	if(tick)
 		*tick = s->ext.tick;
 }
 
@@ -1025,7 +1025,7 @@ static void timeout_cb(SSL_SESSION * s, TIMEOUT_PARAM * p)
 		(void)lh_SSL_SESSION_delete(p->cache, s);
 		SSL_SESSION_list_remove(p->ctx, s);
 		s->not_resumable = 1;
-		if(p->ctx->remove_session_cb != NULL)
+		if(p->ctx->remove_session_cb)
 			p->ctx->remove_session_cb(p->ctx, s);
 		SSL_SESSION_free(s);
 	}
@@ -1053,7 +1053,7 @@ void SSL_CTX_flush_sessions(SSL_CTX * s, long t)
 
 int ssl_clear_bad_session(SSL * s)
 {
-	if((s->session != NULL) &&
+	if((s->session) &&
 	    !(s->shutdown & SSL_SENT_SHUTDOWN) &&
 	    !(SSL_in_init(s) || SSL_in_before(s))) {
 		SSL_CTX_remove_session(s->session_ctx, s->session);
@@ -1098,7 +1098,7 @@ static void SSL_SESSION_list_remove(SSL_CTX * ctx, SSL_SESSION * s)
 
 static void SSL_SESSION_list_add(SSL_CTX * ctx, SSL_SESSION * s)
 {
-	if((s->next != NULL) && (s->prev != NULL))
+	if((s->next) && (s->prev))
 		SSL_SESSION_list_remove(ctx, s);
 
 	if(ctx->session_cache_head == NULL) {
@@ -1218,7 +1218,7 @@ int SSL_SESSION_set1_ticket_appdata(SSL_SESSION * ss, const void * data, size_t 
 		return 1;
 	}
 	ss->ticket_appdata = static_cast<uchar *>(OPENSSL_memdup(data, len));
-	if(ss->ticket_appdata != NULL) {
+	if(ss->ticket_appdata) {
 		ss->ticket_appdata_len = len;
 		return 1;
 	}

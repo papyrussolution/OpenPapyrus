@@ -5808,10 +5808,8 @@ static void pr_font(char * fontname)
 		fontname = gpFallbackFont();
 	}
 #endif /* USE_X11_MULTIBYTE */
-
 	vchar = gpXTextHeight(font);
-	hchar = gpXTextWidth(font, "0123456789", 10) / 10;
-
+	hchar = gpXTextWidth(font, STextConst::P_Digits, 10) / 10;
 	/* Save a pointer to this font indexed by the name used to request it */
 	search = &fontlist;
 	while(search->next)

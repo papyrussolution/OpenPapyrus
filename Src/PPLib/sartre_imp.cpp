@@ -639,13 +639,13 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 				// Импортируем список словоформ
 				//
 				SrWordForm form;
-				while(anc_file.ReadLine(line_buf)) {
+				while(anc_file.ReadLine(line_buf, SFile::rlfChomp)) {
 					form.Clear();
 					int   anc_r = 0;
 					if(rParam.LangID == slangRU)
-						anc_r = ReadAncodeDescrLine_Ru(line_buf.Chomp(), ancode, form);
+						anc_r = ReadAncodeDescrLine_Ru(line_buf, ancode, form);
 					else if(rParam.LangID == slangEN)
-						anc_r = ReadAncodeDescrLine_En(line_buf.Chomp(), ancode, form);
+						anc_r = ReadAncodeDescrLine_En(line_buf, ancode, form);
 					if(anc_r > 0) {
 						int32 wf_id = 0;
 						THROW(r = P_GrT->Search(&form, &wf_id));
@@ -695,8 +695,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 					// для идентификации модели при описании леммы слова.
 					//
 					for(long i = 0; i < fm_count; i++) {
-						THROW(fm_file.ReadLine(line_buf));
-						line_buf.Chomp();
+						THROW(fm_file.ReadLine(line_buf, SFile::rlfChomp));
 						scan.Set(line_buf, 0);
 						if(scan.Skip().SearchChar('%')) {
 							model.Clear();
@@ -790,14 +789,13 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 				//
 				// Импортируем список приставок
 				//
-				if(fm_file.ReadLine(line_buf)) {
-					line_buf.Chomp().Strip();
+				if(fm_file.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 					long   pfx_count = line_buf.ToLong();
 					THROW(pfx_count > 0 || line_buf == "0");
 					for(long i = 0; i < pfx_count; i++) {
 						LEXID  pfx_id = 0;
-						THROW(fm_file.ReadLine(line_buf));
-						(pfx_buf = line_buf.Chomp().Strip()).ToUtf8().Utf8ToLower();
+						THROW(fm_file.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip));
+						(pfx_buf = line_buf).ToUtf8().Utf8ToLower();
 						THROW(P_WdT->AddSpecial(SrWordTbl::spcPrefix, pfx_buf, &pfx_id));
 						pfx_assoc.Add(i, pfx_id, 0);
 					}
@@ -818,8 +816,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 						long   temp_val;
 						int32  wa_id = 0;
 						SrWordAssoc wa;
-						THROW(fm_file.ReadLine(line_buf));
-						line_buf.Chomp().Strip();
+						THROW(fm_file.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip));
 						scan.Set(line_buf, 0);
 						if(scan.Skip().SearchChar(' ')) {
 							scan.Get(item_buf);
@@ -911,9 +908,9 @@ int TestImport_Words_MySpell()
 				{
 					SrWordTbl tbl_words(&bdb);
 					THROW(tbl_words);
-					while(in_file.ReadLine(line_buf)) {
+					while(in_file.ReadLine(line_buf, SFile::rlfChomp)) {
 						line_no++;
-						line_buf.Chomp().Divide('/', word, sfx_idx);
+						line_buf.Divide('/', word, sfx_idx);
 						(temp_buf = word).ToUtf8();
 						int r = tbl_words.Add(temp_buf, &id);
 						THROW(r);
@@ -1222,9 +1219,9 @@ SrConceptParser::~SrConceptParser()
 int SrConceptParser::_ReadLine()
 {
 	int    ok = 1;
-	if(F.ReadLine(LineBuf)) {
+	if(F.ReadLine(LineBuf, SFile::rlfChomp|SFile::rlfStrip)) {
 		LineNo++;
-		Scan.Set(LineBuf.Chomp().Strip(), 0);
+		Scan.Set(LineBuf, 0);
 		if(Scan.Search("//")) {
 			SString temp_buf;
 			Scan.Get(temp_buf);
@@ -2301,9 +2298,9 @@ int PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, 
 				SrImpHumanNameList list;
 				SrImpHumanNameList::Entry entry;
 				uint   line_no = 0;
-				while(f_in.ReadLine(line_buf)) {
+				while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 					line_no++;
-					if(line_no > 1 && line_buf.Chomp().NotEmptyS()) {
+					if(line_no > 1 && line_buf.NotEmpty()) {
 						line_buf.Transf(CTRANSF_UTF8_TO_INNER);
 						ss.setBuf(line_buf);
 						uint   fld_no = 0;
@@ -2635,8 +2632,7 @@ int PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 			}
 		}
 		f_in.Seek(0);
-		for(uint line_no = 1; f_in.ReadLine(line_buf); line_no++) {
-			line_buf.Chomp();
+		for(uint line_no = 1; f_in.ReadLine(line_buf, SFile::rlfChomp); line_no++) {
 			ss.clear();
 			ss.setBuf(line_buf);
 			if(line_no == 1) { // Строка заголовков
@@ -3136,9 +3132,8 @@ int PrcssrSartre::ImportTickers(SrDatabase & rDb, const char * pExchangeSymb, co
 		{
 			BDbTransaction tra(rDb.P_Db, 1);
 			THROW(tra);
-			for(uint line_no = 1; f_in.ReadLine(line_buf); line_no++) {
+			for(uint line_no = 1; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); line_no++) {
 				if(line_no > 1) {
-					line_buf.Chomp().Strip();
 					SStrScan scan(line_buf);
 					uint   fld_no = 0;
 					CONCEPTID inst_sector_cid = 0;
@@ -3414,9 +3409,8 @@ int PrcssrSartre::PreprocessCountryNames(const char * pBaseSrcPath)
 					PPWaitMsg(temp_buf);
                     SFile f_in(temp_buf, SFile::mRead);
                     if(f_in.IsValid()) {
-						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
+						for(uint line_count = 0; f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip); line_count++) {
                             if(line_count) { // Первая строка - заголовок полей
-								temp_buf.Chomp().Strip();
 								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
 									code_buf.Strip().StripQuotes().Strip();
 									text_buf.Strip().StripQuotes().Strip();
@@ -3457,9 +3451,8 @@ int PrcssrSartre::PreprocessCurrencyNames(const char * pBaseSrcPath)
 					PPWaitMsg(temp_buf);
                     SFile f_in(temp_buf, SFile::mRead);
                     if(f_in.IsValid()) {
-						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
+						for(uint line_count = 0; f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip); line_count++) {
                             if(line_count) { // Первая строка - заголовок полей
-								temp_buf.Chomp().Strip();
 								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
 									code_buf.Strip().StripQuotes().Strip();
 									text_buf.Strip().StripQuotes().Strip();
@@ -3500,9 +3493,8 @@ int PrcssrSartre::PreprocessLocaleNames(const char * pBaseSrcPath)
 					PPWaitMsg(temp_buf);
                     SFile f_in(temp_buf, SFile::mRead);
                     if(f_in.IsValid()) {
-						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
+						for(uint line_count = 0; f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip); line_count++) {
                             if(line_count) { // Первая строка - заголовок полей
-								temp_buf.Chomp().Strip();
 								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
 									code_buf.Strip().StripQuotes().Strip();
 									text_buf.Strip().StripQuotes().Strip();
@@ -3543,9 +3535,8 @@ int PrcssrSartre::PreprocessLanguageNames(const char * pBaseSrcPath)
 					PPWaitMsg(temp_buf);
                     SFile f_in(temp_buf, SFile::mRead);
                     if(f_in.IsValid()) {
-						for(uint line_count = 0; f_in.ReadLine(temp_buf); line_count++) {
+						for(uint line_count = 0; f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip); line_count++) {
                             if(line_count) { // Первая строка - заголовок полей
-								temp_buf.Chomp().Strip();
 								if(temp_buf.Divide(',', code_buf, text_buf) > 0) {
 									code_buf.Strip().StripQuotes().Strip();
 									text_buf.Strip().StripQuotes().Strip();
@@ -3704,8 +3695,7 @@ int PrcssrSartre::TestSearchWords()
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestSearchWords.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);
 		{
-			while(in_file.ReadLine(word_buf)) {
-				word_buf.Chomp().Strip();
+			while(in_file.ReadLine(word_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				if(word_buf.NotEmpty()) {
 					temp_buf = word_buf;
 					info_list.clear();
@@ -3761,8 +3751,7 @@ int PrcssrSartre::TestConcept()
 		Int64Array clist, hlist;
 		LongArray ng;
 		SrNGram ng_abbr; // N-gram сопоставленная с аббревиатурой
-		while(in_file.ReadLine(line_buf)) {
-			line_buf.Chomp().Strip();
+		while(in_file.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 			if(line_buf.NotEmpty()) {
 				temp_buf = line_buf;
 				line_buf.Z().Cat(temp_buf).CR();
@@ -3937,8 +3926,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 			SFile inf(in_file_name, SFile::mRead);
 			THROW(inf.IsValid());
 			outf.WriteLine(out_buf.Z().CR().CatChar('{').CR());
-			while(inf.ReadLine(line_buf)) {
-				line_buf.Chomp().Strip();
+			while(inf.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				ss.setBuf(line_buf);
 				entry.Reset();
 				for(uint pos = 0, i = 0; ss.get(&pos, temp_buf); i++) {
@@ -3969,8 +3957,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 					out_buf.Z().CR().CatBrackStr(temp_buf).CatChar('{').CR();
 					outf.WriteLine(out_buf);
 
-					while(inf.ReadLine(line_buf)) {
-						line_buf.Chomp().Strip();
+					while(inf.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 						ss.setBuf(line_buf);
 						entry.Reset();
 						for(uint pos = 0, i = 0; ss.get(&pos, temp_buf); i++) {
@@ -3998,7 +3985,7 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 		SFile inf(in_file_name, SFile::mRead);
 		THROW(inf.IsValid());
 		outf.WriteLine(out_buf.Z().CR());
-		while(inf.ReadLine(line_buf)) {
+		while(inf.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 			//
 			// #0  geonameid         : integer id of record in geonames database
 			// #1  name              : name of geographical point (utf8) varchar(200)
@@ -4020,7 +4007,6 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 			// #17 timezone          : the timezone id (see file timeZone.txt) varchar(40)
 			// #18 modification date : date of last modification in yyyy-MM-dd format
 			//
-			line_buf.Chomp().Strip();
 			ss.setBuf(line_buf);
 			entry.Reset();
 			for(uint pos = 0, i = 0; ss.get(&pos, temp_buf); i++) {
@@ -4061,9 +4047,8 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 			//
 			// Прежде всего проверим, что файл отсортирован по идентификатору geoname (2-е поле)
 			//
-			while(sorted && inf.ReadLine(line_buf)) {
+			while(sorted && inf.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				rec_count++;
-				line_buf.Chomp().Strip();
 				ss.setBuf(line_buf);
 				for(uint pos = 0, i = 0; ss.get(&pos, temp_buf); i++) {
 					temp_buf.Strip().Utf8ToLower();
@@ -4088,9 +4073,8 @@ int Process_geonames(const char * pPath, const char * pOutFileName)
 				TSArray <GeoNameAlt> temp_list;
 				inf.Seek(0);
 				outf.WriteLine(out_buf.Z().CR());
-				while(inf.ReadLine(line_buf)) {
+				while(inf.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 					rec_no++;
-					line_buf.Chomp().Strip();
 					ss.setBuf(line_buf);
 					entry.Reset();
 					for(uint pos = 0, i = 0; ss.get(&pos, temp_buf); i++) {
@@ -5397,8 +5381,7 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 					default: assert(0); break;
 				}
 				if(p_base_list) {
-					for(uint ln = 0; f_in.ReadLine(line_buf); ln++) {
-						line_buf.Chomp().Strip();
+					for(uint ln = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); ln++) {
 						if(ln > 0) {
 							// lang;id;value
 							ss.clear();
@@ -5557,8 +5540,7 @@ int PrcssrSartre::UED_Import_Lingua_LinguaLocus_Country_Currency(uint llccFlags)
 							}
 						}
 						TSVector <LlccUglyEntry> value_list;
-						for(uint ln = 0; f_in.ReadLine(line_buf); ln++) {
-							line_buf.Chomp().Strip();
+						for(uint ln = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); ln++) {
 							if(ln > 0) {
 								// lang;id;value
 								ss.clear();
@@ -5679,8 +5661,7 @@ int ImportPo(const char * pFileName, PoBlock & rBlk)
 	SString last_msgstr_buf;
 	SFile  f_in(pFileName, SFile::mRead);
 	THROW_SL(f_in.IsValid());
-	while(f_in.ReadLine(line_buf)) {
-		line_buf.Chomp().Strip();
+	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 		if(line_buf.IsEmpty()) {
 			if(state == stateMsgStr) {
 				if(last_msgid_buf.IsEmpty() && last_msgstr_buf.NotEmpty()) {

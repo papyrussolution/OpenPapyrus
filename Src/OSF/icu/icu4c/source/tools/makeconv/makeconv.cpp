@@ -385,7 +385,7 @@ static void getPlatformAndCCSIDFromName(const char * name, int8_t * pPlatform, i
 	}
 }
 
-static void readHeader(ConvData * data, FileStream* convFile, * pErrorCode) 
+static void readHeader(ConvData * data, FileStream* convFile, UErrorCode * pErrorCode) 
 {
 	char line[1024];
 	char * s, * key, * value;
@@ -402,12 +402,10 @@ static void readHeader(ConvData * data, FileStream* convFile, * pErrorCode)
 		if(ucm_parseHeaderLine(data->ucm, line, &key, &value)) {
 			continue;
 		}
-
 		/* stop at the beginning of the mapping section */
 		if(uprv_strcmp(line, "CHARMAP")==0) {
 			break;
 		}
-
 		/* collect the information from the header field, ignore unknown keys */
 		if(uprv_strcmp(key, "code_set_name")==0) {
 			if(*value!=0) {
@@ -418,7 +416,6 @@ static void readHeader(ConvData * data, FileStream* convFile, * pErrorCode)
 		else if(uprv_strcmp(key, "subchar")==0) {
 			uint8_t bytes[UCNV_EXT_MAX_BYTES];
 			int8_t length;
-
 			s = value;
 			length = ucm_parseBytes(bytes, line, (const char **)&s);
 			if(1<=length && length<=4 && *s==0) {
@@ -433,7 +430,6 @@ static void readHeader(ConvData * data, FileStream* convFile, * pErrorCode)
 		}
 		else if(uprv_strcmp(key, "subchar1")==0) {
 			uint8_t bytes[UCNV_EXT_MAX_BYTES];
-
 			s = value;
 			if(1==ucm_parseBytes(bytes, line, (const char **)&s) && *s==0) {
 				staticData->subChar1 = bytes[0];
@@ -445,18 +441,15 @@ static void readHeader(ConvData * data, FileStream* convFile, * pErrorCode)
 			}
 		}
 	}
-
 	/* copy values from the UCMFile to the static data */
 	staticData->maxBytesPerChar = (int8_t)data->ucm->states.maxCharLength;
 	staticData->minBytesPerChar = (int8_t)data->ucm->states.minCharLength;
 	staticData->conversionType = data->ucm->states.conversionType;
-
 	if(staticData->conversionType==UCNV_UNSUPPORTED_CONVERTER) {
 		slfprintf_stderr("ucm error: missing conversion type (<uconv_class>)\n");
 		*pErrorCode = U_INVALID_TABLE_FORMAT;
 		return;
 	}
-
 	/*
 	 * Now that we know the type, copy any 'default' values from the table.
 	 * We need not check the type any further because the parser only
@@ -512,27 +505,22 @@ static void readHeader(ConvData * data, FileStream* convFile, * pErrorCode)
 }
 
 /* return TRUE if a base table was read, FALSE for an extension table */
-static bool readFile(ConvData * data, const char * converterName,
-    UErrorCode * pErrorCode) {
+static bool readFile(ConvData * data, const char * converterName, UErrorCode * pErrorCode) 
+{
 	char line[1024];
 	char * end;
 	FileStream * convFile;
-
 	UCMStates * baseStates;
 	bool dataIsBase;
-
 	if(U_FAILURE(*pErrorCode)) {
 		return FALSE;
 	}
-
 	data->ucm = ucm_open();
-
 	convFile = T_FileStream_open(converterName, "r");
 	if(convFile==NULL) {
 		*pErrorCode = U_FILE_ACCESS_ERROR;
 		return FALSE;
 	}
-
 	readHeader(data, convFile, pErrorCode);
 	if(U_FAILURE(*pErrorCode)) {
 		return FALSE;

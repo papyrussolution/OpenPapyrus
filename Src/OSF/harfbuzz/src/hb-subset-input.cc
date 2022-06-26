@@ -15,9 +15,7 @@
 #pragma hdrstop
 /**
  * hb_subset_input_create_or_fail:
- *
  * Return value: New subset input.
- *
  * Since: 1.8.0
  **/
 hb_subset_input_t * hb_subset_input_create_or_fail()
@@ -70,18 +68,11 @@ hb_subset_input_t * hb_subset_input_create_or_fail()
 /**
  * hb_subset_input_reference: (skip)
  * @subset_input: a subset_input.
- *
- *
- *
  * Return value:
- *
  * Since: 1.8.0
  **/
 hb_subset_input_t * hb_subset_input_reference(hb_subset_input_t * subset_input)
-{
-	return hb_object_reference(subset_input);
-}
-
+	{ return hb_object_reference(subset_input); }
 /**
  * hb_subset_input_destroy:
  * @subset_input: a subset_input.
@@ -91,13 +82,11 @@ hb_subset_input_t * hb_subset_input_reference(hb_subset_input_t * subset_input)
 void hb_subset_input_destroy(hb_subset_input_t * subset_input)
 {
 	if(!hb_object_destroy(subset_input)) return;
-
 	hb_set_destroy(subset_input->unicodes);
 	hb_set_destroy(subset_input->glyphs);
 	hb_set_destroy(subset_input->name_ids);
 	hb_set_destroy(subset_input->name_languages);
 	hb_set_destroy(subset_input->drop_tables);
-
 	SAlloc::F(subset_input);
 }
 /**
@@ -107,10 +96,7 @@ void hb_subset_input_destroy(hb_subset_input_t * subset_input)
  * Since: 1.8.0
  **/
 HB_EXTERN hb_set_t * hb_subset_input_unicode_set(hb_subset_input_t * subset_input)
-{
-	return subset_input->unicodes;
-}
-
+	{ return subset_input->unicodes; }
 /**
  * hb_subset_input_glyph_set:
  * @subset_input: a subset_input.
@@ -118,47 +104,21 @@ HB_EXTERN hb_set_t * hb_subset_input_unicode_set(hb_subset_input_t * subset_inpu
  * Since: 1.8.0
  **/
 HB_EXTERN hb_set_t * hb_subset_input_glyph_set(hb_subset_input_t * subset_input)
-{
-	return subset_input->glyphs;
-}
-
+	{ return subset_input->glyphs; }
 HB_EXTERN hb_set_t * hb_subset_input_nameid_set(hb_subset_input_t * subset_input)
-{
-	return subset_input->name_ids;
-}
-
+	{ return subset_input->name_ids; }
 HB_EXTERN hb_set_t * hb_subset_input_namelangid_set(hb_subset_input_t * subset_input)
-{
-	return subset_input->name_languages;
-}
-
+	{ return subset_input->name_languages; }
 HB_EXTERN hb_set_t * hb_subset_input_drop_tables_set(hb_subset_input_t * subset_input)
-{
-	return subset_input->drop_tables;
-}
-
-HB_EXTERN void hb_subset_input_set_drop_hints(hb_subset_input_t * subset_input,
-    hb_bool_t drop_hints)
-{
-	subset_input->drop_hints = drop_hints;
-}
-
+	{ return subset_input->drop_tables; }
+HB_EXTERN void hb_subset_input_set_drop_hints(hb_subset_input_t * subset_input, hb_bool_t drop_hints)
+	{ subset_input->drop_hints = drop_hints; }
 HB_EXTERN hb_bool_t hb_subset_input_get_drop_hints(hb_subset_input_t * subset_input)
-{
-	return subset_input->drop_hints;
-}
-
-HB_EXTERN void hb_subset_input_set_desubroutinize(hb_subset_input_t * subset_input,
-    hb_bool_t desubroutinize)
-{
-	subset_input->desubroutinize = desubroutinize;
-}
-
+	{ return subset_input->drop_hints; }
+HB_EXTERN void hb_subset_input_set_desubroutinize(hb_subset_input_t * subset_input, hb_bool_t desubroutinize)
+	{ subset_input->desubroutinize = desubroutinize; }
 HB_EXTERN hb_bool_t hb_subset_input_get_desubroutinize(hb_subset_input_t * subset_input)
-{
-	return subset_input->desubroutinize;
-}
-
+	{ return subset_input->desubroutinize; }
 /**
  * hb_subset_input_set_retain_gids:
  * @subset_input: a subset_input.
@@ -166,25 +126,15 @@ HB_EXTERN hb_bool_t hb_subset_input_get_desubroutinize(hb_subset_input_t * subse
  * Since: 2.4.0
  **/
 HB_EXTERN void hb_subset_input_set_retain_gids(hb_subset_input_t * subset_input, hb_bool_t retain_gids)
-{
-	subset_input->retain_gids = retain_gids;
-}
+	{ subset_input->retain_gids = retain_gids; }
 /**
  * hb_subset_input_get_retain_gids:
  * Returns: value of retain_gids.
  * Since: 2.4.0
  **/
 HB_EXTERN hb_bool_t hb_subset_input_get_retain_gids(hb_subset_input_t * subset_input)
-{
-	return subset_input->retain_gids;
-}
-
+	{ return subset_input->retain_gids; }
 HB_EXTERN void hb_subset_input_set_name_legacy(hb_subset_input_t * subset_input, hb_bool_t name_legacy)
-{
-	subset_input->name_legacy = name_legacy;
-}
-
+	{ subset_input->name_legacy = name_legacy; }
 HB_EXTERN hb_bool_t hb_subset_input_get_name_legacy(hb_subset_input_t * subset_input)
-{
-	return subset_input->name_legacy;
-}
+	{ return subset_input->name_legacy; }

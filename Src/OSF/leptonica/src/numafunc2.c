@@ -166,7 +166,7 @@ NUMA * numaErode(NUMA * nas,
 	int32 i, j, n, hsize, len;
 	float minval;
 	float * fa, * fas, * fad;
-	NUMA       * nad;
+	NUMA * nad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -233,7 +233,7 @@ NUMA * numaDilate(NUMA * nas,
 	int32 i, j, n, hsize, len;
 	float maxval;
 	float * fa, * fas, * fad;
-	NUMA       * nad;
+	NUMA * nad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -419,7 +419,7 @@ NUMA * numaTransform(NUMA * nas,
  * \param[out]   prvar    [optional] rms deviation from the mean
  * \return  0 if OK, 1 on error
  */
-l_ok numaSimpleStats(NUMA       * na,
+l_ok numaSimpleStats(NUMA * na,
     int32 first,
     int32 last,
     float * pmean,
@@ -504,10 +504,10 @@ l_ok numaSimpleStats(NUMA       * na,
  */
 l_ok numaWindowedStats(NUMA * nas,
     int32 wc,
-    NUMA   ** pnam,
-    NUMA   ** pnams,
-    NUMA   ** pnav,
-    NUMA   ** pnarv)
+    NUMA ** pnam,
+    NUMA ** pnams,
+    NUMA ** pnav,
+    NUMA ** pnarv)
 {
 	NUMA * nam, * nams;
 
@@ -557,7 +557,7 @@ NUMA * numaWindowedMean(NUMA * nas,
 	int32 i, n, n1, width;
 	float sum, norm;
 	float * fa1, * fad, * suma;
-	NUMA       * na1, * nad;
+	NUMA * na1, * nad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -615,7 +615,7 @@ NUMA * numaWindowedMeanSquare(NUMA * nas,
 	int32 i, n, n1, width;
 	float sum, norm;
 	float * fa1, * fad, * suma;
-	NUMA       * na1, * nad;
+	NUMA * na1, * nad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -675,18 +675,13 @@ NUMA * numaWindowedMeanSquare(NUMA * nas,
  *                [(x - [x])*(x - [x])] = [x*x] - [x]*[x]
  * </pre>
  */
-l_ok numaWindowedVariance(NUMA   * nam,
-    NUMA   * nams,
-    NUMA ** pnav,
-    NUMA ** pnarv)
+l_ok numaWindowedVariance(NUMA * nam, NUMA * nams, NUMA ** pnav, NUMA ** pnarv)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, nm, nms;
 	float var;
 	float * fam, * fams, * fav, * farv;
-	NUMA       * nav, * narv; /* variance and square root of variance */
-
-	PROCNAME(__FUNCTION__);
-
+	NUMA * nav, * narv; /* variance and square root of variance */
 	if(pnav) *pnav = NULL;
 	if(pnarv) *pnarv = NULL;
 	if(!pnav && !pnarv)
@@ -1205,7 +1200,7 @@ NUMA * numaNormalizeHistogram(NUMA * nas,
  *          multiple times.
  * </pre>
  */
-l_ok numaGetStatsUsingHistogram(NUMA       * na,
+l_ok numaGetStatsUsingHistogram(NUMA * na,
     int32 maxbins,
     float * pmin,
     float * pmax,
@@ -1294,7 +1289,7 @@ l_ok numaGetStatsUsingHistogram(NUMA       * na,
  *                x(i) = startx + i * deltax
  * </pre>
  */
-l_ok numaGetHistogramStats(NUMA       * nahisto,
+l_ok numaGetHistogramStats(NUMA * nahisto,
     float startx,
     float deltax,
     float * pxmean,
@@ -1341,7 +1336,7 @@ l_ok numaGetHistogramStats(NUMA       * nahisto,
  *                x(i) = startx + i * deltax
  * </pre>
  */
-l_ok numaGetHistogramStatsOnInterval(NUMA       * nahisto,
+l_ok numaGetHistogramStatsOnInterval(NUMA * nahisto,
     float startx,
     float deltax,
     int32 ifirst,
@@ -1499,7 +1494,7 @@ l_ok numaMakeRankFromHistogram(float startx,
  *          compute x from the Numa index i.
  * </pre>
  */
-l_ok numaHistogramGetRankFromVal(NUMA       * na,
+l_ok numaHistogramGetRankFromVal(NUMA * na,
     float rval,
     float * prank)
 {
@@ -1568,7 +1563,7 @@ l_ok numaHistogramGetRankFromVal(NUMA       * na,
  *          compute x from the Numa index i.
  * </pre>
  */
-l_ok numaHistogramGetValFromRank(NUMA       * na,
+l_ok numaHistogramGetValFromRank(NUMA * na,
     float rank,
     float * prval)
 {
@@ -1638,17 +1633,13 @@ l_ok numaHistogramGetValFromRank(NUMA       * na,
  *          is a histogram.
  * </pre>
  */
-l_ok numaDiscretizeSortedInBins(NUMA * na,
-    int32 nbins,
-    NUMA   ** pnabinval)
+l_ok numaDiscretizeSortedInBins(NUMA * na, int32 nbins, NUMA ** pnabinval)
 {
+	PROCNAME(__FUNCTION__);
 	NUMA * nabinval; /* average gray value in the bins */
 	NUMA * naeach;
 	int32 i, ntot, count, bincount, binindex, binsize;
 	float sum, val, ave;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pnabinval)
 		return ERROR_INT("&nabinval not defined", procName, 1);
 	*pnabinval = NULL;
@@ -1656,12 +1647,10 @@ l_ok numaDiscretizeSortedInBins(NUMA * na,
 		return ERROR_INT("na not defined", procName, 1);
 	if(nbins < 2)
 		return ERROR_INT("nbins must be > 1", procName, 1);
-
 	/* Get the number of items in each bin */
 	ntot = numaGetCount(na);
 	if((naeach = numaGetUniformBinSizes(ntot, nbins)) == NULL)
 		return ERROR_INT("naeach not made", procName, 1);
-
 	/* Get the average value in each bin */
 	sum = 0.0;
 	bincount = 0;
@@ -1678,16 +1667,15 @@ l_ok numaDiscretizeSortedInBins(NUMA * na,
 			sum = 0.0;
 			bincount = 0;
 			binindex++;
-			if(binindex == nbins) break;
+			if(binindex == nbins) 
+				break;
 			numaGetIValue(naeach, binindex, &binsize);
 		}
 	}
 	*pnabinval = nabinval;
-
 	numaDestroy(&naeach);
 	return 0;
 }
-
 /*!
  * \brief   numaDiscretizeHistoInBins()
  *
@@ -1713,19 +1701,14 @@ l_ok numaDiscretizeSortedInBins(NUMA * na,
  *             array values     -->  cumulative normalized histogram (narank)
  * </pre>
  */
-l_ok numaDiscretizeHistoInBins(NUMA * na,
-    int32 nbins,
-    NUMA   ** pnabinval,
-    NUMA   ** pnarank)
+l_ok numaDiscretizeHistoInBins(NUMA * na, int32 nbins, NUMA ** pnabinval, NUMA ** pnarank)
 {
+	PROCNAME(__FUNCTION__);
 	NUMA * nabinval; /* average gray value in the bins */
 	NUMA * narank; /* rank value as function of input value */
 	NUMA * naeach, * nan;
 	int32 i, j, k, nxvals, occup, count, bincount, binindex, binsize;
 	float sum, ave, ntot;
-
-	PROCNAME(__FUNCTION__);
-
 	if(pnarank) *pnarank = NULL;
 	if(!pnabinval)
 		return ERROR_INT("&nabinval not defined", procName, 1);
@@ -1734,16 +1717,13 @@ l_ok numaDiscretizeHistoInBins(NUMA * na,
 		return ERROR_INT("na not defined", procName, 1);
 	if(nbins < 2)
 		return ERROR_INT("nbins must be > 1", procName, 1);
-
 	nxvals = numaGetCount(na);
 	numaGetSum(na, &ntot);
 	occup = ntot / nxvals;
 	if(occup < 1) L_INFO("average occupancy %d < 1\n", procName, occup);
-
 	/* Get the number of items in each bin */
 	if((naeach = numaGetUniformBinSizes(ntot, nbins)) == NULL)
 		return ERROR_INT("naeach not made", procName, 1);
-
 	/* Get the average value in each bin */
 	sum = 0.0;
 	bincount = 0;
@@ -1772,7 +1752,6 @@ l_ok numaDiscretizeHistoInBins(NUMA * na,
 	*pnabinval = nabinval;
 	if(binindex != nbins)
 		L_ERROR("binindex = %d != nbins = %d\n", procName, binindex, nbins);
-
 	/* Get cumulative normalized histogram (rank[gray value]).
 	 * This is the partial sum operating on the normalized histogram. */
 	if(pnarank) {
@@ -1783,7 +1762,6 @@ l_ok numaDiscretizeHistoInBins(NUMA * na,
 	numaDestroy(&naeach);
 	return 0;
 }
-
 /*!
  * \brief   numaGetRankBinValues()
  *
@@ -1804,7 +1782,7 @@ l_ok numaDiscretizeHistoInBins(NUMA * na,
  */
 l_ok numaGetRankBinValues(NUMA * na,
     int32 nbins,
-    NUMA   ** pnam)
+    NUMA ** pnam)
 {
 	NUMA * na1;
 	int32 maxbins, type;
@@ -1947,7 +1925,7 @@ NUMA * numaGetUniformBinSizes(int32 ntotal,
  *          score would be 1.0.
  * </pre>
  */
-l_ok numaSplitDistribution(NUMA       * na,
+l_ok numaSplitDistribution(NUMA * na,
     float scorefract,
     int32    * psplitindex,
     float * pave1,
@@ -2114,7 +2092,7 @@ l_ok grayHistogramsToEMD(NUMAA  * naa1,
 {
 	int32 i, n, nt;
 	float dist;
-	NUMA       * na1, * na2, * nad;
+	NUMA * na1, * na2, * nad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2172,14 +2150,14 @@ l_ok grayHistogramsToEMD(NUMAA  * naa1,
  *         other end.
  * </pre>
  */
-l_ok numaEarthMoverDistance(NUMA       * na1,
-    NUMA       * na2,
+l_ok numaEarthMoverDistance(NUMA * na1,
+    NUMA * na2,
     float * pdist)
 {
 	int32 n, norm, i;
 	float sum1, sum2, diff, total;
 	float * array1, * array3;
-	NUMA       * na3;
+	NUMA * na3;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2263,10 +2241,10 @@ l_ok numaEarthMoverDistance(NUMA       * na1,
  */
 l_ok grayInterHistogramStats(NUMAA   * naa,
     int32 wc,
-    NUMA   ** pnam,
-    NUMA   ** pnams,
-    NUMA   ** pnav,
-    NUMA   ** pnarv)
+    NUMA ** pnam,
+    NUMA ** pnams,
+    NUMA ** pnav,
+    NUMA ** pnarv)
 {
 	int32 i, j, n, nn;
 	float ** arrays;
@@ -2574,7 +2552,7 @@ NUMA * numaFindExtrema(NUMA * nas,
  *          be returned.
  * </pre>
  */
-l_ok numaFindLocForThreshold(NUMA       * na,
+l_ok numaFindLocForThreshold(NUMA * na,
     int32 skip,
     int32    * pthresh,
     float * pfract)
@@ -2669,7 +2647,7 @@ l_ok numaFindLocForThreshold(NUMA       * na,
  *          issue a warning.
  * </pre>
  */
-l_ok numaCountReversals(NUMA       * nas,
+l_ok numaCountReversals(NUMA * nas,
     float minreversal,
     int32    * pnr,
     float * prd)
@@ -2765,8 +2743,8 @@ l_ok numaCountReversals(NUMA       * nas,
  *     (3) If the count of nay is less than 2, a warning is issued.
  * </pre>
  */
-l_ok numaSelectCrossingThreshold(NUMA       * nax,
-    NUMA       * nay,
+l_ok numaSelectCrossingThreshold(NUMA * nax,
+    NUMA * nay,
     float estthresh,
     float * pbestthresh)
 {
@@ -3051,7 +3029,7 @@ NUMA * numaCrossingsByPeaks(NUMA * nax,
  *          pixel projection direction.
  * </pre>
  */
-l_ok numaEvalBestHaarParameters(NUMA       * nas,
+l_ok numaEvalBestHaarParameters(NUMA * nas,
     float relweight,
     int32 nwidth,
     int32 nshift,
@@ -3134,7 +3112,7 @@ l_ok numaEvalBestHaarParameters(NUMA       * nas,
  *          use relweight > 1.0.
  * </pre>
  */
-l_ok numaEvalHaarSum(NUMA       * nas,
+l_ok numaEvalHaarSum(NUMA * nas,
     float width,
     float shift,
     float relweight,

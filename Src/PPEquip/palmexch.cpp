@@ -1,5 +1,5 @@
 // PALMEXCH.CPP
-// ..2009, 2010, 2012, 2015, 2016, 2018, 2019, 2020, 2021
+// ..2009, 2010, 2012, 2015, 2016, 2018, 2019, 2020, 2021, 2022
 //
 #pragma hdrstop
 #ifndef __GENERIC_MAIN_CONDUIT__
@@ -1513,8 +1513,7 @@ int SpiiExchange(PalmTcpExchange * pTcpExch, PROGRESSFN pFn, CSyncProperties * p
 			SString devl_path, allow_device;
 			devl_file.Open(devl_path = pTcpExch->GetTcpDevListPath(devl_path), SFile::mRead);
 			if(devl_file.IsValid()) {
-				while(!found && devl_file.ReadLine(allow_device) > 0) {
-					allow_device.Chomp().Strip();
+				while(!found && devl_file.ReadLine(allow_device, SFile::rlfChomp|SFile::rlfStrip) > 0) {
 					if(allow_device.CmpNC(TCP_ALLOW_ALL) == 0 || allow_device.CmpNC(dev_info.Name) == 0)
 						found = 1;
 				}

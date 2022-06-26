@@ -1331,7 +1331,7 @@ private:
 	bool FindField(const DlScope * pZone, const char * pFieldName, SdbField & rFld, StrAssocArray * pFullList) const
 	{
 		bool   ok = false;
-		if(pZone && !isempty(pFieldName)) {
+		if(pZone && (!isempty(pFieldName) || pFullList)) {
 			SdbField iter_fld;
 			for(uint i = 0; (!ok || pFullList) && i < pZone->GetCount(); i++) {
 				if(pZone->GetFieldByPos(i, &iter_fld)) {
@@ -1370,7 +1370,7 @@ private:
 						}
 					}
 					p_list->SortByText();
-					if(ListBoxSelDialog(p_list, "@ttl_seldl600zone", &id, 0) > 0 && id > 0) {
+					if(ListBoxSelDialog::Run(p_list, "@ttl_seldl600zone", &id) > 0 && id > 0) {
 						for(uint i = 0; i < r_cl.getCount(); i++) {
 							const DlScope * p_scope = r_cl.at(i);
 							if(p_scope->GetId() == static_cast<DLSYMBID>(id)) {
@@ -1400,13 +1400,20 @@ private:
 					SdbField fld;
 					long   id = FindField(p_zone_scope, cur_text, fld, p_list) ? fld.ID : 0;
 					p_list->SortByText();
-					if(ListBoxSelDialog(p_list, "@ttl_seldl600field", &id, 0) > 0 && id > 0) {
-						if(p_zone_scope->GetFieldByID(id, 0, &fld)) {
-							setCtrlString(CTL_MOBCLEDT_FN, fld.Name);
-							getCtrlString(CTL_MOBCLEDT_TXT, temp_buf);
-							if(temp_buf.IsEmpty()) {
-								setCtrlString(CTL_MOBCLEDT_TXT, fld.Name);
-								SetupField();
+					LongArray id_list;
+					id_list.addnz(id); // @stub
+					if(ListBoxSelDialog::Run(p_list, "@ttl_seldl600field", &id_list) > 0 /*&& id > 0*/) {
+						if(id_list.getCount()) {
+							id = id_list.get(0);
+							if(id) {
+								if(p_zone_scope->GetFieldByID(id, 0, &fld)) {
+									setCtrlString(CTL_MOBCLEDT_FN, fld.Name);
+									getCtrlString(CTL_MOBCLEDT_TXT, temp_buf);
+									if(temp_buf.IsEmpty()) {
+										setCtrlString(CTL_MOBCLEDT_TXT, fld.Name);
+										SetupField();
+									}
+								}
 							}
 						}
 					}

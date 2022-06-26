@@ -103,16 +103,12 @@ static const int32 InitialArraySize = 1024; /*!< n'importe quoi */
  *          it then reads the number of bytes into the byte array.
  * </pre>
  */
-L_BBUFFER * bbufferCreate(const uint8  * indata,
-    int32 nalloc)
+L_BBUFFER * bbufferCreate(const uint8  * indata, int32 nalloc)
 {
 	L_BBUFFER  * bb;
-
 	PROCNAME(__FUNCTION__);
-
 	if(nalloc <= 0 || nalloc > MaxArraySize)
 		nalloc = InitialArraySize;
-
 	bb = (L_BBUFFER*)SAlloc::C(1, sizeof(L_BBUFFER));
 	if((bb->array = (uint8 *)SAlloc::C(nalloc, sizeof(uint8))) == NULL) {
 		SAlloc::F(bb);
@@ -120,7 +116,6 @@ L_BBUFFER * bbufferCreate(const uint8  * indata,
 	}
 	bb->nalloc = nalloc;
 	bb->nwritten = 0;
-
 	if(indata) {
 		memcpy(bb->array, indata, nalloc);
 		bb->n = nalloc;
@@ -128,7 +123,6 @@ L_BBUFFER * bbufferCreate(const uint8  * indata,
 	else {
 		bb->n = 0;
 	}
-
 	return bb;
 }
 
@@ -147,23 +141,17 @@ L_BBUFFER * bbufferCreate(const uint8  * indata,
 void bbufferDestroy(L_BBUFFER  ** pbb)
 {
 	L_BBUFFER  * bb;
-
 	PROCNAME(__FUNCTION__);
-
 	if(pbb == NULL) {
 		L_WARNING("ptr address is NULL\n", procName);
 		return;
 	}
-
 	if((bb = *pbb) == NULL)
 		return;
-
-	if(bb->array)
-		SAlloc::F(bb->array);
+	SAlloc::F(bb->array);
 	SAlloc::F(bb);
 	*pbb = NULL;
 }
-
 /*!
  * \brief   bbufferDestroyAndSaveData()
  *
@@ -177,9 +165,9 @@ void bbufferDestroy(L_BBUFFER  ** pbb)
  * </pre>
  */
 uint8 * bbufferDestroyAndSaveData(L_BBUFFER  ** pbb,
-    size_t      * pnbytes)
+    size_t * pnbytes)
 {
-	uint8    * array;
+	uint8 * array;
 	size_t nbytes;
 	L_BBUFFER  * bb;
 
@@ -233,27 +221,21 @@ uint8 * bbufferDestroyAndSaveData(L_BBUFFER  ** pbb,
  *          of reallocNew().
  * </pre>
  */
-l_ok bbufferRead(L_BBUFFER  * bb,
-    uint8    * src,
-    int32 nbytes)
+l_ok bbufferRead(L_BBUFFER  * bb, uint8 * src, int32 nbytes)
 {
 	int32 navail, nadd, nwritten;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!bb)
 		return ERROR_INT("bb not defined", procName, 1);
 	if(!src)
 		return ERROR_INT("src not defined", procName, 1);
 	if(nbytes == 0)
 		return ERROR_INT("no bytes to read", procName, 1);
-
 	if((nwritten = bb->nwritten)) { /* move the unwritten bytes over */
 		memmove(bb->array, bb->array + nwritten, bb->n - nwritten);
 		bb->nwritten = 0;
 		bb->n -= nwritten;
 	}
-
 	/* If necessary, expand the allocated array.  Do so by
 	 * by at least a factor of two. */
 	navail = bb->nalloc - bb->n;
@@ -262,7 +244,6 @@ l_ok bbufferRead(L_BBUFFER  * bb,
 		if(bbufferExtendArray(bb, nadd))
 			return ERROR_INT("extension failed", procName, 1);
 	}
-
 	/* Read in the new bytes */
 	memcpy(bb->array + bb->n, src, nbytes);
 	bb->n += nbytes;
@@ -277,27 +258,21 @@ l_ok bbufferRead(L_BBUFFER  * bb,
  * \param[in]    nbytes   bytes to be read
  * \return  0 if OK, 1 on error
  */
-l_ok bbufferReadStream(L_BBUFFER  * bb,
-    FILE       * fp,
-    int32 nbytes)
+l_ok bbufferReadStream(L_BBUFFER  * bb, FILE * fp, int32 nbytes)
 {
 	int32 navail, nadd, nread, nwritten;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!bb)
 		return ERROR_INT("bb not defined", procName, 1);
 	if(!fp)
 		return ERROR_INT("fp not defined", procName, 1);
 	if(nbytes == 0)
 		return ERROR_INT("no bytes to read", procName, 1);
-
 	if((nwritten = bb->nwritten)) { /* move any unwritten bytes over */
 		memmove(bb->array, bb->array + nwritten, bb->n - nwritten);
 		bb->nwritten = 0;
 		bb->n -= nwritten;
 	}
-
 	/* If necessary, expand the allocated array.  Do so by
 	 * by at least a factor of two. */
 	navail = bb->nalloc - bb->n;
@@ -306,14 +281,11 @@ l_ok bbufferReadStream(L_BBUFFER  * bb,
 		if(bbufferExtendArray(bb, nadd))
 			return ERROR_INT("extension failed", procName, 1);
 	}
-
 	/* Read in the new bytes */
 	nread = fread(bb->array + bb->n, 1, nbytes, fp);
 	bb->n += nread;
-
 	return 0;
 }
-
 /*!
  * \brief   bbufferExtendArray()
  *
@@ -327,11 +299,9 @@ l_ok bbufferReadStream(L_BBUFFER  * bb,
  *          only bb->n are data.
  * </pre>
  */
-l_ok bbufferExtendArray(L_BBUFFER  * bb,
-    int32 nbytes)
+l_ok bbufferExtendArray(L_BBUFFER  * bb, int32 nbytes)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!bb)
 		return ERROR_INT("bb not defined", procName, 1);
 
@@ -357,7 +327,7 @@ l_ok bbufferExtendArray(L_BBUFFER  * bb,
  * \return  0 if OK, 1 on error
  */
 l_ok bbufferWrite(L_BBUFFER  * bb,
-    uint8    * dest,
+    uint8 * dest,
     size_t nbytes,
     size_t     * pnout)
 {
@@ -407,7 +377,7 @@ l_ok bbufferWrite(L_BBUFFER  * bb,
  * \return  0 if OK, 1 on error
  */
 l_ok bbufferWriteStream(L_BBUFFER  * bb,
-    FILE       * fp,
+    FILE * fp,
     size_t nbytes,
     size_t     * pnout)
 {

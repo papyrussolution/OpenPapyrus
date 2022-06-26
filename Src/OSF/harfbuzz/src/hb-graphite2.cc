@@ -178,59 +178,38 @@ struct hb_graphite2_cluster_t {
 };
 
 hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
-    hb_font_t * font,
-    hb_buffer_t * buffer,
-    const hb_feature_t * features,
-    uint num_features)
+    hb_font_t * font, hb_buffer_t * buffer, const hb_feature_t * features, uint num_features)
 {
 	hb_face_t * face = font->face;
 	gr_face * grface = face->data.graphite2->grface;
-
 	const char * lang = hb_language_to_string(hb_buffer_get_language(buffer));
 	const char * lang_end = lang ? strchr(lang, '-') : nullptr;
 	int lang_len = lang_end ? lang_end - lang : -1;
 	gr_feature_val * feats = gr_face_featureval_for_lang(grface, lang ? hb_tag_from_string(lang, lang_len) : 0);
-
 	for(uint i = 0; i < num_features; i++) {
 		const gr_feature_ref * fref = gr_face_find_fref(grface, features[i].tag);
 		if(fref)
 			gr_fref_set_feature_value(fref, features[i].value, feats);
 	}
-
 	gr_segment * seg = nullptr;
 	const gr_slot * is;
 	uint ci = 0, ic = 0;
 	uint curradvx = 0, curradvy = 0;
-
 	uint scratch_size;
 	hb_buffer_t::scratch_buffer_t * scratch = buffer->get_scratch_buffer(&scratch_size);
-
 	uint32_t * chars = (uint32_t*)scratch;
-
 	for(uint i = 0; i < buffer->len; ++i)
 		chars[i] = buffer->info[i].codepoint;
-
 	/* TODO ensure_native_direction. */
-
 	hb_tag_t script_tag[HB_OT_MAX_TAGS_PER_SCRIPT];
 	uint count = HB_OT_MAX_TAGS_PER_SCRIPT;
-	hb_ot_tags_from_script_and_language(hb_buffer_get_script(buffer),
-	    HB_LANGUAGE_INVALID,
-	    &count,
-	    script_tag,
-	    nullptr, nullptr);
-
-	seg = gr_make_seg(nullptr, grface,
-		count ? script_tag[count - 1] : HB_OT_TAG_DEFAULT_SCRIPT,
-		feats,
-		gr_utf32, chars, buffer->len,
-		2 | (hb_buffer_get_direction(buffer) == HB_DIRECTION_RTL ? 1 : 0));
-
+	hb_ot_tags_from_script_and_language(hb_buffer_get_script(buffer), HB_LANGUAGE_INVALID, &count, script_tag, nullptr, nullptr);
+	seg = gr_make_seg(nullptr, grface, count ? script_tag[count - 1] : HB_OT_TAG_DEFAULT_SCRIPT, feats,
+		gr_utf32, chars, buffer->len, 2 | (hb_buffer_get_direction(buffer) == HB_DIRECTION_RTL ? 1 : 0));
 	if(UNLIKELY(!seg)) {
 		if(feats) gr_featureval_destroy(feats);
 		return false;
 	}
-
 	uint glyph_count = gr_seg_n_slots(seg);
 	if(UNLIKELY(!glyph_count)) {
 		if(feats) gr_featureval_destroy(feats);
@@ -238,7 +217,6 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
 		buffer->len = 0;
 		return true;
 	}
-
 	buffer->ensure(glyph_count);
 	scratch = buffer->get_scratch_buffer(&scratch_size);
 	while((DIV_CEIL(sizeof(hb_graphite2_cluster_t) * buffer->len, sizeof(*scratch)) +
@@ -250,7 +228,6 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
 		}
 		scratch = buffer->get_scratch_buffer(&scratch_size);
 	}
-
 #define ALLOCATE_ARRAY(Type, name, len) \
 	Type *name = (Type*)scratch; \
 	do { \
@@ -309,17 +286,14 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
 			ci++;
 		}
 		clusters[ci].num_glyphs++;
-
 		if(clusters[ci].base_char + clusters[ci].num_chars < after + 1)
 			clusters[ci].num_chars = after + 1 - clusters[ci].base_char;
 	}
-
 	if(HB_DIRECTION_IS_BACKWARD(buffer->props.direction))
 		clusters[ci].advance += curradv;
 	else
 		clusters[ci].advance += gr_seg_advance_X(seg) * xscale - curradv;
 	ci++;
-
 	for(uint i = 0; i < ci; ++i) {
 		for(uint j = 0; j < clusters[i].num_glyphs; ++j) {
 			hb_glyph_info_t * info = &buffer->info[clusters[i].base_glyph + j];
@@ -329,7 +303,6 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
 		}
 	}
 	buffer->len = glyph_count;
-
 	/* Positioning. */
 	uint currclus = UINT_MAX;
 	const hb_glyph_info_t * info = buffer->info;
@@ -346,7 +319,6 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
 			}
 			else
 				pPos->x_advance = 0.;
-
 			pPos->y_advance = gr_slot_advance_Y(is, grface, nullptr) * yscale;
 			curradvy += pPos->y_advance;
 		}
@@ -361,7 +333,6 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
 			}
 			else
 				pPos->x_advance = 0.;
-
 			pPos->y_advance = gr_slot_advance_Y(is, grface, nullptr) * yscale;
 			curradvy -= pPos->y_advance;
 			pPos->x_offset = gr_slot_origin_X(is) * xscale - info->var1.i32 - curradvx + pPos->x_advance;
@@ -369,12 +340,9 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
 		}
 		hb_buffer_reverse_clusters(buffer);
 	}
-
 	if(feats) gr_featureval_destroy(feats);
 	gr_seg_destroy(seg);
-
 	buffer->unsafe_to_break_all();
-
 	return true;
 }
 

@@ -460,7 +460,7 @@ static int archive_read_format_cab_options(ArchiveRead * a, const char * key, co
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "cab: hdrcharset option needs a character-set name");
 		else {
 			cab->sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
-			if(cab->sconv != NULL)
+			if(cab->sconv)
 				ret = ARCHIVE_OK;
 			else
 				ret = ARCHIVE_FATAL;
@@ -896,7 +896,7 @@ static int archive_read_format_cab_read_header(ArchiveRead * a, ArchiveEntry * e
 		}
 		sconv = cab->sconv_utf8;
 	}
-	else if(cab->sconv != NULL) {
+	else if(cab->sconv) {
 		/* Choose the conversion specified by the option. */
 		sconv = cab->sconv;
 	}
@@ -1098,19 +1098,14 @@ static int cab_next_cfdata(ArchiveRead * a)
 {
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfdata * cfdata = cab->entry_cfdata;
-
 	/* There are remaining bytes in current CFDATA, use it first. */
-	if(cfdata != NULL && cfdata->uncompressed_bytes_remaining > 0)
+	if(cfdata && cfdata->uncompressed_bytes_remaining > 0)
 		return ARCHIVE_OK;
-
 	if(cfdata == NULL) {
 		int64 skip;
-
 		cab->entry_cffolder->cfdata_index = 0;
-
 		/* Seek read pointer to the offset of CFDATA if needed. */
-		skip = cab->entry_cffolder->cfdata_offset_in_cab
-		    - cab->cab_offset;
+		skip = cab->entry_cffolder->cfdata_offset_in_cab - cab->cab_offset;
 		if(skip < 0) {
 			int folder_index;
 			switch(cab->entry_cffile->folder) {
@@ -1824,7 +1819,7 @@ static int archive_read_format_cab_read_data_skip(ArchiveRead * a)
 		return ARCHIVE_FATAL;
 	/* If the compression type is none(uncompressed), we've already
 	 * consumed data as much as the current entry size. */
-	if(cab->entry_cffolder->comptype == COMPTYPE_NONE && cab->entry_cfdata != NULL)
+	if(cab->entry_cffolder->comptype == COMPTYPE_NONE && cab->entry_cfdata)
 		cab->entry_cfdata->unconsumed = 0;
 	/* This entry is finished and done. */
 	cab->end_of_entry_cleanup = cab->end_of_entry = 1;
@@ -1836,12 +1831,12 @@ static int archive_read_format_cab_cleanup(ArchiveRead * a)
 	struct cab * cab = (struct cab *)(a->format->data);
 	struct cfheader * hd = &cab->cfheader;
 	int i;
-	if(hd->folder_array != NULL) {
+	if(hd->folder_array) {
 		for(i = 0; i < hd->folder_count; i++)
 			SAlloc::F(hd->folder_array[i].cfdata.memimage);
 		SAlloc::F(hd->folder_array);
 	}
-	if(hd->file_array != NULL) {
+	if(hd->file_array) {
 		for(i = 0; i < cab->cfheader.file_count; i++)
 			archive_string_free(&(hd->file_array[i].pathname));
 		SAlloc::F(hd->file_array);

@@ -3684,7 +3684,7 @@ NUMA * pixOctcubeHistogram(PIX * pixs,
 	uint32   * rtab, * gtab, * btab;
 	uint32   * data, * line;
 	float * array;
-	NUMA       * na;
+	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
 

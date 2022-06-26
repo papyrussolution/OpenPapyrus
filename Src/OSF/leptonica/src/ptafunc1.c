@@ -450,7 +450,7 @@ BOX * ptaGetBoundingRegion(PTA * pta)
  *          example, the pts can represent a general function y(x).
  * </pre>
  */
-l_ok ptaGetRange(PTA        * pta,
+l_ok ptaGetRange(PTA * pta,
     float * pminx,
     float * pmaxx,
     float * pminy,
@@ -786,7 +786,6 @@ float l_angleBetweenVectors(float x1, float y1, float x2, float y2)
 	if(ang < -SMathConst::Pi) ang += 2.0 * SMathConst::Pi_f;
 	return ang;
 }
-
 /*!
  * \brief   ptaPolygonIsConvex()
  *
@@ -856,7 +855,7 @@ int32 ptaPolygonIsConvex(PTA * pta,
  * \return  0 if OK, 1 on error.  If pta is empty, requested
  *              values are returned as -1.0.
  */
-l_ok ptaGetMinMax(PTA        * pta,
+l_ok ptaGetMinMax(PTA * pta,
     float * pxmin,
     float * pymin,
     float * pxmax,
@@ -1041,7 +1040,7 @@ PTA * ptaCropToMask(PTA * ptas,
  *          Get the nax array using ptaGetArrays(pta, &nax, NULL);
  * </pre>
  */
-l_ok ptaGetLinearLSF(PTA        * pta,
+l_ok ptaGetLinearLSF(PTA * pta,
     float * pa,
     float * pb,
     NUMA ** pnafit)
@@ -1142,7 +1141,7 @@ l_ok ptaGetLinearLSF(PTA        * pta,
  *          Get the nax array using ptaGetArrays(pta, &nax, NULL);
  * </pre>
  */
-l_ok ptaGetQuadraticLSF(PTA        * pta,
+l_ok ptaGetQuadraticLSF(PTA * pta,
     float * pa,
     float * pb,
     float * pc,
@@ -1253,7 +1252,7 @@ l_ok ptaGetQuadraticLSF(PTA        * pta,
  *          Get the nax array using ptaGetArrays(pta, &nax, NULL);
  * </pre>
  */
-l_ok ptaGetCubicLSF(PTA        * pta,
+l_ok ptaGetCubicLSF(PTA * pta,
     float * pa,
     float * pb,
     float * pc,
@@ -1381,7 +1380,7 @@ l_ok ptaGetCubicLSF(PTA        * pta,
  *          Get the nax array using ptaGetArrays(pta, &nax, NULL);
  * </pre>
  */
-l_ok ptaGetQuarticLSF(PTA        * pta,
+l_ok ptaGetQuarticLSF(PTA * pta,
     float * pa,
     float * pb,
     float * pc,
@@ -1515,7 +1514,7 @@ l_ok ptaGetQuarticLSF(PTA        * pta,
  *          is likely to be.
  * </pre>
  */
-l_ok ptaNoisyLinearLSF(PTA        * pta,
+l_ok ptaNoisyLinearLSF(PTA * pta,
     float factor,
     PTA       ** pptad,
     float * pa,
@@ -1600,7 +1599,7 @@ l_ok ptaNoisyLinearLSF(PTA        * pta,
  *          a quadratic LSF on the resulting points.
  * </pre>
  */
-l_ok ptaNoisyQuadraticLSF(PTA        * pta,
+l_ok ptaNoisyQuadraticLSF(PTA * pta,
     float factor,
     PTA       ** pptad,
     float * pa,

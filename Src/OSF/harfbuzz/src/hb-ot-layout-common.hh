@@ -1595,7 +1595,7 @@ public:
 			static constexpr bool is_sorted_iterator = true;
 			iter_t(const Coverage &c_ = Null(Coverage))
 			{
-				memzero(this, sizeof(*this));
+				THISZERO();
 				format = c_.u.format;
 				switch(format) {
 					case 1: u.format1.init(c_.u.format1); return;
@@ -1640,19 +1640,14 @@ public:
 					default: return false;
 				}
 			}
-
 private:
 			uint format;
 			union {
-				CoverageFormat2::iter_t format2; /* Put this one first since it's larger; helps shut up
-				                                    compiler. */
+				CoverageFormat2::iter_t format2; // Put this one first since it's larger; helps shut up compiler
 				CoverageFormat1::iter_t format1;
 			} u;
 		};
-		iter_t iter() const {
-			return iter_t(*this);
-		}
-
+		iter_t iter() const { return iter_t(*this); }
 protected:
 		union {
 			HBUINT16 format; /* Format identifier */
@@ -1664,51 +1659,36 @@ public:
 		DEFINE_SIZE_UNION(2, format);
 	};
 
-	template<typename Iterator>
-	static inline void Coverage_serialize(hb_serialize_context_t * c,
-	    Iterator it)
+	template<typename Iterator> static inline void Coverage_serialize(hb_serialize_context_t * c, Iterator it)
 	{
 		c->start_embed<Coverage> ()->serialize(c, it);
 	}
-
-	static void ClassDef_remap_and_serialize(hb_serialize_context_t * c,
-	    const hb_set_t &glyphset,
-	    const hb_map_t &gid_klass_map,
-	    hb_sorted_vector_t<HBGlyphID> &glyphs,
-	    const hb_set_t &klasses,
-	    hb_map_t * klass_map /*INOUT*/)
+	static void ClassDef_remap_and_serialize(hb_serialize_context_t * c, const hb_set_t &glyphset, const hb_map_t &gid_klass_map,
+	    hb_sorted_vector_t<HBGlyphID> &glyphs, const hb_set_t &klasses, hb_map_t * klass_map /*INOUT*/)
 	{
 		if(!klass_map) {
-			ClassDef_serialize(c, hb_zip(glyphs.iter(), +glyphs.iter()
-			    | hb_map(gid_klass_map)));
+			ClassDef_serialize(c, hb_zip(glyphs.iter(), +glyphs.iter() | hb_map(gid_klass_map)));
 			return;
 		}
-
 		/* any glyph not assigned a class value falls into Class zero (0),
 		 * if any glyph assigned to class 0, remapping must start with 0->0*/
 		if(glyphset.get_population() > gid_klass_map.get_population())
 			klass_map->set(0, 0);
-
 		unsigned idx = klass_map->has(0) ? 1 : 0;
 		for(const unsigned k: klasses.iter()) {
 			if(klass_map->has(k)) continue;
 			klass_map->set(k, idx);
 			idx++;
 		}
-
-		auto it =
-		    +glyphs.iter()
-		    | hb_map_retains_sorting([&] (const HBGlyphID &gid)->hb_pair_t<hb_codepoint_t, unsigned>
+		auto it = +glyphs.iter() | hb_map_retains_sorting([&] (const HBGlyphID &gid)->hb_pair_t<hb_codepoint_t, unsigned>
 		{
 			unsigned new_klass = klass_map->get(gid_klass_map[gid]);
 			return hb_pair((hb_codepoint_t)gid, new_klass);
 		})
 		;
-
 		c->propagate_error(glyphs, klasses);
 		ClassDef_serialize(c, it);
 	}
-
 /*
  * Class Definition Table
  */

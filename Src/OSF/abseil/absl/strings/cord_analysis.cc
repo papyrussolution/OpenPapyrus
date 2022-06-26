@@ -8,7 +8,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/cord_analysis.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

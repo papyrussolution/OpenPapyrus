@@ -107,20 +107,9 @@ void TradWeight::init(double factor)
 	LOGVALUE(WTCALC, len_factor);
 }
 
-string TradWeight::name() const
-{
-	return "Xapian::TradWeight";
-}
-
-string TradWeight::short_name() const
-{
-	return "trad";
-}
-
-string TradWeight::serialise() const
-{
-	return serialise_double(param_k);
-}
+string TradWeight::name() const { return "Xapian::TradWeight"; }
+string TradWeight::short_name() const { return "trad"; }
+string TradWeight::serialise() const { return serialise_double(param_k); }
 
 TradWeight * TradWeight::unserialise(const string & s) const
 {
@@ -132,8 +121,7 @@ TradWeight * TradWeight::unserialise(const string & s) const
 	return new TradWeight(k);
 }
 
-double TradWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-    Xapian::termcount, Xapian::termcount) const
+double TradWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len, Xapian::termcount, Xapian::termcount) const
 {
 	double wdf_double = wdf;
 	return termweight * (wdf_double / (len * len_factor + wdf_double));

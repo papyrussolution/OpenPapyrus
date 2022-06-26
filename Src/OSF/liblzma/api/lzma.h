@@ -1772,7 +1772,7 @@ bool lzma_mode_is_supported(lzma_mode mode) lzma_attr_const;
 struct lzma_options_lzma {
 	lzma_options_lzma()
 	{
-		memzero(this, sizeof(*this));
+		THISZERO();
 	}
 	/**
 	 * \brief       Dictionary size in bytes
@@ -2564,7 +2564,7 @@ lzma_ret lzma_stream_buffer_decode(uint64_t *memlimit, uint32_t flags, const lzm
 struct lzma_stream_flags {
 	lzma_stream_flags()
 	{
-		memzero(this, sizeof(*this));
+		THISZERO();
 	}
 	lzma_stream_flags(uint32_t ver, lzma_vli backwardSz, lzma_check c) : version(ver), backward_size(backwardSz), check(c),
 		reserved_enum1(LZMA_RESERVED_ENUM), reserved_enum2(LZMA_RESERVED_ENUM), reserved_enum3(LZMA_RESERVED_ENUM), reserved_enum4(LZMA_RESERVED_ENUM),

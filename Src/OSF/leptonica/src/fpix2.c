@@ -1950,7 +1950,7 @@ FPIX * fpixAffinePta(FPIX      * fpixs,
     float inval)
 {
 	float * vc;
-	PTA        * ptas2, * ptad2;
+	PTA * ptas2, * ptad2;
 	FPIX       * fpixs2, * fpixd, * fpixd2;
 
 	PROCNAME(__FUNCTION__);
@@ -2066,7 +2066,7 @@ FPIX * fpixProjectivePta(FPIX      * fpixs,
     float inval)
 {
 	float * vc;
-	PTA        * ptas2, * ptad2;
+	PTA * ptas2, * ptad2;
 	FPIX       * fpixs2, * fpixd, * fpixd2;
 
 	PROCNAME(__FUNCTION__);

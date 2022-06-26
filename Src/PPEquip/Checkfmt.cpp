@@ -1793,17 +1793,17 @@ int PPSlipFormat::NextToken(SFile & rFile, SString & rResult)
 	rResult.Z();
 	int    token = 0;
 	if(!Scan.GetBuf()) {
-		THROW_SL(rFile.ReadLine(LineBuf));
+		THROW_SL(rFile.ReadLine(LineBuf, SFile::rlfChomp));
 		LineNo++;
-		Scan.Set(LineBuf.Chomp(), 0);
+		Scan.Set(LineBuf, 0);
 	}
 	Scan.Skip();
 	switch(Scan[0]) {
 		case    0:
 			token = tokEOL;
-			if(rFile.ReadLine(LineBuf)) {
+			if(rFile.ReadLine(LineBuf, SFile::rlfChomp)) {
 				LineNo++;
-				Scan.Set(LineBuf.Chomp(), 0);
+				Scan.Set(LineBuf, 0);
 			}
 			else
 				token = tokEOF;

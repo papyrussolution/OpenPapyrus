@@ -588,7 +588,7 @@ void thresholdToBinaryLineLow(uint32  * lined,
 				    }
 				    gval = (sword >> 24) & 0xff;
 				    sword <<= 8;
-				    dword |= (l_uint64)(((gval - thresh) >> 31) & 1)
+				    dword |= (uint64)(((gval - thresh) >> 31) & 1)
 					    << (31 - (j & 31));
 			    }
 			    lined[dcount] = dword;

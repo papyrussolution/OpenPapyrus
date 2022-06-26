@@ -312,9 +312,8 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		     * implementation which supports only the 'All' criterion, meaning the
 		     * options can be applied right away. */
 		    if(!(*parser_flags & IN_MATCH)) {
-			    memset(seen, 0x00, BIND_CFG_MAX * sizeof(uint8));
+			    memzero(seen, BIND_CFG_MAX * sizeof(uint8));
 		    }
-
 		    /* In this line the PARSING bit is cleared from the flags */
 		    *parser_flags = IN_MATCH;
 		    do {

@@ -1,5 +1,5 @@
 // PPTEX2HTML.CPP
-// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2351,8 +2351,7 @@ int PPVer2HtmlPrcssr::Parse(const char * pSrcFileName)
     SFile f_in(pSrcFileName, SFile::mRead);
     THROW_SL(f_in.IsValid());
     Destroy();
-    while(f_in.ReadLine(line_buf)) {
-		line_buf.Chomp().Strip();
+    while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 		VersionEntry * p_temp_entry = ParseVerEntry(line_buf);
 		if(p_temp_entry) {
 			if(p_cur_entry) {

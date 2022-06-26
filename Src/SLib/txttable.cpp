@@ -197,10 +197,9 @@ int TextDbFile::Scan()
 			}
 		}
 		int    pos = F.Tell();
-		while(F.ReadLine(line)) {
+		while(F.ReadLine(line, SFile::rlfChomp|SFile::rlfStrip)) {
 			line_no++;
 			if(line_no > P.HdrLinesCount) {
-				line.Chomp().Strip();
 				if(P.Flags & fVerticalRec) {
 					if(is_terminator) {
 						//
@@ -326,7 +325,7 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 		STextEncodingStat tes;
 		if(P.Flags & fVerticalRec) {
 			F.Seek(RecPosList.at(CurRec), SEEK_SET);
-			for(uint fld_pos = 0; F.ReadLine(line) && !IsTerminalLine(line.Chomp().Strip(), fld_pos); fld_pos++) {
+			for(uint fld_pos = 0; F.ReadLine(line, SFile::rlfChomp|SFile::rlfStrip) && !IsTerminalLine(line, fld_pos); fld_pos++) {
 				if(State & stSignUtf8) {
 					line.Utf8ToChar();
 				}
@@ -352,8 +351,7 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 		}
 		else {
 			F.Seek(RecPosList.at(CurRec), SEEK_SET);
-			THROW(F.ReadLine(line));
-			line.Chomp();
+			THROW(F.ReadLine(line, SFile::rlfChomp));
 			{
 				tes.Init();
 				tes.Add(line, line.Len());

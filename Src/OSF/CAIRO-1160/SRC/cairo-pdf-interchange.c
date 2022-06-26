@@ -22,18 +22,12 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
  *
  * The Initial Developer of the Original Code is Adrian Johnson.
  *
- * Contributor(s):
- *	Adrian Johnson <ajohnson@redneon.com>
+ * Contributor(s): Adrian Johnson <ajohnson@redneon.com>
  */
-
 /* PDF Document Interchange features:
  *  - metadata
  *  - document outline
@@ -1110,7 +1104,7 @@ static cairo_int_status_t _cairo_pdf_interchange_end_dest_tag(cairo_pdf_surface_
 }
 
 cairo_int_status_t _cairo_pdf_interchange_tag_end(cairo_pdf_surface_t * surface,
-    const char          * name)
+    const char * name)
 {
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_pdf_interchange_t * ic = &surface->interchange;

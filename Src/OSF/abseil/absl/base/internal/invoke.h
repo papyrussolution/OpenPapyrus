@@ -35,9 +35,9 @@
 #ifndef ABSL_BASE_INTERNAL_INVOKE_H_
 #define ABSL_BASE_INTERNAL_INVOKE_H_
 
-#include <algorithm>
-#include <type_traits>
-#include <utility>
+//#include <algorithm>
+//#include <type_traits>
+//#include <utility>
 #include "absl/meta/type_traits.h"
 
 // The following code is internal implementation detail.  See the comment at the

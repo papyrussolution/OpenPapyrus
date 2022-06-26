@@ -18,7 +18,7 @@ static void * OPENSSL_zalloc(size_t num)
 {
 	void * ret = OPENSSL_malloc(num);
 	if(ret)
-		memset(ret, 0, num);
+		memzero(ret, num);
 	return ret;
 }
 

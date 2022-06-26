@@ -1,5 +1,5 @@
 // PROJECT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3081,7 +3081,7 @@ IMPL_HANDLE_EVENT(RestoreLostPrjTPersonDlg)
 				const int creator  = BIN(TVCMD == cmResolveCreator);
 				const int employer = BIN(TVCMD == cmResolveEmployer);
 				const int client   = BIN(TVCMD == cmResolveClient);
-				if(ListBoxSelDialog(PPOBJ_PERSON, &psn_id, reinterpret_cast<void *>((creator || employer) ? PPPRK_EMPL : PPPRK_CLIENT)) > 0) {
+				if(ListBoxSelDialog::Run(PPOBJ_PERSON, &psn_id, reinterpret_cast<void *>((creator || employer) ? PPPRK_EMPL : PPPRK_CLIENT)) > 0) {
 					if(creator)
 						p_item->ResolveCreatorID = psn_id;
 					else if(employer)

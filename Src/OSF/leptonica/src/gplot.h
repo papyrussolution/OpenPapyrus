@@ -62,20 +62,20 @@ extern const char * gplotfileoutputs[]; /*!< used in simple file input */
 
 /*! Data structure for generating gnuplot files */
 struct GPlot {
-	char          * rootname; /*!< for cmd, data, output            */
-	char          * cmdname; /*!< command file name                */
+	char * rootname; /*!< for cmd, data, output            */
+	char * cmdname; /*!< command file name                */
 	struct Sarray * cmddata; /*!< command file contents            */
 	struct Sarray * datanames; /*!< data file names                  */
 	struct Sarray * plotdata; /*!< plot data (1 string/file)        */
 	struct Sarray * plotlabels; /*!< label for each individual plot   */
-	struct Numa   * plotstyles; /*!< plot style for individual plots  */
+	struct Numa * plotstyles; /*!< plot style for individual plots  */
 	int32 nplots;    /*!< current number of plots          */
-	char          * outname; /*!< output file name                 */
+	char * outname; /*!< output file name                 */
 	int32 outformat;     /*!< GPLOT_OUTPUT values              */
 	int32 scaling;    /*!< GPLOT_SCALING values             */
-	char          * title; /*!< optional                         */
-	char          * xlabel; /*!< optional x axis label            */
-	char          * ylabel; /*!< optional y axis label            */
+	char * title; /*!< optional                         */
+	char * xlabel; /*!< optional x axis label            */
+	char * ylabel; /*!< optional y axis label            */
 };
 
 typedef struct GPlot GPLOT;

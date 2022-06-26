@@ -35,7 +35,7 @@ RGBA_QUAD bwmap[2] = { {255, 255, 255, 255}, {0, 0, 0, 255} };
 /* Image dimension limits */
 static const int32 L_MAX_ALLOWED_WIDTH = 1000000;
 static const int32 L_MAX_ALLOWED_HEIGHT = 1000000;
-static const l_int64 L_MAX_ALLOWED_PIXELS = 400000000LL;
+static const int64 L_MAX_ALLOWED_PIXELS = 400000000LL;
 static const int32 L_MAX_ALLOWED_RES = 10000000; /* pixels/meter */
 
 #ifndef  NO_CONSOLE_IO
@@ -103,7 +103,7 @@ PIX * pixReadMemBmp(const uint8  * cdata, size_t size)
 	int32 compression, imagebytes, fdatabytes, cmapbytes, ncolors, maxcolors;
 	int32 fdatabpl, extrabytes, pixWpl, pixBpl, i, j, k;
 	uint32 * line, * pixdata, * pword;
-	l_int64 npixels;
+	int64 npixels;
 	BMP_FH    * bmpfh;
 #if defined(__GNUC__)
 	BMP_HEADER * bmph;
@@ -409,8 +409,8 @@ l_ok pixWriteStreamBmp(FILE * fp,
 l_ok pixWriteMemBmp(uint8  ** pfdata, size_t * pfsize, PIX * pixs)
 {
 	uint8 pel[4];
-	uint8    * cta = NULL; /* address of the bmp color table array */
-	uint8    * fdata, * data, * fmdata;
+	uint8 * cta = NULL; /* address of the bmp color table array */
+	uint8 * fdata, * data, * fmdata;
 	int32 cmaplen;  /* number of bytes in the bmp colormap */
 	int32 ncolors, val, stepsize, w, h, d, fdepth, xres, yres, valid;
 	int32 pixWpl, pixBpl, extrabytes, fBpl, fWpl, i, j, k;

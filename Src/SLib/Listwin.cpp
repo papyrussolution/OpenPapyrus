@@ -22,7 +22,7 @@ ListWindow::ListWindow() : TDialog(_DefLwRect, 0), P_Def(0), PrepareSearchLetter
 void   ListWindow::setCompFunc(CompFunc f) { CALLPTRMEMB(P_Lb, setCompFunc(f)); }
 ListWindowSmartListBox * ListWindow::listBox() const { return P_Lb; }
 void   ListWindow::prepareForSearching(int firstLetter) { PrepareSearchLetter = firstLetter; }
-int    ListWindow::isTreeList() const { return BIN(P_Def && P_Def->_isTreeList()); }
+bool   ListWindow::isTreeList() const { return (P_Def && P_Def->_isTreeList()); }
 int    FASTCALL ListWindow::getResult(long * pVal) { return P_Def ? P_Def->getCurID(pVal) : 0; }
 int    ListWindow::getString(SString & rBuf) { return P_Def ? P_Def->getCurString(rBuf) : (rBuf.Z(), 0); }
 int    ListWindow::getListData(void * pData) { return P_Def ? P_Def->getCurData(pData) : 0; }

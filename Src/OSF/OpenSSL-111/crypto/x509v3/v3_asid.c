@@ -519,16 +519,14 @@ static void * v2i_ASIdentifiers(const struct v3_ext_method * method,
 		if(strcmp(val->value, "inherit") == 0) {
 			if(X509v3_asid_add_inherit(asid, which))
 				continue;
-			X509V3err(X509V3_F_V2I_ASIDENTIFIERS,
-			    X509V3_R_INVALID_INHERITANCE);
+			X509V3err(X509V3_F_V2I_ASIDENTIFIERS, X509V3_R_INVALID_INHERITANCE);
 			X509V3_conf_err(val);
 			goto err;
 		}
-
 		/*
 		 * Number, range, or mistake, pick it apart and figure out which.
 		 */
-		i1 = strspn(val->value, "0123456789");
+		i1 = strspn(val->value, STextConst::P_Digits);
 		if(val->value[i1] == '\0') {
 			is_range = 0;
 		}
@@ -536,22 +534,19 @@ static void * v2i_ASIdentifiers(const struct v3_ext_method * method,
 			is_range = 1;
 			i2 = i1 + strspn(val->value + i1, " \t");
 			if(val->value[i2] != '-') {
-				X509V3err(X509V3_F_V2I_ASIDENTIFIERS,
-				    X509V3_R_INVALID_ASNUMBER);
+				X509V3err(X509V3_F_V2I_ASIDENTIFIERS, X509V3_R_INVALID_ASNUMBER);
 				X509V3_conf_err(val);
 				goto err;
 			}
 			i2++;
 			i2 = i2 + strspn(val->value + i2, " \t");
-			i3 = i2 + strspn(val->value + i2, "0123456789");
+			i3 = i2 + strspn(val->value + i2, STextConst::P_Digits);
 			if(val->value[i3] != '\0') {
-				X509V3err(X509V3_F_V2I_ASIDENTIFIERS,
-				    X509V3_R_INVALID_ASRANGE);
+				X509V3err(X509V3_F_V2I_ASIDENTIFIERS, X509V3_R_INVALID_ASRANGE);
 				X509V3_conf_err(val);
 				goto err;
 			}
 		}
-
 		/*
 		 * Syntax is ok, read and add it.
 		 */

@@ -46798,7 +46798,8 @@ public:
 	StyloQAttendancePrereqParam(const StyloQAttendancePrereqParam & rS);
 	StyloQAttendancePrereqParam & FASTCALL operator = (const StyloQAttendancePrereqParam & rS);
 
-	uint8  ReserveStart[52]; // @reserve
+	uint8  ReserveStart[50]; // @reserve
+	uint16 TimeSheetDiscreteness; // @v11.4.3 Дискретность таблицы для выбора времени в минутах. Пока допустимы только: 15, 10, 5мин
 	int32  LocID;            // @v11.3.12 Склад (для идентификации процессоров и котировок)
 	int32  QuotKindID;       // @v11.3.12 Вид котировки для определения цены услуги     
 	int32  MaxScheduleDays;  // @v11.3.10 Максимальное количество дней от текущего, доступные для заказа услуги
@@ -52477,6 +52478,8 @@ protected:
 	virtual int  removeAll();
 	SmartListBox  * GetLeftList();
 	SmartListBox  * GetRightList();
+	uint   GetLeftSelectionList(LongArray * pList);
+	uint   GetRightSelectionList(LongArray * pList);
 private:
 	enum defButton {
 		b_ok = 0,
@@ -53778,8 +53781,9 @@ public:
 	//
 	enum {
 		fOnDblClkOk    = 0x0001, // При двойном щелчке, если выбран элемент списка завершать работу диалога как по cmOK
-		fOmitSearchByFirstChar = 0x0002, // @v9.8.11 Не выводить окно поиска в ответ на нажатие символьной клавиши
-		fOwnerDraw     = 0x0004  // @v10.3.0 Если установлен, то конструктор вызывает SetOwnerDrawState()
+		fOmitSearchByFirstChar = 0x0002, // Не выводить окно поиска в ответ на нажатие символьной клавиши
+		fOwnerDraw     = 0x0004, // @v10.3.0 Если установлен, то конструктор вызывает SetOwnerDrawState()
+		fMultiselect   = 0x0008  // @v11.4.3 Допускается множественный выбор в списке
 	};
 	PPListDialog(uint rezID, uint aCtlList, long flags = 0);
 	int    addStringToList(long id, const char * pText);
@@ -55006,7 +55010,7 @@ protected:
 class CheckPaneDialog : public TDialog, public CPosProcessor {
 public:
 	friend int CCheckPane(PPID, PPID, const char *, long);
-	static int SetLbxItemHight(TDialog *, void * extraPtr);
+	static int SetLbxItemHight(TDialog *, void * extraPtr); // DialogPreProcFunc
 
 	CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * = 0, int isTouchScreen = 0);
 	~CheckPaneDialog();
@@ -56947,21 +56951,22 @@ int    STDCALL SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, 
 //
 // Descr: функция для выбора элемента из списка
 //
-class ListBoxSelDlg : public PPListDialog {
+class ListBoxSelDialog : public PPListDialog {
 public:
-	explicit ListBoxSelDlg(ListBoxDef * pDef, uint dlgID = 0);
+	static int STDCALL Run(PPID objID, PPID * pID, void * extraPtr);
+	static int STDCALL Run(StrAssocArray * pAry, uint titleStrId, PPID * pID/*, uint flags*/);
+	static int STDCALL Run(StrAssocArray * pAry, const char * pTitle, PPID * pID/*, uint flags*/);
+	static int STDCALL Run(StrAssocArray * pAry, const char * pTitle, PPIDArray * pIdList/*, uint flags*/); // @v11.4.3 @construction
+	static int STDCALL Run(uint dlgID, StrAssocArray * pAry, PPID * pID/*, uint flags*/);
+private:
+	explicit ListBoxSelDialog(ListBoxDef * pDef, uint dlgID, uint flags/*PPListDialog::fXXX*/);
 	int    setDTS(PPID id);
 	int    getDTS(PPID * pID);
-protected:
 	virtual int  setupList();
 	virtual int  editItem(long pos, long id);
 	ListBoxDef * P_Def;
 };
 
-int    STDCALL ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr);
-int    STDCALL ListBoxSelDialog(StrAssocArray * pAry, uint titleStrId, PPID * pID, uint flags);
-int    STDCALL ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * pID, uint flags);
-int    STDCALL ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint flags);
 int    ComboBoxSelDialog2(const StrAssocArray & rAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags);
 int    AdvComboBoxSelDialog(const StrAssocArray & rAry, SString & rTitle, SString & rLabel, PPID * pID, SString * pName, uint flags);
 //

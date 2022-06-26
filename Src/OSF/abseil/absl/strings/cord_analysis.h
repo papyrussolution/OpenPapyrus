@@ -9,8 +9,6 @@
 #ifndef ABSL_STRINGS_CORD_ANALYSIS_H_
 #define ABSL_STRINGS_CORD_ANALYSIS_H_
 
-//#include <cstddef>
-//#include <cstdint>
 #include "absl/base/config.h"
 #include "absl/strings/internal/cord_internal.h"
 

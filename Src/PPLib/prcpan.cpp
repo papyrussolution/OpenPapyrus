@@ -1020,7 +1020,7 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 int ExecPrcPane(PPID prcID)
 {
 	int    ok = -1;
-	if(prcID || ListBoxSelDialog(PPOBJ_PROCESSOR, &prcID, 0) > 0) {
+	if(prcID || ListBoxSelDialog::Run(PPOBJ_PROCESSOR, &prcID, 0) > 0) {
 		PrcPaneDialog * dlg = new PrcPaneDialog;
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(prcID);

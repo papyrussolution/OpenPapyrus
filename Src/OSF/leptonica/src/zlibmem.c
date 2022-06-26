@@ -67,11 +67,11 @@ static const int32 ZLIB_COMPRESSION_LEVEL = 6;
 uint8 * zlibCompress(const uint8  * datain, size_t nin, size_t         * pnout)
 {
 	PROCNAME(__FUNCTION__);
-	uint8    * dataout;
+	uint8 * dataout;
 	int32 status, success;
 	int32 flush;
 	size_t nbytes;
-	uint8    * bufferin, * bufferout;
+	uint8 * bufferin, * bufferout;
 	L_BBUFFER  * bbin, * bbout;
 	z_stream z;
 	if(!datain)
@@ -162,8 +162,8 @@ cleanup_arrays:
 uint8 * zlibUncompress(const uint8  * datain, size_t nin, size_t         * pnout)
 {
 	PROCNAME(__FUNCTION__);
-	uint8    * dataout;
-	uint8    * bufferin, * bufferout;
+	uint8 * dataout;
+	uint8 * bufferin, * bufferout;
 	int32 status, success;
 	size_t nbytes;
 	L_BBUFFER  * bbin, * bbout;

@@ -80,7 +80,7 @@ typedef union {
 
 typedef union {
   char                *tchar_ptr;
-  const char          *const_tchar_ptr;
+  const char *const_tchar_ptr;
   uchar       *tbyte_ptr;
   const uchar *const_tbyte_ptr;
 } xcharp_u;

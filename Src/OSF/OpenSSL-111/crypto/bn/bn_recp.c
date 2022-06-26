@@ -81,15 +81,13 @@ err:
 	return ret;
 }
 
-int BN_div_recp(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m,
-    BN_RECP_CTX * recp, BN_CTX * ctx)
+int BN_div_recp(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m, BN_RECP_CTX * recp, BN_CTX * ctx)
 {
 	int i, j, ret = 0;
 	BIGNUM * a, * b, * d, * r;
-
 	BN_CTX_start(ctx);
-	d = (dv != NULL) ? dv : BN_CTX_get(ctx);
-	r = (rem != NULL) ? rem : BN_CTX_get(ctx);
+	d = (dv) ? dv : BN_CTX_get(ctx);
+	r = (rem) ? rem : BN_CTX_get(ctx);
 	a = BN_CTX_get(ctx);
 	b = BN_CTX_get(ctx);
 	if(!b)

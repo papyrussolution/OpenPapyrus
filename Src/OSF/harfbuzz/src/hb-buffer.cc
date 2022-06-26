@@ -33,8 +33,7 @@
  *
  * Checks the equality of two #hb_segment_properties_t's.
  *
- * Return value:
- * %true if all properties of @a equal those of @b, false otherwise.
+ * Return value: %true if all properties of @a equal those of @b, false otherwise.
  *
  * Since: 0.9.7
  **/
@@ -49,8 +48,7 @@ hb_bool_t hb_segment_properties_equal(const hb_segment_properties_t * a, const h
  *
  * Creates a hash representing @p.
  *
- * Return value:
- * A hash of @p.
+ * Return value: A hash of @p.
  *
  * Since: 0.9.7
  **/
@@ -559,32 +557,22 @@ DEFINE_NULL_INSTANCE(hb_buffer_t) =
 hb_buffer_t * hb_buffer_create()
 {
 	hb_buffer_t * buffer;
-
 	if(!(buffer = hb_object_create<hb_buffer_t> ()))
 		return hb_buffer_get_empty();
-
 	buffer->max_len = HB_BUFFER_MAX_LEN_DEFAULT;
 	buffer->max_ops = HB_BUFFER_MAX_OPS_DEFAULT;
-
 	buffer->reset();
-
 	return buffer;
 }
-
 /**
  * hb_buffer_get_empty:
- *
- *
- *
  * Return value: (transfer full):
- *
  * Since: 0.9.2
  **/
 hb_buffer_t * hb_buffer_get_empty()
 {
 	return const_cast<hb_buffer_t *> (&Null(hb_buffer_t));
 }
-
 /**
  * hb_buffer_reference: (skip)
  * @buffer: an #hb_buffer_t.
@@ -601,7 +589,6 @@ hb_buffer_t * hb_buffer_reference(hb_buffer_t * buffer)
 {
 	return hb_object_reference(buffer);
 }
-
 /**
  * hb_buffer_destroy: (skip)
  * @buffer: an #hb_buffer_t.
@@ -614,20 +601,17 @@ hb_buffer_t * hb_buffer_reference(hb_buffer_t * buffer)
  **/
 void hb_buffer_destroy(hb_buffer_t * buffer)
 {
-	if(!hb_object_destroy(buffer)) return;
-
+	if(!hb_object_destroy(buffer)) 
+		return;
 	hb_unicode_funcs_destroy(buffer->unicode);
-
 	SAlloc::F(buffer->info);
 	SAlloc::F(buffer->pos);
 #ifndef HB_NO_BUFFER_MESSAGE
 	if(buffer->message_destroy)
 		buffer->message_destroy(buffer->message_data);
 #endif
-
 	SAlloc::F(buffer);
 }
-
 /**
  * hb_buffer_set_user_data: (skip)
  * @buffer: an #hb_buffer_t.
@@ -635,39 +619,24 @@ void hb_buffer_destroy(hb_buffer_t * buffer)
  * @data:
  * @destroy:
  * @replace:
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
-hb_bool_t hb_buffer_set_user_data(hb_buffer_t * buffer,
-    hb_user_data_key_t * key,
-    void * data,
-    hb_destroy_func_t destroy,
-    hb_bool_t replace)
+hb_bool_t hb_buffer_set_user_data(hb_buffer_t * buffer, hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace)
 {
 	return hb_object_set_user_data(buffer, key, data, destroy, replace);
 }
-
 /**
  * hb_buffer_get_user_data: (skip)
  * @buffer: an #hb_buffer_t.
  * @key:
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
-void * hb_buffer_get_user_data(hb_buffer_t * buffer,
-    hb_user_data_key_t * key)
+void * hb_buffer_get_user_data(hb_buffer_t * buffer, hb_user_data_key_t * key)
 {
 	return hb_object_get_user_data(buffer, key);
 }
-
 /**
  * hb_buffer_set_content_type:
  * @buffer: an #hb_buffer_t.
@@ -678,12 +647,10 @@ void * hb_buffer_get_user_data(hb_buffer_t * buffer,
  *
  * Since: 0.9.5
  **/
-void hb_buffer_set_content_type(hb_buffer_t * buffer,
-    hb_buffer_content_type_t content_type)
+void hb_buffer_set_content_type(hb_buffer_t * buffer, hb_buffer_content_type_t content_type)
 {
 	buffer->content_type = content_type;
 }
-
 /**
  * hb_buffer_get_content_type:
  * @buffer: an #hb_buffer_t.
@@ -699,14 +666,10 @@ hb_buffer_content_type_t hb_buffer_get_content_type(hb_buffer_t * buffer)
 {
 	return buffer->content_type;
 }
-
 /**
  * hb_buffer_set_unicode_funcs:
  * @buffer: an #hb_buffer_t.
  * @unicode_funcs:
- *
- *
- *
  * Since: 0.9.2
  **/
 void hb_buffer_set_unicode_funcs(hb_buffer_t * buffer, hb_unicode_funcs_t * unicode_funcs)
@@ -722,11 +685,7 @@ void hb_buffer_set_unicode_funcs(hb_buffer_t * buffer, hb_unicode_funcs_t * unic
 /**
  * hb_buffer_get_unicode_funcs:
  * @buffer: an #hb_buffer_t.
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
 hb_unicode_funcs_t * hb_buffer_get_unicode_funcs(hb_buffer_t * buffer)
@@ -748,16 +707,13 @@ hb_unicode_funcs_t * hb_buffer_get_unicode_funcs(hb_buffer_t * buffer)
  *
  * Since: 0.9.2
  **/
-void hb_buffer_set_direction(hb_buffer_t * buffer,
-    hb_direction_t direction)
+void hb_buffer_set_direction(hb_buffer_t * buffer, hb_direction_t direction)
 
 {
 	if(UNLIKELY(hb_object_is_immutable(buffer)))
 		return;
-
 	buffer->props.direction = direction;
 }
-
 /**
  * hb_buffer_get_direction:
  * @buffer: an #hb_buffer_t.
@@ -939,18 +895,13 @@ void hb_buffer_set_cluster_level(hb_buffer_t * buffer, hb_buffer_cluster_level_t
 /**
  * hb_buffer_get_cluster_level:
  * @buffer: an #hb_buffer_t.
- *
- *
- *
  * Return value:
- *
  * Since: 0.9.42
  **/
 hb_buffer_cluster_level_t hb_buffer_get_cluster_level(const hb_buffer_t * buffer)
 {
 	return buffer->cluster_level;
 }
-
 /**
  * hb_buffer_set_replacement_codepoint:
  * @buffer: an #hb_buffer_t.
@@ -963,15 +914,13 @@ hb_buffer_cluster_level_t hb_buffer_get_cluster_level(const hb_buffer_t * buffer
  *
  * Since: 0.9.31
  **/
-void hb_buffer_set_replacement_codepoint(hb_buffer_t * buffer,
-    hb_codepoint_t replacement)
+void hb_buffer_set_replacement_codepoint(hb_buffer_t * buffer, hb_codepoint_t replacement)
 {
 	if(UNLIKELY(hb_object_is_immutable(buffer)))
 		return;
 
 	buffer->replacement = replacement;
 }
-
 /**
  * hb_buffer_get_replacement_codepoint:
  * @buffer: an #hb_buffer_t.
@@ -987,7 +936,6 @@ hb_codepoint_t hb_buffer_get_replacement_codepoint(hb_buffer_t * buffer)
 {
 	return buffer->replacement;
 }
-
 /**
  * hb_buffer_set_invisible_glyph:
  * @buffer: an #hb_buffer_t.
@@ -1000,15 +948,12 @@ hb_codepoint_t hb_buffer_get_replacement_codepoint(hb_buffer_t * buffer)
  *
  * Since: 2.0.0
  **/
-void hb_buffer_set_invisible_glyph(hb_buffer_t * buffer,
-    hb_codepoint_t invisible)
+void hb_buffer_set_invisible_glyph(hb_buffer_t * buffer, hb_codepoint_t invisible)
 {
 	if(UNLIKELY(hb_object_is_immutable(buffer)))
 		return;
-
 	buffer->invisible = invisible;
 }
-
 /**
  * hb_buffer_get_invisible_glyph:
  * @buffer: an #hb_buffer_t.
@@ -1024,7 +969,6 @@ hb_codepoint_t hb_buffer_get_invisible_glyph(hb_buffer_t * buffer)
 {
 	return buffer->invisible;
 }
-
 /**
  * hb_buffer_reset:
  * @buffer: an #hb_buffer_t.
@@ -1038,7 +982,6 @@ void hb_buffer_reset(hb_buffer_t * buffer)
 {
 	buffer->reset();
 }
-
 /**
  * hb_buffer_clear_contents:
  * @buffer: an #hb_buffer_t.
@@ -1052,7 +995,6 @@ void hb_buffer_clear_contents(hb_buffer_t * buffer)
 {
 	buffer->clear();
 }
-
 /**
  * hb_buffer_pre_allocate:
  * @buffer: an #hb_buffer_t.
@@ -1069,7 +1011,6 @@ hb_bool_t hb_buffer_pre_allocate(hb_buffer_t * buffer, uint size)
 {
 	return buffer->ensure(size);
 }
-
 /**
  * hb_buffer_allocation_successful:
  * @buffer: an #hb_buffer_t.
@@ -1085,7 +1026,6 @@ hb_bool_t hb_buffer_allocation_successful(hb_buffer_t * buffer)
 {
 	return buffer->successful;
 }
-
 /**
  * hb_buffer_add:
  * @buffer: an #hb_buffer_t.
@@ -1113,11 +1053,9 @@ void hb_buffer_add(hb_buffer_t * buffer, hb_codepoint_t codepoint, uint cluster)
  * @buffer: an #hb_buffer_t.
  * @length: the new length of @buffer.
  *
- * Similar to hb_buffer_pre_allocate(), but clears any new items added at the
- * end.
+ * Similar to hb_buffer_pre_allocate(), but clears any new items added at the end.
  *
- * Return value:
- * %true if @buffer memory allocation succeeded, %false otherwise.
+ * Return value: %true if @buffer memory allocation succeeded, %false otherwise.
  *
  * Since: 0.9.2
  **/
@@ -1224,7 +1162,6 @@ void hb_buffer_reverse(hb_buffer_t * buffer)
 {
 	buffer->reverse();
 }
-
 /**
  * hb_buffer_reverse_range:
  * @buffer: an #hb_buffer_t.
@@ -1334,10 +1271,8 @@ template <typename utf_t> static inline void hb_buffer_add_utf(hb_buffer_t * buf
 		next = utf_t::next(next, end, &u, replacement);
 		buffer->context[1][buffer->context_len[1]++] = u;
 	}
-
 	buffer->content_type = HB_BUFFER_CONTENT_TYPE_UNICODE;
 }
-
 /**
  * hb_buffer_add_utf8:
  * @buffer: an #hb_buffer_t.
@@ -1380,7 +1315,6 @@ void hb_buffer_add_utf16(hb_buffer_t * buffer, const uint16_t * text, int text_l
 {
 	hb_buffer_add_utf<hb_utf16_t> (buffer, text, text_length, item_offset, item_length);
 }
-
 /**
  * hb_buffer_add_utf32:
  * @buffer: an #hb_buffer_t.
@@ -1401,7 +1335,6 @@ void hb_buffer_add_utf32(hb_buffer_t * buffer, const uint32_t * text, int text_l
 {
 	hb_buffer_add_utf<hb_utf32_t> (buffer, text, text_length, item_offset, item_length);
 }
-
 /**
  * hb_buffer_add_latin1:
  * @buffer: an #hb_buffer_t.
@@ -1451,7 +1384,6 @@ void hb_buffer_add_codepoints(hb_buffer_t * buffer, const hb_codepoint_t * text,
 {
 	hb_buffer_add_utf<hb_utf32_novalidate_t> (buffer, text, text_length, item_offset, item_length);
 }
-
 /**
  * hb_buffer_append:
  * @buffer: an #hb_buffer_t.
@@ -1573,7 +1505,6 @@ void hb_buffer_t::sort(uint start, uint end, int (*compar)(const hb_glyph_info_t
 /*
  * Comparing buffers.
  */
-
 /**
  * hb_buffer_diff:
  * @buffer: a buffer.
@@ -1658,9 +1589,6 @@ hb_buffer_diff_flags_t hb_buffer_diff(hb_buffer_t * buffer, hb_buffer_t * refere
  * @func: (closure user_data) (destroy destroy) (scope notified):
  * @user_data:
  * @destroy:
- *
- *
- *
  * Since: 1.1.3
  **/
 void hb_buffer_set_message_func(hb_buffer_t * buffer, hb_buffer_message_func_t func, void * user_data, hb_destroy_func_t destroy)

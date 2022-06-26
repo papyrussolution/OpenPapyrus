@@ -1668,8 +1668,8 @@ void l_CIDataDestroy(L_COMP_DATA  ** pcid)
  *            6+n to 6+n+m-1: m colormaps
  * </pre>
  */
-static int32 l_generatePdf(uint8    ** pdata,
-    size_t      * pnbytes,
+static int32 l_generatePdf(uint8 ** pdata,
+    size_t * pnbytes,
     L_PDF_DATA  * lpd)
 {
 	PROCNAME(__FUNCTION__);
@@ -2190,8 +2190,8 @@ static char * makeTrailerStringPdf(L_DNA  * daloc)
  *      (1) Only called from l_generatePdf().  On error, no data is returned.
  * </pre>
  */
-static int32 generateOutputDataPdf(uint8    ** pdata,
-    size_t      * pnbytes,
+static int32 generateOutputDataPdf(uint8 ** pdata,
+    size_t * pnbytes,
     L_PDF_DATA  * lpd)
 {
 	char * str;

@@ -92,8 +92,7 @@ namespace google {
 							file_options.enforce_mode = EnforceOptimizeMode::kLiteRuntime;
 							file_options.lite_implicit_weak_fields = true;
 							if(!options[i].second.empty()) {
-								file_options.num_cc_files =
-									strto32(options[i].second.c_str(), NULL, 10);
+								file_options.num_cc_files = strto32(options[i].second.c_str(), NULL, 10);
 							}
 						}
 						else if(options[i].first == "annotate_accessor") {
@@ -152,7 +151,7 @@ namespace google {
 						*error = "The safe_boundary_check option is not supported outside of Google.";
 						return false;
 					}
-					// -----------------------------------------------------------------
+					//
 					std::string basename = StripProto(file->name());
 					if(MaybeBootstrap(file_options, generator_context, file_options.bootstrap, &basename)) {
 						return true;

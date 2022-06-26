@@ -3,7 +3,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/base/internal/cycleclock.h"
 
 // Description of lock-word:
 //  31..00: [............................3][2][1][0]

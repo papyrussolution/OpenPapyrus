@@ -12,9 +12,7 @@ using index_type = CordRepRing::index_type;
 
 enum class Direction { kForward, kReversed };
 
-inline bool IsFlatOrExternal(CordRep* rep) {
-	return rep->IsFlat() || rep->IsExternal();
-}
+inline bool IsFlatOrExternal(CordRep * rep) { return rep->IsFlat() || rep->IsExternal(); }
 
 // Verifies that n + extra <= kMaxCapacity: throws std::length_error otherwise.
 inline void CheckCapacity(size_t n, size_t extra) {

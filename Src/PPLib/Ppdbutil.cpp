@@ -3300,8 +3300,8 @@ int PrcssrTestDb::Init(const Param * pParam)
 		SString temp_buf;
 		THROW_SL(wf.IsValid());
 		PROFILE_START
-		while(wf.ReadLine(temp_buf) > 0) {
-			THROW_SL(WordList.Add(++word_id, temp_buf.Chomp().Strip()));
+		while(wf.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip) > 0) {
+			THROW_SL(WordList.Add(++word_id, temp_buf));
 		}
 		PROFILE_END
 	}

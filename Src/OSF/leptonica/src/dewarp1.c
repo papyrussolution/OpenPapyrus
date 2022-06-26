@@ -1310,25 +1310,20 @@ l_ok dewarpWriteMem(uint8  ** pdata, size_t * psize, L_DEWARP * dew)
  */
 L_DEWARPA * dewarpaRead(const char * filename)
 {
-	FILE       * fp;
+	FILE * fp;
 	L_DEWARPA * dewa;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!filename)
 		return (L_DEWARPA*)ERROR_PTR("filename not defined", procName, NULL);
 	if((fp = fopenReadStream(filename)) == NULL)
 		return (L_DEWARPA*)ERROR_PTR("stream not opened", procName, NULL);
-
 	if((dewa = dewarpaReadStream(fp)) == NULL) {
 		fclose(fp);
 		return (L_DEWARPA*)ERROR_PTR("dewa not read", procName, NULL);
 	}
-
 	fclose(fp);
 	return dewa;
 }
-
 /*!
  * \brief   dewarpaReadStream()
  *
@@ -1351,18 +1346,14 @@ L_DEWARPA * dewarpaReadStream(FILE * fp)
 	int32 max_edgeslope, max_edgecurv, max_diff_edgecurv;
 	L_DEWARP   * dew;
 	L_DEWARPA * dewa;
-	NUMA       * namodels;
-
+	NUMA * namodels;
 	PROCNAME(__FUNCTION__);
-
 	if(!fp)
 		return (L_DEWARPA*)ERROR_PTR("stream not defined", procName, NULL);
-
 	if(fscanf(fp, "\nDewarpa Version %d\n", &version) != 1)
 		return (L_DEWARPA*)ERROR_PTR("not a dewarpa file", procName, NULL);
 	if(version != DEWARP_VERSION_NUMBER)
 		return (L_DEWARPA*)ERROR_PTR("invalid dewarp version", procName, NULL);
-
 	if(fscanf(fp, "ndewarp = %d, maxpage = %d\n", &ndewarp, &maxpage) != 2)
 		return (L_DEWARPA*)ERROR_PTR("read fail for maxpage+", procName, NULL);
 	if(ndewarp < 1)
@@ -1420,16 +1411,13 @@ L_DEWARPA * dewarpaReadStream(FILE * fp)
 L_DEWARPA  * dewarpaReadMem(const uint8  * data,
     size_t size)
 {
-	FILE       * fp;
+	FILE * fp;
 	L_DEWARPA * dewa;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!data)
 		return (L_DEWARPA*)ERROR_PTR("data not defined", procName, NULL);
 	if((fp = fopenReadFromMemory(data, size)) == NULL)
 		return (L_DEWARPA*)ERROR_PTR("stream not opened", procName, NULL);
-
 	dewa = dewarpaReadStream(fp);
 	fclose(fp);
 	if(!dewa) L_ERROR("dewa not read\n", procName);
@@ -1448,14 +1436,11 @@ l_ok dewarpaWrite(const char * filename,
 {
 	int32 ret;
 	FILE * fp;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!filename)
 		return ERROR_INT("filename not defined", procName, 1);
 	if(!dewa)
 		return ERROR_INT("dewa not defined", procName, 1);
-
 	if((fp = fopenWriteStream(filename, "wb")) == NULL)
 		return ERROR_INT("stream not opened", procName, 1);
 	ret = dewarpaWriteStream(fp, dewa);
@@ -1464,7 +1449,6 @@ l_ok dewarpaWrite(const char * filename,
 		return ERROR_INT("dewa not written to stream", procName, 1);
 	return 0;
 }
-
 /*!
  * \brief   dewarpaWriteStream()
  *
@@ -1472,7 +1456,7 @@ l_ok dewarpaWrite(const char * filename,
  * \param[in]    dewa
  * \return  0 if OK, 1 on error
  */
-l_ok dewarpaWriteStream(FILE       * fp,
+l_ok dewarpaWriteStream(FILE * fp,
     L_DEWARPA * dewa)
 {
 	int32 ndewarp, i, pageno;

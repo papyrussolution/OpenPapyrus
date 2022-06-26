@@ -4267,14 +4267,14 @@ int PrcssrAlcReport::Init()
 		{
 			SFile f_in(file_name, SFile::mRead);
 			SString line_buf, code_buf, text_buf;
-			while(f_in.ReadLine(line_buf)) {
-				if(line_buf.Chomp().Divide('\t', code_buf, text_buf) > 0) {
+			while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
+				if(line_buf.Divide('\t', code_buf, text_buf) > 0) {
 					THROW_SL(CategoryNameList.Add(code_buf, text_buf, 1));
 				}
 			}
 		}
 	}
-	if(Cfg.E.Flags & Config::fDetectAlcByClass && Cfg.E.AlcGoodsClsID) { // @v9.0.10
+	if(Cfg.E.Flags & Config::fDetectAlcByClass && Cfg.E.AlcGoodsClsID) {
 		; // Принадлежность товара алкоголю идентифицируем по классу, потому инициализироват
 		// список алкогольных и пивных товаров нет смысла
 	}

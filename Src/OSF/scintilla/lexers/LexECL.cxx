@@ -41,8 +41,8 @@ static bool FASTCALL IsSpaceEquiv(int state)
 	}
 }
 
-static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor & styler) {
+static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler) 
+{
 	WordList &keywords0 = *keywordlists[0];
 	WordList &keywords1 = *keywordlists[1];
 	WordList &keywords2 = *keywordlists[2];
@@ -52,15 +52,12 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 	WordList &keywords6 = *keywordlists[6]; //Javadoc Tags
 	WordList cplusplus;
 	cplusplus.Set("beginc endc");
-
 	bool stylingWithinPreprocessor = false;
-
 	CharacterSet setOKBeforeRE(CharacterSet::setNone, "(=,");
 	CharacterSet setDoxygen(CharacterSet::setLower, "$@\\&<>#{}[]");
 	CharacterSet setWordStart(CharacterSet::setAlpha, "_", 0x80, true);
 	CharacterSet setWord(CharacterSet::setAlphaNum, "._", 0x80, true);
 	CharacterSet setQualified(CharacterSet::setNone, "uUxX");
-
 	int chPrevNonWhite = ' ';
 	int visibleChars = 0;
 	bool lastWordWasUUID = false;

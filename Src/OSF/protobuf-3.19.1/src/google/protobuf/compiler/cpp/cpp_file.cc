@@ -809,7 +809,6 @@ public:
 			format("template<> $dllexport_decl $$1$* Arena::CreateMaybeMessage<$1$>(Arena*);\n", QualifiedClassName(pair.second, options));
 		}
 	}
-
 private:
 	std::map<std::string, const Descriptor*> classes_;
 	std::map<std::string, const EnumDescriptor*> enums_;

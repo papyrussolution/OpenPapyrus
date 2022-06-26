@@ -115,13 +115,24 @@
     </style>
     <style name="AttendanceMinutCell">
         <item name="android:background">@drawable/shape_viewframe</item>
-        <item name="android:layout_margin">1dp</item>
-        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_marginLeft">1dp</item>
+        <item name="android:layout_marginRight">1dp</item>
+        <item name="android:layout_marginTop">1dp</item>
+        <item name="android:layout_marginBottom">1dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:textColor">@color/TextPrimary</item>
         <item name="android:textSize">10sp</item>
         <item name="android:gravity">center_horizontal|center_vertical</item>
+    </style>
+    <style name="AttendanceMinutBlock">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_margin">2dp</item>
     </style>
     <style name="FormLabelText">
         <item name="android:textSize">12sp</item>

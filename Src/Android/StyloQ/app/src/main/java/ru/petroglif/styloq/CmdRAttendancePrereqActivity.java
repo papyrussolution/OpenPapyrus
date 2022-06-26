@@ -36,16 +36,17 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	private Param P;
 	private ViewDescriptionList VdlDocs; // Описание таблицы просмотра существующих заказов
 	private ArrayList <Document.EditAction> DocEditActionList;
-	private int TimeSheetDiscreteness = 5; // 5 || 10 || 15
 
 	private static class Param {
 		Param()
 		{
 			PrcTitle = null;
 			MaxScheduleDays = 7;
+			TimeSheetDiscreteness = 5; // @v11.4.3
 		}
 		String PrcTitle;
 		int MaxScheduleDays;
+		int TimeSheetDiscreteness; // 5 || 10 || 15
 	}
 	private static class AttendanceBlock {
 		int [] WorkHours;
@@ -331,35 +332,70 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		}
 		return result;
 	}
-	private void SetCurrentAttendancePrc(CommonPrereqModule.ProcessorEntry entry)
+	private boolean SetCurrentAttendancePrc(CommonPrereqModule.ProcessorEntry entry)
 	{
-		if(entry != null) {
-			if(AttdcBlk == null)
-				AttdcBlk = new AttendanceBlock(P);
-			AttdcBlk.Prc = entry;
-			int prc_id = AttdcBlk.GetPrcID();
-			if(prc_id > 0) {
-				AttdcBlk.BusyList = GetBusyListByPrc(AttdcBlk.Prc);
-				AttdcBlk.WorktimeList = GetWorktimeListByPrc(AttdcBlk.Prc);
-				AttdcBlk.SetSelectionDate(AttdcBlk.GetSelectionDate()); // Пересчитывам календарь в соответствии с процессором
-				AttdcBlk.CurrentBookingBusyList = CPM.GetCurrentDocumentBusyList(prc_id);
+		boolean result = false;
+		StyloQApp app_ctx = GetAppCtx();
+		if(app_ctx != null) {
+			if(entry != null) {
+				if(AttdcBlk == null)
+					AttdcBlk = new AttendanceBlock(P);
+				AttdcBlk.Prc = entry;
+				int prc_id = AttdcBlk.GetPrcID();
+				int ware_id = AttdcBlk.GetGoodsID();
+				if(ware_id > 0) {
+					if(prc_id > 0) {
+						ArrayList <CommonPrereqModule.WareEntry> goods_list = CPM.GetGoodsListByPrc(prc_id);
+						boolean ware_belong_to_prc = false;
+						if(goods_list != null && goods_list.size() > 0) {
+							for(int gidx = 0; !ware_belong_to_prc && gidx < goods_list.size(); gidx++) {
+								CommonPrereqModule.WareEntry inner_entry = goods_list.get(gidx);
+								if(inner_entry != null && inner_entry.JsItem != null) {
+									int inner_ware_id = inner_entry.JsItem.optInt("id", 0);
+									if(inner_ware_id == ware_id)
+										ware_belong_to_prc = true;
+								}
+							}
+						}
+						if(ware_belong_to_prc) {
+							AttdcBlk.BusyList = GetBusyListByPrc(AttdcBlk.Prc);
+							AttdcBlk.WorktimeList = GetWorktimeListByPrc(AttdcBlk.Prc);
+							AttdcBlk.SetSelectionDate(AttdcBlk.GetSelectionDate()); // Пересчитывам календарь в соответствии с процессором
+							AttdcBlk.CurrentBookingBusyList = CPM.GetCurrentDocumentBusyList(prc_id);
+							AttdcBlk.Duration = CPM.GetServiceDurationForPrc(0, AttdcBlk.GetGoodsID());
+							result = true;
+						}
+						else {
+							app_ctx.DisplayError(this, ppstr2.PPERR_STQ_GOODSNOTBELONGTOPRC, 0);
+						}
+					}
+					else {
+						AttdcBlk.CurrentBookingBusyList = null;
+						AttdcBlk.Duration = CPM.GetServiceDurationForPrc(0, AttdcBlk.GetGoodsID());
+						result = true;
+					}
+				}
+				else {
+					app_ctx.DisplayError(this, ppstr2.PPERR_STQ_BEFOREPRCGOODSNEEDED, 0);
+				}
 			}
-			else {
+			else if(AttdcBlk != null) {
+				AttdcBlk.Prc = null;
+				AttdcBlk.BusyList = null;
 				AttdcBlk.CurrentBookingBusyList = null;
+				AttdcBlk.Duration = CPM.GetServiceDurationForPrc(0, AttdcBlk.GetGoodsID());
+				result = true;
 			}
-			AttdcBlk.Duration = CPM.GetServiceDurationForPrc(0, AttdcBlk.GetGoodsID());
+			if(result) {
+				UpdateAttendanceView();
+				NotifyTabContentChanged(CommonPrereqModule.Tab.tabProcessors, R.id.attendancePrereqProcessorListView);
+			}
 		}
-		else if(AttdcBlk != null) {
-			AttdcBlk.Prc = null;
-			AttdcBlk.BusyList = null;
-			AttdcBlk.CurrentBookingBusyList = null;
-			AttdcBlk.Duration = CPM.GetServiceDurationForPrc(0, AttdcBlk.GetGoodsID());
-		}
-		UpdateAttendanceView();
-		NotifyTabContentChanged(CommonPrereqModule.Tab.tabProcessors, R.id.attendancePrereqProcessorListView);
+		return result;
 	}
-	private void SetCurrentAttendanceWare(CommonPrereqModule.WareEntry entry)
+	private boolean SetCurrentAttendanceWare(CommonPrereqModule.WareEntry entry)
 	{
+		boolean result = true;
 		if(entry != null) {
 			if(AttdcBlk == null)
 				AttdcBlk = new AttendanceBlock(P);
@@ -399,6 +435,20 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		}
 		UpdateAttendanceView();
 		NotifyTabContentChanged(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView);
+		return result;
+	}
+	static class TabInitEntry {
+		TabInitEntry(final CommonPrereqModule.Tab tab, final int rc, final String title, boolean condition)
+		{
+			Tab = tab;
+			Rc = rc;
+			Title = title;
+			Condition = condition;
+		}
+		final CommonPrereqModule.Tab Tab;
+		final int Rc;
+		final String Title;
+		final boolean Condition;
 	}
 	private void CreateTabList(boolean force)
 	{
@@ -407,6 +457,24 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		if(app_ctx != null && (CPM.TabList == null || force)) {
 			CPM.TabList = new ArrayList<CommonPrereqModule.TabEntry>();
 			LayoutInflater inflater = LayoutInflater.from(this);
+			TabInitEntry [] tab_init_list = {
+				new TabInitEntry(CommonPrereqModule.Tab.tabGoodsGroups, R.layout.layout_attendanceprereq_goodsgroups, "@{group_pl}", (CPM.GoodsGroupListData != null)),
+				new TabInitEntry(CommonPrereqModule.Tab.tabGoods, R.layout.layout_attendanceprereq_goods, "@{ware_pl}", (CPM.GoodsListData != null)),
+				new TabInitEntry(CommonPrereqModule.Tab.tabProcessors, R.layout.layout_attendanceprereq_processors, "@{processor_pl}", (CPM.ProcessorListData != null)),
+				new TabInitEntry(CommonPrereqModule.Tab.tabAttendance, R.layout.layout_attendanceprereq_attendance, "@{booking}", true),
+				new TabInitEntry(CommonPrereqModule.Tab.tabBookingDocument, R.layout.layout_attendanceprereq_booking, "@{orderdocument}", true),
+				new TabInitEntry(CommonPrereqModule.Tab.tabOrders, R.layout.layout_attendanceprereq_orders, "@{booking_pl}", true),
+				new TabInitEntry(CommonPrereqModule.Tab.tabSearch, R.layout.layout_searchpane, "[search]", true),
+			};
+			for(int i = 0; i < tab_init_list.length; i++) {
+				final TabInitEntry _t = tab_init_list[i];
+				if(_t != null && _t.Condition) {
+					SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_t.Tab.ordinal(), _t.Rc, tab_layout_rcid);
+					String title = (_t.Tab == CommonPrereqModule.Tab.tabProcessors && SLib.GetLen(P.PrcTitle) > 0) ? P.PrcTitle : SLib.ExpandString(app_ctx, _t.Title);
+					CPM.TabList.add(new CommonPrereqModule.TabEntry(_t.Tab, title, f));
+				}
+			}
+			/*
 			if(CPM.GoodsGroupListData != null) {
 				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabGoodsGroups;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_attendanceprereq_goodsgroups, tab_layout_rcid);
@@ -442,7 +510,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabSearch;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_searchpane, tab_layout_rcid);
 				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "[search]"), f));
-			}
+			}*/
 		}
 	}
 	private void MakeSimpleSearchIndex()
@@ -729,6 +797,11 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									P.MaxScheduleDays = js_param.optInt("MaxScheduleDays", 7);
 									if(P.MaxScheduleDays < 1 || P.MaxScheduleDays > 365)
 										P.MaxScheduleDays = 7;
+									P.TimeSheetDiscreteness = js_param.optInt("TimeSheetDiscreteness", 5);
+									// @v11.4.3 {
+									if(P.TimeSheetDiscreteness != 5 && P.TimeSheetDiscreteness != 10 && P.TimeSheetDiscreteness != 15)
+										P.TimeSheetDiscreteness = 5;
+									// } @v11.4.3
 								}
 							}
 							CPM.GetCommonJsonFactors(js_head);
@@ -1047,7 +1120,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										SLib.LDATE dt = AttdcBlk.GetSelectionDate();
 										final int hour = AttdcBlk.WorkHours[ev_subj.ItemIdx];
 										SLib.SetCtrlString(iv, R.id.LVITEM_HOUR, String.format("%02d", hour));
-										if(TimeSheetDiscreteness == 15) {
+										if(P.TimeSheetDiscreteness == 15) {
 											for(int i = 0; i < 4; i++) {
 												int ctl_id = 0;
 												switch(i) {
@@ -1063,7 +1136,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												}
 											}
 										}
-										else if(TimeSheetDiscreteness == 10) {
+										else if(P.TimeSheetDiscreteness == 10) {
 											for(int i = 0; i < 6; i++) {
 												int ctl_id = 0;
 												switch(i) {
@@ -1127,19 +1200,13 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												}
 											}
 										}
-										if(TimeSheetDiscreteness == 15) {
-
-										}
-										else if(TimeSheetDiscreteness == 10) {
-
-										}
-										else { // 5
-											for(int i = 0; i < 12; i++) { // Ячейки по 5 минут
+										if(P.TimeSheetDiscreteness == 15) {
+											for(int i = 0; i < 4; i++) { // Ячейки по 15 минут
 												boolean busy = false;
 												boolean busy_cur = false;
 												if(busy_hour || busy_hour_cur) {
-													SLib.LDATETIME end_dtm = new SLib.LDATETIME(dt, new SLib.LTIME(hour, (i + 1) * 5 - 1, 59, 990));
-													SLib.STimeChunk cell = new SLib.STimeChunk(new SLib.LDATETIME(dt, new SLib.LTIME(hour, i * 5, 0, 100)), end_dtm);
+													SLib.LDATETIME end_dtm = new SLib.LDATETIME(dt, new SLib.LTIME(hour, (i + 1) * P.TimeSheetDiscreteness - 1, 59, 990));
+													SLib.STimeChunk cell = new SLib.STimeChunk(new SLib.LDATETIME(dt, new SLib.LTIME(hour, i * P.TimeSheetDiscreteness, 0, 100)), end_dtm);
 													if(busy_hour) {
 														for(int j = 0; !busy && j < AttdcBlk.BusyList.size(); j++) {
 															SLib.STimeChunk is = cell.Intersect(AttdcBlk.BusyList.get(j));
@@ -1157,42 +1224,118 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												}
 												int ctl_id = 0;
 												switch(i) {
-													case 0:
-														ctl_id = R.id.LVITEM_MIN00;
-														break;
-													case 1:
-														ctl_id = R.id.LVITEM_MIN05;
-														break;
-													case 2:
-														ctl_id = R.id.LVITEM_MIN10;
-														break;
-													case 3:
-														ctl_id = R.id.LVITEM_MIN15;
-														break;
-													case 4:
-														ctl_id = R.id.LVITEM_MIN20;
-														break;
-													case 5:
-														ctl_id = R.id.LVITEM_MIN25;
-														break;
-													case 6:
-														ctl_id = R.id.LVITEM_MIN30;
-														break;
-													case 7:
-														ctl_id = R.id.LVITEM_MIN35;
-														break;
-													case 8:
-														ctl_id = R.id.LVITEM_MIN40;
-														break;
-													case 9:
-														ctl_id = R.id.LVITEM_MIN45;
-														break;
-													case 10:
-														ctl_id = R.id.LVITEM_MIN50;
-														break;
-													case 11:
-														ctl_id = R.id.LVITEM_MIN55;
-														break;
+													case 0: ctl_id = R.id.LVITEM_MIN00; break;
+													case 1: ctl_id = R.id.LVITEM_MIN15; break;
+													case 2: ctl_id = R.id.LVITEM_MIN30; break;
+													case 3: ctl_id = R.id.LVITEM_MIN45; break;
+												}
+												View ctl = (ctl_id != 0) ? iv.findViewById(ctl_id) : null;
+												if(ctl != null) {
+													int color = 0;
+													if(busy) {
+														if(busy_cur)
+															color = getResources().getColor(R.color.ListItemFocused, getTheme());
+														else
+															color = getResources().getColor(R.color.Accent, getTheme());
+													}
+													else if(busy_cur)
+														color = getResources().getColor(R.color.ListItemFocused, getTheme());
+													if(color != 0)
+														ctl.setBackgroundColor(color);
+													else
+														ctl.setBackgroundResource(R.drawable.shape_viewframe);
+													if(ctl instanceof TextView)
+														((TextView)ctl).setText(String.format("%02d:%02d", hour, i * P.TimeSheetDiscreteness));
+												}
+											}
+										}
+										else if(P.TimeSheetDiscreteness == 10) {
+											for(int i = 0; i < 6; i++) { // Ячейки по 10 минут
+												boolean busy = false;
+												boolean busy_cur = false;
+												if(busy_hour || busy_hour_cur) {
+													SLib.LDATETIME end_dtm = new SLib.LDATETIME(dt, new SLib.LTIME(hour, (i + 1) * P.TimeSheetDiscreteness - 1, 59, 990));
+													SLib.STimeChunk cell = new SLib.STimeChunk(new SLib.LDATETIME(dt, new SLib.LTIME(hour, i * P.TimeSheetDiscreteness, 0, 100)), end_dtm);
+													if(busy_hour) {
+														for(int j = 0; !busy && j < AttdcBlk.BusyList.size(); j++) {
+															SLib.STimeChunk is = cell.Intersect(AttdcBlk.BusyList.get(j));
+															if(is != null)
+																busy = true;
+														}
+													}
+													if(busy_hour_cur) {
+														for(int j = 0; !busy_cur && j < AttdcBlk.CurrentBookingBusyList.size(); j++) {
+															SLib.STimeChunk is = cell.Intersect(AttdcBlk.CurrentBookingBusyList.get(j));
+															if(is != null)
+																busy_cur = true;
+														}
+													}
+												}
+												int ctl_id = 0;
+												switch(i) {
+													case 0: ctl_id = R.id.LVITEM_MIN00; break;
+													case 1: ctl_id = R.id.LVITEM_MIN10; break;
+													case 2: ctl_id = R.id.LVITEM_MIN20; break;
+													case 3: ctl_id = R.id.LVITEM_MIN30; break;
+													case 4: ctl_id = R.id.LVITEM_MIN40; break;
+													case 5: ctl_id = R.id.LVITEM_MIN50; break;
+												}
+												View ctl = (ctl_id != 0) ? iv.findViewById(ctl_id) : null;
+												if(ctl != null) {
+													int color = 0;
+													if(busy) {
+														if(busy_cur)
+															color = getResources().getColor(R.color.ListItemFocused, getTheme());
+														else
+															color = getResources().getColor(R.color.Accent, getTheme());
+													}
+													else if(busy_cur)
+														color = getResources().getColor(R.color.ListItemFocused, getTheme());
+													if(color != 0)
+														ctl.setBackgroundColor(color);
+													else
+														ctl.setBackgroundResource(R.drawable.shape_viewframe);
+													if(ctl instanceof TextView)
+														((TextView)ctl).setText(String.format("%02d:%02d", hour, i * P.TimeSheetDiscreteness));
+												}
+											}
+										}
+										else { // 5
+											for(int i = 0; i < 12; i++) { // Ячейки по 5 минут
+												boolean busy = false;
+												boolean busy_cur = false;
+												if(busy_hour || busy_hour_cur) {
+													SLib.LDATETIME end_dtm = new SLib.LDATETIME(dt, new SLib.LTIME(hour, (i + 1) * P.TimeSheetDiscreteness - 1, 59, 990));
+													SLib.STimeChunk cell = new SLib.STimeChunk(new SLib.LDATETIME(dt, new SLib.LTIME(hour, i * P.TimeSheetDiscreteness, 0, 100)), end_dtm);
+													if(busy_hour) {
+														for(int j = 0; !busy && j < AttdcBlk.BusyList.size(); j++) {
+															SLib.STimeChunk is = cell.Intersect(AttdcBlk.BusyList.get(j));
+															if(is != null)
+																busy = true;
+														}
+													}
+													if(busy_hour_cur) {
+														for(int j = 0; !busy_cur && j < AttdcBlk.CurrentBookingBusyList.size(); j++) {
+															SLib.STimeChunk is = cell.Intersect(AttdcBlk.CurrentBookingBusyList.get(j));
+															if(is != null)
+																busy_cur = true;
+														}
+													}
+												}
+												int ctl_id = 0;
+												switch(i) {
+													case 0: ctl_id = R.id.LVITEM_MIN00; break;
+													case 1: ctl_id = R.id.LVITEM_MIN05; break;
+													case 2: ctl_id = R.id.LVITEM_MIN10; break;
+													case 3: ctl_id = R.id.LVITEM_MIN15; break;
+													case 4: ctl_id = R.id.LVITEM_MIN20; break;
+													case 5: ctl_id = R.id.LVITEM_MIN25; break;
+													case 6: ctl_id = R.id.LVITEM_MIN30; break;
+													case 7: ctl_id = R.id.LVITEM_MIN35; break;
+													case 8: ctl_id = R.id.LVITEM_MIN40; break;
+													case 9: ctl_id = R.id.LVITEM_MIN45; break;
+													case 10: ctl_id = R.id.LVITEM_MIN50; break;
+													case 11: ctl_id = R.id.LVITEM_MIN55; break;
 												}
 												View ctl = (ctl_id != 0) ? iv.findViewById(ctl_id) : null;
 												if(ctl != null) {
@@ -1415,7 +1558,17 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									lv = fv.findViewById(R.id.attendancePrereqAttendanceView);
 									if(lv != null) {
 										((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-										SetupRecyclerListView(fv, R.id.attendancePrereqAttendanceView, R.layout.li_attendanceprereq_attendance);
+										int  rc_line = 0;
+										if(P.TimeSheetDiscreteness == 15) {
+											rc_line = R.layout.li_attendanceprereq_attendance_15min;
+										}
+										else if(P.TimeSheetDiscreteness == 10) {
+											rc_line = R.layout.li_attendanceprereq_attendance_10min;
+										}
+										else {
+											rc_line = R.layout.li_attendanceprereq_attendance_05min;
+										}
+										SetupRecyclerListView(fv, R.id.attendancePrereqAttendanceView, rc_line);
 										{
 											View btn = fv.findViewById(R.id.CTL_PREV);
 											if(btn != null) {
@@ -1679,9 +1832,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												if(goods_id > 0 && ev_subj.ItemObj instanceof CommonPrereqModule.ProcessorEntry) {
 													CommonPrereqModule.WareEntry ware_entry = CPM.FindGoodsItemByGoodsID(goods_id);
 													if(ware_entry != null) {
-														SetCurrentAttendanceWare(ware_entry);
-														SetCurrentAttendancePrc((CommonPrereqModule.ProcessorEntry) ev_subj.ItemObj);
-														GotoTab(CommonPrereqModule.Tab.tabAttendance, 0, -1, -1);
+														if(SetCurrentAttendanceWare(ware_entry) && SetCurrentAttendancePrc((CommonPrereqModule.ProcessorEntry) ev_subj.ItemObj))
+															GotoTab(CommonPrereqModule.Tab.tabAttendance, 0, -1, -1);
 													}
 												}
 											}
@@ -1695,9 +1847,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												if(prc_id > 0 && ev_subj.ItemObj instanceof CommonPrereqModule.WareEntry) {
 													CommonPrereqModule.ProcessorEntry prc_entry = CPM.FindProcessorItemByID(prc_id);
 													if(prc_entry != null) {
-														SetCurrentAttendanceWare((CommonPrereqModule.WareEntry) ev_subj.ItemObj);
-														SetCurrentAttendancePrc(prc_entry);
-														GotoTab(CommonPrereqModule.Tab.tabAttendance, 0, -1, -1);
+														if(SetCurrentAttendanceWare((CommonPrereqModule.WareEntry) ev_subj.ItemObj) &&
+															SetCurrentAttendancePrc(prc_entry))
+															GotoTab(CommonPrereqModule.Tab.tabAttendance, 0, -1, -1);
 													}
 												}
 											}
@@ -1731,10 +1883,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												else if(ev_subj.ItemView.getId() == R.id.buttonOrder) {
 													// select for order
 												}
-												else {
-													SetCurrentAttendanceWare(item);
+												else if(SetCurrentAttendanceWare(item))
 													GotoTab(CommonPrereqModule.Tab.tabAttendance, 0, -1, -1);
-												}
 											}
 										}
 										break;
@@ -1757,8 +1907,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 													// select for order
 												}
 												else {
-													SetCurrentAttendancePrc(item);
-													GotoTab(CommonPrereqModule.Tab.tabAttendance, 0, -1, -1);
+													if(SetCurrentAttendancePrc(item))
+														GotoTab(CommonPrereqModule.Tab.tabAttendance, 0, -1, -1);
 												}
 											}
 										}
@@ -1777,8 +1927,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 											Document.DisplayEntry entry = CPM.OrderHList.get(ev_subj.ItemIdx);
 											if(entry != null) {
 												if(CPM.LoadDocument(entry.H.ID)) {
-													CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
-													GotoTab(CommonPrereqModule.Tab.tabBookingDocument, R.id.attendancePrereqBookingListView, -1, -1);
+													SetupCurrentDocument(true, false);
+													//CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
+													//GotoTab(CommonPrereqModule.Tab.tabBookingDocument, R.id.attendancePrereqBookingListView, -1, -1);
 												}
 											}
 										}
@@ -1798,105 +1949,96 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				break;
 			case SLib.EV_COMMAND:
 				Document.EditAction acn = null;
-				int view_id = (srcObj != null && srcObj instanceof View) ? ((View)srcObj).getId() : 0;
-				if(view_id == R.id.tbButtonSearch) {
-					GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
-				}
-				else if(view_id == R.id.tbButtonClearFiter) {
-					CPM.ResetGoodsFiter();
-					SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
-					GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView, -1, -1);
-				}
-				else if(view_id == R.id.CTL_PREV) {
-					if(AttdcBlk != null && AttdcBlk.DecrementSelectedDate(false)) {
-						CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabAttendance);
-						if(te != null && te.TabView != null) {
-							UpdateAttendanceView();
-							HandleEvent(SLib.EV_SETVIEWDATA, te.TabView.getView(), null);
+				int minuts = -1;
+				final int view_id = (srcObj != null && srcObj instanceof View) ? ((View)srcObj).getId() : 0;
+				switch(view_id) {
+					case R.id.tbButtonSearch:
+						GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
+						break;
+					case R.id.tbButtonClearFiter:
+						CPM.ResetGoodsFiter();
+						SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
+						GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView, -1, -1);
+						break;
+					case R.id.CTL_PREV:
+						if(AttdcBlk != null && AttdcBlk.DecrementSelectedDate(false)) {
+							CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabAttendance);
+							if(te != null && te.TabView != null) {
+								UpdateAttendanceView();
+								HandleEvent(SLib.EV_SETVIEWDATA, te.TabView.getView(), null);
+							}
 						}
-					}
-				}
-				else if(view_id == R.id.CTL_NEXT) {
-					if(AttdcBlk != null && AttdcBlk.IncrementSelectedDate(P, false)) {
-						CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabAttendance);
-						if(te != null && te.TabView != null) {
-							UpdateAttendanceView();
-							HandleEvent(SLib.EV_SETVIEWDATA, te.TabView.getView(), null);
+						break;
+					case R.id.CTL_NEXT:
+						if(AttdcBlk != null && AttdcBlk.IncrementSelectedDate(P, false)) {
+							CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabAttendance);
+							if(te != null && te.TabView != null) {
+								UpdateAttendanceView();
+								HandleEvent(SLib.EV_SETVIEWDATA, te.TabView.getView(), null);
+							}
 						}
+						break;
+					case R.id.CTL_DOCUMENT_ACTIONBUTTON1:
+						if(DocEditActionList != null && DocEditActionList.size() > 0)
+							acn = DocEditActionList.get(0);
+						break;
+					case R.id.CTL_DOCUMENT_ACTIONBUTTON2:
+						if(DocEditActionList != null && DocEditActionList.size() > 1)
+							acn = DocEditActionList.get(1);
+						break;
+					case R.id.CTL_DOCUMENT_ACTIONBUTTON3:
+						if(DocEditActionList != null && DocEditActionList.size() > 2)
+							acn = DocEditActionList.get(2);
+						break;
+					case R.id.CTL_DOCUMENT_ACTIONBUTTON4:
+						if(DocEditActionList != null && DocEditActionList.size() > 3)
+							acn = DocEditActionList.get(3);
+						break;
+					case R.id.LVITEM_MIN00: minuts = 0; break;
+					case R.id.LVITEM_MIN05: minuts = 5; break;
+					case R.id.LVITEM_MIN10: minuts = 10; break;
+					case R.id.LVITEM_MIN15: minuts = 15; break;
+					case R.id.LVITEM_MIN20: minuts = 20; break;
+					case R.id.LVITEM_MIN25: minuts = 25; break;
+					case R.id.LVITEM_MIN30: minuts = 30; break;
+					case R.id.LVITEM_MIN35: minuts = 35; break;
+					case R.id.LVITEM_MIN40: minuts = 40; break;
+					case R.id.LVITEM_MIN45: minuts = 45; break;
+					case R.id.LVITEM_MIN50: minuts = 50; break;
+					case R.id.LVITEM_MIN55: minuts = 55; break;
+				}
+				if(minuts >= 0 && subj != null && subj instanceof Integer) {
+					final int goods_id = AttdcBlk.GetGoodsID();
+					final int prc_id = AttdcBlk.GetPrcID();
+					final int hour = (Integer)subj; // Кнопки расписания "заряжены" на час, а не на индекс часа
+					if(prc_id <= 0) {
+						; // @err
 					}
-				}
-				else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON1) {
-					if(DocEditActionList != null && DocEditActionList.size() > 0)
-						acn = DocEditActionList.get(0);
-				}
-				else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON2) {
-					if(DocEditActionList != null && DocEditActionList.size() > 1)
-						acn = DocEditActionList.get(1);
-				}
-				else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON3) {
-					if(DocEditActionList != null && DocEditActionList.size() > 2)
-						acn = DocEditActionList.get(2);
-				}
-				else if(view_id == R.id.CTL_DOCUMENT_ACTIONBUTTON4) {
-					if(DocEditActionList != null && DocEditActionList.size() > 3)
-						acn = DocEditActionList.get(3);
-				}
-				else {
-					if(view_id == R.id.LVITEM_MIN00 || view_id == R.id.LVITEM_MIN05 || view_id == R.id.LVITEM_MIN10 ||
-						view_id == R.id.LVITEM_MIN15 || view_id == R.id.LVITEM_MIN20 || view_id == R.id.LVITEM_MIN25 ||
-						view_id == R.id.LVITEM_MIN30 || view_id == R.id.LVITEM_MIN35 || view_id == R.id.LVITEM_MIN40 ||
-						view_id == R.id.LVITEM_MIN45 || view_id == R.id.LVITEM_MIN50 || view_id == R.id.LVITEM_MIN55) {
-						if(subj != null && subj instanceof Integer) {
-							final int goods_id = AttdcBlk.GetGoodsID();
-							final int prc_id = AttdcBlk.GetPrcID();
-							if(prc_id <= 0) {
-								; // @err
-							}
-							else if(goods_id <= 0) {
-								; // @err
-							}
-							else {
-								int hour = (Integer)subj; // Кнопки расписания "заряжены" на час, а не на индекс часа
-								if(hour >= 0 && hour < 24) {
-									SLib.LDATE dt = AttdcBlk.GetSelectionDate();
-									//int hour = AttdcBlk.WorkHours[hour_idx];
-									int minuts = 0;
-									switch(view_id) {
-										case R.id.LVITEM_MIN00: minuts = 0; break;
-										case R.id.LVITEM_MIN05: minuts = 5; break;
-										case R.id.LVITEM_MIN10: minuts = 10; break;
-										case R.id.LVITEM_MIN15: minuts = 15; break;
-										case R.id.LVITEM_MIN20: minuts = 20; break;
-										case R.id.LVITEM_MIN25: minuts = 25; break;
-										case R.id.LVITEM_MIN30: minuts = 30; break;
-										case R.id.LVITEM_MIN35: minuts = 35; break;
-										case R.id.LVITEM_MIN40: minuts = 40; break;
-										case R.id.LVITEM_MIN45: minuts = 45; break;
-										case R.id.LVITEM_MIN50: minuts = 50; break;
-										case R.id.LVITEM_MIN55: minuts = 55; break;
-									}
-									SLib.LTIME start_tm = new SLib.LTIME(hour, minuts, 0, 0);
-									//
-									Document.BookingItem bk_item = new Document.BookingItem();
-									bk_item.GoodsID = goods_id;
-									bk_item.PrcID = prc_id;
-									bk_item.RowIdx = 1;
-									bk_item.ReqTime = new SLib.LDATETIME(dt, start_tm);
-									bk_item.EstimatedDurationSec = CPM.GetServiceDurationForPrc(prc_id, goods_id);
-									if(bk_item.EstimatedDurationSec <= 0)
-										bk_item.EstimatedDurationSec = 3600; // default value
-									bk_item.Set.Qtty = 1;
-									bk_item.Set.Price = CPM.GetPriceForPrc(bk_item.PrcID, bk_item.GoodsID);
-									SLib.STimeChunkArray new_busy_list = CPM.PutBookingItemToCurrentDocument(bk_item);
-									if(new_busy_list != null) {
-										AttdcBlk.CurrentBookingBusyList = new_busy_list;
-										UpdateAttendanceView();
-										UpdateBookingView();
-										NotifyTabContentChanged(CommonPrereqModule.Tab.tabProcessors, R.id.attendancePrereqProcessorListView);
-										NotifyTabContentChanged(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView);
-									}
-								}
-							}
+					else if(goods_id <= 0) {
+						; // @err
+					}
+					else if(hour >= 0 && hour < 24) {
+						SLib.LDATE dt = AttdcBlk.GetSelectionDate();
+						//int hour = AttdcBlk.WorkHours[hour_idx];
+						SLib.LTIME start_tm = new SLib.LTIME(hour, minuts, 0, 0);
+						//
+						Document.BookingItem bk_item = new Document.BookingItem();
+						bk_item.GoodsID = goods_id;
+						bk_item.PrcID = prc_id;
+						bk_item.RowIdx = 1;
+						bk_item.ReqTime = new SLib.LDATETIME(dt, start_tm);
+						bk_item.EstimatedDurationSec = CPM.GetServiceDurationForPrc(prc_id, goods_id);
+						if(bk_item.EstimatedDurationSec <= 0)
+							bk_item.EstimatedDurationSec = 3600; // default value
+						bk_item.Set.Qtty = 1;
+						bk_item.Set.Price = CPM.GetPriceForPrc(bk_item.PrcID, bk_item.GoodsID);
+						SLib.STimeChunkArray new_busy_list = CPM.PutBookingItemToCurrentDocument(bk_item);
+						if(new_busy_list != null) {
+							AttdcBlk.CurrentBookingBusyList = new_busy_list;
+							UpdateAttendanceView();
+							UpdateBookingView();
+							NotifyTabContentChanged(CommonPrereqModule.Tab.tabProcessors, R.id.attendancePrereqProcessorListView);
+							NotifyTabContentChanged(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView);
 						}
 					}
 				}
@@ -1926,14 +2068,14 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							// store document; // Подтвердить изменения документа (передача сервису не предполагается)
 							break;
 						case Document.editactionSubmitAndTransmit:
-						{
-							// Подтвердить изменения документа с передачей сервису
-							CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabBookingDocument);
-							if(te != null)
-								GetFragmentData(te.TabView);
-							CPM.CommitCurrentDocument();
-						}
-						break;
+							{
+								// Подтвердить изменения документа с передачей сервису
+								CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabBookingDocument);
+								if(te != null)
+									GetFragmentData(te.TabView);
+								CPM.CommitCurrentDocument();
+							}
+							break;
 						case Document.editactionCancelEdition:
 							// Отменить изменения документа (передача сервису не предполагается)
 							CPM.ResetCurrentDocument();
@@ -1943,14 +2085,14 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							SetupCurrentDocument(false, true);
 							break;
 						case Document.editactionCancelDocument:
-						{
-							// Отменить документ с передачей сервису факта отмены
-							CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabBookingDocument);
-							if(te != null)
-								GetFragmentData(te.TabView);
-							CPM.CancelCurrentDocument();
-						}
-						break;
+							{
+								// Отменить документ с передачей сервису факта отмены
+								CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabBookingDocument);
+								if(te != null)
+									GetFragmentData(te.TabView);
+								CPM.CancelCurrentDocument();
+							}
+							break;
 					}
 				}
 				break;

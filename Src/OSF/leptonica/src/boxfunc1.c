@@ -837,7 +837,7 @@ BOXA * boxaHandleOverlaps(BOXA * boxas,
     int32 range,
     float min_overlap,
     float max_ratio,
-    NUMA   ** pnamap)
+    NUMA ** pnamap)
 {
 	int32 i, j, n, w, h, area1, area2, val;
 	int32 overlap_area;
@@ -1576,7 +1576,7 @@ l_ok boxIntersectByLine(BOX       * box,
 
 	/* Intersection with top and bottom lines of box */
 	pta = ptaCreate(2);
-	invslope = 1.0 / slope;
+	invslope = 1.0f / slope;
 	xp = (int32)(x + invslope * (y - by));
 	if(xp >= bx && xp < bx + bw)
 		ptaAddPt(pta, xp, by);

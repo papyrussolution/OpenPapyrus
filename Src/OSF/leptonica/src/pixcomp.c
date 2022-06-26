@@ -1923,8 +1923,8 @@ l_ok pixacompConvertToPdfData(PIXAC       * pixac,
     int32 type,
     int32 quality,
     const char * title,
-    uint8    ** pdata,
-    size_t      * pnbytes)
+    uint8 ** pdata,
+    size_t * pnbytes)
 {
 	uint8  * imdata;
 	int32 i, n, ret, scaledres, pagetype;
@@ -2034,8 +2034,8 @@ l_ok pixacompConvertToPdfData(PIXAC       * pixac,
  */
 l_ok pixacompFastConvertToPdfData(PIXAC       * pixac,
     const char * title,
-    uint8    ** pdata,
-    size_t      * pnbytes)
+    uint8 ** pdata,
+    size_t * pnbytes)
 {
 	uint8  * imdata;
 	int32 i, n, ret, comptype;
@@ -2117,8 +2117,8 @@ l_ok pixacompFastConvertToPdfData(PIXAC       * pixac,
  */
 static int32 pixcompFastConvertToPdfData(PIXC        * pixc,
     const char * title,
-    uint8    ** pdata,
-    size_t      * pnbytes)
+    uint8 ** pdata,
+    size_t * pnbytes)
 {
 	uint8      * data;
 	L_COMP_DATA  * cid;

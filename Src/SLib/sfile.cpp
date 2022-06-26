@@ -1671,88 +1671,103 @@ int FASTCALL SFile::WriteLine(const char * pBuf)
 	return ok;
 }
 
-int FASTCALL SFile::ReadLine(SString & rBuf)
+int SFile::ReadLine(SString & rBuf) { return ReadLine(rBuf, 0); }
+
+int SFile::ReadLine(SString & rBuf, uint flags)
 {
 	assert(InvariantC(0));
 	int    ok = 1;
 	rBuf.Z();
-	THROW_S(T != tNullOutput, SLERR_SFILRDNULLOUTP);
-	if(T == tStdFile) {
-		THROW_S(F, SLERR_FILENOTOPENED);
-		{
-			THROW(LB.Alloc(1024));
-			//
-			// На случай, если строка в файле длиннее, чем buf_size
-			// считываем ее в цикле до тех пор, пока в конце строки не появится //
-			// перевод каретки.
-			//
-			char * p = 0;
-			while((p = fgets(LB, LB.GetSize(), F)) != 0) {
-				rBuf.Cat(LB);
-				size_t len = sstrlen(LB);
-				if(LB[len-1] == '\n' || (LB[len-2] == 0x0D && LB[len-1] == 0x0A))
-					break;
-			}
-			THROW_S_S(rBuf.Len() || p, SLERR_READFAULT, Name);
-		}
-	}
-	else if(oneof2(T, tSBuffer, tFile)) {
-		THROW_S(T != tFile || IH >= 0, SLERR_FILENOTOPENED);
-		if(IH >= 0 && Mode & SFile::mBuffRd) {
-			int   rr = 0;
-			int   _done = 0;
-            do {
-            	int8  rd_buf[16];
-				size_t act_size = 0;
-				THROW(rr = Read(rd_buf, 1, &act_size));
-				if(act_size) {
-					if(rd_buf[act_size-1] == '\n' || (rd_buf[act_size-1] == '\x0A' && rBuf.Last() == '\x0D'))
-                        _done = 1;
-					rBuf.CatN(reinterpret_cast<const char *>(rd_buf), act_size);
-				}
-            } while(rr > 0 && !_done);
-            THROW_S_S(rBuf.Len(), SLERR_READFAULT, Name);
-		}
-		else {
-			int64  last_pos = Tell64();
-			char * p = 0;
-			THROW(LB.Alloc(1024+2));
-			size_t act_size = 0;
-			LB[LB.GetSize()-2] = 0;
-			while(Read(LB, LB.GetSize()-2, &act_size) && act_size) {
-				p = static_cast<char *>(memchr(LB.vptr(), '\n', act_size));
-				if(p) {
-					p[1] = 0;
-				}
-				else {
-					p = static_cast<char *>(memchr(LB.vptr(), 0x0D, act_size));
-					// @v10.4.1 @fix 
-					if(p) {
-						if(p[1] == 0x0A)
-							p[2] = 0;
-						else
-							p[1] = 0;
-					}
-				}
-				if(p) {
-					const size_t _len = sstrlen(LB.cptr());
-					rBuf.CatN(LB, _len);
-					Seek64(last_pos + _len);
-					break;
-				}
-				else {
-					LB[act_size] = 0;
+	switch(T) {
+		case tNullOutput:
+			CALLEXCEPT_S(SLERR_SFILRDNULLOUTP);
+			break;
+		case tStdFile:
+			THROW_S(F, SLERR_FILENOTOPENED);
+			{
+				THROW(LB.Alloc(1024));
+				//
+				// На случай, если строка в файле длиннее, чем buf_size
+				// считываем ее в цикле до тех пор, пока в конце строки не появится //
+				// перевод каретки.
+				//
+				char * p = 0;
+				while((p = fgets(LB, LB.GetSize(), F)) != 0) {
 					rBuf.Cat(LB);
-					if(act_size < (LB.GetSize()-2))
+					size_t len = sstrlen(LB);
+					if(LB[len-1] == '\n' || (LB[len-2] == 0x0D && LB[len-1] == 0x0A))
 						break;
 				}
-				last_pos = Tell64();
+				THROW_S_S(rBuf.Len() || p, SLERR_READFAULT, Name);
 			}
-			THROW_S_S(rBuf.Len() || p, SLERR_READFAULT, Name);
-		}
+			break;
+		case tSBuffer:
+		case tFile:
+			THROW_S(T != tFile || IH >= 0, SLERR_FILENOTOPENED);
+			if(IH >= 0 && Mode & SFile::mBuffRd) {
+				int   rr = 0;
+				int   _done = 0;
+				do {
+            		int8  rd_buf[16];
+					size_t act_size = 0;
+					THROW(rr = Read(rd_buf, 1, &act_size));
+					if(act_size) {
+						if(rd_buf[act_size-1] == '\n' || (rd_buf[act_size-1] == '\x0A' && rBuf.Last() == '\x0D'))
+							_done = 1;
+						rBuf.CatN(reinterpret_cast<const char *>(rd_buf), act_size);
+					}
+				} while(rr > 0 && !_done);
+				THROW_S_S(rBuf.Len(), SLERR_READFAULT, Name);
+			}
+			else {
+				int64  last_pos = Tell64();
+				char * p = 0;
+				THROW(LB.Alloc(1024+2));
+				size_t act_size = 0;
+				LB[LB.GetSize()-2] = 0;
+				while(Read(LB, LB.GetSize()-2, &act_size) && act_size) {
+					p = static_cast<char *>(memchr(LB.vptr(), '\n', act_size));
+					if(p) {
+						p[1] = 0;
+					}
+					else {
+						p = static_cast<char *>(memchr(LB.vptr(), 0x0D, act_size));
+						// @v10.4.1 @fix 
+						if(p) {
+							if(p[1] == 0x0A)
+								p[2] = 0;
+							else
+								p[1] = 0;
+						}
+					}
+					if(p) {
+						const size_t _len = sstrlen(LB.cptr());
+						rBuf.CatN(LB, _len);
+						Seek64(last_pos + _len);
+						break;
+					}
+					else {
+						LB[act_size] = 0;
+						rBuf.Cat(LB);
+						if(act_size < (LB.GetSize()-2))
+							break;
+					}
+					last_pos = Tell64();
+				}
+				THROW_S_S(rBuf.Len() || p, SLERR_READFAULT, Name);
+			}
+			break;
+		default:
+			CALLEXCEPT_S(SLERR_INVALIDSFILTYP);
+			break;
 	}
-	else
-		ok = 0;
+	// @v11.4.3 {
+	assert(ok == 1);
+	if(flags & rlfChomp)
+		rBuf.Chomp();
+	if(flags & rlfStrip)
+		rBuf.Strip();
+	// } @v11.4.3 
 	CATCHZOK
 	return ok;
 }

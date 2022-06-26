@@ -605,7 +605,7 @@ static int fmtfp(char ** sbuffer, char ** buffer, size_t * currlen, size_t * max
 	}
 	/* convert integer part */
 	do {
-		iconvert[iplace++] = "0123456789"[intpart % 10];
+		iconvert[iplace++] = STextConst::P_Digits[intpart % 10];
 		intpart = (intpart / 10);
 	} while(intpart && (iplace < (int)sizeof(iconvert)));
 	if(iplace == sizeof(iconvert))
@@ -621,7 +621,7 @@ static int fmtfp(char ** sbuffer, char ** buffer, size_t * currlen, size_t * max
 				continue;
 			break;
 		}
-		fconvert[fplace++] = "0123456789"[fracpart % 10];
+		fconvert[fplace++] = STextConst::P_Digits[fracpart % 10];
 		fracpart = (fracpart / 10);
 	}
 	if(fplace == sizeof(fconvert))
@@ -635,7 +635,7 @@ static int fmtfp(char ** sbuffer, char ** buffer, size_t * currlen, size_t * max
 		else
 			tmpexp = exp;
 		do {
-			econvert[eplace++] = "0123456789"[tmpexp % 10];
+			econvert[eplace++] = STextConst::P_Digits[tmpexp % 10];
 			tmpexp = (tmpexp / 10);
 		} while(tmpexp > 0 && eplace < (int)sizeof(econvert));
 		/* Exponent is huge!! Too big to print */

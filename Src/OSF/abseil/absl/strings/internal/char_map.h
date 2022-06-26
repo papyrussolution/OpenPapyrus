@@ -14,12 +14,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_CHAR_MAP_H_
 #define ABSL_STRINGS_INTERNAL_CHAR_MAP_H_
 
-//#include <cstddef>
-//#include <cstdint>
-//#include <cstring>
-#include "absl/base/macros.h"
-#include "absl/base/port.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace strings_internal {

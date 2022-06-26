@@ -499,7 +499,7 @@ int32 ptaGetCount(PTA * pta)
  * \param[out]   py       [optional] float y value
  * \return  0 if OK; 1 on error
  */
-l_ok ptaGetPt(PTA        * pta,
+l_ok ptaGetPt(PTA * pta,
     int32 index,
     float * px,
     float * py)

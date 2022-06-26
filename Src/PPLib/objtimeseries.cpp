@@ -1903,10 +1903,10 @@ int TimeSeries_OptEntryList_Graph(TimeSeries_OptEntryList_Graph_Param * pParam)
 						plot.StartData(1);
 						
 						soe_list.clear();
-						while(f_in.ReadLine(line_buf)) {
+						while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 							line_no++;
 							if(line_no > 1) {
-								ss.setBuf(line_buf.Chomp().Strip());
+								ss.setBuf(line_buf);
 								StrategyOptEntry soe(0.0, 0.0, 0.0);
 								uint fld_n = 0;
 								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
@@ -2673,8 +2673,7 @@ int PPObjTimeSeries::Test() // @experimental
 					f_in.Seek(0);
 			}
 		}
-		while(f_in.ReadLine(line_buf)) {
-			line_buf.Chomp().Strip();
+		while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 			if(line_buf.NotEmpty()) {
 				ss_in.setBuf(line_buf);
 				dtm.Z();
@@ -9184,10 +9183,9 @@ int PPObjTimeSeries::TsDensityMap::Import(const char * pFileName)
 	uint   line_no = 0;
 	SFile f_in(pFileName, SFile::mRead);
 	THROW_SL(f_in.IsValid());
-	while(f_in.ReadLine(line_buf)) {
+	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 		uint   fld_no = 1; // ! [1..]
 		line_no++;
-		line_buf.Chomp().Strip();
 		ss.clear();
 		line_buf.Tokenize(";", ss);
 		if(line_no == 1) {

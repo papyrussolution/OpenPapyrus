@@ -99,7 +99,7 @@ static void mergeTimeZoneKey(const UnicodeString & mzID, char * result);
 //
 void CharacterNode::clear() 
 {
-	memzero(this, sizeof(*this));
+	THISZERO();
 }
 
 void CharacterNode::deleteValues(UObjectDeleter * valueDeleter) 

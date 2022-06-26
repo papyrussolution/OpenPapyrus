@@ -17,15 +17,15 @@
  *      (3) Foreground/background estimation
  *
  *    Pixel histogram, rank val, averaging and min/max
- *           NUMA       *pixGetGrayHistogram()
- *           NUMA       *pixGetGrayHistogramMasked()
- *           NUMA       *pixGetGrayHistogramInRect()
+ *           NUMA *pixGetGrayHistogram()
+ *           NUMA *pixGetGrayHistogramMasked()
+ *           NUMA *pixGetGrayHistogramInRect()
  *           NUMAA      *pixGetGrayHistogramTiled()
  *           int32     pixGetColorHistogram()
  *           int32     pixGetColorHistogramMasked()
- *           NUMA       *pixGetCmapHistogram()
- *           NUMA       *pixGetCmapHistogramMasked()
- *           NUMA       *pixGetCmapHistogramInRect()
+ *           NUMA *pixGetCmapHistogram()
+ *           NUMA *pixGetCmapHistogramMasked()
+ *           NUMA *pixGetCmapHistogramInRect()
  *           int32     pixCountRGBColorsByHash()
  *           int32     pixCountRGBColors()
  *           L_AMAP     *pixGetColorAmapHistogram()
@@ -39,8 +39,8 @@
  *           int32     pixGetAverageMasked()
  *           int32     pixGetAverageTiledRGB()
  *           PIX        *pixGetAverageTiled()
- *           NUMA       *pixRowStats()
- *           NUMA       *pixColumnStats()
+ *           NUMA *pixRowStats()
+ *           NUMA *pixColumnStats()
  *           int32     pixGetRangeValues()
  *           int32     pixGetExtremeValue()
  *           int32     pixGetMaxValueInRect()
@@ -92,7 +92,7 @@ NUMA * pixGetGrayHistogram(PIX * pixs,
 	int32 i, j, w, h, d, wpl, val, size, count;
 	uint32   * data, * line;
 	float * array;
-	NUMA       * na;
+	NUMA * na;
 	PIX        * pixg;
 
 	PROCNAME(__FUNCTION__);
@@ -192,7 +192,7 @@ NUMA * pixGetGrayHistogramMasked(PIX        * pixs,
 	int32 i, j, w, h, wm, hm, dm, wplg, wplm, val;
 	uint32   * datag, * datam, * lineg, * linem;
 	float * array;
-	NUMA       * na;
+	NUMA * na;
 	PIX        * pixg;
 
 	PROCNAME(__FUNCTION__);
@@ -268,7 +268,7 @@ NUMA * pixGetGrayHistogramInRect(PIX * pixs,
 	int32 i, j, bx, by, bw, bh, w, h, wplg, val;
 	uint32   * datag, * lineg;
 	float * array;
-	NUMA       * na;
+	NUMA * na;
 	PIX        * pixg;
 
 	PROCNAME(__FUNCTION__);
@@ -382,20 +382,14 @@ NUMAA * pixGetGrayHistogramTiled(PIX * pixs,
  *      (2) Set the subsampling %factor > 1 to reduce the amount of computation.
  * </pre>
  */
-l_ok pixGetColorHistogram(PIX * pixs,
-    int32 factor,
-    NUMA   ** pnar,
-    NUMA   ** pnag,
-    NUMA   ** pnab)
+l_ok pixGetColorHistogram(PIX * pixs, int32 factor, NUMA ** pnar, NUMA ** pnag, NUMA ** pnab)
 {
+	PROCNAME(__FUNCTION__);
 	int32 i, j, w, h, d, wpl, index, rval, gval, bval;
 	uint32   * data, * line;
 	float * rarray, * garray, * barray;
-	NUMA       * nar, * nag, * nab;
+	NUMA * nar, * nag, * nab;
 	PIXCMAP    * cmap;
-
-	PROCNAME(__FUNCTION__);
-
 	if(pnar) *pnar = NULL;
 	if(pnag) *pnag = NULL;
 	if(pnab) *pnab = NULL;
@@ -425,7 +419,6 @@ l_ok pixGetColorHistogram(PIX * pixs,
 	*pnar = nar;
 	*pnag = nag;
 	*pnab = nab;
-
 	/* Generate the color histograms */
 	data = pixGetData(pixs);
 	wpl = pixGetWpl(pixs);
@@ -457,10 +450,8 @@ l_ok pixGetColorHistogram(PIX * pixs,
 			}
 		}
 	}
-
 	return 0;
 }
-
 /*!
  * \brief   pixGetColorHistogramMasked()
  *
@@ -495,7 +486,7 @@ l_ok pixGetColorHistogramMasked(PIX        * pixs,
 	int32 i, j, w, h, d, wm, hm, dm, wpls, wplm, index, rval, gval, bval;
 	uint32   * datas, * datam, * lines, * linem;
 	float * rarray, * garray, * barray;
-	NUMA       * nar, * nag, * nab;
+	NUMA * nar, * nag, * nab;
 	PIXCMAP    * cmap;
 
 	PROCNAME(__FUNCTION__);
@@ -603,7 +594,7 @@ NUMA * pixGetCmapHistogram(PIX * pixs,
 	int32 i, j, w, h, d, wpl, val, size;
 	uint32   * data, * line;
 	float * array;
-	NUMA       * na;
+	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
 
@@ -669,7 +660,7 @@ NUMA * pixGetCmapHistogramMasked(PIX * pixs,
 	int32 i, j, w, h, d, wm, hm, dm, wpls, wplm, val, size;
 	uint32   * datas, * datam, * lines, * linem;
 	float * array;
-	NUMA       * na;
+	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
 
@@ -745,7 +736,7 @@ NUMA * pixGetCmapHistogramInRect(PIX * pixs,
 	int32 i, j, bx, by, bw, bh, w, h, d, wpls, val, size;
 	uint32   * datas, * lines;
 	float * array;
-	NUMA       * na;
+	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2649,7 +2640,7 @@ l_ok pixGetBinnedColor(PIX        * pixs,
 	uint32   * datas, * datag, * lines, * lineg, * carray;
 	double val64, rsum, gsum, bsum;
 	L_DNAA     * daa;
-	NUMA       * naeach;
+	NUMA * naeach;
 	PIX        * pix1;
 
 	PROCNAME(__FUNCTION__);

@@ -319,8 +319,7 @@ int Test_Hash_And_Search(const char * pInputFileName)
 			//
 			// Одновременно забрасываем строки в общий текст для тестирования функции поиска.
 			//
-			while(ok && file.ReadLine(word_buf)) {
-				word_buf.Chomp();
+			while(ok && file.ReadLine(word_buf, SFile::rlfChomp)) {
 				if(!tab.Search(word_buf, 0, &pos)) {
 					text_buf.Cat(word_buf);
 					if(!tab.Add(word_buf, (uint)file_pos, &pos))
@@ -336,9 +335,9 @@ int Test_Hash_And_Search(const char * pInputFileName)
 			//
 			file.Seek(0, SEEK_SET);
 			file_pos = file.Tell();
-			while(ok && file.ReadLine(word_buf)) {
+			while(ok && file.ReadLine(word_buf, SFile::rlfChomp)) {
 				uint val = 0;
-				if(tab.Search(word_buf.Chomp(), &val, 0)) {
+				if(tab.Search(word_buf, &val, 0)) {
 					size_t srch_pos = 0;
 					size_t num_suc = 0;
 					const size_t max_suc = 256;
@@ -464,8 +463,7 @@ int Test_RegExp(const char * pInputFileName)
 				temp_buf.Cat(p_regexp_list[r]).CR();
 				out_file.WriteLine(temp_buf);
 				file.Seek(0, SEEK_SET);
-				while(ok && file.ReadLine(line_buf)) {
-					line_buf.Chomp();
+				while(ok && file.ReadLine(line_buf, SFile::rlfChomp)) {
 					out_file.WriteLine(line_buf);
 					SStrScan scan(line_buf);
 					if(re.Find(&scan)) {
@@ -506,9 +504,9 @@ int TestSPathStruc(const char * pInputFileName)
 		replaceExt(fn, "OUT", 1);
 		SFile out_file(fn, SFile::mWrite);
 		SPathStruc ps;
-		while(file.ReadLine(line_buf)) {
+		while(file.ReadLine(line_buf, SFile::rlfChomp)) {
 			SInvariantParam ip;
-			ps.Split(line_buf.Chomp());
+			ps.Split(line_buf);
 			if(!ps.Invariant(&ip))
 				ok = 0;
 			out_file.WriteLine(ip.MsgBuf.CR());
@@ -1215,8 +1213,8 @@ int TestFann()
     	LongArray pos_list;
     	SFile f_in("D:\\Papyrus\\Src\\PPTEST\\DATA\\nn-test-01.txt", SFile::mRead);
     	THROW_SL(f_in.IsValid());
-    	while(f_in.ReadLine(line_buf)) {
-			if(line_buf.Chomp().NotEmptyS()) {
+    	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			if(line_buf.NotEmpty()) {
 				uint   ss_pos = 0;
 				ss.add(line_buf, &ss_pos);
 				pos_list.add((long)ss_pos);

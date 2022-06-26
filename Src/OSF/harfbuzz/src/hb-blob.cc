@@ -180,13 +180,10 @@ void hb_blob_destroy(hb_blob_t * blob)
  * @data: data to set.
  * @destroy: callback to call when @data is not needed anymore.
  * @replace: whether to replace an existing data with the same key.
- *
  * Return value:
- *
  * Since: 0.9.2
  **/
-hb_bool_t hb_blob_set_user_data(hb_blob_t * blob, hb_user_data_key_t * key, void * data,
-    hb_destroy_func_t destroy, hb_bool_t replace)
+hb_bool_t hb_blob_set_user_data(hb_blob_t * blob, hb_user_data_key_t * key, void * data, hb_destroy_func_t destroy, hb_bool_t replace)
 {
 	return hb_object_set_user_data(blob, key, data, destroy, replace);
 }
@@ -227,9 +224,6 @@ hb_bool_t hb_blob_is_immutable(const hb_blob_t * blob)
 /**
  * hb_blob_get_length:
  * @blob: a blob.
- *
- *
- *
  * Return value: the length of blob data in bytes.
  *
  * Since: 0.9.2

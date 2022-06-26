@@ -300,7 +300,7 @@ struct Memento_BlkHeader {
 	Memento_BlkHeader   * next;
 	Memento_BlkHeader   * prev; /* Reused as 'parent' when printing nested list */
 
-	const char          * label;
+	const char * label;
 
 	/* Entries for nesting display calculations. Set to magic
 	 * values at all other time.  */

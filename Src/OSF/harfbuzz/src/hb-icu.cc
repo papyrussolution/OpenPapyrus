@@ -223,5 +223,4 @@ hb_unicode_funcs_t * hb_icu_get_unicode_funcs()
 #ifdef HB_ICU_EXTRA_SEMI_IGNORED
 #pragma GCC diagnostic pop
 #endif
-
 #endif

@@ -1,5 +1,5 @@
 // OBJWORLD.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -537,7 +537,7 @@ int EditWorldDialog::CheckDuplicateName(PPID * pSelID)
 				}
 			}
 			if(items_list.getCount())
-				if(ListBoxSelDialog(DLG_DUPNAMES, &items_list, pSelID, 0) > 0)
+				if(ListBoxSelDialog::Run(DLG_DUPNAMES, &items_list, pSelID) > 0)
 					ok = 2;
 				else
 					ok = 1;
@@ -2019,9 +2019,8 @@ int GeoCityImportBlock::Import(const char * pPath)
 		(file_name = pPath).SetLastSlash().Cat("net_country.txt");
 		SFile f_in(file_name, SFile::mRead);
 		THROW_SL(f_in.IsValid());
-		while(f_in.ReadLine(line_buf)) {
+		while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
 			GeoCityImportBlock::Country rec;
-			line_buf.Chomp();
 			ss.setBuf(line_buf, line_buf.Len()+1);
 			uint ss_pos = 0;
 			MEMSZERO(rec);
@@ -2053,9 +2052,8 @@ int GeoCityImportBlock::Import(const char * pPath)
 		(file_name = pPath).SetLastSlash().Cat("net_city.txt");
 		SFile f_in(file_name, SFile::mRead);
 		THROW_SL(f_in.IsValid());
-		while(f_in.ReadLine(line_buf)) {
+		while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
 			GeoCityImportBlock::City rec;
-			line_buf.Chomp();
 			ss.setBuf(line_buf, line_buf.Len()+1);
 			uint ss_pos = 0;
 			MEMSZERO(rec);
@@ -2155,9 +2153,8 @@ int GeoCityImportBlock::Import(const char * pPath)
 			(file_name = pPath).SetLastSlash().Cat("net_city_ip.txt");
 			SFile f_in(file_name, SFile::mRead);
 			THROW_SL(f_in.IsValid());
-			while(f_in.ReadLine(line_buf)) {
+			while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
 				GeoCityImportBlock::IpRange rec;
-				line_buf.Chomp();
 				ss.setBuf(line_buf, line_buf.Len()+1);
 				uint ss_pos = 0;
 				MEMSZERO(rec);

@@ -1572,8 +1572,7 @@ int PPTextAnalyzer::ParseReplacerFile(const char * pFileName, Replacer & rRpl)
 	THROW_SL(inf.IsValid());
 	rRpl.InitParsing(inf.GetName());
 	parsing_in_progress = 1;
-	while(inf.ReadLine(line_buf)) {
-		line_buf.Chomp().Strip();
+	while(inf.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 		rRpl.IncLineNo();
 		if(line_buf.NotEmpty()) {
 			THROW(ParseReplacerLine(line_buf, rRpl));
@@ -2065,8 +2064,8 @@ int PPTextAnalyzer::Test()
 				inf.Seek(0);
 				IterCounter cntr;
 				cntr.Init(line_count);
-				while(inf.ReadLine(line_buf)) {
-					line_buf.Chomp().Strip().ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
+				while(inf.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+					line_buf.ToOem().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 					Reset(0);
 					THROW(ProcessString(rpl, 0, line_buf, result_buf, &fb, 0/*&outf*/));
 					csvf.WriteLine(line_buf.Tab().Cat(result_buf).CR());
@@ -2933,12 +2932,11 @@ int PPKeywordListGenerator::GetWord(uint wordP, SString & rBuf) const
 int PPKeywordListGenerator::RandWordBlock::ReadData(const char * pFileName)
 {
 	int    ok = 1;
-	SFile in_f(pFileName, SFile::mRead);
+	SFile  in_f(pFileName, SFile::mRead);
     SString line_buf;
     if(in_f.IsValid()) {
 		Clear();
-		while(in_f.ReadLine(line_buf)) {
-			line_buf.Chomp();
+		while(in_f.ReadLine(line_buf, SFile::rlfChomp)) {
 			uint pos = 0;
 			AddS(line_buf, &pos);
 			Idx.add(static_cast<long>(pos));
@@ -3342,8 +3340,8 @@ int PPKeywordListGenerator::ReadData(const char * pFileName)
 		Clear();
 		DataFileDtm = new_data_file_dtm;
 		DataFileName = pFileName;
-		while(f_in.ReadLine(line_buf)) {
-			if(line_buf.Chomp().Strip().NotEmptyS()) {
+		while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			if(line_buf.NotEmpty()) {
 				if(line_buf[0] == '[') {
 					uint   rb = 1;
 					temp_buf.Z();

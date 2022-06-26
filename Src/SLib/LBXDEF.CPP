@@ -113,7 +113,7 @@ int ListBoxDef::getCurData(void * b)
 void   ListBoxDef::SetOption(uint option, int set) { SETFLAG(Options, option, set); }
 long   ListBoxDef::_topItem() const { return TopItem; }
 long   ListBoxDef::_curItem() const { return CurItem; }
-int    ListBoxDef::_isTreeList() const { return BIN(CFlags & cTree); }
+bool   ListBoxDef::_isTreeList() const { return LOGIC(CFlags & cTree); }
 void   ListBoxDef::setViewHight(int vh) { ViewHight = vh; }
 int    ListBoxDef::GetFrameSize() { return -1; }
 int    ListBoxDef::GetFrameState() { return 0; }
@@ -127,7 +127,7 @@ int    ListBoxDef::step(long delta) { return go(CurItem + delta); }
 int    ListBoxDef::top() { return go(0); }
 int    ListBoxDef::bottom() { return go(getRecsCount()-1); }
 long   ListBoxDef::getRecsCount() { return 0; }
-void * FASTCALL ListBoxDef::getRow_(long) { return 0; }
+void * FASTCALL ListBoxDef::getRow_(long idx) { return 0; }
 int    ListBoxDef::refresh() { return 1; }
 int    ListBoxDef::GetImageIdxByID(long id, long * pIDx) { return ImageIdxAssoc.Search(id, pIDx, 0); }
 int    ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, (imageID & ~_SlConst.VectorImageMask), 0); }

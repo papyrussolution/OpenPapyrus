@@ -104,10 +104,8 @@ void EnumGenerator::GenerateDefinition(io::Printer* printer)
 	format("\n};\n");
 	format(
 		"$dllexport_decl $bool $classname$_IsValid(int value);\n"
-		"constexpr $classname$ ${1$$prefix$$short_name$_MIN$}$ = "
-		"$prefix$$2$;\n"
-		"constexpr $classname$ ${1$$prefix$$short_name$_MAX$}$ = "
-		"$prefix$$3$;\n",
+		"constexpr $classname$ ${1$$prefix$$short_name$_MIN$}$ = $prefix$$2$;\n"
+		"constexpr $classname$ ${1$$prefix$$short_name$_MAX$}$ = $prefix$$3$;\n",
 		descriptor_, EnumValueName(min_value), EnumValueName(max_value));
 
 	if(generate_array_size_) {
@@ -240,16 +238,14 @@ void EnumGenerator::GenerateMethods(int idx, io::Printer* printer)
 			// let the first name win.
 			number_to_canonical_name.emplace(value->number(), value->name());
 		}
-
 		format("static ::$proto_ns$::internal::ExplicitlyConstructed<std::string> $classname$_strings[$1$] = {};\n\n", CountUniqueValues(descriptor_));
-
 		// We concatenate all the names for a given enum into one big string
 		// literal. If instead we store an array of string literals, the linker
 		// seems to put all enum strings for a given .proto file in the same
 		// section, which hinders its ability to strip out unused strings.
 		format("static const char $classname$_names[] =");
 		for(const auto& p : name_to_number) {
-			format("\n  \"$1$\"", p.first);
+			format("\n\t\"$1$\"", p.first);
 		}
 		format(";\n\n");
 		format("static const ::$proto_ns$::internal::EnumEntry $classname$_entries[] = {\n");
@@ -257,7 +253,7 @@ void EnumGenerator::GenerateMethods(int idx, io::Printer* printer)
 		std::map<int, int> number_to_index;
 		int data_index = 0;
 		for(const auto& p : name_to_number) {
-			format("  { {$classname$_names + $1$, $2$}, $3$ },\n", data_index, p.first.size(), p.second);
+			format("\t{ {$classname$_names + $1$, $2$}, $3$ },\n", data_index, p.first.size(), p.second);
 			if(number_to_canonical_name[p.second] == p.first) {
 				number_to_index.emplace(p.second, i);
 			}
@@ -269,7 +265,7 @@ void EnumGenerator::GenerateMethods(int idx, io::Printer* printer)
 			"\n"
 			"static const int $classname$_entries_by_number[] = {\n");
 		for(const auto& p : number_to_index) {
-			format("  $1$, // $2$ -> $3$\n", p.second, p.first, number_to_canonical_name[p.first]);
+			format("\t$1$, // $2$ -> $3$\n", p.second, p.first, number_to_canonical_name[p.first]);
 		}
 		format(
 			"};\n"

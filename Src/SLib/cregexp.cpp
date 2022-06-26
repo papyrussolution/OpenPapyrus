@@ -942,8 +942,8 @@ SLTEST_R(CRegExp)
 		SString line_buf, re_buf, text_buf, temp_buf, out_line;
 		SPathStruc::ReplaceExt(file_name, "out", 1);
 		SFile out_file(MakeOutputFilePath(file_name), SFile::mWrite);
-		while(file.ReadLine(line_buf)) {
-			if(line_buf.Chomp().NotEmptyS()) {
+		while(file.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			if(line_buf.NotEmpty()) {
 				StringSet ss(':', line_buf);
 				uint   ssp = 0;
 				ss.get(&ssp, re_buf);

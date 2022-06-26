@@ -595,7 +595,7 @@ BOXA * boxaShiftWithPta(BOXA * boxas, PTA * pta, int32 dir)
  *      (1) An empty boxa returns a copy, with a warning.
  * </pre>
  */
-BOXA * boxaSort(BOXA * boxas, int32 sorttype, int32 sortorder, NUMA   ** pnaindex)
+BOXA * boxaSort(BOXA * boxas, int32 sorttype, int32 sortorder, NUMA ** pnaindex)
 {
 	int32 i, n, x, y, w, h, size;
 	BOXA      * boxad;
@@ -687,7 +687,7 @@ BOXA * boxaSort(BOXA * boxas, int32 sorttype, int32 sortorder, NUMA   ** pnainde
  *          likely go much faster.
  * </pre>
  */
-BOXA * boxaBinSort(BOXA * boxas, int32 sorttype, int32 sortorder, NUMA   ** pnaindex)
+BOXA * boxaBinSort(BOXA * boxas, int32 sorttype, int32 sortorder, NUMA ** pnaindex)
 {
 	int32 i, n, x, y, w, h;
 	BOXA * boxad;
@@ -1063,19 +1063,10 @@ BOXAA * boxaSort2dByIndex(BOXA   * boxas,
  *          doing the extraction. This is easily done with boxaFillSequence().
  * </pre>
  */
-l_ok boxaExtractAsNuma(BOXA * boxa,
-    NUMA   ** pnal,
-    NUMA   ** pnat,
-    NUMA   ** pnar,
-    NUMA   ** pnab,
-    NUMA   ** pnaw,
-    NUMA   ** pnah,
-    int32 keepinvalid)
+l_ok boxaExtractAsNuma(BOXA * boxa, NUMA ** pnal, NUMA ** pnat, NUMA ** pnar, NUMA ** pnab, NUMA ** pnaw, NUMA ** pnah, int32 keepinvalid)
 {
-	int32 i, n, left, top, right, bot, w, h;
-
 	PROCNAME(__FUNCTION__);
-
+	int32 i, n, left, top, right, bot, w, h;
 	if(!pnal && !pnat && !pnar && !pnab && !pnaw && !pnah)
 		return ERROR_INT("no output requested", procName, 1);
 	if(pnal) *pnal = NULL;
@@ -1088,7 +1079,6 @@ l_ok boxaExtractAsNuma(BOXA * boxa,
 		return ERROR_INT("boxa not defined", procName, 1);
 	if(!keepinvalid && boxaGetValidCount(boxa) == 0)
 		return ERROR_INT("no valid boxes", procName, 1);
-
 	n = boxaGetCount(boxa);
 	if(pnal) *pnal = numaCreate(n);
 	if(pnat) *pnat = numaCreate(n);
@@ -1525,7 +1515,7 @@ l_ok boxaaGetExtent(BOXAA    * baa,
  * </pre>
  */
 BOXA * boxaaFlattenToBoxa(BOXAA   * baa,
-    NUMA   ** pnaindex,
+    NUMA ** pnaindex,
     int32 copyflag)
 {
 	int32 i, j, m, n;

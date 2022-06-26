@@ -125,9 +125,7 @@ static void U_CALLCONV TestStream(void)
 	ostrstream outFormatStream(testFormatStreamBuf, sizeof(testFormatStreamBuf));
 #endif
 	UnicodeString ustr("string");
-
 	outFormatStream << "1234567890" << setw(10) << left << ustr << " " << "0123456789";
-
 #ifdef USE_SSTREAM
 	tempStr = outFormatStream.str();
 	const char * testFormatStreamBuf = tempStr.c_str();

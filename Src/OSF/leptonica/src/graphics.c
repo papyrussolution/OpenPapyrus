@@ -16,27 +16,27 @@
  * <pre>
  *
  *      Pta generation for arbitrary shapes built with lines
- *          PTA        *generatePtaLine()
- *          PTA        *generatePtaWideLine()
- *          PTA        *generatePtaBox()
- *          PTA        *generatePtaBoxa()
- *          PTA        *generatePtaHashBox()
- *          PTA        *generatePtaHashBoxa()
+ *          PTA *generatePtaLine()
+ *          PTA *generatePtaWideLine()
+ *          PTA *generatePtaBox()
+ *          PTA *generatePtaBoxa()
+ *          PTA *generatePtaHashBox()
+ *          PTA *generatePtaHashBoxa()
  *          PTAA       *generatePtaaBoxa()
  *          PTAA       *generatePtaaHashBoxa()
- *          PTA        *generatePtaPolyline()
- *          PTA        *generatePtaGrid()
- *          PTA        *convertPtaLineTo4cc()
- *          PTA        *generatePtaFilledCircle()
- *          PTA        *generatePtaFilledSquare()
- *          PTA        *generatePtaLineFromPt()
+ *          PTA *generatePtaPolyline()
+ *          PTA *generatePtaGrid()
+ *          PTA *convertPtaLineTo4cc()
+ *          PTA *generatePtaFilledCircle()
+ *          PTA *generatePtaFilledSquare()
+ *          PTA *generatePtaLineFromPt()
  *          int32     locatePtRadially()
  *
  *      Rendering function plots directly on images
  *          int32     pixRenderPlotFromNuma()
  *          int32     pixRenderPlotFromNumaGen()
- *          PTA        *makePlotPtaFromNuma()
- *          PTA        *makePlotPtaFromNumaGen()
+ *          PTA *makePlotPtaFromNuma()
+ *          PTA *makePlotPtaFromNumaGen()
  *
  *      Pta rendering
  *          int32     pixRenderPta()
@@ -83,7 +83,7 @@
  *          PIX        *fpixRenderContours()
  *
  *      Boundary pt generation on 1 bpp images
- *          PTA        *pixGeneratePtaBoundary()
+ *          PTA *pixGeneratePtaBoundary()
  *
  *  The line rendering functions are relatively crude, but they
  *  get the job done for most simple situations.  We use the pta

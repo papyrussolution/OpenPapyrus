@@ -596,6 +596,18 @@ bool StringSet::get(uint * pPos, SString & s) const
 	return ok;
 }
 
+bool StringSet::getByIdx(uint idx, SString & rBuf) const
+{
+	bool   ok = false;
+	for(uint i = 0, sp = 0; !ok && get(&sp, rBuf); i++) {
+		if(i == idx)
+			ok = true;
+	}
+	if(!ok)
+		rBuf.Z();
+	return ok;
+}
+
 bool StringSet::get(uint pos, SString & s) const
 {
 	return get(&pos, s);
@@ -813,6 +825,33 @@ SLTEST_R(StringSet)
 				SLTEST_CHECK_NZ(ss.IsEq(ss2));
 				SLTEST_CHECK_NZ(ss2 == ss);
 				SLTEST_CHECK_NZ(InnerBlock::Verify(ss2, string_list, 0));
+			}
+		}
+		{
+			// Функция getByIdx
+			StringSet ss;
+			const uint test_set_count = 1000;
+			{
+				for(uint i = 0; i < test_set_count; i++)
+					ss.add(temp_buf.Z().Cat(i));
+			}
+			{
+				uint i = test_set_count;
+				do {
+					bool gbir = ss.getByIdx(--i, temp_buf);
+					SLTEST_CHECK_NZ(gbir);
+					SLTEST_CHECK_EQ(temp_buf.ToLong(), static_cast<long>(i));
+				} while(i);
+				{
+					bool gbir = ss.getByIdx(test_set_count, temp_buf);
+					SLTEST_CHECK_Z(gbir);
+					SLTEST_CHECK_NZ(temp_buf.IsEmpty());
+				}
+				{
+					bool gbir = ss.getByIdx(test_set_count+1, temp_buf);
+					SLTEST_CHECK_Z(gbir);
+					SLTEST_CHECK_NZ(temp_buf.IsEmpty());
+				}
 			}
 		}
 	}

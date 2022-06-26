@@ -92,7 +92,7 @@ static void     free_state(struct program_bidder *);
 
 static int set_bidder_signature(ArchiveReadFilterBidder * bidder, struct program_bidder * state, const void * signature, size_t signature_len)
 {
-	if(signature != NULL && signature_len > 0) {
+	if(signature && signature_len > 0) {
 		state->signature_len = signature_len;
 		state->signature = SAlloc::M(signature_len);
 		memcpy(state->signature, signature, signature_len);
@@ -323,7 +323,7 @@ int __archive_read_program(ArchiveReadFilter * self, const char * cmd)
 	char * out_buf = (char *)SAlloc::M(out_buf_len);
 	if(state == NULL || out_buf == NULL || archive_string_ensure(&state->description, l) == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate input data");
-		if(state != NULL) {
+		if(state) {
 			archive_string_free(&state->description);
 			SAlloc::F(state);
 		}

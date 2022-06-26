@@ -82,7 +82,6 @@ bool ExtensionGenerator::IsScoped() const { return descriptor_->extension_scope(
 void ExtensionGenerator::GenerateDeclaration(io::Printer* printer) const 
 {
 	Formatter format(printer, variables_);
-
 	// If this is a class member, it needs to be declared "static".  Otherwise,
 	// it needs to be "extern".  In the latter case, it also needs the DLL
 	// export/import specifier.
@@ -96,12 +95,8 @@ void ExtensionGenerator::GenerateDeclaration(io::Printer* printer) const
 	else {
 		qualifier = "static";
 	}
-
-	format(
-		"static const int $constant_name$ = $number$;\n"
-		"$1$ ::$proto_ns$::internal::ExtensionIdentifier< $extendee$,\n"
-		"    ::$proto_ns$::internal::$type_traits$, $field_type$, $packed$ >\n"
-		"  ${2$$name$$}$;\n",
+	format("static const int $constant_name$ = $number$;\n"
+		"$1$ ::$proto_ns$::internal::ExtensionIdentifier< $extendee$, ::$proto_ns$::internal::$type_traits$, $field_type$, $packed$ > ${2$$name$$}$;\n",
 		qualifier, descriptor_);
 }
 
@@ -139,9 +134,7 @@ void ExtensionGenerator::GenerateDefinition(io::Printer* printer) {
 			"\tconst int $scope$$constant_name$;\n"
 			"#endif\n");
 	}
-	format("PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::$proto_ns$::internal::ExtensionIdentifier< $extendee$,\n"
-		"    ::$proto_ns$::internal::$type_traits$, $field_type$, $packed$ >\n"
-		"  $scoped_name$($constant_name$, $1$);\n",
+	format("PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::$proto_ns$::internal::ExtensionIdentifier< $extendee$, ::$proto_ns$::internal::$type_traits$, $field_type$, $packed$ > $scoped_name$($constant_name$, $1$);\n",
 		default_str);
 
 	// Register extension verify function if needed.

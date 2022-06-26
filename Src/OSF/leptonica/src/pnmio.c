@@ -1325,27 +1325,22 @@ l_ok pixWriteMemPam(uint8  ** pdata,
  *  Notes:
  *      (1) This reads the next sample value in ASCII from the file.
  */
-static int32 pnmReadNextAsciiValue(FILE * fp,
-    int32 * pval)
+static int32 pnmReadNextAsciiValue(FILE * fp, int32 * pval)
 {
-	int32 c, ignore;
-
 	PROCNAME(__FUNCTION__);
-
+	//int32 c;
+	//int32 ignore;
 	if(!pval)
 		return ERROR_INT("&val not defined", procName, 1);
 	*pval = 0;
 	if(!fp)
 		return ERROR_INT("stream not open", procName, 1);
-
 	if(EOF == fscanf(fp, " "))
 		return 1;
 	if(1 != fscanf(fp, "%d", pval))
 		return 1;
-
 	return 0;
 }
-
 /*!
  * \brief   pnmReadNextNumber()
  *
@@ -1361,26 +1356,20 @@ static int32 pnmReadNextAsciiValue(FILE * fp,
  *          the maxval in the header, which precedes the binary data.
  * </pre>
  */
-static int32 pnmReadNextNumber(FILE * fp,
-    int32 * pval)
+static int32 pnmReadNextNumber(FILE * fp, int32 * pval)
 {
+	PROCNAME(__FUNCTION__);
 	char buf[8];
 	int32 i, c, foundws;
-
-	PROCNAME(__FUNCTION__);
-
 	if(!pval)
 		return ERROR_INT("&val not defined", procName, 1);
 	*pval = 0;
 	if(!fp)
 		return ERROR_INT("stream not open", procName, 1);
-
 	/* Swallow whitespace */
 	if(fscanf(fp, " ") == EOF)
 		return ERROR_INT("end of file reached", procName, 1);
-
-	/* The ASCII characters for the number are followed by exactly
-	 * one whitespace character. */
+	// The ASCII characters for the number are followed by exactly one whitespace character. 
 	foundws = FALSE;
 	for(i = 0; i < 8; i++)
 		buf[i] = '\0';
@@ -1394,7 +1383,7 @@ static int32 pnmReadNextNumber(FILE * fp,
 		}
 		if(!isdigit(c))
 			return ERROR_INT("char read is not a digit", procName, 1);
-		buf[i] = c;
+		buf[i] = static_cast<char>(c);
 	}
 	if(!foundws)
 		return ERROR_INT("no whitespace found", procName, 1);
@@ -1418,15 +1407,12 @@ static int32 pnmReadNextNumber(FILE * fp,
  *          format binary data.
  * </pre>
  */
-static int32 pnmReadNextString(FILE * fp,
-    char * buff,
-    int32 size)
+static int32 pnmReadNextString(FILE * fp, char * buff, int32 size)
 {
-	int32 i, c;
-	char fmtString[6]; /* must contain "%9999s" [*] */
-
 	PROCNAME(__FUNCTION__);
-
+	//int32 i;
+	//int32 c;
+	char fmtString[6]; /* must contain "%9999s" [*] */
 	if(!buff)
 		return ERROR_INT("buff not defined", procName, 1);
 	*buff = '\0';
@@ -1436,22 +1422,17 @@ static int32 pnmReadNextString(FILE * fp,
 		return ERROR_INT("size is too small", procName, 1);
 	if(!fp)
 		return ERROR_INT("stream not open", procName, 1);
-
 	/* Skip whitespace */
 	if(fscanf(fp, " ") == EOF)
 		return 1;
-
 	/* Comment lines are allowed to appear anywhere in the header lines */
 	if(pnmSkipCommentLines(fp))
 		return ERROR_INT("end of file reached", procName, 1);
-
 	snprintf(fmtString, 6, "%%%ds", size-1);
 	if(fscanf(fp, fmtString, buff) == EOF)
 		return 1;
-
 	return 0;
 }
-
 /*!
  * \brief   pnmSkipCommentLines()
  *

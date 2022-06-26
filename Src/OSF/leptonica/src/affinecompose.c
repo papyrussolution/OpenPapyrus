@@ -391,7 +391,7 @@ BOXA * boxaRotate(BOXA      * boxas,
  * \param[in]    mat     3x3 transform matrix; canonical form
  * \return  ptad  transformed points, or NULL on error
  */
-PTA * ptaAffineTransform(PTA        * ptas,
+PTA * ptaAffineTransform(PTA * ptas,
     float * mat)
 {
 	int32 i, npts;

@@ -34,10 +34,10 @@
  *           int32     pixCompareTiled()
  *
  *      Other measures of the difference of two images of the same size
- *           NUMA       *pixCompareRankDifference()
+ *           NUMA *pixCompareRankDifference()
  *           int32     pixTestForSimilarity()
  *           int32     pixGetDifferenceStats()
- *           NUMA       *pixGetDifferenceHistogram()
+ *           NUMA *pixGetDifferenceHistogram()
  *           int32     pixGetPerceptualDiff()
  *           int32     pixGetPSNR()
  *
@@ -55,7 +55,7 @@
  *       static int32  pixCompareTilesByHisto()
  *           int32     pixCropAlignedToCentroid()
  *
- *           uint8    *l_compressGrayHistograms()
+ *           uint8 *l_compressGrayHistograms()
  *           NUMAA      *l_uncompressGrayHistograms()
  *
  *      Translated images at the same resolution
@@ -92,13 +92,10 @@
 #pragma hdrstop
 
 /* Small enough to consider equal to 0.0, for plot output */
-static const float TINY = 0.00001;
+static const float TINY = 0.00001f;
 
-static l_ok findHistoGridDimensions(int32 n, int32 w, int32 h,
-    int32 * pnx, int32 * pny, int32 debug);
-static l_ok pixCompareTilesByHisto(PIX * pix1, PIX * pix2, int32 maxgray,
-    int32 factor, int32 n,
-    float * pscore, PIXA * pixadebug);
+static l_ok findHistoGridDimensions(int32 n, int32 w, int32 h, int32 * pnx, int32 * pny, int32 debug);
+static l_ok pixCompareTilesByHisto(PIX * pix1, PIX * pix2, int32 maxgray, int32 factor, int32 n, float * pscore, PIXA * pixadebug);
 
 /*------------------------------------------------------------------*
 *                        Test for pix equality                     *
@@ -1207,7 +1204,7 @@ NUMA * pixCompareRankDifference(PIX * pix1,
 {
 	int32 i;
 	float * array1, * array2;
-	NUMA       * nah, * nan, * nad;
+	NUMA * nah, * nan, * nad;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1372,7 +1369,7 @@ l_ok pixGetDifferenceStats(PIX        * pix1,
 	int32 i, first, last, diff;
 	float fract, ave;
 	float * array;
-	NUMA       * nah, * nan, * nac;
+	NUMA * nah, * nan, * nac;
 
 	PROCNAME(__FUNCTION__);
 
@@ -1471,7 +1468,7 @@ NUMA * pixGetDifferenceHistogram(PIX * pix1,
 	int32 rdiff, gdiff, bdiff, maxdiff;
 	uint32   * data1, * data2, * line1, * line2;
 	float * array;
-	NUMA       * na;
+	NUMA * na;
 	PIX        * pixt1, * pixt2;
 
 	PROCNAME(__FUNCTION__);
@@ -1889,7 +1886,7 @@ l_ok pixaComparePhotoRegionsByHisto(PIXA        * pixa,
     int32 factor,
     int32 n,
     float simthresh,
-    NUMA       ** pnai,
+    NUMA ** pnai,
     float ** pscores,
     PIX        ** ppixd,
     int32 debug)
@@ -1898,7 +1895,7 @@ l_ok pixaComparePhotoRegionsByHisto(PIXA        * pixa,
 	int32 i, j, nim, w, h, w1, h1, w2, h2, ival, index, classid;
 	float score;
 	float * scores;
-	NUMA       * nai, * naw, * nah;
+	NUMA * nai, * naw, * nah;
 	NUMAA      * naa;
 	NUMAA     ** n3a; /* array of naa */
 	PIX        * pix;

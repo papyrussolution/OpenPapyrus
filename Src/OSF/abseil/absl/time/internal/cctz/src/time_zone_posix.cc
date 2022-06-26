@@ -10,38 +10,46 @@ ABSL_NAMESPACE_BEGIN
 namespace time_internal {
 namespace cctz {
 namespace {
-const char kDigits[] = "0123456789";
+//const char kDigits[] = "0123456789";
 
-const char* ParseInt(const char* p, int min, int max, int* vp) {
+const char* ParseInt(const char* p, int min, int max, int* vp) 
+{
 	int value = 0;
 	const char* op = p;
 	const int kMaxInt = std::numeric_limits<int>::max();
-	for(; const char* dp = strchr(kDigits, *p); ++p) {
-		int d = static_cast<int>(dp - kDigits);
+	for(; const char* dp = strchr(STextConst::P_Digits, *p); ++p) {
+		int d = static_cast<int>(dp - STextConst::P_Digits);
 		if(d >= 10) break; // '\0'
-		if(value > kMaxInt / 10) return nullptr;
+		if(value > kMaxInt / 10) 
+			return nullptr;
 		value *= 10;
-		if(value > kMaxInt - d) return nullptr;
+		if(value > kMaxInt - d) 
+			return nullptr;
 		value += d;
 	}
-	if(p == op || value < min || value > max) return nullptr;
+	if(p == op || value < min || value > max) 
+		return nullptr;
 	*vp = value;
 	return p;
 }
 
 // abbr = <.*?> | [^-+,\d]{3,}
-const char* ParseAbbr(const char* p, std::string* abbr) {
+const char* ParseAbbr(const char* p, std::string* abbr) 
+{
 	const char* op = p;
 	if(*p == '<') { // special zoneinfo <...> form
 		while(*++p != '>') {
-			if(*p == '\0') return nullptr;
+			if(*p == '\0') 
+				return nullptr;
 		}
 		abbr->assign(op + 1, static_cast<std::size_t>(p - op) - 1);
 		return ++p;
 	}
 	while(*p != '\0') {
-		if(strchr("-+,", *p)) break;
-		if(strchr(kDigits, *p)) break;
+		if(strchr("-+,", *p)) 
+			break;
+		if(strchr(STextConst::P_Digits, *p)) 
+			break;
 		++p;
 	}
 	if(p - op < 3) return nullptr;

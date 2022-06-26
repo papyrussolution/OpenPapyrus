@@ -1767,7 +1767,7 @@ int PPViewQuot::AddItem(PPID * pGoodsID)
 	if(!__goods_id) {
 		if(Filt.QkCls == PPQuot::clsMtxRestr) {
 			PPID   goods_id = 0;
-			if(ListBoxSelDialog(PPOBJ_GOODSGROUP, &goods_id, (void *)GGRTYP_SEL_NORMAL) > 0)
+			if(ListBoxSelDialog::Run(PPOBJ_GOODSGROUP, &goods_id, (void *)GGRTYP_SEL_NORMAL) > 0)
 				__goods_id = goods_id;
 		}
 		else {

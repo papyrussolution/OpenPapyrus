@@ -476,9 +476,8 @@ int SGeoGridTab::Load(const char * pFileName)
     uint   hdr_count_lat = 0;
     uint   hdr_count_lon = 0;
     SFile f_in(pFileName, SFile::mRead);
-	while(f_in.ReadLine(line_buf)) {
-        line_buf.Chomp();
-        if(line_buf.NotEmptyS()) {
+	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+        if(line_buf.NotEmpty()) {
             if(line_buf.C(0) == '[') {
 				size_t rb_pos = 0;
                 THROW(line_buf.SearchChar(']', &rb_pos)); // Ошибка в формате файла geogridtag
@@ -2178,11 +2177,10 @@ SLTEST_R(SGeo)
 		StringSet ss;
 		SFile f_in(in_file_name, SFile::mRead);
 		THROW(SLTEST_CHECK_NZ(f_in.IsValid()));
-		while(f_in.ReadLine(line_buf)) {
+		while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
 			line_no++;
 			volatile int  _test_result = 0; // @debug
 			GeodTestRecord rec;
-			line_buf.Chomp();
 			ss.clear();
             line_buf.Tokenize(" \t", ss);
             uint   fld_count = 0;

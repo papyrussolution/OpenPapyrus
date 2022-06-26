@@ -266,7 +266,7 @@ static int acpt_state(BIO * b, BIO_ACCEPT * c)
 			    goto end;
 
 			case ACPT_S_ACCEPT:
-			    if(b->next_bio != NULL) {
+			    if(b->next_bio) {
 				    c->state = ACPT_S_OK;
 				    break;
 			    }
@@ -309,7 +309,7 @@ static int acpt_state(BIO * b, BIO_ACCEPT * c)
 			     * If the accept BIO has an bio_chain, we dup it and put the new
 			     * socket at the end.
 			     */
-			    if(c->bio_chain != NULL) {
+			    if(c->bio_chain) {
 				    if((dbio = BIO_dup_chain(c->bio_chain)) == NULL)
 					    goto exit_loop;
 				    if(!BIO_push(dbio, bio))
@@ -343,7 +343,7 @@ static int acpt_state(BIO * b, BIO_ACCEPT * c)
 	}
 
 exit_loop:
-	if(bio != NULL)
+	if(bio)
 		BIO_free(bio);
 	else if(s >= 0)
 		BIO_closesocket(s);
@@ -473,19 +473,19 @@ static long acpt_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_GET_ACCEPT:
 		    if(b->init) {
-			    if(num == 0 && ptr != NULL) {
+			    if(num == 0 && ptr) {
 				    pp = (char **)ptr;
 				    *pp = data->cache_accepting_name;
 			    }
-			    else if(num == 1 && ptr != NULL) {
+			    else if(num == 1 && ptr) {
 				    pp = (char **)ptr;
 				    *pp = data->cache_accepting_serv;
 			    }
-			    else if(num == 2 && ptr != NULL) {
+			    else if(num == 2 && ptr) {
 				    pp = (char **)ptr;
 				    *pp = data->cache_peer_name;
 			    }
-			    else if(num == 3 && ptr != NULL) {
+			    else if(num == 3 && ptr) {
 				    pp = (char **)ptr;
 				    *pp = data->cache_peer_serv;
 			    }

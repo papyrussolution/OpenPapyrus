@@ -9,13 +9,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_READER_H_
 #define ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_READER_H_
 
-//#include <cassert>
-#include "absl/base/config.h"
-#include "absl/strings/internal/cord_internal.h"
-#include "absl/strings/internal/cord_rep_btree.h"
-#include "absl/strings/internal/cord_rep_btree_navigator.h"
-#include "absl/strings/internal/cord_rep_flat.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace cord_internal {
@@ -73,25 +66,15 @@ public:
 	using Position = CordRepBtreeNavigator::Position;
 
 	// Returns true if this instance is not empty.
-	explicit operator bool() const {
-		return navigator_.btree() != nullptr;
-	}
-
+	explicit operator bool() const { return navigator_.btree() != nullptr; }
 	// Returns the tree referenced by this instance or nullptr if empty.
-	CordRepBtree* btree() const {
-		return navigator_.btree();
-	}
-
+	CordRepBtree* btree() const { return navigator_.btree(); }
 	// Returns the current data edge inside the referenced btree.
 	// Requires that the current instance is not empty.
-	CordRep* node() const {
-		return navigator_.Current();
-	}
-
+	CordRep* node() const { return navigator_.Current(); }
 	// Returns the length of the referenced tree.
 	// Requires that the current instance is not empty.
 	size_t length() const;
-
 	// Returns the number of remaining bytes available for iteration, which is the
 	// number of bytes directly following the end of the last chunk returned.
 	// This value will be zero if we iterated over the last edge in the bound
@@ -102,26 +85,19 @@ public:
 	size_t remaining() const {
 		return remaining_;
 	}
-
 	// Resets this instance to an empty value.
-	void Reset() {
-		navigator_.Reset();
-	}
-
+	void Reset() { navigator_.Reset(); }
 	// Initializes this instance with `tree`. `tree` must not be null.
 	// Returns a reference to the first data edge of the provided tree.
 	absl::string_view Init(CordRepBtree* tree);
-
 	// Navigates to and returns the next data edge of the referenced tree.
 	// Returns an empty string_view if an attempt is made to read beyond the end
 	// of the tree, i.e.: if `remaining()` is zero indicating an EOF condition.
 	// Requires that the current instance is not empty.
 	absl::string_view Next();
-
 	// Skips the provided amount of bytes and returns a reference to the data
 	// directly following the skipped bytes.
 	absl::string_view Skip(size_t skip);
-
 	// Reads `n` bytes into `tree`.
 	// If `chunk_size` is zero, starts reading at the next data edge. If
 	// `chunk_size` is non zero, the read starts at the last `chunk_size` bytes of
@@ -154,26 +130,29 @@ public:
 	// Returns an empty string view if `offset` is equal to or greater than the
 	// length of the referenced tree.
 	absl::string_view Seek(size_t offset);
-
 private:
 	size_t remaining_ = 0;
 	CordRepBtreeNavigator navigator_;
 };
 
-inline size_t CordRepBtreeReader::length() const {
+inline size_t CordRepBtreeReader::length() const 
+{
 	assert(btree() != nullptr);
 	return btree()->length;
 }
 
-inline absl::string_view CordRepBtreeReader::Init(CordRepBtree* tree) {
+inline absl::string_view CordRepBtreeReader::Init(CordRepBtree* tree) 
+{
 	assert(tree != nullptr);
 	const CordRep* edge = navigator_.InitFirst(tree);
 	remaining_ = tree->length - edge->length;
 	return CordRepBtree::EdgeData(edge);
 }
 
-inline absl::string_view CordRepBtreeReader::Next() {
-	if(remaining_ == 0) return {};
+inline absl::string_view CordRepBtreeReader::Next() 
+{
+	if(remaining_ == 0) 
+		return {};
 	const CordRep* edge = navigator_.Next();
 	assert(edge != nullptr);
 	remaining_ -= edge->length;

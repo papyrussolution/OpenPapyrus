@@ -217,11 +217,14 @@ struct NgxModule_Papyrus {
 				}*/
 				// } @debug
 				DS.DispatchNgxRequest(pReq, p_cfg);
+				ngx_http_finalize_request(pReq, rc); // @v11.4.3
 				return NGX_DELEGATED/*NGX_DONE*/;
 			}
 		}
-		else
+		else {
+			ngx_http_finalize_request(pReq, rc); // @v11.4.3
 			return rc;
+		}
 	}
 };
 

@@ -12,26 +12,17 @@
 	#include <re2/re2.h>
 	#include <re2/stringpiece.h>
 	#include "basictypes.h"
-	#include "absl/strings/str_replace.h"
 	#include "absl/strings/string_view.h"
 	namespace i18n {
 	namespace phonenumbers {
 	// Implementation of RegExpInput abstract class.
 	class RE2RegExpInput : public RegExpInput {
 	public:
-		explicit RE2RegExpInput(const string & utf8_input)
-			: string_(utf8_input),
-			utf8_input_(string_) {
+		explicit RE2RegExpInput(const string & utf8_input) : string_(utf8_input), utf8_input_(string_) 
+		{
 		}
-
-		virtual string ToString() const {
-			return utf8_input_.ToString();
-		}
-
-		StringPiece* Data() {
-			return &utf8_input_;
-		}
-
+		virtual string ToString() const { return utf8_input_.ToString(); }
+		StringPiece* Data() { return &utf8_input_; }
 	private:
 		// string_ holds the string referenced by utf8_input_ as StringPiece doesn't
 		// copy the string passed in.
@@ -40,21 +31,12 @@
 	};
 
 	namespace {
-	template <typename Function, typename Input>
-	bool DispatchRE2Call(Function regex_function,
-		Input input,
-		const RE2& regexp,
-		string* out1,
-		string* out2,
-		string* out3,
-		string* out4,
-		string* out5,
-		string* out6) {
+	template <typename Function, typename Input> bool DispatchRE2Call(Function regex_function, Input input,
+		const RE2& regexp, string* out1, string* out2, string* out3, string* out4, string* out5, string* out6) 
+	{
 		const RE2::Arg outs[] = { out1, out2, out3, out4, out5, out6};
-		const RE2::Arg* const args[] = {&outs[0], &outs[1], &outs[2],
-						&outs[3], &outs[4], &outs[5]};
-		const int argc =
-			out6 ? 6 : out5 ? 5 : out4 ? 4 : out3 ? 3 : out2 ? 2 : out1 ? 1 : 0;
+		const RE2::Arg* const args[] = {&outs[0], &outs[1], &outs[2], &outs[3], &outs[4], &outs[5]};
+		const int argc = out6 ? 6 : out5 ? 5 : out4 ? 4 : out3 ? 3 : out2 ? 2 : out1 ? 1 : 0;
 		return regex_function(input, regexp, args, argc);
 	}
 

@@ -45,35 +45,35 @@
  *    Foreground pixel counting in 1 bpp images
  *           int32     pixZero()
  *           int32     pixForegroundFraction()
- *           NUMA       *pixaCountPixels()
+ *           NUMA *pixaCountPixels()
  *           int32     pixCountPixels()
  *           int32     pixCountPixelsInRect()
- *           NUMA       *pixCountByRow()
- *           NUMA       *pixCountByColumn()
- *           NUMA       *pixCountPixelsByRow()
- *           NUMA       *pixCountPixelsByColumn()
+ *           NUMA *pixCountByRow()
+ *           NUMA *pixCountByColumn()
+ *           NUMA *pixCountPixelsByRow()
+ *           NUMA *pixCountPixelsByColumn()
  *           int32     pixCountPixelsInRow()
- *           NUMA       *pixGetMomentByColumn()
+ *           NUMA *pixGetMomentByColumn()
  *           int32     pixThresholdPixelSum()
  *           int32    *makePixelSumTab8()
  *           int32    *makePixelCentroidTab8()
  *
  *    Average of pixel values in gray images
- *           NUMA       *pixAverageByRow()
- *           NUMA       *pixAverageByColumn()
+ *           NUMA *pixAverageByRow()
+ *           NUMA *pixAverageByColumn()
  *           int32     pixAverageInRect()
  *
  *    Average of pixel values in RGB images
  *           int32     pixAverageInRectRGB()
  *
  *    Variance of pixel values in gray images
- *           NUMA       *pixVarianceByRow()
- *           NUMA       *pixVarianceByColumn()
+ *           NUMA *pixVarianceByRow()
+ *           NUMA *pixVarianceByColumn()
  *           int32     pixVarianceInRect()
  *
  *    Average of absolute value of pixel differences in gray images
- *           NUMA       *pixAbsDiffByRow()
- *           NUMA       *pixAbsDiffByColumn()
+ *           NUMA *pixAbsDiffByRow()
+ *           NUMA *pixAbsDiffByColumn()
  *           int32     pixAbsDiffInRect()
  *           int32     pixAbsDiffOnLine()
  *
@@ -2114,7 +2114,7 @@ NUMA * pixCountPixelsByColumn(PIX  * pix)
 	int32 i, j, w, h, wpl;
 	uint32   * line, * data;
 	float * array;
-	NUMA       * na;
+	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2215,7 +2215,7 @@ NUMA * pixGetMomentByColumn(PIX * pix,
 	int32 i, j, w, h, wpl;
 	uint32   * line, * data;
 	float * array;
-	NUMA       * na;
+	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2499,7 +2499,7 @@ NUMA * pixAverageByColumn(PIX * pix,
 	int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh;
 	uint32   * line, * data;
 	float norm, sum;
-	NUMA       * na;
+	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2774,7 +2774,7 @@ NUMA * pixVarianceByRow(PIX * pix,
 	int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh, val;
 	uint32   * line, * data;
 	double sum1, sum2, norm, ave, var, rootvar;
-	NUMA       * na;
+	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
 
@@ -2837,7 +2837,7 @@ NUMA * pixVarianceByColumn(PIX * pix,
 	int32 i, j, w, h, d, wpl, xstart, xend, ystart, yend, bw, bh, val;
 	uint32   * line, * data;
 	double sum1, sum2, norm, ave, var, rootvar;
-	NUMA       * na;
+	NUMA * na;
 
 	PROCNAME(__FUNCTION__);
 

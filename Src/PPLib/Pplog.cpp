@@ -1059,7 +1059,6 @@ int PPLogger::Save(const char * pFileName, long options)
 LogListWindow::LogListWindow(TRect & rct, LogListBoxDef * aDef, const char * pTitle, int aNum) : TWindow(rct, pTitle, aNum)
 {
 	def = aDef;
-
 	SString temp_buf;
 	RECT   parent, r;
 	StopExec = 0; // Признак остановки цикла исполнения //

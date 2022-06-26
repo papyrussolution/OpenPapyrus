@@ -1,5 +1,5 @@
 // V_LOG.CPP
-// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021
+// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021, 2022
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -126,7 +126,7 @@ int LogsDialog::SendByEmail()
 			PPGetFilePath(PPPATH_LOG, r_e.FileName, path);
 			THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
 			acct_id = alb_cfg.Hdr.MailAccID;
-			if(ListBoxSelDialog(PPOBJ_INTERNETACCOUNT, &acct_id, reinterpret_cast<void *>(PPObjInternetAccount::filtfMail)) > 0) {
+			if(ListBoxSelDialog::Run(PPOBJ_INTERNETACCOUNT, &acct_id, reinterpret_cast<void *>(PPObjInternetAccount::filtfMail)) > 0) {
 				GetMainOrgName(temp_buf);
 				PPLoadText(PPTXT_LOGFILEMAILSUBJ, fmt_buf);
 				subj.Printf(fmt_buf, r_e.FileName, temp_buf.cptr()).Transf(CTRANSF_INNER_TO_OUTER);

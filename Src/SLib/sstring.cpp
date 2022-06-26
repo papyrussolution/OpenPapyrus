@@ -8099,8 +8099,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				THROW(SLTEST_CHECK_NZ(inf.IsValid()));
 				THROW(SLTEST_CHECK_NZ(outf.IsValid()));
 				THROW(SLTEST_CHECK_NZ(temp_buf.Alloc(8192)));
-				while(inf.ReadLine(str)) {
-					str.Chomp();
+				while(inf.ReadLine(str, SFile::rlfChomp)) {
 					THROW(SLTEST_CHECK_NZ(str.DecodeMime64(temp_buf.P_Buf, temp_buf.Size, &actual_size)));
 					THROW(SLTEST_CHECK_NZ(outf.Write(temp_buf.P_Buf, actual_size)));
 				}
@@ -8155,9 +8154,8 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				SFile inf(in_buf, SFile::mRead);
 				StringSet ss_line(";"), ss_result(",");
 				SString delim, src_buf, result_str;
-				while(inf.ReadLine(str)) {
-					str.Chomp();
-					if(str.NotEmptyS()) {
+				while(inf.ReadLine(str, SFile::rlfChomp|SFile::rlfStrip)) {
+					if(str.NotEmpty()) {
 						ss_line.setBuf(str);
 						uint p = 0;
 						if(ss_line.get(&p, src_buf)) {
@@ -8185,10 +8183,9 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				SLTEST_CHECK_NZ(sstreq(static_cast<const char *>(0), static_cast<const char *>(0)));
 				SLTEST_CHECK_NZ(sstreqi_ascii(static_cast<const char *>(0), static_cast<const char *>(0)));
 				SLTEST_CHECK_NZ(sstreqi_ascii((const uchar *)0, (const uchar *)0));
-				while(inf.ReadLine(str)) {
+				while(inf.ReadLine(str, SFile::rlfChomp|SFile::rlfStrip)) {
 					line_no++;
-					str.Chomp();
-					if(str.NotEmptyS()) {
+					if(str.NotEmpty()) {
 						scan.Set(str, 0);
 						int   emsr = scan.GetEMail(out_buf.Z());
 						SLTEST_CHECK_NZ(emsr);
@@ -8214,10 +8211,10 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				//
 				(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("phrases-ru-1251.txt");
 				SFile inf(in_buf, SFile::mRead);
-				while(inf.ReadLine(str)) {
+				while(inf.ReadLine(str, SFile::rlfChomp|SFile::rlfStrip)) {
 					//const char * p_test_string_1251 = "Захавай еще этих тупых французских булок";
 					//str = p_test_string_1251;
-					if(str.Chomp().NotEmptyS()) {
+					if(str.NotEmpty()) {
 						SLTEST_CHECK_Z(str.IsLegalUtf8());
 						str.Transf(CTRANSF_OUTER_TO_UTF8);
 						SLTEST_CHECK_NZ(str.IsLegalUtf8());
@@ -8651,9 +8648,9 @@ SLTEST_R(SPathStruc)
 		SString line_buf;
 		SFile out_file(MakeOutputFilePath("path.out"), SFile::mWrite);
 		SPathStruc ps;
-		while(file.ReadLine(line_buf)) {
+		while(file.ReadLine(line_buf, SFile::rlfChomp)) {
 			SInvariantParam ip;
-			ps.Split(line_buf.Chomp());
+			ps.Split(line_buf);
 			SLTEST_CHECK_NZ(ps.Invariant(&ip));
 			out_file.WriteLine(ip.MsgBuf.CR());
 		}

@@ -2668,7 +2668,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 			psn_obj.GetListByKind(r_eq_cfg.CshrsPsnKindID, &psn_ary, 0);
 			SFile  cf(PathCshrs, SFile::mRead);
 			THROW_SL(cf.IsValid());
-			while(cf.ReadLine(buf)) {
+			while(cf.ReadLine(buf, SFile::rlfChomp)) {
 				int    is_kind = 0, is_reg = 0;
 				uint   i = 0;
 				long   rights = 0;
@@ -2678,7 +2678,6 @@ int ACS_CRCSHSRV::GetCashiersList()
 				ss.clear();
 				by_name_ary.clear();
 				by_num_ary.clear();
-				buf.Chomp();
 				ss.add(buf);
 				ss.get(&i, cshr_tabnum_); // Табельный номер
 				cshr_tabnum_.StripQuotes();

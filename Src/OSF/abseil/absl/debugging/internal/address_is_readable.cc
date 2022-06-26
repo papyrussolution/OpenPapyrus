@@ -25,7 +25,6 @@ ABSL_NAMESPACE_END
 #include <stdint.h>
 #include <syscall.h>
 #include <unistd.h>
-#include "absl/base/internal/errno_saver.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

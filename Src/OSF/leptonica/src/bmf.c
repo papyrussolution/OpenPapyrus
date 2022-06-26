@@ -51,7 +51,7 @@
 #pragma hdrstop
 #include "bmfdata.h"
 
-static const float VertFractSep = 0.3;
+static const float VertFractSep = 0.3f;
 
 #ifndef  NO_CONSOLE_IO
 #define  DEBUG_BASELINE     0

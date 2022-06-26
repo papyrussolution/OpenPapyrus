@@ -68,17 +68,15 @@ public:
 		uint last_lookup; /* Cumulative */
 		pause_func_t pause_func;
 	};
-
 	void init()
 	{
-		memzero(this, sizeof(*this));
+		THISZERO();
 		features.init();
 		for(uint table_index = 0; table_index < 2; table_index++) {
 			lookups[table_index].init();
 			stages[table_index].init();
 		}
 	}
-
 	void fini()
 	{
 		features.fini();

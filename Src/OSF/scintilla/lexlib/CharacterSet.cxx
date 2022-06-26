@@ -105,7 +105,7 @@ CharacterSet::CharacterSet(setBase base /*= setNone*/, const char * initialSet /
 	if(base & setUpper)
 		AddString(STextConst::Get(STextConst::cAlphabetEngU, 0));
 	if(base & setDigits)
-		AddString("0123456789");
+		AddString(STextConst::P_Digits);
 }
 
 CharacterSet::CharacterSet(const CharacterSet &other)

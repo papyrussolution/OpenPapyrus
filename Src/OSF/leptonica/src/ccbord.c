@@ -2203,16 +2203,16 @@ l_ok ccbaWriteStream(FILE * fp,
 {
 	char strbuf[256];
 	uint8 bval;
-	uint8    * datain, * dataout;
+	uint8 * datain, * dataout;
 	int32 i, j, k, bx, by, bw, bh, val, startx, starty;
 	int32 ncc, nb, n;
 	uint32 w, h;
 	size_t inbytes, outbytes;
 	L_BBUFFER  * bbuf;
 	CCBORD     * ccb;
-	NUMA       * na;
+	NUMA * na;
 	NUMAA      * naa;
-	PTA        * pta;
+	PTA * pta;
 
 	PROCNAME(__FUNCTION__);
 

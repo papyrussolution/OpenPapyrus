@@ -3,8 +3,6 @@
 /*
  * Description: This translation unit implements miscellaneous thread functions.
  *
- * --------------------------------------------------------------------------
- *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom
  *   Copyright 1999-2018, Pthreads4w contributors
@@ -19,11 +17,6 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and limitations under the License.
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
@@ -196,7 +189,7 @@ INLINE int __ptw32_cond_check_need_init(pthread_cond_t * cond)
 void __ptw32_callUserDestroyRoutines(pthread_t thread)
 {
 	ThreadKeyAssoc * assoc;
-	if(thread.p != NULL) {
+	if(thread.p) {
 		__ptw32_mcs_local_node_t threadLock;
 		__ptw32_mcs_local_node_t keyLock;
 		int assocsRemaining;
@@ -272,7 +265,7 @@ void __ptw32_callUserDestroyRoutines(pthread_t thread)
 				value = TlsGetValue(k->key);
 				TlsSetValue(k->key, NULL);
 				// Every assoc->key exists and has a destructor
-				if(value != NULL && iterations <= PTHREAD_DESTRUCTOR_ITERATIONS) {
+				if(value && iterations <= PTHREAD_DESTRUCTOR_ITERATIONS) {
 					/*
 					 * Unlock both locks before the destructor runs.
 					 * POSIX says pthread_key_delete can be run from destructors,
@@ -654,14 +647,14 @@ void __ptw32_processTerminate()
 	if(__ptw32_processInitialized) {
 		__ptw32_thread_t * tp, * tpNext;
 		__ptw32_mcs_local_node_t node;
-		if(__ptw32_selfThreadKey != NULL) {
+		if(__ptw32_selfThreadKey) {
 			/*
 			 * Release __ptw32_selfThreadKey
 			 */
 			pthread_key_delete(__ptw32_selfThreadKey);
 			__ptw32_selfThreadKey = NULL;
 		}
-		if(__ptw32_cleanupKey != NULL) {
+		if(__ptw32_cleanupKey) {
 			/*
 			 * Release __ptw32_cleanupKey
 			 */
@@ -1246,14 +1239,13 @@ int __ptw32_tkAssocCreate(__ptw32_thread_t * sp, pthread_key_t key)
 	 */
 	assoc->prevKey = NULL;
 	assoc->nextKey = static_cast<ThreadKeyAssoc *>(sp->keys);
-	if(assoc->nextKey != NULL) {
+	if(assoc->nextKey) {
 		assoc->nextKey->prevKey = assoc;
 	}
 	sp->keys = (void *)assoc;
 	return 0;
 }
 /*
- * -------------------------------------------------------------------
  * This routine releases all resources for the given ThreadKeyAssoc
  * once it is no longer being referenced
  * ie) either the key or thread has stopped referencing it.
@@ -1263,7 +1255,6 @@ int __ptw32_tkAssocCreate(__ptw32_thread_t * sp, pthread_key_t key)
  *             an instance of ThreadKeyAssoc.
  * Returns:
  *   N/A
- * -------------------------------------------------------------------
  */
 void __ptw32_tkAssocDestroy(ThreadKeyAssoc * assoc)
 {

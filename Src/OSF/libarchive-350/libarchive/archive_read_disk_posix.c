@@ -846,7 +846,7 @@ static int next_entry(struct archive_read_disk * a, struct tree * t, ArchiveEntr
 		    a->follow_symlinks = 1;
 		    /* 'L': Archive symlinks as targets, if we can. */
 		    st = tree_current_stat(t);
-		    if(st != NULL && !tree_target_is_same_as_parent(t, st))
+		    if(st && !tree_target_is_same_as_parent(t, st))
 			    break;
 		/* If stat fails, we have a broken symlink;
 		 * in that case, don't follow the link. */
@@ -1151,7 +1151,7 @@ int archive_read_disk_descend(Archive * _a)
 	if(tree_current_is_physical_dir(t)) {
 		tree_push(t, t->basename, t->current_filesystem_id,
 		    t->lst.st_dev, t->lst.st_ino, &t->restore_time);
-		if(t->stack->parent->parent != NULL)
+		if(t->stack->parent->parent)
 			t->stack->flags |= isDir;
 		else
 			t->stack->flags |= isDirLink;
@@ -1233,7 +1233,7 @@ static int update_current_filesystem(struct archive_read_disk * a, int64 dev)
 {
 	struct tree * t = a->tree;
 	int i, fid;
-	if(t->current_filesystem != NULL && t->current_filesystem->dev == dev)
+	if(t->current_filesystem && t->current_filesystem->dev == dev)
 		return ARCHIVE_OK;
 	for(i = 0; i < t->max_filesystem_id; i++) {
 		if(t->filesystem_table[i].dev == dev) {
@@ -1305,7 +1305,7 @@ static int get_xfer_size(struct tree * t, int fd, const char * path)
 		t->current_filesystem->min_xfer_size = fpathconf(fd, _PC_REC_MIN_XFER_SIZE);
 		t->current_filesystem->xfer_align = fpathconf(fd, _PC_REC_XFER_ALIGN);
 	}
-	else if(path != NULL) {
+	else if(path) {
 		t->current_filesystem->incr_xfer_size = pathconf(path, _PC_REC_INCR_XFER_SIZE);
 		t->current_filesystem->max_xfer_size = pathconf(path, _PC_REC_MAX_XFER_SIZE);
 		t->current_filesystem->min_xfer_size = pathconf(path, _PC_REC_MIN_XFER_SIZE);
@@ -1906,7 +1906,7 @@ static void tree_push(struct tree * t, const char * path, int filesystem_id,
 	te->ino = ino;
 	te->dirname_length = t->dirname_length;
 	te->restore_time.name = te->name.s;
-	if(rt != NULL) {
+	if(rt) {
 		te->restore_time.mtime = rt->mtime;
 		te->restore_time.mtime_nsec = rt->mtime_nsec;
 		te->restore_time.atime = rt->atime;
@@ -2121,10 +2121,9 @@ static int tree_current_dir_fd(struct tree * t)
 static void tree_pop(struct tree * t)
 {
 	struct tree_entry * te;
-
 	t->path.s[t->dirname_length] = '\0';
 	t->path.length = t->dirname_length;
-	if(t->stack == t->current && t->current != NULL)
+	if(t->stack == t->current && t->current)
 		t->current = t->current->parent;
 	te = t->stack;
 	t->stack = te->next;
@@ -2142,8 +2141,7 @@ static void tree_pop(struct tree * t)
 static int tree_next(struct tree * t)
 {
 	int r;
-
-	while(t->stack != NULL) {
+	while(t->stack) {
 		/* If there's an open dir, get the next entry from there. */
 		if(t->d != INVALID_DIR_HANDLE) {
 			r = tree_dir_next_posix(t);
@@ -2407,10 +2405,8 @@ static int tree_current_is_physical_dir(struct tree * t)
 static int tree_target_is_same_as_parent(struct tree * t, const struct stat * st)
 {
 	struct tree_entry * te;
-
-	for(te = t->current->parent; te != NULL; te = te->parent) {
-		if(te->dev == (int64)st->st_dev &&
-		    te->ino == (int64)st->st_ino)
+	for(te = t->current->parent; te; te = te->parent) {
+		if(te->dev == (int64)st->st_dev && te->ino == (int64)st->st_ino)
 			return 1;
 	}
 	return 0;
@@ -2424,7 +2420,7 @@ static int tree_current_is_symblic_link_target(struct tree * t)
 {
 	static const struct stat * lst = tree_current_lstat(t);
 	static const struct stat * st = tree_current_stat(t);
-	return (st != NULL && lst != NULL && (int64)st->st_dev == t->current_filesystem->dev && st->st_dev != lst->st_dev);
+	return (st && lst && (int64)st->st_dev == t->current_filesystem->dev && st->st_dev != lst->st_dev);
 }
 /*
  * Return the access path for the entry just returned from tree_next().
@@ -2457,7 +2453,7 @@ static void tree_close(struct tree * t)
 		t->d = INVALID_DIR_HANDLE;
 	}
 	/* Release anything remaining in the stack. */
-	while(t->stack != NULL) {
+	while(t->stack) {
 		if(t->stack->flags & isDirLink)
 			close(t->stack->symlink_parent_fd);
 		tree_pop(t);

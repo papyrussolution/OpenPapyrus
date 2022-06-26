@@ -189,13 +189,13 @@ typedef int l_ok;                     /*!< return type 0 if OK, 1 on error */
 //typedef unsigned int l_uint32_Removed;            /*!< unsigned 32-bit value */
 //typedef float l_float32_Removed; /*!< 32-bit floating point value */
 //typedef double l_float64_Removed; /*!< 64-bit floating point value */
-#ifdef COMPILER_MSVC
-typedef __int64 l_int64;                 /*!< signed 64-bit value */
-typedef unsigned __int64 l_uint64;        /*!< unsigned 64-bit value */
-#else
-typedef long long l_int64;               /*!< signed 64-bit value */
-typedef unsigned long long l_uint64;      /*!< unsigned 64-bit value */
-#endif  /* COMPILER_MSVC */
+//#ifdef COMPILER_MSVC
+//typedef __int64 l_int64_Removed;                 /*!< signed 64-bit value */
+//typedef unsigned __int64 l_uint64_Removed;        /*!< unsigned 64-bit value */
+//#else
+//typedef long long l_int64_Removed;               /*!< signed 64-bit value */
+//typedef unsigned long long l_uint64_Removed;      /*!< unsigned 64-bit value */
+//#endif  /* COMPILER_MSVC */
 
 /*-------------------------------------------------------------------------*
 * For security, the library is distributed in a configuration that does   *

@@ -2700,7 +2700,7 @@ int PPViewGoods::AddGoodsFromBasket()
 	int    ok = -1;
 	if(IsAltFltGroup()) {
 		PPID   gb_id = 0;
-		if(ListBoxSelDialog(PPOBJ_GOODSBASKET, &gb_id, 0) > 0 && gb_id > 0) {
+		if(ListBoxSelDialog::Run(PPOBJ_GOODSBASKET, &gb_id, 0) > 0 && gb_id > 0) {
 			int    r = 0;
 			PPBasketPacket pack;
 			PPObjGoodsBasket gb_obj;
@@ -2722,7 +2722,7 @@ int PPViewGoods::AddGoodsFromBasket()
 	}
 	else if(IsGenGoodsFlt()) {
 		PPID   gb_id = 0;
-		if(ListBoxSelDialog(PPOBJ_GOODSBASKET, &gb_id, 0) > 0 && gb_id > 0) {
+		if(ListBoxSelDialog::Run(PPOBJ_GOODSBASKET, &gb_id, 0) > 0 && gb_id > 0) {
 			int    r = 0;
 			PPBasketPacket pack;
 			PPObjGoodsBasket gb_obj;

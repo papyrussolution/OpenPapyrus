@@ -177,7 +177,7 @@ L_ASET * l_asetCreateFromSarray(SARRAY * sa)
 {
 	char     * str;
 	int32 i, n;
-	l_uint64 hash;
+	uint64 hash;
 	L_ASET   * set;
 	RB_TYPE key;
 
@@ -219,7 +219,7 @@ l_ok sarrayRemoveDupsByAset(SARRAY * sas, SARRAY ** psad)
 {
 	char     * str;
 	int32 i, n;
-	l_uint64 hash;
+	uint64 hash;
 	L_ASET   * set;
 	RB_TYPE key;
 	SARRAY * sad;
@@ -315,7 +315,7 @@ l_ok sarrayIntersectionByAset(SARRAY * sa1,
 {
 	char     * str;
 	int32 n1, n2, i, n;
-	l_uint64 hash;
+	uint64 hash;
 	L_ASET   * set1, * set2;
 	RB_TYPE key;
 	SARRAY * sa_small, * sa_big, * sad;
@@ -369,7 +369,7 @@ l_ok sarrayIntersectionByAset(SARRAY * sa1,
 L_HASHMAP * l_hmapCreateFromSarray(SARRAY * sa)
 {
 	int32 i, n;
-	l_uint64 key;
+	uint64 key;
 	char * str;
 	L_HASHITEM  * hitem;
 	L_HASHMAP   * hmap;
@@ -401,7 +401,7 @@ L_HASHMAP * l_hmapCreateFromSarray(SARRAY * sa)
 l_ok sarrayRemoveDupsByHmap(SARRAY * sas, SARRAY ** psad, L_HASHMAP  ** phmap)
 {
 	int32 i, tabsize;
-	l_uint64 key;
+	uint64 key;
 	char * str;
 	SARRAY * sad;
 	L_HASHITEM  * hitem;
@@ -478,7 +478,7 @@ l_ok sarrayIntersectionByHmap(SARRAY * sa1,
     SARRAY ** psad)
 {
 	int32 i, n1, n2, n;
-	l_uint64 key;
+	uint64 key;
 	char * str;
 	SARRAY * sa_small, * sa_big, * sa3, * sad;
 	L_HASHITEM  * hitem;

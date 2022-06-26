@@ -30,17 +30,13 @@ bool IsProto3Field(const FieldDescriptor* field_descriptor) {
 	return file_descriptor->syntax() == FileDescriptor::SYNTAX_PROTO3;
 }
 
-void SetMessageVariables(const FieldDescriptor* descriptor,
-    std::map<std::string, std::string>* variables,
-    const Options& options) {
+void SetMessageVariables(const FieldDescriptor* descriptor, std::map<std::string, std::string>* variables, const Options& options) 
+{
 	SetCommonFieldVariables(descriptor, variables, options);
 	(*variables)["type"] = ClassName(descriptor->message_type(), false);
 	(*variables)["full_name"] = descriptor->full_name();
-
-	const FieldDescriptor* key =
-	    descriptor->message_type()->FindFieldByName("key");
-	const FieldDescriptor* val =
-	    descriptor->message_type()->FindFieldByName("value");
+	const FieldDescriptor* key = descriptor->message_type()->FindFieldByName("key");
+	const FieldDescriptor* val = descriptor->message_type()->FindFieldByName("value");
 	(*variables)["key_cpp"] = PrimitiveTypeName(options, key->cpp_type());
 	switch(val->cpp_type()) {
 		case FieldDescriptor::CPPTYPE_MESSAGE:
@@ -78,18 +74,15 @@ MapFieldGenerator::MapFieldGenerator(const FieldDescriptor* descriptor,
 MapFieldGenerator::~MapFieldGenerator() {
 }
 
-void MapFieldGenerator::GeneratePrivateMembers(io::Printer* printer) const {
+void MapFieldGenerator::GeneratePrivateMembers(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format(
-		"::$proto_ns$::internal::MapField$lite$<\n"
-		"    $map_classname$,\n"
-		"    $key_cpp$, $val_cpp$,\n"
-		"    ::$proto_ns$::internal::WireFormatLite::$key_wire_type$,\n"
-		"    ::$proto_ns$::internal::WireFormatLite::$val_wire_type$> "
-		"$name$_;\n");
+		"::$proto_ns$::internal::MapField$lite$<$map_classname$, $key_cpp$, $val_cpp$, ::$proto_ns$::internal::WireFormatLite::$key_wire_type$, ::$proto_ns$::internal::WireFormatLite::$val_wire_type$> $name$_;\n");
 }
 
-void MapFieldGenerator::GenerateAccessorDeclarations(io::Printer* printer) const {
+void MapFieldGenerator::GenerateAccessorDeclarations(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format(
 		"private:\n"
@@ -101,43 +94,48 @@ void MapFieldGenerator::GenerateAccessorDeclarations(io::Printer* printer) const
 		descriptor_);
 }
 
-void MapFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printer) const {
+void MapFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format(
 		"inline const ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >&\n"
 		"$classname$::_internal_$name$() const { return $name$_.GetMap(); }\n"
 		"inline const ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >&\n"
-		"$classname$::$name$() const {\n"
+		"$classname$::$name$() const\n{\n"
 		"$annotate_get$"
-		"  // @@protoc_insertion_point(field_map:$full_name$)\n"
-		"  return _internal_$name$();\n"
+		"\t// @@protoc_insertion_point(field_map:$full_name$)\n"
+		"\treturn _internal_$name$();\n"
 		"}\n"
-		"inline ::$proto_ns$::Map< $key_cpp$, $val_cpp$ > * $classname$::_internal_mutable_$name$() {\n"
-		"  return $name$_.MutableMap();\n"
+		"inline ::$proto_ns$::Map< $key_cpp$, $val_cpp$ > * $classname$::_internal_mutable_$name$()\n{\n"
+		"\treturn $name$_.MutableMap();\n"
 		"}\n"
-		"inline ::$proto_ns$::Map< $key_cpp$, $val_cpp$ > * $classname$::mutable_$name$() {\n"
+		"inline ::$proto_ns$::Map< $key_cpp$, $val_cpp$ > * $classname$::mutable_$name$()\n{\n"
 		"$annotate_mutable$"
-		"  // @@protoc_insertion_point(field_mutable_map:$full_name$)\n"
-		"  return _internal_mutable_$name$();\n"
+		"\t// @@protoc_insertion_point(field_mutable_map:$full_name$)\n"
+		"\treturn _internal_mutable_$name$();\n"
 		"}\n");
 }
 
-void MapFieldGenerator::GenerateClearingCode(io::Printer* printer) const {
+void MapFieldGenerator::GenerateClearingCode(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format("$name$_.Clear();\n");
 }
 
-void MapFieldGenerator::GenerateMergingCode(io::Printer* printer) const {
+void MapFieldGenerator::GenerateMergingCode(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format("$name$_.MergeFrom(from.$name$_);\n");
 }
 
-void MapFieldGenerator::GenerateSwappingCode(io::Printer* printer) const {
+void MapFieldGenerator::GenerateSwappingCode(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format("$name$_.InternalSwap(&other->$name$_);\n");
 }
 
-void MapFieldGenerator::GenerateCopyConstructorCode(io::Printer* printer) const {
+void MapFieldGenerator::GenerateCopyConstructorCode(io::Printer* printer) const 
+{
 	GenerateConstructorCode(printer);
 	GenerateMergingCode(printer);
 }
@@ -153,28 +151,23 @@ static void GenerateSerializationLoop(const Formatter& format, bool string_key,
 	else {
 		format(
 			"for(::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator\n"
-			"    it = this->_internal_$name$().begin();\n"
-			"    it != this->_internal_$name$().end(); ++it) {\n");
+			"\tit = this->_internal_$name$().begin();\n"
+			"\tit != this->_internal_$name$().end(); ++it) {\n");
 		ptr = "it";
 	}
 	format.Indent();
-
-	format(
-		"target = $map_classname$::Funcs::InternalSerialize($number$, "
-		"$1$->first, $1$->second, target, stream);\n",
-		ptr);
-
+	format("target = $map_classname$::Funcs::InternalSerialize($number$, $1$->first, $1$->second, target, stream);\n", ptr);
 	if(string_key || string_value) {
 		// ptr is either an actual pointer or an iterator, either way we can
 		// create a pointer by taking the address after de-referencing it.
 		format("Utf8Check::Check(&(*$1$));\n", ptr);
 	}
-
 	format.Outdent();
 	format("}\n");
 }
 
-void MapFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* printer) const {
+void MapFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format("if(!this->_internal_$name$().empty()) {\n");
 	format.Indent();
@@ -194,10 +187,10 @@ void MapFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* pri
 	bool utf8_check = string_key || string_value;
 	if(utf8_check) {
 		format("struct Utf8Check {\n"
-			"  static void Check(ConstPtr p) {\n"
+			"\tstatic void Check(ConstPtr p) {\n"
 			// p may be unused when GetUtf8CheckMode evaluates to kNone,
 			// thus disabling the validation.
-			"    (void)p;\n");
+			"\t\t(void)p;\n");
 		format.Indent();
 		format.Indent();
 		if(string_key) {
@@ -208,24 +201,22 @@ void MapFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* pri
 		}
 		format.Outdent();
 		format.Outdent();
-		format("  }\n};\n");
+		format("\t}\n};\n");
 	}
 	format(
 		"\n"
 		"if(stream->IsSerializationDeterministic() && this->_internal_$name$().size() > 1) {\n"
-		"  ::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_$name$().size()]);\n"
-		"  typedef ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::size_type size_type;\n"
-		"  size_type n = 0;\n"
-		"  for(::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator\n"
-		"      it = this->_internal_$name$().begin();\n"
-		"      it != this->_internal_$name$().end(); ++it, ++n) {\n"
-		"    items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);\n"
-		"  }\n"
-		"  ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());\n");
+		"\t::std::unique_ptr<SortItem[]> items(new SortItem[this->_internal_$name$().size()]);\n"
+		"\ttypedef ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::size_type size_type;\n"
+		"\tsize_type n = 0;\n"
+		"\tfor(::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator it = this->_internal_$name$().begin(); it != this->_internal_$name$().end(); ++it, ++n) {\n"
+		"\t\titems[static_cast<ptrdiff_t>(n)] = SortItem(&*it);\n"
+		"\t}\n"
+		"\t::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());\n");
 	format.Indent();
 	GenerateSerializationLoop(format, string_key, string_value, true);
 	format.Outdent();
-	format("} else {\n");
+	format("}\nelse {\n");
 	format.Indent();
 	GenerateSerializationLoop(format, string_key, string_value, false);
 	format.Outdent();
@@ -262,7 +253,8 @@ void MapFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const
 	}
 }
 
-bool MapFieldGenerator::GenerateArenaDestructorCode(io::Printer* printer) const {
+bool MapFieldGenerator::GenerateArenaDestructorCode(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	if(HasDescriptorMethods(descriptor_->file(), options_)) {
 		// _this is the object being destructed (we are inside a static method

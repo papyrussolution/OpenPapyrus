@@ -5063,8 +5063,7 @@ static int FASTCALL ReadPosProtocolFileProcessedList(const char * pPath, TSVecto
 		{
 			SString line_buf;
 			StringSet ss;
-			while(f_in.ReadLine(line_buf)) {
-				line_buf.Chomp();
+			while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
 				ss.clear();
 				line_buf.Tokenize("\t", ss);
 				uint   fld_n = 0;

@@ -290,7 +290,7 @@ static cairo_xcb_picture_t * _picture_from_image(cairo_xcb_surface_t * target,
 
 	gc = _cairo_xcb_screen_get_gc(target->screen, pixmap, image->depth);
 
-	if(shm_info != NULL) {
+	if(shm_info) {
 		_cairo_xcb_connection_shm_put_image(target->connection,
 		    pixmap, gc,
 		    image->width, image->height,
@@ -783,7 +783,7 @@ static cairo_xcb_picture_t * _cairo_xcb_linear_picture(cairo_xcb_surface_t * tar
 
 	picture = (cairo_xcb_picture_t*)
 	    _cairo_xcb_screen_lookup_linear_picture(target->screen, pattern);
-	if(picture != NULL)
+	if(picture)
 		goto setup_picture;
 
 	stops = _gradient_to_xcb(&pattern->base, &n_stops, buf, sizeof(buf));
@@ -857,7 +857,7 @@ static cairo_xcb_picture_t * _cairo_xcb_radial_picture(cairo_xcb_surface_t * tar
 
 	picture = (cairo_xcb_picture_t*)
 	    _cairo_xcb_screen_lookup_radial_picture(target->screen, pattern);
-	if(picture != NULL)
+	if(picture)
 		goto setup_picture;
 
 	stops = _gradient_to_xcb(&pattern->base, &n_stops, buf, sizeof(buf));
@@ -1041,7 +1041,7 @@ static cairo_xcb_picture_t * _cairo_xcb_surface_picture(cairo_xcb_surface_t * ta
 
 	picture = (cairo_xcb_picture_t*)
 	    _cairo_surface_has_snapshot(source, &_cairo_xcb_picture_backend);
-	if(picture != NULL) {
+	if(picture) {
 		if(picture->screen == target->screen) {
 			picture = (cairo_xcb_picture_t*)cairo_surface_reference(&picture->base);
 			_cairo_xcb_surface_setup_surface_picture(picture, pattern, extents);
@@ -1364,7 +1364,7 @@ static cairo_int_status_t _render_composite_boxes(cairo_xcb_surface_t * dst, cai
 			extents = &stack_extents;
 		}
 
-		if(mask_pattern != NULL) {
+		if(mask_pattern) {
 			mask = _cairo_xcb_picture_for_pattern(dst, mask_pattern, extents);
 			status = mask->base.status;
 			if(UNLIKELY(status))
@@ -1763,7 +1763,7 @@ static cairo_status_t _clip_and_composite_with_mask(cairo_clip_t * clip,
 	mask = _create_composite_mask(clip, draw_func, mask_func, draw_closure, dst, extents);
 	if(UNLIKELY(mask->base.status))
 		return mask->base.status;
-	if(pattern != NULL || dst->base.content != CAIRO_CONTENT_ALPHA) {
+	if(pattern || dst->base.content != CAIRO_CONTENT_ALPHA) {
 		src = _cairo_xcb_picture_for_pattern(dst, pattern, extents);
 		if(UNLIKELY(src->base.status)) {
 			cairo_surface_destroy(&mask->base);
@@ -2319,7 +2319,7 @@ static cairo_status_t _clip_and_composite(cairo_xcb_surface_t * dst,
 
 	if(need_clip & NEED_CLIP_REGION) {
 		clip_region = _cairo_clip_get_region(extents->clip);
-		if((need_clip & FORCE_CLIP_REGION) == 0 && clip_region != NULL &&
+		if((need_clip & FORCE_CLIP_REGION) == 0 && clip_region &&
 		    cairo_region_contains_rectangle(clip_region,
 		    &extents->unbounded) == CAIRO_REGION_OVERLAP_IN)
 			clip_region = NULL;
@@ -2604,7 +2604,7 @@ static cairo_status_t _upload_image_inplace(cairo_xcb_surface_t * surface,
 
 		snapshot = (cairo_xcb_picture_t*)
 		    _cairo_surface_has_snapshot(pattern->surface, &_cairo_xcb_picture_backend);
-		if(snapshot != NULL) {
+		if(snapshot) {
 			if(snapshot->screen == surface->screen)
 				return CAIRO_INT_STATUS_UNSUPPORTED;
 		}
@@ -2902,7 +2902,7 @@ static cairo_status_t _clip_and_composite_boxes(cairo_xcb_surface_t * dst,
 
 	/* Can we reduce drawing through a clip-mask to simply drawing the clip? */
 	if(dst->connection->flags & CAIRO_XCB_RENDER_HAS_COMPOSITE_TRAPEZOIDS &&
-	    extents->clip->path != NULL && extents->is_bounded) {
+	    extents->clip->path && extents->is_bounded) {
 		cairo_polygon_t polygon;
 		cairo_fill_rule_t fill_rule;
 		cairo_antialias_t antialias;
@@ -3006,7 +3006,7 @@ static cairo_int_status_t _composite_mask(void * closure,
 			return status;
 	}
 
-	if(src_pattern != NULL) {
+	if(src_pattern) {
 		src = _cairo_xcb_picture_for_pattern(dst, src_pattern, extents);
 		if(UNLIKELY(src->base.status))
 			return src->base.status;
@@ -3268,7 +3268,7 @@ static cairo_int_status_t _composite_opacity_boxes(void * closure,
 	info.op = _render_operator(op);
 	info.dst = dst;
 
-	if(src_pattern != NULL) {
+	if(src_pattern) {
 		info.src = _cairo_xcb_picture_for_pattern(dst, src_pattern, extents);
 		if(UNLIKELY(info.src->base.status))
 			return info.src->base.status;
@@ -3960,7 +3960,7 @@ static cairo_xcb_font_glyphset_info_t * _cairo_xcb_scaled_font_get_glyphset_info
 static boolint _cairo_xcb_glyphset_info_has_pending_free_glyph(cairo_xcb_font_glyphset_info_t * info,
     ulong glyph_index)
 {
-	if(info->pending_free_glyphs != NULL) {
+	if(info->pending_free_glyphs) {
 		cairo_xcb_font_glyphset_free_glyphs_t * to_free;
 		int i;
 
@@ -3997,7 +3997,7 @@ static cairo_xcb_font_glyphset_info_t * _cairo_xcb_scaled_font_get_glyphset_info
 	if(priv == NULL)
 		return NULL;
 
-	if(surface != NULL) {
+	if(surface) {
 		i = _cairo_xcb_get_glyphset_index_for_format(surface->format);
 
 		if(_cairo_xcb_glyphset_info_has_pending_free_glyph(
@@ -4034,7 +4034,7 @@ static void _cairo_xcb_glyph_fini(cairo_scaled_glyph_private_t * glyph_private,
 		assert(font_private);
 
 		to_free = info->pending_free_glyphs;
-		if(to_free != NULL &&
+		if(to_free &&
 		    to_free->glyph_count == ARRAY_LENGTH(to_free->glyph_indices)) {
 			_cairo_xcb_render_free_glyphs(font_private->connection, to_free);
 			to_free = info->pending_free_glyphs = NULL;

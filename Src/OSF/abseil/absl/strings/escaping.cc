@@ -3,10 +3,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/internal/char_map.h"
-#include "absl/strings/internal/escaping.h"
-#include "absl/strings/internal/utf8.h"
-#include "absl/strings/str_join.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

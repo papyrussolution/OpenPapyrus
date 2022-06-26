@@ -170,31 +170,16 @@ struct L_Box3d {
 typedef struct L_Box3d L_BOX3D;
 
 /* Static median cut helper functions */
-static PIXCMAP * pixcmapGenerateFromHisto(PIX * pixs, int32 depth,
-    int32 * histo, int32 histosize,
-    int32 sigbits);
-static PIX * pixQuantizeWithColormap(PIX * pixs, int32 ditherflag,
-    int32 outdepth,
-    PIXCMAP * cmap, int32 * indexmap,
-    int32 mapsize, int32 sigbits);
-static void getColorIndexMedianCut(uint32 pixel, int32 rshift,
-    uint32 mask, int32 sigbits,
-    int32 * pindex);
-static L_BOX3D * pixGetColorRegion(PIX * pixs, int32 sigbits,
-    int32 subsample);
-static int32 medianCutApply(int32 * histo, int32 sigbits,
-    L_BOX3D * vbox, L_BOX3D ** pvbox1,
-    L_BOX3D ** pvbox2);
-static PIXCMAP * pixcmapGenerateFromMedianCuts(L_HEAP * lh, int32 * histo,
-    int32 sigbits);
-static int32 vboxGetAverageColor(L_BOX3D * vbox, int32 * histo,
-    int32 sigbits, int32 index,
-    int32 * prval, int32 * pgval,
-    int32 * pbval);
+static PIXCMAP * pixcmapGenerateFromHisto(PIX * pixs, int32 depth, int32 * histo, int32 histosize, int32 sigbits);
+static PIX * pixQuantizeWithColormap(PIX * pixs, int32 ditherflag, int32 outdepth, PIXCMAP * cmap, int32 * indexmap, int32 mapsize, int32 sigbits);
+static void getColorIndexMedianCut(uint32 pixel, int32 rshift, uint32 mask, int32 sigbits, int32 * pindex);
+static L_BOX3D * pixGetColorRegion(PIX * pixs, int32 sigbits, int32 subsample);
+static int32 medianCutApply(int32 * histo, int32 sigbits, L_BOX3D * vbox, L_BOX3D ** pvbox1, L_BOX3D ** pvbox2);
+static PIXCMAP * pixcmapGenerateFromMedianCuts(L_HEAP * lh, int32 * histo, int32 sigbits);
+static int32 vboxGetAverageColor(L_BOX3D * vbox, int32 * histo, int32 sigbits, int32 index, int32 * prval, int32 * pgval, int32 * pbval);
 static int32 vboxGetCount(L_BOX3D * vbox, int32 * histo, int32 sigbits);
 static int32 vboxGetVolume(L_BOX3D * vbox);
-static L_BOX3D * box3dCreate(int32 r1, int32 r2, int32 g1,
-    int32 g2, int32 b1, int32 b2);
+static L_BOX3D * box3dCreate(int32 r1, int32 r2, int32 g1, int32 g2, int32 b1, int32 b2);
 static L_BOX3D * box3dCopy(L_BOX3D * vbox);
 
 /* 5 significant bits for each component is generally satisfactory */
@@ -203,7 +188,7 @@ static const int32 MaxItersAllowed = 5000; /* prevents infinite looping */
 
 /* Specify fraction of vboxes made that are sorted on population alone.
  * The remaining vboxes are sorted on (population * vbox-volume).  */
-static const float FractByPopulation = 0.85;
+static const float FractByPopulation = 0.85f;
 
 /* To get the max value of 'dif' in the dithering color transfer,
  * divide DifCap by 8. */

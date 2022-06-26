@@ -1529,12 +1529,10 @@ PIXCMAP * pixcmapGrayToFalseColor(float gamma)
 	int32   * curve;
 	float invgamma, x;
 	PIXCMAP   * cmap;
-
 	if(gamma <= 0.0) gamma = 1.0;
-
 	/* Generate curve for transition part of color map */
 	curve = (int32*)SAlloc::C(64, sizeof(int32));
-	invgamma = 1. / gamma;
+	invgamma = 1.0f / gamma;
 	for(i = 0; i < 64; i++) {
 		x = (float)i / 64.0f;
 		curve[i] = (int32)(255.0 * powf(x, invgamma) + 0.5);
@@ -1959,10 +1957,10 @@ l_ok pixcmapWriteMem(uint8        ** pdata,
  * \return  0 if OK; 1 on error
  */
 l_ok pixcmapToArrays(const PIXCMAP  * cmap,
-    int32       ** prmap,
-    int32       ** pgmap,
-    int32       ** pbmap,
-    int32       ** pamap)
+    int32 ** prmap,
+    int32 ** pgmap,
+    int32 ** pbmap,
+    int32 ** pamap)
 {
 	int32    * rmap, * gmap, * bmap, * amap;
 	int32 i, ncolors;

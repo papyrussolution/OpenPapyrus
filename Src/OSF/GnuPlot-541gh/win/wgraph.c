@@ -929,7 +929,7 @@ static void MakeFonts(GW * lpgw, LPRECT lprect, HDC hdc)
 	lpgw->hfontv = CreateFontIndirect(&(lpgw->lf));
 	// save text size 
 	hfontold = (HFONT)SelectObject(hdc, lpgw->hfonth);
-	Wnd_GetTextSize(hdc, "0123456789", 10, &cx, &cy);
+	Wnd_GetTextSize(hdc, STextConst::P_Digits, 10, &cx, &cy);
 	lpgw->ChrS.y = MulDiv(cy, lpgw->MaxS.y, lprect->bottom - lprect->top);
 	lpgw->ChrS.x = MulDiv(cx, lpgw->MaxS.x, 10 * (lprect->right - lprect->left));
 	// CMW: Base tick size on character size 

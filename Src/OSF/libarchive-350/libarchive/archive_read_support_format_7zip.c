@@ -864,9 +864,8 @@ static int init_decompression(ArchiveRead * a, struct _7zip * zip, const struct 
 		case _7Z_BZ2:
 		case _7Z_DEFLATE:
 		case _7Z_PPMD:
-		    if(coder2 != NULL) {
-			    if(coder2->codec != _7Z_X86 &&
-				coder2->codec != _7Z_X86_BCJ2) {
+		    if(coder2) {
+			    if(coder2->codec != _7Z_X86 && coder2->codec != _7Z_X86_BCJ2) {
 				    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Unsupported filter %lx for %lx", coder2->codec, coder1->codec);
 				    return ARCHIVE_FAILED;
 			    }
@@ -921,9 +920,8 @@ static int init_decompression(ArchiveRead * a, struct _7zip * zip, const struct 
 			     * there is no way to do that.
 			     * Discussion about this can be found at XZ Utils forum.
 			     */
-			    if(coder2 != NULL) {
+			    if(coder2) {
 				    zip->codec2 = coder2->codec;
-
 				    filters[fi].options = NULL;
 				    switch(zip->codec2) {
 					    case _7Z_X86:
@@ -1026,7 +1024,7 @@ static int init_decompression(ArchiveRead * a, struct _7zip * zip, const struct 
 				    case BZ_MEM_ERROR: err = ENOMEM; detail = SlTxtOutOfMem; break;
 				    case BZ_CONFIG_ERROR: detail = "mis-compiled library"; break;
 			    }
-			    archive_set_error(&a->archive, err, "Internal error initializing decompressor: %s", detail != NULL ? detail : "??");
+			    archive_set_error(&a->archive, err, "Internal error initializing decompressor: %s", detail ? detail : "??");
 			    zip->bzstream_valid = 0;
 			    return ARCHIVE_FAILED;
 		    }
@@ -2147,7 +2145,7 @@ static int read_Header(ArchiveRead * a, struct _7z_header_info * h,
 
 		switch(type) {
 			case kEmptyStream:
-			    if(h->emptyStreamBools != NULL)
+			    if(h->emptyStreamBools)
 				    return -1;
 			    h->emptyStreamBools = static_cast<uchar *>(SAlloc::C((size_t)zip->numFiles, sizeof(*h->emptyStreamBools)));
 			    if(h->emptyStreamBools == NULL)
@@ -2168,7 +2166,7 @@ static int read_Header(ArchiveRead * a, struct _7z_header_info * h,
 					    return -1;
 				    break;
 			    }
-			    if(h->emptyFileBools != NULL)
+			    if(h->emptyFileBools)
 				    return -1;
 			    h->emptyFileBools = static_cast<uchar *>(SAlloc::C(empty_streams, sizeof(*h->emptyFileBools)));
 			    if(h->emptyFileBools == NULL)
@@ -2183,7 +2181,7 @@ static int read_Header(ArchiveRead * a, struct _7z_header_info * h,
 					    return -1;
 				    break;
 			    }
-			    if(h->antiBools != NULL)
+			    if(h->antiBools)
 				    return -1;
 			    h->antiBools = static_cast<uchar *>(SAlloc::C(empty_streams, sizeof(*h->antiBools)));
 			    if(h->antiBools == NULL)
@@ -2201,14 +2199,13 @@ static int read_Header(ArchiveRead * a, struct _7z_header_info * h,
 		    {
 			    uchar * np;
 			    size_t nl, nb;
-
 			    /* Skip one byte. */
 			    if((p = header_bytes(a, 1)) == NULL)
 				    return -1;
 			    ll--;
 			    if((ll & 1) || ll < zip->numFiles * 4)
 				    return -1;
-			    if(zip->entry_names != NULL)
+			    if(zip->entry_names)
 				    return -1;
 			    zip->entry_names = static_cast<uchar *>(SAlloc::M(ll));
 			    if(zip->entry_names == NULL)
@@ -2258,11 +2255,10 @@ static int read_Header(ArchiveRead * a, struct _7z_header_info * h,
 			case kAttributes:
 		    {
 			    int allAreDefined;
-
 			    if((p = header_bytes(a, 2)) == NULL)
 				    return -1;
 			    allAreDefined = *p;
-			    if(h->attrBools != NULL)
+			    if(h->attrBools)
 				    return -1;
 			    h->attrBools = static_cast<uchar *>(SAlloc::C((size_t)zip->numFiles, sizeof(*h->attrBools)));
 			    if(h->attrBools == NULL)
@@ -3085,11 +3081,10 @@ static int setup_decode_folder(ArchiveRead * a, struct _7z_folder * folder, int 
 			coder2 = &(fc[3]);
 			zip->main_stream_bytes_remaining = (size_t)folder->unPackSize[2];
 		}
-		else if(coder2 != NULL && coder2->codec == _7Z_X86_BCJ2 && zip->pack_stream_remaining == 4 &&
+		else if(coder2 && coder2->codec == _7Z_X86_BCJ2 && zip->pack_stream_remaining == 4 &&
 		    folder->numInStreams == 5 && folder->numOutStreams == 2) {
 			/* Source type 0 made by 7z */
-			zip->main_stream_bytes_remaining =
-			    (size_t)folder->unPackSize[0];
+			zip->main_stream_bytes_remaining = (size_t)folder->unPackSize[0];
 		}
 		else {
 			/* We got an unexpected form. */

@@ -779,16 +779,16 @@ LSTMBreakEngine::LSTMBreakEngine(const LSTMData* data, const UnicodeSet & set, U
 	setCharacters(set);
 }
 
-LSTMBreakEngine::~LSTMBreakEngine() {
+LSTMBreakEngine::~LSTMBreakEngine() 
+{
 	delete fData;
 	delete fVectorizer;
 }
 
-const UChar * LSTMBreakEngine::name() const {
-	return fData->fName;
-}
+const UChar * LSTMBreakEngine::name() const { return fData->fName; }
 
-UnicodeString defaultLSTM(UScriptCode script, UErrorCode & status) {
+UnicodeString defaultLSTM(UScriptCode script, UErrorCode & status) 
+{
 	// open root from brkitr tree.
 	UResourceBundle * b = ures_open(U_ICUDATA_BRKITR, "", &status);
 	b = ures_getByKeyWithFallback(b, "lstm", b, &status);

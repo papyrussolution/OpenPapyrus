@@ -29,13 +29,13 @@ struct L_WShed {
 	void ** linet1; /*!< line ptrs for pixt                       */
 	struct Pixa * pixad; /*!< result: 1 bpp pixa of watersheds         */
 	struct Pta    * ptas; /*!< pta of initial seed pixels               */
-	struct Numa   * nasi; /*!< numa of seed indicators; 0 if completed  */
-	struct Numa   * nash; /*!< numa of initial seed heights             */
-	struct Numa   * namh; /*!< numa of initial minima heights           */
-	struct Numa   * nalevels; /*!< result: numa of watershed levels         */
+	struct Numa * nasi; /*!< numa of seed indicators; 0 if completed  */
+	struct Numa * nash; /*!< numa of initial seed heights             */
+	struct Numa * namh; /*!< numa of initial minima heights           */
+	struct Numa * nalevels; /*!< result: numa of watershed levels         */
 	int32 nseeds;    /*!< number of seeds (markers)                */
 	int32 nother;    /*!< number of minima different from seeds    */
-	int32       * lut; /*!< lut for pixel indices                    */
+	int32 * lut; /*!< lut for pixel indices                    */
 	struct Numa  ** links; /*!< back-links into lut, for updates         */
 	int32 arraysize;    /*!< size of links array                      */
 	int32 debug;    /*!< set to 1 for debug output                */

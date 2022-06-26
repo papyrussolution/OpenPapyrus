@@ -23,19 +23,19 @@
  *      --------------------------------------
  *
  *      Sorting
- *           PTA        *ptaSort()
+ *           PTA *ptaSort()
  *           int32     ptaGetSortIndex()
- *           PTA        *ptaSortByIndex()
+ *           PTA *ptaSortByIndex()
  *           PTAA       *ptaaSortByIndex()
  *           int32     ptaGetRankValue()
- *           PTA        *ptaSort2d()
+ *           PTA *ptaSort2d()
  *           int32     ptaEqual()
  *
  *      Set operations using aset (rbtree)
  *           L_ASET     *l_asetCreateFromPta()
- *           PTA        *ptaRemoveDupsByAset()
- *           PTA        *ptaUnionByAset()
- *           PTA        *ptaIntersectionByAset()
+ *           PTA *ptaRemoveDupsByAset()
+ *           PTA *ptaUnionByAset()
+ *           PTA *ptaIntersectionByAset()
  *
  *      Hashmap operations
  *          L_HASHMAP   *l_hmapCreateFromPta()
@@ -79,7 +79,7 @@
 PTA * ptaSort(PTA * ptas,
     int32 sorttype,
     int32 sortorder,
-    NUMA   ** pnaindex)
+    NUMA ** pnaindex)
 {
 	PTA   * ptad;
 	NUMA * naindex;
@@ -119,7 +119,7 @@ PTA * ptaSort(PTA * ptas,
 l_ok ptaGetSortIndex(PTA * ptas,
     int32 sorttype,
     int32 sortorder,
-    NUMA   ** pnaindex)
+    NUMA ** pnaindex)
 {
 	int32 i, n;
 	float x, y;
@@ -236,9 +236,9 @@ PTAA * ptaaSortByIndex(PTAA  * ptaas,
  * \param[out]   pval       rankval: the x or y value at %fract
  * \return  0 if OK, 1 on error
  */
-l_ok ptaGetRankValue(PTA        * pta,
+l_ok ptaGetRankValue(PTA * pta,
     float fract,
-    PTA        * ptasort,
+    PTA * ptasort,
     int32 sorttype,
     float * pval)
 {
@@ -418,7 +418,7 @@ l_ok ptaEqual(PTA * pta1,
 L_ASET * l_asetCreateFromPta(PTA * pta)
 {
 	int32 i, n, x, y;
-	l_uint64 hash;
+	uint64 hash;
 	L_ASET   * set;
 	RB_TYPE key;
 
@@ -458,7 +458,7 @@ l_ok ptaRemoveDupsByAset(PTA   * ptas,
 {
 	int32 i, n, x, y;
 	PTA * ptad;
-	l_uint64 hash;
+	uint64 hash;
 	L_ASET   * set;
 	RB_TYPE key;
 
@@ -555,7 +555,7 @@ l_ok ptaIntersectionByAset(PTA   * pta1,
     PTA ** pptad)
 {
 	int32 n1, n2, i, n, x, y;
-	l_uint64 hash;
+	uint64 hash;
 	L_ASET   * set1, * set2;
 	RB_TYPE key;
 	PTA * pta_small, * pta_big, * ptad;
@@ -615,7 +615,7 @@ l_ok ptaIntersectionByAset(PTA   * pta1,
 L_HASHMAP * l_hmapCreateFromPta(PTA * pta)
 {
 	int32 i, n, x, y;
-	l_uint64 key;
+	uint64 key;
 	L_HASHITEM  * hitem;
 	L_HASHMAP   * hmap;
 
@@ -649,11 +649,11 @@ L_HASHMAP * l_hmapCreateFromPta(PTA * pta)
  * </pre>
  */
 l_ok ptaRemoveDupsByHmap(PTA         * ptas,
-    PTA        ** pptad,
+    PTA ** pptad,
     L_HASHMAP  ** phmap)
 {
 	int32 i, x, y, tabsize;
-	l_uint64 key;
+	uint64 key;
 	PTA         * ptad;
 	L_HASHITEM  * hitem;
 	L_HASHMAP   * hmap;
@@ -746,7 +746,7 @@ l_ok ptaIntersectionByHmap(PTA   * pta1,
     PTA ** pptad)
 {
 	int32 i, n1, n2, n, x, y;
-	l_uint64 key;
+	uint64 key;
 	PTA         * pta_small, * pta_big, * ptad;
 	L_HASHITEM  * hitem;
 	L_HASHMAP   * hmap;

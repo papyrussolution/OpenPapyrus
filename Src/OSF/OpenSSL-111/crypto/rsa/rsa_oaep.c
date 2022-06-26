@@ -55,24 +55,20 @@ int RSA_padding_add_PKCS1_OAEP_mgf1(uchar * to, int tlen,
 	mdlen = EVP_MD_size(md);
 
 	if(flen > emlen - 2 * mdlen - 1) {
-		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_OAEP_MGF1,
-		    RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
+		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_OAEP_MGF1, RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE);
 		return 0;
 	}
-
 	if(emlen < 2 * mdlen + 1) {
-		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_OAEP_MGF1,
-		    RSA_R_KEY_SIZE_TOO_SMALL);
+		RSAerr(RSA_F_RSA_PADDING_ADD_PKCS1_OAEP_MGF1, RSA_R_KEY_SIZE_TOO_SMALL);
 		return 0;
 	}
-
 	to[0] = 0;
 	seed = to + 1;
 	db = to + mdlen + 1;
 
 	if(!EVP_Digest((void *)param, plen, db, NULL, md, NULL))
 		goto err;
-	memset(db + mdlen, 0, emlen - flen - 2 * mdlen - 1);
+	memzero(db + mdlen, emlen - flen - 2 * mdlen - 1);
 	db[emlen - flen - mdlen - 1] = 0x01;
 	memcpy(db + emlen - flen - mdlen, from, (uint)flen);
 	if(RAND_bytes(seed, mdlen) <= 0)

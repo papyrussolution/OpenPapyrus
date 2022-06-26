@@ -70,7 +70,7 @@ static int32 pixToGif(PIX * pix, GifFileType * gif);
 typedef struct GifReadBuffer {
 	size_t size;           /*!< size of buffer                           */
 	size_t pos;            /*!< position relative to beginning of buffer */
-	const uint8    * cdata; /*!< data in the buffer                       */
+	const uint8 * cdata; /*!< data in the buffer                       */
 } GifReadBuffer;
 
 /*! Low-level callback for in-memory decoding */

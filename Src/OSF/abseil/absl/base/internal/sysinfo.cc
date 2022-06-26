@@ -21,7 +21,6 @@
 #if defined(__myriad2__)
 	#include <rtems.h>
 #endif
-#include "absl/base/internal/unscaledcycleclock.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

@@ -41,7 +41,7 @@ static int pkey_sm2_init(EVP_PKEY_CTX * ctx)
 static void pkey_sm2_cleanup(EVP_PKEY_CTX * ctx)
 {
 	SM2_PKEY_CTX * smctx = static_cast<SM2_PKEY_CTX *>(ctx->data);
-	if(smctx != NULL) {
+	if(smctx) {
 		EC_GROUP_free(smctx->gen_group);
 		OPENSSL_free(smctx->id);
 		OPENSSL_free(smctx);
@@ -57,14 +57,14 @@ static int pkey_sm2_copy(EVP_PKEY_CTX * dst, EVP_PKEY_CTX * src)
 		return 0;
 	sctx = static_cast<SM2_PKEY_CTX *>(src->data);
 	dctx = static_cast<SM2_PKEY_CTX *>(dst->data);
-	if(sctx->gen_group != NULL) {
+	if(sctx->gen_group) {
 		dctx->gen_group = EC_GROUP_dup(sctx->gen_group);
 		if(dctx->gen_group == NULL) {
 			pkey_sm2_cleanup(dst);
 			return 0;
 		}
 	}
-	if(sctx->id != NULL) {
+	if(sctx->id) {
 		dctx->id = static_cast<uint8_t *>(OPENSSL_malloc(sctx->id_len));
 		if(dctx->id == NULL) {
 			SM2err(SM2_F_PKEY_SM2_COPY, ERR_R_MALLOC_FAILURE);

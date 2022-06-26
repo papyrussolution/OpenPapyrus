@@ -337,8 +337,8 @@ l_ok saConvertFilesToPdfData(SARRAY * sa,
     int32 type,
     int32 quality,
     const char * title,
-    uint8    ** pdata,
-    size_t      * pnbytes)
+    uint8 ** pdata,
+    size_t * pnbytes)
 {
 	char * fname;
 	const char * pdftitle;
@@ -595,8 +595,8 @@ l_ok saConvertUnscaledFilesToPdf(SARRAY * sa,
  */
 l_ok saConvertUnscaledFilesToPdfData(SARRAY * sa,
     const char * title,
-    uint8    ** pdata,
-    size_t      * pnbytes)
+    uint8 ** pdata,
+    size_t * pnbytes)
 {
 	char * fname;
 	uint8      * imdata;
@@ -672,8 +672,8 @@ l_ok saConvertUnscaledFilesToPdfData(SARRAY * sa,
  */
 l_ok convertUnscaledToPdfData(const char * fname,
     const char * title,
-    uint8    ** pdata,
-    size_t      * pnbytes)
+    uint8 ** pdata,
+    size_t * pnbytes)
 {
 	const char * pdftitle = NULL;
 	char * tail = NULL;
@@ -815,8 +815,8 @@ l_ok pixaConvertToPdfData(PIXA        * pixa,
     int32 type,
     int32 quality,
     const char * title,
-    uint8    ** pdata,
-    size_t      * pnbytes)
+    uint8 ** pdata,
+    size_t * pnbytes)
 {
 	uint8  * imdata;
 	int32 i, n, ret, scaledres, pagetype;
@@ -1347,8 +1347,8 @@ l_ok pixWriteStreamPdf(FILE        * fp,
  *          everything else.
  * </pre>
  */
-l_ok pixWriteMemPdf(uint8    ** pdata,
-    size_t      * pnbytes,
+l_ok pixWriteMemPdf(uint8 ** pdata,
+    size_t * pnbytes,
     PIX         * pix,
     int32 res,
     const char * title)
@@ -1773,8 +1773,8 @@ l_ok convertToPdfDataSegmented(const char * filein,
     int32 quality,
     float scalefactor,
     const char * title,
-    uint8    ** pdata,
-    size_t      * pnbytes)
+    uint8 ** pdata,
+    size_t * pnbytes)
 {
 	int32 ret;
 	PIX * pixs;
@@ -1839,8 +1839,8 @@ l_ok pixConvertToPdfDataSegmented(PIX         * pixs,
     int32 quality,
     float scalefactor,
     const char * title,
-    uint8    ** pdata,
-    size_t      * pnbytes)
+    uint8 ** pdata,
+    size_t * pnbytes)
 {
 	int32 i, nbox, seq, bx, by, bw, bh, upscale;
 	float scale;
@@ -2107,8 +2107,8 @@ l_ok ptraConcatenatePdf(L_PTRA      * pa,
  */
 l_ok concatenatePdfToData(const char * dirname,
     const char * substr,
-    uint8    ** pdata,
-    size_t      * pnbytes)
+    uint8 ** pdata,
+    size_t * pnbytes)
 {
 	int32 ret;
 	SARRAY * sa;

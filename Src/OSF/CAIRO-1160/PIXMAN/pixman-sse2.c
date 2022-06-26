@@ -2832,20 +2832,16 @@ static boolint sse2_fill(pixman_implementation_t * imp,
 			w -= 1;
 			d += 1;
 		}
-
 		while(w >= 2 && ((uintptr_t)d & 3)) {
-			*(uint16 *)d = filler;
+			*(uint16 *)d = static_cast<uint16>(filler);
 			w -= 2;
 			d += 2;
 		}
-
 		while(w >= 4 && ((uintptr_t)d & 15)) {
 			*(uint32 *)d = filler;
-
 			w -= 4;
 			d += 4;
 		}
-
 		while(w >= 128) {
 			save_128_aligned((__m128i*)(d),     xmm_def);
 			save_128_aligned((__m128i*)(d + 16),  xmm_def);
@@ -2855,56 +2851,44 @@ static boolint sse2_fill(pixman_implementation_t * imp,
 			save_128_aligned((__m128i*)(d + 80),  xmm_def);
 			save_128_aligned((__m128i*)(d + 96),  xmm_def);
 			save_128_aligned((__m128i*)(d + 112), xmm_def);
-
 			d += 128;
 			w -= 128;
 		}
-
 		if(w >= 64) {
 			save_128_aligned((__m128i*)(d),     xmm_def);
 			save_128_aligned((__m128i*)(d + 16),  xmm_def);
 			save_128_aligned((__m128i*)(d + 32),  xmm_def);
 			save_128_aligned((__m128i*)(d + 48),  xmm_def);
-
 			d += 64;
 			w -= 64;
 		}
-
 		if(w >= 32) {
 			save_128_aligned((__m128i*)(d),     xmm_def);
 			save_128_aligned((__m128i*)(d + 16),  xmm_def);
-
 			d += 32;
 			w -= 32;
 		}
-
 		if(w >= 16) {
 			save_128_aligned((__m128i*)(d),     xmm_def);
-
 			d += 16;
 			w -= 16;
 		}
-
 		while(w >= 4) {
 			*(uint32 *)d = filler;
-
 			w -= 4;
 			d += 4;
 		}
-
 		if(w >= 2) {
-			*(uint16 *)d = filler;
+			*(uint16 *)d = static_cast<uint16>(filler);
 			w -= 2;
 			d += 2;
 		}
-
 		if(w >= 1) {
 			*(uint8 *)d = static_cast<uint8>(filler);
 			w -= 1;
 			d += 1;
 		}
 	}
-
 	return TRUE;
 }
 

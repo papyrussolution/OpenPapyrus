@@ -134,7 +134,7 @@ static int archive_string_normalize_C(archive_string *, const void *, size_t, ar
 static int archive_string_normalize_D(archive_string *, const void *, size_t, archive_string_conv *);
 static int archive_string_append_unicode(archive_string *, const void *, size_t, archive_string_conv *);
 
-static archive_string * archive_string_append(archive_string * as, const char * p, size_t s) 
+static archive_string * STDCALL archive_string_append(archive_string * as, const char * p, size_t s) 
 {
 	if(archive_string_ensure(as, as->length + s + 1) == NULL)
 		return NULL;
@@ -145,7 +145,7 @@ static archive_string * archive_string_append(archive_string * as, const char * 
 	return (as);
 }
 
-static archive_wstring * archive_wstring_append(archive_wstring * as, const wchar_t * p, size_t s) 
+static archive_wstring * STDCALL archive_wstring_append(archive_wstring * as, const wchar_t * p, size_t s) 
 {
 	if(archive_wstring_ensure(as, as->length + s + 1) == NULL)
 		return NULL;
@@ -3510,17 +3510,17 @@ int archive_mstring_get_utf8(Archive * a, struct archive_mstring * aes, const ch
 	return 0; /* success. */
 }
 
-int archive_mstring_get_mbs(Archive * a, struct archive_mstring * aes, const char ** p)
+int STDCALL archive_mstring_get_mbs(Archive * a, struct archive_mstring * aes, const char ** p)
 {
 	archive_string_conv * sc;
 	int r, ret = 0;
-	/* If we already have an MBS form, return that immediately. */
+	// If we already have an MBS form, return that immediately
 	if(aes->aes_set & AES_SET_MBS) {
 		*p = aes->aes_mbs.s;
 		return ret;
 	}
 	*p = NULL;
-	/* If there's a WCS form, try converting with the native locale. */
+	// If there's a WCS form, try converting with the native locale
 	if(aes->aes_set & AES_SET_WCS) {
 		archive_string_empty(&(aes->aes_mbs));
 		r = archive_string_append_from_wcs(&(aes->aes_mbs), aes->aes_wcs.s, aes->aes_wcs.length);
@@ -3532,7 +3532,7 @@ int archive_mstring_get_mbs(Archive * a, struct archive_mstring * aes, const cha
 		else
 			ret = -1;
 	}
-	/* If there's a UTF-8 form, try converting with the native locale. */
+	// If there's a UTF-8 form, try converting with the native locale
 	if(aes->aes_set & AES_SET_UTF8) {
 		archive_string_empty(&(aes->aes_mbs));
 		sc = archive_string_conversion_from_charset(a, "UTF-8", 1);
@@ -3552,7 +3552,7 @@ int archive_mstring_get_mbs(Archive * a, struct archive_mstring * aes, const cha
 	return ret;
 }
 
-int archive_mstring_get_wcs(Archive * a, struct archive_mstring * aes, const wchar_t ** wp)
+int STDCALL archive_mstring_get_wcs(Archive * a, struct archive_mstring * aes, const wchar_t ** wp)
 {
 	int r;
 	int ret = 0;
@@ -3704,8 +3704,7 @@ int archive_mstring_copy_mbs_len_l(struct archive_mstring * aes, const char * mb
 	 * characters because Windows platform cannot make locale UTF-8.
 	 */
 	if(!sc) {
-		if(archive_string_append(&(aes->aes_mbs),
-		    mbs, mbsnbytes(mbs, len)) == NULL) {
+		if(archive_string_append(&(aes->aes_mbs), mbs, mbsnbytes(mbs, len)) == NULL) {
 			aes->aes_set = 0;
 			r = -1;
 		}

@@ -31,7 +31,7 @@
 /* Maximum allowed iterations in Phase 1. */
 static const int32 MAX_ALLOWED_ITERATIONS = 20;
 /* Factor by which max dist is increased on each iteration */
-static const float DIST_EXPAND_FACT = 1.3;
+static const float DIST_EXPAND_FACT = 1.3f;
 /* Octcube division level for computing nearest colormap color using LUT.
  * Using 4 should suffice for up to 50 - 100 colors, and it is
  * very fast.  Using 5 takes 8 times as long to set up the LUT

@@ -23,11 +23,6 @@
 #ifndef GOOGLE_PROTOBUF_COMPILER_CPP_HELPERS_H__
 #define GOOGLE_PROTOBUF_COMPILER_CPP_HELPERS_H__
 
-//#include <algorithm>
-//#include <cstdint>
-//#include <iterator>
-//#include <map>
-//#include <string>
 #include <google/protobuf/compiler/cpp/cpp_options.h>
 #include <google/protobuf/compiler/cpp/cpp_names.h>
 #include <google/protobuf/compiler/scc.h>
@@ -37,9 +32,7 @@
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/port.h>
 #include <google/protobuf/stubs/strutil.h>
-
-// Must be included last.
-#include <google/protobuf/port_def.inc>
+#include <google/protobuf/port_def.inc> // Must be included last.
 
 namespace google {
 namespace protobuf {
@@ -209,29 +202,15 @@ inline Options InternalRuntimeOptions()
 }
 
 inline std::string UniqueName(const std::string& name, const std::string& filename) 
-{
-	return UniqueName(name, filename, InternalRuntimeOptions());
-}
-
+	{ return UniqueName(name, filename, InternalRuntimeOptions()); }
 inline std::string UniqueName(const std::string& name, const FileDescriptor* d) 
-{
-	return UniqueName(name, d->name(), InternalRuntimeOptions());
-}
-
+	{ return UniqueName(name, d->name(), InternalRuntimeOptions()); }
 inline std::string UniqueName(const std::string& name, const Descriptor* d) 
-{
-	return UniqueName(name, d->file(), InternalRuntimeOptions());
-}
-
+	{ return UniqueName(name, d->file(), InternalRuntimeOptions()); }
 inline std::string UniqueName(const std::string& name, const EnumDescriptor* d) 
-{
-	return UniqueName(name, d->file(), InternalRuntimeOptions());
-}
-
-inline std::string UniqueName(const std::string& name,
-    const ServiceDescriptor* d) {
-	return UniqueName(name, d->file(), InternalRuntimeOptions());
-}
+	{ return UniqueName(name, d->file(), InternalRuntimeOptions()); }
+inline std::string UniqueName(const std::string& name, const ServiceDescriptor* d) 
+	{ return UniqueName(name, d->file(), InternalRuntimeOptions()); }
 
 // Return the qualified C++ name for a file level symbol.
 std::string QualifiedFileLevelSymbol(const FileDescriptor* file, const std::string& name, const Options& options);
@@ -747,22 +726,20 @@ void PrintFieldComment(const Formatter& format, const T* field) {
 
 class PROTOC_EXPORT NamespaceOpener {
 public:
-	explicit NamespaceOpener(const Formatter& format)
-		: printer_(format.printer()) {
+	explicit NamespaceOpener(const Formatter& format) : printer_(format.printer()) 
+	{
 	}
-
-	NamespaceOpener(const std::string& name, const Formatter& format)
-		: NamespaceOpener(format) {
+	NamespaceOpener(const std::string& name, const Formatter& format) : NamespaceOpener(format) 
+	{
 		ChangeTo(name);
 	}
-
-	~NamespaceOpener() {
+	~NamespaceOpener() 
+	{
 		ChangeTo("");
 	}
-
-	void ChangeTo(const std::string& name) {
-		std::vector<std::string> new_stack_ =
-		    Split(name, "::", true);
+	void ChangeTo(const std::string& name) 
+	{
+		std::vector<std::string> new_stack_ = Split(name, "::", true);
 		size_t len = std::min(name_stack_.size(), new_stack_.size());
 		size_t common_idx = 0;
 		while(common_idx < len) {
@@ -788,7 +765,6 @@ public:
 			}
 		}
 	}
-
 private:
 	io::Printer* printer_;
 	std::vector<std::string> name_stack_;
@@ -813,27 +789,20 @@ void GenerateUtf8CheckCodeForCord(const FieldDescriptor* field,
     const char* parameters,
     const Formatter& format);
 
-template <typename T>
-struct FieldRangeImpl {
+template <typename T> struct FieldRangeImpl {
 	struct Iterator {
 		using iterator_category = std::forward_iterator_tag;
 		using value_type = const FieldDescriptor*;
 		using difference_type = int;
-
-		value_type operator*() {
-			return descriptor->field(idx);
-		}
-
-		friend bool operator==(const Iterator& a, const Iterator& b) {
+		value_type operator*() { return descriptor->field(idx); }
+		friend bool operator==(const Iterator& a, const Iterator& b) 
+		{
 			GOOGLE_DCHECK(a.descriptor == b.descriptor);
 			return a.idx == b.idx;
 		}
-
-		friend bool operator!=(const Iterator& a, const Iterator& b) {
-			return !(a == b);
-		}
-
-		Iterator& operator++() {
+		friend bool operator!=(const Iterator& a, const Iterator& b) { return !(a == b); }
+		Iterator& operator++() 
+		{
 			idx++;
 			return *this;
 		}

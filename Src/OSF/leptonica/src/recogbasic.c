@@ -180,10 +180,8 @@ static const int32 MaxExamplesInClass = 256;
 /* Default recog parameters that can be changed */
 static const int32 DefaultCharsetType = L_ARABIC_NUMERALS;
 static const int32 DefaultMinNopad = 1;
-static const float DefaultMaxWHRatio = 3.0; /* max allowed w/h
-                                                     ratio for a component to be split  */
-static const float DefaultMaxHTRatio = 2.6; /* max allowed ratio of
-                                                     max/min unscaled averaged template heights  */
+static const float DefaultMaxWHRatio = 3.0f; /* max allowed w/h ratio for a component to be split  */
+static const float DefaultMaxHTRatio = 2.6f; /* max allowed ratio of max/min unscaled averaged template heights  */
 static const int32 DefaultThreshold = 150; /* for binarization */
 static const int32 DefaultMaxYShift = 1; /* for identification */
 

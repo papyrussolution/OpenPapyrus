@@ -115,7 +115,7 @@ void l_dnaHashDestroy(L_DNAHASH ** pdahash)
  * \return  ptr to dna
  */
 L_DNA * l_dnaHashGetDna(L_DNAHASH  * dahash,
-    l_uint64 key,
+    uint64 key,
     int32 copyflag)
 {
 	int32 bucket;
@@ -148,7 +148,7 @@ L_DNA * l_dnaHashGetDna(L_DNAHASH  * dahash,
  * \return  0 if OK; 1 on error
  */
 l_ok l_dnaHashAdd(L_DNAHASH  * dahash,
-    l_uint64 key,
+    uint64 key,
     double value)
 {
 	int32 bucket;

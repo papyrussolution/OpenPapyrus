@@ -42,15 +42,13 @@ static const int32 ZeroThresholdRatio = 100;
 static const int32 DefaultSlices = 10;
 static const int32 DefaultSweepReduction = 2;
 static const int32 DefaultBsReduction = 1;
-static const float DefaultSweepRange = 5.; /* degrees */
-static const float DefaultSweepDelta = 1.; /* degrees */
-static const float DefaultMinbsDelta = 0.01; /* degrees */
-
+static const float DefaultSweepRange = 5.0f; /* degrees */
+static const float DefaultSweepDelta = 1.0f; /* degrees */
+static const float DefaultMinbsDelta = 0.01f; /* degrees */
 /* Overlap slice fraction added to top and bottom of each slice */
-static const float OverlapFraction = 0.5;
-
+static const float OverlapFraction = 0.5f;
 /* Minimum allowed confidence (ratio) for accepting a value */
-static const float MinAllowedConfidence = 3.0;
+static const float MinAllowedConfidence = 3.0f;
 
 /*---------------------------------------------------------------------*
 *                    Locate text baselines in an image                *
@@ -396,32 +394,29 @@ l_ok pixGetLocalSkewTransform(PIX * pixs, int32 nslices, int32 redsweep, int32 r
 	for(i = 0; i < h; i++) {
 		numaGetFValue(naskew, i, &angd);
 		angr = angd * deg2rad;
-		dely = w * tan(angr);
-		if(i - dely > 0.05 * h)
+		dely = w * tanf(angr);
+		if(i - dely > 0.05f * h)
 			break;
 	}
 	ptaAddPt(ptas, 0, i);
 	ptaAddPt(ptas, w - 1, i - dely);
 	ptaAddPt(ptad, 0, i);
 	ptaAddPt(ptad, w - 1, i);
-
 	/* Find i for skew line that intersects LHS at i and RHS at 19h / 20 */
 	for(i = h - 1; i > 0; i--) {
 		numaGetFValue(naskew, i, &angd);
 		angr = angd * deg2rad;
-		dely = w * tan(angr);
-		if(i - dely < 0.95 * h)
+		dely = w * tanf(angr);
+		if(i - dely < 0.95f * h)
 			break;
 	}
 	ptaAddPt(ptas, 0, i);
 	ptaAddPt(ptas, w - 1, i - dely);
 	ptaAddPt(ptad, 0, i);
 	ptaAddPt(ptad, w - 1, i);
-
 	numaDestroy(&naskew);
 	return 0;
 }
-
 /*!
  * \brief   pixGetLocalSkewAngles()
  *

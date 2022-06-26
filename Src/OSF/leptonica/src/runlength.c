@@ -483,7 +483,7 @@ l_ok pixFindVerticalRuns(PIX * pix,
  *          this function.
  * </pre>
  */
-NUMA * pixFindMaxRuns(PIX * pix, int32 direction, NUMA   ** pnastart)
+NUMA * pixFindMaxRuns(PIX * pix, int32 direction, NUMA ** pnastart)
 {
 	int32 w, h, i, start, size;
 	NUMA * nasize;

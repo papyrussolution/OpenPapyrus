@@ -44,9 +44,8 @@ int STestDataArray::ReadBotanTestSequence(int formatVer, const char * pFileName,
 	SString line_buf, temp_buf;
 	SFile f_in(pFileName, SFile::mRead);
 	THROW(f_in.IsValid());
-	while(f_in.ReadLine(line_buf)) {
-		line_buf.Chomp();
-		if(line_buf.NotEmptyS() && line_buf.C(0) != '#') {
+	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+		if(line_buf.NotEmpty() && line_buf.C(0) != '#') {
 			if(line_buf.C(0) == '[') {
 				const char * p = line_buf+1;
 				temp_buf.Z();
@@ -63,7 +62,7 @@ int STestDataArray::ReadBotanTestSequence(int formatVer, const char * pFileName,
 				temp_buf.Z();
 				do {
 					if(line_contin) {
-						line_buf.Chomp().Strip();
+						// @v11.4.3 (SFile::rlfChomp|SFile::rlfStrip) line_buf.Chomp().Strip();
 					}
 					if(line_buf.Last() == '\\') {
 						line_contin = 1;
@@ -72,7 +71,7 @@ int STestDataArray::ReadBotanTestSequence(int formatVer, const char * pFileName,
 					else
 						line_contin = 0;
 					temp_buf.Cat(line_buf);
-				} while(line_contin && f_in.ReadLine(line_buf));
+				} while(line_contin && f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip));
 				{
 					StringSet ss(':', temp_buf);
 					Item   item;

@@ -5733,8 +5733,7 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 								}
 								PROFILE_END
 								PROFILE_START
-								while(P_NodeToWayAssocInF->ReadLine(Pb.LineBuf)) {
-									Pb.LineBuf.Chomp().Strip();
+								while(P_NodeToWayAssocInF->ReadLine(Pb.LineBuf, SFile::rlfChomp|SFile::rlfStrip)) {
 									if(Pb.LineBuf.Divide('\t', _key_buf, _val_buf) > 0) {
 										LastNodeToWayAssoc.Key = _key_buf.ToInt64();
 										LastNodeToWayAssoc.Val = _val_buf.ToInt64();
@@ -6107,8 +6106,7 @@ int PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint upp
 		PPLoadText(PPTXT_FILELINECOUNTING, fmt_buf);
         {
         	msg_buf.Printf(fmt_buf, "lat");
-			while(f_lat.ReadLine(line_buf)) {
-				line_buf.Chomp().Strip();
+			while(f_lat.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				const char firstc = line_buf.C(0);
 				if(firstc == '-' || isdec(firstc))
 					lat_count++;
@@ -6122,8 +6120,7 @@ int PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint upp
         }
         {
         	msg_buf.Printf(fmt_buf, "lon");
-			while(f_lon.ReadLine(line_buf)) {
-				line_buf.Chomp().Strip();
+			while(f_lon.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				const char firstc = line_buf.C(0);
 				if(firstc == '-' || isdec(firstc))
 					lon_count++;
@@ -6155,8 +6152,7 @@ int PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint upp
 			//
         	memzero(p_last_count, sizeof(p_last_count[0]) * grid_count);
 			memzero(p_last_coord, sizeof(p_last_coord[0]) * grid_count);
-			while(f_lat.ReadLine(line_buf)) {
-				line_buf.Chomp().Strip();
+			while(f_lat.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				const char firstc = line_buf.C(0);
 				if(firstc == '-' || isdec(firstc)) {
                     const long c = line_buf.ToLong();
@@ -6200,8 +6196,7 @@ int PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint upp
 			const long m180val = -1800000000;
 			const long p180val =  1800000000;
             uint minus_180_count = 0;
-			while(f_lon.ReadLine(line_buf)) {
-				line_buf.Chomp().Strip();
+			while(f_lon.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				const char firstc = line_buf.C(0);
 				if(firstc == '-' || isdec(firstc)) {
                     const long c = line_buf.ToLong();
@@ -6360,9 +6355,8 @@ int PrcssrOsm::Run()
 				uint line_no = 0;
 				SString key_buf, val_buf;
 				int  all_done = 0;
-				while(!all_done && f_log_pre.ReadLine(temp_buf)) {
+				while(!all_done && f_log_pre.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 					line_no++;
-					temp_buf.Chomp().Strip();
 					if(line_no == 1) {
 						StringSet ss;
 						temp_buf.Tokenize(";", ss);
@@ -6540,8 +6534,8 @@ int PrcssrOsm::Run()
                     uint   key_count = 0;
                     uint   val_count = 0;
                     uint64 line_no = 0;
-                    while(f_in.ReadLine(line_buf)) {
-                        line_buf.Chomp().Divide('\t', tag_key, tag_val);
+                    while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
+                        line_buf.Divide('\t', tag_key, tag_val);
                         if(line_no) {
 							if(tag_key != prev_tag_key) {
 								out_buf.Cat(prev_tag_key).Tab().Cat(prev_tag_val).Tab().Cat(val_count).CRB();
@@ -6809,8 +6803,7 @@ static int Helper_ImportYYE(const char * pSrcPath, const char * pFileName) // ян
 			//
 			THROW_SL(f_out.IsValid());
 			THROW_SL(f_supplemental_out.IsValid());
-			while(!do_scan_data && f_in.ReadLine(line_buf)) {
-				line_buf.Chomp().Strip();
+			while(!do_scan_data && f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 				if(line_buf.IsEqiAscii(p_part1_start_data_tag)) {
 					THROW(f_in.ReadLine(line_buf)); // skip next line
 					do_scan_data = true;
@@ -7061,8 +7054,7 @@ int ImportSpecial(const char * pPath_)
 				SString ident;
 				SString addr;
 				SString work;
-				for(uint line_no = 0; f_in.ReadLine(line_buf); line_no++) {
-					line_buf.Chomp().Strip();
+				for(uint line_no = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); line_no++) {
 					if(line_no > 0 && line_buf.NotEmpty()) {
 						ss.setBuf(line_buf);
 						uint fldno = 0;
@@ -7132,8 +7124,7 @@ int ImportSpecial(const char * pPath_)
 					LDATE dob;
 					SString phn;
 					SString eml;
-					while(f_in.ReadLine(line_buf)) {
-						line_buf.Chomp().Strip();
+					while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 						if(line_buf.NotEmpty()) {
 							ss.setBuf(line_buf);
 							uint fldno = 0;
@@ -7187,8 +7178,7 @@ int ImportSpecial(const char * pPath_)
 					SString phn;
 					SString eml;
 					SString addr;
-					for(uint line_no = 0; f_in.ReadLine(line_buf); line_no++) {
-						line_buf.Chomp().Strip();
+					for(uint line_no = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); line_no++) {
 						if(line_no > 0 && line_buf.NotEmpty()) {
 							SStrScan scan(line_buf);
 							if(scan.Skip().GetQuotedString(temp_buf)) { // region
@@ -7233,8 +7223,7 @@ int ImportSpecial(const char * pPath_)
 				SString country;
 				LDATE dob;
 				// ARG - argentina
-				for(uint line_no = 0; f_in.ReadLine(line_buf); line_no++) {
-					line_buf.Chomp().Strip();
+				for(uint line_no = 0; f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip); line_no++) {
 					if(line_no > 0 && line_buf.NotEmpty()) {
 						SStrScan scan(line_buf);
 						nm.Z();
@@ -7342,9 +7331,8 @@ int Import_Macrotrends(const char * pPath, TSCollection <PPHistoricalTimeSeries>
 			if(f_in.IsValid()) {
 				uint   line_no = 0;
 				int    data_started = 0;
-				while(f_in.ReadLine(line_buf)) {
+				while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
 					line_no++;
-					line_buf.Chomp();
 					if(line_no == 1) {
 						if(!line_buf.IsEqiAscii("Macrotrends Data Download"))
 							break;

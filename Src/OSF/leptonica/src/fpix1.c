@@ -39,7 +39,7 @@
  *          int32        fpixGetResolution()
  *          int32        fpixSetResolution()
  *          int32        fpixCopyResolution()
- *          float     *fpixGetData()
+ *          float *fpixGetData()
  *          int32        fpixSetData()
  *          int32        fpixGetPixel()
  *          int32        fpixSetPixel()
@@ -59,7 +59,7 @@
  *          int32        fpixaChangeRefcount()
  *          FPIX          *fpixaGetFPix()
  *          int32        fpixaGetFPixDimensions()
- *          float     *fpixaGetData()
+ *          float *fpixaGetData()
  *          int32        fpixaGetPixel()
  *          int32        fpixaSetPixel()
  *
@@ -138,7 +138,7 @@ FPIX * fpixCreate(int32 width,
     int32 height)
 {
 	float * data;
-	l_uint64 npix64;
+	uint64 npix64;
 	FPIX       * fpixd;
 
 	PROCNAME(__FUNCTION__);
@@ -149,7 +149,7 @@ FPIX * fpixCreate(int32 width,
 		return (FPIX*)ERROR_PTR("height must be > 0", procName, NULL);
 
 	/* Avoid overflow in malloc arg, malicious or otherwise */
-	npix64 = (l_uint64)width * (l_uint64)height; /* # of 4-byte pixels */
+	npix64 = (uint64)width * (uint64)height; /* # of 4-byte pixels */
 	if(npix64 >= (1LL << 29)) {
 		L_ERROR("requested w = %d, h = %d\n", procName, width, height);
 		return (FPIX*)ERROR_PTR("requested bytes >= 2^31", procName, NULL);
@@ -1000,7 +1000,7 @@ DPIX * dpixCreate(int32 width,
     int32 height)
 {
 	double  * data;
-	l_uint64 npix64;
+	uint64 npix64;
 	DPIX       * dpix;
 
 	PROCNAME(__FUNCTION__);
@@ -1011,7 +1011,7 @@ DPIX * dpixCreate(int32 width,
 		return (DPIX*)ERROR_PTR("height must be > 0", procName, NULL);
 
 	/* Avoid overflow in malloc arg, malicious or otherwise */
-	npix64 = (l_uint64)width * (l_uint64)height; /* # of 8 byte pixels */
+	npix64 = (uint64)width * (uint64)height; /* # of 8 byte pixels */
 	if(npix64 >= (1LL << 28)) {
 		L_ERROR("requested w = %d, h = %d\n", procName, width, height);
 		return (DPIX*)ERROR_PTR("requested bytes >= 2^31", procName, NULL);

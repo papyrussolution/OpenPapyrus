@@ -285,7 +285,7 @@ static int PThr4wTest_TryEnterCs1()
 	// 
 	_h_kernel32 = LoadLibrary(_T("KERNEL32.DLL"));
 	_try_enter_critical_section = (BOOL (WINAPI *)(LPCRITICAL_SECTION))GetProcAddress(_h_kernel32, (LPCSTR)"TryEnterCriticalSection");
-	if(_try_enter_critical_section != NULL) {
+	if(_try_enter_critical_section) {
 		InitializeCriticalSection(&cs);
 		SetLastError(0);
 		if((*_try_enter_critical_section)(&cs) != 0) {
@@ -319,7 +319,7 @@ static int PThr4wTest_TryEnterCs2()
 		// Load KERNEL32 and try to get address of TryEnterCriticalSection
 		HINSTANCE _h_kernel32 = LoadLibrary(_T("KERNEL32.DLL"));
 		_try_enter_critical_section = (BOOL (WINAPI *)(LPCRITICAL_SECTION))GetProcAddress(_h_kernel32, (LPCSTR)"TryEnterCriticalSection");
-		if(_try_enter_critical_section != NULL) {
+		if(_try_enter_critical_section) {
 			SetLastError(0);
 			(*_try_enter_critical_section)(&cs); // @sobolev lpcs-->&cs
 			printf("Last Error [try enter] %ld\n", (long)GetLastError());
@@ -1216,7 +1216,7 @@ static int PThr4wTest_Reuse2()
 	// returned the same pthread_t value.
 	// 
 	for(i = 0; i < NUMTHREADS; i++) {
-		if(t[i].p != NULL) {
+		if(t[i].p) {
 			uint j;
 			uint this_max = t[i].x;
 			for(j = i+1; j < NUMTHREADS; j++) {
@@ -7123,7 +7123,7 @@ static int PThr4wTest_CondVar11()
 	srand((uint)time(NULL));
 	do {
 		i = (SIZEOFARRAY(cv) - 1) * rand() / RAND_MAX;
-		if(cv[i] != NULL) {
+		if(cv[i]) {
 			j--;
 			PTHR4W_TEST_ASSERT(pthread_cond_destroy(&cv[i]) == 0);
 			/* Traverse the list every time we remove a CV. */
@@ -7167,7 +7167,7 @@ static int PThr4wTest_CondVar12()
 		PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, pthread_timechange_handler_np, NULL) == 0);
 		do {
 			i = (SIZEOFARRAY(cv) - 1) * rand() / RAND_MAX;
-			if(cv[i] != NULL) {
+			if(cv[i]) {
 				j--;
 				PTHR4W_TEST_ASSERT(pthread_cond_destroy(&cv[i]) == 0);
 			}
@@ -9221,7 +9221,7 @@ public:
 	#else
 				GetProcAddress(__ptw32_h_kernel32, (LPCSTR)"TryEnterCriticalSection");
 	#endif
-			if(__ptw32_try_enter_critical_section != NULL) {
+			if(__ptw32_try_enter_critical_section) {
 				InitializeCriticalSection(&cs);
 				if((*__ptw32_try_enter_critical_section)(&cs)) {
 					LeaveCriticalSection(&cs);
@@ -9251,7 +9251,7 @@ public:
 				result = EINVAL;
 			}
 		}
-		if(result != 0 && mx != NULL) {
+		if(result != 0 && mx) {
 			ZFREE(mx);
 		}
 	FAIL0:
@@ -9363,7 +9363,7 @@ public:
 		else {
 			result = EINVAL;
 		}
-		if(__ptw32_try_enter_critical_section != NULL) {
+		if(__ptw32_try_enter_critical_section) {
 			FreeLibrary(__ptw32_h_kernel32);
 			__ptw32_h_kernel32 = 0;
 		}

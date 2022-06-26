@@ -15,10 +15,8 @@
 #include <sched.h>
 #include <sys/time.h>
 #endif
-#include "absl/base/internal/cycleclock.h"
 #include "absl/base/internal/hide_ptr.h"
 #include "absl/debugging/stacktrace.h"
-#include "absl/debugging/symbolize.h"
 #include "absl/synchronization/internal/graphcycles.h"
 
 using absl::base_internal::CurrentThreadIdentityIfPresent;

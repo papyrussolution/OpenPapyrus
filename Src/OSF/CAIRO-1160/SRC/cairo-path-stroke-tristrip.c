@@ -23,14 +23,9 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
  * Contributor(s):
  *	Carl D. Worth <cworth@cworth.org>
@@ -974,7 +969,6 @@ static cairo_status_t close_path(void * closure)
 	stroker->has_sub_path = FALSE;
 	stroker->has_first_face = FALSE;
 	stroker->has_current_face = FALSE;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

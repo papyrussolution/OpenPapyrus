@@ -8,8 +8,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/internal/cord_rep_btree_reader.h"
-#include "absl/strings/internal/cord_rep_btree_navigator.h"
 
 namespace absl {
 	ABSL_NAMESPACE_BEGIN

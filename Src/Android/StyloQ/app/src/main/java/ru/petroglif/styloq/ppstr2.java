@@ -2166,6 +2166,8 @@ class ppstr2 {
 	public static final int PPERR_STQ_MAPCLI2PSN_FAIL_USER = 12147;
 	public static final int PPERR_STQ_MAPCLI2PSN_FAIL_UNMATCHED = 12148;
 	public static final int PPERR_STQ_BUYERNEEDED = 12149;
+	public static final int PPERR_STQ_BEFOREPRCGOODSNEEDED = 12150;
+	public static final int PPERR_STQ_GOODSNOTBELONGTOPRC = 12151;
 	//
 	// .N.
 	//

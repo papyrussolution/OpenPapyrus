@@ -2486,8 +2486,8 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 		SBinaryChunk bch;
 		InetUrl url;
 		THROW_SL(f_in.IsValid());
-		while(f_in.ReadLine(temp_buf)) {
-			if(temp_buf.Chomp().Strip().Divide(' ', ident_buf, url_buf) > 0 && ident_buf.NotEmptyS() && url_buf.NotEmptyS()) {
+		while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			if(temp_buf.Divide(' ', ident_buf, url_buf) > 0 && ident_buf.NotEmptyS() && url_buf.NotEmptyS()) {
 				if(bch.FromMime64(ident_buf) && url.Parse(url_buf) && oneof2(url.GetProtocol(), InetUrl::protHttp, InetUrl::protHttps)) {
 					IgnitionServerEntry * p_new_entry = rList.CreateNewItem();
 					THROW_SL(p_new_entry);
@@ -6952,6 +6952,12 @@ int StyloQAttendancePrereqParam::InitInstance()
 			SetupLocationCombo(this, CTLSEL_STQATTCPARAM_LOC, Data.LocID, 0, LOCTYP_WAREHOUSE, 0); // @v11.3.12
 			SetupPPObjCombo(this, CTLSEL_STQATTCPARAM_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0); // @v11.3.12
 			SetDataRef(&Data.PrcList);
+			// @v11.4.3 {
+			AddClusterAssocDef(CTL_STQATTCPARAM_TSD, 0, 5);
+			AddClusterAssoc(CTL_STQATTCPARAM_TSD, 1, 10);
+			AddClusterAssoc(CTL_STQATTCPARAM_TSD, 2, 15);
+			SetClusterData(CTL_STQATTCPARAM_TSD, Data.TimeSheetDiscreteness);
+			// } @v11.4.3 
 			return ok;
 		}
 		DECL_DIALOG_GETDTS()
@@ -6961,6 +6967,7 @@ int StyloQAttendancePrereqParam::InitInstance()
 			Data.MaxScheduleDays = inrangeordefault(getCtrlLong(CTL_STQATTCPARAM_MAXSCHD), 1L, 365L, 7L); // @v11.3.10
 			Data.LocID = getCtrlLong(CTLSEL_STQATTCPARAM_LOC); // @v11.3.12
 			Data.QuotKindID = getCtrlLong(CTLSEL_STQATTCPARAM_QK); // @v11.3.12
+			Data.TimeSheetDiscreteness = GetClusterData(CTL_STQATTCPARAM_TSD); // @v11.4.3
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -7158,6 +7165,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	PPIDArray prc_id_list;
 	LAssocArray goods_to_prc_list;
 	long   max_schedule_days = 7;
+	long   time_sheet_discreteness = 15;
 	THROW(GetOwnPeerEntry(&own_pack) > 0);
 	THROW_PP(own_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &bc_own_ident), PPERR_SQ_UNDEFOWNSVCID);
 	StqInsertIntoJs_BaseCurrency(&js); // @v11.3.12
@@ -7168,6 +7176,13 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 			if(param.PrcTitle.NotEmpty())
 				p_js_param->InsertString("prctitle", (temp_buf = param.PrcTitle).Transf(CTRANSF_INNER_TO_UTF8).Escape());
 			p_js_param->InsertInt("MaxScheduleDays", max_schedule_days); // @v11.3.10
+			// @v11.4.3 {
+			if(oneof3(param.TimeSheetDiscreteness, 5, 10, 15))
+				time_sheet_discreteness = param.TimeSheetDiscreteness;
+			else 
+				time_sheet_discreteness = 5;
+			p_js_param->InsertInt("TimeSheetDiscreteness", time_sheet_discreteness); 
+			// } @v11.4.3 
 			js.Insert("param", p_js_param);
 		}
 	}

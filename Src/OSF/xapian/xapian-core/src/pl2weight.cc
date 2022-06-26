@@ -100,20 +100,9 @@ void PL2Weight::init(double factor_)
 	if(UNLIKELY(upper_bound <= 0)) upper_bound = 0;
 }
 
-string PL2Weight::name() const
-{
-	return "Xapian::PL2Weight";
-}
-
-string PL2Weight::short_name() const
-{
-	return "pl2";
-}
-
-string PL2Weight::serialise() const
-{
-	return serialise_double(param_c);
-}
+string PL2Weight::name() const { return "Xapian::PL2Weight"; }
+string PL2Weight::short_name() const { return "pl2"; }
+string PL2Weight::serialise() const { return serialise_double(param_c); }
 
 PL2Weight * PL2Weight::unserialise(const string & s) const
 {

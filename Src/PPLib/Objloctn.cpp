@@ -5593,14 +5593,14 @@ int TestAddressRecognition()
 		}
 		PPLocAddrStruc las(0, p_fr);
 		SString line_buf, out_buf, temp_buf;
-		while(in_file.ReadLine(line_buf)) {
+		while(in_file.ReadLine(line_buf, SFile::rlfChomp)) {
 			out_buf.Z().Cat(line_buf).Cat("-->");
 			/*
 			TSCollection <AddrTok> tok_list;
 			las.Recognize(line_buf.Chomp(), tok_list);
 			las.OutputTokList(tok_list, out_buf);
 			*/
-			las.Recognize(line_buf.Chomp());
+			las.Recognize(line_buf);
 			las.Output(temp_buf);
 			if(las.GetAmbiguityMatchEntry()) {
 				temp_buf.CR();

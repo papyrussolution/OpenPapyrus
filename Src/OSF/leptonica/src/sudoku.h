@@ -33,11 +33,11 @@
 
 struct L_Sudoku {
 	int32 num;    /*!< number of unknowns                     */
-	int32       * locs; /*!< location of unknowns                   */
+	int32 * locs; /*!< location of unknowns                   */
 	int32 current;    /*!< index into %locs of current location   */
-	int32       * init; /*!< initial state, with 0 representing     */
+	int32 * init; /*!< initial state, with 0 representing     */
 	/*!< the unknowns                           */
-	int32       * state; /*!< present state, including inits and     */
+	int32 * state; /*!< present state, including inits and     */
 	/*!< guesses of unknowns up to %current     */
 	int32 nguess;    /*!< shows current number of guesses        */
 	int32 finished;     /*!< set to 1 when solved                   */

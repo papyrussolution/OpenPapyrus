@@ -1189,9 +1189,11 @@ public:
 	~SrUedContainer();
 	int    ReadSource(const char * pFileName);
 	int    WriteSource(const char * pFileName);
-	int    Verify();
+	int    Verify(const char * pPath, long ver);
 	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
+	bool   GenerateSorceDecl_C();
+	bool   GenerateSorceDecl_Java();
 
 	struct BaseEntry {
 		uint64 Id;
@@ -1204,6 +1206,9 @@ public:
 	};
 	TSVector <BaseEntry> BL;
 	TSVector <TextEntry> TL;
+
+	static void MakeUedCanonicalName(SString & rResult, long ver);
+	static long SearchLastCanonicalFile(const char * pPath, SString & rFileName);
 private:
 	uint64 SearchBaseIdBySymbId(uint symbId, uint64 meta) const;
 	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT);

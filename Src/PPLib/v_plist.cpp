@@ -416,7 +416,7 @@ int SelectPriceListImportCfg(PPPriceListImpExpParam * pParam, int forExport)
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_PRICELIST, &param, &list, forExport ? 1 : 2));
 	if(list.SearchByText(param.Name, 1, &p) > 0)
 		id = (uint)list.Get(p).Id;
-	if(ListBoxSelDialog(&list, forExport ? PPTXT_PLISTEXPORTCFG : PPTXT_PLISTIMPORTCFG, &id, 0) > 0 && id > 0) {
+	if(ListBoxSelDialog::Run(&list, forExport ? PPTXT_PLISTEXPORTCFG : PPTXT_PLISTIMPORTCFG, &id) > 0 && id > 0) {
 		SString sect;
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		list.GetText(id, sect);

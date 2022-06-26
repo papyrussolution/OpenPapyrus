@@ -5080,7 +5080,7 @@ static int SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 				}
 			}
 		#endif
-		while(ok < 0 && ListBoxSelDialog(&list, PPTXT_TITLE_SCARDIMPCFG, &id, 0) > 0) {
+		while(ok < 0 && ListBoxSelDialog::Run(&list, PPTXT_TITLE_SCARDIMPCFG, &id) > 0) {
 			if(id) {
 				list.GetText(id, sect);
 				pParam->ProcessName(1, sect);

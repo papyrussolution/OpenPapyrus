@@ -1604,8 +1604,7 @@ int ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size_t dat
 				if(exit_code == 0) {
 					SFile f_result(out_file_name, SFile::mRead);
 					THROW_SL(f_result.IsValid());
-					while(f_result.ReadLine(temp_buf)) {
-						temp_buf.Chomp();
+					while(f_result.ReadLine(temp_buf, SFile::rlfChomp)) {
 						rResultBuf.Cat(temp_buf);
 					}
 					ok = 1;

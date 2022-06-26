@@ -51,7 +51,7 @@
  *            PIX        *kernelDisplayInPix()
  *
  *         Parse string to extract numbers
- *            NUMA       *parseStringForNumbers()
+ *            NUMA *parseStringForNumbers()
  *
  *      Simple parametric kernels
  *            L_KERNEL   *makeFlatKernel()
@@ -86,7 +86,7 @@ static const uint32 MaxArraySize = 100000;
 L_KERNEL * kernelCreate(int32 height,
     int32 width)
 {
-	l_uint64 size64;
+	uint64 size64;
 	L_KERNEL  * kel;
 
 	PROCNAME(__FUNCTION__);
@@ -97,7 +97,7 @@ L_KERNEL * kernelCreate(int32 height,
 		return (L_KERNEL*)ERROR_PTR("height must be > 0", procName, NULL);
 
 	/* Avoid overflow in malloc arg */
-	size64 = (l_uint64)width * (l_uint64)height;
+	size64 = (uint64)width * (uint64)height;
 	if(size64 >= (1LL << 29)) {
 		L_ERROR("requested width = %d, height = %d\n", procName, width, height);
 		return (L_KERNEL*)ERROR_PTR("size >= 2^29", procName, NULL);

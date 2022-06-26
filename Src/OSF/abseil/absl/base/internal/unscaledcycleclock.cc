@@ -3,21 +3,19 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/base/internal/unscaledcycleclock.h"
 
 #if ABSL_USE_UNSCALED_CYCLECLOCK
 
 #if defined(_WIN32)
-#include <intrin.h>
+	#include <intrin.h>
 #endif
-
 #if defined(__powerpc__) || defined(__ppc__)
-#ifdef __GLIBC__
-#include <sys/platform/ppc.h>
-#elif defined(__FreeBSD__)
-#include <sys/sysctl.h>
-#include <sys/types.h>
-#endif
+	#ifdef __GLIBC__
+		#include <sys/platform/ppc.h>
+	#elif defined(__FreeBSD__)
+		#include <sys/sysctl.h>
+		#include <sys/types.h>
+	#endif
 #endif
 
 namespace absl {

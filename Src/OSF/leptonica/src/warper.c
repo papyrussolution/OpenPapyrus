@@ -53,19 +53,15 @@
 #pragma hdrstop
 
 static double * generateRandomNumberArray(int32 size);
-static int32 applyWarpTransform(float xmag, float ymag,
-    float xfreq, float yfreq,
-    double * randa, int32 nx, int32 ny,
-    int32 xp, int32 yp,
-    float * px, float * py);
+static int32 applyWarpTransform(float xmag, float ymag, float xfreq, float yfreq, double * randa, int32 nx, int32 ny, int32 xp, int32 yp, float * px, float * py);
 
 #define  USE_SIN_TABLE    0
 
 /* Suggested input to pixStereoFromPair().  These are weighting
  * factors for input to the red channel from the left image. */
-static const float DefaultRedWeight   = 0.0;
-static const float DefaultGreenWeight = 0.7;
-static const float DefaultBlueWeight  = 0.3;
+static const float DefaultRedWeight   = 0.0f;
+static const float DefaultGreenWeight = 0.7f;
+static const float DefaultBlueWeight  = 0.3f;
 
 /*----------------------------------------------------------------------*
 *                High-level example captcha interface                  *
@@ -317,7 +313,7 @@ PIX * pixRandomHarmonicWarpLUT(PIX * pixs,
 	float x, y;
 	float * lut;
 	double  * randa;
-	NUMA       * na;
+	NUMA * na;
 	PIX        * pixd;
 
 	PROCNAME(__FUNCTION__);
@@ -404,7 +400,7 @@ static int32 applyWarpTransformLUT(float xmag,
 	return 0;
 }
 
-static int32 makeSinLUT(int32 npts, NUMA   ** pna)
+static int32 makeSinLUT(int32 npts, NUMA ** pna)
 {
 	int32 i, n;
 	float delx, fval;

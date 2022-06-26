@@ -199,11 +199,10 @@ static void add_pax_attr_time(archive_string * as, const char * key, int64 sec, 
 		digit = nanos % 10;
 		nanos /= 10;
 	}
-
-	/* Only format the fraction if it's non-zero. */
+	// Only format the fraction if it's non-zero
 	if(i > 0) {
 		while(i > 0) {
-			*--t = "0123456789"[digit];
+			*--t = STextConst::P_Digits[digit];
 			digit = nanos % 10;
 			nanos /= 10;
 			i--;
@@ -211,21 +210,18 @@ static void add_pax_attr_time(archive_string * as, const char * key, int64 sec, 
 		*--t = '.';
 	}
 	t = format_int(t, sec);
-
 	add_pax_attr(as, key, t);
 }
 
 static char * format_int(char * t, int64 i)
 {
 	uint64 ui;
-
 	if(i < 0)
 		ui = (i == INT64_MIN) ? (uint64)(INT64_MAX)+1 : (uint64)(-i);
 	else
 		ui = i;
-
 	do {
-		*--t = "0123456789"[ui % 10];
+		*--t = STextConst::P_Digits[ui % 10];
 	} while(ui /= 10);
 	if(i < 0)
 		*--t = '-';
@@ -235,7 +231,6 @@ static char * format_int(char * t, int64 i)
 static void add_pax_attr_int(archive_string * as, const char * key, int64 value)
 {
 	char tmp[1 + 3 * sizeof(value)];
-
 	tmp[sizeof(tmp) - 1] = 0;
 	add_pax_attr(as, key, format_int(tmp + sizeof(tmp) - 1, value));
 }

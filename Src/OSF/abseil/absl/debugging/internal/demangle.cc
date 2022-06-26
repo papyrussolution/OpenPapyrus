@@ -301,9 +301,10 @@ static bool ParseCharClass(State * state, const char * char_class) {
 	return false;
 }
 
-static bool ParseDigit(State * state, int * digit) {
+static bool ParseDigit(State * state, int * digit) 
+{
 	char c = RemainingInput(state)[0];
-	if(ParseCharClass(state, "0123456789")) {
+	if(ParseCharClass(state, STextConst::P_Digits)) {
 		if(digit != nullptr) {
 			*digit = c - '0';
 		}
@@ -313,9 +314,7 @@ static bool ParseDigit(State * state, int * digit) {
 }
 
 // This function is used for handling an optional non-terminal.
-static bool Optional(bool /*status*/) {
-	return true;
-}
+static bool Optional(bool /*status*/) { return true; }
 
 // This function is used for handling <non-terminal>+ syntax.
 typedef bool (* ParseFunc)(State *);

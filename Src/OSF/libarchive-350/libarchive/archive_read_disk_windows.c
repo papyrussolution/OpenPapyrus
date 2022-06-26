@@ -809,7 +809,7 @@ static int next_entry(struct archive_read_disk * a, struct tree * t, ArchiveEntr
 		    a->follow_symlinks = 1;
 		    /* 'L': Archive symlinks as targets, if we can. */
 		    st = tree_current_stat(t);
-		    if(st != NULL && !tree_target_is_same_as_parent(t, st))
+		    if(st && !tree_target_is_same_as_parent(t, st))
 			    break;
 		/* If stat fails, we have a broken symlink;
 		 * in that case, don't follow the link. */
@@ -1163,7 +1163,7 @@ static int update_current_filesystem(struct archive_read_disk * a, int64 dev)
 {
 	struct tree * t = a->tree;
 	int i, fid;
-	if(t->current_filesystem != NULL && t->current_filesystem->dev == dev)
+	if(t->current_filesystem && t->current_filesystem->dev == dev)
 		return ARCHIVE_OK;
 	for(i = 0; i < t->max_filesystem_id; i++) {
 		if(t->filesystem_table[i].dev == dev) {
@@ -1225,7 +1225,7 @@ static wchar_t * safe_path_for_statfs(struct tree * t)
 	if(tree_current_stat(t) == NULL) {
 		p = _wcsdup(path);
 		cp = wcsrchr(p, '/');
-		if(cp != NULL && wcslen(cp) >= 2) {
+		if(cp && wcslen(cp) >= 2) {
 			cp[1] = '.';
 			cp[2] = '\0';
 			path = p;
@@ -1318,7 +1318,7 @@ static void tree_push(struct tree * t, const wchar_t * path, const wchar_t * ful
 	te->dirname_length = t->dirname_length;
 	te->full_path_dir_length = t->full_path_dir_length;
 	te->restore_time.full_path = te->full_path.s;
-	if(rt != NULL) {
+	if(rt) {
 		te->restore_time.lastWriteTime = rt->lastWriteTime;
 		te->restore_time.lastAccessTime = rt->lastAccessTime;
 		te->restore_time.filetype = rt->filetype;
@@ -1447,8 +1447,7 @@ static struct tree * tree_reopen(struct tree * t, const wchar_t * path, int rest
 				t->direct_io = 0;
 			else
 				t->direct_io = 1;
-			slfprintf_stderr("LIBARCHIVE_DIRECT_IO=%s\n",
-			    (t->direct_io) ? "Enabled" : "Disabled");
+			slfprintf_stderr("LIBARCHIVE_DIRECT_IO=%s\n", (t->direct_io) ? "Enabled" : "Disabled");
 		}
 		else
 			t->direct_io = DIRECT_IO;
@@ -1457,8 +1456,7 @@ static struct tree * tree_reopen(struct tree * t, const wchar_t * path, int rest
 				t->async_io = 0;
 			else
 				t->async_io = 1;
-			slfprintf_stderr("LIBARCHIVE_ASYNC_IO=%s\n",
-			    (t->async_io) ? "Enabled" : "Disabled");
+			slfprintf_stderr("LIBARCHIVE_ASYNC_IO=%s\n", (t->async_io) ? "Enabled" : "Disabled");
 		}
 		else
 			t->async_io = ASYNC_IO;
@@ -1502,7 +1500,7 @@ static void tree_pop(struct tree * t)
 	t->full_path.length = t->full_path_dir_length;
 	t->path.s[t->dirname_length] = L'\0';
 	t->path.length = t->dirname_length;
-	if(t->stack == t->current && t->current != NULL)
+	if(t->stack == t->current && t->current)
 		t->current = t->current->parent;
 	te = t->stack;
 	t->stack = te->next;
@@ -1522,8 +1520,7 @@ static void tree_pop(struct tree * t)
 static int tree_next(struct tree * t)
 {
 	int r;
-
-	while(t->stack != NULL) {
+	while(t->stack) {
 		/* If there's an open dir, get the next entry from there. */
 		if(t->d != INVALID_HANDLE_VALUE) {
 			r = tree_dir_next_windows(t, NULL);
@@ -1605,7 +1602,7 @@ static int tree_dir_next_windows(struct tree * t, const wchar_t * pattern)
 	size_t namelen;
 	int r;
 	for(;;) {
-		if(pattern != NULL) {
+		if(pattern) {
 			archive_wstring pt;
 			archive_string_init(&pt);
 			archive_wstring_ensure(&pt, archive_strlen(&(t->full_path)) + 2 + wcslen(pattern));
@@ -1692,7 +1689,7 @@ static void entry_copy_bhfi(ArchiveEntry * entry, const wchar_t * path,
 	mode = S_IRUSR | S_IRGRP | S_IROTH;
 	if((bhfi->dwFileAttributes & FILE_ATTRIBUTE_READONLY) == 0)
 		mode |= S_IWUSR | S_IWGRP | S_IWOTH;
-	if((bhfi->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && findData != NULL && findData->dwReserved0 == IO_REPARSE_TAG_SYMLINK) {
+	if((bhfi->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && findData && findData->dwReserved0 == IO_REPARSE_TAG_SYMLINK) {
 		mode |= S_IFLNK;
 		entry_symlink_from_pathw(entry, path);
 	}
@@ -1801,7 +1798,7 @@ static int tree_target_is_same_as_parent(struct tree * t, const BY_HANDLE_FILE_I
 {
 	int64 dev = bhfi_dev(st);
 	int64 ino = bhfi_ino(st);
-	for(struct tree_entry * te = t->current->parent; te != NULL; te = te->parent) {
+	for(struct tree_entry * te = t->current->parent; te; te = te->parent) {
 		if(te->dev == dev && te->ino == ino)
 			return 1;
 	}
@@ -1833,7 +1830,7 @@ static void tree_close(struct tree * t)
 			t->findData = NULL;
 		}
 		/* Release anything remaining in the stack. */
-		while(t->stack != NULL)
+		while(t->stack)
 			tree_pop(t);
 	}
 }
